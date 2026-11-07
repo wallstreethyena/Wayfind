@@ -80,6 +80,12 @@ const credMod = await loadComponent(path.join(REPO, "app/components/EventHeroPho
   ok(/Photos: .*Studio X.*shared with Wayfind for this listing\./.test(registry) && /rel="nofollow noopener"/.test(registry), "the consent-gated registry credit is unchanged for owned photos");
   const notVenue = render(createElement(EventHeroPhotoProvider, { src: "/events/a.jpg" }, credit({ isVenue: false })));
   eq(notVenue, "", "an event (not venue) photo with no registry credit prints no venue note");
+  // Owner 2026-11-06: a licensed photo OF the event (lib/licensedEventCovers.js,
+  // kind "event") must still show its credit, which also names the past edition.
+  const eventLicensed = render(createElement(EventHeroPhotoProvider, { src: "/events/a.jpg" }, credit({ isVenue: false, attr: "2014 Homecoming show · U.S. Navy photo · Public domain", attrHref: "https://commons.wikimedia.org/wiki/File:X.jpg" })));
+  ok(/Photo: .*2014 Homecoming show · U\.S\. Navy photo · Public domain.*\./.test(eventLicensed) && /href="https:\/\/commons\.wikimedia\.org\/wiki\/File:X\.jpg"/.test(eventLicensed) && !/Venue photo/.test(eventLicensed), "a licensed event photo shows its credit (with the edition it shows) and no venue note");
+  const eventLicensedPending = render(createElement(EventHeroPhotoProvider, { src: GOOGLE_SRC }, credit({ isVenue: false, attr: "Navy" })));
+  eq(eventLicensedPending, "", "a licensed event photo credit still waits until a photo is visible");
 }
 {
   const { eventJsonLd } = await import("../lib/curatedEvents.js");
@@ -88,6 +94,17 @@ const credMod = await loadComponent(path.join(REPO, "app/components/EventHeroPho
   ok(!JSON.stringify(ld).includes("/api/photo"), "structured data never carries an /api/photo url as an event image (route answers 404 without a credit surface; robots disallows it)");
   const owned = eventJsonLd({ ...e, hero_image: "/events/x.jpg" }, { siteUrl: "https://www.gowayfind.com" });
   ok(Array.isArray(owned.image) && owned.image[0] === "https://www.gowayfind.com/events/x.jpg", "control: an owned hero is still emitted, absolute");
+}
+
+// The production stylesheet and shell are part of the fixture contract, not
+// a synthetic photo box. Chromium below verifies their achieved geometry.
+{
+  const Shell = (await loadComponent(path.join(REPO,"app/components/EventDetailShell.js"),REPO)).default;
+  const Styles = (await loadComponent(path.join(REPO,"app/components/EventExperienceStyles.js"),REPO)).default;
+  const h = createElement;
+  const markup = render(h("main",{className:"wf-event-experience"},h(Styles),h(credMod.EventHeroPhotoProvider,{src:"/events/trending/blue-angels-homecoming-nas-pensacola.webp"},h(Shell,{title:"Fixture",facts:[],media:h("div",{className:"wf-event-photo"},h(EventPlacePhoto,{src:"/events/trending/blue-angels-homecoming-nas-pensacola.webp",name:"Actual licensed fixture"})),credit:h(credMod.EventHeroCredit,{isVenue:false,attr:"2014 Homecoming show · U.S. Navy photo by MC2 Andrea Perez · Public domain"})}))));
+  ok(markup.includes(".wf-event-media [data-event-hero-credit]"),"production shell fixture includes the actual event experience stylesheet");
+  ok(markup.indexOf('class="wf-event-photo-rail"')<markup.indexOf('<p data-event-hero-credit=')&&markup.includes("MC2 Andrea Perez"),"production shell server render includes full licensed attribution after the photo rail");
 }
 
 // ═══ Part C — static scan: no raw <img>/background built from an /api/photo string ═══
@@ -223,6 +240,7 @@ catch (e) {
 const compile = (file) => ts.transpileModule(readFileSync(path.join(REPO, file), "utf8"), { compilerOptions: { jsx: ts.JsxEmit.React, module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 } }).outputText;
 const MODULES = {
   imageHostPolicy: "lib/imageHostPolicy.js", placePhoto: "lib/placePhoto.js", photoAnswers: "lib/photoAnswers.js", cardPhotoRequest: "lib/cardPhotoRequest.js", livePhoto: "lib/livePhoto.js",
+  EventDetailShell: "app/components/EventDetailShell.js", EventExperienceStyles: "app/components/EventExperienceStyles.js",
   PhotoCreditLink: "app/components/PhotoCreditLink.js", PhotoFallbackTile: "app/components/PhotoFallbackTile.js",
   EventHeroPhotoContext: "app/components/EventHeroPhotoContext.js", EventPlacePhoto: "app/components/EventPlacePhoto.js", CardPhoto: "app/components/CardPhoto.js", cardPhotoRecovery: "app/components/cardPhotoRecovery.js",
 };
@@ -247,6 +265,9 @@ const bundle = "window.__src={" + Object.entries(MODULES).map(([k, f]) => JSON.s
   + `window.__linkClicks=[];window.__mountInLink=function(src,inLink){var c=document.createElement('div');c.id='c'+(++window.__seq);var root=document.getElementById('root');root.insertBefore(c,root.firstChild);window.scrollTo(0,0);var h=React.createElement,CP=__req('CardPhoto').default;
       ReactDOM.createRoot(c).render(h('a',{href:'/api/commerce/go?x=1',rel:'sponsored nofollow noopener','data-deal':c.id,onClick:function(e){e.preventDefault();window.__linkClicks.push(c.id);},style:{display:'block',position:'relative',width:300,height:200,overflow:'hidden'}},
         h(CP,{src:src,alt:'Deal venue',inLink:inLink,style:{position:'absolute',inset:0,width:'100%',height:'100%',objectFit:'cover'}})));return c.id;};`
+  + `window.__mountRealShell=function(src,attr){var h=React.createElement,C=__req('EventHeroPhotoContext'),P=__req('EventPlacePhoto').default,Shell=__req('EventDetailShell').default,Styles=__req('EventExperienceStyles').default;
+      var c=document.createElement('main');c.id='c'+(++window.__seq);c.className='wf-event-experience';document.getElementById('root').prepend(c);
+      ReactDOM.createRoot(c).render(h(React.Fragment,null,h(Styles),h('div',{className:'wf-event-wrap'},h(C.EventHeroPhotoProvider,{src:src},h(Shell,{title:'Photo attribution fixture',facts:[],media:h('div',{className:'wf-event-photo'},h(P,{src:src,name:'Actual licensed fixture',hero:true,priority:true})),credit:h(C.EventHeroCredit,{eventName:'Fixture',isVenue:false,attr:attr,attrHref:'https://commons.wikimedia.org/wiki/File:Blue_Angels_Homecoming_Air_Show_141108-N-WJ386-488.jpg',style:{fontSize:12.5,color:'#8B949E',margin:'0 0 22px'},linkStyle:{color:'#FF8A3D',textDecoration:'none',fontWeight:700}})})))));return c.id;};`
   + `window.__hydrate=function(id){var c=document.getElementById(id);ReactDOM.hydrateRoot(c,__tree(c.dataset.src,'Hydrated'));};`;
 const SVG = '<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800"><rect width="1200" height="800" fill="#446655"/></svg>';
 const reactServer = path.join(REPO, "node_modules/react-dom/umd/react-dom-server-legacy.browser.development.js");
@@ -275,6 +296,7 @@ try {
       if (m === "503") return route.fulfill({ status: 503, body: "busy" });
       return route.fulfill({ status: 404, body: "unknown" });
     }
+    if (u.pathname === "/owned/credit-real.webp") return route.fulfill({ contentType: "image/webp", body: readFileSync(path.join(REPO, "public/events/trending/blue-angels-homecoming-nas-pensacola.webp")) });
     if (u.pathname.startsWith("/owned/")) return route.fulfill({ contentType: "image/svg+xml", body: SVG });
     if (u.hostname === "photo.test") return route.fulfill({ contentType: "image/svg+xml", body: SVG });
     if (u.pathname.startsWith("/broken")) return route.fulfill({ status: 404, body: "gone" });
@@ -408,7 +430,47 @@ try {
     ok(s.clicks === 0 && s.dialog === 1 && s.nested >= 1, `control: without inLink the viewer swallows the deal click and a credit <a> nests in the link (${JSON.stringify(s)})`);
     await page.keyboard.press("Escape");
   }
+  // 7. Production shell AND stylesheet: the old fixture omitted both and
+  // could not see the absolute, 9.5px ellipsized credit shipped on phones.
+  const fullAttr = "2014 Homecoming show · U.S. Navy photo by MC2 Andrea Perez · Public domain";
+  const attributionLayout = async (id) => page.evaluate(async (i) => {
+    const c = document.getElementById(i), credit = c.querySelector('[data-event-hero-credit]');
+    const rail = c.querySelector('.wf-event-photo-rail'), image = rail.querySelector('img');
+    await image.decode();
+    const s = getComputedStyle(credit), cr = credit.getBoundingClientRect(), rr = rail.getBoundingClientRect();
+    const rgb = value => (value.match(/[\d.]+/g) || []).slice(0,3).map(Number);
+    const lum = value => rgb(value).map(n => {n/=255;return n<=.04045?n/12.92:((n+.055)/1.055)**2.4;}).reduce((a,n,k)=>a+n*[.2126,.7152,.0722][k],0);
+    const bg = getComputedStyle(c.querySelector('.wf-event-hero')).backgroundColor;
+    const contrast = color => (Math.max(lum(color),lum(bg))+.05)/(Math.min(lum(color),lum(bg))+.05);
+    const rects = [], walker = document.createTreeWalker(credit,NodeFilter.SHOW_TEXT);
+    while(walker.nextNode()) {const text=walker.currentNode;if(text.parentElement.closest('span[style*="clip"]'))continue;const r=document.createRange();r.selectNodeContents(text);rects.push(...r.getClientRects());}
+    return {width:innerWidth,loaded:image.complete&&image.naturalWidth>0,position:s.position,fontSize:parseFloat(s.fontSize),lineHeight:parseFloat(s.lineHeight),
+      whiteSpace:s.whiteSpace,overflow:s.overflow,textOverflow:s.textOverflow,text:credit.textContent,
+      below:cr.top>=rr.bottom-1,contained:rects.length>0&&rects.every(r=>r.left>=cr.left-1&&r.right<=cr.right+1&&r.top>=cr.top-1&&r.bottom<=cr.bottom+1),
+      fits:credit.scrollWidth<=credit.clientWidth+1&&credit.scrollHeight<=credit.clientHeight+1,
+      contrast:Math.min(contrast(s.color),...[...credit.querySelectorAll('a')].map(a=>contrast(getComputedStyle(a).color))),
+      pageFits:document.documentElement.scrollWidth<=innerWidth+1};
+  },id);
+  const readable = s => s.position==='static'&&s.below&&s.fontSize>=13&&s.lineHeight>=s.fontSize*1.4&&s.whiteSpace==='normal'&&s.overflow==='visible'&&s.textOverflow!=='ellipsis'&&s.contained&&s.fits&&s.contrast>=4.5&&s.pageFits;
+  for(const width of [390,454,1280]) {
+    await page.setViewportSize({width,height:900});
+    const id = await page.evaluate(attr=>window.__mountRealShell('/owned/credit-real.webp',attr),fullAttr);
+    await until(id,s=>s.loaded===true&&s.credit);
+    const layout=await attributionLayout(id);
+    ok(layout.width===width&&layout.loaded,`real WebP decoded in achieved ${width}px viewport`);
+    ok(layout.text.includes(fullAttr),`${width}px retains the complete source, edition and photographer credit`);
+    ok(layout.position==='static'&&layout.below,`${width}px attribution is in normal flow below the complete rail`);
+    ok(layout.contained&&layout.fits&&layout.pageFits,`${width}px full attribution fits without clipping or horizontal page overflow (${JSON.stringify(layout)})`);
+    ok(readable(layout),`${width}px attribution and source link have readable type and >=4.5 contrast (${JSON.stringify(layout)})`);
+    // Inject the actual historical failure. The SAME geometry/readability
+    // predicate must reject it, then pass again after removing the mutation.
+    await page.evaluate(i=>{const style=document.createElement('style');style.id='credit-css-mutant';style.textContent='#'+i+' .wf-event-media [data-event-hero-credit]{position:absolute!important;bottom:6px;left:6px;right:8px;font-size:9.5px!important;line-height:12px!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;color:rgba(255,255,255,.6)!important}';document.head.appendChild(style);},id);
+    ok(!readable(await attributionLayout(id)),`${width}px historical overlaid/ellipsized CSS fails the live contract`);
+    await page.evaluate(()=>document.getElementById('credit-css-mutant').remove());
+    ok(readable(await attributionLayout(id)),`${width}px restored production CSS passes again`);
+    await page.evaluate(i=>document.getElementById(i).remove(),id);
+  }
   ok(pageErrors.length === 0, `no uncaught page errors (${pageErrors.join(" | ")})`);
   await page.close();
 } finally { await browser.close(); }
-console.log(`test-event-hero-credited-photo: OK — ${n} assertions (Part A server render of EventPlacePhoto/EventHeroCredit + JSON-LD, Part B Chromium 390px: google answer / miss / pending / 503 retry / failed-before-hydration, Part C AST scan of app/ with positive+negative controls)`);
+console.log(`test-event-hero-credited-photo: OK — ${n} assertions (Part A server render of EventPlacePhoto/EventHeroCredit + JSON-LD, Part B Chromium 390/454/1280px real shell attribution + CSS mutation; google answer / miss / pending / 503 retry / failed-before-hydration, Part C AST scan of app/ with positive+negative controls)`);

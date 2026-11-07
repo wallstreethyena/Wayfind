@@ -135,8 +135,10 @@ const nextConfig = {
     // data/christmas-2026-research.json with fs at runtime, which the tracer
     // cannot see; every route that reaches that module lists it here
     // (scripts/check-christmas-research.mjs locks the list).
+    "/api/events": ["./data/christmas-2026-research.json"],
     "/api/events/christmas": ["./data/christmas-2026-research.json"],
     "/api/christmas/browse": ["./data/christmas-2026-research.json"],
+    "/api/cron/affiliate-coverage": ["./data/christmas-2026-research.json"],
     "/christmas-in-florida": ["./data/christmas-2026-research.json"],
     "/florida-events/[slug]": ["./data/christmas-2026-research.json"],
     "/sitemap.xml": ["./data/christmas-2026-research.json"],
@@ -265,6 +267,9 @@ const nextConfig = {
       { source: "/go-out", destination: "/nightlife", permanent: true },
       { source: "/shows", destination: "/florida-events", permanent: true },
       { source: "/concerts", destination: "/florida-events", permanent: true },
+      // 2026-11-04 audit: /christmas 404s; the hub is /christmas-in-florida.
+      // Temporary (307): a seasonal hub URL may become its own page later.
+      { source: "/christmas", destination: "/christmas-in-florida", permanent: false },
       { source: "/tours", destination: "/things-to-do", permanent: true },
       { source: "/stay", destination: "/things-to-do", permanent: true },
       { source: "/shop", destination: "/things-to-do", permanent: true },

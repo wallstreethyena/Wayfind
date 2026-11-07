@@ -52,14 +52,16 @@ function DealCard({ d, onCardClick }) {
         target={d.external ? "_blank" : undefined}
         onClick={() => onCardClick(d)}
       >
-        <LicensedPhoto className="wf-gd-img" src={cardImage(d)} alt={dealIllustration(d)?.alt || "Offer illustration"} width={96} height={96} sizes="96px" />
+        <span className="wf-gd-photo">
+          <LicensedPhoto className="wf-gd-img" src={cardImage(d)} alt={dealIllustration(d)?.alt || "Offer illustration"} width={96} height={96} sizes="96px" />
+          {dealIllustration(d) ? <small className="wf-gd-credit">Illustrative photo · {dealIllustration(d).credit}</small> : null}
+        </span>
         <div className="wf-gd-body">
           <div className="wf-gd-top">
             <span className="wf-gd-title">{d.title}</span>
             {d.badge ? <span className="wf-gd-badge">{d.badge}</span> : null}
           </div>
           <div className="wf-gd-merchant">{d.business}</div>
-          {dealIllustration(d) ? <small style={{ color: "#A9B7C6", display: "block", fontSize: 10 }}>Illustrative photo · {dealIllustration(d).credit}</small> : null}
           <p className="wf-gd-details">{d.details}</p>
           <div className="wf-gd-foot">
             <span className="wf-gd-loc">{d.area}</span>
