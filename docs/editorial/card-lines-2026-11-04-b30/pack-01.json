@@ -1,0 +1,2119 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 30. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJ8yE6OiXE5YgRXrNtR8_lyic",
+   "name": "Freddy's Frozen Custard & Steakburgers",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "hamburger_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.freddys.com/about",
+     "source_name": "Freddy's Frozen Custard & Steakburgers \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Freddy's Frozen Custard & Steakburgers was co-founded in 2002 by brothers Bill and Randy Simon with their friend and business partner, Scott Redler.",
+      "Every steakburger is cooked-to-order with your choice of toppings.",
+      "Freddy's steakburgers are cooked-to-order patties made with lean 100% ground beef.",
+      "Freddy's is known for all-beef hot dogs and crispy shoestring fries.",
+      "Freddy's frozen custard treats are made with freshly churned chocolate or vanilla frozen custard."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Cooked-to-order steakburgers made with lean 100% ground beef",
+    "why_here": "Try cooked-to-order steakburgers made with lean 100% ground beef, all-beef hot dogs, crispy shoestring fries, and frozen custard treats made with freshly churned chocolate or vanilla frozen custard.",
+    "know_before": "Freddy's Frozen Custard & Steakburgers was co-founded in 2002.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.freddys.com/about"
+     ],
+     "why_here": [
+      "https://www.freddys.com/about"
+     ],
+     "know_before": [
+      "https://www.freddys.com/about"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Freddy's Frozen Custard & Steakburgers was co-founded in 2002 by brothers Bill and Randy Simon with their friend and business partner, Scott Redler.",
+      "source": "https://www.freddys.com/about"
+     },
+     {
+      "claim": "Every steakburger is cooked-to-order with your choice of toppings.",
+      "source": "https://www.freddys.com/about"
+     },
+     {
+      "claim": "Freddy's steakburgers are cooked-to-order patties made with lean 100% ground beef.",
+      "source": "https://www.freddys.com/about"
+     },
+     {
+      "claim": "Freddy's is known for all-beef hot dogs and crispy shoestring fries.",
+      "source": "https://www.freddys.com/about"
+     },
+     {
+      "claim": "Freddy's frozen custard treats are made with freshly churned chocolate or vanilla frozen custard.",
+      "source": "https://www.freddys.com/about"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJw1tW-aJk54gRM7pNL6vFOj4",
+   "name": "Barber Park",
+   "category": "attractions",
+   "metro": "orlando",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.orangecountyfl.net/CultureParks/Parks.aspx?m=dtlvw&d=2",
+     "source_name": "Barber Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Barber Park is at 3701 Gatlin AV Orlando, FL 32812.",
+      "Barber Park covers 81 acres.",
+      "Barber Park hours are 8 a.m. - 8 p.m. in Summer and 8 a.m. - 6 p.m. in Winter, Sunday - Saturday.",
+      "Barber Park has a Splash Pad.",
+      "Pickleball open play is offered on Mondays and Fridays 9 a.m. to 12 p.m., for ages 18 and older, and cost is free.",
+      "Nature and people merge at Barber Park."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "81-acre park with a Splash Pad and Pickleball",
+    "why_here": "Go for the 81-acre grounds at Barber Park in Orlando, try Pickleball during open play, or use the Splash Pad, where nature and people merge at Barber Park.",
+    "know_before": "Pickleball open play is on Mondays and Fridays 9 a.m. to 12 p.m. for ages 18 and older.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.orangecountyfl.net/CultureParks/Parks.aspx?m=dtlvw&d=2"
+     ],
+     "why_here": [
+      "https://www.orangecountyfl.net/CultureParks/Parks.aspx?m=dtlvw&d=2"
+     ],
+     "know_before": [
+      "https://www.orangecountyfl.net/CultureParks/Parks.aspx?m=dtlvw&d=2"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Barber Park is at 3701 Gatlin AV Orlando, FL 32812.",
+      "source": "https://www.orangecountyfl.net/CultureParks/Parks.aspx?m=dtlvw&d=2"
+     },
+     {
+      "claim": "Barber Park covers 81 acres.",
+      "source": "https://www.orangecountyfl.net/CultureParks/Parks.aspx?m=dtlvw&d=2"
+     },
+     {
+      "claim": "Barber Park hours are 8 a.m. - 8 p.m. in Summer and 8 a.m. - 6 p.m. in Winter, Sunday - Saturday.",
+      "source": "https://www.orangecountyfl.net/CultureParks/Parks.aspx?m=dtlvw&d=2"
+     },
+     {
+      "claim": "Barber Park has a Splash Pad.",
+      "source": "https://www.orangecountyfl.net/CultureParks/Parks.aspx?m=dtlvw&d=2"
+     },
+     {
+      "claim": "Pickleball open play is offered on Mondays and Fridays 9 a.m. to 12 p.m., for ages 18 and older, and cost is free.",
+      "source": "https://www.orangecountyfl.net/CultureParks/Parks.aspx?m=dtlvw&d=2"
+     },
+     {
+      "claim": "Nature and people merge at Barber Park.",
+      "source": "https://www.orangecountyfl.net/CultureParks/Parks.aspx?m=dtlvw&d=2"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJFzFYDhG05YgRrrpn3jQW0A4",
+   "name": "Spices Caribbean Restaurant",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://spicesjax.com/",
+     "source_name": "Spices Caribbean Restaurant \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Spices Caribbean Restaurant is at 1319 Rogero Road, Jacksonville, FL 32211.",
+      "Spices Caribbean Restaurant is located in the Arlington area of Jacksonville.",
+      "Spices hours are Mon-Sun 10 a.m. - 10:00 p.m."
+     ]
+    },
+    {
+     "source": "https://spicesjax.com/food-menu",
+     "source_name": "Spices Caribbean Restaurant \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Ackee and Saltfish is Jamaica's official national dish.",
+      "Curry Goat is a mainstay throughout the islands and Ox Tail is cooked low and slow.",
+      "Meals are served with choice of Rice and Beans, White Rice, or Yellow Rice."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Ackee and Saltfish, Curry Goat, and Ox Tail on one menu",
+    "why_here": "In the Arlington area of Jacksonville, try Ackee and Saltfish, Curry Goat, or Ox Tail cooked low and slow, served with Rice and Beans, White Rice, or Yellow Rice.",
+    "know_before": "Open Mon-Sun 10 a.m. - 10:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://spicesjax.com/",
+      "https://spicesjax.com/food-menu"
+     ],
+     "why_here": [
+      "https://spicesjax.com/",
+      "https://spicesjax.com/food-menu"
+     ],
+     "know_before": [
+      "https://spicesjax.com/",
+      "https://spicesjax.com/food-menu"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Spices Caribbean Restaurant is at 1319 Rogero Road, Jacksonville, FL 32211.",
+      "source": "https://spicesjax.com/"
+     },
+     {
+      "claim": "Spices Caribbean Restaurant is located in the Arlington area of Jacksonville.",
+      "source": "https://spicesjax.com/"
+     },
+     {
+      "claim": "Spices hours are Mon-Sun 10 a.m. - 10:00 p.m.",
+      "source": "https://spicesjax.com/"
+     },
+     {
+      "claim": "Ackee and Saltfish is Jamaica's official national dish.",
+      "source": "https://spicesjax.com/food-menu"
+     },
+     {
+      "claim": "Curry Goat is a mainstay throughout the islands and Ox Tail is cooked low and slow.",
+      "source": "https://spicesjax.com/food-menu"
+     },
+     {
+      "claim": "Meals are served with choice of Rice and Beans, White Rice, or Yellow Rice.",
+      "source": "https://spicesjax.com/food-menu"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJoUa-NK3U54gROYZjTMDwdLw",
+   "name": "Brick City Southern Kitchen",
+   "category": "food",
+   "metro": "ocala-fl",
+   "primary_type": "catering_service",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://mojobbq.com/wp-content/uploads/2026/06/BrickCityMenu-0526.pdf",
+     "source_name": "Brick City Southern Kitchen \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Brick City Southern Kitchen is at 10 S Magnolia Avenue, Ocala, FL 34471.",
+      "Kansas City Burnt Ends are crusty outer edges of beef brisket.",
+      "BBQ is served with two homemade sides and jalape\u00f1o cornbread.",
+      "Pulled Pork Shoulder, Beef Brisket, and St. Louis Spareribs are BBQ options.",
+      "Shrimp & Grits is served over garlic cheddar grits.",
+      "Homemade Banana Pudding is a dessert."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Kansas City Burnt Ends, Beef Brisket, and Shrimp & Grits",
+    "why_here": "In Ocala, order BBQ served with two homemade sides and jalape\u00f1o cornbread, try Kansas City Burnt Ends or Shrimp & Grits, and finish with Homemade Banana Pudding.",
+    "know_before": "Find it at 10 S Magnolia Avenue, Ocala, FL 34471.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://mojobbq.com/wp-content/uploads/2026/06/BrickCityMenu-0526.pdf"
+     ],
+     "why_here": [
+      "https://mojobbq.com/wp-content/uploads/2026/06/BrickCityMenu-0526.pdf"
+     ],
+     "know_before": [
+      "https://mojobbq.com/wp-content/uploads/2026/06/BrickCityMenu-0526.pdf"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Brick City Southern Kitchen is at 10 S Magnolia Avenue, Ocala, FL 34471.",
+      "source": "https://mojobbq.com/wp-content/uploads/2026/06/BrickCityMenu-0526.pdf"
+     },
+     {
+      "claim": "Kansas City Burnt Ends are crusty outer edges of beef brisket.",
+      "source": "https://mojobbq.com/wp-content/uploads/2026/06/BrickCityMenu-0526.pdf"
+     },
+     {
+      "claim": "BBQ is served with two homemade sides and jalape\u00f1o cornbread.",
+      "source": "https://mojobbq.com/wp-content/uploads/2026/06/BrickCityMenu-0526.pdf"
+     },
+     {
+      "claim": "Pulled Pork Shoulder, Beef Brisket, and St. Louis Spareribs are BBQ options.",
+      "source": "https://mojobbq.com/wp-content/uploads/2026/06/BrickCityMenu-0526.pdf"
+     },
+     {
+      "claim": "Shrimp & Grits is served over garlic cheddar grits.",
+      "source": "https://mojobbq.com/wp-content/uploads/2026/06/BrickCityMenu-0526.pdf"
+     },
+     {
+      "claim": "Homemade Banana Pudding is a dessert.",
+      "source": "https://mojobbq.com/wp-content/uploads/2026/06/BrickCityMenu-0526.pdf"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJfWWQdTW_2YgRo3ejOZzfUKI",
+   "name": "Night Owl Cookies",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "bakery",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://nightowlcookieco.com/pages/current-flavors",
+     "source_name": "Night Owl Cookies \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Night Owl Cookies lists Ave Maria as signature dough mixed with white chocolate chips, stuffed with guava, topped with Maria cookies, and finished with guava marmalade and a cream cheese drizzle.",
+      "Night Owl Cookies lists Birthday Cake as signature dough stuffed with white chocolate chips and milk chocolate chips, topped with rainbow sprinkles and drizzled with frosting."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Ave Maria and Birthday Cake cookies with guava and rainbow sprinkles",
+    "why_here": "Try Ave Maria with white chocolate chips, guava, Maria cookies, guava marmalade, and a cream cheese drizzle, or Birthday Cake with white chocolate chips, milk chocolate chips, rainbow sprinkles, and frosting.",
+    "know_before": "Ave Maria is stuffed with guava and finished with guava marmalade and a cream cheese drizzle.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://nightowlcookieco.com/pages/current-flavors"
+     ],
+     "why_here": [
+      "https://nightowlcookieco.com/pages/current-flavors"
+     ],
+     "know_before": [
+      "https://nightowlcookieco.com/pages/current-flavors"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Night Owl Cookies lists Ave Maria as signature dough mixed with white chocolate chips, stuffed with guava, topped with Maria cookies, and finished with guava marmalade and a cream cheese drizzle.",
+      "source": "https://nightowlcookieco.com/pages/current-flavors"
+     },
+     {
+      "claim": "Night Owl Cookies lists Birthday Cake as signature dough stuffed with white chocolate chips and milk chocolate chips, topped with rainbow sprinkles and drizzled with frosting.",
+      "source": "https://nightowlcookieco.com/pages/current-flavors"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ9412hNW32YgRVKwVwwEJsW8",
+   "name": "La Pata Gorda",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://lapatagorda.com/",
+     "source_name": "La Pata Gorda \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "La Pata Gorda Miami is a Latin seafood spot with roots in Ecuador.",
+      "La Pata Gorda brings Mangrove Crab, Ceviches and Latin-inspired Seafood to Miami.",
+      "La Pata Gorda Miami is at 232 Miracle Mile, Coral Gables, FL 33134.",
+      "Opening hours are Monday - Saturday: 12:00 p.m. - 10:00 p.m. and Sunday: 12:00 p.m. - 9:00 p.m.",
+      "Happy Hour is Monday - Friday 4:00 p.m. - 7:00 p.m.",
+      "La Pata Gorda serves a two-course lunch with fresh Latin seafood."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Mangrove Crab, Ceviches, and Latin-inspired Seafood from Ecuador",
+    "why_here": "With roots in Ecuador, La Pata Gorda serves Mangrove Crab, Ceviches, and Latin Seafood in Miami; try a two-course lunch with fresh Latin seafood.",
+    "know_before": "Happy Hour is Monday - Friday 4:00 p.m. - 7:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://lapatagorda.com/"
+     ],
+     "why_here": [
+      "https://lapatagorda.com/"
+     ],
+     "know_before": [
+      "https://lapatagorda.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "La Pata Gorda Miami is a Latin seafood spot with roots in Ecuador.",
+      "source": "https://lapatagorda.com/"
+     },
+     {
+      "claim": "La Pata Gorda brings Mangrove Crab, Ceviches and Latin-inspired Seafood to Miami.",
+      "source": "https://lapatagorda.com/"
+     },
+     {
+      "claim": "La Pata Gorda Miami is at 232 Miracle Mile, Coral Gables, FL 33134.",
+      "source": "https://lapatagorda.com/"
+     },
+     {
+      "claim": "Opening hours are Monday - Saturday: 12:00 p.m. - 10:00 p.m. and Sunday: 12:00 p.m. - 9:00 p.m.",
+      "source": "https://lapatagorda.com/"
+     },
+     {
+      "claim": "Happy Hour is Monday - Friday 4:00 p.m. - 7:00 p.m.",
+      "source": "https://lapatagorda.com/"
+     },
+     {
+      "claim": "La Pata Gorda serves a two-course lunch with fresh Latin seafood.",
+      "source": "https://lapatagorda.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJs79B6VTHkIgR_GrMBD-pkJk",
+   "name": "Vince J. Whibbs Sr. Community Maritime Park",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.cityofpensacola.com/1151/About-the-Park",
+     "source_name": "Vince J. Whibbs Sr. Community Maritime Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Vince J. Whibbs, Sr. Community Maritime Park is a multi-use, public-private park development on Pensacola's waterfront.",
+      "Located in Historic Downtown Pensacola, this waterfront park features over 38,000 square feet of exhibition space, an amphitheater, playground, and festival grounds.",
+      "Blue Wahoos Stadium accommodates over 5,000 people.",
+      "Blue Wahoos Stadium is currently home to the Pensacola Blue Wahoos baseball team, the AA affiliate of the Cincinnati Reds.",
+      "The Randall K. and Martha A. Hunter Amphitheater overlooks Pensacola Bay."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Waterfront park in Historic Downtown Pensacola with an amphitheater and festival grounds",
+    "why_here": "Go for the waterfront park in Historic Downtown Pensacola, with over 38,000 square feet of exhibition space, an amphitheater, playground, and festival grounds, plus Blue Wahoos Stadium and the Hunter Amphitheater overlooking Pensacola Bay.",
+    "know_before": "Blue Wahoos Stadium accommodates over 5,000 people.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.cityofpensacola.com/1151/About-the-Park"
+     ],
+     "why_here": [
+      "https://www.cityofpensacola.com/1151/About-the-Park"
+     ],
+     "know_before": [
+      "https://www.cityofpensacola.com/1151/About-the-Park"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Vince J. Whibbs, Sr. Community Maritime Park is a multi-use, public-private park development on Pensacola's waterfront.",
+      "source": "https://www.cityofpensacola.com/1151/About-the-Park"
+     },
+     {
+      "claim": "Located in Historic Downtown Pensacola, this waterfront park features over 38,000 square feet of exhibition space, an amphitheater, playground, and festival grounds.",
+      "source": "https://www.cityofpensacola.com/1151/About-the-Park"
+     },
+     {
+      "claim": "Blue Wahoos Stadium accommodates over 5,000 people.",
+      "source": "https://www.cityofpensacola.com/1151/About-the-Park"
+     },
+     {
+      "claim": "Blue Wahoos Stadium is currently home to the Pensacola Blue Wahoos baseball team, the AA affiliate of the Cincinnati Reds.",
+      "source": "https://www.cityofpensacola.com/1151/About-the-Park"
+     },
+     {
+      "claim": "The Randall K. and Martha A. Hunter Amphitheater overlooks Pensacola Bay.",
+      "source": "https://www.cityofpensacola.com/1151/About-the-Park"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJo_Z6xcjvwogROJ8IEcHoGS4",
+   "name": "The NONA Slice House",
+   "category": "food",
+   "metro": "tampa",
+   "primary_type": "pizza_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://thenonaslicehouse.com/awards",
+     "source_name": "The NONA Slice House \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The NONA Slice House is at 997 Main Street, Safety Harbor, FL, 34695.",
+      "Jamie Culliton, the owner of The NONA Slice House, has been in the pizza business for over 30 years.",
+      "Jamie Culliton has won 4 World Championships and 30 National Titles.",
+      "Jamie Culliton won Best Pizza in The Country for his Margherita Pizza at the American Pizza Championship."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Margherita Pizza at The NONA Slice House in Safety Harbor",
+    "why_here": "Try Margherita Pizza from Jamie Culliton, the owner of The NONA Slice House, who has been in the pizza business for over 30 years and has won 4 World Championships and 30 National Titles.",
+    "know_before": "The NONA Slice House is at 997 Main Street, Safety Harbor, FL, 34695.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://thenonaslicehouse.com/awards"
+     ],
+     "why_here": [
+      "https://thenonaslicehouse.com/awards"
+     ],
+     "know_before": [
+      "https://thenonaslicehouse.com/awards"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The NONA Slice House is at 997 Main Street, Safety Harbor, FL, 34695.",
+      "source": "https://thenonaslicehouse.com/awards"
+     },
+     {
+      "claim": "Jamie Culliton, the owner of The NONA Slice House, has been in the pizza business for over 30 years.",
+      "source": "https://thenonaslicehouse.com/awards"
+     },
+     {
+      "claim": "Jamie Culliton has won 4 World Championships and 30 National Titles.",
+      "source": "https://thenonaslicehouse.com/awards"
+     },
+     {
+      "claim": "Jamie Culliton won Best Pizza in The Country for his Margherita Pizza at the American Pizza Championship.",
+      "source": "https://thenonaslicehouse.com/awards"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ_6OiVmis3IgRERy5mNiiI_A",
+   "name": "Pink Tequila",
+   "category": "food",
+   "metro": "manatee-sarasota",
+   "primary_type": "mexican_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.pink-tequila.com/",
+     "source_name": "Pink Tequila \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Pink Tequila is a Mexican Restaurant, Grill & Cantina in North Port, FL.",
+      "Pink Tequila serves Tacos, Margaritas, Fajitas, Birria, Guacamole, Quesabirrias, and Micheladas.",
+      "On Sunday, hours are 12:00 p.m. to 8:00 p.m.",
+      "Monday through Thursday hours are 11:00 a.m. to 9:00 p.m.",
+      "Friday through Saturday hours are 11:00 a.m. to 10:00 p.m.",
+      "Pink Tequila is at 1163 N Toledo Blade Blvd, North Port, FL 34288."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Mexican Restaurant, Grill & Cantina in North Port serving Tacos and Fajitas",
+    "why_here": "Go to this Mexican Restaurant, Grill & Cantina in North Port for Tacos, Margaritas, Fajitas, Birria, Guacamole, Quesabirrias, and Micheladas, served Sunday through Saturday.",
+    "know_before": "On Sunday, hours are 12:00 p.m. to 8:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.pink-tequila.com/"
+     ],
+     "why_here": [
+      "https://www.pink-tequila.com/"
+     ],
+     "know_before": [
+      "https://www.pink-tequila.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Pink Tequila is a Mexican Restaurant, Grill & Cantina in North Port, FL.",
+      "source": "https://www.pink-tequila.com/"
+     },
+     {
+      "claim": "Pink Tequila serves Tacos, Margaritas, Fajitas, Birria, Guacamole, Quesabirrias, and Micheladas.",
+      "source": "https://www.pink-tequila.com/"
+     },
+     {
+      "claim": "On Sunday, hours are 12:00 p.m. to 8:00 p.m.",
+      "source": "https://www.pink-tequila.com/"
+     },
+     {
+      "claim": "Monday through Thursday hours are 11:00 a.m. to 9:00 p.m.",
+      "source": "https://www.pink-tequila.com/"
+     },
+     {
+      "claim": "Friday through Saturday hours are 11:00 a.m. to 10:00 p.m.",
+      "source": "https://www.pink-tequila.com/"
+     },
+     {
+      "claim": "Pink Tequila is at 1163 N Toledo Blade Blvd, North Port, FL 34288.",
+      "source": "https://www.pink-tequila.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ1a5BdsUU24gRICHA552NazY",
+   "name": "Fancy's Southern Cafe",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://fancyssoutherncafe.com/",
+     "source_name": "Fancy's Southern Cafe \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Fancy's Southern Cafe has two locations in Fort Myers.",
+      "Fancy's Southern Cafe has a full liquor bar in the lounge.",
+      "Fancy's Southern Cafe offers a curated bourbon selection and an organic wine menu.",
+      "Fancy's Southern Cafe is a gourmet southern food restaurant in Fort Myers, Florida."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "gourmet southern food restaurant in Fort Myers",
+    "why_here": "Try gourmet southern food at Fancy's Southern Cafe in Fort Myers, Florida, with a curated bourbon selection, an organic wine menu, and a full liquor bar in the lounge.",
+    "know_before": "Fancy's Southern Cafe has two locations in Fort Myers.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://fancyssoutherncafe.com/"
+     ],
+     "why_here": [
+      "https://fancyssoutherncafe.com/"
+     ],
+     "know_before": [
+      "https://fancyssoutherncafe.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Fancy's Southern Cafe has two locations in Fort Myers.",
+      "source": "https://fancyssoutherncafe.com/"
+     },
+     {
+      "claim": "Fancy's Southern Cafe has a full liquor bar in the lounge.",
+      "source": "https://fancyssoutherncafe.com/"
+     },
+     {
+      "claim": "Fancy's Southern Cafe offers a curated bourbon selection and an organic wine menu.",
+      "source": "https://fancyssoutherncafe.com/"
+     },
+     {
+      "claim": "Fancy's Southern Cafe is a gourmet southern food restaurant in Fort Myers, Florida.",
+      "source": "https://fancyssoutherncafe.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJAbBpVGgA2YgRsPKi4HMvVdA",
+   "name": "Southport Shopping Center",
+   "category": "shopping",
+   "metro": "broward",
+   "primary_type": "shopping_mall",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.woolbright.net/Portfolio",
+     "source_name": "Southport Shopping Center \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Southport Center is in Ft. Lauderdale, Florida.",
+      "Southport Center is on SE 17th St, east of US-1, minutes from Downtown Fort Lauderdale.",
+      "Southport Center is anchored by Ross Dress for Less and Dollar Tree."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "center on SE 17th St east of US-1 in Ft. Lauderdale",
+    "why_here": "Shop the center on SE 17th St in Ft. Lauderdale, east of US-1 and minutes from Downtown Fort Lauderdale, anchored by Ross Dress for Less and Dollar Tree.",
+    "know_before": "Southport Center is on SE 17th St, east of US-1.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.woolbright.net/Portfolio"
+     ],
+     "why_here": [
+      "https://www.woolbright.net/Portfolio"
+     ],
+     "know_before": [
+      "https://www.woolbright.net/Portfolio"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Southport Center is in Ft. Lauderdale, Florida.",
+      "source": "https://www.woolbright.net/Portfolio"
+     },
+     {
+      "claim": "Southport Center is on SE 17th St, east of US-1, minutes from Downtown Fort Lauderdale.",
+      "source": "https://www.woolbright.net/Portfolio"
+     },
+     {
+      "claim": "Southport Center is anchored by Ross Dress for Less and Dollar Tree.",
+      "source": "https://www.woolbright.net/Portfolio"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJbXYv4OJB24gRwxcTGawqFMY",
+   "name": "The Lodge",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.thelodgefl.com/",
+     "source_name": "The Lodge \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Lodge is Sports, Brews, & Barbeques in Fort Myers.",
+      "Lunch is served from 11 a.m. to 3 p.m.",
+      "All-day menus run from 11 a.m.",
+      "The Lodge lists lunch, catering, and happy hour menus."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Sports, Brews, & Barbeques in Fort Myers",
+    "why_here": "Come for Sports, Brews, & Barbeques in Fort Myers, where lunch is served from 11 a.m. to 3 p.m. and all-day menus run from 11 a.m. The Lodge lists lunch, catering, and happy hour menus for guests visiting Fort Myers.",
+    "know_before": "Lunch is served from 11 a.m. to 3 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.thelodgefl.com/"
+     ],
+     "why_here": [
+      "https://www.thelodgefl.com/"
+     ],
+     "know_before": [
+      "https://www.thelodgefl.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Lodge is Sports, Brews, & Barbeques in Fort Myers.",
+      "source": "https://www.thelodgefl.com/"
+     },
+     {
+      "claim": "Lunch is served from 11 a.m. to 3 p.m.",
+      "source": "https://www.thelodgefl.com/"
+     },
+     {
+      "claim": "All-day menus run from 11 a.m.",
+      "source": "https://www.thelodgefl.com/"
+     },
+     {
+      "claim": "The Lodge lists lunch, catering, and happy hour menus.",
+      "source": "https://www.thelodgefl.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJn5NYs-t654gRF-Z5HsbfXso",
+   "name": "King Cajun Crawfish",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "cajun_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.kingcajuncrawfish.com/",
+     "source_name": "King Cajun Crawfish \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "King Cajun Crawfish is a crawfish and seafood restaurant in Orlando, established in 2010.",
+      "King Cajun Crawfish serves authentic cajun cuisine with a modern twist and savoury sauces.",
+      "King Cajun Crawfish of Orlando is at 924 North Mills Ave, Orlando, Florida 32803.",
+      "Hours are 11:30 a.m. to 9:30 p.m. daily."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Cajun crawfish and seafood restaurant in Orlando, established in 2010",
+    "why_here": "Go for crawfish and seafood in Orlando at a restaurant established in 2010, serving authentic cajun cuisine with a modern twist and savoury sauces. The Orlando location is at 924 North Mills Ave, Orlando, Florida 32803.",
+    "know_before": "Hours are 11:30 a.m. to 9:30 p.m. daily.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.kingcajuncrawfish.com/"
+     ],
+     "why_here": [
+      "https://www.kingcajuncrawfish.com/"
+     ],
+     "know_before": [
+      "https://www.kingcajuncrawfish.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "King Cajun Crawfish is a crawfish and seafood restaurant in Orlando, established in 2010.",
+      "source": "https://www.kingcajuncrawfish.com/"
+     },
+     {
+      "claim": "King Cajun Crawfish serves authentic cajun cuisine with a modern twist and savoury sauces.",
+      "source": "https://www.kingcajuncrawfish.com/"
+     },
+     {
+      "claim": "King Cajun Crawfish of Orlando is at 924 North Mills Ave, Orlando, Florida 32803.",
+      "source": "https://www.kingcajuncrawfish.com/"
+     },
+     {
+      "claim": "Hours are 11:30 a.m. to 9:30 p.m. daily.",
+      "source": "https://www.kingcajuncrawfish.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJx0AED5222YgRnR0KdP4FJ0I",
+   "name": "JW Marriott Marquis Miami",
+   "category": "hotels",
+   "metro": "miami-dade",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.marriott.com/en-us/hotels/miamj-jw-marriott-marquis-miami/overview/",
+     "source_name": "JW Marriott Marquis Miami \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "JW Marriott Marquis Miami is a hotel in Downtown Miami at 255 Biscayne Boulevard Way, Miami, Florida, USA, 33131.",
+      "JW Marriott Marquis Miami offers culinary delights at Daniel Boulud's Boulud Sud.",
+      "JW Marriott Marquis Miami has a stainless-steel sky pool and spa services at Enliven.",
+      "JW Marriott Marquis Miami has an NBA-approved basketball court."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "hotel in Downtown Miami with a stainless-steel sky pool",
+    "why_here": "Stay in Downtown Miami for culinary delights at Daniel Boulud's Boulud Sud, a stainless-steel sky pool, spa services at Enliven, and an NBA-approved basketball court.",
+    "know_before": "JW Marriott Marquis Miami is at 255 Biscayne Boulevard Way, Miami, Florida, USA, 33131.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.marriott.com/en-us/hotels/miamj-jw-marriott-marquis-miami/overview/"
+     ],
+     "why_here": [
+      "https://www.marriott.com/en-us/hotels/miamj-jw-marriott-marquis-miami/overview/"
+     ],
+     "know_before": [
+      "https://www.marriott.com/en-us/hotels/miamj-jw-marriott-marquis-miami/overview/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "JW Marriott Marquis Miami is a hotel in Downtown Miami at 255 Biscayne Boulevard Way, Miami, Florida, USA, 33131.",
+      "source": "https://www.marriott.com/en-us/hotels/miamj-jw-marriott-marquis-miami/overview/"
+     },
+     {
+      "claim": "JW Marriott Marquis Miami offers culinary delights at Daniel Boulud's Boulud Sud.",
+      "source": "https://www.marriott.com/en-us/hotels/miamj-jw-marriott-marquis-miami/overview/"
+     },
+     {
+      "claim": "JW Marriott Marquis Miami has a stainless-steel sky pool and spa services at Enliven.",
+      "source": "https://www.marriott.com/en-us/hotels/miamj-jw-marriott-marquis-miami/overview/"
+     },
+     {
+      "claim": "JW Marriott Marquis Miami has an NBA-approved basketball court.",
+      "source": "https://www.marriott.com/en-us/hotels/miamj-jw-marriott-marquis-miami/overview/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJpzWRnFQ25IgR17PLMggH5a8",
+   "name": "Sawgrass Marriott Golf Resort & Spa",
+   "category": "hotels",
+   "metro": "florida",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.marriott.com/en-us/hotels/jaxsw-sawgrass-marriott-golf-resort-and-spa/overview/",
+     "source_name": "Sawgrass Marriott Golf Resort & Spa \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Sawgrass Marriott Golf Resort & Spa is in Ponte Vedra Beach, just a short distance from Jacksonville, near TPC Sawgrass Golf Club.",
+      "Sawgrass Marriott Golf Resort & Spa showcases four pools and pampering treatments at the Sawgrass Spa.",
+      "Sawgrass Marriott Golf Resort & Spa is at 1000 Tournament Players Club Blvd, Ponte Vedra Beach, Florida, USA, 32082."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "resort in Ponte Vedra Beach near TPC Sawgrass Golf Club with four pools",
+    "why_here": "Stay in Ponte Vedra Beach near TPC Sawgrass Golf Club, just a short distance from Jacksonville, for four pools and pampering treatments at the Sawgrass Spa.",
+    "know_before": "Sawgrass Marriott Golf Resort & Spa is at 1000 Tournament Players Club Blvd, Ponte Vedra Beach, Florida, USA, 32082.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.marriott.com/en-us/hotels/jaxsw-sawgrass-marriott-golf-resort-and-spa/overview/"
+     ],
+     "why_here": [
+      "https://www.marriott.com/en-us/hotels/jaxsw-sawgrass-marriott-golf-resort-and-spa/overview/"
+     ],
+     "know_before": [
+      "https://www.marriott.com/en-us/hotels/jaxsw-sawgrass-marriott-golf-resort-and-spa/overview/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Sawgrass Marriott Golf Resort & Spa is in Ponte Vedra Beach, just a short distance from Jacksonville, near TPC Sawgrass Golf Club.",
+      "source": "https://www.marriott.com/en-us/hotels/jaxsw-sawgrass-marriott-golf-resort-and-spa/overview/"
+     },
+     {
+      "claim": "Sawgrass Marriott Golf Resort & Spa showcases four pools and pampering treatments at the Sawgrass Spa.",
+      "source": "https://www.marriott.com/en-us/hotels/jaxsw-sawgrass-marriott-golf-resort-and-spa/overview/"
+     },
+     {
+      "claim": "Sawgrass Marriott Golf Resort & Spa is at 1000 Tournament Players Club Blvd, Ponte Vedra Beach, Florida, USA, 32082.",
+      "source": "https://www.marriott.com/en-us/hotels/jaxsw-sawgrass-marriott-golf-resort-and-spa/overview/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJe1t0Q8W32YgRHGUckw_C5Uw",
+   "name": "Amal Miami",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://amalmiami.com/",
+     "source_name": "Amal Miami \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Amal Miami is a modern Lebanese culinary experience.",
+      "Amal Miami is located at 3480 Main Hwy, Coconut Grove, Miami, FL 33133.",
+      "Amal serves lunch Monday to Friday from 11:30 a.m. to 4:00 p.m.",
+      "Amal serves brunch Saturday and Sunday from 11:00 a.m. to 4:00 p.m.",
+      "At Amal, cuisine, sharing, enjoyment and simply living unite."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "modern Lebanese culinary experience with lunch and brunch",
+    "why_here": "Try a modern Lebanese culinary experience at Amal Miami in Coconut Grove, Miami, where cuisine, sharing, enjoyment and simply living unite, with lunch and brunch.",
+    "know_before": "Lunch is Monday to Friday from 11:30 a.m. to 4:00 p.m.; brunch is Saturday and Sunday from 11:00 a.m. to 4:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://amalmiami.com/"
+     ],
+     "why_here": [
+      "https://amalmiami.com/"
+     ],
+     "know_before": [
+      "https://amalmiami.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Amal Miami is a modern Lebanese culinary experience.",
+      "source": "https://amalmiami.com/"
+     },
+     {
+      "claim": "Amal Miami is located at 3480 Main Hwy, Coconut Grove, Miami, FL 33133.",
+      "source": "https://amalmiami.com/"
+     },
+     {
+      "claim": "Amal serves lunch Monday to Friday from 11:30 a.m. to 4:00 p.m.",
+      "source": "https://amalmiami.com/"
+     },
+     {
+      "claim": "Amal serves brunch Saturday and Sunday from 11:00 a.m. to 4:00 p.m.",
+      "source": "https://amalmiami.com/"
+     },
+     {
+      "claim": "At Amal, cuisine, sharing, enjoyment and simply living unite.",
+      "source": "https://amalmiami.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ-e_Rr5vf2IgRzgSOuQUbGNU",
+   "name": "Hawkers Asian Street Food",
+   "category": "food",
+   "metro": "palm-beach",
+   "primary_type": "asian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://eathawkers.com/menus/dining/",
+     "source_name": "Hawkers Asian Street Food \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Hawkers serves Asian street food with bold flavors.",
+      "Hawkers recipes are passed down from generation to generation.",
+      "Roti Canai is two Malaysian flatbreads served with signature curry sauce.",
+      "Soup Dumplings are classic xiaolongbao filled with pork and rich bone broth.",
+      "Item availability may vary by location."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Asian street food with Roti Canai and Soup Dumplings",
+    "why_here": "Hawkers serves Asian street food with bold flavors and recipes passed down from generation to generation, including Roti Canai with signature curry sauce and Soup Dumplings filled with pork and rich bone broth.",
+    "know_before": "Item availability may vary by location.",
+    "local_tip": "Roti Canai or Soup Dumplings.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://eathawkers.com/menus/dining/"
+     ],
+     "why_here": [
+      "https://eathawkers.com/menus/dining/"
+     ],
+     "know_before": [
+      "https://eathawkers.com/menus/dining/"
+     ],
+     "local_tip": [
+      "https://eathawkers.com/menus/dining/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Hawkers serves Asian street food with bold flavors.",
+      "source": "https://eathawkers.com/menus/dining/"
+     },
+     {
+      "claim": "Hawkers recipes are passed down from generation to generation.",
+      "source": "https://eathawkers.com/menus/dining/"
+     },
+     {
+      "claim": "Roti Canai is two Malaysian flatbreads served with signature curry sauce.",
+      "source": "https://eathawkers.com/menus/dining/"
+     },
+     {
+      "claim": "Soup Dumplings are classic xiaolongbao filled with pork and rich bone broth.",
+      "source": "https://eathawkers.com/menus/dining/"
+     },
+     {
+      "claim": "Item availability may vary by location.",
+      "source": "https://eathawkers.com/menus/dining/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJqefzYK222YgRNDCblbPPVVU",
+   "name": "R House Wynwood",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "brunch_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.rhousewynwood.com/",
+     "source_name": "R House Wynwood \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "R House is located at 2727 NW 2nd Ave, Miami, FL 33127",
+      "R House hosts Drag Brunch every Saturday and Sunday with family-style menus and bottomless drinks",
+      "R House serves Prime Tomahawk and Crispy Snapper",
+      "R House is closed on Monday and Tuesday"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Wynwood restaurant at 2727 NW 2nd Ave, Miami, hosting Drag Brunch Saturday and Sunday",
+    "why_here": "R House at 2727 NW 2nd Ave, Miami hosts Drag Brunch every Saturday and Sunday with family-style menus and bottomless drinks, and serves dishes including Prime Tomahawk and Crispy Snapper.",
+    "know_before": "R House is closed on Monday and Tuesday.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.rhousewynwood.com/"
+     ],
+     "why_here": [
+      "https://www.rhousewynwood.com/"
+     ],
+     "know_before": [
+      "https://www.rhousewynwood.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "R House is located at 2727 NW 2nd Ave, Miami, FL 33127",
+      "source": "https://www.rhousewynwood.com/"
+     },
+     {
+      "claim": "R House hosts Drag Brunch every Saturday and Sunday with family-style menus and bottomless drinks",
+      "source": "https://www.rhousewynwood.com/"
+     },
+     {
+      "claim": "R House serves Prime Tomahawk and Crispy Snapper",
+      "source": "https://www.rhousewynwood.com/"
+     },
+     {
+      "claim": "R House is closed on Monday and Tuesday",
+      "source": "https://www.rhousewynwood.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJbX0RQkOO54gRZFXCAmG5-X4",
+   "name": "Lake Minneola Tiki Bar & Grill",
+   "category": "nightlife",
+   "metro": "florida",
+   "primary_type": "bar_and_grill",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.lakeminneolainn.com/",
+     "source_name": "Lake Minneola Tiki Bar & Grill \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Tiki Bar & Grill has all-outdoor seating on Lake Minneola",
+      "Lake Minneola Inn is at 508 South Main Avenue, Minneola",
+      "Tiki Bar & Grill serves burgers and wings",
+      "Tiki Bar & Grill is open every day from 11:30 a.m. to midnight"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Tiki Bar & Grill with all-outdoor seating on Lake Minneola",
+    "why_here": "Go for all-outdoor seating on Lake Minneola at the Tiki Bar & Grill, part of Lake Minneola Inn. Order burgers and wings at 508 South Main Avenue, Minneola, with seating outside by the water.",
+    "know_before": "Open every day from 11:30 a.m. to midnight.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.lakeminneolainn.com/"
+     ],
+     "why_here": [
+      "https://www.lakeminneolainn.com/"
+     ],
+     "know_before": [
+      "https://www.lakeminneolainn.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Tiki Bar & Grill has all-outdoor seating on Lake Minneola",
+      "source": "https://www.lakeminneolainn.com/"
+     },
+     {
+      "claim": "Lake Minneola Inn is at 508 South Main Avenue, Minneola",
+      "source": "https://www.lakeminneolainn.com/"
+     },
+     {
+      "claim": "Tiki Bar & Grill serves burgers and wings",
+      "source": "https://www.lakeminneolainn.com/"
+     },
+     {
+      "claim": "Tiki Bar & Grill is open every day from 11:30 a.m. to midnight",
+      "source": "https://www.lakeminneolainn.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJbSiqwvAW24gRM7XBB0HLx7M",
+   "name": "Koreshan State Park",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "state_park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.floridastateparks.org/parks-and-trails/koreshan-state-park/hours-fees",
+     "source_name": "Koreshan State Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Koreshan State Park is open 8 a.m. until sunset, 365 days a year",
+      "The historic settlement is open 8 a.m. until 5 p.m. daily",
+      "Koreshan Historic Settlement guided tours are available"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "State park with a historic settlement open daily",
+    "why_here": "Visit Koreshan State Park for its historic settlement and Koreshan Historic Settlement guided tours. The park is open 8 a.m. until sunset, 365 days a year, and the historic settlement is open 8 a.m. until 5 p.m. daily.",
+    "know_before": "The park is open 8 a.m. until sunset, 365 days a year.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.floridastateparks.org/parks-and-trails/koreshan-state-park/hours-fees"
+     ],
+     "why_here": [
+      "https://www.floridastateparks.org/parks-and-trails/koreshan-state-park/hours-fees"
+     ],
+     "know_before": [
+      "https://www.floridastateparks.org/parks-and-trails/koreshan-state-park/hours-fees"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Koreshan State Park is open 8 a.m. until sunset, 365 days a year",
+      "source": "https://www.floridastateparks.org/parks-and-trails/koreshan-state-park/hours-fees"
+     },
+     {
+      "claim": "The historic settlement is open 8 a.m. until 5 p.m. daily",
+      "source": "https://www.floridastateparks.org/parks-and-trails/koreshan-state-park/hours-fees"
+     },
+     {
+      "claim": "Koreshan Historic Settlement guided tours are available",
+      "source": "https://www.floridastateparks.org/parks-and-trails/koreshan-state-park/hours-fees"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJDZZBnhPE2YgRvQiPk24upqw",
+   "name": "Golden Rule Seafood",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.goldenruleseafood.com/",
+     "source_name": "Golden Rule Seafood \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Golden Rule Seafood has a seafood market and a restaurant with dine in or take away service",
+      "Golden Rule Seafood offers live music on Friday, Saturday and Sunday",
+      "Restaurant hours on Friday and Saturday are 11 a.m. to 10 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Seafood market and restaurant with live music on Friday, Saturday and Sunday",
+    "why_here": "Come to Golden Rule Seafood for a seafood market and restaurant in one place, with dine in or take away service. Live music on Friday, Saturday and Sunday adds to a seafood meal here.",
+    "know_before": "Restaurant hours on Friday and Saturday are 11 a.m. to 10 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.goldenruleseafood.com/"
+     ],
+     "why_here": [
+      "https://www.goldenruleseafood.com/"
+     ],
+     "know_before": [
+      "https://www.goldenruleseafood.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Golden Rule Seafood has a seafood market and a restaurant with dine in or take away service",
+      "source": "https://www.goldenruleseafood.com/"
+     },
+     {
+      "claim": "Golden Rule Seafood offers live music on Friday, Saturday and Sunday",
+      "source": "https://www.goldenruleseafood.com/"
+     },
+     {
+      "claim": "Restaurant hours on Friday and Saturday are 11 a.m. to 10 p.m.",
+      "source": "https://www.goldenruleseafood.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJjWK-Y4Xv2ogR8YkMXGkYlY4",
+   "name": "Island Gypsy Cafe & Marina Bar",
+   "category": "food",
+   "metro": "immokalee-fl",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://theislandgypsy.com/",
+     "source_name": "Island Gypsy Cafe & Marina Bar \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Island Gypsy Caf\u00e9 & Marina Bar is on the Capri Marina in the Isles of Capri",
+      "Seafood is sourced mainly from Florida waters",
+      "The menu includes Coastal Coconut Shrimp",
+      "The menu includes the Grouper Sandwich",
+      "Open Monday through Thursday from 11 a.m. to 9 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Marina cafe on the Capri Marina in the Isles of Capri",
+    "why_here": "Go to Island Gypsy Caf\u00e9 & Marina Bar on the Capri Marina in the Isles of Capri for seafood sourced mainly from Florida waters. Try Coastal Coconut Shrimp or the Grouper Sandwich from the menu.",
+    "know_before": "Open Monday through Thursday from 11 a.m. to 9 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://theislandgypsy.com/"
+     ],
+     "why_here": [
+      "https://theislandgypsy.com/"
+     ],
+     "know_before": [
+      "https://theislandgypsy.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Island Gypsy Caf\u00e9 & Marina Bar is on the Capri Marina in the Isles of Capri",
+      "source": "https://theislandgypsy.com/"
+     },
+     {
+      "claim": "Seafood is sourced mainly from Florida waters",
+      "source": "https://theislandgypsy.com/"
+     },
+     {
+      "claim": "The menu includes Coastal Coconut Shrimp",
+      "source": "https://theislandgypsy.com/"
+     },
+     {
+      "claim": "The menu includes the Grouper Sandwich",
+      "source": "https://theislandgypsy.com/"
+     },
+     {
+      "claim": "Open Monday through Thursday from 11 a.m. to 9 p.m.",
+      "source": "https://theislandgypsy.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJzXmAOAoR3ogRMB5Xt0DctIo",
+   "name": "Morning Glory Eatery, LLC",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "breakfast_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://morninggloryeatery.com/",
+     "source_name": "Morning Glory Eatery, LLC \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Morning Glory Eatery serves breakfast and lunch in Satellite Beach.",
+      "The menu includes Crab Benedict.",
+      "The menu includes Shrimp and Grits.",
+      "The menu includes Breakfast Tacos.",
+      "Morning Glory Eatery is open Tuesday through Sunday from 7 a.m. to 2 p.m. and closed on Mondays."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Breakfast and lunch in Satellite Beach with Crab Benedict",
+    "why_here": "Morning Glory Eatery serves breakfast and lunch in Satellite Beach, with menu items including Crab Benedict, Shrimp and Grits and Breakfast Tacos for a morning or midday meal.",
+    "know_before": "Morning Glory Eatery is open Tuesday through Sunday from 7 a.m. to 2 p.m. and closed on Mondays.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://morninggloryeatery.com/"
+     ],
+     "why_here": [
+      "https://morninggloryeatery.com/"
+     ],
+     "know_before": [
+      "https://morninggloryeatery.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Morning Glory Eatery serves breakfast and lunch in Satellite Beach.",
+      "source": "https://morninggloryeatery.com/"
+     },
+     {
+      "claim": "The menu includes Crab Benedict.",
+      "source": "https://morninggloryeatery.com/"
+     },
+     {
+      "claim": "The menu includes Shrimp and Grits.",
+      "source": "https://morninggloryeatery.com/"
+     },
+     {
+      "claim": "The menu includes Breakfast Tacos.",
+      "source": "https://morninggloryeatery.com/"
+     },
+     {
+      "claim": "Morning Glory Eatery is open Tuesday through Sunday from 7 a.m. to 2 p.m. and closed on Mondays.",
+      "source": "https://morninggloryeatery.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJQV8O81-r2YgRLRaFhzU2sy0",
+   "name": "Terrazas at Lyfe Hollywood - Oceanfront Rooftop",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://terrazasatlyfe.com/",
+     "source_name": "Terrazas at Lyfe Hollywood - Oceanfront Rooftop \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Terrazas at Lyfe is on the 9th-floor oceanfront rooftop in Hollywood",
+      "Terrazas at Lyfe serves Italian and South American flavors",
+      "Terrazas at Lyfe serves lunch, dinner and brunch",
+      "Opening hours Sunday to Wednesday are 9 a.m. to 10:30 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "9th-floor oceanfront rooftop restaurant serving lunch, dinner and brunch",
+    "why_here": "Terrazas at Lyfe is a 9th-floor oceanfront rooftop restaurant serving Italian and South American flavors. It serves lunch, dinner and brunch, with poolside seating on the rooftop in Hollywood.",
+    "know_before": "Opening hours Sunday to Wednesday are 9 a.m. to 10:30 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://terrazasatlyfe.com/"
+     ],
+     "why_here": [
+      "https://terrazasatlyfe.com/"
+     ],
+     "know_before": [
+      "https://terrazasatlyfe.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Terrazas at Lyfe is on the 9th-floor oceanfront rooftop in Hollywood",
+      "source": "https://terrazasatlyfe.com/"
+     },
+     {
+      "claim": "Terrazas at Lyfe serves Italian and South American flavors",
+      "source": "https://terrazasatlyfe.com/"
+     },
+     {
+      "claim": "Terrazas at Lyfe serves lunch, dinner and brunch",
+      "source": "https://terrazasatlyfe.com/"
+     },
+     {
+      "claim": "Opening hours Sunday to Wednesday are 9 a.m. to 10:30 p.m.",
+      "source": "https://terrazasatlyfe.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJHZo0qDhA24gR1ifSPvqF-Ag",
+   "name": "Broadway Palm Dinner Theatre",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "performing_arts_theater",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://broadwaypalm.com/",
+     "source_name": "Broadway Palm Dinner Theatre \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Broadway Palm Dinner Theatre is in Fort Myers.",
+      "Broadway Palm has a 382-seat dinner theatre.",
+      "Broadway Palm has an 86-seat black box theatre.",
+      "Each year Broadway Palm produces eight main stage Broadway musicals.",
+      "Broadway Palm has been entertaining over 170,000 guests annually since 1993."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "382-seat dinner theatre and 86-seat black box theatre in Fort Myers",
+    "why_here": "Broadway Palm Dinner Theatre in Fort Myers has a 382-seat dinner theatre and an 86-seat black box theatre, and each year Broadway Palm produces eight main stage Broadway musicals.",
+    "know_before": "Broadway Palm has been entertaining over 170,000 guests annually since 1993.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://broadwaypalm.com/"
+     ],
+     "why_here": [
+      "https://broadwaypalm.com/"
+     ],
+     "know_before": [
+      "https://broadwaypalm.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Broadway Palm Dinner Theatre is in Fort Myers.",
+      "source": "https://broadwaypalm.com/"
+     },
+     {
+      "claim": "Broadway Palm has a 382-seat dinner theatre.",
+      "source": "https://broadwaypalm.com/"
+     },
+     {
+      "claim": "Broadway Palm has an 86-seat black box theatre.",
+      "source": "https://broadwaypalm.com/"
+     },
+     {
+      "claim": "Each year Broadway Palm produces eight main stage Broadway musicals.",
+      "source": "https://broadwaypalm.com/"
+     },
+     {
+      "claim": "Broadway Palm has been entertaining over 170,000 guests annually since 1993.",
+      "source": "https://broadwaypalm.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJMwkx6Z8F2YgRhmNPFxgn60E",
+   "name": "Tap 42 Craft Kitchen & Bar - Coral Springs",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "gastropub",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://tap42.com/locations/coral-springs/",
+     "source_name": "Tap 42 Craft Kitchen & Bar - Coral Springs \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Tap 42 Coral Springs serves burgers including The Prohibition and The Big Smash",
+      "Tap 42 Coral Springs serves bowls and sushi for lunch",
+      "Happy hour runs Monday through Friday from 3 p.m. to 6 p.m. at the bar",
+      "Brunch runs Saturday and Sunday from 11 a.m. to 3 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Craft kitchen and bar serving burgers including The Prohibition and The Big Smash",
+    "why_here": "Tap 42 Coral Springs serves burgers including The Prohibition and The Big Smash, plus bowls and sushi for lunch. Happy hour runs Monday through Friday from 3 p.m. to 6 p.m. at the bar.",
+    "know_before": "Brunch runs Saturday and Sunday from 11 a.m. to 3 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://tap42.com/locations/coral-springs/"
+     ],
+     "why_here": [
+      "https://tap42.com/locations/coral-springs/"
+     ],
+     "know_before": [
+      "https://tap42.com/locations/coral-springs/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Tap 42 Coral Springs serves burgers including The Prohibition and The Big Smash",
+      "source": "https://tap42.com/locations/coral-springs/"
+     },
+     {
+      "claim": "Tap 42 Coral Springs serves bowls and sushi for lunch",
+      "source": "https://tap42.com/locations/coral-springs/"
+     },
+     {
+      "claim": "Happy hour runs Monday through Friday from 3 p.m. to 6 p.m. at the bar",
+      "source": "https://tap42.com/locations/coral-springs/"
+     },
+     {
+      "claim": "Brunch runs Saturday and Sunday from 11 a.m. to 3 p.m.",
+      "source": "https://tap42.com/locations/coral-springs/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJAQBA3lax2YgRB7AIAB_GK_E",
+   "name": "Sofia Italian Restaurant Miami",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "italian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://sofiamiamidd.com/",
+     "source_name": "Sofia Italian Restaurant Miami \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Sofia offers a fresh perspective and refined approach to Italian cuisine",
+      "Sofia is committed to sourcing quality ingredients to pay homage to true Italian tastes",
+      "Sofia is in Miami",
+      "Hours of Operation Monday to Thursday 11:30 a.m. to 10:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Italian cuisine with quality ingredients in Miami",
+    "why_here": "Come for Italian cuisine made with quality ingredients, presented as a fresh perspective and refined approach that pays homage to true Italian tastes in Miami.",
+    "know_before": "Monday to Thursday 11:30 a.m. to 10:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://sofiamiamidd.com/"
+     ],
+     "why_here": [
+      "https://sofiamiamidd.com/"
+     ],
+     "know_before": [
+      "https://sofiamiamidd.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Sofia offers a fresh perspective and refined approach to Italian cuisine",
+      "source": "https://sofiamiamidd.com/"
+     },
+     {
+      "claim": "Sofia is committed to sourcing quality ingredients to pay homage to true Italian tastes",
+      "source": "https://sofiamiamidd.com/"
+     },
+     {
+      "claim": "Sofia is in Miami",
+      "source": "https://sofiamiamidd.com/"
+     },
+     {
+      "claim": "Hours of Operation Monday to Thursday 11:30 a.m. to 10:00 p.m.",
+      "source": "https://sofiamiamidd.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJQUkOOXNc7IgReus8QO12_DA",
+   "name": "Backwoods Crossing",
+   "category": "food",
+   "metro": "georgia-usa",
+   "primary_type": "garden",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.backwoodscrossing.com/our-story",
+     "source_name": "Backwoods Crossing \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Garden Creations menu changes every week as local producers supply seasonal foodstuffs",
+      "Backwoods Crossing sources local fruits, veggies, meats, seafood, and wine from local producers",
+      "Backwoods Crossing is growing its own produce on a three and a half acre farmette",
+      "Try garden creations topped off with a fresh egg from the Crossing Coop"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Garden Creations menu changes every week",
+    "why_here": "Try the Garden Creations menu that changes every week, built from local fruits, veggies, meats, seafood, and wine sourced from local producers, plus produce grown on a three and a half acre farmette.",
+    "know_before": "The Garden Creations menu changes every week, so dishes may differ at each visit.",
+    "local_tip": "Try Garden Creations topped with a fresh egg from the Crossing Coop.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.backwoodscrossing.com/our-story"
+     ],
+     "why_here": [
+      "https://www.backwoodscrossing.com/our-story"
+     ],
+     "know_before": [
+      "https://www.backwoodscrossing.com/our-story"
+     ],
+     "local_tip": [
+      "https://www.backwoodscrossing.com/our-story"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Garden Creations menu changes every week as local producers supply seasonal foodstuffs",
+      "source": "https://www.backwoodscrossing.com/our-story"
+     },
+     {
+      "claim": "Backwoods Crossing sources local fruits, veggies, meats, seafood, and wine from local producers",
+      "source": "https://www.backwoodscrossing.com/our-story"
+     },
+     {
+      "claim": "Backwoods Crossing is growing its own produce on a three and a half acre farmette",
+      "source": "https://www.backwoodscrossing.com/our-story"
+     },
+     {
+      "claim": "Try garden creations topped off with a fresh egg from the Crossing Coop",
+      "source": "https://www.backwoodscrossing.com/our-story"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJKai3Yxqt5YgRmXnFz6H-t0w",
+   "name": "Timucuan Ecological and Historical Preserve",
+   "category": "attractions",
+   "metro": "jacksonville-fl",
+   "primary_type": "nature_preserve",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.nps.gov/timu/index.htm",
+     "source_name": "Timucuan Ecological and Historical Preserve \u2014 official source",
+     "source_class": "government",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Visit one of the last unspoiled coastal wetlands on the Atlantic Coast",
+      "Discover 6,000 years of human history and experience the beauty of salt marshes, coastal dunes, and hardwood hammocks",
+      "The Timucuan Preserve includes Fort Caroline and Kingsley Plantation",
+      "Timucuan Preserve Visitor Center and Kingsley Plantation grounds are open Wednesday through Sunday from 9:00 a.m. to 5:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Salt marshes, coastal dunes, and hardwood hammocks with 6,000 years of human history",
+    "why_here": "Explore one of the last unspoiled coastal wetlands on the Atlantic Coast, discover 6,000 years of human history, and visit Fort Caroline and Kingsley Plantation among salt marshes, coastal dunes, and hardwood hammocks.",
+    "know_before": "Timucuan Preserve Visitor Center and Kingsley Plantation grounds are open Wednesday through Sunday from 9:00 a.m. to 5:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.nps.gov/timu/index.htm"
+     ],
+     "why_here": [
+      "https://www.nps.gov/timu/index.htm"
+     ],
+     "know_before": [
+      "https://www.nps.gov/timu/index.htm"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Visit one of the last unspoiled coastal wetlands on the Atlantic Coast",
+      "source": "https://www.nps.gov/timu/index.htm"
+     },
+     {
+      "claim": "Discover 6,000 years of human history and experience the beauty of salt marshes, coastal dunes, and hardwood hammocks",
+      "source": "https://www.nps.gov/timu/index.htm"
+     },
+     {
+      "claim": "The Timucuan Preserve includes Fort Caroline and Kingsley Plantation",
+      "source": "https://www.nps.gov/timu/index.htm"
+     },
+     {
+      "claim": "Timucuan Preserve Visitor Center and Kingsley Plantation grounds are open Wednesday through Sunday from 9:00 a.m. to 5:00 p.m.",
+      "source": "https://www.nps.gov/timu/index.htm"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJmQV87I232YgRSwYnFMm_PmQ",
+   "name": "Motek Brickell",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "mediterranean_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://motek.com/about/",
+     "source_name": "Motek Brickell \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Motek offers Mediterranean cuisine inspired by traditional dishes from the Eastern Mediterranean"
+     ]
+    },
+    {
+     "source": "https://motek.com/brickell/",
+     "source_name": "Motek Brickell \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Located on the fourth floor of Brickell City Centre, Motek Brickell features both indoor and outdoor dining",
+      "Motek Brickell has an in-house bakery offering fresh, house-made favorites daily",
+      "Motek Brickell showcases an open kitchen, communal tables, and semi-private dining rooms",
+      "Happy Hour: Monday - Friday 2 p.m. to 5 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Eastern Mediterranean dining on the fourth floor of Brickell City Centre",
+    "why_here": "Eat Eastern Mediterranean food in indoor and outdoor dining space with an open kitchen, communal tables, and an in-house bakery offering fresh, house-made favorites daily.",
+    "know_before": "Happy Hour: Monday - Friday 2 p.m. to 5 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://motek.com/about/",
+      "https://motek.com/brickell/"
+     ],
+     "why_here": [
+      "https://motek.com/about/",
+      "https://motek.com/brickell/"
+     ],
+     "know_before": [
+      "https://motek.com/about/",
+      "https://motek.com/brickell/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Motek offers Mediterranean cuisine inspired by traditional dishes from the Eastern Mediterranean",
+      "source": "https://motek.com/about/"
+     },
+     {
+      "claim": "Located on the fourth floor of Brickell City Centre, Motek Brickell features both indoor and outdoor dining",
+      "source": "https://motek.com/brickell/"
+     },
+     {
+      "claim": "Motek Brickell has an in-house bakery offering fresh, house-made favorites daily",
+      "source": "https://motek.com/brickell/"
+     },
+     {
+      "claim": "Motek Brickell showcases an open kitchen, communal tables, and semi-private dining rooms",
+      "source": "https://motek.com/brickell/"
+     },
+     {
+      "claim": "Happy Hour: Monday - Friday 2 p.m. to 5 p.m.",
+      "source": "https://motek.com/brickell/"
+     }
+    ]
+   }
+  }
+ ]
+}

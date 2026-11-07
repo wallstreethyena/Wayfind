@@ -1,0 +1,2210 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 26. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJOZuSagnZ2IgRViARzoTW4js",
+   "name": "Dune Deck Caf\u00e9",
+   "category": "food",
+   "metro": "palm-beach",
+   "primary_type": "cafe",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.dunedeckcafe.com/",
+     "source_name": "Dune Deck Caf\u00e9 \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Dune Deck Caf\u00e9 is located at 100 N Ocean Blvd, Lantana, Florida",
+      "Breakfast is served from 8:00 a.m. to 11:30 a.m., Monday through Friday",
+      "Lunch is served from 11:30 a.m. to 4:30 p.m., Monday through Friday",
+      "Brunch is served from 7:00 a.m. to 4:30 p.m., Saturdays, Sundays, and Holidays",
+      "The ocean view restaurant has been serving since 1991",
+      "It serves seafood, chicken and salad dishes"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Ocean view restaurant in Lantana serving breakfast, lunch and brunch since 1991",
+    "why_here": "Go for breakfast, lunch or brunch at this ocean view restaurant in Lantana, where the menu serves seafood, chicken and salad dishes in a dining room that has been serving since 1991.",
+    "know_before": "Breakfast is served from 8:00 a.m. to 11:30 a.m., Monday through Friday.",
+    "local_tip": "Brunch is served from 7:00 a.m. to 4:30 p.m., Saturdays, Sundays, and Holidays.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.dunedeckcafe.com/"
+     ],
+     "why_here": [
+      "https://www.dunedeckcafe.com/"
+     ],
+     "know_before": [
+      "https://www.dunedeckcafe.com/"
+     ],
+     "local_tip": [
+      "https://www.dunedeckcafe.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Dune Deck Caf\u00e9 is located at 100 N Ocean Blvd, Lantana, Florida",
+      "source": "https://www.dunedeckcafe.com/"
+     },
+     {
+      "claim": "Breakfast is served from 8:00 a.m. to 11:30 a.m., Monday through Friday",
+      "source": "https://www.dunedeckcafe.com/"
+     },
+     {
+      "claim": "Lunch is served from 11:30 a.m. to 4:30 p.m., Monday through Friday",
+      "source": "https://www.dunedeckcafe.com/"
+     },
+     {
+      "claim": "Brunch is served from 7:00 a.m. to 4:30 p.m., Saturdays, Sundays, and Holidays",
+      "source": "https://www.dunedeckcafe.com/"
+     },
+     {
+      "claim": "The ocean view restaurant has been serving since 1991",
+      "source": "https://www.dunedeckcafe.com/"
+     },
+     {
+      "claim": "It serves seafood, chicken and salad dishes",
+      "source": "https://www.dunedeckcafe.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ-_c1OpQn5IgR7PHYfUkazG0",
+   "name": "Casa Monica Resort & Spa, Autograph Collection",
+   "category": "hotels",
+   "metro": "florida",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.marriott.com/en-us/hotels/jaxak-casa-monica-resort-and-spa-autograph-collection/overview/",
+     "source_name": "Casa Monica Resort & Spa, Autograph Collection \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Originally built in 1888, the hotel is in St. Augustine's Historic District",
+      "The hotel is within walking distance of Flagler College, Lightner Museum, Castillo de San Marcos and St. George Street",
+      "Property amenities include Poseidon Spa, Outdoor Pool, and a restaurant serving Mediterranean cuisine"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Originally built in 1888 in the Historic District",
+    "why_here": "Stay in the Historic District at a hotel originally built in 1888, within walking distance of Flagler College, Lightner Museum, Castillo de San Marcos and St. George Street.",
+    "know_before": "Property amenities include Poseidon Spa, Outdoor Pool, and a restaurant serving Mediterranean cuisine.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.marriott.com/en-us/hotels/jaxak-casa-monica-resort-and-spa-autograph-collection/overview/"
+     ],
+     "why_here": [
+      "https://www.marriott.com/en-us/hotels/jaxak-casa-monica-resort-and-spa-autograph-collection/overview/"
+     ],
+     "know_before": [
+      "https://www.marriott.com/en-us/hotels/jaxak-casa-monica-resort-and-spa-autograph-collection/overview/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Originally built in 1888, the hotel is in St. Augustine's Historic District",
+      "source": "https://www.marriott.com/en-us/hotels/jaxak-casa-monica-resort-and-spa-autograph-collection/overview/"
+     },
+     {
+      "claim": "The hotel is within walking distance of Flagler College, Lightner Museum, Castillo de San Marcos and St. George Street",
+      "source": "https://www.marriott.com/en-us/hotels/jaxak-casa-monica-resort-and-spa-autograph-collection/overview/"
+     },
+     {
+      "claim": "Property amenities include Poseidon Spa, Outdoor Pool, and a restaurant serving Mediterranean cuisine",
+      "source": "https://www.marriott.com/en-us/hotels/jaxak-casa-monica-resort-and-spa-autograph-collection/overview/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJt_rH-qQp2YgRVCQiSJ3NXzs",
+   "name": "Holocaust Memorial Miami Beach",
+   "category": "beach",
+   "metro": "miami-dade",
+   "primary_type": "historical_landmark",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://holocaustmemorialmiamibeach.org/journey/he/information.html",
+     "source_name": "Holocaust Memorial Miami Beach \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Holocaust Memorial Miami Beach is located at 1933-1945 Meridian Avenue in Miami Beach, Florida",
+      "The memorial is open all 365 days a year from 10 a.m. to sundown"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Open all 365 days a year from 10 a.m. to sundown",
+    "why_here": "Visit the Holocaust Memorial Miami Beach at 1933-1945 Meridian Avenue in Miami Beach, Florida, open all 365 days a year from 10 a.m. to sundown for a quiet public visit.",
+    "know_before": "The memorial is open all 365 days a year from 10 a.m. to sundown.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://holocaustmemorialmiamibeach.org/journey/he/information.html"
+     ],
+     "why_here": [
+      "https://holocaustmemorialmiamibeach.org/journey/he/information.html"
+     ],
+     "know_before": [
+      "https://holocaustmemorialmiamibeach.org/journey/he/information.html"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Holocaust Memorial Miami Beach is located at 1933-1945 Meridian Avenue in Miami Beach, Florida",
+      "source": "https://holocaustmemorialmiamibeach.org/journey/he/information.html"
+     },
+     {
+      "claim": "The memorial is open all 365 days a year from 10 a.m. to sundown",
+      "source": "https://holocaustmemorialmiamibeach.org/journey/he/information.html"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJD4fheDWz4IgRR_GiNkh9ILY",
+   "name": "Sand Point Park",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://titusville.com/645/Sand-Point-Park",
+     "source_name": "Sand Point Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Sand Point Park is a 29.88-acre community river park on the Indian River in Titusville",
+      "The park is located at the juncture of U.S. 1 and the Max Brewer Causeway and is home to the Titusville Little League",
+      "The Astronaut Memorial is located near the south entrance to the park",
+      "A blacktop walkway with a stationed 0.66-mile exercise trail meanders through the park",
+      "Facilities include 11 Small to Mid-Sized Pavilions, Barbeque Grills, Picnic Tables, Playground and Restrooms",
+      "Amenities include Baseball, Softball Fields, Boat Ramps, Pavilions, Picnic Areas/Shelters, Playgrounds and Restrooms"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "29.88-acre community river park on the Indian River in Titusville",
+    "why_here": "Go to this 29.88-acre community river park on the Indian River for the stationed 0.66-mile exercise trail, Playground, Boat Ramps, and the Astronaut Memorial near the south entrance to the park.",
+    "know_before": "Facilities include 11 Small to Mid-Sized Pavilions, Barbeque Grills, Picnic Tables, Playground and Restrooms.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://titusville.com/645/Sand-Point-Park"
+     ],
+     "why_here": [
+      "https://titusville.com/645/Sand-Point-Park"
+     ],
+     "know_before": [
+      "https://titusville.com/645/Sand-Point-Park"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Sand Point Park is a 29.88-acre community river park on the Indian River in Titusville",
+      "source": "https://titusville.com/645/Sand-Point-Park"
+     },
+     {
+      "claim": "The park is located at the juncture of U.S. 1 and the Max Brewer Causeway and is home to the Titusville Little League",
+      "source": "https://titusville.com/645/Sand-Point-Park"
+     },
+     {
+      "claim": "The Astronaut Memorial is located near the south entrance to the park",
+      "source": "https://titusville.com/645/Sand-Point-Park"
+     },
+     {
+      "claim": "A blacktop walkway with a stationed 0.66-mile exercise trail meanders through the park",
+      "source": "https://titusville.com/645/Sand-Point-Park"
+     },
+     {
+      "claim": "Facilities include 11 Small to Mid-Sized Pavilions, Barbeque Grills, Picnic Tables, Playground and Restrooms",
+      "source": "https://titusville.com/645/Sand-Point-Park"
+     },
+     {
+      "claim": "Amenities include Baseball, Softball Fields, Boat Ramps, Pavilions, Picnic Areas/Shelters, Playgrounds and Restrooms",
+      "source": "https://titusville.com/645/Sand-Point-Park"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJkem66qR06IgRN8BmTIkG-yQ",
+   "name": "The Cove Resort and Pub",
+   "category": "nightlife",
+   "metro": "florida",
+   "primary_type": "pub",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://thecovepubandgrub.com/rv-camping/",
+     "source_name": "The Cove Resort and Pub \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Cove is the only waterfront restaurant in Inverness",
+      "There are 13 Premium RV Campsites at 1242 S. Cove Camp Rd, Inverness, FL 34450",
+      "All RV sites and cabins are located within walking distance from The Cove Pub",
+      "Facilities include Direct water access to Lake Henderson and Free use of kayaks",
+      "The site is 2.5m from Withlacoochee Bike Trail and 3m from downtown Inverness"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Waterfront restaurant in Inverness with 13 Premium RV Campsites",
+    "why_here": "Go for the waterfront restaurant in Inverness and stay in the 13 Premium RV Campsites or cabins within walking distance from The Cove Pub, with Direct water access to Lake Henderson on site.",
+    "know_before": "Facilities include Direct water access to Lake Henderson and Free use of kayaks.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://thecovepubandgrub.com/rv-camping/"
+     ],
+     "why_here": [
+      "https://thecovepubandgrub.com/rv-camping/"
+     ],
+     "know_before": [
+      "https://thecovepubandgrub.com/rv-camping/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Cove is the only waterfront restaurant in Inverness",
+      "source": "https://thecovepubandgrub.com/rv-camping/"
+     },
+     {
+      "claim": "There are 13 Premium RV Campsites at 1242 S. Cove Camp Rd, Inverness, FL 34450",
+      "source": "https://thecovepubandgrub.com/rv-camping/"
+     },
+     {
+      "claim": "All RV sites and cabins are located within walking distance from The Cove Pub",
+      "source": "https://thecovepubandgrub.com/rv-camping/"
+     },
+     {
+      "claim": "Facilities include Direct water access to Lake Henderson and Free use of kayaks",
+      "source": "https://thecovepubandgrub.com/rv-camping/"
+     },
+     {
+      "claim": "The site is 2.5m from Withlacoochee Bike Trail and 3m from downtown Inverness",
+      "source": "https://thecovepubandgrub.com/rv-camping/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJX1XoS5222YgRb-NQO12eZe0",
+   "name": "W Miami",
+   "category": "hotels",
+   "metro": "miami-dade",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.marriott.com/en-us/hotels/miawm-w-miami/overview/",
+     "source_name": "W Miami \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "W Miami is a luxury hotel in the heart of Brickell, Miami's dynamic financial district",
+      "Guests enjoy access to the Icon Brickell pool, spa, and fitness center, operated independently from the hotel",
+      "As a registered guest of the hotel, you will have exclusive access to the Icon Brickell Pool, Spa, and Fitness Center"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Luxury hotel in the heart of Brickell, Miami's dynamic financial district",
+    "why_here": "Stay at this luxury hotel in the heart of Brickell, where guests enjoy access to the Icon Brickell pool, spa, and fitness center during a stay in Miami's dynamic financial district.",
+    "know_before": "Guests enjoy access to the Icon Brickell pool, spa, and fitness center, operated independently from the hotel.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.marriott.com/en-us/hotels/miawm-w-miami/overview/"
+     ],
+     "why_here": [
+      "https://www.marriott.com/en-us/hotels/miawm-w-miami/overview/"
+     ],
+     "know_before": [
+      "https://www.marriott.com/en-us/hotels/miawm-w-miami/overview/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "W Miami is a luxury hotel in the heart of Brickell, Miami's dynamic financial district",
+      "source": "https://www.marriott.com/en-us/hotels/miawm-w-miami/overview/"
+     },
+     {
+      "claim": "Guests enjoy access to the Icon Brickell pool, spa, and fitness center, operated independently from the hotel",
+      "source": "https://www.marriott.com/en-us/hotels/miawm-w-miami/overview/"
+     },
+     {
+      "claim": "As a registered guest of the hotel, you will have exclusive access to the Icon Brickell Pool, Spa, and Fitness Center",
+      "source": "https://www.marriott.com/en-us/hotels/miawm-w-miami/overview/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJu4iOBtF654gR4hgxlzDsJZY",
+   "name": "Se7enBites",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "bakery",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.se7enbites.com/faqs",
+     "source_name": "Se7enBites \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Se7en Bites is located at 617 N Primrose Drive, Orlando, FL, 32803",
+      "The Chicken Pot Pie is available all 4 days currently open and pies come out by 11:00 a.m. and are sold until they are gone",
+      "The Vanilla Bean Bourbon Bacon Nightime SkyPie is a signature recipe available daily until the supply runs out",
+      "Chef and owner Trina Gregory had a sleeve gasterectomy in 2007 and her intake per meal had become 7 bites, giving Se7enbites its name"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Chicken Pot Pie and Vanilla Bean Bourbon Bacon Nightime SkyPie",
+    "why_here": "Go to 617 N Primrose Drive in Orlando for the Chicken Pot Pie and the Vanilla Bean Bourbon Bacon Nightime SkyPie, signature recipes served until they are gone each day.",
+    "know_before": "The Chicken Pot Pie is available all 4 days currently open and pies come out by 11:00 a.m. and are sold until they are gone.",
+    "local_tip": "Pies come out by 11:00 a.m. and are sold until they are gone, so come early.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.se7enbites.com/faqs"
+     ],
+     "why_here": [
+      "https://www.se7enbites.com/faqs"
+     ],
+     "know_before": [
+      "https://www.se7enbites.com/faqs"
+     ],
+     "local_tip": [
+      "https://www.se7enbites.com/faqs"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Se7en Bites is located at 617 N Primrose Drive, Orlando, FL, 32803",
+      "source": "https://www.se7enbites.com/faqs"
+     },
+     {
+      "claim": "The Chicken Pot Pie is available all 4 days currently open and pies come out by 11:00 a.m. and are sold until they are gone",
+      "source": "https://www.se7enbites.com/faqs"
+     },
+     {
+      "claim": "The Vanilla Bean Bourbon Bacon Nightime SkyPie is a signature recipe available daily until the supply runs out",
+      "source": "https://www.se7enbites.com/faqs"
+     },
+     {
+      "claim": "Chef and owner Trina Gregory had a sleeve gasterectomy in 2007 and her intake per meal had become 7 bites, giving Se7enbites its name",
+      "source": "https://www.se7enbites.com/faqs"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJb0-HmYzHwogR6NF8eRoVD5c",
+   "name": "Mr. Dunderbak's Restaurant and Brewery",
+   "category": "nightlife",
+   "metro": "tampa",
+   "primary_type": "brewpub",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.dunderbaks.com/",
+     "source_name": "Mr. Dunderbak's Restaurant and Brewery \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Mr Dunderbak's is Tampa's German Bierhalle, a German restaurant, beer hall, brewery and market at 14929 Bruce B Downs Blvd, Tampa, FL 33613",
+      "Serving Tampa since 1974, for more than 51 years, it prepares potato pancakes each morning using Oma's recipes and a haus-made menu from scratch",
+      "Opening Hours on Monday are 4:00 p.m. to 10:00 p.m. and on Sunday 11:30 a.m. to 10:00 p.m.",
+      "Happy Hour is Monday through Thursday 4:00 p.m. to 6:30 p.m.",
+      "Live Polka musik is on the weekends"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Tampa's German Bierhalle serving Tampa since 1974",
+    "why_here": "Go to Tampa's German Bierhalle at 14929 Bruce B Downs Blvd for a haus-made menu from scratch, potato pancakes prepared each morning, and Live Polka musik on the weekends in Tampa.",
+    "know_before": "Opening Hours on Monday are 4:00 p.m. to 10:00 p.m. and on Sunday 11:30 a.m. to 10:00 p.m.",
+    "local_tip": "Happy Hour is Monday through Thursday 4:00 p.m. to 6:30 p.m.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.dunderbaks.com/"
+     ],
+     "why_here": [
+      "https://www.dunderbaks.com/"
+     ],
+     "know_before": [
+      "https://www.dunderbaks.com/"
+     ],
+     "local_tip": [
+      "https://www.dunderbaks.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Mr Dunderbak's is Tampa's German Bierhalle, a German restaurant, beer hall, brewery and market at 14929 Bruce B Downs Blvd, Tampa, FL 33613",
+      "source": "https://www.dunderbaks.com/"
+     },
+     {
+      "claim": "Serving Tampa since 1974, for more than 51 years, it prepares potato pancakes each morning using Oma's recipes and a haus-made menu from scratch",
+      "source": "https://www.dunderbaks.com/"
+     },
+     {
+      "claim": "Opening Hours on Monday are 4:00 p.m. to 10:00 p.m. and on Sunday 11:30 a.m. to 10:00 p.m.",
+      "source": "https://www.dunderbaks.com/"
+     },
+     {
+      "claim": "Happy Hour is Monday through Thursday 4:00 p.m. to 6:30 p.m.",
+      "source": "https://www.dunderbaks.com/"
+     },
+     {
+      "claim": "Live Polka musik is on the weekends",
+      "source": "https://www.dunderbaks.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJHejvIJ8E2YgRuND-Ip7VqQQ",
+   "name": "Off The Wall Coconut Creek",
+   "category": "attractions",
+   "metro": "broward",
+   "primary_type": "amusement_center",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.offthewallgamezone.com/locations",
+     "source_name": "Off The Wall Coconut Creek \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Off The Wall Coconut Creek is located at 4939 Coconut Creek Pkwy, Coconut Creek, FL 33063, USA",
+      "Hours are MON - THU: 3 p.m. - 9 p.m., FRI: 3 p.m. - 10 p.m., SAT: 10 a.m. - 10 p.m., SUN: 10 a.m. - 9 p.m.",
+      "All locations feature state-of-the-art arcades, and core attractions like Trampolines, Laser Tag arenas, and Ropes Courses depend on venue layout"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Trampolines, Laser Tag arenas, Ropes Courses and state-of-the-art arcades",
+    "why_here": "Go to 4939 Coconut Creek Pkwy for state-of-the-art arcades and, depending on venue layout, Trampolines, Laser Tag arenas, and Ropes Courses at this Coconut Creek location.",
+    "know_before": "Hours are MON - THU: 3 p.m. - 9 p.m., FRI: 3 p.m. - 10 p.m., SAT: 10 a.m. - 10 p.m., SUN: 10 a.m. - 9 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.offthewallgamezone.com/locations"
+     ],
+     "why_here": [
+      "https://www.offthewallgamezone.com/locations"
+     ],
+     "know_before": [
+      "https://www.offthewallgamezone.com/locations"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Off The Wall Coconut Creek is located at 4939 Coconut Creek Pkwy, Coconut Creek, FL 33063, USA",
+      "source": "https://www.offthewallgamezone.com/locations"
+     },
+     {
+      "claim": "Hours are MON - THU: 3 p.m. - 9 p.m., FRI: 3 p.m. - 10 p.m., SAT: 10 a.m. - 10 p.m., SUN: 10 a.m. - 9 p.m.",
+      "source": "https://www.offthewallgamezone.com/locations"
+     },
+     {
+      "claim": "All locations feature state-of-the-art arcades, and core attractions like Trampolines, Laser Tag arenas, and Ropes Courses depend on venue layout",
+      "source": "https://www.offthewallgamezone.com/locations"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ098f_Ae_2YgRqVwo8989HOI",
+   "name": "Sancho Restaurant",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "spanish_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://sanchorestaurantemiami.com/",
+     "source_name": "Sancho Restaurant \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Sancho Restaurant serves Spanish food in Miami",
+      "Sancho Restaurant offers live shows",
+      "On Mondays the paella special is $12.99",
+      "Happy Hour is Monday to Friday from 4:00 p.m. to 7:00 p.m.",
+      "The menu includes cochinillo segoviano and roasted meats"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Spanish food in Miami with live shows",
+    "why_here": "Go for Spanish food in Miami with live shows, plus cochinillo segoviano and roasted meats. The paella special and Happy Hour give specific reasons to time a visit around the menu.",
+    "know_before": "On Mondays the paella special is $12.99.",
+    "local_tip": "Happy Hour is Monday to Friday from 4:00 p.m. to 7:00 p.m.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://sanchorestaurantemiami.com/"
+     ],
+     "why_here": [
+      "https://sanchorestaurantemiami.com/"
+     ],
+     "know_before": [
+      "https://sanchorestaurantemiami.com/"
+     ],
+     "local_tip": [
+      "https://sanchorestaurantemiami.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Sancho Restaurant serves Spanish food in Miami",
+      "source": "https://sanchorestaurantemiami.com/"
+     },
+     {
+      "claim": "Sancho Restaurant offers live shows",
+      "source": "https://sanchorestaurantemiami.com/"
+     },
+     {
+      "claim": "On Mondays the paella special is $12.99",
+      "source": "https://sanchorestaurantemiami.com/"
+     },
+     {
+      "claim": "Happy Hour is Monday to Friday from 4:00 p.m. to 7:00 p.m.",
+      "source": "https://sanchorestaurantemiami.com/"
+     },
+     {
+      "claim": "The menu includes cochinillo segoviano and roasted meats",
+      "source": "https://sanchorestaurantemiami.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJq4A-pJlU3YgR4Kr7Ms1x6Bs",
+   "name": "Kafe Kokopelli",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.kafekokopelli.com/",
+     "source_name": "Kafe Kokopelli \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Kafe Kokopelli offers casual fine dining in Dade City",
+      "The menu includes steak, seafood, pasta and sandwiches made fresh to order",
+      "A gluten free, vegetarian and vegan friendly menu is available",
+      "Kafe Kokopelli opens daily at 11:00 a.m.",
+      "Kafe Kokopelli is a restaurant and full bar"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Casual fine dining in Dade City with steak and seafood",
+    "why_here": "Go for casual fine dining where the menu includes steak, seafood, pasta and sandwiches made fresh to order. A gluten free, vegetarian and vegan friendly menu is also available at the restaurant and full bar.",
+    "know_before": "Kafe Kokopelli opens daily at 11:00 a.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.kafekokopelli.com/"
+     ],
+     "why_here": [
+      "https://www.kafekokopelli.com/"
+     ],
+     "know_before": [
+      "https://www.kafekokopelli.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Kafe Kokopelli offers casual fine dining in Dade City",
+      "source": "https://www.kafekokopelli.com/"
+     },
+     {
+      "claim": "The menu includes steak, seafood, pasta and sandwiches made fresh to order",
+      "source": "https://www.kafekokopelli.com/"
+     },
+     {
+      "claim": "A gluten free, vegetarian and vegan friendly menu is available",
+      "source": "https://www.kafekokopelli.com/"
+     },
+     {
+      "claim": "Kafe Kokopelli opens daily at 11:00 a.m.",
+      "source": "https://www.kafekokopelli.com/"
+     },
+     {
+      "claim": "Kafe Kokopelli is a restaurant and full bar",
+      "source": "https://www.kafekokopelli.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJnwImZ6gCw4gRJmL58RS177A",
+   "name": "Snapper's Sea Grill",
+   "category": "food",
+   "metro": "st-pete",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.snappersseagrill.com/",
+     "source_name": "Snapper's Sea Grill \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Snapper's Sea Grill serves seafood straight from the Gulf",
+      "Snapper's Sea Grill serves in-house aged steaks",
+      "Desserts are made in house at Snapper's Sea Grill",
+      "Snapper's Sea Grill has casual elegance and a big city bistro atmosphere on St. Pete Beach",
+      "Snapper's Sea Grill does not accept reservations"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Seafood and in-house aged steaks on St. Pete Beach",
+    "why_here": "Go for seafood straight from the Gulf, in-house aged steaks, and desserts made in house. The setting pairs casual elegance with a big city bistro atmosphere on St. Pete Beach for dinner service.",
+    "know_before": "Snapper's Sea Grill does not accept reservations.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.snappersseagrill.com/"
+     ],
+     "why_here": [
+      "https://www.snappersseagrill.com/"
+     ],
+     "know_before": [
+      "https://www.snappersseagrill.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Snapper's Sea Grill serves seafood straight from the Gulf",
+      "source": "https://www.snappersseagrill.com/"
+     },
+     {
+      "claim": "Snapper's Sea Grill serves in-house aged steaks",
+      "source": "https://www.snappersseagrill.com/"
+     },
+     {
+      "claim": "Desserts are made in house at Snapper's Sea Grill",
+      "source": "https://www.snappersseagrill.com/"
+     },
+     {
+      "claim": "Snapper's Sea Grill has casual elegance and a big city bistro atmosphere on St. Pete Beach",
+      "source": "https://www.snappersseagrill.com/"
+     },
+     {
+      "claim": "Snapper's Sea Grill does not accept reservations",
+      "source": "https://www.snappersseagrill.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJZfqEcqjK5YgRuE3bhqEamd4",
+   "name": "Seasons 52",
+   "category": "food",
+   "metro": "jacksonville-fl",
+   "primary_type": "wine_bar",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://media.seasons52.com/images/site/ext/ged/ged_menu_v1.pdf",
+     "source_name": "Seasons 52 \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Seasons 52 is a fresh grill and wine bar",
+      "Seasons 52 offers a seasonally inspired menu"
+     ]
+    },
+    {
+     "source": "https://media.seasons52.com/images/site/pdf/HH-1-0125_F4_F5_L4W3.pdf",
+     "source_name": "Seasons 52 \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Happy Hour in the Wine Bar is Monday to Friday from 3 p.m. to 6 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Fresh grill and wine bar with a seasonally inspired menu",
+    "why_here": "Go for a seasonally inspired menu at a fresh grill and wine bar, a format built around food that changes with the season and a wine bar alongside the grill for the meal.",
+    "know_before": "Happy Hour in the Wine Bar is Monday to Friday from 3 p.m. to 6 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://media.seasons52.com/images/site/ext/ged/ged_menu_v1.pdf",
+      "https://media.seasons52.com/images/site/pdf/HH-1-0125_F4_F5_L4W3.pdf"
+     ],
+     "why_here": [
+      "https://media.seasons52.com/images/site/ext/ged/ged_menu_v1.pdf",
+      "https://media.seasons52.com/images/site/pdf/HH-1-0125_F4_F5_L4W3.pdf"
+     ],
+     "know_before": [
+      "https://media.seasons52.com/images/site/ext/ged/ged_menu_v1.pdf",
+      "https://media.seasons52.com/images/site/pdf/HH-1-0125_F4_F5_L4W3.pdf"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Seasons 52 is a fresh grill and wine bar",
+      "source": "https://media.seasons52.com/images/site/ext/ged/ged_menu_v1.pdf"
+     },
+     {
+      "claim": "Seasons 52 offers a seasonally inspired menu",
+      "source": "https://media.seasons52.com/images/site/ext/ged/ged_menu_v1.pdf"
+     },
+     {
+      "claim": "Happy Hour in the Wine Bar is Monday to Friday from 3 p.m. to 6 p.m.",
+      "source": "https://media.seasons52.com/images/site/pdf/HH-1-0125_F4_F5_L4W3.pdf"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJE-L2BNaIk4gReGtvCXohCQI",
+   "name": "Dee's Hangout",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.deeshangout.com/",
+     "source_name": "Dee's Hangout \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Dee's Hangout serves a Southern Coastal Cajun menu",
+      "The menu includes seafood platters, daily lunch specials, She-Crab Soup and PoBoys",
+      "The menu includes Smoked Tuna Dip",
+      "Dee's Hangout is at 527 N. Richard Jackson Blv., Panama City Beach, FL 32407"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Southern Coastal Cajun menu with seafood platters and She-Crab Soup",
+    "why_here": "Go for a Southern Coastal Cajun menu built around seafood platters, She-Crab Soup, and PoBoys. Daily lunch specials and Smoked Tuna Dip round out the choices on the menu.",
+    "know_before": "The menu includes daily lunch specials, She-Crab Soup, PoBoys and Smoked Tuna Dip.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.deeshangout.com/"
+     ],
+     "why_here": [
+      "https://www.deeshangout.com/"
+     ],
+     "know_before": [
+      "https://www.deeshangout.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Dee's Hangout serves a Southern Coastal Cajun menu",
+      "source": "https://www.deeshangout.com/"
+     },
+     {
+      "claim": "The menu includes seafood platters, daily lunch specials, She-Crab Soup and PoBoys",
+      "source": "https://www.deeshangout.com/"
+     },
+     {
+      "claim": "The menu includes Smoked Tuna Dip",
+      "source": "https://www.deeshangout.com/"
+     },
+     {
+      "claim": "Dee's Hangout is at 527 N. Richard Jackson Blv., Panama City Beach, FL 32407",
+      "source": "https://www.deeshangout.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJZdGhTY4524gRDkVX3Tw5e1M",
+   "name": "Marriott Sanibel Harbour Resort & Spa",
+   "category": "hotels",
+   "metro": "florida",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.marriott.com/en-us/hotels/rswsb-marriott-sanibel-harbour-resort-and-spa/overview/",
+     "source_name": "Marriott Sanibel Harbour Resort & Spa \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Marriott Sanibel Harbour Resort & Spa is a waterfront spa resort set on 85 lush acres overlooking Sanibel and Captiva Island",
+      "Marriott Sanibel Harbour Resort & Spa is in Punta Rassa",
+      "The resort has a spa, a fitness center, and several pools"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Waterfront spa resort on 85 lush acres overlooking Sanibel and Captiva Island",
+    "why_here": "Go for a waterfront spa resort set on 85 lush acres overlooking Sanibel and Captiva Island, with a spa, a fitness center, and several pools. The setting is in Punta Rassa for a resort stay by the water.",
+    "know_before": "The resort has a spa, a fitness center, and several pools.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.marriott.com/en-us/hotels/rswsb-marriott-sanibel-harbour-resort-and-spa/overview/"
+     ],
+     "why_here": [
+      "https://www.marriott.com/en-us/hotels/rswsb-marriott-sanibel-harbour-resort-and-spa/overview/"
+     ],
+     "know_before": [
+      "https://www.marriott.com/en-us/hotels/rswsb-marriott-sanibel-harbour-resort-and-spa/overview/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Marriott Sanibel Harbour Resort & Spa is a waterfront spa resort set on 85 lush acres overlooking Sanibel and Captiva Island",
+      "source": "https://www.marriott.com/en-us/hotels/rswsb-marriott-sanibel-harbour-resort-and-spa/overview/"
+     },
+     {
+      "claim": "Marriott Sanibel Harbour Resort & Spa is in Punta Rassa",
+      "source": "https://www.marriott.com/en-us/hotels/rswsb-marriott-sanibel-harbour-resort-and-spa/overview/"
+     },
+     {
+      "claim": "The resort has a spa, a fitness center, and several pools",
+      "source": "https://www.marriott.com/en-us/hotels/rswsb-marriott-sanibel-harbour-resort-and-spa/overview/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJK0cgn_YE3ogR1xMxg15szmc",
+   "name": "River Rocks",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.riverrocksrestaurant.com/about",
+     "source_name": "River Rocks \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "River Rocks is located on the Indian River Lagoon",
+      "River Rocks offers expansive views from every table",
+      "River Rocks offers an upscale chef inspired menu",
+      "The Dock at River Rocks is open for lunch daily"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Waterfront dining on the Indian River Lagoon with views from every table",
+    "why_here": "Go for waterfront dining on the Indian River Lagoon, where the restaurant offers expansive views from every table and an upscale chef inspired menu. The Dock at River Rocks is open for lunch daily as well.",
+    "know_before": "The Dock at River Rocks is open for lunch daily.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.riverrocksrestaurant.com/about"
+     ],
+     "why_here": [
+      "https://www.riverrocksrestaurant.com/about"
+     ],
+     "know_before": [
+      "https://www.riverrocksrestaurant.com/about"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "River Rocks is located on the Indian River Lagoon",
+      "source": "https://www.riverrocksrestaurant.com/about"
+     },
+     {
+      "claim": "River Rocks offers expansive views from every table",
+      "source": "https://www.riverrocksrestaurant.com/about"
+     },
+     {
+      "claim": "River Rocks offers an upscale chef inspired menu",
+      "source": "https://www.riverrocksrestaurant.com/about"
+     },
+     {
+      "claim": "The Dock at River Rocks is open for lunch daily",
+      "source": "https://www.riverrocksrestaurant.com/about"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJCZrEyDNZkYgRpSpWGxPnh-w",
+   "name": "Another Broken Egg Cafe",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "brunch_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.anotherbrokenegg.com/menu/traditional-menu/",
+     "source_name": "Another Broken Egg Cafe \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Traditional Brunch Menu includes Shrimp 'N Grits and Biscuit Beignets",
+      "Shrimp 'N Grits has Gulf shrimp and andouille sausage over creamy cheese grits",
+      "Biscuit Beignets are Southern-style beignets with powdered sugar and honey marmalade"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Shrimp 'N Grits and Biscuit Beignets on the Traditional Brunch Menu",
+    "why_here": "Go for Shrimp 'N Grits with Gulf shrimp and andouille sausage over creamy cheese grits, and try Biscuit Beignets with powdered sugar and honey marmalade from the Traditional Brunch Menu.",
+    "know_before": "Biscuit Beignets are Southern-style beignets with powdered sugar and honey marmalade.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.anotherbrokenegg.com/menu/traditional-menu/"
+     ],
+     "why_here": [
+      "https://www.anotherbrokenegg.com/menu/traditional-menu/"
+     ],
+     "know_before": [
+      "https://www.anotherbrokenegg.com/menu/traditional-menu/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Traditional Brunch Menu includes Shrimp 'N Grits and Biscuit Beignets",
+      "source": "https://www.anotherbrokenegg.com/menu/traditional-menu/"
+     },
+     {
+      "claim": "Shrimp 'N Grits has Gulf shrimp and andouille sausage over creamy cheese grits",
+      "source": "https://www.anotherbrokenegg.com/menu/traditional-menu/"
+     },
+     {
+      "claim": "Biscuit Beignets are Southern-style beignets with powdered sugar and honey marmalade",
+      "source": "https://www.anotherbrokenegg.com/menu/traditional-menu/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ6cwDKBtJ5IgRn_XZ7BgMURc",
+   "name": "Hampton Inn Jacksonville Beach/Oceanfront",
+   "category": "hotels",
+   "metro": "florida",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.hilton.com/en/hotels/jaxjbhx-hampton-jacksonville-beach-oceanfront/",
+     "source_name": "Hampton Inn Jacksonville Beach/Oceanfront \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The hotel is built around a large heated lagoon-style pool with rock waterfall and hot tub",
+      "Free hot breakfast is offered",
+      "The hotel offers pet-friendly rooms",
+      "The hotel offers dining at an onsite bar and grille"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Heated lagoon-style pool with rock waterfall and hot tub",
+    "why_here": "Stay for a large heated lagoon-style pool with rock waterfall and hot tub, Free hot breakfast, pet-friendly rooms, and dining at an onsite bar and grille.",
+    "know_before": "The hotel offers pet-friendly rooms and Free hot breakfast.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.hilton.com/en/hotels/jaxjbhx-hampton-jacksonville-beach-oceanfront/"
+     ],
+     "why_here": [
+      "https://www.hilton.com/en/hotels/jaxjbhx-hampton-jacksonville-beach-oceanfront/"
+     ],
+     "know_before": [
+      "https://www.hilton.com/en/hotels/jaxjbhx-hampton-jacksonville-beach-oceanfront/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The hotel is built around a large heated lagoon-style pool with rock waterfall and hot tub",
+      "source": "https://www.hilton.com/en/hotels/jaxjbhx-hampton-jacksonville-beach-oceanfront/"
+     },
+     {
+      "claim": "Free hot breakfast is offered",
+      "source": "https://www.hilton.com/en/hotels/jaxjbhx-hampton-jacksonville-beach-oceanfront/"
+     },
+     {
+      "claim": "The hotel offers pet-friendly rooms",
+      "source": "https://www.hilton.com/en/hotels/jaxjbhx-hampton-jacksonville-beach-oceanfront/"
+     },
+     {
+      "claim": "The hotel offers dining at an onsite bar and grille",
+      "source": "https://www.hilton.com/en/hotels/jaxjbhx-hampton-jacksonville-beach-oceanfront/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJFf0yc7aPwogRezL8yP-UCdU",
+   "name": "Robert K Rees Memorial Park",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.pascocountyfl.gov/services/parks_recreation_and_natural_resources/park_directory.php",
+     "source_name": "Robert K Rees Memorial Park \u2014 official source",
+     "source_class": "government",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Robert K. Rees Memorial Park is listed under BEACH PARKS",
+      "Robert K. Rees Memorial Park is open 7 days a week from sunrise to sunset"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Beach park open from sunrise to sunset",
+    "why_here": "Go for a beach park listed under BEACH PARKS, open 7 days a week from sunrise to sunset, so the visit window runs from sunrise to sunset each day.",
+    "know_before": "Open 7 days a week from sunrise to sunset",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.pascocountyfl.gov/services/parks_recreation_and_natural_resources/park_directory.php"
+     ],
+     "why_here": [
+      "https://www.pascocountyfl.gov/services/parks_recreation_and_natural_resources/park_directory.php"
+     ],
+     "know_before": [
+      "https://www.pascocountyfl.gov/services/parks_recreation_and_natural_resources/park_directory.php"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Robert K. Rees Memorial Park is listed under BEACH PARKS",
+      "source": "https://www.pascocountyfl.gov/services/parks_recreation_and_natural_resources/park_directory.php"
+     },
+     {
+      "claim": "Robert K. Rees Memorial Park is open 7 days a week from sunrise to sunset",
+      "source": "https://www.pascocountyfl.gov/services/parks_recreation_and_natural_resources/park_directory.php"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ336If1rEwogRx-8ntTOjVvk",
+   "name": "The Ritz Ybor",
+   "category": "attractions",
+   "metro": "tampa",
+   "primary_type": "live_music_venue",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.theritzybor.com/about/",
+     "source_name": "The Ritz Ybor \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Originally constructed in 1917 as the Rivoli Theatre",
+      "The RITZ Ybor underwent renovations in the 1930s to become the Ritz Theatre",
+      "In 2008, it officially reopened as the RITZ Ybor",
+      "The RITZ Ybor is a venue for live music and special events in Tampa"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Constructed in 1917 as the Rivoli Theatre, now a live music venue",
+    "why_here": "Go for live music and special events in a building originally constructed in 1917 as the Rivoli Theatre, renovated in the 1930s to become the Ritz Theatre, and reopened in 2008 as the RITZ Ybor.",
+    "know_before": "The RITZ Ybor is a venue for live music and special events in Tampa.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.theritzybor.com/about/"
+     ],
+     "why_here": [
+      "https://www.theritzybor.com/about/"
+     ],
+     "know_before": [
+      "https://www.theritzybor.com/about/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Originally constructed in 1917 as the Rivoli Theatre",
+      "source": "https://www.theritzybor.com/about/"
+     },
+     {
+      "claim": "The RITZ Ybor underwent renovations in the 1930s to become the Ritz Theatre",
+      "source": "https://www.theritzybor.com/about/"
+     },
+     {
+      "claim": "In 2008, it officially reopened as the RITZ Ybor",
+      "source": "https://www.theritzybor.com/about/"
+     },
+     {
+      "claim": "The RITZ Ybor is a venue for live music and special events in Tampa",
+      "source": "https://www.theritzybor.com/about/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ_yZIUJym2YgR0TXi4D3F8s8",
+   "name": "Casa Espa\u00f1a Tapas Y Vinos",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "spanish_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://casaespanatapasyvinos.com/",
+     "source_name": "Casa Espa\u00f1a Tapas Y Vinos \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Casa Espa\u00f1a is located in Pembroke Pines",
+      "The menu offers Iberic ham croquettes, signature paellas, and grilled seafood selections prepared for sharing",
+      "The restaurant blends live music with a dining room and outdoor seating",
+      "Casa Espa\u00f1a is at 14537 Southwest 5th Street, Pembroke Pines, FL"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Iberic ham croquettes, signature paellas and grilled seafood for sharing",
+    "why_here": "Go in Pembroke Pines for Iberic ham croquettes, signature paellas, and grilled seafood selections prepared for sharing, with live music, a dining room and outdoor seating.",
+    "know_before": "Casa Espa\u00f1a is at 14537 Southwest 5th Street, Pembroke Pines, FL.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://casaespanatapasyvinos.com/"
+     ],
+     "why_here": [
+      "https://casaespanatapasyvinos.com/"
+     ],
+     "know_before": [
+      "https://casaespanatapasyvinos.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Casa Espa\u00f1a is located in Pembroke Pines",
+      "source": "https://casaespanatapasyvinos.com/"
+     },
+     {
+      "claim": "The menu offers Iberic ham croquettes, signature paellas, and grilled seafood selections prepared for sharing",
+      "source": "https://casaespanatapasyvinos.com/"
+     },
+     {
+      "claim": "The restaurant blends live music with a dining room and outdoor seating",
+      "source": "https://casaespanatapasyvinos.com/"
+     },
+     {
+      "claim": "Casa Espa\u00f1a is at 14537 Southwest 5th Street, Pembroke Pines, FL",
+      "source": "https://casaespanatapasyvinos.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJzRA_cFgA2YgRwo36uPdlb-Q",
+   "name": "Fat Boyz Barbecue Restaurant",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "barbecue_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.fatboyzbarbecue.com/catering-menu-and-portioning-guide",
+     "source_name": "Fat Boyz Barbecue Restaurant \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The catering menu lists Beef Brisket",
+      "The catering menu lists Burnt Ends (Beef) and Pulled Pork",
+      "The catering menu lists St. Louis Ribs"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Beef Brisket, Burnt Ends, Pulled Pork and St. Louis Ribs",
+    "why_here": "Go for Beef Brisket, Burnt Ends (Beef), Pulled Pork and St. Louis Ribs, all listed on the catering menu, for a meal built around Beef Brisket, Burnt Ends (Beef), Pulled Pork and St. Louis Ribs.",
+    "know_before": "The catering menu lists Beef Brisket, Burnt Ends (Beef), Pulled Pork and St. Louis Ribs.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.fatboyzbarbecue.com/catering-menu-and-portioning-guide"
+     ],
+     "why_here": [
+      "https://www.fatboyzbarbecue.com/catering-menu-and-portioning-guide"
+     ],
+     "know_before": [
+      "https://www.fatboyzbarbecue.com/catering-menu-and-portioning-guide"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The catering menu lists Beef Brisket",
+      "source": "https://www.fatboyzbarbecue.com/catering-menu-and-portioning-guide"
+     },
+     {
+      "claim": "The catering menu lists Burnt Ends (Beef) and Pulled Pork",
+      "source": "https://www.fatboyzbarbecue.com/catering-menu-and-portioning-guide"
+     },
+     {
+      "claim": "The catering menu lists St. Louis Ribs",
+      "source": "https://www.fatboyzbarbecue.com/catering-menu-and-portioning-guide"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJU7RPnMe32YgRjco765kIMX0",
+   "name": "Milam's Market- Coconut Grove",
+   "category": "shopping",
+   "metro": "miami-dade",
+   "primary_type": "supermarket",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://milamsmarkets.com/location/coconut-grove/",
+     "source_name": "Milam's Market- Coconut Grove \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Coconut Grove location is at 2969 SW 32nd Ave. Coconut Grove, FL 33133",
+      "Regular Hours: 7 a.m. to 11 p.m. at Coconut Grove"
+     ]
+    },
+    {
+     "source": "https://www.milamsmarkets.com/departments",
+     "source_name": "Milam's Market- Coconut Grove \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Departments include Bakery, Beer and Wine, Deli, Floral, Fresh Seafood, Meat, Produce"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Coconut Grove market with Bakery, Deli, Fresh Seafood and Produce",
+    "why_here": "Shop the Coconut Grove location for departments including Bakery, Beer and Wine, Deli, Floral, Fresh Seafood, Meat, and Produce, during regular hours from 7 a.m. to 11 p.m.",
+    "know_before": "Regular hours are 7 a.m. to 11 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://milamsmarkets.com/location/coconut-grove/",
+      "https://www.milamsmarkets.com/departments"
+     ],
+     "why_here": [
+      "https://milamsmarkets.com/location/coconut-grove/",
+      "https://www.milamsmarkets.com/departments"
+     ],
+     "know_before": [
+      "https://milamsmarkets.com/location/coconut-grove/",
+      "https://www.milamsmarkets.com/departments"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Coconut Grove location is at 2969 SW 32nd Ave. Coconut Grove, FL 33133",
+      "source": "https://milamsmarkets.com/location/coconut-grove/"
+     },
+     {
+      "claim": "Regular Hours: 7 a.m. to 11 p.m. at Coconut Grove",
+      "source": "https://milamsmarkets.com/location/coconut-grove/"
+     },
+     {
+      "claim": "Departments include Bakery, Beer and Wine, Deli, Floral, Fresh Seafood, Meat, Produce",
+      "source": "https://www.milamsmarkets.com/departments"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ3zdK87232YgRs_Dg66x8Ueo",
+   "name": "Mi Tierra Bar & Kitchen",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://mitierramiami.com/",
+     "source_name": "Mi Tierra Bar & Kitchen \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Mi Tierra started in 2021 as a food truck",
+      "Mofongo is mashed plantains with garlic, topped with your choice of protein",
+      "Empanada Tacos are Dominican empanadas filled with fresh toppings and chipotle sauce",
+      "Picadera is a Dominican sampler with fried cheese, salami and tostones",
+      "Happy hour is Monday to Friday from 5 p.m. to 8 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Dominican dishes including Mofongo, Empanada Tacos and Picadera",
+    "why_here": "Start with Picadera or Empanada Tacos, then order Mofongo with your choice of protein. The kitchen began as a food truck and now serves Dominican dishes in a sit-down setting.",
+    "know_before": "Happy hour is Monday to Friday from 5 p.m. to 8 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://mitierramiami.com/"
+     ],
+     "why_here": [
+      "https://mitierramiami.com/"
+     ],
+     "know_before": [
+      "https://mitierramiami.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Mi Tierra started in 2021 as a food truck",
+      "source": "https://mitierramiami.com/"
+     },
+     {
+      "claim": "Mofongo is mashed plantains with garlic, topped with your choice of protein",
+      "source": "https://mitierramiami.com/"
+     },
+     {
+      "claim": "Empanada Tacos are Dominican empanadas filled with fresh toppings and chipotle sauce",
+      "source": "https://mitierramiami.com/"
+     },
+     {
+      "claim": "Picadera is a Dominican sampler with fried cheese, salami and tostones",
+      "source": "https://mitierramiami.com/"
+     },
+     {
+      "claim": "Happy hour is Monday to Friday from 5 p.m. to 8 p.m.",
+      "source": "https://mitierramiami.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ40f7rFQ_24gRHy2uNMDhi2M",
+   "name": "Back Streets Sports Bar",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.backstreetssportsbar.com/",
+     "source_name": "Back Streets Sports Bar \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "BackStreets Sports Bar is a full liquor bar",
+      "Live Music is offered 7 Days A Week",
+      "Karaoke is offered 7 Nights A Week",
+      "Hand-tossed, made to order NY-style pizza is served",
+      "BackStreets Sports Bar has a Game Room"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Full liquor bar with Live Music, Karaoke and NY-style pizza",
+    "why_here": "Come to hear Live Music or sing Karaoke, with a full liquor bar, a Game Room and hand-tossed, made to order NY-style pizza served alongside the drinks available here.",
+    "know_before": "Live Music is offered 7 Days A Week and Karaoke is offered 7 Nights A Week.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.backstreetssportsbar.com/"
+     ],
+     "why_here": [
+      "https://www.backstreetssportsbar.com/"
+     ],
+     "know_before": [
+      "https://www.backstreetssportsbar.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "BackStreets Sports Bar is a full liquor bar",
+      "source": "https://www.backstreetssportsbar.com/"
+     },
+     {
+      "claim": "Live Music is offered 7 Days A Week",
+      "source": "https://www.backstreetssportsbar.com/"
+     },
+     {
+      "claim": "Karaoke is offered 7 Nights A Week",
+      "source": "https://www.backstreetssportsbar.com/"
+     },
+     {
+      "claim": "Hand-tossed, made to order NY-style pizza is served",
+      "source": "https://www.backstreetssportsbar.com/"
+     },
+     {
+      "claim": "BackStreets Sports Bar has a Game Room",
+      "source": "https://www.backstreetssportsbar.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJY8-r8vAS3ogRwInZoalAp1U",
+   "name": "Turkey Creek Sanctuary",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "nature_preserve",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.palmbayflorida.org/government/city-departments-f-to-z/recreation/turkey-creek-sanctuary",
+     "source_name": "Turkey Creek Sanctuary \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Turkey Creek Sanctuary was established in 1981",
+      "Turkey Creek Sanctuary offers a 1.85 mile boardwalk",
+      "Turkey Creek Sanctuary offers 1.5 miles of jogging trails",
+      "Turkey Creek Sanctuary offers a 1 mile mountain bike trail",
+      "The park is open from 7 a.m. till sunset and admission is free",
+      "The nature center is open daily from 9 a.m. until 4 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Boardwalk and trails through Turkey Creek Sanctuary, established in 1981",
+    "why_here": "Walk the 1.85 mile boardwalk, use the 1.5 miles of jogging trails, or ride the 1 mile mountain bike trail. The sanctuary has been open since 1981 for quiet nature time.",
+    "know_before": "The park is open from 7 a.m. till sunset and admission is free.",
+    "local_tip": "The nature center is open daily from 9 a.m. until 4 p.m.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.palmbayflorida.org/government/city-departments-f-to-z/recreation/turkey-creek-sanctuary"
+     ],
+     "why_here": [
+      "https://www.palmbayflorida.org/government/city-departments-f-to-z/recreation/turkey-creek-sanctuary"
+     ],
+     "know_before": [
+      "https://www.palmbayflorida.org/government/city-departments-f-to-z/recreation/turkey-creek-sanctuary"
+     ],
+     "local_tip": [
+      "https://www.palmbayflorida.org/government/city-departments-f-to-z/recreation/turkey-creek-sanctuary"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Turkey Creek Sanctuary was established in 1981",
+      "source": "https://www.palmbayflorida.org/government/city-departments-f-to-z/recreation/turkey-creek-sanctuary"
+     },
+     {
+      "claim": "Turkey Creek Sanctuary offers a 1.85 mile boardwalk",
+      "source": "https://www.palmbayflorida.org/government/city-departments-f-to-z/recreation/turkey-creek-sanctuary"
+     },
+     {
+      "claim": "Turkey Creek Sanctuary offers 1.5 miles of jogging trails",
+      "source": "https://www.palmbayflorida.org/government/city-departments-f-to-z/recreation/turkey-creek-sanctuary"
+     },
+     {
+      "claim": "Turkey Creek Sanctuary offers a 1 mile mountain bike trail",
+      "source": "https://www.palmbayflorida.org/government/city-departments-f-to-z/recreation/turkey-creek-sanctuary"
+     },
+     {
+      "claim": "The park is open from 7 a.m. till sunset and admission is free",
+      "source": "https://www.palmbayflorida.org/government/city-departments-f-to-z/recreation/turkey-creek-sanctuary"
+     },
+     {
+      "claim": "The nature center is open daily from 9 a.m. until 4 p.m.",
+      "source": "https://www.palmbayflorida.org/government/city-departments-f-to-z/recreation/turkey-creek-sanctuary"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ80pVraDD5YgRKR65UEQmGew",
+   "name": "Culver\u2019s",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.culvers.com/menu/butterburgers",
+     "source_name": "Culver\u2019s \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "ButterBurgers are always made to order with fresh, never frozen beef",
+      "ButterBurger Cheese is on the ButterBurgers menu",
+      "The Culver's Deluxe is on the ButterBurgers menu",
+      "Mushroom & Swiss is on the ButterBurgers menu"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "ButterBurgers made to order with fresh, never frozen beef",
+    "why_here": "Order a ButterBurger Cheese, The Culver's Deluxe or Mushroom & Swiss, all made to order with fresh, never frozen beef, from the ButterBurgers menu for a made-to-order meal.",
+    "know_before": "ButterBurgers are always made to order with fresh, never frozen beef.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.culvers.com/menu/butterburgers"
+     ],
+     "why_here": [
+      "https://www.culvers.com/menu/butterburgers"
+     ],
+     "know_before": [
+      "https://www.culvers.com/menu/butterburgers"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "ButterBurgers are always made to order with fresh, never frozen beef",
+      "source": "https://www.culvers.com/menu/butterburgers"
+     },
+     {
+      "claim": "ButterBurger Cheese is on the ButterBurgers menu",
+      "source": "https://www.culvers.com/menu/butterburgers"
+     },
+     {
+      "claim": "The Culver's Deluxe is on the ButterBurgers menu",
+      "source": "https://www.culvers.com/menu/butterburgers"
+     },
+     {
+      "claim": "Mushroom & Swiss is on the ButterBurgers menu",
+      "source": "https://www.culvers.com/menu/butterburgers"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJoc_PASIF5YgRgVyZeudQoQc",
+   "name": "Ruby Tuesday",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.rubytuesday.com/our-menu/",
+     "source_name": "Ruby Tuesday \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Garden Bar & Fresh Salads are on the menu",
+      "American Smashed Burger is on the menu",
+      "Big Crispy Chicken Sandwich is a half-pound hand-battered chicken breast",
+      "Ribs & Steaks are on the menu",
+      "Chicken and Seafood are on the menu"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "American Smashed Burger, Ribs & Steaks, Chicken and Seafood on the menu",
+    "why_here": "Pick from American Smashed Burger, Big Crispy Chicken Sandwich, Ribs & Steaks, Chicken or Seafood, with Garden Bar & Fresh Salads also on the menu for a lighter option.",
+    "know_before": "Big Crispy Chicken Sandwich is a half-pound hand-battered chicken breast.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.rubytuesday.com/our-menu/"
+     ],
+     "why_here": [
+      "https://www.rubytuesday.com/our-menu/"
+     ],
+     "know_before": [
+      "https://www.rubytuesday.com/our-menu/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Garden Bar & Fresh Salads are on the menu",
+      "source": "https://www.rubytuesday.com/our-menu/"
+     },
+     {
+      "claim": "American Smashed Burger is on the menu",
+      "source": "https://www.rubytuesday.com/our-menu/"
+     },
+     {
+      "claim": "Big Crispy Chicken Sandwich is a half-pound hand-battered chicken breast",
+      "source": "https://www.rubytuesday.com/our-menu/"
+     },
+     {
+      "claim": "Ribs & Steaks are on the menu",
+      "source": "https://www.rubytuesday.com/our-menu/"
+     },
+     {
+      "claim": "Chicken and Seafood are on the menu",
+      "source": "https://www.rubytuesday.com/our-menu/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJB172iFis2YgR5WP_fzAg9Kg",
+   "name": "STK Aventura",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "steak_house",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://stksteakhouse.com/en-us/location/aventura/",
+     "source_name": "STK Aventura \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "STK Aventura is located at 19505 Biscayne Blvd, Aventura, FL 33180",
+      "STK Aventura is just steps from Aventura Mall",
+      "Opening Hours at STK Aventura are Monday - Wednesday: 11 a.m. - 11 p.m.",
+      "STK Aventura serves Weekend Brunch on Saturday - Sunday: 11 a.m. - 2:30 p.m.",
+      "The STK Aventura menu includes steak such as New York Strip, Surf & Turf, and seafood"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "New York Strip and Surf & Turf near Aventura Mall",
+    "why_here": "Go for steak and seafood near Aventura Mall, with New York Strip and Surf & Turf on the menu and Weekend Brunch on Saturday and Sunday.",
+    "know_before": "Opening Hours are Monday - Wednesday: 11 a.m. - 11 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://stksteakhouse.com/en-us/location/aventura/"
+     ],
+     "why_here": [
+      "https://stksteakhouse.com/en-us/location/aventura/"
+     ],
+     "know_before": [
+      "https://stksteakhouse.com/en-us/location/aventura/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "STK Aventura is located at 19505 Biscayne Blvd, Aventura, FL 33180",
+      "source": "https://stksteakhouse.com/en-us/location/aventura/"
+     },
+     {
+      "claim": "STK Aventura is just steps from Aventura Mall",
+      "source": "https://stksteakhouse.com/en-us/location/aventura/"
+     },
+     {
+      "claim": "Opening Hours at STK Aventura are Monday - Wednesday: 11 a.m. - 11 p.m.",
+      "source": "https://stksteakhouse.com/en-us/location/aventura/"
+     },
+     {
+      "claim": "STK Aventura serves Weekend Brunch on Saturday - Sunday: 11 a.m. - 2:30 p.m.",
+      "source": "https://stksteakhouse.com/en-us/location/aventura/"
+     },
+     {
+      "claim": "The STK Aventura menu includes steak such as New York Strip, Surf & Turf, and seafood",
+      "source": "https://stksteakhouse.com/en-us/location/aventura/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJwzbGDoS22YgR0yi7vExudM0",
+   "name": "Baires Grill - Brickell",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "argentinian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.bairesgrill.com/",
+     "source_name": "Baires Grill - Brickell \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Baires Grill Brickell is at 1010 S. Miami Ave., Miami, FL 33130",
+      "Brickell Opening Hours are Monday - Thursday: 11:30 a.m. - 11 p.m.",
+      "Baires Grill opened its doors more than 25 years ago to bring the spirit of Argentina to the United States, with the fire of the grill and the ritual of a long dinner",
+      "In 1999 Baires Grill set out to bring Argentinean dining to Miami",
+      "Happy Hour at Baires Grill is Monday to Friday: 4 p.m. - 7 p.m., with 50% off all drinks"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Argentinean dining in Miami with the fire of the grill",
+    "why_here": "Go for Argentinean dining in Miami that began in 1999, with the fire of the grill and the ritual of a long dinner from more than 25 years ago.",
+    "know_before": "Happy Hour is Monday to Friday: 4 p.m. - 7 p.m., with 50% off all drinks.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.bairesgrill.com/"
+     ],
+     "why_here": [
+      "https://www.bairesgrill.com/"
+     ],
+     "know_before": [
+      "https://www.bairesgrill.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Baires Grill Brickell is at 1010 S. Miami Ave., Miami, FL 33130",
+      "source": "https://www.bairesgrill.com/"
+     },
+     {
+      "claim": "Brickell Opening Hours are Monday - Thursday: 11:30 a.m. - 11 p.m.",
+      "source": "https://www.bairesgrill.com/"
+     },
+     {
+      "claim": "Baires Grill opened its doors more than 25 years ago to bring the spirit of Argentina to the United States, with the fire of the grill and the ritual of a long dinner",
+      "source": "https://www.bairesgrill.com/"
+     },
+     {
+      "claim": "In 1999 Baires Grill set out to bring Argentinean dining to Miami",
+      "source": "https://www.bairesgrill.com/"
+     },
+     {
+      "claim": "Happy Hour at Baires Grill is Monday to Friday: 4 p.m. - 7 p.m., with 50% off all drinks",
+      "source": "https://www.bairesgrill.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ7dvANY7W2IgRkpza9qGt2NA",
+   "name": "Henry Morrison Flagler Museum",
+   "category": "attractions",
+   "metro": "palm-beach",
+   "primary_type": "history_museum",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://flaglermuseum.org/visiting/visiting",
+     "source_name": "Henry Morrison Flagler Museum \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Museum is at One Whitehall Way, Palm Beach, FL 33480",
+      "Museum Hours are Tuesday through Saturday, 10 a.m. to 5 p.m., and Sunday, 12 to 5 p.m.",
+      "Admission is $28 for Adults (ages 13+) and $14 for Children (ages 6 - 12)",
+      "Docent-led tours of the first floor are offered Tuesday through Saturday at 11 a.m., 12:30 p.m., and 2 p.m.",
+      "The visitor experience includes the first and second floors of Whitehall, its grounds, and the Flagler Kenan Pavilion, which houses Flagler's Railcar No. 91"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Whitehall museum in Palm Beach, with Docent-led tours of the first floor",
+    "why_here": "Go to see the first and second floors of Whitehall, its grounds, and the Flagler Kenan Pavilion housing Flagler's Railcar No. 91, with Docent-led tours.",
+    "know_before": "Museum Hours are Tuesday through Saturday, 10 a.m. to 5 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://flaglermuseum.org/visiting/visiting"
+     ],
+     "why_here": [
+      "https://flaglermuseum.org/visiting/visiting"
+     ],
+     "know_before": [
+      "https://flaglermuseum.org/visiting/visiting"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Museum is at One Whitehall Way, Palm Beach, FL 33480",
+      "source": "https://flaglermuseum.org/visiting/visiting"
+     },
+     {
+      "claim": "Museum Hours are Tuesday through Saturday, 10 a.m. to 5 p.m., and Sunday, 12 to 5 p.m.",
+      "source": "https://flaglermuseum.org/visiting/visiting"
+     },
+     {
+      "claim": "Admission is $28 for Adults (ages 13+) and $14 for Children (ages 6 - 12)",
+      "source": "https://flaglermuseum.org/visiting/visiting"
+     },
+     {
+      "claim": "Docent-led tours of the first floor are offered Tuesday through Saturday at 11 a.m., 12:30 p.m., and 2 p.m.",
+      "source": "https://flaglermuseum.org/visiting/visiting"
+     },
+     {
+      "claim": "The visitor experience includes the first and second floors of Whitehall, its grounds, and the Flagler Kenan Pavilion, which houses Flagler's Railcar No. 91",
+      "source": "https://flaglermuseum.org/visiting/visiting"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJi2zjpvvZ5ogRIr5ibrEX7cM",
+   "name": "Congo River Golf",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "miniature_golf_course",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.congoriver.com/",
+     "source_name": "Congo River Golf \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Congo River Golf has eight locations in Florida",
+      "Congo River Golf offers miniature golf with tranquil waterfalls, mysterious caves, tropical rainforests, and challenging golf holes",
+      "At Congo River Golf visitors can search for lost artifacts, feed live gators, mine for gemstones and challenge your skills in the arcade",
+      "Online tickets include sales tax and are valid at any location"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Miniature golf with tranquil waterfalls, mysterious caves, and tropical rainforests",
+    "why_here": "Go to play miniature golf through tranquil waterfalls, mysterious caves, and tropical rainforests, then search for lost artifacts, feed live gators, and mine for gemstones.",
+    "know_before": "Online tickets include sales tax and are valid at any location.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.congoriver.com/"
+     ],
+     "why_here": [
+      "https://www.congoriver.com/"
+     ],
+     "know_before": [
+      "https://www.congoriver.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Congo River Golf has eight locations in Florida",
+      "source": "https://www.congoriver.com/"
+     },
+     {
+      "claim": "Congo River Golf offers miniature golf with tranquil waterfalls, mysterious caves, tropical rainforests, and challenging golf holes",
+      "source": "https://www.congoriver.com/"
+     },
+     {
+      "claim": "At Congo River Golf visitors can search for lost artifacts, feed live gators, mine for gemstones and challenge your skills in the arcade",
+      "source": "https://www.congoriver.com/"
+     },
+     {
+      "claim": "Online tickets include sales tax and are valid at any location",
+      "source": "https://www.congoriver.com/"
+     }
+    ]
+   }
+  }
+ ]
+}
