@@ -32,11 +32,43 @@ export function pickOfferHref(offer, slug, pickId, clickId) {
   return commerceHref({ provider: offer.provider, offerId: offer.offerId, surface: SURFACE, contentId: slug + ":" + pickId, clickId, page: "g-" + slug });
 }
 
-/** One tap: mint the click id, point the anchor at it, record ONE click. */
-export function onPickOfferClick({ offer, slug, pickId, anchor }) {
-  const clickId = mintClickId();
+function consumeBeaconClickId(anchor, nowMs = Date.now()) {
+  if (!anchor) return null;
+  try {
+    const stamped = typeof anchor.getAttribute === "function" ? anchor.getAttribute("data-wf-click-id") : null;
+    const stampedTs = typeof anchor.getAttribute === "function" ? anchor.getAttribute("data-wf-click-ts") : null;
+    if (typeof anchor.removeAttribute === "function") {
+      anchor.removeAttribute("data-wf-click-id");
+      anchor.removeAttribute("data-wf-click-ts");
+    } else if (typeof anchor.setAttribute === "function") {
+      anchor.setAttribute("data-wf-click-id", "");
+      anchor.setAttribute("data-wf-click-ts", "");
+    }
+    if (!stamped || !/^[a-z0-9_-]{4,80}$/i.test(stamped)) return null;
+    if (stampedTs !== null && stampedTs !== "") {
+      const tsNum = Number(stampedTs);
+      if (Number.isFinite(tsNum) && Math.abs(nowMs - tsNum) > 1000) return null;
+    }
+    return stamped;
+  } catch (e) {}
+  return null;
+}
+
+/**
+ * One tap: consume the capture-phase beacon click_id (or mint a fresh one if no
+ * capture-phase stamp is present for this activation), point the anchor at it,
+ * and record ONE click. Never reads a stale click_id back from anchor.href, so
+ * a later click on the same target="_blank" anchor always gets its own click_id.
+ */
+export function onPickOfferClick({ offer, slug, pickId, anchor, nowMs }) {
+  const clickId = consumeBeaconClickId(anchor, nowMs) || mintClickId();
   const href = pickOfferHref(offer, slug, pickId, clickId);
-  if (href && anchor) anchor.href = href;
+  if (href && anchor) {
+    anchor.href = href;
+    if (typeof anchor.setAttribute === "function") {
+      try { anchor.setAttribute("href", href); } catch (e) {}
+    }
+  }
   try { emitCommerce("commerce_cta_clicked", { ...pickOfferContext(offer, slug, pickId), click_id: clickId }); } catch (e) {}
   return href;
 }

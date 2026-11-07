@@ -6,12 +6,13 @@
  * identical except for their scores, then thisWeekEvents.rankingScore. Source check: no
  * ranking module reads the three score columns raw.
  */
-import { readFileSync, readdirSync } from "node:fs";
-import { ASSESSMENT_PRIORS, assessedScore, isAssessed } from "../lib/eventAssessment.js";
+import { readFileSync, readdirSync, statSync } from "node:fs";
+import { ASSESSMENT_PRIORS, assessedScore, isAssessed, assessmentState } from "../lib/eventAssessment.js";
 import { scoreEvent } from "../lib/curatedEvents.js";
 import { rankingScore, UNASSESSED_SCORE_PRIOR } from "../lib/thisWeekEvents.js";
 
 let pass = 0; const fail = [];
+const strip = (s) => s.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:\\])\/\/.*$/gm, "$1");
 const ok = (c, m) => { if (c) pass++; else fail.push(m); };
 
 /* ---- the policy itself */
@@ -24,6 +25,39 @@ ok(assessedScore({ editorial_score: 6 }) === 6 && assessedScore({ editorial_scor
 ok(assessedScore({ uniqueness_score: 0 }, "uniqueness_score") === 5 && assessedScore({ popularity_score: 0 }, "popularity_score") === 5 && assessedScore({ uniqueness_score: 8.5 }, "uniqueness_score") === 8.5, "uniqueness and popularity follow the same rule with their own priors");
 let threw = false; try { assessedScore({}, "wayfind_score"); } catch { threw = true; }
 ok(threw, "an unknown field throws rather than silently returning 0");
+
+
+/* ---- four states kept apart: unassessed, assessed, invalid (owner, 2026-11-04) */
+const st = (v) => assessmentState({ editorial_score: v });
+ok(st(undefined) === "unassessed" && st(null) === "unassessed" && st("") === "unassessed" && st(0) === "unassessed" && st("0") === "unassessed", "missing, null, empty and the column default 0 are unassessed");
+ok(st(6) === "assessed" && st("9.5") === "assessed" && st(10) === "assessed", "a finite score above 0 and at most 10 is assessed");
+ok([-1, 10.1, 42, NaN, Infinity, "abc", "7 stars", {}, true].every((v) => st(v) === "invalid"), "negative, above 10, non numeric, NaN and Infinity are INVALID, not unassessed and not assessed");
+ok(!isAssessed({ editorial_score: 10.1 }) && assessedScore({ editorial_score: 42 }) === 7 && assessedScore({ editorial_score: -3 }) === 7, "an invalid value is never trusted: it ranks at the prior and is never returned");
+
+/* ---- whole tree: no raw read of an event score column outside the policy module */
+const SKIP = new Set(["node_modules", ".next", ".git", "public"]);
+const files = [];
+const walk = (d) => { for (const n of readdirSync(new URL("../" + d, import.meta.url))) { if (SKIP.has(n)) continue; const rel = d + "/" + n; const st2 = statSync(new URL("../" + rel, import.meta.url)); if (st2.isDirectory()) walk(rel); else if (/\.(m?js|jsx)$/.test(n)) files.push(rel); } };
+walk("app"); walk("lib");
+// Allowed: the policy module; the curated read (column list) and its feed passthrough; the
+// popularity signal, which rejects the default 0 itself (scripts/test-event-popularity.mjs).
+const ALLOW = new Set(["lib/eventAssessment.js", "lib/eventPopularity.js"]);
+const ACCESS = /\.\s*(editorial|uniqueness|popularity)_score\b/g;
+const offenders = [];
+for (const f of files) {
+  if (ALLOW.has(f)) continue;
+  const code = strip(readFileSync(new URL("../" + f, import.meta.url), "utf8")).replace(/"(?:[^"\\\n]|\\.)*"|'(?:[^'\\\n]|\\.)*'/g, '""');
+  const hits = (code.match(ACCESS) || []).length - (code.match(/ASSESSMENT_PRIORS\.(editorial|uniqueness|popularity)_score\b/g) || []).length;
+  const passthrough = f === "lib/curatedEvents.js" ? (code.match(/popularity_score: row\.popularity_score \?\? null/g) || []).length : 0;
+  if (hits - passthrough > 0) offenders.push(`${f} (${hits - passthrough})`);
+}
+ok(offenders.length === 0, `no app/ or lib/ file reads an event score column raw outside lib/eventAssessment.js: ${offenders.join(", ")}`);
+ok(("x" + ".editorial_score").match(ACCESS) && !("editorial_score: 8").match(ACCESS), "probe control: property access is caught, a registry literal is not");
+const appFiles = files.filter((f) => f.startsWith("app/"));
+const priorLeak = appFiles.filter((f) => /\b(ASSESSMENT_PRIORS|UNASSESSED_SCORE_PRIOR|rankingScore)\b/.test(strip(readFileSync(new URL("../" + f, import.meta.url), "utf8"))));
+ok(priorLeak.length === 0, `no page or component imports the neutral prior or rankingScore, so it cannot be rendered as a rating: ${priorLeak.join(", ")}`);
+const nonSortUse = appFiles.filter((f) => { const c = strip(readFileSync(new URL("../" + f, import.meta.url), "utf8")); return (c.match(/assessedScore\(/g) || []).length > (c.match(/\.sort\([^\n]*assessedScore\(/g) || []).length * 2; });
+ok(nonSortUse.length === 0, `in app/, assessedScore is called only inside a sort comparator (ranking, never display): ${nonSortUse.join(", ")}`);
 
 /* ---- scoreEvent: the hub, live picks and fall rails all rank through it */
 const NOW = new Date("2026-11-03T15:00:00Z");
@@ -44,7 +78,6 @@ ok(withPriors - rawZero > 2.4, `the penalty the old raw read imposed on every un
 ok(UNASSESSED_SCORE_PRIOR === ASSESSMENT_PRIORS.editorial_score && rankingScore({ editorial_score: 0 }) === 7 && rankingScore({ editorial_score: 8 }) === 8, "thisWeekEvents.rankingScore is the same policy");
 
 /* ---- no ranking module reads the score columns raw */
-const strip = (s) => s.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:\\])\/\/.*$/gm, "$1");
 const RAW = /Number\(\s*\w+\.(editorial|uniqueness|popularity)_score\s*(\|\||\?\?)/;
 const rankingFiles = ["lib/curatedEvents.js", "lib/thisWeekEvents.js", "lib/fallIntentRails.js"];
 for (const f of rankingFiles) {
@@ -59,4 +92,4 @@ ok(/const FAMOUS = \(e\) => assessedScore\(e, "popularity_score"\)/.test(curated
 ok(readdirSync(new URL("../lib", import.meta.url)).includes("eventAssessment.js"), "the policy module exists where every surface imports it from");
 
 if (fail.length) { console.error("check-event-assessment-policy: FAIL"); for (const f of fail) console.error("  - " + f); process.exit(1); }
-console.log(`check-event-assessment-policy: OK - ${pass} assertions; 0 means not yet assessed on scoreEvent (hub, live picks, fall rails) and the homepage strip; ${rankingFiles.length} ranking files scanned for raw reads`);
+console.log(`check-event-assessment-policy: OK - ${pass} assertions; 0 means not yet assessed on scoreEvent (hub, live picks, fall rails) and the homepage strip; ${rankingFiles.length} ranking files scanned for raw reads; ${files.length} app/lib files scanned for raw score reads and prior rendering`);

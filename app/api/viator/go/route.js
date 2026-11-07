@@ -20,6 +20,7 @@ import { getFanoutCount, persistOffer } from "../../../../lib/verifiedOfferStore
 import { captureServerInBackground, distinctIdFromCookies } from "../../../../lib/serverEvents.js";
 import { commercePayload, sanitizeClientClickId } from "../../../../lib/commerce.js";
 import { withViatorTracking, viatorCampaign, viatorPageHint } from "../../../../lib/affiliates.js";
+import { attributedViatorDestination } from "../../../../lib/viatorAttribution.js";
 import { FALLBACK } from "../../../../lib/commerceProviders.js";
 import { isCrawler, isInternalVerifier, isSyntheticMonitor } from "../../../../lib/crawler.js";
 import { gateRedirectTraffic, headResponse, noStoreHeaders, noStoreRedirect, clickProof } from "../../../../lib/redirectTrafficClass.js";
@@ -342,6 +343,8 @@ export async function GET(req) {
   // is denylisted or the URL is a search/homepage pretending to be Book.
   if (rawProduct) {
     if (isValidViatorProduct(rawProduct)) {
+      const pageHintVal = viatorPageHint({ page: searchParams.get("page"), surface });
+      const offerCode = viatorProductCode(rawProduct);
       const chosen = chooseViatorGoLocation({
         // Campaign from QUERY params only (surface + page + product code),
         // never the Referer. (This 302 was CDN-cached per URL until
@@ -349,14 +352,28 @@ export async function GET(req) {
         // function of the URL so links stay reproducible and joinable.)
         rawProduct: withViatorTracking(rawProduct, undefined, {
           campaign: viatorCampaign({
-            page: viatorPageHint({ page: searchParams.get("page"), surface }),
+            page: pageHintVal,
             surface,
-            offerId: viatorProductCode(rawProduct),
+            offerId: offerCode,
           }),
         }) || rawProduct,
         siteFallback: FALLBACK,
       });
       if (chosen.ok) {
+        let finalLocation = chosen.location;
+        try {
+          const attributed = await attributedViatorDestination({
+            offerId: offerCode || placeId || "product",
+            destinationUrl: chosen.location,
+            pageHint: pageHintVal,
+            surface,
+            contentId: contentId || placeId,
+            clientClickId: clickId,
+            cookieHeader: req.headers.get("cookie") || "",
+            distinctId: cookieDistinctId || null,
+          });
+          if (attributed && attributed.url) finalLocation = attributed.url;
+        } catch {}
         emit("provider_redirect_started", { offer_id: "product:" + rawProduct.slice(0, 120), resolver_path: chosen.resolver_path });
         return new Response(null, {
           status: 302,
@@ -365,7 +382,7 @@ export async function GET(req) {
           // no Partner API call) and let the edge replay the partner 302 to
           // the next requester without running gateRedirectTraffic.
           headers: noStoreHeaders({
-            Location: partnerLocation(chosen.location),
+            Location: partnerLocation(finalLocation),
             "Referrer-Policy": "no-referrer",
           }),
         });
@@ -440,6 +457,23 @@ export async function GET(req) {
     siteFallback: FALLBACK,
   });
 
+  let finalResolvedLocation = chosen.location;
+  if (chosen.ok) {
+    try {
+      const attributed = await attributedViatorDestination({
+        offerId: viatorProductCode(chosen.location) || placeId || "resolved",
+        destinationUrl: chosen.location,
+        pageHint: viatorPageHint({ page: searchParams.get("page"), surface }),
+        surface,
+        contentId: contentId || placeId,
+        clientClickId: clickId,
+        cookieHeader: req.headers.get("cookie") || "",
+        distinctId: cookieDistinctId || null,
+      });
+      if (attributed && attributed.url) finalResolvedLocation = attributed.url;
+    } catch {}
+  }
+
   emit(chosen.ok ? "provider_redirect_started" : "provider_redirect_failed", {
     failure_reason: chosen.ok ? undefined : chosen.reason,
     resolver_path: chosen.resolver_path,
@@ -450,7 +484,7 @@ export async function GET(req) {
   // protection now lives in resolveProduct()'s cache of the RESOLVED URL
   // (warm memory + the shared wf_places_cache row, same TTLs), never in a
   // cached HTTP redirect the classifier cannot see.
-  return noStoreRedirect(chosen.ok ? partnerLocation(chosen.location) : siteLocation(req, chosen.location), 302, { "Referrer-Policy": "no-referrer" });
+  return noStoreRedirect(chosen.ok ? partnerLocation(finalResolvedLocation) : siteLocation(req, chosen.location), 302, { "Referrer-Policy": "no-referrer" });
 }
 
 // HEAD is never a click (link checkers, unfurlers): 204, no event, no partner.
