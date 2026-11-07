@@ -1,0 +1,1661 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 24. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJHfGwEkt-54gRR_IKSnZ-OWM",
+   "name": "Funny Bone Comedy Club",
+   "category": "attractions",
+   "metro": "orlando",
+   "primary_type": "comedy_club",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://orlando.funnybone.com/",
+     "source_name": "Funny Bone Comedy Club \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The official site titles the venue Orlando Funny Bone Comedy Club & Restaurant.",
+      "The venue is at 9101 International Dr Suite 2310, Orlando, FL 32819.",
+      "The Funny Bone has a full bar and a dinner menu available to every guest through your server when you are seated in the showroom."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Comedy club and restaurant with a full bar and dinner menu",
+    "why_here": "Orlando Funny Bone Comedy Club & Restaurant is a comedy club and restaurant. The Funny Bone has a full bar and a dinner menu available to every guest in the showroom.",
+    "know_before": "The venue is at 9101 International Dr Suite 2310, Orlando, FL 32819.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://orlando.funnybone.com/"
+     ],
+     "why_here": [
+      "https://orlando.funnybone.com/"
+     ],
+     "know_before": [
+      "https://orlando.funnybone.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The official site titles the venue Orlando Funny Bone Comedy Club & Restaurant.",
+      "source": "https://orlando.funnybone.com/"
+     },
+     {
+      "claim": "The venue is at 9101 International Dr Suite 2310, Orlando, FL 32819.",
+      "source": "https://orlando.funnybone.com/"
+     },
+     {
+      "claim": "The Funny Bone has a full bar and a dinner menu available to every guest through your server when you are seated in the showroom.",
+      "source": "https://orlando.funnybone.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJIaxduc1s54gRlwBWJEQrOhc",
+   "name": "Ichigo Ichie Buffet",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "japanese_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://ichigoichiebuffetusa.com/",
+     "source_name": "Ichigo Ichie Buffet \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Ichigo Ichie Buffet is located at 3611 South Orlando Drive, Sanford, FL 32773.",
+      "The restaurant offers Chinese, Japanese and American cuisine including Hibachi Grill & Sushi.",
+      "Open hours are Sunday to Thursday 11:00 a.m. to 10:00 p.m. and Friday to Saturday 11:00 a.m. to 10:30 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Chinese, Japanese and American cuisine including Hibachi Grill & Sushi",
+    "why_here": "Ichigo Ichie Buffet in Sanford offers Chinese, Japanese and American cuisine including Hibachi Grill & Sushi. The restaurant is located at 3611 South Orlando Drive, Sanford, FL 32773.",
+    "know_before": "Open hours are Sunday to Thursday 11:00 a.m. to 10:00 p.m. and Friday to Saturday 11:00 a.m. to 10:30 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://ichigoichiebuffetusa.com/"
+     ],
+     "why_here": [
+      "https://ichigoichiebuffetusa.com/"
+     ],
+     "know_before": [
+      "https://ichigoichiebuffetusa.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Ichigo Ichie Buffet is located at 3611 South Orlando Drive, Sanford, FL 32773.",
+      "source": "https://ichigoichiebuffetusa.com/"
+     },
+     {
+      "claim": "The restaurant offers Chinese, Japanese and American cuisine including Hibachi Grill & Sushi.",
+      "source": "https://ichigoichiebuffetusa.com/"
+     },
+     {
+      "claim": "Open hours are Sunday to Thursday 11:00 a.m. to 10:00 p.m. and Friday to Saturday 11:00 a.m. to 10:30 p.m.",
+      "source": "https://ichigoichiebuffetusa.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJp4JBQ9k514gRC6hjnN9mw_w",
+   "name": "Islamorada Brewery & Distillery (Islamorada)",
+   "category": "nightlife",
+   "metro": "keys",
+   "primary_type": "brewery",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.islamoradabreweryanddistillery.com/",
+     "source_name": "Islamorada Brewery & Distillery (Islamorada) \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The official site describes a neon yellow taproom and brewery in the heart of Islamorada.",
+      "Islamorada Distilling opened in December 2017, the first distillery ever to open in Islamorada.",
+      "The Beer Garden is described as kid-friendly and pet-friendly."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Neon yellow taproom and brewery in the heart of Islamorada",
+    "why_here": "The official site describes a neon yellow taproom and brewery in the heart of Islamorada. Islamorada Distilling opened in December 2017, the first distillery ever to open in Islamorada.",
+    "know_before": "The Beer Garden is described as kid-friendly and pet-friendly.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.islamoradabreweryanddistillery.com/"
+     ],
+     "why_here": [
+      "https://www.islamoradabreweryanddistillery.com/"
+     ],
+     "know_before": [
+      "https://www.islamoradabreweryanddistillery.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The official site describes a neon yellow taproom and brewery in the heart of Islamorada.",
+      "source": "https://www.islamoradabreweryanddistillery.com/"
+     },
+     {
+      "claim": "Islamorada Distilling opened in December 2017, the first distillery ever to open in Islamorada.",
+      "source": "https://www.islamoradabreweryanddistillery.com/"
+     },
+     {
+      "claim": "The Beer Garden is described as kid-friendly and pet-friendly.",
+      "source": "https://www.islamoradabreweryanddistillery.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJq4Z7D6d954gRtsJOjoQKS0Y",
+   "name": "Casa Vieja - Orlando Florida",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.casaviejafl.com/",
+     "source_name": "Casa Vieja - Orlando Florida \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Casa Vieja calls itself a Puerto Rican chinchorro on its official site.",
+      "The official site lists the Orlando location at 7101 S Orange Ave, Orlando, FL 32809."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Puerto Rican chinchorro in Orlando",
+    "why_here": "Casa Vieja calls itself a Puerto Rican chinchorro on its official site. The official site lists the Orlando location at 7101 S Orange Ave, Orlando, FL 32809.",
+    "know_before": "The Orlando location is at 7101 S Orange Ave, Orlando, FL 32809.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.casaviejafl.com/"
+     ],
+     "why_here": [
+      "https://www.casaviejafl.com/"
+     ],
+     "know_before": [
+      "https://www.casaviejafl.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Casa Vieja calls itself a Puerto Rican chinchorro on its official site.",
+      "source": "https://www.casaviejafl.com/"
+     },
+     {
+      "claim": "The official site lists the Orlando location at 7101 S Orange Ave, Orlando, FL 32809.",
+      "source": "https://www.casaviejafl.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJU4LV-XbSwogRmb2VHDNtVuk",
+   "name": "Bloomingdale Square",
+   "category": "shopping",
+   "metro": "tampa",
+   "primary_type": "shopping_mall",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.regencycenters.com/property/detail/150/Bloomingdale-Square",
+     "source_name": "Bloomingdale Square \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Bloomingdale Square is located at 801-949 E. Bloomingdale Ave., Brandon, FL 33511.",
+      "Bloomingdale Square totals 251,635 square feet.",
+      "Key retailers include PUBLIX, BEALLS, DOLLAR TREE, and EOS FITNESS.",
+      "Bloomingdale Square is listed by Regency Centers."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Retail center with PUBLIX, BEALLS, DOLLAR TREE, and EOS FITNESS in Brandon",
+    "why_here": "Bloomingdale Square is listed by Regency Centers in Brandon and totals 251,635 square feet. Key retailers include PUBLIX, BEALLS, DOLLAR TREE, and EOS FITNESS.",
+    "know_before": "Bloomingdale Square is located at 801-949 E. Bloomingdale Ave., Brandon, FL 33511.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.regencycenters.com/property/detail/150/Bloomingdale-Square"
+     ],
+     "why_here": [
+      "https://www.regencycenters.com/property/detail/150/Bloomingdale-Square"
+     ],
+     "know_before": [
+      "https://www.regencycenters.com/property/detail/150/Bloomingdale-Square"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Bloomingdale Square is located at 801-949 E. Bloomingdale Ave., Brandon, FL 33511.",
+      "source": "https://www.regencycenters.com/property/detail/150/Bloomingdale-Square"
+     },
+     {
+      "claim": "Bloomingdale Square totals 251,635 square feet.",
+      "source": "https://www.regencycenters.com/property/detail/150/Bloomingdale-Square"
+     },
+     {
+      "claim": "Key retailers include PUBLIX, BEALLS, DOLLAR TREE, and EOS FITNESS.",
+      "source": "https://www.regencycenters.com/property/detail/150/Bloomingdale-Square"
+     },
+     {
+      "claim": "Bloomingdale Square is listed by Regency Centers.",
+      "source": "https://www.regencycenters.com/property/detail/150/Bloomingdale-Square"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJkxYl70232YgRhTbVfyFq6Vw",
+   "name": "Dando La Brasa - Miami",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "latin_american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.dandolabrasa.us/",
+     "source_name": "Dando La Brasa - Miami \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Dando La Brasa is a Latin American restaurant in Miami.",
+      "Dando La Brasa is at 1836 Southwest 3rd Avenue, Miami, FL 33129.",
+      "The menu includes Whole Chicken a la Brasa.",
+      "The menu includes Chicken Wings (5)."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Latin American restaurant serving Whole Chicken a la Brasa in Miami",
+    "why_here": "Dando La Brasa is a Latin American restaurant in Miami. The menu includes Whole Chicken a la Brasa and Chicken Wings (5) at the Miami address listed on the official site.",
+    "know_before": "Dando La Brasa is at 1836 Southwest 3rd Avenue, Miami, FL 33129.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.dandolabrasa.us/"
+     ],
+     "why_here": [
+      "https://www.dandolabrasa.us/"
+     ],
+     "know_before": [
+      "https://www.dandolabrasa.us/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Dando La Brasa is a Latin American restaurant in Miami.",
+      "source": "https://www.dandolabrasa.us/"
+     },
+     {
+      "claim": "Dando La Brasa is at 1836 Southwest 3rd Avenue, Miami, FL 33129.",
+      "source": "https://www.dandolabrasa.us/"
+     },
+     {
+      "claim": "The menu includes Whole Chicken a la Brasa.",
+      "source": "https://www.dandolabrasa.us/"
+     },
+     {
+      "claim": "The menu includes Chicken Wings (5).",
+      "source": "https://www.dandolabrasa.us/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ-0bKHB0ow4gR6onl-nxmI-U",
+   "name": "Denny's Restaurant",
+   "category": "food",
+   "metro": "tampa",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.dennys.com/menu",
+     "source_name": "Denny's Restaurant \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Denny's is a 24-Hour Diner and Breakfast Restaurant.",
+      "The Denny's menu includes Original Grand Slam.",
+      "The Denny's menu includes Build Your Own Grand Slam.",
+      "Denny's serves Grand Slams, pancakes, skillets, and burgers."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "24-Hour Diner and Breakfast Restaurant with Original Grand Slam",
+    "why_here": "Denny's is a 24-Hour Diner and Breakfast Restaurant. Denny's serves Grand Slams, pancakes, skillets, and burgers, and the menu includes Original Grand Slam.",
+    "know_before": "The Denny's menu includes Original Grand Slam and Build Your Own Grand Slam.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.dennys.com/menu"
+     ],
+     "why_here": [
+      "https://www.dennys.com/menu"
+     ],
+     "know_before": [
+      "https://www.dennys.com/menu"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Denny's is a 24-Hour Diner and Breakfast Restaurant.",
+      "source": "https://www.dennys.com/menu"
+     },
+     {
+      "claim": "The Denny's menu includes Original Grand Slam.",
+      "source": "https://www.dennys.com/menu"
+     },
+     {
+      "claim": "The Denny's menu includes Build Your Own Grand Slam.",
+      "source": "https://www.dennys.com/menu"
+     },
+     {
+      "claim": "Denny's serves Grand Slams, pancakes, skillets, and burgers.",
+      "source": "https://www.dennys.com/menu"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJT5I0Gma_kIgRSf55niGS-E0",
+   "name": "Bubba's 33",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.bubbas33.com/sites/default/files/menu/pdfs/B_2308_MNU-I-3-AF.pdf",
+     "source_name": "Bubba's 33 \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Every pizza is scratch-made.",
+      "Every pizza is hand-stretched.",
+      "Bubba's 33 menu includes burgers and pizza."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Scratch-made pizza, hand-stretched, with burgers and pizza on the menu",
+    "why_here": "Bubba's 33 lists burgers and pizza on the menu. Every pizza is scratch-made and every pizza is hand-stretched, according to the official menu.",
+    "know_before": "Every pizza is scratch-made and hand-stretched.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.bubbas33.com/sites/default/files/menu/pdfs/B_2308_MNU-I-3-AF.pdf"
+     ],
+     "why_here": [
+      "https://www.bubbas33.com/sites/default/files/menu/pdfs/B_2308_MNU-I-3-AF.pdf"
+     ],
+     "know_before": [
+      "https://www.bubbas33.com/sites/default/files/menu/pdfs/B_2308_MNU-I-3-AF.pdf"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Every pizza is scratch-made.",
+      "source": "https://www.bubbas33.com/sites/default/files/menu/pdfs/B_2308_MNU-I-3-AF.pdf"
+     },
+     {
+      "claim": "Every pizza is hand-stretched.",
+      "source": "https://www.bubbas33.com/sites/default/files/menu/pdfs/B_2308_MNU-I-3-AF.pdf"
+     },
+     {
+      "claim": "Bubba's 33 menu includes burgers and pizza.",
+      "source": "https://www.bubbas33.com/sites/default/files/menu/pdfs/B_2308_MNU-I-3-AF.pdf"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJsUu-iXA524gRIWpWnU0IAIc",
+   "name": "Adventures in Paradise",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "tour_agency",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.adventureinparadiseinc.com",
+     "source_name": "Adventures in Paradise \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Adventures in Paradise offers Sanibel & Captiva Dolphin, Shelling & Sunset Cruises.",
+      "Adventures in Paradise is owned & operated by the Stewart family on Sanibel & Captiva Island since 1986.",
+      "Cruises include Fishing, Shelling & Lunch Excursions, Sea Life Encounters, Dolphin Watches, and Sunset Dolphin Cruises."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Sanibel & Captiva Dolphin, Shelling & Sunset Cruises since 1986",
+    "why_here": "Adventures in Paradise offers Sanibel & Captiva Dolphin, Shelling & Sunset Cruises. Adventures in Paradise is owned & operated by the Stewart family on Sanibel & Captiva Island since 1986.",
+    "know_before": "Adventures in Paradise is owned & operated by the Stewart family since 1986.",
+    "local_tip": "Cruises include Sea Life Encounters and Sunset Dolphin Cruises.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.adventureinparadiseinc.com"
+     ],
+     "why_here": [
+      "https://www.adventureinparadiseinc.com"
+     ],
+     "know_before": [
+      "https://www.adventureinparadiseinc.com"
+     ],
+     "local_tip": [
+      "https://www.adventureinparadiseinc.com"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Adventures in Paradise offers Sanibel & Captiva Dolphin, Shelling & Sunset Cruises.",
+      "source": "https://www.adventureinparadiseinc.com"
+     },
+     {
+      "claim": "Adventures in Paradise is owned & operated by the Stewart family on Sanibel & Captiva Island since 1986.",
+      "source": "https://www.adventureinparadiseinc.com"
+     },
+     {
+      "claim": "Cruises include Fishing, Shelling & Lunch Excursions, Sea Life Encounters, Dolphin Watches, and Sunset Dolphin Cruises.",
+      "source": "https://www.adventureinparadiseinc.com"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ29BhhvR654gRnyA-BlNnZ74",
+   "name": "DoubleTree by Hilton Orlando Downtown",
+   "category": "hotels",
+   "metro": "orlando",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.hilton.com/en/hotels/mcooddt-doubletree-orlando-downtown/",
+     "source_name": "DoubleTree by Hilton Orlando Downtown \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The hotel is located at 60 South Ivanhoe Boulevard, Orlando, Florida, 32804, USA.",
+      "The hotel has a sky-deck pool and 24-hour fitness center.",
+      "The hotel offers an outdoor pool and meeting rooms."
+     ]
+    },
+    {
+     "source": "https://www.hilton.com/en/hotels/mcooddt-doubletree-orlando-downtown/events/",
+     "source_name": "DoubleTree by Hilton Orlando Downtown \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The hotel has 20,000 sq. ft. of flexible meeting space that can accommodate up to 1,000 guests."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Downtown Orlando hotel with a sky-deck pool on Ivanhoe Boulevard",
+    "why_here": "DoubleTree by Hilton Orlando Downtown sits on South Ivanhoe Boulevard in downtown Orlando. The hotel lists a sky-deck pool, a 24-hour fitness center and extensive meeting space.",
+    "know_before": "The hotel has 20,000 sq. ft. of flexible meeting space that can accommodate up to 1,000 guests.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.hilton.com/en/hotels/mcooddt-doubletree-orlando-downtown/",
+      "https://www.hilton.com/en/hotels/mcooddt-doubletree-orlando-downtown/events/"
+     ],
+     "why_here": [
+      "https://www.hilton.com/en/hotels/mcooddt-doubletree-orlando-downtown/",
+      "https://www.hilton.com/en/hotels/mcooddt-doubletree-orlando-downtown/events/"
+     ],
+     "know_before": [
+      "https://www.hilton.com/en/hotels/mcooddt-doubletree-orlando-downtown/",
+      "https://www.hilton.com/en/hotels/mcooddt-doubletree-orlando-downtown/events/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The hotel is located at 60 South Ivanhoe Boulevard, Orlando, Florida, 32804, USA.",
+      "source": "https://www.hilton.com/en/hotels/mcooddt-doubletree-orlando-downtown/"
+     },
+     {
+      "claim": "The hotel has a sky-deck pool and 24-hour fitness center.",
+      "source": "https://www.hilton.com/en/hotels/mcooddt-doubletree-orlando-downtown/"
+     },
+     {
+      "claim": "The hotel offers an outdoor pool and meeting rooms.",
+      "source": "https://www.hilton.com/en/hotels/mcooddt-doubletree-orlando-downtown/"
+     },
+     {
+      "claim": "The hotel has 20,000 sq. ft. of flexible meeting space that can accommodate up to 1,000 guests.",
+      "source": "https://www.hilton.com/en/hotels/mcooddt-doubletree-orlando-downtown/events/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJPxh9HpK02YgRw4dfWY2eMpY",
+   "name": "The Villa Casa Casuarina At The Former Versace Mansion",
+   "category": "hotels",
+   "metro": "miami-dade",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://vmmiamibeach.com/hotel/",
+     "source_name": "The Villa Casa Casuarina At The Former Versace Mansion \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Villa was originally built in 1930 by the architect, author, and philanthropist, Alden Freeman.",
+      "In 1992, The Villa was purchased by the famous Italian fashion designer, Gianni Versace.",
+      "Today the Villa operates as a luxury boutique hotel, restaurant and event venue.",
+      "The Villa Casa Casuarina offers six unique category suites.",
+      "Guests enjoy exclusive access to The Thousand Mosaic Pool."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Luxury boutique hotel, restaurant and event venue built in 1930",
+    "why_here": "The Villa was originally built in 1930 by Alden Freeman and purchased in 1992 by Gianni Versace. Today the Villa operates as a luxury boutique hotel, restaurant and event venue.",
+    "know_before": "Guests enjoy exclusive access to The Thousand Mosaic Pool.",
+    "local_tip": "The Villa Casa Casuarina offers six unique category suites.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://vmmiamibeach.com/hotel/"
+     ],
+     "why_here": [
+      "https://vmmiamibeach.com/hotel/"
+     ],
+     "know_before": [
+      "https://vmmiamibeach.com/hotel/"
+     ],
+     "local_tip": [
+      "https://vmmiamibeach.com/hotel/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Villa was originally built in 1930 by the architect, author, and philanthropist, Alden Freeman.",
+      "source": "https://vmmiamibeach.com/hotel/"
+     },
+     {
+      "claim": "In 1992, The Villa was purchased by the famous Italian fashion designer, Gianni Versace.",
+      "source": "https://vmmiamibeach.com/hotel/"
+     },
+     {
+      "claim": "Today the Villa operates as a luxury boutique hotel, restaurant and event venue.",
+      "source": "https://vmmiamibeach.com/hotel/"
+     },
+     {
+      "claim": "The Villa Casa Casuarina offers six unique category suites.",
+      "source": "https://vmmiamibeach.com/hotel/"
+     },
+     {
+      "claim": "Guests enjoy exclusive access to The Thousand Mosaic Pool.",
+      "source": "https://vmmiamibeach.com/hotel/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJWemYi1Q_kYgRI61NUdMRojo",
+   "name": "John Beasley Park",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.myokaloosa.com/parks/john-beasley",
+     "source_name": "John Beasley Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "John Beasley Park is located at 1550 Miracle Strip Parkway, Fort Walton Beach, Florida.",
+      "The park offers 2 pavilions, swimming, fishing, boardwalk access to the beach and restrooms.",
+      "It offers guests 200 parking spaces and 8 handicap parking spaces.",
+      "This park opened in 1960 and served as the only Black beach during segregation."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "County beach park opened in 1960 on Fort Walton Beach",
+    "why_here": "John Beasley Park offers access to white sandy beaches and emerald waters. The park offers 2 pavilions, swimming, fishing, boardwalk access to the beach and restrooms.",
+    "know_before": "It offers 200 parking spaces and 8 handicap parking spaces; during peak season the lot fills at various times.",
+    "local_tip": "The county recommends carpooling when able during peak season.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.myokaloosa.com/parks/john-beasley"
+     ],
+     "why_here": [
+      "https://www.myokaloosa.com/parks/john-beasley"
+     ],
+     "know_before": [
+      "https://www.myokaloosa.com/parks/john-beasley"
+     ],
+     "local_tip": [
+      "https://www.myokaloosa.com/parks/john-beasley"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "John Beasley Park is located at 1550 Miracle Strip Parkway, Fort Walton Beach, Florida.",
+      "source": "https://www.myokaloosa.com/parks/john-beasley"
+     },
+     {
+      "claim": "The park offers 2 pavilions, swimming, fishing, boardwalk access to the beach and restrooms.",
+      "source": "https://www.myokaloosa.com/parks/john-beasley"
+     },
+     {
+      "claim": "It offers guests 200 parking spaces and 8 handicap parking spaces.",
+      "source": "https://www.myokaloosa.com/parks/john-beasley"
+     },
+     {
+      "claim": "This park opened in 1960 and served as the only Black beach during segregation.",
+      "source": "https://www.myokaloosa.com/parks/john-beasley"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ1fdvgbXX2IgRSwN5WQmeVZs",
+   "name": "Batch Local Kitchen: West Palm Beach",
+   "category": "food",
+   "metro": "palm-beach",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.batchlocalkitchen.com/",
+     "source_name": "Batch Local Kitchen: West Palm Beach \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Batch Local Kitchen is a Scratch Kitchen, Brunch, & Craft Bar.",
+      "Batch Local Kitchen is a neighborhood restaurant serving scratch-made food, handcrafted drinks, and genuine hospitality.",
+      "Batch Local Kitchen in West Palm Beach is at 223 Clematis St, West Palm Beach, FL 33401.",
+      "Batch Local Kitchen serves American cuisine."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Scratch Kitchen, Brunch, & Craft Bar in West Palm Beach",
+    "why_here": "Batch Local Kitchen is a Scratch Kitchen, Brunch, & Craft Bar and a neighborhood restaurant serving scratch-made food, handcrafted drinks, and genuine hospitality in West Palm Beach.",
+    "know_before": "Batch Local Kitchen in West Palm Beach is at 223 Clematis St, West Palm Beach, FL 33401.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.batchlocalkitchen.com/"
+     ],
+     "why_here": [
+      "https://www.batchlocalkitchen.com/"
+     ],
+     "know_before": [
+      "https://www.batchlocalkitchen.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Batch Local Kitchen is a Scratch Kitchen, Brunch, & Craft Bar.",
+      "source": "https://www.batchlocalkitchen.com/"
+     },
+     {
+      "claim": "Batch Local Kitchen is a neighborhood restaurant serving scratch-made food, handcrafted drinks, and genuine hospitality.",
+      "source": "https://www.batchlocalkitchen.com/"
+     },
+     {
+      "claim": "Batch Local Kitchen in West Palm Beach is at 223 Clematis St, West Palm Beach, FL 33401.",
+      "source": "https://www.batchlocalkitchen.com/"
+     },
+     {
+      "claim": "Batch Local Kitchen serves American cuisine.",
+      "source": "https://www.batchlocalkitchen.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJn4GbwMW12YgRditCooKuqMA",
+   "name": "Hobie Island Beach Park",
+   "category": "beach",
+   "metro": "miami-dade",
+   "primary_type": "beach",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.miamidade.gov/global/release.page?Mduid_release=rel16782161862272",
+     "source_name": "Hobie Island Beach Park \u2014 official source",
+     "source_class": "government",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Hobie Island Beach covers 9.6 acres of recreational shoreline along the Rickenbacker Causeway.",
+      "Miami-Dade County continues to enhance safety on the Rickenbacker Causeway.",
+      "The second phase of safety enhancements involves the relocation of the entrance driveway to Hobie Beach Park."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "9.6 acres of recreational shoreline along the Rickenbacker Causeway",
+    "why_here": "Hobie Island Beach covers 9.6 acres of recreational shoreline along the Rickenbacker Causeway. Miami-Dade County continues to enhance safety on the Rickenbacker Causeway.",
+    "know_before": "The second phase of safety enhancements involves the relocation of the entrance driveway to Hobie Beach Park.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.miamidade.gov/global/release.page?Mduid_release=rel16782161862272"
+     ],
+     "why_here": [
+      "https://www.miamidade.gov/global/release.page?Mduid_release=rel16782161862272"
+     ],
+     "know_before": [
+      "https://www.miamidade.gov/global/release.page?Mduid_release=rel16782161862272"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Hobie Island Beach covers 9.6 acres of recreational shoreline along the Rickenbacker Causeway.",
+      "source": "https://www.miamidade.gov/global/release.page?Mduid_release=rel16782161862272"
+     },
+     {
+      "claim": "Miami-Dade County continues to enhance safety on the Rickenbacker Causeway.",
+      "source": "https://www.miamidade.gov/global/release.page?Mduid_release=rel16782161862272"
+     },
+     {
+      "claim": "The second phase of safety enhancements involves the relocation of the entrance driveway to Hobie Beach Park.",
+      "source": "https://www.miamidade.gov/global/release.page?Mduid_release=rel16782161862272"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ1U8goEnlwogRMa6emNlJUXg",
+   "name": "Mugs Sports Bar and Grill",
+   "category": "food",
+   "metro": "st-pete",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://mugssportsbar.com/",
+     "source_name": "Mugs Sports Bar and Grill \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "In April of 2015, Mugs Sports Bar & Grill opened its doors in Clearwater, Florida.",
+      "Mugs Sports Bar & Grill spans almost 16,000 square feet.",
+      "One feature is the outdoor open air patio bar.",
+      "Mugs Sports Bar & Grill is the place for Karaoke on Mondays and Thursdays with host Antonio.",
+      "Happy Hours are Monday through Thursday from 4 p.m. till close."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Sports bar with outdoor open air patio bar in Clearwater",
+    "why_here": "Mugs Sports Bar & Grill opened in Clearwater, Florida, in April of 2015 and spans almost 16,000 square feet. The outdoor open air patio bar gives patrons a place to sit outside.",
+    "know_before": "Happy Hours are Monday through Thursday from 4 p.m. till close.",
+    "local_tip": "Karaoke is on Mondays and Thursdays with host Antonio.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://mugssportsbar.com/"
+     ],
+     "why_here": [
+      "https://mugssportsbar.com/"
+     ],
+     "know_before": [
+      "https://mugssportsbar.com/"
+     ],
+     "local_tip": [
+      "https://mugssportsbar.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "In April of 2015, Mugs Sports Bar & Grill opened its doors in Clearwater, Florida.",
+      "source": "https://mugssportsbar.com/"
+     },
+     {
+      "claim": "Mugs Sports Bar & Grill spans almost 16,000 square feet.",
+      "source": "https://mugssportsbar.com/"
+     },
+     {
+      "claim": "One feature is the outdoor open air patio bar.",
+      "source": "https://mugssportsbar.com/"
+     },
+     {
+      "claim": "Mugs Sports Bar & Grill is the place for Karaoke on Mondays and Thursdays with host Antonio.",
+      "source": "https://mugssportsbar.com/"
+     },
+     {
+      "claim": "Happy Hours are Monday through Thursday from 4 p.m. till close.",
+      "source": "https://mugssportsbar.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJk1zKYglEkYgRS_l961g0iEI",
+   "name": "Louisiana Lagniappe",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.thelouisianalagniappe.com/",
+     "source_name": "Louisiana Lagniappe \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "In 1984, Louisiana Lagniappe in Destin was opened and established inside Sandpiper Cove condominiums.",
+      "For over thirty years we have been known for our Gulf seafood with a Creole flair.",
+      "Louisiana Lagniappe in Destin opens for dinner every evening at 4:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Gulf seafood with a Creole flair, in Destin since 1984",
+    "why_here": "Louisiana Lagniappe in Destin was opened in 1984 inside Sandpiper Cove condominiums. For over thirty years it has been known for Gulf seafood with a Creole flair, served in a casual yet upscale waterfront setting.",
+    "know_before": "Louisiana Lagniappe in Destin opens for dinner every evening at 4:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.thelouisianalagniappe.com/"
+     ],
+     "why_here": [
+      "https://www.thelouisianalagniappe.com/"
+     ],
+     "know_before": [
+      "https://www.thelouisianalagniappe.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "In 1984, Louisiana Lagniappe in Destin was opened and established inside Sandpiper Cove condominiums.",
+      "source": "https://www.thelouisianalagniappe.com/"
+     },
+     {
+      "claim": "For over thirty years we have been known for our Gulf seafood with a Creole flair.",
+      "source": "https://www.thelouisianalagniappe.com/"
+     },
+     {
+      "claim": "Louisiana Lagniappe in Destin opens for dinner every evening at 4:00 p.m.",
+      "source": "https://www.thelouisianalagniappe.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJrcJFqY7EwogRXiNIesgDU7Q",
+   "name": "Hotel Tampa Riverwalk",
+   "category": "hotels",
+   "metro": "tampa",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.hilton.com/en/hotels/tparwqq-hotel-tampa-riverwalk/",
+     "source_name": "Hotel Tampa Riverwalk \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Hotel Tampa Riverwalk is at 200 North Ashley Drive, Tampa, Florida, 33602, USA.",
+      "Enjoy our outdoor pool on the riverfront."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Riverwalk hotel with an outdoor pool on the riverfront",
+    "why_here": "Hotel Tampa Riverwalk is at 200 North Ashley Drive in Tampa, Florida. Guests can enjoy our outdoor pool on the riverfront during a stay at Hotel Tampa Riverwalk in Tampa.",
+    "know_before": "Hotel Tampa Riverwalk is at 200 North Ashley Drive, Tampa, Florida, 33602, USA.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.hilton.com/en/hotels/tparwqq-hotel-tampa-riverwalk/"
+     ],
+     "why_here": [
+      "https://www.hilton.com/en/hotels/tparwqq-hotel-tampa-riverwalk/"
+     ],
+     "know_before": [
+      "https://www.hilton.com/en/hotels/tparwqq-hotel-tampa-riverwalk/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Hotel Tampa Riverwalk is at 200 North Ashley Drive, Tampa, Florida, 33602, USA.",
+      "source": "https://www.hilton.com/en/hotels/tparwqq-hotel-tampa-riverwalk/"
+     },
+     {
+      "claim": "Enjoy our outdoor pool on the riverfront.",
+      "source": "https://www.hilton.com/en/hotels/tparwqq-hotel-tampa-riverwalk/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJAWAURuUD2YgRYSIeAqa9f_g",
+   "name": "Savvy Sliders",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "fast_food_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.savvysliders.com/savvys-locations/",
+     "source_name": "Savvy Sliders \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Savvy Sliders lists a Tamarac location at 2400 W Commercial Blvd #1, Fort Lauderdale, FL 33309, USA.",
+      "Savvy Sliders lists a Miami location at 12265 SW 112th St, Miami, FL 33186, USA."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Slider chain with Florida shops in Miami and Tamarac",
+    "why_here": "Savvy Sliders lists Florida locations in Miami and Tamarac on its official locations page. Its official menu is built around a slider lineup and Savvy combos.",
+    "know_before": "The Tamarac location is listed at 2400 W Commercial Blvd #1, Fort Lauderdale, FL 33309, USA.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.savvysliders.com/savvys-locations/"
+     ],
+     "why_here": [
+      "https://www.savvysliders.com/savvys-locations/"
+     ],
+     "know_before": [
+      "https://www.savvysliders.com/savvys-locations/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Savvy Sliders lists a Tamarac location at 2400 W Commercial Blvd #1, Fort Lauderdale, FL 33309, USA.",
+      "source": "https://www.savvysliders.com/savvys-locations/"
+     },
+     {
+      "claim": "Savvy Sliders lists a Miami location at 12265 SW 112th St, Miami, FL 33186, USA.",
+      "source": "https://www.savvysliders.com/savvys-locations/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ8QEhvKcCw4gRXjnm4lnhvIA",
+   "name": "The Beachcomber",
+   "category": "hotels",
+   "metro": "st-pete",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.beachcomberflorida.com/",
+     "source_name": "The Beachcomber \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Beachcomber provides a resort style atmosphere on almost 6 acres of lush tropical landscaped gardens with direct beach access.",
+      "The Beachcomber features Jimmy B's Beach Bar and live music daily.",
+      "The Beachcomber has sparkling pools.",
+      "The Beachcomber is at 6200 Gulf Boulevard, St. Pete Beach, FL, 33706."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Beach resort with direct beach access and Jimmy B's Beach Bar",
+    "why_here": "The Beachcomber provides a resort style atmosphere on almost 6 acres of lush tropical landscaped gardens with direct beach access. It features Jimmy B's Beach Bar, sparkling pools, and live music daily.",
+    "know_before": "The Beachcomber is at 6200 Gulf Boulevard, St. Pete Beach, FL, 33706.",
+    "local_tip": "Live music is daily at Jimmy B's Beach Bar.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.beachcomberflorida.com/"
+     ],
+     "why_here": [
+      "https://www.beachcomberflorida.com/"
+     ],
+     "know_before": [
+      "https://www.beachcomberflorida.com/"
+     ],
+     "local_tip": [
+      "https://www.beachcomberflorida.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Beachcomber provides a resort style atmosphere on almost 6 acres of lush tropical landscaped gardens with direct beach access.",
+      "source": "https://www.beachcomberflorida.com/"
+     },
+     {
+      "claim": "The Beachcomber features Jimmy B's Beach Bar and live music daily.",
+      "source": "https://www.beachcomberflorida.com/"
+     },
+     {
+      "claim": "The Beachcomber has sparkling pools.",
+      "source": "https://www.beachcomberflorida.com/"
+     },
+     {
+      "claim": "The Beachcomber is at 6200 Gulf Boulevard, St. Pete Beach, FL, 33706.",
+      "source": "https://www.beachcomberflorida.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ-cAUc9m72YgRz4KeF-FXxVE",
+   "name": "Downtown Doral",
+   "category": "shopping",
+   "metro": "miami-dade",
+   "primary_type": "shopping_mall",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://downtowndoral.com/",
+     "source_name": "Downtown Doral \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Downtown Doral describes itself as Live, Work, Play, & Learn In Miami.",
+      "Downtown Doral lists Shopping & Dining on its official site.",
+      "Download The Downtown Doral App Get exclusive promotions from our local businesses",
+      "Downtown Doral is at 8333 NW 53rd Street, Suite #301, Doral, FL 33166."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Shopping and dining destination for Live, Work, Play, & Learn In Miami",
+    "why_here": "Downtown Doral describes itself as Live, Work, Play, & Learn In Miami, and its official site lists Shopping & Dining. It presents residences, events, and shopping and dining in one place.",
+    "know_before": "Downtown Doral is at 8333 NW 53rd Street, Suite #301, Doral, FL 33166.",
+    "local_tip": "Download The Downtown Doral App for exclusive promotions from local businesses.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://downtowndoral.com/"
+     ],
+     "why_here": [
+      "https://downtowndoral.com/"
+     ],
+     "know_before": [
+      "https://downtowndoral.com/"
+     ],
+     "local_tip": [
+      "https://downtowndoral.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Downtown Doral describes itself as Live, Work, Play, & Learn In Miami.",
+      "source": "https://downtowndoral.com/"
+     },
+     {
+      "claim": "Downtown Doral lists Shopping & Dining on its official site.",
+      "source": "https://downtowndoral.com/"
+     },
+     {
+      "claim": "Download The Downtown Doral App Get exclusive promotions from our local businesses",
+      "source": "https://downtowndoral.com/"
+     },
+     {
+      "claim": "Downtown Doral is at 8333 NW 53rd Street, Suite #301, Doral, FL 33166.",
+      "source": "https://downtowndoral.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ-aI9NvSI54gRrVByB84z-AY",
+   "name": "Southern Hill Farms",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "farm",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://southernhillfarms.com/things-to-do/",
+     "source_name": "Southern Hill Farms \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Southern Hill Farms lists Blueberries, Sunflowers, Flowers, Seasonal Vegetables, Blackberries, Peaches and Strawberries.",
+      "Lunch is served from 10:30 a.m. to 3:30 p.m.",
+      "Covered wagon rides take visitors on a fifteen-minute cruise through the farm.",
+      "Live musicians perform every Saturday and Sunday throughout the u-pick season from 10:45 a.m. to 2:45 p.m.",
+      "Southern Hill Farms has a Southern Hill Eatery and a Southern Hill Caf\u00e9 serving lunch.",
+      "The farm is located at 16651 Schofield Rd, Clermont, FL 34714."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Blueberries, sunflowers and peaches on a farm in Clermont",
+    "why_here": "Southern Hill Farms in Clermont offers seasonal u-pick crops and covered wagon rides through the farm. Visitors can eat lunch at the Southern Hill Eatery and Southern Hill Caf\u00e9.",
+    "know_before": "Lunch is served from 10:30 a.m. to 3:30 p.m. Live musicians perform Saturday and Sunday from 10:45 a.m. to 2:45 p.m.",
+    "local_tip": "Covered wagon rides take a fifteen-minute cruise through the farm.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://southernhillfarms.com/things-to-do/"
+     ],
+     "why_here": [
+      "https://southernhillfarms.com/things-to-do/"
+     ],
+     "know_before": [
+      "https://southernhillfarms.com/things-to-do/"
+     ],
+     "local_tip": [
+      "https://southernhillfarms.com/things-to-do/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Southern Hill Farms lists Blueberries, Sunflowers, Flowers, Seasonal Vegetables, Blackberries, Peaches and Strawberries.",
+      "source": "https://southernhillfarms.com/things-to-do/"
+     },
+     {
+      "claim": "Lunch is served from 10:30 a.m. to 3:30 p.m.",
+      "source": "https://southernhillfarms.com/things-to-do/"
+     },
+     {
+      "claim": "Covered wagon rides take visitors on a fifteen-minute cruise through the farm.",
+      "source": "https://southernhillfarms.com/things-to-do/"
+     },
+     {
+      "claim": "Live musicians perform every Saturday and Sunday throughout the u-pick season from 10:45 a.m. to 2:45 p.m.",
+      "source": "https://southernhillfarms.com/things-to-do/"
+     },
+     {
+      "claim": "Southern Hill Farms has a Southern Hill Eatery and a Southern Hill Caf\u00e9 serving lunch.",
+      "source": "https://southernhillfarms.com/things-to-do/"
+     },
+     {
+      "claim": "The farm is located at 16651 Schofield Rd, Clermont, FL 34714.",
+      "source": "https://southernhillfarms.com/things-to-do/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJB0cneeEB2YgR-eiGy7c_kkU",
+   "name": "Pelican Grand Beach Resort",
+   "category": "hotels",
+   "metro": "broward",
+   "primary_type": "resort_hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.pelicanbeach.com/ft-lauderdale-hotels/",
+     "source_name": "Pelican Grand Beach Resort \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Pelican Grand Beach Resort sits directly on the Atlantic at 2000 North Ocean Blvd in Fort Lauderdale.",
+      "The resort has a 500-foot private beach you reach without crossing a road."
+     ]
+    },
+    {
+     "source": "https://www.pelicanbeach.com/",
+     "source_name": "Pelican Grand Beach Resort \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The resort address is 2000 North Ocean Blvd, Fort Lauderdale, FL 33305."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Directly on the Atlantic in Fort Lauderdale with a 500-foot private beach",
+    "why_here": "Pelican Grand Beach Resort sits directly on the Atlantic in Fort Lauderdale. Its official amenities page notes a 500-foot private beach reached without crossing a road, making beach access the core of a stay here.",
+    "know_before": "The resort is at 2000 North Ocean Blvd, Fort Lauderdale, FL 33305.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.pelicanbeach.com/ft-lauderdale-hotels/",
+      "https://www.pelicanbeach.com/"
+     ],
+     "why_here": [
+      "https://www.pelicanbeach.com/ft-lauderdale-hotels/",
+      "https://www.pelicanbeach.com/"
+     ],
+     "know_before": [
+      "https://www.pelicanbeach.com/ft-lauderdale-hotels/",
+      "https://www.pelicanbeach.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Pelican Grand Beach Resort sits directly on the Atlantic at 2000 North Ocean Blvd in Fort Lauderdale.",
+      "source": "https://www.pelicanbeach.com/ft-lauderdale-hotels/"
+     },
+     {
+      "claim": "The resort has a 500-foot private beach you reach without crossing a road.",
+      "source": "https://www.pelicanbeach.com/ft-lauderdale-hotels/"
+     },
+     {
+      "claim": "The resort address is 2000 North Ocean Blvd, Fort Lauderdale, FL 33305.",
+      "source": "https://www.pelicanbeach.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJc6ymqewn5IgR7D9s1pbNg8c",
+   "name": "Saint Augustine Distillery",
+   "category": "attractions",
+   "metro": "st-augustine-fl",
+   "primary_type": "tourist_attraction",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.staugustinedistillery.com/our-story",
+     "source_name": "Saint Augustine Distillery \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "St. Augustine Distillery is a locally owned and operated artisanal spirits distillery in historic St. Augustine.",
+      "The distillery is within the restored FPL Ice Plant, a building dating back to 1917.",
+      "The distillery makes handcrafted bourbon, rum, gin, and vodka.",
+      "Visitors can take a self-guided tour or premium guided tour offerings.",
+      "The distillery is at 112 Riberia Street, St. Augustine, Florida 32084.",
+      "The retail shop is open 10 a.m. to 6 p.m. and tours run 10:30 a.m. to 5:30 p.m., open 7 days a week."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Bourbon, rum, gin and vodka in the restored FPL Ice Plant from 1917",
+    "why_here": "St. Augustine Distillery is a locally owned and operated artisanal spirits distillery in historic St. Augustine, within the restored FPL Ice Plant dating back to 1917. It makes handcrafted bourbon, rum, gin, and vodka.",
+    "know_before": "The retail shop is open 10 a.m. to 6 p.m. and tours run 10:30 a.m. to 5:30 p.m., open 7 days a week.",
+    "local_tip": "Visitors can choose a self-guided tour or premium guided tour offerings.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.staugustinedistillery.com/our-story"
+     ],
+     "why_here": [
+      "https://www.staugustinedistillery.com/our-story"
+     ],
+     "know_before": [
+      "https://www.staugustinedistillery.com/our-story"
+     ],
+     "local_tip": [
+      "https://www.staugustinedistillery.com/our-story"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "St. Augustine Distillery is a locally owned and operated artisanal spirits distillery in historic St. Augustine.",
+      "source": "https://www.staugustinedistillery.com/our-story"
+     },
+     {
+      "claim": "The distillery is within the restored FPL Ice Plant, a building dating back to 1917.",
+      "source": "https://www.staugustinedistillery.com/our-story"
+     },
+     {
+      "claim": "The distillery makes handcrafted bourbon, rum, gin, and vodka.",
+      "source": "https://www.staugustinedistillery.com/our-story"
+     },
+     {
+      "claim": "Visitors can take a self-guided tour or premium guided tour offerings.",
+      "source": "https://www.staugustinedistillery.com/our-story"
+     },
+     {
+      "claim": "The distillery is at 112 Riberia Street, St. Augustine, Florida 32084.",
+      "source": "https://www.staugustinedistillery.com/our-story"
+     },
+     {
+      "claim": "The retail shop is open 10 a.m. to 6 p.m. and tours run 10:30 a.m. to 5:30 p.m., open 7 days a week.",
+      "source": "https://www.staugustinedistillery.com/our-story"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJe3NGCGYQ3ogRBVOt8xQ1gAA",
+   "name": "Too Cool Cafe",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "cafe",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://toocoolcafe.com/",
+     "source_name": "Too Cool Cafe \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Too Cool Cafe is a small, family-owned American restaurant serving breakfast, lunch, and dinner in Indian Harbour Beach, Florida.",
+      "Hours are 8 a.m. to 8 p.m. Monday through Thursday.",
+      "Hours are 8 a.m. to 9 p.m. Friday and Saturday.",
+      "Sunday hours are 8 a.m. to 3 p.m.",
+      "The cafe offers catering for events."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Family-owned cafe serving breakfast, lunch and dinner in Indian Harbour Beach",
+    "why_here": "Too Cool Cafe is a small, family-owned American restaurant in Indian Harbour Beach serving breakfast, lunch and dinner. The cafe offers catering for events.",
+    "know_before": "Hours are 8 a.m. to 9 p.m. Friday and Saturday, and 8 a.m. to 3 p.m. Sunday.",
+    "local_tip": "The cafe offers catering for events.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://toocoolcafe.com/"
+     ],
+     "why_here": [
+      "https://toocoolcafe.com/"
+     ],
+     "know_before": [
+      "https://toocoolcafe.com/"
+     ],
+     "local_tip": [
+      "https://toocoolcafe.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Too Cool Cafe is a small, family-owned American restaurant serving breakfast, lunch, and dinner in Indian Harbour Beach, Florida.",
+      "source": "https://toocoolcafe.com/"
+     },
+     {
+      "claim": "Hours are 8 a.m. to 8 p.m. Monday through Thursday.",
+      "source": "https://toocoolcafe.com/"
+     },
+     {
+      "claim": "Hours are 8 a.m. to 9 p.m. Friday and Saturday.",
+      "source": "https://toocoolcafe.com/"
+     },
+     {
+      "claim": "Sunday hours are 8 a.m. to 3 p.m.",
+      "source": "https://toocoolcafe.com/"
+     },
+     {
+      "claim": "The cafe offers catering for events.",
+      "source": "https://toocoolcafe.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJT91aX7dYkYgRLorMN_MKd8A",
+   "name": "Topsail Hill Preserve State Park",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "state_park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.floridastateparks.org/parks-and-trails/topsail-hill-preserve-state-park",
+     "source_name": "Topsail Hill Preserve State Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Hours are 8 a.m. to sunset, 365 days a year.",
+      "The fee is $6 per vehicle.",
+      "The park has 22 tent campsites, 156 RV sites, 16 bungalows and 16 cabins.",
+      "Topsail Hill Preserve State Park offers 3 miles of pristine white quartz beaches."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "3 miles of white quartz beaches with tent campsites and RV sites",
+    "why_here": "Topsail Hill Preserve State Park offers 3 miles of pristine white quartz beaches. The park has 22 tent campsites, 156 RV sites, 16 bungalows and 16 cabins for overnight stays.",
+    "know_before": "Hours are 8 a.m. to sunset, 365 days a year, and the fee is $6 per vehicle.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.floridastateparks.org/parks-and-trails/topsail-hill-preserve-state-park"
+     ],
+     "why_here": [
+      "https://www.floridastateparks.org/parks-and-trails/topsail-hill-preserve-state-park"
+     ],
+     "know_before": [
+      "https://www.floridastateparks.org/parks-and-trails/topsail-hill-preserve-state-park"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Hours are 8 a.m. to sunset, 365 days a year.",
+      "source": "https://www.floridastateparks.org/parks-and-trails/topsail-hill-preserve-state-park"
+     },
+     {
+      "claim": "The fee is $6 per vehicle.",
+      "source": "https://www.floridastateparks.org/parks-and-trails/topsail-hill-preserve-state-park"
+     },
+     {
+      "claim": "The park has 22 tent campsites, 156 RV sites, 16 bungalows and 16 cabins.",
+      "source": "https://www.floridastateparks.org/parks-and-trails/topsail-hill-preserve-state-park"
+     },
+     {
+      "claim": "Topsail Hill Preserve State Park offers 3 miles of pristine white quartz beaches.",
+      "source": "https://www.floridastateparks.org/parks-and-trails/topsail-hill-preserve-state-park"
+     }
+    ]
+   }
+  }
+ ]
+}
