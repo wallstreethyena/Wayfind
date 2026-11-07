@@ -83,7 +83,7 @@ if (!home.includes('if (seg === "Business") return "business"')) fail("eventBuck
 if (!/s\.includes\("business"\)/.test(home)) fail("eventSegmentMeta must recognize the Business segment");
 if (!route.includes("fromBusinessFeeds") || !route.includes('withDeadline("Business"')) fail("events route must run the Business feed provider");
 if (!ev.includes('bucket: "business"')) fail("Events filter must map the Business category to the business bucket");
-if (!ev.includes("No business events yet")) fail("Business category must keep its honest empty state");
+if (/businessEmpty/.test(ev)) fail("empty business rails must stay hidden (owner 2026-11-05)");
 
 if (failed) process.exit(1);
 console.log("check-business-events: OK — parser + honesty auditor verified; no fabricated/broken event can reach the Business feed (serve-time gate + autonomous cron)");

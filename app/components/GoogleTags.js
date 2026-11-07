@@ -22,6 +22,7 @@ import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 import { ga4Id, adsId, trackPageView } from "../../lib/analytics";
 import { captureAttribution } from "../../lib/attribution";
+import { syncAdClickCookieFromWindow } from "../../lib/adClickCookie";
 import { isNative } from "../../lib/native";
 import { isGroupPlanPath } from "../../lib/groupPlanPrivacy.js";
 
@@ -36,7 +37,10 @@ export default function GoogleTags() {
 
   // Capture attribution as early as a client effect can run.
   useEffect(() => {
-    try { captureAttribution(typeof window !== "undefined" ? window.location.search : ""); } catch (e) {}
+    try {
+      captureAttribution(typeof window !== "undefined" ? window.location.search : "");
+      if (!isNative() && typeof window !== "undefined") syncAdClickCookieFromWindow(window);
+    } catch (e) {}
   }, []);
 
   // GA4 page_view on client-side route changes only — the initial page_view
