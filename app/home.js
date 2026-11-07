@@ -24,7 +24,7 @@ import { lunchRevealCookieValue, lunchRevealCount, lunchRevealLimit } from "../l
 import { intentRadiusMi, intentScopeLabel } from "../lib/momentIntents";
 import { MAP_DEFAULT_CATEGORY } from "../lib/mapExplorer";
 import { nextPageOffset } from "../lib/inventoryPaging";
-import { nearMeQuery } from "../lib/nearMeQuery";
+import { nearMeQuery, hasSearchCenter } from "../lib/nearMeQuery";
 // v8.41 — the ONE landing. Every control that swaps the feed under the reader
 // takes them to the results through this, not through its own hand-rolled
 // scroll. See lib/landOnResults.js for the three things a landing has to get
@@ -11387,8 +11387,8 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
                   ) : view.length === 0 ? (
                     <div style={{ textAlign: "center", padding: "40px 24px", color: C.muted }}>
                       <div style={{ display: "inline-flex", animation: "wfbob 1.4s ease-in-out infinite", marginBottom: 10 }}><Critter size={46} /></div>
-                      <strong style={{ display: "block", color: C.light }}>Nothing here right now</strong>
-                      <span style={{ fontSize: 13 }}>Try another category — or widen your search; the best spots are often a few miles out.</span>
+                      <strong style={{ display: "block", color: C.light }}>{hasSearchCenter(center) ? "Nothing here right now" : "Choose a location"}</strong>
+                      <span style={{ fontSize: 13 }}>{hasSearchCenter(center) ? "Try another category — or widen your search; the best spots are often a few miles out." : "Search a city above or use the Location button."}</span>
                     </div>
                   ) : (
                     <>
