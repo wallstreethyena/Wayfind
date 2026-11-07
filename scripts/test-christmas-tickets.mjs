@@ -23,6 +23,8 @@ import { christmasEventCard } from "../lib/christmasCards.js";
 import { CHRISTMAS_TICKET_DEAL_IDS } from "../lib/christmasPool.js";
 import { EVENT_TICKET_DEALS } from "../lib/eventTicketDeals.js";
 import { secondaryEventTicketAction } from "../lib/secondaryEventTickets.js";
+import { secondaryTicketPrimaryMatches } from "../lib/secondaryTicketPrimary.js";
+import { curatedToFeedEvent } from "../lib/curatedEvents.js";
 import { CHRISTMAS_2026_GUIDES } from "../lib/guidesChristmas2026.js";
 import { guidePickTicket } from "../lib/guidePickTicket.js";
 import { CJ_PID } from "../lib/deals.js";
@@ -71,6 +73,69 @@ const base = (over) => ({
 });
 const liveDeal = (id) => ({ id, affiliate_url: "https://www.anrdoezrs.net/click-" + CJ_PID + "-1", active: true, link_ok: null, provider: "undercover_tourist" });
 const allDeals = new Map(CHRISTMAS_TICKET_DEAL_IDS.map((id) => [id, liveDeal(id)]));
+
+const resalePerformances = [
+  { id: "a-christmas-carol-orlando-shakes-2026", city: "Orlando", venue: "Margeson Theater, Orlando Shakes", official_ticket_url: "https://www.orlandoshakes.org/show/carol26/", start_date: "2026-11-25", end_date: "2026-12-24", performance: "2026-11-29", after: "2026-11-30", label: "Nov 29, 2 PM", offer: "christmas-carol-orlando-nov29-ticketsmarter" },
+  { id: "miami-city-ballet-nutcracker-2026", city: "Miami", venue: "Ziff Ballet Opera House, Adrienne Arsht Center, 1300 Biscayne Blvd", official_ticket_url: "https://www.arshtcenter.org/tickets/2026-2027/miami-city-ballet/miami-city-ballet-george-balanchines-the-nutcracker/", start_date: "2026-12-11", end_date: "2026-12-27", performance: "2026-12-11", after: "2026-12-12", label: "Dec 11, 7 PM", offer: "miami-nutcracker-dec11-ticketsmarter" },
+  { id: "florida-ballet-nutcracker-orange-park-2026", city: "Orange Park", venue: "Thrasher-Horne Center", official_ticket_url: "https://thcenter.org/events/the-nutcracker/", start_date: "2026-12-12", end_date: "2026-12-13", performance: "2026-12-12", after: "2026-12-13", label: "Dec 12, 4:30 PM", offer: "orange-park-nutcracker-dec12-ticketsmarter" },
+  { id: "arts-ballet-nutcracker-parker-2026", city: "Fort Lauderdale", venue: "Lillian S. Wells Hall at The Parker", official_ticket_url: "https://www.parkerplayhouse.com/events/detail/abt-nutcracker-parker-2026", start_date: "2026-12-18", end_date: "2026-12-20", performance: "2026-12-18", after: "2026-12-19", label: "Dec 18, 7 PM", offer: "parker-nutcracker-dec18-ticketsmarter" },
+  { id: "celtic-angels-christmas-parker-2026", city: "Fort Lauderdale", venue: "Lillian S. Wells Hall at The Parker", official_ticket_url: "https://www.parkerplayhouse.com/events/detail/celtic-angels-christmas-2026-parker", start_date: "2026-12-23", end_date: "2026-12-23", performance: "2026-12-23", after: "2026-12-24", label: "Dec 23, 7 PM", offer: "parker-celtic-christmas-dec23-ticketsmarter" },
+];
+const reviewedResaleListings = christmasBrowseListings([], "2026-11-06");
+
+for (const fixture of resalePerformances) {
+  const event = base({ ...fixture, state: "FL", event_status: "scheduled", official_event_url: fixture.official_ticket_url });
+  const primary = ticketAction(event);
+  const action = secondaryEventTicketAction(event, { today: TODAY, primaryAction: primary });
+  const url = new URL(action.href, "https://www.gowayfind.com");
+  ok(action.label === "Check " + fixture.label + " resale tickets" && action.product === "resale-performance"
+    && url.pathname === "/api/commerce/go" && url.searchParams.get("provider") === "ticketsmarter" && url.searchParams.get("offer") === fixture.offer,
+    fixture.id + ": exact reviewed date and time on the attributed secondary choice");
+  ok(/this performance only/.test(action.via) && /Availability, prices and fees vary/.test(action.via) && /commission/.test(action.via), fixture.id + ": one-performance scope and earning disclosure");
+  ok(secondaryTicketPrimaryMatches(primary, action) && secondaryEventTicketAction(event, { today: fixture.performance }) !== null
+    && secondaryEventTicketAction(event, { today: fixture.after }) === null,
+    fixture.id + ": secondary expires after its one performance date, even if the production continues");
+  for (const patch of [
+    { is_free: true }, { price_kind: "free" }, { link_ok: false }, { ticket_status: "sold_out" }, { event_status: "cancelled" },
+    { state: "GA" }, { state: null }, { city: "Clearwater" }, { venue: "Another theater" }, { id: "unreviewed-event" },
+    { official_ticket_url: "https://evil.example/tickets" }, { official_ticket_url: fixture.official_ticket_url.replace("https://", "https://user@") },
+    { official_ticket_url: fixture.official_ticket_url + "?event=other" }, { end_date: "2026-11-01" }, { start_date: "2027-01-01" },
+    { season_undated: true }, { occurrence_dates: ["2026-12-24"] },
+  ]) ok(secondaryEventTicketAction({ ...event, ...patch }, { today: TODAY }) === null, fixture.id + ": identity/status/date mismatch fails closed " + JSON.stringify(patch));
+  ok(secondaryEventTicketAction(event, { today: "invalid" }) === null
+    && secondaryEventTicketAction(event, { today: TODAY, primaryAction: null }) === null
+    && secondaryEventTicketAction(event, { today: TODAY, primaryAction: { kind: "affiliate", provider: "viator", href: "/api/commerce/go?provider=viator" } }) === null,
+    fixture.id + ": invalid clock or absent/unrelated official primary cannot show resale");
+  const model = christmasTicketsModel([event], TODAY).rows[0];
+  ok(model.secondaryCta?.label === action.label && new URL(model.secondaryCta.href, "https://www.gowayfind.com").searchParams.get("offer") === fixture.offer,
+    fixture.id + ": featured model retains reviewed secondary action");
+  const published = reviewedResaleListings.find((card) => card.id === fixture.id);
+  ok(published && christmasTicketsModel([published], TODAY).rows[0]?.secondaryCta?.label === action.label,
+    fixture.id + ": actual merged research card satisfies the identity gate and exposes the reviewed performance");
+  const feed = curatedToFeedEvent(published);
+  ok(feed.url === published.official_ticket_url && !/TicketNetwork/.test(feed.ticketVia || ""),
+    fixture.id + ": main Events feed keeps official primary without generic venue-ticket substitution");
+}
+ok(!reviewedResaleListings.find((card) => card.id === "celtic-angels-christmas-2026" && card.city === "Fort Lauderdale")
+  && secondaryEventTicketAction(base({ ...resalePerformances[2], id: "florida-ballet-nutcracker-2026", state: "FL" }), { today: TODAY }) === null,
+  "Clearwater Celtic and Jacksonville Florida Ballet IDs never inherit distinct Parker or Orange Park ticket offers");
+
+// Official Parker Buy Tickets resolves to this independently reviewed Celtic
+// event. A different Ticketmaster event cannot inherit its resale choice.
+const reviewedTmEvent = base({ ...resalePerformances[4], state: "FL", event_status: "scheduled",
+  official_event_url: resalePerformances[4].official_ticket_url,
+  official_ticket_url: "https://www.ticketmaster.com/event/0D0064C2A5C198F3?brand=parkerph&camefrom=cfc_parker_web&webview=1" });
+const reviewedTmPrimary = ticketAction(reviewedTmEvent);
+const reviewedTmSecondary = secondaryEventTicketAction(reviewedTmEvent, { today: TODAY, primaryAction: reviewedTmPrimary });
+ok(reviewedTmSecondary && secondaryTicketPrimaryMatches(reviewedTmPrimary, reviewedTmSecondary), "reviewed official tracked Ticketmaster primary supports its secondary choice");
+for (const patch of [
+  { official_ticket_url: "https://www.ticketmaster.com/event/WRONG" },
+  { official_event_url: "https://www.parkerplayhouse.com/events/detail/other-show" },
+]) ok(secondaryEventTicketAction({ ...reviewedTmEvent, ...patch }, { today: TODAY }) === null, "unreviewed Ticketmaster or organizer identity cannot inherit resale");
+ok(!secondaryTicketPrimaryMatches({ ...reviewedTmPrimary, href: reviewedTmPrimary.href.replace("/api/ticketmaster/go?", "/api/commerce/go?") }, reviewedTmSecondary)
+  && !secondaryTicketPrimaryMatches({ ...reviewedTmPrimary, provider: "viator" }, reviewedTmSecondary)
+  && !secondaryTicketPrimaryMatches({ ...reviewedTmPrimary, href: reviewedTmPrimary.href.replace("content=", "other=") }, reviewedTmSecondary),
+  "presentation gate refuses unrelated routes, affiliate providers and event identities");
 
 {
   const url = "https://www.livenation.com/event/G5viZ_on0-j6v/christmas-with-chris-tomlin";
@@ -486,6 +551,22 @@ ok(html.includes("data-christmas-filter") && html.includes(">Tickets<") && html.
   const draw = (card) => renderToStaticMarkup(createElement(ChristmasBrowseCard, { card, rank: 1, today: TODAY }));
   const text = (h) => h.replace(/<style[\s\S]*?<\/style>/g, " ").replace(/<[^>]+>/g, " ").replace(/&amp;/g, "&").replace(/\s+/g, " ");
   const through = (cards, dealsById = new Map()) => attachBrowseTickets({ cards: cards.map(christmasBrowseCardJson) }, cards, TODAY, dealsById).cards;
+
+  for (const fixture of resalePerformances) {
+    const event = base({ ...fixture, state: "FL", event_status: "scheduled", official_event_url: fixture.official_ticket_url });
+    const card = through([event])[0];
+    const html = draw(card);
+    const secondary = /<p[^>]*data-secondary-resale=""[^>]*>([\s\S]*?)<\/p>/.exec(html)?.[1] || "";
+    ok(text(secondary).includes("Check " + fixture.label + " resale tickets at TicketSmarter")
+      && text(secondary).includes("this performance only") && text(secondary).includes("We may earn a commission.")
+      && secondary.includes('rel="sponsored nofollow noopener"') && secondary.includes(card.ticketRow.secondaryCta.href.replace(/&/g, "&amp;")),
+      fixture.id + ": real browse card renders dated resale handoff and disclosure");
+    const after = attachBrowseTickets({ cards: [christmasBrowseCardJson(event)] }, [event], fixture.after).cards[0];
+    ok(!draw(after).includes("data-secondary-resale"), fixture.id + ": real card omits expired single-performance resale link");
+  }
+  const tmHtml = draw(through([reviewedTmEvent])[0]);
+  ok(tmHtml.includes("data-secondary-resale") && tmHtml.includes("/api/ticketmaster/go?") && text(tmHtml).includes("Check Dec 23, 7 PM resale tickets"),
+    "real browse card supports reviewed tracked official Ticketmaster primary with dated secondary resale");
 
   // Exercise the real browse-to-TicketCard path: a correct model alone cannot
   // catch a dropped secondaryCta prop, missing markup or missing disclosure.

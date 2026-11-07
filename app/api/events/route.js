@@ -776,7 +776,7 @@ async function withDeadline(provider, promise, ms = PROVIDER_TIMEOUT_MS) {
 // feed (the Columbus, OH poster). Cached payloads built before the rule may hold
 // out-of-state rows, so the key moves.
 // trending-20261105: curated rows now carry `tags` (Trending Now shelves), so no cached feed may lack them.
-const EVENTS_FEED_RULES = "florida-v3-holiday-photos-trending-20261105";
+const EVENTS_FEED_RULES = "florida-v4-holiday-discovery-affiliates-20261106";
 // One Discovery re-read per geo cell. Not the 21-day feed cache, and not a
 // place/photo TTL: those rules stay where they are.
 function ticketmasterStartKey(lat, lng, radius) {

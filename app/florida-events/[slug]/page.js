@@ -229,7 +229,7 @@ export default async function CuratedEventPage({ params }) {
   // organiser's own verified ticket link (rel nofollow, not sponsored). Same
   // gates the card uses (lib/curatedEvents.eventDetailTicketAction).
   const ticket = eventDetailTicketAction(e, { surface: "florida_event_page" });
-  const resaleTicket = ticket?.kind === "organizer" ? secondaryEventTicketAction(e, { surface: "florida_event_page" }) : null;
+  const resaleTicket = secondaryEventTicketAction(e, { surface: "florida_event_page", primaryAction: ticket });
   // Partner tickets gone (NO_EXACT_AFFILIATE_PRODUCT visitorNote): say so plainly
   // and offer the bookable alternatives, instead of a silent organizer fallback.
   const availability = partnerAvailabilityNote(e.event_id);
