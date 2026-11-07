@@ -1,0 +1,1604 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 21. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJDzPhBZiB3YgRA4x7Pwh0-WM",
+   "name": "Embassy Suites by Hilton Orlando Lake Buena Vista South",
+   "category": "hotels",
+   "metro": "orlando",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.hilton.com/en/hotels/mcolkes-embassy-suites-orlando-lake-buena-vista-south/",
+     "source_name": "Embassy Suites by Hilton Orlando Lake Buena Vista South \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The hotel has an outdoor pool.",
+      "The hotel offers free made-to-order breakfast.",
+      "The hotel offers a complimentary evening reception.",
+      "The hotel has firework-view rooms.",
+      "The hotel is at 4955 Kyngs Heath Road, Kissimmee, Florida, 34746, USA."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Hotel with an outdoor pool and firework-view rooms near Lake Buena Vista",
+    "why_here": "This Embassy Suites hotel in Kissimmee offers an outdoor pool and rooms with firework views, according to Hilton. It is known for free made-to-order breakfast and a complimentary evening reception included in the Hilton listing.",
+    "know_before": "Hilton lists free made-to-order breakfast and a complimentary evening reception among the hotel amenities.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.hilton.com/en/hotels/mcolkes-embassy-suites-orlando-lake-buena-vista-south/"
+     ],
+     "why_here": [
+      "https://www.hilton.com/en/hotels/mcolkes-embassy-suites-orlando-lake-buena-vista-south/"
+     ],
+     "know_before": [
+      "https://www.hilton.com/en/hotels/mcolkes-embassy-suites-orlando-lake-buena-vista-south/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The hotel has an outdoor pool.",
+      "source": "https://www.hilton.com/en/hotels/mcolkes-embassy-suites-orlando-lake-buena-vista-south/"
+     },
+     {
+      "claim": "The hotel offers free made-to-order breakfast.",
+      "source": "https://www.hilton.com/en/hotels/mcolkes-embassy-suites-orlando-lake-buena-vista-south/"
+     },
+     {
+      "claim": "The hotel offers a complimentary evening reception.",
+      "source": "https://www.hilton.com/en/hotels/mcolkes-embassy-suites-orlando-lake-buena-vista-south/"
+     },
+     {
+      "claim": "The hotel has firework-view rooms.",
+      "source": "https://www.hilton.com/en/hotels/mcolkes-embassy-suites-orlando-lake-buena-vista-south/"
+     },
+     {
+      "claim": "The hotel is at 4955 Kyngs Heath Road, Kissimmee, Florida, 34746, USA.",
+      "source": "https://www.hilton.com/en/hotels/mcolkes-embassy-suites-orlando-lake-buena-vista-south/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJV5THz53hwogR7Od9Cnr3QeM",
+   "name": "Cassis Restaurant St. Pete",
+   "category": "food",
+   "metro": "st-pete",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://cassisstpete.com/",
+     "source_name": "Cassis Restaurant St. Pete \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Cassis combines the traditional European Brasserie with the relaxed flair of American eateries.",
+      "Cassis offers classic dishes with subtle Mediterranean influences.",
+      "Cassis serves hand crafted gourmet pizza, available at the restaurant and for delivery.",
+      "The Cassis Market is open daily, serving sandwiches, pizza, salads, and fresh pastries and breads.",
+      "The Cassis Market has a full coffee bar and everything is made to go."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "European brasserie with Mediterranean influences and gourmet pizza",
+    "why_here": "Cassis combines a traditional European brasserie with the relaxed flair of American eateries, and it offers classic dishes with subtle Mediterranean influences plus hand crafted gourmet pizza at the restaurant and for delivery.",
+    "know_before": "The Cassis Market is open daily, serving sandwiches, pizza, salads, and fresh pastries and breads.",
+    "local_tip": "The Cassis Market has a full coffee bar and everything is made to go.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://cassisstpete.com/"
+     ],
+     "why_here": [
+      "https://cassisstpete.com/"
+     ],
+     "know_before": [
+      "https://cassisstpete.com/"
+     ],
+     "local_tip": [
+      "https://cassisstpete.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Cassis combines the traditional European Brasserie with the relaxed flair of American eateries.",
+      "source": "https://cassisstpete.com/"
+     },
+     {
+      "claim": "Cassis offers classic dishes with subtle Mediterranean influences.",
+      "source": "https://cassisstpete.com/"
+     },
+     {
+      "claim": "Cassis serves hand crafted gourmet pizza, available at the restaurant and for delivery.",
+      "source": "https://cassisstpete.com/"
+     },
+     {
+      "claim": "The Cassis Market is open daily, serving sandwiches, pizza, salads, and fresh pastries and breads.",
+      "source": "https://cassisstpete.com/"
+     },
+     {
+      "claim": "The Cassis Market has a full coffee bar and everything is made to go.",
+      "source": "https://cassisstpete.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJL0GAwzKx2YgRBHF9zBpT9lk",
+   "name": "Negroni Bistro & Sushi Bar",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "sushi_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.negronius.com/midtown/",
+     "source_name": "Negroni Bistro & Sushi Bar \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Negroni is a restaurant and cocktail bar in the modern Italian-New York spirit.",
+      "Negroni's menu includes antipasti, salads, paninis, burgers, pizzas, and a sushi bar.",
+      "Negroni opened its doors in the heart of Palermo Hollywood in Buenos Aires and expanded internationally.",
+      "Negroni presents brunch on Saturdays and Sundays between 11 a.m. and 4 p.m.",
+      "Negroni's brunch includes spritzy cocktails, natural juices, paninis, croissants, fruit plates, and eggs benedict."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Italian-New York bistro with a sushi bar and cocktail focus",
+    "why_here": "Negroni describes itself as a restaurant and cocktail bar in the modern Italian-New York spirit, good for gathering with friends over food and drinks. Its menu showcases antipasti, salads, paninis, burgers and pizzas alongside its sushi bar specialty.",
+    "know_before": "Negroni presents its brunch on Saturdays and Sundays between 11 a.m. and 4 p.m.",
+    "local_tip": null,
+    "best_time": "Saturdays and Sundays between 11 a.m. and 4 p.m. for brunch, per the official site.",
+    "citations": {
+     "hook": [
+      "https://www.negronius.com/midtown/"
+     ],
+     "why_here": [
+      "https://www.negronius.com/midtown/"
+     ],
+     "know_before": [
+      "https://www.negronius.com/midtown/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      "https://www.negronius.com/midtown/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Negroni is a restaurant and cocktail bar in the modern Italian-New York spirit.",
+      "source": "https://www.negronius.com/midtown/"
+     },
+     {
+      "claim": "Negroni's menu includes antipasti, salads, paninis, burgers, pizzas, and a sushi bar.",
+      "source": "https://www.negronius.com/midtown/"
+     },
+     {
+      "claim": "Negroni opened its doors in the heart of Palermo Hollywood in Buenos Aires and expanded internationally.",
+      "source": "https://www.negronius.com/midtown/"
+     },
+     {
+      "claim": "Negroni presents brunch on Saturdays and Sundays between 11 a.m. and 4 p.m.",
+      "source": "https://www.negronius.com/midtown/"
+     },
+     {
+      "claim": "Negroni's brunch includes spritzy cocktails, natural juices, paninis, croissants, fruit plates, and eggs benedict.",
+      "source": "https://www.negronius.com/midtown/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJvYhd98kR3ogR9VF5poxZ3Zg",
+   "name": "Arcade Monsters Melbourne",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "video_arcade",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.arcademonsters.com/",
+     "source_name": "Arcade Monsters Melbourne \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Arcade Monsters has a location in Melbourne, FL.",
+      "Arcade Monsters offers anime, classic, new arcade, rhythm games, pinball, bar and restaurant.",
+      "All Arcade Monsters locations are cashless.",
+      "For Melbourne, Arcade Monsters lists $23 All Day Unlimited Play (No Re-Entry), with re-entry for $10 more."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "All-day unlimited arcade play in Melbourne, Florida",
+    "why_here": "Arcade Monsters lists Melbourne among its locations, with anime, classic and new arcade games, rhythm games and pinball, plus a bar and restaurant. For Melbourne it advertises all-day unlimited play pricing per person.",
+    "know_before": "Arcade Monsters says all locations are cashless, and Melbourne pricing is per person before tax.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.arcademonsters.com/"
+     ],
+     "why_here": [
+      "https://www.arcademonsters.com/"
+     ],
+     "know_before": [
+      "https://www.arcademonsters.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Arcade Monsters has a location in Melbourne, FL.",
+      "source": "https://www.arcademonsters.com/"
+     },
+     {
+      "claim": "Arcade Monsters offers anime, classic, new arcade, rhythm games, pinball, bar and restaurant.",
+      "source": "https://www.arcademonsters.com/"
+     },
+     {
+      "claim": "All Arcade Monsters locations are cashless.",
+      "source": "https://www.arcademonsters.com/"
+     },
+     {
+      "claim": "For Melbourne, Arcade Monsters lists $23 All Day Unlimited Play (No Re-Entry), with re-entry for $10 more.",
+      "source": "https://www.arcademonsters.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJq6oWuvC22YgRdTYzZwuTTtE",
+   "name": "La Colada Gourmet",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "cafe",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.lacoladagourmet.com/",
+     "source_name": "La Colada Gourmet \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "La Colada Gourmet is a family business founded in 2016 in Little Havana, Miami, the heart of Calle 8.",
+      "La Colada Gourmet offers more than 20 coffee recipes created based on traditional Cuban blends.",
+      "La colada is described as intense, sweet, and simple, served in small doses to share among friends and family."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Family business founded in 2016 in Little Havana",
+    "why_here": "La Colada Gourmet is a family business founded in 2016 in Little Havana, Miami, the heart of Calle 8, and it offers more than 20 coffee recipes created based on traditional Cuban blends for visitors to try.",
+    "know_before": "More than 20 coffee recipes are created based on traditional Cuban blends.",
+    "local_tip": "La colada is served in small doses to share among friends and family.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.lacoladagourmet.com/"
+     ],
+     "why_here": [
+      "https://www.lacoladagourmet.com/"
+     ],
+     "know_before": [
+      "https://www.lacoladagourmet.com/"
+     ],
+     "local_tip": [
+      "https://www.lacoladagourmet.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "La Colada Gourmet is a family business founded in 2016 in Little Havana, Miami, the heart of Calle 8.",
+      "source": "https://www.lacoladagourmet.com/"
+     },
+     {
+      "claim": "La Colada Gourmet offers more than 20 coffee recipes created based on traditional Cuban blends.",
+      "source": "https://www.lacoladagourmet.com/"
+     },
+     {
+      "claim": "La colada is described as intense, sweet, and simple, served in small doses to share among friends and family.",
+      "source": "https://www.lacoladagourmet.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ4ZtgvQ212YgRinvHtyEL-CY",
+   "name": "Osteria da Fortunata - Miami",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "italian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://osteriadafortunata.it/en/osteria-da-fortunata-marks-a-turning-point-for-roman-cuisine-in-miami-beach/",
+     "source_name": "Osteria da Fortunata - Miami \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Osteria da Fortunata is a family-owned Roman brand that began in the 1920s.",
+      "Every dish at Osteria da Fortunata is handmade, and every recipe remains faithful to the Roman kitchen.",
+      "Guests can watch cooks roll, cut, and shape fresh pasta in an open kitchen.",
+      "The menu includes Carbonara, cacio e pepe, amatriciana and ricotta ravioli.",
+      "The Miami Beach location opened on Lincoln Road."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Handmade pasta and Roman dishes in Miami Beach",
+    "why_here": "Osteria da Fortunata is a family-owned Roman brand that began in the 1920s, where every dish is handmade and every recipe remains faithful to the Roman kitchen, with fresh pasta shaped in an open kitchen.",
+    "know_before": "Guests can watch cooks roll, cut, and shape fresh pasta in an open kitchen.",
+    "local_tip": "Look for Carbonara and cacio e pepe on the menu.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://osteriadafortunata.it/en/osteria-da-fortunata-marks-a-turning-point-for-roman-cuisine-in-miami-beach/"
+     ],
+     "why_here": [
+      "https://osteriadafortunata.it/en/osteria-da-fortunata-marks-a-turning-point-for-roman-cuisine-in-miami-beach/"
+     ],
+     "know_before": [
+      "https://osteriadafortunata.it/en/osteria-da-fortunata-marks-a-turning-point-for-roman-cuisine-in-miami-beach/"
+     ],
+     "local_tip": [
+      "https://osteriadafortunata.it/en/osteria-da-fortunata-marks-a-turning-point-for-roman-cuisine-in-miami-beach/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Osteria da Fortunata is a family-owned Roman brand that began in the 1920s.",
+      "source": "https://osteriadafortunata.it/en/osteria-da-fortunata-marks-a-turning-point-for-roman-cuisine-in-miami-beach/"
+     },
+     {
+      "claim": "Every dish at Osteria da Fortunata is handmade, and every recipe remains faithful to the Roman kitchen.",
+      "source": "https://osteriadafortunata.it/en/osteria-da-fortunata-marks-a-turning-point-for-roman-cuisine-in-miami-beach/"
+     },
+     {
+      "claim": "Guests can watch cooks roll, cut, and shape fresh pasta in an open kitchen.",
+      "source": "https://osteriadafortunata.it/en/osteria-da-fortunata-marks-a-turning-point-for-roman-cuisine-in-miami-beach/"
+     },
+     {
+      "claim": "The menu includes Carbonara, cacio e pepe, amatriciana and ricotta ravioli.",
+      "source": "https://osteriadafortunata.it/en/osteria-da-fortunata-marks-a-turning-point-for-roman-cuisine-in-miami-beach/"
+     },
+     {
+      "claim": "The Miami Beach location opened on Lincoln Road.",
+      "source": "https://osteriadafortunata.it/en/osteria-da-fortunata-marks-a-turning-point-for-roman-cuisine-in-miami-beach/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJpQmtqawB2YgRaf9mRQapW6o",
+   "name": "Doc B's Restaurant",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.docbsrestaurant.com/",
+     "source_name": "Doc B's Restaurant \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Since 2013, Doc B's Restaurant has been dedicated to providing guest experiences.",
+      "Every menu item is made in house daily at Doc B's.",
+      "Doc B's was founded by Craig Bernstein and named after his late father Doc B.",
+      "The Fort Lauderdale location is at 452 N Federal Highway, Fort Lauderdale, FL 33301.",
+      "The Tampa location is at 2223 N West Shore Blvd, Tampa, FL 33607."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Restaurant founded in 2013 with every menu item made in house daily",
+    "why_here": "Doc B's has operated since 2013 and says every menu item is made in house daily. The concept was founded by Craig Bernstein and named after his late father Doc B. The official site lists locations in Fort Lauderdale and Tampa.",
+    "know_before": "The Fort Lauderdale location is at 452 N Federal Highway, Fort Lauderdale, FL 33301.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.docbsrestaurant.com/"
+     ],
+     "why_here": [
+      "https://www.docbsrestaurant.com/"
+     ],
+     "know_before": [
+      "https://www.docbsrestaurant.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Since 2013, Doc B's Restaurant has been dedicated to providing guest experiences.",
+      "source": "https://www.docbsrestaurant.com/"
+     },
+     {
+      "claim": "Every menu item is made in house daily at Doc B's.",
+      "source": "https://www.docbsrestaurant.com/"
+     },
+     {
+      "claim": "Doc B's was founded by Craig Bernstein and named after his late father Doc B.",
+      "source": "https://www.docbsrestaurant.com/"
+     },
+     {
+      "claim": "The Fort Lauderdale location is at 452 N Federal Highway, Fort Lauderdale, FL 33301.",
+      "source": "https://www.docbsrestaurant.com/"
+     },
+     {
+      "claim": "The Tampa location is at 2223 N West Shore Blvd, Tampa, FL 33607.",
+      "source": "https://www.docbsrestaurant.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJtQN6MgOS6IgRe6LWCjnQNMw",
+   "name": "Cedar Lakes Woods and Gardens",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "botanical_garden",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://cedarlakeswoodsandgarden.com/",
+     "source_name": "Cedar Lakes Woods and Gardens \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Cedar Lakes Woods & Gardens is a 20-acre non-profit botanical garden in a restored, century-old limestone quarry in Williston, FL.",
+      "The garden was founded by Dr. Raymond Webber."
+     ]
+    },
+    {
+     "source": "https://cedarlakeswoodsandgarden.com/visitor-information",
+     "source_name": "Cedar Lakes Woods and Gardens \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Admission includes a brief garden map overview and a self-guided tour of the 20-acre botanical garden.",
+      "Trails are well-marked and numbered, taking approximately 90 minutes to complete.",
+      "The gardens are open from 9:30 a.m. to 4:45 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "A 20-acre botanical garden inside a restored, century-old limestone quarry",
+    "why_here": "Cedar Lakes Woods & Gardens in Williston grew from an abandoned limestone quarry into a 20-acre non-profit botanical garden. The grounds include waterfalls, koi ponds and a wide variety of plants, with well-marked, numbered trails for a self-guided tour.",
+    "know_before": "Trails take approximately 90 minutes to complete, with benches and rest areas along the way.",
+    "local_tip": "Admission includes a brief garden map overview before the self-guided tour.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://cedarlakeswoodsandgarden.com/",
+      "https://cedarlakeswoodsandgarden.com/visitor-information"
+     ],
+     "why_here": [
+      "https://cedarlakeswoodsandgarden.com/",
+      "https://cedarlakeswoodsandgarden.com/visitor-information"
+     ],
+     "know_before": [
+      "https://cedarlakeswoodsandgarden.com/",
+      "https://cedarlakeswoodsandgarden.com/visitor-information"
+     ],
+     "local_tip": [
+      "https://cedarlakeswoodsandgarden.com/",
+      "https://cedarlakeswoodsandgarden.com/visitor-information"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Cedar Lakes Woods & Gardens is a 20-acre non-profit botanical garden in a restored, century-old limestone quarry in Williston, FL.",
+      "source": "https://cedarlakeswoodsandgarden.com/"
+     },
+     {
+      "claim": "The garden was founded by Dr. Raymond Webber.",
+      "source": "https://cedarlakeswoodsandgarden.com/"
+     },
+     {
+      "claim": "Admission includes a brief garden map overview and a self-guided tour of the 20-acre botanical garden.",
+      "source": "https://cedarlakeswoodsandgarden.com/visitor-information"
+     },
+     {
+      "claim": "Trails are well-marked and numbered, taking approximately 90 minutes to complete.",
+      "source": "https://cedarlakeswoodsandgarden.com/visitor-information"
+     },
+     {
+      "claim": "The gardens are open from 9:30 a.m. to 4:45 p.m.",
+      "source": "https://cedarlakeswoodsandgarden.com/visitor-information"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJNbEGF_T6wogRDrEYUKhPHiU",
+   "name": "Frida's Cafe & Bakery",
+   "category": "food",
+   "metro": "st-pete",
+   "primary_type": "bakery",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://fridascafe.com/",
+     "source_name": "Frida's Cafe & Bakery \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Frida's Cafe & Bakery is at 9700 Ulmerton Road, Largo, Florida.",
+      "The cafe is open Monday through Saturday from 6 a.m. to 7 p.m. and Sunday from 7 a.m. to 5 p.m."
+     ]
+    },
+    {
+     "source": "https://fridascafe.com/menu",
+     "source_name": "Frida's Cafe & Bakery \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Breakfast sandwiches are served until 11 a.m.",
+      "Menu includes a Brie & Cherry Sandwich with fresh cherry preserves, sliced Brie and bacon on a French baguette.",
+      "Menu includes a Smoked Fresh Scottish Salmon Bagel."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Breakfast paninis, build-your-own sandwiches and signature cakes in Largo",
+    "why_here": "Frida's Cafe & Bakery in Largo serves breakfast sandwiches until 11 a.m., plus lunch paninis, salads and signature cakes. The menu lists items such as a Brie & Cherry Sandwich and a Smoked Fresh Scottish Salmon Bagel.",
+    "know_before": "Breakfast sandwiches are served until 11 a.m.",
+    "local_tip": "All paninis are on whole wheat bread, per the official menu.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://fridascafe.com/",
+      "https://fridascafe.com/menu"
+     ],
+     "why_here": [
+      "https://fridascafe.com/",
+      "https://fridascafe.com/menu"
+     ],
+     "know_before": [
+      "https://fridascafe.com/",
+      "https://fridascafe.com/menu"
+     ],
+     "local_tip": [
+      "https://fridascafe.com/",
+      "https://fridascafe.com/menu"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Frida's Cafe & Bakery is at 9700 Ulmerton Road, Largo, Florida.",
+      "source": "https://fridascafe.com/"
+     },
+     {
+      "claim": "Breakfast sandwiches are served until 11 a.m.",
+      "source": "https://fridascafe.com/menu"
+     },
+     {
+      "claim": "Menu includes a Brie & Cherry Sandwich with fresh cherry preserves, sliced Brie and bacon on a French baguette.",
+      "source": "https://fridascafe.com/menu"
+     },
+     {
+      "claim": "Menu includes a Smoked Fresh Scottish Salmon Bagel.",
+      "source": "https://fridascafe.com/menu"
+     },
+     {
+      "claim": "The cafe is open Monday through Saturday from 6 a.m. to 7 p.m. and Sunday from 7 a.m. to 5 p.m.",
+      "source": "https://fridascafe.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ7RA7zZz90IgRmgqWaXWTHFw",
+   "name": "Kiki\u2019s Sandbar Bar & Grille",
+   "category": "food",
+   "metro": "keys",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://kikissandbar.com/",
+     "source_name": "Kiki\u2019s Sandbar Bar & Grille \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Kiki's Sandbar offers live music every night.",
+      "Kiki's Sandbar Beachfront Bar & Grille serves fresh seafood and tropical drinks.",
+      "Seating includes a beachfront bar, colorful outdoor seating overlooking the water, and an upstairs air-conditioned dining room with views of Newfound and Marsch Harbors in Little Torch Key.",
+      "Guests can arrive by land or by sea.",
+      "Kiki's is at MM 28.5, Gulfside, 183 Barry Ave, Little Torch Key, FL 33042.",
+      "Kiki's serves lunch and dinner daily."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Beachfront bar and grille with live music nightly in Little Torch Key",
+    "why_here": "Kiki's Sandbar is a beachfront bar and grille in Little Torch Key serving fresh seafood and tropical drinks, with live music every night. Seating includes a beachfront bar, colorful outdoor seating overlooking the water, and an upstairs air-conditioned dining room.",
+    "know_before": "Kiki's serves lunch and dinner daily.",
+    "local_tip": "The upstairs dining room overlooks Newfound and Marsch Harbors.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://kikissandbar.com/"
+     ],
+     "why_here": [
+      "https://kikissandbar.com/"
+     ],
+     "know_before": [
+      "https://kikissandbar.com/"
+     ],
+     "local_tip": [
+      "https://kikissandbar.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Kiki's Sandbar offers live music every night.",
+      "source": "https://kikissandbar.com/"
+     },
+     {
+      "claim": "Kiki's Sandbar Beachfront Bar & Grille serves fresh seafood and tropical drinks.",
+      "source": "https://kikissandbar.com/"
+     },
+     {
+      "claim": "Seating includes a beachfront bar, colorful outdoor seating overlooking the water, and an upstairs air-conditioned dining room with views of Newfound and Marsch Harbors in Little Torch Key.",
+      "source": "https://kikissandbar.com/"
+     },
+     {
+      "claim": "Guests can arrive by land or by sea.",
+      "source": "https://kikissandbar.com/"
+     },
+     {
+      "claim": "Kiki's is at MM 28.5, Gulfside, 183 Barry Ave, Little Torch Key, FL 33042.",
+      "source": "https://kikissandbar.com/"
+     },
+     {
+      "claim": "Kiki's serves lunch and dinner daily.",
+      "source": "https://kikissandbar.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJBRbiDBXa5ogRE8I7w4R_5u4",
+   "name": "Daytona Beach Bandshell",
+   "category": "beach",
+   "metro": "florida",
+   "primary_type": "live_music_venue",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.peabodyauditorium.org/daytona-beach-oceanfront-bandshell",
+     "source_name": "Daytona Beach Bandshell \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Daytona Beach Oceanfront Bandshell and Park is located directly along the oceanfront.",
+      "The Sounds of Summer Concert Series takes place every Friday night from June through August and features free concerts.",
+      "The Sounds of Summer Concert Series is presented by the City of Daytona Beach and offers free concerts.",
+      "General seating is free and first-come, first-served, and VIP seating is sold separately.",
+      "The Star Spangled Summer series runs every Saturday night from May through September and concludes with fireworks.",
+      "The Bandshell address is 70 Boardwalk, Daytona Beach, Florida 32118."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Oceanfront open-air venue hosting free summer concerts on Friday nights",
+    "why_here": "The Daytona Beach Oceanfront Bandshell and Park sits directly along the oceanfront and hosts open-air entertainment. Its Sounds of Summer Concert events, presented by the City of Daytona Beach, offers free concerts every Friday night from June through August.",
+    "know_before": "General seating is free and first-come, first-served; VIP seating is sold separately.",
+    "local_tip": "Saturday night Star Spangled Summer concerts run May through September and conclude with fireworks.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.peabodyauditorium.org/daytona-beach-oceanfront-bandshell"
+     ],
+     "why_here": [
+      "https://www.peabodyauditorium.org/daytona-beach-oceanfront-bandshell"
+     ],
+     "know_before": [
+      "https://www.peabodyauditorium.org/daytona-beach-oceanfront-bandshell"
+     ],
+     "local_tip": [
+      "https://www.peabodyauditorium.org/daytona-beach-oceanfront-bandshell"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Daytona Beach Oceanfront Bandshell and Park is located directly along the oceanfront.",
+      "source": "https://www.peabodyauditorium.org/daytona-beach-oceanfront-bandshell"
+     },
+     {
+      "claim": "The Sounds of Summer Concert Series takes place every Friday night from June through August and features free concerts.",
+      "source": "https://www.peabodyauditorium.org/daytona-beach-oceanfront-bandshell"
+     },
+     {
+      "claim": "The Sounds of Summer Concert Series is presented by the City of Daytona Beach and offers free concerts.",
+      "source": "https://www.peabodyauditorium.org/daytona-beach-oceanfront-bandshell"
+     },
+     {
+      "claim": "General seating is free and first-come, first-served, and VIP seating is sold separately.",
+      "source": "https://www.peabodyauditorium.org/daytona-beach-oceanfront-bandshell"
+     },
+     {
+      "claim": "The Star Spangled Summer series runs every Saturday night from May through September and concludes with fireworks.",
+      "source": "https://www.peabodyauditorium.org/daytona-beach-oceanfront-bandshell"
+     },
+     {
+      "claim": "The Bandshell address is 70 Boardwalk, Daytona Beach, Florida 32118.",
+      "source": "https://www.peabodyauditorium.org/daytona-beach-oceanfront-bandshell"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJVSNIOwCr2YgRO_NHNt_Q-VA",
+   "name": "Sirocco Mediterranean Restaurant & Lounge - Dania Pointe",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "mediterranean_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://siroccomediterranean.com/dania-pointe",
+     "source_name": "Sirocco Mediterranean Restaurant & Lounge - Dania Pointe \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Sirocco Mediterranean Restaurant & Lounge - Dania Pointe is located at 170 N Pointe Dr, Dania Beach, FL 33004.",
+      "Sirocco delivers Mediterranean dishes in Dania Beach.",
+      "The menu lists Hummus under Cold Mezza.",
+      "Sirocco serves Lunch and Dinner."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Mediterranean dishes with Cold Mezza and Hummus in Dania Beach",
+    "why_here": "Sirocco Mediterranean Restaurant & Lounge at Dania Pointe serves Mediterranean dishes in Dania Beach. The official menu lists Hummus among its Cold Mezza. Sirocco serves Lunch and Dinner at this Dania Beach location.",
+    "know_before": "Sirocco serves Lunch and Dinner at 170 N Pointe Dr, Dania Beach, FL 33004.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://siroccomediterranean.com/dania-pointe"
+     ],
+     "why_here": [
+      "https://siroccomediterranean.com/dania-pointe"
+     ],
+     "know_before": [
+      "https://siroccomediterranean.com/dania-pointe"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Sirocco Mediterranean Restaurant & Lounge - Dania Pointe is located at 170 N Pointe Dr, Dania Beach, FL 33004.",
+      "source": "https://siroccomediterranean.com/dania-pointe"
+     },
+     {
+      "claim": "Sirocco delivers Mediterranean dishes in Dania Beach.",
+      "source": "https://siroccomediterranean.com/dania-pointe"
+     },
+     {
+      "claim": "The menu lists Hummus under Cold Mezza.",
+      "source": "https://siroccomediterranean.com/dania-pointe"
+     },
+     {
+      "claim": "Sirocco serves Lunch and Dinner.",
+      "source": "https://siroccomediterranean.com/dania-pointe"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJJ4zzvIDywogRJPuQfTBmwxQ",
+   "name": "Whiskey Wings Tarpon Springs",
+   "category": "nightlife",
+   "metro": "tampa",
+   "primary_type": "sports_bar",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://whiskeywings.com/menuitems/pork-white-cheddar-mac-cheese-bowl/tarpon-springs/",
+     "source_name": "Whiskey Wings Tarpon Springs \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Whiskey Wings offers a wide selection of flavorful chicken wings, signature sauces, and dry rubs.",
+      "Wing options range from classic Buffalo and Garlic Parmesan to Kentucky Bourbon BBQ, Mango Habanero, and Cry Baby.",
+      "The Tarpon Springs location is at 40737 US HWY 19 N, Tarpon Springs, FL 34689."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Chicken wings in signature sauces, from Buffalo to Kentucky Bourbon BBQ",
+    "why_here": "Whiskey Wings offers a wide selection of flavorful chicken wings, signature sauces, and dry rubs for guests choosing among several sauces. Wing options range from classic Buffalo and Garlic Parmesan to Kentucky Bourbon BBQ, Mango Habanero, and Cry Baby.",
+    "know_before": "The Tarpon Springs location is at 40737 US HWY 19 N, Tarpon Springs, FL 34689.",
+    "local_tip": "Wing options range from Buffalo to Mango Habanero and Cry Baby.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://whiskeywings.com/menuitems/pork-white-cheddar-mac-cheese-bowl/tarpon-springs/"
+     ],
+     "why_here": [
+      "https://whiskeywings.com/menuitems/pork-white-cheddar-mac-cheese-bowl/tarpon-springs/"
+     ],
+     "know_before": [
+      "https://whiskeywings.com/menuitems/pork-white-cheddar-mac-cheese-bowl/tarpon-springs/"
+     ],
+     "local_tip": [
+      "https://whiskeywings.com/menuitems/pork-white-cheddar-mac-cheese-bowl/tarpon-springs/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Whiskey Wings offers a wide selection of flavorful chicken wings, signature sauces, and dry rubs.",
+      "source": "https://whiskeywings.com/menuitems/pork-white-cheddar-mac-cheese-bowl/tarpon-springs/"
+     },
+     {
+      "claim": "Wing options range from classic Buffalo and Garlic Parmesan to Kentucky Bourbon BBQ, Mango Habanero, and Cry Baby.",
+      "source": "https://whiskeywings.com/menuitems/pork-white-cheddar-mac-cheese-bowl/tarpon-springs/"
+     },
+     {
+      "claim": "The Tarpon Springs location is at 40737 US HWY 19 N, Tarpon Springs, FL 34689.",
+      "source": "https://whiskeywings.com/menuitems/pork-white-cheddar-mac-cheese-bowl/tarpon-springs/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJkeipNkHxwogRauLz3JaV5mQ",
+   "name": "Sara's Kebab House",
+   "category": "food",
+   "metro": "st-pete",
+   "primary_type": "mediterranean_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.saraskebab.com/",
+     "source_name": "Sara's Kebab House \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Sara's Kebab House serves selective dishes from its motherland, Turkey.",
+      "The kitchen is staffed by three master chefs and serves Turkish cuisine with spices, tea and coffees imported from Turkey.",
+      "Sara's Kebab House is at 1751 S Missouri Ave, Clearwater, FL 33756."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Turkish dishes from three master chefs, with spices imported from Turkey",
+    "why_here": "Sara's Kebab House serves selective dishes from its motherland, Turkey, prepared as Turkish cuisine by three master chefs. Its spices, tea and coffees are imported from Turkey and strictly prepared with traditional methods.",
+    "know_before": "Sara's Kebab House is at 1751 S Missouri Ave, Clearwater, FL 33756.",
+    "local_tip": "Spices, tea and coffees are imported from Turkey.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.saraskebab.com/"
+     ],
+     "why_here": [
+      "https://www.saraskebab.com/"
+     ],
+     "know_before": [
+      "https://www.saraskebab.com/"
+     ],
+     "local_tip": [
+      "https://www.saraskebab.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Sara's Kebab House serves selective dishes from its motherland, Turkey.",
+      "source": "https://www.saraskebab.com/"
+     },
+     {
+      "claim": "The kitchen is staffed by three master chefs and serves Turkish cuisine with spices, tea and coffees imported from Turkey.",
+      "source": "https://www.saraskebab.com/"
+     },
+     {
+      "claim": "Sara's Kebab House is at 1751 S Missouri Ave, Clearwater, FL 33756.",
+      "source": "https://www.saraskebab.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJVe-HmOW32YgRpcNDW2ZCkyo",
+   "name": "OMAKAI sushi",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "sushi_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://omakai.com/",
+     "source_name": "OMAKAI sushi \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "OMAKAI sushi delivers a new take on omakase, bringing customers on a culinary journey as they trust the chef and \u201cleave it up to us\u201d along the way.",
+      "OMAKAI offers happy hour at Wynwood, Coconut Grove, Aventura and Doral locations, Monday through Sunday from 3:00 p.m. to 6:30 p.m.",
+      "The happy hour menu highlights nigiri and hand rolls, along with sake, wine and beer.",
+      "OMAKAI lists Wynwood, Aventura, Coconut Grove and Doral locations with dine-in, takeout and delivery."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "A new take on omakase where you trust the chef and leave it up to us",
+    "why_here": "OMAKAI sushi delivers a new take on omakase, bringing customers on a culinary journey as they trust the chef and leave it up to us along the way. It lists Wynwood, Aventura, Coconut Grove and Doral locations with dine-in, takeout and delivery.",
+    "know_before": "Happy hour runs Monday through Sunday from 3:00 p.m. to 6:30 p.m. at Wynwood, Coconut Grove, Aventura and Doral.",
+    "local_tip": "The happy hour menu highlights nigiri and hand rolls, plus sake, wine and beer.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://omakai.com/"
+     ],
+     "why_here": [
+      "https://omakai.com/"
+     ],
+     "know_before": [
+      "https://omakai.com/"
+     ],
+     "local_tip": [
+      "https://omakai.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "OMAKAI sushi delivers a new take on omakase, bringing customers on a culinary journey as they trust the chef and \u201cleave it up to us\u201d along the way.",
+      "source": "https://omakai.com/"
+     },
+     {
+      "claim": "OMAKAI offers happy hour at Wynwood, Coconut Grove, Aventura and Doral locations, Monday through Sunday from 3:00 p.m. to 6:30 p.m.",
+      "source": "https://omakai.com/"
+     },
+     {
+      "claim": "The happy hour menu highlights nigiri and hand rolls, along with sake, wine and beer.",
+      "source": "https://omakai.com/"
+     },
+     {
+      "claim": "OMAKAI lists Wynwood, Aventura, Coconut Grove and Doral locations with dine-in, takeout and delivery.",
+      "source": "https://omakai.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJQTjB7b6-2YgRNSOuBnZpGWQ",
+   "name": "Our Lady of Guadalupe Catholic Church",
+   "category": "attractions",
+   "metro": "miami-dade",
+   "primary_type": "church",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.guadalupedoral.org/CatholicChurch.php?op=Gallery_15132621877366",
+     "source_name": "Our Lady of Guadalupe Catholic Church \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Weekend Masses include Saturday at 5:30 p.m. in English and Saturday at 7:00 p.m. in Espa\u00f1ol.",
+      "Weekday Masses include Monday and Wednesday at 7:00 a.m. and 12:15 p.m. in English.",
+      "Confessions are listed Saturday from 3:30 p.m. to 5:00 p.m. in English and Espa\u00f1ol.",
+      "Our Lady of Guadalupe Catholic Parish is at 11691 NW 25 Street, Doral, FL 33172."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "A Doral parish with English and Espa\u00f1ol Masses across the weekend",
+    "why_here": "Our Lady of Guadalupe Catholic Parish in Doral publishes weekend Masses in English and Espa\u00f1ol, including Saturday at 5:30 p.m. in English. Weekday Masses are also listed by day and language for parish visitors planning a visit.",
+    "know_before": "Weekend Masses include Saturday at 5:30 p.m. in English and 7:00 p.m. in Espa\u00f1ol.",
+    "local_tip": "Confessions are listed Saturday from 3:30 p.m. to 5:00 p.m.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.guadalupedoral.org/CatholicChurch.php?op=Gallery_15132621877366"
+     ],
+     "why_here": [
+      "https://www.guadalupedoral.org/CatholicChurch.php?op=Gallery_15132621877366"
+     ],
+     "know_before": [
+      "https://www.guadalupedoral.org/CatholicChurch.php?op=Gallery_15132621877366"
+     ],
+     "local_tip": [
+      "https://www.guadalupedoral.org/CatholicChurch.php?op=Gallery_15132621877366"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Weekend Masses include Saturday at 5:30 p.m. in English and Saturday at 7:00 p.m. in Espa\u00f1ol.",
+      "source": "https://www.guadalupedoral.org/CatholicChurch.php?op=Gallery_15132621877366"
+     },
+     {
+      "claim": "Weekday Masses include Monday and Wednesday at 7:00 a.m. and 12:15 p.m. in English.",
+      "source": "https://www.guadalupedoral.org/CatholicChurch.php?op=Gallery_15132621877366"
+     },
+     {
+      "claim": "Confessions are listed Saturday from 3:30 p.m. to 5:00 p.m. in English and Espa\u00f1ol.",
+      "source": "https://www.guadalupedoral.org/CatholicChurch.php?op=Gallery_15132621877366"
+     },
+     {
+      "claim": "Our Lady of Guadalupe Catholic Parish is at 11691 NW 25 Street, Doral, FL 33172.",
+      "source": "https://www.guadalupedoral.org/CatholicChurch.php?op=Gallery_15132621877366"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJa8MeyzT9wogR5XS7szQiq7k",
+   "name": "Leverock's Great Seafood",
+   "category": "food",
+   "metro": "st-pete",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://shop.leverocks.com/about",
+     "source_name": "Leverock's Great Seafood \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "In 1948, Johnny Leverock opened Johnny Leverock\u2019s Oyster Bar in Pinellas Park, Florida.",
+      "Her famous clam chowder, peanut butter pie and key lime pie recipes are still being served at Leverock\u2019s today."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Seafood recipes from 1948, including clam chowder still served today",
+    "why_here": "Leverock\u2019s traces its start to Johnny Leverock\u2019s Oyster Bar opened in Pinellas Park, Florida in 1948. Its famous clam chowder, peanut butter pie and key lime pie recipes are still being served at Leverock\u2019s today, linking current menus to that start.",
+    "know_before": "Clam chowder, peanut butter pie and key lime pie recipes are still being served today.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://shop.leverocks.com/about"
+     ],
+     "why_here": [
+      "https://shop.leverocks.com/about"
+     ],
+     "know_before": [
+      "https://shop.leverocks.com/about"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "In 1948, Johnny Leverock opened Johnny Leverock\u2019s Oyster Bar in Pinellas Park, Florida.",
+      "source": "https://shop.leverocks.com/about"
+     },
+     {
+      "claim": "Her famous clam chowder, peanut butter pie and key lime pie recipes are still being served at Leverock\u2019s today.",
+      "source": "https://shop.leverocks.com/about"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJA0wrVP4B3ogRx7ZbglLPx8w",
+   "name": "Cocoa Riverfront Park",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.cocoafl.gov/facilities/facility/details/cocoa-riverfront-park-4",
+     "source_name": "Cocoa Riverfront Park \u2014 official source",
+     "source_class": "government",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Located in historic Cocoa Village, Riverfront Park in combination with Lee Wenner and Taylor Parks gives the public permanent access to nearly 10 acres of prime riverfront land in downtown Cocoa.",
+      "The park includes a playground area and an amphitheater for outdoor concerts and other events facing the Indian River.",
+      "The park includes a boardwalk, spacious covered pavilions, and areas for fishing, water sports and boat launching.",
+      "Hours are dawn to dusk except for reserved special events."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Nearly 10 acres of riverfront in historic Cocoa Village, with an amphitheater",
+    "why_here": "Riverfront Park in historic Cocoa Village gives public access, with Lee Wenner and Taylor Parks, to nearly 10 acres of prime riverfront land in downtown Cocoa. A playground area and an amphitheater for outdoor concerts and other events face the Indian River.",
+    "know_before": "Hours are dawn to dusk except for reserved special events.",
+    "local_tip": "Look for a boardwalk and spacious covered pavilions near fishing areas.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.cocoafl.gov/facilities/facility/details/cocoa-riverfront-park-4"
+     ],
+     "why_here": [
+      "https://www.cocoafl.gov/facilities/facility/details/cocoa-riverfront-park-4"
+     ],
+     "know_before": [
+      "https://www.cocoafl.gov/facilities/facility/details/cocoa-riverfront-park-4"
+     ],
+     "local_tip": [
+      "https://www.cocoafl.gov/facilities/facility/details/cocoa-riverfront-park-4"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Located in historic Cocoa Village, Riverfront Park in combination with Lee Wenner and Taylor Parks gives the public permanent access to nearly 10 acres of prime riverfront land in downtown Cocoa.",
+      "source": "https://www.cocoafl.gov/facilities/facility/details/cocoa-riverfront-park-4"
+     },
+     {
+      "claim": "The park includes a playground area and an amphitheater for outdoor concerts and other events facing the Indian River.",
+      "source": "https://www.cocoafl.gov/facilities/facility/details/cocoa-riverfront-park-4"
+     },
+     {
+      "claim": "The park includes a boardwalk, spacious covered pavilions, and areas for fishing, water sports and boat launching.",
+      "source": "https://www.cocoafl.gov/facilities/facility/details/cocoa-riverfront-park-4"
+     },
+     {
+      "claim": "Hours are dawn to dusk except for reserved special events.",
+      "source": "https://www.cocoafl.gov/facilities/facility/details/cocoa-riverfront-park-4"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJJV4pVuLa5ogRmYqru8dh0uM",
+   "name": "The Beach Bucket",
+   "category": "nightlife",
+   "metro": "florida",
+   "primary_type": "bar_and_grill",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.thebeachbucket.com/",
+     "source_name": "The Beach Bucket \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Beach Bucket serves beachfront meals and drinks all day long, from morning french toast to evening cocktails.",
+      "The Beach Bucket is open daily from 7 a.m. to 9 p.m.",
+      "The Beach Bucket has been serving locals and visitors for 23 years.",
+      "The Beach Bucket is at 867 S Atlantic Ave, Ormond Beach, FL 32176."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Beachfront meals from morning french toast to evening cocktails",
+    "why_here": "The Beach Bucket in Ormond Beach serves beachfront meals and drinks all day long, from morning french toast to evening cocktails. It has been serving locals and visitors for 23 years, with meals and drinks offered through the day.",
+    "know_before": "The Beach Bucket is open daily from 7 a.m. to 9 p.m.",
+    "local_tip": "Find it at 867 S Atlantic Ave, Ormond Beach.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.thebeachbucket.com/"
+     ],
+     "why_here": [
+      "https://www.thebeachbucket.com/"
+     ],
+     "know_before": [
+      "https://www.thebeachbucket.com/"
+     ],
+     "local_tip": [
+      "https://www.thebeachbucket.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Beach Bucket serves beachfront meals and drinks all day long, from morning french toast to evening cocktails.",
+      "source": "https://www.thebeachbucket.com/"
+     },
+     {
+      "claim": "The Beach Bucket is open daily from 7 a.m. to 9 p.m.",
+      "source": "https://www.thebeachbucket.com/"
+     },
+     {
+      "claim": "The Beach Bucket has been serving locals and visitors for 23 years.",
+      "source": "https://www.thebeachbucket.com/"
+     },
+     {
+      "claim": "The Beach Bucket is at 867 S Atlantic Ave, Ormond Beach, FL 32176.",
+      "source": "https://www.thebeachbucket.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJHcu6u2BHw4gRDKuRC9sow20",
+   "name": "University Town Center",
+   "category": "shopping",
+   "metro": "manatee-sarasota",
+   "primary_type": "shopping_mall",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.visitsarasota.com/shopping/mall-university-town-center",
+     "source_name": "University Town Center \u2014 official source",
+     "source_class": "tourism_dmo",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Located at I-75 and University Parkway, The Mall at UTC features approximately 880,000 square feet of retail space.",
+      "The Mall at UTC includes Saks Fifth Avenue, Macy's, Dillard's and more than 150 stores and restaurants.",
+      "The Mall at UTC includes many distinctive retailers not found anywhere else in the local area.",
+      "The Mall at UTC includes a children's play area."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "More than 150 stores and restaurants at I-75 and University Parkway",
+    "why_here": "The Mall at UTC at I-75 and University Parkway features approximately 880,000 square feet of retail space. It includes Saks Fifth Avenue, Macy's and Dillard's, plus more than 150 stores and restaurants for shopping and dining in one destination.",
+    "know_before": "The Mall at UTC includes a children's play area.",
+    "local_tip": "Look for distinctive retailers not found anywhere else in the local area.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.visitsarasota.com/shopping/mall-university-town-center"
+     ],
+     "why_here": [
+      "https://www.visitsarasota.com/shopping/mall-university-town-center"
+     ],
+     "know_before": [
+      "https://www.visitsarasota.com/shopping/mall-university-town-center"
+     ],
+     "local_tip": [
+      "https://www.visitsarasota.com/shopping/mall-university-town-center"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Located at I-75 and University Parkway, The Mall at UTC features approximately 880,000 square feet of retail space.",
+      "source": "https://www.visitsarasota.com/shopping/mall-university-town-center"
+     },
+     {
+      "claim": "The Mall at UTC includes Saks Fifth Avenue, Macy's, Dillard's and more than 150 stores and restaurants.",
+      "source": "https://www.visitsarasota.com/shopping/mall-university-town-center"
+     },
+     {
+      "claim": "The Mall at UTC includes many distinctive retailers not found anywhere else in the local area.",
+      "source": "https://www.visitsarasota.com/shopping/mall-university-town-center"
+     },
+     {
+      "claim": "The Mall at UTC includes a children's play area.",
+      "source": "https://www.visitsarasota.com/shopping/mall-university-town-center"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJKzM5jZ6Pk4gR-d9u21RxywU",
+   "name": "RAGE Rooms/Escape Rooms/Axe Throwing PCB",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "adventure_sports_center",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://pcbattractions.com/ultimate-combo/",
+     "source_name": "RAGE Rooms/Escape Rooms/Axe Throwing PCB \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The ultimate combo includes 60 minutes escape room.",
+      "The ultimate combo includes 60 minutes axe throwing.",
+      "The ultimate combo includes 30 minutes rage room.",
+      "Axe Throwing - PCB and Rage Room - PCB are at 525 Richard Jackson Blvd, Panama City Beach.",
+      "The venue strongly recommends booking a reservation through the booking portal at pcbattractions.com."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "escape rooms, axe throwing and a rage room in Panama City Beach",
+    "why_here": "The ultimate combo includes 60 minutes escape room, 60 minutes axe throwing and 30 minutes rage room, so groups can mix the three experiences in one booking at Panama City Beach.",
+    "know_before": "Book in advance online; the venue strongly recommends booking a reservation through its booking portal.",
+    "local_tip": "Find Axe Throwing - PCB and Rage Room - PCB at 525 Richard Jackson Blvd, Panama City Beach.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://pcbattractions.com/ultimate-combo/"
+     ],
+     "why_here": [
+      "https://pcbattractions.com/ultimate-combo/"
+     ],
+     "know_before": [
+      "https://pcbattractions.com/ultimate-combo/"
+     ],
+     "local_tip": [
+      "https://pcbattractions.com/ultimate-combo/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The ultimate combo includes 60 minutes escape room.",
+      "source": "https://pcbattractions.com/ultimate-combo/"
+     },
+     {
+      "claim": "The ultimate combo includes 60 minutes axe throwing.",
+      "source": "https://pcbattractions.com/ultimate-combo/"
+     },
+     {
+      "claim": "The ultimate combo includes 30 minutes rage room.",
+      "source": "https://pcbattractions.com/ultimate-combo/"
+     },
+     {
+      "claim": "Axe Throwing - PCB and Rage Room - PCB are at 525 Richard Jackson Blvd, Panama City Beach.",
+      "source": "https://pcbattractions.com/ultimate-combo/"
+     },
+     {
+      "claim": "The venue strongly recommends booking a reservation through the booking portal at pcbattractions.com.",
+      "source": "https://pcbattractions.com/ultimate-combo/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJqWO1tnn7wogRXgN9FwTk9VQ",
+   "name": "Lake Seminole Park",
+   "category": "attractions",
+   "metro": "st-pete",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://pinellas.gov/park/08_Seminole.htm",
+     "source_name": "Lake Seminole Park \u2014 official source",
+     "source_class": "government",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Lake Seminole Park is 258 acres of designated wildlife habitat and sanctuary located in Seminole.",
+      "The park is home to raccoons, alligators, hawks, eagles, turtles and more.",
+      "The park is open 7 days a week, 7 a.m. to sunset.",
+      "Swimming is not permitted at Lake Seminole Park.",
+      "Amenities include 13 picnic shelters, a boat ramp, fishing, multipurpose trails, and playgrounds."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "258-acre wildlife habitat and sanctuary in Seminole",
+    "why_here": "Lake Seminole Park is 258 acres of designated wildlife habitat and sanctuary located in Seminole, home to raccoons, alligators, hawks, eagles and turtles, with multipurpose trails and playgrounds.",
+    "know_before": "Swimming is not permitted at Lake Seminole Park, and the park is open 7 days a week, 7 a.m. to sunset.",
+    "local_tip": "Use the 13 picnic shelters, boat ramp and fishing spots, or walk the multipurpose trails.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://pinellas.gov/park/08_Seminole.htm"
+     ],
+     "why_here": [
+      "https://pinellas.gov/park/08_Seminole.htm"
+     ],
+     "know_before": [
+      "https://pinellas.gov/park/08_Seminole.htm"
+     ],
+     "local_tip": [
+      "https://pinellas.gov/park/08_Seminole.htm"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Lake Seminole Park is 258 acres of designated wildlife habitat and sanctuary located in Seminole.",
+      "source": "https://pinellas.gov/park/08_Seminole.htm"
+     },
+     {
+      "claim": "The park is home to raccoons, alligators, hawks, eagles, turtles and more.",
+      "source": "https://pinellas.gov/park/08_Seminole.htm"
+     },
+     {
+      "claim": "The park is open 7 days a week, 7 a.m. to sunset.",
+      "source": "https://pinellas.gov/park/08_Seminole.htm"
+     },
+     {
+      "claim": "Swimming is not permitted at Lake Seminole Park.",
+      "source": "https://pinellas.gov/park/08_Seminole.htm"
+     },
+     {
+      "claim": "Amenities include 13 picnic shelters, a boat ramp, fishing, multipurpose trails, and playgrounds.",
+      "source": "https://pinellas.gov/park/08_Seminole.htm"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJpxgM9oO_2YgRWrl_-vXYHAE",
+   "name": "Islas Canarias Cafe, Restaurant & Bakery",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "cuban_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.islascanariasrestaurant.com/",
+     "source_name": "Islas Canarias Cafe, Restaurant & Bakery \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Islas Canarias Restaurant is a family owned and operated restaurant, established in 1977.",
+      "Islas Canarias prepares traditional plates from the family's original recipes from Cuba.",
+      "The Islas Canarias restaurant, caf\u00e9 and bakery is at 3804 SW 137th Ave, Miami."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "family-owned restaurant and bakery established in 1977",
+    "why_here": "Islas Canarias Restaurant is a family owned and operated restaurant, established in 1977, and prepares traditional plates from the family's original recipes from Cuba at its restaurant, caf\u00e9 and bakery.",
+    "know_before": "The restaurant, caf\u00e9 and bakery is at 3804 SW 137th Ave, Miami.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.islascanariasrestaurant.com/"
+     ],
+     "why_here": [
+      "https://www.islascanariasrestaurant.com/"
+     ],
+     "know_before": [
+      "https://www.islascanariasrestaurant.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Islas Canarias Restaurant is a family owned and operated restaurant, established in 1977.",
+      "source": "https://www.islascanariasrestaurant.com/"
+     },
+     {
+      "claim": "Islas Canarias prepares traditional plates from the family's original recipes from Cuba.",
+      "source": "https://www.islascanariasrestaurant.com/"
+     },
+     {
+      "claim": "The Islas Canarias restaurant, caf\u00e9 and bakery is at 3804 SW 137th Ave, Miami.",
+      "source": "https://www.islascanariasrestaurant.com/"
+     }
+    ]
+   }
+  }
+ ]
+}
