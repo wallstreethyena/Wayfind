@@ -1,0 +1,540 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 31. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJixXdw73h2IgRueh7QnfCrcQ",
+   "name": "Spanish River Park",
+   "category": "attractions",
+   "metro": "palm-beach",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.myboca.us/2880/Spanish-River-Park-Beach",
+     "source_name": "Spanish River Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Spanish River Park Beach is located at 3001 N Ocean Blvd in Boca Raton",
+      "Spanish River Park Beach hours are 8 a.m. to sunset",
+      "Spanish River Park is home to Bark Beach",
+      "Pavilions at Spanish River Park beach are available for rent",
+      "Parking at Spanish River Park requires an Annual Recreation Permit or a daily pass",
+      "Spanish River Park beach is a Blue Flag Award Winner"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Spanish River Park beach in Boca Raton, home to Bark Beach",
+    "why_here": "Visit Spanish River Park Beach at 3001 N Ocean Blvd in Boca Raton, a Blue Flag Award Winner and home to Bark Beach. Pavilions at Spanish River Park beach are available for rent.",
+    "know_before": "Parking requires an Annual Recreation Permit or a daily pass; hours are 8 a.m. to sunset",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.myboca.us/2880/Spanish-River-Park-Beach"
+     ],
+     "why_here": [
+      "https://www.myboca.us/2880/Spanish-River-Park-Beach"
+     ],
+     "know_before": [
+      "https://www.myboca.us/2880/Spanish-River-Park-Beach"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Spanish River Park Beach is located at 3001 N Ocean Blvd in Boca Raton",
+      "source": "https://www.myboca.us/2880/Spanish-River-Park-Beach"
+     },
+     {
+      "claim": "Spanish River Park Beach hours are 8 a.m. to sunset",
+      "source": "https://www.myboca.us/2880/Spanish-River-Park-Beach"
+     },
+     {
+      "claim": "Spanish River Park is home to Bark Beach",
+      "source": "https://www.myboca.us/2880/Spanish-River-Park-Beach"
+     },
+     {
+      "claim": "Pavilions at Spanish River Park beach are available for rent",
+      "source": "https://www.myboca.us/2880/Spanish-River-Park-Beach"
+     },
+     {
+      "claim": "Parking at Spanish River Park requires an Annual Recreation Permit or a daily pass",
+      "source": "https://www.myboca.us/2880/Spanish-River-Park-Beach"
+     },
+     {
+      "claim": "Spanish River Park beach is a Blue Flag Award Winner",
+      "source": "https://www.myboca.us/2880/Spanish-River-Park-Beach"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ3X37JNb2wogRui0kn39UTk4",
+   "name": "Coco's Crush Bar Original",
+   "category": "nightlife",
+   "metro": "florida",
+   "primary_type": "bar_and_grill",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://cocoscrushbar.com/og",
+     "source_name": "Coco's Crush Bar Original \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Coco's Crush Bar and Grill OG is at 317 Coronado Drive in Clearwater Beach",
+      "Coco's Crush Bar and Grill OG hours are 11:00 a.m. to 2:00 a.m."
+     ]
+    },
+    {
+     "source": "https://cocoscrushbar.com/about-us/",
+     "source_name": "Coco's Crush Bar Original \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Coco's Crush Bar is Home of the Orange Crush",
+      "Coco's Crush Bar has live music nightly",
+      "A Crush drink is freshly squeezed fruits mixed with alcohol over crushed ice"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Home of the Orange Crush at Coco's Crush Bar in Clearwater Beach",
+    "why_here": "Go to Coco's Crush Bar and Grill OG at 317 Coronado Drive in Clearwater Beach, Home of the Orange Crush. Coco's Crush Bar has live music nightly and serves the Orange Crush.",
+    "know_before": "A Crush drink is freshly squeezed fruits mixed with alcohol over crushed ice",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://cocoscrushbar.com/og",
+      "https://cocoscrushbar.com/about-us/"
+     ],
+     "why_here": [
+      "https://cocoscrushbar.com/og",
+      "https://cocoscrushbar.com/about-us/"
+     ],
+     "know_before": [
+      "https://cocoscrushbar.com/og",
+      "https://cocoscrushbar.com/about-us/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Coco's Crush Bar and Grill OG is at 317 Coronado Drive in Clearwater Beach",
+      "source": "https://cocoscrushbar.com/og"
+     },
+     {
+      "claim": "Coco's Crush Bar and Grill OG hours are 11:00 a.m. to 2:00 a.m.",
+      "source": "https://cocoscrushbar.com/og"
+     },
+     {
+      "claim": "Coco's Crush Bar is Home of the Orange Crush",
+      "source": "https://cocoscrushbar.com/about-us/"
+     },
+     {
+      "claim": "Coco's Crush Bar has live music nightly",
+      "source": "https://cocoscrushbar.com/about-us/"
+     },
+     {
+      "claim": "A Crush drink is freshly squeezed fruits mixed with alcohol over crushed ice",
+      "source": "https://cocoscrushbar.com/about-us/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJKceWrSUA2YgRR1JJSheTMB0",
+   "name": "BlueFoot Pirate Adventures",
+   "category": "attractions",
+   "metro": "broward",
+   "primary_type": "tour_agency",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.bluefootpirates.com/",
+     "source_name": "BlueFoot Pirate Adventures \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Bluefoot Pirate Adventures was established in 2011",
+      "The One Hour Family Pirate Ship Adventure lasts 1 hour",
+      "Guests sail aboard the U.S. Coast Guard Certified vessel Bluefoot",
+      "Children learn to talk like a pirate and battle a pirate with real water cannons",
+      "Guests should arrive 30 minutes early for dress up and pirate tattoos"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Interactive pirate ship cruise aboard the Bluefoot with water cannons",
+    "why_here": "Bluefoot Pirate Adventures, established in 2011, runs a One Hour Family Pirate Ship Adventure aboard the U.S. Coast Guard Certified vessel Bluefoot, where children learn to talk like a pirate and battle a pirate with real water cannons.",
+    "know_before": "Arrive 30 minutes early for dress up and pirate tattoos",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.bluefootpirates.com/"
+     ],
+     "why_here": [
+      "https://www.bluefootpirates.com/"
+     ],
+     "know_before": [
+      "https://www.bluefootpirates.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Bluefoot Pirate Adventures was established in 2011",
+      "source": "https://www.bluefootpirates.com/"
+     },
+     {
+      "claim": "The One Hour Family Pirate Ship Adventure lasts 1 hour",
+      "source": "https://www.bluefootpirates.com/"
+     },
+     {
+      "claim": "Guests sail aboard the U.S. Coast Guard Certified vessel Bluefoot",
+      "source": "https://www.bluefootpirates.com/"
+     },
+     {
+      "claim": "Children learn to talk like a pirate and battle a pirate with real water cannons",
+      "source": "https://www.bluefootpirates.com/"
+     },
+     {
+      "claim": "Guests should arrive 30 minutes early for dress up and pirate tattoos",
+      "source": "https://www.bluefootpirates.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ27CA7Zp554gRtz2xAJ0zMdA",
+   "name": "Barnett Park",
+   "category": "attractions",
+   "metro": "orlando",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.orangecountyfl.net/cultureparks/parks.aspx?m=dtlvw&d=3",
+     "source_name": "Barnett Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Barnett Park covers 159 acres",
+      "Park outdoor amenities use summer hours of 8 a.m. - 8 p.m. daily",
+      "Park outdoor amenities use winter hours of 8 a.m. - 6 p.m. daily",
+      "The Recreation Center is open Monday - Saturday 8 a.m. - 8 p.m. and Sunday 1 p.m. - 8 p.m.",
+      "Splash pad Session 1 is 10 a.m. - 11:45 a.m.",
+      "Park amenities include a golf practice facility and two league-play softball fields"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "159-acre park with a splash pad, golf practice facility and softball fields",
+    "why_here": "Barnett Park covers 159 acres with a golf practice facility, two league-play softball fields and a splash pad with Session 1 at 10 a.m. - 11:45 a.m., plus a Recreation Center with indoor amenities.",
+    "know_before": "Recreation Center hours are Monday - Saturday 8 a.m. - 8 p.m. and Sunday 1 p.m. - 8 p.m.; park summer hours are 8 a.m. - 8 p.m. daily",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.orangecountyfl.net/cultureparks/parks.aspx?m=dtlvw&d=3"
+     ],
+     "why_here": [
+      "https://www.orangecountyfl.net/cultureparks/parks.aspx?m=dtlvw&d=3"
+     ],
+     "know_before": [
+      "https://www.orangecountyfl.net/cultureparks/parks.aspx?m=dtlvw&d=3"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Barnett Park covers 159 acres",
+      "source": "https://www.orangecountyfl.net/cultureparks/parks.aspx?m=dtlvw&d=3"
+     },
+     {
+      "claim": "Park outdoor amenities use summer hours of 8 a.m. - 8 p.m. daily",
+      "source": "https://www.orangecountyfl.net/cultureparks/parks.aspx?m=dtlvw&d=3"
+     },
+     {
+      "claim": "Park outdoor amenities use winter hours of 8 a.m. - 6 p.m. daily",
+      "source": "https://www.orangecountyfl.net/cultureparks/parks.aspx?m=dtlvw&d=3"
+     },
+     {
+      "claim": "The Recreation Center is open Monday - Saturday 8 a.m. - 8 p.m. and Sunday 1 p.m. - 8 p.m.",
+      "source": "https://www.orangecountyfl.net/cultureparks/parks.aspx?m=dtlvw&d=3"
+     },
+     {
+      "claim": "Splash pad Session 1 is 10 a.m. - 11:45 a.m.",
+      "source": "https://www.orangecountyfl.net/cultureparks/parks.aspx?m=dtlvw&d=3"
+     },
+     {
+      "claim": "Park amenities include a golf practice facility and two league-play softball fields",
+      "source": "https://www.orangecountyfl.net/cultureparks/parks.aspx?m=dtlvw&d=3"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJLXuwSom02YgRzi6nUmT4PCE",
+   "name": "Flamingo Park",
+   "category": "attractions",
+   "metro": "miami-dade",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.miamibeachfl.gov/city-hall/parks-and-recreation/parks-facilities-directory/flamingo-park/",
+     "source_name": "Flamingo Park \u2014 official source",
+     "source_class": "government",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Flamingo Park general hours are Monday - Sunday: Sunrise - Sunset",
+      "The main pool features a lap pool with 8 lanes at Flamingo",
+      "The water playground is a zero to 15 inch depth interactive play pool",
+      "Basketball Courts are open Monday - Sunday: 7:00 a.m. - 10:00 p.m.",
+      "Handball / Racquetball Courts are open Monday - Sunday: 8:00 a.m. - 10:00 p.m.",
+      "Flamingo Park is at 11 Street & Jefferson Avenue Miami Beach FL 33139"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Miami Beach park with an 8-lane lap pool and water playground",
+    "why_here": "Flamingo Park in Miami Beach has a lap pool with 8 lanes at Flamingo and a water playground that is a zero to 15 inch depth interactive play pool, plus Basketball Courts and Handball / Racquetball Courts.",
+    "know_before": "General hours are Monday - Sunday: Sunrise - Sunset; Basketball Courts run 7:00 a.m. - 10:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.miamibeachfl.gov/city-hall/parks-and-recreation/parks-facilities-directory/flamingo-park/"
+     ],
+     "why_here": [
+      "https://www.miamibeachfl.gov/city-hall/parks-and-recreation/parks-facilities-directory/flamingo-park/"
+     ],
+     "know_before": [
+      "https://www.miamibeachfl.gov/city-hall/parks-and-recreation/parks-facilities-directory/flamingo-park/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Flamingo Park general hours are Monday - Sunday: Sunrise - Sunset",
+      "source": "https://www.miamibeachfl.gov/city-hall/parks-and-recreation/parks-facilities-directory/flamingo-park/"
+     },
+     {
+      "claim": "The main pool features a lap pool with 8 lanes at Flamingo",
+      "source": "https://www.miamibeachfl.gov/city-hall/parks-and-recreation/parks-facilities-directory/flamingo-park/"
+     },
+     {
+      "claim": "The water playground is a zero to 15 inch depth interactive play pool",
+      "source": "https://www.miamibeachfl.gov/city-hall/parks-and-recreation/parks-facilities-directory/flamingo-park/"
+     },
+     {
+      "claim": "Basketball Courts are open Monday - Sunday: 7:00 a.m. - 10:00 p.m.",
+      "source": "https://www.miamibeachfl.gov/city-hall/parks-and-recreation/parks-facilities-directory/flamingo-park/"
+     },
+     {
+      "claim": "Handball / Racquetball Courts are open Monday - Sunday: 8:00 a.m. - 10:00 p.m.",
+      "source": "https://www.miamibeachfl.gov/city-hall/parks-and-recreation/parks-facilities-directory/flamingo-park/"
+     },
+     {
+      "claim": "Flamingo Park is at 11 Street & Jefferson Avenue Miami Beach FL 33139",
+      "source": "https://www.miamibeachfl.gov/city-hall/parks-and-recreation/parks-facilities-directory/flamingo-park/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJg-qbknYe2YgRS0bIcr0vtOo",
+   "name": "Motek Boca Raton",
+   "category": "food",
+   "metro": "palm-beach",
+   "primary_type": "mediterranean_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://motekcafe.com/boca-raton/",
+     "source_name": "Motek Boca Raton \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Motek Boca Raton is at 5377 Town Center Rd #300, Boca Raton, FL 33486",
+      "Motek Boca Raton hours are Monday to Thursday 11 a.m. - 10 p.m.",
+      "Motek Boca Raton hours are Friday 11 a.m. - 11 p.m., Saturday 10 a.m. - 11 p.m. and Sunday 10 a.m. - 10 p.m.",
+      "Happy Hour is Monday - Friday 2 p.m. - 5 p.m.",
+      "The Boca location serves leisurely brunches and mezze-style dinners shared among friends and family"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Boca Raton kitchen for leisurely brunches and mezze-style dinners",
+    "why_here": "Motek Boca Raton at 5377 Town Center Rd #300, Boca Raton, FL 33486 serves leisurely brunches and mezze-style dinners shared among friends and family, with Happy Hour Monday - Friday 2 p.m. - 5 p.m.",
+    "know_before": "Hours are Monday to Thursday 11 a.m. - 10 p.m. and Friday 11 a.m. - 11 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://motekcafe.com/boca-raton/"
+     ],
+     "why_here": [
+      "https://motekcafe.com/boca-raton/"
+     ],
+     "know_before": [
+      "https://motekcafe.com/boca-raton/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Motek Boca Raton is at 5377 Town Center Rd #300, Boca Raton, FL 33486",
+      "source": "https://motekcafe.com/boca-raton/"
+     },
+     {
+      "claim": "Motek Boca Raton hours are Monday to Thursday 11 a.m. - 10 p.m.",
+      "source": "https://motekcafe.com/boca-raton/"
+     },
+     {
+      "claim": "Motek Boca Raton hours are Friday 11 a.m. - 11 p.m., Saturday 10 a.m. - 11 p.m. and Sunday 10 a.m. - 10 p.m.",
+      "source": "https://motekcafe.com/boca-raton/"
+     },
+     {
+      "claim": "Happy Hour is Monday - Friday 2 p.m. - 5 p.m.",
+      "source": "https://motekcafe.com/boca-raton/"
+     },
+     {
+      "claim": "The Boca location serves leisurely brunches and mezze-style dinners shared among friends and family",
+      "source": "https://motekcafe.com/boca-raton/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJCbNLc7a32YgRkyw17fM6jCI",
+   "name": "Berries in the Grove",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://berriesinthegrove.com/",
+     "source_name": "Berries in the Grove \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Berries in the Grove is at 2884 SW 27 Ave, Coconut Grove, Miami, FL 33133",
+      "Breakfast is available every day from 8:00 a.m. to 3:00 p.m.",
+      "Breakfast includes Build Your Own Omelet, Belgian Waffle, Avocado Toast, Steak & Eggs Burrito, and Eggs Benedict"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Breakfast every day with Build Your Own Omelet and Belgian Waffle",
+    "why_here": "Berries in the Grove in Coconut Grove, Miami serves breakfast every day, including Build Your Own Omelet, Belgian Waffle, Avocado Toast, Steak & Eggs Burrito, and Eggs Benedict at 2884 SW 27 Ave.",
+    "know_before": "Breakfast is available every day from 8:00 a.m. to 3:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://berriesinthegrove.com/"
+     ],
+     "why_here": [
+      "https://berriesinthegrove.com/"
+     ],
+     "know_before": [
+      "https://berriesinthegrove.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Berries in the Grove is at 2884 SW 27 Ave, Coconut Grove, Miami, FL 33133",
+      "source": "https://berriesinthegrove.com/"
+     },
+     {
+      "claim": "Breakfast is available every day from 8:00 a.m. to 3:00 p.m.",
+      "source": "https://berriesinthegrove.com/"
+     },
+     {
+      "claim": "Breakfast includes Build Your Own Omelet, Belgian Waffle, Avocado Toast, Steak & Eggs Burrito, and Eggs Benedict",
+      "source": "https://berriesinthegrove.com/"
+     }
+    ]
+   }
+  }
+ ]
+}
