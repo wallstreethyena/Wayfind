@@ -57,6 +57,13 @@ export function EventHeroCredit({ eventName, isVenue = false, registryCredit = n
   if (registryCredit) {
     return <p style={style}>Photos: {registryCreditHref ? <PhotoCreditLink style={linkStyle} href={registryCreditHref} rel="nofollow noopener">{registryCredit}</PhotoCreditLink> : registryCredit}, shared with Wayfind for this listing.</p>;
   }
+  // A licensed photo of the event itself (lib/licensedEventCovers.js, kind
+  // "event") still owes its credit: CC BY / BY-SA require it, and the credit
+  // text is also where a past edition is named ("2014 Homecoming show"), so
+  // the page never implies it documents this year's event (owner, 2026-11-06).
+  if (!isVenue && attr) {
+    return <p style={style} data-event-hero-credit>Photo: {attrHref ? <PhotoCreditLink style={linkStyle} href={attrHref}>{attr}</PhotoCreditLink> : attr}.</p>;
+  }
   if (!isVenue) return null;
   return (
     <p style={style} data-event-hero-credit>

@@ -57,6 +57,7 @@ import { emitCommerce, mintClickId } from "../../lib/commerce";
 import { forwardToGoogle, PARTNER_CLICK_EVENT } from "../../lib/analytics";
 import { planPartnerClick, planOrganizerClick } from "../../lib/partnerClick";
 import { analyticsSuppressionReason } from "../../lib/browserAnalytics";
+import { syncAdClickCookieFromWindow } from "../../lib/adClickCookie";
 
 // Two clicks on the same partner anchor closer together than this are one
 // double-activation, not two intents. Real re-clicks measured in production were
@@ -82,6 +83,7 @@ function suppressed() {
 export default function CommerceClickBeacon({ surface }) {
   useEffect(() => {
     const lastActivation = new WeakMap();
+    const baseHrefByAnchor = new WeakMap();
     function onClick(ev) {
       try {
         if (suppressed()) return;
@@ -106,26 +108,39 @@ export default function CommerceClickBeacon({ surface }) {
           try { emitCommerce("commerce_cta_clicked", org.ctx); } catch (e) {}
           return;
         }
+        // ONE ACTIVATION, ONE CLICK. A double-click / double-tap lands two DOM
+        // click events on the same anchor a few hundred ms apart (measured
+        // 2026-10-14: two commerce_cta_clicked, 142 ms apart, SAME click_id,
+        // /guides/things-to-do-sarasota). A repeat on the same anchor inside
+        // DOUBLE_ACTIVATION_MS is the same intent and is dropped whole (no
+        // emit, no Google forward); a later click (> DOUBLE_ACTIVATION_MS)
+        // counts as its own independent click and must mint a fresh click_id
+        // against the original base href rather than reusing a prior click's
+        // rewritten href.
+        const nowMs = Date.now();
+        const lastMs = lastActivation.get(a);
+        if (lastMs !== undefined && nowMs - lastMs < DOUBLE_ACTIVATION_MS) return;
+        const currentHref = a.getAttribute("href");
+        if (!owned && !baseHrefByAnchor.has(a) && currentHref) {
+          baseHrefByAnchor.set(a, currentHref);
+        }
+        const planHref = !owned && baseHrefByAnchor.has(a) ? baseHrefByAnchor.get(a) : currentHref;
         const plan = planPartnerClick({
-          href: a.getAttribute("href"),
+          href: planHref,
           owned,
           locationHost: typeof window !== "undefined" ? window.location.hostname : "",
           fallbackSurface: surface,
           mint: mintClickId,
         });
         if (!plan) return;
-        // ONE ACTIVATION, ONE CLICK. A double-click / double-tap lands two DOM
-        // click events on the same anchor a few hundred ms apart (measured
-        // 2026-10-14: two commerce_cta_clicked, 142 ms apart, SAME click_id,
-        // /guides/things-to-do-sarasota). The first click rewrites the href to
-        // carry its click_id, so the second reads that id back and is
-        // indistinguishable from a re-emit. A repeat on the same anchor inside
-        // DOUBLE_ACTIVATION_MS is the same intent and is dropped whole (no
-        // emit, no Google forward); a later click counts as its own.
-        const nowMs = Date.now();
-        const lastMs = lastActivation.get(a);
-        if (lastMs !== undefined && nowMs - lastMs < DOUBLE_ACTIVATION_MS) return;
         lastActivation.set(a, nowMs);
+        try { syncAdClickCookieFromWindow(typeof window !== "undefined" ? window : null); } catch (e) {}
+        if (plan.clickId) {
+          try {
+            a.setAttribute("data-wf-click-id", plan.clickId);
+            a.setAttribute("data-wf-click-ts", String(nowMs));
+          } catch (e) {}
+        }
         if (plan.rewriteHref) {
           try { a.setAttribute("href", plan.rewriteHref); } catch (e) {}
         }
