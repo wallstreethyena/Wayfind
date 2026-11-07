@@ -1,0 +1,818 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 23. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJaQuegbD6wogRELdr81d6AY8",
+   "name": "La Mordida Restaurant Bar & Grill",
+   "category": "food",
+   "metro": "st-pete",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.lamordidagrill.com/",
+     "source_name": "La Mordida Restaurant Bar & Grill \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "La Mordida serves Traditional Colombian and Peruvian food.",
+      "Take out and delivery are available.",
+      "The address is 14100 US Hwy 19 N, Clearwater, FL 33764.",
+      "Monday to Thursday hours are listed as 8:30 a.m. to 9 p.m.",
+      "The bar boasts Margaritas and Pisco sours."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Colombian and Peruvian food with margaritas and pisco sours",
+    "why_here": "La Mordida serves Traditional Colombian and Peruvian food in Clearwater, complemented by a bar that has Margaritas and Pisco sours, with take out and delivery available.",
+    "know_before": "Take out and delivery are available; Monday to Thursday hours are listed as 8:30 a.m. to 9 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.lamordidagrill.com/"
+     ],
+     "why_here": [
+      "https://www.lamordidagrill.com/"
+     ],
+     "know_before": [
+      "https://www.lamordidagrill.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "La Mordida serves Traditional Colombian and Peruvian food.",
+      "source": "https://www.lamordidagrill.com/"
+     },
+     {
+      "claim": "Take out and delivery are available.",
+      "source": "https://www.lamordidagrill.com/"
+     },
+     {
+      "claim": "The address is 14100 US Hwy 19 N, Clearwater, FL 33764.",
+      "source": "https://www.lamordidagrill.com/"
+     },
+     {
+      "claim": "Monday to Thursday hours are listed as 8:30 a.m. to 9 p.m.",
+      "source": "https://www.lamordidagrill.com/"
+     },
+     {
+      "claim": "The bar boasts Margaritas and Pisco sours.",
+      "source": "https://www.lamordidagrill.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJs8_mQCzC2YgR85glKQeQt6M",
+   "name": "Los Verdes - Country walk",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "latin_american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://losverdes.com",
+     "source_name": "Los Verdes - Country walk \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Los Verdes describes itself as Latin Street Food, established in 2004.",
+      "The Country Walk location is at 15455 SW 137th Ave, Miami, FL 33177.",
+      "The menu categories include burgers, quesadillas, cachapas, arepas, hot dogs and wings.",
+      "Milkshake Tuesday offers buy one get one free on milkshakes every Tuesday.",
+      "LOCO Thursday offers buy one get one free quesadillas every Thursday, with code LOCO for online orders."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Latin street food in Country Walk, from arepas to cachapas",
+    "why_here": "Los Verdes is a Latin street-food spot; the Country Walk location is one of its Miami-area locations. It is known for burgers, quesadillas, cachapas, arepas, hot dogs, wings and milkshakes.",
+    "know_before": "Weekly promos include Milkshake Tuesday and LOCO Thursday, per the official site.",
+    "local_tip": "On Thursdays, the official site lists code LOCO for online quesadilla orders.",
+    "best_time": "Tuesday for the milkshake buy-one-get-one-free promo, per the official site.",
+    "citations": {
+     "hook": [
+      "https://losverdes.com"
+     ],
+     "why_here": [
+      "https://losverdes.com"
+     ],
+     "know_before": [
+      "https://losverdes.com"
+     ],
+     "local_tip": [
+      "https://losverdes.com"
+     ],
+     "best_time": [
+      "https://losverdes.com"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Los Verdes describes itself as Latin Street Food, established in 2004.",
+      "source": "https://losverdes.com"
+     },
+     {
+      "claim": "The Country Walk location is at 15455 SW 137th Ave, Miami, FL 33177.",
+      "source": "https://losverdes.com"
+     },
+     {
+      "claim": "The menu categories include burgers, quesadillas, cachapas, arepas, hot dogs and wings.",
+      "source": "https://losverdes.com"
+     },
+     {
+      "claim": "Milkshake Tuesday offers buy one get one free on milkshakes every Tuesday.",
+      "source": "https://losverdes.com"
+     },
+     {
+      "claim": "LOCO Thursday offers buy one get one free quesadillas every Thursday, with code LOCO for online orders.",
+      "source": "https://losverdes.com"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJuRTMNQCr2YgRpsZZoosIuLM",
+   "name": "Tiki Tiki",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://letstikitiki.com",
+     "source_name": "Tiki Tiki \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Tiki Tiki is at 6200 North Ocean Blvd, Hollywood Beach, Florida 33019.",
+      "Hours of Operation Monday - Thursday are 11 a.m. to 10 p.m.",
+      "Weekend brunch is served from 10 a.m. to 3 p.m. every Saturday and Sunday.",
+      "Day drinking happy hour is Monday through Friday from 3:30 p.m. to 6:30 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Waterfront tiki spot on Hollywood Beach for fresh seafood and cocktails",
+    "why_here": "Tiki Tiki is a Hollywood Beach waterfront restaurant inspired by the history and spirit of Hollywood, Florida. The official site describes fresh seafood and refreshing cocktails in a casual, come-off-the-beach setting.",
+    "know_before": "Weekend brunch runs 10 a.m. to 3 p.m. on Saturday and Sunday; weekday hours start at 11 a.m.",
+    "local_tip": "Happy hour is listed Monday through Friday from 3:30 p.m. to 6:30 p.m.",
+    "best_time": "Saturday or Sunday from 10 a.m. to 3 p.m. for waterfront brunch, per the official site.",
+    "citations": {
+     "hook": [
+      "https://letstikitiki.com"
+     ],
+     "why_here": [
+      "https://letstikitiki.com"
+     ],
+     "know_before": [
+      "https://letstikitiki.com"
+     ],
+     "local_tip": [
+      "https://letstikitiki.com"
+     ],
+     "best_time": [
+      "https://letstikitiki.com"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Tiki Tiki is at 6200 North Ocean Blvd, Hollywood Beach, Florida 33019.",
+      "source": "https://letstikitiki.com"
+     },
+     {
+      "claim": "Hours of Operation Monday - Thursday are 11 a.m. to 10 p.m.",
+      "source": "https://letstikitiki.com"
+     },
+     {
+      "claim": "Weekend brunch is served from 10 a.m. to 3 p.m. every Saturday and Sunday.",
+      "source": "https://letstikitiki.com"
+     },
+     {
+      "claim": "Day drinking happy hour is Monday through Friday from 3:30 p.m. to 6:30 p.m.",
+      "source": "https://letstikitiki.com"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJMbi4KbN_54gRUionsnz1zfs",
+   "name": "Embassy Suites by Hilton Orlando International Drive Convention Center",
+   "category": "hotels",
+   "metro": "orlando",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.hilton.com/en/hotels/mcoores-embassy-suites-orlando-international-drive-convention-center/",
+     "source_name": "Embassy Suites by Hilton Orlando International Drive Convention Center \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The hotel is at 8978 International Drive, Orlando, Florida 32819, USA.",
+      "Free made-to-order breakfast is offered.",
+      "A complimentary evening reception is offered.",
+      "The hotel has an indoor pool and an outdoor pool."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Free made-to-order breakfast with an indoor pool and an outdoor pool",
+    "why_here": "The hotel at 8978 International Drive in Orlando offers free made-to-order breakfast and a complimentary evening reception. An indoor pool and an outdoor pool are also listed.",
+    "know_before": "Free made-to-order breakfast and a complimentary evening reception are offered.",
+    "local_tip": "Use the indoor pool or the outdoor pool when weather changes plans.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.hilton.com/en/hotels/mcoores-embassy-suites-orlando-international-drive-convention-center/"
+     ],
+     "why_here": [
+      "https://www.hilton.com/en/hotels/mcoores-embassy-suites-orlando-international-drive-convention-center/"
+     ],
+     "know_before": [
+      "https://www.hilton.com/en/hotels/mcoores-embassy-suites-orlando-international-drive-convention-center/"
+     ],
+     "local_tip": [
+      "https://www.hilton.com/en/hotels/mcoores-embassy-suites-orlando-international-drive-convention-center/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The hotel is at 8978 International Drive, Orlando, Florida 32819, USA.",
+      "source": "https://www.hilton.com/en/hotels/mcoores-embassy-suites-orlando-international-drive-convention-center/"
+     },
+     {
+      "claim": "Free made-to-order breakfast is offered.",
+      "source": "https://www.hilton.com/en/hotels/mcoores-embassy-suites-orlando-international-drive-convention-center/"
+     },
+     {
+      "claim": "A complimentary evening reception is offered.",
+      "source": "https://www.hilton.com/en/hotels/mcoores-embassy-suites-orlando-international-drive-convention-center/"
+     },
+     {
+      "claim": "The hotel has an indoor pool and an outdoor pool.",
+      "source": "https://www.hilton.com/en/hotels/mcoores-embassy-suites-orlando-international-drive-convention-center/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJcehkoJ3hwogR1wLhHBayhq4",
+   "name": "The Sundial",
+   "category": "shopping",
+   "metro": "st-pete",
+   "primary_type": "shopping_mall",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://sundialstpete.com/",
+     "source_name": "The Sundial \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Sundial is a curated mix of shopping, dining and entertainment in the heart of downtown St. Petersburg.",
+      "Sundial is where shopping, dining, and community come together in downtown St. Pete.",
+      "The address is 153 2nd Ave. N, St. Petersburg, FL 33701.",
+      "Metered street parking is available throughout the surrounding downtown area."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Shopping, dining and entertainment in the heart of downtown St. Petersburg",
+    "why_here": "Sundial is a curated mix of shopping, dining and entertainment in the heart of downtown St. Petersburg. It is where shopping, dining, and community come together in downtown St. Pete.",
+    "know_before": "The address is 153 2nd Ave. N, St. Petersburg, FL 33701.",
+    "local_tip": "Metered street parking is available throughout the surrounding downtown area.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://sundialstpete.com/"
+     ],
+     "why_here": [
+      "https://sundialstpete.com/"
+     ],
+     "know_before": [
+      "https://sundialstpete.com/"
+     ],
+     "local_tip": [
+      "https://sundialstpete.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Sundial is a curated mix of shopping, dining and entertainment in the heart of downtown St. Petersburg.",
+      "source": "https://sundialstpete.com/"
+     },
+     {
+      "claim": "Sundial is where shopping, dining, and community come together in downtown St. Pete.",
+      "source": "https://sundialstpete.com/"
+     },
+     {
+      "claim": "The address is 153 2nd Ave. N, St. Petersburg, FL 33701.",
+      "source": "https://sundialstpete.com/"
+     },
+     {
+      "claim": "Metered street parking is available throughout the surrounding downtown area.",
+      "source": "https://sundialstpete.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJwSGmnlYr5ogR9WoDa2irqlY",
+   "name": "Tuscawilla Park",
+   "category": "attractions",
+   "metro": "ocala-fl",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.ocalafl.gov/Home/Components/FacilityDirectory/FacilityDirectory/98/182",
+     "source_name": "Tuscawilla Park \u2014 official source",
+     "source_class": "government",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Tuscawilla Park is at 800 NE Sanchez Ave.",
+      "Park amenities include a baseball field and playground equipment.",
+      "Hours of operation are sunrise to sunset."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Baseball field and playground equipment at 800 NE Sanchez Ave.",
+    "why_here": "Tuscawilla Park at 800 NE Sanchez Ave. has a baseball field and playground equipment. The baseball field and playground equipment give the park both a field and a playground option in one place.",
+    "know_before": "Tuscawilla Park is at 800 NE Sanchez Ave.",
+    "local_tip": "Hours of operation are sunrise to sunset.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.ocalafl.gov/Home/Components/FacilityDirectory/FacilityDirectory/98/182"
+     ],
+     "why_here": [
+      "https://www.ocalafl.gov/Home/Components/FacilityDirectory/FacilityDirectory/98/182"
+     ],
+     "know_before": [
+      "https://www.ocalafl.gov/Home/Components/FacilityDirectory/FacilityDirectory/98/182"
+     ],
+     "local_tip": [
+      "https://www.ocalafl.gov/Home/Components/FacilityDirectory/FacilityDirectory/98/182"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Tuscawilla Park is at 800 NE Sanchez Ave.",
+      "source": "https://www.ocalafl.gov/Home/Components/FacilityDirectory/FacilityDirectory/98/182"
+     },
+     {
+      "claim": "Park amenities include a baseball field and playground equipment.",
+      "source": "https://www.ocalafl.gov/Home/Components/FacilityDirectory/FacilityDirectory/98/182"
+     },
+     {
+      "claim": "Hours of operation are sunrise to sunset.",
+      "source": "https://www.ocalafl.gov/Home/Components/FacilityDirectory/FacilityDirectory/98/182"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ6WcZvyK15YgRsQrPTR0J1Oc",
+   "name": "Game Show Battle Rooms - Jacksonville (St Johns Town Center)",
+   "category": "attractions",
+   "metro": "st-augustine-fl",
+   "primary_type": "amusement_center",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://gameshowbattlerooms.com/jacksonville/",
+     "source_name": "Game Show Battle Rooms - Jacksonville (St Johns Town Center) \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Game Show Battle Rooms Jacksonville is located at St. Johns Town Center in Jacksonville.",
+      "Two teams face off in game show arenas playing 3 different game shows over 1 hour.",
+      "Players choose between two game show room experiences: Classic Showdowns or Primetime Showdowns.",
+      "Bookings on the page are offered for 6-36 guests, with a separate option for large events of 37+ guests."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Two teams face off across three hosted game shows in one hour",
+    "why_here": "A hosted game-show arena at St. Johns Town Center where two teams compete across three different game shows in an hour. It suits groups, parties, and team outings that want a structured competition rather than free play.",
+    "know_before": "Bookings are shown for 6-36 guests, with large events at 37+ guests; group minimums may be higher during holiday season.",
+    "local_tip": "Pick Classic Showdowns or Primetime Showdowns when booking, as the page offers both room experiences.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://gameshowbattlerooms.com/jacksonville/"
+     ],
+     "why_here": [
+      "https://gameshowbattlerooms.com/jacksonville/"
+     ],
+     "know_before": [
+      "https://gameshowbattlerooms.com/jacksonville/"
+     ],
+     "local_tip": [
+      "https://gameshowbattlerooms.com/jacksonville/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Game Show Battle Rooms Jacksonville is located at St. Johns Town Center in Jacksonville.",
+      "source": "https://gameshowbattlerooms.com/jacksonville/"
+     },
+     {
+      "claim": "Two teams face off in game show arenas playing 3 different game shows over 1 hour.",
+      "source": "https://gameshowbattlerooms.com/jacksonville/"
+     },
+     {
+      "claim": "Players choose between two game show room experiences: Classic Showdowns or Primetime Showdowns.",
+      "source": "https://gameshowbattlerooms.com/jacksonville/"
+     },
+     {
+      "claim": "Bookings on the page are offered for 6-36 guests, with a separate option for large events of 37+ guests.",
+      "source": "https://gameshowbattlerooms.com/jacksonville/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJydm3vpWr2YgRoZJO8bfthRA",
+   "name": "Kussifay Argentine Pizza & Grill",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "argentinian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://kussifay.com/",
+     "source_name": "Kussifay Argentine Pizza & Grill \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Handmade empanadas are filled with traditional Argentine ingredients.",
+      "Empanada options include beef, chicken, ham and cheese, or spinach.",
+      "Kussifay offers authentic Argentine pizza.",
+      "The Hollywood location is at 2652 Hollywood Boulevard, Hollywood, FL 33020."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Handmade empanadas with traditional Argentine ingredients and authentic Argentine pizza",
+    "why_here": "Kussifay offers handmade empanadas filled with traditional Argentine ingredients and authentic Argentine pizza. Empanada options include beef, chicken, ham and cheese, or spinach at the Hollywood location.",
+    "know_before": "The Hollywood location is at 2652 Hollywood Boulevard, Hollywood, FL 33020.",
+    "local_tip": "Choose beef, chicken, ham and cheese, or spinach for an empanada filling.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://kussifay.com/"
+     ],
+     "why_here": [
+      "https://kussifay.com/"
+     ],
+     "know_before": [
+      "https://kussifay.com/"
+     ],
+     "local_tip": [
+      "https://kussifay.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Handmade empanadas are filled with traditional Argentine ingredients.",
+      "source": "https://kussifay.com/"
+     },
+     {
+      "claim": "Empanada options include beef, chicken, ham and cheese, or spinach.",
+      "source": "https://kussifay.com/"
+     },
+     {
+      "claim": "Kussifay offers authentic Argentine pizza.",
+      "source": "https://kussifay.com/"
+     },
+     {
+      "claim": "The Hollywood location is at 2652 Hollywood Boulevard, Hollywood, FL 33020.",
+      "source": "https://kussifay.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJHdRIEU2Mk4gRfAM5vKPoRxk",
+   "name": "Frank Brown Park",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.pcbfl.gov/Facilities/Facility/Details/Frank-Brown-Park-7",
+     "source_name": "Frank Brown Park \u2014 official source",
+     "source_class": "government",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "At over 100 acres, Frank Brown Park is the largest park in Panama City Beach.",
+      "The Aquatic Center includes an outdoor Olympic size pool and a Kids Splash Pool.",
+      "Amenities include playgrounds, picnic areas, pavilions, a freshwater youth fishing pond, three dog parks, and green spaces.",
+      "The park has 1.5 miles of greenways and trails."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Over 100 acres with playgrounds, picnic areas and a freshwater youth fishing pond",
+    "why_here": "At over 100 acres, Frank Brown Park is the largest park in Panama City Beach. Amenities include playgrounds, picnic areas, pavilions, a freshwater youth fishing pond and green spaces for a longer visit.",
+    "know_before": "The Aquatic Center includes an outdoor Olympic size pool and a Kids Splash Pool.",
+    "local_tip": "Use the freshwater youth fishing pond or the greenways and trails between playground visits.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.pcbfl.gov/Facilities/Facility/Details/Frank-Brown-Park-7"
+     ],
+     "why_here": [
+      "https://www.pcbfl.gov/Facilities/Facility/Details/Frank-Brown-Park-7"
+     ],
+     "know_before": [
+      "https://www.pcbfl.gov/Facilities/Facility/Details/Frank-Brown-Park-7"
+     ],
+     "local_tip": [
+      "https://www.pcbfl.gov/Facilities/Facility/Details/Frank-Brown-Park-7"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "At over 100 acres, Frank Brown Park is the largest park in Panama City Beach.",
+      "source": "https://www.pcbfl.gov/Facilities/Facility/Details/Frank-Brown-Park-7"
+     },
+     {
+      "claim": "The Aquatic Center includes an outdoor Olympic size pool and a Kids Splash Pool.",
+      "source": "https://www.pcbfl.gov/Facilities/Facility/Details/Frank-Brown-Park-7"
+     },
+     {
+      "claim": "Amenities include playgrounds, picnic areas, pavilions, a freshwater youth fishing pond, three dog parks, and green spaces.",
+      "source": "https://www.pcbfl.gov/Facilities/Facility/Details/Frank-Brown-Park-7"
+     },
+     {
+      "claim": "The park has 1.5 miles of greenways and trails.",
+      "source": "https://www.pcbfl.gov/Facilities/Facility/Details/Frank-Brown-Park-7"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJlZsamMu12YgRJoP13RhIJEc",
+   "name": "Baires Grill - Miami Beach",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "argentinian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://bairesgrill.com/",
+     "source_name": "Baires Grill - Miami Beach \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Miami Beach location is at 2200 Collins Ave., Miami Beach, FL 33139.",
+      "Miami Beach hours are Sunday to Thursday, 12 p.m. to 10:30 p.m., and Friday to Saturday, 12 p.m. to 11:30 p.m.",
+      "Baires Grill offers authentic Argentinean cuisine."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Argentinean cuisine in Miami Beach",
+    "why_here": "Baires Grill offers authentic Argentinean cuisine in Miami Beach at 2200 Collins Ave. Hours are Sunday to Thursday, 12 p.m. to 10:30 p.m., and Friday to Saturday, 12 p.m. to 11:30 p.m.",
+    "know_before": "Miami Beach hours are Sunday to Thursday, 12 p.m. to 10:30 p.m., and Friday to Saturday, 12 p.m. to 11:30 p.m.",
+    "local_tip": "Friday and Saturday hours run to 11:30 p.m.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://bairesgrill.com/"
+     ],
+     "why_here": [
+      "https://bairesgrill.com/"
+     ],
+     "know_before": [
+      "https://bairesgrill.com/"
+     ],
+     "local_tip": [
+      "https://bairesgrill.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Miami Beach location is at 2200 Collins Ave., Miami Beach, FL 33139.",
+      "source": "https://bairesgrill.com/"
+     },
+     {
+      "claim": "Miami Beach hours are Sunday to Thursday, 12 p.m. to 10:30 p.m., and Friday to Saturday, 12 p.m. to 11:30 p.m.",
+      "source": "https://bairesgrill.com/"
+     },
+     {
+      "claim": "Baires Grill offers authentic Argentinean cuisine.",
+      "source": "https://bairesgrill.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJV5Ks4CKn2YgRAwF1BS8i9Bk",
+   "name": "Shimuja Ramen",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "ramen_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://shimujaramen.us/",
+     "source_name": "Shimuja Ramen \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Shimuja Ramen brings the flavors of Kagoshima, Japan to South Florida.",
+      "Shimuja is known for its 18-hour, 100% pork-bone, house made ramen.",
+      "Shimuja Ramen is the brainchild of Japanese-born chef Keiichi Maemura.",
+      "Hours are Sunday through Thursday, 12 p.m. to 8:30 p.m., and Friday to Saturday, 12 p.m. to 9:30 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Kagoshima flavors with 18-hour, 100% pork-bone, house made ramen",
+    "why_here": "Shimuja Ramen brings the flavors of Kagoshima, Japan to South Florida and is known for its 18-hour, 100% pork-bone, house made ramen. It is the brainchild of Japanese-born chef Keiichi Maemura.",
+    "know_before": "Hours are Sunday through Thursday, 12 p.m. to 8:30 p.m., and Friday to Saturday, 12 p.m. to 9:30 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://shimujaramen.us/"
+     ],
+     "why_here": [
+      "https://shimujaramen.us/"
+     ],
+     "know_before": [
+      "https://shimujaramen.us/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Shimuja Ramen brings the flavors of Kagoshima, Japan to South Florida.",
+      "source": "https://shimujaramen.us/"
+     },
+     {
+      "claim": "Shimuja is known for its 18-hour, 100% pork-bone, house made ramen.",
+      "source": "https://shimujaramen.us/"
+     },
+     {
+      "claim": "Shimuja Ramen is the brainchild of Japanese-born chef Keiichi Maemura.",
+      "source": "https://shimujaramen.us/"
+     },
+     {
+      "claim": "Hours are Sunday through Thursday, 12 p.m. to 8:30 p.m., and Friday to Saturday, 12 p.m. to 9:30 p.m.",
+      "source": "https://shimujaramen.us/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ4T-Ov8lz3YgRRBFNwsaxJ1k",
+   "name": "Egg City Diner",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "diner",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://eggcitydiner.com/",
+     "source_name": "Egg City Diner \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Egg City is a full-service, 50's-style diner serving breakfast and lunch.",
+      "Egg City is open 7 days a week from 7 a.m. to 2 p.m.",
+      "Egg City calls itself home of the four egg omelette.",
+      "Its home fried potatoes are made from Idaho potatoes only.",
+      "Egg City is at 35510 US-27, Haines City, FL 33844."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "50's-style diner serving breakfast and lunch, home of the four egg omelette",
+    "why_here": "Egg City is a full-service, 50's-style diner in Haines City serving breakfast and lunch. It calls itself home of the four egg omelette and makes its home fried potatoes from Idaho potatoes only.",
+    "know_before": "Egg City is open 7 days a week from 7 a.m. to 2 p.m.",
+    "local_tip": null,
+    "best_time": "Go in the morning or early afternoon; it closes at 2 p.m. daily.",
+    "citations": {
+     "hook": [
+      "https://eggcitydiner.com/"
+     ],
+     "why_here": [
+      "https://eggcitydiner.com/"
+     ],
+     "know_before": [
+      "https://eggcitydiner.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      "https://eggcitydiner.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Egg City is a full-service, 50's-style diner serving breakfast and lunch.",
+      "source": "https://eggcitydiner.com/"
+     },
+     {
+      "claim": "Egg City is open 7 days a week from 7 a.m. to 2 p.m.",
+      "source": "https://eggcitydiner.com/"
+     },
+     {
+      "claim": "Egg City calls itself home of the four egg omelette.",
+      "source": "https://eggcitydiner.com/"
+     },
+     {
+      "claim": "Its home fried potatoes are made from Idaho potatoes only.",
+      "source": "https://eggcitydiner.com/"
+     },
+     {
+      "claim": "Egg City is at 35510 US-27, Haines City, FL 33844.",
+      "source": "https://eggcitydiner.com/"
+     }
+    ]
+   }
+  }
+ ]
+}

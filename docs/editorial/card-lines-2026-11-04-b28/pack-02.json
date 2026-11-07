@@ -1,0 +1,609 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 28. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJRwghBLK22YgR_csunfj75Q8",
+   "name": "Wynwood Marketplace",
+   "category": "shopping",
+   "metro": "miami-dade",
+   "primary_type": "shopping_mall",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.wynwood-marketplace.com/",
+     "source_name": "Wynwood Marketplace \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Wynwood Marketplace offers art, music, shopping, food and cocktails.",
+      "Live art installations, shops, and restaurant collaborations with local favorites are things visitors can expect upon visiting.",
+      "Grab some food truck grub from local favorites.",
+      "SHOP THE WALL encompasses 12 unique shops within the mural.",
+      "Hours of Operation Friday: 4 p.m.-3 a.m. Saturday: 12 p.m.-3 a.m. Sunday: 12 p.m.-2 a.m.",
+      "Wynwood Marketplace is at 2250 NW 2nd Ave, Miami, FL."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Marketplace with art, music, shopping, food and cocktails",
+    "why_here": "Visit for live art installations, shops and restaurant collaborations with local favorites, food truck grub, and 12 unique shops within the mural at SHOP THE WALL.",
+    "know_before": "Hours are Friday 4 p.m.-3 a.m., Saturday 12 p.m.-3 a.m. and Sunday 12 p.m.-2 a.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.wynwood-marketplace.com/"
+     ],
+     "why_here": [
+      "https://www.wynwood-marketplace.com/"
+     ],
+     "know_before": [
+      "https://www.wynwood-marketplace.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Wynwood Marketplace offers art, music, shopping, food and cocktails.",
+      "source": "https://www.wynwood-marketplace.com/"
+     },
+     {
+      "claim": "Live art installations, shops, and restaurant collaborations with local favorites are things visitors can expect upon visiting.",
+      "source": "https://www.wynwood-marketplace.com/"
+     },
+     {
+      "claim": "Grab some food truck grub from local favorites.",
+      "source": "https://www.wynwood-marketplace.com/"
+     },
+     {
+      "claim": "SHOP THE WALL encompasses 12 unique shops within the mural.",
+      "source": "https://www.wynwood-marketplace.com/"
+     },
+     {
+      "claim": "Hours of Operation Friday: 4 p.m.-3 a.m. Saturday: 12 p.m.-3 a.m. Sunday: 12 p.m.-2 a.m.",
+      "source": "https://www.wynwood-marketplace.com/"
+     },
+     {
+      "claim": "Wynwood Marketplace is at 2250 NW 2nd Ave, Miami, FL.",
+      "source": "https://www.wynwood-marketplace.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ6-Z8ITq35YgRebbe8l7y-j0",
+   "name": "Vale Healthy Kitchen - Jacksonville",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://valehealthykitchen.com/pages/jacksonville",
+     "source_name": "Vale Healthy Kitchen - Jacksonville \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Vale Healthy Kitchen in Jacksonville is at 90 Riverside Avenue #603, Jacksonville, FL 32202.",
+      "Vale Healthy Kitchen in Jacksonville is in Downtown Jacksonville at Riverside.",
+      "Vale Healthy Kitchen in Jacksonville serves Fresh Bowls and Superfood Smoothies.",
+      "Vale Healthy Kitchen in Jacksonville lists hours 9:00 a.m. to 10:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Fresh Bowls and Superfood drinks in Downtown Jacksonville at Riverside",
+    "why_here": "Go for Fresh Bowls and Superfood drinks in Downtown Jacksonville at Riverside, at Vale Healthy Kitchen in Jacksonville at 90 Riverside Avenue #603.",
+    "know_before": "Hours are 9:00 a.m. to 10:00 p.m. at 90 Riverside Avenue #603, Jacksonville.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://valehealthykitchen.com/pages/jacksonville"
+     ],
+     "why_here": [
+      "https://valehealthykitchen.com/pages/jacksonville"
+     ],
+     "know_before": [
+      "https://valehealthykitchen.com/pages/jacksonville"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Vale Healthy Kitchen in Jacksonville is at 90 Riverside Avenue #603, Jacksonville, FL 32202.",
+      "source": "https://valehealthykitchen.com/pages/jacksonville"
+     },
+     {
+      "claim": "Vale Healthy Kitchen in Jacksonville is in Downtown Jacksonville at Riverside.",
+      "source": "https://valehealthykitchen.com/pages/jacksonville"
+     },
+     {
+      "claim": "Vale Healthy Kitchen in Jacksonville serves Fresh Bowls and Superfood Smoothies.",
+      "source": "https://valehealthykitchen.com/pages/jacksonville"
+     },
+     {
+      "claim": "Vale Healthy Kitchen in Jacksonville lists hours 9:00 a.m. to 10:00 p.m.",
+      "source": "https://valehealthykitchen.com/pages/jacksonville"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJgw7NBdu20YgRE_2RzLU1mh0",
+   "name": "Louie's Backyard",
+   "category": "food",
+   "metro": "keys",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.louiesbackyard.com/our-story",
+     "source_name": "Louie's Backyard \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The building that is now known as Louie's Backyard was a gracious class revival home on Waddell Street built for Captain James Randall Adams.",
+      "Frances and Louie Signorelli opened the first Louie's Backyard in 1971, a restaurant that seated twelve.",
+      "In June of 1984, Louie's Backyard earned a place in the National Register of Historic Places.",
+      "Louie's Backyard offers indoor or outdoor seating and open dining and cocktail decks that lead down to the ocean."
+     ]
+    },
+    {
+     "source": "https://www.louiesbackyard.com/faqs",
+     "source_name": "Louie's Backyard \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "We are a dine in only restaurant."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Oceanfront dining in the home built for Captain James Randall Adams",
+    "why_here": "Go for an oceanfront experience with indoor or outdoor seating and open dining and cocktail decks that lead down to the ocean, in a building that earned a place in the National Register of Historic Places in June of 1984.",
+    "know_before": "Louie's Backyard is a dine in only restaurant.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.louiesbackyard.com/our-story",
+      "https://www.louiesbackyard.com/faqs"
+     ],
+     "why_here": [
+      "https://www.louiesbackyard.com/our-story",
+      "https://www.louiesbackyard.com/faqs"
+     ],
+     "know_before": [
+      "https://www.louiesbackyard.com/our-story",
+      "https://www.louiesbackyard.com/faqs"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The building that is now known as Louie's Backyard was a gracious class revival home on Waddell Street built for Captain James Randall Adams.",
+      "source": "https://www.louiesbackyard.com/our-story"
+     },
+     {
+      "claim": "Frances and Louie Signorelli opened the first Louie's Backyard in 1971, a restaurant that seated twelve.",
+      "source": "https://www.louiesbackyard.com/our-story"
+     },
+     {
+      "claim": "In June of 1984, Louie's Backyard earned a place in the National Register of Historic Places.",
+      "source": "https://www.louiesbackyard.com/our-story"
+     },
+     {
+      "claim": "Louie's Backyard offers indoor or outdoor seating and open dining and cocktail decks that lead down to the ocean.",
+      "source": "https://www.louiesbackyard.com/our-story"
+     },
+     {
+      "claim": "We are a dine in only restaurant.",
+      "source": "https://www.louiesbackyard.com/faqs"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJwSK4qV-15YgRVFpnHmmUUj8",
+   "name": "Hopdoddy Burger Bar",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "hamburger_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.hopdoddy.com/menu",
+     "source_name": "Hopdoddy Burger Bar \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Hopdoddy menu lists handcrafted burgers, hand-cut fries, and hand-spun milkshakes",
+      "Hopdoddy menu lists The Classic burger",
+      "Hopdoddy menu lists Magic Shroom burger",
+      "Hopdoddy menu lists Cadillac Wagyu burger",
+      "Hopdoddy menu is available for dining in, pick-up, and delivery"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Handcrafted burgers, hand-cut sides, and hand-spun milkshakes",
+    "why_here": "Try The Classic burger or Magic Shroom burger, with handcrafted burgers, hand-cut sides, and hand-spun milkshakes listed on the Hopdoddy menu.",
+    "know_before": "Hopdoddy menu is available for dining in, pick-up, and delivery.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.hopdoddy.com/menu"
+     ],
+     "why_here": [
+      "https://www.hopdoddy.com/menu"
+     ],
+     "know_before": [
+      "https://www.hopdoddy.com/menu"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Hopdoddy menu lists handcrafted burgers, hand-cut fries, and hand-spun milkshakes",
+      "source": "https://www.hopdoddy.com/menu"
+     },
+     {
+      "claim": "Hopdoddy menu lists The Classic burger",
+      "source": "https://www.hopdoddy.com/menu"
+     },
+     {
+      "claim": "Hopdoddy menu lists Magic Shroom burger",
+      "source": "https://www.hopdoddy.com/menu"
+     },
+     {
+      "claim": "Hopdoddy menu lists Cadillac Wagyu burger",
+      "source": "https://www.hopdoddy.com/menu"
+     },
+     {
+      "claim": "Hopdoddy menu is available for dining in, pick-up, and delivery",
+      "source": "https://www.hopdoddy.com/menu"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJx4O9VBdw54gRcQ8akxK7nkc",
+   "name": "The Charles Hosmer Morse Museum of American Art",
+   "category": "attractions",
+   "metro": "orlando",
+   "primary_type": "art_museum",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://morsemuseum.org/",
+     "source_name": "The Charles Hosmer Morse Museum of American Art \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Morse Museum houses the world's most comprehensive collection of works by Louis Comfort Tiffany",
+      "The collection includes Louis Comfort Tiffany jewelry, pottery, paintings, art glass, leaded-glass windows and lamps"
+     ]
+    },
+    {
+     "source": "https://morsemuseum.org/plan-your-visit/",
+     "source_name": "The Charles Hosmer Morse Museum of American Art \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Museum hours are Tuesday\u2013Saturday, 9:30 a.m.\u20134 p.m.",
+      "Museum hours are Sunday, 1\u20134 p.m.",
+      "The museum is closed Monday"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Works by Louis Comfort Tiffany, including art glass and leaded-glass windows",
+    "why_here": "See works by Louis Comfort Tiffany, including jewelry, pottery, paintings, art glass, leaded-glass windows and lamps, in the world's most comprehensive collection of works by Louis Comfort Tiffany.",
+    "know_before": "Museum hours are Tuesday\u2013Saturday, 9:30 a.m.\u20134 p.m. and Sunday, 1\u20134 p.m.; closed Monday.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://morsemuseum.org/",
+      "https://morsemuseum.org/plan-your-visit/"
+     ],
+     "why_here": [
+      "https://morsemuseum.org/",
+      "https://morsemuseum.org/plan-your-visit/"
+     ],
+     "know_before": [
+      "https://morsemuseum.org/",
+      "https://morsemuseum.org/plan-your-visit/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Morse Museum houses the world's most comprehensive collection of works by Louis Comfort Tiffany",
+      "source": "https://morsemuseum.org/"
+     },
+     {
+      "claim": "The collection includes Louis Comfort Tiffany jewelry, pottery, paintings, art glass, leaded-glass windows and lamps",
+      "source": "https://morsemuseum.org/"
+     },
+     {
+      "claim": "Museum hours are Tuesday\u2013Saturday, 9:30 a.m.\u20134 p.m.",
+      "source": "https://morsemuseum.org/plan-your-visit/"
+     },
+     {
+      "claim": "Museum hours are Sunday, 1\u20134 p.m.",
+      "source": "https://morsemuseum.org/plan-your-visit/"
+     },
+     {
+      "claim": "The museum is closed Monday",
+      "source": "https://morsemuseum.org/plan-your-visit/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJCajzTEF_3YgRm-dlPoeo1DM",
+   "name": "Charley's Steak House",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "steak_house",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.charleyssteakhouse.com/orlando",
+     "source_name": "Charley's Steak House \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Charley's Steak House menu features prime steaks, market fresh seafood, hand-crafted cocktails and fine wines",
+      "Steaks are aged for four to six weeks",
+      "Starters include SUSHI GRADE AHI TUNA",
+      "Steaks include CENTER CUT FILET MIGNON - 8 oz"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Prime steaks, market fresh seafood, hand-crafted cocktails and fine wines",
+    "why_here": "Order prime steaks aged for four to six weeks, with market fresh seafood, hand-crafted cocktails and fine wines, plus starters including SUSHI GRADE AHI TUNA on the menu.",
+    "know_before": "Steaks are aged for four to six weeks.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.charleyssteakhouse.com/orlando"
+     ],
+     "why_here": [
+      "https://www.charleyssteakhouse.com/orlando"
+     ],
+     "know_before": [
+      "https://www.charleyssteakhouse.com/orlando"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Charley's Steak House menu features prime steaks, market fresh seafood, hand-crafted cocktails and fine wines",
+      "source": "https://www.charleyssteakhouse.com/orlando"
+     },
+     {
+      "claim": "Steaks are aged for four to six weeks",
+      "source": "https://www.charleyssteakhouse.com/orlando"
+     },
+     {
+      "claim": "Starters include SUSHI GRADE AHI TUNA",
+      "source": "https://www.charleyssteakhouse.com/orlando"
+     },
+     {
+      "claim": "Steaks include CENTER CUT FILET MIGNON - 8 oz",
+      "source": "https://www.charleyssteakhouse.com/orlando"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJQc4UWSZ_6IgRA08F5R9x54I",
+   "name": "Sholom Park",
+   "category": "attractions",
+   "metro": "ocala-fl",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.sholompark.org/plan-your-visit/",
+     "source_name": "Sholom Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Sholom Park hours are 8 a.m. to 5 p.m.",
+      "Entrance gate closes at 4:30 p.m.",
+      "Sholom Park is at 7110 SW 80th Avenue Ocala, FL, 34481",
+      "Sholom Park is open 7 days a week",
+      "Admission is free"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Open 7 days a week with free admission in Ocala",
+    "why_here": "Visit Sholom Park at 7110 SW 80th Avenue Ocala, FL, 34481, open 7 days a week with free admission and park hours 8 a.m. to 5 p.m. for a daytime visit.",
+    "know_before": "Park hours are 8 a.m. to 5 p.m.; entrance gate closes at 4:30 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.sholompark.org/plan-your-visit/"
+     ],
+     "why_here": [
+      "https://www.sholompark.org/plan-your-visit/"
+     ],
+     "know_before": [
+      "https://www.sholompark.org/plan-your-visit/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Sholom Park hours are 8 a.m. to 5 p.m.",
+      "source": "https://www.sholompark.org/plan-your-visit/"
+     },
+     {
+      "claim": "Entrance gate closes at 4:30 p.m.",
+      "source": "https://www.sholompark.org/plan-your-visit/"
+     },
+     {
+      "claim": "Sholom Park is at 7110 SW 80th Avenue Ocala, FL, 34481",
+      "source": "https://www.sholompark.org/plan-your-visit/"
+     },
+     {
+      "claim": "Sholom Park is open 7 days a week",
+      "source": "https://www.sholompark.org/plan-your-visit/"
+     },
+     {
+      "claim": "Admission is free",
+      "source": "https://www.sholompark.org/plan-your-visit/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ78kzEg79wogRXHiLtw_Qwhk",
+   "name": "Treasure Island Waterslide and Cabanas",
+   "category": "attractions",
+   "metro": "st-pete",
+   "primary_type": "tourist_attraction",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://bigeventslides.com/paddleboard-kayak-umbrella-cabana-waterslide-rental/",
+     "source_name": "Treasure Island Waterslide and Cabanas \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Treasure Island rentals include Cabana + 2 loungers",
+      "Treasure Island rentals include Umbrella + 2 loungers",
+      "Kayaks and paddleboards are available for rent",
+      "Daily rentals finish at 5 p.m.",
+      "The address is 10400 Gulf Blvd, Treasure Island, FL 33706"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Cabana + 2 loungers and kayaks at Treasure Island",
+    "why_here": "Rent Cabana + 2 loungers or Umbrella + 2 loungers at 10400 Gulf Blvd, Treasure Island, FL 33706, with kayaks and paddleboards also available for a beach day.",
+    "know_before": "Daily rentals finish at 5 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://bigeventslides.com/paddleboard-kayak-umbrella-cabana-waterslide-rental/"
+     ],
+     "why_here": [
+      "https://bigeventslides.com/paddleboard-kayak-umbrella-cabana-waterslide-rental/"
+     ],
+     "know_before": [
+      "https://bigeventslides.com/paddleboard-kayak-umbrella-cabana-waterslide-rental/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Treasure Island rentals include Cabana + 2 loungers",
+      "source": "https://bigeventslides.com/paddleboard-kayak-umbrella-cabana-waterslide-rental/"
+     },
+     {
+      "claim": "Treasure Island rentals include Umbrella + 2 loungers",
+      "source": "https://bigeventslides.com/paddleboard-kayak-umbrella-cabana-waterslide-rental/"
+     },
+     {
+      "claim": "Kayaks and paddleboards are available for rent",
+      "source": "https://bigeventslides.com/paddleboard-kayak-umbrella-cabana-waterslide-rental/"
+     },
+     {
+      "claim": "Daily rentals finish at 5 p.m.",
+      "source": "https://bigeventslides.com/paddleboard-kayak-umbrella-cabana-waterslide-rental/"
+     },
+     {
+      "claim": "The address is 10400 Gulf Blvd, Treasure Island, FL 33706",
+      "source": "https://bigeventslides.com/paddleboard-kayak-umbrella-cabana-waterslide-rental/"
+     }
+    ]
+   }
+  }
+ ]
+}
