@@ -42,8 +42,9 @@ ok(halloweenChipFor(week(8), "2026-11-02", true) === null, "no Halloween chip af
 ok(halloweenChipFor(week(8), "2026-10-08", false) === null, "no Halloween chip outside the fall season");
 const src = readFileSync(new URL("../app/components/screens/Events.js", import.meta.url), "utf8");
 ok(/\{page\.items\.map\(\(e\) => <EventCard /.test(src) && /page\.remaining > 0 \? <RailMore /.test(src), "the rail mounts the current page and a More tile while events remain");
-ok(/const countFor = \(dateVal\) => dedupeEvents\(catBase\.filter/.test(src) && /const allCount = dedupeEvents\(catBase, true\)\.length/.test(src), "day counts and the total still come from the full category list");
-ok(/const page = pageOfEvents\(shown,/.test(src) && src.indexOf("shown = sortEventsForList(shown") < src.indexOf("const page = pageOfEvents(shown,"), "the page is cut AFTER filtering and ordering, never before");
+ok(/const countFor = \(dateVal\) => dedupeEvents\(all\.filter/.test(src) && /const allCount = dedupeEvents\(all, true\)\.length/.test(src), "day counts and the total still come from the full event list");
+const ordered = ev.orderEventRail(list.map((e) => ({ ...e, name: e.id, dest: "/e/" + e.id })), { today: "2026-10-08", eventBucket: () => "concerts", distMi: () => 1 });
+ok(ordered.length === 181 && pageOfEvents(ordered, EVENTS_PAGE).total === 181, "ordering the full list precedes paging and retains every event");
 ok(/loaded=\{page\.items\.length\}/.test(src), "the rail header says how many of the total are loaded");
 ok(/const halloweenChip = halloweenChipFor\(eventDateChips, siteTodayStr\(\), seasonLive\);/.test(src) && /if \(halloweenChip\) eventDateChips\.push\(halloweenChip\);/.test(src), "the Events screen adds the Halloween chip to the strip it renders");
 

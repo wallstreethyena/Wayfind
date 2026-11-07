@@ -48,6 +48,7 @@ import {
   GOOGLE_PHOTOS_QUOTA_PROVIDER,
   msUntilNextPacificMidnight,
   quotaBreakerCooldownMs,
+  LOOKUP_QUOTA_BREAKER_COOLDOWN_MS,
   REFUNDABLE_UPSTREAM_CLASSES,
   resolvePlacePhoto,
 } from "../lib/placePhotoServe.js";
@@ -394,7 +395,8 @@ for (const [status, googleStatus, expected, refundable] of [
     eq(next.result.reason, "quota-open", `Details ${status}: next request sees shared breaker`);
     eq(next.calls.length, 0, `Details ${status}: next request makes zero upstream calls`);
     eq(secondAuth.asked(), 0, `Details ${status}: next request asks for zero grants`);
-    eq(breaker.tripCalls[0]?.cooldownMs, quotaBreakerCooldownMs(FIXED_NOW), `Details ${status}: Pacific reset cooldown`);
+    // 2026-11-04: a Details lookup 429 is a Places API quota, not the daily photo quota: short hold.
+    eq(breaker.tripCalls[0]?.cooldownMs, LOOKUP_QUOTA_BREAKER_COOLDOWN_MS, `Details ${status}: 30 minute lookup hold, not Pacific reset`);
   }
   missResults.push(result);
 }

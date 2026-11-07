@@ -13,7 +13,8 @@ import { siteHourFloat } from "../../lib/nowContext.js";
 import { captureOrQueue } from "../../lib/browserAnalytics.js";
 import { BooGhostSvg } from "./booGhost.js";
 import { SantaSvg, santaPose } from "./santaArt.js";
-import { pickCharacter, santaSeasonOpen, santaApiFor, isChristmasPath, CHRISTMAS_PATH, SANTA_API, SANTA_HIDE_KEY } from "./companionCharacter.js";
+import SantaDock from "./SantaDock.js";
+import { pickCharacter, santaSeasonOpen, santaApiFor, isChristmasPath, CHRISTMAS_PATH, SANTA_API, SANTA_HIDE_KEY, santaOffPath } from "./companionCharacter.js";
 import { SANTA, SANTA_CHIPS, SANTA_FINDER_CHIPS, SANTA_GAGS, SANTA_ZAP_LINES, SANTA_REACT_LINES, santaTimeLines, santaRouteLine, santaOpenerFor } from "./santaCopy.js";
 import { openerFor } from "./booOpeners.js";
 import { coverageState, coverageLines, coverageSheetLine, unknownSheetLine, coverageButtonText, roundMiles } from "./booCoverage.js";
@@ -480,6 +481,12 @@ export default function BooCompanion() {
   // character (Boo out of season on the Christmas page, Santa anywhere else).
   const [elig, setElig] = useState({ ok: false, ch: "" });
   const eligible = elig.ok && elig.ch === character;
+  // ROAM: the floating companion (roaming, gags, reactions, bubbles, the tap
+  // target that follows him). Boo only. Santa lives in SantaDock (one owner for
+  // his presence, owner 2026-11-03), so none of the roaming machinery runs for
+  // him: no timers, no listeners, no animation frames. The chat sheet below is
+  // shared and still opens for either character.
+  const roam = eligible && !santa;
   const [reduced, setReduced] = useState(false);
   const [open, setOpen] = useState(false);
   const [bubble, setBubble] = useState(null); // { text, v, h }
@@ -532,6 +539,7 @@ export default function BooCompanion() {
   const touchSt = useRef({ els: new Set(), rings: new Set(), timers: [] });
   const openRef = useRef(false);
   const eligibleRef = useRef(false);
+  const roamRef = useRef(false);
   const pathRef = useRef(pathname);
   const bubbleT = useRef(0);
   const lastSay = useRef(0);
@@ -561,6 +569,7 @@ export default function BooCompanion() {
   openRef.current = open;
   reducedRef.current = reduced;
   eligibleRef.current = eligible;
+  roamRef.current = roam;
 
   // Resting pose: idle while roaming, the sheet's current reply pose while open.
   const restPose = () => (openRef.current && holdRef.current) || "idle";
@@ -615,10 +624,10 @@ export default function BooCompanion() {
   useEffect(() => {
     let ok = false;
     try {
-      ok = seasonFor(character) && !reservedPath(pathname);
+      ok = seasonFor(character) && !reservedPath(pathname) && !(character === "santa" && santaOffPath(pathname));
       // Each character has its own hide key: hiding Boo never hides Santa.
       if (ok) ok = (santa ? sessionStorage.getItem(SANTA_HIDE_KEY) : sessionStorage.getItem(HIDE_KEY)) !== "1";
-    } catch { ok = seasonFor(character) && !reservedPath(pathname); }
+    } catch { ok = seasonFor(character) && !reservedPath(pathname) && !(character === "santa" && santaOffPath(pathname)); }
     setElig({ ok, ch: character });
   }, [pathname]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -645,13 +654,13 @@ export default function BooCompanion() {
     } catch { /* ignore */ }
   }, []);
 
-  useEffect(() => { if (eligible) { prefetch("idle"); prefetch("greet"); } }, [eligible]);
+  useEffect(() => { if (roam) { prefetch("idle"); prefetch("greet"); } }, [roam]);
   // Warm the reaction poses a few seconds in, once the page itself has loaded.
   useEffect(() => {
-    if (!eligible) return undefined;
+    if (!roam) return undefined;
     const t = window.setTimeout(() => { REACT_POSES.forEach((k) => prefetch(k)); }, 5000);
     return () => clearTimeout(t);
-  }, [eligible]);
+  }, [roam]);
 
   // Return visitors: count sessions in localStorage (once per tab session).
   useEffect(() => {
@@ -823,7 +832,7 @@ export default function BooCompanion() {
   // the next tick re-verifies from a fresh read: scroll (any scroller), resize,
   // rotate, and page mutations outside his own subtree.
   useEffect(() => {
-    if (!eligible) return undefined;
+    if (!roam) return undefined;
     const c = hitSt.current;
     const off = (quietMs) => { restDirty.current = true; c.fresh = false; c.dom = true; if (quietMs) c.quiet = performance.now() + quietMs; hitSet(false); };
     const onScroll = (e) => { const t = e && e.target; if (t && t.closest && t.closest(".boo-c,.boo-s-back")) return; scrollQuiet.current = performance.now() + SCROLL_SETTLE_MS; off(140); };
@@ -853,7 +862,7 @@ export default function BooCompanion() {
       window.removeEventListener("resize", onResize);
       window.removeEventListener("orientationchange", onResize);
     };
-  }, [eligible]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [roam]); // eslint-disable-line react-hooks/exhaustive-deps
   // Reduced motion: the bottom left gutter, lifted until nothing pressable
   // (bottom nav, sticky CTA, page buttons) is under him.
   const settleReduced = () => {
@@ -1069,7 +1078,7 @@ export default function BooCompanion() {
     return { x: b.minX, y: b.maxY };
   }, []);
 
-  const drifting = eligible && !reduced && !open && !bubble && !antic;
+  const drifting = roam && !reduced && !open && !bubble && !antic;
   driftRef.current = drifting;
 
   // One place that puts a line in the bubble: picks the side with room, owns
@@ -1085,7 +1094,7 @@ export default function BooCompanion() {
   const sayRef = useRef(() => {});
   sayRef.current = (text, p, delay) => {
     const go = () => {
-      if (openRef.current || !eligibleRef.current) return;
+      if (openRef.current || !roamRef.current) return;
       if (p) { prefetch(p); setPose(p); }
       showBubble(text);
     };
@@ -1099,7 +1108,7 @@ export default function BooCompanion() {
   // reduced motion he speaks from his corner without flying anywhere.
   const react = useCallback((kind, opts) => {
     const o = opts || {};
-    if (!eligibleRef.current || openRef.current || typeof document === "undefined" || document.hidden) return false;
+    if (!roamRef.current || openRef.current || typeof document === "undefined" || document.hidden) return false;
     if (zapT.current.length || pendingRef.current) return false;
     if (Date.now() - lastSay.current < (DIRECT[kind] ? DIRECT_GAP : REACT_GAP) || reactN.current >= REACT_MAX) return false;
     if ((reactKinds.current[kind] || 0) >= (REACT_LIMIT[kind] || 1)) return false;
@@ -1156,7 +1165,7 @@ export default function BooCompanion() {
 
   // The rAF loop only runs while he is actually drifting and the tab is visible.
   useEffect(() => {
-    if (!eligible) return;
+    if (!roam) return;
     if (!drifting) {
       const p = reduced ? corner() : null;
       if (p) { place(p.x, p.y); }
@@ -1232,11 +1241,11 @@ export default function BooCompanion() {
     document.addEventListener("visibilitychange", vis);
     start();
     return () => { alive = false; stop(); document.removeEventListener("visibilitychange", vis); if (elRef.current) elRef.current.dataset.dart = ""; setLean(0); };
-  }, [eligible, drifting, reduced, place, nextLeg, corner]);
+  }, [roam, drifting, reduced, place, nextLeg, corner]);
 
   // Keep the reduced motion spot in the corner on resize.
   useEffect(() => {
-    if (!eligible || !reduced) { redPos.current = null; return undefined; }
+    if (!roam || !reduced) { redPos.current = null; return undefined; }
     let t = 0;
     const on = () => { clearTimeout(t); t = window.setTimeout(() => { try { settleReduced(); } catch { /* ignore */ } }, 250); };
     settleReduced();
@@ -1244,17 +1253,17 @@ export default function BooCompanion() {
     window.addEventListener("resize", on);
     document.addEventListener("scroll", on, { passive: true, capture: true });
     return () => { clearTimeout(t); clearInterval(iv); window.removeEventListener("resize", on); document.removeEventListener("scroll", on, true); };
-  }, [eligible, reduced]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [roam, reduced]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Parked (bubble or bit playing): the page may scroll under him, so look
   // again every 300ms and slide clear if he ends up on a control.
   useEffect(() => {
-    if (!eligible || reduced || open || !(bubble || antic)) return undefined;
+    if (!roam || reduced || open || !(bubble || antic)) return undefined;
     const iv = window.setInterval(() => {
       if (relocateIfCovered(bubble ? estimateBubble(bubble.text) : undefined) && bubble) { const s2 = sideFor(bubble.text); setBubble((bb) => (bb && (bb.v !== s2.v || bb.h !== s2.h) ? { ...bb, v: s2.v, h: s2.h } : bb)); }
     }, 300);
     return () => clearInterval(iv);
-  }, [eligible, reduced, open, bubble, antic]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [roam, reduced, open, bubble, antic]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Antics: small keyframe bits of business. Travel ones read the current spot.
   const playAnticRef = useRef(() => 0);
@@ -1341,7 +1350,7 @@ export default function BooCompanion() {
   // first two are local (free), then every third calls gag mode, always with a
   // local fallback.
   useEffect(() => {
-    if (!eligible) return;
+    if (!roam) return;
     gagCount.current = 0;
     shownGags.current = new Set();
     reactN.current = 0;
@@ -1444,7 +1453,7 @@ export default function BooCompanion() {
     };
     schedule(page > 1 ? 2500 : 6000);
     return () => { dead = true; gagBump.current = () => {}; coverKick.current = () => {}; seqT.current.forEach(clearTimeout); seqT.current = []; clearTimeout(timer); clearTimeout(showTimer); clearTimeout(bubbleT.current); setBubble(null); setPose(restPose()); };
-  }, [eligible, pathname, corner, playAntic, showBubble]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [roam, pathname, corner, playAntic, showBubble]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // The app stored a new center: re-read coverage, and if the visitor just
   // landed somewhere uncovered, let the gag loop explain it shortly.
@@ -1459,7 +1468,7 @@ export default function BooCompanion() {
   // Listeners for what the visitor does. All passive, scroll work is done once
   // per animation frame, hover only on a real mouse, nothing is ever blocked.
   useEffect(() => {
-    if (!eligible) return undefined;
+    if (!roam) return undefined;
     const fine = (() => { try { return window.matchMedia("(hover: hover) and (pointer: fine)").matches; } catch { return false; } })();
     let lastAct = Date.now(), lastSc = null, lastY = 0, lastT = 0, fast = 0, deep = false, ticking = false, pendSc = null;
     let hiddenAt = 0, hoverEl = null, hoverT = 0, moveT = 0, holdT = 0;
@@ -1591,7 +1600,7 @@ export default function BooCompanion() {
       document.removeEventListener("copy", onCopy);
       document.removeEventListener("visibilitychange", onVis);
     };
-  }, [eligible]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [roam]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const openSheet = useCallback((src) => {
     tappedRef.current = true;
@@ -1617,7 +1626,8 @@ export default function BooCompanion() {
     setPose("idle");
     setOpen(false);
     setMsgs((m) => (m.some((x) => x.fresh) ? m.map((x) => (x.fresh ? { ...x, fresh: false } : x)) : m));
-    try { if (hitRef.current) hitRef.current.focus({ preventScroll: true }); } catch { /* ignore */ }
+    // Focus goes back to whatever opened the chat: his tap target, or Santa's dock avatar.
+    try { const back = hitRef.current || document.querySelector(".wf-sd-av"); if (back) back.focus({ preventScroll: true }); } catch { /* ignore */ }
   }, []);
   closeSheetRef.current = closeSheet;
 
@@ -1676,7 +1686,7 @@ export default function BooCompanion() {
     const on = (e) => {
       let ok = false;
       const ch = charFor(pathRef.current);
-      try { ok = seasonFor(ch) && !reservedPath(pathRef.current); } catch { /* ignore */ }
+      try { ok = seasonFor(ch) && !reservedPath(pathRef.current) && !(ch === "santa" && santaOffPath(pathRef.current)); } catch { /* ignore */ }
       if (!ok) return;
       try { if (ch === "santa") sessionStorage.removeItem(SANTA_HIDE_KEY); else sessionStorage.removeItem(HIDE_KEY); } catch { /* ignore */ }
       setElig({ ok: true, ch });
@@ -1763,6 +1773,14 @@ export default function BooCompanion() {
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: CSS }} />
+      {santa ? (
+        <SantaDock
+          path={pathname}
+          reduced={reduced}
+          onOpen={(src) => { if (!openRef.current) openSheet(src || "dock"); }}
+          onAsk={(prompt, src) => { if (!openRef.current) openSheet(src || "dock-cta"); if (prompt) send(prompt, src || "dock-cta"); }}
+        />
+      ) : (
       <div className="boo-c" ref={elRef} style={{ transform: "translate3d(" + SIDE + "px,-200px,0)" }}>
         <div className="boo-c-body" aria-hidden="true">
           <span className="boo-c-glow" aria-hidden="true" />
@@ -1803,6 +1821,7 @@ export default function BooCompanion() {
           </div>
         ) : null}
       </div>
+      )}
       {open ? (
         <div className="boo-s-back" onClick={(e) => { if (e.target === e.currentTarget) closeSheet(); }}>
           <div className="boo-s" ref={sheetRef} role="dialog" aria-modal="true" aria-label={santa ? SANTA.ariaChat : "Chat with Boo"} tabIndex={-1}>
