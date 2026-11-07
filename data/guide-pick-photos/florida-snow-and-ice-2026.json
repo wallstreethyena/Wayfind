@@ -1,66 +1,151 @@
 {
   "slug": "florida-snow-and-ice-2026",
-  "picks": {},
-  "gaps": {
-    "ICE! featuring The Polar Express at Christmas at Gaylord Palms": {
-      "reason": "google-only",
-      "placeId": "ChIJl0CYCGZ_3YgRL05pG5wZSsE",
-      "needsPermissionFrom": null,
-      "note": "No licensed photo of this exact place or event has been sourced yet (Wikimedia Commons, Openverse and Flickr checked 2026-11-03, with Commons heavily rate limited). Guide pages never store or show cached Google photos, so this pick shows a reviewed, credited topic photo captioned \"Illustrative\" (lib/guideContextPhotos.js), never presented as this place. Licensed photo sourcing backlog."
-    },
-    "Snowcat Ridge Alpine Snow Park": {
-      "reason": "google-only",
-      "placeId": "wfadd_snowcat_ridge_dade_city",
-      "needsPermissionFrom": null,
-      "note": "No licensed photo of this exact place or event has been sourced yet (Wikimedia Commons, Openverse and Flickr checked 2026-11-03, with Commons heavily rate limited). Guide pages never store or show cached Google photos, so this pick shows a reviewed, credited topic photo captioned \"Illustrative\" (lib/guideContextPhotos.js), never presented as this place. Licensed photo sourcing backlog."
-    },
+  "picks": {
     "Now Snowing Nightly in Celebration": {
-      "reason": "no-verified-source",
+      "src": "/guides/picks/florida-snow-and-ice-2026/celebration-town-center-market-street.webp",
+      "width": 1400,
+      "height": 933,
+      "alt": "A palm-lined brick street of pastel, balconied shops in Celebration Town Center, with the lake visible at the end",
+      "caption": "Market Street in Celebration Town Center, where the nightly snow falls this season. The snowfall itself is not pictured.",
+      "credit": "Michael Rivera",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Market_St,_Celebration.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Market_St,_Celebration.jpg",
+      "author": "Michael Rivera",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
       "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "No licensed photo of this exact place or event has been sourced yet (Wikimedia Commons, Openverse and Flickr checked 2026-11-03, with Commons heavily rate limited). Guide pages never store or show cached Google photos, so this pick shows a reviewed, credited topic photo captioned \"Illustrative\" (lib/guideContextPhotos.js), never presented as this place. Licensed photo sourcing backlog."
+      "verification": "Viewed the downloaded render. File title and description: 'Market St, Celebration, Osceola County, Florida'; an event sandwich board visible on the street carries celebrationtowncenter.com, and the pastel Market Street storefronts with the lake at the end match Celebration's town centre. Licence CC BY-SA 4.0 and author Michael Rivera read from the File page, original 5184x3456. A few distant pedestrians are incidental. Cropped 3:2 to trim foreground road.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-11-05"
     },
     "Nightly Snowfall at CityPlace": {
-      "reason": "no-verified-source",
+      "src": "/guides/picks/florida-snow-and-ice-2026/cityplace-west-palm-beach-sign.webp",
+      "width": 1300,
+      "height": 866,
+      "alt": "The CityPlace Shops & Restaurants sign in front of palm trees and a pink tile-roofed building in West Palm Beach",
+      "caption": "The CityPlace sign on South Rosemary Avenue in West Palm Beach. The nightly snowfall is not pictured.",
+      "credit": "Michael Rivera",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:CityPlace,_Rosemary_Ave_entrance,_West_Palm_Beach.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:CityPlace,_Rosemary_Ave_entrance,_West_Palm_Beach.jpg",
+      "author": "Michael Rivera",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
       "placeId": null,
+      "verification": "Viewed the downloaded render. Monument sign reads 'CITYPLACE SHOPS & RESTAURANTS'; File title 'CityPlace, Rosemary Ave entrance, West Palm Beach', filed in Category:CityPlace (West Palm Beach, Florida) (the site since renamed Rosemary Square). Licence CC BY-SA 4.0 and author Michael Rivera read from the File page, original 5184x3456. Cropped 3:2; a couple of small figures at the edge were trimmed or are incidental.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-11-05"
+    },
+    "Plaza Wonderland at Pensacola Winterfest": {
+      "src": "/guides/picks/florida-snow-and-ice-2026/palafox-place-pensacola.webp",
+      "width": 1400,
+      "height": 1050,
+      "alt": "A view down South Palafox Street in downtown Pensacola with historic brick buildings, street trees and a Hancock Bank sign",
+      "caption": "South Palafox Street in downtown Pensacola's Palafox Historic District, where Plaza Wonderland sets up. The event itself is not pictured.",
+      "credit": "Ebyabe",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Pensacola_Palafox02.jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Pensacola_Palafox02.jpg",
+      "author": "Ebyabe",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
+      "placeId": null,
+      "verification": "Viewed the downloaded render. Commons description: 'Pensacola, Florida: Palafox Historic District' (NRHP-listed); the street view of historic downtown buildings matches Palafox. Licence CC BY-SA 3.0 Unported and author Ebyabe read from the File page, original 3264x2448. Overcast, quiet street, one distant pedestrian; modest but honest. Uncropped 4:3.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-11-05"
+    },
+    "Winter on the Avenue Snow Slides": {
+      "src": "/guides/picks/florida-snow-and-ice-2026/make-it-a-winter-park-day.webp",
+      "width": 1024,
+      "height": 656,
+      "alt": "The brick-paved Park Avenue in Winter Park lined with oak trees, shops and parked cars",
+      "caption": "Park Avenue in Winter Park, where the tree lighting night snow slides are set up at Morse Blvd. The event itself is not pictured.",
+      "credit": "Jared",
+      "creditHref": "https://www.flickr.com/photos/93283041@N00/8312342768",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "sourceUrl": "https://www.flickr.com/photos/93283041@N00/8312342768",
+      "author": "Jared",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP.",
+      "sourceKind": "flickr",
+      "placeId": null,
+      "verification": "Reused the already reviewed entry (Flickr 'Winter Park - Park Avenue Shopping', CC BY 2.0 checked live 2026-10-07). Same street as the pick (Park Ave at Morse Blvd). Caption adjusted to say the event is not pictured.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-11-05"
+    },
+    "ICE! featuring The Polar Express at Christmas at Gaylord Palms": {
+      "src": "/guides/picks/florida-snow-and-ice-2026/gaylord-palms-2.webp",
+      "width": 1100,
+      "height": 733,
+      "alt": "Gaylord Palms Resort in Kissimmee",
+      "caption": "Gaylord Palms Resort in Kissimmee, where this event is held. The event itself is not pictured.",
+      "credit": "Traveler100",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Gaylord-palms-2.jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Gaylord-palms-2.jpg",
+      "author": "Traveler100",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
+      "placeId": "ChIJl0CYCGZ_3YgRL05pG5wZSsE",
+      "verification": "The same Commons file already verified and stored in Wayfind's wf_place_photo table for this place (status active, match confidence 1, verified 2026-10-24). Reused on 2026-11-05 for \"ICE! featuring The Polar Express at Christmas at Gaylord Palms\", which the organizer holds at this venue; it was already the photo on this pick's place card. Credit and licence corrected on 2026-11-05 from the Commons file page (author Traveler100, own work, CC BY-SA 3.0); the stored row had said MarkSweep, CC BY 2.0.",
+      "sameAsCardPhoto": true,
+      "reviewedAt": "2026-11-05"
+    },
+    "Winter Village at Curtis Hixon Park": {
+      "src": "/guides/picks/florida-snow-and-ice-2026/curtis-hixon-park-tampa-florida-united-states-panoramio.webp",
+      "width": 1280,
+      "height": 853,
+      "alt": "Curtis Hixon Waterfront Park in downtown Tampa",
+      "caption": "Curtis Hixon Waterfront Park in downtown Tampa, where this event is held. The event itself is not pictured.",
+      "credit": "Michelle Maria",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Curtis_Hixon_Park_Tampa_Florida_United_States_-_panoramio.jpg",
+      "license": "CC BY 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/3.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Curtis_Hixon_Park_Tampa_Florida_United_States_-_panoramio.jpg",
+      "author": "Michelle Maria",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP.",
+      "sourceKind": "commons",
+      "placeId": "ChIJlRUlG4nEwogRJOgu0Hf2n54",
+      "verification": "The same Commons file already verified and stored in Wayfind's wf_place_photo table for this place (status active, match confidence 1, verified 2026-10-24). Reused on 2026-11-05 for \"Winter Village at Curtis Hixon Park\", which the organizer holds at this venue; it was already the photo on this pick's place card.",
+      "sameAsCardPhoto": true,
+      "reviewedAt": "2026-11-05"
+    }
+  },
+  "gaps": {
+    "Snowcat Ridge Alpine Snow Park": {
+      "reason": "no-verified-source",
+      "placeId": "wfadd_snowcat_ridge_dade_city",
       "needsPermissionFrom": null,
-      "note": "No licensed photo of this exact place or event has been sourced yet (Wikimedia Commons, Openverse and Flickr checked 2026-11-03, with Commons heavily rate limited). Guide pages never store or show cached Google photos, so this pick shows a reviewed, credited topic photo captioned \"Illustrative\" (lib/guideContextPhotos.js), never presented as this place. Licensed photo sourcing backlog."
+      "note": "No licensed photo of this exact place or event was found (Wikimedia Commons categories and file pages and Flickr single photo pages checked 2026-11-05). This guide uses Wayfind's neutral fallback, so the pick shows the \"Photo unavailable\" tile, never a context or Google photo. Licensed photo sourcing backlog."
     },
     "Winter Wonderland Ice Rink at The Ben": {
       "reason": "no-verified-source",
       "placeId": null,
       "needsPermissionFrom": null,
-      "note": "No licensed photo of this exact place or event has been sourced yet (Wikimedia Commons, Openverse and Flickr checked 2026-11-03, with Commons heavily rate limited). Guide pages never store or show cached Google photos, so this pick shows a reviewed, credited topic photo captioned \"Illustrative\" (lib/guideContextPhotos.js), never presented as this place. Licensed photo sourcing backlog."
-    },
-    "Winter Village at Curtis Hixon Park": {
-      "reason": "google-only",
-      "placeId": "ChIJlRUlG4nEwogRJOgu0Hf2n54",
-      "needsPermissionFrom": null,
-      "note": "No licensed photo of this exact place or event has been sourced yet (Wikimedia Commons, Openverse and Flickr checked 2026-11-03, with Commons heavily rate limited). Guide pages never store or show cached Google photos, so this pick shows a reviewed, credited topic photo captioned \"Illustrative\" (lib/guideContextPhotos.js), never presented as this place. Licensed photo sourcing backlog."
+      "note": "No licensed photo of this exact place or event was found (Wikimedia Commons categories and file pages and Flickr single photo pages checked 2026-11-05). This guide uses Wayfind's neutral fallback, so the pick shows the \"Photo unavailable\" tile, never a context or Google photo. Licensed photo sourcing backlog."
     },
     "The Rink at UTC": {
       "reason": "no-verified-source",
       "placeId": null,
       "needsPermissionFrom": null,
-      "note": "No licensed photo of this exact place or event has been sourced yet (Wikimedia Commons, Openverse and Flickr checked 2026-11-03, with Commons heavily rate limited). Guide pages never store or show cached Google photos, so this pick shows a reviewed, credited topic photo captioned \"Illustrative\" (lib/guideContextPhotos.js), never presented as this place. Licensed photo sourcing backlog."
-    },
-    "Plaza Wonderland at Pensacola Winterfest": {
-      "reason": "no-verified-source",
-      "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "No licensed photo of this exact place or event has been sourced yet (Wikimedia Commons, Openverse and Flickr checked 2026-11-03, with Commons heavily rate limited). Guide pages never store or show cached Google photos, so this pick shows a reviewed, credited topic photo captioned \"Illustrative\" (lib/guideContextPhotos.js), never presented as this place. Licensed photo sourcing backlog."
-    },
-    "Winter on the Avenue Snow Slides": {
-      "reason": "no-verified-source",
-      "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "No licensed photo of this exact place or event has been sourced yet (Wikimedia Commons, Openverse and Flickr checked 2026-11-03, with Commons heavily rate limited). Guide pages never store or show cached Google photos, so this pick shows a reviewed, credited topic photo captioned \"Illustrative\" (lib/guideContextPhotos.js), never presented as this place. Licensed photo sourcing backlog."
+      "note": "No licensed photo of this exact place or event was found (Wikimedia Commons categories and file pages and Flickr single photo pages checked 2026-11-05). This guide uses Wayfind's neutral fallback, so the pick shows the \"Photo unavailable\" tile, never a context or Google photo. Licensed photo sourcing backlog."
     },
     "Holiday Nights on the Lawn": {
       "reason": "no-verified-source",
       "placeId": null,
       "needsPermissionFrom": null,
-      "note": "No licensed photo of this exact place or event has been sourced yet (Wikimedia Commons, Openverse and Flickr checked 2026-11-03, with Commons heavily rate limited). Guide pages never store or show cached Google photos, so this pick shows a reviewed, credited topic photo captioned \"Illustrative\" (lib/guideContextPhotos.js), never presented as this place. Licensed photo sourcing backlog."
+      "note": "No licensed photo of this exact place or event was found (Wikimedia Commons categories and file pages and Flickr single photo pages checked 2026-11-05). This guide uses Wayfind's neutral fallback, so the pick shows the \"Photo unavailable\" tile, never a context or Google photo. Licensed photo sourcing backlog."
     }
   }
 }

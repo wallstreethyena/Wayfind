@@ -130,7 +130,11 @@ const PAIRS = {
   // and nothing else — no CTA is baked in, which is why the rail's cta is free
   // to be plain text ("See what's trending"), the same arrangement the Date
   // Night poster already ships.
-  trending: { copy: "66ecfc4ecc4065ef", art: "48aa69f9ded69316" },
+  // v31 re-pin (owner, 2026-11-05) — the green poster, read at 760px before
+  // pinning: "TRENDING / NOW / The spots everyone is talking about." over a
+  // magnifying glass on a rising arrow, no CTA baked in. Rail title "Trending
+  // Now", short "The spots everyone is talking about" — same words.
+  trending: { copy: "e96cd4380f8c85e4", art: "839fd667e2a5aea0" },
   // v8.95 — owner's purple 941x1672 poster, read before pinning: "wayfind /
   // YOUR BEST DAY EVER / happy birthday". It opens Birthday Plans, Solved;
   // the promise and destination agree without asserting an unsupported deal.

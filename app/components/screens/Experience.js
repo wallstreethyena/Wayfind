@@ -2,6 +2,7 @@
 // Extracted from app/home.js (G4, July 2026 decomposition). Render-only.
 // PageInner aliases cityFixM as "cityFix" locally; this file calls
 // ctx.cityFixM directly (same function, already flowing through ctx).
+import { useEffect, useState } from "react";
 import { C, PlaceScoreChip } from "../kit";
 import { HeroPill, HeroIconButton, HeroCta } from "../CollectionHero";
 import EditorialLandingHero, { editorialHeroCss } from "../EditorialLandingHero";
@@ -10,11 +11,21 @@ import { shareTextFor } from "../../../lib/shareCards";
 import { CouponStrip, PerfectRightNow } from "../ExperienceBlocks";
 import { nowContext, siteHourFloat } from "../../../lib/nowContext.js";
 import { experienceHeader } from "../../../lib/collectionHeader.js";
-import { areaSeasonalContext } from "../../../lib/areaSeasonalContext.js";
 import { currentSeason } from "../../../lib/seasons.js";
 
 export default function ExperienceScreen({ ctx }) {
   const { activeBadge, setActiveBadge, EXPERIENCES, expPlaces, expMi, setExpMi, expSort, setExpSort, expTours, expLoading, momentPicks, setBrowseCat, setIntent, setScreen, shareLink, listShareUrl, locName, showToast, logEvent, giveawayMark, setMapListOverride, hookLikes, toggleHookLike, saveHookList, ViatorRail, Loader, SortControl, isSaved, liked, disliked, openDetail, quickSaveFavorite, toggleLike, toggleDislike, addShared, blurbs, openExperience, openCuisine, PlaceCard, cityFixM, intentScopeLabel, center, weather, clipCoupon, setWalletOpen } = ctx;
+  // Town profiles ride this screen, which the homepage prefetches on idle.
+  // Load them when the screen mounts so that prefetch does not download the notes.
+  const headerCityName = locName ? locName.split(",")[0] : "";
+  const [headerArea, setHeaderArea] = useState(null);
+  useEffect(() => {
+    let live = true;
+    import("../../../lib/areaSeasonalContext.js").then((m) => {
+      if (live) setHeaderArea(m.areaSeasonalContext(headerCityName || "your area", currentSeason()));
+    }).catch(() => {});
+    return () => { live = false; };
+  }, [headerCityName]);
           const exp = EXPERIENCES[activeBadge];
           let list = expPlaces || [];
           if (expMi < 60) list = list.filter((p) => p.distMi == null || p.distMi <= expMi);
@@ -50,9 +61,8 @@ export default function ExperienceScreen({ ctx }) {
           // ids have a permitted coordinate (lib/mapAreaData.readMapPlacesByIds).
           const mappable = list.filter((pp) => pp && pp.id);
           const shareThisList = () => { shareLink(cityFixM(exp.title), listShareUrl(activeBadge, cityFixM(exp.title), list.length, locName), () => showToast("Link copied"), shareTextFor(activeBadge, cityFixM(exp.title)), () => { try { logEvent("share", null, { kind: "list", theme: activeBadge }); } catch (e) {} giveawayMark("list:" + activeBadge); }); };
-          const headerCity = locName ? locName.split(",")[0] : "your area";
-          const headerArea = areaSeasonalContext(headerCity, currentSeason());
-          const header = experienceHeader(activeBadge, exp, headerCity, headerArea);
+          const headerCity = headerCityName || "your area";
+          const header = experienceHeader(activeBadge, exp, headerCity, headerArea || "");
           const momentContext = nowContext({ city: headerCity, weather });
           return (
             <div>
