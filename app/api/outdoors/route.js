@@ -16,6 +16,19 @@
 // (10-min retry) when they don't. TODO if OSM coverage becomes load-bearing:
 // a dedicated Overpass instance or a commercial OSM provider.
 export const runtime = "nodejs";
+export const maxDuration = 30;
+// v7 (owner briefing: "0 live · 0 cached · 22 unavailable of 22 markets").
+// Root cause, measured 2026-11-06: wf_places_cache held ZERO wf-osm rows, so
+// the durable fallback below had never once been filled. Three faults kept it
+// empty: (1) the daily warm fired 4 markets at once, each racing 2 hosts, but
+// overpass-api.de grants each IP only 2 query slots, so the warm starved
+// itself into 429s; (2) the second host, overpass.kumi.systems, was renamed
+// overpass.private.coffee; (3) a successful live result was written with an
+// un-awaited fetch that serverless can freeze before it lands. The warm now
+// runs one market at a time with a generous budget (cron-only, see WARM_*),
+// cache writes are awaited, and an expired row is still served as the stale
+// fallback (rows are never deleted, by owner policy) while a refresh retries.
+import { after } from "next/server";
 
 const getNps = () => ((process.env["NPS_API_KEY"] || "").trim());
 const getRidb = () => ((process.env["RIDB_API_KEY"] || "").trim());
@@ -36,7 +49,7 @@ function sb() {
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
   return url && key ? { url, key } : null;
 }
-async function osmCacheGet(k) {
+async function osmCacheGet(k, meta) {
   const s = sb();
   if (!s) return null;
   try {
@@ -49,20 +62,32 @@ async function osmCacheGet(k) {
     clearTimeout(timer);
     if (!r.ok) return null;
     const row = (await r.json())[0];
-    if (!row || new Date(row.exp).getTime() < Date.now()) return null;
+    if (!row) return null;
+    // Stale-serve: an expired row is still a real, once-verified result and
+    // beats "unavailable"; the caller refreshes it. meta reports freshness.
+    if (meta) meta.exp = new Date(row.exp).getTime();
     return row.v;
   } catch { return null; }
 }
-async function osmCacheSet(k, v) {
+// Every in-flight cache write, so after() can hold the function open for it.
+const pendingWrites = new Set();
+function osmCacheSet(k, v) {
+  const p = osmCacheWrite(k, v);
+  pendingWrites.add(p);
+  p.finally(() => pendingWrites.delete(p));
+  return p;
+}
+async function osmCacheWrite(k, v) {
   const s = sb();
-  if (!s) return;
+  if (!s) return false;
   try {
-    await fetch(`${s.url}/rest/v1/wf_places_cache`, {
+    const r = await fetch(`${s.url}/rest/v1/wf_places_cache`, {
       method: "POST",
       headers: { apikey: s.key, Authorization: `Bearer ${s.key}`, "Content-Type": "application/json", Prefer: "resolution=merge-duplicates" },
       body: JSON.stringify({ k, v, exp: new Date(Date.now() + OSM_KEEP_MS).toISOString() }),
     });
-  } catch (e) {}
+    return r.ok;
+  } catch (e) { return false; }
 }
 
 const toMi = (m) => m / 1609.34;
@@ -142,10 +167,13 @@ async function fromRIDB(lat, lng, radiusMi) {
 }
 
 // ── OpenStreetMap Overpass: parks, beaches, reserves, viewpoints, piers ─────
-async function fromOSM(lat, lng, radiusM) {
+const OSM_HOSTS = ["https://overpass-api.de/api/interpreter", "https://overpass.private.coffee/api/interpreter"];
+async function fromOSM(lat, lng, radiusM, opts) {
   try {
     const R = Math.min(Math.round(radiusM), 60000);
-    const q = `[out:json][timeout:4];(
+    const waitMs = (opts && opts.timeoutMs) || 4000;
+    const sequential = !!(opts && opts.sequential);
+    const q = `[out:json][timeout:${Math.max(4, Math.floor(waitMs / 1000) - 1)}];(
       nwr["leisure"~"^(park|nature_reserve)$"]["name"](around:${R},${lat},${lng});
       nwr["natural"="beach"]["name"](around:${R},${lat},${lng});
       nwr["tourism"="viewpoint"]["name"](around:${R},${lat},${lng});
@@ -158,7 +186,7 @@ async function fromOSM(lat, lng, radiusM) {
     // round proceeds without it (10-min retry, never CDN-cached as a miss).
     const tryHost = async (host) => {
       const ctrl = new AbortController();
-      const timer = setTimeout(() => ctrl.abort(), 4000);
+      const timer = setTimeout(() => ctrl.abort(), waitMs);
       try {
         // OSM usage policy requires an identifying User-Agent; without one the
         // Apache front-end answers 406 Not Acceptable (verified live).
@@ -167,10 +195,11 @@ async function fromOSM(lat, lng, radiusM) {
         return r.ok ? r : null;
       } catch (e) { clearTimeout(timer); return null; }
     };
-    const r = await Promise.any(
-      ["https://overpass-api.de/api/interpreter", "https://overpass.kumi.systems/api/interpreter"]
-        .map((h) => tryHost(h).then((x) => { if (!x) throw new Error("miss"); return x; }))
-    ).catch(() => null);
+    // Warm mode asks one host at a time so it holds a single Overpass slot;
+    // user traffic keeps the parallel race for speed.
+    let r = null;
+    if (sequential) { for (const h of OSM_HOSTS) { r = await tryHost(h); if (r) break; } }
+    else r = await Promise.any(OSM_HOSTS.map((h) => tryHost(h).then((x) => { if (!x) throw new Error("miss"); return x; }))).catch(() => null);
     if (!r) return { configured: true, ok: false, places: [] };
     const d = await r.json();
     const kindOf = (t) => t.natural === "beach" ? "Beach" : t.tourism === "viewpoint" ? "Scenic viewpoint" : t.man_made === "pier" ? "Pier" : t.leisure === "marina" ? "Marina" : t.leisure === "nature_reserve" ? "Nature preserve" : "Park";
@@ -222,13 +251,37 @@ async function resolveOsm(lat, lng, radius, osmKey) {
   const live = wall(fromOSM(lat, lng, radius)); // fires now; not awaited yet
   const cached = await osmCacheGet(osmKey);
   if (Array.isArray(cached) && cached.length) {
+    // after() keeps the function alive until the refresh write lands; a bare
+    // floating promise can be frozen by serverless the moment we respond.
     live.then((r) => { if (r && r.ok && r.places.length) osmCacheSet(osmKey, r.places); }).catch(() => {});
+    after(() => live.then(() => Promise.allSettled([...pendingWrites])));
     return { osm: { configured: true, ok: true, places: cached }, osmFrom: "cached" };
   }
   const r = await live;
   const osm = r || { configured: true, ok: false, places: [] };
-  if (osm.ok && osm.places.length) osmCacheSet(osmKey, osm.places);
+  if (osm.ok && osm.places.length) await osmCacheSet(osmKey, osm.places);
   return { osm, osmFrom: "live" };
+}
+
+// Cron-only warm (Authorization: Bearer CRON_SECRET, ?warm=1). One market,
+// one Overpass slot, a long budget, and the write is awaited and checked, so
+// "live" in the owner briefing means the result actually landed in the cache.
+// A row with more than WARM_SKIP_MS left is reported "cached" without
+// touching Overpass at all, which spares the shared public server.
+const WARM_SKIP_MS = 2 * 24 * 3600 * 1000;
+async function warmOsm(lat, lng, radius, osmKey, budgetMs) {
+  const meta = {};
+  const cached = await osmCacheGet(osmKey, meta);
+  const has = Array.isArray(cached) && cached.length > 0;
+  if (has && meta.exp - Date.now() > WARM_SKIP_MS) return { osm: "cached", places: cached.length };
+  const r = await fromOSM(lat, lng, radius, { timeoutMs: budgetMs, sequential: true });
+  if (r && r.ok && r.places.length) {
+    const saved = await osmCacheSet(osmKey, r.places);
+    if (saved) return { osm: "live", places: r.places.length };
+    return { osm: has ? "stale" : "unavailable", reason: "cache_write_failed" };
+  }
+  if (r && r.ok) return { osm: "empty", places: 0 };
+  return { osm: has ? "stale" : "unavailable", reason: "overpass_unreachable" };
 }
 
 export async function GET(req) {
@@ -242,6 +295,13 @@ export async function GET(req) {
   if (!isFinite(lat) || !isFinite(lng)) return Response.json({ places: [], counts: {} });
 
   const ck = [lat.toFixed(2), lng.toFixed(2), radius].join("|");
+  if (searchParams.get("warm") === "1") {
+    const secret = process.env.CRON_SECRET;
+    if (!secret || (req.headers.get("authorization") || "") !== `Bearer ${secret}`) return new Response("unauthorized", { status: 401 });
+    const budget = Math.min(Math.max(parseInt(searchParams.get("budget") || "15000", 10) || 15000, 4000), 25000);
+    const result = await warmOsm(lat, lng, radius, "wf-osm|" + ck, budget);
+    return Response.json(result, { headers: { "Cache-Control": "no-store" } });
+  }
   const hit = mem.get(ck);
   if (hit && hit.exp > Date.now()) return Response.json(hit.body, { headers: { "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400" } });
 

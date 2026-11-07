@@ -24,7 +24,7 @@ import { lunchRevealCookieValue, lunchRevealCount, lunchRevealLimit } from "../l
 import { intentRadiusMi, intentScopeLabel } from "../lib/momentIntents";
 import { MAP_DEFAULT_CATEGORY } from "../lib/mapExplorer";
 import { nextPageOffset } from "../lib/inventoryPaging";
-import { nearMeQuery } from "../lib/nearMeQuery";
+import { nearMeQuery, hasSearchCenter } from "../lib/nearMeQuery";
 // v8.41 — the ONE landing. Every control that swaps the feed under the reader
 // takes them to the results through this, not through its own hand-rolled
 // scroll. See lib/landOnResults.js for the three things a landing has to get
@@ -39,7 +39,7 @@ import { cuisineMetroFor } from "../lib/cuisine";
 // v6.15: the ONE shared place classifier (labels + the junk gate now agree).
 import { primaryCategory, catOfType } from "../lib/placeCategory";
 import { deviceId } from "../lib/deviceId";
-import { analyticsSuppressionReason, captureOrQueue } from "../lib/browserAnalytics";
+import { analyticsSuppressionReason, captureOrQueue, safePagePath } from "../lib/browserAnalytics";
 import { markIntroSeen } from "../lib/introGate";
 import { isNative, nativeAppleCredential, nativeOAuthSignIn } from "../lib/native";
 import { noteHighPointAndMaybeAsk } from "../lib/appRating";
@@ -258,7 +258,7 @@ const ViatorRail = nextDynamic(() => import("./components/ViatorRail"), { ssr: f
 import { nowContext, siteHourFloat, tzForPoint, bucketForHour, mealForHour, greetingForHour, BUCKET_PHRASE } from "../lib/nowContext";
 import { condCtxFromNow } from "../lib/ranking";
 import * as Tags from "../lib/tags";
-import * as Culture from "../lib/culture";
+import { resolveMetro, CULTURE_TITLES } from "../lib/culture";
 import * as WCC from "../lib/wc";
 import * as Gems from "../lib/gems";
 import * as Aff from "../lib/affiliates";
@@ -1021,6 +1021,32 @@ function withMemberSignal(list, sig) {
 // already carry a memoised sort key; restamp so the rank follows the chip.
 function withSignalFields(row, next) {
   return restampGoverned(row, { ...row, wfScore: next.wfScore, _members: next._members, _wfScoreRaw: next._wfScoreRaw });
+}
+// Photo recovery can also return live hours. Those affect ranking, unlike the
+// image itself. Compare values so an equivalent hours response is not a refresh.
+function sameHealedHours(a, b) {
+  return a.openNow === b.openNow && a.utcOffset === b.utcOffset
+    && a.hoursAsOf === b.hoursAsOf && JSON.stringify(a.oh) === JSON.stringify(b.oh);
+}
+function mergeBrowseEnrichment(rows, source, patch) {
+  let changed = false;
+  const next = rows.map((row) => {
+    if (!row || row.id !== source.id || row.lat !== source.lat || row.lng !== source.lng
+      || !sameHealedHours(row, source) || sameHealedHours(row, patch)
+      || (Number.isFinite(row.hoursAsOf) && Number.isFinite(patch.hoursAsOf) && patch.hoursAsOf < row.hoursAsOf)) return row;
+    changed = true;
+    // Merge only the recovery fields into the CURRENT row: a concurrent like,
+    // score update or distance correction must survive the delayed response.
+    const image = !row.photo || row.photo === source.photo || row.photo === patch.photo ? patch : row;
+    const enriched = { ...row, photo: image.photo, photos: image.photos, photoAttr: image.photoAttr,
+      oh: patch.oh, openNow: patch.openNow, utcOffset: patch.utcOffset, hoursAsOf: patch.hoursAsOf };
+    // byTopRated uses this private fingerprint to refresh its cached score
+    // when a later trend signal arrives. A spread alone drops the descriptor.
+    const fingerprint = Object.getOwnPropertyDescriptor(row, "__gsInputs");
+    if (fingerprint) Object.defineProperty(enriched, "__gsInputs", fingerprint);
+    return enriched;
+  });
+  return changed ? next : rows;
 }
 // v4.95: the old mapsRouteUrl (Google-Maps directions to ALL places at once)
 // is gone by product direction — a list's map icon opens Wayfind's own map.
@@ -2150,6 +2176,14 @@ async function verifyCulturePlaces(items, center) {
 function AreaInsight({ metro, cat, town, center, onFind, onLog = NOLOG }) {
   const [openIt, setOpenIt] = useState(false);
   const [grounded, setGrounded] = useState({});
+  // The researched notes are a separate chunk. They load when a category
+  // browse opens, not with the first homepage paint.
+  const [pack, setPack] = useState(null);
+  useEffect(() => {
+    let live = true;
+    import("../lib/cultureNotes.js").then((m) => { if (live) setPack(m); }).catch(() => {});
+    return () => { live = false; };
+  }, []);
   // v4.84 — the culture card renders on ALL SIX categories. Root cause of it
   // only showing on Food and Beach day: the category menu passes Google
   // category ids (nightlife, attractions, hotels, shopping) but this map only
@@ -2160,10 +2194,10 @@ function AreaInsight({ metro, cat, town, center, onFind, onLog = NOLOG }) {
   // v4.82: town notes come from TOWN_PROFILES via townNotesFor (alias-aware —
   // "Holmes Beach" lands on Anna Maria Island). Beach browses prefer the
   // town's real beach note over its things-to-do note.
-  const tn = town && Culture.townNotesFor ? Culture.townNotesFor(town) : null;
+  const tn = pack && town && pack.townNotesFor ? pack.townNotesFor(town) : null;
   const townNote = tn ? ((cat === "beach" && tn.beach) || (key && tn[key]) || null) : null;
-  const notes = townNote || (metro && key && Culture.CAT_NOTES[metro] ? Culture.CAT_NOTES[metro][key] : null);
-  const cTitle = metro ? Culture.CULTURE_TITLES[metro] : null;
+  const notes = townNote || (pack && metro && key && pack.CAT_NOTES[metro] ? pack.CAT_NOTES[metro][key] : null);
+  const cTitle = metro ? CULTURE_TITLES[metro] : null;
   const isTown = !!townNote;
   const named = isTown && notes ? (notes.items || []).filter((x) => x.place) : [];
   const namedKey = named.map((x) => x.place).join("|");
@@ -2794,7 +2828,7 @@ function EventHeroBg({ image: imageProp, acc, venue, near }) {
   if (src) {
     return (<>
       <img src={src} alt="" fetchPriority="high" decoding="async" draggable={false} onError={() => { if (image && !bad) setBad(true); else setAlt(""); }} onLoad={(ev) => { try { if (image && !bad) { const w = ev.target && ev.target.naturalWidth; if (w && w < 640) setBad(true); } } catch (e) {} }} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
-      {usingAlt && altBy && <PhotoCredit credit={altBy} style={{ left: 8, right: 8, bottom: 6 }} />}
+      {usingAlt && altBy && <PhotoCredit onPhoto credit={altBy} />}
     </>);
   }
   return <div style={{ position: "absolute", inset: 0, background: `linear-gradient(135deg, ${acc}55 0%, #0D1117 100%)` }} />;
@@ -6315,7 +6349,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
   // tap into an Orlando detail sheet whose Viator links were Orlando products
   // ("Explore Orlando"). It now renders only inside the Orlando metro.
   const renderUniqueFinds = () => {
-    if (Culture.resolveMetro(locName) !== "orlando") return null;
+    if (resolveMetro(locName) !== "orlando") return null;
     return (
     <div style={{ margin: "14px 0 4px" }}>
       <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginBottom: 8 }}>
@@ -6632,6 +6666,11 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
   useEffect(() => {
     if (typeof window === "undefined" || window._wfVitals) return;
     window._wfVitals = true;
+    // Identify the page lifecycle and exact shipped code without changing the
+    // existing event population, sampling, consent or measurement history.
+    const vitalsPageRoute = safePagePath(window.location.pathname);
+    const vitalsPageStartedAt = Number.isFinite(window.performance?.timeOrigin)
+      ? new Date(window.performance.timeOrigin).toISOString() : null;
     import("web-vitals/attribution").then(({ onLCP, onCLS, onINP, onTTFB, onFCP }) => {
       // The ATTRIBUTION build. Same metrics, same event name, same base
       // properties as before (the command-center panel keeps reading them) —
@@ -6647,7 +6686,9 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
         try {
           const ctx = window.__WF_CTX || {};
           const a = m.attribution || {};
-          const props = { metric: m.name, value: Math.round(m.name === "CLS" ? m.value * 1000 : m.value), rating: m.rating, route: window.location.pathname, device: window.innerWidth < 768 ? "mobile" : "desktop", loc_permission: ctx.locPermission || "unknown", signed_in: !!ctx.signedIn, build: BUILD_ID };
+          const props = { metric: m.name, value: Math.round(m.name === "CLS" ? m.value * 1000 : m.value), rating: m.rating, route: window.location.pathname, device: window.innerWidth < 768 ? "mobile" : "desktop", loc_permission: ctx.locPermission || "unknown", signed_in: !!ctx.signedIn, build: BUILD_ID,
+            release: process.env.NEXT_PUBLIC_WF_BUILD || null, metric_id: str(m.id, 100),
+            page_route: vitalsPageRoute, page_started_at: vitalsPageStartedAt };
           if (m.name === "LCP") {
             // the four sub-parts sum to LCP — they say whether to fix the server,
             // the discovery of the image, its download, or the render that follows.
@@ -6922,7 +6963,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
     const q = detail.name + (placeCity ? " " + placeCity : "");
     let cancelled = false;
     setViaTours((m) => ({ ...m, [detail.id]: { loading: true, items: [] } }));
-    fetch("/api/viator/tours?q=" + encodeURIComponent(q) + "&name=" + encodeURIComponent(detail.name) + "&kind=" + encodeURIComponent(placeKind(detail) || "") + "&placeId=" + encodeURIComponent(detail.id) + "&count=3&region=" + encodeURIComponent((() => { try { const _m = Culture.resolveMetro(locName); return [placeCity, _m && Culture.CULTURE_TITLES[_m] ? Culture.CULTURE_TITLES[_m] : ""].filter(Boolean).join(","); } catch { return placeCity || ""; } })()))
+    fetch("/api/viator/tours?q=" + encodeURIComponent(q) + "&name=" + encodeURIComponent(detail.name) + "&kind=" + encodeURIComponent(placeKind(detail) || "") + "&placeId=" + encodeURIComponent(detail.id) + "&count=3&region=" + encodeURIComponent((() => { try { const _m = resolveMetro(locName); return [placeCity, _m && CULTURE_TITLES[_m] ? CULTURE_TITLES[_m] : ""].filter(Boolean).join(","); } catch { return placeCity || ""; } })()))
       .then((r) => r.json())
       .then((d) => { if (!cancelled) setViaTours((m) => ({ ...m, [detail.id]: { loading: false, items: (d && d.items) || [] } })); })
       .catch(() => { if (!cancelled) setViaTours((m) => ({ ...m, [detail.id]: { loading: false, items: [] } })); });
@@ -7952,8 +7993,8 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
     let cancelled = false;
     (async () => {
       try {
-        const _m = Culture.resolveMetro(locName);
-        const cityQ = (_m && Culture.CULTURE_TITLES[_m]) || (locName ? locName.split(",")[0] : "");
+        const _m = resolveMetro(locName);
+        const cityQ = (_m && CULTURE_TITLES[_m]) || (locName ? locName.split(",")[0] : "");
         if (!cityQ) return;
         const r = await fetch("/api/viator/tours?q=" + encodeURIComponent(cityQ) + "&count=20" + _viatorCityParams(cityQ, center));
         const d = await r.json();
@@ -7997,8 +8038,8 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
     let cancelled = false;
     (async () => {
       try {
-        const _m = Culture.resolveMetro(locName);
-        const cityQ = (_m && Culture.CULTURE_TITLES[_m]) || (locName ? locName.split(",")[0] : "");
+        const _m = resolveMetro(locName);
+        const cityQ = (_m && CULTURE_TITLES[_m]) || (locName ? locName.split(",")[0] : "");
         if (!cityQ) return;
         const r = await fetch("/api/viator/tours?q=" + encodeURIComponent(cityQ) + "&count=20" + _viatorCityParams(cityQ, center));
         const d = await r.json();
@@ -8024,8 +8065,8 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
     const _watch = setTimeout(() => { if (!cancelled) setEventsTours((cur) => (cur == null ? [] : cur)); }, 9000);
     (async () => {
       try {
-        const _m = Culture.resolveMetro(locName);
-        const cityQ = (_m && Culture.CULTURE_TITLES[_m]) || (locName ? locName.split(",")[0] : "");
+        const _m = resolveMetro(locName);
+        const cityQ = (_m && CULTURE_TITLES[_m]) || (locName ? locName.split(",")[0] : "");
         // No city resolved yet (reverse-geocode still in flight): stay in the
         // loading state and let this effect re-fire when locName lands — never
         // flash "no tours" before we've even asked. Deps include locName.
@@ -9736,46 +9777,65 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
   // reachable through the "See all" chip, so the registry is still one source of
   // truth without flooding the home row.
   const HOME_CHIPS = ["gem", "family", "entertainment", "stays", "shows", "value", "budget", "instagram", "outdoor", "bestof"].filter((k) => EXPERIENCES[k]);
-  const _viewCtx = condCtxFromNow(nowContext({ weather }));
-  const _mealPool = cat === "food" ? mealGate(places, sub) : places;
-  // v4.25: every sort mode is real on the browse feed, the distance limit
-  // applies to all of them, and the near-first rule survives ranking.
-  const _distFiltered = [..._mealPool].filter((p) => sliderMi >= 60 || p.distMi == null || p.distMi <= sliderMi);
-  // 2026-09-28 (owner: "0.7 miles, then 15 miles, then 0.9 miles"): dedupe
-  // BEFORE ordering. Brand collapse writes the surviving branch into the first
-  // branch's slot, so sorting first let a far flagship inherit a near branch's
-  // position. The explicit sort is now the last ordering step, and "Closest
-  // first" keeps a chain's NEAREST branch. Locked by test-sort-modes.
-  const _dedupedPool = dedupePlaces(dealsOnly ? _distFiltered.filter((p) => offers[p.id]) : _distFiltered, !searchMode, sortBy === "near" ? nearestBranch : betterPlace);
-  let viewBase;
-  if (comparatorFor(sortBy)) {
-    // near: distance ascending · rated: v6.42 shared Top-rated comparator
-    // (displayed Wayfind Score, locked by test-top-rated) · price: low → high.
-    viewBase = sortPlacesBy(_dedupedPool, sortBy);
-  } else {
-    viewBase = Ranking.rankByConditions(_dedupedPool, _viewCtx, (p) => placeScore({ quality: p.wfScore, unratedBase: UNRATED_LAST, faveTier: faveTier(p), featured: featuredBoost(p), evidence: creatorEvidenceTerm(p), trend: p.trending ? TRENDING_BONUS : 0 }));
-    // Near-first rule: with 5+ options inside 12 miles, nothing past 20 may outrank them.
-    const _nc = viewBase.filter((p) => p && p.distMi != null && p.distMi <= 12).length;
-    if (_nc >= 5) viewBase = [...viewBase.filter((p) => !(p.distMi != null && p.distMi > 20)), ...viewBase.filter((p) => p.distMi != null && p.distMi > 20)];
-  }
-  // v8.48 — THE COUNT AND THE CARDS MUST BE THE SAME LIST (live incident,
-  // 2026-08-25, owner: "all of the menus are showing empty when we have sooo
-  // many place cards"). PlaceCard has refused rows with no rating signal since
-  // v6.39 (`if (!cardComplete(p)) return null`), but this list was never gated
-  // on the same rule — so a pool of unrenderable rows produced a feed that
-  // counted 21 spots, rendered none, and printed "That's all 21 spots" under
-  // the blank. FREE MODE made that pool the common case (its Pro field mask
-  // omits the Enterprise-billed rating/userRatingCount), which is why the
-  // symptom was site-wide and looked like a total outage rather than thin data.
-  //
-  // Gating HERE, at the one place the browse pool is finalised, makes the
-  // failure honest on every surface that reads `view`: the result count, the
-  // "That's all N" line, the beach-conditions rows and the map all describe the
-  // cards actually on screen, and an empty pool now falls into the real
-  // "Nothing here right now" branch with a widen/relax action instead of
-  // rendering a silent void. A data regression can still lose places; it can no
-  // longer look like a broken page.
-  const view = viewBase.filter(cardComplete);
+  // Detail sheets, search typing and save feedback update this parent too.
+  // Re-ranking its unchanged inventory synchronously on every such update
+  // blocks the tap. Reuse the browse result until an actual ranking input
+  // changes; keep time-sensitive meal/weather rules fresh on the next render.
+  // A recovery begun in another search must not update this browse inventory.
+  const browseEnrichmentScope = [cat, sub, vibe, center?.lat, center?.lng, searchMode].join("|");
+  const browseEnrichmentScopeRef = useRef(browseEnrichmentScope);
+  browseEnrichmentScopeRef.current = browseEnrichmentScope;
+  const onBrowsePlaceEnriched = (source, patch) => {
+    setPlaces((current) => browseEnrichmentScopeRef.current === browseEnrichmentScope
+      ? mergeBrowseEnrichment(current, source, patch) : current);
+  };
+  // The async trend decorator mutates existing rows. Its completion is a real
+  // ranking input even when the places array and current minute are unchanged.
+  const [trendTick, setTrendTick] = useState(0);
+  const browseMinute = Math.floor(Date.now() / 60000);
+  const view = useMemo(() => {
+    const _viewCtx = condCtxFromNow(nowContext({ weather }));
+    const _mealPool = cat === "food" ? mealGate(places, sub) : places;
+    // v4.25: every sort mode is real on the browse feed, the distance limit
+    // applies to all of them, and the near-first rule survives ranking.
+    const _distFiltered = [..._mealPool].filter((p) => sliderMi >= 60 || p.distMi == null || p.distMi <= sliderMi);
+    // 2026-09-28 (owner: "0.7 miles, then 15 miles, then 0.9 miles"): dedupe
+    // BEFORE ordering. Brand collapse writes the surviving branch into the first
+    // branch's slot, so sorting first let a far flagship inherit a near branch's
+    // position. The explicit sort is now the last ordering step, and "Closest
+    // first" keeps a chain's NEAREST branch. Locked by test-sort-modes.
+    const _dedupedPool = dedupePlaces(dealsOnly ? _distFiltered.filter((p) => offers[p.id]) : _distFiltered, !searchMode, sortBy === "near" ? nearestBranch : betterPlace);
+    let viewBase;
+    if (comparatorFor(sortBy)) {
+      // near: distance ascending · rated: v6.42 shared Top-rated comparator
+      // (displayed Wayfind Score, locked by test-top-rated) · price: low → high.
+      viewBase = sortPlacesBy(_dedupedPool, sortBy);
+    } else {
+      viewBase = Ranking.rankByConditions(_dedupedPool, _viewCtx, (p) => placeScore({ quality: p.wfScore, unratedBase: UNRATED_LAST, faveTier: faveTier(p), featured: featuredBoost(p), evidence: creatorEvidenceTerm(p), trend: p.trending ? TRENDING_BONUS : 0 }));
+      // Near-first rule: with 5+ options inside 12 miles, nothing past 20 may outrank them.
+      const _nc = viewBase.filter((p) => p && p.distMi != null && p.distMi <= 12).length;
+      if (_nc >= 5) viewBase = [...viewBase.filter((p) => !(p.distMi != null && p.distMi > 20)), ...viewBase.filter((p) => p.distMi != null && p.distMi > 20)];
+    }
+    // v8.48 — THE COUNT AND THE CARDS MUST BE THE SAME LIST (live incident,
+    // 2026-08-25, owner: "all of the menus are showing empty when we have sooo
+    // many place cards"). PlaceCard has refused rows with no rating signal since
+    // v6.39 (`if (!cardComplete(p)) return null`), but this list was never gated
+    // on the same rule — so a pool of unrenderable rows produced a feed that
+    // counted 21 spots, rendered none, and printed "That's all 21 spots" under
+    // the blank. FREE MODE made that pool the common case (its Pro field mask
+    // omits the Enterprise-billed rating/userRatingCount), which is why the
+    // symptom was site-wide and looked like a total outage rather than thin data.
+    //
+    // Gating HERE, at the one place the browse pool is finalised, makes the
+    // failure honest on every surface that reads `view`: the result count, the
+    // "That's all N" line, the beach-conditions rows and the map all describe the
+    // cards actually on screen, and an empty pool now falls into the real
+    // "Nothing here right now" branch with a widen/relax action instead of
+    // rendering a silent void. A data regression can still lose places; it can no
+    // longer look like a broken page.
+    const view = viewBase.filter(cardComplete);
+    return view;
+  }, [places, cat, sub, sliderMi, dealsOnly, offers, searchMode, sortBy, weather, browseMinute, trendTick]);
   // 2026-10-06 (richer cards): ask /api/known-for for the cards the user can actually
   // SEE first. loadBlurbs only ever requested the first 40 ids of the UNSORTED fetch
   // order, so the top-ranked rows often got no why line. Keyed on the sorted ids.
@@ -9786,10 +9846,10 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
   // SeaWorld could become the hero while Bayside Stadium survived below as if
   // it were an independently visitable destination. The parent keeps its
   // original rank and carries its in-park highlights into both card and detail.
-  const consolidatedView = (() => {
+  const consolidatedView = useMemo(() => {
     try { return consolidateDestinations(view).places; }
     catch (e) { return view; }
-  })();
+  }, [view]);
   // Explore now opens on a single standout, just like the home screen. Prefer a
   // place you can actually go to now; the rest of the ranked list follows below.
   // The hero sits directly under the sort control, so under an explicit sort
@@ -9869,21 +9929,22 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
   // it, displayedWfScore shows it (shown == sorted), and the card renders the
   // 🔥 reason. The tick only forces that re-render once decoration lands;
   // everything fails soft to "nothing trends".
-  const [, setTrendTick] = useState(0);
-  const _trendIdsKey = (places || []).slice(0, 150).map((p) => p && p.id).join(",");
+  // Same IDs can have new row objects after hours/member enrichment. Decorate
+  // those current objects, and cancel the completion of any abandoned pool.
+  const _trendEvents = foryouEvents && foryouEvents.length ? foryouEvents : events;
   useEffect(() => {
     const pool = (places || []).slice(0, 150).filter((p) => p && p.id);
     if (!pool.length) return;
     let dead = false;
     (async () => {
       try {
-        await attachTrendSignals(pool, { events: (foryouEvents && foryouEvents.length ? foryouEvents : events) || [] });
+        await attachTrendSignals(pool, { events: _trendEvents || [] });
         if (!dead) setTrendTick((t) => t + 1);
       } catch (e) {}
     })();
     return () => { dead = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [_trendIdsKey]);
+  }, [places, _trendEvents]);
 
   // v6.57: one batched read of water quality + popularity for every beach
   // card currently on screen, instead of a fetch per card. Both signals are
@@ -10002,7 +10063,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
       )}
       <div className="wf-place-card-list">
       {restView.slice(0, 3).map((p, i) => (
-        <PlaceCard key={p.id} p={p} rank={i + 1} saved={isSaved(p.id)} liked={!!liked[p.id]} disliked={!!disliked[p.id]} onDetail={() => openDetail(p)} onSave={() => quickSaveFavorite(p)} onLike={(e) => toggleLike(e, p)} onDislike={(e) => toggleDislike(e, p)} onShareCard={(pl) => { try { addShared(pl); giveawayMark(pl.id); } catch (e) {} }} line={blurbs[p.id]} onBadge={openExperience} onCuisineTap={openCuisine} beachSignal={beachSignals[p.id]} city={cityNow} />
+        <PlaceCard key={p.id} p={p} onPlaceEnriched={onBrowsePlaceEnriched} rank={i + 1} saved={isSaved(p.id)} liked={!!liked[p.id]} disliked={!!disliked[p.id]} onDetail={() => openDetail(p)} onSave={() => quickSaveFavorite(p)} onLike={(e) => toggleLike(e, p)} onDislike={(e) => toggleDislike(e, p)} onShareCard={(pl) => { try { addShared(pl); giveawayMark(pl.id); } catch (e) {} }} line={blurbs[p.id]} onBadge={openExperience} onCuisineTap={openCuisine} beachSignal={beachSignals[p.id]} city={cityNow} />
       ))}
       </div>
       {restView.length > 3 && hookCards.length > 0 && (
@@ -10018,7 +10079,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
       )}
       <div className="wf-place-card-list">
       {restView.slice(3, visibleCount).map((p, i) => (
-        <PlaceCard key={p.id} p={p} rank={i + 4} saved={isSaved(p.id)} liked={!!liked[p.id]} disliked={!!disliked[p.id]} onDetail={() => openDetail(p)} onSave={() => quickSaveFavorite(p)} onLike={(e) => toggleLike(e, p)} onDislike={(e) => toggleDislike(e, p)} onShareCard={(pl) => { try { addShared(pl); giveawayMark(pl.id); } catch (e) {} }} line={blurbs[p.id]} onBadge={openExperience} onCuisineTap={openCuisine} beachSignal={beachSignals[p.id]} city={cityNow} />
+        <PlaceCard key={p.id} p={p} onPlaceEnriched={onBrowsePlaceEnriched} rank={i + 4} saved={isSaved(p.id)} liked={!!liked[p.id]} disliked={!!disliked[p.id]} onDetail={() => openDetail(p)} onSave={() => quickSaveFavorite(p)} onLike={(e) => toggleLike(e, p)} onDislike={(e) => toggleDislike(e, p)} onShareCard={(pl) => { try { addShared(pl); giveawayMark(pl.id); } catch (e) {} }} line={blurbs[p.id]} onBadge={openExperience} onCuisineTap={openCuisine} beachSignal={beachSignals[p.id]} city={cityNow} />
       ))}
       </div>
       {!loading && (restView.length > visibleCount || invMoreCanContinue) && (
@@ -10197,7 +10258,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
   // this dependency out of home's eager imports protects first-load JS.
   const eventsRailSlot = (mode = "events", selectPosterEvents = null) => {
     if (foryouEvents === null) {
-      if (["night-out", "date-night", "summer-sports", "today-entertainment"].includes(mode)) return { pending: true, byRail: {} };
+      if (["night-out", "date-night", "summer-sports", "today-entertainment", "trending"].includes(mode)) return { pending: true, byRail: {} };
       return (
         <div className="wf-rail wf-rail-events" aria-hidden="true" role="status" aria-busy="true" style={{ minHeight: EV_RAIL_MIN_H, overflow: "hidden" }}>
           <PlaceCardSkeleton count={2} as="div" />
@@ -10227,7 +10288,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
         onCopied={() => showToast("Event link copied")}
       />
     );
-    if (["night-out", "date-night", "summer-sports", "today-entertainment"].includes(mode)) {
+    if (["night-out", "date-night", "summer-sports", "today-entertainment", "trending"].includes(mode)) {
       const rows = selectPosterEvents(fp.usable.filter((event) => eventSignals.disliked[event.id] !== true), { mode, center, bucketOf: eventBucket });
       return {
         pending: false,
@@ -11322,13 +11383,13 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
                     <div onClick={closeBrowse} style={{ display: "inline-flex", alignItems: "center", gap: 6, background: C.card, border: `1px solid ${C.border}`, borderRadius: 999, color: C.accent, fontWeight: 800, fontSize: 14, cursor: "pointer", padding: "8px 15px" }}>‹ Back</div>
                     {browseCat !== "attractions" && <SortControl sortBy={sortBy} onSort={(k) => setSortBy(k)} mi={sliderMi} onMi={(m) => { autoRadiusRef.current = false; setSliderMi(m); const mm = Math.round(m * 1609.34); if (mm > (searchRadius || 0)) setSearchRadius(mm); }} where={locName ? locName.split(",")[0] : ""} dealsAvailable={Object.keys(offers).length > 0} dealsOnly={dealsOnly} onDeals={setDealsOnly} />}
                   </div>
-                  {(() => { const _cm = Culture.resolveMetro(locName); return _cm ? <AreaInsight onLog={logEvent} metro={_cm} cat={browseCat} town={locName ? locName.split(",")[0] : null} center={center} onFind={(q) => submitSearch(q, { miles: 45 })} /> : null; })()}
+                  {(() => { const _cm = resolveMetro(locName); return _cm ? <AreaInsight onLog={logEvent} metro={_cm} cat={browseCat} town={locName ? locName.split(",")[0] : null} center={center} onFind={(q) => submitSearch(q, { miles: 45 })} /> : null; })()}
                   {/* v6.47 (owner via Cowork spec): the attractions browse is ONE ranked
                       list (wf_things_to_do) — the stacked Viator rail + Bookable
                       Experiences chips are gone from this page; tours interleave and
                       earn their rank. Family keeps its bookable rail. */}
                   {browseCat === "family" && <ThemeParkRail mode="family" familyContext={{ lat: center?.lat, lng: center?.lng, radiusMi: sliderMi, ready: !!center }} onOpenPlace={(place) => openDetail(place, "theme_park_family")} isSaved={isSaved} isOnTrip={isOnTrip} liked={liked} disliked={disliked} onSave={(event, place) => quickSaveFavorite(place)} onItinerary={(event, place) => addToItinerary(place)} onLike={(event, place) => toggleLike(event, place)} onDislike={(event, place) => toggleDislike(event, place)} onShare={(place) => shareLink(place.name + " — found on Wayfind", originUrl("/p/" + encodeURIComponent(place.id)), () => showToast("Link copied"))} />}
-                  {browseCat === "attractions" && (!sub || sub === "all" || sub === "themeparks") && <ThemeParkRail mode={Culture.resolveMetro(locName) === "orlando" ? "orlando" : "flagship"} onOpenPlace={(place) => openDetail(place, "theme_park_activities")} isSaved={isSaved} isOnTrip={isOnTrip} liked={liked} disliked={disliked} onSave={(event, place) => quickSaveFavorite(place)} onItinerary={(event, place) => addToItinerary(place)} onLike={(event, place) => toggleLike(event, place)} onDislike={(event, place) => toggleDislike(event, place)} onShare={(place) => shareLink(place.name + " — found on Wayfind", originUrl("/p/" + encodeURIComponent(place.id)), () => showToast("Link copied"))} />}
+                  {browseCat === "attractions" && (!sub || sub === "all" || sub === "themeparks") && <ThemeParkRail mode={resolveMetro(locName) === "orlando" ? "orlando" : "flagship"} onOpenPlace={(place) => openDetail(place, "theme_park_activities")} isSaved={isSaved} isOnTrip={isOnTrip} liked={liked} disliked={disliked} onSave={(event, place) => quickSaveFavorite(place)} onItinerary={(event, place) => addToItinerary(place)} onLike={(event, place) => toggleLike(event, place)} onDislike={(event, place) => toggleDislike(event, place)} onShare={(place) => shareLink(place.name + " — found on Wayfind", originUrl("/p/" + encodeURIComponent(place.id)), () => showToast("Link copied"))} />}
                   {browseCat === "family" && center && <UnifiedBrowseCommerceRail places={view} key={[browseCat, sub, center.lat, center.lng].join(":")} cat="family" sub={sub} initialExperiences={!sub || sub === "all" ? (browseTours?.key === browseTourKey ? browseTours.items : null) : undefined} categories={["attractions"]} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} onLog={logEvent} />}
                   {browseCat === "attractions" && center && <UnifiedBrowseCommerceRail places={view} key={[browseCat, sub, center.lat, center.lng].join(":")} cat="attractions" sub={sub} initialExperiences={!sub || sub === "all" ? (browseTours?.key === browseTourKey ? browseTours.items : null) : undefined} categories={["attractions", "more"]} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} onLog={logEvent} />}
                   {browseCat === "hotels" && center && view.length > 0 && <UnifiedBrowseCommerceRail places={view} key={[browseCat, sub, center.lat, center.lng].join(":")} cat="hotels" sub={sub} categories={["stays"]} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} onLog={logEvent} />}
@@ -11371,14 +11432,14 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
                   ) : view.length === 0 ? (
                     <div style={{ textAlign: "center", padding: "40px 24px", color: C.muted }}>
                       <div style={{ display: "inline-flex", animation: "wfbob 1.4s ease-in-out infinite", marginBottom: 10 }}><Critter size={46} /></div>
-                      <strong style={{ display: "block", color: C.light }}>Nothing here right now</strong>
-                      <span style={{ fontSize: 13 }}>Try another category — or widen your search; the best spots are often a few miles out.</span>
+                      <strong style={{ display: "block", color: C.light }}>{hasSearchCenter(center) ? "Nothing here right now" : "Choose a location"}</strong>
+                      <span style={{ fontSize: 13 }}>{hasSearchCenter(center) ? "Try another category — or widen your search; the best spots are often a few miles out." : "Search a city above or use the Location button."}</span>
                     </div>
                   ) : (
                     <>
                       <div className="wf-place-card-list">
                       {view.map((p, i) => (
-                        <PlaceCard key={p.id} p={p} rank={i + 1} saved={isSaved(p.id)} liked={!!liked[p.id]} disliked={!!disliked[p.id]} onDetail={() => openDetail(p)} onSave={() => quickSaveFavorite(p)} onLike={(e) => toggleLike(e, p)} onDislike={(e) => toggleDislike(e, p)} onShareCard={(pl) => { try { addShared(pl); giveawayMark(pl.id); } catch (e) {} }} line={blurbs[p.id]} onBadge={openExperience} onCuisineTap={openCuisine} beachSignal={beachSignals[p.id]} city={cityNow} />
+                        <PlaceCard key={p.id} p={p} onPlaceEnriched={onBrowsePlaceEnriched} rank={i + 1} saved={isSaved(p.id)} liked={!!liked[p.id]} disliked={!!disliked[p.id]} onDetail={() => openDetail(p)} onSave={() => quickSaveFavorite(p)} onLike={(e) => toggleLike(e, p)} onDislike={(e) => toggleDislike(e, p)} onShareCard={(pl) => { try { addShared(pl); giveawayMark(pl.id); } catch (e) {} }} line={blurbs[p.id]} onBadge={openExperience} onCuisineTap={openCuisine} beachSignal={beachSignals[p.id]} city={cityNow} />
                       ))}
                       </div>
                       {/* 2026-09-23 (fix round, item 1) — a capped first page is only
@@ -12334,7 +12395,7 @@ function UTDealsRail({ category, onSave, lat, lng, onLog = NOLOG }) {
 // (gated on Aff.isTicketyPlace so it only appears on ticketed venues, never free
 // parks/beaches). The /go route still upgrades to the exact product at click time when
 // one clears the geo-gated resolver; otherwise it's an honest Viator search.
-function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, onDislike, onShareCard, line, onBadge, selectedBadge, onCuisineTap, beachSignal, city }) {
+function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, onDislike, onShareCard, line, onBadge, selectedBadge, onCuisineTap, beachSignal, city, onPlaceEnriched }) {
   const siteDay = useSiteToday(); // re-renders at midnight Eastern so the season skin flips without a reload
   // v6.86: vision-scored, people-free card photo — must run BEFORE the
   // cardComplete early return below (rules of hooks: this hook must run on
@@ -12364,15 +12425,28 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
   useEffect(() => {
     if (!p || p.photo || !/^(fsq|osm|ridb|nps):/.test(String(p.id || "")) || p._noPhoto) return;
     let c = false;
+    const source = { ...p };
     findPlace(p.name, { lat: p.lat, lng: p.lng }).then((g) => {
       const ok = g && g.photo && (_wfNorm(g.name).includes(_wfNorm(p.name)) || _wfNorm(p.name).includes(_wfNorm(g.name)));
       if (c) return;
-      if (ok) { p.photo = g.photo; p.photos = g.photos || []; p.photoAttr = g.photoAttr || ""; if (g.oh) { p.oh = g.oh; p.openNow = g.openNow; p.utcOffset = g.utcOffset; if (g.hoursAsOf != null) p.hoursAsOf = g.hoursAsOf; /* v6.34: the freshness stamp travels with the bundle */ } _photoBump((x) => x + 1); }
+      if (ok) {
+        const patch = { photo: g.photo, photos: g.photos || [], photoAttr: g.photoAttr || "" };
+        // Photos do not affect ranking and keep their existing local update.
+        if (!p.photo || p.photo === source.photo) Object.assign(p, patch);
+        if (g.oh) {
+          const hours = { oh: g.oh, openNow: g.openNow, utcOffset: g.utcOffset,
+            hoursAsOf: g.hoursAsOf != null ? g.hoursAsOf : source.hoursAsOf };
+          if (onPlaceEnriched) {
+            if (!sameHealedHours(source, hours)) onPlaceEnriched(source, { ...patch, ...hours });
+          } else Object.assign(p, hours); // Other card surfaces retain their own update path.
+        }
+        _photoBump((x) => x + 1);
+      }
       else p._noPhoto = true; // remember the miss so we never refetch
     }).catch(() => {});
     return () => { c = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [p && p.id]);
+  }, [p && p.id, p && p.lat, p && p.lng]);
   const cardProduct = usePlaceProduct(p && p.id);
   const tapIntent = useCardTapIntent();
   // THE GATE COMES LAST. Every hook above runs on every render; `cardComplete`

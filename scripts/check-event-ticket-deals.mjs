@@ -70,6 +70,21 @@ for (const [eventId, raw] of entries) {
     } else {
       ok(!(String(norm.offerId) in UT_EVENT_DEAL_IDS), `${eventId}: a park-admission mapping does not borrow an event-ticket row`);
     }
+  } else if (norm.provider === "viator") {
+    // Product identity reviewed in the merchant UI and read from wf_experiences
+    // on Nov 6. Never substitute the venue's daytime admission SKU (28841P1).
+    ok(eventId === "zootampa-christmas-wild-2026" && norm.offerId === "28841P3" && norm.product === "event-ticket",
+      `${eventId}: Viator event mapping is pinned to the reviewed Christmas evening product`);
+    const dest = await resolveOffer("viator", norm.offerId, {
+      env: () => ({ url: "https://fixture.invalid", key: "fixture" }),
+      fetch: async (url) => {
+        ok(new URL(url).searchParams.get("product_code") === "eq.28841P3", "the real resolver requests the exact Christmas product from the live catalog");
+        return { ok: true, json: async () => [{ product_code: "28841P3", product_url: "https://www.viator.com/tours/Tampa/Christmas-in-the-Wild-at-Tampas-Lowry-Park-Zoo/d666-28841P3", link_ok: true }] };
+      },
+    });
+    const tracked = new URL(dest.dest);
+    ok(tracked.pathname.endsWith("d666-28841P3") && tracked.searchParams.get("pid") === "P00320881" && tracked.searchParams.get("mcid") === "42383",
+      "the exact event survives the real resolver with Wayfind's Viator attribution");
   } else if (norm.provider === "ticketnetwork") {
     // 2026-10-29: TicketNetwork sells concert seats by EVENT page
     // (/tickets/<id>/<show>-tickets-<dow>-<mon>-<d>-<yyyy>-<venue>). There is
@@ -95,7 +110,8 @@ for (const [eventId, raw] of entries) {
     // wf_events rows that are not in the fall discovery file: organizer URL read
     // from the live table 2026-10-13 / 2026-10-28 (official_ticket_url || official_event_url).
     const LIVE_ORGANIZER_URLS = { "hw26-halloween-spookquarium-clearwater-2026": "https://www.cmaquarium.org/event/halloween-spookquarium-2026/", "zootampa-creatures-2026": "https://zootampa.org/events/creatures-of-the-night/", "hw26-pirates-of-the-haunted-seas-at-sea-life-orlando-2026": "https://www.visitsealife.com/orlando/whats-inside/events-experiences/pirates-of-the-haunted-seas/", "hw26-the-great-wax-heist-at-madame-tussauds-orlando-2026": "https://www.madametussauds.com/orlando/whats-inside/events-experiences/the-great-wax-heist/" };
-    const organizerUrl = (discoveryRow && (discoveryRow.official_ticket_url || discoveryRow.official_event_url)) || LIVE_ORGANIZER_URLS[eventId];
+    const organizerUrl = (discoveryRow && (discoveryRow.official_ticket_url || discoveryRow.official_event_url)) || LIVE_ORGANIZER_URLS[eventId]
+      || (eventId === "mosi-santa-in-space-2026" ? "https://mosi.org/event/santa-in-space/" : null);
     ok(organizerUrl, `${eventId}: a discovery row names the organizer URL this mapping is checked against`);
     const merchant = organizerUrl ? affiliateMerchantForUrl(organizerUrl) : null;
     // Venue identity for EVERY non-UT product: the organizer URL's merchant must

@@ -66,7 +66,7 @@ const venueCard = render({ photo: grande.hero_image, visitFacts: { ...grande, st
 ok(/<img/.test(venueCard) && !/wf-event-placeholder/.test(venueCard), "positive control: a card with a photo renders the image, not the tile");
 ok(!/Venue photo|is-venue/.test(venueCard), "a venue photo on a card carries no venue caption (the locked card design)");
 const gCard = render({ photo: "/api/photo?place=ChIJx&w=640", visitFacts: { venue: "Krush Brau Park", place_id: "ChIJx", start_date: "2026-10-11", end_date: "2026-10-11" } });
-ok(/>©</.test(gCard) && /Photo: Google Maps/.test(gCard) && !/Venue photo/.test(gCard), "a Google venue photo on a card keeps the plain (c) chip with its Google Maps credit");
+ok(/>Google Maps</.test(gCard) && /Photo: Google Maps/.test(gCard) && !/Venue photo/.test(gCard), "a Google venue photo on a card keeps the tiny Google Maps credit on the photo");
 
 mock.timers.reset();
 
