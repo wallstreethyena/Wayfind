@@ -545,7 +545,7 @@ scripts/test-brand-rail-dedupe.mjs	0	CALL	blocks-ci-and-deploy	1	-	43	0	0	e32f79
 scripts/test-brand.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	12	1	0	3e7b8d8bf6679d8518b16a393c51aa3c07ba180f561f53ae89bd64717ebee795
 scripts/test-browse-back.mjs	0	CALL	blocks-ci-and-deploy	1	-	16	0	0	9b06c848cca650ce57a10cb345443e7d22d392699cc62c2ebeef8178fe1913f7
 scripts/test-browse-bookable-match.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	76	0	0	7223521e644fd6e2df18d9bfe97b5a969d612f4941e544c6e801de227df89a60
-scripts/test-browse-interaction-reuse.mjs	0	RENDER	blocks-ci-and-deploy	1	-	12	0	0	5e7c98c622196d85b1682c42b4ac2046e33810eb664dfeb911ed37d8ce993482
+scripts/test-browse-interaction-reuse.mjs	0	RENDER	blocks-ci-and-deploy	1	-	30	0	0	0426a382fd36c64d04ee39c003156dc5d01e2b075729b83c5ef1128fbf0caff0
 scripts/test-browse-library.mjs	0	CALL	blocks-ci-and-deploy	1	-	85	0	0	138e838749ec967474ee5cfa4bca430befe5ce72726871720e7408e1fd23f151
 scripts/test-browser-analytics.mjs	0	CALL	blocks-ci-and-deploy	1	-	53	0	0	66523c6bbbd1a8b3be79aff878a1cf9cd0bff48f39830a4295935ccfc458c7db
 scripts/test-bump-within-eligible.mjs	0	CALL	blocks-ci-and-deploy	1	-	38	0	0	f63caeb257c8b32068bd90cd423e7ab36482e0c4514888f78f017443bcdbc83a
@@ -709,7 +709,7 @@ scripts/test-fall-farm-food-gap-2026-10-07.mjs	0	CALL	blocks-ci-and-deploy	1	-	2
 scripts/test-fall-food-gap-2026-10-08.mjs	0	CALL	blocks-ci-and-deploy	1	-	49	0	0	5dc6ba6ca47618bc8147431667e9c243724e6422adca2a19836e5d23c7f7c0a3
 scripts/test-fall-gap-fill-2026-10-06.mjs	0	CALL	blocks-ci-and-deploy	1	-	63	0	0	036f15f671338df81c764094dca821e0a0c88d8bd823d246235718aa2df5b33d
 scripts/test-fall-intent-rails.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	0	1	0	cdfa40b616335324937e0932f8e41abc2366a0be023794557d707cdd957ea058
-scripts/test-fall-offering-retirement.mjs	0	CALL	blocks-ci-and-deploy	1	-	24	0	0	9ce2d31813b670b38fba980910c40c09a0356a207cdb0e490b6e8ce23ee79650
+scripts/test-fall-offering-retirement.mjs	0	CALL	blocks-ci-and-deploy	1	-	31	0	0	0b8e33ee35a6a1c2e6aa68dcee65308f82afe0619033ae339e1b04e11957d00f
 scripts/test-fall-tampa-picks-2026-10-08.mjs	0	RENDER	blocks-ci-and-deploy	1	-	47	0	0	c30382a3f48485bbecc14ee6977f7fa4c77ebce3e8187904b56a7a4b542325e2
 scripts/test-fall-visit-facts.mjs	0	RENDER	blocks-ci-and-deploy	1	-	61	0	0	606361910a35358d533bc6dd8d8c8841e0ad92b02a8bbeda6a6d658384239051
 scripts/test-family-day-data.mjs	0	CALL	blocks-ci-and-deploy	1	-	43	0	0	d826b0f6a28abf9d7584d8af579e20cad9c3679004c3656c6ad60479506da13c
@@ -1075,7 +1075,7 @@ scripts/test-viator-fanout.mjs	1	STRUCTURAL	blocks-ci-and-deploy	1	Revenue QA	6	
 scripts/test-viator-integrity-lock.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	73	0	0	b65083aace56a9bc63e3d55f053cfbbfa9910b672b94c3ac6f76fd587e4f09c4
 scripts/test-viator-provider-state.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	47	0	0	cc1d5644b9caf302bef30ccd99ac861eeaf81feec272273bdf29fda6bdd3aa16
 scripts/test-viator-smoke-shape.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	45	0	0	d77554d6d755f9189e9914dcd1e4a8559c23763bfd3e0d41a0b99249f6dad54a
-scripts/test-vitals-attribution.mjs	0	CALL	blocks-ci-and-deploy	1	-	17	0	0	603cf9d499ba7108915aa9ac0ba51205a607d7ecbb09561ce3cd5c7a7984cf6a
+scripts/test-vitals-attribution.mjs	0	CALL	blocks-ci-and-deploy	1	-	26	0	0	9f1223849f2faf480ee689775d31c65ce07fcc79a0dd3cdd4ae04333776da676
 scripts/test-wayfind-awards.mjs	0	RENDER	blocks-ci-and-deploy	1	-	51	0	0	10888a8d385152aec40c0cce4936abca57eb43fe2a6cf8129c547172219d0e7f
 scripts/test-wikipedia-outcomes.mjs	0	CALL	blocks-ci-and-deploy	1	-	35	0	0	8d24a1dc4b3fda197fa5ed57cb414d34c4aca5732c3ec840f56304b9b4b99ed0
 scripts/test-ws-game3-offer.mjs	1	RENDER	blocks-ci-and-deploy	1	Revenue QA	50	0	0	8715a99e9c57e87914c718393b3213c5fc885dd669381a470b3f68e65a628389

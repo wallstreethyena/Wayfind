@@ -39,7 +39,7 @@ import { cuisineMetroFor } from "../lib/cuisine";
 // v6.15: the ONE shared place classifier (labels + the junk gate now agree).
 import { primaryCategory, catOfType } from "../lib/placeCategory";
 import { deviceId } from "../lib/deviceId";
-import { analyticsSuppressionReason, captureOrQueue } from "../lib/browserAnalytics";
+import { analyticsSuppressionReason, captureOrQueue, safePagePath } from "../lib/browserAnalytics";
 import { markIntroSeen } from "../lib/introGate";
 import { isNative, nativeAppleCredential, nativeOAuthSignIn } from "../lib/native";
 import { noteHighPointAndMaybeAsk } from "../lib/appRating";
@@ -6640,6 +6640,11 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
   useEffect(() => {
     if (typeof window === "undefined" || window._wfVitals) return;
     window._wfVitals = true;
+    // Identify the page lifecycle and exact shipped code without changing the
+    // existing event population, sampling, consent or measurement history.
+    const vitalsPageRoute = safePagePath(window.location.pathname);
+    const vitalsPageStartedAt = Number.isFinite(window.performance?.timeOrigin)
+      ? new Date(window.performance.timeOrigin).toISOString() : null;
     import("web-vitals/attribution").then(({ onLCP, onCLS, onINP, onTTFB, onFCP }) => {
       // The ATTRIBUTION build. Same metrics, same event name, same base
       // properties as before (the command-center panel keeps reading them) —
@@ -6655,7 +6660,9 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
         try {
           const ctx = window.__WF_CTX || {};
           const a = m.attribution || {};
-          const props = { metric: m.name, value: Math.round(m.name === "CLS" ? m.value * 1000 : m.value), rating: m.rating, route: window.location.pathname, device: window.innerWidth < 768 ? "mobile" : "desktop", loc_permission: ctx.locPermission || "unknown", signed_in: !!ctx.signedIn, build: BUILD_ID };
+          const props = { metric: m.name, value: Math.round(m.name === "CLS" ? m.value * 1000 : m.value), rating: m.rating, route: window.location.pathname, device: window.innerWidth < 768 ? "mobile" : "desktop", loc_permission: ctx.locPermission || "unknown", signed_in: !!ctx.signedIn, build: BUILD_ID,
+            release: process.env.NEXT_PUBLIC_WF_BUILD || null, metric_id: str(m.id, 100),
+            page_route: vitalsPageRoute, page_started_at: vitalsPageStartedAt };
           if (m.name === "LCP") {
             // the four sub-parts sum to LCP — they say whether to fix the server,
             // the discovery of the image, its download, or the render that follows.
@@ -9748,6 +9755,9 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
   // Re-ranking its unchanged inventory synchronously on every such update
   // blocks the tap. Reuse the browse result until an actual ranking input
   // changes; keep time-sensitive meal/weather rules fresh on the next render.
+  // The async trend decorator mutates existing rows. Its completion is a real
+  // ranking input even when the places array and current minute are unchanged.
+  const [trendTick, setTrendTick] = useState(0);
   const browseMinute = Math.floor(Date.now() / 60000);
   const view = useMemo(() => {
     const _viewCtx = condCtxFromNow(nowContext({ weather }));
@@ -9791,7 +9801,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
     // longer look like a broken page.
     const view = viewBase.filter(cardComplete);
     return view;
-  }, [places, cat, sub, sliderMi, dealsOnly, offers, searchMode, sortBy, weather, browseMinute]);
+  }, [places, cat, sub, sliderMi, dealsOnly, offers, searchMode, sortBy, weather, browseMinute, trendTick]);
   // 2026-10-06 (richer cards): ask /api/known-for for the cards the user can actually
   // SEE first. loadBlurbs only ever requested the first 40 ids of the UNSORTED fetch
   // order, so the top-ranked rows often got no why line. Keyed on the sorted ids.
@@ -9885,7 +9895,6 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
   // it, displayedWfScore shows it (shown == sorted), and the card renders the
   // 🔥 reason. The tick only forces that re-render once decoration lands;
   // everything fails soft to "nothing trends".
-  const [, setTrendTick] = useState(0);
   const _trendIdsKey = (places || []).slice(0, 150).map((p) => p && p.id).join(",");
   useEffect(() => {
     const pool = (places || []).slice(0, 150).filter((p) => p && p.id);
