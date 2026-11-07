@@ -1,0 +1,1938 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 19. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJn79JjtMB2YgRVs0YU_uHZRY",
+   "name": "S3 (Sun Surf Sand)",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "fusion_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://s3restaurant.com/about/",
+     "source_name": "S3 (Sun Surf Sand) \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "S3 opened in May 2013 on Fort Lauderdale Beach.",
+      "S3 serves steak, seafood, and sushi.",
+      "Fish is flown in overnight from Tokyo's Toyosu Fish Market.",
+      "Every dish is designed to be shareable.",
+      "Sunday hours are 10 a.m. to 10 p.m.",
+      "Friday hours are 11:30 a.m. to 12 a.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Steak, seafood and sushi on Fort Lauderdale Beach",
+    "why_here": "S3 opened in May 2013 on Fort Lauderdale Beach, serving steak, seafood and sushi with fish flown in overnight from Tokyo's Toyosu Fish Market. Every dish is designed to be shareable.",
+    "know_before": "Sunday hours are 10 a.m. to 10 p.m. and Friday hours are 11:30 a.m. to 12 a.m.",
+    "local_tip": "Order dishes to share, since every dish is designed to be shareable.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://s3restaurant.com/about/"
+     ],
+     "why_here": [
+      "https://s3restaurant.com/about/"
+     ],
+     "know_before": [
+      "https://s3restaurant.com/about/"
+     ],
+     "local_tip": [
+      "https://s3restaurant.com/about/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "S3 opened in May 2013 on Fort Lauderdale Beach.",
+      "source": "https://s3restaurant.com/about/"
+     },
+     {
+      "claim": "S3 serves steak, seafood, and sushi.",
+      "source": "https://s3restaurant.com/about/"
+     },
+     {
+      "claim": "Fish is flown in overnight from Tokyo's Toyosu Fish Market.",
+      "source": "https://s3restaurant.com/about/"
+     },
+     {
+      "claim": "Every dish is designed to be shareable.",
+      "source": "https://s3restaurant.com/about/"
+     },
+     {
+      "claim": "Sunday hours are 10 a.m. to 10 p.m.",
+      "source": "https://s3restaurant.com/about/"
+     },
+     {
+      "claim": "Friday hours are 11:30 a.m. to 12 a.m.",
+      "source": "https://s3restaurant.com/about/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJgxyJEpK02YgRIzITDeIUG9U",
+   "name": "The Clevelander Bar",
+   "category": "nightlife",
+   "metro": "miami-dade",
+   "primary_type": "bar",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.clevelander.com/food-drinks.htm",
+     "source_name": "The Clevelander Bar \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Clevelander restaurants and bars are on Ocean Drive.",
+      "The Clevelander serves food, drinks, and live entertainment.",
+      "Happy Hour is Monday to Friday from 4 p.m. to 7 p.m.",
+      "The Clevelander address is 1020 Ocean Drive, Miami Beach."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Food, drinks and live entertainment on Ocean Drive",
+    "why_here": "The Clevelander sits on Ocean Drive with restaurants and bars serving food, drinks, and live entertainment. Its Ocean Drive setting in Miami Beach puts dining and entertainment in one venue.",
+    "know_before": "Happy Hour is Monday to Friday from 4 p.m. to 7 p.m.",
+    "local_tip": "Go during Happy Hour on a weekday afternoon.",
+    "best_time": "Come in the afternoon for the pool patio, then stay for the high-energy night scene described by the venue.",
+    "citations": {
+     "hook": [
+      "https://www.clevelander.com/food-drinks.htm"
+     ],
+     "why_here": [
+      "https://www.clevelander.com/food-drinks.htm"
+     ],
+     "know_before": [
+      "https://www.clevelander.com/food-drinks.htm"
+     ],
+     "local_tip": [
+      "https://www.clevelander.com/food-drinks.htm"
+     ],
+     "best_time": [
+      "https://www.clevelander.com/food-drinks.htm"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Clevelander restaurants and bars are on Ocean Drive.",
+      "source": "https://www.clevelander.com/food-drinks.htm"
+     },
+     {
+      "claim": "The Clevelander serves food, drinks, and live entertainment.",
+      "source": "https://www.clevelander.com/food-drinks.htm"
+     },
+     {
+      "claim": "Happy Hour is Monday to Friday from 4 p.m. to 7 p.m.",
+      "source": "https://www.clevelander.com/food-drinks.htm"
+     },
+     {
+      "claim": "The Clevelander address is 1020 Ocean Drive, Miami Beach.",
+      "source": "https://www.clevelander.com/food-drinks.htm"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJTUtvaZrhwogRSkZnTR1DnR8",
+   "name": "The Hangar Restaurant & Flight Lounge",
+   "category": "food",
+   "metro": "st-pete",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.thehangarstpete.com/",
+     "source_name": "The Hangar Restaurant & Flight Lounge \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Hangar serves daily breakfast, lunch and dinner.",
+      "The Hangar opens at 8 a.m. daily.",
+      "The Hangar is closed on Christmas Day.",
+      "The Hangar offers a family friendly visit."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Daily breakfast, lunch and dinner served from 8 a.m.",
+    "why_here": "The Hangar serves daily breakfast, lunch and dinner in a family friendly setting. It opens at 8 a.m. daily, making it an early option for breakfast before lunch and dinner service.",
+    "know_before": "The Hangar opens at 8 a.m. daily and is closed on Christmas Day.",
+    "local_tip": "Arrive at 8 a.m. for breakfast at opening.",
+    "best_time": "Go at 8 a.m. for breakfast with runway views, per the official hours.",
+    "citations": {
+     "hook": [
+      "https://www.thehangarstpete.com/"
+     ],
+     "why_here": [
+      "https://www.thehangarstpete.com/"
+     ],
+     "know_before": [
+      "https://www.thehangarstpete.com/"
+     ],
+     "local_tip": [
+      "https://www.thehangarstpete.com/"
+     ],
+     "best_time": [
+      "https://www.thehangarstpete.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Hangar serves daily breakfast, lunch and dinner.",
+      "source": "https://www.thehangarstpete.com/"
+     },
+     {
+      "claim": "The Hangar opens at 8 a.m. daily.",
+      "source": "https://www.thehangarstpete.com/"
+     },
+     {
+      "claim": "The Hangar is closed on Christmas Day.",
+      "source": "https://www.thehangarstpete.com/"
+     },
+     {
+      "claim": "The Hangar offers a family friendly visit.",
+      "source": "https://www.thehangarstpete.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJl9XYi8QH2YgRGVvytATQxQQ",
+   "name": "J. Alexander's Restaurant",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.jalexanders.com/florida/plantation/8550-w-broward-blvd/",
+     "source_name": "J. Alexander's Restaurant \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "J. Alexander's in Plantation is at 8550 W Broward Blvd, Plantation, Florida 33324.",
+      "J. Alexander's in Plantation is an upscale restaurant.",
+      "Monday to Saturday hours are 11:30 a.m. to 10:00 p.m.",
+      "Sunday hours are 11:30 a.m. to 9:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Upscale dining at J. Alexander's in Plantation",
+    "why_here": "J. Alexander's in Plantation is an upscale restaurant at 8550 W Broward Blvd, Plantation, Florida 33324. The official location page lists Monday to Saturday and Sunday hours for service.",
+    "know_before": "Monday to Saturday hours are 11:30 a.m. to 10:00 p.m.; Sunday hours are 11:30 a.m. to 9:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.jalexanders.com/florida/plantation/8550-w-broward-blvd/"
+     ],
+     "why_here": [
+      "https://www.jalexanders.com/florida/plantation/8550-w-broward-blvd/"
+     ],
+     "know_before": [
+      "https://www.jalexanders.com/florida/plantation/8550-w-broward-blvd/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "J. Alexander's in Plantation is at 8550 W Broward Blvd, Plantation, Florida 33324.",
+      "source": "https://www.jalexanders.com/florida/plantation/8550-w-broward-blvd/"
+     },
+     {
+      "claim": "J. Alexander's in Plantation is an upscale restaurant.",
+      "source": "https://www.jalexanders.com/florida/plantation/8550-w-broward-blvd/"
+     },
+     {
+      "claim": "Monday to Saturday hours are 11:30 a.m. to 10:00 p.m.",
+      "source": "https://www.jalexanders.com/florida/plantation/8550-w-broward-blvd/"
+     },
+     {
+      "claim": "Sunday hours are 11:30 a.m. to 9:00 p.m.",
+      "source": "https://www.jalexanders.com/florida/plantation/8550-w-broward-blvd/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJjRC4tfJ93YgRGjn1P-2RYVU",
+   "name": "Island H2O Water Park",
+   "category": "attractions",
+   "metro": "orlando",
+   "primary_type": "water_park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://islandh2owaterpark.com/",
+     "source_name": "Island H2O Water Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Island H2O Water Park has 20+ attractions.",
+      "Attractions include the Chat Creek Lazy River.",
+      "Attractions include the Live! Lagoon Wave Pool.",
+      "Island Nights is an adults-only water park party for ages 21+.",
+      "Island H2O Water Park is in Kissimmee."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Chat Creek Lazy River and Live! Lagoon Wave Pool in Kissimmee",
+    "why_here": "Island H2O Water Park in Kissimmee lists 20+ attractions, including the Chat Creek Lazy River and the Live! Lagoon Wave Pool. It also hosts Island Nights, an adults-only party for ages 21+.",
+    "know_before": "Island Nights is an adults-only event for ages 21+.",
+    "local_tip": "Start with the Chat Creek Lazy River or the Live! Lagoon Wave Pool.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://islandh2owaterpark.com/"
+     ],
+     "why_here": [
+      "https://islandh2owaterpark.com/"
+     ],
+     "know_before": [
+      "https://islandh2owaterpark.com/"
+     ],
+     "local_tip": [
+      "https://islandh2owaterpark.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Island H2O Water Park has 20+ attractions.",
+      "source": "https://islandh2owaterpark.com/"
+     },
+     {
+      "claim": "Attractions include the Chat Creek Lazy River.",
+      "source": "https://islandh2owaterpark.com/"
+     },
+     {
+      "claim": "Attractions include the Live! Lagoon Wave Pool.",
+      "source": "https://islandh2owaterpark.com/"
+     },
+     {
+      "claim": "Island Nights is an adults-only water park party for ages 21+.",
+      "source": "https://islandh2owaterpark.com/"
+     },
+     {
+      "claim": "Island H2O Water Park is in Kissimmee.",
+      "source": "https://islandh2owaterpark.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJDdzu46cc2YgR7gOCcQZURO8",
+   "name": "Silverspot Cinema - Coconut Creek",
+   "category": "attractions",
+   "metro": "broward",
+   "primary_type": "movie_theater",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://silverspot.net/",
+     "source_name": "Silverspot Cinema - Coconut Creek \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Silverspot Cinema lists Coconut Creek, FL among its locations.",
+      "Silverspot Cinema movie pages include a Dine In Menu."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Cinema in Coconut Creek with a Dine In Menu",
+    "why_here": "Silverspot Cinema lists Coconut Creek, FL among its locations on its official site. Its movie pages include a Dine In Menu, so viewers in Coconut Creek can check dining options with a film.",
+    "know_before": "Check the Dine In Menu on movie pages before choosing a film.",
+    "local_tip": "Check the Dine In Menu before your movie.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://silverspot.net/"
+     ],
+     "why_here": [
+      "https://silverspot.net/"
+     ],
+     "know_before": [
+      "https://silverspot.net/"
+     ],
+     "local_tip": [
+      "https://silverspot.net/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Silverspot Cinema lists Coconut Creek, FL among its locations.",
+      "source": "https://silverspot.net/"
+     },
+     {
+      "claim": "Silverspot Cinema movie pages include a Dine In Menu.",
+      "source": "https://silverspot.net/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJozj9TBLh2IgRhj2Y6Dq7ZE0",
+   "name": "The Hen and Hog Restaurant in Boca Raton, Florida",
+   "category": "food",
+   "metro": "palm-beach",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.thehenhog.com/locations/boca-raton",
+     "source_name": "The Hen and Hog Restaurant in Boca Raton, Florida \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Hen and the Hog serves breakfast and brunch rooted in Southern comfort food.",
+      "Breakfast is served all day.",
+      "The Boca Raton location is at 2151 N Federal Hwy, Boca Raton, FL.",
+      "Boca Raton hours are Monday to Friday 7 a.m. to 3 p.m.",
+      "Saturday and Sunday hours in Boca Raton are 7 a.m. to 3:30 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Southern comfort food with breakfast served all day in Boca Raton",
+    "why_here": "The Hen and the Hog serves breakfast and brunch rooted in Southern comfort food, with breakfast served all day. Its Boca Raton location adds a Southern comfort option for breakfast and brunch.",
+    "know_before": "Boca Raton hours are Monday to Friday 7 a.m. to 3 p.m.",
+    "local_tip": "Order breakfast at lunch, since breakfast is served all day.",
+    "best_time": "Go for brunch and share the mimosa tower, which the venue calls perfect for sharing with friends.",
+    "citations": {
+     "hook": [
+      "https://www.thehenhog.com/locations/boca-raton"
+     ],
+     "why_here": [
+      "https://www.thehenhog.com/locations/boca-raton"
+     ],
+     "know_before": [
+      "https://www.thehenhog.com/locations/boca-raton"
+     ],
+     "local_tip": [
+      "https://www.thehenhog.com/locations/boca-raton"
+     ],
+     "best_time": [
+      "https://www.thehenhog.com/locations/boca-raton"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Hen and the Hog serves breakfast and brunch rooted in Southern comfort food.",
+      "source": "https://www.thehenhog.com/locations/boca-raton"
+     },
+     {
+      "claim": "Breakfast is served all day.",
+      "source": "https://www.thehenhog.com/locations/boca-raton"
+     },
+     {
+      "claim": "The Boca Raton location is at 2151 N Federal Hwy, Boca Raton, FL.",
+      "source": "https://www.thehenhog.com/locations/boca-raton"
+     },
+     {
+      "claim": "Boca Raton hours are Monday to Friday 7 a.m. to 3 p.m.",
+      "source": "https://www.thehenhog.com/locations/boca-raton"
+     },
+     {
+      "claim": "Saturday and Sunday hours in Boca Raton are 7 a.m. to 3:30 p.m.",
+      "source": "https://www.thehenhog.com/locations/boca-raton"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJGcx8JFK_kIgRZ1ylgrX9Hq8",
+   "name": "George Bistro + Bar",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://georgebistroandbar.com/our-menu/",
+     "source_name": "George Bistro + Bar \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "George Bistro + Bar combines South of France influences with fresh, local ingredients from Florida's Panhandle in a South-meets-South fusion.",
+      "Grilled Duroc Pork Chop is on the menu.",
+      "Lobster Eggs Benedict is on the menu.",
+      "Very Berry French Toast is served at weekend brunch.",
+      "George Bistro + Bar is open for weekend brunch, lunch and dinner seven days a week.",
+      "Sunday hours are 9 a.m. to 2 p.m. and 4:30 p.m. to 9 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "South of France cooking meets Florida Panhandle ingredients",
+    "why_here": "George Bistro + Bar serves a South-meets-South fusion of South of France influences and Florida Panhandle ingredients, with weekend brunch, lunch and dinner seven days a week.",
+    "know_before": "Sunday hours are 9 a.m. to 2 p.m. and 4:30 p.m. to 9 p.m., so check the day before visiting.",
+    "local_tip": "Weekend brunch includes Lobster Eggs Benedict and Very Berry French Toast.",
+    "best_time": "Sunday brunch, listed from 9 a.m. to 2 p.m. on the official menu page.",
+    "citations": {
+     "hook": [
+      "https://georgebistroandbar.com/our-menu/"
+     ],
+     "why_here": [
+      "https://georgebistroandbar.com/our-menu/"
+     ],
+     "know_before": [
+      "https://georgebistroandbar.com/our-menu/"
+     ],
+     "local_tip": [
+      "https://georgebistroandbar.com/our-menu/"
+     ],
+     "best_time": [
+      "https://georgebistroandbar.com/our-menu/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "George Bistro + Bar combines South of France influences with fresh, local ingredients from Florida's Panhandle in a South-meets-South fusion.",
+      "source": "https://georgebistroandbar.com/our-menu/"
+     },
+     {
+      "claim": "Grilled Duroc Pork Chop is on the menu.",
+      "source": "https://georgebistroandbar.com/our-menu/"
+     },
+     {
+      "claim": "Lobster Eggs Benedict is on the menu.",
+      "source": "https://georgebistroandbar.com/our-menu/"
+     },
+     {
+      "claim": "Very Berry French Toast is served at weekend brunch.",
+      "source": "https://georgebistroandbar.com/our-menu/"
+     },
+     {
+      "claim": "George Bistro + Bar is open for weekend brunch, lunch and dinner seven days a week.",
+      "source": "https://georgebistroandbar.com/our-menu/"
+     },
+     {
+      "claim": "Sunday hours are 9 a.m. to 2 p.m. and 4:30 p.m. to 9 p.m.",
+      "source": "https://georgebistroandbar.com/our-menu/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJbX2MWJHG2YgRUni7Fl4_T3E",
+   "name": "BJ's Restaurant & Brewhouse",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.bjsrestaurants.com/",
+     "source_name": "BJ's Restaurant & Brewhouse \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "BJ's Restaurant & Brewhouse menu features deep dish pizza.",
+      "Handcrafted burgers are on the menu.",
+      "Award-winning beer is offered at BJ's Restaurant & Brewhouse.",
+      "The Pizookie dessert is on the menu."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Deep dish pizza, handcrafted burgers and the Pizookie dessert",
+    "why_here": "BJ's Restaurant & Brewhouse is a brewhouse serving deep dish pizza and handcrafted burgers, with award-winning beer and the Pizookie dessert on the menu.",
+    "know_before": "The menu spans deep dish pizza, handcrafted burgers, award-winning beer and the Pizookie dessert.",
+    "local_tip": "Save room for the Pizookie dessert after deep dish pizza.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.bjsrestaurants.com/"
+     ],
+     "why_here": [
+      "https://www.bjsrestaurants.com/"
+     ],
+     "know_before": [
+      "https://www.bjsrestaurants.com/"
+     ],
+     "local_tip": [
+      "https://www.bjsrestaurants.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "BJ's Restaurant & Brewhouse menu features deep dish pizza.",
+      "source": "https://www.bjsrestaurants.com/"
+     },
+     {
+      "claim": "Handcrafted burgers are on the menu.",
+      "source": "https://www.bjsrestaurants.com/"
+     },
+     {
+      "claim": "Award-winning beer is offered at BJ's Restaurant & Brewhouse.",
+      "source": "https://www.bjsrestaurants.com/"
+     },
+     {
+      "claim": "The Pizookie dessert is on the menu.",
+      "source": "https://www.bjsrestaurants.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJyc3ZEzzX2IgRhUD-6G8bhj8",
+   "name": "Elisabetta's Ristorante",
+   "category": "food",
+   "metro": "palm-beach",
+   "primary_type": "italian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.elisabettas.com/menus",
+     "source_name": "Elisabetta's Ristorante \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Elisabetta's Ristorante menus include Pizza al Forno.",
+      "Margherita pizza has fior di latte and basil.",
+      "Roman Lunch is pizza bianca with prosciutto and burrata.",
+      "Brunch drink specials run Saturday and Sunday with purchase of an entree."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Pizza al Forno and a Roman Lunch with prosciutto and burrata",
+    "why_here": "Elisabetta's Ristorante builds its menus around Pizza al Forno, including Margherita with fior di latte and basil, plus a Roman Lunch of pizza bianca, prosciutto and burrata.",
+    "know_before": "Brunch drink specials run Saturday and Sunday, so plan a weekend visit for brunch.",
+    "local_tip": "At lunch, order the Roman Lunch with pizza bianca, prosciutto and burrata.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.elisabettas.com/menus"
+     ],
+     "why_here": [
+      "https://www.elisabettas.com/menus"
+     ],
+     "know_before": [
+      "https://www.elisabettas.com/menus"
+     ],
+     "local_tip": [
+      "https://www.elisabettas.com/menus"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Elisabetta's Ristorante menus include Pizza al Forno.",
+      "source": "https://www.elisabettas.com/menus"
+     },
+     {
+      "claim": "Margherita pizza has fior di latte and basil.",
+      "source": "https://www.elisabettas.com/menus"
+     },
+     {
+      "claim": "Roman Lunch is pizza bianca with prosciutto and burrata.",
+      "source": "https://www.elisabettas.com/menus"
+     },
+     {
+      "claim": "Brunch drink specials run Saturday and Sunday with purchase of an entree.",
+      "source": "https://www.elisabettas.com/menus"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJI_yUb4202YgRTjTXf2ZfPVM",
+   "name": "Hotel Shelley",
+   "category": "hotels",
+   "metro": "miami-dade",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://hotelshelley.com/",
+     "source_name": "Hotel Shelley \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Hotel Shelley is a boutique Art Deco hotel in South Beach.",
+      "Hotel Shelley is steps from Ocean Drive.",
+      "Book directly and there are no resort fees.",
+      "The hotel does not recommend bringing a vehicle when city-owned garages are closed."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Boutique Art Deco hotel in South Beach, steps from Ocean Drive",
+    "why_here": "Hotel Shelley is a boutique Art Deco hotel in South Beach, steps from Ocean Drive, offering a comfortable stay near the ocean with no resort fees when you book directly.",
+    "know_before": "Book directly for no resort fees, per the official site.",
+    "local_tip": "The hotel does not recommend bringing a vehicle when city-owned garages are closed.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://hotelshelley.com/"
+     ],
+     "why_here": [
+      "https://hotelshelley.com/"
+     ],
+     "know_before": [
+      "https://hotelshelley.com/"
+     ],
+     "local_tip": [
+      "https://hotelshelley.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Hotel Shelley is a boutique Art Deco hotel in South Beach.",
+      "source": "https://hotelshelley.com/"
+     },
+     {
+      "claim": "Hotel Shelley is steps from Ocean Drive.",
+      "source": "https://hotelshelley.com/"
+     },
+     {
+      "claim": "Book directly and there are no resort fees.",
+      "source": "https://hotelshelley.com/"
+     },
+     {
+      "claim": "The hotel does not recommend bringing a vehicle when city-owned garages are closed.",
+      "source": "https://hotelshelley.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJXyMlds-32YgRuG6Dgge6vlI",
+   "name": "CocoWalk",
+   "category": "shopping",
+   "metro": "miami-dade",
+   "primary_type": "shopping_mall",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://cocowalk.com/dining/",
+     "source_name": "CocoWalk \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "CocoWalk dining includes Grand Public Kitchen + Bar, a contemporary American dining destination.",
+      "Da Angelino serves house-made pastas and Italian dishes.",
+      "Cinepolis Luxury Cinemas offers reclining leather seats and full waiter service at the push of a button.",
+      "Parking validation is available for $3 for up to 3 hours for ticketed Cinepolis guests."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Contemporary American dining, house-made pastas and luxury cinema",
+    "why_here": "CocoWalk dining ranges from Grand Public Kitchen + Bar, a contemporary American dining destination, to Da Angelino with house-made pastas and Italian dishes, plus Cinepolis Luxury Cinemas.",
+    "know_before": "Ticketed Cinepolis guests get parking validation for $3 for up to 3 hours.",
+    "local_tip": "At Cinepolis Luxury Cinemas, expect reclining leather seats and full waiter service at the push of a button.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://cocowalk.com/dining/"
+     ],
+     "why_here": [
+      "https://cocowalk.com/dining/"
+     ],
+     "know_before": [
+      "https://cocowalk.com/dining/"
+     ],
+     "local_tip": [
+      "https://cocowalk.com/dining/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "CocoWalk dining includes Grand Public Kitchen + Bar, a contemporary American dining destination.",
+      "source": "https://cocowalk.com/dining/"
+     },
+     {
+      "claim": "Da Angelino serves house-made pastas and Italian dishes.",
+      "source": "https://cocowalk.com/dining/"
+     },
+     {
+      "claim": "Cinepolis Luxury Cinemas offers reclining leather seats and full waiter service at the push of a button.",
+      "source": "https://cocowalk.com/dining/"
+     },
+     {
+      "claim": "Parking validation is available for $3 for up to 3 hours for ticketed Cinepolis guests.",
+      "source": "https://cocowalk.com/dining/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ644bZAC52YgRPliDtqGaZmg",
+   "name": "KPOT Korean BBQ & Hot Pot",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "korean_barbecue_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://thekpot.com/menu/",
+     "source_name": "KPOT Korean BBQ & Hot Pot \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "KPOT offers all-you-can-eat Korean BBQ or Hot Pot or both.",
+      "Meals include unlimited access to the Hot Bar and Sauce Bar.",
+      "The sauce bar has over 70 freshly prepared ingredients.",
+      "Dine-in time is limited to 2 hours."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "All-you-can-eat Korean BBQ, hot pot, or both at one table",
+    "why_here": "KPOT combines Korean BBQ and hot pot in an all-you-can-eat, cook-at-the-table format. Diners get unlimited access to a hot bar and sauce bar with freshly prepared ingredients for grilling and hot pot.",
+    "know_before": "Dine-in time is limited to 2 hours, per the official menu page.",
+    "local_tip": "The sauce bar has over 70 freshly prepared ingredients to craft a sauce, per the official menu.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://thekpot.com/menu/"
+     ],
+     "why_here": [
+      "https://thekpot.com/menu/"
+     ],
+     "know_before": [
+      "https://thekpot.com/menu/"
+     ],
+     "local_tip": [
+      "https://thekpot.com/menu/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "KPOT offers all-you-can-eat Korean BBQ or Hot Pot or both.",
+      "source": "https://thekpot.com/menu/"
+     },
+     {
+      "claim": "Meals include unlimited access to the Hot Bar and Sauce Bar.",
+      "source": "https://thekpot.com/menu/"
+     },
+     {
+      "claim": "The sauce bar has over 70 freshly prepared ingredients.",
+      "source": "https://thekpot.com/menu/"
+     },
+     {
+      "claim": "Dine-in time is limited to 2 hours.",
+      "source": "https://thekpot.com/menu/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJK6b43nXhwogRCV39bMyGJGo",
+   "name": "Juno & The Peacock",
+   "category": "food",
+   "metro": "st-pete",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://junoandthepeacock.com/",
+     "source_name": "Juno & The Peacock \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Juno & The Peacock is a New American restaurant in St. Petersburg.",
+      "Juno & The Peacock serves New American coastal cuisine inspired by Aesop's Fable.",
+      "The restaurant is open daily for lunch and dinner, and weekend brunch.",
+      "The restaurant sits across from North Straub Park and The Vinoy Resort & Golf Club."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "New American coastal cooking across from North Straub Park",
+    "why_here": "Juno & The Peacock in St. Petersburg serves New American coastal cuisine inspired by Aesop's Fable, open daily for lunch and dinner with weekend brunch across from North Straub Park.",
+    "know_before": "It is open daily for lunch and dinner, with weekend brunch, so no need to wait for a weekend to visit.",
+    "local_tip": "Sit across from North Straub Park and The Vinoy Resort & Golf Club.",
+    "best_time": "Weekend brunch is served, per the official site.",
+    "citations": {
+     "hook": [
+      "https://junoandthepeacock.com/"
+     ],
+     "why_here": [
+      "https://junoandthepeacock.com/"
+     ],
+     "know_before": [
+      "https://junoandthepeacock.com/"
+     ],
+     "local_tip": [
+      "https://junoandthepeacock.com/"
+     ],
+     "best_time": [
+      "https://junoandthepeacock.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Juno & The Peacock is a New American restaurant in St. Petersburg.",
+      "source": "https://junoandthepeacock.com/"
+     },
+     {
+      "claim": "Juno & The Peacock serves New American coastal cuisine inspired by Aesop's Fable.",
+      "source": "https://junoandthepeacock.com/"
+     },
+     {
+      "claim": "The restaurant is open daily for lunch and dinner, and weekend brunch.",
+      "source": "https://junoandthepeacock.com/"
+     },
+     {
+      "claim": "The restaurant sits across from North Straub Park and The Vinoy Resort & Golf Club.",
+      "source": "https://junoandthepeacock.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJrZEg7q222YgRlkyUsCuoyJY",
+   "name": "1-800-Lucky",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "asian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.1-800-lucky.com/",
+     "source_name": "1-800-Lucky \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "1-800-Lucky is the first Asian food hall in Miami.",
+      "It offers a wide variety of Asian cuisines in the heart of Wynwood.",
+      "Happy hour is every day from 4 p.m. - 7 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "First Asian food hall in Miami, in the heart of Wynwood",
+    "why_here": "1-800-Lucky describes itself as the first Asian food hall in Miami, offering a wide variety of Asian cuisines in Wynwood. Its official site lists multiple restaurant vendors and happy hour every day.",
+    "know_before": "Happy hour is every day from 4 p.m. - 7 p.m., per the official site.",
+    "local_tip": null,
+    "best_time": "Happy hour is every day from 4 p.m. - 7 p.m.",
+    "citations": {
+     "hook": [
+      "https://www.1-800-lucky.com/"
+     ],
+     "why_here": [
+      "https://www.1-800-lucky.com/"
+     ],
+     "know_before": [
+      "https://www.1-800-lucky.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      "https://www.1-800-lucky.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "1-800-Lucky is the first Asian food hall in Miami.",
+      "source": "https://www.1-800-lucky.com/"
+     },
+     {
+      "claim": "It offers a wide variety of Asian cuisines in the heart of Wynwood.",
+      "source": "https://www.1-800-lucky.com/"
+     },
+     {
+      "claim": "Happy hour is every day from 4 p.m. - 7 p.m.",
+      "source": "https://www.1-800-lucky.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJJ8-W5Yit2YgRVuapKUE02bE",
+   "name": "Bulla Gastrobar Aventura",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "spanish_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://bullagastrobar.com/locations/aventura-new/",
+     "source_name": "Bulla Gastrobar Aventura \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Bulla Aventura serves Spanish favorites like paella, grilled octopus, and jam\u00f3n serrano.",
+      "Its menu includes shareable tapas.",
+      "Daily happy hour is from 4:00 p.m. \u2013 7:00 p.m.",
+      "Drinks include a curated Spanish wine list, local craft beers, and signature cocktails and sangrias."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Spanish tapas, paella and grilled octopus in Aventura",
+    "why_here": "Bulla Gastrobar Aventura serves modern Spanish dining with shareable tapas, paella, grilled octopus and jam\u00f3n serrano. The Aventura page also lists a curated Spanish wine list, local craft beers, and signature cocktails and sangrias.",
+    "know_before": "Daily happy hour is from 4:00 p.m. \u2013 7:00 p.m., per the official Aventura page.",
+    "local_tip": null,
+    "best_time": "Daily happy hour is from 4:00 p.m. \u2013 7:00 p.m.",
+    "citations": {
+     "hook": [
+      "https://bullagastrobar.com/locations/aventura-new/"
+     ],
+     "why_here": [
+      "https://bullagastrobar.com/locations/aventura-new/"
+     ],
+     "know_before": [
+      "https://bullagastrobar.com/locations/aventura-new/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      "https://bullagastrobar.com/locations/aventura-new/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Bulla Aventura serves Spanish favorites like paella, grilled octopus, and jam\u00f3n serrano.",
+      "source": "https://bullagastrobar.com/locations/aventura-new/"
+     },
+     {
+      "claim": "Its menu includes shareable tapas.",
+      "source": "https://bullagastrobar.com/locations/aventura-new/"
+     },
+     {
+      "claim": "Daily happy hour is from 4:00 p.m. \u2013 7:00 p.m.",
+      "source": "https://bullagastrobar.com/locations/aventura-new/"
+     },
+     {
+      "claim": "Drinks include a curated Spanish wine list, local craft beers, and signature cocktails and sangrias.",
+      "source": "https://bullagastrobar.com/locations/aventura-new/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ58ADOrK52YgROLJMckI4joA",
+   "name": "Escapology Escape Rooms Doral",
+   "category": "attractions",
+   "metro": "miami-dade",
+   "primary_type": "amusement_center",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.escapology.com/en/doral-fl",
+     "source_name": "Escapology Escape Rooms Doral \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Escapology Doral offers private, immersive escape rooms.",
+      "Players must find hidden clues, crack codes, and solve puzzles to escape in one hour.",
+      "Escapology Doral is located inside CityPlace Doral."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Private one-hour escape rooms inside CityPlace Doral",
+    "why_here": "Escapology Doral offers private, immersive escape rooms where teams find clues, crack codes and solve puzzles in one hour. The Doral page says it is located inside CityPlace Doral and hosts group bookings, kids' birthday parties and team building.",
+    "know_before": "Escape experiences last one hour, per the official Doral page.",
+    "local_tip": "Rooms are always private for just your group, per the official page.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.escapology.com/en/doral-fl"
+     ],
+     "why_here": [
+      "https://www.escapology.com/en/doral-fl"
+     ],
+     "know_before": [
+      "https://www.escapology.com/en/doral-fl"
+     ],
+     "local_tip": [
+      "https://www.escapology.com/en/doral-fl"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Escapology Doral offers private, immersive escape rooms.",
+      "source": "https://www.escapology.com/en/doral-fl"
+     },
+     {
+      "claim": "Players must find hidden clues, crack codes, and solve puzzles to escape in one hour.",
+      "source": "https://www.escapology.com/en/doral-fl"
+     },
+     {
+      "claim": "Escapology Doral is located inside CityPlace Doral.",
+      "source": "https://www.escapology.com/en/doral-fl"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJV0qm-1j9wogR8fx4o1YZ7q8",
+   "name": "Rick's Reef",
+   "category": "food",
+   "metro": "st-pete",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://ricksreefstpetebeach.com/",
+     "source_name": "Rick's Reef \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Rick's Reef is a casual dining restaurant serving fresh food made in-house in St. Pete Beach.",
+      "Rick's Reef has covered dining and indoor and outdoor bar seating.",
+      "Lunch options include Smoked Fish Spread and Lobster Mac & Cheese.",
+      "Covered outdoor areas are dog-friendly.",
+      "Rick's Reef is on Gulf Boulevard in St. Pete Beach, Florida.",
+      "All lunch items are available for dinner as well."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Rick's Reef serves fresh food made in-house in St. Pete Beach",
+    "why_here": "Rick's Reef in St. Pete Beach serves fresh food made in-house, with covered dining and indoor and outdoor bar seating. Lunch options include Smoked Fish Spread and Lobster Mac & Cheese.",
+    "know_before": "Covered outdoor areas are dog-friendly.",
+    "local_tip": "All lunch items are available for dinner as well.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://ricksreefstpetebeach.com/"
+     ],
+     "why_here": [
+      "https://ricksreefstpetebeach.com/"
+     ],
+     "know_before": [
+      "https://ricksreefstpetebeach.com/"
+     ],
+     "local_tip": [
+      "https://ricksreefstpetebeach.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Rick's Reef is a casual dining restaurant serving fresh food made in-house in St. Pete Beach.",
+      "source": "https://ricksreefstpetebeach.com/"
+     },
+     {
+      "claim": "Rick's Reef has covered dining and indoor and outdoor bar seating.",
+      "source": "https://ricksreefstpetebeach.com/"
+     },
+     {
+      "claim": "Lunch options include Smoked Fish Spread and Lobster Mac & Cheese.",
+      "source": "https://ricksreefstpetebeach.com/"
+     },
+     {
+      "claim": "Covered outdoor areas are dog-friendly.",
+      "source": "https://ricksreefstpetebeach.com/"
+     },
+     {
+      "claim": "Rick's Reef is on Gulf Boulevard in St. Pete Beach, Florida.",
+      "source": "https://ricksreefstpetebeach.com/"
+     },
+     {
+      "claim": "All lunch items are available for dinner as well.",
+      "source": "https://ricksreefstpetebeach.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJDResCRKpxIgR8m0MfGMRPk8",
+   "name": "Lighthouse Grill and Tiki Bar",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.lighthouse-grill.com/",
+     "source_name": "Lighthouse Grill and Tiki Bar \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Lighthouse Grill and Tiki Bar is at 260 Maryland Ave in Englewood, FL.",
+      "Lighthouse Grill and Tiki Bar offers waterfront dining under the Tiki.",
+      "The restaurant offers waterfront, open-air dining.",
+      "Live music is offered nightly.",
+      "Menus are linked from the official site."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Lighthouse Grill and Tiki Bar offers waterfront dining under the Tiki",
+    "why_here": "Lighthouse Grill and Tiki Bar offers waterfront dining under the Tiki in Englewood, with waterfront, open-air dining and live music nightly. Menus are linked from the official site.",
+    "know_before": "Lighthouse Grill and Tiki Bar is at 260 Maryland Ave in Englewood, FL.",
+    "local_tip": "Live music is offered nightly.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.lighthouse-grill.com/"
+     ],
+     "why_here": [
+      "https://www.lighthouse-grill.com/"
+     ],
+     "know_before": [
+      "https://www.lighthouse-grill.com/"
+     ],
+     "local_tip": [
+      "https://www.lighthouse-grill.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Lighthouse Grill and Tiki Bar is at 260 Maryland Ave in Englewood, FL.",
+      "source": "https://www.lighthouse-grill.com/"
+     },
+     {
+      "claim": "Lighthouse Grill and Tiki Bar offers waterfront dining under the Tiki.",
+      "source": "https://www.lighthouse-grill.com/"
+     },
+     {
+      "claim": "The restaurant offers waterfront, open-air dining.",
+      "source": "https://www.lighthouse-grill.com/"
+     },
+     {
+      "claim": "Live music is offered nightly.",
+      "source": "https://www.lighthouse-grill.com/"
+     },
+     {
+      "claim": "Menus are linked from the official site.",
+      "source": "https://www.lighthouse-grill.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ77JeiPgA2YgRMPCSJZ-SikM",
+   "name": "Rooftop @1WLO",
+   "category": "nightlife",
+   "metro": "broward",
+   "primary_type": "bar",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://rooftop1wlo.com/",
+     "source_name": "Rooftop @1WLO \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Rooftop @1WLO is a rooftop bar in Fort Lauderdale on Las Olas.",
+      "Rooftop @1WLO offers skyline views and signature cocktails.",
+      "Rooftop @1WLO is closed Monday and Tuesday.",
+      "Happy hour at Rooftop @1WLO is Wednesday to Friday 4 p.m. to 7 p.m.",
+      "Hours are Wednesday and Thursday 4 p.m. to 1 a.m., Friday 4 p.m. to 2 a.m., Saturday 2 p.m. to 2 a.m. and Sunday 12 p.m. to 10 p.m.",
+      "Rooftop @1WLO is at 1 West Las Olas Boulevard in Fort Lauderdale, FL."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Rooftop @1WLO offers skyline views and signature cocktails in Fort Lauderdale",
+    "why_here": "Rooftop @1WLO is a rooftop bar in Fort Lauderdale on Las Olas, with skyline views and signature cocktails. Happy hour is Wednesday to Friday 4 p.m. to 7 p.m.",
+    "know_before": "Hours are Wednesday and Thursday 4 p.m. to 1 a.m., Friday 4 p.m. to 2 a.m., Saturday 2 p.m. to 2 a.m. and Sunday 12 p.m. to 10 p.m.",
+    "local_tip": "Happy hour is Wednesday to Friday 4 p.m. to 7 p.m.",
+    "best_time": "Happy hour is listed Wednesday to Friday 4 p.m. to 7 p.m. and Saturday 2 p.m. to 7 p.m.",
+    "citations": {
+     "hook": [
+      "https://rooftop1wlo.com/"
+     ],
+     "why_here": [
+      "https://rooftop1wlo.com/"
+     ],
+     "know_before": [
+      "https://rooftop1wlo.com/"
+     ],
+     "local_tip": [
+      "https://rooftop1wlo.com/"
+     ],
+     "best_time": [
+      "https://rooftop1wlo.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Rooftop @1WLO is a rooftop bar in Fort Lauderdale on Las Olas.",
+      "source": "https://rooftop1wlo.com/"
+     },
+     {
+      "claim": "Rooftop @1WLO offers skyline views and signature cocktails.",
+      "source": "https://rooftop1wlo.com/"
+     },
+     {
+      "claim": "Rooftop @1WLO is closed Monday and Tuesday.",
+      "source": "https://rooftop1wlo.com/"
+     },
+     {
+      "claim": "Happy hour at Rooftop @1WLO is Wednesday to Friday 4 p.m. to 7 p.m.",
+      "source": "https://rooftop1wlo.com/"
+     },
+     {
+      "claim": "Hours are Wednesday and Thursday 4 p.m. to 1 a.m., Friday 4 p.m. to 2 a.m., Saturday 2 p.m. to 2 a.m. and Sunday 12 p.m. to 10 p.m.",
+      "source": "https://rooftop1wlo.com/"
+     },
+     {
+      "claim": "Rooftop @1WLO is at 1 West Las Olas Boulevard in Fort Lauderdale, FL.",
+      "source": "https://rooftop1wlo.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJb4Ldpi4A2YgRu--8z9aXAL4",
+   "name": "Elbo Room",
+   "category": "nightlife",
+   "metro": "broward",
+   "primary_type": "bar",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.elboroom.com/about-the-elbo-room/",
+     "source_name": "Elbo Room \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Elbo Room was established in 1938.",
+      "The Elbo Room is in Fort Lauderdale.",
+      "The only thing separating the Elbo Room and the Atlantic Ocean is a two lane one way road.",
+      "The official site offers live cameras including a live beach camera."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "The Elbo Room, established in 1938, across from the Atlantic Ocean",
+    "why_here": "The Elbo Room was established in 1938 in Fort Lauderdale, with only a two lane one way road separating the bar from the Atlantic Ocean. The official site offers live cameras including a live beach camera.",
+    "know_before": "The official site offers a live beach camera to check before going.",
+    "local_tip": "The live beach camera can help check conditions before heading over.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.elboroom.com/about-the-elbo-room/"
+     ],
+     "why_here": [
+      "https://www.elboroom.com/about-the-elbo-room/"
+     ],
+     "know_before": [
+      "https://www.elboroom.com/about-the-elbo-room/"
+     ],
+     "local_tip": [
+      "https://www.elboroom.com/about-the-elbo-room/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Elbo Room was established in 1938.",
+      "source": "https://www.elboroom.com/about-the-elbo-room/"
+     },
+     {
+      "claim": "The Elbo Room is in Fort Lauderdale.",
+      "source": "https://www.elboroom.com/about-the-elbo-room/"
+     },
+     {
+      "claim": "The only thing separating the Elbo Room and the Atlantic Ocean is a two lane one way road.",
+      "source": "https://www.elboroom.com/about-the-elbo-room/"
+     },
+     {
+      "claim": "The official site offers live cameras including a live beach camera.",
+      "source": "https://www.elboroom.com/about-the-elbo-room/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJx7sa5Jm12YgRe5Cnbx4nWkM",
+   "name": "Romina's Ristorante Italiano",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "italian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://rominasmiamibeach.com/",
+     "source_name": "Romina's Ristorante Italiano \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Romina's Ristorante Italiano is at 833 Lincoln Road, Miami Beach, FL 33139.",
+      "The menu includes hand-crafted pasta, fresh seafood, and prime cuts.",
+      "The menu is rooted in genuine flavors, with attentive service."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "The menu includes hand-crafted pasta and fresh seafood",
+    "why_here": "Romina's Ristorante Italiano is at 833 Lincoln Road, Miami Beach, FL 33139. The menu includes hand-crafted pasta, fresh seafood, and prime cuts, and the menu is rooted in genuine flavors, with attentive service.",
+    "know_before": "Romina's Ristorante Italiano is at 833 Lincoln Road, Miami Beach, FL 33139.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://rominasmiamibeach.com/"
+     ],
+     "why_here": [
+      "https://rominasmiamibeach.com/"
+     ],
+     "know_before": [
+      "https://rominasmiamibeach.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Romina's Ristorante Italiano is at 833 Lincoln Road, Miami Beach, FL 33139.",
+      "source": "https://rominasmiamibeach.com/"
+     },
+     {
+      "claim": "The menu includes hand-crafted pasta, fresh seafood, and prime cuts.",
+      "source": "https://rominasmiamibeach.com/"
+     },
+     {
+      "claim": "The menu is rooted in genuine flavors, with attentive service.",
+      "source": "https://rominasmiamibeach.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJlZS5uHbh2ogR6GyIlcJRmLU",
+   "name": "The Dock at Crayton Cove",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.dockcraytoncove.com/",
+     "source_name": "The Dock at Crayton Cove \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Dock at Crayton Cove opened in 1976.",
+      "The Dock at Crayton Cove is in Naples, Florida.",
+      "The Dock is a walk-in-only restaurant and seats tables on a first-come, first-served basis.",
+      "Hours are Monday to Saturday 11 a.m. to 9 p.m. and Sunday 10:30 a.m. to 9 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "The Dock at Crayton Cove, opened in 1976 in Naples",
+    "why_here": "The Dock at Crayton Cove opened in 1976 in Naples, Florida. The Dock is a walk-in-only restaurant and seats tables on a first-come, first-served basis, with hours listed on the official site.",
+    "know_before": "The Dock is walk-in only and seats tables on a first-come, first-served basis.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.dockcraytoncove.com/"
+     ],
+     "why_here": [
+      "https://www.dockcraytoncove.com/"
+     ],
+     "know_before": [
+      "https://www.dockcraytoncove.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Dock at Crayton Cove opened in 1976.",
+      "source": "https://www.dockcraytoncove.com/"
+     },
+     {
+      "claim": "The Dock at Crayton Cove is in Naples, Florida.",
+      "source": "https://www.dockcraytoncove.com/"
+     },
+     {
+      "claim": "The Dock is a walk-in-only restaurant and seats tables on a first-come, first-served basis.",
+      "source": "https://www.dockcraytoncove.com/"
+     },
+     {
+      "claim": "Hours are Monday to Saturday 11 a.m. to 9 p.m. and Sunday 10:30 a.m. to 9 p.m.",
+      "source": "https://www.dockcraytoncove.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJCwtlPFYD6IgRtSK4xAC-zX8",
+   "name": "Florida Cracker Kitchen",
+   "category": "food",
+   "metro": "spring-hill-fl",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.floridacrackerkitchen.com/",
+     "source_name": "Florida Cracker Kitchen \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Florida Cracker Kitchen is in Brooksville, Florida.",
+      "Florida Cracker serves fresh, homemade, Southern Soul Food.",
+      "Every egg is hand-cracked at Florida Cracker, and Tomato Gravy and Sausage Gravy are crafted from scratch.",
+      "MeMa's Cinnamon Rolls are made with scratch dough and topped with homemade icing."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Florida Cracker Kitchen serves fresh, homemade, Southern Soul Food",
+    "why_here": "Florida Cracker Kitchen is in Brooksville, Florida, and Florida Cracker serves fresh, homemade, Southern Soul Food. Every egg is hand-cracked, and Tomato Gravy and Sausage Gravy are crafted from scratch.",
+    "know_before": "Tomato Gravy and Sausage Gravy are crafted from scratch.",
+    "local_tip": "MeMa's Cinnamon Rolls are made with scratch dough and homemade icing.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.floridacrackerkitchen.com/"
+     ],
+     "why_here": [
+      "https://www.floridacrackerkitchen.com/"
+     ],
+     "know_before": [
+      "https://www.floridacrackerkitchen.com/"
+     ],
+     "local_tip": [
+      "https://www.floridacrackerkitchen.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Florida Cracker Kitchen is in Brooksville, Florida.",
+      "source": "https://www.floridacrackerkitchen.com/"
+     },
+     {
+      "claim": "Florida Cracker serves fresh, homemade, Southern Soul Food.",
+      "source": "https://www.floridacrackerkitchen.com/"
+     },
+     {
+      "claim": "Every egg is hand-cracked at Florida Cracker, and Tomato Gravy and Sausage Gravy are crafted from scratch.",
+      "source": "https://www.floridacrackerkitchen.com/"
+     },
+     {
+      "claim": "MeMa's Cinnamon Rolls are made with scratch dough and topped with homemade icing.",
+      "source": "https://www.floridacrackerkitchen.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJKR4qI4l32YgRXnQ1TNnQEAo",
+   "name": "Everglades Swamp Tours - Airboat Rides Fort Lauderdale",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "tour_agency",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.evergladesswamptours.com/product/1-hour-private-tour/",
+     "source_name": "Everglades Swamp Tours - Airboat Rides Fort Lauderdale \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The 1 Hour private airboat tour can accommodate up to 16 guests.",
+      "Tours run from 9 a.m. to 4 p.m. daily.",
+      "The 1 Hour private airboat tour is a personal eco-tour through the Florida Everglades."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "The 1 Hour private airboat tour through the Florida Everglades",
+    "why_here": "The 1 Hour private airboat tour is a personal eco-tour through the Florida Everglades and can accommodate up to 16 guests. Tours run from 9 a.m. to 4 p.m. daily, per the official tour page.",
+    "know_before": "Tours run from 9 a.m. to 4 p.m. daily.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.evergladesswamptours.com/product/1-hour-private-tour/"
+     ],
+     "why_here": [
+      "https://www.evergladesswamptours.com/product/1-hour-private-tour/"
+     ],
+     "know_before": [
+      "https://www.evergladesswamptours.com/product/1-hour-private-tour/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The 1 Hour private airboat tour can accommodate up to 16 guests.",
+      "source": "https://www.evergladesswamptours.com/product/1-hour-private-tour/"
+     },
+     {
+      "claim": "Tours run from 9 a.m. to 4 p.m. daily.",
+      "source": "https://www.evergladesswamptours.com/product/1-hour-private-tour/"
+     },
+     {
+      "claim": "The 1 Hour private airboat tour is a personal eco-tour through the Florida Everglades.",
+      "source": "https://www.evergladesswamptours.com/product/1-hour-private-tour/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ2wzuOOt-54gRImv6n1nXoZQ",
+   "name": "Perfumeland Megastore",
+   "category": "shopping",
+   "metro": "orlando",
+   "primary_type": "clothing_store",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://megastore.perfumeland.com/about-perfumeland/",
+     "source_name": "Perfumeland Megastore \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Perfumeland offers more than 60,000 distinct items in genuine designer fragrances and cosmetics.",
+      "Perfumeland is at 5161 International Dr, Orlando, FL 32819."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Perfumeland offers more than 60,000 distinct items",
+    "why_here": "Perfumeland offers more than 60,000 distinct items in genuine designer fragrances and cosmetics. Perfumeland is at 5161 International Dr, Orlando, FL 32819, per the official about page for the retail store.",
+    "know_before": "Perfumeland is at 5161 International Dr, Orlando, FL 32819.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://megastore.perfumeland.com/about-perfumeland/"
+     ],
+     "why_here": [
+      "https://megastore.perfumeland.com/about-perfumeland/"
+     ],
+     "know_before": [
+      "https://megastore.perfumeland.com/about-perfumeland/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Perfumeland offers more than 60,000 distinct items in genuine designer fragrances and cosmetics.",
+      "source": "https://megastore.perfumeland.com/about-perfumeland/"
+     },
+     {
+      "claim": "Perfumeland is at 5161 International Dr, Orlando, FL 32819.",
+      "source": "https://megastore.perfumeland.com/about-perfumeland/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJj2M3aSC02YgRgmxoMwWsT2s",
+   "name": "Thriller Miami Speedboat Adventures",
+   "category": "attractions",
+   "metro": "miami-dade",
+   "primary_type": "tour_agency",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.thrillermiami.com/",
+     "source_name": "Thriller Miami Speedboat Adventures \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Thriller Speedboat Tour is 45 minutes, from $40, for ages 3 and up.",
+      "The Thriller Speedboat Tour departs from Bayside Marketplace in Downtown Miami.",
+      "Thriller Miami Speedboat Adventures is located in Downtown Miami within Bayside Marketplace at 401 Biscayne Blvd. Miami, FL 33132.",
+      "Children must be 3 years old and at least 36 inches tall to ride the speedboat tour."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "The Thriller Speedboat Tour departs from Bayside Marketplace",
+    "why_here": "The Thriller Speedboat Tour departs from Bayside Marketplace in Downtown Miami and is 45 minutes, from $40, for ages 3 and up. Thriller Miami Speedboat Adventures is located within Bayside Marketplace in Downtown Miami.",
+    "know_before": "Children must be 3 years old and at least 36 inches tall to ride the speedboat tour.",
+    "local_tip": "The departure point is at 401 Biscayne Blvd. in Downtown Miami.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.thrillermiami.com/"
+     ],
+     "why_here": [
+      "https://www.thrillermiami.com/"
+     ],
+     "know_before": [
+      "https://www.thrillermiami.com/"
+     ],
+     "local_tip": [
+      "https://www.thrillermiami.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Thriller Speedboat Tour is 45 minutes, from $40, for ages 3 and up.",
+      "source": "https://www.thrillermiami.com/"
+     },
+     {
+      "claim": "The Thriller Speedboat Tour departs from Bayside Marketplace in Downtown Miami.",
+      "source": "https://www.thrillermiami.com/"
+     },
+     {
+      "claim": "Thriller Miami Speedboat Adventures is located in Downtown Miami within Bayside Marketplace at 401 Biscayne Blvd. Miami, FL 33132.",
+      "source": "https://www.thrillermiami.com/"
+     },
+     {
+      "claim": "Children must be 3 years old and at least 36 inches tall to ride the speedboat tour.",
+      "source": "https://www.thrillermiami.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJu7y-kNcH2YgR40QTH7ceKhY",
+   "name": "Ford's Garage Plantation",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://fordsgarageusa.com/find-restaurant/",
+     "source_name": "Ford's Garage Plantation \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Ford's Garage Plantation is at 301 N. University Drive, Suite 600, Plantation, FL 33324."
+     ]
+    },
+    {
+     "source": "https://fordsgarageusa.com/happenings/fords-garage-accelerates-as-they-open-a-new-restaurant-in-plantation-fl/",
+     "source_name": "Ford's Garage Plantation \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Ford's Garage burgers are crafted with Black Angus beef and include the Model \"A\" and the High Octane Burger.",
+      "The Plantation location is in the Plantation Walk shopping center."
+     ]
+    },
+    {
+     "source": "https://fordsgarageusa.com/menu-tier-2-sys-catering-1/?location=plantation#weekday-value",
+     "source_name": "Ford's Garage Plantation \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Plantation menu page lists food, drink, craft beer, happy hour, and catering menus."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Black Angus burgers with car-themed names in Plantation Walk",
+    "why_here": "Ford's Garage in Plantation is a burger and brew restaurant built around classic-car nostalgia and comfort food. Its burgers are crafted with Black Angus beef and carry automotive names such as Model \"A\" and the High Octane Burger.",
+    "know_before": "The Plantation location offers food, drink, craft beer, happy hour, and catering menus.",
+    "local_tip": "Find it at 301 N. University Drive, Suite 600, in the Plantation Walk shopping center.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://fordsgarageusa.com/find-restaurant/",
+      "https://fordsgarageusa.com/happenings/fords-garage-accelerates-as-they-open-a-new-restaurant-in-plantation-fl/",
+      "https://fordsgarageusa.com/menu-tier-2-sys-catering-1/?location=plantation#weekday-value"
+     ],
+     "why_here": [
+      "https://fordsgarageusa.com/find-restaurant/",
+      "https://fordsgarageusa.com/happenings/fords-garage-accelerates-as-they-open-a-new-restaurant-in-plantation-fl/",
+      "https://fordsgarageusa.com/menu-tier-2-sys-catering-1/?location=plantation#weekday-value"
+     ],
+     "know_before": [
+      "https://fordsgarageusa.com/find-restaurant/",
+      "https://fordsgarageusa.com/happenings/fords-garage-accelerates-as-they-open-a-new-restaurant-in-plantation-fl/",
+      "https://fordsgarageusa.com/menu-tier-2-sys-catering-1/?location=plantation#weekday-value"
+     ],
+     "local_tip": [
+      "https://fordsgarageusa.com/find-restaurant/",
+      "https://fordsgarageusa.com/happenings/fords-garage-accelerates-as-they-open-a-new-restaurant-in-plantation-fl/",
+      "https://fordsgarageusa.com/menu-tier-2-sys-catering-1/?location=plantation#weekday-value"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Ford's Garage Plantation is at 301 N. University Drive, Suite 600, Plantation, FL 33324.",
+      "source": "https://fordsgarageusa.com/find-restaurant/"
+     },
+     {
+      "claim": "Ford's Garage burgers are crafted with Black Angus beef and include the Model \"A\" and the High Octane Burger.",
+      "source": "https://fordsgarageusa.com/happenings/fords-garage-accelerates-as-they-open-a-new-restaurant-in-plantation-fl/"
+     },
+     {
+      "claim": "The Plantation location is in the Plantation Walk shopping center.",
+      "source": "https://fordsgarageusa.com/happenings/fords-garage-accelerates-as-they-open-a-new-restaurant-in-plantation-fl/"
+     },
+     {
+      "claim": "The Plantation menu page lists food, drink, craft beer, happy hour, and catering menus.",
+      "source": "https://fordsgarageusa.com/menu-tier-2-sys-catering-1/?location=plantation#weekday-value"
+     }
+    ]
+   }
+  }
+ ]
+}
