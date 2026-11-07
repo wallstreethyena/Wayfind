@@ -243,7 +243,7 @@ ok(idsOn(fallNamesLater.rails, "festivals").includes(dale.event_id)
 const fallRoute = readFileSync(new URL("../app/api/events/fall/route.js", import.meta.url), "utf8");
 const christmasRoute = readFileSync(new URL("../app/api/events/christmas/route.js", import.meta.url), "utf8");
 ok(fallIntentsEpoch(fallRoute) >= 41 && fallRoute.includes("resolveSeasonalLiveArea") && fallRoute.includes("...resolved.fall"), "the Fall route uses the v41 or later verified-event epoch and merges resolved rows");
-ok(christmasRoute.includes("christmas-intents:v13:") && christmasRoute.includes("resolveSeasonalLiveArea")
+ok(christmasRoute.includes("christmas-intents:v14:") && christmasRoute.includes("resolveSeasonalLiveArea")
   && /mergeChristmasResearch\(rows \|\| \[\]\)\.concat\(resolved\.christmas\)/.test(christmasRoute), "the Christmas route uses v13 and appends resolved rows");
 ok(!/googleapis|maps\.google|places\.googleapis|fetch\(/.test(christmasRoute), "the Christmas route still makes no Google call and no fetch");
 ok(!/googleapis|maps\.google|places\.googleapis/.test(fallRoute), "the Fall route still makes no Google call");
