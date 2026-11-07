@@ -1,0 +1,356 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 29. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJUf1fSu-52YgRaxHFlXIWTXI",
+   "name": "Kuba Cabana",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.kubamiami.com/",
+     "source_name": "Kuba Cabana \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Kuba Cabana offers contemporary Latin-Caribbean dining and entertainment.",
+      "Kuba Cabana offers table reservations and event discovery.",
+      "The official site covers Kuba Cabana and Kuba On The Bay."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Contemporary Latin-Caribbean dining and entertainment",
+    "why_here": "Go for contemporary Latin-Caribbean dining and entertainment, with table reservations and event discovery offered through the official site covering Kuba Cabana and Kuba On The Bay.",
+    "know_before": "Kuba Cabana offers table reservations and event discovery.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.kubamiami.com/"
+     ],
+     "why_here": [
+      "https://www.kubamiami.com/"
+     ],
+     "know_before": [
+      "https://www.kubamiami.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Kuba Cabana offers contemporary Latin-Caribbean dining and entertainment.",
+      "source": "https://www.kubamiami.com/"
+     },
+     {
+      "claim": "Kuba Cabana offers table reservations and event discovery.",
+      "source": "https://www.kubamiami.com/"
+     },
+     {
+      "claim": "The official site covers Kuba Cabana and Kuba On The Bay.",
+      "source": "https://www.kubamiami.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJE1-f5Jy02YgR33kYRknZfSY",
+   "name": "Sweet Liberty Drinks & Supply Company",
+   "category": "nightlife",
+   "metro": "miami-dade",
+   "primary_type": "bar",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.mysweetliberty.com/",
+     "source_name": "Sweet Liberty Drinks & Supply Company \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Sweet Liberty is situated in the Collins Park area alongside the Bass Art Museum",
+      "Sweet Liberty offers cocktails and creative American food",
+      "Happy Hour: 4 p.m. \u2013 8 p.m.",
+      "Sunday Brunch: 12 p.m. \u2013 5 p.m.",
+      "Sweet Liberty is at 237-B 20th Street, Miami Beach, FL 33139"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Cocktails and creative American food in Collins Park",
+    "why_here": "Go for cocktails and creative American food in the Collins Park area alongside the Bass Art Museum, where the official site lists Happy Hour and Sunday Brunch.",
+    "know_before": "Happy Hour: 4 p.m. \u2013 8 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.mysweetliberty.com/"
+     ],
+     "why_here": [
+      "https://www.mysweetliberty.com/"
+     ],
+     "know_before": [
+      "https://www.mysweetliberty.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Sweet Liberty is situated in the Collins Park area alongside the Bass Art Museum",
+      "source": "https://www.mysweetliberty.com/"
+     },
+     {
+      "claim": "Sweet Liberty offers cocktails and creative American food",
+      "source": "https://www.mysweetliberty.com/"
+     },
+     {
+      "claim": "Happy Hour: 4 p.m. \u2013 8 p.m.",
+      "source": "https://www.mysweetliberty.com/"
+     },
+     {
+      "claim": "Sunday Brunch: 12 p.m. \u2013 5 p.m.",
+      "source": "https://www.mysweetliberty.com/"
+     },
+     {
+      "claim": "Sweet Liberty is at 237-B 20th Street, Miami Beach, FL 33139",
+      "source": "https://www.mysweetliberty.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJOeFhMqDi2IgRdVaEYBpCze0",
+   "name": "Papa's Raw Bar",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://papasrawbar.com/",
+     "source_name": "Papa's Raw Bar \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Papa's Raw Bar is a casual seafood restaurant in Lighthouse Point",
+      "The menu includes oysters, sushi, and Peruvian Wahoo Ceviche",
+      "Papa's Raw Bar offers fine wines, craft beer, cocktails, and live music",
+      "Papa's Raw Bar is at 4610 North Federal Highway, Lighthouse Point, FL 33064"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Casual seafood restaurant in Lighthouse Point with oysters and sushi",
+    "why_here": "Go for oysters, sushi and Peruvian Wahoo Ceviche at a casual seafood restaurant in Lighthouse Point, with fine wines, craft beer, cocktails and live music also listed by the venue.",
+    "know_before": "Papa's Raw Bar is at 4610 North Federal Highway, Lighthouse Point, FL 33064",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://papasrawbar.com/"
+     ],
+     "why_here": [
+      "https://papasrawbar.com/"
+     ],
+     "know_before": [
+      "https://papasrawbar.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Papa's Raw Bar is a casual seafood restaurant in Lighthouse Point",
+      "source": "https://papasrawbar.com/"
+     },
+     {
+      "claim": "The menu includes oysters, sushi, and Peruvian Wahoo Ceviche",
+      "source": "https://papasrawbar.com/"
+     },
+     {
+      "claim": "Papa's Raw Bar offers fine wines, craft beer, cocktails, and live music",
+      "source": "https://papasrawbar.com/"
+     },
+     {
+      "claim": "Papa's Raw Bar is at 4610 North Federal Highway, Lighthouse Point, FL 33064",
+      "source": "https://papasrawbar.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ1a8pSDEp2YgRT_-tIdUFc1U",
+   "name": "Bimini Twist",
+   "category": "food",
+   "metro": "palm-beach",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://biminitwistwpb.com/about/",
+     "source_name": "Bimini Twist \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Bimini Twist has been serving food since October 2002",
+      "Bimini Twist is a family owned and operated restaurant on Okeechobee Blvd",
+      "Food at Bimini Twist is made to order using ingredients delivered daily",
+      "Reservations are strongly encouraged at Bimini Twist",
+      "Bimini Twist offers Complimentary Valet Parking on weekends"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Restaurant on Okeechobee Blvd serving food since October 2002",
+    "why_here": "Go for food made to order using ingredients delivered daily at a family owned and operated restaurant on Okeechobee Blvd, where reservations are strongly encouraged.",
+    "know_before": "Reservations are strongly encouraged at Bimini Twist",
+    "local_tip": "Complimentary Valet Parking on weekends",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://biminitwistwpb.com/about/"
+     ],
+     "why_here": [
+      "https://biminitwistwpb.com/about/"
+     ],
+     "know_before": [
+      "https://biminitwistwpb.com/about/"
+     ],
+     "local_tip": [
+      "https://biminitwistwpb.com/about/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Bimini Twist has been serving food since October 2002",
+      "source": "https://biminitwistwpb.com/about/"
+     },
+     {
+      "claim": "Bimini Twist is a family owned and operated restaurant on Okeechobee Blvd",
+      "source": "https://biminitwistwpb.com/about/"
+     },
+     {
+      "claim": "Food at Bimini Twist is made to order using ingredients delivered daily",
+      "source": "https://biminitwistwpb.com/about/"
+     },
+     {
+      "claim": "Reservations are strongly encouraged at Bimini Twist",
+      "source": "https://biminitwistwpb.com/about/"
+     },
+     {
+      "claim": "Bimini Twist offers Complimentary Valet Parking on weekends",
+      "source": "https://biminitwistwpb.com/about/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ-xwHzXu954gRa4gyPtvhO1k",
+   "name": "Puddle Jumpers Lakeside Grill & Bar",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://puddlejumpersfl.com/about/",
+     "source_name": "Puddle Jumpers Lakeside Grill & Bar \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Puddle Jumpers Lakeside Grill offers casual lakeside dining in Downtown Tavares",
+      "Puddle Jumpers overlooks Lake Dora and the Tavares Seaplane Base",
+      "The menu features burgers, fresh seafood, crisp salads, and Lake Dora Iced Tea",
+      "Hours are Sunday - Thursday: 11:00 a.m. - 9:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Casual lakeside dining overlooking Lake Dora and the Tavares Seaplane Base",
+    "why_here": "Go for casual lakeside dining overlooking Lake Dora and the Tavares Seaplane Base, with burgers, fresh seafood, crisp salads and Lake Dora Iced Tea on the menu in Downtown Tavares.",
+    "know_before": "Hours are Sunday - Thursday: 11:00 a.m. - 9:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://puddlejumpersfl.com/about/"
+     ],
+     "why_here": [
+      "https://puddlejumpersfl.com/about/"
+     ],
+     "know_before": [
+      "https://puddlejumpersfl.com/about/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Puddle Jumpers Lakeside Grill offers casual lakeside dining in Downtown Tavares",
+      "source": "https://puddlejumpersfl.com/about/"
+     },
+     {
+      "claim": "Puddle Jumpers overlooks Lake Dora and the Tavares Seaplane Base",
+      "source": "https://puddlejumpersfl.com/about/"
+     },
+     {
+      "claim": "The menu features burgers, fresh seafood, crisp salads, and Lake Dora Iced Tea",
+      "source": "https://puddlejumpersfl.com/about/"
+     },
+     {
+      "claim": "Hours are Sunday - Thursday: 11:00 a.m. - 9:00 p.m.",
+      "source": "https://puddlejumpersfl.com/about/"
+     }
+    ]
+   }
+  }
+ ]
+}
