@@ -1,0 +1,35 @@
+# Weekly probe of every hand curated partner destination in
+# lib/partnerOfferRegistry.js. Read only: GETs public partner pages, never the
+# affiliate redirector, so no clicks are created. A DEAD row (404, 410, DNS)
+# fails the run and files an issue; bot walls (403, 429) are reported as
+# unknown and never page. Wednesdays 06:41 UTC, clear of affiliate-watchdog.
+name: partner-offer-health
+on:
+  schedule:
+    - cron: "41 6 * * 3"
+  workflow_dispatch:
+permissions:
+  contents: read
+  issues: write
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - run: node scripts/test-partner-offer-health.mjs
+      - name: Probe registry destinations
+        id: probe
+        run: |
+          set +e
+          node scripts/probe-partner-offer-registry.mjs 2>&1 | tee probe-output.txt
+          exit "${PIPESTATUS[0]}"
+      - name: Open issue on dead links
+        if: failure() && steps.probe.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          { echo "Weekly partner offer probe found dead destinations."; echo ""; echo "Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"; echo ""; echo '```'; cat probe-output.txt; echo '```'; } > issue.md
+          gh issue create --title "[partner-offer-health] dead partner links ($(date -u +%Y-%m-%d))" --body-file issue.md

@@ -284,6 +284,8 @@ ok(classifyHealth([]).incidents.length === 0 && classifyHealth(null).incidents.l
     "canary.yml: the heartbeat job needs all five canary jobs, so its beat is the aggregate rather than one job's luck");
   ok(/outcome=failure/.test(canary) && /jobs not green/.test(canary),
     "canary.yml: a non-green job produces a FAILURE beat naming which jobs were not green");
+  ok(/outcome=failure[\s\S]*\bexit 1\b/.test(canary),
+    "canary.yml: the heartbeat job itself exits 1 when a needed job is not success — a green heartbeat check must not launder a cancelled or failed sibling");
 
   // Self-tests for the stripper, so a future edit cannot satisfy these checks
   // with a comment.
