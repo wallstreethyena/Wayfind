@@ -242,7 +242,10 @@ function mergedRows(railId, rows) {
   ok(sharedPagingCall.test(daypart), "DaypartRail calls the render/page ownership separator");
   ok((daypart.match(new RegExp(staleScopeCall.source, "g")) || []).length === 1, "DaypartRail prevents a stale response from merging into the new city, poster, or daypart");
   ok((daypart.match(new RegExp(scopedStateCall.source, "g")) || []).length === 4, "DaypartRail stores continuation state by scope and clears it through both stale completion paths");
-  ok(callbackPropCount(daypart) === 3, "Breakfast, Actually Worth Eating, and Creators Pick receive hasMore plus the real next-page callback");
+  ok(callbackPropCount(daypart) === 4, "Breakfast, Actually Worth Eating, Creators Pick and Trending Now receive hasMore plus the real next-page callback");
+  // Trending Now (v31) has no scroll end of its own: it buckets the whole pool onto five shelves, so it drains every page on mount.
+  ok(/if \(active && hasMore && !loadingMore && typeof onLoadMore === "function"\) onLoadMore\(\);/.test(read("app/components/TrendingRails.js")),
+    "Trending Now drains the shared pool page by page until hasMore is false");
   ok(rendererCallback.test(breakfast), "Breakfast scroll end asks for the next shared source page");
   ok(rendererCallback.test(worthEating), "Actually Worth Eating scroll end asks for the next shared source page");
   ok(/shouldAutoLoadCreatorPage\(\{[\s\S]{0,180}lastAttemptKey: lastAutoAttempt\.current/.test(creatorPicks)
@@ -258,8 +261,8 @@ function mergedRows(railId, rows) {
   const unwiredMutant = daypart.replace("onLoadMore={loadSelectedRailPage}", "onLoadMore={undefined}");
   ok(!sharedPagingCall.test(ownershipMutant), "RED-PROVE: the old ownership-only gate does not satisfy the shared-paging wire");
   ok((staleCityMutant.match(new RegExp(staleScopeCall.source, "g")) || []).length === 0, "RED-PROVE: removing the stale-city gate from a page response makes the rejection check fail");
-  ok((posterStateMutant.match(/railPageState\[selectedPageScope\]/g) || []).length === 5, "RED-PROVE: reading one state site by poster id instead of scope makes the lifecycle wiring check fail");
-  ok(callbackPropCount(unwiredMutant) === 2, "RED-PROVE: removing one composer callback makes the three-renderer wiring check fail");
+  ok((posterStateMutant.match(/railPageState\[selectedPageScope\]/g) || []).length === 6, "RED-PROVE: reading one state site by poster id instead of scope makes the lifecycle wiring check fail");
+  ok(callbackPropCount(unwiredMutant) === 3, "RED-PROVE: removing one composer callback makes the four-renderer wiring check fail");
 }
 
 if (fail) {

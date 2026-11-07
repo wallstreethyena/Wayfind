@@ -10,23 +10,36 @@ import { dayStr } from "../../../lib/commandCenter/time.js";
 
 const CANON = "https://www.gowayfind.com";
 
-async function warmOsm() {
+// One market at a time: overpass-api.de grants each IP two query slots, and
+// the old 4-wide fan-out (each racing two hosts) starved itself into 429s, so
+// every market came back unavailable. The route's cron-only warm mode spends
+// up to WARM_BUDGET_MS on one Overpass slot and only reports "live" once the
+// result is saved. Markets already fresh answer from cache in ~100ms, so
+// coverage accumulates day over day; whatever the time box leaves for
+// tomorrow is reported as deferred, never as unavailable.
+const WARM_DEADLINE_MS = 38000;
+const WARM_BUDGET_MS = 15000;
+async function warmOsm(startedAt = Date.now()) {
   try {
+    const secret = process.env.CRON_SECRET;
     const { LANDING_CITIES } = await import("../../../lib/landingCities.js");
     const cities = Object.values(LANDING_CITIES);
-    let live = 0, cached = 0, missed = 0;
-    for (let index = 0; index < cities.length; index += 4) {
-      const batch = await Promise.all(cities.slice(index, index + 4).map(async (city) => {
-        try {
-          const response = await fetch(`${CANON}/api/outdoors?lat=${city.lat.toFixed(4)}&lng=${city.lng.toFixed(4)}&radius=27359`, { cache: "no-store", signal: AbortSignal.timeout(5500) });
-          if (!response.ok) return "miss";
+    let live = 0, cached = 0, stale = 0, missed = 0, deferred = 0;
+    for (const city of cities) {
+      const left = WARM_DEADLINE_MS - (Date.now() - startedAt);
+      if (left < 5000) { deferred++; continue; }
+      const budget = Math.min(WARM_BUDGET_MS, left - 1500);
+      let result = "miss";
+      try {
+        const response = await fetch(`${CANON}/api/outdoors?lat=${city.lat.toFixed(4)}&lng=${city.lng.toFixed(4)}&radius=27359&warm=1&budget=${budget}`, { cache: "no-store", headers: { authorization: `Bearer ${secret}` }, signal: AbortSignal.timeout(budget + 1500) });
+        if (response.ok) {
           const data = await response.json();
-          return data.counts && data.counts.osm !== "unavailable" ? (data.counts.osmFrom === "cached" ? "cached" : "live") : "miss";
-        } catch { return "miss"; }
-      }));
-      for (const result of batch) result === "live" ? live++ : result === "cached" ? cached++ : missed++;
+          result = data.osm === "live" ? "live" : data.osm === "cached" ? "cached" : data.osm === "stale" ? "stale" : "miss";
+        }
+      } catch {}
+      if (result === "live") live++; else if (result === "cached") cached++; else if (result === "stale") stale++; else missed++;
     }
-    return { live, cached, missed, total: cities.length };
+    return { live, cached, stale, missed, deferred, total: cities.length };
   } catch { return null; }
 }
 

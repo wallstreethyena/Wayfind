@@ -9,6 +9,9 @@ import { EVENT_WINDOWS } from "../../lib/eventsList";
 import { LANDING_CITIES } from "../../lib/landingCities";
 import { eventVenueImageSrc } from "../../lib/eventPageImage.js";
 import { packForCache, unpackFromCache } from "../../lib/cachePack.js";
+import { occurrenceDatesFor } from "../../lib/eventOccurrences.js";
+import { nextOpenDay } from "../../lib/scheduleNoteDays.js";
+import { assessedScore } from "../../lib/eventAssessment.js";
 import {
   fetchCuratedEvents,
   isEligible,
@@ -96,9 +99,16 @@ function eventsForWindow(rows, today) {
     const end = e.end_date || e.start_date;
     if (!start || start > last || end < today) continue;
     if (start < today && Date.parse(end) - Date.parse(start) > MAX_RUN_DAYS * 86400000) continue;
-    out.push({ e, day: start < today ? today : start });
+    // The first day it actually runs: a verified day list, else the note's stated rule
+    // (weekdays, closed dates, "select nights" = opening day only). Never the envelope alone,
+    // which filed a Thursday-to-Sunday farm under Wednesday.
+    const listed = occurrenceDatesFor(e);
+    const day = listed ? listed.find((d) => d >= today && d <= last && d >= start && d <= end) || null : nextOpenDay(e, today, last);
+    if (!day) continue;
+    out.push({ e, day });
   }
-  out.sort((a, b) => (a.day < b.day ? -1 : a.day > b.day ? 1 : (b.e.editorial_score || 0) - (a.e.editorial_score || 0)));
+  // Within a day, the shared assessment policy: an unassessed 0 ranks at the neutral prior.
+  out.sort((a, b) => (a.day < b.day ? -1 : a.day > b.day ? 1 : assessedScore(b.e, "editorial_score") - assessedScore(a.e, "editorial_score")));
   return out;
 }
 

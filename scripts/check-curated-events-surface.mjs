@@ -139,7 +139,7 @@ ok(!/curatedSceneImage|stockPhotoPool|\/api\/stock-photo/.test(route.replace(/\/
   "the events feed attaches no stock scene photo to a curated event, and the owner's reason is written where the next editor will read it");
 
 const screen = readFileSync(new URL("../app/components/screens/Events.js", import.meta.url), "utf8");
-ok(/aria-label="Worth planning for"/.test(screen),
+ok(/title="Worth planning for"/.test(screen),
   "the events screen still carries the 'Worth planning for' shelf — without it the curated schedule is in the payload and invisible on screen");
 ok(/e\.curated && e\.dest/.test(screen), "…and that shelf is fed by the curated rows themselves");
 

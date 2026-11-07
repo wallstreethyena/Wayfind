@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { CHRISTMAS_RESEARCH_ROWS } from "../lib/christmasResearch.js";
 // scripts/check-christmas-venue-matches.mjs: every Christmas venue matched to a
 // wf_inventory place (data/christmas-venue-matches.json) is that venue, in the
 // same city, and its card really asks for that place's photo.
@@ -32,7 +33,7 @@ let pass = 0, fail = 0;
 const ok = (c, m) => { c ? pass++ : (fail++, console.log("  FAIL:", m)); };
 
 const DOC = JSON.parse(read("data/christmas-venue-matches.json"));
-const RAW = JSON.parse(read("data/christmas-2026-research.json"));
+const RAW = CHRISTMAS_RESEARCH_ROWS;
 const byId = new Map(RAW.map((r) => [r.id, r]));
 
 const miles = (a, b) => {

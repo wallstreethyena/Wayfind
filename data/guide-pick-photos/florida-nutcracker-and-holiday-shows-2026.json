@@ -1,66 +1,137 @@
 {
   "slug": "florida-nutcracker-and-holiday-shows-2026",
-  "picks": {},
-  "gaps": {
+  "picks": {
     "The Nutcracker at Orlando Ballet": {
-      "reason": "google-only",
+      "src": "/guides/picks/florida-nutcracker-and-holiday-shows-2026/orlando-ballet-nutcracker-dr-phillips-center.webp",
+      "width": 1400,
+      "height": 1050,
+      "alt": "Orlando Ballet's The Nutcracker curtain glowing red on stage in a wood-paneled theater at the Dr. Phillips Center in Orlando, with audience members taking their seats",
+      "caption": "Orlando Ballet's Nutcracker curtain before a performance at the Dr. Phillips Center. This is an earlier production; the 2026 show itself is not pictured.",
+      "credit": "Antony-22",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Dr._Phillips_Center_2024.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Dr._Phillips_Center_2024.jpg",
+      "author": "Antony-22",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
       "placeId": "ChIJ001Ra3p754gRq1bFeHUUxXY",
-      "needsPermissionFrom": null,
-      "note": "No licensed photo of this exact place or event has been sourced yet (Wikimedia Commons, Openverse and Flickr checked 2026-11-03, with Commons heavily rate limited). Guide pages never store or show cached Google photos, so this pick shows a reviewed, credited topic photo captioned \"Illustrative\" (lib/guideContextPhotos.js), never presented as this place. Licensed photo sourcing backlog."
+      "verification": "Viewed the downloaded 1920px render. File description reads 'Interior of the Dr. Phillips Center for the Performing Arts in Orlando, Florida in 2024' and the stage curtain visibly reads 'Orlando Ballet presents The Nutcracker'. Licence (CC BY-SA 4.0) and author (Antony-22) read from the Commons File page; original 4032x3024. Audience is distant and incidental. The file does not say which hall (Steinmetz vs Walt Disney Theater), so caption names only the Dr. Phillips Center. Uncropped 4:3.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-11-05"
     },
     "Miami City Ballet: George Balanchine's The Nutcracker": {
-      "reason": "no-verified-source",
+      "src": "/guides/picks/florida-nutcracker-and-holiday-shows-2026/florida-nutcracker-and-holiday-shows-2026-hero.webp",
+      "width": 1280,
+      "height": 853,
+      "alt": "The angular gray stone and glass exterior of the Adrienne Arsht Center for the Performing Arts in Miami under a blue sky with palm trees in front and a high rise behind",
+      "caption": "The Adrienne Arsht Center in Miami, home of the Ziff Ballet Opera House where Miami City Ballet dances The Nutcracker. The event itself is not pictured.",
+      "credit": "D. Benjamin Miller",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Adrienne_Arsht_Center,_March_31,_2023.jpg",
+      "license": "CC0 1.0 Universal",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Adrienne_Arsht_Center,_March_31,_2023.jpg",
+      "author": "D. Benjamin Miller",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped to 1280x853 and converted to WebP. Adaptation retains the source license.",
+      "sourceKind": "commons",
       "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "No licensed photo of this exact place or event has been sourced yet (Wikimedia Commons, Openverse and Flickr checked 2026-11-03, with Commons heavily rate limited). Guide pages never store or show cached Google photos, so this pick shows a reviewed, credited topic photo captioned \"Illustrative\" (lib/guideContextPhotos.js), never presented as this place. Licensed photo sourcing backlog."
+      "verification": "Reused the already reviewed hero entry for the same venue (sign reads Adrienne Arsht Center, CC0, reviewed 2026-11-03). Same exact venue as the pick's Ziff Ballet Opera House at the Arsht Center. Public file exists at the path above.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-11-05"
     },
+    "The Nutcracker at Tallahassee Ballet": {
+      "src": "/guides/picks/florida-nutcracker-and-holiday-shows-2026/ruby-diamond-auditorium-westcott-building-fsu.webp",
+      "width": 1300,
+      "height": 866,
+      "alt": "The red brick Westcott Building at Florida State University with its twin crenellated towers, a turquoise fountain and a wide brick plaza in front",
+      "caption": "The Westcott Building at Florida State University, whose entrance is signed Ruby Diamond Auditorium, home of Ruby Diamond Concert Hall. The event itself is not pictured.",
+      "credit": "Ernie Stephens",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Westcott_Building_and_fountain_at_Florida_State_University.jpg",
+      "license": "CC0 1.0 Universal",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Westcott_Building_and_fountain_at_Florida_State_University.jpg",
+      "author": "Ernie Stephens",
+      "position": "50% 40%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP.",
+      "sourceKind": "commons",
+      "placeId": null,
+      "verification": "Viewed the downloaded render. Entrance lettering reads 'WESTCOTT BUILDING / RUBY DIAMOND AUDITORIUM'; the Commons description names the James D. Westcott Building at FSU, and Ruby Diamond Concert Hall is housed in it. Licence read from the File page: CC0 1.0 Universal (Pixabay CC0 import), author Ernie Stephens, original 5893x3934, no people. Cropped 3:2 to trim empty plaza.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-11-05"
+    },
+    "Holiday Pops with The Florida Orchestra": {
+      "src": "/guides/picks/florida-nutcracker-and-holiday-shows-2026/mahaffey-theater-st-petersburg.webp",
+      "width": 1400,
+      "height": 933,
+      "alt": "The colonnaded entrance of the Mahaffey Theater in St. Petersburg under a deep blue sky, with a tall Duke Energy Center for the Arts sign tower",
+      "caption": "The Mahaffey Theater in St. Petersburg, one of the Tampa Bay halls where the Florida Orchestra plays its holiday program. The event itself is not pictured.",
+      "credit": "Taylor Bennett Jordan",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Mahaffey_Theater.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Mahaffey_Theater.jpg",
+      "author": "Taylor Bennett Jordan",
+      "position": "50% 40%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
+      "placeId": null,
+      "verification": "Viewed the downloaded render. Roof letters spell MAHAFFEY THEATER and the tower reads Duke Energy Center For The Arts; Commons description 'The Mahaffey Theater colonnade'. Licence CC BY-SA 4.0 and author read from the File page, original 6240x4160, no people. The packet blurb names Tampa, St. Petersburg and Clearwater, so the Mahaffey is one of the real venues (Straz exterior in Commons was a weaker, cluttered shot). Uncropped 3:2.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-11-05"
+    },
+    "Holiday Pops with the Jacksonville Symphony": {
+      "src": "/guides/picks/florida-nutcracker-and-holiday-shows-2026/times-union-center-jacksonville.webp",
+      "width": 1400,
+      "height": 933,
+      "alt": "The entrance canopy of the Times-Union Center for the Performing Arts in Jacksonville with palms and a large curved hall behind",
+      "caption": "The Times-Union Center for the Performing Arts in Jacksonville, home of Jacoby Symphony Hall. The event itself is not pictured.",
+      "credit": "Michael Rivera",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Times_Union_Center,_Water_St_1.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Times_Union_Center,_Water_St_1.jpg",
+      "author": "Michael Rivera",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
+      "placeId": null,
+      "verification": "Viewed the downloaded render. Entrance canopy lettering reads TIMES-UNION CENTER FOR THE PERFORMING ARTS; Commons description 'Times Union Center, Water St, Jacksonville, Duval County, Florida', filed in Category:Times Union Center (Jacksonville, Florida), which Wikipedia links for Jacoby Symphony Hall. Licence CC BY-SA 4.0 and author Michael Rivera read from the File page, original 5184x3456. Two parked work trucks are incidental, no people. Cropped 3:2 to trim road.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-11-05"
+    }
+  },
+  "gaps": {
     "The Nutcracker at Northwest Florida Ballet": {
       "reason": "no-verified-source",
       "placeId": null,
       "needsPermissionFrom": null,
-      "note": "No licensed photo of this exact place or event has been sourced yet (Wikimedia Commons, Openverse and Flickr checked 2026-11-03, with Commons heavily rate limited). Guide pages never store or show cached Google photos, so this pick shows a reviewed, credited topic photo captioned \"Illustrative\" (lib/guideContextPhotos.js), never presented as this place. Licensed photo sourcing backlog."
-    },
-    "The Nutcracker at Tallahassee Ballet": {
-      "reason": "no-verified-source",
-      "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "No licensed photo of this exact place or event has been sourced yet (Wikimedia Commons, Openverse and Flickr checked 2026-11-03, with Commons heavily rate limited). Guide pages never store or show cached Google photos, so this pick shows a reviewed, credited topic photo captioned \"Illustrative\" (lib/guideContextPhotos.js), never presented as this place. Licensed photo sourcing backlog."
+      "note": "No licensed photo of this exact place or event was found (Wikimedia Commons categories and file pages and Flickr single photo pages checked 2026-11-05). This guide uses Wayfind's neutral fallback, so the pick shows the \"Photo unavailable\" tile, never a context or Google photo. Licensed photo sourcing backlog."
     },
     "Nutcracker Key West": {
       "reason": "no-verified-source",
       "placeId": null,
       "needsPermissionFrom": null,
-      "note": "No licensed photo of this exact place or event has been sourced yet (Wikimedia Commons, Openverse and Flickr checked 2026-11-03, with Commons heavily rate limited). Guide pages never store or show cached Google photos, so this pick shows a reviewed, credited topic photo captioned \"Illustrative\" (lib/guideContextPhotos.js), never presented as this place. Licensed photo sourcing backlog."
+      "note": "No licensed photo of this exact place or event was found (Wikimedia Commons categories and file pages and Flickr single photo pages checked 2026-11-05). This guide uses Wayfind's neutral fallback, so the pick shows the \"Photo unavailable\" tile, never a context or Google photo. Licensed photo sourcing backlog."
     },
     "A Christmas Carol at Gulfshore Playhouse": {
       "reason": "no-verified-source",
       "placeId": null,
       "needsPermissionFrom": null,
-      "note": "No licensed photo of this exact place or event has been sourced yet (Wikimedia Commons, Openverse and Flickr checked 2026-11-03, with Commons heavily rate limited). Guide pages never store or show cached Google photos, so this pick shows a reviewed, credited topic photo captioned \"Illustrative\" (lib/guideContextPhotos.js), never presented as this place. Licensed photo sourcing backlog."
+      "note": "No licensed photo of this exact place or event was found (Wikimedia Commons categories and file pages and Flickr single photo pages checked 2026-11-05). This guide uses Wayfind's neutral fallback, so the pick shows the \"Photo unavailable\" tile, never a context or Google photo. Licensed photo sourcing backlog."
     },
     "A Christmas Carol at Orlando Shakes": {
-      "reason": "google-only",
+      "reason": "no-verified-source",
       "placeId": "ChIJdZyA4pl654gRe829ktxXMOo",
       "needsPermissionFrom": null,
-      "note": "No licensed photo of this exact place or event has been sourced yet (Wikimedia Commons, Openverse and Flickr checked 2026-11-03, with Commons heavily rate limited). Guide pages never store or show cached Google photos, so this pick shows a reviewed, credited topic photo captioned \"Illustrative\" (lib/guideContextPhotos.js), never presented as this place. Licensed photo sourcing backlog."
+      "note": "No licensed photo of this exact place or event was found (Wikimedia Commons categories and file pages and Flickr single photo pages checked 2026-11-05). This guide uses Wayfind's neutral fallback, so the pick shows the \"Photo unavailable\" tile, never a context or Google photo. Licensed photo sourcing backlog."
     },
     "A Christmas Carol at Titusville Playhouse": {
       "reason": "no-verified-source",
       "placeId": null,
       "needsPermissionFrom": null,
-      "note": "No licensed photo of this exact place or event has been sourced yet (Wikimedia Commons, Openverse and Flickr checked 2026-11-03, with Commons heavily rate limited). Guide pages never store or show cached Google photos, so this pick shows a reviewed, credited topic photo captioned \"Illustrative\" (lib/guideContextPhotos.js), never presented as this place. Licensed photo sourcing backlog."
-    },
-    "Holiday Pops with The Florida Orchestra": {
-      "reason": "no-verified-source",
-      "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "No licensed photo of this exact place or event has been sourced yet (Wikimedia Commons, Openverse and Flickr checked 2026-11-03, with Commons heavily rate limited). Guide pages never store or show cached Google photos, so this pick shows a reviewed, credited topic photo captioned \"Illustrative\" (lib/guideContextPhotos.js), never presented as this place. Licensed photo sourcing backlog."
-    },
-    "Holiday Pops with the Jacksonville Symphony": {
-      "reason": "no-verified-source",
-      "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "No licensed photo of this exact place or event has been sourced yet (Wikimedia Commons, Openverse and Flickr checked 2026-11-03, with Commons heavily rate limited). Guide pages never store or show cached Google photos, so this pick shows a reviewed, credited topic photo captioned \"Illustrative\" (lib/guideContextPhotos.js), never presented as this place. Licensed photo sourcing backlog."
+      "note": "No licensed photo of this exact place or event was found (Wikimedia Commons categories and file pages and Flickr single photo pages checked 2026-11-05). This guide uses Wayfind's neutral fallback, so the pick shows the \"Photo unavailable\" tile, never a context or Google photo. Licensed photo sourcing backlog."
     }
   }
 }
