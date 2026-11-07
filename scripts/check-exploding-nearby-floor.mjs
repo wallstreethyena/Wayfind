@@ -194,7 +194,10 @@ ok((ui.match(/UNAVAILABLE_COPY/g) || []).length >= 1,
   "the unavailable sentence has one name; the rail does not hardcode a second copy as the 502 default");
 
 const dpr = strip(read("app/components/DaypartRail.js"));
-ok(/<ExplodingNearby[\s/>]/.test(dpr), "positive control: the trending drop still mounts ExplodingNearby");
+// v31 (owner, 2026-11-05): the Trending drop was rebuilt as TrendingRails; the
+// module and its floor law above stay tested for any surface that mounts it.
+ok(/<ExplodingNearby[\s/>]/.test(dpr) || /selRail\.id === "trending" \? \(\s*<TrendingRails[\s/>]/.test(dpr),
+  "positive control: the trending drop mounts ExplodingNearby, or its v31 replacement TrendingRails");
 
 ok(typeof OWNER_LIST_EXPLANATION === "string" && OWNER_LIST_EXPLANATION.length > 0, "owner-list matches carry a controlled explanation so selectExplodingNearby cannot drop them");
 ok(!/650%|1,040%|search(?:es)? up/i.test(OWNER_LIST_EXPLANATION),
