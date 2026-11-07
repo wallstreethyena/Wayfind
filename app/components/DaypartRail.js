@@ -74,7 +74,7 @@ const ExtraMilesTail = dynamic(() => import("./ExtraMilesTail"), { ssr: false, l
 // Data: Google walk first (loadProvidedTrendList), then /api/trends/nearby
 // as the owner-list floor when the walk 502/503s or finds nothing. The
 // nearby route fail-softs missing config to that same in-repo list.
-const ExplodingNearby = dynamic(() => import("./ExplodingNearby"), { ssr: false });
+const TrendingRails = dynamic(() => import("./TrendingRails"), { ssr: false });
 // v8.92 — same lazy contract as the trend list above it: the Date Night intent
 // rails render only inside their own open drop, so none of this reaches the
 // homepage's critical path (scripts/check-bundle.mjs, and the reason
@@ -98,7 +98,7 @@ const CreatorPicksRails = dynamic(() => import("./CreatorPicksRails"), { ssr: fa
 // Warm only the poster the reader points to or focuses. Keep all other lazy
 // chunks off the critical path and leave public inventory reads to the opener.
 const POSTER_MODULES = {
-  trending: () => import("./ExplodingNearby"),
+  trending: () => import("./TrendingRails"),
   datenight: () => import("./DateNightRails"),
   birthday: () => import("./BirthdayRails"),
   breakfast: () => import("./BreakfastRails"),
@@ -1316,7 +1316,7 @@ export default function DaypartRail({
   // Neither may fall through to the generic place pool: doing so made the
   // Events drop begin with real happenings and end with buildings where an
   // event might happen on some other date.
-  const railOwnsItsOwnAnswer = !!(selRail && (selRail.id === "season" || selRail.id === "datenight" || selRail.id === "birthday" || selRail.id === "family" || selRail.id === "breakfast" || selRail.id === "break" || selRail.id === "eat" || selRail.id === "today" || selRail.id === "augtober" || selRail.id === "halloween" || selRail.id === "tonight" || selRail.id === "locals" || selRail.id === "christmas"));
+  const railOwnsItsOwnAnswer = !!(selRail && (selRail.id === "season" || selRail.id === "datenight" || selRail.id === "birthday" || selRail.id === "family" || selRail.id === "breakfast" || selRail.id === "break" || selRail.id === "eat" || selRail.id === "today" || selRail.id === "augtober" || selRail.id === "halloween" || selRail.id === "tonight" || selRail.id === "locals" || selRail.id === "christmas" || selRail.id === "trending"));
   // A COMPOSER FED BY /api/rails HAS NO ANSWER UNTIL /api/rails DOES (v9.0).
   // Breakfast and Actually Worth Eating do not fetch anything of their own:
   // they split `shown.places` into identity rails. So while the rails request
@@ -2130,27 +2130,30 @@ export default function DaypartRail({
             />
           ) : null}
 
+          {/* TRENDING NOW (owner, 2026-11-05): the poster opens five shelves —
+              Food, Festivals, Parties, Shows and Events, Everything Else —
+              mixing this week's happenings with the trending place pool.
+              Replaces the retired "Trending Near You" drop. */}
           {selRail && selRail.id === "trending" ? (
-            <ExplodingNearby
+            <TrendingRails
               active
-              hasRankedFallback={dropList.length > 0}
-              center={center || (Number.isFinite(lat) && Number.isFinite(lng) ? { lat, lng } : null)}
+              places={dropList}
+              placesPending={isPending(railLoad)}
+              hasMore={selectedHasMore}
+              loadingMore={railPageState[selectedPageScope] === "loading"}
+              onLoadMore={loadSelectedRailPage}
+              eventsSlot={eventsSlot}
               city={resolvedCityLabel}
               onOpenPlace={(p) => { if (!p || !p.id) return; if (onOpenPlace) { onOpenPlace(p); return; } if (typeof window !== "undefined") window.location.assign("/p/" + encodeURIComponent(p.id)); }}
               isSaved={isSaved || undefined}
               liked={liked || undefined}
               disliked={disliked || undefined}
-              onSave={onSave || undefined}
-              // v8.29.2 (owner: "this button for the likes still not working
-              // under the exploding trends near you"). This block passed
-              // isSaved and onSave and NOTHING else, so every thumb inside the
-              // trending drop was a live button over a no-op. The trend cards
-              // now get the same home-shell state the place cards below them
-              // get, in whichever shape the parent supplies.
               isLiked={isLiked || undefined}
               isDisliked={isDisliked || undefined}
+              onSave={onSave || undefined}
               onLike={onLike || undefined}
               onDislike={onDislike || undefined}
+              onShare={onShare || undefined}
             />
           ) : null}
           {selRail && selRail.guides ? (

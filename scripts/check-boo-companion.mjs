@@ -517,7 +517,7 @@ ok(/el\.matches\(PERCH_SEL\)\)\s*\{\s*const ps = perchSpot\(r, SIZE, b, ctl, MAX
   ok(/HIT_SEL\s*=\s*CONTROL_SEL[^;]*summary[^;]*label[^;]*\[role=link\][^;]*HEADER_SEL/.test(comp.replace(/\n/g, " ")) && /wf-topbar/.test(comp.match(/const HEADER_SEL = "[^"]*"/)[0]) && /wf-navtabs/.test(comp) && /boo-goto/.test(comp) && /boo-buy/.test(comp) && /boo-picks/.test(comp), "control list covers links, buttons, inputs, summary, label, role button/link, header rows, buy, goto, picks, chips");
   // Second line of defense only: a tap that still lands on the hit while a control is under it is handed over and counted.
   ok(/e\.detail > 0 && underTap\(e\)/.test(comp) && /elementsFromPoint\(/.test(comp) && /__booBackstop/.test(comp), "backstop: a tap on the hit with a control under it goes to the control (counted in window.__booBackstop)");
-  ok(/hitRef\.current\.focus\(/.test(comp.slice(comp.indexOf("const closeSheet"))), "closing the sheet returns focus to the hit button");
+  ok(/const back = hitRef\.current \|\| document\.querySelector\("\.wf-sd-av"\); if \(back\) back\.focus\(/.test(comp.slice(comp.indexOf("const closeSheet"))), "closing the sheet returns focus to the hit button (Boo) or Santa's dock avatar");
   // Reduced motion: bottom left, lifted clear of nav and sticky bars.
   ok(/const settleReduced = /.test(comp) && /pickClearSpot\(SIZE, b, list, \{ x: b\.minX, y: b\.maxY \}, rand, 0, MAX_COVER, null, txt\)/.test(comp), "reduced motion spot is checked clear of controls and text");
 }
