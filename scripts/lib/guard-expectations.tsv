@@ -290,7 +290,7 @@ scripts/check-map-not-a-dead-end.mjs	0	CALL	blocks-ci-and-deploy	1	-	16	0	0	68e2
 scripts/check-map-note-attribution.mjs	0	CALL	blocks-ci-and-deploy	1	-	48	0	0	91336291112da8fb851db5dfa1fcc89a31472fac56b1675af37e32d4a4a85bc9
 scripts/check-map-pin-glyph.mjs	0	CALL	blocks-ci-and-deploy	1	-	30	0	0	72eab473bbcf0ca377c55933e4a605b70adac852eee738d550f44f8316d95a16
 scripts/check-map-place-card.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	38	1	0	53277f66dde88adb29b00e82c9c0ae75c6cac733a3b843db8433bf1ea3bde390
-scripts/check-map-search-area.mjs	0	CALL	blocks-ci-and-deploy	1	-	22	0	0	4ec06ae49fa0aa71fb9ef943016982045fd24a72980371c3c088ba1938ba489f
+scripts/check-map-search-area.mjs	0	CALL	blocks-ci-and-deploy	1	-	29	0	0	08161053a7e0c85ce0582ef00a6a74ca476fde992183c558a1c316b16010c4e6
 scripts/check-maps-deferral.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	14	2	3	d2f167c2fd6081bc5812034eada9ec86d7d9b1ce508cbae75091d104a3bf94df
 scripts/check-market-photo-honesty.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	6	1	0	36f53d7cc8ac9ff6712686efd16d684ef2e61499affa1b9277f00ebedf14936c
 scripts/check-market-photo.mjs	0	CALL	blocks-ci-and-deploy	1	-	12	0	0	f19ecdadd37bad7665f8f784a910fbf527fe8f464eb63a2ac6f2c707a26bad4a
@@ -494,7 +494,7 @@ scripts/test-analytics-write-suppression.mjs	0	CALL	blocks-ci-and-deploy	1	-	8	0
 scripts/test-analytics.mjs	0	CALL	blocks-ci-and-deploy	1	-	133	0	0	8f74781ff9edb598679327a1f7d0f0f24bce0613f3dadd81144efca8af637121
 scripts/test-api-guard.mjs	0	RENDER	blocks-ci-and-deploy	1	-	49	0	0	f77aff098b3e24998acdc47c2b9998ff63440acbdccfdd64feaf338945895508
 scripts/test-app-rating.mjs	0	CALL	blocks-ci-and-deploy	1	-	42	0	0	5b4dc84cbd73a12c5c66af3e8f9048c363058a2ab5b4305956bd33ec217931eb
-scripts/test-apple-explorer-map.mjs	0	CALL	blocks-ci-and-deploy	1	-	62	0	0	e56859037273f6fb71fc1326e3cdfa8804cb19e491becbca0562514d02dbbff8
+scripts/test-apple-explorer-map.mjs	0	CALL	blocks-ci-and-deploy	1	-	66	0	0	6d07197b4864a0828b19d566832305d758ec6424b45a55efb73d4e9352f82d04
 scripts/test-apple-free-pins.mjs	0	CALL	blocks-ci-and-deploy	1	-	114	0	0	bf93ea8e429ab282da0f81dae2fb0f6822d16b17b75e921d8c2294ccd09b4944
 scripts/test-apple-map-recovery-hook.mjs	0	RENDER	blocks-ci-and-deploy	1	-	95	0	0	574319297f2c469099d8e2e74464b0164a11bbce0d40023dd5faf8d88790041e
 scripts/test-apple-map-recovery.mjs	0	CALL	blocks-ci-and-deploy	1	-	134	0	0	75fae08edc9da757bf5cc8a4f8c057dd31d50bfcfad9b4190d1ddd27b58b9dc9
