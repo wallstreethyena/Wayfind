@@ -977,7 +977,7 @@ export default function DetailSheet({ ctx }) {
               {/* Premium action dock (v6.72): verdict pill + Add to plan + primary CTA ladder. */}
               <div style={{ marginBottom: 16, padding: 10, background: "linear-gradient(145deg, rgba(25,34,47,.98), rgba(12,18,27,.98))", border: `1px solid ${C.border}`, borderRadius: 16, boxShadow: "0 16px 34px rgba(0,0,0,.24)" }}>
 
-                {!detail._event && <VerdictPill verdict={verdict} />}
+                {!detail._event && verdict && <VerdictPill verdict={verdict} />}
                 {/* v6.44: the second column exists only if BookingCTA will actually
                     render into it. Previously this was always 2 columns, so a place
                     with no booking target left "Directions" at half width beside an

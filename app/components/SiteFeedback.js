@@ -24,6 +24,9 @@ export function feedbackPathname(value) {
 
 const CSS = `
 .wf-site-feedback-trigger{position:fixed;right:max(10px,env(safe-area-inset-right));bottom:calc(104px + env(safe-area-inset-bottom));z-index:950;min-height:36px;padding:8px 12px;border:1px solid #2D3748;border-radius:999px;background:#161B22;color:#CBD5E1;font:700 12px var(--wf-sans,sans-serif);box-shadow:0 3px 14px rgba(0,0,0,.2);cursor:pointer}
+/* One Feedback control per screen: the place sheet mounts its own in-flow
+   trigger ([data-detail-feedback]), so the floating pill steps aside. */
+body:has([data-detail-feedback]) .wf-site-feedback-dock{display:none}
 .wf-site-feedback-trigger:focus-visible,.wf-site-feedback-close:focus-visible{outline:2px solid #F97316;outline-offset:3px}
 .wf-site-feedback-panel{position:fixed;right:max(10px,env(safe-area-inset-right));bottom:calc(104px + env(safe-area-inset-bottom));z-index:951;width:min(390px,calc(100vw - 20px - env(safe-area-inset-left) - env(safe-area-inset-right)));max-height:calc(100dvh - 132px - env(safe-area-inset-top) - env(safe-area-inset-bottom));overflow:auto;overscroll-behavior:contain;box-sizing:border-box;padding:12px;border:1px solid #2D3748;border-radius:16px;background:#161B22;color:#F1F5F9;box-shadow:0 10px 38px rgba(0,0,0,.4);font-family:var(--wf-sans,sans-serif)}
 .wf-site-feedback-panel-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:4px;padding-left:4px}
