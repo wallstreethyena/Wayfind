@@ -19,6 +19,9 @@ import { consolidateDestinations } from '../lib/venueContainment.js';
 import { computeTrendSignal, nearbyEventScore } from '../lib/trendSignal.js';
 import { creatorCountFor } from '../lib/creatorSignals.js';
 import { TRENDING_BONUS } from '../lib/wayfindScore.js';
+import { restampGoverned, governedScoreOf } from '../lib/lawfulOrder.js';
+import { stampOwnerPick } from '../lib/ownerBump.js';
+import { getCuratorPicks } from '../lib/curatorPicks.js';
 
 // Vercel runs prebuild with NODE_ENV=production, where React intentionally
 // disables act. Run the SAME mounted assertions in React's supported test
@@ -32,6 +35,22 @@ if (!process.argv.includes('--react-test-child')) {
 }
 
 const home = readFileSync(new URL('../app/home.js', import.meta.url), 'utf8');
+const memberBegin = home.indexOf('function withMemberSignal(');
+const memberEnd = home.indexOf('// The detail-open overlay', memberBegin);
+assert.ok(memberBegin > 0 && memberEnd > memberBegin, 'production member-signal updater exists');
+let memberRestamp = restampGoverned;
+if (process.argv.includes('--drop-member-provenance')) {
+  const law = readFileSync(new URL('../lib/lawfulOrder.js', import.meta.url), 'utf8');
+  const lawBegin = law.indexOf('export function restampGoverned(');
+  const lawEnd = law.indexOf('\n}\n', lawBegin) + 3;
+  assert.ok(lawBegin > 0 && lawEnd > lawBegin, 'production score restamper exists');
+  const mutant = law.slice(lawBegin, lawEnd).replace('export ', '')
+    .replace('if (fingerprint) Object.defineProperty(next, "__gsInputs", fingerprint);', '');
+  memberRestamp = new Function('governedScoreOf', `${mutant}; return restampGoverned;`)(governedScoreOf);
+}
+const withMemberSignal = new Function('Ranking', 'stampOwnerPick', 'getCuratorPicks', 'restampGoverned',
+  `${home.slice(memberBegin, memberEnd)}; return withMemberSignal;`
+)(Ranking, stampOwnerPick, getCuratorPicks, memberRestamp);
 const begin = home.indexOf('  const [trendTick, setTrendTick] =');
 const end = home.indexOf('  // 2026-10-06 (richer cards)', begin);
 assert.ok(begin > 0 && end > begin, 'actual homepage browse boundary exists');
@@ -312,6 +331,27 @@ try {
   await act(async () => answerPhoto(pendingArea, oldArea[1], {oh: {periods: []}, openNow: true, hoursAsOf: Date.now()}));
   assert.equal(scans, beforeArea.scans, 'old-region recovery cannot update the new search scope');
   assert.equal(result.view, beforeArea.view, 'old-region response leaves current browse results untouched');
+  for (const likes of [0, 1]) {
+    const memberRows = photoFixture(`member-${likes}`).map(p => ({...p, photo: '/brand/wayfind.png'}));
+    memberRows[1].wfScore = 89;
+    await mountPhoto(`member-${likes}`, memberRows, 'rated', {lat: 27, lng: -82}, {withTrend: true});
+    const abandonedMemberPopularity = finishPopularity;
+    const signal = {authors: 0, warnAuthors: 0, likes, ownerPick: false};
+    assert.equal(Ranking.memberDelta(signal), likes === 0 ? 0 : 0.3, 'member fixture exercises both unchanged and recalculated score paths');
+    assert.ok(Object.hasOwn(owned.places[1], '__gsInputs'), 'rated input has client score provenance before member enrichment');
+    await act(async () => owned.setPlaces(cur => withMemberSignal(cur, {[memberRows[1].id]: signal})));
+    const currentMemberPopularity = finishPopularity;
+    assert.notEqual(currentMemberPopularity, abandonedMemberPopularity, 'member replacement decorates the current same-ID row');
+    assert.equal(owned.places[1].wfScore, likes === 0 ? 89 : 89.3, 'the established member score math stays unchanged');
+    await act(async () => abandonedMemberPopularity({}));
+    await act(async () => currentMemberPopularity({[memberRows[1].id]: 0.95}));
+    assert.deepEqual(result.view.map(p => p.id), [memberRows[1].id, memberRows[0].id], `member delta ${likes}: late trend reranks after the real member updater`);
+    assert.equal(Object.getOwnPropertyDescriptor(owned.places[1], '__gsInputs')?.enumerable, false, 'member update retains private client provenance');
+    const serverRow = {...memberRows[0], governed_score: 97};
+    const serverNext = withMemberSignal([serverRow], {[serverRow.id]: signal})[0];
+    assert.equal(Object.hasOwn(serverNext, '__gsInputs'), false, 'member enrichment does not invent provenance for an upstream authoritative stamp');
+    if (likes === 0) assert.equal(serverNext.governed_score, 97, 'zero-delta member enrichment retains an authoritative server score');
+  }
   const canceled = photoFixture('canceled');
   await mountPhoto('canceled', canceled);
   const pendingCanceled = photoRequests.at(-1);
