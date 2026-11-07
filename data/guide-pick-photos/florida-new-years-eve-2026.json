@@ -1,66 +1,137 @@
 {
   "slug": "florida-new-years-eve-2026",
-  "picks": {},
-  "gaps": {
+  "picks": {
     "Light Up the NIGHT! New Year's Eve Firework Show": {
-      "reason": "no-verified-source",
+      "src": "/guides/picks/florida-new-years-eve-2026/the-crab-boil-giants-outback-crab-shack-and-crabby-s.webp",
+      "width": 1200,
+      "height": 1199,
+      "alt": "St. Johns County Ocean and Fishing Pier reaching into the Atlantic from St. Augustine Beach",
+      "caption": "The St. Johns County Ocean and Fishing Pier at St. Augustine Beach, the pier at Ocean Pier Park where the show is held. The fireworks are not pictured.",
+      "credit": "Cstickel(byu)",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:St._Johns_County_Ocean_%26_Fishing_Pier.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:St._Johns_County_Ocean_%26_Fishing_Pier.jpg",
+      "author": "Cstickel(byu)",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
       "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "No licensed photo of this exact place or event has been sourced yet (Wikimedia Commons, Openverse and Flickr checked 2026-11-03, with Commons heavily rate limited). Guide pages never store or show cached Google photos, so this pick shows a reviewed, credited topic photo captioned \"Illustrative\" (lib/guideContextPhotos.js), never presented as this place. Licensed photo sourcing backlog."
+      "verification": "Reused reviewed entry: Commons description names the St. Johns County Ocean & Fishing Pier, St. Augustine Beach. The pick's venue is St. Johns County Ocean Pier Park at 350 A1A Beach Blvd, the same pier. Square image (1200x1199); crop to 3:2 or 4:3 if the page needs it.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-11-05"
     },
+    "Jacksonville New Year's Eve Fireworks": {
+      "src": "/guides/picks/florida-new-years-eve-2026/jacksonville-new-years-eve-fireworks.webp",
+      "width": 1400,
+      "height": 933,
+      "alt": "The Acosta Bridge crossing the St. Johns River seen from the Jacksonville Landing dock, with a railroad lift bridge and downtown buildings beyond",
+      "caption": "The Acosta Bridge over the St. Johns River from the Jacksonville riverfront, the bridge the fireworks launch from. The fireworks are not pictured.",
+      "credit": "Michael Rivera",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Acosta_Bridge_from_Jacksonville_Landing.JPG",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Acosta_Bridge_from_Jacksonville_Landing.JPG",
+      "author": "Michael Rivera",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
+      "placeId": null,
+      "verification": "Commons description 'Acosta Bridge from Jacksonville Landing, Jacksonville, Duval County, Florida', category Acosta Bridge, author Michael Rivera, June 2014. Licence CC BY-SA 3.0 read from the file page. Source 4320x3240, viewed at 1600 wide: sharp, no people, no watermark. The pick says fireworks launch from a barge and from the Acosta Bridge. Rejected alternative: File:Downtown Jacksonville, New Acosta Bridge.jpg (nicer, CC BY-SA 2.0) has a 'Mark e image 2012' watermark.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-11-05"
+    },
+    "Sunset to Sparkle: Clearwater Beach New Year's Eve Celebration": {
+      "src": "/guides/picks/florida-new-years-eve-2026/clearwater-pier60.webp",
+      "width": 1400,
+      "height": 788,
+      "alt": "Pier 60 at Clearwater Beach, its wooden boardwalk and covered end structure on pilings over the Gulf",
+      "caption": "Pier 60 extends out over the Gulf at Clearwater Beach, the park where this celebration is held. The event itself is not pictured.",
+      "credit": "Jana Taylor",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Pier_60_at_Clearwater,_FL_2016_-_panoramio.jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Pier_60_at_Clearwater,_FL_2016_-_panoramio.jpg",
+      "author": "Jana Taylor",
+      "position": "60% 55%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
+      "placeId": "ChIJhS6CJtf2wogRF3KX4LwQviY",
+      "verification": "Reused reviewed entry (original 5312x2988 inspected 2026-09-23): wooden railed boardwalk and covered pavilion of Pier 60 over the Gulf, matching file title. The pick's venue is Pier 60 Park. Also exists: hanukkah hero (Pier 60 menorah, CC BY 2.0, Chabad.org Flickr) not used because it is a different event.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-11-05"
+    },
+    "Quantum Countdown at MOSI": {
+      "src": "/guides/picks/florida-new-years-eve-2026/quantum-countdown-at-mosi.webp",
+      "width": 1400,
+      "height": 1050,
+      "alt": "The purple GOTO Space Simulator Chronos star projector under the dome of the planetarium at the Museum of Science and Industry",
+      "caption": "The star projector in the planetarium at MOSI in Tampa, where the New Year's countdown Star Tour plays. The event itself is not pictured.",
+      "credit": "Tampa MOSI",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Planetarium_projector.JPG",
+      "license": "CC BY 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/3.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Planetarium_projector.JPG",
+      "author": "Tampa MOSI",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP.",
+      "sourceKind": "commons",
+      "placeId": "ChIJq6E9W8_HwogRUggO5759Ook",
+      "verification": "Commons description 'The planetarium's current projector', category Museum of Science & Industry (MOSI), Tampa, author 'Tampa MOSI' (the museum's own upload), 'GOTO Space Simulator CHRONOS' lettering visible. Licence CC BY 3.0 read from the file page. Source 3072x2304, viewed at 1600 wide: sharp, no people, no watermark. The pick says the planetarium Star Tour includes a New Year's countdown. Alternative rejected: File:FL Tampa MOSI01.jpg (exterior, CC BY-SA 4.0) is blurry with a tree hiding the building.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-11-05"
+    },
+    "Kids' New Year's Eve at LEGOLAND Florida": {
+      "src": "/guides/picks/florida-new-years-eve-2026/legoland-florida-entrance-welcome.webp",
+      "width": 1200,
+      "height": 800,
+      "alt": "The welcome entrance of LEGOLAND Florida in Winter Haven",
+      "caption": "The welcome entrance of LEGOLAND Florida in Winter Haven, where this event is held. The event itself is not pictured.",
+      "credit": "Josh Hallett",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Legoland_Florida_Entrance_Welcome.jpg",
+      "license": "CC BY-SA 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Legoland_Florida_Entrance_Welcome.jpg",
+      "author": "Josh Hallett",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
+      "placeId": "wfadd_legoland_florida",
+      "verification": "The same Commons file already verified and stored in Wayfind's wf_place_photo table for this place (status active, match confidence 1, verified 2026-10-24). Reused on 2026-11-05 for \"Kids' New Year's Eve at LEGOLAND Florida\", which the organizer holds at this venue; it was already the photo on this pick's place card.",
+      "sameAsCardPhoto": true,
+      "reviewedAt": "2026-11-05"
+    }
+  },
+  "gaps": {
     "Shrimp Drop": {
       "reason": "no-verified-source",
       "placeId": null,
       "needsPermissionFrom": null,
-      "note": "No licensed photo of this exact place or event has been sourced yet (Wikimedia Commons, Openverse and Flickr checked 2026-11-03, with Commons heavily rate limited). Guide pages never store or show cached Google photos, so this pick shows a reviewed, credited topic photo captioned \"Illustrative\" (lib/guideContextPhotos.js), never presented as this place. Licensed photo sourcing backlog."
-    },
-    "Jacksonville New Year's Eve Fireworks": {
-      "reason": "no-verified-source",
-      "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "No licensed photo of this exact place or event has been sourced yet (Wikimedia Commons, Openverse and Flickr checked 2026-11-03, with Commons heavily rate limited). Guide pages never store or show cached Google photos, so this pick shows a reviewed, credited topic photo captioned \"Illustrative\" (lib/guideContextPhotos.js), never presented as this place. Licensed photo sourcing backlog."
+      "note": "No licensed photo of this exact place or event was found (Wikimedia Commons categories and file pages and Flickr single photo pages checked 2026-11-05). This guide uses Wayfind's neutral fallback, so the pick shows the \"Photo unavailable\" tile, never a context or Google photo. Licensed photo sourcing backlog."
     },
     "NYE Fireworks on Treasure Island": {
       "reason": "no-verified-source",
       "placeId": null,
       "needsPermissionFrom": null,
-      "note": "No licensed photo of this exact place or event has been sourced yet (Wikimedia Commons, Openverse and Flickr checked 2026-11-03, with Commons heavily rate limited). Guide pages never store or show cached Google photos, so this pick shows a reviewed, credited topic photo captioned \"Illustrative\" (lib/guideContextPhotos.js), never presented as this place. Licensed photo sourcing backlog."
-    },
-    "Sunset to Sparkle: Clearwater Beach New Year's Eve Celebration": {
-      "reason": "google-only",
-      "placeId": "ChIJhS6CJtf2wogRF3KX4LwQviY",
-      "needsPermissionFrom": null,
-      "note": "No licensed photo of this exact place or event has been sourced yet (Wikimedia Commons, Openverse and Flickr checked 2026-11-03, with Commons heavily rate limited). Guide pages never store or show cached Google photos, so this pick shows a reviewed, credited topic photo captioned \"Illustrative\" (lib/guideContextPhotos.js), never presented as this place. Licensed photo sourcing backlog."
+      "note": "No licensed photo of this exact place or event was found (Wikimedia Commons categories and file pages and Flickr single photo pages checked 2026-11-05). This guide uses Wayfind's neutral fallback, so the pick shows the \"Photo unavailable\" tile, never a context or Google photo. Licensed photo sourcing backlog."
     },
     "New Year's Eve Beach Ball Drop": {
       "reason": "no-verified-source",
       "placeId": null,
       "needsPermissionFrom": null,
-      "note": "No licensed photo of this exact place or event has been sourced yet (Wikimedia Commons, Openverse and Flickr checked 2026-11-03, with Commons heavily rate limited). Guide pages never store or show cached Google photos, so this pick shows a reviewed, credited topic photo captioned \"Illustrative\" (lib/guideContextPhotos.js), never presented as this place. Licensed photo sourcing backlog."
+      "note": "No licensed photo of this exact place or event was found (Wikimedia Commons categories and file pages and Flickr single photo pages checked 2026-11-05). This guide uses Wayfind's neutral fallback, so the pick shows the \"Photo unavailable\" tile, never a context or Google photo. Licensed photo sourcing backlog."
     },
     "Downtown Fort Pierce Waterfront Fireworks": {
       "reason": "no-verified-source",
       "placeId": null,
       "needsPermissionFrom": null,
-      "note": "No licensed photo of this exact place or event has been sourced yet (Wikimedia Commons, Openverse and Flickr checked 2026-11-03, with Commons heavily rate limited). Guide pages never store or show cached Google photos, so this pick shows a reviewed, credited topic photo captioned \"Illustrative\" (lib/guideContextPhotos.js), never presented as this place. Licensed photo sourcing backlog."
+      "note": "No licensed photo of this exact place or event was found (Wikimedia Commons categories and file pages and Flickr single photo pages checked 2026-11-05). This guide uses Wayfind's neutral fallback, so the pick shows the \"Photo unavailable\" tile, never a context or Google photo. Licensed photo sourcing backlog."
     },
     "Key West New Year's Eve High Heel Shoe Drop": {
       "reason": "no-verified-source",
       "placeId": null,
       "needsPermissionFrom": null,
-      "note": "No licensed photo of this exact place or event has been sourced yet (Wikimedia Commons, Openverse and Flickr checked 2026-11-03, with Commons heavily rate limited). Guide pages never store or show cached Google photos, so this pick shows a reviewed, credited topic photo captioned \"Illustrative\" (lib/guideContextPhotos.js), never presented as this place. Licensed photo sourcing backlog."
-    },
-    "Quantum Countdown at MOSI": {
-      "reason": "google-only",
-      "placeId": "ChIJq6E9W8_HwogRUggO5759Ook",
-      "needsPermissionFrom": null,
-      "note": "No licensed photo of this exact place or event has been sourced yet (Wikimedia Commons, Openverse and Flickr checked 2026-11-03, with Commons heavily rate limited). Guide pages never store or show cached Google photos, so this pick shows a reviewed, credited topic photo captioned \"Illustrative\" (lib/guideContextPhotos.js), never presented as this place. Licensed photo sourcing backlog."
-    },
-    "Kids' New Year's Eve at LEGOLAND Florida": {
-      "reason": "google-only",
-      "placeId": "wfadd_legoland_florida",
-      "needsPermissionFrom": null,
-      "note": "No licensed photo of this exact place or event has been sourced yet (Wikimedia Commons, Openverse and Flickr checked 2026-11-03, with Commons heavily rate limited). Guide pages never store or show cached Google photos, so this pick shows a reviewed, credited topic photo captioned \"Illustrative\" (lib/guideContextPhotos.js), never presented as this place. Licensed photo sourcing backlog."
+      "note": "No licensed photo of this exact place or event was found (Wikimedia Commons categories and file pages and Flickr single photo pages checked 2026-11-05). This guide uses Wayfind's neutral fallback, so the pick shows the \"Photo unavailable\" tile, never a context or Google photo. Licensed photo sourcing backlog."
     }
   }
 }

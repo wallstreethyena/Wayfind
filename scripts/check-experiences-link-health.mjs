@@ -93,7 +93,7 @@ try { crons = JSON.parse(readFileSync(REPO + "vercel.json", "utf8")).crons || []
 ok(crons.some((c) => String(c.path || "").startsWith("/api/cron/experiences-link-health")), "vercel.json must schedule the sweep — a pipeline that ran once is indistinguishable from no pipeline");
 
 /* ── 7. the real route reports work truthfully ──────────────────────────── */
-async function runSweep({ selectHangs = false, bodyHangs = false, providerHangs = false, selectDelayMs = 0, settleMs = 0, realReadTimeout = false, readAdvanceMs = 0, probeAdvanceMs = 0, patchAdvanceMs = 0, selected = [], selectStatus = 200, patchStatus = 204, patchThrows = false, patchHangs = false, watchdogMs = null, productStatus = 200, productBody = { status: "ACTIVE" }, withViatorKey = true, products = {} } = {}) {
+async function runSweep({ selectHangs = false, bodyHangs = false, providerHangs = false, lateReadOrder = null, readAdvanceMs = 0, probeAdvanceMs = 0, patchAdvanceMs = 0, selected = [], selectStatus = 200, patchStatus = 204, patchThrows = false, patchHangs = false, watchdogMs = null, productStatus = 200, productBody = { status: "ACTIVE" }, withViatorKey = true, products = {} } = {}) {
   const saved = {
     CRON_SECRET: process.env.CRON_SECRET,
     VIATOR_API_KEY: process.env.VIATOR_API_KEY,
@@ -104,6 +104,7 @@ async function runSweep({ selectHangs = false, bodyHangs = false, providerHangs 
     LINK_HEALTH_WATCHDOG_MS: process.env.LINK_HEALTH_WATCHDOG_MS,
     fetch: globalThis.fetch,
     setTimeout: globalThis.setTimeout,
+    clearTimeout: globalThis.clearTimeout,
     now: Date.now,
   };
   process.env.CRON_SECRET = "cron-fixture";
@@ -116,10 +117,21 @@ async function runSweep({ selectHangs = false, bodyHangs = false, providerHangs 
   else delete process.env.VIATOR_API_KEY;
 
   const pulses = [], patches = [], providerRequests = [], signals = [];
+  const scheduled = [];
+  let releaseRead = null, lateReadSettled = 0;
   let clock = saved.now();
-  if (readAdvanceMs || probeAdvanceMs || patchAdvanceMs) Date.now = () => clock;
+  if (lateReadOrder || readAdvanceMs || probeAdvanceMs || patchAdvanceMs) Date.now = () => clock;
   // Exercise the real abort signal without waiting six seconds per fixture.
-  globalThis.setTimeout = (fn, ms, ...args) => saved.setTimeout(fn, ms === 6000 && !realReadTimeout ? 0 : ms, ...args);
+  globalThis.setTimeout = (fn, ms, ...args) => {
+    if (!lateReadOrder) return saved.setTimeout(fn, ms === 6000 ? 0 : ms, ...args);
+    const timer = { fn, ms, args, cleared: false };
+    scheduled.push(timer);
+    return timer;
+  };
+  globalThis.clearTimeout = timer => {
+    if (scheduled.includes(timer)) timer.cleared = true;
+    else saved.clearTimeout(timer);
+  };
   globalThis.fetch = async (url, init = {}) => {
     const u = String(url);
     const method = String(init.method || "GET").toUpperCase();
@@ -139,7 +151,10 @@ async function runSweep({ selectHangs = false, bodyHangs = false, providerHangs 
       signals.push(init.signal);
       clock += readAdvanceMs;
       if (selectHangs) return new Promise(() => {});
-      if (selectDelayMs) await new Promise((resolve) => saved.setTimeout(resolve, selectDelayMs));
+      if (lateReadOrder) {
+        await new Promise(resolve => { releaseRead = resolve; });
+        lateReadSettled++;
+      }
       if (bodyHangs) return { ok: true, status: 200, json: () => new Promise(() => {}) };
       return selectStatus === 200
         ? Response.json(selected)
@@ -168,15 +183,34 @@ async function runSweep({ selectHangs = false, bodyHangs = false, providerHangs 
   };
 
   try {
-    const response = await runExperienceLinkHealth(new Request("https://www.gowayfind.com/api/cron/experiences-link-health", {
+    const pending = runExperienceLinkHealth(new Request("https://www.gowayfind.com/api/cron/experiences-link-health", {
       headers: { authorization: "Bearer cron-fixture" },
     }));
+    if (lateReadOrder) {
+      // Prove that both timers and the uncooperative read exist before choosing
+      // which callback runs. Real short timers do not guarantee this ordering:
+      // the read timer can expire just before Date.now reaches the watchdog.
+      if (scheduled.length !== 2 || scheduled[0].ms !== watchdogMs || scheduled[1].ms !== watchdogMs || !releaseRead) {
+        throw new Error("late-read fixture did not reach both deadline timers and the pending read");
+      }
+      if (!["watchdog-first", "read-before-watchdog", "read-at-watchdog"].includes(lateReadOrder)) throw new Error("unknown timer order");
+      clock += watchdogMs - (lateReadOrder === "read-before-watchdog" ? 1 : 0);
+      const timer = scheduled[lateReadOrder === "watchdog-first" ? 0 : 1];
+      await timer.fn(...timer.args);
+    }
+    const response = await pending;
     const body = await response.json();
-    if (settleMs) await new Promise((resolve) => saved.setTimeout(resolve, settleMs));
-    return { response, body, pulses, patches, providerRequests, signals };
+    if (lateReadOrder) {
+      releaseRead();
+      // Drain the released read's promise continuation before asserting; this
+      // is an event-loop turn, not a guessed 90ms settling delay.
+      await new Promise(resolve => saved.setTimeout(resolve, 0));
+    }
+    return { response, body, pulses, patches, providerRequests, signals, lateReadSettled };
   } finally {
     globalThis.fetch = saved.fetch;
     globalThis.setTimeout = saved.setTimeout;
+    globalThis.clearTimeout = saved.clearTimeout;
     Date.now = saved.now;
     for (const key of ["CRON_SECRET", "VIATOR_API_KEY", "SUPABASE_URL", "SUPABASE_SERVICE_ROLE_KEY", "LINK_HEALTH_PACE_MS", "LINK_HEALTH_BACKOFF_MS", "LINK_HEALTH_WATCHDOG_MS"]) {
       if (saved[key] === undefined) delete process.env[key];
@@ -395,8 +429,14 @@ async function runSweep({ selectHangs = false, bodyHangs = false, providerHangs 
     ok(r.response.status === 500 && r.pulses.length === 1 && !/watchdog/.test(r.pulses[0].note), "hung fetch/body is bounded before the watchdog and records one failure");
     ok(r.signals.some((signal) => signal?.aborted) && r.patches.every((p) => !Object.hasOwn(p.body, "link_ok")), "timeout aborts its request and never kills unknown products");
   }
-  const lateRead = await runSweep({ selected: [{ product_code: "LATE" }], selectDelayMs: 60, selectStatus: 500, watchdogMs: 15, realReadTimeout: true, settleMs: 90 });
+  const lateRead = await runSweep({ selected: [{ product_code: "LATE" }], lateReadOrder: "watchdog-first", selectStatus: 500, watchdogMs: 15 });
   ok(lateRead.response.status === 500 && lateRead.pulses.length === 1 && /watchdog/.test(lateRead.pulses[0].note), "a read failing after the watchdog cannot emit a second pulse");
+  ok(lateRead.lateReadSettled === 1, "the late failed read actually settled before checking the single-pulse invariant");
+  const earlierBudget = await runSweep({ selected: [{ product_code: "EARLY-BUDGET" }], lateReadOrder: "read-before-watchdog", selectStatus: 500, watchdogMs: 15 });
+  ok(earlierBudget.response.status === 500 && earlierBudget.pulses.length === 1 && !/watchdog/.test(earlierBudget.pulses[0].note), "a read timer firing before the watchdog records exactly one truthful read failure");
+  ok(earlierBudget.lateReadSettled === 1 && earlierBudget.signals[0]?.aborted && earlierBudget.providerRequests.length === 0 && earlierBudget.patches.length === 0, "an earlier read timeout cancels later work even when the read ignores abort");
+  const sameDeadline = await runSweep({ selected: [{ product_code: "SAME-DEADLINE" }], lateReadOrder: "read-at-watchdog", selectStatus: 500, watchdogMs: 15 });
+  ok(sameDeadline.response.status === 500 && sameDeadline.pulses.length === 1 && /^watchdog: sweep cancelled/.test(sameDeadline.pulses[0].note), "the read timer winning at the watchdog deadline retains the watchdog cause and single pulse");
   // Deterministic form of the race that failed production builds #1912/#1962: the read
   // budget fires AT the watchdog deadline before the watchdog timer has aborted the signal.
   // Judged by the clock, the failure is still named a watchdog cancellation.
@@ -405,8 +445,9 @@ async function runSweep({ selectHangs = false, bodyHangs = false, providerHangs 
   const inTime = await runSweep({ selected: [{ product_code: "EARLY" }], selectStatus: 500, readAdvanceMs: 10, watchdogMs: 5000 });
   ok(inTime.pulses.length === 1 && !/watchdog/.test(inTime.pulses[0].note || ""), "control: a read failing well inside the watchdog keeps its own reason");
   ok(lateRead.signals[0]?.aborted && lateRead.providerRequests.length === 0 && lateRead.patches.length === 0, "watchdog cancellation prevents all later provider work and writes");
-  const lateSuccess = await runSweep({ selected: [{ product_code: "LATE" }], selectDelayMs: 60, watchdogMs: 15, realReadTimeout: true, settleMs: 90 });
+  const lateSuccess = await runSweep({ selected: [{ product_code: "LATE" }], lateReadOrder: "watchdog-first", watchdogMs: 15 });
   ok(lateSuccess.pulses.length === 1 && lateSuccess.providerRequests.length === 0 && lateSuccess.patches.length === 0, "a successful late read also cannot restart the cancelled sweep");
+  ok(lateSuccess.lateReadSettled === 1, "the successful late read actually settles before checking that no work restarted");
 
   const selected = Array.from({ length: 40 }, (_, i) => ({ product_code: `BUDGET${i}`, link_ok: true, fail_count: 0 }));
   const truncated = await runSweep({ selected, readAdvanceMs: 20000, probeAdvanceMs: 1000 });

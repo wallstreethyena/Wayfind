@@ -30,6 +30,7 @@ import {
 } from "../../lib/browserAnalytics";
 import { readCrownCampaign } from "../../lib/crownCampaign.js";
 import { attributionProps, captureLanding, installBridge, readState, writeLandingCookie } from "../../lib/campaignAttribution.js";
+import { syncAdClickCookieFromWindow } from "../../lib/adClickCookie.js";
 import { isNative } from "../../lib/native";
 
 export default function PostHogProvider({ children }) {
@@ -49,6 +50,7 @@ export default function PostHogProvider({ children }) {
       if (!isNative()) {
         const landed = captureLanding({ search: window.location.search, pathname: window.location.pathname, referrer: document.referrer, local: window.localStorage, session: window.sessionStorage });
         writeLandingCookie(document, landed, window.location.protocol === "https:");
+        syncAdClickCookieFromWindow(window);
         installBridge(window, { relayEnabled: process.env.NEXT_PUBLIC_META_CAPI_RELAY === "1" });
       }
     } catch (e) {}

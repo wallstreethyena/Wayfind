@@ -46,8 +46,8 @@ ok(!/likeSignal|persistLike|persistDislike|governed_score/.test(content), "conte
 // Every event inventory view is now a rail of the shared premium card. The
 // Viator CTA remains the attributed commerce link inside that card.
 ok(/function EventCard[\s\S]+?<RailCard/.test(events), "the event card bypasses RailCard");
-ok(/events-worth-planning[\s\S]+?<EventCard/.test(events), "the plan-ahead shelf bypasses the shared event card");
-ok(/data-rail=\{`events-\$\{activeFilter\.key\}`\}/.test(events), "the selected event category is not a place-card rail");
+ok(/function EventRail[\s\S]+?<EventCard/.test(events) && /<EventRail[^>]+id="events-worth-planning"[^>]+items=\{plannable\}/.test(events), "the plan-ahead shelf bypasses the shared event card");
+ok(/rails\.map\(\(rail\) => <EventRail[^>]+id=\{`events-\$\{rail\.key\}`\}/.test(events) && /data-rail=\{id\}/.test(events), "every expanded event category must use the shared place-card rail");
 ok(!/gridTemplateColumns:\s*"repeat\(2/.test(events), "the rejected two-column one-off event/tour grid returned");
 ok(/<RailCard[\s\S]+?ctaNode=\{<ViatorCommerceLink/.test(viator), "bookable experiences must use RailCard without losing affiliate attribution");
 ok(/<RailNav/.test(viator) && /<RailDots/.test(viator), "the Viator rail lost its navigation affordances");

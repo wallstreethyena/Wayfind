@@ -382,6 +382,9 @@ const histDays = (n, devices = 40, extra = {}) => Array.from({ length: n }, (_, 
   ok(cwv.find((a) => a.id === "cwv_CLS_desktop"), "alerts: failing desktop CLS fires");
   ok(!cwv.find((a) => a.id === "cwv_INP_mobile"), "alerts: passing INP stays silent");
   ok(!cwv.find((a) => a.id === "cwv_LCP_desktop"), "alerts: <20 samples never alerts (noise floor)");
+  const inp = computeAlerts({ webVitalsField: [{ metric: "INP", device: "mobile", p75: 400, samples: 29 }] }).find((a) => a.id === "cwv_INP_mobile");
+  ok(inp?.detail.includes("last 7 days (29 samples)") && !inp.detail.includes("selected window"), "alerts: INP names its real seven-day window independently of the metrics selector");
+  ok(inp?.current === "400ms" && inp.baseline === "≤ 200ms" && inp.severity === "warn", "alerts: seven-day wording preserves the measured regression and threshold");
 }
 {
   // Data freshness watchdog: catches a cron that returns 200 but writes nothing.
