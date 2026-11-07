@@ -1,0 +1,283 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 18. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJZwwqAaCr2YgR4P6yyp_dmvg",
+   "name": "ArtsPark at Young Circle",
+   "category": "attractions",
+   "metro": "broward",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.hollywoodfl.org/65/ArtsPark-at-Young-Circle",
+     "source_name": "ArtsPark at Young Circle \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "ArtsPark at Young Circle is a 10-acre circle at US 1 and Hollywood Boulevard in downtown Hollywood.",
+      "ArtsPark was dedicated in March 2007.",
+      "The ArtsPark Amphitheater features a 60 by 40 foot main stage and lawn seating for 2,500 guests.",
+      "Park features include a playground, splash pad, amphitheater, glass blowing, lighted walking path and restrooms.",
+      "ArtsPark hours are 7 a.m. to 11 p.m. daily."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "10-acre downtown circle with a playground, splash pad and amphitheater",
+    "why_here": "ArtsPark at Young Circle is a 10-acre circle in downtown Hollywood with a playground, splash pad and the ArtsPark Amphitheater. Park features also include glass blowing, a lighted walking path and restrooms.",
+    "know_before": "ArtsPark hours are 7 a.m. to 11 p.m. daily.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.hollywoodfl.org/65/ArtsPark-at-Young-Circle"
+     ],
+     "why_here": [
+      "https://www.hollywoodfl.org/65/ArtsPark-at-Young-Circle"
+     ],
+     "know_before": [
+      "https://www.hollywoodfl.org/65/ArtsPark-at-Young-Circle"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "ArtsPark at Young Circle is a 10-acre circle at US 1 and Hollywood Boulevard in downtown Hollywood.",
+      "source": "https://www.hollywoodfl.org/65/ArtsPark-at-Young-Circle"
+     },
+     {
+      "claim": "ArtsPark was dedicated in March 2007.",
+      "source": "https://www.hollywoodfl.org/65/ArtsPark-at-Young-Circle"
+     },
+     {
+      "claim": "The ArtsPark Amphitheater features a 60 by 40 foot main stage and lawn seating for 2,500 guests.",
+      "source": "https://www.hollywoodfl.org/65/ArtsPark-at-Young-Circle"
+     },
+     {
+      "claim": "Park features include a playground, splash pad, amphitheater, glass blowing, lighted walking path and restrooms.",
+      "source": "https://www.hollywoodfl.org/65/ArtsPark-at-Young-Circle"
+     },
+     {
+      "claim": "ArtsPark hours are 7 a.m. to 11 p.m. daily.",
+      "source": "https://www.hollywoodfl.org/65/ArtsPark-at-Young-Circle"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ6VhiMT-q2YgR4fkOVUhkoR4",
+   "name": "Islamorada Fish Company",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://stores.basspro.com/us/fl/dania-beach/200-gulf-stream-way.html",
+     "source_name": "Islamorada Fish Company \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Islamorada Fish Company Restaurant is at Bass Pro Shops in Dania Beach.",
+      "The Dania restaurant offers outdoor dining over a lake or indoor dining among fish mounts and an aquarium.",
+      "The restaurant also has a Sushi bar and the Marlin Bar.",
+      "Bass Pro Shops is at 200 Gulf Stream Way, Dania, Florida 33004."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Islamorada Fish Company dining over a lake inside Bass Pro Shops",
+    "why_here": "Islamorada Fish Company Restaurant at Bass Pro Shops offers outdoor dining over a lake or indoor dining among fish mounts and an aquarium. The restaurant also has a Sushi bar and the Marlin Bar for other seating.",
+    "know_before": "Bass Pro Shops is at 200 Gulf Stream Way, Dania, Florida 33004.",
+    "local_tip": "Choose outdoor seating to dine over the lake.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://stores.basspro.com/us/fl/dania-beach/200-gulf-stream-way.html"
+     ],
+     "why_here": [
+      "https://stores.basspro.com/us/fl/dania-beach/200-gulf-stream-way.html"
+     ],
+     "know_before": [
+      "https://stores.basspro.com/us/fl/dania-beach/200-gulf-stream-way.html"
+     ],
+     "local_tip": [
+      "https://stores.basspro.com/us/fl/dania-beach/200-gulf-stream-way.html"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Islamorada Fish Company Restaurant is at Bass Pro Shops in Dania Beach.",
+      "source": "https://stores.basspro.com/us/fl/dania-beach/200-gulf-stream-way.html"
+     },
+     {
+      "claim": "The Dania restaurant offers outdoor dining over a lake or indoor dining among fish mounts and an aquarium.",
+      "source": "https://stores.basspro.com/us/fl/dania-beach/200-gulf-stream-way.html"
+     },
+     {
+      "claim": "The restaurant also has a Sushi bar and the Marlin Bar.",
+      "source": "https://stores.basspro.com/us/fl/dania-beach/200-gulf-stream-way.html"
+     },
+     {
+      "claim": "Bass Pro Shops is at 200 Gulf Stream Way, Dania, Florida 33004.",
+      "source": "https://stores.basspro.com/us/fl/dania-beach/200-gulf-stream-way.html"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJN1w9vg_9wogRnHwkriENtr0",
+   "name": "Shrimpys Waterfront",
+   "category": "food",
+   "metro": "st-pete",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://shrimpysbluesbistro.com/",
+     "source_name": "Shrimpys Waterfront \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Shrimpys Waterfront has been in existence since 2012 and is family owned.",
+      "Shrimpys Waterfront serves fresh Florida seafood with a New Orleans flare on the intercoastal.",
+      "Shrimpys Waterfront offers waterfront seating and inside seating.",
+      "Hours are Monday to Thursday 11 a.m. to 9 p.m. and Friday 11 a.m. to 10 p.m.",
+      "Saturday hours are 10 a.m. to 10 p.m. and Sunday hours are 10 a.m. to 9:30 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Shrimpys Waterfront fresh Florida seafood with a New Orleans flare since 2012",
+    "why_here": "Shrimpys Waterfront has been in existence since 2012 and is family owned, serving fresh Florida seafood with a New Orleans flare on the intercoastal. Shrimpys Waterfront offers waterfront seating and inside seating.",
+    "know_before": "Hours are Monday to Thursday 11 a.m. to 9 p.m. and Friday 11 a.m. to 10 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://shrimpysbluesbistro.com/"
+     ],
+     "why_here": [
+      "https://shrimpysbluesbistro.com/"
+     ],
+     "know_before": [
+      "https://shrimpysbluesbistro.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Shrimpys Waterfront has been in existence since 2012 and is family owned.",
+      "source": "https://shrimpysbluesbistro.com/"
+     },
+     {
+      "claim": "Shrimpys Waterfront serves fresh Florida seafood with a New Orleans flare on the intercoastal.",
+      "source": "https://shrimpysbluesbistro.com/"
+     },
+     {
+      "claim": "Shrimpys Waterfront offers waterfront seating and inside seating.",
+      "source": "https://shrimpysbluesbistro.com/"
+     },
+     {
+      "claim": "Hours are Monday to Thursday 11 a.m. to 9 p.m. and Friday 11 a.m. to 10 p.m.",
+      "source": "https://shrimpysbluesbistro.com/"
+     },
+     {
+      "claim": "Saturday hours are 10 a.m. to 10 p.m. and Sunday hours are 10 a.m. to 9:30 p.m.",
+      "source": "https://shrimpysbluesbistro.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJxf5YHFxp54gRmlbkRH8QLHw",
+   "name": "Oviedo Mall",
+   "category": "shopping",
+   "metro": "orlando",
+   "primary_type": "shopping_mall",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.myoviedomall.com/",
+     "source_name": "Oviedo Mall \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Oviedo Mall center hours are Monday to Saturday 10 a.m. to 9 p.m. and Sunday 12 p.m. to 6 p.m.",
+      "Individual store hours at Oviedo Mall may vary.",
+      "Oviedo Mall is a destination for shopping, dining, entertainment, and community events in East Orlando.",
+      "Regal Oviedo Mall is a 22-screen movie theater inside Oviedo Mall."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Oviedo Mall shopping, dining and entertainment with a 22-screen movie theater",
+    "why_here": "Oviedo Mall is a destination for shopping, dining, entertainment, and community events in East Orlando. Regal Oviedo Mall is a 22-screen movie theater inside Oviedo Mall, alongside dining and entertainment.",
+    "know_before": "Oviedo Mall center hours are Monday to Saturday 10 a.m. to 9 p.m. and Sunday 12 p.m. to 6 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.myoviedomall.com/"
+     ],
+     "why_here": [
+      "https://www.myoviedomall.com/"
+     ],
+     "know_before": [
+      "https://www.myoviedomall.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Oviedo Mall center hours are Monday to Saturday 10 a.m. to 9 p.m. and Sunday 12 p.m. to 6 p.m.",
+      "source": "https://www.myoviedomall.com/"
+     },
+     {
+      "claim": "Individual store hours at Oviedo Mall may vary.",
+      "source": "https://www.myoviedomall.com/"
+     },
+     {
+      "claim": "Oviedo Mall is a destination for shopping, dining, entertainment, and community events in East Orlando.",
+      "source": "https://www.myoviedomall.com/"
+     },
+     {
+      "claim": "Regal Oviedo Mall is a 22-screen movie theater inside Oviedo Mall.",
+      "source": "https://www.myoviedomall.com/"
+     }
+    ]
+   }
+  }
+ ]
+}

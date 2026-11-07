@@ -1,0 +1,304 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 19. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJOdhYA4_Z0IgRQi_D9vhmBsM",
+   "name": "Sparky's Landing - Fish n Cocktails",
+   "category": "nightlife",
+   "metro": "keys",
+   "primary_type": "bar_and_grill",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.sparkyslanding.com/about",
+     "source_name": "Sparky's Landing - Fish n Cocktails \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Sparky's Landing was founded in February of 2006.",
+      "Sparky's Landing focus is good times, fresh fish and refreshing cocktails.",
+      "Sparky's Landing is located on the water behind the Fairfield Inn & Suites.",
+      "Sparky's Landing is in Marathon, FL."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "fresh fish and refreshing cocktails on the water in Marathon",
+    "why_here": "Sparky's Landing in Marathon serves fresh fish and refreshing cocktails on the water behind the Fairfield Inn & Suites. The Marathon spot was founded in February of 2006 with a focus on good times, fresh fish and refreshing cocktails.",
+    "know_before": "Sparky's Landing was founded in February of 2006.",
+    "local_tip": "Sparky's Landing is located behind the Fairfield Inn & Suites.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.sparkyslanding.com/about"
+     ],
+     "why_here": [
+      "https://www.sparkyslanding.com/about"
+     ],
+     "know_before": [
+      "https://www.sparkyslanding.com/about"
+     ],
+     "local_tip": [
+      "https://www.sparkyslanding.com/about"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Sparky's Landing was founded in February of 2006.",
+      "source": "https://www.sparkyslanding.com/about"
+     },
+     {
+      "claim": "Sparky's Landing focus is good times, fresh fish and refreshing cocktails.",
+      "source": "https://www.sparkyslanding.com/about"
+     },
+     {
+      "claim": "Sparky's Landing is located on the water behind the Fairfield Inn & Suites.",
+      "source": "https://www.sparkyslanding.com/about"
+     },
+     {
+      "claim": "Sparky's Landing is in Marathon, FL.",
+      "source": "https://www.sparkyslanding.com/about"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJxT5RpqEC2YgRAZR8LkMhskI",
+   "name": "Galuppi's",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.galuppis.com/restaurant/",
+     "source_name": "Galuppi's \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Galuppi's Restaurant was started in 2005 by Pat and Grant Galuppi.",
+      "Galuppi's offers breakfast, lunch and dinner seven days a week.",
+      "Galuppi's hosts Friday and Saturday night outdoor cover band concerts.",
+      "Sunday brunch menu items include premium carving stations, Belgian waffles, and made-to-order omelettes.",
+      "Galuppi's is at 1103 North Federal Highway, Pompano Beach, FL 33062.",
+      "Weekday happy hour runs 4 p.m. to 7 p.m., ending at 6 p.m. on Fridays."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "breakfast, lunch and dinner seven days a week since 2005",
+    "why_here": "Galuppi's in Pompano Beach offers breakfast, lunch and dinner seven days a week, started in 2005 by Pat and Grant Galuppi. The Pompano Beach restaurant also hosts Friday and Saturday night outdoor cover band concerts.",
+    "know_before": "Weekday happy hour runs 4 p.m. to 7 p.m., ending at 6 p.m. on Fridays.",
+    "local_tip": "Sunday brunch includes premium carving stations, Belgian waffles, and made-to-order omelettes.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.galuppis.com/restaurant/"
+     ],
+     "why_here": [
+      "https://www.galuppis.com/restaurant/"
+     ],
+     "know_before": [
+      "https://www.galuppis.com/restaurant/"
+     ],
+     "local_tip": [
+      "https://www.galuppis.com/restaurant/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Galuppi's Restaurant was started in 2005 by Pat and Grant Galuppi.",
+      "source": "https://www.galuppis.com/restaurant/"
+     },
+     {
+      "claim": "Galuppi's offers breakfast, lunch and dinner seven days a week.",
+      "source": "https://www.galuppis.com/restaurant/"
+     },
+     {
+      "claim": "Galuppi's hosts Friday and Saturday night outdoor cover band concerts.",
+      "source": "https://www.galuppis.com/restaurant/"
+     },
+     {
+      "claim": "Sunday brunch menu items include premium carving stations, Belgian waffles, and made-to-order omelettes.",
+      "source": "https://www.galuppis.com/restaurant/"
+     },
+     {
+      "claim": "Galuppi's is at 1103 North Federal Highway, Pompano Beach, FL 33062.",
+      "source": "https://www.galuppis.com/restaurant/"
+     },
+     {
+      "claim": "Weekday happy hour runs 4 p.m. to 7 p.m., ending at 6 p.m. on Fridays.",
+      "source": "https://www.galuppis.com/restaurant/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ6_k9TmCz5YgRZoTCykSG8rA",
+   "name": "Jacksonville Arboretum & Botanical Gardens",
+   "category": "attractions",
+   "metro": "jacksonville-fl",
+   "primary_type": "botanical_garden",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://jacksonvillearboretum.org/",
+     "source_name": "Jacksonville Arboretum & Botanical Gardens \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Arboretum has seven different hiking trails and 13 distinct ecosystems.",
+      "The Arboretum covers 136 acres.",
+      "The Arboretum is open 8 a.m. to 5 p.m., with last entry at 4:30 p.m.",
+      "Admission is $3 per person and children 3 years and under are free.",
+      "Dogs are welcome on leash."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Seven trails through 13 ecosystems on a 136-acre Jacksonville reserve",
+    "why_here": "The Jacksonville Arboretum & Botanical Gardens is a nonprofit reserve with trails, curated gardens and community events. Its landscape includes freshwater and tidal marshes, hardwood forests, pine flatwoods and live oak hammocks.",
+    "know_before": "Admission is $3 per person, children 3 years and under are free, and dogs are welcome on leash.",
+    "local_tip": "Allow time for multiple trails, since the site covers seven trails across 13 ecosystems.",
+    "best_time": "Go in the morning for quieter trails before the 4:30 p.m. last entry.",
+    "citations": {
+     "hook": [
+      "https://jacksonvillearboretum.org/"
+     ],
+     "why_here": [
+      "https://jacksonvillearboretum.org/"
+     ],
+     "know_before": [
+      "https://jacksonvillearboretum.org/"
+     ],
+     "local_tip": [
+      "https://jacksonvillearboretum.org/"
+     ],
+     "best_time": [
+      "https://jacksonvillearboretum.org/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Arboretum has seven different hiking trails and 13 distinct ecosystems.",
+      "source": "https://jacksonvillearboretum.org/"
+     },
+     {
+      "claim": "The Arboretum covers 136 acres.",
+      "source": "https://jacksonvillearboretum.org/"
+     },
+     {
+      "claim": "The Arboretum is open 8 a.m. to 5 p.m., with last entry at 4:30 p.m.",
+      "source": "https://jacksonvillearboretum.org/"
+     },
+     {
+      "claim": "Admission is $3 per person and children 3 years and under are free.",
+      "source": "https://jacksonvillearboretum.org/"
+     },
+     {
+      "claim": "Dogs are welcome on leash.",
+      "source": "https://jacksonvillearboretum.org/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJtUaBvV4R3ogR3EG3uLRUOj0",
+   "name": "Frigate's Waterfront Bar & Grill - Melbourne",
+   "category": "nightlife",
+   "metro": "florida",
+   "primary_type": "bar_and_grill",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.frigateswaterfront.com/",
+     "source_name": "Frigate's Waterfront Bar & Grill - Melbourne \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Frigate's has locations in North Palm Beach and Melbourne.",
+      "Frigate's serves fresh seafood and hand-rolled sushi.",
+      "The Melbourne location is at 1120 North Harbor City Blvd, Melbourne, FL 32935.",
+      "Melbourne Sunday brunch is served 9 a.m. to 2 p.m.",
+      "Happy hour is Monday through Friday, 3 p.m. to 6:30 p.m.",
+      "Melbourne hours are Monday through Thursday 11 a.m. to 9 p.m., Friday through Saturday 11 a.m. to 10 p.m., and Sunday 9 a.m. to 9 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "fresh seafood and hand-rolled sushi at a Melbourne location",
+    "why_here": "Frigate's in Melbourne serves fresh seafood and hand-rolled sushi, with locations in North Palm Beach and Melbourne. The Melbourne location on North Harbor City Blvd also serves Sunday brunch and weekday happy hour.",
+    "know_before": "Melbourne hours are Monday through Thursday 11 a.m. to 9 p.m., Friday through Saturday 11 a.m. to 10 p.m., and Sunday 9 a.m. to 9 p.m.",
+    "local_tip": "Happy hour is Monday through Friday, 3 p.m. to 6:30 p.m.",
+    "best_time": "Sunday brunch is served 9 a.m. to 2 p.m. at the Melbourne location.",
+    "citations": {
+     "hook": [
+      "https://www.frigateswaterfront.com/"
+     ],
+     "why_here": [
+      "https://www.frigateswaterfront.com/"
+     ],
+     "know_before": [
+      "https://www.frigateswaterfront.com/"
+     ],
+     "local_tip": [
+      "https://www.frigateswaterfront.com/"
+     ],
+     "best_time": [
+      "https://www.frigateswaterfront.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Frigate's has locations in North Palm Beach and Melbourne.",
+      "source": "https://www.frigateswaterfront.com/"
+     },
+     {
+      "claim": "Frigate's serves fresh seafood and hand-rolled sushi.",
+      "source": "https://www.frigateswaterfront.com/"
+     },
+     {
+      "claim": "The Melbourne location is at 1120 North Harbor City Blvd, Melbourne, FL 32935.",
+      "source": "https://www.frigateswaterfront.com/"
+     },
+     {
+      "claim": "Melbourne Sunday brunch is served 9 a.m. to 2 p.m.",
+      "source": "https://www.frigateswaterfront.com/"
+     },
+     {
+      "claim": "Happy hour is Monday through Friday, 3 p.m. to 6:30 p.m.",
+      "source": "https://www.frigateswaterfront.com/"
+     },
+     {
+      "claim": "Melbourne hours are Monday through Thursday 11 a.m. to 9 p.m., Friday through Saturday 11 a.m. to 10 p.m., and Sunday 9 a.m. to 9 p.m.",
+      "source": "https://www.frigateswaterfront.com/"
+     }
+    ]
+   }
+  }
+ ]
+}
