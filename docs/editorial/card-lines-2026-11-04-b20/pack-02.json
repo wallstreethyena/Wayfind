@@ -1,0 +1,580 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 20. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJz_kt7xG32YgRV9TzFJI3d3g",
+   "name": "Grails Miami - Restaurant & Sports Bar",
+   "category": "nightlife",
+   "metro": "miami-dade",
+   "primary_type": "bar",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://grailsmiami.com/",
+     "source_name": "Grails Miami - Restaurant & Sports Bar \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Grails Miami opened in 2019 as Wynwood's first sports bar.",
+      "Grails Miami has 75+ TVs across indoor and outdoor areas.",
+      "Grails Miami has no cover charge, ever.",
+      "Walk-ins are always welcome at Grails Miami."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Wynwood sports bar with 75+ TVs, opened in 2019",
+    "why_here": "Grails Miami opened in 2019 as Wynwood's first sports bar, with 75+ TVs across indoor and outdoor areas for watching games together in indoor and outdoor areas.",
+    "know_before": "Grails Miami has no cover charge, ever.",
+    "local_tip": "Walk-ins are always welcome at Grails Miami.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://grailsmiami.com/"
+     ],
+     "why_here": [
+      "https://grailsmiami.com/"
+     ],
+     "know_before": [
+      "https://grailsmiami.com/"
+     ],
+     "local_tip": [
+      "https://grailsmiami.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Grails Miami opened in 2019 as Wynwood's first sports bar.",
+      "source": "https://grailsmiami.com/"
+     },
+     {
+      "claim": "Grails Miami has 75+ TVs across indoor and outdoor areas.",
+      "source": "https://grailsmiami.com/"
+     },
+     {
+      "claim": "Grails Miami has no cover charge, ever.",
+      "source": "https://grailsmiami.com/"
+     },
+     {
+      "claim": "Walk-ins are always welcome at Grails Miami.",
+      "source": "https://grailsmiami.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ9ZH_S2DX5ogRuHT6TGyD3mE",
+   "name": "The Shores Resort & Spa",
+   "category": "hotels",
+   "metro": "florida",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.shoresresort.com/",
+     "source_name": "The Shores Resort & Spa \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Shores Resort & Spa is located right on the oceanfront in Daytona Beach Shores.",
+      "Oceanfront guestrooms provide views of the Atlantic Ocean, including a selection of rooms with cabanas.",
+      "The resort offers beachfront dining.",
+      "Indulge Spa is in Daytona Beach Shores.",
+      "Indulge Spa hours are Tuesday through Sunday from 9 a.m. to 5 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Oceanfront resort in Daytona Beach Shores on the Atlantic Ocean",
+    "why_here": "The Shores Resort & Spa is located right on the oceanfront in Daytona Beach Shores, with oceanfront guestrooms that provide views of the Atlantic Ocean and beachfront dining on site.",
+    "know_before": "Indulge Spa hours are Tuesday through Sunday from 9 a.m. to 5 p.m.",
+    "local_tip": "Oceanfront guestrooms include a selection of rooms with cabanas.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.shoresresort.com/"
+     ],
+     "why_here": [
+      "https://www.shoresresort.com/"
+     ],
+     "know_before": [
+      "https://www.shoresresort.com/"
+     ],
+     "local_tip": [
+      "https://www.shoresresort.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Shores Resort & Spa is located right on the oceanfront in Daytona Beach Shores.",
+      "source": "https://www.shoresresort.com/"
+     },
+     {
+      "claim": "Oceanfront guestrooms provide views of the Atlantic Ocean, including a selection of rooms with cabanas.",
+      "source": "https://www.shoresresort.com/"
+     },
+     {
+      "claim": "The resort offers beachfront dining.",
+      "source": "https://www.shoresresort.com/"
+     },
+     {
+      "claim": "Indulge Spa is in Daytona Beach Shores.",
+      "source": "https://www.shoresresort.com/"
+     },
+     {
+      "claim": "Indulge Spa hours are Tuesday through Sunday from 9 a.m. to 5 p.m.",
+      "source": "https://www.shoresresort.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ43-FO9LiwogRyukl3Hk730A",
+   "name": "Dead Bob's Bar",
+   "category": "nightlife",
+   "metro": "st-pete",
+   "primary_type": "bar_and_grill",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://deadbobsstpete.com/dinner-menu/",
+     "source_name": "Dead Bob's Bar \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Dinner at Dead Bob's Bar & Restaurant is all about classic sports bar food in St. Petersburg, Florida.",
+      "The dinner menu includes Dead Bob's Burgers and The Cheesy Bob.",
+      "The dinner menu includes a dozen chicken wings.",
+      "The dinner menu lists Fishbusterz fresh local shrimp.",
+      "Daily Specials are listed Monday through Friday, including Monday spaghetti and meatballs and Friday cod fish fry."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Classic sports bar food in St. Petersburg, Florida",
+    "why_here": "Dead Bob's Bar & Restaurant serves classic sports bar food in St. Petersburg, Florida, and the dinner menu includes Dead Bob's Burgers, The Cheesy Bob, a dozen chicken wings and Fishbusterz fresh local shrimp.",
+    "know_before": "Daily Specials are listed Monday through Friday on the dinner menu.",
+    "local_tip": "Try The Cheesy Bob from Dead Bob's Burgers on the dinner menu.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://deadbobsstpete.com/dinner-menu/"
+     ],
+     "why_here": [
+      "https://deadbobsstpete.com/dinner-menu/"
+     ],
+     "know_before": [
+      "https://deadbobsstpete.com/dinner-menu/"
+     ],
+     "local_tip": [
+      "https://deadbobsstpete.com/dinner-menu/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Dinner at Dead Bob's Bar & Restaurant is all about classic sports bar food in St. Petersburg, Florida.",
+      "source": "https://deadbobsstpete.com/dinner-menu/"
+     },
+     {
+      "claim": "The dinner menu includes Dead Bob's Burgers and The Cheesy Bob.",
+      "source": "https://deadbobsstpete.com/dinner-menu/"
+     },
+     {
+      "claim": "The dinner menu includes a dozen chicken wings.",
+      "source": "https://deadbobsstpete.com/dinner-menu/"
+     },
+     {
+      "claim": "The dinner menu lists Fishbusterz fresh local shrimp.",
+      "source": "https://deadbobsstpete.com/dinner-menu/"
+     },
+     {
+      "claim": "Daily Specials are listed Monday through Friday, including Monday spaghetti and meatballs and Friday cod fish fry.",
+      "source": "https://deadbobsstpete.com/dinner-menu/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJcUs5hh7f2IgRL2pcEw8sF3w",
+   "name": "Prime Catch",
+   "category": "food",
+   "metro": "palm-beach",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://primecatchboynton.com/",
+     "source_name": "Prime Catch \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Prime Catch opened on June 1, 2004.",
+      "Prime Catch is locally owned and was established in 2004.",
+      "Prime Catch features water views from every table.",
+      "Happy Hour is every weekday from 3 p.m. through 6 p.m.",
+      "Prime Island is a bar located in the Intracoastal Waterway."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Waterfront dining with water views from every table",
+    "why_here": "Prime Catch opened on June 1, 2004, and is locally owned. It features water views from every table and an outdoor bar, Prime Island, located in the Intracoastal Waterway.",
+    "know_before": "Reservations are suggested, with online reservations available.",
+    "local_tip": "Prime Island is the bar located in the Intracoastal Waterway.",
+    "best_time": "Happy Hour is every weekday from 3 p.m. through 6 p.m.",
+    "citations": {
+     "hook": [
+      "https://primecatchboynton.com/"
+     ],
+     "why_here": [
+      "https://primecatchboynton.com/"
+     ],
+     "know_before": [
+      "https://primecatchboynton.com/"
+     ],
+     "local_tip": [
+      "https://primecatchboynton.com/"
+     ],
+     "best_time": [
+      "https://primecatchboynton.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Prime Catch opened on June 1, 2004.",
+      "source": "https://primecatchboynton.com/"
+     },
+     {
+      "claim": "Prime Catch is locally owned and was established in 2004.",
+      "source": "https://primecatchboynton.com/"
+     },
+     {
+      "claim": "Prime Catch features water views from every table.",
+      "source": "https://primecatchboynton.com/"
+     },
+     {
+      "claim": "Happy Hour is every weekday from 3 p.m. through 6 p.m.",
+      "source": "https://primecatchboynton.com/"
+     },
+     {
+      "claim": "Prime Island is a bar located in the Intracoastal Waterway.",
+      "source": "https://primecatchboynton.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJK16ofmyW5ogR-DHslzVelQk",
+   "name": "Hammock Beach Golf Resort & Spa",
+   "category": "hotels",
+   "metro": "florida",
+   "primary_type": "resort_hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.hammockbeach.com/play/",
+     "source_name": "Hammock Beach Golf Resort & Spa \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Hammock Beach Golf Resort & Spa has cinnamon sand beaches on the Atlantic Coast.",
+      "The resort has two award-winning Signature golf courses.",
+      "The resort has a 91,000 square foot water park featuring a lazy river and 3-story water slide.",
+      "The resort has ten pools across the property.",
+      "One-hour bicycle rentals are included in the nightly resort fee.",
+      "A nine-hole putting course usage is included in the nightly resort fee."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Golf resort with a 91,000 square foot water park on the Atlantic Coast",
+    "why_here": "Hammock Beach Golf Resort & Spa has cinnamon sand beaches on the Atlantic Coast, two award-winning Signature golf courses, and a 91,000 square foot water park featuring a lazy river and 3-story water slide.",
+    "know_before": "One-hour bicycle rentals are included in the nightly resort fee.",
+    "local_tip": "The nine-hole putting course usage is included in the nightly resort fee.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.hammockbeach.com/play/"
+     ],
+     "why_here": [
+      "https://www.hammockbeach.com/play/"
+     ],
+     "know_before": [
+      "https://www.hammockbeach.com/play/"
+     ],
+     "local_tip": [
+      "https://www.hammockbeach.com/play/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Hammock Beach Golf Resort & Spa has cinnamon sand beaches on the Atlantic Coast.",
+      "source": "https://www.hammockbeach.com/play/"
+     },
+     {
+      "claim": "The resort has two award-winning Signature golf courses.",
+      "source": "https://www.hammockbeach.com/play/"
+     },
+     {
+      "claim": "The resort has a 91,000 square foot water park featuring a lazy river and 3-story water slide.",
+      "source": "https://www.hammockbeach.com/play/"
+     },
+     {
+      "claim": "The resort has ten pools across the property.",
+      "source": "https://www.hammockbeach.com/play/"
+     },
+     {
+      "claim": "One-hour bicycle rentals are included in the nightly resort fee.",
+      "source": "https://www.hammockbeach.com/play/"
+     },
+     {
+      "claim": "A nine-hole putting course usage is included in the nightly resort fee.",
+      "source": "https://www.hammockbeach.com/play/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ6bKhybmn4IgRyia5mijg_Qc",
+   "name": "The Wizard of Oz Museum & Van Gogh",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "tourist_attraction",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://wizardofozflorida.com/attractions.html",
+     "source_name": "The Wizard of Oz Museum & Van Gogh \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The official site lists an immersive Wizard of Oz experience.",
+      "The official site lists an immersive Van Gogh experience.",
+      "Tickets can be purchased at the door, but reserving online is recommended to guarantee a spot.",
+      "The museum is at 333 West Cocoa Beach Causeway, Cocoa Beach, Florida.",
+      "Hours are Friday through Monday from 9 a.m. to 5 p.m. and Tuesday through Thursday from 10 a.m. to 4 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Immersive Wizard of Oz and Van Gogh experiences in Cocoa Beach",
+    "why_here": "The official site lists an immersive Wizard of Oz experience and an immersive Van Gogh experience, and tickets can be purchased at the door, but reserving online is recommended to guarantee a spot.",
+    "know_before": "Hours are Friday through Monday from 9 a.m. to 5 p.m. and Tuesday through Thursday from 10 a.m. to 4 p.m.",
+    "local_tip": "Tickets can be purchased at the door, but reserving online is recommended.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://wizardofozflorida.com/attractions.html"
+     ],
+     "why_here": [
+      "https://wizardofozflorida.com/attractions.html"
+     ],
+     "know_before": [
+      "https://wizardofozflorida.com/attractions.html"
+     ],
+     "local_tip": [
+      "https://wizardofozflorida.com/attractions.html"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The official site lists an immersive Wizard of Oz experience.",
+      "source": "https://wizardofozflorida.com/attractions.html"
+     },
+     {
+      "claim": "The official site lists an immersive Van Gogh experience.",
+      "source": "https://wizardofozflorida.com/attractions.html"
+     },
+     {
+      "claim": "Tickets can be purchased at the door, but reserving online is recommended to guarantee a spot.",
+      "source": "https://wizardofozflorida.com/attractions.html"
+     },
+     {
+      "claim": "The museum is at 333 West Cocoa Beach Causeway, Cocoa Beach, Florida.",
+      "source": "https://wizardofozflorida.com/attractions.html"
+     },
+     {
+      "claim": "Hours are Friday through Monday from 9 a.m. to 5 p.m. and Tuesday through Thursday from 10 a.m. to 4 p.m.",
+      "source": "https://wizardofozflorida.com/attractions.html"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJkxDhex6I54gRONXLBgSvXXg",
+   "name": "Lake Louisa State Park",
+   "category": "attractions",
+   "metro": "avon-park-fl",
+   "primary_type": "state_park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.floridastateparks.org/parks-and-trails/lake-louisa-state-park",
+     "source_name": "Lake Louisa State Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Park hours are 8 a.m. to sunset, 365 days a year.",
+      "Lake Louisa State Park has 7 miles of paved roads.",
+      "Lake Louisa State Park has over 20 miles of unpaved multi-use trails.",
+      "Lake Louisa has 60 full-facility campsites between Dixie and Hammond lakes."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "State park with over 20 miles of multi-use trails",
+    "why_here": "Lake Louisa State Park has 7 miles of paved roads and over 20 miles of unpaved multi-use trails, plus 60 full-facility campsites between Dixie and Hammond lakes for longer stays.",
+    "know_before": "Park hours are 8 a.m. to sunset, 365 days a year.",
+    "local_tip": "Campsites sit between Dixie and Hammond lakes.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.floridastateparks.org/parks-and-trails/lake-louisa-state-park"
+     ],
+     "why_here": [
+      "https://www.floridastateparks.org/parks-and-trails/lake-louisa-state-park"
+     ],
+     "know_before": [
+      "https://www.floridastateparks.org/parks-and-trails/lake-louisa-state-park"
+     ],
+     "local_tip": [
+      "https://www.floridastateparks.org/parks-and-trails/lake-louisa-state-park"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Park hours are 8 a.m. to sunset, 365 days a year.",
+      "source": "https://www.floridastateparks.org/parks-and-trails/lake-louisa-state-park"
+     },
+     {
+      "claim": "Lake Louisa State Park has 7 miles of paved roads.",
+      "source": "https://www.floridastateparks.org/parks-and-trails/lake-louisa-state-park"
+     },
+     {
+      "claim": "Lake Louisa State Park has over 20 miles of unpaved multi-use trails.",
+      "source": "https://www.floridastateparks.org/parks-and-trails/lake-louisa-state-park"
+     },
+     {
+      "claim": "Lake Louisa has 60 full-facility campsites between Dixie and Hammond lakes.",
+      "source": "https://www.floridastateparks.org/parks-and-trails/lake-louisa-state-park"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJa-cq-ENf3ogRtZaeT-CKgx0",
+   "name": "McKee Botanical Garden",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "botanical_garden",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://mckeegarden.org/visit/",
+     "source_name": "McKee Botanical Garden \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "McKee Botanical Garden is an 18-acre historic jungle landscape home to more than 10,000 plants.",
+      "McKee is listed on the National Register of Historic Places.",
+      "McKee is a Florida Heritage Landmark.",
+      "Garden hours are Tuesday through Sunday from 10 a.m. to 5 p.m.",
+      "Last ticket sold at 4 p.m.",
+      "The garden is closed Mondays and major holidays."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "18-acre historic jungle garden home to more than 10,000 plants",
+    "why_here": "McKee Botanical Garden is an 18-acre historic jungle landscape home to more than 10,000 plants, listed on the National Register of Historic Places and recognized as a Florida Heritage Landmark.",
+    "know_before": "Garden hours are Tuesday through Sunday from 10 a.m. to 5 p.m., the garden is closed Mondays, and last ticket sold at 4 p.m.",
+    "local_tip": "Last ticket sold at 4 p.m., so arrive before then for entry.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://mckeegarden.org/visit/"
+     ],
+     "why_here": [
+      "https://mckeegarden.org/visit/"
+     ],
+     "know_before": [
+      "https://mckeegarden.org/visit/"
+     ],
+     "local_tip": [
+      "https://mckeegarden.org/visit/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "McKee Botanical Garden is an 18-acre historic jungle landscape home to more than 10,000 plants.",
+      "source": "https://mckeegarden.org/visit/"
+     },
+     {
+      "claim": "McKee is listed on the National Register of Historic Places.",
+      "source": "https://mckeegarden.org/visit/"
+     },
+     {
+      "claim": "McKee is a Florida Heritage Landmark.",
+      "source": "https://mckeegarden.org/visit/"
+     },
+     {
+      "claim": "Garden hours are Tuesday through Sunday from 10 a.m. to 5 p.m.",
+      "source": "https://mckeegarden.org/visit/"
+     },
+     {
+      "claim": "Last ticket sold at 4 p.m.",
+      "source": "https://mckeegarden.org/visit/"
+     },
+     {
+      "claim": "The garden is closed Mondays and major holidays.",
+      "source": "https://mckeegarden.org/visit/"
+     }
+    ]
+   }
+  }
+ ]
+}
