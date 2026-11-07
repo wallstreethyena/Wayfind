@@ -145,7 +145,7 @@ for (const spec of [
   if (badge) {
     newTab(badge, `${spec.name} credit`, { keepRel: "noopener noreferrer" }); // already target=_blank + noopener noreferrer before this change; unchanged
     ok(badge.href === CRED_HREF, `${spec.name} credit: href unchanged (got ${badge.href})`);
-    ok(badge.visible === "©", `${spec.name} credit: visible text is still © (got ${JSON.stringify(badge.visible)})`);
+    ok(badge.visible === "Jane Doe / CC BY-SA 4.0", `${spec.name} credit: visible text is the credit line (got ${JSON.stringify(badge.visible)})`);
     ok(/^Photo credit: Jane Doe \/ CC BY-SA 4\.0/.test(badge.aria || ""), `${spec.name} credit: attribution text kept at the start of aria-label (got ${badge.aria})`);
     announces(badge, `${spec.name} credit`);
   }

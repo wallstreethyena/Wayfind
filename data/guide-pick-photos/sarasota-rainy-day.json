@@ -102,50 +102,78 @@
       "sameAsCardPhoto": false,
       "reviewedAt": "2026-11-03",
       "reuseReason": "Reuses the Commons file already recorded in the 2026-11-01 photo batch (supabase/photo-batches/2026-11-01/apply.sql, christmas_photo_gallery entry xmas_24cdf65b2a131be6.jpg for place ChIJew4bcA9Aw4gR3bU-SA7qAgU, attribution Ebyabe CC BY SA 3.0); the batch JPG was only resized to WebP, no new image fetched."
+    },
+    "Sarasota Art Museum": {
+      "src": "/guides/picks/sarasota-rainy-day/sarasota-art-museum.webp",
+      "width": 1086,
+      "height": 620,
+      "alt": "The lit main entrance of the Sarasota Art Museum at night, with a wide ramp and steps, palm trees and a brick building beside it",
+      "caption": "The main entrance of the Sarasota Art Museum at night.",
+      "credit": "Brycesrq",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Sarasota_Art_Museum.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Sarasota_Art_Museum.jpg",
+      "author": "Brycesrq",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
+      "placeId": "ChIJx1DBNl1Aw4gR6Zi9XjSh7r4",
+      "verification": "The Commons file is titled Sarasota Art Museum and its own description reads Night view of the Sarasota Art Museum's main entrance, filed under Museums in Sarasota, Florida. No sign is readable and it is not geotagged, so identity rests on the file's own title, description and category. A few visitors are tiny and incidental. Live Commons licence checked: CC BY-SA 4.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-11-04"
+    },
+    "Florida Studio Theatre": {
+      "src": "/guides/picks/sarasota-rainy-day/florida-studio-theatre.webp",
+      "width": 1400,
+      "height": 933,
+      "alt": "The Hegner Theatre Wing of Florida Studio Theatre in Sarasota at dusk, with its tall lit THEATRE marquee signs and green awnings",
+      "caption": "The Hegner Theatre Wing of Florida Studio Theatre in downtown Sarasota.",
+      "credit": "Kander Hopkins (FST)",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:FST%27s_Hegner_Theatre_Wing_Greg_Wilson.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:FST%27s_Hegner_Theatre_Wing_Greg_Wilson.jpg",
+      "author": "Kander Hopkins (FST)",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
+      "placeId": "ChIJrYGdKBJAw4gRafewzUWWYnk",
+      "verification": "The facade shows the lettered Hegner Theatre Wing and lit THEATRE signs; the Commons description is FST's Hegner Theatre Wing in Sarasota, Florida, uploaded by an FST account and filed under Florida Studio Theatre (Sarasota). Not geotagged. Live Commons licence checked: CC BY-SA 4.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-11-04"
     }
   },
   "gaps": {
-    "Sarasota Art Museum": {
-      "reason": "google-only",
-      "placeId": "ChIJx1DBNl1Aw4gR6Zi9XjSh7r4",
-      "needsPermissionFrom": "Sarasota Art Museum",
-      "note": "Wayfind holds a stored Google photo of this place, but Google availability alone grants no reuse rights. No licensed or permitted photo has been sourced yet, so a labelled illustrative topic photo renders instead."
-    },
     "Arcade Monsters": {
       "reason": "google-only",
       "placeId": "ChIJJ1O7nANrw4gRH8y1qHMjpRs",
       "needsPermissionFrom": "Arcade Monsters",
-      "note": "Wayfind holds a stored Google photo of this place, but Google availability alone grants no reuse rights. No licensed or permitted photo has been sourced yet, so a labelled illustrative topic photo renders instead."
+      "note": "Wayfind holds a stored Google photo of this place, but Google availability alone grants no reuse rights. Pass 2026-11-04: searched Wikimedia Commons (\"Arcade Monsters Sarasota\") and Openverse (Flickr and Commons, CC0, CC BY, CC BY-SA) and found no licensed photo of this exact venue. Renders Wayfind's neutral Photo unavailable tile, not a photograph of another place."
     },
     "Escape Reality": {
       "reason": "google-only",
       "placeId": "ChIJhcub0Rs_w4gRCEvPuk8tBok",
       "needsPermissionFrom": "Escape Reality",
-      "note": "Wayfind holds a stored Google photo of this place, but Google availability alone grants no reuse rights. No licensed or permitted photo has been sourced yet, so a labelled illustrative topic photo renders instead."
+      "note": "Wayfind holds a stored Google photo of this place, but Google availability alone grants no reuse rights. Pass 2026-11-04: searched Wikimedia Commons (\"Escape Reality Sarasota\", \"Escape room Sarasota\") and Openverse (Flickr and Commons, CC0, CC BY, CC BY-SA) and found no licensed photo of this exact venue. Renders Wayfind's neutral Photo unavailable tile, not a photograph of another place."
     },
     "Bowlero Gulf Gate": {
       "reason": "google-only",
       "placeId": "ChIJVaN0nNZDw4gRZr-D4qxm-oo",
       "needsPermissionFrom": "Bowlero Gulf Gate",
-      "note": "Wayfind holds a stored Google photo of this place, but Google availability alone grants no reuse rights. No licensed or permitted photo has been sourced yet, so a labelled illustrative topic photo renders instead."
-    },
-    "Florida Studio Theatre": {
-      "reason": "google-only",
-      "placeId": "ChIJrYGdKBJAw4gRafewzUWWYnk",
-      "needsPermissionFrom": "Florida Studio Theatre",
-      "note": "Wayfind holds a stored Google photo of this place, but Google availability alone grants no reuse rights. No licensed or permitted photo has been sourced yet, so a labelled illustrative topic photo renders instead."
+      "note": "Wayfind holds a stored Google photo of this place, but Google availability alone grants no reuse rights. Pass 2026-11-04: searched Wikimedia Commons (\"Bowlero Gulf Gate\", \"Gulf Gate Bowl Sarasota\") and Openverse (Flickr and Commons, CC0, CC BY, CC BY-SA) and found no licensed photo of this exact venue. Renders Wayfind's neutral Photo unavailable tile, not a photograph of another place."
     },
     "CMX CinéBistro Siesta Key": {
       "reason": "google-only",
       "placeId": "ChIJ3-wcgLJBw4gR9UGr_yLsHJY",
       "needsPermissionFrom": "CMX CinéBistro Siesta Key",
-      "note": "Wayfind holds a stored Google photo of this place, but Google availability alone grants no reuse rights. No licensed or permitted photo has been sourced yet, so a labelled illustrative topic photo renders instead."
+      "note": "Wayfind holds a stored Google photo of this place, but Google availability alone grants no reuse rights. Pass 2026-11-04: searched Wikimedia Commons (\"CMX CineBistro\", \"Siesta Key movie theater CMX\") and Openverse (Flickr and Commons, CC0, CC BY, CC BY-SA) and found no licensed photo of this exact venue. Renders Wayfind's neutral Photo unavailable tile, not a photograph of another place."
     },
     "Kids Empire Bradenton": {
       "reason": "google-only",
       "placeId": "ChIJA7aoMgAXw4gRdvEXDPTzHKg",
       "needsPermissionFrom": "Kids Empire Bradenton",
-      "note": "Wayfind holds a stored Google photo of this place, but Google availability alone grants no reuse rights. No licensed or permitted photo has been sourced yet, so a labelled illustrative topic photo renders instead."
+      "note": "Wayfind holds a stored Google photo of this place, but Google availability alone grants no reuse rights. Pass 2026-11-04: searched Wikimedia Commons (\"Kids Empire\", \"Kids Empire Bradenton\"; the only Kids Empire files are other locations) and Openverse (Flickr and Commons, CC0, CC BY, CC BY-SA) and found no licensed photo of this exact venue. Renders Wayfind's neutral Photo unavailable tile, not a photograph of another place."
     }
   }
 }
