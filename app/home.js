@@ -9744,46 +9744,54 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
   // reachable through the "See all" chip, so the registry is still one source of
   // truth without flooding the home row.
   const HOME_CHIPS = ["gem", "family", "entertainment", "stays", "shows", "value", "budget", "instagram", "outdoor", "bestof"].filter((k) => EXPERIENCES[k]);
-  const _viewCtx = condCtxFromNow(nowContext({ weather }));
-  const _mealPool = cat === "food" ? mealGate(places, sub) : places;
-  // v4.25: every sort mode is real on the browse feed, the distance limit
-  // applies to all of them, and the near-first rule survives ranking.
-  const _distFiltered = [..._mealPool].filter((p) => sliderMi >= 60 || p.distMi == null || p.distMi <= sliderMi);
-  // 2026-09-28 (owner: "0.7 miles, then 15 miles, then 0.9 miles"): dedupe
-  // BEFORE ordering. Brand collapse writes the surviving branch into the first
-  // branch's slot, so sorting first let a far flagship inherit a near branch's
-  // position. The explicit sort is now the last ordering step, and "Closest
-  // first" keeps a chain's NEAREST branch. Locked by test-sort-modes.
-  const _dedupedPool = dedupePlaces(dealsOnly ? _distFiltered.filter((p) => offers[p.id]) : _distFiltered, !searchMode, sortBy === "near" ? nearestBranch : betterPlace);
-  let viewBase;
-  if (comparatorFor(sortBy)) {
-    // near: distance ascending · rated: v6.42 shared Top-rated comparator
-    // (displayed Wayfind Score, locked by test-top-rated) · price: low → high.
-    viewBase = sortPlacesBy(_dedupedPool, sortBy);
-  } else {
-    viewBase = Ranking.rankByConditions(_dedupedPool, _viewCtx, (p) => placeScore({ quality: p.wfScore, unratedBase: UNRATED_LAST, faveTier: faveTier(p), featured: featuredBoost(p), evidence: creatorEvidenceTerm(p), trend: p.trending ? TRENDING_BONUS : 0 }));
-    // Near-first rule: with 5+ options inside 12 miles, nothing past 20 may outrank them.
-    const _nc = viewBase.filter((p) => p && p.distMi != null && p.distMi <= 12).length;
-    if (_nc >= 5) viewBase = [...viewBase.filter((p) => !(p.distMi != null && p.distMi > 20)), ...viewBase.filter((p) => p.distMi != null && p.distMi > 20)];
-  }
-  // v8.48 — THE COUNT AND THE CARDS MUST BE THE SAME LIST (live incident,
-  // 2026-08-25, owner: "all of the menus are showing empty when we have sooo
-  // many place cards"). PlaceCard has refused rows with no rating signal since
-  // v6.39 (`if (!cardComplete(p)) return null`), but this list was never gated
-  // on the same rule — so a pool of unrenderable rows produced a feed that
-  // counted 21 spots, rendered none, and printed "That's all 21 spots" under
-  // the blank. FREE MODE made that pool the common case (its Pro field mask
-  // omits the Enterprise-billed rating/userRatingCount), which is why the
-  // symptom was site-wide and looked like a total outage rather than thin data.
-  //
-  // Gating HERE, at the one place the browse pool is finalised, makes the
-  // failure honest on every surface that reads `view`: the result count, the
-  // "That's all N" line, the beach-conditions rows and the map all describe the
-  // cards actually on screen, and an empty pool now falls into the real
-  // "Nothing here right now" branch with a widen/relax action instead of
-  // rendering a silent void. A data regression can still lose places; it can no
-  // longer look like a broken page.
-  const view = viewBase.filter(cardComplete);
+  // Detail sheets, search typing and save feedback update this parent too.
+  // Re-ranking its unchanged inventory synchronously on every such update
+  // blocks the tap. Reuse the browse result until an actual ranking input
+  // changes; keep time-sensitive meal/weather rules fresh on the next render.
+  const browseMinute = Math.floor(Date.now() / 60000);
+  const view = useMemo(() => {
+    const _viewCtx = condCtxFromNow(nowContext({ weather }));
+    const _mealPool = cat === "food" ? mealGate(places, sub) : places;
+    // v4.25: every sort mode is real on the browse feed, the distance limit
+    // applies to all of them, and the near-first rule survives ranking.
+    const _distFiltered = [..._mealPool].filter((p) => sliderMi >= 60 || p.distMi == null || p.distMi <= sliderMi);
+    // 2026-09-28 (owner: "0.7 miles, then 15 miles, then 0.9 miles"): dedupe
+    // BEFORE ordering. Brand collapse writes the surviving branch into the first
+    // branch's slot, so sorting first let a far flagship inherit a near branch's
+    // position. The explicit sort is now the last ordering step, and "Closest
+    // first" keeps a chain's NEAREST branch. Locked by test-sort-modes.
+    const _dedupedPool = dedupePlaces(dealsOnly ? _distFiltered.filter((p) => offers[p.id]) : _distFiltered, !searchMode, sortBy === "near" ? nearestBranch : betterPlace);
+    let viewBase;
+    if (comparatorFor(sortBy)) {
+      // near: distance ascending · rated: v6.42 shared Top-rated comparator
+      // (displayed Wayfind Score, locked by test-top-rated) · price: low → high.
+      viewBase = sortPlacesBy(_dedupedPool, sortBy);
+    } else {
+      viewBase = Ranking.rankByConditions(_dedupedPool, _viewCtx, (p) => placeScore({ quality: p.wfScore, unratedBase: UNRATED_LAST, faveTier: faveTier(p), featured: featuredBoost(p), evidence: creatorEvidenceTerm(p), trend: p.trending ? TRENDING_BONUS : 0 }));
+      // Near-first rule: with 5+ options inside 12 miles, nothing past 20 may outrank them.
+      const _nc = viewBase.filter((p) => p && p.distMi != null && p.distMi <= 12).length;
+      if (_nc >= 5) viewBase = [...viewBase.filter((p) => !(p.distMi != null && p.distMi > 20)), ...viewBase.filter((p) => p.distMi != null && p.distMi > 20)];
+    }
+    // v8.48 — THE COUNT AND THE CARDS MUST BE THE SAME LIST (live incident,
+    // 2026-08-25, owner: "all of the menus are showing empty when we have sooo
+    // many place cards"). PlaceCard has refused rows with no rating signal since
+    // v6.39 (`if (!cardComplete(p)) return null`), but this list was never gated
+    // on the same rule — so a pool of unrenderable rows produced a feed that
+    // counted 21 spots, rendered none, and printed "That's all 21 spots" under
+    // the blank. FREE MODE made that pool the common case (its Pro field mask
+    // omits the Enterprise-billed rating/userRatingCount), which is why the
+    // symptom was site-wide and looked like a total outage rather than thin data.
+    //
+    // Gating HERE, at the one place the browse pool is finalised, makes the
+    // failure honest on every surface that reads `view`: the result count, the
+    // "That's all N" line, the beach-conditions rows and the map all describe the
+    // cards actually on screen, and an empty pool now falls into the real
+    // "Nothing here right now" branch with a widen/relax action instead of
+    // rendering a silent void. A data regression can still lose places; it can no
+    // longer look like a broken page.
+    const view = viewBase.filter(cardComplete);
+    return view;
+  }, [places, cat, sub, sliderMi, dealsOnly, offers, searchMode, sortBy, weather, browseMinute]);
   // 2026-10-06 (richer cards): ask /api/known-for for the cards the user can actually
   // SEE first. loadBlurbs only ever requested the first 40 ids of the UNSORTED fetch
   // order, so the top-ranked rows often got no why line. Keyed on the sorted ids.
@@ -9794,10 +9802,10 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
   // SeaWorld could become the hero while Bayside Stadium survived below as if
   // it were an independently visitable destination. The parent keeps its
   // original rank and carries its in-park highlights into both card and detail.
-  const consolidatedView = (() => {
+  const consolidatedView = useMemo(() => {
     try { return consolidateDestinations(view).places; }
     catch (e) { return view; }
-  })();
+  }, [view]);
   // Explore now opens on a single standout, just like the home screen. Prefer a
   // place you can actually go to now; the rest of the ranked list follows below.
   // The hero sits directly under the sort control, so under an explicit sort
