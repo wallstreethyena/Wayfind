@@ -35,7 +35,13 @@ jobs:
   guards:
     name: guards
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    # 2026-11-05 (owner-approved): 20 was below the measured run time. On 2026-11-04 the job
+    # took 11 to 18 minutes (guard suite ~10 min, production build ~2 min, browser setup
+    # ~1 min) and run 41840894994 was cancelled by the 20 minute cap at 20m17s with no
+    # failure, which is a cancelled check, not a pass, and forced another full cycle under
+    # "branch must be up to date". 35 leaves headroom for slow runners; a real hang still
+    # ends the job.
+    timeout-minutes: 35
     steps:
       - uses: actions/checkout@v4
         with:
