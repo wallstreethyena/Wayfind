@@ -11,7 +11,10 @@ import ts from "typescript";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const require = createRequire(import.meta.url);
-const React = require("react");
+// Match the React renderer vendored by this installed Next App Router, not
+// the separately installed compatibility React package.
+const React = require("next/dist/compiled/react");
+const { renderToReadableStream } = require("next/dist/compiled/react-dom/server.edge");
 const read = name => readFileSync(path.join(root, name), "utf8");
 let pass = 0, fails = 0;
 const ok = (value, message) => { if (value) pass++; else { fails++; console.error("FAIL: " + message); } };
@@ -50,15 +53,29 @@ const siteTime = await import("../lib/siteTime.js");
 const { addDaysStr } = await import("../lib/thisWeekEvents.js");
 const { resolveRailCity } = await import("../lib/locationHonesty.js");
 const railCalls = [];
-function Home() {}
+let proofLookup = () => Promise.resolve([]);
+const proofCalls = [];
+function Home() { return React.createElement("main", { id: "fixture-home-shell" }, "Home shell"); }
+function compile(source, dependencies) {
+  const compiled = ts.transpileModule(source, { compilerOptions: {
+    module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.React, jsxFactory: "React.createElement", target: ts.ScriptTarget.ES2022,
+  } }).outputText;
+  const module = { exports: {} };
+  new Function("require", "module", "exports", "React", compiled)(name => {
+    if (!(name in dependencies)) throw new Error("Unmodelled homepage dependency: " + name);
+    return dependencies[name];
+  }, module, module.exports, React);
+  return module.exports;
+}
+const veil = compile(read("app/components/ProofVeil.js"), { react: React });
 const deps = {
   react: React,
   "./home": { default: Home },
   "./components/SiteDaySeed": { default: function SiteDaySeed() {} },
   "../lib/siteTime": siteTime,
-  "./components/ProofVeil": { default: function ProofVeil() {} },
-  "../lib/locationHonesty": { homeProofCopy: () => ({}) },
-  "../lib/landing": { rankedFor: () => Promise.resolve([]), whyLine: () => "" },
+  "./components/ProofVeil": veil,
+  "../lib/locationHonesty": { homeProofCopy: () => ({ kicker: "Example", heading: "Fixture proof", sub: "Verified control" }) },
+  "../lib/landing": { rankedFor: (...args) => { proofCalls.push(args); return proofLookup(); }, whyLine: place => `About ${place.name}` },
   "../lib/cultureNotes": { TOWN_PROFILES: {} },
   "../lib/cultureHubs": { TOWN_HUBS: {} },
   "../lib/guides": { GUIDES: [] },
@@ -71,15 +88,7 @@ const deps = {
     return { covered: false, places: {} };
   } },
 };
-const compiled = ts.transpileModule(read("app/page.js"), { compilerOptions: {
-  module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.React, jsxFactory: "React.createElement", target: ts.ScriptTarget.ES2022,
-} }).outputText;
-const module = { exports: {} };
-new Function("require", "module", "exports", "React", compiled)(name => {
-  if (!(name in deps)) throw new Error("Unmodelled homepage dependency: " + name);
-  return deps[name];
-}, module, module.exports, React);
-const Page = module.exports.default;
+const Page = compile(read("app/page.js"), deps).default;
 const homeProps = tree => React.Children.toArray(tree.props.children).find(child => child.type === Home)?.props;
 
 // AbortSignal.timeout is unref'd; the real server keeps the event loop alive.
@@ -118,6 +127,44 @@ try {
   ok(requests.length === beforeWarm && JSON.stringify(warm?.thisWeekEvents) === JSON.stringify(healthy.thisWeekEvents),
     "warm cached event cards survive unavailable transport without another upstream call");
   ok(railCalls.length === 3 && railCalls.every(slug => slug === null), "all three actual Page calls retain the city-neutral rail path");
+
+  // Render the actual Page/HomeProof/ProofVeil with Next's Fizz renderer.
+  // Control only ranking IO and unrelated shell content. A delayed proof must
+  // not delay the shell or emit a second segment that needs $RS to fill an
+  // already-emitted wrapper (the production S:1/P:1 failure topology).
+  let releaseProof;
+  const proofPending = new Promise(resolve => { releaseProof = resolve; });
+  proofLookup = () => proofPending;
+  const bounded = async (promise, label) => {
+    let timer;
+    try { return await Promise.race([promise, new Promise((_, reject) => { timer = setTimeout(() => reject(new Error(label)), 2000); })]); }
+    finally { clearTimeout(timer); }
+  };
+  // Fizz only flushes incomplete boundaries for a hydratable document. Match
+  // Next's document/bootstrap shape; fragment-only static rendering waits for
+  // all data and would test a different protocol.
+  const documentTree = tree => React.createElement("html", null, React.createElement("head"), React.createElement("body", null, tree));
+  const render = tree => renderToReadableStream(documentTree(tree), { bootstrapScripts: ["/fixture-next-entry.js"] });
+  const pageTree = await bounded(Page(), "optional proof delayed Page's shell");
+  ok(proofCalls.length === 0, "Page does not pre-await or initiate optional proof IO before returning the shell");
+  const stream = await bounded(render(pageTree), "optional proof delayed the document stream");
+  const reader = stream.getReader();
+  const decoder = new TextDecoder();
+  let html = decoder.decode((await bounded(reader.read(), "optional proof delayed the first shell bytes")).value);
+  ok(html.includes('id="fixture-home-shell"') && !html.includes("Fixture proof"), "real renderer flushes the shell while proof IO is still pending");
+  releaseProof([1, 2, 3, 4, 5, 6].map(id => ({ id: `proof-${id}`, name: `Place ${id}` })));
+  for (;;) { const chunk = await reader.read(); if (chunk.done) break; html += decoder.decode(chunk.value, { stream: true }); }
+  ok(html.includes("Fixture proof") && html.includes("About Place 5") && !html.includes("Place 6"), "completed streamed proof retains its heading, explanations and five-place limit");
+  ok(html.includes('/?q=Place%201') && html.includes('aria-label="Example Wayfind picks"'), "completed proof retains its search links and landmark");
+  ok(!/\$RS\(/.test(html) && !/id="P:/.test(html), "resolved proof wrapper emits no nested segment swap or placeholder");
+  ok(/\$RC\(/.test(html), "outer Suspense still completes its independent streamed boundary");
+  ok(proofCalls.length === 1 && JSON.stringify(proofCalls[0]) === JSON.stringify(["things-to-do", "sarasota"]), "proof retains exactly one unchanged ranking call");
+  for (const lookup of [() => Promise.resolve([]), () => Promise.reject(new Error("fixture proof unavailable"))]) {
+    proofLookup = lookup;
+    const emptyStream = await render(await Page());
+    const emptyHtml = await new Response(emptyStream).text();
+    ok(emptyHtml.includes('id="fixture-home-shell"') && !emptyHtml.includes("Fixture proof") && !/\$RS\(/.test(emptyHtml), "empty or failed optional proof preserves the shell without partial proof markup");
+  }
 } finally { clearInterval(keepAlive); }
 
 if (fails) { console.error(`check-homepage-events-deadline: FAIL (${fails}/${pass + fails})`); process.exit(1); }

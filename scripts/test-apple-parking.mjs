@@ -156,6 +156,8 @@ function generalSearch(fake, steps) {
   fake.mapkit.RegionPriority = { Required: "required" };
   fake.mapkit.Search = class {
     search(query, options) {
+      // Apple's SearchOptions contract excludes autocomplete-only options.
+      if ("includeQueries" in options) throw new Error("includeQueries is not a valid Search option");
       requests.push({ query, options });
       const step = steps.shift();
       return typeof step === "function" ? step(options) : Promise.resolve(step);
@@ -175,19 +177,43 @@ check.deepEqual(fallbackCalls[0].options.pointOfInterestFilter, { including: ["P
 check.equal(fallbackCalls[0].options.regionPriority, "required", "fallback requires the venue's region");
 check.deepEqual(fallbackCalls[0].options.region.center, new poiDown.mapkit.Coordinate(venue.lat, venue.lng), "fallback is centered on the selected venue");
 check.equal(fallbackCalls[0].options.includeAddresses, false, "addresses cannot masquerade as parking");
-check.equal("includeQueries" in fallbackCalls[0].options, false, "Search never receives the autocomplete-only includeQueries option");
+check.equal("includeQueries" in fallbackCalls[0].options, false, "autocomplete-only includeQueries is never passed to Search");
+check.equal(fallbackCalls[0].options.includePointsOfInterest, true, "fallback still asks for points of interest");
 check.ok(fallbackCalls[0].options.signal instanceof AbortSignal, "fallback shares the existing attempt cancellation");
 check.ok(!("center" in fallbackCalls[0].options), "POI-only options never leak into the general Search contract");
-check.deepEqual(diagnostics, [{ provider: "points-of-interest", reason: "unavailable" }], "provider degradation is observable without credentials or coordinates");
+check.deepEqual(diagnostics, [{ provider: "points-of-interest", reason: "unavailable", outcome: "recovered" }], "completed fallback recovery is observable without credentials or coordinates");
 check.equal(mapFailureReason(new Error("401 token private-value origin https://example.com/?secret=not-for-logs")), "authorization", "diagnostics classify authorization without leaking the provider message");
 check.equal(mapFailureReason(new Error("429 quota")), "rate-limit", "quota problems are distinguishable from an empty result");
 const fallbackEmpty = fakeMapkit([() => Promise.reject(new Error("POI down"))]);
 const emptyCalls = generalSearch(fallbackEmpty, [{ places: [] }, { places: [] }]);
-check.equal((await createParkingSearch({ mapkit: fallbackEmpty.mapkit, venue }).search()).places.length, 0, "completed fallback emptiness remains distinct from failure");
+const emptyDiagnostics = [];
+check.equal((await createParkingSearch({ mapkit: fallbackEmpty.mapkit, venue, onDiagnostic: d => emptyDiagnostics.push(d) }).search()).places.length, 0, "completed fallback emptiness remains distinct from failure");
 check.equal(emptyCalls.length, 2, "fallback expands only once, at most three calls including the failed service");
+check.equal(emptyDiagnostics[0]?.outcome, "recovered", "a fully checked valid empty fallback is a successful provider response");
 const bothDown = fakeMapkit([() => Promise.reject(new Error("POI down"))]);
 generalSearch(bothDown, [() => Promise.reject(new Error("Search down"))]);
-await check.rejects(createParkingSearch({ mapkit: bothDown.mapkit, venue }).search(), { code: "PARKING_PROVIDER" }, "two provider failures never render as no parking found");
+const failedDiagnostics = [];
+await check.rejects(createParkingSearch({ mapkit: bothDown.mapkit, venue, onDiagnostic: d => failedDiagnostics.push(d) }).search(), { code: "PARKING_PROVIDER" }, "two provider failures never render as no parking found");
+check.equal(failedDiagnostics[0]?.outcome, "failed", "failed fallback remains a failure diagnostic");
+const pendingFallback = deferred();
+const waitingFallback = fakeMapkit([() => Promise.reject(new Error("HTTP 400 private token"))]);
+generalSearch(waitingFallback, [() => pendingFallback.promise]);
+const waitingDiagnostics = [];
+const waitingService = createParkingSearch({ mapkit: waitingFallback.mapkit, venue, onDiagnostic: d => waitingDiagnostics.push(d) });
+const waiting = waitingService.search();
+await wait();
+check.equal(waitingDiagnostics.length, 0, "a pending fallback cannot claim recovery or terminal failure");
+waitingService.cancel();
+await check.rejects(waiting, { name: "AbortError" }, "canceling the fallback settles its caller");
+pendingFallback.resolve({ places: [place("late", 10), place("late2", 20), place("late3", 30)] });
+await wait();
+check.equal(waitingDiagnostics.length, 0, "a late canceled fallback cannot claim recovery");
+const timedFallback = fakeMapkit([() => Promise.reject(new Error("HTTP 400"))]);
+generalSearch(timedFallback, [() => new Promise(() => {})]);
+const timedDiagnostics = [];
+await check.rejects(createParkingSearch({ mapkit: timedFallback.mapkit, venue, requestTimeoutMs: 15, onDiagnostic: d => timedDiagnostics.push(d) }).search(), { code: "PARKING_TIMEOUT" }, "fallback retains the total deadline");
+check.deepEqual(timedDiagnostics, [{ provider: "points-of-interest", reason: "request", outcome: "failed" }], "timed-out fallback preserves the initial request failure without claiming recovery");
+
 const poiEmptyRecover = fakeMapkit([{ places: [] }, { places: [] }]);
 const emptyRecoveryCalls = generalSearch(poiEmptyRecover, [{ places: [place("recovered", 900)] }]);
 const emptyRecovery = await createParkingSearch({ mapkit: poiEmptyRecover.mapkit, venue }).search();

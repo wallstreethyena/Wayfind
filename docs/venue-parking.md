@@ -38,7 +38,12 @@ still applies. This makes at most three calls (one failed POI call and two
 radius searches) under the existing total deadline. A failed fallback remains
 an error, never an empty parking result. Abort and venue-change ownership apply
 to both services. Enumerated provider diagnostics reach console and configured
-Sentry without raw messages, credentials, queries, or coordinates.
+Sentry without raw messages, credentials, queries, or coordinates. A pending
+fallback emits no outcome; completed recovery (including valid empty results)
+is an informational console entry and Sentry breadcrumb, not an unresolved
+issue. Terminal failure remains a Sentry warning. Canceled work emits
+neither. Search requests use only documented SearchOptions; `includeQueries`
+is an autocomplete option and must not be passed to `search()`.
 
 Place sheets and durable place maps share `useVenueNearby`. It pages the owned
 map inventory around the selected venue, within eight miles, instead of using
@@ -72,6 +77,8 @@ Apple API references:
 https://developer.apple.com/documentation/mapkitjs/pointsofinterestsearch/search
 https://developer.apple.com/documentation/mapkitjs/pointsofinterestsearchoptions
 https://developer.apple.com/documentation/mapkitjs/pointofinterestfilter/including
+https://developer.apple.com/documentation/mapkitjs/searchoptions
+https://developer.apple.com/documentation/mapkitjs/searchconstructoroptions/includequeries
 
 ## Arrival guide and complete empty checks
 
