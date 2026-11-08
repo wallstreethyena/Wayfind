@@ -3,6 +3,7 @@ import { gateShut, spendAllow, spendAllowPhotos, spendAllowPhotosDetailed, photo
 // Licensed images keep their normal cache policy. Google image bytes and same-
 // photo credits use the shared private store; metadata remains revocable.
 import { NextResponse } from "next/server";
+import { waitUntil } from "@vercel/functions";
 import { FALLBACK_PATH, PHOTO_REF_RX, placeIdFromRef, resolvePlacePhoto } from "../../../lib/placePhotoServe";
 import { findFreePhoto } from "../../../lib/freePhoto";
 import { recordPhotoOutcome, recordPhotoDeniedCeiling, ledgerOutcomeClass } from "../../../lib/photoOutcomes";
@@ -293,15 +294,17 @@ async function handlePhotoGet(req) {
   });
   // Count the final answer separately from upstream/purchase outcomes. A
   // stored or licensed response serves an image without buying anything.
-  const recordResponse = async (cls) => {
+  const recordResponse = (cls) => {
     if (!probe && cls) queueOutcome(cls);
-    // Each write keeps its existing 400ms bound; response and upstream counts
-    // run together instead of adding serial telemetry round trips.
-    await Promise.all(outcomeWrites);
+    // Keep bounded telemetry alive after the response without making stored
+    // or licensed image hits wait for a ledger round trip.
+    if (outcomeWrites.length) {
+      try { waitUntil(Promise.all(outcomeWrites)); } catch { /* telemetry only */ }
+    }
   };
 
   if (result.type === "redirect" && result.location) {
-    await recordResponse("response-served");
+    recordResponse("response-served");
     if (wantJson) {
       if (result.reason === "google" && !probe) logGoogleGrant(req, result.reason);
       const c = result.credit || {};
@@ -355,7 +358,7 @@ async function handlePhotoGet(req) {
   // verified against this exact entity. It is this place's own photo, never a
   // shared stock pool.
   const free = await getFreePhoto();
-  if (free && free.url) await recordResponse("response-served");
+  if (free && free.url) recordResponse("response-served");
   if (free && free.url && wantJson) {
     return jsonAnswer({ src: free.url, source: free.source === "wikimedia" ? "licensed" : "permitted", credit: { name: free.attributionText, uri: free.attributionUrl, license: free.license } }, "public, max-age=" + FREE_REDIRECT_TTL + ", s-maxage=" + FREE_REDIRECT_TTL, "owned-free");
   }
@@ -393,7 +396,7 @@ async function handlePhotoGet(req) {
 
   const refusal = result.reason === "spend-denied" ? ledgerOutcomeClass(result.ledgerReason) : result.upstream;
   const refusedResponse = /^(?:ledger-(?:denied|cap|timeout|http|unconfigured)|quota-open|storage-failed|place-lookup-denied|(?:(?:place-lookup-failed|fresh-failed|stale-heal-failed):)?(?:quota|key-denied|server|network|badjson|unowned|redirect))$/.test(refusal || "");
-  await recordResponse(refusedResponse ? "response-refused" : null);
+  recordResponse(refusedResponse ? "response-refused" : null);
 
   if (wantJson) {
     return jsonAnswer({ src: null, source: "none", credit: null }, "private, no-store", result.reason || "no-photo");
