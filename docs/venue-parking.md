@@ -79,3 +79,32 @@ https://developer.apple.com/documentation/mapkitjs/pointsofinterestsearchoptions
 https://developer.apple.com/documentation/mapkitjs/pointofinterestfilter/including
 https://developer.apple.com/documentation/mapkitjs/searchoptions
 https://developer.apple.com/documentation/mapkitjs/searchconstructoroptions/includequeries
+
+## Arrival guide and complete empty checks
+
+The shared Parking panel now preserves Apple's formatted facility address when
+supplied, numbers closest-first alternatives, and offers a separate location
+pin in Apple Maps alongside driving and walking navigation. Names and addresses
+remain provider facts; no price, opening hours, availability, public access,
+accessible bay or event approval is inferred. The panel explains these unknowns
+and includes an expandable checklist covering access, total cost, entry/exit,
+walking route, accessible access, vehicle clearance and returning after an event.
+
+Every state retains a venue-centered external Apple parking search. It works
+without the embedded SDK, a configured MapKit token or a location permission.
+Unavailable configuration does not offer a retry action that cannot succeed.
+The search is anchored to the resolved venue; directions still target the
+selected lot and the walking leg ends at the venue.
+
+When both POI-radius searches return no usable parking, one final general Apple
+Search checks the one-mile area before the guide reports no listings. The total
+budget stays at three calls and the existing attempt deadline, cancellation,
+category ownership and precise radial checks still apply. Failure of this last
+check is an incomplete search, visibly an error. An explicitly non-Parking
+category is refused. Diagnostic logging cannot break recovery. General Search
+receives only its documented options: includeQueries belongs to autocomplete
+and is not passed to Search.
+
+This remains a nearby discovery guide, not an exhaustive parking directory.
+Operator-verified prices, hours, accessibility and event restrictions require
+separate dated source evidence before they can be shown as facts.
