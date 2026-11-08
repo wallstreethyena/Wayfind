@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import assert from "node:assert/strict";
-import { createParkingSearch, hasParkingCoordinate, parkingDirectionsUrl, parkingMapRegion } from "../lib/appleParking.js";
+import { createParkingSearch, hasParkingCoordinate, parkingDirectionsUrl, parkingMapsUrl, parkingMapRegion } from "../lib/appleParking.js";
 import { mapFailureReason } from "../lib/mapDiagnostics.js";
 
 let assertions = 0;
@@ -107,6 +107,23 @@ check.equal(expandedResult.radiusMeters, 1609.344, "the expanded result reports 
 check.equal(expanded.requests[1].center.latitude, venue.lat, "expansion keeps the same venue center");
 check.equal(expanded.requests[0].signal, expanded.requests[1].signal, "one attempt shares its abort signal across both requests");
 
+const facility = fakeMapkit([{ places: [
+  { ...place("address", 25), formattedAddress: "1 Garage Lane, Sarasota, FL", pointOfInterestCategory: "Parking", price: "free", openingHours: "24h", availableSpaces: 50 },
+  { ...place("restaurant", 5), pointOfInterestCategory: "Restaurant" },
+  place("b", 40), place("c", 50),
+] }]);
+const facilityResult = await createParkingSearch({ mapkit: facility.mapkit, venue }).search();
+check.equal(facilityResult.places[0].address, "1 Garage Lane, Sarasota, FL", "the guide preserves the provider's facility address");
+check.ok(!facilityResult.places.some(p => p.id === "restaurant"), "an explicitly wrong category cannot become parking even when geographically closest");
+check.ok(!("price" in facilityResult.places[0]) && !("openingHours" in facilityResult.places[0]) && !("availableSpaces" in facilityResult.places[0]), "unverified operational claims are never promoted into the guide");
+const pinLink = new URL(parkingMapsUrl({ ...parking, name: "A & B <Garage>" }));
+check.equal(pinLink.searchParams.get("ll"), "27.301,-82.502", "facility details use the selected facility point");
+check.equal(pinLink.searchParams.get("q"), "A & B <Garage>", "facility names are URL encoded without changing identity");
+const nearbyLink = new URL(parkingMapsUrl(venue, true));
+check.equal(nearbyLink.searchParams.get("q"), "parking", "the SDK-independent escape route searches parking");
+check.equal(nearbyLink.searchParams.get("ll"), "27.3,-82.5", "external discovery is anchored on the venue, not the visitor city");
+check.equal(parkingMapsUrl({ lat: 91, lng: 0 }, true), "", "bad coordinates never produce a misleading discovery link");
+
 const empty = fakeMapkit([{ places: [] }, { places: [] }]);
 check.deepEqual(await createParkingSearch({ mapkit: empty.mapkit, venue }).search(), { places: [], radiusMeters: 1609.344 }, "a valid empty provider response is an ordinary empty result");
 check.equal(empty.requests.length, 2, "even an empty provider never exceeds the two-request budget");
@@ -158,7 +175,7 @@ check.deepEqual(fallbackCalls[0].options.pointOfInterestFilter, { including: ["P
 check.equal(fallbackCalls[0].options.regionPriority, "required", "fallback requires the venue's region");
 check.deepEqual(fallbackCalls[0].options.region.center, new poiDown.mapkit.Coordinate(venue.lat, venue.lng), "fallback is centered on the selected venue");
 check.equal(fallbackCalls[0].options.includeAddresses, false, "addresses cannot masquerade as parking");
-check.equal(fallbackCalls[0].options.includeQueries, false, "query suggestions cannot masquerade as parking");
+check.equal("includeQueries" in fallbackCalls[0].options, false, "Search never receives the autocomplete-only includeQueries option");
 check.ok(fallbackCalls[0].options.signal instanceof AbortSignal, "fallback shares the existing attempt cancellation");
 check.ok(!("center" in fallbackCalls[0].options), "POI-only options never leak into the general Search contract");
 check.deepEqual(diagnostics, [{ provider: "points-of-interest", reason: "unavailable" }], "provider degradation is observable without credentials or coordinates");
@@ -171,6 +188,22 @@ check.equal(emptyCalls.length, 2, "fallback expands only once, at most three cal
 const bothDown = fakeMapkit([() => Promise.reject(new Error("POI down"))]);
 generalSearch(bothDown, [() => Promise.reject(new Error("Search down"))]);
 await check.rejects(createParkingSearch({ mapkit: bothDown.mapkit, venue }).search(), { code: "PARKING_PROVIDER" }, "two provider failures never render as no parking found");
+const poiEmptyRecover = fakeMapkit([{ places: [] }, { places: [] }]);
+const emptyRecoveryCalls = generalSearch(poiEmptyRecover, [{ places: [place("recovered", 900)] }]);
+const emptyRecovery = await createParkingSearch({ mapkit: poiEmptyRecover.mapkit, venue }).search();
+check.equal(emptyRecovery.places[0]?.id, "recovered", "an empty POI service is checked against independent Search before reporting no parking");
+check.equal(poiEmptyRecover.requests.length + emptyRecoveryCalls.length, 3, "empty recovery retains the three-call cap");
+check.equal(emptyRecovery.radiusMeters, 1609.344, "recovery reports the actual final search radius");
+const emptyRecoveryDown = fakeMapkit([{ places: [] }, { places: [] }]);
+generalSearch(emptyRecoveryDown, [() => Promise.reject(new Error("provider failed"))]);
+await check.rejects(createParkingSearch({ mapkit: emptyRecoveryDown.mapkit, venue }).search(), { code: "PARKING_PROVIDER" }, "an incomplete empty recovery is an error, never a measured absence");
+const diagnosticBroken = fakeMapkit([() => Promise.reject(new Error("POI down"))]);
+generalSearch(diagnosticBroken, [{ places: [place("recovered", 10), place("b", 20), place("c", 30)] }]);
+check.equal((await createParkingSearch({ mapkit: diagnosticBroken.mapkit, venue, onDiagnostic: () => { throw new Error("logger failed"); } }).search()).places.length, 3, "telemetry failure cannot prevent parking recovery");
+const emptyRecoveryHung = fakeMapkit([{ places: [] }, { places: [] }]);
+generalSearch(emptyRecoveryHung, [() => new Promise(() => {})]);
+await check.rejects(createParkingSearch({ mapkit: emptyRecoveryHung.mapkit, venue, requestTimeoutMs: 20 }).search(), { code: "PARKING_TIMEOUT" }, "the total deadline also bounds empty recovery");
+
 const poiHung = fakeMapkit([() => new Promise(() => {})]);
 const hungFallback = generalSearch(poiHung, [{ places: [place("a", 50), place("b", 100), place("c", 150)] }]);
 check.equal((await createParkingSearch({ mapkit: poiHung.mapkit, venue, requestTimeoutMs: 1000, providerTimeoutMs: 5 }).search()).places.length, 3, "a hung POI service cannot consume the entire fallback deadline");

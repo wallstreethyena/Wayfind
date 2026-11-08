@@ -23,6 +23,20 @@ for(const place of [{...venue,lat:null},{...venue,lng:181},{...venue,approximate
   assert.equal(renderToStaticMarkup(React.createElement(PlaceParkingMap,{place})), '', 'no precise parking map for invalid or approximate destinations');
 }
 assert.match(renderToStaticMarkup(React.createElement(PlaceParkingMap,{place:venue})),/Map &amp; parking/);
+const {default: VenueParkingResults} = await loadComponent(path.join(root,'app/components/VenueParkingResults.js'),root);
+const guide=renderToStaticMarkup(React.createElement(VenueParkingResults,{venue,status:'success',radiusMeters:1609.344,places:[{id:'garage',name:'A & B Garage',address:'1 Garage Lane',lat:27.301,lng:-82.5,distanceMeters:111}]}));
+assert.match(guide, /Your parking guide/, 'the shared parking view explains the arrival journey');
+assert.match(guide, /1 Garage Lane/, 'facility address survives to the rendered guide');
+assert.match(guide, /Closest listed/, 'the first rank does not claim best price or access');
+assert.match(guide, /straight-line/, 'distances never masquerade as walking routes');
+assert.match(guide, /Fees, opening hours, accessible spaces and live availability are not supplied/, 'unknown operational facts remain explicit');
+assert.match(guide, /Before you park/, 'practical access and return guidance is available');
+assert.match(guide, /Location details/, 'each facility offers a details link');
+for (const status of ['loading','error','success']) {
+  const fallback=renderToStaticMarkup(React.createElement(VenueParkingResults,{venue,status,places:[]}));
+  assert.match(fallback, /Find more parking in Apple Maps/, 'every parking state retains an SDK-independent exit');
+  assert.doesNotMatch(fallback, /Try parking again/, 'there is no retry button without a functioning retry action');
+}
 const executableArg=process.argv.find(x=>x.startsWith('--browser-executable='));
 const executablePath=executableArg?.split('=').slice(1).join('=') || chromium.executablePath();
 if(!existsSync(executablePath)){
@@ -61,7 +75,7 @@ try {
       addOverlay(item){this.overlays.push(item);} removeOverlay(item){this.overlays=this.overlays.filter(x=>x!==item);} destroy(){} }
     class ImageAnnotation{constructor(coordinate,options){Object.assign(this,{coordinate},options);}}
     class PointsOfInterestSearch{search(options){window.parkingCalls.push({lat:options.center.latitude,lng:options.center.longitude,radius:options.radius});
-      const data={places:[{id:'far',name:'Far Garage',coordinate:new Coordinate(options.center.latitude+.004,options.center.longitude)}, {id:'near',name:'Closest Garage',coordinate:new Coordinate(options.center.latitude+.001,options.center.longitude)}, {id:'mid',name:'Middle Lot',coordinate:new Coordinate(options.center.latitude+.002,options.center.longitude)}]};
+      const data={places:[{id:'far',name:'Far Garage',coordinate:new Coordinate(options.center.latitude+.004,options.center.longitude)}, {id:'near',name:'Closest Garage',formattedAddress:'1 Garage Lane, Sarasota, FL',coordinate:new Coordinate(options.center.latitude+.001,options.center.longitude)}, {id:'mid',name:'Middle Lot',coordinate:new Coordinate(options.center.latitude+.002,options.center.longitude)}]};
       if(window.responseMode==='error')return Promise.reject(new Error('quota fixture'));
       if(window.responseMode==='empty')return Promise.resolve({places:[]});
       if(window.responseMode==='pending')return new Promise(resolve=>window.pendingParking.push(()=>resolve(data)));
@@ -109,6 +123,8 @@ try {
   await page.getByRole('button',{name:'Show Closest Garage on the map'}).waitFor();
   assert.deepEqual(await page.locator('.wfev-parking-select b').allTextContents(),['Closest Garage','Middle Lot','Far Garage']);
   assert.equal(await page.evaluate(()=>window.parkingCalls.length),1);
+  await page.getByText('1 Garage Lane, Sarasota, FL',{exact:true}).waitFor();
+  await page.getByRole('link',{name:'Find more parking in Apple Maps ↗',exact:true}).waitFor();
   assert.equal(await page.evaluate(()=>window.parkingCalls[0].lat),venue.lat);
   const walk=new URL(await page.getByRole('link',{name:'Walk from Closest Garage to Fixture venue'}).getAttribute('href'));
   assert.equal(walk.searchParams.get('saddr'),'27.301000000000002,-82.5');
@@ -124,6 +140,8 @@ try {
     const bounds=await page.evaluate(()=>({width:innerWidth,scroll:document.documentElement.scrollWidth,buttons:[...document.querySelectorAll('.wfev-parking-select,.wfev-parking-actions a')].map(e=>e.getBoundingClientRect().height)}));
     assert.equal(bounds.width,width);assert.ok(bounds.scroll<=width,'no horizontal overflow');assert.ok(bounds.buttons.every(h=>h>=44));
   }
+  await page.getByText('Before you park',{exact:true}).click();
+  await page.getByText('Plan the return.',{exact:true}).waitFor();
   await page.setViewportSize({width:390,height:1000});
   await page.screenshot({path:'/tmp/wayfind-parking-mobile.png',fullPage:true});
   await page.getByRole('button',{name:'All places 0'}).click();
