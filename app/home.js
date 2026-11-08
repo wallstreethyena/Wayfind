@@ -115,7 +115,6 @@ import { placeAllowed, SUB_ALLOW } from "../lib/placeFilter";
 import { parseCouponValue } from "../lib/couponValue";
 import { currentSeason, seasonQueries, seasonalFit, SEASON_META } from "../lib/seasons";
 import { COUPONS, couponForPlace, couponForPlaceName, normalizeOfferRow } from "../lib/coupons";
-import { pickHook } from "../lib/hooks";
 import * as Meals from "../lib/meals";
 import * as Radius from "../lib/radius";
 import { isTrueLodging } from "../lib/lodging";
@@ -11477,105 +11476,20 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
                   )}
                 </div>
               )}
-              {/* v6.21: the single hero is now the experience hero below (random themed curated list, the shareable anchor). The old place hero was removed to keep one hero. */}
-              {/* Wayfind Picks now renders as the first hook card inside the "Worth a look" section below, matching the editorial cards. */}
-              {/* "Worth a look near you": Wayfind Picks first, editorial hooks in the middle, Roll the Dice last. Same hook-card shape, different accent colors, so they blend. */}
+              {/* The former hero cards are retired; location and seasonal promotions remain. */}
               {!browseCat && (suggested && suggested.length > 0) && (() => {
-                const shareHook = (hk, pl) => { if (!pl) return; askShareIntent({ name: pl.name, city: locName, id: pl.id, kind: placeKinds(pl), onPlain: () => shareLink(pl.name, placeShareUrl(pl, locName, blurbLine(blurbs[pl.id])), () => showToast("Link copied"), fallShareLine("Check out " + pl.name + " on Wayfind", pl.id, siteTodayStr()), () => { try { logEvent("share", pl, { kind: "hook" }); } catch (e) {} giveawayMark(pl.id); addShared(pl); }), onInvite: (u, t) => shareLink("A question for you", u, null, t, () => { try { logEvent("share", pl, { kind: "invite", from: "hook" }); } catch (e) {} giveawayMark(pl.id); addShared(pl); }) }); };
-                // v5.11: the dice card rotates the TAKE A CHANCE bank; the
-                // classic line "I want to take a chance." stays as variant zero
-                // and the fallback (PROTECTED copy, check-ux).
-                const _bkChance = pickHook("chance", null);
-                // hero_impression is NOT emitted here: diceHook and mkHook below are never rendered (nothing references them), so an impression would be a phantom (scripts/test-hero-impression-rendered.mjs). Emit it from the render path that actually shows a hero card.
-                const diceHook = { id: "dice-roll", accent: C.purple, emoji: "🎲", label: "Take a chance", hook: _bkChance ? _bkChance.text : "I want to take a chance.", _hookVar: _bkChance ? _bkChance.variant : null, highlightWord: _bkChance ? "" : "chance", subtitle: "Roll it — Wayfind lands you somewhere great nearby", cta: "🎲 Roll the dice →" };
-                // One experience hero anchors the feed. The curated list it opens is the shareable anchor.
-                const THEME_ORDER = ["gem", "family", "bestof", "entertainment", "stays", "shows", "budget"];
-                const THEME_COLOR = { gem: C.teal, family: C.green, bestof: C.gold, entertainment: C.purple, stays: C.blue, shows: C.pink, budget: C.gold };
-                const expPool = [];
+                // The former hero/dice cards are retired. Their badge scans,
+                // seven theme sorts, condition ranking and hook storage writes
+                // produced no rendered card, yet ran behind every detail update.
+                // The live promos below only need the original photo eligibility:
+                // merge the same pools, retaining the first row for each ID.
                 const seenPool = new Set();
-                for (const p of [...(displayList || []), ...(suggested || []), ...(places || [])]) { if (p && p.id && !seenPool.has(p.id)) { seenPool.add(p.id); expPool.push(p); } }
-                const poolKeys = new Map();
-                expPool.forEach((p) => { try { poolKeys.set(p.id, new Set(experienceBadges(p, null, 99).map((b) => b.key))); } catch (er) { poolKeys.set(p.id, new Set()); } });
-                const matchesExp = (p, key) => { const e = EXPERIENCES[key]; if (!e) return false; if (e.filter) { try { return !!e.filter(p); } catch (er) { return false; } } const ks = poolKeys.get(p.id); return ks ? ks.has(key) : false; };
-                const avail = [];
-                const usedHeroIds = new Set();
-                for (const key of THEME_ORDER) { const e = EXPERIENCES[key]; if (!e) continue; const match = expPool.filter((p) => p && p.photo && matchesExp(p, key) && !usedHeroIds.has(p.id)).sort((a, b) => (b.wfScore || 0) - (a.wfScore || 0))[0]; if (match) { avail.push({ key, place: match, e }); usedHeroIds.add(match.id); } }
-                // v4.46: the revenue themes always render as hero cards. When the local
-                // pool has no matching place (it is food-heavy), a place-less hero card
-                // still shows — HookSolo falls back to the accent gradient — and tapping
-                // it opens the wide-radius experience search (Orlando attractions,
-                // hotels, shows). These are the surfaces that carry affiliate links.
-                const GUARANTEED = ["family", "entertainment", "stays", "shows", "budget"];
-                for (const key of GUARANTEED) { if (!avail.some((a) => a.key === key) && EXPERIENCES[key]) avail.push({ key, place: null, e: EXPERIENCES[key] }); }
-                { const _ord = new Map(THEME_ORDER.map((k, i) => [k, i])); avail.sort((a, b) => (_ord.get(a.key) ?? 99) - (_ord.get(b.key) ?? 99)); }
-                // v6.25: the hero is now the single best move for right now, ranked by
-                // quality + distance + today's weather + the time of day (see lib/ranking.js),
-                // so a stormy afternoon stops opening on an outdoor pick. The themed
-                // experiences (gems, value, waterfront...) all move into the stack below.
-                const condCtx = { weather, hour: h, isWeekend: [0, 6].includes(new Date().getDay()) };
-                const heroPhotoPool = expPool.filter((p) => p && p.photo);
-                const heroCandidates = heroPhotoPool.filter((p) => p.openNow !== false);
-                const condRanked = Ranking.rankByConditions(heroCandidates.length ? heroCandidates : heroPhotoPool, condCtx);
-                const heroPlace = condRanked[0] || null;
-                const cityHero = locName ? locName.split(",")[0] : "this area";
-                const heroHook = heroPlace ? {
-                  id: "top10now", accent: C.accent, emoji: "🧭", label: "Your Next Move",
-                  theme: "best", placeId: heroPlace.id, highlightWord: "top 10", _ctx: condCtx,
-                  hook: Ranking.heroReason(heroPlace, condCtx),
-                  subtitle: "The best move near " + cityHero + " right now, ranked",
-                  cta: "See the top 10 →",
-                  metaLine: Tags.requiresParkAdmission(heroPlace.types) ? "May require park admission" : null,
-                  themeTitle: "Wayfind Picks · Top 10 near " + cityHero,
-                  themeBody: "The ten best spots near you for right now, ranked by quality, distance, today's weather, and the time of day. Rain pushes indoor picks up, clear skies favor the outdoors, and anything closed drops down. No ads, no paid placement.",
-                } : null;
-                const restExp = avail.filter((a) => !heroPlace || !a.place || a.place.id !== heroPlace.id);
-                const themeEng = {};
-                try { hookLikes.forEach((id) => { if (typeof id === "string" && id.indexOf("exp-") === 0) { const t = id.slice(4); themeEng[t] = (themeEng[t] || 0) + 1; } }); } catch (e) {}
-                restExp.sort((a, b) => ((themeEng[b.key] || 0) - (themeEng[a.key] || 0)) || (THEME_ORDER.indexOf(a.key) - THEME_ORDER.indexOf(b.key)));
-                const mkHook = (a) => {
-                  if (!a.place) {
-                    const m = revenueExpMeta(a.key, cityHero) || { hook: a.e.lead || a.e.title, hl: "", sub: a.e.lead || "", cta: "Explore \u2192" };
-                    // v5.09 persuasion engine: rotate the hook bank (random,
-                    // never the same line twice in a row) with live tokens;
-                    // fall back to the static meta hook when no bank exists.
-                    // Live context for data-gated lines: a "4.9★" claim needs a
-                    // real 4.9★ place in the pool; "[mins] minutes away" uses the
-                    // actual nearest top-rated spot (~2 min/mile local driving).
-                    const _hh = siteHourFloat();
-                    const _nearTop = expPool.filter((p) => p && p.rating >= 4.5 && (p.reviews || 0) >= 100 && p.distMi != null).sort((x, y) => x.distMi - y.distMi)[0];
-                    const bk = pickHook(a.key, {
-                      temp: weather && weather.temp,
-                      time: _hh < 12 ? "morning" : _hh < 17 ? "afternoon" : _hh < 21 ? "golden hour" : "late",
-                      night: _hh >= 16 || _hh < 4, day: _hh >= 8 && _hh < 16,
-                      top49: expPool.some((p) => p && p.rating >= 4.9 && (p.reviews || 0) >= 15),
-                      mins: _nearTop && _nearTop.distMi <= 15 ? Math.max(4, Math.round(_nearTop.distMi * 2)) : null,
-                    });
-                    return { id: "exp-" + a.key, accent: THEME_COLOR[a.key] || m.accent || C.accent, emoji: a.e.icon, label: cityFix(a.e.label), theme: a.key, fetchKey: a.key, highlightWord: bk ? "" : m.hl, hook: bk ? bk.text : m.hook, _hookVar: bk ? bk.variant : null, subtitle: m.sub, cta: m.cta, metaLine: null, themeTitle: cityFix(a.e.title), themeBody: a.e.lead, places: null };
-                  }
-                  const t = themedHook(a.key, a.place);
-                  const members = placesForHook({ theme: a.key, placeId: a.place.id }, expPool);
-                  const cnt = members.length;
-                  const avg = Dining.avgCostForTwo(members);
-                  const meta = [cnt > 1 ? cnt + " spots" : null, avg ? avg.text : null].filter(Boolean).join("  ·  ");
-                  return { id: "exp-" + a.key, accent: THEME_COLOR[a.key] || C.accent, emoji: a.e.icon, label: cityFix(a.e.label), theme: a.key, placeId: a.place.id, highlightWord: t.hl, hook: cityFix(t.hook), subtitle: cityFix(t.sub), cta: cnt > 1 ? ("See all " + cnt + " →") : cityFix(t.cta), metaLine: meta || null, themeTitle: cityFix(a.e.title), themeBody: a.e.lead };
-                };
-                const dicePhotos = expPool.filter((p) => p && p.photo).slice(0, 4).map((p) => p.photo);
-                // v4.67: revenue hero cards show real nearby photos, not flat
-                // gradients. Each theme pulls its own kind of place; thin
-                // matches fall back to the best-rated photos around.
-                const EXP_COLLAGE_RX = { family: /amusement|aquarium|zoo|bowling|mini_golf|water_park|playground|park/, entertainment: /amusement|tourist|museum|bowling|theater|theatre|aquarium|zoo|attraction/, shows: /performing|theater|theatre|concert|stadium|night_club|movie/, budget: /park|beach|museum|tourist|amusement|trail/, bestof: null, gem: null };
-                const expCollage = (key) => {
-                  try {
-                    const rx = EXP_COLLAGE_RX[key];
-                    const byScore = (a, b) => (b.wfScore || 0) - (a.wfScore || 0);
-                    let pool2 = expPool.filter((p) => p && p.photo);
-                    if (key === "stays") pool2 = pool2.filter((p) => isTrueLodging(p));
-                    else if (rx) pool2 = pool2.filter((p) => rx.test(((p.types || []).join(" ") + " " + (p.name || "")).toLowerCase()));
-                    let out2 = pool2.sort(byScore).slice(0, 4).map((p) => p.photo);
-                    if (out2.length < 2) return []; // no themed photos nearby: gradient beats a lie
-                    return out2;
-                  } catch (e) { return []; }
-                };
+                const hasPromoPhoto = [displayList, suggested, places].some((pool) =>
+                  (pool || []).some((p) => {
+                    if (!p || !p.id || seenPool.has(p.id)) return false;
+                    seenPool.add(p.id);
+                    return !!p.photo;
+                  }));
                 return (
                   <div style={{ marginBottom: 16 }}>
                     {locApprox && !locBannerGone && (
@@ -11588,7 +11502,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
                         </div>
                       </div>
                     )}
-                    {heroPlace && (<>
+                    {hasPromoPhoto && (<>
                       {/* "Best move right now" section removed (owner 2026-07-17). The giveaway / World Cup / holiday promo cards below are separate features and stay. */}
                       {gwPop && (giveawayLive() || giveawaySoon()) && (() => {
                         /* v8.56.17 — owner-supplied giveaway card (2026-09-15): photo
@@ -11696,7 +11610,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
                         </div>
                       ); })()}
                       
-                      {/* "Best move right now" hero body removed (owner 2026-07-17); it was already disabled. heroHook kept (harmless, unused). */}
+                      {/* The retired hero body stays absent; live promos retain their existing eligibility. */}
                     </>)}
                     {/* v5.66: the "More ways to explore" image cards + the Take-a-chance card are now folded into the single iOS-style list menu above — destinations + analytics preserved, no photos. */}
                   </div>
