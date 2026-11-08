@@ -83,7 +83,7 @@ const first = service.search();
 check.equal(service.search(), first, "concurrent callers share the pending promise");
 const result = await first;
 check.equal(initial.requests.length, 1, "three valid nearby results stop the attempt after one request");
-check.equal(initial.requests[0].radius, 804.672, "the first request uses half a mile in meters");
+check.equal(initial.requests[0].radius, 805, "the first wire request covers half a mile using whole meters");
 check.deepEqual(initial.requests[0].center, new initial.mapkit.Coordinate(27.3, -82.5), "search is anchored at the venue");
 check.deepEqual(initial.filters, [["Parking"]], "the provider receives the parking-only filter");
 check.ok(initial.requests[0].signal instanceof AbortSignal, "modern MapKit gets an abort signal");
@@ -101,7 +101,7 @@ const expanded = fakeMapkit([
   { places: [place("one", 100), place("outer", 1200), place("middle", 600), place("out-of-circle", 1800)] },
 ]);
 const expandedResult = await createParkingSearch({ mapkit: expanded.mapkit, venue }).search();
-check.deepEqual(expanded.requests.map((request) => request.radius), [804.672, 1609.344], "fewer than three unique usable nearby results expand exactly once");
+check.deepEqual(expanded.requests.map((request) => request.radius), [805, 1610], "fewer than three unique usable nearby results expand exactly once using whole wire meters");
 check.deepEqual(expandedResult.places.map((p) => p.id), ["one", "middle", "outer"], "duplicates, malformed coordinates, and out-of-radius results cannot inflate the count");
 check.equal(expandedResult.radiusMeters, 1609.344, "the expanded result reports one mile");
 check.equal(expanded.requests[1].center.latitude, venue.lat, "expansion keeps the same venue center");
@@ -123,6 +123,29 @@ const nearbyLink = new URL(parkingMapsUrl(venue, true));
 check.equal(nearbyLink.searchParams.get("q"), "parking", "the SDK-independent escape route searches parking");
 check.equal(nearbyLink.searchParams.get("ll"), "27.3,-82.5", "external discovery is anchored on the venue, not the visitor city");
 check.equal(parkingMapsUrl({ lat: 91, lng: 0 }, true), "", "bad coordinates never produce a misleading discovery link");
+
+// Reproduce the strict wire boundary independently of the result boundary.
+// The SDK accepts JS numbers and serializes their decimals unchanged; the
+// provider can reject that request before returning any parking information.
+const wholeMeters = fakeMapkit([options => {
+  if (!Number.isSafeInteger(options.radius)) return Promise.reject(new Error("HTTP 400: fractional wire radius"));
+  return Promise.resolve({ places: [place("inside-half", 804.6), place("outside-half", 804.9), place("a", 20), place("b", 40)] });
+}]);
+const wholeMetersResult = await createParkingSearch({ mapkit: wholeMeters.mapkit, venue }).search();
+check.equal(wholeMeters.requests.length, 1, "whole-meter primary results do not require fallback or expansion");
+check.deepEqual(wholeMetersResult.places.map(p => p.id), ["a", "b", "inside-half"], "wire rounding cannot admit a place beyond the original half-mile circle");
+check.equal(wholeMetersResult.radiusMeters, 804.672, "the visible result boundary remains exactly half a mile");
+const wholeExpansion = fakeMapkit([
+  { places: [place("inner", 100)] },
+  options => {
+    if (!Number.isSafeInteger(options.radius)) return Promise.reject(new Error("HTTP 400: fractional wire radius"));
+    return Promise.resolve({ places: [place("inside-mile", 1609.3), place("outside-mile", 1609.6)] });
+  },
+]);
+const wholeExpansionResult = await createParkingSearch({ mapkit: wholeExpansion.mapkit, venue }).search();
+check.deepEqual(wholeExpansion.requests.map(request => request.radius), [805, 1610], "both primary radii remain integral");
+check.deepEqual(wholeExpansionResult.places.map(p => p.id), ["inner", "inside-mile"], "wire rounding cannot admit a place beyond the original one-mile circle");
+check.equal(wholeExpansionResult.radiusMeters, 1609.344, "the expanded visible boundary remains exactly one mile");
 
 const empty = fakeMapkit([{ places: [] }, { places: [] }]);
 check.deepEqual(await createParkingSearch({ mapkit: empty.mapkit, venue }).search(), { places: [], radiusMeters: 1609.344 }, "a valid empty provider response is an ordinary empty result");
