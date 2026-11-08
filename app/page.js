@@ -101,7 +101,7 @@ async function HomeProof() {
   const top = ((await rankedFor("things-to-do", "sarasota").catch(() => null)) || []).slice(0, 5);
   if (top.length < 3) return null;
   return (
-    <section style={S.wrap} aria-label="Example Wayfind picks">
+    <ProofVeil><section style={S.wrap} aria-label="Example Wayfind picks">
       <div style={S.kicker}>{copy.kicker}</div>
       <h2 style={S.h2}>{copy.heading}</h2>
       <p style={S.sub}>{copy.sub}</p>
@@ -119,7 +119,7 @@ async function HomeProof() {
         <b style={{ color: "#FFFFFF" }}>Nearby towns:</b>{" "}
         {Object.entries(TOWN_HUBS).slice(0, 5).map(([k, slug], i) => (<span key={slug}><a style={S.a} href={"/florida/" + slug}>{TOWN_PROFILES[k].title}</a>{i < 4 ? " · " : ""}</span>))}
       </p>
-    </section>
+    </section></ProofVeil>
   );
 }
 
@@ -147,11 +147,12 @@ export default async function Page() {
       </h1>
       <SiteDaySeed day={siteTodayStr()} />
       <Home initialEvents={initialEvents} localEditGuides={localEditIndex(currentGuides(GUIDES))} thisWeekEvents={thisWeekEvents} railMenu={railMenu} />
-      {/* Suspense so the app shell streams immediately; the proof block
-          follows without adding a byte to time-to-first-paint. ProofVeil keeps
-          it in the DOM for crawlers but removes it from the interactive view
-          once JS mounts, so it never bleeds in as a "loose footer" (v6.26). */}
-      <Suspense fallback={null}><ProofVeil><HomeProof /></ProofVeil></Suspense>
+      {/* Keep the optional proof independent of shell rendering. HomeProof
+          resolves its data before emitting ProofVeil and its children together,
+          avoiding a streamed placeholder inside an already-emitted client
+          wrapper. The veil still preserves the proof DOM for crawlers while
+          hiding it from the interactive view after mount. */}
+      <Suspense fallback={null}><HomeProof /></Suspense>
     </>
   );
 }

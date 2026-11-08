@@ -96,22 +96,50 @@ for (const slowDetails of [false, true]) {
 
 // Source the real public route; retained answers must keep source and credit,
 // and a free shared read must never be reported as a new Google purchase.
-const src = readFileSync(new URL("../app/api/photo/route.js", import.meta.url), "utf8");
+const src = readFileSync(process.argv[2] || new URL("../app/api/photo/route.js", import.meta.url), "utf8");
 let paidLogs = 0;
+const outcomes = [];
 globalThis.__sharedPhotoRoute = {
-  resolvePlacePhoto: async input => { check(input.retainGoogle === true && input.storedSurface === true, "public route enables retained credited results"); return { type: "redirect", reason: "google-stored", location: saved.src, credit: CREDIT }; },
+  probe: false, free: null, result: { type: "redirect", reason: "google-stored", location: saved.src, credit: CREDIT },
+  resolvePlacePhoto: async input => { check(input.retainGoogle === true && input.storedSurface === true, "public route enables retained credited results"); return globalThis.__sharedPhotoRoute.result; },
+  recordPhotoOutcome: async cls => { outcomes.push(cls); },
   recordPhotoPurchase: async () => { paidLogs++; },
 };
-const prelude = `const {resolvePlacePhoto,recordPhotoPurchase}=globalThis.__sharedPhotoRoute;
+const prelude = `const {resolvePlacePhoto,recordPhotoPurchase,recordPhotoOutcome}=globalThis.__sharedPhotoRoute;
 const NextResponse={json:(body,init={})=>new Response(JSON.stringify(body),init),redirect:(url,init={})=>new Response(null,{...init,headers:{...init.headers,location:String(url)}})};
-const gateShut=()=>true, isAutomatedPhotoReader=()=>true, creditedRequest=()=>false, placeIdFromRef=()=>'', findFreePhoto=async()=>null;
+const gateShut=()=>true, isAutomatedPhotoReader=()=>globalThis.__sharedPhotoRoute.probe, creditedRequest=()=>true, placeIdFromRef=()=>'', findFreePhoto=async()=>globalThis.__sharedPhotoRoute.free;
+const ledgerOutcomeClass=reason=>'ledger-'+reason, photosCeiling=()=>10000;
+const bucketHash=()=>'',idempotencyKey=()=>'',uaClass=()=>'';
 const PHOTO_REF_RX=/^places\\//, FALLBACK_PATH='/wf-photo-fallback.svg';
-const recordPhotoOutcome=async()=>{},recordPhotoDeniedCeiling=async()=>{},recordReaderPhotoMiss=async()=>{};`;
+const recordPhotoDeniedCeiling=async()=>{},recordReaderPhotoMiss=async()=>{};`;
 try {
   const { GET } = await import("data:text/javascript," + encodeURIComponent(prelude + src.replace(/^import[^;]+;\n/gm, "")));
-  const r = await GET(new Request(`https://www.gowayfind.com/api/photo?place=${ID}&s=card&fmt=json&nospend=1`));
+  const r = await GET(new Request(`https://www.gowayfind.com/api/photo?place=${ID}&s=card&fmt=json`));
   const j = await r.json();
   check(j.source === "google" && j.src === saved.src && j.credit.authors[0].name === CREDIT.name, "actual route retains Google source and same saved attribution");
   check(r.headers.get("cache-control") === "private, no-store" && paidLogs === 0, "metadata remains revocable and reuse is not counted as a purchase");
+  check(outcomes.join(",") === "response-served", "stored response counts one served response, without an upstream purchase outcome");
+  outcomes.length = 0;
+  globalThis.__sharedPhotoRoute.probe = true;
+  await GET(new Request(`https://www.gowayfind.com/api/photo?place=${ID}&s=card&fmt=json`));
+  check(outcomes.length === 0 && paidLogs === 0, "probe stored response never changes serving or purchase counters");
+  globalThis.__sharedPhotoRoute.probe = false;
+  globalThis.__sharedPhotoRoute.result = { type: "miss", reason: "spend-denied", ledgerReason: "cap" };
+  outcomes.length = 0;
+  const refused = await GET(new Request(`https://www.gowayfind.com/api/photo?place=${ID}&s=card&fmt=json`));
+  check((await refused.json()).src === null && outcomes.join(",") === "ledger-cap,response-refused", "actual cap miss counts upstream refusal and one final refused response, never a serve");
+  globalThis.__sharedPhotoRoute.free = { url: "https://licensed.example/venue.jpg", source: "wikimedia", attributionText: "Photographer", license: "CC BY" };
+  outcomes.length = 0;
+  const recovered = await GET(new Request(`https://www.gowayfind.com/api/photo?place=${ID}&s=card&fmt=json`));
+  check((await recovered.json()).source === "licensed" && outcomes.join(",") === "ledger-cap,response-served", "licensed recovery after upstream refusal counts a successful response, never a refused response");
+  globalThis.__sharedPhotoRoute.free = null;
+  globalThis.__sharedPhotoRoute.result = { type: "miss", reason: "owned-miss", upstream: "fresh-nophoto" };
+  outcomes.length = 0;
+  await GET(new Request(`https://www.gowayfind.com/api/photo?place=${ID}&s=card&fmt=json`));
+  check(outcomes.join(",") === "fresh-nophoto", "genuinely photoless place is neither a served nor a refused response");
+  globalThis.__sharedPhotoRoute.result = { type: "redirect", reason: "google", location: saved.src, credit: CREDIT, upstream: "ok" };
+  outcomes.length = 0;
+  await GET(new Request(`https://www.gowayfind.com/api/photo?place=${ID}&s=card&fmt=json`));
+  check(outcomes.join(",") === "ok,response-served", "new Google success records one upstream outcome and one distinct response counter");
 } finally { delete globalThis.__sharedPhotoRoute; }
 console.log(`test-shared-google-photo-serving: OK (${checks} assertions)`);
