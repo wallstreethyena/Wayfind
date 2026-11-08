@@ -1,5 +1,6 @@
 "use client";
 
+import { useId } from "react";
 import { parkingDirectionsUrl, parkingMapsUrl } from "../../lib/appleParking.js";
 
 const CSS = `
@@ -16,6 +17,7 @@ function distanceLabel(meters) {
 
 // Parking is navigation information, rather than a scored Wayfind place card.
 export default function VenueParkingResults({ venue, places = [], status = "idle", selectedId, onSelect, onRetry, message, radiusMeters }) {
+  const guideId = useId();
   const statusText = status === "loading" || status === "idle" ? "Finding parking near the venue…"
     : status === "error" ? (message || "Parking could not be loaded right now. Please try again.")
       : places.length ? `${places.length} parking ${places.length === 1 ? "option" : "options"} near ${venue.name}.`
@@ -29,7 +31,7 @@ export default function VenueParkingResults({ venue, places = [], status = "idle
     {status === "success" && places.length ? <>
       <p className="wfev-parking-note">Closest listed first. Distances are straight-line to the venue, not walking routes{Number.isFinite(radiusMeters) ? `; searched within ${(radiusMeters / 1609.344).toFixed(1)} mi` : ""}.</p>
       <ol className="wfev-parking-list">{places.map((place, index) => <li key={place.id}>
-        <button type="button" className="wfev-parking-select" aria-label={`Show ${place.name} on the map`} aria-pressed={String(selectedId) === String(place.id)} onClick={() => onSelect?.(place.id)}><span className="wfev-parking-identity"><span className="wfev-parking-rank">{index === 0 ? "1 · Closest listed" : `${index + 1} · Alternative`}</span><b>{place.name}</b><small>{place.address || "Address not supplied. Check the location pin."}</small></span><span className="wfev-parking-distance">{distanceLabel(place.distanceMeters)}<small>to venue</small></span></button>
+        <button type="button" className="wfev-parking-select" aria-label={`Show ${place.name} on the map`} aria-describedby={`${guideId}-${index}`} aria-pressed={String(selectedId) === String(place.id)} onClick={() => onSelect?.(place.id)}><span className="wfev-parking-identity"><span className="wfev-parking-rank">{index === 0 ? "1 · Closest listed" : `${index + 1} · Alternative`}</span><b>{place.name}</b><small id={`${guideId}-${index}`}>{place.address || "Address not supplied. Check the location pin."}</small></span><span className="wfev-parking-distance">{distanceLabel(place.distanceMeters)}<small>to venue</small></span></button>
         <div className="wfev-parking-actions">
           <a className="wfw-btn wfw-site" href={parkingDirectionsUrl(place, venue, "drive")} target="_blank" rel="noopener noreferrer" aria-label={`Drive to ${place.name}`}>Drive here ↗</a>
           <a className="wfw-btn wfw-site" href={parkingDirectionsUrl(place, venue, "walk")} target="_blank" rel="noopener noreferrer" aria-label={`Walk from ${place.name} to ${venue.name}`}>Walk to venue ↗</a>

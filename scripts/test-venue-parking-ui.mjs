@@ -26,6 +26,7 @@ assert.match(renderToStaticMarkup(React.createElement(PlaceParkingMap,{place:ven
 const {default: VenueParkingResults} = await loadComponent(path.join(root,'app/components/VenueParkingResults.js'),root);
 const guide=renderToStaticMarkup(React.createElement(VenueParkingResults,{venue,status:'success',radiusMeters:1609.344,places:[{id:'garage',name:'A & B Garage',address:'1 Garage Lane',lat:27.301,lng:-82.5,distanceMeters:111}]}));
 assert.match(guide, /Your parking guide/, 'the shared parking view explains the arrival journey');
+assert.match(guide, /aria-describedby=/, "facility address remains available to screen readers when a name is repeated");
 assert.match(guide, /1 Garage Lane/, 'facility address survives to the rendered guide');
 assert.match(guide, /Closest listed/, 'the first rank does not claim best price or access');
 assert.match(guide, /straight-line/, 'distances never masquerade as walking routes');
