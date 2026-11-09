@@ -78,7 +78,9 @@ ok(exact + neutral === total && total >= 24 + 74, `all ${total} picks classified
 // Owner, 2026-11-09 image intent pass: daytime venue photos that showed no
 // holiday event were removed from the holiday guides (a slot is left empty
 // rather than given a photo that does not match the pick), so the floor is 27.
-ok(holidayExact >= 27, `the holiday guides keep their 27 exact, in season photos (found ${holidayExact})`);
+// Second pass the same day (batch 11y-b): nine more daytime or off topic photos
+// left the snow, Thanksgiving and free lights guides, so the floor is 18.
+ok(holidayExact >= 18, `the holiday guides keep their 18 exact, in season photos (found ${holidayExact})`);
 ok(exact >= 9, "the nine photographed picks from the earlier pass are still photographed");
 
 // Controls: a guide that did not opt into the neutral tile still gets a
