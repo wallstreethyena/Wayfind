@@ -28,6 +28,7 @@ import { localEditIndex } from "../lib/localEdit";
 import { thisWeekEventsForHome } from "../lib/thisWeekEventsServer";
 import { guideDiscoveryIndex } from "../lib/guideDiscoveryIndex";
 import { weeklyTrendGuideCard } from "../lib/thisWeekEvents";
+import { christmasHubStripCard } from "../lib/christmasHubCard";
 // v8 — the rail menu's places are ranked HERE, on the server, at regeneration.
 // lib/railsData.js reaches lib/landing.js, which holds the Places call, the junk
 // filter, the quality floor and the Bayesian rank; none of that may ship to a
@@ -138,7 +139,12 @@ export default async function Page() {
   // ONE featured event first — see issue #219.
   const initialEvents = null;
   const railMenu = await railMenuData(null);
-  const thisWeekEvents = await thisWeekEventsForHome(siteTodayStr());
+  const thisWeekRows = await thisWeekEventsForHome(siteTodayStr());
+  // Christmas hub card leads the dated events while the poster season is live.
+  // Outside that window christmasHubStripCard returns null and the strip is
+  // the weekly guide plus events, unchanged.
+  const christmasHubCard = christmasHubStripCard(siteTodayStr());
+  const thisWeekEvents = christmasHubCard && thisWeekRows.length >= 2 ? [christmasHubCard, ...thisWeekRows] : thisWeekRows;
   const thisWeekGuide = weeklyTrendGuideCard(guideDiscoveryIndex(currentGuides(GUIDES)));
   return (
     <>
