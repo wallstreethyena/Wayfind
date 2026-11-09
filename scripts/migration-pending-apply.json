@@ -68,5 +68,12 @@
     "decision_owner": "wallstreethyena",
     "tracking": "#20261109",
     "reason": "Four Undercover Tourist one-day ticket rows (EPCOT 61, SeaWorld 62, Busch Gardens 63, LEGOLAND 64). The inserts ran against production on 2026-11-09 and the ids were read back. schema_migrations has no row because SUPABASE_ACCESS_TOKEN is absent, so this stays pending until scripts/apply-migration.mjs records the ledger. where-not-exists makes that later run a no-op."
+  },
+  {
+    "file": "supabase/migrations/20261109210000_wf_deals_ut_one_day_product_pages.sql",
+    "sha256": "df7a0a2865239317569fe7ae74349dfcbfa80df123ba8401a97a7aa7566401eb",
+    "decision_owner": "wallstreethyena",
+    "tracking": "#20261109",
+    "reason": "Official one-day product pages for EPCOT 61, SeaWorld 62, Busch Gardens 65 and LEGOLAND 64. Category attractions, scope local and fail_count 0 match rows 5, 7, 15 and 16. The statements already ran and the ids were read back. schema_migrations has no row because SUPABASE_ACCESS_TOKEN is absent, so this stays pending until scripts/apply-migration.mjs records the ledger. The insert is where-not-exists and the update excludes the hub ids."
   }
 ]
