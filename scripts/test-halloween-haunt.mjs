@@ -589,7 +589,7 @@ const nov2Featured = new Set(nov2.featuredTours.map((t) => t.id));
 const nov2Grid = nov2.tours.filter((t) => !nov2Featured.has(t.id)).length;
 ok(!/data-haunt-id="/.test(nov2Html) && (nov2Html.match(/data-tour-id="/g) || []).length === nov2.tours.length && nov2Grid >= 0 && nov2.tours.length > 0, "Nov 2 renders each remaining ghost tour once and no haunt card");
 const groupOf = (id) => (liveModel.eventTours.some((t) => t.id === id) ? "haunt event" : liveModel.tours.some((t) => t.id === id) ? "ghost tour" : model.haunts.some((h) => h.id === id) ? "haunt" : "none");
-ok(groupOf("180859P9") === "haunt event" && groupOf("38620P1") === "ghost tour" && groupOf("howlTampa") === "haunt", "grouping spot checks");
+ok(groupOf("180859P9") === "none" && groupOf("38620P1") === "ghost tour" && groupOf("howlTampa") === "haunt", "Fear at the Pier is off the rail; ghost tours and haunts stay grouped");
 ok(/filters\.map/.test(readFileSync("app/components/BoHalloweenHaunt.js", "utf8")) && /aria-pressed/.test(defaultHtml), "chip lives in the existing filter row");
 
 // Every buy href is one of OUR go routes; organizer links are an explicit allow list

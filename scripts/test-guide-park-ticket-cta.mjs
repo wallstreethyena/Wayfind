@@ -112,8 +112,7 @@ const themeParkChristmas = guidePrimaryCta(GUIDES["florida-theme-park-christmas-
 assert.equal(new URLSearchParams(themeParkChristmas.href.split("?")[1]).get("provider"), "undercover_tourist");
 assert.equal(new URLSearchParams(themeParkChristmas.href.split("?")[1]).get("offer"), "38", "theme park Christmas guide sells Mickey's Very Merry Christmas Party");
 const hhnFood = guidePrimaryCta(GUIDES["orlando-halloween-food-2026"]);
-assert.equal(hhnFood.provider || new URLSearchParams(hhnFood.href.split("?")[1]).get("provider"), "undercover_tourist");
-assert.equal(hhnFood.label, "Halloween Horror Nights tickets");
+assert.equal(hhnFood == null || !String(hhnFood.href || "").includes("offer=19"), true, "the Halloween food guide does not sell the ended HHN ticket");
 
 // Owner rule (test-guide-search-as-book): no Crystal River SKU is pinned.
 assert.equal(GUIDES["swim-with-manatees-crystal-river"].parkTicketPlace, undefined, "Crystal River stays unpinned");
