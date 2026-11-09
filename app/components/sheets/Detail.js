@@ -24,7 +24,7 @@ import { fallShareLine } from "../../../lib/fallSkin.js";
 import { siteTodayStr } from "../../../lib/siteTime";
 import { couponForPlace, couponIsLive, couponEndsLabel } from "../../../lib/coupons";
 import { eventWhenLabel } from "../../../lib/eventTime";
-import { detailLocationLine, localityFromFormattedAddress } from "../../../lib/locationHonesty.js";
+import { detailLocationLine, localityFromFormattedAddress, placeHeaderLabel } from "../../../lib/locationHonesty.js";
 import * as Dining from "../../../lib/dining";
 import * as Ranking from "../../../lib/ranking";
 import * as Tags from "../../../lib/tags";
@@ -876,7 +876,7 @@ export default function DetailSheet({ ctx }) {
         similar: ranked,
         excludeIds,
         similarReady: nearbyStatus === "ready" || nearbyStatus === "error" || nearbyStatus === "unavailable" || pool.length > 0,
-        cityNames: [detail.postalCity, detail.locality, detail.city, localityFromFormattedAddress(detail.address)].filter(Boolean),
+        cityNames: [detail.postalCity, detail.locality, detail.city, localityFromFormattedAddress(detail.address), placeHeaderLabel(detail)].filter(Boolean),
       });
     } catch (e) {
       // Literal on purpose. test-detail-photo-acquisition evals this slice
