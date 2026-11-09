@@ -51,6 +51,7 @@ const serverSource = read("lib/thisWeekEventsServer.js")
 const server = await import("data:text/javascript;base64," + Buffer.from(serverSource).toString("base64"));
 const siteTime = await import("../lib/siteTime.js");
 const { addDaysStr, weeklyTrendGuideCard } = await import("../lib/thisWeekEvents.js");
+const { christmasHubStripCard } = await import("../lib/christmasHubCard.js");
 const { guideDiscoveryIndex } = await import("../lib/guideDiscoveryIndex.js");
 const { resolveRailCity } = await import("../lib/locationHonesty.js");
 const railCalls = [];
@@ -85,6 +86,7 @@ const deps = {
   "../lib/thisWeekEventsServer": server,
   "../lib/guideDiscoveryIndex": { guideDiscoveryIndex },
   "../lib/thisWeekEvents": { weeklyTrendGuideCard },
+  "../lib/christmasHubCard": { christmasHubStripCard },
   "../lib/railsData": { railMenuData: async slug => {
     railCalls.push(slug);
     if (resolveRailCity(slug, {}) !== null) throw new Error("Unexpected location-specific homepage work");
@@ -120,8 +122,12 @@ try {
   mode = "healthy";
   const healthy = homeProps(await Page());
   ok(requests.length === beforeHealthy + 1, "a healthy cold read requires exactly one SDK fetch");
-  ok(healthy?.thisWeekEvents.length === 2 && healthy.thisWeekEvents.every((card, i) => card.slug === fixture[i].slug),
+  const expectedHub = christmasHubStripCard(today);
+  const healthyEvents = expectedHub ? healthy.thisWeekEvents.slice(1) : healthy.thisWeekEvents;
+  ok(healthy?.thisWeekEvents && healthyEvents.length === 2 && healthyEvents.every((card, i) => card.slug === fixture[i].slug),
     "the actual healthy Page receives both verified event cards, never an empty-success strip");
+  ok(!expectedHub || (healthy.thisWeekEvents[0]?.hub === true && healthy.thisWeekEvents[0]?.href === expectedHub.href && healthy.thisWeekEvents.length === 3),
+    "when the Christmas poster is in season the hub card leads those events and is absent otherwise");
   ok(writes.length === 1 && writes[0].value.revalidate === 3600 && writes[0].options.tags.includes("curated-events"),
     "healthy rows retain the existing hourly tagged cache");
   const beforeWarm = requests.length;
