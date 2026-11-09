@@ -181,7 +181,21 @@ ok(/<a key=\{e\.slug\} href=\{e\.href\}/.test(comp), "component renders each car
 ok(/This week in Florida/.test(comp) && /Dated events with verified pages/.test(comp) && /href="\/florida-events"[^>]*>See all events</.test(comp), "heading, subline and See all events link present");
 ok(/cards\.length < 2\) return null/.test(comp), "component renders nothing under 2 events");
 ok(/await thisWeekEventsForHome\(siteTodayStr\(\)\)/.test(page) && /<Home [^>]*thisWeekEvents=\{thisWeekEvents\}/.test(page), "page.js fetches with siteTodayStr() and passes thisWeekEvents to Home");
-ok(/<ThisWeekEvents events=\{thisWeekEvents\} \/>/.test(home) && /<PageInner [^>]*thisWeekEvents=\{thisWeekEvents\}/.test(home), "home.js threads the prop to a rendered <ThisWeekEvents>");
+ok(/<ThisWeekEvents events=\{thisWeekEvents\} guide=\{thisWeekGuide\} \/>/.test(home) && /<PageInner [^>]*thisWeekEvents=\{thisWeekEvents\}/.test(home), "home.js threads the prop to a rendered <ThisWeekEvents>");
+// Weekly trend guide leads the strip (owner, 2026-11-04).
+{
+  const { weeklyTrendGuideCard } = await import("../lib/thisWeekEvents.js");
+  const img = { src: "/guides/x.webp", credit: "Ken Lund", source: "https://commons.wikimedia.org/x" };
+  const g = weeklyTrendGuideCard([
+    { slug: "trending-in-florida-this-week-oct-19-2026", title: "Old", updated: "2026-10-20", image: img },
+    { slug: "trending-in-florida-this-week-nov-2-2026", title: "Trending in Florida This Week", updated: "2026-11-04", mins: 7, image: img },
+    { slug: "tampa-restaurants", title: "Tampa", updated: "2026-12-01", image: img },
+  ]);
+  ok(g && g.href === "/guides/trending-in-florida-this-week-nov-2-2026" && g.credit === "Ken Lund", "weekly guide card picks the newest trending week guide and keeps its photo credit");
+  ok(!/[‒-―]| - /.test(g.name + g.when + g.city), "weekly guide card copy carries no dashes");
+  ok(weeklyTrendGuideCard([{ slug: "trending-in-florida-this-week-nov-2-2026", title: "T", updated: "2026-11-04", image: null }]) === null, "no hero photo means no guide card");
+  ok(/thisWeekGuide=\{thisWeekGuide\}/.test(page) && /weeklyTrendGuideCard\(guideDiscoveryIndex\(currentGuides\(GUIDES\)\)\)/.test(page), "page.js builds the weekly guide card on the server from current guides");
+}
 const server = strip(readFileSync(new URL("../lib/thisWeekEventsServer.js", import.meta.url), "utf8"));
 ok(/fetchCuratedEvents\(\{[^}]*upcomingFrom: today/.test(server), "the server read passes upcomingFrom: today (Eastern) to fetchCuratedEvents");
 ok(/thisWeekEventCards\(await cachedUpcoming\(today\), today, \{ now: new Date\(\) \}\)/.test(server), "the server passes a real clock so a final-day end time is honoured");
