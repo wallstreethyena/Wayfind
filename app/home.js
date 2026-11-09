@@ -363,6 +363,7 @@ import { createDetailOpenGate } from "../lib/detailOpenGate.js";
 import { createPlaceActionGate } from "../lib/placeActionOnce.js";
 import { planDeepLinkAction, humanConfirmed, deepLinkEventProps, deepLinkPromptLabel } from "../lib/deepLinkAction.js";
 import { isSeedCenter, cityLabel, landingSlugFromLoc, centerAgreesWithLabel, firstPaintRailOrigin, localityFromFormattedAddress, storedPinFresh, storedPlaceHeader } from "../lib/locationHonesty";
+import { centerAfterGeoDecision, landingSearchFromSearch } from "../lib/searchDeepLink";
 import { ownedPlacePhotoSrc } from "../lib/placePhoto";
 import { sanitizeRestoredPosition } from "../lib/restorePosition.js";
 
@@ -5229,38 +5230,34 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
   // partners never send booking data back, so this is the honest capture.
   const [locApprox, setLocApprox] = useState(false);
   const [feedRetry, setFeedRetry] = useState(0);
-  const pendingQRef = useRef(null);
   // ?q= arrivals carry two optional companions from guide pages (see
   // app/guides/[slug]/page.js appUrl): intent=place ("this query names a
   // specific POI — open its detail, do not treat it as a city") and near=
   // ("resolve it against the guide's region, not the visitor's location").
-  // Captured together so the effect below hands submitSearch the whole intent.
-  useEffect(() => { try { const sp = new URLSearchParams(window.location.search); const qq = sp.get("q"); const it = (sp.get("intent") || "").trim();
-    // v7.13 (owner-reported, 2026-08-12: "our blog's buttons don't work — they
-    // throw you to the main page and do nothing"). Guides, culture pages and
-    // the SEO landings all send "/?intent=<keyword>" from their PRIMARY CTA —
-    // "Personalize these picks" — and this parser only ever read "?q=", so the
-    // app's own front door dropped the promise on the floor. "?intent=place" is
-    // the old MODE flag and keeps its meaning; any OTHER intent value is the
-    // search those pages meant to run.
-    if (qq && qq.trim()) pendingQRef.current = { q: qq.trim(), placeIntent: it === "place", near: (sp.get("near") || "").trim() || null };
-    else if (it && it !== "place") pendingQRef.current = { q: it, placeIntent: false, near: (sp.get("near") || "").trim() || null };
-  } catch (e) {} }, []);
-  useEffect(() => { if (!pendingQRef.current || !center) return; const pq = pendingQRef.current; pendingQRef.current = null; try { window.history.replaceState({}, "", window.location.pathname); } catch (e) {} submitSearch(pq.q, { placeIntent: pq.placeIntent, near: pq.near }); // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [center]);
+  // Owned search does not need a map center. Waiting on center dropped every
+  // deep link when GPS was denied and /api/geo refused an out-of-Florida IP,
+  // so the box stayed empty and the Christmas poster stayed open.
+  // "?intent=place" is the old MODE flag. Any other intent value is the search.
+  useEffect(() => {
+    let pending = null;
+    try { pending = landingSearchFromSearch(window.location.search); } catch (e) { pending = null; }
+    if (!pending) return;
+    try { window.history.replaceState({}, "", window.location.pathname); } catch (e) {}
+    submitSearch(pending.q, { placeIntent: pending.placeIntent, near: pending.near });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   // The landing URL's query string, captured during the FIRST RENDER — before
   // any effect can rewrite it.
   //
   // Found in browser verification 2026-08-04: the auto-show gate below used to
   // read window.location.search inside its own effect, and by then the query
-  // could already be gone. The ?q strip two lines above fires as soon as
-  // `center` is known, and on a RETURNING device (a saved wf_center) that is
-  // the same commit — and it is declared EARLIER, so it runs first. Result: a
-  // deep-link visitor with a saved location got the mood gate anyway, because
-  // the effect saw a bare "/" and concluded there was no deep link. Same
-  // exposure for the paid/campaign check, whose utm params are read from the
-  // same string. Render runs before every effect, so capturing here is what
-  // makes "the landing URL" mean the URL the visitor actually landed on.
+  // could already be gone. The ?q effect above clears the query string on
+  // mount, before later effects run. Result if this capture waited: a
+  // deep-link visitor got the mood gate anyway, because the effect saw a bare
+  // "/" and concluded there was no deep link. Same exposure for the
+  // paid/campaign check, whose utm params are read from the same string.
+  // Render runs before every effect, so capturing here is what makes "the
+  // landing URL" mean the URL the visitor actually landed on.
   const [introOpen, setIntroOpen] = useState(false);
   // How this open happened, read by IntroSheet's intro_shown: "timer" (the
   // 2-minute visible-time gate), "param" (?intro=1) or "manual" (Find my
@@ -7575,28 +7572,24 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
       try {
         const r = await fetch("/api/geo", { cache: "no-store" });
         const d = await r.json();
-        if (d && d.ok && !gotGPS && !manualRef.current) {
-          const c = { lat: d.lat, lng: d.lng };
-          setDeviceLoc((prev) => prev || c);
+        // One decision for the pin and the name. An ok answer inside Florida
+        // replaces the seed. ok:false (no headers, or outside Florida) adopts
+        // the Parrish seed instead of leaving center null, which is what
+        // stranded /?q= before submitSearch could run.
+        const adopted = centerAfterGeoDecision({
+          ok: !!(d && d.ok),
+          lat: d && d.lat,
+          lng: d && d.lng,
+          name: d && d.name,
+          gotGPS,
+          manual: manualRef.current,
+          current: centerRef.current,
+        });
+        if (adopted) {
+          if (adopted.device) setDeviceLoc((prev) => prev || adopted.center);
           setLocResolved(true);
-          // v8.46 — ONE GUARD FOR ONE FACT. This was two:
-          //     setCenter((prev) => (isSeedCenter(prev) ? c : prev));
-          //     if (d.name) setLocName((prev) => prev || d.name);
-          // The center only moved when it was still the seed; the NAME moved
-          // whenever it happened to be blank. Two independent conditions on the
-          // two halves of a single answer — so the halves could, and did,
-          // disagree: a center that stayed put picked up the IP service's city
-          // name, and the chrome started printing a town the ranking had never
-          // heard of. /api/rails then answered covered:false and every rail on
-          // the page went empty under a confident heading.
-          //
-          // The IP answer is now adopted WHOLE or not at all — one decision,
-          // read off centerRef (the committed center, not a stale closure) and
-          // applied to both halves together.
-          if (isSeedCenter(centerRef.current)) {
-            setCenter(c);
-            if (d.name) setLocName(d.name);
-          }
+          setCenter(adopted.center);
+          if (adopted.name) setLocName(adopted.name);
         }
       } catch (e) {}
     };
