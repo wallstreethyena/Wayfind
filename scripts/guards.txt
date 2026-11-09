@@ -2519,3 +2519,5 @@ node scripts/test-google-daily-quota-breaker.mjs
 
 node scripts/check-homepage-events-deadline.mjs
 node scripts/test-holiday-discovery-2026-11-06.mjs
+# Verified official street addresses and safe non-Google map links.
+node scripts/test-owned-place-directions.mjs
