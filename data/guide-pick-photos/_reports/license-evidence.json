@@ -3,18 +3,18 @@
   "verifiedAt": "2026-11-09",
   "rule": "Every photo added by the guide pick-photo pipeline, re-checked at its source. commercialUse is true only for CC0, public domain, CC BY and CC BY-SA (2.0, 2.5, 3.0, 4.0); NC and ND never pass.",
   "summary": {
-    "files": 363,
-    "usages": 388,
-    "verified": 363,
+    "files": 371,
+    "usages": 396,
+    "verified": 371,
     "needsReview": [],
     "authorDiffers": [],
     "byLicence": {
-      "CC BY-SA 4.0": 95,
-      "CC BY-SA 3.0": 84,
-      "CC BY 4.0": 19,
-      "CC BY 3.0": 20,
-      "CC BY 2.0": 80,
-      "CC0 1.0 Universal": 29,
+      "CC BY-SA 4.0": 96,
+      "CC BY-SA 3.0": 86,
+      "CC BY 4.0": 21,
+      "CC BY 3.0": 21,
+      "CC BY 2.0": 81,
+      "CC0 1.0 Universal": 30,
       "CC BY-SA 2.0": 28,
       "Unsplash License": 5,
       "CC BY-SA 2.5": 1,
@@ -11107,6 +11107,246 @@
       "authorMatchesCredit": true,
       "status": "verified",
       "verifiedAt": "2026-11-09"
+    },
+    {
+      "src": "/guides/picks/tampa-bay-rays-game-day-tropicana-field/2026-the-third-pennant.jpg",
+      "usedBy": [
+        {
+          "slug": "tampa-bay-rays-game-day-tropicana-field",
+          "role": "pick",
+          "pick": "2026: the third pennant"
+        }
+      ],
+      "source": {
+        "kind": "commons",
+        "url": "https://commons.wikimedia.org/wiki/File:October_19_2026_Tampa_Bay_Rays_Game_6_American_League_Champions.jpg",
+        "title": "October 19 2026 Tampa Bay Rays Game 6 American League Champions",
+        "author": "Trevorrrrvalent",
+        "dateTaken": null,
+        "licence": "CC BY 4.0",
+        "licenceUrl": "https://creativecommons.org/licenses/by/4.0/"
+      },
+      "wayfind": {
+        "credit": "Trevorrrrvalent",
+        "creditHref": "https://commons.wikimedia.org/wiki/File:October_19_2026_Tampa_Bay_Rays_Game_6_American_League_Champions.jpg",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "modificationNotice": "Cropped to 1280x853 and saved as JPEG for page loading. The photograph remains available under the same licence."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-04"
+    },
+    {
+      "src": "/guides/picks/tampa-bay-rays-game-day-tropicana-field/the-tilted-roof-and-the-catwalks.jpg",
+      "usedBy": [
+        {
+          "slug": "tampa-bay-rays-game-day-tropicana-field",
+          "role": "pick",
+          "pick": "The tilted roof and the catwalks"
+        }
+      ],
+      "source": {
+        "kind": "commons",
+        "url": "https://commons.wikimedia.org/wiki/File:Tropicanafieldceiling.jpg",
+        "title": "Tropicanafieldceiling",
+        "author": "Doctorindy",
+        "dateTaken": null,
+        "licence": "CC BY-SA 3.0",
+        "licenceUrl": "https://creativecommons.org/licenses/by-sa/3.0/"
+      },
+      "wayfind": {
+        "credit": "Doctorindy",
+        "creditHref": "https://commons.wikimedia.org/wiki/File:Tropicanafieldceiling.jpg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "modificationNotice": "Cropped to 1280x853 and saved as JPEG for page loading. The photograph remains available under the same licence."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-04"
+    },
+    {
+      "src": "/guides/picks/trending-in-florida-this-week-nov-2-2026/christone-kingfish-ingram.jpg",
+      "usedBy": [
+        {
+          "slug": "trending-in-florida-this-week-nov-2-2026",
+          "role": "pick",
+          "pick": "Christone Kingfish Ingram"
+        }
+      ],
+      "source": {
+        "kind": "commons",
+        "url": "https://commons.wikimedia.org/wiki/File:Kingfish_Ingram_BuddyGuy.jpg",
+        "title": "Kingfish Ingram BuddyGuy",
+        "author": "Paul Natkin",
+        "dateTaken": null,
+        "licence": "CC BY-SA 4.0",
+        "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0/"
+      },
+      "wayfind": {
+        "credit": "Paul Natkin",
+        "creditHref": "https://commons.wikimedia.org/wiki/File:Kingfish_Ingram_BuddyGuy.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+        "modificationNotice": "Cropped to 1280x853 and saved as JPEG for page loading. The photograph remains available under the same licence."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-04"
+    },
+    {
+      "src": "/guides/picks/trending-in-florida-this-week-nov-2-2026/dal-disruption-devotion-panel-discussion.jpg",
+      "usedBy": [
+        {
+          "slug": "trending-in-florida-this-week-nov-2-2026",
+          "role": "pick",
+          "pick": "Dalí: Disruption + Devotion panel discussion"
+        }
+      ],
+      "source": {
+        "kind": "commons",
+        "url": "https://commons.wikimedia.org/wiki/File:Salvador_Dal%C3%AD_Museum.JPG",
+        "title": "Salvador Dalí Museum",
+        "author": "Taty2007",
+        "dateTaken": null,
+        "licence": "CC BY 3.0",
+        "licenceUrl": "https://creativecommons.org/licenses/by/3.0/"
+      },
+      "wayfind": {
+        "credit": "Taty2007",
+        "creditHref": "https://commons.wikimedia.org/wiki/File:Salvador_Dal%C3%AD_Museum.JPG",
+        "license": "CC BY 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/3.0/",
+        "modificationNotice": "Cropped to 1280x853 and saved as JPEG for page loading. The photograph remains available under the same licence."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-04"
+    },
+    {
+      "src": "/guides/picks/trending-in-florida-this-week-nov-2-2026/ed-sheeran-loop-tour.jpg",
+      "usedBy": [
+        {
+          "slug": "trending-in-florida-this-week-nov-2-2026",
+          "role": "pick",
+          "pick": "Ed Sheeran: LOOP Tour"
+        }
+      ],
+      "source": {
+        "kind": "commons",
+        "url": "https://commons.wikimedia.org/wiki/File:Ed_Sheeran_Madrid.jpg",
+        "title": "Ed Sheeran Madrid",
+        "author": "Elwin594",
+        "dateTaken": null,
+        "licence": "CC0 1.0 Universal",
+        "licenceUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+      },
+      "wayfind": {
+        "credit": "Elwin594",
+        "creditHref": "https://commons.wikimedia.org/wiki/File:Ed_Sheeran_Madrid.jpg",
+        "license": "CC0 1.0 Universal",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "modificationNotice": "Cropped to 1280x853 and saved as JPEG for page loading. The photograph remains available under the same licence."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-04"
+    },
+    {
+      "src": "/guides/picks/trending-in-florida-this-week-nov-2-2026/greensky-bluegrass.jpg",
+      "usedBy": [
+        {
+          "slug": "trending-in-florida-this-week-nov-2-2026",
+          "role": "pick",
+          "pick": "Greensky Bluegrass"
+        }
+      ],
+      "source": {
+        "kind": "commons",
+        "url": "https://commons.wikimedia.org/wiki/File:Greensky_Bluegrass_-_The_Westcott_Theater,_Syracuse,_NY_-_2015-02-05_22.29.33_(by_cp_thornton).jpg",
+        "title": "Greensky Bluegrass - The Westcott Theater, Syracuse, NY - 2015-02-05 22.29.33 (by cp thornton)",
+        "author": "cp_thornton from Cleveland, Ohio, USA",
+        "dateTaken": null,
+        "licence": "CC BY 2.0",
+        "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
+      },
+      "wayfind": {
+        "credit": "cp_thornton from Cleveland, Ohio, USA",
+        "creditHref": "https://commons.wikimedia.org/wiki/File:Greensky_Bluegrass_-_The_Westcott_Theater,_Syracuse,_NY_-_2015-02-05_22.29.33_(by_cp_thornton).jpg",
+        "license": "CC BY 2.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+        "modificationNotice": "Cropped to 1280x853 and saved as JPEG for page loading. The photograph remains available under the same licence."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-04"
+    },
+    {
+      "src": "/guides/picks/trending-in-florida-this-week-nov-2-2026/noah-kahan-the-last-of-the-bugs-world-tour.jpg",
+      "usedBy": [
+        {
+          "slug": "trending-in-florida-this-week-nov-2-2026",
+          "role": "pick",
+          "pick": "Noah Kahan: The Last of the Bugs World Tour"
+        }
+      ],
+      "source": {
+        "kind": "commons",
+        "url": "https://commons.wikimedia.org/wiki/File:Noah_Kahan_at_Glastonbury_Festival_2025_01.jpg",
+        "title": "Noah Kahan at Glastonbury Festival 2025 01",
+        "author": "Raph_PH",
+        "dateTaken": null,
+        "licence": "CC BY 4.0",
+        "licenceUrl": "https://creativecommons.org/licenses/by/4.0/"
+      },
+      "wayfind": {
+        "credit": "Raph_PH",
+        "creditHref": "https://commons.wikimedia.org/wiki/File:Noah_Kahan_at_Glastonbury_Festival_2025_01.jpg",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "modificationNotice": "Cropped to 1280x853 and saved as JPEG for page loading. The photograph remains available under the same licence."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-04"
+    },
+    {
+      "src": "/guides/picks/trending-in-florida-this-week-nov-2-2026/trivium-crown-in-the-grave-tour.jpg",
+      "usedBy": [
+        {
+          "slug": "trending-in-florida-this-week-nov-2-2026",
+          "role": "pick",
+          "pick": "Trivium: Crown in the Grave Tour"
+        }
+      ],
+      "source": {
+        "kind": "commons",
+        "url": "https://commons.wikimedia.org/wiki/File:Matthew_K._Heafy_%26_Corey_Beaulieu_-_Trivium_(Hamburg,_Nov._2012).png",
+        "title": "Matthew K. Heafy & Corey Beaulieu - Trivium (Hamburg, Nov. 2012)",
+        "author": "Y'some",
+        "dateTaken": null,
+        "licence": "CC BY-SA 3.0",
+        "licenceUrl": "https://creativecommons.org/licenses/by-sa/3.0/"
+      },
+      "wayfind": {
+        "credit": "Y'some",
+        "creditHref": "https://commons.wikimedia.org/wiki/File:Matthew_K._Heafy_%26_Corey_Beaulieu_-_Trivium_(Hamburg,_Nov._2012).png",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "modificationNotice": "Cropped to 1280x853 and saved as JPEG for page loading. The photograph remains available under the same licence."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-04"
     }
   ]
 }
