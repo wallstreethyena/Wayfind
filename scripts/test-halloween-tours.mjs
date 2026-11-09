@@ -284,7 +284,13 @@ ok(!bare.includes('id="boo-tours"') && !bare.includes('class="boo-jump"') && !ba
   ok(jaxCards.map((t) => t.id).sort().join(",") === "201204P3,333341P1", "both Jacksonville tours sit in the jax region, never under Key West");
   const keyWestCards = snap.filter((t) => t.region === "more" && t.group === "ghost");
   ok(keyWestCards.length > 0 && keyWestCards.every((t) => t.place === "Key West"), "every ghost tour in the Key West region is actually in Key West");
-  ok(!snap.some((t) => t.id === "180859P9") && tourHref("180859P9") === null, "Fear at the Pier left the rail when its 2026 season ended");
+  const pier = snap.find((t) => t.id === "180859P9");
+  ok(pier && pier.group === "event" && pier.cta.label === "Season ended" && pier.cta.href == null && tourHref("180859P9") === null, "Fear at the Pier stays with the plain Season ended label and no booking link");
+  ok(snap.filter((t) => t.group === "ghost").every((t) => t.cta.label === HALLOWEEN_TOUR_CTA && typeof t.cta.href === "string" && t.cta.href.includes("provider=")), "ghost tour buttons are unchanged");
+  const pierAt = fullHtml.indexOf('data-tour-id="180859P9"');
+  const pierEnd = fullHtml.indexOf("</article>", pierAt);
+  const pierHtml = pierAt > -1 ? fullHtml.slice(pierAt, pierEnd) : "";
+  ok(pierHtml.includes(">Season ended<") && !pierHtml.includes("boo-buy") && !pierHtml.includes("/api/"), "the ended event card renders Season ended and no affiliate button");
   const groupCodes = ["186588P10", "209615P123", "333814P8", "5567095P1"];
   ok(snap.filter((t) => t.priceUnit === "per group").map((t) => t.id).sort().join(",") === groupCodes.join(","), "private vehicle/group tours carry per group price basis");
   ok(snap.filter((t) => !groupCodes.includes(t.id)).every((t) => t.priceUnit === "per person"), "individual tours carry per person price basis");
