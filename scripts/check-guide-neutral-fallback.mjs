@@ -78,11 +78,17 @@ ok(exact + neutral === total && total >= 24 + 74, `all ${total} picks classified
 ok(holidayExact >= 41, `the holiday guides keep their 41 exact venue photos (found ${holidayExact})`);
 ok(exact >= 9, "the nine photographed picks from the earlier pass are still photographed");
 
-// Controls: without the flag the old behaviour (labelled context photo) is unchanged,
-// and the detector is proven able to see "Illustrative" in rendered output.
+// Controls: a guide that did not opt into the neutral tile still gets a
+// labelled context photo when a reviewed photo matches the pick. The image
+// intent rule (2026-11-04) returns null for a subject with no reviewed photo,
+// so this control uses a dining pick with a reviewed food photograph. The
+// detector is proven able to see "Illustrative" in that figure's markup.
 {
-  const slug = SLUGS[0], guide = { ...GUIDES[slug], neutralPickFallback: false };
-  const gapPick = guide.picks.find((p) => !guidePickPhoto(slug, p.name) && !guidePhotoForPlace(p.placeId));
+  const slug = "best-cuban-sandwich-tampa";
+  const guide = { ...GUIDES[slug], neutralPickFallback: false };
+  ok(guideUsesNeutralFallback(guide) === false, "control guide is not on the neutral fallback");
+  const gapPick = guide.picks.find((p) => p.name === "West Tampa Sandwich Shop");
+  ok(gapPick && !guidePickPhoto(slug, gapPick.name) && !guidePhotoForPlace(gapPick.placeId), "control pick has no exact photo of its own");
   const rung = guideFinalRung(slug, gapPick, guide, { usedSrc: new Set() });
   ok(rung.kind === "context" && rung.media.contextual === true && /^Illustrative /.test(rung.media.caption), "control: a guide without the flag keeps its labelled context photo");
   const html = renderToStaticMarkup(React.createElement(GuideFigure, { role: "pick", image: rung.media }));

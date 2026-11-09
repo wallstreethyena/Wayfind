@@ -203,7 +203,7 @@ scripts/check-guide-dedicated-routes.mjs	0	CALL	blocks-ci-and-deploy	1	-	6	0	0	5
 scripts/check-guide-editorial.mjs	0	RENDER	blocks-ci-and-deploy	1	-	66	0	0	10bafd234698135469a5705a203c1dc342466f7a7d60e6dd113cd59b4bb69f5a
 scripts/check-guide-in-rail.mjs	0	RENDER	blocks-ci-and-deploy	1	-	53	0	0	91696b60122c8301e8a7a19a89c054d41be5cda46702f40a6a7b3851c64f7fbd
 scripts/check-guide-lifecycle.mjs	0	CALL	blocks-ci-and-deploy	1	-	40	0	0	819a21371b9ba799c53f53e2db53d1814eaaedb5e04ffd3a5737c2690e7278c9
-scripts/check-guide-neutral-fallback.mjs	0	RENDER	blocks-ci-and-deploy	1	-	22	0	0	8f92e96ed3f7d68cd256aab73cda854971d68d5a5485f9ce6d07f6079d259d09
+scripts/check-guide-neutral-fallback.mjs	0	RENDER	blocks-ci-and-deploy	1	-	24	0	0	de9a1c8bca937abb2cfe4f951df85c019a76f9f976b07bc96a007bfff4bfb28a
 scripts/check-guide-pick-photos.mjs	0	RENDER	blocks-ci-and-deploy	1	-	106	0	0	ad9a5a2c81e8cadec976d28952d1cd164c88afa3212da7e1e7ed42aaa0c16bbe
 scripts/check-guide-place-identities.mjs	0	CALL	blocks-ci-and-deploy	1	-	12	0	0	d4ab0f04a88ab58dd7edc7d68767b70b89db82f2cd09a453b889835a3a0dd4d9
 scripts/check-guide-product-isr-cache.mjs	0	CALL	blocks-ci-and-deploy	1	-	9	0	0	f78ddab81cf4c2f18358e774b7551f0919a4937c0500faee707d3be3fbed50b4
@@ -238,6 +238,7 @@ scripts/check-hub-conversion.mjs	1	RENDER	blocks-ci-and-deploy	1	Revenue QA	33	0
 scripts/check-hub-place-links.mjs	0	CALL	blocks-ci-and-deploy	1	-	17	0	0	ebb0c56bdc5f7dadbe465e33742ba8c5b73c1a17f52660a64f7ea4d92764d25f
 scripts/check-hydration-style.mjs	1	STRUCTURAL	blocks-ci-and-deploy	1	Qwen (Engineering)	0	1	0	7cc77511745d58e7015420132af3cb56c602b9221de3d9d47803aa95537b451a
 scripts/check-identity-before-cap.mjs	0	CALL	blocks-ci-and-deploy	1	-	66	0	0	6d9c86d8417b69b394821c6dc085135474da27f4245b11e24afc5c3b8be31b28
+scripts/check-image-intent.mjs	0	CALL	blocks-ci-and-deploy	1	-	0	0	0	2f433ea548e7fcd8d0463d2fd4cd87752528a92386f77cf812fc458c0a6793ba
 scripts/check-imports.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	1	1	0	f27f3df9f3743b55b8a2c60fbea9a7e6914542d903b871cf99359b7cdcadaa87
 scripts/check-ingest-never-blanks.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	13	1	0	4fc757a5e1568bfdb9b97b771f3fc7c4aedf0416ab81ff8e6a283c8a650d9cf8
 scripts/check-instagram-scout.mjs	0	RENDER	blocks-ci-and-deploy	1	-	46	0	0	cc1f6500a2bb1a15fb1927ff48cd03162992acfcfb098155acc0d1517a145653
@@ -750,7 +751,7 @@ scripts/test-group-vote-tours.mjs	0	RENDER	blocks-ci-and-deploy	1	-	57	0	0	51064
 scripts/test-guide-city-coverage.mjs	0	CALL	blocks-ci-and-deploy	1	-	14	0	0	c6a465e7282b1e60a693f376ebcef9066f918ad5a6a75a58a145c0d51a5b9ee2
 scripts/test-guide-commerce-exit.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	5	0	0	8a2ba9479167f59ac0f8eb3f7d0a2befac1f6a04f78edd66ea9556f557f02e2e
 scripts/test-guide-commerce-measurement.mjs	1	RENDER	blocks-ci-and-deploy	1	Revenue QA	31	0	0	fa5b5652425a0349567726dff834cfb3a5633c94fa0afe53ef33971e315938d1
-scripts/test-guide-context-photos.mjs	0	RENDER	blocks-ci-and-deploy	1	-	54	0	0	de64d682d0803747610152f32e6c5442f94758aae099c114f05dde91f77beb32
+scripts/test-guide-context-photos.mjs	0	RENDER	blocks-ci-and-deploy	1	-	57	0	0	1cb615cb074c1a7cd8bca042455e7478409a8d38e44f6c834e79d679bc917029
 scripts/test-guide-description-fills.mjs	0	RENDER	blocks-ci-and-deploy	1	-	71	0	0	ac791101b3112c20dfb0aff3c2565a69256c389871dbf0dfa9316818ae4ec52b
 scripts/test-guide-discovery.mjs	0	RENDER	blocks-ci-and-deploy	1	-	65	0	0	292cb9f5afb7dd50696a33d2cee909f3d6c652de22a63afc5ec9b27bcf5082c4
 scripts/test-guide-editorial-mode.mjs	0	RENDER	blocks-ci-and-deploy	1	-	30	0	0	1143cfcf22aa5141699214ff1ec91bd33f894c0e624c3806bf91cc86cddb631b
