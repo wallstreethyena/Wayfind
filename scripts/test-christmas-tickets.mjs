@@ -549,7 +549,7 @@ ok(html.includes("data-christmas-filter") && html.includes(">Tickets<") && html.
   const { attachBrowseTickets, browseTicketFields } = await import("../lib/christmasTickets.js");
   const { christmasBrowseCardJson } = await import("../lib/christmasBrowse.js");
   const draw = (card) => renderToStaticMarkup(createElement(ChristmasBrowseCard, { card, rank: 1, today: TODAY }));
-  const text = (h) => h.replace(/<style[\s\S]*?<\/style>/g, " ").replace(/<[^>]+>/g, " ").replace(/&amp;/g, "&").replace(/\s+/g, " ");
+  const text = (h) => h.replace(/<style[\s\S]*?<\/style>/g, " ").replace(/<[^>]+>/g, " ").replace(/&amp;/g, "&").replace(/&#x27;|&#39;|&apos;/g, "'").replace(/\s+/g, " ");
   const through = (cards, dealsById = new Map()) => attachBrowseTickets({ cards: cards.map(christmasBrowseCardJson) }, cards, TODAY, dealsById).cards;
 
   for (const fixture of resalePerformances) {
