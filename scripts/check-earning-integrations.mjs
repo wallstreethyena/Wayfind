@@ -25,7 +25,7 @@ globalThis.fetch = async () => { throw new Error("Static earning routes must not
 try {
   const expected = { ticketsmarter: "15735296", epicpass: "17171490", vrbo: "10697641" };
   ok(Object.keys(CJ_PARTNERS).length === 3, "all three verified CJ advertisers registered");
-  ok(Object.keys(CJ_PARTNER_OFFERS).length === 13, "all thirteen verified CJ offers exercised");
+  ok(Object.keys(CJ_PARTNER_OFFERS).length === 16, "all sixteen verified CJ offers exercised");
   ok(CJ_PARTNER_OFFERS["enchant-stpete-ticketsmarter"]?.destination === "https://www.ticketsmarter.com/venues/tropicana-field",
     "Enchant resale browse points to the verified St Petersburg venue, not a fabricated ticket/date URL");
   const performances = {
@@ -35,6 +35,16 @@ try {
     "parker-nutcracker-dec18-ticketsmarter": "/e/arts-ballet-theatre-of-florida-the-nutcracker-tickets-fort-lauderdale-12-18-2026-lillian-s-wells-hall-at-the-parker/3478410",
     "parker-celtic-christmas-dec23-ticketsmarter": "/e/celtic-angels-christmas-tickets-fort-lauderdale-12-23-2026-lillian-s-wells-hall-at-the-parker/3478675",
   };
+  const enchantNights = {
+    "enchant-stpete-nov20-ticketsmarter": ["/e/enchant-christmas-saint-petersburg-tickets-st-petersburg-11-20-2026-tropicana-field/3528820", "2026-11-20"],
+    "enchant-stpete-nov21-ticketsmarter": ["/e/enchant-christmas-saint-petersburg-tickets-st-petersburg-11-21-2026-tropicana-field/3519500", "2026-11-21"],
+    "enchant-stpete-nov22-ticketsmarter": ["/e/enchant-christmas-saint-petersburg-tickets-st-petersburg-11-22-2026-tropicana-field/3523801", "2026-11-22"],
+  };
+  for (const [id, [pathname, day]] of Object.entries(enchantNights)) {
+    const row = CJ_PARTNER_OFFERS[id];
+    ok(row?.provider === "ticketsmarter" && row.destination === "https://www.ticketsmarter.com" + pathname && row.verifiedOn === "2026-11-09" && row.expiresOn === day,
+      id + ": dated Enchant page verified 2026-11-09");
+  }
   for (const [id, pathname] of Object.entries(performances)) {
     const row = CJ_PARTNER_OFFERS[id];
     ok(row?.provider === "ticketsmarter" && row.destination === "https://www.ticketsmarter.com" + pathname && row.verifiedOn === "2026-11-06",
@@ -67,6 +77,9 @@ try {
     "orange-park-nutcracker-dec12-ticketsmarter": ["2026-12-12", "2026-12-13"],
     "parker-nutcracker-dec18-ticketsmarter": ["2026-12-18", "2026-12-19"],
     "parker-celtic-christmas-dec23-ticketsmarter": ["2026-12-23", "2026-12-24"],
+    "enchant-stpete-nov20-ticketsmarter": ["2026-11-20", "2026-11-21"],
+    "enchant-stpete-nov21-ticketsmarter": ["2026-11-21", "2026-11-22"],
+    "enchant-stpete-nov22-ticketsmarter": ["2026-11-22", "2026-11-23"],
   };
   for (const [id, [lastDay, nextDay]] of Object.entries(performanceDays)) {
     ok(CJ_PARTNER_OFFERS[id].expiresOn === lastDay && cjPartnerOfferById(id, "ticketsmarter", { today: lastDay }) !== null,
