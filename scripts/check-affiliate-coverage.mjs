@@ -211,11 +211,12 @@ for (const eventId of Object.keys(EVENT_TICKET_DEALS)) {
   const key = `${norm.provider}:${norm.offerId}`;
   ok(admissionByOffer.has(key), `${eventId}: park-admission offer ${key} is a library admission row (${admissionByOffer.get(key) || "MISSING"})`);
 }
-ok(EVENT_TICKET_DEALS["christmas-town-2026"]?.deal === 63 && EVENT_TICKET_DEALS["seaworld-orlando-christmas-2026"]?.deal === 62 && EVENT_TICKET_DEALS["legoland-fl-holidays-2026"]?.deal === 64,
+ok(EVENT_TICKET_DEALS["christmas-town-2026"]?.deal === 65 && EVENT_TICKET_DEALS["seaworld-orlando-christmas-2026"]?.deal === 62 && EVENT_TICKET_DEALS["legoland-fl-holidays-2026"]?.deal === 64,
   "the three organizer-confirmed included-with-admission holiday runs sell that park's one-day ticket");
 ok(EVENT_TICKET_DEALS["mvmcp-2026"]?.deal === 38 && EVENT_TICKET_DEALS["mvmcp-2026"]?.product === "event-ticket", "MVMCP maps to its exact Undercover Tourist event-ticket row, never Disney park admission");
 ok(EVENT_TICKET_DEALS["jollywood-nights-2026"]?.deal === 39 && EVENT_TICKET_DEALS["jollywood-nights-2026"]?.product === "event-ticket", "Jollywood maps to its exact Undercover Tourist event-ticket row, never Disney park admission");
 ok(EVENT_TICKET_DEALS["epcot-festival-holidays-2026"]?.deal === 61 && EVENT_TICKET_DEALS["epcot-festival-holidays-2026"]?.product === "park-admission", "EPCOT Festival of the Holidays sells the EPCOT one-day base ticket");
+ok(EVENT_TICKET_DEALS["epcot-candlelight-2026"]?.deal === 61 && EVENT_TICKET_DEALS["epcot-candlelight-2026"]?.product === "park-admission", "EPCOT Candlelight sells the same EPCOT one-day base ticket");
 ok(EVENT_TICKET_DEALS["universal-orlando-holidays-2026"]?.deal === 6 && EVENT_TICKET_DEALS["universal-orlando-holidays-2026"]?.product === "park-admission", "Universal Holidays uses the verified Universal admission path");
 ok(!EVENT_TICKET_DEALS["sideshow-obscura-hhn35-2026"] && NO_EXACT_AFFILIATE_PRODUCT["sideshow-obscura-hhn35-2026"]?.reviewedAt === "2026-10-29", "Sideshow Obscura is a gift shop: no Universal pass button, a dated reviewed decision instead");
 ok(EVENT_TICKET_DEALS["peppas-halloween-party-2026"]?.deal === 18 && EVENT_TICKET_DEALS["peppas-halloween-party-2026"]?.product === "park-admission",
