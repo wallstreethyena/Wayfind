@@ -40,46 +40,6 @@
       "verification": "Commons file title and description read 'SGLR Dinner Train: Seminole Gulf's Murder Mystery Dinner Train'; category Seminole Gulf Railway; visible 'SEMINOLE GULF' and 'SEMINOLE GULF RAILWAY' lettering on locomotive 502 and the cars. Licence CC BY-SA 4.0 read from the file page (author Sanibel sun, self-published, taken 2017-07-29). Source 2016x1512, viewed at 1600 wide: sharp, no watermark, no people. Same railway and same dinner-train service; not a photo of the Christmas show.",
       "sameAsCardPhoto": false,
       "reviewedAt": "2026-11-05"
-    },
-    "Conch Tour Train Holiday Sights and Festive Nights Tour": {
-      "src": "/guides/picks/florida-santa-and-christmas-trains-2026/conch-tour-train-holiday-sights-and-festive-nights-tour.webp",
-      "width": 1400,
-      "height": 933,
-      "alt": "The orange and yellow Conch Train with a string of lights along its canopy on a street in Key West, with brick buildings behind",
-      "caption": "The Conch Train on Front Street in Key West, the tram that runs the Holiday Sights and Festive Nights tour. The event itself is not pictured.",
-      "credit": "Julian Lupyan",
-      "creditHref": "https://commons.wikimedia.org/wiki/File:The_Conch_Train_on_Front_Street,_Key_West,_Florida,_2025.jpg",
-      "license": "CC0 1.0 Universal",
-      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
-      "sourceUrl": "https://commons.wikimedia.org/wiki/File:The_Conch_Train_on_Front_Street,_Key_West,_Florida,_2025.jpg",
-      "author": "Julian Lupyan",
-      "position": "50% 50%",
-      "modificationNotice": "Resized, cropped for display and converted to WebP.",
-      "sourceKind": "commons",
-      "placeId": null,
-      "verification": "Commons file title 'The Conch Train on Front Street, Key West, Florida, 2025', categories Conch Tour Train and Front Street, Key West; 'CONCH TRAIN' lettering visible on the rear car. Licence CC0 1.0 (CC-Zero) read from the file page, author Julian Lupyan, self-published. Source 7233x4874, viewed at 1600 wide: sharp daylight; pedestrians tiny and incidental, no watermark. Daytime photo of the train, not the holiday lights tour.",
-      "sameAsCardPhoto": false,
-      "reviewedAt": "2026-11-05"
-    },
-    "Santa in Space at MOSI": {
-      "src": "/guides/picks/florida-santa-and-christmas-trains-2026/santa-in-space-at-mosi.webp",
-      "width": 1400,
-      "height": 1050,
-      "alt": "The blue and violet lit Mission: Moonbase exhibit at the Museum of Science and Industry with a rover bay, robotics station and control screens",
-      "caption": "The Mission: Moonbase exhibit at MOSI in Tampa, where Santa photos are held on Dec 12. The event itself is not pictured.",
-      "credit": "Novioboy",
-      "creditHref": "https://commons.wikimedia.org/wiki/File:Mission_Moonbase_at_MOSI.jpg",
-      "license": "CC0 1.0 Universal",
-      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
-      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Mission_Moonbase_at_MOSI.jpg",
-      "author": "Novioboy",
-      "position": "50% 50%",
-      "modificationNotice": "Resized, cropped for display and converted to WebP.",
-      "sourceKind": "commons",
-      "placeId": "ChIJq6E9W8_HwogRUggO5759Ook",
-      "verification": "Commons description reads 'Photograph of the Mission: Moonbase exhibit at the Museum of Science & Industry (MOSI) in Tampa, Florida', category Museum of Science & Industry (MOSI), Tampa. Licence CC0 1.0 (CC-Zero) read from file page, author Novioboy, April 2024. Source 4032x3024, viewed at 1600 wide: sharp, no people, no watermark; dim neon lighting is the exhibit's own. The pick says Santa photos happen in Mission: Moonbase, so this is the exact room, without the event.",
-      "sameAsCardPhoto": false,
-      "reviewedAt": "2026-11-05"
     }
   },
   "gaps": {
@@ -118,6 +78,18 @@
       "placeId": "ChIJj7-A7nXhwogRGvQ_vcrP7uU",
       "needsPermissionFrom": null,
       "note": "No licensed photo of this exact place or event was found (Wikimedia Commons categories and file pages and Flickr single photo pages checked 2026-11-05). This guide uses Wayfind's neutral fallback, so the pick shows the \"Photo unavailable\" tile, never a context or Google photo. Licensed photo sourcing backlog."
+    },
+    "Conch Tour Train Holiday Sights and Festive Nights Tour": {
+      "reason": "no-verified-source",
+      "placeId": null,
+      "needsPermissionFrom": null,
+      "note": "Image intent pass 2026-11-09: the previous photo (conch-tour-train-holiday-sights-and-festive-nights-tour.webp) showed the tour train on a daytime street with no holiday lights, so it did not match what this pick is about. No licensed photo of this exact event in season was found (Wikimedia Commons and Openverse or Flickr checked 2026-11-09). This guide uses Wayfind's neutral fallback, so the pick shows the \"Photo unavailable\" tile until a verified photo is sourced."
+    },
+    "Santa in Space at MOSI": {
+      "reason": "no-verified-source",
+      "placeId": "ChIJq6E9W8_HwogRUggO5759Ook",
+      "needsPermissionFrom": null,
+      "note": "Image intent pass 2026-11-09: the previous photo (santa-in-space-at-mosi.webp) showed an empty museum interior with no Santa, so it did not match what this pick is about. No licensed photo of this exact event in season was found (Wikimedia Commons and Openverse or Flickr checked 2026-11-09). This guide uses Wayfind's neutral fallback, so the pick shows the \"Photo unavailable\" tile until a verified photo is sourced."
     }
   }
 }
