@@ -879,8 +879,7 @@ export default function DetailSheet({ ctx }) {
         cityNames: [detail.postalCity, detail.locality, detail.city, localityFromFormattedAddress(detail.address)].filter(Boolean),
       });
     } catch (e) {
-      try { console.error("[wf] detailNextStep failed", e && e.message); } catch (err) {}
-      nextStep = { ...missingGuidesStep(), code: "detailNextStep", match: "next_step_failed", kicker: "Next step paused. detailNextStep failed." };
+      nextStep = { ...missingGuidesStep(), match: "next_step_failed" };
     }
   }
   const nextStepKey = nextStep && detail ? detail.id + "|" + nextStep.match + "|" + nextStep.target : "";
@@ -889,6 +888,9 @@ export default function DetailSheet({ ctx }) {
     if (!nextStepKey || !nextStep) return;
     if (nextStepShown.current === nextStepKey) return;
     nextStepShown.current = nextStepKey;
+    if (nextStep.match === "guides_unconfigured" || nextStep.match === "next_step_failed") {
+      try { console.error("[wf] detail next step used the guides index", nextStep.match); } catch (e) {}
+    }
     try { logEvent(DETAIL_NEXT_STEP_SHOWN, detail, { match: nextStep.match, kind: nextStep.kind, target: nextStep.target }); } catch (e) {}
   }, [nextStepKey]);
 
@@ -1809,10 +1811,6 @@ export default function DetailSheet({ ctx }) {
                   <div style={{ fontSize: 10, fontWeight: 700, color: C.muted, marginBottom: 8 }}>{nextStep.kicker}</div>
                   {nextStep.kind === "place" ? (
                     <WhereToGoNextRow p={nextStep.place} partner={null} reason={nextStep.reason} pairDistMi={null} openDetail={(p) => { try { logEvent(DETAIL_NEXT_STEP_OPEN, detail, { match: nextStep.match, kind: nextStep.kind, target: nextStep.target }); } catch (e) {} openDetail(p); }} liveOpen={liveOpen} FallbackImg={FallbackImg} ctaCity={ctaCity} />
-                  ) : nextStep.kind === "error" ? (
-                    <div role="status">
-                      <a href={nextStep.href} onClick={() => { try { logEvent(DETAIL_NEXT_STEP_OPEN, detail, { match: nextStep.match, kind: nextStep.kind, target: nextStep.target }); } catch (e) {} }} style={{ display: "inline-flex", alignItems: "center", minHeight: 44, fontSize: 14, fontWeight: 700, color: C.text, textDecoration: "none" }}>{nextStep.title}</a>
-                    </div>
                   ) : (
                     <div style={{ border: "1px solid " + C.border, borderRadius: 14, background: "#0B0E15", overflow: "hidden" }}>
                       <a href={nextStep.href} onClick={() => { try { logEvent(DETAIL_NEXT_STEP_OPEN, detail, { match: nextStep.match, kind: nextStep.kind, target: nextStep.target }); } catch (e) {} }} style={{ display: "flex", alignItems: "flex-start", gap: 12, padding: "12px 13px", textDecoration: "none" }}>

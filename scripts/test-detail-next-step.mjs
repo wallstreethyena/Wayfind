@@ -102,12 +102,15 @@ const emptyList = chooseDetailNextStep({ place, guides: [], similar: [], similar
 ok(emptyList.match === "guides_index" && emptyList.kind !== "error",
   "a loaded guide list with no match still ends on the guides index");
 
+const index = chooseDetailNextStep({ place: { id: "ChIJnone", name: "None" }, guides: [], similar: [], similarReady: true, cityNames: [] });
 for (const missing of [undefined, null, { slug: "nope" }]) {
   const step = chooseDetailNextStep({ place, guides: missing, similar: [gelato], similarReady: true, cityNames: ["Sarasota"] });
-  ok(step.kind === "error" && step.code === "detailGuides" && step.match === "guides_unconfigured" && step.kicker === NEXT_STEP_COPY.missing && step.href === "/guides",
-    "a missing guide list is named, and it is not dressed up as a related guide");
+  ok(step.kind === "guides" && step.match === "guides_unconfigured" && step.href === "/guides" && step.kicker === index.kicker && step.title === index.title && step.teaser === index.teaser,
+    "a missing guide list uses the same guides index link visitors already see");
+  ok(!/detailGuides|detailNextStep|missing guide list/i.test([step.kicker, step.title, step.teaser, step.href].join(" ")),
+    "the missing guide list does not put an internal name on the link");
 }
-ok(missingGuidesStep().title === NEXT_STEP_COPY.missingLink, "the error still has one real link");
+ok(missingGuidesStep().match === "guides_unconfigured" && missingGuidesStep().title === NEXT_STEP_COPY.guidesTitle, "the fallback keeps the index title and a distinct match");
 
 ok(chooseDetailNextStep({ place: { _event: true, id: "evt" }, guides, similarReady: true }) === null, "an event sheet is out of scope");
 ok(chooseDetailNextStep({ guides, similarReady: true }) === null, "no place means no closer");
@@ -137,5 +140,9 @@ ok(home.includes("detailGuides: railMenu && Array.isArray(railMenu.guides) ? rai
   "the sheet receives the guide index the shell already loaded, or null when that index is absent");
 ok(!/className=["'][^"']*wf-place-card/.test(ui.slice(ui.indexOf("data-detail-next-step"))),
   "the closer does not mount a new place card root");
+ok(!/detailGuides is missing|detailNextStep failed/.test(ui),
+  "the sheet never renders the internal failure names");
+ok(ui.includes('console.error("[wf] detail next step used the guides index"'),
+  "a guides miss is logged for developers and still recorded on the shown event");
 
 console.log("test-detail-next-step: OK — " + pass + " assertions");
