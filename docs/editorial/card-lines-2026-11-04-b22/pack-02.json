@@ -1,0 +1,739 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 22. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJaSJPCb9954gRHlQWZpFBBzk",
+   "name": "Tu Casa Restaurant",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.tucasaorlando.com/",
+     "source_name": "Tu Casa Restaurant \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Tu Casa Restaurant is a family-owned and operated business founded in 2006.",
+      "Tu Casa Restaurant is a Dominican and Spanish restaurant in Orlando, FL.",
+      "Tu Casa serves breakfast, lunch, and dinner.",
+      "Hours are Monday to Saturday 7 a.m. to 8 p.m., Sundays closed.",
+      "Tu Casa offers a 15% discount on $20 online orders with code TuCasa15.",
+      "Tu Casa provides the same original family recipes."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Family-owned Dominican and Spanish cooking since 2006",
+    "why_here": "Tu Casa is a family-owned Dominican and Spanish restaurant in Orlando serving breakfast, lunch, and dinner. It was founded in 2006 and provides the same original family recipes.",
+    "know_before": "Hours are Monday to Saturday 7 a.m. to 8 p.m.; Sundays closed.",
+    "local_tip": "Save 15% off $20 online orders with code TuCasa15.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.tucasaorlando.com/"
+     ],
+     "why_here": [
+      "https://www.tucasaorlando.com/"
+     ],
+     "know_before": [
+      "https://www.tucasaorlando.com/"
+     ],
+     "local_tip": [
+      "https://www.tucasaorlando.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Tu Casa Restaurant is a family-owned and operated business founded in 2006.",
+      "source": "https://www.tucasaorlando.com/"
+     },
+     {
+      "claim": "Tu Casa Restaurant is a Dominican and Spanish restaurant in Orlando, FL.",
+      "source": "https://www.tucasaorlando.com/"
+     },
+     {
+      "claim": "Tu Casa serves breakfast, lunch, and dinner.",
+      "source": "https://www.tucasaorlando.com/"
+     },
+     {
+      "claim": "Hours are Monday to Saturday 7 a.m. to 8 p.m., Sundays closed.",
+      "source": "https://www.tucasaorlando.com/"
+     },
+     {
+      "claim": "Tu Casa offers a 15% discount on $20 online orders with code TuCasa15.",
+      "source": "https://www.tucasaorlando.com/"
+     },
+     {
+      "claim": "Tu Casa provides the same original family recipes.",
+      "source": "https://www.tucasaorlando.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ2b9L-4LF2YgRVUeWy5-klxE",
+   "name": "Tiagos Tacos",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "taco_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://tiagostacos.com/",
+     "source_name": "Tiagos Tacos \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Tiagos Tacos menu features tacos, burritos, and birria.",
+      "The menu includes a Birria Taco Trio with three corn tortilla shells and beef Birria cooked with 13 different spices.",
+      "The menu includes Big Burritos.",
+      "Tiagos Tacos offers a full menu at locations in Hialeah, Coral Way, and Palmetto Bay."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Tacos, burritos, and birria with a Birria Taco Trio",
+    "why_here": "Tiagos Tacos serves tacos, burritos, and birria, with a Birria Taco Trio made with three corn tortilla shells and beef Birria cooked with 13 different spices.",
+    "know_before": "A full menu is offered at locations in Hialeah, Coral Way, and Palmetto Bay.",
+    "local_tip": "Try the Big Burritos or the Birria Taco Trio.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://tiagostacos.com/"
+     ],
+     "why_here": [
+      "https://tiagostacos.com/"
+     ],
+     "know_before": [
+      "https://tiagostacos.com/"
+     ],
+     "local_tip": [
+      "https://tiagostacos.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Tiagos Tacos menu features tacos, burritos, and birria.",
+      "source": "https://tiagostacos.com/"
+     },
+     {
+      "claim": "The menu includes a Birria Taco Trio with three corn tortilla shells and beef Birria cooked with 13 different spices.",
+      "source": "https://tiagostacos.com/"
+     },
+     {
+      "claim": "The menu includes Big Burritos.",
+      "source": "https://tiagostacos.com/"
+     },
+     {
+      "claim": "Tiagos Tacos offers a full menu at locations in Hialeah, Coral Way, and Palmetto Bay.",
+      "source": "https://tiagostacos.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJs8XsT5O_2YgRRFaMPRZVku4",
+   "name": "Finka Table & Tap",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "asian_fusion_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://finkarestaurant.com/",
+     "source_name": "Finka Table & Tap \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Finka Table and Tap serves a $15 lunch menu every week from 11:30 a.m. to 4 p.m., dine-in only.",
+      "The menu includes Crispy Calamari with gochujang dressing.",
+      "The menu includes Lomo Saltado Fried Rice with Angus churrasco filets.",
+      "The menu includes Islas Canarias Croquetas."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Crispy Calamari and Islas Canarias Croquetas plates",
+    "why_here": "Finka Table and Tap serves Crispy Calamari with gochujang dressing, Islas Canarias Croquetas, and Lomo Saltado Fried Rice with Angus churrasco filets.",
+    "know_before": "A $15 lunch menu is served every week from 11:30 a.m. to 4 p.m., dine-in only.",
+    "local_tip": "Try the Lomo Saltado Fried Rice with Angus churrasco filets.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://finkarestaurant.com/"
+     ],
+     "why_here": [
+      "https://finkarestaurant.com/"
+     ],
+     "know_before": [
+      "https://finkarestaurant.com/"
+     ],
+     "local_tip": [
+      "https://finkarestaurant.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Finka Table and Tap serves a $15 lunch menu every week from 11:30 a.m. to 4 p.m., dine-in only.",
+      "source": "https://finkarestaurant.com/"
+     },
+     {
+      "claim": "The menu includes Crispy Calamari with gochujang dressing.",
+      "source": "https://finkarestaurant.com/"
+     },
+     {
+      "claim": "The menu includes Lomo Saltado Fried Rice with Angus churrasco filets.",
+      "source": "https://finkarestaurant.com/"
+     },
+     {
+      "claim": "The menu includes Islas Canarias Croquetas.",
+      "source": "https://finkarestaurant.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJx8AYhi0r34gRuIxXJtL6ibk",
+   "name": "John D. MacArthur Beach State Park",
+   "category": "beach",
+   "metro": "palm-beach",
+   "primary_type": "state_park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.floridastateparks.org/parks-and-trails/john-d-macarthur-beach-state-park",
+     "source_name": "John D. MacArthur Beach State Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "John D. MacArthur Beach State Park is a barrier island with coastal and tropical hammock and mangrove forest.",
+      "Visitors can swim, picnic and surf at the beach, and snorkeling is also a popular activity.",
+      "Park hours are 8 a.m. until sundown, 365 days a year."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Barrier island beach for swimming, surfing, and snorkeling",
+    "why_here": "John D. MacArthur Beach State Park mixes coastal and tropical hammock and mangrove forest on a barrier island, where visitors can swim, picnic and surf at the beach.",
+    "know_before": "Park hours are 8 a.m. until sundown, 365 days a year.",
+    "local_tip": "Snorkeling is also a popular activity at the beach.",
+    "best_time": "Morning, when the nature center and boardwalk are less crowded.",
+    "citations": {
+     "hook": [
+      "https://www.floridastateparks.org/parks-and-trails/john-d-macarthur-beach-state-park"
+     ],
+     "why_here": [
+      "https://www.floridastateparks.org/parks-and-trails/john-d-macarthur-beach-state-park"
+     ],
+     "know_before": [
+      "https://www.floridastateparks.org/parks-and-trails/john-d-macarthur-beach-state-park"
+     ],
+     "local_tip": [
+      "https://www.floridastateparks.org/parks-and-trails/john-d-macarthur-beach-state-park"
+     ],
+     "best_time": [
+      "https://www.floridastateparks.org/parks-and-trails/john-d-macarthur-beach-state-park"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "John D. MacArthur Beach State Park is a barrier island with coastal and tropical hammock and mangrove forest.",
+      "source": "https://www.floridastateparks.org/parks-and-trails/john-d-macarthur-beach-state-park"
+     },
+     {
+      "claim": "Visitors can swim, picnic and surf at the beach, and snorkeling is also a popular activity.",
+      "source": "https://www.floridastateparks.org/parks-and-trails/john-d-macarthur-beach-state-park"
+     },
+     {
+      "claim": "Park hours are 8 a.m. until sundown, 365 days a year.",
+      "source": "https://www.floridastateparks.org/parks-and-trails/john-d-macarthur-beach-state-park"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJozTiVHN754gRCsvrpy3aC0w",
+   "name": "SODO Shopping Center",
+   "category": "shopping",
+   "metro": "orlando",
+   "primary_type": "shopping_mall",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.kimcorealty.com/properties/sodo-sc/101250/space/00003/view",
+     "source_name": "SODO Shopping Center \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Sodo S.C. major tenants include LA Fitness, Orlando Health, and TJ Maxx plus other small shops.",
+      "A 3,735 square foot retail space at Sodo S.C. is available for lease.",
+      "Sodo S.C. is in Orlando."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Retail center with LA Fitness, Orlando Health, and TJ Maxx",
+    "why_here": "Sodo S.C. in Orlando lists major tenants including LA Fitness, Orlando Health, and TJ Maxx plus other small shops, with retail space available for lease.",
+    "know_before": "A 3,735 square foot retail space at Sodo S.C. is available for lease.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.kimcorealty.com/properties/sodo-sc/101250/space/00003/view"
+     ],
+     "why_here": [
+      "https://www.kimcorealty.com/properties/sodo-sc/101250/space/00003/view"
+     ],
+     "know_before": [
+      "https://www.kimcorealty.com/properties/sodo-sc/101250/space/00003/view"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Sodo S.C. major tenants include LA Fitness, Orlando Health, and TJ Maxx plus other small shops.",
+      "source": "https://www.kimcorealty.com/properties/sodo-sc/101250/space/00003/view"
+     },
+     {
+      "claim": "A 3,735 square foot retail space at Sodo S.C. is available for lease.",
+      "source": "https://www.kimcorealty.com/properties/sodo-sc/101250/space/00003/view"
+     },
+     {
+      "claim": "Sodo S.C. is in Orlando.",
+      "source": "https://www.kimcorealty.com/properties/sodo-sc/101250/space/00003/view"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJQc46w53hwogRkIzJCT6FnW4",
+   "name": "BellaBrava - St. Petersburg",
+   "category": "food",
+   "metro": "st-pete",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://bellabrava.com/",
+     "source_name": "BellaBrava - St. Petersburg \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "BellaBrava was born in 2005 as a trattoria inspired by a 2003 trip through Tuscany.",
+      "BellaBrava makes pasta, pizza dough, and focaccia fresh in-house every day.",
+      "BellaBrava pizzas are fired in Woodstone ovens.",
+      "The original BellaBrava location is on Beach Drive in St. Petersburg."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Pasta and stone-fired pizza on Beach Drive since 2005",
+    "why_here": "BellaBrava in St. Petersburg makes pasta, pizza dough, and focaccia fresh in-house every day, and fires pizzas in Woodstone ovens on Beach Drive.",
+    "know_before": "BellaBrava was born in 2005, inspired by a 2003 trip through Tuscany.",
+    "local_tip": "Try pasta made fresh in-house every day.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://bellabrava.com/"
+     ],
+     "why_here": [
+      "https://bellabrava.com/"
+     ],
+     "know_before": [
+      "https://bellabrava.com/"
+     ],
+     "local_tip": [
+      "https://bellabrava.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "BellaBrava was born in 2005 as a trattoria inspired by a 2003 trip through Tuscany.",
+      "source": "https://bellabrava.com/"
+     },
+     {
+      "claim": "BellaBrava makes pasta, pizza dough, and focaccia fresh in-house every day.",
+      "source": "https://bellabrava.com/"
+     },
+     {
+      "claim": "BellaBrava pizzas are fired in Woodstone ovens.",
+      "source": "https://bellabrava.com/"
+     },
+     {
+      "claim": "The original BellaBrava location is on Beach Drive in St. Petersburg.",
+      "source": "https://bellabrava.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJfTxcmM57R48RUGNt30qcB0Q",
+   "name": "Luxe Jet Ski & ATV Rentals Orlando",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "service",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://luxejetskirentalorl.com/",
+     "source_name": "Luxe Jet Ski & ATV Rentals Orlando \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Luxe offers new Sea-Doo jet ski rentals near Orlando.",
+      "Luxe runs Can-Am ATV and UTV tours on a private 1,200-acre ranch.",
+      "ATV tours run at The Ranch, about 1 hour 15 minutes from Orlando, from $130."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Sea-Doo jet ski rentals plus Can-Am ATV and UTV tours",
+    "why_here": "Luxe offers new Sea-Doo jet ski rentals near Orlando and also runs Can-Am ATV and UTV tours on a private 1,200-acre ranch at The Ranch.",
+    "know_before": "ATV tours run at The Ranch, about 1 hour 15 minutes from Orlando.",
+    "local_tip": "ATV and UTV tours run from $130 at The Ranch.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://luxejetskirentalorl.com/"
+     ],
+     "why_here": [
+      "https://luxejetskirentalorl.com/"
+     ],
+     "know_before": [
+      "https://luxejetskirentalorl.com/"
+     ],
+     "local_tip": [
+      "https://luxejetskirentalorl.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Luxe offers new Sea-Doo jet ski rentals near Orlando.",
+      "source": "https://luxejetskirentalorl.com/"
+     },
+     {
+      "claim": "Luxe runs Can-Am ATV and UTV tours on a private 1,200-acre ranch.",
+      "source": "https://luxejetskirentalorl.com/"
+     },
+     {
+      "claim": "ATV tours run at The Ranch, about 1 hour 15 minutes from Orlando, from $130.",
+      "source": "https://luxejetskirentalorl.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJaYFPFTO_2YgRVqu1Daznp_4",
+   "name": "107 Taste Asian Restaurant FIU",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "asian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://107taste.com/faq/",
+     "source_name": "107 Taste Asian Restaurant FIU \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "107 Taste is an Asian fusion restaurant with flavors from across Asia.",
+      "The menu features ramen, stir-fried noodles, and rice bowls from Chef Yu Bi family recipes.",
+      "Ramen includes Tonkotsu, Spicy Miso, and Lemongrass Ho Fun Ramen.",
+      "107 Taste offers vegetarian ramen and tofu-based dishes to accommodate plant-based diets."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Ramen, stir-fried noodles, and rice bowls from family recipes",
+    "why_here": "107 Taste is an Asian fusion restaurant serving ramen, stir-fried noodles, and rice bowls from Chef Yu Bi family recipes, including Tonkotsu and Spicy Miso ramen.",
+    "know_before": "Vegetarian ramen and tofu-based dishes are offered for plant-based diets.",
+    "local_tip": "Try the Lemongrass Ho Fun Ramen or Tonkotsu.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://107taste.com/faq/"
+     ],
+     "why_here": [
+      "https://107taste.com/faq/"
+     ],
+     "know_before": [
+      "https://107taste.com/faq/"
+     ],
+     "local_tip": [
+      "https://107taste.com/faq/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "107 Taste is an Asian fusion restaurant with flavors from across Asia.",
+      "source": "https://107taste.com/faq/"
+     },
+     {
+      "claim": "The menu features ramen, stir-fried noodles, and rice bowls from Chef Yu Bi family recipes.",
+      "source": "https://107taste.com/faq/"
+     },
+     {
+      "claim": "Ramen includes Tonkotsu, Spicy Miso, and Lemongrass Ho Fun Ramen.",
+      "source": "https://107taste.com/faq/"
+     },
+     {
+      "claim": "107 Taste offers vegetarian ramen and tofu-based dishes to accommodate plant-based diets.",
+      "source": "https://107taste.com/faq/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJf0zZfA_9wogR4JAa8cKYQdA",
+   "name": "Middle Grounds Grill",
+   "category": "food",
+   "metro": "st-pete",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.middlegroundsgrill.com/",
+     "source_name": "Middle Grounds Grill \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Middle Grounds Grill name was inspired by the Florida Middle Grounds, approximately 100 miles offshore of the Treasure Island coast.",
+      "Middle Grounds Grill serves fresh seafood and top-quality meats.",
+      "During peak season from February through May, the restaurant focuses on dine-in service only.",
+      "Reservations are encouraged in advance during peak season."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Fresh seafood and meats named for offshore Florida Middle Grounds",
+    "why_here": "Middle Grounds Grill takes its name from the Florida Middle Grounds approximately 100 miles offshore of the Treasure Island coast, and serves fresh seafood and top-quality meats.",
+    "know_before": "During peak season from February through May, service focuses on dine-in only.",
+    "local_tip": "Make reservations in advance during peak season.",
+    "best_time": "February through May is peak season, when the restaurant focuses on dine-in service only.",
+    "citations": {
+     "hook": [
+      "https://www.middlegroundsgrill.com/"
+     ],
+     "why_here": [
+      "https://www.middlegroundsgrill.com/"
+     ],
+     "know_before": [
+      "https://www.middlegroundsgrill.com/"
+     ],
+     "local_tip": [
+      "https://www.middlegroundsgrill.com/"
+     ],
+     "best_time": [
+      "https://www.middlegroundsgrill.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Middle Grounds Grill name was inspired by the Florida Middle Grounds, approximately 100 miles offshore of the Treasure Island coast.",
+      "source": "https://www.middlegroundsgrill.com/"
+     },
+     {
+      "claim": "Middle Grounds Grill serves fresh seafood and top-quality meats.",
+      "source": "https://www.middlegroundsgrill.com/"
+     },
+     {
+      "claim": "During peak season from February through May, the restaurant focuses on dine-in service only.",
+      "source": "https://www.middlegroundsgrill.com/"
+     },
+     {
+      "claim": "Reservations are encouraged in advance during peak season.",
+      "source": "https://www.middlegroundsgrill.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJWZIXsdCNk4gRcqzPb7Fvswo",
+   "name": "PCB Wheel",
+   "category": "attractions",
+   "metro": "panama-city-florida",
+   "primary_type": "tourist_attraction",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://pcbwheel.com/experience/the-wheel",
+     "source_name": "PCB Wheel \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The PCB Wheel stands 200 feet tall with 30 climate-controlled, fully enclosed gondolas accommodating up to 6 guests each.",
+      "The PCB Wheel is located at Pier Park in Panama City Beach.",
+      "Each admission consists of 4 revolutions and lasts approximately 12 minutes.",
+      "Tickets can be purchased online or in the PCB Wheel lobby.",
+      "The PCB Wheel is open 365 days per year."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "200-foot wheel with climate-controlled gondolas at Pier Park",
+    "why_here": "The PCB Wheel at Pier Park in Panama City Beach stands 200 feet tall with 30 climate-controlled, fully enclosed gondolas, each accommodating up to 6 guests.",
+    "know_before": "Each admission is 4 revolutions and lasts approximately 12 minutes; tickets are sold online or in the lobby.",
+    "local_tip": "The wheel is open 365 days per year.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://pcbwheel.com/experience/the-wheel"
+     ],
+     "why_here": [
+      "https://pcbwheel.com/experience/the-wheel"
+     ],
+     "know_before": [
+      "https://pcbwheel.com/experience/the-wheel"
+     ],
+     "local_tip": [
+      "https://pcbwheel.com/experience/the-wheel"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The PCB Wheel stands 200 feet tall with 30 climate-controlled, fully enclosed gondolas accommodating up to 6 guests each.",
+      "source": "https://pcbwheel.com/experience/the-wheel"
+     },
+     {
+      "claim": "The PCB Wheel is located at Pier Park in Panama City Beach.",
+      "source": "https://pcbwheel.com/experience/the-wheel"
+     },
+     {
+      "claim": "Each admission consists of 4 revolutions and lasts approximately 12 minutes.",
+      "source": "https://pcbwheel.com/experience/the-wheel"
+     },
+     {
+      "claim": "Tickets can be purchased online or in the PCB Wheel lobby.",
+      "source": "https://pcbwheel.com/experience/the-wheel"
+     },
+     {
+      "claim": "The PCB Wheel is open 365 days per year.",
+      "source": "https://pcbwheel.com/experience/the-wheel"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJjWCt7yFm54gR_CGpViEwgng",
+   "name": "Boardwalk Bowl Entertainment Center",
+   "category": "attractions",
+   "metro": "orlando",
+   "primary_type": "bowling_alley",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.alomabowlingcenters.com/boardwalk/wp-content/uploads/sites/4/2025/08/BWB-Event-guide-combined.pdf",
+     "source_name": "Boardwalk Bowl Entertainment Center \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Boardwalk Bowl has 80 lanes.",
+      "Boardwalk Bowl has 2 sports bars and 60-plus arcade games.",
+      "Boardwalk Bowl is located at 10749 East Colonial Drive, Orlando, FL 32817."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "80 lanes, sports bars and 60-plus arcade games in Orlando",
+    "why_here": "Boardwalk Bowl lists 80 lanes of bowling, 2 sports bars, a billiards room, cornhole and over 60 arcade games. Its event guide also describes a casual full-service restaurant on site.",
+    "know_before": "The center is at 10749 East Colonial Drive, Orlando, FL 32817, per its official event guide.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.alomabowlingcenters.com/boardwalk/wp-content/uploads/sites/4/2025/08/BWB-Event-guide-combined.pdf"
+     ],
+     "why_here": [
+      "https://www.alomabowlingcenters.com/boardwalk/wp-content/uploads/sites/4/2025/08/BWB-Event-guide-combined.pdf"
+     ],
+     "know_before": [
+      "https://www.alomabowlingcenters.com/boardwalk/wp-content/uploads/sites/4/2025/08/BWB-Event-guide-combined.pdf"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Boardwalk Bowl has 80 lanes.",
+      "source": "https://www.alomabowlingcenters.com/boardwalk/wp-content/uploads/sites/4/2025/08/BWB-Event-guide-combined.pdf"
+     },
+     {
+      "claim": "Boardwalk Bowl has 2 sports bars and 60-plus arcade games.",
+      "source": "https://www.alomabowlingcenters.com/boardwalk/wp-content/uploads/sites/4/2025/08/BWB-Event-guide-combined.pdf"
+     },
+     {
+      "claim": "Boardwalk Bowl is located at 10749 East Colonial Drive, Orlando, FL 32817.",
+      "source": "https://www.alomabowlingcenters.com/boardwalk/wp-content/uploads/sites/4/2025/08/BWB-Event-guide-combined.pdf"
+     }
+    ]
+   }
+  }
+ ]
+}

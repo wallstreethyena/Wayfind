@@ -47,16 +47,43 @@ ok(find(computeAlerts({ photoServing: { today: { quota: 80 } } })), "Google quot
   ok(PHOTO_LEDGER_OPERATIONAL_MIN === 20, "threshold constant is 20");
 }
 
+// Final response counts cover stored/licensed reuse and supersede upstream attempts.
+{
+  ok(!find(computeAlerts({ photoServing: { today: { ok: 13, "ledger-cap": 144, "response-served": 500, "response-refused": 5 } } })), "healthy stored reuse prevents a purchase-only false alarm");
+  const refused = find(computeAlerts({ photoServing: { today: { ok: 500, "response-refused": 100 } } }));
+  ok(refused?.severity === "critical", "upstream purchases cannot masquerade as served responses when all final answers failed");
+  ok(!find(computeAlerts({ photoServing: { today: { "preview:quota": 500, "dev:ledger-cap": 500 } } })), "nonproduction outcomes never count as customer refusals");
+  const quota = find(computeAlerts({ photoServing: {
+    today: { ok: 13, "quota-open": 144, "place-lookup-failed:quota": 5 },
+    latestGoogleSuccessAt: "2026-11-08T11:21:00.000Z", latestRefusalAt: "2026-11-08T08:13:00.000Z",
+  }, photoQuotaBreaker: { open: false } }));
+  ok(quota?.severity === "warn" && /lookup rate limits use a short hold/.test(quota.detail), "real Nov 8 observations name the lookup quota path");
+  ok(/currently closed/.test(quota.detail) && /11:21:00/.test(quota.detail) && /08:13:00/.test(quota.detail), "current breaker and later serving evidence remain distinct from historical daily refusals");
+  ok(!/GOOGLE_PHOTOS_MONTH_CAP|raise/.test(quota.detail), "quota evidence does not prescribe a monthly cap increase");
+  const op = find(computeAlerts({ photoServing: { today: { "ledger-timeout": 100 } } }));
+  ok(/wf_spend_take/.test(op.detail), "operational refusal directs repair to the ledger");
+  ok(!/GOOGLE_PHOTOS_MONTH_CAP/.test(op.detail), "operational refusal does not invent a cap cause");
+  const key = find(computeAlerts({ photoServing: { today: { "key-denied": 100 } } }));
+  ok(/key restrictions/.test(key.detail), "key denial directs repair to API access");
+  ok(!/GOOGLE_PHOTOS_MONTH_CAP/.test(key.detail), "key denial does not invent a cap cause");
+  const storage = find(computeAlerts({ photoServing: { today: { "response-refused": 100, "storage-failed": 100 } } }));
+  ok(/photo storage health/.test(storage.detail), "storage failures direct repair to storage");
+  ok(!/Google quota refusals|GOOGLE_PHOTOS_MONTH_CAP/.test(storage.detail), "storage failures do not invent a budget or quota cause");
+  const short = find(computeAlerts({ photoServing: { today: { "quota-open": 100 } }, photoQuotaBreaker: { open: true, scope: "lookup", expiresAt: "2026-11-08T10:30:00.000Z" } }));
+  ok(/short hold until/.test(short.detail), "active lookup hold names its short deadline");
+  ok(!/per-day photo quota ran out/.test(short.detail), "active lookup hold never claims a daily photo limit");
+}
 // 6. The source: reads ET today+yesterday and folds rows per day.
 {
   let url = "";
   const fetchImpl = async (u) => { url = u; return { ok: true, json: async () => [
-    { day: "2026-09-28", class: "ledger-denied", n: 299 }, { day: "2026-09-27", class: "ledger-denied", n: 815 }, { day: "2026-09-27", class: "ok", n: 0 },
+    { day: "2026-09-28", class: "ledger-denied", n: 299, updated_at: "2026-09-28T20:00:00Z" }, { day: "2026-09-28", class: "response-served", n: 50, updated_at: "2026-09-28T21:00:00Z" }, { day: "2026-09-28", class: "ok", n: 1, updated_at: "2026-09-28T19:00:00Z" }, { day: "2026-09-28", class: "preview:quota", n: 5, updated_at: "2026-09-28T22:00:00Z" }, { day: "2026-09-27", class: "ledger-denied", n: 815 }, { day: "2026-09-27", class: "ok", n: 0 },
   ] }; };
   const r = await photoServing({ sb: { url: "https://x.supabase.co", key: "k" }, fetchImpl, now: new Date("2026-09-29T02:30:00Z") });
   ok(r.source && r.source.connected !== false, "source reports connected");
   ok(/day=in\.\(2026-09-28,2026-09-27\)/.test(url), "queries the ET today and yesterday (10:30 PM ET is still Sep 28) — got " + url);
   ok(r.data.today["ledger-denied"] === 299 && r.data.yesterday["ledger-denied"] === 815, "rows fold into per-day class counts");
+  ok(r.data.latestSuccessfulResponseAt === "2026-09-28T21:00:00.000Z" && r.data.latestGoogleSuccessAt === "2026-09-28T19:00:00.000Z" && r.data.latestRefusalAt === "2026-09-28T20:00:00.000Z", "source exposes actual response, Google success, and production refusal timestamps separately");
   const bad = await photoServing({ sb: { url: "https://x.supabase.co", key: "k" }, fetchImpl: async () => ({ ok: false, status: 500 }), now: new Date("2026-10-02T12:00:00Z") });
   ok(bad.data === null && bad.source.connected === false, "an HTTP failure is a source error, never a fabricated zero");
   const none = await photoServing({ env: {} });

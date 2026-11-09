@@ -2,6 +2,7 @@
 // had to re-fix repeatedly. Any change that breaks these fails the build.
 import { readFileSync } from "fs";
 import { shellSrc } from "./lib/shellSrc.mjs";
+import ts from "typescript";
 const s = shellSrc(); // G0: greps the whole home shell (home.js + kit + screens + sheets)
 const fail = (m) => { console.error("check-cards: FAIL — " + m); process.exit(1); };
 
@@ -22,17 +23,48 @@ if (!s.includes("function openExpSheet(key)")) fail("openExpSheet missing");
 if (!s.includes("hookDetail.places || placesForHook(hookDetail, allSrc)")) fail("sheet places override removed");
 if (!/hd\.fetchKey/.test(s) || !s.includes("110000")) fail("wide-radius sheet fetch missing");
 
-// 5. The v4.46 null-place crash guard stays.
-if (!s.includes("avail.filter((a) => !heroPlace || !a.place || a.place.id !== heroPlace.id)")) fail("null-place guard on restExp removed (v4.46 crash)");
-if (!s.includes("if (!a.place) {")) fail("mkHook place-less early return removed");
-
-// 6. The five cards are guaranteed on the home feed.
-if (!s.includes('const GUARANTEED = ["family", "entertainment", "stays", "shows", "budget"]')) fail("GUARANTEED home cards list changed");
+// 5–6. The old GUARANTEED/mkHook/restExp strings described retired cards,
+// not rendered revenue doors. Execute their live destination instead: every
+// protected theme must open without a local place and retain its own fetch.
+const home = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
+const tree = ts.createSourceFile("home.js", home, ts.ScriptTarget.ES2020, true, ts.ScriptKind.JSX);
+const functions = new Map();
+let registry;
+(function walk(node) {
+  if (ts.isFunctionDeclaration(node) && node.name) functions.set(node.name.text, node.getText(tree));
+  if (ts.isVariableDeclaration(node) && node.name.getText(tree) === "EXPERIENCES") registry = node.initializer;
+  ts.forEachChild(node, walk);
+})(tree);
+const keys = ["family", "entertainment", "stays", "shows", "budget"];
+if (!registry || !ts.isObjectLiteralExpression(registry)) fail("actual experience registry missing");
+const entries = registry.properties.filter(property => keys.includes(property.name?.getText(tree)));
+if (entries.length !== keys.length) fail("a protected revenue experience is missing");
+for (const city of ["Sarasota", "Jacksonville"]) {
+  const sheets = [], labels = [];
+  const make = new Function("C", "cityNow", "locName", "setHookDetail", "labels", `
+    const EXPERIENCES = { ${entries.map(entry => entry.getText(tree)).join(",")} };
+    let CITY_NOW = cityNow;
+    ${functions.get("cityFixM")}
+    const cityFix = value => { labels.push(value); return cityFixM(value); };
+    ${functions.get("revenueExpMeta")}
+    ${functions.get("openExpSheet")}
+    return openExpSheet;
+  `);
+  const open = make({ accent: "orange", green: "green", purple: "purple", blue: "blue", pink: "pink", gold: "gold" }, city, city + ", FL", value => sheets.push(value), labels);
+  for (const key of keys) {
+    const before = labels.length;
+    open(key);
+    const sheet = sheets.at(-1);
+    if (!sheet || sheet.theme !== key || sheet.fetchKey !== key || sheet.places !== null) fail(`${key}: place-less revenue sheet lost its own fetch`);
+    if (!sheet.label || !sheet.themeTitle || !sheet.cta || !sheet.subtitle.includes(city)) fail(`${key}: live sheet lost location-specific copy or CTA`);
+    if (labels.length !== before + 2) fail(`${key}: live label/title bypass cityFix`);
+  }
+  if (sheets.length !== keys.length) fail("not every revenue theme opened a sheet");
+}
 
 // 7. Labels follow the user's location everywhere (module-safe helper).
 if (!s.includes("function cityFixM(s)")) fail("cityFixM helper missing");
 if (!s.includes("CITY_NOW = cityNow;")) fail("city mirror into module scope missing");
-if (!s.includes("cityFix(a.e.label)")) fail("cityFix not applied to hero labels");
 if (s.includes("{b.icon} {b.label}")) fail("raw badge label render reappeared — must use cityFixM");
 
 // 8. The sort control is ALWAYS visible inside the themed sheet (no hidden

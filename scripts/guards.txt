@@ -181,6 +181,7 @@ node scripts/test-owner-places-2026-08-29c.mjs
 node scripts/test-owner-places-2026-08-29d.mjs
 node scripts/test-owner-places-2026-08-29e.mjs
 node scripts/test-command-center.mjs
+node scripts/test-browse-interaction-reuse.mjs
 # Command Center partner-click predicate + #1603 exclude_devices: the migration
 # must stay byte-identical to command-center.sql (2026-10-02).
 node scripts/test-cc-partner-click-predicate.mjs
@@ -641,6 +642,10 @@ node scripts/check-map-place-card.mjs
 node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/test-app-rating.mjs
 node scripts/check-credentialed-paths.mjs
 node scripts/check-home-answer-first.mjs
+# A cold homepage opens the first poster collection. useState(null) puts the
+# shelf back in front of the answer. The link to the source poster lives in
+# the existing open bar, not on the poster tiles.
+node scripts/check-home-default-poster.mjs
 node scripts/check-home-location.mjs
 node scripts/check-owner-curation-one-path.mjs
 node scripts/check-ranking-integrity.mjs
@@ -1895,6 +1900,7 @@ node scripts/check-guide-pick-photos.mjs
 # no gap note may promise a fallback that no longer exists (the #1697 Coquina
 # Beach failure); every guide has a hero.
 node scripts/check-guide-visual-completeness.mjs
+node scripts/check-image-intent.mjs
 # The scheduled live monitor's A/B/C sorting (.github/workflows/guide-visual-monitor.yml).
 node scripts/test-guide-visual-monitor.mjs
 
@@ -2114,7 +2120,7 @@ node scripts/test-image-health.mjs
 node scripts/test-image-health-report.mjs
 # The event hero photo goes through the CREDITED lane (never a bare /api/photo <img>), its caption exists only while a photo is
 # visible, and no app/ file builds a raw <img>/background from an /api/photo string (server render + Chromium + AST scan, 2026-10-14).
-node scripts/test-event-hero-credited-photo.mjs
+node scripts/test-event-hero-credited-photo.mjs ${GITHUB_ACTIONS:+--require-browser}
 node scripts/test-photo-answers.mjs
 # Every external photo-attribution link opens in a new tab (noopener, announced to
 # screen readers) with attribution byte-identical; a click on a credit inside a card
@@ -2133,6 +2139,7 @@ node scripts/test-guide-editorial-photos.mjs
 
 node scripts/test-guide-city-coverage.mjs
 node scripts/test-detail-nearby.mjs
+node scripts/test-detail-next-step.mjs
 node scripts/test-venue-nearby.mjs
 node scripts/test-card-photo-fallback.mjs
 node scripts/test-photo-serving-alert.mjs
@@ -2489,6 +2496,8 @@ node scripts/test-fall-offering-retirement.mjs
 # Locality backfill: a street name never corroborates a city; Census-resolved empties are never filled.
 node scripts/test-locality-backfill-evidence.mjs
 
+# Global fetch retries ONCE on the idle keep-alive socket drop (idempotent, transport errors only); executed against a local server.
+node scripts/test-fetch-socket-retry.mjs
 # Refresh selector trap: a cheap-tier check must not block the enterprise content refresh (#1893).
 node scripts/test-refresh-selector-trap.mjs
 node scripts/test-refresh-reserve.mjs
@@ -2510,3 +2519,11 @@ node scripts/check-bare-path-redirects.mjs
 
 node scripts/test-events-expanded-rails.mjs
 node scripts/test-licensed-event-covers.mjs
+
+
+node scripts/test-google-daily-quota-breaker.mjs
+
+node scripts/check-homepage-events-deadline.mjs
+node scripts/test-holiday-discovery-2026-11-06.mjs
+# Verified official street addresses and safe non-Google map links.
+node scripts/test-owned-place-directions.mjs
