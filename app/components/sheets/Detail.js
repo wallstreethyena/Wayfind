@@ -43,7 +43,7 @@ import { useCommerceImpression } from "../useCommerceImpression";
 import { nearbyTourListAllowed, placePartnerPick } from "../../../lib/placePartnerPicks";
 import { usePinQuarantine } from "../../../lib/pinQuarantine";
 import { pairsWellWith } from "../../../lib/pairsWellWith";
-import { chooseDetailNextStep, DETAIL_NEXT_STEP_OPEN, DETAIL_NEXT_STEP_SHOWN, missingGuidesStep } from "../../../lib/detailNextStep.js";
+import { chooseDetailNextStep, DETAIL_NEXT_STEP_OPEN, DETAIL_NEXT_STEP_SHOWN } from "../../../lib/detailNextStep.js";
 import { detailNearbyPool, detailDistanceMi, DETAIL_NEARBY_RADIUS_MI } from "../../../lib/detailNearby.js";
 import { askShareIntent } from "../shareIntentSheet";
 import { placeKinds } from "../../../lib/dateInvite";
@@ -879,7 +879,9 @@ export default function DetailSheet({ ctx }) {
         cityNames: [detail.postalCity, detail.locality, detail.city, localityFromFormattedAddress(detail.address)].filter(Boolean),
       });
     } catch (e) {
-      nextStep = { ...missingGuidesStep(), match: "next_step_failed" };
+      // Literal on purpose. test-detail-photo-acquisition evals this slice
+      // without the module scope, so this catch cannot call an import.
+      nextStep = { kind: "guides", match: "next_step_failed", target: "guides", href: "/guides", title: "Wayfind guides", teaser: "", mins: null, region: "", kicker: "See the guides" };
     }
   }
   const nextStepKey = nextStep && detail ? detail.id + "|" + nextStep.match + "|" + nextStep.target : "";
