@@ -25,7 +25,7 @@ globalThis.fetch = async () => { throw new Error("Static earning routes must not
 try {
   const expected = { ticketsmarter: "15735296", epicpass: "17171490", vrbo: "10697641" };
   ok(Object.keys(CJ_PARTNERS).length === 3, "all three verified CJ advertisers registered");
-  ok(Object.keys(CJ_PARTNER_OFFERS).length === 16, "all sixteen verified CJ offers exercised");
+  ok(Object.keys(CJ_PARTNER_OFFERS).length === 40, "all forty verified CJ offers exercised");
   ok(CJ_PARTNER_OFFERS["enchant-stpete-ticketsmarter"]?.destination === "https://www.ticketsmarter.com/venues/tropicana-field",
     "Enchant resale browse points to the verified St Petersburg venue, not a fabricated ticket/date URL");
   const performances = {
@@ -39,6 +39,30 @@ try {
     "enchant-stpete-nov20-ticketsmarter": ["/e/enchant-christmas-saint-petersburg-tickets-st-petersburg-11-20-2026-tropicana-field/3528820", "2026-11-20"],
     "enchant-stpete-nov21-ticketsmarter": ["/e/enchant-christmas-saint-petersburg-tickets-st-petersburg-11-21-2026-tropicana-field/3519500", "2026-11-21"],
     "enchant-stpete-nov22-ticketsmarter": ["/e/enchant-christmas-saint-petersburg-tickets-st-petersburg-11-22-2026-tropicana-field/3523801", "2026-11-22"],
+    "enchant-stpete-nov25-ticketsmarter": ["/e/enchant-christmas-saint-petersburg-tickets-st-petersburg-11-25-2026-tropicana-field/3517716", "2026-11-25"],
+    "enchant-stpete-nov27-ticketsmarter": ["/e/enchant-christmas-saint-petersburg-tickets-st-petersburg-11-27-2026-tropicana-field/3513010", "2026-11-27"],
+    "enchant-stpete-nov28-ticketsmarter": ["/e/enchant-christmas-saint-petersburg-tickets-st-petersburg-11-28-2026-tropicana-field/3523868", "2026-11-28"],
+    "enchant-stpete-nov29-ticketsmarter": ["/e/enchant-christmas-saint-petersburg-tickets-st-petersburg-11-29-2026-tropicana-field/3528818", "2026-11-29"],
+    "enchant-stpete-dec1-ticketsmarter": ["/e/enchant-christmas-saint-petersburg-tickets-st-petersburg-12-1-2026-tropicana-field/3517782", "2026-12-01"],
+    "enchant-stpete-dec2-ticketsmarter": ["/e/enchant-christmas-saint-petersburg-tickets-st-petersburg-12-2-2026-tropicana-field/3528821", "2026-12-02"],
+    "enchant-stpete-dec3-ticketsmarter": ["/e/enchant-christmas-saint-petersburg-tickets-st-petersburg-12-3-2026-tropicana-field/3513891", "2026-12-03"],
+    "enchant-stpete-dec4-ticketsmarter": ["/e/enchant-christmas-saint-petersburg-tickets-st-petersburg-12-4-2026-tropicana-field/3514970", "2026-12-04"],
+    "enchant-stpete-dec5-ticketsmarter": ["/e/enchant-christmas-saint-petersburg-tickets-st-petersburg-12-5-2026-tropicana-field/3512279", "2026-12-05"],
+    "enchant-stpete-dec6-ticketsmarter": ["/e/enchant-christmas-tickets-st-petersburg-12-6-2026-tropicana-field/3529098", "2026-12-06"],
+    "enchant-stpete-dec10-ticketsmarter": ["/e/enchant-christmas-saint-petersburg-tickets-st-petersburg-12-10-2026-tropicana-field/3528822", "2026-12-10"],
+    "enchant-stpete-dec11-ticketsmarter": ["/e/enchant-christmas-saint-petersburg-tickets-st-petersburg-12-11-2026-tropicana-field/3511361", "2026-12-11"],
+    "enchant-stpete-dec13-ticketsmarter": ["/e/enchant-christmas-saint-petersburg-tickets-st-petersburg-12-13-2026-tropicana-field/3517100", "2026-12-13"],
+    "enchant-stpete-dec15-ticketsmarter": ["/e/enchant-christmas-saint-petersburg-tickets-st-petersburg-12-15-2026-tropicana-field/3523017", "2026-12-15"],
+    "enchant-stpete-dec16-ticketsmarter": ["/e/enchant-christmas-saint-petersburg-tickets-st-petersburg-12-16-2026-tropicana-field/3512021", "2026-12-16"],
+    "enchant-stpete-dec17-ticketsmarter": ["/e/enchant-christmas-saint-petersburg-tickets-st-petersburg-12-17-2026-tropicana-field/3528823", "2026-12-17"],
+    "enchant-stpete-dec20-ticketsmarter": ["/e/enchant-christmas-saint-petersburg-tickets-st-petersburg-12-20-2026-tropicana-field/3516043", "2026-12-20"],
+    "enchant-stpete-dec21-ticketsmarter": ["/e/enchant-christmas-saint-petersburg-tickets-st-petersburg-12-21-2026-tropicana-field/3528825", "2026-12-21"],
+    "enchant-stpete-dec22-ticketsmarter": ["/e/enchant-christmas-saint-petersburg-tickets-st-petersburg-12-22-2026-tropicana-field/3513895", "2026-12-22"],
+    "enchant-stpete-dec23-ticketsmarter": ["/e/enchant-christmas-saint-petersburg-tickets-st-petersburg-12-23-2026-tropicana-field/3516332", "2026-12-23"],
+    "enchant-stpete-dec24-ticketsmarter": ["/e/enchant-christmas-saint-petersburg-tickets-st-petersburg-12-24-2026-tropicana-field/3528827", "2026-12-24"],
+    "enchant-stpete-dec25-ticketsmarter": ["/e/enchant-christmas-saint-petersburg-tickets-st-petersburg-12-25-2026-tropicana-field/3522653", "2026-12-25"],
+    "enchant-stpete-dec26-ticketsmarter": ["/e/enchant-christmas-saint-petersburg-tickets-st-petersburg-12-26-2026-tropicana-field/3528829", "2026-12-26"],
+    "enchant-stpete-dec27-ticketsmarter": ["/e/enchant-christmas-saint-petersburg-tickets-st-petersburg-12-27-2026-tropicana-field/3513769", "2026-12-27"],
   };
   for (const [id, [pathname, day]] of Object.entries(enchantNights)) {
     const row = CJ_PARTNER_OFFERS[id];
@@ -80,6 +104,30 @@ try {
     "enchant-stpete-nov20-ticketsmarter": ["2026-11-20", "2026-11-21"],
     "enchant-stpete-nov21-ticketsmarter": ["2026-11-21", "2026-11-22"],
     "enchant-stpete-nov22-ticketsmarter": ["2026-11-22", "2026-11-23"],
+    "enchant-stpete-nov25-ticketsmarter": ["2026-11-25", "2026-11-26"],
+    "enchant-stpete-nov27-ticketsmarter": ["2026-11-27", "2026-11-28"],
+    "enchant-stpete-nov28-ticketsmarter": ["2026-11-28", "2026-11-29"],
+    "enchant-stpete-nov29-ticketsmarter": ["2026-11-29", "2026-11-30"],
+    "enchant-stpete-dec1-ticketsmarter": ["2026-12-01", "2026-12-02"],
+    "enchant-stpete-dec2-ticketsmarter": ["2026-12-02", "2026-12-03"],
+    "enchant-stpete-dec3-ticketsmarter": ["2026-12-03", "2026-12-04"],
+    "enchant-stpete-dec4-ticketsmarter": ["2026-12-04", "2026-12-05"],
+    "enchant-stpete-dec5-ticketsmarter": ["2026-12-05", "2026-12-06"],
+    "enchant-stpete-dec6-ticketsmarter": ["2026-12-06", "2026-12-07"],
+    "enchant-stpete-dec10-ticketsmarter": ["2026-12-10", "2026-12-11"],
+    "enchant-stpete-dec11-ticketsmarter": ["2026-12-11", "2026-12-12"],
+    "enchant-stpete-dec13-ticketsmarter": ["2026-12-13", "2026-12-14"],
+    "enchant-stpete-dec15-ticketsmarter": ["2026-12-15", "2026-12-16"],
+    "enchant-stpete-dec16-ticketsmarter": ["2026-12-16", "2026-12-17"],
+    "enchant-stpete-dec17-ticketsmarter": ["2026-12-17", "2026-12-18"],
+    "enchant-stpete-dec20-ticketsmarter": ["2026-12-20", "2026-12-21"],
+    "enchant-stpete-dec21-ticketsmarter": ["2026-12-21", "2026-12-22"],
+    "enchant-stpete-dec22-ticketsmarter": ["2026-12-22", "2026-12-23"],
+    "enchant-stpete-dec23-ticketsmarter": ["2026-12-23", "2026-12-24"],
+    "enchant-stpete-dec24-ticketsmarter": ["2026-12-24", "2026-12-25"],
+    "enchant-stpete-dec25-ticketsmarter": ["2026-12-25", "2026-12-26"],
+    "enchant-stpete-dec26-ticketsmarter": ["2026-12-26", "2026-12-27"],
+    "enchant-stpete-dec27-ticketsmarter": ["2026-12-27", "2026-12-28"],
   };
   for (const [id, [lastDay, nextDay]] of Object.entries(performanceDays)) {
     ok(CJ_PARTNER_OFFERS[id].expiresOn === lastDay && cjPartnerOfferById(id, "ticketsmarter", { today: lastDay }) !== null,
