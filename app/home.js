@@ -7576,15 +7576,17 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
         // replaces the seed. ok:false (no headers, or outside Florida) adopts
         // the Parrish seed instead of leaving center null, which is what
         // stranded /?q= before submitSearch could run.
-        const adopted = centerAfterGeoDecision({
-          ok: !!(d && d.ok),
-          lat: d && d.lat,
-          lng: d && d.lng,
-          name: d && d.name,
-          gotGPS,
-          manual: manualRef.current,
-          current: centerRef.current,
-        });
+        const adopted = (!gotGPS && !manualRef.current && isSeedCenter(centerRef.current))
+          ? centerAfterGeoDecision({
+            ok: !!(d && d.ok),
+            lat: d && d.lat,
+            lng: d && d.lng,
+            name: d && d.name,
+            gotGPS,
+            manual: manualRef.current,
+            current: centerRef.current,
+          })
+          : null;
         if (adopted) {
           if (adopted.device) setDeviceLoc((prev) => prev || adopted.center);
           setLocResolved(true);
