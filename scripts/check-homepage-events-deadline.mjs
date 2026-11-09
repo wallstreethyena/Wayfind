@@ -50,7 +50,8 @@ const serverSource = read("lib/thisWeekEventsServer.js")
   .replace(/from "(\.\/[^\"]+)"/g, (_, spec) => "from " + JSON.stringify(new URL(spec, pathToFileURL(path.join(root, "lib/thisWeekEventsServer.js"))).href));
 const server = await import("data:text/javascript;base64," + Buffer.from(serverSource).toString("base64"));
 const siteTime = await import("../lib/siteTime.js");
-const { addDaysStr } = await import("../lib/thisWeekEvents.js");
+const { addDaysStr, weeklyTrendGuideCard } = await import("../lib/thisWeekEvents.js");
+const { guideDiscoveryIndex } = await import("../lib/guideDiscoveryIndex.js");
 const { resolveRailCity } = await import("../lib/locationHonesty.js");
 const railCalls = [];
 let proofLookup = () => Promise.resolve([]);
@@ -82,6 +83,8 @@ const deps = {
   "../lib/guideLifecycle": { currentGuides: rows => rows },
   "../lib/localEdit": { localEditIndex: rows => rows },
   "../lib/thisWeekEventsServer": server,
+  "../lib/guideDiscoveryIndex": { guideDiscoveryIndex },
+  "../lib/thisWeekEvents": { weeklyTrendGuideCard },
   "../lib/railsData": { railMenuData: async slug => {
     railCalls.push(slug);
     if (resolveRailCity(slug, {}) !== null) throw new Error("Unexpected location-specific homepage work");
