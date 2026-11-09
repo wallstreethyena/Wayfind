@@ -206,8 +206,16 @@ ok(!secondaryTicketPrimaryMatches({ ...reviewedTmPrimary, href: reviewedTmPrimar
     && new URL(row.secondaryCta.href, "https://www.gowayfind.com").searchParams.get("offer") === "enchant-stpete-nov20-ticketsmarter",
     "Enchant secondary resale link on Nov 20 earns through the dated TicketSmarter page");
   const afterDated = christmasTicketsModel([enchant], "2026-11-23").rows[0];
-  ok(new URL(afterDated.secondaryCta.href, "https://www.gowayfind.com").searchParams.get("offer") === "enchant-stpete-ticketsmarter",
-    "after the three dated nights, Enchant returns to the season venue browse");
+  ok(new URL(afterDated.secondaryCta.href, "https://www.gowayfind.com").searchParams.get("offer") === "enchant-stpete-nov25-ticketsmarter",
+    "after Nov 22, Enchant uses the next listed night, not the venue page");
+  const shown = christmasTicketsModel([{ ...enchant, start_date: "2026-12-06", end_date: "2026-12-06" }], "2026-11-20").rows[0];
+  ok(new URL(shown.secondaryCta.href, "https://www.gowayfind.com").searchParams.get("offer") === "enchant-stpete-dec6-ticketsmarter",
+    "a card that shows one date uses that night's ticket listing");
+  ok(secondaryEventTicketAction({ ...enchant, start_date: "2026-11-23", end_date: "2026-11-23" }, { today: "2026-11-20" }) === null,
+    "a shown date with no TicketSmarter listing gets no resale button");
+  ok(!String(row.secondaryCta.href).includes("enchant-stpete-ticketsmarter")
+    && !String(afterDated.secondaryCta.href).includes("venues"),
+    "Enchant resale never uses the Tropicana Field venue page");
   ok(/resale/i.test(row.secondaryCta.label + " " + row.secondaryCta.via) && /fees vary/i.test(row.secondaryCta.via)
     && /commission/i.test(row.secondaryCta.via), "resale, variable fees and earning disclosure are explicit");
   ok(secondaryEventTicketAction({ ...enchant, is_free: true }, { today: "2026-11-20" }) === null
