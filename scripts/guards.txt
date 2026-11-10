@@ -1637,6 +1637,7 @@ node scripts/test-photo-upstream-truth.mjs
 # breaker stops asking Google at all once a quota outcome is seen, until
 # Google's own Pacific-midnight reset. Red-proved.
 node scripts/test-photo-quota-truth.mjs
+node scripts/test-places-photo-breaker.mjs
 
 # 2026-09-16: Google Cloud metrics traced every billed photo call to
 # defaultFetchOwnedUri, one ledger grant per outbound request, and found
