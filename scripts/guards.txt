@@ -2537,3 +2537,6 @@ node scripts/test-holiday-discovery-2026-11-06.mjs
 node scripts/test-owned-place-directions.mjs
 # INP: a direct /p/{id} landing must not mount the home feed under the place sheet.
 node scripts/test-feed-deferral.mjs
+# 2026-11-10 (Sentry WAYFIND-19): a dropped visitor connection gets one retry and is
+# never filed as a Wayfind map service failure; real service answers still are.
+node scripts/test-client-transport-retry.mjs
