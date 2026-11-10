@@ -10,7 +10,7 @@ import PlaceDistance, { usePlaceDistance } from "../PlaceDistance.js";
 // module-scope EXPERIENCES table) stays in home.js and flows through ctx,
 // same as every other extraction phase.
 import { pilotForPlace } from "../../../lib/beachPlanning";
-import { AFFILIATE_DISCLOSURE_TEXT } from "../../../lib/affiliateDisclosure.js";
+import { AFFILIATE_DISCLOSURE_TEXT, detailCreditCommissionLine } from "../../../lib/affiliateDisclosure.js";
 import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { safeUrl } from "../../../lib/links.js";
@@ -563,6 +563,10 @@ export default function DetailSheet({ ctx }) {
   // The one disclosure line under the primary action. When it renders, the
   // BookingCTA disclosure lower in the sheet stays off (one line per sheet).
   const ftcNearPrimary = !!(detail && !detail._event && primaryCta && primaryCta.monetized && (primaryCta.exact || (primaryCta.type !== DETAIL_CTA_TYPES.tickets && primaryCta.type !== DETAIL_CTA_TYPES.rates)));
+  // Owner (2026-11-10): the commission line joins the photo credit directly
+  // under the detail photos, so it is read before the booking button. Same
+  // predicate as the near-button line; it names this sheet's own partner.
+  const creditCommission = ftcNearPrimary ? detailCreditCommissionLine(primaryCta.provider) : null;
   const verdict = detailVerdict({ detail, weather, openState });
   const ctaCategory = Dining.cuisineLabel(detail) || primaryCategory(detail) || placeKind(detail) || "";
   const ctaCity = locName ? locName.split(",")[0] : "";
@@ -910,10 +914,10 @@ export default function DetailSheet({ ctx }) {
                       <FallbackImg defer={i >= 2} fit={PLACE_DETAIL_PHOTO_STANDARD.image.objectFit} alt={detail.name} key={src} src={src} icon={detail._event ? "🎟️" : undefined} category={primaryCategory(detail)} onClick={() => setLightbox(src)} style={{ width: galleryPhotos.length > 1 ? "78%" : "100%", flexShrink: 0, height: "100%", background: C.bg, scrollSnapAlign: "start", cursor: "zoom-in" }} />
                     ))}
                     </div> : <div data-detail-photo-pending style={{ position: "absolute", inset: 0, display: "grid", placeItems: "center", color: C.muted, fontSize: 12 }}>Loading photo…</div>}
-                    {heroCredit ? <div data-detail-photo-credit style={{ position: "absolute", inset: 0, zIndex: 2, pointerEvents: "none" }}>
-                      <PhotoCredit onPhoto credit={heroCredit} />
-                    </div> : null}
                   </div>
+                  {(heroCredit || creditCommission) ? <div data-detail-photo-credit data-detail-credit-line style={{ padding: "7px 18px 0", fontSize: 12, lineHeight: 1.45, color: "#C9D1D9", overflowWrap: "anywhere" }}>
+                    {heroCredit ? <PhotoCredit inline credit={heroCredit} /> : null}{heroCredit && creditCommission ? ". " : null}{creditCommission}
+                  </div> : null}
                   {galleryPhotos.length > 1 && (
                     <>
                       {galleryIdx > 0 && (
@@ -1051,7 +1055,7 @@ export default function DetailSheet({ ctx }) {
                     onClick={handlePrimaryCtaClick}
                   />
                 </div>
-                {ftcNearPrimary && <FTCDisclosure />}
+                {ftcNearPrimary && !(expandedHero && creditCommission) && <FTCDisclosure />}
                 {/* One balanced secondary bar. Directions used to occupy a row
                     by itself above reactions, which made the dock look like two
                     unrelated button systems. Keep every secondary action on the

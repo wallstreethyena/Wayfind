@@ -50,7 +50,7 @@ function host(initial) {
   const useRef = value => { const i = cursor++; return hooks[i] ||= { current: value }; };
   const ctx = { React: { createElement: (type, props, ...children) => ({ type, props: props || {}, children }), Fragment: "fragment" },
     useEffect, useRef, acquireDetailPhoto, fetchLivePhoto, isLivePlaceId, detailGalleryPhotos, liveCreditFor, hasRealPlacePhoto, detailHeroLayout, PLACE_DETAIL_PHOTO_STANDARD,
-    setDetail(update) { detail = update(detail); dirty = true; }, C: {}, FallbackImg: "fixture-image", PhotoCredit: "fixture-credit",
+    setDetail(update) { detail = update(detail); dirty = true; }, C: {}, FallbackImg: "fixture-image", PhotoCredit: "fixture-credit", creditCommission: null,
     galleryIdx: 0, galleryRef: null, onGalleryScroll() {}, scrollGallery() {}, galleryBtn: () => ({}), setLightbox() {}, primaryCategory: () => "Food" };
   const run = new Function(...Object.keys(ctx), "detail", compiled + ";return render();");
   function render() { let count = 0; do { assert.ok(++count < 15, "Detail lifecycle settles"); dirty = false; cursor = 0; pending = []; tree = run(...Object.values(ctx), detail); for (const effect of pending) effect(); } while (dirty); }
