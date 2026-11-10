@@ -57,7 +57,7 @@ ok(find(computeAlerts({ photoServing: { today: { quota: 80 } } })), "Google quot
     today: { ok: 13, "quota-open": 144, "place-lookup-failed:quota": 5 },
     latestGoogleSuccessAt: "2026-11-08T11:21:00.000Z", latestRefusalAt: "2026-11-08T08:13:00.000Z",
   }, photoQuotaBreaker: { open: false } }));
-  ok(quota?.severity === "warn" && /lookup rate limits use a short hold/.test(quota.detail), "real Nov 8 observations name the lookup quota path");
+  ok(quota?.severity === "warn" && /A single 429 does not shut photos off/.test(quota.detail), "real Nov 8 observations no longer treat one lookup 429 as a site-wide shutoff");
   ok(/currently closed/.test(quota.detail) && /11:21:00/.test(quota.detail) && /08:13:00/.test(quota.detail), "current breaker and later serving evidence remain distinct from historical daily refusals");
   ok(!/GOOGLE_PHOTOS_MONTH_CAP|raise/.test(quota.detail), "quota evidence does not prescribe a monthly cap increase");
   const op = find(computeAlerts({ photoServing: { today: { "ledger-timeout": 100 } } }));
