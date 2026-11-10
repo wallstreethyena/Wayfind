@@ -1,5 +1,48 @@
 [
   {
+    "version": "20261103193355",
+    "name": "event_truth_integrity_scan_and_enforce",
+    "statements_sha256": "575f4ed88f8cd2a31804476f7f1cd99a0cecdfe04b740a4930333d6b008efaf5",
+    "probes": [
+      {
+        "kind": "function",
+        "name": "wf_event_truth_integrity"
+      },
+      {
+        "kind": "function",
+        "name": "wf_event_truth_integrity_enforce"
+      }
+    ],
+    "reason": "Production-only record with no repo file, applied directly to production 2026-11-03T19:33-19:35Z under the owner account (supabase_migrations.schema_migrations.created_by), ledger name and hash read from wf_migration_ledger_hashes(). Reviewed 2026-11-03 against the live ledger text, wf_schema_objects(), pg_proc grants and cron.job. Per scripts/apply-migration.mjs policy (never reconstruct a migration file from guesses) and the owner's 2026-09-09 rule (already-live unauthorized migrations are recorded and reviewed as deployed, never rolled back): pin the exact ledger hash and probe the live objects on every canary run. Reviewed purpose: Event Truth integrity: wf_event_truth_integrity() scans wf_events (read-only report); wf_event_truth_integrity_enforce() is additive only: sets wf_events.timezone from county (America/Chicago for the 9 Central-time panhandle counties, else America/New_York, Gulf excluded) for rows the scan flags as timezone_mismatch, and schedules recheck_on = tomorrow for flagged rows with no recheck pending (7-day throttle). No deletes, no status changes. EXECUTE revoked from public/anon/authenticated, granted to service_role (verified live: anon/authenticated EXECUTE false).",
+    "reviewed_by": "Claude (claude.exe lane), Wayfind data-integrity handoff 2026-11-03 (canary check-migration-reconciliation; owner-approved in-session)"
+  },
+  {
+    "version": "20261103193512",
+    "name": "event_truth_integrity_case_insensitive_times",
+    "statements_sha256": "27319871e3cd37b3fd0eefd0fb5c44f3cefb10d0e67d779ba89f2180c4ce1366",
+    "probes": [
+      {
+        "kind": "function",
+        "name": "wf_event_truth_integrity"
+      }
+    ],
+    "reason": "Production-only record with no repo file, applied directly to production 2026-11-03T19:33-19:35Z under the owner account (supabase_migrations.schema_migrations.created_by), ledger name and hash read from wf_migration_ledger_hashes(). Reviewed 2026-11-03 against the live ledger text, wf_schema_objects(), pg_proc grants and cron.job. Per scripts/apply-migration.mjs policy (never reconstruct a migration file from guesses) and the owner's 2026-09-09 rule (already-live unauthorized migrations are recorded and reviewed as deployed, never rolled back): pin the exact ledger hash and probe the live objects on every canary run. Reviewed purpose: Replaces wf_event_truth_integrity() (same signature, read-only scan) so time-text matching is case-insensitive. Grants unchanged (verified live).",
+    "reviewed_by": "Claude (claude.exe lane), Wayfind data-integrity handoff 2026-11-03 (canary check-migration-reconciliation; owner-approved in-session)"
+  },
+  {
+    "version": "20261103193547",
+    "name": "event_truth_integrity_cron_and_status",
+    "statements_sha256": "c99e18ac68da266268df941d217f89475b398e843d0f30b3ba991ad356f52d3b",
+    "probes": [
+      {
+        "kind": "function",
+        "name": "wf_event_truth_status"
+      }
+    ],
+    "reason": "Production-only record with no repo file, applied directly to production 2026-11-03T19:33-19:35Z under the owner account (supabase_migrations.schema_migrations.created_by), ledger name and hash read from wf_migration_ledger_hashes(). Reviewed 2026-11-03 against the live ledger text, wf_schema_objects(), pg_proc grants and cron.job. Per scripts/apply-migration.mjs policy (never reconstruct a migration file from guesses) and the owner's 2026-09-09 rule (already-live unauthorized migrations are recorded and reviewed as deployed, never rolled back): pin the exact ledger hash and probe the live objects on every canary run. Reviewed purpose: Schedules pg_cron job wf-event-truth-integrity ('41 10 * * *', active) that runs the enforce function and writes a wf_job_pulse row (job event-truth-integrity), and replaces wf_event_truth_status() to report it. anon/authenticated EXECUTE false on wf_event_truth_status (verified live).",
+    "reviewed_by": "Claude (claude.exe lane), Wayfind data-integrity handoff 2026-11-03 (canary check-migration-reconciliation; owner-approved in-session)"
+  },
+  {
     "version": "20260718024003",
     "name": "wayfind_command_center_rpcs_v1",
     "statements_sha256": "7a4e97ddd32193d20e73f5cb8502372b7b4ca40f4b9c74304b59a6a8d17a56a0",
@@ -946,5 +989,243 @@
     ],
     "reason": "Production-only record applied 2026-10-24 19:40:18Z during the official-source intake pass with no repo file; canary check-migration-reconciliation flagged it as unreviewed on subsequent runs. Reviewed 2026-10-25 against live schema (wf_schema_objects + wf_migration_ledger_hashes + public.wf_inventory): creates CHECK constraint wf_official_intake_discovery_contract on public.wf_inventory governing source='owner_verified_official_source' (wfadd_*) intake rows (requiring Wayfind-owned wfadd_* place_id, OPERATIONAL status, coordinates, locality/county/metro, and signals JSONB with identity_method, identity_source, and official_address; 4 live rows verified: wfadd_kings_landing_apopka, wfadd_nueva_cantina_st_pete, wfadd_nueva_cantina_brandon, wfadd_rreal_tacos_downtown_tampa). Per scripts/apply-migration.mjs policy (never reconstruct a migration file from guesses), pin the exact ledger hash and verify live constraint presence via probes on every canary run without replaying.",
     "reviewed_by": "Claude, Wayfind incident fix 2026-10-25 (owner-requested metered job repair)"
+  },
+  {
+    "version": "20261029232158",
+    "name": "add_wf_normalize_place_name_helper",
+    "statements_sha256": "7a6501a9b6653c52389b0a85932e0ea6509acaa53218ef31d9b623d7c4b6e2f1",
+    "probes": [
+      {
+        "kind": "function",
+        "name": "wf_normalize_place_name"
+      }
+    ],
+    "reason": "Production-only record with no repo file, applied directly by the blog daily-run / event-truth automation lanes 2026-10-29/30 (ledger name and hash read from wf_migration_ledger_hashes()). Reviewed 2026-11-03 against the live ledger text and wf_schema_objects(). Per scripts/apply-migration.mjs policy (never reconstruct a migration file from guesses) and the owner's 2026-09-09 rule (already-live unauthorized migrations are recorded and reviewed as deployed, never rolled back): pin the exact ledger hash and probe the live object on every canary run. Reviewed purpose: creates IMMUTABLE sql function wf_normalize_place_name(text) (lowercase, strip punctuation/trailing '- <words>' suffix, collapse whitespace) plus a thin read-only view for place-name overlap comparisons; no table content touched. Superseded in body by 20261030001126.",
+    "reviewed_by": "Claude (Cowork lane), Wayfind incident fix 2026-11-03 (canary check-migration-reconciliation red 8 runs; owner-requested)"
+  },
+  {
+    "version": "20261029232645",
+    "name": "wf_add_run_stage_tracking_and_safe_write_functions",
+    "statements_sha256": "81759877d0e29f55ba431c90f748b11733d9f52f26c6a470a915841aa2f36489",
+    "probes": [
+      {
+        "kind": "column",
+        "name": "wf_blog_daily_runs.stage"
+      },
+      {
+        "kind": "column",
+        "name": "wf_blog_daily_runs.idempotency_key"
+      },
+      {
+        "kind": "constraint",
+        "name": "wf_blog_daily_runs_stage_check"
+      },
+      {
+        "kind": "function",
+        "name": "wf_set_run_notes"
+      }
+    ],
+    "reason": "Production-only record with no repo file, applied directly by the blog daily-run / event-truth automation lanes 2026-10-29/30 (ledger name and hash read from wf_migration_ledger_hashes()). Reviewed 2026-11-03 against the live ledger text and wf_schema_objects(). Per scripts/apply-migration.mjs policy (never reconstruct a migration file from guesses) and the owner's 2026-09-09 rule (already-live unauthorized migrations are recorded and reviewed as deployed, never rolled back): pin the exact ledger hash and probe the live object on every canary run. Reviewed purpose: adds stage/claimed_at/channel/idempotency_key/fb_provider_post_id/fb_confirmed_at/last_error columns to wf_blog_daily_runs, the wf_blog_daily_runs_stage_check CHECK, backfills idempotency_key, and creates the run-state write functions (wf_claim_daily_run, wf_advance_run_stage, wf_set_run_notes, wf_health_check) for the daily blog publish task.",
+    "reviewed_by": "Claude (Cowork lane), Wayfind incident fix 2026-11-03 (canary check-migration-reconciliation red 8 runs; owner-requested)"
+  },
+  {
+    "version": "20261029232731",
+    "name": "wf_fix_claim_daily_run_insert_detection",
+    "statements_sha256": "c7e2179b2893514af26f4cd927d70cd5273b757d83543b4e935ad6b04eba70ef",
+    "probes": [
+      {
+        "kind": "function",
+        "name": "wf_claim_daily_run"
+      }
+    ],
+    "reason": "Production-only record with no repo file, applied directly by the blog daily-run / event-truth automation lanes 2026-10-29/30 (ledger name and hash read from wf_migration_ledger_hashes()). Reviewed 2026-11-03 against the live ledger text and wf_schema_objects(). Per scripts/apply-migration.mjs policy (never reconstruct a migration file from guesses) and the owner's 2026-09-09 rule (already-live unauthorized migrations are recorded and reviewed as deployed, never rolled back): pin the exact ledger hash and probe the live object on every canary run. Reviewed purpose: CREATE OR REPLACE wf_claim_daily_run(date,text,text,text) so the claimed flag comes from the INSERT ... ON CONFLICT DO NOTHING RETURNING row instead of FOUND; returns (claimed, idempotency_key, existing_stage).",
+    "reviewed_by": "Claude (Cowork lane), Wayfind incident fix 2026-11-03 (canary check-migration-reconciliation red 8 runs; owner-requested)"
+  },
+  {
+    "version": "20261029235920",
+    "name": "wf_lock_down_run_function_grants",
+    "statements_sha256": "a037bd2ddfa6c0cc4633e696e193a7f2cbd3d641837cc84a753993d9683ba96a",
+    "probes": [
+      {
+        "kind": "function",
+        "name": "wf_claim_daily_run"
+      },
+      {
+        "kind": "function",
+        "name": "wf_health_check"
+      }
+    ],
+    "reason": "Production-only record with no repo file, applied directly by the blog daily-run / event-truth automation lanes 2026-10-29/30 (ledger name and hash read from wf_migration_ledger_hashes()). Reviewed 2026-11-03 against the live ledger text and wf_schema_objects(). Per scripts/apply-migration.mjs policy (never reconstruct a migration file from guesses) and the owner's 2026-09-09 rule (already-live unauthorized migrations are recorded and reviewed as deployed, never rolled back): pin the exact ledger hash and probe the live object on every canary run. Reviewed purpose: security fix: REVOKE ALL FROM PUBLIC and GRANT EXECUTE TO postgres, service_role on wf_claim_daily_run, wf_advance_run_stage, wf_set_run_notes, wf_health_check, wf_normalize_place_name (the wf_* explicit-grants convention). Live check 2026-11-03: anon and authenticated have EXECUTE=false on every overload.",
+    "reviewed_by": "Claude (Cowork lane), Wayfind incident fix 2026-11-03 (canary check-migration-reconciliation red 8 runs; owner-requested)"
+  },
+  {
+    "version": "20261030001126",
+    "name": "fix_place_name_overlap_merge_risk",
+    "statements_sha256": "d2823825e7487ca0acc3d9963e6601d33f3b5ef5d76c2fd76a0536f64390580a",
+    "probes": [
+      {
+        "kind": "function",
+        "name": "wf_normalize_place_name"
+      }
+    ],
+    "reason": "Production-only record with no repo file, applied directly by the blog daily-run / event-truth automation lanes 2026-10-29/30 (ledger name and hash read from wf_migration_ledger_hashes()). Reviewed 2026-11-03 against the live ledger text and wf_schema_objects(). Per scripts/apply-migration.mjs policy (never reconstruct a migration file from guesses) and the owner's 2026-09-09 rule (already-live unauthorized migrations are recorded and reviewed as deployed, never rolled back): pin the exact ledger hash and probe the live object on every canary run. Reviewed purpose: CREATE OR REPLACE wf_normalize_place_name(text) so it no longer strips '- <location>' suffixes (which conflated branches such as 'CALI - Riverview' with 'CALI'); weak lowercase/punctuation-only normalizer, documented as never a merge key on its own.",
+    "reviewed_by": "Claude (Cowork lane), Wayfind incident fix 2026-11-03 (canary check-migration-reconciliation red 8 runs; owner-requested)"
+  },
+  {
+    "version": "20261030001207",
+    "name": "wf_fix_idempotency_and_lease_claim",
+    "statements_sha256": "8c6ce08f35c011db0509f9d7b062331c21dfbbc89ae8be3de080edb40df7bfdf",
+    "probes": [
+      {
+        "kind": "column",
+        "name": "wf_blog_daily_runs.lease_expires_at"
+      }
+    ],
+    "reason": "Production-only record with no repo file, applied directly by the blog daily-run / event-truth automation lanes 2026-10-29/30 (ledger name and hash read from wf_migration_ledger_hashes()). Reviewed 2026-11-03 against the live ledger text and wf_schema_objects(). Per scripts/apply-migration.mjs policy (never reconstruct a migration file from guesses) and the owner's 2026-09-09 rule (already-live unauthorized migrations are recorded and reviewed as deployed, never rolled back): pin the exact ledger hash and probe the live object on every canary run. Reviewed purpose: adds wf_blog_daily_runs.lease_expires_at and rewrites idempotency_key to run_date::text for existing rows (one run per day).",
+    "reviewed_by": "Claude (Cowork lane), Wayfind incident fix 2026-11-03 (canary check-migration-reconciliation red 8 runs; owner-requested)"
+  },
+  {
+    "version": "20261030002410",
+    "name": "wf_advance_run_stage_v2_guards",
+    "statements_sha256": "f9cbf99fbe34ad45400829903049444719adc306c063ec5a39daddb3677cd372",
+    "probes": [
+      {
+        "kind": "function",
+        "name": "wf_advance_run_stage"
+      }
+    ],
+    "reason": "Production-only record with no repo file, applied directly by the blog daily-run / event-truth automation lanes 2026-10-29/30 (ledger name and hash read from wf_migration_ledger_hashes()). Reviewed 2026-11-03 against the live ledger text and wf_schema_objects(). Per scripts/apply-migration.mjs policy (never reconstruct a migration file from guesses) and the owner's 2026-09-09 rule (already-live unauthorized migrations are recorded and reviewed as deployed, never rolled back): pin the exact ledger hash and probe the live object on every canary run. Reviewed purpose: CREATE OR REPLACE wf_advance_run_stage (11-arg overload) as SECURITY DEFINER with search_path=public and monotonic stage-rank guards (claimed<researching<article_published<social_submitted<social_confirmed<metrics_reconciled; failed/blocked rank 0) and evidence checks before advancing.",
+    "reviewed_by": "Claude (Cowork lane), Wayfind incident fix 2026-11-03 (canary check-migration-reconciliation red 8 runs; owner-requested)"
+  },
+  {
+    "version": "20261030002429",
+    "name": "wf_claim_daily_run_v3_lease_no_drop",
+    "statements_sha256": "42ecd987c2ed2f3bbe51dc92fad41cce83232ada50de048d9dd0fd3595497d7e",
+    "probes": [
+      {
+        "kind": "function",
+        "name": "wf_claim_daily_run"
+      },
+      {
+        "kind": "column",
+        "name": "wf_blog_daily_runs.lease_expires_at"
+      }
+    ],
+    "reason": "Production-only record with no repo file, applied directly by the blog daily-run / event-truth automation lanes 2026-10-29/30 (ledger name and hash read from wf_migration_ledger_hashes()). Reviewed 2026-11-03 against the live ledger text and wf_schema_objects(). Per scripts/apply-migration.mjs policy (never reconstruct a migration file from guesses) and the owner's 2026-09-09 rule (already-live unauthorized migrations are recorded and reviewed as deployed, never rolled back): pin the exact ledger hash and probe the live object on every canary run. Reviewed purpose: creates the wf_claim_daily_run(date,text,text,text,int) overload: INSERT with a lease (p_lease_minutes, default 180), unique_violation => resume only when the existing lease expired; the 4-arg overload is kept (no DROP).",
+    "reviewed_by": "Claude (Cowork lane), Wayfind incident fix 2026-11-03 (canary check-migration-reconciliation red 8 runs; owner-requested)"
+  },
+  {
+    "version": "20261030003008",
+    "name": "wf_health_check_v2_deadline_aware",
+    "statements_sha256": "085fa059d23bd0c5380c3642085a4186db53521412a59e3e6b2d6675c73a7695",
+    "probes": [
+      {
+        "kind": "function",
+        "name": "wf_health_check"
+      }
+    ],
+    "reason": "Production-only record with no repo file, applied directly by the blog daily-run / event-truth automation lanes 2026-10-29/30 (ledger name and hash read from wf_migration_ledger_hashes()). Reviewed 2026-11-03 against the live ledger text and wf_schema_objects(). Per scripts/apply-migration.mjs policy (never reconstruct a migration file from guesses) and the owner's 2026-09-09 rule (already-live unauthorized migrations are recorded and reviewed as deployed, never rolled back): pin the exact ledger hash and probe the live object on every canary run. Reviewed purpose: CREATE OR REPLACE wf_health_check(date) returning (check_name,status,detail): distinguishes not-yet-due (before the 21:00 ET deadline) from missing and historical gaps for the daily blog run row.",
+    "reviewed_by": "Claude (Cowork lane), Wayfind incident fix 2026-11-03 (canary check-migration-reconciliation red 8 runs; owner-requested)"
+  },
+  {
+    "version": "20261030003033",
+    "name": "wf_health_check_v3_et_default_date",
+    "statements_sha256": "5174c7d9dc5c66652824f5826a7db09ba29577fdf6a550ff86b3fe8d181b4f92",
+    "probes": [
+      {
+        "kind": "function",
+        "name": "wf_health_check"
+      }
+    ],
+    "reason": "Production-only record with no repo file, applied directly by the blog daily-run / event-truth automation lanes 2026-10-29/30 (ledger name and hash read from wf_migration_ledger_hashes()). Reviewed 2026-11-03 against the live ledger text and wf_schema_objects(). Per scripts/apply-migration.mjs policy (never reconstruct a migration file from guesses) and the owner's 2026-09-09 rule (already-live unauthorized migrations are recorded and reviewed as deployed, never rolled back): pin the exact ledger hash and probe the live object on every canary run. Reviewed purpose: CREATE OR REPLACE wf_health_check so p_as_of defaults to the America/New_York calendar date instead of current_date (UTC).",
+    "reviewed_by": "Claude (Cowork lane), Wayfind incident fix 2026-11-03 (canary check-migration-reconciliation red 8 runs; owner-requested)"
+  },
+  {
+    "version": "20261030003219",
+    "name": "wf_advance_run_stage_v3_caption_fields",
+    "statements_sha256": "c3316238a46fe7e07d180169e7aa12e61392939f6c14a650c0ac0e50b70244c0",
+    "probes": [
+      {
+        "kind": "function",
+        "name": "wf_advance_run_stage"
+      },
+      {
+        "kind": "column",
+        "name": "wf_blog_daily_runs.caption"
+      },
+      {
+        "kind": "column",
+        "name": "wf_blog_daily_runs.tracked_url"
+      }
+    ],
+    "reason": "Production-only record with no repo file, applied directly by the blog daily-run / event-truth automation lanes 2026-10-29/30 (ledger name and hash read from wf_migration_ledger_hashes()). Reviewed 2026-11-03 against the live ledger text and wf_schema_objects(). Per scripts/apply-migration.mjs policy (never reconstruct a migration file from guesses) and the owner's 2026-09-09 rule (already-live unauthorized migrations are recorded and reviewed as deployed, never rolled back): pin the exact ledger hash and probe the live object on every canary run. Reviewed purpose: creates the 16-arg wf_advance_run_stage overload adding caption, hook_type, tracked_url, fb_window, fb_time_reason so the Facebook promo copy and scheduling window are recorded on the run row.",
+    "reviewed_by": "Claude (Cowork lane), Wayfind incident fix 2026-11-03 (canary check-migration-reconciliation red 8 runs; owner-requested)"
+  },
+  {
+    "version": "20261030003325",
+    "name": "wf_lock_down_grants_v2_new_overloads",
+    "statements_sha256": "e62d482b529d40082fdbb0cc9bbddc4f06192b9a024b6e3714625704b44f0266",
+    "probes": [
+      {
+        "kind": "function",
+        "name": "wf_advance_run_stage"
+      },
+      {
+        "kind": "function",
+        "name": "wf_health_check"
+      }
+    ],
+    "reason": "Production-only record with no repo file, applied directly by the blog daily-run / event-truth automation lanes 2026-10-29/30 (ledger name and hash read from wf_migration_ledger_hashes()). Reviewed 2026-11-03 against the live ledger text and wf_schema_objects(). Per scripts/apply-migration.mjs policy (never reconstruct a migration file from guesses) and the owner's 2026-09-09 rule (already-live unauthorized migrations are recorded and reviewed as deployed, never rolled back): pin the exact ledger hash and probe the live object on every canary run. Reviewed purpose: security fix for the new overloads: REVOKE ALL FROM PUBLIC / GRANT EXECUTE TO postgres, service_role on the 16-arg wf_advance_run_stage and wf_health_check(date). Live check 2026-11-03: anon and authenticated EXECUTE=false.",
+    "reviewed_by": "Claude (Cowork lane), Wayfind incident fix 2026-11-03 (canary check-migration-reconciliation red 8 runs; owner-requested)"
+  },
+  {
+    "version": "20261030003914",
+    "name": "wf_advance_run_stage_v4_article_mode",
+    "statements_sha256": "2e754718a55a9277e1ce977385b37d2e0955ebf7a5cd20d20c8426c3674eb67b",
+    "probes": [
+      {
+        "kind": "function",
+        "name": "wf_advance_run_stage"
+      },
+      {
+        "kind": "column",
+        "name": "wf_blog_daily_runs.article_mode"
+      }
+    ],
+    "reason": "Production-only record with no repo file, applied directly by the blog daily-run / event-truth automation lanes 2026-10-29/30 (ledger name and hash read from wf_migration_ledger_hashes()). Reviewed 2026-11-03 against the live ledger text and wf_schema_objects(). Per scripts/apply-migration.mjs policy (never reconstruct a migration file from guesses) and the owner's 2026-09-09 rule (already-live unauthorized migrations are recorded and reviewed as deployed, never rolled back): pin the exact ledger hash and probe the live object on every canary run. Reviewed purpose: creates the 17-arg wf_advance_run_stage overload adding p_article_mode so the run row records whether the article was new or a refresh (wf_blog_daily_runs.article_mode, wf_blog_daily_runs_article_mode_check).",
+    "reviewed_by": "Claude (Cowork lane), Wayfind incident fix 2026-11-03 (canary check-migration-reconciliation red 8 runs; owner-requested)"
+  },
+  {
+    "version": "20261030004920",
+    "name": "event_truth_owner_review_lane_and_status_v4",
+    "statements_sha256": "5dc3a7bc0fe1584b1620ca57ef1af8a787d18c899199aaf1b6128e6c269b7a2c",
+    "probes": [
+      {
+        "kind": "column",
+        "name": "wf_event_truth_backlog.review_kind"
+      },
+      {
+        "kind": "column",
+        "name": "wf_event_truth_backlog.next_action"
+      },
+      {
+        "kind": "constraint",
+        "name": "wf_event_truth_backlog_state_check"
+      },
+      {
+        "kind": "constraint",
+        "name": "wf_event_truth_backlog_review_kind_check"
+      },
+      {
+        "kind": "index",
+        "name": "wf_event_truth_backlog_owner_open_idx"
+      },
+      {
+        "kind": "function",
+        "name": "wf_event_truth_status"
+      }
+    ],
+    "reason": "Production-only record with no repo file, applied directly by the blog daily-run / event-truth automation lanes 2026-10-29/30 (ledger name and hash read from wf_migration_ledger_hashes()). Reviewed 2026-11-03 against the live ledger text and wf_schema_objects(). Per scripts/apply-migration.mjs policy (never reconstruct a migration file from guesses) and the owner's 2026-09-09 rule (already-live unauthorized migrations are recorded and reviewed as deployed, never rolled back): pin the exact ledger hash and probe the live object on every canary run. Reviewed purpose: Event Truth v4: adds review_kind/next_action/reviewed_by/reviewed_at/resolution to wf_event_truth_backlog, widens the state CHECK to include 'owner_review', adds the owner-review constraints and index, and makes wf_event_truth_status() the single source of truth for SLA/fuse counts used by the event-freshness and event-truth scheduled tasks.",
+    "reviewed_by": "Claude (Cowork lane), Wayfind incident fix 2026-11-03 (canary check-migration-reconciliation red 8 runs; owner-requested)"
   }
 ]

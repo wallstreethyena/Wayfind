@@ -61,7 +61,7 @@ for (const y of [2026, 2027, 2028]) {
 }
 ok(posterSeasonLive("augtober", "garbage") && posterSeasonLive("halloween", ""), "a malformed date fails open (never blanks the track)");
 for (const invalid of [undefined, null, "", "garbage", "2026-1-01", "2026-11-1", "xxxx-11-01"]) ok(!christmasLeads(invalid), `invalid date ${String(invalid)} never promotes Christmas`);
-ok(Object.keys(POSTER_SEASONS).sort().join() === "augtober,christmas,halloween", "the window table holds exactly the three seasonal posters");
+ok(Object.keys(POSTER_SEASONS).sort().join() === "augtober,christmas,halloween,season", "the window table holds exactly the four seasonal posters (Fall, Halloween, Christmas, Summer Picks)");
 
 // The specific calls from the request, through the real predicate
 ok(!railOnPosterTrack(byId.get("augtober"), "2026-08-14") && railOnPosterTrack(byId.get("augtober"), "2026-08-15"), "Fall absent Aug 14, present Aug 15");
@@ -79,12 +79,17 @@ for (const band of DAYPART_IDS) {
   ok(t[0] === "augtober" && t[1] === "halloween" && t.includes("christmas") && t.indexOf("christmas") > 1, `${band} Oct 14 2026: track starts Fall, Halloween, Christmas behind (got ${t.slice(0, 4).join(", ")})`);
   const nov = track(band, "2026-11-01");
   ok(!nov.includes("halloween") && nov.includes("augtober") && nov.includes("christmas"), `${band}: halloween absent Nov 1, fall and christmas present`);
-  ok(nov[0] === "christmas" && nov[1] === "augtober", `${band} Nov 1: Christmas first and Fall still visible immediately after it (got ${nov.slice(0, 4).join(", ")})`);
+  // Owner, 2026-11-05: TRENDING NOW is the second poster, right next to
+  // Christmas; Fall stays visible immediately after it through Thanksgiving.
+  ok(nov[0] === "christmas" && nov[1] === "augtober" && nov[2] === "trending", `${band} Nov 1: Christmas first, Fall second, Trending Now immediately right of Fall (got ${nov.slice(0, 4).join(", ")})`);
+  const late = track(band, "2026-11-27");
+  ok(late[0] === "christmas" && late[1] === "trending", `${band} Nov 27: Fall gone, Trending Now right next to Christmas (got ${late.slice(0, 3).join(", ")})`);
   ok(track(band, "2026-11-27")[0] === "christmas" && !track(band, "2026-11-27").includes("augtober"), `${band}: Christmas first all day Nov 27 2026, Fall gone`);
   ok(track(band, "2026-12-31")[0] === "christmas", `${band}: Christmas first Dec 31`);
   ok(track(band, "2027-01-01")[0] === "christmas", `${band}: Christmas still first Jan 1 2027`);
   ok(!track(band, "2027-01-02").includes("christmas") && !track(band, "2027-01-02").includes("halloween") && !track(band, "2027-01-02").includes("augtober"), `${band}: all three seasonal posters gone Jan 2 2027`);
-  ok(!track(band, "2027-07-15").some((id) => POSTER_SEASONS[id]), `${band}: no seasonal poster in July`);
+  ok(track(band, "2027-07-15").filter((id) => POSTER_SEASONS[id]).join() === "season", `${band}: July carries only the Summer Picks seasonal poster`);
+  ok(!track(band, "2026-11-03").includes("season") && !track(band, "2027-05-31").includes("season") && track(band, "2027-06-01").includes("season") && track(band, "2027-08-31").includes("season") && !track(band, "2027-09-01").includes("season"), `${band}: Summer Picks absent in November and May 31, present Jun 1 through Aug 31, absent Sep 1`);
   // A mutated band list cannot break the Halloween adjacency
 }
 ok((() => { const o = orderFor("morning", ["a", "halloween", "b", "augtober", "c"]); return o.indexOf("halloween") === o.indexOf("augtober") + 1; })(), "orderFor re-seats halloween next to augtober even if a band list is edited wrongly");

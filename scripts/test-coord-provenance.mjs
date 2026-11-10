@@ -231,6 +231,7 @@ async function checkNoBump({ patchMod, placeDetailsMutate = (s) => s, cronMutate
   const cron = await sourceModule("app/api/cron/inventory-refresh/route.js", `
     import { inventoryRefreshPatch, refreshSlice, REFRESH_WINDOW_SLOTS } from "${fileUrl("lib/inventoryRefreshPatch.js")}";
     import { planCheck, planEnterprise, tierOrder, ESSENTIALS_MASK, PRO_MASK, TIER_SKU } from "${fileUrl("lib/inventoryGoogleCheck.js")}";
+    import { breakerCooldownMs, GOOGLE_DETAILS_DAILY_BREAKER } from "${fileUrl("lib/providerHealth.js")}";
     const gateShut = () => false;
     const spendAllowRefresh = async () => true; const refundToLedger = async () => true; const refreshCounterSku = (s) => "refresh_" + s;
     const recordPulse = async () => {}; const budgetGateNote = () => "gate"; const budgetLimitNote = () => "limit";
@@ -305,7 +306,7 @@ function checkParity(acc, prov) {
   assert.match(screen, /accountListOnMap\(\{\s*listPlaces:\s*\(explicitList \? listTruth : contextualView\)/, "C: the map accounts for the on-screen list");
   assert.match(screen, /window\.__wfMapList\s*=/, "C: the accounting is published for the synthetic monitor");
   assert.match(screen, /data-wf-map-unpinned=\{unpinnedForCoord\}/, "C: the unpinned count is rendered on screen");
-  assert.match(screen, /!\(areaOffer && searchMapArea\) && <div role="note"/, "C: the unpinned note yields to the Search-this-area pill (same corner)");
+  assert.doesNotMatch(screen, /areaOffer && searchMapArea\) && <div role="note"/, "C: the unpinned note does NOT hide while the Search-this-area pill stands (it lifts clear instead; scripts/test-map-unpinned-note-render.mjs renders it)");
   // TRANSITION: every client inv=1 request carries the list schema, so a
   // pre-verdict edge-cached payload is never read; the route echoes it.
   const strip = (src) => src.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/[^\n]*/g, "$1");
@@ -414,7 +415,7 @@ async function main() {
     });
     await expectRed("cron lets already-checked rows back into the queue (wedge)", async () => {
       await checkNoBump({ patchMod: m.patchMod, cronMutate: (s) => {
-        const out = s.replace('    .or("signals->>google_checked_at.is.null,signals->>google_checked_at.lt." + cutoff)\n', "");
+        const out = s.replace('    .or("signals->>google_checked_at.is.null,signals->>google_checked_at.lt." + cutoff + ",signals->>google_check_tier.is.null,signals->>google_check_tier.neq.enterprise")\n', "");
         assert.notEqual(out, s, "cron mutation applied"); return out; } });
     });
     await expectRed("a cached copy is dated now", async () => {

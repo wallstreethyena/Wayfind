@@ -23,17 +23,29 @@ let pass = 0;
 const fail = [];
 const ok = (c, m) => { if (c) pass++; else fail.push(m); };
 
-const SLUG = "fall-events-orlando-2026";
+// 2026-11-03: the Orlando fall roundup dropped Halloween Horror Nights (ended Nov 1)
+// and its eventTicket wiring. The eventTicket rung is still exercised on the guide
+// that sells HHN's own ticket, orlando-halloween-food-2026 (archived after Nov 1, still registered).
+const FALL = GUIDES["fall-events-orlando-2026"];
+ok(!!FALL, "fall-events-orlando-2026 is registered in GUIDES");
+ok(FALL && FALL.eventTicket === undefined && FALL.eventTicketPlace === undefined, "the fall roundup no longer names an ended event's ticket");
+ok(FALL && !/Halloween Horror Nights|Howl-O-Scream/i.test(JSON.stringify(FALL.picks) + FALL.teaser + FALL.intro + FALL.title), "the fall roundup no longer sells ended Halloween events");
+ok(FALL && !/halloween/i.test(FALL.title), "the fall roundup title no longer promises Halloween");
+
+const SLUG = "orlando-halloween-food-2026";
 const g = GUIDES[SLUG];
 ok(!!g, `${SLUG} is registered in GUIDES`);
 
 if (g) {
-  ok(g.eventTicket === "hhn-orlando-2026", "the fall guide names HHN's own ticket");
-  const entry = EVENT_TICKET_DEALS[g.eventTicket];
+  ok(g.eventTicket === undefined && g.eventTicketPlace === undefined, "the Halloween food guide no longer sells HHN's ended ticket");
+  const entry = EVENT_TICKET_DEALS["hhn-orlando-2026"];
+  const archived = { ...g, eventTicket: "hhn-orlando-2026", eventTicketPlace: "Halloween Horror Nights" };
   ok(entry && entry.product === "event-ticket", "the named event resolves to an EVENT-TICKET row, never park admission");
-  ok(entry && UT_EVENT_DEAL_IDS[String(entry.deal)] === g.eventTicket, "the deal id is pinned to this exact event in lib/deals.js");
+  ok(entry && UT_EVENT_DEAL_IDS[String(entry.deal)] === "hhn-orlando-2026", "the deal id is pinned to this exact event in lib/deals.js");
+  const live = guidePrimaryCta(g, "2026-11-09");
+  ok(!live || !String(live.href || "").includes("offer=19"), "the published guide does not sell deal 19");
 
-  const cta = guidePrimaryCta(g, "2026-09-08");
+  const cta = guidePrimaryCta(archived, "2026-09-08");
   ok(cta && cta.kind === "deal", `primary CTA is kind deal (got ${cta && cta.kind})`);
   ok(cta && cta.monetized === true && cta.sponsored === true && cta.exact === true, "the CTA is monetized, sponsored and exact");
   ok(typeof cta.href === "string" && cta.href.startsWith("/api/commerce/go?"), `href goes through the commerce redirect (got ${cta && cta.href})`);
@@ -41,17 +53,16 @@ if (g) {
   ok(q.get("provider") === "undercover_tourist", "provider is undercover_tourist");
   ok(q.get("offer") === String(entry && entry.deal), `offer is deal ${entry && entry.deal} (got ${q.get("offer")})`);
   ok(q.get("surface") === "guide", "surface is guide (CJ sub-id)");
-  ok(q.get("content") === g.eventTicket, "content id is the event id");
+  ok(q.get("content") === "hhn-orlando-2026", "content id is the event id");
   ok(!/anrdoezrs|cj\.dotomi|undercovertourist\.com/i.test(cta.href), "no partner host in the href");
   ok(cta.label === "Halloween Horror Nights tickets", `button names the venue (got "${cta && cta.label}")`);
   ok(cta.label.length <= 44, "label fits the 390px button");
 
-  // Every pick that hands off to an event page uses a real-looking slug.
-  const slugs = (g.picks || []).filter((p) => p.eventSlug).map((p) => p.eventSlug);
-  ok(slugs.length >= 10, `the guide deep-links into at least 10 event pages (got ${slugs.length})`);
+  // The fall roundup's remaining picks still hand off to real event pages.
+  const slugs = (FALL.picks || []).filter((p) => p.eventSlug).map((p) => p.eventSlug);
+  ok(slugs.length >= 4, `the fall guide deep-links into at least 4 event pages (got ${slugs.length})`);
   ok(slugs.every((s) => /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(s)), "every eventSlug is a bare slug, not a URL");
   ok(new Set(slugs).size === slugs.length, "no event page is linked twice");
-  ok(slugs.includes(g.eventTicket.replace(/^hhn-orlando/, "halloween-horror-nights-orlando")), "the ticketed event is also one of the picks");
 }
 
 // Unmapped id: falls through, never a dead link.

@@ -90,6 +90,7 @@ const COVERED = new Set([
   "lib/worthEatingRails.js:composeWorthEatingRails",
   "lib/breakfastRails.js:splitBreakfastRails",
   "lib/creatorPicksRails.js:composeCreatorPicksRails",
+  "lib/trendingRails.js:splitTrendingPlaces",
 ]);
 
 const uncovered = discovered.filter((d) => !COVERED.has(`${d.relPath}:${d.name}`));
@@ -258,6 +259,18 @@ function assertMonotonic(label, result) {
   ok(!!rail, "creatorPicksRails: explicit verified handles produce their own rail");
   if (rail) assertLeads("creatorPicksRails (verified.creator)", cardsOf(rail).map((p) => p.id));
   assertMonotonic("creatorPicksRails", composed);
+}
+
+{
+  // Trending Now shelves (v31, 2026-11-05): returns { shelfId: places[] }.
+  const { splitTrendingPlaces } = modules.get("lib/trendingRails.js");
+  const places = OWNER_FIXTURE.map((f) => ({ ...f, types: ["bar"] }));
+  const split = splitTrendingPlaces(places);
+  const composed = Object.entries(split).map(([id, cards]) => ({ id, cards }));
+  const rail = composed.find((r) => r.id === "parties");
+  ok(!!rail && rail.cards.length === 3, "trendingRails: the fixture lands on the Parties shelf");
+  if (rail) assertLeads("trendingRails (parties)", rail.cards.map((p) => p.id));
+  assertMonotonic("trendingRails", composed);
 }
 
 console.log(`check-rail-rank-law: ${failures.length ? "fixtures FAILING, see below" : "all covered composers pass silently — positive control: this guard does not fire on correct code"}`);

@@ -1,0 +1,594 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 7. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJAUUpLJq22YgRAU604E8-tsM",
+   "name": "P\u00e9rez Art Museum Miami",
+   "category": "attractions",
+   "metro": "miami-dade",
+   "primary_type": "art_museum",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.miamiandbeaches.com/l/arts-and-culture/perez-art-museum-miami-(pamm)/2037",
+     "source_name": "P\u00e9rez Art Museum Miami \u2014 official source",
+     "source_class": "tourism_dmo",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "PAMM's building was designed by Swiss architectural firm Herzog & de Meuron.",
+      "PAMM houses a collection of 20th and 21st century art with an emphasis on Latin America, the Caribbean and the African diaspora.",
+      "PAMM has two floors of galleries with 15 gallery spaces.",
+      "PAMM is at 1103 Biscayne Blvd., Miami, FL 33132.",
+      "PAMM is in Downtown Miami between the Frost Science Museum and Biscayne Bay, with hanging gardens and large scale sculptures overlooking Biscayne Bay.",
+      "PAMM is open Thursday from 11 a.m. to 9 p.m. and Friday through Monday from 11 a.m. to 6 p.m., and is closed Tuesday and Wednesday."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Herzog & de Meuron museum for 20th and 21st century art by Biscayne Bay",
+    "why_here": "PAMM in Downtown Miami houses 20th and 21st century art with an emphasis on Latin America, the Caribbean and the African diaspora. PAMM has two floors of galleries overlooking Biscayne Bay.",
+    "know_before": "PAMM is open Thursday from 11 a.m. to 9 p.m. and Friday through Monday from 11 a.m. to 6 p.m., and is closed Tuesday and Wednesday.",
+    "local_tip": "Head outdoors to the hanging gardens and large scale sculptures overlooking Biscayne Bay.",
+    "best_time": "Thursday, when the museum stays open until 9 p.m.",
+    "citations": {
+     "hook": [
+      "https://www.miamiandbeaches.com/l/arts-and-culture/perez-art-museum-miami-(pamm)/2037"
+     ],
+     "why_here": [
+      "https://www.miamiandbeaches.com/l/arts-and-culture/perez-art-museum-miami-(pamm)/2037"
+     ],
+     "know_before": [
+      "https://www.miamiandbeaches.com/l/arts-and-culture/perez-art-museum-miami-(pamm)/2037"
+     ],
+     "local_tip": [
+      "https://www.miamiandbeaches.com/l/arts-and-culture/perez-art-museum-miami-(pamm)/2037"
+     ],
+     "best_time": [
+      "https://www.miamiandbeaches.com/l/arts-and-culture/perez-art-museum-miami-(pamm)/2037"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "PAMM's building was designed by Swiss architectural firm Herzog & de Meuron.",
+      "source": "https://www.miamiandbeaches.com/l/arts-and-culture/perez-art-museum-miami-(pamm)/2037"
+     },
+     {
+      "claim": "PAMM houses a collection of 20th and 21st century art with an emphasis on Latin America, the Caribbean and the African diaspora.",
+      "source": "https://www.miamiandbeaches.com/l/arts-and-culture/perez-art-museum-miami-(pamm)/2037"
+     },
+     {
+      "claim": "PAMM has two floors of galleries with 15 gallery spaces.",
+      "source": "https://www.miamiandbeaches.com/l/arts-and-culture/perez-art-museum-miami-(pamm)/2037"
+     },
+     {
+      "claim": "PAMM is at 1103 Biscayne Blvd., Miami, FL 33132.",
+      "source": "https://www.miamiandbeaches.com/l/arts-and-culture/perez-art-museum-miami-(pamm)/2037"
+     },
+     {
+      "claim": "PAMM is in Downtown Miami between the Frost Science Museum and Biscayne Bay, with hanging gardens and large scale sculptures overlooking Biscayne Bay.",
+      "source": "https://www.miamiandbeaches.com/l/arts-and-culture/perez-art-museum-miami-(pamm)/2037"
+     },
+     {
+      "claim": "PAMM is open Thursday from 11 a.m. to 9 p.m. and Friday through Monday from 11 a.m. to 6 p.m., and is closed Tuesday and Wednesday.",
+      "source": "https://www.miamiandbeaches.com/l/arts-and-culture/perez-art-museum-miami-(pamm)/2037"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJoQBT7ReA3YgRZ5jOz1vijp4",
+   "name": "Sofrito Latin Cafe",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.sofritocafe.com/order",
+     "source_name": "Sofrito Latin Cafe \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Family-owned pan-Latin restaurant and caf\u00e9 in Lake Buena Vista, Orlando, serving breakfast, lunch and dinner from Venezuela, Cuba, Colombia, Peru, Puerto Rico and beyond. Founded 2015."
+     ]
+    },
+    {
+     "source": "https://www.sofritocafe.com/menu",
+     "source_name": "Sofrito Latin Cafe \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Menu includes Venezuelan Empanada, Colombian Empanada, Cuban Empanada and Arepas."
+     ]
+    },
+    {
+     "source": "https://www.sofritocafe.com/breakfast-menu",
+     "source_name": "Sofrito Latin Cafe \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Breakfast served daily from 8 a.m. to 11 a.m."
+     ]
+    },
+    {
+     "source": "https://www.sofritocafe.com/items/desayuno-criollo",
+     "source_name": "Sofrito Latin Cafe \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Desayuno Criollo includes shredded beef, black beans topped with white cheese, two fried eggs, three fried mini arepas and crema (Venezuela)."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Family-owned pan-Latin cafe serving dishes from eight countries",
+    "why_here": "Sofrito Latin Cafe is a family-owned pan-Latin restaurant and cafe in Lake Buena Vista, Orlando. It serves breakfast, lunch and dinner with dishes from Venezuela, Cuba, Colombia, Peru, Puerto Rico and beyond.",
+    "know_before": "Breakfast is served daily from 8 a.m. to 11 a.m.; lunch and dinner from 11 a.m. to close.",
+    "local_tip": "Try the empanadas and arepas sections to sample several countries in one visit.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.sofritocafe.com/order",
+      "https://www.sofritocafe.com/menu",
+      "https://www.sofritocafe.com/breakfast-menu",
+      "https://www.sofritocafe.com/items/desayuno-criollo"
+     ],
+     "why_here": [
+      "https://www.sofritocafe.com/order",
+      "https://www.sofritocafe.com/menu",
+      "https://www.sofritocafe.com/breakfast-menu",
+      "https://www.sofritocafe.com/items/desayuno-criollo"
+     ],
+     "know_before": [
+      "https://www.sofritocafe.com/order",
+      "https://www.sofritocafe.com/menu",
+      "https://www.sofritocafe.com/breakfast-menu",
+      "https://www.sofritocafe.com/items/desayuno-criollo"
+     ],
+     "local_tip": [
+      "https://www.sofritocafe.com/order",
+      "https://www.sofritocafe.com/menu",
+      "https://www.sofritocafe.com/breakfast-menu",
+      "https://www.sofritocafe.com/items/desayuno-criollo"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Family-owned pan-Latin restaurant and caf\u00e9 in Lake Buena Vista, Orlando, serving breakfast, lunch and dinner from Venezuela, Cuba, Colombia, Peru, Puerto Rico and beyond. Founded 2015.",
+      "source": "https://www.sofritocafe.com/order"
+     },
+     {
+      "claim": "Menu includes Venezuelan Empanada, Colombian Empanada, Cuban Empanada and Arepas.",
+      "source": "https://www.sofritocafe.com/menu"
+     },
+     {
+      "claim": "Breakfast served daily from 8 a.m. to 11 a.m.",
+      "source": "https://www.sofritocafe.com/breakfast-menu"
+     },
+     {
+      "claim": "Desayuno Criollo includes shredded beef, black beans topped with white cheese, two fried eggs, three fried mini arepas and crema (Venezuela).",
+      "source": "https://www.sofritocafe.com/items/desayuno-criollo"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJP7aCRLrX2IgRVLd7doYiJi0",
+   "name": "Palm Beach Zoo & Conservation Society",
+   "category": "beach",
+   "metro": "palm-beach",
+   "primary_type": "zoo",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.palmbeachzoo.org/general-info",
+     "source_name": "Palm Beach Zoo & Conservation Society \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Palm Beach Zoo is at 1301 Summit Boulevard, West Palm Beach, Florida 33405-3035.",
+      "Explore 23 acres of lush, shaded pathways filled with hundreds of animals from around the world.",
+      "Open daily 9 a.m. to 5 p.m. Last entry at 4:15 p.m.",
+      "Open 363 days a year; Closed Thanksgiving Day and Christmas Day.",
+      "Parking at Palm Beach Zoo is free and located just steps from the entrance.",
+      "The zoo offers Koala Experience, Otter Experience, Sloth Experience and Tiger Experience."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "23 acres of lush, shaded pathways with hundreds of animals",
+    "why_here": "Palm Beach Zoo in West Palm Beach offers 23 acres of lush, shaded pathways filled with hundreds of animals. Visitors can book a Koala Experience, Otter Experience, Sloth Experience or Tiger Experience during a visit.",
+    "know_before": "Open daily 9 a.m. to 5 p.m. with last entry at 4:15 p.m.; closed Thanksgiving Day and Christmas Day.",
+    "local_tip": "Parking at Palm Beach Zoo is free.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.palmbeachzoo.org/general-info"
+     ],
+     "why_here": [
+      "https://www.palmbeachzoo.org/general-info"
+     ],
+     "know_before": [
+      "https://www.palmbeachzoo.org/general-info"
+     ],
+     "local_tip": [
+      "https://www.palmbeachzoo.org/general-info"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Palm Beach Zoo is at 1301 Summit Boulevard, West Palm Beach, Florida 33405-3035.",
+      "source": "https://www.palmbeachzoo.org/general-info"
+     },
+     {
+      "claim": "Explore 23 acres of lush, shaded pathways filled with hundreds of animals from around the world.",
+      "source": "https://www.palmbeachzoo.org/general-info"
+     },
+     {
+      "claim": "Open daily 9 a.m. to 5 p.m. Last entry at 4:15 p.m.",
+      "source": "https://www.palmbeachzoo.org/general-info"
+     },
+     {
+      "claim": "Open 363 days a year; Closed Thanksgiving Day and Christmas Day.",
+      "source": "https://www.palmbeachzoo.org/general-info"
+     },
+     {
+      "claim": "Parking at Palm Beach Zoo is free and located just steps from the entrance.",
+      "source": "https://www.palmbeachzoo.org/general-info"
+     },
+     {
+      "claim": "The zoo offers Koala Experience, Otter Experience, Sloth Experience and Tiger Experience.",
+      "source": "https://www.palmbeachzoo.org/general-info"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJj3zU7iJ83YgR_qBIm4DpNUY",
+   "name": "Bahama Breeze",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "caribbean_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.bahamabreeze.com/",
+     "source_name": "Bahama Breeze \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Bahama Breeze is a Caribbean Restaurant & Grill.",
+      "The site offers order online, menu, reservations, happy hour, live music and group dining."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Caribbean Restaurant & Grill with live music and group dining",
+    "why_here": "Bahama Breeze is a Caribbean Restaurant & Grill where guests can order online, check the menu and make reservations. The site also highlights happy hour, live music and group dining for larger gatherings at the table.",
+    "know_before": "You can order online, view the menu and reserve through the site.",
+    "local_tip": "Try happy hour or live music on your visit.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.bahamabreeze.com/"
+     ],
+     "why_here": [
+      "https://www.bahamabreeze.com/"
+     ],
+     "know_before": [
+      "https://www.bahamabreeze.com/"
+     ],
+     "local_tip": [
+      "https://www.bahamabreeze.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Bahama Breeze is a Caribbean Restaurant & Grill.",
+      "source": "https://www.bahamabreeze.com/"
+     },
+     {
+      "claim": "The site offers order online, menu, reservations, happy hour, live music and group dining.",
+      "source": "https://www.bahamabreeze.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJgW0dDsgn5IgRCD4brXWf9IE",
+   "name": "Old Jail Museum",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "museum",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.staugustineoldjail.com/st-augustine-kids-attraction-tickets/",
+     "source_name": "Old Jail Museum \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Daily tours 9 a.m. \u2013 4:30 p.m.; tours depart every 15 minutes."
+     ]
+    },
+    {
+     "source": "https://www.staugustineoldjail.com/st-augustine-tours/",
+     "source_name": "Old Jail Museum \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Guided tours depart every 15 minutes beginning at 9:00 a.m. Tours offered until 3:00 p.m. on Easter, Thanksgiving and Christmas Eve. Closed Christmas Day."
+     ]
+    },
+    {
+     "source": "https://www.staugustineoldjail.com/history/",
+     "source_name": "Old Jail Museum \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Old Jail served St. Johns County from 1891 to 1953 before its 1993 restoration."
+     ]
+    },
+    {
+     "source": "https://www.staugustineoldjail.com/old-jail-paranormal-tickets/",
+     "source_name": "Old Jail Museum \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Old Jail After Dark is a 2 hour and 30-minute paranormal investigation, Midnight \u2013 2:30 a.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "1891 St. Johns County jail turned history museum in St. Augustine",
+    "why_here": "The Old Jail in St. Augustine served as the St. Johns County jail from 1891 to 1953 and now operates as a museum. Guided day tours run through its historic cells, with an After Dark paranormal investigation offered at night.",
+    "know_before": "Daily tours 9 a.m. \u2013 4:30 p.m.; guided tours depart every 15 minutes beginning at 9:00 a.m.",
+    "local_tip": "Arrive 15 minutes before your tour; tours leave promptly and online advance purchase is recommended for the day tour.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.staugustineoldjail.com/st-augustine-kids-attraction-tickets/",
+      "https://www.staugustineoldjail.com/st-augustine-tours/",
+      "https://www.staugustineoldjail.com/history/",
+      "https://www.staugustineoldjail.com/old-jail-paranormal-tickets/"
+     ],
+     "why_here": [
+      "https://www.staugustineoldjail.com/st-augustine-kids-attraction-tickets/",
+      "https://www.staugustineoldjail.com/st-augustine-tours/",
+      "https://www.staugustineoldjail.com/history/",
+      "https://www.staugustineoldjail.com/old-jail-paranormal-tickets/"
+     ],
+     "know_before": [
+      "https://www.staugustineoldjail.com/st-augustine-kids-attraction-tickets/",
+      "https://www.staugustineoldjail.com/st-augustine-tours/",
+      "https://www.staugustineoldjail.com/history/",
+      "https://www.staugustineoldjail.com/old-jail-paranormal-tickets/"
+     ],
+     "local_tip": [
+      "https://www.staugustineoldjail.com/st-augustine-kids-attraction-tickets/",
+      "https://www.staugustineoldjail.com/st-augustine-tours/",
+      "https://www.staugustineoldjail.com/history/",
+      "https://www.staugustineoldjail.com/old-jail-paranormal-tickets/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Daily tours 9 a.m. \u2013 4:30 p.m.; tours depart every 15 minutes.",
+      "source": "https://www.staugustineoldjail.com/st-augustine-kids-attraction-tickets/"
+     },
+     {
+      "claim": "Guided tours depart every 15 minutes beginning at 9:00 a.m. Tours offered until 3:00 p.m. on Easter, Thanksgiving and Christmas Eve. Closed Christmas Day.",
+      "source": "https://www.staugustineoldjail.com/st-augustine-tours/"
+     },
+     {
+      "claim": "The Old Jail served St. Johns County from 1891 to 1953 before its 1993 restoration.",
+      "source": "https://www.staugustineoldjail.com/history/"
+     },
+     {
+      "claim": "Old Jail After Dark is a 2 hour and 30-minute paranormal investigation, Midnight \u2013 2:30 a.m.",
+      "source": "https://www.staugustineoldjail.com/old-jail-paranormal-tickets/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJky8WzhKB3YgRcaFWhdYjwik",
+   "name": "White Castle",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "fast_food_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.whitecastle.com/about-us/press-releases/white-castle-to-cravers-you-go-grill",
+     "source_name": "White Castle \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Original Slider is steam-grilled-on-a-bed-of-onions.",
+      "White Castle introduced Grilled Chicken Sliders in three flavor options: Savory, Western BBQ and Bacon & Cheddar.",
+      "Freshly prepared Grilled Chicken Sliders will be available from 10:30 a.m. to 11 p.m.",
+      "White Castle is a family-owned business based in Columbus, Ohio.",
+      "White Castle was founded in Wichita, Kansas, in 1921."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Original Sliders steam-grilled on a bed of onions",
+    "why_here": "White Castle is a family-owned business based in Columbus, Ohio, founded in Wichita, Kansas, in 1921. It is known for the Original Slider, steam-grilled-on-a-bed-of-onions, and now offers Grilled Chicken Sliders too.",
+    "know_before": "Freshly prepared Grilled Chicken Sliders will be available from 10:30 a.m. to 11 p.m.",
+    "local_tip": "Try a Grilled Chicken Slider in Savory, Western BBQ or Bacon & Cheddar.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.whitecastle.com/about-us/press-releases/white-castle-to-cravers-you-go-grill"
+     ],
+     "why_here": [
+      "https://www.whitecastle.com/about-us/press-releases/white-castle-to-cravers-you-go-grill"
+     ],
+     "know_before": [
+      "https://www.whitecastle.com/about-us/press-releases/white-castle-to-cravers-you-go-grill"
+     ],
+     "local_tip": [
+      "https://www.whitecastle.com/about-us/press-releases/white-castle-to-cravers-you-go-grill"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Original Slider is steam-grilled-on-a-bed-of-onions.",
+      "source": "https://www.whitecastle.com/about-us/press-releases/white-castle-to-cravers-you-go-grill"
+     },
+     {
+      "claim": "White Castle introduced Grilled Chicken Sliders in three flavor options: Savory, Western BBQ and Bacon & Cheddar.",
+      "source": "https://www.whitecastle.com/about-us/press-releases/white-castle-to-cravers-you-go-grill"
+     },
+     {
+      "claim": "Freshly prepared Grilled Chicken Sliders will be available from 10:30 a.m. to 11 p.m.",
+      "source": "https://www.whitecastle.com/about-us/press-releases/white-castle-to-cravers-you-go-grill"
+     },
+     {
+      "claim": "White Castle is a family-owned business based in Columbus, Ohio.",
+      "source": "https://www.whitecastle.com/about-us/press-releases/white-castle-to-cravers-you-go-grill"
+     },
+     {
+      "claim": "White Castle was founded in Wichita, Kansas, in 1921.",
+      "source": "https://www.whitecastle.com/about-us/press-releases/white-castle-to-cravers-you-go-grill"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJtxA5P6KS2YgR36Uv80HVpXY",
+   "name": "Everglades Safari Park",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "tourist_attraction",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.evergladessafaripark.com/buy-everglades-airboat-ride-tours",
+     "source_name": "Everglades Safari Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Everglades Safari Park is an authorized Everglades National Park concession.",
+      "Every Tour Includes: Wildlife Nature Show, Jungle Trail, Observation Platform & Exhibits."
+     ]
+    },
+    {
+     "source": "https://www.evergladessafaripark.com/our-story",
+     "source_name": "Everglades Safari Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Airboat rides are 30-40 minutes, guided by skilled narrators familiar with Everglades history, vegetation and wildlife."
+     ]
+    },
+    {
+     "source": "https://www.evergladessafaripark.com/national-park-airboat-tour-deals",
+     "source_name": "Everglades Safari Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Open 7 days a week 9 a.m. to 5 p.m., all year long. AirBoat Tours depart every 25 minutes. Final airboat departure at 4:30 p.m. daily."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "30 to 40 minute airboat rides into Everglades National Park",
+    "why_here": "Everglades Safari Park is an authorized Everglades National Park concession offering airboat ecotours in Everglades National Park. Every tour includes a wildlife nature show, jungle trail, observation platform and exhibits.",
+    "know_before": "Open 7 days a week 9 a.m. to 5 p.m., all year long. Airboat tours depart every 25 minutes; final departure at 4:30 p.m. daily.",
+    "local_tip": "All airboat tours include an alligator show and access to the park, so plan time after the ride for the show and jungle trail.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.evergladessafaripark.com/buy-everglades-airboat-ride-tours",
+      "https://www.evergladessafaripark.com/our-story",
+      "https://www.evergladessafaripark.com/national-park-airboat-tour-deals"
+     ],
+     "why_here": [
+      "https://www.evergladessafaripark.com/buy-everglades-airboat-ride-tours",
+      "https://www.evergladessafaripark.com/our-story",
+      "https://www.evergladessafaripark.com/national-park-airboat-tour-deals"
+     ],
+     "know_before": [
+      "https://www.evergladessafaripark.com/buy-everglades-airboat-ride-tours",
+      "https://www.evergladessafaripark.com/our-story",
+      "https://www.evergladessafaripark.com/national-park-airboat-tour-deals"
+     ],
+     "local_tip": [
+      "https://www.evergladessafaripark.com/buy-everglades-airboat-ride-tours",
+      "https://www.evergladessafaripark.com/our-story",
+      "https://www.evergladessafaripark.com/national-park-airboat-tour-deals"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Everglades Safari Park is an authorized Everglades National Park concession.",
+      "source": "https://www.evergladessafaripark.com/buy-everglades-airboat-ride-tours"
+     },
+     {
+      "claim": "Airboat rides are 30-40 minutes, guided by skilled narrators familiar with Everglades history, vegetation and wildlife.",
+      "source": "https://www.evergladessafaripark.com/our-story"
+     },
+     {
+      "claim": "Open 7 days a week 9 a.m. to 5 p.m., all year long. AirBoat Tours depart every 25 minutes. Final airboat departure at 4:30 p.m. daily.",
+      "source": "https://www.evergladessafaripark.com/national-park-airboat-tour-deals"
+     },
+     {
+      "claim": "Every Tour Includes: Wildlife Nature Show, Jungle Trail, Observation Platform & Exhibits.",
+      "source": "https://www.evergladessafaripark.com/buy-everglades-airboat-ride-tours"
+     }
+    ]
+   }
+  }
+ ]
+}

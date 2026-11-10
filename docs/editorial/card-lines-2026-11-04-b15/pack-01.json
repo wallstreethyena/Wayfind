@@ -1,0 +1,1649 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 15. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJhZHeDfKF3YgRgTsXHUMTJUk",
+   "name": "Ramada by Wyndham Hotel & Water Park",
+   "category": "hotels",
+   "metro": "florida",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.wyndhamhotels.com/ramada/kissimmee-florida/ramada-hotel-and-water-park/overview",
+     "source_name": "Ramada by Wyndham Hotel & Water Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The hotel is located 14 miles from Walt Disney World Resort and 18 miles from Universal Orlando Resort.",
+      "Amenities include a water park, pool, hot tub, arcade, gym, restaurant, and three bars.",
+      "The water park is closed until further notice and the outdoor swimming pool remains open.",
+      "The hotel address is 2261 E Irlo Bronson Memorial, Kissimmee, FL 34744."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Kissimmee hotel with a water park, pool, and arcade near Orlando theme parks",
+    "why_here": "This Kissimmee hotel sits 14 miles from Walt Disney World Resort and 18 miles from Universal Orlando Resort. On site it lists a water park, pool, hot tub, arcade, gym, restaurant, and three bars.",
+    "know_before": "The official site states the water park is closed until further notice, while the outdoor swimming pool remains open.",
+    "local_tip": "Check the water park closure notice on the official page before booking for pool time.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.wyndhamhotels.com/ramada/kissimmee-florida/ramada-hotel-and-water-park/overview"
+     ],
+     "why_here": [
+      "https://www.wyndhamhotels.com/ramada/kissimmee-florida/ramada-hotel-and-water-park/overview"
+     ],
+     "know_before": [
+      "https://www.wyndhamhotels.com/ramada/kissimmee-florida/ramada-hotel-and-water-park/overview"
+     ],
+     "local_tip": [
+      "https://www.wyndhamhotels.com/ramada/kissimmee-florida/ramada-hotel-and-water-park/overview"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The hotel is located 14 miles from Walt Disney World Resort and 18 miles from Universal Orlando Resort.",
+      "source": "https://www.wyndhamhotels.com/ramada/kissimmee-florida/ramada-hotel-and-water-park/overview"
+     },
+     {
+      "claim": "Amenities include a water park, pool, hot tub, arcade, gym, restaurant, and three bars.",
+      "source": "https://www.wyndhamhotels.com/ramada/kissimmee-florida/ramada-hotel-and-water-park/overview"
+     },
+     {
+      "claim": "The water park is closed until further notice and the outdoor swimming pool remains open.",
+      "source": "https://www.wyndhamhotels.com/ramada/kissimmee-florida/ramada-hotel-and-water-park/overview"
+     },
+     {
+      "claim": "The hotel address is 2261 E Irlo Bronson Memorial, Kissimmee, FL 34744.",
+      "source": "https://www.wyndhamhotels.com/ramada/kissimmee-florida/ramada-hotel-and-water-park/overview"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJRwdB0vF-54gRo0Dlj-hP8yw",
+   "name": "Pio Pio Restaurant",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "latin_american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.mypiopio.com/",
+     "source_name": "Pio Pio Restaurant \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Pio Pio is a family-owned Latin restaurant.",
+      "The menu includes signature rotisserie chicken with house-made sides and sauces.",
+      "The menu includes Chicken Empanada, Beef Empanada, and Quarter Rotisserie Chicken.",
+      "The restaurant offers dine-in, catering, online orders, and group dining."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Family-owned Latin restaurant known for signature rotisserie chicken in Orlando",
+    "why_here": "Pio Pio describes itself as a family-owned Latin restaurant serving bold flavors with fresh ingredients. It is known on its own site for signature rotisserie chicken, house-made sides, and sauces.",
+    "know_before": "The restaurant offers dine-in, catering, online orders, and group dining, and recommends reservations ahead of time.",
+    "local_tip": "Reserve ahead online rather than walking in for a table.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.mypiopio.com/"
+     ],
+     "why_here": [
+      "https://www.mypiopio.com/"
+     ],
+     "know_before": [
+      "https://www.mypiopio.com/"
+     ],
+     "local_tip": [
+      "https://www.mypiopio.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Pio Pio is a family-owned Latin restaurant.",
+      "source": "https://www.mypiopio.com/"
+     },
+     {
+      "claim": "The menu includes signature rotisserie chicken with house-made sides and sauces.",
+      "source": "https://www.mypiopio.com/"
+     },
+     {
+      "claim": "The menu includes Chicken Empanada, Beef Empanada, and Quarter Rotisserie Chicken.",
+      "source": "https://www.mypiopio.com/"
+     },
+     {
+      "claim": "The restaurant offers dine-in, catering, online orders, and group dining.",
+      "source": "https://www.mypiopio.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJvdiEJyfi2IgR6_uH8RDc-54",
+   "name": "South Beach Park, Boca Raton",
+   "category": "beach",
+   "metro": "palm-beach",
+   "primary_type": "beach",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://myboca.us/2879/South-Beach-Park-Pavilion",
+     "source_name": "South Beach Park, Boca Raton \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "South Beach Park is one of three Boca Raton beach parks.",
+      "South Beach Park hours are 8 a.m. to sunset.",
+      "South Beach Park has 228 parking spots, and parking requires a permit or daily rate.",
+      "The pavilion includes a playground, showers, restrooms, and an ADA ramp.",
+      "South Beach Park features beach access and walking paths."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "beach access and walking paths with a playground by the pavilion",
+    "why_here": "South Beach Park is one of three Boca Raton beach parks, with beach access and walking paths for a straightforward beach day. The pavilion adds a playground, showers, and restrooms near the sand.",
+    "know_before": "Hours are 8 a.m. to sunset, and parking requires a permit or daily rate.",
+    "local_tip": "Use the pavilion playground, showers, and restrooms before heading to the sand.",
+    "best_time": "The pavilion is presented by the city as a spot for sunrise views.",
+    "citations": {
+     "hook": [
+      "https://myboca.us/2879/South-Beach-Park-Pavilion"
+     ],
+     "why_here": [
+      "https://myboca.us/2879/South-Beach-Park-Pavilion"
+     ],
+     "know_before": [
+      "https://myboca.us/2879/South-Beach-Park-Pavilion"
+     ],
+     "local_tip": [
+      "https://myboca.us/2879/South-Beach-Park-Pavilion"
+     ],
+     "best_time": [
+      "https://myboca.us/2879/South-Beach-Park-Pavilion"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "South Beach Park is one of three Boca Raton beach parks.",
+      "source": "https://myboca.us/2879/South-Beach-Park-Pavilion"
+     },
+     {
+      "claim": "South Beach Park hours are 8 a.m. to sunset.",
+      "source": "https://myboca.us/2879/South-Beach-Park-Pavilion"
+     },
+     {
+      "claim": "South Beach Park has 228 parking spots, and parking requires a permit or daily rate.",
+      "source": "https://myboca.us/2879/South-Beach-Park-Pavilion"
+     },
+     {
+      "claim": "The pavilion includes a playground, showers, restrooms, and an ADA ramp.",
+      "source": "https://myboca.us/2879/South-Beach-Park-Pavilion"
+     },
+     {
+      "claim": "South Beach Park features beach access and walking paths.",
+      "source": "https://myboca.us/2879/South-Beach-Park-Pavilion"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJc7lSNA9HdYgRpFB0_3kcsj4",
+   "name": "Portillo's Orlando Palm Pkwy",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "fast_food_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.portillos.com/menu/",
+     "source_name": "Portillo's Orlando Palm Pkwy \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Portillo's menu includes Hot Dogs and Beef & Sausage Sandwiches.",
+      "The menu includes Chicken, Char-Broiled Burgers, and Sandwiches & Ribs.",
+      "The menu includes Salads, Sides and Soup, and Desserts & Shakes.",
+      "Portillo's offers its full menu for pickup or delivery."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Hot dogs and beef and sausage sandwiches from Portillo's full Orlando menu",
+    "why_here": "Portillo's official menu organizes the food around hot dogs, beef and sausage sandwiches, chicken, and char-broiled burgers. Salads, sides and soup, and desserts and shakes round out the menu.",
+    "know_before": "The official menu page is presented as a full menu for pickup or delivery.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.portillos.com/menu/"
+     ],
+     "why_here": [
+      "https://www.portillos.com/menu/"
+     ],
+     "know_before": [
+      "https://www.portillos.com/menu/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Portillo's menu includes Hot Dogs and Beef & Sausage Sandwiches.",
+      "source": "https://www.portillos.com/menu/"
+     },
+     {
+      "claim": "The menu includes Chicken, Char-Broiled Burgers, and Sandwiches & Ribs.",
+      "source": "https://www.portillos.com/menu/"
+     },
+     {
+      "claim": "The menu includes Salads, Sides and Soup, and Desserts & Shakes.",
+      "source": "https://www.portillos.com/menu/"
+     },
+     {
+      "claim": "Portillo's offers its full menu for pickup or delivery.",
+      "source": "https://www.portillos.com/menu/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ5cU9IsO22YgRvGkS5RYhRFE",
+   "name": "Elia",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://eliaontheriver.com/",
+     "source_name": "Elia \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Elia on the River offers a curated menu with coastal flavors and locally sourced ingredients.",
+      "The restaurant offers a Dock & Dine option for guests arriving by boat."
+     ]
+    },
+    {
+     "source": "https://eliaontheriver.com/menu",
+     "source_name": "Elia \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The menu includes Charred Octopus, Spicy Rigatoni, and Grilled Branzino.",
+      "Lunch is listed Monday to Friday from 11:30 a.m. to 3 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Riverfront Miami dining with pasta, pizza, and grilled seafood on the menu",
+    "why_here": "Elia on the River describes a riverfront setting with coastal flavors and locally sourced ingredients. Its menu spans antipasti and salads, pasta and pizza, and land and sea dishes, with a dock-and-dine option for boat arrivals.",
+    "know_before": "Lunch is listed Monday to Friday from 11:30 a.m. to 3 p.m. on the official menu.",
+    "local_tip": "Boat arrivals can use the Dock & Dine option described on the official site.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://eliaontheriver.com/",
+      "https://eliaontheriver.com/menu"
+     ],
+     "why_here": [
+      "https://eliaontheriver.com/",
+      "https://eliaontheriver.com/menu"
+     ],
+     "know_before": [
+      "https://eliaontheriver.com/",
+      "https://eliaontheriver.com/menu"
+     ],
+     "local_tip": [
+      "https://eliaontheriver.com/",
+      "https://eliaontheriver.com/menu"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Elia on the River offers a curated menu with coastal flavors and locally sourced ingredients.",
+      "source": "https://eliaontheriver.com/"
+     },
+     {
+      "claim": "The restaurant offers a Dock & Dine option for guests arriving by boat.",
+      "source": "https://eliaontheriver.com/"
+     },
+     {
+      "claim": "The menu includes Charred Octopus, Spicy Rigatoni, and Grilled Branzino.",
+      "source": "https://eliaontheriver.com/menu"
+     },
+     {
+      "claim": "Lunch is listed Monday to Friday from 11:30 a.m. to 3 p.m.",
+      "source": "https://eliaontheriver.com/menu"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJGb-BdZfZwogRD2l7k8VJmjc",
+   "name": "Apollo Beach Preserve",
+   "category": "beach",
+   "metro": "tampa",
+   "primary_type": "nature_preserve",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.hillsboroughcounty.org/en/locations/apollo-beach-preserve",
+     "source_name": "Apollo Beach Preserve \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Apollo Beach Preserve is a 63-acre preserve serving as habitat for aquatic species.",
+      "Apollo Beach Preserve has a 2-acre sandy beach for picnicking and sunbathing, with no swimming allowed.",
+      "Apollo Beach Preserve has a 37-foot wheelchair accessible observation tower.",
+      "Apollo Beach Preserve hours are 8 a.m. to sunset.",
+      "Apollo Beach Preserve amenities include bird watching, fishing, picnic tables, and restrooms.",
+      "The 37-foot observation tower offers views of Tampa Bay."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "63-acre preserve with a 2-acre sandy beach and a 37-foot observation tower",
+    "why_here": "Apollo Beach Preserve is a 63-acre preserve serving as habitat for aquatic species, with a 2-acre sandy beach for picnicking and sunbathing. The 37-foot wheelchair accessible observation tower adds views over the water.",
+    "know_before": "No swimming is allowed at the sandy beach; hours are 8 a.m. to sunset.",
+    "local_tip": "Climb the 37-foot observation tower for views of Tampa Bay.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.hillsboroughcounty.org/en/locations/apollo-beach-preserve"
+     ],
+     "why_here": [
+      "https://www.hillsboroughcounty.org/en/locations/apollo-beach-preserve"
+     ],
+     "know_before": [
+      "https://www.hillsboroughcounty.org/en/locations/apollo-beach-preserve"
+     ],
+     "local_tip": [
+      "https://www.hillsboroughcounty.org/en/locations/apollo-beach-preserve"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Apollo Beach Preserve is a 63-acre preserve serving as habitat for aquatic species.",
+      "source": "https://www.hillsboroughcounty.org/en/locations/apollo-beach-preserve"
+     },
+     {
+      "claim": "Apollo Beach Preserve has a 2-acre sandy beach for picnicking and sunbathing, with no swimming allowed.",
+      "source": "https://www.hillsboroughcounty.org/en/locations/apollo-beach-preserve"
+     },
+     {
+      "claim": "Apollo Beach Preserve has a 37-foot wheelchair accessible observation tower.",
+      "source": "https://www.hillsboroughcounty.org/en/locations/apollo-beach-preserve"
+     },
+     {
+      "claim": "Apollo Beach Preserve hours are 8 a.m. to sunset.",
+      "source": "https://www.hillsboroughcounty.org/en/locations/apollo-beach-preserve"
+     },
+     {
+      "claim": "Apollo Beach Preserve amenities include bird watching, fishing, picnic tables, and restrooms.",
+      "source": "https://www.hillsboroughcounty.org/en/locations/apollo-beach-preserve"
+     },
+     {
+      "claim": "The 37-foot observation tower offers views of Tampa Bay.",
+      "source": "https://www.hillsboroughcounty.org/en/locations/apollo-beach-preserve"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ70Zifodc2ogR4su4PDcFki0",
+   "name": "Captain Jack's Airboat Tours",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "tour_agency",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.captainjacksairboattours.com/airboat-tours/",
+     "source_name": "Captain Jack's Airboat Tours \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Captain Jack's is open daily from 8:30 a.m. to 5 p.m.",
+      "The Mangrove Tunnel Airboat Tour is a 50-minute tour through Everglades City's mangrove tunnels.",
+      "Included attractions include an animal sanctuary, an alligator show, and a boardwalk.",
+      "Tickets and boat launch are at 905 Dupont Street, Everglades City, FL."
+     ]
+    },
+    {
+     "source": "https://www.captainjacksairboattours.com/",
+     "source_name": "Captain Jack's Airboat Tours \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Tours are fully narrated with two-way headsets."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Everglades City airboat tours through mangrove tunnels, open daily",
+    "why_here": "Captain Jack's runs airboat tours from Everglades City through mangrove tunnels, grasslands, and cypress forest. Tours are fully narrated with two-way headsets, and bookings include access to an animal sanctuary, alligator show, and boardwalk.",
+    "know_before": "The venue lists opening daily from 8:30 a.m. to 5 p.m., with tickets and boat launch at 905 Dupont Street, Everglades City.",
+    "local_tip": "Combo tours combine mangrove tunnels with grasslands or a swamp buggy ride in one visit.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.captainjacksairboattours.com/airboat-tours/",
+      "https://www.captainjacksairboattours.com/"
+     ],
+     "why_here": [
+      "https://www.captainjacksairboattours.com/airboat-tours/",
+      "https://www.captainjacksairboattours.com/"
+     ],
+     "know_before": [
+      "https://www.captainjacksairboattours.com/airboat-tours/",
+      "https://www.captainjacksairboattours.com/"
+     ],
+     "local_tip": [
+      "https://www.captainjacksairboattours.com/airboat-tours/",
+      "https://www.captainjacksairboattours.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Captain Jack's is open daily from 8:30 a.m. to 5 p.m.",
+      "source": "https://www.captainjacksairboattours.com/airboat-tours/"
+     },
+     {
+      "claim": "The Mangrove Tunnel Airboat Tour is a 50-minute tour through Everglades City's mangrove tunnels.",
+      "source": "https://www.captainjacksairboattours.com/airboat-tours/"
+     },
+     {
+      "claim": "Tours are fully narrated with two-way headsets.",
+      "source": "https://www.captainjacksairboattours.com/"
+     },
+     {
+      "claim": "Included attractions include an animal sanctuary, an alligator show, and a boardwalk.",
+      "source": "https://www.captainjacksairboattours.com/airboat-tours/"
+     },
+     {
+      "claim": "Tickets and boat launch are at 905 Dupont Street, Everglades City, FL.",
+      "source": "https://www.captainjacksairboattours.com/airboat-tours/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ0a043xUr34gRUVNHkNpLBt0",
+   "name": "Voodoo Bayou",
+   "category": "food",
+   "metro": "palm-beach",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://voodoobayou.com/menu/",
+     "source_name": "Voodoo Bayou \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Voodoo Bayou is a Southern Cajun kitchen and craft bar.",
+      "The menu includes Wood-Fired Oysters with chili butter and cheese, served with garlic bread.",
+      "The menu includes Beignets.",
+      "Brunch is available Saturday to Sunday from open to 3 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Southern Cajun kitchen serving wood-fired oysters and beignets",
+    "why_here": "Voodoo Bayou is a Southern Cajun kitchen and craft bar, so the menu leans into wood-fired oysters and other Cajun dishes for sharing at the table. Save room for beignets, listed on the menu as a sweet finish.",
+    "know_before": "Brunch is available Saturday to Sunday from open to 3 p.m.",
+    "local_tip": null,
+    "best_time": "Weekend brunch, served from open to 3 p.m.",
+    "citations": {
+     "hook": [
+      "https://voodoobayou.com/menu/"
+     ],
+     "why_here": [
+      "https://voodoobayou.com/menu/"
+     ],
+     "know_before": [
+      "https://voodoobayou.com/menu/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      "https://voodoobayou.com/menu/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Voodoo Bayou is a Southern Cajun kitchen and craft bar.",
+      "source": "https://voodoobayou.com/menu/"
+     },
+     {
+      "claim": "The menu includes Wood-Fired Oysters with chili butter and cheese, served with garlic bread.",
+      "source": "https://voodoobayou.com/menu/"
+     },
+     {
+      "claim": "The menu includes Beignets.",
+      "source": "https://voodoobayou.com/menu/"
+     },
+     {
+      "claim": "Brunch is available Saturday to Sunday from open to 3 p.m.",
+      "source": "https://voodoobayou.com/menu/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ6z7GtMbZ2IgR6cX0X7pWpxw",
+   "name": "Lake Worth Beach Park",
+   "category": "beach",
+   "metro": "palm-beach",
+   "primary_type": "beach",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://lakeworthbeachfl.gov/recreation/parks",
+     "source_name": "Lake Worth Beach Park \u2014 official source",
+     "source_class": "government",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Lake Worth Beach Park is listed at 10 S Ocean Blvd, Lake Worth Beach, FL 33460."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "beach park at 10 S Ocean Blvd for time by the water and sand",
+    "why_here": "Lake Worth Beach Park is listed at 10 S Ocean Blvd, Lake Worth Beach, FL 33460, giving beachgoers a named park address to head for when planning time by the water and sand.",
+    "know_before": "The listed address is 10 S Ocean Blvd, Lake Worth Beach, FL 33460.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://lakeworthbeachfl.gov/recreation/parks"
+     ],
+     "why_here": [
+      "https://lakeworthbeachfl.gov/recreation/parks"
+     ],
+     "know_before": [
+      "https://lakeworthbeachfl.gov/recreation/parks"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Lake Worth Beach Park is listed at 10 S Ocean Blvd, Lake Worth Beach, FL 33460.",
+      "source": "https://lakeworthbeachfl.gov/recreation/parks"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJaSnpyl632YgRXs-pFumdXn0",
+   "name": "Ossobuco Miami - Steak house",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "steak_house",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://ossobuco.miami/",
+     "source_name": "Ossobuco Miami - Steak house \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Ossobuco is a modern wood-fired restaurant in Miami, with locations in Wynwood, Aventura Mall, and Coconut Grove.",
+      "The restaurant is led by Grill Master Chef Guillermo Eleicegui.",
+      "The menu celebrates premium cuts, seasonal vegetables, and fresh ingredients cooked over an open flame.",
+      "The Wynwood location is at 62 NW 27th Street, Miami, FL, 33127.",
+      "Wynwood hours are Monday - Thursday: 4pm - 10pm, Friday - Saturday: 4pm - 11pm, Sunday: 4pm - 10pm."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Modern wood-fired restaurant led by Grill Master Chef Guillermo Eleicegui",
+    "why_here": "Ossobuco describes itself as a modern wood-fired restaurant in Miami with locations in Wynwood, Aventura Mall, and Coconut Grove. Its menu celebrates premium cuts, seasonal vegetables, and fresh ingredients cooked over an open flame.",
+    "know_before": "Wynwood hours Monday to Thursday are 4 p.m. to 10 p.m. and Friday to Saturday are 4 p.m. to 11 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://ossobuco.miami/"
+     ],
+     "why_here": [
+      "https://ossobuco.miami/"
+     ],
+     "know_before": [
+      "https://ossobuco.miami/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Ossobuco is a modern wood-fired restaurant in Miami, with locations in Wynwood, Aventura Mall, and Coconut Grove.",
+      "source": "https://ossobuco.miami/"
+     },
+     {
+      "claim": "The restaurant is led by Grill Master Chef Guillermo Eleicegui.",
+      "source": "https://ossobuco.miami/"
+     },
+     {
+      "claim": "The menu celebrates premium cuts, seasonal vegetables, and fresh ingredients cooked over an open flame.",
+      "source": "https://ossobuco.miami/"
+     },
+     {
+      "claim": "The Wynwood location is at 62 NW 27th Street, Miami, FL, 33127.",
+      "source": "https://ossobuco.miami/"
+     },
+     {
+      "claim": "Wynwood hours are Monday - Thursday: 4pm - 10pm, Friday - Saturday: 4pm - 11pm, Sunday: 4pm - 10pm.",
+      "source": "https://ossobuco.miami/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJSWdN2E3K2YgRHdwe2DVru2A",
+   "name": "Cape Florida Lighthouse",
+   "category": "attractions",
+   "metro": "miami-dade",
+   "primary_type": "tourist_attraction",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.floridastateparks.org/parks-and-trails/bill-baggs-cape-florida-state-park",
+     "source_name": "Cape Florida Lighthouse \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Visitors can experience views of the Atlantic Ocean and Biscayne Bay from atop the historic 1825 Cape Florida Lighthouse.",
+      "Visitors can take guided tours through the lighthouse and keeper's cottage.",
+      "Bill Baggs Cape Florida State Park is home to the Cape Florida Lighthouse.",
+      "Visitors may tour the tower five days a week, with tours from 10 a.m. to 12 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "historic 1825 lighthouse with views of the Atlantic Ocean and Biscayne Bay",
+    "why_here": "From atop the historic 1825 Cape Florida Lighthouse, visitors can experience views of the Atlantic Ocean and Biscayne Bay. Guided tours through the lighthouse and keeper's cottage add history to the climb.",
+    "know_before": "Visitors may tour the tower five days a week, with tours from 10 a.m. to 12 p.m.",
+    "local_tip": "Take a guided tour through the lighthouse and keeper's cottage.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.floridastateparks.org/parks-and-trails/bill-baggs-cape-florida-state-park"
+     ],
+     "why_here": [
+      "https://www.floridastateparks.org/parks-and-trails/bill-baggs-cape-florida-state-park"
+     ],
+     "know_before": [
+      "https://www.floridastateparks.org/parks-and-trails/bill-baggs-cape-florida-state-park"
+     ],
+     "local_tip": [
+      "https://www.floridastateparks.org/parks-and-trails/bill-baggs-cape-florida-state-park"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Visitors can experience views of the Atlantic Ocean and Biscayne Bay from atop the historic 1825 Cape Florida Lighthouse.",
+      "source": "https://www.floridastateparks.org/parks-and-trails/bill-baggs-cape-florida-state-park"
+     },
+     {
+      "claim": "Visitors can take guided tours through the lighthouse and keeper's cottage.",
+      "source": "https://www.floridastateparks.org/parks-and-trails/bill-baggs-cape-florida-state-park"
+     },
+     {
+      "claim": "Bill Baggs Cape Florida State Park is home to the Cape Florida Lighthouse.",
+      "source": "https://www.floridastateparks.org/parks-and-trails/bill-baggs-cape-florida-state-park"
+     },
+     {
+      "claim": "Visitors may tour the tower five days a week, with tours from 10 a.m. to 12 p.m.",
+      "source": "https://www.floridastateparks.org/parks-and-trails/bill-baggs-cape-florida-state-park"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJq2_1qUxA6IgRCarDmMlmNgQ",
+   "name": "Three Sisters Springs",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "wildlife_refuge",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.fws.gov/refuge/crystal-river/visit-us/trails",
+     "source_name": "Three Sisters Springs \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Three Sisters Springs is a 57 acre area with over 2 miles of trails.",
+      "The Three Sisters Springs boardwalk is an elevated wooden boardwalk with railings and multiple overlooks surrounding the springs.",
+      "The boardwalk provides manatee viewing during the winter months and photography opportunities year-round.",
+      "All trails are open from 8:30 a.m. to 4:30 p.m. year-round and an entrance fee applies."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "boardwalk viewing for manatees during the winter months",
+    "why_here": "Three Sisters Springs offers an elevated wooden boardwalk with railings and multiple overlooks surrounding the springs. The boardwalk provides manatee viewing during the winter months and photography opportunities year-round.",
+    "know_before": "All trails are open from 8:30 a.m. to 4:30 p.m. year-round and an entrance fee applies.",
+    "local_tip": "Use the boardwalk overlooks for photography year-round.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.fws.gov/refuge/crystal-river/visit-us/trails"
+     ],
+     "why_here": [
+      "https://www.fws.gov/refuge/crystal-river/visit-us/trails"
+     ],
+     "know_before": [
+      "https://www.fws.gov/refuge/crystal-river/visit-us/trails"
+     ],
+     "local_tip": [
+      "https://www.fws.gov/refuge/crystal-river/visit-us/trails"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Three Sisters Springs is a 57 acre area with over 2 miles of trails.",
+      "source": "https://www.fws.gov/refuge/crystal-river/visit-us/trails"
+     },
+     {
+      "claim": "The Three Sisters Springs boardwalk is an elevated wooden boardwalk with railings and multiple overlooks surrounding the springs.",
+      "source": "https://www.fws.gov/refuge/crystal-river/visit-us/trails"
+     },
+     {
+      "claim": "The boardwalk provides manatee viewing during the winter months and photography opportunities year-round.",
+      "source": "https://www.fws.gov/refuge/crystal-river/visit-us/trails"
+     },
+     {
+      "claim": "All trails are open from 8:30 a.m. to 4:30 p.m. year-round and an entrance fee applies.",
+      "source": "https://www.fws.gov/refuge/crystal-river/visit-us/trails"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJV7VQCBdj54gR0xqJ6RE3cj4",
+   "name": "Epic Paddle Adventures",
+   "category": "attractions",
+   "metro": "orlando",
+   "primary_type": "tour_agency",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://epicpaddleadventures.com/",
+     "source_name": "Epic Paddle Adventures \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Epic Paddle Adventures offers Clear Kayak and Paddleboard Tours in Orlando, Florida.",
+      "Tours include Manatees and Monkeys at Silver Springs and Urban Paddle in Paradise in Orlando.",
+      "Night tours include Neon Night Glow Paddle in Paradise in Orlando.",
+      "Bioluminescence tours are seasonal and begin in May."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Clear Kayak and Paddleboard Tours from Silver Springs to Orlando",
+    "why_here": "Epic Paddle Adventures runs Clear Kayak and Paddleboard Tours in Orlando, including Manatees and Monkeys at Silver Springs and Urban Paddle in Paradise in Orlando. Night options add Neon Night Glow Paddle in Paradise for after-dark paddling.",
+    "know_before": "Bioluminescence tours are seasonal and begin in May.",
+    "local_tip": "Choose Silver Springs tours for wildlife and Orlando tours for an urban paddle.",
+    "best_time": "May onward for seasonal bioluminescence paddles, per the official tour listing.",
+    "citations": {
+     "hook": [
+      "https://epicpaddleadventures.com/"
+     ],
+     "why_here": [
+      "https://epicpaddleadventures.com/"
+     ],
+     "know_before": [
+      "https://epicpaddleadventures.com/"
+     ],
+     "local_tip": [
+      "https://epicpaddleadventures.com/"
+     ],
+     "best_time": [
+      "https://epicpaddleadventures.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Epic Paddle Adventures offers Clear Kayak and Paddleboard Tours in Orlando, Florida.",
+      "source": "https://epicpaddleadventures.com/"
+     },
+     {
+      "claim": "Tours include Manatees and Monkeys at Silver Springs and Urban Paddle in Paradise in Orlando.",
+      "source": "https://epicpaddleadventures.com/"
+     },
+     {
+      "claim": "Night tours include Neon Night Glow Paddle in Paradise in Orlando.",
+      "source": "https://epicpaddleadventures.com/"
+     },
+     {
+      "claim": "Bioluminescence tours are seasonal and begin in May.",
+      "source": "https://epicpaddleadventures.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJxR5dgPYK3YgRIfI0T1InDdE",
+   "name": "Cherry Pocket Steak n Seafood",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.cherrypocket.com/about",
+     "source_name": "Cherry Pocket Steak n Seafood \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Cherry Pocket sits right on Lake Pierce.",
+      "The Boat Bar is a perch to relax and watch the canal.",
+      "Live music plays every day at Cherry Pocket.",
+      "Cherry Pocket offers cabins and boat rentals on Lake Pierce."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "lakeside seafood on Lake Pierce with live music every day",
+    "why_here": "Cherry Pocket sits right on Lake Pierce, where the Boat Bar gives a perch to relax and watch the canal. Live music plays every day, while cabins and boat rentals help extend a lakeside meal into a longer stay.",
+    "know_before": "Live music plays every day at Cherry Pocket.",
+    "local_tip": "Sit at the Boat Bar to watch the canal while waiting.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.cherrypocket.com/about"
+     ],
+     "why_here": [
+      "https://www.cherrypocket.com/about"
+     ],
+     "know_before": [
+      "https://www.cherrypocket.com/about"
+     ],
+     "local_tip": [
+      "https://www.cherrypocket.com/about"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Cherry Pocket sits right on Lake Pierce.",
+      "source": "https://www.cherrypocket.com/about"
+     },
+     {
+      "claim": "The Boat Bar is a perch to relax and watch the canal.",
+      "source": "https://www.cherrypocket.com/about"
+     },
+     {
+      "claim": "Live music plays every day at Cherry Pocket.",
+      "source": "https://www.cherrypocket.com/about"
+     },
+     {
+      "claim": "Cherry Pocket offers cabins and boat rentals on Lake Pierce.",
+      "source": "https://www.cherrypocket.com/about"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJk3uBdmK32YgRQRBZ2YmHuLM",
+   "name": "MIAM CAFE - CORAL GABLES",
+   "category": "shopping",
+   "metro": "miami-dade",
+   "primary_type": "cafe",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.miamcafe.com/",
+     "source_name": "MIAM CAFE - CORAL GABLES \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "MIAM Cafe lists a Coral Gables location at 2300 Ponce de Leon Blvd.",
+      "MIAM Cafe is open Monday to Sunday from 8 a.m. to 4 p.m.",
+      "MIAM Cafe presents its name as the French equivalent to yum.",
+      "MIAM Cafe prepares all food with love and care.",
+      "MIAM Cafe invites guests to unwind, gather, and enjoy good food."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "cafe food prepared with love and care in Coral Gables",
+    "why_here": "MIAM Cafe in Coral Gables presents its name as the French equivalent to yum and prepares all food with love and care. guests can unwind, gather, and enjoy good food together.",
+    "know_before": "open Monday to Sunday from 8 a.m. to 4 p.m. at 2300 Ponce de Leon Blvd.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.miamcafe.com/"
+     ],
+     "why_here": [
+      "https://www.miamcafe.com/"
+     ],
+     "know_before": [
+      "https://www.miamcafe.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "MIAM Cafe lists a Coral Gables location at 2300 Ponce de Leon Blvd.",
+      "source": "https://www.miamcafe.com/"
+     },
+     {
+      "claim": "MIAM Cafe is open Monday to Sunday from 8 a.m. to 4 p.m.",
+      "source": "https://www.miamcafe.com/"
+     },
+     {
+      "claim": "MIAM Cafe presents its name as the French equivalent to yum.",
+      "source": "https://www.miamcafe.com/"
+     },
+     {
+      "claim": "MIAM Cafe prepares all food with love and care.",
+      "source": "https://www.miamcafe.com/"
+     },
+     {
+      "claim": "MIAM Cafe invites guests to unwind, gather, and enjoy good food.",
+      "source": "https://www.miamcafe.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJTyCEHvm12YgRugWWbbfWCE8",
+   "name": "Art Deco Welcome Center",
+   "category": "attractions",
+   "metro": "miami-dade",
+   "primary_type": "tourist_information_center",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://mdpl.org/welcome-center",
+     "source_name": "Art Deco Welcome Center \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Art Deco Museum and Welcome Center is housed in the historic 10th Street Auditorium (1954).",
+      "The Art Deco Museum and Welcome Center explains Mediterranean Revival, Art Deco, and Miami Modern (MiMo) through scale models and rotating exhibits.",
+      "The Art Deco Welcome Center is open daily from 9 a.m. to 5 p.m.",
+      "The Welcome Center lobby has a concierge to help book tours across Miami Beach."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "orientation point inside the 1954 10th Street Auditorium",
+    "why_here": "The Art Deco Museum and Welcome Center explains Mediterranean Revival, Art Deco, and Miami Modern through scale models and rotating exhibits inside the historic auditorium.",
+    "know_before": "open daily from 9 a.m. to 5 p.m.",
+    "local_tip": "ask the concierge to help book tours across Miami Beach",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://mdpl.org/welcome-center"
+     ],
+     "why_here": [
+      "https://mdpl.org/welcome-center"
+     ],
+     "know_before": [
+      "https://mdpl.org/welcome-center"
+     ],
+     "local_tip": [
+      "https://mdpl.org/welcome-center"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Art Deco Museum and Welcome Center is housed in the historic 10th Street Auditorium (1954).",
+      "source": "https://mdpl.org/welcome-center"
+     },
+     {
+      "claim": "The Art Deco Museum and Welcome Center explains Mediterranean Revival, Art Deco, and Miami Modern (MiMo) through scale models and rotating exhibits.",
+      "source": "https://mdpl.org/welcome-center"
+     },
+     {
+      "claim": "The Art Deco Welcome Center is open daily from 9 a.m. to 5 p.m.",
+      "source": "https://mdpl.org/welcome-center"
+     },
+     {
+      "claim": "The Welcome Center lobby has a concierge to help book tours across Miami Beach.",
+      "source": "https://mdpl.org/welcome-center"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ8XrxI4W22YgRyZiuIp0HdhQ",
+   "name": "American Social - Bar & Kitchen - Miami",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://americansocialbar.com/locations/miami/",
+     "source_name": "American Social - Bar & Kitchen - Miami \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "American Social Brickell is at 690 SW 1st Ct, Miami, FL 33130.",
+      "American Social Brickell pairs modern American favorites with craft cocktails and waterfront views.",
+      "Brunch is served Saturday and Sunday from 10:30 a.m. to 3 p.m.",
+      "Social Hour is Monday to Friday from 4 p.m. to 7 p.m.",
+      "Social Hour offers $6 Margaritas and House Wines."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "waterfront dining and drinks with modern American favorites",
+    "why_here": "American Social Brickell pairs modern American favorites with craft cocktails and waterfront views. brunch is served on weekends, and Social Hour brings drink specials in the late afternoon.",
+    "know_before": "Social Hour is Monday to Friday from 4 p.m. to 7 p.m.; brunch is Saturday and Sunday from 10:30 a.m. to 3 p.m.",
+    "local_tip": "come for Social Hour for $6 Margaritas and House Wines",
+    "best_time": "Weekend brunch, served Saturday and Sunday from 10:30 a.m. to 3 p.m.",
+    "citations": {
+     "hook": [
+      "https://americansocialbar.com/locations/miami/"
+     ],
+     "why_here": [
+      "https://americansocialbar.com/locations/miami/"
+     ],
+     "know_before": [
+      "https://americansocialbar.com/locations/miami/"
+     ],
+     "local_tip": [
+      "https://americansocialbar.com/locations/miami/"
+     ],
+     "best_time": [
+      "https://americansocialbar.com/locations/miami/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "American Social Brickell is at 690 SW 1st Ct, Miami, FL 33130.",
+      "source": "https://americansocialbar.com/locations/miami/"
+     },
+     {
+      "claim": "American Social Brickell pairs modern American favorites with craft cocktails and waterfront views.",
+      "source": "https://americansocialbar.com/locations/miami/"
+     },
+     {
+      "claim": "Brunch is served Saturday and Sunday from 10:30 a.m. to 3 p.m.",
+      "source": "https://americansocialbar.com/locations/miami/"
+     },
+     {
+      "claim": "Social Hour is Monday to Friday from 4 p.m. to 7 p.m.",
+      "source": "https://americansocialbar.com/locations/miami/"
+     },
+     {
+      "claim": "Social Hour offers $6 Margaritas and House Wines.",
+      "source": "https://americansocialbar.com/locations/miami/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJfbOYXus414gRQQ7-6F7AYiE",
+   "name": "Rain Barrel Village",
+   "category": "attractions",
+   "metro": "keys",
+   "primary_type": "tourist_attraction",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://rainbarrelvillage.com/",
+     "source_name": "Rain Barrel Village \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Betsy the Lobster is a 30-foot-tall, 40-foot-long sculpture at the entrance of Rain Barrel Village.",
+      "Rain Barrel Village has been a Florida Keys destination for over 40 years.",
+      "The open-air complex offers local art, handmade crafts, custom jewelry, resort wear, and souvenirs in specialty shops, galleries and boutiques.",
+      "Rain Barrel Village is an open-air tropical garden complex with eateries and shaded gardens.",
+      "Rain Barrel Village is open daily from 9 a.m. to 5 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "photo stop with Betsy the Lobster, a 30-foot-tall sculpture",
+    "why_here": "Rain Barrel Village is an open-air tropical garden complex that has been a Florida Keys destination for over 40 years. specialty shops, galleries and boutiques offer local art, handmade crafts, and souvenirs.",
+    "know_before": "open daily from 9 a.m. to 5 p.m.",
+    "local_tip": "take the Betsy photo first, then stroll the shaded gardens",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://rainbarrelvillage.com/"
+     ],
+     "why_here": [
+      "https://rainbarrelvillage.com/"
+     ],
+     "know_before": [
+      "https://rainbarrelvillage.com/"
+     ],
+     "local_tip": [
+      "https://rainbarrelvillage.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Betsy the Lobster is a 30-foot-tall, 40-foot-long sculpture at the entrance of Rain Barrel Village.",
+      "source": "https://rainbarrelvillage.com/"
+     },
+     {
+      "claim": "Rain Barrel Village has been a Florida Keys destination for over 40 years.",
+      "source": "https://rainbarrelvillage.com/"
+     },
+     {
+      "claim": "The open-air complex offers local art, handmade crafts, custom jewelry, resort wear, and souvenirs in specialty shops, galleries and boutiques.",
+      "source": "https://rainbarrelvillage.com/"
+     },
+     {
+      "claim": "Rain Barrel Village is an open-air tropical garden complex with eateries and shaded gardens.",
+      "source": "https://rainbarrelvillage.com/"
+     },
+     {
+      "claim": "Rain Barrel Village is open daily from 9 a.m. to 5 p.m.",
+      "source": "https://rainbarrelvillage.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJz8iS56fX2IgR0Imaw6A1vV8",
+   "name": "Howley's Restaurant",
+   "category": "food",
+   "metro": "palm-beach",
+   "primary_type": "diner",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://sub-culture.org/locations/howleys/",
+     "source_name": "Howley's Restaurant \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Howley's is located at 4700 S Dixie Highway, West Palm Beach, FL.",
+      "Everything at Howley's is Cooked in Sight, Must be Right with no microwave on the premises.",
+      "Hours at Howley's are Sunday through Thursday 7 a.m. to 10 p.m.",
+      "Hours at Howley's are Friday and Saturday 7 a.m. to midnight."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Everything is Cooked in Sight, Must be Right, with no microwave on the premises",
+    "why_here": "Everything at Howley's is Cooked in Sight, Must be Right with no microwave on the premises. Howley's is located at 4700 S Dixie Highway, West Palm Beach, FL.",
+    "know_before": "Hours are Sunday through Thursday 7 a.m. to 10 p.m. and Friday and Saturday 7 a.m. to midnight.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://sub-culture.org/locations/howleys/"
+     ],
+     "why_here": [
+      "https://sub-culture.org/locations/howleys/"
+     ],
+     "know_before": [
+      "https://sub-culture.org/locations/howleys/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Howley's is located at 4700 S Dixie Highway, West Palm Beach, FL.",
+      "source": "https://sub-culture.org/locations/howleys/"
+     },
+     {
+      "claim": "Everything at Howley's is Cooked in Sight, Must be Right with no microwave on the premises.",
+      "source": "https://sub-culture.org/locations/howleys/"
+     },
+     {
+      "claim": "Hours at Howley's are Sunday through Thursday 7 a.m. to 10 p.m.",
+      "source": "https://sub-culture.org/locations/howleys/"
+     },
+     {
+      "claim": "Hours at Howley's are Friday and Saturday 7 a.m. to midnight.",
+      "source": "https://sub-culture.org/locations/howleys/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJIX7z4dZq24gROafsfUnRidc",
+   "name": "Six Mile Cypress Slough Preserve",
+   "category": "attractions",
+   "metro": "immokalee-fl",
+   "primary_type": "nature_preserve",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.leefl.gov/facilities/facility/details/Six-Mile-Cypress-Slough-Preserve-195",
+     "source_name": "Six Mile Cypress Slough Preserve \u2014 official source",
+     "source_class": "government",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Guided walks along the boardwalk at Six Mile Cypress Slough Preserve are offered at 9:30 a.m.",
+      "Guided walks are free with paid parking at Six Mile Cypress Slough Preserve.",
+      "Parking is $1 per hour per vehicle, maximum $5 for the day."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Guided boardwalk walks through a cypress slough preserve",
+    "why_here": "Guided walks along the boardwalk at Six Mile Cypress Slough Preserve are offered at 9:30 a.m. Guided walks are free with paid parking at Six Mile Cypress Slough Preserve.",
+    "know_before": "Parking is $1 per hour per vehicle, maximum $5 for the day.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.leefl.gov/facilities/facility/details/Six-Mile-Cypress-Slough-Preserve-195"
+     ],
+     "why_here": [
+      "https://www.leefl.gov/facilities/facility/details/Six-Mile-Cypress-Slough-Preserve-195"
+     ],
+     "know_before": [
+      "https://www.leefl.gov/facilities/facility/details/Six-Mile-Cypress-Slough-Preserve-195"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Guided walks along the boardwalk at Six Mile Cypress Slough Preserve are offered at 9:30 a.m.",
+      "source": "https://www.leefl.gov/facilities/facility/details/Six-Mile-Cypress-Slough-Preserve-195"
+     },
+     {
+      "claim": "Guided walks are free with paid parking at Six Mile Cypress Slough Preserve.",
+      "source": "https://www.leefl.gov/facilities/facility/details/Six-Mile-Cypress-Slough-Preserve-195"
+     },
+     {
+      "claim": "Parking is $1 per hour per vehicle, maximum $5 for the day.",
+      "source": "https://www.leefl.gov/facilities/facility/details/Six-Mile-Cypress-Slough-Preserve-195"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJZTPp9cKd5ogRFUePxEYAjfM",
+   "name": "Beachcomber St. Augustine",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.beachcomberstaugustine.com/main-menu",
+     "source_name": "Beachcomber St. Augustine \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Beachcomber St. Augustine is located at 2 A St, St Augustine Beach, FL 32080.",
+      "Hours are Sunday through Thursday 11 a.m. to 9 p.m. and Friday and Saturday 11 a.m. to 10 p.m."
+     ]
+    },
+    {
+     "source": "https://www.beachcomberstaugustine.com/items/beachcomber-shrimp-and-grits",
+     "source_name": "Beachcomber St. Augustine \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Menu includes Beachcomber Shrimp and Grits, described as creamy grits topped with 8 grilled shrimp saut\u00e9ed with red bell pepper, shallots, and garlic in a Tasso ham sauce."
+     ]
+    },
+    {
+     "source": "https://www.beachcomberstaugustine.com/items/tampa-bay-cuban?location=st-augustine&menu=menu-synced",
+     "source_name": "Beachcomber St. Augustine \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Menu includes a Tampa Bay Cuban pressed sandwich with roasted pork loin, ham, salami, Swiss cheese, dill pickle, and mustard on grilled Cuban bread."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Dinner menu includes Beachcomber Shrimp and Grits with Tasso ham sauce",
+    "why_here": "Beachcomber St. Augustine is a restaurant at 2 A St in St Augustine Beach. Its official menu lists seafood dishes including Beachcomber Shrimp and Grits, described as creamy grits topped with grilled shrimp saut\u00e9ed with red bell pepper, shallots, and garlic in a Tasso ham sauce.",
+    "know_before": "Official site lists hours Sunday through Thursday 11 a.m. to 9 p.m., Friday and Saturday 11 a.m. to 10 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.beachcomberstaugustine.com/main-menu",
+      "https://www.beachcomberstaugustine.com/items/beachcomber-shrimp-and-grits",
+      "https://www.beachcomberstaugustine.com/items/tampa-bay-cuban?location=st-augustine&menu=menu-synced"
+     ],
+     "why_here": [
+      "https://www.beachcomberstaugustine.com/main-menu",
+      "https://www.beachcomberstaugustine.com/items/beachcomber-shrimp-and-grits",
+      "https://www.beachcomberstaugustine.com/items/tampa-bay-cuban?location=st-augustine&menu=menu-synced"
+     ],
+     "know_before": [
+      "https://www.beachcomberstaugustine.com/main-menu",
+      "https://www.beachcomberstaugustine.com/items/beachcomber-shrimp-and-grits",
+      "https://www.beachcomberstaugustine.com/items/tampa-bay-cuban?location=st-augustine&menu=menu-synced"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Beachcomber St. Augustine is located at 2 A St, St Augustine Beach, FL 32080.",
+      "source": "https://www.beachcomberstaugustine.com/main-menu"
+     },
+     {
+      "claim": "Hours are Sunday through Thursday 11 a.m. to 9 p.m. and Friday and Saturday 11 a.m. to 10 p.m.",
+      "source": "https://www.beachcomberstaugustine.com/main-menu"
+     },
+     {
+      "claim": "Menu includes Beachcomber Shrimp and Grits, described as creamy grits topped with 8 grilled shrimp saut\u00e9ed with red bell pepper, shallots, and garlic in a Tasso ham sauce.",
+      "source": "https://www.beachcomberstaugustine.com/items/beachcomber-shrimp-and-grits"
+     },
+     {
+      "claim": "Menu includes a Tampa Bay Cuban pressed sandwich with roasted pork loin, ham, salami, Swiss cheese, dill pickle, and mustard on grilled Cuban bread.",
+      "source": "https://www.beachcomberstaugustine.com/items/tampa-bay-cuban?location=st-augustine&menu=menu-synced"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJEXpbd9QB2YgRwGa8OYqSaTE",
+   "name": "Beach House Fort Lauderdale, a Hilton Resort",
+   "category": "hotels",
+   "metro": "broward",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.hilton.com/en/hotels/fllfshh-beach-house-fort-lauderdale/",
+     "source_name": "Beach House Fort Lauderdale, a Hilton Resort \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Beach House Fort Lauderdale, a Hilton Resort is located at 505 N. Ft. Lauderdale Beach Blvd, Fort Lauderdale, Florida 33304 USA.",
+      "The resort has a wraparound deck area with an outdoor pool and private cabanas.",
+      "Listed amenities include an on-site restaurant, outdoor pool, fitness center, spa, and beach access."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Wraparound deck area with an outdoor pool and private cabanas",
+    "why_here": "Beach House Fort Lauderdale, a Hilton Resort is located at 505 N. Ft. Lauderdale Beach Blvd, Fort Lauderdale, Florida 33304 USA. The resort has a wraparound deck area with an outdoor pool and private cabanas.",
+    "know_before": "Listed amenities include an on-site restaurant, outdoor pool, fitness center, spa, and beach access.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.hilton.com/en/hotels/fllfshh-beach-house-fort-lauderdale/"
+     ],
+     "why_here": [
+      "https://www.hilton.com/en/hotels/fllfshh-beach-house-fort-lauderdale/"
+     ],
+     "know_before": [
+      "https://www.hilton.com/en/hotels/fllfshh-beach-house-fort-lauderdale/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Beach House Fort Lauderdale, a Hilton Resort is located at 505 N. Ft. Lauderdale Beach Blvd, Fort Lauderdale, Florida 33304 USA.",
+      "source": "https://www.hilton.com/en/hotels/fllfshh-beach-house-fort-lauderdale/"
+     },
+     {
+      "claim": "The resort has a wraparound deck area with an outdoor pool and private cabanas.",
+      "source": "https://www.hilton.com/en/hotels/fllfshh-beach-house-fort-lauderdale/"
+     },
+     {
+      "claim": "Listed amenities include an on-site restaurant, outdoor pool, fitness center, spa, and beach access.",
+      "source": "https://www.hilton.com/en/hotels/fllfshh-beach-house-fort-lauderdale/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJJTjxenrd2YgRmQ9YjR2nXNw",
+   "name": "Coral Castle",
+   "category": "attractions",
+   "metro": "miami-dade",
+   "primary_type": "museum",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://coralcastle.com/about-the-museum/",
+     "source_name": "Coral Castle \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Coral Castle is located in Homestead, Florida and was created by Edward Leedskalnin, a Latvian immigrant.",
+      "Formerly known as Rock Gate, the structure was built over the course of 3 decades.",
+      "Leedskalnin constructed the castle using over 1,100 tons of coral rock, which he quarried, cut, and carved himself without the aid of any modern machinery.",
+      "Guided tours are available every hour on the hour."
+     ]
+    },
+    {
+     "source": "https://coralcastle.com/",
+     "source_name": "Coral Castle \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The castle was constructed single-handedly by Edward Leedskalnin from 1923 to 1951."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Over 1,100 tons of coral rock carved single-handedly by Edward Leedskalnin",
+    "why_here": "Coral Castle in Homestead is a sculpture garden built by Latvian immigrant Edward Leedskalnin over the course of 3 decades. He constructed it using over 1,100 tons of coral rock, which he quarried, cut, and carved himself without the aid of any modern machinery.",
+    "know_before": "Guided tours are available every hour on the hour, per the official site.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://coralcastle.com/about-the-museum/",
+      "https://coralcastle.com/"
+     ],
+     "why_here": [
+      "https://coralcastle.com/about-the-museum/",
+      "https://coralcastle.com/"
+     ],
+     "know_before": [
+      "https://coralcastle.com/about-the-museum/",
+      "https://coralcastle.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Coral Castle is located in Homestead, Florida and was created by Edward Leedskalnin, a Latvian immigrant.",
+      "source": "https://coralcastle.com/about-the-museum/"
+     },
+     {
+      "claim": "Formerly known as Rock Gate, the structure was built over the course of 3 decades.",
+      "source": "https://coralcastle.com/about-the-museum/"
+     },
+     {
+      "claim": "Leedskalnin constructed the castle using over 1,100 tons of coral rock, which he quarried, cut, and carved himself without the aid of any modern machinery.",
+      "source": "https://coralcastle.com/about-the-museum/"
+     },
+     {
+      "claim": "Guided tours are available every hour on the hour.",
+      "source": "https://coralcastle.com/about-the-museum/"
+     },
+     {
+      "claim": "The castle was constructed single-handedly by Edward Leedskalnin from 1923 to 1951.",
+      "source": "https://coralcastle.com/"
+     }
+    ]
+   }
+  }
+ ]
+}
