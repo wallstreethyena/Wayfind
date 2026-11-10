@@ -1,0 +1,1824 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 32. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJG6HQcrK22YgREOwX4PyCF8c",
+   "name": "Panther Coffee - Wynwood",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "coffee_shop",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://panthercoffee.com/pages/our-locations",
+     "source_name": "Panther Coffee - Wynwood \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Panther Coffee Wynwood is at 2390 NW 2nd Ave, Miami, FL 33127",
+      "Panther Coffee Wynwood was established in 2010",
+      "Panther Coffee Wynwood is open Monday-Sunday from 7 a.m. to 7 p.m.",
+      "Panther Coffee is a specialty coffee company focused on sourcing, roasting, and preparing coffees"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "specialty coffee sourcing, roasting, and preparing in Wynwood",
+    "why_here": "Panther Coffee in Wynwood focuses on sourcing, roasting, and preparing coffees, with the Wynwood shop established in 2010 at 2390 NW 2nd Ave in Miami.",
+    "know_before": "Open Monday-Sunday from 7 a.m. to 7 p.m. in Wynwood.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://panthercoffee.com/pages/our-locations"
+     ],
+     "why_here": [
+      "https://panthercoffee.com/pages/our-locations"
+     ],
+     "know_before": [
+      "https://panthercoffee.com/pages/our-locations"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Panther Coffee Wynwood is at 2390 NW 2nd Ave, Miami, FL 33127",
+      "source": "https://panthercoffee.com/pages/our-locations"
+     },
+     {
+      "claim": "Panther Coffee Wynwood was established in 2010",
+      "source": "https://panthercoffee.com/pages/our-locations"
+     },
+     {
+      "claim": "Panther Coffee Wynwood is open Monday-Sunday from 7 a.m. to 7 p.m.",
+      "source": "https://panthercoffee.com/pages/our-locations"
+     },
+     {
+      "claim": "Panther Coffee is a specialty coffee company focused on sourcing, roasting, and preparing coffees",
+      "source": "https://panthercoffee.com/pages/our-locations"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ2dHfaf0b2YgRSogxCuaYDkc",
+   "name": "MTB Top Burgers",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "brazilian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://mtbtopburgers.com/menu/",
+     "source_name": "MTB Top Burgers \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "MTB Top Burgers serves handcrafted, homemade and completely original Brazilian-style burgers",
+      "Brazilian-style burgers have been made in South Florida since 2018",
+      "The menu includes X-Tudo, listed as Brazilian style",
+      "Feijoada is served on Saturdays only and is fresh every Saturday",
+      "MTB Top Burgers serves Brazilian-style burgers, plates and milkshakes"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Brazilian-style burgers made in South Florida since 2018",
+    "why_here": "Try X-Tudo or Feijoada on Saturday, with handcrafted Brazilian-style burgers, plates and milkshakes made in South Florida since 2018 at MTB Top Burgers.",
+    "know_before": "Feijoada is served on Saturdays only.",
+    "local_tip": "Try Feijoada on Saturday.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://mtbtopburgers.com/menu/"
+     ],
+     "why_here": [
+      "https://mtbtopburgers.com/menu/"
+     ],
+     "know_before": [
+      "https://mtbtopburgers.com/menu/"
+     ],
+     "local_tip": [
+      "https://mtbtopburgers.com/menu/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "MTB Top Burgers serves handcrafted, homemade and completely original Brazilian-style burgers",
+      "source": "https://mtbtopburgers.com/menu/"
+     },
+     {
+      "claim": "Brazilian-style burgers have been made in South Florida since 2018",
+      "source": "https://mtbtopburgers.com/menu/"
+     },
+     {
+      "claim": "The menu includes X-Tudo, listed as Brazilian style",
+      "source": "https://mtbtopburgers.com/menu/"
+     },
+     {
+      "claim": "Feijoada is served on Saturdays only and is fresh every Saturday",
+      "source": "https://mtbtopburgers.com/menu/"
+     },
+     {
+      "claim": "MTB Top Burgers serves Brazilian-style burgers, plates and milkshakes",
+      "source": "https://mtbtopburgers.com/menu/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJY2F5kpjhwogRFBTjvS4y6mI",
+   "name": "Ceviche Tapas Bar and Restaurant",
+   "category": "food",
+   "metro": "st-pete",
+   "primary_type": "tapas_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://ceviche.com/",
+     "source_name": "Ceviche Tapas Bar and Restaurant \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Ceviche Tapas Bar & Restaurant is at 332 Beach Drive NE, St. Petersburg, FL 33701",
+      "Ceviche is inspired by Barcelona and recreates the magic of the Iberian coast",
+      "Ceviche is open Monday to Thursday from 11 a.m. to 10 p.m.",
+      "Sunday hours are 11 a.m. to 9 p.m.",
+      "Ceviche is a place for sharing plates, stories, and sangria"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "tapas inspired by Barcelona and the Iberian coast",
+    "why_here": "Share plates, stories, and sangria at Ceviche Tapas Bar & Restaurant, inspired by Barcelona and the Iberian coast, at 332 Beach Drive NE in St. Petersburg.",
+    "know_before": "Sunday hours are 11 a.m. to 9 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://ceviche.com/"
+     ],
+     "why_here": [
+      "https://ceviche.com/"
+     ],
+     "know_before": [
+      "https://ceviche.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Ceviche Tapas Bar & Restaurant is at 332 Beach Drive NE, St. Petersburg, FL 33701",
+      "source": "https://ceviche.com/"
+     },
+     {
+      "claim": "Ceviche is inspired by Barcelona and recreates the magic of the Iberian coast",
+      "source": "https://ceviche.com/"
+     },
+     {
+      "claim": "Ceviche is open Monday to Thursday from 11 a.m. to 10 p.m.",
+      "source": "https://ceviche.com/"
+     },
+     {
+      "claim": "Sunday hours are 11 a.m. to 9 p.m.",
+      "source": "https://ceviche.com/"
+     },
+     {
+      "claim": "Ceviche is a place for sharing plates, stories, and sangria",
+      "source": "https://ceviche.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJwyAkQESMk4gRWRRTo5AP0AY",
+   "name": "Tootsie's Orchid Lounge-Panama City Beach",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.tootsiesflorida.com/",
+     "source_name": "Tootsie's Orchid Lounge-Panama City Beach \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Tootsies is at 8795 Thomas Drive, Panama City Beach, FL 32408",
+      "Tootsies has live music 7 days a week",
+      "The kitchen is open Thursday to Sunday from 11 a.m. to 10 p.m.",
+      "Tootsies is family friendly until 8 p.m.",
+      "After 8 p.m., visitors must be 21 years old or older"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "live music 7 days a week with a kitchen Thursday to Sunday",
+    "why_here": "Go for live music 7 days a week at 8795 Thomas Drive in Panama City Beach, where the kitchen is open Thursday to Sunday from 11 a.m. to 10 p.m.",
+    "know_before": "After 8 p.m., visitors must be 21 years old or older.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.tootsiesflorida.com/"
+     ],
+     "why_here": [
+      "https://www.tootsiesflorida.com/"
+     ],
+     "know_before": [
+      "https://www.tootsiesflorida.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Tootsies is at 8795 Thomas Drive, Panama City Beach, FL 32408",
+      "source": "https://www.tootsiesflorida.com/"
+     },
+     {
+      "claim": "Tootsies has live music 7 days a week",
+      "source": "https://www.tootsiesflorida.com/"
+     },
+     {
+      "claim": "The kitchen is open Thursday to Sunday from 11 a.m. to 10 p.m.",
+      "source": "https://www.tootsiesflorida.com/"
+     },
+     {
+      "claim": "Tootsies is family friendly until 8 p.m.",
+      "source": "https://www.tootsiesflorida.com/"
+     },
+     {
+      "claim": "After 8 p.m., visitors must be 21 years old or older",
+      "source": "https://www.tootsiesflorida.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJgbjykmQD2YgRtBrgwHTllec",
+   "name": "BRGR STOP",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "hamburger_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://brgrstop.com/",
+     "source_name": "BRGR STOP \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "BRGR STOP is at 1930 E Sunrise Blvd, Fort Lauderdale, FL 33304",
+      "BRGR STOP stacks gourmet burgers with serious ingredients",
+      "BRGR STOP serves craft shakes and craft beer",
+      "Sunday hours are from 11 a.m. to 10 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "gourmet burgers with craft shakes and craft beer",
+    "why_here": "Go for gourmet burgers, craft shakes and craft beer at BRGR STOP at 1930 E Sunrise Blvd in Fort Lauderdale, with gourmet burgers stacked with serious ingredients.",
+    "know_before": "Sunday hours are from 11 a.m. to 10 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://brgrstop.com/"
+     ],
+     "why_here": [
+      "https://brgrstop.com/"
+     ],
+     "know_before": [
+      "https://brgrstop.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "BRGR STOP is at 1930 E Sunrise Blvd, Fort Lauderdale, FL 33304",
+      "source": "https://brgrstop.com/"
+     },
+     {
+      "claim": "BRGR STOP stacks gourmet burgers with serious ingredients",
+      "source": "https://brgrstop.com/"
+     },
+     {
+      "claim": "BRGR STOP serves craft shakes and craft beer",
+      "source": "https://brgrstop.com/"
+     },
+     {
+      "claim": "Sunday hours are from 11 a.m. to 10 p.m.",
+      "source": "https://brgrstop.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ07pV3UUF2YgRJpNmTq05luk",
+   "name": "Divieto Ristorante - Coral Springs",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.divietoristorante.com/coralsprings",
+     "source_name": "Divieto Ristorante - Coral Springs \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Divieto Ristorante is at 2729 North University Dr, Coral Springs, FL 33065",
+      "Hours are Sunday to Thursday from 11 a.m. to 10 p.m.",
+      "Top picks include Ruota di Parmigiano and the 40oz. Tomahawk Steak",
+      "Italian food is fused with a classic American touch",
+      "Decor brings you back to the 1920's"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Italian food with a classic American touch",
+    "why_here": "Try Ruota di Parmigiano and the 40oz. Tomahawk Steak at 2729 North University Dr in Coral Springs, where Italian food is fused with a classic American touch and decor brings you back to the 1920's.",
+    "know_before": "Hours are Sunday to Thursday from 11 a.m. to 10 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.divietoristorante.com/coralsprings"
+     ],
+     "why_here": [
+      "https://www.divietoristorante.com/coralsprings"
+     ],
+     "know_before": [
+      "https://www.divietoristorante.com/coralsprings"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Divieto Ristorante is at 2729 North University Dr, Coral Springs, FL 33065",
+      "source": "https://www.divietoristorante.com/coralsprings"
+     },
+     {
+      "claim": "Hours are Sunday to Thursday from 11 a.m. to 10 p.m.",
+      "source": "https://www.divietoristorante.com/coralsprings"
+     },
+     {
+      "claim": "Top picks include Ruota di Parmigiano and the 40oz. Tomahawk Steak",
+      "source": "https://www.divietoristorante.com/coralsprings"
+     },
+     {
+      "claim": "Italian food is fused with a classic American touch",
+      "source": "https://www.divietoristorante.com/coralsprings"
+     },
+     {
+      "claim": "Decor brings you back to the 1920's",
+      "source": "https://www.divietoristorante.com/coralsprings"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ3wrMoC4A2YgRngpZZ7-YxkI",
+   "name": "Beach House Las Olas",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://beachhouseflb.com/",
+     "source_name": "Beach House Las Olas \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Beach House Las Olas is located on Fort Lauderdale Beach",
+      "Beach House Las Olas has fire pits and palm trees",
+      "Beach House Las Olas serves lobster rolls and blackened shrimp",
+      "Beach House Las Olas serves smash burgers"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "lobster rolls and blackened shrimp on Fort Lauderdale Beach",
+    "why_here": "come for lobster rolls and blackened shrimp on Fort Lauderdale Beach, where fire pits and palm trees sit beside the water and smash burgers add another option for a relaxed meal outdoors",
+    "know_before": "fire pits and palm trees are outdoors on Fort Lauderdale Beach",
+    "local_tip": "try the lobster rolls",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://beachhouseflb.com/"
+     ],
+     "why_here": [
+      "https://beachhouseflb.com/"
+     ],
+     "know_before": [
+      "https://beachhouseflb.com/"
+     ],
+     "local_tip": [
+      "https://beachhouseflb.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Beach House Las Olas is located on Fort Lauderdale Beach",
+      "source": "https://beachhouseflb.com/"
+     },
+     {
+      "claim": "Beach House Las Olas has fire pits and palm trees",
+      "source": "https://beachhouseflb.com/"
+     },
+     {
+      "claim": "Beach House Las Olas serves lobster rolls and blackened shrimp",
+      "source": "https://beachhouseflb.com/"
+     },
+     {
+      "claim": "Beach House Las Olas serves smash burgers",
+      "source": "https://beachhouseflb.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJQSlpkrpB6IgRX-DTkxQ5Njg",
+   "name": "Clear Kayaking Tours",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "tour_agency",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://getupandgokayaking.com/",
+     "source_name": "Clear Kayaking Tours \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Get Up and Go Kayaking offers 100% crystal clear kayak guided tours",
+      "Get Up and Go Kayaking has been guiding explorers through scenic waterways since 2016",
+      "clear kayak tours are guided tours through scenic waterways"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "100% crystal clear kayak guided tours through scenic waterways",
+    "why_here": "paddle a clear kayak on a guided tour through scenic waterways, where the clear hull lets you look at the water below while a guide leads explorers along the route outdoors",
+    "know_before": "tours are guided and have been guiding explorers since 2016",
+    "local_tip": "take a guided tour",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://getupandgokayaking.com/"
+     ],
+     "why_here": [
+      "https://getupandgokayaking.com/"
+     ],
+     "know_before": [
+      "https://getupandgokayaking.com/"
+     ],
+     "local_tip": [
+      "https://getupandgokayaking.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Get Up and Go Kayaking offers 100% crystal clear kayak guided tours",
+      "source": "https://getupandgokayaking.com/"
+     },
+     {
+      "claim": "Get Up and Go Kayaking has been guiding explorers through scenic waterways since 2016",
+      "source": "https://getupandgokayaking.com/"
+     },
+     {
+      "claim": "clear kayak tours are guided tours through scenic waterways",
+      "source": "https://getupandgokayaking.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJOcitehUR3ogRQYWbsjAqPng",
+   "name": "James H. Nance Park",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.visitspacecoast.com/profile/indialantic/pillar-tags/james-h-nance-park/",
+     "source_name": "James H. Nance Park \u2014 official source",
+     "source_class": "tourism_dmo",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "James H. Nance Park in Indialantic, FL is a seaside park",
+      "The park has a beach volleyball stadium, a brand-new adaptive playground, picnic pavilions, bathroom facilities, metered parking, and oceanfront boardwalk",
+      "The beach is the best place to watch sea turtles nesting from March through October",
+      "James H. Nance Park is at 201 N Miramar Ave, Indialantic, FL 32903"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Seaside park in Indialantic with oceanfront boardwalk",
+    "why_here": "James H. Nance Park in Indialantic, FL is a seaside park with a beach volleyball stadium, a brand-new adaptive playground, picnic pavilions, and an oceanfront boardwalk.",
+    "know_before": "The park has metered parking and bathroom facilities.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.visitspacecoast.com/profile/indialantic/pillar-tags/james-h-nance-park/"
+     ],
+     "why_here": [
+      "https://www.visitspacecoast.com/profile/indialantic/pillar-tags/james-h-nance-park/"
+     ],
+     "know_before": [
+      "https://www.visitspacecoast.com/profile/indialantic/pillar-tags/james-h-nance-park/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "James H. Nance Park in Indialantic, FL is a seaside park",
+      "source": "https://www.visitspacecoast.com/profile/indialantic/pillar-tags/james-h-nance-park/"
+     },
+     {
+      "claim": "The park has a beach volleyball stadium, a brand-new adaptive playground, picnic pavilions, bathroom facilities, metered parking, and oceanfront boardwalk",
+      "source": "https://www.visitspacecoast.com/profile/indialantic/pillar-tags/james-h-nance-park/"
+     },
+     {
+      "claim": "The beach is the best place to watch sea turtles nesting from March through October",
+      "source": "https://www.visitspacecoast.com/profile/indialantic/pillar-tags/james-h-nance-park/"
+     },
+     {
+      "claim": "James H. Nance Park is at 201 N Miramar Ave, Indialantic, FL 32903",
+      "source": "https://www.visitspacecoast.com/profile/indialantic/pillar-tags/james-h-nance-park/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJlzQP_oF93YgRf8tcZ0bC38U",
+   "name": "Promenade at Sunset Walk",
+   "category": "attractions",
+   "metro": "orlando",
+   "primary_type": "event_venue",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://sunsetwalk.com/directory/",
+     "source_name": "Promenade at Sunset Walk \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Promenade at Sunset Walk in Kissimmee, FL is an outdoor entertainment district",
+      "The district has casual eateries, fine dining, entertainment options, special events, and retail shops",
+      "Promenade at Sunset Walk is at 3251 Margaritaville Blvd., Kissimmee, FL",
+      "Studio Movie Grill is Open Daily at Promenade at Sunset Walk"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Outdoor entertainment district in Kissimmee, FL",
+    "why_here": "Promenade at Sunset Walk in Kissimmee, FL is an outdoor entertainment district with casual eateries, fine dining, entertainment options, special events, and retail shops.",
+    "know_before": "Promenade at Sunset Walk is at 3251 Margaritaville Blvd., Kissimmee, FL.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://sunsetwalk.com/directory/"
+     ],
+     "why_here": [
+      "https://sunsetwalk.com/directory/"
+     ],
+     "know_before": [
+      "https://sunsetwalk.com/directory/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Promenade at Sunset Walk in Kissimmee, FL is an outdoor entertainment district",
+      "source": "https://sunsetwalk.com/directory/"
+     },
+     {
+      "claim": "The district has casual eateries, fine dining, entertainment options, special events, and retail shops",
+      "source": "https://sunsetwalk.com/directory/"
+     },
+     {
+      "claim": "Promenade at Sunset Walk is at 3251 Margaritaville Blvd., Kissimmee, FL",
+      "source": "https://sunsetwalk.com/directory/"
+     },
+     {
+      "claim": "Studio Movie Grill is Open Daily at Promenade at Sunset Walk",
+      "source": "https://sunsetwalk.com/directory/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJF-Svd7QD2YgRoBJMOBru3WE",
+   "name": "Twin Peaks",
+   "category": "nightlife",
+   "metro": "broward",
+   "primary_type": "sports_bar",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://twinpeaksrestaurant.com/",
+     "source_name": "Twin Peaks \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Twin Peaks serves 29\u00b0 draft beer in frosted 22 oz. mugs",
+      "Twin Peaks has wall-to-wall TVs",
+      "Twin Peaks is a sports lodge with wall-to-wall TVs",
+      "the Twin Peaks kitchen has a scratch menu from lunch to late night"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "29\u00b0 draft beer and wall-to-wall TVs at a sports lodge",
+    "why_here": "come for 29\u00b0 draft beer in frosted 22 oz. mugs, watch games on wall-to-wall TVs and eat from a scratch menu served from lunch to late night inside a sports lodge built for viewing",
+    "know_before": "the kitchen has a scratch menu from lunch to late night",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://twinpeaksrestaurant.com/"
+     ],
+     "why_here": [
+      "https://twinpeaksrestaurant.com/"
+     ],
+     "know_before": [
+      "https://twinpeaksrestaurant.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Twin Peaks serves 29\u00b0 draft beer in frosted 22 oz. mugs",
+      "source": "https://twinpeaksrestaurant.com/"
+     },
+     {
+      "claim": "Twin Peaks has wall-to-wall TVs",
+      "source": "https://twinpeaksrestaurant.com/"
+     },
+     {
+      "claim": "Twin Peaks is a sports lodge with wall-to-wall TVs",
+      "source": "https://twinpeaksrestaurant.com/"
+     },
+     {
+      "claim": "the Twin Peaks kitchen has a scratch menu from lunch to late night",
+      "source": "https://twinpeaksrestaurant.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJNTn4Jsud54gRNiSjBtKBnyg",
+   "name": "Lake Apopka Wildlife Drive",
+   "category": "attractions",
+   "metro": "orlando",
+   "primary_type": "nature_preserve",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.sjrwmd.com/lands/recreation/lake-apopka/wildlife-drive/",
+     "source_name": "Lake Apopka Wildlife Drive \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Lake Apopka Wildlife Drive is managed by the St. Johns River Water Management District",
+      "more than 360 species of birds have been observed on the property",
+      "Lake Apopka Wildlife Drive is open from 7 a.m. to 3 p.m. on Fridays, Saturdays, Sundays and federal holidays",
+      "all vehicles must exit the drive by 5 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "wildlife drive with more than 360 species of birds observed",
+    "why_here": "drive the Lake Apopka Wildlife Drive managed by the St. Johns River Water Management District to observe birds, with more than 360 species of birds observed on the property over time",
+    "know_before": "open from 7 a.m. to 3 p.m. on Fridays, Saturdays, Sundays and federal holidays; exit by 5 p.m.",
+    "local_tip": "arrive before 3 p.m.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.sjrwmd.com/lands/recreation/lake-apopka/wildlife-drive/"
+     ],
+     "why_here": [
+      "https://www.sjrwmd.com/lands/recreation/lake-apopka/wildlife-drive/"
+     ],
+     "know_before": [
+      "https://www.sjrwmd.com/lands/recreation/lake-apopka/wildlife-drive/"
+     ],
+     "local_tip": [
+      "https://www.sjrwmd.com/lands/recreation/lake-apopka/wildlife-drive/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Lake Apopka Wildlife Drive is managed by the St. Johns River Water Management District",
+      "source": "https://www.sjrwmd.com/lands/recreation/lake-apopka/wildlife-drive/"
+     },
+     {
+      "claim": "more than 360 species of birds have been observed on the property",
+      "source": "https://www.sjrwmd.com/lands/recreation/lake-apopka/wildlife-drive/"
+     },
+     {
+      "claim": "Lake Apopka Wildlife Drive is open from 7 a.m. to 3 p.m. on Fridays, Saturdays, Sundays and federal holidays",
+      "source": "https://www.sjrwmd.com/lands/recreation/lake-apopka/wildlife-drive/"
+     },
+     {
+      "claim": "all vehicles must exit the drive by 5 p.m.",
+      "source": "https://www.sjrwmd.com/lands/recreation/lake-apopka/wildlife-drive/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJCb8hvdSFk4gRSev1W44dARw",
+   "name": "Holi Indian Grill (A Flavor Of Joy)",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "indian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://holirestaurants.com/",
+     "source_name": "Holi Indian Grill (A Flavor Of Joy) \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Holi Indian Grill is in Panama City, FL",
+      "Holi brings a variety of dishes from different regions of India and the menu contains both vegetarian and non-vegetarian dishes",
+      "Holi customizes the spice level for customers",
+      "Lunch Special is $9.99 and available on weekdays only"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Indian restaurant in Panama City, FL with vegetarian and non-vegetarian dishes",
+    "why_here": "Holi Indian Grill in Panama City, FL brings a variety of dishes from different regions of India, with both vegetarian and non-vegetarian dishes and customized spice level.",
+    "know_before": "Lunch Special is $9.99 and available on weekdays only.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://holirestaurants.com/"
+     ],
+     "why_here": [
+      "https://holirestaurants.com/"
+     ],
+     "know_before": [
+      "https://holirestaurants.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Holi Indian Grill is in Panama City, FL",
+      "source": "https://holirestaurants.com/"
+     },
+     {
+      "claim": "Holi brings a variety of dishes from different regions of India and the menu contains both vegetarian and non-vegetarian dishes",
+      "source": "https://holirestaurants.com/"
+     },
+     {
+      "claim": "Holi customizes the spice level for customers",
+      "source": "https://holirestaurants.com/"
+     },
+     {
+      "claim": "Lunch Special is $9.99 and available on weekdays only",
+      "source": "https://holirestaurants.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJTYt96ZXa5YgRC_uXUGpqs9U",
+   "name": "Corky Bell's Seafood & Steaks",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.corkybellsseafood.com/",
+     "source_name": "Corky Bell's Seafood & Steaks \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Corky Bell's serves Seafood and Steaks",
+      "Corky Bell's has locations in East Palatka and Fleming Island",
+      "Corky Bell's uses the line Taste will Tell at Corky Bell's"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Seafood and Steaks with the line Taste will Tell at Corky Bell's",
+    "why_here": "Go for Seafood and Steaks at Corky Bell's, which has locations in East Palatka and Fleming Island and uses the line Taste will Tell at Corky Bell's.",
+    "know_before": "Locations include East Palatka and Fleming Island.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.corkybellsseafood.com/"
+     ],
+     "why_here": [
+      "https://www.corkybellsseafood.com/"
+     ],
+     "know_before": [
+      "https://www.corkybellsseafood.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Corky Bell's serves Seafood and Steaks",
+      "source": "https://www.corkybellsseafood.com/"
+     },
+     {
+      "claim": "Corky Bell's has locations in East Palatka and Fleming Island",
+      "source": "https://www.corkybellsseafood.com/"
+     },
+     {
+      "claim": "Corky Bell's uses the line Taste will Tell at Corky Bell's",
+      "source": "https://www.corkybellsseafood.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJoST93cyn4IgRNqOfK8n1UKs",
+   "name": "Manatee Sanctuary Park",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.cityofcapecanaveral.org/quality_of_life/parks.php",
+     "source_name": "Manatee Sanctuary Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Manatee Sanctuary Park borders a section of the Banana River that serves as a protected Manatee habitat",
+      "We cannot guarantee manatee sightings at the park",
+      "Manatee Sanctuary Park is at 701 Thurm Blvd, Cape Canaveral, FL 32920"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Park bordering the Banana River in Cape Canaveral",
+    "why_here": "Manatee Sanctuary Park in Cape Canaveral borders a section of the Banana River that serves as a protected Manatee habitat, at 701 Thurm Blvd, Cape Canaveral, FL 32920.",
+    "know_before": "We cannot guarantee manatee sightings at the park.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.cityofcapecanaveral.org/quality_of_life/parks.php"
+     ],
+     "why_here": [
+      "https://www.cityofcapecanaveral.org/quality_of_life/parks.php"
+     ],
+     "know_before": [
+      "https://www.cityofcapecanaveral.org/quality_of_life/parks.php"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Manatee Sanctuary Park borders a section of the Banana River that serves as a protected Manatee habitat",
+      "source": "https://www.cityofcapecanaveral.org/quality_of_life/parks.php"
+     },
+     {
+      "claim": "We cannot guarantee manatee sightings at the park",
+      "source": "https://www.cityofcapecanaveral.org/quality_of_life/parks.php"
+     },
+     {
+      "claim": "Manatee Sanctuary Park is at 701 Thurm Blvd, Cape Canaveral, FL 32920",
+      "source": "https://www.cityofcapecanaveral.org/quality_of_life/parks.php"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ3TMlMNvf2IgReoYdMFs-iv0",
+   "name": "Le Sorelle Restaurant Delray Beach",
+   "category": "food",
+   "metro": "palm-beach",
+   "primary_type": "italian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.lesorellerestaurant.com/delray-beach-restaurant",
+     "source_name": "Le Sorelle Restaurant Delray Beach \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Since 2017, The Original Le Sorelle Restaurant has been serving Delray Beach with authentic Italian cuisine in a family-owned and owner-operated setting",
+      "Marco oversees fresh homemade pasta and traditional Italian specialties to premium meats, fresh seafood",
+      "Wood-fired brick-oven cooking is at the heart of the Le Sorelle experience",
+      "Open Daily 3 p.m.\u201310 p.m.",
+      "20 SE 5th Avenue, Delray Beach, FL 33483"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "family-owned Italian restaurant serving Delray Beach since 2017",
+    "why_here": "Go for authentic Italian cuisine with fresh homemade pasta, traditional Italian specialties, premium meats and fresh seafood, plus wood-fired brick-oven cooking in a family-owned setting.",
+    "know_before": "Open Daily 3 p.m.\u201310 p.m. at 20 SE 5th Avenue, Delray Beach, FL 33483.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.lesorellerestaurant.com/delray-beach-restaurant"
+     ],
+     "why_here": [
+      "https://www.lesorellerestaurant.com/delray-beach-restaurant"
+     ],
+     "know_before": [
+      "https://www.lesorellerestaurant.com/delray-beach-restaurant"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Since 2017, The Original Le Sorelle Restaurant has been serving Delray Beach with authentic Italian cuisine in a family-owned and owner-operated setting",
+      "source": "https://www.lesorellerestaurant.com/delray-beach-restaurant"
+     },
+     {
+      "claim": "Marco oversees fresh homemade pasta and traditional Italian specialties to premium meats, fresh seafood",
+      "source": "https://www.lesorellerestaurant.com/delray-beach-restaurant"
+     },
+     {
+      "claim": "Wood-fired brick-oven cooking is at the heart of the Le Sorelle experience",
+      "source": "https://www.lesorellerestaurant.com/delray-beach-restaurant"
+     },
+     {
+      "claim": "Open Daily 3 p.m.\u201310 p.m.",
+      "source": "https://www.lesorellerestaurant.com/delray-beach-restaurant"
+     },
+     {
+      "claim": "20 SE 5th Avenue, Delray Beach, FL 33483",
+      "source": "https://www.lesorellerestaurant.com/delray-beach-restaurant"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ72M-4FdDkYgRn3BIT3FJYO0",
+   "name": "Pazzo Italiano Destin",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "italian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.pazzodestin.com/",
+     "source_name": "Pazzo Italiano Destin \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Pazzo Italiano has two locations (Destin & Santa Rosa Beach) to serve Italian food and wood fired pizzas",
+      "Experience our real wood fired pizzas",
+      "34904 Emerald Coast Parkway Suite 114, Destin, FL 32541",
+      "SUNDAY \u2013 4 p.m. \u2013 9 p.m.",
+      "Pazzo Italiano catering and private party service is available"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Italian restaurant in Destin serving wood fired pizzas",
+    "why_here": "Go for wood fired pizzas and Italian food at the Destin location on Emerald Coast Parkway, with catering, private party and carryout options described on the official site.",
+    "know_before": "Sunday hours are 4 p.m.\u20139 p.m. at 34904 Emerald Coast Parkway Suite 114, Destin, FL 32541.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.pazzodestin.com/"
+     ],
+     "why_here": [
+      "https://www.pazzodestin.com/"
+     ],
+     "know_before": [
+      "https://www.pazzodestin.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Pazzo Italiano has two locations (Destin & Santa Rosa Beach) to serve Italian food and wood fired pizzas",
+      "source": "https://www.pazzodestin.com/"
+     },
+     {
+      "claim": "Experience our real wood fired pizzas",
+      "source": "https://www.pazzodestin.com/"
+     },
+     {
+      "claim": "34904 Emerald Coast Parkway Suite 114, Destin, FL 32541",
+      "source": "https://www.pazzodestin.com/"
+     },
+     {
+      "claim": "SUNDAY \u2013 4 p.m. \u2013 9 p.m.",
+      "source": "https://www.pazzodestin.com/"
+     },
+     {
+      "claim": "Pazzo Italiano catering and private party service is available",
+      "source": "https://www.pazzodestin.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJybJcKHu52YgRwrILwSJMa3c",
+   "name": "SuViche \u2013 Sushi and Ceviche",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "peruvian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://suviche.com/menu/",
+     "source_name": "SuViche \u2013 Sushi and Ceviche \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "SuViche serves sushi rolls, ceviches and other Peruvian specialties",
+      "Leche de tigre is the base for all of our ceviches and is made fresh throughout the day",
+      "Ceviches are accompanied with sweet potato, crispy cancha corn, choclo, thinly-sliced red onions and plantain chips",
+      "SUVICHE is a signature ceviche with acevichada, leche de tigre and togarashi"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "sushi rolls, ceviches and other Peruvian specialties",
+    "why_here": "Go for sushi rolls, ceviches and other Peruvian specialties at SuViche, where Leche de tigre is made fresh throughout the day and ceviches come with sweet potato and plantain chips.",
+    "know_before": "Leche de tigre is made fresh throughout the day.",
+    "local_tip": "Try SUVICHE with acevichada, leche de tigre and togarashi.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://suviche.com/menu/"
+     ],
+     "why_here": [
+      "https://suviche.com/menu/"
+     ],
+     "know_before": [
+      "https://suviche.com/menu/"
+     ],
+     "local_tip": [
+      "https://suviche.com/menu/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "SuViche serves sushi rolls, ceviches and other Peruvian specialties",
+      "source": "https://suviche.com/menu/"
+     },
+     {
+      "claim": "Leche de tigre is the base for all of our ceviches and is made fresh throughout the day",
+      "source": "https://suviche.com/menu/"
+     },
+     {
+      "claim": "Ceviches are accompanied with sweet potato, crispy cancha corn, choclo, thinly-sliced red onions and plantain chips",
+      "source": "https://suviche.com/menu/"
+     },
+     {
+      "claim": "SUVICHE is a signature ceviche with acevichada, leche de tigre and togarashi",
+      "source": "https://suviche.com/menu/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJcyy30Xq12YgR8R5bvV3wbJk",
+   "name": "Gordon Ramsay Hell's Kitchen - Miami",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://gordonramsayhellskitchen.com/miami/",
+     "source_name": "Gordon Ramsay Hell's Kitchen - Miami \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Beef Wellington is beef wrapped in mushroom duxelles and golden puff pastry, finished with red wine demi-glace",
+      "Sticky Toffee Pudding is a sticky date pudding in toffee sauce finished with vanilla ice cream",
+      "Sunday\u2013Thursday: 11:45 a.m.\u20133:00 p.m., 5:00 p.m.\u201310:00 p.m.",
+      "333 Biscayne Boulevard Way, Miami, FL 33131, US",
+      "Experience Chef Ramsay most iconic dishes in downtown Miami"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "downtown Miami restaurant serving Beef Wellington and Sticky Toffee Pudding",
+    "why_here": "Go for Chef Ramsay signature dishes including Beef Wellington with mushroom duxelles, golden puff pastry and red wine demi-glace, plus Sticky Toffee Pudding with toffee sauce and vanilla ice cream in downtown Miami.",
+    "know_before": "Sunday\u2013Thursday hours are 11:45 a.m.\u20133:00 p.m. and 5:00 p.m.\u201310:00 p.m. at 333 Biscayne Boulevard Way, Miami, FL 33131.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://gordonramsayhellskitchen.com/miami/"
+     ],
+     "why_here": [
+      "https://gordonramsayhellskitchen.com/miami/"
+     ],
+     "know_before": [
+      "https://gordonramsayhellskitchen.com/miami/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Beef Wellington is beef wrapped in mushroom duxelles and golden puff pastry, finished with red wine demi-glace",
+      "source": "https://gordonramsayhellskitchen.com/miami/"
+     },
+     {
+      "claim": "Sticky Toffee Pudding is a sticky date pudding in toffee sauce finished with vanilla ice cream",
+      "source": "https://gordonramsayhellskitchen.com/miami/"
+     },
+     {
+      "claim": "Sunday\u2013Thursday: 11:45 a.m.\u20133:00 p.m., 5:00 p.m.\u201310:00 p.m.",
+      "source": "https://gordonramsayhellskitchen.com/miami/"
+     },
+     {
+      "claim": "333 Biscayne Boulevard Way, Miami, FL 33131, US",
+      "source": "https://gordonramsayhellskitchen.com/miami/"
+     },
+     {
+      "claim": "Experience Chef Ramsay most iconic dishes in downtown Miami",
+      "source": "https://gordonramsayhellskitchen.com/miami/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJx8r5sJ8S3YgRdp9ch4-8UkI",
+   "name": "Incredibowl Entertainment Winter Haven",
+   "category": "attractions",
+   "metro": "orlando",
+   "primary_type": "bowling_alley",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://incredibowl.com/winter-haven/",
+     "source_name": "Incredibowl Entertainment Winter Haven \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Incredibowl Entertainment has been a privately-owned business since 1988",
+      "Our locations include bowling lanes, a massive arcade, an epic laser tag arena, and awesome food \u2013 all under one roof",
+      "Bowling hours Monday through Thursday are 9 a.m. to 12 a.m.",
+      "Incredibowl Entertainment is at 2010 Dundee Rd Winter Haven, FL 33884"
+     ]
+    },
+    {
+     "source": "https://incredibowl.com/winter-haven/go-bowling/",
+     "source_name": "Incredibowl Entertainment Winter Haven \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Bowling is priced by duration, not by the game",
+      "All rates except for All You Can Bowl are priced by the lane for up to 5 people per lane"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Bowling lanes, an arcade, a laser tag arena, and food under one roof in Winter Haven",
+    "why_here": "Head to 2010 Dundee Rd Winter Haven, FL 33884 for bowling lanes, an arcade, a laser tag arena, and food under one roof. Bowling is priced by duration, not by the game, for up to 5 people per lane.",
+    "know_before": "Bowling hours Monday through Thursday are 9 a.m. to 12 a.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://incredibowl.com/winter-haven/",
+      "https://incredibowl.com/winter-haven/go-bowling/"
+     ],
+     "why_here": [
+      "https://incredibowl.com/winter-haven/",
+      "https://incredibowl.com/winter-haven/go-bowling/"
+     ],
+     "know_before": [
+      "https://incredibowl.com/winter-haven/",
+      "https://incredibowl.com/winter-haven/go-bowling/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Incredibowl Entertainment has been a privately-owned business since 1988",
+      "source": "https://incredibowl.com/winter-haven/"
+     },
+     {
+      "claim": "Our locations include bowling lanes, a massive arcade, an epic laser tag arena, and awesome food \u2013 all under one roof",
+      "source": "https://incredibowl.com/winter-haven/"
+     },
+     {
+      "claim": "Bowling hours Monday through Thursday are 9 a.m. to 12 a.m.",
+      "source": "https://incredibowl.com/winter-haven/"
+     },
+     {
+      "claim": "Incredibowl Entertainment is at 2010 Dundee Rd Winter Haven, FL 33884",
+      "source": "https://incredibowl.com/winter-haven/"
+     },
+     {
+      "claim": "Bowling is priced by duration, not by the game",
+      "source": "https://incredibowl.com/winter-haven/go-bowling/"
+     },
+     {
+      "claim": "All rates except for All You Can Bowl are priced by the lane for up to 5 people per lane",
+      "source": "https://incredibowl.com/winter-haven/go-bowling/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJM1u_Gi-z2YgRhrEbSJodYK0",
+   "name": "STREET Kitchen Miami",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://streetkitchen.miami/",
+     "source_name": "STREET Kitchen Miami \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "STREET Kitchen is at 9460 Harding Ave, Surfside, FL 33154",
+      "STREET Kitchen serves Fried Chicken and Steaks",
+      "Chicken & Waffles is Fried chicken thigh, waffle, watermelon and our homemade maple chili syrup",
+      "Dry Aged Steaks are Aged 28 Days+ in a Special Temperature and Humidity Controlled Cabinet"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Fried Chicken and Steaks at STREET Kitchen",
+    "why_here": "Go for Fried Chicken and Steaks at STREET Kitchen in Surfside, including Chicken & Waffles with Fried chicken thigh, waffle, watermelon and our homemade maple chili syrup.",
+    "know_before": "STREET Kitchen is at 9460 Harding Ave, Surfside, FL 33154.",
+    "local_tip": "Try Chicken & Waffles with watermelon and homemade maple chili syrup.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://streetkitchen.miami/"
+     ],
+     "why_here": [
+      "https://streetkitchen.miami/"
+     ],
+     "know_before": [
+      "https://streetkitchen.miami/"
+     ],
+     "local_tip": [
+      "https://streetkitchen.miami/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "STREET Kitchen is at 9460 Harding Ave, Surfside, FL 33154",
+      "source": "https://streetkitchen.miami/"
+     },
+     {
+      "claim": "STREET Kitchen serves Fried Chicken and Steaks",
+      "source": "https://streetkitchen.miami/"
+     },
+     {
+      "claim": "Chicken & Waffles is Fried chicken thigh, waffle, watermelon and our homemade maple chili syrup",
+      "source": "https://streetkitchen.miami/"
+     },
+     {
+      "claim": "Dry Aged Steaks are Aged 28 Days+ in a Special Temperature and Humidity Controlled Cabinet",
+      "source": "https://streetkitchen.miami/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJE3cNN_bY2IgRYgDSKkAhRGA",
+   "name": "Riggins Crabhouse",
+   "category": "food",
+   "metro": "palm-beach",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://rigginscrabhouse.com/",
+     "source_name": "Riggins Crabhouse \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Riggins Crabhouse serves Steamed Blue Crabs",
+      "Riggins Crabhouse serves Garlic Crabs",
+      "Riggins Crabhouse serves Baltimore Crabcakes",
+      "Riggins Crabhouse serves Crab Au Gratin",
+      "Riggins Crabhouse is open Wednesday from 12 p.m. to 9 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Steamed Blue Crabs and Garlic Crabs at Riggins Crabhouse",
+    "why_here": "Riggins Crabhouse serves Steamed Blue Crabs. Riggins Crabhouse serves Garlic Crabs. Riggins Crabhouse serves Baltimore Crabcakes.",
+    "know_before": "Riggins Crabhouse is open Wednesday from 12 p.m. to 9 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://rigginscrabhouse.com/"
+     ],
+     "why_here": [
+      "https://rigginscrabhouse.com/"
+     ],
+     "know_before": [
+      "https://rigginscrabhouse.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Riggins Crabhouse serves Steamed Blue Crabs",
+      "source": "https://rigginscrabhouse.com/"
+     },
+     {
+      "claim": "Riggins Crabhouse serves Garlic Crabs",
+      "source": "https://rigginscrabhouse.com/"
+     },
+     {
+      "claim": "Riggins Crabhouse serves Baltimore Crabcakes",
+      "source": "https://rigginscrabhouse.com/"
+     },
+     {
+      "claim": "Riggins Crabhouse serves Crab Au Gratin",
+      "source": "https://rigginscrabhouse.com/"
+     },
+     {
+      "claim": "Riggins Crabhouse is open Wednesday from 12 p.m. to 9 p.m.",
+      "source": "https://rigginscrabhouse.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJFwJVZKx_3YgRXwl9isXYRbc",
+   "name": "Sci-Fi Dine-In Theater Restaurant",
+   "category": "attractions",
+   "metro": "orlando",
+   "primary_type": "performing_arts_theater",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.disneyworld.eu/dining/hollywood-studios/sci-fi-dine-in-theater/",
+     "source_name": "Sci-Fi Dine-In Theater Restaurant \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Sci-Fi Dine-In Theater Restaurant is at Disney's Hollywood Studios",
+      "Guests can pull up to a car-shaped booth or table at Sci-Fi Dine-In Theater Restaurant",
+      "Sci-Fi Dine-In Theater Restaurant serves American cuisine",
+      "Guests watch retro movie clips at Sci-Fi Dine-In Theater Restaurant"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "American cuisine and retro movie clips in a car-shaped booth",
+    "why_here": "Sci-Fi Dine-In Theater Restaurant at Disney's Hollywood Studios serves American cuisine. Guests pull up to a car-shaped booth or table and watch retro movie clips during the meal.",
+    "know_before": "Guests can pull up to a car-shaped booth or table.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.disneyworld.eu/dining/hollywood-studios/sci-fi-dine-in-theater/"
+     ],
+     "why_here": [
+      "https://www.disneyworld.eu/dining/hollywood-studios/sci-fi-dine-in-theater/"
+     ],
+     "know_before": [
+      "https://www.disneyworld.eu/dining/hollywood-studios/sci-fi-dine-in-theater/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Sci-Fi Dine-In Theater Restaurant is at Disney's Hollywood Studios",
+      "source": "https://www.disneyworld.eu/dining/hollywood-studios/sci-fi-dine-in-theater/"
+     },
+     {
+      "claim": "Guests can pull up to a car-shaped booth or table at Sci-Fi Dine-In Theater Restaurant",
+      "source": "https://www.disneyworld.eu/dining/hollywood-studios/sci-fi-dine-in-theater/"
+     },
+     {
+      "claim": "Sci-Fi Dine-In Theater Restaurant serves American cuisine",
+      "source": "https://www.disneyworld.eu/dining/hollywood-studios/sci-fi-dine-in-theater/"
+     },
+     {
+      "claim": "Guests watch retro movie clips at Sci-Fi Dine-In Theater Restaurant",
+      "source": "https://www.disneyworld.eu/dining/hollywood-studios/sci-fi-dine-in-theater/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJnZXry-R-54gRsQp3i4c98Mg",
+   "name": "iFLY Indoor Skydiving - Orlando",
+   "category": "attractions",
+   "metro": "orlando",
+   "primary_type": "sports_activity_location",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.iflyworld.com/orlando",
+     "source_name": "iFLY Indoor Skydiving - Orlando \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "iFLY Orlando is indoor skydiving for the whole family",
+      "iFLY Orlando is at 8969 International Drive, Orlando, FL 32819",
+      "Flight preparation at iFLY Orlando includes arrive 15 minutes early",
+      "Flight preparation at iFLY Orlando includes lace-up sneakers",
+      "iFLY Orlando has spectating spaces"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "indoor skydiving for the whole family at iFLY Orlando",
+    "why_here": "iFLY Orlando is indoor skydiving for the whole family. iFLY Orlando is at 8969 International Drive, Orlando, FL 32819. Flight preparation at iFLY Orlando includes arrive 15 minutes early.",
+    "know_before": "Flight preparation at iFLY Orlando includes arrive 15 minutes early",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.iflyworld.com/orlando"
+     ],
+     "why_here": [
+      "https://www.iflyworld.com/orlando"
+     ],
+     "know_before": [
+      "https://www.iflyworld.com/orlando"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "iFLY Orlando is indoor skydiving for the whole family",
+      "source": "https://www.iflyworld.com/orlando"
+     },
+     {
+      "claim": "iFLY Orlando is at 8969 International Drive, Orlando, FL 32819",
+      "source": "https://www.iflyworld.com/orlando"
+     },
+     {
+      "claim": "Flight preparation at iFLY Orlando includes arrive 15 minutes early",
+      "source": "https://www.iflyworld.com/orlando"
+     },
+     {
+      "claim": "Flight preparation at iFLY Orlando includes lace-up sneakers",
+      "source": "https://www.iflyworld.com/orlando"
+     },
+     {
+      "claim": "iFLY Orlando has spectating spaces",
+      "source": "https://www.iflyworld.com/orlando"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJLzyVXiOr2YgRFkgIar86EW8",
+   "name": "Charnow Park",
+   "category": "attractions",
+   "metro": "broward",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.hollywoodfl.org/Facilities/Facility/Details/Charnow-Park-22",
+     "source_name": "Charnow Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Charnow Park is a beachfront park on the historic Hollywood Beach Broadwalk",
+      "Charnow Park has picnic pavilions, playgrounds and a splash fountain for kids",
+      "Charnow Park is adjacent to six fully restored paddleball courts",
+      "Charnow Park is at 300 Connecticut St, Hollywood, FL 33020",
+      "Charnow Park hours are 7:00 a.m. to 6:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "beachfront park on the historic Hollywood Beach Broadwalk at Charnow Park",
+    "why_here": "Charnow Park is a beachfront park on the historic Hollywood Beach Broadwalk. Charnow Park has picnic pavilions, playgrounds and a splash fountain for kids. Charnow Park is adjacent to six fully restored paddleball courts.",
+    "know_before": "Charnow Park hours are 7:00 a.m. to 6:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.hollywoodfl.org/Facilities/Facility/Details/Charnow-Park-22"
+     ],
+     "why_here": [
+      "https://www.hollywoodfl.org/Facilities/Facility/Details/Charnow-Park-22"
+     ],
+     "know_before": [
+      "https://www.hollywoodfl.org/Facilities/Facility/Details/Charnow-Park-22"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Charnow Park is a beachfront park on the historic Hollywood Beach Broadwalk",
+      "source": "https://www.hollywoodfl.org/Facilities/Facility/Details/Charnow-Park-22"
+     },
+     {
+      "claim": "Charnow Park has picnic pavilions, playgrounds and a splash fountain for kids",
+      "source": "https://www.hollywoodfl.org/Facilities/Facility/Details/Charnow-Park-22"
+     },
+     {
+      "claim": "Charnow Park is adjacent to six fully restored paddleball courts",
+      "source": "https://www.hollywoodfl.org/Facilities/Facility/Details/Charnow-Park-22"
+     },
+     {
+      "claim": "Charnow Park is at 300 Connecticut St, Hollywood, FL 33020",
+      "source": "https://www.hollywoodfl.org/Facilities/Facility/Details/Charnow-Park-22"
+     },
+     {
+      "claim": "Charnow Park hours are 7:00 a.m. to 6:00 p.m.",
+      "source": "https://www.hollywoodfl.org/Facilities/Facility/Details/Charnow-Park-22"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ_7TPATY_kYgRKIdUNk-BRV4",
+   "name": "Asiago's Skillet",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "breakfast_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.asiagoskillet.com/",
+     "source_name": "Asiago's Skillet \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Asiago's Skillet is at 110 Amberjack Dr, Fort Walton Beach, FL, USA",
+      "Asiago's Skillet serves Steak Skillet",
+      "Asiago's Skillet serves Asiago's Shrimp & Grits Skillet",
+      "Steak Skillet is homestyle potatoes topped with sirloin steak, peppers, onions, asiago cheese & two eggs",
+      "Asiago's Skillet is open Monday - Sunday 6:00 a.m. - 12:00 p.m.",
+      "Asiago's Skillet is locally owned and operated"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Steak Skillet and Asiago's Shrimp & Grits Skillet",
+    "why_here": "Asiago's Skillet in Fort Walton Beach serves Steak Skillet and Asiago's Shrimp & Grits Skillet, a locally owned and operated stop serving homestyle potatoes topped with sirloin steak, peppers, and onions.",
+    "know_before": "Asiago's Skillet is open Monday - Sunday 6:00 a.m. - 12:00 p.m.",
+    "local_tip": "Steak Skillet is topped with sirloin steak, peppers, and onions.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.asiagoskillet.com/"
+     ],
+     "why_here": [
+      "https://www.asiagoskillet.com/"
+     ],
+     "know_before": [
+      "https://www.asiagoskillet.com/"
+     ],
+     "local_tip": [
+      "https://www.asiagoskillet.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Asiago's Skillet is at 110 Amberjack Dr, Fort Walton Beach, FL, USA",
+      "source": "https://www.asiagoskillet.com/"
+     },
+     {
+      "claim": "Asiago's Skillet serves Steak Skillet",
+      "source": "https://www.asiagoskillet.com/"
+     },
+     {
+      "claim": "Asiago's Skillet serves Asiago's Shrimp & Grits Skillet",
+      "source": "https://www.asiagoskillet.com/"
+     },
+     {
+      "claim": "Steak Skillet is homestyle potatoes topped with sirloin steak, peppers, onions, asiago cheese & two eggs",
+      "source": "https://www.asiagoskillet.com/"
+     },
+     {
+      "claim": "Asiago's Skillet is open Monday - Sunday 6:00 a.m. - 12:00 p.m.",
+      "source": "https://www.asiagoskillet.com/"
+     },
+     {
+      "claim": "Asiago's Skillet is locally owned and operated",
+      "source": "https://www.asiagoskillet.com/"
+     }
+    ]
+   }
+  }
+ ]
+}

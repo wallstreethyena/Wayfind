@@ -27,8 +27,13 @@ function escapeHtml(value) {
 }
 
 function incidentHtml(incidents, idle, healthy, kind) {
-  const rows = incidents.map((r) => `<li style="margin:6px 0"><code>${escapeHtml(r.job)}</code> — <b>${Number(r.consecutive_zero || 0)} consecutive runs produced nothing</b> (${Number(r.succeeded || 0)}/${Number(r.attempted || 0)} succeeded in ${LOOKBACK_HOURS}h)${r.last_note ? `<br><span style="color:#666">last reason: ${escapeHtml(r.last_note)}</span>` : ""}</li>`).join("");
-  const heading = kind === "reminder" ? "Wayfind — incident reminder" : "Wayfind — a metered job is producing nothing";
+  const rows = incidents.map((r) => {
+    const summary = r.job === "spend-pacing" && /^quota:/.test(r.last_note || "")
+      ? "Budget limits were reached early. Spending remains capped."
+      : `${Number(r.consecutive_zero || 0)} consecutive checks report a problem`;
+    return `<li style="margin:6px 0"><code>${escapeHtml(r.job)}</code> — <b>${summary}</b>${r.last_note ? `<br><span style="color:#666">last reason: ${escapeHtml(r.last_note)}</span>` : ""}</li>`;
+  }).join("");
+  const heading = kind === "reminder" ? "Wayfind — incident reminder" : "Wayfind — monitored jobs need attention";
   return `<div style="font:14px/1.5 -apple-system,system-ui,sans-serif">
     <h2 style="margin:0 0 4px">${heading}</h2>
     <p style="color:#666;margin:0 0 14px">${kind === "reminder" ? "These incidents are still open after 24 hours." : "A new or materially changed incident needs attention."}</p>
@@ -164,7 +169,7 @@ export async function GET(req) {
     ? "Wayfind recovery: monitored incidents cleared"
     : decision.kind === "reminder"
       ? `Wayfind reminder: ${incidents.length} incident(s) still open`
-      : `Wayfind incident: ${incidents.length} metered job(s) need attention`;
+      : `Wayfind incident: ${incidents.length} monitored job(s) need attention`;
   const html = isRecovery ? recoveryHtml() : incidentHtml(incidents, idle, healthy, decision.kind);
   const { sent, status: sendStatus } = await sendAlert({ resendKey, from, to, subject, html });
 

@@ -5818,5 +5818,15 @@
     "rating": 4.7,
     "reviews": 1225,
     "photo_ref": "places/ChIJx1zW1ZYn5IgRmxGBUMW1Zr0/photos/wfplacediscovery"
+  },
+  {
+    "name": "Gaylord Palms Resort & Convention Center",
+    "lat": 28.343152,
+    "lng": -81.5260135,
+    "address": "6000 W Osceola Pkwy",
+    "city": "Kissimmee",
+    "gpid": "ChIJl0CYCGZ_3YgRL05pG5wZSsE",
+    "rating": 4.4,
+    "reviews": 19703
   }
 ]

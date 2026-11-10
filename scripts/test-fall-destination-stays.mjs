@@ -103,6 +103,8 @@ assert.equal(hotelMarketName("unknown-market"), "", "an unknown stored market fa
 assert.equal(hotelMarketName("constructor"), "", "prototype property names cannot escape the market allowlist");
 const streetMapped = completePoolPlace({ ...poolRow, signals: { ...poolRow.signals, address: "1 Hotel Way, Orlando, FL" } });
 assert.equal(streetMapped.address, "1 Hotel Way, Orlando, FL", "the hotel's own street address remains stronger than its market fallback");
+const officialMapped = completePoolPlace({ ...poolRow, signals: { ...poolRow.signals, official_address: "6000 W Osceola Pkwy, Kissimmee, FL 34746" } });
+assert.equal(officialMapped.address, "6000 W Osceola Pkwy, Kissimmee, FL 34746", "an owned official street address is the booking search, not the metro label");
 
 const repo = fileURLToPath(new URL("..", import.meta.url));
 const componentModule = await loadComponent(fileURLToPath(new URL("../app/components/DestinationStays.js", import.meta.url)), repo);

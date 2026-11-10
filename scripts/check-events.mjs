@@ -62,50 +62,24 @@ if (!/const \[eventCat, setEventCat\] = useState\("auto"\)/.test(home)) fail("Ev
 if (!home.includes("const EVENT_BUCKETS")) fail("EVENT_BUCKETS taxonomy missing");
 for (const b of ["concerts", "comedy", "theater", "sports", "community"]) if (!new RegExp('key: "' + b + '"').test(home)) fail("missing bucket: " + b);
 if (!home.includes('return "community"')) fail("eventBucket must collapse everything else into Community");
-// The dropdown filter (not chips): every category present, Business + Local.
-if (!ev.includes("const EVENT_FILTERS")) fail("Events must define the EVENT_FILTERS dropdown categories");
-for (const k of ["concerts", "comedy", "theater", "sports", "local", "business"]) if (!new RegExp('key: "' + k + '"').test(ev)) fail("Events filter dropdown missing category: " + k);
-if (!ev.includes('label: "Local events"')) fail("Events must merge Near me + Community into 'Local events'");
-if (!ev.includes('label: "Business events"')) fail("Events must offer the Business events source");
-if (!ev.includes("No business events yet")) fail("Business events must show an honest empty state (never fabricated)");
-if (ev.includes("🎟️ Tours") || ev.includes("📍 Near me")) fail("the old Tours/Near me chip row must be gone (replaced by the dropdown filter)");
-if (!ev.includes('aria-haspopup="listbox"')) fail("the category filter must be a dropdown button, not a chip row");
-if (!ev.includes('ViatorRail title="Bookable experiences near you"')) fail("the Viator tours rail must be pinned on top of the Events view");
-
-// ── Fall and Halloween default (owner, 2026-10-08) ─────────────────────────
-// EXECUTED, not grepped: load the real Events screen module and call its
-// exported resolution helpers with a fall row + a concert row.
+// Owner 2026-11-05 supersedes category dropdown/default: every category is a
+// rail, and the dropdown offers ordering only. Runtime coverage is in
+// test-events-expanded-rails.mjs; these checks retain the taxonomy contract.
+for (const k of ["concerts", "comedy", "theater", "sports", "local", "business"]) if (!new RegExp('key: "' + k + '"').test(ev)) fail("missing visible rail: " + k);
+if (!ev.includes('label: "Local events"')) fail("Events must retain Local events");
+if (!ev.includes('label: "Business events"')) fail("Events must retain Business events");
+if (ev.includes('setEventCat(f.key)')) fail("category dropdown must not hide event rails");
+if (!ev.includes('aria-label="Sort events"') || !ev.includes('label: "Best"') || !ev.includes('label: "Distance"')) fail("the dropdown must offer Best and Distance");
 const REPO = fileURLToPath(new URL("..", import.meta.url));
 const evMod = await loadComponent(fileURLToPath(new URL("../app/components/screens/Events.js", import.meta.url)), REPO);
-const bucketOf = (e) => (e.segment === "Concert" ? "concerts" : "community"); // mirrors app/home.js eventBucket for these fixtures
+const bucketOf = (e) => e.segment === "Concert" ? "concerts" : "community";
 const concert = { id: "c1", segment: "Concert", fall: false };
-const fallRow = { id: "f1", segment: "Halloween", fall: true, fallTheme: true };
-// Season tag only (holiday lights, a musical running in October): fall:true but no theme.
-const seasonOnly = { id: "s1", segment: "Theater", fall: true, fallTheme: false };
-const keys = (live) => evMod.eventFiltersFor(live).map((f) => f.key);
-if (!keys(true).includes("fall")) fail("fall filter must exist while the season is live");
-if (keys(false).includes("fall")) fail("fall filter must NOT exist off season (2026-12-01 fixture)");
-if (fallSkinLive("2026-12-01")) fail("fixture 2026-12-01 must be off season");
-if (!fallSkinLive("2026-10-08")) fail("fixture 2026-10-08 must be in season");
-for (const k of ["concerts", "comedy", "theater", "sports", "local", "business", "tours"]) if (!keys(true).includes(k) || !keys(false).includes(k)) fail("category must stay reachable in and out of season: " + k);
-// Mirror of the screen's resolution: explicit/deep-link key wins, else first populated priority key.
-const resolve = (cat, rows, live) => {
-  const fs = evMod.eventFiltersFor(live);
-  if (fs.some((f) => f.key === cat)) return cat;
-  return evMod.defaultPriorityFor(live).find((k) => { const f = fs.find((x) => x.key === k); return f && rows.filter((e) => evMod.filterMatches(f, e, bucketOf)).length > 0; }) || "local";
-};
-eq(resolve("auto", [concert, fallRow], true), "fall", "auto in season with a fall row");
-eq(resolve("auto", [concert], true), "concerts", "auto in season with no fall rows falls through to concerts");
-eq(resolve("auto", [concert, fallRow], false), "concerts", "auto off season ignores fall rows");
-eq(resolve("concerts", [concert, fallRow], true), "concerts", "?cat=concerts still resolves in season");
-eq(resolve("local", [concert, fallRow], true), "local", "?cat=local still resolves in season");
-eq(resolve("fall", [concert, fallRow], false), "concerts", "?cat=fall off season degrades to the normal default");
+const fallRow = { id: "f1", segment: "Halloween", fallTheme: true };
+const seasonOnly = { id: "s1", segment: "Theater", fallTheme: false };
 const fallF = evMod.eventFiltersFor(true).find((f) => f.key === "fall");
-if (!(evMod.filterMatches(fallF, fallRow, bucketOf) && !evMod.filterMatches(fallF, concert, bucketOf))) fail("fall filter must match a themed fall row and not a concert");
-if (evMod.filterMatches(fallF, seasonOnly, bucketOf)) fail("fall filter must NOT match a row whose only fall signal is the season tag (fallTheme false)");
-eq(resolve("auto", [concert, seasonOnly], true), "concerts", "auto in season with only season-tagged rows does not open on Fall and Halloween");
-if (!/\{activeFilter\.label\} worth planning around/.test(ev)) fail("grid heading must read '<label> worth planning around' (Fall and Halloween worth planning around)");
-if (!ev.includes('label: "Fall and Halloween"')) fail("fall filter label missing");
+if (!evMod.filterMatches(fallF, fallRow, bucketOf) || evMod.filterMatches(fallF, concert, bucketOf) || evMod.filterMatches(fallF, seasonOnly, bucketOf)) fail("fall rail must still match theme, never just a season tag");
+if (evMod.eventFiltersFor(false).some((f) => f.key === "fall")) fail("fall rail stays season gated");
+if (ev.includes('label: "Fall and Halloween"')) fail("fall heading must not advertise Halloween through Thanksgiving");
 // The feed row carries the flag (boolean) from the same isFallEvent law.
 const baseRow = { event_id: "x1", slug: "x1", start_date: "2026-10-31", event_name: "Test" };
 eq(curatedToFeedEvent({ ...baseRow, category: "halloween", tags: ["halloween"] })?.fall, true, "curatedToFeedEvent flags a tagged fall row");
@@ -118,4 +92,4 @@ eq(curatedToFeedEvent({ ...baseRow, event_name: "Hunsader Farms Pumpkin Festival
 eq(curatedToFeedEvent({ ...baseRow, event_name: "Celtoberfest", category: "festival", subcategory: "fall-festival", tags: ["fall"] })?.fallTheme, true, "a fall festival subcategory counts");
 
 if (failed) process.exit(1);
-console.log("check-events: OK — same-day labels reflect the real hour (9:30 AM = 'This morning', not 'Tonight'); fall filter season gated and theme based (season tag alone excluded), auto resolves fall then concerts, deep links keep working");
+console.log("check-events: OK — same-day labels reflect the real hour (9:30 AM = 'This morning', not 'Tonight'); expanded category rails, theme-based fall rail, Best/Distance sorting");
