@@ -21,26 +21,6 @@
       "sameAsCardPhoto": false,
       "reviewedAt": "2026-11-05"
     },
-    "Miami City Ballet: George Balanchine's The Nutcracker": {
-      "src": "/guides/picks/florida-nutcracker-and-holiday-shows-2026/florida-nutcracker-and-holiday-shows-2026-hero.webp",
-      "width": 1280,
-      "height": 853,
-      "alt": "The angular gray stone and glass exterior of the Adrienne Arsht Center for the Performing Arts in Miami under a blue sky with palm trees in front and a high rise behind",
-      "caption": "The Adrienne Arsht Center in Miami, home of the Ziff Ballet Opera House where Miami City Ballet dances The Nutcracker. The event itself is not pictured.",
-      "credit": "D. Benjamin Miller",
-      "creditHref": "https://commons.wikimedia.org/wiki/File:Adrienne_Arsht_Center,_March_31,_2023.jpg",
-      "license": "CC0 1.0 Universal",
-      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
-      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Adrienne_Arsht_Center,_March_31,_2023.jpg",
-      "author": "D. Benjamin Miller",
-      "position": "50% 50%",
-      "modificationNotice": "Resized, cropped to 1280x853 and converted to WebP. Adaptation retains the source license.",
-      "sourceKind": "commons",
-      "placeId": null,
-      "verification": "Reused the already reviewed hero entry for the same venue (sign reads Adrienne Arsht Center, CC0, reviewed 2026-11-03). Same exact venue as the pick's Ziff Ballet Opera House at the Arsht Center. Public file exists at the path above.",
-      "sameAsCardPhoto": false,
-      "reviewedAt": "2026-11-05"
-    },
     "The Nutcracker at Tallahassee Ballet": {
       "src": "/guides/picks/florida-nutcracker-and-holiday-shows-2026/ruby-diamond-auditorium-westcott-building-fsu.webp",
       "width": 1300,
@@ -100,6 +80,26 @@
       "verification": "Viewed the downloaded render. Entrance canopy lettering reads TIMES-UNION CENTER FOR THE PERFORMING ARTS; Commons description 'Times Union Center, Water St, Jacksonville, Duval County, Florida', filed in Category:Times Union Center (Jacksonville, Florida), which Wikipedia links for Jacoby Symphony Hall. Licence CC BY-SA 4.0 and author Michael Rivera read from the File page, original 5184x3456. Two parked work trucks are incidental, no people. Cropped 3:2 to trim road.",
       "sameAsCardPhoto": false,
       "reviewedAt": "2026-11-05"
+    },
+    "Miami City Ballet: George Balanchine's The Nutcracker": {
+      "src": "/guides/picks/florida-nutcracker-and-holiday-shows-2026/arsht-center-ziff-ballet-opera-house.webp",
+      "width": 1280,
+      "height": 853,
+      "alt": "The Ziff Ballet Opera House at the Adrienne Arsht Center in Miami, a pale angular building with a tall glass atrium, palms in front and downtown towers behind",
+      "caption": "The Ziff Ballet Opera House at the Adrienne Arsht Center, where Miami City Ballet dances The Nutcracker.",
+      "credit": "Phillip Pessar",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Adrienne_Arsht_Center_for_the_Performing_Arts_of_Miami-Dade_County_-_Flickr_-_Phillip_Pessar.jpg",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Adrienne_Arsht_Center_for_the_Performing_Arts_of_Miami-Dade_County_-_Flickr_-_Phillip_Pessar.jpg",
+      "author": "Phillip Pessar",
+      "modificationNotice": "Resized, cropped to 1280x853 and converted to WebP.",
+      "sourceKind": "commons",
+      "placeId": null,
+      "verification": "Commons file Adrienne Arsht Center for the Performing Arts of Miami-Dade County by Phillip Pessar, CC BY 2.0. Viewed the image: the Ziff Ballet Opera House and its glass atrium, the venue for this Nutcracker. Replaces a photo that was the same file as the guide hero, so the page no longer shows one photo twice.",
+      "position": "50% 50%",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-11-09"
     }
   },
   "gaps": {

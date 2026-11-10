@@ -547,6 +547,11 @@ const histDays = (n, devices = 40, extra = {}) => Array.from({ length: n }, (_, 
     && /person_distinct_ids/.test(posthogBody?.query?.query || "")
     && /uuid-owner/.test(posthogBody?.query?.query || "")
     && (posthogSource.match(/REAL_EVENTS/g) || []).length >= 10;
+  for (const predicate of [
+    "coalesce(toString(properties.$internal_or_test_user), 'false') NOT IN ('true', '1')",
+    "coalesce(toString(properties.is_test), 'false') NOT IN ('true', '1')",
+    "coalesce(toString(properties.wf_test), '') = ''",
+  ]) ok(posthogBody.query.query.includes(predicate), 'field vitals exclude explicit event-level verifier markers');
 
   const visitorQueries = [];
   const visitorProbe = await visitorStory(
