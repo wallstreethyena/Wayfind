@@ -2492,6 +2492,10 @@ node scripts/check-seasonal-rail-depth.mjs
 node scripts/test-halloween-overnight-dedupe.mjs
 # 2026-10-31: "Top rated on Wayfind" badge for business websites (backlinks): merit-only eligibility, followed link, escaped names, official logo, never-break image route, no Google spend.
 node scripts/check-top-rated-badge.mjs
+# 2026-11-03: "Find us on Wayfind" badge for listed places that are not top rated. Flag badge_find_us off leaves /badge output unchanged and the image route 404s.
+node scripts/check-find-us-badge.mjs
+# 2026-11-03: linkable best-of pages (sunset spots, free this weekend). Flag seo_bestof_pages off 404s the routes and adds nothing to the sitemap. A zero-item page is not a page.
+node scripts/check-bestof-pages.mjs
 
 # Dated fall associations expire across feed, card, share and metadata.
 node scripts/test-fall-offering-retirement.mjs

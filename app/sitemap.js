@@ -21,6 +21,9 @@ import { cachedCuratedEventList } from "../lib/curatedEventsCache";
 import { unstable_cache } from "next/cache";
 import { christmasResearchSitemapRows, withoutChristmasWatchlistTwins } from "../lib/christmasResearch";
 import { siteTodayStr } from "../lib/siteTime";
+import { bestOfSitemapRows } from "../lib/bestOfPages";
+import { seoFlagOn } from "../lib/seoFlags";
+import { SEO_FLAGS } from "../lib/seoFlagNames";
 
 // Hourly, so the curated events layer below is read at request time. During
 // `next build` fetchCuratedEvents() is deliberately a skipped read (returns []),
@@ -113,5 +116,9 @@ export default async function sitemap() {
   const places = [`${SITE_URL}/places`, ...placeIds.map((id) => `${SITE_URL}/places/${encodeURIComponent(id)}`)].map((url) => ({ url }));
   const seasonal = SEASONAL_SEARCH_HUBS.map(({ slug }) => ({ url: `${SITE_URL}/${slug}` }));
   const crown = CROWN_PUBLISHED ? [{ url: `${SITE_URL}${CROWN_PATH}` }] : [];
-  return [...core, ...seasonal, ...guides, ...culture, ...landing, ...hubs, ...trending, ...creators, ...partners, ...bestBeaches, ...eventWindows, ...floridaEvents, ...dedicatedGuides, ...crown, ...places];
+  // seo_bestof_pages is off until the PostHog flag exists and is true. Off
+  // appends nothing, so this document matches the pre-flag sitemap.
+  const bestOfOn = await seoFlagOn(SEO_FLAGS.bestOfPages);
+  const bestOf = bestOfSitemapRows(SITE_URL, { enabled: bestOfOn, events: eventRows, now: new Date() });
+  return [...core, ...seasonal, ...guides, ...culture, ...landing, ...hubs, ...trending, ...creators, ...partners, ...bestBeaches, ...eventWindows, ...floridaEvents, ...dedicatedGuides, ...crown, ...places, ...bestOf];
 }

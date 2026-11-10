@@ -13,7 +13,11 @@ import { notFound } from "next/navigation";
 import { SITE_URL } from "../../../lib/site";
 import { loadPlaceNoSpend, isIndexable } from "../../../lib/placeData";
 import { badgeEligible, badgeEmbedHtml, validBadgeId } from "../../../lib/topRatedBadge";
+import { findUsEmbedHtml } from "../../../lib/findUsBadge";
+import { seoFlagOn } from "../../../lib/seoFlags";
+import { SEO_FLAGS } from "../../../lib/seoFlagNames";
 import BadgeCopyBox from "../../components/BadgeCopyBox";
+import NotEligible from "./NotEligible";
 
 export const revalidate = 86400;
 
@@ -49,13 +53,18 @@ export default async function Page({ params }) {
   const eligible = badgeEligible({ indexable: isIndexable(p), rating: p.rating, reviews: p.reviews });
 
   if (!eligible) {
+    // Find-us embed exists only on this branch, and only while badge_find_us
+    // is exactly true. Flag off leaves this view as it was.
+    const findUsOn = await seoFlagOn(SEO_FLAGS.badgeFindUs);
+    const embed = findUsOn ? findUsEmbedHtml({ siteUrl: SITE_URL, id, name: p.name }) : null;
     return (
-      <div style={S.wrap}>
-        <div style={S.crumb}><a href={placeHref} style={S.crumbLink}>‹ {p.name}</a></div>
-        <h1 style={S.h1}>The Top Rated badge isn&apos;t available for this place yet</h1>
-        <p style={S.p}>The badge goes to places with a top Wayfind score. Scores update as new reviews come in, so check back later.</p>
-        <p style={S.p}><a href={placeHref} style={S.link}>See {p.name} on Wayfind ›</a></p>
-      </div>
+      <NotEligible
+        name={p.name}
+        placeHref={placeHref}
+        embed={embed}
+        imgSrc={embed ? `/api/badge-find/${encodeURIComponent(id)}?theme=dark` : ""}
+        alt={embed ? `${p.name} on Wayfind` : ""}
+      />
     );
   }
 
