@@ -3,20 +3,20 @@
   "verifiedAt": "2026-11-10",
   "rule": "Every photo added by the guide pick-photo pipeline, re-checked at its source. commercialUse is true only for CC0, public domain, CC BY and CC BY-SA (2.0, 2.5, 3.0, 4.0); NC and ND never pass.",
   "summary": {
-    "files": 377,
-    "usages": 402,
-    "verified": 377,
+    "files": 363,
+    "usages": 388,
+    "verified": 363,
     "needsReview": [],
     "authorDiffers": [],
     "byLicence": {
-      "CC BY-SA 4.0": 96,
-      "CC BY-SA 3.0": 86,
+      "CC BY-SA 4.0": 90,
+      "CC BY-SA 3.0": 82,
       "CC BY 4.0": 21,
-      "CC BY 3.0": 23,
-      "CC BY 2.0": 85,
-      "CC0 1.0 Universal": 28,
-      "CC BY-SA 2.0": 30,
+      "CC BY 3.0": 21,
+      "CC BY 2.0": 88,
+      "CC0 1.0 Universal": 25,
       "Unsplash License": 5,
+      "CC BY-SA 2.0": 28,
       "CC BY-SA 2.5": 1,
       "Public domain": 2
     },
@@ -1034,7 +1034,7 @@
       "verifiedAt": "2026-11-10"
     },
     {
-      "src": "/guides/picks/florida-christmas-boat-parades-2026/jacksonville-southbank-riverwalk.webp",
+      "src": "/guides/picks/florida-christmas-boat-parades-2026/jacksonville-light-boat-parade-fireworks.jpg",
       "usedBy": [
         {
           "slug": "florida-christmas-boat-parades-2026",
@@ -1043,20 +1043,21 @@
         }
       ],
       "source": {
-        "kind": "commons",
-        "url": "https://commons.wikimedia.org/wiki/File:Southbank_Riverwalk.jpg",
-        "title": "Southbank Riverwalk",
-        "author": "Agassiz830",
-        "dateTaken": "2018-10-27",
-        "licence": "CC BY-SA 4.0",
-        "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+        "kind": "flickr",
+        "url": "https://www.flickr.com/photos/14580956@N08/11150969186",
+        "title": "LightParade_11-30-13-2209",
+        "author": "Rob Bixby",
+        "displayName": "Rob Bixby",
+        "dateTaken": "2013-11-30 22:12:18",
+        "licence": "CC BY 2.0",
+        "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
       "wayfind": {
-        "credit": "Agassiz830",
-        "creditHref": "https://commons.wikimedia.org/wiki/File:Southbank_Riverwalk.jpg",
-        "license": "CC BY-SA 4.0",
-        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
-        "modificationNotice": "Resized and converted to WebP for page loading; display may crop the photograph. The photograph remains available under the same licence."
+        "credit": "Rob Bixby",
+        "creditHref": "https://www.flickr.com/photos/14580956@N08/11150969186",
+        "license": "CC BY 2.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+        "modificationNotice": "Resized, cropped to remove the photographer's corner watermark and converted to JPEG."
       },
       "commercialUse": true,
       "authorMatchesCredit": true,
@@ -1064,97 +1065,7 @@
       "verifiedAt": "2026-11-10"
     },
     {
-      "src": "/guides/picks/florida-christmas-markets-and-towns-2026/benet-house-st-george-street-colonial-quarter-st-augustine-f.webp",
-      "usedBy": [
-        {
-          "slug": "florida-christmas-markets-and-towns-2026",
-          "role": "pick",
-          "pick": "The Christmas Market at Colonial Quarter"
-        }
-      ],
-      "source": {
-        "kind": "commons",
-        "url": "https://commons.wikimedia.org/wiki/File:Benet_House,_St._George_Street,_Colonial_Quarter,_St._Augustine,_FL.jpg",
-        "title": "Benet House, St. George Street, Colonial Quarter, St. Augustine, FL",
-        "author": "w_lemay",
-        "dateTaken": "2020-12-29 11:36:38",
-        "licence": "CC BY-SA 2.0",
-        "licenceUrl": "https://creativecommons.org/licenses/by-sa/2.0"
-      },
-      "wayfind": {
-        "credit": "w_lemay",
-        "creditHref": "https://commons.wikimedia.org/wiki/File:Benet_House,_St._George_Street,_Colonial_Quarter,_St._Augustine,_FL.jpg",
-        "license": "CC BY-SA 2.0",
-        "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0/",
-        "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence."
-      },
-      "commercialUse": true,
-      "authorMatchesCredit": true,
-      "status": "verified",
-      "verifiedAt": "2026-11-10"
-    },
-    {
-      "src": "/guides/picks/florida-christmas-markets-and-towns-2026/christmas-on-5th-avenue-south.webp",
-      "usedBy": [
-        {
-          "slug": "florida-christmas-markets-and-towns-2026",
-          "role": "pick",
-          "pick": "Christmas on 5th Avenue South"
-        }
-      ],
-      "source": {
-        "kind": "commons",
-        "url": "https://commons.wikimedia.org/wiki/File:Naples_5th_Ave_S_www.florida-infos.com_-_panoramio.jpg",
-        "title": "Naples 5th Ave S www.florida-infos.com - panoramio",
-        "author": "Franz Stellbrink",
-        "dateTaken": "Taken on 14 July 2008",
-        "licence": "CC BY 3.0",
-        "licenceUrl": "https://creativecommons.org/licenses/by/3.0"
-      },
-      "wayfind": {
-        "credit": "Franz Stellbrink",
-        "creditHref": "https://commons.wikimedia.org/wiki/File:Naples_5th_Ave_S_www.florida-infos.com_-_panoramio.jpg",
-        "license": "CC BY 3.0",
-        "licenseUrl": "https://creativecommons.org/licenses/by/3.0/",
-        "modificationNotice": "Resized, cropped for display and converted to WebP."
-      },
-      "commercialUse": true,
-      "authorMatchesCredit": true,
-      "status": "verified",
-      "verifiedAt": "2026-11-10"
-    },
-    {
-      "src": "/guides/picks/florida-christmas-markets-and-towns-2026/christmas-walk-in-mount-dora.webp",
-      "usedBy": [
-        {
-          "slug": "florida-christmas-markets-and-towns-2026",
-          "role": "pick",
-          "pick": "Christmas Walk in Mount Dora"
-        }
-      ],
-      "source": {
-        "kind": "commons",
-        "url": "https://commons.wikimedia.org/wiki/File:Sunset_Park_in_Mt_Dora_Florida.jpg",
-        "title": "Sunset Park in Mt Dora Florida",
-        "author": "Whoisjohngalt",
-        "dateTaken": "Taken on 21 December 2019, 10:11:23",
-        "licence": "CC BY-SA 4.0",
-        "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0"
-      },
-      "wayfind": {
-        "credit": "Whoisjohngalt",
-        "creditHref": "https://commons.wikimedia.org/wiki/File:Sunset_Park_in_Mt_Dora_Florida.jpg",
-        "license": "CC BY-SA 4.0",
-        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
-        "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence."
-      },
-      "commercialUse": true,
-      "authorMatchesCredit": true,
-      "status": "verified",
-      "verifiedAt": "2026-11-10"
-    },
-    {
-      "src": "/guides/picks/florida-christmas-markets-and-towns-2026/dade-city-christmas-stroll.webp",
+      "src": "/guides/picks/florida-christmas-markets-and-towns-2026/dade-city-courthouse-christmas.jpg",
       "usedBy": [
         {
           "slug": "florida-christmas-markets-and-towns-2026",
@@ -1164,169 +1075,19 @@
       ],
       "source": {
         "kind": "commons",
-        "url": "https://commons.wikimedia.org/wiki/File:A_view_of_several_downtown_Dade_City_businesses.jpg",
-        "title": "A view of several downtown Dade City businesses",
-        "author": "Jacobalexander89",
-        "dateTaken": "2024-10-17",
-        "licence": "CC BY-SA 4.0",
-        "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0"
-      },
-      "wayfind": {
-        "credit": "Jacobalexander89",
-        "creditHref": "https://commons.wikimedia.org/wiki/File:A_view_of_several_downtown_Dade_City_businesses.jpg",
-        "license": "CC BY-SA 4.0",
-        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
-        "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence."
-      },
-      "commercialUse": true,
-      "authorMatchesCredit": true,
-      "status": "verified",
-      "verifiedAt": "2026-11-10"
-    },
-    {
-      "src": "/guides/picks/florida-christmas-markets-and-towns-2026/dickens-on-centre.webp",
-      "usedBy": [
-        {
-          "slug": "florida-christmas-markets-and-towns-2026",
-          "role": "pick",
-          "pick": "Dickens on Centre"
-        }
-      ],
-      "source": {
-        "kind": "commons",
-        "url": "https://commons.wikimedia.org/wiki/File:Fernandina_Beach_FL_HD_Centre_Street01.jpg",
-        "title": "Fernandina Beach FL HD Centre Street01",
-        "author": "Ebyabe",
-        "dateTaken": "2010-10-30",
+        "url": "https://commons.wikimedia.org/wiki/File:Dade_City,_FL,_Courthouse,_Pasco_County,_Christmas_Decorated,_North_Side,_12-18-2009_(3).JPG",
+        "title": "Dade City, FL, Courthouse, Pasco County, Christmas Decorated, North Side, 12-18-2009 (3)",
+        "author": "Georgia Guercio",
+        "dateTaken": "Taken on 18 December 2009",
         "licence": "CC BY-SA 3.0",
         "licenceUrl": "https://creativecommons.org/licenses/by-sa/3.0"
       },
       "wayfind": {
-        "credit": "Ebyabe",
-        "creditHref": "https://commons.wikimedia.org/wiki/File:Fernandina_Beach_FL_HD_Centre_Street01.jpg",
+        "credit": "Georgia Guercio",
+        "creditHref": "https://commons.wikimedia.org/wiki/File:Dade_City,_FL,_Courthouse,_Pasco_County,_Christmas_Decorated,_North_Side,_12-18-2009_(3).JPG",
         "license": "CC BY-SA 3.0",
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
-        "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence."
-      },
-      "commercialUse": true,
-      "authorMatchesCredit": true,
-      "status": "verified",
-      "verifiedAt": "2026-11-10"
-    },
-    {
-      "src": "/guides/picks/florida-christmas-markets-and-towns-2026/winter-festival-and-holiday-stroll-at-cascades-park.webp",
-      "usedBy": [
-        {
-          "slug": "florida-christmas-markets-and-towns-2026",
-          "role": "pick",
-          "pick": "Winter Festival and Holiday Stroll at Cascades Park"
-        }
-      ],
-      "source": {
-        "kind": "commons",
-        "url": "https://commons.wikimedia.org/wiki/File:Cascades_Park_(Tallahassee),_Capital_City_Amphitheater.JPG",
-        "title": "Cascades Park (Tallahassee), Capital City Amphitheater",
-        "author": "Michael Rivera",
-        "dateTaken": "Taken on 26 May 2014, 12:50:44",
-        "licence": "CC BY-SA 3.0",
-        "licenceUrl": "https://creativecommons.org/licenses/by-sa/3.0"
-      },
-      "wayfind": {
-        "credit": "Michael Rivera",
-        "creditHref": "https://commons.wikimedia.org/wiki/File:Cascades_Park_(Tallahassee),_Capital_City_Amphitheater.JPG",
-        "license": "CC BY-SA 3.0",
-        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
-        "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence."
-      },
-      "commercialUse": true,
-      "authorMatchesCredit": true,
-      "status": "verified",
-      "verifiedAt": "2026-11-10"
-    },
-    {
-      "src": "/guides/picks/florida-christmas-markets-and-towns-2026/winter-on-the-avenue.webp",
-      "usedBy": [
-        {
-          "slug": "florida-christmas-markets-and-towns-2026",
-          "role": "pick",
-          "pick": "Winter on the Avenue"
-        }
-      ],
-      "source": {
-        "kind": "commons",
-        "url": "https://commons.wikimedia.org/wiki/File:Park_Ave_Shoppes_01.JPG",
-        "title": "Park Ave Shoppes 01",
-        "author": "Miosotis jade",
-        "dateTaken": "2010-01-07 19:22:19",
-        "licence": "CC BY-SA 4.0",
-        "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0"
-      },
-      "wayfind": {
-        "credit": "Miosotis jade",
-        "creditHref": "https://commons.wikimedia.org/wiki/File:Park_Ave_Shoppes_01.JPG",
-        "license": "CC BY-SA 4.0",
-        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
-        "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence."
-      },
-      "commercialUse": true,
-      "authorMatchesCredit": true,
-      "status": "verified",
-      "verifiedAt": "2026-11-10"
-    },
-    {
-      "src": "/guides/picks/florida-hanukkah-2026/grand-menorah-lighting-and-fire-show.webp",
-      "usedBy": [
-        {
-          "slug": "florida-hanukkah-2026",
-          "role": "pick",
-          "pick": "Grand Menorah Lighting and Fire Show"
-        }
-      ],
-      "source": {
-        "kind": "commons",
-        "url": "https://commons.wikimedia.org/wiki/File:Jacksonville_San_Marco_Square.JPG",
-        "title": "Jacksonville San Marco Square",
-        "author": "Cuchullain",
-        "dateTaken": "2013-08-22 19:54:55",
-        "licence": "CC BY-SA 3.0",
-        "licenceUrl": "https://creativecommons.org/licenses/by-sa/3.0"
-      },
-      "wayfind": {
-        "credit": "Cuchullain",
-        "creditHref": "https://commons.wikimedia.org/wiki/File:Jacksonville_San_Marco_Square.JPG",
-        "license": "CC BY-SA 3.0",
-        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
-        "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence."
-      },
-      "commercialUse": true,
-      "authorMatchesCredit": true,
-      "status": "verified",
-      "verifiedAt": "2026-11-10"
-    },
-    {
-      "src": "/guides/picks/florida-hanukkah-2026/memorial-park-menorah-lighting.webp",
-      "usedBy": [
-        {
-          "slug": "florida-hanukkah-2026",
-          "role": "pick",
-          "pick": "Memorial Park Menorah Lighting"
-        }
-      ],
-      "source": {
-        "kind": "commons",
-        "url": "https://commons.wikimedia.org/wiki/File:Jax_FL_Memorial_Park01.jpg",
-        "title": "Jax FL Memorial Park01",
-        "author": "Ebyabe",
-        "dateTaken": "2018-04-29 10:19:24",
-        "licence": "CC BY-SA 4.0",
-        "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0"
-      },
-      "wayfind": {
-        "credit": "Ebyabe",
-        "creditHref": "https://commons.wikimedia.org/wiki/File:Jax_FL_Memorial_Park01.jpg",
-        "license": "CC BY-SA 4.0",
-        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
-        "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence."
+        "modificationNotice": "Resized, cropped to 1280x853 and converted to JPEG. The adaptation is released under the same licence."
       },
       "commercialUse": true,
       "authorMatchesCredit": true,
@@ -1671,37 +1432,7 @@
       "verifiedAt": "2026-11-10"
     },
     {
-      "src": "/guides/picks/florida-new-years-eve-2026/clearwater-pier60.webp",
-      "usedBy": [
-        {
-          "slug": "florida-new-years-eve-2026",
-          "role": "pick",
-          "pick": "Sunset to Sparkle: Clearwater Beach New Year's Eve Celebration"
-        }
-      ],
-      "source": {
-        "kind": "commons",
-        "url": "https://commons.wikimedia.org/wiki/File:Pier_60_at_Clearwater,_FL_2016_-_panoramio.jpg",
-        "title": "Pier 60 at Clearwater, FL 2016 - panoramio",
-        "author": "Jana Taylor",
-        "dateTaken": "Taken on 15 April 2016",
-        "licence": "CC BY-SA 3.0",
-        "licenceUrl": "https://creativecommons.org/licenses/by-sa/3.0"
-      },
-      "wayfind": {
-        "credit": "Jana Taylor",
-        "creditHref": "https://commons.wikimedia.org/wiki/File:Pier_60_at_Clearwater,_FL_2016_-_panoramio.jpg",
-        "license": "CC BY-SA 3.0",
-        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
-        "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence."
-      },
-      "commercialUse": true,
-      "authorMatchesCredit": true,
-      "status": "verified",
-      "verifiedAt": "2026-11-10"
-    },
-    {
-      "src": "/guides/picks/florida-new-years-eve-2026/jacksonville-new-years-eve-fireworks.webp",
+      "src": "/guides/picks/florida-new-years-eve-2026/jacksonville-fireworks-main-street-bridge.jpg",
       "usedBy": [
         {
           "slug": "florida-new-years-eve-2026",
@@ -1710,20 +1441,21 @@
         }
       ],
       "source": {
-        "kind": "commons",
-        "url": "https://commons.wikimedia.org/wiki/File:Acosta_Bridge_from_Jacksonville_Landing.JPG",
-        "title": "Acosta Bridge from Jacksonville Landing",
-        "author": "Michael Rivera",
-        "dateTaken": "Taken on 21 June 2014, 12:54:17",
-        "licence": "CC BY-SA 3.0",
-        "licenceUrl": "https://creativecommons.org/licenses/by-sa/3.0"
+        "kind": "flickr",
+        "url": "https://www.flickr.com/photos/7917899@N03/2410871066",
+        "title": "fireworks",
+        "author": "Ronan O'Donohoe",
+        "displayName": "Ronan O'Donohoe",
+        "dateTaken": "2006-11-25 21:57:23",
+        "licence": "CC BY 2.0",
+        "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
       "wayfind": {
-        "credit": "Michael Rivera",
-        "creditHref": "https://commons.wikimedia.org/wiki/File:Acosta_Bridge_from_Jacksonville_Landing.JPG",
-        "license": "CC BY-SA 3.0",
-        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
-        "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence."
+        "credit": "Ronan O'Donohoe",
+        "creditHref": "https://www.flickr.com/photos/7917899@N03/2410871066",
+        "license": "CC BY 2.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+        "modificationNotice": "Resized, cropped for display and converted to JPEG."
       },
       "commercialUse": true,
       "authorMatchesCredit": true,
@@ -1731,97 +1463,7 @@
       "verifiedAt": "2026-11-10"
     },
     {
-      "src": "/guides/picks/florida-new-years-eve-2026/legoland-florida-entrance-welcome.webp",
-      "usedBy": [
-        {
-          "slug": "florida-new-years-eve-2026",
-          "role": "pick",
-          "pick": "Kids' New Year's Eve at LEGOLAND Florida"
-        }
-      ],
-      "source": {
-        "kind": "commons",
-        "url": "https://commons.wikimedia.org/wiki/File:Legoland_Florida_Entrance_Welcome.jpg",
-        "title": "Legoland Florida Entrance Welcome",
-        "author": "Josh Hallett",
-        "dateTaken": "2011-09-24 16:44:40",
-        "licence": "CC BY-SA 2.0",
-        "licenceUrl": "https://creativecommons.org/licenses/by-sa/2.0"
-      },
-      "wayfind": {
-        "credit": "Josh Hallett",
-        "creditHref": "https://commons.wikimedia.org/wiki/File:Legoland_Florida_Entrance_Welcome.jpg",
-        "license": "CC BY-SA 2.0",
-        "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0/",
-        "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence."
-      },
-      "commercialUse": true,
-      "authorMatchesCredit": true,
-      "status": "verified",
-      "verifiedAt": "2026-11-10"
-    },
-    {
-      "src": "/guides/picks/florida-new-years-eve-2026/quantum-countdown-at-mosi.webp",
-      "usedBy": [
-        {
-          "slug": "florida-new-years-eve-2026",
-          "role": "pick",
-          "pick": "Quantum Countdown at MOSI"
-        }
-      ],
-      "source": {
-        "kind": "commons",
-        "url": "https://commons.wikimedia.org/wiki/File:Planetarium_projector.JPG",
-        "title": "Planetarium projector",
-        "author": "Tampa MOSI ( talk )",
-        "dateTaken": null,
-        "licence": "CC BY 3.0",
-        "licenceUrl": "https://creativecommons.org/licenses/by/3.0"
-      },
-      "wayfind": {
-        "credit": "Tampa MOSI",
-        "creditHref": "https://commons.wikimedia.org/wiki/File:Planetarium_projector.JPG",
-        "license": "CC BY 3.0",
-        "licenseUrl": "https://creativecommons.org/licenses/by/3.0/",
-        "modificationNotice": "Resized, cropped for display and converted to WebP."
-      },
-      "commercialUse": true,
-      "authorMatchesCredit": true,
-      "status": "verified",
-      "verifiedAt": "2026-11-10"
-    },
-    {
-      "src": "/guides/picks/florida-new-years-eve-2026/the-crab-boil-giants-outback-crab-shack-and-crabby-s.webp",
-      "usedBy": [
-        {
-          "slug": "florida-new-years-eve-2026",
-          "role": "pick",
-          "pick": "Light Up the NIGHT! New Year's Eve Firework Show"
-        }
-      ],
-      "source": {
-        "kind": "commons",
-        "url": "https://commons.wikimedia.org/wiki/File:St._Johns_County_Ocean_%26_Fishing_Pier.jpg",
-        "title": "St. Johns County Ocean & Fishing Pier",
-        "author": "Cstickel(byu)",
-        "dateTaken": "2021-07-16",
-        "licence": "CC BY-SA 4.0",
-        "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0"
-      },
-      "wayfind": {
-        "credit": "Cstickel(byu)",
-        "creditHref": "https://commons.wikimedia.org/wiki/File:St._Johns_County_Ocean_%26_Fishing_Pier.jpg",
-        "license": "CC BY-SA 4.0",
-        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
-        "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence."
-      },
-      "commercialUse": true,
-      "authorMatchesCredit": true,
-      "status": "verified",
-      "verifiedAt": "2026-11-10"
-    },
-    {
-      "src": "/guides/picks/florida-nutcracker-and-holiday-shows-2026/florida-nutcracker-and-holiday-shows-2026-hero.webp",
+      "src": "/guides/picks/florida-nutcracker-and-holiday-shows-2026/arsht-center-ziff-ballet-opera-house.webp",
       "usedBy": [
         {
           "slug": "florida-nutcracker-and-holiday-shows-2026",
@@ -1831,19 +1473,19 @@
       ],
       "source": {
         "kind": "commons",
-        "url": "https://commons.wikimedia.org/wiki/File:Adrienne_Arsht_Center,_March_31,_2023.jpg",
-        "title": "Adrienne Arsht Center, March 31, 2023",
-        "author": "D. Benjamin Miller",
-        "dateTaken": "Taken on 31 March 2023",
-        "licence": "CC0 1.0 Universal",
-        "licenceUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en"
+        "url": "https://commons.wikimedia.org/wiki/File:Adrienne_Arsht_Center_for_the_Performing_Arts_of_Miami-Dade_County_-_Flickr_-_Phillip_Pessar.jpg",
+        "title": "Adrienne Arsht Center for the Performing Arts of Miami-Dade County - Flickr - Phillip Pessar",
+        "author": "Phillip Pessar",
+        "dateTaken": "Taken on 4 September 2019, 12:00",
+        "licence": "CC BY 2.0",
+        "licenceUrl": "https://creativecommons.org/licenses/by/2.0"
       },
       "wayfind": {
-        "credit": "D. Benjamin Miller",
-        "creditHref": "https://commons.wikimedia.org/wiki/File:Adrienne_Arsht_Center,_March_31,_2023.jpg",
-        "license": "CC0 1.0 Universal",
-        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
-        "modificationNotice": "Resized, cropped to 1280x853 and converted to WebP. Adaptation retains the source license."
+        "credit": "Phillip Pessar",
+        "creditHref": "https://commons.wikimedia.org/wiki/File:Adrienne_Arsht_Center_for_the_Performing_Arts_of_Miami-Dade_County_-_Flickr_-_Phillip_Pessar.jpg",
+        "license": "CC BY 2.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+        "modificationNotice": "Resized, cropped to 1280x853 and converted to WebP."
       },
       "commercialUse": true,
       "authorMatchesCredit": true,
@@ -1971,36 +1613,6 @@
       "verifiedAt": "2026-11-10"
     },
     {
-      "src": "/guides/picks/florida-santa-and-christmas-trains-2026/conch-tour-train-holiday-sights-and-festive-nights-tour.webp",
-      "usedBy": [
-        {
-          "slug": "florida-santa-and-christmas-trains-2026",
-          "role": "pick",
-          "pick": "Conch Tour Train Holiday Sights and Festive Nights Tour"
-        }
-      ],
-      "source": {
-        "kind": "commons",
-        "url": "https://commons.wikimedia.org/wiki/File:The_Conch_Train_on_Front_Street,_Key_West,_Florida,_2025.jpg",
-        "title": "The Conch Train on Front Street, Key West, Florida, 2025",
-        "author": "Julian Lupyan",
-        "dateTaken": "2025-11-26 10:24:54",
-        "licence": "CC0 1.0 Universal",
-        "licenceUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en"
-      },
-      "wayfind": {
-        "credit": "Julian Lupyan",
-        "creditHref": "https://commons.wikimedia.org/wiki/File:The_Conch_Train_on_Front_Street,_Key_West,_Florida,_2025.jpg",
-        "license": "CC0 1.0 Universal",
-        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
-        "modificationNotice": "Resized, cropped for display and converted to WebP."
-      },
-      "commercialUse": true,
-      "authorMatchesCredit": true,
-      "status": "verified",
-      "verifiedAt": "2026-11-10"
-    },
-    {
       "src": "/guides/picks/florida-santa-and-christmas-trains-2026/florida-railroad-museum.webp",
       "usedBy": [
         {
@@ -2054,36 +1666,6 @@
         "license": "CC BY-SA 4.0",
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
         "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence."
-      },
-      "commercialUse": true,
-      "authorMatchesCredit": true,
-      "status": "verified",
-      "verifiedAt": "2026-11-10"
-    },
-    {
-      "src": "/guides/picks/florida-santa-and-christmas-trains-2026/santa-in-space-at-mosi.webp",
-      "usedBy": [
-        {
-          "slug": "florida-santa-and-christmas-trains-2026",
-          "role": "pick",
-          "pick": "Santa in Space at MOSI"
-        }
-      ],
-      "source": {
-        "kind": "commons",
-        "url": "https://commons.wikimedia.org/wiki/File:Mission_Moonbase_at_MOSI.jpg",
-        "title": "Mission Moonbase at MOSI",
-        "author": "Novioboy",
-        "dateTaken": "2024-04-22",
-        "licence": "CC0 1.0 Universal",
-        "licenceUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en"
-      },
-      "wayfind": {
-        "credit": "Novioboy",
-        "creditHref": "https://commons.wikimedia.org/wiki/File:Mission_Moonbase_at_MOSI.jpg",
-        "license": "CC0 1.0 Universal",
-        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
-        "modificationNotice": "Resized, cropped for display and converted to WebP."
       },
       "commercialUse": true,
       "authorMatchesCredit": true,
