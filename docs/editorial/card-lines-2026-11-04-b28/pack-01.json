@@ -1,0 +1,1348 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 28. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJaT3tefHEwogRR95KBxBYaYc",
+   "name": "Channelside Bay Plaza",
+   "category": "shopping",
+   "metro": "tampa",
+   "primary_type": "shopping_mall",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://sparkmanwharf.com/find-us/",
+     "source_name": "Channelside Bay Plaza \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Sparkman Wharf is located at 615 Channelside Dr, Tampa, FL 33602.",
+      "Sparkman Wharf is part of Water Street Tampa on Tampa Bay's downtown waterfront.",
+      "From Sunday to Thursday, Sparkman Wharf is open from 11 a.m. to 9 p.m.",
+      "On Friday and Saturday, Sparkman Wharf is open from 11 a.m. to 11 p.m.",
+      "The TECO Line Streetcar offers a free ride to Sparkman Wharf, with the closest stop at Amalie Arena Station #8.",
+      "Pirate Water Taxi serves Sparkman Wharf and is available Wednesday through Sunday."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Sparkman Wharf on Tampa Bay's downtown waterfront",
+    "why_here": "Visit Sparkman Wharf, part of Water Street Tampa on Tampa Bay's downtown waterfront. Come on Friday or Saturday for hours until 11 p.m., or ride the TECO Line Streetcar to Amalie Arena Station #8.",
+    "know_before": "Pirate Water Taxi is available Wednesday through Sunday; the TECO Line Streetcar is free to Sparkman Wharf.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://sparkmanwharf.com/find-us/"
+     ],
+     "why_here": [
+      "https://sparkmanwharf.com/find-us/"
+     ],
+     "know_before": [
+      "https://sparkmanwharf.com/find-us/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Sparkman Wharf is located at 615 Channelside Dr, Tampa, FL 33602.",
+      "source": "https://sparkmanwharf.com/find-us/"
+     },
+     {
+      "claim": "Sparkman Wharf is part of Water Street Tampa on Tampa Bay's downtown waterfront.",
+      "source": "https://sparkmanwharf.com/find-us/"
+     },
+     {
+      "claim": "From Sunday to Thursday, Sparkman Wharf is open from 11 a.m. to 9 p.m.",
+      "source": "https://sparkmanwharf.com/find-us/"
+     },
+     {
+      "claim": "On Friday and Saturday, Sparkman Wharf is open from 11 a.m. to 11 p.m.",
+      "source": "https://sparkmanwharf.com/find-us/"
+     },
+     {
+      "claim": "The TECO Line Streetcar offers a free ride to Sparkman Wharf, with the closest stop at Amalie Arena Station #8.",
+      "source": "https://sparkmanwharf.com/find-us/"
+     },
+     {
+      "claim": "Pirate Water Taxi serves Sparkman Wharf and is available Wednesday through Sunday.",
+      "source": "https://sparkmanwharf.com/find-us/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJFfPn5LZ754gRuagX99rBI34",
+   "name": "Orlando Fashion Square",
+   "category": "shopping",
+   "metro": "orlando",
+   "primary_type": "shopping_mall",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://orlandofashionsquare.com/",
+     "source_name": "Orlando Fashion Square \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Orlando Fashion Square opened its doors in July 1973.",
+      "Orlando Fashion Square describes itself as the region's longest-standing enclosed mall.",
+      "Orlando Fashion Square is located at 3201 E Colonial Dr, Orlando, FL 32803.",
+      "From Monday to Saturday, Orlando Fashion Square is open from 11 a.m. to 8 p.m.",
+      "On Sunday, Orlando Fashion Square is open from 12 p.m. to 6 p.m.",
+      "Orlando Fashion Square provides a store list and directory map on its official site."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Enclosed mall in Orlando, opened in July 1973",
+    "why_here": "Go to Orlando Fashion Square, an enclosed mall in Orlando that opened in July 1973. Check the store list and directory map on the official site before you visit.",
+    "know_before": "Open Monday to Saturday from 11 a.m. to 8 p.m. and Sunday from 12 p.m. to 6 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://orlandofashionsquare.com/"
+     ],
+     "why_here": [
+      "https://orlandofashionsquare.com/"
+     ],
+     "know_before": [
+      "https://orlandofashionsquare.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Orlando Fashion Square opened its doors in July 1973.",
+      "source": "https://orlandofashionsquare.com/"
+     },
+     {
+      "claim": "Orlando Fashion Square describes itself as the region's longest-standing enclosed mall.",
+      "source": "https://orlandofashionsquare.com/"
+     },
+     {
+      "claim": "Orlando Fashion Square is located at 3201 E Colonial Dr, Orlando, FL 32803.",
+      "source": "https://orlandofashionsquare.com/"
+     },
+     {
+      "claim": "From Monday to Saturday, Orlando Fashion Square is open from 11 a.m. to 8 p.m.",
+      "source": "https://orlandofashionsquare.com/"
+     },
+     {
+      "claim": "On Sunday, Orlando Fashion Square is open from 12 p.m. to 6 p.m.",
+      "source": "https://orlandofashionsquare.com/"
+     },
+     {
+      "claim": "Orlando Fashion Square provides a store list and directory map on its official site.",
+      "source": "https://orlandofashionsquare.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJi30UkuEe24gRhkuVM5pLihk",
+   "name": "The Ritz-Carlton, Naples",
+   "category": "hotels",
+   "metro": "florida",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.ritzcarlton.com/en/hotels/rswrz-the-ritz-carlton-naples/overview/",
+     "source_name": "The Ritz-Carlton, Naples \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Ritz-Carlton, Naples is located at 280 Vanderbilt Beach Rd., Naples, Florida, USA, 34108.",
+      "The Ritz-Carlton, Naples is a Five-Diamond hotel on Florida's Gulf Coast.",
+      "The Ritz-Carlton, Naples offers ocean-view accommodations.",
+      "The check-in time at The Ritz-Carlton, Naples is 4 p.m. and the check-out time is 11 a.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Five-Diamond hotel on Florida's Gulf Coast in Naples",
+    "why_here": "Stay at The Ritz-Carlton, Naples, a Five-Diamond hotel on Florida's Gulf Coast with ocean-view accommodations. The address is 280 Vanderbilt Beach Rd. in Naples.",
+    "know_before": "The check-in time is 4 p.m. and the check-out time is 11 a.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.ritzcarlton.com/en/hotels/rswrz-the-ritz-carlton-naples/overview/"
+     ],
+     "why_here": [
+      "https://www.ritzcarlton.com/en/hotels/rswrz-the-ritz-carlton-naples/overview/"
+     ],
+     "know_before": [
+      "https://www.ritzcarlton.com/en/hotels/rswrz-the-ritz-carlton-naples/overview/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Ritz-Carlton, Naples is located at 280 Vanderbilt Beach Rd., Naples, Florida, USA, 34108.",
+      "source": "https://www.ritzcarlton.com/en/hotels/rswrz-the-ritz-carlton-naples/overview/"
+     },
+     {
+      "claim": "The Ritz-Carlton, Naples is a Five-Diamond hotel on Florida's Gulf Coast.",
+      "source": "https://www.ritzcarlton.com/en/hotels/rswrz-the-ritz-carlton-naples/overview/"
+     },
+     {
+      "claim": "The Ritz-Carlton, Naples offers ocean-view accommodations.",
+      "source": "https://www.ritzcarlton.com/en/hotels/rswrz-the-ritz-carlton-naples/overview/"
+     },
+     {
+      "claim": "The check-in time at The Ritz-Carlton, Naples is 4 p.m. and the check-out time is 11 a.m.",
+      "source": "https://www.ritzcarlton.com/en/hotels/rswrz-the-ritz-carlton-naples/overview/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJefKesvOn4IgRE716aWnty4g",
+   "name": "Sunset Cafe' Waterfront Bar & Grill",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.sunsetcafewaterfrontgrillandbar.com/menu",
+     "source_name": "Sunset Cafe' Waterfront Bar & Grill \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Sunset Cafe' Waterfront Bar & Grill is located at 500 W. Cocoa Beach Causeway, Cocoa Beach, FL 32931.",
+      "Sunset Cafe' Waterfront Bar & Grill is open from 11:00 a.m. to 10 p.m.",
+      "The menu at Sunset Cafe' Waterfront Bar & Grill includes Grouper.",
+      "The menu at Sunset Cafe' Waterfront Bar & Grill includes Mahi Mahi.",
+      "The menu at Sunset Cafe' Waterfront Bar & Grill includes a Sunset Burger."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Waterfront grill in Cocoa Beach serving Grouper and Mahi Mahi",
+    "why_here": "Go to Sunset Cafe' Waterfront Bar & Grill in Cocoa Beach for Grouper and Mahi Mahi, or order a Sunset Burger at 500 W. Cocoa Beach Causeway during hours from 11:00 a.m. to 10 p.m.",
+    "know_before": "Open from 11:00 a.m. to 10 p.m. at 500 W. Cocoa Beach Causeway, Cocoa Beach.",
+    "local_tip": "Try the Sunset Burger with Grouper or Mahi Mahi.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.sunsetcafewaterfrontgrillandbar.com/menu"
+     ],
+     "why_here": [
+      "https://www.sunsetcafewaterfrontgrillandbar.com/menu"
+     ],
+     "know_before": [
+      "https://www.sunsetcafewaterfrontgrillandbar.com/menu"
+     ],
+     "local_tip": [
+      "https://www.sunsetcafewaterfrontgrillandbar.com/menu"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Sunset Cafe' Waterfront Bar & Grill is located at 500 W. Cocoa Beach Causeway, Cocoa Beach, FL 32931.",
+      "source": "https://www.sunsetcafewaterfrontgrillandbar.com/menu"
+     },
+     {
+      "claim": "Sunset Cafe' Waterfront Bar & Grill is open from 11:00 a.m. to 10 p.m.",
+      "source": "https://www.sunsetcafewaterfrontgrillandbar.com/menu"
+     },
+     {
+      "claim": "The menu at Sunset Cafe' Waterfront Bar & Grill includes Grouper.",
+      "source": "https://www.sunsetcafewaterfrontgrillandbar.com/menu"
+     },
+     {
+      "claim": "The menu at Sunset Cafe' Waterfront Bar & Grill includes Mahi Mahi.",
+      "source": "https://www.sunsetcafewaterfrontgrillandbar.com/menu"
+     },
+     {
+      "claim": "The menu at Sunset Cafe' Waterfront Bar & Grill includes a Sunset Burger.",
+      "source": "https://www.sunsetcafewaterfrontgrillandbar.com/menu"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ2YP8OpfjwogRTZMnaCVYeyk",
+   "name": "Hardee's",
+   "category": "food",
+   "metro": "st-pete",
+   "primary_type": "fast_food_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://locations.hardees.com/fl/saint-petersburg/3795-34th-st-n",
+     "source_name": "Hardee's \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Hardee's is located at 3795 34Th St N, Saint Petersburg, FL, 33713",
+      "Hardee's serves Hand-Breaded Chicken Tenders",
+      "Breakfast at Hardee's is served until 10:30 a.m.",
+      "Hardee's serves breakfast, lunch, and dinner at 3795 34Th St N in Saint Petersburg"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Restaurant in Saint Petersburg serving Hand-Breaded Chicken Tenders",
+    "why_here": "Stop at Hardee's at 3795 34Th St N in Saint Petersburg for Hand-Breaded Chicken Tenders, for breakfast served until 10:30 a.m., or for lunch and dinner.",
+    "know_before": "Breakfast at Hardee's is served until 10:30 a.m. in Saint Petersburg",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://locations.hardees.com/fl/saint-petersburg/3795-34th-st-n"
+     ],
+     "why_here": [
+      "https://locations.hardees.com/fl/saint-petersburg/3795-34th-st-n"
+     ],
+     "know_before": [
+      "https://locations.hardees.com/fl/saint-petersburg/3795-34th-st-n"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Hardee's is located at 3795 34Th St N, Saint Petersburg, FL, 33713",
+      "source": "https://locations.hardees.com/fl/saint-petersburg/3795-34th-st-n"
+     },
+     {
+      "claim": "Hardee's serves Hand-Breaded Chicken Tenders",
+      "source": "https://locations.hardees.com/fl/saint-petersburg/3795-34th-st-n"
+     },
+     {
+      "claim": "Breakfast at Hardee's is served until 10:30 a.m.",
+      "source": "https://locations.hardees.com/fl/saint-petersburg/3795-34th-st-n"
+     },
+     {
+      "claim": "Hardee's serves breakfast, lunch, and dinner at 3795 34Th St N in Saint Petersburg",
+      "source": "https://locations.hardees.com/fl/saint-petersburg/3795-34th-st-n"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJw-ON919G24gRhiwLnBsC7J8",
+   "name": "House of Omelets Restaurant",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "brunch_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.houseofomelets.com/",
+     "source_name": "House of Omelets Restaurant \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "House of Omelets proudly serves Southwest Florida with four convenient restaurant locations",
+      "House of Omelets serves Breakfast, Brunch & Lunch in Cape Coral, Fort Myers & Naples",
+      "The menu at House of Omelets features signature omelets, eggs Benedict, skillets, pancakes, waffles, and crepes",
+      "House of Omelets is a Florida family-owned breakfast, brunch and lunch restaurant"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Family-owned restaurant in Southwest Florida serving signature omelets and eggs Benedict",
+    "why_here": "Visit House of Omelets in Southwest Florida for Breakfast, Brunch & Lunch, with a menu that features signature omelets, eggs Benedict, skillets, pancakes, waffles, and crepes.",
+    "know_before": "House of Omelets proudly serves Southwest Florida with four convenient restaurant locations",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.houseofomelets.com/"
+     ],
+     "why_here": [
+      "https://www.houseofomelets.com/"
+     ],
+     "know_before": [
+      "https://www.houseofomelets.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "House of Omelets proudly serves Southwest Florida with four convenient restaurant locations",
+      "source": "https://www.houseofomelets.com/"
+     },
+     {
+      "claim": "House of Omelets serves Breakfast, Brunch & Lunch in Cape Coral, Fort Myers & Naples",
+      "source": "https://www.houseofomelets.com/"
+     },
+     {
+      "claim": "The menu at House of Omelets features signature omelets, eggs Benedict, skillets, pancakes, waffles, and crepes",
+      "source": "https://www.houseofomelets.com/"
+     },
+     {
+      "claim": "House of Omelets is a Florida family-owned breakfast, brunch and lunch restaurant",
+      "source": "https://www.houseofomelets.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJB4u6yIC22YgRSudXSqzWT0k",
+   "name": "Four Seasons Hotel Miami",
+   "category": "hotels",
+   "metro": "miami-dade",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.fourseasons.com/miami/accommodations/",
+     "source_name": "Four Seasons Hotel Miami \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Four Seasons Hotel Miami is in Downtown Miami.",
+      "Four Seasons Hotel Miami is above Brickell Avenue.",
+      "Four Seasons Hotel Miami has 221 accommodations, including 182 rooms and 39 suites.",
+      "Four Seasons Hotel Miami accommodations rise from floors 40 through 70."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Rooms and suites above Brickell Avenue in Downtown Miami",
+    "why_here": "Stay above Brickell Avenue in Downtown Miami, choosing from 182 rooms and 39 suites among 221 accommodations rising from floors 40 through 70 at Four Seasons Hotel Miami.",
+    "know_before": "Accommodations rise from floors 40 through 70, with 182 rooms and 39 suites.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.fourseasons.com/miami/accommodations/"
+     ],
+     "why_here": [
+      "https://www.fourseasons.com/miami/accommodations/"
+     ],
+     "know_before": [
+      "https://www.fourseasons.com/miami/accommodations/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Four Seasons Hotel Miami is in Downtown Miami.",
+      "source": "https://www.fourseasons.com/miami/accommodations/"
+     },
+     {
+      "claim": "Four Seasons Hotel Miami is above Brickell Avenue.",
+      "source": "https://www.fourseasons.com/miami/accommodations/"
+     },
+     {
+      "claim": "Four Seasons Hotel Miami has 221 accommodations, including 182 rooms and 39 suites.",
+      "source": "https://www.fourseasons.com/miami/accommodations/"
+     },
+     {
+      "claim": "Four Seasons Hotel Miami accommodations rise from floors 40 through 70.",
+      "source": "https://www.fourseasons.com/miami/accommodations/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJd4mz3ry32YgRp59Pf9RICgU",
+   "name": "DC PIE CO.",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "pizza_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://dcpieco.com/menu",
+     "source_name": "DC PIE CO. \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "DC PIE CO. is at 1010 Brickell Ave #200 Miami, FL 33131.",
+      "DC PIE CO. brick-oven pies are made with homemade sauce and 3 cheeses.",
+      "DC PIE CO. pies include mozzarella di bufala, fresh mozzarella, and parmigiano reggiano.",
+      "DC PIE CO. serves a Bufala + Tomato Salad with bufala mozzarella, baby heirloom tomato and basil."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Brick-oven pies with mozzarella di bufala, tomato and basil",
+    "why_here": "Try brick-oven pies made with homemade sauce and 3 cheeses including mozzarella di bufala and fresh mozzarella, plus a Bufala + Tomato Salad with baby heirloom tomato and basil.",
+    "know_before": "DC PIE CO. is at 1010 Brickell Ave #200 Miami, FL 33131.",
+    "local_tip": "Try the Bufala + Tomato Salad before a brick-oven pie.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://dcpieco.com/menu"
+     ],
+     "why_here": [
+      "https://dcpieco.com/menu"
+     ],
+     "know_before": [
+      "https://dcpieco.com/menu"
+     ],
+     "local_tip": [
+      "https://dcpieco.com/menu"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "DC PIE CO. is at 1010 Brickell Ave #200 Miami, FL 33131.",
+      "source": "https://dcpieco.com/menu"
+     },
+     {
+      "claim": "DC PIE CO. brick-oven pies are made with homemade sauce and 3 cheeses.",
+      "source": "https://dcpieco.com/menu"
+     },
+     {
+      "claim": "DC PIE CO. pies include mozzarella di bufala, fresh mozzarella, and parmigiano reggiano.",
+      "source": "https://dcpieco.com/menu"
+     },
+     {
+      "claim": "DC PIE CO. serves a Bufala + Tomato Salad with bufala mozzarella, baby heirloom tomato and basil.",
+      "source": "https://dcpieco.com/menu"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJY71XVMUD2YgRnwtMZYaeVNI",
+   "name": "Fort Lauderdale Grand Hotel",
+   "category": "hotels",
+   "metro": "broward",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.fortlauderdalegrandhotel.com/",
+     "source_name": "Fort Lauderdale Grand Hotel \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Fort Lauderdale Grand Hotel is at 4900 Powerline Road, Fort Lauderdale, FL 33309.",
+      "Fort Lauderdale Grand Hotel is near Chase Stadium, home of Inter Miami CF.",
+      "Fort Lauderdale Grand Hotel is near Fort Lauderdale Beaches and Lauderdale-by-the-Sea.",
+      "Fort Lauderdale Grand Hotel rooms include a Traditional 2 Queen Beds Poolside room.",
+      "Fort Lauderdale Grand Hotel has an outdoor pool."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Hotel near Chase Stadium and Fort Lauderdale Beaches with an outdoor pool",
+    "why_here": "Stay near Chase Stadium, home of Inter Miami CF, and near Fort Lauderdale Beaches and Lauderdale-by-the-Sea, with rooms including a Traditional 2 Queen Beds Poolside room and an outdoor pool.",
+    "know_before": "The hotel is at 4900 Powerline Road, Fort Lauderdale, FL 33309, with an outdoor pool.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.fortlauderdalegrandhotel.com/"
+     ],
+     "why_here": [
+      "https://www.fortlauderdalegrandhotel.com/"
+     ],
+     "know_before": [
+      "https://www.fortlauderdalegrandhotel.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Fort Lauderdale Grand Hotel is at 4900 Powerline Road, Fort Lauderdale, FL 33309.",
+      "source": "https://www.fortlauderdalegrandhotel.com/"
+     },
+     {
+      "claim": "Fort Lauderdale Grand Hotel is near Chase Stadium, home of Inter Miami CF.",
+      "source": "https://www.fortlauderdalegrandhotel.com/"
+     },
+     {
+      "claim": "Fort Lauderdale Grand Hotel is near Fort Lauderdale Beaches and Lauderdale-by-the-Sea.",
+      "source": "https://www.fortlauderdalegrandhotel.com/"
+     },
+     {
+      "claim": "Fort Lauderdale Grand Hotel rooms include a Traditional 2 Queen Beds Poolside room.",
+      "source": "https://www.fortlauderdalegrandhotel.com/"
+     },
+     {
+      "claim": "Fort Lauderdale Grand Hotel has an outdoor pool.",
+      "source": "https://www.fortlauderdalegrandhotel.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJqfxlC-XhwogRAZ7oO6hcGqY",
+   "name": "Pier Teaki",
+   "category": "nightlife",
+   "metro": "st-pete",
+   "primary_type": "bar",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://pierteaki.com/",
+     "source_name": "Pier Teaki \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "We are a tropical oasis at the end of the St. Pete Pier, home to Driftwood Cafe, Teak: Nautical Restaurant, and Pier Teaki: Rooftop Bar.",
+      "Our Teaki Huts overlooking St. Pete's skyline and Tampa Bay.",
+      "Each Teaki Hut provides seating for 6 guests, with standing space to accommodate 2 additional guests.",
+      "Pier Teaki is at 800 2nd Ave NE St. Petersburg, FL"
+     ]
+    },
+    {
+     "source": "https://pierteaki.com/menu/",
+     "source_name": "Pier Teaki \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Guests must be 21 or older after 8 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Tropical Rooftop Bar at the end of the St. Pete Pier overlooking Tampa Bay",
+    "why_here": "Visit Pier Teaki: Rooftop Bar at the end of the St. Pete Pier for Teaki Huts overlooking St. Pete's skyline and Tampa Bay, alongside Driftwood Cafe and Teak: Nautical Restaurant.",
+    "know_before": "Guests must be 21 or older after 8 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://pierteaki.com/",
+      "https://pierteaki.com/menu/"
+     ],
+     "why_here": [
+      "https://pierteaki.com/",
+      "https://pierteaki.com/menu/"
+     ],
+     "know_before": [
+      "https://pierteaki.com/",
+      "https://pierteaki.com/menu/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "We are a tropical oasis at the end of the St. Pete Pier, home to Driftwood Cafe, Teak: Nautical Restaurant, and Pier Teaki: Rooftop Bar.",
+      "source": "https://pierteaki.com/"
+     },
+     {
+      "claim": "Our Teaki Huts overlooking St. Pete's skyline and Tampa Bay.",
+      "source": "https://pierteaki.com/"
+     },
+     {
+      "claim": "Each Teaki Hut provides seating for 6 guests, with standing space to accommodate 2 additional guests.",
+      "source": "https://pierteaki.com/"
+     },
+     {
+      "claim": "Pier Teaki is at 800 2nd Ave NE St. Petersburg, FL",
+      "source": "https://pierteaki.com/"
+     },
+     {
+      "claim": "Guests must be 21 or older after 8 p.m.",
+      "source": "https://pierteaki.com/menu/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJz1BFHEOl2YgRmX5JfN_38qQ",
+   "name": "Flanigan's Seafood Bar and Grill",
+   "category": "nightlife",
+   "metro": "miami-dade",
+   "primary_type": "bar_and_grill",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.flanigans.net/menu/",
+     "source_name": "Flanigan's Seafood Bar and Grill \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Flanigan's Seafood Bar and Grill main menu includes Starters, Ribs, Ten Ounce Burgers, and Seafood",
+      "Flanigan's menu includes Ribs",
+      "Flanigan's menu includes Seafood"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Ribs, Ten Ounce Burgers, and Seafood on the main menu",
+    "why_here": "Come for Ribs, Ten Ounce Burgers, and Seafood, with Starters also on the main menu at Flanigan's Seafood Bar and Grill for a group meal at the table.",
+    "know_before": "The main menu includes Starters, Ribs, Ten Ounce Burgers, and Seafood.",
+    "local_tip": "Try the Ten Ounce Burgers",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.flanigans.net/menu/"
+     ],
+     "why_here": [
+      "https://www.flanigans.net/menu/"
+     ],
+     "know_before": [
+      "https://www.flanigans.net/menu/"
+     ],
+     "local_tip": [
+      "https://www.flanigans.net/menu/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Flanigan's Seafood Bar and Grill main menu includes Starters, Ribs, Ten Ounce Burgers, and Seafood",
+      "source": "https://www.flanigans.net/menu/"
+     },
+     {
+      "claim": "Flanigan's menu includes Ribs",
+      "source": "https://www.flanigans.net/menu/"
+     },
+     {
+      "claim": "Flanigan's menu includes Seafood",
+      "source": "https://www.flanigans.net/menu/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJsb6tn3ke2YgRMRBNrsRLvIA",
+   "name": "True Food Kitchen",
+   "category": "food",
+   "metro": "palm-beach",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.truefoodkitchen.com/locations/",
+     "source_name": "True Food Kitchen \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "True Food Kitchen's West Palm Beach location is at 700 S. Rosemary Ave, West Palm Beach, FL 33401",
+      "True Food Kitchen menu includes Edamame Dumplings"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Edamame Dumplings in West Palm Beach",
+    "why_here": "Go to the West Palm Beach location at 700 S. Rosemary Ave for Edamame Dumplings, with the address in West Palm Beach, FL 33401 listed for True Food Kitchen.",
+    "know_before": "True Food Kitchen's West Palm Beach location is at 700 S. Rosemary Ave, West Palm Beach, FL 33401",
+    "local_tip": "Try the Edamame Dumplings",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.truefoodkitchen.com/locations/"
+     ],
+     "why_here": [
+      "https://www.truefoodkitchen.com/locations/"
+     ],
+     "know_before": [
+      "https://www.truefoodkitchen.com/locations/"
+     ],
+     "local_tip": [
+      "https://www.truefoodkitchen.com/locations/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "True Food Kitchen's West Palm Beach location is at 700 S. Rosemary Ave, West Palm Beach, FL 33401",
+      "source": "https://www.truefoodkitchen.com/locations/"
+     },
+     {
+      "claim": "True Food Kitchen menu includes Edamame Dumplings",
+      "source": "https://www.truefoodkitchen.com/locations/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJh2ReG1eO54gRPnAc5j0BScM",
+   "name": "The Crooked Spoon",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.thespoonclermont.com/menus/food-ordering",
+     "source_name": "The Crooked Spoon \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Crooked Spoon Gastropub is at 200 Citrus Tower Blvd, Clermont, FL 34711",
+      "The menu includes Starters, Burgers, and Entrees",
+      "The menu includes Bleu Cheese Chips under Starters"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Bleu Cheese Chips and Burgers in Clermont",
+    "why_here": "Visit The Crooked Spoon Gastropub at 200 Citrus Tower Blvd in Clermont for Bleu Cheese Chips under Starters, plus Burgers and Entrees on the menu.",
+    "know_before": "The Crooked Spoon Gastropub is at 200 Citrus Tower Blvd, Clermont, FL 34711.",
+    "local_tip": "Try the Bleu Cheese Chips",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.thespoonclermont.com/menus/food-ordering"
+     ],
+     "why_here": [
+      "https://www.thespoonclermont.com/menus/food-ordering"
+     ],
+     "know_before": [
+      "https://www.thespoonclermont.com/menus/food-ordering"
+     ],
+     "local_tip": [
+      "https://www.thespoonclermont.com/menus/food-ordering"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Crooked Spoon Gastropub is at 200 Citrus Tower Blvd, Clermont, FL 34711",
+      "source": "https://www.thespoonclermont.com/menus/food-ordering"
+     },
+     {
+      "claim": "The menu includes Starters, Burgers, and Entrees",
+      "source": "https://www.thespoonclermont.com/menus/food-ordering"
+     },
+     {
+      "claim": "The menu includes Bleu Cheese Chips under Starters",
+      "source": "https://www.thespoonclermont.com/menus/food-ordering"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJkzhM2F2NwogRKIYQ9y6w3l8",
+   "name": "A. L. Anderson Park",
+   "category": "attractions",
+   "metro": "tampa",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://pinellas.gov/parks/a-l-anderson-park/",
+     "source_name": "A. L. Anderson Park \u2014 official source",
+     "source_class": "government",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "A.L. Anderson Park is 135 acres off U.S. 19 in Tarpon Springs",
+      "The park has a boat ramp (fee charged)",
+      "The park has 9 picnic shelters",
+      "The park is open 7 days a week, 7 a.m. to sunset",
+      "County Parks are closed the day after Thanksgiving and December 25"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "135-acre Tarpon Springs park with a boat ramp and 9 picnic shelters",
+    "why_here": "Go to this 135-acre park in Tarpon Springs for a boat ramp and 9 picnic shelters in a county park. It is open 7 days a week from 7 a.m. to sunset off U.S. 19.",
+    "know_before": "County Parks are closed the day after Thanksgiving and December 25",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://pinellas.gov/parks/a-l-anderson-park/"
+     ],
+     "why_here": [
+      "https://pinellas.gov/parks/a-l-anderson-park/"
+     ],
+     "know_before": [
+      "https://pinellas.gov/parks/a-l-anderson-park/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "A.L. Anderson Park is 135 acres off U.S. 19 in Tarpon Springs",
+      "source": "https://pinellas.gov/parks/a-l-anderson-park/"
+     },
+     {
+      "claim": "The park has a boat ramp (fee charged)",
+      "source": "https://pinellas.gov/parks/a-l-anderson-park/"
+     },
+     {
+      "claim": "The park has 9 picnic shelters",
+      "source": "https://pinellas.gov/parks/a-l-anderson-park/"
+     },
+     {
+      "claim": "The park is open 7 days a week, 7 a.m. to sunset",
+      "source": "https://pinellas.gov/parks/a-l-anderson-park/"
+     },
+     {
+      "claim": "County Parks are closed the day after Thanksgiving and December 25",
+      "source": "https://pinellas.gov/parks/a-l-anderson-park/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJEcNP3I78wogROy4r44ThIrk",
+   "name": "Pipo's Cuban Cafe- St. Petersburg, Florida",
+   "category": "food",
+   "metro": "st-pete",
+   "primary_type": "cuban_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://pipos1979.com/st-petersburg-pipo-s-the-original-cuban-cafe-food-menu",
+     "source_name": "Pipo's Cuban Cafe- St. Petersburg, Florida \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Pipo's Cuban Cafe is at 9531 Bay Pines Blvd",
+      "The Original Cuban is a sandwich with Pipo's pork, ham, salami and Swiss cheese",
+      "On Monday, Pipo's Cuban Cafe is open from 9 a.m. to 8 p.m.",
+      "On Friday, Pipo's Cuban Cafe is open from 9 a.m. to 9 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "The Original Cuban with pork, ham, salami and Swiss cheese",
+    "why_here": "Come for The Original Cuban with Pipo's pork, ham, salami and Swiss cheese, served at Pipo's Cuban Cafe at 9531 Bay Pines Blvd for a Cuban meal.",
+    "know_before": "On Monday, open from 9 a.m. to 8 p.m.; on Friday, open from 9 a.m. to 9 p.m.",
+    "local_tip": "Try The Original Cuban",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://pipos1979.com/st-petersburg-pipo-s-the-original-cuban-cafe-food-menu"
+     ],
+     "why_here": [
+      "https://pipos1979.com/st-petersburg-pipo-s-the-original-cuban-cafe-food-menu"
+     ],
+     "know_before": [
+      "https://pipos1979.com/st-petersburg-pipo-s-the-original-cuban-cafe-food-menu"
+     ],
+     "local_tip": [
+      "https://pipos1979.com/st-petersburg-pipo-s-the-original-cuban-cafe-food-menu"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Pipo's Cuban Cafe is at 9531 Bay Pines Blvd",
+      "source": "https://pipos1979.com/st-petersburg-pipo-s-the-original-cuban-cafe-food-menu"
+     },
+     {
+      "claim": "The Original Cuban is a sandwich with Pipo's pork, ham, salami and Swiss cheese",
+      "source": "https://pipos1979.com/st-petersburg-pipo-s-the-original-cuban-cafe-food-menu"
+     },
+     {
+      "claim": "On Monday, Pipo's Cuban Cafe is open from 9 a.m. to 8 p.m.",
+      "source": "https://pipos1979.com/st-petersburg-pipo-s-the-original-cuban-cafe-food-menu"
+     },
+     {
+      "claim": "On Friday, Pipo's Cuban Cafe is open from 9 a.m. to 9 p.m.",
+      "source": "https://pipos1979.com/st-petersburg-pipo-s-the-original-cuban-cafe-food-menu"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ2Vvdrmf7wogRBw4sLYRRKMM",
+   "name": "Seminole Lanes",
+   "category": "attractions",
+   "metro": "st-pete",
+   "primary_type": "bowling_alley",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.seminoleandsunriselanes.net/newyearseve",
+     "source_name": "Seminole Lanes \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Seminole Lanes is at 8668 Park Blvd, Seminole, FL 33777"
+     ]
+    },
+    {
+     "source": "https://www.seminoleandsunriselanes.net/",
+     "source_name": "Seminole Lanes \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Leagues for all ages are offered"
+     ]
+    },
+    {
+     "source": "https://www.seminoleandsunriselanes.net/leagues",
+     "source_name": "Seminole Lanes \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Seminole Lanes Hours: Sun - Thurs 10 a.m. - Midnight Fri & Sat: 10 a.m. - 1 a.m."
+     ]
+    },
+    {
+     "source": "https://www.seminoleandsunriselanes.net/partiesandevents",
+     "source_name": "Seminole Lanes \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Laser Tag Party is only available at Seminole Lanes"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Seminole bowling lanes with Leagues for all ages and Laser Tag",
+    "why_here": "Bowl at 8668 Park Blvd, Seminole, FL 33777, where Leagues for all ages are offered at Seminole Lanes. Laser Tag is also available at Seminole Lanes for a non-bowling add-on during a visit.",
+    "know_before": "Seminole Lanes Hours: Sun - Thurs 10 a.m. - Midnight Fri & Sat: 10 a.m. - 1 a.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.seminoleandsunriselanes.net/newyearseve",
+      "https://www.seminoleandsunriselanes.net/",
+      "https://www.seminoleandsunriselanes.net/leagues",
+      "https://www.seminoleandsunriselanes.net/partiesandevents"
+     ],
+     "why_here": [
+      "https://www.seminoleandsunriselanes.net/newyearseve",
+      "https://www.seminoleandsunriselanes.net/",
+      "https://www.seminoleandsunriselanes.net/leagues",
+      "https://www.seminoleandsunriselanes.net/partiesandevents"
+     ],
+     "know_before": [
+      "https://www.seminoleandsunriselanes.net/newyearseve",
+      "https://www.seminoleandsunriselanes.net/",
+      "https://www.seminoleandsunriselanes.net/leagues",
+      "https://www.seminoleandsunriselanes.net/partiesandevents"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Seminole Lanes is at 8668 Park Blvd, Seminole, FL 33777",
+      "source": "https://www.seminoleandsunriselanes.net/newyearseve"
+     },
+     {
+      "claim": "Leagues for all ages are offered",
+      "source": "https://www.seminoleandsunriselanes.net/"
+     },
+     {
+      "claim": "Seminole Lanes Hours: Sun - Thurs 10 a.m. - Midnight Fri & Sat: 10 a.m. - 1 a.m.",
+      "source": "https://www.seminoleandsunriselanes.net/leagues"
+     },
+     {
+      "claim": "Laser Tag Party is only available at Seminole Lanes",
+      "source": "https://www.seminoleandsunriselanes.net/partiesandevents"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJL7Ium5Yn5IgRJB0LWSt10rg",
+   "name": "Potter's Wax Museum",
+   "category": "attractions",
+   "metro": "st-augustine-fl",
+   "primary_type": "museum",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.potterswaxmuseum.com/",
+     "source_name": "Potter's Wax Museum \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Potter's Wax Museum was the first established wax museum in America.",
+      "Potter's Wax Museum has over 160 wax figures.",
+      "Potter's Wax Museum is at 31 Orange Street, St. Augustine, FL 32084 inside the historic Old Drug Store.",
+      "Potter's Wax Museum is open daily from 9 a.m. to 5 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "First established wax museum in America with over 160 wax figures",
+    "why_here": "See over 160 wax figures at the first established wax museum in America, inside the historic Old Drug Store at 31 Orange Street in St. Augustine.",
+    "know_before": "Open daily from 9 a.m. to 5 p.m. at 31 Orange Street, St. Augustine.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.potterswaxmuseum.com/"
+     ],
+     "why_here": [
+      "https://www.potterswaxmuseum.com/"
+     ],
+     "know_before": [
+      "https://www.potterswaxmuseum.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Potter's Wax Museum was the first established wax museum in America.",
+      "source": "https://www.potterswaxmuseum.com/"
+     },
+     {
+      "claim": "Potter's Wax Museum has over 160 wax figures.",
+      "source": "https://www.potterswaxmuseum.com/"
+     },
+     {
+      "claim": "Potter's Wax Museum is at 31 Orange Street, St. Augustine, FL 32084 inside the historic Old Drug Store.",
+      "source": "https://www.potterswaxmuseum.com/"
+     },
+     {
+      "claim": "Potter's Wax Museum is open daily from 9 a.m. to 5 p.m.",
+      "source": "https://www.potterswaxmuseum.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJbb28kgW72YgR3tnBy7rfXcg",
+   "name": "The Doral Yard",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://thedoralyard.com/faq/",
+     "source_name": "The Doral Yard \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Doral Yard is a community gathering space designed to foster local culture and entrepreneurship.",
+      "The 20,000-square-foot venue brings culinary delights, live entertainment, and round-the-clock events to Downtown Doral.",
+      "Well-behaved, leashed pets are welcome on our outdoor areas.",
+      "Please refrain from bringing any outside food or drinks into the venue."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Community gathering space in Downtown Doral with live entertainment",
+    "why_here": "Go for culinary delights and live entertainment at a 20,000-square-foot venue designed to foster local culture and entrepreneurship in Downtown Doral.",
+    "know_before": "Well-behaved, leashed pets are welcome on outdoor areas, but please refrain from bringing any outside food or drinks into the venue.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://thedoralyard.com/faq/"
+     ],
+     "why_here": [
+      "https://thedoralyard.com/faq/"
+     ],
+     "know_before": [
+      "https://thedoralyard.com/faq/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Doral Yard is a community gathering space designed to foster local culture and entrepreneurship.",
+      "source": "https://thedoralyard.com/faq/"
+     },
+     {
+      "claim": "The 20,000-square-foot venue brings culinary delights, live entertainment, and round-the-clock events to Downtown Doral.",
+      "source": "https://thedoralyard.com/faq/"
+     },
+     {
+      "claim": "Well-behaved, leashed pets are welcome on our outdoor areas.",
+      "source": "https://thedoralyard.com/faq/"
+     },
+     {
+      "claim": "Please refrain from bringing any outside food or drinks into the venue.",
+      "source": "https://thedoralyard.com/faq/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJgyHnt8-32YgR-uk2sh78b4U",
+   "name": "Glass & Vine",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.glassandvine.com/about",
+     "source_name": "Glass & Vine \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Glass & Vine, the lush, open-air restaurant set beneath the shade of Peacock Park's oak canopy in Coconut Grove, continues to evolve with a refreshed, all-day menu.",
+      "Menu highlights include Crispy Spice-Rubbed Chicken Wings, Hamachi Tartare, Watermelon Tomato Salad, and G&V Steak Frites.",
+      "Brunch favorites like The Cuban Benedict, the Big Breakfast, and G&V Shrimp & Grits are on the menu.",
+      "With a dedicated dog menu offered seven days a week."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Open-air restaurant beneath Peacock Park's oak canopy in Coconut Grove",
+    "why_here": "Come for a refreshed, all-day menu beneath Peacock Park's oak canopy, with Crispy Spice-Rubbed Chicken Wings, Hamachi Tartare, Watermelon Tomato Salad, and G&V Steak Frites.",
+    "know_before": "A dedicated dog menu is offered seven days a week.",
+    "local_tip": "Try The Cuban Benedict or G&V Shrimp & Grits at brunch.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.glassandvine.com/about"
+     ],
+     "why_here": [
+      "https://www.glassandvine.com/about"
+     ],
+     "know_before": [
+      "https://www.glassandvine.com/about"
+     ],
+     "local_tip": [
+      "https://www.glassandvine.com/about"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Glass & Vine, the lush, open-air restaurant set beneath the shade of Peacock Park's oak canopy in Coconut Grove, continues to evolve with a refreshed, all-day menu.",
+      "source": "https://www.glassandvine.com/about"
+     },
+     {
+      "claim": "Menu highlights include Crispy Spice-Rubbed Chicken Wings, Hamachi Tartare, Watermelon Tomato Salad, and G&V Steak Frites.",
+      "source": "https://www.glassandvine.com/about"
+     },
+     {
+      "claim": "Brunch favorites like The Cuban Benedict, the Big Breakfast, and G&V Shrimp & Grits are on the menu.",
+      "source": "https://www.glassandvine.com/about"
+     },
+     {
+      "claim": "With a dedicated dog menu offered seven days a week.",
+      "source": "https://www.glassandvine.com/about"
+     }
+    ]
+   }
+  }
+ ]
+}

@@ -4,6 +4,7 @@ import { useState } from "react";
 import GuidePhoto from "./GuidePhoto.js";
 import PhotoCreditLink from "./PhotoCreditLink.js";
 import { emitCommerce } from "../../lib/commerce.js";
+import { secondaryTicketPrimaryMatches } from "../../lib/secondaryTicketPrimary.js";
 
 // THE one Christmas card on /christmas-in-florida (owner direction 2026-11-01:
 // "I like the one from image 1 better but add the background similar to image
@@ -134,7 +135,7 @@ function PhotoStrip({ row, priority, failed = new Set(), onPhotoState }) {
 // the official source (row.sourceHref), and the secondary link is omitted so
 // the same page is never offered twice.
 export function TicketCard({ row, chrome, priority = false, idPrefix = "xm-", headingLevel = 2 }) {
-  const { price, cta } = row;
+  const { price, cta, secondaryCta } = row;
   const affiliate = !!cta && cta.kind === "affiliate";
   const Heading = headingLevel === 3 ? "h3" : "h2";
   const fallback = !cta
@@ -191,6 +192,14 @@ export function TicketCard({ row, chrome, priority = false, idPrefix = "xm-", he
                 onClick={affiliate ? undefined : () => organizerTap(row)}
               >{cta.label}</a>
               <p className="xm-via">{cta.via}</p>
+              {secondaryTicketPrimaryMatches(cta, secondaryCta) ? (
+                <p className="xm-via" data-secondary-resale="">
+                  <a href={secondaryCta.href} target="_blank" rel="sponsored nofollow noopener">
+                    {secondaryCta.label} at TicketSmarter
+                  </a>
+                  {" · "}{secondaryCta.via}
+                </p>
+              ) : null}
               {row.eventHref ? <a className="xm-event" href={row.eventHref}>{chrome.eventPage}</a> : null}
             </>
           ) : fallback ? (
