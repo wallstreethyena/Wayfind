@@ -1,0 +1,1765 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 20. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJzaF13qcCw4gRIPi8UVlm4CM",
+   "name": "The Toasted Monkey",
+   "category": "nightlife",
+   "metro": "st-pete",
+   "primary_type": "bar",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.thetoastedmonkey.com/",
+     "source_name": "The Toasted Monkey \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Toasted Monkey in St Pete Beach is a casual dining restaurant serving fresh food made in-house.",
+      "The Toasted Monkey offers Live Music Everyday.",
+      "The Toasted Monkey is family friendly, and the covered outdoor areas are dog-friendly.",
+      "There is plenty of covered dining and indoor and outdoor bar seating.",
+      "The Toasted Monkey is open every day Sunday through Thursday from 11 a.m. to 12 a.m. and Friday and Saturday from 11 a.m. to 1 a.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Casual dining with fresh food made in-house and live music",
+    "why_here": "The Toasted Monkey in St Pete Beach is a casual dining restaurant serving fresh food made in-house, with covered dining and indoor and outdoor bar seating for family friendly meals.",
+    "know_before": "Open every day Sunday through Thursday from 11 a.m. to 12 a.m. and Friday and Saturday from 11 a.m. to 1 a.m.",
+    "local_tip": "Covered outdoor areas are dog-friendly.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.thetoastedmonkey.com/"
+     ],
+     "why_here": [
+      "https://www.thetoastedmonkey.com/"
+     ],
+     "know_before": [
+      "https://www.thetoastedmonkey.com/"
+     ],
+     "local_tip": [
+      "https://www.thetoastedmonkey.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Toasted Monkey in St Pete Beach is a casual dining restaurant serving fresh food made in-house.",
+      "source": "https://www.thetoastedmonkey.com/"
+     },
+     {
+      "claim": "The Toasted Monkey offers Live Music Everyday.",
+      "source": "https://www.thetoastedmonkey.com/"
+     },
+     {
+      "claim": "The Toasted Monkey is family friendly, and the covered outdoor areas are dog-friendly.",
+      "source": "https://www.thetoastedmonkey.com/"
+     },
+     {
+      "claim": "There is plenty of covered dining and indoor and outdoor bar seating.",
+      "source": "https://www.thetoastedmonkey.com/"
+     },
+     {
+      "claim": "The Toasted Monkey is open every day Sunday through Thursday from 11 a.m. to 12 a.m. and Friday and Saturday from 11 a.m. to 1 a.m.",
+      "source": "https://www.thetoastedmonkey.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJoaAOBI-42YgRXrWONAd9zGo",
+   "name": "Pueblito Viejo",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "colombian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.pueblitoviejo.com/miami-menu",
+     "source_name": "Pueblito Viejo \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Pueblito Viejo in Miami serves Colombian food, with a Miami Menu listing appetizers, soups and entrees.",
+      "Arepa con Chicharron is an arepa served with crispy pork belly rinds.",
+      "Sancocho de Costilla de Res is a beef rib stew served with rice, arepa and avocado.",
+      "Bandeja Pueblito includes red beans, rice, fried pork rinds, grilled or ground skirt steak, fried sweet plantains, fried egg and arepa.",
+      "Empanada de Carne is a Colombian turnover stuffed with beef and potatoes.",
+      "Sopa de Pescado is a Colombian-style fish stew with a side salad, listed as weekends only."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Bandeja Pueblito, Sancocho de Costilla de Res and Arepa con Chicharron",
+    "why_here": "Pueblito Viejo in Miami serves Colombian food from a menu of appetizers, soups and entrees, including Bandeja Pueblito with red beans, rice, fried pork rinds, skirt steak, fried sweet plantains, fried egg and arepa.",
+    "know_before": "Sopa de Pescado is listed as weekends only.",
+    "local_tip": "Start with Empanada de Carne, a Colombian turnover stuffed with beef and potatoes.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.pueblitoviejo.com/miami-menu"
+     ],
+     "why_here": [
+      "https://www.pueblitoviejo.com/miami-menu"
+     ],
+     "know_before": [
+      "https://www.pueblitoviejo.com/miami-menu"
+     ],
+     "local_tip": [
+      "https://www.pueblitoviejo.com/miami-menu"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Pueblito Viejo in Miami serves Colombian food, with a Miami Menu listing appetizers, soups and entrees.",
+      "source": "https://www.pueblitoviejo.com/miami-menu"
+     },
+     {
+      "claim": "Arepa con Chicharron is an arepa served with crispy pork belly rinds.",
+      "source": "https://www.pueblitoviejo.com/miami-menu"
+     },
+     {
+      "claim": "Sancocho de Costilla de Res is a beef rib stew served with rice, arepa and avocado.",
+      "source": "https://www.pueblitoviejo.com/miami-menu"
+     },
+     {
+      "claim": "Bandeja Pueblito includes red beans, rice, fried pork rinds, grilled or ground skirt steak, fried sweet plantains, fried egg and arepa.",
+      "source": "https://www.pueblitoviejo.com/miami-menu"
+     },
+     {
+      "claim": "Empanada de Carne is a Colombian turnover stuffed with beef and potatoes.",
+      "source": "https://www.pueblitoviejo.com/miami-menu"
+     },
+     {
+      "claim": "Sopa de Pescado is a Colombian-style fish stew with a side salad, listed as weekends only.",
+      "source": "https://www.pueblitoviejo.com/miami-menu"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ4-cccYnW2IgRQiHPJgplErs",
+   "name": "Avocado Grill",
+   "category": "food",
+   "metro": "palm-beach",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.avocadogrillwpb.com/",
+     "source_name": "Avocado Grill \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Avocado Grill uses local ingredients to create cocktails and small plates.",
+      "The restaurant pairs decor with an open-air concept.",
+      "Avocado Grill is at 125 Datura St., West Palm Beach.",
+      "The site lists Open Table Diners Choice Award Winner for 2014 through 2019."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Open-air small plates and cocktails in downtown West Palm Beach",
+    "why_here": "Avocado Grill describes itself as inspired by sun and sea, using local ingredients for cocktails and small plates. Its open-air concept sits at 125 Datura St. in West Palm Beach.",
+    "know_before": "The site lists split lunch and dinner hours.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.avocadogrillwpb.com/"
+     ],
+     "why_here": [
+      "https://www.avocadogrillwpb.com/"
+     ],
+     "know_before": [
+      "https://www.avocadogrillwpb.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Avocado Grill uses local ingredients to create cocktails and small plates.",
+      "source": "https://www.avocadogrillwpb.com/"
+     },
+     {
+      "claim": "The restaurant pairs decor with an open-air concept.",
+      "source": "https://www.avocadogrillwpb.com/"
+     },
+     {
+      "claim": "Avocado Grill is at 125 Datura St., West Palm Beach.",
+      "source": "https://www.avocadogrillwpb.com/"
+     },
+     {
+      "claim": "The site lists Open Table Diners Choice Award Winner for 2014 through 2019.",
+      "source": "https://www.avocadogrillwpb.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ8Rl44tnvwogR_y-M4NTyxvE",
+   "name": "Congo River Golf",
+   "category": "attractions",
+   "metro": "st-pete",
+   "primary_type": "miniature_golf_course",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.congoriver.com/clearwater-experience-the-congo-golf.html",
+     "source_name": "Congo River Golf \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Play challenging miniature golf as you explore giant waterfalls and rocky summits, mysterious caves and tropical rainforests.",
+      "The Clearwater page lists Live Gators, Mining and Arcade, and an Exploration Game.",
+      "Online tickets include sales tax and are valid at any location, with no same day tickets."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Mini golf past waterfalls, caves and tropical rainforests",
+    "why_here": "Congo River Golf in Clearwater is an adventure miniature golf course themed around waterfalls, rocky summits and caves. The Clearwater page also lists live gators, mining and an arcade, and an exploration game.",
+    "know_before": "Online tickets are not valid for same-day use, per the official Clearwater page.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.congoriver.com/clearwater-experience-the-congo-golf.html"
+     ],
+     "why_here": [
+      "https://www.congoriver.com/clearwater-experience-the-congo-golf.html"
+     ],
+     "know_before": [
+      "https://www.congoriver.com/clearwater-experience-the-congo-golf.html"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Play challenging miniature golf as you explore giant waterfalls and rocky summits, mysterious caves and tropical rainforests.",
+      "source": "https://www.congoriver.com/clearwater-experience-the-congo-golf.html"
+     },
+     {
+      "claim": "The Clearwater page lists Live Gators, Mining and Arcade, and an Exploration Game.",
+      "source": "https://www.congoriver.com/clearwater-experience-the-congo-golf.html"
+     },
+     {
+      "claim": "Online tickets include sales tax and are valid at any location, with no same day tickets.",
+      "source": "https://www.congoriver.com/clearwater-experience-the-congo-golf.html"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJlUXHoJvhwogRg_8YrxsIXNs",
+   "name": "Hilton St. Petersburg Bayfront",
+   "category": "hotels",
+   "metro": "st-pete",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.hilton.com/en/hotels/sptshhf-hilton-st-petersburg-bayfront/",
+     "source_name": "Hilton St. Petersburg Bayfront \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Find us at the heart of St. Petersburg Waterfront District, across from the Salvador Dali Museum and Al Lang Stadium.",
+      "Our palm-lined courtyard is home to a heated pool, and we boast a 24-hour fitness center.",
+      "Amenities include an outdoor pool."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Downtown waterfront hotel across from the Dal\u00ed Museum",
+    "why_here": "Hilton St. Petersburg Bayfront sits in the heart of the St. Petersburg Waterfront District. Hilton lists a heated outdoor pool in a palm-lined courtyard and a 24-hour fitness center.",
+    "know_before": "The hotel is across from the Salvador Dali Museum and Al Lang Stadium.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.hilton.com/en/hotels/sptshhf-hilton-st-petersburg-bayfront/"
+     ],
+     "why_here": [
+      "https://www.hilton.com/en/hotels/sptshhf-hilton-st-petersburg-bayfront/"
+     ],
+     "know_before": [
+      "https://www.hilton.com/en/hotels/sptshhf-hilton-st-petersburg-bayfront/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Find us at the heart of St. Petersburg Waterfront District, across from the Salvador Dali Museum and Al Lang Stadium.",
+      "source": "https://www.hilton.com/en/hotels/sptshhf-hilton-st-petersburg-bayfront/"
+     },
+     {
+      "claim": "Our palm-lined courtyard is home to a heated pool, and we boast a 24-hour fitness center.",
+      "source": "https://www.hilton.com/en/hotels/sptshhf-hilton-st-petersburg-bayfront/"
+     },
+     {
+      "claim": "Amenities include an outdoor pool.",
+      "source": "https://www.hilton.com/en/hotels/sptshhf-hilton-st-petersburg-bayfront/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJt67l_Kyn4IgRkNMTIqdOoi0",
+   "name": "Cherie Down Park",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.brevardfl.gov/ParksAndRecreation/ParkDirectory/CherieDownPark",
+     "source_name": "Cherie Down Park \u2014 official source",
+     "source_class": "government",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Cherie Down is a 6.99 acre neighborhood beach park in Cape Canaveral.",
+      "Cherie Down Park amenities include restrooms, a drinking fountain, outdoor showers, and a family picnic shelter with grills.",
+      "Cherie Down Park serves as a place for surfing or surf fishing."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "A 6.99 acre beach park for surfing and surf fishing",
+    "why_here": "Cherie Down Park is a 6.99 acre neighborhood beach park in Cape Canaveral with restrooms, a drinking fountain, outdoor showers, and a family picnic shelter with grills for beach days.",
+    "know_before": "Amenities include restrooms, a drinking fountain and outdoor showers.",
+    "local_tip": "Try surfing or surf fishing, as the park serves as a place for both.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.brevardfl.gov/ParksAndRecreation/ParkDirectory/CherieDownPark"
+     ],
+     "why_here": [
+      "https://www.brevardfl.gov/ParksAndRecreation/ParkDirectory/CherieDownPark"
+     ],
+     "know_before": [
+      "https://www.brevardfl.gov/ParksAndRecreation/ParkDirectory/CherieDownPark"
+     ],
+     "local_tip": [
+      "https://www.brevardfl.gov/ParksAndRecreation/ParkDirectory/CherieDownPark"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Cherie Down is a 6.99 acre neighborhood beach park in Cape Canaveral.",
+      "source": "https://www.brevardfl.gov/ParksAndRecreation/ParkDirectory/CherieDownPark"
+     },
+     {
+      "claim": "Cherie Down Park amenities include restrooms, a drinking fountain, outdoor showers, and a family picnic shelter with grills.",
+      "source": "https://www.brevardfl.gov/ParksAndRecreation/ParkDirectory/CherieDownPark"
+     },
+     {
+      "claim": "Cherie Down Park serves as a place for surfing or surf fishing.",
+      "source": "https://www.brevardfl.gov/ParksAndRecreation/ParkDirectory/CherieDownPark"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJbUxInWTkwogRcuSCE9UwJls",
+   "name": "BJ's Restaurant & Brewhouse",
+   "category": "food",
+   "metro": "st-pete",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.bjsrestaurants.com/locations/fl/pinellas-park",
+     "source_name": "BJ's Restaurant & Brewhouse \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "BJ's Restaurant & Brewhouse in Pinellas Park, FL is listed on the official site.",
+      "The official page for BJ's Restaurant & Brewhouse in Pinellas Park names burgers in its title."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Burgers at BJ's Restaurant & Brewhouse in Pinellas Park",
+    "why_here": "BJ's Restaurant & Brewhouse in Pinellas Park, FL is listed on the official site, and the official page for this Pinellas Park location names burgers in its title for the brewhouse.",
+    "know_before": "The official site lists a BJ's Restaurant & Brewhouse location in Pinellas Park.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.bjsrestaurants.com/locations/fl/pinellas-park"
+     ],
+     "why_here": [
+      "https://www.bjsrestaurants.com/locations/fl/pinellas-park"
+     ],
+     "know_before": [
+      "https://www.bjsrestaurants.com/locations/fl/pinellas-park"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "BJ's Restaurant & Brewhouse in Pinellas Park, FL is listed on the official site.",
+      "source": "https://www.bjsrestaurants.com/locations/fl/pinellas-park"
+     },
+     {
+      "claim": "The official page for BJ's Restaurant & Brewhouse in Pinellas Park names burgers in its title.",
+      "source": "https://www.bjsrestaurants.com/locations/fl/pinellas-park"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJq-5pXUpp54gRwh-8nn9bK7s",
+   "name": "Rock & Brews",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.rockandbrews.com/orlando-catering",
+     "source_name": "Rock & Brews \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Rock & Brews Orlando makes American classics from scratch.",
+      "Rock & Brews Orlando has vegetarian, vegan, and gluten-free options.",
+      "Rock & Brews Orlando offers catering.",
+      "Rock & Brews in Orlando combines scratch made, classic American food, ice-cold drinks, and music in a family friendly atmosphere."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Scratch made American classics with catering in Orlando",
+    "why_here": "Rock & Brews Orlando makes American classics from scratch and has vegetarian, vegan, and gluten-free options, while Rock & Brews in Orlando combines classic American food, drinks and music in a family friendly atmosphere.",
+    "know_before": "Options include vegetarian, vegan, and gluten-free choices.",
+    "local_tip": "Consider catering from Rock & Brews Orlando.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.rockandbrews.com/orlando-catering"
+     ],
+     "why_here": [
+      "https://www.rockandbrews.com/orlando-catering"
+     ],
+     "know_before": [
+      "https://www.rockandbrews.com/orlando-catering"
+     ],
+     "local_tip": [
+      "https://www.rockandbrews.com/orlando-catering"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Rock & Brews Orlando makes American classics from scratch.",
+      "source": "https://www.rockandbrews.com/orlando-catering"
+     },
+     {
+      "claim": "Rock & Brews Orlando has vegetarian, vegan, and gluten-free options.",
+      "source": "https://www.rockandbrews.com/orlando-catering"
+     },
+     {
+      "claim": "Rock & Brews Orlando offers catering.",
+      "source": "https://www.rockandbrews.com/orlando-catering"
+     },
+     {
+      "claim": "Rock & Brews in Orlando combines scratch made, classic American food, ice-cold drinks, and music in a family friendly atmosphere.",
+      "source": "https://www.rockandbrews.com/orlando-catering"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJsU9RJcB-54gR1_PaxCYY9z4",
+   "name": "International Drive Outlet",
+   "category": "shopping",
+   "metro": "orlando",
+   "primary_type": "shopping_mall",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.premiumoutlets.com/outlet/orlando-international/about",
+     "source_name": "International Drive Outlet \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Orlando International Premium Outlets is Florida's largest outlet shopping destination spanning over 773,586 square feet.",
+      "Orlando International Premium Outlets has more than 180 outlet designer and name-brand outlet stores.",
+      "Orlando International Premium Outlets offers 20 distinct dining options.",
+      "Orlando International Premium Outlets is located at the north end of International Drive in Orlando.",
+      "Regular hours are Monday to Saturday from 10 a.m. to 9 p.m. and Sunday from 11 a.m. to 7 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "More than 180 outlet stores at Orlando International Premium Outlets",
+    "why_here": "Orlando International Premium Outlets spans over 773,586 square feet with more than 180 outlet designer and name-brand outlet stores and 20 distinct dining options in Orlando.",
+    "know_before": "Regular hours are Monday to Saturday from 10 a.m. to 9 p.m. and Sunday from 11 a.m. to 7 p.m.",
+    "local_tip": "Find it at the north end of International Drive.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.premiumoutlets.com/outlet/orlando-international/about"
+     ],
+     "why_here": [
+      "https://www.premiumoutlets.com/outlet/orlando-international/about"
+     ],
+     "know_before": [
+      "https://www.premiumoutlets.com/outlet/orlando-international/about"
+     ],
+     "local_tip": [
+      "https://www.premiumoutlets.com/outlet/orlando-international/about"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Orlando International Premium Outlets is Florida's largest outlet shopping destination spanning over 773,586 square feet.",
+      "source": "https://www.premiumoutlets.com/outlet/orlando-international/about"
+     },
+     {
+      "claim": "Orlando International Premium Outlets has more than 180 outlet designer and name-brand outlet stores.",
+      "source": "https://www.premiumoutlets.com/outlet/orlando-international/about"
+     },
+     {
+      "claim": "Orlando International Premium Outlets offers 20 distinct dining options.",
+      "source": "https://www.premiumoutlets.com/outlet/orlando-international/about"
+     },
+     {
+      "claim": "Orlando International Premium Outlets is located at the north end of International Drive in Orlando.",
+      "source": "https://www.premiumoutlets.com/outlet/orlando-international/about"
+     },
+     {
+      "claim": "Regular hours are Monday to Saturday from 10 a.m. to 9 p.m. and Sunday from 11 a.m. to 7 p.m.",
+      "source": "https://www.premiumoutlets.com/outlet/orlando-international/about"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ3U3we82n2YgRRUg5ShWB7YQ",
+   "name": "Level TwentyNine Peruvian & Asian Cuisine",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "peruvian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://level-twentynine.com/",
+     "source_name": "Level TwentyNine Peruvian & Asian Cuisine \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Level TwentyNine describes its concept as 'Where Tokyo Precision Meets Lima Fire.'",
+      "The restaurant is in Pembroke Pines, FL."
+     ]
+    },
+    {
+     "source": "https://level-twentynine.com/our-inspiration/",
+     "source_name": "Level TwentyNine Peruvian & Asian Cuisine \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Nikkei cuisine traces to Japanese migrants who arrived in Peru in 1899.",
+      "Chifa traces to Chinese immigrants who arrived in Peru in 1849."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Where Tokyo precision meets Lima fire in Pembroke Pines",
+    "why_here": "Level TwentyNine in Pembroke Pines blends Peruvian and Asian cooking, describing its concept as Tokyo precision meeting Lima fire. Its inspiration page traces Nikkei cuisine to Japanese migrants who arrived in Peru in 1899 and Chifa to Chinese immigrants who arrived in 1849.",
+    "know_before": "The official site recommends making a reservation ahead of time.",
+    "local_tip": "The restaurant offers catering and private group dining, per its official site.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://level-twentynine.com/",
+      "https://level-twentynine.com/our-inspiration/"
+     ],
+     "why_here": [
+      "https://level-twentynine.com/",
+      "https://level-twentynine.com/our-inspiration/"
+     ],
+     "know_before": [
+      "https://level-twentynine.com/",
+      "https://level-twentynine.com/our-inspiration/"
+     ],
+     "local_tip": [
+      "https://level-twentynine.com/",
+      "https://level-twentynine.com/our-inspiration/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Level TwentyNine describes its concept as 'Where Tokyo Precision Meets Lima Fire.'",
+      "source": "https://level-twentynine.com/"
+     },
+     {
+      "claim": "Nikkei cuisine traces to Japanese migrants who arrived in Peru in 1899.",
+      "source": "https://level-twentynine.com/our-inspiration/"
+     },
+     {
+      "claim": "Chifa traces to Chinese immigrants who arrived in Peru in 1849.",
+      "source": "https://level-twentynine.com/our-inspiration/"
+     },
+     {
+      "claim": "The restaurant is in Pembroke Pines, FL.",
+      "source": "https://level-twentynine.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJTZIyYQXW2IgR8HD1nuGZtYQ",
+   "name": "BJ's Restaurant & Brewhouse",
+   "category": "food",
+   "metro": "palm-beach",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.bjsrestaurants.com/menu-item/cookies-n-cream-pizookie-2",
+     "source_name": "BJ's Restaurant & Brewhouse \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "BJ's official menu includes a Cookies 'n' Cream Pizookie.",
+      "Cookies 'n' Cream Pizookie is a rich chocolate cookie with rich vanilla bean ice cream."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Cookies 'n' Cream Pizookie on the official menu",
+    "why_here": "BJ's official menu includes a cookies 'n' Cream Pizookie. cookies 'n' Cream Pizookie is a rich chocolate cookie with rich vanilla bean ice cream.",
+    "know_before": "Cookies 'n' Cream Pizookie is a rich chocolate cookie with rich vanilla bean ice cream.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.bjsrestaurants.com/menu-item/cookies-n-cream-pizookie-2"
+     ],
+     "why_here": [
+      "https://www.bjsrestaurants.com/menu-item/cookies-n-cream-pizookie-2"
+     ],
+     "know_before": [
+      "https://www.bjsrestaurants.com/menu-item/cookies-n-cream-pizookie-2"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "BJ's official menu includes a Cookies 'n' Cream Pizookie.",
+      "source": "https://www.bjsrestaurants.com/menu-item/cookies-n-cream-pizookie-2"
+     },
+     {
+      "claim": "Cookies 'n' Cream Pizookie is a rich chocolate cookie with rich vanilla bean ice cream.",
+      "source": "https://www.bjsrestaurants.com/menu-item/cookies-n-cream-pizookie-2"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ928x_JviwogRPsQaymnexlE",
+   "name": "Pia's Trattoria",
+   "category": "food",
+   "metro": "st-pete",
+   "primary_type": "italian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://piastrattoria.com/home-page",
+     "source_name": "Pia's Trattoria \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Pia's Trattoria in Gulfport was established in 2005.",
+      "Pia's serves fresh, natural foods in a romantic, cozy Old Italy atmosphere.",
+      "Its cakes and desserts are made from scratch with fresh ingredients and no preservatives.",
+      "Food is cooked to order."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Established in 2005, a cozy Old Italy eating house in Gulfport",
+    "why_here": "Pia's Trattoria in Gulfport was established in 2005. Pia's serves fresh, natural foods in a romantic, cozy Old Italy atmosphere, with cakes and desserts made from scratch.",
+    "know_before": "Food is cooked to order.",
+    "local_tip": "Try cakes and desserts made from scratch with fresh ingredients and no preservatives.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://piastrattoria.com/home-page"
+     ],
+     "why_here": [
+      "https://piastrattoria.com/home-page"
+     ],
+     "know_before": [
+      "https://piastrattoria.com/home-page"
+     ],
+     "local_tip": [
+      "https://piastrattoria.com/home-page"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Pia's Trattoria in Gulfport was established in 2005.",
+      "source": "https://piastrattoria.com/home-page"
+     },
+     {
+      "claim": "Pia's serves fresh, natural foods in a romantic, cozy Old Italy atmosphere.",
+      "source": "https://piastrattoria.com/home-page"
+     },
+     {
+      "claim": "Its cakes and desserts are made from scratch with fresh ingredients and no preservatives.",
+      "source": "https://piastrattoria.com/home-page"
+     },
+     {
+      "claim": "Food is cooked to order.",
+      "source": "https://piastrattoria.com/home-page"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJcxPbgHR_3YgREdEfQzSwSPE",
+   "name": "Wyndham Grand Orlando Resort Bonnet Creek",
+   "category": "hotels",
+   "metro": "orlando",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.wyndhamgrandorlando.com/blog",
+     "source_name": "Wyndham Grand Orlando Resort Bonnet Creek \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Wyndham Grand Orlando Resort Bonnet Creek is a Walt Disney World Resort Gateway Hotel set along a 10-acre lake.",
+      "The resort has five pools, a lazy river, and five restaurants."
+     ]
+    },
+    {
+     "source": "https://www.wyndhamgrandorlando.com/",
+     "source_name": "Wyndham Grand Orlando Resort Bonnet Creek \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The resort is set on 62 acres."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Resort set along a 10-acre lake near Walt Disney World Resort",
+    "why_here": "Wyndham Grand Orlando Resort Bonnet Creek is a Walt Disney World Resort Gateway Hotel set along a 10-acre lake. The resort offers multiple pools and dining options for families staying near the theme parks.",
+    "know_before": "Reservations can be made by phone through the resort; check the official site for current offers.",
+    "local_tip": "Choose a room overlooking the lake and woodland for a quieter stay away from the pools.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.wyndhamgrandorlando.com/blog",
+      "https://www.wyndhamgrandorlando.com/"
+     ],
+     "why_here": [
+      "https://www.wyndhamgrandorlando.com/blog",
+      "https://www.wyndhamgrandorlando.com/"
+     ],
+     "know_before": [
+      "https://www.wyndhamgrandorlando.com/blog",
+      "https://www.wyndhamgrandorlando.com/"
+     ],
+     "local_tip": [
+      "https://www.wyndhamgrandorlando.com/blog",
+      "https://www.wyndhamgrandorlando.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Wyndham Grand Orlando Resort Bonnet Creek is a Walt Disney World Resort Gateway Hotel set along a 10-acre lake.",
+      "source": "https://www.wyndhamgrandorlando.com/blog"
+     },
+     {
+      "claim": "The resort has five pools, a lazy river, and five restaurants.",
+      "source": "https://www.wyndhamgrandorlando.com/blog"
+     },
+     {
+      "claim": "The resort is set on 62 acres.",
+      "source": "https://www.wyndhamgrandorlando.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJo90S7zBN5IgR1Ww2wh3bQDM",
+   "name": "Palms Fish Camp Restaurant",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.palmsfishcamp.com/about",
+     "source_name": "Palms Fish Camp Restaurant \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Palms Fish Camp has been located on the banks of Clapboard Creek since 1950.",
+      "Shrimp Po'boy is fried Mayport shrimp, lettuce, tomato and onions on a hoagie.",
+      "Mayport shrimp is fresh local caught shrimp."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Fish camp on Clapboard Creek serving Mayport shrimp since 1950",
+    "why_here": "The Palms Fish Camp has been located on the banks of Clapboard Creek since 1950. Shrimp Po'boy is fried Mayport shrimp, lettuce, tomato and onions on a hoagie.",
+    "know_before": "Shrimp Po'boy is fried Mayport shrimp, lettuce, tomato and onions on a hoagie.",
+    "local_tip": "Order the Shrimp Po'boy with fried Mayport shrimp, lettuce, tomato and onions on a hoagie.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.palmsfishcamp.com/about"
+     ],
+     "why_here": [
+      "https://www.palmsfishcamp.com/about"
+     ],
+     "know_before": [
+      "https://www.palmsfishcamp.com/about"
+     ],
+     "local_tip": [
+      "https://www.palmsfishcamp.com/about"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Palms Fish Camp has been located on the banks of Clapboard Creek since 1950.",
+      "source": "https://www.palmsfishcamp.com/about"
+     },
+     {
+      "claim": "Shrimp Po'boy is fried Mayport shrimp, lettuce, tomato and onions on a hoagie.",
+      "source": "https://www.palmsfishcamp.com/about"
+     },
+     {
+      "claim": "Mayport shrimp is fresh local caught shrimp.",
+      "source": "https://www.palmsfishcamp.com/about"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJN0Q7Li7wwogRGUSXlL8W1HI",
+   "name": "Publix Super Market at Gulf to Bay Plaza",
+   "category": "shopping",
+   "metro": "st-pete",
+   "primary_type": "supermarket",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.publix.com/locations/1160-gulf-to-bay-plaza",
+     "source_name": "Publix Super Market at Gulf to Bay Plaza \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Publix Super Market at Gulf to Bay Plaza is located at 525 S Belcher Rd, Clearwater.",
+      "The Gulf to Bay Plaza Publix has a Bakery and a Deli.",
+      "The Gulf to Bay Plaza Publix has a Publix Pharmacy."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Publix supermarket at Gulf to Bay Plaza with bakery and deli",
+    "why_here": "Publix Super Market at Gulf to Bay Plaza in Clearwater is a full-service supermarket location listed on Publix's official site. The store includes bakery and deli departments and a Publix Pharmacy.",
+    "know_before": "Check the official Publix location page for current store and pharmacy hours before visiting.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.publix.com/locations/1160-gulf-to-bay-plaza"
+     ],
+     "why_here": [
+      "https://www.publix.com/locations/1160-gulf-to-bay-plaza"
+     ],
+     "know_before": [
+      "https://www.publix.com/locations/1160-gulf-to-bay-plaza"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Publix Super Market at Gulf to Bay Plaza is located at 525 S Belcher Rd, Clearwater.",
+      "source": "https://www.publix.com/locations/1160-gulf-to-bay-plaza"
+     },
+     {
+      "claim": "The Gulf to Bay Plaza Publix has a Bakery and a Deli.",
+      "source": "https://www.publix.com/locations/1160-gulf-to-bay-plaza"
+     },
+     {
+      "claim": "The Gulf to Bay Plaza Publix has a Publix Pharmacy.",
+      "source": "https://www.publix.com/locations/1160-gulf-to-bay-plaza"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJC9RNDw3B2YgRXY0rSFjC9D4",
+   "name": "Isla Del Encanto",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://isladelencantorestaurant.com/menu/",
+     "source_name": "Isla Del Encanto \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Every dish at Isla del Encanto is a tribute to Puerto Rico's rich culinary heritage, from slow-cooked pernil to mofongo packed with flavor.",
+      "The menu includes Plantain or Cassava Fritters Filled with Beef.",
+      "The menu includes Tembleque, described as Coconut pudding."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Slow-cooked pernil to mofongo packed with flavor",
+    "why_here": "Every dish at Isla del Encanto is a tribute to Puerto Rico's rich culinary heritage, from slow-cooked pernil to mofongo packed with flavor. The menu includes Plantain or Cassava Fritters Filled with Beef.",
+    "know_before": "The menu includes Plantain or Cassava Fritters Filled with Beef.",
+    "local_tip": "Start with Plantain or Cassava Fritters Filled with Beef from the menu.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://isladelencantorestaurant.com/menu/"
+     ],
+     "why_here": [
+      "https://isladelencantorestaurant.com/menu/"
+     ],
+     "know_before": [
+      "https://isladelencantorestaurant.com/menu/"
+     ],
+     "local_tip": [
+      "https://isladelencantorestaurant.com/menu/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Every dish at Isla del Encanto is a tribute to Puerto Rico's rich culinary heritage, from slow-cooked pernil to mofongo packed with flavor.",
+      "source": "https://isladelencantorestaurant.com/menu/"
+     },
+     {
+      "claim": "The menu includes Plantain or Cassava Fritters Filled with Beef.",
+      "source": "https://isladelencantorestaurant.com/menu/"
+     },
+     {
+      "claim": "The menu includes Tembleque, described as Coconut pudding.",
+      "source": "https://isladelencantorestaurant.com/menu/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJU8gUzIm12YgRwt0FTZZ2w5w",
+   "name": "Garden House",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "latin_american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://gardenhouserestaurant.com/",
+     "source_name": "Garden House \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Garden House is a Colombian and Latin restaurant in Miami Beach.",
+      "The menu includes the traditional Colombian Bandeja Paisa.",
+      "The restaurant serves Colombian chuzos, described as a street-food classic.",
+      "Garden House is pet-friendly."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Colombian chuzos and Bandeja Paisa served in Miami Beach",
+    "why_here": "Garden House is a Colombian and Latin restaurant in Miami Beach serving homemade Latin food. It is known for traditional Colombian dishes including Bandeja Paisa, Colombian chuzos, and obleas.",
+    "know_before": "The restaurant states it is pet-friendly.",
+    "local_tip": "Try the Colombian chuzos, described by the restaurant as a Colombian street-food classic.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://gardenhouserestaurant.com/"
+     ],
+     "why_here": [
+      "https://gardenhouserestaurant.com/"
+     ],
+     "know_before": [
+      "https://gardenhouserestaurant.com/"
+     ],
+     "local_tip": [
+      "https://gardenhouserestaurant.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Garden House is a Colombian and Latin restaurant in Miami Beach.",
+      "source": "https://gardenhouserestaurant.com/"
+     },
+     {
+      "claim": "The menu includes the traditional Colombian Bandeja Paisa.",
+      "source": "https://gardenhouserestaurant.com/"
+     },
+     {
+      "claim": "The restaurant serves Colombian chuzos, described as a street-food classic.",
+      "source": "https://gardenhouserestaurant.com/"
+     },
+     {
+      "claim": "Garden House is pet-friendly.",
+      "source": "https://gardenhouserestaurant.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJV_1rv4O02YgRwYPLnjrwnqE",
+   "name": "Miami Beach Botanical Garden",
+   "category": "attractions",
+   "metro": "miami-dade",
+   "primary_type": "botanical_garden",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.mbgarden.org/visit",
+     "source_name": "Miami Beach Botanical Garden \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Miami Beach Botanical Garden is located at 2000 Convention Center Dr, Miami Beach, FL 33139.",
+      "The Garden is open Tuesday through Sunday from 9 a.m. to 5 p.m.",
+      "Admission is free and open to everyone.",
+      "The Great Lawn spans roughly 5,000 square feet.",
+      "Convention Center Garage parking can be validated inside the Botanical Boutique at $2 per hour."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Free entry Tuesday through Sunday from 9 a.m. to 5 p.m.",
+    "why_here": "Miami Beach Botanical Garden offers free entry and is open Tuesday through Sunday from 9 a.m. to 5 p.m. The Great Lawn spans roughly 5,000 square feet.",
+    "know_before": "Admission is free and open to everyone.",
+    "local_tip": "Convention Center Garage parking can be validated inside the Botanical Boutique at $2 per hour.",
+    "best_time": "Open Tuesday through Sunday from 9:00 a.m. to 5:00 p.m.",
+    "citations": {
+     "hook": [
+      "https://www.mbgarden.org/visit"
+     ],
+     "why_here": [
+      "https://www.mbgarden.org/visit"
+     ],
+     "know_before": [
+      "https://www.mbgarden.org/visit"
+     ],
+     "local_tip": [
+      "https://www.mbgarden.org/visit"
+     ],
+     "best_time": [
+      "https://www.mbgarden.org/visit"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Miami Beach Botanical Garden is located at 2000 Convention Center Dr, Miami Beach, FL 33139.",
+      "source": "https://www.mbgarden.org/visit"
+     },
+     {
+      "claim": "The Garden is open Tuesday through Sunday from 9 a.m. to 5 p.m.",
+      "source": "https://www.mbgarden.org/visit"
+     },
+     {
+      "claim": "Admission is free and open to everyone.",
+      "source": "https://www.mbgarden.org/visit"
+     },
+     {
+      "claim": "The Great Lawn spans roughly 5,000 square feet.",
+      "source": "https://www.mbgarden.org/visit"
+     },
+     {
+      "claim": "Convention Center Garage parking can be validated inside the Botanical Boutique at $2 per hour.",
+      "source": "https://www.mbgarden.org/visit"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJt4QJ6J3hwogRch5A5BuHrxk",
+   "name": "Stillwaters Tavern",
+   "category": "food",
+   "metro": "st-pete",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://stillwaterstavern.com/",
+     "source_name": "Stillwaters Tavern \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Stillwaters Tavern is an American scratch kitchen and bar on Beach Drive in St. Petersburg.",
+      "Stillwaters Tavern offers 20 regional beers, wines, and cocktails on tap.",
+      "The tavern can host parties of 20 to 80 guests indoors or outdoors."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Scratch-made American kitchen with 20 taps on Beach Drive",
+    "why_here": "Stillwaters Tavern is an American scratch kitchen and bar on Beach Drive in downtown St. Petersburg. It pairs scratch-made American flavors with 20 regional beers, wines, and cocktails on tap and waterfront views.",
+    "know_before": "The tavern can host parties of 20 to 80 guests indoors or outdoors.",
+    "local_tip": "Order online for pickup when you do not want to cook, per the tavern's homepage.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://stillwaterstavern.com/"
+     ],
+     "why_here": [
+      "https://stillwaterstavern.com/"
+     ],
+     "know_before": [
+      "https://stillwaterstavern.com/"
+     ],
+     "local_tip": [
+      "https://stillwaterstavern.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Stillwaters Tavern is an American scratch kitchen and bar on Beach Drive in St. Petersburg.",
+      "source": "https://stillwaterstavern.com/"
+     },
+     {
+      "claim": "Stillwaters Tavern offers 20 regional beers, wines, and cocktails on tap.",
+      "source": "https://stillwaterstavern.com/"
+     },
+     {
+      "claim": "The tavern can host parties of 20 to 80 guests indoors or outdoors.",
+      "source": "https://stillwaterstavern.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJUWy4WWDuwogRVufPULtgR9s",
+   "name": "The Living Room on Main",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.tlr.restaurant/",
+     "source_name": "The Living Room on Main \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Living Room is family-owned, chef-driven, scratch-made New American dining.",
+      "Everything served is made in house, from the sauces and bread to the desserts.",
+      "The Dunedin location is at 487 Main Street, Dunedin, FL 34698.",
+      "Dunedin hours are Monday to Thursday 11 a.m. to 10 p.m., Friday 11 a.m. to 12 a.m., Saturday 10 a.m. to 12 a.m., and Sunday 10 a.m. to 10 p.m.",
+      "Weekend brunch runs Saturday and Sunday from 10 a.m. to 3 p.m.",
+      "The Living Room features live music and weekend brunch."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Family-owned, scratch-made New American dining on Main Street",
+    "why_here": "The Living Room is a family-owned, chef-driven New American restaurant in Dunedin where everything is made in house, from sauces and bread to desserts. Its Dunedin room on Main Street also features live music and weekend brunch.",
+    "know_before": "Dunedin hours are Monday to Thursday 11 a.m. to 10 p.m., Friday 11 a.m. to 12 a.m., Saturday 10 a.m. to 12 a.m., and Sunday 10 a.m. to 10 p.m.",
+    "local_tip": "Weekend brunch is served Saturday and Sunday from 10 a.m. to 3 p.m.",
+    "best_time": "Weekend brunch runs Saturday and Sunday from 10:00 a.m. to 3:00 p.m.",
+    "citations": {
+     "hook": [
+      "https://www.tlr.restaurant/"
+     ],
+     "why_here": [
+      "https://www.tlr.restaurant/"
+     ],
+     "know_before": [
+      "https://www.tlr.restaurant/"
+     ],
+     "local_tip": [
+      "https://www.tlr.restaurant/"
+     ],
+     "best_time": [
+      "https://www.tlr.restaurant/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Living Room is family-owned, chef-driven, scratch-made New American dining.",
+      "source": "https://www.tlr.restaurant/"
+     },
+     {
+      "claim": "Everything served is made in house, from the sauces and bread to the desserts.",
+      "source": "https://www.tlr.restaurant/"
+     },
+     {
+      "claim": "The Dunedin location is at 487 Main Street, Dunedin, FL 34698.",
+      "source": "https://www.tlr.restaurant/"
+     },
+     {
+      "claim": "Dunedin hours are Monday to Thursday 11 a.m. to 10 p.m., Friday 11 a.m. to 12 a.m., Saturday 10 a.m. to 12 a.m., and Sunday 10 a.m. to 10 p.m.",
+      "source": "https://www.tlr.restaurant/"
+     },
+     {
+      "claim": "Weekend brunch runs Saturday and Sunday from 10 a.m. to 3 p.m.",
+      "source": "https://www.tlr.restaurant/"
+     },
+     {
+      "claim": "The Living Room features live music and weekend brunch.",
+      "source": "https://www.tlr.restaurant/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJpd8jyU_GwogRJPxoaUTLBiQ",
+   "name": "Cheetah Hunt",
+   "category": "attractions",
+   "metro": "tampa",
+   "primary_type": "roller_coaster",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://buschgardens.com/tampa/roller-coasters/cheetah-hunt/",
+     "source_name": "Cheetah Hunt \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Cheetah Hunt is a triple launch roller coaster at Busch Gardens Tampa Bay.",
+      "At a length of 4,400 feet, Cheetah Hunt is the park's longest thrill ride attraction.",
+      "Minimum rider height for Cheetah Hunt is 48 inches.",
+      "Cheetah Hunt carries riders high above the park, then races down along the ground through a rocky gorge."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "A 4,400-foot triple launch coaster, the park's longest thrill ride",
+    "why_here": "Cheetah Hunt at Busch Gardens Tampa Bay is a triple launch roller coaster. At a length of 4,400 feet, Cheetah Hunt is the park's longest thrill ride attraction, carrying riders high above the park through a rocky gorge.",
+    "know_before": "Minimum rider height for Cheetah Hunt is 48 inches.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://buschgardens.com/tampa/roller-coasters/cheetah-hunt/"
+     ],
+     "why_here": [
+      "https://buschgardens.com/tampa/roller-coasters/cheetah-hunt/"
+     ],
+     "know_before": [
+      "https://buschgardens.com/tampa/roller-coasters/cheetah-hunt/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Cheetah Hunt is a triple launch roller coaster at Busch Gardens Tampa Bay.",
+      "source": "https://buschgardens.com/tampa/roller-coasters/cheetah-hunt/"
+     },
+     {
+      "claim": "At a length of 4,400 feet, Cheetah Hunt is the park's longest thrill ride attraction.",
+      "source": "https://buschgardens.com/tampa/roller-coasters/cheetah-hunt/"
+     },
+     {
+      "claim": "Minimum rider height for Cheetah Hunt is 48 inches.",
+      "source": "https://buschgardens.com/tampa/roller-coasters/cheetah-hunt/"
+     },
+     {
+      "claim": "Cheetah Hunt carries riders high above the park, then races down along the ground through a rocky gorge.",
+      "source": "https://buschgardens.com/tampa/roller-coasters/cheetah-hunt/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJP3-dSIa02YgRAWESfvHZAj4",
+   "name": "Balan's",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "european_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://balansbrickell.com/",
+     "source_name": "Balan's \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Balan's in Brickell, Miami is a family owned restaurant open all day, every day.",
+      "Balan's serves a Contemporary American menu with European dishes.",
+      "The menus include fresh seafood, salads, pastas, and burgers.",
+      "The lunch menu focuses on lighter dishes like salads and bowls, plus burgers and BLTs."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Contemporary American menu with European dishes, served all day",
+    "why_here": "Balan's in Brickell, Miami is a family owned restaurant open all day, every day, serving a Contemporary American menu with European dishes and fresh seafood, salads, pastas, and burgers.",
+    "know_before": "Balan's is open all day, every day.",
+    "local_tip": "At lunch, try lighter dishes like salads and bowls, plus burgers and BLTs.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://balansbrickell.com/"
+     ],
+     "why_here": [
+      "https://balansbrickell.com/"
+     ],
+     "know_before": [
+      "https://balansbrickell.com/"
+     ],
+     "local_tip": [
+      "https://balansbrickell.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Balan's in Brickell, Miami is a family owned restaurant open all day, every day.",
+      "source": "https://balansbrickell.com/"
+     },
+     {
+      "claim": "Balan's serves a Contemporary American menu with European dishes.",
+      "source": "https://balansbrickell.com/"
+     },
+     {
+      "claim": "The menus include fresh seafood, salads, pastas, and burgers.",
+      "source": "https://balansbrickell.com/"
+     },
+     {
+      "claim": "The lunch menu focuses on lighter dishes like salads and bowls, plus burgers and BLTs.",
+      "source": "https://balansbrickell.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJkXrq-vK02YgRi7Aw3AY6cic",
+   "name": "Fratelli La Bufala - Miami Beach",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "italian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.flbmiami.com/",
+     "source_name": "Fratelli La Bufala - Miami Beach \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Fratelli La Bufala Miami has been serving the Miami Beach community since 2005.",
+      "The restaurant offers wood-fired pizzas, fresh pasta, and traditional Italian dishes.",
+      "The restaurant is open every day from 11:00 a.m. to 11:30 p.m.",
+      "The menu includes Burrata served with cherry tomatoes over arugula."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Neapolitan wood-fired pizza in Miami Beach since 2005",
+    "why_here": "Fratelli La Bufala in Miami Beach has served the community since 2005 with an authentic Italian menu of wood-fired pizzas, fresh pasta, and traditional Italian dishes. Its menu ranges from pizza and pasta to seafood and Italian classics.",
+    "know_before": "The restaurant states it is open every day from 11:00 a.m. to 11:30 p.m.",
+    "local_tip": "Menu antipasti include Burrata served with cherry tomatoes over arugula.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.flbmiami.com/"
+     ],
+     "why_here": [
+      "https://www.flbmiami.com/"
+     ],
+     "know_before": [
+      "https://www.flbmiami.com/"
+     ],
+     "local_tip": [
+      "https://www.flbmiami.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Fratelli La Bufala Miami has been serving the Miami Beach community since 2005.",
+      "source": "https://www.flbmiami.com/"
+     },
+     {
+      "claim": "The restaurant offers wood-fired pizzas, fresh pasta, and traditional Italian dishes.",
+      "source": "https://www.flbmiami.com/"
+     },
+     {
+      "claim": "The restaurant is open every day from 11:00 a.m. to 11:30 p.m.",
+      "source": "https://www.flbmiami.com/"
+     },
+     {
+      "claim": "The menu includes Burrata served with cherry tomatoes over arugula.",
+      "source": "https://www.flbmiami.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJSWCg1pvhwogR-rDr1SAB-vY",
+   "name": "Duke Energy Center for the Arts - Mahaffey Theater",
+   "category": "attractions",
+   "metro": "st-pete",
+   "primary_type": "performing_arts_theater",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://themahaffey.com/about/history/",
+     "source_name": "Duke Energy Center for the Arts - Mahaffey Theater \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Mahaffey Theater is a 2,031-seat theater in Downtown St. Petersburg.",
+      "The Mahaffey Theater features waterfront views overlooking Tampa Bay.",
+      "The facility first opened in the spring of 1965 as part of the Bayfront Center entertainment complex.",
+      "The Mahaffey Theater features European box-style seating and ballroom space."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "A 2,031-seat waterfront theater in Downtown St. Petersburg",
+    "why_here": "The Mahaffey Theater is a 2,031-seat theater in Downtown St. Petersburg with waterfront views overlooking Tampa Bay, European box-style seating, and ballroom space for performances.",
+    "know_before": "The facility first opened in the spring of 1965.",
+    "local_tip": "Allow time before a show to enjoy the waterfront views overlooking Tampa Bay.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://themahaffey.com/about/history/"
+     ],
+     "why_here": [
+      "https://themahaffey.com/about/history/"
+     ],
+     "know_before": [
+      "https://themahaffey.com/about/history/"
+     ],
+     "local_tip": [
+      "https://themahaffey.com/about/history/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Mahaffey Theater is a 2,031-seat theater in Downtown St. Petersburg.",
+      "source": "https://themahaffey.com/about/history/"
+     },
+     {
+      "claim": "The Mahaffey Theater features waterfront views overlooking Tampa Bay.",
+      "source": "https://themahaffey.com/about/history/"
+     },
+     {
+      "claim": "The facility first opened in the spring of 1965 as part of the Bayfront Center entertainment complex.",
+      "source": "https://themahaffey.com/about/history/"
+     },
+     {
+      "claim": "The Mahaffey Theater features European box-style seating and ballroom space.",
+      "source": "https://themahaffey.com/about/history/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJoczeOlDhwogRssbZ9uMQHZQ",
+   "name": "Fresh Kitchen",
+   "category": "food",
+   "metro": "st-pete",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.eatfreshkitchen.com/locations/st-petersburg",
+     "source_name": "Fresh Kitchen \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Fresh Kitchen St. Petersburg offers chef-made, 100% gluten-free bowls.",
+      "The St. Petersburg location is at 4447 4 St. N, St. Petersburg, FL 33703."
+     ]
+    },
+    {
+     "source": "https://www.eatfreshkitchen.com/menu",
+     "source_name": "Fresh Kitchen \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The menu includes sweet potato noodles as a chilled base option.",
+      "The menu includes grilled rosemary chicken and herb grilled steak as protein options."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Chef-made, 100% gluten-free bowls built by you in St. Pete",
+    "why_here": "Fresh Kitchen serves chef-made bowls that guests build from bases, vegetables, proteins and sauces. The St. Petersburg location is listed by the venue as offering 100% gluten-free bowls. The menu includes options such as sweet potato noodles, grilled rosemary chicken and herb grilled steak.",
+    "know_before": "The St. Petersburg location is at 4447 4 St. N, St. Petersburg, FL 33703.",
+    "local_tip": "Build a bowl with a warm base and a chilled base to mix temperatures and textures.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.eatfreshkitchen.com/locations/st-petersburg",
+      "https://www.eatfreshkitchen.com/menu"
+     ],
+     "why_here": [
+      "https://www.eatfreshkitchen.com/locations/st-petersburg",
+      "https://www.eatfreshkitchen.com/menu"
+     ],
+     "know_before": [
+      "https://www.eatfreshkitchen.com/locations/st-petersburg",
+      "https://www.eatfreshkitchen.com/menu"
+     ],
+     "local_tip": [
+      "https://www.eatfreshkitchen.com/locations/st-petersburg",
+      "https://www.eatfreshkitchen.com/menu"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Fresh Kitchen St. Petersburg offers chef-made, 100% gluten-free bowls.",
+      "source": "https://www.eatfreshkitchen.com/locations/st-petersburg"
+     },
+     {
+      "claim": "The St. Petersburg location is at 4447 4 St. N, St. Petersburg, FL 33703.",
+      "source": "https://www.eatfreshkitchen.com/locations/st-petersburg"
+     },
+     {
+      "claim": "The menu includes sweet potato noodles as a chilled base option.",
+      "source": "https://www.eatfreshkitchen.com/menu"
+     },
+     {
+      "claim": "The menu includes grilled rosemary chicken and herb grilled steak as protein options.",
+      "source": "https://www.eatfreshkitchen.com/menu"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJt2E1nBi12YgRIIYjzo_5H1s",
+   "name": "Burger and Philly",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.burgersandphilly.com/",
+     "source_name": "Burger and Philly \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Burger and Philly serves smash burgers, Philly cheesesteaks and crispy wings.",
+      "The restaurant is located at 1629 Collins Avenue, Miami Beach, FL 33139."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Smash burgers and Philly cheesesteaks on Collins Avenue",
+    "why_here": "Burger and Philly serves burgers, Philly cheesesteaks and crispy wings in Miami Beach. The venue describes its food as crafted fresh and served fast. It is located on Collins Avenue in Miami Beach.",
+    "know_before": "The restaurant is at 1629 Collins Avenue, Miami Beach, FL 33139.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.burgersandphilly.com/"
+     ],
+     "why_here": [
+      "https://www.burgersandphilly.com/"
+     ],
+     "know_before": [
+      "https://www.burgersandphilly.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Burger and Philly serves smash burgers, Philly cheesesteaks and crispy wings.",
+      "source": "https://www.burgersandphilly.com/"
+     },
+     {
+      "claim": "The restaurant is located at 1629 Collins Avenue, Miami Beach, FL 33139.",
+      "source": "https://www.burgersandphilly.com/"
+     }
+    ]
+   }
+  }
+ ]
+}

@@ -406,9 +406,15 @@ function TourCard({ t, priority }) {
             <span className="boo-amt">{"$" + Math.round(t.fromPrice)}</span>
             {t.priceUnit ? <span className="boo-from">{t.priceUnit}</span> : null}
           </p>
-          <a className="boo-buy" href={t.cta.href} target="_blank" rel="sponsored nofollow noopener">{t.cta.label}</a>
-          <GuideCommissionLine />
-          <p className="boo-via">{t.cta.via}</p>
+          {t.cta && t.cta.href ? (
+            <>
+              <a className="boo-buy" href={t.cta.href} target="_blank" rel="sponsored nofollow noopener">{t.cta.label}</a>
+              <GuideCommissionLine />
+              <p className="boo-via">{t.cta.via}</p>
+            </>
+          ) : (
+            <p className="boo-note">{t.cta && t.cta.label}</p>
+          )}
         </div>
       </div>
     </article>
@@ -471,7 +477,8 @@ export default function BoHalloweenHaunt({ model, share = null, initialFilter = 
       ? haunts
       : haunts.filter((row) => row.filters.includes(filter));
   // Haunted attractions sold by Viator ride in the haunt grid (never behind the ghost tour chip).
-  const shownEvents = selectedPick ? [] : eventTours.filter((t) => filter === "all" || t.filters.includes(filter));
+  const endedEvents = selectedPick ? [] : eventTours.filter((t) => !(t.cta && t.cta.href));
+  const shownEvents = selectedPick ? [] : eventTours.filter((t) => t.cta && t.cta.href && (filter === "all" || t.filters.includes(filter)));
   const hauntTotal = haunts.length + eventTours.length;
   const toursChip = tours.length && tourRegions.length ? { id: "tours", label: "Ghost tours (" + tours.length + ")" } : null;
 
@@ -577,6 +584,11 @@ export default function BoHalloweenHaunt({ model, share = null, initialFilter = 
             </div>
           ) : null}
 
+          {endedEvents.length ? (
+            <div className="boo-vault-grid">
+              {endedEvents.map((t, i) => <TourCard key={t.id} t={t} priority={i < 2} />)}
+            </div>
+          ) : null}
           {toursOnly ? (
             <TourSection chrome={chrome} tours={gridTours} regions={tourRegions} />
           ) : shown.length || shownEvents.length ? (

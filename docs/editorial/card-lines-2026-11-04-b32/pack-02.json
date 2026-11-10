@@ -1,0 +1,425 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 32. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJ4cJZBRrHwogRD4OteCV4vyY",
+   "name": "MD Oriental Market",
+   "category": "shopping",
+   "metro": "tampa",
+   "primary_type": "asian_grocery_store",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.mdorientaltpa.com/",
+     "source_name": "MD Oriental Market \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "MD Oriental Market Tampa is a local oriental supermarket",
+      "MD Oriental Market Tampa carries Asian groceries and specialties",
+      "MD Oriental Market Tampa has live seafood, fresh produce, fruits, meats, household products, and Chinese herbal medicine",
+      "MD Oriental Market Tampa is at 1106 E Fowler Ave, Tampa, FL 33612",
+      "MD Oriental Market Tampa is open Monday - Sunday 8:30 a.m. - 8:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Local oriental supermarket with live seafood in Tampa",
+    "why_here": "MD Oriental Market Tampa is a local oriental supermarket with live seafood, fresh produce, fruits, meats, household products, and Chinese herbal medicine, plus Asian groceries and specialties.",
+    "know_before": "MD Oriental Market Tampa is open Monday - Sunday 8:30 a.m. - 8:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.mdorientaltpa.com/"
+     ],
+     "why_here": [
+      "https://www.mdorientaltpa.com/"
+     ],
+     "know_before": [
+      "https://www.mdorientaltpa.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "MD Oriental Market Tampa is a local oriental supermarket",
+      "source": "https://www.mdorientaltpa.com/"
+     },
+     {
+      "claim": "MD Oriental Market Tampa carries Asian groceries and specialties",
+      "source": "https://www.mdorientaltpa.com/"
+     },
+     {
+      "claim": "MD Oriental Market Tampa has live seafood, fresh produce, fruits, meats, household products, and Chinese herbal medicine",
+      "source": "https://www.mdorientaltpa.com/"
+     },
+     {
+      "claim": "MD Oriental Market Tampa is at 1106 E Fowler Ave, Tampa, FL 33612",
+      "source": "https://www.mdorientaltpa.com/"
+     },
+     {
+      "claim": "MD Oriental Market Tampa is open Monday - Sunday 8:30 a.m. - 8:00 p.m.",
+      "source": "https://www.mdorientaltpa.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJzzLLLTza5ogR4a-GhtpT70k",
+   "name": "Boot Hill Saloon",
+   "category": "nightlife",
+   "metro": "florida",
+   "primary_type": "bar",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.boothillsaloon.com/",
+     "source_name": "Boot Hill Saloon \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Boot Hill Saloon is a biker friendly venue located in Daytona Beach, FL",
+      "Boot Hill Saloon has a full menu and a complete line of biker apparel for men and ladies",
+      "Boot Hill Saloon welcomes visitors for Bikeweek and Biketoberfest",
+      "Since its inception in 1973, Boot Hill Saloon has served as a gathering place for bikers",
+      "Boot Hill Saloon is located at 310 Main Street Daytona Beach, FL 32118"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Biker friendly venue in Daytona Beach, FL, in place since 1973",
+    "why_here": "Go for a biker friendly venue with a full menu and a complete line of biker apparel for men and ladies, with visits timed around Bikeweek and Biketoberfest.",
+    "know_before": "Boot Hill Saloon is located at 310 Main Street Daytona Beach, FL 32118",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.boothillsaloon.com/"
+     ],
+     "why_here": [
+      "https://www.boothillsaloon.com/"
+     ],
+     "know_before": [
+      "https://www.boothillsaloon.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Boot Hill Saloon is a biker friendly venue located in Daytona Beach, FL",
+      "source": "https://www.boothillsaloon.com/"
+     },
+     {
+      "claim": "Boot Hill Saloon has a full menu and a complete line of biker apparel for men and ladies",
+      "source": "https://www.boothillsaloon.com/"
+     },
+     {
+      "claim": "Boot Hill Saloon welcomes visitors for Bikeweek and Biketoberfest",
+      "source": "https://www.boothillsaloon.com/"
+     },
+     {
+      "claim": "Since its inception in 1973, Boot Hill Saloon has served as a gathering place for bikers",
+      "source": "https://www.boothillsaloon.com/"
+     },
+     {
+      "claim": "Boot Hill Saloon is located at 310 Main Street Daytona Beach, FL 32118",
+      "source": "https://www.boothillsaloon.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJyefyOo4f6YgR98DvEw2xLgA",
+   "name": "Fanning Springs State Park",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "state_park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.floridastateparks.org/parks-and-trails/fanning-springs-state-park",
+     "source_name": "Fanning Springs State Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Fanning Springs has blue-green spring waters under ancient oaks on the historic Suwannee River",
+      "Fanning Springs is a source of cool, clear, crisp water that has attracted people for thousands of years"
+     ]
+    },
+    {
+     "source": "https://www.FloridaStateParks.org/index.php/parks-and-trails/fanning-springs-state-park/hours-fees",
+     "source_name": "Fanning Springs State Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Fanning Springs State Park is open from 8 a.m. until sundown, 365 days a year"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Blue-green spring waters under ancient oaks on the historic Suwannee River",
+    "why_here": "Go for blue-green spring waters under ancient oaks on the historic Suwannee River, and for cool, clear, crisp water that has attracted people for thousands of years.",
+    "know_before": "Fanning Springs State Park is open from 8 a.m. until sundown, 365 days a year",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.floridastateparks.org/parks-and-trails/fanning-springs-state-park",
+      "https://www.FloridaStateParks.org/index.php/parks-and-trails/fanning-springs-state-park/hours-fees"
+     ],
+     "why_here": [
+      "https://www.floridastateparks.org/parks-and-trails/fanning-springs-state-park",
+      "https://www.FloridaStateParks.org/index.php/parks-and-trails/fanning-springs-state-park/hours-fees"
+     ],
+     "know_before": [
+      "https://www.floridastateparks.org/parks-and-trails/fanning-springs-state-park",
+      "https://www.FloridaStateParks.org/index.php/parks-and-trails/fanning-springs-state-park/hours-fees"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Fanning Springs has blue-green spring waters under ancient oaks on the historic Suwannee River",
+      "source": "https://www.floridastateparks.org/parks-and-trails/fanning-springs-state-park"
+     },
+     {
+      "claim": "Fanning Springs is a source of cool, clear, crisp water that has attracted people for thousands of years",
+      "source": "https://www.floridastateparks.org/parks-and-trails/fanning-springs-state-park"
+     },
+     {
+      "claim": "Fanning Springs State Park is open from 8 a.m. until sundown, 365 days a year",
+      "source": "https://www.FloridaStateParks.org/index.php/parks-and-trails/fanning-springs-state-park/hours-fees"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ7zgsILTBwogRfsHbruGZVSs",
+   "name": "Hindu Temple of Florida",
+   "category": "attractions",
+   "metro": "tampa",
+   "primary_type": "hindu_temple",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://htfl.org/",
+     "source_name": "Hindu Temple of Florida \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Hindu Temple of Florida was established in 1983 by a dedicated group of Hindu families in the Tampa Bay area",
+      "Hindu Temple of Florida is located at 5509 Lynn Road, Tampa, FL 33624",
+      "Temple hours on weekdays are 9:30 a.m. to 11:30 a.m. and 6:00 p.m. to 9:00 p.m. at Hindu Temple of Florida"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "temple established in 1983 by Hindu families",
+    "why_here": "Visit a temple established in 1983 by a dedicated group of Hindu families in the Tampa Bay area, located at 5509 Lynn Road, Tampa, FL 33624, with temple hours on weekdays.",
+    "know_before": "Temple hours on weekdays are 9:30 a.m. to 11:30 a.m. and 6:00 p.m. to 9:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://htfl.org/"
+     ],
+     "why_here": [
+      "https://htfl.org/"
+     ],
+     "know_before": [
+      "https://htfl.org/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Hindu Temple of Florida was established in 1983 by a dedicated group of Hindu families in the Tampa Bay area",
+      "source": "https://htfl.org/"
+     },
+     {
+      "claim": "Hindu Temple of Florida is located at 5509 Lynn Road, Tampa, FL 33624",
+      "source": "https://htfl.org/"
+     },
+     {
+      "claim": "Temple hours on weekdays are 9:30 a.m. to 11:30 a.m. and 6:00 p.m. to 9:00 p.m. at Hindu Temple of Florida",
+      "source": "https://htfl.org/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJbeflyZoA2YgR6Sq507lUP9o",
+   "name": "Mini Pita Mediterranean Cafe",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "mediterranean_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.minipitacafe.com/",
+     "source_name": "Mini Pita Mediterranean Cafe \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Mini Pita Fort Lauderdale is located at 1019 W State Road 84 Fort Lauderdale, FL 33315",
+      "Mini Pita serves authentic Mediterranean favorites made with traditional recipes and quality ingredients",
+      "Mini Pita is open Monday - Sunday from 10:00 a.m. to 2:00 a.m.",
+      "Mini Pita offers catering"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "authentic Mediterranean favorites made with traditional recipes",
+    "why_here": "Go for authentic Mediterranean favorites made with traditional recipes and quality ingredients at Mini Pita, a cafe in Fort Lauderdale that also offers catering for events.",
+    "know_before": "Mini Pita is open Monday - Sunday from 10:00 a.m. to 2:00 a.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.minipitacafe.com/"
+     ],
+     "why_here": [
+      "https://www.minipitacafe.com/"
+     ],
+     "know_before": [
+      "https://www.minipitacafe.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Mini Pita Fort Lauderdale is located at 1019 W State Road 84 Fort Lauderdale, FL 33315",
+      "source": "https://www.minipitacafe.com/"
+     },
+     {
+      "claim": "Mini Pita serves authentic Mediterranean favorites made with traditional recipes and quality ingredients",
+      "source": "https://www.minipitacafe.com/"
+     },
+     {
+      "claim": "Mini Pita is open Monday - Sunday from 10:00 a.m. to 2:00 a.m.",
+      "source": "https://www.minipitacafe.com/"
+     },
+     {
+      "claim": "Mini Pita offers catering",
+      "source": "https://www.minipitacafe.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJJaWYoNb2wogR0Ogbmsk07sU",
+   "name": "Salt Cracker Fish Camp",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.saltcrackerfishcamp.com/",
+     "source_name": "Salt Cracker Fish Camp \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Salt Cracker Fish Camp brings southern dockside cookin' to Clearwater Beach",
+      "Salt Cracker Fish Camp offers waterfront views and southern dockside cookin' using only the freshest seafood available",
+      "Salt Cracker Fish Camp offers a you catch, we clean, we cook service for your catch",
+      "Salt Cracker Fish Camp happy hour is 3 p.m. to 5 p.m. every day"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Waterfront views and southern dockside cookin' in Clearwater Beach",
+    "why_here": "Go for waterfront views and southern dockside cookin' using only the freshest seafood available, or use the you catch, we clean, we cook service for your catch.",
+    "know_before": "Salt Cracker Fish Camp happy hour is 3 p.m. to 5 p.m. every day",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.saltcrackerfishcamp.com/"
+     ],
+     "why_here": [
+      "https://www.saltcrackerfishcamp.com/"
+     ],
+     "know_before": [
+      "https://www.saltcrackerfishcamp.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Salt Cracker Fish Camp brings southern dockside cookin' to Clearwater Beach",
+      "source": "https://www.saltcrackerfishcamp.com/"
+     },
+     {
+      "claim": "Salt Cracker Fish Camp offers waterfront views and southern dockside cookin' using only the freshest seafood available",
+      "source": "https://www.saltcrackerfishcamp.com/"
+     },
+     {
+      "claim": "Salt Cracker Fish Camp offers a you catch, we clean, we cook service for your catch",
+      "source": "https://www.saltcrackerfishcamp.com/"
+     },
+     {
+      "claim": "Salt Cracker Fish Camp happy hour is 3 p.m. to 5 p.m. every day",
+      "source": "https://www.saltcrackerfishcamp.com/"
+     }
+    ]
+   }
+  }
+ ]
+}

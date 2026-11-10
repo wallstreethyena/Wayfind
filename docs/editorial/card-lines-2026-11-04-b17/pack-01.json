@@ -1,0 +1,2170 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 17. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJYVYFKETjwogRol57F48FMxc",
+   "name": "Sandbox VR",
+   "category": "attractions",
+   "metro": "st-pete",
+   "primary_type": "amusement_center",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://sandboxvr.com/tampa-bay/st-petersburg",
+     "source_name": "Sandbox VR \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Sandbox VR St. Petersburg is at 2228 Central Avenue, St. Petersburg, FL 33712.",
+      "Sandbox VR offers full-body virtual reality in St. Petersburg.",
+      "Hours are Sunday 10 a.m. to 9 p.m., Monday to Thursday 12 p.m. to 10:30 p.m., Friday 12 p.m. to 12 a.m., and Saturday 10:30 a.m. to 12 a.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Sandbox VR full-body virtual reality in St. Petersburg",
+    "why_here": "Sandbox VR in St. Petersburg offers full-body virtual reality for groups looking for a shared indoor activity beyond a standard game or movie outing together.",
+    "know_before": "Hours are Sunday 10 a.m. to 9 p.m., Monday to Thursday 12 p.m. to 10:30 p.m., Friday 12 p.m. to 12 a.m., and Saturday 10:30 a.m. to 12 a.m.",
+    "local_tip": "Sandbox VR is at 2228 Central Avenue in St. Petersburg.",
+    "best_time": "Weekdays, when the official page promotes a weekday booking discount for Monday to Thursday bookings.",
+    "citations": {
+     "hook": [
+      "https://sandboxvr.com/tampa-bay/st-petersburg"
+     ],
+     "why_here": [
+      "https://sandboxvr.com/tampa-bay/st-petersburg"
+     ],
+     "know_before": [
+      "https://sandboxvr.com/tampa-bay/st-petersburg"
+     ],
+     "local_tip": [
+      "https://sandboxvr.com/tampa-bay/st-petersburg"
+     ],
+     "best_time": [
+      "https://sandboxvr.com/tampa-bay/st-petersburg"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Sandbox VR St. Petersburg is at 2228 Central Avenue, St. Petersburg, FL 33712.",
+      "source": "https://sandboxvr.com/tampa-bay/st-petersburg"
+     },
+     {
+      "claim": "Sandbox VR offers full-body virtual reality in St. Petersburg.",
+      "source": "https://sandboxvr.com/tampa-bay/st-petersburg"
+     },
+     {
+      "claim": "Hours are Sunday 10 a.m. to 9 p.m., Monday to Thursday 12 p.m. to 10:30 p.m., Friday 12 p.m. to 12 a.m., and Saturday 10:30 a.m. to 12 a.m.",
+      "source": "https://sandboxvr.com/tampa-bay/st-petersburg"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJW0_2BKWq2YgR1CP6RS84N6M",
+   "name": "Dr. Von D. Mizell-Eula Johnson State Park",
+   "category": "attractions",
+   "metro": "broward",
+   "primary_type": "state_park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.floridastateparks.org/mizell",
+     "source_name": "Dr. Von D. Mizell-Eula Johnson State Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Dr. Von D. Mizell-Eula Johnson State Park is a popular location for swimming, fishing, boating, hiking, bicycling and picnicking.",
+      "This beachside park is the last example of an undeveloped coastal ecosystem in Broward County, just south of Port Everglades.",
+      "The park is open 8 a.m. to sunset, 365 days a year.",
+      "Whiskey Creek Hideout is the park concession for canoeing, kayaking and paddleboard activities."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Broward County coastal park for swimming, fishing and boating",
+    "why_here": "Dr. Von D. Mizell-Eula Johnson State Park is a popular location for swimming, fishing, boating, hiking, bicycling and picnicking, offering a quieter coastal stop in Broward County.",
+    "know_before": "The park is open 8 a.m. to sunset, 365 days a year.",
+    "local_tip": "Whiskey Creek Hideout is the park concession for canoeing, kayaking and paddleboard activities.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.floridastateparks.org/mizell"
+     ],
+     "why_here": [
+      "https://www.floridastateparks.org/mizell"
+     ],
+     "know_before": [
+      "https://www.floridastateparks.org/mizell"
+     ],
+     "local_tip": [
+      "https://www.floridastateparks.org/mizell"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Dr. Von D. Mizell-Eula Johnson State Park is a popular location for swimming, fishing, boating, hiking, bicycling and picnicking.",
+      "source": "https://www.floridastateparks.org/mizell"
+     },
+     {
+      "claim": "This beachside park is the last example of an undeveloped coastal ecosystem in Broward County, just south of Port Everglades.",
+      "source": "https://www.floridastateparks.org/mizell"
+     },
+     {
+      "claim": "The park is open 8 a.m. to sunset, 365 days a year.",
+      "source": "https://www.floridastateparks.org/mizell"
+     },
+     {
+      "claim": "Whiskey Creek Hideout is the park concession for canoeing, kayaking and paddleboard activities.",
+      "source": "https://www.floridastateparks.org/mizell"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJe9Z6TH6A3YgRANyRFcsdhlE",
+   "name": "Marriott's Cypress Harbour Villas",
+   "category": "hotels",
+   "metro": "orlando",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.marriott.com/en-us/hotels/mcocy-marriotts-cypress-harbour-villas/overview/",
+     "source_name": "Marriott's Cypress Harbour Villas \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Marriott's Cypress Harbour Villas has three outdoor pools, a children's pool and a splash pad.",
+      "Two-bedroom villas include a full kitchen, washer and dryer, furnished balcony, and separate living and dining areas.",
+      "Amenities include a nine-hole miniature golf course, tennis, and outdoor play areas.",
+      "Boat rentals are available at the Lakehouse Activity Center.",
+      "Each villa includes complimentary Wi-Fi and a whirlpool tub."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Two-bedroom villas with full kitchens and three outdoor pools",
+    "why_here": "Marriott's Cypress Harbour Villas offers two-bedroom villas with a full kitchen, washer and dryer, and separate living and dining areas, plus three outdoor pools for downtime.",
+    "know_before": "Each villa includes complimentary Wi-Fi and a whirlpool tub.",
+    "local_tip": "Boat rentals are available at the Lakehouse Activity Center.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.marriott.com/en-us/hotels/mcocy-marriotts-cypress-harbour-villas/overview/"
+     ],
+     "why_here": [
+      "https://www.marriott.com/en-us/hotels/mcocy-marriotts-cypress-harbour-villas/overview/"
+     ],
+     "know_before": [
+      "https://www.marriott.com/en-us/hotels/mcocy-marriotts-cypress-harbour-villas/overview/"
+     ],
+     "local_tip": [
+      "https://www.marriott.com/en-us/hotels/mcocy-marriotts-cypress-harbour-villas/overview/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Marriott's Cypress Harbour Villas has three outdoor pools, a children's pool and a splash pad.",
+      "source": "https://www.marriott.com/en-us/hotels/mcocy-marriotts-cypress-harbour-villas/overview/"
+     },
+     {
+      "claim": "Two-bedroom villas include a full kitchen, washer and dryer, furnished balcony, and separate living and dining areas.",
+      "source": "https://www.marriott.com/en-us/hotels/mcocy-marriotts-cypress-harbour-villas/overview/"
+     },
+     {
+      "claim": "Amenities include a nine-hole miniature golf course, tennis, and outdoor play areas.",
+      "source": "https://www.marriott.com/en-us/hotels/mcocy-marriotts-cypress-harbour-villas/overview/"
+     },
+     {
+      "claim": "Boat rentals are available at the Lakehouse Activity Center.",
+      "source": "https://www.marriott.com/en-us/hotels/mcocy-marriotts-cypress-harbour-villas/overview/"
+     },
+     {
+      "claim": "Each villa includes complimentary Wi-Fi and a whirlpool tub.",
+      "source": "https://www.marriott.com/en-us/hotels/mcocy-marriotts-cypress-harbour-villas/overview/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJBYVw3_rj2IgR2ktCxXVxTwE",
+   "name": "Le Sorelle Restaurant Downtown",
+   "category": "food",
+   "metro": "palm-beach",
+   "primary_type": "italian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.lesorellerestaurant.com/downtown-boca-raton",
+     "source_name": "Le Sorelle Restaurant Downtown \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Le Sorelle Restaurant Downtown is a family-owned Italian restaurant founded by three sisters Candida, Anna and Luisa.",
+      "The menu includes fresh homemade pasta, wood-fired brick-oven pizza, fresh seafood and premium steaks.",
+      "Le Sorelle Restaurant Downtown is at 507 SE Mizner Blvd, Boca Raton, Florida 33432.",
+      "Hours are daily from 12 p.m. to 10 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Italian dining run by three sisters in Boca Raton",
+    "why_here": "Le Sorelle Restaurant Downtown serves fresh homemade pasta, wood-fired brick-oven pizza, fresh seafood and premium steaks in a family-owned Italian setting in Boca Raton.",
+    "know_before": "Hours are daily from 12 p.m. to 10 p.m.",
+    "local_tip": "Candida, Anna and Luisa are the sisters behind Le Sorelle Restaurant Downtown.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.lesorellerestaurant.com/downtown-boca-raton"
+     ],
+     "why_here": [
+      "https://www.lesorellerestaurant.com/downtown-boca-raton"
+     ],
+     "know_before": [
+      "https://www.lesorellerestaurant.com/downtown-boca-raton"
+     ],
+     "local_tip": [
+      "https://www.lesorellerestaurant.com/downtown-boca-raton"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Le Sorelle Restaurant Downtown is a family-owned Italian restaurant founded by three sisters Candida, Anna and Luisa.",
+      "source": "https://www.lesorellerestaurant.com/downtown-boca-raton"
+     },
+     {
+      "claim": "The menu includes fresh homemade pasta, wood-fired brick-oven pizza, fresh seafood and premium steaks.",
+      "source": "https://www.lesorellerestaurant.com/downtown-boca-raton"
+     },
+     {
+      "claim": "Le Sorelle Restaurant Downtown is at 507 SE Mizner Blvd, Boca Raton, Florida 33432.",
+      "source": "https://www.lesorellerestaurant.com/downtown-boca-raton"
+     },
+     {
+      "claim": "Hours are daily from 12 p.m. to 10 p.m.",
+      "source": "https://www.lesorellerestaurant.com/downtown-boca-raton"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJudzGajrZ5IgR1Ide1ZHBkg0",
+   "name": "Jekyll Island State Park",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "state_park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.jekyllisland.com/",
+     "source_name": "Jekyll Island State Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Jekyll Island Authority is the governing entity designated by the State of Georgia for the operation and management of Jekyll Island State Park.",
+      "With more than 24 miles of paths and trails, biking offers a scenic way to explore Jekyll Island.",
+      "The Georgia Sea Turtle Center is Georgia's only sea turtle education and rehabilitation facility.",
+      "The Georgia Sea Turtle Center is open daily 9 a.m. to 5 p.m.",
+      "Guided trolley tours cover the Historic District."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Georgia state park island with 24 miles of paths and sea turtle rehab",
+    "why_here": "Jekyll Island State Park is operated by the Jekyll Island Authority, with biking on more than 24 miles of paths and trails, guided trolley tours of the Historic District and the Georgia Sea Turtle Center.",
+    "know_before": "The Georgia Sea Turtle Center is open daily 9 a.m. to 5 p.m.",
+    "local_tip": "With more than 24 miles of paths and trails, biking is a core way to see the island.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.jekyllisland.com/"
+     ],
+     "why_here": [
+      "https://www.jekyllisland.com/"
+     ],
+     "know_before": [
+      "https://www.jekyllisland.com/"
+     ],
+     "local_tip": [
+      "https://www.jekyllisland.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Jekyll Island Authority is the governing entity designated by the State of Georgia for the operation and management of Jekyll Island State Park.",
+      "source": "https://www.jekyllisland.com/"
+     },
+     {
+      "claim": "With more than 24 miles of paths and trails, biking offers a scenic way to explore Jekyll Island.",
+      "source": "https://www.jekyllisland.com/"
+     },
+     {
+      "claim": "The Georgia Sea Turtle Center is Georgia's only sea turtle education and rehabilitation facility.",
+      "source": "https://www.jekyllisland.com/"
+     },
+     {
+      "claim": "The Georgia Sea Turtle Center is open daily 9 a.m. to 5 p.m.",
+      "source": "https://www.jekyllisland.com/"
+     },
+     {
+      "claim": "Guided trolley tours cover the Historic District.",
+      "source": "https://www.jekyllisland.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJExgwiwi6wogRnI1m3z8IKBc",
+   "name": "BJ's Restaurant & Brewhouse",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.bjsrestaurants.com/locations/tx/alliance",
+     "source_name": "BJ's Restaurant & Brewhouse \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "BJ's Restaurant & Brewhouse at Alliance serves deep dish pizza, handcrafted burgers and award-winning beer.",
+      "Hours are Monday, Tuesday, Wednesday, Thursday and Sunday 11 a.m. to 11 p.m., and Friday and Saturday 11 a.m. to 12 a.m.",
+      "Guests get a free Pizookie on the next visit after signing up."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "BJ's deep dish pizza, handcrafted burgers and house beers in Alliance",
+    "why_here": "BJ's Restaurant & Brewhouse at Alliance builds its menu around deep dish pizza, handcrafted burgers and award-winning beer, a combination that works for groups with mixed tastes.",
+    "know_before": "Hours are Monday, Tuesday, Wednesday, Thursday and Sunday 11 a.m. to 11 p.m., and Friday and Saturday 11 a.m. to 12 a.m.",
+    "local_tip": "Guests get a free Pizookie on the next visit after signing up.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.bjsrestaurants.com/locations/tx/alliance"
+     ],
+     "why_here": [
+      "https://www.bjsrestaurants.com/locations/tx/alliance"
+     ],
+     "know_before": [
+      "https://www.bjsrestaurants.com/locations/tx/alliance"
+     ],
+     "local_tip": [
+      "https://www.bjsrestaurants.com/locations/tx/alliance"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "BJ's Restaurant & Brewhouse at Alliance serves deep dish pizza, handcrafted burgers and award-winning beer.",
+      "source": "https://www.bjsrestaurants.com/locations/tx/alliance"
+     },
+     {
+      "claim": "Hours are Monday, Tuesday, Wednesday, Thursday and Sunday 11 a.m. to 11 p.m., and Friday and Saturday 11 a.m. to 12 a.m.",
+      "source": "https://www.bjsrestaurants.com/locations/tx/alliance"
+     },
+     {
+      "claim": "Guests get a free Pizookie on the next visit after signing up.",
+      "source": "https://www.bjsrestaurants.com/locations/tx/alliance"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJT1cbOL4n5IgRXmguTtwAXJw",
+   "name": "Mojo Old City BBQ",
+   "category": "food",
+   "metro": "st-augustine-fl",
+   "primary_type": "barbecue_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://mojobbq.com/mojo-bbq-old-city/",
+     "source_name": "Mojo Old City BBQ \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Mojo Old City is at 5 Cordova Street, St. Augustine, FL 32084.",
+      "Hours are Sunday to Tuesday 11 a.m. to 9 p.m., Wednesday to Thursday 11 a.m. to 10 p.m., and Friday to Saturday 11 a.m. to 11 p.m.",
+      "Mojo Old City serves slow-smoked, wood-fired barbecue with house-made sides prepared fresh daily in St. Augustine.",
+      "Menu includes Kansas City Burnt Ends, Pulled Pork Quesadilla and Pit-Smoked Chicken Wings.",
+      "Menu sections include BBQ, Southern Platters, Sandwiches and Specialty Sandwiches."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Mojo Old City slow-smoked, wood-fired barbecue in St. Augustine",
+    "why_here": "Mojo Old City serves slow-smoked, wood-fired barbecue in St. Augustine, with house-made sides prepared fresh daily and menu sections covering BBQ, Southern Platters and specialty sandwiches.",
+    "know_before": "Hours are Sunday to Tuesday 11 a.m. to 9 p.m., Wednesday to Thursday 11 a.m. to 10 p.m., and Friday to Saturday 11 a.m. to 11 p.m.",
+    "local_tip": "Menu highlights include Kansas City Burnt Ends and Pit-Smoked Chicken Wings.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://mojobbq.com/mojo-bbq-old-city/"
+     ],
+     "why_here": [
+      "https://mojobbq.com/mojo-bbq-old-city/"
+     ],
+     "know_before": [
+      "https://mojobbq.com/mojo-bbq-old-city/"
+     ],
+     "local_tip": [
+      "https://mojobbq.com/mojo-bbq-old-city/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Mojo Old City is at 5 Cordova Street, St. Augustine, FL 32084.",
+      "source": "https://mojobbq.com/mojo-bbq-old-city/"
+     },
+     {
+      "claim": "Hours are Sunday to Tuesday 11 a.m. to 9 p.m., Wednesday to Thursday 11 a.m. to 10 p.m., and Friday to Saturday 11 a.m. to 11 p.m.",
+      "source": "https://mojobbq.com/mojo-bbq-old-city/"
+     },
+     {
+      "claim": "Mojo Old City serves slow-smoked, wood-fired barbecue with house-made sides prepared fresh daily in St. Augustine.",
+      "source": "https://mojobbq.com/mojo-bbq-old-city/"
+     },
+     {
+      "claim": "Menu includes Kansas City Burnt Ends, Pulled Pork Quesadilla and Pit-Smoked Chicken Wings.",
+      "source": "https://mojobbq.com/mojo-bbq-old-city/"
+     },
+     {
+      "claim": "Menu sections include BBQ, Southern Platters, Sandwiches and Specialty Sandwiches.",
+      "source": "https://mojobbq.com/mojo-bbq-old-city/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJHwn6wYDhwogRbZMWRnotswU",
+   "name": "Engine No. 9",
+   "category": "nightlife",
+   "metro": "st-pete",
+   "primary_type": "bar_and_grill",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://no9burgers.com/menus/",
+     "source_name": "Engine No. 9 \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Engine No. 9 burgers are made with 8oz Prime Angus beef and choice of side.",
+      "Menu includes Bacon Cheeseburger with sharp smoked cheddar and crispy bacon.",
+      "Menu includes Marie Laveau with crawfish tails, andouille sausage and Creole sauce.",
+      "Thin Lizzy is a vegetarian grilled portobello with truffled goat cheese.",
+      "Beyond Burger can be substituted for any burger on the menu.",
+      "Burgers do not come automatically dressed; lettuce, onion and tomato are added on request."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "8oz Prime Angus burgers with crawfish-topped Marie Laveau",
+    "why_here": "Engine No. 9 builds its menu around 8oz Prime Angus burgers, from a Bacon Cheeseburger with sharp smoked cheddar to Marie Laveau with crawfish tails, andouille sausage and Creole sauce.",
+    "know_before": "Burgers do not come automatically dressed; lettuce, onion and tomato are added on request.",
+    "local_tip": "Beyond Burger can be substituted for any burger on the menu.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://no9burgers.com/menus/"
+     ],
+     "why_here": [
+      "https://no9burgers.com/menus/"
+     ],
+     "know_before": [
+      "https://no9burgers.com/menus/"
+     ],
+     "local_tip": [
+      "https://no9burgers.com/menus/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Engine No. 9 burgers are made with 8oz Prime Angus beef and choice of side.",
+      "source": "https://no9burgers.com/menus/"
+     },
+     {
+      "claim": "Menu includes Bacon Cheeseburger with sharp smoked cheddar and crispy bacon.",
+      "source": "https://no9burgers.com/menus/"
+     },
+     {
+      "claim": "Menu includes Marie Laveau with crawfish tails, andouille sausage and Creole sauce.",
+      "source": "https://no9burgers.com/menus/"
+     },
+     {
+      "claim": "Thin Lizzy is a vegetarian grilled portobello with truffled goat cheese.",
+      "source": "https://no9burgers.com/menus/"
+     },
+     {
+      "claim": "Beyond Burger can be substituted for any burger on the menu.",
+      "source": "https://no9burgers.com/menus/"
+     },
+     {
+      "claim": "Burgers do not come automatically dressed; lettuce, onion and tomato are added on request.",
+      "source": "https://no9burgers.com/menus/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJCQboZR-t2YgRHQUOom8GkrQ",
+   "name": "Mizumi Buffet & Sushi",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "sushi_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://mizumifl.com/",
+     "source_name": "Mizumi Buffet & Sushi \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Mizumi Buffet & Sushi is at 3207 NE 163rd St, North Miami Beach, Florida 33160.",
+      "Over 100 sushi rolls are offered, with hot food, Chinese, Sushi, Seafood, Hibachi grill, Cold bar and Desserts.",
+      "Lunch Buffet is Monday to Friday 11:30 a.m. to 3:30 p.m. and Saturday to Sunday 12 p.m. to 3:30 p.m.",
+      "Dinner Buffet is Sunday to Thursday 5 p.m. to 10 p.m. and Friday to Saturday 5 p.m. to 10:30 p.m.",
+      "Last seating for lunch is at 3:30 p.m. and last seating for dinner is 30 minutes before closing."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Sushi, seafood and hibachi buffet in North Miami Beach",
+    "why_here": "Mizumi Buffet & Sushi in North Miami Beach is an all-you-can-eat buffet with over 100 sushi rolls plus hot food, Chinese dishes, seafood, a Hibachi grill, a Cold bar and Desserts.",
+    "know_before": "Lunch Buffet is Monday to Friday 11:30 a.m. to 3:30 p.m.; last seating for lunch is at 3:30 p.m.",
+    "local_tip": "Last seating for dinner is 30 minutes before closing.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://mizumifl.com/"
+     ],
+     "why_here": [
+      "https://mizumifl.com/"
+     ],
+     "know_before": [
+      "https://mizumifl.com/"
+     ],
+     "local_tip": [
+      "https://mizumifl.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Mizumi Buffet & Sushi is at 3207 NE 163rd St, North Miami Beach, Florida 33160.",
+      "source": "https://mizumifl.com/"
+     },
+     {
+      "claim": "Over 100 sushi rolls are offered, with hot food, Chinese, Sushi, Seafood, Hibachi grill, Cold bar and Desserts.",
+      "source": "https://mizumifl.com/"
+     },
+     {
+      "claim": "Lunch Buffet is Monday to Friday 11:30 a.m. to 3:30 p.m. and Saturday to Sunday 12 p.m. to 3:30 p.m.",
+      "source": "https://mizumifl.com/"
+     },
+     {
+      "claim": "Dinner Buffet is Sunday to Thursday 5 p.m. to 10 p.m. and Friday to Saturday 5 p.m. to 10:30 p.m.",
+      "source": "https://mizumifl.com/"
+     },
+     {
+      "claim": "Last seating for lunch is at 3:30 p.m. and last seating for dinner is 30 minutes before closing.",
+      "source": "https://mizumifl.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJrQUdK9KIk4gRHJNF7CJSev0",
+   "name": "WonderWorks Panama City Beach",
+   "category": "attractions",
+   "metro": "panama-city-florida",
+   "primary_type": "amusement_park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.wonderworksonline.com/panama-city-beach/",
+     "source_name": "WonderWorks Panama City Beach \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "WonderWorks is an amusement park for the mind with 29,000 square feet of edu-tainment.",
+      "The upside-down building combines education and entertainment with more than 100 hands on exhibits.",
+      "Inside, you'll find six Wonder Zones.",
+      "Features include a glow-in-the-dark Indoor Ropes Course, Laser Tag in a black-lit maze, and Space Fury 360.",
+      "Pass through the inversion tunnel to realign yourself and start your adventure.",
+      "The laboratory landed upside down on Front Beach Road in Panama City Beach."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Upside-down building with 29,000 square feet and more than 100 exhibits",
+    "why_here": "WonderWorks on Front Beach Road in Panama City Beach combines education and entertainment inside an upside-down building. Inside are six Wonder Zones, a glow-in-the-dark Indoor Ropes Course, Laser Tag in a black-lit maze, and Space Fury 360.",
+    "know_before": "Pass through the inversion tunnel to realign yourself before exploring the six Wonder Zones.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.wonderworksonline.com/panama-city-beach/"
+     ],
+     "why_here": [
+      "https://www.wonderworksonline.com/panama-city-beach/"
+     ],
+     "know_before": [
+      "https://www.wonderworksonline.com/panama-city-beach/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "WonderWorks is an amusement park for the mind with 29,000 square feet of edu-tainment.",
+      "source": "https://www.wonderworksonline.com/panama-city-beach/"
+     },
+     {
+      "claim": "The upside-down building combines education and entertainment with more than 100 hands on exhibits.",
+      "source": "https://www.wonderworksonline.com/panama-city-beach/"
+     },
+     {
+      "claim": "Inside, you'll find six Wonder Zones.",
+      "source": "https://www.wonderworksonline.com/panama-city-beach/"
+     },
+     {
+      "claim": "Features include a glow-in-the-dark Indoor Ropes Course, Laser Tag in a black-lit maze, and Space Fury 360.",
+      "source": "https://www.wonderworksonline.com/panama-city-beach/"
+     },
+     {
+      "claim": "Pass through the inversion tunnel to realign yourself and start your adventure.",
+      "source": "https://www.wonderworksonline.com/panama-city-beach/"
+     },
+     {
+      "claim": "The laboratory landed upside down on Front Beach Road in Panama City Beach.",
+      "source": "https://www.wonderworksonline.com/panama-city-beach/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJsYoFICNW3IgR1T3yG1D0xB8",
+   "name": "Cowpoke's Watering Hole",
+   "category": "food",
+   "metro": "avon-park-fl",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://cowpokeswateringhole.com/cowpokes-watering-hole-menu/",
+     "source_name": "Cowpoke's Watering Hole \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Cowpoke's Watering Hole specialty is serving up cuts of choice steak.",
+      "The menu is complete with pastas, appetizers, soups, salads, and three full liquor bars.",
+      "Seafood features lobster tails, mahi-mahi, tuna, mussels, oysters, scallops, catfish and shrimp.",
+      "Sides after 4 p.m. include baked potatoes, red potatoes or garlic mashed potatoes.",
+      "Cowpoke's Watering Hole is in Sebring, Florida."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Choice steak, seafood and three full liquor bars",
+    "why_here": "Cowpoke's Watering Hole in Sebring, Florida centers on choice steak, with a menu complete with pastas, appetizers, soups, salads, and three full liquor bars. Seafood features lobster tails, mahi-mahi, tuna, mussels, oysters, scallops, catfish and shrimp.",
+    "know_before": "Sides after 4 p.m. include baked potatoes, red potatoes or garlic mashed potatoes.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://cowpokeswateringhole.com/cowpokes-watering-hole-menu/"
+     ],
+     "why_here": [
+      "https://cowpokeswateringhole.com/cowpokes-watering-hole-menu/"
+     ],
+     "know_before": [
+      "https://cowpokeswateringhole.com/cowpokes-watering-hole-menu/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Cowpoke's Watering Hole specialty is serving up cuts of choice steak.",
+      "source": "https://cowpokeswateringhole.com/cowpokes-watering-hole-menu/"
+     },
+     {
+      "claim": "The menu is complete with pastas, appetizers, soups, salads, and three full liquor bars.",
+      "source": "https://cowpokeswateringhole.com/cowpokes-watering-hole-menu/"
+     },
+     {
+      "claim": "Seafood features lobster tails, mahi-mahi, tuna, mussels, oysters, scallops, catfish and shrimp.",
+      "source": "https://cowpokeswateringhole.com/cowpokes-watering-hole-menu/"
+     },
+     {
+      "claim": "Sides after 4 p.m. include baked potatoes, red potatoes or garlic mashed potatoes.",
+      "source": "https://cowpokeswateringhole.com/cowpokes-watering-hole-menu/"
+     },
+     {
+      "claim": "Cowpoke's Watering Hole is in Sebring, Florida.",
+      "source": "https://cowpokeswateringhole.com/cowpokes-watering-hole-menu/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJf6I6d_LB54gRatzrOVBTOeo",
+   "name": "Ski Beach Bar and Grill",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.skibeachleesburg.com/menu",
+     "source_name": "Ski Beach Bar and Grill \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Ski Beach Bar & Grill is located at 21 Dozier Cir, Leesburg, FL 34748.",
+      "Ski Beach Bar & Grill is known for Wisconsin Cheese Curds and Gumbo.",
+      "Ski Beach Bar & Grill is known for Pulled Pork, Wings, Burgers, Seafood, and Oysters."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Wisconsin Cheese Curds, Gumbo, Pulled Pork and Wings",
+    "why_here": "Ski Beach Bar & Grill in Leesburg is known for Wisconsin Cheese Curds and Gumbo. Ski Beach Bar & Grill is also known for Pulled Pork, Wings, Burgers, Seafood, and Oysters at 21 Dozier Cir, Leesburg, FL 34748.",
+    "know_before": "Ski Beach Bar & Grill is located at 21 Dozier Cir, Leesburg, FL 34748.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.skibeachleesburg.com/menu"
+     ],
+     "why_here": [
+      "https://www.skibeachleesburg.com/menu"
+     ],
+     "know_before": [
+      "https://www.skibeachleesburg.com/menu"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Ski Beach Bar & Grill is located at 21 Dozier Cir, Leesburg, FL 34748.",
+      "source": "https://www.skibeachleesburg.com/menu"
+     },
+     {
+      "claim": "Ski Beach Bar & Grill is known for Wisconsin Cheese Curds and Gumbo.",
+      "source": "https://www.skibeachleesburg.com/menu"
+     },
+     {
+      "claim": "Ski Beach Bar & Grill is known for Pulled Pork, Wings, Burgers, Seafood, and Oysters.",
+      "source": "https://www.skibeachleesburg.com/menu"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJqT3OQwjDwogRjZa2tEx-8E4",
+   "name": "Brick House Tavern + Tap",
+   "category": "nightlife",
+   "metro": "tampa",
+   "primary_type": "bar_and_grill",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.brickhousetavernandtap.com/menu/food-c/",
+     "source_name": "Brick House Tavern + Tap \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Brick House Tavern + Tap menu includes Mozzarella Bricks with panko parmesan crusted mozzarella and spicy marinara.",
+      "Burgers are served with your choice of fries, tots or house-made chips.",
+      "Menu includes a Bison Burger with candied bacon, cheddar cheese and jalapeno cilantro mayo.",
+      "Menu includes Tavern Wings with choice of Brick Sauce, Buffalo Sauce or Nashville Hot.",
+      "You can substitute an Impossible patty on burgers."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Mozzarella Bricks, Tavern Wings and a Bison Burger",
+    "why_here": "Brick House Tavern + Tap serves Mozzarella Bricks, Tavern Wings and a Bison Burger with candied bacon, cheddar cheese and jalapeno cilantro mayo. Burgers are served with your choice of fries, tots or house-made chips.",
+    "know_before": "Burgers are served with your choice of fries, tots or house-made chips.",
+    "local_tip": "You can substitute an Impossible patty on burgers.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.brickhousetavernandtap.com/menu/food-c/"
+     ],
+     "why_here": [
+      "https://www.brickhousetavernandtap.com/menu/food-c/"
+     ],
+     "know_before": [
+      "https://www.brickhousetavernandtap.com/menu/food-c/"
+     ],
+     "local_tip": [
+      "https://www.brickhousetavernandtap.com/menu/food-c/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Brick House Tavern + Tap menu includes Mozzarella Bricks with panko parmesan crusted mozzarella and spicy marinara.",
+      "source": "https://www.brickhousetavernandtap.com/menu/food-c/"
+     },
+     {
+      "claim": "Burgers are served with your choice of fries, tots or house-made chips.",
+      "source": "https://www.brickhousetavernandtap.com/menu/food-c/"
+     },
+     {
+      "claim": "Menu includes a Bison Burger with candied bacon, cheddar cheese and jalapeno cilantro mayo.",
+      "source": "https://www.brickhousetavernandtap.com/menu/food-c/"
+     },
+     {
+      "claim": "Menu includes Tavern Wings with choice of Brick Sauce, Buffalo Sauce or Nashville Hot.",
+      "source": "https://www.brickhousetavernandtap.com/menu/food-c/"
+     },
+     {
+      "claim": "You can substitute an Impossible patty on burgers.",
+      "source": "https://www.brickhousetavernandtap.com/menu/food-c/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJTb6OZACNk4gRTpNMW060-OU",
+   "name": "McGuire's Irish Pub",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "steak_house",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.mcguiresirishpub.com/pensacola",
+     "source_name": "McGuire's Irish Pub \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "McGuire's Irish Pub moved in 1982 to its current location; Pensacola's original 1927 Old Firehouse.",
+      "Inside is a turn-of-the-century, New York Irish Saloon-themed 615-seat restaurant.",
+      "More than one million signed dollar bills hang from the ceilings and walls of the Pub.",
+      "Entertainers perform Monday through Thursday from 8 p.m. to midnight and Friday and Saturday from 9 p.m. to midnight.",
+      "Live music every Sunday for Brunch from 11 a.m. to 2 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "A 1927 Pensacola firehouse with more than one million signed dollar bills",
+    "why_here": "McGuire's Irish Pub in Pensacola sits in the original 1927 Old Firehouse, a 615-seat restaurant themed as a turn-of-the-century New York Irish Saloon. More than one million signed dollar bills hang from the ceilings and walls of the Pub.",
+    "know_before": "Live music every Sunday for Brunch from 11 a.m. to 2 p.m.",
+    "local_tip": "Entertainers perform Monday through Thursday from 8 p.m. to midnight.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.mcguiresirishpub.com/pensacola"
+     ],
+     "why_here": [
+      "https://www.mcguiresirishpub.com/pensacola"
+     ],
+     "know_before": [
+      "https://www.mcguiresirishpub.com/pensacola"
+     ],
+     "local_tip": [
+      "https://www.mcguiresirishpub.com/pensacola"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "McGuire's Irish Pub moved in 1982 to its current location; Pensacola's original 1927 Old Firehouse.",
+      "source": "https://www.mcguiresirishpub.com/pensacola"
+     },
+     {
+      "claim": "Inside is a turn-of-the-century, New York Irish Saloon-themed 615-seat restaurant.",
+      "source": "https://www.mcguiresirishpub.com/pensacola"
+     },
+     {
+      "claim": "More than one million signed dollar bills hang from the ceilings and walls of the Pub.",
+      "source": "https://www.mcguiresirishpub.com/pensacola"
+     },
+     {
+      "claim": "Entertainers perform Monday through Thursday from 8 p.m. to midnight and Friday and Saturday from 9 p.m. to midnight.",
+      "source": "https://www.mcguiresirishpub.com/pensacola"
+     },
+     {
+      "claim": "Live music every Sunday for Brunch from 11 a.m. to 2 p.m.",
+      "source": "https://www.mcguiresirishpub.com/pensacola"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJa1junq-12YgRqZ1aHTFcywE",
+   "name": "Meet Dalia",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "mediterranean_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://meetdaliamiami.com/",
+     "source_name": "Meet Dalia \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Meet Dalia offers Mediterranean dining with a New American flair, on Ocean Drive in Miami Beach.",
+      "Join us on Ocean Drive for breakfast, lunch, dinner or happy hour.",
+      "Seating includes sidewalk seating, elegant dining room or garden patio.",
+      "The menu covers a seafood bar, handmade pastas and grilled entrees.",
+      "Hours are Monday to Sunday from 7 a.m. to 12 a.m.",
+      "Breakfast includes avocado toast and eggs Benedict to shakshuka."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Mediterranean dining with a New American flair on Ocean Drive",
+    "why_here": "Meet Dalia serves Mediterranean dining with a New American flair on Ocean Drive in Miami Beach, for breakfast, lunch, dinner or happy hour. Seating includes sidewalk seating, an elegant dining room or a garden patio, with a seafood bar, handmade pastas and grilled entrees.",
+    "know_before": "Hours are Monday to Sunday from 7 a.m. to 12 a.m.",
+    "local_tip": "Breakfast runs from avocado toast and eggs Benedict to shakshuka.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://meetdaliamiami.com/"
+     ],
+     "why_here": [
+      "https://meetdaliamiami.com/"
+     ],
+     "know_before": [
+      "https://meetdaliamiami.com/"
+     ],
+     "local_tip": [
+      "https://meetdaliamiami.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Meet Dalia offers Mediterranean dining with a New American flair, on Ocean Drive in Miami Beach.",
+      "source": "https://meetdaliamiami.com/"
+     },
+     {
+      "claim": "Join us on Ocean Drive for breakfast, lunch, dinner or happy hour.",
+      "source": "https://meetdaliamiami.com/"
+     },
+     {
+      "claim": "Seating includes sidewalk seating, elegant dining room or garden patio.",
+      "source": "https://meetdaliamiami.com/"
+     },
+     {
+      "claim": "The menu covers a seafood bar, handmade pastas and grilled entrees.",
+      "source": "https://meetdaliamiami.com/"
+     },
+     {
+      "claim": "Hours are Monday to Sunday from 7 a.m. to 12 a.m.",
+      "source": "https://meetdaliamiami.com/"
+     },
+     {
+      "claim": "Breakfast includes avocado toast and eggs Benedict to shakshuka.",
+      "source": "https://meetdaliamiami.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJla5hZH9154gRwSkmeqWENL4",
+   "name": "Get Up And Go Kayaking - Rock Springs",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "tour_agency",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://getupandgokayaking.com/locations/florida/rock-springs/kings-landing-emerald-cut-tour/",
+     "source_name": "Get Up And Go Kayaking - Rock Springs \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Rock Springs tour uses 100% clear kayaks.",
+      "The tour duration is 2 - 2.5 Hours.",
+      "The tour launches at King's Landing, 5722 Baptist Camp Rd, Apopka, FL 32712.",
+      "The spring-fed water of Emerald Cut makes it easy to spot fish, turtles, and other aquatic wildlife.",
+      "Children 3+ years old are allowed on the tours."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Clear kayaks on the spring-fed Emerald Cut at King's Landing",
+    "why_here": "This guided tour paddles Rock Springs Run from King's Landing in Apopka in 100% clear kayaks. The spring-fed Emerald Cut keeps water clear for spotting fish, turtles and other aquatic wildlife, with guides pointing out features along the way.",
+    "know_before": "Tours last 2 to 2.5 hours; the first half paddles against a 2-3 mph current. Children ages 3+ are allowed and must be accompanied by an adult.",
+    "local_tip": "Bring shoes that can get wet and a towel for after the trip, as listed in the tour FAQ.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://getupandgokayaking.com/locations/florida/rock-springs/kings-landing-emerald-cut-tour/"
+     ],
+     "why_here": [
+      "https://getupandgokayaking.com/locations/florida/rock-springs/kings-landing-emerald-cut-tour/"
+     ],
+     "know_before": [
+      "https://getupandgokayaking.com/locations/florida/rock-springs/kings-landing-emerald-cut-tour/"
+     ],
+     "local_tip": [
+      "https://getupandgokayaking.com/locations/florida/rock-springs/kings-landing-emerald-cut-tour/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Rock Springs tour uses 100% clear kayaks.",
+      "source": "https://getupandgokayaking.com/locations/florida/rock-springs/kings-landing-emerald-cut-tour/"
+     },
+     {
+      "claim": "The tour duration is 2 - 2.5 Hours.",
+      "source": "https://getupandgokayaking.com/locations/florida/rock-springs/kings-landing-emerald-cut-tour/"
+     },
+     {
+      "claim": "The tour launches at King's Landing, 5722 Baptist Camp Rd, Apopka, FL 32712.",
+      "source": "https://getupandgokayaking.com/locations/florida/rock-springs/kings-landing-emerald-cut-tour/"
+     },
+     {
+      "claim": "The spring-fed water of Emerald Cut makes it easy to spot fish, turtles, and other aquatic wildlife.",
+      "source": "https://getupandgokayaking.com/locations/florida/rock-springs/kings-landing-emerald-cut-tour/"
+     },
+     {
+      "claim": "Children 3+ years old are allowed on the tours.",
+      "source": "https://getupandgokayaking.com/locations/florida/rock-springs/kings-landing-emerald-cut-tour/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJmXV7RerW2IgRTXA6VHhFHRk",
+   "name": "Worth Avenue Clock Tower",
+   "category": "attractions",
+   "metro": "palm-beach",
+   "primary_type": "tourist_attraction",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.thepalmbeaches.com/blog/10-things-do-palm-beach",
+     "source_name": "Worth Avenue Clock Tower \u2014 official source",
+     "source_class": "tourism_dmo",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Clock Tower is located between palm trees right at the entrance of Worth Avenue.",
+      "The 25-foot tower stands on the sidewalk of Old Ocean Boulevard.",
+      "The construction of the clock was part of a $15.8 million renovation to Worth Ave in 2010."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "A 25-foot clock tower at the entrance of Worth Avenue",
+    "why_here": "The Clock Tower stands between palm trees right at the entrance of Worth Avenue. The 25-foot tower stands on the sidewalk of Old Ocean Boulevard, built as part of a $15.8 million renovation to Worth Ave in 2010.",
+    "know_before": "The clock was part of a $15.8 million renovation to Worth Ave in 2010.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.thepalmbeaches.com/blog/10-things-do-palm-beach"
+     ],
+     "why_here": [
+      "https://www.thepalmbeaches.com/blog/10-things-do-palm-beach"
+     ],
+     "know_before": [
+      "https://www.thepalmbeaches.com/blog/10-things-do-palm-beach"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Clock Tower is located between palm trees right at the entrance of Worth Avenue.",
+      "source": "https://www.thepalmbeaches.com/blog/10-things-do-palm-beach"
+     },
+     {
+      "claim": "The 25-foot tower stands on the sidewalk of Old Ocean Boulevard.",
+      "source": "https://www.thepalmbeaches.com/blog/10-things-do-palm-beach"
+     },
+     {
+      "claim": "The construction of the clock was part of a $15.8 million renovation to Worth Ave in 2010.",
+      "source": "https://www.thepalmbeaches.com/blog/10-things-do-palm-beach"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJKzjAQp0C2YgRwEeF6SdThk0",
+   "name": "Flanigan's Seafood Bar and Grill",
+   "category": "nightlife",
+   "metro": "broward",
+   "primary_type": "bar_and_grill",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.flanigans.net/food-drink",
+     "source_name": "Flanigan's Seafood Bar and Grill \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Flanigan's signature dishes include Legendary Baby Back Ribs.",
+      "Joe's Rockin' Rib Rolls are deep-fried egg rolls stuffed with meat from baby back ribs, pulled pork, cheddar cheese, onions, and Flanigan's BBQ sauce."
+     ]
+    },
+    {
+     "source": "https://www.flanigans.net/locations",
+     "source_name": "Flanigan's Seafood Bar and Grill \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Flanigan's restaurants are open 365 days a year, serving continuously from 11:00 AM to late night."
+     ]
+    },
+    {
+     "source": "https://www.flanigans.net/",
+     "source_name": "Flanigan's Seafood Bar and Grill \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Flanigan's has 25 locations around South Florida."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Baby back ribs and rockin' rib rolls at a South Florida staple",
+    "why_here": "Flanigan's is a family-run South Florida restaurant group known for its Legendary Baby Back Ribs and classic grill fare. Its menu also lists Joe's Rockin' Rib Rolls, made with meat from its baby back ribs, pulled pork and cheddar cheese.",
+    "know_before": "Locations are open 365 days a year, serving continuously from 11:00 a.m. to late night.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.flanigans.net/food-drink",
+      "https://www.flanigans.net/locations",
+      "https://www.flanigans.net/"
+     ],
+     "why_here": [
+      "https://www.flanigans.net/food-drink",
+      "https://www.flanigans.net/locations",
+      "https://www.flanigans.net/"
+     ],
+     "know_before": [
+      "https://www.flanigans.net/food-drink",
+      "https://www.flanigans.net/locations",
+      "https://www.flanigans.net/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Flanigan's signature dishes include Legendary Baby Back Ribs.",
+      "source": "https://www.flanigans.net/food-drink"
+     },
+     {
+      "claim": "Joe's Rockin' Rib Rolls are deep-fried egg rolls stuffed with meat from baby back ribs, pulled pork, cheddar cheese, onions, and Flanigan's BBQ sauce.",
+      "source": "https://www.flanigans.net/food-drink"
+     },
+     {
+      "claim": "Flanigan's restaurants are open 365 days a year, serving continuously from 11:00 AM to late night.",
+      "source": "https://www.flanigans.net/locations"
+     },
+     {
+      "claim": "Flanigan's has 25 locations around South Florida.",
+      "source": "https://www.flanigans.net/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJCyNpltSOk4gR23PpnsZZKWs",
+   "name": "Saltwater Grill",
+   "category": "food",
+   "metro": "panama-city-florida",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://saltwatergrillpcb.com/",
+     "source_name": "Saltwater Grill \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Saltwater Grill has a 25,000-gallon tropical saltwater aquarium.",
+      "Saltwater Grill serves fresh Gulf seafood, premium steaks, and expertly crafted sushi.",
+      "Saltwater Grill is located at 11040 Hutchison Boulevard, Panama City Beach, Florida 32407.",
+      "Hours are Monday to Thursday 4 p.m. to 10 p.m., Friday to Saturday 4 p.m. to 12 a.m., and Sunday 10 a.m. to 10 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Dinner beside a 25,000-gallon tropical saltwater aquarium",
+    "why_here": "Saltwater Grill in Panama City Beach serves fresh Gulf seafood, premium steaks, and expertly crafted sushi. A 25,000-gallon tropical saltwater aquarium greets guests at 11040 Hutchison Boulevard in Panama City Beach.",
+    "know_before": "Hours are Monday to Thursday 4 p.m. to 10 p.m., Friday to Saturday 4 p.m. to 12 a.m., and Sunday 10 a.m. to 10 p.m.",
+    "local_tip": null,
+    "best_time": "Sunday brunch is served, per the official menu page.",
+    "citations": {
+     "hook": [
+      "https://saltwatergrillpcb.com/"
+     ],
+     "why_here": [
+      "https://saltwatergrillpcb.com/"
+     ],
+     "know_before": [
+      "https://saltwatergrillpcb.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      "https://saltwatergrillpcb.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Saltwater Grill has a 25,000-gallon tropical saltwater aquarium.",
+      "source": "https://saltwatergrillpcb.com/"
+     },
+     {
+      "claim": "Saltwater Grill serves fresh Gulf seafood, premium steaks, and expertly crafted sushi.",
+      "source": "https://saltwatergrillpcb.com/"
+     },
+     {
+      "claim": "Saltwater Grill is located at 11040 Hutchison Boulevard, Panama City Beach, Florida 32407.",
+      "source": "https://saltwatergrillpcb.com/"
+     },
+     {
+      "claim": "Hours are Monday to Thursday 4 p.m. to 10 p.m., Friday to Saturday 4 p.m. to 12 a.m., and Sunday 10 a.m. to 10 p.m.",
+      "source": "https://saltwatergrillpcb.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ_dJXHMC20YgRD0RwYhMY3UE",
+   "name": "Cuban Coffee Queen Waterfront",
+   "category": "food",
+   "metro": "keys",
+   "primary_type": "coffee_shop",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://cubancoffeequeen.com/locations/key-west-florida/waterfront/",
+     "source_name": "Cuban Coffee Queen Waterfront \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The original Cuban Coffee Queen can be found in the Key West Historic Seaport.",
+      "Cuban Coffee Queen \u2014 Waterfront is at 284 Margaret Street, Key West, FL 33040.",
+      "Hours are from 6:30 a.m. to 7 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "The original Cuban Coffee Queen in the Key West Historic Seaport",
+    "why_here": "The Waterfront location is the original Cuban Coffee Queen, found in the Key West Historic Seaport at 284 Margaret Street, Key West, FL 33040. Hours are from 6:30 a.m. to 7 p.m. for a coffee stop by the seaport.",
+    "know_before": "Hours are from 6:30 a.m. to 7 p.m. at 284 Margaret Street.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://cubancoffeequeen.com/locations/key-west-florida/waterfront/"
+     ],
+     "why_here": [
+      "https://cubancoffeequeen.com/locations/key-west-florida/waterfront/"
+     ],
+     "know_before": [
+      "https://cubancoffeequeen.com/locations/key-west-florida/waterfront/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The original Cuban Coffee Queen can be found in the Key West Historic Seaport.",
+      "source": "https://cubancoffeequeen.com/locations/key-west-florida/waterfront/"
+     },
+     {
+      "claim": "Cuban Coffee Queen \u2014 Waterfront is at 284 Margaret Street, Key West, FL 33040.",
+      "source": "https://cubancoffeequeen.com/locations/key-west-florida/waterfront/"
+     },
+     {
+      "claim": "Hours are from 6:30 a.m. to 7 p.m.",
+      "source": "https://cubancoffeequeen.com/locations/key-west-florida/waterfront/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJx_pUcNiK2YgR4JfT3ovTKIw",
+   "name": "Shark Valley Visitor Center",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "visitor_center",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.nps.gov/ever/planyourvisit/svdirections.htm",
+     "source_name": "Shark Valley Visitor Center \u2014 official source",
+     "source_class": "government",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Visitors can explore the 15 mile loop trail at Shark Valley.",
+      "Private vehicles are not permitted beyond the entrance road and parking lot at Shark Valley.",
+      "Guided tram tours provide an overview of the Everglades ecosystem along the 15 mile loop.",
+      "Parking fills quickly and may operate as one car in, one car out.",
+      "Expect long wait times between 10 a.m. and 3 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "15 mile loop trail at Shark Valley with guided tram tours",
+    "why_here": "Shark Valley offers a 15 mile loop trail into the Everglades ecosystem, explored on guided tram tours that provide an overview along the loop.",
+    "know_before": "Parking fills quickly between 10 a.m. and 3 p.m.; private vehicles are not permitted beyond the entrance road and parking lot.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.nps.gov/ever/planyourvisit/svdirections.htm"
+     ],
+     "why_here": [
+      "https://www.nps.gov/ever/planyourvisit/svdirections.htm"
+     ],
+     "know_before": [
+      "https://www.nps.gov/ever/planyourvisit/svdirections.htm"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Visitors can explore the 15 mile loop trail at Shark Valley.",
+      "source": "https://www.nps.gov/ever/planyourvisit/svdirections.htm"
+     },
+     {
+      "claim": "Private vehicles are not permitted beyond the entrance road and parking lot at Shark Valley.",
+      "source": "https://www.nps.gov/ever/planyourvisit/svdirections.htm"
+     },
+     {
+      "claim": "Guided tram tours provide an overview of the Everglades ecosystem along the 15 mile loop.",
+      "source": "https://www.nps.gov/ever/planyourvisit/svdirections.htm"
+     },
+     {
+      "claim": "Parking fills quickly and may operate as one car in, one car out.",
+      "source": "https://www.nps.gov/ever/planyourvisit/svdirections.htm"
+     },
+     {
+      "claim": "Expect long wait times between 10 a.m. and 3 p.m.",
+      "source": "https://www.nps.gov/ever/planyourvisit/svdirections.htm"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJf-9noEf8wogRtnzBc0ML0K0",
+   "name": "Dockside Dave's",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://docksidedavesfl.com/",
+     "source_name": "Dockside Dave's \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Dockside Dave's is a seafood restaurant in Madeira Beach.",
+      "The menu offers a smoked fish spread and house-favorite onion rings.",
+      "The restaurant is most famous for its half-pound grouper sandwich."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "half-pound grouper sandwich and smoked fish spread in Madeira Beach",
+    "why_here": "Dockside Dave's is a seafood restaurant in Madeira Beach where the menu offers a smoked fish spread and house-favorite onion rings alongside its grouper sandwich.",
+    "know_before": "The restaurant is most famous for its half-pound grouper sandwich.",
+    "local_tip": "Order the smoked fish spread and house-favorite onion rings to start.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://docksidedavesfl.com/"
+     ],
+     "why_here": [
+      "https://docksidedavesfl.com/"
+     ],
+     "know_before": [
+      "https://docksidedavesfl.com/"
+     ],
+     "local_tip": [
+      "https://docksidedavesfl.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Dockside Dave's is a seafood restaurant in Madeira Beach.",
+      "source": "https://docksidedavesfl.com/"
+     },
+     {
+      "claim": "The menu offers a smoked fish spread and house-favorite onion rings.",
+      "source": "https://docksidedavesfl.com/"
+     },
+     {
+      "claim": "The restaurant is most famous for its half-pound grouper sandwich.",
+      "source": "https://docksidedavesfl.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJLwl3s0252YgReufoTMpe54U",
+   "name": "Novu Fusion Restaurant",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "sushi_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.novufusion.com/",
+     "source_name": "Novu Fusion Restaurant \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Novu Fusion creates a fusion of Japanese, Latin, and contemporary flavors.",
+      "Each dish is crafted to inspire a memorable dining experience.",
+      "Novu Fusion is at 2475 NW 95th Ave STE 7, Doral, FL 33172."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Japanese, Latin and contemporary flavors fused in Doral",
+    "why_here": "Novu Fusion in Doral creates a fusion of Japanese, Latin and contemporary flavors, with each dish crafted to inspire a memorable dining experience at the table.",
+    "know_before": "Novu Fusion is at 2475 NW 95th Ave STE 7, Doral, FL 33172.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.novufusion.com/"
+     ],
+     "why_here": [
+      "https://www.novufusion.com/"
+     ],
+     "know_before": [
+      "https://www.novufusion.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Novu Fusion creates a fusion of Japanese, Latin, and contemporary flavors.",
+      "source": "https://www.novufusion.com/"
+     },
+     {
+      "claim": "Each dish is crafted to inspire a memorable dining experience.",
+      "source": "https://www.novufusion.com/"
+     },
+     {
+      "claim": "Novu Fusion is at 2475 NW 95th Ave STE 7, Doral, FL 33172.",
+      "source": "https://www.novufusion.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJx9O_qA_9wogRlouAUtNtDyI",
+   "name": "Bilmar Beach Resort",
+   "category": "hotels",
+   "metro": "st-pete",
+   "primary_type": "resort_hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.bilmarbeachresort.com/",
+     "source_name": "Bilmar Beach Resort \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Bilmar Beach Resort has 166 rooms, suites and penthouses, 90% of which are beachfront.",
+      "Resort amenities include two heated pools, a whirlpool spa, and a rooftop sun deck."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "166 rooms, suites and penthouses with two heated pools",
+    "why_here": "Bilmar Beach Resort offers 166 rooms, suites and penthouses, with resort amenities that include two heated pools, a whirlpool spa and a rooftop sun deck for guests.",
+    "know_before": "Resort amenities include two heated pools, a whirlpool spa, and a rooftop sun deck.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.bilmarbeachresort.com/"
+     ],
+     "why_here": [
+      "https://www.bilmarbeachresort.com/"
+     ],
+     "know_before": [
+      "https://www.bilmarbeachresort.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Bilmar Beach Resort has 166 rooms, suites and penthouses, 90% of which are beachfront.",
+      "source": "https://www.bilmarbeachresort.com/"
+     },
+     {
+      "claim": "Resort amenities include two heated pools, a whirlpool spa, and a rooftop sun deck.",
+      "source": "https://www.bilmarbeachresort.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ1ZU-bWCs2YgR7Z6KP3TwHlM",
+   "name": "La Boulangerie Boul\u2019Mich",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "cafe",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.laboulangerieusa.com/locations",
+     "source_name": "La Boulangerie Boul\u2019Mich \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "La Boulangerie Boul'Mich is a French artisanal bakery with a latin twist concept.",
+      "The bakery concept has been in existence for over 20 years in Miami."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "French artisanal bakery with a latin twist in Miami",
+    "why_here": "La Boulangerie Boul'Mich is a French artisanal bakery with a latin twist concept that has been in existence for over 20 years in Miami for bakery visits.",
+    "know_before": "The bakery concept has been in existence for over 20 years in Miami.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.laboulangerieusa.com/locations"
+     ],
+     "why_here": [
+      "https://www.laboulangerieusa.com/locations"
+     ],
+     "know_before": [
+      "https://www.laboulangerieusa.com/locations"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "La Boulangerie Boul'Mich is a French artisanal bakery with a latin twist concept.",
+      "source": "https://www.laboulangerieusa.com/locations"
+     },
+     {
+      "claim": "The bakery concept has been in existence for over 20 years in Miami.",
+      "source": "https://www.laboulangerieusa.com/locations"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJnY9oKUC32YgRi0NS_BWOi78",
+   "name": "La Boulangerie Boul'Mich",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "cafe",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.laboulangerieusa.com/locations",
+     "source_name": "La Boulangerie Boul'Mich \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "La Boulangerie Boul'Mich is a French artisanal bakery with a latin twist concept.",
+      "The bakery concept has been in existence for over 20 years in Miami."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "French artisanal bakery with a latin twist in Miami",
+    "why_here": "La Boulangerie Boul'Mich is a French artisanal bakery with a latin twist concept that has been in existence for over 20 years in Miami for bakery visits.",
+    "know_before": "The bakery concept has been in existence for over 20 years in Miami.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.laboulangerieusa.com/locations"
+     ],
+     "why_here": [
+      "https://www.laboulangerieusa.com/locations"
+     ],
+     "know_before": [
+      "https://www.laboulangerieusa.com/locations"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "La Boulangerie Boul'Mich is a French artisanal bakery with a latin twist concept.",
+      "source": "https://www.laboulangerieusa.com/locations"
+     },
+     {
+      "claim": "The bakery concept has been in existence for over 20 years in Miami.",
+      "source": "https://www.laboulangerieusa.com/locations"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJV7qA9MTU54gRFySN2z8PvOk",
+   "name": "Mojo's-Food. Music. Soul. (Ocala Location)",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "family_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.ilovemojos.com/",
+     "source_name": "Mojo's-Food. Music. Soul. (Ocala Location) \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Mojo's menu is a blend of Cajun, Cuban and American cuisines.",
+      "Mojo's lists Ocala - SR 200 among its locations."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Cajun, Cuban and American flavors under one Ocala roof",
+    "why_here": "Mojo's in Ocala serves a blend of Cajun, Cuban and American cuisines, listed at the Ocala - SR 200 location for a menu built around blended flavors.",
+    "know_before": "Mojo's lists Ocala - SR 200 among its locations.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.ilovemojos.com/"
+     ],
+     "why_here": [
+      "https://www.ilovemojos.com/"
+     ],
+     "know_before": [
+      "https://www.ilovemojos.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Mojo's menu is a blend of Cajun, Cuban and American cuisines.",
+      "source": "https://www.ilovemojos.com/"
+     },
+     {
+      "claim": "Mojo's lists Ocala - SR 200 among its locations.",
+      "source": "https://www.ilovemojos.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJVZ2Z2D252YgRK4rVyJg4CSo",
+   "name": "Novecento",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "argentinian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://novecentorestaurants.com/",
+     "source_name": "Novecento \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Novecento first opened its doors in 1991 in SoHo, NY.",
+      "Novecento opened locations in key areas of South Florida.",
+      "Novecento believes fresh and made-from-scratch is the only way for its food.",
+      "Novecento can feel like a Sunday dinner at home with the family."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Opened in 1991 in SoHo, now in South Florida",
+    "why_here": "Novecento first opened its doors in 1991 in SoHo, NY and later opened locations in key areas of South Florida. The restaurant says fresh and made-from-scratch is the only way for its food.",
+    "know_before": "Expect fresh and made-from-scratch food on the menu.",
+    "local_tip": "Come for a Sunday dinner with the family.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://novecentorestaurants.com/"
+     ],
+     "why_here": [
+      "https://novecentorestaurants.com/"
+     ],
+     "know_before": [
+      "https://novecentorestaurants.com/"
+     ],
+     "local_tip": [
+      "https://novecentorestaurants.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Novecento first opened its doors in 1991 in SoHo, NY.",
+      "source": "https://novecentorestaurants.com/"
+     },
+     {
+      "claim": "Novecento opened locations in key areas of South Florida.",
+      "source": "https://novecentorestaurants.com/"
+     },
+     {
+      "claim": "Novecento believes fresh and made-from-scratch is the only way for its food.",
+      "source": "https://novecentorestaurants.com/"
+     },
+     {
+      "claim": "Novecento can feel like a Sunday dinner at home with the family.",
+      "source": "https://novecentorestaurants.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ0Y9MOoZf7IgRfx0us-ffOz4",
+   "name": "Essence Of India",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "indian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://essenceofindiafl.com/",
+     "source_name": "Essence Of India \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Essence Of India is located at 1105 Apalachee Pkwy, Tallahassee, FL.",
+      "The menu includes Butter Chicken, Goat Biryani and Paneer Tikka Masala.",
+      "Lunch Special is available Monday to Saturday from 11:15 a.m. to 2:15 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Tallahassee Indian kitchen known for biryani, curry and naan",
+    "why_here": "Essence Of India in Tallahassee serves Indian dishes including biryani, tikka masala, curry and naan. The menu lists items such as Butter Chicken, Chicken Tikka Masala, Goat Biryani and Paneer Tikka Masala.",
+    "know_before": "Lunch Special is available Monday to Saturday from 11:15 a.m. to 2:15 p.m.",
+    "local_tip": "Order naan to pair with curry and biryani dishes listed on the menu.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://essenceofindiafl.com/"
+     ],
+     "why_here": [
+      "https://essenceofindiafl.com/"
+     ],
+     "know_before": [
+      "https://essenceofindiafl.com/"
+     ],
+     "local_tip": [
+      "https://essenceofindiafl.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Essence Of India is located at 1105 Apalachee Pkwy, Tallahassee, FL.",
+      "source": "https://essenceofindiafl.com/"
+     },
+     {
+      "claim": "The menu includes Butter Chicken, Goat Biryani and Paneer Tikka Masala.",
+      "source": "https://essenceofindiafl.com/"
+     },
+     {
+      "claim": "Lunch Special is available Monday to Saturday from 11:15 a.m. to 2:15 p.m.",
+      "source": "https://essenceofindiafl.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJlWF1Gp222YgRkg_v_MAt_Sc",
+   "name": "Kimpton EPIC Hotel",
+   "category": "hotels",
+   "metro": "miami-dade",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.ihg.com/kimptonhotels/hotels/us/en/epic-hotel-miami-fl/miaep/hoteldetail",
+     "source_name": "Kimpton EPIC Hotel \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Kimpton EPIC Hotel is located at 270 Biscayne Boulevard Way, Miami, FL 33131.",
+      "The hotel has 1 outdoor pool.",
+      "The hotel has 2 restaurants.",
+      "Amenities include Privai Spa + Fitness."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Waterfront downtown Miami hotel above Biscayne Bay",
+    "why_here": "Kimpton EPIC Hotel is a waterfront hotel in downtown Miami overlooking Biscayne Bay. The hotel offers Privai Spa + Fitness, an outdoor pool and on-site restaurants, with a setting designed for relaxation and discovery in the city.",
+    "know_before": "Valet parking is available at the hotel.",
+    "local_tip": "Pets are welcome at Kimpton EPIC Hotel, according to the official hotel page.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.ihg.com/kimptonhotels/hotels/us/en/epic-hotel-miami-fl/miaep/hoteldetail"
+     ],
+     "why_here": [
+      "https://www.ihg.com/kimptonhotels/hotels/us/en/epic-hotel-miami-fl/miaep/hoteldetail"
+     ],
+     "know_before": [
+      "https://www.ihg.com/kimptonhotels/hotels/us/en/epic-hotel-miami-fl/miaep/hoteldetail"
+     ],
+     "local_tip": [
+      "https://www.ihg.com/kimptonhotels/hotels/us/en/epic-hotel-miami-fl/miaep/hoteldetail"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Kimpton EPIC Hotel is located at 270 Biscayne Boulevard Way, Miami, FL 33131.",
+      "source": "https://www.ihg.com/kimptonhotels/hotels/us/en/epic-hotel-miami-fl/miaep/hoteldetail"
+     },
+     {
+      "claim": "The hotel has 1 outdoor pool.",
+      "source": "https://www.ihg.com/kimptonhotels/hotels/us/en/epic-hotel-miami-fl/miaep/hoteldetail"
+     },
+     {
+      "claim": "The hotel has 2 restaurants.",
+      "source": "https://www.ihg.com/kimptonhotels/hotels/us/en/epic-hotel-miami-fl/miaep/hoteldetail"
+     },
+     {
+      "claim": "Amenities include Privai Spa + Fitness.",
+      "source": "https://www.ihg.com/kimptonhotels/hotels/us/en/epic-hotel-miami-fl/miaep/hoteldetail"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ5YA2xha35YgRwupdz2BiCuE",
+   "name": "Marriott Jacksonville Downtown",
+   "category": "hotels",
+   "metro": "florida",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.marriott.com/en-us/hotels/jaxmd-marriott-jacksonville-downtown/overview/",
+     "source_name": "Marriott Jacksonville Downtown \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Marriott Jacksonville Downtown offers newly renovated guest rooms.",
+      "The hotel offers sweeping views of the St. Johns River.",
+      "The property features a Fitness Center and a Rooftop Pool."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Downtown hotel with sweeping views of the St. Johns River",
+    "why_here": "Marriott Jacksonville Downtown offers newly renovated guest rooms and sweeping views of the St. Johns River. The property also features a Fitness Center and a Rooftop Pool for use during a stay.",
+    "know_before": "Plan time for the Fitness Center and the Rooftop Pool during a stay.",
+    "local_tip": "Head to the Rooftop Pool for views of the St. Johns River.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.marriott.com/en-us/hotels/jaxmd-marriott-jacksonville-downtown/overview/"
+     ],
+     "why_here": [
+      "https://www.marriott.com/en-us/hotels/jaxmd-marriott-jacksonville-downtown/overview/"
+     ],
+     "know_before": [
+      "https://www.marriott.com/en-us/hotels/jaxmd-marriott-jacksonville-downtown/overview/"
+     ],
+     "local_tip": [
+      "https://www.marriott.com/en-us/hotels/jaxmd-marriott-jacksonville-downtown/overview/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Marriott Jacksonville Downtown offers newly renovated guest rooms.",
+      "source": "https://www.marriott.com/en-us/hotels/jaxmd-marriott-jacksonville-downtown/overview/"
+     },
+     {
+      "claim": "The hotel offers sweeping views of the St. Johns River.",
+      "source": "https://www.marriott.com/en-us/hotels/jaxmd-marriott-jacksonville-downtown/overview/"
+     },
+     {
+      "claim": "The property features a Fitness Center and a Rooftop Pool.",
+      "source": "https://www.marriott.com/en-us/hotels/jaxmd-marriott-jacksonville-downtown/overview/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ4VIXNCq32YgR0F1MwMroDuA",
+   "name": "Rishtedar",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "indian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.rishtedar.com/",
+     "source_name": "Rishtedar \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Rishtedar is an Indian restaurant in Wynwood, Miami.",
+      "Rishtedar serves Paneer Tikka, Butter Chicken and Dal Makhani.",
+      "Butter Chicken is chicken in creamy tomato sauce with butter and masala.",
+      "Rishtedar is open daily from 12 p.m.",
+      "Happy hour is Monday to Friday from 5 p.m. to 7 p.m.",
+      "The Tandoori Mix is listed as a house mix."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Wynwood Indian restaurant serving Paneer Tikka and Butter Chicken",
+    "why_here": "Rishtedar is an Indian restaurant in Wynwood, Miami, serving Paneer Tikka, Butter Chicken and Dal Makhani. Butter Chicken is chicken in creamy tomato sauce with butter and masala.",
+    "know_before": "Rishtedar is open daily from 12 p.m., with happy hour Monday to Friday from 5 p.m. to 7 p.m.",
+    "local_tip": "Share the Tandoori Mix, listed as a house mix.",
+    "best_time": "Go Monday to Friday from 5 p.m. to 7 p.m. for happy hour.",
+    "citations": {
+     "hook": [
+      "https://www.rishtedar.com/"
+     ],
+     "why_here": [
+      "https://www.rishtedar.com/"
+     ],
+     "know_before": [
+      "https://www.rishtedar.com/"
+     ],
+     "local_tip": [
+      "https://www.rishtedar.com/"
+     ],
+     "best_time": [
+      "https://www.rishtedar.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Rishtedar is an Indian restaurant in Wynwood, Miami.",
+      "source": "https://www.rishtedar.com/"
+     },
+     {
+      "claim": "Rishtedar serves Paneer Tikka, Butter Chicken and Dal Makhani.",
+      "source": "https://www.rishtedar.com/"
+     },
+     {
+      "claim": "Butter Chicken is chicken in creamy tomato sauce with butter and masala.",
+      "source": "https://www.rishtedar.com/"
+     },
+     {
+      "claim": "Rishtedar is open daily from 12 p.m.",
+      "source": "https://www.rishtedar.com/"
+     },
+     {
+      "claim": "Happy hour is Monday to Friday from 5 p.m. to 7 p.m.",
+      "source": "https://www.rishtedar.com/"
+     },
+     {
+      "claim": "The Tandoori Mix is listed as a house mix.",
+      "source": "https://www.rishtedar.com/"
+     }
+    ]
+   }
+  }
+ ]
+}

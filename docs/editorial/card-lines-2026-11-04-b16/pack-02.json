@@ -1,0 +1,736 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 16. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJR8M-xv3ywogR3U23V7W2vlg",
+   "name": "Molly Goodhead's Raw Bar & Restaurant",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.mollygoodheads.com/",
+     "source_name": "Molly Goodhead's Raw Bar & Restaurant \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Molly Goodhead's Raw Bar is in Ozona, Florida.",
+      "Signature dishes include oysters served as a single shucked raw oyster with cocktail sauce.",
+      "The Grouper Sandwich is a 6oz filet served grilled, blackened or fried.",
+      "Fish and Chips is three battered and deep-fried fish filets served with French fries.",
+      "The restaurant lists its address as 400 Orange St, Palm Harbor, FL 34683.",
+      "Weekly specials listed include Monday Burger, Tuesday Fish Tacos, Wednesday Fish and Chips and Thursday Shrimp Pasta."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Oysters and a Grouper Sandwich at a raw bar in Ozona",
+    "why_here": "Molly Goodhead's Raw Bar in Ozona, Florida serves signature oysters as a single shucked raw oyster with cocktail sauce, plus a Grouper Sandwich and Fish and Chips for seafood visitors.",
+    "know_before": "The restaurant lists its address as 400 Orange St, Palm Harbor, FL 34683.",
+    "local_tip": "Weekly specials include Monday Burger and Tuesday Fish Tacos.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.mollygoodheads.com/"
+     ],
+     "why_here": [
+      "https://www.mollygoodheads.com/"
+     ],
+     "know_before": [
+      "https://www.mollygoodheads.com/"
+     ],
+     "local_tip": [
+      "https://www.mollygoodheads.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Molly Goodhead's Raw Bar is in Ozona, Florida.",
+      "source": "https://www.mollygoodheads.com/"
+     },
+     {
+      "claim": "Signature dishes include oysters served as a single shucked raw oyster with cocktail sauce.",
+      "source": "https://www.mollygoodheads.com/"
+     },
+     {
+      "claim": "The Grouper Sandwich is a 6oz filet served grilled, blackened or fried.",
+      "source": "https://www.mollygoodheads.com/"
+     },
+     {
+      "claim": "Fish and Chips is three battered and deep-fried fish filets served with French fries.",
+      "source": "https://www.mollygoodheads.com/"
+     },
+     {
+      "claim": "The restaurant lists its address as 400 Orange St, Palm Harbor, FL 34683.",
+      "source": "https://www.mollygoodheads.com/"
+     },
+     {
+      "claim": "Weekly specials listed include Monday Burger, Tuesday Fish Tacos, Wednesday Fish and Chips and Thursday Shrimp Pasta.",
+      "source": "https://www.mollygoodheads.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ684VUaUH2YgRHjCxgp4aDwc",
+   "name": "Luka Restaurant and Coffee - Plantation",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://lukarestaurant.com/",
+     "source_name": "Luka Restaurant and Coffee - Plantation \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Luka brings the flavors of Latin American countries directly to the table.",
+      "The name Luka comes from the combination of the owners' names, Luis and Catalina.",
+      "The Plantation location is at 244 S University Dr, Plantation, FL 33324.",
+      "Plantation hours include Monday 7 a.m. to 10 p.m.",
+      "Luka serves homemade food and describes its food as comfort food."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Latin American comfort food at the Plantation location",
+    "why_here": "Luka in Plantation brings the flavors of Latin American countries directly to the table with homemade comfort food, and the name Luka comes from the combination of the owners' names, Luis and Catalina.",
+    "know_before": "Plantation hours include Monday 7 a.m. to 10 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://lukarestaurant.com/"
+     ],
+     "why_here": [
+      "https://lukarestaurant.com/"
+     ],
+     "know_before": [
+      "https://lukarestaurant.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Luka brings the flavors of Latin American countries directly to the table.",
+      "source": "https://lukarestaurant.com/"
+     },
+     {
+      "claim": "The name Luka comes from the combination of the owners' names, Luis and Catalina.",
+      "source": "https://lukarestaurant.com/"
+     },
+     {
+      "claim": "The Plantation location is at 244 S University Dr, Plantation, FL 33324.",
+      "source": "https://lukarestaurant.com/"
+     },
+     {
+      "claim": "Plantation hours include Monday 7 a.m. to 10 p.m.",
+      "source": "https://lukarestaurant.com/"
+     },
+     {
+      "claim": "Luka serves homemade food and describes its food as comfort food.",
+      "source": "https://lukarestaurant.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ52JSnoj92IgRsUKa8TdwfPA",
+   "name": "Aromas del Peru",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "peruvian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://aromasperu.com/pompano-beach",
+     "source_name": "Aromas del Peru \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Pompano Beach location is at 1 N Ocean Blvd Ste 102, Pompano Beach, FL 33062."
+     ]
+    },
+    {
+     "source": "https://aromasperu.com/",
+     "source_name": "Aromas del Peru \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Peruvian flavors anchor a menu of ceviche, seafood rice, grilled meats, and sides of yucca and plantains.",
+      "Menu examples include Ceviche Classico, Arroz con mariscos, Anticuchos, Yucca Fries, and Maduros."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Peruvian ceviche and seafood rice at the Pompano Beach location",
+    "why_here": "Aromas del Peru serves Peruvian food at its Pompano Beach location, one of several Florida locations listed on its official site. The menu anchors on ceviche, seafood rice and grilled meats with sides such as yucca and plantains.",
+    "know_before": "The Pompano Beach address listed on the official site is 1 N Ocean Blvd Ste 102, Pompano Beach, FL 33062.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://aromasperu.com/pompano-beach",
+      "https://aromasperu.com/"
+     ],
+     "why_here": [
+      "https://aromasperu.com/pompano-beach",
+      "https://aromasperu.com/"
+     ],
+     "know_before": [
+      "https://aromasperu.com/pompano-beach",
+      "https://aromasperu.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Pompano Beach location is at 1 N Ocean Blvd Ste 102, Pompano Beach, FL 33062.",
+      "source": "https://aromasperu.com/pompano-beach"
+     },
+     {
+      "claim": "Peruvian flavors anchor a menu of ceviche, seafood rice, grilled meats, and sides of yucca and plantains.",
+      "source": "https://aromasperu.com/"
+     },
+     {
+      "claim": "Menu examples include Ceviche Classico, Arroz con mariscos, Anticuchos, Yucca Fries, and Maduros.",
+      "source": "https://aromasperu.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJAYYkgp6m2YgRMBGwuMU2gks",
+   "name": "Brimstone Woodfire Grill",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://brimstonewoodfiregrill.com/brimstone-restaurant-in-pembroke-pines/",
+     "source_name": "Brimstone Woodfire Grill \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Brimstone Woodfire Grill is located at Shops at Pembroke Gardens, 14575 SW 5th Street, Pembroke Pines, FL 33027.",
+      "The menu features fresh fish, creative sushi rolls, and woodfire-grilled seafood dishes.",
+      "Sushi options include the Spicy Krab Roll, Coconut-Crusted Shrimp Roll, Tempura Shrimp Roll, and California Roll.",
+      "Weekday happy hour is Monday through Friday from 4 p.m. to 7 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Woodfire-grilled seafood dishes and creative sushi rolls",
+    "why_here": "Brimstone Woodfire Grill at Shops at Pembroke Gardens in Pembroke Pines serves fresh fish, creative sushi rolls and woodfire-grilled seafood dishes, with sushi options including the Spicy Krab Roll and California Roll.",
+    "know_before": "Weekday happy hour is Monday through Friday from 4 p.m. to 7 p.m.",
+    "local_tip": "Try the Spicy Krab Roll or the Coconut-Crusted Shrimp Roll from the sushi options.",
+    "best_time": "Weekday happy hour, Monday through Friday from 4 p.m. to 7 p.m.",
+    "citations": {
+     "hook": [
+      "https://brimstonewoodfiregrill.com/brimstone-restaurant-in-pembroke-pines/"
+     ],
+     "why_here": [
+      "https://brimstonewoodfiregrill.com/brimstone-restaurant-in-pembroke-pines/"
+     ],
+     "know_before": [
+      "https://brimstonewoodfiregrill.com/brimstone-restaurant-in-pembroke-pines/"
+     ],
+     "local_tip": [
+      "https://brimstonewoodfiregrill.com/brimstone-restaurant-in-pembroke-pines/"
+     ],
+     "best_time": [
+      "https://brimstonewoodfiregrill.com/brimstone-restaurant-in-pembroke-pines/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Brimstone Woodfire Grill is located at Shops at Pembroke Gardens, 14575 SW 5th Street, Pembroke Pines, FL 33027.",
+      "source": "https://brimstonewoodfiregrill.com/brimstone-restaurant-in-pembroke-pines/"
+     },
+     {
+      "claim": "The menu features fresh fish, creative sushi rolls, and woodfire-grilled seafood dishes.",
+      "source": "https://brimstonewoodfiregrill.com/brimstone-restaurant-in-pembroke-pines/"
+     },
+     {
+      "claim": "Sushi options include the Spicy Krab Roll, Coconut-Crusted Shrimp Roll, Tempura Shrimp Roll, and California Roll.",
+      "source": "https://brimstonewoodfiregrill.com/brimstone-restaurant-in-pembroke-pines/"
+     },
+     {
+      "claim": "Weekday happy hour is Monday through Friday from 4 p.m. to 7 p.m.",
+      "source": "https://brimstonewoodfiregrill.com/brimstone-restaurant-in-pembroke-pines/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJsWKc-3m35YgRBNeW84IFryI",
+   "name": "Hoptinger Bier Garden & Sausage House",
+   "category": "nightlife",
+   "metro": "florida",
+   "primary_type": "beer_garden",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.hoptinger.com/5points",
+     "source_name": "Hoptinger Bier Garden & Sausage House \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The 5 Points location is at 1037 Park Street, Jacksonville, FL 32204.",
+      "5 Points hours are Monday to Friday 11 a.m. to 2 a.m. and Saturday and Sunday 10 a.m. to 2 a.m.",
+      "The 5 Points location includes a Garten rooftop."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Garten rooftop at the 5 Points location in Jacksonville",
+    "why_here": "The 5 Points location in Jacksonville includes a Garten rooftop and stays open late, with hours Monday to Friday from 11 a.m. to 2 a.m. and Saturday and Sunday from 10 a.m. to 2 a.m.",
+    "know_before": "5 Points hours are Monday to Friday 11 a.m. to 2 a.m.",
+    "local_tip": "Head to the Garten rooftop at the 5 Points location.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.hoptinger.com/5points"
+     ],
+     "why_here": [
+      "https://www.hoptinger.com/5points"
+     ],
+     "know_before": [
+      "https://www.hoptinger.com/5points"
+     ],
+     "local_tip": [
+      "https://www.hoptinger.com/5points"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The 5 Points location is at 1037 Park Street, Jacksonville, FL 32204.",
+      "source": "https://www.hoptinger.com/5points"
+     },
+     {
+      "claim": "5 Points hours are Monday to Friday 11 a.m. to 2 a.m. and Saturday and Sunday 10 a.m. to 2 a.m.",
+      "source": "https://www.hoptinger.com/5points"
+     },
+     {
+      "claim": "The 5 Points location includes a Garten rooftop.",
+      "source": "https://www.hoptinger.com/5points"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJN2h1adL-5IgR8uEeknlCWqM",
+   "name": "Main Beach Park",
+   "category": "beach",
+   "metro": "florida",
+   "primary_type": "beach",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.fbfl.us/991",
+     "source_name": "Main Beach Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Main Beach Park at 32 N Fletcher Ave is listed as a park with beach access within walking distance of the Atlantic Ocean.",
+      "City of Fernandina Beach parks and beach accesses are closed from midnight to 5 a.m. each night."
+     ]
+    },
+    {
+     "source": "https://www.fbfl.us/1108/Parks-with-Sports-Amenities",
+     "source_name": "Main Beach Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Main Beach Multi-Purpose Court on Tarpon Avenue has 4 basketball goals and is marked for inline hockey.",
+      "Restrooms and parking are available at Main Beach Park."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Beach-access park in Fernandina Beach with a multi-purpose court",
+    "why_here": "Main Beach Park is a City of Fernandina Beach park with beach access near the Atlantic Ocean. It is also listed among the city's parks with sports amenities, including a multi-purpose court marked for basketball and inline hockey.",
+    "know_before": "City parks and beach accesses are closed from midnight to 5 a.m. each night, per the city site.",
+    "local_tip": "Restrooms and parking are available at Main Beach Park, per the city sports-amenities page.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.fbfl.us/991",
+      "https://www.fbfl.us/1108/Parks-with-Sports-Amenities"
+     ],
+     "why_here": [
+      "https://www.fbfl.us/991",
+      "https://www.fbfl.us/1108/Parks-with-Sports-Amenities"
+     ],
+     "know_before": [
+      "https://www.fbfl.us/991",
+      "https://www.fbfl.us/1108/Parks-with-Sports-Amenities"
+     ],
+     "local_tip": [
+      "https://www.fbfl.us/991",
+      "https://www.fbfl.us/1108/Parks-with-Sports-Amenities"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Main Beach Park at 32 N Fletcher Ave is listed as a park with beach access within walking distance of the Atlantic Ocean.",
+      "source": "https://www.fbfl.us/991"
+     },
+     {
+      "claim": "City of Fernandina Beach parks and beach accesses are closed from midnight to 5 a.m. each night.",
+      "source": "https://www.fbfl.us/991"
+     },
+     {
+      "claim": "The Main Beach Multi-Purpose Court on Tarpon Avenue has 4 basketball goals and is marked for inline hockey.",
+      "source": "https://www.fbfl.us/1108/Parks-with-Sports-Amenities"
+     },
+     {
+      "claim": "Restrooms and parking are available at Main Beach Park.",
+      "source": "https://www.fbfl.us/1108/Parks-with-Sports-Amenities"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJzbvoGqyt2YgRifFJPFdyXNM",
+   "name": "Houston's",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.houstons.com/locations/northmiamibeach/",
+     "source_name": "Houston's \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Houston's North Miami Beach is at 17355 Biscayne Boulevard, North Miami Beach, Florida 33160.",
+      "The dining room at Houston's in North Miami Beach features large picture windows affording views of Maule Lake.",
+      "The building includes an intimate patio surrounded by palm trees.",
+      "Hours are Sun to Sat 11:30 a.m. to 10 p.m.",
+      "Walk-ins are welcome for parties of two."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Large picture windows with views of Maule Lake",
+    "why_here": "Houston's in North Miami Beach has a dining room with large picture windows affording views of Maule Lake, plus an intimate patio surrounded by palm trees just off Biscayne Boulevard.",
+    "know_before": "Hours are Sun to Sat 11:30 a.m. to 10 p.m.; walk-ins are welcome for parties of two.",
+    "local_tip": "Choose the patio surrounded by palm trees for a quieter seat.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.houstons.com/locations/northmiamibeach/"
+     ],
+     "why_here": [
+      "https://www.houstons.com/locations/northmiamibeach/"
+     ],
+     "know_before": [
+      "https://www.houstons.com/locations/northmiamibeach/"
+     ],
+     "local_tip": [
+      "https://www.houstons.com/locations/northmiamibeach/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Houston's North Miami Beach is at 17355 Biscayne Boulevard, North Miami Beach, Florida 33160.",
+      "source": "https://www.houstons.com/locations/northmiamibeach/"
+     },
+     {
+      "claim": "The dining room at Houston's in North Miami Beach features large picture windows affording views of Maule Lake.",
+      "source": "https://www.houstons.com/locations/northmiamibeach/"
+     },
+     {
+      "claim": "The building includes an intimate patio surrounded by palm trees.",
+      "source": "https://www.houstons.com/locations/northmiamibeach/"
+     },
+     {
+      "claim": "Hours are Sun to Sat 11:30 a.m. to 10 p.m.",
+      "source": "https://www.houstons.com/locations/northmiamibeach/"
+     },
+     {
+      "claim": "Walk-ins are welcome for parties of two.",
+      "source": "https://www.houstons.com/locations/northmiamibeach/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJAe7NoQnV54gRK6HQkmB28yw",
+   "name": "Gator's Dockside Ocala",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://gatorsdockside.com/",
+     "source_name": "Gator's Dockside Ocala \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Gator's Dockside concept is wings, ribs, seafood and sports."
+     ]
+    },
+    {
+     "source": "https://gatorsdockside.com/restaurants/locations/",
+     "source_name": "Gator's Dockside Ocala \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Ocala location is at 3920 SW 42nd St., Ste 101, Ocala, FL 34474."
+     ]
+    },
+    {
+     "source": "https://gatorsdockside.com/restaurants/locations/ocala/",
+     "source_name": "Gator's Dockside Ocala \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Ocala page lists phone 352-433-2441."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Wings, ribs, seafood and sports at the Ocala location on SW 42nd Street",
+    "why_here": "Gator's Dockside describes its concept on its official site as wings, ribs, seafood and sports, with the biggest big screens to watch favorite sports. Its official locations list includes the Ocala restaurant.",
+    "know_before": "The official Ocala page says to contact the location for specific hours, as times may vary.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://gatorsdockside.com/",
+      "https://gatorsdockside.com/restaurants/locations/",
+      "https://gatorsdockside.com/restaurants/locations/ocala/"
+     ],
+     "why_here": [
+      "https://gatorsdockside.com/",
+      "https://gatorsdockside.com/restaurants/locations/",
+      "https://gatorsdockside.com/restaurants/locations/ocala/"
+     ],
+     "know_before": [
+      "https://gatorsdockside.com/",
+      "https://gatorsdockside.com/restaurants/locations/",
+      "https://gatorsdockside.com/restaurants/locations/ocala/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Gator's Dockside concept is wings, ribs, seafood and sports.",
+      "source": "https://gatorsdockside.com/"
+     },
+     {
+      "claim": "The Ocala location is at 3920 SW 42nd St., Ste 101, Ocala, FL 34474.",
+      "source": "https://gatorsdockside.com/restaurants/locations/"
+     },
+     {
+      "claim": "The Ocala page lists phone 352-433-2441.",
+      "source": "https://gatorsdockside.com/restaurants/locations/ocala/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJx706ANDf2IgR1IAq0ep9UvQ",
+   "name": "Deck 84",
+   "category": "food",
+   "metro": "palm-beach",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.deck84.com/",
+     "source_name": "Deck 84 \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Deck 84 offers casual waterfront dining in downtown Delray Beach, Florida.",
+      "Deck 84 serves American cuisine and fresh seafood.",
+      "Deck 84 is at 840 East Atlantic Avenue, Delray Beach, FL 33483.",
+      "Deck 84 has been a go-to restaurant on Atlantic Avenue in Delray Beach since 2010."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Casual waterfront dining in downtown Delray Beach",
+    "why_here": "Deck 84 offers casual waterfront dining in downtown Delray Beach, serving American cuisine and fresh seafood on Atlantic Avenue, where it has been a go-to restaurant since 2010.",
+    "know_before": "Deck 84 is at 840 East Atlantic Avenue, Delray Beach, FL 33483.",
+    "local_tip": "Order American cuisine and fresh seafood on the waterfront.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.deck84.com/"
+     ],
+     "why_here": [
+      "https://www.deck84.com/"
+     ],
+     "know_before": [
+      "https://www.deck84.com/"
+     ],
+     "local_tip": [
+      "https://www.deck84.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Deck 84 offers casual waterfront dining in downtown Delray Beach, Florida.",
+      "source": "https://www.deck84.com/"
+     },
+     {
+      "claim": "Deck 84 serves American cuisine and fresh seafood.",
+      "source": "https://www.deck84.com/"
+     },
+     {
+      "claim": "Deck 84 is at 840 East Atlantic Avenue, Delray Beach, FL 33483.",
+      "source": "https://www.deck84.com/"
+     },
+     {
+      "claim": "Deck 84 has been a go-to restaurant on Atlantic Avenue in Delray Beach since 2010.",
+      "source": "https://www.deck84.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJgf9eP_m32YgRHv6mVX9npl0",
+   "name": "Doya",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "mediterranean_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://doyarestaurant.com/",
+     "source_name": "Doya \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Doya is a modern Aegean restaurant and bar in Wynwood, Miami.",
+      "Doya serves plates to share ('meze') from Greece and Turkey.",
+      "Doya is at 347 NW 24th St, Miami, FL 33127.",
+      "Street parking nearby requires the PayByPhone app, as required in Wynwood by the City of Miami.",
+      "Valet parking is at the restaurant entrance; the Wynwood Garage is a short walk away."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Modern Aegean meze plates to share from Greece and Turkey in Wynwood",
+    "why_here": "Doya is a modern Aegean restaurant and bar in Wynwood, Miami, serving plates to share called meze from Greece and Turkey, based on the idea that food tastes better when shared.",
+    "know_before": "Street parking nearby requires the PayByPhone app, as required in Wynwood by the City of Miami.",
+    "local_tip": "Valet parking is at the restaurant entrance; the Wynwood Garage is a short walk away.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://doyarestaurant.com/"
+     ],
+     "why_here": [
+      "https://doyarestaurant.com/"
+     ],
+     "know_before": [
+      "https://doyarestaurant.com/"
+     ],
+     "local_tip": [
+      "https://doyarestaurant.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Doya is a modern Aegean restaurant and bar in Wynwood, Miami.",
+      "source": "https://doyarestaurant.com/"
+     },
+     {
+      "claim": "Doya serves plates to share ('meze') from Greece and Turkey.",
+      "source": "https://doyarestaurant.com/"
+     },
+     {
+      "claim": "Doya is at 347 NW 24th St, Miami, FL 33127.",
+      "source": "https://doyarestaurant.com/"
+     },
+     {
+      "claim": "Street parking nearby requires the PayByPhone app, as required in Wynwood by the City of Miami.",
+      "source": "https://doyarestaurant.com/"
+     },
+     {
+      "claim": "Valet parking is at the restaurant entrance; the Wynwood Garage is a short walk away.",
+      "source": "https://doyarestaurant.com/"
+     }
+    ]
+   }
+  }
+ ]
+}
