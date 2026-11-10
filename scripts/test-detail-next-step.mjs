@@ -138,6 +138,8 @@ ok(/data-detail-next-step[\s\S]{0,900}WhereToGoNextRow[\s\S]{0,400}partner=\{nul
   "a similar closer reuses WhereToGoNextRow with no second ticket button");
 ok(home.includes("detailGuides: railMenu && Array.isArray(railMenu.guides) ? railMenu.guides : null"),
   "the sheet receives the guide index the shell already loaded, or null when that index is absent");
+ok(ui.includes("placeHeaderLabel(detail)"),
+  "the closer uses the same city header the sheet already shows under the name");
 ok(!/className=["'][^"']*wf-place-card/.test(ui.slice(ui.indexOf("data-detail-next-step"))),
   "the closer does not mount a new place card root");
 ok(!/detailGuides is missing|detailNextStep failed/.test(ui),
