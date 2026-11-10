@@ -17,7 +17,8 @@
  *      <= 1400 and matches the declared width
  *   4. license is one of the allowed strings and licenseUrl is the matching
  *      canonical Creative Commons deed URL (CC0, or CC BY/BY-SA at the
- *      declared version) — a "permission" license is checked for shape only
+ *      declared version) — a "permission" license is checked for shape only,
+ *      and an "official website" license needs a real https licenseUrl
  *   5. no ND/NC/GFDL license ever slips through
  *   6. a commons-sourced entry's creditHref and sourceUrl are both real
  *      Wikimedia Commons file pages; a flickr-sourced entry's are both one
@@ -117,7 +118,7 @@ function missingEntryFields(entry) {
 }
 
 const REVIEWED_AT_RX = /^\d{4}-\d{2}-\d{2}$/;
-const SOURCE_KINDS = new Set(["commons", "flickr", "owned", "permission", "unsplash"]);
+const SOURCE_KINDS = new Set(["commons", "flickr", "owned", "permission", "unsplash", "official"]);
 
 function entryTypeProblems(entry) {
   const problems = [];
@@ -127,6 +128,7 @@ function entryTypeProblems(entry) {
   if (typeof entry.sameAsCardPhoto !== "boolean") problems.push("sameAsCardPhoto must be a boolean");
   if (!SOURCE_KINDS.has(entry.sourceKind)) problems.push(`sourceKind must be one of ${[...SOURCE_KINDS].join("/")}, got ${JSON.stringify(entry.sourceKind)}`);
   if (entry.sourceKind === "unsplash" && (!/^https:\/\/unsplash\.com\/photos\/[^/?#]+$/.test(entry.sourceUrl || "") || entry.license !== "Unsplash License")) problems.push("Unsplash photos require a public photo source page and the free Unsplash License");
+  if (entry.sourceKind === "official" && (entry.license !== "official website" || !/^https:\/\//.test(entry.sourceUrl || "") || !/^https:\/\//.test(entry.licenseUrl || ""))) problems.push("official photos require an official website source page, licenseUrl, and the official website license");
   if (!(entry.placeId === null || typeof entry.placeId === "string")) problems.push("placeId must be a string or null");
   if (!REVIEWED_AT_RX.test(String(entry.reviewedAt))) problems.push(`reviewedAt must be YYYY-MM-DD, got ${JSON.stringify(entry.reviewedAt)}`);
   if (typeof entry.verification !== "string" || !entry.verification.trim()) problems.push("verification must be a non-empty string");
@@ -138,6 +140,8 @@ function entryTypeProblems(entry) {
   ok(entryTypeProblems({ ...good, width: -1 }).some((p) => p.includes("width")), "red-proof: a negative width is flagged");
   ok(entryTypeProblems({ ...good, sourceKind: "instagram" }).some((p) => p.includes("sourceKind")), "red-proof: an unlisted sourceKind is flagged");
   ok(entryTypeProblems({ ...good, sourceKind: "flickr" }).length === 0, "positive control: a flickr sourceKind is a listed kind");
+  ok(entryTypeProblems({ ...good, sourceKind: "official", license: "official website", sourceUrl: "https://www.hillsboroughcountyfair.com/", licenseUrl: "https://www.hillsboroughcountyfair.com/" }).length === 0, "positive control: an official sourceKind with its website license is a listed kind");
+  ok(entryTypeProblems({ ...good, sourceKind: "official", license: "CC BY 4.0", sourceUrl: "https://www.hillsboroughcountyfair.com/", licenseUrl: "https://www.hillsboroughcountyfair.com/" }).some((p) => p.includes("official")), "red-proof: official sourceKind still needs the official website license");
   ok(entryTypeProblems({ ...good, reviewedAt: "09/22/2026" }).some((p) => p.includes("reviewedAt")), "red-proof: a non-ISO reviewedAt is flagged");
 }
 
@@ -185,7 +189,7 @@ await Promise.all(allEntries.map(async ({ slug, pickName, entry }) => {
 const CC_RX = /^CC (BY|BY-SA) (2\.0|2\.5|3\.0|4\.0)$/;
 const PERMISSION_RX = /^Used with permission of .+ \(owner-confirmed \d{4}-\d{2}-\d{2}\); credit required$/;
 const ALLOWED_LICENSE_STRINGS = new Set([
-  "CC0 1.0 Universal", "Public domain", "Unsplash License",
+  "CC0 1.0 Universal", "Public domain", "Unsplash License", "official website",
   "CC BY 2.0", "CC BY 3.0", "CC BY 4.0",
   "CC BY-SA 2.0", "CC BY-SA 2.5", "CC BY-SA 3.0", "CC BY-SA 4.0",
 ]);
@@ -214,7 +218,10 @@ function licenseProblem(license, licenseUrl) {
   if (PERMISSION_RX.test(String(license))) {
     return typeof licenseUrl === "string" && /^https:\/\//.test(licenseUrl) ? null : "a permission license still needs a real https licenseUrl";
   }
-  return `license ${JSON.stringify(license)} is not one of the allowed strings (CC0, Public domain, CC BY/CC BY-SA at 2.0, 2.5, 3.0 or 4.0, or the owner-permission pattern)`;
+  if (license === "official website") {
+    return typeof licenseUrl === "string" && /^https:\/\//.test(licenseUrl) ? null : "an official website license still needs a real https licenseUrl";
+  }
+  return `license ${JSON.stringify(license)} is not one of the allowed strings (CC0, Public domain, CC BY/CC BY-SA at 2.0, 2.5, 3.0 or 4.0, the owner-permission pattern, or official website)`;
 }
 {
   // positive controls — every allowed shape must pass with its canonical URL.
@@ -228,6 +235,8 @@ function licenseProblem(license, licenseUrl) {
     }
   }
   ok(licenseProblem("Used with permission of Ringling Museum (owner-confirmed 2026-09-22); credit required", "https://www.ringling.org/") === null, "positive control: a well-formed permission license is legal");
+  ok(licenseProblem("official website", "https://www.hillsboroughcountyfair.com/") === null, "positive control: official website with an https licenseUrl is legal");
+  ok(licenseProblem("official website", "not-a-url") !== null, "red-proof: official website still needs a real https licenseUrl");
   ok(licenseProblem("Unsplash License", "https://unsplash.com/license") === null, "positive control: free Unsplash license accepted at its canonical URL");
   ok(licenseProblem("CC BY 3.0", "https://creativecommons.org/licenses/by/3.0/us/deed.en") === null, "positive control: the source-verified BY 3.0 US deed is preserved");
   ok(licenseProblem("CC BY-SA 3.0", "https://creativecommons.org/licenses/by/3.0/us/deed.en") !== null, "red-proof: US deed cannot change BY-SA into BY");
@@ -444,7 +453,7 @@ for (const { file, json } of dataFiles) {
 const LEDGER_PATH = "data/guide-pick-photos/_reports/license-evidence.json";
 const ledger = JSON.parse(readFileSync(abs(LEDGER_PATH), "utf8"));
 const ledgerBySrc = new Map((ledger.files || []).map((r) => [r.src, r]));
-const COMMERCIAL_OK_RX = /^(CC0 1\.0 Universal|Public domain|CC BY(-SA)? (2\.5|[234]\.0)|Unsplash License)$/;
+const COMMERCIAL_OK_RX = /^(CC0 1\.0 Universal|Public domain|CC BY(-SA)? (2\.5|[234]\.0)|Unsplash License|official website)$/;
 function ledgerProblems(row, stored) {
   if (!row) return ["no licence-evidence row"];
   const p = [];
@@ -464,6 +473,9 @@ function ledgerProblems(row, stored) {
   const stored = { sourceUrl: "https://www.flickr.com/photos/1@N00/2", credit: "A", license: "CC BY 2.0", licenseUrl: "https://creativecommons.org/licenses/by/2.0/", modificationNotice: "Resized." };
   const row = { status: "verified", commercialUse: true, verifiedAt: "2026-09-23", source: { url: stored.sourceUrl, licence: "CC BY 2.0", author: "A", title: "T" }, wayfind: { credit: "A", license: "CC BY 2.0", licenseUrl: stored.licenseUrl, modificationNotice: "Resized." } };
   ok(ledgerProblems(row, stored).length === 0, "positive control: a verified, matching ledger row passes");
+  const officialStored = { sourceUrl: "https://www.hillsboroughcountyfair.com/", credit: "Hillsborough County Fair official website", license: "official website", licenseUrl: "https://www.hillsboroughcountyfair.com/", modificationNotice: "Resized." };
+  const officialRow = { status: "verified", commercialUse: true, verifiedAt: "2026-11-10", source: { url: officialStored.sourceUrl, licence: "official website", author: "Hillsborough County Fair official website", title: "Ferris wheel" }, wayfind: { credit: officialStored.credit, license: "official website", licenseUrl: officialStored.licenseUrl, modificationNotice: "Resized." } };
+  ok(ledgerProblems(officialRow, officialStored).length === 0, "positive control: a verified official website ledger row passes");
   ok(ledgerProblems(null, stored).length === 1, "red-proof: a photo with no ledger row fails");
   ok(ledgerProblems({ ...row, source: { ...row.source, licence: "CC BY-SA 3.0" } }, stored).some((x) => x.includes("!= site licence")), "red-proof: a source licence that differs from the site's fails (the Bern's case)");
   ok(ledgerProblems({ ...row, source: { ...row.source, licence: "CC BY-NC 2.0" } }, { ...stored, license: "CC BY-NC 2.0" }).some((x) => x.includes("commercial")), "red-proof: an NC licence fails the commercial-use rule");

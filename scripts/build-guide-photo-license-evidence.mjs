@@ -52,7 +52,7 @@ function normaliseCommonsLicence(short) {
   const m = /^CC[ -](BY(?:-NC)?(?:-SA|-ND)?)[ -](\d\.\d)/i.exec(s);
   return m ? `CC ${m[1].toUpperCase()} ${m[2]}` : s;
 }
-const commercialOk = (lic) => /^(CC0 1\.0 Universal|Public domain|CC BY(-SA)? (2\.5|[234]\.0))$/.test(lic || "");
+const commercialOk = (lic) => /^(CC0 1\.0 Universal|Public domain|CC BY(-SA)? (2\.5|[234]\.0)|Unsplash License|official website)$/.test(lic || "");
 const fold = (s) => String(s || "").normalize("NFKD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
 
 // ── 1. every new photo usage, grouped by file ─────────────────────────────
@@ -149,6 +149,32 @@ for (const f of [...files.values()].sort((a, b) => a.src.localeCompare(b.src))) 
         commercialUse: false, authorMatchesCredit: false, status: "needs-review", problems: ["Unsplash photo has no recorded manual source review matching what the site renders"], verifiedAt: TODAY });
     continue;
   }
+  if (s.sourceKind === "official") {
+    const prev = PREVIOUS.get(f.src);
+    const problems = [];
+    if (!existsSync("public" + f.src)) problems.push("file missing from public/");
+    if (s.license !== "official website") problems.push("official sourceKind requires license official website");
+    if (!/^https:\/\//.test(s.licenseUrl || "")) problems.push("official licenseUrl must be https");
+    if (!/^https:\/\//.test(s.sourceUrl || "")) problems.push("official sourceUrl must be https");
+    if (!s.credit || !s.modificationNotice) problems.push("stored attribution incomplete");
+    const same = prev && prev.verificationMethod === "manual-official-website-review" && prev.status === "verified"
+      && ["credit", "creditHref", "license", "licenseUrl", "modificationNotice"].every((k) => prev.wayfind?.[k] === s[k]) && prev.source?.url === s.sourceUrl;
+    const title = (same && prev.source && prev.source.title) || s.credit;
+    const author = (same && prev.source && prev.source.author) || s.credit;
+    rows.push({
+      src: f.src,
+      usedBy: f.usages,
+      source: { kind: "official", url: s.sourceUrl, title, author, licence: "official website", licenceUrl: s.licenseUrl },
+      wayfind: { credit: s.credit, creditHref: s.creditHref, license: s.license, licenseUrl: s.licenseUrl, modificationNotice: s.modificationNotice },
+      commercialUse: problems.length === 0,
+      authorMatchesCredit: true,
+      status: problems.length ? "needs-review" : "verified",
+      problems: problems.length ? problems : undefined,
+      verificationMethod: "manual-official-website-review",
+      verifiedAt: same && !problems.length ? prev.verifiedAt : TODAY,
+    });
+    continue;
+  }
   const live = s.sourceKind === "commons" ? commonsLive.get(commonsTitle(s.sourceUrl)) : flickrLive.get(s.sourceUrl);
   const problems = [];
   if (!existsSync("public" + f.src)) problems.push("file missing from public/");
@@ -186,6 +212,6 @@ const summary = {
   replacementCandidates: rows.filter((r) => r.replacementCandidate).map((r) => r.src),
 };
 writeFileSync(OUT, JSON.stringify({ generatedBy: "scripts/build-guide-photo-license-evidence.mjs", verifiedAt: TODAY,
-  rule: "Every photo added by the guide pick-photo pipeline, re-checked at its source. commercialUse is true only for CC0, public domain, CC BY and CC BY-SA (2.0, 2.5, 3.0, 4.0); NC and ND never pass.",
+  rule: "Every photo added by the guide pick-photo pipeline, re-checked at its source. commercialUse is true only for CC0, public domain, CC BY and CC BY-SA (2.0, 2.5, 3.0, 4.0), the free Unsplash License, and official website photos reviewed on the venue site; NC and ND never pass.",
   summary, files: rows }, null, 2) + "\n");
 console.log(JSON.stringify(summary, null, 2));

@@ -180,21 +180,49 @@
       "verification": "Commons file Sundomecloseup.JPG, public domain, photographer TheCustomOfLife. The dome is the Yuengling Center, formerly the USF Sun Dome, and a USF sign is in the foreground. The November 14 game is not pictured.",
       "sameAsCardPhoto": false,
       "reviewedAt": "2026-11-09"
+    },
+    "Hillsborough County Fair": {
+      "src": "/guides/picks/trending-in-florida-this-week-nov-9-2026/hillsborough-county-fair.webp",
+      "width": 1280,
+      "height": 853,
+      "alt": "A lighted Ferris wheel on the midway at the Hillsborough County Fair in Dover, with food stalls and evening crowds below",
+      "caption": "The Ferris wheel on the midway at the Hillsborough County Fair in Dover. This is an official fair photo from an earlier year at the same grounds, not a single night in 2026.",
+      "credit": "Hillsborough County Fair official website",
+      "creditHref": "https://www.hillsboroughcountyfair.com/",
+      "license": "official website",
+      "licenseUrl": "https://www.hillsboroughcountyfair.com/",
+      "sourceUrl": "https://www.hillsboroughcountyfair.com/",
+      "author": "Hillsborough County Fair official website",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP.",
+      "sourceKind": "official",
+      "placeId": "ChIJteWEw_Ut3YgRlcKNOT9E82U",
+      "verification": "Official Hillsborough County Fair photo of the Ferris wheel on the Dover midway, published on hillsboroughcountyfair.com. The grounds have been at 215 Sydney Washer Road since 2007, so this is the same fairgrounds, not a single night in 2026.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-11-10"
+    },
+    "Tampa Bay Sun FC vs Dallas Trinity FC": {
+      "src": "/guides/picks/trending-in-florida-this-week-nov-9-2026/tampa-bay-sun-fc-suncoast-field.webp",
+      "width": 1280,
+      "height": 853,
+      "alt": "A packed sunset kickoff at Suncoast Credit Union Field, the Tampa Bay Sun FC home ground on the Hillsborough River",
+      "caption": "Sunset kickoff at Suncoast Credit Union Field, the Tampa Bay Sun FC home ground on the Hillsborough River. This is an official club photo of an earlier home match, not the November 14, 2026 date.",
+      "credit": "Tampa Bay Sun FC official website",
+      "creditHref": "https://www.tampabaysunfc.com/matchday/",
+      "license": "official website",
+      "licenseUrl": "https://www.tampabaysunfc.com/matchday/",
+      "sourceUrl": "https://www.tampabaysunfc.com/matchday/",
+      "author": "Tampa Bay Sun FC official website",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP.",
+      "sourceKind": "official",
+      "placeId": null,
+      "verification": "Official Tampa Bay Sun FC photo of a home match at Suncoast Credit Union Field, published on the club matchday page. The frame is a packed sunset kickoff at the riverfront stadium, not the November 14, 2026 date.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-11-10"
     }
   },
   "gaps": {
-    "Hillsborough County Fair": {
-      "reason": "no-verified-source",
-      "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "November 10, 2026 pass: no Creative Commons photograph of this exact dated event was verified for this guide. Held for the Picture Scrapper under Gabe's November 4 image intent rule. The page ships with no photo for this pick."
-    },
-    "Tampa Bay Sun FC vs Dallas Trinity FC": {
-      "reason": "no-verified-source",
-      "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "November 10, 2026 pass: no Creative Commons photograph of this exact dated event was verified for this guide. Held for the Picture Scrapper under Gabe's November 4 image intent rule. The page ships with no photo for this pick."
-    },
     "Veterans Day parades": {
       "reason": "no-verified-source",
       "placeId": null,
