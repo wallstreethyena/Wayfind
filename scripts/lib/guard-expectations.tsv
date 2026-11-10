@@ -1077,12 +1077,13 @@ scripts/test-venue-nearby.mjs	0	RENDER	blocks-ci-and-deploy	1	-	30	0	0	05ceee983
 scripts/test-venue-parking-ui.mjs	0	RENDER	blocks-ci-and-deploy	1	-	60	0	0	4553403339c9d08f9cc0c1f6fe2c5589710e7c0ffc3fc1af4b0e77dd97a9180f
 scripts/test-venue-resolution-store.mjs	0	CALL	blocks-ci-and-deploy	1	-	54	0	0	c60bca2c5b6f5c8ffe3d6e8f69eb16ec66d4a5883f261146f79434bc1dc0e021
 scripts/test-vercel-ignore-build.mjs	0	CALL	blocks-ci-and-deploy	1	-	33	0	0	de6d723be2aacc4ad927d480fb5febe9787b430e37d2339412e2a1b375c96b75
-scripts/test-viator-booking-attribution.mjs	1	RENDER	blocks-ci-and-deploy	1	Revenue QA	74	0	0	3f2957d93799581ff3f704690a27b1368d1e50a3986e9d28062444e806a407ee
+scripts/test-viator-booking-attribution.mjs	1	RENDER	blocks-ci-and-deploy	1	Revenue QA	79	0	0	9dab6fe3adfbdcccb6c411c6f59c41404e1e5afd46af1b1040abf0fb24d5e6a3
 scripts/test-viator-campaign.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	37	0	0	77a8cd2adcfe7a64b361c83e01bcb32af49561c846d7433fcd7f00b410ec10bb
 scripts/test-viator-fanout.mjs	1	STRUCTURAL	blocks-ci-and-deploy	1	Revenue QA	6	1	0	e52a4ace80737075628558bb99888d8f2a60013d403bb4a521c170ae9172ac62
 scripts/test-viator-integrity-lock.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	73	0	0	b65083aace56a9bc63e3d55f053cfbbfa9910b672b94c3ac6f76fd587e4f09c4
 scripts/test-viator-provider-state.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	47	0	0	cc1d5644b9caf302bef30ccd99ac861eeaf81feec272273bdf29fda6bdd3aa16
 scripts/test-viator-smoke-shape.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	45	0	0	d77554d6d755f9189e9914dcd1e4a8559c23763bfd3e0d41a0b99249f6dad54a
+scripts/test-viator-visitor-hash.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	10	0	0	7a37ff9b87109fa15474fe363781d6b4dda9f04b58467493c869839147ea45be
 scripts/test-vitals-attribution.mjs	0	CALL	blocks-ci-and-deploy	1	-	26	0	0	9f1223849f2faf480ee689775d31c65ce07fcc79a0dd3cdd4ae04333776da676
 scripts/test-wayfind-awards.mjs	0	RENDER	blocks-ci-and-deploy	1	-	51	0	0	10888a8d385152aec40c0cce4936abca57eb43fe2a6cf8129c547172219d0e7f
 scripts/test-wikipedia-outcomes.mjs	0	CALL	blocks-ci-and-deploy	1	-	35	0	0	8d24a1dc4b3fda197fa5ed57cb414d34c4aca5732c3ec840f56304b9b4b99ed0

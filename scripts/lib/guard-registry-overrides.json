@@ -1071,5 +1071,13 @@
    "detail": "Regressing click-token attribution, commission separation, or Google Ads API v26 conversion adjustment contracts either drops booking attribution, reports customer gross booking spend as Wayfind commission, or sends retired API v18 / invalid dual-identifier payloads that Google Ads rejects."
   },
   "owner": "Revenue QA"
+ },
+ "scripts/test-viator-visitor-hash.mjs": {
+  "protects": "A Viator click that carries a PostHog distinct id or a gclid stores a 32 hex visitor_context_hash the click table accepts, and persists the gclid on that same row.",
+  "blastRadius": {
+   "category": "revenue",
+   "detail": "A 64 character hash fails the visitor_context_hash check, the insert is rejected, and every cookied or gclid click is saved with both fields null, so bookings cannot be tied back to the ad click."
+  },
+  "owner": "Revenue QA"
  }
 }

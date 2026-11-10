@@ -2510,6 +2510,7 @@ node scripts/test-hydrate-editorial-precedence.mjs
 node scripts/check-this-week-events.mjs
 # 2026-11-03: Viator per-click opaque attribution, stale-attribution merge prevention, booking ingestion/reconciliation, 4-way financial separation, and Google Data Manager offline conversion pipeline.
 node scripts/test-viator-booking-attribution.mjs
+node scripts/test-viator-visitor-hash.mjs
 node scripts/check-schedule-note-days.mjs
 node scripts/check-event-assessment-policy.mjs
 # Place city ladder: one placeCity() for title/share/PostalAddress/headers; postal_city > Census locality; never a state/county/slug/street.
