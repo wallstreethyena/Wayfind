@@ -61,26 +61,6 @@
       "sameAsCardPhoto": false,
       "reviewedAt": "2026-10-07"
     },
-    "What time of day are lovebugs worst?": {
-      "src": "/guides/picks/florida-lovebug-season/what-time-of-day-are-lovebugs-worst.webp",
-      "width": 1400,
-      "height": 933,
-      "alt": "Lovebugs perched on camphorweed flowers",
-      "caption": "Lovebugs on camphorweed at Myakka River State Park, Sarasota, Florida.",
-      "credit": "Judy Gallagher",
-      "creditHref": "https://commons.wikimedia.org/wiki/File:Lovebugs_-_Plecia_nearctica_on_Camphorweed_-_Pluchea_odorata,_Myakka_River_State_Park,_Sarasota,_Florida.jpg",
-      "license": "CC BY 2.0",
-      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
-      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Lovebugs_-_Plecia_nearctica_on_Camphorweed_-_Pluchea_odorata,_Myakka_River_State_Park,_Sarasota,_Florida.jpg",
-      "author": "Judy Gallagher",
-      "position": "50% 50%",
-      "modificationNotice": "Resized, cropped for display and converted to WebP.",
-      "sourceKind": "commons",
-      "placeId": null,
-      "verification": "Commons title and description name lovebugs Plecia nearctica at Myakka River State Park, Florida Live Commons licence checked: CC BY 2.0.",
-      "sameAsCardPhoto": false,
-      "reviewedAt": "2026-10-07"
-    },
     "Do lovebugs really destroy car paint?": {
       "src": "/guides/picks/florida-lovebug-season/do-lovebugs-really-destroy-car-paint.webp",
       "width": 1380,
@@ -160,6 +140,26 @@
       "verification": "Commons file titled Lovebug; photo viewed and shows the black fly with red thorax on a flower Live Commons licence checked: CC BY 2.0.",
       "sameAsCardPhoto": false,
       "reviewedAt": "2026-10-07"
+    },
+    "What time of day are lovebugs worst?": {
+      "src": "/guides/picks/florida-lovebug-season/lovebugs-on-car-mims.jpg",
+      "width": 1280,
+      "height": 853,
+      "alt": "Dozens of lovebugs spattered across the rear quarter panel and tail light of a silver car parked in a driveway in Mims, Florida",
+      "caption": "Lovebugs on a parked car in Mims, Florida, at 9:20 in the morning in May 2011.",
+      "credit": "james michael thomas",
+      "creditHref": "https://www.flickr.com/photos/81376848@N00/5741604304",
+      "license": "CC BY-SA 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0/",
+      "sourceUrl": "https://www.flickr.com/photos/81376848@N00/5741604304",
+      "author": "james michael thomas",
+      "position": "50% 40%",
+      "modificationNotice": "Resized, cropped to 1280x853 and converted to JPEG. The adaptation is released under the same licence.",
+      "sourceKind": "flickr",
+      "verification": "Flickr photo titled Love bugs in Mims, FL by james michael thomas (iagoarchangel), taken 2011-05-14 09:20. Live Flickr page licence checked 2026-11-09: CC BY-SA 2.0. Viewed the full image: a mid morning lovebug swarm on a car in Brevard County, which fits a question about when lovebugs are worst. Replaces the same camphorweed photo used as the guide hero. A small model badge on the trunk is incidental.",
+      "placeId": null,
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-11-09"
     }
   },
   "gaps": {}
