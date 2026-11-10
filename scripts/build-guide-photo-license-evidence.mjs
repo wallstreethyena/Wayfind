@@ -39,7 +39,9 @@ const REPLACEMENT_CANDIDATES = JSON.parse(readFileSync("data/guide-pick-photos/_
 const strip = (html) => String(html || "").replace(/<[^>]*>/g, " ").replace(/&amp;/g, "&").replace(/&quot;/g, '"').replace(/&#0?39;/g, "'").replace(/\s+/g, " ").trim();
 const CC_URL_RX = /creativecommons\.org\/(licenses\/(by|by-sa|by-nc|by-nd|by-nc-sa|by-nc-nd)\/(\d\.\d)|publicdomain\/zero\/1\.0)/;
 function licenceFromUrl(url) {
-  const m = CC_URL_RX.exec(String(url || ""));
+  const raw = String(url || "");
+  if (/creativecommons\.org\/publicdomain\/mark\/1\.0/.test(raw)) return "Public domain";
+  const m = CC_URL_RX.exec(raw);
   if (!m) return null;
   if (!m[2]) return "CC0 1.0 Universal";
   return `CC ${m[2].toUpperCase()} ${m[3]}`;
@@ -50,7 +52,7 @@ function normaliseCommonsLicence(short) {
   const m = /^CC[ -](BY(?:-NC)?(?:-SA|-ND)?)[ -](\d\.\d)/i.exec(s);
   return m ? `CC ${m[1].toUpperCase()} ${m[2]}` : s;
 }
-const commercialOk = (lic) => /^(CC0 1\.0 Universal|CC BY(-SA)? [234]\.0)$/.test(lic || "");
+const commercialOk = (lic) => /^(CC0 1\.0 Universal|Public domain|CC BY(-SA)? (2\.5|[234]\.0))$/.test(lic || "");
 const fold = (s) => String(s || "").normalize("NFKD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
 
 // ── 1. every new photo usage, grouped by file ─────────────────────────────
@@ -184,6 +186,6 @@ const summary = {
   replacementCandidates: rows.filter((r) => r.replacementCandidate).map((r) => r.src),
 };
 writeFileSync(OUT, JSON.stringify({ generatedBy: "scripts/build-guide-photo-license-evidence.mjs", verifiedAt: TODAY,
-  rule: "Every photo added by the guide pick-photo pipeline, re-checked at its source. commercialUse is true only for CC0, CC BY and CC BY-SA (2.0 to 4.0); NC and ND never pass.",
+  rule: "Every photo added by the guide pick-photo pipeline, re-checked at its source. commercialUse is true only for CC0, public domain, CC BY and CC BY-SA (2.0, 2.5, 3.0, 4.0); NC and ND never pass.",
   summary, files: rows }, null, 2) + "\n");
 console.log(JSON.stringify(summary, null, 2));
