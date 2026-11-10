@@ -965,6 +965,7 @@ scripts/test-promote-throttle.mjs	0	CALL	blocks-ci-and-deploy	1	-	26	0	0	c1a77d5
 scripts/test-provider-health.mjs	0	CALL	blocks-ci-and-deploy	1	-	20	0	0	f1a6f75774cd6f6d03b8d769c4b48d0d98d1bf0f5c3bbbc08f18cd18e22c0984
 scripts/test-provider-spend-caps.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	19	0	0	1161c8bbf2abe69bb596c30ba815636ce2afdfd57359996567a96844c16b8770
 scripts/test-public-diagnostics-retired.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	6	0	0	0109c4cbf75bdee545f9a3953a23099640d6a7be75476849f03ad2e915d8d1bc
+scripts/test-qualified-click.mjs	0	CALL	blocks-ci-and-deploy	1	Revenue QA	9	0	0	cd1dfe0ee2f255f49ae8972136d293c7cd55ab6c85e7defd523fc25ec9639a39
 scripts/test-rail-compute-budget.mjs	0	RENDER	blocks-ci-and-deploy	1	-	0	0	0	036f25f96fe74b22ecc05138242722ab54944d4addc1f2e8fdcdab6b02d2535b
 scripts/test-rail-daylight.mjs	0	CALL	blocks-ci-and-deploy	1	-	27	0	0	bc7aaa490934b62c0d62dcf28ea107da46f53d3979cde776972d291326f9e132
 scripts/test-rail-device-distance.mjs	0	RENDER	blocks-ci-and-deploy	1	-	34	0	0	39a10c1d474cc39794a9ba068b0e0ad4380c4cef716ae2886ea642fb89aa1d3c
