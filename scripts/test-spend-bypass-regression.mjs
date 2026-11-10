@@ -247,6 +247,7 @@ async function sourceModule(path, prelude) {
       const cset = (...args) => globalThis.__spendBypassGeocode.cset(...args);
       const spendAllowCapped = (...args) => globalThis.__spendBypassGeocode.spendAllowCapped(...args);
       const geocodingCap = (...args) => globalThis.__spendBypassGeocode.geocodingCap(...args);
+      const nearestOwnedCityName = () => "";
     `);
 
     let providerCalls = 0;

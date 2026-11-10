@@ -1,0 +1,2104 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 31. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJZ8o197Gn2YgRUlsXoDWiQN0",
+   "name": "Kids Empire Pembroke Pines",
+   "category": "attractions",
+   "metro": "broward",
+   "primary_type": "indoor_playground",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.kidsempire.com/store-locator/kids-empire-pembroke-pines",
+     "source_name": "Kids Empire Pembroke Pines \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Kids Empire Pembroke Pines is an indoor playground inside Pembroke Lakes Mall",
+      "Kids ages 1 to 12 can play at Kids Empire Pembroke Pines",
+      "The play space includes a multi-level maze, winding slides, ball pits, and a dance floor",
+      "Younger children have a dedicated toddler zone for ages 1 to 3",
+      "Admission is valid all day",
+      "Kids Empire Pembroke Pines hours are 10:00 a.m. to 8:00 p.m. Monday through Thursday"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Indoor playground inside Pembroke Lakes Mall with a multi-level maze, slides, and ball pits",
+    "why_here": "Go for all-day indoor play for kids ages 1 to 12, with a multi-level maze, winding slides, ball pits, and a dance floor. Younger children can use the dedicated toddler zone for ages 1 to 3.",
+    "know_before": "Admission is valid all day; hours are 10:00 a.m. to 8:00 p.m. Monday through Thursday.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.kidsempire.com/store-locator/kids-empire-pembroke-pines"
+     ],
+     "why_here": [
+      "https://www.kidsempire.com/store-locator/kids-empire-pembroke-pines"
+     ],
+     "know_before": [
+      "https://www.kidsempire.com/store-locator/kids-empire-pembroke-pines"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Kids Empire Pembroke Pines is an indoor playground inside Pembroke Lakes Mall",
+      "source": "https://www.kidsempire.com/store-locator/kids-empire-pembroke-pines"
+     },
+     {
+      "claim": "Kids ages 1 to 12 can play at Kids Empire Pembroke Pines",
+      "source": "https://www.kidsempire.com/store-locator/kids-empire-pembroke-pines"
+     },
+     {
+      "claim": "The play space includes a multi-level maze, winding slides, ball pits, and a dance floor",
+      "source": "https://www.kidsempire.com/store-locator/kids-empire-pembroke-pines"
+     },
+     {
+      "claim": "Younger children have a dedicated toddler zone for ages 1 to 3",
+      "source": "https://www.kidsempire.com/store-locator/kids-empire-pembroke-pines"
+     },
+     {
+      "claim": "Admission is valid all day",
+      "source": "https://www.kidsempire.com/store-locator/kids-empire-pembroke-pines"
+     },
+     {
+      "claim": "Kids Empire Pembroke Pines hours are 10:00 a.m. to 8:00 p.m. Monday through Thursday",
+      "source": "https://www.kidsempire.com/store-locator/kids-empire-pembroke-pines"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJd1TBc_y62YgRJfx9iG26KE0",
+   "name": "Fuddruckers",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "hamburger_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.fuddruckers.com/menu",
+     "source_name": "Fuddruckers \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Fuddruckers burgers are made from fresh, never frozen, 100% all-American premium cut beef with no fillers or additives",
+      "Fuddruckers does not grill your burger until you order it",
+      "Fuddruckers bakes its buns fresh in its kitchens every day",
+      "The toppings bar includes lettuce, tomatoes, pickles, onions, and cheese sauce",
+      "The menu offers creamy shakes, onion rings, crispy chicken tenders, salads, and nachos"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Burgers from fresh, never frozen beef, grilled when ordered, on buns baked fresh every day",
+    "why_here": "Come for a burger grilled when you order it, built at the toppings bar with lettuce, tomatoes, pickles, onions, and cheese sauce. The menu also offers creamy shakes, onion rings, crispy chicken tenders, salads, and nachos.",
+    "know_before": "Burgers are grilled only when you order.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.fuddruckers.com/menu"
+     ],
+     "why_here": [
+      "https://www.fuddruckers.com/menu"
+     ],
+     "know_before": [
+      "https://www.fuddruckers.com/menu"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Fuddruckers burgers are made from fresh, never frozen, 100% all-American premium cut beef with no fillers or additives",
+      "source": "https://www.fuddruckers.com/menu"
+     },
+     {
+      "claim": "Fuddruckers does not grill your burger until you order it",
+      "source": "https://www.fuddruckers.com/menu"
+     },
+     {
+      "claim": "Fuddruckers bakes its buns fresh in its kitchens every day",
+      "source": "https://www.fuddruckers.com/menu"
+     },
+     {
+      "claim": "The toppings bar includes lettuce, tomatoes, pickles, onions, and cheese sauce",
+      "source": "https://www.fuddruckers.com/menu"
+     },
+     {
+      "claim": "The menu offers creamy shakes, onion rings, crispy chicken tenders, salads, and nachos",
+      "source": "https://www.fuddruckers.com/menu"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJA1_qU7BB6IgR5Mznf54bHkc",
+   "name": "River Ventures",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "tour_agency",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://riverventures.com/swim-with-manatee",
+     "source_name": "River Ventures \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "River Ventures offers swim-with-manatee tours in Crystal River, Florida",
+      "Guided manatee tours take guests into the spring-fed waters of Kings Bay",
+      "River Ventures provides snorkeling equipment, wetsuits, and professional instruction",
+      "No experience is necessary"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Swim-with-manatee tours in Crystal River into the spring-fed waters of Kings Bay",
+    "why_here": "Go to swim with manatees in Crystal River, where guided tours enter the spring-fed waters of Kings Bay. River Ventures provides snorkeling equipment, wetsuits, and professional instruction, and no experience is necessary.",
+    "know_before": "No experience is necessary; snorkeling equipment and wetsuits are provided.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://riverventures.com/swim-with-manatee"
+     ],
+     "why_here": [
+      "https://riverventures.com/swim-with-manatee"
+     ],
+     "know_before": [
+      "https://riverventures.com/swim-with-manatee"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "River Ventures offers swim-with-manatee tours in Crystal River, Florida",
+      "source": "https://riverventures.com/swim-with-manatee"
+     },
+     {
+      "claim": "Guided manatee tours take guests into the spring-fed waters of Kings Bay",
+      "source": "https://riverventures.com/swim-with-manatee"
+     },
+     {
+      "claim": "River Ventures provides snorkeling equipment, wetsuits, and professional instruction",
+      "source": "https://riverventures.com/swim-with-manatee"
+     },
+     {
+      "claim": "No experience is necessary",
+      "source": "https://riverventures.com/swim-with-manatee"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJCyS80TYg6IgRqCv-9jsChL8",
+   "name": "Breakfast Station",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "breakfast_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.breakfaststationcentral.com/menus/breakfast-menu",
+     "source_name": "Breakfast Station \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Depot Breakfast is a traditional 2 egg breakfast with 2 eggs any style",
+      "The Depot Breakfast includes choice of potatoes, grits, or fruit",
+      "The menu includes Railyard Omelets including the Country Omelet and the Texas Omelet",
+      "Breakfast Station is open from 7 a.m. to 3 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Traditional 2 egg breakfast with the Depot Breakfast and Railyard Omelets",
+    "why_here": "Go for the Depot Breakfast, a traditional 2 egg breakfast with 2 eggs any style and choice of potatoes, grits, or fruit, or try Railyard Omelets including the Country Omelet and the Texas Omelet.",
+    "know_before": "Breakfast Station is open from 7 a.m. to 3 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.breakfaststationcentral.com/menus/breakfast-menu"
+     ],
+     "why_here": [
+      "https://www.breakfaststationcentral.com/menus/breakfast-menu"
+     ],
+     "know_before": [
+      "https://www.breakfaststationcentral.com/menus/breakfast-menu"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Depot Breakfast is a traditional 2 egg breakfast with 2 eggs any style",
+      "source": "https://www.breakfaststationcentral.com/menus/breakfast-menu"
+     },
+     {
+      "claim": "The Depot Breakfast includes choice of potatoes, grits, or fruit",
+      "source": "https://www.breakfaststationcentral.com/menus/breakfast-menu"
+     },
+     {
+      "claim": "The menu includes Railyard Omelets including the Country Omelet and the Texas Omelet",
+      "source": "https://www.breakfaststationcentral.com/menus/breakfast-menu"
+     },
+     {
+      "claim": "Breakfast Station is open from 7 a.m. to 3 p.m.",
+      "source": "https://www.breakfaststationcentral.com/menus/breakfast-menu"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJsRbg74S22YgRi0Phf5bJduk",
+   "name": "Blackbird Ordinary",
+   "category": "nightlife",
+   "metro": "miami-dade",
+   "primary_type": "bar",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.blackbirdordinary.com",
+     "source_name": "Blackbird Ordinary \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Blackbird Ordinary is an indoor/outdoor local bar",
+      "Blackbird Ordinary specializes in hand crafted cocktails using local and fresh ingredients",
+      "Blackbird Ordinary offers a diverse beer selection",
+      "Blackbird Ordinary features live music outdoors every Friday during Happy Hour",
+      "Foolish Hearts is every Friday, starts at 8 p.m., with free entry and DJs"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Indoor/outdoor local bar specializing in hand crafted cocktails using local and fresh ingredients",
+    "why_here": "Go for hand crafted cocktails made with local and fresh ingredients, a diverse beer selection, and live music outdoors every Friday during Happy Hour. On Friday, Foolish Hearts starts at 8 p.m. with DJs.",
+    "know_before": "Foolish Hearts starts at 8 p.m. on Friday with free entry.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.blackbirdordinary.com"
+     ],
+     "why_here": [
+      "https://www.blackbirdordinary.com"
+     ],
+     "know_before": [
+      "https://www.blackbirdordinary.com"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Blackbird Ordinary is an indoor/outdoor local bar",
+      "source": "https://www.blackbirdordinary.com"
+     },
+     {
+      "claim": "Blackbird Ordinary specializes in hand crafted cocktails using local and fresh ingredients",
+      "source": "https://www.blackbirdordinary.com"
+     },
+     {
+      "claim": "Blackbird Ordinary offers a diverse beer selection",
+      "source": "https://www.blackbirdordinary.com"
+     },
+     {
+      "claim": "Blackbird Ordinary features live music outdoors every Friday during Happy Hour",
+      "source": "https://www.blackbirdordinary.com"
+     },
+     {
+      "claim": "Foolish Hearts is every Friday, starts at 8 p.m., with free entry and DJs",
+      "source": "https://www.blackbirdordinary.com"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJm0gB3vd654gRpYMYcTE7OC8",
+   "name": "Crowne Plaza Orlando-Downtown by IHG",
+   "category": "hotels",
+   "metro": "orlando",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.ihg.com/crowneplaza/hotels/us/en/orlando/mcooa/hoteldetail/amenities",
+     "source_name": "Crowne Plaza Orlando-Downtown by IHG \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Crowne Plaza Orlando-Downtown is a hotel in Orlando",
+      "Crowne Plaza Orlando-Downtown has an outdoor pool with a sundeck",
+      "Crowne Plaza Orlando-Downtown has a 24-hour fitness center",
+      "Crowne Plaza Orlando-Downtown offers free Wi-Fi",
+      "Crowne Plaza Orlando-Downtown has meeting spaces and an on-site restaurant and bar",
+      "On-site parking is 25 USD per day"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Hotel with an outdoor pool with a sundeck, a 24-hour fitness center, and free Wi-Fi",
+    "why_here": "Stay for an outdoor pool with a sundeck, a 24-hour fitness center, and free Wi-Fi during your stay. The hotel also has meeting spaces and an on-site restaurant and bar for dining and drinks without leaving.",
+    "know_before": "On-site parking is 25 USD per day.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.ihg.com/crowneplaza/hotels/us/en/orlando/mcooa/hoteldetail/amenities"
+     ],
+     "why_here": [
+      "https://www.ihg.com/crowneplaza/hotels/us/en/orlando/mcooa/hoteldetail/amenities"
+     ],
+     "know_before": [
+      "https://www.ihg.com/crowneplaza/hotels/us/en/orlando/mcooa/hoteldetail/amenities"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Crowne Plaza Orlando-Downtown is a hotel in Orlando",
+      "source": "https://www.ihg.com/crowneplaza/hotels/us/en/orlando/mcooa/hoteldetail/amenities"
+     },
+     {
+      "claim": "Crowne Plaza Orlando-Downtown has an outdoor pool with a sundeck",
+      "source": "https://www.ihg.com/crowneplaza/hotels/us/en/orlando/mcooa/hoteldetail/amenities"
+     },
+     {
+      "claim": "Crowne Plaza Orlando-Downtown has a 24-hour fitness center",
+      "source": "https://www.ihg.com/crowneplaza/hotels/us/en/orlando/mcooa/hoteldetail/amenities"
+     },
+     {
+      "claim": "Crowne Plaza Orlando-Downtown offers free Wi-Fi",
+      "source": "https://www.ihg.com/crowneplaza/hotels/us/en/orlando/mcooa/hoteldetail/amenities"
+     },
+     {
+      "claim": "Crowne Plaza Orlando-Downtown has meeting spaces and an on-site restaurant and bar",
+      "source": "https://www.ihg.com/crowneplaza/hotels/us/en/orlando/mcooa/hoteldetail/amenities"
+     },
+     {
+      "claim": "On-site parking is 25 USD per day",
+      "source": "https://www.ihg.com/crowneplaza/hotels/us/en/orlando/mcooa/hoteldetail/amenities"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJdbbd8RyE3YgRyRrJabvKiPM",
+   "name": "Golden Krust Caribbean Restaurant",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "caribbean_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://locations.goldenkrust.com/ll/US/FL/Orlando/318-NorthAlafaya-Trail",
+     "source_name": "Golden Krust Caribbean Restaurant \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Golden Krust Caribbean Restaurant in Orlando is known for Jamaican beef patties and coco bread",
+      "Golden Krust serves jerk chicken, oxtail, and curried goat or chicken",
+      "Golden Krust is known for family recipes of classic Caribbean food staples",
+      "Golden Krust in Orlando is a fast-casual takeout or dine-in Caribbean and Jamaican restaurant"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Caribbean restaurant known for Jamaican beef patties, coco bread, jerk chicken, and oxtail",
+    "why_here": "Go for Jamaican beef patties and coco bread, or a meal built around jerk chicken, oxtail, or curried goat or chicken. The food draws on family recipes of classic Caribbean food staples served here in Orlando.",
+    "know_before": "Golden Krust in Orlando is a fast-casual takeout or dine-in Caribbean and Jamaican restaurant.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://locations.goldenkrust.com/ll/US/FL/Orlando/318-NorthAlafaya-Trail"
+     ],
+     "why_here": [
+      "https://locations.goldenkrust.com/ll/US/FL/Orlando/318-NorthAlafaya-Trail"
+     ],
+     "know_before": [
+      "https://locations.goldenkrust.com/ll/US/FL/Orlando/318-NorthAlafaya-Trail"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Golden Krust Caribbean Restaurant in Orlando is known for Jamaican beef patties and coco bread",
+      "source": "https://locations.goldenkrust.com/ll/US/FL/Orlando/318-NorthAlafaya-Trail"
+     },
+     {
+      "claim": "Golden Krust serves jerk chicken, oxtail, and curried goat or chicken",
+      "source": "https://locations.goldenkrust.com/ll/US/FL/Orlando/318-NorthAlafaya-Trail"
+     },
+     {
+      "claim": "Golden Krust is known for family recipes of classic Caribbean food staples",
+      "source": "https://locations.goldenkrust.com/ll/US/FL/Orlando/318-NorthAlafaya-Trail"
+     },
+     {
+      "claim": "Golden Krust in Orlando is a fast-casual takeout or dine-in Caribbean and Jamaican restaurant",
+      "source": "https://locations.goldenkrust.com/ll/US/FL/Orlando/318-NorthAlafaya-Trail"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJjfEhCPas2YgRN1EHKOyeFU8",
+   "name": "Tap 42 Craft Kitchen & Bar",
+   "category": "nightlife",
+   "metro": "miami-dade",
+   "primary_type": "bar_and_grill",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://tap42.com/locations/midtown-miami/",
+     "source_name": "Tap 42 Craft Kitchen & Bar \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Tap 42 Midtown Miami is in Midtown Miami",
+      "Tap 42 Midtown Miami serves burgers including The Prohibition and The Big Smash",
+      "Weekday lunch starts at 11:30 a.m.",
+      "Happy hour runs Monday through Friday from 3 p.m. to 6 p.m. at the bar",
+      "Brunch runs Saturday and Sunday"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Craft kitchen and bar in Midtown Miami serving The Prohibition and The Big Smash burgers",
+    "why_here": "Go for burgers including The Prohibition and The Big Smash, plus weekday lunch starting at 11:30 a.m. in Midtown Miami. Happy hour runs Monday through Friday at the bar, and brunch runs Saturday and Sunday.",
+    "know_before": "Happy hour runs Monday through Friday from 3 p.m. to 6 p.m. at the bar.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://tap42.com/locations/midtown-miami/"
+     ],
+     "why_here": [
+      "https://tap42.com/locations/midtown-miami/"
+     ],
+     "know_before": [
+      "https://tap42.com/locations/midtown-miami/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Tap 42 Midtown Miami is in Midtown Miami",
+      "source": "https://tap42.com/locations/midtown-miami/"
+     },
+     {
+      "claim": "Tap 42 Midtown Miami serves burgers including The Prohibition and The Big Smash",
+      "source": "https://tap42.com/locations/midtown-miami/"
+     },
+     {
+      "claim": "Weekday lunch starts at 11:30 a.m.",
+      "source": "https://tap42.com/locations/midtown-miami/"
+     },
+     {
+      "claim": "Happy hour runs Monday through Friday from 3 p.m. to 6 p.m. at the bar",
+      "source": "https://tap42.com/locations/midtown-miami/"
+     },
+     {
+      "claim": "Brunch runs Saturday and Sunday",
+      "source": "https://tap42.com/locations/midtown-miami/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJi81WzOul2YgRC-gQ2MzmQpo",
+   "name": "Cucina Moderna",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "italian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://cucinamodernafl.com/",
+     "source_name": "Cucina Moderna \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Cucina Moderna is an Italian restaurant",
+      "Cucina Moderna menu spans brick-oven pizza to fresh seafood and rotating daily specials",
+      "Cucina Moderna serves pizza, pasta, and seafood"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Italian restaurant serving brick-oven pizza, pasta, and seafood",
+    "why_here": "Go for brick-oven pizza or fresh seafood, with pasta and rotating daily specials also on the menu. The menu spans brick-oven pizza to fresh seafood for an Italian meal with several choices.",
+    "know_before": "The menu has rotating daily specials, so check what is served that day.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://cucinamodernafl.com/"
+     ],
+     "why_here": [
+      "https://cucinamodernafl.com/"
+     ],
+     "know_before": [
+      "https://cucinamodernafl.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Cucina Moderna is an Italian restaurant",
+      "source": "https://cucinamodernafl.com/"
+     },
+     {
+      "claim": "Cucina Moderna menu spans brick-oven pizza to fresh seafood and rotating daily specials",
+      "source": "https://cucinamodernafl.com/"
+     },
+     {
+      "claim": "Cucina Moderna serves pizza, pasta, and seafood",
+      "source": "https://cucinamodernafl.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJPRbqn0f8wogRkNHFDS_fWQ4",
+   "name": "The Reef Bar and Grill",
+   "category": "nightlife",
+   "metro": "florida",
+   "primary_type": "bar_and_grill",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://reefonmadbeach.com/",
+     "source_name": "The Reef Bar and Grill \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Fresh food with many items made in-house is served at The Reef in Madeira Beach",
+      "Pets are welcome on the outdoor fully covered deck at The Reef",
+      "The Reef has outdoor seating that is pet-friendly"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Fresh food made in-house with a pet-friendly outdoor deck",
+    "why_here": "Come for fresh food with many items made in-house at The Reef in Madeira Beach, where the outdoor seating is pet-friendly and the outdoor fully covered deck welcomes pets with the meal.",
+    "know_before": "Pets are welcome on the outdoor fully covered deck at The Reef.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://reefonmadbeach.com/"
+     ],
+     "why_here": [
+      "https://reefonmadbeach.com/"
+     ],
+     "know_before": [
+      "https://reefonmadbeach.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Fresh food with many items made in-house is served at The Reef in Madeira Beach",
+      "source": "https://reefonmadbeach.com/"
+     },
+     {
+      "claim": "Pets are welcome on the outdoor fully covered deck at The Reef",
+      "source": "https://reefonmadbeach.com/"
+     },
+     {
+      "claim": "The Reef has outdoor seating that is pet-friendly",
+      "source": "https://reefonmadbeach.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ8cy0OhWW54gRNIt9KiADoN8",
+   "name": "Lake Harris Hideaway",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://lakeharrishideaway.com/",
+     "source_name": "Lake Harris Hideaway \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Lake Harris Hideaway is located on the Harris Chain of Lakes",
+      "Lake Harris Hideaway is a family-friendly restaurant in Tavares",
+      "Lake Harris Hideaway has a beautiful outside deck with a view of Lake Harris",
+      "Lake Harris Hideaway offers entertainment from Thursday through Sunday",
+      "Lake Harris Hideaway welcomes family and pets"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Family-friendly restaurant on the Harris Chain of Lakes in Tavares",
+    "why_here": "Visit Lake Harris Hideaway on the Harris Chain of Lakes in Tavares for a family-friendly restaurant with a beautiful outside deck and a view of Lake Harris, plus entertainment during the week.",
+    "know_before": "Lake Harris Hideaway offers entertainment from Thursday through Sunday.",
+    "local_tip": "Bring family and pets to enjoy the outside deck.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://lakeharrishideaway.com/"
+     ],
+     "why_here": [
+      "https://lakeharrishideaway.com/"
+     ],
+     "know_before": [
+      "https://lakeharrishideaway.com/"
+     ],
+     "local_tip": [
+      "https://lakeharrishideaway.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Lake Harris Hideaway is located on the Harris Chain of Lakes",
+      "source": "https://lakeharrishideaway.com/"
+     },
+     {
+      "claim": "Lake Harris Hideaway is a family-friendly restaurant in Tavares",
+      "source": "https://lakeharrishideaway.com/"
+     },
+     {
+      "claim": "Lake Harris Hideaway has a beautiful outside deck with a view of Lake Harris",
+      "source": "https://lakeharrishideaway.com/"
+     },
+     {
+      "claim": "Lake Harris Hideaway offers entertainment from Thursday through Sunday",
+      "source": "https://lakeharrishideaway.com/"
+     },
+     {
+      "claim": "Lake Harris Hideaway welcomes family and pets",
+      "source": "https://lakeharrishideaway.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ30bpQGn8wogR7RP0bzlnIvA",
+   "name": "Angry Pepper",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.angrypepper.net/",
+     "source_name": "Angry Pepper \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Angry Pepper Smokehouse in Madeira Beach smokes meats on site using hickory and oak logs",
+      "Angry Pepper smokes meats low and slow from 12 to 16 hours",
+      "The menu at Angry Pepper includes Smoked Fish Spread",
+      "The menu at Angry Pepper includes The Wing Thing with wings low smoked for hours",
+      "Angry Pepper has 32 beers on tap",
+      "Angry Pepper is open from 11 a.m. to 11 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Smokehouse in Madeira Beach with meats smoked low and slow",
+    "why_here": "Go to Angry Pepper Smokehouse in Madeira Beach for meats smoked on site using hickory and oak logs, low and slow from 12 to 16 hours, plus Smoked Fish Spread, The Wing Thing, and 32 beers on tap.",
+    "know_before": "Angry Pepper is open from 11 a.m. to 11 p.m.",
+    "local_tip": "Try Smoked Fish Spread or The Wing Thing.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.angrypepper.net/"
+     ],
+     "why_here": [
+      "https://www.angrypepper.net/"
+     ],
+     "know_before": [
+      "https://www.angrypepper.net/"
+     ],
+     "local_tip": [
+      "https://www.angrypepper.net/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Angry Pepper Smokehouse in Madeira Beach smokes meats on site using hickory and oak logs",
+      "source": "https://www.angrypepper.net/"
+     },
+     {
+      "claim": "Angry Pepper smokes meats low and slow from 12 to 16 hours",
+      "source": "https://www.angrypepper.net/"
+     },
+     {
+      "claim": "The menu at Angry Pepper includes Smoked Fish Spread",
+      "source": "https://www.angrypepper.net/"
+     },
+     {
+      "claim": "The menu at Angry Pepper includes The Wing Thing with wings low smoked for hours",
+      "source": "https://www.angrypepper.net/"
+     },
+     {
+      "claim": "Angry Pepper has 32 beers on tap",
+      "source": "https://www.angrypepper.net/"
+     },
+     {
+      "claim": "Angry Pepper is open from 11 a.m. to 11 p.m.",
+      "source": "https://www.angrypepper.net/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJBbzGQKCV2YgRKnV6xrpH4Ac",
+   "name": "Everglades Airboat Expeditions",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "tour_agency",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.evergladesairboatexpedition.com/about/",
+     "source_name": "Everglades Airboat Expeditions \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Everglades Airboat Expeditions is a small family run company offering private guided tours of the Florida Everglades",
+      "Airboats can accommodate up to 12 people",
+      "Airboats are the perfect size for family or group outings",
+      "Cancellations must be received 24 hours in advance for a full refund"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Family run company offering private guided tours of the Florida Everglades",
+    "why_here": "Take private guided tours of the Florida Everglades with Everglades Airboat Expeditions, a small family run company whose airboats can accommodate up to 12 people for family or group outings.",
+    "know_before": "Cancellations must be received 24 hours in advance for a full refund.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.evergladesairboatexpedition.com/about/"
+     ],
+     "why_here": [
+      "https://www.evergladesairboatexpedition.com/about/"
+     ],
+     "know_before": [
+      "https://www.evergladesairboatexpedition.com/about/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Everglades Airboat Expeditions is a small family run company offering private guided tours of the Florida Everglades",
+      "source": "https://www.evergladesairboatexpedition.com/about/"
+     },
+     {
+      "claim": "Airboats can accommodate up to 12 people",
+      "source": "https://www.evergladesairboatexpedition.com/about/"
+     },
+     {
+      "claim": "Airboats are the perfect size for family or group outings",
+      "source": "https://www.evergladesairboatexpedition.com/about/"
+     },
+     {
+      "claim": "Cancellations must be received 24 hours in advance for a full refund",
+      "source": "https://www.evergladesairboatexpedition.com/about/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJURCWEyKx2YgRbiYB5Ng_TuQ",
+   "name": "Pura Vida - Design District",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "coffee_shop",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.puravidamiami.com/locations/florida/designdistrict",
+     "source_name": "Pura Vida - Design District \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Pura Vida is a caf\u00e9 in Miami's Design District",
+      "Pura Vida serves an all-day menu",
+      "The all-day menu includes Avocado Smash and Perfect Egg Sandwich",
+      "The menu includes protein-packed plates and bowls",
+      "Pura Vida has vegan picks including Acai Bowls and Overnight Oats",
+      "Pura Vida has a kids menu including pancakes and smoothies"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Design District caf\u00e9 serving an all-day menu with bowls",
+    "why_here": "Visit Pura Vida in Miami's Design District for an all-day menu with Avocado Smash, Perfect Egg Sandwich, and protein-packed plates and bowls, plus vegan picks and a kids menu.",
+    "know_before": "Acai Bowls and Overnight Oats are vegan picks, and pancakes and smoothies are on a kids menu.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.puravidamiami.com/locations/florida/designdistrict"
+     ],
+     "why_here": [
+      "https://www.puravidamiami.com/locations/florida/designdistrict"
+     ],
+     "know_before": [
+      "https://www.puravidamiami.com/locations/florida/designdistrict"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Pura Vida is a caf\u00e9 in Miami's Design District",
+      "source": "https://www.puravidamiami.com/locations/florida/designdistrict"
+     },
+     {
+      "claim": "Pura Vida serves an all-day menu",
+      "source": "https://www.puravidamiami.com/locations/florida/designdistrict"
+     },
+     {
+      "claim": "The all-day menu includes Avocado Smash and Perfect Egg Sandwich",
+      "source": "https://www.puravidamiami.com/locations/florida/designdistrict"
+     },
+     {
+      "claim": "The menu includes protein-packed plates and bowls",
+      "source": "https://www.puravidamiami.com/locations/florida/designdistrict"
+     },
+     {
+      "claim": "Pura Vida has vegan picks including Acai Bowls and Overnight Oats",
+      "source": "https://www.puravidamiami.com/locations/florida/designdistrict"
+     },
+     {
+      "claim": "Pura Vida has a kids menu including pancakes and smoothies",
+      "source": "https://www.puravidamiami.com/locations/florida/designdistrict"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJGwEVYvHe0IgR9vO00fA5Iy8",
+   "name": "Lazy Days South",
+   "category": "food",
+   "metro": "keys",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://lazydayssouth.com/",
+     "source_name": "Lazy Days South \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Lazy Days South is oceanfront dining in Marathon, Florida",
+      "Lazy Days South serves breakfast, lunch, and dinner",
+      "The menu features fresh seafood, seafood pastas, sandwiches, steaks, and chicken",
+      "Lazy Days South will cook your catch",
+      "Lazy Days South is open every day, with breakfast served 7:00 a.m. to 11:00 a.m. daily",
+      "Lazy Days South has an outside patio overlooking the Atlantic"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Oceanfront dining in Marathon serving breakfast, lunch, and dinner",
+    "why_here": "Eat at Lazy Days South, oceanfront dining in Marathon, Florida, for fresh seafood, seafood pastas, sandwiches, steaks, and chicken, with an outside patio overlooking the Atlantic.",
+    "know_before": "Lazy Days South is open every day, with breakfast served 7:00 a.m. to 11:00 a.m. daily.",
+    "local_tip": "Lazy Days South will cook your catch.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://lazydayssouth.com/"
+     ],
+     "why_here": [
+      "https://lazydayssouth.com/"
+     ],
+     "know_before": [
+      "https://lazydayssouth.com/"
+     ],
+     "local_tip": [
+      "https://lazydayssouth.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Lazy Days South is oceanfront dining in Marathon, Florida",
+      "source": "https://lazydayssouth.com/"
+     },
+     {
+      "claim": "Lazy Days South serves breakfast, lunch, and dinner",
+      "source": "https://lazydayssouth.com/"
+     },
+     {
+      "claim": "The menu features fresh seafood, seafood pastas, sandwiches, steaks, and chicken",
+      "source": "https://lazydayssouth.com/"
+     },
+     {
+      "claim": "Lazy Days South will cook your catch",
+      "source": "https://lazydayssouth.com/"
+     },
+     {
+      "claim": "Lazy Days South is open every day, with breakfast served 7:00 a.m. to 11:00 a.m. daily",
+      "source": "https://lazydayssouth.com/"
+     },
+     {
+      "claim": "Lazy Days South has an outside patio overlooking the Atlantic",
+      "source": "https://lazydayssouth.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJXbbXCuCs2YgRzbV-thyE3NA",
+   "name": "Acqualina Resort & Residences On The Beach",
+   "category": "hotels",
+   "metro": "miami-dade",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.acqualinaresort.com/",
+     "source_name": "Acqualina Resort & Residences On The Beach \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Acqualina Resort is a Mediterranean-inspired resort on the shores of Miami Beach",
+      "Acqualina Resort restaurants include Avra Miami, Il Mulino New York, Ke-uH, and Costa Grill",
+      "Acqualina Resort has Acqualina Spa",
+      "Each of the 55 guest rooms and 44 suites offers a private terrace"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Mediterranean-inspired resort on the shores of Miami Beach with Acqualina Spa",
+    "why_here": "Stay at Acqualina Resort, a Mediterranean-inspired resort on the shores of Miami Beach, with restaurants including Avra Miami, Il Mulino New York, Ke-uH, and Costa Grill, plus Acqualina Spa.",
+    "know_before": "Each of the 55 guest rooms and 44 suites offers a private terrace.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.acqualinaresort.com/"
+     ],
+     "why_here": [
+      "https://www.acqualinaresort.com/"
+     ],
+     "know_before": [
+      "https://www.acqualinaresort.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Acqualina Resort is a Mediterranean-inspired resort on the shores of Miami Beach",
+      "source": "https://www.acqualinaresort.com/"
+     },
+     {
+      "claim": "Acqualina Resort restaurants include Avra Miami, Il Mulino New York, Ke-uH, and Costa Grill",
+      "source": "https://www.acqualinaresort.com/"
+     },
+     {
+      "claim": "Acqualina Resort has Acqualina Spa",
+      "source": "https://www.acqualinaresort.com/"
+     },
+     {
+      "claim": "Each of the 55 guest rooms and 44 suites offers a private terrace",
+      "source": "https://www.acqualinaresort.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJxz3gJfO02YgRV513QOFUKZo",
+   "name": "Las Olas Cafe",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "cuban_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://lasolascafe.net/",
+     "source_name": "Las Olas Cafe \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Las Olas Cafe serves Latin Style Cuisine in Miami Beach",
+      "Las Olas Cafe delivers",
+      "On Monday, Las Olas Cafe is open from 7:00 a.m. to 8:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Latin Style Cuisine in Miami Beach",
+    "why_here": "Try Latin Style Cuisine at Las Olas Cafe in Miami Beach, a cafe that delivers, with opening hours on Monday from 7:00 a.m. to 8:00 p.m. for a meal in Miami Beach.",
+    "know_before": "On Monday, opening hours are 7:00 a.m. to 8:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://lasolascafe.net/"
+     ],
+     "why_here": [
+      "https://lasolascafe.net/"
+     ],
+     "know_before": [
+      "https://lasolascafe.net/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Las Olas Cafe serves Latin Style Cuisine in Miami Beach",
+      "source": "https://lasolascafe.net/"
+     },
+     {
+      "claim": "Las Olas Cafe delivers",
+      "source": "https://lasolascafe.net/"
+     },
+     {
+      "claim": "On Monday, Las Olas Cafe is open from 7:00 a.m. to 8:00 p.m.",
+      "source": "https://lasolascafe.net/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ2Z9gE5eNk4gRz-Ey8y0ahfM",
+   "name": "Fear at the Pier Haunted Attraction and Escape Rooms",
+   "category": "attractions",
+   "metro": "panama-city-florida",
+   "primary_type": "event_venue",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://pcbattractions.com/ultimate-combo/",
+     "source_name": "Fear at the Pier Haunted Attraction and Escape Rooms \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Fear at the Pier is a haunted house",
+      "The ultimate combo includes a 60 minutes escape room",
+      "The ultimate combo includes haunted house admission",
+      "The ultimate combo includes 60 minutes axe throwing",
+      "Games are recommended for ages 10 and up",
+      "Reservations can be canceled up to 48 hours before the game for a full refund"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Haunted house with a 60 minutes escape room and axe throwing",
+    "why_here": "Go for haunted house admission at Fear at the Pier, or use the ultimate combo for a 60 minutes escape room and 60 minutes axe throwing together in one visit.",
+    "know_before": "Reservations can be canceled up to 48 hours before the game for a full refund",
+    "local_tip": "Games are recommended for ages 10 and up",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://pcbattractions.com/ultimate-combo/"
+     ],
+     "why_here": [
+      "https://pcbattractions.com/ultimate-combo/"
+     ],
+     "know_before": [
+      "https://pcbattractions.com/ultimate-combo/"
+     ],
+     "local_tip": [
+      "https://pcbattractions.com/ultimate-combo/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Fear at the Pier is a haunted house",
+      "source": "https://pcbattractions.com/ultimate-combo/"
+     },
+     {
+      "claim": "The ultimate combo includes a 60 minutes escape room",
+      "source": "https://pcbattractions.com/ultimate-combo/"
+     },
+     {
+      "claim": "The ultimate combo includes haunted house admission",
+      "source": "https://pcbattractions.com/ultimate-combo/"
+     },
+     {
+      "claim": "The ultimate combo includes 60 minutes axe throwing",
+      "source": "https://pcbattractions.com/ultimate-combo/"
+     },
+     {
+      "claim": "Games are recommended for ages 10 and up",
+      "source": "https://pcbattractions.com/ultimate-combo/"
+     },
+     {
+      "claim": "Reservations can be canceled up to 48 hours before the game for a full refund",
+      "source": "https://pcbattractions.com/ultimate-combo/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJcTx1mjsv2YgR9XxNlgTnQvU",
+   "name": "The Original Pancake House Royal Palm Beach",
+   "category": "food",
+   "metro": "palm-beach",
+   "primary_type": "breakfast_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.originalpancakehouse.com/",
+     "source_name": "The Original Pancake House Royal Palm Beach \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Original Pancake House was founded in Portland, Oregon in 1953",
+      "Signature items include the Apple Pancake, a single large pancake smothered with saut\u00e9ed apples and cinnamon sugar",
+      "Another signature item is the Dutch Baby, served with lemon, whipped butter and powdered sugar",
+      "Our batters and sauces are made fresh in each restaurant's kitchen",
+      "Signature items include unique omelets and gourmet crepes"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Breakfast restaurant founded in Portland, Oregon in 1953",
+    "why_here": "Try the Apple Pancake with saut\u00e9ed apples and cinnamon sugar, or the Dutch Baby with lemon, whipped butter and powdered sugar, plus unique omelets and gourmet crepes.",
+    "know_before": "Our batters and sauces are made fresh in each restaurant's kitchen",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.originalpancakehouse.com/"
+     ],
+     "why_here": [
+      "https://www.originalpancakehouse.com/"
+     ],
+     "know_before": [
+      "https://www.originalpancakehouse.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Original Pancake House was founded in Portland, Oregon in 1953",
+      "source": "https://www.originalpancakehouse.com/"
+     },
+     {
+      "claim": "Signature items include the Apple Pancake, a single large pancake smothered with saut\u00e9ed apples and cinnamon sugar",
+      "source": "https://www.originalpancakehouse.com/"
+     },
+     {
+      "claim": "Another signature item is the Dutch Baby, served with lemon, whipped butter and powdered sugar",
+      "source": "https://www.originalpancakehouse.com/"
+     },
+     {
+      "claim": "Our batters and sauces are made fresh in each restaurant's kitchen",
+      "source": "https://www.originalpancakehouse.com/"
+     },
+     {
+      "claim": "Signature items include unique omelets and gourmet crepes",
+      "source": "https://www.originalpancakehouse.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJvUPK-cW32YgRMIMWb62DhgM",
+   "name": "107 Taste Asian Restaurant Coral Gables",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "asian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://107taste.com/asian-food-restaurant-in-coral-gables/",
+     "source_name": "107 Taste Asian Restaurant Coral Gables \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "107 Taste in Coral Gables offers a unique Asian fusion menu",
+      "The Asian fusion menu includes Pad Thai Noodle and Miso Ramen",
+      "The Asian fusion menu includes Tonkotsu Ramen",
+      "The menu includes Takoyaki",
+      "Hours vary by location, but most restaurants are open from 11:30 a.m. to 10 p.m. daily"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Asian fusion menu in Coral Gables with Pad Thai Noodle and Miso Ramen",
+    "why_here": "Go for a unique Asian fusion menu in Coral Gables, with Pad Thai Noodle, Miso Ramen and Tonkotsu Ramen among the dishes to choose from for a shared meal with varied flavors.",
+    "know_before": "Hours vary by location, but most restaurants are open from 11:30 a.m. to 10 p.m. daily",
+    "local_tip": "Try Tonkotsu Ramen or Takoyaki when you order",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://107taste.com/asian-food-restaurant-in-coral-gables/"
+     ],
+     "why_here": [
+      "https://107taste.com/asian-food-restaurant-in-coral-gables/"
+     ],
+     "know_before": [
+      "https://107taste.com/asian-food-restaurant-in-coral-gables/"
+     ],
+     "local_tip": [
+      "https://107taste.com/asian-food-restaurant-in-coral-gables/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "107 Taste in Coral Gables offers a unique Asian fusion menu",
+      "source": "https://107taste.com/asian-food-restaurant-in-coral-gables/"
+     },
+     {
+      "claim": "The Asian fusion menu includes Pad Thai Noodle and Miso Ramen",
+      "source": "https://107taste.com/asian-food-restaurant-in-coral-gables/"
+     },
+     {
+      "claim": "The Asian fusion menu includes Tonkotsu Ramen",
+      "source": "https://107taste.com/asian-food-restaurant-in-coral-gables/"
+     },
+     {
+      "claim": "The menu includes Takoyaki",
+      "source": "https://107taste.com/asian-food-restaurant-in-coral-gables/"
+     },
+     {
+      "claim": "Hours vary by location, but most restaurants are open from 11:30 a.m. to 10 p.m. daily",
+      "source": "https://107taste.com/asian-food-restaurant-in-coral-gables/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJqwcvS2Gz2YgRZvUavJEt-Vw",
+   "name": "The Miami Beach EDITION",
+   "category": "hotels",
+   "metro": "miami-dade",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.editionhotels.com/miami-beach/",
+     "source_name": "The Miami Beach EDITION \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Miami Beach EDITION has two outdoor ocean-facing pools",
+      "The Miami Beach EDITION has a luxury spa and fitness center",
+      "The Miami Beach EDITION has dining developed by Michelin-starred Chef Jean-Georges Vongerichten",
+      "The Miami Beach EDITION has an intimate bowling alley and vibrant ice skating rink",
+      "Basement Bowl is a four-lane bowling alley"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Two outdoor ocean-facing pools, a bowling alley and an ice skating rink",
+    "why_here": "Use the two outdoor ocean-facing pools and luxury spa and fitness center, try dining developed by Michelin-starred Chef Jean-Georges Vongerichten, or visit the bowling alley and ice skating rink.",
+    "know_before": "The Miami Beach EDITION has a luxury spa and fitness center",
+    "local_tip": "Basement Bowl is a four-lane bowling alley",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.editionhotels.com/miami-beach/"
+     ],
+     "why_here": [
+      "https://www.editionhotels.com/miami-beach/"
+     ],
+     "know_before": [
+      "https://www.editionhotels.com/miami-beach/"
+     ],
+     "local_tip": [
+      "https://www.editionhotels.com/miami-beach/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Miami Beach EDITION has two outdoor ocean-facing pools",
+      "source": "https://www.editionhotels.com/miami-beach/"
+     },
+     {
+      "claim": "The Miami Beach EDITION has a luxury spa and fitness center",
+      "source": "https://www.editionhotels.com/miami-beach/"
+     },
+     {
+      "claim": "The Miami Beach EDITION has dining developed by Michelin-starred Chef Jean-Georges Vongerichten",
+      "source": "https://www.editionhotels.com/miami-beach/"
+     },
+     {
+      "claim": "The Miami Beach EDITION has an intimate bowling alley and vibrant ice skating rink",
+      "source": "https://www.editionhotels.com/miami-beach/"
+     },
+     {
+      "claim": "Basement Bowl is a four-lane bowling alley",
+      "source": "https://www.editionhotels.com/miami-beach/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJo5dofWB83YgRGeL6-Q4CYnU",
+   "name": "Twistee Treat Westside",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "ice_cream_shop",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://twisteetreat.com/about-us/",
+     "source_name": "Twistee Treat Westside \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Twistee Treat cone shaped building and ice cream have been around since 1983",
+      "Twistee Treat serves real fresh soft serve ice cream",
+      "The menu includes ice cream, cones, cups, shakes and malts",
+      "Twistee Treat also offers twirls with your choice of candy, sundaes and slushies",
+      "Traditional classics like the banana split and brownie boat continue to be a popular choice",
+      "Twistee Treat offers cookiewich and waffle taco"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Real fresh soft serve ice cream since 1983",
+    "why_here": "Get real fresh soft serve ice cream with cones, cups, shakes and malts, plus twirls with your choice of candy, sundaes and slushies, a banana split or brownie boat.",
+    "know_before": "The cone shaped building and ice cream have been around since 1983",
+    "local_tip": "Order a cookiewich or a waffle taco",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://twisteetreat.com/about-us/"
+     ],
+     "why_here": [
+      "https://twisteetreat.com/about-us/"
+     ],
+     "know_before": [
+      "https://twisteetreat.com/about-us/"
+     ],
+     "local_tip": [
+      "https://twisteetreat.com/about-us/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Twistee Treat cone shaped building and ice cream have been around since 1983",
+      "source": "https://twisteetreat.com/about-us/"
+     },
+     {
+      "claim": "Twistee Treat serves real fresh soft serve ice cream",
+      "source": "https://twisteetreat.com/about-us/"
+     },
+     {
+      "claim": "The menu includes ice cream, cones, cups, shakes and malts",
+      "source": "https://twisteetreat.com/about-us/"
+     },
+     {
+      "claim": "Twistee Treat also offers twirls with your choice of candy, sundaes and slushies",
+      "source": "https://twisteetreat.com/about-us/"
+     },
+     {
+      "claim": "Traditional classics like the banana split and brownie boat continue to be a popular choice",
+      "source": "https://twisteetreat.com/about-us/"
+     },
+     {
+      "claim": "Twistee Treat offers cookiewich and waffle taco",
+      "source": "https://twisteetreat.com/about-us/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ7eGn_GL92IgR1xbphQ1CtmI",
+   "name": "The Foundry",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.thefoundryfl.com/",
+     "source_name": "The Foundry \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Foundry is at 2781 E Atlantic Blvd, Pompano Beach, FL 33062",
+      "The Foundry menu includes Foundry Burger",
+      "The Foundry dinner menu includes Braised Short Rib",
+      "Lunch Menu is open from Monday - Friday 11:30 a.m. - 4:30 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "American dining in Pompano Beach with Foundry Burger",
+    "why_here": "Visit The Foundry at 2781 E Atlantic Blvd, Pompano Beach, FL 33062 for American dining including Foundry Burger and Braised Short Rib on the dinner menu for a meal out.",
+    "know_before": "Lunch Menu is open from Monday - Friday 11:30 a.m. - 4:30 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.thefoundryfl.com/"
+     ],
+     "why_here": [
+      "https://www.thefoundryfl.com/"
+     ],
+     "know_before": [
+      "https://www.thefoundryfl.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Foundry is at 2781 E Atlantic Blvd, Pompano Beach, FL 33062",
+      "source": "https://www.thefoundryfl.com/"
+     },
+     {
+      "claim": "The Foundry menu includes Foundry Burger",
+      "source": "https://www.thefoundryfl.com/"
+     },
+     {
+      "claim": "The Foundry dinner menu includes Braised Short Rib",
+      "source": "https://www.thefoundryfl.com/"
+     },
+     {
+      "claim": "Lunch Menu is open from Monday - Friday 11:30 a.m. - 4:30 p.m.",
+      "source": "https://www.thefoundryfl.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJQ40h050b2YgR4D1HGbYBNqg",
+   "name": "Malbec Grill",
+   "category": "food",
+   "metro": "palm-beach",
+   "primary_type": "steak_house",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.malbecgrill.com/",
+     "source_name": "Malbec Grill \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Malbec Grill is an Argentine-inspired, family-friendly steakhouse in Parkland",
+      "Skirt steak, ribeye, and churrasco are grilled over open flame",
+      "Malbec Grill serves handmade empanadas and fresh pasta",
+      "Breakfast is served starting at 7 a.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Argentine-inspired steakhouse in Parkland with handmade empanadas",
+    "why_here": "Visit Malbec Grill in Parkland for Argentine-inspired steakhouse dining with skirt steak, ribeye, and churrasco grilled over open flame, plus handmade empanadas and fresh pasta.",
+    "know_before": "Breakfast is served starting at 7 a.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.malbecgrill.com/"
+     ],
+     "why_here": [
+      "https://www.malbecgrill.com/"
+     ],
+     "know_before": [
+      "https://www.malbecgrill.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Malbec Grill is an Argentine-inspired, family-friendly steakhouse in Parkland",
+      "source": "https://www.malbecgrill.com/"
+     },
+     {
+      "claim": "Skirt steak, ribeye, and churrasco are grilled over open flame",
+      "source": "https://www.malbecgrill.com/"
+     },
+     {
+      "claim": "Malbec Grill serves handmade empanadas and fresh pasta",
+      "source": "https://www.malbecgrill.com/"
+     },
+     {
+      "claim": "Breakfast is served starting at 7 a.m.",
+      "source": "https://www.malbecgrill.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJD5sXhiBC24gRrzr-26CMzWU",
+   "name": "Nauti Parrot Tiki Hut North",
+   "category": "nightlife",
+   "metro": "florida",
+   "primary_type": "bar_and_grill",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.nautiparrot.com/locations",
+     "source_name": "Nauti Parrot Tiki Hut North \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Nauti Parrot Tiki Hut is in North Fort Myers",
+      "Nauti Parrot Tiki Hut was purchased in January 2015",
+      "Daily Specials are available until 4 p.m. except Friday"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Tiki Hut in North Fort Myers purchased in January 2015",
+    "why_here": "Visit the Tiki Hut in North Fort Myers for a relaxed stop with friends or family, where Daily Specials and a casual setting give you a reason to linger over drinks and food together.",
+    "know_before": "Daily Specials are available until 4 p.m. except Friday",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.nautiparrot.com/locations"
+     ],
+     "why_here": [
+      "https://www.nautiparrot.com/locations"
+     ],
+     "know_before": [
+      "https://www.nautiparrot.com/locations"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Nauti Parrot Tiki Hut is in North Fort Myers",
+      "source": "https://www.nautiparrot.com/locations"
+     },
+     {
+      "claim": "Nauti Parrot Tiki Hut was purchased in January 2015",
+      "source": "https://www.nautiparrot.com/locations"
+     },
+     {
+      "claim": "Daily Specials are available until 4 p.m. except Friday",
+      "source": "https://www.nautiparrot.com/locations"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJYXKIC8Wp3IgRNXsR0tfjoFQ",
+   "name": "Sunseeker Resort Florida Gulf Coast, Curio Collection by Hilton",
+   "category": "hotels",
+   "metro": "florida",
+   "primary_type": "resort_hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.sunseekerresort.com/",
+     "source_name": "Sunseeker Resort Florida Gulf Coast, Curio Collection by Hilton \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Sunseeker Resort is on Charlotte Harbor",
+      "Sunseeker Resort offers Harbor Yards Food Hall",
+      "Sunseeker Resort has two pools named Reflections and Level Blue",
+      "Sunseeker Resort offers Spa and Golf activities",
+      "Sunseeker Resort is a Florida Gulf Coast Waterfront Resort"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Waterfront resort on Charlotte Harbor with Harbor Yards Food Hall",
+    "why_here": "Stay at Sunseeker Resort on Charlotte Harbor for Harbor Yards Food Hall, the pools Reflections and Level Blue, and Spa and Golf activities during a waterfront resort visit.",
+    "know_before": "Sunseeker Resort offers Spa and Golf activities alongside Harbor Yards Food Hall.",
+    "local_tip": "Choose Reflections or Level Blue for poolside time at Sunseeker Resort.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.sunseekerresort.com/"
+     ],
+     "why_here": [
+      "https://www.sunseekerresort.com/"
+     ],
+     "know_before": [
+      "https://www.sunseekerresort.com/"
+     ],
+     "local_tip": [
+      "https://www.sunseekerresort.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Sunseeker Resort is on Charlotte Harbor",
+      "source": "https://www.sunseekerresort.com/"
+     },
+     {
+      "claim": "Sunseeker Resort offers Harbor Yards Food Hall",
+      "source": "https://www.sunseekerresort.com/"
+     },
+     {
+      "claim": "Sunseeker Resort has two pools named Reflections and Level Blue",
+      "source": "https://www.sunseekerresort.com/"
+     },
+     {
+      "claim": "Sunseeker Resort offers Spa and Golf activities",
+      "source": "https://www.sunseekerresort.com/"
+     },
+     {
+      "claim": "Sunseeker Resort is a Florida Gulf Coast Waterfront Resort",
+      "source": "https://www.sunseekerresort.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJv35i_3q954gRBmEHk0dlGho",
+   "name": "Wooton Park",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.tavaresfl.gov/1208/ABOUT-TAVARES",
+     "source_name": "Wooton Park \u2014 official source",
+     "source_class": "government",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Wooton Park sits only one block from Main Street",
+      "Wooton Park offers families picnic pavilions and boat ramps",
+      "Downtown Tavares lies on the shores of Lake Dora"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Wooton Park one block from Main Street by Lake Dora",
+    "why_here": "Go to Wooton Park in Downtown Tavares on the shores of Lake Dora, one block from Main Street, where families can use picnic pavilions and boat ramps during a visit.",
+    "know_before": "Downtown Tavares lies on the shores of Lake Dora near Wooton Park.",
+    "local_tip": "Use picnic pavilions or boat ramps at Wooton Park with families.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.tavaresfl.gov/1208/ABOUT-TAVARES"
+     ],
+     "why_here": [
+      "https://www.tavaresfl.gov/1208/ABOUT-TAVARES"
+     ],
+     "know_before": [
+      "https://www.tavaresfl.gov/1208/ABOUT-TAVARES"
+     ],
+     "local_tip": [
+      "https://www.tavaresfl.gov/1208/ABOUT-TAVARES"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Wooton Park sits only one block from Main Street",
+      "source": "https://www.tavaresfl.gov/1208/ABOUT-TAVARES"
+     },
+     {
+      "claim": "Wooton Park offers families picnic pavilions and boat ramps",
+      "source": "https://www.tavaresfl.gov/1208/ABOUT-TAVARES"
+     },
+     {
+      "claim": "Downtown Tavares lies on the shores of Lake Dora",
+      "source": "https://www.tavaresfl.gov/1208/ABOUT-TAVARES"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJJ8SLLvT92IgRmOm-8XJ5MD0",
+   "name": "Lauderdale-by-the-Sea Beach",
+   "category": "attractions",
+   "metro": "broward",
+   "primary_type": "tourist_attraction",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://lauderdalebythesea-fl.gov/573/Our-Beaches",
+     "source_name": "Lauderdale-by-the-Sea Beach \u2014 official source",
+     "source_class": "government",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The beach in Lauderdale-By-The-Sea stretches for 2.5 miles",
+      "A living coral reef is located within 100 yards of the beach",
+      "The reefs are popular with snorkelers and divers"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Beach stretching 2.5 miles with a living coral reef within 100 yards",
+    "why_here": "Visit the beach in Lauderdale-By-The-Sea that stretches for 2.5 miles, with a living coral reef within 100 yards of the beach where reefs are popular with snorkelers and divers.",
+    "know_before": "A living coral reef is located within 100 yards of the beach.",
+    "local_tip": "Reefs are popular with snorkelers and divers at the beach.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://lauderdalebythesea-fl.gov/573/Our-Beaches"
+     ],
+     "why_here": [
+      "https://lauderdalebythesea-fl.gov/573/Our-Beaches"
+     ],
+     "know_before": [
+      "https://lauderdalebythesea-fl.gov/573/Our-Beaches"
+     ],
+     "local_tip": [
+      "https://lauderdalebythesea-fl.gov/573/Our-Beaches"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The beach in Lauderdale-By-The-Sea stretches for 2.5 miles",
+      "source": "https://lauderdalebythesea-fl.gov/573/Our-Beaches"
+     },
+     {
+      "claim": "A living coral reef is located within 100 yards of the beach",
+      "source": "https://lauderdalebythesea-fl.gov/573/Our-Beaches"
+     },
+     {
+      "claim": "The reefs are popular with snorkelers and divers",
+      "source": "https://lauderdalebythesea-fl.gov/573/Our-Beaches"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJV7BNnXGt2YgRnKL7ic1dli4",
+   "name": "Reunion Ktchn Bar",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://reunionkb.com/",
+     "source_name": "Reunion Ktchn Bar \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Reunion Ktchn Bar serves global cuisine, sushi and cocktails in Aventura",
+      "Reunion Ktchn Bar is located at 18167 Biscayne Blvd in Aventura",
+      "Reunion Ktchn Bar offers brunch, lunch and dinner menus"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Global cuisine, sushi and cocktails in Aventura at Reunion Ktchn Bar",
+    "why_here": "Go to Reunion Ktchn Bar at 18167 Biscayne Blvd in Aventura for global cuisine, sushi and cocktails, with brunch, lunch and dinner menus to choose from during a visit.",
+    "know_before": "Reunion Ktchn Bar is located at 18167 Biscayne Blvd in Aventura.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://reunionkb.com/"
+     ],
+     "why_here": [
+      "https://reunionkb.com/"
+     ],
+     "know_before": [
+      "https://reunionkb.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Reunion Ktchn Bar serves global cuisine, sushi and cocktails in Aventura",
+      "source": "https://reunionkb.com/"
+     },
+     {
+      "claim": "Reunion Ktchn Bar is located at 18167 Biscayne Blvd in Aventura",
+      "source": "https://reunionkb.com/"
+     },
+     {
+      "claim": "Reunion Ktchn Bar offers brunch, lunch and dinner menus",
+      "source": "https://reunionkb.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ1cpRmm79wogRg3-S_xX9vwc",
+   "name": "Ka'Tiki",
+   "category": "attractions",
+   "metro": "st-pete",
+   "primary_type": "live_music_venue",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.katikisunsetbeach.com/",
+     "source_name": "Ka'Tiki \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Ka'Tiki has been a beach bar since 1982",
+      "Ka'Tiki has an authentic palm thatched roof Tiki bar",
+      "Live music plays 7 days a week at Ka'Tiki",
+      "Ka'Tiki is open from 9 a.m. until 2 a.m. daily",
+      "Ka'Tiki is a 21 and up venue",
+      "Ka'Tiki serves sandwiches, wings and apps plus a full liquor bar"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Beach bar since 1982 with live music 7 days a week at Ka'Tiki",
+    "why_here": "Go to Ka'Tiki, a beach bar since 1982 with an authentic palm thatched roof Tiki bar. Live music plays 7 days a week, and Ka'Tiki serves sandwiches, wings and apps plus a full liquor bar.",
+    "know_before": "Ka'Tiki is a 21 and up venue, open from 9 a.m. until 2 a.m. daily",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.katikisunsetbeach.com/"
+     ],
+     "why_here": [
+      "https://www.katikisunsetbeach.com/"
+     ],
+     "know_before": [
+      "https://www.katikisunsetbeach.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Ka'Tiki has been a beach bar since 1982",
+      "source": "https://www.katikisunsetbeach.com/"
+     },
+     {
+      "claim": "Ka'Tiki has an authentic palm thatched roof Tiki bar",
+      "source": "https://www.katikisunsetbeach.com/"
+     },
+     {
+      "claim": "Live music plays 7 days a week at Ka'Tiki",
+      "source": "https://www.katikisunsetbeach.com/"
+     },
+     {
+      "claim": "Ka'Tiki is open from 9 a.m. until 2 a.m. daily",
+      "source": "https://www.katikisunsetbeach.com/"
+     },
+     {
+      "claim": "Ka'Tiki is a 21 and up venue",
+      "source": "https://www.katikisunsetbeach.com/"
+     },
+     {
+      "claim": "Ka'Tiki serves sandwiches, wings and apps plus a full liquor bar",
+      "source": "https://www.katikisunsetbeach.com/"
+     }
+    ]
+   }
+  }
+ ]
+}
