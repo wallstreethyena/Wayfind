@@ -21,26 +21,6 @@
       "sameAsCardPhoto": false,
       "reviewedAt": "2026-11-09"
     },
-    "Lights in Bloom at Selby Gardens": {
-      "src": "/guides/picks/florida-holiday-nights-out-2026/selby-holiday-lights-joseph-corl.webp",
-      "width": 800,
-      "height": 930,
-      "alt": "An aerial view of colorful holiday lights across Selby Gardens on the Sarasota bayfront",
-      "caption": "Holiday lights at Selby Gardens in a photo published in December 2025.",
-      "credit": "Joseph Corl",
-      "creditHref": "https://unsplash.com/photos/island-park-illuminated-with-colorful-lights-at-night-M0G1ofDC9eI",
-      "license": "Unsplash License",
-      "licenseUrl": "https://unsplash.com/license",
-      "sourceUrl": "https://unsplash.com/photos/island-park-illuminated-with-colorful-lights-at-night-M0G1ofDC9eI",
-      "author": "Joseph Corl",
-      "position": "50% 48%",
-      "modificationNotice": "Resized and converted to WebP for page loading; display may crop the photograph.",
-      "sourceKind": "unsplash",
-      "placeId": "ChIJPTvxtmpAw4gReToYD5mTNwE",
-      "verification": "The exact Unsplash source identifies Joseph Corl and Sarasota’s Marie Selby Botanical Gardens Christmas lights, states the free Unsplash License, and was published December 9, 2025. Visually inspected the downloaded aerial photograph: illuminated garden paths and palms on the Sarasota bayfront, the Selby campus, downtown skyline and holiday light displays. This is a previously published holiday display, not evidence of the 2026 layout.",
-      "sameAsCardPhoto": false,
-      "reviewedAt": "2026-10-15"
-    },
     "Disney Springs Christmas Tree Stroll": {
       "src": "/guides/picks/florida-holiday-nights-out-2026/disney-springs-holiday-lit-trees.jpg",
       "width": 1280,
@@ -60,26 +40,46 @@
       "verification": "Flickr photo titled \"Lit-Up Trees at Downtown Disney\" by AngryJulieMonday, taken 2011-11-19; Downtown Disney is the former name of Disney Springs, and the photo shows its holiday season tree lights at night, matching this pick. Live Flickr page licence checked: CC BY 2.0.",
       "sameAsCardPhoto": false,
       "reviewedAt": "2026-11-09"
+    },
+    "Lights in Bloom at Selby Gardens": {
+      "src": "/guides/picks/florida-holiday-nights-out-2026/selby-lights-in-bloom-peacock.jpg",
+      "width": 1280,
+      "height": 853,
+      "alt": "A stone seated Buddha statue in front of a glowing peacock of pink, blue and green string lights reflected in a pond at Selby Gardens at night",
+      "caption": "Lights in Bloom at Marie Selby Botanical Gardens in Sarasota, December 12, 2024.",
+      "credit": "Kimberli Mäkäräinen",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Marie_Selby_Botanical_Gardens_Lights_in_Bloom_12DEC2024.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Marie_Selby_Botanical_Gardens_Lights_in_Bloom_12DEC2024.jpg",
+      "author": "Kimberli Mäkäräinen",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped to 1280x853 and converted to JPEG. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
+      "verification": "Wikimedia Commons file Marie Selby Botanical Gardens Lights in Bloom 12DEC2024.jpg by Kimberli Mäkäräinen, taken 2024-12-12 20:10, CC BY-SA 4.0. Viewed the full image: a light sculpture at Lights in Bloom itself, at night. Replaces a photo that was the same picture as the guide hero, so the page no longer shows one photo twice. Cropped from portrait to landscape.",
+      "placeId": "ChIJPTvxtmpAw4gReToYD5mTNwE",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-11-09"
     }
   },
   "gaps": {
     "Johnsonville Night Lights in the Garden": {
-      "reason": "google-only",
+      "reason": "no-verified-source",
       "placeId": "ChIJlcQil-Pj2ogRZXbB55ldZcQ",
       "needsPermissionFrom": null,
-      "note": "No licensed photo of this exact place has been sourced yet (Wikimedia Commons and Openverse checked). Guide pages never store or show cached Google photos (Google Maps Platform Terms, #1697), so this pick shows a reviewed, credited topic photo captioned \"Illustrative\" (lib/guideContextPhotos.js), never presented as this place. Licensed photo sourcing backlog."
+      "note": "Image intent pass 2026-11-09: no licensed photo of this exact holiday light event was found (Wikimedia Commons and Flickr checked 2026-11-09). The page had been showing a daytime venue photo with no lights, so this guide now uses Wayfind's neutral fallback and the pick shows the \"Photo unavailable\" tile."
     },
     "Nights of Lights at Pinecrest Gardens": {
-      "reason": "google-only",
+      "reason": "no-verified-source",
       "placeId": "ChIJuyCMUy3G2YgRyrGn93iiGoM",
       "needsPermissionFrom": null,
-      "note": "No licensed photo of this exact place has been sourced yet (Wikimedia Commons and Openverse checked). Guide pages never store or show cached Google photos (Google Maps Platform Terms, #1697), so this pick shows a reviewed, credited topic photo captioned \"Illustrative\" (lib/guideContextPhotos.js), never presented as this place. Licensed photo sourcing backlog."
+      "note": "Image intent pass 2026-11-09: no licensed photo of this exact holiday light event was found (Wikimedia Commons and Flickr checked 2026-11-09). The page had been showing a daytime venue photo with no lights, so this guide now uses Wayfind's neutral fallback and the pick shows the \"Photo unavailable\" tile."
     },
     "Holiday Night of Lights at St. Armands Circle": {
-      "reason": "google-only",
+      "reason": "no-verified-source",
       "placeId": "ChIJ3VLBF5Jqw4gRkT1TfU3ULd8",
       "needsPermissionFrom": null,
-      "note": "No licensed photo is filed under this guide's own entry. The page reuses the reviewed, credited licensed photo of this same place (same Google place id) from another guide via lib/guidePickPhotos.js guidePhotoForPlace; no Google photo is stored or cached (#1697)."
+      "note": "Image intent pass 2026-11-09: no licensed photo of this exact holiday light event was found (Wikimedia Commons and Flickr checked 2026-11-09). The page had been showing a daytime venue photo with no lights, so this guide now uses Wayfind's neutral fallback and the pick shows the \"Photo unavailable\" tile."
     }
   }
 }

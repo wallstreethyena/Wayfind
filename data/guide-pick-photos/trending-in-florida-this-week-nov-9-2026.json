@@ -183,6 +183,18 @@
     }
   },
   "gaps": {
+    "Hillsborough County Fair": {
+      "reason": "no-verified-source",
+      "placeId": null,
+      "needsPermissionFrom": null,
+      "note": "November 10, 2026 pass: no Creative Commons photograph of this exact dated event was verified for this guide. Held for the Picture Scrapper under Gabe's November 4 image intent rule. The page ships with no photo for this pick."
+    },
+    "Tampa Bay Sun FC vs Dallas Trinity FC": {
+      "reason": "no-verified-source",
+      "placeId": null,
+      "needsPermissionFrom": null,
+      "note": "November 10, 2026 pass: no Creative Commons photograph of this exact dated event was verified for this guide. Held for the Picture Scrapper under Gabe's November 4 image intent rule. The page ships with no photo for this pick."
+    },
     "Veterans Day parades": {
       "reason": "no-verified-source",
       "placeId": null,

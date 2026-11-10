@@ -2691,7 +2691,7 @@
       "url": "https://www.gowayfind.com/guides/trending-in-florida-this-week-nov-9-2026",
       "primary_query": "trending in florida this week",
       "geography": "Tampa Bay",
-      "decision": "Week of November 9, 2026 in the Tampa, St. Pete and Sarasota area: 17 verified things that are moving, then 20 relative Google Trends phrases.",
+      "decision": "Week of November 9, 2026 in the Tampa, St. Pete and Sarasota area, refreshed November 10: 19 verified things that are moving, then 20 relative Google Trends phrases from November 9.",
       "checks": {
         "source_route": {
           "status": "pass",
@@ -4756,7 +4756,7 @@
         },
         "image_record": {
           "status": "pass",
-          "evidence": "/guides/verified/florida-thanksgiving-weekend-2026-hero.webp; 1280x853; GT3Simon; CC BY 4.0."
+          "evidence": "/guides/verified/florida-thanksgiving-weekend-2026-hero.webp; 1280x853; Rob Bixby; CC BY 2.0."
         },
         "representative_image": {
           "status": "pass",
