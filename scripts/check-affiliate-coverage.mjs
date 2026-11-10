@@ -86,8 +86,9 @@ ok(isServableDeal({ ...shipped, active: false }) === false, "active=false is NOT
 ok(isServableDeal({ ...shipped, affiliate_url: "https://www.undercovertourist.com/orlando/x/" }) === false, "a row that lost its CJ PID is NOT servable (better dark than unattributed)");
 ok(isServableDeal(null) === false && isServableDeal(undefined) === false && isServableDeal("x") === false, "garbage is not servable");
 // …and the rest of the chain agrees: a servable row yields the CTA.
-const cta = eventTicketCta("howl-o-scream-tampa-2026", { surface: "fall_intent_rail", liveDeal: shipped });
-ok(cta && cta.href === "/api/commerce/go?provider=undercover_tourist&offer=20&surface=fall_intent_rail&content=howl-o-scream-tampa-2026", `Howl-O-Scream on the null-health row still gets the commerce-go ticket (${cta && cta.href})`);
+const cta = eventTicketCta("christmas-town-2026", { surface: "christmas_intent_rail", liveDeal: { ...shipped, id: 65 } });
+ok(cta && cta.href === "/api/commerce/go?provider=undercover_tourist&offer=65&surface=christmas_intent_rail&content=christmas-town-2026", `a live holiday ticket on the null-health row still gets the commerce-go ticket (${cta && cta.href})`);
+ok(eventTicketCta("howl-o-scream-tampa-2026", { surface: "fall_intent_rail", liveDeal: shipped }) === null, "the retired Howl O Scream deal does not emit a commerce link");
 
 // ── 2. one predicate at the route ──────────────────────────────────────────
 const route = read("app/api/events/fall/route.js");
@@ -207,7 +208,7 @@ for (const m of AFFILIATE_MERCHANTS) {
 }
 for (const eventId of Object.keys(EVENT_TICKET_DEALS)) {
   const norm = eventTicketDeal(eventId);
-  if (norm.product !== "park-admission") continue;
+  if (!norm || norm.product !== "park-admission") continue;
   const key = `${norm.provider}:${norm.offerId}`;
   ok(admissionByOffer.has(key), `${eventId}: park-admission offer ${key} is a library admission row (${admissionByOffer.get(key) || "MISSING"})`);
 }
@@ -276,7 +277,10 @@ ok(zooLightsExpired.unmapped.length === 1 && zooLightsExpired.decidedNoExactProd
   "the day after review-by, Zoo Lights returns to the leak alert and fails its coverage pulse");
 ok(staleNoProductDecisions("2026-11-18").some((r) => r.eventId === zooLights.event_id),
   "the existing no-product review guard also detects an overdue Zoo Lights decision");
-ok(eventAffiliateCoverage({ event_id: "wfc:howl-o-scream-tampa-2026", official_event_url: "https://buschgardens.com/tampa/" }).status === COVERAGE.MAPPED, "the feed's wfc: prefix resolves like the bare id");
+const howlBare = eventAffiliateCoverage({ event_id: "howl-o-scream-tampa-2026", official_event_url: "https://buschgardens.com/tampa/" }, { today: FIXTURE_TODAY });
+const howlPrefixed = eventAffiliateCoverage({ event_id: "wfc:howl-o-scream-tampa-2026", official_event_url: "https://buschgardens.com/tampa/" }, { today: FIXTURE_TODAY });
+ok(howlBare.status === COVERAGE.MAPPED && howlPrefixed.status === howlBare.status, "the feed's wfc: prefix resolves like the bare id while the ticket is still for sale");
+ok(eventAffiliateCoverage({ event_id: "wfc:howl-o-scream-tampa-2026", official_event_url: "https://buschgardens.com/tampa/" }, { today: "2026-11-10" }).status === eventAffiliateCoverage({ event_id: "howl-o-scream-tampa-2026", official_event_url: "https://buschgardens.com/tampa/" }, { today: "2026-11-10" }).status, "after the last night the wfc prefix and the bare id still agree");
 
 for (const [eventId, row] of Object.entries(NO_EXACT_AFFILIATE_PRODUCT)) {
   const reviewed = Date.parse(row.reviewedAt + "T00:00:00Z");

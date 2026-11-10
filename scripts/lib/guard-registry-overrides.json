@@ -712,6 +712,14 @@
   },
   "owner": "Revenue QA"
  },
+ "scripts/test-orlando-guide-tiqets.mjs": {
+  "protects": "The Orlando non park guide shows the ten existing exact Tiqets products through /api/commerce/go, the button names Tiqets, and theme park products stay off that list.",
+  "blastRadius": {
+   "category": "revenue",
+   "detail": "Without the list the guide's focused offers hide the exact Orlando Tiqets catalog, or a theme park ticket lands on a page that promised the opposite."
+  },
+  "owner": "Revenue QA"
+ },
  "scripts/test-bookable-highlights-30.mjs": {
   "protects": "The existing Bookable highlights rail can render 30 qualified unique local affiliate cards when that many valid products exist, without dead links, missing art, duplicates, filler, or another city's inventory.",
   "blastRadius": {

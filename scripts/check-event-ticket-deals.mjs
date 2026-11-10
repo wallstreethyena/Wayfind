@@ -19,7 +19,7 @@ import { siteTodayStr } from "../lib/siteTime.js";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { EVENT_TICKET_DEALS, NO_EXACT_AFFILIATE_PRODUCT, SEPARATELY_TICKETED, eventTicketDeal, eventTicketHref, eventTicketCta, UT_VIA, VIA_BY_PROVIDER } from "../lib/eventTicketDeals.js";
+import { EVENT_TICKET_DEALS, NO_EXACT_AFFILIATE_PRODUCT, RETIRED_UT_DEALS, SEPARATELY_TICKETED, eventTicketDeal, eventTicketHref, eventTicketCta, UT_VIA, VIA_BY_PROVIDER } from "../lib/eventTicketDeals.js";
 import { UT_EVENT_DEAL_IDS, UT_PLACE_DEAL_IDS } from "../lib/deals.js";
 import { FALL_EVENT_TICKET_DEALS } from "../lib/fallPool.js";
 import { curatedToFeedEvent } from "../lib/curatedEvents.js";
@@ -60,6 +60,10 @@ ok(entries.length >= 8, `registry holds the eight fall mappings (${entries.lengt
 for (const [eventId, raw] of entries) {
   ok(/^[a-z0-9-]+-20\d\d$/.test(eventId), `${eventId} is a wf_events id`);
   const norm = eventTicketDeal(eventId);
+  if (!norm) {
+    ok(RETIRED_UT_DEALS.has(raw.deal), `${eventId} is unpublished because its Undercover Tourist deal is retired`);
+    continue;
+  }
   ok(norm.product === "event-ticket" || norm.product === "park-admission", `${eventId} names its product kind`);
   ok(norm.provider in PROVIDERS, `${eventId}: provider ${norm.provider} is a live commerce provider`);
   if (norm.provider === "undercover_tourist") {
@@ -170,17 +174,21 @@ ok(Object.keys(UT_EVENT_DEAL_IDS).length === 6
   "six hand-verified UT event-ticket rows, including exact 2026 MVMCP and Jollywood products");
 
 // ── 2. one answer everywhere, executed ─────────────────────────────────────
-const deal = eventTicketDeal("hhn-orlando-2026");
-ok(deal && deal.deal === 19, "eventTicketDeal resolves HHN to deal 19");
-ok(eventTicketDeal("wfc:hhn-orlando-2026")?.deal === 19, "the feed's wfc: prefix resolves to the same deal");
+ok(eventTicketDeal("hhn-orlando-2026") === null && eventTicketDeal("wfc:hhn-orlando-2026") === null, "HHN's Undercover Tourist row is retired, so no surface resolves a ticket");
+ok(eventTicketDeal("howl-o-scream-tampa-2026") === null && eventTicketDeal("howl-o-scream-seaworld-2026") === null, "both Howl O Scream rows are retired with HHN");
+const deal = eventTicketDeal("christmas-town-2026");
+ok(deal && deal.deal === 65 && deal.provider === "undercover_tourist", "a live holiday park ticket still resolves: Christmas Town is deal 65");
+ok(eventTicketDeal("busch-gardens-christmas-town-2026")?.deal === 65 && eventTicketDeal("seaworld-christmas-2026")?.deal === 62 && eventTicketDeal("legoland-christmas-bricktacular-2026")?.deal === 64 && eventTicketDeal("universal-holidays-2026")?.deal === 6, "research ids for the same holiday runs use the same live Undercover Tourist rows");
 ok(eventTicketDeal("screamageddon-2026") === null, "an event nobody sells returns null, never a search page");
 ok(SEPARATELY_TICKETED.includes("christmas-at-gaylord-palms-2026") && eventTicketDeal("christmas-at-gaylord-palms-2026") === null && eventTicketCta("christmas-at-gaylord-palms-2026") === null,
   "ICE at Gaylord Palms stays on the organizer ticket; no partner product is mapped");
-const href = eventTicketHref("hhn-orlando-2026", { surface: "fall_intent_rail" });
-ok(href === "/api/commerce/go?provider=undercover_tourist&offer=19&surface=fall_intent_rail&content=hhn-orlando-2026", `the href is the commerce redirect for THAT deal (${href})`);
+ok(eventTicketHref("hhn-orlando-2026", { surface: "fall_intent_rail" }) === null, "a retired HHN deal emits no commerce href");
+const href = eventTicketHref("christmas-town-2026", { surface: "christmas_intent_rail" });
+ok(href === "/api/commerce/go?provider=undercover_tourist&offer=65&surface=christmas_intent_rail&content=christmas-town-2026", `the href is the commerce redirect for the live holiday deal (${href})`);
 ok(isCommerceGoUrl(href), "and the pipeline recognises it as a commerce-go URL");
-const cta = eventTicketCta("howl-o-scream-tampa-2026", { surface: "florida_event_page" });
-ok(cta && cta.href.includes("offer=20") && cta.via === UT_VIA && cta.label === partnerTicketLabel(UT_VIA, { product: "event-ticket" }) && cta.product === "event-ticket", "the CTA descriptor carries href, actual merchant, Wayfind-led event label and product");
+ok(eventTicketCta("howl-o-scream-tampa-2026", { surface: "florida_event_page" }) === null, "a retired Howl O Scream deal emits no CTA");
+const cta = eventTicketCta("christmas-town-2026", { surface: "florida_event_page" });
+ok(cta && cta.href.includes("offer=65") && cta.via === UT_VIA && cta.product === "park-admission", "a live holiday CTA names Undercover Tourist and the park admission product");
 // 2026-10-28 FIX MICKEY: UT's party page redirects to general Disney World, so
 // Not-So-Scary has NO ticket CTA anywhere and carries a visitor-facing note.
 ok(eventTicketCta("mnsshp-2026", { surface: "florida_event_page" }) === null && eventTicketDeal("mnsshp-2026") === null, "Not-So-Scary has no partner ticket CTA while partner tickets are gone");
@@ -228,8 +236,11 @@ ok(zooBooDest && typeof zooBooDest.dest === "string" && new URL(zooBooDest.dest)
 ok(zooBooDest && decodeURIComponent(zooBooDest.dest).includes("tiqets.com"), "…wrapping the tiqets.com destination in the tracked link");
 
 const feed = curatedToFeedEvent({ event_id: "howl-o-scream-tampa-2026", slug: "hos-tampa-2026", start_date: "2026-09-11", event_name: "Howl-O-Scream", official_event_url: "https://buschgardens.com/tampa/events/howl-o-scream/" });
-ok(feed.ticketed === true && feed.url.startsWith("/api/commerce/go?provider=undercover_tourist&offer=20"), "the Events feed row for Howl-O-Scream carries the commerce-go ticket URL and is ticketed");
-ok(feed.officialUrl === "https://buschgardens.com/tampa/events/howl-o-scream/" && feed.ticketVia === UT_VIA && feed.ticketProduct === "event-ticket", "the official page survives as officialUrl; the merchant and event-ticket product are named");
+ok(feed.ticketed !== true || !String(feed.url).includes("offer=20"), "the Events feed does not sell the retired Howl O Scream Undercover Tourist row");
+ok(feed.officialUrl === "https://buschgardens.com/tampa/events/howl-o-scream/", "the official page survives as officialUrl");
+const holidayFeed = curatedToFeedEvent({ event_id: "christmas-town-2026", slug: "christmas-town-2026", start_date: "2026-11-20", event_name: "Christmas Town", official_event_url: "https://buschgardens.com/tampa/events/christmas-town/" });
+ok(holidayFeed.ticketed === true && holidayFeed.url.startsWith("/api/commerce/go?provider=undercover_tourist&offer=65"), "a live holiday feed row carries the commerce-go ticket URL");
+ok(holidayFeed.ticketVia === UT_VIA && holidayFeed.ticketProduct === "park-admission", "the live holiday feed names Undercover Tourist and park admission");
 const plain = curatedToFeedEvent({ event_id: "fantasy-fest-2026", slug: "ff", start_date: "2026-10-16", event_name: "Fantasy Fest", official_event_url: "https://fantasyfest.com/" });
 ok(plain.url === "https://fantasyfest.com/" && plain.ticketVia === "" && plain.ticketProduct === "" && plain.ticketed === undefined, "an unmapped event keeps its official URL and no ticket claim");
 
@@ -242,8 +253,8 @@ const REF_NOW = new Date("2026-10-01T16:00:00Z");
 const EVENT_DAY = "2026-10-02";
 ok(siteTodayStr(REF_NOW) === "2026-10-01", "the reference instant falls on 2026-10-01 in venue-local time");
 ok(siteTodayStr(new Date("2026-10-02T02:00:00Z")) === "2026-10-01", "22:00 ET on 10-01 is still 10-01 (cutoff is the Eastern day, not UTC)");
-ok(validateEvent({ name: "HHN", date: EVENT_DAY, url: feed.url }, REF_NOW).ok === true, "validateEvent accepts a commerce-go ticket URL");
-ok(validateEvent({ name: "HHN", date: "2026-10-01", url: feed.url }, REF_NOW).ok === true, "an event today is still valid (inclusive boundary)");
+ok(validateEvent({ name: "Christmas Town", date: EVENT_DAY, url: holidayFeed.url }, REF_NOW).ok === true, "validateEvent accepts a commerce-go ticket URL");
+ok(validateEvent({ name: "Christmas Town", date: "2026-10-01", url: holidayFeed.url }, REF_NOW).ok === true, "an event today is still valid (inclusive boundary)");
 const stale = validateEvent({ name: "HHN", date: "2026-09-30", url: feed.url }, REF_NOW);
 ok(stale.ok === false && stale.reason === "past", `control: the same URL on a past date is rejected as past (got ${JSON.stringify(stale)})`);
 const relBad = validateEvent({ name: "HHN", date: EVENT_DAY, url: "/anywhere-else" }, REF_NOW);
@@ -252,10 +263,11 @@ const junk = validateEvent({ name: "HHN", date: EVENT_DAY, url: "/api/commerce/g
 ok(junk.ok === false && junk.reason === "invalid_url", `…and a commerce-go URL carrying junk is rejected for the URL (got ${JSON.stringify(junk)})`);
 
 // ── 4. a dead row hides the CTA, executed ──────────────────────────────────
-ok(eventTicketCta("hhn-orlando-2026", { liveDeal: { active: false, link_ok: true } }) === null, "active=false → no ticket CTA");
-ok(eventTicketCta("hhn-orlando-2026", { liveDeal: { active: true, link_ok: false } }) === null, "link_ok=false → no ticket CTA");
-ok(eventTicketCta("hhn-orlando-2026", { liveDeal: null }) === null, "a deal the route could not read (null) → no ticket CTA");
-ok(eventTicketCta("hhn-orlando-2026", { liveDeal: { active: true, link_ok: true } })?.href.includes("offer=19"), "a live row → the CTA");
+ok(eventTicketCta("hhn-orlando-2026", { liveDeal: { active: true, link_ok: true } }) === null, "a retired deal stays hidden even if a caller passes a live row");
+ok(eventTicketCta("christmas-town-2026", { liveDeal: { active: false, link_ok: true } }) === null, "active=false → no ticket CTA");
+ok(eventTicketCta("christmas-town-2026", { liveDeal: { active: true, link_ok: false } }) === null, "link_ok=false → no ticket CTA");
+ok(eventTicketCta("christmas-town-2026", { liveDeal: null }) === null, "a deal the route could not read (null) → no ticket CTA");
+ok(eventTicketCta("christmas-town-2026", { liveDeal: { active: true, link_ok: true } })?.href.includes("offer=65"), "a live row → the CTA");
 
 // ── 5. the render sites, in syntactic position ─────────────────────────────
 const route = read("app/api/events/fall/route.js");
