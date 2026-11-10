@@ -40,8 +40,8 @@ for (const [slug, g] of Object.entries(GUIDES)) {
 }
 ok(picks >= 600, `expected the full guide corpus (>=600 picks), saw ${picks}`);
 ok(anyFact / picks >= 0.95, `facts coverage ${anyFact}/${picks} fell below 95% — picks are losing their planning facts`);
-ok(whens >= 150, `only ${whens} picks surface a When date (floor 150)`);
-ok(times >= 100, `only ${times} picks surface Times (floor 100)`);
+ok(whens >= 235, `only ${whens} picks surface a When date (floor 235)`);
+ok(times >= 195, `only ${times} picks surface Times (floor 195)`);
 
 const holiday = GUIDES["florida-holiday-nights-out-2026"];
 ok(!!holiday, "the reported guide (florida-holiday-nights-out-2026) must exist");
@@ -55,7 +55,7 @@ if (holiday) {
 }
 
 const page = readFileSync(new URL("../app/guides/[slug]/page.js", import.meta.url), "utf8");
-ok(page.includes("guidePickFacts") && page.includes("wf-guide-facts"), "guide template must import guidePickFacts and render the wf-guide-facts strip");
+ok(page.includes("guidePickFacts") && page.includes("wf-guide-pick-facts"), "guide template must import guidePickFacts and render the wf-guide-pick-facts strip");
 
 if (fail.length) {
   console.error(`test-guide-pick-facts: FAIL — ${fail.length} assertion(s)`);

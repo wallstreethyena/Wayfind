@@ -1,0 +1,528 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 17. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJ4TM_XVLHkIgRPTlcJk5Yl1s",
+   "name": "Jaco's Bayfront Bar & Grille",
+   "category": "nightlife",
+   "metro": "florida",
+   "primary_type": "bar_and_grill",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://jacosbayfrontbarandgrille.com/about/",
+     "source_name": "Jaco's Bayfront Bar & Grille \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Jaco's Bayfront Bar & Grille has been serving since 2011.",
+      "The restaurant is located at the end of South Palafox Street in downtown Pensacola.",
+      "The dinner menu includes Seared Salmon, Ahi Tuna and Fresh Catch."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Pensacola dining at the end of South Palafox Street since 2011",
+    "why_here": "Jaco's Bayfront Bar & Grille, at the end of South Palafox Street in downtown Pensacola, has been serving since 2011. The dinner menu includes Seared Salmon, Ahi Tuna and Fresh Catch.",
+    "know_before": "The dinner menu includes Seared Salmon, Ahi Tuna and Fresh Catch.",
+    "local_tip": "Try the Seared Salmon or Ahi Tuna from the dinner menu.",
+    "best_time": "Visit at sunset for waterfront views, as the restaurant highlights its sunsets.",
+    "citations": {
+     "hook": [
+      "https://jacosbayfrontbarandgrille.com/about/"
+     ],
+     "why_here": [
+      "https://jacosbayfrontbarandgrille.com/about/"
+     ],
+     "know_before": [
+      "https://jacosbayfrontbarandgrille.com/about/"
+     ],
+     "local_tip": [
+      "https://jacosbayfrontbarandgrille.com/about/"
+     ],
+     "best_time": [
+      "https://jacosbayfrontbarandgrille.com/about/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Jaco's Bayfront Bar & Grille has been serving since 2011.",
+      "source": "https://jacosbayfrontbarandgrille.com/about/"
+     },
+     {
+      "claim": "The restaurant is located at the end of South Palafox Street in downtown Pensacola.",
+      "source": "https://jacosbayfrontbarandgrille.com/about/"
+     },
+     {
+      "claim": "The dinner menu includes Seared Salmon, Ahi Tuna and Fresh Catch.",
+      "source": "https://jacosbayfrontbarandgrille.com/about/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJv-VDIBdN3YgRMo_nMJX38hA",
+   "name": "The Great Catch - Zephyrhills",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.thegreatcatchseafood.com/",
+     "source_name": "The Great Catch - Zephyrhills \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Great Catch of Zephyrhills offers both southern and northern style seafood.",
+      "The restaurant features an outside bar and three outdoor seating areas.",
+      "The lower deck seating is pet friendly.",
+      "The upper deck allows guests to be close to the entertainment."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Southern and northern style seafood with three outdoor seating areas",
+    "why_here": "The Great Catch of Zephyrhills offers both southern and northern style seafood. The restaurant features an outside bar and three outdoor seating areas, including a lower deck and an upper deck.",
+    "know_before": "The lower deck seating is pet friendly.",
+    "local_tip": "Choose the upper deck to be close to the entertainment.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.thegreatcatchseafood.com/"
+     ],
+     "why_here": [
+      "https://www.thegreatcatchseafood.com/"
+     ],
+     "know_before": [
+      "https://www.thegreatcatchseafood.com/"
+     ],
+     "local_tip": [
+      "https://www.thegreatcatchseafood.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Great Catch of Zephyrhills offers both southern and northern style seafood.",
+      "source": "https://www.thegreatcatchseafood.com/"
+     },
+     {
+      "claim": "The restaurant features an outside bar and three outdoor seating areas.",
+      "source": "https://www.thegreatcatchseafood.com/"
+     },
+     {
+      "claim": "The lower deck seating is pet friendly.",
+      "source": "https://www.thegreatcatchseafood.com/"
+     },
+     {
+      "claim": "The upper deck allows guests to be close to the entertainment.",
+      "source": "https://www.thegreatcatchseafood.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJeaRZWvK05YgR2Gi2rOq8s6c",
+   "name": "The Juicy Crab",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.thejuicycrab.com/",
+     "source_name": "The Juicy Crab \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Juicy Crab is home to Cajun Seafood Boils across the US.",
+      "Fan favorites include signature juicy combos, crispy fried baskets and Southern sides.",
+      "The menu lists Juicy Combos, Appetizers and Sides."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Cajun Seafood Boils served as signature juicy combos",
+    "why_here": "The Juicy Crab is home to Cajun Seafood Boils across the US. Fan favorites include signature juicy combos, crispy fried baskets and Southern sides, with Juicy Combos, Appetizers and Sides on the menu.",
+    "know_before": "The menu lists Juicy Combos, Appetizers and Sides.",
+    "local_tip": "Order the signature juicy combos with Southern sides.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.thejuicycrab.com/"
+     ],
+     "why_here": [
+      "https://www.thejuicycrab.com/"
+     ],
+     "know_before": [
+      "https://www.thejuicycrab.com/"
+     ],
+     "local_tip": [
+      "https://www.thejuicycrab.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Juicy Crab is home to Cajun Seafood Boils across the US.",
+      "source": "https://www.thejuicycrab.com/"
+     },
+     {
+      "claim": "Fan favorites include signature juicy combos, crispy fried baskets and Southern sides.",
+      "source": "https://www.thejuicycrab.com/"
+     },
+     {
+      "claim": "The menu lists Juicy Combos, Appetizers and Sides.",
+      "source": "https://www.thejuicycrab.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJrfaDzMH92IgRv8z7bsCLbIA",
+   "name": "Oceanic at Pompano Beach Pier",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.oceanicpompano.com/menus/brunch?location=oceanic-at-pompano-beach",
+     "source_name": "Oceanic at Pompano Beach Pier \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Oceanic at Pompano Beach Pier is at 250 N Pompano Beach Blvd, Pompano Beach, FL 33062.",
+      "Brunch hours are Saturday and Sunday from 10 a.m. to 3 p.m.",
+      "Oceanic at Pompano Beach Pier serves brunch, lunch and dinner.",
+      "The menu includes Brunch Cocktails."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Brunch beside Pompano Beach Pier on Saturday and Sunday",
+    "why_here": "Oceanic at Pompano Beach Pier serves brunch, lunch and dinner at Pompano Beach, with brunch hours on Saturday and Sunday that suit a late morning start beside the water.",
+    "know_before": "Brunch is Saturday and Sunday from 10 a.m. to 3 p.m.",
+    "local_tip": "Try brunch on Saturday or Sunday before a walk by the water.",
+    "best_time": "Weekend brunch runs Saturday and Sunday from 10 a.m. to 3 p.m.",
+    "citations": {
+     "hook": [
+      "https://www.oceanicpompano.com/menus/brunch?location=oceanic-at-pompano-beach"
+     ],
+     "why_here": [
+      "https://www.oceanicpompano.com/menus/brunch?location=oceanic-at-pompano-beach"
+     ],
+     "know_before": [
+      "https://www.oceanicpompano.com/menus/brunch?location=oceanic-at-pompano-beach"
+     ],
+     "local_tip": [
+      "https://www.oceanicpompano.com/menus/brunch?location=oceanic-at-pompano-beach"
+     ],
+     "best_time": [
+      "https://www.oceanicpompano.com/menus/brunch?location=oceanic-at-pompano-beach"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Oceanic at Pompano Beach Pier is at 250 N Pompano Beach Blvd, Pompano Beach, FL 33062.",
+      "source": "https://www.oceanicpompano.com/menus/brunch?location=oceanic-at-pompano-beach"
+     },
+     {
+      "claim": "Brunch hours are Saturday and Sunday from 10 a.m. to 3 p.m.",
+      "source": "https://www.oceanicpompano.com/menus/brunch?location=oceanic-at-pompano-beach"
+     },
+     {
+      "claim": "Oceanic at Pompano Beach Pier serves brunch, lunch and dinner.",
+      "source": "https://www.oceanicpompano.com/menus/brunch?location=oceanic-at-pompano-beach"
+     },
+     {
+      "claim": "The menu includes Brunch Cocktails.",
+      "source": "https://www.oceanicpompano.com/menus/brunch?location=oceanic-at-pompano-beach"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ3a3ufSXe0IgRHXK2B4F8PBw",
+   "name": "Seven Mile Bridge",
+   "category": "attractions",
+   "metro": "keys",
+   "primary_type": "bridge",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://visitfloridakeys.com/plan-your-trip/plan-book/getting-here-around/seven-mile-bridge",
+     "source_name": "Seven Mile Bridge \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The modern Seven Mile Bridge opened to traffic in 1982 and is 6.79 miles long.",
+      "The original Seven Mile Bridge, now called the Old Seven Mile Bridge, runs parallel to the modern structure.",
+      "Pigeon Key lies beneath the original Seven Mile Bridge.",
+      "The Seven Mile Bridge connects Marathon to the Lower Keys."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "A 6.79-mile bridge linking Marathon to the Lower Keys",
+    "why_here": "The Seven Mile Bridge carries traffic between Marathon and the Lower Keys, while the Old Seven Mile Bridge runs parallel to the modern structure and passes over Pigeon Key below the span.",
+    "know_before": "The modern bridge opened in 1982 and is 6.79 miles long.",
+    "local_tip": "Walk the Old Seven Mile Bridge toward Pigeon Key for views over the water.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://visitfloridakeys.com/plan-your-trip/plan-book/getting-here-around/seven-mile-bridge"
+     ],
+     "why_here": [
+      "https://visitfloridakeys.com/plan-your-trip/plan-book/getting-here-around/seven-mile-bridge"
+     ],
+     "know_before": [
+      "https://visitfloridakeys.com/plan-your-trip/plan-book/getting-here-around/seven-mile-bridge"
+     ],
+     "local_tip": [
+      "https://visitfloridakeys.com/plan-your-trip/plan-book/getting-here-around/seven-mile-bridge"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The modern Seven Mile Bridge opened to traffic in 1982 and is 6.79 miles long.",
+      "source": "https://visitfloridakeys.com/plan-your-trip/plan-book/getting-here-around/seven-mile-bridge"
+     },
+     {
+      "claim": "The original Seven Mile Bridge, now called the Old Seven Mile Bridge, runs parallel to the modern structure.",
+      "source": "https://visitfloridakeys.com/plan-your-trip/plan-book/getting-here-around/seven-mile-bridge"
+     },
+     {
+      "claim": "Pigeon Key lies beneath the original Seven Mile Bridge.",
+      "source": "https://visitfloridakeys.com/plan-your-trip/plan-book/getting-here-around/seven-mile-bridge"
+     },
+     {
+      "claim": "The Seven Mile Bridge connects Marathon to the Lower Keys.",
+      "source": "https://visitfloridakeys.com/plan-your-trip/plan-book/getting-here-around/seven-mile-bridge"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJhWfXcr4n5IgR1WRYtp4Qd7w",
+   "name": "St. Augustine Pirate & Treasure Museum",
+   "category": "attractions",
+   "metro": "st-augustine-fl",
+   "primary_type": "history_museum",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.thepiratemuseum.com/visit",
+     "source_name": "St. Augustine Pirate & Treasure Museum \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The St. Augustine Pirate & Treasure Museum features over 800 authentic artifacts.",
+      "The artifacts celebrate the history of piracy, both factual and fictional, from the 1600s through present day.",
+      "The museum is open 10 a.m. to 7 p.m. every day.",
+      "The museum is closed on Christmas Day."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Over 800 authentic artifacts tracing piracy from the 1600s",
+    "why_here": "St. Augustine Pirate & Treasure Museum features over 800 authentic artifacts celebrating the history of piracy from the 1600s through present day, in a visit built around factual and fictional stories.",
+    "know_before": "Open 10 a.m. to 7 p.m. every day; closed on Christmas Day.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.thepiratemuseum.com/visit"
+     ],
+     "why_here": [
+      "https://www.thepiratemuseum.com/visit"
+     ],
+     "know_before": [
+      "https://www.thepiratemuseum.com/visit"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The St. Augustine Pirate & Treasure Museum features over 800 authentic artifacts.",
+      "source": "https://www.thepiratemuseum.com/visit"
+     },
+     {
+      "claim": "The artifacts celebrate the history of piracy, both factual and fictional, from the 1600s through present day.",
+      "source": "https://www.thepiratemuseum.com/visit"
+     },
+     {
+      "claim": "The museum is open 10 a.m. to 7 p.m. every day.",
+      "source": "https://www.thepiratemuseum.com/visit"
+     },
+     {
+      "claim": "The museum is closed on Christmas Day.",
+      "source": "https://www.thepiratemuseum.com/visit"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJu45imKB_54gRvOQenlsdUoM",
+   "name": "Marketplace at Dr. Phillips",
+   "category": "shopping",
+   "metro": "orlando",
+   "primary_type": "shopping_mall",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.kimcorealty.com/properties/the-marketplace-at-dr-phillips/118770/view",
+     "source_name": "Marketplace at Dr. Phillips \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Marketplace at Dr Phillips is located at 7524 Dr. Phillips Blvd. in Orlando, Florida.",
+      "Major tenants include Crunch Fitness, HomeGoods, HomeSense, Morton's of Chicago and Publix.",
+      "Kimco lists The Marketplace at Dr Phillips with 1,674 parking spaces.",
+      "The Marketplace at Dr Phillips is a shopping center in Orlando."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Publix and other tenants at a shopping center on Dr. Phillips Blvd.",
+    "why_here": "The Marketplace at Dr Phillips is a shopping center in Orlando whose major tenants include Crunch Fitness, HomeGoods, HomeSense, Morton's of Chicago and Publix, with other small shops on site.",
+    "know_before": "The center has 1,674 parking spaces.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.kimcorealty.com/properties/the-marketplace-at-dr-phillips/118770/view"
+     ],
+     "why_here": [
+      "https://www.kimcorealty.com/properties/the-marketplace-at-dr-phillips/118770/view"
+     ],
+     "know_before": [
+      "https://www.kimcorealty.com/properties/the-marketplace-at-dr-phillips/118770/view"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Marketplace at Dr Phillips is located at 7524 Dr. Phillips Blvd. in Orlando, Florida.",
+      "source": "https://www.kimcorealty.com/properties/the-marketplace-at-dr-phillips/118770/view"
+     },
+     {
+      "claim": "Major tenants include Crunch Fitness, HomeGoods, HomeSense, Morton's of Chicago and Publix.",
+      "source": "https://www.kimcorealty.com/properties/the-marketplace-at-dr-phillips/118770/view"
+     },
+     {
+      "claim": "Kimco lists The Marketplace at Dr Phillips with 1,674 parking spaces.",
+      "source": "https://www.kimcorealty.com/properties/the-marketplace-at-dr-phillips/118770/view"
+     },
+     {
+      "claim": "The Marketplace at Dr Phillips is a shopping center in Orlando.",
+      "source": "https://www.kimcorealty.com/properties/the-marketplace-at-dr-phillips/118770/view"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ14cERA7f2IgRPQSgLU2F9nQ",
+   "name": "Talkin' Tacos Boynton Beach",
+   "category": "food",
+   "metro": "palm-beach",
+   "primary_type": "taco_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://talkintacos.net/",
+     "source_name": "Talkin' Tacos Boynton Beach \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Talkin' Tacos lists Boynton Beach among its locations.",
+      "Three Birria Tacos are served with corn tortilla, Chihuahua cheese, beef birria, onions, cilantro and consomm\u00e9.",
+      "The menu includes Bang Bang Shrimp Tacos, Mahi Mahi Tacos and Caribbean Carne Tacos."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Birria tacos with beef birria and consomm\u00e9",
+    "why_here": "Talkin' Tacos in Boynton Beach serves Birria Tacos with corn tortilla, Chihuahua cheese, beef birria, onions and cilantro, served with consomm\u00e9, alongside other tacos on the menu for varied orders.",
+    "know_before": "Birria Tacos are served with consomm\u00e9 and include beef birria and Chihuahua cheese.",
+    "local_tip": "The menu includes Bang Bang Shrimp Tacos, Mahi Mahi Tacos and Caribbean Carne Tacos.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://talkintacos.net/"
+     ],
+     "why_here": [
+      "https://talkintacos.net/"
+     ],
+     "know_before": [
+      "https://talkintacos.net/"
+     ],
+     "local_tip": [
+      "https://talkintacos.net/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Talkin' Tacos lists Boynton Beach among its locations.",
+      "source": "https://talkintacos.net/"
+     },
+     {
+      "claim": "Three Birria Tacos are served with corn tortilla, Chihuahua cheese, beef birria, onions, cilantro and consomm\u00e9.",
+      "source": "https://talkintacos.net/"
+     },
+     {
+      "claim": "The menu includes Bang Bang Shrimp Tacos, Mahi Mahi Tacos and Caribbean Carne Tacos.",
+      "source": "https://talkintacos.net/"
+     }
+    ]
+   }
+  }
+ ]
+}

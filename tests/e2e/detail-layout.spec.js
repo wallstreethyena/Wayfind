@@ -107,16 +107,21 @@ async function assertPostReleaseCLS(page) {
 }
 
 async function assertCredit(page) {
-  const credit = page.locator("[data-detail-body] [data-photo-credit]");
+  const credit = page.locator("[data-detail-photo-media] [data-photo-credit]");
   await expect(credit).toBeVisible();
+  await expect(page.locator("[data-detail-body] [data-photo-credit]")).toHaveCount(0);
   await expect(credit.getByRole("link", { name: "Fixture photographer" })).toHaveAttribute("href", AUTHOR_URI);
   await expect(credit.getByRole("link", { name: "Google Maps", exact: true })).toHaveAttribute("href", MAPS_URI);
   const position = await credit.evaluate((n) => {
-    const hero = document.querySelector("[data-detail-hero]");
-    return { position: getComputedStyle(n).position, top: n.getBoundingClientRect().top, heroBottom: hero.getBoundingClientRect().bottom };
+    const media = document.querySelector("[data-detail-photo-media]");
+    const box = n.getBoundingClientRect();
+    const photo = media.getBoundingClientRect();
+    return { position: getComputedStyle(n).position, background: getComputedStyle(n).backgroundColor, top: box.top, bottom: box.bottom, photoTop: photo.top, photoBottom: photo.bottom };
   });
-  expect(position.position).toBe("static");
-  expect(position.top, "plain credit flows below the hero and headline").toBeGreaterThanOrEqual(position.heroBottom);
+  expect(position.position).toBe("absolute");
+  expect(position.background).toBe("rgba(0, 0, 0, 0)");
+  expect(position.top, "credit sits inside the photo").toBeGreaterThan(position.photoTop);
+  expect(position.bottom, "credit sits on the bottom of the photo").toBeLessThanOrEqual(position.photoBottom + 1);
 }
 
 async function assertFullPhoto(page, image) {

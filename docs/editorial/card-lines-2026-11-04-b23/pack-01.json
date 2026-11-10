@@ -1,0 +1,2012 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 23. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJ08XccDeq2YgR4falc9k1L5o",
+   "name": "K1 Speed Fort Lauderdale",
+   "category": "attractions",
+   "metro": "broward",
+   "primary_type": "amusement_center",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.k1speed.com/fort-lauderdale-location.html",
+     "source_name": "K1 Speed Fort Lauderdale \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Adult Track has 16 turns for racers to master.",
+      "The center boasts a 300-person maximum capacity and offers on-site parking.",
+      "K1 Speed is located off Stirling Rd and I-95, near Fort Lauderdale-Hollywood International Airport."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Indoor go-kart racing on an Adult Track with 16 turns",
+    "why_here": "K1 Speed's Fort Lauderdale center offers indoor go-kart racing in Hollywood, off Stirling Road and I-95. The center has a 300-person maximum capacity and on-site parking.",
+    "know_before": "The center offers on-site parking.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.k1speed.com/fort-lauderdale-location.html"
+     ],
+     "why_here": [
+      "https://www.k1speed.com/fort-lauderdale-location.html"
+     ],
+     "know_before": [
+      "https://www.k1speed.com/fort-lauderdale-location.html"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Adult Track has 16 turns for racers to master.",
+      "source": "https://www.k1speed.com/fort-lauderdale-location.html"
+     },
+     {
+      "claim": "The center boasts a 300-person maximum capacity and offers on-site parking.",
+      "source": "https://www.k1speed.com/fort-lauderdale-location.html"
+     },
+     {
+      "claim": "K1 Speed is located off Stirling Rd and I-95, near Fort Lauderdale-Hollywood International Airport.",
+      "source": "https://www.k1speed.com/fort-lauderdale-location.html"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJe-h21P0m2YgRRFpSSWEXUNU",
+   "name": "Chris' Taverna",
+   "category": "food",
+   "metro": "palm-beach",
+   "primary_type": "greek_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://christaverna.com/",
+     "source_name": "Chris' Taverna \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Chris' Taverna is family owned and operated since 2004.",
+      "Chris' Taverna shares Greek family recipes with guests.",
+      "Take Out orders are available by phone for pickup at Chris' Taverna.",
+      "Gift cards are available for purchasing at both restaurant locations of Chris' Taverna."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Family owned since 2004, sharing Greek family recipes",
+    "why_here": "Chris' Taverna is family owned and operated since 2004 and shares Greek family recipes with guests. Gift cards are available for purchasing at both restaurant locations for a later meal.",
+    "know_before": "Take Out orders are available by phone for pickup.",
+    "local_tip": "Gift cards are available for purchasing at both restaurant locations.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://christaverna.com/"
+     ],
+     "why_here": [
+      "https://christaverna.com/"
+     ],
+     "know_before": [
+      "https://christaverna.com/"
+     ],
+     "local_tip": [
+      "https://christaverna.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Chris' Taverna is family owned and operated since 2004.",
+      "source": "https://christaverna.com/"
+     },
+     {
+      "claim": "Chris' Taverna shares Greek family recipes with guests.",
+      "source": "https://christaverna.com/"
+     },
+     {
+      "claim": "Take Out orders are available by phone for pickup at Chris' Taverna.",
+      "source": "https://christaverna.com/"
+     },
+     {
+      "claim": "Gift cards are available for purchasing at both restaurant locations of Chris' Taverna.",
+      "source": "https://christaverna.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJr9On__5DkYgRtw8ekWhgS8I",
+   "name": "Harbor Docks",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.harbordocks.com/",
+     "source_name": "Harbor Docks \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Harbor Docks has been offering fresh, local seafood since 1979.",
+      "Harbor Docks overlooks the Destin Harbor.",
+      "Food is made from scratch at Harbor Docks.",
+      "Seafood comes from its own wholesale market every morning at Harbor Docks."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Since 1979, overlooking the Destin Harbor",
+    "why_here": "Harbor Docks has offered fresh, local seafood since 1979 and overlooks the Destin Harbor. Its food is made from scratch, and its seafood comes from its own wholesale market every morning.",
+    "know_before": "Seafood comes from its own wholesale market every morning.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.harbordocks.com/"
+     ],
+     "why_here": [
+      "https://www.harbordocks.com/"
+     ],
+     "know_before": [
+      "https://www.harbordocks.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Harbor Docks has been offering fresh, local seafood since 1979.",
+      "source": "https://www.harbordocks.com/"
+     },
+     {
+      "claim": "Harbor Docks overlooks the Destin Harbor.",
+      "source": "https://www.harbordocks.com/"
+     },
+     {
+      "claim": "Food is made from scratch at Harbor Docks.",
+      "source": "https://www.harbordocks.com/"
+     },
+     {
+      "claim": "Seafood comes from its own wholesale market every morning at Harbor Docks.",
+      "source": "https://www.harbordocks.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ1RIPXbK22YgRWFRMDfJuic8",
+   "name": "KYU Miami",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "asian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.kyurestaurants.com/location/kyu-miami-1",
+     "source_name": "KYU Miami \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "KYU Miami features wood-fired dishes with globally inspired flavors.",
+      "KYU Miami offers brunch on Sunday from 12 p.m. to 4 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Wood-fired dishes with globally inspired flavors",
+    "why_here": "KYU Miami features wood-fired dishes with globally inspired flavors. Brunch on Sunday runs from 12 p.m. to 4 p.m., giving a daytime window for the wood-fired menu and its globally inspired flavors.",
+    "know_before": "Brunch is on Sunday from 12 p.m. to 4 p.m.",
+    "local_tip": null,
+    "best_time": "Sunday brunch runs from 12 p.m. to 4 p.m.",
+    "citations": {
+     "hook": [
+      "https://www.kyurestaurants.com/location/kyu-miami-1"
+     ],
+     "why_here": [
+      "https://www.kyurestaurants.com/location/kyu-miami-1"
+     ],
+     "know_before": [
+      "https://www.kyurestaurants.com/location/kyu-miami-1"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      "https://www.kyurestaurants.com/location/kyu-miami-1"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "KYU Miami features wood-fired dishes with globally inspired flavors.",
+      "source": "https://www.kyurestaurants.com/location/kyu-miami-1"
+     },
+     {
+      "claim": "KYU Miami offers brunch on Sunday from 12 p.m. to 4 p.m.",
+      "source": "https://www.kyurestaurants.com/location/kyu-miami-1"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJY2RoX7hn54gRMOP7GpsdDEU",
+   "name": "Mecatos Bakery & Caf\u00e9",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://mecatoscafe.com/",
+     "source_name": "Mecatos Bakery & Caf\u00e9 \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Mecatos Bakery & Caf\u00e9 in Orlando serves Colombian Specialty coffee, with over 25 beverages to choose from.",
+      "Hot bites include Stuffed Arepas, Empanadas, Colombian Hot Dogs and Breakfast Sandwiches at Mecatos Bakery & Caf\u00e9.",
+      "Over 50 varieties of breads, pastries and cakes are made from scratch in house at Mecatos Bakery & Caf\u00e9."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Colombian Specialty coffee with Stuffed Arepas and Empanadas",
+    "why_here": "Mecatos Bakery & Caf\u00e9 in Orlando serves Colombian Specialty coffee, with over 25 beverages to choose from. Hot bites include Stuffed Arepas, Empanadas, Colombian Hot Dogs and Breakfast Sandwiches.",
+    "know_before": "Over 50 varieties of breads, pastries and cakes are made from scratch in house.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://mecatoscafe.com/"
+     ],
+     "why_here": [
+      "https://mecatoscafe.com/"
+     ],
+     "know_before": [
+      "https://mecatoscafe.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Mecatos Bakery & Caf\u00e9 in Orlando serves Colombian Specialty coffee, with over 25 beverages to choose from.",
+      "source": "https://mecatoscafe.com/"
+     },
+     {
+      "claim": "Hot bites include Stuffed Arepas, Empanadas, Colombian Hot Dogs and Breakfast Sandwiches at Mecatos Bakery & Caf\u00e9.",
+      "source": "https://mecatoscafe.com/"
+     },
+     {
+      "claim": "Over 50 varieties of breads, pastries and cakes are made from scratch in house at Mecatos Bakery & Caf\u00e9.",
+      "source": "https://mecatoscafe.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJSzVNvli15YgR8OC2hhk0y4g",
+   "name": "Firebirds Wood Fired Grill",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://firebirdsrestaurants.com/jacksonville/",
+     "source_name": "Firebirds Wood Fired Grill \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Firebirds Wood Fired Grill is located in Jacksonville at The Strand across from St. John's Town Center.",
+      "Firebirds Wood Fired Grill is an American Restaurant and Steakhouse known for its scratch kitchen.",
+      "Signature menu items include hand-cut, aged steaks and fresh seafood at Firebirds Wood Fired Grill.",
+      "Reservations are recommended and the dress code is Smart Casual at Firebirds Wood Fired Grill."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Hand-cut, aged steaks from a scratch kitchen in Jacksonville",
+    "why_here": "Firebirds Wood Fired Grill in Jacksonville is an American Restaurant and Steakhouse known for its scratch kitchen. Signature menu items include hand-cut, aged steaks and fresh seafood for guests.",
+    "know_before": "Reservations are recommended; the dress code is Smart Casual.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://firebirdsrestaurants.com/jacksonville/"
+     ],
+     "why_here": [
+      "https://firebirdsrestaurants.com/jacksonville/"
+     ],
+     "know_before": [
+      "https://firebirdsrestaurants.com/jacksonville/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Firebirds Wood Fired Grill is located in Jacksonville at The Strand across from St. John's Town Center.",
+      "source": "https://firebirdsrestaurants.com/jacksonville/"
+     },
+     {
+      "claim": "Firebirds Wood Fired Grill is an American Restaurant and Steakhouse known for its scratch kitchen.",
+      "source": "https://firebirdsrestaurants.com/jacksonville/"
+     },
+     {
+      "claim": "Signature menu items include hand-cut, aged steaks and fresh seafood at Firebirds Wood Fired Grill.",
+      "source": "https://firebirdsrestaurants.com/jacksonville/"
+     },
+     {
+      "claim": "Reservations are recommended and the dress code is Smart Casual at Firebirds Wood Fired Grill.",
+      "source": "https://firebirdsrestaurants.com/jacksonville/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJofgqBJYn5IgRVa-HQvp6KDk",
+   "name": "Casa Maya",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "mexican_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.casamayasta.com/",
+     "source_name": "Casa Maya \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Casa Maya is at 22 Hypolita Street, St. Augustine, FL 32084.",
+      "Menu includes Seafood Paella.",
+      "Private groups are sat in the upstairs dining room; there is no elevator access.",
+      "Casa Maya recommends making a reservation ahead of time."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Seafood paella and tequila in downtown St. Augustine",
+    "why_here": "Casa Maya is a Mexican restaurant in the heart of downtown St. Augustine, serving fresh-made cuisines and handcrafted cocktails. Its menu includes Seafood Paella with scallops, shrimp, calamari, and mussels sauteed in garlic white wine.",
+    "know_before": "Private groups are sat in the upstairs dining room, and there is no elevator access.",
+    "local_tip": "We recommend making a reservation ahead of time.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.casamayasta.com/"
+     ],
+     "why_here": [
+      "https://www.casamayasta.com/"
+     ],
+     "know_before": [
+      "https://www.casamayasta.com/"
+     ],
+     "local_tip": [
+      "https://www.casamayasta.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Casa Maya is at 22 Hypolita Street, St. Augustine, FL 32084.",
+      "source": "https://www.casamayasta.com/"
+     },
+     {
+      "claim": "Menu includes Seafood Paella.",
+      "source": "https://www.casamayasta.com/"
+     },
+     {
+      "claim": "Private groups are sat in the upstairs dining room; there is no elevator access.",
+      "source": "https://www.casamayasta.com/"
+     },
+     {
+      "claim": "Casa Maya recommends making a reservation ahead of time.",
+      "source": "https://www.casamayasta.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJyzpeD-u20YgRl7NK9vdZNVs",
+   "name": "Garbo's Grill @ Hanks!",
+   "category": "food",
+   "metro": "keys",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://garbosgrill.com/about-garbos/",
+     "source_name": "Garbo's Grill @ Hanks! \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Garbo's Grill has repeatedly earned praise on Food Network's Diners, Drive-Ins & Dives.",
+      "Garbo's Grill is known for its unique flavors and special way to twist and elevate tacos, dogs and burgers.",
+      "Garbo's Grill donates 100% of profit on merchandise to help rehome and rehab doggies.",
+      "Garbo's Grill is at 409 Caroline St., Key West, FL 33040."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Tacos, dogs and burgers with unique flavors in Key West",
+    "why_here": "Garbo's Grill in Key West has repeatedly earned praise on Food Network's Diners, Drive-Ins & Dives. It is known for its unique flavors and special way to twist and elevate tacos, dogs and burgers.",
+    "know_before": "Garbo's Grill is at 409 Caroline St. in Key West.",
+    "local_tip": "Garbo's Grill donates 100% of profit on merchandise to help rehome and rehab doggies.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://garbosgrill.com/about-garbos/"
+     ],
+     "why_here": [
+      "https://garbosgrill.com/about-garbos/"
+     ],
+     "know_before": [
+      "https://garbosgrill.com/about-garbos/"
+     ],
+     "local_tip": [
+      "https://garbosgrill.com/about-garbos/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Garbo's Grill has repeatedly earned praise on Food Network's Diners, Drive-Ins & Dives.",
+      "source": "https://garbosgrill.com/about-garbos/"
+     },
+     {
+      "claim": "Garbo's Grill is known for its unique flavors and special way to twist and elevate tacos, dogs and burgers.",
+      "source": "https://garbosgrill.com/about-garbos/"
+     },
+     {
+      "claim": "Garbo's Grill donates 100% of profit on merchandise to help rehome and rehab doggies.",
+      "source": "https://garbosgrill.com/about-garbos/"
+     },
+     {
+      "claim": "Garbo's Grill is at 409 Caroline St., Key West, FL 33040.",
+      "source": "https://garbosgrill.com/about-garbos/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ_7LIanj6wogRubooFE1T4q4",
+   "name": "Roosterfish Grill",
+   "category": "food",
+   "metro": "st-pete",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://roosterfishgrill.com/daily-specials/",
+     "source_name": "Roosterfish Grill \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Roosterfish Grill is at 776 Missouri Ave. N, Largo, FL 33770.",
+      "Monday All-You-Can-Eat Fish at Roosterfish Grill is Golden Fried Alaskan Pollock, served with French fries and coleslaw."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Monday All-You-Can-Eat Fish with Golden Fried Alaskan Pollock in Largo",
+    "why_here": "Roosterfish Grill in Largo offers Monday All-You-Can-Eat Fish with Golden Fried Alaskan Pollock, served with French fries and coleslaw. The special gives a clear weekday reason to plan a visit to Roosterfish Grill.",
+    "know_before": "Monday All-You-Can-Eat Fish is Golden Fried Alaskan Pollock with French fries and coleslaw.",
+    "local_tip": "Check Monday for All-You-Can-Eat Fish at Roosterfish Grill.",
+    "best_time": "Mondays for the all-you-can-eat fish special listed on the official site.",
+    "citations": {
+     "hook": [
+      "https://roosterfishgrill.com/daily-specials/"
+     ],
+     "why_here": [
+      "https://roosterfishgrill.com/daily-specials/"
+     ],
+     "know_before": [
+      "https://roosterfishgrill.com/daily-specials/"
+     ],
+     "local_tip": [
+      "https://roosterfishgrill.com/daily-specials/"
+     ],
+     "best_time": [
+      "https://roosterfishgrill.com/daily-specials/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Roosterfish Grill is at 776 Missouri Ave. N, Largo, FL 33770.",
+      "source": "https://roosterfishgrill.com/daily-specials/"
+     },
+     {
+      "claim": "Monday All-You-Can-Eat Fish at Roosterfish Grill is Golden Fried Alaskan Pollock, served with French fries and coleslaw.",
+      "source": "https://roosterfishgrill.com/daily-specials/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJVVVFQsW32YgRshiwWyuedns",
+   "name": "Level 6 Rooftop Restaurant Miami",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://level6miami.com/private-events/",
+     "source_name": "Level 6 Rooftop Restaurant Miami \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Level 6 is located at 3480 Main Highway, 6th Floor, Coconut Grove, FL 33133.",
+      "Level 6 features modern Spanish-inspired cuisine and panoramic views of Biscayne Bay.",
+      "The venue offers event spaces for 15 to 200 guests."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Modern Spanish-inspired cuisine with panoramic views of Biscayne Bay",
+    "why_here": "Level 6 features modern Spanish-inspired cuisine and panoramic views of Biscayne Bay. The venue is located at 3480 Main Highway, 6th Floor, Coconut Grove, and offers event spaces for 15 to 200 guests.",
+    "know_before": "The venue offers event spaces for 15 to 200 guests.",
+    "local_tip": "Event spaces are offered for 15 to 200 guests.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://level6miami.com/private-events/"
+     ],
+     "why_here": [
+      "https://level6miami.com/private-events/"
+     ],
+     "know_before": [
+      "https://level6miami.com/private-events/"
+     ],
+     "local_tip": [
+      "https://level6miami.com/private-events/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Level 6 is located at 3480 Main Highway, 6th Floor, Coconut Grove, FL 33133.",
+      "source": "https://level6miami.com/private-events/"
+     },
+     {
+      "claim": "Level 6 features modern Spanish-inspired cuisine and panoramic views of Biscayne Bay.",
+      "source": "https://level6miami.com/private-events/"
+     },
+     {
+      "claim": "The venue offers event spaces for 15 to 200 guests.",
+      "source": "https://level6miami.com/private-events/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJn7YrUBjY2IgR9mLh_zDwbo8",
+   "name": "Flanigan's Seafood Bar and Grill",
+   "category": "nightlife",
+   "metro": "palm-beach",
+   "primary_type": "bar_and_grill",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.flanigans.net/menu/",
+     "source_name": "Flanigan's Seafood Bar and Grill \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The main menu includes a Ribs section.",
+      "The main menu includes Ten Ounce Burgers.",
+      "The main menu includes a Seafood section."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Ribs, Ten Ounce Burgers and Seafood on the main menu",
+    "why_here": "The main menu includes a Ribs section, Ten Ounce Burgers and a Seafood section, so the main menu covers ribs, burgers and seafood in one place.",
+    "know_before": "The main menu includes Ribs, Ten Ounce Burgers and Seafood.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.flanigans.net/menu/"
+     ],
+     "why_here": [
+      "https://www.flanigans.net/menu/"
+     ],
+     "know_before": [
+      "https://www.flanigans.net/menu/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The main menu includes a Ribs section.",
+      "source": "https://www.flanigans.net/menu/"
+     },
+     {
+      "claim": "The main menu includes Ten Ounce Burgers.",
+      "source": "https://www.flanigans.net/menu/"
+     },
+     {
+      "claim": "The main menu includes a Seafood section.",
+      "source": "https://www.flanigans.net/menu/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJkySZMQC52YgRfdPfqk9adZ0",
+   "name": "La Birra Bar (Burgers) - Doral",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "hamburger_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://labirrabarusa.com/wp-content/uploads/2021/10/menu-web-full.pdf",
+     "source_name": "La Birra Bar (Burgers) - Doral \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The menu includes a Cheeseburger.",
+      "The menu includes a Royale With Cheese."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Cheeseburger and Royale With Cheese on the menu",
+    "why_here": "The menu includes a Cheeseburger and a Royale With Cheese, so burger choices on the menu include a Cheeseburger and a Royale With Cheese in the same lineup.",
+    "know_before": "The menu includes a Cheeseburger and a Royale With Cheese.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://labirrabarusa.com/wp-content/uploads/2021/10/menu-web-full.pdf"
+     ],
+     "why_here": [
+      "https://labirrabarusa.com/wp-content/uploads/2021/10/menu-web-full.pdf"
+     ],
+     "know_before": [
+      "https://labirrabarusa.com/wp-content/uploads/2021/10/menu-web-full.pdf"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The menu includes a Cheeseburger.",
+      "source": "https://labirrabarusa.com/wp-content/uploads/2021/10/menu-web-full.pdf"
+     },
+     {
+      "claim": "The menu includes a Royale With Cheese.",
+      "source": "https://labirrabarusa.com/wp-content/uploads/2021/10/menu-web-full.pdf"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJbYQWdh-t2YgRY5RXWxyu4n0",
+   "name": "Sol\u00e9 Miami, A Noble House Resort",
+   "category": "hotels",
+   "metro": "miami-dade",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.solemiami.com/faq/",
+     "source_name": "Sol\u00e9 Miami, A Noble House Resort \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Sol\u00e9 Miami is a direct oceanfront resort at 17315 Collins Avenue, Sunny Isles Beach, Florida 33160.",
+      "The resort has a private beach and a 54-foot outdoor pool with the Tipsy Turtle Pool Bar.",
+      "BALEENkitchen provides oceanfront dining on site.",
+      "Check-in is guaranteed at 4 p.m. and check-out is at 11 a.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Direct oceanfront resort with a private beach and a 54-foot outdoor pool",
+    "why_here": "Sol\u00e9 Miami is a direct oceanfront resort with a private beach and a 54-foot outdoor pool with the Tipsy Turtle Pool Bar. BALEENkitchen provides oceanfront dining on site.",
+    "know_before": "Check-in is guaranteed at 4 p.m. and check-out is at 11 a.m.",
+    "local_tip": "A private beach and a 54-foot outdoor pool are on site.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.solemiami.com/faq/"
+     ],
+     "why_here": [
+      "https://www.solemiami.com/faq/"
+     ],
+     "know_before": [
+      "https://www.solemiami.com/faq/"
+     ],
+     "local_tip": [
+      "https://www.solemiami.com/faq/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Sol\u00e9 Miami is a direct oceanfront resort at 17315 Collins Avenue, Sunny Isles Beach, Florida 33160.",
+      "source": "https://www.solemiami.com/faq/"
+     },
+     {
+      "claim": "The resort has a private beach and a 54-foot outdoor pool with the Tipsy Turtle Pool Bar.",
+      "source": "https://www.solemiami.com/faq/"
+     },
+     {
+      "claim": "BALEENkitchen provides oceanfront dining on site.",
+      "source": "https://www.solemiami.com/faq/"
+     },
+     {
+      "claim": "Check-in is guaranteed at 4 p.m. and check-out is at 11 a.m.",
+      "source": "https://www.solemiami.com/faq/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJS64vE-y20YgRpw4XpsfCkQs",
+   "name": "Latitudes - Sunset Key Cottages",
+   "category": "food",
+   "metro": "keys",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.opalcollection.com/sunset-key-cottages/faq/",
+     "source_name": "Latitudes - Sunset Key Cottages \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Latitudes offers breakfast, lunch, and dinner.",
+      "Latitudes is known for fresh coastal cuisine and sunset views overlooking the Gulf of Mexico.",
+      "Non-guests with a confirmed reservation at Latitudes can dine at the restaurant."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Fresh coastal cuisine and sunset views overlooking the Gulf of Mexico",
+    "why_here": "Latitudes offers breakfast, lunch, and dinner, and Latitudes is known for fresh coastal cuisine and sunset views overlooking the Gulf of Mexico.",
+    "know_before": "Non-guests with a confirmed reservation at Latitudes can dine at the restaurant.",
+    "local_tip": null,
+    "best_time": "At sunset for dinner; the resort highlights sunset views over the Gulf of Mexico.",
+    "citations": {
+     "hook": [
+      "https://www.opalcollection.com/sunset-key-cottages/faq/"
+     ],
+     "why_here": [
+      "https://www.opalcollection.com/sunset-key-cottages/faq/"
+     ],
+     "know_before": [
+      "https://www.opalcollection.com/sunset-key-cottages/faq/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      "https://www.opalcollection.com/sunset-key-cottages/faq/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Latitudes offers breakfast, lunch, and dinner.",
+      "source": "https://www.opalcollection.com/sunset-key-cottages/faq/"
+     },
+     {
+      "claim": "Latitudes is known for fresh coastal cuisine and sunset views overlooking the Gulf of Mexico.",
+      "source": "https://www.opalcollection.com/sunset-key-cottages/faq/"
+     },
+     {
+      "claim": "Non-guests with a confirmed reservation at Latitudes can dine at the restaurant.",
+      "source": "https://www.opalcollection.com/sunset-key-cottages/faq/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ4f0HIfVk6IgRu-uGLwLFFv8",
+   "name": "KP Hole",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.ocalamarion.com/directory/kp-hole-park/",
+     "source_name": "KP Hole \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "KP Hole provides boating, tubing, kayaking, scuba diving, swimming and paddle boarding access to the Rainbow River.",
+      "The river offers a constant temperature of around 72 degrees.",
+      "Disposable containers and alcohol are prohibited on the river.",
+      "Summer hours April 1-Sept. 30 are 8 a.m. to 8 p.m.",
+      "The average tube float takes approximately four hours."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Boating, tubing and kayaking access to the Rainbow River",
+    "why_here": "KP Hole provides boating, tubing, kayaking, scuba diving, swimming and paddle boarding access to the Rainbow River. The river offers a constant temperature of around 72 degrees.",
+    "know_before": "Summer hours April 1-Sept. 30 are 8 a.m. to 8 p.m.",
+    "local_tip": "The average tube float takes approximately four hours.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.ocalamarion.com/directory/kp-hole-park/"
+     ],
+     "why_here": [
+      "https://www.ocalamarion.com/directory/kp-hole-park/"
+     ],
+     "know_before": [
+      "https://www.ocalamarion.com/directory/kp-hole-park/"
+     ],
+     "local_tip": [
+      "https://www.ocalamarion.com/directory/kp-hole-park/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "KP Hole provides boating, tubing, kayaking, scuba diving, swimming and paddle boarding access to the Rainbow River.",
+      "source": "https://www.ocalamarion.com/directory/kp-hole-park/"
+     },
+     {
+      "claim": "The river offers a constant temperature of around 72 degrees.",
+      "source": "https://www.ocalamarion.com/directory/kp-hole-park/"
+     },
+     {
+      "claim": "Disposable containers and alcohol are prohibited on the river.",
+      "source": "https://www.ocalamarion.com/directory/kp-hole-park/"
+     },
+     {
+      "claim": "Summer hours April 1-Sept. 30 are 8 a.m. to 8 p.m.",
+      "source": "https://www.ocalamarion.com/directory/kp-hole-park/"
+     },
+     {
+      "claim": "The average tube float takes approximately four hours.",
+      "source": "https://www.ocalamarion.com/directory/kp-hole-park/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJnb0Dlqh-54gRQddsvBjfdDs",
+   "name": "Rolex Boutique Orlando",
+   "category": "shopping",
+   "metro": "orlando",
+   "primary_type": "store",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://rolexboutique-orlando.com/pages/rolex/showroom",
+     "source_name": "Rolex Boutique Orlando \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Mayors holds the designation of Official Rolex Jeweler in The Mall at Millenia in Orlando, Florida.",
+      "The boutique offers a range featuring professional to classic timepieces.",
+      "The boutique address listed is 4200 Conroy Road, The Mall at Millenia, Suite P-273, Orlando, FL 32839."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Official Rolex Jeweler inside The Mall at Millenia",
+    "why_here": "Mayors holds the designation of Official Rolex Jeweler in The Mall at Millenia in Orlando, Florida. The boutique offers a range featuring professional to classic timepieces.",
+    "know_before": "The boutique offers a range featuring professional to classic timepieces.",
+    "local_tip": "The boutique is at 4200 Conroy Road, The Mall at Millenia, Suite P-273, Orlando, FL 32839.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://rolexboutique-orlando.com/pages/rolex/showroom"
+     ],
+     "why_here": [
+      "https://rolexboutique-orlando.com/pages/rolex/showroom"
+     ],
+     "know_before": [
+      "https://rolexboutique-orlando.com/pages/rolex/showroom"
+     ],
+     "local_tip": [
+      "https://rolexboutique-orlando.com/pages/rolex/showroom"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Mayors holds the designation of Official Rolex Jeweler in The Mall at Millenia in Orlando, Florida.",
+      "source": "https://rolexboutique-orlando.com/pages/rolex/showroom"
+     },
+     {
+      "claim": "The boutique offers a range featuring professional to classic timepieces.",
+      "source": "https://rolexboutique-orlando.com/pages/rolex/showroom"
+     },
+     {
+      "claim": "The boutique address listed is 4200 Conroy Road, The Mall at Millenia, Suite P-273, Orlando, FL 32839.",
+      "source": "https://rolexboutique-orlando.com/pages/rolex/showroom"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJdXrfE5YX24gRGDeLXzfUPMg",
+   "name": "Hyatt Regency Coconut Point Resort and Spa",
+   "category": "hotels",
+   "metro": "florida",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.hyatt.com/hyatt-regency/en-US/naprn-hyatt-regency-coconut-point-resort-and-spa/resort-activities",
+     "source_name": "Hyatt Regency Coconut Point Resort and Spa \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Resort activities include relaxing on a private island beach, golf and a water park.",
+      "The lazy river waterpark covers three acres of water park attractions.",
+      "The water park includes a meandering lazy river and waterslides."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Lazy river and waterslides in a three-acre water park",
+    "why_here": "Resort activities include relaxing on a private island beach, golf and a water park. The water park includes a meandering lazy river and waterslides, and the lazy river waterpark covers three acres.",
+    "know_before": "The lazy river waterpark covers three acres of water park attractions.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.hyatt.com/hyatt-regency/en-US/naprn-hyatt-regency-coconut-point-resort-and-spa/resort-activities"
+     ],
+     "why_here": [
+      "https://www.hyatt.com/hyatt-regency/en-US/naprn-hyatt-regency-coconut-point-resort-and-spa/resort-activities"
+     ],
+     "know_before": [
+      "https://www.hyatt.com/hyatt-regency/en-US/naprn-hyatt-regency-coconut-point-resort-and-spa/resort-activities"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Resort activities include relaxing on a private island beach, golf and a water park.",
+      "source": "https://www.hyatt.com/hyatt-regency/en-US/naprn-hyatt-regency-coconut-point-resort-and-spa/resort-activities"
+     },
+     {
+      "claim": "The lazy river waterpark covers three acres of water park attractions.",
+      "source": "https://www.hyatt.com/hyatt-regency/en-US/naprn-hyatt-regency-coconut-point-resort-and-spa/resort-activities"
+     },
+     {
+      "claim": "The water park includes a meandering lazy river and waterslides.",
+      "source": "https://www.hyatt.com/hyatt-regency/en-US/naprn-hyatt-regency-coconut-point-resort-and-spa/resort-activities"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJe5j6yrKt2YgRCWKMXWqO-ww",
+   "name": "Greynolds Park",
+   "category": "attractions",
+   "metro": "miami-dade",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.miamiandbeaches.com/l/outdoor-experiences/greynolds-park/2979?category=4",
+     "source_name": "Greynolds Park \u2014 official source",
+     "source_class": "tourism_dmo",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Greynolds Park was once a 249 acre rock quarry.",
+      "The park has a relatively intact hardwood hammock and mangrove forest.",
+      "Recreational amenities include a nine-hole public golf course.",
+      "Eco-tours are offered of the rookery, mangrove boardwalk, observation mound, paved path and historical boathouse.",
+      "Rentals available include canoes, kayaks and paddleboats."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Former rock quarry with a hardwood hammock and mangrove forest",
+    "why_here": "Greynolds Park was once a 249 acre rock quarry, and the park has a relatively intact hardwood hammock and mangrove forest. Recreational amenities include a nine-hole public golf course.",
+    "know_before": "Rentals available include canoes, kayaks and paddleboats.",
+    "local_tip": "Eco-tours are offered of the rookery, mangrove boardwalk, observation mound, paved path and historical boathouse.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.miamiandbeaches.com/l/outdoor-experiences/greynolds-park/2979?category=4"
+     ],
+     "why_here": [
+      "https://www.miamiandbeaches.com/l/outdoor-experiences/greynolds-park/2979?category=4"
+     ],
+     "know_before": [
+      "https://www.miamiandbeaches.com/l/outdoor-experiences/greynolds-park/2979?category=4"
+     ],
+     "local_tip": [
+      "https://www.miamiandbeaches.com/l/outdoor-experiences/greynolds-park/2979?category=4"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Greynolds Park was once a 249 acre rock quarry.",
+      "source": "https://www.miamiandbeaches.com/l/outdoor-experiences/greynolds-park/2979?category=4"
+     },
+     {
+      "claim": "The park has a relatively intact hardwood hammock and mangrove forest.",
+      "source": "https://www.miamiandbeaches.com/l/outdoor-experiences/greynolds-park/2979?category=4"
+     },
+     {
+      "claim": "Recreational amenities include a nine-hole public golf course.",
+      "source": "https://www.miamiandbeaches.com/l/outdoor-experiences/greynolds-park/2979?category=4"
+     },
+     {
+      "claim": "Eco-tours are offered of the rookery, mangrove boardwalk, observation mound, paved path and historical boathouse.",
+      "source": "https://www.miamiandbeaches.com/l/outdoor-experiences/greynolds-park/2979?category=4"
+     },
+     {
+      "claim": "Rentals available include canoes, kayaks and paddleboats.",
+      "source": "https://www.miamiandbeaches.com/l/outdoor-experiences/greynolds-park/2979?category=4"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJq2-RTwd854gREH4Tdh-7dyo",
+   "name": "Culver's",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.culvers.com/menu/butterburgers",
+     "source_name": "Culver's \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "ButterBurgers are always made to order with fresh, never frozen beef.",
+      "The menu includes ButterBurger Cheese and The Culver's Deluxe.",
+      "ButterBurgers are served in Single, Double or Triple sizes."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "ButterBurgers made to order with fresh, never frozen beef",
+    "why_here": "ButterBurgers are always made to order with fresh, never frozen beef, and the menu includes ButterBurger Cheese and The Culver's Deluxe for different appetites and preferences.",
+    "know_before": "Order in Single, Double or Triple sizes, as listed on the menu.",
+    "local_tip": "ButterBurgers come in the Single, Double or Triple size listed.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.culvers.com/menu/butterburgers"
+     ],
+     "why_here": [
+      "https://www.culvers.com/menu/butterburgers"
+     ],
+     "know_before": [
+      "https://www.culvers.com/menu/butterburgers"
+     ],
+     "local_tip": [
+      "https://www.culvers.com/menu/butterburgers"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "ButterBurgers are always made to order with fresh, never frozen beef.",
+      "source": "https://www.culvers.com/menu/butterburgers"
+     },
+     {
+      "claim": "The menu includes ButterBurger Cheese and The Culver's Deluxe.",
+      "source": "https://www.culvers.com/menu/butterburgers"
+     },
+     {
+      "claim": "ButterBurgers are served in Single, Double or Triple sizes.",
+      "source": "https://www.culvers.com/menu/butterburgers"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJA7aoMgAXw4gRdvEXDPTzHKg",
+   "name": "Kids Empire Bradenton",
+   "category": "attractions",
+   "metro": "manatee-sarasota",
+   "primary_type": "indoor_playground",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.kidsempire.com/store-locator/kids-empire-bradenton",
+     "source_name": "Kids Empire Bradenton \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Kids Empire Bradenton is an indoor playground where kids ages 1 to 12 can play.",
+      "The park offers unlimited all-day play in a multi-level maze with winding slides and ball pits.",
+      "Little ones have a toddler zone great for ages 1-3.",
+      "General admission is $19.90 from 1 to 17 years old.",
+      "Free parking is available on the north and east side of the building."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Indoor maze, slides and ball pits for kids ages 1 to 12",
+    "why_here": "Kids Empire Bradenton is an indoor playground for kids ages 1 to 12 in a climate-controlled space. It offers unlimited all-day play in a multi-level maze with winding slides, ball pits and soft construction blocks, plus a toddler zone for ages 1-3.",
+    "know_before": "General admission is $19.90 from 1 to 17 years old, with 2 adults included free for each kid.",
+    "local_tip": "Admission is valid all day, so families can leave and come back after checking out with staff.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.kidsempire.com/store-locator/kids-empire-bradenton"
+     ],
+     "why_here": [
+      "https://www.kidsempire.com/store-locator/kids-empire-bradenton"
+     ],
+     "know_before": [
+      "https://www.kidsempire.com/store-locator/kids-empire-bradenton"
+     ],
+     "local_tip": [
+      "https://www.kidsempire.com/store-locator/kids-empire-bradenton"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Kids Empire Bradenton is an indoor playground where kids ages 1 to 12 can play.",
+      "source": "https://www.kidsempire.com/store-locator/kids-empire-bradenton"
+     },
+     {
+      "claim": "The park offers unlimited all-day play in a multi-level maze with winding slides and ball pits.",
+      "source": "https://www.kidsempire.com/store-locator/kids-empire-bradenton"
+     },
+     {
+      "claim": "Little ones have a toddler zone great for ages 1-3.",
+      "source": "https://www.kidsempire.com/store-locator/kids-empire-bradenton"
+     },
+     {
+      "claim": "General admission is $19.90 from 1 to 17 years old.",
+      "source": "https://www.kidsempire.com/store-locator/kids-empire-bradenton"
+     },
+     {
+      "claim": "Free parking is available on the north and east side of the building.",
+      "source": "https://www.kidsempire.com/store-locator/kids-empire-bradenton"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJo4FGdSOr2YgRfV7NqUNtm9k",
+   "name": "Hollywood Beach Hotels",
+   "category": "hotels",
+   "metro": "broward",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://hollywoodbeachhotels.com/",
+     "source_name": "Hollywood Beach Hotels \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Hollywood Beach Hotels comprises 23 hotels on one beach.",
+      "The Broadwalk is at the door of Hollywood Beach Hotels.",
+      "Amenities include five heated pools open to every guest.",
+      "Check-in is at 1915 North Ocean Drive."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "23 hotels on one beach by the Broadwalk",
+    "why_here": "Hollywood Beach Hotels comprises 23 hotels on one beach with the Broadwalk at the door, and amenities include five heated pools open to every guest staying in any building.",
+    "know_before": "Check in at 1915 North Ocean Drive for all properties.",
+    "local_tip": "Amenities include five heated pools open to every guest.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://hollywoodbeachhotels.com/"
+     ],
+     "why_here": [
+      "https://hollywoodbeachhotels.com/"
+     ],
+     "know_before": [
+      "https://hollywoodbeachhotels.com/"
+     ],
+     "local_tip": [
+      "https://hollywoodbeachhotels.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Hollywood Beach Hotels comprises 23 hotels on one beach.",
+      "source": "https://hollywoodbeachhotels.com/"
+     },
+     {
+      "claim": "The Broadwalk is at the door of Hollywood Beach Hotels.",
+      "source": "https://hollywoodbeachhotels.com/"
+     },
+     {
+      "claim": "Amenities include five heated pools open to every guest.",
+      "source": "https://hollywoodbeachhotels.com/"
+     },
+     {
+      "claim": "Check-in is at 1915 North Ocean Drive.",
+      "source": "https://hollywoodbeachhotels.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJF82pPaPU54gRiUXx8brrTD8",
+   "name": "Ipanema Brazilian Steak House",
+   "category": "food",
+   "metro": "ocala-fl",
+   "primary_type": "brazilian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.ipanemaocala.com/",
+     "source_name": "Ipanema Brazilian Steak House \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Ipanema is a traditional-style Churrascaria, where Gauchos serve you tableside from skewers of grilled meats.",
+      "Ipanema Brazilian Steak House is at 2023 S Pine Avenue, Ocala, FL 34471."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Traditional-style Churrascaria with Gauchos serving grilled meats tableside",
+    "why_here": "Ipanema is a traditional-style Churrascaria where Gauchos serve you tableside from skewers of grilled meats, making the meal a tableside service experience from start to finish.",
+    "know_before": "Ipanema is at 2023 S Pine Avenue in Ocala.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.ipanemaocala.com/"
+     ],
+     "why_here": [
+      "https://www.ipanemaocala.com/"
+     ],
+     "know_before": [
+      "https://www.ipanemaocala.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Ipanema is a traditional-style Churrascaria, where Gauchos serve you tableside from skewers of grilled meats.",
+      "source": "https://www.ipanemaocala.com/"
+     },
+     {
+      "claim": "Ipanema Brazilian Steak House is at 2023 S Pine Avenue, Ocala, FL 34471.",
+      "source": "https://www.ipanemaocala.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ-Y3e5mK32YgR9dW31Ul4ZD4",
+   "name": "The Elser Hotel Miami",
+   "category": "hotels",
+   "metro": "miami-dade",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.theelserhotel.com/",
+     "source_name": "The Elser Hotel Miami \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Elser Hotel Miami offers residential-style suites with full kitchens and washer/dryer in every suite.",
+      "Amenities include a resort-style rooftop pool with views of Biscayne Bay and the Miami skyline.",
+      "The Elser Hotel is at 398 NE 5th St., Miami, Florida 33132."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Residential-style suites with full kitchens and Biscayne Bay views",
+    "why_here": "The Elser Hotel Miami offers residential-style suites with full kitchens and washer/dryer in every suite, plus a resort-style rooftop pool with views of Biscayne Bay and the Miami skyline.",
+    "know_before": "The hotel is at 398 NE 5th St. in Miami.",
+    "local_tip": "Amenities include a resort-style rooftop pool with Biscayne Bay views.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.theelserhotel.com/"
+     ],
+     "why_here": [
+      "https://www.theelserhotel.com/"
+     ],
+     "know_before": [
+      "https://www.theelserhotel.com/"
+     ],
+     "local_tip": [
+      "https://www.theelserhotel.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Elser Hotel Miami offers residential-style suites with full kitchens and washer/dryer in every suite.",
+      "source": "https://www.theelserhotel.com/"
+     },
+     {
+      "claim": "Amenities include a resort-style rooftop pool with views of Biscayne Bay and the Miami skyline.",
+      "source": "https://www.theelserhotel.com/"
+     },
+     {
+      "claim": "The Elser Hotel is at 398 NE 5th St., Miami, Florida 33132.",
+      "source": "https://www.theelserhotel.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJX3HIcyh554gRIIp-Syr4Mro",
+   "name": "Teak Neighborhood Grill",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.teakorlando.com/items/teak-challenge",
+     "source_name": "Teak Neighborhood Grill \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Teak Challenge has 2 full pounds of beef, 9 slices American cheese, 9 slices of Swiss cheese, 9 slices of provolone cheese, and 24 slices of bacon.",
+      "The Teak Challenge also includes 2 mozzarella rounds and 4 beer battered onion rings on a brioche bun."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Teak Challenge burger built with 2 full pounds of beef",
+    "why_here": "The Teak Challenge packs 2 full pounds of beef with 9 slices American cheese, 9 slices of Swiss cheese, 9 slices of provolone cheese and 24 slices of bacon into one burger order.",
+    "know_before": "The Teak Challenge also includes 2 mozzarella rounds and 4 beer battered onion rings.",
+    "local_tip": "The Teak Challenge comes on a brioche bun.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.teakorlando.com/items/teak-challenge"
+     ],
+     "why_here": [
+      "https://www.teakorlando.com/items/teak-challenge"
+     ],
+     "know_before": [
+      "https://www.teakorlando.com/items/teak-challenge"
+     ],
+     "local_tip": [
+      "https://www.teakorlando.com/items/teak-challenge"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Teak Challenge has 2 full pounds of beef, 9 slices American cheese, 9 slices of Swiss cheese, 9 slices of provolone cheese, and 24 slices of bacon.",
+      "source": "https://www.teakorlando.com/items/teak-challenge"
+     },
+     {
+      "claim": "The Teak Challenge also includes 2 mozzarella rounds and 4 beer battered onion rings on a brioche bun.",
+      "source": "https://www.teakorlando.com/items/teak-challenge"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJvbSu0gtqw4gRlCerUAMFIkM",
+   "name": "The Hub Baja Grill",
+   "category": "nightlife",
+   "metro": "manatee-sarasota",
+   "primary_type": "bar_and_grill",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://thehubsiestakey.com/",
+     "source_name": "The Hub Baja Grill \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Hub Baja Grill has been serving up fresh Baja cuisine for locals and tourists alike since 2008.",
+      "The Hub Baja Grill offers Grouper fish tacos and hand-made lobster bisque.",
+      "The Hub offers indoor dining and a covered patio on the sidewalk.",
+      "The Hub offers live music day and night.",
+      "Hours are Monday-Thursday 11:00 a.m. to 10:00 p.m., Friday & Saturday 11:00 a.m. to 11:00 p.m., Sunday 11:00 a.m. to 10:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Fresh Baja cuisine served since 2008 with live music day and night",
+    "why_here": "The Hub Baja Grill has been serving up fresh Baja cuisine for locals and tourists alike since 2008, with Grouper fish tacos, hand-made lobster bisque, indoor dining and a covered patio on the sidewalk.",
+    "know_before": "Hours are Monday-Thursday 11:00 a.m. to 10:00 p.m.",
+    "local_tip": "The Hub offers live music day and night.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://thehubsiestakey.com/"
+     ],
+     "why_here": [
+      "https://thehubsiestakey.com/"
+     ],
+     "know_before": [
+      "https://thehubsiestakey.com/"
+     ],
+     "local_tip": [
+      "https://thehubsiestakey.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Hub Baja Grill has been serving up fresh Baja cuisine for locals and tourists alike since 2008.",
+      "source": "https://thehubsiestakey.com/"
+     },
+     {
+      "claim": "The Hub Baja Grill offers Grouper fish tacos and hand-made lobster bisque.",
+      "source": "https://thehubsiestakey.com/"
+     },
+     {
+      "claim": "The Hub offers indoor dining and a covered patio on the sidewalk.",
+      "source": "https://thehubsiestakey.com/"
+     },
+     {
+      "claim": "The Hub offers live music day and night.",
+      "source": "https://thehubsiestakey.com/"
+     },
+     {
+      "claim": "Hours are Monday-Thursday 11:00 a.m. to 10:00 p.m., Friday & Saturday 11:00 a.m. to 11:00 p.m., Sunday 11:00 a.m. to 10:00 p.m.",
+      "source": "https://thehubsiestakey.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJcXYKtIe22YgRQozXmxpthfQ",
+   "name": "Novotel Miami Brickell",
+   "category": "hotels",
+   "metro": "miami-dade",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.novotelmiami.com/faq",
+     "source_name": "Novotel Miami Brickell \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Novotel Miami Brickell has a rooftop pool with sofas, lounge seating and a Vista bar.",
+      "Novotel Miami Brickell is a full-service hotel located in Miami's Brickell district, near Brickell City Centre, downtown Miami, and Biscayne Bay.",
+      "The property offers guest rooms and suites, a rooftop pool, fitness center, on-site dining, and meeting space."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Rooftop pool with sofas, lounge seating and a Vista bar",
+    "why_here": "Novotel Miami Brickell is a full-service hotel located in Miami's Brickell district, near Brickell City Centre, downtown Miami, and Biscayne Bay, offering guest rooms and suites, a rooftop pool, fitness center, on-site dining, and meeting space.",
+    "know_before": "The property offers guest rooms and suites, a rooftop pool, fitness center, on-site dining, and meeting space.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.novotelmiami.com/faq"
+     ],
+     "why_here": [
+      "https://www.novotelmiami.com/faq"
+     ],
+     "know_before": [
+      "https://www.novotelmiami.com/faq"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Novotel Miami Brickell has a rooftop pool with sofas, lounge seating and a Vista bar.",
+      "source": "https://www.novotelmiami.com/faq"
+     },
+     {
+      "claim": "Novotel Miami Brickell is a full-service hotel located in Miami's Brickell district, near Brickell City Centre, downtown Miami, and Biscayne Bay.",
+      "source": "https://www.novotelmiami.com/faq"
+     },
+     {
+      "claim": "The property offers guest rooms and suites, a rooftop pool, fitness center, on-site dining, and meeting space.",
+      "source": "https://www.novotelmiami.com/faq"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJdRWXR0Qp54gR013YFmrkVMA",
+   "name": "Outriggers Tiki Bar & Grille",
+   "category": "nightlife",
+   "metro": "florida",
+   "primary_type": "bar_and_grill",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.outriggersnsb.com/",
+     "source_name": "Outriggers Tiki Bar & Grille \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Outriggers offers straight from the ocean Fresh Catches and Chairman's Reserve Certified Angus Steaks.",
+      "Outriggers overlooks the NSB inlet, frequented by dolphins and manatees alike.",
+      "Hours are Mon-Thurs 11 a.m. to 9 p.m., Fri-Sat 11 a.m. to 10 p.m., Sun 10 a.m. to 9 p.m.",
+      "Brunch is Sundays 10 a.m. to 1 p.m.",
+      "Happy Hour is Monday-Friday 3 p.m. to 6 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Waterfront dining overlooking the NSB inlet, with dolphins and manatees",
+    "why_here": "Outriggers offers straight from the ocean Fresh Catches and Chairman's Reserve Certified Angus Steaks. Outriggers overlooks the NSB inlet, frequented by dolphins and manatees alike.",
+    "know_before": "Hours are Mon-Thurs 11 a.m. to 9 p.m., Fri-Sat 11 a.m. to 10 p.m., Sun 10 a.m. to 9 p.m.; brunch is Sundays 10 a.m. to 1 p.m.",
+    "local_tip": "Happy Hour is Monday-Friday 3 p.m. to 6 p.m.",
+    "best_time": "Brunch is Sundays 10 a.m. to 1 p.m.",
+    "citations": {
+     "hook": [
+      "https://www.outriggersnsb.com/"
+     ],
+     "why_here": [
+      "https://www.outriggersnsb.com/"
+     ],
+     "know_before": [
+      "https://www.outriggersnsb.com/"
+     ],
+     "local_tip": [
+      "https://www.outriggersnsb.com/"
+     ],
+     "best_time": [
+      "https://www.outriggersnsb.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Outriggers offers straight from the ocean Fresh Catches and Chairman's Reserve Certified Angus Steaks.",
+      "source": "https://www.outriggersnsb.com/"
+     },
+     {
+      "claim": "Outriggers overlooks the NSB inlet, frequented by dolphins and manatees alike.",
+      "source": "https://www.outriggersnsb.com/"
+     },
+     {
+      "claim": "Hours are Mon-Thurs 11 a.m. to 9 p.m., Fri-Sat 11 a.m. to 10 p.m., Sun 10 a.m. to 9 p.m.",
+      "source": "https://www.outriggersnsb.com/"
+     },
+     {
+      "claim": "Brunch is Sundays 10 a.m. to 1 p.m.",
+      "source": "https://www.outriggersnsb.com/"
+     },
+     {
+      "claim": "Happy Hour is Monday-Friday 3 p.m. to 6 p.m.",
+      "source": "https://www.outriggersnsb.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJEdFsv3zi2IgRltaQ_eMtwC4",
+   "name": "Charm City Burger Company",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "hamburger_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.charmcityburgerco.com/about",
+     "source_name": "Charm City Burger Company \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Our proprietary 1/3lb Charm City Burger Blend is made right here in South Florida, ground daily in the Burger Lab at Sunshine Provisions, a USDA facility in Hallandale Beach.",
+      "Charm City Burger Company describes itself as a 100% Chef-driven concept.",
+      "The Deerfield Beach address is 1136 East Hillsboro Blvd., Deerfield Beach, FL.",
+      "Hours are Sun-Thurs: 11 a.m. to 10 p.m.; Fri-Sat: 11 a.m. to 10 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Proprietary burger blend ground daily in South Florida",
+    "why_here": "Charm City Burger Company describes itself as a 100% Chef-driven concept. Its proprietary Charm City Burger Blend is made right here in South Florida, ground daily in the Burger Lab at Sunshine Provisions.",
+    "know_before": "Hours are Sun-Thurs: 11 a.m. to 10 p.m.; Fri-Sat: 11 a.m. to 10 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.charmcityburgerco.com/about"
+     ],
+     "why_here": [
+      "https://www.charmcityburgerco.com/about"
+     ],
+     "know_before": [
+      "https://www.charmcityburgerco.com/about"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Our proprietary 1/3lb Charm City Burger Blend is made right here in South Florida, ground daily in the Burger Lab at Sunshine Provisions, a USDA facility in Hallandale Beach.",
+      "source": "https://www.charmcityburgerco.com/about"
+     },
+     {
+      "claim": "Charm City Burger Company describes itself as a 100% Chef-driven concept.",
+      "source": "https://www.charmcityburgerco.com/about"
+     },
+     {
+      "claim": "The Deerfield Beach address is 1136 East Hillsboro Blvd., Deerfield Beach, FL.",
+      "source": "https://www.charmcityburgerco.com/about"
+     },
+     {
+      "claim": "Hours are Sun-Thurs: 11 a.m. to 10 p.m.; Fri-Sat: 11 a.m. to 10 p.m.",
+      "source": "https://www.charmcityburgerco.com/about"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJraE_mnn8wogRPr8l9chGGi0",
+   "name": "Mamas Kitchen",
+   "category": "food",
+   "metro": "st-pete",
+   "primary_type": "family_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.mamaskitchenseminole.com/",
+     "source_name": "Mamas Kitchen \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Mamas Kitchen is open 7 days a week.",
+      "Monday - Friday hours are listed as 7:00 a.m. to 8:00 p.m.",
+      "Take Out Available - Outside Seating Available.",
+      "Mamas Kitchen is at 5885 Seminole Blvd, Seminole, FL 33772.",
+      "Breakfast, Lunch and Dinner Specials are listed."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Breakfast, lunch and dinner specials served 7 days a week",
+    "why_here": "Mamas Kitchen is open 7 days a week at 5885 Seminole Blvd, Seminole, FL 33772, with breakfast, lunch and dinner specials and take out and outside seating available.",
+    "know_before": "Monday - Friday hours are listed as 7:00 a.m. to 8:00 p.m.; take out and outside seating are available.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.mamaskitchenseminole.com/"
+     ],
+     "why_here": [
+      "https://www.mamaskitchenseminole.com/"
+     ],
+     "know_before": [
+      "https://www.mamaskitchenseminole.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Mamas Kitchen is open 7 days a week.",
+      "source": "https://www.mamaskitchenseminole.com/"
+     },
+     {
+      "claim": "Monday - Friday hours are listed as 7:00 a.m. to 8:00 p.m.",
+      "source": "https://www.mamaskitchenseminole.com/"
+     },
+     {
+      "claim": "Take Out Available - Outside Seating Available.",
+      "source": "https://www.mamaskitchenseminole.com/"
+     },
+     {
+      "claim": "Mamas Kitchen is at 5885 Seminole Blvd, Seminole, FL 33772.",
+      "source": "https://www.mamaskitchenseminole.com/"
+     },
+     {
+      "claim": "Breakfast, Lunch and Dinner Specials are listed.",
+      "source": "https://www.mamaskitchenseminole.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ80iRhOi20YgR0SJsQEV7UTY",
+   "name": "Santiago's Bodega",
+   "category": "food",
+   "metro": "keys",
+   "primary_type": "tapas_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://santiagosbodega.com",
+     "source_name": "Santiago's Bodega \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Santiago's Bodega embodies the heart and soul of its original island home in Key West, FL.",
+      "The Key West address is 207 Petronia Street, Key West, FL 33040.",
+      "Santiago's Bodega lists Fine Wines, Sangria, Tapas and Dessert.",
+      "Santiago's is Sharing, with small plate preparations with global tastes."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Tapas and sangria built around sharing small plates",
+    "why_here": "Santiago's Bodega embodies the heart and soul of its original island home in Key West, FL, sharing small plate preparations with global tastes, fine wines, sangria, tapas and dessert.",
+    "know_before": "The Key West address is 207 Petronia Street, Key West, FL 33040.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://santiagosbodega.com"
+     ],
+     "why_here": [
+      "https://santiagosbodega.com"
+     ],
+     "know_before": [
+      "https://santiagosbodega.com"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Santiago's Bodega embodies the heart and soul of its original island home in Key West, FL.",
+      "source": "https://santiagosbodega.com"
+     },
+     {
+      "claim": "The Key West address is 207 Petronia Street, Key West, FL 33040.",
+      "source": "https://santiagosbodega.com"
+     },
+     {
+      "claim": "Santiago's Bodega lists Fine Wines, Sangria, Tapas and Dessert.",
+      "source": "https://santiagosbodega.com"
+     },
+     {
+      "claim": "Santiago's is Sharing, with small plate preparations with global tastes.",
+      "source": "https://santiagosbodega.com"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJG1vRYC-r2YgRM5TFEdSf7Ys",
+   "name": "Firebirds Wood Fired Grill",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://firebirdsrestaurants.com/menu/dinner",
+     "source_name": "Firebirds Wood Fired Grill \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Firebirds' 21-day-aged steaks are butchered in house, hand-trimmed and hardwood grilled.",
+      "Shareables include Lobster Spinach Queso with lobster, spinach, pepper jack cheese and tortilla chips.",
+      "Slow Roasted Prime Rib is available Friday through Sunday.",
+      "Handhelds are served with choice of seasoned steak fries, tater tots or fresh fruit."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Hardwood-grilled, 21-day-aged steaks cut and trimmed in house",
+    "why_here": "Firebirds Wood Fired Grill is known for hardwood-grilled steaks and a scratch kitchen. The dinner menu spans shareables, hand-cut steaks, seafood, ribs and handhelds.",
+    "know_before": "Slow Roasted Prime Rib is available Friday through Sunday.",
+    "local_tip": null,
+    "best_time": "Friday through Sunday for Slow Roasted Prime Rib, per the official dinner menu.",
+    "citations": {
+     "hook": [
+      "https://firebirdsrestaurants.com/menu/dinner"
+     ],
+     "why_here": [
+      "https://firebirdsrestaurants.com/menu/dinner"
+     ],
+     "know_before": [
+      "https://firebirdsrestaurants.com/menu/dinner"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      "https://firebirdsrestaurants.com/menu/dinner"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Firebirds' 21-day-aged steaks are butchered in house, hand-trimmed and hardwood grilled.",
+      "source": "https://firebirdsrestaurants.com/menu/dinner"
+     },
+     {
+      "claim": "Shareables include Lobster Spinach Queso with lobster, spinach, pepper jack cheese and tortilla chips.",
+      "source": "https://firebirdsrestaurants.com/menu/dinner"
+     },
+     {
+      "claim": "Slow Roasted Prime Rib is available Friday through Sunday.",
+      "source": "https://firebirdsrestaurants.com/menu/dinner"
+     },
+     {
+      "claim": "Handhelds are served with choice of seasoned steak fries, tater tots or fresh fruit.",
+      "source": "https://firebirdsrestaurants.com/menu/dinner"
+     }
+    ]
+   }
+  }
+ ]
+}
