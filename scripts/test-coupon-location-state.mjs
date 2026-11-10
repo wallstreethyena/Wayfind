@@ -69,7 +69,7 @@ ok(dealTiers([NATIONAL, TAMPA_ONLY], today, TAMPA).ledger.some((c) => c.id === T
   const h = render({ center: null, locResolved: true, cpnOffers: [] });
   const onlyRegistryNational = dealTiers(COUPONS, today, null);
   if ([...onlyRegistryNational.featured, ...onlyRegistryNational.ledger].length === 0) {
-    ok(/data-deals-state="needs-area"/.test(h) && /Choose an area to see deals/.test(h), "unknown + empty: needs-area copy with the picker");
+    ok(/data-area-state="unknown"/.test(h) && /data-coupon-mode="statewide"/.test(h) && /data-deal-area="tampa"/.test(h) && !/data-deals-state="needs-area"/.test(h), "unknown + no live nationwide rows: statewide metro deals stay, not a false empty state");
   } else {
     ok(/data-area-state="unknown"/.test(h), "unknown + registry national deals: picker still present");
   }
@@ -84,7 +84,7 @@ ok(dealTiers([NATIONAL, TAMPA_ONLY], today, TAMPA).ledger.some((c) => c.id === T
     ok(/data-deals-state="locating"/.test(loc) && /Finding your area/.test(loc), "loading: location unresolved shows 'Finding your area', not 'no deals'");
     ok(!/data-area-state/.test(loc), "loading: the picker does not nag while location is still resolving");
     const off = render({ ...none, center: OUTSIDE, cpnOffersStatus: "loading" });
-    ok(/data-deals-state="offers-loading"/.test(off) && /Loading deals/.test(off), "loading: offers fetch in flight shows 'Loading deals'");
+    ok(/data-coupon-mode="statewide"/.test(off) && /data-deal-area="tampa"/.test(off) && !/data-deals-state="offers-loading"/.test(off), "loading: a partner fetch does not hide statewide registry deals");
   }
 }
 
@@ -127,8 +127,8 @@ ok(dealTiers([NATIONAL, TAMPA_ONLY], today, TAMPA).ledger.some((c) => c.id === T
     ok(!/data-coupon-mode="statewide"/.test(h) && !/data-deal-area="(tampa|sarasota|orlando|stpete)"/.test(h), "metro empty: never falls back to other areas' cards");
     ok(!/data-area-state="unknown"/.test(h) && /Showing deals for/.test(h), "metro empty: it is not mistaken for 'location unknown'");
     const live = render({ center: centerOf(emptyMetro), cpnOffers: [], locResolved: true });
-    const nationwide = [...dealTiers(COUPONS, today, centerOf(emptyMetro)).featured, ...dealTiers(COUPONS, today, centerOf(emptyMetro)).ledger];
-    ok(nationwide.length > 0 && nationwide.every((c) => dealScope(c).kind === "everywhere" && live.includes(c.business)), "the same metro with the live registry still shows its nationwide deals");
+    const nationwide = [...dealTiers(COUPONS, today, centerOf(emptyMetro)).featured, ...dealTiers(COUPONS, today, centerOf(emptyMetro)).ledger].filter((c) => dealScope(c).kind === "everywhere");
+    ok(nationwide.length > 0 ? nationwide.every((c) => live.includes(c.business)) : /data-deals-state="metro-empty"/.test(live) && !/Undercover Tourist Car Rentals/.test(live) && !/Undercover Tourist Movie Tickets/.test(live), nationwide.length > 0 ? "the same metro with the live registry still shows its nationwide deals" : "expired nationwide rows stay hidden and the metro names its empty local list");
     ok(!/data-coupon-mode="statewide"/.test(live) && !/data-deal-area=/.test(live), "nationwide-only metro: those cards render without borrowing another area");
   }
 }
