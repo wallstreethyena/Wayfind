@@ -415,7 +415,7 @@ for (const today of ["2026-10-30", "2026-12-20", "2027-01-01"]) {
   const listings = christmasBrowseListings([], TODAY);
   const sCard = listings.find((c) => c.id === "stetson-mansion-christmas-2026-2");
   const wCard = listings.find((c) => c.id === "winterfest-boat-parade-2026");
-  ok(sCard && sCard.image === "/events/christmas/stetson-mansion-christmas-2026-2.webp" && /DanTD/.test(sCard.photoAttr || ""), "the Stetson browse card keeps its licensed photo and credit");
+  ok(sCard && sCard.image === stetsonShots[0].src && !/DanTD/.test(sCard.photoAttr || ""), "the Stetson browse card opens on its holiday gallery cover, not the daytime gate photo (intent batch 11x)");
   ok(wCard && wCard.image === winterShots[0].src && /Winterfest Boat Parade/.test(wCard.photoAttr || ""), "the Winterfest card shows the gallery cover and its credit");
   const featured = await withChristmasTicketPhotos(christmasTicketsModel(listings, TODAY), { noMemo: true, readGoogle: async () => null, readVault: async () => [] });
   const featuredStetson = featured.rows.find((r) => r.id === "stetson-mansion-christmas-2026-2");

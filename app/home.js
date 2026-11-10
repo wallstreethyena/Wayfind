@@ -363,6 +363,11 @@ import { createDetailOpenGate } from "../lib/detailOpenGate.js";
 import { createPlaceActionGate } from "../lib/placeActionOnce.js";
 import { planDeepLinkAction, humanConfirmed, deepLinkEventProps, deepLinkPromptLabel } from "../lib/deepLinkAction.js";
 import { isSeedCenter, cityLabel, landingSlugFromLoc, centerAgreesWithLabel, firstPaintRailOrigin, localityFromFormattedAddress, storedPinFresh, storedPlaceHeader } from "../lib/locationHonesty";
+import { centerAfterGeoDecision, landingSearchFromSearch } from "../lib/searchDeepLink";
+// booCoverage.js (the coverage law Boo uses) is loaded on demand: the homepage
+// client sits within 1KB of its 501KB gz budget, and BooCompanion already pulls
+// this module into its own chunk, so the feed shares it instead of inlining it.
+const loadBooCoverage = () => import("./components/booCoverage.js");
 import { ownedPlacePhotoSrc } from "../lib/placePhoto";
 import { sanitizeRestoredPosition } from "../lib/restorePosition.js";
 
@@ -4192,6 +4197,8 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
   const [vibe, setVibe] = useState("all");
   const [sortBy, setSortBy] = useState("rated"); // v4.97: quality-first default — a 0-review shop at 1.5 mi must never outrank a 4.8★ preserve
   const [searchRadius, setSearchRadius] = useState(DEFAULT_RADIUS_M); // meters — v4.83: 17-mile app-wide default
+  const coverageGapLoggedRef = useRef(new Set()); // one coverage_gap event per area cell + category per tab
+  const [feedGap, setFeedGap] = useState(null); // booCoverage gap for the CURRENT feed center (null = covered/unknown), set with the places it explains
   const autoRadiusRef = useRef(true); // v4.85: true while the radius is app-chosen; a manual slider touch flips it off and auto-widen stands down
   const [visibleCount, setVisibleCount] = useState(5); // explore list shows 5, then "Wayfind 5 more spots"
   const [radiusSheet, setRadiusSheet] = useState(false);
@@ -5229,38 +5236,34 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
   // partners never send booking data back, so this is the honest capture.
   const [locApprox, setLocApprox] = useState(false);
   const [feedRetry, setFeedRetry] = useState(0);
-  const pendingQRef = useRef(null);
   // ?q= arrivals carry two optional companions from guide pages (see
   // app/guides/[slug]/page.js appUrl): intent=place ("this query names a
   // specific POI — open its detail, do not treat it as a city") and near=
   // ("resolve it against the guide's region, not the visitor's location").
-  // Captured together so the effect below hands submitSearch the whole intent.
-  useEffect(() => { try { const sp = new URLSearchParams(window.location.search); const qq = sp.get("q"); const it = (sp.get("intent") || "").trim();
-    // v7.13 (owner-reported, 2026-08-12: "our blog's buttons don't work — they
-    // throw you to the main page and do nothing"). Guides, culture pages and
-    // the SEO landings all send "/?intent=<keyword>" from their PRIMARY CTA —
-    // "Personalize these picks" — and this parser only ever read "?q=", so the
-    // app's own front door dropped the promise on the floor. "?intent=place" is
-    // the old MODE flag and keeps its meaning; any OTHER intent value is the
-    // search those pages meant to run.
-    if (qq && qq.trim()) pendingQRef.current = { q: qq.trim(), placeIntent: it === "place", near: (sp.get("near") || "").trim() || null };
-    else if (it && it !== "place") pendingQRef.current = { q: it, placeIntent: false, near: (sp.get("near") || "").trim() || null };
-  } catch (e) {} }, []);
-  useEffect(() => { if (!pendingQRef.current || !center) return; const pq = pendingQRef.current; pendingQRef.current = null; try { window.history.replaceState({}, "", window.location.pathname); } catch (e) {} submitSearch(pq.q, { placeIntent: pq.placeIntent, near: pq.near }); // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [center]);
+  // Owned search does not need a map center. Waiting on center dropped every
+  // deep link when GPS was denied and /api/geo refused an out-of-Florida IP,
+  // so the box stayed empty and the Christmas poster stayed open.
+  // "?intent=place" is the old MODE flag. Any other intent value is the search.
+  useEffect(() => {
+    let pending = null;
+    try { pending = landingSearchFromSearch(window.location.search); } catch (e) { pending = null; }
+    if (!pending) return;
+    try { window.history.replaceState({}, "", window.location.pathname); } catch (e) {}
+    submitSearch(pending.q, { placeIntent: pending.placeIntent, near: pending.near });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   // The landing URL's query string, captured during the FIRST RENDER — before
   // any effect can rewrite it.
   //
   // Found in browser verification 2026-08-04: the auto-show gate below used to
   // read window.location.search inside its own effect, and by then the query
-  // could already be gone. The ?q strip two lines above fires as soon as
-  // `center` is known, and on a RETURNING device (a saved wf_center) that is
-  // the same commit — and it is declared EARLIER, so it runs first. Result: a
-  // deep-link visitor with a saved location got the mood gate anyway, because
-  // the effect saw a bare "/" and concluded there was no deep link. Same
-  // exposure for the paid/campaign check, whose utm params are read from the
-  // same string. Render runs before every effect, so capturing here is what
-  // makes "the landing URL" mean the URL the visitor actually landed on.
+  // could already be gone. The ?q effect above clears the query string on
+  // mount, before later effects run. Result if this capture waited: a
+  // deep-link visitor got the mood gate anyway, because the effect saw a bare
+  // "/" and concluded there was no deep link. Same exposure for the
+  // paid/campaign check, whose utm params are read from the same string.
+  // Render runs before every effect, so capturing here is what makes "the
+  // landing URL" mean the URL the visitor actually landed on.
   const [introOpen, setIntroOpen] = useState(false);
   // How this open happened, read by IntroSheet's intro_shown: "timer" (the
   // 2-minute visible-time gate), "param" (?intro=1) or "manual" (Find my
@@ -7575,28 +7578,26 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
       try {
         const r = await fetch("/api/geo", { cache: "no-store" });
         const d = await r.json();
-        if (d && d.ok && !gotGPS && !manualRef.current) {
-          const c = { lat: d.lat, lng: d.lng };
-          setDeviceLoc((prev) => prev || c);
+        // One decision for the pin and the name. An ok answer inside Florida
+        // replaces the seed. ok:false (no headers, or outside Florida) adopts
+        // the Parrish seed instead of leaving center null, which is what
+        // stranded /?q= before submitSearch could run.
+        const adopted = (!gotGPS && !manualRef.current && isSeedCenter(centerRef.current))
+          ? centerAfterGeoDecision({
+            ok: !!(d && d.ok),
+            lat: d && d.lat,
+            lng: d && d.lng,
+            name: d && d.name,
+            gotGPS,
+            manual: manualRef.current,
+            current: centerRef.current,
+          })
+          : null;
+        if (adopted) {
+          if (adopted.device) setDeviceLoc((prev) => prev || adopted.center);
           setLocResolved(true);
-          // v8.46 — ONE GUARD FOR ONE FACT. This was two:
-          //     setCenter((prev) => (isSeedCenter(prev) ? c : prev));
-          //     if (d.name) setLocName((prev) => prev || d.name);
-          // The center only moved when it was still the seed; the NAME moved
-          // whenever it happened to be blank. Two independent conditions on the
-          // two halves of a single answer — so the halves could, and did,
-          // disagree: a center that stayed put picked up the IP service's city
-          // name, and the chrome started printing a town the ranking had never
-          // heard of. /api/rails then answered covered:false and every rail on
-          // the page went empty under a confident heading.
-          //
-          // The IP answer is now adopted WHOLE or not at all — one decision,
-          // read off centerRef (the committed center, not a stale closure) and
-          // applied to both halves together.
-          if (isSeedCenter(centerRef.current)) {
-            setCenter(c);
-            if (d.name) setLocName(d.name);
-          }
+          setCenter(adopted.center);
+          if (adopted.name) setLocName(adopted.name);
         }
       } catch (e) {}
     };
@@ -7802,9 +7803,24 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
         // places. Auto-widen only moves the STARTING point — once the user
         // touches the slider, their choice is law.
         const _startM = q.radiusM;
+        // 2026-11-02 (owner: "fix it", on the Command Center no-result alert).
+        // Measured: 112 of 114 places_none events in 15 days came from centers
+        // OUTSIDE coverage (out of state and abroad). Free mode serves only
+        // places Wayfind owns, so widening there is four guaranteed-empty
+        // rounds of API calls. Same coverage law Boo uses (booCoverage.js ->
+        // lib/railCoverage.js), so the feed and the companion always agree.
+        // A failed chunk load must never block browsing: no gap info simply
+        // means the normal widen + empty state, exactly as before.
+        // Loaded in PARALLEL with the first fetch, so a covered reader waits on
+        // nothing new. Button text is resolved here, so the render needs no module.
+        const _gapP = loadBooCoverage().then((bc) => {
+          const g = bc.coverageGap({ lat: q.lat, lng: q.lng, loc: locName || "" });
+          return g ? { ...g, options: g.options.map((o, i) => ({ ...o, text: bc.coverageButtonText(o, i === 0) })) } : null;
+        }, () => null);
         let results = await _fetchAt(_startM);
+        const _gap = await _gapP;
         let _usedM = _startM;
-        if (autoRadiusRef.current || _startM <= DEFAULT_RADIUS_M) {
+        if (!_gap && (autoRadiusRef.current || _startM <= DEFAULT_RADIUS_M)) {
           for (const _m of RADIUS_LADDER_M) {
             // v8.62 — break on what the feed can SHOW at the radius actually
             // in use, not on the raw fetch. The serve's gate is radius*1.15
@@ -7819,7 +7835,15 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
           }
         }
         if (!cancelled && _usedM > _startM) { autoRadiusRef.current = true; setSliderMi(Math.round(_usedM / 1609.34)); setSearchRadius(_usedM); }
-        if (!cancelled) { setPlaces(results); loadBlurbs(results); try { logEvent("result_count_shown", null, { count: (results || []).length, cat, sub }); } catch (e) {} if (!results || results.length === 0) logEvent("places_none", null, {
+        if (!cancelled) { setFeedGap(_gap); setPlaces(results); loadBlurbs(results); try { logEvent("result_count_shown", null, { count: (results || []).length, cat, sub }); } catch (e) {}
+          // An empty feed OUTSIDE coverage is a coverage gap, not a broken
+          // search: the reader now gets the Florida city options (render
+          // below) instead of a dead end. Logged once per area + category as
+          // its own event so the Command Center no-result alert measures
+          // search health and the coverage demand stays visible separately.
+          const _gapKey = _gap ? `${_gap.cell}|${cat}|${sub || "all"}` : "";
+          if ((!results || results.length === 0) && _gap) { if (!coverageGapLoggedRef.current.has(_gapKey)) { coverageGapLoggedRef.current.add(_gapKey); try { logEvent("coverage_gap", null, { cat, sub: sub || "all", loc: locName || "", lat: +Number(center.lat).toFixed(1), lng: +Number(center.lng).toFixed(1), nearest: _gap.near.slug, fetchErrs: _fetchErrs }); } catch (e) {} } }
+          else if (!results || results.length === 0) logEvent("places_none", null, {
             loc: locName || "", cat, lat: center.lat, lng: center.lng,
             // v6.43 no-result diagnosis. The original payload was {loc,cat,lat,lng},
             // which could not answer the two questions that decide the fix:
@@ -9123,6 +9147,35 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
     try { if (scrollRef.current) scrollRef.current.scrollTo({ top: 0 }); } catch (e) {}
   }
 
+  // 2026-11-02 (owner: "fix it", Command Center no-result alert). An empty
+  // browse OUTSIDE coverage used to print "try another category / widen your
+  // search / a bigger city nearby", promises nothing could keep: free mode
+  // serves only owned Florida places, so 40 visitors in 15 days hit a dead end
+  // (112 of 114 places_none). Offer Boo's own Florida city options instead
+  // (booCoverage.js: one coverage law, one copy source). Shared by BOTH empty
+  // states (the in-place home browse and the explore list). Nothing moves until
+  // the reader taps; a tap is jumpToArea (manual pick, GPS never yanks it back).
+  function renderCoverageGap() {
+    const gap = feedGap;
+    if (!gap) return null;
+    return (
+      <div data-coverage-gap="1" style={{ textAlign: "center", padding: "36px 20px 44px", color: C.muted, maxWidth: 460, margin: "0 auto" }}>
+        <div style={{ display: "inline-flex", marginBottom: 10 }}><Critter size={46} /></div>
+        <strong style={{ display: "block", color: C.light, fontSize: 17 }}>Wayfind hasn&apos;t reached {gap.area || "your area"} yet</strong>
+        <span style={{ display: "block", fontSize: 13.5, lineHeight: 1.5, margin: "6px 0 18px" }}>Right now we cover Florida. Planning a trip? Pick a city to see what&apos;s good there.</span>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 8, justifyContent: "center" }}>
+          {gap.options.map((o, i) => (
+            <button key={o.slug} type="button"
+              onClick={() => { try { logEvent("coverage_city_jump", null, { city: o.slug, from_cell: gap.cell, cat }); } catch (e) {} jumpToArea({ name: o.label, lat: o.lat, lng: o.lng }); }}
+              style={{ minHeight: 44, padding: "10px 16px", borderRadius: 999, border: i === 0 ? "none" : `1px solid ${C.border}`, background: i === 0 ? C.accent : C.card, color: i === 0 ? "#fff" : C.text, fontSize: 14, fontWeight: 800, cursor: "pointer" }}>
+              {o.text}
+            </button>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   // Boo's "Explore <city>" buttons for visitors outside coverage. Same contract
   // as jumpToArea (manual pick, GPS never yanks it back); the event is
   // same-page only, and the payload is checked before it moves anything.
@@ -10053,13 +10106,17 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
         );
       })()}
       {err && <div style={{ color: C.red, fontSize: 13, padding: "4px 2px 12px" }}>{err} <span onClick={() => setFeedRetry((t) => t + 1)} style={{ color: C.accent, fontWeight: 800, cursor: "pointer", marginLeft: 6 }}>Retry ↻</span></div>}
-      {!loading && !err && view.length === 0 && (
-        <div style={{ textAlign: "center", padding: "48px 24px", color: C.muted }}>
-          <div style={{ display: "flex", justifyContent: "center", marginBottom: 12 }}><NavIcon name={cat} color={C.muted} size={38} /></div>
-          <strong style={{ display: "block", color: C.light }}>Nothing here yet</strong>
-          <span style={{ fontSize: 13 }}>We're adding great spots near you. Try another category, or search a bigger city nearby for the full list.</span>
-        </div>
-      )}
+      {!loading && !err && view.length === 0 && (() => {
+        // Outside coverage: the shared Florida city options (renderCoverageGap).
+        if (feedGap) return renderCoverageGap();
+        return (
+          <div style={{ textAlign: "center", padding: "48px 24px", color: C.muted }}>
+            <div style={{ display: "flex", justifyContent: "center", marginBottom: 12 }}><NavIcon name={cat} color={C.muted} size={38} /></div>
+            <strong style={{ display: "block", color: C.light }}>Nothing here yet</strong>
+            <span style={{ fontSize: 13 }}>We're adding great spots near you. Try another category, or search a bigger city nearby for the full list.</span>
+          </div>
+        );
+      })()}
       <div className="wf-place-card-list">
       {restView.slice(0, 3).map((p, i) => (
         <PlaceCard key={p.id} p={p} onPlaceEnriched={onBrowsePlaceEnriched} rank={i + 1} saved={isSaved(p.id)} liked={!!liked[p.id]} disliked={!!disliked[p.id]} onDetail={() => openDetail(p)} onSave={() => quickSaveFavorite(p)} onLike={(e) => toggleLike(e, p)} onDislike={(e) => toggleDislike(e, p)} onShareCard={(pl) => { try { addShared(pl); giveawayMark(pl.id); } catch (e) {} }} line={blurbs[p.id]} onBadge={openExperience} onCuisineTap={openCuisine} beachSignal={beachSignals[p.id]} city={cityNow} />
@@ -11428,6 +11485,8 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
                     <div className="wf-place-card-list" style={{ marginTop: 2 }} aria-busy="true" aria-label="Finding the best spots">
                       <PlaceCardSkeleton count={5} as="div" />
                     </div>
+                  ) : view.length === 0 && feedGap ? (
+                    renderCoverageGap()
                   ) : view.length === 0 ? (
                     <div style={{ textAlign: "center", padding: "40px 24px", color: C.muted }}>
                       <div style={{ display: "inline-flex", animation: "wfbob 1.4s ease-in-out infinite", marginBottom: 10 }}><Critter size={46} /></div>
