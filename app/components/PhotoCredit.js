@@ -29,7 +29,7 @@ function L({ href, children, quiet }) {
     : <>{children}</>;
 }
 
-export default function PhotoCredit({ credit, style, onPhoto = false }) {
+export default function PhotoCredit({ credit, style, onPhoto = false, inline = false }) {
   if (!credit) return null;
   const isGoogle = credit.source === "google" || (!credit.license && credit.mapsUri !== undefined);
   const name = credit.name || (isGoogle ? "a Google Maps contributor" : "");
@@ -42,6 +42,9 @@ export default function PhotoCredit({ credit, style, onPhoto = false }) {
         : (credit.license ? <> · {credit.license}</> : null)}
     </>
   );
+  // Inline: the bare credit words for a caller that owns the line (the place
+  // detail credit line under the photos). No box, no pin, links stay links.
+  if (inline) return <span data-photo-credit>{body}</span>;
   if (onPhoto) {
     return (
       <div data-photo-credit style={{ position: "absolute", left: 6, right: 8, bottom: 6, zIndex: 2, margin: 0, padding: 0, border: 0, background: "transparent", pointerEvents: "auto", maxWidth: "calc(100% - 14px)" }}>

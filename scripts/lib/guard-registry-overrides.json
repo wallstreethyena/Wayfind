@@ -1063,5 +1063,13 @@
    "detail": "Regressing click-token attribution, commission separation, or Google Ads API v26 conversion adjustment contracts either drops booking attribution, reports customer gross booking spend as Wayfind commission, or sends retired API v18 / invalid dual-identifier payloads that Google Ads rejects."
   },
   "owner": "Revenue QA"
+ },
+ "scripts/check-photo-credit-under-headline.mjs": {
+  "protects": "Photo credit placement (on-photo line for cards and heroes) and the place detail sheet's single combined line under the photos: photo credit plus the commission sentence naming this sheet's own partner, with exactly one commission disclosure per sheet.",
+  "blastRadius": {
+   "category": "trust",
+   "detail": "A regression drops or duplicates the commission disclosure on a monetized place detail sheet, names the wrong partner, or loses the Google Maps photo attribution link."
+  },
+  "owner": "Revenue QA"
  }
 }
