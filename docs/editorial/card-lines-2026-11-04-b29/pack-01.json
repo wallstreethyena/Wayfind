@@ -1,0 +1,2288 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 29. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJ00hIFvvF5YgRcxyLdB_2UzE",
+   "name": "The Urban Bean Coffeehouse Cafe",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.theurbanbeancoffeehouse.com/",
+     "source_name": "The Urban Bean Coffeehouse Cafe \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Urban Bean Coffeehouse offers Fresh Coffee, Gourmet Eats, and Baked-from-scratch Desserts.",
+      "Menu items are made-from-scratch and made-to-order.",
+      "Favorites include Chicken Salad Croissant, Margherita Flatbread, and Salmon Platter.",
+      "Hours are Monday and Tuesday 6:30 a.m. to 2 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Fresh Coffee, Gourmet Eats, and Baked-from-scratch Desserts",
+    "why_here": "Go for Fresh Coffee, Gourmet Eats, and Baked-from-scratch Desserts, with menu items made-from-scratch and made-to-order. Try the Chicken Salad Croissant, Margherita Flatbread, or Salmon Platter from the listed favorites.",
+    "know_before": "Hours are Monday and Tuesday 6:30 a.m. to 2 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.theurbanbeancoffeehouse.com/"
+     ],
+     "why_here": [
+      "https://www.theurbanbeancoffeehouse.com/"
+     ],
+     "know_before": [
+      "https://www.theurbanbeancoffeehouse.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Urban Bean Coffeehouse offers Fresh Coffee, Gourmet Eats, and Baked-from-scratch Desserts.",
+      "source": "https://www.theurbanbeancoffeehouse.com/"
+     },
+     {
+      "claim": "Menu items are made-from-scratch and made-to-order.",
+      "source": "https://www.theurbanbeancoffeehouse.com/"
+     },
+     {
+      "claim": "Favorites include Chicken Salad Croissant, Margherita Flatbread, and Salmon Platter.",
+      "source": "https://www.theurbanbeancoffeehouse.com/"
+     },
+     {
+      "claim": "Hours are Monday and Tuesday 6:30 a.m. to 2 p.m.",
+      "source": "https://www.theurbanbeancoffeehouse.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJp-TDaQW35YgR8tau1kFDrJY",
+   "name": "The Southern Grill",
+   "category": "food",
+   "metro": "jacksonville-fl",
+   "primary_type": "brunch_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://thesoutherngrilljax.com/",
+     "source_name": "The Southern Grill \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Southern Grill is at 800 Flagler Ave, Jacksonville, FL 32207.",
+      "The Southern Grill has been serving Jacksonville since 1998.",
+      "The Southern Grill lists Sports, Live Music, Events and Catering.",
+      "Menu items include Smoked Pork Ribs, Loaded Omelet and Pancake Breakfast.",
+      "Happy Hour runs Monday to Friday from 4 p.m. to 7 p.m.",
+      "Hours are Monday to Friday from 6:30 a.m. to 10:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Serving Jacksonville since 1998 with Sports and Live Music",
+    "why_here": "Serving Jacksonville since 1998, The Southern Grill lists Sports, Live Music, Events and Catering, with menu items including Smoked Pork Ribs, Loaded Omelet and Pancake Breakfast.",
+    "know_before": "Happy Hour runs Monday to Friday from 4 p.m. to 7 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://thesoutherngrilljax.com/"
+     ],
+     "why_here": [
+      "https://thesoutherngrilljax.com/"
+     ],
+     "know_before": [
+      "https://thesoutherngrilljax.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Southern Grill is at 800 Flagler Ave, Jacksonville, FL 32207.",
+      "source": "https://thesoutherngrilljax.com/"
+     },
+     {
+      "claim": "The Southern Grill has been serving Jacksonville since 1998.",
+      "source": "https://thesoutherngrilljax.com/"
+     },
+     {
+      "claim": "The Southern Grill lists Sports, Live Music, Events and Catering.",
+      "source": "https://thesoutherngrilljax.com/"
+     },
+     {
+      "claim": "Menu items include Smoked Pork Ribs, Loaded Omelet and Pancake Breakfast.",
+      "source": "https://thesoutherngrilljax.com/"
+     },
+     {
+      "claim": "Happy Hour runs Monday to Friday from 4 p.m. to 7 p.m.",
+      "source": "https://thesoutherngrilljax.com/"
+     },
+     {
+      "claim": "Hours are Monday to Friday from 6:30 a.m. to 10:00 p.m.",
+      "source": "https://thesoutherngrilljax.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJOSCW9tGIk4gRPj7VGMshZGQ",
+   "name": "Coconut Creek Family Fun Park",
+   "category": "attractions",
+   "metro": "panama-city-florida",
+   "primary_type": "tourist_attraction",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://coconutcreekfun.com/mini-golf/",
+     "source_name": "Coconut Creek Family Fun Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Coconut Creek has two tropical 18-hole mini-golf courses.",
+      "Courses feature cascading waterfalls and a rocky cave.",
+      "The park offers the Gran Maze and an observation deck.",
+      "Coconut Creek is in Panama City Beach.",
+      "Pay-One-Price is $30.00 plus tax for unlimited mini-golf and Gran Maze until 5 p.m. the following day."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Two tropical 18-hole mini-golf courses and the Gran Maze in Panama City Beach",
+    "why_here": "Play two tropical 18-hole mini-golf courses with cascading waterfalls and a rocky cave, or attempt the Gran Maze. The park in Panama City Beach also lists an observation deck on site.",
+    "know_before": "Pay-One-Price is $30.00 plus tax for unlimited mini-golf and Gran Maze until 5 p.m. the following day.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://coconutcreekfun.com/mini-golf/"
+     ],
+     "why_here": [
+      "https://coconutcreekfun.com/mini-golf/"
+     ],
+     "know_before": [
+      "https://coconutcreekfun.com/mini-golf/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Coconut Creek has two tropical 18-hole mini-golf courses.",
+      "source": "https://coconutcreekfun.com/mini-golf/"
+     },
+     {
+      "claim": "Courses feature cascading waterfalls and a rocky cave.",
+      "source": "https://coconutcreekfun.com/mini-golf/"
+     },
+     {
+      "claim": "The park offers the Gran Maze and an observation deck.",
+      "source": "https://coconutcreekfun.com/mini-golf/"
+     },
+     {
+      "claim": "Coconut Creek is in Panama City Beach.",
+      "source": "https://coconutcreekfun.com/mini-golf/"
+     },
+     {
+      "claim": "Pay-One-Price is $30.00 plus tax for unlimited mini-golf and Gran Maze until 5 p.m. the following day.",
+      "source": "https://coconutcreekfun.com/mini-golf/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJJeRCXDoo34gRp5RbpMLM9XQ",
+   "name": "Blowing Rocks Preserve",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "nature_preserve",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.nature.org/en-us/get-involved/how-to-help/places-we-protect/blowing-rocks-preserve/",
+     "source_name": "Blowing Rocks Preserve \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Blowing Rocks Preserve is 73 acres on Jupiter Island, Hobe Sound, Florida.",
+      "The preserve was named for its rocky Anastasia limestone shoreline.",
+      "At high tide, waves force plumes of saltwater up to 50 feet skyward.",
+      "Visitors can use three hiking trails.",
+      "Open seven days a week from 9:00 a.m. to 4:30 p.m.; last entry is 4:15 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Anastasia limestone shoreline where plumes reach up to 50 feet at high tide",
+    "why_here": "This 73 acres preserve on Jupiter Island is named for its Anastasia limestone shoreline. At high tide, waves force plumes of saltwater up to 50 feet skyward, and visitors can use three hiking trails.",
+    "know_before": "Open seven days a week from 9:00 a.m. to 4:30 p.m.; last entry is 4:15 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.nature.org/en-us/get-involved/how-to-help/places-we-protect/blowing-rocks-preserve/"
+     ],
+     "why_here": [
+      "https://www.nature.org/en-us/get-involved/how-to-help/places-we-protect/blowing-rocks-preserve/"
+     ],
+     "know_before": [
+      "https://www.nature.org/en-us/get-involved/how-to-help/places-we-protect/blowing-rocks-preserve/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Blowing Rocks Preserve is 73 acres on Jupiter Island, Hobe Sound, Florida.",
+      "source": "https://www.nature.org/en-us/get-involved/how-to-help/places-we-protect/blowing-rocks-preserve/"
+     },
+     {
+      "claim": "The preserve was named for its rocky Anastasia limestone shoreline.",
+      "source": "https://www.nature.org/en-us/get-involved/how-to-help/places-we-protect/blowing-rocks-preserve/"
+     },
+     {
+      "claim": "At high tide, waves force plumes of saltwater up to 50 feet skyward.",
+      "source": "https://www.nature.org/en-us/get-involved/how-to-help/places-we-protect/blowing-rocks-preserve/"
+     },
+     {
+      "claim": "Visitors can use three hiking trails.",
+      "source": "https://www.nature.org/en-us/get-involved/how-to-help/places-we-protect/blowing-rocks-preserve/"
+     },
+     {
+      "claim": "Open seven days a week from 9:00 a.m. to 4:30 p.m.; last entry is 4:15 p.m.",
+      "source": "https://www.nature.org/en-us/get-involved/how-to-help/places-we-protect/blowing-rocks-preserve/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJgWgBc07X2IgRI6V4j9kTmLw",
+   "name": "Pink Steak",
+   "category": "food",
+   "metro": "palm-beach",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.pinksteak.com/",
+     "source_name": "Pink Steak \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Pink Steak is at 2777 S Dixie Hwy, West Palm Beach, FL 33405.",
+      "Pink Steak offers modern steakhouse dining.",
+      "The menu includes caviars and raw bar selections.",
+      "Steaks and chops include prime ribeye and wagyu.",
+      "Happy hour is Monday to Friday from 4:00 p.m. to 6:30 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Modern steakhouse dining with caviars and raw bar selections",
+    "why_here": "Go for modern steakhouse dining with caviars and raw bar selections, plus steaks and chops including prime ribeye and wagyu on the menu for an evening meal.",
+    "know_before": "Happy hour is Monday to Friday from 4:00 p.m. to 6:30 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.pinksteak.com/"
+     ],
+     "why_here": [
+      "https://www.pinksteak.com/"
+     ],
+     "know_before": [
+      "https://www.pinksteak.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Pink Steak is at 2777 S Dixie Hwy, West Palm Beach, FL 33405.",
+      "source": "https://www.pinksteak.com/"
+     },
+     {
+      "claim": "Pink Steak offers modern steakhouse dining.",
+      "source": "https://www.pinksteak.com/"
+     },
+     {
+      "claim": "The menu includes caviars and raw bar selections.",
+      "source": "https://www.pinksteak.com/"
+     },
+     {
+      "claim": "Steaks and chops include prime ribeye and wagyu.",
+      "source": "https://www.pinksteak.com/"
+     },
+     {
+      "claim": "Happy hour is Monday to Friday from 4:00 p.m. to 6:30 p.m.",
+      "source": "https://www.pinksteak.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJf7zFhvrU2IgREeP_UO_pVWs",
+   "name": "Phil Foster Park",
+   "category": "attractions",
+   "metro": "palm-beach",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://discover.pbc.gov/parks/Locations/Phil-Foster.aspx",
+     "source_name": "Phil Foster Park \u2014 official source",
+     "source_class": "government",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Phil Foster Memorial Park snorkel trail spans a two-acre area in 6 to 10 feet of water",
+      "The snorkel trail is made of limestone boulders and prefabricated reef modules",
+      "Squid, octopus, spotted rays and starfish are regularly seen",
+      "The park offers swimming in the Intracoastal Waterway",
+      "Fishing pier hours are sunrise to 10:00 p.m.",
+      "Balloons are prohibited at this park"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Snorkel trail in 6 to 10 feet of water at Phil Foster Memorial Park",
+    "why_here": "Swim and snorkel in the Intracoastal Waterway on a snorkel trail made of limestone boulders and prefabricated reef modules spanning a two-acre area in 6 to 10 feet of water, where squid, octopus, spotted rays and starfish are regularly seen.",
+    "know_before": "Fishing pier is open from sunrise to 10:00 p.m.; balloons are prohibited at this park.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://discover.pbc.gov/parks/Locations/Phil-Foster.aspx"
+     ],
+     "why_here": [
+      "https://discover.pbc.gov/parks/Locations/Phil-Foster.aspx"
+     ],
+     "know_before": [
+      "https://discover.pbc.gov/parks/Locations/Phil-Foster.aspx"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Phil Foster Memorial Park snorkel trail spans a two-acre area in 6 to 10 feet of water",
+      "source": "https://discover.pbc.gov/parks/Locations/Phil-Foster.aspx"
+     },
+     {
+      "claim": "The snorkel trail is made of limestone boulders and prefabricated reef modules",
+      "source": "https://discover.pbc.gov/parks/Locations/Phil-Foster.aspx"
+     },
+     {
+      "claim": "Squid, octopus, spotted rays and starfish are regularly seen",
+      "source": "https://discover.pbc.gov/parks/Locations/Phil-Foster.aspx"
+     },
+     {
+      "claim": "The park offers swimming in the Intracoastal Waterway",
+      "source": "https://discover.pbc.gov/parks/Locations/Phil-Foster.aspx"
+     },
+     {
+      "claim": "Fishing pier hours are sunrise to 10:00 p.m.",
+      "source": "https://discover.pbc.gov/parks/Locations/Phil-Foster.aspx"
+     },
+     {
+      "claim": "Balloons are prohibited at this park",
+      "source": "https://discover.pbc.gov/parks/Locations/Phil-Foster.aspx"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJbbJGln3QwogR1gSJpdRqs9Q",
+   "name": "The River's Edge Bar & Grill",
+   "category": "nightlife",
+   "metro": "tampa",
+   "primary_type": "bar_and_grill",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://riversedgebarandgrill.com/",
+     "source_name": "The River's Edge Bar & Grill \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The River's Edge Bar & Grill is located on the Alafia River in Gibsonton",
+      "Visitors can travel by car, bike or boat",
+      "The venue has a full bar and kitchen with inside and outside bars",
+      "Outside dining overlooks the water",
+      "Live music and events are held every weekend",
+      "Grill hours are 11:00 a.m. to 9:00 p.m. Monday to Thursday and Sunday, and 11:00 a.m. to 11:00 p.m. Friday to Saturday"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Waterfront bar and grill on the Alafia River in Gibsonton",
+    "why_here": "Come by car, bike or boat to this waterfront spot on the Alafia River with a full bar and kitchen, inside and outside bars, outside dining overlooking the water, and live music and events every weekend.",
+    "know_before": "Grill hours are 11:00 a.m. to 9:00 p.m. Monday to Thursday and Sunday, and 11:00 a.m. to 11:00 p.m. Friday to Saturday.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://riversedgebarandgrill.com/"
+     ],
+     "why_here": [
+      "https://riversedgebarandgrill.com/"
+     ],
+     "know_before": [
+      "https://riversedgebarandgrill.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The River's Edge Bar & Grill is located on the Alafia River in Gibsonton",
+      "source": "https://riversedgebarandgrill.com/"
+     },
+     {
+      "claim": "Visitors can travel by car, bike or boat",
+      "source": "https://riversedgebarandgrill.com/"
+     },
+     {
+      "claim": "The venue has a full bar and kitchen with inside and outside bars",
+      "source": "https://riversedgebarandgrill.com/"
+     },
+     {
+      "claim": "Outside dining overlooks the water",
+      "source": "https://riversedgebarandgrill.com/"
+     },
+     {
+      "claim": "Live music and events are held every weekend",
+      "source": "https://riversedgebarandgrill.com/"
+     },
+     {
+      "claim": "Grill hours are 11:00 a.m. to 9:00 p.m. Monday to Thursday and Sunday, and 11:00 a.m. to 11:00 p.m. Friday to Saturday",
+      "source": "https://riversedgebarandgrill.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ2fJHv2ThwogR0mfd-Wku3HA",
+   "name": "Crescent Lake Park",
+   "category": "attractions",
+   "metro": "st-pete",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.stpeteparksrec.org/parks___facilities/crescent_lake_park.php",
+     "source_name": "Crescent Lake Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Crescent Lake Park is at 1320 5th St. N., St. Petersburg, FL 33701",
+      "The park is surrounded by banyan trees",
+      "Park features include a playground, dog park, recreation trails, pickleball courts and tennis courts",
+      "The park includes the TASCO Center for Teen Technology and Huggins-Stengel Sports Complex",
+      "The park opens 30 minutes before sunrise and closes at 11:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Banyan trees, playground and dog park at 1320 5th St. N.",
+    "why_here": "Visit a park surrounded by banyan trees with a playground, dog park, recreation trails, pickleball courts and tennis courts, plus the TASCO Center for Teen Technology and Huggins-Stengel Sports Complex at 1320 5th St. N.",
+    "know_before": "The park opens 30 minutes before sunrise and closes at 11:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.stpeteparksrec.org/parks___facilities/crescent_lake_park.php"
+     ],
+     "why_here": [
+      "https://www.stpeteparksrec.org/parks___facilities/crescent_lake_park.php"
+     ],
+     "know_before": [
+      "https://www.stpeteparksrec.org/parks___facilities/crescent_lake_park.php"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Crescent Lake Park is at 1320 5th St. N., St. Petersburg, FL 33701",
+      "source": "https://www.stpeteparksrec.org/parks___facilities/crescent_lake_park.php"
+     },
+     {
+      "claim": "The park is surrounded by banyan trees",
+      "source": "https://www.stpeteparksrec.org/parks___facilities/crescent_lake_park.php"
+     },
+     {
+      "claim": "Park features include a playground, dog park, recreation trails, pickleball courts and tennis courts",
+      "source": "https://www.stpeteparksrec.org/parks___facilities/crescent_lake_park.php"
+     },
+     {
+      "claim": "The park includes the TASCO Center for Teen Technology and Huggins-Stengel Sports Complex",
+      "source": "https://www.stpeteparksrec.org/parks___facilities/crescent_lake_park.php"
+     },
+     {
+      "claim": "The park opens 30 minutes before sunrise and closes at 11:00 p.m.",
+      "source": "https://www.stpeteparksrec.org/parks___facilities/crescent_lake_park.php"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJea3i6qn9wogRj0-8TsAaboc",
+   "name": "Sunset Vistas Beachfront Suites",
+   "category": "hotels",
+   "metro": "st-pete",
+   "primary_type": "resort_hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.providentresorts.com/sunset-vistas-beachfront-suites-tampa-and-treasure-island/",
+     "source_name": "Sunset Vistas Beachfront Suites \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Sunset Vistas Beachfront Suites is an all-suite beachfront resort.",
+      "The property holds 154 two- and three-bedroom condo-size suites.",
+      "Each suite features a full-size kitchen and a private balcony overlooking the white-sand beach.",
+      "The resort has a separate resort and children's pool."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "All-suite beachfront resort with 154 two- and three-bedroom suites",
+    "why_here": "Stay in condo-size suites at an all-suite beachfront resort holding 154 two- and three-bedroom suites, each with a full-size kitchen and a private balcony overlooking the white-sand beach, plus a separate resort and children's pool.",
+    "know_before": "Each suite features a full-size kitchen and a private balcony.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.providentresorts.com/sunset-vistas-beachfront-suites-tampa-and-treasure-island/"
+     ],
+     "why_here": [
+      "https://www.providentresorts.com/sunset-vistas-beachfront-suites-tampa-and-treasure-island/"
+     ],
+     "know_before": [
+      "https://www.providentresorts.com/sunset-vistas-beachfront-suites-tampa-and-treasure-island/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Sunset Vistas Beachfront Suites is an all-suite beachfront resort.",
+      "source": "https://www.providentresorts.com/sunset-vistas-beachfront-suites-tampa-and-treasure-island/"
+     },
+     {
+      "claim": "The property holds 154 two- and three-bedroom condo-size suites.",
+      "source": "https://www.providentresorts.com/sunset-vistas-beachfront-suites-tampa-and-treasure-island/"
+     },
+     {
+      "claim": "Each suite features a full-size kitchen and a private balcony overlooking the white-sand beach.",
+      "source": "https://www.providentresorts.com/sunset-vistas-beachfront-suites-tampa-and-treasure-island/"
+     },
+     {
+      "claim": "The resort has a separate resort and children's pool.",
+      "source": "https://www.providentresorts.com/sunset-vistas-beachfront-suites-tampa-and-treasure-island/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJjfFrVNvf2IgRow8k8Y_T4DY",
+   "name": "Johnnie Brown's",
+   "category": "nightlife",
+   "metro": "palm-beach",
+   "primary_type": "bar",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://johnniebrowns.com",
+     "source_name": "Johnnie Brown's \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Johnnie Brown's is at 301 E Atlantic Ave., Delray Beach, FL 33483",
+      "The menu serves burgers, wings, ribs and locally caught seafood including Swordfish Sliders",
+      "Bartenders serve cocktails, beers and frozen drinks",
+      "Johnnie Brown's offers live music",
+      "Mondays the venue is closed and Tuesdays it opens at 6:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Burgers, wings and ribs with live music in Delray Beach",
+    "why_here": "Go for burgers, wings, ribs and locally caught seafood including Swordfish Sliders, plus cocktails, beers and frozen drinks, with live music at 301 E Atlantic Ave. in Delray Beach.",
+    "know_before": "Mondays the venue is closed; it opens at 6:00 p.m. on Tuesdays.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://johnniebrowns.com"
+     ],
+     "why_here": [
+      "https://johnniebrowns.com"
+     ],
+     "know_before": [
+      "https://johnniebrowns.com"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Johnnie Brown's is at 301 E Atlantic Ave., Delray Beach, FL 33483",
+      "source": "https://johnniebrowns.com"
+     },
+     {
+      "claim": "The menu serves burgers, wings, ribs and locally caught seafood including Swordfish Sliders",
+      "source": "https://johnniebrowns.com"
+     },
+     {
+      "claim": "Bartenders serve cocktails, beers and frozen drinks",
+      "source": "https://johnniebrowns.com"
+     },
+     {
+      "claim": "Johnnie Brown's offers live music",
+      "source": "https://johnniebrowns.com"
+     },
+     {
+      "claim": "Mondays the venue is closed and Tuesdays it opens at 6:00 p.m.",
+      "source": "https://johnniebrowns.com"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ_9MRlFi12YgRHX6eBIhXQbk",
+   "name": "Icy-N-Spicy",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "ice_cream_shop",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.icynspicy.com/our-story",
+     "source_name": "Icy-N-Spicy \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Icy-N-Spicy is a family run business with a focus on artisan ice cream and desserts.",
+      "The shop combines ice cream flavors of Europe and Asia and offers signature spicy ice cream.",
+      "Visitors can pick up a cone, mochi or signature ice creams at 1250 Ocean Drive.",
+      "The shop is located in the lobby of the Carlyle on Ocean Drive in Miami Beach.",
+      "Opening hours are 12:00 p.m. to 11:00 p.m. Monday to Sunday."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Artisan ice cream and desserts combining flavors of Europe and Asia",
+    "why_here": "Try artisan ice cream and desserts combining ice cream flavors of Europe and Asia, including signature spicy ice cream, mochi and signature ice creams from a family run business at the Carlyle on Ocean Drive.",
+    "know_before": "Opening hours are 12:00 p.m. to 11:00 p.m. Monday to Sunday.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.icynspicy.com/our-story"
+     ],
+     "why_here": [
+      "https://www.icynspicy.com/our-story"
+     ],
+     "know_before": [
+      "https://www.icynspicy.com/our-story"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Icy-N-Spicy is a family run business with a focus on artisan ice cream and desserts.",
+      "source": "https://www.icynspicy.com/our-story"
+     },
+     {
+      "claim": "The shop combines ice cream flavors of Europe and Asia and offers signature spicy ice cream.",
+      "source": "https://www.icynspicy.com/our-story"
+     },
+     {
+      "claim": "Visitors can pick up a cone, mochi or signature ice creams at 1250 Ocean Drive.",
+      "source": "https://www.icynspicy.com/our-story"
+     },
+     {
+      "claim": "The shop is located in the lobby of the Carlyle on Ocean Drive in Miami Beach.",
+      "source": "https://www.icynspicy.com/our-story"
+     },
+     {
+      "claim": "Opening hours are 12:00 p.m. to 11:00 p.m. Monday to Sunday.",
+      "source": "https://www.icynspicy.com/our-story"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJYQfTptewwogRhSsLdAHsmUA",
+   "name": "Grillsmith - Wesley Chapel",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://grillsmith.com/locations/",
+     "source_name": "Grillsmith - Wesley Chapel \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Grillsmith Wesley Chapel is at 2000 Piazza Ave #100, Wesley Chapel, FL 33543.",
+      "Grillsmith has five locations across Tampa Bay and Central Florida serving the same fire-crafted menu.",
+      "The menu includes Cajun Shrimp & Chicken Pasta.",
+      "Wesley Chapel hours are 11:00 a.m. to 9:30 p.m. Monday to Thursday."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Fire-crafted menu with Cajun Shrimp & Chicken Pasta",
+    "why_here": "Try the fire-crafted menu shared across five locations, including Cajun Shrimp & Chicken Pasta, at the Wesley Chapel restaurant serving the same menu across Tampa Bay and Central Florida.",
+    "know_before": "Hours are 11:00 a.m. to 9:30 p.m. Monday to Thursday.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://grillsmith.com/locations/"
+     ],
+     "why_here": [
+      "https://grillsmith.com/locations/"
+     ],
+     "know_before": [
+      "https://grillsmith.com/locations/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Grillsmith Wesley Chapel is at 2000 Piazza Ave #100, Wesley Chapel, FL 33543.",
+      "source": "https://grillsmith.com/locations/"
+     },
+     {
+      "claim": "Grillsmith has five locations across Tampa Bay and Central Florida serving the same fire-crafted menu.",
+      "source": "https://grillsmith.com/locations/"
+     },
+     {
+      "claim": "The menu includes Cajun Shrimp & Chicken Pasta.",
+      "source": "https://grillsmith.com/locations/"
+     },
+     {
+      "claim": "Wesley Chapel hours are 11:00 a.m. to 9:30 p.m. Monday to Thursday.",
+      "source": "https://grillsmith.com/locations/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJMXbAPH2i54gRMHlETt_-mM4",
+   "name": "Lakeside Inn",
+   "category": "hotels",
+   "metro": "florida",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://lakeside-inn.com/about-us/",
+     "source_name": "Lakeside Inn \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Lakeside Inn opened in 1883",
+      "Lakeside Inn is the oldest continuously-operated hotel in the State of Florida",
+      "Lakeside Inn is located in the heart of the Mount Dora historic district, overlooking Lake Dora",
+      "Lakeside Inn is located at 100 North Alexander St., Mount Dora, FL"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Hotel opened in 1883 overlooking Lake Dora in Mount Dora",
+    "why_here": "Stay at a hotel opened in 1883, described as the oldest continuously-operated hotel in the State of Florida, overlooking Lake Dora in the Mount Dora historic district.",
+    "know_before": "Located at 100 North Alexander St., Mount Dora, FL.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://lakeside-inn.com/about-us/"
+     ],
+     "why_here": [
+      "https://lakeside-inn.com/about-us/"
+     ],
+     "know_before": [
+      "https://lakeside-inn.com/about-us/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Lakeside Inn opened in 1883",
+      "source": "https://lakeside-inn.com/about-us/"
+     },
+     {
+      "claim": "Lakeside Inn is the oldest continuously-operated hotel in the State of Florida",
+      "source": "https://lakeside-inn.com/about-us/"
+     },
+     {
+      "claim": "Lakeside Inn is located in the heart of the Mount Dora historic district, overlooking Lake Dora",
+      "source": "https://lakeside-inn.com/about-us/"
+     },
+     {
+      "claim": "Lakeside Inn is located at 100 North Alexander St., Mount Dora, FL",
+      "source": "https://lakeside-inn.com/about-us/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJD61Y4wGx2YgR4v3Ffn7eTeA",
+   "name": "Little Hen",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://littlehen.com/",
+     "source_name": "Little Hen \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Little Hen is an English-inspired breakfast and brunch boutique.",
+      "Little Hen features Rose Petal Pancakes.",
+      "Little Hen serves breakfast and lunch with global ingredients and flavors.",
+      "Little Hen serves Afternoon Tea.",
+      "Afternoon Tea is an English tradition that originated in the 1800s."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "English-inspired breakfast and brunch boutique with Rose Petal Pancakes",
+    "why_here": "Go for an English-inspired breakfast and brunch boutique featuring Rose Petal Pancakes, serving breakfast and lunch with global ingredients and flavors, plus Afternoon Tea for a relaxed pause during the day.",
+    "know_before": "Afternoon Tea is an English tradition that originated in the 1800s.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://littlehen.com/"
+     ],
+     "why_here": [
+      "https://littlehen.com/"
+     ],
+     "know_before": [
+      "https://littlehen.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Little Hen is an English-inspired breakfast and brunch boutique.",
+      "source": "https://littlehen.com/"
+     },
+     {
+      "claim": "Little Hen features Rose Petal Pancakes.",
+      "source": "https://littlehen.com/"
+     },
+     {
+      "claim": "Little Hen serves breakfast and lunch with global ingredients and flavors.",
+      "source": "https://littlehen.com/"
+     },
+     {
+      "claim": "Little Hen serves Afternoon Tea.",
+      "source": "https://littlehen.com/"
+     },
+     {
+      "claim": "Afternoon Tea is an English tradition that originated in the 1800s.",
+      "source": "https://littlehen.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJNSzjYt2s2YgRhVyCZ_3Cyrs",
+   "name": "Marenas Beach Resort",
+   "category": "hotels",
+   "metro": "miami-dade",
+   "primary_type": "resort_hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.marenasresortmiami.com/rooms",
+     "source_name": "Marenas Beach Resort \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Marenas Beach Resort suites include a fully equipped kitchen.",
+      "Marenas Beach Resort suites include a washer/dryer.",
+      "Marenas Beach Resort suites include a separate living area with a queen sized sofa sleeper and a furnished balcony."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Suites with a fully equipped kitchen and a washer/dryer",
+    "why_here": "Stay in a suite with a fully equipped kitchen and a washer/dryer, plus a separate living area with a queen sized sofa sleeper and a furnished balcony for extra room during the stay.",
+    "know_before": "A fully equipped kitchen and a washer/dryer are included in suites.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.marenasresortmiami.com/rooms"
+     ],
+     "why_here": [
+      "https://www.marenasresortmiami.com/rooms"
+     ],
+     "know_before": [
+      "https://www.marenasresortmiami.com/rooms"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Marenas Beach Resort suites include a fully equipped kitchen.",
+      "source": "https://www.marenasresortmiami.com/rooms"
+     },
+     {
+      "claim": "Marenas Beach Resort suites include a washer/dryer.",
+      "source": "https://www.marenasresortmiami.com/rooms"
+     },
+     {
+      "claim": "Marenas Beach Resort suites include a separate living area with a queen sized sofa sleeper and a furnished balcony.",
+      "source": "https://www.marenasresortmiami.com/rooms"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJcUCpZBgC2YgRRfRt95JpHXM",
+   "name": "Phat Boy Sushi, Kitchen & Bar - Downtown",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "sushi_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://phatboysushi.com/menu/",
+     "source_name": "Phat Boy Sushi, Kitchen & Bar - Downtown \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Phat Boy Sushi, Kitchen & Bar lists Downtown Ft. Lauderdale among its locations.",
+      "Phat Boy Sushi, Kitchen & Bar menu includes Tonkotsu Ramen.",
+      "Phat Boy Sushi, Kitchen & Bar menu includes Gyoza.",
+      "Phat Boy Sushi, Kitchen & Bar menu includes Edamame."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Downtown Ft. Lauderdale sushi spot with Tonkotsu Ramen and Gyoza",
+    "why_here": "Go to the Downtown Ft. Lauderdale location for Tonkotsu Ramen, Gyoza and Edamame from the Phat Boy Sushi, Kitchen & Bar menu, with ramen and appetizers listed among the choices for the meal.",
+    "know_before": "Edamame, Gyoza and Tonkotsu Ramen are listed on the menu.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://phatboysushi.com/menu/"
+     ],
+     "why_here": [
+      "https://phatboysushi.com/menu/"
+     ],
+     "know_before": [
+      "https://phatboysushi.com/menu/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Phat Boy Sushi, Kitchen & Bar lists Downtown Ft. Lauderdale among its locations.",
+      "source": "https://phatboysushi.com/menu/"
+     },
+     {
+      "claim": "Phat Boy Sushi, Kitchen & Bar menu includes Tonkotsu Ramen.",
+      "source": "https://phatboysushi.com/menu/"
+     },
+     {
+      "claim": "Phat Boy Sushi, Kitchen & Bar menu includes Gyoza.",
+      "source": "https://phatboysushi.com/menu/"
+     },
+     {
+      "claim": "Phat Boy Sushi, Kitchen & Bar menu includes Edamame.",
+      "source": "https://phatboysushi.com/menu/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJXxT7Ag2Bk4gRYNqn6Yo-PB8",
+   "name": "Bayou Joes Marina & Grill",
+   "category": "food",
+   "metro": "panama-city-florida",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://bayoujoes.com/about/",
+     "source_name": "Bayou Joes Marina & Grill \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Bayou Joe's sits atop Massalina Bayou, in downtown Panama City",
+      "Bayou Joe's serves breakfast, lunch, or dinner any time of year",
+      "Bayou Joe's is located at 112A East 3rd Court Massalina Bayou Panama City, FL 32401",
+      "Bayou Joe's is closed Monday-Tuesday",
+      "Bayou Joe's is open Wednesday-Thursday 11 a.m.-8 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Waterfront dining atop Massalina Bayou in downtown Panama City",
+    "why_here": "Eat breakfast, lunch, or dinner any time of year atop Massalina Bayou in downtown Panama City, at 112A East 3rd Court Massalina Bayou Panama City, FL 32401.",
+    "know_before": "Closed Monday-Tuesday; open Wednesday-Thursday 11 a.m.-8 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://bayoujoes.com/about/"
+     ],
+     "why_here": [
+      "https://bayoujoes.com/about/"
+     ],
+     "know_before": [
+      "https://bayoujoes.com/about/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Bayou Joe's sits atop Massalina Bayou, in downtown Panama City",
+      "source": "https://bayoujoes.com/about/"
+     },
+     {
+      "claim": "Bayou Joe's serves breakfast, lunch, or dinner any time of year",
+      "source": "https://bayoujoes.com/about/"
+     },
+     {
+      "claim": "Bayou Joe's is located at 112A East 3rd Court Massalina Bayou Panama City, FL 32401",
+      "source": "https://bayoujoes.com/about/"
+     },
+     {
+      "claim": "Bayou Joe's is closed Monday-Tuesday",
+      "source": "https://bayoujoes.com/about/"
+     },
+     {
+      "claim": "Bayou Joe's is open Wednesday-Thursday 11 a.m.-8 p.m.",
+      "source": "https://bayoujoes.com/about/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJI_azIOwD2YgRi1gUwP8ggvU",
+   "name": "Jet Runway Cafe",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.jetrunwaycafe.com/",
+     "source_name": "Jet Runway Cafe \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Jet Runway Cafe is at Fort Lauderdale Executive Airport",
+      "Jet Runway Cafe is open for breakfast and lunch everyday",
+      "At Jet Runway Cafe, guests can watch planes take off and touch down on the runway",
+      "Jet Runway Cafe hours are Monday - Friday 7:30 a.m. - 3:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Breakfast and lunch at Fort Lauderdale Executive Airport by the runway",
+    "why_here": "Go for breakfast and lunch at Fort Lauderdale Executive Airport, watching planes take off and touch down on the runway from Jet Runway Cafe.",
+    "know_before": "Hours are Monday - Friday 7:30 a.m. - 3:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.jetrunwaycafe.com/"
+     ],
+     "why_here": [
+      "https://www.jetrunwaycafe.com/"
+     ],
+     "know_before": [
+      "https://www.jetrunwaycafe.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Jet Runway Cafe is at Fort Lauderdale Executive Airport",
+      "source": "https://www.jetrunwaycafe.com/"
+     },
+     {
+      "claim": "Jet Runway Cafe is open for breakfast and lunch everyday",
+      "source": "https://www.jetrunwaycafe.com/"
+     },
+     {
+      "claim": "At Jet Runway Cafe, guests can watch planes take off and touch down on the runway",
+      "source": "https://www.jetrunwaycafe.com/"
+     },
+     {
+      "claim": "Jet Runway Cafe hours are Monday - Friday 7:30 a.m. - 3:00 p.m.",
+      "source": "https://www.jetrunwaycafe.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJf5UHWB6_kIgRCiLHDPYBt30",
+   "name": "Grizzly Axes",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "adventure_sports_center",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.grizzlyaxe.com/pensacola",
+     "source_name": "Grizzly Axes \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Grizzly Axes was Pensacola's very first indoor axe throwing range and rage room",
+      "Grizzly Axes has 27 bulls-eyes to throw at",
+      "Grizzly Axes has a capacity of up to 175 people",
+      "There is an 8 years old minimum for axe throwing and a 12 years old minimum for the rage room"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Indoor axe throwing range and rage room in Pensacola with 27 bulls-eyes",
+    "why_here": "Throw axes at wooden targets in Pensacola, at an indoor axe throwing range and rage room with 27 bulls-eyes and capacity of up to 175 people.",
+    "know_before": "There is an 8 years old minimum for axe throwing and a 12 years old minimum for the rage room.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.grizzlyaxe.com/pensacola"
+     ],
+     "why_here": [
+      "https://www.grizzlyaxe.com/pensacola"
+     ],
+     "know_before": [
+      "https://www.grizzlyaxe.com/pensacola"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Grizzly Axes was Pensacola's very first indoor axe throwing range and rage room",
+      "source": "https://www.grizzlyaxe.com/pensacola"
+     },
+     {
+      "claim": "Grizzly Axes has 27 bulls-eyes to throw at",
+      "source": "https://www.grizzlyaxe.com/pensacola"
+     },
+     {
+      "claim": "Grizzly Axes has a capacity of up to 175 people",
+      "source": "https://www.grizzlyaxe.com/pensacola"
+     },
+     {
+      "claim": "There is an 8 years old minimum for axe throwing and a 12 years old minimum for the rage room",
+      "source": "https://www.grizzlyaxe.com/pensacola"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJtfC-Goa32YgRamzJdmjnE6I",
+   "name": "CRAFT Coconut Grove",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.craftmiami.us/",
+     "source_name": "CRAFT Coconut Grove \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "CRAFT lists Coconut Grove among its locations.",
+      "CRAFT serves comfort food.",
+      "CRAFT offers a modern and casual atmosphere, ideal for breakfast, lunch meetings or brunch any weekend."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Comfort food for breakfast, lunch and brunch any weekend in Coconut Grove",
+    "why_here": "Go to the Coconut Grove location of CRAFT for comfort food in a modern and casual atmosphere, ideal for breakfast, lunch meetings or brunch any weekend with family or friends nearby.",
+    "know_before": "Plan for breakfast, lunch meetings or brunch any weekend in a modern and casual atmosphere.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.craftmiami.us/"
+     ],
+     "why_here": [
+      "https://www.craftmiami.us/"
+     ],
+     "know_before": [
+      "https://www.craftmiami.us/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "CRAFT lists Coconut Grove among its locations.",
+      "source": "https://www.craftmiami.us/"
+     },
+     {
+      "claim": "CRAFT serves comfort food.",
+      "source": "https://www.craftmiami.us/"
+     },
+     {
+      "claim": "CRAFT offers a modern and casual atmosphere, ideal for breakfast, lunch meetings or brunch any weekend.",
+      "source": "https://www.craftmiami.us/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJBxIdDsgn5IgRfH-T65_dSXs",
+   "name": "Ghosts & Gravestones Tour St. Augustine",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "tour_agency",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.ghostsandgravestones.com/st-augustine",
+     "source_name": "Ghosts & Gravestones Tour St. Augustine \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The tour is an 80-minute fully narrated nighttime Frightseeing experience.",
+      "The tour is aboard the Old Town Trolley.",
+      "The tour includes exclusive nighttime entry into Potter's Wax Museum's Chamber of Horrors.",
+      "The tour enters the Old Jail after dark.",
+      "This tour is rated PG-13 and not suitable for young children."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "80-minute fully narrated nighttime Frightseeing experience aboard the Old Town Trolley",
+    "why_here": "Ride aboard the Old Town Trolley for an 80-minute fully narrated nighttime Frightseeing experience, with exclusive nighttime entry into Potter's Wax Museum's Chamber of Horrors and entry into the Old Jail after dark.",
+    "know_before": "This tour is rated PG-13 and not suitable for young children.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.ghostsandgravestones.com/st-augustine"
+     ],
+     "why_here": [
+      "https://www.ghostsandgravestones.com/st-augustine"
+     ],
+     "know_before": [
+      "https://www.ghostsandgravestones.com/st-augustine"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The tour is an 80-minute fully narrated nighttime Frightseeing experience.",
+      "source": "https://www.ghostsandgravestones.com/st-augustine"
+     },
+     {
+      "claim": "The tour is aboard the Old Town Trolley.",
+      "source": "https://www.ghostsandgravestones.com/st-augustine"
+     },
+     {
+      "claim": "The tour includes exclusive nighttime entry into Potter's Wax Museum's Chamber of Horrors.",
+      "source": "https://www.ghostsandgravestones.com/st-augustine"
+     },
+     {
+      "claim": "The tour enters the Old Jail after dark.",
+      "source": "https://www.ghostsandgravestones.com/st-augustine"
+     },
+     {
+      "claim": "This tour is rated PG-13 and not suitable for young children.",
+      "source": "https://www.ghostsandgravestones.com/st-augustine"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJD0iM-PG02YgRfW1_m0Ofeo4",
+   "name": "Lolo's Surf Cantina",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://loloscantina.com/",
+     "source_name": "Lolo's Surf Cantina \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Lolo's Surf Cantina is located in the Marriott Stanton South Beach Resort at 161 Ocean Drive, Miami Beach, FL 33139.",
+      "Lolo's Surf Cantina serves Baja-inspired seafood and tacos.",
+      "Happy Hour is daily from 4 p.m. - 7 p.m.",
+      "Breakfast is served Monday - Friday from 6:30 a.m. - 11 a.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Baja-inspired seafood and tacos in the Marriott Stanton South Beach Resort",
+    "why_here": "Located in the Marriott Stanton South Beach Resort at 161 Ocean Drive, Lolo's Surf Cantina serves Baja-inspired seafood and tacos, with Happy Hour daily from 4 p.m. - 7 p.m. and breakfast in the morning.",
+    "know_before": "Breakfast is served Monday - Friday from 6:30 a.m. - 11 a.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://loloscantina.com/"
+     ],
+     "why_here": [
+      "https://loloscantina.com/"
+     ],
+     "know_before": [
+      "https://loloscantina.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Lolo's Surf Cantina is located in the Marriott Stanton South Beach Resort at 161 Ocean Drive, Miami Beach, FL 33139.",
+      "source": "https://loloscantina.com/"
+     },
+     {
+      "claim": "Lolo's Surf Cantina serves Baja-inspired seafood and tacos.",
+      "source": "https://loloscantina.com/"
+     },
+     {
+      "claim": "Happy Hour is daily from 4 p.m. - 7 p.m.",
+      "source": "https://loloscantina.com/"
+     },
+     {
+      "claim": "Breakfast is served Monday - Friday from 6:30 a.m. - 11 a.m.",
+      "source": "https://loloscantina.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ7cSMoTW22YgRgR1BQSV5Q1Y",
+   "name": "David T. Kennedy Park",
+   "category": "attractions",
+   "metro": "miami-dade",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.miami.gov/Parks-Public-Places/Parks-Directory/David-T.-Kennedy-Park",
+     "source_name": "David T. Kennedy Park \u2014 official source",
+     "source_class": "government",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "David T. Kennedy Park is at 2400 S BAYSHORE DR, Miami 33133.",
+      "Park Hours are Sunrise to Sunset.",
+      "Features include a Dog Park and Volleyball.",
+      "Features include Bathrooms and Dogs Allowed on Leash."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Dog Park and Volleyball open from Sunrise to Sunset",
+    "why_here": "Visit for a Dog Park, Volleyball and Bathrooms, with Dogs Allowed on Leash and Park Hours from Sunrise to Sunset for a simple outdoor stop during the day.",
+    "know_before": "Park Hours are Sunrise to Sunset, and Dogs Allowed on Leash.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.miami.gov/Parks-Public-Places/Parks-Directory/David-T.-Kennedy-Park"
+     ],
+     "why_here": [
+      "https://www.miami.gov/Parks-Public-Places/Parks-Directory/David-T.-Kennedy-Park"
+     ],
+     "know_before": [
+      "https://www.miami.gov/Parks-Public-Places/Parks-Directory/David-T.-Kennedy-Park"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "David T. Kennedy Park is at 2400 S BAYSHORE DR, Miami 33133.",
+      "source": "https://www.miami.gov/Parks-Public-Places/Parks-Directory/David-T.-Kennedy-Park"
+     },
+     {
+      "claim": "Park Hours are Sunrise to Sunset.",
+      "source": "https://www.miami.gov/Parks-Public-Places/Parks-Directory/David-T.-Kennedy-Park"
+     },
+     {
+      "claim": "Features include a Dog Park and Volleyball.",
+      "source": "https://www.miami.gov/Parks-Public-Places/Parks-Directory/David-T.-Kennedy-Park"
+     },
+     {
+      "claim": "Features include Bathrooms and Dogs Allowed on Leash.",
+      "source": "https://www.miami.gov/Parks-Public-Places/Parks-Directory/David-T.-Kennedy-Park"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJuSvs_ffZ5ogR94twi6VSKkY",
+   "name": "Holiday Inn Resort Daytona Beach Oceanfront by IHG",
+   "category": "hotels",
+   "metro": "florida",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.ihg.com/holidayinnresorts/hotels/us/en/daytona-beach/dabsa/hoteldetail",
+     "source_name": "Holiday Inn Resort Daytona Beach Oceanfront by IHG \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The resort is at 1615 South Atlantic Avenue, Daytona Beach, FL 32118.",
+      "The resort has an oceanfront oversized heated swimming pool.",
+      "The resort has a children's splash park, a hot tub, and fire pits."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Oceanfront resort with an oceanfront oversized heated swimming pool",
+    "why_here": "Stay at 1615 South Atlantic Avenue for an oceanfront oversized heated swimming pool, a children's splash park, a hot tub, and fire pits, all at an oceanfront resort in Daytona Beach.",
+    "know_before": "The resort is at 1615 South Atlantic Avenue, Daytona Beach, FL 32118.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.ihg.com/holidayinnresorts/hotels/us/en/daytona-beach/dabsa/hoteldetail"
+     ],
+     "why_here": [
+      "https://www.ihg.com/holidayinnresorts/hotels/us/en/daytona-beach/dabsa/hoteldetail"
+     ],
+     "know_before": [
+      "https://www.ihg.com/holidayinnresorts/hotels/us/en/daytona-beach/dabsa/hoteldetail"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The resort is at 1615 South Atlantic Avenue, Daytona Beach, FL 32118.",
+      "source": "https://www.ihg.com/holidayinnresorts/hotels/us/en/daytona-beach/dabsa/hoteldetail"
+     },
+     {
+      "claim": "The resort has an oceanfront oversized heated swimming pool.",
+      "source": "https://www.ihg.com/holidayinnresorts/hotels/us/en/daytona-beach/dabsa/hoteldetail"
+     },
+     {
+      "claim": "The resort has a children's splash park, a hot tub, and fire pits.",
+      "source": "https://www.ihg.com/holidayinnresorts/hotels/us/en/daytona-beach/dabsa/hoteldetail"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJU5yqBX4a3ogRwXHzIeyHWSw",
+   "name": "Pelican Beach Park",
+   "category": "beach",
+   "metro": "florida",
+   "primary_type": "beach",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.satellitebeach.gov/departments/recreation-department/parks-facilities/beach-parks-and-accesses/",
+     "source_name": "Pelican Beach Park \u2014 official source",
+     "source_class": "government",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Pelican Beach Park has 131 parking spaces (6 ADA) and 1 EV charging station.",
+      "Amenities include pavilions available for reservation, ADA dune crossover, ADA restrooms, and ADA outdoor showers.",
+      "Amenities include grills, a little free library, and 2 sand volleyball courts.",
+      "Paid parking is in effect every day from 7:00 a.m. to 7:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Beach park with 131 parking spaces and 2 sand volleyball courts",
+    "why_here": "Use Pelican Beach Park for 131 parking spaces, pavilions available for reservation, an ADA dune crossover, ADA restrooms, ADA outdoor showers, grills, and 2 sand volleyball courts by the beach.",
+    "know_before": "Paid parking is in effect every day from 7:00 a.m. to 7:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.satellitebeach.gov/departments/recreation-department/parks-facilities/beach-parks-and-accesses/"
+     ],
+     "why_here": [
+      "https://www.satellitebeach.gov/departments/recreation-department/parks-facilities/beach-parks-and-accesses/"
+     ],
+     "know_before": [
+      "https://www.satellitebeach.gov/departments/recreation-department/parks-facilities/beach-parks-and-accesses/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Pelican Beach Park has 131 parking spaces (6 ADA) and 1 EV charging station.",
+      "source": "https://www.satellitebeach.gov/departments/recreation-department/parks-facilities/beach-parks-and-accesses/"
+     },
+     {
+      "claim": "Amenities include pavilions available for reservation, ADA dune crossover, ADA restrooms, and ADA outdoor showers.",
+      "source": "https://www.satellitebeach.gov/departments/recreation-department/parks-facilities/beach-parks-and-accesses/"
+     },
+     {
+      "claim": "Amenities include grills, a little free library, and 2 sand volleyball courts.",
+      "source": "https://www.satellitebeach.gov/departments/recreation-department/parks-facilities/beach-parks-and-accesses/"
+     },
+     {
+      "claim": "Paid parking is in effect every day from 7:00 a.m. to 7:00 p.m.",
+      "source": "https://www.satellitebeach.gov/departments/recreation-department/parks-facilities/beach-parks-and-accesses/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJn-er0I-32YgR4K99ZMfBxiQ",
+   "name": "Biltmore Hotel Miami Coral Gables",
+   "category": "hotels",
+   "metro": "miami-dade",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://biltmorehotel.com/",
+     "source_name": "Biltmore Hotel Miami Coral Gables \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Biltmore Hotel is a National Historic Landmark in Coral Gables.",
+      "The Biltmore Hotel has 271 guest rooms, including 173 suites.",
+      "The Biltmore Golf Course is an 18-hole, par-71 championship course, originally designed in 1925 by Donald Ross.",
+      "The Biltmore Hotel is at 1200 Anastasia Avenue, Coral Gables, FL 33134."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "National Historic Landmark in Coral Gables with a championship course",
+    "why_here": "Stay at a National Historic Landmark in Coral Gables with 271 guest rooms, including 173 suites, and play an 18-hole, par-71 championship course originally designed in 1925 by Donald Ross.",
+    "know_before": "The Biltmore Hotel is at 1200 Anastasia Avenue, Coral Gables, FL 33134.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://biltmorehotel.com/"
+     ],
+     "why_here": [
+      "https://biltmorehotel.com/"
+     ],
+     "know_before": [
+      "https://biltmorehotel.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Biltmore Hotel is a National Historic Landmark in Coral Gables.",
+      "source": "https://biltmorehotel.com/"
+     },
+     {
+      "claim": "The Biltmore Hotel has 271 guest rooms, including 173 suites.",
+      "source": "https://biltmorehotel.com/"
+     },
+     {
+      "claim": "The Biltmore Golf Course is an 18-hole, par-71 championship course, originally designed in 1925 by Donald Ross.",
+      "source": "https://biltmorehotel.com/"
+     },
+     {
+      "claim": "The Biltmore Hotel is at 1200 Anastasia Avenue, Coral Gables, FL 33134.",
+      "source": "https://biltmorehotel.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJOU-YQV2P54gRrQVrumsKYso",
+   "name": "Salt Shack on the Lake",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://salt-shack.com/",
+     "source_name": "Salt Shack on the Lake \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Salt Shack on the Lake is on Lake Minneola in Clermont, FL.",
+      "Salt Shack serves genuine wild-caught Gulf shrimp alongside fresh fish and seafood.",
+      "The menu is seasonal and Caribbean-inspired, off Highway 50 in Historic Downtown Clermont.",
+      "Salt Shack on the Lake is at 846 W Osceola St, Clermont, FL 34711."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Wild-caught seafood on Lake Minneola in Clermont, FL",
+    "why_here": "Eat on Lake Minneola in Clermont, FL and try genuine wild-caught Gulf shrimp alongside fresh fish and seafood from a seasonal, Caribbean-inspired menu off Highway 50 in Historic Downtown Clermont.",
+    "know_before": "Salt Shack on the Lake is at 846 W Osceola St, Clermont, FL 34711.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://salt-shack.com/"
+     ],
+     "why_here": [
+      "https://salt-shack.com/"
+     ],
+     "know_before": [
+      "https://salt-shack.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Salt Shack on the Lake is on Lake Minneola in Clermont, FL.",
+      "source": "https://salt-shack.com/"
+     },
+     {
+      "claim": "Salt Shack serves genuine wild-caught Gulf shrimp alongside fresh fish and seafood.",
+      "source": "https://salt-shack.com/"
+     },
+     {
+      "claim": "The menu is seasonal and Caribbean-inspired, off Highway 50 in Historic Downtown Clermont.",
+      "source": "https://salt-shack.com/"
+     },
+     {
+      "claim": "Salt Shack on the Lake is at 846 W Osceola St, Clermont, FL 34711.",
+      "source": "https://salt-shack.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJHREHaWal2YgR-CHN0CIky7Q",
+   "name": "La Diosa Taqueria Miami Lakes",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "mexican_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.ladiosataqueria.com/miami-lakes",
+     "source_name": "La Diosa Taqueria Miami Lakes \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "La Diosa Taqueria Miami Lakes is at 7321 Miami Lakes Dr, Miami Lakes, FL 33014.",
+      "La Diosa Taqueria serves birria tacos and street-style Mexican food.",
+      "$4 Taco Tuesday specials are offered at La Diosa Taqueria."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Birria tacos and street-style Mexican food at 7321 Miami Lakes Dr",
+    "why_here": "Go to 7321 Miami Lakes Dr for birria tacos and street-style Mexican food, including $4 Taco Tuesday specials, at a Mexican restaurant in Miami Lakes serving tacos and other Mexican dishes.",
+    "know_before": "$4 Taco Tuesday specials are offered at La Diosa Taqueria.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.ladiosataqueria.com/miami-lakes"
+     ],
+     "why_here": [
+      "https://www.ladiosataqueria.com/miami-lakes"
+     ],
+     "know_before": [
+      "https://www.ladiosataqueria.com/miami-lakes"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "La Diosa Taqueria Miami Lakes is at 7321 Miami Lakes Dr, Miami Lakes, FL 33014.",
+      "source": "https://www.ladiosataqueria.com/miami-lakes"
+     },
+     {
+      "claim": "La Diosa Taqueria serves birria tacos and street-style Mexican food.",
+      "source": "https://www.ladiosataqueria.com/miami-lakes"
+     },
+     {
+      "claim": "$4 Taco Tuesday specials are offered at La Diosa Taqueria.",
+      "source": "https://www.ladiosataqueria.com/miami-lakes"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ5cQh61T8wogRvptDJYwOURM",
+   "name": "Dolphin Quest Eco Tours",
+   "category": "attractions",
+   "metro": "st-pete",
+   "primary_type": "tour_agency",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://boattoursjohnspass.com/dolphin-quest-sightseeing/",
+     "source_name": "Dolphin Quest Eco Tours \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Dolphin Quest offers eco-friendly dolphin cruise tours for watching local dolphins.",
+      "Dolphin Quest cruises John's Pass and Boca Ciega Bay.",
+      "The Dolphin Quest is a 40-foot catamaran used for a 90-minute cruise around Boca Ciega Bay and the Gulf of Mexico.",
+      "Dolphin Quest cruises depart at 12:00 p.m., 2:00 p.m. and 4:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Dolphin cruise around Boca Ciega Bay on a 40-foot catamaran",
+    "why_here": "Take an eco-friendly dolphin cruise tour through John's Pass and Boca Ciega Bay, watching local dolphins during a 90-minute cruise around Boca Ciega Bay and the Gulf of Mexico on a 40-foot catamaran.",
+    "know_before": "Dolphin Quest cruises depart at 12:00 p.m., 2:00 p.m. and 4:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://boattoursjohnspass.com/dolphin-quest-sightseeing/"
+     ],
+     "why_here": [
+      "https://boattoursjohnspass.com/dolphin-quest-sightseeing/"
+     ],
+     "know_before": [
+      "https://boattoursjohnspass.com/dolphin-quest-sightseeing/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Dolphin Quest offers eco-friendly dolphin cruise tours for watching local dolphins.",
+      "source": "https://boattoursjohnspass.com/dolphin-quest-sightseeing/"
+     },
+     {
+      "claim": "Dolphin Quest cruises John's Pass and Boca Ciega Bay.",
+      "source": "https://boattoursjohnspass.com/dolphin-quest-sightseeing/"
+     },
+     {
+      "claim": "The Dolphin Quest is a 40-foot catamaran used for a 90-minute cruise around Boca Ciega Bay and the Gulf of Mexico.",
+      "source": "https://boattoursjohnspass.com/dolphin-quest-sightseeing/"
+     },
+     {
+      "claim": "Dolphin Quest cruises depart at 12:00 p.m., 2:00 p.m. and 4:00 p.m.",
+      "source": "https://boattoursjohnspass.com/dolphin-quest-sightseeing/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJC3G10NQB2YgR4SH3-4Kcgrw",
+   "name": "Batch Local Kitchen: Fort Lauderdale",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.batchlocalkitchen.com/ftl",
+     "source_name": "Batch Local Kitchen: Fort Lauderdale \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Batch Local Kitchen is a neighborhood restaurant serving scratch-made food, handcrafted drinks, and genuine hospitality.",
+      "Batch Local Kitchen serves American cuisine.",
+      "Batch Local Kitchen in Fort Lauderdale is at 525 N Federal Hwy, Fort Lauderdale, FL 33301."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Scratch-made food and handcrafted drinks with American cuisine",
+    "why_here": "Go for scratch-made food and handcrafted drinks at this neighborhood restaurant serving American cuisine, with genuine hospitality at the Fort Lauderdale location for a local meal out.",
+    "know_before": "The Fort Lauderdale address is 525 N Federal Hwy, Fort Lauderdale, FL 33301.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.batchlocalkitchen.com/ftl"
+     ],
+     "why_here": [
+      "https://www.batchlocalkitchen.com/ftl"
+     ],
+     "know_before": [
+      "https://www.batchlocalkitchen.com/ftl"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Batch Local Kitchen is a neighborhood restaurant serving scratch-made food, handcrafted drinks, and genuine hospitality.",
+      "source": "https://www.batchlocalkitchen.com/ftl"
+     },
+     {
+      "claim": "Batch Local Kitchen serves American cuisine.",
+      "source": "https://www.batchlocalkitchen.com/ftl"
+     },
+     {
+      "claim": "Batch Local Kitchen in Fort Lauderdale is at 525 N Federal Hwy, Fort Lauderdale, FL 33301.",
+      "source": "https://www.batchlocalkitchen.com/ftl"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJW_kfHtmo2YgR67H21yysnxU",
+   "name": "Dutch Pot Restaurant - Pembroke Pines",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.dutchpotrestaurants.com/pembroke-pines",
+     "source_name": "Dutch Pot Restaurant - Pembroke Pines \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Dutch Pot Jamaican Restaurant is at 7301 Pines Blvd, Pembroke Pines, FL 33024.",
+      "The menu includes Large Ackee & Saltfish.",
+      "Hours are Monday through Thursday 7 a.m. to 10 p.m.",
+      "Hours are Friday through Saturday 7 a.m. to 11 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Jamaican restaurant serving Ackee & Saltfish in Pembroke Pines",
+    "why_here": "Try Ackee & Saltfish at this Jamaican restaurant in Pembroke Pines, where the menu lists Large Ackee & Saltfish among its breakfast plates for a meal during the day.",
+    "know_before": "Hours are Monday through Thursday 7 a.m. to 10 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.dutchpotrestaurants.com/pembroke-pines"
+     ],
+     "why_here": [
+      "https://www.dutchpotrestaurants.com/pembroke-pines"
+     ],
+     "know_before": [
+      "https://www.dutchpotrestaurants.com/pembroke-pines"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Dutch Pot Jamaican Restaurant is at 7301 Pines Blvd, Pembroke Pines, FL 33024.",
+      "source": "https://www.dutchpotrestaurants.com/pembroke-pines"
+     },
+     {
+      "claim": "The menu includes Large Ackee & Saltfish.",
+      "source": "https://www.dutchpotrestaurants.com/pembroke-pines"
+     },
+     {
+      "claim": "Hours are Monday through Thursday 7 a.m. to 10 p.m.",
+      "source": "https://www.dutchpotrestaurants.com/pembroke-pines"
+     },
+     {
+      "claim": "Hours are Friday through Saturday 7 a.m. to 11 p.m.",
+      "source": "https://www.dutchpotrestaurants.com/pembroke-pines"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJh9xw_Kgd2YgRFJn0PukriXk",
+   "name": "JByrd's Muddy Waters Restaurant & Raw Bar",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://muddywatersrestaurant.com/",
+     "source_name": "JByrd's Muddy Waters Restaurant & Raw Bar \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "JByrd's Muddy Waters Restaurant & Raw Bar serves lobster and fresh seafood in Deerfield Beach.",
+      "The restaurant has outside covered patio seating that is pet friendly.",
+      "The restaurant has 21 big screen HD TVs.",
+      "Hours are Sunday through Thursday 11 a.m. to 9 p.m.",
+      "Havoc (Happy) Hour is everyday 4 p.m. to 7 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Lobster and fresh seafood with pet friendly patio seating",
+    "why_here": "Come for lobster and fresh seafood in Deerfield Beach, with outside covered patio seating that is pet friendly and 21 big screen HD TVs inside for watching a game with food and drinks.",
+    "know_before": "Hours are Sunday through Thursday 11 a.m. to 9 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://muddywatersrestaurant.com/"
+     ],
+     "why_here": [
+      "https://muddywatersrestaurant.com/"
+     ],
+     "know_before": [
+      "https://muddywatersrestaurant.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "JByrd's Muddy Waters Restaurant & Raw Bar serves lobster and fresh seafood in Deerfield Beach.",
+      "source": "https://muddywatersrestaurant.com/"
+     },
+     {
+      "claim": "The restaurant has outside covered patio seating that is pet friendly.",
+      "source": "https://muddywatersrestaurant.com/"
+     },
+     {
+      "claim": "The restaurant has 21 big screen HD TVs.",
+      "source": "https://muddywatersrestaurant.com/"
+     },
+     {
+      "claim": "Hours are Sunday through Thursday 11 a.m. to 9 p.m.",
+      "source": "https://muddywatersrestaurant.com/"
+     },
+     {
+      "claim": "Havoc (Happy) Hour is everyday 4 p.m. to 7 p.m.",
+      "source": "https://muddywatersrestaurant.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ48vr-Wy35YgRqw25xMapJvU",
+   "name": "Brooklyn Station on Riverside",
+   "category": "shopping",
+   "metro": "florida",
+   "primary_type": "grocery_store",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.regencycenters.com/property/detail/60648/Brooklyn-Station-on-Riverside",
+     "source_name": "Brooklyn Station on Riverside \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Brooklyn Station on Riverside is at 90-192 Riverside Ave, Jacksonville, FL 32202",
+      "THE FRESH MARKET is a key retailer at Brooklyn Station on Riverside",
+      "Brooklyn Station on Riverside is a retail property in Jacksonville, FL 32202"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Retail center with THE FRESH MARKET on Riverside Ave",
+    "why_here": "Go for shopping at a Jacksonville retail center where THE FRESH MARKET is listed as a key retailer at Brooklyn Station on Riverside, with other tenants shown in the official site plan.",
+    "know_before": "Brooklyn Station on Riverside is at 90-192 Riverside Ave, Jacksonville, FL 32202",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.regencycenters.com/property/detail/60648/Brooklyn-Station-on-Riverside"
+     ],
+     "why_here": [
+      "https://www.regencycenters.com/property/detail/60648/Brooklyn-Station-on-Riverside"
+     ],
+     "know_before": [
+      "https://www.regencycenters.com/property/detail/60648/Brooklyn-Station-on-Riverside"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Brooklyn Station on Riverside is at 90-192 Riverside Ave, Jacksonville, FL 32202",
+      "source": "https://www.regencycenters.com/property/detail/60648/Brooklyn-Station-on-Riverside"
+     },
+     {
+      "claim": "THE FRESH MARKET is a key retailer at Brooklyn Station on Riverside",
+      "source": "https://www.regencycenters.com/property/detail/60648/Brooklyn-Station-on-Riverside"
+     },
+     {
+      "claim": "Brooklyn Station on Riverside is a retail property in Jacksonville, FL 32202",
+      "source": "https://www.regencycenters.com/property/detail/60648/Brooklyn-Station-on-Riverside"
+     }
+    ]
+   }
+  }
+ ]
+}

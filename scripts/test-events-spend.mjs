@@ -32,7 +32,9 @@ async function routeWith({ cacheValue = null, spendAllowed = false }) {
   source = source.replace('from "../../../lib/eventStartRefresh.js"', "from " + JSON.stringify(refreshHref));
   source = source.replace(/^import[^;]+;\n/gm, (line) => line.includes("eventStartRefresh.js") ? line : "");
   const prelude = `
-    const processEvents = () => ({ events: [], usableCount: 0, health: [], excludedByReason: {} });
+    // Validation has its own real-pipeline guard. Keep this fixture focused on spend,
+    // while allowing the new free owned-refresh pass to preserve cached rows.
+    const processEvents = (results) => { const events = results.flatMap((r) => r.events || []); return { events, usableCount: events.length, health: [], excludedByReason: {} }; };
     const siteTodayStr = () => "2099-01-01";
     const lastEventDay = globalThis.__lastEventDay;
     const siteAnchorDate = (d) => d;
@@ -47,6 +49,9 @@ async function routeWith({ cacheValue = null, spendAllowed = false }) {
     const fetchCuratedEvents = async () => [];
     const curatedFeedEvents = () => [];
     const curatedFeedEventsWithFall = () => [];
+    const currentCuratedFeed = () => [];
+    const withCuratedEventPhotos = async (rows) => rows;
+    const replaceCachedCurated = (cached, fresh) => [...cached.filter((e) => !e.curated), ...fresh];
     const FALL_FEED_CACHE_VERSION = "test";
     const CURATED_REACH_MI = 60;
     const refreshCuratedDayFields = (e) => e; // day-field refresh is covered by check-schedule-note-days
@@ -54,7 +59,7 @@ async function routeWith({ cacheValue = null, spendAllowed = false }) {
     const stockPhotoPool = async () => [];
     const fromPool = () => null;
     const DAY = 86400000;
-    const cget = async () => globalThis.__eventsSpend.cacheValue;
+    const cget = async (key) => key.startsWith("events-owned:") ? { v: [] } : globalThis.__eventsSpend.cacheValue;
     const cset = async () => {};
     const breakerOpen = async () => null;
     const tripBreaker = async () => {};

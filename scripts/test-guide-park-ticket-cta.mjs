@@ -108,9 +108,11 @@ assert.equal(tourCta({ ...good, offerId: "https://www.viator.com/tours/x/d1-3001
 assert.equal(tourCta({ ...good, offerId: "236862P2" }).kind, "none", "a denied SKU never resolves");
 assert.equal(tourCta({ ...good, label: "Book now" }).kind, "none", "a label that does not name the place is refused");
 // The HHN food guide sells the admission its own teaser says you need.
+const themeParkChristmas = guidePrimaryCta(GUIDES["florida-theme-park-christmas-2026"]);
+assert.equal(new URLSearchParams(themeParkChristmas.href.split("?")[1]).get("provider"), "undercover_tourist");
+assert.equal(new URLSearchParams(themeParkChristmas.href.split("?")[1]).get("offer"), "38", "theme park Christmas guide sells Mickey's Very Merry Christmas Party");
 const hhnFood = guidePrimaryCta(GUIDES["orlando-halloween-food-2026"]);
-assert.equal(hhnFood.provider || new URLSearchParams(hhnFood.href.split("?")[1]).get("provider"), "undercover_tourist");
-assert.equal(hhnFood.label, "Halloween Horror Nights tickets");
+assert.equal(hhnFood == null || !String(hhnFood.href || "").includes("offer=19"), true, "the Halloween food guide does not sell the ended HHN ticket");
 
 // Owner rule (test-guide-search-as-book): no Crystal River SKU is pinned.
 assert.equal(GUIDES["swim-with-manatees-crystal-river"].parkTicketPlace, undefined, "Crystal River stays unpinned");

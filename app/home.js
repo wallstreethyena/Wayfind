@@ -24,7 +24,7 @@ import { lunchRevealCookieValue, lunchRevealCount, lunchRevealLimit } from "../l
 import { intentRadiusMi, intentScopeLabel } from "../lib/momentIntents";
 import { MAP_DEFAULT_CATEGORY } from "../lib/mapExplorer";
 import { nextPageOffset } from "../lib/inventoryPaging";
-import { nearMeQuery } from "../lib/nearMeQuery";
+import { nearMeQuery, hasSearchCenter } from "../lib/nearMeQuery";
 // v8.41 — the ONE landing. Every control that swaps the feed under the reader
 // takes them to the results through this, not through its own hand-rolled
 // scroll. See lib/landOnResults.js for the three things a landing has to get
@@ -39,7 +39,7 @@ import { cuisineMetroFor } from "../lib/cuisine";
 // v6.15: the ONE shared place classifier (labels + the junk gate now agree).
 import { primaryCategory, catOfType } from "../lib/placeCategory";
 import { deviceId } from "../lib/deviceId";
-import { analyticsSuppressionReason, captureOrQueue } from "../lib/browserAnalytics";
+import { analyticsSuppressionReason, captureOrQueue, safePagePath } from "../lib/browserAnalytics";
 import { markIntroSeen } from "../lib/introGate";
 import { isNative, nativeAppleCredential, nativeOAuthSignIn } from "../lib/native";
 import { noteHighPointAndMaybeAsk } from "../lib/appRating";
@@ -115,7 +115,6 @@ import { placeAllowed, SUB_ALLOW } from "../lib/placeFilter";
 import { parseCouponValue } from "../lib/couponValue";
 import { currentSeason, seasonQueries, seasonalFit, SEASON_META } from "../lib/seasons";
 import { COUPONS, couponForPlace, couponForPlaceName, normalizeOfferRow } from "../lib/coupons";
-import { pickHook } from "../lib/hooks";
 import * as Meals from "../lib/meals";
 import * as Radius from "../lib/radius";
 import { isTrueLodging } from "../lib/lodging";
@@ -364,6 +363,11 @@ import { createDetailOpenGate } from "../lib/detailOpenGate.js";
 import { createPlaceActionGate } from "../lib/placeActionOnce.js";
 import { planDeepLinkAction, humanConfirmed, deepLinkEventProps, deepLinkPromptLabel } from "../lib/deepLinkAction.js";
 import { isSeedCenter, cityLabel, landingSlugFromLoc, centerAgreesWithLabel, firstPaintRailOrigin, localityFromFormattedAddress, storedPinFresh, storedPlaceHeader } from "../lib/locationHonesty";
+import { centerAfterGeoDecision, landingSearchFromSearch } from "../lib/searchDeepLink";
+// booCoverage.js (the coverage law Boo uses) is loaded on demand: the homepage
+// client sits within 1KB of its 501KB gz budget, and BooCompanion already pulls
+// this module into its own chunk, so the feed shares it instead of inlining it.
+const loadBooCoverage = () => import("./components/booCoverage.js");
 import { ownedPlacePhotoSrc } from "../lib/placePhoto";
 import { sanitizeRestoredPosition } from "../lib/restorePosition.js";
 
@@ -1021,6 +1025,32 @@ function withMemberSignal(list, sig) {
 // already carry a memoised sort key; restamp so the rank follows the chip.
 function withSignalFields(row, next) {
   return restampGoverned(row, { ...row, wfScore: next.wfScore, _members: next._members, _wfScoreRaw: next._wfScoreRaw });
+}
+// Photo recovery can also return live hours. Those affect ranking, unlike the
+// image itself. Compare values so an equivalent hours response is not a refresh.
+function sameHealedHours(a, b) {
+  return a.openNow === b.openNow && a.utcOffset === b.utcOffset
+    && a.hoursAsOf === b.hoursAsOf && JSON.stringify(a.oh) === JSON.stringify(b.oh);
+}
+function mergeBrowseEnrichment(rows, source, patch) {
+  let changed = false;
+  const next = rows.map((row) => {
+    if (!row || row.id !== source.id || row.lat !== source.lat || row.lng !== source.lng
+      || !sameHealedHours(row, source) || sameHealedHours(row, patch)
+      || (Number.isFinite(row.hoursAsOf) && Number.isFinite(patch.hoursAsOf) && patch.hoursAsOf < row.hoursAsOf)) return row;
+    changed = true;
+    // Merge only the recovery fields into the CURRENT row: a concurrent like,
+    // score update or distance correction must survive the delayed response.
+    const image = !row.photo || row.photo === source.photo || row.photo === patch.photo ? patch : row;
+    const enriched = { ...row, photo: image.photo, photos: image.photos, photoAttr: image.photoAttr,
+      oh: patch.oh, openNow: patch.openNow, utcOffset: patch.utcOffset, hoursAsOf: patch.hoursAsOf };
+    // byTopRated uses this private fingerprint to refresh its cached score
+    // when a later trend signal arrives. A spread alone drops the descriptor.
+    const fingerprint = Object.getOwnPropertyDescriptor(row, "__gsInputs");
+    if (fingerprint) Object.defineProperty(enriched, "__gsInputs", fingerprint);
+    return enriched;
+  });
+  return changed ? next : rows;
 }
 // v4.95: the old mapsRouteUrl (Google-Maps directions to ALL places at once)
 // is gone by product direction — a list's map icon opens Wayfind's own map.
@@ -3949,7 +3979,7 @@ function MoreSpotsButton({ onClick }) {
   );
 }
 
-function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvents = null, railMenu = null, initialPlaceId = null, initialPlaceAction = null }) {
+function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvents = null, thisWeekGuide = null, railMenu = null, initialPlaceId = null, initialPlaceAction = null }) {
   const [supabaseReady, setSupabaseReady] = useState(false);
   // PERF 2026-09-08: Supabase is not part of the homepage eager graph. Load it
   // after hydration, then rerun only effects whose dependency lists were
@@ -4167,6 +4197,8 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
   const [vibe, setVibe] = useState("all");
   const [sortBy, setSortBy] = useState("rated"); // v4.97: quality-first default — a 0-review shop at 1.5 mi must never outrank a 4.8★ preserve
   const [searchRadius, setSearchRadius] = useState(DEFAULT_RADIUS_M); // meters — v4.83: 17-mile app-wide default
+  const coverageGapLoggedRef = useRef(new Set()); // one coverage_gap event per area cell + category per tab
+  const [feedGap, setFeedGap] = useState(null); // booCoverage gap for the CURRENT feed center (null = covered/unknown), set with the places it explains
   const autoRadiusRef = useRef(true); // v4.85: true while the radius is app-chosen; a manual slider touch flips it off and auto-widen stands down
   const [visibleCount, setVisibleCount] = useState(5); // explore list shows 5, then "Wayfind 5 more spots"
   const [radiusSheet, setRadiusSheet] = useState(false);
@@ -5204,38 +5236,34 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
   // partners never send booking data back, so this is the honest capture.
   const [locApprox, setLocApprox] = useState(false);
   const [feedRetry, setFeedRetry] = useState(0);
-  const pendingQRef = useRef(null);
   // ?q= arrivals carry two optional companions from guide pages (see
   // app/guides/[slug]/page.js appUrl): intent=place ("this query names a
   // specific POI — open its detail, do not treat it as a city") and near=
   // ("resolve it against the guide's region, not the visitor's location").
-  // Captured together so the effect below hands submitSearch the whole intent.
-  useEffect(() => { try { const sp = new URLSearchParams(window.location.search); const qq = sp.get("q"); const it = (sp.get("intent") || "").trim();
-    // v7.13 (owner-reported, 2026-08-12: "our blog's buttons don't work — they
-    // throw you to the main page and do nothing"). Guides, culture pages and
-    // the SEO landings all send "/?intent=<keyword>" from their PRIMARY CTA —
-    // "Personalize these picks" — and this parser only ever read "?q=", so the
-    // app's own front door dropped the promise on the floor. "?intent=place" is
-    // the old MODE flag and keeps its meaning; any OTHER intent value is the
-    // search those pages meant to run.
-    if (qq && qq.trim()) pendingQRef.current = { q: qq.trim(), placeIntent: it === "place", near: (sp.get("near") || "").trim() || null };
-    else if (it && it !== "place") pendingQRef.current = { q: it, placeIntent: false, near: (sp.get("near") || "").trim() || null };
-  } catch (e) {} }, []);
-  useEffect(() => { if (!pendingQRef.current || !center) return; const pq = pendingQRef.current; pendingQRef.current = null; try { window.history.replaceState({}, "", window.location.pathname); } catch (e) {} submitSearch(pq.q, { placeIntent: pq.placeIntent, near: pq.near }); // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [center]);
+  // Owned search does not need a map center. Waiting on center dropped every
+  // deep link when GPS was denied and /api/geo refused an out-of-Florida IP,
+  // so the box stayed empty and the Christmas poster stayed open.
+  // "?intent=place" is the old MODE flag. Any other intent value is the search.
+  useEffect(() => {
+    let pending = null;
+    try { pending = landingSearchFromSearch(window.location.search); } catch (e) { pending = null; }
+    if (!pending) return;
+    try { window.history.replaceState({}, "", window.location.pathname); } catch (e) {}
+    submitSearch(pending.q, { placeIntent: pending.placeIntent, near: pending.near });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   // The landing URL's query string, captured during the FIRST RENDER — before
   // any effect can rewrite it.
   //
   // Found in browser verification 2026-08-04: the auto-show gate below used to
   // read window.location.search inside its own effect, and by then the query
-  // could already be gone. The ?q strip two lines above fires as soon as
-  // `center` is known, and on a RETURNING device (a saved wf_center) that is
-  // the same commit — and it is declared EARLIER, so it runs first. Result: a
-  // deep-link visitor with a saved location got the mood gate anyway, because
-  // the effect saw a bare "/" and concluded there was no deep link. Same
-  // exposure for the paid/campaign check, whose utm params are read from the
-  // same string. Render runs before every effect, so capturing here is what
-  // makes "the landing URL" mean the URL the visitor actually landed on.
+  // could already be gone. The ?q effect above clears the query string on
+  // mount, before later effects run. Result if this capture waited: a
+  // deep-link visitor got the mood gate anyway, because the effect saw a bare
+  // "/" and concluded there was no deep link. Same exposure for the
+  // paid/campaign check, whose utm params are read from the same string.
+  // Render runs before every effect, so capturing here is what makes "the
+  // landing URL" mean the URL the visitor actually landed on.
   const [introOpen, setIntroOpen] = useState(false);
   // How this open happened, read by IntroSheet's intro_shown: "timer" (the
   // 2-minute visible-time gate), "param" (?intro=1) or "manual" (Find my
@@ -6640,6 +6668,11 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
   useEffect(() => {
     if (typeof window === "undefined" || window._wfVitals) return;
     window._wfVitals = true;
+    // Identify the page lifecycle and exact shipped code without changing the
+    // existing event population, sampling, consent or measurement history.
+    const vitalsPageRoute = safePagePath(window.location.pathname);
+    const vitalsPageStartedAt = Number.isFinite(window.performance?.timeOrigin)
+      ? new Date(window.performance.timeOrigin).toISOString() : null;
     import("web-vitals/attribution").then(({ onLCP, onCLS, onINP, onTTFB, onFCP }) => {
       // The ATTRIBUTION build. Same metrics, same event name, same base
       // properties as before (the command-center panel keeps reading them) —
@@ -6655,7 +6688,9 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
         try {
           const ctx = window.__WF_CTX || {};
           const a = m.attribution || {};
-          const props = { metric: m.name, value: Math.round(m.name === "CLS" ? m.value * 1000 : m.value), rating: m.rating, route: window.location.pathname, device: window.innerWidth < 768 ? "mobile" : "desktop", loc_permission: ctx.locPermission || "unknown", signed_in: !!ctx.signedIn, build: BUILD_ID };
+          const props = { metric: m.name, value: Math.round(m.name === "CLS" ? m.value * 1000 : m.value), rating: m.rating, route: window.location.pathname, device: window.innerWidth < 768 ? "mobile" : "desktop", loc_permission: ctx.locPermission || "unknown", signed_in: !!ctx.signedIn, build: BUILD_ID,
+            release: process.env.NEXT_PUBLIC_WF_BUILD || null, metric_id: str(m.id, 100),
+            page_route: vitalsPageRoute, page_started_at: vitalsPageStartedAt };
           if (m.name === "LCP") {
             // the four sub-parts sum to LCP — they say whether to fix the server,
             // the discovery of the image, its download, or the render that follows.
@@ -7543,28 +7578,26 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
       try {
         const r = await fetch("/api/geo", { cache: "no-store" });
         const d = await r.json();
-        if (d && d.ok && !gotGPS && !manualRef.current) {
-          const c = { lat: d.lat, lng: d.lng };
-          setDeviceLoc((prev) => prev || c);
+        // One decision for the pin and the name. An ok answer inside Florida
+        // replaces the seed. ok:false (no headers, or outside Florida) adopts
+        // the Parrish seed instead of leaving center null, which is what
+        // stranded /?q= before submitSearch could run.
+        const adopted = (!gotGPS && !manualRef.current && isSeedCenter(centerRef.current))
+          ? centerAfterGeoDecision({
+            ok: !!(d && d.ok),
+            lat: d && d.lat,
+            lng: d && d.lng,
+            name: d && d.name,
+            gotGPS,
+            manual: manualRef.current,
+            current: centerRef.current,
+          })
+          : null;
+        if (adopted) {
+          if (adopted.device) setDeviceLoc((prev) => prev || adopted.center);
           setLocResolved(true);
-          // v8.46 — ONE GUARD FOR ONE FACT. This was two:
-          //     setCenter((prev) => (isSeedCenter(prev) ? c : prev));
-          //     if (d.name) setLocName((prev) => prev || d.name);
-          // The center only moved when it was still the seed; the NAME moved
-          // whenever it happened to be blank. Two independent conditions on the
-          // two halves of a single answer — so the halves could, and did,
-          // disagree: a center that stayed put picked up the IP service's city
-          // name, and the chrome started printing a town the ranking had never
-          // heard of. /api/rails then answered covered:false and every rail on
-          // the page went empty under a confident heading.
-          //
-          // The IP answer is now adopted WHOLE or not at all — one decision,
-          // read off centerRef (the committed center, not a stale closure) and
-          // applied to both halves together.
-          if (isSeedCenter(centerRef.current)) {
-            setCenter(c);
-            if (d.name) setLocName(d.name);
-          }
+          setCenter(adopted.center);
+          if (adopted.name) setLocName(adopted.name);
         }
       } catch (e) {}
     };
@@ -7770,9 +7803,24 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
         // places. Auto-widen only moves the STARTING point — once the user
         // touches the slider, their choice is law.
         const _startM = q.radiusM;
+        // 2026-11-02 (owner: "fix it", on the Command Center no-result alert).
+        // Measured: 112 of 114 places_none events in 15 days came from centers
+        // OUTSIDE coverage (out of state and abroad). Free mode serves only
+        // places Wayfind owns, so widening there is four guaranteed-empty
+        // rounds of API calls. Same coverage law Boo uses (booCoverage.js ->
+        // lib/railCoverage.js), so the feed and the companion always agree.
+        // A failed chunk load must never block browsing: no gap info simply
+        // means the normal widen + empty state, exactly as before.
+        // Loaded in PARALLEL with the first fetch, so a covered reader waits on
+        // nothing new. Button text is resolved here, so the render needs no module.
+        const _gapP = loadBooCoverage().then((bc) => {
+          const g = bc.coverageGap({ lat: q.lat, lng: q.lng, loc: locName || "" });
+          return g ? { ...g, options: g.options.map((o, i) => ({ ...o, text: bc.coverageButtonText(o, i === 0) })) } : null;
+        }, () => null);
         let results = await _fetchAt(_startM);
+        const _gap = await _gapP;
         let _usedM = _startM;
-        if (autoRadiusRef.current || _startM <= DEFAULT_RADIUS_M) {
+        if (!_gap && (autoRadiusRef.current || _startM <= DEFAULT_RADIUS_M)) {
           for (const _m of RADIUS_LADDER_M) {
             // v8.62 — break on what the feed can SHOW at the radius actually
             // in use, not on the raw fetch. The serve's gate is radius*1.15
@@ -7787,7 +7835,15 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
           }
         }
         if (!cancelled && _usedM > _startM) { autoRadiusRef.current = true; setSliderMi(Math.round(_usedM / 1609.34)); setSearchRadius(_usedM); }
-        if (!cancelled) { setPlaces(results); loadBlurbs(results); try { logEvent("result_count_shown", null, { count: (results || []).length, cat, sub }); } catch (e) {} if (!results || results.length === 0) logEvent("places_none", null, {
+        if (!cancelled) { setFeedGap(_gap); setPlaces(results); loadBlurbs(results); try { logEvent("result_count_shown", null, { count: (results || []).length, cat, sub }); } catch (e) {}
+          // An empty feed OUTSIDE coverage is a coverage gap, not a broken
+          // search: the reader now gets the Florida city options (render
+          // below) instead of a dead end. Logged once per area + category as
+          // its own event so the Command Center no-result alert measures
+          // search health and the coverage demand stays visible separately.
+          const _gapKey = _gap ? `${_gap.cell}|${cat}|${sub || "all"}` : "";
+          if ((!results || results.length === 0) && _gap) { if (!coverageGapLoggedRef.current.has(_gapKey)) { coverageGapLoggedRef.current.add(_gapKey); try { logEvent("coverage_gap", null, { cat, sub: sub || "all", loc: locName || "", lat: +Number(center.lat).toFixed(1), lng: +Number(center.lng).toFixed(1), nearest: _gap.near.slug, fetchErrs: _fetchErrs }); } catch (e) {} } }
+          else if (!results || results.length === 0) logEvent("places_none", null, {
             loc: locName || "", cat, lat: center.lat, lng: center.lng,
             // v6.43 no-result diagnosis. The original payload was {loc,cat,lat,lng},
             // which could not answer the two questions that decide the fix:
@@ -9091,6 +9147,35 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
     try { if (scrollRef.current) scrollRef.current.scrollTo({ top: 0 }); } catch (e) {}
   }
 
+  // 2026-11-02 (owner: "fix it", Command Center no-result alert). An empty
+  // browse OUTSIDE coverage used to print "try another category / widen your
+  // search / a bigger city nearby", promises nothing could keep: free mode
+  // serves only owned Florida places, so 40 visitors in 15 days hit a dead end
+  // (112 of 114 places_none). Offer Boo's own Florida city options instead
+  // (booCoverage.js: one coverage law, one copy source). Shared by BOTH empty
+  // states (the in-place home browse and the explore list). Nothing moves until
+  // the reader taps; a tap is jumpToArea (manual pick, GPS never yanks it back).
+  function renderCoverageGap() {
+    const gap = feedGap;
+    if (!gap) return null;
+    return (
+      <div data-coverage-gap="1" style={{ textAlign: "center", padding: "36px 20px 44px", color: C.muted, maxWidth: 460, margin: "0 auto" }}>
+        <div style={{ display: "inline-flex", marginBottom: 10 }}><Critter size={46} /></div>
+        <strong style={{ display: "block", color: C.light, fontSize: 17 }}>Wayfind hasn&apos;t reached {gap.area || "your area"} yet</strong>
+        <span style={{ display: "block", fontSize: 13.5, lineHeight: 1.5, margin: "6px 0 18px" }}>Right now we cover Florida. Planning a trip? Pick a city to see what&apos;s good there.</span>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 8, justifyContent: "center" }}>
+          {gap.options.map((o, i) => (
+            <button key={o.slug} type="button"
+              onClick={() => { try { logEvent("coverage_city_jump", null, { city: o.slug, from_cell: gap.cell, cat }); } catch (e) {} jumpToArea({ name: o.label, lat: o.lat, lng: o.lng }); }}
+              style={{ minHeight: 44, padding: "10px 16px", borderRadius: 999, border: i === 0 ? "none" : `1px solid ${C.border}`, background: i === 0 ? C.accent : C.card, color: i === 0 ? "#fff" : C.text, fontSize: 14, fontWeight: 800, cursor: "pointer" }}>
+              {o.text}
+            </button>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   // Boo's "Explore <city>" buttons for visitors outside coverage. Same contract
   // as jumpToArea (manual pick, GPS never yanks it back); the event is
   // same-page only, and the payload is checked before it moves anything.
@@ -9744,46 +9829,65 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
   // reachable through the "See all" chip, so the registry is still one source of
   // truth without flooding the home row.
   const HOME_CHIPS = ["gem", "family", "entertainment", "stays", "shows", "value", "budget", "instagram", "outdoor", "bestof"].filter((k) => EXPERIENCES[k]);
-  const _viewCtx = condCtxFromNow(nowContext({ weather }));
-  const _mealPool = cat === "food" ? mealGate(places, sub) : places;
-  // v4.25: every sort mode is real on the browse feed, the distance limit
-  // applies to all of them, and the near-first rule survives ranking.
-  const _distFiltered = [..._mealPool].filter((p) => sliderMi >= 60 || p.distMi == null || p.distMi <= sliderMi);
-  // 2026-09-28 (owner: "0.7 miles, then 15 miles, then 0.9 miles"): dedupe
-  // BEFORE ordering. Brand collapse writes the surviving branch into the first
-  // branch's slot, so sorting first let a far flagship inherit a near branch's
-  // position. The explicit sort is now the last ordering step, and "Closest
-  // first" keeps a chain's NEAREST branch. Locked by test-sort-modes.
-  const _dedupedPool = dedupePlaces(dealsOnly ? _distFiltered.filter((p) => offers[p.id]) : _distFiltered, !searchMode, sortBy === "near" ? nearestBranch : betterPlace);
-  let viewBase;
-  if (comparatorFor(sortBy)) {
-    // near: distance ascending · rated: v6.42 shared Top-rated comparator
-    // (displayed Wayfind Score, locked by test-top-rated) · price: low → high.
-    viewBase = sortPlacesBy(_dedupedPool, sortBy);
-  } else {
-    viewBase = Ranking.rankByConditions(_dedupedPool, _viewCtx, (p) => placeScore({ quality: p.wfScore, unratedBase: UNRATED_LAST, faveTier: faveTier(p), featured: featuredBoost(p), evidence: creatorEvidenceTerm(p), trend: p.trending ? TRENDING_BONUS : 0 }));
-    // Near-first rule: with 5+ options inside 12 miles, nothing past 20 may outrank them.
-    const _nc = viewBase.filter((p) => p && p.distMi != null && p.distMi <= 12).length;
-    if (_nc >= 5) viewBase = [...viewBase.filter((p) => !(p.distMi != null && p.distMi > 20)), ...viewBase.filter((p) => p.distMi != null && p.distMi > 20)];
-  }
-  // v8.48 — THE COUNT AND THE CARDS MUST BE THE SAME LIST (live incident,
-  // 2026-08-25, owner: "all of the menus are showing empty when we have sooo
-  // many place cards"). PlaceCard has refused rows with no rating signal since
-  // v6.39 (`if (!cardComplete(p)) return null`), but this list was never gated
-  // on the same rule — so a pool of unrenderable rows produced a feed that
-  // counted 21 spots, rendered none, and printed "That's all 21 spots" under
-  // the blank. FREE MODE made that pool the common case (its Pro field mask
-  // omits the Enterprise-billed rating/userRatingCount), which is why the
-  // symptom was site-wide and looked like a total outage rather than thin data.
-  //
-  // Gating HERE, at the one place the browse pool is finalised, makes the
-  // failure honest on every surface that reads `view`: the result count, the
-  // "That's all N" line, the beach-conditions rows and the map all describe the
-  // cards actually on screen, and an empty pool now falls into the real
-  // "Nothing here right now" branch with a widen/relax action instead of
-  // rendering a silent void. A data regression can still lose places; it can no
-  // longer look like a broken page.
-  const view = viewBase.filter(cardComplete);
+  // Detail sheets, search typing and save feedback update this parent too.
+  // Re-ranking its unchanged inventory synchronously on every such update
+  // blocks the tap. Reuse the browse result until an actual ranking input
+  // changes; keep time-sensitive meal/weather rules fresh on the next render.
+  // A recovery begun in another search must not update this browse inventory.
+  const browseEnrichmentScope = [cat, sub, vibe, center?.lat, center?.lng, searchMode].join("|");
+  const browseEnrichmentScopeRef = useRef(browseEnrichmentScope);
+  browseEnrichmentScopeRef.current = browseEnrichmentScope;
+  const onBrowsePlaceEnriched = (source, patch) => {
+    setPlaces((current) => browseEnrichmentScopeRef.current === browseEnrichmentScope
+      ? mergeBrowseEnrichment(current, source, patch) : current);
+  };
+  // The async trend decorator mutates existing rows. Its completion is a real
+  // ranking input even when the places array and current minute are unchanged.
+  const [trendTick, setTrendTick] = useState(0);
+  const browseMinute = Math.floor(Date.now() / 60000);
+  const view = useMemo(() => {
+    const _viewCtx = condCtxFromNow(nowContext({ weather }));
+    const _mealPool = cat === "food" ? mealGate(places, sub) : places;
+    // v4.25: every sort mode is real on the browse feed, the distance limit
+    // applies to all of them, and the near-first rule survives ranking.
+    const _distFiltered = [..._mealPool].filter((p) => sliderMi >= 60 || p.distMi == null || p.distMi <= sliderMi);
+    // 2026-09-28 (owner: "0.7 miles, then 15 miles, then 0.9 miles"): dedupe
+    // BEFORE ordering. Brand collapse writes the surviving branch into the first
+    // branch's slot, so sorting first let a far flagship inherit a near branch's
+    // position. The explicit sort is now the last ordering step, and "Closest
+    // first" keeps a chain's NEAREST branch. Locked by test-sort-modes.
+    const _dedupedPool = dedupePlaces(dealsOnly ? _distFiltered.filter((p) => offers[p.id]) : _distFiltered, !searchMode, sortBy === "near" ? nearestBranch : betterPlace);
+    let viewBase;
+    if (comparatorFor(sortBy)) {
+      // near: distance ascending · rated: v6.42 shared Top-rated comparator
+      // (displayed Wayfind Score, locked by test-top-rated) · price: low → high.
+      viewBase = sortPlacesBy(_dedupedPool, sortBy);
+    } else {
+      viewBase = Ranking.rankByConditions(_dedupedPool, _viewCtx, (p) => placeScore({ quality: p.wfScore, unratedBase: UNRATED_LAST, faveTier: faveTier(p), featured: featuredBoost(p), evidence: creatorEvidenceTerm(p), trend: p.trending ? TRENDING_BONUS : 0 }));
+      // Near-first rule: with 5+ options inside 12 miles, nothing past 20 may outrank them.
+      const _nc = viewBase.filter((p) => p && p.distMi != null && p.distMi <= 12).length;
+      if (_nc >= 5) viewBase = [...viewBase.filter((p) => !(p.distMi != null && p.distMi > 20)), ...viewBase.filter((p) => p.distMi != null && p.distMi > 20)];
+    }
+    // v8.48 — THE COUNT AND THE CARDS MUST BE THE SAME LIST (live incident,
+    // 2026-08-25, owner: "all of the menus are showing empty when we have sooo
+    // many place cards"). PlaceCard has refused rows with no rating signal since
+    // v6.39 (`if (!cardComplete(p)) return null`), but this list was never gated
+    // on the same rule — so a pool of unrenderable rows produced a feed that
+    // counted 21 spots, rendered none, and printed "That's all 21 spots" under
+    // the blank. FREE MODE made that pool the common case (its Pro field mask
+    // omits the Enterprise-billed rating/userRatingCount), which is why the
+    // symptom was site-wide and looked like a total outage rather than thin data.
+    //
+    // Gating HERE, at the one place the browse pool is finalised, makes the
+    // failure honest on every surface that reads `view`: the result count, the
+    // "That's all N" line, the beach-conditions rows and the map all describe the
+    // cards actually on screen, and an empty pool now falls into the real
+    // "Nothing here right now" branch with a widen/relax action instead of
+    // rendering a silent void. A data regression can still lose places; it can no
+    // longer look like a broken page.
+    const view = viewBase.filter(cardComplete);
+    return view;
+  }, [places, cat, sub, sliderMi, dealsOnly, offers, searchMode, sortBy, weather, browseMinute, trendTick]);
   // 2026-10-06 (richer cards): ask /api/known-for for the cards the user can actually
   // SEE first. loadBlurbs only ever requested the first 40 ids of the UNSORTED fetch
   // order, so the top-ranked rows often got no why line. Keyed on the sorted ids.
@@ -9794,10 +9898,10 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
   // SeaWorld could become the hero while Bayside Stadium survived below as if
   // it were an independently visitable destination. The parent keeps its
   // original rank and carries its in-park highlights into both card and detail.
-  const consolidatedView = (() => {
+  const consolidatedView = useMemo(() => {
     try { return consolidateDestinations(view).places; }
     catch (e) { return view; }
-  })();
+  }, [view]);
   // Explore now opens on a single standout, just like the home screen. Prefer a
   // place you can actually go to now; the rest of the ranked list follows below.
   // The hero sits directly under the sort control, so under an explicit sort
@@ -9877,21 +9981,22 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
   // it, displayedWfScore shows it (shown == sorted), and the card renders the
   // 🔥 reason. The tick only forces that re-render once decoration lands;
   // everything fails soft to "nothing trends".
-  const [, setTrendTick] = useState(0);
-  const _trendIdsKey = (places || []).slice(0, 150).map((p) => p && p.id).join(",");
+  // Same IDs can have new row objects after hours/member enrichment. Decorate
+  // those current objects, and cancel the completion of any abandoned pool.
+  const _trendEvents = foryouEvents && foryouEvents.length ? foryouEvents : events;
   useEffect(() => {
     const pool = (places || []).slice(0, 150).filter((p) => p && p.id);
     if (!pool.length) return;
     let dead = false;
     (async () => {
       try {
-        await attachTrendSignals(pool, { events: (foryouEvents && foryouEvents.length ? foryouEvents : events) || [] });
+        await attachTrendSignals(pool, { events: _trendEvents || [] });
         if (!dead) setTrendTick((t) => t + 1);
       } catch (e) {}
     })();
     return () => { dead = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [_trendIdsKey]);
+  }, [places, _trendEvents]);
 
   // v6.57: one batched read of water quality + popularity for every beach
   // card currently on screen, instead of a fetch per card. Both signals are
@@ -10001,16 +10106,20 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
         );
       })()}
       {err && <div style={{ color: C.red, fontSize: 13, padding: "4px 2px 12px" }}>{err} <span onClick={() => setFeedRetry((t) => t + 1)} style={{ color: C.accent, fontWeight: 800, cursor: "pointer", marginLeft: 6 }}>Retry ↻</span></div>}
-      {!loading && !err && view.length === 0 && (
-        <div style={{ textAlign: "center", padding: "48px 24px", color: C.muted }}>
-          <div style={{ display: "flex", justifyContent: "center", marginBottom: 12 }}><NavIcon name={cat} color={C.muted} size={38} /></div>
-          <strong style={{ display: "block", color: C.light }}>Nothing here yet</strong>
-          <span style={{ fontSize: 13 }}>We're adding great spots near you. Try another category, or search a bigger city nearby for the full list.</span>
-        </div>
-      )}
+      {!loading && !err && view.length === 0 && (() => {
+        // Outside coverage: the shared Florida city options (renderCoverageGap).
+        if (feedGap) return renderCoverageGap();
+        return (
+          <div style={{ textAlign: "center", padding: "48px 24px", color: C.muted }}>
+            <div style={{ display: "flex", justifyContent: "center", marginBottom: 12 }}><NavIcon name={cat} color={C.muted} size={38} /></div>
+            <strong style={{ display: "block", color: C.light }}>Nothing here yet</strong>
+            <span style={{ fontSize: 13 }}>We're adding great spots near you. Try another category, or search a bigger city nearby for the full list.</span>
+          </div>
+        );
+      })()}
       <div className="wf-place-card-list">
       {restView.slice(0, 3).map((p, i) => (
-        <PlaceCard key={p.id} p={p} rank={i + 1} saved={isSaved(p.id)} liked={!!liked[p.id]} disliked={!!disliked[p.id]} onDetail={() => openDetail(p)} onSave={() => quickSaveFavorite(p)} onLike={(e) => toggleLike(e, p)} onDislike={(e) => toggleDislike(e, p)} onShareCard={(pl) => { try { addShared(pl); giveawayMark(pl.id); } catch (e) {} }} line={blurbs[p.id]} onBadge={openExperience} onCuisineTap={openCuisine} beachSignal={beachSignals[p.id]} city={cityNow} />
+        <PlaceCard key={p.id} p={p} onPlaceEnriched={onBrowsePlaceEnriched} rank={i + 1} saved={isSaved(p.id)} liked={!!liked[p.id]} disliked={!!disliked[p.id]} onDetail={() => openDetail(p)} onSave={() => quickSaveFavorite(p)} onLike={(e) => toggleLike(e, p)} onDislike={(e) => toggleDislike(e, p)} onShareCard={(pl) => { try { addShared(pl); giveawayMark(pl.id); } catch (e) {} }} line={blurbs[p.id]} onBadge={openExperience} onCuisineTap={openCuisine} beachSignal={beachSignals[p.id]} city={cityNow} />
       ))}
       </div>
       {restView.length > 3 && hookCards.length > 0 && (
@@ -10026,7 +10135,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
       )}
       <div className="wf-place-card-list">
       {restView.slice(3, visibleCount).map((p, i) => (
-        <PlaceCard key={p.id} p={p} rank={i + 4} saved={isSaved(p.id)} liked={!!liked[p.id]} disliked={!!disliked[p.id]} onDetail={() => openDetail(p)} onSave={() => quickSaveFavorite(p)} onLike={(e) => toggleLike(e, p)} onDislike={(e) => toggleDislike(e, p)} onShareCard={(pl) => { try { addShared(pl); giveawayMark(pl.id); } catch (e) {} }} line={blurbs[p.id]} onBadge={openExperience} onCuisineTap={openCuisine} beachSignal={beachSignals[p.id]} city={cityNow} />
+        <PlaceCard key={p.id} p={p} onPlaceEnriched={onBrowsePlaceEnriched} rank={i + 4} saved={isSaved(p.id)} liked={!!liked[p.id]} disliked={!!disliked[p.id]} onDetail={() => openDetail(p)} onSave={() => quickSaveFavorite(p)} onLike={(e) => toggleLike(e, p)} onDislike={(e) => toggleDislike(e, p)} onShareCard={(pl) => { try { addShared(pl); giveawayMark(pl.id); } catch (e) {} }} line={blurbs[p.id]} onBadge={openExperience} onCuisineTap={openCuisine} beachSignal={beachSignals[p.id]} city={cityNow} />
       ))}
       </div>
       {!loading && (restView.length > visibleCount || invMoreCanContinue) && (
@@ -10083,7 +10192,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
     // auth + password-recovery sheets
     authOpen, authMode, setAuthMode, isStandalone, signInWithProvider, authEmail, setAuthEmail, authPassword, setAuthPassword, passwordAuth, authSending, resetSending, sendPasswordReset, recoveryOpen, setRecoveryOpen, newPw, setNewPw, newPw2, setNewPw2, pwSaving, saveNewPassword, authReady,
     // detail sheet (G3)
-    detail, setDetail, detailExtra, setLightbox, reviewsOpen, setReviewsOpen, hoursOpen, setHoursOpen, venueEvents, venueEventsLoading, venueEventsOpen, setVenueEventsOpen, videos, videosLoading, beachCond, beachCondLoading, insight, insightLoading, insightFull, insightFullLoading, showMore, viaTours, debugOn, placeComments, setPlaceComments, commentType, setCommentType, placePosts, setPlacePosts, confirmDel, setConfirmDel, taInfo, insider, detailContext, myVotes, communityVotes, galleryRef, noteRef, scrollGallery, loadFullInsight, addReservation, handleVote, loadVenueEvents, placeShareUrl, FeaturedTag, curatedNote, curatedFor, wayfindNotes, betterAlternatives, similarPlaces, relatedPicks, placeKind, isBeach, beachSignals, weather, isSharedPlaceArrival: !!initialPlaceId,
+    detail, setDetail, detailExtra, setLightbox, reviewsOpen, setReviewsOpen, hoursOpen, setHoursOpen, venueEvents, venueEventsLoading, venueEventsOpen, setVenueEventsOpen, videos, videosLoading, beachCond, beachCondLoading, insight, insightLoading, insightFull, insightFullLoading, showMore, viaTours, debugOn, placeComments, setPlaceComments, commentType, setCommentType, placePosts, setPlacePosts, confirmDel, setConfirmDel, taInfo, insider, detailContext, myVotes, communityVotes, galleryRef, noteRef, scrollGallery, loadFullInsight, addReservation, handleVote, loadVenueEvents, placeShareUrl, FeaturedTag, curatedNote, curatedFor, wayfindNotes, betterAlternatives, similarPlaces, relatedPicks, detailGuides: railMenu && Array.isArray(railMenu.guides) ? railMenu.guides : null, placeKind, isBeach, beachSignals, weather, isSharedPlaceArrival: !!initialPlaceId,
     // social find sheet (v6.93) — the "bookshelf" of curated creator-video
     // places: the place+video the user tapped in from, every other nearby
     // find (for the "more near you" strip), and the region-availability list
@@ -10205,7 +10314,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
   // this dependency out of home's eager imports protects first-load JS.
   const eventsRailSlot = (mode = "events", selectPosterEvents = null) => {
     if (foryouEvents === null) {
-      if (["night-out", "date-night", "summer-sports", "today-entertainment"].includes(mode)) return { pending: true, byRail: {} };
+      if (["night-out", "date-night", "summer-sports", "today-entertainment", "trending"].includes(mode)) return { pending: true, byRail: {} };
       return (
         <div className="wf-rail wf-rail-events" aria-hidden="true" role="status" aria-busy="true" style={{ minHeight: EV_RAIL_MIN_H, overflow: "hidden" }}>
           <PlaceCardSkeleton count={2} as="div" />
@@ -10235,7 +10344,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
         onCopied={() => showToast("Event link copied")}
       />
     );
-    if (["night-out", "date-night", "summer-sports", "today-entertainment"].includes(mode)) {
+    if (["night-out", "date-night", "summer-sports", "today-entertainment", "trending"].includes(mode)) {
       const rows = selectPosterEvents(fp.usable.filter((event) => eventSignals.disliked[event.id] !== true), { mode, center, bucketOf: eventBucket });
       return {
         pending: false,
@@ -11305,7 +11414,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
                   dead-ends there, because nothing on the home screen has ever linked
                   to one. Renders only where a guide genuinely covers the reader's
                   area — see LOCAL_EDIT_RADIUS_MI — so "local" stays a fact. */}
-              {!browseCat && <ThisWeekEvents events={thisWeekEvents} />}
+              {!browseCat && <ThisWeekEvents events={thisWeekEvents} guide={thisWeekGuide} />}
               {!browseCat && <LocalEdit center={locResolved ? center : null} guides={localEditGuides} onLog={(a, p, extra) => { try { logEvent(a, p, extra); } catch (e) {} }} />}
               {a2hs && (
                 <div style={{ marginBottom: 12, display: "flex", alignItems: "center", gap: 10, background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "10px 12px" }}>
@@ -11376,17 +11485,19 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
                     <div className="wf-place-card-list" style={{ marginTop: 2 }} aria-busy="true" aria-label="Finding the best spots">
                       <PlaceCardSkeleton count={5} as="div" />
                     </div>
+                  ) : view.length === 0 && feedGap ? (
+                    renderCoverageGap()
                   ) : view.length === 0 ? (
                     <div style={{ textAlign: "center", padding: "40px 24px", color: C.muted }}>
                       <div style={{ display: "inline-flex", animation: "wfbob 1.4s ease-in-out infinite", marginBottom: 10 }}><Critter size={46} /></div>
-                      <strong style={{ display: "block", color: C.light }}>Nothing here right now</strong>
-                      <span style={{ fontSize: 13 }}>Try another category — or widen your search; the best spots are often a few miles out.</span>
+                      <strong style={{ display: "block", color: C.light }}>{hasSearchCenter(center) ? "Nothing here right now" : "Choose a location"}</strong>
+                      <span style={{ fontSize: 13 }}>{hasSearchCenter(center) ? "Try another category — or widen your search; the best spots are often a few miles out." : "Search a city above or use the Location button."}</span>
                     </div>
                   ) : (
                     <>
                       <div className="wf-place-card-list">
                       {view.map((p, i) => (
-                        <PlaceCard key={p.id} p={p} rank={i + 1} saved={isSaved(p.id)} liked={!!liked[p.id]} disliked={!!disliked[p.id]} onDetail={() => openDetail(p)} onSave={() => quickSaveFavorite(p)} onLike={(e) => toggleLike(e, p)} onDislike={(e) => toggleDislike(e, p)} onShareCard={(pl) => { try { addShared(pl); giveawayMark(pl.id); } catch (e) {} }} line={blurbs[p.id]} onBadge={openExperience} onCuisineTap={openCuisine} beachSignal={beachSignals[p.id]} city={cityNow} />
+                        <PlaceCard key={p.id} p={p} onPlaceEnriched={onBrowsePlaceEnriched} rank={i + 1} saved={isSaved(p.id)} liked={!!liked[p.id]} disliked={!!disliked[p.id]} onDetail={() => openDetail(p)} onSave={() => quickSaveFavorite(p)} onLike={(e) => toggleLike(e, p)} onDislike={(e) => toggleDislike(e, p)} onShareCard={(pl) => { try { addShared(pl); giveawayMark(pl.id); } catch (e) {} }} line={blurbs[p.id]} onBadge={openExperience} onCuisineTap={openCuisine} beachSignal={beachSignals[p.id]} city={cityNow} />
                       ))}
                       </div>
                       {/* 2026-09-23 (fix round, item 1) — a capped first page is only
@@ -11424,105 +11535,20 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
                   )}
                 </div>
               )}
-              {/* v6.21: the single hero is now the experience hero below (random themed curated list, the shareable anchor). The old place hero was removed to keep one hero. */}
-              {/* Wayfind Picks now renders as the first hook card inside the "Worth a look" section below, matching the editorial cards. */}
-              {/* "Worth a look near you": Wayfind Picks first, editorial hooks in the middle, Roll the Dice last. Same hook-card shape, different accent colors, so they blend. */}
+              {/* The former hero cards are retired; location and seasonal promotions remain. */}
               {!browseCat && (suggested && suggested.length > 0) && (() => {
-                const shareHook = (hk, pl) => { if (!pl) return; askShareIntent({ name: pl.name, city: locName, id: pl.id, kind: placeKinds(pl), onPlain: () => shareLink(pl.name, placeShareUrl(pl, locName, blurbLine(blurbs[pl.id])), () => showToast("Link copied"), fallShareLine("Check out " + pl.name + " on Wayfind", pl.id, siteTodayStr()), () => { try { logEvent("share", pl, { kind: "hook" }); } catch (e) {} giveawayMark(pl.id); addShared(pl); }), onInvite: (u, t) => shareLink("A question for you", u, null, t, () => { try { logEvent("share", pl, { kind: "invite", from: "hook" }); } catch (e) {} giveawayMark(pl.id); addShared(pl); }) }); };
-                // v5.11: the dice card rotates the TAKE A CHANCE bank; the
-                // classic line "I want to take a chance." stays as variant zero
-                // and the fallback (PROTECTED copy, check-ux).
-                const _bkChance = pickHook("chance", null);
-                // hero_impression is NOT emitted here: diceHook and mkHook below are never rendered (nothing references them), so an impression would be a phantom (scripts/test-hero-impression-rendered.mjs). Emit it from the render path that actually shows a hero card.
-                const diceHook = { id: "dice-roll", accent: C.purple, emoji: "🎲", label: "Take a chance", hook: _bkChance ? _bkChance.text : "I want to take a chance.", _hookVar: _bkChance ? _bkChance.variant : null, highlightWord: _bkChance ? "" : "chance", subtitle: "Roll it — Wayfind lands you somewhere great nearby", cta: "🎲 Roll the dice →" };
-                // One experience hero anchors the feed. The curated list it opens is the shareable anchor.
-                const THEME_ORDER = ["gem", "family", "bestof", "entertainment", "stays", "shows", "budget"];
-                const THEME_COLOR = { gem: C.teal, family: C.green, bestof: C.gold, entertainment: C.purple, stays: C.blue, shows: C.pink, budget: C.gold };
-                const expPool = [];
+                // The former hero/dice cards are retired. Their badge scans,
+                // seven theme sorts, condition ranking and hook storage writes
+                // produced no rendered card, yet ran behind every detail update.
+                // The live promos below only need the original photo eligibility:
+                // merge the same pools, retaining the first row for each ID.
                 const seenPool = new Set();
-                for (const p of [...(displayList || []), ...(suggested || []), ...(places || [])]) { if (p && p.id && !seenPool.has(p.id)) { seenPool.add(p.id); expPool.push(p); } }
-                const poolKeys = new Map();
-                expPool.forEach((p) => { try { poolKeys.set(p.id, new Set(experienceBadges(p, null, 99).map((b) => b.key))); } catch (er) { poolKeys.set(p.id, new Set()); } });
-                const matchesExp = (p, key) => { const e = EXPERIENCES[key]; if (!e) return false; if (e.filter) { try { return !!e.filter(p); } catch (er) { return false; } } const ks = poolKeys.get(p.id); return ks ? ks.has(key) : false; };
-                const avail = [];
-                const usedHeroIds = new Set();
-                for (const key of THEME_ORDER) { const e = EXPERIENCES[key]; if (!e) continue; const match = expPool.filter((p) => p && p.photo && matchesExp(p, key) && !usedHeroIds.has(p.id)).sort((a, b) => (b.wfScore || 0) - (a.wfScore || 0))[0]; if (match) { avail.push({ key, place: match, e }); usedHeroIds.add(match.id); } }
-                // v4.46: the revenue themes always render as hero cards. When the local
-                // pool has no matching place (it is food-heavy), a place-less hero card
-                // still shows — HookSolo falls back to the accent gradient — and tapping
-                // it opens the wide-radius experience search (Orlando attractions,
-                // hotels, shows). These are the surfaces that carry affiliate links.
-                const GUARANTEED = ["family", "entertainment", "stays", "shows", "budget"];
-                for (const key of GUARANTEED) { if (!avail.some((a) => a.key === key) && EXPERIENCES[key]) avail.push({ key, place: null, e: EXPERIENCES[key] }); }
-                { const _ord = new Map(THEME_ORDER.map((k, i) => [k, i])); avail.sort((a, b) => (_ord.get(a.key) ?? 99) - (_ord.get(b.key) ?? 99)); }
-                // v6.25: the hero is now the single best move for right now, ranked by
-                // quality + distance + today's weather + the time of day (see lib/ranking.js),
-                // so a stormy afternoon stops opening on an outdoor pick. The themed
-                // experiences (gems, value, waterfront...) all move into the stack below.
-                const condCtx = { weather, hour: h, isWeekend: [0, 6].includes(new Date().getDay()) };
-                const heroPhotoPool = expPool.filter((p) => p && p.photo);
-                const heroCandidates = heroPhotoPool.filter((p) => p.openNow !== false);
-                const condRanked = Ranking.rankByConditions(heroCandidates.length ? heroCandidates : heroPhotoPool, condCtx);
-                const heroPlace = condRanked[0] || null;
-                const cityHero = locName ? locName.split(",")[0] : "this area";
-                const heroHook = heroPlace ? {
-                  id: "top10now", accent: C.accent, emoji: "🧭", label: "Your Next Move",
-                  theme: "best", placeId: heroPlace.id, highlightWord: "top 10", _ctx: condCtx,
-                  hook: Ranking.heroReason(heroPlace, condCtx),
-                  subtitle: "The best move near " + cityHero + " right now, ranked",
-                  cta: "See the top 10 →",
-                  metaLine: Tags.requiresParkAdmission(heroPlace.types) ? "May require park admission" : null,
-                  themeTitle: "Wayfind Picks · Top 10 near " + cityHero,
-                  themeBody: "The ten best spots near you for right now, ranked by quality, distance, today's weather, and the time of day. Rain pushes indoor picks up, clear skies favor the outdoors, and anything closed drops down. No ads, no paid placement.",
-                } : null;
-                const restExp = avail.filter((a) => !heroPlace || !a.place || a.place.id !== heroPlace.id);
-                const themeEng = {};
-                try { hookLikes.forEach((id) => { if (typeof id === "string" && id.indexOf("exp-") === 0) { const t = id.slice(4); themeEng[t] = (themeEng[t] || 0) + 1; } }); } catch (e) {}
-                restExp.sort((a, b) => ((themeEng[b.key] || 0) - (themeEng[a.key] || 0)) || (THEME_ORDER.indexOf(a.key) - THEME_ORDER.indexOf(b.key)));
-                const mkHook = (a) => {
-                  if (!a.place) {
-                    const m = revenueExpMeta(a.key, cityHero) || { hook: a.e.lead || a.e.title, hl: "", sub: a.e.lead || "", cta: "Explore \u2192" };
-                    // v5.09 persuasion engine: rotate the hook bank (random,
-                    // never the same line twice in a row) with live tokens;
-                    // fall back to the static meta hook when no bank exists.
-                    // Live context for data-gated lines: a "4.9★" claim needs a
-                    // real 4.9★ place in the pool; "[mins] minutes away" uses the
-                    // actual nearest top-rated spot (~2 min/mile local driving).
-                    const _hh = siteHourFloat();
-                    const _nearTop = expPool.filter((p) => p && p.rating >= 4.5 && (p.reviews || 0) >= 100 && p.distMi != null).sort((x, y) => x.distMi - y.distMi)[0];
-                    const bk = pickHook(a.key, {
-                      temp: weather && weather.temp,
-                      time: _hh < 12 ? "morning" : _hh < 17 ? "afternoon" : _hh < 21 ? "golden hour" : "late",
-                      night: _hh >= 16 || _hh < 4, day: _hh >= 8 && _hh < 16,
-                      top49: expPool.some((p) => p && p.rating >= 4.9 && (p.reviews || 0) >= 15),
-                      mins: _nearTop && _nearTop.distMi <= 15 ? Math.max(4, Math.round(_nearTop.distMi * 2)) : null,
-                    });
-                    return { id: "exp-" + a.key, accent: THEME_COLOR[a.key] || m.accent || C.accent, emoji: a.e.icon, label: cityFix(a.e.label), theme: a.key, fetchKey: a.key, highlightWord: bk ? "" : m.hl, hook: bk ? bk.text : m.hook, _hookVar: bk ? bk.variant : null, subtitle: m.sub, cta: m.cta, metaLine: null, themeTitle: cityFix(a.e.title), themeBody: a.e.lead, places: null };
-                  }
-                  const t = themedHook(a.key, a.place);
-                  const members = placesForHook({ theme: a.key, placeId: a.place.id }, expPool);
-                  const cnt = members.length;
-                  const avg = Dining.avgCostForTwo(members);
-                  const meta = [cnt > 1 ? cnt + " spots" : null, avg ? avg.text : null].filter(Boolean).join("  ·  ");
-                  return { id: "exp-" + a.key, accent: THEME_COLOR[a.key] || C.accent, emoji: a.e.icon, label: cityFix(a.e.label), theme: a.key, placeId: a.place.id, highlightWord: t.hl, hook: cityFix(t.hook), subtitle: cityFix(t.sub), cta: cnt > 1 ? ("See all " + cnt + " →") : cityFix(t.cta), metaLine: meta || null, themeTitle: cityFix(a.e.title), themeBody: a.e.lead };
-                };
-                const dicePhotos = expPool.filter((p) => p && p.photo).slice(0, 4).map((p) => p.photo);
-                // v4.67: revenue hero cards show real nearby photos, not flat
-                // gradients. Each theme pulls its own kind of place; thin
-                // matches fall back to the best-rated photos around.
-                const EXP_COLLAGE_RX = { family: /amusement|aquarium|zoo|bowling|mini_golf|water_park|playground|park/, entertainment: /amusement|tourist|museum|bowling|theater|theatre|aquarium|zoo|attraction/, shows: /performing|theater|theatre|concert|stadium|night_club|movie/, budget: /park|beach|museum|tourist|amusement|trail/, bestof: null, gem: null };
-                const expCollage = (key) => {
-                  try {
-                    const rx = EXP_COLLAGE_RX[key];
-                    const byScore = (a, b) => (b.wfScore || 0) - (a.wfScore || 0);
-                    let pool2 = expPool.filter((p) => p && p.photo);
-                    if (key === "stays") pool2 = pool2.filter((p) => isTrueLodging(p));
-                    else if (rx) pool2 = pool2.filter((p) => rx.test(((p.types || []).join(" ") + " " + (p.name || "")).toLowerCase()));
-                    let out2 = pool2.sort(byScore).slice(0, 4).map((p) => p.photo);
-                    if (out2.length < 2) return []; // no themed photos nearby: gradient beats a lie
-                    return out2;
-                  } catch (e) { return []; }
-                };
+                const hasPromoPhoto = [displayList, suggested, places].some((pool) =>
+                  (pool || []).some((p) => {
+                    if (!p || !p.id || seenPool.has(p.id)) return false;
+                    seenPool.add(p.id);
+                    return !!p.photo;
+                  }));
                 return (
                   <div style={{ marginBottom: 16 }}>
                     {locApprox && !locBannerGone && (
@@ -11535,7 +11561,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
                         </div>
                       </div>
                     )}
-                    {heroPlace && (<>
+                    {hasPromoPhoto && (<>
                       {/* "Best move right now" section removed (owner 2026-07-17). The giveaway / World Cup / holiday promo cards below are separate features and stay. */}
                       {gwPop && (giveawayLive() || giveawaySoon()) && (() => {
                         /* v8.56.17 — owner-supplied giveaway card (2026-09-15): photo
@@ -11643,7 +11669,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
                         </div>
                       ); })()}
                       
-                      {/* "Best move right now" hero body removed (owner 2026-07-17); it was already disabled. heroHook kept (harmless, unused). */}
+                      {/* The retired hero body stays absent; live promos retain their existing eligibility. */}
                     </>)}
                     {/* v5.66: the "More ways to explore" image cards + the Take-a-chance card are now folded into the single iOS-style list menu above — destinations + analytics preserved, no photos. */}
                   </div>
@@ -12342,7 +12368,7 @@ function UTDealsRail({ category, onSave, lat, lng, onLog = NOLOG }) {
 // (gated on Aff.isTicketyPlace so it only appears on ticketed venues, never free
 // parks/beaches). The /go route still upgrades to the exact product at click time when
 // one clears the geo-gated resolver; otherwise it's an honest Viator search.
-function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, onDislike, onShareCard, line, onBadge, selectedBadge, onCuisineTap, beachSignal, city }) {
+function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, onDislike, onShareCard, line, onBadge, selectedBadge, onCuisineTap, beachSignal, city, onPlaceEnriched }) {
   const siteDay = useSiteToday(); // re-renders at midnight Eastern so the season skin flips without a reload
   // v6.86: vision-scored, people-free card photo — must run BEFORE the
   // cardComplete early return below (rules of hooks: this hook must run on
@@ -12372,15 +12398,28 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
   useEffect(() => {
     if (!p || p.photo || !/^(fsq|osm|ridb|nps):/.test(String(p.id || "")) || p._noPhoto) return;
     let c = false;
+    const source = { ...p };
     findPlace(p.name, { lat: p.lat, lng: p.lng }).then((g) => {
       const ok = g && g.photo && (_wfNorm(g.name).includes(_wfNorm(p.name)) || _wfNorm(p.name).includes(_wfNorm(g.name)));
       if (c) return;
-      if (ok) { p.photo = g.photo; p.photos = g.photos || []; p.photoAttr = g.photoAttr || ""; if (g.oh) { p.oh = g.oh; p.openNow = g.openNow; p.utcOffset = g.utcOffset; if (g.hoursAsOf != null) p.hoursAsOf = g.hoursAsOf; /* v6.34: the freshness stamp travels with the bundle */ } _photoBump((x) => x + 1); }
+      if (ok) {
+        const patch = { photo: g.photo, photos: g.photos || [], photoAttr: g.photoAttr || "" };
+        // Photos do not affect ranking and keep their existing local update.
+        if (!p.photo || p.photo === source.photo) Object.assign(p, patch);
+        if (g.oh) {
+          const hours = { oh: g.oh, openNow: g.openNow, utcOffset: g.utcOffset,
+            hoursAsOf: g.hoursAsOf != null ? g.hoursAsOf : source.hoursAsOf };
+          if (onPlaceEnriched) {
+            if (!sameHealedHours(source, hours)) onPlaceEnriched(source, { ...patch, ...hours });
+          } else Object.assign(p, hours); // Other card surfaces retain their own update path.
+        }
+        _photoBump((x) => x + 1);
+      }
       else p._noPhoto = true; // remember the miss so we never refetch
     }).catch(() => {});
     return () => { c = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [p && p.id]);
+  }, [p && p.id, p && p.lat, p && p.lng]);
   const cardProduct = usePlaceProduct(p && p.id);
   const tapIntent = useCardTapIntent();
   // THE GATE COMES LAST. Every hook above runs on every render; `cardComplete`
@@ -12793,10 +12832,10 @@ const EV_RAIL_MIN_H = PLACE_CARD_HEIGHT_PX; // Loading and loaded cards share th
 const shell = { background: C.bg, height: "100dvh", minHeight: "100dvh", display: "flex", justifyContent: "center" };
 const wrap = { background: C.bg, color: C.text, height: "100dvh", width: "100%", maxWidth: 480, fontFamily: "var(--wf-sans)", display: "flex", flexDirection: "column", overflow: "hidden", position: "relative", touchAction: "pan-y", overscrollBehavior: "none" };
 
-export default function Page({ initialEvents = null, localEditGuides = null, thisWeekEvents = null, railMenu = null, initialPlaceId = null, initialPlaceAction = null }) {
+export default function Page({ initialEvents = null, localEditGuides = null, thisWeekEvents = null, thisWeekGuide = null, railMenu = null, initialPlaceId = null, initialPlaceAction = null }) {
   return (
     <ErrorBoundary>
-      <PageInner initialEvents={initialEvents} localEditGuides={localEditGuides} thisWeekEvents={thisWeekEvents} railMenu={railMenu} initialPlaceId={initialPlaceId} initialPlaceAction={initialPlaceAction} />
+      <PageInner initialEvents={initialEvents} localEditGuides={localEditGuides} thisWeekEvents={thisWeekEvents} thisWeekGuide={thisWeekGuide} railMenu={railMenu} initialPlaceId={initialPlaceId} initialPlaceAction={initialPlaceAction} />
     </ErrorBoundary>
   );
 }

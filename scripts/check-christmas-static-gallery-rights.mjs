@@ -62,6 +62,8 @@ ok(bad.length === 0, "every provenance row is wired: " + bad.join("; "));
 
 // Call test: the resolver serves the licensed cover with its credit, and a waterfront stand in never landed on a boat parade.
 const boat = christmasStaticPhotos("madeira-beach-festival-of-lights-boat-parade-2026", "Madeira Beach boat parade");
-ok(boat.length === 1 && /batch-2026-11p/.test(boat[0].src) && /CC BY 3\.0, via Wikimedia Commons$/.test(boat[0].credit), "Madeira Beach boat parade resolves to its licensed photo with credit");
+// Main later added the same parade (batch 2026-11z) behind this licensed cover. The cover stays the licensed file; the extra frames are still the parade.
+ok(boat.length >= 1 && /batch-2026-11p/.test(boat[0].src) && /CC BY 3\.0, via Wikimedia Commons$/.test(boat[0].credit), "Madeira Beach boat parade cover is the licensed photo with credit");
+ok(boat.every((p) => /Wikimedia Commons/.test(p.credit)), "Madeira Beach boat parade photos stay the parade, not a venue stand-in");
 ok(licensed.filter((e) => /boat-parade/.test(e.id)).every((e) => e.subject === "event"), "every licensed boat parade photo is of the parade itself, never a venue stand in");
 console.log("check-christmas-static-gallery-rights: OK, " + checks + " assertions (" + licensed.length + " licensed entries, " + prov.photos.length + " provenance rows)");

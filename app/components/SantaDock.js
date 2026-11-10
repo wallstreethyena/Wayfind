@@ -18,7 +18,7 @@
 // anchored to fixed points in the SVG's own coordinates, so his scale and
 // position never change. Reduced motion: a still, smiling Santa, no gestures.
 
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { SantaSvg } from "./santaArt.js";
 import { CHRISTMAS_PATH, isChristmasPath } from "./companionCharacter.js";
@@ -129,7 +129,10 @@ export function santaQuips(path, now = new Date()) {
 
 function track(event, props) {
   if (typeof window === "undefined") return;
-  try { captureOrQueue(window, event, { surface: "santa_dock", ...props }); } catch { /* ignore */ }
+  // Off the tap's critical path (INP): capture after the next paint.
+  const send = () => { try { captureOrQueue(window, event, { surface: "santa_dock", ...props }); } catch { /* ignore */ } };
+  if (typeof window.requestIdleCallback === "function") window.requestIdleCallback(send, { timeout: 1000 });
+  else window.setTimeout(send, 0);
 }
 function ss(k, v) {
   try {
@@ -342,8 +345,11 @@ export default function SantaDock({ path, reduced = false, onOpen, onAsk }) {
   }, [reduced, later]);
 
   const page = cleanPath(path);
-  const guideTitle = typeof document !== "undefined" && isGuidePath(page) ? ((document.querySelector("h1") || {}).textContent || "") : "";
-  const action = santaAction(page, guideTitle);
+  // Read the h1 once per page, not on every blink re-render.
+  const action = useMemo(() => {
+    const guideTitle = typeof document !== "undefined" && isGuidePath(page) ? ((document.querySelector("h1") || {}).textContent || "") : "";
+    return santaAction(page, guideTitle);
+  }, [page]);
 
   const tapSanta = () => {
     track("santa_dock_open", { path: page, source: "avatar" });

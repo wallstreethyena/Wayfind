@@ -54,5 +54,26 @@
     "decision_owner": "wallstreethyena",
     "tracking": "#2245 held event recheck guard (owner approved 2026-11-05)",
     "reason": "Write-time guard for held events (postponed / uncertain / unannounced with a start_date today or later): a write leaving no recheck_on sets today (ET) + 2 in the same statement, and a still-future recheck_on can be moved earlier but never later or cleared. Owner approved applying it 2026-11-05; this session's apply_migration call was refused by its automatic permission check ([Production Deploy]) and the session has no Management API credential for scripts/apply-migration.mjs, so it is declared pending until applied with the runner."
+  },
+  {
+    "file": "supabase/migrations/20261109160000_wf_events_christmas_short_titles.sql",
+    "sha256": "46935406f8173ac04b10268085bf26fd07db3058e50d639a92729a6f75741432",
+    "decision_owner": "wallstreethyena",
+    "tracking": "#20261109",
+    "reason": "Christmas card titles for four park parties. The four UPDATE statements ran against production on 2026-11-09 and the new short titles were read back. schema_migrations has no row for this file because this environment has no SUPABASE_ACCESS_TOKEN, so scripts/apply-migration.mjs could not write the ledger. Declared pending until that runner records it. The WHERE guards make that later run a no-op."
+  },
+  {
+    "file": "supabase/migrations/20261109160100_wf_deals_ut_one_day_tickets.sql",
+    "sha256": "4cfba4650ca3d871738f2b0eb67d07c3d22750d782b02ba2600639afdc243e72",
+    "decision_owner": "wallstreethyena",
+    "tracking": "#20261109",
+    "reason": "Four Undercover Tourist one-day ticket rows (EPCOT 61, SeaWorld 62, Busch Gardens 63, LEGOLAND 64). The inserts ran against production on 2026-11-09 and the ids were read back. schema_migrations has no row because SUPABASE_ACCESS_TOKEN is absent, so this stays pending until scripts/apply-migration.mjs records the ledger. where-not-exists makes that later run a no-op."
+  },
+  {
+    "file": "supabase/migrations/20261109210000_wf_deals_ut_one_day_product_pages.sql",
+    "sha256": "df7a0a2865239317569fe7ae74349dfcbfa80df123ba8401a97a7aa7566401eb",
+    "decision_owner": "wallstreethyena",
+    "tracking": "#20261109",
+    "reason": "Official one-day product pages for EPCOT 61, SeaWorld 62, Busch Gardens 65 and LEGOLAND 64. Category attractions, scope local and fail_count 0 match rows 5, 7, 15 and 16. The statements already ran and the ids were read back. schema_migrations has no row because SUPABASE_ACCESS_TOKEN is absent, so this stays pending until scripts/apply-migration.mjs records the ledger. The insert is where-not-exists and the update excludes the hub ids."
   }
 ]
