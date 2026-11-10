@@ -736,6 +736,14 @@
   },
   "owner": "Revenue QA"
  },
+ "scripts/test-qualified-click.mjs": {
+  "protects": "A qualified click counts only a partner redirect whose click_id also exists on an on-page commerce_cta_clicked, and that count never feeds the revenue heartbeat incident.",
+  "blastRadius": {
+   "category": "revenue",
+   "detail": "Raw human redirect counts are mostly unmatched bot traffic. Using them as the money signal, or refusing the redirect to clean the number, either pages on noise or blocks a real buyer."
+  },
+  "owner": "Revenue QA"
+ },
  "scripts/check-no-product-review.mjs": {
   "protects": "NO_EXACT_AFFILIATE_PRODUCT (lib/eventTicketDeals.js) never holds a past-due decision: every row's reviewBy is within 14 days of its reviewedAt and not earlier than the clock passed in (default: the newest reviewedAt in the registry, or --today=YYYY-MM-DD), unless the event has already ended. The staleNoProductDecisions predicate is executed with a positive and a negative control.",
   "blastRadius": {
@@ -1069,6 +1077,14 @@
   "blastRadius": {
    "category": "revenue",
    "detail": "Regressing click-token attribution, commission separation, or Google Ads API v26 conversion adjustment contracts either drops booking attribution, reports customer gross booking spend as Wayfind commission, or sends retired API v18 / invalid dual-identifier payloads that Google Ads rejects."
+  },
+  "owner": "Revenue QA"
+ },
+ "scripts/test-viator-visitor-hash.mjs": {
+  "protects": "A Viator click that carries a PostHog distinct id or a gclid stores a 32 hex visitor_context_hash the click table accepts, and persists the gclid on that same row.",
+  "blastRadius": {
+   "category": "revenue",
+   "detail": "A 64 character hash fails the visitor_context_hash check, the insert is rejected, and every cookied or gclid click is saved with both fields null, so bookings cannot be tied back to the ad click."
   },
   "owner": "Revenue QA"
  }

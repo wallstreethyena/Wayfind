@@ -370,6 +370,7 @@ import { centerAfterGeoDecision, landingSearchFromSearch } from "../lib/searchDe
 const loadBooCoverage = () => import("./components/booCoverage.js");
 import { ownedPlacePhotoSrc } from "../lib/placePhoto";
 import { sanitizeRestoredPosition } from "../lib/restorePosition.js";
+import { FEED_DEFERRAL_MAX_WAIT_MS, initialFeedReleased, isFeedDeferred, shouldReleaseFeed } from "../lib/feedDeferral.js";
 
 const BUILD = "beta";
 
@@ -4320,6 +4321,13 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
   const [err, setErr] = useState("");
   const [detail, setDetail] = useState(null);
   const detailOpenRequestRef = useRef(0);
+  // INP: on a direct /p/{id} landing the home feed subtree is not rendered
+  // while the place sheet is open (lib/feedDeferral.js). One-way flag: it only
+  // ever flips to true, so the feed is never re-deferred. Initial value reads
+  // only the initialPlaceId prop, so server and client first render agree.
+  const [feedReleased, setFeedReleased] = useState(() => initialFeedReleased(initialPlaceId));
+  const feedDetailWasOpenRef = useRef(false);
+  const feedDeferred = isFeedDeferred(initialPlaceId, feedReleased);
   // One detail_open per closed->open transition: openDetail can be called twice
   // for one opening (deep-link effect re-runs on supabaseReady). Reset on close.
   const detailOpenGateRef = useRef(null);
@@ -7456,11 +7464,29 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
             if (linkPlan.prompt) setLinkActionPrompt({ place: opened, action: placeAction });
           }
           openDetail(opened);
+        } else {
+          // No sheet will ever open over the feed: release it (INP deferral).
+          if (shouldReleaseFeed({ placeOpenSettled: true })) setFeedReleased(true);
         }
-      })();
+      })().catch((e) => {
+        setFeedReleased(true);
+        throw e; // same unhandled-rejection visibility as before this wrapper
+      });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [supabaseReady]);
+
+  // INP: release the deferred feed once the visitor leaves the place sheet or
+  // changes screen. Runs only while deferred; never re-defers.
+  useEffect(() => {
+    if (feedReleased) return;
+    if (detail) feedDetailWasOpenRef.current = true;
+    if (shouldReleaseFeed({ detailOpen: !!detail, detailWasOpen: feedDetailWasOpenRef.current, screen })) setFeedReleased(true);
+    if (detail) return;
+    // Fail-safe: a sheet that never opens must not leave an empty page.
+    const feedFailSafe = setTimeout(() => setFeedReleased(true), FEED_DEFERRAL_MAX_WAIT_MS);
+    return () => clearTimeout(feedFailSafe);
+  }, [detail, screen, feedReleased]);
 
   // Part 4 measurement: count one "session" per tab (share_rate denominator) and
   // fire "share_return" if a shared-card visitor is back within 7 days. Wait for
@@ -11027,6 +11053,8 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
             deliberate placement; it simply has no render site on "/" — the
             same treatment HomeAside and BestNearby received. */}
         {screen === "suggested" && (() => {
+          // INP: direct /p/{id} landing: skip the whole feed subtree until released.
+          if (feedDeferred) return <div data-wf-feed-deferred="1" aria-hidden="true" style={{ minHeight: "70vh" }} />;
           if (searchFeed && searchFeed.length) {
             return (
               <div className="wf-cols">
