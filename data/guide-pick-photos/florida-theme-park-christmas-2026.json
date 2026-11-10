@@ -1,16 +1,111 @@
 {
   "slug": "florida-theme-park-christmas-2026",
-  "picks": {},
+  "picks": {
+    "Disney Springs Christmas Tree Stroll and Santa": {
+      "src": "/guides/picks/florida-theme-park-christmas-2026/disney-springs-christmas-tree.jpg",
+      "width": 1280,
+      "height": 853,
+      "alt": "A tall decorated Christmas tree beside palm trees and a Spanish style building at Disney Springs under a blue sky",
+      "caption": "A Christmas tree at Disney Springs, November 2019.",
+      "credit": "David Aughinbaugh II",
+      "creditHref": "https://www.flickr.com/photos/157215791@N02/48997465693",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "sourceUrl": "https://www.flickr.com/photos/157215791@N02/48997465693",
+      "author": "David Aughinbaugh II",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to JPEG.",
+      "sourceKind": "flickr",
+      "placeId": null,
+      "verification": "Flickr photo titled \"Disney Springs Christmas Tree Palm Tree\" by David Aughinbaugh II, taken 2019-11-01; shows one of the Disney Springs Christmas trees on site, matching the Christmas Tree Stroll in this pick. Live Flickr page licence checked: CC BY 2.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-11-09"
+    },
+    "EPCOT International Festival of the Holidays": {
+      "src": "/guides/picks/florida-theme-park-christmas-2026/epcot-christmas-tree-spaceship-earth.jpg",
+      "width": 1280,
+      "height": 853,
+      "alt": "Spaceship Earth and a lit Christmas tree reflected in the World Showcase Lagoon at night at EPCOT",
+      "caption": "Spaceship Earth and the holiday tree across the lagoon at EPCOT, December 2008.",
+      "credit": "cheddar-",
+      "creditHref": "https://www.flickr.com/photos/46401094@N00/3204792698",
+      "license": "CC BY-SA 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0/",
+      "sourceUrl": "https://www.flickr.com/photos/46401094@N00/3204792698",
+      "author": "cheddar-",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to JPEG. The adaptation is released under the same licence.",
+      "sourceKind": "flickr",
+      "placeId": null,
+      "verification": "Flickr photo titled \"Epcot Christmas\" by cheddar-, taken 2008-12-27; shows Spaceship Earth with EPCOT's lit holiday tree at night during the holiday season, matching this pick. Live Flickr page licence checked: CC BY-SA 2.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-11-09"
+    },
+    "SeaWorld Orlando Christmas Celebration": {
+      "src": "/guides/picks/florida-theme-park-christmas-2026/seaworld-orlando-sea-of-trees.jpg",
+      "width": 1280,
+      "height": 853,
+      "alt": "Glowing Sea of Trees light displays floating on the lagoon at dusk at SeaWorld Orlando",
+      "caption": "The Sea of Trees on the lagoon at SeaWorld Orlando's holiday celebration.",
+      "credit": "simon17964",
+      "creditHref": "https://www.flickr.com/photos/7474760@N03/25026709865",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "sourceUrl": "https://www.flickr.com/photos/7474760@N03/25026709865",
+      "author": "simon17964",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to JPEG.",
+      "sourceKind": "flickr",
+      "placeId": null,
+      "verification": "Flickr photo titled \"Sea of Trees at Sea World\" by simon17964; shows SeaWorld Orlando's Sea of Trees, the floating lit trees of its Christmas Celebration, matching this pick. Live Flickr page licence checked: CC BY 2.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-11-09"
+    },
+    "Christmas Town at Busch Gardens Tampa Bay": {
+      "src": "/guides/picks/florida-theme-park-christmas-2026/busch-gardens-tampa-christmas-town-lit-trees.jpg",
+      "width": 1280,
+      "height": 853,
+      "alt": "Lit Christmas trees in red and green planters along a path at night during Christmas Town at Busch Gardens Tampa Bay",
+      "caption": "Christmas Town at Busch Gardens Tampa Bay in its first season, 2012.",
+      "credit": "zannaland",
+      "creditHref": "https://www.flickr.com/photos/22740503@N05/8256957668",
+      "license": "CC BY-SA 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0/",
+      "sourceUrl": "https://www.flickr.com/photos/22740503@N05/8256957668",
+      "author": "zannaland",
+      "position": "62% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to JPEG. The adaptation is released under the same licence.",
+      "sourceKind": "flickr",
+      "placeId": null,
+      "verification": "Flickr photo titled \"Busch Gardens Christmas Town 2012\" by zannaland, taken 2012-11-30; the same set includes Desert Grill, a Tampa Bay park restaurant, confirming the Tampa park rather than Williamsburg; shows lit Christmas Town trees at night, matching this pick. Live Flickr page licence checked: CC BY-SA 2.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-11-09"
+    },
+    "ICE! at Christmas at Gaylord Palms": {
+      "src": "/guides/picks/florida-theme-park-christmas-2026/gaylord-palms-ice-reindeer.jpg",
+      "width": 1280,
+      "height": 853,
+      "alt": "Carved and colored ice reindeer and characters inside the ICE! exhibit at Gaylord Palms",
+      "caption": "Carved ice figures inside ICE! at Gaylord Palms, December 2013.",
+      "credit": "Michelle Maria",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Gaylord_Hotel,_Orlando,_Florida_-_panoramio_(12).jpg",
+      "license": "CC BY 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/3.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Gaylord_Hotel,_Orlando,_Florida_-_panoramio_(12).jpg",
+      "author": "Michelle Maria",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to JPEG.",
+      "sourceKind": "commons",
+      "placeId": "ChIJl0CYCGZ_3YgRL05pG5wZSsE",
+      "verification": "Wikimedia Commons file \"Gaylord Hotel, Orlando, Florida - panoramio (12).jpg\" by Michelle Maria, taken 2013-12-29, categorised Gaylord Palms Resort & Convention Center; shows the carved ice ICE! exhibit itself, matching this pick. Commons licence checked: CC BY 3.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-11-09"
+    }
+  },
   "gaps": {
     "Mickey's Very Merry Christmas Party": {
       "reason": "google-only",
       "placeId": "ChIJgUulalN-3YgRGoTaWM2LawY",
-      "needsPermissionFrom": null,
-      "note": "No licensed photo of this exact place has been sourced yet (Wikimedia Commons and Openverse checked). Guide pages never store or show cached Google photos (Google Maps Platform Terms, #1697), so this pick shows a reviewed, credited topic photo captioned \"Illustrative\" (lib/guideContextPhotos.js), never presented as this place. Licensed photo sourcing backlog."
-    },
-    "EPCOT International Festival of the Holidays": {
-      "reason": "google-only",
-      "placeId": "ChIJGzFs3q9_3YgRvZd1y2NSJOo",
       "needsPermissionFrom": null,
       "note": "No licensed photo of this exact place has been sourced yet (Wikimedia Commons and Openverse checked). Guide pages never store or show cached Google photos (Google Maps Platform Terms, #1697), so this pick shows a reviewed, credited topic photo captioned \"Illustrative\" (lib/guideContextPhotos.js), never presented as this place. Licensed photo sourcing backlog."
     },
@@ -20,29 +115,17 @@
       "needsPermissionFrom": null,
       "note": "No licensed photo of this exact place has been sourced yet (Wikimedia Commons and Openverse checked). Guide pages never store or show cached Google photos (Google Maps Platform Terms, #1697), so this pick shows a reviewed, credited topic photo captioned \"Illustrative\" (lib/guideContextPhotos.js), never presented as this place. Licensed photo sourcing backlog."
     },
-    "Christmas Town at Busch Gardens Tampa Bay": {
-      "reason": "google-only",
-      "placeId": "ChIJhRo4DU_GwogRUgjhMAj-pag",
-      "needsPermissionFrom": null,
-      "note": "No licensed photo is filed under this guide's own entry. The page reuses the reviewed, credited licensed photo of this same place (same Google place id) from another guide via lib/guidePickPhotos.js guidePhotoForPlace; no Google photo is stored or cached (#1697)."
-    },
-    "SeaWorld Orlando Christmas Celebration": {
-      "reason": "google-only",
-      "placeId": "ChIJfyPWjCh-54gR1SvWozmef5k",
-      "needsPermissionFrom": null,
-      "note": "No licensed photo of this exact place has been sourced yet (Wikimedia Commons and Openverse checked). Guide pages never store or show cached Google photos (Google Maps Platform Terms, #1697), so this pick shows a reviewed, credited topic photo captioned \"Illustrative\" (lib/guideContextPhotos.js), never presented as this place. Licensed photo sourcing backlog."
-    },
     "Christmas Bricktacular at LEGOLAND Florida": {
       "reason": "google-only",
       "placeId": "ChIJ38rlfogN3YgRGic46M9dbLw",
       "needsPermissionFrom": null,
       "note": "No licensed photo of this exact place has been sourced yet (Wikimedia Commons and Openverse checked). Guide pages never store or show cached Google photos (Google Maps Platform Terms, #1697), so this pick shows a reviewed, credited topic photo captioned \"Illustrative\" (lib/guideContextPhotos.js), never presented as this place. Licensed photo sourcing backlog."
     },
-    "ICE! at Christmas at Gaylord Palms": {
-      "reason": "google-only",
-      "placeId": "ChIJl0CYCGZ_3YgRL05pG5wZSsE",
+    "Holidays at Universal Orlando": {
+      "reason": "no-verified-source",
+      "placeId": "ChIJvRBCrN9-54gRGZuuaCLGrQE",
       "needsPermissionFrom": null,
-      "note": "No licensed photo is filed under this guide's own entry. The page reuses the reviewed, credited licensed photo of this same place (same Google place id) from another guide via lib/guidePickPhotos.js guidePhotoForPlace; no Google photo is stored or cached (#1697)."
+      "note": "No licensed photo of this specific holiday program has been approved for this guide. Existing licensed Epic Universe and Disney Springs venue images were visually reviewed on 2026-11-06: they show daytime venues, without the advertised holiday program, so they were not presented as Christmas event photos. Use the existing credited, visibly illustrative holiday fallback until an exact licensed seasonal image is verified."
     }
   }
 }

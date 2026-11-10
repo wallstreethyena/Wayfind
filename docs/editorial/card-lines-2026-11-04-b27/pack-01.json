@@ -1,0 +1,1725 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 27. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJKya42G-D54gReQtHOVULsYQ",
+   "name": "Plant St. Market",
+   "category": "shopping",
+   "metro": "orlando",
+   "primary_type": "market",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://crookedcan.com/winter-garden-brewery/marketplace/",
+     "source_name": "Plant St. Market \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Plant Street Market is in historic downtown Winter Garden",
+      "Plant Street Market is open seven days a week with 20 unique vendors offering fresh eats, handcrafted goods, and local artisan specialties all under one roof",
+      "General Market Hours are SUN-THU: 11 a.m. \u2013 11 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "20 unique vendors with fresh eats and handcrafted goods under one roof",
+    "why_here": "Go for 20 unique vendors offering fresh eats, handcrafted goods, and local artisan specialties all under one roof in historic downtown Winter Garden, open seven days a week.",
+    "know_before": "General Market Hours are SUN-THU: 11 a.m. \u2013 11 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://crookedcan.com/winter-garden-brewery/marketplace/"
+     ],
+     "why_here": [
+      "https://crookedcan.com/winter-garden-brewery/marketplace/"
+     ],
+     "know_before": [
+      "https://crookedcan.com/winter-garden-brewery/marketplace/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Plant Street Market is in historic downtown Winter Garden",
+      "source": "https://crookedcan.com/winter-garden-brewery/marketplace/"
+     },
+     {
+      "claim": "Plant Street Market is open seven days a week with 20 unique vendors offering fresh eats, handcrafted goods, and local artisan specialties all under one roof",
+      "source": "https://crookedcan.com/winter-garden-brewery/marketplace/"
+     },
+     {
+      "claim": "General Market Hours are SUN-THU: 11 a.m. \u2013 11 p.m.",
+      "source": "https://crookedcan.com/winter-garden-brewery/marketplace/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJOZuSagnZ2IgRGaEehRrkcIw",
+   "name": "Eau Resort & Spa",
+   "category": "hotels",
+   "metro": "palm-beach",
+   "primary_type": "resort_hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.eauresortandspa.com/resort/",
+     "source_name": "Eau Resort & Spa \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Two oceanfront pools and a private stretch of sand",
+      "every stay includes daily Eau perks with no resort fee",
+      "Eau Resort & Spa does not charge a resort fee",
+      "Eau Palm Beach Resort & Spa, 100 SOUTH OCEAN BLVD, MANALAPAN, FL 33462"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Two oceanfront pools and a private stretch of sand, with no resort fee",
+    "why_here": "Stay for two oceanfront pools and a private stretch of sand, with daily Eau perks and no resort fee at 100 SOUTH OCEAN BLVD, MANALAPAN, FL 33462.",
+    "know_before": "Eau Resort & Spa does not charge a resort fee",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.eauresortandspa.com/resort/"
+     ],
+     "why_here": [
+      "https://www.eauresortandspa.com/resort/"
+     ],
+     "know_before": [
+      "https://www.eauresortandspa.com/resort/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Two oceanfront pools and a private stretch of sand",
+      "source": "https://www.eauresortandspa.com/resort/"
+     },
+     {
+      "claim": "every stay includes daily Eau perks with no resort fee",
+      "source": "https://www.eauresortandspa.com/resort/"
+     },
+     {
+      "claim": "Eau Resort & Spa does not charge a resort fee",
+      "source": "https://www.eauresortandspa.com/resort/"
+     },
+     {
+      "claim": "Eau Palm Beach Resort & Spa, 100 SOUTH OCEAN BLVD, MANALAPAN, FL 33462",
+      "source": "https://www.eauresortandspa.com/resort/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ82lL2HTH2YgRd51iziCQHUc",
+   "name": "True Food Kitchen",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.truefoodkitchen.com/wp-json/wp/v2/pages/441",
+     "source_name": "True Food Kitchen \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "True Food Kitchen is located in Miami's The Falls mall",
+      "True Food Kitchen serves seasonal offerings with fresh ingredients",
+      "True Food Kitchen offers brunch, lunch, dinner and dessert",
+      "Monday hours are 11:00 a.m. to 9:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "seasonal offerings with fresh ingredients for brunch, lunch and dinner",
+    "why_here": "Visit True Food Kitchen in Miami's The Falls mall for seasonal offerings with fresh ingredients, with brunch, lunch, dinner and dessert available during the visit.",
+    "know_before": "Monday hours are 11:00 a.m. to 9:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.truefoodkitchen.com/wp-json/wp/v2/pages/441"
+     ],
+     "why_here": [
+      "https://www.truefoodkitchen.com/wp-json/wp/v2/pages/441"
+     ],
+     "know_before": [
+      "https://www.truefoodkitchen.com/wp-json/wp/v2/pages/441"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "True Food Kitchen is located in Miami's The Falls mall",
+      "source": "https://www.truefoodkitchen.com/wp-json/wp/v2/pages/441"
+     },
+     {
+      "claim": "True Food Kitchen serves seasonal offerings with fresh ingredients",
+      "source": "https://www.truefoodkitchen.com/wp-json/wp/v2/pages/441"
+     },
+     {
+      "claim": "True Food Kitchen offers brunch, lunch, dinner and dessert",
+      "source": "https://www.truefoodkitchen.com/wp-json/wp/v2/pages/441"
+     },
+     {
+      "claim": "Monday hours are 11:00 a.m. to 9:00 p.m.",
+      "source": "https://www.truefoodkitchen.com/wp-json/wp/v2/pages/441"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ6yf5uJ67wogR_8FGl6qiVQY",
+   "name": "Ukulele Brand's",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://ukulelebrands.com/",
+     "source_name": "Ukulele Brand's \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Ukulele Brand's is at 4805 Land O' Lakes Blvd, Land O' Lakes, FL",
+      "Ukulele Brand's is a full-service restaurant and bar with indoor and outdoor seating",
+      "The menu features prime rib, fresh hand-pressed burgers, Uke's Famous Seafood Chowder and Jammin' Jambalaya",
+      "Ukulele Brand's offers live music and trivia",
+      "Friday and Saturday feature a prime rib special"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "prime rib, fresh hand-pressed burgers and Uke's Famous Seafood Chowder",
+    "why_here": "Try prime rib and fresh hand-pressed burgers at Ukulele Brand's, a full-service restaurant and bar with indoor and outdoor seating, live music and trivia.",
+    "know_before": "Friday and Saturday feature a prime rib special.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://ukulelebrands.com/"
+     ],
+     "why_here": [
+      "https://ukulelebrands.com/"
+     ],
+     "know_before": [
+      "https://ukulelebrands.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Ukulele Brand's is at 4805 Land O' Lakes Blvd, Land O' Lakes, FL",
+      "source": "https://ukulelebrands.com/"
+     },
+     {
+      "claim": "Ukulele Brand's is a full-service restaurant and bar with indoor and outdoor seating",
+      "source": "https://ukulelebrands.com/"
+     },
+     {
+      "claim": "The menu features prime rib, fresh hand-pressed burgers, Uke's Famous Seafood Chowder and Jammin' Jambalaya",
+      "source": "https://ukulelebrands.com/"
+     },
+     {
+      "claim": "Ukulele Brand's offers live music and trivia",
+      "source": "https://ukulelebrands.com/"
+     },
+     {
+      "claim": "Friday and Saturday feature a prime rib special",
+      "source": "https://ukulelebrands.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJS7iEfXF754gRwxJ_fh2plHk",
+   "name": "Publix Super Market at The Market at Southside",
+   "category": "shopping",
+   "metro": "orlando",
+   "primary_type": "supermarket",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.publix.com/locations/436-the-market-at-southside",
+     "source_name": "Publix Super Market at The Market at Southside \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Publix Super Market at The Market at Southside is store number 436",
+      "Publix Super Market at The Market at Southside is at 2873 S Orange Ave, Orlando, FL 32806",
+      "Departments include Bakery, Deli, Floral and Seafood",
+      "Curbside Pickup is available at Publix Super Market at The Market at Southside"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Bakery, Deli, Floral and Seafood departments",
+    "why_here": "Shop at Publix Super Market at The Market at Southside, store number 436, for Bakery, Deli, Floral and Seafood departments plus Curbside Pickup in Orlando.",
+    "know_before": "Publix Super Market at The Market at Southside is at 2873 S Orange Ave, Orlando, FL 32806.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.publix.com/locations/436-the-market-at-southside"
+     ],
+     "why_here": [
+      "https://www.publix.com/locations/436-the-market-at-southside"
+     ],
+     "know_before": [
+      "https://www.publix.com/locations/436-the-market-at-southside"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Publix Super Market at The Market at Southside is store number 436",
+      "source": "https://www.publix.com/locations/436-the-market-at-southside"
+     },
+     {
+      "claim": "Publix Super Market at The Market at Southside is at 2873 S Orange Ave, Orlando, FL 32806",
+      "source": "https://www.publix.com/locations/436-the-market-at-southside"
+     },
+     {
+      "claim": "Departments include Bakery, Deli, Floral and Seafood",
+      "source": "https://www.publix.com/locations/436-the-market-at-southside"
+     },
+     {
+      "claim": "Curbside Pickup is available at Publix Super Market at The Market at Southside",
+      "source": "https://www.publix.com/locations/436-the-market-at-southside"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJO8d1u9WNk4gRHmD21YG-PuA",
+   "name": "Ford's Garage Pier Park",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://fordsgarageusa.com/locations/panama-city-beach",
+     "source_name": "Ford's Garage Pier Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Ford's Garage offers Famous Burgers and Craft Beer in Panama City Beach",
+      "Ford's Garage is conveniently located in the Pier Park Shopping Center in Panama City Beach",
+      "Ford's Garage is at 601 S Pier Park Dr., Suite 103, Panama City Beach, FL 32413",
+      "Monday - Thursday 11 a.m. - 10 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Famous Burgers and Craft Beer in the Pier Park Shopping Center in Panama City Beach",
+    "why_here": "Go for Famous Burgers and Craft Beer in Panama City Beach at 601 S Pier Park Dr., Suite 103, Panama City Beach, FL 32413 in the Pier Park Shopping Center.",
+    "know_before": "Monday - Thursday 11 a.m. - 10 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://fordsgarageusa.com/locations/panama-city-beach"
+     ],
+     "why_here": [
+      "https://fordsgarageusa.com/locations/panama-city-beach"
+     ],
+     "know_before": [
+      "https://fordsgarageusa.com/locations/panama-city-beach"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Ford's Garage offers Famous Burgers and Craft Beer in Panama City Beach",
+      "source": "https://fordsgarageusa.com/locations/panama-city-beach"
+     },
+     {
+      "claim": "Ford's Garage is conveniently located in the Pier Park Shopping Center in Panama City Beach",
+      "source": "https://fordsgarageusa.com/locations/panama-city-beach"
+     },
+     {
+      "claim": "Ford's Garage is at 601 S Pier Park Dr., Suite 103, Panama City Beach, FL 32413",
+      "source": "https://fordsgarageusa.com/locations/panama-city-beach"
+     },
+     {
+      "claim": "Monday - Thursday 11 a.m. - 10 p.m.",
+      "source": "https://fordsgarageusa.com/locations/panama-city-beach"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJWQsQPQK12YgRf5z23EaDs2Y",
+   "name": "Kanoli",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "italian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://kanolimiamibeach.com/",
+     "source_name": "Kanoli \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Welcome to Kanoli, an Italian restaurant with authentic flavors and live entertainment on Ocean drive in the heart of Miami beach",
+      "Kanoli is at 1236 Ocean Drive, Miami Beach, FL, 33139"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Italian restaurant with authentic flavors and live entertainment on Ocean drive",
+    "why_here": "Go to Kanoli, an Italian restaurant with authentic flavors and live entertainment on Ocean drive in the heart of Miami beach at 1236 Ocean Drive, Miami Beach, FL, 33139.",
+    "know_before": "Kanoli is at 1236 Ocean Drive, Miami Beach, FL, 33139",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://kanolimiamibeach.com/"
+     ],
+     "why_here": [
+      "https://kanolimiamibeach.com/"
+     ],
+     "know_before": [
+      "https://kanolimiamibeach.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Welcome to Kanoli, an Italian restaurant with authentic flavors and live entertainment on Ocean drive in the heart of Miami beach",
+      "source": "https://kanolimiamibeach.com/"
+     },
+     {
+      "claim": "Kanoli is at 1236 Ocean Drive, Miami Beach, FL, 33139",
+      "source": "https://kanolimiamibeach.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJyzmdrsTf2IgRgSItfnwD2Hw",
+   "name": "Silverball Retro Arcade",
+   "category": "attractions",
+   "metro": "palm-beach",
+   "primary_type": "video_arcade",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://silverballmuseum.com/delray-beach/product-category/games/",
+     "source_name": "Silverball Retro Arcade \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Silverball Retro Arcade - Delray Beach lists Pinball (87) and Arcade (24) games",
+      "HOURS: SUN\u2013THU: 11 a.m.\u201312 a.m. \u2022 FRI-SAT: 11 a.m.-1 a.m.",
+      "Silverball Retro Arcade - Delray Beach is at 19 NE 3RD AVE., DELRAY BEACH, FL"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Pinball (87) and Arcade (24) games at 19 NE 3RD AVE., DELRAY BEACH, FL",
+    "why_here": "Play Pinball (87) and Arcade (24) games at Silverball Retro Arcade - Delray Beach, 19 NE 3RD AVE., DELRAY BEACH, FL, with hours SUN\u2013THU: 11 a.m.\u201312 a.m.",
+    "know_before": "HOURS: SUN\u2013THU: 11 a.m.\u201312 a.m. \u2022 FRI-SAT: 11 a.m.-1 a.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://silverballmuseum.com/delray-beach/product-category/games/"
+     ],
+     "why_here": [
+      "https://silverballmuseum.com/delray-beach/product-category/games/"
+     ],
+     "know_before": [
+      "https://silverballmuseum.com/delray-beach/product-category/games/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Silverball Retro Arcade - Delray Beach lists Pinball (87) and Arcade (24) games",
+      "source": "https://silverballmuseum.com/delray-beach/product-category/games/"
+     },
+     {
+      "claim": "HOURS: SUN\u2013THU: 11 a.m.\u201312 a.m. \u2022 FRI-SAT: 11 a.m.-1 a.m.",
+      "source": "https://silverballmuseum.com/delray-beach/product-category/games/"
+     },
+     {
+      "claim": "Silverball Retro Arcade - Delray Beach is at 19 NE 3RD AVE., DELRAY BEACH, FL",
+      "source": "https://silverballmuseum.com/delray-beach/product-category/games/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ93uypBjc5IgRbQCUHI2GBIg",
+   "name": "Zachry's Riverhouse (No Reservations)",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.goldenisles.com/listing/zachrys-riverhouse/768/",
+     "source_name": "Zachry's Riverhouse (No Reservations) \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Zachry's Riverhouse is at 1 Harbor Road, Jekyll Island, GA 31527",
+      "Zachry's Riverhouse is a locally-owned seafood restaurant serving up burgers, wings, and salads",
+      "Guests can take in the Jekyll Island atmosphere on the porch overlooking the Jekyll River"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Locally-owned seafood restaurant with a porch overlooking the Jekyll River",
+    "why_here": "Go for a locally-owned seafood restaurant serving up burgers, wings, and salads, and take in the Jekyll Island atmosphere on the porch overlooking the Jekyll River.",
+    "know_before": "Zachry's Riverhouse is at 1 Harbor Road, Jekyll Island, GA 31527.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.goldenisles.com/listing/zachrys-riverhouse/768/"
+     ],
+     "why_here": [
+      "https://www.goldenisles.com/listing/zachrys-riverhouse/768/"
+     ],
+     "know_before": [
+      "https://www.goldenisles.com/listing/zachrys-riverhouse/768/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Zachry's Riverhouse is at 1 Harbor Road, Jekyll Island, GA 31527",
+      "source": "https://www.goldenisles.com/listing/zachrys-riverhouse/768/"
+     },
+     {
+      "claim": "Zachry's Riverhouse is a locally-owned seafood restaurant serving up burgers, wings, and salads",
+      "source": "https://www.goldenisles.com/listing/zachrys-riverhouse/768/"
+     },
+     {
+      "claim": "Guests can take in the Jekyll Island atmosphere on the porch overlooking the Jekyll River",
+      "source": "https://www.goldenisles.com/listing/zachrys-riverhouse/768/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ7VpQoHk_kYgRg-7fkJ2_d0M",
+   "name": "The Boardwalk, Okaloosa Island",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "tourist_attraction",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.destinfwb.com/listing/The-Boardwalk/45",
+     "source_name": "The Boardwalk, Okaloosa Island \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Boardwalk is at 1450 Miracle Strip Pkwy, Fort Walton Beach, FL 32548",
+      "The Boardwalk serves as a county park and public beach access point along the Gulf of Mexico",
+      "The Boardwalk offers waterfront dining, gift shops and beachfront amenities",
+      "The Boardwalk offers a kid's playground, splash pad and sand volleyball courts",
+      "The Boardwalk offers a firework show every Wednesday during the summer season"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "county park and public beach access point along the Gulf of Mexico",
+    "why_here": "Use The Boardwalk as a county park and public beach access point along the Gulf of Mexico for waterfront dining and gift shops, with beachfront amenities on site.",
+    "know_before": "The Boardwalk offers a firework show every Wednesday during the summer season.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.destinfwb.com/listing/The-Boardwalk/45"
+     ],
+     "why_here": [
+      "https://www.destinfwb.com/listing/The-Boardwalk/45"
+     ],
+     "know_before": [
+      "https://www.destinfwb.com/listing/The-Boardwalk/45"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Boardwalk is at 1450 Miracle Strip Pkwy, Fort Walton Beach, FL 32548",
+      "source": "https://www.destinfwb.com/listing/The-Boardwalk/45"
+     },
+     {
+      "claim": "The Boardwalk serves as a county park and public beach access point along the Gulf of Mexico",
+      "source": "https://www.destinfwb.com/listing/The-Boardwalk/45"
+     },
+     {
+      "claim": "The Boardwalk offers waterfront dining, gift shops and beachfront amenities",
+      "source": "https://www.destinfwb.com/listing/The-Boardwalk/45"
+     },
+     {
+      "claim": "The Boardwalk offers a kid's playground, splash pad and sand volleyball courts",
+      "source": "https://www.destinfwb.com/listing/The-Boardwalk/45"
+     },
+     {
+      "claim": "The Boardwalk offers a firework show every Wednesday during the summer season",
+      "source": "https://www.destinfwb.com/listing/The-Boardwalk/45"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ5QKHtGgA2YgReW-Xlmxvcss",
+   "name": "Publix Super Market at The Harbor Shops",
+   "category": "shopping",
+   "metro": "broward",
+   "primary_type": "supermarket",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.publix.com/locations/1097-the-harbor-shops",
+     "source_name": "Publix Super Market at The Harbor Shops \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Publix Super Market at The Harbor Shops is at 1940 Cordova Rd, Fort Lauderdale, FL 33316-2156",
+      "Departments include Floral, Meats & Cheeses, Produce, Bakery, Deli, and Seafood",
+      "Also available are Wine & Beer, Sushi, and Salad Bar, and Publix Pharmacy is on site",
+      "Store hours are 7:00 a.m. - 10:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Supermarket with Bakery, Deli, and Seafood departments",
+    "why_here": "Shop departments including Floral, Meats & Cheeses, Produce, Bakery, Deli, and Seafood, with Wine & Beer, Sushi, Salad Bar, and Publix Pharmacy also available on site.",
+    "know_before": "Store hours are 7:00 a.m. - 10:00 p.m. at 1940 Cordova Rd, Fort Lauderdale, FL 33316-2156.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.publix.com/locations/1097-the-harbor-shops"
+     ],
+     "why_here": [
+      "https://www.publix.com/locations/1097-the-harbor-shops"
+     ],
+     "know_before": [
+      "https://www.publix.com/locations/1097-the-harbor-shops"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Publix Super Market at The Harbor Shops is at 1940 Cordova Rd, Fort Lauderdale, FL 33316-2156",
+      "source": "https://www.publix.com/locations/1097-the-harbor-shops"
+     },
+     {
+      "claim": "Departments include Floral, Meats & Cheeses, Produce, Bakery, Deli, and Seafood",
+      "source": "https://www.publix.com/locations/1097-the-harbor-shops"
+     },
+     {
+      "claim": "Also available are Wine & Beer, Sushi, and Salad Bar, and Publix Pharmacy is on site",
+      "source": "https://www.publix.com/locations/1097-the-harbor-shops"
+     },
+     {
+      "claim": "Store hours are 7:00 a.m. - 10:00 p.m.",
+      "source": "https://www.publix.com/locations/1097-the-harbor-shops"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJd-nCJ_a62YgRSnosGF__fUI",
+   "name": "Chico's Restaurant",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "cuban_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.chicoscuban.com/",
+     "source_name": "Chico's Restaurant \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Chico's Restaurant offers authentic Cuban food in Hialeah",
+      "Chico's has more than 40 years of tradition in Hialeah",
+      "Specialties include Lech\u00f3n Asado, Masas de Puerco Fritas, and Paella Valenciana",
+      "Breakfast is served from 6 a.m. until 2 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Authentic Cuban food in Hialeah with more than 40 years of tradition",
+    "why_here": "Come for authentic Cuban food backed by more than 40 years of tradition in Hialeah, and try specialties including Lech\u00f3n Asado, Masas de Puerco Fritas, and Paella Valenciana.",
+    "know_before": "Breakfast is served from 6 a.m. until 2 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.chicoscuban.com/"
+     ],
+     "why_here": [
+      "https://www.chicoscuban.com/"
+     ],
+     "know_before": [
+      "https://www.chicoscuban.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Chico's Restaurant offers authentic Cuban food in Hialeah",
+      "source": "https://www.chicoscuban.com/"
+     },
+     {
+      "claim": "Chico's has more than 40 years of tradition in Hialeah",
+      "source": "https://www.chicoscuban.com/"
+     },
+     {
+      "claim": "Specialties include Lech\u00f3n Asado, Masas de Puerco Fritas, and Paella Valenciana",
+      "source": "https://www.chicoscuban.com/"
+     },
+     {
+      "claim": "Breakfast is served from 6 a.m. until 2 p.m.",
+      "source": "https://www.chicoscuban.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJVVUljK222YgRfk4WrTxfZgM",
+   "name": "The Dirty Rabbit Wynwood",
+   "category": "nightlife",
+   "metro": "miami-dade",
+   "primary_type": "bar",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://thedirtyrabbit.com/",
+     "source_name": "The Dirty Rabbit Wynwood \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Dirty Rabbit Wynwood has an outdoor courtyard and several full bars",
+      "The Dirty Rabbit is open Monday - Thursday: 8 p.m. - 3 a.m. and Friday: 5 p.m. - 3 a.m.",
+      "Visitors must be age 21 or over to attend",
+      "Rotating DJs play open-format music with reggaeton, hip hop, and pop"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Wynwood venue with an outdoor courtyard and several full bars",
+    "why_here": "Head to the outdoor courtyard and several full bars for rotating DJs playing open-format music with reggaeton, hip hop, and pop in Wynwood.",
+    "know_before": "Visitors must be age 21 or over to attend. Monday - Thursday hours are 8 p.m. - 3 a.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://thedirtyrabbit.com/"
+     ],
+     "why_here": [
+      "https://thedirtyrabbit.com/"
+     ],
+     "know_before": [
+      "https://thedirtyrabbit.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Dirty Rabbit Wynwood has an outdoor courtyard and several full bars",
+      "source": "https://thedirtyrabbit.com/"
+     },
+     {
+      "claim": "The Dirty Rabbit is open Monday - Thursday: 8 p.m. - 3 a.m. and Friday: 5 p.m. - 3 a.m.",
+      "source": "https://thedirtyrabbit.com/"
+     },
+     {
+      "claim": "Visitors must be age 21 or over to attend",
+      "source": "https://thedirtyrabbit.com/"
+     },
+     {
+      "claim": "Rotating DJs play open-format music with reggaeton, hip hop, and pop",
+      "source": "https://thedirtyrabbit.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ4YDtI2zK2YgRC6Bw7Yc5Og0",
+   "name": "The Ritz-Carlton Key Biscayne, Miami",
+   "category": "hotels",
+   "metro": "miami-dade",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.ritzcarlton.com/en/hotels/miakb-the-ritz-carlton-key-biscayne-miami/overview/",
+     "source_name": "The Ritz-Carlton Key Biscayne, Miami \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Ritz-Carlton Key Biscayne, Miami is a luxury Key Biscayne beachfront hotel located on a five-mile-long barrier island",
+      "Beyond the Horizon includes a private golf cart journey to Bill Baggs Cape Florida State Park",
+      "Beyond the Horizon includes a guided tour of Florida's oldest lighthouse",
+      "Lunar Glow is an evening of wellness beginning with an aura-cleansing ritual and CBD massage",
+      "The Ritz-Carlton Key Biscayne, Miami is just minutes from dynamic downtown"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Luxury Key Biscayne beachfront hotel on a five-mile-long barrier island",
+    "why_here": "Stay at The Ritz-Carlton Key Biscayne, Miami, a luxury Key Biscayne beachfront hotel on a five-mile-long barrier island, with Beyond the Horizon and Lunar Glow as an evening of wellness.",
+    "know_before": "The Ritz-Carlton Key Biscayne, Miami is just minutes from dynamic downtown.",
+    "local_tip": "Take Beyond the Horizon to Bill Baggs Cape Florida State Park for a guided tour of Florida's oldest lighthouse.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.ritzcarlton.com/en/hotels/miakb-the-ritz-carlton-key-biscayne-miami/overview/"
+     ],
+     "why_here": [
+      "https://www.ritzcarlton.com/en/hotels/miakb-the-ritz-carlton-key-biscayne-miami/overview/"
+     ],
+     "know_before": [
+      "https://www.ritzcarlton.com/en/hotels/miakb-the-ritz-carlton-key-biscayne-miami/overview/"
+     ],
+     "local_tip": [
+      "https://www.ritzcarlton.com/en/hotels/miakb-the-ritz-carlton-key-biscayne-miami/overview/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Ritz-Carlton Key Biscayne, Miami is a luxury Key Biscayne beachfront hotel located on a five-mile-long barrier island",
+      "source": "https://www.ritzcarlton.com/en/hotels/miakb-the-ritz-carlton-key-biscayne-miami/overview/"
+     },
+     {
+      "claim": "Beyond the Horizon includes a private golf cart journey to Bill Baggs Cape Florida State Park",
+      "source": "https://www.ritzcarlton.com/en/hotels/miakb-the-ritz-carlton-key-biscayne-miami/overview/"
+     },
+     {
+      "claim": "Beyond the Horizon includes a guided tour of Florida's oldest lighthouse",
+      "source": "https://www.ritzcarlton.com/en/hotels/miakb-the-ritz-carlton-key-biscayne-miami/overview/"
+     },
+     {
+      "claim": "Lunar Glow is an evening of wellness beginning with an aura-cleansing ritual and CBD massage",
+      "source": "https://www.ritzcarlton.com/en/hotels/miakb-the-ritz-carlton-key-biscayne-miami/overview/"
+     },
+     {
+      "claim": "The Ritz-Carlton Key Biscayne, Miami is just minutes from dynamic downtown",
+      "source": "https://www.ritzcarlton.com/en/hotels/miakb-the-ritz-carlton-key-biscayne-miami/overview/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJfyyIwv-52YgRmfgx1aSvF5M",
+   "name": "Old Tom's Sports Bar Miami Springs",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.oldtomsmiami.com/",
+     "source_name": "Old Tom's Sports Bar Miami Springs \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Old Tom's Sports Bar, formerly known as Tom's NFL, has been a long standing hub for all things sports in Miami",
+      "Old Tom's Sports Bar shows EST 1984",
+      "LOADED NACHOS are tortilla chips piled high with pulled BBQ pork or Chicken",
+      "KEY WEST FISH TACOS are three flour tortillas topped with Mahi, avocado, red cabbage, tomatoes and cilantro lime sauce",
+      "Old Tom's Sports Bar in Miami Springs is at 5001 NW 36th St, Miami Springs"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Sports bar in Miami, formerly known as Tom's NFL",
+    "why_here": "Go for all things sports in Miami at Old Tom's Sports Bar, formerly known as Tom's NFL, and order LOADED NACHOS with pulled BBQ pork or Chicken, or KEY WEST FISH TACOS with Mahi and cilantro lime sauce.",
+    "know_before": "Old Tom's Sports Bar in Miami Springs is at 5001 NW 36th St, Miami Springs.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.oldtomsmiami.com/"
+     ],
+     "why_here": [
+      "https://www.oldtomsmiami.com/"
+     ],
+     "know_before": [
+      "https://www.oldtomsmiami.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Old Tom's Sports Bar, formerly known as Tom's NFL, has been a long standing hub for all things sports in Miami",
+      "source": "https://www.oldtomsmiami.com/"
+     },
+     {
+      "claim": "Old Tom's Sports Bar shows EST 1984",
+      "source": "https://www.oldtomsmiami.com/"
+     },
+     {
+      "claim": "LOADED NACHOS are tortilla chips piled high with pulled BBQ pork or Chicken",
+      "source": "https://www.oldtomsmiami.com/"
+     },
+     {
+      "claim": "KEY WEST FISH TACOS are three flour tortillas topped with Mahi, avocado, red cabbage, tomatoes and cilantro lime sauce",
+      "source": "https://www.oldtomsmiami.com/"
+     },
+     {
+      "claim": "Old Tom's Sports Bar in Miami Springs is at 5001 NW 36th St, Miami Springs",
+      "source": "https://www.oldtomsmiami.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ14_4jRql2YgRcAUF893dKYc",
+   "name": "Amici Trattoria Italian",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.amicismiami.com/",
+     "source_name": "Amici Trattoria Italian \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Amici's was founded in New York in 1995",
+      "Amici's has been serving customers in Miami enjoying the Timeless Taste of Italy since 1995",
+      "Amici's offers pizza by the slice and a gourmet meal",
+      "Amici's says to ask about gluten-free pizzas and pastas",
+      "Monday through Thursday hours are 11 a.m. to 10 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Pizza by the slice and a gourmet meal in Miami since 1995",
+    "why_here": "Come to Amici's in Miami for the Timeless Taste of Italy since 1995, from pizza by the slice to a gourmet meal, with gluten-free pizzas and pastas to ask about.",
+    "know_before": "Monday through Thursday hours are 11 a.m. to 10 p.m.",
+    "local_tip": "Ask about gluten-free pizzas and pastas at Amici's.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.amicismiami.com/"
+     ],
+     "why_here": [
+      "https://www.amicismiami.com/"
+     ],
+     "know_before": [
+      "https://www.amicismiami.com/"
+     ],
+     "local_tip": [
+      "https://www.amicismiami.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Amici's was founded in New York in 1995",
+      "source": "https://www.amicismiami.com/"
+     },
+     {
+      "claim": "Amici's has been serving customers in Miami enjoying the Timeless Taste of Italy since 1995",
+      "source": "https://www.amicismiami.com/"
+     },
+     {
+      "claim": "Amici's offers pizza by the slice and a gourmet meal",
+      "source": "https://www.amicismiami.com/"
+     },
+     {
+      "claim": "Amici's says to ask about gluten-free pizzas and pastas",
+      "source": "https://www.amicismiami.com/"
+     },
+     {
+      "claim": "Monday through Thursday hours are 11 a.m. to 10 p.m.",
+      "source": "https://www.amicismiami.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJpUM4UiTc5IgRJzURuXQ6Uok",
+   "name": "Summer Waves Water Park",
+   "category": "attractions",
+   "metro": "georgia-usa",
+   "primary_type": "water_park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.jekyllisland.com/activities/summer-waves-water-park/",
+     "source_name": "Summer Waves Water Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Summer Waves Water Park is a family attraction on Jekyll Island with views of the Jekyll River",
+      "Summer Waves offers lazy laps around Turtle Creek",
+      "Summer Waves offers high-speed thrills down Rattlesnake Racer",
+      "Daily Admission is $30 /person on Mondays-Thursdays and $33 /person on Fridays-Sundays & Holidays",
+      "Tickets for children ages 3 and under are $2.50 and include a swim diaper"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Family water park on Jekyll Island with views of the Jekyll River",
+    "why_here": "Bring the family to Jekyll Island for lazy laps around Turtle Creek and high-speed thrills down Rattlesnake Racer, with waters for cooling off during the season.",
+    "know_before": "Daily Admission is $30 on Mondays-Thursdays and $33 on Fridays-Sundays & Holidays.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.jekyllisland.com/activities/summer-waves-water-park/"
+     ],
+     "why_here": [
+      "https://www.jekyllisland.com/activities/summer-waves-water-park/"
+     ],
+     "know_before": [
+      "https://www.jekyllisland.com/activities/summer-waves-water-park/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Summer Waves Water Park is a family attraction on Jekyll Island with views of the Jekyll River",
+      "source": "https://www.jekyllisland.com/activities/summer-waves-water-park/"
+     },
+     {
+      "claim": "Summer Waves offers lazy laps around Turtle Creek",
+      "source": "https://www.jekyllisland.com/activities/summer-waves-water-park/"
+     },
+     {
+      "claim": "Summer Waves offers high-speed thrills down Rattlesnake Racer",
+      "source": "https://www.jekyllisland.com/activities/summer-waves-water-park/"
+     },
+     {
+      "claim": "Daily Admission is $30 /person on Mondays-Thursdays and $33 /person on Fridays-Sundays & Holidays",
+      "source": "https://www.jekyllisland.com/activities/summer-waves-water-park/"
+     },
+     {
+      "claim": "Tickets for children ages 3 and under are $2.50 and include a swim diaper",
+      "source": "https://www.jekyllisland.com/activities/summer-waves-water-park/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJLzmVoQys2YgRfuOQlI7YcZI",
+   "name": "Scarlett's Cabaret Miami",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "steak_house",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://scarlettscabaret.com/",
+     "source_name": "Scarlett's Cabaret Miami \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Scarlett's Cabaret Miami is an Upscale Adult Nightlife Experience in South Florida",
+      "Scarlett's Cabaret offers 25,000 square feet of fully nude entertainment",
+      "Scarlett's Cabaret has Seven Entertainment Stages",
+      "Scarlett's Cabaret has Five Full-Service Bars",
+      "Rick's Steakhouse is open until 5 a.m. daily",
+      "Scarlett's Cabaret is at 2920 SW 30th Ave Pembroke Park, FL 33009"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Adult nightlife venue in South Florida with Seven Entertainment Stages",
+    "why_here": "Go to Scarlett's Cabaret Miami in South Florida for 25,000 square feet of fully nude entertainment across Seven Entertainment Stages, with Five Full-Service Bars under one roof.",
+    "know_before": "Scarlett's Cabaret is at 2920 SW 30th Ave Pembroke Park, FL 33009.",
+    "local_tip": "Rick's Steakhouse is open until 5 a.m. daily.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://scarlettscabaret.com/"
+     ],
+     "why_here": [
+      "https://scarlettscabaret.com/"
+     ],
+     "know_before": [
+      "https://scarlettscabaret.com/"
+     ],
+     "local_tip": [
+      "https://scarlettscabaret.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Scarlett's Cabaret Miami is an Upscale Adult Nightlife Experience in South Florida",
+      "source": "https://scarlettscabaret.com/"
+     },
+     {
+      "claim": "Scarlett's Cabaret offers 25,000 square feet of fully nude entertainment",
+      "source": "https://scarlettscabaret.com/"
+     },
+     {
+      "claim": "Scarlett's Cabaret has Seven Entertainment Stages",
+      "source": "https://scarlettscabaret.com/"
+     },
+     {
+      "claim": "Scarlett's Cabaret has Five Full-Service Bars",
+      "source": "https://scarlettscabaret.com/"
+     },
+     {
+      "claim": "Rick's Steakhouse is open until 5 a.m. daily",
+      "source": "https://scarlettscabaret.com/"
+     },
+     {
+      "claim": "Scarlett's Cabaret is at 2920 SW 30th Ave Pembroke Park, FL 33009",
+      "source": "https://scarlettscabaret.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJQfxdQ5fV54gRKqSZkMibsrc",
+   "name": "KPOT Korean BBQ & Hot Pot",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "korean_barbecue_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://thekpot.com/",
+     "source_name": "KPOT Korean BBQ & Hot Pot \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "KPOT blends the culinary traditions of Korean BBQ and Hot Pot",
+      "Guests at KPOT grill premium cuts of meat at the table, including beef brisket, pork belly, and short ribs",
+      "KPOT offers a variety of rich broths, fresh vegetables, and hand-selected ingredients",
+      "KPOT hot pot includes thinly sliced meats, seafood, vegetables, and noodles cooked in broth"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Korean BBQ and Hot Pot where guests grill meat at the table",
+    "why_here": "Come to KPOT for Korean BBQ and Hot Pot where you grill premium cuts at the table, including beef brisket, pork belly, and short ribs, and choose rich broths with fresh vegetables.",
+    "know_before": "Hot pot includes thinly sliced meats, seafood, vegetables, and noodles cooked in broth.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://thekpot.com/"
+     ],
+     "why_here": [
+      "https://thekpot.com/"
+     ],
+     "know_before": [
+      "https://thekpot.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "KPOT blends the culinary traditions of Korean BBQ and Hot Pot",
+      "source": "https://thekpot.com/"
+     },
+     {
+      "claim": "Guests at KPOT grill premium cuts of meat at the table, including beef brisket, pork belly, and short ribs",
+      "source": "https://thekpot.com/"
+     },
+     {
+      "claim": "KPOT offers a variety of rich broths, fresh vegetables, and hand-selected ingredients",
+      "source": "https://thekpot.com/"
+     },
+     {
+      "claim": "KPOT hot pot includes thinly sliced meats, seafood, vegetables, and noodles cooked in broth",
+      "source": "https://thekpot.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJs9n3tay22YgRnqDY58bG-SU",
+   "name": "Morgans Restaurant",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://themorgansrestaurant.com/",
+     "source_name": "Morgans Restaurant \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Morgans Restaurant is at 2800 NW 7th Ave, Miami, FL 33137",
+      "Morgans Restaurant hours are 8 a.m. - 10 p.m. daily, on Monday, Tuesday, Wednesday, Thursday, Friday, Saturday and Sunday",
+      "Morgans Restaurant offers a BRUNCH MENU and a DINNER MENU",
+      "Morgans Restaurant is preparing your entire meal from fresh raw ingredients"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Miami restaurant with a BRUNCH MENU and a DINNER MENU",
+    "why_here": "Go to Morgans Restaurant at 2800 NW 7th Ave, Miami, FL 33137 for a BRUNCH MENU or a DINNER MENU, where the meal is prepared from fresh raw ingredients through the day.",
+    "know_before": "Morgans Restaurant hours are 8 a.m. - 10 p.m. daily.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://themorgansrestaurant.com/"
+     ],
+     "why_here": [
+      "https://themorgansrestaurant.com/"
+     ],
+     "know_before": [
+      "https://themorgansrestaurant.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Morgans Restaurant is at 2800 NW 7th Ave, Miami, FL 33137",
+      "source": "https://themorgansrestaurant.com/"
+     },
+     {
+      "claim": "Morgans Restaurant hours are 8 a.m. - 10 p.m. daily, on Monday, Tuesday, Wednesday, Thursday, Friday, Saturday and Sunday",
+      "source": "https://themorgansrestaurant.com/"
+     },
+     {
+      "claim": "Morgans Restaurant offers a BRUNCH MENU and a DINNER MENU",
+      "source": "https://themorgansrestaurant.com/"
+     },
+     {
+      "claim": "Morgans Restaurant is preparing your entire meal from fresh raw ingredients",
+      "source": "https://themorgansrestaurant.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJYdWQ30V-54gRx8nabwefYLw",
+   "name": "Hilton Grand Vacations Club Las Palmeras Orlando",
+   "category": "hotels",
+   "metro": "orlando",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.hilton.com/en/hotels/mcoubgv-hilton-grand-vacations-club-las-palmeras-orlando/",
+     "source_name": "Hilton Grand Vacations Club Las Palmeras Orlando \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Hilton Grand Vacations Club Las Palmeras Orlando is located at 9501 Universal Boulevard, Orlando, Florida, 32819, USA",
+      "Hilton Grand Vacations Club Las Palmeras Orlando has an outdoor pool featuring a waterslide, splashpad, and a poolside bar",
+      "Hilton Grand Vacations Club Las Palmeras Orlando offers rooms and suites"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Orlando hotel with an outdoor pool, waterslide, and splashpad",
+    "why_here": "Stay in rooms and suites at Hilton Grand Vacations Club Las Palmeras Orlando and use the outdoor pool featuring a waterslide, splashpad, and a poolside bar during your visit.",
+    "know_before": "Hilton Grand Vacations Club Las Palmeras Orlando is located at 9501 Universal Boulevard, Orlando, Florida, 32819, USA",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.hilton.com/en/hotels/mcoubgv-hilton-grand-vacations-club-las-palmeras-orlando/"
+     ],
+     "why_here": [
+      "https://www.hilton.com/en/hotels/mcoubgv-hilton-grand-vacations-club-las-palmeras-orlando/"
+     ],
+     "know_before": [
+      "https://www.hilton.com/en/hotels/mcoubgv-hilton-grand-vacations-club-las-palmeras-orlando/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Hilton Grand Vacations Club Las Palmeras Orlando is located at 9501 Universal Boulevard, Orlando, Florida, 32819, USA",
+      "source": "https://www.hilton.com/en/hotels/mcoubgv-hilton-grand-vacations-club-las-palmeras-orlando/"
+     },
+     {
+      "claim": "Hilton Grand Vacations Club Las Palmeras Orlando has an outdoor pool featuring a waterslide, splashpad, and a poolside bar",
+      "source": "https://www.hilton.com/en/hotels/mcoubgv-hilton-grand-vacations-club-las-palmeras-orlando/"
+     },
+     {
+      "claim": "Hilton Grand Vacations Club Las Palmeras Orlando offers rooms and suites",
+      "source": "https://www.hilton.com/en/hotels/mcoubgv-hilton-grand-vacations-club-las-palmeras-orlando/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJfUfYXlq32YgR6gKT6DzY4Zg",
+   "name": "Narbona Coconut Grove",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://coconutgrove.narbona.com/about",
+     "source_name": "Narbona Coconut Grove \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Narbona Coconut Grove opened its doors in July 2022",
+      "Narbona Coconut Grove offers breakfast, lunch, and dinner",
+      "Narbona Coconut Grove serves artisanal gastronomy",
+      "Narbona Coconut Grove has a warm, inviting atmosphere"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Breakfast, lunch, and dinner with artisanal gastronomy in Coconut Grove",
+    "why_here": "Visit Narbona Coconut Grove for breakfast, lunch, and dinner, where artisanal gastronomy is served in a warm, inviting atmosphere for everyday meals and gatherings.",
+    "know_before": "Narbona Coconut Grove opened its doors in July 2022.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://coconutgrove.narbona.com/about"
+     ],
+     "why_here": [
+      "https://coconutgrove.narbona.com/about"
+     ],
+     "know_before": [
+      "https://coconutgrove.narbona.com/about"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Narbona Coconut Grove opened its doors in July 2022",
+      "source": "https://coconutgrove.narbona.com/about"
+     },
+     {
+      "claim": "Narbona Coconut Grove offers breakfast, lunch, and dinner",
+      "source": "https://coconutgrove.narbona.com/about"
+     },
+     {
+      "claim": "Narbona Coconut Grove serves artisanal gastronomy",
+      "source": "https://coconutgrove.narbona.com/about"
+     },
+     {
+      "claim": "Narbona Coconut Grove has a warm, inviting atmosphere",
+      "source": "https://coconutgrove.narbona.com/about"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJM5Edegyx0IgRuF7SUFDyj5o",
+   "name": "Ernest F. Coe Visitor Center",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "visitor_center",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.nps.gov/ever/planyourvisit/coedirections.htm",
+     "source_name": "Ernest F. Coe Visitor Center \u2014 official source",
+     "source_class": "government",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Ernest F. Coe Visitor Center is in Everglades National Park",
+      "The Ernest F. Coe Visitor Center is open 365 days a year",
+      "The Ernest F. Coe Visitor Center offers educational displays, orientation films, and informational brochures",
+      "Books, film, postcards, and insect repellent may be purchased in the adjoining bookstore",
+      "Visitor hours are 9:00 a.m. - 5:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Everglades visitor center with educational displays and orientation films",
+    "why_here": "The Ernest F. Coe Visitor Center in Everglades National Park offers educational displays, orientation films, and informational brochures for visitors starting a park visit.",
+    "know_before": "The Ernest F. Coe Visitor Center is open 365 days a year",
+    "local_tip": "Books, film, postcards, and insect repellent may be purchased in the adjoining bookstore",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.nps.gov/ever/planyourvisit/coedirections.htm"
+     ],
+     "why_here": [
+      "https://www.nps.gov/ever/planyourvisit/coedirections.htm"
+     ],
+     "know_before": [
+      "https://www.nps.gov/ever/planyourvisit/coedirections.htm"
+     ],
+     "local_tip": [
+      "https://www.nps.gov/ever/planyourvisit/coedirections.htm"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Ernest F. Coe Visitor Center is in Everglades National Park",
+      "source": "https://www.nps.gov/ever/planyourvisit/coedirections.htm"
+     },
+     {
+      "claim": "The Ernest F. Coe Visitor Center is open 365 days a year",
+      "source": "https://www.nps.gov/ever/planyourvisit/coedirections.htm"
+     },
+     {
+      "claim": "The Ernest F. Coe Visitor Center offers educational displays, orientation films, and informational brochures",
+      "source": "https://www.nps.gov/ever/planyourvisit/coedirections.htm"
+     },
+     {
+      "claim": "Books, film, postcards, and insect repellent may be purchased in the adjoining bookstore",
+      "source": "https://www.nps.gov/ever/planyourvisit/coedirections.htm"
+     },
+     {
+      "claim": "Visitor hours are 9:00 a.m. - 5:00 p.m.",
+      "source": "https://www.nps.gov/ever/planyourvisit/coedirections.htm"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJbW0DuCra0IgRW-jZTHa3lqs",
+   "name": "Florida Keys Aquarium Encounters",
+   "category": "attractions",
+   "metro": "keys",
+   "primary_type": "aquarium",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://floridakeysaquariumencounters.com/exhibits-experiences/",
+     "source_name": "Florida Keys Aquarium Encounters \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Florida Keys Aquarium Encounters is in Marathon",
+      "Florida Keys Aquarium Encounters is open daily 9 a.m. - 5 p.m.",
+      "Florida Keys Aquarium Encounters has a Coral Reef Tank",
+      "Florida Keys Aquarium Encounters has a Predator Reef Tank",
+      "Florida Keys Aquarium Encounters has a Tide Pool Touch Tank",
+      "Shark species include sand tiger, nurse, blacktip, sandbar, blacknose and bonnethead sharks"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Marathon aquarium with Coral Reef Tank and Predator Reef Tank",
+    "why_here": "Visit Florida Keys Aquarium Encounters in Marathon for the Coral Reef Tank and Predator Reef Tank, with sand tiger, nurse, blacktip, sandbar, blacknose and bonnethead sharks.",
+    "know_before": "Florida Keys Aquarium Encounters is open daily 9 a.m. - 5 p.m.",
+    "local_tip": "Experience the Tide Pool Touch Tank at Florida Keys Aquarium Encounters",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://floridakeysaquariumencounters.com/exhibits-experiences/"
+     ],
+     "why_here": [
+      "https://floridakeysaquariumencounters.com/exhibits-experiences/"
+     ],
+     "know_before": [
+      "https://floridakeysaquariumencounters.com/exhibits-experiences/"
+     ],
+     "local_tip": [
+      "https://floridakeysaquariumencounters.com/exhibits-experiences/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Florida Keys Aquarium Encounters is in Marathon",
+      "source": "https://floridakeysaquariumencounters.com/exhibits-experiences/"
+     },
+     {
+      "claim": "Florida Keys Aquarium Encounters is open daily 9 a.m. - 5 p.m.",
+      "source": "https://floridakeysaquariumencounters.com/exhibits-experiences/"
+     },
+     {
+      "claim": "Florida Keys Aquarium Encounters has a Coral Reef Tank",
+      "source": "https://floridakeysaquariumencounters.com/exhibits-experiences/"
+     },
+     {
+      "claim": "Florida Keys Aquarium Encounters has a Predator Reef Tank",
+      "source": "https://floridakeysaquariumencounters.com/exhibits-experiences/"
+     },
+     {
+      "claim": "Florida Keys Aquarium Encounters has a Tide Pool Touch Tank",
+      "source": "https://floridakeysaquariumencounters.com/exhibits-experiences/"
+     },
+     {
+      "claim": "Shark species include sand tiger, nurse, blacktip, sandbar, blacknose and bonnethead sharks",
+      "source": "https://floridakeysaquariumencounters.com/exhibits-experiences/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJYS9d7Xyn2YgRzgiA4dDGQs4",
+   "name": "Activate Pembroke Pines",
+   "category": "attractions",
+   "metro": "broward",
+   "primary_type": "adventure_sports_center",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://playactivate.com/location/pembroke-pines",
+     "source_name": "Activate Pembroke Pines \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Activate Pembroke Pines has 14 game rooms",
+      "Open Mode is best for groups of 2 or more",
+      "Game rooms at Pembroke Pines include Hoops, Grid and Mega Laser",
+      "Anyone under 13 must be supervised by a Guest 18+ at all times",
+      "Players under 6 are not permitted at Activate locations"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Live-action gaming with 14 game rooms in Pembroke Pines",
+    "why_here": "Play across different game rooms in Open Mode, the classic Activate experience for groups of 2 or more. Game rooms at Pembroke Pines include Hoops, Grid and Mega Laser.",
+    "know_before": "Anyone under 13 must be supervised by a Guest 18+ at all times; players under 6 are not permitted.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://playactivate.com/location/pembroke-pines"
+     ],
+     "why_here": [
+      "https://playactivate.com/location/pembroke-pines"
+     ],
+     "know_before": [
+      "https://playactivate.com/location/pembroke-pines"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Activate Pembroke Pines has 14 game rooms",
+      "source": "https://playactivate.com/location/pembroke-pines"
+     },
+     {
+      "claim": "Open Mode is best for groups of 2 or more",
+      "source": "https://playactivate.com/location/pembroke-pines"
+     },
+     {
+      "claim": "Game rooms at Pembroke Pines include Hoops, Grid and Mega Laser",
+      "source": "https://playactivate.com/location/pembroke-pines"
+     },
+     {
+      "claim": "Anyone under 13 must be supervised by a Guest 18+ at all times",
+      "source": "https://playactivate.com/location/pembroke-pines"
+     },
+     {
+      "claim": "Players under 6 are not permitted at Activate locations",
+      "source": "https://playactivate.com/location/pembroke-pines"
+     }
+    ]
+   }
+  }
+ ]
+}
