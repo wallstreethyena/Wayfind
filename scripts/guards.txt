@@ -2204,6 +2204,7 @@ node scripts/test-score-explanation.mjs
 # Current-main backend residual runtime controls (#1285/#1272).
 node scripts/test-google-details-accounting.mjs
 node scripts/test-viator-provider-state.mjs
+node scripts/test-viator-rail-fallback.mjs
 
 # Complete owned Apple viewport map and current-standard Family Day expansion.
 node scripts/test-apple-explorer-map.mjs

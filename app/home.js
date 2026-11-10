@@ -8027,7 +8027,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
           ? pool.filter((t) => t.rating != null && t.rating >= 4.7 && (t.reviews || 0) > 0 && (t.reviews || 0) <= 300)
           : pool.filter((t) => t.rating != null && t.rating >= 4.5)).slice(0, 8);
         if (!cancelled) setExpTours(items);
-      } catch (e) { if (!cancelled) setExpTours(null); }
+      } catch (e) { if (!cancelled) setExpTours([]); }
     })();
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps

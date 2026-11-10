@@ -102,7 +102,7 @@ export default function ExperienceScreen({ ctx }) {
                   couponsForIntent, soonest-ending first, absent when there are
                   none. */}
               <CouponStrip intentId={activeBadge} lat={ctx.center && ctx.center.lat} lng={ctx.center && ctx.center.lng} onOpenCoupons={(coupon) => { if (coupon) clipCoupon(coupon); setWalletOpen(!!coupon); setScreen("coupons"); }} onLog={logEvent} />
-              {EXPERIENCES[activeBadge] && EXPERIENCES[activeBadge].viator && <ViatorRail title={EXPERIENCES[activeBadge].viatorMode === "gems" ? "Hidden gem experiences" : "Top-rated experiences"} items={expTours} theme={activeBadge} onLog={logEvent} onOpenExternal={ctx.openExternal} />}
+              {EXPERIENCES[activeBadge] && EXPERIENCES[activeBadge].viator && <ViatorRail title={EXPERIENCES[activeBadge].viatorMode === "gems" ? "Hidden gem experiences" : "Top-rated experiences"} items={expTours} query={headerCityName} theme={activeBadge} onLog={logEvent} onOpenExternal={ctx.openExternal} />}
               {/* v6.72 EXTRACTED — same rank number, name, PlaceScoreChip and
                   `why` line, now shared with every intent page. The badge match
                   stays HERE because it is this screen's concern: momentPicks is
