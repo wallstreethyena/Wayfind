@@ -2306,6 +2306,7 @@ node scripts/test-photo-dedupe.mjs
 node scripts/test-halloween-tours.mjs
 # 2026-10-30: Christmas ticket cards (premium Halloween style page): same listings as the browse, upcoming only, registry /go hrefs untouched, honest prices, dash free, merit order never reads commission.
 node scripts/test-christmas-tickets.mjs
+node scripts/test-snowcat-tickets.mjs
 node scripts/test-christmas-tours.mjs
 
 node scripts/test-halloween-intent-rails.mjs
