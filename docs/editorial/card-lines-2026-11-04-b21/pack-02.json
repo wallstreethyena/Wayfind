@@ -1,0 +1,416 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 21. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJE2A--Rfj2IgRWdDL3vOrqIY",
+   "name": "Adega Gaucha Brazilian Steakhouse",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "brazilian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://adegagaucha.com/locations/deerfieldbeach/",
+     "source_name": "Adega Gaucha Brazilian Steakhouse \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Adega Gaucha Deerfield Beach is at 240 S Federal Hwy, Deerfield Beach.",
+      "Gauchos bring 17+ cuts to the table and carve them onto the plate, including Picanha and Filet Mignon.",
+      "The Gourmet Table includes 50+ items, from signature salads, carpaccio and charcuterie to grilled cinnamon pineapple.",
+      "Deerfield Beach hours include Monday from 5 p.m. to 9 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Gauchos carve 17-plus fire-roasted cuts tableside in Deerfield Beach.",
+    "why_here": "Adega Gaucha is a Brazilian steakhouse where rodizio service brings fire-roasted cuts to the table, carved by gauchos. Meals can start at the Gourmet Table, which the restaurant lists at 50-plus items including salads, carpaccio, and charcuterie.",
+    "know_before": "The Deerfield Beach location is at 240 S Federal Hwy, Deerfield Beach.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://adegagaucha.com/locations/deerfieldbeach/"
+     ],
+     "why_here": [
+      "https://adegagaucha.com/locations/deerfieldbeach/"
+     ],
+     "know_before": [
+      "https://adegagaucha.com/locations/deerfieldbeach/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Adega Gaucha Deerfield Beach is at 240 S Federal Hwy, Deerfield Beach.",
+      "source": "https://adegagaucha.com/locations/deerfieldbeach/"
+     },
+     {
+      "claim": "Gauchos bring 17+ cuts to the table and carve them onto the plate, including Picanha and Filet Mignon.",
+      "source": "https://adegagaucha.com/locations/deerfieldbeach/"
+     },
+     {
+      "claim": "The Gourmet Table includes 50+ items, from signature salads, carpaccio and charcuterie to grilled cinnamon pineapple.",
+      "source": "https://adegagaucha.com/locations/deerfieldbeach/"
+     },
+     {
+      "claim": "Deerfield Beach hours include Monday from 5 p.m. to 9 p.m.",
+      "source": "https://adegagaucha.com/locations/deerfieldbeach/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJIxjun3m32YgRPaxVBeLRSEE",
+   "name": "World Famous House of Mac",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "soul_food_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://houseofmac.com/menu",
+     "source_name": "World Famous House of Mac \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Menu includes World Famous Five Cheese Mac.",
+      "World Famous Five Cheese Mac is five cheese mac & cheese topped with cheddar jack cheese and breadcrumbs and baked to a golden brown.",
+      "Menu includes Jerk Chicken Mac.",
+      "Menu includes Buffalo Chicken Mac."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Five Cheese Mac baked to a golden brown, plus Jerk Chicken Mac",
+    "why_here": "World Famous Five Cheese Mac is five cheese mac & cheese topped with cheddar jack cheese and breadcrumbs and baked to a golden brown, and the menu also includes Jerk Chicken Mac and Buffalo Chicken Mac.",
+    "know_before": "Menu includes Jerk Chicken Mac and Buffalo Chicken Mac.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://houseofmac.com/menu"
+     ],
+     "why_here": [
+      "https://houseofmac.com/menu"
+     ],
+     "know_before": [
+      "https://houseofmac.com/menu"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Menu includes World Famous Five Cheese Mac.",
+      "source": "https://houseofmac.com/menu"
+     },
+     {
+      "claim": "World Famous Five Cheese Mac is five cheese mac & cheese topped with cheddar jack cheese and breadcrumbs and baked to a golden brown.",
+      "source": "https://houseofmac.com/menu"
+     },
+     {
+      "claim": "Menu includes Jerk Chicken Mac.",
+      "source": "https://houseofmac.com/menu"
+     },
+     {
+      "claim": "Menu includes Buffalo Chicken Mac.",
+      "source": "https://houseofmac.com/menu"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ-1w1Et7wwogRPvBb2M0x7I0",
+   "name": "Clear Sky on Cleveland",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://clearskyrestaurants.com/cleveland-home/",
+     "source_name": "Clear Sky on Cleveland \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Clear Sky on Cleveland is a Global Bistro located in Clearwater's historical Cleveland Street District.",
+      "Restaurant hours are Sun \u2013 Thurs 8 a.m.-10 p.m. and Fri \u2013 Sat 8 a.m.-11 p.m.",
+      "Breakfast hours are Mon \u2013 Fri 8 a.m. \u2013 11 a.m.",
+      "Groups can reserve The Garden Room for events and celebrations."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Global bistro in Clearwater's historic Cleveland Street District",
+    "why_here": "Clear Sky on Cleveland is described by its operator as a Global Bistro in Clearwater's historical Cleveland Street District. The site offers breakfast, online ordering and takeout, and a Garden Room for group events.",
+    "know_before": "Restaurant hours are Sun \u2013 Thurs 8 a.m.-10 p.m. and Fri \u2013 Sat 8 a.m.-11 p.m. per the official site.",
+    "local_tip": "The official site says a reserved table may still require a wait of 10 minutes or more after the reserved time.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://clearskyrestaurants.com/cleveland-home/"
+     ],
+     "why_here": [
+      "https://clearskyrestaurants.com/cleveland-home/"
+     ],
+     "know_before": [
+      "https://clearskyrestaurants.com/cleveland-home/"
+     ],
+     "local_tip": [
+      "https://clearskyrestaurants.com/cleveland-home/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Clear Sky on Cleveland is a Global Bistro located in Clearwater's historical Cleveland Street District.",
+      "source": "https://clearskyrestaurants.com/cleveland-home/"
+     },
+     {
+      "claim": "Restaurant hours are Sun \u2013 Thurs 8 a.m.-10 p.m. and Fri \u2013 Sat 8 a.m.-11 p.m.",
+      "source": "https://clearskyrestaurants.com/cleveland-home/"
+     },
+     {
+      "claim": "Breakfast hours are Mon \u2013 Fri 8 a.m. \u2013 11 a.m.",
+      "source": "https://clearskyrestaurants.com/cleveland-home/"
+     },
+     {
+      "claim": "Groups can reserve The Garden Room for events and celebrations.",
+      "source": "https://clearskyrestaurants.com/cleveland-home/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJTRjy4Rch6IgRijoe-tga2pQ",
+   "name": "Upper Deck Cafe",
+   "category": "food",
+   "metro": "spring-hill-fl",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://upperdeckww.com/",
+     "source_name": "Upper Deck Cafe \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Upper Deck Cafe is a restaurant and bar.",
+      "Upper Deck Cafe is located at 5386 Darlene Street, Weeki Wachee, FL 34607.",
+      "Monday hours at Upper Deck Cafe are 11 a.m. to 9 p.m.",
+      "Friday hours at Upper Deck Cafe are 11 a.m. to 10 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Restaurant and bar in Weeki Wachee, open from 11 a.m.",
+    "why_here": "Upper Deck Cafe is a restaurant and bar in Weeki Wachee. It is located at 5386 Darlene Street, with Monday hours from 11 a.m. to 9 p.m. and Friday hours from 11 a.m. to 10 p.m.",
+    "know_before": "Monday hours are 11 a.m. to 9 p.m. and Friday hours are 11 a.m. to 10 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://upperdeckww.com/"
+     ],
+     "why_here": [
+      "https://upperdeckww.com/"
+     ],
+     "know_before": [
+      "https://upperdeckww.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Upper Deck Cafe is a restaurant and bar.",
+      "source": "https://upperdeckww.com/"
+     },
+     {
+      "claim": "Upper Deck Cafe is located at 5386 Darlene Street, Weeki Wachee, FL 34607.",
+      "source": "https://upperdeckww.com/"
+     },
+     {
+      "claim": "Monday hours at Upper Deck Cafe are 11 a.m. to 9 p.m.",
+      "source": "https://upperdeckww.com/"
+     },
+     {
+      "claim": "Friday hours at Upper Deck Cafe are 11 a.m. to 10 p.m.",
+      "source": "https://upperdeckww.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJwW_t7sN954gRPUGp9G1OjUk",
+   "name": "K1 Speed Orlando",
+   "category": "attractions",
+   "metro": "orlando",
+   "primary_type": "amusement_center",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.k1speed.com/orlando-location.html",
+     "source_name": "K1 Speed Orlando \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "K1 Speed Orlando is located at 5228 Vanguard Street, Orlando, FL 32819.",
+      "K1 Speed Orlando is located just steps from International Drive in the Florida Center neighborhood of Southwest Orlando.",
+      "Adult karts at K1 Speed Orlando are capable of 45 mph.",
+      "K1 Speed Orlando is the first center to feature Bambino karts for ages 3-7.",
+      "K1 Speed Orlando has Bambino, Adult, and Junior electric go karts."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Indoor go-kart racing with karts capable of 45 mph",
+    "why_here": "K1 Speed Orlando is located just steps from International Drive in the Florida Center neighborhood of Southwest Orlando. Adult karts are capable of 45 mph, with Bambino, Adult, and Junior electric go karts.",
+    "know_before": "Bambino karts are for ages 3-7 at K1 Speed Orlando.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.k1speed.com/orlando-location.html"
+     ],
+     "why_here": [
+      "https://www.k1speed.com/orlando-location.html"
+     ],
+     "know_before": [
+      "https://www.k1speed.com/orlando-location.html"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "K1 Speed Orlando is located at 5228 Vanguard Street, Orlando, FL 32819.",
+      "source": "https://www.k1speed.com/orlando-location.html"
+     },
+     {
+      "claim": "K1 Speed Orlando is located just steps from International Drive in the Florida Center neighborhood of Southwest Orlando.",
+      "source": "https://www.k1speed.com/orlando-location.html"
+     },
+     {
+      "claim": "Adult karts at K1 Speed Orlando are capable of 45 mph.",
+      "source": "https://www.k1speed.com/orlando-location.html"
+     },
+     {
+      "claim": "K1 Speed Orlando is the first center to feature Bambino karts for ages 3-7.",
+      "source": "https://www.k1speed.com/orlando-location.html"
+     },
+     {
+      "claim": "K1 Speed Orlando has Bambino, Adult, and Junior electric go karts.",
+      "source": "https://www.k1speed.com/orlando-location.html"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJuyCMUy3G2YgRyrGn93iiGoM",
+   "name": "Pinecrest Gardens",
+   "category": "attractions",
+   "metro": "miami-dade",
+   "primary_type": "botanical_garden",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.pinecrestgardens.org/About-Us",
+     "source_name": "Pinecrest Gardens \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Pinecrest Gardens is a 14-acre historic property dating back to 1936.",
+      "Pinecrest Gardens originally housed Parrot Jungle.",
+      "Pinecrest Gardens is a lush, botanical garden located in and managed by the Village of Pinecrest.",
+      "Pinecrest Gardens is at 11000 Red Road, Pinecrest, Florida 33156."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "14-acre botanical garden on the historic Parrot Jungle site, dating to 1936",
+    "why_here": "Pinecrest Gardens is a 14-acre historic property dating back to 1936. It is a lush, botanical garden located in and managed by the Village of Pinecrest, and it originally housed Parrot Jungle.",
+    "know_before": "Pinecrest Gardens is at 11000 Red Road, Pinecrest, Florida 33156.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.pinecrestgardens.org/About-Us"
+     ],
+     "why_here": [
+      "https://www.pinecrestgardens.org/About-Us"
+     ],
+     "know_before": [
+      "https://www.pinecrestgardens.org/About-Us"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Pinecrest Gardens is a 14-acre historic property dating back to 1936.",
+      "source": "https://www.pinecrestgardens.org/About-Us"
+     },
+     {
+      "claim": "Pinecrest Gardens originally housed Parrot Jungle.",
+      "source": "https://www.pinecrestgardens.org/About-Us"
+     },
+     {
+      "claim": "Pinecrest Gardens is a lush, botanical garden located in and managed by the Village of Pinecrest.",
+      "source": "https://www.pinecrestgardens.org/About-Us"
+     },
+     {
+      "claim": "Pinecrest Gardens is at 11000 Red Road, Pinecrest, Florida 33156.",
+      "source": "https://www.pinecrestgardens.org/About-Us"
+     }
+    ]
+   }
+  }
+ ]
+}

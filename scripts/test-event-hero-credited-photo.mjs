@@ -271,9 +271,9 @@ const bundle = "window.__src={" + Object.entries(MODULES).map(([k, f]) => JSON.s
   + `window.__hydrate=function(id){var c=document.getElementById(id);ReactDOM.hydrateRoot(c,__tree(c.dataset.src,'Hydrated'));};`;
 const SVG = '<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800"><rect width="1200" height="800" fill="#446655"/></svg>';
 const reactServer = path.join(REPO, "node_modules/react-dom/umd/react-dom-server-legacy.browser.development.js");
-const snapshot = (id) => `(() => { const c = document.getElementById(${JSON.stringify(id)}); const box = c.querySelector('.wf-event-photo'); const cr = c.querySelector('[data-event-hero-credit]'); const img = box.querySelector('img'); const tile = box.querySelector('[data-photo-fallback]');
+const snapshot = (id) => `(() => { const c = document.getElementById(${JSON.stringify(id)}); const box = c?.querySelector('.wf-event-photo'); const cr = c?.querySelector('[data-event-hero-credit]'); const img = box?.querySelector('img'); const tile = box?.querySelector('[data-photo-fallback]');
   const r = { img: img ? img.getAttribute('src') : null, loaded: img ? (img.complete && img.naturalWidth > 0) : null, tile: tile ? tile.getAttribute('data-photo-fallback') : null, credit: !!cr, creditText: cr ? cr.textContent : '' };
-  if (cr) { const s = getComputedStyle(cr); r.creditAfterBox = !!(box.compareDocumentPosition(cr) & Node.DOCUMENT_POSITION_FOLLOWING); r.creditInsideBox = box.contains(cr); r.creditPosition = s.position; r.creditBg = s.backgroundColor; r.links = [...cr.querySelectorAll('a')].map((a) => [a.textContent.replace(' (opens in a new tab)', ''), a.getAttribute('href'), a.getAttribute('target')]); }
+  if (cr && box) { const s = getComputedStyle(cr); r.creditAfterBox = !!(box.compareDocumentPosition(cr) & Node.DOCUMENT_POSITION_FOLLOWING); r.creditInsideBox = box.contains(cr); r.creditPosition = s.position; r.creditBg = s.backgroundColor; r.links = [...cr.querySelectorAll('a')].map((a) => [a.textContent.replace(' (opens in a new tab)', ''), a.getAttribute('href'), a.getAttribute('target')]); }
   return r; })()`;
 try {
   const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
@@ -311,6 +311,12 @@ try {
   await page.addScriptTag({ content: bundle });
   const until = async (id, pred) => { let last; for (let i = 0; i < 200; i++) { last = await page.evaluate(snapshot(id)); if (pred(last)) return last; await page.waitForTimeout(40); } return last; };
   const gateP = new Promise((r) => { release = r; }); gate = gateP;
+
+  // createRoot renders asynchronously. A poll before its first commit is
+  // pending, never a passing image/credit result and never a null dereference.
+  const beforeMount = await page.evaluate(snapshot('not-mounted-yet'));
+  ok(beforeMount.loaded !== true && !beforeMount.credit && beforeMount.img === null,
+    'an uncommitted fixture stays pending until the actual photo and credit mount');
 
   // negative control: the snapshot can tell a broken <img> from a loaded one
   {

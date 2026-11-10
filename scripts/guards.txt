@@ -276,6 +276,7 @@ node scripts/test-landing-tours.mjs
 node scripts/test-home-bookable.mjs
 node scripts/test-ranking-editorial.mjs
 node scripts/test-coverage-waitlist.mjs
+node scripts/test-coverage-gap-feed.mjs
 node scripts/test-deal-rails.mjs
 node scripts/test-deals-geo.mjs
 node scripts/test-coupon-geo.mjs
@@ -365,7 +366,7 @@ node scripts/test-seasonal-picks.mjs
 node scripts/test-place-suggestions.mjs
 node scripts/test-comment-photos.mjs
 node scripts/check-outdoors-cache-first.mjs
-node scripts/check-osm-warm-lands.mjs
+node scripts/test-osm-regional.mjs
 node scripts/check-env-discipline.mjs
 node scripts/check-intent-copy-matches-filter.mjs
 node scripts/test-nightlife-ranking.mjs
@@ -642,6 +643,10 @@ node scripts/check-map-place-card.mjs
 node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/test-app-rating.mjs
 node scripts/check-credentialed-paths.mjs
 node scripts/check-home-answer-first.mjs
+# A cold homepage opens the first poster collection. useState(null) puts the
+# shelf back in front of the answer. The link to the source poster lives in
+# the existing open bar, not on the poster tiles.
+node scripts/check-home-default-poster.mjs
 node scripts/check-home-location.mjs
 node scripts/check-owner-curation-one-path.mjs
 node scripts/check-ranking-integrity.mjs
@@ -1664,6 +1669,7 @@ node scripts/test-auth-admin-tombstones.mjs
 # finite ledger. This executes the photo, Nearby, geocoding, and gate-default
 # boundaries with fetch traps and positive controls.
 node scripts/test-spend-bypass-regression.mjs
+node scripts/test-geocode-owned-fallback.mjs
 
 # 2026-09-09 photo-only paid allowance: WAYFIND_PHOTOS_PAID + GOOGLE_PHOTOS_MONTH_CAP
 # may raise the `photos` ledger ceiling ONLY; every other Google SKU asks the
@@ -1896,6 +1902,7 @@ node scripts/check-guide-pick-photos.mjs
 # no gap note may promise a fallback that no longer exists (the #1697 Coquina
 # Beach failure); every guide has a hero.
 node scripts/check-guide-visual-completeness.mjs
+node scripts/check-image-intent.mjs
 # The scheduled live monitor's A/B/C sorting (.github/workflows/guide-visual-monitor.yml).
 node scripts/test-guide-visual-monitor.mjs
 
@@ -2134,6 +2141,7 @@ node scripts/test-guide-editorial-photos.mjs
 
 node scripts/test-guide-city-coverage.mjs
 node scripts/test-detail-nearby.mjs
+node scripts/test-detail-next-step.mjs
 node scripts/test-venue-nearby.mjs
 node scripts/test-card-photo-fallback.mjs
 node scripts/test-photo-serving-alert.mjs
@@ -2519,3 +2527,5 @@ node scripts/test-google-daily-quota-breaker.mjs
 
 node scripts/check-homepage-events-deadline.mjs
 node scripts/test-holiday-discovery-2026-11-06.mjs
+# Verified official street addresses and safe non-Google map links.
+node scripts/test-owned-place-directions.mjs

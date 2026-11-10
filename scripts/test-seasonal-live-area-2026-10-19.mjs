@@ -11,7 +11,7 @@ import { fallEventRail, composeFallIntentRails, nextFallOccurrence, hasUpcomingF
 import { halloweenCardRail, composeHalloweenRails } from "../lib/halloweenIntentRails.js";
 import { isTrusted } from "../lib/curatedEvents.js";
 import { fallEventLive } from "../lib/fallPool.js";
-import { fallEventCardImageSrc } from "../lib/fallEventImage.js";
+import { fallEventCardImageSrc, CHRISTMAS_INTENT_IMAGE_HOLDS } from "../lib/fallEventImage.js";
 import { occurrenceDatesFor } from "../lib/eventOccurrences.js";
 import { mergeChristmasResearch, researchEvent } from "../lib/christmasResearch.js";
 import { christmasEventCard } from "../lib/christmasCards.js";
@@ -153,7 +153,7 @@ function xmasRails(today) {
   return composeChristmasIntentRails(cards, [], { ...TAMPA, today }).rails;
 }
 
-check("eight Christmas rows are confirmed, in the Nov 15 window, and photo-backed", () => {
+check("eight Christmas rows are confirmed and in the Nov 15 window; a held card has no year-round venue photo", () => {
   assert.equal(RAW.length, 850); // + Whoville at The Old Citrus Estate (owner post 2026-11-01); 770 researched 2026-10-13, 29 first-100 rows, plus Snowcat's neighbor listings Robert's and Freedom Factory (2026-11-02)
   for (const [id, expect] of Object.entries(XMAS)) {
     const raw = RAW.find((row) => row.id === id);
@@ -167,7 +167,9 @@ check("eight Christmas rows are confirmed, in the Nov 15 window, and photo-backe
     assert.equal(christmasEventRail(event), expect.rail);
     assert.equal(inChristmasWindow(event), true);
     assert.ok(isTrusted(event));
-    assert.match(fallEventCardImageSrc(event, 640, null), new RegExp("/api/photo\\?place=" + expect.place));
+    const src = fallEventCardImageSrc(event, 640, null);
+    if (CHRISTMAS_INTENT_IMAGE_HOLDS.has(id)) assert.equal(src, null, id + " is held to the designed tile");
+    else assert.match(src, new RegExp("/api/photo\\?place=" + expect.place));
     assert.notEqual(event.city, "Florida");
   }
   const film = researchEvent(RAW.find((row) => row.id === "florida-orchestra-nightmare-before-christmas-2026"));

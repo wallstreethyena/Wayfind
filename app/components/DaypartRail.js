@@ -35,7 +35,7 @@ import { useRaysWorldSeriesPoster } from "./useRaysWorldSeriesPoster.js";
 import { isRaysLivePoster } from "../../lib/raysWorldSeriesPoster.js";
 import { openShareFlow } from "../../lib/shareFlow.js";
 import { browsePosition, restoreBrowsePosition } from "../../lib/restoreBrowsePosition";
-import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Fragment, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { guideForPlaceRail } from "../../lib/guideDiscovery.js";
 import { GuideDiscoveryContext } from "./GuideDiscoveryContext";
 import { applyCuratorPicks, useCuratorPicks } from "../../lib/curatorPicks.js";
@@ -46,14 +46,10 @@ import dynamic from "next/dynamic";
 // blew through on Vercel (500.0KB gz against a 500KB gate,
 // scripts/check-bundle.mjs). IconicPlaceCard brings businessStatus, ranking,
 // score, google, price, commerce, placePartnerPicks, dining, placeOverrides and
-// tags with it, and it was entering the eager homepage chunk for the first
-// time — to render cards that are BEHIND A CLICK. The menu is closed at first
-// paint by design ("the menu is a consequence of choosing a card — it does not
-// exist until then"), so none of that belongs on the critical path.
-//
-// ssr:false costs nothing here: the drop renders no HTML until a card is
-// picked, so there was never any server markup to lose, and the crawlable link
-// is the tile's own href.
+// tags with it. These stay dynamic() chunks. A cold visit now mounts the
+// featured drop immediately, so that one chunk is requested on load. It is
+// still not in the eager homepage graph. The crawlable link remains the
+// tile's own href.
 const GuideDiscoveryCard = dynamic(() => import("./GuideDiscoveryCard"), { ssr: false });
 const IconicPlaceCard = dynamic(() => import("./IconicPlaceCard"), {
   ssr: false,
@@ -117,10 +113,12 @@ function preparePoster(id) {
 }
 
 import { DAYPARTS, partForHour, orderFor, christmasLeads, railHref, dateNightIntentHref, LEGACY_HERO_EVENT } from "../../lib/dayparts.js";
+import { landingSkipsDefaultPoster } from "../../lib/searchDeepLink.js";
 import { siteHourFloat, tzForPoint } from "../../lib/nowContext.js";
 import { siteTodayStr } from "../../lib/siteTime.js";
 import { useSiteToday } from "../../lib/siteDayClock.js";
 import { railOnPosterTrack } from "../../lib/posterSeasons.js";
+import { firstDropPosterId } from "../../lib/posterSeasons.js";
 import { railArt, railArtSrcSet, railArtFallback, railTint, RAIL_ART_SIZES, railArtSize } from "../../lib/rails.js";
 // Chef and Augtober open the same pop-down shell as every other rail. Their
 // answers stay lazy: Chef's testimony is static; FallIntentRails fetches the
@@ -545,15 +543,75 @@ export default function DaypartRail({
   // this re-runs the center effect with identical coordinates, which is what
   // makes the "Try again" button a real button and not decoration.
   const [retryNonce, setRetryNonce] = useState(0);
-  const [selected, setSelected] = useState(null);
+  // The `sponsor ? [sponsor, ...rails]` shape below is pinned verbatim by
+  // check-partner-collections.mjs, so it stays exactly as written; the live
+  // event tiles layer in FRONT of it rather than rewriting it.
+  const railById = useMemo(() => {
+    const withSponsor = [...(raysPoster ? [raysPoster] : []), ...(sponsor ? [sponsor, ...rails] : rails)];
+    return new Map([...(livePosters || []), ...withSponsor].map((r) => [r.id, r]));
+  }, [livePosters, sponsor, rails, raysPoster]);
+  const order = useMemo(() => {
+    const base = orderFor(daypart, rails.map((r) => r.id), siteDay);
+    const withSponsor = [...(raysPoster ? [raysPoster.id] : []), ...(sponsor ? [sponsor.id, ...base] : base)];
+    // Owner, 2026-11-01: Christmas is first all day Nov 1 through Jan 1,
+    // including ahead of synthetic promotions. Keep their relative order.
+    if (christmasLeads(siteDay)) {
+      const c = withSponsor.indexOf('christmas');
+      if (c > 0) { withSponsor.splice(c, 1); withSponsor.unshift('christmas'); }
+    }
+    // The owner-approved Rays campaign leads during the October World Series.
+    // Other live posters retain their ordinary placement below.
+    // WHERE THE LIVE POSTERS SIT (owner, 2026-09-17). Two reasons they are
+    // NOT first:
+    //
+    //   1. The seasonal poster owns first position while it is in season.
+    //      "the fall poster is a special seasonal poster so I need to make
+    //      sure that is the first one before it goes away." Its tile is
+    //      already first in the daypart order, so it keeps that slot.
+    //   2. A live poster's art is fetched and cropped per reader, so it
+    //      cannot be in the SSR document the way a local card is. Landing
+    //      it off the first screen means the reader never watches it arrive
+    //      — "if we cannot increase the speed then place it in like the 4th
+    //      position so it gives time to load without the user seeing it."
+    //
+    // Position 4 onward, so the first three tiles are all server-rendered
+    // art and the posters fill in while they are still off to the right.
+    const live = (livePosters || []).map((r) => r.id);
+    if (!live.length) return withSponsor;
+    const AT = 3;
+    return [...withSponsor.slice(0, AT), ...live, ...withSponsor.slice(AT)];
+  }, [daypart, rails, sponsor, livePosters, siteDay, raysPoster]);
+  const visiblePosterIds = useMemo(() => order.filter((id) => {
+    const r = railById.get(id);
+    return railOnPosterTrack(r, siteDay) && !(raysPoster && isRaysLivePoster(r));
+  }), [order, railById, siteDay, raysPoster]);
+  const featuredPosterId = firstDropPosterId(visiblePosterIds, (id) => railById.get(id));
+  const openingPosterId = initialRail && railById.has(initialRail) ? initialRail : featuredPosterId;
+  const [selected, setSelected] = useState(openingPosterId);
+  const selectionPinned = useRef(Boolean(initialRail && railById.has(initialRail)));
+  const loggedDefault = useRef(null);
+  const defaultLanding = useRef(!selectionPinned.current && Boolean(featuredPosterId));
   const resumePoster = useRef(false);
   const posterReturn = useRef(null);
   const cancelPosterRestore = useRef(null);
+  useLayoutEffect(() => {
+    // A /?q= or /?intent= landing owns the page. The seasonal poster (Christmas
+    // from Nov through Jan) must not open over an empty search box.
+    try {
+      if (!landingSkipsDefaultPoster(window.location.search)) return;
+    } catch { return; }
+    selectionPinned.current = true;
+    defaultLanding.current = false;
+    setSelected(null);
+  }, []);
   useEffect(() => {
+    try { if (landingSkipsDefaultPoster(window.location.search)) return; } catch { /* keep the saved poster */ }
     if (initialRail || !["/", "/v8"].includes(window.location.pathname)) return;
     try {
       const saved = JSON.parse(sessionStorage.getItem("wf_poster_position") || "null");
       if (saved && Date.now() - saved.ts < 30 * 60000 && railById.has(saved.id)) {
+        selectionPinned.current = true;
+        defaultLanding.current = false;
         resumePoster.current = true;
         posterReturn.current = saved.returnPosition || null;
         setSelected(saved.id);
@@ -615,13 +673,6 @@ export default function DaypartRail({
   // copy reads once a real answer confirms it), it just cannot speak before
   // one arrives.
   const answered = live != null;
-  // The `sponsor ? [sponsor, ...rails]` shape below is pinned verbatim by
-  // check-partner-collections.mjs, so it stays exactly as written; the live
-  // event tiles layer in FRONT of it rather than rewriting it.
-  const railById = useMemo(() => {
-    const withSponsor = [...(raysPoster ? [raysPoster] : []), ...(sponsor ? [sponsor, ...rails] : rails)];
-    return new Map([...(livePosters || []), ...withSponsor].map((r) => [r.id, r]));
-  }, [livePosters, sponsor, rails, raysPoster]);
   useEffect(() => {
     if (!["/", "/v8"].includes(window.location.pathname)) return undefined;
     const save = () => {
@@ -632,6 +683,8 @@ export default function DaypartRail({
     };
     const restore = (event) => {
       const saved = event.detail?.poster;
+      selectionPinned.current = true;
+      defaultLanding.current = false;
       resumePoster.current = true;
       posterReturn.current = saved?.returnPosition || null;
       setSelected(saved && railById.has(saved.id) ? saved.id : null);
@@ -667,38 +720,29 @@ export default function DaypartRail({
     const withSponsor = [...(raysPoster ? [raysPoster] : []), ...(sponsor ? [sponsor, ...rails] : rails)];
     return [...(livePosters || []), ...withSponsor];
   }, [livePosters, sponsor, rails, raysPoster]);
-  const order = useMemo(() => {
-    const base = orderFor(daypart, rails.map((r) => r.id), siteDay);
-    const withSponsor = [...(raysPoster ? [raysPoster.id] : []), ...(sponsor ? [sponsor.id, ...base] : base)];
-    // Owner, 2026-11-01: Christmas is first all day Nov 1 through Jan 1,
-    // including ahead of synthetic promotions. Keep their relative order.
-    if (christmasLeads(siteDay)) {
-      const c = withSponsor.indexOf('christmas');
-      if (c > 0) { withSponsor.splice(c, 1); withSponsor.unshift('christmas'); }
-    }
-    // The owner-approved Rays campaign leads during the October World Series.
-    // Other live posters retain their ordinary placement below.
-    // WHERE THE LIVE POSTERS SIT (owner, 2026-09-17). Two reasons they are
-    // NOT first:
-    //
-    //   1. The seasonal poster owns first position while it is in season.
-    //      "the fall poster is a special seasonal poster so I need to make
-    //      sure that is the first one before it goes away." Its tile is
-    //      already first in the daypart order, so it keeps that slot.
-    //   2. A live poster's art is fetched and cropped per reader, so it
-    //      cannot be in the SSR document the way a local card is. Landing
-    //      it off the first screen means the reader never watches it arrive
-    //      — "if we cannot increase the speed then place it in like the 4th
-    //      position so it gives time to load without the user seeing it."
-    //
-    // Position 4 onward, so the first three tiles are all server-rendered
-    // art and the posters fill in while they are still off to the right.
-    const live = (livePosters || []).map((r) => r.id);
-    if (!live.length) return withSponsor;
-    const AT = 3;
-    return [...withSponsor.slice(0, AT), ...live, ...withSponsor.slice(AT)];
-  }, [daypart, rails, sponsor, livePosters, siteDay, raysPoster]);
   const band = DAYPARTS[daypart] || DAYPARTS.afternoon;
+  useEffect(() => {
+    if (selectionPinned.current || !featuredPosterId) return;
+    const rail = railById.get(featuredPosterId);
+    if (!rail) return;
+    setSelected((cur) => (cur === featuredPosterId ? cur : featuredPosterId));
+    if (loggedDefault.current === featuredPosterId) return;
+    loggedDefault.current = featuredPosterId;
+    if (posterOpenedAt.current == null) {
+      posterOpenedAt.current = typeof performance !== "undefined" ? performance.now() : null;
+    }
+    logEvent("rail_open", {
+      rail_id: featuredPosterId,
+      rail_title: rail.title,
+      daypart,
+      region: shown.region,
+      city: shown.citySlug,
+      position: order.indexOf(featuredPosterId) + 1,
+      src: "default",
+      has_places: Number(shown.railTotals?.[featuredPosterId]) || (shown.places[featuredPosterId] || []).length,
+      header_city: honestCityLabel(locName) || null,
+    });
+  }, [featuredPosterId, railById, daypart, order]);
 
   // Re-rank when the reader is meaningfully somewhere else. The threshold is
   // generous on purpose: a few miles is the same market and refetching on every
@@ -1012,6 +1056,8 @@ export default function DaypartRail({
     const targetId = requested.retiredInto || id;
     const rail = railById.get(targetId);
     if (!rail) return;
+    selectionPinned.current = true;
+    defaultLanding.current = false;
     cancelPosterRestore.current?.();
     const root = document.querySelector(".wf-scrollarea");
     if (!selected && root) posterReturn.current = browsePosition(root);
@@ -1037,6 +1083,8 @@ export default function DaypartRail({
   }, [railById, daypart, shown, order, locName, selected]);
 
   const close = useCallback(() => {
+    selectionPinned.current = true;
+    defaultLanding.current = false;
     resumePoster.current = false;
     setSelected(null);
     try { sessionStorage.removeItem("wf_poster_position"); } catch {}
@@ -1051,6 +1099,8 @@ export default function DaypartRail({
   // this component's private selected state.
   useEffect(() => {
     const returnHome = () => {
+      selectionPinned.current = true;
+      defaultLanding.current = false;
       resumePoster.current = false;
       setSelected(null);
       cancelPosterRestore.current?.();
@@ -1186,7 +1236,9 @@ export default function DaypartRail({
   useEffect(() => {
     if (!selected || resumePoster.current || typeof window === "undefined") return undefined;
     if (!menuRef.current) return undefined;
-    const cancel = landOnResults(() => menuRef.current, { probe: () => pcRef.current });
+    const force = defaultLanding.current;
+    defaultLanding.current = false;
+    const cancel = landOnResults(() => menuRef.current, { probe: () => pcRef.current, force });
     if (pcRef.current) pcRef.current.scrollLeft = 0;
     syncPc();
     return cancel;
@@ -1727,6 +1779,8 @@ export default function DaypartRail({
   // (it is what the chrome is already showing them, so the copy matches the
   // page), then whatever the payload named, then nothing — and never "you".
   const dropCity = honestCityLabel(locName) || (resolvedCityLabel ? honestCityLabel(resolvedCityLabel) : "") || "";
+  const selArtBase = selRail && !selRail.livePosterSrc ? railArt(selRail, shown.region) : "";
+  const selThumb = selRail ? (selRail.livePosterSrc || (selArtBase ? railArtFallback(selArtBase) : "")) : "";
 
   return (
     <GuideDiscoveryContext.Provider value={guides}>
@@ -1735,10 +1789,7 @@ export default function DaypartRail({
         <div className="wf8-in">
           <div className="wf8-railwrap">
             <div className="wf8-track" data-wf-scroll-key="poster-track" ref={trackRef}>
-              {order.filter((id) => {
-                const r = railById.get(id);
-                return railOnPosterTrack(r, siteDay) && !(raysPoster && isRaysLivePoster(r));
-              }).map((id, i) => {
+              {visiblePosterIds.map((id, i) => {
                 const r = railById.get(id);
                 if (!r) return null;
                 if (r.artStale || r.retiredInto) return null;
@@ -1869,7 +1920,7 @@ export default function DaypartRail({
       <section className="wf8-menusec" ref={menuRef} aria-label={selRail ? `${selRail.title} — picks` : "Picks"} aria-hidden={!selRail}>
         <div className="wf8-in">
           <div className="wf8-mbar">
-            <p className="wf8-mhd">Showing <b>{selRail ? selRail.title : ""}</b>{selRail && !selRail.guides && selRail.id !== "chef" && selRail.id !== "augtober" && selRail.id !== "halloween" && selRail.id !== "christmas" ? near : ""}{selRail && !railOwnsItsOwnAnswer && selectedTotal ? ` · ${selectedTotal} options` : ""}</p>
+            <p className="wf8-mhd">{selThumb ? <img className="wf8-mthumb" src={selThumb} alt="" width="24" height="24" decoding="async" aria-hidden="true" /> : null}<span>Showing <b>{selRail ? selRail.title : ""}</b>{selRail && !selRail.guides && selRail.id !== "chef" && selRail.id !== "augtober" && selRail.id !== "halloween" && selRail.id !== "christmas" ? near : ""}{selRail && !railOwnsItsOwnAnswer && selectedTotal ? ` · ${selectedTotal} options` : ""}</span></p>
             <button type="button" className="wf8-mclose" onClick={close}>✕ Close</button>
           </div>
 
