@@ -3,11 +3,22 @@
 // The shared cache is always consulted first. A cold lookup has an explicit,
 // finite GOOGLE_GEOCODING_MONTH_CAP in front of it; absent configuration,
 // ledger failure, and every closed gate mode fail without contacting Google.
+//
+// FREE OWNED FALLBACK: whenever the paid path cannot answer (no server key,
+// budget refused, upstream error or no usable result) the route names the
+// nearest covered city from data Wayfind already owns (COVERED_CITIES, 30 mi,
+// via nearestOwnedCityName) instead of failing with 503. That answer is tagged
+// source:"owned" and is NEVER written to the 30-day Google cache key: a month
+// where the budget reopens can still fetch and cache the precise Google
+// answer for the cell, and an owned guess can never poison it. It gets a
+// shorter CDN lifetime for the same reason.
 import { cget, cset } from "../../../lib/serverCache";
 import { geocodingCap, spendAllowCapped } from "../../../lib/spendGate";
+import { nearestOwnedCityName } from "../../../lib/locationHonesty";
 
 export const dynamic = "force-dynamic";
 const THIRTY_DAYS = 2592000;
+const ONE_DAY = 86400;
 
 // Same city-first walk as the client's _reverseGeocodeUncached: never a street
 // address; locality+state, else locality, else township/county/neighborhood.
@@ -36,20 +47,31 @@ export function geocodeCacheKey(lat, lng) {
 
 // Kept dependency-injectable so the cost boundary is executable without a
 // provider request. GET below supplies the production cache, ledger, and fetch.
-export async function resolveReverseGeocode({ lat, lng, serverKey, cacheGet, cacheSet, spendAllow, fetchImpl }) {
+export async function resolveReverseGeocode({ lat, lng, serverKey, cacheGet, cacheSet, spendAllow, fetchImpl, ownedName = nearestOwnedCityName }) {
   const key = geocodeCacheKey(lat, lng);
   const hit = await cacheGet(key).catch(() => null);
   if (hit && hit.v && hit.v.name) return { status: 200, value: hit.v, cached: true };
-  if (!serverKey) return { status: 501, value: { name: null }, reason: "server key not configured" };
-  if (!(await spendAllow())) return { status: 503, value: { name: null }, reason: "budget unavailable" };
+  // Free, never calls Google, never cached under the Google key.
+  const owned = (failure) => {
+    let name = "";
+    try { name = ownedName(lat, lng) || ""; } catch (e) {}
+    return name ? { status: 200, value: { name, source: "owned" }, cached: false, owned: true } : failure;
+  };
+  if (!serverKey) return owned({ status: 501, value: { name: null }, reason: "server key not configured" });
+  if (!(await spendAllow())) return owned({ status: 503, value: { name: null }, reason: "budget unavailable" });
 
-  const r = await fetchImpl(
-    "https://maps.googleapis.com/maps/api/geocode/json?latlng=" + lat.toFixed(5) + "," + lng.toFixed(5) + "&key=" + serverKey
-  );
-  if (!r.ok) return { status: 502, value: { name: null }, reason: "upstream" };
+  let r;
+  try {
+    r = await fetchImpl(
+      "https://maps.googleapis.com/maps/api/geocode/json?latlng=" + lat.toFixed(5) + "," + lng.toFixed(5) + "&key=" + serverKey
+    );
+  } catch (e) {
+    return owned({ status: 502, value: { name: null }, reason: "upstream" });
+  }
+  if (!r.ok) return owned({ status: 502, value: { name: null }, reason: "upstream" });
   const d = await r.json();
   const name = nameFrom(d && d.results);
-  if (!name) return { status: 404, value: { name: null }, reason: "not found" };
+  if (!name) return owned({ status: 404, value: { name: null }, reason: "not found" });
   const value = { name };
   try { await cacheSet(key, value, THIRTY_DAYS * 1000); } catch (e) {}
   return { status: 200, value, cached: false };
@@ -71,8 +93,9 @@ export async function GET(req) {
       spendAllow: () => spendAllowCapped("geocoding", geocodingCap()),
       fetchImpl: fetch,
     });
+    const life = result.owned ? ONE_DAY : THIRTY_DAYS;
     const headers = result.status === 200
-      ? { "Cache-Control": "public, s-maxage=" + THIRTY_DAYS + ", stale-while-revalidate=" + THIRTY_DAYS }
+      ? { "Cache-Control": "public, s-maxage=" + life + ", stale-while-revalidate=" + life }
       : undefined;
     return Response.json(result.value, { status: result.status, headers });
   } catch (e) {

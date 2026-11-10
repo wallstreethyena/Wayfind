@@ -55,6 +55,21 @@ let allAff = true;
 for (const id of Object.keys(EVENT_TICKET_DEALS)) { const r = eventDetailTicketAction({ ...relics, event_id: id }); if (!r || r.kind !== "affiliate") allAff = false; }
 ok(allAff, `every one of ${Object.keys(EVENT_TICKET_DEALS).length} registry events stays affiliate`);
 
+// positive: a Ticketmaster-family organiser link is an EARNING link (2026-11-03).
+// It must leave through /api/ticketmaster/go (Impact applied server side), the
+// same way app/home.js cards and /events/[city]/[slug] already send it, never
+// as a raw nofollow organiser href.
+const TM = "https://www.ticketmaster.com/ed-sheeran-loop-tour-tampa-florida-11-07-2026/event/0D006331D60A3A7A";
+const tmRow = { ...relics, event_id: "ed-sheeran-loop-tour-tampa-2026", official_ticket_url: TM, official_event_url: "https://www.edsheeran.com/tour" };
+const tm = eventDetailTicketAction(tmRow);
+ok(tm && tm.kind === "affiliate", "ticketmaster.com organiser link -> affiliate action (earning)");
+ok(tm && tm.href.startsWith("/api/ticketmaster/go?") && decodeURIComponent(tm.href).includes(TM), `...routed through /api/ticketmaster/go with the TM destination (got ${tm && tm.href})`);
+ok(tm && /content=ed-sheeran-loop-tour-tampa-2026/.test(tm.href), "...carrying the event_id as content for attribution");
+ok(tm && tm.label === "Get tickets ↗", "...still labelled \"Get tickets ↗\"");
+ok(eventDetailTicketAction({ ...tmRow, official_ticket_url: "https://www.livenation.com/event/abc" })?.href.startsWith("/api/ticketmaster/go?"), "livenation.com (TM family) is wrapped too");
+ok(eventDetailTicketAction({ ...tmRow, official_ticket_url: "https://www.axs.com/events/1" })?.kind === "organizer", "axs.com (not TM family) stays a plain organiser link");
+ok(eventDetailTicketAction({ ...tmRow, link_ok: false }) === null, "TM row with link_ok === false -> no button");
+
 // negative: gates
 ok(eventDetailTicketAction({ ...relics, link_ok: false }) === null, "link_ok === false -> no button");
 ok(eventDetailTicketAction({ ...relics, official_ticket_url: null }) === null, "no ticket URL -> no button");

@@ -35,7 +35,7 @@ import { normalizeDetails, PLACE_DETAILS_FIELDS, PLACE_DETAILS_CACHE_MS } from "
 import { cset } from "../../../../lib/serverCache.js";
 import { inventoryRefreshPatch, refreshSlice, REFRESH_WINDOW_SLOTS } from "../../../../lib/inventoryRefreshPatch.js";
 import { planCheck, planEnterprise, tierOrder, fetchGoogleCheck, ESSENTIALS_MASK, PRO_MASK, TIER_SKU } from "../../../../lib/inventoryGoogleCheck.js";
-import { classifyProviderFailure, breakerOpen, tripBreaker } from "../../../../lib/providerHealth.js";
+import { classifyProviderFailure, breakerOpen, tripBreaker, breakerCooldownMs, GOOGLE_DETAILS_DAILY_BREAKER } from "../../../../lib/providerHealth.js";
 import { recordPulse, budgetGateNote, budgetLimitNote } from "../../../../lib/jobPulse";
 import { jobCannotRun, jobFailed } from "../../../../lib/jobFail";
 
@@ -61,7 +61,7 @@ export async function GET(req) {
   const gkey = (process.env.GOOGLE_MAPS_SERVER_KEY || "").trim();
   if (!url || !svc) return jobCannotRun("inventory-refresh", "SUPABASE_SERVICE_ROLE_KEY or NEXT_PUBLIC_SUPABASE_URL is missing");
   if (!gkey) return jobCannotRun("inventory-refresh", "GOOGLE_MAPS_SERVER_KEY is missing");
-  const open = await breakerOpen(BREAKER);
+  const open = (await breakerOpen(BREAKER)) || (await breakerOpen(GOOGLE_DETAILS_DAILY_BREAKER));
   if (open) {
     await recordPulse("inventory-refresh", { attempted: 0, succeeded: 0, failed: 0, note: `${open.kind}: breaker open, skipped (${open.reason})` });
     return Response.json({ skipped: "breaker open", kind: open.kind });
@@ -72,17 +72,29 @@ export async function GET(req) {
   const limit = Math.max(1, Math.min(120, Number(u.searchParams.get("limit")) || 40));
   const cutoff = new Date(Date.now() - REFRESH_AFTER_DAYS * 86400000).toISOString();
 
-  // Rows whose Google content is older than the cutoff AND that no tier has
-  // checked within it. excluded rows are never served; CLOSED_PERMANENTLY has
-  // nothing to renew. LOCKED rows are INCLUDED (flag-only: tierOrder gives them
-  // the essentials tier and planCheck never touches their coordinates/status).
+  // Rows whose Google content is older than the cutoff AND that no ENTERPRISE
+  // check has re-dated within it. excluded rows are never served;
+  // CLOSED_PERMANENTLY has nothing to renew. LOCKED rows are INCLUDED
+  // (flag-only: tierOrder gives them the essentials tier and planCheck never
+  // touches their coordinates/status).
+  //
+  // THE TRAP THIS FIXES (2026-11-03, #1893): the old third clause required
+  // google_checked_at itself to be stale. Cheap tiers (essentials/pro) stamp
+  // google_checked_at WITHOUT re-dating refreshed_at — only an enterprise
+  // content patch may move refreshed_at — and search serves inventory on
+  // refreshed_at alone. So one essentials check (Bern's Steak House,
+  // 2026-10-26, content dated 2026-08-25) made the row ineligible for the
+  // only refresh that could re-date it, and the place vanished from search
+  // while looking "checked". 5,716 OPERATIONAL rows sat in that trap. A
+  // recent ENTERPRISE check still throttles (it had its chance to re-date);
+  // a recent cheap-tier check no longer blocks escalation.
   const { data: windowRows, error } = await db
     .from("wf_inventory")
     .select("place_id, metro, refreshed_at, locked, status, lat, lng, anchor, signals, independent_coords")
     .lt("refreshed_at", cutoff)
     .or("excluded.is.null,excluded.eq.false")
     .or("status.is.null,status.neq.CLOSED_PERMANENTLY")
-    .or("signals->>google_checked_at.is.null,signals->>google_checked_at.lt." + cutoff)
+    .or("signals->>google_checked_at.is.null,signals->>google_checked_at.lt." + cutoff + ",signals->>google_check_tier.is.null,signals->>google_check_tier.neq.enterprise")
     .order("anchor", { ascending: false })
     .order("signals->reviews", { ascending: false, nullsFirst: false })
     .limit(limit * REFRESH_WINDOW_SLOTS);
@@ -134,7 +146,12 @@ export async function GET(req) {
         if (res.kind === "denied") {
           const kind = classifyProviderFailure(res.status, res.body);
           denied = { status: res.status, kind };
-          if (kind) await tripBreaker(BREAKER, kind, "google " + res.status);
+          if (kind) {
+            const cool = breakerCooldownMs(kind, res.status, res.body);
+            await tripBreaker(BREAKER, kind, "google " + res.status, cool);
+            // A per-day quota is shared with promote-index: park both until the reset.
+            if (kind === "quota" && Number(res.status) === 429 && /per\s*day/i.test(String(res.body || ""))) await tripBreaker(GOOGLE_DETAILS_DAILY_BREAKER, kind, "google " + res.status + " per day", cool);
+          }
           continue;
         }
         if (res.kind === "error") { failed++; continue; }

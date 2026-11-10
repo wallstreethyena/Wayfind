@@ -67,6 +67,17 @@ await check("A7 city: aliases agree, a different city only for an exact name wit
   assert.equal(matchApplePlace(cafe({ name: "Ryan's Coffee House Downtown", locality: "Sarasota" }), [apple({ locality: "Tampa" })], { box }).reason, "locality-mismatch");
   assert.equal(matchApplePlace(cafe(), [apple({ pointOfInterestCategory: null, name: "Ryans Coffee House Parrish" })], { box }).ok, false, "a non-exact name with no category to cross-check is refused");
 });
+await check("A7b postal_city: the verified mailing city agrees where the Census place differs; nothing else does", () => {
+  // Gatorland-shaped: Census place Southchase, mailing/Apple city Orlando (2026-11-03 conflicts).
+  const g = (extra = {}) => cafe({ name: "Village Cafe", locality: "Southchase", ...extra });
+  assert.equal(matchApplePlace(g(), [apple({ name: "Village Cafe", locality: "Orlando" })], { box }).reason, "generic-name-needs-locality", "Census place alone cannot vouch for a generic name");
+  assert.equal(matchApplePlace(g({ postalCity: "Orlando" }), [apple({ name: "Village Cafe", locality: "Orlando" })], { box }).ok, true, "the verified postal city does");
+  assert.equal(matchApplePlace(g({ postalCity: "Orlando" }), [apple({ name: "Village Cafe", locality: "Kissimmee" })], { box }).ok, false, "a third city never agrees");
+  assert.equal(matchApplePlace(cafe({ locality: "Southchase" }), [apple({ locality: "Orlando" })], { box, sameNameIds: 2 }).reason, "chain-needs-locality", "a chain needs an agreeing city");
+  assert.equal(matchApplePlace(cafe({ locality: "Southchase", postalCity: "Orlando" }), [apple({ locality: "Orlando" })], { box, sameNameIds: 2 }).ok, true, "postal city satisfies the chain rule");
+  assert.equal(matchApplePlace(cafe({ locality: "Southchase", postalCity: "Orange" }), [apple({ locality: "Orlando" })], { box, sameNameIds: 2 }).ok, false, "a county-shaped value is not Orlando");
+  assert.equal(matchApplePlace(cafe({ name: "Ryan's Coffee House Downtown", locality: "Southchase", postalCity: "Sarasota" }), [apple({ locality: "Tampa" })], { box }).reason, "locality-mismatch", "a non-exact name in a different city is still refused");
+});
 await check("A8 no area, no name, no Apple id: refused", () => {
   assert.equal(matchApplePlace(cafe(), [apple()], {}).reason, "no-area");
   assert.equal(matchApplePlace(cafe({ name: "" }), [apple()], { box }).ok, false);

@@ -1,0 +1,1943 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJT5eWj7Vl54gR9SKPZLpDVp8",
+   "name": "Don Julio Mexican Kitchen - Chickasaw",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "mexican_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.donjuliomexicankitchen.com/",
+     "source_name": "Don Julio Mexican Kitchen - Chickasaw \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Don Julio Mexican Kitchen - Chickasaw serves traditional Mexican cuisine.",
+      "Don Julio Mexican Kitchen - Chickasaw is listed at 551 South Chickasaw Trail, Orlando, FL 32825.",
+      "Don Julio Mexican Kitchen - Chickasaw lists the telephone number (407) 930-3735."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Traditional Mexican kitchen on South Chickasaw Trail in Orlando",
+    "why_here": "Go for traditional Mexican cuisine at Don Julio Mexican Kitchen - Chickasaw, a sit-down meal built around the traditional Mexican cuisine described for the restaurant, with the address and telephone number listed for planning.",
+    "know_before": "Don Julio Mexican Kitchen - Chickasaw is listed at 551 South Chickasaw Trail, Orlando, FL 32825.",
+    "local_tip": "Call (407) 930-3735 to confirm details before visiting Don Julio Mexican Kitchen - Chickasaw.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.donjuliomexicankitchen.com/"
+     ],
+     "why_here": [
+      "https://www.donjuliomexicankitchen.com/"
+     ],
+     "know_before": [
+      "https://www.donjuliomexicankitchen.com/"
+     ],
+     "local_tip": [
+      "https://www.donjuliomexicankitchen.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Don Julio Mexican Kitchen - Chickasaw serves traditional Mexican cuisine.",
+      "source": "https://www.donjuliomexicankitchen.com/"
+     },
+     {
+      "claim": "Don Julio Mexican Kitchen - Chickasaw is listed at 551 South Chickasaw Trail, Orlando, FL 32825.",
+      "source": "https://www.donjuliomexicankitchen.com/"
+     },
+     {
+      "claim": "Don Julio Mexican Kitchen - Chickasaw lists the telephone number (407) 930-3735.",
+      "source": "https://www.donjuliomexicankitchen.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJNVw9YODFkIgRylmFknb8iKg",
+   "name": "Flounder's Chowder House",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://flounderschowderhouse.com/about",
+     "source_name": "Flounder's Chowder House \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Flounder's Chowder House is listed at 800 Quietwater Beach Road, Gulf Breeze, FL 32561.",
+      "Flounder's Chowder House displays the M/V Flounder, a 55-foot shrimp boat built in 1946.",
+      "The Marlin Bar at Flounder's Chowder House showcases a 980lb blue marlin described as a USGFA World Record catch.",
+      "Flounder's Chowder House lists hours including Sunday 10 am - 10 pm and Friday-Saturday 11 am - 12 am.",
+      "Atop the stage at Flounder's Chowder House is a true Pensacola icon, the original sailfish sign that lit the way to Santa Rosa Island since the 50's."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Beachside chowder house in Pensacola filled with a shrimp boat and a blue marlin",
+    "why_here": "Go for seafood on Quietwater Beach Road in a room filled with maritime history: the 55-foot shrimp boat built in 1946, a 980lb blue marlin at the Marlin Bar, and the original sailfish sign above the stage.",
+    "know_before": "Flounder's Chowder House lists Sunday 10 am - 10 pm and Friday-Saturday 11 am - 12 am; check before visiting.",
+    "local_tip": "Look for the original sailfish sign from Santa Rosa Island above the stage at Flounder's Chowder House.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://flounderschowderhouse.com/about"
+     ],
+     "why_here": [
+      "https://flounderschowderhouse.com/about"
+     ],
+     "know_before": [
+      "https://flounderschowderhouse.com/about"
+     ],
+     "local_tip": [
+      "https://flounderschowderhouse.com/about"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Flounder's Chowder House is listed at 800 Quietwater Beach Road, Gulf Breeze, FL 32561.",
+      "source": "https://flounderschowderhouse.com/about"
+     },
+     {
+      "claim": "Flounder's Chowder House displays the M/V Flounder, a 55-foot shrimp boat built in 1946.",
+      "source": "https://flounderschowderhouse.com/about"
+     },
+     {
+      "claim": "The Marlin Bar at Flounder's Chowder House showcases a 980lb blue marlin described as a USGFA World Record catch.",
+      "source": "https://flounderschowderhouse.com/about"
+     },
+     {
+      "claim": "Flounder's Chowder House lists hours including Sunday 10 am - 10 pm and Friday-Saturday 11 am - 12 am.",
+      "source": "https://flounderschowderhouse.com/about"
+     },
+     {
+      "claim": "Atop the stage at Flounder's Chowder House is a true Pensacola icon, the original sailfish sign that lit the way to Santa Rosa Island since the 50's.",
+      "source": "https://flounderschowderhouse.com/about"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJS-DlsCSn2YgR33r68C3tsZU",
+   "name": "Mister O1 Extraordinary Pizza Pembroke Pines",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "pizza_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.mistero1.com/",
+     "source_name": "Mister O1 Extraordinary Pizza Pembroke Pines \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The official site says Chef Renato Viola came to Miami Beach under the O1 Visa category for extraordinary artistic ability.",
+      "The official locations page lists Pembroke Pines among its Florida locations.",
+      "The official site describes its offer as artisanal pizza, salads and a burrata bar."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Artisanal pizza, salads and burrata bar from Chef Renato Viola, with a Pembroke Pines shop",
+    "why_here": "Go for the artisanal pizzas the chain was founded on in Miami Beach by Chef Renato Viola, plus salads and the burrata bar the official site promotes, at the Pembroke Pines location listed in its Florida locations.",
+    "know_before": "Pembroke Pines is listed on the official locations page; confirm its hours on that page before you go.",
+    "local_tip": "Check the official locations page for the Pembroke Pines hours rather than relying on another store's hours.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.mistero1.com/"
+     ],
+     "why_here": [
+      "https://www.mistero1.com/"
+     ],
+     "know_before": [
+      "https://www.mistero1.com/"
+     ],
+     "local_tip": [
+      "https://www.mistero1.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The official site says Chef Renato Viola came to Miami Beach under the O1 Visa category for extraordinary artistic ability.",
+      "source": "https://www.mistero1.com/"
+     },
+     {
+      "claim": "The official locations page lists Pembroke Pines among its Florida locations.",
+      "source": "https://www.mistero1.com/"
+     },
+     {
+      "claim": "The official site describes its offer as artisanal pizza, salads and a burrata bar.",
+      "source": "https://www.mistero1.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ9b849YC32YgR612tUl-KdyM",
+   "name": "Brickell City Centre",
+   "category": "shopping",
+   "metro": "miami-dade",
+   "primary_type": "shopping_mall",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://brickellcitycentre.com/",
+     "source_name": "Brickell City Centre \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Brickell City Centre offers four levels of luxury, premium and world-class dining and entertainment interconnected over three city blocks.",
+      "Brickell City Centre is anchored by a 107,000 square foot Saks Fifth Avenue and a CMX luxury VIP cinema.",
+      "Brickell City Centre lists the address as 701 S Miami Ave, Miami, FL 33131."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Brickell City Centre: four levels of shopping and dining across three city blocks in Miami",
+    "why_here": "Go for luxury and premium shopping, dining and entertainment at Brickell City Centre, anchored by a 107,000 square foot Saks Fifth Avenue and a CMX luxury VIP cinema across three city blocks in Miami.",
+    "know_before": "Brickell City Centre is listed at 701 S Miami Ave, Miami, FL 33131.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://brickellcitycentre.com/"
+     ],
+     "why_here": [
+      "https://brickellcitycentre.com/"
+     ],
+     "know_before": [
+      "https://brickellcitycentre.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Brickell City Centre offers four levels of luxury, premium and world-class dining and entertainment interconnected over three city blocks.",
+      "source": "https://brickellcitycentre.com/"
+     },
+     {
+      "claim": "Brickell City Centre is anchored by a 107,000 square foot Saks Fifth Avenue and a CMX luxury VIP cinema.",
+      "source": "https://brickellcitycentre.com/"
+     },
+     {
+      "claim": "Brickell City Centre lists the address as 701 S Miami Ave, Miami, FL 33131.",
+      "source": "https://brickellcitycentre.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJQyZlfELOwogR9sOSdn5ZWLk",
+   "name": "Brandon Exchange",
+   "category": "shopping",
+   "metro": "tampa",
+   "primary_type": "shopping_mall",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://brandonexchange.com/",
+     "source_name": "Brandon Exchange \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Brandon Exchange is a premier shopping mall in Brandon, Florida, offering over 140 stores, restaurants and entertainment options.",
+      "Brandon Exchange lists the address as 459 Brandon Town Center, Brandon, FL 33511.",
+      "Brandon Exchange lists mall hours on its official site."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Shopping mall in Brandon with over 140 stores, restaurants and entertainment options",
+    "why_here": "Go for a one-stop mall visit at Brandon Exchange in Brandon, Florida, with over 140 stores plus restaurants and entertainment options, so shopping, a meal and entertainment can be combined in a single stop.",
+    "know_before": "Brandon Exchange is at 459 Brandon Town Center, Brandon, FL 33511.",
+    "local_tip": "Check the official site for mall hours before visiting Brandon Exchange.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://brandonexchange.com/"
+     ],
+     "why_here": [
+      "https://brandonexchange.com/"
+     ],
+     "know_before": [
+      "https://brandonexchange.com/"
+     ],
+     "local_tip": [
+      "https://brandonexchange.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Brandon Exchange is a premier shopping mall in Brandon, Florida, offering over 140 stores, restaurants and entertainment options.",
+      "source": "https://brandonexchange.com/"
+     },
+     {
+      "claim": "Brandon Exchange lists the address as 459 Brandon Town Center, Brandon, FL 33511.",
+      "source": "https://brandonexchange.com/"
+     },
+     {
+      "claim": "Brandon Exchange lists mall hours on its official site.",
+      "source": "https://brandonexchange.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ2alqjJq12YgRo3YBkP_xEoA",
+   "name": "Espa\u00f1olita Miami",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://espanolitamiami.com/",
+     "source_name": "Espa\u00f1olita Miami \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Espa\u00f1olita Miami offers authentic Spanish flavors, prime steaks and fresh seafood in the heart of Espa\u00f1ola Way.",
+      "Espa\u00f1olita Miami lists the address as 441 Espa\u00f1ola Way, Miami Beach, FL 33139.",
+      "Espa\u00f1olita Miami describes its Spanish seafood paella as fresh shrimp, mussels, clams and calamari with saffron-infused rice.",
+      "Espa\u00f1olita Miami lists Happy Hour from 4pm to 6pm.",
+      "Espa\u00f1olita Miami lists business hours as Mon to Sun 12pm to 11:30pm."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Spanish seafood and steakhouse on Espa\u00f1ola Way in Miami Beach, known for seafood paella",
+    "why_here": "Go for Spanish cooking on Espa\u00f1ola Way: fresh seafood, prime steaks and a Spanish seafood paella of fresh shrimp, mussels, clams and calamari with saffron-infused rice, all in the heart of Espa\u00f1ola Way.",
+    "know_before": "Espa\u00f1olita Miami lists business hours as Mon to Sun 12pm to 11:30pm; check before going.",
+    "local_tip": "Time a visit for the Happy Hour from 4pm to 6pm listed by Espa\u00f1olita Miami.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://espanolitamiami.com/"
+     ],
+     "why_here": [
+      "https://espanolitamiami.com/"
+     ],
+     "know_before": [
+      "https://espanolitamiami.com/"
+     ],
+     "local_tip": [
+      "https://espanolitamiami.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Espa\u00f1olita Miami offers authentic Spanish flavors, prime steaks and fresh seafood in the heart of Espa\u00f1ola Way.",
+      "source": "https://espanolitamiami.com/"
+     },
+     {
+      "claim": "Espa\u00f1olita Miami lists the address as 441 Espa\u00f1ola Way, Miami Beach, FL 33139.",
+      "source": "https://espanolitamiami.com/"
+     },
+     {
+      "claim": "Espa\u00f1olita Miami describes its Spanish seafood paella as fresh shrimp, mussels, clams and calamari with saffron-infused rice.",
+      "source": "https://espanolitamiami.com/"
+     },
+     {
+      "claim": "Espa\u00f1olita Miami lists Happy Hour from 4pm to 6pm.",
+      "source": "https://espanolitamiami.com/"
+     },
+     {
+      "claim": "Espa\u00f1olita Miami lists business hours as Mon to Sun 12pm to 11:30pm.",
+      "source": "https://espanolitamiami.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ56WSjYG22YgRV8CLvPG3z9E",
+   "name": "Crazy About You",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://passionrestaurantgroup.com/restaurants/crazy-about-you/",
+     "source_name": "Crazy About You \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The official page describes Crazy About You as having a truly unique lounge setting and picturesque waterfront dining in Brickell.",
+      "The official page lists Fresh Baked Cornbread with Wisconsin cheddar, chives and Irish whipped butter.",
+      "The official page lists Serrano Ham Croquettes and Burrata Caprese Toast among appetizers.",
+      "The official page lists Lunch, Dinner and Weekend Brunch menus.",
+      "The official page describes a waterfront dining experience with tapas, a main course and dessert."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Waterfront dining in Brickell with a lounge setting and tapas to share",
+    "why_here": "Go for waterfront dining in Brickell rather than an inland meal: the official page stresses a lounge setting and picturesque waterfront, with tapas to start, a main course to follow and dessert to finish in a relaxed setting.",
+    "know_before": "The official page lists Lunch, Dinner and Weekend Brunch menus, so check which menu applies before you go.",
+    "local_tip": "Start with Serrano Ham Croquettes or Burrata Caprese Toast from the appetizers listed on the official page.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://passionrestaurantgroup.com/restaurants/crazy-about-you/"
+     ],
+     "why_here": [
+      "https://passionrestaurantgroup.com/restaurants/crazy-about-you/"
+     ],
+     "know_before": [
+      "https://passionrestaurantgroup.com/restaurants/crazy-about-you/"
+     ],
+     "local_tip": [
+      "https://passionrestaurantgroup.com/restaurants/crazy-about-you/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The official page describes Crazy About You as having a truly unique lounge setting and picturesque waterfront dining in Brickell.",
+      "source": "https://passionrestaurantgroup.com/restaurants/crazy-about-you/"
+     },
+     {
+      "claim": "The official page lists Fresh Baked Cornbread with Wisconsin cheddar, chives and Irish whipped butter.",
+      "source": "https://passionrestaurantgroup.com/restaurants/crazy-about-you/"
+     },
+     {
+      "claim": "The official page lists Serrano Ham Croquettes and Burrata Caprese Toast among appetizers.",
+      "source": "https://passionrestaurantgroup.com/restaurants/crazy-about-you/"
+     },
+     {
+      "claim": "The official page lists Lunch, Dinner and Weekend Brunch menus.",
+      "source": "https://passionrestaurantgroup.com/restaurants/crazy-about-you/"
+     },
+     {
+      "claim": "The official page describes a waterfront dining experience with tapas, a main course and dessert.",
+      "source": "https://passionrestaurantgroup.com/restaurants/crazy-about-you/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJqSUo67K12YgR3T5kOxPXdF0",
+   "name": "ll Pastaiolo - Italian Restaurant in Miami Beach",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "italian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://ilpastaiolosouthbeach.com/",
+     "source_name": "ll Pastaiolo - Italian Restaurant in Miami Beach \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The official site describes Il Pastaiolo as an authentic Italian restaurant in South Beach Miami.",
+      "The official site lists the location as 1130 Collins Ave, Miami Beach, FL 33139.",
+      "The official site lists Pasta Carbonara with roasted guanciale, Pecorino Romano and black pepper in a creamy egg yolk sauce.",
+      "The official site lists Pasta Lobster with whole Maine lobster, cherry tomatoes, parsley and organic olive oil."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Italian pasta restaurant on Collins Ave in Miami Beach, serving Pasta Carbonara and Pasta Lobster",
+    "why_here": "Go for a pasta-focused Italian dinner on Collins Ave: the official menu lists Pasta Carbonara with guanciale and Pecorino Romano, and Pasta Lobster with whole Maine lobster, cherry tomatoes and parsley for a fuller meal.",
+    "know_before": "Il Pastaiolo is listed at 1130 Collins Ave, Miami Beach, FL 33139; check the official site for current hours before you go.",
+    "local_tip": "Try Pasta Lobster with whole Maine lobster, cherry tomatoes and parsley, as listed on the official menu.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://ilpastaiolosouthbeach.com/"
+     ],
+     "why_here": [
+      "https://ilpastaiolosouthbeach.com/"
+     ],
+     "know_before": [
+      "https://ilpastaiolosouthbeach.com/"
+     ],
+     "local_tip": [
+      "https://ilpastaiolosouthbeach.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The official site describes Il Pastaiolo as an authentic Italian restaurant in South Beach Miami.",
+      "source": "https://ilpastaiolosouthbeach.com/"
+     },
+     {
+      "claim": "The official site lists the location as 1130 Collins Ave, Miami Beach, FL 33139.",
+      "source": "https://ilpastaiolosouthbeach.com/"
+     },
+     {
+      "claim": "The official site lists Pasta Carbonara with roasted guanciale, Pecorino Romano and black pepper in a creamy egg yolk sauce.",
+      "source": "https://ilpastaiolosouthbeach.com/"
+     },
+     {
+      "claim": "The official site lists Pasta Lobster with whole Maine lobster, cherry tomatoes, parsley and organic olive oil.",
+      "source": "https://ilpastaiolosouthbeach.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJhx1TaXC12YgRFJ2-kXdbnqo",
+   "name": "Cafe Americano",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.cafeamericano.com/",
+     "source_name": "Cafe Americano \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Cafe Americano describes its food as classic American fare with a Latin twist.",
+      "The official site says Cafe Americano is open 365 days a year and serves breakfast, lunch, dinner and late-night dishes crafted daily, plus handcrafted cocktails.",
+      "The official site lists locations on Ocean Drive and Collins Ave in Miami Beach, and a Brickell location in Miami.",
+      "The official site lists Happy Hour menus for Ocean Drive, Collins Ave and Brickell."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Classic American fare with a Latin twist, served from breakfast to late night",
+    "why_here": "Go for American comfort dishes with a Latin twist across a long day, from breakfast and brunch through dinner and late-night plates, plus handcrafted cocktails listed on the official site for a flexible meal.",
+    "know_before": "Cafe Americano is open 365 days a year; hours differ by location, so check the Ocean Drive, Collins Ave or Brickell hours before you visit.",
+    "local_tip": "Happy Hour times vary by location; confirm the time for your Ocean Drive, Collins Ave or Brickell location before you go.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.cafeamericano.com/"
+     ],
+     "why_here": [
+      "https://www.cafeamericano.com/"
+     ],
+     "know_before": [
+      "https://www.cafeamericano.com/"
+     ],
+     "local_tip": [
+      "https://www.cafeamericano.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Cafe Americano describes its food as classic American fare with a Latin twist.",
+      "source": "https://www.cafeamericano.com/"
+     },
+     {
+      "claim": "The official site says Cafe Americano is open 365 days a year and serves breakfast, lunch, dinner and late-night dishes crafted daily, plus handcrafted cocktails.",
+      "source": "https://www.cafeamericano.com/"
+     },
+     {
+      "claim": "The official site lists locations on Ocean Drive and Collins Ave in Miami Beach, and a Brickell location in Miami.",
+      "source": "https://www.cafeamericano.com/"
+     },
+     {
+      "claim": "The official site lists Happy Hour menus for Ocean Drive, Collins Ave and Brickell.",
+      "source": "https://www.cafeamericano.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ55XHkYe02YgRWxU4fuVHEuA",
+   "name": "CVI.CHE 105 South Beach",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "peruvian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.ceviche105.com/site/",
+     "source_name": "CVI.CHE 105 South Beach \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "CVI.CHE 105 describes itself on its official site as a Peruvian restaurant in Miami.",
+      "The official site lists South Beach among its locations, alongside Downtown Miami and Aventura Mall.",
+      "The site lists separate menus for food, drinks, dessert, happy hour, and executive lunch."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Peruvian restaurant with a South Beach location and separate food, drinks, and dessert menus.",
+    "why_here": "Go for a Peruvian meal in South Beach, with the official site organizing the visit around full food and drink menus, dessert, happy hour, and an executive lunch option.",
+    "know_before": "The official site links South Beach reservations separately from its other locations, so use the South Beach reservation link.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.ceviche105.com/site/"
+     ],
+     "why_here": [
+      "https://www.ceviche105.com/site/"
+     ],
+     "know_before": [
+      "https://www.ceviche105.com/site/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "CVI.CHE 105 describes itself on its official site as a Peruvian restaurant in Miami.",
+      "source": "https://www.ceviche105.com/site/"
+     },
+     {
+      "claim": "The official site lists South Beach among its locations, alongside Downtown Miami and Aventura Mall.",
+      "source": "https://www.ceviche105.com/site/"
+     },
+     {
+      "claim": "The site lists separate menus for food, drinks, dessert, happy hour, and executive lunch.",
+      "source": "https://www.ceviche105.com/site/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ52UOX9x-54gRf1woXTjj5WU",
+   "name": "Loews Royal Pacific Resort at Universal Orlando",
+   "category": "hotels",
+   "metro": "orlando",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.loewshotels.com/royal-pacific-resort",
+     "source_name": "Loews Royal Pacific Resort at Universal Orlando \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Loews Royal Pacific Resort at Universal Orlando is at 6300 Hollywood Way, Orlando, 32819, according to its official hotel page.",
+      "The official page lists 1,000 guest rooms, including 51 luxury suites.",
+      "The official page says the resort is located on the grounds of Universal Orlando and that guests receive exclusive theme-park benefits.",
+      "The official page describes a South Seas vacation and lists a lagoon-style swimming pool and beach with a kids play area, plus a variety of on-site restaurants and lounges.",
+      "The official page lists check-in as 4PM and check-out as 11AM.",
+      "The official page says guests who complete mobile check-in must still stop by the front desk to pick up their room keys."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "South Seas resort on the grounds of Universal Orlando with a lagoon pool and beach",
+    "why_here": "Stay here to sleep on Universal Orlando grounds with exclusive theme-park benefits for guests, then return to a lagoon-style pool and sandy beach area after a day out, with restaurants and lounges on site to use.",
+    "know_before": "Check-in is 4PM and check-out is 11AM, according to the official hotel page.",
+    "local_tip": "Guests using mobile check-in must still stop at the front desk to pick up room keys, per the official page.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.loewshotels.com/royal-pacific-resort"
+     ],
+     "why_here": [
+      "https://www.loewshotels.com/royal-pacific-resort"
+     ],
+     "know_before": [
+      "https://www.loewshotels.com/royal-pacific-resort"
+     ],
+     "local_tip": [
+      "https://www.loewshotels.com/royal-pacific-resort"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Loews Royal Pacific Resort at Universal Orlando is at 6300 Hollywood Way, Orlando, 32819, according to its official hotel page.",
+      "source": "https://www.loewshotels.com/royal-pacific-resort"
+     },
+     {
+      "claim": "The official page lists 1,000 guest rooms, including 51 luxury suites.",
+      "source": "https://www.loewshotels.com/royal-pacific-resort"
+     },
+     {
+      "claim": "The official page says the resort is located on the grounds of Universal Orlando and that guests receive exclusive theme-park benefits.",
+      "source": "https://www.loewshotels.com/royal-pacific-resort"
+     },
+     {
+      "claim": "The official page describes a South Seas vacation and lists a lagoon-style swimming pool and beach with a kids play area, plus a variety of on-site restaurants and lounges.",
+      "source": "https://www.loewshotels.com/royal-pacific-resort"
+     },
+     {
+      "claim": "The official page lists check-in as 4PM and check-out as 11AM.",
+      "source": "https://www.loewshotels.com/royal-pacific-resort"
+     },
+     {
+      "claim": "The official page says guests who complete mobile check-in must still stop by the front desk to pick up their room keys.",
+      "source": "https://www.loewshotels.com/royal-pacific-resort"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJTfS9SfS52YgRnx4gt06Lv3Q",
+   "name": "Mordisco Miami",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://mordiscomiami.com/",
+     "source_name": "Mordisco Miami \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Mordisco Miami describes its food as Venezuelan and Caribbean fusion.",
+      "Mordisco Miami lists its address as 10355 NW 41st St, Doral, FL 33178.",
+      "Mordisco Miami offers free delivery up to 5 miles.",
+      "Mordisco Miami states that it will charge 18% Service fee for all tables.",
+      "Mordisco Miami states that food will be served as it is ready unless otherwise requested."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Venezuelan and Caribbean fusion with free delivery up to 5 miles",
+    "why_here": "Go for Venezuelan and Caribbean fusion, with free delivery up to 5 miles when eating at home suits better than a table, and a menu built around that same fusion.",
+    "know_before": "An 18% Service fee is charged for all tables, and food is served as it is ready.",
+    "local_tip": "Use free delivery up to 5 miles if ordering to an address nearby.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://mordiscomiami.com/"
+     ],
+     "why_here": [
+      "https://mordiscomiami.com/"
+     ],
+     "know_before": [
+      "https://mordiscomiami.com/"
+     ],
+     "local_tip": [
+      "https://mordiscomiami.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Mordisco Miami describes its food as Venezuelan and Caribbean fusion.",
+      "source": "https://mordiscomiami.com/"
+     },
+     {
+      "claim": "Mordisco Miami lists its address as 10355 NW 41st St, Doral, FL 33178.",
+      "source": "https://mordiscomiami.com/"
+     },
+     {
+      "claim": "Mordisco Miami offers free delivery up to 5 miles.",
+      "source": "https://mordiscomiami.com/"
+     },
+     {
+      "claim": "Mordisco Miami states that it will charge 18% Service fee for all tables.",
+      "source": "https://mordiscomiami.com/"
+     },
+     {
+      "claim": "Mordisco Miami states that food will be served as it is ready unless otherwise requested.",
+      "source": "https://mordiscomiami.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJyYEUav8P54gRatuv_zQzm20",
+   "name": "Blue Spring State Park",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "state_park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.floridastateparks.org/parks-and-trails/blue-spring-state-park",
+     "source_name": "Blue Spring State Park \u2014 official source",
+     "source_class": "government",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Florida State Parks describes Blue Spring State Park for 72-degree waters along the St. Johns River.",
+      "Blue Spring State Park lists hours as 8 a.m. to sunset, 365 days a year.",
+      "Blue Spring State Park lists a fee of $6 per vehicle.",
+      "Florida State Parks says Blue Spring State Park is a winter haven as manatees seek refuge.",
+      "Visitors can hike the Pine Island Trail at Blue Spring State Park."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "72-degree spring along the St. Johns River and a winter haven for manatees",
+    "why_here": "Go to walk the Pine Island Trail, spend time beside the spring and look for manatees in winter, when the 72-degree waters offer refuge along the St. Johns River.",
+    "know_before": "Hours are 8 a.m. to sunset, 365 days a year, and the fee is $6 per vehicle.",
+    "local_tip": "Hike the Pine Island Trail for a walk away from the spring.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.floridastateparks.org/parks-and-trails/blue-spring-state-park"
+     ],
+     "why_here": [
+      "https://www.floridastateparks.org/parks-and-trails/blue-spring-state-park"
+     ],
+     "know_before": [
+      "https://www.floridastateparks.org/parks-and-trails/blue-spring-state-park"
+     ],
+     "local_tip": [
+      "https://www.floridastateparks.org/parks-and-trails/blue-spring-state-park"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Florida State Parks describes Blue Spring State Park for 72-degree waters along the St. Johns River.",
+      "source": "https://www.floridastateparks.org/parks-and-trails/blue-spring-state-park"
+     },
+     {
+      "claim": "Blue Spring State Park lists hours as 8 a.m. to sunset, 365 days a year.",
+      "source": "https://www.floridastateparks.org/parks-and-trails/blue-spring-state-park"
+     },
+     {
+      "claim": "Blue Spring State Park lists a fee of $6 per vehicle.",
+      "source": "https://www.floridastateparks.org/parks-and-trails/blue-spring-state-park"
+     },
+     {
+      "claim": "Florida State Parks says Blue Spring State Park is a winter haven as manatees seek refuge.",
+      "source": "https://www.floridastateparks.org/parks-and-trails/blue-spring-state-park"
+     },
+     {
+      "claim": "Visitors can hike the Pine Island Trail at Blue Spring State Park.",
+      "source": "https://www.floridastateparks.org/parks-and-trails/blue-spring-state-park"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJff6SlUu52YgRyWNXDHF7WKc",
+   "name": "Bocas House",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "latin_american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://bocashouse.com/story",
+     "source_name": "Bocas House \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Bocas House says Bocas Grill came to life in November 2014.",
+      "Bocas House describes itself as a fusion of Latin American cuisines.",
+      "Bocas House highlights thick and creamy milkshakes.",
+      "Bocas House lists locations at 10200 Northwest 25th Street, Doral, and 1793 Bell Tower Lane, Weston."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Latin American fusion and thick, creamy milkshakes",
+    "why_here": "Go for a fusion of Latin American cuisines and finish with the thick and creamy milkshakes the restaurant highlights, for a meal that mixes savoury dishes with a sweet finish.",
+    "know_before": "Locations are listed at 10200 Northwest 25th Street, Doral, and 1793 Bell Tower Lane, Weston.",
+    "local_tip": "Confirm the Doral or Weston location before travelling.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://bocashouse.com/story"
+     ],
+     "why_here": [
+      "https://bocashouse.com/story"
+     ],
+     "know_before": [
+      "https://bocashouse.com/story"
+     ],
+     "local_tip": [
+      "https://bocashouse.com/story"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Bocas House says Bocas Grill came to life in November 2014.",
+      "source": "https://bocashouse.com/story"
+     },
+     {
+      "claim": "Bocas House describes itself as a fusion of Latin American cuisines.",
+      "source": "https://bocashouse.com/story"
+     },
+     {
+      "claim": "Bocas House highlights thick and creamy milkshakes.",
+      "source": "https://bocashouse.com/story"
+     },
+     {
+      "claim": "Bocas House lists locations at 10200 Northwest 25th Street, Doral, and 1793 Bell Tower Lane, Weston.",
+      "source": "https://bocashouse.com/story"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJndCi02ut2YgRgQiu2Kn9irk",
+   "name": "Haulover Park",
+   "category": "attractions",
+   "metro": "miami-dade",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.miamidade.gov/global/recreation/beaches.page",
+     "source_name": "Haulover Park \u2014 official source",
+     "source_class": "government",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Haulover Beach Park contains the largest remaining stretch of undeveloped beach front in Miami-Dade County.",
+      "Haulover Beach Park is a 1.4-mile beach park situated between Bal Harbour and Sunny Isles Beach.",
+      "Haulover Beach Park has pristine white sand shores and open ocean surf.",
+      "The park offers food concessions, beach chair and umbrella rentals, picnic areas with tables and grills, a marina, and a bark park."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "1.4-mile beach park between Bal Harbour and Sunny Isles Beach",
+    "why_here": "Come for pristine white sand shores and open ocean surf, then use food concessions, beach chair and umbrella rentals, picnic areas, a marina, and a bark park in one beach park.",
+    "know_before": "The park offers picnic areas with tables and grills and food concessions for the day.",
+    "local_tip": "Use beach chair and umbrella rentals instead of packing bulky beach gear.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.miamidade.gov/global/recreation/beaches.page"
+     ],
+     "why_here": [
+      "https://www.miamidade.gov/global/recreation/beaches.page"
+     ],
+     "know_before": [
+      "https://www.miamidade.gov/global/recreation/beaches.page"
+     ],
+     "local_tip": [
+      "https://www.miamidade.gov/global/recreation/beaches.page"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Haulover Beach Park contains the largest remaining stretch of undeveloped beach front in Miami-Dade County.",
+      "source": "https://www.miamidade.gov/global/recreation/beaches.page"
+     },
+     {
+      "claim": "Haulover Beach Park is a 1.4-mile beach park situated between Bal Harbour and Sunny Isles Beach.",
+      "source": "https://www.miamidade.gov/global/recreation/beaches.page"
+     },
+     {
+      "claim": "Haulover Beach Park has pristine white sand shores and open ocean surf.",
+      "source": "https://www.miamidade.gov/global/recreation/beaches.page"
+     },
+     {
+      "claim": "The park offers food concessions, beach chair and umbrella rentals, picnic areas with tables and grills, a marina, and a bark park.",
+      "source": "https://www.miamidade.gov/global/recreation/beaches.page"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJO2E4d3W82YgRX1PWHufLnuI",
+   "name": "Taikin Sushi Asian Cuisine",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.taikinrestaurant.com/",
+     "source_name": "Taikin Sushi Asian Cuisine \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Taikin Asian Cuisine is at 7450 NW 104th Ave C-101, Doral, FL 33178.",
+      "Taikin means fortune in Japanese and is a fusion of Japanese flavors with Latin twists.",
+      "The menu lists Taikin Special Rolls, Ceviches, Nigiri & Sashimi, and Traditional Rolls.",
+      "Taikin will charge 18% Service fee for all our tables.",
+      "If you have allergies, please alert us as not all ingredients are listed."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Japanese-Latin fusion with Taikin Special Rolls and Ceviches in Doral",
+    "why_here": "Come for a fusion of Japanese flavors with Latin twists, moving from Taikin Special Rolls and Ceviches to Nigiri & Sashimi and Traditional Rolls in one sitting.",
+    "know_before": "Taikin will charge 18% Service fee for all our tables, so expect that charge on the bill.",
+    "local_tip": "If you have allergies, please alert us as not all ingredients are listed.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.taikinrestaurant.com/"
+     ],
+     "why_here": [
+      "https://www.taikinrestaurant.com/"
+     ],
+     "know_before": [
+      "https://www.taikinrestaurant.com/"
+     ],
+     "local_tip": [
+      "https://www.taikinrestaurant.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Taikin Asian Cuisine is at 7450 NW 104th Ave C-101, Doral, FL 33178.",
+      "source": "https://www.taikinrestaurant.com/"
+     },
+     {
+      "claim": "Taikin means fortune in Japanese and is a fusion of Japanese flavors with Latin twists.",
+      "source": "https://www.taikinrestaurant.com/"
+     },
+     {
+      "claim": "The menu lists Taikin Special Rolls, Ceviches, Nigiri & Sashimi, and Traditional Rolls.",
+      "source": "https://www.taikinrestaurant.com/"
+     },
+     {
+      "claim": "Taikin will charge 18% Service fee for all our tables.",
+      "source": "https://www.taikinrestaurant.com/"
+     },
+     {
+      "claim": "If you have allergies, please alert us as not all ingredients are listed.",
+      "source": "https://www.taikinrestaurant.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJwUL1-HrH2YgRjP3qmfHDa_Y",
+   "name": "Bulla Gastrobar The Falls",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "spanish_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://bullagastrobar.com/locations/the-falls/",
+     "source_name": "Bulla Gastrobar The Falls \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Bulla Gastrobar The Falls serves Spanish cuisine with a tapas bar atmosphere",
+      "The location serves lunch, dinner and weekend brunch",
+      "Happy hour is Monday-Friday 3:00 PM to 6:30 PM and Saturday-Sunday 4:00 PM to 6:00 PM"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Spanish tapas, sangria and shareable plates at The Falls",
+    "why_here": "Go for a Spanish tapas-bar meal at The Falls, with shareable plates, handcrafted cocktails and sangria, plus lunch, dinner and weekend brunch from the same kitchen.",
+    "know_before": "Happy hour runs weekday afternoons and weekend afternoons; check the location page for current times before you go.",
+    "local_tip": "Book private dining through the site if gathering a group for a celebration.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://bullagastrobar.com/locations/the-falls/"
+     ],
+     "why_here": [
+      "https://bullagastrobar.com/locations/the-falls/"
+     ],
+     "know_before": [
+      "https://bullagastrobar.com/locations/the-falls/"
+     ],
+     "local_tip": [
+      "https://bullagastrobar.com/locations/the-falls/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Bulla Gastrobar The Falls serves Spanish cuisine with a tapas bar atmosphere",
+      "source": "https://bullagastrobar.com/locations/the-falls/"
+     },
+     {
+      "claim": "The location serves lunch, dinner and weekend brunch",
+      "source": "https://bullagastrobar.com/locations/the-falls/"
+     },
+     {
+      "claim": "Happy hour is Monday-Friday 3:00 PM to 6:30 PM and Saturday-Sunday 4:00 PM to 6:00 PM",
+      "source": "https://bullagastrobar.com/locations/the-falls/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ8UD3YrDB2YgRXNhjUj-tpp0",
+   "name": "Miami to Brazil Rodizio",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "brazilian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.miamitobrazilrodizio.com/",
+     "source_name": "Miami to Brazil Rodizio \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Miami to Brazil Rodizio offers continuous tableside service with freshly grilled Brazilian-style meats.",
+      "The Kendall restaurant is at 15750 SW 56th St, Miami, FL 33185.",
+      "The site lists 16 fire-grilled cuts and 15+ unlimited sides.",
+      "Weekday lunch is Monday-Thursday 12:00 PM to 5:00 PM at Kendall and Doral.",
+      "Miami to Brazil Rodizio brings tableside service to Kendall and Doral for family dinners."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Tableside Brazilian rodizio with 16 fire-grilled cuts in Kendall",
+    "why_here": "Go for continuous tableside service with freshly grilled Brazilian-style meats, backed by 16 fire-grilled cuts and 15+ unlimited sides for family dinners and gatherings together at the table.",
+    "know_before": "Weekday lunch is Monday-Thursday 12:00 PM to 5:00 PM at Kendall and Doral; confirm with your location.",
+    "local_tip": "Choose Kendall or Doral and reserve a table ahead for family dinners.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.miamitobrazilrodizio.com/"
+     ],
+     "why_here": [
+      "https://www.miamitobrazilrodizio.com/"
+     ],
+     "know_before": [
+      "https://www.miamitobrazilrodizio.com/"
+     ],
+     "local_tip": [
+      "https://www.miamitobrazilrodizio.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Miami to Brazil Rodizio offers continuous tableside service with freshly grilled Brazilian-style meats.",
+      "source": "https://www.miamitobrazilrodizio.com/"
+     },
+     {
+      "claim": "The Kendall restaurant is at 15750 SW 56th St, Miami, FL 33185.",
+      "source": "https://www.miamitobrazilrodizio.com/"
+     },
+     {
+      "claim": "The site lists 16 fire-grilled cuts and 15+ unlimited sides.",
+      "source": "https://www.miamitobrazilrodizio.com/"
+     },
+     {
+      "claim": "Weekday lunch is Monday-Thursday 12:00 PM to 5:00 PM at Kendall and Doral.",
+      "source": "https://www.miamitobrazilrodizio.com/"
+     },
+     {
+      "claim": "Miami to Brazil Rodizio brings tableside service to Kendall and Doral for family dinners.",
+      "source": "https://www.miamitobrazilrodizio.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJLaXWcqCNwogRM9JpPLc64RE",
+   "name": "Tarpon Springs Sponge Docks",
+   "category": "attractions",
+   "metro": "spring-hill-fl",
+   "primary_type": "tourist_attraction",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://spongedocks.net/",
+     "source_name": "Tarpon Springs Sponge Docks \u2014 official source",
+     "source_class": "tourism_dmo",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Tarpon Springs Sponge Docks is the historic waterfront district known for Greek culture, natural sea sponges, dolphin cruises, waterfront dining, and sponge-diving heritage.",
+      "Visitors come for sponge shops, Greek restaurants, bakeries, museums, boat tours, and access to The Gulf.",
+      "Top things to do include Dolphin-watching cruises, sponge shops, Greek restaurants and bakeries, sponge diving history exhibits, and Anclote River boat tours.",
+      "Tarpon Springs is the Sponge Capital of the World."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Greek waterfront district built on sponge-diving heritage",
+    "why_here": "Walk a historic waterfront district known for Greek culture and natural sea sponges, with sponge shops, Greek restaurants, bakeries, museums, and boat tours concentrated along the docks.",
+    "know_before": "Top things to do include Dolphin-watching cruises and sponge diving history exhibits, so allow time beyond shopping.",
+    "local_tip": "Take Anclote River boat tours to reach The Gulf from the docks.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://spongedocks.net/"
+     ],
+     "why_here": [
+      "https://spongedocks.net/"
+     ],
+     "know_before": [
+      "https://spongedocks.net/"
+     ],
+     "local_tip": [
+      "https://spongedocks.net/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Tarpon Springs Sponge Docks is the historic waterfront district known for Greek culture, natural sea sponges, dolphin cruises, waterfront dining, and sponge-diving heritage.",
+      "source": "https://spongedocks.net/"
+     },
+     {
+      "claim": "Visitors come for sponge shops, Greek restaurants, bakeries, museums, boat tours, and access to The Gulf.",
+      "source": "https://spongedocks.net/"
+     },
+     {
+      "claim": "Top things to do include Dolphin-watching cruises, sponge shops, Greek restaurants and bakeries, sponge diving history exhibits, and Anclote River boat tours.",
+      "source": "https://spongedocks.net/"
+     },
+     {
+      "claim": "Tarpon Springs is the Sponge Capital of the World.",
+      "source": "https://spongedocks.net/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJpQ0d6taD3YgRkthjcpuq-x8",
+   "name": "Medieval Times Dinner & Tournament",
+   "category": "attractions",
+   "metro": "orlando",
+   "primary_type": "performing_arts_theater",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.medievaltimes.com/orlando",
+     "source_name": "Medieval Times Dinner & Tournament \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The top knights of our kingdom will battle with brawn and steel to determine one victor to protect the throne.",
+      "Guests feast and raise a goblet to our Queen at Medieval Times.",
+      "The Orlando castle is at 4510 W. Vine St., Kissimmee, FL 34746.",
+      "Six knights charge into epic jousts and clash in authentic sword fights as they battle for victory.",
+      "A four-course meal is served during the show at the Orlando castle.",
+      "Visiting the Castle with a group of 15 or more can use Groups & Celebrations planning."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Dinner show with knights battling for victory in Kissimmee",
+    "why_here": "Go where Six knights charge into epic jousts and clash in authentic sword fights while a four-course meal is served during the show, as knights battle to determine one victor.",
+    "know_before": "A group of 15 or more can use Groups & Celebrations planning options for the Castle.",
+    "local_tip": "Check show dates and times before buying tickets at the Orlando castle.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.medievaltimes.com/orlando"
+     ],
+     "why_here": [
+      "https://www.medievaltimes.com/orlando"
+     ],
+     "know_before": [
+      "https://www.medievaltimes.com/orlando"
+     ],
+     "local_tip": [
+      "https://www.medievaltimes.com/orlando"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The top knights of our kingdom will battle with brawn and steel to determine one victor to protect the throne.",
+      "source": "https://www.medievaltimes.com/orlando"
+     },
+     {
+      "claim": "Guests feast and raise a goblet to our Queen at Medieval Times.",
+      "source": "https://www.medievaltimes.com/orlando"
+     },
+     {
+      "claim": "The Orlando castle is at 4510 W. Vine St., Kissimmee, FL 34746.",
+      "source": "https://www.medievaltimes.com/orlando"
+     },
+     {
+      "claim": "Six knights charge into epic jousts and clash in authentic sword fights as they battle for victory.",
+      "source": "https://www.medievaltimes.com/orlando"
+     },
+     {
+      "claim": "A four-course meal is served during the show at the Orlando castle.",
+      "source": "https://www.medievaltimes.com/orlando"
+     },
+     {
+      "claim": "Visiting the Castle with a group of 15 or more can use Groups & Celebrations planning.",
+      "source": "https://www.medievaltimes.com/orlando"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJeQ-y5zXPwogRFU7AXbruMCg",
+   "name": "Florida State Fairgrounds",
+   "category": "attractions",
+   "metro": "tampa",
+   "primary_type": "event_venue",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://floridastatefairgrounds.com/things-to-know/",
+     "source_name": "Florida State Fairgrounds \u2014 official source",
+     "source_class": "government",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Fairgrounds is home to the annual Florida State Fair and over 250 year-round events",
+      "The Fairgrounds stretches across 330 acres and is permanently located adjacent to I-4 and I-75 in Tampa Bay",
+      "The street address is 4800 U.S. Highway 301 North, Tampa, FL 33610"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Home of the annual Florida State Fair and 250-plus year-round events on 330 acres in Tampa.",
+    "why_here": "Go for the annual Florida State Fair in Tampa or for one of more than 250 events held year-round on the 330-acre fairgrounds, a large multi-use site next to I-4 and I-75 with room for major gatherings.",
+    "know_before": "Address is 4800 U.S. Highway 301 North, Tampa, FL 33610, adjacent to I-4 and I-75.",
+    "local_tip": "Check the fairgrounds calendar before visiting, since events run year-round beyond the annual fair.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://floridastatefairgrounds.com/things-to-know/"
+     ],
+     "why_here": [
+      "https://floridastatefairgrounds.com/things-to-know/"
+     ],
+     "know_before": [
+      "https://floridastatefairgrounds.com/things-to-know/"
+     ],
+     "local_tip": [
+      "https://floridastatefairgrounds.com/things-to-know/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Fairgrounds is home to the annual Florida State Fair and over 250 year-round events",
+      "source": "https://floridastatefairgrounds.com/things-to-know/"
+     },
+     {
+      "claim": "The Fairgrounds stretches across 330 acres and is permanently located adjacent to I-4 and I-75 in Tampa Bay",
+      "source": "https://floridastatefairgrounds.com/things-to-know/"
+     },
+     {
+      "claim": "The street address is 4800 U.S. Highway 301 North, Tampa, FL 33610",
+      "source": "https://floridastatefairgrounds.com/things-to-know/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJA2jZwsLA2YgRLVJhGdfzl-k",
+   "name": "Pisco Y Nazca Ceviche Gastrobar",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "peruvian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://piscoynazca.com/doral/",
+     "source_name": "Pisco Y Nazca Ceviche Gastrobar \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Pisco y Nazca adds a modern twist to traditional Peruvian cuisine",
+      "It is inspired by Peru's top ceviche eateries and serves bold-flavored dishes, unique cocktails and local and international beers",
+      "The Doral restaurant is at The Shops at Downtown Doral, 8551 NW 53 Street #A101, Doral, FL 33166",
+      "It serves brunch, lunch, dinner and happy hour"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Peruvian ceviche gastrobar with modern takes on traditional dishes and cocktails.",
+    "why_here": "Go for ceviche and other bold Peruvian dishes in a vibrant bar with open kitchen views, with options across brunch, lunch, dinner and happy hour and a large selection of cocktails and beers to pair with the food.",
+    "know_before": "Doral location validates parking in the Downtown Doral parking garage for up to 4 hours.",
+    "local_tip": "Ask about validated parking for the Downtown Doral garage when you dine in Doral.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://piscoynazca.com/doral/"
+     ],
+     "why_here": [
+      "https://piscoynazca.com/doral/"
+     ],
+     "know_before": [
+      "https://piscoynazca.com/doral/"
+     ],
+     "local_tip": [
+      "https://piscoynazca.com/doral/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Pisco y Nazca adds a modern twist to traditional Peruvian cuisine",
+      "source": "https://piscoynazca.com/doral/"
+     },
+     {
+      "claim": "It is inspired by Peru's top ceviche eateries and serves bold-flavored dishes, unique cocktails and local and international beers",
+      "source": "https://piscoynazca.com/doral/"
+     },
+     {
+      "claim": "The Doral restaurant is at The Shops at Downtown Doral, 8551 NW 53 Street #A101, Doral, FL 33166",
+      "source": "https://piscoynazca.com/doral/"
+     },
+     {
+      "claim": "It serves brunch, lunch, dinner and happy hour",
+      "source": "https://piscoynazca.com/doral/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJq-v9Ivu12YgRGbf4qxEMj-8",
+   "name": "Havana Vieja - Cuban restaurant",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "cuban_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://havanavieja.com/menu/havanavieja",
+     "source_name": "Havana Vieja - Cuban restaurant \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Havana Vieja presents itself as a traditional Cuban restaurant in Miami Beach",
+      "Its dinner menu includes fried chicken Cuban style with mojo, served with french fries and yellow rice",
+      "The restaurant is at 944 Washington Ave, Miami Beach, FL 33139"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Traditional Cuban restaurant on Washington Avenue in Miami Beach.",
+    "why_here": "Go for traditional Cuban flavors in Miami Beach, including Cuban-style fried chicken with mojo served with fries and yellow rice, in a Washington Avenue spot built around dishes from Cuba served for dinner and throughout the day.",
+    "know_before": "Located at 944 Washington Ave, Miami Beach, FL 33139.",
+    "local_tip": "Order online for pickup from the Washington Avenue location if you want to skip waiting.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://havanavieja.com/menu/havanavieja"
+     ],
+     "why_here": [
+      "https://havanavieja.com/menu/havanavieja"
+     ],
+     "know_before": [
+      "https://havanavieja.com/menu/havanavieja"
+     ],
+     "local_tip": [
+      "https://havanavieja.com/menu/havanavieja"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Havana Vieja presents itself as a traditional Cuban restaurant in Miami Beach",
+      "source": "https://havanavieja.com/menu/havanavieja"
+     },
+     {
+      "claim": "Its dinner menu includes fried chicken Cuban style with mojo, served with french fries and yellow rice",
+      "source": "https://havanavieja.com/menu/havanavieja"
+     },
+     {
+      "claim": "The restaurant is at 944 Washington Ave, Miami Beach, FL 33139",
+      "source": "https://havanavieja.com/menu/havanavieja"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJa9H1aRWz2YgRViJgfHukwNg",
+   "name": "Fontainebleau Miami Beach",
+   "category": "hotels",
+   "metro": "miami-dade",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.fontainebleau.com/miamibeach/",
+     "source_name": "Fontainebleau Miami Beach \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Fontainebleau Miami Beach is a luxury oceanfront hotel and resort in Miami Beach, Florida",
+      "Fontainebleau Miami Beach offers rooms and suites, dining, meetings, events and entertainment experiences",
+      "The address is 4441 Collins Avenue, Miami Beach, FL 33140",
+      "The phone is 800-548-8886"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Luxury oceanfront resort on Collins Avenue with rooms, dining and entertainment.",
+    "why_here": "Go for a full oceanfront resort stay on Collins Avenue where rooms and suites sit alongside dining, meetings, events and entertainment, so meals and entertainment can happen without leaving Miami Beach.",
+    "know_before": "Located at 4441 Collins Avenue, Miami Beach, FL 33140; phone is 800-548-8886.",
+    "local_tip": "Check events and entertainment during your stay at Fontainebleau Miami Beach.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.fontainebleau.com/miamibeach/"
+     ],
+     "why_here": [
+      "https://www.fontainebleau.com/miamibeach/"
+     ],
+     "know_before": [
+      "https://www.fontainebleau.com/miamibeach/"
+     ],
+     "local_tip": [
+      "https://www.fontainebleau.com/miamibeach/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Fontainebleau Miami Beach is a luxury oceanfront hotel and resort in Miami Beach, Florida",
+      "source": "https://www.fontainebleau.com/miamibeach/"
+     },
+     {
+      "claim": "Fontainebleau Miami Beach offers rooms and suites, dining, meetings, events and entertainment experiences",
+      "source": "https://www.fontainebleau.com/miamibeach/"
+     },
+     {
+      "claim": "The address is 4441 Collins Avenue, Miami Beach, FL 33140",
+      "source": "https://www.fontainebleau.com/miamibeach/"
+     },
+     {
+      "claim": "The phone is 800-548-8886",
+      "source": "https://www.fontainebleau.com/miamibeach/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJVcr7Ufp654gRkJGTJZILyfc",
+   "name": "Kia Center",
+   "category": "attractions",
+   "metro": "orlando",
+   "primary_type": "arena",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.kiacenter.com/",
+     "source_name": "Kia Center \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Kia Center is at 400 West Church Street, Orlando, Florida 32801",
+      "Kia Center hosts Orlando Magic home games, listed on its official events pages",
+      "The venue phone listed on its official site is 407-440-7900"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Downtown Orlando arena at 400 West Church Street, home venue for Orlando Magic games.",
+    "why_here": "Go to see Orlando Magic basketball or a major arena event in downtown Orlando, in a centrally located venue on West Church Street that regularly lists Magic home games and other large indoor events on its official calendar.",
+    "know_before": "Address is 400 West Church Street, Orlando, FL 32801.",
+    "local_tip": "Check the official events calendar for Orlando Magic home dates before planning a visit.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.kiacenter.com/"
+     ],
+     "why_here": [
+      "https://www.kiacenter.com/"
+     ],
+     "know_before": [
+      "https://www.kiacenter.com/"
+     ],
+     "local_tip": [
+      "https://www.kiacenter.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Kia Center is at 400 West Church Street, Orlando, Florida 32801",
+      "source": "https://www.kiacenter.com/"
+     },
+     {
+      "claim": "Kia Center hosts Orlando Magic home games, listed on its official events pages",
+      "source": "https://www.kiacenter.com/"
+     },
+     {
+      "claim": "The venue phone listed on its official site is 407-440-7900",
+      "source": "https://www.kiacenter.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJJ_jpNqm12YgRKbNzYjFfQ48",
+   "name": "La Mulata | Cuban Restaurant Miami Beach",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "cuban_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://lamulatasouthbeach.com/",
+     "source_name": "La Mulata | Cuban Restaurant Miami Beach \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "La Mulata is at 1443 Washington Ave, Miami Beach, FL 33139",
+      "La Mulata is located on Espanola Way and Washington Ave in Miami Beach",
+      "It brings Cuban traditions to Espanola Way in Miami Beach",
+      "Its site says flavors of 1950s Havana come alive in every dish",
+      "La Mulata describes itself as a Cuban restaurant in Miami Beach with a 1950s Havana style"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Cuban restaurant near Espanola Way serving flavors inspired by 1950s Havana.",
+    "why_here": "Go for Cuban dishes near Espanola Way and Washington Ave in Miami Beach, where the restaurant frames its cooking around Cuban traditions and 1950s Havana flavors in a location on Espanola Way and Washington Ave.",
+    "know_before": "Located at 1443 Washington Ave, Miami Beach, FL 33139, at Espanola Way and Washington Ave.",
+    "local_tip": "Combine a meal here with a walk along Espanola Way in Miami Beach.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://lamulatasouthbeach.com/"
+     ],
+     "why_here": [
+      "https://lamulatasouthbeach.com/"
+     ],
+     "know_before": [
+      "https://lamulatasouthbeach.com/"
+     ],
+     "local_tip": [
+      "https://lamulatasouthbeach.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "La Mulata is at 1443 Washington Ave, Miami Beach, FL 33139",
+      "source": "https://lamulatasouthbeach.com/"
+     },
+     {
+      "claim": "La Mulata is located on Espanola Way and Washington Ave in Miami Beach",
+      "source": "https://lamulatasouthbeach.com/"
+     },
+     {
+      "claim": "It brings Cuban traditions to Espanola Way in Miami Beach",
+      "source": "https://lamulatasouthbeach.com/"
+     },
+     {
+      "claim": "Its site says flavors of 1950s Havana come alive in every dish",
+      "source": "https://lamulatasouthbeach.com/"
+     },
+     {
+      "claim": "La Mulata describes itself as a Cuban restaurant in Miami Beach with a 1950s Havana style",
+      "source": "https://lamulatasouthbeach.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJHatuDum32YgRCx4WukjnKiM",
+   "name": "Carnicero Steakhouse Flagler",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://carnicerogroup.com/pages/miami",
+     "source_name": "Carnicero Steakhouse Flagler \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Miami location is at 3805 W Flagler St, Miami, FL 33134",
+      "The menu centers on premium cuts and carnes asadas al carb\u00f3n from the asador",
+      "The cooking blends Spanish and Latin flavors in dishes made for sharing, including tapas",
+      "Hours are Monday to Sunday 12PM - 11PM"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Charcoal-grilled steaks and Spanish-Latin sharing plates on W Flagler in Miami.",
+    "why_here": "Go for premium cuts and carnes asadas al carb\u00f3n from the asador, plus tapas and shared plates that mix Spanish and Latin flavors, in a Miami room set up for group meals and longer stays at the table.",
+    "know_before": "Hours are Monday to Sunday 12PM - 11PM at 3805 W Flagler St, Miami, FL 33134.",
+    "local_tip": "Order premium cuts and tapas to share from the asador in Miami.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://carnicerogroup.com/pages/miami"
+     ],
+     "why_here": [
+      "https://carnicerogroup.com/pages/miami"
+     ],
+     "know_before": [
+      "https://carnicerogroup.com/pages/miami"
+     ],
+     "local_tip": [
+      "https://carnicerogroup.com/pages/miami"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Miami location is at 3805 W Flagler St, Miami, FL 33134",
+      "source": "https://carnicerogroup.com/pages/miami"
+     },
+     {
+      "claim": "The menu centers on premium cuts and carnes asadas al carb\u00f3n from the asador",
+      "source": "https://carnicerogroup.com/pages/miami"
+     },
+     {
+      "claim": "The cooking blends Spanish and Latin flavors in dishes made for sharing, including tapas",
+      "source": "https://carnicerogroup.com/pages/miami"
+     },
+     {
+      "claim": "Hours are Monday to Sunday 12PM - 11PM",
+      "source": "https://carnicerogroup.com/pages/miami"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJE5jqT1222YgR4STdDoStYPg",
+   "name": "Vizcaya Museum & Gardens",
+   "category": "attractions",
+   "metro": "miami-dade",
+   "primary_type": "art_museum",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://vizcaya.org/vizcaya-visitor/",
+     "source_name": "Vizcaya Museum & Gardens \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Hours are 9:30 a.m. to 4:30 p.m. open daily except Tuesdays",
+      "Vizcaya is a National Historic Landmark on the shores of Biscayne Bay",
+      "Vizcaya Museum and Gardens blends European elegance with South Florida natural beauty",
+      "The address is 3251 South Miami Ave, Miami, FL 33129",
+      "It was originally built in 1916 as the winter home of agriculture magnate James Deering",
+      "Vizcaya offers art, architecture, and stories that shaped Miami"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "James Deering's 1916 Biscayne Bay winter estate, now a museum and gardens.",
+    "why_here": "Walk a National Historic Landmark on the shores of Biscayne Bay, built in 1916 as the winter home of James Deering, blending European elegance with South Florida natural beauty.",
+    "know_before": "Located at 3251 South Miami Ave, Miami, FL 33129; hours 9:30 a.m. to 4:30 p.m. except Tuesdays.",
+    "local_tip": "Hours are 9:30 a.m. to 4:30 p.m. daily except Tuesdays, per the official site.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://vizcaya.org/vizcaya-visitor/"
+     ],
+     "why_here": [
+      "https://vizcaya.org/vizcaya-visitor/"
+     ],
+     "know_before": [
+      "https://vizcaya.org/vizcaya-visitor/"
+     ],
+     "local_tip": [
+      "https://vizcaya.org/vizcaya-visitor/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Hours are 9:30 a.m. to 4:30 p.m. open daily except Tuesdays",
+      "source": "https://vizcaya.org/vizcaya-visitor/"
+     },
+     {
+      "claim": "Vizcaya is a National Historic Landmark on the shores of Biscayne Bay",
+      "source": "https://vizcaya.org/vizcaya-visitor/"
+     },
+     {
+      "claim": "Vizcaya Museum and Gardens blends European elegance with South Florida natural beauty",
+      "source": "https://vizcaya.org/vizcaya-visitor/"
+     },
+     {
+      "claim": "The address is 3251 South Miami Ave, Miami, FL 33129",
+      "source": "https://vizcaya.org/vizcaya-visitor/"
+     },
+     {
+      "claim": "It was originally built in 1916 as the winter home of agriculture magnate James Deering",
+      "source": "https://vizcaya.org/vizcaya-visitor/"
+     },
+     {
+      "claim": "Vizcaya offers art, architecture, and stories that shaped Miami",
+      "source": "https://vizcaya.org/vizcaya-visitor/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJgUulalN-3YgREwn9nH_kADI",
+   "name": "Walt Disney World Dolphin Resort",
+   "category": "hotels",
+   "metro": "orlando",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://swandolphin.com/our-resorts/dolphin/",
+     "source_name": "Walt Disney World Dolphin Resort \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Walt Disney World Dolphin rises 27 stories above Crescent Lake.",
+      "The address is 1500 Epcot Resorts Blvd, Lake Buena Vista, FL 32830.",
+      "The resort lists complimentary transportation to the parks."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "27-story Crescent Lake resort with complimentary transportation to the parks",
+    "why_here": "Stay on Crescent Lake with restaurants, pools, and complimentary park transportation at the door. As an official Walt Disney World hotel listed on the resort site, it also offers early theme park entry for guests.",
+    "know_before": "The address is 1500 Epcot Resorts Blvd, Lake Buena Vista, FL 32830.",
+    "local_tip": "Use the complimentary park transportation listed on the official resort pages.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://swandolphin.com/our-resorts/dolphin/"
+     ],
+     "why_here": [
+      "https://swandolphin.com/our-resorts/dolphin/"
+     ],
+     "know_before": [
+      "https://swandolphin.com/our-resorts/dolphin/"
+     ],
+     "local_tip": [
+      "https://swandolphin.com/our-resorts/dolphin/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Walt Disney World Dolphin rises 27 stories above Crescent Lake.",
+      "source": "https://swandolphin.com/our-resorts/dolphin/"
+     },
+     {
+      "claim": "The address is 1500 Epcot Resorts Blvd, Lake Buena Vista, FL 32830.",
+      "source": "https://swandolphin.com/our-resorts/dolphin/"
+     },
+     {
+      "claim": "The resort lists complimentary transportation to the parks.",
+      "source": "https://swandolphin.com/our-resorts/dolphin/"
+     }
+    ]
+   }
+  }
+ ]
+}

@@ -1,0 +1,856 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJ5bbbouuD54gR0D6cJLHwC9A",
+   "name": "Winter Garden Village",
+   "category": "shopping",
+   "metro": "orlando",
+   "primary_type": "shopping_mall",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://wintergardenvillage.com/",
+     "source_name": "Winter Garden Village \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Winter Garden Village is at 3041 Daniels Road, Winter Garden, FL 34787",
+      "Winter Garden Village is Your Ultimate Shopping Destination",
+      "Winter Garden Village lists Newest shops and eateries for every taste"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Newest shops and eateries for every taste in one destination",
+    "why_here": "Go to browse newest shops and eateries for every taste in one shopping destination, where you can combine shopping and a meal in a single stop without driving between separate places.",
+    "know_before": "Winter Garden Village is at 3041 Daniels Road, Winter Garden, FL 34787.",
+    "local_tip": "Check newest shops and eateries before a shopping trip.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://wintergardenvillage.com/"
+     ],
+     "why_here": [
+      "https://wintergardenvillage.com/"
+     ],
+     "know_before": [
+      "https://wintergardenvillage.com/"
+     ],
+     "local_tip": [
+      "https://wintergardenvillage.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Winter Garden Village is at 3041 Daniels Road, Winter Garden, FL 34787",
+      "source": "https://wintergardenvillage.com/"
+     },
+     {
+      "claim": "Winter Garden Village is Your Ultimate Shopping Destination",
+      "source": "https://wintergardenvillage.com/"
+     },
+     {
+      "claim": "Winter Garden Village lists Newest shops and eateries for every taste",
+      "source": "https://wintergardenvillage.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJxTnHgqq72YgRMQutD4zgjEE",
+   "name": "Don Camaron Seafood Grill & Market",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.doncamaronrestaurant.com/about",
+     "source_name": "Don Camaron Seafood Grill & Market \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "As a seafood grill and market with locations in Miami and Hialeah Gardens, we have spent over 25 years bringing authentic Miami flavor and exceptional seafood to our community",
+      "Our menu features customer favorites like fish croquetas, seafood paella, fresh ceviche, grilled fish, and shrimp dishes",
+      "Miami location is 501 NW 37th Ave., Miami, FL 33125 and Hialeah Gardens location is 9491 NW 77th Ct., Hialeah, FL 33016",
+      "We're Open: Sunday - Thursday 11am - 10pm, Friday & Saturday 11am - 11pm"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Seafood grill and market in Miami and Hialeah Gardens for over 25 years",
+    "why_here": "Go for fish croquetas, seafood paella, fresh ceviche, grilled fish and shrimp dishes at a seafood grill and market. With locations in Miami and Hialeah Gardens and over 25 years serving, it focuses on seafood prepared to order.",
+    "know_before": "Sunday - Thursday 11am - 10pm, Friday & Saturday 11am - 11pm.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.doncamaronrestaurant.com/about"
+     ],
+     "why_here": [
+      "https://www.doncamaronrestaurant.com/about"
+     ],
+     "know_before": [
+      "https://www.doncamaronrestaurant.com/about"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "As a seafood grill and market with locations in Miami and Hialeah Gardens, we have spent over 25 years bringing authentic Miami flavor and exceptional seafood to our community",
+      "source": "https://www.doncamaronrestaurant.com/about"
+     },
+     {
+      "claim": "Our menu features customer favorites like fish croquetas, seafood paella, fresh ceviche, grilled fish, and shrimp dishes",
+      "source": "https://www.doncamaronrestaurant.com/about"
+     },
+     {
+      "claim": "Miami location is 501 NW 37th Ave., Miami, FL 33125 and Hialeah Gardens location is 9491 NW 77th Ct., Hialeah, FL 33016",
+      "source": "https://www.doncamaronrestaurant.com/about"
+     },
+     {
+      "claim": "We're Open: Sunday - Thursday 11am - 10pm, Friday & Saturday 11am - 11pm",
+      "source": "https://www.doncamaronrestaurant.com/about"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJD0rxDIS22YgRU70GoAvaclk",
+   "name": "Mister O1 Extraordinary Pizza - Brickell",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "pizza_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.mistero1.com/brickell/",
+     "source_name": "Mister O1 Extraordinary Pizza - Brickell \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Mister O1 Extraordinary Pizza Brickell location is at 900 S Miami Ave Suite #130, Miami, FL 33130, phone 305-902-1605",
+      "Mister O1 Extraordinary Pizza Brickell hours include Sunday 12:00 PM - 11:00 PM and Saturday 12:00 PM - 12:00 AM",
+      "Mister O1 Extraordinary Pizza Brickell services listed are Delivery, Takeout and Catering",
+      "Mister O1 Extraordinary Pizza Brickell has no reservations, walk-ins only"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Extraordinary pizza with delivery, takeout and catering in Brickell",
+    "why_here": "Go for extraordinary pizza at the Brickell location, with delivery, takeout and catering listed for different plans, and a casual meal that works for a group or a solo visit in the area.",
+    "know_before": "No reservations, walk-ins only at the Brickell location.",
+    "local_tip": "Use delivery or takeout when walk-ins only does not suit the plan.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.mistero1.com/brickell/"
+     ],
+     "why_here": [
+      "https://www.mistero1.com/brickell/"
+     ],
+     "know_before": [
+      "https://www.mistero1.com/brickell/"
+     ],
+     "local_tip": [
+      "https://www.mistero1.com/brickell/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Mister O1 Extraordinary Pizza Brickell location is at 900 S Miami Ave Suite #130, Miami, FL 33130, phone 305-902-1605",
+      "source": "https://www.mistero1.com/brickell/"
+     },
+     {
+      "claim": "Mister O1 Extraordinary Pizza Brickell hours include Sunday 12:00 PM - 11:00 PM and Saturday 12:00 PM - 12:00 AM",
+      "source": "https://www.mistero1.com/brickell/"
+     },
+     {
+      "claim": "Mister O1 Extraordinary Pizza Brickell services listed are Delivery, Takeout and Catering",
+      "source": "https://www.mistero1.com/brickell/"
+     },
+     {
+      "claim": "Mister O1 Extraordinary Pizza Brickell has no reservations, walk-ins only",
+      "source": "https://www.mistero1.com/brickell/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJKe7ZApG32YgRrcWNzrI9C34",
+   "name": "Bayshore Club Bar & Grill",
+   "category": "nightlife",
+   "metro": "miami-dade",
+   "primary_type": "bar_and_grill",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.bayshoreclubmiami.com/posts/what-makes-bayshore-club-the-ideal-place-for-people-who-love-the-water-but-not-the-chaos",
+     "source_name": "Bayshore Club Bar & Grill \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Bayshore Club is a 300-seat waterfront restaurant located at 3391 Pan American Drive in Coconut Grove, offering panoramic views of Biscayne Bay",
+      "The venue is within the historic Dinner Key site, Miami's former seaplane base and Pan Am flying boat terminal from 1918-1945",
+      "Amenities include 300 seats across multiple levels with elevated outdoor terraces, marina-level seating with fire pits, and a sprawling lawn with games and private cabanas",
+      "Weekday happy hour is from 4:00 PM to 6:00 PM for half-price cocktails, beer, and wine"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "300-seat waterfront restaurant on Biscayne Bay in Coconut Grove",
+    "why_here": "Go for panoramic views of Biscayne Bay from a 300-seat waterfront restaurant at the historic Dinner Key site in Coconut Grove. Elevated outdoor terraces, marina-level seating with fire pits and a lawn with games give several ways to sit by the water.",
+    "know_before": "Address is 3391 Pan American Drive in Coconut Grove, at the historic Dinner Key site.",
+    "local_tip": "Weekday happy hour is 4:00 PM to 6:00 PM with half-price cocktails, beer, and wine.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.bayshoreclubmiami.com/posts/what-makes-bayshore-club-the-ideal-place-for-people-who-love-the-water-but-not-the-chaos"
+     ],
+     "why_here": [
+      "https://www.bayshoreclubmiami.com/posts/what-makes-bayshore-club-the-ideal-place-for-people-who-love-the-water-but-not-the-chaos"
+     ],
+     "know_before": [
+      "https://www.bayshoreclubmiami.com/posts/what-makes-bayshore-club-the-ideal-place-for-people-who-love-the-water-but-not-the-chaos"
+     ],
+     "local_tip": [
+      "https://www.bayshoreclubmiami.com/posts/what-makes-bayshore-club-the-ideal-place-for-people-who-love-the-water-but-not-the-chaos"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Bayshore Club is a 300-seat waterfront restaurant located at 3391 Pan American Drive in Coconut Grove, offering panoramic views of Biscayne Bay",
+      "source": "https://www.bayshoreclubmiami.com/posts/what-makes-bayshore-club-the-ideal-place-for-people-who-love-the-water-but-not-the-chaos"
+     },
+     {
+      "claim": "The venue is within the historic Dinner Key site, Miami's former seaplane base and Pan Am flying boat terminal from 1918-1945",
+      "source": "https://www.bayshoreclubmiami.com/posts/what-makes-bayshore-club-the-ideal-place-for-people-who-love-the-water-but-not-the-chaos"
+     },
+     {
+      "claim": "Amenities include 300 seats across multiple levels with elevated outdoor terraces, marina-level seating with fire pits, and a sprawling lawn with games and private cabanas",
+      "source": "https://www.bayshoreclubmiami.com/posts/what-makes-bayshore-club-the-ideal-place-for-people-who-love-the-water-but-not-the-chaos"
+     },
+     {
+      "claim": "Weekday happy hour is from 4:00 PM to 6:00 PM for half-price cocktails, beer, and wine",
+      "source": "https://www.bayshoreclubmiami.com/posts/what-makes-bayshore-club-the-ideal-place-for-people-who-love-the-water-but-not-the-chaos"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJY5Q706p-54gRkXYdTdfLf1c",
+   "name": "Millenia Plaza",
+   "category": "shopping",
+   "metro": "orlando",
+   "primary_type": "shopping_mall",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.kimcorealty.com/properties/millenia-plaza/111590/view",
+     "source_name": "Millenia Plaza \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Millenia Plaza is a 154,356-square-foot shopping center in Orlando, Florida",
+      "Millenia Plaza is at 4648 Millenia Plaza Way, Orlando, FL 32839",
+      "Millenia Plaza is adjacent to the Millenia Mall",
+      "The property page describes the center as fully leased"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "A 154,356-square-foot shopping center in Orlando, adjacent to the Millenia Mall",
+    "why_here": "Go to shop at a 154,356-square-foot shopping center in Orlando without entering the Millenia Mall itself. Its position adjacent to the Millenia Mall makes it easy to combine both stops in one trip.",
+    "know_before": "The center is at 4648 Millenia Plaza Way, Orlando, FL 32839.",
+    "local_tip": "Combine a visit with the Millenia Mall next door.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.kimcorealty.com/properties/millenia-plaza/111590/view"
+     ],
+     "why_here": [
+      "https://www.kimcorealty.com/properties/millenia-plaza/111590/view"
+     ],
+     "know_before": [
+      "https://www.kimcorealty.com/properties/millenia-plaza/111590/view"
+     ],
+     "local_tip": [
+      "https://www.kimcorealty.com/properties/millenia-plaza/111590/view"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Millenia Plaza is a 154,356-square-foot shopping center in Orlando, Florida",
+      "source": "https://www.kimcorealty.com/properties/millenia-plaza/111590/view"
+     },
+     {
+      "claim": "Millenia Plaza is at 4648 Millenia Plaza Way, Orlando, FL 32839",
+      "source": "https://www.kimcorealty.com/properties/millenia-plaza/111590/view"
+     },
+     {
+      "claim": "Millenia Plaza is adjacent to the Millenia Mall",
+      "source": "https://www.kimcorealty.com/properties/millenia-plaza/111590/view"
+     },
+     {
+      "claim": "The property page describes the center as fully leased",
+      "source": "https://www.kimcorealty.com/properties/millenia-plaza/111590/view"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ86kIPeDFkIgRdsrbssu0Jwk",
+   "name": "Pensacola Beach Boardwalk",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "tourist_attraction",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.pensacolabeachboardwalk.com/",
+     "source_name": "Pensacola Beach Boardwalk \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Pensacola Beach Boardwalk is at 400 Quietwater Beach Road, Pensacola Beach, FL 32561",
+      "Shops include clothing boutiques, jewelry, gifts, art, surf wear, an outfitter, and a wine and cheese shop",
+      "Dining includes locally caught seafood on a deck overlooking the water",
+      "Happenings include live music and special events",
+      "Listed dining includes Bamboo Willie's and Papa's Pizza",
+      "Listed shopping includes Ron Jon Surf Shop"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Dining and shopping meet the beach, with seafood, live music, and surf wear",
+    "why_here": "Go for locally caught seafood on a deck overlooking the water, then browse clothing boutiques, jewelry, gifts, art, and surf wear in one place. Live music and special events add a reason to stay after shopping.",
+    "know_before": "Find it at 400 Quietwater Beach Road, Pensacola Beach, FL 32561.",
+    "local_tip": "Check happenings for live music and special events before going.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.pensacolabeachboardwalk.com/"
+     ],
+     "why_here": [
+      "https://www.pensacolabeachboardwalk.com/"
+     ],
+     "know_before": [
+      "https://www.pensacolabeachboardwalk.com/"
+     ],
+     "local_tip": [
+      "https://www.pensacolabeachboardwalk.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Pensacola Beach Boardwalk is at 400 Quietwater Beach Road, Pensacola Beach, FL 32561",
+      "source": "https://www.pensacolabeachboardwalk.com/"
+     },
+     {
+      "claim": "Shops include clothing boutiques, jewelry, gifts, art, surf wear, an outfitter, and a wine and cheese shop",
+      "source": "https://www.pensacolabeachboardwalk.com/"
+     },
+     {
+      "claim": "Dining includes locally caught seafood on a deck overlooking the water",
+      "source": "https://www.pensacolabeachboardwalk.com/"
+     },
+     {
+      "claim": "Happenings include live music and special events",
+      "source": "https://www.pensacolabeachboardwalk.com/"
+     },
+     {
+      "claim": "Listed dining includes Bamboo Willie's and Papa's Pizza",
+      "source": "https://www.pensacolabeachboardwalk.com/"
+     },
+     {
+      "claim": "Listed shopping includes Ron Jon Surf Shop",
+      "source": "https://www.pensacolabeachboardwalk.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJZ0WpaL9954gRFo0ONKNKC-w",
+   "name": "Melao Bakery - Orlando",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "bakery",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://order.toasttab.com/online/melao-bakery-orlando-2001-consulate-drive",
+     "source_name": "Melao Bakery - Orlando \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Melao Bakery - ORLANDO hours include Sun: 07:00-20:45.",
+      "Melao Bakery - ORLANDO hours include Mon: 06:00-20:45.",
+      "Melao Bakery - ORLANDO is at 2001 Consulate Drive.",
+      "Melao Bakery - ORLANDO menu includes Cafe con Leche.",
+      "Melao Bakery - ORLANDO menu includes BREAKFASTS.",
+      "Melao Bakery - ORLANDO menu includes COFFEE."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "BREAKFASTS, COFFEE and Cafe con Leche for an early start",
+    "why_here": "Go for BREAKFASTS and COFFEE, including Cafe con Leche, at Melao Bakery - ORLANDO on 2001 Consulate Drive, with hours from early morning into the evening.",
+    "know_before": "Sun hours are 07:00-20:45 and Mon hours are 06:00-20:45.",
+    "local_tip": "Order Cafe con Leche with BREAKFASTS.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://order.toasttab.com/online/melao-bakery-orlando-2001-consulate-drive"
+     ],
+     "why_here": [
+      "https://order.toasttab.com/online/melao-bakery-orlando-2001-consulate-drive"
+     ],
+     "know_before": [
+      "https://order.toasttab.com/online/melao-bakery-orlando-2001-consulate-drive"
+     ],
+     "local_tip": [
+      "https://order.toasttab.com/online/melao-bakery-orlando-2001-consulate-drive"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Melao Bakery - ORLANDO hours include Sun: 07:00-20:45.",
+      "source": "https://order.toasttab.com/online/melao-bakery-orlando-2001-consulate-drive"
+     },
+     {
+      "claim": "Melao Bakery - ORLANDO hours include Mon: 06:00-20:45.",
+      "source": "https://order.toasttab.com/online/melao-bakery-orlando-2001-consulate-drive"
+     },
+     {
+      "claim": "Melao Bakery - ORLANDO is at 2001 Consulate Drive.",
+      "source": "https://order.toasttab.com/online/melao-bakery-orlando-2001-consulate-drive"
+     },
+     {
+      "claim": "Melao Bakery - ORLANDO menu includes Cafe con Leche.",
+      "source": "https://order.toasttab.com/online/melao-bakery-orlando-2001-consulate-drive"
+     },
+     {
+      "claim": "Melao Bakery - ORLANDO menu includes BREAKFASTS.",
+      "source": "https://order.toasttab.com/online/melao-bakery-orlando-2001-consulate-drive"
+     },
+     {
+      "claim": "Melao Bakery - ORLANDO menu includes COFFEE.",
+      "source": "https://order.toasttab.com/online/melao-bakery-orlando-2001-consulate-drive"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJubrs_5m_2YgRVrimtCuhFWg",
+   "name": "Luka Restaurant and Coffee",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "latin_american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.lukarestaurant.com/",
+     "source_name": "Luka Restaurant and Coffee \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Luka Restaurant brings flavors of Latin American countries to the table",
+      "The Doral location is at 11402 NW 41st St #112, Doral, FL 33178",
+      "The Doral phone number is 305-477-2430",
+      "The name Luka combines the owners' names, Luis and Catalina",
+      "Food is described as homemade food",
+      "Hours list Monday 07:00 to 10:00pm"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Homemade food with flavors of Latin American countries in Doral",
+    "why_here": "Go for homemade food that brings flavors of Latin American countries to the table in Doral. The story behind the name Luka, from Luis and Catalina, gives the meal a personal context beyond the menu.",
+    "know_before": "The Doral location is at 11402 NW 41st St #112, Doral, FL 33178.",
+    "local_tip": "Call 305-477-2430 for the Doral location.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.lukarestaurant.com/"
+     ],
+     "why_here": [
+      "https://www.lukarestaurant.com/"
+     ],
+     "know_before": [
+      "https://www.lukarestaurant.com/"
+     ],
+     "local_tip": [
+      "https://www.lukarestaurant.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Luka Restaurant brings flavors of Latin American countries to the table",
+      "source": "https://www.lukarestaurant.com/"
+     },
+     {
+      "claim": "The Doral location is at 11402 NW 41st St #112, Doral, FL 33178",
+      "source": "https://www.lukarestaurant.com/"
+     },
+     {
+      "claim": "The Doral phone number is 305-477-2430",
+      "source": "https://www.lukarestaurant.com/"
+     },
+     {
+      "claim": "The name Luka combines the owners' names, Luis and Catalina",
+      "source": "https://www.lukarestaurant.com/"
+     },
+     {
+      "claim": "Food is described as homemade food",
+      "source": "https://www.lukarestaurant.com/"
+     },
+     {
+      "claim": "Hours list Monday 07:00 to 10:00pm",
+      "source": "https://www.lukarestaurant.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ31A585q02YgRtlqXCm80yAY",
+   "name": "Loews Miami Beach Hotel",
+   "category": "hotels",
+   "metro": "miami-dade",
+   "primary_type": "resort_hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.loewshotels.com/miami-beach",
+     "source_name": "Loews Miami Beach Hotel \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Loews Miami Beach Hotel is at 1601 Collins Avenue, Miami Beach, Florida, 33139",
+      "The hotel is located in the heart of the historic Art Deco District",
+      "The resort has an expansive pool deck with direct beach access",
+      "The hotel lists private SOAK Cabanas and a spa",
+      "The location is steps from the ocean"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "A resort in the historic Art Deco District, steps from the ocean",
+    "why_here": "Stay steps from the ocean in the heart of the historic Art Deco District, with an expansive pool deck and direct beach access. Private SOAK Cabanas and a spa give options beyond the beach itself.",
+    "know_before": "The address is 1601 Collins Avenue, Miami Beach, Florida, 33139.",
+    "local_tip": "Use direct beach access from the expansive pool deck.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.loewshotels.com/miami-beach"
+     ],
+     "why_here": [
+      "https://www.loewshotels.com/miami-beach"
+     ],
+     "know_before": [
+      "https://www.loewshotels.com/miami-beach"
+     ],
+     "local_tip": [
+      "https://www.loewshotels.com/miami-beach"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Loews Miami Beach Hotel is at 1601 Collins Avenue, Miami Beach, Florida, 33139",
+      "source": "https://www.loewshotels.com/miami-beach"
+     },
+     {
+      "claim": "The hotel is located in the heart of the historic Art Deco District",
+      "source": "https://www.loewshotels.com/miami-beach"
+     },
+     {
+      "claim": "The resort has an expansive pool deck with direct beach access",
+      "source": "https://www.loewshotels.com/miami-beach"
+     },
+     {
+      "claim": "The hotel lists private SOAK Cabanas and a spa",
+      "source": "https://www.loewshotels.com/miami-beach"
+     },
+     {
+      "claim": "The location is steps from the ocean",
+      "source": "https://www.loewshotels.com/miami-beach"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJMxKoUgu82YgRhQ9WpaAEMcc",
+   "name": "Sokai Sushi Bar Doral",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "japanese_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://sokaisushi.com/locations/doral/",
+     "source_name": "Sokai Sushi Bar Doral \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Sokai Sushi Bar in Doral brings Japanese-Peruvian fusion cuisine",
+      "The menu includes handcrafted rolls",
+      "The space is contemporary and suited to casual dining and special occasions",
+      "The Doral address is 10726 NW 74TH ST, MEDLEY, FL 33178",
+      "The Doral phone number is +1 (305) 499-9701"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Japanese-Peruvian fusion cuisine and handcrafted rolls in Doral",
+    "why_here": "Go for Japanese-Peruvian fusion cuisine and handcrafted rolls in a contemporary space. The setting is described as suited to both casual dining and special occasions, so it works for a regular meal or a planned night out.",
+    "know_before": "The address is 10726 NW 74TH ST, MEDLEY, FL 33178.",
+    "local_tip": "Call +1 (305) 499-9701 for Doral.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://sokaisushi.com/locations/doral/"
+     ],
+     "why_here": [
+      "https://sokaisushi.com/locations/doral/"
+     ],
+     "know_before": [
+      "https://sokaisushi.com/locations/doral/"
+     ],
+     "local_tip": [
+      "https://sokaisushi.com/locations/doral/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Sokai Sushi Bar in Doral brings Japanese-Peruvian fusion cuisine",
+      "source": "https://sokaisushi.com/locations/doral/"
+     },
+     {
+      "claim": "The menu includes handcrafted rolls",
+      "source": "https://sokaisushi.com/locations/doral/"
+     },
+     {
+      "claim": "The space is contemporary and suited to casual dining and special occasions",
+      "source": "https://sokaisushi.com/locations/doral/"
+     },
+     {
+      "claim": "The Doral address is 10726 NW 74TH ST, MEDLEY, FL 33178",
+      "source": "https://sokaisushi.com/locations/doral/"
+     },
+     {
+      "claim": "The Doral phone number is +1 (305) 499-9701",
+      "source": "https://sokaisushi.com/locations/doral/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJAWQYf9UE2YgRfbE257XL8VY",
+   "name": "El Balc\u00f3n de las Am\u00e9ricas - Coral Springs",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "colombian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.elbalcondelasamericas.com/locations/coral-springs/",
+     "source_name": "El Balc\u00f3n de las Am\u00e9ricas - Coral Springs \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "El Balc\u00f3n de las Am\u00e9ricas Coral Springs is a Colombian restaurant at 7932 W Sample Rd, Coral Springs, FL 33065",
+      "Bandeja Paisa combines white rice, red beans, ground beef or top round steak, sweet plantains, fried chicharron, arepa, avocado and a fried egg",
+      "Ajiaco Completo is a shredded chicken soup served with white rice, sweet plantains and salad",
+      "Hours include Monday 7:30 AM to 9 PM and Sunday 8 AM to 8 PM",
+      "The phone number is (954) 346-4590",
+      "The menu includes fresh juices and specialty coffee"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Colombian plates including Bandeja Paisa and Ajiaco Completo in Coral Springs",
+    "why_here": "Go for Bandeja Paisa with white rice, red beans, sweet plantains, arepa, avocado and a fried egg, or Ajiaco Completo as a shredded chicken soup. Fresh juices and specialty coffee round out the Coral Springs menu.",
+    "know_before": "Hours include Monday 7:30 AM to 9 PM and Sunday 8 AM to 8 PM.",
+    "local_tip": "Call (954) 346-4590 for Coral Springs.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.elbalcondelasamericas.com/locations/coral-springs/"
+     ],
+     "why_here": [
+      "https://www.elbalcondelasamericas.com/locations/coral-springs/"
+     ],
+     "know_before": [
+      "https://www.elbalcondelasamericas.com/locations/coral-springs/"
+     ],
+     "local_tip": [
+      "https://www.elbalcondelasamericas.com/locations/coral-springs/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "El Balc\u00f3n de las Am\u00e9ricas Coral Springs is a Colombian restaurant at 7932 W Sample Rd, Coral Springs, FL 33065",
+      "source": "https://www.elbalcondelasamericas.com/locations/coral-springs/"
+     },
+     {
+      "claim": "Bandeja Paisa combines white rice, red beans, ground beef or top round steak, sweet plantains, fried chicharron, arepa, avocado and a fried egg",
+      "source": "https://www.elbalcondelasamericas.com/locations/coral-springs/"
+     },
+     {
+      "claim": "Ajiaco Completo is a shredded chicken soup served with white rice, sweet plantains and salad",
+      "source": "https://www.elbalcondelasamericas.com/locations/coral-springs/"
+     },
+     {
+      "claim": "Hours include Monday 7:30 AM to 9 PM and Sunday 8 AM to 8 PM",
+      "source": "https://www.elbalcondelasamericas.com/locations/coral-springs/"
+     },
+     {
+      "claim": "The phone number is (954) 346-4590",
+      "source": "https://www.elbalcondelasamericas.com/locations/coral-springs/"
+     },
+     {
+      "claim": "The menu includes fresh juices and specialty coffee",
+      "source": "https://www.elbalcondelasamericas.com/locations/coral-springs/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJD21Nxwsf2YgRChKXwM5KZpo",
+   "name": "Morikami Museum and Japanese Gardens",
+   "category": "attractions",
+   "metro": "palm-beach",
+   "primary_type": "art_museum",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://morikami.org/hours-admission/",
+     "source_name": "Morikami Museum and Japanese Gardens \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Museum and Gardens hours are Tuesday through Sunday, 10 a.m. to 5 p.m.",
+      "The museum is closed Mondays and major holidays",
+      "Admission is Adults (18+) $18 and Children (6-17) $12",
+      "Children 5 and under have FREE admission",
+      "Cornell Caf\u00e9 hours are Tuesday through Sunday, 11 a.m. to 3 p.m.",
+      "The gardens include six distinct historical gardens and a bonsai collection, with exhibitions dedicated to the arts and humanities of Japan"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Six distinct historical gardens, a bonsai collection, and exhibitions on site",
+    "why_here": "Go to walk six distinct historical gardens and see a bonsai collection, then take in exhibitions dedicated to the arts and humanities of Japan. Cornell Caf\u00e9 is on site during its listed hours for a break.",
+    "know_before": "Open Tuesday through Sunday, 10 a.m. to 5 p.m.; closed Mondays and major holidays.",
+    "local_tip": "Plan for Cornell Caf\u00e9 between 11 a.m. and 3 p.m.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://morikami.org/hours-admission/"
+     ],
+     "why_here": [
+      "https://morikami.org/hours-admission/"
+     ],
+     "know_before": [
+      "https://morikami.org/hours-admission/"
+     ],
+     "local_tip": [
+      "https://morikami.org/hours-admission/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Museum and Gardens hours are Tuesday through Sunday, 10 a.m. to 5 p.m.",
+      "source": "https://morikami.org/hours-admission/"
+     },
+     {
+      "claim": "The museum is closed Mondays and major holidays",
+      "source": "https://morikami.org/hours-admission/"
+     },
+     {
+      "claim": "Admission is Adults (18+) $18 and Children (6-17) $12",
+      "source": "https://morikami.org/hours-admission/"
+     },
+     {
+      "claim": "Children 5 and under have FREE admission",
+      "source": "https://morikami.org/hours-admission/"
+     },
+     {
+      "claim": "Cornell Caf\u00e9 hours are Tuesday through Sunday, 11 a.m. to 3 p.m.",
+      "source": "https://morikami.org/hours-admission/"
+     },
+     {
+      "claim": "The gardens include six distinct historical gardens and a bonsai collection, with exhibitions dedicated to the arts and humanities of Japan",
+      "source": "https://morikami.org/hours-admission/"
+     }
+    ]
+   }
+  }
+ ]
+}
