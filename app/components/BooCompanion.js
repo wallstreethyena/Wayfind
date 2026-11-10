@@ -14,7 +14,7 @@ import { captureOrQueue } from "../../lib/browserAnalytics.js";
 import { BooGhostSvg } from "./booGhost.js";
 import { SantaSvg, santaPose } from "./santaArt.js";
 import SantaDock from "./SantaDock.js";
-import { pickCharacter, santaSeasonOpen, santaApiFor, isChristmasPath, CHRISTMAS_PATH, SANTA_API, SANTA_HIDE_KEY } from "./companionCharacter.js";
+import { pickCharacter, santaSeasonOpen, santaApiFor, isChristmasPath, CHRISTMAS_PATH, SANTA_API, SANTA_HIDE_KEY, santaOffPath } from "./companionCharacter.js";
 import { SANTA, SANTA_CHIPS, SANTA_FINDER_CHIPS, SANTA_GAGS, SANTA_ZAP_LINES, SANTA_REACT_LINES, santaTimeLines, santaRouteLine, santaOpenerFor } from "./santaCopy.js";
 import { openerFor } from "./booOpeners.js";
 import { coverageState, coverageLines, coverageSheetLine, unknownSheetLine, coverageButtonText, roundMiles } from "./booCoverage.js";
@@ -624,10 +624,10 @@ export default function BooCompanion() {
   useEffect(() => {
     let ok = false;
     try {
-      ok = seasonFor(character) && !reservedPath(pathname);
+      ok = seasonFor(character) && !reservedPath(pathname) && !(character === "santa" && santaOffPath(pathname));
       // Each character has its own hide key: hiding Boo never hides Santa.
       if (ok) ok = (santa ? sessionStorage.getItem(SANTA_HIDE_KEY) : sessionStorage.getItem(HIDE_KEY)) !== "1";
-    } catch { ok = seasonFor(character) && !reservedPath(pathname); }
+    } catch { ok = seasonFor(character) && !reservedPath(pathname) && !(character === "santa" && santaOffPath(pathname)); }
     setElig({ ok, ch: character });
   }, [pathname]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -1686,7 +1686,7 @@ export default function BooCompanion() {
     const on = (e) => {
       let ok = false;
       const ch = charFor(pathRef.current);
-      try { ok = seasonFor(ch) && !reservedPath(pathRef.current); } catch { /* ignore */ }
+      try { ok = seasonFor(ch) && !reservedPath(pathRef.current) && !(ch === "santa" && santaOffPath(pathRef.current)); } catch { /* ignore */ }
       if (!ok) return;
       try { if (ch === "santa") sessionStorage.removeItem(SANTA_HIDE_KEY); else sessionStorage.removeItem(HIDE_KEY); } catch { /* ignore */ }
       setElig({ ok: true, ch });

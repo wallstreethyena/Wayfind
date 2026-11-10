@@ -138,4 +138,23 @@ function fsExists(rel) { try { readFileSync(path.join(root, rel)); return true; 
   ok(/\{santa \? \(\s*<SantaDock/.test(boo) && /onAsk=\{\(prompt, src\) => \{ if \(!openRef\.current\) openSheet/.test(boo), "for Santa BooCompanion renders the dock, which opens the shared chat");
 }
 
+// Santa stays off Hanukkah content (owner approved 2026-11-05). By CALL: the
+// real santaOffPath over every published guide, so a Hanukkah guide whose slug
+// lacks the word fails here; Christmas pages and the Christmas guides keep him.
+{
+  const cc = await import(path.join(root, "app/components/companionCharacter.js"));
+  const boo = strip(read("app/components/BooCompanion.js"));
+  const dock = strip(read("app/components/SantaDock.js"));
+  const { GUIDES } = await import(path.join(root, "lib/guides.js"));
+  ok(typeof cc.santaOffPath === "function", "companionCharacter exports santaOffPath");
+  const hanukkah = Object.entries(GUIDES).filter(([, g]) => /hanukkah|chanukah/i.test([g.title, g.keyword].join(" ")) && !/christmas/i.test(g.keyword || ""));
+  ok(hanukkah.length >= 1, "positive control: at least one Hanukkah guide is published (found " + hanukkah.length + ")");
+  for (const [slug] of hanukkah) ok(cc.santaOffPath("/guides/" + slug), "Santa is off the Hanukkah guide /guides/" + slug);
+  for (const p of ["/christmas-in-florida", "/guides/florida-christmas-markets-and-towns-2026", "/guides/florida-new-years-eve-2026", "/", "/guides"]) ok(!cc.santaOffPath(p), "Santa stays on " + p);
+  ok(cc.santaOffPath("/guides/florida-hanukkah-2026?x=1#y") && cc.santaOffPath("/chanukah-in-florida"), "the rule holds with a query string and for a Chanukah spelling");
+  const gates = (boo.match(/!\((?:character|ch) === "santa" && santaOffPath\((?:pathname|pathRef\.current)\)\)/g) || []).length;
+  ok(gates === 3, "all three BooCompanion mount gates apply the Hanukkah rule (found " + gates + ")");
+  ok(/root\.classList\.add\("wf-santa-docked"\)/.test(dock) && /return \(\) => \{ root\.classList\.remove\("wf-santa-docked"\); \}/.test(dock), "the reserved bottom space belongs to the mounted dock, so a page without Santa has no blank strip");
+}
+
 console.log("test-santa-dock: OK — " + checks + " assertions; actions, copy, markup and CSS by calling the real SantaDock module, plus the coordinator and the BooCompanion hand-off by source");

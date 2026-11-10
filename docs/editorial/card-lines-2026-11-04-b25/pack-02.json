@@ -1,0 +1,432 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 25. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJ71jzexqSk4gRcgP1zOMxldc",
+   "name": "Boon Docks",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.boondocksfl.com/",
+     "source_name": "Boon Docks \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Boon Docks is located under the mighty oaks on the Intracoastal Waterway just five minutes from the Beaches in West Bay",
+      "Boon Docks offers a delicious array of local and regional seafood",
+      "Boon Docks opens Wednesday at 4 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Local and regional seafood under the mighty oaks on the Intracoastal Waterway",
+    "why_here": "Go for local and regional seafood under the mighty oaks on the Intracoastal Waterway, just five minutes from the Beaches in West Bay.",
+    "know_before": "Open Wednesday at 4 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.boondocksfl.com/"
+     ],
+     "why_here": [
+      "https://www.boondocksfl.com/"
+     ],
+     "know_before": [
+      "https://www.boondocksfl.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Boon Docks is located under the mighty oaks on the Intracoastal Waterway just five minutes from the Beaches in West Bay",
+      "source": "https://www.boondocksfl.com/"
+     },
+     {
+      "claim": "Boon Docks offers a delicious array of local and regional seafood",
+      "source": "https://www.boondocksfl.com/"
+     },
+     {
+      "claim": "Boon Docks opens Wednesday at 4 p.m.",
+      "source": "https://www.boondocksfl.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJxTjVzMS32YgR8bIolvtnH8g",
+   "name": "Apocalypse BBQ",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "barbecue_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.apocalypsebbq.com/",
+     "source_name": "Apocalypse BBQ \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Apocalypse BBQ is a pit-smoked barbecue restaurant in Kendall, Miami",
+      "Apocalypse BBQ serves Demkota prime brisket",
+      "Apocalypse BBQ serves Cheshire cafecito ribs",
+      "Apocalypse BBQ is known for brisket bacon and smoked wings",
+      "Apocalypse BBQ is closed Mondays"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Pit-smoked barbecue in Kendall with Demkota prime brisket and Cheshire cafecito ribs",
+    "why_here": "Go for pit-smoked barbecue in Kendall, Miami, known for Demkota prime brisket and Cheshire cafecito ribs, plus brisket bacon and smoked wings.",
+    "know_before": "Closed Mondays",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.apocalypsebbq.com/"
+     ],
+     "why_here": [
+      "https://www.apocalypsebbq.com/"
+     ],
+     "know_before": [
+      "https://www.apocalypsebbq.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Apocalypse BBQ is a pit-smoked barbecue restaurant in Kendall, Miami",
+      "source": "https://www.apocalypsebbq.com/"
+     },
+     {
+      "claim": "Apocalypse BBQ serves Demkota prime brisket",
+      "source": "https://www.apocalypsebbq.com/"
+     },
+     {
+      "claim": "Apocalypse BBQ serves Cheshire cafecito ribs",
+      "source": "https://www.apocalypsebbq.com/"
+     },
+     {
+      "claim": "Apocalypse BBQ is known for brisket bacon and smoked wings",
+      "source": "https://www.apocalypsebbq.com/"
+     },
+     {
+      "claim": "Apocalypse BBQ is closed Mondays",
+      "source": "https://www.apocalypsebbq.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJjx6TTlzD5ogR7tTxB5QO3hs",
+   "name": "Tomoka State Park",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "state_park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.floridastateparks.org/Tomoka",
+     "source_name": "Tomoka State Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Tomoka State Park is open 8 a.m. to sunset, 365 days a year",
+      "A boat ramp gives boaters and canoeists access to the river at Tomoka State Park",
+      "The park store at Tomoka State Park offers canoe rentals",
+      "Tomoka State Park has full-facility campsites",
+      "The waters at Tomoka State Park are popular for canoeing, boating and fishing"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "River park open 8 a.m. to sunset with canoe rentals and campsites",
+    "why_here": "Go to canoe, boat and fish on the river at a park open 8 a.m. to sunset, with a boat ramp, canoe rentals at the park store and full-facility campsites.",
+    "know_before": "Open 8 a.m. to sunset, 365 days a year",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.floridastateparks.org/Tomoka"
+     ],
+     "why_here": [
+      "https://www.floridastateparks.org/Tomoka"
+     ],
+     "know_before": [
+      "https://www.floridastateparks.org/Tomoka"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Tomoka State Park is open 8 a.m. to sunset, 365 days a year",
+      "source": "https://www.floridastateparks.org/Tomoka"
+     },
+     {
+      "claim": "A boat ramp gives boaters and canoeists access to the river at Tomoka State Park",
+      "source": "https://www.floridastateparks.org/Tomoka"
+     },
+     {
+      "claim": "The park store at Tomoka State Park offers canoe rentals",
+      "source": "https://www.floridastateparks.org/Tomoka"
+     },
+     {
+      "claim": "Tomoka State Park has full-facility campsites",
+      "source": "https://www.floridastateparks.org/Tomoka"
+     },
+     {
+      "claim": "The waters at Tomoka State Park are popular for canoeing, boating and fishing",
+      "source": "https://www.floridastateparks.org/Tomoka"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ6cr65-bX2IgR8sHBuG-l05Y",
+   "name": "Isla & Co. West Palm Beach",
+   "category": "food",
+   "metro": "palm-beach",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.isla-co.com/west-palm-beach",
+     "source_name": "Isla & Co. West Palm Beach \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Isla & Co. West Palm Beach is at 1401 Clare Ave, West Palm Beach, FL 33401",
+      "Isla & Co. West Palm Beach is next to Grandview Market",
+      "Isla & Co. West Palm Beach serves brunch, coffee, cocktails and dinner",
+      "Isla & Co. serves Smashed Avocado Toast",
+      "Isla & Co. serves Salmon Benedict",
+      "Isla & Co. serves Spicy Vodka Rigatoni"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Brunch, coffee, cocktails and dinner next to Grandview Market",
+    "why_here": "Go for brunch, coffee, cocktails and dinner next to Grandview Market, with Smashed Avocado Toast, Salmon Benedict and Spicy Vodka Rigatoni served at Isla & Co. West Palm Beach.",
+    "know_before": "Isla & Co. West Palm Beach is at 1401 Clare Ave, West Palm Beach, FL 33401.",
+    "local_tip": "Try Smashed Avocado Toast or Salmon Benedict for brunch",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.isla-co.com/west-palm-beach"
+     ],
+     "why_here": [
+      "https://www.isla-co.com/west-palm-beach"
+     ],
+     "know_before": [
+      "https://www.isla-co.com/west-palm-beach"
+     ],
+     "local_tip": [
+      "https://www.isla-co.com/west-palm-beach"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Isla & Co. West Palm Beach is at 1401 Clare Ave, West Palm Beach, FL 33401",
+      "source": "https://www.isla-co.com/west-palm-beach"
+     },
+     {
+      "claim": "Isla & Co. West Palm Beach is next to Grandview Market",
+      "source": "https://www.isla-co.com/west-palm-beach"
+     },
+     {
+      "claim": "Isla & Co. West Palm Beach serves brunch, coffee, cocktails and dinner",
+      "source": "https://www.isla-co.com/west-palm-beach"
+     },
+     {
+      "claim": "Isla & Co. serves Smashed Avocado Toast",
+      "source": "https://www.isla-co.com/west-palm-beach"
+     },
+     {
+      "claim": "Isla & Co. serves Salmon Benedict",
+      "source": "https://www.isla-co.com/west-palm-beach"
+     },
+     {
+      "claim": "Isla & Co. serves Spicy Vodka Rigatoni",
+      "source": "https://www.isla-co.com/west-palm-beach"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJB5mRuE-12YgRBKW24Am56ro",
+   "name": "Wilde on the Porch",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "breakfast_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://wildeontheporch.com/pages/breakfast-lunch",
+     "source_name": "Wilde on the Porch \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Wilde on the Porch is at 1700 Collins Ave, Miami Beach, FL 33139",
+      "Breakfast at Wilde on the Porch is served daily 8:00 a.m. to 12:00 p.m.",
+      "Wilde on the Porch is open daily 8:00 a.m. to 3:00 a.m.",
+      "Wilde on the Porch lists Buttermilk Pancakes on its breakfast menu",
+      "Wilde on the Porch lists Granola on its breakfast menu",
+      "Wilde on the Porch lists Belgian Waffles on its breakfast menu"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Buttermilk Pancakes, Granola and Belgian Waffles for breakfast",
+    "why_here": "Go for Buttermilk Pancakes, Granola and Belgian Waffles on the breakfast menu at Wilde on the Porch, served daily 8:00 a.m. to 12:00 p.m. in Miami Beach.",
+    "know_before": "Wilde on the Porch is open daily 8:00 a.m. to 3:00 a.m.",
+    "local_tip": "Try Buttermilk Pancakes or Belgian Waffles for breakfast",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://wildeontheporch.com/pages/breakfast-lunch"
+     ],
+     "why_here": [
+      "https://wildeontheporch.com/pages/breakfast-lunch"
+     ],
+     "know_before": [
+      "https://wildeontheporch.com/pages/breakfast-lunch"
+     ],
+     "local_tip": [
+      "https://wildeontheporch.com/pages/breakfast-lunch"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Wilde on the Porch is at 1700 Collins Ave, Miami Beach, FL 33139",
+      "source": "https://wildeontheporch.com/pages/breakfast-lunch"
+     },
+     {
+      "claim": "Breakfast at Wilde on the Porch is served daily 8:00 a.m. to 12:00 p.m.",
+      "source": "https://wildeontheporch.com/pages/breakfast-lunch"
+     },
+     {
+      "claim": "Wilde on the Porch is open daily 8:00 a.m. to 3:00 a.m.",
+      "source": "https://wildeontheporch.com/pages/breakfast-lunch"
+     },
+     {
+      "claim": "Wilde on the Porch lists Buttermilk Pancakes on its breakfast menu",
+      "source": "https://wildeontheporch.com/pages/breakfast-lunch"
+     },
+     {
+      "claim": "Wilde on the Porch lists Granola on its breakfast menu",
+      "source": "https://wildeontheporch.com/pages/breakfast-lunch"
+     },
+     {
+      "claim": "Wilde on the Porch lists Belgian Waffles on its breakfast menu",
+      "source": "https://wildeontheporch.com/pages/breakfast-lunch"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJu3mqJlEA2YgRrxDRoUGTufc",
+   "name": "American Social - Bar & Kitchen - Fort Lauderdale",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://americansocialbar.com/locations/ft-lauderdale/",
+     "source_name": "American Social - Bar & Kitchen - Fort Lauderdale \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "American Social Fort Lauderdale is at 721 E Las Olas Blvd, Ft. Lauderdale, FL 33301",
+      "American Social Fort Lauderdale serves Brunch Saturday and Sunday 10:30 a.m. to 3 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Bar and restaurant at 721 E Las Olas Blvd with Saturday and Sunday brunch",
+    "why_here": "Go to this bar and restaurant at 721 E Las Olas Blvd in Ft. Lauderdale for brunch on Saturday and Sunday, served 10:30 a.m. to 3 p.m.",
+    "know_before": "Brunch Saturday and Sunday 10:30 a.m. to 3 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://americansocialbar.com/locations/ft-lauderdale/"
+     ],
+     "why_here": [
+      "https://americansocialbar.com/locations/ft-lauderdale/"
+     ],
+     "know_before": [
+      "https://americansocialbar.com/locations/ft-lauderdale/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "American Social Fort Lauderdale is at 721 E Las Olas Blvd, Ft. Lauderdale, FL 33301",
+      "source": "https://americansocialbar.com/locations/ft-lauderdale/"
+     },
+     {
+      "claim": "American Social Fort Lauderdale serves Brunch Saturday and Sunday 10:30 a.m. to 3 p.m.",
+      "source": "https://americansocialbar.com/locations/ft-lauderdale/"
+     }
+    ]
+   }
+  }
+ ]
+}

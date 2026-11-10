@@ -1055,5 +1055,13 @@
    "detail": "A loose host test double-wraps already-wrapped links (unattributed clicks) and turns /api/ticketmaster/go into an open redirect; a missing status gate sends buyers to a sold-out page."
   },
   "owner": "Revenue QA"
+ },
+ "scripts/test-viator-booking-attribution.mjs": {
+  "protects": "End-to-end Viator per-click opaque attribution, campaign trust-boundary separation (observed_utm_campaign vs verified_google_campaign_id), 4-way financial separation (gross booking value never substituted for missing commission), Google Ads API v26 ConversionAdjustmentUploadService RETRACTION/RESTATEMENT contract, durable OAuth2 token refresh and upload queue recovery, 90-day identifier redaction, and service_role-only RLS.",
+  "blastRadius": {
+   "category": "revenue",
+   "detail": "Regressing click-token attribution, commission separation, or Google Ads API v26 conversion adjustment contracts either drops booking attribution, reports customer gross booking spend as Wayfind commission, or sends retired API v18 / invalid dual-identifier payloads that Google Ads rejects."
+  },
+  "owner": "Revenue QA"
  }
 }

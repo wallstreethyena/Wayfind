@@ -1,0 +1,748 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 26. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJ0Z0Ax82Ik4gRvI0IL_Iw37A",
+   "name": "Race City Amusement Park",
+   "category": "attractions",
+   "metro": "panama-city-florida",
+   "primary_type": "amusement_park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://racecitypcb.com/",
+     "source_name": "Race City Amusement Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Race City Amusement Park is at 9523 Front Beach Road, Panama City Beach, FL 32407",
+      "Race City has Go Kart tracks, Putt-in-Glow Blacklight Mini Golf, Thrill Rides, and an indoor Mega Arcade",
+      "Cascade Falls Log Flume is Panama City Beach's only Log Flume at Race City",
+      "Blacklight Mini-Golf is a 9 hole Putt-in-Glow Blacklight Mini Golf adventure"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Go Kart tracks, Thrill Rides and Cascade Falls Log Flume",
+    "why_here": "Ride Go Kart tracks, try Thrill Rides and an indoor Mega Arcade, splash on Cascade Falls Log Flume, and play a 9 hole Putt-in-Glow Blacklight Mini Golf adventure.",
+    "know_before": "Race City Amusement Park is at 9523 Front Beach Road, Panama City Beach, FL 32407.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://racecitypcb.com/"
+     ],
+     "why_here": [
+      "https://racecitypcb.com/"
+     ],
+     "know_before": [
+      "https://racecitypcb.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Race City Amusement Park is at 9523 Front Beach Road, Panama City Beach, FL 32407",
+      "source": "https://racecitypcb.com/"
+     },
+     {
+      "claim": "Race City has Go Kart tracks, Putt-in-Glow Blacklight Mini Golf, Thrill Rides, and an indoor Mega Arcade",
+      "source": "https://racecitypcb.com/"
+     },
+     {
+      "claim": "Cascade Falls Log Flume is Panama City Beach's only Log Flume at Race City",
+      "source": "https://racecitypcb.com/"
+     },
+     {
+      "claim": "Blacklight Mini-Golf is a 9 hole Putt-in-Glow Blacklight Mini Golf adventure",
+      "source": "https://racecitypcb.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJy1zp1LR_54gR2d-mfz81Clc",
+   "name": "Del Frisco's Double Eagle Steakhouse",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "steak_house",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.delfriscos.com/location/del-friscos-double-eagle-steakhouse-orlando-fl/",
+     "source_name": "Del Frisco's Double Eagle Steakhouse \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Del Frisco's Double Eagle Steakhouse in Orlando is at 9150 International Drive, Orlando, FL 32819",
+      "On Sunday hours are 4:00 p.m. - 9:00 p.m. and on Monday - Thursday hours are 5:00 p.m. - 9:00 p.m. in Orlando",
+      "The two-story Orlando restaurant features two bars, five private dining rooms, and a picturesque patio",
+      "The Orlando restaurant has a wine list of more than 1200 labels",
+      "Select offerings at this Orlando location include Japanese A5 Wagyu and Certified Kobe Beef"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Orlando steakhouse on International Drive with Japanese A5 Wagyu and Certified Kobe Beef",
+    "why_here": "Go for Japanese A5 Wagyu on International Drive in a two-story restaurant with two bars, five private dining rooms, and a wine list of more than 1200 labels.",
+    "know_before": "On Sunday hours are 4:00 p.m. - 9:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.delfriscos.com/location/del-friscos-double-eagle-steakhouse-orlando-fl/"
+     ],
+     "why_here": [
+      "https://www.delfriscos.com/location/del-friscos-double-eagle-steakhouse-orlando-fl/"
+     ],
+     "know_before": [
+      "https://www.delfriscos.com/location/del-friscos-double-eagle-steakhouse-orlando-fl/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Del Frisco's Double Eagle Steakhouse in Orlando is at 9150 International Drive, Orlando, FL 32819",
+      "source": "https://www.delfriscos.com/location/del-friscos-double-eagle-steakhouse-orlando-fl/"
+     },
+     {
+      "claim": "On Sunday hours are 4:00 p.m. - 9:00 p.m. and on Monday - Thursday hours are 5:00 p.m. - 9:00 p.m. in Orlando",
+      "source": "https://www.delfriscos.com/location/del-friscos-double-eagle-steakhouse-orlando-fl/"
+     },
+     {
+      "claim": "The two-story Orlando restaurant features two bars, five private dining rooms, and a picturesque patio",
+      "source": "https://www.delfriscos.com/location/del-friscos-double-eagle-steakhouse-orlando-fl/"
+     },
+     {
+      "claim": "The Orlando restaurant has a wine list of more than 1200 labels",
+      "source": "https://www.delfriscos.com/location/del-friscos-double-eagle-steakhouse-orlando-fl/"
+     },
+     {
+      "claim": "Select offerings at this Orlando location include Japanese A5 Wagyu and Certified Kobe Beef",
+      "source": "https://www.delfriscos.com/location/del-friscos-double-eagle-steakhouse-orlando-fl/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJbWcxKEO15YgRXIOwyi6J7Wg",
+   "name": "Prototype Escape Games Jacksonville",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "amusement_center",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://prototypejax.com/",
+     "source_name": "Prototype Escape Games Jacksonville \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Prototype Escape Games is the only locally owned and operated escape room in Jacksonville",
+      "Prototype Escape Games is located 15-minutes from Jacksonville Beach and 7-minutes from the St. John's Town Center",
+      "Prototype Escape Games is at 3546 St Johns Bluff Rd S UNIT 113, Jacksonville, FL 32224",
+      "Prototype has the largest escape rooms in town"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Locally owned and operated escape room in Jacksonville, 7-minutes from the St. John's Town Center",
+    "why_here": "Go for an escape room in Jacksonville that is locally owned and operated, located 15-minutes from Jacksonville Beach and 7-minutes from the St. John's Town Center.",
+    "know_before": "Prototype Escape Games is at 3546 St Johns Bluff Rd S UNIT 113, Jacksonville, FL 32224",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://prototypejax.com/"
+     ],
+     "why_here": [
+      "https://prototypejax.com/"
+     ],
+     "know_before": [
+      "https://prototypejax.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Prototype Escape Games is the only locally owned and operated escape room in Jacksonville",
+      "source": "https://prototypejax.com/"
+     },
+     {
+      "claim": "Prototype Escape Games is located 15-minutes from Jacksonville Beach and 7-minutes from the St. John's Town Center",
+      "source": "https://prototypejax.com/"
+     },
+     {
+      "claim": "Prototype Escape Games is at 3546 St Johns Bluff Rd S UNIT 113, Jacksonville, FL 32224",
+      "source": "https://prototypejax.com/"
+     },
+     {
+      "claim": "Prototype has the largest escape rooms in town",
+      "source": "https://prototypejax.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJadqPlNwY24gRNO4F6q1j1cQ",
+   "name": "Barefoot Beach County Preserve",
+   "category": "beach",
+   "metro": "florida",
+   "primary_type": "nature_preserve",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.collierparks.com/Parks-and-Beaches/Beaches/Barefoot-Beach-Preserve",
+     "source_name": "Barefoot Beach County Preserve \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Barefoot Beach Preserve is 342 acres of natural land",
+      "Barefoot Beach Preserve is one of the last undeveloped barrier islands on Florida's Southwest coast",
+      "Barefoot Oasis Beach Concessions & Beach Rentals operates Daily from 8:00 a.m. - Sunset at Barefoot Beach Preserve"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "342 acres of natural land, one of the last undeveloped barrier islands",
+    "why_here": "Go to Barefoot Beach Preserve for 342 acres of natural land on one of the last undeveloped barrier islands on Florida's Southwest coast, and time at the beach.",
+    "know_before": "Barefoot Oasis Beach Concessions & Beach Rentals operates Daily from 8:00 a.m. - Sunset",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.collierparks.com/Parks-and-Beaches/Beaches/Barefoot-Beach-Preserve"
+     ],
+     "why_here": [
+      "https://www.collierparks.com/Parks-and-Beaches/Beaches/Barefoot-Beach-Preserve"
+     ],
+     "know_before": [
+      "https://www.collierparks.com/Parks-and-Beaches/Beaches/Barefoot-Beach-Preserve"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Barefoot Beach Preserve is 342 acres of natural land",
+      "source": "https://www.collierparks.com/Parks-and-Beaches/Beaches/Barefoot-Beach-Preserve"
+     },
+     {
+      "claim": "Barefoot Beach Preserve is one of the last undeveloped barrier islands on Florida's Southwest coast",
+      "source": "https://www.collierparks.com/Parks-and-Beaches/Beaches/Barefoot-Beach-Preserve"
+     },
+     {
+      "claim": "Barefoot Oasis Beach Concessions & Beach Rentals operates Daily from 8:00 a.m. - Sunset at Barefoot Beach Preserve",
+      "source": "https://www.collierparks.com/Parks-and-Beaches/Beaches/Barefoot-Beach-Preserve"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJdSO-6RIxw4gR8mqEBQELC84",
+   "name": "Freedom Factory",
+   "category": "attractions",
+   "metro": "manatee-sarasota",
+   "primary_type": "race_course",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://freedomfactoryusa.com/about/",
+     "source_name": "Freedom Factory \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Freedom Factory is located in Bradenton, Florida and is owned by Cleetus McFarland",
+      "The track was constructed in the early 1970s as Desoto Speedway",
+      "Freedom Factory held its first public event in February of 2021",
+      "Various events are held throughout the year like burnout competitions, drift events, circle track races, truck tugs",
+      "Freedom 500 and LeMullets are annual races at Freedom Factory"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Burnout competitions, drift events and circle track races in Bradenton",
+    "why_here": "Go for burnout competitions, drift events, circle track races and truck tugs held throughout the year, plus annual races Freedom 500 and LeMullets at this Bradenton track.",
+    "know_before": "Freedom Factory held its first public event in February of 2021.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://freedomfactoryusa.com/about/"
+     ],
+     "why_here": [
+      "https://freedomfactoryusa.com/about/"
+     ],
+     "know_before": [
+      "https://freedomfactoryusa.com/about/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Freedom Factory is located in Bradenton, Florida and is owned by Cleetus McFarland",
+      "source": "https://freedomfactoryusa.com/about/"
+     },
+     {
+      "claim": "The track was constructed in the early 1970s as Desoto Speedway",
+      "source": "https://freedomfactoryusa.com/about/"
+     },
+     {
+      "claim": "Freedom Factory held its first public event in February of 2021",
+      "source": "https://freedomfactoryusa.com/about/"
+     },
+     {
+      "claim": "Various events are held throughout the year like burnout competitions, drift events, circle track races, truck tugs",
+      "source": "https://freedomfactoryusa.com/about/"
+     },
+     {
+      "claim": "Freedom 500 and LeMullets are annual races at Freedom Factory",
+      "source": "https://freedomfactoryusa.com/about/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJc5Xp9oEA2YgRzd5oJSbCqG0",
+   "name": "Snyder Park",
+   "category": "attractions",
+   "metro": "broward",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.parks.fortlauderdale.gov/Home/Components/FacilityDirectory/FacilityDirectory/62/1243?npage=6",
+     "source_name": "Snyder Park \u2014 official source",
+     "source_class": "government",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Snyder Park is at 3299 SW 4th Ave, Fort Lauderdale, FL 33315",
+      "Snyder Park hours are March to October, 7 a.m. to 7 p.m.",
+      "Dog Swim Hours at Snyder Park are March to October, 7 a.m. to 7 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Fort Lauderdale park with Dog Swim from March to October",
+    "why_here": "Go for Dog Swim at Snyder Park in Fort Lauderdale, with Dog Swim Hours from March to October, 7 a.m. to 7 p.m., at 3299 SW 4th Ave.",
+    "know_before": "Park hours are 7 a.m. to 7 p.m. from March to October.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.parks.fortlauderdale.gov/Home/Components/FacilityDirectory/FacilityDirectory/62/1243?npage=6"
+     ],
+     "why_here": [
+      "https://www.parks.fortlauderdale.gov/Home/Components/FacilityDirectory/FacilityDirectory/62/1243?npage=6"
+     ],
+     "know_before": [
+      "https://www.parks.fortlauderdale.gov/Home/Components/FacilityDirectory/FacilityDirectory/62/1243?npage=6"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Snyder Park is at 3299 SW 4th Ave, Fort Lauderdale, FL 33315",
+      "source": "https://www.parks.fortlauderdale.gov/Home/Components/FacilityDirectory/FacilityDirectory/62/1243?npage=6"
+     },
+     {
+      "claim": "Snyder Park hours are March to October, 7 a.m. to 7 p.m.",
+      "source": "https://www.parks.fortlauderdale.gov/Home/Components/FacilityDirectory/FacilityDirectory/62/1243?npage=6"
+     },
+     {
+      "claim": "Dog Swim Hours at Snyder Park are March to October, 7 a.m. to 7 p.m.",
+      "source": "https://www.parks.fortlauderdale.gov/Home/Components/FacilityDirectory/FacilityDirectory/62/1243?npage=6"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJT8zbHlex2YgRbmlvb54NTIY",
+   "name": "COTE Miami",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "steak_house",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.cotekoreansteakhouse.com/locations/cotemiami",
+     "source_name": "COTE Miami \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "COTE Miami is open for lunch and dinner service 7 days a week",
+      "Lunch is from 12:00 p.m. to 3:00 p.m. daily",
+      "Dinner is from 5:00 p.m. to 11:00 p.m. Sunday to Wednesday",
+      "COTE Miami is at 3900 NE 2nd Ave, Miami, FL 33137"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Lunch and dinner service 7 days a week in Miami",
+    "why_here": "Go for lunch and dinner service 7 days a week, with lunch from 12:00 p.m. to 3:00 p.m. daily and dinner from 5:00 p.m. to 11:00 p.m. Sunday to Wednesday.",
+    "know_before": "COTE Miami is at 3900 NE 2nd Ave, Miami, FL 33137.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.cotekoreansteakhouse.com/locations/cotemiami"
+     ],
+     "why_here": [
+      "https://www.cotekoreansteakhouse.com/locations/cotemiami"
+     ],
+     "know_before": [
+      "https://www.cotekoreansteakhouse.com/locations/cotemiami"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "COTE Miami is open for lunch and dinner service 7 days a week",
+      "source": "https://www.cotekoreansteakhouse.com/locations/cotemiami"
+     },
+     {
+      "claim": "Lunch is from 12:00 p.m. to 3:00 p.m. daily",
+      "source": "https://www.cotekoreansteakhouse.com/locations/cotemiami"
+     },
+     {
+      "claim": "Dinner is from 5:00 p.m. to 11:00 p.m. Sunday to Wednesday",
+      "source": "https://www.cotekoreansteakhouse.com/locations/cotemiami"
+     },
+     {
+      "claim": "COTE Miami is at 3900 NE 2nd Ave, Miami, FL 33137",
+      "source": "https://www.cotekoreansteakhouse.com/locations/cotemiami"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ3_POlK-Ok4gRSSsu0EAEpCM",
+   "name": "Salty Goat Saloon",
+   "category": "nightlife",
+   "metro": "panama-city-florida",
+   "primary_type": "bar_and_grill",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.saltygoatsaloon.com/",
+     "source_name": "Salty Goat Saloon \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Salty Goat Saloon is at 13006 Front Beach Rd, Panama City Beach, Florida",
+      "Live music from local and touring bands is nightly with no cover",
+      "Happy hour is everyday from 4 p.m. to 7 p.m.",
+      "Salty Goat Saloon is open everyday from 11 a.m. to 2 a.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Live music nightly with no cover in Panama City Beach",
+    "why_here": "Go for live music from local and touring bands nightly with no cover, plus happy hour everyday from 4 p.m. to 7 p.m. at this Panama City Beach saloon.",
+    "know_before": "Happy hour is everyday from 4 p.m. to 7 p.m.",
+    "local_tip": "Open everyday from 11 a.m. to 2 a.m.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.saltygoatsaloon.com/"
+     ],
+     "why_here": [
+      "https://www.saltygoatsaloon.com/"
+     ],
+     "know_before": [
+      "https://www.saltygoatsaloon.com/"
+     ],
+     "local_tip": [
+      "https://www.saltygoatsaloon.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Salty Goat Saloon is at 13006 Front Beach Rd, Panama City Beach, Florida",
+      "source": "https://www.saltygoatsaloon.com/"
+     },
+     {
+      "claim": "Live music from local and touring bands is nightly with no cover",
+      "source": "https://www.saltygoatsaloon.com/"
+     },
+     {
+      "claim": "Happy hour is everyday from 4 p.m. to 7 p.m.",
+      "source": "https://www.saltygoatsaloon.com/"
+     },
+     {
+      "claim": "Salty Goat Saloon is open everyday from 11 a.m. to 2 a.m.",
+      "source": "https://www.saltygoatsaloon.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJTXFfNIwR3ogREBWOPPDkJ0k",
+   "name": "Backwater",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://backwaterflorida.com/",
+     "source_name": "Backwater \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Backwater serves DIY Pancake Breakfast and Lunch in Melbourne",
+      "Guests take a bottle of batter and make their own pancake designs at one of 8 griddle tables",
+      "Breakfast, Brunch and Lunch are served from 8 a.m. to 2 p.m. 7 days a week",
+      "Backwater is at 1904 Municipal Lane"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "DIY pancakes cooked at 8 griddle tables in Melbourne",
+    "why_here": "Make your own pancake designs with a bottle of batter at one of 8 griddle tables, for DIY Pancake Breakfast and Lunch served in Melbourne with a hands-on start to the day.",
+    "know_before": "Breakfast, Brunch and Lunch are served from 8 a.m. to 2 p.m. 7 days a week.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://backwaterflorida.com/"
+     ],
+     "why_here": [
+      "https://backwaterflorida.com/"
+     ],
+     "know_before": [
+      "https://backwaterflorida.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Backwater serves DIY Pancake Breakfast and Lunch in Melbourne",
+      "source": "https://backwaterflorida.com/"
+     },
+     {
+      "claim": "Guests take a bottle of batter and make their own pancake designs at one of 8 griddle tables",
+      "source": "https://backwaterflorida.com/"
+     },
+     {
+      "claim": "Breakfast, Brunch and Lunch are served from 8 a.m. to 2 p.m. 7 days a week",
+      "source": "https://backwaterflorida.com/"
+     },
+     {
+      "claim": "Backwater is at 1904 Municipal Lane",
+      "source": "https://backwaterflorida.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJFzRAfooB2YgRtuvhmGrE7RY",
+   "name": "The Wharf Fort Lauderdale",
+   "category": "nightlife",
+   "metro": "broward",
+   "primary_type": "bar",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://wharfftl.com/ahoy",
+     "source_name": "The Wharf Fort Lauderdale \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Wharf Fort Lauderdale is an open-air waterfront venue on the New River in Downtown Fort Lauderdale, at 20 W Las Olas Blvd",
+      "Three kitchens at The Wharf Fort Lauderdale include Smashies, The Piefather, and Carlos & Pepe's",
+      "Thursday hours are 4 p.m. to 1 a.m.",
+      "Cocktails, live music, and weekly events are enjoyed every Thursday through Sunday"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Open-air waterfront venue on the New River with three kitchens",
+    "why_here": "Go for an open-air waterfront venue on the New River in Downtown Fort Lauderdale, where three kitchens serve food by the water and cocktails, live music, and weekly events run Thursday through Sunday.",
+    "know_before": "Thursday hours are 4 p.m. to 1 a.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://wharfftl.com/ahoy"
+     ],
+     "why_here": [
+      "https://wharfftl.com/ahoy"
+     ],
+     "know_before": [
+      "https://wharfftl.com/ahoy"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Wharf Fort Lauderdale is an open-air waterfront venue on the New River in Downtown Fort Lauderdale, at 20 W Las Olas Blvd",
+      "source": "https://wharfftl.com/ahoy"
+     },
+     {
+      "claim": "Three kitchens at The Wharf Fort Lauderdale include Smashies, The Piefather, and Carlos & Pepe's",
+      "source": "https://wharfftl.com/ahoy"
+     },
+     {
+      "claim": "Thursday hours are 4 p.m. to 1 a.m.",
+      "source": "https://wharfftl.com/ahoy"
+     },
+     {
+      "claim": "Cocktails, live music, and weekly events are enjoyed every Thursday through Sunday",
+      "source": "https://wharfftl.com/ahoy"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ4xF5UVfL2YgR1zQO5CN_OkM",
+   "name": "MESTIZO Restaurant Latin Cuisine & Coffee",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "latin_american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://restaurantmestizo.com/",
+     "source_name": "MESTIZO Restaurant Latin Cuisine & Coffee \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Mestizo celebrates authentic Latin American cuisine in every dish",
+      "Mestizo serves a diverse menu featuring traditional recipes from across Latin America",
+      "Mestizo is at 600 Crandon Blvd APT 130, Key Biscayne, FL 33149, United States"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Latin American cuisine with traditional recipes from across Latin America",
+    "why_here": "Go for a diverse menu featuring traditional recipes from across Latin America, celebrating authentic Latin American cuisine in every dish at Key Biscayne.",
+    "know_before": "Mestizo is at 600 Crandon Blvd APT 130, Key Biscayne, FL 33149.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://restaurantmestizo.com/"
+     ],
+     "why_here": [
+      "https://restaurantmestizo.com/"
+     ],
+     "know_before": [
+      "https://restaurantmestizo.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Mestizo celebrates authentic Latin American cuisine in every dish",
+      "source": "https://restaurantmestizo.com/"
+     },
+     {
+      "claim": "Mestizo serves a diverse menu featuring traditional recipes from across Latin America",
+      "source": "https://restaurantmestizo.com/"
+     },
+     {
+      "claim": "Mestizo is at 600 Crandon Blvd APT 130, Key Biscayne, FL 33149, United States",
+      "source": "https://restaurantmestizo.com/"
+     }
+    ]
+   }
+  }
+ ]
+}
