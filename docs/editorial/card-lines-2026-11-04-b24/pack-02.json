@@ -1,0 +1,746 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 24. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJLfIq0YrjwogRYnQriga2vGs",
+   "name": "Mi Carreta Restaurant & Bakery",
+   "category": "food",
+   "metro": "st-pete",
+   "primary_type": "colombian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.micarretarestaurante.com/",
+     "source_name": "Mi Carreta Restaurant & Bakery \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Mi Carreta is a family owned business serving Colombian cuisine.",
+      "The restaurant is known for authentic dishes, fresh bakery and empanadas.",
+      "Hours are 9 a.m. to 10 p.m. Sunday through Thursday.",
+      "Friday and Saturday hours are 9 a.m. to 11 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Family-owned Colombian restaurant and bakery known for empanadas in St. Petersburg",
+    "why_here": "Mi Carreta Restaurant & Bakery describes itself as a family owned business serving Colombian cuisine in St. Petersburg. It is known for authentic dishes, fresh bakery items and empanadas, and serves breakfast, lunch and dinner.",
+    "know_before": "Hours are 9 a.m. to 10 p.m. Sunday through Thursday and 9 a.m. to 11 p.m. Friday and Saturday.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.micarretarestaurante.com/"
+     ],
+     "why_here": [
+      "https://www.micarretarestaurante.com/"
+     ],
+     "know_before": [
+      "https://www.micarretarestaurante.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Mi Carreta is a family owned business serving Colombian cuisine.",
+      "source": "https://www.micarretarestaurante.com/"
+     },
+     {
+      "claim": "The restaurant is known for authentic dishes, fresh bakery and empanadas.",
+      "source": "https://www.micarretarestaurante.com/"
+     },
+     {
+      "claim": "Hours are 9 a.m. to 10 p.m. Sunday through Thursday.",
+      "source": "https://www.micarretarestaurante.com/"
+     },
+     {
+      "claim": "Friday and Saturday hours are 9 a.m. to 11 p.m.",
+      "source": "https://www.micarretarestaurante.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJYTggjQK02YgR5-xr4KOLS5s",
+   "name": "Margaret Pace Park",
+   "category": "attractions",
+   "metro": "miami-dade",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.miami.gov/Parks-Public-Places/Parks-Directory/Margaret-Pace-Park",
+     "source_name": "Margaret Pace Park \u2014 official source",
+     "source_class": "government",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Park hours are 7 a.m. to 10 p.m.",
+      "Margaret Pace Park features Basketball, a Playground and Volleyball.",
+      "The park has a Dog Park.",
+      "Dogs are allowed on leash in the park."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Park with Basketball, a Playground, Volleyball and a Dog Park",
+    "why_here": "Margaret Pace Park features Basketball, a Playground and Volleyball, plus a Dog Park for visitors with dogs. Park hours are 7 a.m. to 10 p.m. for daytime and evening visits.",
+    "know_before": "Park hours are 7 a.m. to 10 p.m.",
+    "local_tip": "Dogs are allowed on leash in the park.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.miami.gov/Parks-Public-Places/Parks-Directory/Margaret-Pace-Park"
+     ],
+     "why_here": [
+      "https://www.miami.gov/Parks-Public-Places/Parks-Directory/Margaret-Pace-Park"
+     ],
+     "know_before": [
+      "https://www.miami.gov/Parks-Public-Places/Parks-Directory/Margaret-Pace-Park"
+     ],
+     "local_tip": [
+      "https://www.miami.gov/Parks-Public-Places/Parks-Directory/Margaret-Pace-Park"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Park hours are 7 a.m. to 10 p.m.",
+      "source": "https://www.miami.gov/Parks-Public-Places/Parks-Directory/Margaret-Pace-Park"
+     },
+     {
+      "claim": "Margaret Pace Park features Basketball, a Playground and Volleyball.",
+      "source": "https://www.miami.gov/Parks-Public-Places/Parks-Directory/Margaret-Pace-Park"
+     },
+     {
+      "claim": "The park has a Dog Park.",
+      "source": "https://www.miami.gov/Parks-Public-Places/Parks-Directory/Margaret-Pace-Park"
+     },
+     {
+      "claim": "Dogs are allowed on leash in the park.",
+      "source": "https://www.miami.gov/Parks-Public-Places/Parks-Directory/Margaret-Pace-Park"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJFwgu6SUB2YgR0DCYTC7nHYc",
+   "name": "Voodoo Bayou",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://voodoobayou.com/",
+     "source_name": "Voodoo Bayou \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Voodoo Bayou is a Southern Cajun Kitchen with exotic craft cocktails and an extensive Bourbon collection.",
+      "Buttermilk biscuits are baked fresh and served warm with honey butter and house-made jam.",
+      "Signature Gator Bites are served with a spicy remoulade.",
+      "Live music is scheduled Friday and Saturday nights plus Sunday mornings for brunch time."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Southern Cajun kitchen with craft cocktails and an extensive bourbon collection",
+    "why_here": "Voodoo Bayou is a Southern Cajun kitchen known for buttermilk biscuits served with honey butter and house-made jam, signature Gator Bites with spicy remoulade, and fried chicken. The site also highlights exotic craft cocktails and live music.",
+    "know_before": "Live music is listed Friday and Saturday nights plus Sunday mornings for brunch time.",
+    "local_tip": "Start with the buttermilk biscuits or Gator Bites listed as signature items on the official site.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://voodoobayou.com/"
+     ],
+     "why_here": [
+      "https://voodoobayou.com/"
+     ],
+     "know_before": [
+      "https://voodoobayou.com/"
+     ],
+     "local_tip": [
+      "https://voodoobayou.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Voodoo Bayou is a Southern Cajun Kitchen with exotic craft cocktails and an extensive Bourbon collection.",
+      "source": "https://voodoobayou.com/"
+     },
+     {
+      "claim": "Buttermilk biscuits are baked fresh and served warm with honey butter and house-made jam.",
+      "source": "https://voodoobayou.com/"
+     },
+     {
+      "claim": "Signature Gator Bites are served with a spicy remoulade.",
+      "source": "https://voodoobayou.com/"
+     },
+     {
+      "claim": "Live music is scheduled Friday and Saturday nights plus Sunday mornings for brunch time.",
+      "source": "https://voodoobayou.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJiaj_ukLH2YgR566n3tFhpwk",
+   "name": "A Love Story Winery & Bistro",
+   "category": "nightlife",
+   "metro": "miami-dade",
+   "primary_type": "wine_bar",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.alovestorywinery.com/about",
+     "source_name": "A Love Story Winery & Bistro \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The venue is comprised of several distinctive areas: entrance/porch, dining room, wine tasting room and cigar lounge, terrace, and gardens."
+     ]
+    },
+    {
+     "source": "https://alovestorywinery.com/",
+     "source_name": "A Love Story Winery & Bistro \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Weekend Brunch Buffet is offered Saturdays and Sundays from 11:00 a.m. to 4:00 p.m. with Live DJ & Saxophone or Violinist Entertainment."
+     ]
+    },
+    {
+     "source": "https://alovestorywinery.com/bistro/",
+     "source_name": "A Love Story Winery & Bistro \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The bistro offers Lunch, Dinner and Brunch with Chef Victor Mill\u00e1n at the helm."
+     ]
+    },
+    {
+     "source": "https://www.alovestorywinery.com/wine-club",
+     "source_name": "A Love Story Winery & Bistro \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Wine Club Members enjoy monthly wine tastings for two guests included in their ALSW Wine Club benefits."
+     ]
+    },
+    {
+     "source": "https://alovestorywinery.com/menu?item=seafood-paella-for-two-SeqK",
+     "source_name": "A Love Story Winery & Bistro \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Menu includes Seafood Paella."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Wine tasting room, cigar lounge, terrace and gardens in one Miami venue",
+    "why_here": "A Love Story Winery & Bistro in Miami combines a winery and bistro with several distinct spaces including a dining room, wine tasting room, terrace and gardens. The venue offers lunch, dinner and brunch with live music, including a weekend brunch buffet with live DJ and saxophone or violin entertainment.",
+    "know_before": "Weekend Brunch Buffet is offered Saturdays and Sundays from 11:00 a.m. to 4:00 p.m.",
+    "local_tip": "Choose the terrace for brunch or lunch with ros\u00e9, or the wine tasting room for a more intimate experience.",
+    "best_time": "Weekends from 11:00 a.m. to 4:00 p.m. for the Weekend Brunch Buffet with live entertainment.",
+    "citations": {
+     "hook": [
+      "https://www.alovestorywinery.com/about",
+      "https://alovestorywinery.com/",
+      "https://alovestorywinery.com/bistro/",
+      "https://www.alovestorywinery.com/wine-club",
+      "https://alovestorywinery.com/menu?item=seafood-paella-for-two-SeqK"
+     ],
+     "why_here": [
+      "https://www.alovestorywinery.com/about",
+      "https://alovestorywinery.com/",
+      "https://alovestorywinery.com/bistro/",
+      "https://www.alovestorywinery.com/wine-club",
+      "https://alovestorywinery.com/menu?item=seafood-paella-for-two-SeqK"
+     ],
+     "know_before": [
+      "https://www.alovestorywinery.com/about",
+      "https://alovestorywinery.com/",
+      "https://alovestorywinery.com/bistro/",
+      "https://www.alovestorywinery.com/wine-club",
+      "https://alovestorywinery.com/menu?item=seafood-paella-for-two-SeqK"
+     ],
+     "local_tip": [
+      "https://www.alovestorywinery.com/about",
+      "https://alovestorywinery.com/",
+      "https://alovestorywinery.com/bistro/",
+      "https://www.alovestorywinery.com/wine-club",
+      "https://alovestorywinery.com/menu?item=seafood-paella-for-two-SeqK"
+     ],
+     "best_time": [
+      "https://www.alovestorywinery.com/about",
+      "https://alovestorywinery.com/",
+      "https://alovestorywinery.com/bistro/",
+      "https://www.alovestorywinery.com/wine-club",
+      "https://alovestorywinery.com/menu?item=seafood-paella-for-two-SeqK"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The venue is comprised of several distinctive areas: entrance/porch, dining room, wine tasting room and cigar lounge, terrace, and gardens.",
+      "source": "https://www.alovestorywinery.com/about"
+     },
+     {
+      "claim": "Weekend Brunch Buffet is offered Saturdays and Sundays from 11:00 a.m. to 4:00 p.m. with Live DJ & Saxophone or Violinist Entertainment.",
+      "source": "https://alovestorywinery.com/"
+     },
+     {
+      "claim": "The bistro offers Lunch, Dinner and Brunch with Chef Victor Mill\u00e1n at the helm.",
+      "source": "https://alovestorywinery.com/bistro/"
+     },
+     {
+      "claim": "Wine Club Members enjoy monthly wine tastings for two guests included in their ALSW Wine Club benefits.",
+      "source": "https://www.alovestorywinery.com/wine-club"
+     },
+     {
+      "claim": "Menu includes Seafood Paella.",
+      "source": "https://alovestorywinery.com/menu?item=seafood-paella-for-two-SeqK"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJxfPiwwsxw4gRyzz6Mvlcnm0",
+   "name": "Bradenton Motorsports Park",
+   "category": "attractions",
+   "metro": "manatee-sarasota",
+   "primary_type": "race_course",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://racebmp.com/event/fixxfest/",
+     "source_name": "Bradenton Motorsports Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "After a 5-year hiatus, FixxFest returns for its 18th event at Bradenton Motorsports Park.",
+      "Bradenton Motorsports Park hosted 15 previous FixxFest events.",
+      "FixxFest is expected to unite over 2,500 European vehicles and more than 4,000 enthusiasts, including VW, Audi, BMW, Porsche, MINI and Mercedes.",
+      "FixxFest drag racing takes place at a 1/4-mile drag strip at Bradenton Motorsports Park.",
+      "FixxFest is hosted and presented by UroTuning.com in Florida.",
+      "FixxFest includes a car show grouped into classes at Bradenton Motorsports Park."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "FixxFest returns for its 18th event at Bradenton Motorsports Park",
+    "why_here": "FixxFest returns to Bradenton Motorsports Park after a 5-year hiatus for its 18th event, bringing European vehicles and enthusiasts together for show cars and drag racing.",
+    "know_before": "Drag racing at FixxFest takes place at a 1/4-mile drag strip at Bradenton Motorsports Park.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://racebmp.com/event/fixxfest/"
+     ],
+     "why_here": [
+      "https://racebmp.com/event/fixxfest/"
+     ],
+     "know_before": [
+      "https://racebmp.com/event/fixxfest/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "After a 5-year hiatus, FixxFest returns for its 18th event at Bradenton Motorsports Park.",
+      "source": "https://racebmp.com/event/fixxfest/"
+     },
+     {
+      "claim": "Bradenton Motorsports Park hosted 15 previous FixxFest events.",
+      "source": "https://racebmp.com/event/fixxfest/"
+     },
+     {
+      "claim": "FixxFest is expected to unite over 2,500 European vehicles and more than 4,000 enthusiasts, including VW, Audi, BMW, Porsche, MINI and Mercedes.",
+      "source": "https://racebmp.com/event/fixxfest/"
+     },
+     {
+      "claim": "FixxFest drag racing takes place at a 1/4-mile drag strip at Bradenton Motorsports Park.",
+      "source": "https://racebmp.com/event/fixxfest/"
+     },
+     {
+      "claim": "FixxFest is hosted and presented by UroTuning.com in Florida.",
+      "source": "https://racebmp.com/event/fixxfest/"
+     },
+     {
+      "claim": "FixxFest includes a car show grouped into classes at Bradenton Motorsports Park.",
+      "source": "https://racebmp.com/event/fixxfest/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ7WfMqpir2YgRlt5AoaSX0BM",
+   "name": "GoBistro",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "ramen_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://eatgobistro.com/story",
+     "source_name": "GoBistro \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "GoBistro describes itself as Original Japanese Street Food Since 2013.",
+      "Since 2013, GoBistro in Downtown Hollywood has been serving Japanese noodles.",
+      "GoBistro is open until 1 a.m. daily in Downtown Hollywood."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Japanese noodles in Downtown Hollywood since 2013",
+    "why_here": "GoBistro has served Japanese noodles in Downtown Hollywood since 2013, presenting itself as Original Japanese Street Food Since 2013 for casual meals and late evening dining downtown.",
+    "know_before": "GoBistro in Downtown Hollywood is open until 1 a.m. daily, per the official site.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://eatgobistro.com/story"
+     ],
+     "why_here": [
+      "https://eatgobistro.com/story"
+     ],
+     "know_before": [
+      "https://eatgobistro.com/story"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "GoBistro describes itself as Original Japanese Street Food Since 2013.",
+      "source": "https://eatgobistro.com/story"
+     },
+     {
+      "claim": "Since 2013, GoBistro in Downtown Hollywood has been serving Japanese noodles.",
+      "source": "https://eatgobistro.com/story"
+     },
+     {
+      "claim": "GoBistro is open until 1 a.m. daily in Downtown Hollywood.",
+      "source": "https://eatgobistro.com/story"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJz1R50eOMk4gRrr_ADral61s",
+   "name": "Mike's Cafe and Oyster Bar",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "oyster_bar_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.mikescafeandoysterbar.com/",
+     "source_name": "Mike's Cafe and Oyster Bar \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "In 1986, Mike Thomas opened Mikes Diner near Panama City Beach.",
+      "In 2011, Mike Thomas entered the oyster business in Panama City Beach.",
+      "Mikes Seafood and Oyster Bar serves Fresh Oysters Raw, Steamed or Baked in Panama City Beach.",
+      "Mikes Seafood and Oyster Bar is at 17554 Front Beach Rd, Panama City Beach, FL 32413.",
+      "Mikes Seafood and Oyster Bar opens at 3 p.m. in Panama City Beach."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Fresh Oysters Raw, Steamed or Baked in Panama City Beach",
+    "why_here": "Mikes Seafood and Oyster Bar serves Fresh Oysters Raw, Steamed or Baked in Panama City Beach, growing from Mikes Diner in 1986 and the oyster business in 2011 into a seafood stop.",
+    "know_before": "Mikes Seafood and Oyster Bar is at 17554 Front Beach Rd, Panama City Beach, FL 32413 and opens at 3 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.mikescafeandoysterbar.com/"
+     ],
+     "why_here": [
+      "https://www.mikescafeandoysterbar.com/"
+     ],
+     "know_before": [
+      "https://www.mikescafeandoysterbar.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "In 1986, Mike Thomas opened Mikes Diner near Panama City Beach.",
+      "source": "https://www.mikescafeandoysterbar.com/"
+     },
+     {
+      "claim": "In 2011, Mike Thomas entered the oyster business in Panama City Beach.",
+      "source": "https://www.mikescafeandoysterbar.com/"
+     },
+     {
+      "claim": "Mikes Seafood and Oyster Bar serves Fresh Oysters Raw, Steamed or Baked in Panama City Beach.",
+      "source": "https://www.mikescafeandoysterbar.com/"
+     },
+     {
+      "claim": "Mikes Seafood and Oyster Bar is at 17554 Front Beach Rd, Panama City Beach, FL 32413.",
+      "source": "https://www.mikescafeandoysterbar.com/"
+     },
+     {
+      "claim": "Mikes Seafood and Oyster Bar opens at 3 p.m. in Panama City Beach.",
+      "source": "https://www.mikescafeandoysterbar.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJCWiRRDul2YgRp8lDkBc6a_o",
+   "name": "El Pimiento Restaurant",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "spanish_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://elpimientorestaurant.com/",
+     "source_name": "El Pimiento Restaurant \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "El Pimiento Restaurant is at 16403 NW 67th Ave, Miami Lakes, FL 33014.",
+      "El Pimiento Restaurant serves Paella Valenciana with shrimps, fish, squids and scallops in Miami Lakes.",
+      "El Pimiento Restaurant serves Tabla Pimiento with Spanish Cantimpalo sausage, Serrano ham and Manchego cheese.",
+      "El Pimiento Restaurant serves Paella Campesina with pork, chicken and Spanish sausage in Miami Lakes."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Paella Valenciana with shrimps, fish, squids and scallops",
+    "why_here": "El Pimiento Restaurant in Miami Lakes serves Paella Valenciana with shrimps, fish, squids and scallops, plus Tabla Pimiento with Spanish Cantimpalo sausage, Serrano ham and Manchego cheese.",
+    "know_before": "El Pimiento Restaurant is at 16403 NW 67th Ave, Miami Lakes, FL 33014, per the official menu.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://elpimientorestaurant.com/"
+     ],
+     "why_here": [
+      "https://elpimientorestaurant.com/"
+     ],
+     "know_before": [
+      "https://elpimientorestaurant.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "El Pimiento Restaurant is at 16403 NW 67th Ave, Miami Lakes, FL 33014.",
+      "source": "https://elpimientorestaurant.com/"
+     },
+     {
+      "claim": "El Pimiento Restaurant serves Paella Valenciana with shrimps, fish, squids and scallops in Miami Lakes.",
+      "source": "https://elpimientorestaurant.com/"
+     },
+     {
+      "claim": "El Pimiento Restaurant serves Tabla Pimiento with Spanish Cantimpalo sausage, Serrano ham and Manchego cheese.",
+      "source": "https://elpimientorestaurant.com/"
+     },
+     {
+      "claim": "El Pimiento Restaurant serves Paella Campesina with pork, chicken and Spanish sausage in Miami Lakes.",
+      "source": "https://elpimientorestaurant.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJte6Lwzm92YgRFQfuPQRYyJU",
+   "name": "Talkin' Tacos Doral",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "taco_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://talkintacos.net/places/university-park",
+     "source_name": "Talkin' Tacos Doral \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Talkin' Tacos lists a Doral location at 7586 NW 104th Ave, Doral, FL 33178.",
+      "Talkin' Tacos serves Birria Tacos, Mahi Mahi Tacos and Bang Bang Shrimp Tacos in Doral.",
+      "Talkin' Tacos offers pickup and delivery to University Park from Doral.",
+      "Talkin' Tacos serves a Party Platter in Doral."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Birria Tacos, Mahi Mahi Tacos and Bang Bang Shrimp Tacos in Doral",
+    "why_here": "Talkin' Tacos in Doral serves Birria Tacos, Mahi Mahi Tacos and Bang Bang Shrimp Tacos, with a Party Platter and pickup and delivery to University Park for group orders.",
+    "know_before": "Talkin' Tacos in Doral is at 7586 NW 104th Ave, Doral, FL 33178, per the official site.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://talkintacos.net/places/university-park"
+     ],
+     "why_here": [
+      "https://talkintacos.net/places/university-park"
+     ],
+     "know_before": [
+      "https://talkintacos.net/places/university-park"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Talkin' Tacos lists a Doral location at 7586 NW 104th Ave, Doral, FL 33178.",
+      "source": "https://talkintacos.net/places/university-park"
+     },
+     {
+      "claim": "Talkin' Tacos serves Birria Tacos, Mahi Mahi Tacos and Bang Bang Shrimp Tacos in Doral.",
+      "source": "https://talkintacos.net/places/university-park"
+     },
+     {
+      "claim": "Talkin' Tacos offers pickup and delivery to University Park from Doral.",
+      "source": "https://talkintacos.net/places/university-park"
+     },
+     {
+      "claim": "Talkin' Tacos serves a Party Platter in Doral.",
+      "source": "https://talkintacos.net/places/university-park"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJCQE22vdG6IgRzmeoZSu-Tfg",
+   "name": "Fort Island Beach",
+   "category": "beach",
+   "metro": "florida",
+   "primary_type": "beach",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.discovercrystalriverfl.com/directory/fort-island-gulf-beach/",
+     "source_name": "Fort Island Beach \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Fort Island Gulf Beach is a family friendly beach with white powdery sand, restrooms, showers and ample parking in Crystal River.",
+      "Fort Island Gulf Beach has reopened after hurricane damage in Crystal River.",
+      "Fort Island Gulf Beach has temporary restrooms on site and lifeguards are not currently on duty in Crystal River."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "White powdery sand beach with restrooms and showers in Crystal River",
+    "why_here": "Fort Island Gulf Beach in Crystal River offers white powdery sand with restrooms, showers and ample parking, giving visitors a simple beach stop with basic facilities for a day outdoors.",
+    "know_before": "Fort Island Gulf Beach has reopened after hurricane damage, with temporary restrooms on site in Crystal River.",
+    "local_tip": "Lifeguards are not currently on duty at Fort Island Gulf Beach, per the official listing.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.discovercrystalriverfl.com/directory/fort-island-gulf-beach/"
+     ],
+     "why_here": [
+      "https://www.discovercrystalriverfl.com/directory/fort-island-gulf-beach/"
+     ],
+     "know_before": [
+      "https://www.discovercrystalriverfl.com/directory/fort-island-gulf-beach/"
+     ],
+     "local_tip": [
+      "https://www.discovercrystalriverfl.com/directory/fort-island-gulf-beach/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Fort Island Gulf Beach is a family friendly beach with white powdery sand, restrooms, showers and ample parking in Crystal River.",
+      "source": "https://www.discovercrystalriverfl.com/directory/fort-island-gulf-beach/"
+     },
+     {
+      "claim": "Fort Island Gulf Beach has reopened after hurricane damage in Crystal River.",
+      "source": "https://www.discovercrystalriverfl.com/directory/fort-island-gulf-beach/"
+     },
+     {
+      "claim": "Fort Island Gulf Beach has temporary restrooms on site and lifeguards are not currently on duty in Crystal River.",
+      "source": "https://www.discovercrystalriverfl.com/directory/fort-island-gulf-beach/"
+     }
+    ]
+   }
+  }
+ ]
+}

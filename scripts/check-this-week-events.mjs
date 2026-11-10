@@ -181,7 +181,38 @@ ok(/<a key=\{e\.slug\} href=\{e\.href\}/.test(comp), "component renders each car
 ok(/This week in Florida/.test(comp) && /Dated events with verified pages/.test(comp) && /href="\/florida-events"[^>]*>See all events</.test(comp), "heading, subline and See all events link present");
 ok(/cards\.length < 2\) return null/.test(comp), "component renders nothing under 2 events");
 ok(/await thisWeekEventsForHome\(siteTodayStr\(\)\)/.test(page) && /<Home [^>]*thisWeekEvents=\{thisWeekEvents\}/.test(page), "page.js fetches with siteTodayStr() and passes thisWeekEvents to Home");
-ok(/<ThisWeekEvents events=\{thisWeekEvents\} \/>/.test(home) && /<PageInner [^>]*thisWeekEvents=\{thisWeekEvents\}/.test(home), "home.js threads the prop to a rendered <ThisWeekEvents>");
+ok(/<ThisWeekEvents events=\{thisWeekEvents\} guide=\{thisWeekGuide\} \/>/.test(home) && /<PageInner [^>]*thisWeekEvents=\{thisWeekEvents\}/.test(home), "home.js threads the prop to a rendered <ThisWeekEvents>");
+// Weekly trend guide leads the strip (owner, 2026-11-04).
+{
+  const { weeklyTrendGuideCard } = await import("../lib/thisWeekEvents.js");
+  const img = { src: "/guides/x.webp", credit: "Ken Lund", source: "https://commons.wikimedia.org/x" };
+  const g = weeklyTrendGuideCard([
+    { slug: "trending-in-florida-this-week-oct-19-2026", title: "Old", updated: "2026-10-20", image: img },
+    { slug: "trending-in-florida-this-week-nov-2-2026", title: "Trending in Florida This Week", updated: "2026-11-04", mins: 7, image: img },
+    { slug: "tampa-restaurants", title: "Tampa", updated: "2026-12-01", image: img },
+  ]);
+  ok(g && g.href === "/guides/trending-in-florida-this-week-nov-2-2026" && g.credit === "Ken Lund", "weekly guide card picks the newest trending week guide and keeps its photo credit");
+  ok(!/[‒-―]| - /.test(g.name + g.when + g.city), "weekly guide card copy carries no dashes");
+  ok(weeklyTrendGuideCard([{ slug: "trending-in-florida-this-week-nov-2-2026", title: "T", updated: "2026-11-04", image: null }]) === null, "no hero photo means no guide card");
+  ok(/thisWeekGuide=\{thisWeekGuide\}/.test(page) && /weeklyTrendGuideCard\(guideDiscoveryIndex\(currentGuides\(GUIDES\)\)\)/.test(page), "page.js builds the weekly guide card on the server from current guides");
+}
+// Christmas hub card rides the same strip while the Christmas poster is in season.
+{
+  const { existsSync } = await import("node:fs");
+  const { christmasHubStripCard, CHRISTMAS_HUB_HREF, CHRISTMAS_HUB_PHOTO_KEY, CHRISTMAS_HUB_ACCENT } = await import("../lib/christmasHubCard.js");
+  const { EDITORIAL_CONTEXT_PHOTOS } = await import("../lib/editorialContextPhotos.js");
+  const record = EDITORIAL_CONTEXT_PHOTOS.find((asset) => asset.key === CHRISTMAS_HUB_PHOTO_KEY);
+  const live = christmasHubStripCard("2026-11-09");
+  const copy = live ? live.name + " " + live.when + " " + live.city : "";
+  ok(!!record && record.src && record.credit && record.topics.includes("holiday-lights") && record.locationRestriction === "Sarasota", "the Christmas hub photo key is a reviewed Florida holiday lights record");
+  ok(!!live && live.href === CHRISTMAS_HUB_HREF && live.slug === "christmas-in-florida" && live.hub === true, "on Nov 9 the strip card opens /christmas-in-florida");
+  ok(!!live && live.image === record.src && live.credit === record.credit && live.creditHref === record.creditHref && existsSync(new URL("../public" + record.src, import.meta.url)), "the card uses that record's file, credit and source, and the file is in public/");
+  ok(!!live && live.accent === CHRISTMAS_HUB_ACCENT && CHRISTMAS_HUB_ACCENT === "#F97316", "the card accent is the site orange");
+  ok(!!live && !/[‒–—―]| - /.test(copy) && !/\bbest\b/i.test(copy) && !/real time|right now/i.test(copy) && !/purple/i.test(copy), "hub card copy has no dash, no best, no real time, no right now");
+  ok(christmasHubStripCard("2026-10-13") && christmasHubStripCard("2026-01-01") && christmasHubStripCard("2026-10-12") === null && christmasHubStripCard("2026-01-02") === null && christmasHubStripCard("2026-07-01") === null && christmasHubStripCard("tomorrow") === null, "the card is on only for the Christmas poster window, and a bad date returns null");
+  ok(/christmasHubStripCard\(siteTodayStr\(\)\)/.test(page) && /christmasHubCard && thisWeekRows\.length >= 2 \? \[christmasHubCard, \.\.\.thisWeekRows\]/.test(page), "page.js prepends the hub card only when the dated strip already has events");
+  ok(/e\.accent \|\| "#FF8A3D"/.test(comp) && /data-hub=\{e\.hub \? e\.slug : undefined\}/.test(comp) && /fontFamily: "var\(--wf-sans\)"/.test(comp), "the strip paints the hub accent on the existing card and keeps the site face");
+}
 const server = strip(readFileSync(new URL("../lib/thisWeekEventsServer.js", import.meta.url), "utf8"));
 ok(/fetchCuratedEvents\(\{[^}]*upcomingFrom: today/.test(server), "the server read passes upcomingFrom: today (Eastern) to fetchCuratedEvents");
 ok(/thisWeekEventCards\(await cachedUpcoming\(today\), today, \{ now: new Date\(\) \}\)/.test(server), "the server passes a real clock so a final-day end time is honoured");

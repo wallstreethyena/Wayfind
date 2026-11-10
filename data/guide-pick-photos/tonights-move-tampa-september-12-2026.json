@@ -121,26 +121,6 @@
       "sameAsCardPhoto": false,
       "reviewedAt": "2026-10-07"
     },
-    "MORFLOW FEST": {
-      "src": "/guides/picks/tonights-move-tampa-september-12-2026/morflow-fest.webp",
-      "width": 1024,
-      "height": 683,
-      "alt": "Downtown Clearwater buildings beside the Memorial Causeway bridge on the water under a full moon",
-      "caption": "Downtown Clearwater and the Memorial Causeway bridge from across the water at moonrise. BayCare Sound sits on the downtown waterfront; the venue itself is not shown.",
-      "credit": "Ben Garcia",
-      "creditHref": "https://www.flickr.com/photos/23383542@N06/8430858471",
-      "license": "CC BY 2.0",
-      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
-      "sourceUrl": "https://www.flickr.com/photos/23383542@N06/8430858471",
-      "author": "Ben Garcia",
-      "position": "50% 50%",
-      "modificationNotice": "Resized, cropped for display and converted to WebP.",
-      "sourceKind": "flickr",
-      "placeId": null,
-      "verification": "Flickr title 'Clearwater Florida memorial bridge full moonrise', tag clearwaterfl; shows the downtown Clearwater waterfront. No licensed photo of BayCare Sound exists, so this is the nearest real feature; caption says so. Live Flickr licence checked: CC BY 2.0.",
-      "sameAsCardPhoto": false,
-      "reviewedAt": "2026-10-07"
-    },
     "Not tonight": {
       "src": "/guides/picks/tonights-move-tampa-september-12-2026/not-tonight.webp",
       "width": 1024,
@@ -160,6 +140,26 @@
       "verification": "Flickr title 'Tampa - Ballast Point Park - Downtown Tampa Skyline Across Hillsborough Bay'; shows Tampa skyline. Illustrative for a wrap-up pick that lists no single place. Live Flickr licence checked: CC BY 2.0.",
       "sameAsCardPhoto": false,
       "reviewedAt": "2026-10-07"
+    },
+    "MORFLOW FEST": {
+      "src": "/guides/picks/tonights-move-tampa-september-12-2026/clearwater-memorial-causeway-moonrise.jpg",
+      "width": 1280,
+      "height": 853,
+      "alt": "Downtown Clearwater buildings beside the Memorial Causeway bridge on the water under a full moon",
+      "caption": "Downtown Clearwater and the Memorial Causeway bridge from across the water at moonrise. BayCare Sound sits on the downtown waterfront; the venue itself is not shown.",
+      "credit": "Ben Garcia",
+      "creditHref": "https://www.flickr.com/photos/23383542@N06/8430858471",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "sourceUrl": "https://www.flickr.com/photos/23383542@N06/8430858471",
+      "author": "Ben Garcia",
+      "position": "50% 50%",
+      "modificationNotice": "Cropped to remove the photographer's credit text from the lower corner, resized to 1280x853 and converted to JPEG.",
+      "sourceKind": "flickr",
+      "verification": "Flickr title 'Clearwater Florida memorial bridge full moonrise', tag clearwaterfl; shows the downtown Clearwater waterfront. No licensed photo of BayCare Sound exists, so this is the nearest real feature; caption says so. Live Flickr licence checked: CC BY 2.0. Image intent pass 2026-11-09: re cropped from the 2048px Flickr original to remove the burned in \"Photographed by Benjamin Garcia\" text; the photographer stays credited here.",
+      "placeId": null,
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-11-09"
     }
   },
   "gaps": {}
