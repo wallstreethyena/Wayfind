@@ -1,0 +1,19 @@
+{
+ "source": "US Census geocoder onelineaddress + coordinates, Public_AR_Current/Current_Current (public domain); owned listing address from wf_events",
+ "queried": "2026-11-05",
+ "rows": [
+  {
+   "place_id": "ChIJidr4f1HEwogRxDn8aulMSl4",
+   "name": "The Orpheum",
+   "stored_locality": "University",
+   "point": {"lat": 28.0832711, "lng": -82.451646, "census_place": "University (CDP)", "county": "Hillsborough"},
+   "evidence_event": "hw26-emo-night-brooklyn-halloween-edition-tampa-2026",
+   "listing_address": "14802 N. Nebraska Avenue, Tampa, FL 33613",
+   "census_matched_address": "14802 N NEBRASKA AVE, TAMPA, FL, 33613",
+   "census_address_city": "TAMPA",
+   "census_address_point_place": "University (CDP)",
+   "postal_city": "Tampa"
+  }
+ ],
+ "coverage_note": "2026-11-05 survey: 3,359 non-excluded wf_inventory rows have a locality and no postal_city; 126 have an owned wf_events listing address; this is the only one whose listing city differs from its Census locality. The rest have no owned address evidence."
+}

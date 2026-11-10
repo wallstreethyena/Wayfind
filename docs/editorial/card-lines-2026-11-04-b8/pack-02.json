@@ -1,0 +1,911 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 8. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJw5hmHut154gRI1LE7BjQiEg",
+   "name": "Kelly Park - Rock Springs",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.orangecountyfl.net/DesktopModules/OCFL/CountyParks/OCPark.aspx?m=dtlvw&d=22",
+     "source_name": "Kelly Park - Rock Springs \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Kelly Park features a free-flowing natural spring at 68 degrees year round for tubing and swimming.",
+      "Kelly Park hours are 8 a.m. to 8 p.m. in summer and 8 a.m. to 6 p.m. in winter.",
+      "Park admission is $5 per vehicle and $10 per bus.",
+      "Kelly Park is at 400 E Kelly Park RD, Apopka, FL 32712.",
+      "Tube rentals are available from vendors outside Kelly Park; guests may bring floats under five feet in length or width.",
+      "Kelly Park has a full-service concession, picnic pavilions and a playground."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "A free-flowing natural spring at 68 degrees year round",
+    "why_here": "Kelly Park in Apopka is built around a free-flowing natural spring for tubing and swimming, with a full-service concession, picnic pavilions and a playground on site for visitors.",
+    "know_before": "Admission is $5 per vehicle and $10 per bus; hours are 8 a.m. to 8 p.m. in summer.",
+    "local_tip": "Tube rentals come from vendors outside Kelly Park; bring floats under five feet.",
+    "best_time": "Summer hours are 8 a.m. to 8 p.m.; winter hours are 8 a.m. to 6 p.m.",
+    "citations": {
+     "hook": [
+      "https://www.orangecountyfl.net/DesktopModules/OCFL/CountyParks/OCPark.aspx?m=dtlvw&d=22"
+     ],
+     "why_here": [
+      "https://www.orangecountyfl.net/DesktopModules/OCFL/CountyParks/OCPark.aspx?m=dtlvw&d=22"
+     ],
+     "know_before": [
+      "https://www.orangecountyfl.net/DesktopModules/OCFL/CountyParks/OCPark.aspx?m=dtlvw&d=22"
+     ],
+     "local_tip": [
+      "https://www.orangecountyfl.net/DesktopModules/OCFL/CountyParks/OCPark.aspx?m=dtlvw&d=22"
+     ],
+     "best_time": [
+      "https://www.orangecountyfl.net/DesktopModules/OCFL/CountyParks/OCPark.aspx?m=dtlvw&d=22"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Kelly Park features a free-flowing natural spring at 68 degrees year round for tubing and swimming.",
+      "source": "https://www.orangecountyfl.net/DesktopModules/OCFL/CountyParks/OCPark.aspx?m=dtlvw&d=22"
+     },
+     {
+      "claim": "Kelly Park hours are 8 a.m. to 8 p.m. in summer and 8 a.m. to 6 p.m. in winter.",
+      "source": "https://www.orangecountyfl.net/DesktopModules/OCFL/CountyParks/OCPark.aspx?m=dtlvw&d=22"
+     },
+     {
+      "claim": "Park admission is $5 per vehicle and $10 per bus.",
+      "source": "https://www.orangecountyfl.net/DesktopModules/OCFL/CountyParks/OCPark.aspx?m=dtlvw&d=22"
+     },
+     {
+      "claim": "Kelly Park is at 400 E Kelly Park RD, Apopka, FL 32712.",
+      "source": "https://www.orangecountyfl.net/DesktopModules/OCFL/CountyParks/OCPark.aspx?m=dtlvw&d=22"
+     },
+     {
+      "claim": "Tube rentals are available from vendors outside Kelly Park; guests may bring floats under five feet in length or width.",
+      "source": "https://www.orangecountyfl.net/DesktopModules/OCFL/CountyParks/OCPark.aspx?m=dtlvw&d=22"
+     },
+     {
+      "claim": "Kelly Park has a full-service concession, picnic pavilions and a playground.",
+      "source": "https://www.orangecountyfl.net/DesktopModules/OCFL/CountyParks/OCPark.aspx?m=dtlvw&d=22"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJk04qcKEdw4gRHykY4WhCYBI",
+   "name": "Get Up and Go Kayaking - Shell Key Preserve",
+   "category": "attractions",
+   "metro": "st-pete",
+   "primary_type": "tour_agency",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://getupandgokayaking.com/locations/tampa-bay/clear-kayak-tours-at-shell-key-preserve-family-friendly-eco-adventures/",
+     "source_name": "Get Up and Go Kayaking - Shell Key Preserve \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Get Up and Go Kayaking offers clear kayak tours at Shell Key Preserve using completely transparent kayaks.",
+      "Daytime tours last 2 to 2.5 hours and nighttime tours last 1.5 to 2 hours.",
+      "The tour meets at 1 Collany Rd, Tierra Verde, FL 33715.",
+      "Shell Key Preserve is near St. Pete Beach, Florida.",
+      "Manatees are typically only seen during the summer months.",
+      "Tours paddle through mangrove tunnels and guides share wildlife and ecosystem information."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Clear kayaks and mangrove tunnels at Shell Key Preserve",
+    "why_here": "Get Up and Go Kayaking runs clear kayak tours at Shell Key Preserve near St. Pete Beach, using completely transparent kayaks. Guides share wildlife and ecosystem information while tours paddle through mangrove tunnels.",
+    "know_before": "Daytime tours last 2 to 2.5 hours; nighttime tours last 1.5 to 2 hours.",
+    "local_tip": "Manatees are typically only seen during the summer months.",
+    "best_time": "Manatees are typically only seen during the summer months, per the official page.",
+    "citations": {
+     "hook": [
+      "https://getupandgokayaking.com/locations/tampa-bay/clear-kayak-tours-at-shell-key-preserve-family-friendly-eco-adventures/"
+     ],
+     "why_here": [
+      "https://getupandgokayaking.com/locations/tampa-bay/clear-kayak-tours-at-shell-key-preserve-family-friendly-eco-adventures/"
+     ],
+     "know_before": [
+      "https://getupandgokayaking.com/locations/tampa-bay/clear-kayak-tours-at-shell-key-preserve-family-friendly-eco-adventures/"
+     ],
+     "local_tip": [
+      "https://getupandgokayaking.com/locations/tampa-bay/clear-kayak-tours-at-shell-key-preserve-family-friendly-eco-adventures/"
+     ],
+     "best_time": [
+      "https://getupandgokayaking.com/locations/tampa-bay/clear-kayak-tours-at-shell-key-preserve-family-friendly-eco-adventures/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Get Up and Go Kayaking offers clear kayak tours at Shell Key Preserve using completely transparent kayaks.",
+      "source": "https://getupandgokayaking.com/locations/tampa-bay/clear-kayak-tours-at-shell-key-preserve-family-friendly-eco-adventures/"
+     },
+     {
+      "claim": "Daytime tours last 2 to 2.5 hours and nighttime tours last 1.5 to 2 hours.",
+      "source": "https://getupandgokayaking.com/locations/tampa-bay/clear-kayak-tours-at-shell-key-preserve-family-friendly-eco-adventures/"
+     },
+     {
+      "claim": "The tour meets at 1 Collany Rd, Tierra Verde, FL 33715.",
+      "source": "https://getupandgokayaking.com/locations/tampa-bay/clear-kayak-tours-at-shell-key-preserve-family-friendly-eco-adventures/"
+     },
+     {
+      "claim": "Shell Key Preserve is near St. Pete Beach, Florida.",
+      "source": "https://getupandgokayaking.com/locations/tampa-bay/clear-kayak-tours-at-shell-key-preserve-family-friendly-eco-adventures/"
+     },
+     {
+      "claim": "Manatees are typically only seen during the summer months.",
+      "source": "https://getupandgokayaking.com/locations/tampa-bay/clear-kayak-tours-at-shell-key-preserve-family-friendly-eco-adventures/"
+     },
+     {
+      "claim": "Tours paddle through mangrove tunnels and guides share wildlife and ecosystem information.",
+      "source": "https://getupandgokayaking.com/locations/tampa-bay/clear-kayak-tours-at-shell-key-preserve-family-friendly-eco-adventures/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJR6eJtaKp2YgRqucXJq2oCE4",
+   "name": "Sirocco Mediterranean Restaurant & Lounge",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "mediterranean_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://siroccomediterranean.com/menu",
+     "source_name": "Sirocco Mediterranean Restaurant & Lounge \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Sirocco's menu includes hummus described as chickpea pate with sesame tahini paste and lemon juice."
+     ]
+    },
+    {
+     "source": "https://siroccomediterranean.com/pembroke-pines",
+     "source_name": "Sirocco Mediterranean Restaurant & Lounge \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Sirocco's Pembroke Pines location is at 521 SW 145th Terrace, Pembroke Pines, FL 33027."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Cold mezza including hummus with tahini and lemon at a Pembroke Pines lounge",
+    "why_here": "Sirocco is a Mediterranean restaurant and lounge in Pembroke Pines. Its official menu lists cold mezza such as hummus made with chickpea, sesame tahini paste and lemon juice.",
+    "know_before": "The official site lists the Pembroke Pines location at 521 SW 145th Terrace.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://siroccomediterranean.com/menu",
+      "https://siroccomediterranean.com/pembroke-pines"
+     ],
+     "why_here": [
+      "https://siroccomediterranean.com/menu",
+      "https://siroccomediterranean.com/pembroke-pines"
+     ],
+     "know_before": [
+      "https://siroccomediterranean.com/menu",
+      "https://siroccomediterranean.com/pembroke-pines"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Sirocco's menu includes hummus described as chickpea pate with sesame tahini paste and lemon juice.",
+      "source": "https://siroccomediterranean.com/menu"
+     },
+     {
+      "claim": "Sirocco's Pembroke Pines location is at 521 SW 145th Terrace, Pembroke Pines, FL 33027.",
+      "source": "https://siroccomediterranean.com/pembroke-pines"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJz276lxmMk4gR_eFmBSXSWoc",
+   "name": "Runaway Island",
+   "category": "food",
+   "metro": "panama-city-florida",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://runawayislandpcb.com/",
+     "source_name": "Runaway Island \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Runaway Island is a beachfront restaurant in Panama City Beach.",
+      "Runaway Island has 2 levels of inside dining space and an outdoor deck with a boardwalk to the white sandy beach.",
+      "Runaway Island serves local seafood specialties and offers live entertainment."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Local seafood specialties and live entertainment by the beach",
+    "why_here": "Runaway Island brings local seafood specialties and live entertainment to Panama City Beach, with 2 levels of inside dining space and an outdoor deck reaching toward the white sandy beach.",
+    "know_before": "The outdoor deck has a boardwalk to the white sandy beach.",
+    "local_tip": "Choose the outdoor deck for local seafood specialties and live entertainment.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://runawayislandpcb.com/"
+     ],
+     "why_here": [
+      "https://runawayislandpcb.com/"
+     ],
+     "know_before": [
+      "https://runawayislandpcb.com/"
+     ],
+     "local_tip": [
+      "https://runawayislandpcb.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Runaway Island is a beachfront restaurant in Panama City Beach.",
+      "source": "https://runawayislandpcb.com/"
+     },
+     {
+      "claim": "Runaway Island has 2 levels of inside dining space and an outdoor deck with a boardwalk to the white sandy beach.",
+      "source": "https://runawayislandpcb.com/"
+     },
+     {
+      "claim": "Runaway Island serves local seafood specialties and offers live entertainment.",
+      "source": "https://runawayislandpcb.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJDbjoIcV_54gRHKMDWYh2TQs",
+   "name": "Orca Encounter",
+   "category": "attractions",
+   "metro": "orlando",
+   "primary_type": "amusement_park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://seaworld.com/orlando/shows/orca-encounter/",
+     "source_name": "Orca Encounter \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Orca Encounter features killer whales in a presentation at SeaWorld Orlando.",
+      "The presentation covers the importance of play for orcas and their hunting techniques.",
+      "Reserved seating is available for Orca Encounter."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Killer whales demonstrate natural behaviors in a live presentation",
+    "why_here": "Orca Encounter is a killer whale presentation at SeaWorld Orlando. It covers orca play, hunting techniques, and SeaWorld's care for the whales in its care.",
+    "know_before": "Reserved seating is available for the presentation.",
+    "local_tip": "The presentation is outdoors and the page notes some splashes, so seats near the front may get wet.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://seaworld.com/orlando/shows/orca-encounter/"
+     ],
+     "why_here": [
+      "https://seaworld.com/orlando/shows/orca-encounter/"
+     ],
+     "know_before": [
+      "https://seaworld.com/orlando/shows/orca-encounter/"
+     ],
+     "local_tip": [
+      "https://seaworld.com/orlando/shows/orca-encounter/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Orca Encounter features killer whales in a presentation at SeaWorld Orlando.",
+      "source": "https://seaworld.com/orlando/shows/orca-encounter/"
+     },
+     {
+      "claim": "The presentation covers the importance of play for orcas and their hunting techniques.",
+      "source": "https://seaworld.com/orlando/shows/orca-encounter/"
+     },
+     {
+      "claim": "Reserved seating is available for Orca Encounter.",
+      "source": "https://seaworld.com/orlando/shows/orca-encounter/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJC0S1ZRq12YgRDGRO4jGoWEg",
+   "name": "The Birdcage Cafe",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://thebirdcagecafe.com/",
+     "source_name": "The Birdcage Cafe \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Birdcage Cafe is at 1250 Ocean Dr, Miami Beach, FL 33139.",
+      "The Birdcage Cafe is on Ocean Drive in Miami Beach.",
+      "The menu includes fresh seafood, American classics, and creative plates.",
+      "The Birdcage Cafe serves brunch, lunch, and cocktails at sunset.",
+      "Opening hours are Monday to Thursday 10 a.m. to 12 a.m. and Friday to Saturday 9 a.m. to 1 a.m.",
+      "The film The Birdcage was filmed at The Birdcage Cafe."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Fresh seafood and American classics on Ocean Drive",
+    "why_here": "The Birdcage Cafe serves brunch, lunch, and cocktails at sunset on Ocean Drive in Miami Beach, with fresh seafood, American classics, and creative plates on the menu for beachside dining.",
+    "know_before": "Opening hours are Monday to Thursday 10 a.m. to 12 a.m. and Friday to Saturday 9 a.m. to 1 a.m.",
+    "local_tip": "The film The Birdcage was filmed at The Birdcage Cafe.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://thebirdcagecafe.com/"
+     ],
+     "why_here": [
+      "https://thebirdcagecafe.com/"
+     ],
+     "know_before": [
+      "https://thebirdcagecafe.com/"
+     ],
+     "local_tip": [
+      "https://thebirdcagecafe.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Birdcage Cafe is at 1250 Ocean Dr, Miami Beach, FL 33139.",
+      "source": "https://thebirdcagecafe.com/"
+     },
+     {
+      "claim": "The Birdcage Cafe is on Ocean Drive in Miami Beach.",
+      "source": "https://thebirdcagecafe.com/"
+     },
+     {
+      "claim": "The menu includes fresh seafood, American classics, and creative plates.",
+      "source": "https://thebirdcagecafe.com/"
+     },
+     {
+      "claim": "The Birdcage Cafe serves brunch, lunch, and cocktails at sunset.",
+      "source": "https://thebirdcagecafe.com/"
+     },
+     {
+      "claim": "Opening hours are Monday to Thursday 10 a.m. to 12 a.m. and Friday to Saturday 9 a.m. to 1 a.m.",
+      "source": "https://thebirdcagecafe.com/"
+     },
+     {
+      "claim": "The film The Birdcage was filmed at The Birdcage Cafe.",
+      "source": "https://thebirdcagecafe.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ6T7ge_e12YgRCEcdROampJM",
+   "name": "Oh Mexico Taco Shop Ocean Drive",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "taco_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://ohmexicorestaurant.com/ocean-drive/",
+     "source_name": "Oh Mexico Taco Shop Ocean Drive \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Oh Mexico Taco Shop is a restaurant and tequileria in the heart of Ocean Drive.",
+      "Tacos are made with fresh tortillas, freshly prepared ingredients, and handmade salsas.",
+      "The menu includes handmade guacamole, tequilas, and mezcal.",
+      "The parent restaurant on Espanola Way has over 25 years of experience.",
+      "Reservations can be made by phone at (786) 883-0709."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Tacos on fresh tortillas with handmade salsas and guacamole",
+    "why_here": "Oh Mexico Taco Shop serves tacos made with fresh tortillas, freshly prepared ingredients, and handmade salsas on Ocean Drive, plus handmade guacamole and a drinks selection with tequilas and mezcal.",
+    "know_before": "Reservations can be made by phone at (786) 883-0709.",
+    "local_tip": "The parent restaurant on Espanola Way has over 25 years of experience.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://ohmexicorestaurant.com/ocean-drive/"
+     ],
+     "why_here": [
+      "https://ohmexicorestaurant.com/ocean-drive/"
+     ],
+     "know_before": [
+      "https://ohmexicorestaurant.com/ocean-drive/"
+     ],
+     "local_tip": [
+      "https://ohmexicorestaurant.com/ocean-drive/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Oh Mexico Taco Shop is a restaurant and tequileria in the heart of Ocean Drive.",
+      "source": "https://ohmexicorestaurant.com/ocean-drive/"
+     },
+     {
+      "claim": "Tacos are made with fresh tortillas, freshly prepared ingredients, and handmade salsas.",
+      "source": "https://ohmexicorestaurant.com/ocean-drive/"
+     },
+     {
+      "claim": "The menu includes handmade guacamole, tequilas, and mezcal.",
+      "source": "https://ohmexicorestaurant.com/ocean-drive/"
+     },
+     {
+      "claim": "The parent restaurant on Espanola Way has over 25 years of experience.",
+      "source": "https://ohmexicorestaurant.com/ocean-drive/"
+     },
+     {
+      "claim": "Reservations can be made by phone at (786) 883-0709.",
+      "source": "https://ohmexicorestaurant.com/ocean-drive/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJGXkG-_9-54gRTe55nq6hG3k",
+   "name": "Rosen Inn International",
+   "category": "hotels",
+   "metro": "orlando",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.roseninn7600.com/",
+     "source_name": "Rosen Inn International \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Rosen Inn International is on International Drive in Orlando.",
+      "Rosen Inn International is a Universal Partner Hotel and does not charge resort fees.",
+      "Rosen Inn International offers a free scheduled shuttle service to Universal Orlando Resort.",
+      "Gated self-parking is $10 per night per car with a maximum charge of five nights.",
+      "The Kids Eat Free program offers children 5 and under one buffet meal per child with each paying adult buffet meal."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Free shuttle to Universal Orlando Resort with no resort fees",
+    "why_here": "Rosen Inn International sits on International Drive in Orlando as a Universal Partner Hotel, with a free scheduled shuttle service to Universal Orlando Resort and no resort fees for guests staying nearby.",
+    "know_before": "Gated self-parking is $10 per night per car with a maximum charge of five nights.",
+    "local_tip": "Children 5 and under get one buffet meal per child with each paying adult buffet meal.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.roseninn7600.com/"
+     ],
+     "why_here": [
+      "https://www.roseninn7600.com/"
+     ],
+     "know_before": [
+      "https://www.roseninn7600.com/"
+     ],
+     "local_tip": [
+      "https://www.roseninn7600.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Rosen Inn International is on International Drive in Orlando.",
+      "source": "https://www.roseninn7600.com/"
+     },
+     {
+      "claim": "Rosen Inn International is a Universal Partner Hotel and does not charge resort fees.",
+      "source": "https://www.roseninn7600.com/"
+     },
+     {
+      "claim": "Rosen Inn International offers a free scheduled shuttle service to Universal Orlando Resort.",
+      "source": "https://www.roseninn7600.com/"
+     },
+     {
+      "claim": "Gated self-parking is $10 per night per car with a maximum charge of five nights.",
+      "source": "https://www.roseninn7600.com/"
+     },
+     {
+      "claim": "The Kids Eat Free program offers children 5 and under one buffet meal per child with each paying adult buffet meal.",
+      "source": "https://www.roseninn7600.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJo1U0IExDkYgRnB9W34ovyjo",
+   "name": "LuLu's Destin",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://lulusfunfoodmusic.com/",
+     "source_name": "LuLu's Destin \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "LuLu's Destin is located at 4607 Legendary Marina Drive, Destin, FL 32541.",
+      "Destin hours are Monday to Sunday 11 a.m. to 9 p.m.",
+      "LuLu's dishes come from recipes created by Lucy Buffett and are scratch-made."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Scratch-made coastal dishes from Lucy Buffett recipes in Destin",
+    "why_here": "LuLu's in Destin serves coastal cuisine from recipes created by Lucy Buffett. The site says its menu, dressings, sauces, and allergy menu are scratch-made.",
+    "know_before": "Destin hours are Monday to Sunday 11 a.m. to 9 p.m.",
+    "local_tip": "LuLu's lists an allergy menu alongside its main menu.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://lulusfunfoodmusic.com/"
+     ],
+     "why_here": [
+      "https://lulusfunfoodmusic.com/"
+     ],
+     "know_before": [
+      "https://lulusfunfoodmusic.com/"
+     ],
+     "local_tip": [
+      "https://lulusfunfoodmusic.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "LuLu's Destin is located at 4607 Legendary Marina Drive, Destin, FL 32541.",
+      "source": "https://lulusfunfoodmusic.com/"
+     },
+     {
+      "claim": "Destin hours are Monday to Sunday 11 a.m. to 9 p.m.",
+      "source": "https://lulusfunfoodmusic.com/"
+     },
+     {
+      "claim": "LuLu's dishes come from recipes created by Lucy Buffett and are scratch-made.",
+      "source": "https://lulusfunfoodmusic.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJaWJXyoi32YgReB2is9AFOks",
+   "name": "CRAFT Coral Gables",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://craftbar.us/",
+     "source_name": "CRAFT Coral Gables \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "CRAFT lists Coral Gables among its locations.",
+      "CRAFT offers a modern and casual atmosphere for breakfast, lunch meetings, and weekend brunch.",
+      "CRAFT lists main and breakfast and brunch menus."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Modern and casual breakfast, lunch, and weekend brunch",
+    "why_here": "CRAFT lists Coral Gables among its locations and offers a modern and casual atmosphere for breakfast, lunch meetings, and weekend brunch, with main and breakfast and brunch menus listed for guests.",
+    "know_before": "CRAFT lists main and breakfast and brunch menus.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://craftbar.us/"
+     ],
+     "why_here": [
+      "https://craftbar.us/"
+     ],
+     "know_before": [
+      "https://craftbar.us/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "CRAFT lists Coral Gables among its locations.",
+      "source": "https://craftbar.us/"
+     },
+     {
+      "claim": "CRAFT offers a modern and casual atmosphere for breakfast, lunch meetings, and weekend brunch.",
+      "source": "https://craftbar.us/"
+     },
+     {
+      "claim": "CRAFT lists main and breakfast and brunch menus.",
+      "source": "https://craftbar.us/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJhXt1WYBw3YgRILUkLGHDzPc",
+   "name": "Posner Park",
+   "category": "shopping",
+   "metro": "florida",
+   "primary_type": "shopping_mall",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://visitcentralflorida.org/featured/posner-park-shopping-mall/",
+     "source_name": "Posner Park \u2014 official source",
+     "source_class": "tourism_dmo",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Posner Park Shopping Center is a large, outdoor mall in Davenport at Hwy 27 and Interstate 4.",
+      "Anchor stores at Posner Park include HomeGoods, Marshalls, Target, and Best Buy.",
+      "Posner Park features Cinepolis Movie Theater IMAX, Starbucks, Chipotle, and Twistee Treat."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Large outdoor mall at Hwy 27 and Interstate 4 in Davenport",
+    "why_here": "Posner Park Shopping Center is a large, outdoor mall in Davenport at Hwy 27 and Interstate 4, with anchor stores including HomeGoods, Marshalls, Target, and Best Buy plus dining and entertainment nearby.",
+    "know_before": "Anchor stores at Posner Park include HomeGoods, Marshalls, Target, and Best Buy.",
+    "local_tip": "Posner Park features Cinepolis Movie Theater IMAX, Starbucks, Chipotle, and Twistee Treat.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://visitcentralflorida.org/featured/posner-park-shopping-mall/"
+     ],
+     "why_here": [
+      "https://visitcentralflorida.org/featured/posner-park-shopping-mall/"
+     ],
+     "know_before": [
+      "https://visitcentralflorida.org/featured/posner-park-shopping-mall/"
+     ],
+     "local_tip": [
+      "https://visitcentralflorida.org/featured/posner-park-shopping-mall/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Posner Park Shopping Center is a large, outdoor mall in Davenport at Hwy 27 and Interstate 4.",
+      "source": "https://visitcentralflorida.org/featured/posner-park-shopping-mall/"
+     },
+     {
+      "claim": "Anchor stores at Posner Park include HomeGoods, Marshalls, Target, and Best Buy.",
+      "source": "https://visitcentralflorida.org/featured/posner-park-shopping-mall/"
+     },
+     {
+      "claim": "Posner Park features Cinepolis Movie Theater IMAX, Starbucks, Chipotle, and Twistee Treat.",
+      "source": "https://visitcentralflorida.org/featured/posner-park-shopping-mall/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJcTuB5_G02YgRKP2-7hkxVq8",
+   "name": "Nikki Beach Miami Beach",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://nikkibeach.com/miami-beach/",
+     "source_name": "Nikki Beach Miami Beach \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Nikki Beach Miami Beach is at 1 Ocean Drive, Miami Beach, FL 33139.",
+      "Nikki Beach Miami Beach is in the South of Fifth neighborhood and has operated since 1998.",
+      "Nikki Beach Miami Beach blends music, dining, entertainment, fashion, film, and art.",
+      "Nikki Beach Miami Beach offers full-service beachfront dining on lounge chairs.",
+      "Menu favorites include Sushi Boat, fresh seafood, and healthy salads."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Full-service beachfront dining on lounge chairs since 1998",
+    "why_here": "Nikki Beach Miami Beach blends music, dining, entertainment, fashion, film, and art in the South of Fifth neighborhood, with full-service beachfront dining on lounge chairs and menu favorites including Sushi Boat and fresh seafood.",
+    "know_before": "Nikki Beach Miami Beach is at 1 Ocean Drive, Miami Beach, FL 33139.",
+    "local_tip": "Menu favorites include Sushi Boat, fresh seafood, and healthy salads.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://nikkibeach.com/miami-beach/"
+     ],
+     "why_here": [
+      "https://nikkibeach.com/miami-beach/"
+     ],
+     "know_before": [
+      "https://nikkibeach.com/miami-beach/"
+     ],
+     "local_tip": [
+      "https://nikkibeach.com/miami-beach/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Nikki Beach Miami Beach is at 1 Ocean Drive, Miami Beach, FL 33139.",
+      "source": "https://nikkibeach.com/miami-beach/"
+     },
+     {
+      "claim": "Nikki Beach Miami Beach is in the South of Fifth neighborhood and has operated since 1998.",
+      "source": "https://nikkibeach.com/miami-beach/"
+     },
+     {
+      "claim": "Nikki Beach Miami Beach blends music, dining, entertainment, fashion, film, and art.",
+      "source": "https://nikkibeach.com/miami-beach/"
+     },
+     {
+      "claim": "Nikki Beach Miami Beach offers full-service beachfront dining on lounge chairs.",
+      "source": "https://nikkibeach.com/miami-beach/"
+     },
+     {
+      "claim": "Menu favorites include Sushi Boat, fresh seafood, and healthy salads.",
+      "source": "https://nikkibeach.com/miami-beach/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJleFCpOE03YgR_W7zvLgzvVQ",
+   "name": "Dinosaur World",
+   "category": "attractions",
+   "metro": "spring-hill-fl",
+   "primary_type": "tourist_attraction",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://dinosaurworld.com/florida",
+     "source_name": "Dinosaur World \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Dinosaur World Florida covers 22 acres with hundreds of life-sized dinosaurs.",
+      "Dinosaur World is the only outdoor museum in Florida dedicated to dinosaurs.",
+      "Florida hours are open daily 10 a.m. to 5 p.m., closed Christmas Day.",
+      "Friendly dogs on leashes are welcome everywhere.",
+      "Dinosaur World Florida is located at 5145 Harvey Tew Road, Plant City, FL 33565."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "22-acre park with hundreds of life-sized dinosaurs in Plant City",
+    "why_here": "Dinosaur World in Plant City is an outdoor dinosaur museum with hundreds of life-sized dinosaurs in a natural setting. It lists interactive exhibits, a dino-themed playground, fossil dig, and gem mine attractions.",
+    "know_before": "Florida hours are open daily 10 a.m. to 5 p.m., closed Christmas Day.",
+    "local_tip": "Friendly dogs on leashes are welcome everywhere in the Florida park.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://dinosaurworld.com/florida"
+     ],
+     "why_here": [
+      "https://dinosaurworld.com/florida"
+     ],
+     "know_before": [
+      "https://dinosaurworld.com/florida"
+     ],
+     "local_tip": [
+      "https://dinosaurworld.com/florida"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Dinosaur World Florida covers 22 acres with hundreds of life-sized dinosaurs.",
+      "source": "https://dinosaurworld.com/florida"
+     },
+     {
+      "claim": "Dinosaur World is the only outdoor museum in Florida dedicated to dinosaurs.",
+      "source": "https://dinosaurworld.com/florida"
+     },
+     {
+      "claim": "Florida hours are open daily 10 a.m. to 5 p.m., closed Christmas Day.",
+      "source": "https://dinosaurworld.com/florida"
+     },
+     {
+      "claim": "Friendly dogs on leashes are welcome everywhere.",
+      "source": "https://dinosaurworld.com/florida"
+     },
+     {
+      "claim": "Dinosaur World Florida is located at 5145 Harvey Tew Road, Plant City, FL 33565.",
+      "source": "https://dinosaurworld.com/florida"
+     }
+    ]
+   }
+  }
+ ]
+}
