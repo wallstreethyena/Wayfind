@@ -37,12 +37,15 @@ const g = GUIDES[SLUG];
 ok(!!g, `${SLUG} is registered in GUIDES`);
 
 if (g) {
-  ok(g.eventTicket === "hhn-orlando-2026", "the Halloween food guide names HHN's own ticket");
-  const entry = EVENT_TICKET_DEALS[g.eventTicket];
+  ok(g.eventTicket === undefined && g.eventTicketPlace === undefined, "the Halloween food guide no longer sells HHN's ended ticket");
+  const entry = EVENT_TICKET_DEALS["hhn-orlando-2026"];
+  const archived = { ...g, eventTicket: "hhn-orlando-2026", eventTicketPlace: "Halloween Horror Nights" };
   ok(entry && entry.product === "event-ticket", "the named event resolves to an EVENT-TICKET row, never park admission");
-  ok(entry && UT_EVENT_DEAL_IDS[String(entry.deal)] === g.eventTicket, "the deal id is pinned to this exact event in lib/deals.js");
+  ok(entry && UT_EVENT_DEAL_IDS[String(entry.deal)] === "hhn-orlando-2026", "the deal id is pinned to this exact event in lib/deals.js");
+  const live = guidePrimaryCta(g, "2026-11-09");
+  ok(!live || !String(live.href || "").includes("offer=19"), "the published guide does not sell deal 19");
 
-  const cta = guidePrimaryCta(g, "2026-09-08");
+  const cta = guidePrimaryCta(archived, "2026-09-08");
   ok(cta && cta.kind === "deal", `primary CTA is kind deal (got ${cta && cta.kind})`);
   ok(cta && cta.monetized === true && cta.sponsored === true && cta.exact === true, "the CTA is monetized, sponsored and exact");
   ok(typeof cta.href === "string" && cta.href.startsWith("/api/commerce/go?"), `href goes through the commerce redirect (got ${cta && cta.href})`);
@@ -50,7 +53,7 @@ if (g) {
   ok(q.get("provider") === "undercover_tourist", "provider is undercover_tourist");
   ok(q.get("offer") === String(entry && entry.deal), `offer is deal ${entry && entry.deal} (got ${q.get("offer")})`);
   ok(q.get("surface") === "guide", "surface is guide (CJ sub-id)");
-  ok(q.get("content") === g.eventTicket, "content id is the event id");
+  ok(q.get("content") === "hhn-orlando-2026", "content id is the event id");
   ok(!/anrdoezrs|cj\.dotomi|undercovertourist\.com/i.test(cta.href), "no partner host in the href");
   ok(cta.label === "Halloween Horror Nights tickets", `button names the venue (got "${cta && cta.label}")`);
   ok(cta.label.length <= 44, "label fits the 390px button");

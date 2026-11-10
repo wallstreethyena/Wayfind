@@ -203,8 +203,19 @@ ok(!secondaryTicketPrimaryMatches({ ...reviewedTmPrimary, href: reviewedTmPrimar
     "Enchant official ticket checkout remains primary");
   ok(row.secondaryCta?.kind === "affiliate" && /^\/api\/commerce\/go\?/.test(row.secondaryCta.href)
     && new URL(row.secondaryCta.href, "https://www.gowayfind.com").searchParams.get("provider") === "ticketsmarter"
-    && new URL(row.secondaryCta.href, "https://www.gowayfind.com").searchParams.get("offer") === "enchant-stpete-ticketsmarter",
-    "Enchant secondary resale link earns through the approved CJ provider and offer");
+    && new URL(row.secondaryCta.href, "https://www.gowayfind.com").searchParams.get("offer") === "enchant-stpete-nov20-ticketsmarter",
+    "Enchant secondary resale link on Nov 20 earns through the dated TicketSmarter page");
+  const afterDated = christmasTicketsModel([enchant], "2026-11-23").rows[0];
+  ok(new URL(afterDated.secondaryCta.href, "https://www.gowayfind.com").searchParams.get("offer") === "enchant-stpete-nov25-ticketsmarter",
+    "after Nov 22, Enchant uses the next listed night, not the venue page");
+  const shown = christmasTicketsModel([{ ...enchant, start_date: "2026-12-06", end_date: "2026-12-06" }], "2026-11-20").rows[0];
+  ok(new URL(shown.secondaryCta.href, "https://www.gowayfind.com").searchParams.get("offer") === "enchant-stpete-dec6-ticketsmarter",
+    "a card that shows one date uses that night's ticket listing");
+  ok(secondaryEventTicketAction({ ...enchant, start_date: "2026-11-23", end_date: "2026-11-23" }, { today: "2026-11-20" }) === null,
+    "a shown date with no TicketSmarter listing gets no resale button");
+  ok(!String(row.secondaryCta.href).includes("enchant-stpete-ticketsmarter")
+    && !String(afterDated.secondaryCta.href).includes("venues"),
+    "Enchant resale never uses the Tropicana Field venue page");
   ok(/resale/i.test(row.secondaryCta.label + " " + row.secondaryCta.via) && /fees vary/i.test(row.secondaryCta.via)
     && /commission/i.test(row.secondaryCta.via), "resale, variable fees and earning disclosure are explicit");
   ok(secondaryEventTicketAction({ ...enchant, is_free: true }, { today: "2026-11-20" }) === null
@@ -252,10 +263,10 @@ ok(!secondaryTicketPrimaryMatches({ ...reviewedTmPrimary, href: reviewedTmPrimar
   for (const row of m.rows) {
     ok(row.cta.kind === "affiliate" && /^\/api\/[a-z0-9/_-]+\/go\?/i.test(row.cta.href), row.id + " partner link is our /api/*/go route");
     ok(!/https?:\/\/|anrdoezrs|cj\.com|jdoqocy|tkqlhce/i.test(row.cta.href), row.id + " href is not a partner URL");
-    ok(["Get Tickets", "Book Now & Save", "See availability ↗"].includes(row.cta.label), row.id + " label is one of the approved partner labels: " + row.cta.label);
+    ok(["Undercover Tourist", "TicketSmarter", "Ticketmaster", "Tiqets", "Klook", "TicketNetwork", "Viator", "See availability ↗"].includes(row.cta.label), row.id + " button names only the partner: " + row.cta.label);
+    ok(!/commission|we may earn|disclosure/i.test(row.cta.label), row.id + " button has no disclosure words");
     ok(/^(?:Admission|Event) tickets at \S/.test(row.cta.via) || row.cta.via === "Tour tickets at Viator", row.id + " carries the partner line: " + row.cta.via);
     eventTicketHrefs.set(row.id, row.cta.href);
-    ok(row.cta.label === (row.cta.product === "park-admission" ? "Book Now & Save" : "Get Tickets"), row.id + " label follows the registry product (" + row.cta.product + ")");
   }
   // Same bytes the registry hands every other surface (surface differs, the rest is the registry's).
   const { eventTicketHref } = await import("../lib/eventTicketDeals.js");
@@ -295,7 +306,7 @@ for (const today of ["2026-10-30", "2026-12-20", "2027-01-01"]) {
     ok(live, today + ": " + row.id + " is upcoming or ongoing");
     ok(/^\/api\/[a-z0-9/_-]+\/go\?/i.test(row.cta.href) || /^https:\/\/[^/\s]+\.[^/\s]+/.test(row.cta.href), row.id + " href is our /api/*/go or an https official page: " + row.cta.href);
     ok(row.cta.kind !== "organizer" || (new URL(row.cta.href).hostname === new URL(card.official_ticket_url).hostname && new URL(row.cta.href).pathname.replace(/\/$/, "") === new URL(card.official_ticket_url).pathname.replace(/\/$/, "")), row.id + " organizer link is the row's own official_ticket_url");
-    ok(["Get Tickets", "Official Tickets", "Book Now & Save", "See availability ↗"].includes(row.cta.label), row.id + " label approved");
+    ok(["Undercover Tourist", "TicketSmarter", "Ticketmaster", "Tiqets", "Klook", "TicketNetwork", "Viator", "Official Tickets", "See availability ↗"].includes(row.cta.label), row.id + " label approved");
     for (const [k, v] of Object.entries({ name: row.name, chip: row.chip, city: row.city, venue: row.venue, when: row.when, price: row.price.text, unit: row.price.unit || "", via: row.cta.via, label: row.cta.label })) {
       ok(typeof v === "string" && !DASH.test(v), row.id + " " + k + " is dash free: " + v);
     }
@@ -579,8 +590,8 @@ ok(html.includes("data-christmas-filter") && html.includes(">Tickets<") && html.
   const resaleHref = enchantCard.ticketRow.secondaryCta.href.replace(/&/g, "&amp;");
   ok(resale.includes('href="' + resaleHref + '"') && resale.includes('rel="sponsored nofollow noopener"')
     && resale.includes('target="_blank"'), "Enchant renders the exact attributed resale link with sponsored external-link semantics");
-  ok(text(resale).includes("Browse resale tickets at TicketSmarter") && text(resale).includes("Dates, prices and fees vary.")
-    && text(resale).includes("We may earn a commission."), "Enchant's rendered resale choice discloses marketplace, variable fees and commission");
+  ok(text(resale).includes("Check Nov 20 resale tickets at TicketSmarter") && text(resale).includes("this performance only")
+    && text(resale).includes("We may earn a commission."), "Enchant's rendered resale choice on Nov 20 is the dated page and still discloses commission");
   ok(enchantHtml.includes('href="' + enchant.official_ticket_url + '"') && enchantHtml.indexOf("Official Tickets") >= 0
     && enchantHtml.indexOf("Official Tickets") < enchantHtml.indexOf("data-secondary-resale"), "Enchant's real official checkout renders before the secondary resale choice");
   ok(enchantHtml.includes('href="' + enchant.detailHref + '"'), "Enchant keeps its event detail link alongside the resale choice");
