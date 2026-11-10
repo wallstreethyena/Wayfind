@@ -174,6 +174,8 @@ const deal = eventTicketDeal("hhn-orlando-2026");
 ok(deal && deal.deal === 19, "eventTicketDeal resolves HHN to deal 19");
 ok(eventTicketDeal("wfc:hhn-orlando-2026")?.deal === 19, "the feed's wfc: prefix resolves to the same deal");
 ok(eventTicketDeal("screamageddon-2026") === null, "an event nobody sells returns null, never a search page");
+ok(SEPARATELY_TICKETED.includes("christmas-at-gaylord-palms-2026") && eventTicketDeal("christmas-at-gaylord-palms-2026") === null && eventTicketCta("christmas-at-gaylord-palms-2026") === null,
+  "ICE at Gaylord Palms stays on the organizer ticket; no partner product is mapped");
 const href = eventTicketHref("hhn-orlando-2026", { surface: "fall_intent_rail" });
 ok(href === "/api/commerce/go?provider=undercover_tourist&offer=19&surface=fall_intent_rail&content=hhn-orlando-2026", `the href is the commerce redirect for THAT deal (${href})`);
 ok(isCommerceGoUrl(href), "and the pipeline recognises it as a commerce-go URL");
