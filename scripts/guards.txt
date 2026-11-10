@@ -276,6 +276,7 @@ node scripts/test-landing-tours.mjs
 node scripts/test-home-bookable.mjs
 node scripts/test-ranking-editorial.mjs
 node scripts/test-coverage-waitlist.mjs
+node scripts/test-coverage-gap-feed.mjs
 node scripts/test-deal-rails.mjs
 node scripts/test-deals-geo.mjs
 node scripts/test-coupon-geo.mjs
@@ -1668,6 +1669,7 @@ node scripts/test-auth-admin-tombstones.mjs
 # finite ledger. This executes the photo, Nearby, geocoding, and gate-default
 # boundaries with fetch traps and positive controls.
 node scripts/test-spend-bypass-regression.mjs
+node scripts/test-geocode-owned-fallback.mjs
 
 # 2026-09-09 photo-only paid allowance: WAYFIND_PHOTOS_PAID + GOOGLE_PHOTOS_MONTH_CAP
 # may raise the `photos` ledger ceiling ONLY; every other Google SKU asks the
