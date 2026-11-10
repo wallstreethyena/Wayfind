@@ -35,11 +35,16 @@ jobs:
   guards:
     name: guards
     runs-on: ubuntu-latest
-    # 2026-11-05: 96 runs since 11-03 had p50 15.5 min and p90 17.9 min against
-    # the old 20-minute ceiling; PR #2253 was cancelled at 20m15s with the suite
-    # at guard 1014/1049 (no single guard hung). 30 restores headroom without
-    # skipping or weakening any guard; a real hang still fails at 30.
-    timeout-minutes: 30
+    # 20 cancelled green work. Measured: 96 runs from Nov 3 had p50 15.5 min and
+    # p90 17.9 min; #2253 died at 20m15s on guard 1014/1049; #2213 died at 20m17s;
+    # a Nov 10 main run (42806411865) finished in 15 min; #2160 recorded checkouts
+    # of 4 to 11 min on top of a ~12 min suite and a ~2 min build. #2335
+    # (run 42761703644) was cancelled with "exceeded the maximum execution time
+    # of 20m0s" while still in "Install Chromium", which is the apt crawl below,
+    # not a red guard. 35 covers a slow checkout plus a cache-miss browser
+    # install plus a finished suite. Nothing is skipped. A real hang still ends
+    # the job.
+    timeout-minutes: 35
     steps:
       - uses: actions/checkout@v4
         with:
