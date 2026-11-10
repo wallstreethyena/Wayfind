@@ -4,7 +4,7 @@
 // only a local ledger grant.
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
-import { providerMonthlyCap, providerSpendAllow, providerSpendDecision } from "../lib/providerSpend.js";
+import { VIATOR_MONTH_CAP_FALLBACK, providerMonthlyCap, providerSpendAllow, providerSpendDecision } from "../lib/providerSpend.js";
 
 const CHILD = "--provider-spend-hermetic";
 if (process.argv[2] !== CHILD) {
@@ -31,11 +31,20 @@ async function withEnv(values, run) {
   }
 }
 
-for (const raw of [undefined, "", "0", "-1", "1.5", "9007199254740992", "abc"]) {
+ok(VIATOR_MONTH_CAP_FALLBACK === 10000, "the Viator code fallback is 10,000 a month");
+for (const raw of ["0", "-1", "1.5", "9007199254740992", "abc"]) {
   await withEnv({ VIATOR_MONTH_CAP: raw }, async () => {
-    ok(providerMonthlyCap("viator") === null, `invalid cap is denied: ${String(raw)}`);
+    ok(providerMonthlyCap("viator") === null, `malformed cap is denied: ${String(raw)}`);
   });
 }
+for (const raw of [undefined, ""]) {
+  await withEnv({ VIATOR_MONTH_CAP: raw }, async () => {
+    ok(providerMonthlyCap("viator") === 10000, `absent Viator cap falls back to 10000: ${String(raw)}`);
+  });
+}
+await withEnv({ VIATOR_MONTH_CAP: "1000" }, async () => {
+  ok(providerMonthlyCap("viator") === 1000, "a set VIATOR_MONTH_CAP overrides the 10000 fallback");
+});
 ok(providerMonthlyCap("missing") === null, "unknown providers have no cap");
 
 await withEnv({ WAYFIND_GATE: "shut", VIATOR_MONTH_CAP: "12" }, async () => {
@@ -47,11 +56,21 @@ await withEnv({ WAYFIND_GATE: "shut", VIATOR_MONTH_CAP: "12" }, async () => {
 });
 
 await withEnv({ WAYFIND_GATE: "open", VIATOR_MONTH_CAP: undefined }, async () => {
-  let calls = 0;
-  ok(!(await providerSpendAllow("viator", { take: async () => { calls++; return true; } })), "unset cap denies before ledger");
-  ok(calls === 0, "unset cap does not attempt a ledger grant");
-  const d = await providerSpendDecision("viator", { take: async () => { calls++; return true; } });
-  ok(d.allow === false && d.reason === "no_cap", "unset cap names no_cap without a number");
+  let used = 0;
+  const take = async (sku, cap) => {
+    if (sku !== "provider_viator" || cap !== 10000) return false;
+    if (used >= 10000) return false;
+    used += 1;
+    return true;
+  };
+  for (let n = 0; n < 10000; n++) {
+    if (!(await providerSpendAllow("viator", { take }))) throw new Error(`grant ${n + 1} should be inside the 10000 fallback`);
+  }
+  ok(used === 10000, "the fallback grants 10000 ledger calls");
+  ok(!(await providerSpendAllow("viator", { take })), "the guard blocks the call above 10000");
+  const d = await providerSpendDecision("viator", { take });
+  ok(d.allow === false && d.reason === "ledger_denied", "a call above 10000 is ledger_denied");
+  ok(!Object.prototype.hasOwnProperty.call(d, "cap"), "a denied fallback call does not echo the cap");
 });
 
 const PROVIDERS = {
