@@ -122,24 +122,24 @@
       "reviewedAt": "2026-11-05"
     },
     "Christmas in the Wild at ZooTampa": {
-      "src": "/guides/picks/florida-thanksgiving-weekend-2026/lowry-park-zoo-3023525824.webp",
+      "src": "/guides/picks/florida-thanksgiving-weekend-2026/zootampa-christmas-lights-blue-trees.jpg",
       "width": 1280,
       "height": 853,
-      "alt": "Inside ZooTampa at Lowry Park",
-      "caption": "Inside ZooTampa at Lowry Park, where this event is held. The event itself is not pictured.",
-      "credit": "Marcus Quigmire",
-      "creditHref": "https://commons.wikimedia.org/wiki/File:Lowry_Park_Zoo_(3023525824).jpg",
-      "license": "CC BY-SA 2.0",
-      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0/",
-      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Lowry_Park_Zoo_(3023525824).jpg",
-      "author": "Marcus Quigmire",
+      "alt": "Trees and shrubs wrapped in blue Christmas lights at night at ZooTampa, then Lowry Park Zoo",
+      "caption": "Christmas lights at ZooTampa, then Lowry Park Zoo, in December 2010.",
+      "credit": "Ssriram mt",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Christmas_Lighting_-_Lowry_Park_Zoo2.jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Christmas_Lighting_-_Lowry_Park_Zoo2.jpg",
+      "author": "Ssriram mt",
       "position": "50% 50%",
-      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "modificationNotice": "Resized, cropped for display and converted to JPEG. The adaptation is released under the same licence.",
       "sourceKind": "commons",
-      "placeId": "ChIJBQ5SjLHGwogRL4X19g4J5tI",
-      "verification": "The same Commons file already verified and stored in Wayfind's wf_place_photo table for this place (status active, match confidence 1, verified 2026-10-24). Reused on 2026-11-05 for \"Christmas in the Wild at ZooTampa\", which the organizer holds at this venue; it was already the photo on this pick's place card.",
-      "sameAsCardPhoto": true,
-      "reviewedAt": "2026-11-05"
+      "placeId": null,
+      "verification": "Wikimedia Commons file \"Christmas Lighting - Lowry Park Zoo2.jpg\" by Ssriram mt, taken 2010-12-19, categorised Lowry Park Zoo (ZooTampa's former name); shows the zoo's own holiday light display at night, matching this Christmas in the Wild pick. Commons licence checked: CC BY-SA 3.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-11-09"
     }
   },
   "gaps": {
