@@ -35,6 +35,7 @@ import {
   encodeAdClickCookie,
   readAdClickContextFromCookieHeader,
   attributedViatorDestination,
+  computeVisitorContextHash,
   AD_CTX_COOKIE,
 } from "../lib/viatorAttribution.js";
 import {
@@ -647,6 +648,28 @@ function ok(cond, msg) {
       storedRows[1].client_click_id === null,
     "forged/reused client_click_id from Visitor B cannot retrieve or rebind Visitor A's click_token",
   );
+  // wf_viator_clicks.visitor_context_hash accepts only 32 lowercase hex
+  // characters (supabase/migrations/20261103220000_wf_viator_booking_attribution.sql).
+  // A full sha256 hex digest is 64 characters, so Postgres rejects the insert
+  // and neither the hash nor the gclid on that row is saved.
+  const VISITOR_HASH_RX = /^[0-9a-f]{32}$/;
+  ok(
+    storedRows.every((row) => VISITOR_HASH_RX.test(row.visitor_context_hash)),
+    "stored visitor_context_hash is 32 lowercase hex, the shape the click table accepts",
+  );
+  const posthogOnly = computeVisitorContextHash({
+    adContext: {},
+    distinctId: "ph_cookie_distinct_id_0190",
+  });
+  const gclidOnly = computeVisitorContextHash({
+    adContext: { gclid: "EAIaIQobChMI_gclid_only" },
+    distinctId: "",
+  });
+  const empty = computeVisitorContextHash({ adContext: {}, distinctId: "" });
+  ok(VISITOR_HASH_RX.test(posthogOnly), "a PostHog distinct id hashes to 32 hex");
+  ok(VISITOR_HASH_RX.test(gclidOnly), "a gclid hashes to 32 hex");
+  ok(posthogOnly !== gclidOnly, "a PostHog id and a gclid do not collapse to the same hash");
+  ok(empty === null, "a click with no visitor id and no ad click id stores a null hash");
 
   // Non-human traffic (e.g. WayfindVerify / link health automation) must NOT persist rows to wf_viator_clicks
   const nonHumanHop = await attributedViatorDestination(
