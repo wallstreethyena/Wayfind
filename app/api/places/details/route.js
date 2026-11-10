@@ -57,6 +57,8 @@ async function inventoryPlace(placeId) {
   return {
     id: row.place_id,
     displayName: { text: row.name },
+    // Curator-owned street address keeps non-Google place links geographically exact.
+    ...(typeof signals.official_address === "string" && signals.official_address.trim() ? { formattedAddress: signals.official_address.trim() } : {}),
     location: { latitude: row.lat, longitude: row.lng },
     rating: typeof signals.rating === "number" ? signals.rating : null,
     userRatingCount: Number(signals.reviews) || 0,
@@ -67,6 +69,8 @@ async function inventoryPlace(placeId) {
     businessStatus: row.status || null,
     // Stored city. The coverage metro is not a city and is not sent here.
     ...(typeof row.locality === "string" && row.locality.trim() ? { locality: row.locality.trim() } : {}),
+    // Verified mailing/public city (wf_inventory.postal_city); shown ahead of locality.
+    ...(typeof row.postal_city === "string" && row.postal_city.trim() ? { postalCity: row.postal_city.trim() } : {}),
     ...(typeof signals.state === "string" && /^[A-Za-z]{2}$/.test(signals.state.trim()) ? { state: signals.state.trim().toUpperCase() } : {}),
     photos,
   };

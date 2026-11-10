@@ -1,66 +1,165 @@
 {
- "slug": "florida-thanksgiving-weekend-2026",
- "picks": {},
- "gaps": {
-  "Life Time Turkey Trot Miami 5K/10K & Kids Race": {
-   "reason": "google-only",
-   "placeId": "ChIJcxJRMYe42YgRDSlj6Z_CDxk",
-   "needsPermissionFrom": null,
-   "note": "No licensed photo of this exact place or event has been sourced yet (Wikimedia Commons, Openverse and Flickr checked 2026-11-03, with Commons heavily rate limited). Guide pages never store or show cached Google photos, so this pick shows a reviewed, credited topic photo captioned \"Illustrative\" (lib/guideContextPhotos.js), never presented as this place. Licensed photo sourcing backlog."
+  "slug": "florida-thanksgiving-weekend-2026",
+  "picks": {
+    "Daytona Turkey Run": {
+      "src": "/guides/picks/florida-thanksgiving-weekend-2026/daytona-speedway-frontstretch.webp",
+      "width": 1400,
+      "height": 1050,
+      "alt": "Fireworks over the frontstretch grandstand at Daytona International Speedway on a race night",
+      "caption": "The frontstretch at Daytona International Speedway, where the Turkey Run is held, on a 2018 race night. The car show itself is not pictured.",
+      "credit": "Dough4872",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:2018_Coke_Zero_Sugar_400_fireworks_from_frontstretch.jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:2018_Coke_Zero_Sugar_400_fireworks_from_frontstretch.jpg",
+      "author": "Dough4872",
+      "position": "50% 40%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
+      "placeId": "ChIJk4XLpEnZ5ogRl8zItcDGhxM",
+      "verification": "The same Commons file already reviewed for the Daytona Beach summer guide (viewed 2026-10-07: fireworks over the Daytona frontstretch grandstand, live licence CC BY-SA 3.0). Reused on 2026-11-03 for the Daytona Turkey Run, which the organizer holds at this same venue; it shows the venue, not the car show, and the caption says so. Chosen over the grandstand lettering photo because that file is already this guide's hero.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-11-03"
+    },
+    "Pensacola Winterfest Opening Night and Elf Parade": {
+      "src": "/guides/picks/florida-thanksgiving-weekend-2026/pensacola-winterfest-opening-night-and-elf-parade.webp",
+      "width": 1400,
+      "height": 933,
+      "alt": "Looking down Palafox Street in downtown Pensacola, with historic brick and stucco buildings on both sides of the street",
+      "caption": "Palafox Street in downtown Pensacola's Palafox Historic District, photographed in 2008. Winterfest and its Elf Parade are not pictured.",
+      "credit": "Ebyabe",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Pensacola_Palafox01.jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Pensacola_Palafox01.jpg",
+      "author": "Ebyabe",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
+      "placeId": null,
+      "verification": "Commons file title and description read 'Pensacola, Florida : Palafox Historic District' and it sits in Category:Palafox Historic District; the File page's licence box states CC BY-SA 3.0 (multi-licensed with GFDL and BY-SA 2.5/2.0/1.0). Viewed the download: empty daytime street, no private person in frame. Venue context only; the pick is described as 'downtown Pensacola'.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-11-05"
+    },
+    "Stuart Christmas Tree Lighting": {
+      "src": "/guides/picks/florida-thanksgiving-weekend-2026/stuart-christmas-tree-lighting.webp",
+      "width": 1400,
+      "height": 933,
+      "alt": "Blue shade sails over a stage area on the Stuart Riverwalk beside the St. Lucie River, with palms and a 'Rock'n Riverwalk' banner",
+      "caption": "The Stuart Riverwalk on the St. Lucie River in downtown Stuart, November 2018, showing the shaded stage area. The tree lighting is not pictured.",
+      "credit": "Ebyabe",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Stuart_FL_Riverwalk01.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Stuart_FL_Riverwalk01.jpg",
+      "author": "Ebyabe",
+      "position": "50% 45%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
+      "placeId": null,
+      "verification": "Commons title and description read 'Stuart Riverwalk', file is in Category:Stuart Riverwalk; the visible sign says Rock'n Riverwalk and the City of Stuart river boardwalk. Licence read on File page: CC BY-SA 4.0. Viewed the download: no people, sharp. The pick's venue is the Riverwalk Stage; the file does not name the stage explicitly, so the caption says 'stage area'.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-11-05"
+    },
+    "Celebration Tree Lighting Ceremony": {
+      "src": "/guides/picks/florida-thanksgiving-weekend-2026/celebration-tree-lighting-ceremony.webp",
+      "width": 1400,
+      "height": 583,
+      "alt": "Celebration Town Center's waterfront buildings reflected in the lake under a cloudy sky",
+      "caption": "Celebration's town center across the lake, photographed in May 2016. The tree lighting is not pictured.",
+      "credit": "JohnFota",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Downtown_celebration.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Downtown_celebration.jpg",
+      "author": "JohnFota",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
+      "placeId": null,
+      "verification": "Commons title 'Downtown Celebration' and description 'Downtown Celebration', in Category:Celebration, Florida; licence read on File page: CC BY-SA 4.0. Viewed the download: wide panorama kept at its native aspect, no people. Shows the town center the pick lists (701 Front St) from across the lake.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-11-05"
+    },
+    "Life Time Turkey Trot Miami 5K/10K & Kids Race": {
+      "src": "/guides/picks/florida-thanksgiving-weekend-2026/carlos-prado-public-sculpture-at-tropical-park-02a.webp",
+      "width": 1100,
+      "height": 733,
+      "alt": "A public sculpture at Tropical Park in Miami",
+      "caption": "A public sculpture at Tropical Park in Miami, where this event is held. The event itself is not pictured.",
+      "credit": "Carlosenrique",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Carlos_Prado-Public_Sculpture_at_Tropical_Park-02a.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Carlos_Prado-Public_Sculpture_at_Tropical_Park-02a.jpg",
+      "author": "Carlosenrique",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
+      "placeId": "ChIJcxJRMYe42YgRDSlj6Z_CDxk",
+      "verification": "The same Commons file already verified and stored in Wayfind's wf_place_photo table for this place (status active, match confidence 1, verified 2026-10-24). Reused on 2026-11-05 for \"Life Time Turkey Trot Miami 5K/10K & Kids Race\", which the organizer holds at this venue; it was already the photo on this pick's place card.",
+      "sameAsCardPhoto": true,
+      "reviewedAt": "2026-11-05"
+    },
+    "Wild Turkey Trot 3K at Brevard Zoo": {
+      "src": "/guides/picks/florida-thanksgiving-weekend-2026/brevard-zoo-viera-fl-flickr-rusty-clark.webp",
+      "width": 1280,
+      "height": 853,
+      "alt": "Brevard Zoo in Viera",
+      "caption": "Brevard Zoo in Viera, where this event is held. The event itself is not pictured.",
+      "credit": "Rusty Clark",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Brevard_Zoo,_Viera_FL_-_Flickr_-_Rusty_Clark.jpg",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Brevard_Zoo,_Viera_FL_-_Flickr_-_Rusty_Clark.jpg",
+      "author": "Rusty Clark",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP.",
+      "sourceKind": "commons",
+      "placeId": "ChIJI0Ja3y4E3ogRoNdEL3xe4Ek",
+      "verification": "The same Commons file already verified and stored in Wayfind's wf_place_photo table for this place (status active, match confidence 1, verified 2026-10-24). Reused on 2026-11-05 for \"Wild Turkey Trot 3K at Brevard Zoo\", which the organizer holds at this venue; it was already the photo on this pick's place card.",
+      "sameAsCardPhoto": true,
+      "reviewedAt": "2026-11-05"
+    },
+    "Christmas in the Wild at ZooTampa": {
+      "src": "/guides/picks/florida-thanksgiving-weekend-2026/zootampa-christmas-lights-blue-trees.jpg",
+      "width": 1280,
+      "height": 853,
+      "alt": "Trees and shrubs wrapped in blue Christmas lights at night at ZooTampa, then Lowry Park Zoo",
+      "caption": "Christmas lights at ZooTampa, then Lowry Park Zoo, in December 2010.",
+      "credit": "Ssriram mt",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Christmas_Lighting_-_Lowry_Park_Zoo2.jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Christmas_Lighting_-_Lowry_Park_Zoo2.jpg",
+      "author": "Ssriram mt",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to JPEG. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
+      "placeId": null,
+      "verification": "Wikimedia Commons file \"Christmas Lighting - Lowry Park Zoo2.jpg\" by Ssriram mt, taken 2010-12-19, categorised Lowry Park Zoo (ZooTampa's former name); shows the zoo's own holiday light display at night, matching this Christmas in the Wild pick. Commons licence checked: CC BY-SA 3.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-11-09"
+    }
   },
-  "Wild Turkey Trot 3K at Brevard Zoo": {
-   "reason": "google-only",
-   "placeId": "ChIJI0Ja3y4E3ogRoNdEL3xe4Ek",
-   "needsPermissionFrom": null,
-   "note": "No licensed photo of this exact place or event has been sourced yet (Wikimedia Commons, Openverse and Flickr checked 2026-11-03, with Commons heavily rate limited). Guide pages never store or show cached Google photos, so this pick shows a reviewed, credited topic photo captioned \"Illustrative\" (lib/guideContextPhotos.js), never presented as this place. Licensed photo sourcing backlog."
-  },
-  "Daytona Turkey Run": {
-   "reason": "google-only",
-   "placeId": "ChIJk4XLpEnZ5ogRl8zItcDGhxM",
-   "needsPermissionFrom": null,
-   "note": "No licensed photo of this exact place or event has been sourced yet (Wikimedia Commons, Openverse and Flickr checked 2026-11-03, with Commons heavily rate limited). Guide pages never store or show cached Google photos, so this pick shows a reviewed, credited topic photo captioned \"Illustrative\" (lib/guideContextPhotos.js), never presented as this place. Licensed photo sourcing backlog."
-  },
-  "Thanksgiving Bluegrass Festival": {
-   "reason": "no-verified-source",
-   "placeId": null,
-   "needsPermissionFrom": null,
-   "note": "No licensed photo of this exact place or event has been sourced yet (Wikimedia Commons, Openverse and Flickr checked 2026-11-03, with Commons heavily rate limited). Guide pages never store or show cached Google photos, so this pick shows a reviewed, credited topic photo captioned \"Illustrative\" (lib/guideContextPhotos.js), never presented as this place. Licensed photo sourcing backlog."
-  },
-  "Christmas in the Wild at ZooTampa": {
-   "reason": "google-only",
-   "placeId": "ChIJBQ5SjLHGwogRL4X19g4J5tI",
-   "needsPermissionFrom": null,
-   "note": "No licensed photo of the Christmas in the Wild event has been sourced yet. This pick renders the reviewed, licensed photo of the same place (ZooTampa at Lowry Park) already used by another Wayfind guide, matched by its exact placeId; the holiday event itself is not pictured. Licensed event photo sourcing backlog."
-  },
-  "Pensacola Winterfest Opening Night and Elf Parade": {
-   "reason": "no-verified-source",
-   "placeId": null,
-   "needsPermissionFrom": null,
-   "note": "No licensed photo of this exact place or event has been sourced yet (Wikimedia Commons, Openverse and Flickr checked 2026-11-03, with Commons heavily rate limited). Guide pages never store or show cached Google photos, so this pick shows a reviewed, credited topic photo captioned \"Illustrative\" (lib/guideContextPhotos.js), never presented as this place. Licensed photo sourcing backlog."
-  },
-  "The Mayor's Hometown Christmas": {
-   "reason": "no-verified-source",
-   "placeId": null,
-   "needsPermissionFrom": null,
-   "note": "No licensed photo of this exact place or event has been sourced yet (Wikimedia Commons, Openverse and Flickr checked 2026-11-03, with Commons heavily rate limited). Guide pages never store or show cached Google photos, so this pick shows a reviewed, credited topic photo captioned \"Illustrative\" (lib/guideContextPhotos.js), never presented as this place. Licensed photo sourcing backlog."
-  },
-  "Stuart Christmas Tree Lighting": {
-   "reason": "no-verified-source",
-   "placeId": null,
-   "needsPermissionFrom": null,
-   "note": "No licensed photo of this exact place or event has been sourced yet (Wikimedia Commons, Openverse and Flickr checked 2026-11-03, with Commons heavily rate limited). Guide pages never store or show cached Google photos, so this pick shows a reviewed, credited topic photo captioned \"Illustrative\" (lib/guideContextPhotos.js), never presented as this place. Licensed photo sourcing backlog."
-  },
-  "Celebration Tree Lighting Ceremony": {
-   "reason": "no-verified-source",
-   "placeId": null,
-   "needsPermissionFrom": null,
-   "note": "No licensed photo of this exact place or event has been sourced yet (Wikimedia Commons, Openverse and Flickr checked 2026-11-03, with Commons heavily rate limited). Guide pages never store or show cached Google photos, so this pick shows a reviewed, credited topic photo captioned \"Illustrative\" (lib/guideContextPhotos.js), never presented as this place. Licensed photo sourcing backlog."
-  },
-  "Holiday Makers Market at The Studios of Key West": {
-   "reason": "no-verified-source",
-   "placeId": null,
-   "needsPermissionFrom": null,
-   "note": "No licensed photo of this exact place or event has been sourced yet (Wikimedia Commons, Openverse and Flickr checked 2026-11-03, with Commons heavily rate limited). Guide pages never store or show cached Google photos, so this pick shows a reviewed, credited topic photo captioned \"Illustrative\" (lib/guideContextPhotos.js), never presented as this place. Licensed photo sourcing backlog."
+  "gaps": {
+    "Thanksgiving Bluegrass Festival": {
+      "reason": "no-verified-source",
+      "placeId": null,
+      "needsPermissionFrom": null,
+      "note": "No licensed photo of this exact place or event was found (Wikimedia Commons categories and file pages and Flickr single photo pages checked 2026-11-05). This guide uses Wayfind's neutral fallback, so the pick shows the \"Photo unavailable\" tile, never a context or Google photo. Licensed photo sourcing backlog."
+    },
+    "The Mayor's Hometown Christmas": {
+      "reason": "no-verified-source",
+      "placeId": null,
+      "needsPermissionFrom": null,
+      "note": "No licensed photo of this exact place or event was found (Wikimedia Commons categories and file pages and Flickr single photo pages checked 2026-11-05). This guide uses Wayfind's neutral fallback, so the pick shows the \"Photo unavailable\" tile, never a context or Google photo. Licensed photo sourcing backlog."
+    },
+    "Holiday Makers Market at The Studios of Key West": {
+      "reason": "no-verified-source",
+      "placeId": null,
+      "needsPermissionFrom": null,
+      "note": "No licensed photo of this exact place or event was found (Wikimedia Commons categories and file pages and Flickr single photo pages checked 2026-11-05). This guide uses Wayfind's neutral fallback, so the pick shows the \"Photo unavailable\" tile, never a context or Google photo. Licensed photo sourcing backlog."
+    }
   }
- }
 }

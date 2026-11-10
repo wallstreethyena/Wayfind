@@ -23,7 +23,7 @@ const src = readFileSync(path.resolve("lib/areaSeasonalContext.js"), "utf8");
 const mod = await import(path.resolve("lib/areaSeasonalContext.js"));
 const { AREA_SEASONAL_CONTEXT, areaSeasonalContext } = mod;
 
-const { TOWN_PROFILES, TOWN_ALIASES } = await import(path.resolve("lib/culture.js"));
+const { TOWN_PROFILES, TOWN_ALIASES } = await import(path.resolve("lib/cultureNotes.js"));
 
 const SEASONS = ["winter", "spring", "summer", "fall"];
 const cities = Object.keys(AREA_SEASONAL_CONTEXT);
