@@ -341,29 +341,25 @@
     ]
   },
   "guides": {
-    "trending-in-florida-this-week-nov-9-2026": {
-      "Hillsborough County Fair": {
-        "src": "/guides/picks/trending-in-florida-this-week-nov-9-2026/hillsborough-county-fair.webp",
-        "source": "official",
-        "license": "official website",
-        "original_url": "https://cdn.saffire.com/images.ashx?t=ig&rid=HillsboroughCntyFr&i=IMG_3291-1024x683(1).jpg",
-        "page": "https://www.hillsboroughcountyfair.com/",
-        "placeId": "ChIJteWEw_Ut3YgRlcKNOT9E82U"
+    "dropped": [
+      {
+        "pick": "Hillsborough County Fair",
+        "slug": "trending-in-florida-this-week-nov-9-2026",
+        "reason": "The fair website photo is source official. lib/imagePublicationGate.js does not treat official as an approved image source, and none of its approved categories describe a venue-site photograph Wayfind does not hold a licence for. The pick stays a no-verified-source gap, so the guide keeps the image it already had."
       },
-      "Tampa Bay Sun FC vs Dallas Trinity FC": {
-        "src": "/guides/picks/trending-in-florida-this-week-nov-9-2026/tampa-bay-sun-fc-suncoast-field.webp",
-        "source": "official",
-        "license": "official website",
-        "original_url": "https://www.tampabaysunfc.com/wp-content/uploads/sites/90/2026/09/052425_TampaBaySun-366.jpg",
-        "page": "https://www.tampabaysunfc.com/matchday/",
-        "placeId": null
+      {
+        "pick": "Tampa Bay Sun FC vs Dallas Trinity FC",
+        "slug": "trending-in-florida-this-week-nov-9-2026",
+        "reason": "The club matchday photo is source official. lib/imagePublicationGate.js does not treat official as an approved image source, and none of its approved categories describe a club-site photograph Wayfind does not hold a licence for. The pick stays a no-verified-source gap, so the guide keeps the image it already had."
       }
-    }
+    ]
   },
   "gaps": [
     "Late Start Brewery (ChIJPfc0hunFwogRMyZyu-Xnr7o): official site latestartbrewing.com is bot walled (HTTP 202 SiteGround captcha). No licensed official photo was verified. The existing place row is left empty; no duplicate card was created.",
     "Cybel: no clean official dining room photo. Polaroids were too small, and one was labeled Lilya's Cafe (wrong place).",
     "Mullets Fish Camp: no clean official interior photo. Banner logo, letterboxed frames, backyard smoker and parking map were skipped.",
     "Copper Indian Cuisine: close plate shots on the official site were square studio frames with black grounds, too small or off vibe to force into 1280 by 853."
-  ]
+  ],
+  "signals_photos": "plain URL strings",
+  "photo_gallery": "the same credit, licence, source page and dimension objects batches 11r through 12d stored there"
 }

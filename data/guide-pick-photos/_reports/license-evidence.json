@@ -1,11 +1,11 @@
 {
   "generatedBy": "scripts/build-guide-photo-license-evidence.mjs",
   "verifiedAt": "2026-11-10",
-  "rule": "Every photo added by the guide pick-photo pipeline, re-checked at its source. commercialUse is true only for CC0, public domain, CC BY and CC BY-SA (2.0, 2.5, 3.0, 4.0), the free Unsplash License, and official website photos reviewed on the venue site; NC and ND never pass.",
+  "rule": "Every photo added by the guide pick-photo pipeline, re-checked at its source. commercialUse is true only for CC0, public domain, CC BY and CC BY-SA (2.0, 2.5, 3.0, 4.0); NC and ND never pass.",
   "summary": {
-    "files": 358,
-    "usages": 383,
-    "verified": 358,
+    "files": 356,
+    "usages": 381,
+    "verified": 356,
     "needsReview": [],
     "authorDiffers": [],
     "byLicence": {
@@ -18,8 +18,7 @@
       "CC BY-SA 2.0": 30,
       "Unsplash License": 4,
       "CC BY-SA 2.5": 1,
-      "Public domain": 2,
-      "official website": 2
+      "Public domain": 2
     },
     "replacementCandidates": [
       "/guides/picks/gatorland-vs-wild-florida/gatorland-mouth-entrance.webp",
@@ -10395,36 +10394,6 @@
       "verifiedAt": "2026-11-10"
     },
     {
-      "src": "/guides/picks/trending-in-florida-this-week-nov-9-2026/hillsborough-county-fair.webp",
-      "usedBy": [
-        {
-          "slug": "trending-in-florida-this-week-nov-9-2026",
-          "role": "pick",
-          "pick": "Hillsborough County Fair"
-        }
-      ],
-      "source": {
-        "kind": "official",
-        "url": "https://www.hillsboroughcountyfair.com/",
-        "title": "Ferris wheel on the Hillsborough County Fair midway",
-        "author": "Hillsborough County Fair official website",
-        "licence": "official website",
-        "licenceUrl": "https://www.hillsboroughcountyfair.com/"
-      },
-      "wayfind": {
-        "credit": "Hillsborough County Fair official website",
-        "creditHref": "https://www.hillsboroughcountyfair.com/",
-        "license": "official website",
-        "licenseUrl": "https://www.hillsboroughcountyfair.com/",
-        "modificationNotice": "Resized, cropped for display and converted to WebP."
-      },
-      "commercialUse": true,
-      "authorMatchesCredit": true,
-      "status": "verified",
-      "verificationMethod": "manual-official-website-review",
-      "verifiedAt": "2026-11-10"
-    },
-    {
       "src": "/guides/picks/trending-in-florida-this-week-nov-9-2026/il-volo.webp",
       "usedBy": [
         {
@@ -10512,36 +10481,6 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-10"
-    },
-    {
-      "src": "/guides/picks/trending-in-florida-this-week-nov-9-2026/tampa-bay-sun-fc-suncoast-field.webp",
-      "usedBy": [
-        {
-          "slug": "trending-in-florida-this-week-nov-9-2026",
-          "role": "pick",
-          "pick": "Tampa Bay Sun FC vs Dallas Trinity FC"
-        }
-      ],
-      "source": {
-        "kind": "official",
-        "url": "https://www.tampabaysunfc.com/matchday/",
-        "title": "Sunset kickoff at Suncoast Credit Union Field",
-        "author": "Tampa Bay Sun FC official website",
-        "licence": "official website",
-        "licenceUrl": "https://www.tampabaysunfc.com/matchday/"
-      },
-      "wayfind": {
-        "credit": "Tampa Bay Sun FC official website",
-        "creditHref": "https://www.tampabaysunfc.com/matchday/",
-        "license": "official website",
-        "licenseUrl": "https://www.tampabaysunfc.com/matchday/",
-        "modificationNotice": "Resized, cropped for display and converted to WebP."
-      },
-      "commercialUse": true,
-      "authorMatchesCredit": true,
-      "status": "verified",
-      "verificationMethod": "manual-official-website-review",
       "verifiedAt": "2026-11-10"
     },
     {
