@@ -180,4 +180,70 @@ ok(seenInit && !("cache" in seenInit) && seenInit.next && seenInit.next.revalida
     globalThis.fetch = savedFetch;
   }
 }
+{
+  const batch = (file) => "https://www.gowayfind.com/place-photos/batch-2026-11/ChIJarmatureworks0001/" + file + ".jpg";
+  const files = ["cover", "b", "c", "d", "e", "f", "g"];
+  const sameRef = files.map((file) => ({
+    url: batch(file),
+    source_ref: "https://armatureworks.com/",
+    phash: file.repeat(4).slice(0, 16),
+    attribution_text: "Armature Works",
+    width: 1280,
+    height: 853,
+  }));
+  const armature = assemblePlaceDetailPhotos({
+    placeId: "ChIJarmatureworks0001",
+    name: "Armature Works",
+    signals: { photos: sameRef.map((entry) => entry.url), photo_gallery: sameRef },
+    vaultEntries: sameRef,
+  });
+  ok(armature.length === 7 && armature.map((photo) => photo.src).join("|") === sameRef.map((entry) => entry.url).join("|"),
+    "a card with seven photos that share one homepage source link keeps all seven, cover first; got " + armature.length);
+
+  const oldA = "https://abc.supabase.co/storage/v1/object/public/place-photos/ChIJgaylordpalms0001/old-a.jpg";
+  const oldB = "https://abc.supabase.co/storage/v1/object/public/place-photos/ChIJgaylordpalms0001/old-b.jpg";
+  const xmas = (file, cover) => ({
+    url: "https://www.gowayfind.com/place-photos/batch-2026-11/ChIJgaylordpalms0001/" + file + ".jpg",
+    christmas_keys: ["christmas-at-gaylord-palms-2026"],
+    cover,
+    attribution_text: "Gaylord Palms",
+    source_ref: "https://www.christmasatgaylordpalms.com/" + file + ".jpg",
+  });
+  const gaylord = assemblePlaceDetailPhotos({
+    placeId: "ChIJgaylordpalms0001",
+    name: "Gaylord Palms",
+    signals: {
+      photos: [oldA, oldB],
+      photo_gallery: [{ url: oldA, attribution_text: "old", source_ref: "File:Old A.jpg" }, { url: oldB, attribution_text: "old", source_ref: "File:Old B.jpg" }],
+      christmas_photo_gallery: [xmas("later", false), xmas("cover", true), xmas("third", false)],
+    },
+  });
+  ok(gaylord[0].src === oldA && gaylord.filter((photo) => photo.src.includes("/batch-2026-11/")).length === 3 && gaylord[2].src.endsWith("/cover.jpg"),
+    "Christmas gallery photos join the card list, holiday cover first among them; got " + gaylord.map((photo) => photo.src.split("/").pop()).join(","));
+
+  const screamId = HAUNT_GOOGLE_PLACE.screamageddon;
+  const screamBatch = [1, 2, 3, 4].map((n) => "https://www.gowayfind.com/place-photos/batch-2026-11/" + screamId + "/haunt" + n + ".jpg");
+  const screamOld = "https://abc.supabase.co/storage/v1/object/public/place-photos/" + screamId + "/old.jpg";
+  const scream = await loadPlaceDetailPhotos(screamId, {
+    name: "Scream A Geddon",
+    signals: {
+      photos: [screamOld, ...screamBatch],
+      photo_gallery: screamBatch.map((url) => ({ url, haunt_key: "screamageddon", attribution_text: "Scream", source_ref: url })),
+      haunt_photo_gallery: screamBatch.map((url) => ({ url, haunt_key: "screamageddon", attribution_text: "Scream", source_ref: url })),
+    },
+    deps: { readVault: async () => { throw new Error("a stale vault read must not hide the card list"); }, read: async () => null },
+  });
+  ok(scream[0].src === screamOld && screamBatch.every((url) => scream.some((photo) => photo.src === url)),
+    "a one haunt place still shows the card's batch photos when the vault read fails; got " + scream.length);
+
+  const many = Array.from({ length: 16 }, (_, n) => "https://cdn.wayfind.test/card-" + n + ".jpg");
+  const capped = assemblePlaceDetailPhotos({
+    placeId: "ChIJnotahauntplace0001",
+    name: "Long rail",
+    signals: { photos: many },
+  });
+  ok(capped.length === 14 && capped[0].src === many[0] && capped[13].src === many[13],
+    "the detail rail stops at 14 and keeps the card cover first; got " + capped.length);
+}
+
 console.log("test-place-detail-gallery: " + checks + " checks passed");

@@ -38,7 +38,7 @@
 import { readFileSync, appendFileSync } from "node:fs";
 import { decidePromotion, dedupeById, partitionSplitVenues, PROMOTE_METROS, metrosFromRows } from "../lib/promoteIndex.js";
 import { clampBatchLimit } from "../lib/promoteThrottle.js";
-import { CORE_DETAILS_MASK, RATING_DETAILS_MASK, PROMOTE_SKU, RATING_SKU, withIndexSignals, hasIndexRating } from "../lib/promoteDetails.js";
+import { CORE_DETAILS_MASK, RATING_DETAILS_MASK, PROMOTE_SKU, RATING_SKU, withIndexSignals, hasIndexRating, classifyDetailsFailure, minutesUntilQuotaReset, ratingBuyAllowed } from "../lib/promoteDetails.js";
 
 // ── env (never logged) ──────────────────────────────────────────────────────
 const ENV = {};
@@ -91,7 +91,7 @@ const DETAILS_MASK = CORE_DETAILS_MASK;
 // exactly the two names it needs, then import it. WAYFIND_GATE must be set
 // explicitly to free or open; an unset or mistyped value shuts spend down.
 for (const k of ["SUPABASE_URL", "SUPABASE_SERVICE_ROLE_KEY"]) if (!process.env[k]) process.env[k] = k === "SUPABASE_URL" ? SB_URL : SB_KEY;
-const { spendAllowCapped, effectiveCap, gateMode } = await import("../lib/spendGate.js");
+const { spendAllowCapped, effectiveCap, gateMode, refundToLedger, freeTierLine } = await import("../lib/spendGate.js");
 
 const H = { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}`, "Content-Type": "application/json" };
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -162,6 +162,10 @@ async function details(placeId, mask = DETAILS_MASK) {
     }
     if (r.ok) return { ok: true, place: await r.json() };
     const body = (await r.text()).slice(0, 160);
+    // Same rule as the cron (lib/promoteDetails.js classifyDetailsFailure): a
+    // Google 429 is about our quota, not the place; never retry it, park it.
+    const kind = classifyDetailsFailure(r.status, body);
+    if (kind === "quota_daily" || kind === "rate_limited") return { ok: false, terminal: false, quota: kind, error: `details ${r.status}: ${body}` };
     if (isTerminal(r.status)) return { ok: false, terminal: true, error: `details ${r.status}: ${body}` };
     if (a === 2) return { ok: false, terminal: false, error: `details ${r.status}: ${body}` };
     await sleep(800 * (a + 1));
@@ -233,8 +237,16 @@ while (T.claimed < TOTAL) {
 
   const indexSignals = await fetchIndexSignals(claimed.map((c) => c.place_id));
   let budgetExhausted = false;
+  let quotaKind = null;
+  // Promotion's share of the shared Enterprise line (lib/promoteDetails.js
+  // PROMOTE_RATING_SHARE), same rule as the cron: one ledger read per batch.
+  const { readLedgerUsage } = await import("../lib/jobPulse.js");
+  const ratingUsage = await readLedgerUsage(RATING_SKU);
+  const ratingFreeLine = freeTierLine(RATING_SKU); // the free line in every gate mode, same as the cron
+  let ratingBought = 0;
   const results = await pmap(claimed, CONC, async (item) => {
     if (budgetExhausted) return { item, kind: "release" };
+    if (quotaKind) return { item, kind: "quota" };
     // THE MONEY GUARD — exactly one atomic ledger grant per Google call, for the
     // SKU the call actually bills at (same rule as the cron): CORE + Pro when the
     // index has the stars; RATING + Enterprise when it does not, falling back to
@@ -242,20 +254,30 @@ while (T.claimed < TOTAL) {
     // promotion budget running out; stop asking.
     const sig = indexSignals.get(item.place_id);
     let mask = DETAILS_MASK;
-    if (!hasIndexRating(sig) && (await spendAllowCapped(RATING_SKU, MONTH_CAP))) {
+    // pmap runs CONC items at once: reserve the share slot synchronously,
+    // BEFORE the ledger await, and give it back if the grant is refused —
+    // check-then-increment across an await let CONC-1 extra buys through.
+    const reserved = !hasIndexRating(sig) && ratingBuyAllowed(ratingUsage, ratingBought, ratingFreeLine);
+    if (reserved) ratingBought++;
+    if (reserved && (await spendAllowCapped(RATING_SKU, MONTH_CAP))) {
       mask = RATING_DETAILS_MASK;
-    } else if (!(await spendAllowCapped(PROMOTE_SKU, MONTH_CAP))) {
-      budgetExhausted = true;
-      return { item, kind: "release" };
+    } else {
+      if (reserved) ratingBought--; // the Enterprise ledger said no: the slot goes back, the place promotes from CORE
+      if (!(await spendAllowCapped(PROMOTE_SKU, MONTH_CAP))) {
+        budgetExhausted = true;
+        return { item, kind: "release" };
+      }
     }
     const d = await details(item.place_id, mask);
+    // A 429 is unbilled by Google: give the pre-call ledger grant back (same rule as the cron, 2026-11-03).
+    if (!d.ok && d.quota) { quotaKind = d.quota; await refundToLedger(mask === RATING_DETAILS_MASK ? RATING_SKU : PROMOTE_SKU, 1); return { item, kind: "quota", error: d.error }; }
     if (!d.ok) return { item, kind: d.terminal ? "reject" : "retry", error: d.error };
     const place = withIndexSignals(d.place, sig);
     const v = decidePromotion(place, item.metro, new Date().toISOString(), null, METROS);
     if (v.action !== "promote") return { item, kind: "reject", error: v.error };
     return { item, kind: "promote", row: v.row };
   });
-  const bought = results.filter((r) => r.kind !== "release").length;
+  const bought = results.filter((r) => r.kind !== "release" && r.kind !== "quota").length;
   T.spend += bought * COST_PER;
 
   const promote = results.filter((r) => r.kind === "promote");
@@ -308,6 +330,10 @@ while (T.claimed < TOTAL) {
       // Budget refusal: back to pending, attempt refunded, parked — never a
       // failure against the place (see wf_promotion_release in the migration).
       settle.push(rpc("wf_promotion_release", { p_place_id: r.item.place_id, p_delay_minutes: 60, p_note: `spend ledger: ${PROMOTE_SKU} ceiling ${effectiveCap(PROMOTE_SKU, MONTH_CAP)} reached (month_cap ${MONTH_CAP}, gate ${gateMode()})` }));
+    } else if (r.kind === "quota") {
+      // Google quota 429: attempt refunded, parked until the quota frees.
+      const delay = quotaKind === "quota_daily" ? minutesUntilQuotaReset(Date.now()) : 15;
+      settle.push(rpc("wf_promotion_release", { p_place_id: r.item.place_id, p_delay_minutes: delay, p_note: `google ${quotaKind === "quota_daily" ? "daily" : "rate"} quota 429: parked ${delay}m, attempt refunded` }));
     } else {
       settle.push(rpc("wf_promotion_complete", { p_place_id: r.item.place_id, p_ok: false, p_error: r.error }));
     }
@@ -333,6 +359,7 @@ while (T.claimed < TOTAL) {
 
   const el = Math.round((Date.now() - started) / 1000);
   console.log(`  batch ${String(T.batches).padStart(3)} | claimed ${String(T.claimed).padStart(5)} | promoted ${String(T.promoted).padStart(5)} | rejected ${String(T.rejected).padStart(4)} | retry ${T.retried} | $${T.spend.toFixed(2)} | ${el}s`);
+  if (quotaKind === "quota_daily") { console.error("  Google daily Details quota exhausted; this batch was parked until the reset. Stopping."); break; }
 }
 
 console.log("\n" + "-".repeat(70));

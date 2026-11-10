@@ -4,6 +4,8 @@ import { mapPinUrl } from "../lib/mapPinStandard.js";
 // MapKit JS 6's promise-returning service calls, so cancellation, stale
 // responses, timeout handling, and teardown are exercised rather than inferred.
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import vm from "node:vm";
 import { createAppleMapController } from "../lib/appleMapsRuntime.js";
 import { formatDistance, formatDuration, routeSummary, validateRouteInput } from "../lib/appleEventRouting.js";
 import { EVENT_MAP_FAMILY, eventMapFamily, eventMapGlyph, eventStayMapPins, mergeEventMapPlaces } from "../lib/eventMapPlaces.js";
@@ -144,4 +146,48 @@ lateController.setParkingMode(true, parking);
 lateController.destroy();
 check(lateController.map.annotations.length === 0, "unmount removes parking pins as well as regular pins");
 
+// Exercise the controller's real diagnostic wiring, not just a helper call.
+const diagnosticLogs = [];
+const savedInfo = console.info, savedWarn = console.warn;
+try {
+  console.info = (...args) => diagnosticLogs.push({ level: "info", args });
+  console.warn = (...args) => diagnosticLogs.push({ level: "warning", args });
+  for (const fails of [false, true]) {
+    const recoveryKit = { ...fakeKit,
+      PointOfInterestCategory: { Parking: "Parking" },
+      PointOfInterestFilter: { including: (categories) => ({ including: categories }) },
+      PointsOfInterestSearch: class { search() { return Promise.reject(new Error("HTTP 400 private-query")); } },
+      Search: class { search() { return fails ? Promise.reject(new Error("fallback down")) : Promise.resolve({ places: [] }); } },
+    };
+    const diagnosticController = createAppleMapController({ mapkit: recoveryKit, container: {}, venue });
+    if (fails) await assert.rejects(diagnosticController.searchParking(), /could not load nearby parking/);
+    else await diagnosticController.searchParking();
+    diagnosticController.destroy();
+  }
+} finally { console.info = savedInfo; console.warn = savedWarn; }
+check(diagnosticLogs.length === 2 && diagnosticLogs[0].level === "info" && diagnosticLogs[1].level === "warning", "controller distinguishes completed parking recovery from terminal failure");
+check(!JSON.stringify(diagnosticLogs).includes("private-query") && diagnosticLogs.every(row => row.args[1].reason === "request"), "controller emits enumerated causes without raw provider errors");
+
+const dispatchCheck = { equal: (...args) => { assert.equal(...args); pass += 1; } };
+// Execute the real reporting adapter, replacing only its Sentry import with IO.
+const telemetry = [];
+const breadcrumbs = [];
+const consoleRows = [];
+const diagnosticSource = readFileSync(new URL("../lib/mapDiagnostics.js", import.meta.url), "utf8")
+  .replaceAll("export function ", "function ").replace('import("@sentry/nextjs")', "Promise.resolve(Sentry)");
+const diagnosticContext = vm.createContext({ window: {}, process: { env: { NEXT_PUBLIC_SENTRY_DSN: "fixture" } },
+  console: { warn: (...args) => consoleRows.push(["warning", ...args]), info: (...args) => consoleRows.push(["info", ...args]) },
+  Sentry: { captureMessage: (message, options) => telemetry.push({ message, ...options }), addBreadcrumb: crumb => breadcrumbs.push(crumb) } });
+vm.runInContext(diagnosticSource + ';reportMapServiceRecovery("parking-poi-fallback", "request");reportMapServiceIssue("parking-poi-fallback", "request");', diagnosticContext);
+await new Promise(resolve => setTimeout(resolve, 0));
+dispatchCheck.equal(telemetry.length, 1, "confirmed recovery never creates an unresolved Sentry issue");
+dispatchCheck.equal(breadcrumbs.length, 1, "confirmed recovery retains one breadcrumb");
+dispatchCheck.equal(breadcrumbs[0]?.message, "Wayfind map service recovered", "confirmed recovery has a distinct breadcrumb message");
+dispatchCheck.equal(breadcrumbs[0]?.category, "map-service", "recovery breadcrumb has a bounded category");
+dispatchCheck.equal(breadcrumbs[0]?.level, "info", "confirmed recovery is informational");
+dispatchCheck.equal(telemetry[0]?.message, "Wayfind map service failure", "terminal failures retain the existing Sentry message");
+dispatchCheck.equal(telemetry[0]?.level, "warning", "terminal failures retain warning severity");
+dispatchCheck.equal(consoleRows.map(row => row[0]).join(","), "info,warning", "console severity also distinguishes recovered and failed operations");
+dispatchCheck.equal(JSON.stringify(telemetry[0]?.tags), JSON.stringify({ service: "parking-poi-fallback", reason: "request" }), "failure diagnostics contain only enumerated service and reason tags");
+dispatchCheck.equal(JSON.stringify(breadcrumbs[0]?.data), JSON.stringify({ service: "parking-poi-fallback", reason: "request" }), "recovery breadcrumbs contain only enumerated service and reason data");
 console.log(`test-event-apple-maps: OK — ${pass} assertions (category pins, exact/deduped card identity, streamed updates that preserve routes, MapKit JS 6 promises, cancellation, timeouts, and teardown)`);

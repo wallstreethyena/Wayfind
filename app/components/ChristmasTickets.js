@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from "react";
 import { XM_CARD_CSS } from "./ChristmasTicketCard.js";
-import { NavIcon } from "./kit.js";
 import CommerceClickBeacon from "./CommerceClickBeacon.js";
 import { activeSeasonalMark } from "../../lib/seasonalBrand.js";
 
@@ -23,6 +22,26 @@ const WIRE_PATH = (() => {
 })();
 // Rotating light sequences (chase, alternate, twinkle). CSS only: each pattern
 // animates opacity and transform on the bulbs, so it stays GPU cheap.
+// Phones get half the strand (every other bulb) on a wire with half the dips,
+// so the lights read as a cute string instead of a crowded row.
+const PHONE_DIPS = BULB_COUNT / 2;
+const PHONE_WIRE_PATH = (() => {
+  const pitch = 1200 / PHONE_DIPS;
+  let d = "M0 4";
+  for (let i = 0; i < PHONE_DIPS; i += 1) d += " Q" + ((i + 0.5) * pitch).toFixed(1) + " 24 " + ((i + 1) * pitch).toFixed(1) + " 4";
+  return d;
+})();
+// Seven colors (an odd count), so every other bulb on a phone still cycles
+// through all of them: red, green, gold, blue, pink, warm white, purple.
+const BULB_COLORS = [
+  ["#FF4458", "#B3111F", "rgba(255,68,88,.75)", "rgba(255,68,88,.32)"],
+  ["#3DDC84", "#13803F", "rgba(61,220,132,.7)", "rgba(61,220,132,.3)"],
+  ["#FFC94A", "#C98A0B", "rgba(255,201,74,.78)", "rgba(255,201,74,.34)"],
+  ["#4DA3FF", "#1456B8", "rgba(77,163,255,.75)", "rgba(77,163,255,.32)"],
+  ["#FF7AC8", "#B02C86", "rgba(255,122,200,.75)", "rgba(255,122,200,.32)"],
+  ["#FFF1D6", "#D8B27A", "rgba(255,241,214,.7)", "rgba(255,241,214,.28)"],
+  ["#B98CFF", "#6A3FC2", "rgba(185,140,255,.72)", "rgba(185,140,255,.3)"],
+];
 const LIGHT_PATTERNS = ["twinkle", "chase", "alt", "chase"];
 
 // Faint festive doodles (gift, holly, candy cane, ornament, tree, snowflake) as
@@ -42,21 +61,6 @@ const SPARKLE_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="340" height=
 <path d="M40 30l3 9 9 3-9 3-3 9-3-9-9-3 9-3z"/><path d="M250 70l2.4 7 7 2.4-7 2.4-2.4 7-2.4-7-7-2.4 7-2.4z" opacity=".8"/><path d="M130 150l3.4 10 10 3.4-10 3.4-3.4 10-3.4-10-10-3.4 10-3.4z"/><path d="M300 230l2.6 7.5 7.5 2.6-7.5 2.6-2.6 7.5-2.6-7.5-7.5-2.6 7.5-2.6z" opacity=".8"/><path d="M60 280l3 8.5 8.5 3-8.5 3-3 8.5-3-8.5-8.5-3 8.5-3z"/><circle cx="200" cy="300" r="2.4"/><circle cx="90" cy="100" r="2"/><circle cx="310" cy="140" r="2"/><circle cx="190" cy="40" r="1.8"/></svg>`;
 const svgUrl = (svg) => 'url("data:image/svg+xml,' + encodeURIComponent(svg) + '")';
 
-// Same destinations home uses (CATEGORY_ROUTE through railHref for Tampa).
-const CATEGORY_TABS = [
-  { id: "food", label: "Food", href: "/restaurants/tampa" },
-  { id: "nightlife", label: "Night out", href: "/nightlife/tampa" },
-  { id: "attractions", label: "Activities", href: "/things-to-do/tampa" },
-  { id: "family", label: "Family", href: "/family" },
-  { id: "hotels", label: "Stays", href: "/?q=hotels" },
-  { id: "shopping", label: "Shopping", href: "/?q=shopping" },
-];
-const DEST_LINKS = [
-  { icon: "saved", label: "Favorites", href: "/favorites" },
-  { icon: "itinerary", label: "Itinerary", href: "/itinerary" },
-  { icon: "events", label: "Events", href: "/events" },
-  { icon: "coupons", label: "Coupons", href: "/coupons" },
-];
 
 function askSanta() {
   if (typeof window === "undefined") return;
@@ -86,37 +90,35 @@ const CSS = XM_CARD_CSS + `
 /* Festival string lights: green garland, multicolor bulbs with real glow, rotating chase and twinkle sequences */
 .xm-lights{position:relative;height:36px;pointer-events:none;overflow-x:clip;z-index:30}
 .xm-wire{position:absolute;inset:0;width:100%;height:100%}
-.xm-bloom{position:absolute;left:0;right:0;top:0;height:150px;pointer-events:none;background:linear-gradient(90deg,rgba(255,60,80,.34),rgba(255,196,80,.32),rgba(70,220,140,.30),rgba(80,150,255,.32),rgba(255,110,200,.34),rgba(255,60,80,.34));-webkit-mask-image:linear-gradient(180deg,#000 0%,rgba(0,0,0,.35) 40%,transparent 100%);mask-image:linear-gradient(180deg,#000 0%,rgba(0,0,0,.35) 40%,transparent 100%);opacity:.55;animation:xm-bloom 5s ease-in-out infinite}
-@keyframes xm-bloom{0%,100%{opacity:.4}50%{opacity:.72}}
+/* Cute bulbs (owner 2026-11-03): chubby round glass with a shine dot and a gold
+   cap, each hanging from the wire and gently swaying; little red bows on the wire. */
+.xm-sway{position:absolute;top:9px;width:0;height:0;transform-origin:0 0;animation:xm-sway var(--sw,3.6s) ease-in-out var(--d,0s) infinite alternate}
+@keyframes xm-sway{from{rotate:-7deg}to{rotate:7deg}}
 .xm-bulb{
-  position:absolute;top:15px;width:13px;height:19px;margin-left:-6.5px;
-  border-radius:50% 50% 55% 55%;
-  background:radial-gradient(circle at 36% 28%,#fff 0%,var(--bc) 42%,var(--bd) 100%);
-  box-shadow:0 0 7px 2px var(--bg-glow),0 0 18px 6px var(--bg-glow2);
+  position:absolute;left:-7.5px;top:5px;width:15px;height:18px;
+  border-radius:50% 50% 50% 50% / 56% 56% 44% 44%;
+  background:radial-gradient(circle at 34% 30%,#fff 0 9%,var(--bc) 34%,var(--bd) 100%);
+  box-shadow:0 0 6px 1px var(--bg-glow),0 0 16px 4px var(--bg-glow2);
   will-change:opacity,transform;
 }
-.xm-bulb::before{content:"";position:absolute;left:2.5px;top:-5px;width:8px;height:6px;border-radius:2px 2px 0 0;background:#143524}
-.xm-bulb::after{content:"";position:absolute;left:50%;top:50%;width:54px;height:54px;margin:-27px 0 0 -27px;border-radius:50%;background:radial-gradient(circle,var(--bg-glow) 0%,rgba(0,0,0,0) 66%);opacity:.7}
-.xm-bulb:nth-of-type(6n+1){--bc:#FF4458;--bd:#B3111F;--bg-glow:rgba(255,68,88,.75);--bg-glow2:rgba(255,68,88,.32)}
-.xm-bulb:nth-of-type(6n+2){--bc:#3DDC84;--bd:#13803F;--bg-glow:rgba(61,220,132,.7);--bg-glow2:rgba(61,220,132,.3)}
-.xm-bulb:nth-of-type(6n+3){--bc:#FFC94A;--bd:#C98A0B;--bg-glow:rgba(255,201,74,.78);--bg-glow2:rgba(255,201,74,.34)}
-.xm-bulb:nth-of-type(6n+4){--bc:#4DA3FF;--bd:#1456B8;--bg-glow:rgba(77,163,255,.75);--bg-glow2:rgba(77,163,255,.32)}
-.xm-bulb:nth-of-type(6n+5){--bc:#FF7AC8;--bd:#B02C86;--bg-glow:rgba(255,122,200,.75);--bg-glow2:rgba(255,122,200,.32)}
-.xm-bulb:nth-of-type(6n+6){--bc:#FFF1D6;--bd:#D8B27A;--bg-glow:rgba(255,241,214,.7);--bg-glow2:rgba(255,241,214,.28)}
+.xm-bow{position:absolute;top:2px;width:16px;height:12px;margin-left:-8px;filter:drop-shadow(0 1px 1px rgba(0,0,0,.35))}
+.xm-wire-phone{display:none}
+@media(max-width:600px){.xm-wire-desk{display:none}.xm-wire-phone{display:block}.xm-sway{left:var(--lp)!important}.xm-sway:nth-of-type(even),.xm-bow.xm-bow-desk{display:none}.xm-bow{left:var(--bp)!important}}
+.xm-bulb::before{content:"";position:absolute;left:4px;top:-5px;width:7px;height:6px;border-radius:2px 2px 1px 1px;background:linear-gradient(180deg,#F7D774,#B8860B)}
+.xm-bulb::after{content:"";position:absolute;left:50%;top:50%;width:30px;height:30px;margin:-15px 0 0 -15px;border-radius:50%;background:radial-gradient(circle,var(--bg-glow) 0%,rgba(0,0,0,0) 66%);opacity:.45}
 [data-pattern="twinkle"] .xm-bulb{animation:xm-twinkle var(--f,3.2s) ease-in-out var(--d,0s) infinite}
 [data-pattern="chase"] .xm-bulb{animation:xm-chase 2s linear infinite;animation-delay:calc(var(--i) * -.11s)}
 [data-pattern="alt"] .xm-bulb{animation:xm-alt 1.5s ease-in-out infinite}
-[data-pattern="alt"] .xm-bulb:nth-of-type(even){animation-delay:-.75s}
+[data-pattern="alt"] .xm-sway:nth-of-type(even) .xm-bulb{animation-delay:-.75s}
 @keyframes xm-twinkle{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.93)}}
-@keyframes xm-chase{0%,100%{opacity:.32;transform:scale(.9)}14%,26%{opacity:1;transform:scale(1.1)}48%{opacity:.32;transform:scale(.9)}}
-@keyframes xm-alt{0%,100%{opacity:1;transform:scale(1.04)}50%{opacity:.28;transform:scale(.9)}}
-@media(prefers-reduced-motion:reduce){.xm-bulb,.xm-bloom,.xm-sparkles{animation:none!important}.xm-bloom{opacity:.55}.xm-sparkles{opacity:.4}}
+@keyframes xm-chase{0%,100%{opacity:.6;transform:scale(.95)}14%,26%{opacity:1;transform:scale(1.06)}48%{opacity:.6;transform:scale(.95)}}
+@keyframes xm-alt{0%,100%{opacity:1;transform:scale(1.03)}50%{opacity:.62;transform:scale(.95)}}
+@media(prefers-reduced-motion:reduce){.xm-bulb,.xm-sway,.xm-sparkles{animation:none!important}.xm-sparkles{opacity:.4}}
 
 /* Wayfind header replica (home classes and values) */
-.wf-topbar{background:rgba(22,2,8,.9);border-bottom:1px solid rgba(232,180,138,.35);padding:12px 14px;padding-top:max(12px,env(safe-area-inset-top));position:relative;z-index:20;box-shadow:inset 0 1px 0 rgba(255,255,255,.025),0 8px 20px rgba(0,0,0,.12)}
-.wf-topbar:after{content:"";position:absolute;left:14px;right:14px;bottom:-1px;height:1px;background:linear-gradient(90deg,transparent,rgba(249,115,22,.48),transparent);opacity:.6}
+.wf-topbar{background:transparent;border:0;padding:6px 16px 4px;position:relative;z-index:20}
 .xm-topin{max-width:800px;margin:0 auto}
-.wf-topbar-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+.wf-topbar-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0}
 .wf-wordmark{display:flex;align-items:center;gap:5px;flex-shrink:0;filter:drop-shadow(0 4px 12px rgba(0,0,0,.3));text-decoration:none}
 .wf-wordmark-text{display:block;flex:none;width:154.05px;height:39.06px;background-image:url("/brand/wayfind-wordmark-original-v3.png");background-image:image-set(url("/brand/opt/wordmark-original-v3-400.avif") type("image/avif"),url("/brand/opt/wordmark-original-v3-400.webp") type("image/webp"));background-repeat:no-repeat;background-size:contain;background-position:center}
 .xm-goto{
@@ -124,46 +126,21 @@ const CSS = XM_CARD_CSS + `
   background:#F97316;color:#0D1117;font-size:13px;font-weight:800;text-decoration:none;white-space:nowrap;
   box-shadow:inset 0 1px 0 rgba(255,255,255,.28),0 7px 14px rgba(249,115,22,.22);
 }
-.wf-navtabs{display:flex;gap:18px;overflow-x:auto;scrollbar-width:none;margin:0 0 8px;padding:0 2px;overscroll-behavior-x:contain}
-.wf-navtabs::-webkit-scrollbar,.wf-dests::-webkit-scrollbar{display:none}
-.wf-navtab{position:relative;display:inline-flex;align-items:center;gap:7px;flex:0 0 auto;padding:5px 0 10px;font-size:14px;font-weight:600;color:#8A96AE;white-space:nowrap;text-decoration:none;transition:color .16s ease}
-.wf-navtab:hover{color:#CBD4E8}
-.wf-navtab:focus-visible,.wf-dest:focus-visible,.xm-goto:focus-visible{outline:2px solid #F97316;outline-offset:2px;border-radius:6px}
-.wf-search-row{display:flex;gap:0;position:relative;min-width:0;filter:drop-shadow(0 11px 20px rgba(0,0,0,.24))}
-.wf-scope{display:flex;align-items:center;gap:5px;height:48px;padding:0 12px;background:#1D2536;border:1.5px solid #30363D;border-right:none;border-radius:14px 0 0 14px;color:#B7C2D8;font-size:13px;font-weight:650;white-space:nowrap;flex:0 0 auto}
-.wf-scope-city{max-width:104px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.wf-search-field{flex:1;min-width:0;position:relative}
-.wf-search-icon{position:absolute;left:13px;top:50%;transform:translateY(-50%);pointer-events:none;opacity:.9;display:inline-flex;z-index:1;color:#AEB9C8}
-.wf-search-input{width:100%;min-width:0;height:48px;padding:0 46px 0 38px;background:linear-gradient(135deg,#182130,#111923);border:1.5px solid #354153;border-left:none;border-right:none;border-radius:0;color:#F1F5F9;font-size:16px;outline:none;box-shadow:inset 0 1px 0 rgba(255,255,255,.045),inset 0 -1px 0 rgba(0,0,0,.25)}
-.wf-search-input::placeholder{color:#8190A3;opacity:1}
-.wf-search-input:focus{border-color:rgba(203,213,225,.72)}
-.wf-search-submit{flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;width:54px;height:48px;background:linear-gradient(180deg,#FF9B47 0%,#F97316 55%,#E95A0C 100%);border:none;border-radius:0 14px 14px 0;color:#0D1117;font-size:22px;font-weight:800;cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,.34),0 8px 18px rgba(249,115,22,.27)}
-.wf-dest-row{display:flex;align-items:stretch;gap:2px;margin:9px 0 -6px;border-top:1px solid #22272E}
-.wf-dests{display:flex;align-items:stretch;gap:2px;flex:1;min-width:0;overflow-x:auto;scrollbar-width:none}
-.wf-dest{position:relative;display:inline-flex;align-items:center;gap:7px;flex:0 0 auto;padding:10px 12px 11px;font-size:13.5px;font-weight:600;color:#94A1BC;white-space:nowrap;text-decoration:none;transition:color .16s ease}
-.wf-dest:hover{color:#E4EAF7}
-.wf-dest-opener{margin-left:auto}
-@media(max-width:560px){.wf-navtabs{gap:9px}.wf-navtab{font-size:12.5px;gap:4px}.wf-navtab svg{width:15px;height:15px}.wf-dest{padding:10px 8px 11px;font-size:12.5px;gap:5px}.wf-dest svg{width:16px;height:16px}.wf-scope{font-size:12.5px;padding:0 10px}}
-@media(max-width:430px){.wf-scope{padding:0 8px;gap:4px}.wf-scope-city{max-width:88px}.wf-search-icon{display:none}.wf-search-input{font-size:14px;padding-left:12px;padding-right:8px}.wf-search-submit{width:46px}}
-@media(max-width:380px){.wf-dest{padding:10px 6px 11px;font-size:12px;gap:4px}.wf-dest svg{width:15px;height:15px}.wf-dest-opener{padding-left:4px}}
+.xm-goto:focus-visible{outline:2px solid #F97316;outline-offset:2px;border-radius:6px}
 
 /* Page body */
 .xm-main{max-width:720px;margin:0 auto;padding:20px 16px 0}
 .xm-hero h1{margin:0 0 6px;font-size:26px;line-height:1.2;font-weight:700;color:var(--cream);letter-spacing:-.01em;text-wrap:balance;text-shadow:0 2px 10px rgba(30,0,6,.6)}
 .xm-lede{margin:0;font-size:15px;line-height:1.5;color:var(--muted)}
 .xm-honest{margin:8px 0 0;font-size:13px;line-height:1.5;color:var(--soft)}
-.xm-ask{margin-top:16px;width:100%;min-height:48px;border-radius:12px;border:1px solid var(--line);cursor:pointer;background:linear-gradient(180deg,#E0303F,#B01728);color:#fff;font-size:15px;font-weight:700;box-shadow:0 0 14px rgba(232,180,138,.2)}
-.xm-share{margin-top:8px;display:flex;justify-content:flex-start}
+.xm-hero-actions{display:flex;align-items:center;gap:10px;margin-top:16px}.xm-ask{flex:1;min-width:0;min-height:48px;border-radius:12px;border:1px solid var(--line);cursor:pointer;background:linear-gradient(180deg,#E0303F,#B01728);color:#fff;font-size:15px;font-weight:700;box-shadow:0 0 14px rgba(232,180,138,.2)}
+.xm-share{display:flex;flex:0 0 auto;justify-content:flex-start}
 .xm-share button,.xm-share a{min-height:44px}
 .xm-ask:focus-visible,.xm-filters button:focus-visible,.xm-more:focus-visible{outline:2px solid #FFD9AE;outline-offset:2px}
 
 #xm-tickets{margin-top:22px;scroll-margin-top:12px}
-.xm-filters{display:flex;flex-wrap:wrap;gap:8px}
-@media(max-width:719px){.xm-filters{flex-wrap:nowrap;overflow-x:auto;margin:0 -16px;padding:2px 16px 6px;scrollbar-width:none;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch}.xm-filters::-webkit-scrollbar{display:none}.xm-filters button{flex:0 0 auto;white-space:nowrap}}
-.xm-filters button{min-height:44px;padding:8px 14px;border-radius:999px;cursor:pointer;background:rgba(24,2,8,.5);color:#FFE9C8;border:1px solid rgba(232,180,138,.7);font-size:14px;font-weight:600}
-.xm-filters button[aria-pressed="true"]{background:linear-gradient(180deg,#FFE9B8,#F5C451);color:#4A0610;border-color:#F5C451;font-weight:800;box-shadow:0 0 12px rgba(245,196,81,.35)}
-.xm-controls{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
-.xm-controls input::placeholder{color:#D9B3A3;opacity:1}
+.xm-controls{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-top:18px;padding-bottom:16px;border-bottom:1px solid rgba(232,180,138,.22)}
+.xm-sort-note{font-size:13px;color:#E1C6B6;line-height:1.4}.xm-clear{min-height:44px;margin-left:auto;padding:8px 4px;border:0;background:transparent;color:#E8B48A;cursor:pointer;font:inherit;font-size:13px}.xm-clear:focus-visible{outline:2px solid #FFE9C8;outline-offset:3px}
 .xm-count{margin:14px 0 0;font-size:14px;color:var(--muted)}
 .xm-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;margin-top:12px}
 @media(min-width:720px){.xm-main{max-width:960px}.xm-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
@@ -188,22 +165,43 @@ function FestivalLights() {
   }, []);
   return (
     <div className="xm-lights" aria-hidden="true" data-pattern={pattern}>
-      <div className="xm-bloom" />
-      <svg className="xm-wire" viewBox="0 0 1200 36" preserveAspectRatio="none">
-        <path d={WIRE_PATH} fill="none" stroke="#14582F" strokeWidth="4.6" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
-        <path d={WIRE_PATH} fill="none" stroke="#3FBF7F" strokeOpacity=".75" strokeWidth="1.6" strokeDasharray="1 6" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
+      <svg className="xm-wire xm-wire-desk" viewBox="0 0 1200 36" preserveAspectRatio="none">
+        <path d={WIRE_PATH} fill="none" stroke="#1F4D2E" strokeWidth="2" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
+      </svg>
+      <svg className="xm-wire xm-wire-phone" viewBox="0 0 1200 36" preserveAspectRatio="none">
+        <path d={PHONE_WIRE_PATH} fill="none" stroke="#1F4D2E" strokeWidth="2" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
       </svg>
       {Array.from({ length: BULB_COUNT }, (_, i) => (
         <span
           key={i}
-          className="xm-bulb"
+          className="xm-sway"
           style={{
             left: (((i + 0.5) / BULB_COUNT) * 100).toFixed(2) + "%",
-            "--i": i,
+            "--lp": (((Math.floor(i / 2) + 0.5) / PHONE_DIPS) * 100).toFixed(2) + "%",
             "--d": "-" + ((i * 1.7) % 9).toFixed(1) + "s",
-            "--f": (2.6 + ((i * 37) % 30) / 10).toFixed(1) + "s",
+            "--sw": (3 + ((i * 13) % 12) / 10).toFixed(1) + "s",
           }}
-        />
+        >
+          <span
+            className="xm-bulb"
+            style={{
+              "--i": i,
+              "--bc": BULB_COLORS[i % BULB_COLORS.length][0],
+              "--bd": BULB_COLORS[i % BULB_COLORS.length][1],
+              "--bg-glow": BULB_COLORS[i % BULB_COLORS.length][2],
+              "--bg-glow2": BULB_COLORS[i % BULB_COLORS.length][3],
+              "--d": "-" + ((i * 1.7) % 9).toFixed(1) + "s",
+              "--f": (2.6 + ((i * 37) % 30) / 10).toFixed(1) + "s",
+            }}
+          />
+        </span>
+      ))}
+      {Array.from({ length: Math.floor(BULB_COUNT / 3) }, (_, k) => (
+        <svg key={"bow" + k} className={"xm-bow" + (k % 2 ? " xm-bow-desk" : "")} viewBox="0 0 16 12" style={{ left: (((k * 3 + 2) / BULB_COUNT) * 100).toFixed(2) + "%", "--bp": ((((k * 3 + 2) / 2) / PHONE_DIPS) * 100).toFixed(2) + "%" }}>
+          <path d="M8 6 L1.5 1.5 Q0 6 1.5 10.5 Z M8 6 L14.5 1.5 Q16 6 14.5 10.5 Z" fill="#D92C37" />
+          <path d="M8 6 L5 11.5 M8 6 L11 11.5" stroke="#B3111F" strokeWidth="1.6" strokeLinecap="round" />
+          <circle cx="8" cy="6" r="2" fill="#F5C451" />
+        </svg>
       ))}
     </div>
   );
@@ -276,48 +274,20 @@ function seasonalMarkCss(mark) {
   return `.wf-wordmark.is-seasonal{gap:0}.wf-wordmark.is-seasonal .wf-wordmark-text{width:${width}px;height:49.1px;background-image:url("${mark.png}");background-image:image-set(url("${mark.avif}") type("image/avif"),url("${mark.webp}") type("image/webp"));background-position:center;background-size:contain}`;
 }
 
+// Just the logo and one way back (owner 2026-11-01: "remove the top portion
+// of the site and bring them back to gowayfind only by keeping the button").
+// No category tabs, search or shortcut row: they led off this page into
+// surfaces that are not part of it. It sits on the page's own red, so the top
+// no longer reads as a separate dark block.
 function WayfindHeader({ seasonal }) {
   return (
-    <div className="wf-topbar">
+    <div className="wf-topbar xm-topbar">
       <div className="xm-topin">
         <div className="wf-topbar-row">
           <a className={"wf-wordmark" + (seasonal ? " is-seasonal" : "")} href="/" aria-label="Wayfind home">
             <span className="wf-wordmark-text" aria-hidden="true" />
           </a>
           <a className="xm-goto" href="/">Go to Wayfind<span aria-hidden="true">→</span></a>
-        </div>
-        <div className="wf-navtabs" role="group" aria-label="Browse categories">
-          {CATEGORY_TABS.map((tab) => (
-            <a key={tab.id} className="wf-navtab" href={tab.href}>
-              <NavIcon name={tab.id} color="#8A96AE" size={17} strokeWidth={1.7} />
-              <span>{tab.label}</span>
-            </a>
-          ))}
-        </div>
-        <form className="wf-search-row has-scope" action="/" method="get" role="search">
-          <div className="wf-scope">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 21s-6.6-5.4-6.6-10.2A6.6 6.6 0 0 1 12 4.2a6.6 6.6 0 0 1 6.6 6.6C18.6 15.6 12 21 12 21Z" /><circle cx="12" cy="10.8" r="2.3" /></svg>
-            <span className="wf-scope-city">Florida</span>
-          </div>
-          <div className="wf-search-field">
-            <span className="wf-search-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5" /><path d="m16 16 4.2 4.2" /></svg></span>
-            <input className="wf-search-input" type="search" name="q" placeholder="Search a place or city" aria-label="Search Wayfind" autoComplete="off" enterKeyHint="search" />
-          </div>
-          <button type="submit" className="wf-search-submit" aria-label="Search">→</button>
-        </form>
-        <div className="wf-dest-row">
-          <nav className="wf-dests" aria-label="Destinations">
-            {DEST_LINKS.map((d) => (
-              <a key={d.label} className="wf-dest" href={d.href}>
-                <NavIcon name={d.icon} color="currentColor" size={17} strokeWidth={1.8} />
-                <span>{d.label}</span>
-              </a>
-            ))}
-          </nav>
-          <a className="wf-dest wf-dest-opener" href="/">
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" /></svg>
-            <span>Shortcuts</span>
-          </a>
         </div>
       </div>
     </div>
@@ -345,8 +315,10 @@ export default function ChristmasTickets({ model, share = null, browse = null })
           <h1 id="xm-title">{chrome.title}</h1>
           <p className="xm-lede">{chrome.lede}</p>
           <p className="xm-honest">{chrome.honest}</p>
-          <button type="button" className="xm-ask" onClick={askSanta}>{chrome.ask}</button>
-          {share ? <div className="xm-share">{share}</div> : null}
+          <div className="xm-hero-actions">
+            <button type="button" className="xm-ask" onClick={askSanta}>{chrome.ask}</button>
+            {share ? <div className="xm-share">{share}</div> : null}
+          </div>
         </div>
 
         <div id="xm-tickets" data-ticket-grid="">{browse}</div>

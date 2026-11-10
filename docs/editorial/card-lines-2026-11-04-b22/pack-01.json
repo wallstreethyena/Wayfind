@@ -1,0 +1,1416 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 22. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJgUinFcMd2YgRBIUVPmOwCaI",
+   "name": "Sugar Sand Park",
+   "category": "attractions",
+   "metro": "palm-beach",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.sugarsandpark.org/",
+     "source_name": "Sugar Sand Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Sugar Sand Park Community Center is home to the Children's Science Explorium, the Carousel, the Field House, and Willow Theatre.",
+      "Sugar Sand Park Community Center opened in 1998.",
+      "Sugar Sand Park Community Center provides programs for residents of the City of Boca Raton.",
+      "Sugar Sand Park hours are Monday to Saturday 8 a.m. to 11 p.m. and Sunday 8 a.m. to 8 p.m. during daylight saving time.",
+      "Registration cannot be completed using a phone; a computer, laptop, or tablet must be used."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Home to the Children's Science Explorium, the Carousel, and Willow Theatre",
+    "why_here": "Sugar Sand Park Community Center is home to the Children's Science Explorium, the Carousel, the Field House, and Willow Theatre in the City of Boca Raton.",
+    "know_before": "Registration cannot be completed using a phone; use a computer, laptop, or tablet.",
+    "local_tip": "Visit Monday to Saturday 8 a.m. to 11 p.m. or Sunday 8 a.m. to 8 p.m.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.sugarsandpark.org/"
+     ],
+     "why_here": [
+      "https://www.sugarsandpark.org/"
+     ],
+     "know_before": [
+      "https://www.sugarsandpark.org/"
+     ],
+     "local_tip": [
+      "https://www.sugarsandpark.org/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Sugar Sand Park Community Center is home to the Children's Science Explorium, the Carousel, the Field House, and Willow Theatre.",
+      "source": "https://www.sugarsandpark.org/"
+     },
+     {
+      "claim": "Sugar Sand Park Community Center opened in 1998.",
+      "source": "https://www.sugarsandpark.org/"
+     },
+     {
+      "claim": "Sugar Sand Park Community Center provides programs for residents of the City of Boca Raton.",
+      "source": "https://www.sugarsandpark.org/"
+     },
+     {
+      "claim": "Sugar Sand Park hours are Monday to Saturday 8 a.m. to 11 p.m. and Sunday 8 a.m. to 8 p.m. during daylight saving time.",
+      "source": "https://www.sugarsandpark.org/"
+     },
+     {
+      "claim": "Registration cannot be completed using a phone; a computer, laptop, or tablet must be used.",
+      "source": "https://www.sugarsandpark.org/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ3QRKerWn4IgR9zR4wvCGc4w",
+   "name": "Southern Charm Cafe",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://southerncharmcafefl.com/",
+     "source_name": "Southern Charm Cafe \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Southern Charm Cafe is locally owned and family owned.",
+      "Southern Charm Cafe is in Cape Canaveral at 8501 Astronaut Blvd, Port Canaveral.",
+      "The cafe serves Southern comfort classics including Country Style Eggs Benedict, Chicken & Waffles, and Shrimp & Grits.",
+      "Chicken & Waffles is crispy, tender chicken on a golden waffle.",
+      "Shrimp & Grits is plump, seasoned shrimp over creamy, slow-cooked grits.",
+      "Hours are 6:30 a.m. to 2:30 p.m. on Sunday, Monday and Wednesday to Saturday, closed Tuesday."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Southern comfort classics including Chicken & Waffles in Port Canaveral",
+    "why_here": "This locally owned and family owned cafe in Cape Canaveral serves Southern comfort classics including Country Style Eggs Benedict, Chicken & Waffles, and Shrimp & Grits.",
+    "know_before": "The cafe is closed Tuesday; other days it is open from 6:30 a.m. to 2:30 p.m.",
+    "local_tip": "Try the Shrimp & Grits, plump, seasoned shrimp over creamy, slow-cooked grits.",
+    "best_time": "Go for breakfast or brunch, when the cafe serves from 6:30 a.m. to 2:30 p.m.",
+    "citations": {
+     "hook": [
+      "https://southerncharmcafefl.com/"
+     ],
+     "why_here": [
+      "https://southerncharmcafefl.com/"
+     ],
+     "know_before": [
+      "https://southerncharmcafefl.com/"
+     ],
+     "local_tip": [
+      "https://southerncharmcafefl.com/"
+     ],
+     "best_time": [
+      "https://southerncharmcafefl.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Southern Charm Cafe is locally owned and family owned.",
+      "source": "https://southerncharmcafefl.com/"
+     },
+     {
+      "claim": "Southern Charm Cafe is in Cape Canaveral at 8501 Astronaut Blvd, Port Canaveral.",
+      "source": "https://southerncharmcafefl.com/"
+     },
+     {
+      "claim": "The cafe serves Southern comfort classics including Country Style Eggs Benedict, Chicken & Waffles, and Shrimp & Grits.",
+      "source": "https://southerncharmcafefl.com/"
+     },
+     {
+      "claim": "Chicken & Waffles is crispy, tender chicken on a golden waffle.",
+      "source": "https://southerncharmcafefl.com/"
+     },
+     {
+      "claim": "Shrimp & Grits is plump, seasoned shrimp over creamy, slow-cooked grits.",
+      "source": "https://southerncharmcafefl.com/"
+     },
+     {
+      "claim": "Hours are 6:30 a.m. to 2:30 p.m. on Sunday, Monday and Wednesday to Saturday, closed Tuesday.",
+      "source": "https://southerncharmcafefl.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJn66kDZ-32YgR-qTMF-uQPGo",
+   "name": "Comfort Inn & Suites Downtown Brickell-Port of Miami",
+   "category": "hotels",
+   "metro": "miami-dade",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.choicehotels.com/florida/miami/comfort-inn-hotels/fl202",
+     "source_name": "Comfort Inn & Suites Downtown Brickell-Port of Miami \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Comfort Inn & Suites Downtown Brickell-Port of Miami is a hotel in Miami.",
+      "The hotel offers free hot breakfast.",
+      "The hotel offers free WiFi throughout the hotel.",
+      "The hotel has an outdoor pool."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "A Comfort Inn in Downtown Brickell near the Port of Miami",
+    "why_here": "Comfort Inn & Suites Downtown Brickell-Port of Miami is a hotel in Miami with free WiFi throughout the hotel and an outdoor pool for guests staying near Downtown Brickell and the Port of Miami.",
+    "know_before": "Free hot breakfast is included for guests.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.choicehotels.com/florida/miami/comfort-inn-hotels/fl202"
+     ],
+     "why_here": [
+      "https://www.choicehotels.com/florida/miami/comfort-inn-hotels/fl202"
+     ],
+     "know_before": [
+      "https://www.choicehotels.com/florida/miami/comfort-inn-hotels/fl202"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Comfort Inn & Suites Downtown Brickell-Port of Miami is a hotel in Miami.",
+      "source": "https://www.choicehotels.com/florida/miami/comfort-inn-hotels/fl202"
+     },
+     {
+      "claim": "The hotel offers free hot breakfast.",
+      "source": "https://www.choicehotels.com/florida/miami/comfort-inn-hotels/fl202"
+     },
+     {
+      "claim": "The hotel offers free WiFi throughout the hotel.",
+      "source": "https://www.choicehotels.com/florida/miami/comfort-inn-hotels/fl202"
+     },
+     {
+      "claim": "The hotel has an outdoor pool.",
+      "source": "https://www.choicehotels.com/florida/miami/comfort-inn-hotels/fl202"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ5Ro6e6f-wogRx8r8UK0gaJA",
+   "name": "Sweet Sage Cafe",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "cafe",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://sweetsagecafe.com/",
+     "source_name": "Sweet Sage Cafe \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Sweet Sage Cafe & Boutique serves breakfast and lunch in North Redington Beach.",
+      "The cafe offers a Doggie Menu crafted especially for pups.",
+      "The venue includes a boutique.",
+      "The cafe is open every day from 7 a.m. to 2 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Breakfast and lunch cafe with a boutique and a menu for dogs",
+    "why_here": "Sweet Sage Cafe & Boutique in North Redington Beach serves breakfast and lunch, includes a boutique, and offers a Doggie Menu crafted especially for pups alongside the cafe menus.",
+    "know_before": "The cafe is open every day from 7 a.m. to 2 p.m.",
+    "local_tip": "Bring your pups; the Doggie Menu is crafted especially for pups.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://sweetsagecafe.com/"
+     ],
+     "why_here": [
+      "https://sweetsagecafe.com/"
+     ],
+     "know_before": [
+      "https://sweetsagecafe.com/"
+     ],
+     "local_tip": [
+      "https://sweetsagecafe.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Sweet Sage Cafe & Boutique serves breakfast and lunch in North Redington Beach.",
+      "source": "https://sweetsagecafe.com/"
+     },
+     {
+      "claim": "The cafe offers a Doggie Menu crafted especially for pups.",
+      "source": "https://sweetsagecafe.com/"
+     },
+     {
+      "claim": "The venue includes a boutique.",
+      "source": "https://sweetsagecafe.com/"
+     },
+     {
+      "claim": "The cafe is open every day from 7 a.m. to 2 p.m.",
+      "source": "https://sweetsagecafe.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJM-RnZBDG5YgRFzWX51r8CxM",
+   "name": "4 Rivers Smokehouse",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "barbecue_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.4rsmokehouse.com/",
+     "source_name": "4 Rivers Smokehouse \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "30-day wet-aged beef brisket is rubbed with 4R Brisket Rub and smoked for 18 hours, hand sliced to order.",
+      "4 Rivers Smokehouse began with the launch of the Barbecue Ministry in 2004.",
+      "The menu includes Pulled Pork and Burnt Ends."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Brisket wet-aged 30 days and smoked for 18 hours",
+    "why_here": "4 Rivers Smokehouse describes its brisket as 30-day wet-aged beef brisket rubbed with 4R Brisket Rub and smoked for 18 hours, and the smokehouse began with the Barbecue Ministry in 2004.",
+    "know_before": "Brisket is hand sliced to order.",
+    "local_tip": "Look for Pulled Pork and Burnt Ends on the menu.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.4rsmokehouse.com/"
+     ],
+     "why_here": [
+      "https://www.4rsmokehouse.com/"
+     ],
+     "know_before": [
+      "https://www.4rsmokehouse.com/"
+     ],
+     "local_tip": [
+      "https://www.4rsmokehouse.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "30-day wet-aged beef brisket is rubbed with 4R Brisket Rub and smoked for 18 hours, hand sliced to order.",
+      "source": "https://www.4rsmokehouse.com/"
+     },
+     {
+      "claim": "4 Rivers Smokehouse began with the launch of the Barbecue Ministry in 2004.",
+      "source": "https://www.4rsmokehouse.com/"
+     },
+     {
+      "claim": "The menu includes Pulled Pork and Burnt Ends.",
+      "source": "https://www.4rsmokehouse.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJT-BRL3cf2YgRAFPb0JSb8R8",
+   "name": "La Boulangerie Boul'Mich",
+   "category": "food",
+   "metro": "palm-beach",
+   "primary_type": "cafe",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.laboulangerieusa.com/about",
+     "source_name": "La Boulangerie Boul'Mich \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "La Boulangerie Boul'Mich brings together French baking and Latin culture.",
+      "La Boulangerie Boul'Mich has served South Florida for over 20 years.",
+      "La Boulangerie Boul'Mich is known for artisan croissants and savory empanadas.",
+      "La Boulangerie Boul'Mich started as a neighborhood gem in Miami.",
+      "The menu lists a Nutella Croissant as a buttery croissant filled with Nutella."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "French baking and Latin culture in artisan croissants and savory empanadas",
+    "why_here": "La Boulangerie Boul'Mich brings together French baking and Latin culture, and it has served South Florida for over 20 years with artisan croissants and savory empanadas.",
+    "know_before": "La Boulangerie Boul'Mich has served South Florida for over 20 years.",
+    "local_tip": "Nutella Croissant is a buttery croissant filled with Nutella.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.laboulangerieusa.com/about"
+     ],
+     "why_here": [
+      "https://www.laboulangerieusa.com/about"
+     ],
+     "know_before": [
+      "https://www.laboulangerieusa.com/about"
+     ],
+     "local_tip": [
+      "https://www.laboulangerieusa.com/about"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "La Boulangerie Boul'Mich brings together French baking and Latin culture.",
+      "source": "https://www.laboulangerieusa.com/about"
+     },
+     {
+      "claim": "La Boulangerie Boul'Mich has served South Florida for over 20 years.",
+      "source": "https://www.laboulangerieusa.com/about"
+     },
+     {
+      "claim": "La Boulangerie Boul'Mich is known for artisan croissants and savory empanadas.",
+      "source": "https://www.laboulangerieusa.com/about"
+     },
+     {
+      "claim": "La Boulangerie Boul'Mich started as a neighborhood gem in Miami.",
+      "source": "https://www.laboulangerieusa.com/about"
+     },
+     {
+      "claim": "The menu lists a Nutella Croissant as a buttery croissant filled with Nutella.",
+      "source": "https://www.laboulangerieusa.com/about"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJHfxq7_aO3YgR8YGigbrFCZw",
+   "name": "Crabby's On The Lakefront",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://crabbybillsstcloud.com/",
+     "source_name": "Crabby's On The Lakefront \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Crabby's is located on East Lake Toho in the Lakefront Park Marina.",
+      "The restaurant features panoramic views of the marina and lake from indoor and outdoor dining areas.",
+      "The restaurant's specialty is seafood.",
+      "Crabby's has a pet friendly deck.",
+      "Crabby's offers local live music on the weekends."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Seafood dining on East Lake Toho with marina and lake views",
+    "why_here": "Crabby's in St. Cloud sits on East Lake Toho in the Lakefront Park Marina, with panoramic marina and lake views from indoor and outdoor dining. The restaurant says its specialty is seafood, with land-lover favorites also on the menu.",
+    "know_before": "The deck is pet friendly, per the official site.",
+    "local_tip": "Visit on a weekend for local live music, per the official site.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://crabbybillsstcloud.com/"
+     ],
+     "why_here": [
+      "https://crabbybillsstcloud.com/"
+     ],
+     "know_before": [
+      "https://crabbybillsstcloud.com/"
+     ],
+     "local_tip": [
+      "https://crabbybillsstcloud.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Crabby's is located on East Lake Toho in the Lakefront Park Marina.",
+      "source": "https://crabbybillsstcloud.com/"
+     },
+     {
+      "claim": "The restaurant features panoramic views of the marina and lake from indoor and outdoor dining areas.",
+      "source": "https://crabbybillsstcloud.com/"
+     },
+     {
+      "claim": "The restaurant's specialty is seafood.",
+      "source": "https://crabbybillsstcloud.com/"
+     },
+     {
+      "claim": "Crabby's has a pet friendly deck.",
+      "source": "https://crabbybillsstcloud.com/"
+     },
+     {
+      "claim": "Crabby's offers local live music on the weekends.",
+      "source": "https://crabbybillsstcloud.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJsWWHt3Wl2YgRBXiZXpMv57g",
+   "name": "Korner67",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.korner67.com/menus",
+     "source_name": "Korner67 \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Korner67 in Miami Lakes offers Global tapas, sushi and cocktails.",
+      "Korner67 is a restaurant and mixology bar in Miami Lakes.",
+      "New lunch menu items are offered every day from 12 p.m. to 4 p.m.",
+      "Brunch includes Smoked Salmon Eggs Benedict with poached eggs and smoked salmon.",
+      "Brunch includes Scrambled Eggs Perico with Arepas and scrambled eggs."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Global tapas, sushi and cocktails at a restaurant and mixology bar",
+    "why_here": "Korner67 in Miami Lakes is a restaurant and mixology bar offering global tapas, sushi and cocktails, with new lunch menu items offered every day for a shared meal.",
+    "know_before": "New lunch menu items are offered every day from 12 p.m. to 4 p.m.",
+    "local_tip": "Smoked Salmon Eggs Benedict or Scrambled Eggs Perico with Arepas at brunch.",
+    "best_time": "Lunch from 12 p.m. to 4 p.m. for the new lunch menu items listed on the official menus page.",
+    "citations": {
+     "hook": [
+      "https://www.korner67.com/menus"
+     ],
+     "why_here": [
+      "https://www.korner67.com/menus"
+     ],
+     "know_before": [
+      "https://www.korner67.com/menus"
+     ],
+     "local_tip": [
+      "https://www.korner67.com/menus"
+     ],
+     "best_time": [
+      "https://www.korner67.com/menus"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Korner67 in Miami Lakes offers Global tapas, sushi and cocktails.",
+      "source": "https://www.korner67.com/menus"
+     },
+     {
+      "claim": "Korner67 is a restaurant and mixology bar in Miami Lakes.",
+      "source": "https://www.korner67.com/menus"
+     },
+     {
+      "claim": "New lunch menu items are offered every day from 12 p.m. to 4 p.m.",
+      "source": "https://www.korner67.com/menus"
+     },
+     {
+      "claim": "Brunch includes Smoked Salmon Eggs Benedict with poached eggs and smoked salmon.",
+      "source": "https://www.korner67.com/menus"
+     },
+     {
+      "claim": "Brunch includes Scrambled Eggs Perico with Arepas and scrambled eggs.",
+      "source": "https://www.korner67.com/menus"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJX6TXg_8s5ogRrUPQocQr_-M",
+   "name": "Terry's Place",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://terrys.place/",
+     "source_name": "Terry's Place \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Terry's Place Sports Bar & Grill has served the Ocala community for more than forty years.",
+      "Terry's Place opened in 1980 and is now under the family's third generation.",
+      "Hand-cut steaks are prepared fresh in-house, alongside subs and hamburgers.",
+      "Terry's Place offers hearty meals, friendly service and great value."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Sports bar and grill serving Ocala for more than forty years since 1980",
+    "why_here": "Terry's Place Sports Bar & Grill has served the Ocala community for more than forty years since 1980, now under the family's third generation, with hearty meals and friendly service.",
+    "know_before": "Terry's Place opened in 1980 and is now under the family's third generation.",
+    "local_tip": "Hand-cut steaks are prepared fresh in-house, alongside subs and hamburgers.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://terrys.place/"
+     ],
+     "why_here": [
+      "https://terrys.place/"
+     ],
+     "know_before": [
+      "https://terrys.place/"
+     ],
+     "local_tip": [
+      "https://terrys.place/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Terry's Place Sports Bar & Grill has served the Ocala community for more than forty years.",
+      "source": "https://terrys.place/"
+     },
+     {
+      "claim": "Terry's Place opened in 1980 and is now under the family's third generation.",
+      "source": "https://terrys.place/"
+     },
+     {
+      "claim": "Hand-cut steaks are prepared fresh in-house, alongside subs and hamburgers.",
+      "source": "https://terrys.place/"
+     },
+     {
+      "claim": "Terry's Place offers hearty meals, friendly service and great value.",
+      "source": "https://terrys.place/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJxWeEpnH17IgROln8pf-mRy0",
+   "name": "Harry's Seafood Bar & Grille",
+   "category": "nightlife",
+   "metro": "florida",
+   "primary_type": "bar_and_grill",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://hookedonharrys.com/",
+     "source_name": "Harry's Seafood Bar & Grille \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Harry's Seafood Bar & Grille was established in 1987.",
+      "Harry's serves Southern, Cajun and Creole flavors in Classic and modern dishes.",
+      "A full bar is available at each Harry's location.",
+      "Harry's lists locations in Gainesville, Ocala, St. Augustine, Lakeland and Tallahassee."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Southern, Cajun and Creole flavors in classic and modern dishes since 1987",
+    "why_here": "Harry's Seafood Bar & Grille was established in 1987 and serves southern, Cajun and Creole flavors in classic and modern dishes, with locations in Gainesville and Ocala.",
+    "know_before": "A full bar is available at each Harry's location.",
+    "local_tip": "Classic and modern dishes carry Southern, Cajun and Creole flavors.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://hookedonharrys.com/"
+     ],
+     "why_here": [
+      "https://hookedonharrys.com/"
+     ],
+     "know_before": [
+      "https://hookedonharrys.com/"
+     ],
+     "local_tip": [
+      "https://hookedonharrys.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Harry's Seafood Bar & Grille was established in 1987.",
+      "source": "https://hookedonharrys.com/"
+     },
+     {
+      "claim": "Harry's serves Southern, Cajun and Creole flavors in Classic and modern dishes.",
+      "source": "https://hookedonharrys.com/"
+     },
+     {
+      "claim": "A full bar is available at each Harry's location.",
+      "source": "https://hookedonharrys.com/"
+     },
+     {
+      "claim": "Harry's lists locations in Gainesville, Ocala, St. Augustine, Lakeland and Tallahassee.",
+      "source": "https://hookedonharrys.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJoyuEA-3jwogR25UxMPCIDt0",
+   "name": "St. Pete Coastal Cruises",
+   "category": "attractions",
+   "metro": "st-pete",
+   "primary_type": "tour_agency",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.stpetecoastalcruises.com/",
+     "source_name": "St. Pete Coastal Cruises \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The vessel Escape is a 50-foot custom built catamaran with a restroom on board.",
+      "Cruises include Dolphin Watching and Shelling Adventure and Island Sunset & Skyway Light Show.",
+      "Cruises include Sandbar Parties and dolphin watching in St. Pete.",
+      "Captains have over 20 years navigating local waters of St. Pete and show local dolphin hangouts."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "50-foot catamaran for dolphin watching, sunset and Skyway Light Show cruises",
+    "why_here": "The vessel Escape is a 50-foot custom built catamaran with a restroom on board, running Dolphin Watching and Shelling Adventure and Island Sunset & Skyway Light Show cruises in St. Pete.",
+    "know_before": "The vessel Escape has a restroom on board.",
+    "local_tip": "Captains show local dolphin hangouts in St. Pete on the adventure.",
+    "best_time": "Sunset for the Island Sunset & Skyway Light Show cruise listed on the official site.",
+    "citations": {
+     "hook": [
+      "https://www.stpetecoastalcruises.com/"
+     ],
+     "why_here": [
+      "https://www.stpetecoastalcruises.com/"
+     ],
+     "know_before": [
+      "https://www.stpetecoastalcruises.com/"
+     ],
+     "local_tip": [
+      "https://www.stpetecoastalcruises.com/"
+     ],
+     "best_time": [
+      "https://www.stpetecoastalcruises.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The vessel Escape is a 50-foot custom built catamaran with a restroom on board.",
+      "source": "https://www.stpetecoastalcruises.com/"
+     },
+     {
+      "claim": "Cruises include Dolphin Watching and Shelling Adventure and Island Sunset & Skyway Light Show.",
+      "source": "https://www.stpetecoastalcruises.com/"
+     },
+     {
+      "claim": "Cruises include Sandbar Parties and dolphin watching in St. Pete.",
+      "source": "https://www.stpetecoastalcruises.com/"
+     },
+     {
+      "claim": "Captains have over 20 years navigating local waters of St. Pete and show local dolphin hangouts.",
+      "source": "https://www.stpetecoastalcruises.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ96LtKVO62YgR8VXDTbN2O5Q",
+   "name": "K1 Speed Miami",
+   "category": "attractions",
+   "metro": "miami-dade",
+   "primary_type": "amusement_center",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.k1speed.com/miami-location.html",
+     "source_name": "K1 Speed Miami \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "K1 Speed Miami offers indoor go-kart racing in Medley.",
+      "K1 Speed Miami offers electric go-karts.",
+      "K1 Speed Miami has an arcade.",
+      "K1 Speed Miami is at 8600 NW South River Drive, Suite 8, Medley, FL 33166.",
+      "No junior races after 8 p.m. on Friday at K1 Speed Miami."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "indoor electric go-kart racing with an arcade in Medley",
+    "why_here": "K1 Speed Miami offers indoor go-kart racing in Medley with electric go-karts and an arcade, giving groups a racing option plus games away from the track.",
+    "know_before": "K1 Speed Miami is at 8600 NW South River Drive, Suite 8, Medley, FL 33166.",
+    "local_tip": "K1 Speed Miami has no junior races after 8 p.m. on Friday.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.k1speed.com/miami-location.html"
+     ],
+     "why_here": [
+      "https://www.k1speed.com/miami-location.html"
+     ],
+     "know_before": [
+      "https://www.k1speed.com/miami-location.html"
+     ],
+     "local_tip": [
+      "https://www.k1speed.com/miami-location.html"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "K1 Speed Miami offers indoor go-kart racing in Medley.",
+      "source": "https://www.k1speed.com/miami-location.html"
+     },
+     {
+      "claim": "K1 Speed Miami offers electric go-karts.",
+      "source": "https://www.k1speed.com/miami-location.html"
+     },
+     {
+      "claim": "K1 Speed Miami has an arcade.",
+      "source": "https://www.k1speed.com/miami-location.html"
+     },
+     {
+      "claim": "K1 Speed Miami is at 8600 NW South River Drive, Suite 8, Medley, FL 33166.",
+      "source": "https://www.k1speed.com/miami-location.html"
+     },
+     {
+      "claim": "No junior races after 8 p.m. on Friday at K1 Speed Miami.",
+      "source": "https://www.k1speed.com/miami-location.html"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJg2xTwHU53YgRHzUGTNiY3C0",
+   "name": "Margarita's Cocina Mexicana, Lakeland",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://margaritascm.com/",
+     "source_name": "Margarita's Cocina Mexicana, Lakeland \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Margarita's Cocina Mexicana has a Lakeland location at 4715 Florida Ave S, Lakeland, FL 33813.",
+      "Margarita's Cocina Mexicana is known for Street Tacos, Birria Tacos and Burritos.",
+      "Margarita's Cocina Mexicana also has locations in Davenport and Winter Haven."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Street tacos, birria tacos and burritos in Lakeland",
+    "why_here": "Margarita's Cocina Mexicana in Lakeland is known for Street Tacos, Birria Tacos and Burritos, with other locations in Davenport and Winter Haven for a second stop nearby.",
+    "know_before": "The Lakeland location is at 4715 Florida Ave S, Lakeland, FL 33813.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://margaritascm.com/"
+     ],
+     "why_here": [
+      "https://margaritascm.com/"
+     ],
+     "know_before": [
+      "https://margaritascm.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Margarita's Cocina Mexicana has a Lakeland location at 4715 Florida Ave S, Lakeland, FL 33813.",
+      "source": "https://margaritascm.com/"
+     },
+     {
+      "claim": "Margarita's Cocina Mexicana is known for Street Tacos, Birria Tacos and Burritos.",
+      "source": "https://margaritascm.com/"
+     },
+     {
+      "claim": "Margarita's Cocina Mexicana also has locations in Davenport and Winter Haven.",
+      "source": "https://margaritascm.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJQWpeWE4A2YgRNKx4pjQK7PE",
+   "name": "Floridian Restaurant",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://thefloridiandiner.com/about",
+     "source_name": "Floridian Restaurant \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Floridian has been serving hearty meals since 1937.",
+      "The Floridian is located along Las Olas Boulevard in Fort Lauderdale.",
+      "The Floridian offers breakfast all day.",
+      "The Floridian offers 24-hour service."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "A Las Olas Boulevard diner serving hearty meals since 1937",
+    "why_here": "The Floridian is a diner along Las Olas Boulevard in Fort Lauderdale that has been serving hearty meals since 1937, with breakfast all day and 24-hour service for late visits.",
+    "know_before": "The Floridian offers 24-hour service.",
+    "local_tip": "The Floridian offers breakfast all day.",
+    "best_time": "Any time of day, since the restaurant states it offers 24-hour service.",
+    "citations": {
+     "hook": [
+      "https://thefloridiandiner.com/about"
+     ],
+     "why_here": [
+      "https://thefloridiandiner.com/about"
+     ],
+     "know_before": [
+      "https://thefloridiandiner.com/about"
+     ],
+     "local_tip": [
+      "https://thefloridiandiner.com/about"
+     ],
+     "best_time": [
+      "https://thefloridiandiner.com/about"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Floridian has been serving hearty meals since 1937.",
+      "source": "https://thefloridiandiner.com/about"
+     },
+     {
+      "claim": "The Floridian is located along Las Olas Boulevard in Fort Lauderdale.",
+      "source": "https://thefloridiandiner.com/about"
+     },
+     {
+      "claim": "The Floridian offers breakfast all day.",
+      "source": "https://thefloridiandiner.com/about"
+     },
+     {
+      "claim": "The Floridian offers 24-hour service.",
+      "source": "https://thefloridiandiner.com/about"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJT0TDBF8F5YgRJJvn5F5VmsU",
+   "name": "Steffens Restaurant",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "breakfast_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.steffensrestaurant.com/",
+     "source_name": "Steffens Restaurant \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Steffens Restaurant has served Southern comfort food since 1948.",
+      "Steffens Restaurant is in Kingsland, GA at 550 South Lee Street.",
+      "Steffens Restaurant is an old-school diner serving breakfast, lunch and dinner.",
+      "Handmade biscuits are topped with creamy peppered sausage gravy at Steffens Restaurant.",
+      "Handspun milkshakes are made using real ice cream, milk and sugar at Steffens Restaurant.",
+      "Hours are Monday to Saturday from 7:00 a.m. to 9:00 p.m. and Sunday from 7:00 a.m. to 2:00 p.m. at Steffens Restaurant."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "old-school diner serving Southern comfort food since 1948",
+    "why_here": "Steffens Restaurant in Kingsland serves Southern comfort food as an old-school diner for breakfast, lunch and dinner, with handmade biscuits and handspun milkshakes on the menu.",
+    "know_before": "Hours are Monday to Saturday from 7:00 a.m. to 9:00 p.m. and Sunday from 7:00 a.m. to 2:00 p.m.",
+    "local_tip": "Steffens Restaurant tops handmade biscuits with creamy peppered sausage gravy.",
+    "best_time": "Sunday visits end early, with a 2:00 p.m. closing.",
+    "citations": {
+     "hook": [
+      "https://www.steffensrestaurant.com/"
+     ],
+     "why_here": [
+      "https://www.steffensrestaurant.com/"
+     ],
+     "know_before": [
+      "https://www.steffensrestaurant.com/"
+     ],
+     "local_tip": [
+      "https://www.steffensrestaurant.com/"
+     ],
+     "best_time": [
+      "https://www.steffensrestaurant.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Steffens Restaurant has served Southern comfort food since 1948.",
+      "source": "https://www.steffensrestaurant.com/"
+     },
+     {
+      "claim": "Steffens Restaurant is in Kingsland, GA at 550 South Lee Street.",
+      "source": "https://www.steffensrestaurant.com/"
+     },
+     {
+      "claim": "Steffens Restaurant is an old-school diner serving breakfast, lunch and dinner.",
+      "source": "https://www.steffensrestaurant.com/"
+     },
+     {
+      "claim": "Handmade biscuits are topped with creamy peppered sausage gravy at Steffens Restaurant.",
+      "source": "https://www.steffensrestaurant.com/"
+     },
+     {
+      "claim": "Handspun milkshakes are made using real ice cream, milk and sugar at Steffens Restaurant.",
+      "source": "https://www.steffensrestaurant.com/"
+     },
+     {
+      "claim": "Hours are Monday to Saturday from 7:00 a.m. to 9:00 p.m. and Sunday from 7:00 a.m. to 2:00 p.m. at Steffens Restaurant.",
+      "source": "https://www.steffensrestaurant.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJQ2GJ2_cA2YgR25ME1v2LSjI",
+   "name": "Publix Super Market at Las Olas",
+   "category": "shopping",
+   "metro": "broward",
+   "primary_type": "supermarket",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.publix.com/locations/850-publix-at-las-olas",
+     "source_name": "Publix Super Market at Las Olas \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Publix at Las Olas is store number 850.",
+      "Publix at Las Olas is in Fort Lauderdale at 601 S Andrews Ave.",
+      "Departments at Publix at Las Olas include Bakery, Deli and Seafood.",
+      "Services at Publix at Las Olas include a Presto! ATM and curbside pickup.",
+      "A Publix Pharmacy is at Publix at Las Olas."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Publix store number 850 with Bakery, Deli, Seafood and a Publix Pharmacy",
+    "why_here": "Publix at Las Olas in Fort Lauderdale is store number 850, with Bakery, Deli and Seafood departments plus a Publix Pharmacy and curbside pickup for groceries in one stop.",
+    "know_before": "curbside pickup and a Publix Pharmacy are listed at Publix at Las Olas.",
+    "local_tip": "A Presto! ATM is available at Publix at Las Olas.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.publix.com/locations/850-publix-at-las-olas"
+     ],
+     "why_here": [
+      "https://www.publix.com/locations/850-publix-at-las-olas"
+     ],
+     "know_before": [
+      "https://www.publix.com/locations/850-publix-at-las-olas"
+     ],
+     "local_tip": [
+      "https://www.publix.com/locations/850-publix-at-las-olas"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Publix at Las Olas is store number 850.",
+      "source": "https://www.publix.com/locations/850-publix-at-las-olas"
+     },
+     {
+      "claim": "Publix at Las Olas is in Fort Lauderdale at 601 S Andrews Ave.",
+      "source": "https://www.publix.com/locations/850-publix-at-las-olas"
+     },
+     {
+      "claim": "Departments at Publix at Las Olas include Bakery, Deli and Seafood.",
+      "source": "https://www.publix.com/locations/850-publix-at-las-olas"
+     },
+     {
+      "claim": "Services at Publix at Las Olas include a Presto! ATM and curbside pickup.",
+      "source": "https://www.publix.com/locations/850-publix-at-las-olas"
+     },
+     {
+      "claim": "A Publix Pharmacy is at Publix at Las Olas.",
+      "source": "https://www.publix.com/locations/850-publix-at-las-olas"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ21jDxAsC2YgRe8q65VAmg3g",
+   "name": "Blue Moon Fish Co.",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.bluemoonfishco.com/",
+     "source_name": "Blue Moon Fish Co. \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Blue Moon Fish Company is located on Fort Lauderdale's Intracoastal Waterway in Lauderdale-By-The-Sea.",
+      "Blue Moon Fish Company serves fresh-caught seafood.",
+      "Blue Moon Fish Company is a scratch kitchen using locally sourced ingredients as much as possible.",
+      "Happy hour runs Monday to Saturday from 4:00 p.m. to 7:00 p.m. at Blue Moon Fish Company.",
+      "Sunday brunch runs from 11:00 a.m. to 3:00 p.m. at Blue Moon Fish Company.",
+      "Dinner runs Monday to Saturday from 5:00 p.m. to 10:00 p.m. at Blue Moon Fish Company."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "seafood dining on the Intracoastal Waterway in Lauderdale-By-The-Sea",
+    "why_here": "Blue Moon Fish Company sits on Fort Lauderdale's Intracoastal Waterway in Lauderdale-By-The-Sea as a scratch kitchen serving fresh-caught seafood with locally sourced ingredients.",
+    "know_before": "Dinner runs Monday to Saturday from 5:00 p.m. to 10:00 p.m.; Sunday brunch is from 11:00 a.m. to 3:00 p.m.",
+    "local_tip": "Happy hour runs Monday to Saturday from 4:00 p.m. to 7:00 p.m.",
+    "best_time": "Sunday brunch is served from 11:00 a.m. to 3:00 p.m.",
+    "citations": {
+     "hook": [
+      "https://www.bluemoonfishco.com/"
+     ],
+     "why_here": [
+      "https://www.bluemoonfishco.com/"
+     ],
+     "know_before": [
+      "https://www.bluemoonfishco.com/"
+     ],
+     "local_tip": [
+      "https://www.bluemoonfishco.com/"
+     ],
+     "best_time": [
+      "https://www.bluemoonfishco.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Blue Moon Fish Company is located on Fort Lauderdale's Intracoastal Waterway in Lauderdale-By-The-Sea.",
+      "source": "https://www.bluemoonfishco.com/"
+     },
+     {
+      "claim": "Blue Moon Fish Company serves fresh-caught seafood.",
+      "source": "https://www.bluemoonfishco.com/"
+     },
+     {
+      "claim": "Blue Moon Fish Company is a scratch kitchen using locally sourced ingredients as much as possible.",
+      "source": "https://www.bluemoonfishco.com/"
+     },
+     {
+      "claim": "Happy hour runs Monday to Saturday from 4:00 p.m. to 7:00 p.m. at Blue Moon Fish Company.",
+      "source": "https://www.bluemoonfishco.com/"
+     },
+     {
+      "claim": "Sunday brunch runs from 11:00 a.m. to 3:00 p.m. at Blue Moon Fish Company.",
+      "source": "https://www.bluemoonfishco.com/"
+     },
+     {
+      "claim": "Dinner runs Monday to Saturday from 5:00 p.m. to 10:00 p.m. at Blue Moon Fish Company.",
+      "source": "https://www.bluemoonfishco.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJWfHLuGMs5IgRZHXJPtNZCr0",
+   "name": "World Golf Village Renaissance St. Augustine Resort",
+   "category": "hotels",
+   "metro": "florida",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.marriott.com/en-us/hotels/jaxbr-world-golf-village-renaissance-st-augustine-resort/overview/",
+     "source_name": "World Golf Village Renaissance St. Augustine Resort \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "World Golf Village Renaissance St. Augustine Resort is a Marriott property at World Golf Village in St. Augustine.",
+      "Marriott lists on-site golf for World Golf Village Renaissance St. Augustine Resort.",
+      "Marriott lists an outdoor pool and hot tub for World Golf Village Renaissance St. Augustine Resort.",
+      "Marriott lists Villagio Grille at World Golf Village Renaissance St. Augustine Resort.",
+      "Marriott lists the Slammer & Squire Golf Course for World Golf Village Renaissance St. Augustine Resort."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Renaissance resort at World Golf Village in St. Augustine",
+    "why_here": "World Golf Village Renaissance St. Augustine Resort is a Marriott property at World Golf Village in St. Augustine, with on-site golf, an outdoor pool, a hot tub and Villagio Grille listed by Marriott.",
+    "know_before": "Marriott lists an outdoor pool and hot tub for the resort.",
+    "local_tip": "Marriott lists the Slammer & Squire Golf Course at the resort.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.marriott.com/en-us/hotels/jaxbr-world-golf-village-renaissance-st-augustine-resort/overview/"
+     ],
+     "why_here": [
+      "https://www.marriott.com/en-us/hotels/jaxbr-world-golf-village-renaissance-st-augustine-resort/overview/"
+     ],
+     "know_before": [
+      "https://www.marriott.com/en-us/hotels/jaxbr-world-golf-village-renaissance-st-augustine-resort/overview/"
+     ],
+     "local_tip": [
+      "https://www.marriott.com/en-us/hotels/jaxbr-world-golf-village-renaissance-st-augustine-resort/overview/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "World Golf Village Renaissance St. Augustine Resort is a Marriott property at World Golf Village in St. Augustine.",
+      "source": "https://www.marriott.com/en-us/hotels/jaxbr-world-golf-village-renaissance-st-augustine-resort/overview/"
+     },
+     {
+      "claim": "Marriott lists on-site golf for World Golf Village Renaissance St. Augustine Resort.",
+      "source": "https://www.marriott.com/en-us/hotels/jaxbr-world-golf-village-renaissance-st-augustine-resort/overview/"
+     },
+     {
+      "claim": "Marriott lists an outdoor pool and hot tub for World Golf Village Renaissance St. Augustine Resort.",
+      "source": "https://www.marriott.com/en-us/hotels/jaxbr-world-golf-village-renaissance-st-augustine-resort/overview/"
+     },
+     {
+      "claim": "Marriott lists Villagio Grille at World Golf Village Renaissance St. Augustine Resort.",
+      "source": "https://www.marriott.com/en-us/hotels/jaxbr-world-golf-village-renaissance-st-augustine-resort/overview/"
+     },
+     {
+      "claim": "Marriott lists the Slammer & Squire Golf Course for World Golf Village Renaissance St. Augustine Resort.",
+      "source": "https://www.marriott.com/en-us/hotels/jaxbr-world-golf-village-renaissance-st-augustine-resort/overview/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJyxSDUge32YgRHfTLkzof5k8",
+   "name": "Astra Miami Rooftop",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "mediterranean_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.astramiami.com/",
+     "source_name": "Astra Miami Rooftop \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Astra is a rooftop restaurant and lounge in Wynwood, Miami.",
+      "Astra offers Mediterranean flavors and handcrafted cocktails.",
+      "Astra offers premium hookah.",
+      "The sky garden terraces are planted with olive and lemon citrus trees."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Rooftop restaurant and lounge in Wynwood with Mediterranean flavors",
+    "why_here": "Astra is a rooftop restaurant and lounge in Wynwood, Miami, offering Mediterranean flavors and handcrafted cocktails. The sky garden terraces are planted with olive and lemon citrus trees.",
+    "know_before": "The sky garden terraces are planted with olive and lemon citrus trees.",
+    "local_tip": "Astra offers premium hookah and handcrafted cocktails.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.astramiami.com/"
+     ],
+     "why_here": [
+      "https://www.astramiami.com/"
+     ],
+     "know_before": [
+      "https://www.astramiami.com/"
+     ],
+     "local_tip": [
+      "https://www.astramiami.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Astra is a rooftop restaurant and lounge in Wynwood, Miami.",
+      "source": "https://www.astramiami.com/"
+     },
+     {
+      "claim": "Astra offers Mediterranean flavors and handcrafted cocktails.",
+      "source": "https://www.astramiami.com/"
+     },
+     {
+      "claim": "Astra offers premium hookah.",
+      "source": "https://www.astramiami.com/"
+     },
+     {
+      "claim": "The sky garden terraces are planted with olive and lemon citrus trees.",
+      "source": "https://www.astramiami.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ5adWCo3kwogR7KCoDoujMA8",
+   "name": "Parkside Cafe",
+   "category": "food",
+   "metro": "st-pete",
+   "primary_type": "cafe",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.myparksidecafe.com/",
+     "source_name": "Parkside Cafe \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Parkside Cafe is at 8180 49th Street North, Pinellas Park, FL 33781.",
+      "Parkside Cafe offers dine-in, carryout, and delivery.",
+      "Parkside Cafe has a full liquor bar with alcoholic and non-alcoholic beverages.",
+      "Hours are 7 a.m. to 2 p.m., closed Tuesdays.",
+      "Parkside Cafe offers catering for parties and events, and online ordering for carryout."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Cafe with a full liquor bar and dine-in, carryout, and delivery",
+    "why_here": "Parkside Cafe in Pinellas Park offers dine-in, carryout, and delivery, plus catering for parties and events. It has a full liquor bar with alcoholic and non-alcoholic beverages.",
+    "know_before": "Hours are 7 a.m. to 2 p.m., closed Tuesdays.",
+    "local_tip": "Order online for carryout, or book catering for parties and events.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.myparksidecafe.com/"
+     ],
+     "why_here": [
+      "https://www.myparksidecafe.com/"
+     ],
+     "know_before": [
+      "https://www.myparksidecafe.com/"
+     ],
+     "local_tip": [
+      "https://www.myparksidecafe.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Parkside Cafe is at 8180 49th Street North, Pinellas Park, FL 33781.",
+      "source": "https://www.myparksidecafe.com/"
+     },
+     {
+      "claim": "Parkside Cafe offers dine-in, carryout, and delivery.",
+      "source": "https://www.myparksidecafe.com/"
+     },
+     {
+      "claim": "Parkside Cafe has a full liquor bar with alcoholic and non-alcoholic beverages.",
+      "source": "https://www.myparksidecafe.com/"
+     },
+     {
+      "claim": "Hours are 7 a.m. to 2 p.m., closed Tuesdays.",
+      "source": "https://www.myparksidecafe.com/"
+     },
+     {
+      "claim": "Parkside Cafe offers catering for parties and events, and online ordering for carryout.",
+      "source": "https://www.myparksidecafe.com/"
+     }
+    ]
+   }
+  }
+ ]
+}

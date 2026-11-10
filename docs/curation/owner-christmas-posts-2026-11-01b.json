@@ -1,0 +1,37 @@
+{
+  "reviewed_at": "2026-11-01",
+  "method": "Owner supplied Instagram links read in the owner's browser (native caption and account); dates, prices and addresses taken from the venues' own sites. Native embeds and original attribution only; captions are Wayfind's own words.",
+  "sources": [
+    {
+      "shortcode": "DfM3je6ptql",
+      "native_url": "https://www.instagram.com/reel/DfM3je6ptql/",
+      "creator": "hollybluffmarina",
+      "status": "verified",
+      "content_kind": "dated_season_announcement",
+      "independent": false,
+      "christmas_event_id": "deland-christmas-boat-parade-2026",
+      "places": [
+        {
+          "key": "holly-bluff-resort-marina-deland",
+          "place_id": "ChIJD8q6NT8F54gRVOaRWoWT59g",
+          "name": "Holly Bluff Resort Marina",
+          "city": "DeLand",
+          "state": "FL",
+          "address": "2280 Hontoon Rd, DeLand, FL 32720"
+        }
+      ],
+      "supporting_source": "https://hollybluff.com/"
+    },
+    {
+      "shortcode": "DeX0R1nFKDC",
+      "native_url": "https://www.instagram.com/p/DeX0R1nFKDC/",
+      "creator": "oldcitrusestate",
+      "status": "verified",
+      "content_kind": "dated_season_announcement",
+      "independent": false,
+      "christmas_event_id": "old-citrus-estate-whoville-2026",
+      "places": [],
+      "supporting_source": "https://www.theoldcitrusestate.com/event-details/whoville-for-the-wholidays-2026-12-13-16-30"
+    }
+  ]
+}

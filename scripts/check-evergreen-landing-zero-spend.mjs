@@ -258,11 +258,13 @@ const render = async (c, s, city) => {
     },
     fetchOwnedUri: async () => { googlePhotoFetches++; return { uri: "https://lh3.googleusercontent.com/p/fake", status: 200, upstream: "ok" }; },
   };
+  const scheduledPhotoWork = [];
   globalThis.__wfEvergreenGuard = {
     FALLBACK_PATH, PHOTO_REF_RX, placeIdFromRef, gateShut, spendAllow, spendAllowPhotos, spendAllowPhotosDetailed, ledgerOutcomeClass,
     resolvePlacePhoto: (input) => resolvePlacePhoto(input, deps),
     findSamePlaceCachedPhoto: async () => null, findFreePhoto: async () => null,
     recordReaderPhotoMiss: async () => false, recordPhotoOutcome: async () => {}, recordPhotoDeniedCeiling: async () => {},
+    waitUntil: task => scheduledPhotoWork.push(task),
     recordPhotoPurchase: async () => false, takeVisitorToken: async () => ({ ok: true, reason: "test-noop" }), bucketHash: () => null, idempotencyKey: () => "", uaClass: () => "other",
     photosCeiling: () => 0,
     keepPhotoCredits,
@@ -350,6 +352,7 @@ const render = async (c, s, city) => {
     ok(human.ledger >= 1 && human.google >= 1 && human.res.headers.get("x-wayfind-photo-result") === "google",
       `POSITIVE CONTROL (${name}): a real person on the same URL still buys (${human.ledger} grant, ${human.google} fetch) — so the bot 0/0 is the UA rule, not a blind rig, and in-app browsers are people`);
   }
+  await Promise.all(scheduledPhotoWork);
 }
 
 // ── F. RAILS: the two client/server rails that carry their OWN photo URLs ────

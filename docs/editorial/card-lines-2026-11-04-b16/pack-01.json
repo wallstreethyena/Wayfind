@@ -1,0 +1,2049 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 16. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJxWXNtnC32YgRSjtndHSzTQM",
+   "name": "Paradox Museum Miami",
+   "category": "attractions",
+   "metro": "miami-dade",
+   "primary_type": "museum",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://paradoxmuseummiami.com/plan-your-visit",
+     "source_name": "Paradox Museum Miami \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Paradox Museum Miami is an optical illusion museum.",
+      "Paradox Museum Miami has over 70 interactive exhibits.",
+      "Paradox Museum Miami lists the Zero Gravity Room and Ames Room.",
+      "Opening hours Monday through Thursday are 12 p.m. to 6 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "over 70 interactive exhibits with Zero Gravity Room and Ames Room",
+    "why_here": "Paradox Museum Miami has over 70 interactive exhibits, including the Zero Gravity Room and Ames Room, built around optical illusion rooms that change how size and gravity appear during the visit.",
+    "know_before": "Opening hours Monday through Thursday are 12 p.m. to 6 p.m.",
+    "local_tip": "Use the Zero Gravity Room and Ames Room for optical illusion photos.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://paradoxmuseummiami.com/plan-your-visit"
+     ],
+     "why_here": [
+      "https://paradoxmuseummiami.com/plan-your-visit"
+     ],
+     "know_before": [
+      "https://paradoxmuseummiami.com/plan-your-visit"
+     ],
+     "local_tip": [
+      "https://paradoxmuseummiami.com/plan-your-visit"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Paradox Museum Miami is an optical illusion museum.",
+      "source": "https://paradoxmuseummiami.com/plan-your-visit"
+     },
+     {
+      "claim": "Paradox Museum Miami has over 70 interactive exhibits.",
+      "source": "https://paradoxmuseummiami.com/plan-your-visit"
+     },
+     {
+      "claim": "Paradox Museum Miami lists the Zero Gravity Room and Ames Room.",
+      "source": "https://paradoxmuseummiami.com/plan-your-visit"
+     },
+     {
+      "claim": "Opening hours Monday through Thursday are 12 p.m. to 6 p.m.",
+      "source": "https://paradoxmuseummiami.com/plan-your-visit"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJzzba4DpbkYgRgYjtGEtzwHk",
+   "name": "Commelfo Restaurant",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://commelfo.com/",
+     "source_name": "Commelfo Restaurant \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Commelfo Restaurant is in Miramar Beach.",
+      "The menu lists Crab Cake and Lobster Ravioli.",
+      "Lobster Ravioli is served with vodka sauce, cherry tomatoes and lobster meat.",
+      "20% gratuity will be added on groups of 6 or greater."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Lobster Ravioli and Crab Cake in Miramar Beach",
+    "why_here": "Commelfo Restaurant in Miramar Beach lists Crab Cake and Lobster Ravioli on the menu, with Lobster Ravioli served with vodka sauce, cherry tomatoes and lobster meat for dinner.",
+    "know_before": "20% gratuity will be added on groups of 6 or greater.",
+    "local_tip": "Order the Lobster Ravioli with vodka sauce and lobster meat.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://commelfo.com/"
+     ],
+     "why_here": [
+      "https://commelfo.com/"
+     ],
+     "know_before": [
+      "https://commelfo.com/"
+     ],
+     "local_tip": [
+      "https://commelfo.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Commelfo Restaurant is in Miramar Beach.",
+      "source": "https://commelfo.com/"
+     },
+     {
+      "claim": "The menu lists Crab Cake and Lobster Ravioli.",
+      "source": "https://commelfo.com/"
+     },
+     {
+      "claim": "Lobster Ravioli is served with vodka sauce, cherry tomatoes and lobster meat.",
+      "source": "https://commelfo.com/"
+     },
+     {
+      "claim": "20% gratuity will be added on groups of 6 or greater.",
+      "source": "https://commelfo.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ8TGlY01854gR26pgLhrFQU4",
+   "name": "Simon Parrilla Bar and Grill",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "colombian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://simonparrillaorlando.com/",
+     "source_name": "Simon Parrilla Bar and Grill \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Simon Parrilla Bar and Grill is at 1187 Florida Mall Ave, Orlando.",
+      "Simon Parrilla has a Longwood location.",
+      "The site says Sabor a la Parrilla Colombiana and Colombian Flavor.",
+      "The menu lists Simon's Parrilla."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Colombian parrilla in Orlando and Longwood",
+    "why_here": "Simon Parrilla Bar and Grill in Orlando serves Colombian parrilla, described on the site as Sabor a la Parrilla Colombiana, with a second location in Longwood for shared grilled meals.",
+    "know_before": "The Orlando location is at 1187 Florida Mall Ave, Orlando.",
+    "local_tip": "Check the Longwood menu for Simon's Parrilla before you go.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://simonparrillaorlando.com/"
+     ],
+     "why_here": [
+      "https://simonparrillaorlando.com/"
+     ],
+     "know_before": [
+      "https://simonparrillaorlando.com/"
+     ],
+     "local_tip": [
+      "https://simonparrillaorlando.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Simon Parrilla Bar and Grill is at 1187 Florida Mall Ave, Orlando.",
+      "source": "https://simonparrillaorlando.com/"
+     },
+     {
+      "claim": "Simon Parrilla has a Longwood location.",
+      "source": "https://simonparrillaorlando.com/"
+     },
+     {
+      "claim": "The site says Sabor a la Parrilla Colombiana and Colombian Flavor.",
+      "source": "https://simonparrillaorlando.com/"
+     },
+     {
+      "claim": "The menu lists Simon's Parrilla.",
+      "source": "https://simonparrillaorlando.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJm0aGMj2E3YgRaSOlNzHCmbM",
+   "name": "Abracadabra Ice Cream Factory",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "ice_cream_shop",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://abracadabraicecream.com/",
+     "source_name": "Abracadabra Ice Cream Factory \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Abracadabra Ice Cream Factory is at 520 N. Main Street, Kissimmee, FL 34744.",
+      "At Abracadabra Ice Cream Factory, ice cream is made fresh with liquid nitrogen as guests watch.",
+      "The experience is described as fun for kids and adults.",
+      "The menu lists Flavoring options including Blue Raspberry, Coconut Milk, Coffee and Mint."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "ice cream made fresh with liquid nitrogen in Kissimmee",
+    "why_here": "Abracadabra Ice Cream Factory in Kissimmee makes ice cream fresh with liquid nitrogen as guests watch, an experience described as fun for kids and adults at the counter.",
+    "know_before": "Find it at 520 N. Main Street, Kissimmee.",
+    "local_tip": "Try Coconut Milk or Coffee flavoring with your ice cream.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://abracadabraicecream.com/"
+     ],
+     "why_here": [
+      "https://abracadabraicecream.com/"
+     ],
+     "know_before": [
+      "https://abracadabraicecream.com/"
+     ],
+     "local_tip": [
+      "https://abracadabraicecream.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Abracadabra Ice Cream Factory is at 520 N. Main Street, Kissimmee, FL 34744.",
+      "source": "https://abracadabraicecream.com/"
+     },
+     {
+      "claim": "At Abracadabra Ice Cream Factory, ice cream is made fresh with liquid nitrogen as guests watch.",
+      "source": "https://abracadabraicecream.com/"
+     },
+     {
+      "claim": "The experience is described as fun for kids and adults.",
+      "source": "https://abracadabraicecream.com/"
+     },
+     {
+      "claim": "The menu lists Flavoring options including Blue Raspberry, Coconut Milk, Coffee and Mint.",
+      "source": "https://abracadabraicecream.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJRxSn0mPi2IgR6_Ksvy9vdHA",
+   "name": "The Cove",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.thecovedeerfield.com/frequently-asked-questions",
+     "source_name": "The Cove \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Cove is located in Deerfield Beach, in the Cove Plaza, right on the Intracoastal Waterway.",
+      "The Cove does not take reservations; seating is first come, first served.",
+      "Leashed, well-behaved pets are welcome on the outdoor patio."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "dining on the Intracoastal Waterway in Deerfield Beach",
+    "why_here": "The Cove in Deerfield Beach sits in the Cove Plaza right on the Intracoastal Waterway, with an outdoor patio where the meal looks out over the water during the visit.",
+    "know_before": "No reservations; seating is first come, first served.",
+    "local_tip": "Leashed, well-behaved pets are welcome on the outdoor patio.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.thecovedeerfield.com/frequently-asked-questions"
+     ],
+     "why_here": [
+      "https://www.thecovedeerfield.com/frequently-asked-questions"
+     ],
+     "know_before": [
+      "https://www.thecovedeerfield.com/frequently-asked-questions"
+     ],
+     "local_tip": [
+      "https://www.thecovedeerfield.com/frequently-asked-questions"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Cove is located in Deerfield Beach, in the Cove Plaza, right on the Intracoastal Waterway.",
+      "source": "https://www.thecovedeerfield.com/frequently-asked-questions"
+     },
+     {
+      "claim": "The Cove does not take reservations; seating is first come, first served.",
+      "source": "https://www.thecovedeerfield.com/frequently-asked-questions"
+     },
+     {
+      "claim": "Leashed, well-behaved pets are welcome on the outdoor patio.",
+      "source": "https://www.thecovedeerfield.com/frequently-asked-questions"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJCz3g-3LK5YgRv8g4QKCRjO0",
+   "name": "Flight Adventure Park Jacksonville",
+   "category": "attractions",
+   "metro": "jacksonville-fl",
+   "primary_type": "sports_activity_location",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://flightadventurepark.com/jacksonville/",
+     "source_name": "Flight Adventure Park Jacksonville \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Jacksonville park features trampolines, ninja warrior courses, dodgeball and climbing structures under one roof.",
+      "Memberships have no blackout dates and no sign-up fee.",
+      "Hours Monday to Thursday are 11 a.m. to 8 p.m.",
+      "Hours Friday are 11 a.m. to 9 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Trampolines, ninja warrior courses and climbing structures under one roof",
+    "why_here": "The park features trampolines, ninja warrior courses, dodgeball and climbing structures under one roof, with memberships that have no blackout dates and no sign-up fee for repeat visits.",
+    "know_before": "Hours Monday to Thursday are 11 a.m. to 8 p.m.",
+    "local_tip": "Memberships have no blackout dates and no sign-up fee.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://flightadventurepark.com/jacksonville/"
+     ],
+     "why_here": [
+      "https://flightadventurepark.com/jacksonville/"
+     ],
+     "know_before": [
+      "https://flightadventurepark.com/jacksonville/"
+     ],
+     "local_tip": [
+      "https://flightadventurepark.com/jacksonville/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Jacksonville park features trampolines, ninja warrior courses, dodgeball and climbing structures under one roof.",
+      "source": "https://flightadventurepark.com/jacksonville/"
+     },
+     {
+      "claim": "Memberships have no blackout dates and no sign-up fee.",
+      "source": "https://flightadventurepark.com/jacksonville/"
+     },
+     {
+      "claim": "Hours Monday to Thursday are 11 a.m. to 8 p.m.",
+      "source": "https://flightadventurepark.com/jacksonville/"
+     },
+     {
+      "claim": "Hours Friday are 11 a.m. to 9 p.m.",
+      "source": "https://flightadventurepark.com/jacksonville/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJBxcPeLwB2YgRBVlc2Uc4gwc",
+   "name": "IT! Italy Ristorante & Cafe & Bar",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "italian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://ititaly.us/",
+     "source_name": "IT! Italy Ristorante & Cafe & Bar \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "All of our pasta, bread, gelatos, pastries and cookies are made in-house daily.",
+      "The restaurant is at 500 E Las Olas Blvd Suite 200, Fort Lauderdale.",
+      "Friday and Saturday hours are 11 a.m. to 3 a.m.",
+      "Monday hours are 11 a.m. to 2 a.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Pasta, bread and gelatos made in-house daily",
+    "why_here": "The restaurant is at 500 E Las Olas Blvd Suite 200, Fort Lauderdale, and all of our pasta, bread, gelatos, pastries and cookies are made in-house daily for guests.",
+    "know_before": "Friday and Saturday hours are 11 a.m. to 3 a.m.",
+    "local_tip": "Monday hours are 11 a.m. to 2 a.m. for a late visit.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://ititaly.us/"
+     ],
+     "why_here": [
+      "https://ititaly.us/"
+     ],
+     "know_before": [
+      "https://ititaly.us/"
+     ],
+     "local_tip": [
+      "https://ititaly.us/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "All of our pasta, bread, gelatos, pastries and cookies are made in-house daily.",
+      "source": "https://ititaly.us/"
+     },
+     {
+      "claim": "The restaurant is at 500 E Las Olas Blvd Suite 200, Fort Lauderdale.",
+      "source": "https://ititaly.us/"
+     },
+     {
+      "claim": "Friday and Saturday hours are 11 a.m. to 3 a.m.",
+      "source": "https://ititaly.us/"
+     },
+     {
+      "claim": "Monday hours are 11 a.m. to 2 a.m.",
+      "source": "https://ititaly.us/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJywNMHamIk4gRGtiFgTLCYfg",
+   "name": "Patches Pub",
+   "category": "nightlife",
+   "metro": "florida",
+   "primary_type": "pub",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://patchespub.com/about/",
+     "source_name": "Patches Pub \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Patches is located on the east end of Panama City Beach at 4723 Thomas Drive.",
+      "Patches serves American pub classics including burgers, handmade pizzas and fresh Gulf seafood.",
+      "Patches has 31 beers on tap and daily happy hour from 3 p.m. to 6 p.m.",
+      "The outdoor patio is pet-friendly and water bowls are provided."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Burgers, handmade pizzas and fresh Gulf seafood with 31 beers on tap",
+    "why_here": "Patches is located on the east end of Panama City Beach and serves American pub classics including burgers, handmade pizzas and fresh Gulf seafood, with 31 beers on tap for drinks.",
+    "know_before": "Daily happy hour from 3 p.m. to 6 p.m.",
+    "local_tip": "The outdoor patio is pet-friendly and water bowls are provided.",
+    "best_time": "Live music is held most nights of the week, per the official about page.",
+    "citations": {
+     "hook": [
+      "https://patchespub.com/about/"
+     ],
+     "why_here": [
+      "https://patchespub.com/about/"
+     ],
+     "know_before": [
+      "https://patchespub.com/about/"
+     ],
+     "local_tip": [
+      "https://patchespub.com/about/"
+     ],
+     "best_time": [
+      "https://patchespub.com/about/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Patches is located on the east end of Panama City Beach at 4723 Thomas Drive.",
+      "source": "https://patchespub.com/about/"
+     },
+     {
+      "claim": "Patches serves American pub classics including burgers, handmade pizzas and fresh Gulf seafood.",
+      "source": "https://patchespub.com/about/"
+     },
+     {
+      "claim": "Patches has 31 beers on tap and daily happy hour from 3 p.m. to 6 p.m.",
+      "source": "https://patchespub.com/about/"
+     },
+     {
+      "claim": "The outdoor patio is pet-friendly and water bowls are provided.",
+      "source": "https://patchespub.com/about/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJC5DS79b2wogRNnjlsvD9l9c",
+   "name": "Wyndham Grand Clearwater Beach",
+   "category": "hotels",
+   "metro": "florida",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.wyndhamhotels.com/wyndham-grand/clearwater-florida/wyndham-grand-clearwater-beach",
+     "source_name": "Wyndham Grand Clearwater Beach \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The resort has 343 rooms.",
+      "The resort is steps from Pier 60 and across the street from Clearwater Beach Marina.",
+      "Amenities include a full-service spa, outdoor pool, 24/7 fitness center and multiple dining options.",
+      "All 343 rooms feature a view of the water or nearby marina."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "343 rooms steps from Pier 60 with spa and outdoor pool",
+    "why_here": "The resort is steps from Pier 60 and across the street from Clearwater Beach Marina, with a full-service spa, outdoor pool and multiple dining options for guests staying here.",
+    "know_before": "All 343 rooms feature a view of the water or nearby marina.",
+    "local_tip": "Book time at the full-service spa and outdoor pool.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.wyndhamhotels.com/wyndham-grand/clearwater-florida/wyndham-grand-clearwater-beach"
+     ],
+     "why_here": [
+      "https://www.wyndhamhotels.com/wyndham-grand/clearwater-florida/wyndham-grand-clearwater-beach"
+     ],
+     "know_before": [
+      "https://www.wyndhamhotels.com/wyndham-grand/clearwater-florida/wyndham-grand-clearwater-beach"
+     ],
+     "local_tip": [
+      "https://www.wyndhamhotels.com/wyndham-grand/clearwater-florida/wyndham-grand-clearwater-beach"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The resort has 343 rooms.",
+      "source": "https://www.wyndhamhotels.com/wyndham-grand/clearwater-florida/wyndham-grand-clearwater-beach"
+     },
+     {
+      "claim": "The resort is steps from Pier 60 and across the street from Clearwater Beach Marina.",
+      "source": "https://www.wyndhamhotels.com/wyndham-grand/clearwater-florida/wyndham-grand-clearwater-beach"
+     },
+     {
+      "claim": "Amenities include a full-service spa, outdoor pool, 24/7 fitness center and multiple dining options.",
+      "source": "https://www.wyndhamhotels.com/wyndham-grand/clearwater-florida/wyndham-grand-clearwater-beach"
+     },
+     {
+      "claim": "All 343 rooms feature a view of the water or nearby marina.",
+      "source": "https://www.wyndhamhotels.com/wyndham-grand/clearwater-florida/wyndham-grand-clearwater-beach"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJw-_dy95-54gR8Odj8zbTKuE",
+   "name": "MEN IN BLACK Alien Attack",
+   "category": "attractions",
+   "metro": "orlando",
+   "primary_type": "tourist_attraction",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://universalorlando.com/contentdata/uor/es/us/files/Documents/universal-studios-florida-park-map_ES.pdf",
+     "source_name": "MEN IN BLACK Alien Attack \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "MEN IN BLACK Alien Attack is an attraction at Universal Studios Florida.",
+      "The minimum height for MEN IN BLACK Alien Attack is 42 inches."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Interactive alien-blasting ride at Universal Studios Florida",
+    "why_here": "MEN IN BLACK Alien Attack is listed among Universal Studios Florida attractions on the official park map. The official map marks the attraction with a 42-inch minimum height.",
+    "know_before": "Minimum height is 42 inches, per the official Universal Studios Florida park map.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://universalorlando.com/contentdata/uor/es/us/files/Documents/universal-studios-florida-park-map_ES.pdf"
+     ],
+     "why_here": [
+      "https://universalorlando.com/contentdata/uor/es/us/files/Documents/universal-studios-florida-park-map_ES.pdf"
+     ],
+     "know_before": [
+      "https://universalorlando.com/contentdata/uor/es/us/files/Documents/universal-studios-florida-park-map_ES.pdf"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "MEN IN BLACK Alien Attack is an attraction at Universal Studios Florida.",
+      "source": "https://universalorlando.com/contentdata/uor/es/us/files/Documents/universal-studios-florida-park-map_ES.pdf"
+     },
+     {
+      "claim": "The minimum height for MEN IN BLACK Alien Attack is 42 inches.",
+      "source": "https://universalorlando.com/contentdata/uor/es/us/files/Documents/universal-studios-florida-park-map_ES.pdf"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJJwEMs1h_3YgR4gt7Pub-VrQ",
+   "name": "Visitors Flea Market",
+   "category": "shopping",
+   "metro": "orlando",
+   "primary_type": "flea_market",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.visitorsfleamarket.com/",
+     "source_name": "Visitors Flea Market \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Visitors Flea Market is in Kissimmee.",
+      "The indoor marketplace is 50,000 square feet with over 225 booths.",
+      "The market sells Disney souvenirs, jewelry, clothing and handmade crafts.",
+      "The market is open 365 days a year.",
+      "Hours Monday to Thursday are 10 a.m. to 8 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Over 225 booths in 50,000 square feet indoors in Kissimmee",
+    "why_here": "Visitors Flea Market is in Kissimmee with over 225 booths in a 50,000 square feet indoor marketplace selling Disney souvenirs, jewelry, clothing and handmade crafts for shoppers.",
+    "know_before": "Hours Monday to Thursday are 10 a.m. to 8 p.m. and the market is open 365 days a year.",
+    "local_tip": "Look for Disney souvenirs, jewelry and handmade crafts among the booths.",
+    "best_time": "Arrive at the 10 a.m. opening for lighter crowds, per the official visitor tips.",
+    "citations": {
+     "hook": [
+      "https://www.visitorsfleamarket.com/"
+     ],
+     "why_here": [
+      "https://www.visitorsfleamarket.com/"
+     ],
+     "know_before": [
+      "https://www.visitorsfleamarket.com/"
+     ],
+     "local_tip": [
+      "https://www.visitorsfleamarket.com/"
+     ],
+     "best_time": [
+      "https://www.visitorsfleamarket.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Visitors Flea Market is in Kissimmee.",
+      "source": "https://www.visitorsfleamarket.com/"
+     },
+     {
+      "claim": "The indoor marketplace is 50,000 square feet with over 225 booths.",
+      "source": "https://www.visitorsfleamarket.com/"
+     },
+     {
+      "claim": "The market sells Disney souvenirs, jewelry, clothing and handmade crafts.",
+      "source": "https://www.visitorsfleamarket.com/"
+     },
+     {
+      "claim": "The market is open 365 days a year.",
+      "source": "https://www.visitorsfleamarket.com/"
+     },
+     {
+      "claim": "Hours Monday to Thursday are 10 a.m. to 8 p.m.",
+      "source": "https://www.visitorsfleamarket.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJL_kEsmTY2IgR_NFYN3zUYOo",
+   "name": "John Prince Park",
+   "category": "attractions",
+   "metro": "palm-beach",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://discover.pbcgov.org/parks/Locations/John-Prince.aspx",
+     "source_name": "John Prince Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "John Prince Memorial Park covers 716.37 acres including 338 lake acres.",
+      "Park hours are sunrise to sunset.",
+      "Amenities include a 4.5 mile bicycle path and a dog park.",
+      "The park is around Lake Osborne in Lake Worth Beach with a campground."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "716.37 acres around Lake Osborne with a 4.5 mile bicycle path",
+    "why_here": "John Prince Memorial Park covers 716.37 acres including 338 lake acres around Lake Osborne in Lake Worth Beach, with a 4.5 mile bicycle path, a dog park and a campground.",
+    "know_before": "Park hours are sunrise to sunset.",
+    "local_tip": "Use the 4.5 mile bicycle path and visit the dog park.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://discover.pbcgov.org/parks/Locations/John-Prince.aspx"
+     ],
+     "why_here": [
+      "https://discover.pbcgov.org/parks/Locations/John-Prince.aspx"
+     ],
+     "know_before": [
+      "https://discover.pbcgov.org/parks/Locations/John-Prince.aspx"
+     ],
+     "local_tip": [
+      "https://discover.pbcgov.org/parks/Locations/John-Prince.aspx"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "John Prince Memorial Park covers 716.37 acres including 338 lake acres.",
+      "source": "https://discover.pbcgov.org/parks/Locations/John-Prince.aspx"
+     },
+     {
+      "claim": "Park hours are sunrise to sunset.",
+      "source": "https://discover.pbcgov.org/parks/Locations/John-Prince.aspx"
+     },
+     {
+      "claim": "Amenities include a 4.5 mile bicycle path and a dog park.",
+      "source": "https://discover.pbcgov.org/parks/Locations/John-Prince.aspx"
+     },
+     {
+      "claim": "The park is around Lake Osborne in Lake Worth Beach with a campground.",
+      "source": "https://discover.pbcgov.org/parks/Locations/John-Prince.aspx"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ1RJUWACr2YgR_Xc0jB4V5Gg",
+   "name": "Volcano Hot Pot & Korean BBQ",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "barbecue_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://volcanoallyoucaneat.com/",
+     "source_name": "Volcano Hot Pot & Korean BBQ \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Volcano offers an all-you-can-eat Asian Hot Pot and Korean BBQ experience.",
+      "Guests cook meats, seafood and vegetables at the table.",
+      "Hours are 2 p.m. to 12 a.m. Monday to Sunday, with last seating at 11 p.m.",
+      "Dining is limited to 2 hours on weekdays and 90 minutes Friday to Sunday.",
+      "The restaurant is at 2906 Oakwood Blvd, Hollywood."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "All-you-can-eat Asian Hot Pot and Korean BBQ in Hollywood",
+    "why_here": "Volcano offers an all-you-can-eat Asian Hot Pot and Korean BBQ experience in Hollywood, where guests cook meats, seafood and vegetables at the table during a single visit together.",
+    "know_before": "Hours are 2 p.m. to 12 a.m. Monday to Sunday, with last seating at 11 p.m.",
+    "local_tip": "Dining is limited to 2 hours on weekdays and 90 minutes Friday to Sunday.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://volcanoallyoucaneat.com/"
+     ],
+     "why_here": [
+      "https://volcanoallyoucaneat.com/"
+     ],
+     "know_before": [
+      "https://volcanoallyoucaneat.com/"
+     ],
+     "local_tip": [
+      "https://volcanoallyoucaneat.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Volcano offers an all-you-can-eat Asian Hot Pot and Korean BBQ experience.",
+      "source": "https://volcanoallyoucaneat.com/"
+     },
+     {
+      "claim": "Guests cook meats, seafood and vegetables at the table.",
+      "source": "https://volcanoallyoucaneat.com/"
+     },
+     {
+      "claim": "Hours are 2 p.m. to 12 a.m. Monday to Sunday, with last seating at 11 p.m.",
+      "source": "https://volcanoallyoucaneat.com/"
+     },
+     {
+      "claim": "Dining is limited to 2 hours on weekdays and 90 minutes Friday to Sunday.",
+      "source": "https://volcanoallyoucaneat.com/"
+     },
+     {
+      "claim": "The restaurant is at 2906 Oakwood Blvd, Hollywood.",
+      "source": "https://volcanoallyoucaneat.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ7SpwjESMk4gR-EVRpVQUS4g",
+   "name": "The Back Porch Seafood & Oyster House",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.theback-porch.com/",
+     "source_name": "The Back Porch Seafood & Oyster House \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Back Porch Seafood & Oyster House in Destin got started in a small A-frame building on the beach.",
+      "A favorite with the locals since 1974, The Back Porch serves delicious Gulf seafood with Gulf views.",
+      "We invented the Amberjack sandwich.",
+      "We have been known for our fresh Appalachicola oysters for over 40 years.",
+      "Our seafood is delivered daily.",
+      "Destin location is open daily at 11 a.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Gulf seafood and fresh oysters in Destin since 1974",
+    "why_here": "The Back Porch Seafood & Oyster House in Destin serves Gulf seafood with Gulf views from the beach. It invented the Amberjack sandwich and is known for fresh Appalachicola oysters, with seafood delivered daily.",
+    "know_before": "Destin location is open daily at 11 a.m.",
+    "local_tip": "Try the Amberjack sandwich with fresh oysters delivered daily.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.theback-porch.com/"
+     ],
+     "why_here": [
+      "https://www.theback-porch.com/"
+     ],
+     "know_before": [
+      "https://www.theback-porch.com/"
+     ],
+     "local_tip": [
+      "https://www.theback-porch.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Back Porch Seafood & Oyster House in Destin got started in a small A-frame building on the beach.",
+      "source": "https://www.theback-porch.com/"
+     },
+     {
+      "claim": "A favorite with the locals since 1974, The Back Porch serves delicious Gulf seafood with Gulf views.",
+      "source": "https://www.theback-porch.com/"
+     },
+     {
+      "claim": "We invented the Amberjack sandwich.",
+      "source": "https://www.theback-porch.com/"
+     },
+     {
+      "claim": "We have been known for our fresh Appalachicola oysters for over 40 years.",
+      "source": "https://www.theback-porch.com/"
+     },
+     {
+      "claim": "Our seafood is delivered daily.",
+      "source": "https://www.theback-porch.com/"
+     },
+     {
+      "claim": "Destin location is open daily at 11 a.m.",
+      "source": "https://www.theback-porch.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJdTrIrhq35YgR5CIIt6s9k78",
+   "name": "DoubleTree by Hilton Hotel Jacksonville Riverfront",
+   "category": "hotels",
+   "metro": "florida",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.hilton.com/en/hotels/jaxjrdt-doubletree-jacksonville-riverfront/",
+     "source_name": "DoubleTree by Hilton Hotel Jacksonville Riverfront \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Centrally located on the downtown riverfront, we are just off I-95 amidst the historic San Marco district near EverBank Stadium.",
+      "Perks include our riverside pool, sundeck, two restaurants, and a warm DoubleTree cookie on arrival.",
+      "The hotel features Ruth's Chris Steak House, Ruth's Chris Riverview Lounge, St. Johns Provision Co., and St. Johns Provision Lounge.",
+      "Amenities include an outdoor pool and fitness center."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Downtown riverfront hotel with a riverside pool and sundeck",
+    "why_here": "Centrally located on the downtown riverfront off I-95 near the historic San Marco district, this DoubleTree overlooks the St. Johns River. Guests get a riverside pool, sundeck and on-site dining including Ruth's Chris Steak House.",
+    "know_before": "A warm DoubleTree cookie is offered on arrival.",
+    "local_tip": "Book Ruth's Chris for steak, lobster or fish with a view of the St. John's River.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.hilton.com/en/hotels/jaxjrdt-doubletree-jacksonville-riverfront/"
+     ],
+     "why_here": [
+      "https://www.hilton.com/en/hotels/jaxjrdt-doubletree-jacksonville-riverfront/"
+     ],
+     "know_before": [
+      "https://www.hilton.com/en/hotels/jaxjrdt-doubletree-jacksonville-riverfront/"
+     ],
+     "local_tip": [
+      "https://www.hilton.com/en/hotels/jaxjrdt-doubletree-jacksonville-riverfront/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Centrally located on the downtown riverfront, we are just off I-95 amidst the historic San Marco district near EverBank Stadium.",
+      "source": "https://www.hilton.com/en/hotels/jaxjrdt-doubletree-jacksonville-riverfront/"
+     },
+     {
+      "claim": "Perks include our riverside pool, sundeck, two restaurants, and a warm DoubleTree cookie on arrival.",
+      "source": "https://www.hilton.com/en/hotels/jaxjrdt-doubletree-jacksonville-riverfront/"
+     },
+     {
+      "claim": "The hotel features Ruth's Chris Steak House, Ruth's Chris Riverview Lounge, St. Johns Provision Co., and St. Johns Provision Lounge.",
+      "source": "https://www.hilton.com/en/hotels/jaxjrdt-doubletree-jacksonville-riverfront/"
+     },
+     {
+      "claim": "Amenities include an outdoor pool and fitness center.",
+      "source": "https://www.hilton.com/en/hotels/jaxjrdt-doubletree-jacksonville-riverfront/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJwQKPgReGk4gRGOX5jo0H4Qk",
+   "name": "Triple J Steakhouse",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "steak_house",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.triplejsteakhouse.com/",
+     "source_name": "Triple J Steakhouse \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "All of our steaks are 100% Certified Angus Beef and are aged to the peak of tenderness and flavor.",
+      "We offer lunch daily and a Sunday Brunch.",
+      "We are one of the only restaurants on the beach to offer live entertainment almost every night of the week year-round.",
+      "Hours are Monday to Thursday 11 a.m. to 9 p.m., Friday to Saturday 11 a.m. to 10 p.m., Sunday 9:00 a.m. to 9 p.m.",
+      "Triple J is locally owned and family operated.",
+      "Triple J Steakhouse is in Panama City Beach and serves fresh Florida seafood, grilled pork and chicken, and burgers."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Panama City Beach steakhouse serving Certified Angus Beef and Florida seafood",
+    "why_here": "Triple J in Panama City Beach serves fresh Florida seafood, grilled pork and chicken, and burgers alongside Certified Angus Beef steaks. It also offers lunch daily, a Sunday Brunch and live entertainment almost every night.",
+    "know_before": "Hours are Monday to Thursday 11 a.m. to 9 p.m., Friday to Saturday 11 a.m. to 10 p.m., and Sunday 9:00 a.m. to 9 p.m.",
+    "local_tip": "Come for Sunday Brunch or live entertainment, offered almost every night year-round.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.triplejsteakhouse.com/"
+     ],
+     "why_here": [
+      "https://www.triplejsteakhouse.com/"
+     ],
+     "know_before": [
+      "https://www.triplejsteakhouse.com/"
+     ],
+     "local_tip": [
+      "https://www.triplejsteakhouse.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "All of our steaks are 100% Certified Angus Beef and are aged to the peak of tenderness and flavor.",
+      "source": "https://www.triplejsteakhouse.com/"
+     },
+     {
+      "claim": "We offer lunch daily and a Sunday Brunch.",
+      "source": "https://www.triplejsteakhouse.com/"
+     },
+     {
+      "claim": "We are one of the only restaurants on the beach to offer live entertainment almost every night of the week year-round.",
+      "source": "https://www.triplejsteakhouse.com/"
+     },
+     {
+      "claim": "Hours are Monday to Thursday 11 a.m. to 9 p.m., Friday to Saturday 11 a.m. to 10 p.m., Sunday 9:00 a.m. to 9 p.m.",
+      "source": "https://www.triplejsteakhouse.com/"
+     },
+     {
+      "claim": "Triple J is locally owned and family operated.",
+      "source": "https://www.triplejsteakhouse.com/"
+     },
+     {
+      "claim": "Triple J Steakhouse is in Panama City Beach and serves fresh Florida seafood, grilled pork and chicken, and burgers.",
+      "source": "https://www.triplejsteakhouse.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJRRZ5JPc93YgRZbKgCT6MH20",
+   "name": "Catfish Country Restaurant",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://catfish-country.com/",
+     "source_name": "Catfish Country Restaurant \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Serving only American farm-raised catfish.",
+      "Grab a hand full of peanuts while you wait and be sure to try our never-ending Hot Biscuits.",
+      "Located at 2400 EF Griffin Rd, Bartow, FL 33830 on Highway 98 in Bartow.",
+      "Opening hours are Tuesday to Thursday 11 a.m. to 9 p.m. and Friday 11 a.m. to 9:30 p.m.",
+      "Catfish Country serves southern style seafood in Polk County, with freshly made coleslaw and sweet Georgia onions."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Bartow spot serving only American farm-raised catfish",
+    "why_here": "Catfish Country in Bartow serves southern style seafood in Polk County, centered on American farm-raised catfish. Meals come with peanuts while you wait and never-ending Hot Biscuits with the catfish.",
+    "know_before": "Opening hours are Tuesday to Thursday 11 a.m. to 9 p.m. and Friday 11 a.m. to 9:30 p.m.",
+    "local_tip": "Try the freshly made coleslaw and sweet Georgia onions alongside the catfish.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://catfish-country.com/"
+     ],
+     "why_here": [
+      "https://catfish-country.com/"
+     ],
+     "know_before": [
+      "https://catfish-country.com/"
+     ],
+     "local_tip": [
+      "https://catfish-country.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Serving only American farm-raised catfish.",
+      "source": "https://catfish-country.com/"
+     },
+     {
+      "claim": "Grab a hand full of peanuts while you wait and be sure to try our never-ending Hot Biscuits.",
+      "source": "https://catfish-country.com/"
+     },
+     {
+      "claim": "Located at 2400 EF Griffin Rd, Bartow, FL 33830 on Highway 98 in Bartow.",
+      "source": "https://catfish-country.com/"
+     },
+     {
+      "claim": "Opening hours are Tuesday to Thursday 11 a.m. to 9 p.m. and Friday 11 a.m. to 9:30 p.m.",
+      "source": "https://catfish-country.com/"
+     },
+     {
+      "claim": "Catfish Country serves southern style seafood in Polk County, with freshly made coleslaw and sweet Georgia onions.",
+      "source": "https://catfish-country.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJDbq6Samm2YgRy7OBvzctCX0",
+   "name": "El Balc\u00f3n de las Am\u00e9ricas - Pembroke Pines",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "colombian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://elbalcondelasamericas.com/",
+     "source_name": "El Balc\u00f3n de las Am\u00e9ricas - Pembroke Pines \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Authentic Colombian food made the way it's made back home: bandeja paisa, ajiaco, churrasco, fresh juices and 100% Colombian coffee.",
+      "Since 1997, with 8 locations in South Florida.",
+      "Bandeja Paisa combines white rice, red beans, ground beef or top round steak, sweet plantains, fried chicharron, arepa, avocado and a fried egg.",
+      "Pembroke Pines location is at 15931 Pines Blvd, Pembroke Pines, FL 33027."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Colombian kitchen serving bandeja paisa and 100% Colombian coffee",
+    "why_here": "El Balc\u00f3n de las Am\u00e9ricas serves authentic Colombian food including bandeja paisa, ajiaco and churrasco, plus fresh juices. The chain has operated since 1997 with locations across South Florida, including Pembroke Pines.",
+    "know_before": "The Pembroke Pines location is at 15931 Pines Blvd, Pembroke Pines, FL 33027.",
+    "local_tip": "Order the Bandeja Paisa, which combines rice, beans, steak, plantains, chicharron, arepa, avocado and a fried egg.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://elbalcondelasamericas.com/"
+     ],
+     "why_here": [
+      "https://elbalcondelasamericas.com/"
+     ],
+     "know_before": [
+      "https://elbalcondelasamericas.com/"
+     ],
+     "local_tip": [
+      "https://elbalcondelasamericas.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Authentic Colombian food made the way it's made back home: bandeja paisa, ajiaco, churrasco, fresh juices and 100% Colombian coffee.",
+      "source": "https://elbalcondelasamericas.com/"
+     },
+     {
+      "claim": "Since 1997, with 8 locations in South Florida.",
+      "source": "https://elbalcondelasamericas.com/"
+     },
+     {
+      "claim": "Bandeja Paisa combines white rice, red beans, ground beef or top round steak, sweet plantains, fried chicharron, arepa, avocado and a fried egg.",
+      "source": "https://elbalcondelasamericas.com/"
+     },
+     {
+      "claim": "Pembroke Pines location is at 15931 Pines Blvd, Pembroke Pines, FL 33027.",
+      "source": "https://elbalcondelasamericas.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJj6DVflWW5ogRXJs2L1plXCo",
+   "name": "Washington Oaks Gardens State Park",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "state_park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.floridastateparks.org/parks-and-trails/washington-oaks-gardens-state-park",
+     "source_name": "Washington Oaks Gardens State Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The formal gardens are the centerpiece of our park, with remarkable displays of native and non-native plant species including azaleas, camellias and bird of paradise.",
+      "Washington Oaks is also famous for the unique shoreline of coquina rock formations along its Atlantic beach.",
+      "Park address is 6400 N. Oceanshore Blvd., Palm Coast, FL 32137."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Formal gardens beside a coquina-rock Atlantic shoreline",
+    "why_here": "The formal gardens are the centerpiece of Washington Oaks, with displays of azaleas, camellias and bird of paradise. The park is also known for its unique shoreline of coquina rock formations along its Atlantic beach.",
+    "know_before": "The park is at 6400 N. Oceanshore Blvd., Palm Coast, FL 32137.",
+    "local_tip": "Pair a garden walk with a stop at the coquina rock shoreline on the Atlantic beach side.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.floridastateparks.org/parks-and-trails/washington-oaks-gardens-state-park"
+     ],
+     "why_here": [
+      "https://www.floridastateparks.org/parks-and-trails/washington-oaks-gardens-state-park"
+     ],
+     "know_before": [
+      "https://www.floridastateparks.org/parks-and-trails/washington-oaks-gardens-state-park"
+     ],
+     "local_tip": [
+      "https://www.floridastateparks.org/parks-and-trails/washington-oaks-gardens-state-park"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The formal gardens are the centerpiece of our park, with remarkable displays of native and non-native plant species including azaleas, camellias and bird of paradise.",
+      "source": "https://www.floridastateparks.org/parks-and-trails/washington-oaks-gardens-state-park"
+     },
+     {
+      "claim": "Washington Oaks is also famous for the unique shoreline of coquina rock formations along its Atlantic beach.",
+      "source": "https://www.floridastateparks.org/parks-and-trails/washington-oaks-gardens-state-park"
+     },
+     {
+      "claim": "Park address is 6400 N. Oceanshore Blvd., Palm Coast, FL 32137.",
+      "source": "https://www.floridastateparks.org/parks-and-trails/washington-oaks-gardens-state-park"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJnXpQpewn5IgR7k9yxWXUu1M",
+   "name": "Ice Plant Bar",
+   "category": "nightlife",
+   "metro": "st-augustine-fl",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://iceplantbar.com/about/",
+     "source_name": "Ice Plant Bar \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The original Ice Plant building dates back to 1927.",
+      "The building is complete with the original bridge crane on rails overhead the bar.",
+      "The farm to table restaurant and bar is open for lunch and dinner, serving grass-fed beef and burgers, local seafood, with vegetarian options and daily specials.",
+      "Attention is paid with three different kinds of ice, including a 300 lb block of ice and custom cubes.",
+      "We do not take reservations or call-ahead."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Farm-to-table bar inside St. Augustine's original 1927 Ice Plant",
+    "why_here": "Set in the original 1927 Ice Plant building, complete with its bridge crane on rails overhead, this bar and restaurant serves farm-to-table food and craft cocktails. The menu features grass-fed beef, local seafood and daily specials.",
+    "know_before": "We do not take reservations or call-ahead.",
+    "local_tip": "Look for the three kinds of ice, including a 300 lb block nodding to the building's original use.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://iceplantbar.com/about/"
+     ],
+     "why_here": [
+      "https://iceplantbar.com/about/"
+     ],
+     "know_before": [
+      "https://iceplantbar.com/about/"
+     ],
+     "local_tip": [
+      "https://iceplantbar.com/about/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The original Ice Plant building dates back to 1927.",
+      "source": "https://iceplantbar.com/about/"
+     },
+     {
+      "claim": "The building is complete with the original bridge crane on rails overhead the bar.",
+      "source": "https://iceplantbar.com/about/"
+     },
+     {
+      "claim": "The farm to table restaurant and bar is open for lunch and dinner, serving grass-fed beef and burgers, local seafood, with vegetarian options and daily specials.",
+      "source": "https://iceplantbar.com/about/"
+     },
+     {
+      "claim": "Attention is paid with three different kinds of ice, including a 300 lb block of ice and custom cubes.",
+      "source": "https://iceplantbar.com/about/"
+     },
+     {
+      "claim": "We do not take reservations or call-ahead.",
+      "source": "https://iceplantbar.com/about/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJy2-ew1blwogRkQzPSyK2Qbk",
+   "name": "Cheddar's Scratch Kitchen",
+   "category": "food",
+   "metro": "st-pete",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.cheddars.com/",
+     "source_name": "Cheddar's Scratch Kitchen \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Cheddar's Scratch Kitchen serves scratch-made food, from chicken tenders to ribs, with American favorites.",
+      "Menu highlights include Honey Butter Croissants.",
+      "Menu highlights include Homemade Onion Rings.",
+      "Weekday Lunch Specials are Monday to Friday until 3 p.m., starting at $8.79.",
+      "Homemade Chicken Pot Pie is listed among the favorites."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Scratch-made American favorites including Honey Butter Croissants",
+    "why_here": "Cheddar's Scratch Kitchen serves scratch-made American food from chicken tenders to ribs for familiar meals. Menu highlights include Honey Butter Croissants and Homemade Onion Rings alongside other American favorites.",
+    "know_before": "Weekday Lunch Specials are Monday to Friday until 3 p.m., starting at $8.79.",
+    "local_tip": "Try the Homemade Onion Rings or Honey Butter Croissants from the menu highlights.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.cheddars.com/"
+     ],
+     "why_here": [
+      "https://www.cheddars.com/"
+     ],
+     "know_before": [
+      "https://www.cheddars.com/"
+     ],
+     "local_tip": [
+      "https://www.cheddars.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Cheddar's Scratch Kitchen serves scratch-made food, from chicken tenders to ribs, with American favorites.",
+      "source": "https://www.cheddars.com/"
+     },
+     {
+      "claim": "Menu highlights include Honey Butter Croissants.",
+      "source": "https://www.cheddars.com/"
+     },
+     {
+      "claim": "Menu highlights include Homemade Onion Rings.",
+      "source": "https://www.cheddars.com/"
+     },
+     {
+      "claim": "Weekday Lunch Specials are Monday to Friday until 3 p.m., starting at $8.79.",
+      "source": "https://www.cheddars.com/"
+     },
+     {
+      "claim": "Homemade Chicken Pot Pie is listed among the favorites.",
+      "source": "https://www.cheddars.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJobFVhyTtwogRlBBZa-6-ME8",
+   "name": "John Chesnut Sr. Park",
+   "category": "attractions",
+   "metro": "tampa",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://pinellas.gov/parks/john-chesnut-sr-park/",
+     "source_name": "John Chesnut Sr. Park \u2014 official source",
+     "source_class": "government",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "John Chesnut Sr. Park is 255 acres of multiple nature trails that sits adjacent to Lake Tarpon in Palm Harbor.",
+      "Amenities include 13 picnic shelters with grills, a boat ramp with a fee charged, two playgrounds, and a dog park.",
+      "Swimming is prohibited inside the park.",
+      "The park is open 7 days a week, 7 a.m. to sunset.",
+      "The park is home to a variety of wildlife and the canoe trail is a landlocked waterway connected to an interior lake.",
+      "Lake Tarpon can accommodate boats with combustion engines, while the canoe trail can only accommodate non-combustion engines."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "255 acres of nature trails beside Lake Tarpon in Palm Harbor",
+    "why_here": "This park sits adjacent to Lake Tarpon and offers multiple nature trails across 255 acres in Palm Harbor. It is home to wildlife, boating access, and a landlocked canoe trail connected to an interior lake.",
+    "know_before": "Open 7 days a week, 7 a.m. to sunset; a fee is charged for the boat ramp and swimming is prohibited.",
+    "local_tip": "Use the canoe trail with non-combustion engines only, as combustion engines are accommodated on Lake Tarpon itself.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://pinellas.gov/parks/john-chesnut-sr-park/"
+     ],
+     "why_here": [
+      "https://pinellas.gov/parks/john-chesnut-sr-park/"
+     ],
+     "know_before": [
+      "https://pinellas.gov/parks/john-chesnut-sr-park/"
+     ],
+     "local_tip": [
+      "https://pinellas.gov/parks/john-chesnut-sr-park/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "John Chesnut Sr. Park is 255 acres of multiple nature trails that sits adjacent to Lake Tarpon in Palm Harbor.",
+      "source": "https://pinellas.gov/parks/john-chesnut-sr-park/"
+     },
+     {
+      "claim": "Amenities include 13 picnic shelters with grills, a boat ramp with a fee charged, two playgrounds, and a dog park.",
+      "source": "https://pinellas.gov/parks/john-chesnut-sr-park/"
+     },
+     {
+      "claim": "Swimming is prohibited inside the park.",
+      "source": "https://pinellas.gov/parks/john-chesnut-sr-park/"
+     },
+     {
+      "claim": "The park is open 7 days a week, 7 a.m. to sunset.",
+      "source": "https://pinellas.gov/parks/john-chesnut-sr-park/"
+     },
+     {
+      "claim": "The park is home to a variety of wildlife and the canoe trail is a landlocked waterway connected to an interior lake.",
+      "source": "https://pinellas.gov/parks/john-chesnut-sr-park/"
+     },
+     {
+      "claim": "Lake Tarpon can accommodate boats with combustion engines, while the canoe trail can only accommodate non-combustion engines.",
+      "source": "https://pinellas.gov/parks/john-chesnut-sr-park/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJW_zb0P6z4IgRh_Wwv4ix3Oc",
+   "name": "Pier 220 Seafood and Grill",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.pier220.com/about/",
+     "source_name": "Pier 220 Seafood and Grill \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Pier 220 offers fresh seafood in a relaxing environment right on the water in Titusville, Florida.",
+      "The building sits at the west end of the Walker bridge, site of the historical Titusville Fishing Pier.",
+      "Pier 220 is at 2 A. Max Brewer Memorial Parkway, Titusville, FL 32796.",
+      "The Pier Corps plaques were moved to make a feature wall, preserving the history of the pier."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Fresh seafood right on the water at the Titusville Fishing Pier",
+    "why_here": "Pier 220 offers fresh seafood in a relaxing environment right on the water in Titusville, Florida. The building sits at the west end of the Walker bridge, at the site of the historical Titusville Fishing Pier.",
+    "know_before": "Pier 220 is at 2 A. Max Brewer Memorial Parkway, Titusville, FL 32796.",
+    "local_tip": "Look for the Pier Corps plaques preserved as a feature wall inside the restaurant.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.pier220.com/about/"
+     ],
+     "why_here": [
+      "https://www.pier220.com/about/"
+     ],
+     "know_before": [
+      "https://www.pier220.com/about/"
+     ],
+     "local_tip": [
+      "https://www.pier220.com/about/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Pier 220 offers fresh seafood in a relaxing environment right on the water in Titusville, Florida.",
+      "source": "https://www.pier220.com/about/"
+     },
+     {
+      "claim": "The building sits at the west end of the Walker bridge, site of the historical Titusville Fishing Pier.",
+      "source": "https://www.pier220.com/about/"
+     },
+     {
+      "claim": "Pier 220 is at 2 A. Max Brewer Memorial Parkway, Titusville, FL 32796.",
+      "source": "https://www.pier220.com/about/"
+     },
+     {
+      "claim": "The Pier Corps plaques were moved to make a feature wall, preserving the history of the pier.",
+      "source": "https://www.pier220.com/about/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJqQ1XKoHG54gRPFzOdcGv8Fw",
+   "name": "Spanish Springs Town Square",
+   "category": "shopping",
+   "metro": "florida",
+   "primary_type": "shopping_mall",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.thevillages.com/shopping-dining/spanish-springs",
+     "source_name": "Spanish Springs Town Square \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Spanish Springs Town Square in The Villages offers free nightly entertainment, shopping, and dining experiences.",
+      "In Spanish Springs Town Square, free nightly entertainment is offered 365 days a year with live music from the outdoor stage.",
+      "Visitors can take in a show at The Sharon L. Morse Performing Arts Center.",
+      "Spanish Springs Town Square hosts monthly events and festivals in addition to nightly live music."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Free nightly entertainment 365 days a year with live music",
+    "why_here": "Spanish Springs Town Square in The Villages brings people together for free nightly entertainment, shopping, and dining. Visitors can also take in a show at The Sharon L. Morse Performing Arts Center nearby.",
+    "know_before": "Free nightly entertainment is offered 365 days a year with live music from the outdoor stage.",
+    "local_tip": "Check the square for monthly events and festivals in addition to nightly live music.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.thevillages.com/shopping-dining/spanish-springs"
+     ],
+     "why_here": [
+      "https://www.thevillages.com/shopping-dining/spanish-springs"
+     ],
+     "know_before": [
+      "https://www.thevillages.com/shopping-dining/spanish-springs"
+     ],
+     "local_tip": [
+      "https://www.thevillages.com/shopping-dining/spanish-springs"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Spanish Springs Town Square in The Villages offers free nightly entertainment, shopping, and dining experiences.",
+      "source": "https://www.thevillages.com/shopping-dining/spanish-springs"
+     },
+     {
+      "claim": "In Spanish Springs Town Square, free nightly entertainment is offered 365 days a year with live music from the outdoor stage.",
+      "source": "https://www.thevillages.com/shopping-dining/spanish-springs"
+     },
+     {
+      "claim": "Visitors can take in a show at The Sharon L. Morse Performing Arts Center.",
+      "source": "https://www.thevillages.com/shopping-dining/spanish-springs"
+     },
+     {
+      "claim": "Spanish Springs Town Square hosts monthly events and festivals in addition to nightly live music.",
+      "source": "https://www.thevillages.com/shopping-dining/spanish-springs"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJzarwdLLjwogR9NhPMenxrqY",
+   "name": "Kob\u00e9 Japanese Steakhouse - St. Petersburg",
+   "category": "food",
+   "metro": "st-pete",
+   "primary_type": "japanese_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://kobesteakhouse.com/location/st-petersburg/",
+     "source_name": "Kob\u00e9 Japanese Steakhouse - St. Petersburg \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Kob\u00e9 Japanese Steakhouse St. Petersburg serves both sushi and teppanyaki hibachi, plus gluten-free and vegan options.",
+      "Signature dishes include Filet Mignon and handcrafted sushi rolls like the Spicy Tuna Poke Bowl.",
+      "Kob\u00e9 Japanese Steakhouse St. Petersburg cuisine is Japanese, teppanyaki, hibachi, sushi, and steakhouse."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Teppanyaki hibachi and sushi at the St. Petersburg location",
+    "why_here": "Kob\u00e9 Japanese Steakhouse in St. Petersburg serves teppanyaki hibachi prepared at the table alongside sushi. It is known for signature steak and seafood hibachi and handcrafted sushi rolls.",
+    "know_before": "The St. Petersburg location serves both sushi and teppanyaki hibachi, plus gluten-free and vegan options.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://kobesteakhouse.com/location/st-petersburg/"
+     ],
+     "why_here": [
+      "https://kobesteakhouse.com/location/st-petersburg/"
+     ],
+     "know_before": [
+      "https://kobesteakhouse.com/location/st-petersburg/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Kob\u00e9 Japanese Steakhouse St. Petersburg serves both sushi and teppanyaki hibachi, plus gluten-free and vegan options.",
+      "source": "https://kobesteakhouse.com/location/st-petersburg/"
+     },
+     {
+      "claim": "Signature dishes include Filet Mignon and handcrafted sushi rolls like the Spicy Tuna Poke Bowl.",
+      "source": "https://kobesteakhouse.com/location/st-petersburg/"
+     },
+     {
+      "claim": "Kob\u00e9 Japanese Steakhouse St. Petersburg cuisine is Japanese, teppanyaki, hibachi, sushi, and steakhouse.",
+      "source": "https://kobesteakhouse.com/location/st-petersburg/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJX5opTx5_54gRl92979LPBMI",
+   "name": "Harry Potter and the Forbidden Journey",
+   "category": "attractions",
+   "metro": "orlando",
+   "primary_type": "tourist_attraction",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.universalorlando.com/web/en/us/things-to-do/rides-attractions/harry-potter-and-the-forbidden-journey",
+     "source_name": "Harry Potter and the Forbidden Journey \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Guests enter through the towering castle gates and make their way down the passageways and corridors of Hogwarts School of Witchcraft and Wizardry.",
+      "The ride soars above the castle grounds with Harry Potter.",
+      "Minimum height requirement is 48 inches."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Enter Hogwarts castle and soar above the castle grounds",
+    "why_here": "Guests enter through the towering castle gates and walk the passageways and corridors of Hogwarts School of Witchcraft and Wizardry before the ride soars above the castle grounds with Harry Potter.",
+    "know_before": "Minimum height requirement is 48 inches.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.universalorlando.com/web/en/us/things-to-do/rides-attractions/harry-potter-and-the-forbidden-journey"
+     ],
+     "why_here": [
+      "https://www.universalorlando.com/web/en/us/things-to-do/rides-attractions/harry-potter-and-the-forbidden-journey"
+     ],
+     "know_before": [
+      "https://www.universalorlando.com/web/en/us/things-to-do/rides-attractions/harry-potter-and-the-forbidden-journey"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Guests enter through the towering castle gates and make their way down the passageways and corridors of Hogwarts School of Witchcraft and Wizardry.",
+      "source": "https://www.universalorlando.com/web/en/us/things-to-do/rides-attractions/harry-potter-and-the-forbidden-journey"
+     },
+     {
+      "claim": "The ride soars above the castle grounds with Harry Potter.",
+      "source": "https://www.universalorlando.com/web/en/us/things-to-do/rides-attractions/harry-potter-and-the-forbidden-journey"
+     },
+     {
+      "claim": "Minimum height requirement is 48 inches.",
+      "source": "https://www.universalorlando.com/web/en/us/things-to-do/rides-attractions/harry-potter-and-the-forbidden-journey"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJNTcxSOLa5ogRRdOm82TcJzQ",
+   "name": "Romano Beachfront Park",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.ormondbeach.org/facilities/facility/details/Andy-Romano-Beachfront-Park-68",
+     "source_name": "Romano Beachfront Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Andy Romano Beachfront Park is a four acre park located along the beach.",
+      "The park offers beach access, off-beach parking, a splash pad, playground, pavilions, concessions, and restrooms.",
+      "Park hours are sunrise to sunset.",
+      "Andy Romano Beachfront Park is at 839 S. Atlantic Avenue, Ormond Beach, FL 32176."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Four acres of beachfront with a splash pad and playground",
+    "why_here": "Andy Romano Beachfront Park is a four acre park located along the beach in Ormond Beach, offering beach access together with a splash pad, playground, pavilions, concessions, and restrooms.",
+    "know_before": "Park hours are sunrise to sunset, and the park offers off-beach parking.",
+    "local_tip": "Facilities include pavilions, concessions, and restrooms in addition to beach access.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.ormondbeach.org/facilities/facility/details/Andy-Romano-Beachfront-Park-68"
+     ],
+     "why_here": [
+      "https://www.ormondbeach.org/facilities/facility/details/Andy-Romano-Beachfront-Park-68"
+     ],
+     "know_before": [
+      "https://www.ormondbeach.org/facilities/facility/details/Andy-Romano-Beachfront-Park-68"
+     ],
+     "local_tip": [
+      "https://www.ormondbeach.org/facilities/facility/details/Andy-Romano-Beachfront-Park-68"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Andy Romano Beachfront Park is a four acre park located along the beach.",
+      "source": "https://www.ormondbeach.org/facilities/facility/details/Andy-Romano-Beachfront-Park-68"
+     },
+     {
+      "claim": "The park offers beach access, off-beach parking, a splash pad, playground, pavilions, concessions, and restrooms.",
+      "source": "https://www.ormondbeach.org/facilities/facility/details/Andy-Romano-Beachfront-Park-68"
+     },
+     {
+      "claim": "Park hours are sunrise to sunset.",
+      "source": "https://www.ormondbeach.org/facilities/facility/details/Andy-Romano-Beachfront-Park-68"
+     },
+     {
+      "claim": "Andy Romano Beachfront Park is at 839 S. Atlantic Avenue, Ormond Beach, FL 32176.",
+      "source": "https://www.ormondbeach.org/facilities/facility/details/Andy-Romano-Beachfront-Park-68"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ42Q2G2iu2YgRwQ08XPZkvgc",
+   "name": "Topgolf Miami Gardens",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://topgolf.com/us/miami-gardens/",
+     "source_name": "Topgolf Miami Gardens \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Topgolf Miami Gardens features 3 floors and 100+ all-weather bays.",
+      "Features include over 200 HDTVs, free Wi-Fi, a rooftop terrace, and a bar and restaurant.",
+      "Each bay can fit up to 6 players.",
+      "Hours Monday to Thursday are 12 p.m. to 12 a.m.",
+      "Anyone under 16 must be supervised by a guest 21 or older at all times."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "100+ all-weather bays across 3 floors in Miami Gardens",
+    "why_here": "Topgolf Miami Gardens features 3 floors and 100+ all-weather bays, with over 200 HDTVs, free Wi-Fi, a rooftop terrace, and a bar and restaurant for groups using each bay.",
+    "know_before": "Hours Monday to Thursday are 12 p.m. to 12 a.m.; each bay fits up to 6 players.",
+    "local_tip": "Anyone under 16 must be supervised by a guest 21 or older at all times.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://topgolf.com/us/miami-gardens/"
+     ],
+     "why_here": [
+      "https://topgolf.com/us/miami-gardens/"
+     ],
+     "know_before": [
+      "https://topgolf.com/us/miami-gardens/"
+     ],
+     "local_tip": [
+      "https://topgolf.com/us/miami-gardens/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Topgolf Miami Gardens features 3 floors and 100+ all-weather bays.",
+      "source": "https://topgolf.com/us/miami-gardens/"
+     },
+     {
+      "claim": "Features include over 200 HDTVs, free Wi-Fi, a rooftop terrace, and a bar and restaurant.",
+      "source": "https://topgolf.com/us/miami-gardens/"
+     },
+     {
+      "claim": "Each bay can fit up to 6 players.",
+      "source": "https://topgolf.com/us/miami-gardens/"
+     },
+     {
+      "claim": "Hours Monday to Thursday are 12 p.m. to 12 a.m.",
+      "source": "https://topgolf.com/us/miami-gardens/"
+     },
+     {
+      "claim": "Anyone under 16 must be supervised by a guest 21 or older at all times.",
+      "source": "https://topgolf.com/us/miami-gardens/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJny8VYW-I7IgRDri7905NC2o",
+   "name": "Edward Ball Wakulla Springs State Park",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "state_park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.floridastateparks.org/WakullaSprings",
+     "source_name": "Edward Ball Wakulla Springs State Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Wakulla Springs is one of the world's largest and deepest freshwater springs.",
+      "Visitors can swim where mastodons once roamed and take guided boat tours.",
+      "The Wakulla Springs Lodge offers visitors a glimpse into Florida's past.",
+      "The best way to experience the river is on a guided river boat tour.",
+      "Park hours are 8 a.m. until sunset, 365 days a year."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Swim and take guided boat tours at a large, deep freshwater spring",
+    "why_here": "Wakulla Springs is one of the world's largest and deepest freshwater springs, where visitors can swim and take guided boat tours, with the Wakulla Springs Lodge offering a glimpse into Florida's past.",
+    "know_before": "Park hours are 8 a.m. until sunset, 365 days a year.",
+    "local_tip": "Take a guided river boat tour to experience the river.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.floridastateparks.org/WakullaSprings"
+     ],
+     "why_here": [
+      "https://www.floridastateparks.org/WakullaSprings"
+     ],
+     "know_before": [
+      "https://www.floridastateparks.org/WakullaSprings"
+     ],
+     "local_tip": [
+      "https://www.floridastateparks.org/WakullaSprings"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Wakulla Springs is one of the world's largest and deepest freshwater springs.",
+      "source": "https://www.floridastateparks.org/WakullaSprings"
+     },
+     {
+      "claim": "Visitors can swim where mastodons once roamed and take guided boat tours.",
+      "source": "https://www.floridastateparks.org/WakullaSprings"
+     },
+     {
+      "claim": "The Wakulla Springs Lodge offers visitors a glimpse into Florida's past.",
+      "source": "https://www.floridastateparks.org/WakullaSprings"
+     },
+     {
+      "claim": "The best way to experience the river is on a guided river boat tour.",
+      "source": "https://www.floridastateparks.org/WakullaSprings"
+     },
+     {
+      "claim": "Park hours are 8 a.m. until sunset, 365 days a year.",
+      "source": "https://www.floridastateparks.org/WakullaSprings"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJNaSmI5B554gRk7Ub17EiGbI",
+   "name": "Central Florida Fair",
+   "category": "attractions",
+   "metro": "orlando",
+   "primary_type": "event_venue",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.centralfloridafair.com/central-florida-fair/",
+     "source_name": "Central Florida Fair \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Central Florida Fair is celebrating its 115th year as a 501(c)(3) not-for-profit organization serving the Central Florida community.",
+      "Each year, the Central Florida Fairgrounds provides a venue for youth from Orange, Seminole, Volusia, Lake, Osceola, and Brevard counties to exhibit livestock and showcase creative arts.",
+      "The official site lists the fair March 4th - 14th, 2027, with a midway filled with rides, games, food, live music, entertainment, livestock shows and competitive exhibits."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Youth livestock shows and creative arts anchor this Orlando fair",
+    "why_here": "The Central Florida Fair in Orlando is a long-running community fair organized as a 501(c)(3) not-for-profit. It gives youth from six Central Florida counties a venue to exhibit livestock and showcase creative arts, alongside a midway with rides, games, food and live entertainment.",
+    "know_before": "Next fair listed on the official site is March 4th - 14th, 2027.",
+    "local_tip": null,
+    "best_time": "March 4th - 14th, 2027, during the annual fair run listed on the official site.",
+    "citations": {
+     "hook": [
+      "https://www.centralfloridafair.com/central-florida-fair/"
+     ],
+     "why_here": [
+      "https://www.centralfloridafair.com/central-florida-fair/"
+     ],
+     "know_before": [
+      "https://www.centralfloridafair.com/central-florida-fair/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      "https://www.centralfloridafair.com/central-florida-fair/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Central Florida Fair is celebrating its 115th year as a 501(c)(3) not-for-profit organization serving the Central Florida community.",
+      "source": "https://www.centralfloridafair.com/central-florida-fair/"
+     },
+     {
+      "claim": "Each year, the Central Florida Fairgrounds provides a venue for youth from Orange, Seminole, Volusia, Lake, Osceola, and Brevard counties to exhibit livestock and showcase creative arts.",
+      "source": "https://www.centralfloridafair.com/central-florida-fair/"
+     },
+     {
+      "claim": "The official site lists the fair March 4th - 14th, 2027, with a midway filled with rides, games, food, live music, entertainment, livestock shows and competitive exhibits.",
+      "source": "https://www.centralfloridafair.com/central-florida-fair/"
+     }
+    ]
+   }
+  }
+ ]
+}
