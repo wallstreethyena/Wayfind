@@ -286,6 +286,11 @@ Each photo uses the license named below; images may be resized, cropped and conv
 - `/guides/picks/things-to-do-st-petersburg-clearwater-summer-2026/dali-museum-exterior.webp` — tampa-bay-rainy-day: The Dalí Museum. [Taty2007](https://commons.wikimedia.org/wiki/File:Salvador_Dal%C3%AD_Museum.JPG); [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/).
 - `/guides/picks/things-to-do-in-tampa-florida/florida-aquarium.webp` — tampa-bay-rainy-day: The Florida Aquarium. [James E. Scholz](https://commons.wikimedia.org/wiki/File:Florida_Aquarium_Channelside.jpg); [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 
+## tampa-bay-rays-game-day-tropicana-field
+
+- `/guides/picks/tampa-bay-rays-game-day-tropicana-field/2026-the-third-pennant.jpg` — tampa-bay-rays-game-day-tropicana-field: 2026: the third pennant. [Trevorrrrvalent](https://commons.wikimedia.org/wiki/File:October_19_2026_Tampa_Bay_Rays_Game_6_American_League_Champions.jpg); [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+- `/guides/picks/tampa-bay-rays-game-day-tropicana-field/the-tilted-roof-and-the-catwalks.jpg` — tampa-bay-rays-game-day-tropicana-field: The tilted roof and the catwalks. [Doctorindy](https://commons.wikimedia.org/wiki/File:Tropicanafieldceiling.jpg); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
+
 ## tampa-restaurants
 
 - `/guides/picks/things-to-do-in-tampa-florida/berns-dessert-room.webp` — tampa-restaurants: Bern's Steak House. [Swampyank](https://commons.wikimedia.org/wiki/File:Bern%27s_Steak_House.jpg); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
@@ -539,6 +544,15 @@ Each photo uses the license named below; images may be resized, cropped and conv
 - `/guides/picks/tonights-move-tampa-september-12-2026/st-pete-artwalk.webp` — tonights-move-tampa-september-12-2026: St. Pete ArtWalk. [Beyond My Ken](https://commons.wikimedia.org/wiki/File:Crislip_Arcade,_645_Central_Avenue,_St._Petersburg,_Florida.jpg); [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 - `/guides/picks/tonights-move-tampa-september-12-2026/ruth-eckerd-hall.webp` — tonights-move-tampa-september-12-2026: The Mavericks. [PalauanReich](https://commons.wikimedia.org/wiki/File:RuthEckerdHall_03.jpg); [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 - `/guides/picks/tonights-move-tampa-september-12-2026/amalie-arena.webp` — tonights-move-tampa-september-12-2026: The Strokes. [Miosotis Jade](https://commons.wikimedia.org/wiki/File:Amalie_Arena,_Tampa.jpg); [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Adaptation (resized, cropped, WebP) released under the same licence.
+
+## trending-in-florida-this-week-nov-2-2026
+
+- `/guides/picks/trending-in-florida-this-week-nov-2-2026/christone-kingfish-ingram.jpg` — trending-in-florida-this-week-nov-2-2026: Christone Kingfish Ingram. [Paul Natkin](https://commons.wikimedia.org/wiki/File:Kingfish_Ingram_BuddyGuy.jpg); [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Adaptation (resized, cropped, WebP) released under the same licence.
+- `/guides/picks/trending-in-florida-this-week-nov-2-2026/dal-disruption-devotion-panel-discussion.jpg` — trending-in-florida-this-week-nov-2-2026: Dalí: Disruption + Devotion panel discussion. [Taty2007](https://commons.wikimedia.org/wiki/File:Salvador_Dal%C3%AD_Museum.JPG); [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/).
+- `/guides/picks/trending-in-florida-this-week-nov-2-2026/ed-sheeran-loop-tour.jpg` — trending-in-florida-this-week-nov-2-2026: Ed Sheeran: LOOP Tour. [Elwin594](https://commons.wikimedia.org/wiki/File:Ed_Sheeran_Madrid.jpg); [CC0 1.0 Universal](https://creativecommons.org/publicdomain/zero/1.0/).
+- `/guides/picks/trending-in-florida-this-week-nov-2-2026/greensky-bluegrass.jpg` — trending-in-florida-this-week-nov-2-2026: Greensky Bluegrass. [cp_thornton from Cleveland, Ohio, USA](https://commons.wikimedia.org/wiki/File:Greensky_Bluegrass_-_The_Westcott_Theater,_Syracuse,_NY_-_2015-02-05_22.29.33_(by_cp_thornton).jpg); [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/).
+- `/guides/picks/trending-in-florida-this-week-nov-2-2026/noah-kahan-the-last-of-the-bugs-world-tour.jpg` — trending-in-florida-this-week-nov-2-2026: Noah Kahan: The Last of the Bugs World Tour. [Raph_PH](https://commons.wikimedia.org/wiki/File:Noah_Kahan_at_Glastonbury_Festival_2025_01.jpg); [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+- `/guides/picks/trending-in-florida-this-week-nov-2-2026/trivium-crown-in-the-grave-tour.jpg` — trending-in-florida-this-week-nov-2-2026: Trivium: Crown in the Grave Tour. [Y'some](https://commons.wikimedia.org/wiki/File:Matthew_K._Heafy_%26_Corey_Beaulieu_-_Trivium_(Hamburg,_Nov._2012).png); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 
 ## trending-in-florida-this-week-nov-9-2026
 

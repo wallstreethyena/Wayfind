@@ -3,20 +3,20 @@
   "verifiedAt": "2026-11-10",
   "rule": "Every photo added by the guide pick-photo pipeline, re-checked at its source. commercialUse is true only for CC0, public domain, CC BY and CC BY-SA (2.0, 2.5, 3.0, 4.0); NC and ND never pass.",
   "summary": {
-    "files": 363,
-    "usages": 388,
-    "verified": 363,
+    "files": 356,
+    "usages": 381,
+    "verified": 356,
     "needsReview": [],
     "authorDiffers": [],
     "byLicence": {
-      "CC BY-SA 4.0": 90,
-      "CC BY-SA 3.0": 82,
+      "CC BY-SA 4.0": 85,
+      "CC BY-SA 3.0": 79,
       "CC BY 4.0": 21,
-      "CC BY 3.0": 21,
-      "CC BY 2.0": 88,
+      "CC BY 3.0": 20,
+      "CC BY 2.0": 89,
       "CC0 1.0 Universal": 25,
-      "Unsplash License": 5,
-      "CC BY-SA 2.0": 28,
+      "CC BY-SA 2.0": 30,
+      "Unsplash License": 4,
       "CC BY-SA 2.5": 1,
       "Public domain": 2
     },
@@ -1156,7 +1156,7 @@
       "verifiedAt": "2026-11-10"
     },
     {
-      "src": "/guides/picks/florida-holiday-nights-out-2026/selby-holiday-lights-joseph-corl.webp",
+      "src": "/guides/picks/florida-holiday-nights-out-2026/selby-lights-in-bloom-peacock.jpg",
       "usedBy": [
         {
           "slug": "florida-holiday-nights-out-2026",
@@ -1165,30 +1165,25 @@
         }
       ],
       "source": {
-        "kind": "unsplash",
-        "url": "https://unsplash.com/photos/island-park-illuminated-with-colorful-lights-at-night-M0G1ofDC9eI",
-        "title": "Island park illuminated with colorful lights at night",
-        "author": "Joseph Corl",
-        "licence": "Unsplash License",
-        "licenceUrl": "https://unsplash.com/license",
-        "publishedDate": "2025-12-09",
-        "evidence": "Primary Unsplash source, free-license statement and downloaded photo visually reviewed on 2026-10-15; this is the same exact natural photo already verified for the Wayfind Google Ads asset.",
-        "verification": "The exact Unsplash source identifies Joseph Corl and Sarasota’s Marie Selby Botanical Gardens Christmas lights, states the free Unsplash License, and was published December 9, 2025. Visually inspected the downloaded aerial photograph: illuminated garden paths and palms on the Sarasota bayfront, the Selby campus, downtown skyline and holiday light displays. This is a previously published holiday display, not evidence of the 2026 layout.",
-        "downloadSha256": "e9aec0765d45306d15d4e4084cd21741bc45838ff7b9d0376365f7e051cef405",
-        "outputSha256": "6ea447f7118ec75f3deedb103e0829b41d6f87faec058676616891ee76539cb3"
+        "kind": "commons",
+        "url": "https://commons.wikimedia.org/wiki/File:Marie_Selby_Botanical_Gardens_Lights_in_Bloom_12DEC2024.jpg",
+        "title": "Marie Selby Botanical Gardens Lights in Bloom 12DEC2024",
+        "author": "Kimberli Mäkäräinen",
+        "dateTaken": "2024-12-12 20:10:50",
+        "licence": "CC BY-SA 4.0",
+        "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0"
       },
       "wayfind": {
-        "credit": "Joseph Corl",
-        "creditHref": "https://unsplash.com/photos/island-park-illuminated-with-colorful-lights-at-night-M0G1ofDC9eI",
-        "license": "Unsplash License",
-        "licenseUrl": "https://unsplash.com/license",
-        "modificationNotice": "Resized and converted to WebP for page loading; display may crop the photograph."
+        "credit": "Kimberli Mäkäräinen",
+        "creditHref": "https://commons.wikimedia.org/wiki/File:Marie_Selby_Botanical_Gardens_Lights_in_Bloom_12DEC2024.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+        "modificationNotice": "Resized, cropped to 1280x853 and converted to JPEG. The adaptation is released under the same licence."
       },
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-10-15",
-      "verificationMethod": "manual-source-and-image-review"
+      "verifiedAt": "2026-11-10"
     },
     {
       "src": "/guides/picks/florida-lovebug-season/can-wayfind-tell-me-where-lovebugs-are-worst-right-now.webp",
@@ -1311,6 +1306,37 @@
       "verifiedAt": "2026-11-10"
     },
     {
+      "src": "/guides/picks/florida-lovebug-season/lovebugs-on-car-mims.jpg",
+      "usedBy": [
+        {
+          "slug": "florida-lovebug-season",
+          "role": "pick",
+          "pick": "What time of day are lovebugs worst?"
+        }
+      ],
+      "source": {
+        "kind": "flickr",
+        "url": "https://www.flickr.com/photos/81376848@N00/5741604304",
+        "title": "Love bugs in Mims, FL",
+        "author": "james michael thomas",
+        "displayName": "james michael thomas",
+        "dateTaken": "2011-05-14 09:20:56",
+        "licence": "CC BY-SA 2.0",
+        "licenceUrl": "https://creativecommons.org/licenses/by-sa/2.0/"
+      },
+      "wayfind": {
+        "credit": "james michael thomas",
+        "creditHref": "https://www.flickr.com/photos/81376848@N00/5741604304",
+        "license": "CC BY-SA 2.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0/",
+        "modificationNotice": "Resized, cropped to 1280x853 and converted to JPEG. The adaptation is released under the same licence."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-10"
+    },
+    {
       "src": "/guides/picks/florida-lovebug-season/no-the-university-of-florida-did-not-create-them.webp",
       "usedBy": [
         {
@@ -1361,36 +1387,6 @@
       "wayfind": {
         "credit": "Judy Gallagher",
         "creditHref": "https://commons.wikimedia.org/wiki/File:Love_Bug_-_Plecia_nearctica,_Okaloacoochee_Slough_State_Forest,_Felda,_Florida.jpg",
-        "license": "CC BY 2.0",
-        "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
-        "modificationNotice": "Resized, cropped for display and converted to WebP."
-      },
-      "commercialUse": true,
-      "authorMatchesCredit": true,
-      "status": "verified",
-      "verifiedAt": "2026-11-10"
-    },
-    {
-      "src": "/guides/picks/florida-lovebug-season/what-time-of-day-are-lovebugs-worst.webp",
-      "usedBy": [
-        {
-          "slug": "florida-lovebug-season",
-          "role": "pick",
-          "pick": "What time of day are lovebugs worst?"
-        }
-      ],
-      "source": {
-        "kind": "commons",
-        "url": "https://commons.wikimedia.org/wiki/File:Lovebugs_-_Plecia_nearctica_on_Camphorweed_-_Pluchea_odorata,_Myakka_River_State_Park,_Sarasota,_Florida.jpg",
-        "title": "Lovebugs - Plecia nearctica on Camphorweed - Pluchea odorata, Myakka River State Park, Sarasota, Florida",
-        "author": "Judy Gallagher",
-        "dateTaken": "2013-05-04 15:05:47",
-        "licence": "CC BY 2.0",
-        "licenceUrl": "https://creativecommons.org/licenses/by/2.0"
-      },
-      "wayfind": {
-        "credit": "Judy Gallagher",
-        "creditHref": "https://commons.wikimedia.org/wiki/File:Lovebugs_-_Plecia_nearctica_on_Camphorweed_-_Pluchea_odorata,_Myakka_River_State_Park,_Sarasota,_Florida.jpg",
         "license": "CC BY 2.0",
         "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
         "modificationNotice": "Resized, cropped for display and converted to WebP."
@@ -1885,7 +1881,7 @@
       "verifiedAt": "2026-11-10"
     },
     {
-      "src": "/guides/picks/florida-snow-and-ice-2026/cityplace-west-palm-beach-sign.webp",
+      "src": "/guides/picks/florida-snow-and-ice-2026/cityplace-tree-lighting-night.jpg",
       "usedBy": [
         {
           "slug": "florida-snow-and-ice-2026",
@@ -1894,50 +1890,21 @@
         }
       ],
       "source": {
-        "kind": "commons",
-        "url": "https://commons.wikimedia.org/wiki/File:CityPlace,_Rosemary_Ave_entrance,_West_Palm_Beach.jpg",
-        "title": "CityPlace, Rosemary Ave entrance, West Palm Beach",
-        "author": "Michael Rivera",
-        "dateTaken": "Taken on 11 April 2017, 17:39:28",
-        "licence": "CC BY-SA 4.0",
-        "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+        "kind": "flickr",
+        "url": "https://www.flickr.com/photos/14363418@N00/6339349490",
+        "title": "CityPlace Tree Lighting 2011",
+        "author": "Bob B. Brown",
+        "displayName": "Bob B. Brown",
+        "dateTaken": "2011-11-12 19:28:34",
+        "licence": "CC BY 2.0",
+        "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
       "wayfind": {
-        "credit": "Michael Rivera",
-        "creditHref": "https://commons.wikimedia.org/wiki/File:CityPlace,_Rosemary_Ave_entrance,_West_Palm_Beach.jpg",
-        "license": "CC BY-SA 4.0",
-        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
-        "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence."
-      },
-      "commercialUse": true,
-      "authorMatchesCredit": true,
-      "status": "verified",
-      "verifiedAt": "2026-11-10"
-    },
-    {
-      "src": "/guides/picks/florida-snow-and-ice-2026/curtis-hixon-park-tampa-florida-united-states-panoramio.webp",
-      "usedBy": [
-        {
-          "slug": "florida-snow-and-ice-2026",
-          "role": "pick",
-          "pick": "Winter Village at Curtis Hixon Park"
-        }
-      ],
-      "source": {
-        "kind": "commons",
-        "url": "https://commons.wikimedia.org/wiki/File:Curtis_Hixon_Park_Tampa_Florida_United_States_-_panoramio.jpg",
-        "title": "Curtis Hixon Park Tampa Florida United States - panoramio",
-        "author": "Michelle Maria",
-        "dateTaken": "Taken on 6 April 2013",
-        "licence": "CC BY 3.0",
-        "licenceUrl": "https://creativecommons.org/licenses/by/3.0"
-      },
-      "wayfind": {
-        "credit": "Michelle Maria",
-        "creditHref": "https://commons.wikimedia.org/wiki/File:Curtis_Hixon_Park_Tampa_Florida_United_States_-_panoramio.jpg",
-        "license": "CC BY 3.0",
-        "licenseUrl": "https://creativecommons.org/licenses/by/3.0/",
-        "modificationNotice": "Resized, cropped for display and converted to WebP."
+        "credit": "Bob B. Brown",
+        "creditHref": "https://www.flickr.com/photos/14363418@N00/6339349490",
+        "license": "CC BY 2.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+        "modificationNotice": "Resized (enlarged from 1024px), cropped to 1280x853 and converted to JPEG."
       },
       "commercialUse": true,
       "authorMatchesCredit": true,
@@ -1975,158 +1942,7 @@
       "verifiedAt": "2026-11-10"
     },
     {
-      "src": "/guides/picks/florida-snow-and-ice-2026/make-it-a-winter-park-day.webp",
-      "usedBy": [
-        {
-          "slug": "florida-snow-and-ice-2026",
-          "role": "pick",
-          "pick": "Winter on the Avenue Snow Slides"
-        }
-      ],
-      "source": {
-        "kind": "flickr",
-        "url": "https://www.flickr.com/photos/93283041@N00/8312342768",
-        "title": "Winter Park - Park Avenue Shopping",
-        "author": "Jared",
-        "displayName": "Jared",
-        "dateTaken": "2012-12-15 16:15:45",
-        "licence": "CC BY 2.0",
-        "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
-      },
-      "wayfind": {
-        "credit": "Jared",
-        "creditHref": "https://www.flickr.com/photos/93283041@N00/8312342768",
-        "license": "CC BY 2.0",
-        "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
-        "modificationNotice": "Resized, cropped for display and converted to WebP."
-      },
-      "commercialUse": true,
-      "authorMatchesCredit": true,
-      "status": "verified",
-      "verifiedAt": "2026-11-10"
-    },
-    {
-      "src": "/guides/picks/florida-snow-and-ice-2026/palafox-place-pensacola.webp",
-      "usedBy": [
-        {
-          "slug": "florida-snow-and-ice-2026",
-          "role": "pick",
-          "pick": "Plaza Wonderland at Pensacola Winterfest"
-        }
-      ],
-      "source": {
-        "kind": "commons",
-        "url": "https://commons.wikimedia.org/wiki/File:Pensacola_Palafox02.jpg",
-        "title": "Pensacola Palafox02",
-        "author": "Ebyabe",
-        "dateTaken": "2008-03-22",
-        "licence": "CC BY-SA 3.0",
-        "licenceUrl": "http://creativecommons.org/licenses/by-sa/3.0/"
-      },
-      "wayfind": {
-        "credit": "Ebyabe",
-        "creditHref": "https://commons.wikimedia.org/wiki/File:Pensacola_Palafox02.jpg",
-        "license": "CC BY-SA 3.0",
-        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
-        "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence."
-      },
-      "commercialUse": true,
-      "authorMatchesCredit": true,
-      "status": "verified",
-      "verifiedAt": "2026-11-10"
-    },
-    {
-      "src": "/guides/picks/florida-thanksgiving-weekend-2026/brevard-zoo-viera-fl-flickr-rusty-clark.webp",
-      "usedBy": [
-        {
-          "slug": "florida-thanksgiving-weekend-2026",
-          "role": "pick",
-          "pick": "Wild Turkey Trot 3K at Brevard Zoo"
-        }
-      ],
-      "source": {
-        "kind": "commons",
-        "url": "https://commons.wikimedia.org/wiki/File:Brevard_Zoo,_Viera_FL_-_Flickr_-_Rusty_Clark.jpg",
-        "title": "Brevard Zoo, Viera FL - Flickr - Rusty Clark",
-        "author": "Rusty Clark from merritt usland FLA",
-        "dateTaken": "2011-12-31 11:05",
-        "licence": "CC BY 2.0",
-        "licenceUrl": "https://creativecommons.org/licenses/by/2.0"
-      },
-      "wayfind": {
-        "credit": "Rusty Clark",
-        "creditHref": "https://commons.wikimedia.org/wiki/File:Brevard_Zoo,_Viera_FL_-_Flickr_-_Rusty_Clark.jpg",
-        "license": "CC BY 2.0",
-        "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
-        "modificationNotice": "Resized, cropped for display and converted to WebP."
-      },
-      "commercialUse": true,
-      "authorMatchesCredit": true,
-      "status": "verified",
-      "verifiedAt": "2026-11-10"
-    },
-    {
-      "src": "/guides/picks/florida-thanksgiving-weekend-2026/carlos-prado-public-sculpture-at-tropical-park-02a.webp",
-      "usedBy": [
-        {
-          "slug": "florida-thanksgiving-weekend-2026",
-          "role": "pick",
-          "pick": "Life Time Turkey Trot Miami 5K/10K & Kids Race"
-        }
-      ],
-      "source": {
-        "kind": "commons",
-        "url": "https://commons.wikimedia.org/wiki/File:Carlos_Prado-Public_Sculpture_at_Tropical_Park-02a.jpg",
-        "title": "Carlos Prado-Public Sculpture at Tropical Park-02a",
-        "author": "Carlosenrique",
-        "dateTaken": "2018-04-14 17:00:54",
-        "licence": "CC BY-SA 4.0",
-        "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0"
-      },
-      "wayfind": {
-        "credit": "Carlosenrique",
-        "creditHref": "https://commons.wikimedia.org/wiki/File:Carlos_Prado-Public_Sculpture_at_Tropical_Park-02a.jpg",
-        "license": "CC BY-SA 4.0",
-        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
-        "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence."
-      },
-      "commercialUse": true,
-      "authorMatchesCredit": true,
-      "status": "verified",
-      "verifiedAt": "2026-11-10"
-    },
-    {
-      "src": "/guides/picks/florida-thanksgiving-weekend-2026/celebration-tree-lighting-ceremony.webp",
-      "usedBy": [
-        {
-          "slug": "florida-thanksgiving-weekend-2026",
-          "role": "pick",
-          "pick": "Celebration Tree Lighting Ceremony"
-        }
-      ],
-      "source": {
-        "kind": "commons",
-        "url": "https://commons.wikimedia.org/wiki/File:Downtown_celebration.jpg",
-        "title": "Downtown celebration",
-        "author": "JohnFota",
-        "dateTaken": "2016-05-12",
-        "licence": "CC BY-SA 4.0",
-        "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0"
-      },
-      "wayfind": {
-        "credit": "JohnFota",
-        "creditHref": "https://commons.wikimedia.org/wiki/File:Downtown_celebration.jpg",
-        "license": "CC BY-SA 4.0",
-        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
-        "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence."
-      },
-      "commercialUse": true,
-      "authorMatchesCredit": true,
-      "status": "verified",
-      "verifiedAt": "2026-11-10"
-    },
-    {
-      "src": "/guides/picks/florida-thanksgiving-weekend-2026/daytona-speedway-frontstretch.webp",
+      "src": "/guides/picks/florida-thanksgiving-weekend-2026/daytona-turkey-run-1940-ford-truck.jpg",
       "usedBy": [
         {
           "slug": "florida-thanksgiving-weekend-2026",
@@ -2135,80 +1951,21 @@
         }
       ],
       "source": {
-        "kind": "commons",
-        "url": "https://commons.wikimedia.org/wiki/File:2018_Coke_Zero_Sugar_400_fireworks_from_frontstretch.jpg",
-        "title": "2018 Coke Zero Sugar 400 fireworks from frontstretch",
-        "author": "Dough4872",
-        "dateTaken": "7 July 2018 (according to Exif data)",
-        "licence": "CC BY-SA 3.0",
-        "licenceUrl": "https://creativecommons.org/licenses/by-sa/3.0"
+        "kind": "flickr",
+        "url": "https://www.flickr.com/photos/14580956@N08/3063924727",
+        "title": "TurkeyRun2008-1705",
+        "author": "Rob Bixby",
+        "displayName": "Rob Bixby",
+        "dateTaken": "2008-11-27 19:03:23",
+        "licence": "CC BY 2.0",
+        "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
       "wayfind": {
-        "credit": "Dough4872",
-        "creditHref": "https://commons.wikimedia.org/wiki/File:2018_Coke_Zero_Sugar_400_fireworks_from_frontstretch.jpg",
-        "license": "CC BY-SA 3.0",
-        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
-        "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence."
-      },
-      "commercialUse": true,
-      "authorMatchesCredit": true,
-      "status": "verified",
-      "verifiedAt": "2026-11-10"
-    },
-    {
-      "src": "/guides/picks/florida-thanksgiving-weekend-2026/pensacola-winterfest-opening-night-and-elf-parade.webp",
-      "usedBy": [
-        {
-          "slug": "florida-thanksgiving-weekend-2026",
-          "role": "pick",
-          "pick": "Pensacola Winterfest Opening Night and Elf Parade"
-        }
-      ],
-      "source": {
-        "kind": "commons",
-        "url": "https://commons.wikimedia.org/wiki/File:Pensacola_Palafox01.jpg",
-        "title": "Pensacola Palafox01",
-        "author": "Ebyabe",
-        "dateTaken": "2008-03-22",
-        "licence": "CC BY-SA 3.0",
-        "licenceUrl": "http://creativecommons.org/licenses/by-sa/3.0/"
-      },
-      "wayfind": {
-        "credit": "Ebyabe",
-        "creditHref": "https://commons.wikimedia.org/wiki/File:Pensacola_Palafox01.jpg",
-        "license": "CC BY-SA 3.0",
-        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
-        "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence."
-      },
-      "commercialUse": true,
-      "authorMatchesCredit": true,
-      "status": "verified",
-      "verifiedAt": "2026-11-10"
-    },
-    {
-      "src": "/guides/picks/florida-thanksgiving-weekend-2026/stuart-christmas-tree-lighting.webp",
-      "usedBy": [
-        {
-          "slug": "florida-thanksgiving-weekend-2026",
-          "role": "pick",
-          "pick": "Stuart Christmas Tree Lighting"
-        }
-      ],
-      "source": {
-        "kind": "commons",
-        "url": "https://commons.wikimedia.org/wiki/File:Stuart_FL_Riverwalk01.jpg",
-        "title": "Stuart FL Riverwalk01",
-        "author": "Ebyabe",
-        "dateTaken": "2018-11-09 13:37:08",
-        "licence": "CC BY-SA 4.0",
-        "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0"
-      },
-      "wayfind": {
-        "credit": "Ebyabe",
-        "creditHref": "https://commons.wikimedia.org/wiki/File:Stuart_FL_Riverwalk01.jpg",
-        "license": "CC BY-SA 4.0",
-        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
-        "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence."
+        "credit": "Rob Bixby",
+        "creditHref": "https://www.flickr.com/photos/14580956@N08/3063924727",
+        "license": "CC BY 2.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+        "modificationNotice": "Resized (enlarged from 1000px), cropped to 1280x853 and converted to JPEG."
       },
       "commercialUse": true,
       "authorMatchesCredit": true,
@@ -2369,6 +2126,37 @@
       "verifiedAt": "2026-11-10"
     },
     {
+      "src": "/guides/picks/florida-theme-park-christmas-2026/mvmcp-christmastime-parade-main-street.jpg",
+      "usedBy": [
+        {
+          "slug": "florida-theme-park-christmas-2026",
+          "role": "pick",
+          "pick": "Mickey's Very Merry Christmas Party"
+        }
+      ],
+      "source": {
+        "kind": "flickr",
+        "url": "https://www.flickr.com/photos/33045734@N02/4184496931",
+        "title": "Mickey's Very Merry Christmas Party",
+        "author": "Leigh Caldwell",
+        "displayName": "Leigh Caldwell",
+        "dateTaken": "2009-12-10 20:55:19",
+        "licence": "CC BY 2.0",
+        "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
+      },
+      "wayfind": {
+        "credit": "Leigh Caldwell",
+        "creditHref": "https://www.flickr.com/photos/33045734@N02/4184496931",
+        "license": "CC BY 2.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+        "modificationNotice": "Resized, cropped to 1280x853 and converted to JPEG."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-10"
+    },
+    {
       "src": "/guides/picks/florida-theme-park-christmas-2026/seaworld-orlando-sea-of-trees.jpg",
       "usedBy": [
         {
@@ -2393,6 +2181,37 @@
         "license": "CC BY 2.0",
         "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
         "modificationNotice": "Resized, cropped for display and converted to JPEG."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-10"
+    },
+    {
+      "src": "/guides/picks/florida-theme-park-christmas-2026/universal-macys-holiday-parade.jpg",
+      "usedBy": [
+        {
+          "slug": "florida-theme-park-christmas-2026",
+          "role": "pick",
+          "pick": "Holidays at Universal Orlando"
+        }
+      ],
+      "source": {
+        "kind": "flickr",
+        "url": "https://www.flickr.com/photos/93283041@N00/6669301281",
+        "title": "Universal Orlando - Universal Studios - Macy's Holiday Parade - Balloon Heads",
+        "author": "Jared",
+        "displayName": "Jared",
+        "dateTaken": "2011-12-18 16:44:39",
+        "licence": "CC BY 2.0",
+        "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
+      },
+      "wayfind": {
+        "credit": "jared422_80",
+        "creditHref": "https://www.flickr.com/photos/93283041@N00/6669301281",
+        "license": "CC BY 2.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+        "modificationNotice": "Resized, cropped to 1280x853 and converted to JPEG."
       },
       "commercialUse": true,
       "authorMatchesCredit": true,
@@ -2436,7 +2255,7 @@
       "verificationMethod": "manual-source-and-image-review"
     },
     {
-      "src": "/guides/picks/free-christmas-lights-florida-2026/cranes-roost-park.webp",
+      "src": "/guides/picks/free-christmas-lights-florida-2026/cranes-roost-park-christmas-tree.jpg",
       "usedBy": [
         {
           "slug": "free-christmas-lights-florida-2026",
@@ -2445,50 +2264,21 @@
         }
       ],
       "source": {
-        "kind": "commons",
-        "url": "https://commons.wikimedia.org/wiki/File:Cranes_Roost_Park.jpg",
-        "title": "Cranes Roost Park",
-        "author": "LeonidasB",
-        "dateTaken": "2014-03-15",
-        "licence": "CC BY-SA 4.0",
-        "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+        "kind": "flickr",
+        "url": "https://www.flickr.com/photos/93086051@N00/3013527276",
+        "title": "Christmas tree in the park",
+        "author": "ryaninc",
+        "displayName": "ryaninc",
+        "dateTaken": "2008-11-08 13:27:26",
+        "licence": "CC BY 2.0",
+        "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
       "wayfind": {
-        "credit": "LeonidasB",
-        "creditHref": "https://commons.wikimedia.org/wiki/File:Cranes_Roost_Park.jpg",
-        "license": "CC BY-SA 4.0",
-        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
-        "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence."
-      },
-      "commercialUse": true,
-      "authorMatchesCredit": true,
-      "status": "verified",
-      "verifiedAt": "2026-11-10"
-    },
-    {
-      "src": "/guides/picks/free-christmas-lights-florida-2026/holiday-festival-of-lights-at-fishermens-village.webp",
-      "usedBy": [
-        {
-          "slug": "free-christmas-lights-florida-2026",
-          "role": "pick",
-          "pick": "Holiday Festival of Lights at Fishermen's Village"
-        }
-      ],
-      "source": {
-        "kind": "commons",
-        "url": "https://commons.wikimedia.org/wiki/File:Sunset_at_Fisherman’s_Village.jpg",
-        "title": "Sunset at Fisherman’s Village",
-        "author": "PCHS-NJROTC",
-        "dateTaken": "2022-10-21",
-        "licence": "CC BY-SA 4.0",
-        "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0"
-      },
-      "wayfind": {
-        "credit": "PCHS-NJROTC",
-        "creditHref": "https://commons.wikimedia.org/wiki/File:Sunset_at_Fisherman’s_Village.jpg",
-        "license": "CC BY-SA 4.0",
-        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
-        "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence."
+        "credit": "ryaninc",
+        "creditHref": "https://www.flickr.com/photos/93086051@N00/3013527276",
+        "license": "CC BY 2.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+        "modificationNotice": "Resized, cropped to 1280x853 and converted to JPEG."
       },
       "commercialUse": true,
       "authorMatchesCredit": true,
@@ -2526,7 +2316,7 @@
       "verifiedAt": "2026-11-10"
     },
     {
-      "src": "/guides/picks/free-christmas-lights-florida-2026/palma-sola-botanical-park-lake-overlook.webp",
+      "src": "/guides/picks/free-christmas-lights-florida-2026/palma-sola-winter-nights-ornament.jpg",
       "usedBy": [
         {
           "slug": "free-christmas-lights-florida-2026",
@@ -2535,20 +2325,21 @@
         }
       ],
       "source": {
-        "kind": "commons",
-        "url": "https://commons.wikimedia.org/wiki/File:Palma_Sola_Botanical_Park_Lake_Overlook.png",
-        "title": "Palma Sola Botanical Park Lake Overlook",
-        "author": "Jrussell55265",
-        "dateTaken": "2023-03-14",
-        "licence": "CC BY-SA 4.0",
-        "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+        "kind": "flickr",
+        "url": "https://www.flickr.com/photos/97651299@N00/50730504463",
+        "title": "“Winter Nights Under the Lights” Palma Sola Botanical Park",
+        "author": "Carol VanHook",
+        "displayName": "Carol VanHook",
+        "dateTaken": "2020-12-17 15:31:34",
+        "licence": "CC BY-SA 2.0",
+        "licenceUrl": "https://creativecommons.org/licenses/by-sa/2.0/"
       },
       "wayfind": {
-        "credit": "Jrussell55265",
-        "creditHref": "https://commons.wikimedia.org/wiki/File:Palma_Sola_Botanical_Park_Lake_Overlook.png",
-        "license": "CC BY-SA 4.0",
-        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
-        "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence."
+        "credit": "Carol VanHook",
+        "creditHref": "https://www.flickr.com/photos/97651299@N00/50730504463",
+        "license": "CC BY-SA 2.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0/",
+        "modificationNotice": "Resized, cropped to 1280x853 and converted to JPEG. The adaptation is released under the same licence."
       },
       "commercialUse": true,
       "authorMatchesCredit": true,
@@ -3054,6 +2845,36 @@
       "verifiedAt": "2026-11-10"
     },
     {
+      "src": "/guides/picks/orlando-halloween-food-2026/hhn-orlando-nightingales-blood-pit.jpg",
+      "usedBy": [
+        {
+          "slug": "orlando-halloween-food-2026",
+          "role": "pick",
+          "pick": "Keyholder Bar: Frank's Fizz and Bleeding Eye"
+        }
+      ],
+      "source": {
+        "kind": "commons",
+        "url": "https://commons.wikimedia.org/wiki/File:Nightingales_Blood_Pit.jpg",
+        "title": "Nightingales Blood Pit",
+        "author": "U+1F360",
+        "dateTaken": "2019-09-15 19:42:54",
+        "licence": "CC BY-SA 4.0",
+        "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+      },
+      "wayfind": {
+        "credit": "U+1F360",
+        "creditHref": "https://commons.wikimedia.org/wiki/File:Nightingales_Blood_Pit.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+        "modificationNotice": "Resized, cropped to 1280x853 and converted to JPEG. The adaptation is released under the same licence."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-10"
+    },
+    {
       "src": "/guides/picks/orlando-halloween-food-2026/raglan-facade-dusk.webp",
       "usedBy": [
         {
@@ -3414,37 +3235,6 @@
       "wayfind": {
         "credit": "Jeremy Thompson",
         "creditHref": "https://www.flickr.com/photos/32916425@N04/6824637514",
-        "license": "CC BY 2.0",
-        "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
-        "modificationNotice": "Resized, cropped for display and converted to WebP."
-      },
-      "commercialUse": true,
-      "authorMatchesCredit": true,
-      "status": "verified",
-      "verifiedAt": "2026-11-10"
-    },
-    {
-      "src": "/guides/picks/orlando-halloween-food-2026/usf-new-york-macys.webp",
-      "usedBy": [
-        {
-          "slug": "orlando-halloween-food-2026",
-          "role": "pick",
-          "pick": "Keyholder Bar: Frank's Fizz and Bleeding Eye"
-        }
-      ],
-      "source": {
-        "kind": "flickr",
-        "url": "https://www.flickr.com/photos/93283041@N00/6669323099",
-        "title": "Universal Orlando - Universal Studios - New York Christmas Decorations",
-        "author": "Jared",
-        "displayName": "Jared",
-        "dateTaken": "2011-12-18 13:43:13",
-        "licence": "CC BY 2.0",
-        "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
-      },
-      "wayfind": {
-        "credit": "Jared",
-        "creditHref": "https://www.flickr.com/photos/93283041@N00/6669323099",
         "license": "CC BY 2.0",
         "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
         "modificationNotice": "Resized, cropped for display and converted to WebP."
@@ -10117,6 +9907,37 @@
       "verifiedAt": "2026-11-10"
     },
     {
+      "src": "/guides/picks/tonights-move-tampa-september-12-2026/clearwater-memorial-causeway-moonrise.jpg",
+      "usedBy": [
+        {
+          "slug": "tonights-move-tampa-september-12-2026",
+          "role": "pick",
+          "pick": "MORFLOW FEST"
+        }
+      ],
+      "source": {
+        "kind": "flickr",
+        "url": "https://www.flickr.com/photos/23383542@N06/8430858471",
+        "title": "Clearwater Florida memorial bridge full moonrise",
+        "author": "Ben Garcia",
+        "displayName": "Ben Garcia",
+        "dateTaken": "2013-01-26 18:20:55",
+        "licence": "CC BY 2.0",
+        "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
+      },
+      "wayfind": {
+        "credit": "Ben Garcia",
+        "creditHref": "https://www.flickr.com/photos/23383542@N06/8430858471",
+        "license": "CC BY 2.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+        "modificationNotice": "Cropped to remove the photographer's credit text from the lower corner, resized to 1280x853 and converted to JPEG."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-10"
+    },
+    {
       "src": "/guides/picks/tonights-move-tampa-september-12-2026/endless-summer-afterglow.webp",
       "usedBy": [
         {
@@ -10140,37 +9961,6 @@
         "license": "CC BY-SA 3.0",
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
         "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence."
-      },
-      "commercialUse": true,
-      "authorMatchesCredit": true,
-      "status": "verified",
-      "verifiedAt": "2026-11-10"
-    },
-    {
-      "src": "/guides/picks/tonights-move-tampa-september-12-2026/morflow-fest.webp",
-      "usedBy": [
-        {
-          "slug": "tonights-move-tampa-september-12-2026",
-          "role": "pick",
-          "pick": "MORFLOW FEST"
-        }
-      ],
-      "source": {
-        "kind": "flickr",
-        "url": "https://www.flickr.com/photos/23383542@N06/8430858471",
-        "title": "Clearwater Florida memorial bridge full moonrise",
-        "author": "Ben Garcia",
-        "displayName": "Ben Garcia",
-        "dateTaken": "2013-01-26 18:20:55",
-        "licence": "CC BY 2.0",
-        "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
-      },
-      "wayfind": {
-        "credit": "Ben Garcia",
-        "creditHref": "https://www.flickr.com/photos/23383542@N06/8430858471",
-        "license": "CC BY 2.0",
-        "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
-        "modificationNotice": "Resized, cropped for display and converted to WebP."
       },
       "commercialUse": true,
       "authorMatchesCredit": true,
