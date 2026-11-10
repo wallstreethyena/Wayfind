@@ -330,8 +330,7 @@ scripts/check-one-main.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	18	1	0	f343534a
 scripts/check-one-nav-per-screen.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	11	1	0	e6e87b0dc181df8fb584e61606f2aa5f1be3cd7b93af55d464c2b8364648c1f5
 scripts/check-one-price-source.mjs	0	CALL	blocks-ci-and-deploy	1	-	11	0	0	2fd8c10d57adeaa46812dc43523c26b355e2b9c06f55a67f07983ead67338c08
 scripts/check-os-state.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	14	2	1	2e29a702259f8bdad51e7c851c8079fa536280e5cf510d294c156b0a4808b567
-scripts/check-osm-warm-lands.mjs	0	CALL	blocks-ci-and-deploy	1	-	19	0	0	801bc4880afe962d3565249516c8bf116836ada0efac85aa4d18524296891c59
-scripts/check-outdoors-cache-first.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	16	2	1	ac5693299cfebc393f4408fadce26958aa73e315c7f765c5c01c53d71bd9919b
+scripts/check-outdoors-cache-first.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	11	1	0	28aec88638e880c2ac2b93dde6ca11e7258be0f3e07ed045f90f5ada3d27b222
 scripts/check-outing-identity.mjs	0	CALL	blocks-ci-and-deploy	1	-	18	0	0	8ced1ab6efb1cf66c2b7b6a91d77085f012b1429ac884f32249f672d273cbc5a
 scripts/check-overscroll-containment.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	6	1	0	8450515e63d5d3e0427ea04be65d24cf98df0b8e03352a05195e761e3f11a202
 scripts/check-owned-hotel-identity.mjs	0	CALL	blocks-ci-and-deploy	1	-	22	0	0	3450a304c275db713dfd12544b9a8f9e439712ee8ddaf05e8ae1f435365fcd81
@@ -879,6 +878,7 @@ scripts/test-no-paid-placement-policy.mjs	1	RENDER	blocks-ci-and-deploy	1	Revenu
 scripts/test-noresult-telemetry.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	11	1	0	6011abc1b50831e9ef18e72b8609078239187aa3216e41944e4ca35dfd69a461
 scripts/test-now-context.mjs	0	CALL	blocks-ci-and-deploy	1	-	112	0	0	7420951e91d1935bff339778edbe28440162a3164688d078f961868488a40458
 scripts/test-og-bodies.mjs	0	CALL	blocks-ci-and-deploy	1	-	0	0	0	2114f3fa9f73d293aaf33c9cd9424f9a62979830d9198314afc20a472f7b24e8
+scripts/test-osm-regional.mjs	0	CALL	blocks-ci-and-deploy	1	-	60	0	0	93024b25487db6666f7020cff100585ed829d68c4c33ee2970dc779d633bafc2
 scripts/test-outbound-ssrf.mjs	0	CALL	blocks-ci-and-deploy	1	-	6	0	0	25be0211235f99eb61b9fded4b4eb1586c366d6baa2ffd8c97de4f42d31bc7ea
 scripts/test-owned-editorial-review.mjs	0	CALL	blocks-ci-and-deploy	1	-	18	0	0	908d41e4f332deae546264e9e320f13fca5de37e3d4c136f138e3c3da0276a6b
 scripts/test-owned-editorial-rules.mjs	0	CALL	blocks-ci-and-deploy	1	-	68	0	0	e51aef201af0ecdd2f9f345faac2cab7e89e9d586a7eb202f559d57222d2f6da
