@@ -35,7 +35,7 @@ import { useRaysWorldSeriesPoster } from "./useRaysWorldSeriesPoster.js";
 import { isRaysLivePoster } from "../../lib/raysWorldSeriesPoster.js";
 import { openShareFlow } from "../../lib/shareFlow.js";
 import { browsePosition, restoreBrowsePosition } from "../../lib/restoreBrowsePosition";
-import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Fragment, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { guideForPlaceRail } from "../../lib/guideDiscovery.js";
 import { GuideDiscoveryContext } from "./GuideDiscoveryContext";
 import { applyCuratorPicks, useCuratorPicks } from "../../lib/curatorPicks.js";
@@ -113,6 +113,7 @@ function preparePoster(id) {
 }
 
 import { DAYPARTS, partForHour, orderFor, christmasLeads, railHref, dateNightIntentHref, LEGACY_HERO_EVENT } from "../../lib/dayparts.js";
+import { landingSkipsDefaultPoster } from "../../lib/searchDeepLink.js";
 import { siteHourFloat, tzForPoint } from "../../lib/nowContext.js";
 import { siteTodayStr } from "../../lib/siteTime.js";
 import { useSiteToday } from "../../lib/siteDayClock.js";
@@ -593,7 +594,18 @@ export default function DaypartRail({
   const resumePoster = useRef(false);
   const posterReturn = useRef(null);
   const cancelPosterRestore = useRef(null);
+  useLayoutEffect(() => {
+    // A /?q= or /?intent= landing owns the page. The seasonal poster (Christmas
+    // from Nov through Jan) must not open over an empty search box.
+    try {
+      if (!landingSkipsDefaultPoster(window.location.search)) return;
+    } catch { return; }
+    selectionPinned.current = true;
+    defaultLanding.current = false;
+    setSelected(null);
+  }, []);
   useEffect(() => {
+    try { if (landingSkipsDefaultPoster(window.location.search)) return; } catch { /* keep the saved poster */ }
     if (initialRail || !["/", "/v8"].includes(window.location.pathname)) return;
     try {
       const saved = JSON.parse(sessionStorage.getItem("wf_poster_position") || "null");
