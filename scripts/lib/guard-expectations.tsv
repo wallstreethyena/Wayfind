@@ -721,6 +721,7 @@ scripts/test-family-day-events.mjs	0	CALL	blocks-ci-and-deploy	1	-	27	0	0	04a6b4
 scripts/test-family-day-presentation.mjs	0	RENDER	blocks-ci-and-deploy	1	-	14	0	0	9a3ed23896fad214f174a2a079acd33d8d01e6ea59c4125889607b755d78daa0
 scripts/test-family-day-taxonomy.mjs	0	CALL	blocks-ci-and-deploy	1	-	68	0	0	de20fc7ac47bb4c888d3e5981a2122a0522c7e70e2d22fbc0d791cd3d71cf777
 scripts/test-family-evidence-expiry.mjs	0	CALL	blocks-ci-and-deploy	1	-	18	0	0	1e13ea62729b2c44fd2e869c83a1789216383d097247f3831ba5a6c29de6cc6d
+scripts/test-feed-deferral.mjs	0	CALL	blocks-ci-and-deploy	1	-	28	0	0	04b1f4c5757c43097cdb9d60a822ae07511112d9d1c013132b2a337f26618584
 scripts/test-feedback-notification.mjs	0	CALL	blocks-ci-and-deploy	1	-	23	0	0	3e87b13c6c0ee6a669edaa757c53c2763b264831f6f9d678ad2f662fd493cab2
 scripts/test-feedback-storage.mjs	0	CALL	blocks-ci-and-deploy	1	-	19	0	0	67c47f49d57145f343d88c497bd1567cb06b3c14da729510c43a21fe297cd5cf
 scripts/test-fetch-socket-retry.mjs	0	CALL	blocks-ci-and-deploy	1	-	35	0	0	b6cc463d6e6491efef403a4970784a2f6a8ac8bdcafbaedb44bfd3b6e6b60e48

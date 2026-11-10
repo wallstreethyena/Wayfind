@@ -2534,3 +2534,5 @@ node scripts/check-homepage-events-deadline.mjs
 node scripts/test-holiday-discovery-2026-11-06.mjs
 # Verified official street addresses and safe non-Google map links.
 node scripts/test-owned-place-directions.mjs
+# INP: a direct /p/{id} landing must not mount the home feed under the place sheet.
+node scripts/test-feed-deferral.mjs
