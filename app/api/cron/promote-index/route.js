@@ -1,4 +1,4 @@
-import { gateShut, spendAllowCapped, effectiveCap, gateMode, refundToLedger, freeTierLine } from "../../../../lib/spendGate";
+import { gateShut, spendAllowCapped, effectiveCap, gateMode, refundToLedger, freeTierLine, runWithTraffic, TRAFFIC, backgroundReserveStatus } from "../../../../lib/spendGate";
 // app/api/cron/promote-index/route.js — drains wf_promotion_queue: index places
 // (wf_place_ids) become owned cards (wf_inventory), a bounded batch at a time.
 //
@@ -68,7 +68,7 @@ import { gateShut, spendAllowCapped, effectiveCap, gateMode, refundToLedger, fre
 // rate climbs past 20% or Google returns a 429. The job idles at $0 the
 // moment the queue is empty either way.
 import { sbEnv } from "../../../../lib/serverCache";
-import { recordPulse, budgetLimitNote, readLedgerUsage } from "../../../../lib/jobPulse";
+import { recordPulse, budgetLimitNote, budgetReserveNote, readLedgerUsage } from "../../../../lib/jobPulse";
 import { decidePromotion, dedupeById, partitionSplitVenues, PROMOTE_METROS, metrosFromRows } from "../../../../lib/promoteIndex";
 import { clampBatchLimit, nextBatchLimit } from "../../../../lib/promoteThrottle";
 import { CORE_DETAILS_MASK, RATING_DETAILS_MASK, PROMOTE_SKU, RATING_SKU, withIndexSignals, hasIndexRating, classifyDetailsFailure, minutesUntilQuotaReset, ratingBuyAllowed } from "../../../../lib/promoteDetails";
@@ -277,7 +277,14 @@ async function writePromoteConfig(s, { batchLimit, promoted, rejected, errors })
   }
 }
 
+// Every grant this run takes is declared BACKGROUND (lib/spendGate.js human
+// traffic reserve): once a visitor-shared SKU is inside its last 20% the grant
+// is refused and the run pauses, so a person opening a place still gets served.
 export async function GET(req) {
+  return runWithTraffic(TRAFFIC.BACKGROUND, () => runPromoteIndex(req));
+}
+
+async function runPromoteIndex(req) {
   // COST GUARD (2026-08-25): WAYFIND_GATE=shut stops ALL metered Google spend.
   if (gateShut()) return Response.json({ skipped: "gate shut" });
   const secret = process.env.CRON_SECRET;
@@ -334,6 +341,16 @@ export async function GET(req) {
   if (dailyOpen) {
     await recordPulse("promote-index", { attempted: 0, succeeded: 0, note: `quota: google places details per-day quota exhausted; breaker open, skipped until reset (${dailyOpen.reason || "429"})`.slice(0, 200) });
     return Response.json({ ok: true, skipped: "breaker open", kind: dailyOpen.kind, claimed: 0, promoted: 0 });
+  }
+
+  // HUMAN TRAFFIC RESERVE preflight: when the Details row is inside the last 20%
+  // kept for visitors, pause BEFORE the claim. A pause is an expected state:
+  // attempted 0, failed 0, "skipped: budget-reserve" (lib/jobPulse.js), which
+  // job-watch reads as idle. No claim, no release round trips, no Google call.
+  const reserve = await backgroundReserveStatus(PROMOTE_SKU);
+  if (reserve.blocked) {
+    await recordPulse("promote-index", { attempted: 0, succeeded: 0, failed: 0, note: budgetReserveNote(PROMOTE_SKU, reserve.used, reserve.line).slice(0, 200) });
+    return Response.json({ ok: true, skipped: "budget-reserve", sku: PROMOTE_SKU, used: reserve.used, line: reserve.line, claimed: 0, promoted: 0 });
   }
 
   let claimed = [];
@@ -529,8 +546,12 @@ export async function GET(req) {
     const led = await readLedgerUsage(PROMOTE_SKU);
     if (led && Number.isFinite(led.used)) budgetUsed = led.used;
   }
+  // A refusal mid-run can be the human traffic reserve (a pause), not the ceiling: say which.
+  const reservePause = budgetExhausted && !writeError ? await backgroundReserveStatus(PROMOTE_SKU) : null;
   const note = writeError
     ? `upsert failed: ${writeError.slice(0, 120)}`
+    : budgetExhausted && reservePause && reservePause.blocked
+      ? `${budgetReserveNote(PROMOTE_SKU, reservePause.used, reservePause.line)}; released ${released.length}/${claimed.length}`.slice(0, 200)
     : budgetExhausted
       ? `${budgetLimitNote(PROMOTE_SKU, budgetUsed, effectiveCap(PROMOTE_SKU, monthCap))}; ceiling ${effectiveCap(PROMOTE_SKU, monthCap)} reached (month_cap ${monthCap}, gate ${gateMode()}); released ${released.length}/${claimed.length}`.slice(0, 200)
       : quotaKind === "quota_daily"
