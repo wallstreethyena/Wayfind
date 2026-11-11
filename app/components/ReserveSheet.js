@@ -15,9 +15,11 @@ import { createRoot } from "react-dom/client";
 import { C, sheetBg, sheet, Grabber, useDialogFocus } from "./kit";
 import {
   RESERVE_LIMITS, reserveChat, sendReserveRequest, myReserveRequests, reserveDateRange, reserveTimeSlots,
-  timeLabel, summaryLine, validateDraft, draftIsSendable, trackReserve,
-} from "../../lib/reserveClient.js";
+  timeLabel, summaryLine, validateDraft, draftIsSendable,
+} from "../../lib/reserveApi.js";
+import { trackReserve } from "../../lib/reserveOpen.js";
 import { siteTodayStr } from "../../lib/siteTime.js";
+import { showLikeFeedback } from "../../lib/cardActions";
 
 const FIRST_LINE = "How many people, and what day and time?";
 const POLL_MS = 20000;
@@ -85,9 +87,12 @@ export function ReserveSheet({ place, surface, onClose }) {
     } catch (e) {}
     if (!alive.current) return;
     if (!user) {
-      // The site's own sign in sheet lives in the home shell; ask it to open.
-      const detail = { src: "reserve", message: "Sign in to request a table", handled: false };
-      try { window.dispatchEvent(new CustomEvent("wf:open-auth", { detail })); } catch (e) {}
+      // The site's own sign in sheet lives in the home shell. A portable surface opens it the way a visitor
+      // does: the shell's header "Sign in" button (.wf-signin-button, rendered only while signed out). The
+      // shell is not edited for this, and no second auth prompt exists. If this surface has no shell, say so plainly.
+      const door = document.querySelector(".wf-signin-button");
+      const detail = { handled: !!door };
+      if (door) { try { door.click(); showLikeFeedback("Sign in to request a table"); } catch (e) { detail.handled = false; } }
       setUnhandledSignIn(!detail.handled);
       setPhase(detail.handled ? "signin-wait" : "signin");
       return;

@@ -96,7 +96,7 @@ const wide = (host) => [...host.querySelectorAll(".wf-place-card-cta > *")];
 
 // ── 1b. The button itself stops the tap (not only the slot wrapper around it) ─
 {
-  const Cta = (await loadComponent(path.join(ROOT, "app/components/ReserveCta.js"), ROOT)).default;
+  const Cta = (await loadComponent(path.join(ROOT, "app/components/ReserveCta.js"), ROOT)).ReserveCta;
   let bubbled = 0;
   const m = await mount(React.createElement("div", { onClick: () => { bubbled++; } }, React.createElement(Cta, { place: place("partner-1") })));
   const btn = m.host.querySelector("button");
@@ -104,6 +104,30 @@ const wide = (host) => [...host.querySelectorAll(".wf-place-card-cta > *")];
   ok(bubbled === 0, "ReserveCta stops propagation on its own, so a tap never reaches whatever wraps it");
   ok(btn.getAttribute("type") === "button" && btn.textContent.trim().startsWith("Reserve a table"), "ReserveCta renders <button type=button> labelled 'Reserve a table'");
   await m.unmount();
+}
+
+// ── 1c. Signed out: the site's own sign in prompt, never a second one ───────
+{
+  const Sheet = await loadComponent(path.join(ROOT, "app/components/ReserveSheet.js"), ROOT);
+  const hasDialog = () => !!document.querySelector('[role="dialog"]');
+  const settle = () => act(async () => { await new Promise((r) => setTimeout(r, 150)); });
+  document.querySelectorAll("[data-reserve-host]").forEach((n) => n.remove()); // sheets opened by the earlier card taps
+  document.querySelectorAll('[role="dialog"]').forEach((n) => n.remove());
+  // (a) with the shell's header Sign in button present, the sheet opens the shell's sign in and stays hidden
+  const door = document.createElement("button"); door.className = "wf-signin-button"; let clicks = 0; door.addEventListener("click", () => { clicks++; }); document.body.appendChild(door);
+  await act(async () => { Sheet.showReserveSheet({ id: "partner-1", name: "Mario's" }, {}); }); await settle();
+  ok(clicks === 1 && !hasDialog(), `signed out with the shell present: clicks the shell's own Sign in button once (clicks=${clicks}) and shows no second dialog`);
+  const toast = document.getElementById("wf-like-feedback");
+  ok(!!toast && toast.textContent === "Sign in to request a table", "…and says 'Sign in to request a table'");
+  door.remove();
+  // (b) no shell on this surface: the sheet itself says it, with a way to the site
+  document.querySelectorAll("[data-reserve-host]").forEach((n) => n.remove());
+  await act(async () => { Sheet.showReserveSheet({ id: "partner-1", name: "Mario's" }, {}); }); await settle();
+  const dlg = document.querySelector('[role="dialog"]');
+  ok(!!dlg && dlg.getAttribute("aria-modal") === "true" && /Sign in to request a table/.test(dlg.textContent) && !!dlg.querySelector('a[href="/"]'), "no shell: a modal dialog says 'Sign in to request a table' with a link to Wayfind");
+  ok(!!dlg && !!dlg.querySelector('button[aria-label="Close"]'), "…with a Close button");
+  await act(async () => { document.dispatchEvent(new w.KeyboardEvent("keydown", { key: "Escape", bubbles: true })); }); await settle();
+  ok(!hasDialog(), "Escape closes the sheet");
 }
 
 // ── 2. A non partner card is byte for byte the normal card ───────────────────
@@ -148,7 +172,7 @@ const wide = (host) => [...host.querySelectorAll(".wf-place-card-cta > *")];
 {
   const partnerGets = calls.filter((c) => c.url.startsWith("/api/reserve/partners")).length;
   ok(partnerGets === 1, `ONE partners GET for all the cards above (got ${partnerGets})`);
-  const fresh = await loadComponent(path.join(ROOT, "lib/reserveClient.js"), ROOT);
+  const fresh = await loadComponent(path.join(ROOT, "lib/reservePartners.js"), ROOT);
   sessionStorage.clear();
   partnersFails = true;
   const warns = []; const origWarn = console.warn; console.warn = (...a) => warns.push(a.join(" "));
@@ -163,20 +187,20 @@ const wide = (host) => [...host.querySelectorAll(".wf-place-card-cta > *")];
   partnersFails = false;
 }
 {
-  const fresh = await loadComponent(path.join(ROOT, "lib/reserveClient.js"), ROOT);
+  const fresh = await loadComponent(path.join(ROOT, "lib/reservePartners.js"), ROOT);
   sessionStorage.clear();
   const n0 = calls.length;
   const a = await fresh.loadReservePartners();
   ok(a.has("partner-1") && calls.length === n0 + 1, "first load fetches once and returns the partner ids");
   ok(JSON.parse(sessionStorage.getItem("wf_reserve_partners_v1")).ids.includes("partner-1"), "…and writes the 5 minute sessionStorage cache");
-  const fresh2 = await loadComponent(path.join(ROOT, "lib/reserveClient.js"), ROOT);
+  const fresh2 = await loadComponent(path.join(ROOT, "lib/reservePartners.js"), ROOT);
   const b = await fresh2.loadReservePartners();
   ok(b.has("partner-1") && calls.length === n0 + 1, "a new page load within 5 minutes reads sessionStorage and does not fetch");
 }
 
 // ── 6. The form rules mirror the server ──────────────────────────────────────
 {
-  const rc = await loadComponent(path.join(ROOT, "lib/reserveClient.js"), ROOT);
+  const rc = await loadComponent(path.join(ROOT, "lib/reserveApi.js"), ROOT);
   const now = new Date("2026-11-11T15:00:00Z");
   const { min, max } = rc.reserveDateRange(now);
   ok(min === "2026-11-11" && max === "2027-01-10", `date range is today through today+60 days Eastern (got ${min}..${max})`);
@@ -198,10 +222,18 @@ const wide = (host) => [...host.querySelectorAll(".wf-place-card-cta > *")];
 {
   const { readFileSync } = await import("node:fs");
   const strip = (s) => s.replace(/\/\*[\s\S]*?\*\//g, " ").replace(/^\s*\/\/.*$/gm, " ");
-  const card = strip(readFileSync(path.join(ROOT, "app/components/IconicPlaceCard.js"), "utf8"));
+  const read = (f) => strip(readFileSync(path.join(ROOT, f), "utf8"));
+  const card = read("app/components/IconicPlaceCard.js");
   ok(/useReservePartner\(\s*cta\s*\?\s*null/.test(card), "the card only subscribes to partner status when the caller left the cta slot free");
-  ok(!/import\s+ReserveSheet|from\s+["'][^"']*ReserveSheet/.test(card) && !/import\s+[^;]*ReserveSheet/.test(strip(readFileSync(path.join(ROOT, "lib/reserveClient.js"), "utf8")).replace(/import\(/g, "")), "the sheet is never statically imported (lazy chunk only)");
-  ok(/import\(\s*["']\.\.\/app\/components\/ReserveSheet\.js["']\s*\)/.test(strip(readFileSync(path.join(ROOT, "lib/reserveClient.js"), "utf8"))), "openReserveSheet loads the sheet with a dynamic import");
+  const staticImports = (src) => [...src.matchAll(/^\s*import\s[^;]*?from\s+["']([^"']+)["']/gm)].map((m) => m[1]);
+  ok(!staticImports(card).some((x) => /ReserveCta|ReserveSheet|reserveApi|reservePartners|reserveOpen/.test(x)), "the card statically imports only lib/reserveClient.js: button, sheet, API, loader and opener are lazy chunks (homepage JS budget)");
+  ok(/lazy\(\s*\(\)\s*=>\s*import\(\s*["']\.\/ReserveCta["']\s*\)\s*\)/.test(card), "the card loads the button with a lazy dynamic import");
+  const client = read("lib/reserveClient.js");
+  ok(!staticImports(client).some((x) => /reservePartners|reserveApi|reserveOpen/.test(x)) && /import\(\s*["']\.\/reservePartners\.js["']\s*\)/.test(client), "reserveClient (eager) reaches the partner loader only by dynamic import");
+  ok(/import\(\s*["']\.\.\/app\/components\/ReserveSheet\.js["']\s*\)/.test(read("lib/reserveOpen.js")) && !staticImports(read("lib/reserveOpen.js")).some((x) => /ReserveSheet/.test(x)), "openReserveSheet loads the sheet with a dynamic import, never a static one");
+  const home = readFileSync(path.join(ROOT, "app/home.js"), "utf8");
+  ok(/className="wf-signin-button"/.test(home) && /querySelector\(\s*["']\.wf-signin-button["']\s*\)/.test(read("app/components/ReserveSheet.js")), "the shell's header Sign in button still carries .wf-signin-button, the door the sheet uses");
+  ok(!staticImports(read("app/components/sheets/Detail.js")).some((x) => /ReserveSheet/.test(x)), "Detail.js never statically imports the sheet");
 }
 
 if (failures.length) {

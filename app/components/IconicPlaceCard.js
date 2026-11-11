@@ -66,7 +66,9 @@ import { useCardTapIntent } from "./useCardTapIntent.js";
 import { trendPulseClass } from "../../lib/trendPulse.js";
 import { storedPlaceHeader } from "../../lib/locationHonesty.js";
 import { useReservePartner } from "../../lib/reserveClient.js";
-import ReserveCta from "./ReserveCta";
+import { lazy, Suspense } from "react";
+// Lazy on purpose: only partner cards ever need the button, and the card is eager on "/".
+const ReserveCtaSlot = lazy(() => import("./ReserveCta"));
 
 // ---------------------------------------------------------------------------
 // Experience-tag chips (owner: "I need the cards to look like the cards from
@@ -804,7 +806,7 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
               card's detail sheet (the <li> opens on any click that is not
               inside an a/button/etc — this wrapper is neither, so it needs
               its own guard). */}
-          {cta ? <div className="wf-place-card-cta" onClick={(e) => e.stopPropagation()}>{cta}</div> : (reservePartner ? <div className="wf-place-card-cta" onClick={(e) => e.stopPropagation()}><ReserveCta place={place} surface={surface} /></div> : null)}
+          {cta ? <div className="wf-place-card-cta" onClick={(e) => e.stopPropagation()}>{cta}</div> : (reservePartner ? <Suspense><ReserveCtaSlot place={place} surface={surface} /></Suspense> : null)}
 
           {/* v8.34 — the creator credit sits in the bottom band, directly above
               the actions (see css.js .wf-place-card-credit). It carries the
