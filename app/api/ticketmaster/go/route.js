@@ -24,6 +24,8 @@ import { commercePayload, rankBucket, sanitizeClientClickId } from "../../../../
 import { isTicketmasterFamily, ticketOutUrl } from "../../../../lib/affiliates.js";
 import { isCrawler, isInternalVerifier } from "../../../../lib/crawler.js";
 import { gateRedirectTraffic, headResponse, noStoreHeaders, clickProof } from "../../../../lib/redirectTrafficClass.js";
+import { ticketHandoffVerdict } from "../../../../lib/ticketHandoffVerdict.js";
+import { supabase, supabaseLive } from "../../../../lib/supabase.js";
 
 const FALLBACK = "/events";
 
@@ -81,6 +83,23 @@ export async function GET(req) {
   if (traffic.response) return traffic.response;
   if (!rawUrl) return fail("missing-url");
   if (!isTicketmasterFamily(rawUrl)) return fail("url-not-ticketmaster-family");
+
+  // 2026-11-11: never hand a visitor to a show that has ended, was called off,
+  // or is held. A refusal is not a failure (nothing went wrong with tracking):
+  // it is provider_redirect_refused with refusal_class "event", and the visitor
+  // lands on our live listings instead. See lib/ticketHandoffVerdict.js.
+  const verdict = await ticketHandoffVerdict({ url: rawUrl, contentId: contentId || offerId, db: supabaseLive || supabase });
+  if (!verdict.ok) {
+    try { emit("provider_redirect_refused", { refusal_class: "event", refusal_reason: verdict.reason }); } catch {}
+    return new Response(null, {
+      status: 302,
+      headers: {
+        Location: new URL(verdict.christmas ? "/christmas-in-florida" : FALLBACK, req.url).toString(),
+        ...noStoreHeaders(),
+        "Referrer-Policy": "no-referrer",
+      },
+    });
+  }
 
   const dest = ticketOutUrl(rawUrl, surface);
   if (!dest) return fail("tracking-failed");

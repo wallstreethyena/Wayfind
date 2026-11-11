@@ -153,8 +153,20 @@ const nextConfig = {
     // local build (scripts/test-og-bodies.mjs's hero cases are the guard
     // that actually fetches this route and would have caught it).
     "/api/og/hero": ["./app/api/og/fonts/*.ttf"],
+    // /api/og/movie reads the Archivo fonts and the self-hosted movie posters with fs (Node runtime).
+    "/api/og/movie": ["./app/api/og/fonts/*.ttf", "./public/movies/*.webp"],
     // Atlas paid lane priority list is read with fs at runtime (lib/atlasPaidLane.js).
     "/api/cron/atlas-build": ["./data/atlas/priority-place-ids.json"],
+  },
+  // 2026-11-11: /api/og/movie once traced ALL of public/ (1.1 GB) and Vercel refused every
+  // production deploy. It needs only public/movies, listed above. These excludes keep the big
+  // photo folders out of that function even if a future edit makes its read path dynamic again
+  // (scripts/test-og-movie-function-size.mjs).
+  outputFileTracingExcludes: {
+    "/api/og/movie": [
+      "./public/place-photos/**", "./public/guides/**", "./public/florida-photos/**", "./public/brand/**",
+      "./public/cards/**", "./public/cards-v8/**", "./public/events/**", "./public/partners/**", "./public/og/**",
+    ],
   },
   reactStrictMode: false,
   poweredByHeader: false,
