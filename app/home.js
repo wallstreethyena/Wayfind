@@ -360,6 +360,7 @@ const askShareIntent = (o) => {
 import { placeKinds } from "../lib/dateInvite";
 import { isDateRoom } from "../lib/dateRoom.js";
 import { createDetailOpenGate } from "../lib/detailOpenGate.js";
+import { safeLocalStorage, safeSessionStorage } from "../lib/safeStorage.js";
 import { createPlaceActionGate } from "../lib/placeActionOnce.js";
 import { planDeepLinkAction, humanConfirmed, deepLinkEventProps, deepLinkPromptLabel } from "../lib/deepLinkAction.js";
 import { isSeedCenter, cityLabel, landingSlugFromLoc, centerAgreesWithLabel, firstPaintRailOrigin, localityFromFormattedAddress, storedPinFresh, storedPlaceHeader } from "../lib/locationHonesty";
@@ -5408,7 +5409,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
             } else if (!d2Err) {
               import("../lib/itinerarySync.js").then((m) => {
                 if (!active) return;
-                const isolated = m.ensureSignedOutTripIsolation(localStorage, { authReady: true });
+                const isolated = m.ensureSignedOutTripIsolation(safeLocalStorage(), { authReady: true });
                 if (isolated !== null) {
                   setTrips(isolated);
                   setActiveTrip(null);
@@ -5451,7 +5452,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
       try {
         if (typeof window !== "undefined") {
           loadAuthJourney().then((aj) => {
-            const _done = aj.runAuthTransition({ event: _event, session, now: Date.now(), local: window.localStorage, sess: window.sessionStorage, log: (n, pl, ex) => { if (logEventRef.current) logEventRef.current(n, pl, ex); } });
+            const _done = aj.runAuthTransition({ event: _event, session, now: Date.now(), local: safeLocalStorage(), sess: safeSessionStorage(), log: (n, pl, ex) => { if (logEventRef.current) logEventRef.current(n, pl, ex); } });
             if (_done && _done.indexOf("signup") === 0) { try { noteExplodingSignup((...a) => logEventRef.current && logEventRef.current(...a)); } catch (e) {} }
           }).catch(() => {});
         }
@@ -6482,6 +6483,10 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
   }
   function readPosition() {
     const key = positionEntryKey();
+    // A local of the same name on purpose: reading the storage global throws
+    // where site data is blocked, and no storage means no saved position.
+    const sessionStorage = safeSessionStorage();
+    if (!sessionStorage) return null;
     const entryRaw = sessionStorage.getItem("wf_pos_entry_" + key);
     const genericRaw = entryRaw ? null
       : (["/", "/v8"].includes(window.location.pathname) && !window.location.search ? sessionStorage.getItem("wf_pos") : null);
@@ -7575,7 +7580,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
     if (!itineraryFlags.sync || !user || !supabase) return undefined;
     let cancelled = false;
     import("../lib/itinerarySync.js").then((m) => m.syncOwnerTrips({
-      supabase, userId: user.id, storage: localStorage, isCancelled: () => cancelled,
+      supabase, userId: user.id, storage: safeLocalStorage(), isCancelled: () => cancelled,
       setTrips, syncReadyRef: itinerarySyncReady, syncKeysRef: itinerarySyncKeys, skipPushRef: itinerarySkipPush, logEvent,
     })).catch(() => {});
     return () => { cancelled = true; };

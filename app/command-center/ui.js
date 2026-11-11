@@ -18,6 +18,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { supabase, hasSupabase } from "../../lib/supabase";
 import { markInternalBrowser } from "../../lib/browserAnalytics";
+import { safeSessionStorage } from "../../lib/safeStorage.js";
 import { activeSeasonalMark, NORMAL_MARK } from "../../lib/seasonalBrand";
 import { C, TYPE, RADII, MOTION } from "../components/kit";
 import styles from "./command-center.module.css";
@@ -52,7 +53,9 @@ function useAuthState() {
   useEffect(() => {
     let dead = false;
     async function init() {
-      const secret = typeof sessionStorage !== "undefined" ? sessionStorage.getItem("wf_cc_key") : null;
+      const sessionStore = safeSessionStorage();
+      let secret = null;
+      try { secret = sessionStore ? sessionStore.getItem("wf_cc_key") : null; } catch (e) { secret = null; }
       if (!hasSupabase) { setState({ status: secret ? "ready" : "nosupabase", token: null, email: null, user: null, secret }); return; }
       const { data } = await supabase.auth.getSession();
       const sess = data && data.session;
