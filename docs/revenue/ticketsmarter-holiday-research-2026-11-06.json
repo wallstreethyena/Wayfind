@@ -1,0 +1,194 @@
+{
+  "researchedOn": "2026-11-07",
+  "scope": "Read-only Florida holiday 2026 TicketSmarter discovery; no repository or database mutations, no tracked URLs followed, no checkout or purchase.",
+  "coverageRead": {
+    "files": [
+      "/workspace/wayfind-reliability/lib/cjPartners.js",
+      "/workspace/wayfind-reliability/lib/commerceProviders.js"
+    ],
+    "existingTicketSmarterOffers": [
+      "enchant-stpete-ticketsmarter (Tropicana Field browse destination)",
+      "orlando-theater-ticketsmarter (Dr Phillips Walt Disney Theater browse destination)"
+    ],
+    "integration": "Existing server-only CJ partner; curated offer IDs resolve to registry destinations and are wrapped server-side. TicketSmarter host allowlist and requireTracking already exist. No new integration, tracking creative, commission rate, or arbitrary request destination is needed.",
+    "implementationCaution": "Candidate destinations below are direct untracked merchant event URLs. Add only curated IDs through the existing server-side mechanism; do not expose or probe generated affiliate redirects. No implementation performed."
+  },
+  "availabilityCaveat": "Web extraction of TicketSmarter event pages often includes both a No Tickets Found notification form and positive inventory/count/price text. These establish real matching event listings and merchant-claimed inventory, but do not verify active selectable seats or successful checkout. None of the candidates is certified actively purchasable. Counts/prices are transient evidence, not suggested published promises. Use See resale tickets / Check resale availability, never official tickets, guaranteed availability, or fixed prices.",
+  "strongestAdditions": [
+    {
+      "name": "A Christmas Carol — Orlando Shakes",
+      "city": "Orlando",
+      "venue": "Margeson Theater at Orlando Shakespeare Center",
+      "officialDateRange": "2026-11-25 through 2026-12-24",
+      "sampleListingLocalDateTime": "2026-11-29T14:00:00-05:00",
+      "officialUrl": "https://orlandoshakes.org/show/carol26/",
+      "officialSourceRefs": [
+        "turn7search0",
+        "turn20view1"
+      ],
+      "officialEvidence": "Organizer identifies Margeson Theater, November 25–December 24, 2026 and 2 PM/7:30 PM performances; annual holiday Dickens production.",
+      "ticketSmarterUrl": "https://www.ticketsmarter.com/e/a-christmas-carol-tickets-orlando-11-29-2026-margeson-theatre-at-orlando-shakespeare-center/3434093",
+      "ticketSmarterSourceRefs": [
+        "turn16view3",
+        "turn18view1",
+        "turn9view2"
+      ],
+      "listingVerified": true,
+      "inventoryClaim": "Fresh extracted event text claims 73 tickets; same date also appears with 73 in venue table. Event page also contains No Tickets Found form.",
+      "activePurchasability": "unconfirmed_conflicting_extracted_states",
+      "fit": "Strong Central Florida exact holiday production; multiple actual dates rather than vague venue browsing."
+    },
+    {
+      "name": "Miami City Ballet — George Balanchine’s The Nutcracker",
+      "city": "Miami",
+      "venue": "Ziff Ballet Opera House at Adrienne Arsht Center (TicketSmarter: Ziff Opera House At The Adrienne Arsht Center)",
+      "officialDateRange": "2026-12-11 through 2026-12-27",
+      "sampleListingLocalDateTime": "2026-12-11T19:00:00-05:00",
+      "officialUrl": "https://cdnwww.miamicityballet.org/tickets-and-events/202627-season/nutcracker/",
+      "additionalOfficialUrl": "https://www.arshtcenter.org/subscription-series/miami-city-ballet/miami-city-ballet-2026-27/",
+      "officialSourceRefs": [
+        "turn7search2",
+        "turn20view6",
+        "turn16search3"
+      ],
+      "officialEvidence": "Company confirms December 11–27, 2026 at Adrienne Arsht Center, Miami; venue's 2026–27 series corroborates production and December 11–27 run.",
+      "ticketSmarterUrl": "https://www.ticketsmarter.com/e/miami-city-ballet-the-nutcracker-tickets-miami-12-11-2026-ziff-opera-house-at-the-adrienne-arsht-center/3388768",
+      "ticketSmarterSourceRefs": [
+        "turn16view1",
+        "turn10search0"
+      ],
+      "listingVerified": true,
+      "inventoryClaim": "Fresh exact-date event text claims 213 tickets. Same extraction includes No Tickets Found form. TicketSmarter performer sitemap confirms numerous matching Nutcracker dates at same venue.",
+      "activePurchasability": "unconfirmed_conflicting_extracted_states",
+      "fit": "Major South Florida holiday ballet; exact production and venue confirmed independently."
+    },
+    {
+      "name": "The Florida Ballet — The Nutcracker",
+      "city": "Orange Park",
+      "venue": "Thrasher-Horne Center",
+      "officialDateRange": "2026-12-12 through 2026-12-13",
+      "sampleListingLocalDateTime": "2026-12-12T16:30:00-05:00",
+      "officialUrl": "https://thcenter.org/events/the-nutcracker/",
+      "officialSourceRefs": [
+        "turn7search1",
+        "turn20view2"
+      ],
+      "officialEvidence": "Venue explicitly names The Florida Ballet presenter, December 12 at 4:30 PM and December 13 at 2 PM, 2026; public on-sale September 14.",
+      "ticketSmarterUrl": "https://www.ticketsmarter.com/e/the-florida-ballet-the-nutcracker-tickets-orange-park-12-12-2026-thrasher-horne-center/3494618",
+      "additionalTicketSmarterUrl": "https://www.ticketsmarter.com/e/florida-ballet-the-nutcracker-tickets-orange-park-12-13-2026-thrasher-horne-center/3494438",
+      "ticketSmarterSourceRefs": [
+        "turn9view3",
+        "turn6search0",
+        "turn6search8"
+      ],
+      "listingVerified": true,
+      "inventoryClaim": "Fresh December 12 exact-date text claims 533 tickets; venue result corroborates 533. Same event extraction includes No Tickets Found form.",
+      "activePurchasability": "unconfirmed_conflicting_extracted_states",
+      "fit": "Adds Northeast Florida Christmas coverage beyond the current Orlando/St. Petersburg browse offers."
+    },
+    {
+      "name": "Arts Ballet Theatre of Florida — The Nutcracker",
+      "city": "Fort Lauderdale",
+      "venue": "Lillian S. Wells Hall at The Parker",
+      "officialDateRange": "2026-12-18 through 2026-12-20",
+      "sampleListingLocalDateTime": "2026-12-18T19:00:00-05:00",
+      "officialUrl": "https://www.parkerplayhouse.com/events/detail/abt-nutcracker-parker-2026",
+      "officialSourceRefs": [
+        "turn13search0",
+        "turn20view3"
+      ],
+      "officialEvidence": "Venue confirms December 18 and 19 at 7 PM, December 20 at 3 PM, 2026, Arts Ballet Theatre of Florida's 29th Anniversary Nutcracker.",
+      "ticketSmarterUrl": "https://www.ticketsmarter.com/e/arts-ballet-theatre-of-florida-the-nutcracker-tickets-fort-lauderdale-12-18-2026-lillian-s-wells-hall-at-the-parker/3478410",
+      "ticketSmarterSourceRefs": [
+        "turn9view4"
+      ],
+      "listingVerified": true,
+      "inventoryClaim": "Fresh exact-date event text claims 1854 tickets but also contains No Tickets Found form.",
+      "activePurchasability": "unconfirmed_conflicting_extracted_states",
+      "fit": "Exact public evening performance; do not confuse with December 16–17 school Smart Stage matinees."
+    },
+    {
+      "name": "Celtic Angels Christmas",
+      "city": "Fort Lauderdale",
+      "venue": "Lillian S. Wells Hall at The Parker",
+      "officialDateRange": "2026-12-23",
+      "sampleListingLocalDateTime": "2026-12-23T19:00:00-05:00",
+      "officialUrl": "https://www.parkerplayhouse.com/events/detail/celtic-angels-christmas-2026-parker",
+      "officialSourceRefs": [
+        "turn16search0"
+      ],
+      "officialEvidence": "Venue confirms December 23, 2026 at 7 PM and full Christmas concert/Irish dance production with Celtic Angels, Celtic Knights and Trinity Band Ensemble of Dublin.",
+      "ticketSmarterUrl": "https://www.ticketsmarter.com/e/celtic-angels-christmas-tickets-fort-lauderdale-12-23-2026-lillian-s-wells-hall-at-the-parker/3478675",
+      "ticketSmarterSourceRefs": [
+        "turn20view0"
+      ],
+      "listingVerified": true,
+      "inventoryClaim": "Fresh exact-date event text claims 1416 tickets but also contains No Tickets Found form.",
+      "activePurchasability": "unconfirmed_conflicting_extracted_states",
+      "fit": "Adds a named Christmas music/dance event rather than another generic theatre destination."
+    }
+  ],
+  "deferredOrRejectedCandidates": [
+    {
+      "name": "Trans-Siberian Orchestra — The Ghosts of Christmas Eve",
+      "city": "Sunrise",
+      "venue": "Amerant Bank Arena",
+      "localDateTime": "2026-12-18T19:00:00-05:00",
+      "officialUrl": "https://www.trans-siberian.com/pages/market/sunrise--fl?event=Sunrise_FL",
+      "officialEvidence": "Official artist confirms December 18, 2026 at 7 PM, Amerant Bank Arena and reimagined The Ghosts of Christmas Eve show.",
+      "ticketSmarterUrl": "https://www.ticketsmarter.com/e/trans-siberian-orchestra-tickets-sunrise-12-18-2026-amerant-bank-arena/3488466",
+      "sourceRefs": [
+        "turn7search3",
+        "turn20view5",
+        "turn16view0"
+      ],
+      "listingVerified": true,
+      "activePurchasability": "not_established_no_inventory_in_extracted_event_page",
+      "decision": "Valid Florida holiday event and exact TicketSmarter listing, but defer active affiliate placement until direct inventory verification. Extracted event page only shows No Tickets Found / notification form and blank Tickets Remaining. Also use official venue address: One Panther Parkway; merchant lists a different address."
+    },
+    {
+      "name": "'Twas the Night Before... by Cirque du Soleil",
+      "city": "Fort Myers",
+      "venue": "Barbara B. Mann Performing Arts Hall at FSW",
+      "officialDateRange": "2026-11-13 through 2026-11-14",
+      "sampleListingLocalDateTime": "2026-11-14T13:00:00-05:00",
+      "officialUrl": "https://www.bbmannpah.com/events/detail/twas-the-night-before-cirque-du-soleil-2026",
+      "officialEvidence": "Venue confirms November 13 at 7 PM and November 14 at 1 PM and 4 PM, 2026; Christmas poem production, On Sale Now.",
+      "ticketSmarterUrl": "https://www.ticketsmarter.com/e/cirque-du-soleil-twas-the-night-before-tickets-fort-myers-11-14-2026-barbara-b-mann-performing-arts-hall/3394750",
+      "ticketSmarterProductionUrl": "https://www.ticketsmarter.com/p/cirque-du-soleil-twas-the-night-before-tickets",
+      "sourceRefs": [
+        "turn13search1",
+        "turn20view4",
+        "turn16view2",
+        "turn15search1",
+        "turn15search2"
+      ],
+      "listingVerified": true,
+      "activePurchasability": "unconfirmed_conflicting_and_stale_extracted_states",
+      "decision": "Strong near-term Florida holiday production, but exact-date extraction is five months old and claims zero inventory, while recent venue extraction claims 72 for November 14 at 1 PM and production page has different aggregate figures. Keep as reserve pending direct selectable-inventory verification; do not infer zero means sold out."
+    },
+    {
+      "name": "Pentatonix 2026 Holiday Tour",
+      "ticketSmarterUrl": "https://www.ticketsmarter.com/p/pentatonix-tickets",
+      "sourceRefs": [
+        "turn18search3"
+      ],
+      "decision": "Rejected for Florida addition: current retrieved 2026 tour list contains many states and Canada but no Florida date; generic performer page is not evidence of a Florida event."
+    },
+    {
+      "name": "Dance Theatre of Tampa — Nutcracker 27th Anniversary",
+      "city": "Tampa",
+      "venue": "USF Theatre 1",
+      "localDateTime": "2026-12-19T19:00:00-05:00",
+      "ticketSmarterUrl": "https://www.ticketsmarter.com/e/dance-theatre-of-tampa-nutcracker-27th-anniversary-tickets-tampa-12-19-2026-usf-theatre-1/3523593",
+      "sourceRefs": [
+        "turn6search5",
+        "turn6search7"
+      ],
+      "listingVerified": true,
+      "decision": "Not shortlisted within bounded research: real exact-date merchant listing found but official 2026 organizer evidence was not independently established. No Tickets Found form also appears. Do not substitute Tampa City Ballet's distinct production."
+    }
+  ],
+  "recommendedNextStep": "Five strongest additions have official show/run evidence plus exact merchant event URLs. Before asserting purchasability or launching Book CTAs, independently inspect selectable inventory through direct untracked merchant pages. If that cannot be established, use a clearly labeled resale listing CTA and retain official organizer ticket option. Do not advertise static merchant inventory counts or prices.",
+  "reviewed_local_date": "2026-11-06"
+}
