@@ -45,7 +45,7 @@ env="${VERCEL_ENV:-preview}"
 branch="${VERCEL_GIT_COMMIT_REF:-}"
 remote="${WAYFIND_IGNORE_REMOTE:-https://github.com/${VERCEL_GIT_REPO_OWNER:-wallstreethyena}/${VERCEL_GIT_REPO_SLUG:-wayfind}.git}"
 if [ "$env" != "production" ] && [ -n "$branch" ] && [ -n "${VERCEL_GIT_COMMIT_SHA:-}" ]; then
-  head="$(GIT_TERMINAL_PROMPT=0 timeout 20 git ls-remote "$remote" "refs/heads/$branch" 2>/dev/null | cut -f1 | head -n1)"
+  head="$(set -o pipefail; GIT_TERMINAL_PROMPT=0 timeout 20 git ls-remote "$remote" "refs/heads/$branch" 2>/dev/null | cut -f1 | head -n1)" || head=""
   if [ -n "$head" ] && [ "$head" != "$VERCEL_GIT_COMMIT_SHA" ]; then
     skip "superseded: ${branch} is now at ${head:0:8}, this build is ${VERCEL_GIT_COMMIT_SHA:0:8}; the newer push builds"
   fi
@@ -62,11 +62,19 @@ fi
 git cat-file -e "${cur}^{commit}" 2>/dev/null || build "current SHA ${cur:0:8} not resolvable in this clone"
 
 # --no-renames lists both sides of a rename; -z is safe for odd file names.
-files="$(git diff --name-only --no-renames -z "$prev" "$cur" | tr '\0' '\n')" || build "git diff failed"
+files="$(set -o pipefail; git diff --name-only --no-renames -z "$prev" "$cur" | tr '\0' '\n')" || build "git diff failed"
 [ -n "$files" ] || build "no changed files found between ${prev:0:8} and ${cur:0:8} (cannot prove data-only)"
 
 # Docs the running code reads (named literally in code, comments included: conservative).
-runtime_docs="$(git grep -h -o -E 'docs/[A-Za-z0-9_./-]+[.]md' "$cur" -- app lib components middleware.js 'next.config.*' 2>/dev/null | sort -u)"
+# grep exits 1 for an observed absence; any other error means we could not
+# establish which docs the running site reads. Never turn that error into SKIP.
+if runtime_docs="$(git grep -h -o -E 'docs/[A-Za-z0-9_./-]+[.]md' "$cur" -- app lib components middleware.js 'next.config.*' 2>/dev/null)"; then
+  runtime_docs="$(printf '%s\n' "$runtime_docs" | sort -u)" || build "runtime doc reference sorting failed"
+else
+  runtime_doc_status=$?
+  [ "$runtime_doc_status" -eq 1 ] || build "runtime doc reference scan failed (git grep exit $runtime_doc_status)"
+  runtime_docs=""
+fi
 
 n=0
 while IFS= read -r f; do
