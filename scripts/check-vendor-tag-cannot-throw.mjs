@@ -51,6 +51,7 @@ const LAYOUT = readFileSync(join(ROOT, "app/layout.js"), "utf8");
 // removed outright, not moved — see app/layout.js's own note). The vendor-tag
 // safety properties this guard exists to pin now live here.
 const SWAP = readFileSync(join(ROOT, "app/components/Stay22LinkSwap.js"), "utf8");
+const META = readFileSync(join(ROOT, "app/components/MetaPixel.js"), "utf8");
 
 // ── 1. the idiom is gone from our own client source ───────────────────────
 // POSITIVE CONTROLS for the two absence probes below. An absence assertion is
@@ -62,7 +63,7 @@ ok(/\.parentNode/.test("var f=document.getElementsByTagName('script')[0];f.paren
   "POSITIVE CONTROL: the .parentNode probe matches the original crashing idiom, so its absence below is a real finding");
 ok(/getElementsByTagName\('script'\)\[0\]/.test("var f=document.getElementsByTagName('script')[0];"),
   "POSITIVE CONTROL: the getElementsByTagName('script')[0] probe matches that same idiom");
-for (const [name, src] of [["app/layout.js", LAYOUT], ["app/components/Stay22LinkSwap.js", SWAP]]) {
+for (const [name, src] of [["app/layout.js", LAYOUT], ["app/components/Stay22LinkSwap.js", SWAP], ["app/components/MetaPixel.js", META]]) {
   ok(!/\.parentNode/.test(src),
     `${name} dereferences .parentNode nowhere — that was the only one we owned, and it is what made a parentNode TypeError ambiguous`);
   ok(!/getElementsByTagName\('script'\)\[0\]/.test(src),
@@ -133,6 +134,56 @@ for (const src of loaders) {
   ok(twice.appended.length === 1, `${who} EXECUTED: a second interaction injects nothing more (got ${twice.appended.length})`);
 }
 
+// Meta is an afterInteractive Next Script, not an interaction-gated __html
+// loader. Execute its actual snippet too; the older guard missed this caller.
+// This is loader hardening, not attribution of the current Sentry error.
+const metaSnippets = [...META.matchAll(/\{`([^`]*)`\}/g)].map((m) => m[1]).filter((src) => src.includes("connect.facebook.net"));
+ok(metaSnippets.length === 1, "Meta: exactly one production pixel initializer was found");
+const metaSource = metaSnippets[0]?.replaceAll("${id}", "fixture-pixel");
+function runMeta(src, { scripts = 0, noHead = false, noRoot = false, headThrows = false, preexisting = false, twice = false } = {}) {
+  const appended = [];
+  const existingCalls = [];
+  const window = preexisting ? { fbq: (...args) => existingCalls.push(args) } : {};
+  const target = { appendChild(node) { if (headThrows) throw new Error("blocked fixture insertion"); appended.push(node); } };
+  const document = {
+    createElement: () => ({}),
+    getElementsByTagName: () => Array.from({ length: scripts }, () => ({ parentNode: null })),
+    head: noHead ? null : target,
+    documentElement: noRoot ? null : target,
+  };
+  const globals = { window, document };
+  Object.defineProperty(globals, "fbq", { get: () => window.fbq });
+  const ctx = vm.createContext(globals);
+  let error = null;
+  try {
+    vm.runInContext(src, ctx, { timeout: 2000 });
+    if (twice) vm.runInContext(src, ctx, { timeout: 2000 });
+    appended[0]?.onerror?.();
+  } catch (caught) { error = caught; }
+  return { appended, error, calls: window.fbq?.queue ? Array.from(window.fbq.queue, (args) => Array.from(args)) : existingCalls };
+}
+if (metaSource) {
+  for (const [label, opts] of [["script-less", {}], ["detached first script", { scripts: 1 }], ["missing head", { noHead: true }]]) {
+    const result = runMeta(metaSource, opts);
+    ok(!result.error && result.appended.length === 1, `Meta: ${label} safely inserts exactly one script`);
+    ok(result.appended[0]?.src === "https://connect.facebook.net/en_US/fbevents.js" && result.appended[0]?.async === true,
+      `Meta: ${label} preserves the asynchronous vendor URL`);
+    ok(JSON.stringify(result.calls) === JSON.stringify([["init", "fixture-pixel"], ["track", "PageView"]]),
+      `Meta: ${label} preserves pixel initialization and first page view`);
+    ok(typeof result.appended[0]?.onerror === "function", `Meta: ${label} handles a blocked script fetch`);
+  }
+  for (const [label, opts] of [["refused insertion", { headThrows: true }], ["missing root", { noHead: true, noRoot: true }]]) {
+    const result = runMeta(metaSource, opts);
+    ok(!result.error && result.appended.length === 0, `Meta: ${label} cannot throw into the page`);
+  }
+  ok(runMeta(metaSource, { twice: true }).appended.length === 1, "Meta: repeat initialization never inserts another script");
+  const existing = runMeta(metaSource, { preexisting: true });
+  ok(!existing.error && existing.appended.length === 0 && existing.calls.length === 2, "Meta: existing SDK still receives the two original calls without reinjection");
+  const oldLoader = "var s=document.getElementsByTagName('script')[0];s.parentNode.insertBefore(document.createElement('script'),s);";
+  ok(!!runMeta(oldLoader).error && !!runMeta(oldLoader, { scripts: 1 }).error,
+    "Meta: runtime controls detect the original missing/detached-script defect");
+}
+
 // ── 3. the vendor frames are denied, and ours are not ─────────────────────
 const denied = (url) => DENY_URLS.some((rx) => rx.test(url));
 ok(denied("https://scripts.stay22.com/letmeallez.js"), "Stay22's bundle is denied — its Readability walk is not our crash");
@@ -155,4 +206,4 @@ if (fails.length) {
   fails.forEach((f) => console.error("  ✗ " + f));
   process.exit(1);
 }
-console.log(`check-vendor-tag-cannot-throw: OK — ${pass} assertions; the remaining tag (Stay22's) EXECUTED against a script-less, head-hostile DOM without throwing, and vendor frames are denied by URL while ours still page`);
+console.log(`check-vendor-tag-cannot-throw: OK — ${pass} assertions; Stay22 and Meta loaders executed against missing/detached scripts and hostile DOMs; vendor frames remain denied by URL while ours still page`);

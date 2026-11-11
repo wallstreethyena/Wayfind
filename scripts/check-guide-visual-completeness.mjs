@@ -63,18 +63,21 @@ export function classifyPick(slug, pick, { manifest, placeIndex, contextFor, gui
     const img = contextFor(slug, pick, guide);
     if (img && img.src) return { cls: "context", img };
   } catch (e) { return { cls: "missing", why: e.message }; }
-  return { cls: "missing", why: "no context photo returned" };
+  // Image intent rule (owner, 2026-11-04): a deliberate null from the strict
+  // context ladder means "no reviewed photo matches this pick's intent". No
+  // picture beats a wrong one; the pick goes to the Picture Scrapper backlog.
+  return { cls: "held", why: "no intent-matching photo; Picture Scrapper backlog" };
 }
 
 /** Pure checker over a list of guides. Returns { failures, census, perGuide }. */
 export function checkGuides(guides, { manifest, placeIndex, contextFor, gapsFor, heroFor }) {
   const failures = [];
-  const census = { guides: 0, picks: 0, curated: 0, reuse: 0, context: 0, missing: 0, gap: 0 };
+  const census = { guides: 0, picks: 0, curated: 0, reuse: 0, context: 0, held: 0, missing: 0, gap: 0 };
   const perGuide = [];
   for (const g of guides) {
     census.guides++;
     const gaps = gapsFor(g.slug) || {};
-    const counts = { curated: 0, reuse: 0, context: 0, missing: 0 };
+    const counts = { curated: 0, reuse: 0, context: 0, held: 0, missing: 0 };
     for (const pick of g.picks || []) {
       census.picks++;
       const r = classifyPick(g.slug, pick, { manifest, placeIndex, contextFor, guide: g });
@@ -147,7 +150,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   const contextFor = (slug, pick, guide) => guideContextPhoto(slug, pick, guide, { usedSrc: new Set() });
   const { failures, census } = checkGuides(guides, { manifest: GUIDE_PICK_PHOTOS, placeIndex, contextFor, gapsFor, heroFor });
   const exact = census.curated + census.reuse;
-  const line = `${census.guides} guides, ${census.picks} picks: exact-place ${exact} (curated ${census.curated}, reused ${census.reuse}), labelled context ${census.context}, missing ${census.missing}; gap records ${census.gap}`;
+  const line = `${census.guides} guides, ${census.picks} picks: exact-place ${exact} (curated ${census.curated}, reused ${census.reuse}), labelled context ${census.context}, held for Picture Scrapper ${census.held}, missing ${census.missing}; gap records ${census.gap}`;
   if (failures.length) {
     console.error(`check-guide-visual-completeness: FAILED (${failures.length})\n  ` + failures.join("\n  ") + `\n  census: ${line}`);
     process.exit(1);

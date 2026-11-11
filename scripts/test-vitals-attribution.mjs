@@ -11,6 +11,7 @@
 // primitives only (never DOM nodes / PerformanceEntry objects), and the original
 // base properties preserved so the command-center panel keeps reading them.
 import { readFileSync } from "node:fs";
+import { safePagePath } from "../lib/browserAnalytics.js";
 
 let passed = 0;
 const fail = (m) => { console.error("test-vitals-attribution: FAIL — " + m); process.exit(1); };
@@ -97,5 +98,33 @@ ok(!/window\.posthog\.capture/.test(block), "reporter calls the raw SDK — web 
 const wv = JSON.parse(readFileSync(new URL("../node_modules/web-vitals/package.json", import.meta.url), "utf8"));
 ok(wv.exports && wv.exports["./attribution"], "installed web-vitals does not expose ./attribution");
 ok(parseInt(wv.version, 10) >= 5, `web-vitals must be >=5 for these field names (found ${wv.version})`);
+
+// Execute the actual effect with only the web-vitals observer registration
+// replaced. Public release/lifecycle metadata must let future analyses separate
+// old tabs and repeated reports without adding events or recording page text.
+const effectStart = src.lastIndexOf('  useEffect(() => {', start);
+const effectEnd = src.indexOf('  }, []);', start) + '  }, []);'.length;
+ok(effectStart >= 0 && effectEnd > start, 'actual vitals effect boundary exists');
+let effect = src.slice(effectStart, effectEnd).replace('import("web-vitals/attribution")', 'Promise.resolve(observers)');
+if (process.argv.includes('--without-release')) effect = effect.replace('process.env.NEXT_PUBLIC_WF_BUILD || null', 'null');
+const sent = [], callbacks = {};
+const observers = Object.fromEntries(['onLCP', 'onCLS', 'onINP', 'onTTFB', 'onFCP'].map(name => [name, fn => { callbacks[name] = fn; }]));
+const testWindow = { location: { pathname: '/share/private-token-123' }, performance: { timeOrigin: 1794049200000 }, innerWidth: 390 };
+const release = '1234567890abcdef1234567890abcdef12345678';
+new Function('useEffect', 'window', 'safePagePath', 'process', 'BUILD_ID', 'captureOrQueue', 'observers', effect)(
+  fn => fn(), testWindow, safePagePath, { env: { NEXT_PUBLIC_WF_BUILD: release } }, 'v8.64.0',
+  (_win, event, props) => sent.push({ event, props }), observers);
+await Promise.resolve();
+ok(Object.keys(callbacks).length === 5 && sent.length === 0, 'metadata adds no observers or extra events');
+testWindow.location.pathname = '/';
+callbacks.onINP({ name: 'INP', id: 'v5-fixture-lifecycle', value: 240, rating: 'needs-improvement', attribution: { inputDelay: 10, processingDuration: 30, presentationDelay: 200 } });
+callbacks.onINP({ name: 'INP', id: 'v5-fixture-lifecycle', value: 280, rating: 'needs-improvement', attribution: {} });
+ok(sent.every(row => row.event === 'web_vitals'), 'existing event name remains unchanged');
+ok(sent[0].props.release === release, 'exact public build SHA is attached');
+ok(sent[0].props.metric_id === sent[1].props.metric_id, 'repeated lifecycle reports retain the observer metric ID');
+ok(sent[0].props.page_started_at === '2026-11-07T11:00:00.000Z', 'page start is the actual performance time origin');
+ok(sent[0].props.page_route === '/share/:private' && sent[0].props.route === '/', 'sanitized page origin is stable while legacy current-route field survives');
+ok(sent[0].props.value === 240 && sent[0].props.device === 'mobile' && sent[0].props.inp_presentation === 200, 'existing measurements and attribution are preserved');
+ok(Object.values(sent[0].props).every(value => value == null || ['string', 'number', 'boolean'].includes(typeof value)), 'only scalar metadata leaves the reporter');
 
 console.log(`test-vitals-attribution: OK — ${passed} assertions (attribution build wired, LCP/CLS/INP debug fields present, primitives only, base payload + event name preserved)`);

@@ -4,6 +4,7 @@
 import { useEffect, useState } from "react";
 import { C, Icon } from "../kit";
 import { openExternal } from "../../../lib/links";
+import { safeLocalStorage } from "../../../lib/safeStorage.js";
 import * as TripCore from "../../../lib/trips";
 import * as TripDays from "../../../lib/tripDays";
 import {
@@ -53,7 +54,7 @@ export default function SharedScreen({ ctx }) {
     const targetStorage =
       ctx.__storage !== undefined
         ? ctx.__storage
-        : (typeof window !== "undefined" && window.localStorage ? window.localStorage : null);
+        : safeLocalStorage();
     if (!targetStorage) return;
     const isolated = ensureSignedOutTripIsolation(targetStorage, { authReady });
     if (isolated !== null && setTrips) {
@@ -147,7 +148,7 @@ export default function SharedScreen({ ctx }) {
     const targetStorage =
       ctx.__storage !== undefined
         ? ctx.__storage
-        : (typeof window !== "undefined" && window.localStorage ? window.localStorage : null);
+        : safeLocalStorage();
     let candidateTrips =
       (importFeedback && importFeedback.trips && Object.keys(importFeedback.trips).length ? importFeedback.trips : null) ||
       trips;
