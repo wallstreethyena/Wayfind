@@ -13,6 +13,9 @@ for (const f of ["monetize", "travelpayouts"]) copyFileSync(`lib/${f}.js`, join(
 // Copied as .js, NOT .mjs: monetize's specifier is the literal
 // "./venueOffers.js", so renaming it here breaks resolution in the temp dir.
 copyFileSync("lib/venueOffers.js", join(tmp, "venueOffers.js"));
+// ...and venueOffers.js imports the held-offer list (2026-11-11), same reason,
+// same literal specifier.
+copyFileSync("lib/partnerOfferHolds.js", join(tmp, "partnerOfferHolds.js"));
 const Mz = await import(join(tmp, "monetize.mjs"));
 const Tp = await import(join(tmp, "travelpayouts.mjs"));
 
