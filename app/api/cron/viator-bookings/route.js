@@ -195,14 +195,18 @@ export async function GET(req) {
     const succeededCount = attemptedCount;
     const pulseNote = result.skipped_locked
       ? `skipped_locked owner=${result.active_lease_owner || "other"}`
-      : `pages=${result.pages_processed} events=${result.events_inserted} matched=${result.matched} redacted=${redactedClicks} uploads=${uploadQueueResult.succeeded}/${uploadQueueResult.attempted} (${uploadQueueResult.mode})`;
+      : `pages=${result.pages_processed} raw=${result.raw_events_received ?? 0} events=${result.events_inserted} matched=${result.matched} redacted=${redactedClicks} uploads=${uploadQueueResult.succeeded}/${uploadQueueResult.attempted} (${uploadQueueResult.mode})`;
 
     const summary = {
       status: "ok",
       job: JOB,
       skipped_locked: Boolean(result.skipped_locked),
       sync_epoch: result.sync_epoch ?? null,
+      query_mode: result.query_mode ?? null,
+      queried_modified_since: result.queried_modified_since ?? null,
       pages_processed: result.pages_processed,
+      raw_events_received: result.raw_events_received ?? 0,
+      unparseable_events: result.unparseable_events ?? 0,
       events_normalized: result.events_normalized,
       events_inserted: result.events_inserted,
       matched: result.matched,
@@ -217,6 +221,23 @@ export async function GET(req) {
       next_cursor: result.next_cursor ?? null,
       watermark: result.watermark ?? null,
     };
+
+    try {
+      console.log(
+        JSON.stringify({
+          tag: "viator_bookings_sync",
+          sync_epoch: summary.sync_epoch,
+          query_mode: summary.query_mode,
+          pages_processed: summary.pages_processed,
+          raw_events_received: summary.raw_events_received,
+          events_inserted: summary.events_inserted,
+          matched: summary.matched,
+          unrecognized_events: summary.unrecognized_events,
+          upload_mode: uploadQueueResult.mode,
+          watermark: summary.watermark,
+        }),
+      );
+    } catch {}
 
     await recordPulse(JOB, {
       attempted: attemptedCount,
