@@ -1,0 +1,26 @@
+{
+  "schema_version": "owned-editorial-replacement-audit-v1",
+  "recorded_at": "2026-11-11T14:11:29.968Z",
+  "pack": "docs/editorial/card-lines-2026-11-04-b56/pack-01.json",
+  "reviewed_by": "Gabriel (owner) via Muse research session 2026-11-04",
+  "researched_at": "2026-11-04",
+  "replaced": [
+    {
+      "place_id": "wfadd_peppa_pig",
+      "name": "Peppa Pig Theme Park",
+      "prior_row": {
+        "place_id": "wfadd_peppa_pig",
+        "verified": false,
+        "issues": [
+          "PENDING SOURCE"
+        ],
+        "written_at": "2026-08-10T13:55:41.506131+00:00",
+        "attempt_count": 2,
+        "last_attempted_at": "2026-08-10T13:55:41.506131+00:00",
+        "standard_version": "atlas-590-v1",
+        "facts_count": 0
+      },
+      "inventory_editorial_disposition": ""
+    }
+  ]
+}
