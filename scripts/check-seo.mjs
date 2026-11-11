@@ -69,7 +69,7 @@ if (!lay.includes("Quick plans")) fail("use-case links missing from server foote
 if (!lay.includes("affiliate links")) fail("affiliate disclosure missing from server footer");
 if (!lay.includes('rel="preconnect"')) fail("preconnect hints missing");
 if (/\n  title: "Wayfind",/.test(lay)) fail("homepage title must carry search intent, not just the brand");
-if (!lay.includes("Things to Do Near You")) fail("homepage title keywords missing");
+if (!lay.includes("One place worth leaving home for")) fail("homepage title lost the brand line");
 
 // 3. app shell: nav anchors + go-param handoff survive.
 const page = readFileSync(join(root, "app", "home.js"), "utf8");
@@ -242,4 +242,29 @@ for (const r of ["events", "coupons", "map"]) {
   if (!s.includes('canonical: "https://www.gowayfind.com/' + r + '"')) fail("/" + r + " lost its self-canonical");
 }
 
-console.log("check-seo: OK — canonical-or-noindex on " + pages.length + " routes, single H1, honest CTAs, named attribution, share-card rule, sitemap clean");
+// 12. The 2026-11-03 category hubs (#2153) rank on merit. Their titles do not
+//     say "best". Older search surfaces such as /best-beaches keep that word
+//     because people search it and the page states the method.
+const hubPages = ["beaches", "restaurants", "nightlife", "things-to-do"];
+for (const hub of hubPages) {
+  const src = readFileSync(join(root, "app", hub, "page.js"), "utf8").replace(/^\s*\/\/.*$/gm, "");
+  const title = src.match(/const TITLE = "([^"]+)"/);
+  const desc = src.match(/const DESC = "([^"]+)"/);
+  const intro = src.match(/intro="([^"]+)"/);
+  if (!title || !desc || !intro) fail("/" + hub + " lost its TITLE, DESC, or intro");
+  for (const [name, value] of [["title", title[1]], ["description", desc[1]], ["intro", intro[1]]]) {
+    if (/\bbest\b/i.test(value)) fail("/" + hub + " " + name + " says best; these hubs rank on merit and rankings are never for sale");
+  }
+  if (!src.includes("Rankings are never for sale") || !src.includes("on merit")) fail("/" + hub + " must say rankings are on merit and never for sale");
+  if (!src.includes('canonical: SITE_URL + "/' + hub + '"')) fail("/" + hub + " lost its self-canonical");
+}
+
+const HOME_TITLE = "Wayfind | One place worth leaving home for";
+const layNow = readFileSync(join(root, "app", "layout.js"), "utf8");
+const homeNow = readFileSync(join(root, "app", "home.js"), "utf8");
+if ((layNow.match(/Wayfind \| One place worth leaving home for/g) || []).length < 3) fail("homepage title must be on the document, Open Graph, and Twitter cards");
+if (!layNow.includes("Places are ranked on merit. Rankings are never for sale.")) fail("homepage description lost the on merit line");
+if (/Find the Best Things to Do/.test(layNow) || /Find the Best Things to Do/.test(homeNow)) fail("homepage still says Best");
+if (!homeNow.includes(HOME_TITLE)) fail("the home screen fallback title does not match the document title");
+
+console.log("check-seo: OK — canonical-or-noindex on " + pages.length + " routes, single H1, honest CTAs, named attribution, share-card rule, sitemap clean, four category hubs rank on merit without saying best");

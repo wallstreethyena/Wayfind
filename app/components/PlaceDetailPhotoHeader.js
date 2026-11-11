@@ -118,11 +118,11 @@ export default function PlaceDetailPhotoHeader({ placeId, name, initialPhoto, ph
         </div> : photo ? <button type="button" onClick={() => visible && setViewer(photo)} aria-label={"View full photo of " + name} disabled={!visible} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", padding: 0, border: 0, background: "transparent", cursor: visible ? "zoom-in" : "default" }}>
           <img ref={photoRef} src={photo.src} alt={name} onLoad={() => setAnswer(previous => previous?.requestKey === requestKey && previous.photo === photo ? { ...previous, loaded: true } : previous)} onError={fail} style={{ ...PLACE_DETAIL_PHOTO_STANDARD.image, width: "100%", height: "100%", display: "block" }} />
         </button> : <div data-place-detail-photo-pending style={{ position: "absolute", inset: 0, display: "grid", placeItems: "center", fontSize: 12, color: "#94A3B8" }}>Loading photo…</div>}
+        {visible && photo.credit ? <PhotoCredit onPhoto credit={{ ...photo.credit, source: photo.source }} /> : null}
       </div> : null}
       <div data-place-detail-text>
         {eyebrow}
         <Title id={titleId} style={titleStyle}>{name}</Title>
-        {visible && photo.credit ? <PhotoCredit credit={{ ...photo.credit, source: photo.source }} /> : null}
       </div>
       {!multi && viewer && viewer === photo && visible ? <FullPhoto photo={viewer} name={name} close={() => setViewer(null)} fail={fail} /> : null}
       {multi && viewer ? <FullPhoto photo={viewer} name={name} close={() => setViewer(null)} fail={() => setViewer(null)} /> : null}

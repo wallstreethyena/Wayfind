@@ -3,6 +3,7 @@
 // placeholder all evening; the whole-day ratio alert stayed quiet. Calls the
 // REAL rule (computeAlerts), the REAL source (photoQuotaBreaker, injected
 // breaker reader) and the REAL assembly (buildAlertsReport).
+import { readFileSync } from "node:fs";
 import { computeAlerts } from "../lib/commandCenter/alerts.js";
 import { photoQuotaBreaker } from "../lib/commandCenter/sources/photos.js";
 import { buildAlertsReport } from "../lib/commandCenter/alertsRun.js";
@@ -25,8 +26,35 @@ const openBreaker = await photoQuotaBreaker({ breakerOpenImpl: async () => ({ ki
   ok(r[0].severity === "warn", "severity is warn");
   ok(/until 3:01 AM ET/.test(r[0].title), "title says when it clears, got " + r[0].title);
   ok(/6:02 PM ET/.test(r[0].detail), "detail states when it tripped");
-  ok(/313 photos served today, 170 refused/.test(r[0].detail), "detail states served + refused counts");
+  ok(/313 successful Google photo attempts, 170 quota-open refusals/.test(r[0].detail), "detail states served + refused counts");
   ok(/GetPhotoMediaRequest/.test(r[0].detail) && /GOOGLE_PHOTOS_MONTH_CAP/.test(r[0].detail), "detail names the per-day quota vs the monthly cap");
+}
+// Lookup quota holds must never be reported as a whole-day media outage.
+for (const row of [
+  { kind: "quota", reason: "google place lookup 429 (short hold)", at: AT },
+  { kind: "quota", reason: "google place lookup 429 (short hold)", at: AT, expiresAt: "2026-10-14T22:32:00.000Z" },
+]) {
+  const short = await photoQuotaBreaker({ breakerOpenImpl: async () => row });
+  ok(short.data.scope === "lookup" && short.data.expiresAt === "2026-10-14T22:32:00.000Z", "legacy and explicit lookup holds expose their actual 30 minute expiry");
+  ok(find(computeAlerts({ asOf: new Date("2026-10-14T22:03:00Z"), photoQuotaBreaker: short.data })).length === 0, "short lookup hold never says daily media quota exhausted");
+}
+{
+  const explicit = await photoQuotaBreaker({ breakerOpenImpl: async () => ({ kind: "quota", reason: "google photos daily quota exhausted", at: AT, expiresAt: "2026-10-15T06:59:00.000Z" }) });
+  ok(explicit.data.scope === "media-daily" && explicit.data.expiresAt === "2026-10-15T06:59:00.000Z", "persisted expiry is authoritative, not recomputed");
+}
+// The real shared writer persists exactly the same expiry as its cache TTL.
+{
+  const writes = [];
+  globalThis.__photoBreakerWrites = writes;
+  const writer = readFileSync(new URL("../lib/providerHealth.js", import.meta.url), "utf8").replace(/^import[^;]+;\n/gm, "");
+  const { tripBreaker } = await import("data:text/javascript," + encodeURIComponent("const cset=async(...args)=>globalThis.__photoBreakerWrites.push(args);\n" + writer));
+  const oldNow = Date.now;
+  Date.now = () => Date.parse(AT);
+  try {
+    await tripBreaker("google-photos-quota", "quota", "google place lookup 429 (short hold)", 30 * 60000);
+    ok(writes.length === 1 && writes[0][0] === "provider-breaker|v1|google-photos-quota" && writes[0][2] === 30 * 60000, "writer keeps the existing key and exact short TTL");
+    ok(writes[0][1].at === AT && writes[0][1].expiresAt === "2026-10-14T22:32:00.000Z", "writer persists actual short expiry in its value");
+  } finally { Date.now = oldNow; delete globalThis.__photoBreakerWrites; }
 }
 // (a2) fires without any outcome counts too (breaker alone is enough).
 ok(find(computeAlerts({ asOf: NOW, photoQuotaBreaker: openBreaker.data })).length === 1, "breaker alone fires");
