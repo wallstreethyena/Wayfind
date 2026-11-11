@@ -16,8 +16,9 @@ import { siteAnchorDate } from "../../../lib/siteTime.js";
 import { localStaplesFor, parseLibCalICS, parseICSDate, libcalId, LIBCAL_FEED } from "../../../lib/eventResolve.js";
 import { getBusinessFeeds, businessEventsFrom } from "../../../lib/businessFeeds.js";
 import { creatorEventsFor } from "../../../lib/creatorEvents.js";
-import { curatedFeedEventsWithFall, FALL_FEED_CACHE_VERSION } from "../../../lib/curatedFallFeed.js";
-import { fetchCuratedEvents, CURATED_REACH_MI, CURATED_SOURCE } from "../../../lib/curatedEvents.js";
+import { FALL_FEED_CACHE_VERSION } from "../../../lib/curatedFallFeed.js";
+import { currentCuratedFeed, replaceCachedCurated, withCuratedEventPhotos } from "../../../lib/curatedEventsFeed.js";
+import { fetchCuratedEvents, CURATED_REACH_MI, CURATED_SOURCE, refreshCuratedDayFields } from "../../../lib/curatedEvents.js";
 import { cget, cset, DAY } from "../../../lib/serverCache";
 import { breakerOpen, tripBreaker, classifyProviderFailure, BREAKER_COOLDOWN_MS } from "../../../lib/providerHealth.js";
 import { eventProviderCap, eventProviderSpendAllow } from "../../../lib/eventProviderSpend.js";
@@ -725,6 +726,7 @@ function normalizeEventInput(value, { query = false } = {}) {
 // photo this function used to attach is retired: it read as a picture of the
 // event on the card even though it was not.
 async function fromCuratedEvents(lat, lng) {
+  const photoDeadline = Date.now() + PROVIDER_TIMEOUT_MS - 300;
   if (lat == null || lng == null) return { configured: false, events: [] };
   try {
     // fresh: this feed is live. It reads a different PostgREST URL than the
@@ -734,13 +736,12 @@ async function fromCuratedEvents(lat, lng) {
     // ended on Oct 9 once the table grew, and hid the whole Halloween season
     // from this feed (2026-10-08). See upcomingFilter in lib/curatedEvents.js.
     const rows = await fetchCuratedEvents({ fresh: true, upcomingFrom: today() });
-    if (!rows.length) return { configured: true, events: [] };
-    const near = curatedFeedEventsWithFall(rows).filter((e) =>
+    const near = currentCuratedFeed(rows).filter((e) =>
       e.lat != null && e.lng != null && haversineMiLocal(lat, lng, e.lat, e.lng) <= CURATED_REACH_MI);
     if (!near.length) return { configured: true, events: [] };
     // A row without its own image is never dropped: the card shows the
     // designed placeholder. The image is an upgrade, never a gate.
-    return { configured: true, events: near };
+    return { configured: true, events: await withCuratedEventPhotos(near, { deadlineMs: Math.max(0, photoDeadline - Date.now()) }) };
   } catch (err) { return { configured: true, ok: false, reason: String(err && err.message || err).slice(0, 160), events: [] }; }
 }
 
@@ -774,7 +775,8 @@ async function withDeadline(provider, promise, ms = PROVIDER_TIMEOUT_MS) {
 // florida-v1 (2026-10-15): lib/floridaVenue.js — only Florida venues leave this
 // feed (the Columbus, OH poster). Cached payloads built before the rule may hold
 // out-of-state rows, so the key moves.
-const EVENTS_FEED_RULES = "florida-v2-verified-20261021";
+// trending-20261105: curated rows now carry `tags` (Trending Now shelves), so no cached feed may lack them.
+const EVENTS_FEED_RULES = "florida-v4-holiday-discovery-affiliates-20261106";
 // One Discovery re-read per geo cell. Not the 21-day feed cache, and not a
 // place/photo TTL: those rules stay where they are.
 function ticketmasterStartKey(lat, lng, radius) {
@@ -808,7 +810,25 @@ async function refreshCachedTicketmasterStarts(events, { lat, lng, radius }) {
 async function aggregateEvents(input) {
   const payload = await aggregateEventsRaw(input);
   if (!payload || !Array.isArray(payload.events) || !payload.events.length) return payload;
-  if (payload.cached) payload.events = await refreshCachedTicketmasterStarts(payload.events, input);
+  if (payload.cached) {
+    // Aggregator fallback stays available for 21 days, but must never freeze
+    // our own confirmed events/photos for that long. No paid provider call.
+    const key = `events-owned:v1:${FALL_FEED_CACHE_VERSION}:${today()}:${Number(input.lat).toFixed(1)}:${Number(input.lng).toFixed(1)}`;
+    const hit = await cget(key);
+    const current = hit && Array.isArray(hit.v)
+      ? { configured: true, events: hit.v }
+      : await withDeadline(CURATED_SOURCE, fromCuratedEvents(input.lat, input.lng));
+    if (current.ok !== false) {
+      if (!hit) await cset(key, current.events, 5 * 60 * 1000);
+      payload.events = processEvents([{ provider: "Cached providers", configured: true,
+        events: replaceCachedCurated(payload.events, current.events) }], input).events;
+      payload.usableCount = payload.events.length;
+    } else {
+      payload.degraded = true;
+      payload.health = [...(payload.health || []), { provider: CURATED_SOURCE, ok: false, reason: current.reason }];
+    }
+    payload.events = await refreshCachedTicketmasterStarts(payload.events, input);
+  }
   else payload.events = applyStoredStartCorrections(payload.events);
   return payload;
 }
@@ -816,7 +836,9 @@ async function aggregateEventsRaw({ lat, lng, keyword, radius, city }) {
   let evK = null;
   const todayStr = today();
   // Same rule as validateEvent: a running event stays until its LAST day.
-  const upcoming = (evs) => (evs || []).filter((e) => e && (!e.date || lastEventDay(e) >= todayStr));
+  // Curated rows get their day fields re-derived at serve time (lib/curatedEvents.js
+  // refreshCuratedDayFields), so a cached feed never serves a stale day rule.
+  const upcoming = (evs) => (evs || []).map(refreshCuratedDayFields).filter((e) => e && (!e.date || lastEventDay(e) >= todayStr));
   const staleEvents = async () => {
     if (!evK) return null;
     const s = await cget(evK, { staleMs: 30 * DAY });

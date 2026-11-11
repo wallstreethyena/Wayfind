@@ -319,12 +319,15 @@ for (const rel of ENTRY_POINTS) {
       picksChecked++;
       const media = guidePickFigureImage(slug, pick) || guidePickPhoto(slug, pick.name)
         || guidePhotoForPlace(pick.placeId) || guideContextPhoto(slug, pick, guide);
+      // Image intent rule (owner, 2026-11-04): a pick with no intent-matching
+      // photo renders the photo-less layout and is Picture Scrapper backlog.
+      if (!media) continue;
       picksWithPhoto++;
       ok(typeof media.src === "string" && media.src.length > 0, `${slug}: pick "${pick.name}" carries image data with no usable src`);
     }
   }
   ok(picksChecked > 100, `expected well over 100 picks across the registry, checked ${picksChecked} — this rule has lost its subject`);
-  ok(picksWithPhoto === picksChecked, "every guide pick has a photograph after the licensed context rung (owner update 2026-10-15)");
+  ok(picksWithPhoto > picksChecked / 2, "most guide picks still have an intent-matching photograph; the rest are Picture Scrapper backlog (owner rule 2026-11-04 supersedes 2026-10-15)");
   console.log(`  (${picksChecked} picks checked; ${picksWithPhoto} have exact-place or labelled contextual photo data)`);
 }
 
