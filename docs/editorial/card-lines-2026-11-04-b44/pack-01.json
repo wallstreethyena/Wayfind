@@ -1,0 +1,1996 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 44. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJvcjq8Rrf2IgRIGNaAourESg",
+   "name": "Roka Hula",
+   "category": "food",
+   "metro": "palm-beach",
+   "primary_type": "asian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://rokahula.com/about/",
+     "source_name": "Roka Hula \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Roka Hula is a Modern Asian Tiki Bar",
+      "Roka Hula offers exotic cocktails and elevated dishes"
+     ]
+    },
+    {
+     "source": "https://rokahula.com/restaurant-locations/",
+     "source_name": "Roka Hula \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Orlando location is at 7525 W Sand Lake Rd BLDG A, Orlando, FL 32819",
+      "Orlando hours are Monday - Thursday 11:30 a.m. to 11:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Modern Asian Tiki Bar with exotic cocktails and elevated dishes",
+    "why_here": "Go for a Modern Asian Tiki Bar offering exotic cocktails and elevated dishes in Orlando, a format built around sharing drinks and plates with a tiki theme throughout the meal.",
+    "know_before": "Orlando hours are Monday - Thursday 11:30 a.m. to 11:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://rokahula.com/about/"
+     ],
+     "why_here": [
+      "https://rokahula.com/about/"
+     ],
+     "know_before": [
+      "https://rokahula.com/about/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Roka Hula is a Modern Asian Tiki Bar",
+      "source": "https://rokahula.com/about/"
+     },
+     {
+      "claim": "Roka Hula offers exotic cocktails and elevated dishes",
+      "source": "https://rokahula.com/about/"
+     },
+     {
+      "claim": "The Orlando location is at 7525 W Sand Lake Rd BLDG A, Orlando, FL 32819",
+      "source": "https://rokahula.com/restaurant-locations/"
+     },
+     {
+      "claim": "Orlando hours are Monday - Thursday 11:30 a.m. to 11:00 p.m.",
+      "source": "https://rokahula.com/restaurant-locations/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJefuaKg8e2YgR4E4uN6q4ZF0",
+   "name": "J. Alexander's Restaurant",
+   "category": "food",
+   "metro": "palm-beach",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.jalexanders.com/j-alexanders-opening-in-annapolis-maryland-this-september/",
+     "source_name": "J. Alexander's Restaurant \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "J. Alexander's is a contemporary American restaurant",
+      "J. Alexander's is known for its wood-fired cuisine",
+      "J. Alexander's has a made from scratch menu",
+      "J. Alexander's offers prime rib of beef, steaks, fresh seafood, sandwiches, and entr\u00e9e salads",
+      "J. Alexander's has a full-service bar",
+      "J. Alexander's offers wines available by the glass or bottle"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "contemporary American restaurant known for its wood-fired cuisine",
+    "why_here": "J. Alexander's is a contemporary American restaurant known for its wood-fired cuisine, with a made from scratch menu offering prime rib of beef, steaks, fresh seafood, sandwiches, and entr\u00e9e salads.",
+    "know_before": "J. Alexander's has a full-service bar.",
+    "local_tip": "J. Alexander's offers wines available by the glass or bottle.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.jalexanders.com/j-alexanders-opening-in-annapolis-maryland-this-september/"
+     ],
+     "why_here": [
+      "https://www.jalexanders.com/j-alexanders-opening-in-annapolis-maryland-this-september/"
+     ],
+     "know_before": [
+      "https://www.jalexanders.com/j-alexanders-opening-in-annapolis-maryland-this-september/"
+     ],
+     "local_tip": [
+      "https://www.jalexanders.com/j-alexanders-opening-in-annapolis-maryland-this-september/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "J. Alexander's is a contemporary American restaurant",
+      "source": "https://www.jalexanders.com/j-alexanders-opening-in-annapolis-maryland-this-september/"
+     },
+     {
+      "claim": "J. Alexander's is known for its wood-fired cuisine",
+      "source": "https://www.jalexanders.com/j-alexanders-opening-in-annapolis-maryland-this-september/"
+     },
+     {
+      "claim": "J. Alexander's has a made from scratch menu",
+      "source": "https://www.jalexanders.com/j-alexanders-opening-in-annapolis-maryland-this-september/"
+     },
+     {
+      "claim": "J. Alexander's offers prime rib of beef, steaks, fresh seafood, sandwiches, and entr\u00e9e salads",
+      "source": "https://www.jalexanders.com/j-alexanders-opening-in-annapolis-maryland-this-september/"
+     },
+     {
+      "claim": "J. Alexander's has a full-service bar",
+      "source": "https://www.jalexanders.com/j-alexanders-opening-in-annapolis-maryland-this-september/"
+     },
+     {
+      "claim": "J. Alexander's offers wines available by the glass or bottle",
+      "source": "https://www.jalexanders.com/j-alexanders-opening-in-annapolis-maryland-this-september/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJp-oA1P0m2YgRYJ_htXj2PKk",
+   "name": "Eggs\u2013Cetera Caf\u00e9",
+   "category": "food",
+   "metro": "palm-beach",
+   "primary_type": "breakfast_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.eggsceteracafe.com/",
+     "source_name": "Eggs\u2013Cetera Caf\u00e9 \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Eggscetera Cafe serves breakfast 7 days a week",
+      "The menu lists pancakes, French toast, crepes, Belgium waffles, Benedicts and omelets",
+      "The menu includes seasoned potatoes and seasonal fresh fruit",
+      "Hours are Monday 7:00 a.m. - 3:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Breakfast served 7 days a week with pancakes, Benedicts and omelets",
+    "why_here": "Come for breakfast 7 days a week, with pancakes, French toast, crepes, Belgium waffles, Benedicts and omelets on the menu, plus seasoned potatoes and seasonal fresh fruit.",
+    "know_before": "Hours are Monday 7:00 a.m. - 3:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.eggsceteracafe.com/"
+     ],
+     "why_here": [
+      "https://www.eggsceteracafe.com/"
+     ],
+     "know_before": [
+      "https://www.eggsceteracafe.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Eggscetera Cafe serves breakfast 7 days a week",
+      "source": "https://www.eggsceteracafe.com/"
+     },
+     {
+      "claim": "The menu lists pancakes, French toast, crepes, Belgium waffles, Benedicts and omelets",
+      "source": "https://www.eggsceteracafe.com/"
+     },
+     {
+      "claim": "The menu includes seasoned potatoes and seasonal fresh fruit",
+      "source": "https://www.eggsceteracafe.com/"
+     },
+     {
+      "claim": "Hours are Monday 7:00 a.m. - 3:00 p.m.",
+      "source": "https://www.eggsceteracafe.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJobqYvQ_Y2IgR-lgWvC2owhM",
+   "name": "Mr.Shrimp Chicken & Seafood",
+   "category": "food",
+   "metro": "palm-beach",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://mrshrimp.co/",
+     "source_name": "Mr.Shrimp Chicken & Seafood \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Mr. Shrimp serves Cajun seafood made with fresh, high-quality ingredients",
+      "Mr. Shrimp serves Cajun seafood with bold Louisiana-inspired recipes",
+      "Mr. Shrimp serves boils, bowls, and Po' Boys",
+      "Mr. Shrimp dishes are made to order",
+      "Mr. Shrimp serves Lunch and Dinner",
+      "Mr. Shrimp offers Takeout and Delivery"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Cajun seafood with bold Louisiana-inspired recipes and boils, bowls, and Po' Boys",
+    "why_here": "Mr. Shrimp serves Cajun seafood with bold Louisiana-inspired recipes, with boils, bowls, and Po' Boys made to order for a casual seafood meal with fresh, high-quality ingredients.",
+    "know_before": "Mr. Shrimp serves Lunch and Dinner.",
+    "local_tip": "Mr. Shrimp offers Takeout and Delivery.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://mrshrimp.co/"
+     ],
+     "why_here": [
+      "https://mrshrimp.co/"
+     ],
+     "know_before": [
+      "https://mrshrimp.co/"
+     ],
+     "local_tip": [
+      "https://mrshrimp.co/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Mr. Shrimp serves Cajun seafood made with fresh, high-quality ingredients",
+      "source": "https://mrshrimp.co/"
+     },
+     {
+      "claim": "Mr. Shrimp serves Cajun seafood with bold Louisiana-inspired recipes",
+      "source": "https://mrshrimp.co/"
+     },
+     {
+      "claim": "Mr. Shrimp serves boils, bowls, and Po' Boys",
+      "source": "https://mrshrimp.co/"
+     },
+     {
+      "claim": "Mr. Shrimp dishes are made to order",
+      "source": "https://mrshrimp.co/"
+     },
+     {
+      "claim": "Mr. Shrimp serves Lunch and Dinner",
+      "source": "https://mrshrimp.co/"
+     },
+     {
+      "claim": "Mr. Shrimp offers Takeout and Delivery",
+      "source": "https://mrshrimp.co/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJjdQfTkC32YgRbOHJg8Z611U",
+   "name": "Grapeland Water Park",
+   "category": "attractions",
+   "metro": "miami-dade",
+   "primary_type": "water_park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.miami.gov/My-Government/Departments/Parks-and-Recreation/City-of-Miami-Aquatics-Programs",
+     "source_name": "Grapeland Water Park \u2014 official source",
+     "source_class": "government",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Grapeland Water Park is a seasonal facility",
+      "Grapeland Water Park is open Monday - Sunday 10:00 a.m. to 4:45 p.m."
+     ]
+    },
+    {
+     "source": "https://www.miami.gov/Parks-Public-Places/Parks-Directory/Grapeland-Water-Park",
+     "source_name": "Grapeland Water Park \u2014 official source",
+     "source_class": "government",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Grapeland Water Park features a Swimming Pool"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Seasonal water park with a Swimming Pool",
+    "why_here": "Visit this seasonal facility for water play at Grapeland Water Park, which features a Swimming Pool and runs as a seasonal facility rather than a year-round indoor attraction.",
+    "know_before": "Grapeland Water Park is open Monday - Sunday 10:00 a.m. to 4:45 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.miami.gov/My-Government/Departments/Parks-and-Recreation/City-of-Miami-Aquatics-Programs"
+     ],
+     "why_here": [
+      "https://www.miami.gov/My-Government/Departments/Parks-and-Recreation/City-of-Miami-Aquatics-Programs"
+     ],
+     "know_before": [
+      "https://www.miami.gov/My-Government/Departments/Parks-and-Recreation/City-of-Miami-Aquatics-Programs"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Grapeland Water Park is a seasonal facility",
+      "source": "https://www.miami.gov/My-Government/Departments/Parks-and-Recreation/City-of-Miami-Aquatics-Programs"
+     },
+     {
+      "claim": "Grapeland Water Park is open Monday - Sunday 10:00 a.m. to 4:45 p.m.",
+      "source": "https://www.miami.gov/My-Government/Departments/Parks-and-Recreation/City-of-Miami-Aquatics-Programs"
+     },
+     {
+      "claim": "Grapeland Water Park features a Swimming Pool",
+      "source": "https://www.miami.gov/Parks-Public-Places/Parks-Directory/Grapeland-Water-Park"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ-QhIoDBz6IgR7dCwpZGFeTU",
+   "name": "Liberty Park",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://inverness.gov/162/Liberty-Park-Depot-District",
+     "source_name": "Liberty Park \u2014 official source",
+     "source_class": "government",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Liberty Park is a waterfront city park located on Lake Henderson",
+      "Liberty Park is along the Withlacoochee State Trail",
+      "Liberty Park is open from sunrise to sunset daily",
+      "Liberty Park features a playground, restroom facilities, a floating gazebo and parking"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Waterfront city park on Lake Henderson along the Withlacoochee State Trail",
+    "why_here": "Go to this waterfront city park located on Lake Henderson along the Withlacoochee State Trail for a playground, restroom facilities, a floating gazebo and parking by the water.",
+    "know_before": "Liberty Park is open from sunrise to sunset daily",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://inverness.gov/162/Liberty-Park-Depot-District"
+     ],
+     "why_here": [
+      "https://inverness.gov/162/Liberty-Park-Depot-District"
+     ],
+     "know_before": [
+      "https://inverness.gov/162/Liberty-Park-Depot-District"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Liberty Park is a waterfront city park located on Lake Henderson",
+      "source": "https://inverness.gov/162/Liberty-Park-Depot-District"
+     },
+     {
+      "claim": "Liberty Park is along the Withlacoochee State Trail",
+      "source": "https://inverness.gov/162/Liberty-Park-Depot-District"
+     },
+     {
+      "claim": "Liberty Park is open from sunrise to sunset daily",
+      "source": "https://inverness.gov/162/Liberty-Park-Depot-District"
+     },
+     {
+      "claim": "Liberty Park features a playground, restroom facilities, a floating gazebo and parking",
+      "source": "https://inverness.gov/162/Liberty-Park-Depot-District"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJRQewg7et2YgRRJwOEwUSGtQ",
+   "name": "JZ Steakhouse Aventura",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://jzaventura.com/about",
+     "source_name": "JZ Steakhouse Aventura \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "JZ Steakhouse Aventura is a Glatt kosher steakhouse",
+      "Steaks are aged 21 days",
+      "The menu includes a 12-ounce ribeye and a 32-ounce JZ Steak",
+      "The menu includes twelve fresh salads served with laffa",
+      "The restaurant closes Friday and Saturday for Shabbat",
+      "The restaurant reopens Sunday at 4:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Glatt kosher steakhouse with steaks aged 21 days",
+    "why_here": "JZ Steakhouse Aventura is a Glatt kosher steakhouse serving steaks aged 21 days, including a 12-ounce ribeye and a 32-ounce JZ Steak, plus twelve fresh salads served with laffa.",
+    "know_before": "The restaurant closes Friday and Saturday for Shabbat and reopens Sunday at 4:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://jzaventura.com/about"
+     ],
+     "why_here": [
+      "https://jzaventura.com/about"
+     ],
+     "know_before": [
+      "https://jzaventura.com/about"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "JZ Steakhouse Aventura is a Glatt kosher steakhouse",
+      "source": "https://jzaventura.com/about"
+     },
+     {
+      "claim": "Steaks are aged 21 days",
+      "source": "https://jzaventura.com/about"
+     },
+     {
+      "claim": "The menu includes a 12-ounce ribeye and a 32-ounce JZ Steak",
+      "source": "https://jzaventura.com/about"
+     },
+     {
+      "claim": "The menu includes twelve fresh salads served with laffa",
+      "source": "https://jzaventura.com/about"
+     },
+     {
+      "claim": "The restaurant closes Friday and Saturday for Shabbat",
+      "source": "https://jzaventura.com/about"
+     },
+     {
+      "claim": "The restaurant reopens Sunday at 4:00 p.m.",
+      "source": "https://jzaventura.com/about"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJk2dIWoCX54gR6TUoVd1Kwps",
+   "name": "Mary's Kountry Kitchen",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.maryskountrykitchen.net/welcometomarys",
+     "source_name": "Mary's Kountry Kitchen \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Mary's Kountry Kitchen has served Central Florida since 2007",
+      "Eggs Benedict is served with your choice of grits or potato",
+      "Hours on Sunday are 6:30 a.m. to 2:00 p.m.",
+      "Biscuits and gravy are served with bacon or sausage and two eggs"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Diner serving Central Florida since 2007",
+    "why_here": "Mary's Kountry Kitchen has served Central Florida since 2007, with diner plates such as Eggs Benedict served with your choice of grits or potato and biscuits and gravy with bacon or sausage and two eggs.",
+    "know_before": "Hours on Sunday are 6:30 a.m. to 2:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.maryskountrykitchen.net/welcometomarys"
+     ],
+     "why_here": [
+      "https://www.maryskountrykitchen.net/welcometomarys"
+     ],
+     "know_before": [
+      "https://www.maryskountrykitchen.net/welcometomarys"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Mary's Kountry Kitchen has served Central Florida since 2007",
+      "source": "https://www.maryskountrykitchen.net/welcometomarys"
+     },
+     {
+      "claim": "Eggs Benedict is served with your choice of grits or potato",
+      "source": "https://www.maryskountrykitchen.net/welcometomarys"
+     },
+     {
+      "claim": "Hours on Sunday are 6:30 a.m. to 2:00 p.m.",
+      "source": "https://www.maryskountrykitchen.net/welcometomarys"
+     },
+     {
+      "claim": "Biscuits and gravy are served with bacon or sausage and two eggs",
+      "source": "https://www.maryskountrykitchen.net/welcometomarys"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJicuoGAxq24gRqTjpiloH-Io",
+   "name": "IMAG History & Science Center",
+   "category": "attractions",
+   "metro": "immokalee-fl",
+   "primary_type": "museum",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://theimag.org/",
+     "source_name": "IMAG History & Science Center \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "IMAG History & Science Center features aquariums and animal exhibits",
+      "IMAG History & Science Center features interactive displays, exhibits, and activities",
+      "IMAG History & Science Center offers field trips, outreach programs, and homeschool classes",
+      "IMAG History & Science Center is in Southwest Florida",
+      "The center is closed on Tuesday",
+      "Hours on Sunday are 12:00 p.m. to 5:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "aquariums and animal exhibits with interactive displays, exhibits, and activities",
+    "why_here": "IMAG History & Science Center features aquariums and animal exhibits plus interactive displays, exhibits, and activities, and offers field trips, outreach programs, and homeschool classes in Southwest Florida.",
+    "know_before": "The center is closed on Tuesday. Hours on Sunday are 12:00 p.m. to 5:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://theimag.org/"
+     ],
+     "why_here": [
+      "https://theimag.org/"
+     ],
+     "know_before": [
+      "https://theimag.org/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "IMAG History & Science Center features aquariums and animal exhibits",
+      "source": "https://theimag.org/"
+     },
+     {
+      "claim": "IMAG History & Science Center features interactive displays, exhibits, and activities",
+      "source": "https://theimag.org/"
+     },
+     {
+      "claim": "IMAG History & Science Center offers field trips, outreach programs, and homeschool classes",
+      "source": "https://theimag.org/"
+     },
+     {
+      "claim": "IMAG History & Science Center is in Southwest Florida",
+      "source": "https://theimag.org/"
+     },
+     {
+      "claim": "The center is closed on Tuesday",
+      "source": "https://theimag.org/"
+     },
+     {
+      "claim": "Hours on Sunday are 12:00 p.m. to 5:00 p.m.",
+      "source": "https://theimag.org/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJq2yRf0vZ5ogRf4sefp_0Qzg",
+   "name": "GameTime Daytona",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "video_arcade",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.gametimeplayers.com/locations/daytona/",
+     "source_name": "GameTime Daytona \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "GameTime has five Florida venues including Daytona in Daytona Beach",
+      "GameTime Daytona is at 250 Daytona Blvd. in Daytona Beach",
+      "GameTime Daytona has full-size bowling lanes",
+      "GameTime Daytona hours on Monday are 11:00 a.m. to 11:00 p.m.",
+      "GameTime Daytona restaurant kitchen closes at 10:00 p.m. on Monday"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Full-size bowling lanes at GameTime Daytona in Daytona Beach",
+    "why_here": "GameTime Daytona in Daytona Beach pairs full-size bowling lanes with late hours, staying open to 11:00 p.m. on Monday when the restaurant kitchen closes at 10:00 p.m.",
+    "know_before": "Restaurant kitchen closes at 10:00 p.m. on Monday, before the 11:00 p.m. close.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.gametimeplayers.com/locations/daytona/"
+     ],
+     "why_here": [
+      "https://www.gametimeplayers.com/locations/daytona/"
+     ],
+     "know_before": [
+      "https://www.gametimeplayers.com/locations/daytona/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "GameTime has five Florida venues including Daytona in Daytona Beach",
+      "source": "https://www.gametimeplayers.com/locations/daytona/"
+     },
+     {
+      "claim": "GameTime Daytona is at 250 Daytona Blvd. in Daytona Beach",
+      "source": "https://www.gametimeplayers.com/locations/daytona/"
+     },
+     {
+      "claim": "GameTime Daytona has full-size bowling lanes",
+      "source": "https://www.gametimeplayers.com/locations/daytona/"
+     },
+     {
+      "claim": "GameTime Daytona hours on Monday are 11:00 a.m. to 11:00 p.m.",
+      "source": "https://www.gametimeplayers.com/locations/daytona/"
+     },
+     {
+      "claim": "GameTime Daytona restaurant kitchen closes at 10:00 p.m. on Monday",
+      "source": "https://www.gametimeplayers.com/locations/daytona/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ9dPWDMpE2ogRGwWgaVQzXRM",
+   "name": "Animal Sanctuary & Alligator Park",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "tourist_attraction",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.wootenseverglades.com/",
+     "source_name": "Animal Sanctuary & Alligator Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Wooten's Animal Sanctuary is home to turtles, otters, tigers, crocodiles, and over 100 alligators",
+      "Animal Sanctuary is open 10 a.m.\u20134 p.m.",
+      "An alligator show is held every hour",
+      "After the show, visitors can hold and hug a baby alligator"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Sanctuary with turtles, otters, tigers, crocodiles, and over 100 alligators",
+    "why_here": "Come for Wooten's Animal Sanctuary, home to turtles, otters, tigers, crocodiles, and over 100 alligators, with an alligator show held every hour and a baby alligator to hold after the show.",
+    "know_before": "Animal Sanctuary is open 10 a.m.\u20134 p.m.",
+    "local_tip": "Stay after the alligator show to hold a baby alligator.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.wootenseverglades.com/"
+     ],
+     "why_here": [
+      "https://www.wootenseverglades.com/"
+     ],
+     "know_before": [
+      "https://www.wootenseverglades.com/"
+     ],
+     "local_tip": [
+      "https://www.wootenseverglades.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Wooten's Animal Sanctuary is home to turtles, otters, tigers, crocodiles, and over 100 alligators",
+      "source": "https://www.wootenseverglades.com/"
+     },
+     {
+      "claim": "Animal Sanctuary is open 10 a.m.\u20134 p.m.",
+      "source": "https://www.wootenseverglades.com/"
+     },
+     {
+      "claim": "An alligator show is held every hour",
+      "source": "https://www.wootenseverglades.com/"
+     },
+     {
+      "claim": "After the show, visitors can hold and hug a baby alligator",
+      "source": "https://www.wootenseverglades.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJK3fZzwvHwogRu0BJO5XBYGs",
+   "name": "La Bah\u00eda Bakery",
+   "category": "food",
+   "metro": "tampa",
+   "primary_type": "bakery",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.bahiabakery.com/story",
+     "source_name": "La Bah\u00eda Bakery \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "La Bah\u00eda Bakery is a Puerto Rican Bakery established in Tampa, FL on December 9, 2019",
+      "La Bah\u00eda Bakery serves fresh coffee and bread each day",
+      "La Bah\u00eda Bakery serves lunch daily specials, Puerto Rican fritters and turnovers, and sweets and desserts",
+      "100% of the profits go towards local and international missions",
+      "Hours on Monday are 7 a.m. to 8 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Puerto Rican Bakery established in Tampa on December 9, 2019",
+    "why_here": "A Puerto Rican Bakery in Tampa established on December 9, 2019, serving fresh coffee and bread each day, plus lunch daily specials, Puerto Rican fritters and turnovers, and sweets and desserts.",
+    "know_before": "Hours on Monday are 7 a.m. to 8 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.bahiabakery.com/story"
+     ],
+     "why_here": [
+      "https://www.bahiabakery.com/story"
+     ],
+     "know_before": [
+      "https://www.bahiabakery.com/story"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "La Bah\u00eda Bakery is a Puerto Rican Bakery established in Tampa, FL on December 9, 2019",
+      "source": "https://www.bahiabakery.com/story"
+     },
+     {
+      "claim": "La Bah\u00eda Bakery serves fresh coffee and bread each day",
+      "source": "https://www.bahiabakery.com/story"
+     },
+     {
+      "claim": "La Bah\u00eda Bakery serves lunch daily specials, Puerto Rican fritters and turnovers, and sweets and desserts",
+      "source": "https://www.bahiabakery.com/story"
+     },
+     {
+      "claim": "100% of the profits go towards local and international missions",
+      "source": "https://www.bahiabakery.com/story"
+     },
+     {
+      "claim": "Hours on Monday are 7 a.m. to 8 p.m.",
+      "source": "https://www.bahiabakery.com/story"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJr8MsxryGk4gR2xX77MaaLns",
+   "name": "Captain's Table Fish House Restaurant",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.captainstablefishhouse.com/",
+     "source_name": "Captain's Table Fish House Restaurant \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Capt's Table Fish House Restaurant is a family owned and operated seafood restaurant and oyster bar in the historic St. Andrews area of Panama City Florida",
+      "A St. Andrews Neighborhood Seafood Restaurant Since 1967 serving fresh Gulf fish and Gulf oysters",
+      "Open for lunch and dinner 7 days a week and brunch on Saturday and Sunday",
+      "We own our own fishing boats",
+      "Brunch Saturday and Sunday 11:00 a.m. until 2:00 p.m.",
+      "Reservations are not accepted except for special and private events and seating is first-come-first-served"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Family owned seafood restaurant and oyster bar in historic St. Andrews since 1967",
+    "why_here": "Go for fresh Gulf fish and Gulf oysters in Panama City, where the family owned restaurant says We own our own fishing boats and is open for lunch and dinner 7 days a week.",
+    "know_before": "Reservations are not accepted except for special and private events and seating is first-come-first-served.",
+    "local_tip": "Try brunch on Saturday and Sunday 11:00 a.m. until 2:00 p.m.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.captainstablefishhouse.com/"
+     ],
+     "why_here": [
+      "https://www.captainstablefishhouse.com/"
+     ],
+     "know_before": [
+      "https://www.captainstablefishhouse.com/"
+     ],
+     "local_tip": [
+      "https://www.captainstablefishhouse.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Capt's Table Fish House Restaurant is a family owned and operated seafood restaurant and oyster bar in the historic St. Andrews area of Panama City Florida",
+      "source": "https://www.captainstablefishhouse.com/"
+     },
+     {
+      "claim": "A St. Andrews Neighborhood Seafood Restaurant Since 1967 serving fresh Gulf fish and Gulf oysters",
+      "source": "https://www.captainstablefishhouse.com/"
+     },
+     {
+      "claim": "Open for lunch and dinner 7 days a week and brunch on Saturday and Sunday",
+      "source": "https://www.captainstablefishhouse.com/"
+     },
+     {
+      "claim": "We own our own fishing boats",
+      "source": "https://www.captainstablefishhouse.com/"
+     },
+     {
+      "claim": "Brunch Saturday and Sunday 11:00 a.m. until 2:00 p.m.",
+      "source": "https://www.captainstablefishhouse.com/"
+     },
+     {
+      "claim": "Reservations are not accepted except for special and private events and seating is first-come-first-served",
+      "source": "https://www.captainstablefishhouse.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJBQgvwP5654gRFUF9I6JxFSg",
+   "name": "Tin & Taco",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "taco_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.tinandtaco.com/",
+     "source_name": "Tin & Taco \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Tin & Taco has been redefining the taco experience since 2017",
+      "Tin & Taco is an Orlando based concept all about creativity and flavor",
+      "Tin & Taco is Florida's home of the crispy cheese crust taco",
+      "Tin & Taco has a famous cheese grilled shell",
+      "Tin & Taco offers many hard to find craft beers",
+      "Tin & Taco has locations in the SODO District and Downtown Orlando"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Orlando based taco concept redefining the taco experience since 2017",
+    "why_here": "Go for the crispy cheese crust taco and the famous cheese grilled shell at this Orlando based concept, which is all about creativity and flavor and has been redefining the taco experience since 2017.",
+    "know_before": "Tin & Taco offers many hard to find craft beers.",
+    "local_tip": "Look for locations in the SODO District and Downtown Orlando.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.tinandtaco.com/"
+     ],
+     "why_here": [
+      "https://www.tinandtaco.com/"
+     ],
+     "know_before": [
+      "https://www.tinandtaco.com/"
+     ],
+     "local_tip": [
+      "https://www.tinandtaco.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Tin & Taco has been redefining the taco experience since 2017",
+      "source": "https://www.tinandtaco.com/"
+     },
+     {
+      "claim": "Tin & Taco is an Orlando based concept all about creativity and flavor",
+      "source": "https://www.tinandtaco.com/"
+     },
+     {
+      "claim": "Tin & Taco is Florida's home of the crispy cheese crust taco",
+      "source": "https://www.tinandtaco.com/"
+     },
+     {
+      "claim": "Tin & Taco has a famous cheese grilled shell",
+      "source": "https://www.tinandtaco.com/"
+     },
+     {
+      "claim": "Tin & Taco offers many hard to find craft beers",
+      "source": "https://www.tinandtaco.com/"
+     },
+     {
+      "claim": "Tin & Taco has locations in the SODO District and Downtown Orlando",
+      "source": "https://www.tinandtaco.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJdb90KND9wogR95CF2V7974E",
+   "name": "Buoys Waterfront Bar and Grill",
+   "category": "food",
+   "metro": "st-pete",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://buoyswaterfrontbar.com/",
+     "source_name": "Buoys Waterfront Bar and Grill \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Buoys Waterfront Bar and Grill is in St Pete Beach at 677 75th Ave, St Pete Beach, FL 33706",
+      "Hours of Operation MON - THURS 8:00 a.m. - 10:00 p.m.",
+      "Hours of Operation FRI - SAT 8:00 a.m. - 11:00 p.m.",
+      "chef-inspired dishes crafted from local and island-inspired ingredients",
+      "handcrafted cocktails",
+      "scratch kitchen and boat docks"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Waterfront bar and grill in St Pete Beach with chef-inspired dishes",
+    "why_here": "Go for chef-inspired dishes crafted from local and island-inspired ingredients and handcrafted cocktails at this St Pete Beach waterfront spot, which lists a scratch kitchen and boat docks.",
+    "know_before": "Hours of Operation MON - THURS 8:00 a.m. - 10:00 p.m. and FRI - SAT 8:00 a.m. - 11:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://buoyswaterfrontbar.com/"
+     ],
+     "why_here": [
+      "https://buoyswaterfrontbar.com/"
+     ],
+     "know_before": [
+      "https://buoyswaterfrontbar.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Buoys Waterfront Bar and Grill is in St Pete Beach at 677 75th Ave, St Pete Beach, FL 33706",
+      "source": "https://buoyswaterfrontbar.com/"
+     },
+     {
+      "claim": "Hours of Operation MON - THURS 8:00 a.m. - 10:00 p.m.",
+      "source": "https://buoyswaterfrontbar.com/"
+     },
+     {
+      "claim": "Hours of Operation FRI - SAT 8:00 a.m. - 11:00 p.m.",
+      "source": "https://buoyswaterfrontbar.com/"
+     },
+     {
+      "claim": "chef-inspired dishes crafted from local and island-inspired ingredients",
+      "source": "https://buoyswaterfrontbar.com/"
+     },
+     {
+      "claim": "handcrafted cocktails",
+      "source": "https://buoyswaterfrontbar.com/"
+     },
+     {
+      "claim": "scratch kitchen and boat docks",
+      "source": "https://buoyswaterfrontbar.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ3Tn5G_KR54gRn4iOCultt2k",
+   "name": "Lakeridge Winery & Vineyards",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "winery",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.lakeridgewinery.com/",
+     "source_name": "Lakeridge Winery & Vineyards \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Lakeridge Winery & Vineyards opened its doors in February 1989 in Clermont, Florida and sits on a 127-acre estate some 25 miles west of downtown Orlando",
+      "Lakeridge Winery & Vineyards, 19239 U.S. 27 North, Clermont, Florida 34715",
+      "Guided Tours and Tasting are offered 7 days a week starting at 10:00 a.m. each day, with the last tour offered at 4:00 p.m.",
+      "Tour & Tasting Hours Monday-Saturday 10:00 a.m. - 5:00 p.m. Sunday 11:00 a.m. - 5:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Clermont winery on a 127-acre estate, opened in February 1989",
+    "why_here": "Go for Guided Tours and Tasting at a Clermont winery on a 127-acre estate some 25 miles west of downtown Orlando, offered 7 days a week starting at 10:00 a.m. each day.",
+    "know_before": "Tour & Tasting Hours Monday-Saturday 10:00 a.m. - 5:00 p.m. Sunday 11:00 a.m. - 5:00 p.m.; the last tour offered at 4:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.lakeridgewinery.com/"
+     ],
+     "why_here": [
+      "https://www.lakeridgewinery.com/"
+     ],
+     "know_before": [
+      "https://www.lakeridgewinery.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Lakeridge Winery & Vineyards opened its doors in February 1989 in Clermont, Florida and sits on a 127-acre estate some 25 miles west of downtown Orlando",
+      "source": "https://www.lakeridgewinery.com/"
+     },
+     {
+      "claim": "Lakeridge Winery & Vineyards, 19239 U.S. 27 North, Clermont, Florida 34715",
+      "source": "https://www.lakeridgewinery.com/"
+     },
+     {
+      "claim": "Guided Tours and Tasting are offered 7 days a week starting at 10:00 a.m. each day, with the last tour offered at 4:00 p.m.",
+      "source": "https://www.lakeridgewinery.com/"
+     },
+     {
+      "claim": "Tour & Tasting Hours Monday-Saturday 10:00 a.m. - 5:00 p.m. Sunday 11:00 a.m. - 5:00 p.m.",
+      "source": "https://www.lakeridgewinery.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJvxlzmgO32YgRvIVYWTPrDkk",
+   "name": "Mayfair House Hotel & Garden",
+   "category": "hotels",
+   "metro": "miami-dade",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.mayfairhousemiami.com/about/",
+     "source_name": "Mayfair House Hotel & Garden \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Mayfair House Hotel & Garden is an icon of Coconut Grove that first opened in 1985 and reopened in September 2022",
+      "Mayfair House Hotel & Garden embraces original architect Kenneth Treister",
+      "No two rooms at Mayfair House Hotel & Garden are exactly alike",
+      "Mayfair House Hotel & Garden has 179 Guestrooms with Balconies and 31 Suites",
+      "Guests must be 21 years or older to check-in at Mayfair House Hotel & Garden"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Coconut Grove hotel first opened in 1985, reopened in September 2022",
+    "why_here": "Stay for rooms by original architect Kenneth Treister, where no two rooms are exactly alike, with 179 Guestrooms with Rooms and 31 Suites to choose from on each visit.",
+    "know_before": "Guests must be 21 years or older to check-in.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.mayfairhousemiami.com/about/"
+     ],
+     "why_here": [
+      "https://www.mayfairhousemiami.com/about/"
+     ],
+     "know_before": [
+      "https://www.mayfairhousemiami.com/about/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Mayfair House Hotel & Garden is an icon of Coconut Grove that first opened in 1985 and reopened in September 2022",
+      "source": "https://www.mayfairhousemiami.com/about/"
+     },
+     {
+      "claim": "Mayfair House Hotel & Garden embraces original architect Kenneth Treister",
+      "source": "https://www.mayfairhousemiami.com/about/"
+     },
+     {
+      "claim": "No two rooms at Mayfair House Hotel & Garden are exactly alike",
+      "source": "https://www.mayfairhousemiami.com/about/"
+     },
+     {
+      "claim": "Mayfair House Hotel & Garden has 179 Guestrooms with Balconies and 31 Suites",
+      "source": "https://www.mayfairhousemiami.com/about/"
+     },
+     {
+      "claim": "Guests must be 21 years or older to check-in at Mayfair House Hotel & Garden",
+      "source": "https://www.mayfairhousemiami.com/about/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ6-MUNie92YgRSfOVjOoPlwI",
+   "name": "Aprile Italian Restaurant",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "italian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://aprilemiami.com/",
+     "source_name": "Aprile Italian Restaurant \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Aprile is an Italian Restaurant in Doral with Cheese Wheel Pasta",
+      "7761 Northwest 107th Avenue, Suite #201 Building 2, Miami, FL 33178"
+     ]
+    },
+    {
+     "source": "https://aprilemiami.com/about-us/",
+     "source_name": "Aprile Italian Restaurant \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Aprile is the result of the fusion of Greek, French, Italian and Spanish recipes, to which our chef gives a modern twist"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Italian Restaurant in Doral with Cheese Wheel Pasta",
+    "why_here": "Go for Cheese Wheel Pasta at this Italian Restaurant in Doral, where Aprile is the result of the fusion of Greek, French, Italian and Spanish recipes with a modern twist from our chef.",
+    "know_before": "Find Aprile at 7761 Northwest 107th Avenue, Suite #201 Building 2, Miami, FL 33178.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://aprilemiami.com/"
+     ],
+     "why_here": [
+      "https://aprilemiami.com/"
+     ],
+     "know_before": [
+      "https://aprilemiami.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Aprile is an Italian Restaurant in Doral with Cheese Wheel Pasta",
+      "source": "https://aprilemiami.com/"
+     },
+     {
+      "claim": "Aprile is the result of the fusion of Greek, French, Italian and Spanish recipes, to which our chef gives a modern twist",
+      "source": "https://aprilemiami.com/about-us/"
+     },
+     {
+      "claim": "7761 Northwest 107th Avenue, Suite #201 Building 2, Miami, FL 33178",
+      "source": "https://aprilemiami.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJk2FCgALf2IgR515Kebx60mU",
+   "name": "Gulfstream Park",
+   "category": "attractions",
+   "metro": "palm-beach",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.gulfstreampark.com/",
+     "source_name": "Gulfstream Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Thoroughbred Horse Racing & Casino in Hallandale, Florida",
+      "Gulfstream Park, 901 S Federal Hwy, Hallandale Beach, FL 33009",
+      "Live Racing Friday - Sunday with First Post 12:20 p.m. ET",
+      "Casino is open 365 days a year with state-of-the-art slots and electronic table games"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Thoroughbred Horse Racing & Casino in Hallandale, Florida",
+    "why_here": "Go for Thoroughbred Horse Racing & Casino in Hallandale, Florida, with Live Racing Friday - Sunday and a Casino open 365 days a year with state-of-the-art slots and electronic table games.",
+    "know_before": "First Post 12:20 p.m. ET for Live Racing Friday - Sunday at 901 S Federal Hwy, Hallandale Beach, FL 33009.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.gulfstreampark.com/"
+     ],
+     "why_here": [
+      "https://www.gulfstreampark.com/"
+     ],
+     "know_before": [
+      "https://www.gulfstreampark.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Thoroughbred Horse Racing & Casino in Hallandale, Florida",
+      "source": "https://www.gulfstreampark.com/"
+     },
+     {
+      "claim": "Gulfstream Park, 901 S Federal Hwy, Hallandale Beach, FL 33009",
+      "source": "https://www.gulfstreampark.com/"
+     },
+     {
+      "claim": "Live Racing Friday - Sunday with First Post 12:20 p.m. ET",
+      "source": "https://www.gulfstreampark.com/"
+     },
+     {
+      "claim": "Casino is open 365 days a year with state-of-the-art slots and electronic table games",
+      "source": "https://www.gulfstreampark.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJGemArFbwwogRaH5ApRItcZQ",
+   "name": "Crest Lake Park",
+   "category": "attractions",
+   "metro": "st-pete",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.myclearwater.com/Neighborhood-Map-Locations/Parks-Trails-and-Recreation-Centers/Crest-Lake-Park",
+     "source_name": "Crest Lake Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Crest Lake Park is one of Clearwater's signature parks",
+      "Crest Lake Park is at 201 S Glenwood Ave., Clearwater 33755",
+      "Take the kids to the playground, splash around in the splash pad, or roam the arboretum to learn about plants via interactive QR codes",
+      "beach volleyball courts, dog parks and adult exercise equipment area"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "One of Clearwater's signature parks with playground and splash pad",
+    "why_here": "Go to roam the arboretum to learn about plants via interactive QR codes, take the kids to the playground and splash pad, or use beach volleyball courts, dog parks and adult exercise equipment area.",
+    "know_before": "Crest Lake Park is at 201 S Glenwood Ave., Clearwater 33755.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.myclearwater.com/Neighborhood-Map-Locations/Parks-Trails-and-Recreation-Centers/Crest-Lake-Park"
+     ],
+     "why_here": [
+      "https://www.myclearwater.com/Neighborhood-Map-Locations/Parks-Trails-and-Recreation-Centers/Crest-Lake-Park"
+     ],
+     "know_before": [
+      "https://www.myclearwater.com/Neighborhood-Map-Locations/Parks-Trails-and-Recreation-Centers/Crest-Lake-Park"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Crest Lake Park is one of Clearwater's signature parks",
+      "source": "https://www.myclearwater.com/Neighborhood-Map-Locations/Parks-Trails-and-Recreation-Centers/Crest-Lake-Park"
+     },
+     {
+      "claim": "Crest Lake Park is at 201 S Glenwood Ave., Clearwater 33755",
+      "source": "https://www.myclearwater.com/Neighborhood-Map-Locations/Parks-Trails-and-Recreation-Centers/Crest-Lake-Park"
+     },
+     {
+      "claim": "Take the kids to the playground, splash around in the splash pad, or roam the arboretum to learn about plants via interactive QR codes",
+      "source": "https://www.myclearwater.com/Neighborhood-Map-Locations/Parks-Trails-and-Recreation-Centers/Crest-Lake-Park"
+     },
+     {
+      "claim": "beach volleyball courts, dog parks and adult exercise equipment area",
+      "source": "https://www.myclearwater.com/Neighborhood-Map-Locations/Parks-Trails-and-Recreation-Centers/Crest-Lake-Park"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJhxkggUNBw4gRspsAJPp5zSM",
+   "name": "Millie's",
+   "category": "food",
+   "metro": "manatee-sarasota",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.milliesrestaurant.com/",
+     "source_name": "Millie's \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Millie's is a scratch kitchen in Daytona Beach Shores serving fresh fish and local seafood",
+      "Millie's is located at 3218 South Atlantic Ave, Daytona Beach Shores, FL",
+      "Millie's hours are 11:00 a.m. to 9:00 p.m.",
+      "Millie's has 13 tables inside and reservations are recommended after 5 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Scratch kitchen in Daytona Beach Shores serving fresh fish and local seafood",
+    "why_here": "Come for fresh fish and local seafood from a scratch kitchen in Daytona Beach Shores. Millie's is a scratch kitchen in Daytona Beach Shores serving fresh fish and local seafood.",
+    "know_before": "Millie's has 13 tables inside and reservations are recommended after 5 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.milliesrestaurant.com/"
+     ],
+     "why_here": [
+      "https://www.milliesrestaurant.com/"
+     ],
+     "know_before": [
+      "https://www.milliesrestaurant.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Millie's is a scratch kitchen in Daytona Beach Shores serving fresh fish and local seafood",
+      "source": "https://www.milliesrestaurant.com/"
+     },
+     {
+      "claim": "Millie's is located at 3218 South Atlantic Ave, Daytona Beach Shores, FL",
+      "source": "https://www.milliesrestaurant.com/"
+     },
+     {
+      "claim": "Millie's hours are 11:00 a.m. to 9:00 p.m.",
+      "source": "https://www.milliesrestaurant.com/"
+     },
+     {
+      "claim": "Millie's has 13 tables inside and reservations are recommended after 5 p.m.",
+      "source": "https://www.milliesrestaurant.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJI8XnZRd_3YgR7OcT_u-N9b8",
+   "name": "Festival of the Lion King",
+   "category": "attractions",
+   "metro": "orlando",
+   "primary_type": "tourist_attraction",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.disneyworld.eu/entertainment/animal-kingdom/festival-of-the-lion-king/",
+     "source_name": "Festival of the Lion King \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Festival of the Lion King is located in Africa at Disney's Animal Kingdom Theme Park",
+      "Festival of the Lion King is a 40 Minutes show filled with songs, pageantry and puppetry celebrating the classic movie, The Lion King",
+      "Seating for Festival of the Lion King will be limited and is not guaranteed with park admission",
+      "Guests should check My Disney Experience app or speak with a Cast Member at Harambe Theatre for queue information and show availability"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Show in Africa at Disney's Animal Kingdom Theme Park celebrating The Lion King",
+    "why_here": "See Festival of the Lion King, a 40 Minutes show filled with songs, pageantry and puppetry celebrating the classic movie, The Lion King, in Africa at Disney's Animal Kingdom Theme Park.",
+    "know_before": "Seating will be limited for the show and is not guaranteed with park admission.",
+    "local_tip": "Check the My Disney Experience app or speak with a Cast Member at Harambe Theatre for queue information.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.disneyworld.eu/entertainment/animal-kingdom/festival-of-the-lion-king/"
+     ],
+     "why_here": [
+      "https://www.disneyworld.eu/entertainment/animal-kingdom/festival-of-the-lion-king/"
+     ],
+     "know_before": [
+      "https://www.disneyworld.eu/entertainment/animal-kingdom/festival-of-the-lion-king/"
+     ],
+     "local_tip": [
+      "https://www.disneyworld.eu/entertainment/animal-kingdom/festival-of-the-lion-king/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Festival of the Lion King is located in Africa at Disney's Animal Kingdom Theme Park",
+      "source": "https://www.disneyworld.eu/entertainment/animal-kingdom/festival-of-the-lion-king/"
+     },
+     {
+      "claim": "Festival of the Lion King is a 40 Minutes show filled with songs, pageantry and puppetry celebrating the classic movie, The Lion King",
+      "source": "https://www.disneyworld.eu/entertainment/animal-kingdom/festival-of-the-lion-king/"
+     },
+     {
+      "claim": "Seating for Festival of the Lion King will be limited and is not guaranteed with park admission",
+      "source": "https://www.disneyworld.eu/entertainment/animal-kingdom/festival-of-the-lion-king/"
+     },
+     {
+      "claim": "Guests should check My Disney Experience app or speak with a Cast Member at Harambe Theatre for queue information and show availability",
+      "source": "https://www.disneyworld.eu/entertainment/animal-kingdom/festival-of-the-lion-king/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJH5Rv7A3a0IgROk1Tig-7wgo",
+   "name": "Curry Hammock State Park",
+   "category": "attractions",
+   "metro": "keys",
+   "primary_type": "state_park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.floridastateparks.org/parks-and-trails/curry-hammock-state-park",
+     "source_name": "Curry Hammock State Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Curry Hammock State Park is located at 56200 Overseas Highway, Marathon FL 33050",
+      "Curry Hammock State Park hours are 8 a.m. to sunset, 365 days a year",
+      "Curry Hammock State Park is the largest undeveloped parcel of land between Key Largo and Big Pine Key"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "State park between Key Largo and Big Pine Key, open 8 a.m. to sunset",
+    "why_here": "Visit the largest undeveloped parcel of land between Key Largo and Big Pine Key for a quieter stretch of the Florida Keys, with open hours from 8 a.m. to sunset for a full day outdoors.",
+    "know_before": "Curry Hammock State Park is located at 56200 Overseas Highway, Marathon FL 33050.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.floridastateparks.org/parks-and-trails/curry-hammock-state-park"
+     ],
+     "why_here": [
+      "https://www.floridastateparks.org/parks-and-trails/curry-hammock-state-park"
+     ],
+     "know_before": [
+      "https://www.floridastateparks.org/parks-and-trails/curry-hammock-state-park"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Curry Hammock State Park is located at 56200 Overseas Highway, Marathon FL 33050",
+      "source": "https://www.floridastateparks.org/parks-and-trails/curry-hammock-state-park"
+     },
+     {
+      "claim": "Curry Hammock State Park hours are 8 a.m. to sunset, 365 days a year",
+      "source": "https://www.floridastateparks.org/parks-and-trails/curry-hammock-state-park"
+     },
+     {
+      "claim": "Curry Hammock State Park is the largest undeveloped parcel of land between Key Largo and Big Pine Key",
+      "source": "https://www.floridastateparks.org/parks-and-trails/curry-hammock-state-park"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJSzPg3OQr54gR0uZM0K2cBWw",
+   "name": "Best Western New Smyrna Beach Hotel & Suites",
+   "category": "hotels",
+   "metro": "florida",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.bestwestern.com/en_US/book/hotel-details.10390.html",
+     "source_name": "Best Western New Smyrna Beach Hotel & Suites \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Best Western New Smyrna Beach Hotel & Suites is in New Smyrna Beach, Florida",
+      "Rooms and suites each open onto a private balcony with ocean views",
+      "An on-site restaurant serves breakfast",
+      "A beachfront outdoor pool looks out over the water",
+      "The hotel is at 1401 S Atlantic Avenue in New Smyrna Beach, Florida"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Beachside hotel with a private balcony with ocean views",
+    "why_here": "Stay in New Smyrna Beach, Florida where rooms and suites each open onto a private balcony with ocean views, an on-site restaurant serves breakfast, and a beachfront outdoor pool looks out over the water.",
+    "know_before": "The hotel is at 1401 S Atlantic Avenue in New Smyrna Beach, Florida",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.bestwestern.com/en_US/book/hotel-details.10390.html"
+     ],
+     "why_here": [
+      "https://www.bestwestern.com/en_US/book/hotel-details.10390.html"
+     ],
+     "know_before": [
+      "https://www.bestwestern.com/en_US/book/hotel-details.10390.html"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Best Western New Smyrna Beach Hotel & Suites is in New Smyrna Beach, Florida",
+      "source": "https://www.bestwestern.com/en_US/book/hotel-details.10390.html"
+     },
+     {
+      "claim": "Rooms and suites each open onto a private balcony with ocean views",
+      "source": "https://www.bestwestern.com/en_US/book/hotel-details.10390.html"
+     },
+     {
+      "claim": "An on-site restaurant serves breakfast",
+      "source": "https://www.bestwestern.com/en_US/book/hotel-details.10390.html"
+     },
+     {
+      "claim": "A beachfront outdoor pool looks out over the water",
+      "source": "https://www.bestwestern.com/en_US/book/hotel-details.10390.html"
+     },
+     {
+      "claim": "The hotel is at 1401 S Atlantic Avenue in New Smyrna Beach, Florida",
+      "source": "https://www.bestwestern.com/en_US/book/hotel-details.10390.html"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ289uEJvL5YgRYvi5MAdJ9y8",
+   "name": "Losco Regional Park",
+   "category": "attractions",
+   "metro": "st-augustine-fl",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.jacksonville.gov/departments/parks-and-recreation/jaxparks/all-parks/richard-h-dick-kravitz-regional-park",
+     "source_name": "Losco Regional Park \u2014 official source",
+     "source_class": "government",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Recently known as Losco Regional Park, the park is located on Hood Road South, north of Losco Road near Julington Creek",
+      "The park is at 10931 Hood Road South in Jacksonville, FL 32257",
+      "The City of Jacksonville acquired the land for the 210-acre park in 1998",
+      "Amenities include a Playground, Picnic Shelters, and a Splash Pad",
+      "The existing amenities were completed in 2004"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "210-acre park on Hood Road South near Julington Creek",
+    "why_here": "Visit this 210-acre park on Hood Road South, north of Losco Road near Julington Creek, at 10931 Hood Road South in Jacksonville, FL 32257, with a Playground, Picnic Shelters, and a Splash Pad.",
+    "know_before": "The existing amenities were completed in 2004",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.jacksonville.gov/departments/parks-and-recreation/jaxparks/all-parks/richard-h-dick-kravitz-regional-park"
+     ],
+     "why_here": [
+      "https://www.jacksonville.gov/departments/parks-and-recreation/jaxparks/all-parks/richard-h-dick-kravitz-regional-park"
+     ],
+     "know_before": [
+      "https://www.jacksonville.gov/departments/parks-and-recreation/jaxparks/all-parks/richard-h-dick-kravitz-regional-park"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Recently known as Losco Regional Park, the park is located on Hood Road South, north of Losco Road near Julington Creek",
+      "source": "https://www.jacksonville.gov/departments/parks-and-recreation/jaxparks/all-parks/richard-h-dick-kravitz-regional-park"
+     },
+     {
+      "claim": "The park is at 10931 Hood Road South in Jacksonville, FL 32257",
+      "source": "https://www.jacksonville.gov/departments/parks-and-recreation/jaxparks/all-parks/richard-h-dick-kravitz-regional-park"
+     },
+     {
+      "claim": "The City of Jacksonville acquired the land for the 210-acre park in 1998",
+      "source": "https://www.jacksonville.gov/departments/parks-and-recreation/jaxparks/all-parks/richard-h-dick-kravitz-regional-park"
+     },
+     {
+      "claim": "Amenities include a Playground, Picnic Shelters, and a Splash Pad",
+      "source": "https://www.jacksonville.gov/departments/parks-and-recreation/jaxparks/all-parks/richard-h-dick-kravitz-regional-park"
+     },
+     {
+      "claim": "The existing amenities were completed in 2004",
+      "source": "https://www.jacksonville.gov/departments/parks-and-recreation/jaxparks/all-parks/richard-h-dick-kravitz-regional-park"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJOTgiONrzwogR2dCIDdW6Y6s",
+   "name": "Marker 8",
+   "category": "nightlife",
+   "metro": "florida",
+   "primary_type": "bar_and_grill",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://marker8.wixsite.com/m8html5",
+     "source_name": "Marker 8 \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Marker 8 is a waterfront tiki bar located in the Beso Del Sol Resort at 1420 Bayshore Blvd in Dunedin, FL 34698",
+      "Marker 8 offers burgers, sandwiches, mahi tacos, salads and wings",
+      "Food is served poolside or at the tiki bar daily",
+      "Marker 8 has 40 boat slips",
+      "Packaged liquor or food can be delivered dockside",
+      "Food at Marker 8 is made fresh to order"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Waterfront tiki bar serving burgers, sandwiches and mahi tacos",
+    "why_here": "Come to Marker 8 in Dunedin for burgers, sandwiches, mahi tacos, salads and wings, served poolside or at the tiki bar daily, with food made fresh to order for a relaxed waterfront stop.",
+    "know_before": "Packaged liquor or food can be delivered dockside.",
+    "local_tip": "Marker 8 has 40 boat slips.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://marker8.wixsite.com/m8html5"
+     ],
+     "why_here": [
+      "https://marker8.wixsite.com/m8html5"
+     ],
+     "know_before": [
+      "https://marker8.wixsite.com/m8html5"
+     ],
+     "local_tip": [
+      "https://marker8.wixsite.com/m8html5"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Marker 8 is a waterfront tiki bar located in the Beso Del Sol Resort at 1420 Bayshore Blvd in Dunedin, FL 34698",
+      "source": "https://marker8.wixsite.com/m8html5"
+     },
+     {
+      "claim": "Marker 8 offers burgers, sandwiches, mahi tacos, salads and wings",
+      "source": "https://marker8.wixsite.com/m8html5"
+     },
+     {
+      "claim": "Food is served poolside or at the tiki bar daily",
+      "source": "https://marker8.wixsite.com/m8html5"
+     },
+     {
+      "claim": "Marker 8 has 40 boat slips",
+      "source": "https://marker8.wixsite.com/m8html5"
+     },
+     {
+      "claim": "Packaged liquor or food can be delivered dockside",
+      "source": "https://marker8.wixsite.com/m8html5"
+     },
+     {
+      "claim": "Food at Marker 8 is made fresh to order",
+      "source": "https://marker8.wixsite.com/m8html5"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJs1KNWYy52YgRSKZrC7Hu5Kw",
+   "name": "C\u00e8rto Italian Restaurant & Private Events Coral Gables",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "italian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://certomiami.com/",
+     "source_name": "C\u00e8rto Italian Restaurant & Private Events Coral Gables \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "C\u00e8rto is an Italian restaurant in Coral Gables serving handmade pastas and wood-fired Neapolitan pizzas",
+      "The menu includes Fettuccine Bolognese",
+      "The menu includes Cacio e Pepe con Tartufo Nero finished with black truffles",
+      "The menu includes Margherita pizza",
+      "C\u00e8rto is located at 1200 SW 57th Ave, Coral Gables, FL 33144",
+      "Hours on Monday to Thursday are 11:30 a.m. to 9:30 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Italian restaurant serving handmade pastas and wood-fired Neapolitan pizzas",
+    "why_here": "Come to C\u00e8rto in Coral Gables for handmade pastas and wood-fired Neapolitan pizzas, including Fettuccine Bolognese, Cacio e Pepe con Tartufo Nero finished with black truffles, and Margherita pizza.",
+    "know_before": "Hours on Monday to Thursday are 11:30 a.m. to 9:30 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://certomiami.com/"
+     ],
+     "why_here": [
+      "https://certomiami.com/"
+     ],
+     "know_before": [
+      "https://certomiami.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "C\u00e8rto is an Italian restaurant in Coral Gables serving handmade pastas and wood-fired Neapolitan pizzas",
+      "source": "https://certomiami.com/"
+     },
+     {
+      "claim": "The menu includes Fettuccine Bolognese",
+      "source": "https://certomiami.com/"
+     },
+     {
+      "claim": "The menu includes Cacio e Pepe con Tartufo Nero finished with black truffles",
+      "source": "https://certomiami.com/"
+     },
+     {
+      "claim": "The menu includes Margherita pizza",
+      "source": "https://certomiami.com/"
+     },
+     {
+      "claim": "C\u00e8rto is located at 1200 SW 57th Ave, Coral Gables, FL 33144",
+      "source": "https://certomiami.com/"
+     },
+     {
+      "claim": "Hours on Monday to Thursday are 11:30 a.m. to 9:30 p.m.",
+      "source": "https://certomiami.com/"
+     }
+    ]
+   }
+  }
+ ]
+}
