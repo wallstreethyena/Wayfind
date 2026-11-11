@@ -1,0 +1,512 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 39. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJ__8Dp5C32YgRd4E6f-zoXM4",
+   "name": "Doc B's Restaurant",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.docbsrestaurant.com/",
+     "source_name": "Doc B's Restaurant \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Doc B's Restaurant was founded by Craig Bernstein and named after his late father Doc B",
+      "Every menu item at Doc B's Restaurant is made in house daily",
+      "Doc B's Restaurant has been operating since 2013",
+      "Doc B's Restaurant offers Happy Hour Monday - Friday",
+      "Times vary by location for Happy Hour at Doc B's Restaurant",
+      "Doc B's Restaurant has a focus on genuine hospitality"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Restaurant founded by Craig Bernstein and named after his late father Doc B",
+    "why_here": "Go for a menu where every menu item is made in house daily, at a restaurant founded by Craig Bernstein and named after his late father Doc B, with a focus on genuine hospitality.",
+    "know_before": "Happy Hour is Monday - Friday, and times vary by location.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.docbsrestaurant.com/"
+     ],
+     "why_here": [
+      "https://www.docbsrestaurant.com/"
+     ],
+     "know_before": [
+      "https://www.docbsrestaurant.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Doc B's Restaurant was founded by Craig Bernstein and named after his late father Doc B",
+      "source": "https://www.docbsrestaurant.com/"
+     },
+     {
+      "claim": "Every menu item at Doc B's Restaurant is made in house daily",
+      "source": "https://www.docbsrestaurant.com/"
+     },
+     {
+      "claim": "Doc B's Restaurant has been operating since 2013",
+      "source": "https://www.docbsrestaurant.com/"
+     },
+     {
+      "claim": "Doc B's Restaurant offers Happy Hour Monday - Friday",
+      "source": "https://www.docbsrestaurant.com/"
+     },
+     {
+      "claim": "Times vary by location for Happy Hour at Doc B's Restaurant",
+      "source": "https://www.docbsrestaurant.com/"
+     },
+     {
+      "claim": "Doc B's Restaurant has a focus on genuine hospitality",
+      "source": "https://www.docbsrestaurant.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJT542r0lw54gRteL_VrKG_vA",
+   "name": "ANTONIO'S Maitland",
+   "category": "shopping",
+   "metro": "orlando",
+   "primary_type": "italian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.antoniosmaitland.com/upstairs-restaurant",
+     "source_name": "ANTONIO'S Maitland \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "ANTONIO'S Maitland is described as Fine Dining in Maitland",
+      "ANTONIO'S Maitland is at 611 S Orlando Ave, Maitland, FL 32751",
+      "ANTONIO'S Maitland lists hours Sun, Mon, Tue, Wed, Thu, Fri, Sat from 11 a.m. to 9 p.m.",
+      "The menu at ANTONIO'S Maitland includes Antipasti"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Fine Dining in Maitland with Antipasti on the menu",
+    "why_here": "ANTONIO'S Maitland is described as Fine Dining in Maitland, and the menu at ANTONIO'S Maitland includes Antipasti for a sit-down meal in Maitland.",
+    "know_before": "ANTONIO'S Maitland lists hours Sun, Mon, Tue, Wed, Thu, Fri, Sat from 11 a.m. to 9 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.antoniosmaitland.com/upstairs-restaurant"
+     ],
+     "why_here": [
+      "https://www.antoniosmaitland.com/upstairs-restaurant"
+     ],
+     "know_before": [
+      "https://www.antoniosmaitland.com/upstairs-restaurant"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "ANTONIO'S Maitland is described as Fine Dining in Maitland",
+      "source": "https://www.antoniosmaitland.com/upstairs-restaurant"
+     },
+     {
+      "claim": "ANTONIO'S Maitland is at 611 S Orlando Ave, Maitland, FL 32751",
+      "source": "https://www.antoniosmaitland.com/upstairs-restaurant"
+     },
+     {
+      "claim": "ANTONIO'S Maitland lists hours Sun, Mon, Tue, Wed, Thu, Fri, Sat from 11 a.m. to 9 p.m.",
+      "source": "https://www.antoniosmaitland.com/upstairs-restaurant"
+     },
+     {
+      "claim": "The menu at ANTONIO'S Maitland includes Antipasti",
+      "source": "https://www.antoniosmaitland.com/upstairs-restaurant"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJn2Mfbv5654gRH9JTvRfPHGE",
+   "name": "Gitto's Pizza",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "pizza_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://gittospizza.com/",
+     "source_name": "Gitto's Pizza \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Gitto's Pizza is a restaurant in Orlando serving New York Style pizza in Downtown Orlando",
+      "Gitto's Pizza is open Monday\u2013Sunday until 3 a.m.",
+      "Gitto's Pizza serves pizza for a quick lunch and a late-night bite in Downtown Orlando"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "New York Style pizza in Downtown Orlando",
+    "why_here": "Go for New York Style pizza in Downtown Orlando at Gitto's Pizza, a restaurant in Orlando for a quick lunch, a pie on the way home, or a late-night bite when Downtown Orlando is still moving.",
+    "know_before": "Gitto's Pizza is open Monday\u2013Sunday until 3 a.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://gittospizza.com/"
+     ],
+     "why_here": [
+      "https://gittospizza.com/"
+     ],
+     "know_before": [
+      "https://gittospizza.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Gitto's Pizza is a restaurant in Orlando serving New York Style pizza in Downtown Orlando",
+      "source": "https://gittospizza.com/"
+     },
+     {
+      "claim": "Gitto's Pizza is open Monday\u2013Sunday until 3 a.m.",
+      "source": "https://gittospizza.com/"
+     },
+     {
+      "claim": "Gitto's Pizza serves pizza for a quick lunch and a late-night bite in Downtown Orlando",
+      "source": "https://gittospizza.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJUd_-naTX2IgRvAt7vBeysU0",
+   "name": "La Vie Lebanese Restaurant",
+   "category": "food",
+   "metro": "palm-beach",
+   "primary_type": "mediterranean_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.lavieflorida.com/",
+     "source_name": "La Vie Lebanese Restaurant \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "La Vie Mediterranean is in Pompano Beach and West Palm Beach",
+      "La Vie Mediterranean serves authentic Lebanese cuisine including shawarma, hummus, and tabbouleh",
+      "La Vie Mediterranean serves Mediterranean and Middle Eastern cuisine",
+      "Featured items at La Vie Mediterranean include Baba Ghanouj, Chicken Shawarma, Beef Kabob, and Kibbeh",
+      "La Vie Mediterranean offers Lunch and Dinner with Takeout and Delivery"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Lebanese cuisine with Chicken Shawarma and Beef Kabob in Pompano Beach",
+    "why_here": "La Vie Mediterranean serves authentic Lebanese cuisine including shawarma, hummus, and tabbouleh, with featured items including Baba Ghanouj, Chicken Shawarma, Beef Kabob, and Kibbeh in Pompano Beach and West Palm Beach.",
+    "know_before": "La Vie Mediterranean offers Lunch and Dinner with Takeout and Delivery in Pompano Beach and West Palm Beach.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.lavieflorida.com/"
+     ],
+     "why_here": [
+      "https://www.lavieflorida.com/"
+     ],
+     "know_before": [
+      "https://www.lavieflorida.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "La Vie Mediterranean is in Pompano Beach and West Palm Beach",
+      "source": "https://www.lavieflorida.com/"
+     },
+     {
+      "claim": "La Vie Mediterranean serves authentic Lebanese cuisine including shawarma, hummus, and tabbouleh",
+      "source": "https://www.lavieflorida.com/"
+     },
+     {
+      "claim": "La Vie Mediterranean serves Mediterranean and Middle Eastern cuisine",
+      "source": "https://www.lavieflorida.com/"
+     },
+     {
+      "claim": "Featured items at La Vie Mediterranean include Baba Ghanouj, Chicken Shawarma, Beef Kabob, and Kibbeh",
+      "source": "https://www.lavieflorida.com/"
+     },
+     {
+      "claim": "La Vie Mediterranean offers Lunch and Dinner with Takeout and Delivery",
+      "source": "https://www.lavieflorida.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJXYFWaVMn6IgRZ9rSS18PCws",
+   "name": "Brian's Place",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "fine_dining_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.briansonthebeach.com/about-us",
+     "source_name": "Brian's Place \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Brian's Place is in Hernando Beach at 3430 Shoal Line Blvd, Spring Hill, FL 34607",
+      "Brian Alvarez is Chef, Owner at Brian's Place",
+      "In 2004, Brian Alvarez and his father opened a deli in Hernando Beach",
+      "Brian's Place has a full-liquor bar, a sit-down restaurant, outdoor patio seating, and group seating",
+      "Brian's Place offers catering and two private rooms for birthday parties, graduations and celebrations",
+      "Brian's Place serves special creations six days a week"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Brian's Place serving special creations six days a week in Hernando Beach",
+    "why_here": "Brian's Place in Hernando Beach has a full-liquor bar, a sit-down restaurant, outdoor patio seating, and group seating, and Brian's Place offers catering and two private rooms for birthday parties, graduations and celebrations.",
+    "know_before": "Brian Alvarez is Chef, Owner at Brian's Place, and in 2004 Brian Alvarez and his father opened a deli in Hernando Beach.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.briansonthebeach.com/about-us"
+     ],
+     "why_here": [
+      "https://www.briansonthebeach.com/about-us"
+     ],
+     "know_before": [
+      "https://www.briansonthebeach.com/about-us"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Brian's Place is in Hernando Beach at 3430 Shoal Line Blvd, Spring Hill, FL 34607",
+      "source": "https://www.briansonthebeach.com/about-us"
+     },
+     {
+      "claim": "Brian Alvarez is Chef, Owner at Brian's Place",
+      "source": "https://www.briansonthebeach.com/about-us"
+     },
+     {
+      "claim": "In 2004, Brian Alvarez and his father opened a deli in Hernando Beach",
+      "source": "https://www.briansonthebeach.com/about-us"
+     },
+     {
+      "claim": "Brian's Place has a full-liquor bar, a sit-down restaurant, outdoor patio seating, and group seating",
+      "source": "https://www.briansonthebeach.com/about-us"
+     },
+     {
+      "claim": "Brian's Place offers catering and two private rooms for birthday parties, graduations and celebrations",
+      "source": "https://www.briansonthebeach.com/about-us"
+     },
+     {
+      "claim": "Brian's Place serves special creations six days a week",
+      "source": "https://www.briansonthebeach.com/about-us"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJo-9GB6m35YgRNcZrL8T9pqM",
+   "name": "Seafood Island Bar & Grille",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.seafoodislandgrille.com/",
+     "source_name": "Seafood Island Bar & Grille \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Seafood Island Bar & Grille is in Jacksonville and uses locally-sourced ingredients",
+      "Seafood Island Bar & Grille blends passion for food with knowledge of its cuisine to create authentic and classic dishes",
+      "Seafood Island Bar & Grille hours are Monday - Thursday: 10:30 a.m. - 10:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Seafood in Jacksonville using locally-sourced ingredients",
+    "why_here": "Go for seafood in Jacksonville at Seafood Island Bar & Grille, which uses locally-sourced ingredients and blends passion for food with knowledge of its cuisine to create authentic and classic dishes for your enjoyment.",
+    "know_before": "Hours are Monday - Thursday: 10:30 a.m. - 10:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.seafoodislandgrille.com/"
+     ],
+     "why_here": [
+      "https://www.seafoodislandgrille.com/"
+     ],
+     "know_before": [
+      "https://www.seafoodislandgrille.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Seafood Island Bar & Grille is in Jacksonville and uses locally-sourced ingredients",
+      "source": "https://www.seafoodislandgrille.com/"
+     },
+     {
+      "claim": "Seafood Island Bar & Grille blends passion for food with knowledge of its cuisine to create authentic and classic dishes",
+      "source": "https://www.seafoodislandgrille.com/"
+     },
+     {
+      "claim": "Seafood Island Bar & Grille hours are Monday - Thursday: 10:30 a.m. - 10:00 p.m.",
+      "source": "https://www.seafoodislandgrille.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJbenHhdT_5IgR6Z5Rc2TuYbk",
+   "name": "The Patio at 5th and Ash Restaurant",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://thepatiofernandinabeach.com/",
+     "source_name": "The Patio at 5th and Ash Restaurant \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Patio at 5th & Ash is at 416 Ash Street, Fernandina Beach, FL",
+      "The Patio at 5th & Ash serves fresh seafood, house-made favorites, and creative cocktails",
+      "The Patio at 5th & Ash has a dog-friendly outdoor patio shaded by majestic oak trees, with live music",
+      "The Patio at 5th & Ash serves casual American fare from brunch through dinner",
+      "The Patio at 5th & Ash is open Mon to Thurs from 11 a.m. to 9 p.m., Fri to Sat from 11 a.m. to 10 p.m., and Sun from 10 a.m. to 9 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "The Patio at 5th & Ash serving fresh seafood and casual American fare",
+    "why_here": "The Patio at 5th & Ash serves fresh seafood, house-made favorites, and creative cocktails, and The Patio at 5th & Ash serves casual American fare from brunch through dinner in Fernandina Beach.",
+    "know_before": "The Patio at 5th & Ash is open Mon to Thurs from 11 a.m. to 9 p.m., Fri to Sat from 11 a.m. to 10 p.m., and Sun from 10 a.m. to 9 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://thepatiofernandinabeach.com/"
+     ],
+     "why_here": [
+      "https://thepatiofernandinabeach.com/"
+     ],
+     "know_before": [
+      "https://thepatiofernandinabeach.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Patio at 5th & Ash is at 416 Ash Street, Fernandina Beach, FL",
+      "source": "https://thepatiofernandinabeach.com/"
+     },
+     {
+      "claim": "The Patio at 5th & Ash serves fresh seafood, house-made favorites, and creative cocktails",
+      "source": "https://thepatiofernandinabeach.com/"
+     },
+     {
+      "claim": "The Patio at 5th & Ash has a dog-friendly outdoor patio shaded by majestic oak trees, with live music",
+      "source": "https://thepatiofernandinabeach.com/"
+     },
+     {
+      "claim": "The Patio at 5th & Ash serves casual American fare from brunch through dinner",
+      "source": "https://thepatiofernandinabeach.com/"
+     },
+     {
+      "claim": "The Patio at 5th & Ash is open Mon to Thurs from 11 a.m. to 9 p.m., Fri to Sat from 11 a.m. to 10 p.m., and Sun from 10 a.m. to 9 p.m.",
+      "source": "https://thepatiofernandinabeach.com/"
+     }
+    ]
+   }
+  }
+ ]
+}

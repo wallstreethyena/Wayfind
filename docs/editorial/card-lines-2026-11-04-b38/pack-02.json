@@ -1,0 +1,512 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 38. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJ__8_-dMB2YgRXRYlZksvuEk",
+   "name": "TAKATO",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "japanese_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.takatorestaurant.com/",
+     "source_name": "TAKATO \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Takato is a Japanese - Korean Fusion Restaurant",
+      "Menu lists Wagyu Galbi Sliders",
+      "Menu lists Short Rib Kimchi Taco",
+      "Menu lists Rock Shrimp Tempura",
+      "Menu lists Duck Bao Bun",
+      "Restaurant Hours on Monday-Thursday are 8 a.m. to 10:30 a.m. and 12 p.m. to 10 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Japanese - Korean Fusion Restaurant with Wagyu Galbi Sliders",
+    "why_here": "Try Wagyu Galbi Sliders, Short Rib Kimchi Taco, Rock Shrimp Tempura and Duck Bao Bun at Takato, a Japanese - Korean Fusion Restaurant with several distinct plates to compare.",
+    "know_before": "Restaurant Hours on Monday-Thursday are 8 a.m. to 10:30 a.m. and 12 p.m. to 10 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.takatorestaurant.com/"
+     ],
+     "why_here": [
+      "https://www.takatorestaurant.com/"
+     ],
+     "know_before": [
+      "https://www.takatorestaurant.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Takato is a Japanese - Korean Fusion Restaurant",
+      "source": "https://www.takatorestaurant.com/"
+     },
+     {
+      "claim": "Menu lists Wagyu Galbi Sliders",
+      "source": "https://www.takatorestaurant.com/"
+     },
+     {
+      "claim": "Menu lists Short Rib Kimchi Taco",
+      "source": "https://www.takatorestaurant.com/"
+     },
+     {
+      "claim": "Menu lists Rock Shrimp Tempura",
+      "source": "https://www.takatorestaurant.com/"
+     },
+     {
+      "claim": "Menu lists Duck Bao Bun",
+      "source": "https://www.takatorestaurant.com/"
+     },
+     {
+      "claim": "Restaurant Hours on Monday-Thursday are 8 a.m. to 10:30 a.m. and 12 p.m. to 10 p.m.",
+      "source": "https://www.takatorestaurant.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJV66wZBXswogRrM3FN9_qikA",
+   "name": "R.E. Olds Park",
+   "category": "attractions",
+   "metro": "tampa",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.myoldsmar.com/Facilities/Facility/Details/RE-Olds-Park-16",
+     "source_name": "R.E. Olds Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "R.E. Olds Park is at 107 Shore Drive W Oldsmar, FL 34677",
+      "Hours are Dawn to Dusk",
+      "Features include Fishing Pier, Kayak Launch, Picnic Shelters, Playgrounds and Trails",
+      "Shelter Rental Times are 9 a.m. to 1 p.m. or 2 p.m. to 6 p.m.",
+      "There are four (4) shelters that can be rented out"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Fishing Pier, Kayak Launch and Playgrounds in Oldsmar",
+    "why_here": "Go to R.E. Olds Park in Oldsmar for Fishing Pier, Kayak Launch, Picnic Shelters and Playgrounds, with Trails open from Dawn to Dusk for walks and waterfront visits nearby.",
+    "know_before": "Shelter Rental Times are 9 a.m. to 1 p.m. or 2 p.m. to 6 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.myoldsmar.com/Facilities/Facility/Details/RE-Olds-Park-16"
+     ],
+     "why_here": [
+      "https://www.myoldsmar.com/Facilities/Facility/Details/RE-Olds-Park-16"
+     ],
+     "know_before": [
+      "https://www.myoldsmar.com/Facilities/Facility/Details/RE-Olds-Park-16"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "R.E. Olds Park is at 107 Shore Drive W Oldsmar, FL 34677",
+      "source": "https://www.myoldsmar.com/Facilities/Facility/Details/RE-Olds-Park-16"
+     },
+     {
+      "claim": "Hours are Dawn to Dusk",
+      "source": "https://www.myoldsmar.com/Facilities/Facility/Details/RE-Olds-Park-16"
+     },
+     {
+      "claim": "Features include Fishing Pier, Kayak Launch, Picnic Shelters, Playgrounds and Trails",
+      "source": "https://www.myoldsmar.com/Facilities/Facility/Details/RE-Olds-Park-16"
+     },
+     {
+      "claim": "Shelter Rental Times are 9 a.m. to 1 p.m. or 2 p.m. to 6 p.m.",
+      "source": "https://www.myoldsmar.com/Facilities/Facility/Details/RE-Olds-Park-16"
+     },
+     {
+      "claim": "There are four (4) shelters that can be rented out",
+      "source": "https://www.myoldsmar.com/Facilities/Facility/Details/RE-Olds-Park-16"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJz5ifgMUB2YgRiqScNEKYR3k",
+   "name": "Blue Martini",
+   "category": "nightlife",
+   "metro": "broward",
+   "primary_type": "bar",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://fortlauderdale.bluemartini.com/entertainment/",
+     "source_name": "Blue Martini \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Blue Martini Fort Lauderdale has an Entertainment Schedule",
+      "Blue Martini offers live entertainment",
+      "Blue Martini offers themed celebrations"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Blue Martini live entertainment and themed celebrations",
+    "why_here": "Visit Blue Martini Fort Lauderdale for live entertainment and themed celebrations, and check the Entertainment Schedule to pick a night that fits the outing planned.",
+    "know_before": "Blue Martini Fort Lauderdale has an Entertainment Schedule.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://fortlauderdale.bluemartini.com/entertainment/"
+     ],
+     "why_here": [
+      "https://fortlauderdale.bluemartini.com/entertainment/"
+     ],
+     "know_before": [
+      "https://fortlauderdale.bluemartini.com/entertainment/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Blue Martini Fort Lauderdale has an Entertainment Schedule",
+      "source": "https://fortlauderdale.bluemartini.com/entertainment/"
+     },
+     {
+      "claim": "Blue Martini offers live entertainment",
+      "source": "https://fortlauderdale.bluemartini.com/entertainment/"
+     },
+     {
+      "claim": "Blue Martini offers themed celebrations",
+      "source": "https://fortlauderdale.bluemartini.com/entertainment/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJW7dV6MX17IgRAfX726LPHHA",
+   "name": "Crystal River Seafood",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.lovethatseafood.com/menus/our-menu?location=crystal-river-seafood-tallahassee",
+     "source_name": "Crystal River Seafood \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Crystal River Seafood - Tallahassee is at 2721 N Monroe Street, Tallahassee, FL 32303",
+      "Lunch Menu is served 11 a.m. to 4 p.m.",
+      "Combo Platter options include Pollock, Shrimp, Clam Strips, Crab Cakes, Chicken Strips, or Scallops",
+      "Combo Platter is offered as Any Two or Any Three"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Combo Platter with Pollock, Shrimp, and Crab Cakes",
+    "why_here": "Pick a Combo Platter with Pollock, Shrimp, Clam Strips, Crab Cakes, Chicken Strips, or Scallops, choosing Any Two or Any Three for a mixed plate at lunch.",
+    "know_before": "Lunch Menu is served 11 a.m. to 4 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.lovethatseafood.com/menus/our-menu?location=crystal-river-seafood-tallahassee"
+     ],
+     "why_here": [
+      "https://www.lovethatseafood.com/menus/our-menu?location=crystal-river-seafood-tallahassee"
+     ],
+     "know_before": [
+      "https://www.lovethatseafood.com/menus/our-menu?location=crystal-river-seafood-tallahassee"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Crystal River Seafood - Tallahassee is at 2721 N Monroe Street, Tallahassee, FL 32303",
+      "source": "https://www.lovethatseafood.com/menus/our-menu?location=crystal-river-seafood-tallahassee"
+     },
+     {
+      "claim": "Lunch Menu is served 11 a.m. to 4 p.m.",
+      "source": "https://www.lovethatseafood.com/menus/our-menu?location=crystal-river-seafood-tallahassee"
+     },
+     {
+      "claim": "Combo Platter options include Pollock, Shrimp, Clam Strips, Crab Cakes, Chicken Strips, or Scallops",
+      "source": "https://www.lovethatseafood.com/menus/our-menu?location=crystal-river-seafood-tallahassee"
+     },
+     {
+      "claim": "Combo Platter is offered as Any Two or Any Three",
+      "source": "https://www.lovethatseafood.com/menus/our-menu?location=crystal-river-seafood-tallahassee"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJo9nBiI4H2YgR-o5zIFp37h0",
+   "name": "Escapology Escape Rooms Plantation",
+   "category": "attractions",
+   "metro": "broward",
+   "primary_type": "amusement_center",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.escapology.com/en/plantation-fl",
+     "source_name": "Escapology Escape Rooms Plantation \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Escapology Plantation offers private escape rooms where players are gathered inside a themed room",
+      "Players must find hidden clues, crack codes, and solve puzzles to make an escape, all in one hour",
+      "Escapology is located in Plantation at the Plantation Walk Center",
+      "Groups play with no strangers, ever"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Private escape rooms with hidden clues, codes, and puzzles in Plantation",
+    "why_here": "Gather a group to find hidden clues, crack codes, and solve puzzles in one hour inside a themed room at Plantation Walk Center, playing with no strangers.",
+    "know_before": "Games last one hour.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.escapology.com/en/plantation-fl"
+     ],
+     "why_here": [
+      "https://www.escapology.com/en/plantation-fl"
+     ],
+     "know_before": [
+      "https://www.escapology.com/en/plantation-fl"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Escapology Plantation offers private escape rooms where players are gathered inside a themed room",
+      "source": "https://www.escapology.com/en/plantation-fl"
+     },
+     {
+      "claim": "Players must find hidden clues, crack codes, and solve puzzles to make an escape, all in one hour",
+      "source": "https://www.escapology.com/en/plantation-fl"
+     },
+     {
+      "claim": "Escapology is located in Plantation at the Plantation Walk Center",
+      "source": "https://www.escapology.com/en/plantation-fl"
+     },
+     {
+      "claim": "Groups play with no strangers, ever",
+      "source": "https://www.escapology.com/en/plantation-fl"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJazIgKAcn2YgR8JKhZdROVlY",
+   "name": "Red Crab Juicy Seafood - Lake Worth",
+   "category": "food",
+   "metro": "palm-beach",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://redcrabseafood.com/locations/lake-worth-fl/",
+     "source_name": "Red Crab Juicy Seafood - Lake Worth \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Red Crab Juicy Seafood is at 6177 Jog Rd suite D01-04, Lake Worth, FL 33467",
+      "Mon - Thurs hours are 12:00 p.m. to 10:00 p.m.; Fri - Sun hours are 12:00 p.m. to 11:00 p.m.",
+      "Red Crab serves Cajun seafood in Lake Worth",
+      "Snow crab legs are offered with a seafood boil combo, with potatoes and corn",
+      "Spice can be customized up to extra hot or No Spice"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Cajun seafood boils with snow crab legs in Lake Worth",
+    "why_here": "Come for Cajun seafood and a seafood boil combo with Snow crab legs, potatoes and corn, and customize spice up to extra hot or No Spice at Red Crab Juicy Seafood.",
+    "know_before": "Mon - Thurs hours are 12:00 p.m. to 10:00 p.m.; Fri - Sun hours are 12:00 p.m. to 11:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://redcrabseafood.com/locations/lake-worth-fl/"
+     ],
+     "why_here": [
+      "https://redcrabseafood.com/locations/lake-worth-fl/"
+     ],
+     "know_before": [
+      "https://redcrabseafood.com/locations/lake-worth-fl/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Red Crab Juicy Seafood is at 6177 Jog Rd suite D01-04, Lake Worth, FL 33467",
+      "source": "https://redcrabseafood.com/locations/lake-worth-fl/"
+     },
+     {
+      "claim": "Mon - Thurs hours are 12:00 p.m. to 10:00 p.m.; Fri - Sun hours are 12:00 p.m. to 11:00 p.m.",
+      "source": "https://redcrabseafood.com/locations/lake-worth-fl/"
+     },
+     {
+      "claim": "Red Crab serves Cajun seafood in Lake Worth",
+      "source": "https://redcrabseafood.com/locations/lake-worth-fl/"
+     },
+     {
+      "claim": "Snow crab legs are offered with a seafood boil combo, with potatoes and corn",
+      "source": "https://redcrabseafood.com/locations/lake-worth-fl/"
+     },
+     {
+      "claim": "Spice can be customized up to extra hot or No Spice",
+      "source": "https://redcrabseafood.com/locations/lake-worth-fl/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJa39JCVT8wogR87op8KZH3Fs",
+   "name": "Bamboo Beach Bar",
+   "category": "nightlife",
+   "metro": "st-pete",
+   "primary_type": "bar",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.bamboobeachbarandgrill.com/about-us",
+     "source_name": "Bamboo Beach Bar \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Bamboo Beach Bar and Grill is located in John's Pass Village in Madeira Beach",
+      "The menu includes fish tacos, smoked fish spread, burgers, mini crab cakes, and tiki nachos",
+      "Bamboo has a full liquor bar and Frozen Tiki drinks",
+      "Bamboo offers daily live music",
+      "Sunday\u2013Thursday hours are 11 a.m. to 12 a.m.; Fri-Sat hours are 11 a.m. to 1:00 a.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Fish tacos, tiki nachos, and daily live music in John's Pass Village",
+    "why_here": "Try fish tacos, smoked fish spread, burgers, mini crab cakes, and tiki nachos with Frozen Tiki drinks from a full liquor bar in Madeira Beach.",
+    "know_before": "Sunday\u2013Thursday hours are 11 a.m. to 12 a.m.; Fri-Sat hours are 11 a.m. to 1:00 a.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.bamboobeachbarandgrill.com/about-us"
+     ],
+     "why_here": [
+      "https://www.bamboobeachbarandgrill.com/about-us"
+     ],
+     "know_before": [
+      "https://www.bamboobeachbarandgrill.com/about-us"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Bamboo Beach Bar and Grill is located in John's Pass Village in Madeira Beach",
+      "source": "https://www.bamboobeachbarandgrill.com/about-us"
+     },
+     {
+      "claim": "The menu includes fish tacos, smoked fish spread, burgers, mini crab cakes, and tiki nachos",
+      "source": "https://www.bamboobeachbarandgrill.com/about-us"
+     },
+     {
+      "claim": "Bamboo has a full liquor bar and Frozen Tiki drinks",
+      "source": "https://www.bamboobeachbarandgrill.com/about-us"
+     },
+     {
+      "claim": "Bamboo offers daily live music",
+      "source": "https://www.bamboobeachbarandgrill.com/about-us"
+     },
+     {
+      "claim": "Sunday\u2013Thursday hours are 11 a.m. to 12 a.m.; Fri-Sat hours are 11 a.m. to 1:00 a.m.",
+      "source": "https://www.bamboobeachbarandgrill.com/about-us"
+     }
+    ]
+   }
+  }
+ ]
+}
