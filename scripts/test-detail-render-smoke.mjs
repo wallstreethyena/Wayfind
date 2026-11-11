@@ -78,6 +78,12 @@ const feedbackHtml = renderToStaticMarkup(createElement(feedbackMod.default, {
   compact: true, path: detailSheetMod.detailFeedbackPath({ id: "ChIJ/id?secret=1" }), loc: "Orlando, FL", build: "smoke",
 }));
 ok(feedbackHtml.includes("Feedback"), "compact feedback renders a visible in-flow trigger");
+// 2026-11-03: the place page showed "Feedback" twice (in-sheet trigger + floating
+// site pill). The in-sheet control renders the word once, and the floating dock
+// steps aside whenever the sheet's own [data-detail-feedback] block is mounted.
+ok((feedbackHtml.replace(/<[^>]+>/g, " ").match(/Feedback/g) || []).length === 1, "in-sheet feedback shows the word Feedback exactly once");
+const siteFbSrc = readFileSync(new URL("../app/components/SiteFeedback.js", import.meta.url), "utf8");
+ok(/body:has\(\[data-detail-feedback\]\)\s*\.wf-site-feedback-dock\{display:none\}/.test(siteFbSrc), "floating Feedback pill hides when the place sheet mounts its own trigger");
 ok(detailSheetMod.detailFeedbackPath({ id: "ChIJ/id?secret=1" }) === "/p/ChIJ%2Fid%3Fsecret%3D1", "detail feedback path encodes the stable place ID as one path segment");
 ok(hookSheetMod.discoverFeedbackPath("Best of Orlando? q=private") === "/discover/best-of-orlando-q-private", "list feedback path is a bounded public discovery slug without a query string");
 ok(hookSheetMod.discoverFeedbackPath("") === "/discover", "list feedback has a stable generic fallback");

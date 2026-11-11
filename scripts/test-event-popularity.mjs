@@ -26,6 +26,7 @@ const attendance = eventPopularitySignal({ phq_attendance: "999" });
 ok(attendance.field === "phq_attendance" && attendance.rawValue === 999 && attendance.value > 59 && attendance.value < 61,
   "predicted attendance keeps raw provenance and receives a bounded logarithmic value");
 ok(eventPopularitySignal({ phq_attendance: 1000000000 }).value === 100, "very large valid attendance is capped at 100");
+ok(eventPopularitySignal({ popularity_score: 0 }) === null && eventPopularitySignal({ popularity_score: "0" }) === null, "popularity_score 0 is the column default (not yet assessed), never a measured signal");
 const curated = eventPopularitySignal({ popularity_score: "8.7" });
 ok(curated.value === 87 && curated.rawValue === 8.7 && curated.field === "popularity_score" && curated.provenance === "Wayfind curated",
   "curated 0..10 popularity is normalized to 0..100 with its own provenance");

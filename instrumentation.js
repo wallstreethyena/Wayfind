@@ -8,6 +8,14 @@ import * as Sentry from "@sentry/nextjs";
 export async function register() {
   if (process.env.NEXT_RUNTIME === "nodejs") {
     await import("./sentry.server.config");
+    // One retry for the idle keep-alive "other side closed" race (lib/serverDispatcher.js).
+    // Server only: imported dynamically here, never reachable from client code.
+    try {
+      const { installResilientDispatcher } = await import("./lib/serverDispatcher");
+      installResilientDispatcher();
+    } catch (err) {
+      console.error("[instrumentation] serverDispatcher import failed:", err && err.message);
+    }
   }
   if (process.env.NEXT_RUNTIME === "edge") {
     await import("./sentry.edge.config");

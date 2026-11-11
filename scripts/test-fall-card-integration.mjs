@@ -51,7 +51,7 @@ try{
   ok(renderToStaticMarkup(tree).includes('Original photographer'),'original image starts with its own credit');
   primary.props.onError({currentTarget:{dataset:{fallback:cardProps.photoFallback},src:cardProps.photo}});
   cursor=0;const fallbackRender=renderCard();tree=fallbackRender.tree;const fallbackMarkup=fallbackRender.markup;
-  ok(!fallbackMarkup.includes('Venue photo')&&fallbackMarkup.includes('>©<'),'actual image onError keeps the plain (c) chip and prints no venue caption');
+  ok(!fallbackMarkup.includes('Venue photo')&&fallbackMarkup.includes('>Google Maps<'),'actual image onError keeps the Google Maps credit on the photo and prints no venue caption');
   ok(fallbackMarkup.includes('Photo: Google Maps')&&!fallbackMarkup.includes('Original photographer'),'fallback cannot retain the old image author credit');
   let fallback=null;walk(tree,(node)=>{if(node.type===CardPhoto&&node.props.src===cardProps.photoFallback&&node.props['data-fallback']!==undefined)fallback=node;});
   ok(!!fallback&&fallback.props['data-fallback']==='','fallback is used once, never an image-error loop');

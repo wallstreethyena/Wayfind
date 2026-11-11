@@ -10,24 +10,24 @@ import { dayStr } from "../../../lib/commandCenter/time.js";
 
 const CANON = "https://www.gowayfind.com";
 
+// OSM parks / beaches / piers: refreshed in-process by the shared regional
+// warm (lib/osmRegional.js) — no HTTP self-call, so a firewall challenge on
+// our own domain cannot masquerade as a provider outage. The result carries
+// one status per REGION (refreshed / cached / stale / unavailable / deferred,
+// summing to the region total) plus the sanitized per-attempt log.
 async function warmOsm() {
   try {
-    const { LANDING_CITIES } = await import("../../../lib/landingCities.js");
-    const cities = Object.values(LANDING_CITIES);
-    let live = 0, cached = 0, missed = 0;
-    for (let index = 0; index < cities.length; index += 4) {
-      const batch = await Promise.all(cities.slice(index, index + 4).map(async (city) => {
-        try {
-          const response = await fetch(`${CANON}/api/outdoors?lat=${city.lat.toFixed(4)}&lng=${city.lng.toFixed(4)}&radius=27359`, { cache: "no-store", signal: AbortSignal.timeout(5500) });
-          if (!response.ok) return "miss";
-          const data = await response.json();
-          return data.counts && data.counts.osm !== "unavailable" ? (data.counts.osmFrom === "cached" ? "cached" : "live") : "miss";
-        } catch { return "miss"; }
-      }));
-      for (const result of batch) result === "live" ? live++ : result === "cached" ? cached++ : missed++;
-    }
-    return { live, cached, missed, total: cities.length };
-  } catch { return null; }
+    const { warmRegions } = await import("../../../lib/osmRegional.js");
+    const raw = String(process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || "").trim().replace(/^['"]+|['"]+$/g, "").replace(/\/+$/, "");
+    const url = raw ? (/^https?:\/\//i.test(raw) ? raw.replace(/^http:\/\//i, "https://") : "https://" + raw) : "";
+    const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    return await warmRegions(url && key ? { url, key } : null, { holder: "cron-" + Date.now(), deadlineMs: 38000, perAttemptMs: 18000 });
+  } catch (e) {
+    // A thrown warm is still reported: every region not attempted.
+    let total = 0;
+    try { total = (await import("../../../lib/osmRegional.js")).REGIONS.length; } catch {}
+    return { unit: "region", total, refreshed: 0, cached: 0, stale: 0, unavailable: 0, deferred: total, regions: {}, error: String((e && e.message) || e).slice(0, 160) };
+  }
 }
 
 function reminders(dateKey) {

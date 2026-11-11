@@ -60,14 +60,20 @@ function mockEventsDb({
   slugRow = null,
   slugError = null,
   throwOn = null,
+  projectColumns = false,
 } = {}) {
   let rangeCalls = 0;
+  let selected = [];
   const result = (payload) => {
     if (throwOn === "query") return Promise.reject(new Error("socket hang up"));
+    if (projectColumns && payload.data) {
+      const project = (row) => Object.fromEntries(Object.entries(row).filter(([key]) => selected.includes(key)));
+      payload = { ...payload, data: Array.isArray(payload.data) ? payload.data.map(project) : project(payload.data) };
+    }
     return Promise.resolve(payload);
   };
   const chain = {
-    select() { return chain; },
+    select(columns) { selected = columns.split(","); return chain; },
     in() { return chain; },
     order() { return chain; },
     abortSignal() { return chain; },
@@ -115,6 +121,13 @@ function isUnavailable(err, reason) {
 }
 
 /* 1 — fetch: outage throws; healthy empty is [] */
+await okAsync("list and detail reads preserve sold-out ticket status from the selected database columns", async () => {
+  const soldOut = { ...howl, ticket_status: "sold_out" };
+  const rows = await fetchCuratedEvents({ db: mockEventsDb({ pages: [[soldOut]], projectColumns: true }) });
+  const detail = await fetchCuratedEventBySlug(howl.slug, { db: mockEventsDb({ slugRow: soldOut, projectColumns: true }) });
+  assert.equal(rows[0].ticket_status, "sold_out");
+  assert.equal(detail.ticket_status, "sold_out");
+});
 await okAsync("!supabase is unavailable, not an empty queue", async () => {
   await assert.rejects(
     () => fetchCuratedEvents({ db: null }),
