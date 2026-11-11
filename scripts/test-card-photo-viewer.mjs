@@ -54,7 +54,7 @@ try {
     const page = await browser.newPage({ viewport: { width, height: 900 } });
     const errors = [];
     page.on("pageerror", (e) => errors.push(e.message));
-    let photoCalls = 0, paidCalls = 0, responseMode = "success", lastPhotoRequest = null; const deniedSeen = new Set(); const storedFailures = new Map(); let resavedVersion = "old";
+    let photoCalls = 0, paidCalls = 0, responseMode = "success", lastPhotoRequest = null; const deniedSeen = new Set(); const storedFailures = new Map(); let resavedVersion = "old", staleVersionRejects = 0;
     const photo = { src: "https://photo.test/exact.jpg", source: "google", credit: { mapsUri: "https://maps.google.com/photo/exact", authors: [{ name: "First Author", uri: "https://maps.google.com/contrib/first", photoUri: "https://photo.test/avatar.jpg" }, { name: "Second Author", uri: "https://maps.google.com/contrib/second" }] } };
     await page.route("**/*", async (route) => {
       const u = new URL(route.request().url());
@@ -74,7 +74,7 @@ try {
       if (u.pathname === "/broken.jpg") return route.fulfill({ status: 404, body: "Unavailable" });
       // Saved-photo route: a scripted number of 404 blips per path, and a stale version after a re-save.
       if (u.pathname.startsWith("/api/photo/stored/") && (storedFailures.get(u.pathname) || 0) > 0) { storedFailures.set(u.pathname, storedFailures.get(u.pathname) - 1); return route.fulfill({ status: 404, body: "" }); }
-      if (u.pathname.startsWith("/api/photo/stored/") && u.searchParams.get("v") === "old" && resavedVersion !== "old") return route.fulfill({ status: 404, body: "" });
+      if (u.pathname.startsWith("/api/photo/stored/") && u.searchParams.get("v") === "old" && resavedVersion !== "old") { staleVersionRejects++; return route.fulfill({ status: 404, body: "" }); }
       if (u.hostname === "photo.test" || u.pathname.startsWith("/api/photo/stored/")) return route.fulfill({ contentType: "image/svg+xml", body: '<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800"><rect width="1200" height="800" fill="#446655"/></svg>' });
       return route.fulfill({ contentType: "text/html", body: `<style>${WF_PLACE_CARD_CSS}</style><div style="height:1400px"></div><article class="wf-place-card" style="position:relative"><button type="button" class="wf-place-card-open" aria-label="Open test venue" style="position:absolute;inset:0;z-index:0;width:100%;height:100%;opacity:0;border:0;padding:0;cursor:pointer;background:transparent"></button><div class="wf-place-card-layout" style="position:relative;z-index:1;pointer-events:none"><div class="wf-place-card-media"><div id="root" style="position:relative;overflow:hidden"></div></div><div id="card-content">Test venue</div></div></article>` });
     });
@@ -136,12 +136,12 @@ try {
     const bounds = await page.locator("#root").boundingBox();
     assert.ok(badge.x >= bounds.x && badge.x + badge.width <= bounds.x + bounds.width);
     assert.ok(badge.height <= 16, "credit remains a compact single line without box padding");
-    assert.equal(await page.locator("[data-card-photo-credit] a").evaluate((el) => getComputedStyle(el).fontSize), "12px", "credit preserves Google's minimum text size");
+    assert.equal(await page.locator("[data-card-photo-credit] a").evaluate((el) => getComputedStyle(el).fontSize), "9.5px", "credit is the tiny on-photo line");
     const creditStyle = await page.locator("[data-card-photo-credit] a").evaluate((el) => { const s = getComputedStyle(el); return { background: s.backgroundColor, color: s.color, padding: s.padding, halo: s.textShadow }; });
     assert.equal(creditStyle.background, "rgba(0, 0, 0, 0)", "source label has no background rectangle");
-    assert.equal(creditStyle.color, "rgb(255, 255, 255)", "source label stays white");
+    assert.equal(creditStyle.color, "rgba(255, 255, 255, 0.6)", "source label is muted white");
     assert.equal(creditStyle.padding, "0px", "source label has no box padding");
-    assert.match(creditStyle.halo, /rgb\(0, 0, 0\)/, "white credit has a dark text halo for photo contrast");
+    assert.match(creditStyle.halo, /rgba\(0, 0, 0, 0\.65\)/, "credit has a soft text shadow");
     const content = await page.locator("#card-content").boundingBox();
     await page.mouse.click(content.x + content.width / 2, content.y + content.height / 2);
     assert.equal(await page.evaluate(() => window.placeOpenActivations), 1, "ordinary card content still opens place details");
@@ -161,6 +161,16 @@ try {
     await linkedCredit.waitFor();
     assert.match(lastPhotoRequest, /nospend=1/);
     assert.equal(await linkedCredit.evaluate((el) => el.closest("a, [role=link]") === null && el.parentElement === document.body), true, "credit control never nests inside a navigation target");
+    const linkedPlace = await linkedCredit.evaluate((el) => {
+      const img = document.querySelector("#root img");
+      const c = el.getBoundingClientRect();
+      const i = img.getBoundingClientRect();
+      const s = getComputedStyle(el);
+      return { inside: c.top >= i.top && c.bottom <= i.bottom + 1 && c.left >= i.left - 1, bg: s.backgroundColor, size: s.fontSize };
+    });
+    assert.equal(linkedPlace.inside, true, "linked Google credit sits inside the photo");
+    assert.equal(linkedPlace.size, "9.5px", "linked Google credit is the tiny line");
+    assert.equal(linkedPlace.bg, "rgba(0, 0, 0, 0)", "linked Google credit has no background chip");
     assert.equal(await page.locator("#root a a, #root a button").count(), 0, "no nested interactive links/buttons");
     await page.locator("#root > a > img").click({ position: { x: 20, y: 20 } });
     assert.equal(await page.evaluate(() => linkedNavigations), 1, "image still follows the linked card");
@@ -229,8 +239,17 @@ try {
     await render("ChIJCardPhotoBlip0007", "Blip photo again");
     await page.locator('#root > img[alt="Blip photo again"]').waitFor();
     await render("ChIJCardPhotoResave08", "Resaved photo again"); // remount: the kept answer still says v=old
+    // Blink may retain the already decoded old image across remounts, even
+    // with routing/HTTP caching disabled. Force a fresh stale-version request
+    // only in that case so this fixture actually exercises its intended 404.
+    await page.locator('#root > img[alt="Resaved photo again"]').waitFor();
+    await page.evaluate(() => {
+      const img = document.querySelector('#root > img[alt="Resaved photo again"]');
+      if (img?.complete && img.naturalWidth > 0 && img.getAttribute("src") === "/api/photo/stored/ChIJCardPhotoResave08?v=old") img.src += "&stale_probe=1";
+    });
     const resavedSeen = await page.evaluate(async () => { for (let i = 0; i < 80; i++) { const img = document.querySelector("#root > img"); if (img && img.complete && img.naturalWidth > 0 && img.getAttribute("src").includes("v=new")) return img.getAttribute("src"); if (document.body.innerText.includes("Photo unavailable")) return "UNAVAILABLE"; await new Promise((r) => setTimeout(r, 100)); } return "TIMEOUT"; });
     assert.equal(resavedSeen, "/api/photo/stored/ChIJCardPhotoResave08?v=new", "a re-saved photo is picked up instead of 'Photo unavailable'");
+    assert.equal(staleVersionRejects, 1, "the stale version really returned 404 before recovery, including a decoded-image cache hit");
     // Temporary refusal (budget/quota): one delayed retry recovers; a persistent refusal stops after exactly 2 requests.
     await page.clock.install();
     responseMode = "denied-once";

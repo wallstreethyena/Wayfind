@@ -97,6 +97,16 @@ if (allowedRec) {
     `V9: a verified card still earns its booking URL (${allowedRec.key}, got ${url})`);
   ok(isHotelBookingVerified(good) === true, "V10: isHotelBookingVerified is true for a verified card");
 }
+const gaylord = {
+  id: "ChIJl0CYCGZ_3YgRL05pG5wZSsE",
+  name: "Gaylord Palms Resort & Convention Center",
+  address: "6000 W Osceola Pkwy, Kissimmee, FL 34746",
+  lat: 28.343152, lng: -81.5260135, types: ["lodging", "hotel"],
+};
+ok(isHotelBookingVerified(gaylord) === true, "V12: Gaylord Palms place id is a verified stay");
+const gaylordUrl = hotelGoUrl(gaylord, "Kissimmee");
+ok(typeof gaylordUrl === "string" && gaylordUrl.startsWith("/api/hotels/go?") && gaylordUrl.includes("content=ChIJl0CYCGZ_3YgRL05pG5wZSsE") && gaylordUrl.includes("name=Gaylord"),
+  `V13: Gaylord Check rates is the tracked hotel redirect (${gaylordUrl})`);
 
 // The gate must be wired into hotelGoUrl itself, not a caller. hotelGoUrl is
 // the one place a place becomes a booking URL (scripts/check-booking-cta.mjs),

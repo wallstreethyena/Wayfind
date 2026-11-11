@@ -28,13 +28,11 @@
 //      quota/key-denied/server is refunded exactly once via the injectable
 //      `refund(sku, n)` — including the resolver's own pre-paid first grant.
 //      `network` and `stale` (billed, per Google's table) are NEVER refunded.
-//   4. A `quota` outcome (429, or 403 RESOURCE_EXHAUSTED, or a healed name's
-//      own media call landing there) trips a daily breaker
-//      ("google-photos-quota") with a cooldown ending at Google's own
-//      Pacific-midnight quota reset. While open, the resolver returns
-//      `quota-open` WITHOUT asking the ledger or calling Google at all — by
-//      call count, not merely "asked and denied". `key-denied` never trips it
-//      (a key/permission problem does not resolve itself at midnight).
+//   4. A confirmed daily quota (RESOURCE_EXHAUSTED) opens the photo breaker
+//      ("google-photos-quota") for a short backoff. A bare 429 counts toward
+//      that window and does not open it alone. While the breaker is open, the
+//      resolver returns `quota-open` WITHOUT asking the ledger or calling
+//      Google. `key-denied` never trips it.
 //
 // HERMETIC: zero network. Every scenario injects deps.fetchImpl (a scripted
 // Google stub carrying a real `{"error":{"status":"..."}}` body),
@@ -50,7 +48,9 @@ import {
   quotaBreakerCooldownMs,
   REFUNDABLE_UPSTREAM_CLASSES,
   resolvePlacePhoto,
+  FALLBACK_PATH,
 } from "../lib/placePhotoServe.js";
+import { photoBackoffMs, resetPlacesPhotoBreaker } from "../lib/placesPhotoBreaker.js";
 
 let pass = 0;
 const fail = [];
@@ -184,6 +184,7 @@ function fakeRefund() {
 }
 
 async function run(script, { authorizeSpend, breaker, refund, probe, photoStore } = {}) {
+  resetPlacesPhotoBreaker();
   const stub = googleStub(script);
   const b = breaker || fakeBreaker(false);
   const r = refund || fakeRefund();
@@ -241,7 +242,8 @@ const missResults = [];
 /* ── 4. NEGATIVE CONTROLS ─────────────────────────────────────────────────── */
 
 // N1. 429 RESOURCE_EXHAUSTED -> quota, 0 retries, NO heal, NO details grant,
-// exactly 1 refund, breaker tripped with a cooldown ending at Pacific midnight.
+// exactly 1 refund. RESOURCE_EXHAUSTED is a confirmed daily signal, so the
+// breaker opens once on a short backoff, not until Pacific midnight.
 {
   const breaker = fakeBreaker(false);
   const { calls, result, auth, refund } = await run(
@@ -259,7 +261,7 @@ const missResults = [];
   eq(result.refunded, 1, "N1(429): result.refunded reflects the one refund");
   eq(breaker.tripCalls.length, 1, "N1(429): breaker tripped exactly once");
   eq(breaker.tripCalls[0].provider, GOOGLE_PHOTOS_QUOTA_PROVIDER, "N1(429): tripped under the google-photos-quota provider key");
-  eq(breaker.tripCalls[0].cooldownMs, quotaBreakerCooldownMs(FIXED_NOW), "N1(429): cooldown is exactly quotaBreakerCooldownMs(now) — ending at the next Pacific midnight (+60s buffer)");
+  eq(breaker.tripCalls[0].cooldownMs, photoBackoffMs(0), "N1(429): confirmed daily quota opens a short backoff, not a Pacific-midnight lock");
   missResults.push(result);
 }
 
@@ -338,7 +340,8 @@ const missResults = [];
   );
   eq(stub.calls.length, 0, "N6(breaker-open): ZERO fetch calls");
   eq(auth.asked(), 0, "N6(breaker-open): ZERO authorizeSpend calls");
-  eq(result.type, "miss", "N6(breaker-open): miss");
+  eq(result.type, "empty", "N6(breaker-open): the existing placeholder, not a blank miss");
+  eq(result.location, FALLBACK_PATH, "N6(breaker-open): placeholder is the site's existing fallback image");
   eq(result.reason, "quota-open", "N6(breaker-open): reason is quota-open");
   eq(result.upstream, "quota-open", "N6(breaker-open): upstream is quota-open");
   eq(result.retried, false, "N6(breaker-open): retried is false");
@@ -394,7 +397,8 @@ for (const [status, googleStatus, expected, refundable] of [
     eq(next.result.reason, "quota-open", `Details ${status}: next request sees shared breaker`);
     eq(next.calls.length, 0, `Details ${status}: next request makes zero upstream calls`);
     eq(secondAuth.asked(), 0, `Details ${status}: next request asks for zero grants`);
-    eq(breaker.tripCalls[0]?.cooldownMs, quotaBreakerCooldownMs(FIXED_NOW), `Details ${status}: Pacific reset cooldown`);
+    // 2026-11-04: a Details lookup 429 is a Places API quota, not the daily photo quota: short hold.
+    eq(breaker.tripCalls[0]?.cooldownMs, photoBackoffMs(0), `Details ${status}: confirmed quota uses the short backoff, not a midnight lock`);
   }
   missResults.push(result);
 }
@@ -556,4 +560,4 @@ if (fail.length) {
   for (const f of fail) console.error("  - " + f);
   process.exit(1);
 }
-console.log(`test-photo-quota-truth: OK — ${pass} assertions; classifyUpstream reads Google's own error-body enum (quota/key-denied/server/stale), the expired-ref self-heal never runs on quota/key-denied/server/network, every unbilled grant (photos + details_ids_only) is refunded exactly once, network/stale are never refunded, a quota outcome trips a daily breaker ending at Pacific midnight (DST-safe) while key-denied never trips it, an open breaker costs zero authorizeSpend/fetch calls, a probe never even asks the breaker, and 3 red-proofs confirm this guard's own invariants are falsifiable`);
+console.log(`test-photo-quota-truth: OK — ${pass} assertions; classifyUpstream reads Google's own error-body enum (quota/key-denied/server/stale), the expired-ref self-heal never runs on quota/key-denied/server/network, every unbilled grant (photos + details_ids_only) is refunded exactly once, network/stale are never refunded, a confirmed daily quota opens a short breaker while a bare rate limit does not, and key-denied never trips it, an open breaker costs zero authorizeSpend/fetch calls, a probe never even asks the breaker, and 3 red-proofs confirm this guard's own invariants are falsifiable`);
