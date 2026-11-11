@@ -51,6 +51,7 @@ export default function ThemeParkRail({ mode = "flagship", query = "", items = n
       {rows.map((place, index) => <IconicPlaceCard key={place.id} place={place} rank={index + 1}
         href={`/p/${encodeURIComponent(place.id)}`} onOpen={onOpenPlace ? () => onOpenPlace(place) : undefined}
         editorial={verifiedLine(place)} editorialTier="wayfind"
+        photoAttr={place.photoAttr || null} photoAttrHref={place.photoAttrHref || null}
         surface="theme_park_rail" eagerMedia={index < 2}
         saved={isSaved ? !!isSaved(place.id) : undefined} inTrip={isOnTrip ? !!isOnTrip(place) : undefined}
         liked={isLiked ? !!isLiked(place.id) : liked ? !!liked[place.id] : undefined}
