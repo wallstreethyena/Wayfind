@@ -218,7 +218,8 @@ ok(EVENT_TICKET_DEALS["mvmcp-2026"]?.deal === 38 && EVENT_TICKET_DEALS["mvmcp-20
 ok(EVENT_TICKET_DEALS["jollywood-nights-2026"]?.deal === 39 && EVENT_TICKET_DEALS["jollywood-nights-2026"]?.product === "event-ticket", "Jollywood maps to its exact Undercover Tourist event-ticket row, never Disney park admission");
 ok(EVENT_TICKET_DEALS["epcot-festival-holidays-2026"]?.deal === 61 && EVENT_TICKET_DEALS["epcot-festival-holidays-2026"]?.product === "park-admission", "EPCOT Festival of the Holidays sells the EPCOT one-day base ticket");
 ok(EVENT_TICKET_DEALS["epcot-candlelight-2026"]?.deal === 61 && EVENT_TICKET_DEALS["epcot-candlelight-2026"]?.product === "park-admission", "EPCOT Candlelight sells the same EPCOT one-day base ticket");
-ok(EVENT_TICKET_DEALS["universal-orlando-holidays-2026"]?.deal === 6 && EVENT_TICKET_DEALS["universal-orlando-holidays-2026"]?.product === "park-admission", "Universal Holidays uses the verified Universal admission path");
+ok(["universal-orlando-holidays-2026", "universal-holidays-2026", "universal-studios-holiday-parade-2026", "islands-adventure-grinchmas-2026"].every((id) => EVENT_TICKET_DEALS[id]?.deal === 66 && EVENT_TICKET_DEALS[id]?.product === "park-admission"),
+  "the Universal Christmas cards sell Universal's one-day, one-park base ticket (row 66), not the 3-day ticket (row 6)");
 ok(!EVENT_TICKET_DEALS["sideshow-obscura-hhn35-2026"] && NO_EXACT_AFFILIATE_PRODUCT["sideshow-obscura-hhn35-2026"]?.reviewedAt === "2026-10-29", "Sideshow Obscura is a gift shop: no Universal pass button, a dated reviewed decision instead");
 ok(EVENT_TICKET_DEALS["peppas-halloween-party-2026"]?.deal === 18 && EVENT_TICKET_DEALS["peppas-halloween-party-2026"]?.product === "park-admission",
   "Peppa's Halloween Party (organizer-confirmed 'Included in General Admission' on peppapigthemepark.com) maps to Peppa Pig Theme Park's UT admission row (deal 18)");
