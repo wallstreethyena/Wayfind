@@ -293,7 +293,10 @@ ok(nightOrder.includes("datenight"), "Date Night still exists in the night order
 {
   const src = stripComments(readFileSync(join(ROOT, "app/components/DateNightIntentPage.js"), "utf8"));
   const rails = stripComments(readFileSync(join(ROOT, "app/components/DateNightRails.js"), "utf8"));
-  ok(/useEffect\(\(\) => \{[\s\S]*localStorage\.getItem\("wf_center"\)/.test(src),
+  // The read moved into lib/intentLocationFallback.readStoredCenter (2026-11-11);
+  // the invariant is unchanged: storage is read inside an effect, never during render.
+  ok(/useEffect\(\(\) => \{\s*const stored = readStoredCenter\(\);/.test(src)
+    && !/useState\(\(\) =>[^\n]*readStoredCenter\(/.test(src),
     "Date Night reads the stored location only after hydration");
   ok(/useState\(\(\) => dateNightLocation\(\{ urlCity, urlLat, urlLng \}\)\)/.test(src),
     "Date Night's SSR and first client render derive location from the same URL-only input");

@@ -18,6 +18,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { supabase, hasSupabase } from "../../lib/supabase";
 import { markInternalBrowser } from "../../lib/browserAnalytics";
+import { safeSessionStorage } from "../../lib/safeStorage.js";
 import { activeSeasonalMark, NORMAL_MARK } from "../../lib/seasonalBrand";
 import { C, TYPE, RADII, MOTION } from "../components/kit";
 import styles from "./command-center.module.css";
@@ -52,7 +53,9 @@ function useAuthState() {
   useEffect(() => {
     let dead = false;
     async function init() {
-      const secret = typeof sessionStorage !== "undefined" ? sessionStorage.getItem("wf_cc_key") : null;
+      const sessionStore = safeSessionStorage();
+      let secret = null;
+      try { secret = sessionStore ? sessionStore.getItem("wf_cc_key") : null; } catch (e) { secret = null; }
       if (!hasSupabase) { setState({ status: secret ? "ready" : "nosupabase", token: null, email: null, user: null, secret }); return; }
       const { data } = await supabase.auth.getSession();
       const sess = data && data.session;
@@ -511,7 +514,7 @@ function OverviewSection({ auth, range }) {
           source={tp && tp.source} />
         <StatTile label="Errors (24h)" def={defs.errors_24h} goodWhenUp={false}
           value={errTotal != null ? fmtNum(errTotal) : "–"}
-          sub={sentry && sentry.data ? `Sentry unresolved: ${sentry.data.unresolved_24h}` : "Sentry not connected"}
+          sub={sentry && sentry.data ? `Sentry unresolved: ${sentry.data.unresolved_24h}${sentry.data.unresolved_24h_has_more ? "+" : ""}` : "Sentry not connected"}
           source={err && err.source} />
         <StatTile label="Site health" def="Live self-check from the server to production (homepage + key APIs)."
           value={healthOk === true ? "✓ OK" : healthOk === false ? "✕ FAIL" : "…"}
@@ -1005,10 +1008,10 @@ function HealthSection({ auth, range }) {
           <div style={{ ...TYPE.eyebrow, color: C.muted, marginBottom: 8 }}>Error monitor (Sentry)</div>
           {sentry && sentry.data ? (
             <div>
-              <StatTile label="Unresolved issues (24h)" goodWhenUp={false} value={fmtNum(sentry.data.unresolved_24h)} source={sentry.source} def="Sentry issues unresolved with events in the last 24 hours." />
+              <StatTile label="Unresolved production issues (24h)" goodWhenUp={false} value={fmtNum(sentry.data.unresolved_24h) + (sentry.data.unresolved_24h_has_more ? "+" : "")} source={sentry.source} def="Unresolved production issues with events in the last 24 hours. A + means the bounded read has more pages." />
               {(sentry.data.issues || []).map((i) => (
                 <a key={i.link} href={i.link} target="_blank" rel="noreferrer" style={{ display: "block", fontSize: 12, color: C.light, textDecoration: "none", padding: "6px 0", borderBottom: `1px solid ${C.border}` }}>
-                  {i.title} <span style={{ color: C.muted }}>· {i.count}× · {i.users} users</span>
+                  {i.shortId ? `${i.shortId}: ` : ""}{i.title} <span style={{ color: C.muted }}>· {i.count} lifetime events · last seen {new Date(i.lastSeen).toLocaleString("en-US", { timeZone: "America/New_York" })} ET</span>
                 </a>
               ))}
             </div>

@@ -33,44 +33,29 @@ const src = readFileSync(new URL("../app/api/outdoors/route.js", import.meta.url
 const code = src.replace(/\/\*[\s\S]*?\*\//g, "").split("\n").filter((l) => !/^\s*\/\//.test(l)).join("\n");
 ok(code.length > src.length * 0.25, "stripping comments left the code intact — a runaway /* would blank the file and every assertion below would pass for the wrong reason");
 
-// 1. The cache-first resolver exists, and its body starts the live attempt
-//    BEFORE awaiting the cache lookup — both must fire on the same tick, or
-//    the cache check just becomes a second sequential wait.
-const fnAt = code.indexOf("async function resolveOsm(");
-ok(fnAt >= 0, "resolveOsm() exists — the cache-first race that fixes the hang");
-const fnEnd = code.indexOf("\n}", fnAt);
-const fnBody = fnAt >= 0 && fnEnd > fnAt ? code.slice(fnAt, fnEnd) : "";
-const liveAt = fnBody.indexOf("wall(fromOSM(");
-const cacheAt = fnBody.indexOf("await osmCacheGet(");
-ok(liveAt >= 0 && cacheAt >= 0 && liveAt < cacheAt, "the live Overpass attempt is started BEFORE the cache lookup is awaited — they must race, not run in sequence");
-ok(/const live = wall\(fromOSM\(lat, lng, radius\)\);/.test(fnBody) && !new RegExp("await live[^P]").test(fnBody.slice(0, cacheAt)), "the live promise is not awaited until AFTER the cache check has already returned — awaiting it early would defeat the race");
+// v7.1 (owner brief 2026-11-06) — the invariant above, made strict. The
+// v6.51 race still let every COLD request pay the ~4-4.5s Overpass wall, and
+// production measured exactly that on every request (no OSM row had ever been
+// written). Visitors now never call Overpass at all: OSM comes from the
+// regional inventory (lib/osmRegional.js), refreshed only by the protected
+// warm. Behavior is locked in scripts/test-osm-regional.mjs; this guard keeps
+// the visitor-latency side.
+const fnAt = code.indexOf("async function osmForVisitor(");
+ok(fnAt >= 0, "osmForVisitor() exists — the visitor OSM path");
+const fnBody = code.slice(fnAt, code.indexOf("\n}", fnAt));
+ok(/await readRegions\(sb\(\), regions\.map\(\(g\) => g\.slug\)\)/.test(fnBody), "the visitor path reads saved regions (one bounded Supabase read)");
+ok(!/fromOSM|fetchRegion|warmRegions|interpreter/.test(fnBody), "the visitor path never starts a live Overpass request — nothing to wait on");
+const lib = readFileSync(new URL("../lib/osmRegional.js", import.meta.url), "utf8");
+const readAt = lib.indexOf("export async function readRegions(");
+const readBody = lib.slice(readAt, lib.indexOf("\n}", readAt));
+ok(/timeoutMs = 2500/.test(readBody) && /new AbortController\(\)/.test(readBody) && /signal: ctrl\.signal/.test(readBody), "the saved-region read is bounded (2.5s abort) — a slow Supabase read can never become the hang");
 
-// 2. A cache hit is used IMMEDIATELY — it must not also wait for `live`.
-ok(/if \(Array\.isArray\(cached\) && cached\.length\) \{/.test(fnBody), "a cache hit is checked and used without waiting for the live attempt to settle");
-ok(/live\.then\(\(r\) => \{ if \(r && r\.ok && r\.places\.length\) osmCacheSet\(osmKey, r\.places\); \}\)\.catch\(\(\) => \{\}\);/.test(fnBody), "the live attempt still refreshes the cache in the background when a cache hit already answered the request — self-healing is preserved, not removed");
-ok(/osmFrom: "cached"/.test(fnBody) && /osmFrom: "live"/.test(fnBody), "the response is still honest about which path answered (cached vs live) — counts.osm never lies about its source");
-
-// 3. No cache hit -> falls through to the SAME live wall as before (no
-//    regression: an unseen geo bucket still costs at most the ~4.5s wall).
-ok(/const r = await live;/.test(fnBody), "with no cache hit, the route falls back to the already-in-flight live attempt — not a fresh one, so no double wait");
-
-// 4. The cache lookup itself is bounded — an unbounded Supabase read here
-//    would silently re-introduce a hang this fix is supposed to remove.
-const cacheGetAt = code.indexOf("async function osmCacheGet(");
-const cacheGetBody = cacheGetAt >= 0 ? code.slice(cacheGetAt, code.indexOf("\n}", cacheGetAt)) : "";
-ok(/new AbortController\(\)/.test(cacheGetBody) && /setTimeout\(\(\) => ctrl\.abort\(\), 2500\)/.test(cacheGetBody) && /signal: ctrl\.signal/.test(cacheGetBody), "the cache lookup is bounded (2.5s abort) — an unbounded Supabase read could out-wait the live attempt it is meant to beat");
-
-// 5. GET() actually uses the cache-first resolver, in the SAME fan-out as
-//    NPS/RIDB — not sequenced after them, and not the old inline pattern.
 const getAt = code.indexOf("export async function GET(");
-const getBody = getAt >= 0 ? code.slice(getAt) : "";
-ok(/Promise\.allSettled\(\[wall\(fromNPS\([^)]*\)\), wall\(fromRIDB\([^)]*\)\), resolveOsm\(lat, lng, radius, osmKey\)\]\)/.test(getBody), "NPS, RIDB and the cache-first OSM resolver all race together in ONE allSettled — OSM's cache check cannot add a sequential leg after the others");
-ok(!/const kept = await osmCacheGet\(osmKey\);/.test(getBody), "the old sequential 'try live in full, THEN check cache' pattern in GET() is gone — that ordering is exactly what caused the hang");
-
-// 6. Fail-soft + cost invariants from the original route are untouched.
+const getBody = code.slice(getAt);
+ok(/Promise\.allSettled\(\[wall\(fromNPS\([^)]*\)\), wall\(fromRIDB\([^)]*\)\), osmForVisitor\(lat, lng, radius\)\]\)/.test(getBody), "NPS, RIDB and the OSM read all run together in ONE allSettled — no sequential leg");
 ok(/Overpass servers aggressively throttle/.test(src), "the OSM-unreliability rationale stays documented — future edits should not un-learn why this exists");
 ok(/TTL = 6 \* 3600 \* 1000/.test(src), "the 6h success mem-cache window is unchanged");
 ok(/10 \* 60 \* 1000/.test(src), "the 10-minute failure mem-cache window is unchanged — a transient OSM outage still is not sticky");
-ok(/OSM_KEEP_MS = 7 \* 24 \* 3600 \* 1000/.test(src), "the 7-day durable OSM cache window is unchanged");
+ok(/STALE_MAX_MS = 7 \* 24 \* 3600 \* 1000/.test(lib), "the 7-day OSM serve window is unchanged (now enforced on the provider's verification time)");
 
-console.log(`check-outdoors-cache-first: OK — ${pass} assertions (cache-first race fixes the hang; no regression to the uncached or fail-soft paths)`);
+console.log(`check-outdoors-cache-first: OK — ${pass} assertions (visitors never wait on Overpass; bounded saved-region read; fail-soft windows unchanged)`);

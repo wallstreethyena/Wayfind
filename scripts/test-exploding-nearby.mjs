@@ -393,8 +393,14 @@ ok(/let primaryAccepting = true;[\s\S]*onPartial: \(body\) => \{\s*if \(!primary
 ok(/\.catch\(\(\) => \{\s*primaryAccepting = false;\s*if \(ctrl\.signal\.aborted\) return;/.test(ui),
   "the terminal catch cannot update state after unmount or a location change");
 const daypart = read("app/components/DaypartRail.js");
-ok(/<ExplodingNearby[\s\S]{0,120}hasRankedFallback=\{dropList\.length > 0\}/.test(daypart),
-  "the Trending parent tells its specialized module when the ranked place rail is visibly populated");
+// v31 (owner, 2026-11-05): the Trending drop mounts TrendingRails, which owns
+// the ranked place cards itself, so there is no separate place rail for this
+// module to defer to. Whenever ExplodingNearby IS mounted, the wiring rule holds.
+const daypartCode = daypart.replace(/\/\*[\s\S]*?\*\//g, "");
+ok(/<ExplodingNearby[\s/>]/.test(daypartCode)
+  ? /<ExplodingNearby[\s\S]{0,120}hasRankedFallback=\{dropList\.length > 0\}/.test(daypart)
+  : /selRail\.id === "trending" \? \(\s*<TrendingRails[\s/>]/.test(daypartCode),
+  "the Trending parent tells its specialized module when the ranked place rail is visibly populated (or mounts TrendingRails, which owns its place cards)");
 for (const event of [
   "exploding_section_impression", "trend_impression", "trend_expand", "primary_trend_card_click",
   "trend_horizontal_scroll", "additional_trend_place_click", "place_detail_view", "trend_card_save",
