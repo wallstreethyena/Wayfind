@@ -560,7 +560,7 @@ scripts/test-browse-back.mjs	0	CALL	blocks-ci-and-deploy	1	-	16	0	0	9b06c848cca6
 scripts/test-browse-bookable-match.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	76	0	0	7223521e644fd6e2df18d9bfe97b5a969d612f4941e544c6e801de227df89a60
 scripts/test-browse-interaction-reuse.mjs	0	RENDER	blocks-ci-and-deploy	1	-	79	0	0	63f400ce2f968644af27f53039e5d50442f5c1cb4bd2f1db3f4e438841d93d84
 scripts/test-browse-library.mjs	0	CALL	blocks-ci-and-deploy	1	-	85	0	0	138e838749ec967474ee5cfa4bca430befe5ce72726871720e7408e1fd23f151
-scripts/test-browser-analytics.mjs	0	CALL	blocks-ci-and-deploy	1	-	53	0	0	66523c6bbbd1a8b3be79aff878a1cf9cd0bff48f39830a4295935ccfc458c7db
+scripts/test-browser-analytics.mjs	0	CALL	blocks-ci-and-deploy	1	-	58	0	0	9831fa2c6be488119081cd73e6383b0432c25fe32cd5d1e0c020de6df9221e49
 scripts/test-bump-within-eligible.mjs	0	CALL	blocks-ci-and-deploy	1	-	38	0	0	f63caeb257c8b32068bd90cd423e7ab36482e0c4514888f78f017443bcdbc83a
 scripts/test-business-status.mjs	0	CALL	blocks-ci-and-deploy	1	-	63	0	0	9bcfa09adfd2f39b408a1dda700a0883f97d0ac3261b54a34054ef67d240f68e
 scripts/test-buzz.mjs	0	CALL	blocks-ci-and-deploy	1	-	31	0	0	c74f2e07a5f1cfdffa8823a68163a70597401709352d02743c64f629cf0be230
