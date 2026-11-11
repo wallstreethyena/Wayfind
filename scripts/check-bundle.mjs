@@ -43,8 +43,19 @@ import { scanBuiltRegexes } from "./lib/browserRegexCompatibility.mjs";
 // the route chunk) and lib/trendTaxonomy.js reaching the client through the
 // Exploding rail.
 const ROUTE_CHUNK_BUDGET_KB = 175; // static/chunks/app/page-*.js, gzipped. RATCHET: lower only.
-const TOTAL_BUDGET_KB = 501;       // every JS asset for route "/", gzipped.  RATCHET: lower only.
+// 2026-11-05: 504 -> 492. #2197 raised 501 -> 504 to unblock production when
+// the homepage measured 501.1KB on Vercel; later code splits brought it to
+// 488.1KB on Vercel (488.0 here), so the raise is no longer needed and the
+// ratchet comes back down to measured + 4KB.
+const TOTAL_BUDGET_KB = 492;       // every JS asset for route "/", gzipped.  RATCHET: lower only.
 const WARN_HEADROOM_KB = 2;        // print a loud warning below this. See below.
+// Vercel's gzip has measured up to ~0.6KB more than this machine for the same
+// tree (500.9 here vs 501.1 on Vercel for #2190, 2026-11-04, which failed six
+// production deploys in a row). In CI the gate therefore keeps this margin, so
+// a PR that passes here cannot die on Vercel's measurement after merge. Only
+// GitHub Actions applies it: Vercel also sets CI, and the margin must never
+// block a production build whose own measurement is under budget.
+const CI_GAP_KB = 1.0;
 // ─── WHY 500, AND WHY THIS GATE STARTED BLOCKING EVERYTHING (2026-08-26) ────
 // #950 set 496 from a LOCAL measurement of 495.2 — 0.8KB of headroom, which
 // looked generous and was not, for two reasons nobody had measured:
@@ -109,6 +120,12 @@ const WARN_HEADROOM_KB = 2;        // print a loud warning below this. See below
 // GitHub guards and a local level-6 gzip both measured 498.9KB, 932 bytes
 // over 498. 501 puts back the >=2KB slack floor. Lower it when that live
 // code leaves the client.
+//
+// 2026-11-04: the same route measured 500.9KB gz locally and 501.1KB on the
+// Vercel build of #2190 (creator-intake videos in the homepage chunk, plus
+// zlib drift). 501 had 0.1KB of local headroom, so the deploy gate was
+// measuring the machine again. 504 restores about 3KB locally and about 2KB
+// on Vercel. Lower it when live code leaves the client.
 
 const fail = (m) => { console.error("check-bundle: FAIL — " + m); process.exit(1); };
 
@@ -138,6 +155,11 @@ if (routeChunk > ROUTE_CHUNK_BUDGET_KB * 1024) over.push(`route chunk ${kb(route
 if (total > TOTAL_BUDGET_KB * 1024) over.push(`total route JS ${kb(total)}KB gz > budget ${TOTAL_BUDGET_KB}KB`);
 if (over.length) fail(over.join("; "));
 const headroomKb = (TOTAL_BUDGET_KB * 1024 - total) / 1024;
+if (process.env.GITHUB_ACTIONS === "true" && headroomKb < CI_GAP_KB) {
+  fail(`total route JS ${kb(total)}KB gz leaves ${headroomKb.toFixed(1)}KB under the ${TOTAL_BUDGET_KB}KB budget, inside the ${CI_GAP_KB}KB CI margin. ` +
+    "Vercel's gzip measures up to ~0.6KB more than CI, so this would pass here and fail the production build after merge. " +
+    "Split or lazy-load live homepage code (next/dynamic, a route-only import) instead of raising the budget; raising it is a product decision.");
+}
 console.log(`check-bundle: OK — route chunk ${kb(routeChunk)}KB gz (budget ${ROUTE_CHUNK_BUDGET_KB}), total ${kb(total)}KB gz (budget ${TOTAL_BUDGET_KB}), headroom ${headroomKb.toFixed(1)}KB`);
 // The margin is PRINTED on every build, and shouts before it becomes fatal.
 // The 2026-08-26 failure mode was that this gate went from "fine" to "blocks an
