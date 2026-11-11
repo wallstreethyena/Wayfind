@@ -195,14 +195,15 @@ const CSS = `
 .boo-ph{position:absolute;inset:0;background:linear-gradient(180deg,#1C2230 0%,#040810 100%)}
 .boo-ph span{display:none}
 .boo-ph::after{content:"";position:absolute;left:50%;top:50%;width:34%;aspect-ratio:1 / 1;transform:translate(-50%,-50%);background:url("/images/boo/boo_v8_clean_avatar.png") center / contain no-repeat;opacity:.1;filter:grayscale(1)}
-.boo-dots{position:absolute;left:0;right:0;bottom:8px;z-index:1;display:flex;justify-content:center;gap:5px;pointer-events:none}
+.boo-dots{position:absolute;left:0;right:0;bottom:8px;z-index:3;display:flex;justify-content:center;gap:5px;pointer-events:none}
 .boo-dots i{width:6px;height:6px;border-radius:50%;background:rgba(245,239,230,.45)}
 .boo-dots i.is-on{background:#F5EFE6}
 .boo-body{display:flex;flex-direction:column;gap:6px;min-width:0;padding:12px 12px 12px 12px}
 .boo-chip{align-self:flex-start;max-width:100%;padding:3px 9px;border-radius:999px;background:rgba(196,181,253,.16);color:var(--lav);font-size:12px;font-weight:600;line-height:1.4}
 .boo-card h2{margin:0;font-size:16px;line-height:1.3;min-height:calc(1.3em * 2);font-weight:700;color:var(--cream);overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.boo-credit{margin:0;font-size:11px;line-height:1.35;height:calc(1.35em);color:#9A94A8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.boo-credit a{color:inherit;text-decoration:underline;text-underline-offset:2px}
+.boo-credit{position:absolute;left:6px;right:8px;bottom:6px;z-index:2;margin:0;padding:0;border:0;background:transparent;color:rgba(255,255,255,.6);font-size:9.5px;font-weight:500;line-height:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 1px 2px rgba(0,0,0,.65)}
+.boo-photo:has(.boo-dots) .boo-credit{bottom:16px}
+.boo-credit a{color:inherit;text-decoration:none}
 .boo-line{display:flex;align-items:flex-start;gap:7px;margin:0;font-size:13px;line-height:1.4;color:#9A94A8;min-width:0;overflow-wrap:anywhere}
 .boo-line .boo-when{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:calc(1.4em * 2)}
 .boo-line svg{flex:0 0 auto;width:15px;height:15px;margin-top:1px}
@@ -351,6 +352,7 @@ function PhotoStrip({ photos, priority }) {
               fallbackClassName="boo-ph"
               fallbackText=""
             />
+            <SlideCredit photo={photo} />
           </div>
         ))}
       </div>
@@ -363,21 +365,12 @@ function PhotoStrip({ photos, priority }) {
   );
 }
 
-function PhotoCredit({ photos }) {
-  const seen = new Set();
-  const lines = (photos || []).filter((p) => p && p.credit && !seen.has(p.credit) && seen.add(p.credit));
-  if (!lines.length) return <p className="boo-credit" aria-hidden="true">&nbsp;</p>;
+function SlideCredit({ photo }) {
+  if (!photo || !photo.credit) return null;
+  const href = (photo.source === "google" || photo.source === "vault") ? (photo.authorUri || photo.mapsUri) : null;
   return (
     <p className="boo-credit">
-      {lines.map((photo, i) => {
-        const href = (photo.source === "google" || photo.source === "vault") ? (photo.authorUri || photo.mapsUri) : null;
-        return (
-          <span key={photo.credit}>
-            {i ? " \u00b7 " : ""}
-            {href ? <a href={href} target="_blank" rel="noopener nofollow">{photo.credit}</a> : photo.credit}
-          </span>
-        );
-      })}
+      {href ? <a href={href} target="_blank" rel="noopener nofollow">{photo.credit}</a> : photo.credit}
     </p>
   );
 }
@@ -397,11 +390,11 @@ function TourCard({ t, priority }) {
           fallbackClassName="boo-ph"
           fallbackText=""
         />
+        <SlideCredit photo={t.photo} />
       </div>
       <div className="boo-body">
         {chipText ? <span className="boo-chip">{chipText}</span> : null}
         <h2>{t.name}</h2>
-        {t.photo && t.photo.credit ? <PhotoCredit photos={[t.photo]} /> : null}
         {t.ratingLabel ? <p className="boo-rating">{t.ratingLabel}</p> : <p className="boo-rating" aria-hidden="true">&nbsp;</p>}
         <p className="boo-line boo-city">
           <svg viewBox="0 0 16 16" {...ICON}><path d="M8 14.5s4.5-4 4.5-7.5a4.5 4.5 0 1 0-9 0c0 3.5 4.5 7.5 4.5 7.5z" /><circle cx="8" cy="7" r="1.6" /></svg>
@@ -413,9 +406,15 @@ function TourCard({ t, priority }) {
             <span className="boo-amt">{"$" + Math.round(t.fromPrice)}</span>
             {t.priceUnit ? <span className="boo-from">{t.priceUnit}</span> : null}
           </p>
-          <a className="boo-buy" href={t.cta.href} target="_blank" rel="sponsored nofollow noopener">{t.cta.label}</a>
-          <GuideCommissionLine />
-          <p className="boo-via">{t.cta.via}</p>
+          {t.cta && t.cta.href ? (
+            <>
+              <a className="boo-buy" href={t.cta.href} target="_blank" rel="sponsored nofollow noopener">{t.cta.label}</a>
+              <GuideCommissionLine />
+              <p className="boo-via">{t.cta.via}</p>
+            </>
+          ) : (
+            <p className="boo-note">{t.cta && t.cta.label}</p>
+          )}
         </div>
       </div>
     </article>
@@ -478,7 +477,8 @@ export default function BoHalloweenHaunt({ model, share = null, initialFilter = 
       ? haunts
       : haunts.filter((row) => row.filters.includes(filter));
   // Haunted attractions sold by Viator ride in the haunt grid (never behind the ghost tour chip).
-  const shownEvents = selectedPick ? [] : eventTours.filter((t) => filter === "all" || t.filters.includes(filter));
+  const endedEvents = selectedPick ? [] : eventTours.filter((t) => !(t.cta && t.cta.href));
+  const shownEvents = selectedPick ? [] : eventTours.filter((t) => t.cta && t.cta.href && (filter === "all" || t.filters.includes(filter)));
   const hauntTotal = haunts.length + eventTours.length;
   const toursChip = tours.length && tourRegions.length ? { id: "tours", label: "Ghost tours (" + tours.length + ")" } : null;
 
@@ -584,6 +584,11 @@ export default function BoHalloweenHaunt({ model, share = null, initialFilter = 
             </div>
           ) : null}
 
+          {endedEvents.length ? (
+            <div className="boo-vault-grid">
+              {endedEvents.map((t, i) => <TourCard key={t.id} t={t} priority={i < 2} />)}
+            </div>
+          ) : null}
           {toursOnly ? (
             <TourSection chrome={chrome} tours={gridTours} regions={tourRegions} />
           ) : shown.length || shownEvents.length ? (
@@ -600,7 +605,6 @@ export default function BoHalloweenHaunt({ model, share = null, initialFilter = 
                   <div className="boo-body">
                     <span className="boo-chip">{photoChip(row)}</span>
                     <h2>{row.name}</h2>
-                    <PhotoCredit photos={row.photos || (row.photo ? [row.photo] : [])} />
                     <p className="boo-line">
                       <svg viewBox="0 0 16 16" {...ICON}><circle cx="8" cy="8" r="6.2" /><path d="M8 4.6V8l2.3 1.5" /></svg>
                       <span className="boo-when">{row.timing}</span>

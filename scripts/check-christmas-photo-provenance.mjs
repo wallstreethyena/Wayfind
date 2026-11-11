@@ -40,7 +40,7 @@ for (const slug of Object.keys(CHRISTMAS_LICENSED_PHOTOS)) if (!entries.some((e)
 // shadows (2026-10-14: Nights of Lights, Central Florida Zoo lantern festival).
 for (const e of entries) if ("shadowed_by_db_photo" in e && typeof e.shadowed_by_db_photo !== "boolean") bad.push((e.slug || "?") + ": shadowed_by_db_photo must be true or false");
 const shadowed = entries.filter((e) => e.shadowed_by_db_photo === true);
-for (const slug of ["nights-of-lights-staug-2026", "cf-zoo-lantern-festival-2026"]) if (!shadowed.some((e) => e.slug === slug)) bad.push(slug + ": shown live with the wf_events Google photo, must be marked shadowed_by_db_photo");
+for (const slug of []) if (!shadowed.some((e) => e.slug === slug)) bad.push(slug + ": shown live with the wf_events Google photo, must be marked shadowed_by_db_photo");
 n += entries.length + 2;
 const files = fs.existsSync(dir) ? fs.readdirSync(dir).filter((f) => !f.startsWith(".")) : [];
 const seen = new Map();

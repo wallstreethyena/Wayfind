@@ -1,17 +1,16 @@
 #!/usr/bin/env node
 // scripts/check-photo-credit-under-headline.mjs
 //
-// Owner rule (Gabe, 2026-10-13, GLOBAL): the "Photo: <author> · Google Maps"
-// credit must never sit on top of the picture and must never have a black/dark
-// pill behind it. It shows as plain text directly UNDER the headline (the
-// place name). Before this, the place detail sheet pinned the credit to the
-// top of the hero photo in a dark rounded pill (PhotoCredit + creditStyle).
+// Owner rule (Gabe, 2026-11-04, GLOBAL): a photo credit on a card, hero, or
+// gallery is a tiny line pinned to the bottom left of the photo. White at
+// about 60%, soft shadow, no pill, badge, or background. The Google Maps
+// attribution stays a link. The lightbox and full photo viewer keep a readable
+// static line, and a caller cannot pin THAT line or put a box behind it.
 //
-// RENDER: compiles the REAL app/components/PhotoCredit.js and renders it with a
-// caller style that tries to pin it over a photo with a dark background; the
-// output must still be static, background-free text.
-// SOURCE: the detail sheet renders the credit after the hero closes (under the
-// headline), never inside the hero photo block.
+// RENDER: compiles the REAL app/components/PhotoCredit.js. The viewer path
+// drops absolute/background. The onPhoto path is the bottom-left line.
+// SOURCE: the place detail sheet renders that line inside the hero photo,
+// not in the text column under the headline.
 
 import { readFileSync } from "node:fs";
 import path from "node:path";
@@ -41,22 +40,31 @@ const html = renderToStaticMarkup(React.createElement(PhotoCredit, { credit, sty
 
 ok(html.includes("Photo: ") && html.includes("Sarasota Fairgrounds") && html.includes("Google Maps"), "the credit still renders its full visible text (positive control)");
 ok(/href="https:\/\/maps\.google\.com\/\?cid=1"/.test(html) && /target="_blank"/.test(html), "the Google Maps attribution stays a working link");
-ok(html.includes("position:static"), "the credit is forced into normal page flow (position:static) even when a caller asks for absolute");
-ok(!/position:absolute|position:fixed/.test(html), "the credit can never be pinned over a photo");
-ok(!/(^|[;"])\s*(top|bottom|left|right|inset|z-index):/.test(html.replace(/margin-top/g, "")), "no offsets/z-index that would place it over the photo");
-ok(!/background/.test(html), "no background, pill or dark box behind the credit");
-ok(!/border-radius|padding:/.test(html), "no pill shape (rounded box / padding)");
+ok(html.includes("position:static"), "the viewer credit stays in normal flow even when a caller asks for absolute");
+ok(!/position:absolute|position:fixed/.test(html), "the viewer credit cannot be pinned");
+ok(!/(^|[;"])\s*(top|bottom|left|right|inset|z-index):/.test(html.replace(/margin-top/g, "")), "the viewer credit has no offsets or z-index");
+ok(!/background/.test(html), "the viewer credit has no background, pill, or dark box");
+ok(!/border-radius|padding:/.test(html), "the viewer credit has no pill shape");
 ok(html.includes("color:#999") && html.includes("margin-top:-6px"), "non-layout caller styles (colour, spacing) still pass through");
 ok(renderToStaticMarkup(React.createElement(PhotoCredit, { credit: null })) === "", "no credit renders nothing");
+
+const onPhoto = renderToStaticMarkup(React.createElement(PhotoCredit, { credit, onPhoto: true, style: pinned }));
+ok(onPhoto.includes("Photo: ") && onPhoto.includes("Google Maps") && /href="https:\/\/maps\.google\.com\/\?cid=1"/.test(onPhoto), "onPhoto keeps the Google Maps attribution link");
+ok(onPhoto.includes("position:absolute") && onPhoto.includes("left:6px") && onPhoto.includes("bottom:6px"), "onPhoto pins the credit to the bottom left of the photo");
+ok(onPhoto.includes("font-size:9.5px") && onPhoto.includes("rgba(255,255,255,.6)"), "onPhoto is the tiny muted line");
+ok(onPhoto.includes("background:transparent") && !/#000|rgba\(13,17,23/.test(onPhoto), "onPhoto drops a caller background or pill");
+ok(!/border-radius/.test(onPhoto), "onPhoto has no rounded chip");
 
 const detail = readFileSync(abs("app/components/sheets/Detail.js"), "utf8");
 const uses = detail.split("<PhotoCredit").length - 1;
 ok(uses === 1, "the place detail sheet renders exactly one photo credit (found " + uses + ")");
 ok(!/creditStyle/.test(detail), "the old over-the-photo creditStyle is gone");
-const headline = detail.indexOf("{detail.name}</div>");
-const basics = detail.indexOf("{/* 1. Basics */}");
+ok(/<PhotoCredit onPhoto /.test(detail), "the detail credit uses the on-photo line");
+const media = detail.indexOf("data-detail-photo-media");
+const body = detail.indexOf("data-detail-body");
 const at = detail.indexOf("<PhotoCredit");
-ok(headline > 0 && basics > headline, "detail sheet still has its hero headline followed by the content area");
-ok(at > headline && at < basics, "the credit renders after the hero headline, at the top of the content area — directly under the headline, not on the photo");
+ok(media > 0 && body > media, "detail sheet still has its hero photo before the text column");
+ok(at > media && at < body, "the credit renders inside the hero photo, not in the text column");
+ok(!detail.slice(body).includes("<PhotoCredit"), "the text column under the headline has no photo credit");
 
-console.log(`check-photo-credit-under-headline: OK — ${pass} assertions; real PhotoCredit RENDERED as plain text under the headline, never over the photo`);
+console.log(`check-photo-credit-under-headline: OK — ${pass} assertions; viewer credit stays plain text, onPhoto credit is the tiny bottom-left line`);

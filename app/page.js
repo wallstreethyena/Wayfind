@@ -13,7 +13,7 @@ import { siteTodayStr } from "../lib/siteTime";
 import ProofVeil from "./components/ProofVeil";
 import { homeProofCopy } from "../lib/locationHonesty";
 import { rankedFor, whyLine } from "../lib/landing";
-import { TOWN_PROFILES } from "../lib/culture";
+import { TOWN_PROFILES } from "../lib/cultureNotes";
 import { TOWN_HUBS } from "../lib/cultureHubs";
 // v7.29 PERF: the "Read the local edit" index is built HERE, on the server,
 // once per revalidation. app/components/LocalEdit.js used to import the whole
@@ -26,6 +26,9 @@ import { localEditIndex } from "../lib/localEdit";
 // "This week in Florida" strip: curated wf_events in the next 10 days, built on the server
 // once per revalidation and passed down like localEditGuides. See lib/thisWeekEvents.js.
 import { thisWeekEventsForHome } from "../lib/thisWeekEventsServer";
+import { guideDiscoveryIndex } from "../lib/guideDiscoveryIndex";
+import { weeklyTrendGuideCard } from "../lib/thisWeekEvents";
+import { christmasHubStripCard } from "../lib/christmasHubCard";
 // v8 — the rail menu's places are ranked HERE, on the server, at regeneration.
 // lib/railsData.js reaches lib/landing.js, which holds the Places call, the junk
 // filter, the quality floor and the Bayesian rank; none of that may ship to a
@@ -101,7 +104,7 @@ async function HomeProof() {
   const top = ((await rankedFor("things-to-do", "sarasota").catch(() => null)) || []).slice(0, 5);
   if (top.length < 3) return null;
   return (
-    <section style={S.wrap} aria-label="Example Wayfind picks">
+    <ProofVeil><section style={S.wrap} aria-label="Example Wayfind picks">
       <div style={S.kicker}>{copy.kicker}</div>
       <h2 style={S.h2}>{copy.heading}</h2>
       <p style={S.sub}>{copy.sub}</p>
@@ -119,7 +122,7 @@ async function HomeProof() {
         <b style={{ color: "#FFFFFF" }}>Nearby towns:</b>{" "}
         {Object.entries(TOWN_HUBS).slice(0, 5).map(([k, slug], i) => (<span key={slug}><a style={S.a} href={"/florida/" + slug}>{TOWN_PROFILES[k].title}</a>{i < 4 ? " · " : ""}</span>))}
       </p>
-    </section>
+    </section></ProofVeil>
   );
 }
 
@@ -136,7 +139,13 @@ export default async function Page() {
   // ONE featured event first — see issue #219.
   const initialEvents = null;
   const railMenu = await railMenuData(null);
-  const thisWeekEvents = await thisWeekEventsForHome(siteTodayStr());
+  const thisWeekRows = await thisWeekEventsForHome(siteTodayStr());
+  // Christmas hub card leads the dated events while the poster season is live.
+  // Outside that window christmasHubStripCard returns null and the strip is
+  // the weekly guide plus events, unchanged.
+  const christmasHubCard = christmasHubStripCard(siteTodayStr());
+  const thisWeekEvents = christmasHubCard && thisWeekRows.length >= 2 ? [christmasHubCard, ...thisWeekRows] : thisWeekRows;
+  const thisWeekGuide = weeklyTrendGuideCard(guideDiscoveryIndex(currentGuides(GUIDES)));
   return (
     <>
       {/* v5.38 a11y/SEO: one descriptive server-rendered H1, always present
@@ -146,12 +155,13 @@ export default async function Page() {
         Wayfind: find the best things to do, right now
       </h1>
       <SiteDaySeed day={siteTodayStr()} />
-      <Home initialEvents={initialEvents} localEditGuides={localEditIndex(currentGuides(GUIDES))} thisWeekEvents={thisWeekEvents} railMenu={railMenu} />
-      {/* Suspense so the app shell streams immediately; the proof block
-          follows without adding a byte to time-to-first-paint. ProofVeil keeps
-          it in the DOM for crawlers but removes it from the interactive view
-          once JS mounts, so it never bleeds in as a "loose footer" (v6.26). */}
-      <Suspense fallback={null}><ProofVeil><HomeProof /></ProofVeil></Suspense>
+      <Home initialEvents={initialEvents} localEditGuides={localEditIndex(currentGuides(GUIDES))} thisWeekEvents={thisWeekEvents} thisWeekGuide={thisWeekGuide} railMenu={railMenu} />
+      {/* Keep the optional proof independent of shell rendering. HomeProof
+          resolves its data before emitting ProofVeil and its children together,
+          avoiding a streamed placeholder inside an already-emitted client
+          wrapper. The veil still preserves the proof DOM for crawlers while
+          hiding it from the interactive view after mount. */}
+      <Suspense fallback={null}><HomeProof /></Suspense>
     </>
   );
 }

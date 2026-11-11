@@ -181,6 +181,8 @@ node scripts/test-owner-places-2026-08-29c.mjs
 node scripts/test-owner-places-2026-08-29d.mjs
 node scripts/test-owner-places-2026-08-29e.mjs
 node scripts/test-command-center.mjs
+node scripts/test-qualified-click.mjs
+node scripts/test-browse-interaction-reuse.mjs
 # Command Center partner-click predicate + #1603 exclude_devices: the migration
 # must stay byte-identical to command-center.sql (2026-10-02).
 node scripts/test-cc-partner-click-predicate.mjs
@@ -256,6 +258,7 @@ node scripts/test-red-tide.mjs
 node scripts/test-brand.mjs
 node scripts/test-beaches-page.mjs
 node scripts/test-buzz.mjs
+node scripts/test-trending-rails.mjs
 node scripts/test-trend-vocab.mjs
 node scripts/test-taste.mjs
 node scripts/test-device-id.mjs
@@ -274,6 +277,7 @@ node scripts/test-landing-tours.mjs
 node scripts/test-home-bookable.mjs
 node scripts/test-ranking-editorial.mjs
 node scripts/test-coverage-waitlist.mjs
+node scripts/test-coverage-gap-feed.mjs
 node scripts/test-deal-rails.mjs
 node scripts/test-deals-geo.mjs
 node scripts/test-coupon-geo.mjs
@@ -342,6 +346,7 @@ node scripts/check-promote-batch-clamp.mjs
 # core mask (lib/promoteDetails.js), and RELEASES a budget-refused place instead
 # of failing it. #1054 shipped a 600/hour ceiling with none of that.
 node scripts/test-promote-details.mjs
+node scripts/test-promote-ledger-sim.mjs
 node scripts/check-promote-spend-gate.mjs
 node scripts/test-prominence.mjs
 node scripts/test-idle-defer.mjs
@@ -362,6 +367,7 @@ node scripts/test-seasonal-picks.mjs
 node scripts/test-place-suggestions.mjs
 node scripts/test-comment-photos.mjs
 node scripts/check-outdoors-cache-first.mjs
+node scripts/test-osm-regional.mjs
 node scripts/check-env-discipline.mjs
 node scripts/check-intent-copy-matches-filter.mjs
 node scripts/test-nightlife-ranking.mjs
@@ -530,6 +536,7 @@ node scripts/test-guide-inline-book.mjs --red-prove
 node scripts/test-guide-park-ticket-cta.mjs
 node scripts/test-guide-pick-offers.mjs
 node scripts/test-guide-pick-offers.mjs --red-prove
+node scripts/test-orlando-guide-tiqets.mjs
 node scripts/test-guide-pick-facts.mjs
 node scripts/check-guide-teasers.mjs
 node scripts/test-guide-editorial-mode.mjs
@@ -590,6 +597,7 @@ node scripts/check-intent-partner-picks.mjs
 # url:null by design, and tpDeepLink required one, so a VENUE_OFFERS row
 # like nyc-budget-911-memorial could never surface there).
 node scripts/check-place-page-partner.mjs
+node scripts/check-partner-offer-holds.mjs
 # 2026-09-10 — a visible Book button must have a product behind it. 16 of 35
 # pinned Viator codes had no wf_experiences row; each painted a CTA that 302'd
 # the customer home. Feeds a fabricated code through a real copy of the module.
@@ -638,6 +646,10 @@ node scripts/check-map-place-card.mjs
 node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/test-app-rating.mjs
 node scripts/check-credentialed-paths.mjs
 node scripts/check-home-answer-first.mjs
+# A cold homepage opens the first poster collection. useState(null) puts the
+# shelf back in front of the answer. The link to the source poster lives in
+# the existing open bar, not on the poster tiles.
+node scripts/check-home-default-poster.mjs
 node scripts/check-home-location.mjs
 node scripts/check-owner-curation-one-path.mjs
 node scripts/check-ranking-integrity.mjs
@@ -682,6 +694,7 @@ node scripts/check-creator-avatars.mjs
 # properties of the OUTPUT and cannot be read off the source.
 node scripts/test-creator-card-mark.mjs
 node scripts/test-creator-pages.mjs
+node scripts/test-creator-taxonomy.mjs
 node scripts/check-creator-tile-navigates.mjs
 node scripts/check-creator-summary-counts.mjs
 node scripts/check-rail-seed-not-frozen.mjs
@@ -789,6 +802,8 @@ node scripts/check-curated-events.mjs
 # used to ISR-cache "Nothing verified…" + numberOfItems:0 while detail
 # pages and /api/events still had the same rows.
 node scripts/check-curated-events-read.mjs
+# A merged Christmas research id redirects to the listing it became, never into a 404.
+node scripts/check-christmas-retired-redirects.mjs
 # 2026-10-09: /florida-events served a pinned >2 MB-refused cache entry with legacy Google photo names
 node scripts/test-curated-events-cache.mjs
 # The Events tab feed reads every curated row still running today, paged;
@@ -848,6 +863,7 @@ node scripts/check-rail-routes.mjs
 #     place because an unfiltered rail is a perfectly valid duplicate.
 node scripts/check-date-night-identity.mjs
 node scripts/test-date-night-intent.mjs
+node scripts/test-intent-location-fallback.mjs
 node scripts/test-birthday-intent.mjs
 node scripts/test-rail-daylight.mjs
 node scripts/test-rail-select.mjs
@@ -1248,6 +1264,13 @@ node scripts/check-christmas-research.mjs
 node scripts/check-christmas-browse-credit.mjs
 node scripts/check-christmas-card-photo-slot.mjs
 node scripts/check-christmas-venue-matches.mjs
+# Homepage Christmas cards read the venue row christmas_photo_gallery (exact event id/slug tags) before the Google venue photo.
+node scripts/test-christmas-card-gallery.mjs
+# One distance per Christmas card: place cards get only RailCard device distance, events keep the server fact.
+node scripts/check-christmas-card-distance.mjs
+# Christmas hospitality cards: card_line is one short sentence and is the card take.
+node scripts/check-christmas-card-line.mjs
+node scripts/check-christmas-treats-rail.mjs
 node scripts/check-guide-in-rail.mjs
 # 2026-09-23 (WS4 fall-discovery) — lib/fallEvidence.js is the pure evidence-
 # classification law the discovery pipeline and the registry re-verification
@@ -1626,6 +1649,7 @@ node scripts/test-photo-upstream-truth.mjs
 # breaker stops asking Google at all once a quota outcome is seen, until
 # Google's own Pacific-midnight reset. Red-proved.
 node scripts/test-photo-quota-truth.mjs
+node scripts/test-places-photo-breaker.mjs
 
 # 2026-09-16: Google Cloud metrics traced every billed photo call to
 # defaultFetchOwnedUri, one ledger grant per outbound request, and found
@@ -1659,6 +1683,7 @@ node scripts/test-auth-admin-tombstones.mjs
 # finite ledger. This executes the photo, Nearby, geocoding, and gate-default
 # boundaries with fetch traps and positive controls.
 node scripts/test-spend-bypass-regression.mjs
+node scripts/test-geocode-owned-fallback.mjs
 
 # 2026-09-09 photo-only paid allowance: WAYFIND_PHOTOS_PAID + GOOGLE_PHOTOS_MONTH_CAP
 # may raise the `photos` ledger ceiling ONLY; every other Google SKU asks the
@@ -1891,6 +1916,7 @@ node scripts/check-guide-pick-photos.mjs
 # no gap note may promise a fallback that no longer exists (the #1697 Coquina
 # Beach failure); every guide has a hero.
 node scripts/check-guide-visual-completeness.mjs
+node scripts/check-image-intent.mjs
 # The scheduled live monitor's A/B/C sorting (.github/workflows/guide-visual-monitor.yml).
 node scripts/test-guide-visual-monitor.mjs
 
@@ -2110,7 +2136,7 @@ node scripts/test-image-health.mjs
 node scripts/test-image-health-report.mjs
 # The event hero photo goes through the CREDITED lane (never a bare /api/photo <img>), its caption exists only while a photo is
 # visible, and no app/ file builds a raw <img>/background from an /api/photo string (server render + Chromium + AST scan, 2026-10-14).
-node scripts/test-event-hero-credited-photo.mjs
+node scripts/test-event-hero-credited-photo.mjs ${GITHUB_ACTIONS:+--require-browser}
 node scripts/test-photo-answers.mjs
 # Every external photo-attribution link opens in a new tab (noopener, announced to
 # screen readers) with attribution byte-identical; a click on a credit inside a card
@@ -2129,6 +2155,7 @@ node scripts/test-guide-editorial-photos.mjs
 
 node scripts/test-guide-city-coverage.mjs
 node scripts/test-detail-nearby.mjs
+node scripts/test-detail-next-step.mjs
 node scripts/test-venue-nearby.mjs
 node scripts/test-card-photo-fallback.mjs
 node scripts/test-photo-serving-alert.mjs
@@ -2191,6 +2218,7 @@ node scripts/test-score-explanation.mjs
 # Current-main backend residual runtime controls (#1285/#1272).
 node scripts/test-google-details-accounting.mjs
 node scripts/test-viator-provider-state.mjs
+node scripts/test-viator-rail-fallback.mjs
 
 # Complete owned Apple viewport map and current-standard Family Day expansion.
 node scripts/test-apple-explorer-map.mjs
@@ -2287,10 +2315,13 @@ node scripts/test-halloween-haunt.mjs
 node scripts/test-santa-chat.mjs
 node scripts/test-haunt-photos.mjs
 node scripts/test-place-detail-gallery.mjs
+node scripts/test-event-page-static-reads.mjs
 node scripts/test-photo-dedupe.mjs
 node scripts/test-halloween-tours.mjs
 # 2026-10-30: Christmas ticket cards (premium Halloween style page): same listings as the browse, upcoming only, registry /go hrefs untouched, honest prices, dash free, merit order never reads commission.
 node scripts/test-christmas-tickets.mjs
+node scripts/test-christmas-ticketmaster.mjs
+node scripts/test-snowcat-tickets.mjs
 node scripts/test-christmas-tours.mjs
 
 node scripts/test-halloween-intent-rails.mjs
@@ -2331,6 +2362,12 @@ node scripts/test-photo-not-place-id.mjs
 node scripts/test-image-publication-gate.mjs
 node scripts/check-new-content-images.mjs
 node scripts/check-christmas-photo-provenance.mjs
+# A photo rejected in review never comes back: path, source URL or identical bytes (data/christmas-rejected-photos.json).
+node scripts/check-christmas-rejected-photos.mjs
+# Every event page rail photo carries its own credit; venue photos say so.
+node scripts/check-event-rail-photo-credits.mjs
+# Licensed static gallery batches (2026-11p+): free licence, author, Commons source, provenance row, file on disk.
+node scripts/check-christmas-static-gallery-rights.mjs
 node scripts/test-area-twins.mjs
 node scripts/check-map-note-attribution.mjs
 node scripts/test-cc-alert-drill.mjs
@@ -2354,6 +2391,12 @@ node scripts/test-db-cursor-collation.mjs --red-prove
 # 2026-10-15: every guide recommendation has an honestly labelled, licensed
 # local context photograph after exact-place media, including source failures.
 node scripts/test-guide-context-photos.mjs
+
+# 2026-11-04: the two rainy day guides show either a pick's own approved photo or
+# Wayfind's neutral "Photo unavailable" tile, never a photograph of another place
+# and never an "Illustrative" caption on an exact photo. Calls the page's resolver
+# and renders the real figures for all 24 picks; red-proven by mutation.
+node scripts/check-guide-neutral-fallback.mjs
 
 # Shared retained Google bytes, exact attribution, lease/cost and removal behavior.
 node scripts/test-google-photo-store.mjs
@@ -2436,6 +2479,7 @@ node scripts/test-richness-loading-path.mjs
 node scripts/check-santa-companion.mjs
 node scripts/check-boo-companion.mjs
 node scripts/test-santa-companion.mjs
+node scripts/test-santa-dock.mjs
 # 2026-10-27 (fix-affiliate-synthetic-traffic) - prefetch, QA opt-in and burst traffic never follow a
 # partner redirect; real Chrome/Firefox/Safari clicks, Node-fetch probes and the synthetic monitor
 # still do. Drives all four go handlers with the PostHog capture intercepted.
@@ -2461,6 +2505,8 @@ node scripts/test-event-safety.mjs
 # 2026-10-28: seasonal movies rail data (Fall/Halloween/Christmas) + Undercover Tourist movie ticket handoff (wf_deals 11); calls the real route and resolver.
 node scripts/check-seasonal-movies.mjs
 node scripts/check-seasonal-movies-ui.mjs
+# 2026-10-29: Wayfind movie page /movies/<id> (params, metadata, OG, JSON-LD, sitemap, card tap + share URL, buy button handoff); executes the page, the real sitemap fn and the share card model.
+node scripts/check-movie-pages.mjs
 node scripts/test-link-health-blocked-not-dead.mjs
 node scripts/check-redirect-suspect-gate.mjs
 
@@ -2478,10 +2524,62 @@ node scripts/test-fall-offering-retirement.mjs
 # Locality backfill: a street name never corroborates a city; Census-resolved empties are never filled.
 node scripts/test-locality-backfill-evidence.mjs
 
+# www /blog 404ed; it must permanently redirect to blog.gowayfind.com (executes next.config redirects).
+node scripts/check-blog-redirect.mjs
+
+# /christmas-in-florida must not emit an /api/photo?place= image the route cannot serve (Goodwood 404); executes the real resolver on the Goodwood row.
+node scripts/test-christmas-unservable-photo.mjs
+
+# promote-index must bound its own wall clock (45s of 60) and return stopped: "deadline" instead of being killed; quota 429 handling untouched.
+node scripts/test-promote-deadline.mjs
+
+# Global fetch retries ONCE on the idle keep-alive socket drop (idempotent, transport errors only); executed against a local server.
+node scripts/test-fetch-socket-retry.mjs
 # Refresh selector trap: a cheap-tier check must not block the enterprise content refresh (#1893).
 node scripts/test-refresh-selector-trap.mjs
+node scripts/test-refresh-reserve.mjs
 # Editorial hydration precedence: verified wf_editorial line outranks inventory text on rails/served cards.
 node scripts/test-hydrate-editorial-precedence.mjs
 node scripts/check-this-week-events.mjs
+# 2026-11-03: Viator per-click opaque attribution, stale-attribution merge prevention, booking ingestion/reconciliation, 4-way financial separation, and Google Data Manager offline conversion pipeline.
+node scripts/test-viator-booking-attribution.mjs
+node scripts/test-viator-visitor-hash.mjs
 node scripts/check-schedule-note-days.mjs
 node scripts/check-event-assessment-policy.mjs
+# Place city ladder: one placeCity() for title/share/PostalAddress/headers; postal_city > Census locality; never a state/county/slug/street.
+node scripts/check-place-city.mjs
+# 2026-11-01: Vercel Ignored Build Step skips ONLY data/docs-only commits (photo batches); code PR previews, production and any doubt always build. Runs the real script against a temp git repo.
+node scripts/test-vercel-ignore-build.mjs
+# 2026-11-04: Ticketmaster earning link: only real TM/Live Nation/TicketWeb hosts (no double wrap via our Impact host, no open redirect), one /go link with the exact event URL, no buy button when sold out/off sale/cancelled.
+node scripts/test-ticketmaster-gating.mjs
+node scripts/test-ticket-handoff-verdict.mjs
+# /christmas and the bare category paths land on real pages (next.config.js redirects(), 2026-11-04 audit).
+node scripts/check-bare-path-redirects.mjs
+# 2026-11-05: Execute both held-event recheck SQL migrations in PGlite; atomic ET+2 renewal,
+# preservation of earlier deadlines and excluded rows, and nonzero historical-defect controls.
+# 2026-11-05: Execute all held-event recheck SQL migrations in PGlite; atomic ET+2 renewal
+# including explicit due renewals, earlier deadline/exclusion controls, and 5 process mutations.
+node scripts/test-event-truth-held-recheck.mjs
+
+node scripts/test-events-expanded-rails.mjs
+node scripts/test-licensed-event-covers.mjs
+
+
+node scripts/test-google-daily-quota-breaker.mjs
+
+node scripts/check-homepage-events-deadline.mjs
+node scripts/test-holiday-discovery-2026-11-06.mjs
+# Verified official street addresses and safe non-Google map links.
+node scripts/test-owned-place-directions.mjs
+# INP: a direct /p/{id} landing must not mount the home feed under the place sheet.
+node scripts/test-feed-deferral.mjs
+# 2026-11-10 (Sentry WAYFIND-19): a dropped visitor connection gets one retry and is
+# never filed as a Wayfind map service failure; real service answers still are.
+node scripts/test-client-transport-retry.mjs
+# 2026-11-10 (Sentry WAYFIND-W): reading window.localStorage outside a try throws where
+# site data is blocked; PostHogProvider did, so those visitors were never measured.
+node scripts/check-storage-access.mjs
+node scripts/test-detail-cta-place-city.mjs
+node scripts/test-place-link-name.mjs
+node scripts/test-og-movie-function-size.mjs
+node scripts/check-event-not-found-recovery.mjs
