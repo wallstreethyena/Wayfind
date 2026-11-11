@@ -3,8 +3,8 @@ import { SITE_URL } from "../../lib/site";
 
 export const revalidate = 86400;
 
-const TITLE = "Best Things to Do in Florida by City";
-const DESC = "Pick a Florida city and see the best things to do there, ranked by the Wayfind Score.";
+const TITLE = "Things to Do in Florida by City";
+const DESC = "Pick a Florida city and see what is worth doing there, ranked on merit by the Wayfind Score. Rankings are never for sale.";
 const _og = SITE_URL + "/api/og?t=" + encodeURIComponent(TITLE);
 
 export const metadata = {
@@ -22,7 +22,7 @@ export default function Page() {
       path="/things-to-do"
       cat="things-to-do"
       h1={TITLE}
-      intro="Pick a city to see what is actually worth your time. Every list is ranked by the Wayfind Score, and payment never changes a score."
+      intro="Pick a city to see what is actually worth your time. Every list is ranked on merit by the Wayfind Score. Rankings are never for sale."
     />
   );
 }

@@ -40,6 +40,15 @@ ok(classify({ imgs: [], live: true, hasGoogleRef: true })[0] === "A-live", "live
 ok(classify({ imgs: [], live: true, hasGoogleRef: false })[0] === "C", "Google has no photo = C backlog, never a page");
 ok(classify({ imgs: [], live: false, expectPhoto: false, documented: true })[0] === "C", "documented exception = C");
 
+const neutralHtml = '<section id="pick-1"><h2>No exact photo</h2><figure data-guide-figure="pick-neutral"><div data-photo-fallback="unavailable">Photo unavailable</div></figure></section>';
+const neutralPick = parseGuidePicks(neutralHtml)[0];
+ok(neutralPick.neutral && neutralPick.imgs.length === 0, "the real shared neutral tile is parsed");
+ok(classify({ ...neutralPick, expectNeutral: true })[0] === "C", "approved neutral tile remains visible sourcing backlog");
+ok(classify({ ...neutralPick, expectNeutral: true, neutral: false })[0] === "B", "missing approved neutral tile is an engineering failure");
+ok(classify({ ...neutralPick, expectPhoto: true })[0] === "B", "a neutral tile cannot hide a disappeared exact-place photograph");
+ok(classify({ ...neutralPick, expectNeutral: true, imgs: ['/wrong-place.jpg'], imgOk: true, credited: true })[0] === "B", "neutral-only pick cannot quietly substitute an unapproved photo");
+ok(!parseGuidePicks(neutralHtml.replace('data-photo-fallback="unavailable"', ''))[0].neutral, "a wrapper without the actual fallback tile is not accepted");
+
 // The monitor can never spend: it must not call the photo endpoint at all.
 const src = readFileSync(new URL("./guide-visual-monitor.mjs", import.meta.url), "utf8");
 ok(!/\/api\/photo/.test(src.replace(/^\s*\/\/.*$|^\s*\*.*$/gm, "")), "monitor code never requests /api/photo");

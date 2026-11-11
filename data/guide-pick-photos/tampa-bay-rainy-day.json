@@ -81,56 +81,98 @@
       "sameAsCardPhoto": false,
       "reviewedAt": "2026-09-23",
       "reuseReason": "Same venue (The Dalí Museum, St. Petersburg) already carries a reviewed, ledger-verified CC BY 3.0 Commons photo in another published guide; reused file and record verbatim."
+    },
+    "Imagine Museum": {
+      "src": "/guides/picks/tampa-bay-rainy-day/imagine-museum.webp",
+      "width": 1200,
+      "height": 900,
+      "alt": "The blue facade of the Imagine Museum in St. Petersburg, with its name in large letters above three tall banners about contemporary glass art",
+      "caption": "The Imagine Museum building in downtown St. Petersburg.",
+      "credit": "Adog",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Imagine_Museum_St._Petersburg_front.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Imagine_Museum_St._Petersburg_front.jpg",
+      "author": "Adog",
+      "position": "50% 40%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
+      "placeId": "ChIJyzrZADLiwogRDSaWoWljzTE",
+      "verification": "The facade carries the readable IMAGINE MUSEUM sign, and the Commons file description and category are Imagine Museum, St. Petersburg. Not geotagged. A few visitors are small at the door and not the subject. Live Commons licence checked: CC BY-SA 4.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-11-04"
+    },
+    "Straz Center for the Performing Arts": {
+      "src": "/guides/picks/tampa-bay-rainy-day/straz-center-for-the-performing-arts.webp",
+      "width": 1400,
+      "height": 933,
+      "alt": "The Straz Center for the Performing Arts in Tampa, with its lit STRAZ CENTER FOR THE PERFORMING ARTS sign on the top of the building and palm trees in front",
+      "caption": "The Straz Center for the Performing Arts building in downtown Tampa.",
+      "credit": "Barbthebuilder",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Tampa_architectural_photos_257.jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Tampa_architectural_photos_257.jpg",
+      "author": "Barbthebuilder",
+      "position": "50% 40%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
+      "placeId": "ChIJce6XFIjEwogRaNJA6ZKu31c",
+      "verification": "The building carries a readable STRAZ CENTER FOR THE PERFORMING ARTS sign; the Commons description (Tampa's Straz Center 2012) and category are the Straz Center. Not geotagged. Live Commons licence checked: CC BY-SA 3.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-11-04"
+    },
+    "Glazer Children's Museum": {
+      "src": "/guides/picks/tampa-bay-rainy-day/glazer-children-s-museum.webp",
+      "width": 1400,
+      "height": 930,
+      "alt": "The white, yellow and orange building of the Glazer Children's Museum in Tampa, with its colorful name sign on the corner",
+      "caption": "The Glazer Children's Museum building on the Tampa riverfront.",
+      "credit": "Walter",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Glazer_Childrens_Museum_Tampa_2012.jpg",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Glazer_Childrens_Museum_Tampa_2012.jpg",
+      "author": "Walter",
+      "position": "50% 45%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP.",
+      "sourceKind": "commons",
+      "placeId": "ChIJ-6lKAInEwogRVnf5NBtjZss",
+      "verification": "The building shows the readable Glazer Children's Museum sign; the Commons description is Glazer Childrens Museum, Tampa FL and the category is Glazer Children's Museum. Not geotagged. Two pedestrians are tiny and incidental. Live Commons licence checked: CC BY 2.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-11-04"
     }
   },
   "gaps": {
-    "Imagine Museum": {
-      "reason": "google-only",
-      "placeId": "ChIJyzrZADLiwogRDSaWoWljzTE",
-      "needsPermissionFrom": "Imagine Museum",
-      "note": "Wayfind holds a stored Google photo of this place, but Google availability alone grants no reuse rights. No licensed or permitted photo has been sourced yet, so a labelled illustrative topic photo renders instead."
-    },
     "The Great Escape Room Tampa": {
       "reason": "google-only",
       "placeId": "ChIJL0bExYvEwogRWA4X9n0d7MA",
       "needsPermissionFrom": "The Great Escape Room Tampa",
-      "note": "Wayfind holds a stored Google photo of this place, but Google availability alone grants no reuse rights. No licensed or permitted photo has been sourced yet, so a labelled illustrative topic photo renders instead."
+      "note": "Wayfind holds a stored Google photo of this place, but Google availability alone grants no reuse rights. Pass 2026-11-04: searched Wikimedia Commons (\"Great Escape Room Tampa\", \"Escape room Tampa\") and Openverse (Flickr and Commons, CC0, CC BY, CC BY-SA) and found no licensed photo of this exact venue. Renders Wayfind's neutral Photo unavailable tile, not a photograph of another place."
     },
     "Sandbox VR St. Pete": {
       "reason": "google-only",
       "placeId": "ChIJYVYFKETjwogRol57F48FMxc",
       "needsPermissionFrom": "Sandbox VR St. Pete",
-      "note": "Wayfind holds a stored Google photo of this place, but Google availability alone grants no reuse rights. No licensed or permitted photo has been sourced yet, so a labelled illustrative topic photo renders instead."
+      "note": "Wayfind holds a stored Google photo of this place, but Google availability alone grants no reuse rights. Pass 2026-11-04: searched Wikimedia Commons (\"Sandbox VR\", \"Sandbox VR St. Petersburg Florida\") and Openverse (Flickr and Commons, CC0, CC BY, CC BY-SA) and found no licensed photo of this exact venue. Renders Wayfind's neutral Photo unavailable tile, not a photograph of another place."
     },
     "The Escape Game Tampa": {
       "reason": "google-only",
       "placeId": "ChIJgb8MYx3DwogR70_o9aWhkrQ",
       "needsPermissionFrom": "The Escape Game Tampa",
-      "note": "Wayfind holds a stored Google photo of this place, but Google availability alone grants no reuse rights. No licensed or permitted photo has been sourced yet, so a labelled illustrative topic photo renders instead."
-    },
-    "Straz Center for the Performing Arts": {
-      "reason": "google-only",
-      "placeId": "ChIJce6XFIjEwogRaNJA6ZKu31c",
-      "needsPermissionFrom": "Straz Center for the Performing Arts",
-      "note": "Wayfind holds a stored Google photo of this place, but Google availability alone grants no reuse rights. No licensed or permitted photo has been sourced yet, so a labelled illustrative topic photo renders instead."
+      "note": "Wayfind holds a stored Google photo of this place, but Google availability alone grants no reuse rights. Pass 2026-11-04: searched Wikimedia Commons (\"Escape Game Tampa\") and Openverse (Flickr and Commons, CC0, CC BY, CC BY-SA) and found no licensed photo of this exact venue. Renders Wayfind's neutral Photo unavailable tile, not a photograph of another place."
     },
     "Zubrick Magic Theatre": {
       "reason": "google-only",
       "placeId": "ChIJG365UJ_jwogRAIblIxnwvzU",
       "needsPermissionFrom": "Zubrick Magic Theatre",
-      "note": "Wayfind holds a stored Google photo of this place, but Google availability alone grants no reuse rights. No licensed or permitted photo has been sourced yet, so a labelled illustrative topic photo renders instead."
-    },
-    "Glazer Children's Museum": {
-      "reason": "google-only",
-      "placeId": "ChIJ-6lKAInEwogRVnf5NBtjZss",
-      "needsPermissionFrom": "Glazer Children's Museum",
-      "note": "Wayfind holds a stored Google photo of this place, but Google availability alone grants no reuse rights. No licensed or permitted photo has been sourced yet, so a labelled illustrative topic photo renders instead."
+      "note": "Wayfind holds a stored Google photo of this place, but Google availability alone grants no reuse rights. Pass 2026-11-04: searched Wikimedia Commons (\"Zubrick Magic Theatre\", \"Zubrick\") and Openverse (Flickr and Commons, CC0, CC BY, CC BY-SA) and found no licensed photo of this exact venue. Renders Wayfind's neutral Photo unavailable tile, not a photograph of another place."
     },
     "Kids Empire Tampa Citrus Park": {
       "reason": "google-only",
       "placeId": "ChIJZQ__1N_rwogRkz34m52_aHo",
       "needsPermissionFrom": "Kids Empire Tampa Citrus Park",
-      "note": "Wayfind holds a stored Google photo of this place, but Google availability alone grants no reuse rights. No licensed or permitted photo has been sourced yet, so a labelled illustrative topic photo renders instead."
+      "note": "Wayfind holds a stored Google photo of this place, but Google availability alone grants no reuse rights. Pass 2026-11-04: searched Wikimedia Commons (\"Kids Empire\", \"Kids Empire Citrus Park Tampa\"; the only Kids Empire files are other locations) and Openverse (Flickr and Commons, CC0, CC BY, CC BY-SA) and found no licensed photo of this exact venue. Renders Wayfind's neutral Photo unavailable tile, not a photograph of another place."
     }
   }
 }
