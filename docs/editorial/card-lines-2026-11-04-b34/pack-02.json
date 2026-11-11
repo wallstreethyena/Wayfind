@@ -1,0 +1,149 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 34. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJ8-UMxdTvwogRIv-1Qs-y_UA",
+   "name": "La Quinta Inn by Wyndham Clearwater Central",
+   "category": "hotels",
+   "metro": "st-pete",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.wyndhamhotels.com/laquinta/clearwater-florida/la-quinta-inn-clearwater-central/overview",
+     "source_name": "La Quinta Inn by Wyndham Clearwater Central \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "La Quinta Inn by Wyndham Clearwater Central is at 21338 U.S. 19 N, Clearwater, FL 33765",
+      "The hotel offers free breakfast and WiFi, plus an outdoor pool",
+      "The free Bright Side Breakfast includes waffles, fresh fruit, and more",
+      "The hotel has an outdoor pool and hot tub"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Clearwater hotel with free breakfast, WiFi, and an outdoor pool",
+    "why_here": "Stay for free breakfast and WiFi, a free Bright Side Breakfast with waffles and fresh fruit, and an outdoor pool and hot tub in Clearwater.",
+    "know_before": "The free Bright Side Breakfast includes waffles, fresh fruit, and more",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.wyndhamhotels.com/laquinta/clearwater-florida/la-quinta-inn-clearwater-central/overview"
+     ],
+     "why_here": [
+      "https://www.wyndhamhotels.com/laquinta/clearwater-florida/la-quinta-inn-clearwater-central/overview"
+     ],
+     "know_before": [
+      "https://www.wyndhamhotels.com/laquinta/clearwater-florida/la-quinta-inn-clearwater-central/overview"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "La Quinta Inn by Wyndham Clearwater Central is at 21338 U.S. 19 N, Clearwater, FL 33765",
+      "source": "https://www.wyndhamhotels.com/laquinta/clearwater-florida/la-quinta-inn-clearwater-central/overview"
+     },
+     {
+      "claim": "The hotel offers free breakfast and WiFi, plus an outdoor pool",
+      "source": "https://www.wyndhamhotels.com/laquinta/clearwater-florida/la-quinta-inn-clearwater-central/overview"
+     },
+     {
+      "claim": "The free Bright Side Breakfast includes waffles, fresh fruit, and more",
+      "source": "https://www.wyndhamhotels.com/laquinta/clearwater-florida/la-quinta-inn-clearwater-central/overview"
+     },
+     {
+      "claim": "The hotel has an outdoor pool and hot tub",
+      "source": "https://www.wyndhamhotels.com/laquinta/clearwater-florida/la-quinta-inn-clearwater-central/overview"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ3ctXkdRJ5IgRLjcy84Z0jOo",
+   "name": "Margaritaville Beach Hotel Jacksonville Beach",
+   "category": "hotels",
+   "metro": "florida",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.margaritavilleresorts.com/margaritaville-hotel-jacksonville-beach/stay",
+     "source_name": "Margaritaville Beach Hotel Jacksonville Beach \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Margaritaville Beach Hotel Jacksonville Beach has 202 rooms and suites in Jacksonville Beach",
+      "The hotel features a private pool, a fitness center, and water sports rentals",
+      "Guest rooms include standard, deluxe and premium guest rooms",
+      "Oceanfront suites have a private balcony, king-size beds, queen-sized pull-out couches and separate living areas",
+      "The hotel is at 715 1st St N, Jacksonville Beach, Florida 32250"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "202 rooms and suites with a private pool in Jacksonville Beach",
+    "why_here": "Stay among 202 rooms and suites in Jacksonville Beach, with a private pool, a fitness center, and water sports rentals, plus standard, deluxe and premium guest rooms and Oceanfront suites.",
+    "know_before": "The hotel is at 715 1st St N, Jacksonville Beach, Florida 32250.",
+    "local_tip": "Choose Oceanfront suites for a private balcony and separate living areas.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.margaritavilleresorts.com/margaritaville-hotel-jacksonville-beach/stay"
+     ],
+     "why_here": [
+      "https://www.margaritavilleresorts.com/margaritaville-hotel-jacksonville-beach/stay"
+     ],
+     "know_before": [
+      "https://www.margaritavilleresorts.com/margaritaville-hotel-jacksonville-beach/stay"
+     ],
+     "local_tip": [
+      "https://www.margaritavilleresorts.com/margaritaville-hotel-jacksonville-beach/stay"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Margaritaville Beach Hotel Jacksonville Beach has 202 rooms and suites in Jacksonville Beach",
+      "source": "https://www.margaritavilleresorts.com/margaritaville-hotel-jacksonville-beach/stay"
+     },
+     {
+      "claim": "The hotel features a private pool, a fitness center, and water sports rentals",
+      "source": "https://www.margaritavilleresorts.com/margaritaville-hotel-jacksonville-beach/stay"
+     },
+     {
+      "claim": "Guest rooms include standard, deluxe and premium guest rooms",
+      "source": "https://www.margaritavilleresorts.com/margaritaville-hotel-jacksonville-beach/stay"
+     },
+     {
+      "claim": "Oceanfront suites have a private balcony, king-size beds, queen-sized pull-out couches and separate living areas",
+      "source": "https://www.margaritavilleresorts.com/margaritaville-hotel-jacksonville-beach/stay"
+     },
+     {
+      "claim": "The hotel is at 715 1st St N, Jacksonville Beach, Florida 32250",
+      "source": "https://www.margaritavilleresorts.com/margaritaville-hotel-jacksonville-beach/stay"
+     }
+    ]
+   }
+  }
+ ]
+}

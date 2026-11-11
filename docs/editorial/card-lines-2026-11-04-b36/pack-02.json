@@ -1,0 +1,549 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 36. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJvzGxHAC32YgRMvfqU29BbyU",
+   "name": "Bobe Kitchen & Bakery",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://bobekitchen.com/",
+     "source_name": "Bobe Kitchen & Bakery \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Bobe Kitchen serves homemade breakfast, brunch and bakery in Downtown Miami",
+      "Pistachio Croissant is a flaky, buttery croissant filled with pistachio cream and baked fresh daily",
+      "Chicken Shawarma has chicken breast, hummus and tzatziki",
+      "Bobe is open every day from 7:00 a.m. to 6:00 p.m.",
+      "Bobe Kitchen is at 236 NE 4th St, Miami, FL 33132"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Bakery in Downtown Miami serving Pistachio Croissant and Chicken Shawarma",
+    "why_here": "Bobe Kitchen serves homemade breakfast, brunch and bakery in Downtown Miami, including a Pistachio Croissant filled with pistachio cream and baked fresh daily, and Chicken Shawarma with chicken breast, hummus and tzatziki.",
+    "know_before": "Bobe is open every day from 7:00 a.m. to 6:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://bobekitchen.com/"
+     ],
+     "why_here": [
+      "https://bobekitchen.com/"
+     ],
+     "know_before": [
+      "https://bobekitchen.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Bobe Kitchen serves homemade breakfast, brunch and bakery in Downtown Miami",
+      "source": "https://bobekitchen.com/"
+     },
+     {
+      "claim": "Pistachio Croissant is a flaky, buttery croissant filled with pistachio cream and baked fresh daily",
+      "source": "https://bobekitchen.com/"
+     },
+     {
+      "claim": "Chicken Shawarma has chicken breast, hummus and tzatziki",
+      "source": "https://bobekitchen.com/"
+     },
+     {
+      "claim": "Bobe is open every day from 7:00 a.m. to 6:00 p.m.",
+      "source": "https://bobekitchen.com/"
+     },
+     {
+      "claim": "Bobe Kitchen is at 236 NE 4th St, Miami, FL 33132",
+      "source": "https://bobekitchen.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJCz0apdewwogR5XwVrQHXojU",
+   "name": "Pinchers",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.pinchersusa.com/menu/",
+     "source_name": "Pinchers \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "HOT CRAB & CHEESE DIP is served with an endless bowl of tortilla chips",
+      "PINCHERS CLAWS are Fresh Blue Crab claws saut\u00e9ed in white wine and garlic butter",
+      "GROUPER NUGGETS are flash fried bites of local Grouper served with a side of Boom Boom sauce",
+      "Stone crab season runs October 15 to May 1"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Menu with HOT CRAB & CHEESE DIP, PINCHERS CLAWS and GROUPER NUGGETS",
+    "why_here": "Start with HOT CRAB & CHEESE DIP served with an endless bowl of tortilla chips, PINCHERS CLAWS saut\u00e9ed in white wine and garlic butter, or GROUPER NUGGETS, flash fried bites of local Grouper served with Boom Boom sauce.",
+    "know_before": "Stone crab season runs October 15 to May 1.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.pinchersusa.com/menu/"
+     ],
+     "why_here": [
+      "https://www.pinchersusa.com/menu/"
+     ],
+     "know_before": [
+      "https://www.pinchersusa.com/menu/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "HOT CRAB & CHEESE DIP is served with an endless bowl of tortilla chips",
+      "source": "https://www.pinchersusa.com/menu/"
+     },
+     {
+      "claim": "PINCHERS CLAWS are Fresh Blue Crab claws saut\u00e9ed in white wine and garlic butter",
+      "source": "https://www.pinchersusa.com/menu/"
+     },
+     {
+      "claim": "GROUPER NUGGETS are flash fried bites of local Grouper served with a side of Boom Boom sauce",
+      "source": "https://www.pinchersusa.com/menu/"
+     },
+     {
+      "claim": "Stone crab season runs October 15 to May 1",
+      "source": "https://www.pinchersusa.com/menu/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJCRW-9SK35YgRwOMNBWLdzRI",
+   "name": "Southbank Riverwalk",
+   "category": "attractions",
+   "metro": "st-augustine-fl",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.jacksonville.gov/departments/parks,-recreation-and-community-services/jaxparks/all-parks/southbank-riverwalk",
+     "source_name": "Southbank Riverwalk \u2014 official source",
+     "source_class": "government",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Southbank Riverwalk is a 1 1/4-mile concrete boardwalk bordering the St. Johns River",
+      "Southbank Riverwalk is in Jacksonville",
+      "The boardwalk is used by joggers and people sitting on benches watching riverboats, shorebirds and downtown's skyline reflected in the water"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "1 1/4-mile concrete boardwalk bordering the St. Johns River",
+    "why_here": "Walk the 1 1/4-mile concrete boardwalk bordering the St. Johns River in Jacksonville, sit on benches, and watch riverboats, shorebirds and downtown's skyline reflected in the water on an outing.",
+    "know_before": "The boardwalk is used by joggers and people sitting on benches.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.jacksonville.gov/departments/parks,-recreation-and-community-services/jaxparks/all-parks/southbank-riverwalk"
+     ],
+     "why_here": [
+      "https://www.jacksonville.gov/departments/parks,-recreation-and-community-services/jaxparks/all-parks/southbank-riverwalk"
+     ],
+     "know_before": [
+      "https://www.jacksonville.gov/departments/parks,-recreation-and-community-services/jaxparks/all-parks/southbank-riverwalk"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Southbank Riverwalk is a 1 1/4-mile concrete boardwalk bordering the St. Johns River",
+      "source": "https://www.jacksonville.gov/departments/parks,-recreation-and-community-services/jaxparks/all-parks/southbank-riverwalk"
+     },
+     {
+      "claim": "Southbank Riverwalk is in Jacksonville",
+      "source": "https://www.jacksonville.gov/departments/parks,-recreation-and-community-services/jaxparks/all-parks/southbank-riverwalk"
+     },
+     {
+      "claim": "The boardwalk is used by joggers and people sitting on benches watching riverboats, shorebirds and downtown's skyline reflected in the water",
+      "source": "https://www.jacksonville.gov/departments/parks,-recreation-and-community-services/jaxparks/all-parks/southbank-riverwalk"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJtRS0HVy32YgRsiZz9ho-xq4",
+   "name": "LUX MedSpa Brickell",
+   "category": "attractions",
+   "metro": "miami-dade",
+   "primary_type": "spa",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.luxmedspabrickell.com/luxury-spa-services-in-brickell",
+     "source_name": "LUX MedSpa Brickell \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "LUX MedSpa Brickell is located on the ninth floor inside the SLS LUX Hotel in Brickell"
+     ]
+    },
+    {
+     "source": "https://www.luxmedspabrickell.com/",
+     "source_name": "LUX MedSpa Brickell \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Services include custom facials, Swedish massage, deep tissue massage, sports massage, prenatal massage, lymphatic drainage and couples massage"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Spa inside the SLS LUX Hotel offering custom facials and massage",
+    "why_here": "Book custom facials or massage inside the SLS LUX Hotel, choosing from Swedish massage, deep tissue massage, sports massage, prenatal massage, lymphatic drainage and couples massage on the ninth floor in Brickell.",
+    "know_before": "LUX MedSpa Brickell is on the ninth floor inside the SLS LUX Hotel in Brickell",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.luxmedspabrickell.com/luxury-spa-services-in-brickell"
+     ],
+     "why_here": [
+      "https://www.luxmedspabrickell.com/luxury-spa-services-in-brickell"
+     ],
+     "know_before": [
+      "https://www.luxmedspabrickell.com/luxury-spa-services-in-brickell"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "LUX MedSpa Brickell is located on the ninth floor inside the SLS LUX Hotel in Brickell",
+      "source": "https://www.luxmedspabrickell.com/luxury-spa-services-in-brickell"
+     },
+     {
+      "claim": "Services include custom facials, Swedish massage, deep tissue massage, sports massage, prenatal massage, lymphatic drainage and couples massage",
+      "source": "https://www.luxmedspabrickell.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ1V9kr2LEwogRMW-wiXgjUpA",
+   "name": "The Barrymore Hotel Tampa Riverwalk",
+   "category": "hotels",
+   "metro": "tampa",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.barrymorehotel.com/",
+     "source_name": "The Barrymore Hotel Tampa Riverwalk \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Barrymore Hotel Tampa Riverwalk is located in downtown Tampa along the Hillsborough River, near the Tampa Riverwalk",
+      "Hotel amenities include complimentary Wi-Fi, an outdoor pool, a 24-hour fitness center, pet-friendly accommodations, on-site dining, local shuttle service, and on-site parking",
+      "Check-in begins at 3:00 p.m., and check-out is at 11:00 a.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Downtown Tampa hotel near the Tampa Riverwalk with an outdoor pool",
+    "why_here": "Stay in downtown Tampa along the Hillsborough River near the Tampa Riverwalk for an outdoor pool, a 24-hour fitness center, complimentary Wi-Fi and a local shuttle service from the hotel.",
+    "know_before": "Check-in begins at 3:00 p.m. and check-out is at 11:00 a.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.barrymorehotel.com/"
+     ],
+     "why_here": [
+      "https://www.barrymorehotel.com/"
+     ],
+     "know_before": [
+      "https://www.barrymorehotel.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Barrymore Hotel Tampa Riverwalk is located in downtown Tampa along the Hillsborough River, near the Tampa Riverwalk",
+      "source": "https://www.barrymorehotel.com/"
+     },
+     {
+      "claim": "Hotel amenities include complimentary Wi-Fi, an outdoor pool, a 24-hour fitness center, pet-friendly accommodations, on-site dining, local shuttle service, and on-site parking",
+      "source": "https://www.barrymorehotel.com/"
+     },
+     {
+      "claim": "Check-in begins at 3:00 p.m., and check-out is at 11:00 a.m.",
+      "source": "https://www.barrymorehotel.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJIzVrudS32YgR_aeUTGQxnoE",
+   "name": "450Gradi Miami",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://450gradimiami.com/menu",
+     "source_name": "450Gradi Miami \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "450Gradi Miami in Coral Gables lists Pizza al Forno on its menu",
+      "Pizza dough is made with turmeric and Gluten-free is available upon request",
+      "The menu lists Diavola Pizza, Farcit\u00e0 Pizza, Tuna Pizza, 4 Cheese Truffle Pizza and Short-Rib Pizza"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Miami restaurant serving Pizza al Forno made with turmeric dough",
+    "why_here": "Try Pizza al Forno made with turmeric dough, choosing pies such as Diavola Pizza, Tuna Pizza, 4 Cheese Truffle Pizza or Short-Rib Pizza from the 450Gradi Miami menu in Coral Gables.",
+    "know_before": "Gluten-free is available upon request",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://450gradimiami.com/menu"
+     ],
+     "why_here": [
+      "https://450gradimiami.com/menu"
+     ],
+     "know_before": [
+      "https://450gradimiami.com/menu"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "450Gradi Miami in Coral Gables lists Pizza al Forno on its menu",
+      "source": "https://450gradimiami.com/menu"
+     },
+     {
+      "claim": "Pizza dough is made with turmeric and Gluten-free is available upon request",
+      "source": "https://450gradimiami.com/menu"
+     },
+     {
+      "claim": "The menu lists Diavola Pizza, Farcit\u00e0 Pizza, Tuna Pizza, 4 Cheese Truffle Pizza and Short-Rib Pizza",
+      "source": "https://450gradimiami.com/menu"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ7c13pdR_3YgRfneAPorD1L0",
+   "name": "Wolfgang Puck Bar & Grill",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://wolfgangpuck.com/dining/orlando-bar-grill",
+     "source_name": "Wolfgang Puck Bar & Grill \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Wolfgang Puck Bar & Grill is at Disney Springs",
+      "Wolfgang Puck Bar & Grill menu highlights signature dishes with innovative takes on comfort food classics",
+      "Wolfgang Puck Bar & Grill serves handcrafted specialty cocktails, beer and wine"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Signature dishes with innovative takes on comfort food classics",
+    "why_here": "Dine at Wolfgang Puck Bar & Grill at Disney Springs for signature dishes with innovative takes on comfort food classics, plus handcrafted specialty cocktails, beer and wine for the table.",
+    "know_before": "Wolfgang Puck Bar & Grill is at Disney Springs.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://wolfgangpuck.com/dining/orlando-bar-grill"
+     ],
+     "why_here": [
+      "https://wolfgangpuck.com/dining/orlando-bar-grill"
+     ],
+     "know_before": [
+      "https://wolfgangpuck.com/dining/orlando-bar-grill"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Wolfgang Puck Bar & Grill is at Disney Springs",
+      "source": "https://wolfgangpuck.com/dining/orlando-bar-grill"
+     },
+     {
+      "claim": "Wolfgang Puck Bar & Grill menu highlights signature dishes with innovative takes on comfort food classics",
+      "source": "https://wolfgangpuck.com/dining/orlando-bar-grill"
+     },
+     {
+      "claim": "Wolfgang Puck Bar & Grill serves handcrafted specialty cocktails, beer and wine",
+      "source": "https://wolfgangpuck.com/dining/orlando-bar-grill"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJHZ6_8bXg2YgRec9DKSBF0LM",
+   "name": "Best Western Gateway to the Keys",
+   "category": "hotels",
+   "metro": "florida",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.bestwestern.com/en_US/book/hotel-details.10254.html",
+     "source_name": "Best Western Gateway to the Keys \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Best Western Gateway to the Keys is at 411 S Krome Avenue, Florida City, Florida, 33034-4913, United States",
+      "The hotel has easy reach of two national parks and the road to the Keys",
+      "The hotel offers an outdoor pool and a complimentary breakfast",
+      "Complimentary breakfast is served from 6:30 a.m. to 10:00 a.m.",
+      "Outdoor pool hours are 7:00 a.m. to 7:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Florida City hotel with an outdoor pool and complimentary breakfast",
+    "why_here": "Use this Florida City hotel at 411 S Krome Avenue as a base with easy reach of two national parks and the road to the Keys, plus an outdoor pool and complimentary breakfast during the stay.",
+    "know_before": "Complimentary breakfast is served from 6:30 a.m. to 10:00 a.m. and the outdoor pool is open from 7:00 a.m. to 7:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.bestwestern.com/en_US/book/hotel-details.10254.html"
+     ],
+     "why_here": [
+      "https://www.bestwestern.com/en_US/book/hotel-details.10254.html"
+     ],
+     "know_before": [
+      "https://www.bestwestern.com/en_US/book/hotel-details.10254.html"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Best Western Gateway to the Keys is at 411 S Krome Avenue, Florida City, Florida, 33034-4913, United States",
+      "source": "https://www.bestwestern.com/en_US/book/hotel-details.10254.html"
+     },
+     {
+      "claim": "The hotel has easy reach of two national parks and the road to the Keys",
+      "source": "https://www.bestwestern.com/en_US/book/hotel-details.10254.html"
+     },
+     {
+      "claim": "The hotel offers an outdoor pool and a complimentary breakfast",
+      "source": "https://www.bestwestern.com/en_US/book/hotel-details.10254.html"
+     },
+     {
+      "claim": "Complimentary breakfast is served from 6:30 a.m. to 10:00 a.m.",
+      "source": "https://www.bestwestern.com/en_US/book/hotel-details.10254.html"
+     },
+     {
+      "claim": "Outdoor pool hours are 7:00 a.m. to 7:00 p.m.",
+      "source": "https://www.bestwestern.com/en_US/book/hotel-details.10254.html"
+     }
+    ]
+   }
+  }
+ ]
+}

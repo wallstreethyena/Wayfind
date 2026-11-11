@@ -53,6 +53,7 @@ import GuidePickDecision from "./GuidePickDecision";
 import { inlineBookConfig } from "../../../lib/guideInlineBook";
 import GuidePickOffer from "./GuidePickOffer";
 import { guidePickOffers, replacesCityStrip } from "../../../lib/guidePickOffers";
+import { orlandoExactTiqetsEntry } from "../../../lib/orlandoGuideTickets";
 import { COUPONS, couponIsLive, couponEndsLabel } from "../../../lib/coupons";
 // Venue-local US Eastern, DST-aware. NEVER new Date().toISOString() — that is UTC
 // and expires a coupon roughly four hours early.
@@ -1067,6 +1068,9 @@ export default async function GuidePage({ params }) {
           lat={bridgeCity.lat}
           lng={bridgeCity.lng}
         />
+      ) : null}
+      {params.slug === "things-to-do-orlando-not-theme-parks" ? (
+        <GuidePickOffer entry={orlandoExactTiqetsEntry()} slug={params.slug} />
       ) : null}
       <div className="wf-guide-disclosure">We may earn a commission when you book through partner links. It never changes our rankings.</div>
       {/* v6.71 — the per-pick link wall is GONE. Each pick used to carry
