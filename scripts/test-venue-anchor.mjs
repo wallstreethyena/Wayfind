@@ -9,6 +9,7 @@ import {
   anchorEventVenue, anchorableEvent, applyVenueAnchor, matchInventoryVenue, readInventoryByName, venueNameForms,
   venueAnchorCacheKey, clearVenueAnchorCacheForTests, VENUE_ANCHOR_CONFIRM_METERS, VENUE_ANCHOR_MAX_METERS,
 } from "../lib/venueAnchor.js";
+import { cityAgreesAny } from "../lib/appleVenueLocation.js";
 
 let assertions = 0;
 const check = Object.fromEntries(["equal", "deepEqual", "ok", "notEqual"].map((method) => [method, (...args) => {
@@ -87,7 +88,7 @@ const fakeFetch = (rows) => async (url) => { calls.push(url); return { ok: true,
 const env = { url: "https://example.supabase.co", key: "service-role-test" };
 const rows = await readInventoryByName(["David A. Straz Center - Carol Morsani Hall", "David A. Straz Center"], { env, fetchImpl: fakeFetch([TROP_ROW]) });
 check.equal(rows.length, 1, "rows come back from the reader");
-check.ok(calls[0].startsWith("https://example.supabase.co/rest/v1/wf_inventory?select=place_id,name,locality,metro,lat,lng,primary_type&or="), "one request against wf_inventory with the needed columns");
+check.ok(calls[0].startsWith("https://example.supabase.co/rest/v1/wf_inventory?select=place_id,name,locality,postal_city,metro,lat,lng,primary_type&or="), "one request against wf_inventory with the needed columns");
 check.ok(decodeURIComponent(calls[0]).includes('(name.ilike."David A. Straz Center - Carol Morsani Hall",name.ilike."David A. Straz Center")'), "both name forms, quoted, exact (no wildcards)");
 check.ok(/limit=20$/.test(calls[0]), "bounded");
 const single = await readInventoryByName(['O\'Malley\'s "Pub"'], { env, fetchImpl: fakeFetch([]) });
@@ -137,5 +138,69 @@ const staple = { ...trop, source: "Local staples" };
 check.equal(await anchorEventVenue(staple, { read, cache: null }), staple, "a staple is returned as the same object");
 check.notEqual(venueAnchorCacheKey(trop), venueAnchorCacheKey({ ...trop, city: "Tampa" }), "the cache key includes the city");
 check.notEqual(venueAnchorCacheKey(trop), venueAnchorCacheKey({ ...trop, lat: 27.9 }), "and the provider point");
+
+
+// ---- 2026-11-03: Census locality vs verified postal_city --------------------
+// Every row where the Census place of the venue's point differs from its
+// mailing city (docs/audits/20261103230000_wf_inventory_postal_city.census.json).
+// The event names the mailing city. With locality alone the event is refused
+// (the defect that held these locality writes); with postal_city it anchors.
+const CONFLICTS = [
+  ["ChIJKVDd7v_bkIgRv0FaG2bnP9g", "Gulf Breeze Zoo", 30.4011616, -86.9844129, "Woodlawn Beach", "Gulf Breeze", "zoo"],
+  ["ChIJhzWIGZUe24gRZ0qRx2ErnPI", "Mercato", 26.253053, -81.7989509, "Pelican Marsh", "Naples", "shopping_mall"],
+  ["ChIJ7_PseA9n54gRpWhEjEiG3uo", "KEG SOCIAL ORLANDO - Dining & Entertainment", 28.5535505, -81.1961931, "Alafaya", "Orlando", "bar"],
+  ["ChIJ9RHZGx6H3YgRnWVYIWsHNPM", "Gatorland", 28.3556496, -81.4022109, "Southchase", "Orlando", "amusement_park"],
+  ["ChIJN9FTnbF754gRwLFDBN_ahJ4", "Children's Planet", 28.4959541, -81.3737661, "Edgewood", "Orlando", "playground"],
+  ["ChIJOWyInLF_54gRgRgjDQy9zhw", "American Social - Bar & Kitchen - Orlando", 28.4509863, -81.4793931, "Doctor Phillips", "Orlando", "american_restaurant"],
+  ["ChIJRQw4SiI35IgRSAIrKfRvWEg", "1912 Ocean Bar & Rooftop", 30.2171646, -81.3714758, "Sawgrass", "Ponte Vedra Beach", "gastropub"],
+  ["ChIJTRfRfgpBw4gR-u488ol_SOw", "Riverview Performing Arts Center", 27.282012, -82.5194997, "Ridge Wood Heights", "Sarasota", "performing_arts_theater"],
+  ["ChIJWfHLuGMs5IgRZHXJPtNZCr0", "World Golf Village Renaissance St. Augustine Resort", 29.9903954, -81.4682239, "World Golf Village", "St. Augustine", "event_venue"],
+  ["ChIJJQVMQuJXw4gRhD0CpEOETGo", "Downtown Wellen Park", 27.0462517, -82.3272153, "North Port", "Venice", "shopping_mall"],
+];
+// 6 km from the row: past the near band, so only an AGREEING city may carry it
+// (a non-big type) - the case where a wrong city verdict decides the outcome.
+const away = (lat, lng) => ({ lat: lat + 0.054, lng });
+for (const [id, name, lat, lng, census, postal, type] of CONFLICTS) {
+  const ev = { id: `tm_${id}`, source: "Ticketmaster", venue: name, city: postal, ...away(lat, lng), name: `Event at ${name}` };
+  const censusOnly = row(id, name, lat, lng, { locality: census, metro: "orlando", primary_type: type });
+  const both = { ...censusOnly, postal_city: postal };
+  check.equal(cityAgreesAny([census], postal), false, `${name}: Census ${census} alone disagrees with ${postal}`);
+  check.equal(cityAgreesAny([census, postal], postal), true, `${name}: with postal_city the verified names agree`);
+  check.equal(cityAgreesAny([census, postal], "Tampa"), false, `${name}: an unrelated city still disagrees`);
+  if (type === "shopping_mall") {
+    // Never a ticketed venue (NON_VENUE_TYPE), whatever the city says: unchanged.
+    check.equal(matchInventoryVenue(ev, [both]).reason, "non-venue-type", `${name}: a mall is refused as a venue regardless of city`);
+    continue;
+  }
+  check.equal(matchInventoryVenue(ev, [censusOnly]).ok, false, `${name}: Census locality ${census} alone refuses an event listed in ${postal} (the held-write defect)`);
+  const m = matchInventoryVenue(ev, [both]);
+  check.equal(m.ok && m.place_id, id, `${name}: locality ${census} + postal_city ${postal} anchors the ${postal} event`);
+  check.equal(matchInventoryVenue({ ...ev, city: census }, [both]).ok, true, `${name}: an event listed under the Census place ${census} also anchors`);
+  check.equal(matchInventoryVenue({ ...ev, city: "Jacksonville" }, [both]).ok, false, `${name}: a different city is still refused`);
+}
+// Scream-A-Geddon: point in no Census place (Pasco); locality empty + postal Dade City.
+{
+  const sid = "ChIJ7zRUJ9CowogRM70pcoqrdUM", lat = 28.3753419, lng = -82.3554912;
+  const ev = { id: "tm_scream", source: "Ticketmaster", venue: "Scream-A-Geddon Horror Park", city: "Dade City", ...away(lat, lng), name: "Scream-A-Geddon" };
+  const r = row(sid, "Scream-A-Geddon Horror Park", lat, lng, { locality: null, county: "Pasco", postal_city: "Dade City", primary_type: "amusement_park" });
+  check.equal(matchInventoryVenue(ev, [r]).place_id, sid, "Scream-A-Geddon: empty Census locality + postal Dade City still anchors its Dade City event");
+  check.equal(matchInventoryVenue({ ...ev, city: "Zephyrhills" }, [r]).ok, false, "Scream-A-Geddon: a different city is refused");
+}
+// Negative identity: metro, county and near-miss names are never agreement.
+{
+  const g = row("ChIJ9RHZGx6H3YgRnWVYIWsHNPM", "Gatorland", 28.3556496, -81.4022109, { locality: "Southchase", postal_city: "Orlando", metro: "orlando", county: "Orange", primary_type: "amusement_park" });
+  const ev = { id: "tm_g", source: "Ticketmaster", venue: "Gatorland", ...away(28.3556496, -81.4022109), name: "x" };
+  check.equal(matchInventoryVenue({ ...ev, city: "Orange" }, [g]).ok, false, "a county name is not a city agreement");
+  check.equal(matchInventoryVenue({ ...ev, city: "Orlando Metro" }, [g]).ok, false, "a metro-ish label is not a city agreement");
+  check.equal(matchInventoryVenue({ ...ev, city: "Orlando", venue: "Gatorland Global" }, [g]).ok, false, "a longer, different venue name is refused even with the city agreeing");
+  // Two same-named rows, one per mailing city: the event's city picks exactly one.
+  const twinA = row("twin-a", "Riverfront Park", 27.9, -82.4, { locality: "Palm River-Clair Mel", postal_city: "Tampa", primary_type: "park" });
+  const twinB = row("twin-b", "Riverfront Park", 28.04, -82.4, { locality: "Lutz", postal_city: "Lutz", primary_type: "park" });
+  const pe = { id: "tm_rp", source: "Ticketmaster", venue: "Riverfront Park", city: "Tampa", lat: 27.97, lng: -82.4, name: "x" };
+  check.equal(matchInventoryVenue(pe, [twinA, twinB]).place_id, "twin-a", "a same-named park in another mailing city is not merged in");
+  check.equal(matchInventoryVenue({ ...pe, city: "Brandon" }, [twinA, twinB]).ok, false, "neither twin when the event names a third city");
+  const noCity = row("no-city", "Gatorland", 28.3556496, -81.4022109, { locality: null, postal_city: null, primary_type: "amusement_park" });
+  check.equal(matchInventoryVenue({ ...ev, city: "Orlando" }, [noCity]).ok, true, "no verified name on our side stays neutral (a big single-site venue type within the cap)");
+}
 
 console.log(`test-venue-anchor: PASS — ${assertions} assertions: Ticketmaster rows anchored on Wayfind's own venue row only at the strict name bar within ${VENUE_ANCHOR_MAX_METERS} m with one unique non-lodging survivor; live inventory traps (Oregon/Dubai/Orlando look-alikes) refused; confirm band ${VENUE_ANCHOR_CONFIRM_METERS} m; exact quoted inventory query; memory + shared cache; every failure keeps the row as resolved. Fake reader and cache; no live coverage claim.`);
