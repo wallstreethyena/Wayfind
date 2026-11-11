@@ -26,15 +26,35 @@ const PLACE_ID = "ChIJh8tXh-FBw4gR9kFzfZN_g60";
 // scripts/check-shell-routes.mjs proves the prop is PASSED, this proves the band
 // actually PAINTS. Both halves are needed: the prop was present and the band
 // still rendered nothing would be a different bug with the same symptom.
+//
+// PLACE LANDING NOTE (2026-11-11). Since #2360 a direct /p/<id> landing does not
+// mount the home feed while the place sheet is open (lib/feedDeferral.js: the
+// feed re-rendering under the sheet cost p75 mobile INP 430ms). The sheet covers
+// the page, so what the visitor sees first is the PLACE; the card surface is
+// what they get the moment they leave it. This spec demanded tiles under the
+// open sheet, so the canary went red on every run from #2360's deploy while
+// production was healthy. A place route (`place: true`) now proves both halves
+// in the order a visitor meets them: the place rendered, then Back lands on a
+// populated card surface. Do NOT drop the second half: "the shell came back
+// with no cards" is the bug this file exists for.
+const PLACE_NAME = "Siesta Beach";
 const SHELL_ROUTES = [
   { name: "homepage", url: "/" },
-  { name: "place deep link", url: `/p/${PLACE_ID}` },
-  { name: "place deep link with action", url: `/p/${PLACE_ID}?action=like` },
+  { name: "place deep link", url: `/p/${PLACE_ID}`, place: true },
+  { name: "place deep link with action", url: `/p/${PLACE_ID}?action=like`, place: true },
 ];
 
 for (const route of SHELL_ROUTES) {
   test(`${route.name} renders a populated card surface`, async ({ page }) => {
     await page.goto(route.url, { waitUntil: "domcontentloaded" });
+    if (route.place) {
+      // The place itself must paint: a sheet that never opens leaves the
+      // visitor on a placeholder until the 8s fail-safe releases the feed.
+      await expect(page.getByText(PLACE_NAME, { exact: true }).first(),
+        `${route.url} never showed the place it links to`).toBeVisible({ timeout: 20_000 });
+      // Leaving the place is what releases the deferred feed.
+      await page.getByRole("button", { name: "Back", exact: true }).click();
+    }
     // The rail band is server-data-gated (railMenu ? <DaypartRail/> : null), so
     // if the route forgot the prop this is zero and the page is a promo card and
     // a footer — exactly the screenshot the owner sent.
