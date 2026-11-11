@@ -1,0 +1,1660 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 53. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJfyrCDAW45YgRMbidHFHXNWg",
+   "name": "Stockton Park",
+   "category": "attractions",
+   "metro": "st-augustine-fl",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.jacksonville.gov/departments/parks-and-recreation/jaxparks/all-parks/stockton-park",
+     "source_name": "Stockton Park \u2014 official source",
+     "source_class": "government",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Stockton Park is located along the St. Johns River in the Ortega neighborhood of southwest Jacksonville",
+      "Available amenities include benches, car parking, drinking fountain, fishing, and picnic tables",
+      "Originally named Ortega Park, it was expanded in 1965 when the City filled an acre of submerged land and built a bulkhead",
+      "The newly designed park reopened in July 2005 after a collaboration between area residents and the City"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Riverfront Ortega park on the St. Johns River with fishing and picnic space",
+    "why_here": "Stockton Park sits along the St. Johns River in Jacksonville's Ortega neighborhood. The City of Jacksonville lists benches, parking, a drinking fountain, fishing, and picnic tables among its available amenities.",
+    "know_before": "The park was originally named Ortega Park and was expanded in 1965 when the City filled an acre of submerged land and built a bulkhead.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.jacksonville.gov/departments/parks-and-recreation/jaxparks/all-parks/stockton-park"
+     ],
+     "why_here": [
+      "https://www.jacksonville.gov/departments/parks-and-recreation/jaxparks/all-parks/stockton-park"
+     ],
+     "know_before": [
+      "https://www.jacksonville.gov/departments/parks-and-recreation/jaxparks/all-parks/stockton-park"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Stockton Park is located along the St. Johns River in the Ortega neighborhood of southwest Jacksonville",
+      "source": "https://www.jacksonville.gov/departments/parks-and-recreation/jaxparks/all-parks/stockton-park"
+     },
+     {
+      "claim": "Available amenities include benches, car parking, drinking fountain, fishing, and picnic tables",
+      "source": "https://www.jacksonville.gov/departments/parks-and-recreation/jaxparks/all-parks/stockton-park"
+     },
+     {
+      "claim": "Originally named Ortega Park, it was expanded in 1965 when the City filled an acre of submerged land and built a bulkhead",
+      "source": "https://www.jacksonville.gov/departments/parks-and-recreation/jaxparks/all-parks/stockton-park"
+     },
+     {
+      "claim": "The newly designed park reopened in July 2005 after a collaboration between area residents and the City",
+      "source": "https://www.jacksonville.gov/departments/parks-and-recreation/jaxparks/all-parks/stockton-park"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ05rFHVjOwogREgw_a8FtmBY",
+   "name": "La Quinta Inn & Suites by Wyndham Tampa Brandon West",
+   "category": "hotels",
+   "metro": "tampa",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.wyndhamhotels.com/laquinta/tampa-florida/la-quinta-tampa-brandon-west/overview",
+     "source_name": "La Quinta Inn & Suites by Wyndham Tampa Brandon West \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The hotel offers free Bright Side Breakfast each morning",
+      "Amenities include an outdoor pool and free parking",
+      "Non-smoking guest rooms feature free WiFi, a coffee maker, desk, and flat-screen HDTV",
+      "The hotel provides discounted access to a nearby fitness center"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Tampa La Quinta with free Bright Side Breakfast, outdoor pool and free parking",
+    "why_here": "Wyndham describes this Tampa hotel as providing free breakfast, parking, and an outdoor pool for a comfortable stay. Guests begin the morning with the free Bright Side Breakfast and can take a refreshing swim in the outdoor pool.",
+    "know_before": "Wyndham states guest rooms are non-smoking and feature free WiFi, a coffee maker, desk, and flat-screen HDTV.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.wyndhamhotels.com/laquinta/tampa-florida/la-quinta-tampa-brandon-west/overview"
+     ],
+     "why_here": [
+      "https://www.wyndhamhotels.com/laquinta/tampa-florida/la-quinta-tampa-brandon-west/overview"
+     ],
+     "know_before": [
+      "https://www.wyndhamhotels.com/laquinta/tampa-florida/la-quinta-tampa-brandon-west/overview"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The hotel offers free Bright Side Breakfast each morning",
+      "source": "https://www.wyndhamhotels.com/laquinta/tampa-florida/la-quinta-tampa-brandon-west/overview"
+     },
+     {
+      "claim": "Amenities include an outdoor pool and free parking",
+      "source": "https://www.wyndhamhotels.com/laquinta/tampa-florida/la-quinta-tampa-brandon-west/overview"
+     },
+     {
+      "claim": "Non-smoking guest rooms feature free WiFi, a coffee maker, desk, and flat-screen HDTV",
+      "source": "https://www.wyndhamhotels.com/laquinta/tampa-florida/la-quinta-tampa-brandon-west/overview"
+     },
+     {
+      "claim": "The hotel provides discounted access to a nearby fitness center",
+      "source": "https://www.wyndhamhotels.com/laquinta/tampa-florida/la-quinta-tampa-brandon-west/overview"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJAXnpNm39wogRI6CkTi-2maM",
+   "name": "Island Inn Beach Resort",
+   "category": "hotels",
+   "metro": "st-pete",
+   "primary_type": "resort_hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.islandinnresort.com/218",
+     "source_name": "Island Inn Beach Resort \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "This is a Standard King Gulf View room",
+      "The unit sleeps 2 people with a king size bed",
+      "Amenities include grills on the beach, a heated pool and tiki bar",
+      "Parking and use of boat docks are included",
+      "The room has an equipped kitchen with full-size fridge, stove, coffeemaker, toaster and microwave"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Unobstructed Gulf views from a room so close to the beach it feels like the beach",
+    "why_here": "Island Inn Beach Resort describes this Standard King Gulf View unit as so close to the beach that it feels like you are on the beach, with spectacular unobstructed Gulf views. The page also lists a heated pool and tiki bar among the amenities.",
+    "know_before": "The unit has an equipped kitchen with a full-size fridge, stove, coffeemaker, toaster and microwave, plus a full bathroom with a tub/shower combination.",
+    "local_tip": "Restaurants and bars are listed as within walking distance on the official room page.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.islandinnresort.com/218"
+     ],
+     "why_here": [
+      "https://www.islandinnresort.com/218"
+     ],
+     "know_before": [
+      "https://www.islandinnresort.com/218"
+     ],
+     "local_tip": [
+      "https://www.islandinnresort.com/218"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "This is a Standard King Gulf View room",
+      "source": "https://www.islandinnresort.com/218"
+     },
+     {
+      "claim": "The unit sleeps 2 people with a king size bed",
+      "source": "https://www.islandinnresort.com/218"
+     },
+     {
+      "claim": "Amenities include grills on the beach, a heated pool and tiki bar",
+      "source": "https://www.islandinnresort.com/218"
+     },
+     {
+      "claim": "Parking and use of boat docks are included",
+      "source": "https://www.islandinnresort.com/218"
+     },
+     {
+      "claim": "The room has an equipped kitchen with full-size fridge, stove, coffeemaker, toaster and microwave",
+      "source": "https://www.islandinnresort.com/218"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJl9YvfZ7SwogRSdXgBWRf-Lc",
+   "name": "Cold Stone Creamery",
+   "category": "food",
+   "metro": "tampa",
+   "primary_type": "ice_cream_shop",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.coldstonecreamery.com/menu/ice-cream/signature-creations/",
+     "source_name": "Cold Stone Creamery \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Ice cream is made fresh inside every store",
+      "Creations are chopped and folded using two spades on a frozen granite stone",
+      "Signature Creations include Birthday Cake Remix and Our Strawberry Blonde",
+      "Birthday Cake Remix combines Cake Batter Ice Cream with Rainbow Sprinkles, Brownie and Fudge"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Ice cream made fresh in-store, chopped and folded on a frozen granite stone",
+    "why_here": "Cold Stone Creamery makes ice cream fresh inside every store, then chops and folds your chosen flavor with mix-ins using two spades on a frozen granite stone. The official page calls these freshly prepared combinations Creations, with Signature Creations as the tried and true favorites.",
+    "know_before": "Ice cream is made fresh inside every store",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.coldstonecreamery.com/menu/ice-cream/signature-creations/"
+     ],
+     "why_here": [
+      "https://www.coldstonecreamery.com/menu/ice-cream/signature-creations/"
+     ],
+     "know_before": [
+      "https://www.coldstonecreamery.com/menu/ice-cream/signature-creations/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Ice cream is made fresh inside every store",
+      "source": "https://www.coldstonecreamery.com/menu/ice-cream/signature-creations/"
+     },
+     {
+      "claim": "Creations are chopped and folded using two spades on a frozen granite stone",
+      "source": "https://www.coldstonecreamery.com/menu/ice-cream/signature-creations/"
+     },
+     {
+      "claim": "Signature Creations include Birthday Cake Remix and Our Strawberry Blonde",
+      "source": "https://www.coldstonecreamery.com/menu/ice-cream/signature-creations/"
+     },
+     {
+      "claim": "Birthday Cake Remix combines Cake Batter Ice Cream with Rainbow Sprinkles, Brownie and Fudge",
+      "source": "https://www.coldstonecreamery.com/menu/ice-cream/signature-creations/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJOZua-b0n5IgRmWojhpGMWz0",
+   "name": "Odd Birds Cocktail Lounge and Kitchen",
+   "category": "nightlife",
+   "metro": "florida",
+   "primary_type": "bar",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://oddbirdsbar.com/",
+     "source_name": "Odd Birds Cocktail Lounge and Kitchen \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Odd Birds is a full restaurant, bar, and event venue",
+      "The concept is Craft Cocktails & Culinary Fusion in a relaxed and chill environment",
+      "The venue has three unique spaces for groups ranging from 15 to 80 guests"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Craft Cocktails & Culinary Fusion at a full restaurant, bar and event venue",
+    "why_here": "Odd Birds describes itself as a local's favorite full restaurant, bar, and event venue, where the rule is oddness in a relaxed and chill environment. Its site centers on Craft Cocktails & Culinary Fusion and invites guests to make a reservation.",
+    "know_before": "Odd Birds is a full restaurant, bar, and event venue",
+    "local_tip": "For events, the venue says it has three unique spaces and can accommodate groups ranging from 15 to 80 guests.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://oddbirdsbar.com/"
+     ],
+     "why_here": [
+      "https://oddbirdsbar.com/"
+     ],
+     "know_before": [
+      "https://oddbirdsbar.com/"
+     ],
+     "local_tip": [
+      "https://oddbirdsbar.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Odd Birds is a full restaurant, bar, and event venue",
+      "source": "https://oddbirdsbar.com/"
+     },
+     {
+      "claim": "The concept is Craft Cocktails & Culinary Fusion in a relaxed and chill environment",
+      "source": "https://oddbirdsbar.com/"
+     },
+     {
+      "claim": "The venue has three unique spaces for groups ranging from 15 to 80 guests",
+      "source": "https://oddbirdsbar.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJDWTHGlPB5YgRRgqGoMiU-1w",
+   "name": "Ten Zushi Japanese & Thai",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "sushi_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.tenzushionline.com/",
+     "source_name": "Ten Zushi Japanese & Thai \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Asian fusion restaurant offering modern Japanese and Thai food in Jacksonville with online ordering",
+      "States aim to provide quality food at affordable prices with delicious food and superb customer service",
+      "Business hours Mon-Thu 11am-9pm, Fri-Sat 11am-10pm, Sun 12noon-9pm"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Jacksonville spot combining modern Japanese and Thai cooking in one menu",
+    "why_here": "Ten Zushi in Jacksonville presents itself as an Asian fusion restaurant for modern Japanese and Thai food, with online ordering and dine-in service. The official site states the company seeks to provide quality food at affordable prices with a focus on delicious food and customer service.",
+    "know_before": "Business hours are Mon-Thu 11am-9pm, Fri-Sat 11am-10pm, Sun 12noon-9pm, per official site.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.tenzushionline.com/"
+     ],
+     "why_here": [
+      "https://www.tenzushionline.com/"
+     ],
+     "know_before": [
+      "https://www.tenzushionline.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Asian fusion restaurant offering modern Japanese and Thai food in Jacksonville with online ordering",
+      "source": "https://www.tenzushionline.com/"
+     },
+     {
+      "claim": "States aim to provide quality food at affordable prices with delicious food and superb customer service",
+      "source": "https://www.tenzushionline.com/"
+     },
+     {
+      "claim": "Business hours Mon-Thu 11am-9pm, Fri-Sat 11am-10pm, Sun 12noon-9pm",
+      "source": "https://www.tenzushionline.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJLTU1t4C72YgR8qnUakga9TI",
+   "name": "Medley's River Yard - Food Truck Park",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "food_court",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://medleysriveryard.com/",
+     "source_name": "Medley's River Yard - Food Truck Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "La Yardita is an outdoor food truck park on the Miami River",
+      "The site lists 5 kitchens and a full bar",
+      "Entry is always free, including event nights",
+      "Parking is free, with free valet also listed",
+      "Dogs are welcome"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Outdoor food truck park on the Miami River with 5 kitchens and a full bar",
+    "why_here": "Medley's River Yard, branded La Yardita, is described on its official site as an outdoor food truck park on the Miami River with 5 kitchens and a full bar. The site says something is happening every night and lists live music among the draws.",
+    "know_before": "Entry is always free, including event nights, and parking is free on site, per the official site.",
+    "local_tip": "Dogs are welcome, and the site says to scan the QR at your table and order from any truck.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://medleysriveryard.com/"
+     ],
+     "why_here": [
+      "https://medleysriveryard.com/"
+     ],
+     "know_before": [
+      "https://medleysriveryard.com/"
+     ],
+     "local_tip": [
+      "https://medleysriveryard.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "La Yardita is an outdoor food truck park on the Miami River",
+      "source": "https://medleysriveryard.com/"
+     },
+     {
+      "claim": "The site lists 5 kitchens and a full bar",
+      "source": "https://medleysriveryard.com/"
+     },
+     {
+      "claim": "Entry is always free, including event nights",
+      "source": "https://medleysriveryard.com/"
+     },
+     {
+      "claim": "Parking is free, with free valet also listed",
+      "source": "https://medleysriveryard.com/"
+     },
+     {
+      "claim": "Dogs are welcome",
+      "source": "https://medleysriveryard.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJsZfHv8WG3YgRwz0LG_04Pd8",
+   "name": "Mama Romanos",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "italian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://mamaromanoscorp.com/about-us/",
+     "source_name": "Mama Romanos \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Mama Romano's first opened in Orlando in July of 2009",
+      "All dishes are from original recipes handed down through generations to Chef Paul and are prepared fresh, in house",
+      "All bread is baked in house",
+      "The business model includes a full, local catering service"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Italian restaurant and pizzeria first opened in Orlando in July 2009",
+    "why_here": "Mama Romano's first opened in Orlando in July of 2009 All dishes are from original recipes handed down through generations to Chef Paul and are prepared fresh, in house",
+    "know_before": "All of Mama Romano's bread is baked in house, and the page also notes a full, local catering service.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://mamaromanoscorp.com/about-us/"
+     ],
+     "why_here": [
+      "https://mamaromanoscorp.com/about-us/"
+     ],
+     "know_before": [
+      "https://mamaromanoscorp.com/about-us/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Mama Romano's first opened in Orlando in July of 2009",
+      "source": "https://mamaromanoscorp.com/about-us/"
+     },
+     {
+      "claim": "All dishes are from original recipes handed down through generations to Chef Paul and are prepared fresh, in house",
+      "source": "https://mamaromanoscorp.com/about-us/"
+     },
+     {
+      "claim": "All bread is baked in house",
+      "source": "https://mamaromanoscorp.com/about-us/"
+     },
+     {
+      "claim": "The business model includes a full, local catering service",
+      "source": "https://mamaromanoscorp.com/about-us/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ2_Cz0XlB24gR_jg5VrcSwz4",
+   "name": "Luminary Hotel & Co., Autograph Collection",
+   "category": "hotels",
+   "metro": "florida",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.luminaryhotel.com/",
+     "source_name": "Luminary Hotel & Co., Autograph Collection \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Luminary Hotel & Co. is an AAA Four Diamond hotel",
+      "Guest rooms and suites overlook the Caloosahatchee",
+      "Silver King Coastal Kitchen is the hotel's signature restaurant",
+      "Beacon Social Drinkery is a rooftop bar above the Caloosahatchee",
+      "The Silver King restaurant showcases fresh seafood through clean, simple preparations"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Luminary Hotel & Co. is an AAA Four Diamond hotel",
+    "why_here": "Luminary Hotel & Co. is an AAA Four Diamond hotel Guest rooms and suites overlook the Caloosahatchee Silver King Coastal Kitchen is the hotel's signature restaurant",
+    "know_before": "Luminary Hotel & Co. is an AAA Four Diamond hotel",
+    "local_tip": "Try the rooftop Beacon Social Drinkery, described on the official site as high above the Caloosahatchee.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.luminaryhotel.com/"
+     ],
+     "why_here": [
+      "https://www.luminaryhotel.com/"
+     ],
+     "know_before": [
+      "https://www.luminaryhotel.com/"
+     ],
+     "local_tip": [
+      "https://www.luminaryhotel.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Luminary Hotel & Co. is an AAA Four Diamond hotel",
+      "source": "https://www.luminaryhotel.com/"
+     },
+     {
+      "claim": "Guest rooms and suites overlook the Caloosahatchee",
+      "source": "https://www.luminaryhotel.com/"
+     },
+     {
+      "claim": "Silver King Coastal Kitchen is the hotel's signature restaurant",
+      "source": "https://www.luminaryhotel.com/"
+     },
+     {
+      "claim": "Beacon Social Drinkery is a rooftop bar above the Caloosahatchee",
+      "source": "https://www.luminaryhotel.com/"
+     },
+     {
+      "claim": "The Silver King restaurant showcases fresh seafood through clean, simple preparations",
+      "source": "https://www.luminaryhotel.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJQZ8lbY-O54gRJSKIfjA-Wr4",
+   "name": "Historic Downtown Clermont",
+   "category": "shopping",
+   "metro": "florida",
+   "primary_type": "farmers_market",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.clermontdowntown.com/farmers-market",
+     "source_name": "Historic Downtown Clermont \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Clermont Farmers Market features fresh produce, artisan foods, and unique handcrafted goods from local vendors",
+      "The market includes live music by talented local musicians and kid-friendly activities like face painting",
+      "Admission is free and open to the public, every Sunday, 9:00 a.m. to 2:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Downtown Clermont farmers market with fresh produce, artisan foods and live music",
+    "why_here": "The Clermont Farmers Market in Downtown Clermont features fresh produce, artisan foods, and unique handcrafted goods from local vendors. Visitors can enjoy live music by talented local musicians, with kid-friendly activities like face painting and plenty of room to wander.",
+    "know_before": "Clermont Farmers Market features fresh produce, artisan foods, and unique handcrafted goods from local vendors",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.clermontdowntown.com/farmers-market"
+     ],
+     "why_here": [
+      "https://www.clermontdowntown.com/farmers-market"
+     ],
+     "know_before": [
+      "https://www.clermontdowntown.com/farmers-market"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Clermont Farmers Market features fresh produce, artisan foods, and unique handcrafted goods from local vendors",
+      "source": "https://www.clermontdowntown.com/farmers-market"
+     },
+     {
+      "claim": "The market includes live music by talented local musicians and kid-friendly activities like face painting",
+      "source": "https://www.clermontdowntown.com/farmers-market"
+     },
+     {
+      "claim": "Admission is free and open to the public, every Sunday, 9:00 a.m. to 2:00 p.m.",
+      "source": "https://www.clermontdowntown.com/farmers-market"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJfx0i1G652YgRSM95z9yBzjQ",
+   "name": "Sushi Sake Doral",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "sushi_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.sushisakemiami.com/sushi-sake-doral/",
+     "source_name": "Sushi Sake Doral \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Sushi Sake Doral serves fresh sushi, hibachi favorites and handcrafted cocktails",
+      "The Doral location offers dine-in, pickup and delivery",
+      "Doral hours are Sunday-Thursday 11am-11pm and Friday-Saturday 10am-11:30pm"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Fresh sushi, hibachi favorites and handcrafted cocktails in Doral",
+    "why_here": "Sushi Sake Doral serves fresh sushi, hibachi favorites and handcrafted cocktails, with dine-in, pickup and delivery from its Doral restaurant. The wider Sushi Sake menu also covers sushi, hibachi and late-night favorites made fresh every day.",
+    "know_before": "Hours on the official Doral page are Sunday-Thursday 11am-11pm and Friday-Saturday 10am-11:30pm",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.sushisakemiami.com/sushi-sake-doral/"
+     ],
+     "why_here": [
+      "https://www.sushisakemiami.com/sushi-sake-doral/"
+     ],
+     "know_before": [
+      "https://www.sushisakemiami.com/sushi-sake-doral/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Sushi Sake Doral serves fresh sushi, hibachi favorites and handcrafted cocktails",
+      "source": "https://www.sushisakemiami.com/sushi-sake-doral/"
+     },
+     {
+      "claim": "The Doral location offers dine-in, pickup and delivery",
+      "source": "https://www.sushisakemiami.com/sushi-sake-doral/"
+     },
+     {
+      "claim": "Doral hours are Sunday-Thursday 11am-11pm and Friday-Saturday 10am-11:30pm",
+      "source": "https://www.sushisakemiami.com/sushi-sake-doral/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJW-Lc_5O32YgRB-OIvjzmgms",
+   "name": "Cafe Americano",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.cafeamericano.com/",
+     "source_name": "Cafe Americano \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Cafe Americano serves classic American fare with a Latin twist",
+      "It is open 365 days a year",
+      "It serves fresh breakfast, lunch, dinner and late-night dishes crafted daily",
+      "The site lists handcrafted cocktails and all-day favorites"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Classic American fare with a Latin twist and handcrafted cocktails",
+    "why_here": "Cafe Americano describes itself as classic American fare with a Latin twist, open 365 days a year serving fresh breakfast, lunch, dinner and late-night dishes crafted daily. The official site also lists handcrafted cocktails and all-day favorites.",
+    "know_before": "The official site says the restaurant is open 365 days a year.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.cafeamericano.com/"
+     ],
+     "why_here": [
+      "https://www.cafeamericano.com/"
+     ],
+     "know_before": [
+      "https://www.cafeamericano.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Cafe Americano serves classic American fare with a Latin twist",
+      "source": "https://www.cafeamericano.com/"
+     },
+     {
+      "claim": "It is open 365 days a year",
+      "source": "https://www.cafeamericano.com/"
+     },
+     {
+      "claim": "It serves fresh breakfast, lunch, dinner and late-night dishes crafted daily",
+      "source": "https://www.cafeamericano.com/"
+     },
+     {
+      "claim": "The site lists handcrafted cocktails and all-day favorites",
+      "source": "https://www.cafeamericano.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJFclmYckt5ogRSbJcTLozOg4",
+   "name": "The Ocala Escape",
+   "category": "attractions",
+   "metro": "ocala-fl",
+   "primary_type": "amusement_center",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.theocalaescape.com/",
+     "source_name": "The Ocala Escape \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Ocala Escape offers escape room adventures in Ocala, FL",
+      "It offers 3 fully immersive experiences",
+      "Its experiences feature fully custom set designs",
+      "Its experiences feature fully unique stories"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Escape room adventures with fully custom set designs and fully unique stories",
+    "why_here": "The Ocala Escape presents escape room adventures in Ocala, FL, inviting visitors to choose from 3 fully immersive experiences. The homepage highlights fully custom set designs and fully unique stories across its experiences.",
+    "know_before": "Visitors choose from 3 fully immersive experiences, and the site also lists mobile escape rooms.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.theocalaescape.com/"
+     ],
+     "why_here": [
+      "https://www.theocalaescape.com/"
+     ],
+     "know_before": [
+      "https://www.theocalaescape.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Ocala Escape offers escape room adventures in Ocala, FL",
+      "source": "https://www.theocalaescape.com/"
+     },
+     {
+      "claim": "It offers 3 fully immersive experiences",
+      "source": "https://www.theocalaescape.com/"
+     },
+     {
+      "claim": "Its experiences feature fully custom set designs",
+      "source": "https://www.theocalaescape.com/"
+     },
+     {
+      "claim": "Its experiences feature fully unique stories",
+      "source": "https://www.theocalaescape.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJIXgDyJDd2YgROW5FGB7rL7Y",
+   "name": "Pinecrest Bakery - Homestead",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "bakery",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://pinecrestbakery.com/pages/p-team",
+     "source_name": "Pinecrest Bakery - Homestead \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Pinecrest Bakery serves authentic pastelitos, baked goods and caf\u00e9 cubano",
+      "Pinecrest Bakery offers over 60 desserts",
+      "The first Pinecrest Bakery opened in Pinecrest in 2012",
+      "Pinecrest Bakery says it has 20+ locations open 24/7",
+      "The bakery offers party platters and custom cakes"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Cuban bakery serving pastelitos, baked goods and caf\u00e9 cubano",
+    "why_here": "Pinecrest Bakery serves authentic pastelitos, baked goods and caf\u00e9 cubano at 20+ locations, per its official team page. The page also lists over 60 desserts, traditional and oven-toasted sandwiches, party platters, custom cakes and catered family meals.",
+    "know_before": "The official page says Pinecrest Bakery has 20+ locations open 24/7.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://pinecrestbakery.com/pages/p-team"
+     ],
+     "why_here": [
+      "https://pinecrestbakery.com/pages/p-team"
+     ],
+     "know_before": [
+      "https://pinecrestbakery.com/pages/p-team"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Pinecrest Bakery serves authentic pastelitos, baked goods and caf\u00e9 cubano",
+      "source": "https://pinecrestbakery.com/pages/p-team"
+     },
+     {
+      "claim": "Pinecrest Bakery offers over 60 desserts",
+      "source": "https://pinecrestbakery.com/pages/p-team"
+     },
+     {
+      "claim": "The first Pinecrest Bakery opened in Pinecrest in 2012",
+      "source": "https://pinecrestbakery.com/pages/p-team"
+     },
+     {
+      "claim": "Pinecrest Bakery says it has 20+ locations open 24/7",
+      "source": "https://pinecrestbakery.com/pages/p-team"
+     },
+     {
+      "claim": "The bakery offers party platters and custom cakes",
+      "source": "https://pinecrestbakery.com/pages/p-team"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJFw2fWbjZ2IgRgUiqkTj_kXc",
+   "name": "The Irish Brigade",
+   "category": "nightlife",
+   "metro": "palm-beach",
+   "primary_type": "pub",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://irishbrigadepub.com/",
+     "source_name": "The Irish Brigade \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Irish Brigade is an Irish Pub with draft beers, local seafood, happy hour and a sports bar with outdoor seating",
+      "The pub has live music every weekend",
+      "The Irish Brigade says it has memorized the process of the perfect pour for a creamy Guinness"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Irish pub with draft beers, local seafood, happy hour and outdoor seating",
+    "why_here": "The Irish Brigade describes itself as an Irish Pub with spirits and food, draft beers, local seafood, happy hour, a sports bar with outdoor seating, and live music every weekend. It also says it has memorized the process of the perfect pour for a creamy Guinness.",
+    "know_before": "The Irish Brigade is an Irish Pub with draft beers, local seafood, happy hour and a sports bar with outdoor seating",
+    "local_tip": "Order a proper pint of Guinness - the pub says it has memorized the process of the perfect pour for a creamy Guinness.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://irishbrigadepub.com/"
+     ],
+     "why_here": [
+      "https://irishbrigadepub.com/"
+     ],
+     "know_before": [
+      "https://irishbrigadepub.com/"
+     ],
+     "local_tip": [
+      "https://irishbrigadepub.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Irish Brigade is an Irish Pub with draft beers, local seafood, happy hour and a sports bar with outdoor seating",
+      "source": "https://irishbrigadepub.com/"
+     },
+     {
+      "claim": "The pub has live music every weekend",
+      "source": "https://irishbrigadepub.com/"
+     },
+     {
+      "claim": "The Irish Brigade says it has memorized the process of the perfect pour for a creamy Guinness",
+      "source": "https://irishbrigadepub.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ-xmu2z7B2YgR475kG66MeFM",
+   "name": "Arcade Odyssey",
+   "category": "attractions",
+   "metro": "miami-dade",
+   "primary_type": "video_arcade",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://arcadeodyssey.com/",
+     "source_name": "Arcade Odyssey \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Arcade Odyssey offers fighters, shoot'em-ups, new, ultra rare, imported, retro and classic arcade games",
+      "It has a large and ever changing assortment of pinball machines",
+      "It opened in 2011",
+      "Party and private event reservations are available"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Retro arcade with ultra rare, imported and classic games plus pinball",
+    "why_here": "Arcade Odyssey describes itself as an arcade with everything from fighters to shoot'em-ups, plus new, ultra rare, imported, retro and classic arcade games. It also lists a large and ever changing assortment of pinball machines.",
+    "know_before": "Party and private event reservations are available, according to the official site.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://arcadeodyssey.com/"
+     ],
+     "why_here": [
+      "https://arcadeodyssey.com/"
+     ],
+     "know_before": [
+      "https://arcadeodyssey.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Arcade Odyssey offers fighters, shoot'em-ups, new, ultra rare, imported, retro and classic arcade games",
+      "source": "https://arcadeodyssey.com/"
+     },
+     {
+      "claim": "It has a large and ever changing assortment of pinball machines",
+      "source": "https://arcadeodyssey.com/"
+     },
+     {
+      "claim": "It opened in 2011",
+      "source": "https://arcadeodyssey.com/"
+     },
+     {
+      "claim": "Party and private event reservations are available",
+      "source": "https://arcadeodyssey.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJoeB8WQ7K5YgRMeNFkfGxE7o",
+   "name": "Marriott Jacksonville",
+   "category": "hotels",
+   "metro": "florida",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.marriott.com/en-us/hotels/jaxfl-marriott-jacksonville/overview/",
+     "source_name": "Marriott Jacksonville \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Property amenities include a restaurant",
+      "Property amenities include a fitness center",
+      "Property amenities include an outdoor pool",
+      "Property amenities include meeting space",
+      "The hotel offers daily housekeeping and mobile key"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Jacksonville Marriott with restaurant, outdoor pool and fitness center",
+    "why_here": "The official Marriott listing for Marriott Jacksonville lists a restaurant, fitness center, outdoor pool and meeting space among its property amenities. The same listing also confirms daily housekeeping, room service and mobile key service for guests.",
+    "know_before": "The official listing lists mobile key and digital check-in among its services.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.marriott.com/en-us/hotels/jaxfl-marriott-jacksonville/overview/"
+     ],
+     "why_here": [
+      "https://www.marriott.com/en-us/hotels/jaxfl-marriott-jacksonville/overview/"
+     ],
+     "know_before": [
+      "https://www.marriott.com/en-us/hotels/jaxfl-marriott-jacksonville/overview/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Property amenities include a restaurant",
+      "source": "https://www.marriott.com/en-us/hotels/jaxfl-marriott-jacksonville/overview/"
+     },
+     {
+      "claim": "Property amenities include a fitness center",
+      "source": "https://www.marriott.com/en-us/hotels/jaxfl-marriott-jacksonville/overview/"
+     },
+     {
+      "claim": "Property amenities include an outdoor pool",
+      "source": "https://www.marriott.com/en-us/hotels/jaxfl-marriott-jacksonville/overview/"
+     },
+     {
+      "claim": "Property amenities include meeting space",
+      "source": "https://www.marriott.com/en-us/hotels/jaxfl-marriott-jacksonville/overview/"
+     },
+     {
+      "claim": "The hotel offers daily housekeeping and mobile key",
+      "source": "https://www.marriott.com/en-us/hotels/jaxfl-marriott-jacksonville/overview/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJYRdVySi32YgR8ki5MlgrIBA",
+   "name": "Bagatelle Miami River",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://bagatelle.com/venues/bagatelle-miami-river/",
+     "source_name": "Bagatelle Miami River \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Bagatelle Miami River offers French Mediterranean Dining on the River",
+      "Bagatelle Miami River has a signature menu by Chef Rocco Seminara & Chef Marco Estrada",
+      "Access is by car, jet ski and boat, with dock service available"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "French Mediterranean dining on the river with waterfront dining and seasonal menus",
+    "why_here": "Bagatelle Miami River presents French Mediterranean Dining on the River, with waterfront dining and seasonal menus under its summer offerings. The page also highlights a signature menu by Chef Rocco Seminara & Chef Marco Estrada.",
+    "know_before": "Access is by car, by jet ski and by boat, with dock service available by jet ski and by boat and street parking or valet service by car.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://bagatelle.com/venues/bagatelle-miami-river/"
+     ],
+     "why_here": [
+      "https://bagatelle.com/venues/bagatelle-miami-river/"
+     ],
+     "know_before": [
+      "https://bagatelle.com/venues/bagatelle-miami-river/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Bagatelle Miami River offers French Mediterranean Dining on the River",
+      "source": "https://bagatelle.com/venues/bagatelle-miami-river/"
+     },
+     {
+      "claim": "Bagatelle Miami River has a signature menu by Chef Rocco Seminara & Chef Marco Estrada",
+      "source": "https://bagatelle.com/venues/bagatelle-miami-river/"
+     },
+     {
+      "claim": "Access is by car, jet ski and boat, with dock service available",
+      "source": "https://bagatelle.com/venues/bagatelle-miami-river/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJr2aUU4wR3ogRUQmx7BY5_Bo",
+   "name": "The Landing Rooftop",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://thelandingrooftop.com/",
+     "source_name": "The Landing Rooftop \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Provides the tallest rooftop experience in the area",
+      "Panoramic views of the city, river and ocean",
+      "Located on Hotel Melby's 11th floor",
+      "Menu features elevated regional American comfort food and craft cocktails"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Tallest rooftop experience in the area with panoramic city, river and ocean views",
+    "why_here": "The Landing Rooftop says it provides the tallest rooftop experience in the area, with panoramic views of the city, river and ocean. Located on Hotel Melby's 11th floor, it features elevated regional American comfort food, craft cocktails, wines and beers.",
+    "know_before": "Provides the tallest rooftop experience in the area",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://thelandingrooftop.com/"
+     ],
+     "why_here": [
+      "https://thelandingrooftop.com/"
+     ],
+     "know_before": [
+      "https://thelandingrooftop.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Provides the tallest rooftop experience in the area",
+      "source": "https://thelandingrooftop.com/"
+     },
+     {
+      "claim": "Panoramic views of the city, river and ocean",
+      "source": "https://thelandingrooftop.com/"
+     },
+     {
+      "claim": "Located on Hotel Melby's 11th floor",
+      "source": "https://thelandingrooftop.com/"
+     },
+     {
+      "claim": "Menu features elevated regional American comfort food and craft cocktails",
+      "source": "https://thelandingrooftop.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJUYOlb09854gRBLhwbLGRx9g",
+   "name": "AMF Sky Lanes",
+   "category": "attractions",
+   "metro": "orlando",
+   "primary_type": "bowling_alley",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.amf.com/location/amf-sky-lanes",
+     "source_name": "AMF Sky Lanes \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "AMF Sky Lanes has 32 immaculate lanes",
+      "AMF describes it as family-friendly bowling welcoming guests of all ages and skill levels",
+      "Features include Arcade, Sports Bar, Lounge Area, On-Site Pro Shop, Wheelchair Accessible and Free Wi-Fi",
+      "AMF offers online lane reservations to secure your spot"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "32-lane family bowling center with arcade and sports bar in Orlando",
+    "why_here": "AMF's official page calls AMF Sky Lanes a top entertainment destination for timeless, family-friendly bowling in Orlando with 32 immaculate lanes for all ages and skill levels. It also lists an arcade, lounge area, sports bar and on-site pro shop.",
+    "know_before": "Online lane reservations are available to secure your spot",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.amf.com/location/amf-sky-lanes"
+     ],
+     "why_here": [
+      "https://www.amf.com/location/amf-sky-lanes"
+     ],
+     "know_before": [
+      "https://www.amf.com/location/amf-sky-lanes"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "AMF Sky Lanes has 32 immaculate lanes",
+      "source": "https://www.amf.com/location/amf-sky-lanes"
+     },
+     {
+      "claim": "AMF describes it as family-friendly bowling welcoming guests of all ages and skill levels",
+      "source": "https://www.amf.com/location/amf-sky-lanes"
+     },
+     {
+      "claim": "Features include Arcade, Sports Bar, Lounge Area, On-Site Pro Shop, Wheelchair Accessible and Free Wi-Fi",
+      "source": "https://www.amf.com/location/amf-sky-lanes"
+     },
+     {
+      "claim": "AMF offers online lane reservations to secure your spot",
+      "source": "https://www.amf.com/location/amf-sky-lanes"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJd_fXS8rGwogRRHwBb6zSYpI",
+   "name": "Lowry Parcade",
+   "category": "nightlife",
+   "metro": "tampa",
+   "primary_type": "bar",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://lowryparcade.com/",
+     "source_name": "Lowry Parcade \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Lowry Parcade describes itself as Classic Arcades. Craft Beer.",
+      "Lowry Parcade serves only the best local & regional craft beers, with a list updated near-daily",
+      "The site lists arcade games and pinballs"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Classic Arcades. Craft Beer. with arcade games and pinballs",
+    "why_here": "Lowry Parcade calls itself Classic Arcades. Craft Beer. and says it serves only the best local & regional craft beers, with a list updated near-daily. The site lists arcade games and pinballs alongside food and drink and upcoming events.",
+    "know_before": "Lowry Parcade describes itself as Classic Arcades. Craft Beer.",
+    "local_tip": "Check what's on tap before you go - the site says its craft beer list is updated near-daily.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://lowryparcade.com/"
+     ],
+     "why_here": [
+      "https://lowryparcade.com/"
+     ],
+     "know_before": [
+      "https://lowryparcade.com/"
+     ],
+     "local_tip": [
+      "https://lowryparcade.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Lowry Parcade describes itself as Classic Arcades. Craft Beer.",
+      "source": "https://lowryparcade.com/"
+     },
+     {
+      "claim": "Lowry Parcade serves only the best local & regional craft beers, with a list updated near-daily",
+      "source": "https://lowryparcade.com/"
+     },
+     {
+      "claim": "The site lists arcade games and pinballs",
+      "source": "https://lowryparcade.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJI4iKxxS32YgRqAaJTOYwkV0",
+   "name": "bartaco",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "taco_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://bartaco.com/location/tampa/",
+     "source_name": "bartaco \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "bartaco tacos come on a choice of 4-inch corn tortilla or bibb lettuce shell",
+      "Chicken tinga is pulled dark meat chicken in smoky spicy morita chile tinga sauce with pickled red onion",
+      "Guac plus chips uses hand-mashed avocado, lime juice, serrano chiles, onions and cilantro",
+      "bartaco Tampa is a cashless restaurant, credit/debit only"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Tacos on corn tortillas or lettuce shells with hand-mashed guacamole",
+    "why_here": "bartaco's official Tampa page lists tacos served on a choice of 4-inch corn tortilla or bibb lettuce shell topped with cilantro, including chicken tinga and mojo pork carnitas. It also lists guac plus chips made with hand-mashed avocado, lime juice, serrano chiles, onions and cilantro.",
+    "know_before": "bartaco Tampa notes it is a cashless restaurant, credit/debit only",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://bartaco.com/location/tampa/"
+     ],
+     "why_here": [
+      "https://bartaco.com/location/tampa/"
+     ],
+     "know_before": [
+      "https://bartaco.com/location/tampa/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "bartaco tacos come on a choice of 4-inch corn tortilla or bibb lettuce shell",
+      "source": "https://bartaco.com/location/tampa/"
+     },
+     {
+      "claim": "Chicken tinga is pulled dark meat chicken in smoky spicy morita chile tinga sauce with pickled red onion",
+      "source": "https://bartaco.com/location/tampa/"
+     },
+     {
+      "claim": "Guac plus chips uses hand-mashed avocado, lime juice, serrano chiles, onions and cilantro",
+      "source": "https://bartaco.com/location/tampa/"
+     },
+     {
+      "claim": "bartaco Tampa is a cashless restaurant, credit/debit only",
+      "source": "https://bartaco.com/location/tampa/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJqceh6MHj2ogRib98IWszOvc",
+   "name": "Sugden Regional Park",
+   "category": "attractions",
+   "metro": "immokalee-fl",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.collierparks.com/collier_park/sugden-regional-park/",
+     "source_name": "Sugden Regional Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Waterfront park with a beautiful view of Lake Avalon",
+      "Has one of Collier County's only fresh water beaches",
+      "Lake Avalon is described as a 60-acre lake",
+      "Park hours are Monday to Sunday 8:00 a.m. to sunset"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Waterfront park with a beautiful view of Lake Avalon and a fresh water beach",
+    "why_here": "Collier County Parks describes Sugden Regional Park as a waterfront park with the beautiful view of Lake Avalon. The park has one of Collier County's only fresh water beaches, on a lake described in park listings as 60-acre Lake Avalon.",
+    "know_before": "Park hours are listed as Monday to Sunday 8:00 a.m. to sunset.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.collierparks.com/collier_park/sugden-regional-park/"
+     ],
+     "why_here": [
+      "https://www.collierparks.com/collier_park/sugden-regional-park/"
+     ],
+     "know_before": [
+      "https://www.collierparks.com/collier_park/sugden-regional-park/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Waterfront park with a beautiful view of Lake Avalon",
+      "source": "https://www.collierparks.com/collier_park/sugden-regional-park/"
+     },
+     {
+      "claim": "Has one of Collier County's only fresh water beaches",
+      "source": "https://www.collierparks.com/collier_park/sugden-regional-park/"
+     },
+     {
+      "claim": "Lake Avalon is described as a 60-acre lake",
+      "source": "https://www.collierparks.com/collier_park/sugden-regional-park/"
+     },
+     {
+      "claim": "Park hours are Monday to Sunday 8:00 a.m. to sunset",
+      "source": "https://www.collierparks.com/collier_park/sugden-regional-park/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJlwkblaKp4IgRf2Zoy-iQ_4E",
+   "name": "Dolphins Waterfront Bar & Grill at Cape Crossing",
+   "category": "nightlife",
+   "metro": "florida",
+   "primary_type": "bar_and_grill",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://dolphinsgrill.com/",
+     "source_name": "Dolphins Waterfront Bar & Grill at Cape Crossing \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Dolphins is located on the historic Canaveral Barge Canal",
+      "Dolphins calls itself the largest tiki bar and restaurant on Florida's Space Coast",
+      "The full menu is Florida fresh style with a polynesian flair",
+      "Dolphins offers covered and outside seating",
+      "Hours are 11:00 a.m. to 10:00 p.m. Thursday through Saturday"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Largest tiki bar on the Space Coast on the Canaveral Barge Canal",
+    "why_here": "Dolphins is located on the historic Canaveral Barge Canal Dolphins calls itself the largest tiki bar and restaurant on Florida's Space Coast",
+    "know_before": "Dolphins is located on the historic Canaveral Barge Canal",
+    "local_tip": "You can come by land or by sea and park your boat in one of the designated slips, per the official site.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://dolphinsgrill.com/"
+     ],
+     "why_here": [
+      "https://dolphinsgrill.com/"
+     ],
+     "know_before": [
+      "https://dolphinsgrill.com/"
+     ],
+     "local_tip": [
+      "https://dolphinsgrill.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Dolphins is located on the historic Canaveral Barge Canal",
+      "source": "https://dolphinsgrill.com/"
+     },
+     {
+      "claim": "Dolphins calls itself the largest tiki bar and restaurant on Florida's Space Coast",
+      "source": "https://dolphinsgrill.com/"
+     },
+     {
+      "claim": "The full menu is Florida fresh style with a polynesian flair",
+      "source": "https://dolphinsgrill.com/"
+     },
+     {
+      "claim": "Dolphins offers covered and outside seating",
+      "source": "https://dolphinsgrill.com/"
+     },
+     {
+      "claim": "Hours are 11:00 a.m. to 10:00 p.m. Thursday through Saturday",
+      "source": "https://dolphinsgrill.com/"
+     }
+    ]
+   }
+  }
+ ]
+}
