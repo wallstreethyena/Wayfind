@@ -115,7 +115,9 @@ function ChristmasRailSection({ rail, lat, lng, onOpenPlace, onTrack, city, isSa
           // approximate (city centre) locations say so (christmasDistanceLabel).
           const facts = isEvent
             ? [card.city || null, christmasDistanceLabel(card)].filter(Boolean)
-            : [card.reviews ? compact(card.reviews) + " reviews" : null, christmasDistanceLabel(card)].filter(Boolean);
+            // Place cards: RailCard appends the device distance (usePlaceDistance) for any card
+            // with a `place`, so the server distance is not a second fact here.
+            : [card.reviews ? compact(card.reviews) + " reviews" : null].filter(Boolean);
           const placeChips = !isEvent ? [
             card.seasonalWhen || card.seasonChip ? { key: "season", icon: "🗓", label: card.seasonalWhen ? hospitalityDateChipLabel(card.seasonalWhen) : card.seasonChip, title: (card.seasonalWhen || card.seasonChip) + ", " + String(card.take || "").toLowerCase() } : null,
             card.hospitalityEvidence && card.sourceUrl ? { key: "proof", icon: "↗", label: "Source", title: "Open source", onClick: () => window.open(card.sourceUrl, "_blank", "noopener,noreferrer") } : null,

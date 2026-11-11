@@ -1095,5 +1095,21 @@
    "detail": "A 64 character hash fails the visitor_context_hash check, the insert is rejected, and every cookied or gclid click is saved with both fields null, so bookings cannot be tied back to the ad click."
   },
   "owner": "Revenue QA"
+ },
+ "scripts/test-christmas-ticketmaster.mjs": {
+  "protects": "The Christmas Ticketmaster matches (lib/christmasTicketmaster.js): every match is a real Christmas listing, a Ticketmaster family https page, on a date inside the listing's run and nights; ticketAction routes it through /api/ticketmaster/go with the event's attribution, links the next date that has not passed and drops it after the run; a registry partner still wins, and a show with a reviewed TicketSmarter night keeps its official button plus that resale choice.",
+  "blastRadius": {
+   "category": "revenue",
+   "detail": "2026-11-10: 15 Christmas shows sold on Ticketmaster showed the theater's own unpaid link. A wrong match would send a buyer to another show, date or venue under Wayfind's name; a raw link would lose the Impact commission; a past date would sell nothing."
+  },
+  "owner": "Revenue QA"
+ },
+ "scripts/check-partner-offer-holds.mjs": {
+  "protects": "A partner ticket button leads somewhere a ticket can be bought, for the place the visitor is looking at: an offer on the hold list (lib/partnerOfferHolds.js) paints no button on the place pick, the venue map or the metro rail and is refused by the redirect, and a name-only pick match is refused when the place's coordinates are outside the pick's own region.",
+  "blastRadius": {
+   "category": "revenue",
+   "detail": "2026-11-11: five Tiqets destinations answered 200 with nothing to buy (Six Flags Great America, Hurricane Harbor Chicago and Island H2O with every option unavailable; Selfie WRLD and Calypso Queen landing on a category page) and three out-of-state namesakes (Adventure Island in Orange Beach AL, Dinosaur World in Cave City KY, Titanic in Las Vegas) were sold the Florida venue's ticket. Every existing check read the status code, so all of it passed. A visitor who clicks Book and finds nothing to buy, or the wrong venue, is a lost sale and a trust loss on the page that was supposed to earn."
+  },
+  "owner": "Revenue QA"
  }
 }

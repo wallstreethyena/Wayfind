@@ -597,6 +597,7 @@ node scripts/check-intent-partner-picks.mjs
 # url:null by design, and tpDeepLink required one, so a VENUE_OFFERS row
 # like nyc-budget-911-memorial could never surface there).
 node scripts/check-place-page-partner.mjs
+node scripts/check-partner-offer-holds.mjs
 # 2026-09-10 — a visible Book button must have a product behind it. 16 of 35
 # pinned Viator codes had no wf_experiences row; each painted a CTA that 302'd
 # the customer home. Feeds a fabricated code through a real copy of the module.
@@ -801,6 +802,8 @@ node scripts/check-curated-events.mjs
 # used to ISR-cache "Nothing verified…" + numberOfItems:0 while detail
 # pages and /api/events still had the same rows.
 node scripts/check-curated-events-read.mjs
+# A merged Christmas research id redirects to the listing it became, never into a 404.
+node scripts/check-christmas-retired-redirects.mjs
 # 2026-10-09: /florida-events served a pinned >2 MB-refused cache entry with legacy Google photo names
 node scripts/test-curated-events-cache.mjs
 # The Events tab feed reads every curated row still running today, paged;
@@ -1261,6 +1264,13 @@ node scripts/check-christmas-research.mjs
 node scripts/check-christmas-browse-credit.mjs
 node scripts/check-christmas-card-photo-slot.mjs
 node scripts/check-christmas-venue-matches.mjs
+# Homepage Christmas cards read the venue row christmas_photo_gallery (exact event id/slug tags) before the Google venue photo.
+node scripts/test-christmas-card-gallery.mjs
+# One distance per Christmas card: place cards get only RailCard device distance, events keep the server fact.
+node scripts/check-christmas-card-distance.mjs
+# Christmas hospitality cards: card_line is one short sentence and is the card take.
+node scripts/check-christmas-card-line.mjs
+node scripts/check-christmas-treats-rail.mjs
 node scripts/check-guide-in-rail.mjs
 # 2026-09-23 (WS4 fall-discovery) — lib/fallEvidence.js is the pure evidence-
 # classification law the discovery pipeline and the registry re-verification
@@ -2310,6 +2320,7 @@ node scripts/test-photo-dedupe.mjs
 node scripts/test-halloween-tours.mjs
 # 2026-10-30: Christmas ticket cards (premium Halloween style page): same listings as the browse, upcoming only, registry /go hrefs untouched, honest prices, dash free, merit order never reads commission.
 node scripts/test-christmas-tickets.mjs
+node scripts/test-christmas-ticketmaster.mjs
 node scripts/test-snowcat-tickets.mjs
 node scripts/test-christmas-tours.mjs
 
@@ -2351,6 +2362,12 @@ node scripts/test-photo-not-place-id.mjs
 node scripts/test-image-publication-gate.mjs
 node scripts/check-new-content-images.mjs
 node scripts/check-christmas-photo-provenance.mjs
+# A photo rejected in review never comes back: path, source URL or identical bytes (data/christmas-rejected-photos.json).
+node scripts/check-christmas-rejected-photos.mjs
+# Every event page rail photo carries its own credit; venue photos say so.
+node scripts/check-event-rail-photo-credits.mjs
+# Licensed static gallery batches (2026-11p+): free licence, author, Commons source, provenance row, file on disk.
+node scripts/check-christmas-static-gallery-rights.mjs
 node scripts/test-area-twins.mjs
 node scripts/check-map-note-attribution.mjs
 node scripts/test-cc-alert-drill.mjs
@@ -2488,6 +2505,8 @@ node scripts/test-event-safety.mjs
 # 2026-10-28: seasonal movies rail data (Fall/Halloween/Christmas) + Undercover Tourist movie ticket handoff (wf_deals 11); calls the real route and resolver.
 node scripts/check-seasonal-movies.mjs
 node scripts/check-seasonal-movies-ui.mjs
+# 2026-10-29: Wayfind movie page /movies/<id> (params, metadata, OG, JSON-LD, sitemap, card tap + share URL, buy button handoff); executes the page, the real sitemap fn and the share card model.
+node scripts/check-movie-pages.mjs
 node scripts/test-link-health-blocked-not-dead.mjs
 node scripts/check-redirect-suspect-gate.mjs
 
@@ -2533,6 +2552,7 @@ node scripts/check-place-city.mjs
 node scripts/test-vercel-ignore-build.mjs
 # 2026-11-04: Ticketmaster earning link: only real TM/Live Nation/TicketWeb hosts (no double wrap via our Impact host, no open redirect), one /go link with the exact event URL, no buy button when sold out/off sale/cancelled.
 node scripts/test-ticketmaster-gating.mjs
+node scripts/test-ticket-handoff-verdict.mjs
 # /christmas and the bare category paths land on real pages (next.config.js redirects(), 2026-11-04 audit).
 node scripts/check-bare-path-redirects.mjs
 # 2026-11-05: Execute both held-event recheck SQL migrations in PGlite; atomic ET+2 renewal,
@@ -2560,3 +2580,6 @@ node scripts/test-client-transport-retry.mjs
 # site data is blocked; PostHogProvider did, so those visitors were never measured.
 node scripts/check-storage-access.mjs
 node scripts/test-detail-cta-place-city.mjs
+node scripts/test-place-link-name.mjs
+node scripts/test-og-movie-function-size.mjs
+node scripts/check-event-not-found-recovery.mjs
