@@ -34,7 +34,10 @@ async function posterDataUri(movie) {
   // The registry guard pins art.src to /movies/<name>.webp; re-check so a bad row can never leave public/movies.
   if (!src || !/^\/movies\/[\w.-]+\.webp$/.test(src)) return null;
   try {
-    const buf = await readFile(path.join(process.cwd(), "public", src));
+    // A FIXED folder plus the file name only. Joining "public" with the whole src let Next's file
+    // tracer pull ALL of public/ (1.1 GB, mostly place photos) into this one function, and Vercel
+    // refused every production deploy (function over its 250 MB limit, 2026-11-11).
+    const buf = await readFile(path.join(process.cwd(), "public", "movies", path.basename(src)));
     const jpeg = await sharp(buf)
       .resize({ width: RAIL_CARD.posterW * 2, height: RAIL_CARD.posterH * 2, fit: "cover", position: "top" })
       .jpeg({ quality: 86, mozjpeg: true })
