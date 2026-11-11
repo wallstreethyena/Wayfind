@@ -16,7 +16,7 @@ import { C, sheetBg, sheet, Grabber, useDialogFocus } from "./kit";
 import {
   RESERVE_LIMITS, reserveChat, sendReserveRequest, myReserveRequests, reserveDateRange, reserveTimeSlots,
   timeLabel, summaryLine, validateDraft, draftIsSendable,
-} from "../../lib/reserveApi.js";
+} from "../../lib/reserveClientApi.js";
 import { trackReserve } from "../../lib/reserveOpen.js";
 import { siteTodayStr } from "../../lib/siteTime.js";
 import { showLikeFeedback } from "../../lib/cardActions";
@@ -275,7 +275,7 @@ export function ReserveSheet({ place, surface, onClose }) {
 
         {phase === "sent" && request ? (
           <div>
-            {justSent && request.status === "pending" ? <div style={{ fontSize: 16, fontWeight: 800, color: C.text, marginBottom: 6 }}>{`Request sent. ${name} will answer here.`}</div> : null}
+            {justSent && request.status === "pending" ? <div style={{ fontSize: 16, fontWeight: 800, color: C.text, marginBottom: 6 }}>Request sent.</div> : null}
             <div data-reserve-status={request.status} aria-live="polite" style={{ fontSize: justSent && request.status === "pending" ? 14 : 16, fontWeight: justSent && request.status === "pending" ? 600 : 800, color: sc.tone, margin: "0 0 10px", lineHeight: 1.35 }}>{sc.title}</div>
             <Summary draft={{ ...draft, partySize: request.partySize || draft.partySize, date: request.date || draft.date, time: request.time || draft.time }} />
             {request.status === "declined" || request.status === "expired" ? <button type="button" style={mainBtn} onClick={restart}>Try another time</button> : null}

@@ -11,6 +11,7 @@
  *
  * Needs registering in scripts/guards.txt by the integration step.
  */
+import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { JSDOM } from "jsdom";
@@ -103,6 +104,8 @@ const wide = (host) => [...host.querySelectorAll(".wf-place-card-cta > *")];
   await act(async () => { btn.dispatchEvent(new w.MouseEvent("click", { bubbles: true, cancelable: true })); });
   ok(bubbled === 0, "ReserveCta stops propagation on its own, so a tap never reaches whatever wraps it");
   ok(btn.getAttribute("type") === "button" && btn.textContent.trim().startsWith("Reserve a table"), "ReserveCta renders <button type=button> labelled 'Reserve a table'");
+  ok(btn.textContent.trim() === "Reserve a table\u203a", "ReserveCta renders the real single-character chevron (U+203A) in a real render, not mojibake");
+  { const sheetSrc = fs.readFileSync(path.join(ROOT, "app/components/ReserveSheet.js"), "utf8"); ok(/Request sent\./.test(sheetSrc) && !/will answer here/.test(sheetSrc), "pending headline is just 'Request sent.' (the restaurant is named once, in the status line)"); }
   await m.unmount();
 }
 
@@ -200,7 +203,7 @@ const wide = (host) => [...host.querySelectorAll(".wf-place-card-cta > *")];
 
 // ── 6. The form rules mirror the server ──────────────────────────────────────
 {
-  const rc = await loadComponent(path.join(ROOT, "lib/reserveApi.js"), ROOT);
+  const rc = await loadComponent(path.join(ROOT, "lib/reserveClientApi.js"), ROOT);
   const now = new Date("2026-11-11T15:00:00Z");
   const { min, max } = rc.reserveDateRange(now);
   ok(min === "2026-11-11" && max === "2027-01-10", `date range is today through today+60 days Eastern (got ${min}..${max})`);
@@ -226,10 +229,10 @@ const wide = (host) => [...host.querySelectorAll(".wf-place-card-cta > *")];
   const card = read("app/components/IconicPlaceCard.js");
   ok(/useReservePartner\(\s*cta\s*\?\s*null/.test(card), "the card only subscribes to partner status when the caller left the cta slot free");
   const staticImports = (src) => [...src.matchAll(/^\s*import\s[^;]*?from\s+["']([^"']+)["']/gm)].map((m) => m[1]);
-  ok(!staticImports(card).some((x) => /ReserveCta|ReserveSheet|reserveApi|reservePartners|reserveOpen/.test(x)), "the card statically imports only lib/reserveClient.js: button, sheet, API, loader and opener are lazy chunks (homepage JS budget)");
+  ok(!staticImports(card).some((x) => /ReserveCta|ReserveSheet|reserveClientApi|reservePartners|reserveOpen/.test(x)), "the card statically imports only lib/reserveClient.js: button, sheet, API, loader and opener are lazy chunks (homepage JS budget)");
   ok(/lazy\(\s*\(\)\s*=>\s*import\(\s*["']\.\/ReserveCta["']\s*\)\s*\)/.test(card), "the card loads the button with a lazy dynamic import");
   const client = read("lib/reserveClient.js");
-  ok(!staticImports(client).some((x) => /reservePartners|reserveApi|reserveOpen/.test(x)) && /import\(\s*["']\.\/reservePartners\.js["']\s*\)/.test(client), "reserveClient (eager) reaches the partner loader only by dynamic import");
+  ok(!staticImports(client).some((x) => /reservePartners|reserveClientApi|reserveOpen/.test(x)) && /import\(\s*["']\.\/reservePartners\.js["']\s*\)/.test(client), "reserveClient (eager) reaches the partner loader only by dynamic import");
   ok(/import\(\s*["']\.\.\/app\/components\/ReserveSheet\.js["']\s*\)/.test(read("lib/reserveOpen.js")) && !staticImports(read("lib/reserveOpen.js")).some((x) => /ReserveSheet/.test(x)), "openReserveSheet loads the sheet with a dynamic import, never a static one");
   const home = readFileSync(path.join(ROOT, "app/home.js"), "utf8");
   ok(/className="wf-signin-button"/.test(home) && /querySelector\(\s*["']\.wf-signin-button["']\s*\)/.test(read("app/components/ReserveSheet.js")), "the shell's header Sign in button still carries .wf-signin-button, the door the sheet uses");
