@@ -1,0 +1,1891 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 42. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJR7zm99uH3YgRuoA9hVzLTos",
+   "name": "J Sterling's Wellness Spa - South Orlando",
+   "category": "attractions",
+   "metro": "orlando",
+   "primary_type": "massage_spa",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://jsterlings.com/southorlando/",
+     "source_name": "J Sterling's Wellness Spa - South Orlando \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "J Sterling's Wellness Spa - South Orlando is located at 12402 S Orange Blossom Trail, Orlando, FL 32837",
+      "The spa offers massage, facial, waxing, and laser services",
+      "The South Orlando location is open Monday through Saturday from 10 a.m. to 9 p.m. and Sunday from 10 a.m. to 6 p.m.",
+      "Massage services start from $70"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Wellness spa in South Orlando offering massage, facial, waxing, and laser services",
+    "why_here": "Go for massage, facial, waxing, and laser services at the South Orlando location on 12402 S Orange Blossom Trail. Massage services start from $70, with hours Monday through Saturday from 10 a.m. to 9 p.m.",
+    "know_before": "Sunday hours are from 10 a.m. to 6 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://jsterlings.com/southorlando/"
+     ],
+     "why_here": [
+      "https://jsterlings.com/southorlando/"
+     ],
+     "know_before": [
+      "https://jsterlings.com/southorlando/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "J Sterling's Wellness Spa - South Orlando is located at 12402 S Orange Blossom Trail, Orlando, FL 32837",
+      "source": "https://jsterlings.com/southorlando/"
+     },
+     {
+      "claim": "The spa offers massage, facial, waxing, and laser services",
+      "source": "https://jsterlings.com/southorlando/"
+     },
+     {
+      "claim": "The South Orlando location is open Monday through Saturday from 10 a.m. to 9 p.m. and Sunday from 10 a.m. to 6 p.m.",
+      "source": "https://jsterlings.com/southorlando/"
+     },
+     {
+      "claim": "Massage services start from $70",
+      "source": "https://jsterlings.com/southorlando/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJoWHkOGqz2YgRFI7KBOyVT80",
+   "name": "LIV Nightclub Miami",
+   "category": "nightlife",
+   "metro": "miami-dade",
+   "primary_type": "night_club",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.livnightclub.com/miami/",
+     "source_name": "LIV Nightclub Miami \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "LIV Nightclub is located inside Fontainebleau Miami Beach at 4441 Collins Avenue, Miami Beach, FL 33140",
+      "LIV Nightclub is open Thursday through Sunday from 11 p.m. to 5 a.m.",
+      "LIV Nightclub entry is for age 21 and over with proper ID",
+      "LIV Nightclub requires proper dress attire",
+      "LIV Nightclub calendar lists upcoming events"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "nightclub inside Fontainebleau Miami Beach open Thursday through Sunday",
+    "why_here": "Go for a late night inside Fontainebleau Miami Beach, where LIV Nightclub is open Thursday through Sunday from 11 p.m. to 5 a.m. at 4441 Collins Avenue.",
+    "know_before": "Entry is for age 21 and over with proper ID, and proper dress attire is required",
+    "local_tip": "Check the calendar for upcoming events before a Thursday through Sunday visit",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.livnightclub.com/miami/"
+     ],
+     "why_here": [
+      "https://www.livnightclub.com/miami/"
+     ],
+     "know_before": [
+      "https://www.livnightclub.com/miami/"
+     ],
+     "local_tip": [
+      "https://www.livnightclub.com/miami/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "LIV Nightclub is located inside Fontainebleau Miami Beach at 4441 Collins Avenue, Miami Beach, FL 33140",
+      "source": "https://www.livnightclub.com/miami/"
+     },
+     {
+      "claim": "LIV Nightclub is open Thursday through Sunday from 11 p.m. to 5 a.m.",
+      "source": "https://www.livnightclub.com/miami/"
+     },
+     {
+      "claim": "LIV Nightclub entry is for age 21 and over with proper ID",
+      "source": "https://www.livnightclub.com/miami/"
+     },
+     {
+      "claim": "LIV Nightclub requires proper dress attire",
+      "source": "https://www.livnightclub.com/miami/"
+     },
+     {
+      "claim": "LIV Nightclub calendar lists upcoming events",
+      "source": "https://www.livnightclub.com/miami/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJn_8FgDq12YgRmkCtXbMfacc",
+   "name": "the goodtime hotel, Miami Beach, a Tribute Portfolio Hotel",
+   "category": "hotels",
+   "metro": "miami-dade",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.miamiandbeaches.com/l/hotels/the-goodtime-hotel/24706",
+     "source_name": "the goodtime hotel, Miami Beach, a Tribute Portfolio Hotel \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "the goodtime hotel is in Miami Beach",
+      "The seven-story hotel comprises 266 rooms",
+      "The hotel designs are by Ken Fulk",
+      "The hotel has 2 swimming pools",
+      "Strawberry Moon is the hotel signature Mediterranean restaurant"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Seven-story Miami Beach hotel with 266 rooms and designs by Ken Fulk",
+    "why_here": "Stay in a seven-story hotel with 266 rooms and 2 swimming pools in Miami Beach, with designs by Ken Fulk, and try Strawberry Moon, the hotel signature Mediterranean restaurant during a stay.",
+    "know_before": "The hotel has 2 swimming pools",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.miamiandbeaches.com/l/hotels/the-goodtime-hotel/24706"
+     ],
+     "why_here": [
+      "https://www.miamiandbeaches.com/l/hotels/the-goodtime-hotel/24706"
+     ],
+     "know_before": [
+      "https://www.miamiandbeaches.com/l/hotels/the-goodtime-hotel/24706"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "the goodtime hotel is in Miami Beach",
+      "source": "https://www.miamiandbeaches.com/l/hotels/the-goodtime-hotel/24706"
+     },
+     {
+      "claim": "The seven-story hotel comprises 266 rooms",
+      "source": "https://www.miamiandbeaches.com/l/hotels/the-goodtime-hotel/24706"
+     },
+     {
+      "claim": "The hotel designs are by Ken Fulk",
+      "source": "https://www.miamiandbeaches.com/l/hotels/the-goodtime-hotel/24706"
+     },
+     {
+      "claim": "The hotel has 2 swimming pools",
+      "source": "https://www.miamiandbeaches.com/l/hotels/the-goodtime-hotel/24706"
+     },
+     {
+      "claim": "Strawberry Moon is the hotel signature Mediterranean restaurant",
+      "source": "https://www.miamiandbeaches.com/l/hotels/the-goodtime-hotel/24706"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJuekzx5iB3YgRIf-DAzwhZGA",
+   "name": "Doldrick's Escape Room",
+   "category": "attractions",
+   "metro": "orlando",
+   "primary_type": "amusement_center",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://doldricksescaperoom.com/games/",
+     "source_name": "Doldrick's Escape Room \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Doldrick's Escape Room is at 2943 Vineland Rd, Kissimmee, FL 34746",
+      "Captain Spoopy Bones is for 2-14 players and lasts 75 minutes",
+      "Super Bomb Squad: Commandos Awesome is for 2-8 players and lasts 60 minutes",
+      "Crazy Train: The Ballad of Skeemin' Plotz is for 2-7 players and lasts 75 minutes",
+      "Galactic Beef is for 2-8 players and lasts 90 minutes"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Escape room in Kissimmee with games for 2-14 players lasting 60 minutes to 90 minutes",
+    "why_here": "Bring a team to try Captain Spoopy Bones for 2-14 players over 75 minutes, or Super Bomb Squad: Commandos Awesome for 2-8 players over 60 minutes at 2943 Vineland Rd, Kissimmee, FL 34746.",
+    "know_before": "Crazy Train: The Ballad of Skeemin' Plotz is for 2-7 players and lasts 75 minutes",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://doldricksescaperoom.com/games/"
+     ],
+     "why_here": [
+      "https://doldricksescaperoom.com/games/"
+     ],
+     "know_before": [
+      "https://doldricksescaperoom.com/games/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Doldrick's Escape Room is at 2943 Vineland Rd, Kissimmee, FL 34746",
+      "source": "https://doldricksescaperoom.com/games/"
+     },
+     {
+      "claim": "Captain Spoopy Bones is for 2-14 players and lasts 75 minutes",
+      "source": "https://doldricksescaperoom.com/games/"
+     },
+     {
+      "claim": "Super Bomb Squad: Commandos Awesome is for 2-8 players and lasts 60 minutes",
+      "source": "https://doldricksescaperoom.com/games/"
+     },
+     {
+      "claim": "Crazy Train: The Ballad of Skeemin' Plotz is for 2-7 players and lasts 75 minutes",
+      "source": "https://doldricksescaperoom.com/games/"
+     },
+     {
+      "claim": "Galactic Beef is for 2-8 players and lasts 90 minutes",
+      "source": "https://doldricksescaperoom.com/games/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJCYXEZJK02YgRjfXK2PimCj4",
+   "name": "Voodoo Lounge & Rooftop",
+   "category": "nightlife",
+   "metro": "miami-dade",
+   "primary_type": "night_club",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.voodoo.miami/",
+     "source_name": "Voodoo Lounge & Rooftop \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Voodoo is located at 928 Ocean Drive, Miami Beach, FL 33139 in the South Beach entertainment district",
+      "Voodoo is a tiki bar themed lounge and nightclub with a rooftop restaurant featuring direct ocean views",
+      "Voodoo opening hours are Monday through Thursday from 5 p.m. to 5 a.m. and Friday through Sunday from 11 a.m. to 5 a.m.",
+      "Voodoo has a themed party each and every night with a brunch party on weekends",
+      "Voodoo has daily and nightly events with a DJ"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "tiki bar themed lounge and nightclub with a rooftop restaurant and direct ocean views",
+    "why_here": "Go for direct ocean views from a rooftop restaurant on Ocean Drive in South Beach, plus a tiki bar themed lounge and nightclub with a themed party each night.",
+    "know_before": "Opening hours are Monday through Thursday from 5 p.m. to 5 a.m. and Friday through Sunday from 11 a.m. to 5 a.m.",
+    "local_tip": "Try a brunch party on weekends",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.voodoo.miami/"
+     ],
+     "why_here": [
+      "https://www.voodoo.miami/"
+     ],
+     "know_before": [
+      "https://www.voodoo.miami/"
+     ],
+     "local_tip": [
+      "https://www.voodoo.miami/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Voodoo is located at 928 Ocean Drive, Miami Beach, FL 33139 in the South Beach entertainment district",
+      "source": "https://www.voodoo.miami/"
+     },
+     {
+      "claim": "Voodoo is a tiki bar themed lounge and nightclub with a rooftop restaurant featuring direct ocean views",
+      "source": "https://www.voodoo.miami/"
+     },
+     {
+      "claim": "Voodoo opening hours are Monday through Thursday from 5 p.m. to 5 a.m. and Friday through Sunday from 11 a.m. to 5 a.m.",
+      "source": "https://www.voodoo.miami/"
+     },
+     {
+      "claim": "Voodoo has a themed party each and every night with a brunch party on weekends",
+      "source": "https://www.voodoo.miami/"
+     },
+     {
+      "claim": "Voodoo has daily and nightly events with a DJ",
+      "source": "https://www.voodoo.miami/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJyVomDy9aw4gRd5CaVq0U4DI",
+   "name": "Lowe's Home Improvement",
+   "category": "shopping",
+   "metro": "manatee-sarasota",
+   "primary_type": "home_improvement_store",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.lowes.com",
+     "source_name": "Lowe's Home Improvement \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Lowe's Home Improvement sells tools, appliances, building supplies, bathroom and lighting products",
+      "Lowe's Home Improvement offers flooring, outdoor, lawn and garden products",
+      "Prices, promotions, styles, and availability may vary",
+      "Local stores do not honor online pricing"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "shop for tools, appliances, building supplies and lighting",
+    "why_here": "Go to shop for tools, appliances, building supplies, bathroom and lighting products, plus flooring, outdoor, lawn and garden products at Lowe's Home Improvement.",
+    "know_before": "Prices, promotions, styles, and availability may vary, and local stores do not honor online pricing",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.lowes.com"
+     ],
+     "why_here": [
+      "https://www.lowes.com"
+     ],
+     "know_before": [
+      "https://www.lowes.com"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Lowe's Home Improvement sells tools, appliances, building supplies, bathroom and lighting products",
+      "source": "https://www.lowes.com"
+     },
+     {
+      "claim": "Lowe's Home Improvement offers flooring, outdoor, lawn and garden products",
+      "source": "https://www.lowes.com"
+     },
+     {
+      "claim": "Prices, promotions, styles, and availability may vary",
+      "source": "https://www.lowes.com"
+     },
+     {
+      "claim": "Local stores do not honor online pricing",
+      "source": "https://www.lowes.com"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJuTErUumF3YgRlpnV1sDJ800",
+   "name": "Secrets Hideaway Resort & Spa / Club Secret",
+   "category": "hotels",
+   "metro": "florida",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.secretsfl.com/",
+     "source_name": "Secrets Hideaway Resort & Spa / Club Secret \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Secrets Hideaway Resort and Spa is Florida's Adults Only Destination",
+      "Book a stay in one of our sensually decorated, custom condos",
+      "clothing-optional pool parties and restaurant service available, 4 full-bars, pool-side DJs, and erotically-themed nightly soirees at our club",
+      "Soak in our conversation pool, grab a drink from the tiki bar",
+      "2145 E Irlo Bronson Memorial Hwy, Kissimmee, FL 34744",
+      "Secrets Hideaway Resort & Spa will be bringing you 130 rooms"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "adults only resort with clothing-optional pool parties and club",
+    "why_here": "Go for clothing-optional pool parties, pool-side DJs and erotically-themed nightly soirees at the club, with sensually decorated, custom condos and a conversation pool with a tiki bar on site.",
+    "know_before": "Book a stay in one of the sensually decorated, custom condos before joining nightly soirees at the club.",
+    "local_tip": "Soak in the conversation pool, then grab a drink from the tiki bar.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.secretsfl.com/"
+     ],
+     "why_here": [
+      "https://www.secretsfl.com/"
+     ],
+     "know_before": [
+      "https://www.secretsfl.com/"
+     ],
+     "local_tip": [
+      "https://www.secretsfl.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Secrets Hideaway Resort and Spa is Florida's Adults Only Destination",
+      "source": "https://www.secretsfl.com/"
+     },
+     {
+      "claim": "Book a stay in one of our sensually decorated, custom condos",
+      "source": "https://www.secretsfl.com/"
+     },
+     {
+      "claim": "clothing-optional pool parties and restaurant service available, 4 full-bars, pool-side DJs, and erotically-themed nightly soirees at our club",
+      "source": "https://www.secretsfl.com/"
+     },
+     {
+      "claim": "Soak in our conversation pool, grab a drink from the tiki bar",
+      "source": "https://www.secretsfl.com/"
+     },
+     {
+      "claim": "2145 E Irlo Bronson Memorial Hwy, Kissimmee, FL 34744",
+      "source": "https://www.secretsfl.com/"
+     },
+     {
+      "claim": "Secrets Hideaway Resort & Spa will be bringing you 130 rooms",
+      "source": "https://www.secretsfl.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJw3mlO_y72YgRSAY5SDiycZg",
+   "name": "Jama Benn Jama",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "cuban_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://jamabennjama.com/hialeah-gardens-hialeah-jama-benn-jama-about",
+     "source_name": "Jama Benn Jama \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "two determined Cubanos embarked on a daring journey from Cuba",
+      "beloved pet pig named Benni",
+      "established a unique culinary haven in Hialeah Gardens",
+      "Named Jama Benn Jama, a Cubanaso-BBQ",
+      "serving authentic Jama that pays homage to their roots",
+      "meet these two Cubanos, and savor the rich, flavorful offerings that capture the spirit of Cuba in every bite"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Cubanaso-BBQ grill serving authentic Jama in Hialeah Gardens",
+    "why_here": "Go for authentic Jama at a Cubanaso-BBQ grill in Hialeah Gardens, a tribute to two Cubanos, their journey from Cuba, and their beloved pet pig named Benni.",
+    "know_before": "The restaurant is a tribute to their journey and beloved pet pig named Benni.",
+    "local_tip": "Meet these two Cubanos and savor offerings that capture the spirit of Cuba.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://jamabennjama.com/hialeah-gardens-hialeah-jama-benn-jama-about"
+     ],
+     "why_here": [
+      "https://jamabennjama.com/hialeah-gardens-hialeah-jama-benn-jama-about"
+     ],
+     "know_before": [
+      "https://jamabennjama.com/hialeah-gardens-hialeah-jama-benn-jama-about"
+     ],
+     "local_tip": [
+      "https://jamabennjama.com/hialeah-gardens-hialeah-jama-benn-jama-about"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "two determined Cubanos embarked on a daring journey from Cuba",
+      "source": "https://jamabennjama.com/hialeah-gardens-hialeah-jama-benn-jama-about"
+     },
+     {
+      "claim": "beloved pet pig named Benni",
+      "source": "https://jamabennjama.com/hialeah-gardens-hialeah-jama-benn-jama-about"
+     },
+     {
+      "claim": "established a unique culinary haven in Hialeah Gardens",
+      "source": "https://jamabennjama.com/hialeah-gardens-hialeah-jama-benn-jama-about"
+     },
+     {
+      "claim": "Named Jama Benn Jama, a Cubanaso-BBQ",
+      "source": "https://jamabennjama.com/hialeah-gardens-hialeah-jama-benn-jama-about"
+     },
+     {
+      "claim": "serving authentic Jama that pays homage to their roots",
+      "source": "https://jamabennjama.com/hialeah-gardens-hialeah-jama-benn-jama-about"
+     },
+     {
+      "claim": "meet these two Cubanos, and savor the rich, flavorful offerings that capture the spirit of Cuba in every bite",
+      "source": "https://jamabennjama.com/hialeah-gardens-hialeah-jama-benn-jama-about"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJn06FrWgA2YgRQVsIxrjN88w",
+   "name": "Gilbert's 17th Street Grill",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.gilberts17thstgrill.com/",
+     "source_name": "Gilbert's 17th Street Grill \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Gilbert's 17th Street Grill is located at the Harbor Shops in Fort Lauderdale, Florida",
+      "Gilbert's 17th Street Grill serves burgers, ribs, homemade soups, and salads",
+      "Daily blackboard specials include Pan Seared Tuna, Roast Pork on Garlic Toast and Grilled Portobello Mushroom Burger",
+      "Mrs. Gilbert's homemade Key Lime Pie and Cheesecakes are served at Gilbert's 17th Street Grill",
+      "Gilbert's 17th Street Grill is open Monday through Saturday from 11 a.m. to 9 p.m.",
+      "Gilbert's 17th Street Grill is closed Sunday"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "burgers, ribs, homemade soups and salads at Harbor Shops",
+    "why_here": "Go for burgers, ribs, homemade soups and salads at the Harbor Shops in Fort Lauderdale, Florida, plus daily blackboard specials and Mrs. Gilbert's homemade Key Lime Pie and Cheesecakes.",
+    "know_before": "Open Monday through Saturday from 11 a.m. to 9 p.m. and closed Sunday",
+    "local_tip": "Try Mrs. Gilbert's homemade Key Lime Pie and Cheesecakes",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.gilberts17thstgrill.com/"
+     ],
+     "why_here": [
+      "https://www.gilberts17thstgrill.com/"
+     ],
+     "know_before": [
+      "https://www.gilberts17thstgrill.com/"
+     ],
+     "local_tip": [
+      "https://www.gilberts17thstgrill.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Gilbert's 17th Street Grill is located at the Harbor Shops in Fort Lauderdale, Florida",
+      "source": "https://www.gilberts17thstgrill.com/"
+     },
+     {
+      "claim": "Gilbert's 17th Street Grill serves burgers, ribs, homemade soups, and salads",
+      "source": "https://www.gilberts17thstgrill.com/"
+     },
+     {
+      "claim": "Daily blackboard specials include Pan Seared Tuna, Roast Pork on Garlic Toast and Grilled Portobello Mushroom Burger",
+      "source": "https://www.gilberts17thstgrill.com/"
+     },
+     {
+      "claim": "Mrs. Gilbert's homemade Key Lime Pie and Cheesecakes are served at Gilbert's 17th Street Grill",
+      "source": "https://www.gilberts17thstgrill.com/"
+     },
+     {
+      "claim": "Gilbert's 17th Street Grill is open Monday through Saturday from 11 a.m. to 9 p.m.",
+      "source": "https://www.gilberts17thstgrill.com/"
+     },
+     {
+      "claim": "Gilbert's 17th Street Grill is closed Sunday",
+      "source": "https://www.gilberts17thstgrill.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJff6dm9H2wogRmH0oDzwnHU0",
+   "name": "Mandalay Prime Steakhouse & Lounge",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "steak_house",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://mandalayprime.com/",
+     "source_name": "Mandalay Prime Steakhouse & Lounge \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Mandalay Prime Steakhouse & Lounge serves USDA Prime and Certified Angus Beef steaks, fresh seafood, inventive pastas, and carefully curated wines",
+      "Mandalay Prime Steakhouse & Lounge is at 478 Mandalay Ave, Clearwater, FL",
+      "Mandalay Prime Steakhouse & Lounge is near the beach",
+      "The lounge at Mandalay Prime Steakhouse & Lounge offers a space for cocktails and conversation",
+      "Mandalay Prime Steakhouse & Lounge is open Monday through Sunday from 4 p.m. to 10 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "USDA Prime steaks, fresh seafood and curated wines near the beach",
+    "why_here": "Go for USDA Prime and Certified Angus Beef steaks, fresh seafood, inventive pastas and carefully curated wines near the beach in Clearwater, with cocktails and conversation in the lounge.",
+    "know_before": "Open Monday through Sunday from 4 p.m. to 10 p.m.",
+    "local_tip": "Have cocktails and conversation in the lounge",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://mandalayprime.com/"
+     ],
+     "why_here": [
+      "https://mandalayprime.com/"
+     ],
+     "know_before": [
+      "https://mandalayprime.com/"
+     ],
+     "local_tip": [
+      "https://mandalayprime.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Mandalay Prime Steakhouse & Lounge serves USDA Prime and Certified Angus Beef steaks, fresh seafood, inventive pastas, and carefully curated wines",
+      "source": "https://mandalayprime.com/"
+     },
+     {
+      "claim": "Mandalay Prime Steakhouse & Lounge is at 478 Mandalay Ave, Clearwater, FL",
+      "source": "https://mandalayprime.com/"
+     },
+     {
+      "claim": "Mandalay Prime Steakhouse & Lounge is near the beach",
+      "source": "https://mandalayprime.com/"
+     },
+     {
+      "claim": "The lounge at Mandalay Prime Steakhouse & Lounge offers a space for cocktails and conversation",
+      "source": "https://mandalayprime.com/"
+     },
+     {
+      "claim": "Mandalay Prime Steakhouse & Lounge is open Monday through Sunday from 4 p.m. to 10 p.m.",
+      "source": "https://mandalayprime.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJSa-5McVn54gR1QNJyWR3sso",
+   "name": "Chimiking Restaurant | Alafaya",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://chimikingrestaurant.com/chimiking-alafaya/",
+     "source_name": "Chimiking Restaurant | Alafaya \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Chimiking Alafaya is on Alafaya Trail.",
+      "Chimiking Alafaya is a full Dominican and Puerto Rican kitchen.",
+      "The menu includes sancocho, mondongo, and alcapurrias.",
+      "Churrasco outsells everything else on the menu at Chimiking Alafaya.",
+      "The menu includes chimi, chivo guisado, pernil, and tostones."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Dominican and Puerto Rican kitchen on Alafaya Trail serving sancocho and churrasco",
+    "why_here": "Chimiking Alafaya is a full Dominican and Puerto Rican kitchen on Alafaya Trail. The menu includes sancocho, mondongo, and alcapurrias, plus chimi, chivo guisado, pernil, and tostones; churrasco outsells everything else on the menu.",
+    "know_before": "Churrasco outsells everything else on the menu at Chimiking Alafaya.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://chimikingrestaurant.com/chimiking-alafaya/"
+     ],
+     "why_here": [
+      "https://chimikingrestaurant.com/chimiking-alafaya/"
+     ],
+     "know_before": [
+      "https://chimikingrestaurant.com/chimiking-alafaya/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Chimiking Alafaya is on Alafaya Trail.",
+      "source": "https://chimikingrestaurant.com/chimiking-alafaya/"
+     },
+     {
+      "claim": "Chimiking Alafaya is a full Dominican and Puerto Rican kitchen.",
+      "source": "https://chimikingrestaurant.com/chimiking-alafaya/"
+     },
+     {
+      "claim": "The menu includes sancocho, mondongo, and alcapurrias.",
+      "source": "https://chimikingrestaurant.com/chimiking-alafaya/"
+     },
+     {
+      "claim": "Churrasco outsells everything else on the menu at Chimiking Alafaya.",
+      "source": "https://chimikingrestaurant.com/chimiking-alafaya/"
+     },
+     {
+      "claim": "The menu includes chimi, chivo guisado, pernil, and tostones.",
+      "source": "https://chimikingrestaurant.com/chimiking-alafaya/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJQSoRcW8Xw4gRWKWPidTboks",
+   "name": "Intense Escape",
+   "category": "attractions",
+   "metro": "manatee-sarasota",
+   "primary_type": "amusement_center",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.intenseescapefl.com/faqs",
+     "source_name": "Intense Escape \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "An escape room is a real-life adventure game where your team uses problem solving skills to complete a mission.",
+      "The mission is commonly escaping from a locked room within a 60-minute time frame."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Real-life adventure game where your team uses problem solving skills to complete a mission",
+    "why_here": "Intense Escape is a real-life adventure game where your team uses problem solving skills to complete a mission. The mission is commonly escaping from a locked room within a 60-minute time frame, so teams work against that 60-minute time frame.",
+    "know_before": "The mission is commonly escaping from a locked room within a 60-minute time frame.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.intenseescapefl.com/faqs"
+     ],
+     "why_here": [
+      "https://www.intenseescapefl.com/faqs"
+     ],
+     "know_before": [
+      "https://www.intenseescapefl.com/faqs"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "An escape room is a real-life adventure game where your team uses problem solving skills to complete a mission.",
+      "source": "https://www.intenseescapefl.com/faqs"
+     },
+     {
+      "claim": "The mission is commonly escaping from a locked room within a 60-minute time frame.",
+      "source": "https://www.intenseescapefl.com/faqs"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJa92ZB0R_3YgRffO4McWjClI",
+   "name": "Twistee Treat Celebration",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "ice_cream_shop",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://twisteetreat.com/landing/",
+     "source_name": "Twistee Treat Celebration \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Twistee Treat Celebration is in Kissimmee, Florida.",
+      "Twistee Treat makes homemade Soft Serve Ice Cream.",
+      "Hours are 1:00 p.m. to 10:00 p.m. Monday through Thursday.",
+      "Hours are 1:00 p.m. to 11:00 p.m. Friday through Sunday."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Ice cream shop serving homemade Soft Serve Ice Cream in Kissimmee, Florida",
+    "why_here": "Twistee Treat Celebration in Kissimmee, Florida serves homemade Soft Serve Ice Cream. Hours are 1:00 p.m. to 10:00 p.m. Monday through Thursday and 1:00 p.m. to 11:00 p.m. Friday through Sunday.",
+    "know_before": "Hours are 1:00 p.m. to 10:00 p.m. Monday through Thursday.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://twisteetreat.com/landing/"
+     ],
+     "why_here": [
+      "https://twisteetreat.com/landing/"
+     ],
+     "know_before": [
+      "https://twisteetreat.com/landing/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Twistee Treat Celebration is in Kissimmee, Florida.",
+      "source": "https://twisteetreat.com/landing/"
+     },
+     {
+      "claim": "Twistee Treat makes homemade Soft Serve Ice Cream.",
+      "source": "https://twisteetreat.com/landing/"
+     },
+     {
+      "claim": "Hours are 1:00 p.m. to 10:00 p.m. Monday through Thursday.",
+      "source": "https://twisteetreat.com/landing/"
+     },
+     {
+      "claim": "Hours are 1:00 p.m. to 11:00 p.m. Friday through Sunday.",
+      "source": "https://twisteetreat.com/landing/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJZRTQ3DLPwogRohR95KM_0Zw",
+   "name": "Red Roof Inn Tampa Fairgrounds - Casino",
+   "category": "hotels",
+   "metro": "tampa",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://tampafairgrounds.redroof.com/",
+     "source_name": "Red Roof Inn Tampa Fairgrounds - Casino \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Red Roof Inn Tampa Fairgrounds - Casino offers Free Parking",
+      "Florida State Fairgrounds is 0.36 mi from Red Roof Inn Tampa Fairgrounds - Casino",
+      "Red Roof Inn Tampa Fairgrounds - Casino is at 5001 US-301, Tampa FL",
+      "Red Roof Inn Tampa Fairgrounds - Casino is 100% smoke free",
+      "Up to 2 pets allowed at Red Roof Inn Tampa Fairgrounds - Casino"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Free Parking near Florida State Fairgrounds",
+    "why_here": "Go for Free Parking near Florida State Fairgrounds, with a stay that is 100% smoke free and allows Up to 2 pets at Red Roof Inn Tampa Fairgrounds - Casino.",
+    "know_before": "Up to 2 pets allowed at Red Roof Inn Tampa Fairgrounds - Casino.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://tampafairgrounds.redroof.com/"
+     ],
+     "why_here": [
+      "https://tampafairgrounds.redroof.com/"
+     ],
+     "know_before": [
+      "https://tampafairgrounds.redroof.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Red Roof Inn Tampa Fairgrounds - Casino offers Free Parking",
+      "source": "https://tampafairgrounds.redroof.com/"
+     },
+     {
+      "claim": "Florida State Fairgrounds is 0.36 mi from Red Roof Inn Tampa Fairgrounds - Casino",
+      "source": "https://tampafairgrounds.redroof.com/"
+     },
+     {
+      "claim": "Red Roof Inn Tampa Fairgrounds - Casino is at 5001 US-301, Tampa FL",
+      "source": "https://tampafairgrounds.redroof.com/"
+     },
+     {
+      "claim": "Red Roof Inn Tampa Fairgrounds - Casino is 100% smoke free",
+      "source": "https://tampafairgrounds.redroof.com/"
+     },
+     {
+      "claim": "Up to 2 pets allowed at Red Roof Inn Tampa Fairgrounds - Casino",
+      "source": "https://tampafairgrounds.redroof.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJP_ztTwC32YgRr88wTvlsFyw",
+   "name": "Miami Bowls",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.miamibowls.com/miami-bowls",
+     "source_name": "Miami Bowls \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Miami Bowls serves handcrafted a\u00e7a\u00ed bowls made with organic ingredients",
+      "The menu includes the Miami Breeze and the Bahama Blast, and customers can build a bowl with their own toppings",
+      "Miami Bowls is located at 1659 James Avenue, Miami Beach, FL 33139"
+     ]
+    },
+    {
+     "source": "https://www.miamibowls.com/our-story",
+     "source_name": "Miami Bowls \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Its a\u00e7a\u00ed is Grade-A organic a\u00e7a\u00ed imported directly from Brazil, blended fresh with frozen fruit and either juice or non-dairy milk"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Handcrafted a\u00e7a\u00ed bowls made with organic ingredients in Miami Beach",
+    "why_here": "Come for handcrafted a\u00e7a\u00ed bowls, including the Miami Breeze and the Bahama Blast, or build a bowl with your own toppings. The a\u00e7a\u00ed is Grade-A organic a\u00e7a\u00ed imported directly from Brazil and blended fresh with frozen fruit.",
+    "know_before": "Miami Bowls is located at 1659 James Avenue, Miami Beach, FL 33139",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.miamibowls.com/miami-bowls"
+     ],
+     "why_here": [
+      "https://www.miamibowls.com/miami-bowls"
+     ],
+     "know_before": [
+      "https://www.miamibowls.com/miami-bowls"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Miami Bowls serves handcrafted a\u00e7a\u00ed bowls made with organic ingredients",
+      "source": "https://www.miamibowls.com/miami-bowls"
+     },
+     {
+      "claim": "The menu includes the Miami Breeze and the Bahama Blast, and customers can build a bowl with their own toppings",
+      "source": "https://www.miamibowls.com/miami-bowls"
+     },
+     {
+      "claim": "Its a\u00e7a\u00ed is Grade-A organic a\u00e7a\u00ed imported directly from Brazil, blended fresh with frozen fruit and either juice or non-dairy milk",
+      "source": "https://www.miamibowls.com/our-story"
+     },
+     {
+      "claim": "Miami Bowls is located at 1659 James Avenue, Miami Beach, FL 33139",
+      "source": "https://www.miamibowls.com/miami-bowls"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJR5ADXQQd5YgRtLpVuLx3sLg",
+   "name": "Crooked River State Park",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "state_park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://gastateparks.org/CrookedRiver",
+     "source_name": "Crooked River State Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Crooked River State Park is in St. Marys and covers 500 Acres",
+      "Hiking is available on 4 miles of trails at Crooked River State Park",
+      "A nature center features fish, snakes, turtles and other animals native to coastal Georgia",
+      "Crooked River State Park offers 63 Tent, Trailer & RV Campsites and 11 Cottages",
+      "Crooked River State Park is a spot for enjoying the Intracoastal Waterway and maritime forest",
+      "Crooked River State Park is open 7 a.m. to 10 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Coastal park in St. Marys with 4 miles of trails and a nature center",
+    "why_here": "Go for hiking on 4 miles of trails, a nature center with fish, snakes and turtles, and stays in 63 Tent, Trailer & RV Campsites and 11 Cottages across a 500 Acres park by the Intracoastal Waterway.",
+    "know_before": "Crooked River State Park is open 7 a.m. to 10 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://gastateparks.org/CrookedRiver"
+     ],
+     "why_here": [
+      "https://gastateparks.org/CrookedRiver"
+     ],
+     "know_before": [
+      "https://gastateparks.org/CrookedRiver"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Crooked River State Park is in St. Marys and covers 500 Acres",
+      "source": "https://gastateparks.org/CrookedRiver"
+     },
+     {
+      "claim": "Hiking is available on 4 miles of trails at Crooked River State Park",
+      "source": "https://gastateparks.org/CrookedRiver"
+     },
+     {
+      "claim": "A nature center features fish, snakes, turtles and other animals native to coastal Georgia",
+      "source": "https://gastateparks.org/CrookedRiver"
+     },
+     {
+      "claim": "Crooked River State Park offers 63 Tent, Trailer & RV Campsites and 11 Cottages",
+      "source": "https://gastateparks.org/CrookedRiver"
+     },
+     {
+      "claim": "Crooked River State Park is a spot for enjoying the Intracoastal Waterway and maritime forest",
+      "source": "https://gastateparks.org/CrookedRiver"
+     },
+     {
+      "claim": "Crooked River State Park is open 7 a.m. to 10 p.m.",
+      "source": "https://gastateparks.org/CrookedRiver"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ4aqGJocn54gRJz5lyI3u4-s",
+   "name": "Cinnamon Tree Cafe",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "brunch_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.cinnamontreecafe.com/",
+     "source_name": "Cinnamon Tree Cafe \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Cinnamon Tree Cafe offers crepes and pancakes for breakfast",
+      "The cafe brews fresh coffee hourly and hand-makes lattes",
+      "Bakery items baked each morning include muffins, croissants and chocolate banana bread",
+      "Hours are Mon-Sat 7 a.m.\u20133 p.m. and Sun 8 a.m.\u20133 p.m.",
+      "Cinnamon Tree Cafe is at 1665 Dunlawton Ave #103, Port Orange, FL 32127"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Breakfast cafe in Port Orange serving crepes, pancakes and fresh coffee",
+    "why_here": "Come for breakfast with crepes and pancakes, fresh coffee brewed hourly and hand-made lattes. Each morning the cafe also bakes muffins, croissants and chocolate banana bread for its bakery section.",
+    "know_before": "Hours are Mon-Sat 7 a.m.\u20133 p.m. and Sun 8 a.m.\u20133 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.cinnamontreecafe.com/"
+     ],
+     "why_here": [
+      "https://www.cinnamontreecafe.com/"
+     ],
+     "know_before": [
+      "https://www.cinnamontreecafe.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Cinnamon Tree Cafe offers crepes and pancakes for breakfast",
+      "source": "https://www.cinnamontreecafe.com/"
+     },
+     {
+      "claim": "The cafe brews fresh coffee hourly and hand-makes lattes",
+      "source": "https://www.cinnamontreecafe.com/"
+     },
+     {
+      "claim": "Bakery items baked each morning include muffins, croissants and chocolate banana bread",
+      "source": "https://www.cinnamontreecafe.com/"
+     },
+     {
+      "claim": "Hours are Mon-Sat 7 a.m.\u20133 p.m. and Sun 8 a.m.\u20133 p.m.",
+      "source": "https://www.cinnamontreecafe.com/"
+     },
+     {
+      "claim": "Cinnamon Tree Cafe is at 1665 Dunlawton Ave #103, Port Orange, FL 32127",
+      "source": "https://www.cinnamontreecafe.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJFfwPU0t954gRj-qZpucRdyk",
+   "name": "CARAVAN UZBEK & TURKISH CUISINE",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "halal_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://caravanhalal.com/",
+     "source_name": "CARAVAN UZBEK & TURKISH CUISINE \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Caravan serves Uzbek and Turkish dishes made with traditional recipes and spices",
+      "Caravan uses only halal-certified meats and the freshest produce",
+      "To\u2019y Osh Uzbek Plov is made with Lazer rice, tender chunks of beef, cumin, coriander and sweet yellow carrots",
+      "Turkish Iskender Kebab combines beef and lamb doner with tomato sauce, melted butter and Turkish yogurt",
+      "Caravan is at 8015 S Orange ave, Orlando, Florida"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Uzbek and Turkish halal restaurant in Orlando",
+    "why_here": "Come for Uzbek and Turkish dishes made with traditional recipes and spices, using only halal-certified meats. Try the To\u2019y Osh Uzbek Plov with Lazer rice and beef, or the Turkish Iskender Kebab with beef and lamb doner.",
+    "know_before": "Caravan is at 8015 S Orange ave, Orlando, Florida",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://caravanhalal.com/"
+     ],
+     "why_here": [
+      "https://caravanhalal.com/"
+     ],
+     "know_before": [
+      "https://caravanhalal.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Caravan serves Uzbek and Turkish dishes made with traditional recipes and spices",
+      "source": "https://caravanhalal.com/"
+     },
+     {
+      "claim": "Caravan uses only halal-certified meats and the freshest produce",
+      "source": "https://caravanhalal.com/"
+     },
+     {
+      "claim": "To\u2019y Osh Uzbek Plov is made with Lazer rice, tender chunks of beef, cumin, coriander and sweet yellow carrots",
+      "source": "https://caravanhalal.com/"
+     },
+     {
+      "claim": "Turkish Iskender Kebab combines beef and lamb doner with tomato sauce, melted butter and Turkish yogurt",
+      "source": "https://caravanhalal.com/"
+     },
+     {
+      "claim": "Caravan is at 8015 S Orange ave, Orlando, Florida",
+      "source": "https://caravanhalal.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJzVqiPKjK5YgRnX3Q3U_cUCw",
+   "name": "True Food Kitchen",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.truefoodkitchen.com/menu/salads-bowls-2/",
+     "source_name": "True Food Kitchen \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "True Food Kitchen lists Salads & Bowls on its menu",
+      "Ancient Grains Bowl includes organic grains, miso sesame glazed sweet potato, charred onions, snap peas, portobello, avocado, pistachio pesto, hemp seeds, turmeric",
+      "Teriyaki Quinoa Bowl includes regenerative quinoa brown rice blend, broccoli, rainbow carrots, bok choy, snap peas, pickled shiitakes, sesame seeds",
+      "Selections vary by location at True Food Kitchen"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Ancient Grains Bowl with portobello, avocado, pistachio pesto, and hemp seeds",
+    "why_here": "Try the Ancient Grains Bowl or the Teriyaki Quinoa Bowl from Salads & Bowls, with organic grains, broccoli, rainbow carrots, bok choy, snap peas, and pickled shiitakes.",
+    "know_before": "Selections vary by location at True Food Kitchen.",
+    "local_tip": "Try the Teriyaki Quinoa Bowl with pickled shiitakes and sesame seeds",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.truefoodkitchen.com/menu/salads-bowls-2/"
+     ],
+     "why_here": [
+      "https://www.truefoodkitchen.com/menu/salads-bowls-2/"
+     ],
+     "know_before": [
+      "https://www.truefoodkitchen.com/menu/salads-bowls-2/"
+     ],
+     "local_tip": [
+      "https://www.truefoodkitchen.com/menu/salads-bowls-2/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "True Food Kitchen lists Salads & Bowls on its menu",
+      "source": "https://www.truefoodkitchen.com/menu/salads-bowls-2/"
+     },
+     {
+      "claim": "Ancient Grains Bowl includes organic grains, miso sesame glazed sweet potato, charred onions, snap peas, portobello, avocado, pistachio pesto, hemp seeds, turmeric",
+      "source": "https://www.truefoodkitchen.com/menu/salads-bowls-2/"
+     },
+     {
+      "claim": "Teriyaki Quinoa Bowl includes regenerative quinoa brown rice blend, broccoli, rainbow carrots, bok choy, snap peas, pickled shiitakes, sesame seeds",
+      "source": "https://www.truefoodkitchen.com/menu/salads-bowls-2/"
+     },
+     {
+      "claim": "Selections vary by location at True Food Kitchen",
+      "source": "https://www.truefoodkitchen.com/menu/salads-bowls-2/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJXYfA7riw2YgRGlSV0U14avg",
+   "name": "Heads Or Tails Seafood Fish Market & Restaurant",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://headortailrestaurant.com/",
+     "source_name": "Heads Or Tails Seafood Fish Market & Restaurant \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Heads or Tails Restaurant is at 3621 NW 54th Street, Miami, Florida 33142, United States",
+      "The menu includes CEVICHES & APPETIZERS, ENTREES, SANDWICHES, and SALAD AND SOUPS",
+      "Heads or Tails Restaurant lists business hours as 9 a.m. to 6 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Menu of CEVICHES & APPETIZERS, ENTREES, SANDWICHES, and SALAD AND SOUPS",
+    "why_here": "Go for CEVICHES & APPETIZERS, ENTREES, SANDWICHES, and SALAD AND SOUPS at Heads or Tails Restaurant in Miami, Florida, and choose from the menu sections listed by the restaurant.",
+    "know_before": "Heads or Tails Restaurant lists business hours as 9 a.m. to 6 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://headortailrestaurant.com/"
+     ],
+     "why_here": [
+      "https://headortailrestaurant.com/"
+     ],
+     "know_before": [
+      "https://headortailrestaurant.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Heads or Tails Restaurant is at 3621 NW 54th Street, Miami, Florida 33142, United States",
+      "source": "https://headortailrestaurant.com/"
+     },
+     {
+      "claim": "The menu includes CEVICHES & APPETIZERS, ENTREES, SANDWICHES, and SALAD AND SOUPS",
+      "source": "https://headortailrestaurant.com/"
+     },
+     {
+      "claim": "Heads or Tails Restaurant lists business hours as 9 a.m. to 6 p.m.",
+      "source": "https://headortailrestaurant.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJWUmZ3Dq45YgRRqfxJjuFxtM",
+   "name": "Biscottis",
+   "category": "food",
+   "metro": "jacksonville-fl",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.biscottis.net/menus/dinner-menu-ordering?location=biscottis",
+     "source_name": "Biscottis \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Biscottis is serving small plates, sandwiches, salads & brunch in Jacksonville, FL",
+      "The Daily Lunch Special is served Monday to Friday from 10:30 a.m. to 3 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "small plates, sandwiches, salads & brunch in Jacksonville, FL",
+    "why_here": "Go for small plates, sandwiches, salads & brunch in Jacksonville, FL, and try the Daily Lunch Special served Monday to Friday at Biscottis.",
+    "know_before": "The Daily Lunch Special is served Monday to Friday from 10:30 a.m. to 3 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.biscottis.net/menus/dinner-menu-ordering?location=biscottis"
+     ],
+     "why_here": [
+      "https://www.biscottis.net/menus/dinner-menu-ordering?location=biscottis"
+     ],
+     "know_before": [
+      "https://www.biscottis.net/menus/dinner-menu-ordering?location=biscottis"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Biscottis is serving small plates, sandwiches, salads & brunch in Jacksonville, FL",
+      "source": "https://www.biscottis.net/menus/dinner-menu-ordering?location=biscottis"
+     },
+     {
+      "claim": "The Daily Lunch Special is served Monday to Friday from 10:30 a.m. to 3 p.m.",
+      "source": "https://www.biscottis.net/menus/dinner-menu-ordering?location=biscottis"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJvfEcnN-_2YgRpWqVUkI_iz4",
+   "name": "Topgolf Miami - Doral",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://topgolf.com/us/miami-doral/",
+     "source_name": "Topgolf Miami - Doral \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Topgolf Miami - Doral is at 11850 NW 22nd St, Doral, FL 33182",
+      "Topgolf Miami - Doral has 3 floors and 100+ all-weather bays",
+      "Topgolf Miami - Doral hours on Saturday are 11 a.m. to 1 a.m.",
+      "Anyone under 16 must be supervised by a Guest 21+ at all times at Topgolf Miami - Doral"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "3 floors and 100+ all-weather bays in Doral, FL",
+    "why_here": "Go to Topgolf Miami - Doral for 3 floors and 100+ all-weather bays at 11850 NW 22nd St, and play in all-weather bays in Doral, FL, with other guests.",
+    "know_before": "Anyone under 16 must be supervised by a Guest 21+ at all times at Topgolf Miami - Doral",
+    "local_tip": "Topgolf Miami - Doral hours on Saturday are 11 a.m. to 1 a.m.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://topgolf.com/us/miami-doral/"
+     ],
+     "why_here": [
+      "https://topgolf.com/us/miami-doral/"
+     ],
+     "know_before": [
+      "https://topgolf.com/us/miami-doral/"
+     ],
+     "local_tip": [
+      "https://topgolf.com/us/miami-doral/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Topgolf Miami - Doral is at 11850 NW 22nd St, Doral, FL 33182",
+      "source": "https://topgolf.com/us/miami-doral/"
+     },
+     {
+      "claim": "Topgolf Miami - Doral has 3 floors and 100+ all-weather bays",
+      "source": "https://topgolf.com/us/miami-doral/"
+     },
+     {
+      "claim": "Topgolf Miami - Doral hours on Saturday are 11 a.m. to 1 a.m.",
+      "source": "https://topgolf.com/us/miami-doral/"
+     },
+     {
+      "claim": "Anyone under 16 must be supervised by a Guest 21+ at all times at Topgolf Miami - Doral",
+      "source": "https://topgolf.com/us/miami-doral/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ5ys3-BXa5ogR7LWbMfLmiTA",
+   "name": "Froggy's Saloon",
+   "category": "nightlife",
+   "metro": "florida",
+   "primary_type": "bar",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.thefroggyssaloon.com/about",
+     "source_name": "Froggy's Saloon \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Froggy's Saloon is in Daytona Beach",
+      "Froggy's Saloon opened in the 1990s",
+      "Froggy's Saloon is a biker-friendly bar",
+      "Froggy's Saloon is at 800 Main St. in Daytona Beach",
+      "Froggy's Saloon is open Mon - Sun: 7 a.m. - 2 a.m.",
+      "Froggy's Saloon offers a place to relax, enjoy a drink, and connect with fellow bikers"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Biker-friendly bar in Daytona Beach, opened in the 1990s",
+    "why_here": "Froggy's Saloon is a biker-friendly bar in Daytona Beach, opened in the 1990s. It offers a place to relax, enjoy a drink, and connect with fellow bikers at 800 Main St. in Daytona Beach.",
+    "know_before": "Open Mon - Sun: 7 a.m. - 2 a.m. at 800 Main St. in Daytona Beach",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.thefroggyssaloon.com/about"
+     ],
+     "why_here": [
+      "https://www.thefroggyssaloon.com/about"
+     ],
+     "know_before": [
+      "https://www.thefroggyssaloon.com/about"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Froggy's Saloon is in Daytona Beach",
+      "source": "https://www.thefroggyssaloon.com/about"
+     },
+     {
+      "claim": "Froggy's Saloon opened in the 1990s",
+      "source": "https://www.thefroggyssaloon.com/about"
+     },
+     {
+      "claim": "Froggy's Saloon is a biker-friendly bar",
+      "source": "https://www.thefroggyssaloon.com/about"
+     },
+     {
+      "claim": "Froggy's Saloon is at 800 Main St. in Daytona Beach",
+      "source": "https://www.thefroggyssaloon.com/about"
+     },
+     {
+      "claim": "Froggy's Saloon is open Mon - Sun: 7 a.m. - 2 a.m.",
+      "source": "https://www.thefroggyssaloon.com/about"
+     },
+     {
+      "claim": "Froggy's Saloon offers a place to relax, enjoy a drink, and connect with fellow bikers",
+      "source": "https://www.thefroggyssaloon.com/about"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJQ6TvaYEf2YgRN7gYmGo9xtk",
+   "name": "Maggie McFly's\u00ae | Boca Raton, FL",
+   "category": "food",
+   "metro": "palm-beach",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.maggiemcflys.com/location/boca-raton-fl/",
+     "source_name": "Maggie McFly's\u00ae | Boca Raton, FL \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Maggie McFly's Boca Raton is Located in Town Center at Boca Raton",
+      "Maggie McFly's made its Florida debut in 2023",
+      "Maggie McFly's Boca Raton is at 6000 Glades Rd, Boca Raton, FL 33431",
+      "Maggie McFly's Boca Raton has a massive central bar",
+      "Maggie McFly's Boca Raton is a spot for brunch, dinner, and happy hour",
+      "Maggie McFly's Boca Raton hours MON - THU are 11:00 a.m. - 11:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Town Center at Boca Raton spot for brunch, dinner, and happy hour",
+    "why_here": "Located in Town Center at Boca Raton, Maggie McFly's made its Florida debut in 2023. With a massive central bar, it is a spot for brunch, dinner, and happy hour at 6000 Glades Rd, Boca Raton, FL 33431.",
+    "know_before": "Hours MON - THU are 11:00 a.m. - 11:00 p.m. at 6000 Glades Rd, Boca Raton, FL 33431",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.maggiemcflys.com/location/boca-raton-fl/"
+     ],
+     "why_here": [
+      "https://www.maggiemcflys.com/location/boca-raton-fl/"
+     ],
+     "know_before": [
+      "https://www.maggiemcflys.com/location/boca-raton-fl/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Maggie McFly's Boca Raton is Located in Town Center at Boca Raton",
+      "source": "https://www.maggiemcflys.com/location/boca-raton-fl/"
+     },
+     {
+      "claim": "Maggie McFly's made its Florida debut in 2023",
+      "source": "https://www.maggiemcflys.com/location/boca-raton-fl/"
+     },
+     {
+      "claim": "Maggie McFly's Boca Raton is at 6000 Glades Rd, Boca Raton, FL 33431",
+      "source": "https://www.maggiemcflys.com/location/boca-raton-fl/"
+     },
+     {
+      "claim": "Maggie McFly's Boca Raton has a massive central bar",
+      "source": "https://www.maggiemcflys.com/location/boca-raton-fl/"
+     },
+     {
+      "claim": "Maggie McFly's Boca Raton is a spot for brunch, dinner, and happy hour",
+      "source": "https://www.maggiemcflys.com/location/boca-raton-fl/"
+     },
+     {
+      "claim": "Maggie McFly's Boca Raton hours MON - THU are 11:00 a.m. - 11:00 p.m.",
+      "source": "https://www.maggiemcflys.com/location/boca-raton-fl/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJCbjLeXBB6IgRr6R5UKcT0Xk",
+   "name": "Waterfront Social",
+   "category": "nightlife",
+   "metro": "florida",
+   "primary_type": "bar",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://waterfrontsocialcr.com/",
+     "source_name": "Waterfront Social \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Waterfront Social is at 1610 SE Paradise Cir, Crystal River, FL 34429",
+      "Waterfront Social offers Indoor & Outdoor Dining on the Beautiful Shores of Kings Bay",
+      "Waterfront Social serves southern coastal dishes with a focus on from scratch recipes",
+      "Waterfront Social is an indoor/outdoor gathering spot for informal lunch, sunset cocktails and evening cocktails",
+      "The Tiki Bar at Waterfront Social offers 180-degree views of Kings Bay"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Southern coastal dishes on the Beautiful Shores of Kings Bay",
+    "why_here": "Waterfront Social serves southern coastal dishes with a focus on from scratch recipes on the Beautiful Shores of Kings Bay. It is an indoor/outdoor gathering spot for informal lunch, sunset cocktails and evening cocktails in Crystal River.",
+    "know_before": "Find Waterfront Social at 1610 SE Paradise Cir, Crystal River, FL 34429",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://waterfrontsocialcr.com/"
+     ],
+     "why_here": [
+      "https://waterfrontsocialcr.com/"
+     ],
+     "know_before": [
+      "https://waterfrontsocialcr.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Waterfront Social is at 1610 SE Paradise Cir, Crystal River, FL 34429",
+      "source": "https://waterfrontsocialcr.com/"
+     },
+     {
+      "claim": "Waterfront Social offers Indoor & Outdoor Dining on the Beautiful Shores of Kings Bay",
+      "source": "https://waterfrontsocialcr.com/"
+     },
+     {
+      "claim": "Waterfront Social serves southern coastal dishes with a focus on from scratch recipes",
+      "source": "https://waterfrontsocialcr.com/"
+     },
+     {
+      "claim": "Waterfront Social is an indoor/outdoor gathering spot for informal lunch, sunset cocktails and evening cocktails",
+      "source": "https://waterfrontsocialcr.com/"
+     },
+     {
+      "claim": "The Tiki Bar at Waterfront Social offers 180-degree views of Kings Bay",
+      "source": "https://waterfrontsocialcr.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJueEos4FDkYgRROZo1k2NsgQ",
+   "name": "Another Broken Egg Cafe",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "brunch_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://anotherbrokenegg.com/",
+     "source_name": "Another Broken Egg Cafe \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Another Broken Egg Cafe serves chef-inspired, breakfast, brunch, and lunch dishes",
+      "Another Broken Egg Cafe serves hand-crafted cocktails, spiked cold brews, mimosas and a full bar",
+      "Another Broken Egg Cafe delivers southern-inspired culinary innovation"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "breakfast, brunch, and lunch dishes with hand-crafted cocktails and a full bar",
+    "why_here": "Go for chef-inspired breakfast, brunch, and lunch dishes with southern-inspired culinary innovation, plus hand-crafted cocktails, spiked cold brews, and mimosas from a full bar during your visit.",
+    "know_before": "Another Broken Egg Cafe serves hand-crafted cocktails, spiked cold brews, mimosas and a full bar",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://anotherbrokenegg.com/"
+     ],
+     "why_here": [
+      "https://anotherbrokenegg.com/"
+     ],
+     "know_before": [
+      "https://anotherbrokenegg.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Another Broken Egg Cafe serves chef-inspired, breakfast, brunch, and lunch dishes",
+      "source": "https://anotherbrokenegg.com/"
+     },
+     {
+      "claim": "Another Broken Egg Cafe serves hand-crafted cocktails, spiked cold brews, mimosas and a full bar",
+      "source": "https://anotherbrokenegg.com/"
+     },
+     {
+      "claim": "Another Broken Egg Cafe delivers southern-inspired culinary innovation",
+      "source": "https://anotherbrokenegg.com/"
+     }
+    ]
+   }
+  }
+ ]
+}

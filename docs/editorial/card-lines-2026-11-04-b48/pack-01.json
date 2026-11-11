@@ -1,0 +1,2015 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 48. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJbWdpGZV654gRjTtsyy-hJ0s",
+   "name": "Black Rooster Taqueria",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "mexican_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.blackroostertaqueria.com/menu-mills/",
+     "source_name": "Black Rooster Taqueria \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Black Rooster Taqueria menu includes Achiote Pork tacos",
+      "Achiote Pork is pork shoulder slow roasted in banana leaf",
+      "Black Rooster Taqueria menu includes Chicken Tinga tacos",
+      "Black Rooster Taqueria serves Guacamole made to order"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Achiote Pork tacos at Black Rooster Taqueria",
+    "why_here": "Try Achiote Pork tacos at Black Rooster Taqueria, with pork shoulder slow roasted in banana leaf, plus Chicken Tinga tacos and Guacamole made to order on the menu.",
+    "know_before": "Guacamole is made to order at Black Rooster Taqueria.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.blackroostertaqueria.com/menu-mills/"
+     ],
+     "why_here": [
+      "https://www.blackroostertaqueria.com/menu-mills/"
+     ],
+     "know_before": [
+      "https://www.blackroostertaqueria.com/menu-mills/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Black Rooster Taqueria menu includes Achiote Pork tacos",
+      "source": "https://www.blackroostertaqueria.com/menu-mills/"
+     },
+     {
+      "claim": "Achiote Pork is pork shoulder slow roasted in banana leaf",
+      "source": "https://www.blackroostertaqueria.com/menu-mills/"
+     },
+     {
+      "claim": "Black Rooster Taqueria menu includes Chicken Tinga tacos",
+      "source": "https://www.blackroostertaqueria.com/menu-mills/"
+     },
+     {
+      "claim": "Black Rooster Taqueria serves Guacamole made to order",
+      "source": "https://www.blackroostertaqueria.com/menu-mills/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJlW3XylS32YgRxedM3GH7npM",
+   "name": "Naked Farmer",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.eatnakedfarmer.com/locations",
+     "source_name": "Naked Farmer \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Naked Farmer serves chef-driven, farm-to-table plates made from seasonal ingredients sourced from farms close to home",
+      "Naked Farmer serves fresh, scratch-made food",
+      "Naked Farmer has locations across Florida, North Carolina, and Tennessee",
+      "Naked Farmer offers pickup or delivery at all locations"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Chef-driven, farm-to-table plates from seasonal ingredients",
+    "why_here": "Eat chef-driven, farm-to-table plates at Naked Farmer, made from seasonal ingredients sourced from farms close to home, with fresh, scratch-made food and locations across Florida.",
+    "know_before": "All locations offer pickup or delivery.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.eatnakedfarmer.com/locations"
+     ],
+     "why_here": [
+      "https://www.eatnakedfarmer.com/locations"
+     ],
+     "know_before": [
+      "https://www.eatnakedfarmer.com/locations"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Naked Farmer serves chef-driven, farm-to-table plates made from seasonal ingredients sourced from farms close to home",
+      "source": "https://www.eatnakedfarmer.com/locations"
+     },
+     {
+      "claim": "Naked Farmer serves fresh, scratch-made food",
+      "source": "https://www.eatnakedfarmer.com/locations"
+     },
+     {
+      "claim": "Naked Farmer has locations across Florida, North Carolina, and Tennessee",
+      "source": "https://www.eatnakedfarmer.com/locations"
+     },
+     {
+      "claim": "Naked Farmer offers pickup or delivery at all locations",
+      "source": "https://www.eatnakedfarmer.com/locations"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJv-QSpLqt2YgR7Da-jhWuV2o",
+   "name": "The Ancient Spanish Monastery",
+   "category": "attractions",
+   "metro": "miami-dade",
+   "primary_type": "historical_landmark",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.spanishmonastery.com/history",
+     "source_name": "The Ancient Spanish Monastery \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Construction of the Monastery of St. Bernard de Clairvaux was begun in the year 1133 AD in Sacramenia, near Segovia in northern Spain",
+      "In 1925, William Randolph Hearst purchased the Cloisters and the Monastery's outbuildings"
+     ]
+    },
+    {
+     "source": "https://www.spanishmonastery.com/hours",
+     "source_name": "The Ancient Spanish Monastery \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Tours at the Ancient Spanish Monastery are self-guided",
+      "Regular visiting hours are Monday through Saturday from 10 a.m. until 4:30 p.m. and Sundays from 11 a.m. until 4:30 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Monastery of St. Bernard de Clairvaux, begun in 1133 AD in Sacramenia",
+    "why_here": "Tour the Monastery of St. Bernard de Clairvaux at The Ancient Spanish Monastery, begun in 1133 AD in Sacramenia, purchased by William Randolph Hearst in 1925, and now visited on self-guided tours.",
+    "know_before": "Tours are self-guided; regular visiting hours are Monday through Saturday from 10 a.m. until 4:30 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.spanishmonastery.com/history"
+     ],
+     "why_here": [
+      "https://www.spanishmonastery.com/history"
+     ],
+     "know_before": [
+      "https://www.spanishmonastery.com/history"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Construction of the Monastery of St. Bernard de Clairvaux was begun in the year 1133 AD in Sacramenia, near Segovia in northern Spain",
+      "source": "https://www.spanishmonastery.com/history"
+     },
+     {
+      "claim": "In 1925, William Randolph Hearst purchased the Cloisters and the Monastery's outbuildings",
+      "source": "https://www.spanishmonastery.com/history"
+     },
+     {
+      "claim": "Tours at the Ancient Spanish Monastery are self-guided",
+      "source": "https://www.spanishmonastery.com/hours"
+     },
+     {
+      "claim": "Regular visiting hours are Monday through Saturday from 10 a.m. until 4:30 p.m. and Sundays from 11 a.m. until 4:30 p.m.",
+      "source": "https://www.spanishmonastery.com/hours"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJf4Ua_3V_54gRlvdlOVrb_Ao",
+   "name": "KREMBO - Kosher restaurant",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.krembocafe.com/",
+     "source_name": "KREMBO - Kosher restaurant \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Krembo Caf\u00e9 is a family-owned kosher restaurant in Orlando, Florida",
+      "Krembo Caf\u00e9 serves dairy dishes, breakfast, pizza, and desserts under the supervision of RCF (Rabbinate of Central Florida)",
+      "Krembo Caf\u00e9 is the only certified kosher Israeli-style caf\u00e9 in Orlando",
+      "On Friday, hours are 8:00 a.m. to 3:00 p.m.",
+      "On Sunday, hours are 9:00 a.m. to 10:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Family-owned kosher caf\u00e9 in Orlando serving breakfast, pizza, and desserts",
+    "why_here": "Eat at Krembo Caf\u00e9, a family-owned kosher restaurant in Orlando, Florida, serving dairy dishes, breakfast, pizza, and desserts as the only certified kosher Israeli-style caf\u00e9 in Orlando.",
+    "know_before": "On Friday, hours are 8:00 a.m. to 3:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.krembocafe.com/"
+     ],
+     "why_here": [
+      "https://www.krembocafe.com/"
+     ],
+     "know_before": [
+      "https://www.krembocafe.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Krembo Caf\u00e9 is a family-owned kosher restaurant in Orlando, Florida",
+      "source": "https://www.krembocafe.com/"
+     },
+     {
+      "claim": "Krembo Caf\u00e9 serves dairy dishes, breakfast, pizza, and desserts under the supervision of RCF (Rabbinate of Central Florida)",
+      "source": "https://www.krembocafe.com/"
+     },
+     {
+      "claim": "Krembo Caf\u00e9 is the only certified kosher Israeli-style caf\u00e9 in Orlando",
+      "source": "https://www.krembocafe.com/"
+     },
+     {
+      "claim": "On Friday, hours are 8:00 a.m. to 3:00 p.m.",
+      "source": "https://www.krembocafe.com/"
+     },
+     {
+      "claim": "On Sunday, hours are 9:00 a.m. to 10:00 p.m.",
+      "source": "https://www.krembocafe.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJOdSHYxnpwogR1Nr3mkhbnys",
+   "name": "Foodys Restaurant",
+   "category": "food",
+   "metro": "tampa",
+   "primary_type": "greek_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://foodtampa.com/menu?item=taco-salad-lunch-dinner-AS0f",
+     "source_name": "Foodys Restaurant \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Foodys Restaurant is in Tampa",
+      "The Greek Sampler includes tzatziki, tirosalata, Kalamata olives, pepperoncini, and warm pita bread",
+      "The Gyro Sandwich has lamb and beef gyro meat wrapped in a warm pita, topped with tomatoes, onions, and tzatziki sauce",
+      "The Greek Sampler is listed for Lunch & Dinner",
+      "The Gyro Sandwich is listed for Lunch & Dinner"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Greek Sampler and Gyro Sandwich at Foodys Restaurant in Tampa",
+    "why_here": "Try the Greek Sampler and Gyro Sandwich at Foodys Restaurant in Tampa, with tzatziki, Kalamata olives, and warm pita bread, plus gyro meat topped with tzatziki sauce in a warm pita.",
+    "know_before": "The Greek Sampler and Gyro Sandwich are listed for Lunch & Dinner.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://foodtampa.com/menu?item=taco-salad-lunch-dinner-AS0f"
+     ],
+     "why_here": [
+      "https://foodtampa.com/menu?item=taco-salad-lunch-dinner-AS0f"
+     ],
+     "know_before": [
+      "https://foodtampa.com/menu?item=taco-salad-lunch-dinner-AS0f"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Foodys Restaurant is in Tampa",
+      "source": "https://foodtampa.com/menu?item=taco-salad-lunch-dinner-AS0f"
+     },
+     {
+      "claim": "The Greek Sampler includes tzatziki, tirosalata, Kalamata olives, pepperoncini, and warm pita bread",
+      "source": "https://foodtampa.com/menu?item=taco-salad-lunch-dinner-AS0f"
+     },
+     {
+      "claim": "The Gyro Sandwich has lamb and beef gyro meat wrapped in a warm pita, topped with tomatoes, onions, and tzatziki sauce",
+      "source": "https://foodtampa.com/menu?item=taco-salad-lunch-dinner-AS0f"
+     },
+     {
+      "claim": "The Greek Sampler is listed for Lunch & Dinner",
+      "source": "https://foodtampa.com/menu?item=taco-salad-lunch-dinner-AS0f"
+     },
+     {
+      "claim": "The Gyro Sandwich is listed for Lunch & Dinner",
+      "source": "https://foodtampa.com/menu?item=taco-salad-lunch-dinner-AS0f"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ7xP4S-vC2YgRQ0P6hGfvZnc",
+   "name": "Monkey Jungle",
+   "category": "attractions",
+   "metro": "miami-dade",
+   "primary_type": "zoo",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.monkeyjungle.com/",
+     "source_name": "Monkey Jungle \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Monkey Jungle is a wildlife eco-show park and discovery center established in 1935 in a natural subtropical forest in southern Miami-Dade County.",
+      "Monkey Jungle is a 30-acre Jungle park in Miami.",
+      "The box office normally closes at 3:00 p.m.",
+      "Tour reservations are requested and walk-ins are welcome if space is available.",
+      "Monkey Jungle is at 14805 SW 216th St., Miami, FL 33170."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Wildlife eco-show park and discovery center in a 30-acre Jungle park",
+    "why_here": "Established in 1935 in a natural subtropical forest in southern Miami-Dade County, this wildlife eco-show park and discovery center lets visitors explore a 30-acre Jungle park in Miami with guided experiences.",
+    "know_before": "The box office normally closes at 3:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.monkeyjungle.com/"
+     ],
+     "why_here": [
+      "https://www.monkeyjungle.com/"
+     ],
+     "know_before": [
+      "https://www.monkeyjungle.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Monkey Jungle is a wildlife eco-show park and discovery center established in 1935 in a natural subtropical forest in southern Miami-Dade County.",
+      "source": "https://www.monkeyjungle.com/"
+     },
+     {
+      "claim": "Monkey Jungle is a 30-acre Jungle park in Miami.",
+      "source": "https://www.monkeyjungle.com/"
+     },
+     {
+      "claim": "The box office normally closes at 3:00 p.m.",
+      "source": "https://www.monkeyjungle.com/"
+     },
+     {
+      "claim": "Tour reservations are requested and walk-ins are welcome if space is available.",
+      "source": "https://www.monkeyjungle.com/"
+     },
+     {
+      "claim": "Monkey Jungle is at 14805 SW 216th St., Miami, FL 33170.",
+      "source": "https://www.monkeyjungle.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJJZWkmPnZ5ogRfszZLdvzpmQ",
+   "name": "Bahama House",
+   "category": "hotels",
+   "metro": "florida",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.daytonabahamahouse.com/amenities",
+     "source_name": "Bahama House \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Bahama House offers free WiFi in all rooms and throughout the property.",
+      "Bahama House serves complimentary breakfast from 7:30 a.m. to 9:30 a.m.",
+      "Bahama House has a daily complimentary cocktail hour.",
+      "Bahama House has an ocean front seasonally heated pool.",
+      "Bahama House has a hot tub located on the pool deck.",
+      "Bahama House offers free self-parking in a garage or at street level."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Oceanfront hotel with a seasonally heated pool and a hot tub",
+    "why_here": "This oceanfront hotel offers free WiFi in all rooms, a daily complimentary cocktail hour, and free self-parking, with an ocean front seasonally heated pool and a hot tub located on the pool deck for guests.",
+    "know_before": "Complimentary breakfast is served from 7:30 a.m. to 9:30 a.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.daytonabahamahouse.com/amenities"
+     ],
+     "why_here": [
+      "https://www.daytonabahamahouse.com/amenities"
+     ],
+     "know_before": [
+      "https://www.daytonabahamahouse.com/amenities"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Bahama House offers free WiFi in all rooms and throughout the property.",
+      "source": "https://www.daytonabahamahouse.com/amenities"
+     },
+     {
+      "claim": "Bahama House serves complimentary breakfast from 7:30 a.m. to 9:30 a.m.",
+      "source": "https://www.daytonabahamahouse.com/amenities"
+     },
+     {
+      "claim": "Bahama House has a daily complimentary cocktail hour.",
+      "source": "https://www.daytonabahamahouse.com/amenities"
+     },
+     {
+      "claim": "Bahama House has an ocean front seasonally heated pool.",
+      "source": "https://www.daytonabahamahouse.com/amenities"
+     },
+     {
+      "claim": "Bahama House has a hot tub located on the pool deck.",
+      "source": "https://www.daytonabahamahouse.com/amenities"
+     },
+     {
+      "claim": "Bahama House offers free self-parking in a garage or at street level.",
+      "source": "https://www.daytonabahamahouse.com/amenities"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJdbukY9Rf7IgRxpb4Xfcupe8",
+   "name": "Crafty Crab | Apalachee Pkwy",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.craftycrabrestaurant.com/location/crafty-crab-fl-tallahassee-apalachee-pkwy/",
+     "source_name": "Crafty Crab | Apalachee Pkwy \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Crafty Crab is a seafood restaurant in Tallahassee",
+      "Crafty Crab Tallahassee (Apalachee Pkwy) is at 1241 Apalachee Pkwy, Tallahassee, FL 32301",
+      "Hours on Monday through Thursday are 11:30 a.m. to 10:00 p.m.",
+      "Hours on Friday are 11:30 a.m. to 11:00 p.m.",
+      "Hours on Saturday are 12:00 p.m. to 11:00 p.m.",
+      "Hours on Sunday are 12:00 p.m. to 10:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Seafood restaurant on Apalachee Pkwy in Tallahassee",
+    "why_here": "Dine at this seafood restaurant on Apalachee Pkwy in Tallahassee, where Monday through Thursday hours run from 11:30 a.m. to 10:00 p.m. and Friday hours run later to 11:00 p.m.",
+    "know_before": "Hours on Monday through Thursday are 11:30 a.m. to 10:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.craftycrabrestaurant.com/location/crafty-crab-fl-tallahassee-apalachee-pkwy/"
+     ],
+     "why_here": [
+      "https://www.craftycrabrestaurant.com/location/crafty-crab-fl-tallahassee-apalachee-pkwy/"
+     ],
+     "know_before": [
+      "https://www.craftycrabrestaurant.com/location/crafty-crab-fl-tallahassee-apalachee-pkwy/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Crafty Crab is a seafood restaurant in Tallahassee",
+      "source": "https://www.craftycrabrestaurant.com/location/crafty-crab-fl-tallahassee-apalachee-pkwy/"
+     },
+     {
+      "claim": "Crafty Crab Tallahassee (Apalachee Pkwy) is at 1241 Apalachee Pkwy, Tallahassee, FL 32301",
+      "source": "https://www.craftycrabrestaurant.com/location/crafty-crab-fl-tallahassee-apalachee-pkwy/"
+     },
+     {
+      "claim": "Hours on Monday through Thursday are 11:30 a.m. to 10:00 p.m.",
+      "source": "https://www.craftycrabrestaurant.com/location/crafty-crab-fl-tallahassee-apalachee-pkwy/"
+     },
+     {
+      "claim": "Hours on Friday are 11:30 a.m. to 11:00 p.m.",
+      "source": "https://www.craftycrabrestaurant.com/location/crafty-crab-fl-tallahassee-apalachee-pkwy/"
+     },
+     {
+      "claim": "Hours on Saturday are 12:00 p.m. to 11:00 p.m.",
+      "source": "https://www.craftycrabrestaurant.com/location/crafty-crab-fl-tallahassee-apalachee-pkwy/"
+     },
+     {
+      "claim": "Hours on Sunday are 12:00 p.m. to 10:00 p.m.",
+      "source": "https://www.craftycrabrestaurant.com/location/crafty-crab-fl-tallahassee-apalachee-pkwy/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJVYdTaztx54gRJCcnc2k80uc",
+   "name": "Activate Altamonte Springs",
+   "category": "attractions",
+   "metro": "orlando",
+   "primary_type": "adventure_sports_center",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://playactivate.com/location/altamonte-springs",
+     "source_name": "Activate Altamonte Springs \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Activate Altamonte Springs is at Unit 2378 - 451 E Altamonte Dr., Altamonte Springs, FL 32701.",
+      "Activate Altamonte Springs has 11 game rooms.",
+      "Game rooms include Mega Grid, Laser, Strike, and Control.",
+      "Games are played in groups of two to five people.",
+      "Anyone under 13 must be supervised by a guest 18+ at all times and players under 6 are not permitted.",
+      "Activate Altamonte Springs is at Altamonte Mall."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Live-action games in 11 game rooms at Altamonte Mall",
+    "why_here": "Play live-action games across 11 game rooms including Mega Grid, Laser, Strike, and Control, in groups of two to five people at this Altamonte Springs location inside Altamonte Mall.",
+    "know_before": "Anyone under 13 must be supervised by a guest 18+ at all times.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://playactivate.com/location/altamonte-springs"
+     ],
+     "why_here": [
+      "https://playactivate.com/location/altamonte-springs"
+     ],
+     "know_before": [
+      "https://playactivate.com/location/altamonte-springs"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Activate Altamonte Springs is at Unit 2378 - 451 E Altamonte Dr., Altamonte Springs, FL 32701.",
+      "source": "https://playactivate.com/location/altamonte-springs"
+     },
+     {
+      "claim": "Activate Altamonte Springs has 11 game rooms.",
+      "source": "https://playactivate.com/location/altamonte-springs"
+     },
+     {
+      "claim": "Game rooms include Mega Grid, Laser, Strike, and Control.",
+      "source": "https://playactivate.com/location/altamonte-springs"
+     },
+     {
+      "claim": "Games are played in groups of two to five people.",
+      "source": "https://playactivate.com/location/altamonte-springs"
+     },
+     {
+      "claim": "Anyone under 13 must be supervised by a guest 18+ at all times and players under 6 are not permitted.",
+      "source": "https://playactivate.com/location/altamonte-springs"
+     },
+     {
+      "claim": "Activate Altamonte Springs is at Altamonte Mall.",
+      "source": "https://playactivate.com/location/altamonte-springs"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJW1_gbLF654gRlvQY9vmVLlY",
+   "name": "Park Ave CDs",
+   "category": "shopping",
+   "metro": "orlando",
+   "primary_type": "store",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://parkavecds.com/",
+     "source_name": "Park Ave CDs \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Park Ave CDs is at 2916 Corrine Dr, Orlando, FL 32803",
+      "Store hours on Sunday are 11 a.m. to 9 p.m.",
+      "Store hours on Monday through Thursday are 10 a.m. to 10 p.m.",
+      "Park Ave CDs lists genres including Rock & Pop and Rap & Hip-Hop",
+      "Park Ave CDs offers Preorders and Gift Cards"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Rock & Pop and Rap & Hip-Hop at Park Ave CDs in Orlando",
+    "why_here": "Browse Rock & Pop and Rap & Hip-Hop at Park Ave CDs in Orlando, check Preorders and Gift Cards, and plan a browse through music organized by genre during store hours.",
+    "know_before": "Store hours on Sunday are 11 a.m. to 9 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://parkavecds.com/"
+     ],
+     "why_here": [
+      "https://parkavecds.com/"
+     ],
+     "know_before": [
+      "https://parkavecds.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Park Ave CDs is at 2916 Corrine Dr, Orlando, FL 32803",
+      "source": "https://parkavecds.com/"
+     },
+     {
+      "claim": "Store hours on Sunday are 11 a.m. to 9 p.m.",
+      "source": "https://parkavecds.com/"
+     },
+     {
+      "claim": "Store hours on Monday through Thursday are 10 a.m. to 10 p.m.",
+      "source": "https://parkavecds.com/"
+     },
+     {
+      "claim": "Park Ave CDs lists genres including Rock & Pop and Rap & Hip-Hop",
+      "source": "https://parkavecds.com/"
+     },
+     {
+      "claim": "Park Ave CDs offers Preorders and Gift Cards",
+      "source": "https://parkavecds.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJr4PcE4cZ2YgRkheNmtH9TN0",
+   "name": "Burt Aaronson South County Regional Park",
+   "category": "attractions",
+   "metro": "palm-beach",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://discover.pbc.gov/parks/Pavilions/Burt-Aaronson-Park.aspx",
+     "source_name": "Burt Aaronson South County Regional Park \u2014 official source",
+     "source_class": "government",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Burt Aaronson South County Regional Park is west of Boca Raton, Florida.",
+      "Cypress Pavilion has a maximum occupancy of 60 guests and is handicap accessible.",
+      "Cypress Pavilion nearest entrance is 11500 Yamato Road, west of Boca Raton, Florida.",
+      "Online pavilion reservations are now available.",
+      "Mary Lou Berger Pavilion is a short walk to the dog park and the amphitheater."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Regional park west of Boca Raton with reservable pavilions",
+    "why_here": "Plan a gathering west of Boca Raton at pavilions including Cypress Pavilion, which holds 60 guests, or Mary Lou Berger Pavilion, a short walk to the dog park and the amphitheater.",
+    "know_before": "Online pavilion reservations are now available.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://discover.pbc.gov/parks/Pavilions/Burt-Aaronson-Park.aspx"
+     ],
+     "why_here": [
+      "https://discover.pbc.gov/parks/Pavilions/Burt-Aaronson-Park.aspx"
+     ],
+     "know_before": [
+      "https://discover.pbc.gov/parks/Pavilions/Burt-Aaronson-Park.aspx"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Burt Aaronson South County Regional Park is west of Boca Raton, Florida.",
+      "source": "https://discover.pbc.gov/parks/Pavilions/Burt-Aaronson-Park.aspx"
+     },
+     {
+      "claim": "Cypress Pavilion has a maximum occupancy of 60 guests and is handicap accessible.",
+      "source": "https://discover.pbc.gov/parks/Pavilions/Burt-Aaronson-Park.aspx"
+     },
+     {
+      "claim": "Cypress Pavilion nearest entrance is 11500 Yamato Road, west of Boca Raton, Florida.",
+      "source": "https://discover.pbc.gov/parks/Pavilions/Burt-Aaronson-Park.aspx"
+     },
+     {
+      "claim": "Online pavilion reservations are now available.",
+      "source": "https://discover.pbc.gov/parks/Pavilions/Burt-Aaronson-Park.aspx"
+     },
+     {
+      "claim": "Mary Lou Berger Pavilion is a short walk to the dog park and the amphitheater.",
+      "source": "https://discover.pbc.gov/parks/Pavilions/Burt-Aaronson-Park.aspx"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJU0kOPSC32YgR1sHdkIUFiAM",
+   "name": "BOHO House Miami",
+   "category": "nightlife",
+   "metro": "miami-dade",
+   "primary_type": "bar",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.bohohousemiami.com/our-story",
+     "source_name": "BOHO House Miami \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "BOHO House Miami was born in mid-2020.",
+      "BOHO House Miami is at 85 NW 25th St, Miami, FL 33127.",
+      "BOHO House Miami is open from 4 p.m. every day.",
+      "BOHO House Miami offers food, an eclectic premium beverage list, cocktails, and private dining and event spaces.",
+      "BOHO House prepares gourmet raw and cooked organic food."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Miami venue open from 4 p.m. every day with cocktails",
+    "why_here": "Born in mid-2020, this Miami venue offers gourmet raw and cooked organic food, an eclectic premium beverage list, cocktails, and private dining and event spaces at 85 NW 25th St.",
+    "know_before": "BOHO House Miami is open from 4 p.m. every day.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.bohohousemiami.com/our-story"
+     ],
+     "why_here": [
+      "https://www.bohohousemiami.com/our-story"
+     ],
+     "know_before": [
+      "https://www.bohohousemiami.com/our-story"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "BOHO House Miami was born in mid-2020.",
+      "source": "https://www.bohohousemiami.com/our-story"
+     },
+     {
+      "claim": "BOHO House Miami is at 85 NW 25th St, Miami, FL 33127.",
+      "source": "https://www.bohohousemiami.com/our-story"
+     },
+     {
+      "claim": "BOHO House Miami is open from 4 p.m. every day.",
+      "source": "https://www.bohohousemiami.com/our-story"
+     },
+     {
+      "claim": "BOHO House Miami offers food, an eclectic premium beverage list, cocktails, and private dining and event spaces.",
+      "source": "https://www.bohohousemiami.com/our-story"
+     },
+     {
+      "claim": "BOHO House prepares gourmet raw and cooked organic food.",
+      "source": "https://www.bohohousemiami.com/our-story"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ52ZFiD_CwogR2QSlWcNgkiY",
+   "name": "Columbia Caf\u00e9 at Tampa International Airport",
+   "category": "food",
+   "metro": "tampa",
+   "primary_type": "spanish_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.columbiarestaurant.com/columbia-cafe-at-tampa-airport",
+     "source_name": "Columbia Caf\u00e9 at Tampa International Airport \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Columbia Cafe is in Airside E at Tampa International Airport",
+      "Hours Of Operation: 9 a.m. - 8 p.m. Daily",
+      "Columbia Cafe is available for seated service, drinks and grab 'n' go",
+      "Original Cuban Sandwiches and \u201c1905\u201d Salads are available"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Flavors on the fly at Tampa International Airport in Airside E",
+    "why_here": "Dine in Airside E at Tampa International Airport for seated service and drinks, or choose grab 'n' go Original Cuban Sandwiches and \u201c1905\u201d Salads before a flight from the Columbia Cafe.",
+    "know_before": "Hours Of Operation: 9 a.m. - 8 p.m. Daily",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.columbiarestaurant.com/columbia-cafe-at-tampa-airport"
+     ],
+     "why_here": [
+      "https://www.columbiarestaurant.com/columbia-cafe-at-tampa-airport"
+     ],
+     "know_before": [
+      "https://www.columbiarestaurant.com/columbia-cafe-at-tampa-airport"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Columbia Cafe is in Airside E at Tampa International Airport",
+      "source": "https://www.columbiarestaurant.com/columbia-cafe-at-tampa-airport"
+     },
+     {
+      "claim": "Hours Of Operation: 9 a.m. - 8 p.m. Daily",
+      "source": "https://www.columbiarestaurant.com/columbia-cafe-at-tampa-airport"
+     },
+     {
+      "claim": "Columbia Cafe is available for seated service, drinks and grab 'n' go",
+      "source": "https://www.columbiarestaurant.com/columbia-cafe-at-tampa-airport"
+     },
+     {
+      "claim": "Original Cuban Sandwiches and \u201c1905\u201d Salads are available",
+      "source": "https://www.columbiarestaurant.com/columbia-cafe-at-tampa-airport"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJQcGRTxVBkYgRcgMx6OtBddQ",
+   "name": "FATBOYS - Destin FL",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.ilovefatboys.com/",
+     "source_name": "FATBOYS - Destin FL \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Tasty burgers & juicy wings are made to order",
+      "Burgers use 100% premium beef and house-made secret sauces",
+      "Meatless Options and Gluten-Free Buns are available",
+      "Destin is at 104 Harbor Blvd, Destin, FL 32541",
+      "Sunday - Thursday hours are 10:00 a.m. to 10:00 p.m.",
+      "Friday - Saturday hours are 10:00 a.m. to 12:00 a.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Tasty burgers & juicy wings made to order in Destin",
+    "why_here": "Come to the Destin location for tasty burgers and juicy wings made to order, built with 100% premium beef and house-made secret sauces, plus meatless options and gluten-free buns for other guests.",
+    "know_before": "Sunday - Thursday hours are 10:00 a.m. to 10:00 p.m.; Friday - Saturday hours are 10:00 a.m. to 12:00 a.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.ilovefatboys.com/"
+     ],
+     "why_here": [
+      "https://www.ilovefatboys.com/"
+     ],
+     "know_before": [
+      "https://www.ilovefatboys.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Tasty burgers & juicy wings are made to order",
+      "source": "https://www.ilovefatboys.com/"
+     },
+     {
+      "claim": "Burgers use 100% premium beef and house-made secret sauces",
+      "source": "https://www.ilovefatboys.com/"
+     },
+     {
+      "claim": "Meatless Options and Gluten-Free Buns are available",
+      "source": "https://www.ilovefatboys.com/"
+     },
+     {
+      "claim": "Destin is at 104 Harbor Blvd, Destin, FL 32541",
+      "source": "https://www.ilovefatboys.com/"
+     },
+     {
+      "claim": "Sunday - Thursday hours are 10:00 a.m. to 10:00 p.m.",
+      "source": "https://www.ilovefatboys.com/"
+     },
+     {
+      "claim": "Friday - Saturday hours are 10:00 a.m. to 12:00 a.m.",
+      "source": "https://www.ilovefatboys.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJT0Ti1WPwwogR04_cisqT1H8",
+   "name": "Publix Super Market at LaBelle Plaza",
+   "category": "shopping",
+   "metro": "st-pete",
+   "primary_type": "supermarket",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.publix.com/locations/866-la-belle-plaza",
+     "source_name": "Publix Super Market at LaBelle Plaza \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Clearwater store is at 1555 S Highland Ave, Clearwater, FL 33756-2374",
+      "Departments include Bakery, Deli and Seafood",
+      "Publix Pharmacy is at 1555 S Highland Ave",
+      "Sushi and Wine & Beer are also available",
+      "Services include Presto! ATM",
+      "Instacart Curbside Pickup is available"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Bakery, Deli and Seafood departments at a Clearwater Publix",
+    "why_here": "Shop this Clearwater Publix for Bakery, Deli and Seafood departments, plus a Publix Pharmacy, Sushi, and Wine & Beer, with services including Presto! ATM and Instacart Curbside Pickup available.",
+    "know_before": "Instacart Curbside Pickup is available at this store.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.publix.com/locations/866-la-belle-plaza"
+     ],
+     "why_here": [
+      "https://www.publix.com/locations/866-la-belle-plaza"
+     ],
+     "know_before": [
+      "https://www.publix.com/locations/866-la-belle-plaza"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Clearwater store is at 1555 S Highland Ave, Clearwater, FL 33756-2374",
+      "source": "https://www.publix.com/locations/866-la-belle-plaza"
+     },
+     {
+      "claim": "Departments include Bakery, Deli and Seafood",
+      "source": "https://www.publix.com/locations/866-la-belle-plaza"
+     },
+     {
+      "claim": "Publix Pharmacy is at 1555 S Highland Ave",
+      "source": "https://www.publix.com/locations/866-la-belle-plaza"
+     },
+     {
+      "claim": "Sushi and Wine & Beer are also available",
+      "source": "https://www.publix.com/locations/866-la-belle-plaza"
+     },
+     {
+      "claim": "Services include Presto! ATM",
+      "source": "https://www.publix.com/locations/866-la-belle-plaza"
+     },
+     {
+      "claim": "Instacart Curbside Pickup is available",
+      "source": "https://www.publix.com/locations/866-la-belle-plaza"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ73e7e_5654gRY1H4Yw1J1yU",
+   "name": "SAK Comedy Lab",
+   "category": "attractions",
+   "metro": "orlando",
+   "primary_type": "comedy_club",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.sakcomedylab.com/",
+     "source_name": "SAK Comedy Lab \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "SAK Comedy Lab has offered live improvised comedy Since 1991",
+      "Performers take your suggestions and make up characters, scenes and songs on the spot",
+      "Duel of Fools is at 7:00 p.m. on Friday",
+      "King of the Hill is at 9:00 p.m. on Friday",
+      "SAK has a 250-seat venue with beer or wine from the concession lobby",
+      "SAK Comedy Lab is at 55 West Church Street, Suite 211, Orlando, FL 32801"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Live improvised comedy in Orlando Since 1991",
+    "why_here": "See live improvised comedy in Orlando, where performers take your suggestions and make up characters, scenes and songs on the spot, including Duel of Fools and King of the Hill on Friday nights.",
+    "know_before": "Duel of Fools is at 7:00 p.m. on Friday; King of the Hill is at 9:00 p.m. on Friday",
+    "local_tip": "Check out the 250-seat venue and grab beer or wine from the concession lobby",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.sakcomedylab.com/"
+     ],
+     "why_here": [
+      "https://www.sakcomedylab.com/"
+     ],
+     "know_before": [
+      "https://www.sakcomedylab.com/"
+     ],
+     "local_tip": [
+      "https://www.sakcomedylab.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "SAK Comedy Lab has offered live improvised comedy Since 1991",
+      "source": "https://www.sakcomedylab.com/"
+     },
+     {
+      "claim": "Performers take your suggestions and make up characters, scenes and songs on the spot",
+      "source": "https://www.sakcomedylab.com/"
+     },
+     {
+      "claim": "Duel of Fools is at 7:00 p.m. on Friday",
+      "source": "https://www.sakcomedylab.com/"
+     },
+     {
+      "claim": "King of the Hill is at 9:00 p.m. on Friday",
+      "source": "https://www.sakcomedylab.com/"
+     },
+     {
+      "claim": "SAK has a 250-seat venue with beer or wine from the concession lobby",
+      "source": "https://www.sakcomedylab.com/"
+     },
+     {
+      "claim": "SAK Comedy Lab is at 55 West Church Street, Suite 211, Orlando, FL 32801",
+      "source": "https://www.sakcomedylab.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ0RvsWBWt2YgR7UeSIYmz5ho",
+   "name": "ALL YOU NEED - SUNNY",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "breakfast_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.allyouneed.cafe/sunny-isles",
+     "source_name": "ALL YOU NEED - SUNNY \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Sunny Isles menu lists Borscht as Traditional Ukrainian hearty beet soup with vegetables, served with sour cream and sourdough bread",
+      "The Sunny Isles menu lists Syrnyky as Tender, pan-fried farmer's cottage cheese pancakes",
+      "The Sunny Isles menu lists SHAWARMA with grilled chicken, lavash flatbread, crispy cabbage, cucumber, pickled carrot, and garlic sauce",
+      "The Sunny Isles menu lists Truffle & Mushroom Scramble with sourdough, cream cheese, truffle tartufata, arugula, Japanese-style scrambled eggs, and roasted shimeji mushrooms"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Borscht and Syrnyky on the Sunny Isles menu",
+    "why_here": "Try Borscht and Syrnyky on the Sunny Isles menu, with SHAWARMA and Truffle & Mushroom Scramble also listed among the dishes served here for a varied meal.",
+    "know_before": "The Sunny Isles menu lists Borscht, Syrnyky, SHAWARMA, and Truffle & Mushroom Scramble.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.allyouneed.cafe/sunny-isles"
+     ],
+     "why_here": [
+      "https://www.allyouneed.cafe/sunny-isles"
+     ],
+     "know_before": [
+      "https://www.allyouneed.cafe/sunny-isles"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Sunny Isles menu lists Borscht as Traditional Ukrainian hearty beet soup with vegetables, served with sour cream and sourdough bread",
+      "source": "https://www.allyouneed.cafe/sunny-isles"
+     },
+     {
+      "claim": "The Sunny Isles menu lists Syrnyky as Tender, pan-fried farmer's cottage cheese pancakes",
+      "source": "https://www.allyouneed.cafe/sunny-isles"
+     },
+     {
+      "claim": "The Sunny Isles menu lists SHAWARMA with grilled chicken, lavash flatbread, crispy cabbage, cucumber, pickled carrot, and garlic sauce",
+      "source": "https://www.allyouneed.cafe/sunny-isles"
+     },
+     {
+      "claim": "The Sunny Isles menu lists Truffle & Mushroom Scramble with sourdough, cream cheese, truffle tartufata, arugula, Japanese-style scrambled eggs, and roasted shimeji mushrooms",
+      "source": "https://www.allyouneed.cafe/sunny-isles"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ8wcsBTjb5ogRF7hcKDTlB2g",
+   "name": "Senorita Mexican Kitchen & Tequila Bar",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "mexican_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.senoritamexicankitchen.com/",
+     "source_name": "Senorita Mexican Kitchen & Tequila Bar \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Senorita Mexican Kitchen & Tequila Bar is at 114 S Beach St, Daytona Beach, FL 32114",
+      "Senorita features authentic and traditional Mexican dishes",
+      "Menu classics include homemade corn tamales, enchiladas, and chiles Rellenos and sizzling fajitas",
+      "Amenities include a full-service bar (Cantina) and patio dining",
+      "Hours are 11 a.m. to 10 p.m. Sunday through Thursday and 11 a.m. to 11 p.m. Friday and Saturday"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Homemade corn tamales and sizzling fajitas in Daytona Beach",
+    "why_here": "Go for authentic and traditional Mexican dishes in Daytona Beach, including homemade corn tamales, enchiladas, and chiles Rellenos, plus sizzling fajitas and patio dining.",
+    "know_before": "Hours are 11 a.m. to 10 p.m. Sunday through Thursday and 11 a.m. to 11 p.m. Friday and Saturday.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.senoritamexicankitchen.com/"
+     ],
+     "why_here": [
+      "https://www.senoritamexicankitchen.com/"
+     ],
+     "know_before": [
+      "https://www.senoritamexicankitchen.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Senorita Mexican Kitchen & Tequila Bar is at 114 S Beach St, Daytona Beach, FL 32114",
+      "source": "https://www.senoritamexicankitchen.com/"
+     },
+     {
+      "claim": "Senorita features authentic and traditional Mexican dishes",
+      "source": "https://www.senoritamexicankitchen.com/"
+     },
+     {
+      "claim": "Menu classics include homemade corn tamales, enchiladas, and chiles Rellenos and sizzling fajitas",
+      "source": "https://www.senoritamexicankitchen.com/"
+     },
+     {
+      "claim": "Amenities include a full-service bar (Cantina) and patio dining",
+      "source": "https://www.senoritamexicankitchen.com/"
+     },
+     {
+      "claim": "Hours are 11 a.m. to 10 p.m. Sunday through Thursday and 11 a.m. to 11 p.m. Friday and Saturday",
+      "source": "https://www.senoritamexicankitchen.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ6SXazcQF2YgR6bnxs0dt-Es",
+   "name": "Phat Boy Sushi, Kitchen & Bar - Coral Springs",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "sushi_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://phatboysushi.com/",
+     "source_name": "Phat Boy Sushi, Kitchen & Bar - Coral Springs \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Coral Springs location is at 2702 N University Dr., Coral Springs, FL 33065",
+      "The menu lists Gyoza as 5 Pieces Pan Fried Chicken and Pork Dumpling",
+      "The menu lists Shumai as 4 Pieces Steamed Jumbo Shrimp Dumplings",
+      "The site lists menu sections for Sushi, Kitchen, Lunch and Bar"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Gyoza and Shumai on the menu in Coral Springs",
+    "why_here": "Visit the Coral Springs location for Gyoza and Shumai, with Sushi and Kitchen options listed among the menu sections available for a group meal here.",
+    "know_before": "The menu lists Gyoza as 5 Pieces Pan Fried Chicken and Pork Dumpling.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://phatboysushi.com/"
+     ],
+     "why_here": [
+      "https://phatboysushi.com/"
+     ],
+     "know_before": [
+      "https://phatboysushi.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Coral Springs location is at 2702 N University Dr., Coral Springs, FL 33065",
+      "source": "https://phatboysushi.com/"
+     },
+     {
+      "claim": "The menu lists Gyoza as 5 Pieces Pan Fried Chicken and Pork Dumpling",
+      "source": "https://phatboysushi.com/"
+     },
+     {
+      "claim": "The menu lists Shumai as 4 Pieces Steamed Jumbo Shrimp Dumplings",
+      "source": "https://phatboysushi.com/"
+     },
+     {
+      "claim": "The site lists menu sections for Sushi, Kitchen, Lunch and Bar",
+      "source": "https://phatboysushi.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJYzInaf_HwogRVmzHK9eIk78",
+   "name": "Nawabi Hyderabad House",
+   "category": "food",
+   "metro": "tampa",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.nawabihhtampa.com/",
+     "source_name": "Nawabi Hyderabad House \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Hyderabad House is a popular Indian restaurant located in Tampa, Florida",
+      "Hyderabad House is known for authentic Hyderabadi cuisine",
+      "Hyderabad House is known for its biryanis, a fragrant rice dish cooked with meat or vegetables and a blend of spices",
+      "Biryanis include chicken, mutton, fish, and vegetarian options, often served with raita and salan"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Authentic Hyderabadi cuisine and biryanis in Tampa",
+    "why_here": "Go for authentic Hyderabadi cuisine in Tampa, with biryanis including chicken, mutton, fish, and vegetarian options served with raita and salan for a spiced rice meal.",
+    "know_before": "Biryanis are often served with raita and salan.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.nawabihhtampa.com/"
+     ],
+     "why_here": [
+      "https://www.nawabihhtampa.com/"
+     ],
+     "know_before": [
+      "https://www.nawabihhtampa.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Hyderabad House is a popular Indian restaurant located in Tampa, Florida",
+      "source": "https://www.nawabihhtampa.com/"
+     },
+     {
+      "claim": "Hyderabad House is known for authentic Hyderabadi cuisine",
+      "source": "https://www.nawabihhtampa.com/"
+     },
+     {
+      "claim": "Hyderabad House is known for its biryanis, a fragrant rice dish cooked with meat or vegetables and a blend of spices",
+      "source": "https://www.nawabihhtampa.com/"
+     },
+     {
+      "claim": "Biryanis include chicken, mutton, fish, and vegetarian options, often served with raita and salan",
+      "source": "https://www.nawabihhtampa.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJAz8Hv0TBwogRhgQNKQvkuW0",
+   "name": "Carrollwood Village Park",
+   "category": "attractions",
+   "metro": "tampa",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://hcfl.gov/locations/carrollwood-village-park",
+     "source_name": "Carrollwood Village Park \u2014 official source",
+     "source_class": "government",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Carrollwood Village Park is at 4680 West Village Drive Tampa, FL 33624",
+      "Hours Monday to Sunday - 7 AM to 9 PM",
+      "Amenities include a skatepark, dog park, playground, splash pad, and more",
+      "Park features include Walking Trails, Picnic Shelters, Outdoor fitness equipment and Bike repair station",
+      "Park is part of a project to develop the former Dale Mabry Wastewater Treatment Plant into a community park"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Community park in Tampa with skatepark, dog park and splash pad",
+    "why_here": "Go for amenities including a skatepark, dog park, playground, splash pad, walking trails and picnic shelters at a park developed from the former Dale Mabry Wastewater Treatment Plant site.",
+    "know_before": "Hours are Monday to Sunday - 7 a.m. to 9 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://hcfl.gov/locations/carrollwood-village-park"
+     ],
+     "why_here": [
+      "https://hcfl.gov/locations/carrollwood-village-park"
+     ],
+     "know_before": [
+      "https://hcfl.gov/locations/carrollwood-village-park"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Carrollwood Village Park is at 4680 West Village Drive Tampa, FL 33624",
+      "source": "https://hcfl.gov/locations/carrollwood-village-park"
+     },
+     {
+      "claim": "Hours Monday to Sunday - 7 AM to 9 PM",
+      "source": "https://hcfl.gov/locations/carrollwood-village-park"
+     },
+     {
+      "claim": "Amenities include a skatepark, dog park, playground, splash pad, and more",
+      "source": "https://hcfl.gov/locations/carrollwood-village-park"
+     },
+     {
+      "claim": "Park features include Walking Trails, Picnic Shelters, Outdoor fitness equipment and Bike repair station",
+      "source": "https://hcfl.gov/locations/carrollwood-village-park"
+     },
+     {
+      "claim": "Park is part of a project to develop the former Dale Mabry Wastewater Treatment Plant into a community park",
+      "source": "https://hcfl.gov/locations/carrollwood-village-park"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ_6ltgAKt2YgRNtP9_mUpmLk",
+   "name": "Mia Oceanfront",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.miaoceanfront.com/",
+     "source_name": "Mia Oceanfront \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Mia Oceanfront is at 1960 S Ocean Dr, Hallandale Beach, FL 33009",
+      "Site describes Fusion Cuisine with Ocean Views & Grill Specials",
+      "Hours list Monday: closed",
+      "Hours list Tuesday: 4:00 PM \u2013 10:00 PM and Sunday: 2:00 PM \u2013 10:00 PM",
+      "Site links Menu and Happy Hour Menu"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Oceanfront restaurant in Hallandale Beach",
+    "why_here": "Go for fusion cuisine at 1960 S Ocean Dr, Hallandale Beach, with evening service listed Tuesday through Sunday and a menu and Happy Hour Menu linked from the official site.",
+    "know_before": "Monday is closed.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.miaoceanfront.com/"
+     ],
+     "why_here": [
+      "https://www.miaoceanfront.com/"
+     ],
+     "know_before": [
+      "https://www.miaoceanfront.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Mia Oceanfront is at 1960 S Ocean Dr, Hallandale Beach, FL 33009",
+      "source": "https://www.miaoceanfront.com/"
+     },
+     {
+      "claim": "Site describes Fusion Cuisine with Ocean Views & Grill Specials",
+      "source": "https://www.miaoceanfront.com/"
+     },
+     {
+      "claim": "Hours list Monday: closed",
+      "source": "https://www.miaoceanfront.com/"
+     },
+     {
+      "claim": "Hours list Tuesday: 4:00 PM \u2013 10:00 PM and Sunday: 2:00 PM \u2013 10:00 PM",
+      "source": "https://www.miaoceanfront.com/"
+     },
+     {
+      "claim": "Site links Menu and Happy Hour Menu",
+      "source": "https://www.miaoceanfront.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJNx2WFD-32YgRhp5oX4c8KQg",
+   "name": "Cubata",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://cubatarestaurant.com/",
+     "source_name": "Cubata \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Cubata is at 1605 Southwest 8th Street, Miami, FL 33135, USA",
+      "Cubata is in Little Havana",
+      "Cubata serves Cuban and Spanish tapas with wine",
+      "Cubata offers Live Latin Nights",
+      "A tapa at Cubata is inspired by fine Spanish and Cuban cuisine, crafted with select ingredients",
+      "Happy Hour offers 50% off drinks every day from 4 p.m. to 8 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Cuban and Spanish tapas with wine in Little Havana",
+    "why_here": "Try Cuban and Spanish tapas with wine at Cubata in Little Havana, order a tapa inspired by fine Spanish and Cuban cuisine, and stay for Live Latin Nights.",
+    "know_before": "Happy Hour offers 50% off drinks every day from 4 p.m. to 8 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://cubatarestaurant.com/"
+     ],
+     "why_here": [
+      "https://cubatarestaurant.com/"
+     ],
+     "know_before": [
+      "https://cubatarestaurant.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Cubata is at 1605 Southwest 8th Street, Miami, FL 33135, USA",
+      "source": "https://cubatarestaurant.com/"
+     },
+     {
+      "claim": "Cubata is in Little Havana",
+      "source": "https://cubatarestaurant.com/"
+     },
+     {
+      "claim": "Cubata serves Cuban and Spanish tapas with wine",
+      "source": "https://cubatarestaurant.com/"
+     },
+     {
+      "claim": "Cubata offers Live Latin Nights",
+      "source": "https://cubatarestaurant.com/"
+     },
+     {
+      "claim": "A tapa at Cubata is inspired by fine Spanish and Cuban cuisine, crafted with select ingredients",
+      "source": "https://cubatarestaurant.com/"
+     },
+     {
+      "claim": "Happy Hour offers 50% off drinks every day from 4 p.m. to 8 p.m.",
+      "source": "https://cubatarestaurant.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJOSFbpXRY2ogRoD6Adz6RstM",
+   "name": "Manatee Sightsee & Wildlife Adventures",
+   "category": "attractions",
+   "metro": "immokalee-fl",
+   "primary_type": "tourist_attraction",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.see-manatees.com/tours/manatee-sightseeing-tour/",
+     "source_name": "Manatee Sightsee & Wildlife Adventures \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Manatee Sightseeing & Wildlife Adventures is at 525 Newport Drive, Naples, FL 34114",
+      "Manatee Sightseeing & Wildlife Boat Tour is running daily as a 1\u00bd Hour Tour",
+      "The Manatee Sightseeing Tour is 1\u00bd hours long",
+      "Manatee Sightseeing & Wildlife Adventures offers boat tours"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Boat tours to see manatees from Naples, Florida",
+    "why_here": "Take the Manatee Sightseeing & Wildlife Boat Tour running daily as a 1\u00bd Hour Tour from 525 Newport Drive, Naples, FL 34114, with Manatee Sightseeing & Wildlife Adventures by boat.",
+    "know_before": "The Manatee Sightseeing Tour is 1\u00bd hours long.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.see-manatees.com/tours/manatee-sightseeing-tour/"
+     ],
+     "why_here": [
+      "https://www.see-manatees.com/tours/manatee-sightseeing-tour/"
+     ],
+     "know_before": [
+      "https://www.see-manatees.com/tours/manatee-sightseeing-tour/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Manatee Sightseeing & Wildlife Adventures is at 525 Newport Drive, Naples, FL 34114",
+      "source": "https://www.see-manatees.com/tours/manatee-sightseeing-tour/"
+     },
+     {
+      "claim": "Manatee Sightseeing & Wildlife Boat Tour is running daily as a 1\u00bd Hour Tour",
+      "source": "https://www.see-manatees.com/tours/manatee-sightseeing-tour/"
+     },
+     {
+      "claim": "The Manatee Sightseeing Tour is 1\u00bd hours long",
+      "source": "https://www.see-manatees.com/tours/manatee-sightseeing-tour/"
+     },
+     {
+      "claim": "Manatee Sightseeing & Wildlife Adventures offers boat tours",
+      "source": "https://www.see-manatees.com/tours/manatee-sightseeing-tour/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJL5M1YGqz2YgRWJh_4w_AZC0",
+   "name": "Nobu Hotel Miami Beach",
+   "category": "hotels",
+   "metro": "miami-dade",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.nobuhotels.com/miami-beach/",
+     "source_name": "Nobu Hotel Miami Beach \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Nobu Hotel Miami Beach is at 4525 Collins Avenue, Miami Beach",
+      "Nobu Hotel Miami Beach is an oceanfront hotel in Mid-Beach",
+      "Nobu Hotel Miami Beach has four sparkling oceanfront pools",
+      "Esencia Wellness Spa and Fitness Center is at Nobu Hotel Miami Beach",
+      "Dining at Nobu Hotel Miami Beach includes dishes crafted by Chef Nobu Matsuhisa"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Oceanfront hotel in Mid-Beach with four oceanfront pools",
+    "why_here": "Stay at Nobu Hotel Miami Beach in Mid-Beach, swim in four sparkling oceanfront pools, and visit Esencia Wellness Spa and Fitness Center during a Miami Beach stay.",
+    "know_before": "Nobu Hotel Miami Beach is at 4525 Collins Avenue, Miami Beach.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.nobuhotels.com/miami-beach/"
+     ],
+     "why_here": [
+      "https://www.nobuhotels.com/miami-beach/"
+     ],
+     "know_before": [
+      "https://www.nobuhotels.com/miami-beach/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Nobu Hotel Miami Beach is at 4525 Collins Avenue, Miami Beach",
+      "source": "https://www.nobuhotels.com/miami-beach/"
+     },
+     {
+      "claim": "Nobu Hotel Miami Beach is an oceanfront hotel in Mid-Beach",
+      "source": "https://www.nobuhotels.com/miami-beach/"
+     },
+     {
+      "claim": "Nobu Hotel Miami Beach has four sparkling oceanfront pools",
+      "source": "https://www.nobuhotels.com/miami-beach/"
+     },
+     {
+      "claim": "Esencia Wellness Spa and Fitness Center is at Nobu Hotel Miami Beach",
+      "source": "https://www.nobuhotels.com/miami-beach/"
+     },
+     {
+      "claim": "Dining at Nobu Hotel Miami Beach includes dishes crafted by Chef Nobu Matsuhisa",
+      "source": "https://www.nobuhotels.com/miami-beach/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJdeCS1uW54IgRqG67_UFPInI",
+   "name": "Playalinda Beach",
+   "category": "beach",
+   "metro": "florida",
+   "primary_type": "beach",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.nps.gov/places/playalinda-beach.htm",
+     "source_name": "Playalinda Beach \u2014 official source",
+     "source_class": "government",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Playalinda Beach is located on the space coast in Brevard County",
+      "Playalinda Beach is a destination for beach going, wildlife viewing and rocket launch viewing",
+      "Canaveral National Seashore manages the Playalinda District",
+      "Playalinda Beach offers fourteen beach access areas",
+      "Visitors should bring everything they may need while enjoying the beach, including water, food, sunscreen and chairs",
+      "Playalinda Beach has parking areas, restrooms and accessible ramps at each beach parking area"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Beach at Canaveral National Seashore for wildlife viewing and rocket launch viewing",
+    "why_here": "Visit Playalinda Beach in Brevard County for beach going, wildlife viewing and rocket launch viewing, and choose from fourteen beach access areas at Canaveral National Seashore.",
+    "know_before": "Bring everything you may need while enjoying the beach, including water, food, sunscreen and chairs.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.nps.gov/places/playalinda-beach.htm"
+     ],
+     "why_here": [
+      "https://www.nps.gov/places/playalinda-beach.htm"
+     ],
+     "know_before": [
+      "https://www.nps.gov/places/playalinda-beach.htm"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Playalinda Beach is located on the space coast in Brevard County",
+      "source": "https://www.nps.gov/places/playalinda-beach.htm"
+     },
+     {
+      "claim": "Playalinda Beach is a destination for beach going, wildlife viewing and rocket launch viewing",
+      "source": "https://www.nps.gov/places/playalinda-beach.htm"
+     },
+     {
+      "claim": "Canaveral National Seashore manages the Playalinda District",
+      "source": "https://www.nps.gov/places/playalinda-beach.htm"
+     },
+     {
+      "claim": "Playalinda Beach offers fourteen beach access areas",
+      "source": "https://www.nps.gov/places/playalinda-beach.htm"
+     },
+     {
+      "claim": "Visitors should bring everything they may need while enjoying the beach, including water, food, sunscreen and chairs",
+      "source": "https://www.nps.gov/places/playalinda-beach.htm"
+     },
+     {
+      "claim": "Playalinda Beach has parking areas, restrooms and accessible ramps at each beach parking area",
+      "source": "https://www.nps.gov/places/playalinda-beach.htm"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJt_gs1VDH2YgRZabPVoD0CvM",
+   "name": "The Fish House",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://thefishhouse.com/menu",
+     "source_name": "The Fish House \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Fish House is at 10000 SW 56th St Ste 41, Miami, FL 33165",
+      "The Fish House menu includes Sushi Signature Rolls",
+      "The Fish House serves Seafood and Sushi",
+      "The Fish House menu includes a Seafood Selection with The Fisherman's Rice",
+      "The Fish House menu includes Garlic Bread and Fish Croquettes"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Seafood and Sushi with Sushi Signature Rolls in Miami",
+    "why_here": "The Fish House in Miami serves Seafood and Sushi, with Sushi Signature Rolls and The Fisherman's Rice on the Seafood Selection menu for a Miami meal.",
+    "know_before": "The Fish House is at 10000 SW 56th St Ste 41, Miami, FL 33165.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://thefishhouse.com/menu"
+     ],
+     "why_here": [
+      "https://thefishhouse.com/menu"
+     ],
+     "know_before": [
+      "https://thefishhouse.com/menu"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Fish House is at 10000 SW 56th St Ste 41, Miami, FL 33165",
+      "source": "https://thefishhouse.com/menu"
+     },
+     {
+      "claim": "The Fish House menu includes Sushi Signature Rolls",
+      "source": "https://thefishhouse.com/menu"
+     },
+     {
+      "claim": "The Fish House serves Seafood and Sushi",
+      "source": "https://thefishhouse.com/menu"
+     },
+     {
+      "claim": "The Fish House menu includes a Seafood Selection with The Fisherman's Rice",
+      "source": "https://thefishhouse.com/menu"
+     },
+     {
+      "claim": "The Fish House menu includes Garlic Bread and Fish Croquettes",
+      "source": "https://thefishhouse.com/menu"
+     }
+    ]
+   }
+  }
+ ]
+}
