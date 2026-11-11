@@ -7,7 +7,7 @@ import { hospitalityDateChipLabel } from "../../lib/seasonalHospitalityCopy.js";
 // rail card: no seasonal skin, no spooky skin, no Directions button, score
 // badge top right. Each rail pages independently via usePagedRail, seeded from
 // the one bulk /api/events/christmas fetch (see lib/railPage.js).
-import { useEffect, useMemo, useRef, useState } from "react";
+import { memo, useEffect, useMemo, useRef, useState } from "react";
 import RailCard, { RailDots, RailNav } from "./RailCard";
 import RailHeading from "./RailHeading";
 import RailLoading from "./RailLoading";
@@ -67,6 +67,67 @@ function eventCta(card, onTrack) {
   };
 }
 
+// PERFORMANCE (2026-11-11, home feed INP): one memoized card per rail slot.
+// Every state change on the home page re-rendered ~3,000 components, roughly
+// 500 of them these cards, because the section below hands each card a fresh
+// closure. The card takes only primitives plus the stable `card` row; the
+// parent's callbacks travel through `handlers` (a ref read at CALL time, so a
+// tap always runs the newest closure and never a stale one). Everything the
+// card draws is in its props: saved/liked/disliked arrive as the booleans the
+// old inline expressions computed, `today` is the shared clock's day, and
+// `eyebrow` is the label. Same markup, same props to RailCard as before.
+export const ChristmasRailCard = memo(function ChristmasRailCard({ card, index, eyebrow, today, isSentinel, sentinelRef, saved, liked, disliked, hasOpen, hasSave, hasLike, hasDislike, hasShare, handlers, city }) {
+  const onOpenPlace = hasOpen ? (...args) => handlers.current.onOpenPlace(...args) : undefined;
+  const onTrack = (...args) => handlers.current.onTrack?.(...args);
+  const onSave = hasSave ? (...args) => handlers.current.onSave(...args) : undefined;
+  const onLike = hasLike ? (...args) => handlers.current.onLike(...args) : undefined;
+  const onDislike = hasDislike ? (...args) => handlers.current.onDislike(...args) : undefined;
+  const onShare = hasShare ? (...args) => handlers.current.onShare(...args) : undefined;
+  const rank = index + 1;
+  const isEvent = card.kind === "event";
+  const place = isEvent ? null : { ...card, id: card.id, photo: card.image || null, hook: card.take || null };
+  // True distance on every card; farther (top up / day trip) and
+  // approximate (city centre) locations say so (christmasDistanceLabel).
+  const facts = isEvent
+    ? [card.city || null, christmasDistanceLabel(card)].filter(Boolean)
+    // Place cards: RailCard appends the device distance (usePlaceDistance) for any card
+    // with a `place`, so the server distance is not a second fact here.
+    : [card.reviews ? compact(card.reviews) + " reviews" : null].filter(Boolean);
+  const placeChips = !isEvent ? [
+    card.seasonalWhen || card.seasonChip ? { key: "season", icon: "🗓", label: card.seasonalWhen ? hospitalityDateChipLabel(card.seasonalWhen) : card.seasonChip, title: (card.seasonalWhen || card.seasonChip) + ", " + String(card.take || "").toLowerCase() } : null,
+    card.hospitalityEvidence && card.sourceUrl ? { key: "proof", icon: "↗", label: "Source", title: "Open source", onClick: () => window.open(card.sourceUrl, "_blank", "noopener,noreferrer") } : null,
+  ].filter(Boolean) : [];
+  const openEventVenue = isEvent && card.place_id && onOpenPlace
+    ? () => handlers.current.onOpenPlace({ id: card.place_id, name: card.venue || card.name, lat: card.lat, lng: card.lng, types: [], hook: card.hook, ...(Array.isArray(card.venuePhotos) ? { photos: card.venuePhotos } : {}) })
+    : null;
+  const eventBodyHref = isEvent ? (card.detailHref || (!openEventVenue ? card.url || null : null)) : null;
+  const eventBodyExternal = isEvent && !card.detailHref;
+  return <RailCard className="wf-exploding-primary" domRef={isSentinel ? sentinelRef : undefined}
+    photo={card.image || null}
+    placeholder={isEvent && !card.image ? card.placeholder || null : null}
+    photoFallbackCategory="christmas"
+    photoFallback={isEvent && card.place_id ? ownedPlacePhotoSrc(card.place_id, 640) : null}
+    eagerMedia={index < 3}
+    visitFacts={isEvent ? card : null}
+    photoPosition={card.photoPosition || "50% 50%"}
+    photoAttr={card.photoAttr || null} photoAttrHref={card.photoAttrHref || null} place={place}
+    title={card.title || card.name} eyebrow={eyebrow} rank={rank}
+    score={isEvent ? null : toDisplayScore(Number.isFinite(card.governed_score) ? card.governed_score : card.wfScore)} when={isEvent ? card.when : null}
+    facts={facts} chips={isEvent ? eventChips(card, { onOpenVenue: card.detailHref ? openEventVenue : null, today }) : placeChips}
+    take={card.hook || card.take || null} cta={isEvent ? eventCta(card, onTrack) : null}
+    creatorVideos={isEvent ? card.creatorReels : undefined}
+    href={eventBodyHref} external={eventBodyExternal}
+    ariaLabel={`Open ${card.title || card.name}`} onOpen={isEvent ? (card.detailHref ? undefined : openEventVenue || undefined) : (place && onOpenPlace ? () => onOpenPlace(place) : undefined)}
+    actionItem={isEvent ? { id: card.id, type: "event", title: card.title || card.name, image: card.image || null, url: eventBodyHref || card.url || "", provider: card.source || null } : null}
+    saved={saved}
+    liked={liked}
+    disliked={disliked}
+    onSave={place && onSave ? (event) => onSave(event, place) : undefined}
+    onLike={place && onLike ? (event) => onLike(event, place) : undefined}
+    onDislike={place && onDislike ? (event) => onDislike(event, place) : undefined}
+    onShare={place && onShare ? () => onShare(place, { city }) : undefined} />;
+});
+
 function ChristmasRailSection({ rail, lat, lng, onOpenPlace, onTrack, city, isSaved, liked, disliked, isLiked, isDisliked, onSave, onLike, onDislike, onShare }) {
   const seedItems = useMemo(() => rail.cards || [], [rail]);
   const params = useMemo(() => (lat != null && lng != null ? { lat, lng, rail: rail.id } : null), [lat, lng, rail.id]);
@@ -76,6 +137,9 @@ function ChristmasRailSection({ rail, lat, lng, onOpenPlace, onTrack, city, isSa
   const curatorPicks = useCuratorPicks();
   const now = useEventClock();
   const nowStamp = now.getTime();
+  const today = siteTodayStr(now);
+  const handlers = useRef(null);
+  handlers.current = { onOpenPlace, onTrack, onSave, onLike, onDislike, onShare };
   // Owner picks on PLACE cards only (events untouched), applied before render.
   const items = useMemo(() => {
     const currentItems = pagedItems.filter((card) => card.kind !== "event" || !eventVisitStatus(card, new Date(nowStamp))?.expired);
@@ -108,49 +172,13 @@ function ChristmasRailSection({ rail, lat, lng, onOpenPlace, onTrack, city, isSa
     <>
       <div className="wf-rail wf-rail-exploding wf-christmas" data-rail={railId} tabIndex={0} role="region" aria-label={rail.title}><RailGuideSlot railId={rail.id} guide={rail.guide ?? null} onTrack={onTrack}>
         {items.map((card, index) => {
-          const rank = index + 1;
           const isEvent = card.kind === "event";
-          const place = isEvent ? null : { ...card, id: card.id, photo: card.image || null, hook: card.take || null };
-          // True distance on every card; farther (top up / day trip) and
-          // approximate (city centre) locations say so (christmasDistanceLabel).
-          const facts = isEvent
-            ? [card.city || null, christmasDistanceLabel(card)].filter(Boolean)
-            // Place cards: RailCard appends the device distance (usePlaceDistance) for any card
-            // with a `place`, so the server distance is not a second fact here.
-            : [card.reviews ? compact(card.reviews) + " reviews" : null].filter(Boolean);
-          const placeChips = !isEvent ? [
-            card.seasonalWhen || card.seasonChip ? { key: "season", icon: "🗓", label: card.seasonalWhen ? hospitalityDateChipLabel(card.seasonalWhen) : card.seasonChip, title: (card.seasonalWhen || card.seasonChip) + ", " + String(card.take || "").toLowerCase() } : null,
-            card.hospitalityEvidence && card.sourceUrl ? { key: "proof", icon: "↗", label: "Source", title: "Open source", onClick: () => window.open(card.sourceUrl, "_blank", "noopener,noreferrer") } : null,
-          ].filter(Boolean) : [];
-          const openEventVenue = isEvent && card.place_id && onOpenPlace
-            ? () => onOpenPlace({ id: card.place_id, name: card.venue || card.name, lat: card.lat, lng: card.lng, types: [], hook: card.hook, ...(Array.isArray(card.venuePhotos) ? { photos: card.venuePhotos } : {}) })
-            : null;
-          const eventBodyHref = isEvent ? (card.detailHref || (!openEventVenue ? card.url || null : null)) : null;
-          const eventBodyExternal = isEvent && !card.detailHref;
-          return <RailCard key={card.id} className="wf-exploding-primary" domRef={index === Math.min(sentinelIndex, items.length - 1) ? sentinelRef : undefined}
-            photo={card.image || null}
-            placeholder={isEvent && !card.image ? card.placeholder || null : null}
-            photoFallbackCategory="christmas"
-            photoFallback={isEvent && card.place_id ? ownedPlacePhotoSrc(card.place_id, 640) : null}
-            eagerMedia={index < 3}
-            visitFacts={isEvent ? card : null}
-            photoPosition={card.photoPosition || "50% 50%"}
-            photoAttr={card.photoAttr || null} photoAttrHref={card.photoAttrHref || null} place={place}
-            title={card.title || card.name} eyebrow={CHRISTMAS_CARD_LABELS[rail.id] || rail.title} rank={rank}
-            score={isEvent ? null : toDisplayScore(Number.isFinite(card.governed_score) ? card.governed_score : card.wfScore)} when={isEvent ? card.when : null}
-            facts={facts} chips={isEvent ? eventChips(card, { onOpenVenue: card.detailHref ? openEventVenue : null, today: siteTodayStr(now) }) : placeChips}
-            take={card.hook || card.take || null} cta={isEvent ? eventCta(card, onTrack) : null}
-            creatorVideos={isEvent ? card.creatorReels : undefined}
-            href={eventBodyHref} external={eventBodyExternal}
-            ariaLabel={`Open ${card.title || card.name}`} onOpen={isEvent ? (card.detailHref ? undefined : openEventVenue || undefined) : (place && onOpenPlace ? () => onOpenPlace(place) : undefined)}
-            actionItem={isEvent ? { id: card.id, type: "event", title: card.title || card.name, image: card.image || null, url: eventBodyHref || card.url || "", provider: card.source || null } : null}
-            saved={place && isSaved ? !!isSaved(place.id) : undefined}
-            liked={place && (isLiked ? !!isLiked(place.id) : liked ? !!liked[place.id] : undefined)}
-            disliked={place && (isDisliked ? !!isDisliked(place.id) : disliked ? !!disliked[place.id] : undefined)}
-            onSave={place && onSave ? (event) => onSave(event, place) : undefined}
-            onLike={place && onLike ? (event) => onLike(event, place) : undefined}
-            onDislike={place && onDislike ? (event) => onDislike(event, place) : undefined}
-            onShare={place && onShare ? () => onShare(place, { city }) : undefined} />;
+          return <ChristmasRailCard key={card.id} card={card} index={index} eyebrow={CHRISTMAS_CARD_LABELS[rail.id] || rail.title} today={today}
+            isSentinel={index === Math.min(sentinelIndex, items.length - 1)} sentinelRef={sentinelRef}
+            saved={!isEvent && isSaved ? !!isSaved(card.id) : undefined}
+            liked={isEvent ? null : (isLiked ? !!isLiked(card.id) : liked ? !!liked[card.id] : undefined)}
+            disliked={isEvent ? null : (isDisliked ? !!isDisliked(card.id) : disliked ? !!disliked[card.id] : undefined)}
+            hasOpen={!!onOpenPlace} hasSave={!!onSave} hasLike={!!onLike} hasDislike={!!onDislike} hasShare={!!onShare} handlers={handlers} city={city} />;
         })}
         {loadingMore ? <div className="wf-rail-card wf-exploding-primary wf-sk" role="status" aria-busy="true" aria-label={`Loading more ${rail.title}`}
           style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: 88, color: COLORS.muted, fontSize: 12.5 }}>Loading more…</div> : null}
