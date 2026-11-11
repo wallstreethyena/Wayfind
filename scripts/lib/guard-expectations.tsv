@@ -827,7 +827,7 @@ scripts/test-known-city-geocode.mjs	0	CALL	blocks-ci-and-deploy	1	-	8	0	0	4f1f09
 scripts/test-landing-card-cue.mjs	0	RENDER	blocks-ci-and-deploy	1	-	38	0	0	7f37b0f1ad366e367173e1e5185dd1e9038e7cf7a295677ed20110a344313236
 scripts/test-landing-card-photo.mjs	0	CALL	blocks-ci-and-deploy	1	-	47	1	2	616ad795a56a227fea1b15d2b9c6039528fa24f00b5b05b9c6a763df5938d3cb
 scripts/test-landing-inventory-ssg.mjs	0	RENDER	blocks-ci-and-deploy	1	-	73	0	0	4612aa9428680c3ed3922a3be86da8aa374eec96e37fafc241510f36a29584f6
-scripts/test-landing-offer-dedupe-runtime.mjs	0	RENDER	blocks-ci-and-deploy	1	-	43	0	0	8741bbd91ade60857cadee7bf246d6b9bfa9f09eb6b49eade49e8d34c68d0cfe
+scripts/test-landing-offer-dedupe-runtime.mjs	0	RENDER	blocks-ci-and-deploy	1	-	44	0	0	934290941958bb5707d2f25c73ff07d15488772cc1500ea75bc1c6e2ec73c1ad
 scripts/test-landing-offer-dedupe.mjs	0	RENDER	blocks-ci-and-deploy	1	-	47	0	0	f1b045ff83961807173ed3d72fc8b05357210afb6a0f8a76a87debb05a484f80
 scripts/test-landing-ssr-rails.mjs	0	RENDER	blocks-ci-and-deploy	1	-	44	0	0	6c8d403a33aedb289a7c6df41208af06e55d85f0cd358ee74ae4b40bef9503e3
 scripts/test-landing-tours.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	13	1	0	caec75b9b5823ff17ce05b402240fe13720495de2318d2e6df181e9bf156c46f
@@ -1087,6 +1087,7 @@ scripts/test-viator-campaign.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	37	0	0
 scripts/test-viator-fanout.mjs	1	STRUCTURAL	blocks-ci-and-deploy	1	Revenue QA	6	1	0	e52a4ace80737075628558bb99888d8f2a60013d403bb4a521c170ae9172ac62
 scripts/test-viator-integrity-lock.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	73	0	0	b65083aace56a9bc63e3d55f053cfbbfa9910b672b94c3ac6f76fd587e4f09c4
 scripts/test-viator-provider-state.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	47	0	0	cc1d5644b9caf302bef30ccd99ac861eeaf81feec272273bdf29fda6bdd3aa16
+scripts/test-viator-rail-fallback.mjs	1	RENDER	blocks-ci-and-deploy	1	Revenue QA	26	0	0	7b6caec676534e80397b19c3804116794a32e751cdbc50ad3136ac1e44a136cc
 scripts/test-viator-smoke-shape.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	45	0	0	d77554d6d755f9189e9914dcd1e4a8559c23763bfd3e0d41a0b99249f6dad54a
 scripts/test-viator-visitor-hash.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	10	0	0	7a37ff9b87109fa15474fe363781d6b4dda9f04b58467493c869839147ea45be
 scripts/test-vitals-attribution.mjs	0	CALL	blocks-ci-and-deploy	1	-	26	0	0	9f1223849f2faf480ee689775d31c65ce07fcc79a0dd3cdd4ae04333776da676

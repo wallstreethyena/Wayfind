@@ -15,6 +15,8 @@ import { siteHourFloat } from "../../lib/nowContext";
 import { usePhotoSrcFilter } from "./photoPolicyContext";
 import CardPhoto from "./CardPhoto.js";
 import { AFFILIATE_DISCLOSURE_TEXT } from "../../lib/affiliateDisclosure.js";
+import { eventCategoryArt } from "../../lib/eventCategoryArt";
+import { railSearchOfferId, viatorRailFallback } from "../../lib/viatorRailFallback";
 
 const disclosureVersion = "partner-rail-v2";
 
@@ -94,11 +96,17 @@ export default function IntentPartnerPick({ city, intent, inventory, initialInve
   // rendered. Links are unchanged (commerceHref -> /api/commerce/go).
   const seededInventory = Array.isArray(initialInventory) && initialInventory.length ? initialInventory : null;
   const [selfInventory, setSelfInventory] = useState(seededInventory);
+  const [inventorySettled, setInventorySettled] = useState(false);
   const suppliedInventory = Array.isArray(inventory) && inventory.length ? inventory : null;
   useEffect(() => {
     if (curatedOnly || suppliedInventory || !city || !intent) return;
     let dead = false;
-    fetchPartnerInventory(city, intent).then((rows) => { if (!dead && !(seededInventory && !(Array.isArray(rows) && rows.length))) setSelfInventory(rows); });
+    setInventorySettled(false);
+    fetchPartnerInventory(city, intent).then((rows) => {
+      if (dead) return;
+      if (!(seededInventory && !(Array.isArray(rows) && rows.length))) setSelfInventory(rows);
+      setInventorySettled(true);
+    }).catch(() => { if (!dead) setInventorySettled(true); });
     return () => { dead = true; };
   }, [city, intent, suppliedInventory, curatedOnly]); // seededInventory is a mount-time prop; deliberately not a dependency
   // Curated placements use only reviewed products with their own artwork.
@@ -178,6 +186,14 @@ export default function IntentPartnerPick({ city, intent, inventory, initialInve
     },
     [city, intent, activeInventory, networkDeals, localCoupons, hour, photoSrcFilter, curatedOnly, curatedOfferIds]
   );
+  const shown = useMemo(() => {
+    if (picks.length || curatedOnly || !inventorySettled) return picks;
+    const choice = viatorRailFallback({ items: [], providerState: "zero_candidates" });
+    const offerId = railSearchOfferId(city);
+    const image = eventCategoryArt("tours");
+    if (!choice.partner || !offerId || !image || !photoSrcFilter(image)) return picks;
+    return [{ offerId, provider: choice.partner, merchant: choice.label, title: choice.label, image, eyebrow: "Bookable experience", kind: "experience" }];
+  }, [picks, curatedOnly, inventorySettled, city, photoSrcFilter]);
   const rootRef = useRef(null);
   const railRef = useRef(null);
   const seenRef = useRef(new Set());
@@ -190,8 +206,8 @@ export default function IntentPartnerPick({ city, intent, inventory, initialInve
 
   useEffect(() => {
     const root = rootRef.current;
-    if (!picks.length || !root || typeof IntersectionObserver === "undefined") return;
-    const byId = new Map(picks.map((pick) => [pick.offerId, pick]));
+    if (!shown.length || !root || typeof IntersectionObserver === "undefined") return;
+    const byId = new Map(shown.map((pick) => [pick.offerId, pick]));
     const io = new IntersectionObserver((entries) => {
       for (const entry of entries) {
         const offerId = entry.target?.getAttribute?.("data-offer-id") || "";
@@ -215,9 +231,9 @@ export default function IntentPartnerPick({ city, intent, inventory, initialInve
     }, { threshold: [0.5] });
     root.querySelectorAll("[data-offer-id]").forEach((card) => io.observe(card));
     return () => { try { io.disconnect(); } catch {} };
-  }, [picks, city, intent]);
+  }, [shown, city, intent]);
 
-  if (!picks.length) return null;
+  if (!shown.length) return null;
 
   return (
     <aside ref={rootRef} data-intent-partner-pick data-intent-partner-rail style={{ margin: "4px 0 14px" }}>
@@ -227,7 +243,7 @@ export default function IntentPartnerPick({ city, intent, inventory, initialInve
       </div>
       <p style={{ margin: "0 0 8px", fontSize: 13, lineHeight: 1.45, color: "#E6EDF3" }}>{AFFILIATE_DISCLOSURE_TEXT}</p>
       <div ref={railRef} aria-label={`Bookable highlights near ${city}`} style={{ display: "flex", gap: 10, overflowX: "auto", overscrollBehaviorX: "contain", overscrollBehaviorInline: "contain", scrollSnapType: "x proximity", paddingBottom: 4 }}>
-        {picks.map((pick, index) => {
+        {shown.map((pick, index) => {
           const href = pick.kind === "coupon"
             ? `/coupons?view=clipped&focus=${encodeURIComponent(pick.offerId)}`
             : commerceHref({ provider: pick.provider, offerId: pick.offerId, surface: "intent_partner_rail", contentId: intent });
