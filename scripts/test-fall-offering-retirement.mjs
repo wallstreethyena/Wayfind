@@ -37,6 +37,19 @@ for (const [id, end] of Object.entries(FALL_OFFERING_ENDS)) {
   eq(fallOfferingDateLive(id, "2026-11-30"), false, `${id} retires after its own dated end`);
   eq(fallCardClass(id, "2027-10-01"), "", `${id} cannot resurrect next fall`);
 }
+const PINTO = 'ChIJUczTK5XC2YgRRt4Jp6N3B70';
+eq(FALL_OFFERING_ENDS[PINTO], '2026-11-08', 'Pinto Farm keeps its verified inclusive end');
+for (const [instant, today, live] of [
+  ['2026-11-09T04:59:59.999Z', '2026-11-08', true],
+  ['2026-11-09T05:00:00.000Z', '2026-11-09', false],
+]) {
+  eq(siteTodayStr(new Date(instant)), today, `Pinto venue date at ${instant}`);
+  eq(fallOfferingDateLive(PINTO, today), live, `Pinto offering eligibility at ${instant}`);
+  eq(fallOfferingRetired(PINTO, today), !live, `Pinto retirement at ${instant}`);
+  eq(fallPlaceEvidenceCurrent(PINTO, today), live, `Pinto evidence at ${instant}`);
+  eq(fallCardClass(PINTO, today), live ? ' wf-fall-card' : '', `Pinto skin at ${instant}`);
+  eq(fallShareLine('Visit', PINTO, today), live ? '🍁 Visit' : 'Visit', `Pinto share at ${instant}`);
+}
 for (const invalid of [undefined, null, "", "2026-11-1", "2026-02-29", "2026-11-31", "0000-01-01", "2026-11-01T12:00:00Z", 20261101]) {
   eq(fallOfferingDateLive(DEAD, invalid), false, `malformed today cannot publish a dated offering: ${invalid}`);
   eq(fallOfferingRetired(DEAD, invalid), false, `malformed today cannot assert retirement: ${invalid}`);

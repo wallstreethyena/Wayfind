@@ -1,0 +1,130 @@
+{
+ "ChIJjZq3rbFB6IgRb6e1zyAKbg4": {
+  "photos": null,
+  "photo_gallery": null,
+  "has_photos_key": false,
+  "has_gallery_key": false
+ },
+ "ChIJyYEUav8P54gRatuv_zQzm20": {
+  "photos": null,
+  "photo_gallery": null,
+  "has_photos_key": false,
+  "has_gallery_key": false
+ },
+ "ChIJpUJtM-_ZwogROGyfAWFNelo": {
+  "photos": null,
+  "photo_gallery": null,
+  "has_photos_key": false,
+  "has_gallery_key": false
+ },
+ "ChIJ5eLMVXE9w4gR15l0tMZGkMY": {
+  "photos": null,
+  "photo_gallery": null,
+  "has_photos_key": false,
+  "has_gallery_key": false
+ },
+ "ChIJ001Ra3p754gRq1bFeHUUxXY": {
+  "photos": null,
+  "photo_gallery": null,
+  "has_photos_key": false,
+  "has_gallery_key": false
+ },
+ "ChIJEfuXNVcA2YgRtSS3Jo9Jsw0": {
+  "photos": [
+   "https://www.gowayfind.com/place-photos/batch-2026-11-09s/ChIJEfuXNVcA2YgRtSS3Jo9Jsw0/pl_8c5e2e0479d256b6.jpg",
+   "https://www.gowayfind.com/place-photos/batch-2026-11-09s/ChIJEfuXNVcA2YgRtSS3Jo9Jsw0/pl_f140b78514309344.jpg",
+   "https://www.gowayfind.com/place-photos/batch-2026-11-09s/ChIJEfuXNVcA2YgRtSS3Jo9Jsw0/pl_fc32a2775f4d1cdd.jpg",
+   "https://www.gowayfind.com/place-photos/batch-2026-11-09s/ChIJEfuXNVcA2YgRtSS3Jo9Jsw0/pl_92f23c3168fd24e0.jpg",
+   "https://www.gowayfind.com/place-photos/batch-2026-11-09s/ChIJEfuXNVcA2YgRtSS3Jo9Jsw0/pl_cae05f7f13955be6.jpg",
+   "https://www.gowayfind.com/place-photos/batch-2026-11-09s/ChIJEfuXNVcA2YgRtSS3Jo9Jsw0/pl_a57c7e95f9b8752a.jpg"
+  ],
+  "photo_gallery": [
+   {
+    "url": "https://www.gowayfind.com/place-photos/batch-2026-11-09s/ChIJEfuXNVcA2YgRtSS3Jo9Jsw0/pl_8c5e2e0479d256b6.jpg",
+    "phash": "9db42607a8bdbf20",
+    "width": 1280,
+    "height": 853,
+    "source": "wikimedia",
+    "license": "CC BY-SA 4.0",
+    "source_ref": "File:Riverwalk 193628.jpg",
+    "original_url": "https://upload.wikimedia.org/wikipedia/commons/a/a8/Riverwalk_193628.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+    "storage_path": null,
+    "attribution_url": "https://commons.wikimedia.org/wiki/File:Riverwalk_193628.jpg",
+    "attribution_text": "Cmasi via Wikimedia Commons, CC BY SA 4.0"
+   },
+   {
+    "url": "https://www.gowayfind.com/place-photos/batch-2026-11-09s/ChIJEfuXNVcA2YgRtSS3Jo9Jsw0/pl_f140b78514309344.jpg",
+    "phash": "97c4a03e7f02c2de",
+    "width": 1280,
+    "height": 853,
+    "source": "wikimedia",
+    "license": "CC BY 2.0",
+    "source_ref": "File:Andrews Avenue Bridge from Riverwalk North - Fort Lauderdale (2013).jpg",
+    "original_url": "https://upload.wikimedia.org/wikipedia/commons/5/51/Andrews_Avenue_Bridge_from_Riverwalk_North_-_Fort_Lauderdale_%282013%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+    "storage_path": null,
+    "attribution_url": "https://commons.wikimedia.org/wiki/File:Andrews_Avenue_Bridge_from_Riverwalk_North_-_Fort_Lauderdale_(2013).jpg",
+    "attribution_text": "Phillip Pessar via Wikimedia Commons, CC BY 2.0"
+   },
+   {
+    "url": "https://www.gowayfind.com/place-photos/batch-2026-11-09s/ChIJEfuXNVcA2YgRtSS3Jo9Jsw0/pl_fc32a2775f4d1cdd.jpg",
+    "phash": "978631f0669df234",
+    "width": 1280,
+    "height": 853,
+    "source": "wikimedia",
+    "license": "CC BY 3.0",
+    "source_ref": "File:Riverwalk, Fort Lauderdale, Florida,USA. - panoramio.jpg",
+    "original_url": "https://upload.wikimedia.org/wikipedia/commons/a/ac/Riverwalk%2C_Fort_Lauderdale%2C_Florida%2CUSA._-_panoramio.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+    "storage_path": null,
+    "attribution_url": "https://commons.wikimedia.org/wiki/File:Riverwalk,_Fort_Lauderdale,_Florida,USA._-_panoramio.jpg",
+    "attribution_text": "Richard Mc Neil via Wikimedia Commons, CC BY 3.0"
+   },
+   {
+    "url": "https://www.gowayfind.com/place-photos/batch-2026-11-09s/ChIJEfuXNVcA2YgRtSS3Jo9Jsw0/pl_92f23c3168fd24e0.jpg",
+    "phash": "f5e487a7caae0078",
+    "width": 1280,
+    "height": 853,
+    "source": "wikimedia",
+    "license": "CC BY-SA 4.0",
+    "source_ref": "File:Riverwalk 194115.jpg",
+    "original_url": "https://upload.wikimedia.org/wikipedia/commons/5/5b/Riverwalk_194115.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+    "storage_path": null,
+    "attribution_url": "https://commons.wikimedia.org/wiki/File:Riverwalk_194115.jpg",
+    "attribution_text": "Cmasi via Wikimedia Commons, CC BY SA 4.0"
+   },
+   {
+    "url": "https://www.gowayfind.com/place-photos/batch-2026-11-09s/ChIJEfuXNVcA2YgRtSS3Jo9Jsw0/pl_cae05f7f13955be6.jpg",
+    "phash": "c3e8c8e89da7a42d",
+    "width": 1280,
+    "height": 853,
+    "source": "wikimedia",
+    "license": "CC BY 3.0",
+    "source_ref": "File:Along RiverWalk ,New River, Fort Lauderdale, Florida, USA - panoramio.jpg",
+    "original_url": "https://upload.wikimedia.org/wikipedia/commons/c/cf/Along_RiverWalk_%2CNew_River%2C_Fort_Lauderdale%2C_Florida%2C_USA_-_panoramio.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+    "storage_path": null,
+    "attribution_url": "https://commons.wikimedia.org/wiki/File:Along_RiverWalk_,New_River,_Fort_Lauderdale,_Florida,_USA_-_panoramio.jpg",
+    "attribution_text": "Richard Mc Neil via Wikimedia Commons, CC BY 3.0"
+   },
+   {
+    "url": "https://www.gowayfind.com/place-photos/batch-2026-11-09s/ChIJEfuXNVcA2YgRtSS3Jo9Jsw0/pl_a57c7e95f9b8752a.jpg",
+    "phash": "9de221cc9a29eb74",
+    "width": 1280,
+    "height": 853,
+    "source": "wikimedia",
+    "license": "CC BY 3.0",
+    "source_ref": "File:View from the Broward Center For Performing Arts, Riverwalk, Fort-Lauderdale, Florida - panoramio.jpg",
+    "original_url": "https://upload.wikimedia.org/wikipedia/commons/e/e4/View_from_the_Broward_Center_For_Performing_Arts%2C_Riverwalk%2C_Fort-Lauderdale%2C_Florida_-_panoramio.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+    "storage_path": null,
+    "attribution_url": "https://commons.wikimedia.org/wiki/File:View_from_the_Broward_Center_For_Performing_Arts,_Riverwalk,_Fort-Lauderdale,_Florida_-_panoramio.jpg",
+    "attribution_text": "Richard Mc Neil via Wikimedia Commons, CC BY 3.0"
+   }
+  ],
+  "has_photos_key": true,
+  "has_gallery_key": true
+ },
+ "ChIJj7-A7nXhwogRGvQ_vcrP7uU": {
+  "photos": null,
+  "photo_gallery": null,
+  "has_photos_key": false,
+  "has_gallery_key": false
+ }
+}

@@ -23,6 +23,7 @@
 import { readFileSync, existsSync, readdirSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import ts from "typescript";
 import {
   ACTIVITIES, activityFor, activityHref, activityLinkLabel, encodeInvite, decodeInvite,
   curiousLine, curiousFoot, MOOD_LADDER, moodAt, PLEAS, pleaAt, yesScale, noScale, SCALE,
@@ -601,7 +602,7 @@ ok(noScale(50) >= SCALE.noMin && SCALE.noMin > 0.4,
   // wired button and six unwired ones is not a feature.
   const CALLERS = [
     ["app/components/sheets/Detail.js", "the place detail sheet"],
-    ["app/home.js", "the home shell (place cards, rails, hero hook)"],
+    ["app/home.js", "the home shell's shared place card"],
     ["app/components/IntentPageClient.js", "the intent pages"],
     ["app/components/TrendingNowClient.js", "trending now"],
   ];
@@ -610,15 +611,50 @@ ok(noScale(50) >= SCALE.noMin && SCALE.noMin > 0.4,
     ok(/askShareIntent\(/.test(src), `${what} (${rel}) shares without asking who it is for`);
     ok(/onInvite\s*:/.test(src), `${what} passes no invite handler, so its question has only one real answer`);
   }
-  const home = codeOf("app/home.js");
-  // RE-COUNTED v8.8: the BestNearby accordion left "/" (owner, 2026-08-18),
-  // taking its two onShare wirings with it. The invariant is unchanged —
-  // EVERY share button on the shell asks — and the two that remain (the hero
-  // hook's shareHook and the place card's Share) are asserted individually
-  // above/below. The floor tracks the real button count so a third share
-  // button added without asking still fails, which is what this was for.
-  ok((home.match(/askShareIntent\(/g) || []).length >= 2,
-     "the home shell has more than one share button — every one of them must ask");
+  // A retired, unrendered shareHook inflated the old call-count floor. Prove
+  // the actual shared card's button opens both paths instead of counting it.
+  const homeTree = ts.createSourceFile("home.js", readFileSync(path.join(REPO, "app/home.js"), "utf8"), ts.ScriptTarget.ES2020, true, ts.ScriptKind.JSX);
+  const shareButtons = [];
+  (function walk(node) {
+    if (ts.isJsxOpeningElement(node) && node.tagName.getText(homeTree) === "button") {
+      const className = node.attributes.properties.find(a => a.name?.getText(homeTree) === "className");
+      if (className?.initializer && ts.isStringLiteral(className.initializer) && className.initializer.text === "wf-place-card-share") shareButtons.push(node);
+    }
+    ts.forEachChild(node, walk);
+  })(homeTree);
+  ok(shareButtons.length === 1, "one real shared-card share button must be inspected");
+  const click = shareButtons[0]?.attributes.properties.find(a => a.name?.getText(homeTree) === "onClick")?.initializer?.expression;
+  ok(!!click, "the real shared-card share button has a click handler");
+  if (click) {
+    const inspectShare = (handlerSource) => {
+      const asked = [], sent = [];
+      let stopped = 0;
+      const p = { id: "share-control", name: "Ulele", types: ["restaurant", "bar"] };
+      const scope = {
+        p, placeKinds, logEventAnon() {}, onShareCard: null,
+        askShareIntent: options => asked.push(options), ignoredShare() {},
+        shareLink: (...args) => { sent.push(args); return true; },
+        placeShareUrl: () => "https://www.gowayfind.com/p/share-control",
+        fallShareLine: line => line, siteTodayStr: () => "2026-11-08",
+      };
+      const code = ts.transpileModule(`const share = ${handlerSource};`, { compilerOptions: { target: ts.ScriptTarget.ES2020 } }).outputText;
+      const handler = new Function("scope", `with (scope) { ${code}; return share; }`)(scope);
+      handler({ stopPropagation() { stopped++; } });
+      const options = asked[0];
+      const hasBoth = asked.length === 1 && typeof options?.onPlain === "function" && typeof options?.onInvite === "function";
+      if (!hasBoth) return { valid: false };
+      const returned = options.onInvite("https://www.gowayfind.com/ask?d=control", "Invite text");
+      options.onPlain();
+      return { valid: stopped === 1 && options.name === p.name && options.id === p.id
+        && JSON.stringify(options.kind) === JSON.stringify(placeKinds(p)) && returned === true
+        && sent.length === 2 && sent[0][1] === "https://www.gowayfind.com/ask?d=control"
+        && sent[1][1] === "https://www.gowayfind.com/p/share-control" };
+    };
+    const handlerSource = click.getText(homeTree);
+    ok(inspectShare(handlerSource).valid, "the executed shared-card button synchronously opens the invite and plain-share paths with the right place identity");
+    ok(!inspectShare(handlerSource.replace("askShareIntent(", "ignoredShare(")).valid,
+      "negative control: bypassing the invite prompt in the real button is detected");
+  }
 
   // A place share that cannot become an invite is a bug, not a preference.
   for (const [rel] of CALLERS) {
