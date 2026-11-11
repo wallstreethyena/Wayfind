@@ -85,31 +85,20 @@ const base = { noMemo: true, readTagged: async () => [], readGoogle: async () =>
   ok(keep.cards.find((c) => c.id === "ev").image === URL_G, "control: servable browse image kept");
 }
 
-// Vercel prebuild has SUPABASE_SERVICE_ROLE_KEY. GitHub CI and a laptop do not.
+// Vercel prebuild has a service key. GitHub CI and a laptop do not.
 // The composition guard injects readers and uses fixture place ids. Those ids
 // are not in inventory, so a live lookup drops the photo the guard is counting.
 // A page render passes no readers and must still drop a place the store cannot serve.
+// These are fixture writes. The guard does not read the shell.
 {
-  const saved = {
-    SUPABASE_URL: process.env.SUPABASE_URL,
-    NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
-    SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
-  };
   process.env.SUPABASE_URL = "http://127.0.0.1:9";
-  delete process.env.NEXT_PUBLIC_SUPABASE_URL;
   process.env.SUPABASE_SERVICE_ROLE_KEY = "guard-dummy-not-a-secret";
-  try {
-    const m = christmasTicketsModel([holidayCard("herm", URL_G)], TODAY);
-    const hermetic = await withChristmasTicketPhotos(m, { ...base });
-    ok(hermetic.rows[0].photos.length === 1 && hermetic.rows[0].photos[0].src === URL_G, "injected readers never ask the build machine's Supabase, so a fixture place photo stays");
-    const live = await dropUnservableCardPhotos({ ...holidayCard("live", URL_G), imageIsVenue: true }, {});
-    ok(live.image === null && live.placeholder, "a page render with a service key still drops a place the store cannot serve");
-  } finally {
-    for (const [k, v] of Object.entries(saved)) {
-      if (v === undefined) delete process.env[k];
-      else process.env[k] = v;
-    }
-  }
+  delete process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const m = christmasTicketsModel([holidayCard("herm", URL_G)], TODAY);
+  const hermetic = await withChristmasTicketPhotos(m, { ...base });
+  ok(hermetic.rows[0].photos.length === 1 && hermetic.rows[0].photos[0].src === URL_G, "injected readers never ask the build machine's Supabase, so a fixture place photo stays");
+  const live = await dropUnservableCardPhotos({ ...holidayCard("live", URL_G), imageIsVenue: true }, {});
+  ok(live.image === null && live.placeholder, "a page render with a service key still drops a place the store cannot serve");
 }
 
 console.log(`test-christmas-unservable-photo: ${n} assertions OK (real resolvePlacePhoto run on the Goodwood inventory row)`);
