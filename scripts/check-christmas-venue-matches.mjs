@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { CHRISTMAS_RESEARCH_ROWS } from "../lib/christmasResearch.js";
 // scripts/check-christmas-venue-matches.mjs: every Christmas venue matched to a
 // wf_inventory place (data/christmas-venue-matches.json) is that venue, in the
 // same city, and its card really asks for that place's photo.
@@ -15,8 +16,9 @@
 //   4. the research row (or its correction) carries exactly that place_id, and
 //      the evidence holds no photo name or URL
 //   5. a wf_events row with no place_id takes it through the merge, and the
-//      card shows that place's credited photo request, or the cover of this
-//      event's own static gallery. Any other image fails.
+//      card shows that place's credited photo request, the cover of this
+//      event's own static gallery, or no photo when batch 11x holds the
+//      event back from a year-round venue shot. Any other image fails.
 // Positive and negative controls run the same checker on known bad records.
 import { readFileSync } from "node:fs";
 import path from "node:path";
@@ -25,6 +27,7 @@ import { CHRISTMAS_RESEARCH_CORRECTIONS, CHRISTMAS_DB_RESEARCH_IDS, CHRISTMAS_RE
 import { christmasEventCard } from "../lib/christmasCards.js";
 import { enrichChristmasEvent } from "../lib/christmasPool.js";
 import { christmasStaticPhotos } from "../lib/christmasPlacePhotos.js";
+import { CHRISTMAS_INTENT_IMAGE_HOLDS } from "../lib/fallEventImage.js";
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const read = (p) => readFileSync(path.join(ROOT, p), "utf8");
@@ -32,7 +35,7 @@ let pass = 0, fail = 0;
 const ok = (c, m) => { c ? pass++ : (fail++, console.log("  FAIL:", m)); };
 
 const DOC = JSON.parse(read("data/christmas-venue-matches.json"));
-const RAW = JSON.parse(read("data/christmas-2026-research.json"));
+const RAW = CHRISTMAS_RESEARCH_ROWS;
 const byId = new Map(RAW.map((r) => [r.id, r]));
 
 const miles = (a, b) => {
@@ -50,13 +53,19 @@ const sameCity = (a, b) => norm(a) === norm(b);
 // A batch photo of a different event is not this place's photo.
 function cardPhotoIsThisPlace(card, placeId, eventIds) {
   const image = String(card?.image || "");
-  if (image.startsWith("/api/photo?place=" + placeId + "&")) return true;
   const ids = [...new Set((eventIds || []).filter(Boolean).map(String))];
+  // A held holiday card paints the designed tile. A photo of another event
+  // still fails, and a card that is not held still needs its place photo.
+  if (!image && ids.some((id) => CHRISTMAS_INTENT_IMAGE_HOLDS.has(id))) return true;
+  if (image.startsWith("/api/photo?place=" + placeId + "&")) return true;
   return ids.some((id) => {
     const cover = christmasStaticPhotos(id)[0]?.src;
     return !!cover && image === cover;
   });
 }
+ok(cardPhotoIsThisPlace({ image: "" }, "ChIJxx", ["nightgarden-fairchild-2026"]), "positive control: a held card with no photo is the designed tile");
+ok(!cardPhotoIsThisPlace({ image: "/place-photos/other-event/x.jpg" }, "ChIJxx", ["nightgarden-fairchild-2026"]), "red-proof: a held card that shows another event's photo fails");
+ok(!cardPhotoIsThisPlace({ image: "" }, "ChIJxx", ["not-a-held-event"]), "red-proof: a card that is not held still needs its place photo");
 
 // The rule, as one function the controls also run.
 export function venueMatchProblems(m) {
