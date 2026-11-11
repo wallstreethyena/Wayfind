@@ -73,7 +73,7 @@ const targets = bookingTargets(
 );
 push("bookingTargets.verifiedUrl", targets && targets.verifiedUrl);
 push("bookingTargets.tk", targets && targets.tk);
-push("eventTicketHref", eventTicketHref("hhn-orlando-2026", { surface: "guard" }));
+push("eventTicketHref", eventTicketHref("christmas-town-2026", { surface: "guard" }));
 push("commerceHref", commerceHref({ provider: "viator", offerId: "d663-1", surface: "guard", contentId: "guard" }));
 
 let wrappedMarkets = 0;

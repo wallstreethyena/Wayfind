@@ -313,6 +313,42 @@ const read = (p) => readFileSync(join(ROOT, p), "utf8");
     "CONTROL: the ordinary liveness targets still send no-store — this is one target's exemption, not a site-wide loss of freshness");
 
   const { CRITICAL_CHECKS, computeAlerts } = await import(join(ROOT, "lib/commandCenter/alerts.js"));
+
+  // Receiving headers is not a completed response. A socket can close or the
+  // same probe deadline can expire while the body is streaming. Exercise the
+  // real Response body reader so catching its rejection cannot report green.
+  for (const mode of ["socket", "timeout"]) {
+    let requests = 0, bodyFailures = 0;
+    const bodyFetch = async (url, { signal }) => {
+      requests++;
+      if (/\/api\/rails/.test(url)) return new Response(JSON.stringify({ covered: true, data: { places: { a: new Array(99).fill("i") } } }));
+      return new Response(new ReadableStream({
+        start(controller) {
+          controller.enqueue(new TextEncoder().encode("partial response"));
+          const fail = () => {
+            bodyFailures++;
+            controller.error(mode === "timeout" ? new DOMException("body aborted", "AbortError") : new TypeError("terminated"));
+          };
+          if (mode === "timeout") signal.addEventListener("abort", fail, { once: true });
+          else queueMicrotask(fail);
+        },
+      }));
+    };
+    const bodyResult = await selfCheck({ fetchImpl: bodyFetch, baseUrl: `https://probe-body-${mode}.test`, timeoutMs: 25 });
+    const bodyRows = bodyResult?.data?.checks || [];
+    ok(requests === 5 && bodyFailures === 4 && bodyRows.length === 5,
+      `EXECUTED: ${mode} body failure reached all four non-assertion probes, with no retry or omitted target`);
+    for (const key of ["home", "guides", "api_geo", "api_weather"]) {
+      const row = bodyRows.find((r) => r.key === key);
+      ok(row?.ok === false && row.status === 0 && row.error === (mode === "timeout" ? "timeout" : "terminated"),
+        `EXECUTED: ${key} rejects HTTP 200 followed by ${mode} body failure, retaining its transport reason`);
+    }
+    ok(bodyRows.find((r) => r.key === "api_rails")?.ok === true,
+      `CONTROL: the complete rails body stays healthy beside ${mode} failures`);
+    ok(computeAlerts({ synthetic: { checks: bodyRows } }).some((a) => a.id === "site_check_failed" && a.severity === "critical"),
+      `EXECUTED: the ${mode} homepage body failure produces a critical alert`);
+  }
+
   ok(CRITICAL_CHECKS.includes("api_rails") && CRITICAL_CHECKS.includes("home"),
     "an empty rail is a CRITICAL alert, alongside the homepage — /api/cron/cc-alerts emails critical alerts hourly, which is the difference between the owner learning this from us and learning it from his own phone");
 

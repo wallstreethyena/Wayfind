@@ -154,6 +154,26 @@ const noOffers = {};
     "the delivery/pickup CTA types stay deleted — a re-add must come through a tracked provider and a triage, not a type revival");
 }
 
+// 2026-11-03 — hours-honesty: with openState unknown (null/undefined, e.g. Place
+// Details quota exhausted) the verdict must never say "Go now" (an open claim).
+{
+  for (const unknown of [null, undefined]) {
+    const v = detailVerdict({ detail: place({}), weather: { temp: 78, wet: false, rain: 0 }, openState: unknown });
+    ok(v === null, "verdict: unknown hours + mild weather → no pill, never 'Go now' — got " + JSON.stringify(v));
+  }
+  const w = detailVerdict({ detail: place({}), weather: { temp: 70, wet: true, rain: 8 }, openState: null });
+  ok(!w || !/go now/i.test(w.text), "verdict: unknown hours never says 'Go now' in any weather — got " + JSON.stringify(w));
+  const wetOpen = detailVerdict({ detail: place({}), weather: { temp: 70, wet: true, rain: 8 }, openState: open });
+  const wetUnknown = detailVerdict({ detail: place({}), weather: { temp: 70, wet: true, rain: 8 }, openState: null });
+  ok(!wetOpen || wetOpen.tone === (wetUnknown ? wetUnknown.tone : wetOpen.tone), "weather verdicts do not depend on hours (tone preserved)");
+  const indoor = place({ types: ["museum"] });
+  const iu = detailVerdict({ detail: indoor, weather: { temp: 70, wet: true, rain: 8 }, openState: null });
+  ok(!iu || !/go now/i.test(iu.text), "indoor + rain + unknown hours drops 'Go now' — got " + JSON.stringify(iu));
+  ok(detailVerdict({ detail: place({}), weather: { temp: 78, wet: false, rain: 0 }, openState: open })?.text === "Go now", "known open still says Go now");
+  const detailSrc = readFileSync(new URL("../app/components/sheets/Detail.js", import.meta.url), "utf8");
+  ok(/verdict && <VerdictPill/.test(detailSrc), "Detail hides the pill when the verdict is null");
+}
+
 if (fail) {
   console.error(`test-detail-cta-ladder: FAIL — ${fail} assertion(s) failed`);
   process.exit(1);

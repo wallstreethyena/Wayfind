@@ -209,7 +209,7 @@ export default function SocialFindSheet({ ctx }) {
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 18 }}>
               {(socialFindRegions || []).map((r) => (
-                <div key={r.city} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 14px", borderRadius: 12, background: C.card, border: `1px solid ${C.border}` }}>
+                <div key={r.key || r.city} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 14px", borderRadius: 12, background: C.card, border: `1px solid ${C.border}` }}>
                   <span style={{ fontSize: 14, fontWeight: 700, color: C.text }}>{r.city}</span>
                   <span style={{ fontSize: 12, fontWeight: 800, color: C.muted }}>{r.count} spot{r.count === 1 ? "" : "s"}</span>
                 </div>
@@ -509,7 +509,7 @@ function BrowseSheet({ onClose, onDragStart, onDragMove, onDragEnd, onOpenSpot, 
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginBottom: 20 }}>
             <div style={{ fontSize: 13, color: C.muted, lineHeight: 1.5 }}>
               {stats && stats.creatorCount > 0 ? `${stats.creatorCount} creator${stats.creatorCount === 1 ? "" : "s"} · ` : ""}
-              {totalSpots} spot{totalSpots === 1 ? "" : "s"} · {(byCity || []).length} cit{(byCity || []).length === 1 ? "y" : "ies"}, nearest first.
+              {totalSpots} spot{totalSpots === 1 ? "" : "s"} · {(byCity || []).length} area{(byCity || []).length === 1 ? "" : "s"}, nearest first.
             </div>
             {onSeeCreators && <button onClick={onSeeCreators} style={{ ...seeAllBtn, flexShrink: 0 }}>By creator ›</button>}
           </div>
@@ -519,7 +519,7 @@ function BrowseSheet({ onClose, onDragStart, onDragMove, onDragEnd, onOpenSpot, 
           ) : (
             <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
               {(byCity || []).map((group) => (
-                <div key={group.city}>
+                <div key={group.key || group.city}>
                   <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 10 }}>
                     <div style={{ fontSize: 14.5, fontWeight: 800, color: C.text }}>{group.city}</div>
                     <div style={{ fontSize: 11, fontWeight: 700, color: C.muted }}>
@@ -538,7 +538,7 @@ function BrowseSheet({ onClose, onDragStart, onDragMove, onDragEnd, onOpenSpot, 
                           <CreatorAvatar handle={s.video.creator} platform={s.video.platform} size={34} color={plat.color} />
                           <div style={{ minWidth: 0, flex: 1 }}>
                             <div style={{ fontSize: 13, fontWeight: 700, color: C.text, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{s.name}</div>
-                            <div style={{ fontSize: 11, color: C.muted, marginTop: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{s.video.creator ? `@${s.video.creator} on ${plat.label}` : plat.label}</div>
+                            <div style={{ fontSize: 11, color: C.muted, marginTop: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{[s.city && s.city !== group.city ? s.city : null, s.video.creator ? `@${s.video.creator} on ${plat.label}` : plat.label].filter(Boolean).join(" · ")}</div>
                           </div>
                           <span aria-hidden="true" style={{ flexShrink: 0, fontSize: 15, fontWeight: 700, color: C.muted }}>›</span>
                         </button>
