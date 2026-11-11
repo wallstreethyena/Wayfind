@@ -2580,5 +2580,6 @@ node scripts/test-client-transport-retry.mjs
 # site data is blocked; PostHogProvider did, so those visitors were never measured.
 node scripts/check-storage-access.mjs
 node scripts/test-detail-cta-place-city.mjs
+node scripts/test-place-link-name.mjs
 node scripts/test-og-movie-function-size.mjs
 node scripts/check-event-not-found-recovery.mjs
