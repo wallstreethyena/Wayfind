@@ -372,6 +372,7 @@ const loadBooCoverage = () => import("./components/booCoverage.js");
 import { ownedPlacePhotoSrc } from "../lib/placePhoto";
 import { sanitizeRestoredPosition } from "../lib/restorePosition.js";
 import { FEED_DEFERRAL_MAX_WAIT_MS, initialFeedReleased, isFeedDeferred, shouldReleaseFeed } from "../lib/feedDeferral.js";
+import { placePathWithName } from "../lib/placeLinkName.js";
 
 const BUILD = "beta";
 
@@ -7469,6 +7470,12 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
             if (linkPlan.prompt) setLinkActionPrompt({ place: opened, action: placeAction });
           }
           openDetail(opened);
+          // The address bar keeps the place's name (lib/placeLinkName.js), so a
+          // link shared from the browser or copied previews with the name.
+          try {
+            const named = placePathWithName(window.location.pathname, window.location.search, opened);
+            if (named) window.history.replaceState(window.history.state, "", named + (window.location.hash || ""));
+          } catch (e) {}
         } else {
           // No sheet will ever open over the feed: release it (INP deferral).
           if (shouldReleaseFeed({ placeOpenSettled: true })) setFeedReleased(true);
