@@ -2504,6 +2504,15 @@ node scripts/test-fall-offering-retirement.mjs
 # Locality backfill: a street name never corroborates a city; Census-resolved empties are never filled.
 node scripts/test-locality-backfill-evidence.mjs
 
+# www /blog 404ed; it must permanently redirect to blog.gowayfind.com (executes next.config redirects).
+node scripts/check-blog-redirect.mjs
+
+# /christmas-in-florida must not emit an /api/photo?place= image the route cannot serve (Goodwood 404); executes the real resolver on the Goodwood row.
+node scripts/test-christmas-unservable-photo.mjs
+
+# promote-index must bound its own wall clock (45s of 60) and return stopped: "deadline" instead of being killed; quota 429 handling untouched.
+node scripts/test-promote-deadline.mjs
+
 # Global fetch retries ONCE on the idle keep-alive socket drop (idempotent, transport errors only); executed against a local server.
 node scripts/test-fetch-socket-retry.mjs
 # Refresh selector trap: a cheap-tier check must not block the enterprise content refresh (#1893).
