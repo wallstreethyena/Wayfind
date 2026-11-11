@@ -16,7 +16,7 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { loadComponent } from "./lib/jsxLoad.mjs";
 import { COUPONS } from "../lib/coupons.js";
-import { dealTiers, dealScope, coveredMetros, auditHiddenOffers, areaStateFor, AREA_PATIENCE_MS } from "../lib/dealSheet.js";
+import { dealTiers, dealScope, dealsByArea, coveredMetros, auditHiddenOffers, areaStateFor, AREA_PATIENCE_MS } from "../lib/dealSheet.js";
 import { METROS } from "../lib/orderInFeatured.js";
 import { siteTodayStr } from "../lib/siteTime.js";
 
@@ -31,6 +31,13 @@ const NATIONAL = { id: "cpn-loc-national", business: "Fixture National Co", area
 const TAMPA_ONLY = { id: "cpn-loc-tampa", business: "Fixture Tampa Grill", area: "Tampa", title: "Tampa only fixture offer", details: "d", code: null, url: "https://example.com", expires: null, intents: [], match: [] };
 const SARASOTA_ONLY = { id: "cpn-loc-sarasota", business: "Fixture Sarasota Cafe", area: "Sarasota", title: "Sarasota only fixture offer", details: "d", code: null, url: "https://example.com", expires: null, intents: [], match: [] };
 const OFFERS = [NATIONAL, TAMPA_ONLY, SARASOTA_ONLY];
+// The screen unions the registry with cpnOffers and the later id wins. Expiring
+// every registry id is the only way to make the screen empty. "No nationwide
+// rows" is not empty: area deals still render under their own headings. The
+// Undercover Tourist nationwide rows lapsed on 2026-11-09, so that shortcut
+// stopped meaning an empty screen.
+const EXPIRED_REGISTRY = COUPONS.map((c) => ({ ...c, expires: "2000-01-01" }));
+const areaDealCount = (coupons) => dealsByArea(coupons, today).reduce((n, g) => n + g.deals.length, 0);
 
 const noop = () => {};
 const render = (over = {}) => renderToStaticMarkup(createElement(Coupons, { ctx: {
@@ -64,28 +71,32 @@ ok(dealTiers([NATIONAL, TAMPA_ONLY], today, TAMPA).ledger.some((c) => c.id === T
   ok(!/ in (Tampa|Sarasota|Orlando)</.test(h.split("Choose your area")[0]), "unknown: header names no metro as the viewer's");
 }
 
-// 2. unknown AND nothing to show: the explanation, not a dead end
+// 2. unknown AND nothing to show: the explanation, not a dead end.
+// An empty partner payload is not an empty screen while registry area deals
+// are still live. The needs-area copy is locked on a screen that really has
+// nothing left to show.
 {
   const h = render({ center: null, locResolved: true, cpnOffers: [] });
-  const onlyRegistryNational = dealTiers(COUPONS, today, null);
-  if ([...onlyRegistryNational.featured, ...onlyRegistryNational.ledger].length === 0) {
+  const liveAreas = areaDealCount(COUPONS);
+  if (liveAreas === 0) {
     ok(/data-deals-state="needs-area"/.test(h) && /Choose an area to see deals/.test(h), "unknown + empty: needs-area copy with the picker");
   } else {
-    ok(/data-area-state="unknown"/.test(h), "unknown + registry national deals: picker still present");
+    ok(/data-coupon-mode="statewide"/.test(h) && /data-area-state="unknown"/.test(h) && /data-deal-area=/.test(h), "unknown + no partner offers: live registry area deals still show by area");
   }
+  const empty = render({ center: null, locResolved: true, cpnOffers: EXPIRED_REGISTRY });
+  ok(areaDealCount(EXPIRED_REGISTRY) === 0, "positive control: expiring every registry id leaves no area deal");
+  ok(/data-deals-state="needs-area"/.test(empty) && /Choose an area to see deals/.test(empty), "unknown + nothing live: needs-area copy with the picker");
 }
 
-// 3. loading: location still resolving, and offers still being fetched
+// 3. loading: location still resolving, and offers still being fetched.
+// Forced empty, so the copy is reached even after the nationwide rows lapse.
 {
-  const none = { cpnOffers: [] };
-  const regNone = [...dealTiers(COUPONS, today, null).featured, ...dealTiers(COUPONS, today, null).ledger].length === 0;
-  if (regNone) {
-    const loc = render({ ...none, center: null, locResolved: false });
-    ok(/data-deals-state="locating"/.test(loc) && /Finding your area/.test(loc), "loading: location unresolved shows 'Finding your area', not 'no deals'");
-    ok(!/data-area-state/.test(loc), "loading: the picker does not nag while location is still resolving");
-    const off = render({ ...none, center: OUTSIDE, cpnOffersStatus: "loading" });
-    ok(/data-deals-state="offers-loading"/.test(off) && /Loading deals/.test(off), "loading: offers fetch in flight shows 'Loading deals'");
-  }
+  const none = { cpnOffers: EXPIRED_REGISTRY };
+  const loc = render({ ...none, center: null, locResolved: false });
+  ok(/data-deals-state="locating"/.test(loc) && /Finding your area/.test(loc), "loading: location unresolved shows 'Finding your area', not 'no deals'");
+  ok(!/data-area-state/.test(loc), "loading: the picker does not nag while location is still resolving");
+  const off = render({ ...none, center: OUTSIDE, cpnOffersStatus: "loading" });
+  ok(/data-deals-state="offers-loading"/.test(off) && /Loading deals/.test(off), "loading: offers fetch in flight shows 'Loading deals'");
 }
 
 // 4. center inside a covered metro
@@ -127,9 +138,15 @@ ok(dealTiers([NATIONAL, TAMPA_ONLY], today, TAMPA).ledger.some((c) => c.id === T
     ok(!/data-coupon-mode="statewide"/.test(h) && !/data-deal-area="(tampa|sarasota|orlando|stpete)"/.test(h), "metro empty: never falls back to other areas' cards");
     ok(!/data-area-state="unknown"/.test(h) && /Showing deals for/.test(h), "metro empty: it is not mistaken for 'location unknown'");
     const live = render({ center: centerOf(emptyMetro), cpnOffers: [], locResolved: true });
-    const nationwide = [...dealTiers(COUPONS, today, centerOf(emptyMetro)).featured, ...dealTiers(COUPONS, today, centerOf(emptyMetro)).ledger];
-    ok(nationwide.length > 0 && nationwide.every((c) => dealScope(c).kind === "everywhere" && live.includes(c.business)), "the same metro with the live registry still shows its nationwide deals");
-    ok(!/data-coupon-mode="statewide"/.test(live) && !/data-deal-area=/.test(live), "nationwide-only metro: those cards render without borrowing another area");
+    const nationwide = [...dealTiers(COUPONS, today, centerOf(emptyMetro)).featured, ...dealTiers(COUPONS, today, centerOf(emptyMetro)).ledger]
+      .filter((c) => dealScope(c).kind === "everywhere");
+    if (nationwide.length > 0) {
+      ok(nationwide.every((c) => live.includes(c.business)), "the same metro with the live registry still shows its nationwide deals");
+      ok(!/data-coupon-mode="statewide"/.test(live) && !/data-deal-area=/.test(live), "nationwide-only metro: those cards render without borrowing another area");
+    } else {
+      ok(!/Undercover Tourist/.test(live), "a metro does not keep showing a nationwide offer after its expiry date");
+      ok(/data-deals-state="metro-empty"/.test(live) && !/data-coupon-mode="statewide"/.test(live) && !/data-deal-area=/.test(live), "a metro with no live local or nationwide offer says so, and does not borrow another area");
+    }
   }
 }
 

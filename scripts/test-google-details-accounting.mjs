@@ -26,17 +26,21 @@ try {
     const body = JSON.parse(init.body); grants.push(body);
     return Response.json(body.p_sku !== denied);
   };
-  for (const legacy of ["details_pro", "details_enterprise"]) {
+  // Legacy-row stop-loss caps: pro keeps 950 (min(2,400 reserved, 950));
+  // enterprise drops to 475 since the owner's 2026-11-03 option-b decision —
+  // this dual-debit is a discretionary site read, so the refresh reserve
+  // (scripts/test-refresh-reserve.mjs) binds it too.
+  for (const [legacy, legacyCap] of [["details_pro", 950], ["details_enterprise", 475]]) {
     grants = []; denied = legacy;
     assert.equal(await spendAllowDetailsAtmosphere(legacy), false);
-    assert.deepEqual(grants.map((x) => [x.p_sku, x.p_cap]), [[legacy, 950]], "legacy exhaustion blocks a fresh corrected row");
+    assert.deepEqual(grants.map((x) => [x.p_sku, x.p_cap]), [[legacy, legacyCap]], "legacy exhaustion blocks a fresh corrected row");
     grants = []; denied = "details_enterprise_atmosphere";
     assert.equal(await spendAllowDetailsAtmosphere(legacy), false);
-    assert.deepEqual(grants.map((x) => [x.p_sku, x.p_cap]), [[legacy, 950], ["details_enterprise_atmosphere", 950]]);
+    assert.deepEqual(grants.map((x) => [x.p_sku, x.p_cap]), [[legacy, legacyCap], ["details_enterprise_atmosphere", 950]]);
     grants = []; denied = null;
     assert.equal(await spendAllowDetailsAtmosphere(legacy), true);
     assert.equal(grants.length, 2);
-    assert(grants.every((x) => x.p_cap === 950), "paid promotion cannot expand terminal Details headroom");
+    assert.deepEqual(grants.map((x) => x.p_cap), [legacyCap, 950], "paid promotion cannot expand terminal Details headroom");
   }
   grants = [];
   assert.equal(await spendAllowDetailsAtmosphere("photos"), false);
@@ -110,6 +114,7 @@ try {
   const retryModule = await import("data:text/javascript," + encodeURIComponent(`
     import { classifyDetailsFailure } from ${JSON.stringify(new URL("../lib/promoteDetails.js", import.meta.url).href)};
     const DETAILS_MASK = "id"; const PROMOTE_SKU = "details_pro";
+    const deadlineSignal = () => undefined; const NET_DEADLINE_MS = 8000; /* fetch deadline stubs (lib/fetchDeadline.js) */
     const sleep = async () => {}; const isTerminalStatus = (s) => s >= 400 && s < 500 && s !== 429;
     const spendAllowCapped = async (sku, cap) => { globalThis.__retryAccounting.grants++; if (sku !== "details_enterprise" || cap !== 950) throw new Error("retry changed SKU/ceiling"); return !globalThis.__retryAccounting.denied; };
     ${retry}\nexport { details };
