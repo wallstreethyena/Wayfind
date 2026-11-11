@@ -487,11 +487,11 @@ ok(!html.includes('type="date"') && !html.includes('aria-label="Price"') && !htm
 // Owner 2026-11-01 ("Why dint we use this filter? … Please fix it"): the list
 // uses the site's one filter pill (CollectionFilter look), not its own region
 // <select> and "Nearest to me" button.
-ok(html.includes("data-christmas-filter") && html.includes(">Tickets<") && html.includes('aria-haspopup="dialog"') && !html.includes('aria-label="Region"') && !html.includes("Nearest to me"), "the list is filtered by the standard filter pill, with no region select or nearest button beside it");
+ok(html.includes("data-christmas-filter") && html.includes(">Best rated<") && html.includes('aria-haspopup="dialog"') && !html.includes('aria-label="Region"') && !html.includes("Nearest to me"), "the list is filtered by the standard filter pill, with no region select or nearest button beside it");
 {
   const f = strip(read("app/components/ChristmasFilter.js"));
-  ok(/"Tickets"/.test(f) && /"Tickets first"/.test(f) && /"Closest first"/.test(f) && /onSet\("when"/.test(f) && /onSet\("region"/.test(f) && /onSet\("category"/.test(f),
-    "Tickets is the default and the one menu offers categories, date, region and optional distance");
+  ok(/"Best rated"/.test(f) && /"Best near you"/.test(f) && /"Tickets first"/.test(f) && /onSet\("sort", "tickets"\)/.test(f) && /onSet\("when"/.test(f) && /onSet\("region"/.test(f) && /onSet\("category"/.test(f),
+    "Best rated near you is the default (owner 2026-11-11) and the one menu offers categories, date, region and an opt in Tickets first order");
   ok(/createPortal/.test(f) && /aria-modal="true"/.test(f) && /Escape/.test(f) && /event.shiftKey/.test(f) && /#E8B48A/.test(f) && /#3E0C19/.test(f), "the holiday menu is a burgundy and gold modal with Escape, a focus trap and a body portal");
 }
 {
@@ -768,9 +768,27 @@ ok(html.includes("data-christmas-filter") && html.includes(">Tickets<") && html.
   const unknown = base({ id: "unknown", popularity_score: null });
   const noTicket = base({ id: "no-ticket", official_ticket_url: "", popularity_score: 10 });
   const ranked = b.sortChristmasBrowse([unknown, quieter, noTicket, popular], b.parseChristmasBrowseQuery({}), day);
-  ok(ranked.map((c) => c.id).join(",") === "popular,quieter,unknown,no-ticket", "default ranking puts ticketed choices first and popularity ahead of date within the ticket tier");
+  ok(ranked.map((c) => c.id).join(",") === "no-ticket,popular,quieter,unknown", "default ranking (owner 2026-11-11): with equal ratings the most trending leads, ticket or not");
+  const ticketsRanked = b.sortChristmasBrowse([unknown, quieter, noTicket, popular], b.parseChristmasBrowseQuery({ sort: "tickets" }), day);
+  ok(ticketsRanked.map((c) => c.id).join(",") === "popular,quieter,unknown,no-ticket", "Tickets first puts ticketed choices first and popularity ahead of date within the ticket tier");
+  {
+    const rated = base({ id: "rated", wfScore: 91, popularity_score: null });
+    const hot = base({ id: "hot", popularity_score: 9 });
+    ok(b.sortChristmasBrowse([hot, rated], b.parseChristmasBrowseQuery({}), day).map((c) => c.id).join(",") === "rated,hot", "default ranking: the best rated leads, then trending");
+    const nearA = base({ id: "near-a", lat: 27.96, lng: -82.46, wfScore: 88, popularity_score: 2 });
+    const nearB = base({ id: "near-b", lat: 27.97, lng: -82.46, wfScore: 88, popularity_score: 8 });
+    const farTop = base({ id: "far-top", lat: 28.54, lng: -81.38, wfScore: 99 });
+    const near = b.sortChristmasBrowse([nearA, farTop, nearB], b.parseChristmasBrowseQuery({ lat: "27.95", lng: "-82.46" }), day).map((c) => c.id).join(",");
+    ok(near === "near-b,near-a,far-top", "near the visitor: the closest ring first, then best rated, then trending inside the ring (" + near + ")");
+    ok(b.parseChristmasBrowseQuery({ sort: "bogus" }).sort === "" && b.parseChristmasBrowseQuery({ sort: "tickets" }).sort === "tickets", "sort accepts only tickets");
+  }
   ok(b.sortChristmasBrowse([unknown, base({ id: "zero", popularity_score: 0, local_rank: 0 })], b.parseChristmasBrowseQuery({}), day)[0].id === "zero", "measured PredictHQ zero remains distinct from unknown demand");
-  ok(!/storedPinFresh|wf_center|maximumAge/.test(strip(read("app/components/ChristmasBrowse.js"))), "saved location cannot automatically override Tickets");
+  {
+    const bsrc = strip(read("app/components/ChristmasBrowse.js"));
+    ok(!/storedPinFresh|wf_center|maximumAge/.test(bsrc), "a saved or cached pin never ranks the list, only a live position or the city lookup");
+    ok(/permissions\.query\(\{ name: "geolocation" \}\)/.test(bsrc) && /p\.state === "granted" \? byDevice\(\) : byCity\(\)/.test(bsrc) && /fetch\("\/api\/geo"/.test(bsrc), "the default location never prompts: device position only when already allowed, else the city lookup");
+    ok(/query\.auto && PRIVATE_KEYS\.has\(k\)/.test(bsrc), "a quietly found location stays out of the shareable address bar");
+  }
   ok(b.sortChristmasBrowse([unknown, base({ id: "zero-default", popularity_score: 0, start_date: "2026-12-20" })], b.parseChristmasBrowseQuery({}), day)[0].id === "unknown", "the database default curated zero is unassessed and uses the date fallback");
   // ticketed cards keep their photo galleries inside the one list
   {
@@ -840,22 +858,22 @@ ok(html.includes("data-christmas-filter") && html.includes(">Tickets<") && html.
   let queryNow;
   function Harness() {
     const [query, set] = useState({}); queryNow = query;
-    return createElement(Filter, { query, facets: { pills: [{ id: "lights", label: "Light shows" }], dates: [{ id: "weekend", label: "This weekend" }], regions: ["Tampa Bay"] }, onSet: (k, v) => set((q) => ({ ...q, [k]: v })), onNear: () => set((q) => ({ ...q, lat: 27.9, lng: -82.4 })), onClearNear: () => set((q) => ({ ...q, lat: "", lng: "" })), onReset: () => set({}) });
+    return createElement(Filter, { query, facets: { pills: [{ id: "lights", label: "Light shows" }], dates: [{ id: "weekend", label: "This weekend" }], regions: ["Tampa Bay"] }, onSet: (k, v) => set((q) => ({ ...q, [k]: v })), onNear: () => set((q) => ({ ...q, sort: "", lat: 27.9, lng: -82.4 })), onReset: () => set({}) });
   }
   const uiRoot = createRoot(document.getElementById("menu-test"));
   const click = async (selector) => act(async () => document.querySelector(selector).click());
   const pick = async (text) => act(async () => [...document.querySelectorAll("button")].find((b) => b.textContent === text).click());
   try {
     await act(async () => uiRoot.render(createElement(Harness)));
-    ok(/Tickets/.test(document.querySelector(".xm-filter-trigger").textContent) && !document.querySelector("input"), "interactive default is Tickets with no search field");
+    ok(/Best rated/.test(document.querySelector(".xm-filter-trigger").textContent) && !document.querySelector("input"), "interactive default is Best rated (owner 2026-11-11) with no search field");
     await click(".xm-filter-trigger");
     ok(document.querySelector('[role="dialog"]').getAttribute("aria-modal") === "true" && document.querySelector(".xm-menu-overlay").parentNode === document.body, "the sheet is a body-level modal above page stacking contexts");
     ok(document.activeElement.className === "xm-menu-close" && document.body.style.overflow === "hidden", "opening focuses Close and locks background scrolling");
     await pick("Light shows"); await pick("This weekend");
     await act(async () => { const select = document.querySelector("select"); select.value = "Tampa Bay"; select.dispatchEvent(new window.Event("change", { bubbles: true })); });
     ok(queryNow.category === "lights" && queryNow.when === "weekend" && queryNow.region === "Tampa Bay" && document.querySelector('[role="dialog"]'), "category, date and region can be combined without repeatedly reopening the sheet");
-    await pick("Closest first"); ok(queryNow.lat === 27.9, "distance requires an explicit choice");
-    await pick("Tickets first"); ok(queryNow.lat === "", "Tickets restores popularity ordering");
+    await pick("Tickets first"); ok(queryNow.sort === "tickets", "Tickets first is an opt in order");
+    await pick("Best near you"); ok(queryNow.sort === "" && queryNow.lat === 27.9, "Best near you returns to the default order and asks for the precise location");
     document.querySelector(".xm-menu-done").focus();
     await act(async () => document.dispatchEvent(new window.KeyboardEvent("keydown", { key: "Tab", bubbles: true, cancelable: true })));
     ok(document.activeElement.className === "xm-menu-close", "Tab wraps within the modal");
