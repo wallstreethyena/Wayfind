@@ -96,10 +96,8 @@ ok(hauntsForFilter(model, "local").some((row) => row.name === "Scream A Geddon H
 ok(hauntsForFilter(model, "family").some((row) => row.id === "mickey"), "family friendly includes Mickey");
 ok(model.filters.map((item) => item.label).join("|") === "All Haunts|Major Scream Parks|Local Haunted Trails|Family Friendly", "filter labels");
 
+const retiredPartner = new Set(["howlTampa", "howlOrlando", "hhn"]);
 const expectedHref = {
-  howlTampa: "/api/commerce/go?provider=undercover_tourist&offer=20&surface=halloween_haunts&content=howl-o-scream-tampa-2026",
-  howlOrlando: "/api/commerce/go?provider=undercover_tourist&offer=21&surface=halloween_haunts&content=howl-o-scream-seaworld-2026",
-  hhn: "/api/commerce/go?provider=undercover_tourist&offer=19&surface=halloween_haunts&content=hhn-orlando-2026",
   zooTampa: "/api/commerce/go?provider=tiqets&offer=tampa-event-zootampa-creatures-of-the-night&surface=halloween_haunts&content=zootampa-creatures-2026",
   spooktacular: "/api/commerce/go?provider=undercover_tourist&offer=7&surface=halloween_haunts&content=seaworld-spooktacular-2026",
   brick: "/api/commerce/go?provider=undercover_tourist&offer=16&surface=halloween_haunts&content=brick-or-treat-2026",
@@ -135,13 +133,18 @@ const organizerHref = {
   undead: "https://www.eventbrite.com/e/undead-in-the-water-halloween-attraction-tickets-1996421695032",
   frightfest: "https://sarasotafrightfest.fearticket.com/",
   mickey: "https://disneyworld.disney.go.com/events-tours/magic-kingdom/mickeys-not-so-scary-halloween-party/",
+  howlTampaPage: "/florida-events/howl-o-scream-busch-gardens-tampa-2026",
+  howlOrlandoPage: "/florida-events/howl-o-scream-seaworld-orlando-2026",
+  hhnPage: "/florida-events/halloween-horror-nights-orlando-2026",
 };
 const parkAdmission = new Set(["spooktacular", "brick", "peppa", "spookquarium", "seaLifePirates", "waxHeist"]);
 
 for (const row of model.haunts) {
   ok(expectedEvent[row.id] === row.eventHref, row.id + " event page");
   ok(!DASH.test(row.name + row.where + row.priceLabel + row.timing + row.tip + row.roast), row.id + " card copy is dash free");
-  if (expectedHref[row.id]) {
+  if (retiredPartner.has(row.id)) {
+    ok(row.cta && row.cta.kind !== "affiliate" && row.cta.href === expectedEvent[row.id] && !/undercover_tourist|offer=19|offer=20|offer=21/.test(row.cta.href), row.id + " ended ticket is the event page, not a dead Undercover Tourist offer");
+  } else if (expectedHref[row.id]) {
     const built = eventTicketHref(row.eventId, { surface: "halloween_haunts" });
     ok(row.cta.href === built && row.cta.href === expectedHref[row.id], row.id + " affiliate href");
     ok(row.cta.kind === "affiliate" && row.cta.rel === "sponsored nofollow noopener", row.id + " sponsored rel");
@@ -169,7 +172,7 @@ ok(model.video === "/videos/bo-halloween-reel.mp4" && model.poster === "/images/
 
 ok(RESERVED_GO_SLUGS.includes("halloween-tickets"), "halloween-tickets is a reserved go slug");
 ok(resolveGoSlug("halloween-tickets").kind === "not-found", "the reserved slug is not an event shortlink");
-ok(resolveGoSlug("howl-o-scream").kind === "shortlink" && resolveGoSlug("howl-o-scream").eventId === "howl-o-scream-tampa-2026", "howl-o-scream shortlink still resolves");
+ok(resolveGoSlug("howl-o-scream").kind === "not-found", "the retired Howl O Scream shortlink fails closed instead of sending a dead partner redirect");
 ok(resolveGoSlug("florida").kind === "not-found", "florida reservation still fails closed");
 
 for (const file of ["app/halloween-tickets/page.js", "app/go/halloween-tickets/page.js"]) {

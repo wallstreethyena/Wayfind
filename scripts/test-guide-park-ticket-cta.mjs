@@ -32,12 +32,23 @@ for (const place of ["Universal CityWalk Orlando", "Halloween Horror Nights", "U
 
 const event = guidePrimaryCta({
   region: "Orlando",
+  eventTicket: "mvmcp-2026",
+  eventTicketPlace: "Mickey's Very Merry Christmas Party",
+  parkTicketPlace: "Universal Epic Universe",
+  picks: [],
+});
+assert.equal(event.place, "Mickey's Very Merry Christmas Party", "an event guide keeps its exact event ticket ahead of park admission");
+assert.match(event.href, /offer=38/, "the Christmas party ticket is Undercover Tourist deal 38");
+
+const retiredHaunt = guidePrimaryCta({
+  region: "Orlando",
   eventTicket: "hhn-orlando-2026",
   eventTicketPlace: "Halloween Horror Nights",
   parkTicketPlace: "Universal Epic Universe",
   picks: [],
 });
-assert.equal(event.place, "Halloween Horror Nights", "an event guide keeps its exact event ticket ahead of park admission");
+assert.equal(retiredHaunt.place, "Universal Epic Universe", "after the last HHN night the guide sells the park ticket, not the retired event row");
+assert.doesNotMatch(retiredHaunt.href, /offer=19/, "the retired HHN Undercover Tourist row is not the link");
 
 assert.equal(GUIDES["things-to-do-tampa-summer-2026"].parkTicketPlace, undefined,
   "a Tampa roundup with an existing CityPASS primary must keep that broader offer");

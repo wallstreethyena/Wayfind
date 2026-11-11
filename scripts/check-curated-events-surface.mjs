@@ -28,7 +28,7 @@ const ok = (c, m) => { if (c) pass++; else fail.push(m); };
 // A real row, shape-for-shape with wf_events (Howl-O-Scream, Tampa, 32 miles
 // from the Parrish default centre — the case that proved the reach rule).
 const ROW = {
-  event_id: "howl-o-scream-tampa-2026",
+  event_id: "christmas-town-2026",
   slug: "howl-o-scream-busch-gardens-tampa-2026",
   event_name: "Howl-O-Scream Busch Gardens Tampa Bay",
   short_title: "Howl-O-Scream",
@@ -75,7 +75,7 @@ ok(!!d && d.dest === "/florida-events/" + ROW.slug,
 // (lib/eventTicketDeals.js, deal 20) — so the row's ticket URL is OUR commerce
 // redirect for that deal and the official page survives as officialUrl. The
 // card's CTA still sells; it now also earns.
-ok(e.url === "/api/commerce/go?provider=undercover_tourist&offer=20&surface=events_feed&content=howl-o-scream-tampa-2026",
+ok(e.url === "/api/commerce/go?provider=undercover_tourist&offer=65&surface=events_feed&content=christmas-town-2026",
   "the ticket url survives on the row as the commerce redirect, so the card's CTA can still sell (got " + e.url + ")");
 ok(e.officialUrl === ROW.official_ticket_url && e.ticketVia === "Undercover Tourist", "…and the official ticket page survives as officialUrl with the merchant named");
 
