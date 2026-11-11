@@ -382,6 +382,9 @@ const histDays = (n, devices = 40, extra = {}) => Array.from({ length: n }, (_, 
   ok(cwv.find((a) => a.id === "cwv_CLS_desktop"), "alerts: failing desktop CLS fires");
   ok(!cwv.find((a) => a.id === "cwv_INP_mobile"), "alerts: passing INP stays silent");
   ok(!cwv.find((a) => a.id === "cwv_LCP_desktop"), "alerts: <20 samples never alerts (noise floor)");
+  const inp = computeAlerts({ webVitalsField: [{ metric: "INP", device: "mobile", p75: 400, samples: 29 }] }).find((a) => a.id === "cwv_INP_mobile");
+  ok(inp?.detail.includes("last 7 days (29 samples)") && !inp.detail.includes("selected window"), "alerts: INP names its real seven-day window independently of the metrics selector");
+  ok(inp?.current === "400ms" && inp.baseline === "≤ 200ms" && inp.severity === "warn", "alerts: seven-day wording preserves the measured regression and threshold");
 }
 {
   // Data freshness watchdog: catches a cron that returns 200 but writes nothing.
@@ -544,6 +547,11 @@ const histDays = (n, devices = 40, extra = {}) => Array.from({ length: n }, (_, 
     && /person_distinct_ids/.test(posthogBody?.query?.query || "")
     && /uuid-owner/.test(posthogBody?.query?.query || "")
     && (posthogSource.match(/REAL_EVENTS/g) || []).length >= 10;
+  for (const predicate of [
+    "coalesce(toString(properties.$internal_or_test_user), 'false') NOT IN ('true', '1')",
+    "coalesce(toString(properties.is_test), 'false') NOT IN ('true', '1')",
+    "coalesce(toString(properties.wf_test), '') = ''",
+  ]) ok(posthogBody.query.query.includes(predicate), 'field vitals exclude explicit event-level verifier markers');
 
   const visitorQueries = [];
   const visitorProbe = await visitorStory(
@@ -673,6 +681,50 @@ const histDays = (n, devices = 40, extra = {}) => Array.from({ length: n }, (_, 
   ok(vj.crons.some((c) => c.path === "/api/cron/cc-alerts"), "cron: cc-alerts is registered in vercel.json");
   const fpSrc = read("lib/commandCenter/sources/firstParty.js");
   ok(/wf_cc_/.test(fpSrc) && !/from\("events"\)|rest\/v1\/events\?/.test(fpSrc), "source: first-party reads go through wf_cc_* aggregate RPCs only (no raw event rows)");
+}
+
+// Sentry must measure recent production activity, not the first ten unresolved
+// issues from every deployment environment. Exercise requests and responses.
+{
+  const { readSentryIssues, sentryIssues } = await import("../lib/commandCenter/sources/sentry.js");
+  const c = { token: "fixture-only", org: "fixture", project: "wayfind", environment: "production" };
+  const row = (id) => ({ id: String(id), shortId: `WF-${id}`, title: "TypeError", count: "9", userCount: 2, lastSeen: "2026-11-07T10:00:00Z", permalink: "https://untrusted.example/" });
+  const reply = (rows, next) => new Response(JSON.stringify(rows), { headers: next ? { link: `<https://sentry.io/api/0/projects/fixture/wayfind/issues/?cursor=${next}>; rel="next"; results="true"` } : {} });
+  const calls = [];
+  const paged = await readSentryIssues(c, { fetchImpl: async (url, init) => {
+    calls.push({ url: new URL(url), init });
+    return calls.length === 1 ? reply(Array.from({ length: 100 }, (_, i) => row(i + 1)), "page2") : reply([row(100), row(101)]);
+  } });
+  ok(paged.unresolved_24h === 101 && !paged.unresolved_24h_has_more, "sentry: pagination counts more than ten and deduplicates overlapping pages");
+  ok(calls.length === 2 && calls[1].url.searchParams.get("cursor") === "page2", "sentry: executes the returned next cursor");
+  ok(calls.every(({ url, init }) => url.searchParams.get("environment") === "production" && url.searchParams.get("query") === "is:unresolved lastSeen:-24h" && init.redirect === "error" && init.headers.Authorization === "Bearer fixture-only"), "sentry: every page preserves production, recent-activity filter and fail-closed redirects");
+  ok(paged.issues[0].link === "https://fixture.sentry.io/issues/1/", "sentry: issue links use the configured Sentry account, never arbitrary response URLs");
+  let pages = 0;
+  const bounded = await readSentryIssues(c, { fetchImpl: async () => reply([row(++pages)], `page${pages}`) });
+  ok(pages === 5 && bounded.unresolved_24h_has_more && bounded.unresolved_24h === 5, "sentry: page budget is explicit and remaining results are a lower bound");
+  for (const payload of [{ error: "unexpected" }, [null], [{ id: "1", title: "broken", lastSeen: "bad" }]]) {
+    let rejected = false;
+    try { await readSentryIssues(c, { fetchImpl: async () => reply(payload) }); } catch { rejected = true; }
+    ok(rejected, "sentry: malformed data cannot report a measured zero");
+  }
+  let requests = 0, rejected = false;
+  try { await readSentryIssues(c, { fetchImpl: async () => {
+    requests++;
+    return new Response(JSON.stringify([row(1)]), { headers: { link: '<https://untrusted.example/issues/?cursor=steal>; rel="next"; results="true"' } });
+  } }); } catch { rejected = true; }
+  ok(rejected && requests === 1, "sentry: untrusted pagination receives no credentialed request");
+  const empty = await readSentryIssues(c, { fetchImpl: async () => reply([]) });
+  ok(empty.unresolved_24h === 0 && empty.issues.length === 0, "sentry: a genuine measured empty stays zero");
+  const noCache = async (_key, _ttl, loader) => loader();
+  const logs = [];
+  const sanitized = await sentryIssues({ env: { SENTRY_AUTH_TOKEN: "fixture-only", SENTRY_ORG: "fixture" }, cacheImpl: noCache, log: (line) => logs.push(line), fetchImpl: async () => reply([{ ...row(1), title: "Fail for private@example.com at https://example.com/?secret=value from 127.0.0.1" }]) });
+  ok(sanitized.source.connected && logs.length === 1 && !/private@example|secret=value|127\.0\.0\.1|fixture-only/.test(logs[0]), "sentry: actionable private diagnostics omit tokens, emails, URLs and IP addresses");
+  const stale = await sentryIssues({ env: { SENTRY_AUTH_TOKEN: "fixture-only" }, cacheImpl: async () => ({ ...empty, _stale: true }) });
+  ok(stale.source.confidence === "stale-cache", "sentry: cached fallback is labelled stale instead of newly measured");
+  const failed = await sentryIssues({ env: { SENTRY_AUTH_TOKEN: "fixture-only" }, cacheImpl: noCache, fetchImpl: async () => new Response("denied", { status: 403 }) });
+  ok(!failed.source.connected && failed.data === null, "sentry: a provider failure is unavailable, never a zero");
+  const alert = computeAlerts({ sentryUnresolved: 500, sentryHasMore: true, sentryIssues: [row(1)] }).find((a) => a.id === "sentry_unresolved");
+  ok(alert.current === "500+" && alert.detail.includes("At least 500") && alert.detail.includes("WF-1: TypeError"), "sentry: bounded counts and latest issue identity survive the shared alert used by email and dashboard");
 }
 
 if (failures) { console.error(`test-command-center: ${failures} failure(s)`); process.exit(1); }

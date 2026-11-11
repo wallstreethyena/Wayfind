@@ -187,6 +187,7 @@ export default function DateNightRails({
   hour = null,
   onOpenPlace = null,
   onTrack = null,
+  emptyLocation = null,
   isSaved = undefined,
   isOnTrip = undefined,
   liked = undefined,
@@ -260,7 +261,7 @@ export default function DateNightRails({
   }, [key]);
 
   if (!active) return null;
-  if (!key) return <p>Choose a location to build your date night.</p>;
+  if (!key) return emptyLocation || <p>Choose a location to build your date night.</p>;
 
   // The label alone cannot authorize a Florida offer: URL coordinates remain
   // authoritative, and the raw label retains an explicit state from the page.

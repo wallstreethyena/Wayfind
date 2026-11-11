@@ -30,7 +30,9 @@ import {
 } from "../../lib/browserAnalytics";
 import { readCrownCampaign } from "../../lib/crownCampaign.js";
 import { attributionProps, captureLanding, installBridge, readState, writeLandingCookie } from "../../lib/campaignAttribution.js";
+import { syncAdClickCookieFromWindow } from "../../lib/adClickCookie.js";
 import { isNative } from "../../lib/native";
+import { safeLocalStorage, safeSessionStorage } from "../../lib/safeStorage.js";
 
 export default function PostHogProvider({ children }) {
   const pathname = usePathname();
@@ -47,8 +49,9 @@ export default function PostHogProvider({ children }) {
     // native shell (same rule as lib/attribution.js).
     try {
       if (!isNative()) {
-        const landed = captureLanding({ search: window.location.search, pathname: window.location.pathname, referrer: document.referrer, local: window.localStorage, session: window.sessionStorage });
+        const landed = captureLanding({ search: window.location.search, pathname: window.location.pathname, referrer: document.referrer, local: safeLocalStorage(), session: safeSessionStorage() });
         writeLandingCookie(document, landed, window.location.protocol === "https:");
+        syncAdClickCookieFromWindow(window);
         installBridge(window, { relayEnabled: process.env.NEXT_PUBLIC_META_CAPI_RELAY === "1" });
       }
     } catch (e) {}
@@ -76,7 +79,7 @@ export default function PostHogProvider({ children }) {
     };
     const noteAuthUser = (user) => {
       if (!isOwnerUser(user)) return false;
-      markInternalBrowser(window.localStorage);
+      markInternalBrowser(safeLocalStorage());
       suppress("internal");
       return true;
     };
@@ -85,7 +88,7 @@ export default function PostHogProvider({ children }) {
     window.__WF_NOTE_AUTH_USER = noteAuthUser;
 
     const reason = (user) => analyticsSuppressionReason({
-      storage: window.localStorage,
+      storage: safeLocalStorage(),
       user,
       userAgent: window.navigator && window.navigator.userAgent,
       webdriver: !!(window.navigator && window.navigator.webdriver),
@@ -111,14 +114,14 @@ export default function PostHogProvider({ children }) {
         });
         ph.register({ $internal_or_test_user: false });
         try {
-          const st = readState({ local: window.localStorage, session: window.sessionStorage });
+          const st = readState({ local: safeLocalStorage(), session: safeSessionStorage() });
           const ft = attributionProps(st, "ft");
           const sess = attributionProps(st, "sess");
           if (Object.keys(ft).length) ph.register(ft);
           if (Object.keys(sess).length && typeof ph.register_for_session === "function") ph.register_for_session(sess);
         } catch (e) {}
         try {
-          const crown = readCrownCampaign(window.sessionStorage);
+          const crown = readCrownCampaign(safeSessionStorage());
           if (crown && typeof ph.register_for_session === "function") ph.register_for_session(crown);
         } catch (e) {}
         phClient = ph;
