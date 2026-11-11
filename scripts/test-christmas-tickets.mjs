@@ -145,7 +145,8 @@ ok(!secondaryTicketPrimaryMatches({ ...reviewedTmPrimary, href: reviewedTmPrimar
   ok(cta.kind === "affiliate" && u.pathname === "/api/ticketmaster/go" && u.searchParams.get("url") === url, "Christmas Live Nation cards use the shared tracked resolver, not a raw organizer link");
   ok(u.searchParams.get("content") === tm.id && u.searchParams.get("surface") === "christmas_tickets", "the original event and Christmas placement survive the tracked handoff");
   ok(ticketAction({ ...tm, is_free: true }) === null && ticketAction({ ...tm, ticket_status: "sold_out" }) === null, "free and unavailable Christmas cards never advertise a buy link");
-  const lookalike = ticketAction({ ...tm, official_ticket_url: "https://livenation.com.evil.example/buy" });
+  // A fixture id with no Ticketmaster match (lib/christmasTicketmaster.js), so only the organizer URL is in play.
+  const lookalike = ticketAction({ ...tm, id: "lookalike-fixture-2026", official_ticket_url: "https://livenation.com.evil.example/buy" });
   ok(lookalike?.kind !== "affiliate", "a deceptive Live Nation host never becomes a Ticketmaster affiliate destination");
   ok(ticketAction(base({ id: "mvmcp-2026", ticket_status: "sold_out" }), allDeals) === null, "a mapped party cannot bypass sold-out gating");
   const zooTicket = ticketAction(base({ id: "zootampa-christmas-wild-2026" }));
