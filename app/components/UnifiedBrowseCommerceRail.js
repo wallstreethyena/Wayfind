@@ -17,6 +17,8 @@ import { crossSellKindFor, daypartCrossSellBonus } from "../../lib/daypartCrossS
 import { usePinQuarantine } from "../../lib/pinQuarantine";
 import { interleaveReserved } from "../../lib/menuReserveSlots";
 import { AFFILIATE_DISCLOSURE_TEXT } from "../../lib/affiliateDisclosure.js";
+import { eventCategoryArt } from "../../lib/eventCategoryArt";
+import { railSearchOfferId, viatorRailFallback } from "../../lib/viatorRailFallback";
 const NOLOG = () => {};
 // Bumped when the disclosure WORDING below (near the end of the rail) changes,
 // so consent evidence ties to the exact text shown, not to "some disclosure
@@ -39,6 +41,8 @@ export function UnifiedBrowseCommerceRail({ cat: browseCat = "attractions", sub,
   const plan = chipCommerce(browseCat, sub || "all");
   const cat = plan.catalogParam;
   const [experiences, setExperiences] = useState(() => includeExperiences && !plan.noExperiences ? eligibleExperiences(initialExperiences, browseCat, sub || "all") : []);
+  const [expSettled, setExpSettled] = useState(false);
+  const [viatorAsked, setViatorAsked] = useState(false);
   const [failedImages, setFailedImages] = useState(() => new Set());
   const [error, setError] = useState(false);
   const [retry, setRetry] = useState(0);
@@ -48,12 +52,14 @@ export function UnifiedBrowseCommerceRail({ cat: browseCat = "attractions", sub,
 
   useEffect(() => {
     // Reuse #1272's independent source merge: an empty parent is not done.
-    if (!includeExperiences || plan.noExperiences || browseCat === "hotels" || browseCat === "shopping" || !Number.isFinite(lat) || !Number.isFinite(lng)) { setExperiences([]); return; }
+    if (!includeExperiences || plan.noExperiences || browseCat === "hotels" || browseCat === "shopping" || !Number.isFinite(lat) || !Number.isFinite(lng)) { setExperiences([]); setViatorAsked(false); setExpSettled(true); return; }
     let dead = false;
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), REQUEST_MS);
     const seed = eligibleExperiences(initialExperiences, browseCat, sub || "all");
     setExperiences(seed);
+    setViatorAsked(true);
+    setExpSettled(false);
     setError(false);
     const read = async (url) => {
       const response = await fetch(url, { signal: controller.signal });
@@ -76,8 +82,8 @@ export function UnifiedBrowseCommerceRail({ cat: browseCat = "attractions", sub,
         let rows = resolveBrowseExperienceRows({ includeExperiences, noExperiences: plan.noExperiences, initialExperiences: seed, cachedRows });
         if (shouldLiveSearchFallback({ includeExperiences, noExperiences: plan.noExperiences, initialExperiences, cachedCount: cachedRows.length })) rows = await liveSearch();
         if (!dead) setExperiences(rankExperiences(rows).slice(0, RESERVE_LIMIT));
-      } catch { if (!dead) setError(true); }
-      finally { clearTimeout(timer); }
+      } catch { if (!dead) { setError(true); setExperiences([]); } }
+      finally { clearTimeout(timer); if (!dead) setExpSettled(true); }
     })();
     return () => { dead = true; clearTimeout(timer); controller.abort(); };
   }, [initialExperiences, includeExperiences, cat, browseCat, sub, lat, lng, city, region, retry]);
@@ -273,8 +279,15 @@ export function UnifiedBrowseCommerceRail({ cat: browseCat = "attractions", sub,
     // ride along in the visible window, ordered by distance, WITHOUT
     // reordering a single scored row or ranking anything by commission — see
     // lib/menuReserveSlots.js. This runs strictly after the score sort above.
-    return interleaveReserved(sorted, MENU_RESERVE, MENU_RESERVE_CADENCE).slice(0, BOOKABLE_NEAR_LIMIT);
-  }, [experiences, deals, menuOffers, places, pinQ, failedImages, nowHour, sub, browseCat, lat, lng]);
+    const ranked = interleaveReserved(sorted, MENU_RESERVE, MENU_RESERVE_CADENCE).slice(0, BOOKABLE_NEAR_LIMIT);
+    if (ranked.length || !expSettled || !viatorAsked || deals == null || menuOffers == null) return ranked;
+    const choice = viatorRailFallback({ items: [], providerState: error ? "upstream_error" : "zero_candidates" });
+    const offerId = railSearchOfferId(city);
+    const href = choice.partner && offerId ? commerceHref({ provider: choice.partner, offerId, surface: "browse_partner_rail", contentId: `${browseCat}:${sub || "all"}` }) : null;
+    const image = eventCategoryArt("tours");
+    if (!choice.partner || !offerId || !href || !image) return ranked;
+    return [{ key: `${choice.partner}:${offerId}`, provider: choice.partner, merchant: choice.label, offerId, title: choice.label, image, score: -1, rankBonus: 0, href, kind: "deal" }];
+  }, [experiences, deals, menuOffers, places, pinQ, failedImages, nowHour, sub, browseCat, lat, lng, expSettled, viatorAsked, error, city]);
 
   // v8.22 (owner, live screenshots: "the rail starts mid-way … starting at the
   // cards with no score on all of the submenus"). ROOT CAUSE: the scroller
