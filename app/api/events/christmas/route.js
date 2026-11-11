@@ -68,8 +68,10 @@ export async function GET(request) {
     // payload was built before that venue existed, so it must not hide the card.
     // v11 adds Snowcat Ridge, Robert's Christmas Wonderland and the Freedom
     // Factory lights festival. A cached v10 payload was built without them.
-    // v13 refreshes the corrected Springs dates and holiday affiliate mappings.
-    const key = `christmas-intents:v14:${today}:${geoCell(lat)}:${geoCell(lng)}`;
+    // v15: tagged Christmas galleries now supply the card photo, so a cached
+    // v14 payload (corrected dates and affiliate mappings, previous photos)
+    // must not outlive this deploy.
+    const key = `christmas-intents:v15:${today}:${geoCell(lat)}:${geoCell(lng)}`;
     // Viator Christmas light tours for the tile's own small rail (owner,
     // 2026-11-04). Read beside the rails, never inside the cached answer, so a
     // tour read can never mark the rails degraded; it never throws (snapshot
