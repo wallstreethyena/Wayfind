@@ -721,8 +721,8 @@
           "evidence": "2 hand-reviewed related guide link(s): myakka-river-state-park-guide, siesta-key-vs-lido-key."
         },
         "comparison_shortcut": {
-          "status": "unknown",
-          "evidence": "Existing structured content did not support a useful compact comparison without new research."
+          "status": "pass",
+          "evidence": "3 choices point to existing article sections."
         },
         "production_http": {
           "status": "unknown",
@@ -1207,8 +1207,8 @@
           "evidence": "2 hand-reviewed related guide link(s): orlando-in-the-rain, winter-park-scenic-boat-tour."
         },
         "comparison_shortcut": {
-          "status": "unknown",
-          "evidence": "Existing structured content did not support a useful compact comparison without new research."
+          "status": "pass",
+          "evidence": "3 choices point to existing article sections."
         },
         "production_http": {
           "status": "unknown",
@@ -1531,8 +1531,8 @@
           "evidence": "2 hand-reviewed related guide link(s): siesta-key-vs-lido-key, robinson-preserve-bradenton."
         },
         "comparison_shortcut": {
-          "status": "unknown",
-          "evidence": "Existing structured content did not support a useful compact comparison without new research."
+          "status": "pass",
+          "evidence": "3 choices point to existing article sections."
         },
         "production_http": {
           "status": "unknown",
