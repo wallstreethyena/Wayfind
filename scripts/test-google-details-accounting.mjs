@@ -114,6 +114,7 @@ try {
   const retryModule = await import("data:text/javascript," + encodeURIComponent(`
     import { classifyDetailsFailure } from ${JSON.stringify(new URL("../lib/promoteDetails.js", import.meta.url).href)};
     const DETAILS_MASK = "id"; const PROMOTE_SKU = "details_pro";
+    const deadlineSignal = () => undefined; const NET_DEADLINE_MS = 8000; /* fetch deadline stubs (lib/fetchDeadline.js) */
     const sleep = async () => {}; const isTerminalStatus = (s) => s >= 400 && s < 500 && s !== 429;
     const spendAllowCapped = async (sku, cap) => { globalThis.__retryAccounting.grants++; if (sku !== "details_enterprise" || cap !== 950) throw new Error("retry changed SKU/ceiling"); return !globalThis.__retryAccounting.denied; };
     ${retry}\nexport { details };
