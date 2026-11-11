@@ -32,6 +32,7 @@ import { fileURLToPath } from "node:url";
 import { GUIDES } from "../lib/guides.js";
 import { recordPulse } from "../lib/jobPulse.js";
 import { parseGuidePicks, parseDedicatedGuide, parseBlogItems, classify } from "../lib/guideVisualMonitor.js";
+import { guideUsesNeutralFallback } from "../lib/guideNeutralFallback.js";
 export { parseGuidePicks, parseBlogItems, classify };
 
 const ROOT = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
@@ -112,9 +113,10 @@ async function main() {
     (g.picks || []).forEach((pick, i) => {
       const p = parsed.find((x) => x.n === i + 1) || { imgs: [], credited: false, live: false };
       const { cls } = classifyPick(g.slug, pick, { manifest: GUIDE_PICK_PHOTOS, placeIndex, contextFor, guide: g });
+      const expectNeutral = guideUsesNeutralFallback(g) && cls !== "curated" && cls !== "reuse";
       // curated, reused and labelled context photos are all server rendered,
       // so a pick that shows none of them is an engineering failure (B).
-      guideRows.push({ surface: "guide", page: g.slug, name: pick.name, placeId: pick.placeId || null, ...p, expectPhoto: cls !== "missing", documented: !!gaps[pick.name] });
+      guideRows.push({ surface: "guide", page: g.slug, name: pick.name, placeId: pick.placeId || null, ...p, expectPhoto: !expectNeutral && cls !== "missing", expectNeutral, documented: !!gaps[pick.name] });
     });
   }
   const blogRows = [];

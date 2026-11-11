@@ -22,6 +22,27 @@ const WIRE_PATH = (() => {
 })();
 // Rotating light sequences (chase, alternate, twinkle). CSS only: each pattern
 // animates opacity and transform on the bulbs, so it stays GPU cheap.
+// Phones get half the strand (every other bulb) on a wire with half the dips,
+// so the lights read as a cute string instead of a crowded row.
+const PHONE_DIPS = BULB_COUNT / 2;
+const PHONE_WIRE_PATH = (() => {
+  const pitch = 1200 / PHONE_DIPS;
+  let d = "M0 4";
+  for (let i = 0; i < PHONE_DIPS; i += 1) d += " Q" + ((i + 0.5) * pitch).toFixed(1) + " 24 " + ((i + 1) * pitch).toFixed(1) + " 4";
+  return d;
+})();
+// Seven colors (an odd count), so every other bulb on a phone still cycles
+// through all of them: red, green, gold, blue, pink, warm white, amber.
+// Amber, not purple. A purple bulb is off the palette.
+const BULB_COLORS = [
+  ["#FF4458", "#B3111F", "rgba(255,68,88,.75)", "rgba(255,68,88,.32)"],
+  ["#3DDC84", "#13803F", "rgba(61,220,132,.7)", "rgba(61,220,132,.3)"],
+  ["#FFC94A", "#C98A0B", "rgba(255,201,74,.78)", "rgba(255,201,74,.34)"],
+  ["#4DA3FF", "#1456B8", "rgba(77,163,255,.75)", "rgba(77,163,255,.32)"],
+  ["#FF7AC8", "#B02C86", "rgba(255,122,200,.75)", "rgba(255,122,200,.32)"],
+  ["#FFF1D6", "#D8B27A", "rgba(255,241,214,.7)", "rgba(255,241,214,.28)"],
+  ["#FF8A3D", "#C4510A", "rgba(255,138,61,.75)", "rgba(255,138,61,.32)"],
+];
 const LIGHT_PATTERNS = ["twinkle", "chase", "alt", "chase"];
 
 // Faint festive doodles (gift, holly, candy cane, ornament, tree, snowflake) as
@@ -70,29 +91,30 @@ const CSS = XM_CARD_CSS + `
 /* Festival string lights: green garland, multicolor bulbs with real glow, rotating chase and twinkle sequences */
 .xm-lights{position:relative;height:36px;pointer-events:none;overflow-x:clip;z-index:30}
 .xm-wire{position:absolute;inset:0;width:100%;height:100%}
+/* Cute bulbs (owner 2026-11-03): chubby round glass with a shine dot and a gold
+   cap, each hanging from the wire and gently swaying; little red bows on the wire. */
+.xm-sway{position:absolute;top:9px;width:0;height:0;transform-origin:0 0;animation:xm-sway var(--sw,3.6s) ease-in-out var(--d,0s) infinite alternate}
+@keyframes xm-sway{from{rotate:-7deg}to{rotate:7deg}}
 .xm-bulb{
-  position:absolute;top:14px;width:12px;height:17px;margin-left:-6px;
-  border-radius:50% 50% 55% 55%;
-  background:radial-gradient(circle at 36% 28%,#fff 0%,var(--bc) 42%,var(--bd) 100%);
-  box-shadow:0 0 6px 1px var(--bg-glow),0 0 14px 3px var(--bg-glow2);
+  position:absolute;left:-7.5px;top:5px;width:15px;height:18px;
+  border-radius:50% 50% 50% 50% / 56% 56% 44% 44%;
+  background:radial-gradient(circle at 34% 30%,#fff 0 9%,var(--bc) 34%,var(--bd) 100%);
+  box-shadow:0 0 6px 1px var(--bg-glow),0 0 16px 4px var(--bg-glow2);
   will-change:opacity,transform;
 }
-.xm-bulb::before{content:"";position:absolute;left:3px;top:-4px;width:6px;height:5px;border-radius:2px 2px 0 0;background:#1E1A16}
+.xm-bow{position:absolute;top:2px;width:16px;height:12px;margin-left:-8px;filter:drop-shadow(0 1px 1px rgba(0,0,0,.35))}
+.xm-wire-phone{display:none}
+@media(max-width:600px){.xm-wire-desk{display:none}.xm-wire-phone{display:block}.xm-sway{left:var(--lp)!important}.xm-sway:nth-of-type(even),.xm-bow.xm-bow-desk{display:none}.xm-bow{left:var(--bp)!important}}
+.xm-bulb::before{content:"";position:absolute;left:4px;top:-5px;width:7px;height:6px;border-radius:2px 2px 1px 1px;background:linear-gradient(180deg,#F7D774,#B8860B)}
 .xm-bulb::after{content:"";position:absolute;left:50%;top:50%;width:30px;height:30px;margin:-15px 0 0 -15px;border-radius:50%;background:radial-gradient(circle,var(--bg-glow) 0%,rgba(0,0,0,0) 66%);opacity:.45}
-.xm-bulb:nth-of-type(6n+1){--bc:#FF4458;--bd:#B3111F;--bg-glow:rgba(255,68,88,.75);--bg-glow2:rgba(255,68,88,.32)}
-.xm-bulb:nth-of-type(6n+2){--bc:#3DDC84;--bd:#13803F;--bg-glow:rgba(61,220,132,.7);--bg-glow2:rgba(61,220,132,.3)}
-.xm-bulb:nth-of-type(6n+3){--bc:#FFC94A;--bd:#C98A0B;--bg-glow:rgba(255,201,74,.78);--bg-glow2:rgba(255,201,74,.34)}
-.xm-bulb:nth-of-type(6n+4){--bc:#4DA3FF;--bd:#1456B8;--bg-glow:rgba(77,163,255,.75);--bg-glow2:rgba(77,163,255,.32)}
-.xm-bulb:nth-of-type(6n+5){--bc:#FF7AC8;--bd:#B02C86;--bg-glow:rgba(255,122,200,.75);--bg-glow2:rgba(255,122,200,.32)}
-.xm-bulb:nth-of-type(6n+6){--bc:#FFF1D6;--bd:#D8B27A;--bg-glow:rgba(255,241,214,.7);--bg-glow2:rgba(255,241,214,.28)}
 [data-pattern="twinkle"] .xm-bulb{animation:xm-twinkle var(--f,3.2s) ease-in-out var(--d,0s) infinite}
 [data-pattern="chase"] .xm-bulb{animation:xm-chase 2s linear infinite;animation-delay:calc(var(--i) * -.11s)}
 [data-pattern="alt"] .xm-bulb{animation:xm-alt 1.5s ease-in-out infinite}
-[data-pattern="alt"] .xm-bulb:nth-of-type(even){animation-delay:-.75s}
+[data-pattern="alt"] .xm-sway:nth-of-type(even) .xm-bulb{animation-delay:-.75s}
 @keyframes xm-twinkle{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.93)}}
-@keyframes xm-chase{0%,100%{opacity:.32;transform:scale(.9)}14%,26%{opacity:1;transform:scale(1.1)}48%{opacity:.32;transform:scale(.9)}}
-@keyframes xm-alt{0%,100%{opacity:1;transform:scale(1.04)}50%{opacity:.28;transform:scale(.9)}}
-@media(prefers-reduced-motion:reduce){.xm-bulb,.xm-sparkles{animation:none!important}.xm-sparkles{opacity:.4}}
+@keyframes xm-chase{0%,100%{opacity:.6;transform:scale(.95)}14%,26%{opacity:1;transform:scale(1.06)}48%{opacity:.6;transform:scale(.95)}}
+@keyframes xm-alt{0%,100%{opacity:1;transform:scale(1.03)}50%{opacity:.62;transform:scale(.95)}}
+@media(prefers-reduced-motion:reduce){.xm-bulb,.xm-sway,.xm-sparkles{animation:none!important}.xm-sparkles{opacity:.4}}
 
 /* Wayfind header replica (home classes and values) */
 .wf-topbar{background:transparent;border:0;padding:6px 16px 4px;position:relative;z-index:20}
@@ -112,18 +134,14 @@ const CSS = XM_CARD_CSS + `
 .xm-hero h1{margin:0 0 6px;font-size:26px;line-height:1.2;font-weight:700;color:var(--cream);letter-spacing:-.01em;text-wrap:balance;text-shadow:0 2px 10px rgba(30,0,6,.6)}
 .xm-lede{margin:0;font-size:15px;line-height:1.5;color:var(--muted)}
 .xm-honest{margin:8px 0 0;font-size:13px;line-height:1.5;color:var(--soft)}
-.xm-ask{margin-top:16px;width:100%;min-height:48px;border-radius:12px;border:1px solid var(--line);cursor:pointer;background:linear-gradient(180deg,#E0303F,#B01728);color:#fff;font-size:15px;font-weight:700;box-shadow:0 0 14px rgba(232,180,138,.2)}
-.xm-share{margin-top:8px;display:flex;justify-content:flex-start}
+.xm-hero-actions{display:flex;align-items:center;gap:10px;margin-top:16px}.xm-ask{flex:1;min-width:0;min-height:48px;border-radius:12px;border:1px solid var(--line);cursor:pointer;background:linear-gradient(180deg,#E0303F,#B01728);color:#fff;font-size:15px;font-weight:700;box-shadow:0 0 14px rgba(232,180,138,.2)}
+.xm-share{display:flex;flex:0 0 auto;justify-content:flex-start}
 .xm-share button,.xm-share a{min-height:44px}
 .xm-ask:focus-visible,.xm-filters button:focus-visible,.xm-more:focus-visible{outline:2px solid #FFD9AE;outline-offset:2px}
 
 #xm-tickets{margin-top:22px;scroll-margin-top:12px}
-.xm-filters{display:flex;flex-wrap:wrap;gap:8px}
-@media(max-width:719px){.xm-filters{flex-wrap:nowrap;overflow-x:auto;margin:0 -16px;padding:2px 16px 6px;scrollbar-width:none;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch}.xm-filters::-webkit-scrollbar{display:none}.xm-filters button{flex:0 0 auto;white-space:nowrap}}
-.xm-filters button{min-height:44px;padding:8px 14px;border-radius:999px;cursor:pointer;background:rgba(24,2,8,.5);color:#FFE9C8;border:1px solid rgba(232,180,138,.7);font-size:14px;font-weight:600}
-.xm-filters button[aria-pressed="true"]{background:linear-gradient(180deg,#FFE9B8,#F5C451);color:#4A0610;border-color:#F5C451;font-weight:800;box-shadow:0 0 12px rgba(245,196,81,.35)}
-.xm-controls{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
-.xm-controls input::placeholder{color:#D9B3A3;opacity:1}
+.xm-controls{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-top:18px;padding-bottom:16px;border-bottom:1px solid rgba(232,180,138,.22)}
+.xm-sort-note{font-size:13px;color:#E1C6B6;line-height:1.4}.xm-clear{min-height:44px;margin-left:auto;padding:8px 4px;border:0;background:transparent;color:#E8B48A;cursor:pointer;font:inherit;font-size:13px}.xm-clear:focus-visible{outline:2px solid #FFE9C8;outline-offset:3px}
 .xm-count{margin:14px 0 0;font-size:14px;color:var(--muted)}
 .xm-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;margin-top:12px}
 @media(min-width:720px){.xm-main{max-width:960px}.xm-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
@@ -148,20 +166,43 @@ function FestivalLights() {
   }, []);
   return (
     <div className="xm-lights" aria-hidden="true" data-pattern={pattern}>
-      <svg className="xm-wire" viewBox="0 0 1200 36" preserveAspectRatio="none">
-        <path d={WIRE_PATH} fill="none" stroke="rgba(20,8,10,.85)" strokeWidth="1.6" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
+      <svg className="xm-wire xm-wire-desk" viewBox="0 0 1200 36" preserveAspectRatio="none">
+        <path d={WIRE_PATH} fill="none" stroke="#1F4D2E" strokeWidth="2" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
+      </svg>
+      <svg className="xm-wire xm-wire-phone" viewBox="0 0 1200 36" preserveAspectRatio="none">
+        <path d={PHONE_WIRE_PATH} fill="none" stroke="#1F4D2E" strokeWidth="2" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
       </svg>
       {Array.from({ length: BULB_COUNT }, (_, i) => (
         <span
           key={i}
-          className="xm-bulb"
+          className="xm-sway"
           style={{
             left: (((i + 0.5) / BULB_COUNT) * 100).toFixed(2) + "%",
-            "--i": i,
+            "--lp": (((Math.floor(i / 2) + 0.5) / PHONE_DIPS) * 100).toFixed(2) + "%",
             "--d": "-" + ((i * 1.7) % 9).toFixed(1) + "s",
-            "--f": (2.6 + ((i * 37) % 30) / 10).toFixed(1) + "s",
+            "--sw": (3 + ((i * 13) % 12) / 10).toFixed(1) + "s",
           }}
-        />
+        >
+          <span
+            className="xm-bulb"
+            style={{
+              "--i": i,
+              "--bc": BULB_COLORS[i % BULB_COLORS.length][0],
+              "--bd": BULB_COLORS[i % BULB_COLORS.length][1],
+              "--bg-glow": BULB_COLORS[i % BULB_COLORS.length][2],
+              "--bg-glow2": BULB_COLORS[i % BULB_COLORS.length][3],
+              "--d": "-" + ((i * 1.7) % 9).toFixed(1) + "s",
+              "--f": (2.6 + ((i * 37) % 30) / 10).toFixed(1) + "s",
+            }}
+          />
+        </span>
+      ))}
+      {Array.from({ length: Math.floor(BULB_COUNT / 3) }, (_, k) => (
+        <svg key={"bow" + k} className={"xm-bow" + (k % 2 ? " xm-bow-desk" : "")} viewBox="0 0 16 12" style={{ left: (((k * 3 + 2) / BULB_COUNT) * 100).toFixed(2) + "%", "--bp": ((((k * 3 + 2) / 2) / PHONE_DIPS) * 100).toFixed(2) + "%" }}>
+          <path d="M8 6 L1.5 1.5 Q0 6 1.5 10.5 Z M8 6 L14.5 1.5 Q16 6 14.5 10.5 Z" fill="#D92C37" />
+          <path d="M8 6 L5 11.5 M8 6 L11 11.5" stroke="#B3111F" strokeWidth="1.6" strokeLinecap="round" />
+          <circle cx="8" cy="6" r="2" fill="#F5C451" />
+        </svg>
       ))}
     </div>
   );
@@ -275,8 +316,10 @@ export default function ChristmasTickets({ model, share = null, browse = null })
           <h1 id="xm-title">{chrome.title}</h1>
           <p className="xm-lede">{chrome.lede}</p>
           <p className="xm-honest">{chrome.honest}</p>
-          <button type="button" className="xm-ask" onClick={askSanta}>{chrome.ask}</button>
-          {share ? <div className="xm-share">{share}</div> : null}
+          <div className="xm-hero-actions">
+            <button type="button" className="xm-ask" onClick={askSanta}>{chrome.ask}</button>
+            {share ? <div className="xm-share">{share}</div> : null}
+          </div>
         </div>
 
         <div id="xm-tickets" data-ticket-grid="">{browse}</div>

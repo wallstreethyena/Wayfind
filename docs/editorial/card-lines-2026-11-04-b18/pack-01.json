@@ -1,0 +1,2092 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 18. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJLUp44o9-3YgRHynBIZap5jo",
+   "name": "Na'vi River Journey",
+   "category": "attractions",
+   "metro": "orlando",
+   "primary_type": "tourist_attraction",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.disneyworld.eu/attractions/animal-kingdom/navi-river-journey/",
+     "source_name": "Na'vi River Journey \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Na'vi River Journey is in Pandora \u2013 The World of Avatar at Disney's Animal Kingdom.",
+      "Na'vi River Journey glides through a series of caves and into a bioluminescent rainforest.",
+      "The bioluminescent rainforest is alive with exotic plants and creatures.",
+      "Riders join the Na'vi Shaman of Songs on Na'vi River Journey.",
+      "The Na'vi Shaman of Songs demonstrates her deep connection to the life force of Pandora.",
+      "The Na'vi Shaman of Songs sends positive energy out into the forest."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Boat ride through caves into a bioluminescent rainforest",
+    "why_here": "This boat ride glides through a series of caves and into a bioluminescent rainforest alive with exotic plants and creatures. It ends with the Na'vi Shaman of Songs, who sends positive energy out into the forest.",
+    "know_before": "Riders join the Na'vi Shaman of Songs, who sends positive energy out into the forest.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.disneyworld.eu/attractions/animal-kingdom/navi-river-journey/"
+     ],
+     "why_here": [
+      "https://www.disneyworld.eu/attractions/animal-kingdom/navi-river-journey/"
+     ],
+     "know_before": [
+      "https://www.disneyworld.eu/attractions/animal-kingdom/navi-river-journey/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Na'vi River Journey is in Pandora \u2013 The World of Avatar at Disney's Animal Kingdom.",
+      "source": "https://www.disneyworld.eu/attractions/animal-kingdom/navi-river-journey/"
+     },
+     {
+      "claim": "Na'vi River Journey glides through a series of caves and into a bioluminescent rainforest.",
+      "source": "https://www.disneyworld.eu/attractions/animal-kingdom/navi-river-journey/"
+     },
+     {
+      "claim": "The bioluminescent rainforest is alive with exotic plants and creatures.",
+      "source": "https://www.disneyworld.eu/attractions/animal-kingdom/navi-river-journey/"
+     },
+     {
+      "claim": "Riders join the Na'vi Shaman of Songs on Na'vi River Journey.",
+      "source": "https://www.disneyworld.eu/attractions/animal-kingdom/navi-river-journey/"
+     },
+     {
+      "claim": "The Na'vi Shaman of Songs demonstrates her deep connection to the life force of Pandora.",
+      "source": "https://www.disneyworld.eu/attractions/animal-kingdom/navi-river-journey/"
+     },
+     {
+      "claim": "The Na'vi Shaman of Songs sends positive energy out into the forest.",
+      "source": "https://www.disneyworld.eu/attractions/animal-kingdom/navi-river-journey/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ7StzDaxJ5IgR-IQk4D4niJ4",
+   "name": "Oceanfront Park",
+   "category": "attractions",
+   "metro": "jacksonville-fl",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.jacksonvillebeach.org/Facilities/Facility/Details/Oceanfront-Park-7",
+     "source_name": "Oceanfront Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Oceanfront Park is a 2-acre oceanfront park.",
+      "Oceanfront Park has four sheltered picnic areas, a sand volleyball court, a small children's playground, and two dune walkovers.",
+      "Oceanfront Park has a handicapped-accessible ramp.",
+      "Sea Express is a bronze statue of a young boy riding the back of a dolphin.",
+      "Sea Express was created by sculptress Kristen Visbal."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "2-acre oceanfront park with a bronze boy riding a dolphin",
+    "why_here": "Oceanfront Park is a 2-acre oceanfront park with two dune walkovers and a sand volleyball court. Its focal point is Sea Express, a bronze statue of a young boy riding the back of a dolphin by sculptress Kristen Visbal.",
+    "know_before": "Amenities include four sheltered picnic areas and a handicapped-accessible ramp.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.jacksonvillebeach.org/Facilities/Facility/Details/Oceanfront-Park-7"
+     ],
+     "why_here": [
+      "https://www.jacksonvillebeach.org/Facilities/Facility/Details/Oceanfront-Park-7"
+     ],
+     "know_before": [
+      "https://www.jacksonvillebeach.org/Facilities/Facility/Details/Oceanfront-Park-7"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Oceanfront Park is a 2-acre oceanfront park.",
+      "source": "https://www.jacksonvillebeach.org/Facilities/Facility/Details/Oceanfront-Park-7"
+     },
+     {
+      "claim": "Oceanfront Park has four sheltered picnic areas, a sand volleyball court, a small children's playground, and two dune walkovers.",
+      "source": "https://www.jacksonvillebeach.org/Facilities/Facility/Details/Oceanfront-Park-7"
+     },
+     {
+      "claim": "Oceanfront Park has a handicapped-accessible ramp.",
+      "source": "https://www.jacksonvillebeach.org/Facilities/Facility/Details/Oceanfront-Park-7"
+     },
+     {
+      "claim": "Sea Express is a bronze statue of a young boy riding the back of a dolphin.",
+      "source": "https://www.jacksonvillebeach.org/Facilities/Facility/Details/Oceanfront-Park-7"
+     },
+     {
+      "claim": "Sea Express was created by sculptress Kristen Visbal.",
+      "source": "https://www.jacksonvillebeach.org/Facilities/Facility/Details/Oceanfront-Park-7"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJSVhOg5a22YgRt9PS3dP4VFg",
+   "name": "Casablanca on the river",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://casablancaseafood.com/",
+     "source_name": "Casablanca on the river \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Casablanca Seafood seafood comes in daily from its boats.",
+      "Casablanca Seafood has more than 30 years experience in the seafood industry.",
+      "Casablanca Seafood is a fish market and restaurant.",
+      "Casablanca Seafood is located on the historic Miami River with a view of illuminated Downtown Miami.",
+      "Casablanca Seafood opening hours are Monday to Thursday 12 p.m. to 10 p.m., Friday to Saturday 12 p.m. to 11 p.m., and Sunday 12 p.m. to 10 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Seafood from its own boats, served on the historic Miami River",
+    "why_here": "Casablanca Seafood says seafood comes in daily from its boats, drawing on more than 30 years experience in the seafood industry. It is a fish market and restaurant on the historic Miami River with a view of illuminated Downtown Miami.",
+    "know_before": "Opening hours are Monday to Thursday 12 p.m. to 10 p.m., Friday to Saturday 12 p.m. to 11 p.m., and Sunday 12 p.m. to 10 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://casablancaseafood.com/"
+     ],
+     "why_here": [
+      "https://casablancaseafood.com/"
+     ],
+     "know_before": [
+      "https://casablancaseafood.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Casablanca Seafood seafood comes in daily from its boats.",
+      "source": "https://casablancaseafood.com/"
+     },
+     {
+      "claim": "Casablanca Seafood has more than 30 years experience in the seafood industry.",
+      "source": "https://casablancaseafood.com/"
+     },
+     {
+      "claim": "Casablanca Seafood is a fish market and restaurant.",
+      "source": "https://casablancaseafood.com/"
+     },
+     {
+      "claim": "Casablanca Seafood is located on the historic Miami River with a view of illuminated Downtown Miami.",
+      "source": "https://casablancaseafood.com/"
+     },
+     {
+      "claim": "Casablanca Seafood opening hours are Monday to Thursday 12 p.m. to 10 p.m., Friday to Saturday 12 p.m. to 11 p.m., and Sunday 12 p.m. to 10 p.m.",
+      "source": "https://casablancaseafood.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ1drZEZYn5IgRBKb5xofV9aA",
+   "name": "Pizzalley's Chianti Room",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "italian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://pizzalleyschiantiroom.com/menu",
+     "source_name": "Pizzalley's Chianti Room \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Pizzalley's Chianti Room is an Italian restaurant in St. Augustine."
+     ]
+    },
+    {
+     "source": "https://pizzalleyschiantiroom.com/private-parties/",
+     "source_name": "Pizzalley's Chianti Room \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The venue lists 60 Charlotte St, St. Augustine, FL 32084 and a second entrance at 117 St. George Street.",
+      "Private-party menu selections include Chicken Parmesan, spaghetti with pomodoro sauce, and homemade meat lasagna."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Italian dining in St. Augustine with entrances on Charlotte and St. George streets",
+    "why_here": "Pizzalley's Chianti Room describes itself on its official site as an Italian restaurant in St. Augustine. Its official menu and private-party pages list Italian entrees including Chicken Parmesan and homemade meat lasagna.",
+    "know_before": "The official site lists addresses at 60 Charlotte St and a second entrance at 117 St. George Street, St. Augustine.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://pizzalleyschiantiroom.com/menu",
+      "https://pizzalleyschiantiroom.com/private-parties/"
+     ],
+     "why_here": [
+      "https://pizzalleyschiantiroom.com/menu",
+      "https://pizzalleyschiantiroom.com/private-parties/"
+     ],
+     "know_before": [
+      "https://pizzalleyschiantiroom.com/menu",
+      "https://pizzalleyschiantiroom.com/private-parties/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Pizzalley's Chianti Room is an Italian restaurant in St. Augustine.",
+      "source": "https://pizzalleyschiantiroom.com/menu"
+     },
+     {
+      "claim": "The venue lists 60 Charlotte St, St. Augustine, FL 32084 and a second entrance at 117 St. George Street.",
+      "source": "https://pizzalleyschiantiroom.com/private-parties/"
+     },
+     {
+      "claim": "Private-party menu selections include Chicken Parmesan, spaghetti with pomodoro sauce, and homemade meat lasagna.",
+      "source": "https://pizzalleyschiantiroom.com/private-parties/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ0dTonkWt2YgRO2SavRWF5U4",
+   "name": "JW Marriott Miami Turnberry Resort & Spa",
+   "category": "hotels",
+   "metro": "miami-dade",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.marriott.com/en-us/hotels/miajt-jw-marriott-miami-turnberry-resort-and-spa/overview/",
+     "source_name": "JW Marriott Miami Turnberry Resort & Spa \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "JW Marriott Miami Turnberry Resort & Spa lists amenities including a restaurant, spa, fitness center, on-site golf, and outdoor pool.",
+      "JW Marriott Miami Turnberry Resort & Spa highlights Tidal Cove Water Park.",
+      "JW Marriott Miami Turnberry Resort & Spa has two 18-hole championship courses."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Resort with on-site golf, a spa, and Tidal Cove Water Park",
+    "why_here": "The JW Marriott Miami Turnberry Resort & Spa lists on-site golf, a spa, a fitness center, and an outdoor pool among its amenities. It also highlights Tidal Cove Water Park and two 18-hole championship courses.",
+    "know_before": "Amenities include a restaurant, spa, fitness center, on-site golf, and outdoor pool.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.marriott.com/en-us/hotels/miajt-jw-marriott-miami-turnberry-resort-and-spa/overview/"
+     ],
+     "why_here": [
+      "https://www.marriott.com/en-us/hotels/miajt-jw-marriott-miami-turnberry-resort-and-spa/overview/"
+     ],
+     "know_before": [
+      "https://www.marriott.com/en-us/hotels/miajt-jw-marriott-miami-turnberry-resort-and-spa/overview/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "JW Marriott Miami Turnberry Resort & Spa lists amenities including a restaurant, spa, fitness center, on-site golf, and outdoor pool.",
+      "source": "https://www.marriott.com/en-us/hotels/miajt-jw-marriott-miami-turnberry-resort-and-spa/overview/"
+     },
+     {
+      "claim": "JW Marriott Miami Turnberry Resort & Spa highlights Tidal Cove Water Park.",
+      "source": "https://www.marriott.com/en-us/hotels/miajt-jw-marriott-miami-turnberry-resort-and-spa/overview/"
+     },
+     {
+      "claim": "JW Marriott Miami Turnberry Resort & Spa has two 18-hole championship courses.",
+      "source": "https://www.marriott.com/en-us/hotels/miajt-jw-marriott-miami-turnberry-resort-and-spa/overview/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJo-Cks5202YgRMxsaDBmt1Qo",
+   "name": "Collins Park",
+   "category": "attractions",
+   "metro": "miami-dade",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.miamibeachfl.gov/this-month-in-miami-beach-the-history-of-collins-park/",
+     "source_name": "Collins Park \u2014 official source",
+     "source_class": "government",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Collins Park was a ten-acre land donation by John Stiles Collins to Miami Beach in 1912.",
+      "The Miami Beach City Council accepted the donation on October 21, 1912.",
+      "Collins Park is located at 2100 Collins Avenue.",
+      "Collins Park is now home to The Bass Museum of Art and neighbour to the Miami City Ballet.",
+      "The park includes landscaped gardens, wide open lawns, art installations, playgrounds, walking paths, and picnic areas."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Ten acres donated in 1912, now home to The Bass Museum of Art",
+    "why_here": "The City of Miami Beach says Collins Park began as a ten-acre donation by John Stiles Collins, accepted on October 21, 1912. Today the city describes it as home to The Bass Museum of Art and a neighbour to Miami City Ballet, with lawns, gardens, and art installations.",
+    "know_before": "The city lists Collins Park at 2100 Collins Avenue.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.miamibeachfl.gov/this-month-in-miami-beach-the-history-of-collins-park/"
+     ],
+     "why_here": [
+      "https://www.miamibeachfl.gov/this-month-in-miami-beach-the-history-of-collins-park/"
+     ],
+     "know_before": [
+      "https://www.miamibeachfl.gov/this-month-in-miami-beach-the-history-of-collins-park/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Collins Park was a ten-acre land donation by John Stiles Collins to Miami Beach in 1912.",
+      "source": "https://www.miamibeachfl.gov/this-month-in-miami-beach-the-history-of-collins-park/"
+     },
+     {
+      "claim": "The Miami Beach City Council accepted the donation on October 21, 1912.",
+      "source": "https://www.miamibeachfl.gov/this-month-in-miami-beach-the-history-of-collins-park/"
+     },
+     {
+      "claim": "Collins Park is located at 2100 Collins Avenue.",
+      "source": "https://www.miamibeachfl.gov/this-month-in-miami-beach-the-history-of-collins-park/"
+     },
+     {
+      "claim": "Collins Park is now home to The Bass Museum of Art and neighbour to the Miami City Ballet.",
+      "source": "https://www.miamibeachfl.gov/this-month-in-miami-beach-the-history-of-collins-park/"
+     },
+     {
+      "claim": "The park includes landscaped gardens, wide open lawns, art installations, playgrounds, walking paths, and picnic areas.",
+      "source": "https://www.miamibeachfl.gov/this-month-in-miami-beach-the-history-of-collins-park/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJXz92zMzcwogRpdgNWW0i3Yg",
+   "name": "Britton Plaza",
+   "category": "shopping",
+   "metro": "tampa",
+   "primary_type": "shopping_mall",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://brixmor.com/leasing/retail-space/fl/tampa/britton-plaza",
+     "source_name": "Britton Plaza \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Britton Plaza is anchored by Publix, Burlington, Marshalls, and Michaels.",
+      "Britton Plaza is located at 3802-3950 South Dale Mabry Highway, Tampa, FL 33611."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "South Tampa shopping center anchored by Publix, Burlington, Marshalls, and Michaels",
+    "why_here": "Brixmor, the center's owner, describes Britton Plaza in Tampa as a high-traffic center anchored by Publix, Burlington, Marshalls, and Michaels. Its official leasing page lists those retailers at the South Dale Mabry Highway center.",
+    "know_before": "Brixmor lists the center at 3802-3950 South Dale Mabry Highway, Tampa, FL 33611.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://brixmor.com/leasing/retail-space/fl/tampa/britton-plaza"
+     ],
+     "why_here": [
+      "https://brixmor.com/leasing/retail-space/fl/tampa/britton-plaza"
+     ],
+     "know_before": [
+      "https://brixmor.com/leasing/retail-space/fl/tampa/britton-plaza"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Britton Plaza is anchored by Publix, Burlington, Marshalls, and Michaels.",
+      "source": "https://brixmor.com/leasing/retail-space/fl/tampa/britton-plaza"
+     },
+     {
+      "claim": "Britton Plaza is located at 3802-3950 South Dale Mabry Highway, Tampa, FL 33611.",
+      "source": "https://brixmor.com/leasing/retail-space/fl/tampa/britton-plaza"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJH2Z-RwkD2YgRGD4AiHlnVSI",
+   "name": "La Vie Lebanese Restaurant",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "mediterranean_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://lavieflorida.com/",
+     "source_name": "La Vie Lebanese Restaurant \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "La Vie serves Mediterranean and Middle Eastern cuisine including shawarma and falafel.",
+      "Featured menu items include Chicken Shawarma, Beef Kabob, Kibbeh, and Baba Ghanouj.",
+      "The Pompano Beach location is at 281 S Pompano Pkwy, Pompano Beach, FL 33069.",
+      "La Vie offers dine-in, takeout, and delivery at its Pompano Beach location."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Lebanese shawarma, kebabs, and mezze in Pompano Beach",
+    "why_here": "La Vie's official site describes its Pompano Beach restaurant as serving Lebanese and Mediterranean food, from shawarma and falafel to mezze platters. Featured items include chicken shawarma, beef kabob, kibbeh, and baba ghanouj.",
+    "know_before": "The official site lists the Pompano Beach location at 281 S Pompano Pkwy, Pompano Beach, FL 33069, with dine-in, takeout, and delivery.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://lavieflorida.com/"
+     ],
+     "why_here": [
+      "https://lavieflorida.com/"
+     ],
+     "know_before": [
+      "https://lavieflorida.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "La Vie serves Mediterranean and Middle Eastern cuisine including shawarma and falafel.",
+      "source": "https://lavieflorida.com/"
+     },
+     {
+      "claim": "Featured menu items include Chicken Shawarma, Beef Kabob, Kibbeh, and Baba Ghanouj.",
+      "source": "https://lavieflorida.com/"
+     },
+     {
+      "claim": "The Pompano Beach location is at 281 S Pompano Pkwy, Pompano Beach, FL 33069.",
+      "source": "https://lavieflorida.com/"
+     },
+     {
+      "claim": "La Vie offers dine-in, takeout, and delivery at its Pompano Beach location.",
+      "source": "https://lavieflorida.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJKwWA3sfDwogRw2ERUbKhY9k",
+   "name": "George M. Steinbrenner Field",
+   "category": "attractions",
+   "metro": "tampa",
+   "primary_type": "stadium",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.mlb.com/yankees/spring-training/ballpark",
+     "source_name": "George M. Steinbrenner Field \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Built in 1996, George M. Steinbrenner Field is a 31-acre complex centrally located in Tampa, Florida.",
+      "The complex serves as spring home to the New York Yankees and summer home to the Tampa Tarpons.",
+      "Steinbrenner Field is a year-round special events venue hosting concerts, baseball tournaments, and corporate events."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Yankees spring training and Tampa Tarpons baseball in Tampa",
+    "why_here": "Built in 1996, this 31-acre complex in Tampa, Florida serves as the spring home of the New York Yankees and the summer home of the Tampa Tarpons. It also hosts concerts, baseball tournaments, and corporate events year-round.",
+    "know_before": "Steinbrenner Field is a year-round special events venue hosting concerts, baseball tournaments, and corporate events.",
+    "local_tip": null,
+    "best_time": "Spring training season, when the Yankees are in residence.",
+    "citations": {
+     "hook": [
+      "https://www.mlb.com/yankees/spring-training/ballpark"
+     ],
+     "why_here": [
+      "https://www.mlb.com/yankees/spring-training/ballpark"
+     ],
+     "know_before": [
+      "https://www.mlb.com/yankees/spring-training/ballpark"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      "https://www.mlb.com/yankees/spring-training/ballpark"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Built in 1996, George M. Steinbrenner Field is a 31-acre complex centrally located in Tampa, Florida.",
+      "source": "https://www.mlb.com/yankees/spring-training/ballpark"
+     },
+     {
+      "claim": "The complex serves as spring home to the New York Yankees and summer home to the Tampa Tarpons.",
+      "source": "https://www.mlb.com/yankees/spring-training/ballpark"
+     },
+     {
+      "claim": "Steinbrenner Field is a year-round special events venue hosting concerts, baseball tournaments, and corporate events.",
+      "source": "https://www.mlb.com/yankees/spring-training/ballpark"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJmQAtQVTd2YgRp2sYrjBwi1M",
+   "name": "Knaus Berry Farm",
+   "category": "attractions",
+   "metro": "miami-dade",
+   "primary_type": "farm",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://knausberryfarm.com/",
+     "source_name": "Knaus Berry Farm \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Knaus Berry Farm describes itself as a tradition since 1956.",
+      "Cinnamon rolls are handmade since 1956 and served warm out of the oven all day.",
+      "Hours of operation are 8 a.m. to 5 p.m. Tuesday through Sunday, closed Mondays.",
+      "The farm lists U-Pick among its offerings on its official site."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Handmade cinnamon rolls served warm, a tradition since 1956",
+    "why_here": "Knaus Berry Farm calls itself a tradition since 1956, with cinnamon rolls handmade since that year and served warm out of the oven all day. The farm site also lists U-Pick, a menu, gift cards, and shipping.",
+    "know_before": "Hours are 8 a.m. to 5 p.m. Tuesday through Sunday; closed Mondays.",
+    "local_tip": "Try the cinnamon rolls warm, and note the farm is closed on Mondays before planning a drive.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://knausberryfarm.com/"
+     ],
+     "why_here": [
+      "https://knausberryfarm.com/"
+     ],
+     "know_before": [
+      "https://knausberryfarm.com/"
+     ],
+     "local_tip": [
+      "https://knausberryfarm.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Knaus Berry Farm describes itself as a tradition since 1956.",
+      "source": "https://knausberryfarm.com/"
+     },
+     {
+      "claim": "Cinnamon rolls are handmade since 1956 and served warm out of the oven all day.",
+      "source": "https://knausberryfarm.com/"
+     },
+     {
+      "claim": "Hours of operation are 8 a.m. to 5 p.m. Tuesday through Sunday, closed Mondays.",
+      "source": "https://knausberryfarm.com/"
+     },
+     {
+      "claim": "The farm lists U-Pick among its offerings on its official site.",
+      "source": "https://knausberryfarm.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ0WOA2VKO3YgRuM6oKQgdv6g",
+   "name": "The Catfish Place",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://thecatfishplace.com/",
+     "source_name": "The Catfish Place \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Catfish Place has been serving seafood since 1973.",
+      "The Catfish Place serves Southern fresh and hand-breaded quality seafood since 1973.",
+      "The Catfish Place began as a small family-owned business.",
+      "The menu features classic fried catfish and signature hand-breaded shrimp.",
+      "Veterans and active first responders get 10% off the entire menu any time of the week."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Hand-breaded seafood served since 1973",
+    "why_here": "The Catfish Place has served seafood since 1973, beginning as a small family-owned business. Its menu features classic fried catfish and signature hand-breaded shrimp, as Southern fresh and hand-breaded quality seafood.",
+    "know_before": "Veterans and active first responders get 10% off the entire menu any time of the week.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://thecatfishplace.com/"
+     ],
+     "why_here": [
+      "https://thecatfishplace.com/"
+     ],
+     "know_before": [
+      "https://thecatfishplace.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Catfish Place has been serving seafood since 1973.",
+      "source": "https://thecatfishplace.com/"
+     },
+     {
+      "claim": "The Catfish Place serves Southern fresh and hand-breaded quality seafood since 1973.",
+      "source": "https://thecatfishplace.com/"
+     },
+     {
+      "claim": "The Catfish Place began as a small family-owned business.",
+      "source": "https://thecatfishplace.com/"
+     },
+     {
+      "claim": "The menu features classic fried catfish and signature hand-breaded shrimp.",
+      "source": "https://thecatfishplace.com/"
+     },
+     {
+      "claim": "Veterans and active first responders get 10% off the entire menu any time of the week.",
+      "source": "https://thecatfishplace.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJi1njaWWPk4gRPXa3wKTdIuc",
+   "name": "Royal Escape Rooms",
+   "category": "attractions",
+   "metro": "panama-city-florida",
+   "primary_type": "amusement_center",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://royalescaperooms.com/",
+     "source_name": "Royal Escape Rooms \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Royal Escape Rooms offers 12 escape rooms available in and around Panama City Beach.",
+      "All games at Royal Escape Rooms are private.",
+      "Royal Escape Rooms lists Area Z51, Forbidden Tomb, Magic School, Outer Space, and Submergency among its escape room themes.",
+      "Guests should arrive 10 minutes before the game time for check-in at Royal Escape Rooms.",
+      "Reservations at Royal Escape Rooms can be canceled up to 48 hours before the game for a full refund.",
+      "Children age 6 and under can come along free at Royal Escape Rooms but must be included in the reservation."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "12 private escape rooms in and around Panama City Beach",
+    "why_here": "Royal Escape Rooms offers 12 escape rooms in and around Panama City Beach, and all games are private, with themes including Area Z51, Forbidden Tomb, Magic School, Outer Space, and Submergency for groups.",
+    "know_before": "Guests should arrive 10 minutes before the game time for check-in. Reservations can be canceled up to 48 hours before the game for a full refund.",
+    "local_tip": "Children age 6 and under can come along free but must be included in the reservation for capacity.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://royalescaperooms.com/"
+     ],
+     "why_here": [
+      "https://royalescaperooms.com/"
+     ],
+     "know_before": [
+      "https://royalescaperooms.com/"
+     ],
+     "local_tip": [
+      "https://royalescaperooms.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Royal Escape Rooms offers 12 escape rooms available in and around Panama City Beach.",
+      "source": "https://royalescaperooms.com/"
+     },
+     {
+      "claim": "All games at Royal Escape Rooms are private.",
+      "source": "https://royalescaperooms.com/"
+     },
+     {
+      "claim": "Royal Escape Rooms lists Area Z51, Forbidden Tomb, Magic School, Outer Space, and Submergency among its escape room themes.",
+      "source": "https://royalescaperooms.com/"
+     },
+     {
+      "claim": "Guests should arrive 10 minutes before the game time for check-in at Royal Escape Rooms.",
+      "source": "https://royalescaperooms.com/"
+     },
+     {
+      "claim": "Reservations at Royal Escape Rooms can be canceled up to 48 hours before the game for a full refund.",
+      "source": "https://royalescaperooms.com/"
+     },
+     {
+      "claim": "Children age 6 and under can come along free at Royal Escape Rooms but must be included in the reservation.",
+      "source": "https://royalescaperooms.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJY3_cE7rHwogRcnRCaK2x8MU",
+   "name": "Embassy Suites by Hilton Tampa USF Near Busch Gardens",
+   "category": "hotels",
+   "metro": "tampa",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.hilton.com/en/hotels/tpafres-embassy-suites-tampa-usf-near-busch-gardens/",
+     "source_name": "Embassy Suites by Hilton Tampa USF Near Busch Gardens \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The hotel is on the University of South Florida campus, in the USF Research Park.",
+      "The hotel is a Busch Gardens Preferred Partner and offers a free shuttle to the amusement park, five minutes away."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Free Busch Gardens shuttle from a hotel on the USF campus",
+    "why_here": "This Embassy Suites sits on the University of South Florida campus in the USF Research Park. It is a Busch Gardens Preferred Partner hotel, useful for park trips without driving.",
+    "know_before": "The hotel offers a free shuttle to Busch Gardens, five minutes away.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.hilton.com/en/hotels/tpafres-embassy-suites-tampa-usf-near-busch-gardens/"
+     ],
+     "why_here": [
+      "https://www.hilton.com/en/hotels/tpafres-embassy-suites-tampa-usf-near-busch-gardens/"
+     ],
+     "know_before": [
+      "https://www.hilton.com/en/hotels/tpafres-embassy-suites-tampa-usf-near-busch-gardens/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The hotel is on the University of South Florida campus, in the USF Research Park.",
+      "source": "https://www.hilton.com/en/hotels/tpafres-embassy-suites-tampa-usf-near-busch-gardens/"
+     },
+     {
+      "claim": "The hotel is a Busch Gardens Preferred Partner and offers a free shuttle to the amusement park, five minutes away.",
+      "source": "https://www.hilton.com/en/hotels/tpafres-embassy-suites-tampa-usf-near-busch-gardens/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJcyNcqIoA2YgRW8B1tgMSez4",
+   "name": "Tap 42 Craft Kitchen & Bar - Fort Lauderdale",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "gastropub",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://tap42.com/locations/ft-lauderdale/",
+     "source_name": "Tap 42 Craft Kitchen & Bar - Fort Lauderdale \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Tap 42 Fort Lauderdale is the original Tap 42, serving South Andrews since 2011.",
+      "Tap 42 Fort Lauderdale is located at 1411 South Andrews Avenue in Fort Lauderdale.",
+      "Happy hour at Tap 42 Fort Lauderdale runs Monday through Friday from 3 p.m. to 6 p.m. at the bar.",
+      "Weekend bottomless brunch at Tap 42 Fort Lauderdale runs Saturday and Sunday from 11 a.m. to 3 p.m.",
+      "Tap 42 Fort Lauderdale serves burgers including The Prohibition and The Big Smash."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "The original Tap 42 on South Andrews Avenue since 2011",
+    "why_here": "Tap 42 Fort Lauderdale is the original Tap 42 on South Andrews Avenue, serving South Andrews since 2011. It serves burgers including The Prohibition and The Big Smash, plus happy hour and brunch.",
+    "know_before": "Happy hour runs Monday through Friday from 3 p.m. to 6 p.m. at the bar.",
+    "local_tip": "Weekend bottomless brunch runs Saturday and Sunday from 11 a.m. to 3 p.m.",
+    "best_time": "Weekday happy hour, Monday through Friday from 3 p.m. to 6 p.m. at the bar.",
+    "citations": {
+     "hook": [
+      "https://tap42.com/locations/ft-lauderdale/"
+     ],
+     "why_here": [
+      "https://tap42.com/locations/ft-lauderdale/"
+     ],
+     "know_before": [
+      "https://tap42.com/locations/ft-lauderdale/"
+     ],
+     "local_tip": [
+      "https://tap42.com/locations/ft-lauderdale/"
+     ],
+     "best_time": [
+      "https://tap42.com/locations/ft-lauderdale/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Tap 42 Fort Lauderdale is the original Tap 42, serving South Andrews since 2011.",
+      "source": "https://tap42.com/locations/ft-lauderdale/"
+     },
+     {
+      "claim": "Tap 42 Fort Lauderdale is located at 1411 South Andrews Avenue in Fort Lauderdale.",
+      "source": "https://tap42.com/locations/ft-lauderdale/"
+     },
+     {
+      "claim": "Happy hour at Tap 42 Fort Lauderdale runs Monday through Friday from 3 p.m. to 6 p.m. at the bar.",
+      "source": "https://tap42.com/locations/ft-lauderdale/"
+     },
+     {
+      "claim": "Weekend bottomless brunch at Tap 42 Fort Lauderdale runs Saturday and Sunday from 11 a.m. to 3 p.m.",
+      "source": "https://tap42.com/locations/ft-lauderdale/"
+     },
+     {
+      "claim": "Tap 42 Fort Lauderdale serves burgers including The Prohibition and The Big Smash.",
+      "source": "https://tap42.com/locations/ft-lauderdale/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJH-NGt9smkYgRORatxWn69FU",
+   "name": "Navarre Beach Marine Park",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "tourist_attraction",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.santarosa.fl.gov/318/Navarre-Beach-Department",
+     "source_name": "Navarre Beach Marine Park \u2014 official source",
+     "source_class": "government",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Santa Rosa County provides an NB Marine Park (Pavilion / Reef) Map for Navarre Beach.",
+      "Beach rules for Navarre Beach include no glass, no fires, and no pets allowed on the beach.",
+      "Beach rules for Navarre Beach include no overnight parking and no camping.",
+      "Personal property left unattended after sunset will be removed and disposed of at Navarre Beach.",
+      "Santa Rosa County has a Leave No Trace ordinance for Navarre Beach.",
+      "Pavilion reservations for Navarre Beach are available through Santa Rosa County."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "County beach park with pavilions and a reef map on Navarre Beach",
+    "why_here": "Santa Rosa County links to an NB Marine Park pavilion and reef map and to pavilion reservations for Navarre Beach. The page also lists beach rules and facilities information for visitors planning a day at the beach.",
+    "know_before": "No pets are allowed on the beach, and no glass, fires, overnight parking or camping are allowed at Navarre Beach.",
+    "local_tip": "Personal property left unattended after sunset will be removed under the Santa Rosa County Leave No Trace ordinance.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.santarosa.fl.gov/318/Navarre-Beach-Department"
+     ],
+     "why_here": [
+      "https://www.santarosa.fl.gov/318/Navarre-Beach-Department"
+     ],
+     "know_before": [
+      "https://www.santarosa.fl.gov/318/Navarre-Beach-Department"
+     ],
+     "local_tip": [
+      "https://www.santarosa.fl.gov/318/Navarre-Beach-Department"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Santa Rosa County provides an NB Marine Park (Pavilion / Reef) Map for Navarre Beach.",
+      "source": "https://www.santarosa.fl.gov/318/Navarre-Beach-Department"
+     },
+     {
+      "claim": "Beach rules for Navarre Beach include no glass, no fires, and no pets allowed on the beach.",
+      "source": "https://www.santarosa.fl.gov/318/Navarre-Beach-Department"
+     },
+     {
+      "claim": "Beach rules for Navarre Beach include no overnight parking and no camping.",
+      "source": "https://www.santarosa.fl.gov/318/Navarre-Beach-Department"
+     },
+     {
+      "claim": "Personal property left unattended after sunset will be removed and disposed of at Navarre Beach.",
+      "source": "https://www.santarosa.fl.gov/318/Navarre-Beach-Department"
+     },
+     {
+      "claim": "Santa Rosa County has a Leave No Trace ordinance for Navarre Beach.",
+      "source": "https://www.santarosa.fl.gov/318/Navarre-Beach-Department"
+     },
+     {
+      "claim": "Pavilion reservations for Navarre Beach are available through Santa Rosa County.",
+      "source": "https://www.santarosa.fl.gov/318/Navarre-Beach-Department"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJAQBAxzsA2YgR1jF5vhZr1sI",
+   "name": "Tropical Acres Steakhouse",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "steak_house",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.tropicalacres.com/",
+     "source_name": "Tropical Acres Steakhouse \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Tropical Acres Steakhouse describes itself as South Florida's oldest steakhouse.",
+      "Reservations at Tropical Acres Steakhouse are highly recommended and only accepted via telephone.",
+      "Tropical Acres Steakhouse serves Prime Ribs of Beef Au Jus.",
+      "Tropical Acres Steakhouse offers a Twin Maine Lobster Special with two 1-lb Maine lobsters, salad, a side, rolls, and butter for $40 Monday through Friday while supplies last."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Twin Maine Lobster Special and Prime Ribs of Beef Au Jus",
+    "why_here": "Tropical Acres Steakhouse describes itself as South Florida's oldest steakhouse. Its menu features Prime Ribs of Beef Au Jus and a Twin Maine Lobster Special served Monday through Friday while supplies last.",
+    "know_before": "Reservations are highly recommended and only accepted via telephone.",
+    "local_tip": "The Twin Maine Lobster Special is available Monday through Friday while supplies last.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.tropicalacres.com/"
+     ],
+     "why_here": [
+      "https://www.tropicalacres.com/"
+     ],
+     "know_before": [
+      "https://www.tropicalacres.com/"
+     ],
+     "local_tip": [
+      "https://www.tropicalacres.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Tropical Acres Steakhouse describes itself as South Florida's oldest steakhouse.",
+      "source": "https://www.tropicalacres.com/"
+     },
+     {
+      "claim": "Reservations at Tropical Acres Steakhouse are highly recommended and only accepted via telephone.",
+      "source": "https://www.tropicalacres.com/"
+     },
+     {
+      "claim": "Tropical Acres Steakhouse serves Prime Ribs of Beef Au Jus.",
+      "source": "https://www.tropicalacres.com/"
+     },
+     {
+      "claim": "Tropical Acres Steakhouse offers a Twin Maine Lobster Special with two 1-lb Maine lobsters, salad, a side, rolls, and butter for $40 Monday through Friday while supplies last.",
+      "source": "https://www.tropicalacres.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJLe1Qway22YgRrteNP0IoMoE",
+   "name": "SuViche \u2013 Sushi and Ceviche",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "peruvian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://suviche.com/menu/",
+     "source_name": "SuViche \u2013 Sushi and Ceviche \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Ceviche with leche de tigre, cancha, choclo, camote, red onions, and plantain chips is listed on the menu.",
+      "Arroz Chaufa is listed as fried rice with hoisin, oyster sauce, soy, red bell pepper, red onions, and scallions.",
+      "Sushi rolls with soy paper, crispy shrimp, cream cheese, and avocado are listed on the menu.",
+      "SuViche lists ceviche and sushi rolls on its menu."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Ceviche with leche de tigre and sushi rolls with soy paper",
+    "why_here": "SuViche lists ceviche with leche de tigre, cancha, choclo, camote, red onions, and plantain chips, alongside sushi rolls with soy paper and Arroz Chaufa fried rice with scallions.",
+    "know_before": "The menu lists sushi rolls with soy paper, crispy shrimp, cream cheese, and avocado.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://suviche.com/menu/"
+     ],
+     "why_here": [
+      "https://suviche.com/menu/"
+     ],
+     "know_before": [
+      "https://suviche.com/menu/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Ceviche with leche de tigre, cancha, choclo, camote, red onions, and plantain chips is listed on the menu.",
+      "source": "https://suviche.com/menu/"
+     },
+     {
+      "claim": "Arroz Chaufa is listed as fried rice with hoisin, oyster sauce, soy, red bell pepper, red onions, and scallions.",
+      "source": "https://suviche.com/menu/"
+     },
+     {
+      "claim": "Sushi rolls with soy paper, crispy shrimp, cream cheese, and avocado are listed on the menu.",
+      "source": "https://suviche.com/menu/"
+     },
+     {
+      "claim": "SuViche lists ceviche and sushi rolls on its menu.",
+      "source": "https://suviche.com/menu/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ54--tYes2YgR6g_uNs7YeQg",
+   "name": "PlugIN Karaoke",
+   "category": "nightlife",
+   "metro": "miami-dade",
+   "primary_type": "karaoke",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.pluginkaraoke.com/private-event-space-south-florida/",
+     "source_name": "PlugIN Karaoke \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "PlugIN offers private event venue rental in South Florida.",
+      "PlugIN is centrally located at the Gulfstream in Hallandale Beach, South Florida.",
+      "The address is Gulfstream Park 801 Silks Run, Suite 2597, Hallandale Beach, Florida 33009.",
+      "PlugIN offers spaces capable of catering to a crowd of around 150 people, with private bars, foods, and drinks.",
+      "PlugIN describes its private event venue rental space as a space for parties and celebrations."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Private event venue rental in South Florida at Gulfstream Park",
+    "why_here": "PlugIN offers private event venue rental in South Florida, centrally located at the Gulfstream in Hallandale Beach. PlugIN offers spaces for a crowd of around 150 people, with private bars, foods, and drinks for parties and celebrations.",
+    "know_before": "The address is Gulfstream Park 801 Silks Run, Suite 2597, Hallandale Beach, Florida 33009.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.pluginkaraoke.com/private-event-space-south-florida/"
+     ],
+     "why_here": [
+      "https://www.pluginkaraoke.com/private-event-space-south-florida/"
+     ],
+     "know_before": [
+      "https://www.pluginkaraoke.com/private-event-space-south-florida/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "PlugIN offers private event venue rental in South Florida.",
+      "source": "https://www.pluginkaraoke.com/private-event-space-south-florida/"
+     },
+     {
+      "claim": "PlugIN is centrally located at the Gulfstream in Hallandale Beach, South Florida.",
+      "source": "https://www.pluginkaraoke.com/private-event-space-south-florida/"
+     },
+     {
+      "claim": "The address is Gulfstream Park 801 Silks Run, Suite 2597, Hallandale Beach, Florida 33009.",
+      "source": "https://www.pluginkaraoke.com/private-event-space-south-florida/"
+     },
+     {
+      "claim": "PlugIN offers spaces capable of catering to a crowd of around 150 people, with private bars, foods, and drinks.",
+      "source": "https://www.pluginkaraoke.com/private-event-space-south-florida/"
+     },
+     {
+      "claim": "PlugIN describes its private event venue rental space as a space for parties and celebrations.",
+      "source": "https://www.pluginkaraoke.com/private-event-space-south-florida/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ74F1IxC35YgR1L5FMk_Xi1c",
+   "name": "Friendship Fountain",
+   "category": "attractions",
+   "metro": "st-augustine-fl",
+   "primary_type": "fountain",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.jacksonville.gov/departments/parks-and-recreation/jaxparks/specialty-parks",
+     "source_name": "Friendship Fountain \u2014 official source",
+     "source_class": "government",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "St Johns River Park a.k.a Friendship Fountain is at 1015 Museum Circle, Jacksonville, FL 32207.",
+      "This downtown, riverfront destination includes open green space, seating and the iconic, colorful, musical Friendship Fountain.",
+      "The listing gives the phone number (904) 630-2489 for St Johns River Park."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Colorful, musical Friendship Fountain in a downtown, riverfront park",
+    "why_here": "St Johns River Park a.k.a Friendship Fountain is a downtown, riverfront destination in Jacksonville. The park includes open green space and seating around the iconic, colorful, musical Friendship Fountain.",
+    "know_before": "The listing gives the phone number (904) 630-2489 for the park.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.jacksonville.gov/departments/parks-and-recreation/jaxparks/specialty-parks"
+     ],
+     "why_here": [
+      "https://www.jacksonville.gov/departments/parks-and-recreation/jaxparks/specialty-parks"
+     ],
+     "know_before": [
+      "https://www.jacksonville.gov/departments/parks-and-recreation/jaxparks/specialty-parks"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "St Johns River Park a.k.a Friendship Fountain is at 1015 Museum Circle, Jacksonville, FL 32207.",
+      "source": "https://www.jacksonville.gov/departments/parks-and-recreation/jaxparks/specialty-parks"
+     },
+     {
+      "claim": "This downtown, riverfront destination includes open green space, seating and the iconic, colorful, musical Friendship Fountain.",
+      "source": "https://www.jacksonville.gov/departments/parks-and-recreation/jaxparks/specialty-parks"
+     },
+     {
+      "claim": "The listing gives the phone number (904) 630-2489 for St Johns River Park.",
+      "source": "https://www.jacksonville.gov/departments/parks-and-recreation/jaxparks/specialty-parks"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ7-kC5C6y2YgR8kFGy8pYlsM",
+   "name": "Amara at Paraiso",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://amaraatparaiso.com/about/",
+     "source_name": "Amara at Paraiso \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Amara at Paraiso is a Miami Waterfront restaurant from James Beard Award-winning Chef and restaurateur, Michael Schwartz.",
+      "Amara resides two blocks east of Biscayne Boulevard off 31st Street.",
+      "Amara is a Waterfront Miami restaurant on Biscayne Bay by Michael Schwartz, serving bold, coastal Latin American cuisine.",
+      "Hours are Monday through Thursday 11:30 a.m. to 10 p.m., Friday and Saturday 11:30 a.m. to 10:30 p.m., and Sunday 11 a.m. to 10 p.m.",
+      "Amara at Paraiso is at 3101 NE 7th Avenue, Miami, FL 33137."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Waterfront dining on Biscayne Bay with Latin American cuisine in Miami",
+    "why_here": "Amara at Paraiso is a Waterfront Miami restaurant on Biscayne Bay from James Beard Award-winning Chef Michael Schwartz. Amara serves bold, coastal Latin American cuisine two blocks east of Biscayne Boulevard off 31st Street.",
+    "know_before": "Hours are Monday through Thursday 11:30 a.m. to 10 p.m., Friday and Saturday 11:30 a.m. to 10:30 p.m., and Sunday 11 a.m. to 10 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://amaraatparaiso.com/about/"
+     ],
+     "why_here": [
+      "https://amaraatparaiso.com/about/"
+     ],
+     "know_before": [
+      "https://amaraatparaiso.com/about/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Amara at Paraiso is a Miami Waterfront restaurant from James Beard Award-winning Chef and restaurateur, Michael Schwartz.",
+      "source": "https://amaraatparaiso.com/about/"
+     },
+     {
+      "claim": "Amara resides two blocks east of Biscayne Boulevard off 31st Street.",
+      "source": "https://amaraatparaiso.com/about/"
+     },
+     {
+      "claim": "Amara is a Waterfront Miami restaurant on Biscayne Bay by Michael Schwartz, serving bold, coastal Latin American cuisine.",
+      "source": "https://amaraatparaiso.com/about/"
+     },
+     {
+      "claim": "Hours are Monday through Thursday 11:30 a.m. to 10 p.m., Friday and Saturday 11:30 a.m. to 10:30 p.m., and Sunday 11 a.m. to 10 p.m.",
+      "source": "https://amaraatparaiso.com/about/"
+     },
+     {
+      "claim": "Amara at Paraiso is at 3101 NE 7th Avenue, Miami, FL 33137.",
+      "source": "https://amaraatparaiso.com/about/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJbdkfvOu20YgRQb8VkE5rFJs",
+   "name": "Fogarty's",
+   "category": "food",
+   "metro": "keys",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://fogartysofkeywest.com/about/",
+     "source_name": "Fogarty's \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The property became the site of Fogarty's and the Flying Monkeys Saloon in 2001.",
+      "The historic mansion was constructed by Charles Curry and rebuilt after the 1886 fire.",
+      "Captain Outrageous illustrated the signature frozen drinks at the Monkey Bar.",
+      "Fogarty's and the Flying Monkeys Saloon is at 227 Duval Street in Key West."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Frozen drinks at Fogarty's and the Flying Monkeys Saloon in Key West",
+    "why_here": "Fogarty's and the Flying Monkeys Saloon became the use of the property in 2001, in a historic mansion constructed by Charles Curry and rebuilt after the 1886 fire. The Monkey Bar highlights signature frozen drinks illustrated by Captain Outrageous.",
+    "know_before": "Fogarty's and the Flying Monkeys Saloon is at 227 Duval Street in Key West.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://fogartysofkeywest.com/about/"
+     ],
+     "why_here": [
+      "https://fogartysofkeywest.com/about/"
+     ],
+     "know_before": [
+      "https://fogartysofkeywest.com/about/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The property became the site of Fogarty's and the Flying Monkeys Saloon in 2001.",
+      "source": "https://fogartysofkeywest.com/about/"
+     },
+     {
+      "claim": "The historic mansion was constructed by Charles Curry and rebuilt after the 1886 fire.",
+      "source": "https://fogartysofkeywest.com/about/"
+     },
+     {
+      "claim": "Captain Outrageous illustrated the signature frozen drinks at the Monkey Bar.",
+      "source": "https://fogartysofkeywest.com/about/"
+     },
+     {
+      "claim": "Fogarty's and the Flying Monkeys Saloon is at 227 Duval Street in Key West.",
+      "source": "https://fogartysofkeywest.com/about/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJTyfJgT-cwogRHpT9vt5hE7g",
+   "name": "SunWest Park",
+   "category": "attractions",
+   "metro": "spring-hill-fl",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://sunwestpark.com/",
+     "source_name": "SunWest Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "SunWest Park is a Pasco County Park featuring waterfront recreation.",
+      "Pasco County Parks, Recreation, and Natural Resources manages the park facilities including the beach, swimming areas, restrooms, and parking.",
+      "The Lift Adventure Park operates the aquatic attractions, including the wakeboard cable, the Aqua Park, and paddlesport rentals."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Waterfront recreation with a beach and wakeboard cable in Pasco County",
+    "why_here": "SunWest Park is a Pasco County park featuring waterfront recreation, with a beach and swimming areas managed by Pasco County Parks, Recreation, and Natural Resources. The Lift Adventure Park operates the wakeboard cable, the Aqua Park, and paddlesport rentals.",
+    "know_before": "Pasco County Parks, Recreation, and Natural Resources manages the beach, swimming areas, restrooms, and parking.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://sunwestpark.com/"
+     ],
+     "why_here": [
+      "https://sunwestpark.com/"
+     ],
+     "know_before": [
+      "https://sunwestpark.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "SunWest Park is a Pasco County Park featuring waterfront recreation.",
+      "source": "https://sunwestpark.com/"
+     },
+     {
+      "claim": "Pasco County Parks, Recreation, and Natural Resources manages the park facilities including the beach, swimming areas, restrooms, and parking.",
+      "source": "https://sunwestpark.com/"
+     },
+     {
+      "claim": "The Lift Adventure Park operates the aquatic attractions, including the wakeboard cable, the Aqua Park, and paddlesport rentals.",
+      "source": "https://sunwestpark.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJGRL1NwAz5IgRJgCQYi3SLt8",
+   "name": "Game Over Escape Rooms Jacksonville",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "amusement_center",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://jacksonville.escapegameover.us/en",
+     "source_name": "Game Over Escape Rooms Jacksonville \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Game Over Escape Rooms Jacksonville offers four escape rooms serving St. Johns, Jacksonville, and the surrounding Northeast Florida area, and all adventures are private experiences.",
+      "Rooms include School of Magic, Lost City of Atlantis, Top Secret, and Horror Circus.",
+      "Each escape room adventure lasts 60 minutes.",
+      "Guests should arrive 15 minutes before the scheduled game time for check-in.",
+      "School of Magic and Lost City of Atlantis are the easiest picks for kids, families and first-timers."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Four private escape rooms with 60-minute adventures in Jacksonville",
+    "why_here": "Game Over Escape Rooms Jacksonville offers four escape rooms serving St. Johns and Jacksonville, and all adventures are private experiences. Rooms include School of Magic, Lost City of Atlantis, Top Secret, and Horror Circus, with each adventure lasting 60 minutes.",
+    "know_before": "Arrive 15 minutes before the scheduled game time for check-in.",
+    "local_tip": "School of Magic and Lost City of Atlantis suit kids, families, and first-timers.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://jacksonville.escapegameover.us/en"
+     ],
+     "why_here": [
+      "https://jacksonville.escapegameover.us/en"
+     ],
+     "know_before": [
+      "https://jacksonville.escapegameover.us/en"
+     ],
+     "local_tip": [
+      "https://jacksonville.escapegameover.us/en"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Game Over Escape Rooms Jacksonville offers four escape rooms serving St. Johns, Jacksonville, and the surrounding Northeast Florida area, and all adventures are private experiences.",
+      "source": "https://jacksonville.escapegameover.us/en"
+     },
+     {
+      "claim": "Rooms include School of Magic, Lost City of Atlantis, Top Secret, and Horror Circus.",
+      "source": "https://jacksonville.escapegameover.us/en"
+     },
+     {
+      "claim": "Each escape room adventure lasts 60 minutes.",
+      "source": "https://jacksonville.escapegameover.us/en"
+     },
+     {
+      "claim": "Guests should arrive 15 minutes before the scheduled game time for check-in.",
+      "source": "https://jacksonville.escapegameover.us/en"
+     },
+     {
+      "claim": "School of Magic and Lost City of Atlantis are the easiest picks for kids, families and first-timers.",
+      "source": "https://jacksonville.escapegameover.us/en"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJtwclboO22YgRoEae3LsRNio",
+   "name": "Sugar Rooftop",
+   "category": "nightlife",
+   "metro": "miami-dade",
+   "primary_type": "bar",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.easthotels.com/en/miami/restaurants-and-bars/sugar/",
+     "source_name": "Sugar Rooftop \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Sugar is a rooftop bar and garden in Brickell on the 40th floor of EAST Miami.",
+      "Sugar offers panoramic views of Biscayne Bay paired with live DJ sets.",
+      "Sugar serves original cocktails from a hand-carved Balinese bar alongside Asian-inspired share plates.",
+      "On Sunday, Sugar opens at 12 p.m., and on Monday to Wednesday, Sugar opens at 4 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Rooftop bar and garden on the 40th floor of EAST Miami in Brickell",
+    "why_here": "Sugar is a rooftop bar and garden in Brickell on the 40th floor of EAST Miami, with panoramic views of Biscayne Bay and live DJ sets. It serves original cocktails from a hand-carved Balinese bar alongside Asian-inspired share plates.",
+    "know_before": "On Sunday, Sugar opens at 12 p.m., and on Monday to Wednesday, Sugar opens at 4 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.easthotels.com/en/miami/restaurants-and-bars/sugar/"
+     ],
+     "why_here": [
+      "https://www.easthotels.com/en/miami/restaurants-and-bars/sugar/"
+     ],
+     "know_before": [
+      "https://www.easthotels.com/en/miami/restaurants-and-bars/sugar/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Sugar is a rooftop bar and garden in Brickell on the 40th floor of EAST Miami.",
+      "source": "https://www.easthotels.com/en/miami/restaurants-and-bars/sugar/"
+     },
+     {
+      "claim": "Sugar offers panoramic views of Biscayne Bay paired with live DJ sets.",
+      "source": "https://www.easthotels.com/en/miami/restaurants-and-bars/sugar/"
+     },
+     {
+      "claim": "Sugar serves original cocktails from a hand-carved Balinese bar alongside Asian-inspired share plates.",
+      "source": "https://www.easthotels.com/en/miami/restaurants-and-bars/sugar/"
+     },
+     {
+      "claim": "On Sunday, Sugar opens at 12 p.m., and on Monday to Wednesday, Sugar opens at 4 p.m.",
+      "source": "https://www.easthotels.com/en/miami/restaurants-and-bars/sugar/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJMUSwboO22YgRDFlX6qQGxrE",
+   "name": "EAST Miami",
+   "category": "hotels",
+   "metro": "miami-dade",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.easthotels.com/en/miami/",
+     "source_name": "EAST Miami \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "EAST Miami is a design hotel with four pools in Brickell City Centre.",
+      "EAST Miami has lush outdoor spaces and a rooftop bar.",
+      "EAST Miami restaurants and bars include Quinto and Sugar.",
+      "EAST Miami is at 788 Brickell Plaza, Miami, FL 33131."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Design hotel with four pools in Brickell City Centre",
+    "why_here": "EAST Miami is a design hotel with four pools and lush outdoor spaces in Brickell City Centre. Its restaurants and bars include Quinto and Sugar, and the hotel also has a rooftop bar.",
+    "know_before": "EAST Miami is at 788 Brickell Plaza, Miami, per the official site.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.easthotels.com/en/miami/"
+     ],
+     "why_here": [
+      "https://www.easthotels.com/en/miami/"
+     ],
+     "know_before": [
+      "https://www.easthotels.com/en/miami/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "EAST Miami is a design hotel with four pools in Brickell City Centre.",
+      "source": "https://www.easthotels.com/en/miami/"
+     },
+     {
+      "claim": "EAST Miami has lush outdoor spaces and a rooftop bar.",
+      "source": "https://www.easthotels.com/en/miami/"
+     },
+     {
+      "claim": "EAST Miami restaurants and bars include Quinto and Sugar.",
+      "source": "https://www.easthotels.com/en/miami/"
+     },
+     {
+      "claim": "EAST Miami is at 788 Brickell Plaza, Miami, FL 33131.",
+      "source": "https://www.easthotels.com/en/miami/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJpde_H5BX3IgRIwXZXrgsE40",
+   "name": "Cody's Original Roadhouse - Sebring",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "steak_house",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.codysoriginalroadhouse.com/",
+     "source_name": "Cody's Original Roadhouse - Sebring \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "You\u2019ll start with buckets of peanuts for snackin\u2019 and crackin\u2019.",
+      "The menu includes flame-broiled USDA Choice Steaks, Slow Roasted Prime Rib of Beef, and Baby Back Pork Ribs."
+     ]
+    },
+    {
+     "source": "https://www.codysoriginalroadhouse.com/sebring",
+     "source_name": "Cody's Original Roadhouse - Sebring \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Cody's - Sebring is at 521 US-27, Sebring, FL 33870.",
+      "Sebring hours are Monday - Thursday: 3 pm - 9 pm, Friday & Saturday: 3 pm - 10 pm, Sunday: 11 am - 9 pm."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Buckets of peanuts precede flame-broiled steaks at this Sebring roadhouse",
+    "why_here": "Cody's Sebring serves flame-broiled USDA Choice steaks, slow-roasted prime rib and baby back ribs in a casual roadhouse setting. The menu also covers fajitas, fresh fish and bottomless salad, making it a filling stop for groups.",
+    "know_before": "The Sebring location is at 521 US-27 and opens at 3 p.m. Monday through Saturday.",
+    "local_tip": "Start with the buckets of peanuts the chain serves for snacking before steaks arrive.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.codysoriginalroadhouse.com/",
+      "https://www.codysoriginalroadhouse.com/sebring"
+     ],
+     "why_here": [
+      "https://www.codysoriginalroadhouse.com/",
+      "https://www.codysoriginalroadhouse.com/sebring"
+     ],
+     "know_before": [
+      "https://www.codysoriginalroadhouse.com/",
+      "https://www.codysoriginalroadhouse.com/sebring"
+     ],
+     "local_tip": [
+      "https://www.codysoriginalroadhouse.com/",
+      "https://www.codysoriginalroadhouse.com/sebring"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "You\u2019ll start with buckets of peanuts for snackin\u2019 and crackin\u2019.",
+      "source": "https://www.codysoriginalroadhouse.com/"
+     },
+     {
+      "claim": "The menu includes flame-broiled USDA Choice Steaks, Slow Roasted Prime Rib of Beef, and Baby Back Pork Ribs.",
+      "source": "https://www.codysoriginalroadhouse.com/"
+     },
+     {
+      "claim": "Cody's - Sebring is at 521 US-27, Sebring, FL 33870.",
+      "source": "https://www.codysoriginalroadhouse.com/sebring"
+     },
+     {
+      "claim": "Sebring hours are Monday - Thursday: 3 pm - 9 pm, Friday & Saturday: 3 pm - 10 pm, Sunday: 11 am - 9 pm.",
+      "source": "https://www.codysoriginalroadhouse.com/sebring"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ2w31c3C954gRI794yncZDbU",
+   "name": "Hurricane Dockside Grill-Tavares",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.hurricanedockside.com/menus/",
+     "source_name": "Hurricane Dockside Grill-Tavares \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Hurricane Dockside Grill in Tavares lists Bavarian Pretzel & Beer Cheese Dip on its menu.",
+      "Beach Bowls are served on a bed of cilantro lime rice.",
+      "The Calypso Seafood bowl includes Cajun seasoned shrimp and mahi mahi."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Beach Bowls on cilantro lime rice with Bavarian Pretzel & Beer Cheese Dip",
+    "why_here": "Hurricane Dockside Grill in Tavares serves Beach Bowls on a bed of cilantro lime rice, including the Calypso Seafood bowl with Cajun seasoned shrimp and mahi mahi. The menu also lists Bavarian Pretzel & Beer Cheese Dip.",
+    "know_before": "Beach Bowls are served on a bed of cilantro lime rice, per the menu.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.hurricanedockside.com/menus/"
+     ],
+     "why_here": [
+      "https://www.hurricanedockside.com/menus/"
+     ],
+     "know_before": [
+      "https://www.hurricanedockside.com/menus/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Hurricane Dockside Grill in Tavares lists Bavarian Pretzel & Beer Cheese Dip on its menu.",
+      "source": "https://www.hurricanedockside.com/menus/"
+     },
+     {
+      "claim": "Beach Bowls are served on a bed of cilantro lime rice.",
+      "source": "https://www.hurricanedockside.com/menus/"
+     },
+     {
+      "claim": "The Calypso Seafood bowl includes Cajun seasoned shrimp and mahi mahi.",
+      "source": "https://www.hurricanedockside.com/menus/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJIZ6jniIC2YgRsqE4BzlH974",
+   "name": "Mom's Kitchen",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://momskitchenrestaurant.com/page/contact-us-",
+     "source_name": "Mom's Kitchen \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Mom's Kitchen is at 1940 NE 45th St, Fort Lauderdale, FL 33308."
+     ]
+    },
+    {
+     "source": "https://momskitchenrestaurant.com/page/fort-lauderdale",
+     "source_name": "Mom's Kitchen \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Fort Lauderdale page says pancakes, eggs, and omelets are made all day."
+     ]
+    },
+    {
+     "source": "https://momskitchenrestaurant.com/page/dinner",
+     "source_name": "Mom's Kitchen \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Our full breakfast menu is also available until 8pm Wednesday through Friday.",
+      "Top dinner picks include the Classic Turkey Dinner and Dad's Meatloaf."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "All-day breakfast in Fort Lauderdale, with breakfast for dinner midweek",
+    "why_here": "Mom's Kitchen in Fort Lauderdale focuses on breakfast, brunch and lunch, with pancakes, eggs, omelets and biscuits and gravy made all day. Dinner nights add comfort plates while keeping the full breakfast menu available.",
+    "know_before": "The full breakfast menu is also available until 8 p.m. Wednesday through Friday.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://momskitchenrestaurant.com/page/contact-us-",
+      "https://momskitchenrestaurant.com/page/fort-lauderdale",
+      "https://momskitchenrestaurant.com/page/dinner"
+     ],
+     "why_here": [
+      "https://momskitchenrestaurant.com/page/contact-us-",
+      "https://momskitchenrestaurant.com/page/fort-lauderdale",
+      "https://momskitchenrestaurant.com/page/dinner"
+     ],
+     "know_before": [
+      "https://momskitchenrestaurant.com/page/contact-us-",
+      "https://momskitchenrestaurant.com/page/fort-lauderdale",
+      "https://momskitchenrestaurant.com/page/dinner"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Mom's Kitchen is at 1940 NE 45th St, Fort Lauderdale, FL 33308.",
+      "source": "https://momskitchenrestaurant.com/page/contact-us-"
+     },
+     {
+      "claim": "The Fort Lauderdale page says pancakes, eggs, and omelets are made all day.",
+      "source": "https://momskitchenrestaurant.com/page/fort-lauderdale"
+     },
+     {
+      "claim": "Our full breakfast menu is also available until 8pm Wednesday through Friday.",
+      "source": "https://momskitchenrestaurant.com/page/dinner"
+     },
+     {
+      "claim": "Top dinner picks include the Classic Turkey Dinner and Dad's Meatloaf.",
+      "source": "https://momskitchenrestaurant.com/page/dinner"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJRTHx8tH2wogR0k-XR51sdLY",
+   "name": "Sandpearl Resort",
+   "category": "hotels",
+   "metro": "florida",
+   "primary_type": "resort_hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.sandpearl.com/",
+     "source_name": "Sandpearl Resort \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Our recently renovated 253 guest rooms and suites evoke the relaxed essence of our Gulf Coast setting.",
+      "Rooms offer private balconies offering sweeping views of Clearwater, Mandalay Bay, and the Gulf.",
+      "Sandpearl Resort is at 500 Mandalay Ave, Clearwater Beach, FL 33767."
+     ]
+    },
+    {
+     "source": "https://www.sandpearl.com/accommodations/",
+     "source_name": "Sandpearl Resort \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Guest rooms in Clearwater include a private furnished balcony and coastal-inspired decor."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "253 renovated rooms with private balconies on Clearwater Beach",
+    "why_here": "Sandpearl Resort sits on the white sands of Clearwater Beach with Gulf-facing rooms and suites. Guest rooms pair coastal-inspired decor with private balconies overlooking Clearwater, Mandalay Bay and the Gulf, and the resort includes spa and dining options.",
+    "know_before": "The resort address is 500 Mandalay Ave, Clearwater Beach, FL 33767.",
+    "local_tip": "Choose a balcony room for the Gulf and bay views the resort highlights.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.sandpearl.com/",
+      "https://www.sandpearl.com/accommodations/"
+     ],
+     "why_here": [
+      "https://www.sandpearl.com/",
+      "https://www.sandpearl.com/accommodations/"
+     ],
+     "know_before": [
+      "https://www.sandpearl.com/",
+      "https://www.sandpearl.com/accommodations/"
+     ],
+     "local_tip": [
+      "https://www.sandpearl.com/",
+      "https://www.sandpearl.com/accommodations/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Our recently renovated 253 guest rooms and suites evoke the relaxed essence of our Gulf Coast setting.",
+      "source": "https://www.sandpearl.com/"
+     },
+     {
+      "claim": "Rooms offer private balconies offering sweeping views of Clearwater, Mandalay Bay, and the Gulf.",
+      "source": "https://www.sandpearl.com/"
+     },
+     {
+      "claim": "Guest rooms in Clearwater include a private furnished balcony and coastal-inspired decor.",
+      "source": "https://www.sandpearl.com/accommodations/"
+     },
+     {
+      "claim": "Sandpearl Resort is at 500 Mandalay Ave, Clearwater Beach, FL 33767.",
+      "source": "https://www.sandpearl.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJgRmqxBYe2YgRXi_iAPFioeA",
+   "name": "Boomers Boca Raton",
+   "category": "attractions",
+   "metro": "palm-beach",
+   "primary_type": "amusement_park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://boomersparks.com/boca/",
+     "source_name": "Boomers Boca Raton \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "From go-karts and bumper boats to laser tag and arcade games, Boomers has a variety of engaging activities for all ages.",
+      "Boomers Boca Raton is at 3100 Airport Road, Boca Raton, FL 33431."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Go-karts, bumper boats, laser tag and arcade games in Boca Raton",
+    "why_here": "Boomers Boca Raton is a family entertainment center built around active attractions rather than a single ride. The official site lists go-karts and bumper boats alongside laser tag and arcade games for all ages.",
+    "know_before": "The Boca Raton address listed by Boomers is 3100 Airport Road, Boca Raton, FL 33431.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://boomersparks.com/boca/"
+     ],
+     "why_here": [
+      "https://boomersparks.com/boca/"
+     ],
+     "know_before": [
+      "https://boomersparks.com/boca/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "From go-karts and bumper boats to laser tag and arcade games, Boomers has a variety of engaging activities for all ages.",
+      "source": "https://boomersparks.com/boca/"
+     },
+     {
+      "claim": "Boomers Boca Raton is at 3100 Airport Road, Boca Raton, FL 33431.",
+      "source": "https://boomersparks.com/boca/"
+     }
+    ]
+   }
+  }
+ ]
+}

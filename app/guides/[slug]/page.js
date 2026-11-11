@@ -53,6 +53,7 @@ import GuidePickDecision from "./GuidePickDecision";
 import { inlineBookConfig } from "../../../lib/guideInlineBook";
 import GuidePickOffer from "./GuidePickOffer";
 import { guidePickOffers, replacesCityStrip } from "../../../lib/guidePickOffers";
+import { orlandoExactTiqetsEntry } from "../../../lib/orlandoGuideTickets";
 import { COUPONS, couponIsLive, couponEndsLabel } from "../../../lib/coupons";
 // Venue-local US Eastern, DST-aware. NEVER new Date().toISOString() — that is UTC
 // and expires a coupon roughly four hours early.
@@ -384,6 +385,7 @@ async function inventoryPlacesForRegion(region, limit = 80) {
 }
 
 import { guidePlaceFigureImage } from "../../../lib/guidePlaceFigureImage.js";
+import { guidePickFacts } from "../../../lib/guidePickFacts.js";
 import { withAttributableSpotPhotos } from "../../../lib/guideSpotPhotos.js";
 import GuideMapExplorer from "../../components/GuideMapExplorer";
 import { guidePickMayResolvePlaceCard, resolveGuidePickPlaceId } from "../../../lib/guidePlaceIdentity.js";
@@ -392,6 +394,8 @@ import { WF_PLACE_CARD_CSS } from "../../components/css";
 import DiscoveryPaths from "../../components/DiscoveryPaths";
 import GuideArticleHero from "../../components/GuideArticleHero";
 import GuideFigure from "../../components/GuideFigureWithFallback.js";
+import GuideNeutralFigure from "../../components/GuideNeutralFigure.js";
+import { guideFinalRung, guideUsesNeutralFallback } from "../../../lib/guideNeutralFallback.js";
 import { guideHero } from "../../../lib/guideHero";
 import { HERO_CARD_DESIGN_V } from "../../../lib/heroCard.js";
 // The floating pill stays (it catches people who DO read to the end). This adds
@@ -470,6 +474,9 @@ const S = {
   p: { fontSize: 16, color: "#CBD5E1", margin: "0 0 18px" },
   h2: { fontSize: 21, fontWeight: 800, color: "#FFFFFF", margin: "26px 0 6px" },
   tip: { fontSize: 14, color: "#8ED6C4", margin: "6px 0 0" },
+  facts: { display: "flex", flexWrap: "wrap", gap: "6px 18px", margin: "10px 0 2px", padding: "10px 14px", background: "#0B1220", border: "1px solid #22304A", borderRadius: 12 },
+  factLabel: { fontSize: 11, fontWeight: 800, letterSpacing: "1.2px", textTransform: "uppercase", color: "#F97316", marginRight: 6 },
+  factValue: { fontSize: 14, fontWeight: 700, color: "#F1F5F9" },
   btn: { display: "inline-block", marginTop: 10, padding: "9px 16px", borderRadius: 999, background: "#F97316", color: "#0D1117", fontWeight: 800, fontSize: 14, textDecoration: "none" },
   btnGhost: { display: "inline-block", marginTop: 10, marginLeft: 8, padding: "9px 16px", borderRadius: 999, border: "1.5px solid #F97316", color: "#F97316", fontWeight: 800, fontSize: 14, textDecoration: "none" },
   disclosure: { fontSize: 12, color: "#94A3B8", margin: "22px 0", padding: "10px 14px", background: "#161B22", borderRadius: 10 },
@@ -636,7 +643,11 @@ export default async function GuidePage({ params }) {
   const curatedPickImages = g.picks.map((pick) => guidePickFigureImage(params.slug, pick) || guidePickPhoto(params.slug, pick.name));
   const fallbackPickImages = [];
   const editorialImages = new Map();
-  const missingPickPhotos = g.picks
+  // A guide that opted into the neutral fallback never reaches for a place photo
+  // it holds only through Google: no approved exact photo means the neutral tile.
+  const neutralGuide = guideUsesNeutralFallback(g);
+  const neutralPickFigures = [];
+  const missingPickPhotos = (neutralGuide ? [] : g.picks)
     .map((p, idx) => (!curatedPickImages[idx] && pickPlaceIds[idx]) ? (pickPlaces[idx] || { id: pickPlaceIds[idx], name: p.name }) : null)
     .filter(Boolean);
   await Promise.all([...new Map([...missingPickPhotos, ...placeRail.places].filter(Boolean).map((place) => [place.id, place])).values()].map(async (place) => {
@@ -665,9 +676,17 @@ export default async function GuidePage({ params }) {
     // after the exact place's licensed media is exhausted do we illustrate
     // its topic, visibly labelled and credited under the shared figure.
     g.picks.forEach((pick, i) => {
-      fallbackPickImages[i] = guideContextPhoto(params.slug, pick, g, { usedSrc });
       if (!curatedPickImages[i] && !editorialImages.get(pickPlaceIds[i])) {
-        curatedPickImages[i] = fallbackPickImages[i];
+        const rung = guideFinalRung(params.slug, pick, g, { usedSrc });
+        if (rung.kind === "neutral") { neutralPickFigures[i] = rung.media; return; }
+        curatedPickImages[i] = rung.media;
+        fallbackPickImages[i] = rung.media;
+      }
+    });
+    g.picks.forEach((pick, i) => {
+      // A neutral guide never swaps a failed exact photo for a context photo.
+      if (!fallbackPickImages[i] && !neutralGuide) {
+        fallbackPickImages[i] = guideContextPhoto(params.slug, pick, g, { usedSrc: new Set(usedSrc) });
       }
     });
     for (const place of placeRail.places) {
@@ -889,7 +908,7 @@ export default async function GuidePage({ params }) {
         .wf-gd-list{list-style:none;margin:0;padding:0}
         .wf-gd-card{display:grid;grid-template-columns:96px minmax(0,1fr);gap:14px;align-items:start;text-decoration:none;color:inherit;background:#141c27;border:1px solid #2D3748;border-radius:14px;padding:12px;margin:0 0 10px;transition:border-color .15s ease}
         .wf-gd-card:hover{border-color:#FBBF24}
-        .wf-gd-img{width:96px;height:96px;object-fit:cover;border-radius:10px;display:block;background:#0d131b}
+        .wf-gd-photo{position:relative;display:block;width:fit-content}.wf-gd-img{width:96px;height:96px;object-fit:cover;border-radius:10px;display:block;background:#0d131b}.wf-gd-credit{position:absolute;left:4px;right:4px;bottom:4px;margin:0;color:rgba(255,255,255,.6);font-size:9px;font-weight:500;line-height:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 1px 2px rgba(0,0,0,.65)}
         .wf-gd-body{min-width:0}
         .wf-gd-top{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
         .wf-gd-title{font-size:16px;font-weight:750;color:#F1F5F9;overflow-wrap:anywhere}
@@ -1050,6 +1069,9 @@ export default async function GuidePage({ params }) {
           lng={bridgeCity.lng}
         />
       ) : null}
+      {params.slug === "things-to-do-orlando-not-theme-parks" ? (
+        <GuidePickOffer entry={orlandoExactTiqetsEntry()} slug={params.slug} />
+      ) : null}
       <div className="wf-guide-disclosure">We may earn a commission when you book through partner links. It never changes our rankings.</div>
       {/* v6.71 — the per-pick link wall is GONE. Each pick used to carry
           "Check tours & tickets" + "Check rates" + "Open in Wayfind"; measured
@@ -1139,10 +1161,24 @@ export default async function GuidePage({ params }) {
             <div>
               <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: "1.4px", textTransform: "uppercase", color: "#F97316" }}>{pick.eyebrow || (i === 0 ? "The essential" : "The local edit")}</div>
               <h2 style={{ ...S.h2, marginTop: 5, fontFamily: "var(--wf-display)", fontSize: 28 }}>{pick.placeId ? <a href={guidePlacePath(pick.placeId)} style={{ color: "inherit", textDecoration: "underline", textUnderlineOffset: 4 }}>{pick.name}</a> : pick.name}</h2>
+              {neutralPickFigures[i] ? <GuideNeutralFigure name={pick.name} className="wf-guide-pick-figure" /> : null}
               {pickImage ? (
                 <GuideFigure role="pick" image={pickImage} fallbackImage={fallbackPickImages[i]} className="wf-guide-pick-figure" />
               ) : null}
               <p style={S.p}>{pick.blurb}</p>
+              {(() => {
+                const facts = guidePickFacts(pick, g);
+                return facts.length ? (
+                  <dl className="wf-guide-pick-facts" style={S.facts} aria-label={"Planning facts for " + pick.name}>
+                    {facts.map((f) => (
+                      <div key={f.label} style={{ display: "flex", alignItems: "baseline" }}>
+                        <dt style={S.factLabel}>{f.label}</dt>
+                        <dd style={{ margin: 0 }}><span style={S.factValue}>{f.value}</span></dd>
+                      </div>
+                    ))}
+                  </dl>
+                ) : null;
+              })()}
               {pick.tip ? <p className="wf-guide-tip" style={S.tip}>Insider note — {pick.tip}</p> : null}
               {/* guide-inline-book-v1 (lib/guideInlineBook.js): client-only
                   treatment; the server HTML and the control arm are unchanged. */}

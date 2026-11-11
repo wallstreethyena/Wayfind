@@ -543,24 +543,6 @@
    "target": "research"
   },
   {
-   "research_id": "lwr-christmas-on-main-2026",
-   "place_id": "ChIJg2IFCAE5w4gRjoL2et_wuBw",
-   "rail": "towns-markets",
-   "city": "Lakewood Ranch",
-   "venue": "Lakewood Ranch Main Street",
-   "point": {
-    "lat": 27.3952868,
-    "lng": -82.4373428
-   },
-   "inventory": {
-    "name": "Main Street At Lakewood Ranch",
-    "locality": null,
-    "lat": 27.394537,
-    "lng": -82.435258
-   },
-   "target": "research"
-  },
-  {
    "research_id": "yacht-starship-tampa-christmas-eve-dinner-2026",
    "place_id": "ChIJHxcB0vPEwogR3fFnuF_MWmg",
    "rail": "shows-outings",

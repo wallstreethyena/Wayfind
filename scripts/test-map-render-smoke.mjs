@@ -353,7 +353,63 @@ actionCard?.props.onSave({}); actionCard?.props.onOpen(); actionCard?.props.onSh
 ok(actions.length === 3 && actions.every((p) => p === originalPlace), "save, detail and share receive the original identity, never the Apple clone");
 ok(/function quickSaveFavorite\(p[,)]/.test(readFileSync(new URL("../app/home.js", import.meta.url), "utf8")), "the quickSaveFavorite stub above matches the real signature (place first)");
 ok(actionCard?.props.place.lat === null && actionCard?.props.place.lng === null, "card fallback hooks cannot serialize Apple coordinates");
+const listReturnBtn = visitElement(actionTree, (el) => el.type === "button" && Array.isArray(el.props.children) && el.props.children.some((c) => typeof c === "string" && c.includes("List (")));
+ok(!!listReturnBtn, "single-card preview renders the List (N) return button");
 actionHooks.unmount();
 
+// Drawer filter, hover-to-pin sync, and drawer PlaceCard actions
+const drawerHooks = hookHost();
+let drawerPreview = null;
+let drawerOpen = true;
+const drawerSaved = [];
+const drawerLiked = [];
+const placeAlpha = P({ id: "alpha", name: "Alpha Bistro", cuisine: "French" });
+const placeBeta = P({ id: "beta", name: "Beta Bakery", cuisine: "Pastries" });
+let capturedMapProps = null;
+const renderDrawer = () => drawerHooks.render(MapScreen, {
+  ctx: ctxFor({
+    map3D: true,
+    mapDrawer: drawerOpen,
+    mapPreview: drawerPreview,
+    setMapDrawer: (fn) => { drawerOpen = typeof fn === "function" ? fn(drawerOpen) : fn; },
+    setMapPreview: (fn) => { drawerPreview = typeof fn === "function" ? fn(drawerPreview) : fn; },
+    view: [placeAlpha, placeBeta],
+    __mapSmokePlaces: [placeAlpha, placeBeta],
+    PlaceCard: (props) => createElement("div", { "data-place-card": props.p.id }),
+    quickSaveFavorite: (p) => drawerSaved.push(p),
+    toggleLike: (_e, p) => drawerLiked.push(p),
+  }),
+});
+const mapNodeOf = (t) => visitElement(t, (el) => Array.isArray(el.props?.places) && "selectedId" in (el.props || {}));
+let dTree = renderDrawer();
+const filterInput = visitElement(dTree, (el) => el.type === "input" && el.props["aria-label"] === "Filter places in view");
+ok(!!filterInput, "open drawer renders the local filter input");
+const hoverRowAlpha = visitElement(dTree, (el) => typeof el.props?.onMouseEnter === "function" && el.props?.children?.props?.p?.id === "alpha");
+ok(!!hoverRowAlpha, "open drawer wraps PlaceCard rows with hover-to-pin handlers");
+hoverRowAlpha.props.onMouseEnter();
+dTree = renderDrawer();
+ok(mapNodeOf(dTree)?.props?.selectedId === "alpha", "hovering a drawer card highlights its pin on the map via selectedId");
+hoverRowAlpha.props.onMouseLeave();
+dTree = renderDrawer();
+ok(mapNodeOf(dTree)?.props?.selectedId === null, "leaving a drawer card clears the hovered pin highlight");
+filterInput.props.onChange({ target: { value: "Beta" } });
+dTree = renderDrawer();
+ok(renderToStaticMarkup(dTree).includes("1 of 2"), "filtering places in view updates the drawer header count to M of N");
+const betaCard = visitElement(dTree, (el) => el.props?.p?.id === "beta" && typeof el.props?.onDetail === "function");
+ok(!!betaCard && !visitElement(dTree, (el) => el.props?.p?.id === "alpha" && typeof el.props?.onDetail === "function"), "drawer filter narrows visible PlaceCard rows to matching places");
+betaCard.props.onSave();
+betaCard.props.onLike({});
+ok(drawerSaved.length === 1 && drawerSaved[0].id === "beta" && drawerLiked.length === 1 && drawerLiked[0].id === "beta", "drawer PlaceCard save and like actions forward the canonical place");
+betaCard.props.onDetail();
+ok(drawerPreview?.id === "beta" && drawerOpen === false, "selecting a drawer card opens its single-card preview and closes the drawer");
+dTree = renderDrawer();
+ok(renderToStaticMarkup(dTree).includes("List (1)"), "single-card preview List (N) button reflects the filtered active result set");
+drawerHooks.unmount();
+
+const mapScreenRaw = readFileSync(new URL("../app/components/screens/Map.js", import.meta.url), "utf8");
+ok(/const reqId = \+\+areaReqSeq\.current;/.test(mapScreenRaw) && /areaReqSeq\.current !== reqId/.test(mapScreenRaw), "area lifecycle guards out-of-order responses with a monotonic request sequence");
+ok(/const originKey = `\$\{center\?\.lat\}\|\$\{center\?\.lng\}`;/.test(mapScreenRaw) && /const coverageKey = `\$\{originKey\}\|\$\{areaRetry\}\|\$\{curatorSnap\.v\}`;/.test(mapScreenRaw), "area lifecycle separates originKey from coverageKey and excludes category/subfilter from network refetch triggers");
+ok(/existing\.filter\(\(r\) => !placeInMapBounds\(r, viewport\)\)/.test(mapScreenRaw), "completed viewport reads replace stale in-viewport rows while preserving out-of-viewport cache");
+
 if (fail.length) { console.error(`test-map-render-smoke: ${fail.length} FAILURE(S)`); for (const f of fail) console.error("  ✗ " + f); process.exit(1); }
-console.log(`test-map-render-smoke: OK — ${pass} assertions; MapScreen SSR-rendered in ${STATES.length} states plus Apple/MapLibre framing parity; emitted-component hook/effect harness verified SDK rejection, retry, switching and unmount safety`);
+console.log(`test-map-render-smoke: OK — ${pass} assertions; MapScreen SSR-rendered in ${STATES.length} states plus Apple/MapLibre framing parity; emitted-component hook/effect harness verified SDK rejection, retry, switching, drawer filter/hover/actions, and unmount safety`);

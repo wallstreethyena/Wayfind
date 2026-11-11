@@ -9,8 +9,8 @@
 // 3. Honest CTAs: "Book this experience" may not label related-product links.
 // 4. E-E-A-T surfaces stay: named attribution plus the site-level /about,
 //    /editorial-policy and /how-wayfind-ranks pages. Guide body copy stays experience-first.
-// 5. Thin utility pages (/events, /coupons, /map) stay noindexed until they
-//    render real crawlable inventory.
+// 5. Thin utility pages (/coupons, /map) stay noindexed until they render real
+//    crawlable inventory. (/events graduated 2026-11-03: it now renders curated listings.)
 import { readFileSync, readdirSync, statSync, existsSync } from "fs";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
@@ -69,7 +69,7 @@ if (!lay.includes("Quick plans")) fail("use-case links missing from server foote
 if (!lay.includes("affiliate links")) fail("affiliate disclosure missing from server footer");
 if (!lay.includes('rel="preconnect"')) fail("preconnect hints missing");
 if (/\n  title: "Wayfind",/.test(lay)) fail("homepage title must carry search intent, not just the brand");
-if (!lay.includes("Things to Do Near You")) fail("homepage title keywords missing");
+if (!lay.includes("One place worth leaving home for")) fail("homepage title lost the brand line");
 
 // 3. app shell: nav anchors + go-param handoff survive.
 const page = readFileSync(join(root, "app", "home.js"), "utf8");
@@ -119,7 +119,7 @@ if (!page.includes('get("go")')) fail("go-param handoff missing");
 
 // 4. indexing rules per route class.
 for (const r of ["favorites", "itinerary"]) { const s = readFileSync(join(root, "app", r, "page.js"), "utf8"); if (!s.includes("index: false")) fail("/" + r + " must be noindex (private)"); }
-for (const r of ["events", "coupons", "map", "search"]) { const s = readFileSync(join(root, "app", r, "page.js"), "utf8"); if (!s.includes("index: false")) fail("/" + r + " is indexable but renders no crawlable inventory — noindex it or render real listings"); }
+for (const r of ["coupons", "map", "search"]) { const s = readFileSync(join(root, "app", r, "page.js"), "utf8"); if (!s.includes("index: false")) fail("/" + r + " is indexable but renders no crawlable inventory — noindex it or render real listings"); }
 // /search canonicalizes to the homepage: the search is homepage app state
 // (home.js restores /?q=), never a self-canonical hub an arbitrary query
 // combination could inherit.
@@ -129,7 +129,15 @@ for (const r of [["l", "[key]"], ["w"], ["s", "[code]"], ["p", "[id]"]]) { const
 // 5. sitemap lists only index-worthy routes.
 const sm = readFileSync(join(root, "app", "sitemap.js"), "utf8");
 for (const t of ['"/about"', '"/editorial-policy"', '"/how-wayfind-ranks"', '"/guides"']) if (!sm.includes(t)) fail("sitemap missing " + t);
-for (const t of ['"/events"', '"/map"']) if (sm.includes(t)) fail("sitemap lists noindexed route " + t);
+for (const t of ['"/map"']) if (sm.includes(t)) fail("sitemap lists noindexed route " + t);
+// /events is indexable and sitemapped because it renders real inventory. Assert the syntactic roles.
+{
+  const ev = readFileSync(join(root, "app", "events", "page.js"), "utf8").replace(/\/\/.*$/gm, "");
+  if (!/import\s*\{[^}]*\bfetchCuratedEvents\b[^}]*\}\s*from\s*["'][^"']*curatedEvents(?:\.js)?["']/.test(ev)) fail("/events must import fetchCuratedEvents: it is indexable only because it renders curated listings");
+  if (!/\bfetchCuratedEvents\(/.test(ev)) fail("/events imports fetchCuratedEvents but never calls it");
+  if (!/robots:\s*\{\s*index:\s*true\b/.test(ev)) fail("/events must declare robots index: true (it renders real inventory)");
+  if (!/\{\s*url:\s*SITE_URL\s*\+\s*p\s*\}/.test(sm) || !/"\/events"/.test(sm)) fail("/events is indexable but missing from the sitemap");
+}
 
 // 6. honest CTAs + E-E-A-T.
 const culture = readFileSync(join(root, "app", "culture", "[metro]", "page.js"), "utf8");
@@ -234,4 +242,29 @@ for (const r of ["events", "coupons", "map"]) {
   if (!s.includes('canonical: "https://www.gowayfind.com/' + r + '"')) fail("/" + r + " lost its self-canonical");
 }
 
-console.log("check-seo: OK — canonical-or-noindex on " + pages.length + " routes, single H1, honest CTAs, named attribution, share-card rule, sitemap clean");
+// 12. The 2026-11-03 category hubs (#2153) rank on merit. Their titles do not
+//     say "best". Older search surfaces such as /best-beaches keep that word
+//     because people search it and the page states the method.
+const hubPages = ["beaches", "restaurants", "nightlife", "things-to-do"];
+for (const hub of hubPages) {
+  const src = readFileSync(join(root, "app", hub, "page.js"), "utf8").replace(/^\s*\/\/.*$/gm, "");
+  const title = src.match(/const TITLE = "([^"]+)"/);
+  const desc = src.match(/const DESC = "([^"]+)"/);
+  const intro = src.match(/intro="([^"]+)"/);
+  if (!title || !desc || !intro) fail("/" + hub + " lost its TITLE, DESC, or intro");
+  for (const [name, value] of [["title", title[1]], ["description", desc[1]], ["intro", intro[1]]]) {
+    if (/\bbest\b/i.test(value)) fail("/" + hub + " " + name + " says best; these hubs rank on merit and rankings are never for sale");
+  }
+  if (!src.includes("Rankings are never for sale") || !src.includes("on merit")) fail("/" + hub + " must say rankings are on merit and never for sale");
+  if (!src.includes('canonical: SITE_URL + "/' + hub + '"')) fail("/" + hub + " lost its self-canonical");
+}
+
+const HOME_TITLE = "Wayfind | One place worth leaving home for";
+const layNow = readFileSync(join(root, "app", "layout.js"), "utf8");
+const homeNow = readFileSync(join(root, "app", "home.js"), "utf8");
+if ((layNow.match(/Wayfind \| One place worth leaving home for/g) || []).length < 3) fail("homepage title must be on the document, Open Graph, and Twitter cards");
+if (!layNow.includes("Places are ranked on merit. Rankings are never for sale.")) fail("homepage description lost the on merit line");
+if (/Find the Best Things to Do/.test(layNow) || /Find the Best Things to Do/.test(homeNow)) fail("homepage still says Best");
+if (!homeNow.includes(HOME_TITLE)) fail("the home screen fallback title does not match the document title");
+
+console.log("check-seo: OK — canonical-or-noindex on " + pages.length + " routes, single H1, honest CTAs, named attribution, share-card rule, sitemap clean, four category hubs rank on merit without saying best");

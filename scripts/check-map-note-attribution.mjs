@@ -26,7 +26,7 @@ const strip = (src) => src
   .replace(/(^|[^:"'`\\])\/\/[^\n]*/g, "$1");
 
 // ── 1. constants, executed ──────────────────────────────────────────────────
-const { MAP_SAFE_PADDING: PAD, MAP_ATTRIBUTION_BAND: BAND, MAP_NOTE_OFFSET: NOTE, MAPLIBRE_ATTRIBUTION_LIFT } = await import("../lib/mapSafeArea.js");
+const { MAP_SAFE_PADDING: PAD, MAP_ATTRIBUTION_BAND: BAND, MAP_NOTE_OFFSET: NOTE, MAPLIBRE_ATTRIBUTION_LIFT, SEARCH_PILL_NOTE_LIFT } = await import("../lib/mapSafeArea.js");
 ok(BAND >= 40, `attribution band is at least 40px (logo + legal row + air), got ${BAND}`);
 ok(NOTE.bottom >= PAD.bottom + BAND, `note bottom offset ${NOTE.bottom} clears padding.bottom ${PAD.bottom} + band ${BAND}`);
 ok(NOTE.left >= PAD.left && NOTE.right >= PAD.right, "note stays inside the MapKit safe rectangle left/right");
@@ -71,6 +71,15 @@ for (const [W, H] of [[320, 640], [390, 844], [768, 1024], [1280, 900]]) {
   ok(!hit(note, controls), `${W}x${H}: note clears the right-hand control column`);
   ok(note.t >= 150, `${W}x${H}: note stays below the 150px header band`);
 }
+// The note stays while the "Search this area" pill stands (bottom:150, ~40px tall,
+// centered). The wrapper lifts SEARCH_PILL_NOTE_LIFT clear of the pill's top edge.
+for (const [W, H] of [[320, 640], [390, 844], [768, 1024], [1280, 900]]) {
+  const r = rects(W, H);
+  const pillTop = H - 150 - 40;
+  const lifted = { ...r.note, t: r.note.t - SEARCH_PILL_NOTE_LIFT, b: r.note.b - SEARCH_PILL_NOTE_LIFT };
+  ok(lifted.b <= pillTop, `${W}x${H}: lifted note bottom ${lifted.b} sits above the Search-this-area pill top ${pillTop}`);
+  ok(lifted.t >= 150 && !hit(lifted, r.sheet) && !hit(lifted, r.controls), `${W}x${H}: the lifted note stays below the header band and clear of the sheet and control column`);
+}
 // Control: the OLD placement (bottom:142, full width) must be caught by this simulation.
 {
   const W = 390, H = 844;
@@ -99,7 +108,7 @@ ok(noteTag.length > 0 && !/position:\s*"absolute"/.test(screenSrc.match(/<div ro
 const creditTag = screenSrc.match(/<div data-wf-map-credit=[^\n]*?\}\}>/)?.[0] || "";
 ok(creditTag.length > 0 && !/position:\s*"absolute"|\bbottom:/.test(creditTag), "the licence credit has no absolute/bottom of its own (lives in the column, inside the safe area)");
 ok(screenSrc.indexOf("data-wf-map-credit") > screenSrc.indexOf("data-wf-map-notes"), "credit renders inside the column");
-ok(/import \{ MAP_NOTE_OFFSET, MAPLIBRE_ATTRIBUTION_LIFT \} from "\.\.\/\.\.\/\.\.\/lib\/mapSafeArea\.js"/.test(screenSrc), "Map.js imports MAP_NOTE_OFFSET");
+ok(/import \{ MAP_NOTE_OFFSET, MAPLIBRE_ATTRIBUTION_LIFT, SEARCH_PILL_NOTE_LIFT \} from "\.\.\/\.\.\/\.\.\/lib\/mapSafeArea\.js"/.test(screenSrc), "Map.js imports MAP_NOTE_OFFSET");
 
 ok(/\.wf-map-explorer \.maplibregl-ctrl-bottom-left, \.wf-map-explorer \.maplibregl-ctrl-bottom-right \{ margin-bottom: \$\{MAPLIBRE_ATTRIBUTION_LIFT\}px; \}/.test(rawScreen), "3D MapLibre path: OSM/MapLibre attribution controls are lifted by MAPLIBRE_ATTRIBUTION_LIFT (not left under the sheet + tab bar)");
 ok(MAPLIBRE_ATTRIBUTION_LIFT + 10 >= SHEET.bottom + SHEET.collapsedH, `3D attribution lift ${MAPLIBRE_ATTRIBUTION_LIFT} (+10 control margin) clears the collapsed sheet top (${SHEET.bottom + SHEET.collapsedH})`);

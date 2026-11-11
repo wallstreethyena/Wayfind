@@ -1,0 +1,298 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 37. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJbU7Ohu5V5IgRnlcBaBOod7s",
+   "name": "Peters Point Beachfront Park",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.nassaucountyfl.com/Facilities/Facility/Details/Peters-Point-Park-21",
+     "source_name": "Peters Point Beachfront Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Peters Point Park is at 4600 Peters Point Road Fernandina Beach, FL 32034",
+      "Peters Point Park features include Fishing Allowed",
+      "Peters Point Park features include Indoor Showers and Outdoor Showers",
+      "Peters Point Park features include Tables / Picnic Area"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Beachfront park at 4600 Peters Point Road in Fernandina Beach",
+    "why_here": "Peters Point Park in Fernandina Beach is listed at 4600 Peters Point Road with Fishing Allowed, Indoor Showers and Outdoor Showers on site. Its Tables / Picnic Area supports a picnic alongside a visit to the park.",
+    "know_before": "Facilities include Indoor Showers, Outdoor Showers and Tables / Picnic Area.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.nassaucountyfl.com/Facilities/Facility/Details/Peters-Point-Park-21"
+     ],
+     "why_here": [
+      "https://www.nassaucountyfl.com/Facilities/Facility/Details/Peters-Point-Park-21"
+     ],
+     "know_before": [
+      "https://www.nassaucountyfl.com/Facilities/Facility/Details/Peters-Point-Park-21"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Peters Point Park is at 4600 Peters Point Road Fernandina Beach, FL 32034",
+      "source": "https://www.nassaucountyfl.com/Facilities/Facility/Details/Peters-Point-Park-21"
+     },
+     {
+      "claim": "Peters Point Park features include Fishing Allowed",
+      "source": "https://www.nassaucountyfl.com/Facilities/Facility/Details/Peters-Point-Park-21"
+     },
+     {
+      "claim": "Peters Point Park features include Indoor Showers and Outdoor Showers",
+      "source": "https://www.nassaucountyfl.com/Facilities/Facility/Details/Peters-Point-Park-21"
+     },
+     {
+      "claim": "Peters Point Park features include Tables / Picnic Area",
+      "source": "https://www.nassaucountyfl.com/Facilities/Facility/Details/Peters-Point-Park-21"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJC5cg-Y4GmogRfmvedNEA2zY",
+   "name": "Adventure Island",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "amusement_center",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://adventureisland.com/pools/",
+     "source_name": "Adventure Island \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Adventure Island Tampa Bay has a 17,000 square foot wave pool called Endless Surf",
+      "Rambling Bayou at Adventure Island is a calm, half-mile tube trip through the park",
+      "Castaway Falls at Adventure Island has more than 100 distinct play elements",
+      "Shaka-Laka Shores at Adventure Island features 25 play elements"
+     ]
+    },
+    {
+     "source": "https://adventureisland.com/park-info/water-park-hours-b/",
+     "source_name": "Adventure Island \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Adventure Island is a seasonal water park"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Water park with a 17,000 square foot wave pool in Tampa Bay",
+    "why_here": "Adventure Island in Tampa Bay combines Endless Surf, a 17,000 square foot wave pool, with Rambling Bayou, a calm, half-mile tube trip. Castaway Falls has more than 100 distinct play elements and Shaka-Laka Shores features 25 play elements.",
+    "know_before": "Adventure Island is a seasonal water park.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://adventureisland.com/pools/"
+     ],
+     "why_here": [
+      "https://adventureisland.com/pools/"
+     ],
+     "know_before": [
+      "https://adventureisland.com/pools/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Adventure Island Tampa Bay has a 17,000 square foot wave pool called Endless Surf",
+      "source": "https://adventureisland.com/pools/"
+     },
+     {
+      "claim": "Rambling Bayou at Adventure Island is a calm, half-mile tube trip through the park",
+      "source": "https://adventureisland.com/pools/"
+     },
+     {
+      "claim": "Castaway Falls at Adventure Island has more than 100 distinct play elements",
+      "source": "https://adventureisland.com/pools/"
+     },
+     {
+      "claim": "Shaka-Laka Shores at Adventure Island features 25 play elements",
+      "source": "https://adventureisland.com/pools/"
+     },
+     {
+      "claim": "Adventure Island is a seasonal water park",
+      "source": "https://adventureisland.com/park-info/water-park-hours-b/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJwe0w-c3X2IgR0I-Hm2u_LMQ",
+   "name": "Pura Vida Miami",
+   "category": "food",
+   "metro": "palm-beach",
+   "primary_type": "coffee_shop",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.puravidamiami.com/",
+     "source_name": "Pura Vida Miami \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Pura Vida Miami offers a Coco Azul Smoothie at select Florida locations while supplies last",
+      "Pura Vida Miami lists Steak & Eggs and a Breakfast Burrito",
+      "A fall drink is made with double espresso, your choice of milk, and a creamy pumpkin topper, available hot or iced"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Pura Vida Miami serving a Coco Azul Smoothie",
+    "why_here": "Pura Vida Miami offers a Coco Azul Smoothie at select Florida locations while supplies last. Pura Vida Miami lists Steak & Eggs and a Breakfast Burrito, and a fall drink is available hot or iced.",
+    "know_before": "Coco Azul Smoothie is available at select Florida locations while supplies last.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.puravidamiami.com/"
+     ],
+     "why_here": [
+      "https://www.puravidamiami.com/"
+     ],
+     "know_before": [
+      "https://www.puravidamiami.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Pura Vida Miami offers a Coco Azul Smoothie at select Florida locations while supplies last",
+      "source": "https://www.puravidamiami.com/"
+     },
+     {
+      "claim": "Pura Vida Miami lists Steak & Eggs and a Breakfast Burrito",
+      "source": "https://www.puravidamiami.com/"
+     },
+     {
+      "claim": "A fall drink is made with double espresso, your choice of milk, and a creamy pumpkin topper, available hot or iced",
+      "source": "https://www.puravidamiami.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJM605C43EwogRiqZSZufgi_8",
+   "name": "The Sail Plaza",
+   "category": "nightlife",
+   "metro": "tampa",
+   "primary_type": "bar",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.tampa.gov/tcc/the-sail",
+     "source_name": "The Sail Plaza \u2014 official source",
+     "source_class": "government",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Sail at The Sail Plaza serves craft cocktails, frozen drinks, beer & wine",
+      "The Sail hours are Sunday to Thursday: 11:00 a.m. to 11:00 p.m. and Friday and Saturday: 11:00 a.m. to 1:00 a.m.",
+      "The Sail Plaza in Downtown Tampa features The Sail, a 360-degree waterfront bar serving craft cocktails and beer",
+      "The Sail Plaza is located next to the Tampa Convention Center and the Tampa Riverwalk",
+      "The Sail is dog friendly"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "360-degree waterfront bar at The Sail Plaza in Downtown Tampa",
+    "why_here": "The Sail Plaza in Downtown Tampa features The Sail, a 360-degree waterfront bar serving craft cocktails, frozen drinks, beer & wine. The Sail Plaza is located next to the Tampa Convention Center and the Tampa Riverwalk for a waterfront stop.",
+    "know_before": "Hours are Sunday to Thursday: 11:00 a.m. to 11:00 p.m. and Friday and Saturday: 11:00 a.m. to 1:00 a.m.",
+    "local_tip": "The Sail is dog friendly.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.tampa.gov/tcc/the-sail"
+     ],
+     "why_here": [
+      "https://www.tampa.gov/tcc/the-sail"
+     ],
+     "know_before": [
+      "https://www.tampa.gov/tcc/the-sail"
+     ],
+     "local_tip": [
+      "https://www.tampa.gov/tcc/the-sail"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Sail at The Sail Plaza serves craft cocktails, frozen drinks, beer & wine",
+      "source": "https://www.tampa.gov/tcc/the-sail"
+     },
+     {
+      "claim": "The Sail hours are Sunday to Thursday: 11:00 a.m. to 11:00 p.m. and Friday and Saturday: 11:00 a.m. to 1:00 a.m.",
+      "source": "https://www.tampa.gov/tcc/the-sail"
+     },
+     {
+      "claim": "The Sail Plaza in Downtown Tampa features The Sail, a 360-degree waterfront bar serving craft cocktails and beer",
+      "source": "https://www.tampa.gov/tcc/the-sail"
+     },
+     {
+      "claim": "The Sail Plaza is located next to the Tampa Convention Center and the Tampa Riverwalk",
+      "source": "https://www.tampa.gov/tcc/the-sail"
+     },
+     {
+      "claim": "The Sail is dog friendly",
+      "source": "https://www.tampa.gov/tcc/the-sail"
+     }
+    ]
+   }
+  }
+ ]
+}

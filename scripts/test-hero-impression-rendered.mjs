@@ -15,13 +15,18 @@
  * unreferenced variable/function declaration is a phantom emit and fails.
  * Re-introducing a rendered hero card (one that references its builder) passes.
  */
-import { readFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
+import React from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+import { loadComponent } from "./lib/jsxLoad.mjs";
+import { pickHook } from "../lib/hooks.js";
 import path from "node:path";
 import { createRequire } from "node:module";
 
 const ts = createRequire(import.meta.url)("typescript");
 const A = await import(path.resolve("lib/analytics.js"));
-const src = readFileSync(path.resolve("app/home.js"), "utf8");
+const sourceArg = process.argv.indexOf("--source");
+const src = readFileSync(sourceArg > -1 ? process.argv[sourceArg + 1] : path.resolve("app/home.js"), "utf8");
 const sf = ts.createSourceFile("home.js", src, ts.ScriptTarget.ES2020, true, ts.ScriptKind.JSX);
 
 let pass = 0;
@@ -89,6 +94,114 @@ for (const name of ["mkHook", "diceHook"]) {
     let found = false;
     (function walk(n) { if (ts.isCallExpression(n) && ts.isIdentifier(n.expression) && n.expression.text === "heroImpression") found = true; ts.forEachChild(n, walk); })(decl);
     ok(!found, `unreferenced ${name} must not call heroImpression`);
+  }
+}
+
+// Execute the real retired-hero/promo JSX, not a hand-written replacement.
+// It still renders behind /p detail updates because PageInner owns both views.
+// The remaining promos need photo eligibility, not a ranked imaginary hero.
+function compilePromo(source) {
+  const tree = ts.createSourceFile("home.js", source, ts.ScriptTarget.ES2020, true, ts.ScriptKind.JSX);
+  const candidates = [];
+  (function walk(node) {
+    if (ts.isArrowFunction(node) && ts.isBlock(node.body)
+      && node.body.statements.some(statement => ts.isVariableStatement(statement)
+        && statement.declarationList.declarations.some(declaration => declaration.name.getText(tree) === "seenPool"))) candidates.push(node);
+    ts.forEachChild(node, walk);
+  })(tree);
+  ok(candidates.length === 1, "exact live promo render block exists once");
+  if (candidates.length !== 1) throw new Error("Cannot locate actual promo renderer");
+  let wrapper = candidates[0];
+  while (wrapper.parent && !ts.isJsxExpression(wrapper)) wrapper = wrapper.parent;
+  if (!ts.isJsxExpression(wrapper)) throw new Error("Cannot locate promo visibility gate");
+  const code = ts.transpileModule(`const render = () => (${wrapper.expression.getText(tree)});`, {
+    compilerOptions: { jsx: ts.JsxEmit.React, target: ts.ScriptTarget.ES2020 },
+  }).outputText;
+  return new Function("scope", "React", `with (scope) { ${code}; return render(); }`);
+}
+const homeFile = path.resolve("app/home.js");
+const real = await loadComponent(homeFile, path.resolve("."), { onGraph(graph) {
+  const compiled = graph.get(homeFile);
+  writeFileSync(compiled, readFileSync(compiled, "utf8") + "\nexport { experienceBadges, EXPERIENCES, Ranking, Tags, C };\n");
+} });
+const renderPromo = compilePromo(src);
+const baselineArg = process.argv.indexOf("--baseline");
+const baseline = baselineArg > -1 ? compilePromo(readFileSync(process.argv[baselineArg + 1], "utf8")) : null;
+const costs = { badges: 0, rankings: 0, hooks: 0 };
+const scope = {
+  ...real, displayList: [], suggested: [{ id: "parent-control", name: "No photo", types: [], photo: null }], places: [], browseCat: null, weather: null, h: 14,
+  locName: "Sarasota, FL", hookLikes: new Set(), locApprox: false, locBannerGone: false,
+  gwPop: false, gwOpen: false, gwCount: 1, user: null,
+  gwPopDlgRef: { current: null }, gwRulesDlgRef: { current: null }, sheetBg: {},
+  giveawayLive: () => true, giveawaySoon: () => false,
+  renderWorldCupCard: () => React.createElement("aside", { "data-live-promo": "world-cup" }, "World Cup"),
+  Hol: { activeHoliday: () => null }, locationPromoAllowed: () => true, railsCoverage: "ready",
+  experienceBadges: (...args) => { costs.badges++; return real.experienceBadges(...args); },
+  Ranking: { ...real.Ranking, rankByConditions: (...args) => { costs.rankings++; return real.Ranking.rankByConditions(...args); } },
+  pickHook: (...args) => { costs.hooks++; return pickHook(...args); },
+};
+const resetCosts = () => { costs.badges = costs.rankings = costs.hooks = 0; };
+const fixture = (id, photo = "/brand/wayfind.png") => ({
+  id, name: `Independent Museum ${id}`, photo, types: ["museum", "tourist_attraction"],
+  rating: 4.7, reviews: 100, wfScore: 90, lat: 27.3, lng: -82.5, distMi: 1,
+});
+const html = (render, props) => renderToStaticMarkup(render({ ...scope, ...props }, React));
+const cases = [
+  ["empty", { displayList: [], suggested: [], places: [] }, false],
+  ["hidden by category", { browseCat: "food", suggested: [fixture("hidden")] }, false],
+  ["hidden before suggestions", { suggested: null, places: [fixture("hidden")] }, false],
+  ["photoless", { suggested: [fixture("missing", null)] }, false],
+  ["malformed ID", { suggested: [null, { photo: "/photo.jpg" }] }, false],
+  ["closed photographed place", { suggested: [{ ...fixture("closed"), openNow: false }] }, true],
+  ["unknown open state", { places: [fixture("unknown")] }, true],
+  ["first duplicate hides later photo", { displayList: [fixture("same", null)], suggested: [fixture("same")], places: [fixture("same")] }, false],
+  ["first duplicate preserves photo", { displayList: [fixture("same")], suggested: [fixture("same", null)] }, true],
+  ["later distinct ID", { displayList: [fixture("same", null)], suggested: [fixture("same"), fixture("other")] }, true],
+  ["approximate location remains without photo", { locApprox: true }, false],
+  ["giveaway open", { suggested: [fixture("giveaway")], gwPop: true }, true],
+  ["giveaway rules open", { suggested: [fixture("rules")], gwOpen: true }, true],
+  ["holiday open", { suggested: [fixture("holiday")], Hol: {
+    activeHoliday: () => ({ key: "fixture", name: "Fixture Holiday", emoji: "🎉" }),
+    themeFor: () => ({ grad: "blue", border: "blue", text: "white", accent: "gold", stripe: "gold" }),
+    contentFor: () => ({ headline: city => "Holiday near " + city, tag: "Holiday", sub: "Nearby picks" }),
+  } }, true],
+  ["holiday outside coverage", { suggested: [fixture("holiday")], Hol: { activeHoliday: () => ({ key: "fixture" }) }, locationPromoAllowed: () => false }, true],
+];
+for (const [label, props, visible] of cases) {
+  const rendered = html(renderPromo, props);
+  ok(rendered.includes('data-live-promo="world-cup"') === visible, `${label}: original photo eligibility gates live promos`);
+  if (label === "giveaway open") ok(rendered.includes("Sign in to lock your entry"), "existing giveaway action is retained");
+  if (label === "giveaway rules open") ok(rendered.includes("Giveaway official rules"), "existing rules remain accessible");
+  if (label === "holiday open") ok(rendered.includes("Holiday near Sarasota, FL"), "eligible holiday retains its local CTA");
+  if (label === "holiday outside coverage") ok(!rendered.includes("wf-holiday-open"), "holiday CTA remains hidden outside coverage");
+  if (props.locApprox) ok(rendered.includes("Approximate location"), "location banner does not depend on promo eligibility");
+  if (baseline) ok(rendered === html(baseline, props), `${label}: exact rendered markup matches the pre-fix block`);
+}
+// Budget assertions are deterministic call counts, not machine-speed thresholds.
+// 400 is a loaded inventory page; 1,200 stresses three distinct merged pools.
+// Timings are Node CPU evidence only, never represented as device INP.
+for (const size of [400, 1200]) {
+  const rows = Array.from({ length: size }, (_, i) => fixture(`pool-${i}`));
+  const props = { suggested: rows, displayList: rows.slice(0, 20), places: rows };
+  resetCosts();
+  for (let update = 0; update < 8; update++) html(renderPromo, { ...props, detailState: update });
+  ok(costs.badges === 0 && costs.rankings === 0 && costs.hooks === 0,
+    `${size} rows: eight unrelated detail updates perform no retired badge/ranking/hook work (${JSON.stringify(costs)})`);
+  if (baseline) {
+    const measure = render => {
+      const samples = [];
+      for (let i = 0; i < 12; i++) {
+        const started = performance.now(); html(render, props);
+        if (i > 1) samples.push(performance.now() - started);
+      }
+      return samples.sort((a, b) => a - b)[Math.floor(samples.length / 2)];
+    };
+    resetCosts(); html(baseline, props);
+    const beforeCalls = { ...costs };
+    resetCosts(); html(renderPromo, props);
+    const afterCalls = { ...costs };
+    console.log(JSON.stringify({ nodeRenderProfile: size, beforeCalls, afterCalls,
+      beforeMedianMs: +measure(baseline).toFixed(3), afterMedianMs: +measure(renderPromo).toFixed(3) }));
   }
 }
 

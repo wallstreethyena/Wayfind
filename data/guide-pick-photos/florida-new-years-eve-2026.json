@@ -1,0 +1,81 @@
+{
+  "slug": "florida-new-years-eve-2026",
+  "picks": {
+    "Jacksonville New Year's Eve Fireworks": {
+      "src": "/guides/picks/florida-new-years-eve-2026/jacksonville-fireworks-main-street-bridge.jpg",
+      "width": 1280,
+      "height": 853,
+      "alt": "Gold fireworks bursting above the blue lit Main Street Bridge over the St. Johns River in downtown Jacksonville at night",
+      "caption": "Fireworks over the Main Street Bridge in downtown Jacksonville, where the New Year's Eve show launches over the river.",
+      "credit": "Ronan O'Donohoe",
+      "creditHref": "https://www.flickr.com/photos/7917899@N03/2410871066",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "sourceUrl": "https://www.flickr.com/photos/7917899@N03/2410871066",
+      "author": "Ronan O'Donohoe",
+      "modificationNotice": "Resized, cropped for display and converted to JPEG.",
+      "sourceKind": "flickr",
+      "placeId": null,
+      "verification": "Flickr photo titled fireworks, described as jacksonville fireworks, by ronan.odonohoe; live Flickr page licence checked 2026-11-09: CC BY 2.0. Viewed the full image: fireworks over the blue lit Main Street Bridge on the St. Johns River downtown, the same river setting as the city's New Year's Eve fireworks. Different file from the guide hero. The date of this show is not stated, so the caption does not claim a specific night.",
+      "position": "50% 50%",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-11-09"
+    }
+  },
+  "gaps": {
+    "Shrimp Drop": {
+      "reason": "no-verified-source",
+      "placeId": null,
+      "needsPermissionFrom": null,
+      "note": "No licensed photo of this exact place or event was found (Wikimedia Commons categories and file pages and Flickr single photo pages checked 2026-11-05). This guide uses Wayfind's neutral fallback, so the pick shows the \"Photo unavailable\" tile, never a context or Google photo. Licensed photo sourcing backlog."
+    },
+    "NYE Fireworks on Treasure Island": {
+      "reason": "no-verified-source",
+      "placeId": null,
+      "needsPermissionFrom": null,
+      "note": "No licensed photo of this exact place or event was found (Wikimedia Commons categories and file pages and Flickr single photo pages checked 2026-11-05). This guide uses Wayfind's neutral fallback, so the pick shows the \"Photo unavailable\" tile, never a context or Google photo. Licensed photo sourcing backlog."
+    },
+    "New Year's Eve Beach Ball Drop": {
+      "reason": "no-verified-source",
+      "placeId": null,
+      "needsPermissionFrom": null,
+      "note": "No licensed photo of this exact place or event was found (Wikimedia Commons categories and file pages and Flickr single photo pages checked 2026-11-05). This guide uses Wayfind's neutral fallback, so the pick shows the \"Photo unavailable\" tile, never a context or Google photo. Licensed photo sourcing backlog."
+    },
+    "Downtown Fort Pierce Waterfront Fireworks": {
+      "reason": "no-verified-source",
+      "placeId": null,
+      "needsPermissionFrom": null,
+      "note": "No licensed photo of this exact place or event was found (Wikimedia Commons categories and file pages and Flickr single photo pages checked 2026-11-05). This guide uses Wayfind's neutral fallback, so the pick shows the \"Photo unavailable\" tile, never a context or Google photo. Licensed photo sourcing backlog."
+    },
+    "Key West New Year's Eve High Heel Shoe Drop": {
+      "reason": "no-verified-source",
+      "placeId": null,
+      "needsPermissionFrom": null,
+      "note": "No licensed photo of this exact place or event was found (Wikimedia Commons categories and file pages and Flickr single photo pages checked 2026-11-05). This guide uses Wayfind's neutral fallback, so the pick shows the \"Photo unavailable\" tile, never a context or Google photo. Licensed photo sourcing backlog."
+    },
+    "Light Up the NIGHT! New Year's Eve Firework Show": {
+      "reason": "no-verified-source",
+      "placeId": null,
+      "needsPermissionFrom": null,
+      "note": "Image intent pass 2026-11-09: the previous photo (the-crab-boil-giants-outback-crab-shack-and-crabby-s.webp) showed a daytime pier with no fireworks, so it did not match what this pick is about. No licensed photo of this exact event in season was found (Wikimedia Commons and Openverse or Flickr checked 2026-11-09). This guide uses Wayfind's neutral fallback, so the pick shows the \"Photo unavailable\" tile until a verified photo is sourced."
+    },
+    "Sunset to Sparkle: Clearwater Beach New Year's Eve Celebration": {
+      "reason": "no-verified-source",
+      "placeId": "ChIJhS6CJtf2wogRF3KX4LwQviY",
+      "needsPermissionFrom": null,
+      "note": "Image intent pass 2026-11-09: the previous photo (clearwater-pier60.webp) showed a daytime pier with no celebration, so it did not match what this pick is about. No licensed photo of this exact event in season was found (Wikimedia Commons and Openverse or Flickr checked 2026-11-09). This guide uses Wayfind's neutral fallback, so the pick shows the \"Photo unavailable\" tile until a verified photo is sourced."
+    },
+    "Quantum Countdown at MOSI": {
+      "reason": "no-verified-source",
+      "placeId": "ChIJq6E9W8_HwogRUggO5759Ook",
+      "needsPermissionFrom": null,
+      "note": "Image intent pass 2026-11-09: the previous photo (quantum-countdown-at-mosi.webp) showed a planetarium projector with no countdown, so it did not match what this pick is about. No licensed photo of this exact event in season was found (Wikimedia Commons and Openverse or Flickr checked 2026-11-09). This guide uses Wayfind's neutral fallback, so the pick shows the \"Photo unavailable\" tile until a verified photo is sourced."
+    },
+    "Kids' New Year's Eve at LEGOLAND Florida": {
+      "reason": "no-verified-source",
+      "placeId": "wfadd_legoland_florida",
+      "needsPermissionFrom": null,
+      "note": "Image intent pass 2026-11-09: the previous photo (legoland-florida-entrance-welcome.webp) was a welcome sign with large text and no New Year event, so it did not match what this pick is about. No licensed photo of this exact event in season was found (Wikimedia Commons and Openverse or Flickr checked 2026-11-09). This guide uses Wayfind's neutral fallback, so the pick shows the \"Photo unavailable\" tile until a verified photo is sourced."
+    }
+  }
+}

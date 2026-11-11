@@ -61,7 +61,7 @@ node scripts/test-card-action-row.mjs
 node scripts/test-card-photo-viewer.mjs
 node scripts/test-drop-rail-parity.mjs
 node scripts/test-editorial-hero-layout.mjs
-node scripts/test-event-hero-credited-photo.mjs
+node scripts/test-event-hero-credited-photo.mjs ${GITHUB_ACTIONS:+--require-browser}
 node scripts/test-explore-bridge-gate.mjs
 node scripts/test-fall-visit-facts.mjs
 node scripts/test-halloween-crown.mjs

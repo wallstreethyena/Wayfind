@@ -21,6 +21,7 @@ import { cachedCuratedEventList } from "../lib/curatedEventsCache";
 import { unstable_cache } from "next/cache";
 import { christmasResearchSitemapRows, withoutChristmasWatchlistTwins } from "../lib/christmasResearch";
 import { siteTodayStr } from "../lib/siteTime";
+import { movieSitemapRows } from "../lib/moviePages.js";
 
 // Hourly, so the curated events layer below is read at request time. During
 // `next build` fetchCuratedEvents() is deliberately a skipped read (returns []),
@@ -45,10 +46,10 @@ const getSitemapEvents = cachedCuratedEventList("sitemapEvents", ["sitemap-curat
 const getSitemapPlaceIds = unstable_cache(() => listIndexedIds(500), ["sitemap-place-ids-v1"], { revalidate: 3600 });
 
 export default async function sitemap() {
-  // /events /coupons /map /best-of /p/ stay out: thin noindex hubs, personal
+  // /coupons /map /best-of /p/ stay out: thin noindex hubs, personal
   // query variants, or infinite share-state. Durable events live at
   // /events/{city}/{window}. Durable places live at /places/{id}.
-  const core = ["", "/guides", "/about", "/editorial-policy", "/how-wayfind-ranks", "/privacy", "/terms"].map((p) => ({ url: SITE_URL + p }));
+  const core = ["", "/guides", "/events", "/restaurants", "/things-to-do", "/nightlife", "/beaches", "/about", "/editorial-policy", "/how-wayfind-ranks", "/privacy", "/terms"].map((p) => ({ url: SITE_URL + p }));
   const guides = Object.keys(currentGuides(GUIDES)).map((slug) => {
     const updated = GUIDES[slug] && GUIDES[slug].updated;
     const row = { url: `${SITE_URL}/guides/${slug}` };
@@ -111,7 +112,9 @@ export default async function sitemap() {
   const dedicatedGuides = ["florida-fall-festivals-2026"].filter((slug) => !GUIDES[slug]).map((slug) => ({ url: `${SITE_URL}/guides/${slug}` }));
   const placeIds = await placeIdsPromise;
   const places = [`${SITE_URL}/places`, ...placeIds.map((id) => `${SITE_URL}/places/${encodeURIComponent(id)}`)].map((url) => ({ url }));
+  // Seasonal movie pages (/movies/<id>), one per live registry movie, each with Movie JSON-LD.
+  const movies = movieSitemapRows(SITE_URL, siteTodayStr());
   const seasonal = SEASONAL_SEARCH_HUBS.map(({ slug }) => ({ url: `${SITE_URL}/${slug}` }));
   const crown = CROWN_PUBLISHED ? [{ url: `${SITE_URL}${CROWN_PATH}` }] : [];
-  return [...core, ...seasonal, ...guides, ...culture, ...landing, ...hubs, ...trending, ...creators, ...partners, ...bestBeaches, ...eventWindows, ...floridaEvents, ...dedicatedGuides, ...crown, ...places];
+  return [...core, ...seasonal, ...guides, ...culture, ...landing, ...hubs, ...trending, ...creators, ...partners, ...bestBeaches, ...eventWindows, ...floridaEvents, ...dedicatedGuides, ...movies, ...crown, ...places];
 }

@@ -1,0 +1,1742 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Batch 1: top Florida card-pool places by review count without verified editorial. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJ-0qgNoF_3YgRg3Lh7xHDooU",
+   "name": "Disney Springs",
+   "category": "shopping",
+   "metro": "orlando",
+   "primary_type": "shopping_mall",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.disneysprings.com/dining/category/table-service-type/",
+     "source_name": "Disney Springs \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Disney Springs dining listings are organized by the Marketplace, The Landing, Town Center and West Side areas",
+      "Disney Springs lists table-service restaurants and dining experiences, including Rainforest Cafe at Disney Springs Marketplace"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Disney Springs shopping and dining district across Marketplace, The Landing, Town Center and West Side",
+    "why_here": "Go for a walkable mix of shops, table-service restaurants and bars spread across Marketplace, The Landing, Town Center and West Side, so you can eat and browse without entering a theme park.",
+    "know_before": "Dining is listed by area: Marketplace, The Landing, Town Center and West Side.",
+    "local_tip": "Pick one area first, then choose dining there to cut walking between districts.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.disneysprings.com/dining/category/table-service-type/"
+     ],
+     "why_here": [
+      "https://www.disneysprings.com/dining/category/table-service-type/"
+     ],
+     "know_before": [
+      "https://www.disneysprings.com/dining/category/table-service-type/"
+     ],
+     "local_tip": [
+      "https://www.disneysprings.com/dining/category/table-service-type/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Disney Springs dining listings are organized by the Marketplace, The Landing, Town Center and West Side areas",
+      "source": "https://www.disneysprings.com/dining/category/table-service-type/"
+     },
+     {
+      "claim": "Disney Springs lists table-service restaurants and dining experiences, including Rainforest Cafe at Disney Springs Marketplace",
+      "source": "https://www.disneysprings.com/dining/category/table-service-type/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ2YAfbyC02YgRQzEiuI4qloc",
+   "name": "Bayside Marketplace",
+   "category": "shopping",
+   "metro": "miami-dade",
+   "primary_type": "shopping_mall",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://baysidemarketplace.com/visit/",
+     "source_name": "Bayside Marketplace \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Bayside Marketplace is at 401 Biscayne Blvd, Miami, FL 33122",
+      "The official visit page lists mall hours Monday to Thursday 10:00AM-10:00PM, Friday to Saturday 10:00AM-11:00PM and Sunday 11:00AM-9:00PM",
+      "The official site says it is located in Downtown Miami on the waterfront, 7 miles east of Miami International Airport"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Open-air waterfront shopping and dining marketplace in Downtown Miami on Biscayne Bay",
+    "why_here": "Go for waterfront shopping, dining and entertainment in the heart of Downtown Miami, with retailers and restaurants in one open-air center on Biscayne Boulevard that works as a pre- or post-cruise and airport-area stop.",
+    "know_before": "Address is 401 Biscayne Blvd, Miami; Sunday hours start later, at 11:00AM.",
+    "local_tip": "Time a visit for the waterfront side for dining and bay views after shopping.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://baysidemarketplace.com/visit/"
+     ],
+     "why_here": [
+      "https://baysidemarketplace.com/visit/"
+     ],
+     "know_before": [
+      "https://baysidemarketplace.com/visit/"
+     ],
+     "local_tip": [
+      "https://baysidemarketplace.com/visit/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Bayside Marketplace is at 401 Biscayne Blvd, Miami, FL 33122",
+      "source": "https://baysidemarketplace.com/visit/"
+     },
+     {
+      "claim": "The official visit page lists mall hours Monday to Thursday 10:00AM-10:00PM, Friday to Saturday 10:00AM-11:00PM and Sunday 11:00AM-9:00PM",
+      "source": "https://baysidemarketplace.com/visit/"
+     },
+     {
+      "claim": "The official site says it is located in Downtown Miami on the waterfront, 7 miles east of Miami International Airport",
+      "source": "https://baysidemarketplace.com/visit/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJH-3t6v4I2YgRQjrOAWG_wSk",
+   "name": "Sawgrass Mills",
+   "category": "shopping",
+   "metro": "broward",
+   "primary_type": "shopping_mall",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.simon.com/mall/sawgrass-mills/travel-here",
+     "source_name": "Sawgrass Mills \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Sawgrass Mills says it offers more than 350 stores, of which more than 100 are exclusive to South Florida",
+      "The official Simon page says Sawgrass Mills is 15 miles from Fort Lauderdale and 30 miles from Miami",
+      "The official about page lists the address as 12801 W Sunrise Blvd, Sunrise, FL 33323"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Large outlet mall in Sunrise with more than 350 name-brand and value stores",
+    "why_here": "Go for outlet shopping at scale: Simon lists more than 350 stores in Sunrise, including more than 100 exclusive to South Florida, making it a single-stop trip from Fort Lauderdale or Miami for brand outlets.",
+    "know_before": "The mall is in Sunrise, 15 miles from Fort Lauderdale and 30 miles from Miami.",
+    "local_tip": "Plan for a large center with 350-plus stores; check the store list before arriving.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.simon.com/mall/sawgrass-mills/travel-here"
+     ],
+     "why_here": [
+      "https://www.simon.com/mall/sawgrass-mills/travel-here"
+     ],
+     "know_before": [
+      "https://www.simon.com/mall/sawgrass-mills/travel-here"
+     ],
+     "local_tip": [
+      "https://www.simon.com/mall/sawgrass-mills/travel-here"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Sawgrass Mills says it offers more than 350 stores, of which more than 100 are exclusive to South Florida",
+      "source": "https://www.simon.com/mall/sawgrass-mills/travel-here"
+     },
+     {
+      "claim": "The official Simon page says Sawgrass Mills is 15 miles from Fort Lauderdale and 30 miles from Miami",
+      "source": "https://www.simon.com/mall/sawgrass-mills/travel-here"
+     },
+     {
+      "claim": "The official about page lists the address as 12801 W Sunrise Blvd, Sunrise, FL 33323",
+      "source": "https://www.simon.com/mall/sawgrass-mills/travel-here"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJbeCbPVms2YgRuvnE7dXecXU",
+   "name": "CVI.CHE 105",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "peruvian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.ceviche105.com/site/menu/food.html",
+     "source_name": "CVI.CHE 105 \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The official CVI.CHE 105 food menu includes a ceviches section",
+      "The menu lists Conchas Chalacas as Peruvian scallops topped with onion, tomato, cilantro, limo pepper and lime, with the special touch of Juan Chipoco"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Peruvian restaurant known for ceviches and dishes by chef Juan Chipoco",
+    "why_here": "Go for Peruvian ceviche and seafood prepared with lime, limo pepper, onion, tomato and cilantro, as listed on the official menu, including Conchas Chalacas made with Peruvian scallops and Juan Chipoco's seasoning.",
+    "know_before": "The official food menu covers several locations, so confirm the location before ordering from it.",
+    "local_tip": "Start with a ceviche or the Conchas Chalacas scallops listed at the top of the menu.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.ceviche105.com/site/menu/food.html"
+     ],
+     "why_here": [
+      "https://www.ceviche105.com/site/menu/food.html"
+     ],
+     "know_before": [
+      "https://www.ceviche105.com/site/menu/food.html"
+     ],
+     "local_tip": [
+      "https://www.ceviche105.com/site/menu/food.html"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The official CVI.CHE 105 food menu includes a ceviches section",
+      "source": "https://www.ceviche105.com/site/menu/food.html"
+     },
+     {
+      "claim": "The menu lists Conchas Chalacas as Peruvian scallops topped with onion, tomato, cilantro, limo pepper and lime, with the special touch of Juan Chipoco",
+      "source": "https://www.ceviche105.com/site/menu/food.html"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ32l5iEzPwogRKgS0deuMITw",
+   "name": "Seminole Hard Rock Hotel & Casino",
+   "category": "hotels",
+   "metro": "broward",
+   "primary_type": "resort_hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.seminolehardrockhollywood.com/",
+     "source_name": "Seminole Hard Rock Hotel & Casino \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Guitar Hotel is designed to resemble back-to-back guitars and rises 450 feet into the sky",
+      "The Guitar Hotel houses 638 luxury guest rooms and suites"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Hollywood casino resort known for its 450-foot Guitar Hotel tower",
+    "why_here": "Go to stay or visit the Guitar Hotel itself: the official site says the back-to-back guitar-shaped tower rises 450 feet and contains 638 luxury guest rooms and suites within the Seminole Hard Rock resort and casino.",
+    "know_before": "Book the Guitar Hotel tower specifically if you want to stay inside the guitar-shaped building.",
+    "local_tip": "Look for the Guitar Hotel from outside first; its guitar faces and lit strings define the resort.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.seminolehardrockhollywood.com/"
+     ],
+     "why_here": [
+      "https://www.seminolehardrockhollywood.com/"
+     ],
+     "know_before": [
+      "https://www.seminolehardrockhollywood.com/"
+     ],
+     "local_tip": [
+      "https://www.seminolehardrockhollywood.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Guitar Hotel is designed to resemble back-to-back guitars and rises 450 feet into the sky",
+      "source": "https://www.seminolehardrockhollywood.com/"
+     },
+     {
+      "claim": "The Guitar Hotel houses 638 luxury guest rooms and suites",
+      "source": "https://www.seminolehardrockhollywood.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJm8R4Q_F-54gR_isZahqI35k",
+   "name": "Orlando Outlet Marketplace",
+   "category": "shopping",
+   "metro": "orlando",
+   "primary_type": "shopping_mall",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.premiumoutlets.com/outlet/orlando-outlet-marketplace/about",
+     "source_name": "Orlando Outlet Marketplace \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Orlando Outlet Marketplace is at 5269 International Dr, Orlando, FL 32819",
+      "The official Simon page describes it as a 40-store center offering everyday savings",
+      "Stores listed include Levi's, Nike Clearance Store, Under Armour Factory House, LACOSTE Clearance and Calvin Klein"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "40-store outlet center on International Drive with Nike, Levi's and Under Armour outlets",
+    "why_here": "Go for a compact outlet stop on International Drive rather than a mega-mall: Simon lists 40 stores with everyday savings, including Nike Clearance, Levi's, Under Armour Factory House, LACOSTE Clearance and Calvin Klein.",
+    "know_before": "The center has 40 stores at 5269 International Drive, so it is smaller than Orlando's larger outlets.",
+    "local_tip": "Target the clearance stores listed by Simon first if you are hunting marked-down athletic brands.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.premiumoutlets.com/outlet/orlando-outlet-marketplace/about"
+     ],
+     "why_here": [
+      "https://www.premiumoutlets.com/outlet/orlando-outlet-marketplace/about"
+     ],
+     "know_before": [
+      "https://www.premiumoutlets.com/outlet/orlando-outlet-marketplace/about"
+     ],
+     "local_tip": [
+      "https://www.premiumoutlets.com/outlet/orlando-outlet-marketplace/about"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Orlando Outlet Marketplace is at 5269 International Dr, Orlando, FL 32819",
+      "source": "https://www.premiumoutlets.com/outlet/orlando-outlet-marketplace/about"
+     },
+     {
+      "claim": "The official Simon page describes it as a 40-store center offering everyday savings",
+      "source": "https://www.premiumoutlets.com/outlet/orlando-outlet-marketplace/about"
+     },
+     {
+      "claim": "Stores listed include Levi's, Nike Clearance Store, Under Armour Factory House, LACOSTE Clearance and Calvin Klein",
+      "source": "https://www.premiumoutlets.com/outlet/orlando-outlet-marketplace/about"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ98BffLK22YgRsymdIvOgjNA",
+   "name": "Wynwood Walls",
+   "category": "attractions",
+   "metro": "miami-dade",
+   "primary_type": "museum",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://thewynwoodwalls.com/faqs",
+     "source_name": "Wynwood Walls \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Wynwood Walls is at 2516 NW 2nd Ave, Miami, FL 33127",
+      "Wynwood Walls was founded in 2009 by Tony Goldman",
+      "The official site calls it a world-renowned open-air street art museum that has featured murals and sculptures by more than 130 artists from over 35 countries"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Open-air street art museum in Miami's Wynwood district, founded in 2009",
+    "why_here": "Go to walk an open-air museum of murals and sculptures by more than 130 artists from over 35 countries, all concentrated at one Wynwood address instead of scattered across the neighborhood's streets.",
+    "know_before": "The museum is at 2516 NW 2nd Ave in Miami and was founded in 2009.",
+    "local_tip": "Use the official Wynwood Walls app for self-guided tours, artist stories and an interactive map.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://thewynwoodwalls.com/faqs"
+     ],
+     "why_here": [
+      "https://thewynwoodwalls.com/faqs"
+     ],
+     "know_before": [
+      "https://thewynwoodwalls.com/faqs"
+     ],
+     "local_tip": [
+      "https://thewynwoodwalls.com/faqs"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Wynwood Walls is at 2516 NW 2nd Ave, Miami, FL 33127",
+      "source": "https://thewynwoodwalls.com/faqs"
+     },
+     {
+      "claim": "Wynwood Walls was founded in 2009 by Tony Goldman",
+      "source": "https://thewynwoodwalls.com/faqs"
+     },
+     {
+      "claim": "The official site calls it a world-renowned open-air street art museum that has featured murals and sculptures by more than 130 artists from over 35 countries",
+      "source": "https://thewynwoodwalls.com/faqs"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJFdmwIfas2YgR-_QNr2_AO_c",
+   "name": "Aventura Mall",
+   "category": "shopping",
+   "metro": "miami-dade",
+   "primary_type": "shopping_mall",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://aventuramall.com/",
+     "source_name": "Aventura Mall \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Aventura Mall is located between Miami and Fort Lauderdale.",
+      "The mall's Arts Aventura Mall collection includes more than 25 museum-caliber pieces by local and international artists.",
+      "The site lists luxury shops including Dior, Prada, Herm\u00e8s, and Louis Vuitton."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Large Aventura shopping mall with luxury boutiques and a museum-caliber art collection.",
+    "why_here": "Come for a large mix of luxury boutiques and everyday shops in one place, plus an art collection of more than 25 pieces and dining, all between Miami and Fort Lauderdale.",
+    "know_before": "Concierge services are on the lower level for store offers, directions, and reservations.",
+    "local_tip": "Plan a route through the art collection of more than 25 pieces listed on the mall site.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://aventuramall.com/"
+     ],
+     "why_here": [
+      "https://aventuramall.com/"
+     ],
+     "know_before": [
+      "https://aventuramall.com/"
+     ],
+     "local_tip": [
+      "https://aventuramall.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Aventura Mall is located between Miami and Fort Lauderdale.",
+      "source": "https://aventuramall.com/"
+     },
+     {
+      "claim": "The mall's Arts Aventura Mall collection includes more than 25 museum-caliber pieces by local and international artists.",
+      "source": "https://aventuramall.com/"
+     },
+     {
+      "claim": "The site lists luxury shops including Dior, Prada, Herm\u00e8s, and Louis Vuitton.",
+      "source": "https://aventuramall.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJNccS3uW12YgRteOfnGQyHow",
+   "name": "Ole Ole Steak House",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "steak_house",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.oleolesteakhouse.com/",
+     "source_name": "Ole Ole Steak House \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Ole Ole Steakhouse is at 626 Lincoln Road, Miami Beach, FL 33139.",
+      "The restaurant serves Black Angus meats including tomahawk, ribeye, and churrasco, plus paellas, pizzas, pastas, and salads.",
+      "It offers dine-in, delivery, and takeout."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Steakhouse serving grilled Black Angus meats and paellas",
+    "why_here": "Go for Black Angus meats including tomahawk, ribeye, and churrasco, alongside paellas, plus pizzas, pastas, and salads on Lincoln Road in Miami Beach.",
+    "know_before": "The steakhouse is at 626 Lincoln Road in Miami Beach and offers dine-in, delivery, and takeout.",
+    "local_tip": "Choose dine-in, delivery, or takeout.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.oleolesteakhouse.com/"
+     ],
+     "why_here": [
+      "https://www.oleolesteakhouse.com/"
+     ],
+     "know_before": [
+      "https://www.oleolesteakhouse.com/"
+     ],
+     "local_tip": [
+      "https://www.oleolesteakhouse.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Ole Ole Steakhouse is at 626 Lincoln Road, Miami Beach, FL 33139.",
+      "source": "https://www.oleolesteakhouse.com/"
+     },
+     {
+      "claim": "The restaurant serves Black Angus meats including tomahawk, ribeye, and churrasco, plus paellas, pizzas, pastas, and salads.",
+      "source": "https://www.oleolesteakhouse.com/"
+     },
+     {
+      "claim": "It offers dine-in, delivery, and takeout.",
+      "source": "https://www.oleolesteakhouse.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJd4qwJB1_54gRwrDH3vHIaTU",
+   "name": "Universal's Cabana Bay Beach Resort",
+   "category": "hotels",
+   "metro": "orlando",
+   "primary_type": "resort_hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.loewshotels.com/cabana-bay-hotel",
+     "source_name": "Universal's Cabana Bay Beach Resort \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Universal Cabana Bay Beach Resort is at 6550 Adventure Way, Orlando, FL 32819.",
+      "The resort has a retro theme based on beach resorts of the 1950s and 1960s, with two pools, a waterslide, a lazy river, and a 10-lane bowling alley.",
+      "Family suites sleep up to six with a kitchenette, and standard rooms sleep up to four."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Retro 1950s-style Universal resort with two pools, a lazy river, and bowling.",
+    "why_here": "Stay in family suites sleeping up to six with a kitchenette or standard rooms sleeping up to four, swim in two pools with a waterslide and lazy river, and use the 10-lane bowling alley at the retro-themed resort.",
+    "know_before": "The resort is at 6550 Adventure Way, Orlando, FL 32819, with a retro theme based on beach resorts of the 1950s and 1960s.",
+    "local_tip": "Family suites sleep up to six with a kitchenette, and standard rooms sleep up to four.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.loewshotels.com/cabana-bay-hotel"
+     ],
+     "why_here": [
+      "https://www.loewshotels.com/cabana-bay-hotel"
+     ],
+     "know_before": [
+      "https://www.loewshotels.com/cabana-bay-hotel"
+     ],
+     "local_tip": [
+      "https://www.loewshotels.com/cabana-bay-hotel"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Universal Cabana Bay Beach Resort is at 6550 Adventure Way, Orlando, FL 32819.",
+      "source": "https://www.loewshotels.com/cabana-bay-hotel"
+     },
+     {
+      "claim": "The resort has a retro theme based on beach resorts of the 1950s and 1960s, with two pools, a waterslide, a lazy river, and a 10-lane bowling alley.",
+      "source": "https://www.loewshotels.com/cabana-bay-hotel"
+     },
+     {
+      "claim": "Family suites sleep up to six with a kitchenette, and standard rooms sleep up to four.",
+      "source": "https://www.loewshotels.com/cabana-bay-hotel"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJJ295kFhDkYgRKvBmVwwt8-s",
+   "name": "Fudpucker's Beachside Bar & Grill",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.fudpucker.com/",
+     "source_name": "Fudpucker's Beachside Bar & Grill \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Fudpucker's Beachside Bar & Grill is at 20001 Emerald Coast Parkway, Destin, FL 32541.",
+      "The restaurant has been locally owned and operated in Destin since 1982.",
+      "The site promotes live gators at Gator Beach, live entertainment, and menus for adults and kids."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Destin restaurant since 1982 with live gators at Gator Beach",
+    "why_here": "Eat at a locally owned and operated Destin restaurant since 1982, see live gators at Gator Beach, and check live entertainment, with menus for adults and kids during your visit.",
+    "know_before": "Fudpucker's Beachside Bar & Grill is at 20001 Emerald Coast Parkway, Destin, FL 32541.",
+    "local_tip": "Check live entertainment and menus for adults and kids.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.fudpucker.com/"
+     ],
+     "why_here": [
+      "https://www.fudpucker.com/"
+     ],
+     "know_before": [
+      "https://www.fudpucker.com/"
+     ],
+     "local_tip": [
+      "https://www.fudpucker.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Fudpucker's Beachside Bar & Grill is at 20001 Emerald Coast Parkway, Destin, FL 32541.",
+      "source": "https://www.fudpucker.com/"
+     },
+     {
+      "claim": "The restaurant has been locally owned and operated in Destin since 1982.",
+      "source": "https://www.fudpucker.com/"
+     },
+     {
+      "claim": "The site promotes live gators at Gator Beach, live entertainment, and menus for adults and kids.",
+      "source": "https://www.fudpucker.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJp9jC_8gJ2YgR8WqLx8eSC1Y",
+   "name": "Havana 1957 Cuban Cuisine Pembroke Pines",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "cuban_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.havana1957.com/",
+     "source_name": "Havana 1957 Cuban Cuisine Pembroke Pines \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Havana 1957's Pembroke Pines location is at 14571 SW 5th Street, Pembroke Pines, FL 33027.",
+      "The restaurant serves authentic, traditional Cuban cuisine in a dining room inspired by Havana in the 1950s.",
+      "The Pembroke Pines location hosts live music, including Rumbavana shows on Friday and Saturday nights."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Cuban restaurant with traditional cuisine and live music in Pembroke Pines",
+    "why_here": "Eat authentic, traditional Cuban cuisine in a dining room inspired by Havana in the 1950s, with live music including Rumbavana shows on Friday and Saturday nights at the Pembroke Pines location.",
+    "know_before": "The Pembroke Pines location hosts live music, including Rumbavana shows on Friday and Saturday nights.",
+    "local_tip": "Time a Friday or Saturday visit with the Rumbavana shows.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.havana1957.com/"
+     ],
+     "why_here": [
+      "https://www.havana1957.com/"
+     ],
+     "know_before": [
+      "https://www.havana1957.com/"
+     ],
+     "local_tip": [
+      "https://www.havana1957.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Havana 1957's Pembroke Pines location is at 14571 SW 5th Street, Pembroke Pines, FL 33027.",
+      "source": "https://www.havana1957.com/"
+     },
+     {
+      "claim": "The restaurant serves authentic, traditional Cuban cuisine in a dining room inspired by Havana in the 1950s.",
+      "source": "https://www.havana1957.com/"
+     },
+     {
+      "claim": "The Pembroke Pines location hosts live music, including Rumbavana shows on Friday and Saturday nights.",
+      "source": "https://www.havana1957.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJaSlJnIVn54gR_f9Ru5W-BaU",
+   "name": "Don Julio Mexican Kitchen - Waterford lakes",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "mexican_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.donjuliomexicankitchen.com/",
+     "source_name": "Don Julio Mexican Kitchen - Waterford lakes \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Don Julio Mexican Kitchen & Tequila Bar lists a Waterford Lakes location at 12789 Waterford Lakes Pkwy Bay 13, Orlando, FL 32828",
+      "The official site highlights birria, described as juicy, cheesy and crispy",
+      "The restaurant has four listed locations: Chickasaw, Lake Mary, Waterford Lakes and Eagle Creek"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Orlando Mexican kitchen and tequila bar known for birria",
+    "why_here": "Go for a full Mexican menu in east Orlando. The Waterford Lakes spot is one of four Orlando-area locations, so it works for a local sit-down meal without driving across town.",
+    "know_before": "The Waterford Lakes address is 12789 Waterford Lakes Pkwy Bay 13, Orlando.",
+    "local_tip": "Check the menus section online before visiting to pick your location.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.donjuliomexicankitchen.com/"
+     ],
+     "why_here": [
+      "https://www.donjuliomexicankitchen.com/"
+     ],
+     "know_before": [
+      "https://www.donjuliomexicankitchen.com/"
+     ],
+     "local_tip": [
+      "https://www.donjuliomexicankitchen.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Don Julio Mexican Kitchen & Tequila Bar lists a Waterford Lakes location at 12789 Waterford Lakes Pkwy Bay 13, Orlando, FL 32828",
+      "source": "https://www.donjuliomexicankitchen.com/"
+     },
+     {
+      "claim": "The official site highlights birria, described as juicy, cheesy and crispy",
+      "source": "https://www.donjuliomexicankitchen.com/"
+     },
+     {
+      "claim": "The restaurant has four listed locations: Chickasaw, Lake Mary, Waterford Lakes and Eagle Creek",
+      "source": "https://www.donjuliomexicankitchen.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJlz72E5622YgRLXWCKTEFM_M",
+   "name": "CVI.CHE 105",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "peruvian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.ceviche105.com/site/",
+     "source_name": "CVI.CHE 105 \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "CVI.CHE 105 describes itself as Miami's best Peruvian restaurant with award-winning Peruvian gastronomy by Chef Juan Chipoco",
+      "The official site highlights ceviche and lomo saltado",
+      "Listed locations include Downtown Miami, South Beach, Aventura Mall, Dadeland Mall, Coral Gables, Boca Raton and Sawgrass Mills Mall"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Award-winning Peruvian spot known for ceviche and lomo saltado",
+    "why_here": "Go for Peruvian cooking led by Chef Juan Chipoco, with ceviche as the headline dish and lomo saltado also highlighted on the official site.",
+    "know_before": "Listed locations include Downtown Miami, South Beach, Aventura Mall, Dadeland Mall, Coral Gables, Boca Raton and Sawgrass Mills Mall.",
+    "local_tip": "Use the reservations link for the location nearest your plans.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.ceviche105.com/site/"
+     ],
+     "why_here": [
+      "https://www.ceviche105.com/site/"
+     ],
+     "know_before": [
+      "https://www.ceviche105.com/site/"
+     ],
+     "local_tip": [
+      "https://www.ceviche105.com/site/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "CVI.CHE 105 describes itself as Miami's best Peruvian restaurant with award-winning Peruvian gastronomy by Chef Juan Chipoco",
+      "source": "https://www.ceviche105.com/site/"
+     },
+     {
+      "claim": "The official site highlights ceviche and lomo saltado",
+      "source": "https://www.ceviche105.com/site/"
+     },
+     {
+      "claim": "Listed locations include Downtown Miami, South Beach, Aventura Mall, Dadeland Mall, Coral Gables, Boca Raton and Sawgrass Mills Mall",
+      "source": "https://www.ceviche105.com/site/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJG32tA4W02YgRNAA3EGJTGro",
+   "name": "Tapelia",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "spanish_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.tapeliamiami.com/",
+     "source_name": "Tapelia \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Tapelia is a Spanish restaurant using fresh, high quality ingredients from Spain",
+      "The restaurant calls itself Paella Masters and serves Spanish tapas to share",
+      "The official site lists a temporary location at 630 Lincoln Rd, Miami Beach due to remodeling"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Spanish restaurant known as Paella Masters in Miami Beach",
+    "why_here": "Go for a Spanish restaurant using fresh, high quality ingredients from Spain, calling itself Paella Masters and serving Spanish tapas to share at its temporary location in Miami Beach.",
+    "know_before": "The official site lists a temporary location at 630 Lincoln Rd, Miami Beach due to remodeling.",
+    "local_tip": "Spanish tapas are served to share.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.tapeliamiami.com/"
+     ],
+     "why_here": [
+      "https://www.tapeliamiami.com/"
+     ],
+     "know_before": [
+      "https://www.tapeliamiami.com/"
+     ],
+     "local_tip": [
+      "https://www.tapeliamiami.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Tapelia is a Spanish restaurant using fresh, high quality ingredients from Spain",
+      "source": "https://www.tapeliamiami.com/"
+     },
+     {
+      "claim": "The restaurant calls itself Paella Masters and serves Spanish tapas to share",
+      "source": "https://www.tapeliamiami.com/"
+     },
+     {
+      "claim": "The official site lists a temporary location at 630 Lincoln Rd, Miami Beach due to remodeling",
+      "source": "https://www.tapeliamiami.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJC6NM0AW82YgRo9V0wdfRa1k",
+   "name": "Francisca Charcoal Chicken & Meats",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "latin_american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://franciscarestaurant.com/doral/",
+     "source_name": "Francisca Charcoal Chicken & Meats \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Francisca Charcoal Chicken & Meats (Doral) is at 10802 NW 58th Street Doral FL 33178",
+      "Francisca offers charcoal-grilled chicken and smoked ribs prepared in a Josper oven",
+      "The Doral location was the first Francisca Restaurant, with a warm, family-friendly atmosphere",
+      "Hours are Sunday to Thursday from 11:30 am until 10:00 pm and Friday to Saturday 11:30 am until 11:00 pm"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Josper oven charcoal-grilled chicken and smoked ribs",
+    "why_here": "Go for charcoal-grilled chicken and smoked ribs prepared in a Josper oven at the first Francisca Restaurant in Doral. The warm, family-friendly atmosphere makes it an easy place to share a smoky, filling meal with others.",
+    "know_before": "Find it at 10802 NW 58th Street Doral FL 33178; hours are Sunday to Thursday from 11:30 am until 10:00 pm.",
+    "local_tip": "Come Friday to Saturday for the later 11:00 pm close.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://franciscarestaurant.com/doral/"
+     ],
+     "why_here": [
+      "https://franciscarestaurant.com/doral/"
+     ],
+     "know_before": [
+      "https://franciscarestaurant.com/doral/"
+     ],
+     "local_tip": [
+      "https://franciscarestaurant.com/doral/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Francisca Charcoal Chicken & Meats (Doral) is at 10802 NW 58th Street Doral FL 33178",
+      "source": "https://franciscarestaurant.com/doral/"
+     },
+     {
+      "claim": "Francisca offers charcoal-grilled chicken and smoked ribs prepared in a Josper oven",
+      "source": "https://franciscarestaurant.com/doral/"
+     },
+     {
+      "claim": "The Doral location was the first Francisca Restaurant, with a warm, family-friendly atmosphere",
+      "source": "https://franciscarestaurant.com/doral/"
+     },
+     {
+      "claim": "Hours are Sunday to Thursday from 11:30 am until 10:00 pm and Friday to Saturday 11:30 am until 11:00 pm",
+      "source": "https://franciscarestaurant.com/doral/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJt9yvFgu32YgRrk-vKGEQB6g",
+   "name": "Versailles Restaurant Cuban Cuisine",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "cuban_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.versaillesrestaurant.com/about",
+     "source_name": "Versailles Restaurant Cuban Cuisine \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Versailles Restaurant, known as the World's Most Famous Cuban Restaurant, has been serving Cuban cuisine and culture for over five decades",
+      "Versailles opened its doors in 1971 and became the gathering place and unofficial town square for Miami's Cuban exiles",
+      "La Ventanita is the walk up coffee window famous for its Cuban cafecito",
+      "In 1998 the restaurant expanded to include its on-site Versailles Bakery, assuring all pastries, breads and desserts are made from scratch in house",
+      "Versailles is at 3555 Southwest 8th Street Miami, Florida 33135-4196"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Cuban cuisine and culture served since 1971 at Versailles",
+    "why_here": "Go for Cuban cuisine from the restaurant known as the World's Most Famous Cuban Restaurant, serving for over five decades since 1971. Add pastries, breads and desserts made from scratch in house at the on-site Versailles Bakery.",
+    "know_before": "Versailles is at 3555 Southwest 8th Street Miami, Florida 33135-4196.",
+    "local_tip": "Use La Ventanita, the walk up coffee window, for a Cuban cafecito.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.versaillesrestaurant.com/about"
+     ],
+     "why_here": [
+      "https://www.versaillesrestaurant.com/about"
+     ],
+     "know_before": [
+      "https://www.versaillesrestaurant.com/about"
+     ],
+     "local_tip": [
+      "https://www.versaillesrestaurant.com/about"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Versailles Restaurant, known as the World's Most Famous Cuban Restaurant, has been serving Cuban cuisine and culture for over five decades",
+      "source": "https://www.versaillesrestaurant.com/about"
+     },
+     {
+      "claim": "Versailles opened its doors in 1971 and became the gathering place and unofficial town square for Miami's Cuban exiles",
+      "source": "https://www.versaillesrestaurant.com/about"
+     },
+     {
+      "claim": "La Ventanita is the walk up coffee window famous for its Cuban cafecito",
+      "source": "https://www.versaillesrestaurant.com/about"
+     },
+     {
+      "claim": "In 1998 the restaurant expanded to include its on-site Versailles Bakery, assuring all pastries, breads and desserts are made from scratch in house",
+      "source": "https://www.versaillesrestaurant.com/about"
+     },
+     {
+      "claim": "Versailles is at 3555 Southwest 8th Street Miami, Florida 33135-4196",
+      "source": "https://www.versaillesrestaurant.com/about"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJufqaSe232YgRR_wO9N82L34",
+   "name": "El Toro Loco Steakhouse Little Havana",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "steak_house",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://eltoroloco.com/",
+     "source_name": "El Toro Loco Steakhouse Little Havana \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "El Toro Loco Calle 8 Little Havana location is at 1970 SW 8th St, Miami FL 33135",
+      "El Toro Loco lists six locations across Miami",
+      "El Toro Loco offers catering and an online butcher shop",
+      "Calle 8 hours are Mon-Thu 11 AM - 11 PM, Fri-Sat 11 AM - 12 AM and Sun 11 AM - 11 PM"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Calle 8 steakhouse cooking in Little Havana",
+    "why_here": "Go for steakhouse cuts at the Calle 8 location in Little Havana, one of six locations across Miami, with catering and an online butcher shop also offered for another meal.",
+    "know_before": "Hours are Mon-Thu 11 AM-11 PM, Fri-Sat 11 AM-12 AM, Sun 11 AM-11 PM.",
+    "local_tip": "Use catering or the online butcher shop when cooking at home.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://eltoroloco.com/"
+     ],
+     "why_here": [
+      "https://eltoroloco.com/"
+     ],
+     "know_before": [
+      "https://eltoroloco.com/"
+     ],
+     "local_tip": [
+      "https://eltoroloco.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "El Toro Loco Calle 8 Little Havana location is at 1970 SW 8th St, Miami FL 33135",
+      "source": "https://eltoroloco.com/"
+     },
+     {
+      "claim": "El Toro Loco lists six locations across Miami",
+      "source": "https://eltoroloco.com/"
+     },
+     {
+      "claim": "El Toro Loco offers catering and an online butcher shop",
+      "source": "https://eltoroloco.com/"
+     },
+     {
+      "claim": "Calle 8 hours are Mon-Thu 11 AM - 11 PM, Fri-Sat 11 AM - 12 AM and Sun 11 AM - 11 PM",
+      "source": "https://eltoroloco.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJCWCYxvC22YgRNWU2W-fZgn4",
+   "name": "Old's Havana Cuban Bar & Cocina",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "cuban_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.oldshavana.com/",
+     "source_name": "Old's Havana Cuban Bar & Cocina \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Old's Havana Cuban Bar & Cocina is located at 1442 SW 8th St, Miami, FL 33135, on Calle Ocho in Little Havana",
+      "The venue describes itself as home to handcrafted mojitos made with fresh ingredients",
+      "It serves traditional Cuban dishes and offers live Cuban music every night"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Cuban food, handcrafted mojitos and live music on Calle Ocho in Little Havana",
+    "why_here": "Go for traditional Cuban dishes, handcrafted mojitos made with fresh ingredients, and live Cuban music in a dining room the venue says evokes pre-revolutionary Havana on Little Havana's Calle Ocho.",
+    "know_before": "The address is 1442 SW 8th St, Miami, FL 33135, on the famous Calle Ocho in Little Havana.",
+    "local_tip": "Book ahead through the reservations link on the official site, especially for live-music evenings.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.oldshavana.com/"
+     ],
+     "why_here": [
+      "https://www.oldshavana.com/"
+     ],
+     "know_before": [
+      "https://www.oldshavana.com/"
+     ],
+     "local_tip": [
+      "https://www.oldshavana.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Old's Havana Cuban Bar & Cocina is located at 1442 SW 8th St, Miami, FL 33135, on Calle Ocho in Little Havana",
+      "source": "https://www.oldshavana.com/"
+     },
+     {
+      "claim": "The venue describes itself as home to handcrafted mojitos made with fresh ingredients",
+      "source": "https://www.oldshavana.com/"
+     },
+     {
+      "claim": "It serves traditional Cuban dishes and offers live Cuban music every night",
+      "source": "https://www.oldshavana.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJOeE5xFR-54gR0waxD2npG4M",
+   "name": "The Escape Game Orlando",
+   "category": "attractions",
+   "metro": "orlando",
+   "primary_type": "amusement_center",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://theescapegame.com/orlando/",
+     "source_name": "The Escape Game Orlando \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Escape Game Orlando offers 60-minute escape rooms on International Drive",
+      "Every game has multiple rooms, so another room opens when players think the game is over",
+      "Hints are unlimited, with no limits, penalties or judgement",
+      "Games are described as suitable for all ages and skill levels, including families and first-timers"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "60-minute escape rooms with multiple rooms and unlimited hints on International Drive",
+    "why_here": "Go to work through a 60-minute escape room where each game opens into multiple rooms. Unlimited hints and suitability for all ages and skill levels make it workable for families, friends, first-timers and experienced players.",
+    "know_before": "Games last 60 minutes and the Orlando location is on International Drive.",
+    "local_tip": "Ask for hints freely; the venue states there are no limits or penalties for doing so.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://theescapegame.com/orlando/"
+     ],
+     "why_here": [
+      "https://theescapegame.com/orlando/"
+     ],
+     "know_before": [
+      "https://theescapegame.com/orlando/"
+     ],
+     "local_tip": [
+      "https://theescapegame.com/orlando/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Escape Game Orlando offers 60-minute escape rooms on International Drive",
+      "source": "https://theescapegame.com/orlando/"
+     },
+     {
+      "claim": "Every game has multiple rooms, so another room opens when players think the game is over",
+      "source": "https://theescapegame.com/orlando/"
+     },
+     {
+      "claim": "Hints are unlimited, with no limits, penalties or judgement",
+      "source": "https://theescapegame.com/orlando/"
+     },
+     {
+      "claim": "Games are described as suitable for all ages and skill levels, including families and first-timers",
+      "source": "https://theescapegame.com/orlando/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJzUa0ehS32YgRcmRb-aF5_3A",
+   "name": "Skinny Louie",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "hamburger_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.skinnylouie.com/",
+     "source_name": "Skinny Louie \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Skinny Louie makes every burger with 100% fresh Black Angus beef patties",
+      "The Skinny Louie menu is three smash burgers, three milkshakes, fries, and sodas",
+      "The Skinny Louie Cheeseburger has grilled onions, double American cheese, pickles and Louie sauce"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Smash burgers made with 100% fresh Black Angus beef",
+    "why_here": "Go for three smash burgers with 100% fresh Black Angus beef, three milkshakes, fries and sodas, plus grilled onions, double American cheese, pickles and Louie sauce on the signature burger.",
+    "know_before": "The menu is three smash burgers, three milkshakes, fries and sodas.",
+    "local_tip": "Order the Skinny Louie Cheeseburger for grilled onions, double American cheese, pickles and Louie sauce.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.skinnylouie.com/"
+     ],
+     "why_here": [
+      "https://www.skinnylouie.com/"
+     ],
+     "know_before": [
+      "https://www.skinnylouie.com/"
+     ],
+     "local_tip": [
+      "https://www.skinnylouie.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Skinny Louie makes every burger with 100% fresh Black Angus beef patties",
+      "source": "https://www.skinnylouie.com/"
+     },
+     {
+      "claim": "The Skinny Louie menu is three smash burgers, three milkshakes, fries, and sodas",
+      "source": "https://www.skinnylouie.com/"
+     },
+     {
+      "claim": "The Skinny Louie Cheeseburger has grilled onions, double American cheese, pickles and Louie sauce",
+      "source": "https://www.skinnylouie.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJDX1029u72YgRFYqswzdpZDY",
+   "name": "Pisco y Nazca Ceviche Gastrobar",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "peruvian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://piscoynazca.com/kendall-fl",
+     "source_name": "Pisco y Nazca Ceviche Gastrobar \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Kendall location is at The Palms at Town & Country, 8405 Mills Drive, #206, Miami, FL 33183",
+      "Pisco y Nazca adds a modern twist to traditional Peruvian cuisine, inspired by Peru's top ceviche eateries",
+      "The restaurant serves bold-flavored dishes, unique cocktails and a selection of local and international beers"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Peruvian ceviche gastrobar serving bold dishes and pisco cocktails in Kendall",
+    "why_here": "Go for Peruvian cooking with a modern twist, in a format inspired by Peru's top ceviche eateries. The Kendall restaurant serves bold-flavored dishes, unique cocktails and local and international beers for brunch, lunch, dinner or happy hour.",
+    "know_before": "The Kendall address is 8405 Mills Drive, #206, Miami, at The Palms at Town & Country.",
+    "local_tip": "Ask about private dining options if you are planning a larger group meal at Kendall.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://piscoynazca.com/kendall-fl"
+     ],
+     "why_here": [
+      "https://piscoynazca.com/kendall-fl"
+     ],
+     "know_before": [
+      "https://piscoynazca.com/kendall-fl"
+     ],
+     "local_tip": [
+      "https://piscoynazca.com/kendall-fl"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Kendall location is at The Palms at Town & Country, 8405 Mills Drive, #206, Miami, FL 33183",
+      "source": "https://piscoynazca.com/kendall-fl"
+     },
+     {
+      "claim": "Pisco y Nazca adds a modern twist to traditional Peruvian cuisine, inspired by Peru's top ceviche eateries",
+      "source": "https://piscoynazca.com/kendall-fl"
+     },
+     {
+      "claim": "The restaurant serves bold-flavored dishes, unique cocktails and a selection of local and international beers",
+      "source": "https://piscoynazca.com/kendall-fl"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ--RbNpK02YgRuBwrQraWUZQ",
+   "name": "Lummus Park",
+   "category": "attractions",
+   "metro": "miami-dade",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.miamibeachfl.gov/city-hall/parks-and-recreation/parks-facilities-directory/lummus-park/",
+     "source_name": "Lummus Park \u2014 official source",
+     "source_class": "government",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Lummus Park sits between the Atlantic Ocean and Ocean Drive, between 5 Street and 14 Place in Miami Beach",
+      "Lummus Park features a playground, public restrooms, paved paths for walking or biking and 9 Street Muscle Beach",
+      "The city lists 18 sand volleyball courts in Lummus Park",
+      "Lummus Park hours of operation are 7:30 AM - Sunset"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Ocean Drive beachfront park with Muscle Beach and volleyball",
+    "why_here": "Go for a beachfront park between the Atlantic Ocean and Ocean Drive, with a playground, public restrooms, paved paths for walking or biking, 18 sand volleyball courts and Muscle Beach at 9 Street.",
+    "know_before": "Hours are 7:30 AM to sunset.",
+    "local_tip": "Use the paved paths for walking or biking along the beachfront park.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.miamibeachfl.gov/city-hall/parks-and-recreation/parks-facilities-directory/lummus-park/"
+     ],
+     "why_here": [
+      "https://www.miamibeachfl.gov/city-hall/parks-and-recreation/parks-facilities-directory/lummus-park/"
+     ],
+     "know_before": [
+      "https://www.miamibeachfl.gov/city-hall/parks-and-recreation/parks-facilities-directory/lummus-park/"
+     ],
+     "local_tip": [
+      "https://www.miamibeachfl.gov/city-hall/parks-and-recreation/parks-facilities-directory/lummus-park/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Lummus Park sits between the Atlantic Ocean and Ocean Drive, between 5 Street and 14 Place in Miami Beach",
+      "source": "https://www.miamibeachfl.gov/city-hall/parks-and-recreation/parks-facilities-directory/lummus-park/"
+     },
+     {
+      "claim": "Lummus Park features a playground, public restrooms, paved paths for walking or biking and 9 Street Muscle Beach",
+      "source": "https://www.miamibeachfl.gov/city-hall/parks-and-recreation/parks-facilities-directory/lummus-park/"
+     },
+     {
+      "claim": "The city lists 18 sand volleyball courts in Lummus Park",
+      "source": "https://www.miamibeachfl.gov/city-hall/parks-and-recreation/parks-facilities-directory/lummus-park/"
+     },
+     {
+      "claim": "Lummus Park hours of operation are 7:30 AM - Sunset",
+      "source": "https://www.miamibeachfl.gov/city-hall/parks-and-recreation/parks-facilities-directory/lummus-park/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ_4R4dXj0wogRhGK2MtUmBjI",
+   "name": "Honeymoon Island State Park",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "state_park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.floridastateparks.org/parks-and-trails/honeymoon-island-state-park",
+     "source_name": "Honeymoon Island State Park \u2014 official source",
+     "source_class": "government",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Honeymoon Island State Park has more than four miles of beach to explore",
+      "The park has a three-mile trail through one of the last remaining virgin slash pine forests",
+      "Florida State Parks describes it as one of Florida's best-loved state parks and a barrier island",
+      "The park address listed by Florida State Parks is #1 Causeway Blvd., Dunedin, FL 34698"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Barrier island state park with four miles of beach and a virgin slash pine trail",
+    "why_here": "Go for more than four miles of white sand beach on a barrier island, plus a three-mile trail through one of the last remaining virgin slash pine forests, combining swimming and shoreline time with shaded nature walking near Dunedin.",
+    "know_before": "The park is at #1 Causeway Blvd., Dunedin, FL 34698, per Florida State Parks.",
+    "local_tip": "Split time between the beach and the three-mile slash pine trail to see both sides of the island.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.floridastateparks.org/parks-and-trails/honeymoon-island-state-park"
+     ],
+     "why_here": [
+      "https://www.floridastateparks.org/parks-and-trails/honeymoon-island-state-park"
+     ],
+     "know_before": [
+      "https://www.floridastateparks.org/parks-and-trails/honeymoon-island-state-park"
+     ],
+     "local_tip": [
+      "https://www.floridastateparks.org/parks-and-trails/honeymoon-island-state-park"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Honeymoon Island State Park has more than four miles of beach to explore",
+      "source": "https://www.floridastateparks.org/parks-and-trails/honeymoon-island-state-park"
+     },
+     {
+      "claim": "The park has a three-mile trail through one of the last remaining virgin slash pine forests",
+      "source": "https://www.floridastateparks.org/parks-and-trails/honeymoon-island-state-park"
+     },
+     {
+      "claim": "Florida State Parks describes it as one of Florida's best-loved state parks and a barrier island",
+      "source": "https://www.floridastateparks.org/parks-and-trails/honeymoon-island-state-park"
+     },
+     {
+      "claim": "The park address listed by Florida State Parks is #1 Causeway Blvd., Dunedin, FL 34698",
+      "source": "https://www.floridastateparks.org/parks-and-trails/honeymoon-island-state-park"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJOwmPb05BkYgRMGNVjchcNcQ",
+   "name": "McGuire's Irish Pub of Destin",
+   "category": "nightlife",
+   "metro": "florida",
+   "primary_type": "pub",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.mcguiresirishpub.com/destin",
+     "source_name": "McGuire's Irish Pub of Destin \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "McGuire's Irish Pub of Destin opened in 1996 as a second location on Destin Harbor",
+      "McGuire's Irish Pub of Destin offers the same food and live Irish entertainment as the original",
+      "McGuire's Irish Pub of Destin is at 33 East Highway 98, Destin, FL 32541"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Irish pub on Destin Harbor with live Irish entertainment, opened in 1996",
+    "why_here": "Go for an Irish pub on Destin Harbor that opened in 1996 as a second location, with the same food and live Irish entertainment as the original for a lively meal with music.",
+    "know_before": "The address is 33 East Highway 98, Destin, FL 32541.",
+    "local_tip": "Time a visit for the live Irish entertainment.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.mcguiresirishpub.com/destin"
+     ],
+     "why_here": [
+      "https://www.mcguiresirishpub.com/destin"
+     ],
+     "know_before": [
+      "https://www.mcguiresirishpub.com/destin"
+     ],
+     "local_tip": [
+      "https://www.mcguiresirishpub.com/destin"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "McGuire's Irish Pub of Destin opened in 1996 as a second location on Destin Harbor",
+      "source": "https://www.mcguiresirishpub.com/destin"
+     },
+     {
+      "claim": "McGuire's Irish Pub of Destin offers the same food and live Irish entertainment as the original",
+      "source": "https://www.mcguiresirishpub.com/destin"
+     },
+     {
+      "claim": "McGuire's Irish Pub of Destin is at 33 East Highway 98, Destin, FL 32541",
+      "source": "https://www.mcguiresirishpub.com/destin"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ-wAGmOq20YgRh4pc8Cqzs88",
+   "name": "Sunset Watersports Key West",
+   "category": "attractions",
+   "metro": "keys",
+   "primary_type": "tour_agency",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://sunsetwatersportskeywest.com/",
+     "source_name": "Sunset Watersports Key West \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Sunset Watersports says it has operated in Key West for over 40 years",
+      "It describes itself as home of Key West's only dinner cruise",
+      "Activities listed include sunset cruises, parasailing, jet ski tours, reef snorkeling, sandbar charters and boat rentals",
+      "The business address listed on its site is 201 William St, Key West"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Key West watersports operator for sunset cruises, parasailing, snorkeling and jet skis",
+    "why_here": "Go to choose from a wide Key West water menu in one place: sunset and dinner cruises, parasailing, jet ski tours, reef snorkeling, sandbar trips and boat rentals, from an operator that says it has run for over 40 years.",
+    "know_before": "Sunset Watersports lists its address as 201 William St, Key West, and offers trips including a dinner cruise.",
+    "local_tip": "Compare the all-inclusive watersport package with single activities if you want several experiences in one outing.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://sunsetwatersportskeywest.com/"
+     ],
+     "why_here": [
+      "https://sunsetwatersportskeywest.com/"
+     ],
+     "know_before": [
+      "https://sunsetwatersportskeywest.com/"
+     ],
+     "local_tip": [
+      "https://sunsetwatersportskeywest.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Sunset Watersports says it has operated in Key West for over 40 years",
+      "source": "https://sunsetwatersportskeywest.com/"
+     },
+     {
+      "claim": "It describes itself as home of Key West's only dinner cruise",
+      "source": "https://sunsetwatersportskeywest.com/"
+     },
+     {
+      "claim": "Activities listed include sunset cruises, parasailing, jet ski tours, reef snorkeling, sandbar charters and boat rentals",
+      "source": "https://sunsetwatersportskeywest.com/"
+     },
+     {
+      "claim": "The business address listed on its site is 201 William St, Key West",
+      "source": "https://sunsetwatersportskeywest.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJn3znPZ622YgR1iIhdZhYq98",
+   "name": "Pollos & Jarras",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "peruvian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.pollosyjarras.com/site/menu/food.html",
+     "source_name": "Pollos & Jarras \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Pollos & Jarras serves Pollo a la Brasa rotisserie chicken accompanied with crunchy fries, salad, and all the dressings",
+      "The menu includes Causa Crocante with Peruvian potato, yellow pepper and signature rotisserie chicken",
+      "Barbecues to share include anticuchos and rotisserie chicken combinations"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Peruvian rotisserie chicken, anticuchos and causas",
+    "why_here": "Go for Peruvian rotisserie chicken served with crunchy fries, salad and dressings, plus dishes built around it such as Causa Crocante with Peruvian potato and yellow pepper. Sharing barbecue platters add anticuchos and churrasco for groups.",
+    "know_before": "The menu includes Causa Crocante with Peruvian potato, yellow pepper and signature rotisserie chicken.",
+    "local_tip": "Order a shareable barbecue platter if your group wants rotisserie chicken alongside anticuchos.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.pollosyjarras.com/site/menu/food.html"
+     ],
+     "why_here": [
+      "https://www.pollosyjarras.com/site/menu/food.html"
+     ],
+     "know_before": [
+      "https://www.pollosyjarras.com/site/menu/food.html"
+     ],
+     "local_tip": [
+      "https://www.pollosyjarras.com/site/menu/food.html"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Pollos & Jarras serves Pollo a la Brasa rotisserie chicken accompanied with crunchy fries, salad, and all the dressings",
+      "source": "https://www.pollosyjarras.com/site/menu/food.html"
+     },
+     {
+      "claim": "The menu includes Causa Crocante with Peruvian potato, yellow pepper and signature rotisserie chicken",
+      "source": "https://www.pollosyjarras.com/site/menu/food.html"
+     },
+     {
+      "claim": "Barbecues to share include anticuchos and rotisserie chicken combinations",
+      "source": "https://www.pollosyjarras.com/site/menu/food.html"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJR93CTTO52YgRrt-h5vNmxgA",
+   "name": "El Toro Loco Steakhouse Westchester",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "steak_house",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://eltoroloco.com/pages/locations",
+     "source_name": "El Toro Loco Steakhouse Westchester \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Westchester location is at 8444 SW 8 St, Miami, FL 33144.",
+      "The official locations page lists the Westchester location as open daily 11 AM to 11 PM.",
+      "El Toro Loco lists six restaurants and food truck locations across Miami on its official site."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Miami steakhouse and churrascaria with a Westchester location on SW 8th Street",
+    "why_here": "Go for a Miami steakhouse meal at the Westchester location on SW 8th Street, one of six El Toro Loco restaurants listed across Miami, with online reservation and ordering linked from the official site.",
+    "know_before": "Westchester hours are listed as daily 11 AM to 11 PM on the official locations page.",
+    "local_tip": "Use the official locations page to reserve or order online for the Westchester restaurant.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://eltoroloco.com/pages/locations"
+     ],
+     "why_here": [
+      "https://eltoroloco.com/pages/locations"
+     ],
+     "know_before": [
+      "https://eltoroloco.com/pages/locations"
+     ],
+     "local_tip": [
+      "https://eltoroloco.com/pages/locations"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Westchester location is at 8444 SW 8 St, Miami, FL 33144.",
+      "source": "https://eltoroloco.com/pages/locations"
+     },
+     {
+      "claim": "The official locations page lists the Westchester location as open daily 11 AM to 11 PM.",
+      "source": "https://eltoroloco.com/pages/locations"
+     },
+     {
+      "claim": "El Toro Loco lists six restaurants and food truck locations across Miami on its official site.",
+      "source": "https://eltoroloco.com/pages/locations"
+     }
+    ]
+   }
+  }
+ ]
+}

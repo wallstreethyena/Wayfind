@@ -1,0 +1,183 @@
+[
+  {
+    "event_id": "enchant-stpete-2026",
+    "set": {
+      "start_date": "2026-11-20",
+      "end_date": "2026-12-27",
+      "start_time": null,
+      "end_time": null,
+      "timezone": "America/New_York",
+      "select_nights": true,
+      "schedule_note": "November 20 through December 27, 2026 at Tropicana Field. Timed entry; nightly times not yet published.",
+      "venue": "Tropicana Field",
+      "address": "1 Tropicana Dr, St. Petersburg, FL 33705",
+      "city": "St. Petersburg",
+      "category": "holiday",
+      "subcategory": "light-maze",
+      "tags": [
+        "christmas",
+        "holiday",
+        "holiday-lights",
+        "family",
+        "indoor"
+      ],
+      "audience": [
+        "families",
+        "couples",
+        "kids"
+      ],
+      "official_event_url": "https://www.enchantchristmas.com/st-petersburg/",
+      "official_ticket_url": "https://www.enchantchristmas.com/st-petersburg/",
+      "source_url": "https://www.enchantchristmas.com/st-petersburg/",
+      "source_type": "media-coverage",
+      "verification_confidence": "high",
+      "ticket_status": "on_sale",
+      "why_go": "The dome means rain can't cancel it, so it's the one big Florida holiday event the weather can't touch."
+    },
+    "verify_note": "2026-11-04 SWEEP (session_01MvqzkQxh4mGmFtUMk99DFW): PASS — T1 enchantchristmas.com: \"The 2026 season ... Nov 20 Thru Dec 27 Tropicana Field\"; \"Tickets Starting From $28\". || 2026-10-28 presweep (session_01MvqzkQz4fuQEh1HpE3yuPw, deadline-aware pre-expiry sweep): PASS — T1 enchantchristmas.com: \"2026 season ... Nov 20 Thru Dec 27 Tropicana Field\" || 2026-10-22 daily: PASS — https://www.enchantchristmas.com/st-petersburg/ (T1): The 2026 season of Enchant St. Petersburg has arrived. NOV 20 THRU DEC 27, Tropicana Field | 2026-10-13 backlog: PASS — https://www.enchantchristmas.com/st-petersburg/ (T1): Nov 20 Thru Dec 27 Tropicana Field ... The 2026 season of Enchant St. Petersburg has arrived | 2026-08-25 weekly check: DOWNGRADED Tier 2/high -> Tier 3/medium. The stored source (gottagoorlando.com) is a blog, not a tourism authority or venue, so it does not qualify as Tier 2. Enchant's own St. Petersburg page (Tier 1) confirms the return — \"Enchant St. Petersburg is back in 2026\" — but does NOT itself publish dates; Nov 20 - Dec 27 2026 rests on Tier 3 local coverage only. Session times and 2026 pricing still TBA. Re-check enchantchristmas.com in Sept-Oct to promote to Tier 1/high. | 2026-09-07: UPGRADED tier 3 -> tier 1. enchantchristmas.com/st-petersburg (the organiser) confirms \"Nov 20 Thru Dec 27\" at TROPICANA FIELD and states it explicitly as a return, not a cancellation: \"St. Pete asked for Enchant back, and we are returning better than ever.\" TICKETS NOT YET ON SALE as of today - presale Sep 5-7, GENERAL ON-SALE SEP 8 2026 (tomorrow). RE-CHECK ON/AFTER 2026-09-08 to flip ticket_status to on_sale and capture nightly entry times once the timed-entry calendar goes live. | 2026-09-22: ticket_status flipped not_yet_on_sale -> on_sale. enchantchristmas.com/st-petersburg still confirms \"Nov 20 Thru Dec 27, Tropicana Field\" and now serves live purchase options (Family Offer, Friends Night Out, Group 10+, \"Pick Your Perfect Night - See all available ticket types, experiences, and upgrades\"). The Sept 8 general on-sale flagged on the 09-10 check has passed. Nightly entry times still not published on the marketing page.",
+    "updated_at": "2026-10-20T03:09:33.257279+00:00"
+  },
+  {
+    "event_id": "sarasota-medieval-fair-2026",
+    "set": {
+      "start_date": "2026-11-07",
+      "end_date": "2026-12-06",
+      "start_time": "09:45:00",
+      "end_time": "17:30:00",
+      "timezone": "America/New_York",
+      "select_nights": true,
+      "schedule_note": "Saturdays and Sundays only, November 7 through December 6, 9:45am–5:30pm.",
+      "venue": "Woods of Mallaranny; Sarasota Medieval Fair",
+      "address": "29847 FL-70 E, Myakka City, FL 34251",
+      "city": "Myakka City",
+      "category": "festival",
+      "subcategory": "fall-festival",
+      "tags": [
+        "costume",
+        "fall",
+        "fall-festival",
+        "family",
+        "local",
+        "only-in-florida",
+        "trend-festivals",
+        "wf-trending"
+      ],
+      "audience": [
+        "families",
+        "adults",
+        "kids"
+      ],
+      "official_event_url": "https://www.sarasotamedievalfair.com/",
+      "official_ticket_url": "https://www.sarasotamedievalfair.com/buy-tickets",
+      "source_url": "https://www.sarasotamedievalfair.com/",
+      "source_type": "official-organizer",
+      "verification_confidence": "high"
+    },
+    "verify_note": "2026-11-06 SWEEP (session_01MvqzkPccohHXCQnYSPyoWJ): PASS — T1 sarasotamedievalfair.com: \"Nov. 7- Dec. 6, 2026 Saturdays & Sundays 9:45am-5:30pm | Rain or Shine\" || 2026-11-05 SWEEP (session_01MvqzkRPhEPwmPGwb4918dG): PASS — T1 sarasotamedievalfair.com: \"Nov. 7- Dec. 6, 2026 Saturdays & Sundays 9:45am-5:30pm | Rain or Shine\" || 2026-11-04 SWEEP (session_01MvqzkMrgah7KWQp5S4sQnr): PASS — T1 sarasotamedievalfair.com: \"Nov. 7- Dec. 6, 2026 Saturdays & Sundays 9:45am-5:30pm | Rain or Shine\" || 2026-11-03 SWEEP (session_01MvqzkRGNhACcdqtJxRGEk5): PASS — T1 sarasotamedievalfair.com: \"Nov. 7- Dec. 6, 2026 Saturdays & Sundays 9:45am-5:30pm | Rain or Shine\" Mallaranny Farms, Myakka City || 2026-11-03 SWEEP (session_01MvqzkSA8vzWeWcz8YmLtUP): PASS — T1 sarasotamedievalfair.com: \"Nov. 7- Dec. 6, 2026 Saturdays & Sundays 9:45am-5:30pm | Rain or Shine\" Mallaranny Farms, Myakka City || 2026-11-02 SWEEP (session_01MvqzkPpvUBbLA6NbQhiixx): PASS — T1 sarasotamedievalfair.com: \"Nov. 7- Dec. 6, 2026 Saturdays & Sundays 9:45am-5:30pm | Rain or Shine\" || 2026-11-01 FULL (session_01MvqzkRm1dhorGDxsrge1aw): PASS — T1 sarasotamedievalfair.com: \"Nov. 7- Dec. 6, 2026 Saturdays & Sundays 9:45am-5:30pm | Rain or Shine\" || 2026-10-31 SWEEP (session_01MvqzkMn8jigVVantEogMCN): PASS — T1 sarasotamedievalfair.com: \"Nov. 7- Dec. 6, 2026 Saturdays & Sundays 9:45am-5:30pm | Rain or Shine\" || 2026-10-30 SWEEP (session_01MvqzkRpkrcmXHeZoNordPB): PASS — T1 sarasotamedievalfair.com: \"Nov. 7- Dec. 6, 2026 Saturdays & Sundays 9:45am-5:30pm\"; no cancellation notice || 2026-10-28 presweep (session_01MvqzkQz4fuQEh1HpE3yuPw, deadline-aware pre-expiry sweep): PASS — T1 sarasotamedievalfair.com: \"Nov. 7- Dec. 6, 2026 Saturdays & Sundays 9:45am-5:30pm\" || 2026-10-22 daily: PASS — https://www.sarasotamedievalfair.com/ (T1): Nov. 7- Dec. 6, 2026 Saturdays & Sundays 9:45am-5:30pm | 2026-10-13 backlog: PASS — https://www.sarasotamedievalfair.com/ (T1): Nov. 7- Dec. 6, 2026 Saturdays & Sundays 9:45am-5:30pm | Rain or Shine | 2026-09-10: current organizer/venue listing | Public attendee invitation or public ticket listing on cited source; no membership/residency gate stated. | Named venue coordinate retained from Wayfind owned inventory; event source confirms matching venue/address. Venue anchor, not a surveyed event entrance. | Correct old 27.3456,-82.1626 pin to named fair venue. Series starts in fall; retain true Dec 6 end rather than truncating at Nov 30. | 2026-10-06 backlog: PARTIAL — sarasotamedievalfair.com — \"Saturdays & Sundays, Nov. 7 - Dec. 6, 2026 ... 9:45am-5:30pm\"",
+    "updated_at": "2026-11-06T10:42:56.488499+00:00"
+  },
+  {
+    "event_id": "ferraris-on-the-circle-2026",
+    "set": {
+      "start_date": "2026-11-07",
+      "end_date": "2026-11-07",
+      "start_time": "09:00:00",
+      "end_time": "15:00:00",
+      "timezone": "America/New_York",
+      "select_nights": false,
+      "schedule_note": "Saturday, November 7, 2026, 9am-3pm on St. Armands Circle. Free to attend.",
+      "venue": "St. Armands Circle",
+      "address": null,
+      "city": "Sarasota",
+      "category": "community",
+      "subcategory": "car-show",
+      "tags": [
+        "cars",
+        "free",
+        "photo-op",
+        "trend-more",
+        "walkable",
+        "wf-trending"
+      ],
+      "audience": [
+        "adults",
+        "families",
+        "kids"
+      ],
+      "official_event_url": "https://starmandscircleassoc.com/events-happenings/",
+      "official_ticket_url": null,
+      "source_url": "https://www.ferrariownersclub.org/events/ferraris-on-the-circle",
+      "source_type": "tourism-board",
+      "verification_confidence": "high"
+    },
+    "verify_note": "2026-11-06 SWEEP (session_01MvqzkPccohHXCQnYSPyoWJ): PASS — T1 ferrariownersclub.org (organizer club; sarasotafl.gov returned 403): \"Saturday, Nov 7, 2026 ... Ferraris On The Circle in the beautiful St. Armands Circle Park from 9:00 am-3:00 pm\" || 2026-11-05 SWEEP (session_01MvqzkRPhEPwmPGwb4918dG): PASS — T3 sarasotafl.gov: \"Saturday, November 07, 2026 | 09:00 AM to 03:00 PM\" St. Armands Circle Park; no cancellation notice || 2026-11-04 SWEEP (session_01MvqzkMrgah7KWQp5S4sQnr): PASS — T3 sarasotafl.gov: \"Saturday, November 7, 2026, 9:00 AM to 3:00 PM\" St. Armands Circle Park; no cancellation notice || 2026-11-03 SWEEP (session_01MvqzkRGNhACcdqtJxRGEk5): PASS — T3 sarasotafl.gov: \"Next date: Saturday, November 07, 2026 | 09:00 AM to 03:00 PM\"; no cancellation notice (WebFetch; Exa 403) || 2026-11-03 SWEEP (session_01MvqzkSA8vzWeWcz8YmLtUP): PASS — T3 sarasotafl.gov: \"Saturday, November 07, 2026 | 09:00 AM to 03:00 PM\" St. Armands Circle Park; no cancellation notice (WebFetch; Exa 403) || 2026-11-02 SWEEP (session_01MvqzkPpvUBbLA6NbQhiixx): PASS — T3 sarasotafl.gov: \"Next date: Saturday, November 07, 2026 | 09:00 AM to 03:00 PM\" St. Armands Circle Park; no cancellation notice (WebFetch; Exa 403) || 2026-11-01 FULL (session_01MvqzkRm1dhorGDxsrge1aw): PASS — T3 sarasotafl.gov: \"Next date: Saturday, November 07, 2026 | 09:00 AM to 03:00 PM\", St. Armands Circle Park; no cancellation notice || 2026-10-31 SWEEP (session_01MvqzkMn8jigVVantEogMCN): PASS — T3 sarasotafl.gov (2026 page): \"Next date: Saturday, November 07, 2026 | 09:00 AM to 03:00 PM\" St. Armands Circle Park; no cancel notice. (assoc events page currently lists no Ferraris entry) || 2026-10-30 SWEEP (session_01MvqzkRpkrcmXHeZoNordPB): PASS — T1 starmandscircleassoc.com: \"November 7, 2026\" Ferraris on the Circle 9am-3pm. || 2026-10-28 presweep (session_01MvqzkQz4fuQEh1HpE3yuPw, deadline-aware pre-expiry sweep): PASS — T1 starmandscircleassoc.com: \"November 7, 2026 Ferraris on the Circle 9am - 3pm\" || 2026-10-22 daily: PASS — https://starmandscircleassoc.com/events-happenings/ (T1): NOVEMBER 7, 2026 Ferraris on the Circle, 9am-3pm (St. Armands Circle Association) | 2026-10-13 backlog: PASS — https://starmandscircleassoc.com/events-happenings/ (T1): November 7, 2026 Ferraris on the Circle ... 9am | 2026-09-01 FLIPPED unannounced -> scheduled. The organiser posted it. The St. Armands Circle Association events page now lists \"Ferraris on the Circle - November 7, 2026\", 9am to 3pm, \"sponsored by Ferrari of Tampa Bay\", alongside its other dated 2026 events (Exotic Cars Sep 5, Art Festival Sep 19-20, Jaguar Festival d'Elegance Oct 10, Fright Night Oct 31). Day-of-week corroborates: Nov 7 2026 is a Saturday. Tier 3 corroboration: Must Do Visitor Guides lists \"Saturday, November 7, 2026\" (its 10am-4pm window disagrees with the association's 9am-3pm; the organiser's hours are the ones stored). CAUTION on a stale competing source: the City of Sarasota events-directory page for this event still reads \"Saturday, November 01, 2025\" - that is LAST year's edition and must not be used. PROVENANCE MOVED: source_url was visitsarasota.com/events-festivals, a generic listing index that carries no date for this event; it now points at the association page the note actually relies on, and source_tier is raised 3 -> 1. | 2026-10-06 backlog (reviewed): KEEP — starmandscircleassoc.com T1 — \"Ferraris on the Circle ... November 7, 2026 9am - 3pm ... sponsored by Ferrari Drivers SRQ\" — Organizer page lists Nov 7 2026, 9am-3pm (Saturday). Curl was reset, so this was read via WebFetch; Exa confirmed the listing.",
+    "updated_at": "2026-11-06T10:42:56.488499+00:00"
+  },
+  {
+    "event_id": "crystal-classic-2026",
+    "set": {
+      "start_date": "2026-11-13",
+      "end_date": "2026-11-16",
+      "start_time": "10:00:00",
+      "end_time": null,
+      "timezone": "America/New_York",
+      "select_nights": false,
+      "schedule_note": "Friday–Monday, November 13–16 on the sand at Siesta Beach. Vendor village 10am–6pm daily; the ticketed sculpture area stays open until 9pm Saturday. $10 adults, $5 ages 5–17.",
+      "venue": "Siesta Beach",
+      "address": null,
+      "city": "Sarasota",
+      "category": "arts",
+      "subcategory": "festival",
+      "tags": [
+        "art",
+        "beach",
+        "fall",
+        "family",
+        "tentpole",
+        "trend-festivals",
+        "wf-trending"
+      ],
+      "audience": [
+        "families",
+        "couples",
+        "photographers"
+      ],
+      "official_event_url": "https://www.siestakeycrystalclassic.com/",
+      "official_ticket_url": "https://siestakeychamber.ticketspice.com/2026-siesta-key-crystal-classic",
+      "source_url": "https://www.siestakeycrystalclassic.com/event-info/about",
+      "source_type": "tourism-authority",
+      "verification_confidence": "high",
+      "price_min": 10,
+      "price_max": null,
+      "admission_offer": null
+    },
+    "verify_note": "2026-11-06 FULL (session_01MvqzkPju76a9Y2WJohdJPP): PASS — T1 siestakeycrystalclassic.com (live 11-06): \"Purchase Your 2026 Crystal Classic Tickets\"; \"Friday, November 13: 10 AM – 5:30 PM ... Monday, November 16: 10 AM – 3:00 PM\". Matches stored. || 2026-11-05 SWEEP (session_01MvqzkNNQVt5uCFgfrpJ3Eo): PASS — T1 siestakeycrystalclassic.com (live 11-05): \"Purchase Your 2026 Crystal Classic Tickets\"; \"Friday, November 13: 10 AM – 5:30 PM ... Monday, November 16: 10 AM – 3:00 PM\". || 2026-11-04 SWEEP (session_01MvqzkQxh4mGmFtUMk99DFW): PASS — T1 siestakeycrystalclassic.com: \"Purchase Your 2026 Crystal Classic Tickets\"; \"Friday, November 13: 10 AM – 5:30 PM ... Monday, November 16: 10 AM – 3:00 PM\" || 2026-10-28 presweep (session_01MvqzkQz4fuQEh1HpE3yuPw, deadline-aware pre-expiry sweep): PASS — T1 siestakeycrystalclassic.com/event-info/about: \"Friday, November 13: 10 AM-5:30 PM ... Monday, November 16: 10 AM-3:00 PM\"; 2026 artists page || 2026-10-22 daily: PASS — https://www.siestakeycrystalclassic.com/ (T1): Experience the 2026 Crystal Classic November 13-16, 2026; Purchase Tickets | 2026-10-14 daily: PASS — https://www.siestakeycrystalclassic.com/event-info/about (T1): Fri Nov 13 10AM-5:30PM through Mon Nov 16 10AM-3PM (2026) | 2026-09-03: Siesta Key Chamber event listing 'Crystal Classic 2026' — dates and Saturday 9pm. | 2026-09-07: RESOLVED - the event OWN DOMAIN has now been updated to 2026 and agrees with the stored dates. siestakeycrystalclassic.com fronts \"Experience the 2026 Crystal Classic / November 13-16, 2026\"; /event-info/about prints per-day hours \"Friday, November 13: 10 AM - 5:30 PM · Saturday, November 14: 10 AM - 9 PM · Sunday, November 15: 10 AM - 5:30 PM · Monday, November 16: 10 AM - 3:00 PM\" and \"Purchase Your Tickets Now\". Provenance re-stamped from the Siesta Key Chamber (tier 3) to TIER 1. Stored start_time 10:00 confirmed by the published Friday open. CAUTION for future runs: /event-info/faq is STALE, still carrying 2024 pricing and 10am-5pm hours that contradict the /about page - do not ingest FAQ prices as 2026 prices; /event-info/tickets 404s and direct curl of the domain returns 403. | 2026-10-06 backlog: PASS — siestakeycrystalclassic.com — \"Friday, November 13: 10 AM - 5:30 PM ... Monday, November 16: 10 AM - 3:00 PM\" | 2026-10-22 deep-link audit: button now points at the event's own page",
+    "updated_at": "2026-11-06T10:42:56.488499+00:00"
+  },
+  {
+    "event_id": "siesta-key-holiday-parade-2026",
+    "set": {
+      "start_date": "2026-11-28",
+      "end_date": null,
+      "start_time": "17:30:00",
+      "end_time": null,
+      "timezone": "America/New_York",
+      "select_nights": false,
+      "schedule_note": null,
+      "venue": "Siesta Key Village",
+      "address": "Ocean Blvd, Siesta Key Village, Sarasota, FL 34242",
+      "city": "Sarasota",
+      "category": "holiday",
+      "subcategory": "parade",
+      "tags": [],
+      "audience": [],
+      "official_event_url": "https://my.siestakeychamber.com/events/details/2026-holiday-parade-3642",
+      "official_ticket_url": null,
+      "source_url": "https://my.siestakeychamber.com/events/details/2026-holiday-parade-3642",
+      "source_type": "official-organizer",
+      "verification_confidence": "high"
+    },
+    "verify_note": "2026-11-03 SWEEP (session_01MvqzkN5WGKVPPWKTGwKYFt): PASS — T1 my.siestakeychamber.com: \"2026 Siesta Key Holiday Parade ... Saturday, November 28, 2026 ... Parade begins at 5:30 PM\" || 2026-10-27 weekly discovery (run trig_01RR7eEe): INSERTED — T1 (my.siestakeychamber.com): Saturday Nov 28, 2026 5:30 PM - 9:00 PM EST ... Parade begins at 5:30 PM",
+    "updated_at": "2026-10-27T22:46:54.651594+00:00"
+  }
+]

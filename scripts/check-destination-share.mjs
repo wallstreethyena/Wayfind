@@ -63,6 +63,13 @@ const STANDARD = {
   "app/christmas-in-florida/page.js": "app/components/SeasonalSearchHub.js",
   "app/new-years-in-florida/page.js": "app/components/SeasonalSearchHub.js",
   "app/florida-events/page.js": "app/florida-events/page.js",
+  // 2026-11-03: /events renders real inventory now (it was a route shim).
+  "app/events/page.js": "app/events/page.js",
+  // Category hubs: one shared renderer, shareUrl built from SITE_URL + path.
+  "app/restaurants/page.js": "app/components/CategoryHub.js",
+  "app/things-to-do/page.js": "app/components/CategoryHub.js",
+  "app/nightlife/page.js": "app/components/CategoryHub.js",
+  "app/beaches/page.js": "app/components/CategoryHub.js",
   "app/florida-events/[slug]/page.js": "app/florida-events/[slug]/page.js",
   "app/guides/page.js": "app/guides/page.js",
   // 2026-09-23: the archive of guides that already happened, a list page like /guides.
@@ -76,6 +83,7 @@ const STANDARD = {
   "app/nightlife/[city]/page.js": "lib/landingShare.js#landingShareAction",
   "app/florida/[town]/page.js": "app/florida/[town]/page.js",
   "app/events/[city]/[slug]/page.js": "app/events/[city]/[slug]/page.js",
+  "app/movies/[slug]/page.js": "app/movies/[slug]/page.js",
   "app/culture/[metro]/page.js": "app/culture/[metro]/page.js",
   "app/trending/page.js": "lib/trending.js#TrendingIndexPage",
   "app/trending/[city]/page.js": "lib/trending.js#TrendingCityPage",
@@ -127,7 +135,6 @@ const EXEMPT = {
   "app/lunch-challenge/page.js": { kind: "handoff", why: "challenge invite: redirects into the shell game" },
   "app/events/[city]/page.js": { kind: "handoff", why: "only ever redirects to /events/[city]/this-weekend" },
   "app/coupons/page.js": { kind: "handoff", why: "route shim: opens the shell's coupons screen" },
-  "app/events/page.js": { kind: "handoff", why: "route shim: opens the shell's events screen" },
   "app/search/page.js": { kind: "handoff", why: "shareable search bridge: hands the query to the shell, whose cards and sheets carry Share and Group Vote" },
   "app/map/page.js": { kind: "handoff", why: "route shim: opens the shell's map" },
   "app/favorites/page.js": { kind: "handoff", why: "route shim: a person's own saved places, not a page to send" },

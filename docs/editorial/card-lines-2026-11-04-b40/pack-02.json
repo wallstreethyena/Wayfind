@@ -1,0 +1,142 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 40. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJfYaziI-72YgRInmCTun4Pxo",
+   "name": "La Romanita Restaurant and Privato Lounge",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.laromanitarestaurant.com/menus",
+     "source_name": "La Romanita Restaurant and Privato Lounge \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The menu is a selection of Latin-inspired dishes and Italian focused dishes.",
+      "House-made pastas come with a choice of orecchiette, spaghetti, penne, or fettuccine.",
+      "La Romanita blends Cuban and Italian cuisine.",
+      "La Romanita is located in Hialeah."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Latin-inspired dishes and Italian focused dishes with house-made pastas",
+    "why_here": "Visit for a menu that is a selection of Latin-inspired dishes and Italian focused dishes, with house-made pastas in orecchiette, spaghetti, penne, or fettuccine, blending Cuban and Italian cuisine in Hialeah.",
+    "know_before": "House-made pastas come with a choice of orecchiette, spaghetti, penne, or fettuccine.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.laromanitarestaurant.com/menus"
+     ],
+     "why_here": [
+      "https://www.laromanitarestaurant.com/menus"
+     ],
+     "know_before": [
+      "https://www.laromanitarestaurant.com/menus"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The menu is a selection of Latin-inspired dishes and Italian focused dishes.",
+      "source": "https://www.laromanitarestaurant.com/menus"
+     },
+     {
+      "claim": "House-made pastas come with a choice of orecchiette, spaghetti, penne, or fettuccine.",
+      "source": "https://www.laromanitarestaurant.com/menus"
+     },
+     {
+      "claim": "La Romanita blends Cuban and Italian cuisine.",
+      "source": "https://www.laromanitarestaurant.com/menus"
+     },
+     {
+      "claim": "La Romanita is located in Hialeah.",
+      "source": "https://www.laromanitarestaurant.com/menus"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJsVFP9K4Cw4gRzjmcACG-roQ",
+   "name": "Suncoast Watersports",
+   "category": "attractions",
+   "metro": "st-pete",
+   "primary_type": "tour_agency",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://funstpete.com/activities/guided-waverunner/",
+     "source_name": "Suncoast Watersports \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Guided WaveRunner tours combine WaveRunner rentals with a knowledgeable tour guide.",
+      "The guided trip visits Shell Key Preserve, Sand Dollar Island, and Egmont Key.",
+      "Guided WaveRunner tours offer photo opportunities."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Guided WaveRunner tours to Shell Key Preserve, Sand Dollar Island, and Egmont Key",
+    "why_here": "Combine WaveRunner rentals with a knowledgeable tour guide on a guided trip to Shell Key Preserve, Sand Dollar Island, and Egmont Key, with photo opportunities during the tour.",
+    "know_before": "The guided trip visits Shell Key Preserve, Sand Dollar Island, and Egmont Key.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://funstpete.com/activities/guided-waverunner/"
+     ],
+     "why_here": [
+      "https://funstpete.com/activities/guided-waverunner/"
+     ],
+     "know_before": [
+      "https://funstpete.com/activities/guided-waverunner/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Guided WaveRunner tours combine WaveRunner rentals with a knowledgeable tour guide.",
+      "source": "https://funstpete.com/activities/guided-waverunner/"
+     },
+     {
+      "claim": "The guided trip visits Shell Key Preserve, Sand Dollar Island, and Egmont Key.",
+      "source": "https://funstpete.com/activities/guided-waverunner/"
+     },
+     {
+      "claim": "Guided WaveRunner tours offer photo opportunities.",
+      "source": "https://funstpete.com/activities/guided-waverunner/"
+     }
+    ]
+   }
+  }
+ ]
+}

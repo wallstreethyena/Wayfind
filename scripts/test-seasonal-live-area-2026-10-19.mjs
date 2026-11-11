@@ -4,14 +4,14 @@
 // Halloween regroup, the Christmas research merge and the Christmas composer.
 // A row that loses its place_id, its date, or its rail fails here.
 import assert from "node:assert/strict";
-import RAW from "../data/christmas-2026-research.json" with { type: "json" };
+import { CHRISTMAS_RESEARCH_ROWS as RAW } from "../lib/christmasResearch.js";
 import { FALL_LIVE_AREA_2026_10_19 } from "../lib/fallLiveArea20261019.js";
 import { FALL_DISCOVERY_RAIL } from "../lib/fallDiscoveries2026.js";
 import { fallEventRail, composeFallIntentRails, nextFallOccurrence, hasUpcomingFallOccurrence } from "../lib/fallIntentRails.js";
 import { halloweenCardRail, composeHalloweenRails } from "../lib/halloweenIntentRails.js";
 import { isTrusted } from "../lib/curatedEvents.js";
 import { fallEventLive } from "../lib/fallPool.js";
-import { fallEventCardImageSrc } from "../lib/fallEventImage.js";
+import { fallEventCardImageSrc, CHRISTMAS_INTENT_IMAGE_HOLDS } from "../lib/fallEventImage.js";
 import { occurrenceDatesFor } from "../lib/eventOccurrences.js";
 import { mergeChristmasResearch, researchEvent } from "../lib/christmasResearch.js";
 import { christmasEventCard } from "../lib/christmasCards.js";
@@ -153,8 +153,8 @@ function xmasRails(today) {
   return composeChristmasIntentRails(cards, [], { ...TAMPA, today }).rails;
 }
 
-check("eight Christmas rows are confirmed, in the Nov 15 window, and photo-backed", () => {
-  assert.equal(RAW.length, 844); // 770 researched 2026-10-13 plus the 29 first-100 rows added 2026-10-28
+check("eight Christmas rows are confirmed and in the Nov 15 window; a held card has no year-round venue photo", () => {
+  assert.equal(RAW.length, 850); // + Whoville at The Old Citrus Estate (owner post 2026-11-01); 770 researched 2026-10-13, 29 first-100 rows, plus Snowcat's neighbor listings Robert's and Freedom Factory (2026-11-02)
   for (const [id, expect] of Object.entries(XMAS)) {
     const raw = RAW.find((row) => row.id === id);
     assert.ok(raw, id);
@@ -167,7 +167,9 @@ check("eight Christmas rows are confirmed, in the Nov 15 window, and photo-backe
     assert.equal(christmasEventRail(event), expect.rail);
     assert.equal(inChristmasWindow(event), true);
     assert.ok(isTrusted(event));
-    assert.match(fallEventCardImageSrc(event, 640, null), new RegExp("/api/photo\\?place=" + expect.place));
+    const src = fallEventCardImageSrc(event, 640, null);
+    if (CHRISTMAS_INTENT_IMAGE_HOLDS.has(id)) assert.equal(src, null, id + " is held to the designed tile");
+    else assert.match(src, new RegExp("/api/photo\\?place=" + expect.place));
     assert.notEqual(event.city, "Florida");
   }
   const film = researchEvent(RAW.find((row) => row.id === "florida-orchestra-nightmare-before-christmas-2026"));

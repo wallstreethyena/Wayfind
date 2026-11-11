@@ -13,12 +13,13 @@ import { siteHourFloat } from "../../lib/nowContext.js";
 import { captureOrQueue } from "../../lib/browserAnalytics.js";
 import { BooGhostSvg } from "./booGhost.js";
 import { SantaSvg, santaPose } from "./santaArt.js";
-import { pickCharacter, santaSeasonOpen, santaApiFor, isChristmasPath, CHRISTMAS_PATH, SANTA_API, SANTA_HIDE_KEY } from "./companionCharacter.js";
+import SantaDock from "./SantaDock.js";
+import { pickCharacter, santaSeasonOpen, santaApiFor, isChristmasPath, CHRISTMAS_PATH, SANTA_API, SANTA_HIDE_KEY, santaOffPath } from "./companionCharacter.js";
 import { SANTA, SANTA_CHIPS, SANTA_FINDER_CHIPS, SANTA_GAGS, SANTA_ZAP_LINES, SANTA_REACT_LINES, santaTimeLines, santaRouteLine, santaOpenerFor } from "./santaCopy.js";
 import { openerFor } from "./booOpeners.js";
 import { coverageState, coverageLines, coverageSheetLine, unknownSheetLine, coverageButtonText, roundMiles } from "./booCoverage.js";
 import { pickLine, routeLine, timeLines } from "./booReactions.js";
-import { MAX_COVER, rectOf, isClear, touchesAny, besideSpot, perchSpot, pickClearSpot, estimateBubble, bubbleSideIfClear, chooseBubbleSide } from "./booClear.js";
+import { MAX_COVER, rectOf, isClear, touchesAny, besideSpot, perchSpot, pickClearSpot, estimateBubble, bubbleSideIfClear, chooseBubbleSide, TUCK_MAX } from "./booClear.js";
 
 const HIDE_KEY = "wf_boo_hidden";
 // /group-plans: owner 2026-10-30, "get him out of the group pages". Friends
@@ -227,6 +228,14 @@ function splitKicker(t) {
 const FALLBACK_LINE = "My chains got tangled. The full haunt list is one tap away.";
 
 const ANTICS = ["wave", "spin", "peekaboo", "shiver", "zoomies", "nap", "bow", "juggle"];
+// The ones he picks on his own (owner 2026-11-03: calm, always visible, more
+// personality). zoomies races him across the page and shiver reads as a glitch,
+// so they only ever play when something asks for them by name.
+const CALM_ANTICS = ["wave", "spin", "nap", "bow", "juggle"]; // peekaboo zooms him to the screen edge, so it is out too
+const REST_MIN_S = 6, REST_MAX_S = 14; // how long he settles at each spot
+const CALM_SPEED_MIN = 40, CALM_SPEED_MAX = 70; // px per second, an unhurried drift
+const NEAR_LEG_PX = 220; // how far a calm leg looks for a spot with a clear path
+const REACT_NEAR_PX = 240, CALM_REACT_SPEED = 140; // he drifts over to react only when it is this close, at this pace
 const ANTIC_MS = { wave: 1800, spin: 1500, peekaboo: 2600, shiver: 1500, zoomies: 2800, nap: 3200, bow: 1600, juggle: 2800 };
 // Zap pool for a bulb shock: dash free, short.
 const ZAP_LINES = [
@@ -250,7 +259,15 @@ const CONTROL_SEL = "a[href],button,input:not([type=hidden]),select,textarea,[ro
 // controlRects and booClear.hitsText. Containers (li, td, ...) that hold their
 // own headings or paragraphs are skipped so the inner text counts, not the card.
 const BLOCK_TEXT = "li,td,th,dt,dd,blockquote,figcaption";
-const REST_MS = 250; // how often a resting Boo re-checks he is not on text after a scroll or page change
+const SCROLL_SETTLE_MS = 220; // the page counts as still moving until this long after the last scroll event
+const REST_MS = 1000; // how often a resting Boo re-checks he is not on text after a scroll or page change (owner 2026-11-03: 250ms made Santa bounce "everywhere on the page rapidly" on a page whose lights and photo dots mutate every tick)
+// A card sized link with a picture in it (the list cards on /christmas-in-florida,
+// the home rails) is a PICTURE where he can rest, not a button he covers: its
+// words are already in the text list (zero tolerance) and its buttons are their
+// own controls. Before this (owner 2026-11-03, "I can't see him most of the
+// time") every card link blocked him whole, so a phone list had no spot at all
+// and he lived tucked off the screen edge, faded.
+const PHOTO_CARD_MIN_W = 160, PHOTO_CARD_MIN_H = 100;
 const READ_SEL = "h1,h2,h3,h4,p,li,blockquote,figcaption,dt,dd,td,th,[role=status],[role=alert],[data-boo-clear]";
 // The ONLY pointer target on him is a small hit button. It is tappable only
 // while its padded box overlaps none of these (nothing navigational or
@@ -464,6 +481,12 @@ export default function BooCompanion() {
   // character (Boo out of season on the Christmas page, Santa anywhere else).
   const [elig, setElig] = useState({ ok: false, ch: "" });
   const eligible = elig.ok && elig.ch === character;
+  // ROAM: the floating companion (roaming, gags, reactions, bubbles, the tap
+  // target that follows him). Boo only. Santa lives in SantaDock (one owner for
+  // his presence, owner 2026-11-03), so none of the roaming machinery runs for
+  // him: no timers, no listeners, no animation frames. The chat sheet below is
+  // shared and still opens for either character.
+  const roam = eligible && !santa;
   const [reduced, setReduced] = useState(false);
   const [open, setOpen] = useState(false);
   const [bubble, setBubble] = useState(null); // { text, v, h }
@@ -516,6 +539,7 @@ export default function BooCompanion() {
   const touchSt = useRef({ els: new Set(), rings: new Set(), timers: [] });
   const openRef = useRef(false);
   const eligibleRef = useRef(false);
+  const roamRef = useRef(false);
   const pathRef = useRef(pathname);
   const bubbleT = useRef(0);
   const lastSay = useRef(0);
@@ -529,6 +553,12 @@ export default function BooCompanion() {
   const gagBump = useRef(() => {});
   const ctlRef = useRef({ t: 0, list: [], text: [] });
   const restDirty = useRef(true);
+  // Until when the page counts as "still scrolling" (performance.now ms). While
+  // it scrolls the words slide under him every frame, so re-dodging them made
+  // him dart in a new direction every REST_MS and his fade flicker (owner
+  // 2026-11-01: "he glitches when page moves fast"). He holds his course faded
+  // instead, and makes one calm check once the page settles.
+  const scrollQuiet = useRef(0);
   const restChk = useRef(0);
   const hitRef = useRef(null);
   const hitSt = useRef({ nodes: null, list: [], t: 0, fresh: false, dom: true, quiet: 0, prev: null, prevT: 0, spd: 0 });
@@ -539,6 +569,7 @@ export default function BooCompanion() {
   openRef.current = open;
   reducedRef.current = reduced;
   eligibleRef.current = eligible;
+  roamRef.current = roam;
 
   // Resting pose: idle while roaming, the sheet's current reply pose while open.
   const restPose = () => (openRef.current && holdRef.current) || "idle";
@@ -593,10 +624,10 @@ export default function BooCompanion() {
   useEffect(() => {
     let ok = false;
     try {
-      ok = seasonFor(character) && !reservedPath(pathname);
+      ok = seasonFor(character) && !reservedPath(pathname) && !(character === "santa" && santaOffPath(pathname));
       // Each character has its own hide key: hiding Boo never hides Santa.
       if (ok) ok = (santa ? sessionStorage.getItem(SANTA_HIDE_KEY) : sessionStorage.getItem(HIDE_KEY)) !== "1";
-    } catch { ok = seasonFor(character) && !reservedPath(pathname); }
+    } catch { ok = seasonFor(character) && !reservedPath(pathname) && !(character === "santa" && santaOffPath(pathname)); }
     setElig({ ok, ch: character });
   }, [pathname]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -623,13 +654,13 @@ export default function BooCompanion() {
     } catch { /* ignore */ }
   }, []);
 
-  useEffect(() => { if (eligible) { prefetch("idle"); prefetch("greet"); } }, [eligible]);
+  useEffect(() => { if (roam) { prefetch("idle"); prefetch("greet"); } }, [roam]);
   // Warm the reaction poses a few seconds in, once the page itself has loaded.
   useEffect(() => {
-    if (!eligible) return undefined;
+    if (!roam) return undefined;
     const t = window.setTimeout(() => { REACT_POSES.forEach((k) => prefetch(k)); }, 5000);
     return () => clearTimeout(t);
-  }, [eligible]);
+  }, [roam]);
 
   // Return visitors: count sessions in localStorage (once per tab session).
   useEffect(() => {
@@ -675,10 +706,54 @@ export default function BooCompanion() {
       if (el.matches(READ_SEL)) {
         if (el.matches(BLOCK_TEXT) && !el.hasAttribute("data-boo-clear") && el.querySelector(READ_SEL)) continue;
         txt.push(rect);
-      } else out.push(rect);
+      } else if (isPhotoCard(el, r)) continue; // the picture part of a card is a place to rest
+      else out.push(rect);
     }
+    // THE WORDS THEMSELVES (owner 2026-11-01, measured live: Santa parked on the
+    // "Ask Santa" button label and on a card title, because those words sit in
+    // buttons and divs the selectors above do not treat as text). Every visible
+    // text node in the viewport adds its glyph boxes, so a word counts wherever
+    // it lives. Text inside him (his bubble, his sheet) is skipped.
+    try {
+      const NF = window.NodeFilter;
+      // Elements wholly off screen are rejected with their whole subtree, so the
+      // walk only touches what is in view (a long list costs the same as a short one).
+      const walker = document.createTreeWalker(document.body, NF.SHOW_TEXT | NF.SHOW_ELEMENT, {
+        acceptNode: (n) => {
+          if (me && (n === me || me.contains(n))) return NF.FILTER_REJECT;
+          if (n.nodeType === 1) {
+            const er = n.getBoundingClientRect();
+            const off = er.bottom <= 0 || er.top >= vh || er.right <= 0 || er.left >= vw;
+            // display:contents and other zero boxes still hold visible children: only reject a real box that is off screen.
+            return off && er.width > 0 && er.height > 0 && getComputedStyle(n).position !== "fixed" ? NF.FILTER_REJECT : NF.FILTER_SKIP;
+          }
+          return n.nodeValue && n.nodeValue.trim() ? NF.FILTER_ACCEPT : NF.FILTER_REJECT;
+        },
+      });
+      const rg = document.createRange();
+      for (let n = walker.nextNode(); n; n = walker.nextNode()) {
+        const pe = n.parentElement;
+        if (!pe) continue;
+        const pr = pe.getBoundingClientRect();
+        if (pr.bottom <= 0 || pr.top >= vh || pr.right <= 0 || pr.left >= vw || pr.width < 2 || pr.height < 2) continue;
+        rg.selectNodeContents(n);
+        const lines = rg.getClientRects();
+        for (let j = 0; j < lines.length; j++) {
+          const q = lines[j];
+          if (q.width < 3 || q.height < 3 || q.bottom <= 0 || q.top >= vh) continue;
+          txt.push({ left: q.left, top: q.top, right: q.right, bottom: q.bottom });
+        }
+      }
+    } catch { /* ignore */ }
     c.t = now; c.list = out; c.text = txt;
     return out;
+  };
+  // A card sized link that carries a picture (see PHOTO_CARD_MIN_W). Taps on him
+  // over it still reach the card (HIT_SEL keeps every a[href], so the hit button
+  // stays off there and underTap hands the tap to the card).
+  const isPhotoCard = (el, r) => {
+    if (el.tagName !== "A" || r.width < PHOTO_CARD_MIN_W || r.height < PHOTO_CARD_MIN_H) return false;
+    try { return !!el.querySelector("img,picture,video,[data-photo],[style*='background-image']"); } catch { return false; }
   };
   // Controls and text, read together from one cache.
   const restLists = (fresh) => { const ctl = controlRects(fresh); return [ctl, ctlRef.current.text || []]; };
@@ -757,10 +832,10 @@ export default function BooCompanion() {
   // the next tick re-verifies from a fresh read: scroll (any scroller), resize,
   // rotate, and page mutations outside his own subtree.
   useEffect(() => {
-    if (!eligible) return undefined;
+    if (!roam) return undefined;
     const c = hitSt.current;
     const off = (quietMs) => { restDirty.current = true; c.fresh = false; c.dom = true; if (quietMs) c.quiet = performance.now() + quietMs; hitSet(false); };
-    const onScroll = (e) => { const t = e && e.target; if (t && t.closest && t.closest(".boo-c,.boo-s-back")) return; off(140); };
+    const onScroll = (e) => { const t = e && e.target; if (t && t.closest && t.closest(".boo-c,.boo-s-back")) return; scrollQuiet.current = performance.now() + SCROLL_SETTLE_MS; off(140); };
     const onResize = () => off(200);
     let mo = null;
     try {
@@ -787,7 +862,7 @@ export default function BooCompanion() {
       window.removeEventListener("resize", onResize);
       window.removeEventListener("orientationchange", onResize);
     };
-  }, [eligible]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [roam]); // eslint-disable-line react-hooks/exhaustive-deps
   // Reduced motion: the bottom left gutter, lifted until nothing pressable
   // (bottom nav, sticky CTA, page buttons) is under him.
   const settleReduced = () => {
@@ -816,12 +891,14 @@ export default function BooCompanion() {
     if (sp.x === cur.x && sp.y === cur.y) { passCheck(cur); return false; }
     posRef.current = { x: sp.x, y: sp.y };
     const el = elRef.current;
-    el.style.transition = "transform .3s ease-out";
+    // A gentle slide, not a jump: the time grows with the distance (calm, owner 2026-11-03).
+    const slideMs = Math.round(Math.max(600, Math.min(2200, (Math.hypot(sp.x - cur.x, sp.y - cur.y) / CALM_REACT_SPEED) * 1000)));
+    el.style.transition = "transform " + slideMs + "ms ease-in-out";
     place(sp.x, sp.y);
-    relocUntil.current = Date.now() + 360;
+    relocUntil.current = Date.now() + slideMs + 60;
     hitDisarm();
     clearTimeout(relocT.current);
-    relocT.current = window.setTimeout(() => { if (el) el.style.transition = ""; }, 380);
+    relocT.current = window.setTimeout(() => { if (el) el.style.transition = ""; }, slideMs + 80);
     seg.current = { x0: sp.x, y0: sp.y, x1: sp.x, y1: sp.y, t: 0, dur: 1, pause: 0.3, target: null, free: false };
     restDirty.current = false;
     passCheck(posRef.current);
@@ -952,29 +1029,35 @@ export default function BooCompanion() {
     const b = bounds();
     const from = posRef.current;
     let tx, ty, speed, target = null, free = false;
-    if (!openRef.current && !reducedRef.current && (legRef.current < 2 || Math.random() < 0.7)) {
-      const hit = pickTarget();
-      if (hit) {
-        target = hit.el; free = true;
-        prefetch("poke"); prefetch("cheer"); prefetch("orb"); prefetch("swipe"); prefetch("up");
-        [tx, ty] = hit.spot;
-        speed = rand(80, 160);
+    // CALM (owner 2026-11-03: "I can't see him most of the time and he is going
+    // everywhere on the page rapidly"). No racing over to poke things and no
+    // corner darts: he drifts slowly to the next spot with no words under him
+    // (the side gutter nearest him first, else tucked a little at the screen
+    // edge, see booClear.pickClearSpot) and settles there for a while.
+    {
+      const [ctl, txt] = restLists(true);
+      // First choice: a nearby spot with no words under him AND none along the
+      // way (the path is sampled), so he never drifts across a line of text.
+      let sp = null;
+      for (let i = 0; i < 40 && !sp; i++) {
+        const cx = Math.min(b.maxX, Math.max(b.minX, from.x + rand(-NEAR_LEG_PX, NEAR_LEG_PX)));
+        const cy = Math.min(b.maxY, Math.max(b.minY, from.y + rand(-NEAR_LEG_PX, NEAR_LEG_PX)));
+        if (Math.hypot(cx - from.x, cy - from.y) < 40) continue;
+        let clear = true;
+        for (let k = 1; k <= 6 && clear; k++) {
+          const u = k / 6;
+          clear = isClear(from.x + (cx - from.x) * u, from.y + (cy - from.y) * u, SIZE, ctl, MAX_COVER, txt);
+        }
+        if (clear) sp = { x: cx, y: cy };
       }
+      // Otherwise the usual tiers (clear anywhere, side gutter, tucked a little at the edge).
+      if (!sp) sp = pickClearSpot(SIZE, b, ctl, from, rand, 8, MAX_COVER, null, txt);
+      tx = sp.x; ty = sp.y;
+      // Already there: settle in place a little longer instead of wandering.
+      if (Math.hypot(tx - from.x, ty - from.y) < 24) { tx = from.x; ty = from.y; }
+      speed = rand(CALM_SPEED_MIN, CALM_SPEED_MAX);
     }
-    if (target) { /* chosen above */ }
-    else if (Math.random() < 0.18) {
-      tx = from.x + SIZE / 2 < b.vw / 2 ? b.maxX : b.minX;
-      ty = from.y + SIZE / 2 < (b.minY + b.maxY) / 2 ? b.maxY : b.minY;
-      tx += rand(-30, 30); ty += rand(-30, 30);
-      speed = rand(240, 340);
-    } else {
-      for (let i = 0; i < 6; i++) {
-        tx = rand(b.minX, b.maxX); ty = rand(b.minY, b.maxY);
-        if (Math.hypot(tx - from.x, ty - from.y) > 140) break;
-      }
-      speed = rand(35, 115);
-    }
-    tx = Math.min(b.maxX, Math.max(b.minX, tx));
+    tx = Math.min(b.vw - SIZE * (1 - TUCK_MAX), Math.max(-SIZE * TUCK_MAX, tx));
     ty = free ? Math.min(Math.max(0, b.vh - SIZE - 8), Math.max(0, ty)) : Math.min(b.maxY, Math.max(b.minY, ty));
     const dist = Math.max(1, Math.hypot(tx - from.x, ty - from.y));
     const dir = tx - from.x;
@@ -995,13 +1078,28 @@ export default function BooCompanion() {
     return { x: b.minX, y: b.maxY };
   }, []);
 
-  const drifting = eligible && !reduced && !open && !bubble && !antic;
+  const drifting = roam && !reduced && !open && !bubble && !antic;
   driftRef.current = drifting;
 
   // One place that puts a line in the bubble: picks the side with room, owns
   // the hide timer, and records when he last spoke so reactions keep a gap.
-  const showBubble = useCallback((text, ms) => {
-    relocateIfCovered(estimateBubble(text));
+  const showBubble = useCallback((text, ms, must) => {
+    const need = estimateBubble(text);
+    relocateIfCovered(need);
+    // Owner 2026-10-30: he never talks in front of text. An unprompted line
+    // with no clear side (a packed phone screen) is skipped, not laid over the
+    // menu or a heading; he will find a clear moment for the next one. A tap on
+    // him (zapBoo) still always answers.
+    // `must`: the out-of-coverage explanation, which the owner wants every
+    // visitor to see, still shows on the least covered side.
+    if (!must) {
+      const cur = reducedRef.current ? corner() : posRef.current, b = bounds();
+      const pref = { v: cur.y < 150 ? "below" : "above", h: cur.x + SIZE / 2 > b.vw / 2 ? "left" : "right" };
+      // controlRects returns controls only; readable words are the second list.
+      // A clear side means both, or the line would land on a heading.
+      const [ctl, txt] = restLists(true);
+      if (!bubbleSideIfClear(cur.x, cur.y, SIZE, need.bw, need.bh, pref, ctl, b.vw, b.vh, txt)) { track("boo_line_skipped_no_room", { path: pathRef.current }); return; }
+    }
     const { v, h } = sideFor(text);
     clearTimeout(bubbleT.current);
     lastSay.current = Date.now();
@@ -1011,7 +1109,7 @@ export default function BooCompanion() {
   const sayRef = useRef(() => {});
   sayRef.current = (text, p, delay) => {
     const go = () => {
-      if (openRef.current || !eligibleRef.current) return;
+      if (openRef.current || !roamRef.current) return;
       if (p) { prefetch(p); setPose(p); }
       showBubble(text);
     };
@@ -1025,7 +1123,7 @@ export default function BooCompanion() {
   // reduced motion he speaks from his corner without flying anywhere.
   const react = useCallback((kind, opts) => {
     const o = opts || {};
-    if (!eligibleRef.current || openRef.current || typeof document === "undefined" || document.hidden) return false;
+    if (!roamRef.current || openRef.current || typeof document === "undefined" || document.hidden) return false;
     if (zapT.current.length || pendingRef.current) return false;
     if (Date.now() - lastSay.current < (DIRECT[kind] ? DIRECT_GAP : REACT_GAP) || reactN.current >= REACT_MAX) return false;
     if ((reactKinds.current[kind] || 0) >= (REACT_LIMIT[kind] || 1)) return false;
@@ -1051,7 +1149,10 @@ export default function BooCompanion() {
       // Beside it, never on it: the visitor's finger or cursor is right there.
       const [rc, rt] = restLists(true);
       const spot = r.bottom > 0 && r.top < vh ? besideSpot(r, SIZE, freeBounds(b0), rc, MAX_COVER, rt) : null;
-      if (spot) {
+      // Calm (owner 2026-11-03): only drift over when it is close; far away he
+      // just says the line where he is instead of racing across the page.
+      const near = spot && Math.hypot(spot[0] - posRef.current.x, spot[1] - posRef.current.y) <= REACT_NEAR_PX;
+      if (spot && near) {
         const b = b0;
         const from = posRef.current;
         const [tx, ty] = spot;
@@ -1061,9 +1162,9 @@ export default function BooCompanion() {
           flipRef.current.style.transform = facing.current > 0 ? "scaleX(1)" : "scaleX(-1)";
         }
         const dist = Math.max(1, Math.hypot(tx - from.x, ty - from.y));
-        const darting = dist > 160;
+        const darting = false;
         if (elRef.current) { elRef.current.dataset.dart = darting ? "1" : ""; elRef.current.style.setProperty("--tdir", String(facing.current)); }
-        seg.current = { x0: from.x, y0: from.y, x1: tx, y1: ty, t: 0, dur: Math.min(0.9, dist / 420), pause: 0, target: el, free: true, say: { text, pose: o.pose } };
+        seg.current = { x0: from.x, y0: from.y, x1: tx, y1: ty, t: 0, dur: Math.max(0.6, dist / CALM_REACT_SPEED), pause: 0, target: el, free: true, say: { text, pose: o.pose } };
         hitDisarm();
         return true;
       }
@@ -1079,7 +1180,7 @@ export default function BooCompanion() {
 
   // The rAF loop only runs while he is actually drifting and the tab is visible.
   useEffect(() => {
-    if (!eligible) return;
+    if (!roam) return;
     if (!drifting) {
       const p = reduced ? corner() : null;
       if (p) { place(p.x, p.y); }
@@ -1103,7 +1204,7 @@ export default function BooCompanion() {
         // changes under him while he waits. Re-check (cheap: only after a scroll,
         // resize or page change, at most every REST_MS) and glide off the words.
         const nowMs = performance.now();
-        if (restDirty.current && nowMs - restChk.current >= REST_MS && !g.say) {
+        if (restDirty.current && nowMs >= scrollQuiet.current && nowMs - restChk.current >= REST_MS && !g.say) {
           restChk.current = nowMs;
           if (parkClear()) { rafRef.current = requestAnimationFrame(frame); return; }
         }
@@ -1130,9 +1231,16 @@ export default function BooCompanion() {
           if (touched) { touchRef.current(g.target); g.target = null; }
           if (g.say) { const s = g.say; g.say = null; sayRef.current(s.text, s.pose, 280); }
           else if (touched) { if (!parkClear()) g.pause = TOUCH_MS / 1000; } // the 1.2s reaction, then he leaves (unless the page moved him onto words)
-          else if (!parkClear()) g.pause = Math.random() < 0.4 ? 0.05 : rand(0.7, 2.6);
+          else if (!parkClear()) {
+            // Settle, and show some personality while he rests (half the time).
+            g.pause = rand(REST_MIN_S, REST_MAX_S);
+            if (Math.random() < 0.5) window.setTimeout(() => { try { playAnticRef.current(); } catch { /* ignore */ } }, 600);
+          }
         }
       }
+      // Wherever he is right now (flying across, sliding clear, holding still):
+      // if he is over words, fade so they stay readable. Lists re-read at most
+      // every 150ms; the overlap math runs on the cached rects.
       rafRef.current = requestAnimationFrame(frame);
     };
     const start = () => {
@@ -1148,11 +1256,11 @@ export default function BooCompanion() {
     document.addEventListener("visibilitychange", vis);
     start();
     return () => { alive = false; stop(); document.removeEventListener("visibilitychange", vis); if (elRef.current) elRef.current.dataset.dart = ""; setLean(0); };
-  }, [eligible, drifting, reduced, place, nextLeg, corner]);
+  }, [roam, drifting, reduced, place, nextLeg, corner]);
 
   // Keep the reduced motion spot in the corner on resize.
   useEffect(() => {
-    if (!eligible || !reduced) { redPos.current = null; return undefined; }
+    if (!roam || !reduced) { redPos.current = null; return undefined; }
     let t = 0;
     const on = () => { clearTimeout(t); t = window.setTimeout(() => { try { settleReduced(); } catch { /* ignore */ } }, 250); };
     settleReduced();
@@ -1160,22 +1268,25 @@ export default function BooCompanion() {
     window.addEventListener("resize", on);
     document.addEventListener("scroll", on, { passive: true, capture: true });
     return () => { clearTimeout(t); clearInterval(iv); window.removeEventListener("resize", on); document.removeEventListener("scroll", on, true); };
-  }, [eligible, reduced]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [roam, reduced]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Parked (bubble or bit playing): the page may scroll under him, so look
   // again every 300ms and slide clear if he ends up on a control.
   useEffect(() => {
-    if (!eligible || reduced || open || !(bubble || antic)) return undefined;
+    if (!roam || reduced || open || !(bubble || antic)) return undefined;
     const iv = window.setInterval(() => {
       if (relocateIfCovered(bubble ? estimateBubble(bubble.text) : undefined) && bubble) { const s2 = sideFor(bubble.text); setBubble((bb) => (bb && (bb.v !== s2.v || bb.h !== s2.h) ? { ...bb, v: s2.v, h: s2.h } : bb)); }
     }, 300);
     return () => clearInterval(iv);
-  }, [eligible, reduced, open, bubble, antic]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [roam, reduced, open, bubble, antic]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Antics: small keyframe bits of business. Travel ones read the current spot.
+  const playAnticRef = useRef(() => 0);
   const playAntic = useCallback((name) => {
     if (reducedRef.current) return 0;
-    const n = ANTICS.indexOf(name) >= 0 ? name : ANTICS[Math.floor(Math.random() * ANTICS.length)];
+    // Anything outside the calm set (zoomies, peekaboo, shiver), even when asked
+    // for by name or picked by the AI, becomes a calm one.
+    const n = CALM_ANTICS.indexOf(name) >= 0 ? name : CALM_ANTICS[Math.floor(Math.random() * CALM_ANTICS.length)];
     relocateIfCovered();
     const el = elRef.current;
     if (el) {
@@ -1192,6 +1303,7 @@ export default function BooCompanion() {
     anticTimer.current = window.setTimeout(() => { setAntic(null); setPose(restPose()); }, ANTIC_MS[n]);
     return ANTIC_MS[n];
   }, []);
+  playAnticRef.current = playAntic;
   useEffect(() => () => clearTimeout(anticTimer.current), []);
 
   // Zap: a bulb touch shocks him. 500ms jolt in the panic pose with sparks, then
@@ -1253,7 +1365,7 @@ export default function BooCompanion() {
   // first two are local (free), then every third calls gag mode, always with a
   // local fallback.
   useEffect(() => {
-    if (!eligible) return;
+    if (!roam) return;
     gagCount.current = 0;
     shownGags.current = new Set();
     reactN.current = 0;
@@ -1282,7 +1394,7 @@ export default function BooCompanion() {
       const delay = travel ? wait : 0;
       showTimer = window.setTimeout(() => {
         if (dead || openRef.current) return;
-        showBubble(text);
+        showBubble(text, undefined, src === "coverage");
         if (src !== "opener" && src !== "route" && !travel && Math.random() < 0.4) { prefetch("sassy"); setPose("sassy"); }
         track("boo_companion_gag", { path: pathRef.current, n: gagCount.current, source: src, antic: name });
       }, delay);
@@ -1302,7 +1414,7 @@ export default function BooCompanion() {
           if (dead || openRef.current || coverQuiet()) return;
           const pp = last ? "up" : i === 1 ? "idle" : "talk";
           prefetch(pp); setPose(pp);
-          showBubble(line);
+          showBubble(line, undefined, true);
         }, at));
         at += readMs(line) + LINE_GAP;
       });
@@ -1356,7 +1468,7 @@ export default function BooCompanion() {
     };
     schedule(page > 1 ? 2500 : 6000);
     return () => { dead = true; gagBump.current = () => {}; coverKick.current = () => {}; seqT.current.forEach(clearTimeout); seqT.current = []; clearTimeout(timer); clearTimeout(showTimer); clearTimeout(bubbleT.current); setBubble(null); setPose(restPose()); };
-  }, [eligible, pathname, corner, playAntic, showBubble]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [roam, pathname, corner, playAntic, showBubble]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // The app stored a new center: re-read coverage, and if the visitor just
   // landed somewhere uncovered, let the gag loop explain it shortly.
@@ -1371,7 +1483,7 @@ export default function BooCompanion() {
   // Listeners for what the visitor does. All passive, scroll work is done once
   // per animation frame, hover only on a real mouse, nothing is ever blocked.
   useEffect(() => {
-    if (!eligible) return undefined;
+    if (!roam) return undefined;
     const fine = (() => { try { return window.matchMedia("(hover: hover) and (pointer: fine)").matches; } catch { return false; } })();
     let lastAct = Date.now(), lastSc = null, lastY = 0, lastT = 0, fast = 0, deep = false, ticking = false, pendSc = null;
     let hiddenAt = 0, hoverEl = null, hoverT = 0, moveT = 0, holdT = 0;
@@ -1397,7 +1509,9 @@ export default function BooCompanion() {
         const v = Math.abs(y - lastY) / Math.max(16, t - lastT) * 1000;
         lastY = y; lastT = t;
         fast = v > 3800 ? fast + 1 : 0;
-        if (fast >= 4) { fast = 0; reactRef.current("scrollFast", { antic: "shiver", pose: "panic" }); }
+        // No shiver here: a 1.5s side to side shake while the page is flying by
+        // read as a glitch (owner 2026-11-01). He keeps the line, not the shake.
+        if (fast >= 4) { fast = 0; reactRef.current("scrollFast", { pose: "panic" }); }
         if (y > vh * 1.5) deep = true;
         if (docH > vh * 2.2 && y + vh >= docH - 160) reactRef.current("bottom", { pose: "peek" });
         else if (deep && y < 80) { deep = false; reactRef.current("backTop", { pose: "up" }); }
@@ -1474,7 +1588,7 @@ export default function BooCompanion() {
       if (document.hidden || openRef.current) { activity(); return; }
       if (Date.now() - lastAct > IDLE_MS && driftRef.current) {
         activity();
-        reactRef.current("idle", { antic: "peekaboo", pose: "peek" });
+        reactRef.current("idle", { antic: "wave", pose: "peek" });
       }
     }, 4000);
     const opt = { passive: true };
@@ -1501,7 +1615,7 @@ export default function BooCompanion() {
       document.removeEventListener("copy", onCopy);
       document.removeEventListener("visibilitychange", onVis);
     };
-  }, [eligible]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [roam]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const openSheet = useCallback((src) => {
     tappedRef.current = true;
@@ -1527,7 +1641,8 @@ export default function BooCompanion() {
     setPose("idle");
     setOpen(false);
     setMsgs((m) => (m.some((x) => x.fresh) ? m.map((x) => (x.fresh ? { ...x, fresh: false } : x)) : m));
-    try { if (hitRef.current) hitRef.current.focus({ preventScroll: true }); } catch { /* ignore */ }
+    // Focus goes back to whatever opened the chat: his tap target, or Santa's dock avatar.
+    try { const back = hitRef.current || document.querySelector(".wf-sd-av"); if (back) back.focus({ preventScroll: true }); } catch { /* ignore */ }
   }, []);
   closeSheetRef.current = closeSheet;
 
@@ -1586,7 +1701,7 @@ export default function BooCompanion() {
     const on = (e) => {
       let ok = false;
       const ch = charFor(pathRef.current);
-      try { ok = seasonFor(ch) && !reservedPath(pathRef.current); } catch { /* ignore */ }
+      try { ok = seasonFor(ch) && !reservedPath(pathRef.current) && !(ch === "santa" && santaOffPath(pathRef.current)); } catch { /* ignore */ }
       if (!ok) return;
       try { if (ch === "santa") sessionStorage.removeItem(SANTA_HIDE_KEY); else sessionStorage.removeItem(HIDE_KEY); } catch { /* ignore */ }
       setElig({ ok: true, ch });
@@ -1673,6 +1788,14 @@ export default function BooCompanion() {
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: CSS }} />
+      {santa ? (
+        <SantaDock
+          path={pathname}
+          reduced={reduced}
+          onOpen={(src) => { if (!openRef.current) openSheet(src || "dock"); }}
+          onAsk={(prompt, src) => { if (!openRef.current) openSheet(src || "dock-cta"); if (prompt) send(prompt, src || "dock-cta"); }}
+        />
+      ) : (
       <div className="boo-c" ref={elRef} style={{ transform: "translate3d(" + SIDE + "px,-200px,0)" }}>
         <div className="boo-c-body" aria-hidden="true">
           <span className="boo-c-glow" aria-hidden="true" />
@@ -1713,6 +1836,7 @@ export default function BooCompanion() {
           </div>
         ) : null}
       </div>
+      )}
       {open ? (
         <div className="boo-s-back" onClick={(e) => { if (e.target === e.currentTarget) closeSheet(); }}>
           <div className="boo-s" ref={sheetRef} role="dialog" aria-modal="true" aria-label={santa ? SANTA.ariaChat : "Chat with Boo"} tabIndex={-1}>

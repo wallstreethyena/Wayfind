@@ -21,7 +21,7 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { eventDetailTicketAction, eventOrganizerTicketUrl, eventOutboundUrl } from "../lib/curatedEvents.js";
-import { EVENT_TICKET_DEALS } from "../lib/eventTicketDeals.js";
+import { EVENT_TICKET_DEALS, eventTicketDeal } from "../lib/eventTicketDeals.js";
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const read = (p) => readFileSync(path.join(ROOT, p), "utf8");
@@ -44,16 +44,39 @@ ok(eventDetailTicketAction({ ...relics, is_free: undefined, price_min: null })?.
 // url === event url: still shown, because the row is ticketed
 ok(eventDetailTicketAction({ ...relics, official_event_url: FH })?.href === FH, "ticket URL equal to event URL still gets the button when ticketed");
 
-// negative: affiliate
-const dealId = Object.keys(EVENT_TICKET_DEALS)[0];
+// negative: a deal that is still for sale stays the affiliate action.
+// Ended Halloween rows stay in the registry so the last night can be dated,
+// and eventTicketDeal returns null after that night. They must not keep a
+// commerce link, and they must not be the sample row for this check.
+const liveIds = Object.keys(EVENT_TICKET_DEALS).filter((id) => eventTicketDeal(id));
+const dealId = liveIds.includes("mvmcp-2026") ? "mvmcp-2026" : liveIds[0];
 const aff = eventDetailTicketAction({ ...relics, event_id: dealId });
 ok(aff && aff.kind === "affiliate", `affiliate deal row (${dealId}) -> affiliate action`);
 ok(aff && aff.href.startsWith("/api/commerce/go"), `...routed through /api/commerce/go (got ${aff && aff.href})`);
 ok(aff && aff.href !== FH && !String(aff.href).includes("fareharbor"), "...and the organizer URL is not substituted");
 ok(aff && aff.rel === undefined, "...affiliate action carries no organizer rel (page keeps sponsored for it)");
 let allAff = true;
-for (const id of Object.keys(EVENT_TICKET_DEALS)) { const r = eventDetailTicketAction({ ...relics, event_id: id }); if (!r || r.kind !== "affiliate") allAff = false; }
-ok(allAff, `every one of ${Object.keys(EVENT_TICKET_DEALS).length} registry events stays affiliate`);
+for (const id of liveIds) { const r = eventDetailTicketAction({ ...relics, event_id: id }); if (!r || r.kind !== "affiliate") allAff = false; }
+ok(liveIds.length > 0 && allAff, `every one of ${liveIds.length} deals still for sale stays affiliate`);
+for (const id of ["hhn-orlando-2026", "howl-o-scream-tampa-2026", "howl-o-scream-seaworld-2026"]) {
+  const r = eventDetailTicketAction({ ...relics, event_id: id });
+  ok(!r || !String(r.href || "").includes("/api/commerce/go"), `${id} does not keep a commerce link after its last night`);
+}
+
+// positive: a Ticketmaster-family organiser link is an EARNING link (2026-11-03).
+// It must leave through /api/ticketmaster/go (Impact applied server side), the
+// same way app/home.js cards and /events/[city]/[slug] already send it, never
+// as a raw nofollow organiser href.
+const TM = "https://www.ticketmaster.com/ed-sheeran-loop-tour-tampa-florida-11-07-2026/event/0D006331D60A3A7A";
+const tmRow = { ...relics, event_id: "ed-sheeran-loop-tour-tampa-2026", official_ticket_url: TM, official_event_url: "https://www.edsheeran.com/tour" };
+const tm = eventDetailTicketAction(tmRow);
+ok(tm && tm.kind === "affiliate", "ticketmaster.com organiser link -> affiliate action (earning)");
+ok(tm && tm.href.startsWith("/api/ticketmaster/go?") && decodeURIComponent(tm.href).includes(TM), `...routed through /api/ticketmaster/go with the TM destination (got ${tm && tm.href})`);
+ok(tm && /content=ed-sheeran-loop-tour-tampa-2026/.test(tm.href), "...carrying the event_id as content for attribution");
+ok(tm && tm.label === "Get tickets ↗", "...still labelled \"Get tickets ↗\"");
+ok(eventDetailTicketAction({ ...tmRow, official_ticket_url: "https://www.livenation.com/event/abc" })?.href.startsWith("/api/ticketmaster/go?"), "livenation.com (TM family) is wrapped too");
+ok(eventDetailTicketAction({ ...tmRow, official_ticket_url: "https://www.axs.com/events/1" })?.kind === "organizer", "axs.com (not TM family) stays a plain organiser link");
+ok(eventDetailTicketAction({ ...tmRow, link_ok: false }) === null, "TM row with link_ok === false -> no button");
 
 // negative: gates
 ok(eventDetailTicketAction({ ...relics, link_ok: false }) === null, "link_ok === false -> no button");
