@@ -2552,6 +2552,7 @@ node scripts/check-place-city.mjs
 node scripts/test-vercel-ignore-build.mjs
 # 2026-11-04: Ticketmaster earning link: only real TM/Live Nation/TicketWeb hosts (no double wrap via our Impact host, no open redirect), one /go link with the exact event URL, no buy button when sold out/off sale/cancelled.
 node scripts/test-ticketmaster-gating.mjs
+node scripts/test-ticket-handoff-verdict.mjs
 # /christmas and the bare category paths land on real pages (next.config.js redirects(), 2026-11-04 audit).
 node scripts/check-bare-path-redirects.mjs
 # 2026-11-05: Execute both held-event recheck SQL migrations in PGlite; atomic ET+2 renewal,
@@ -2580,3 +2581,5 @@ node scripts/test-client-transport-retry.mjs
 node scripts/check-storage-access.mjs
 node scripts/test-detail-cta-place-city.mjs
 node scripts/test-place-link-name.mjs
+node scripts/test-og-movie-function-size.mjs
+node scripts/check-event-not-found-recovery.mjs
