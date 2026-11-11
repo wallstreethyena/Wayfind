@@ -2593,3 +2593,5 @@ node scripts/test-home-feed-rerender.mjs
 node scripts/test-reserve-logic.mjs
 # 2026-11-11: Reserve a table, API behaviour via injected fakes (GET never mutates, one user email, no demo url in production, empty list when email not ready, chat only via paidAnthropicRequest with form fallback).
 node scripts/check-reserve-routes.mjs
+# 2026-11-11: Reserve a table, card button and sheet (real render: one wide button in the existing card slot, non partner cards unchanged, no Directions, chevron character, pending copy).
+node scripts/test-reserve-ui.mjs
