@@ -25,6 +25,7 @@ import { siteTodayStr } from "../../../lib/siteTime";
 import { couponForPlace, couponIsLive, couponEndsLabel } from "../../../lib/coupons";
 import { eventWhenLabel } from "../../../lib/eventTime";
 import { detailLocationLine, localityFromFormattedAddress, placeHeaderLabel } from "../../../lib/locationHonesty.js";
+import { placeCity } from "../../../lib/placeCity.js";
 import * as Dining from "../../../lib/dining";
 import * as Ranking from "../../../lib/ranking";
 import * as Tags from "../../../lib/tags";
@@ -565,7 +566,12 @@ export default function DetailSheet({ ctx }) {
   const ftcNearPrimary = !!(detail && !detail._event && primaryCta && primaryCta.monetized && (primaryCta.exact || (primaryCta.type !== DETAIL_CTA_TYPES.tickets && primaryCta.type !== DETAIL_CTA_TYPES.rates)));
   const verdict = detailVerdict({ detail, weather, openState });
   const ctaCategory = Dining.cuisineLabel(detail) || primaryCategory(detail) || placeKind(detail) || "";
-  const ctaCity = locName ? locName.split(",")[0] : "";
+  // The place's own city first. The Viator search term, the list lookup and
+  // the commerce city are about THIS place, not about where the visitor is: a
+  // Parrish visitor opening an Orlando museum sent Viator "The Charles Hosmer
+  // Morse Museum of American Art Parrish" (live, 2026-11-11). The visitor's
+  // city stays the fallback for a place with no trustworthy city.
+  const ctaCity = placeCity(detail) || (locName ? locName.split(",")[0] : "");
   const commerceCtx = primaryCta.monetized ? {
     ...funnelProps("commerce_impression", { metro: ctaCity, cuisine: ctaCategory, placeId: detail.id }),
     surface: "detail",
