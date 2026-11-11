@@ -888,6 +888,14 @@
   },
   "owner": "Revenue QA"
  },
+ "scripts/test-viator-rail-fallback.mjs": {
+  "protects": "An empty Viator rail switches to GetYourGuide when its publisher id is set, then to live Tiqets, and stays empty when neither can link. A rail that already has Viator products stays on Viator. The button names the partner and routes through /api/commerce/go.",
+  "blastRadius": {
+   "category": "revenue",
+   "detail": "A wrong partner, a client-built partner URL, or a payout-ordered rail would sell the wrong booking path or imply ranking is for sale."
+  },
+  "owner": "Revenue QA"
+ },
  "scripts/test-viator-provider-state.mjs": {
   "protects": "Provider-state diagnostics distinguish healthy empty, configuration, budget and provider failure without changing eligibility or bypassing per-page spend grants.",
   "blastRadius": {
