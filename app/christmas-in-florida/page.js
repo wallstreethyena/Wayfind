@@ -1,4 +1,5 @@
 import { SITE_URL } from "../../lib/site";
+import { christmasCreatorPoster } from "../../lib/christmasCreatorPosters.js";
 import SeasonalSearchHub, { seasonalSearchMetadata } from "../components/SeasonalSearchHub";
 import ChristmasBrowse from "../components/ChristmasBrowse";
 import ChristmasTickets from "../components/ChristmasTickets";
@@ -65,7 +66,7 @@ function ChristmasCreatorPosts({ posts }) {
         {isEmbeddable(post.platform, post.url) ? <CreatorPlaybackDetails buttonStyle={{ color: "#efd0a6" }} details={details(post)}>
           <VideoFacade platform={post.platform} url={post.url}
             label={post.creator ? `@${post.creator}'s post about ${post.name}` : `Post about ${post.name}`}
-            poster={null} fallbackPoster={null} coverTitle={post.name} coverCity={post.city}
+            poster={christmasCreatorPoster(post.key)?.src || null} posterCredit={christmasCreatorPoster(post.key)?.credit || null} fallbackPoster={null} coverTitle={post.name} coverCity={post.city}
             coverEyebrow={post.creator ? `THE @${post.creator} EDIT` : "CREATOR POST"} fallbackLabel="Place cover shown" />
         </CreatorPlaybackDetails> : details(post)}
       </article>)}

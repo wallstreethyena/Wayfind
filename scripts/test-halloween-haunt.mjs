@@ -96,10 +96,8 @@ ok(hauntsForFilter(model, "local").some((row) => row.name === "Scream A Geddon H
 ok(hauntsForFilter(model, "family").some((row) => row.id === "mickey"), "family friendly includes Mickey");
 ok(model.filters.map((item) => item.label).join("|") === "All Haunts|Major Scream Parks|Local Haunted Trails|Family Friendly", "filter labels");
 
+const retiredPartner = new Set(["howlTampa", "howlOrlando", "hhn"]);
 const expectedHref = {
-  howlTampa: "/api/commerce/go?provider=undercover_tourist&offer=20&surface=halloween_haunts&content=howl-o-scream-tampa-2026",
-  howlOrlando: "/api/commerce/go?provider=undercover_tourist&offer=21&surface=halloween_haunts&content=howl-o-scream-seaworld-2026",
-  hhn: "/api/commerce/go?provider=undercover_tourist&offer=19&surface=halloween_haunts&content=hhn-orlando-2026",
   zooTampa: "/api/commerce/go?provider=tiqets&offer=tampa-event-zootampa-creatures-of-the-night&surface=halloween_haunts&content=zootampa-creatures-2026",
   spooktacular: "/api/commerce/go?provider=undercover_tourist&offer=7&surface=halloween_haunts&content=seaworld-spooktacular-2026",
   brick: "/api/commerce/go?provider=undercover_tourist&offer=16&surface=halloween_haunts&content=brick-or-treat-2026",
@@ -135,13 +133,18 @@ const organizerHref = {
   undead: "https://www.eventbrite.com/e/undead-in-the-water-halloween-attraction-tickets-1996421695032",
   frightfest: "https://sarasotafrightfest.fearticket.com/",
   mickey: "https://disneyworld.disney.go.com/events-tours/magic-kingdom/mickeys-not-so-scary-halloween-party/",
+  howlTampaPage: "/florida-events/howl-o-scream-busch-gardens-tampa-2026",
+  howlOrlandoPage: "/florida-events/howl-o-scream-seaworld-orlando-2026",
+  hhnPage: "/florida-events/halloween-horror-nights-orlando-2026",
 };
 const parkAdmission = new Set(["spooktacular", "brick", "peppa", "spookquarium", "seaLifePirates", "waxHeist"]);
 
 for (const row of model.haunts) {
   ok(expectedEvent[row.id] === row.eventHref, row.id + " event page");
   ok(!DASH.test(row.name + row.where + row.priceLabel + row.timing + row.tip + row.roast), row.id + " card copy is dash free");
-  if (expectedHref[row.id]) {
+  if (retiredPartner.has(row.id)) {
+    ok(row.cta && row.cta.kind !== "affiliate" && row.cta.href === expectedEvent[row.id] && !/undercover_tourist|offer=19|offer=20|offer=21/.test(row.cta.href), row.id + " ended ticket is the event page, not a dead Undercover Tourist offer");
+  } else if (expectedHref[row.id]) {
     const built = eventTicketHref(row.eventId, { surface: "halloween_haunts" });
     ok(row.cta.href === built && row.cta.href === expectedHref[row.id], row.id + " affiliate href");
     ok(row.cta.kind === "affiliate" && row.cta.rel === "sponsored nofollow noopener", row.id + " sponsored rel");
@@ -169,7 +172,7 @@ ok(model.video === "/videos/bo-halloween-reel.mp4" && model.poster === "/images/
 
 ok(RESERVED_GO_SLUGS.includes("halloween-tickets"), "halloween-tickets is a reserved go slug");
 ok(resolveGoSlug("halloween-tickets").kind === "not-found", "the reserved slug is not an event shortlink");
-ok(resolveGoSlug("howl-o-scream").kind === "shortlink" && resolveGoSlug("howl-o-scream").eventId === "howl-o-scream-tampa-2026", "howl-o-scream shortlink still resolves");
+ok(resolveGoSlug("howl-o-scream").kind === "not-found", "the retired Howl O Scream shortlink fails closed instead of sending a dead partner redirect");
 ok(resolveGoSlug("florida").kind === "not-found", "florida reservation still fails closed");
 
 for (const file of ["app/halloween-tickets/page.js", "app/go/halloween-tickets/page.js"]) {
@@ -574,7 +577,8 @@ ok(liveModel.featuredTours.length > 0 && gridGhostCount === chipCount - liveMode
 ok((defaultHtml.match(/data-tour-id="/g) || []).length === liveModel.eventTours.length + chipCount && !defaultHtml.includes("data-featured-tour="), "default view stacks haunted attractions and the ONE ghost tour grid (featured picks lead it, no separate block)");
 ok(defaultHtml.includes("Florida Ghost Tours") && defaultHtml.includes('id="boo-tours"'), "ghost tour section renders on the default view");
 const chipHtml = renderToStaticMarkup(createElement(HauntPage, { model: liveModel, initialFilter: "tours" }));
-ok((chipHtml.match(/data-tour-id="/g) || []).length === chipCount, "chip view lists every ghost tour once (featured picks included, leading the grid)");
+const endedOnChip = liveModel.eventTours.filter((t) => !(t.cta && t.cta.href)).length;
+ok((chipHtml.match(/data-tour-id="/g) || []).length === chipCount + endedOnChip, "chip view lists every ghost tour once, plus the ended event card");
 ok(liveModel.featuredTours.every((t) => (chipHtml.match(new RegExp('data-tour-id="' + t.id + '"', "g")) || []).length === 1) && !chipHtml.includes("data-featured-tour="), "each featured pick renders once, inside the ghost tour grid");
 ok(!/data-haunt-id="/.test(chipHtml), "chip view shows tours only");
 const oct29 = await withHalloweenTours(halloweenHauntModel({ now: "2026-10-29T12:00:00-04:00" }), { env: {} });
@@ -587,9 +591,11 @@ const nov2Chip = nov2Html.match(/<button[^>]*data-filter-id="tours"[^>]*>/);
 ok(nov2.haunts.length === 0 && nov2Chip && /aria-pressed="true"/.test(nov2Chip[0]), "Nov 2 opens on the Ghost tours chip because no haunt is still live");
 const nov2Featured = new Set(nov2.featuredTours.map((t) => t.id));
 const nov2Grid = nov2.tours.filter((t) => !nov2Featured.has(t.id)).length;
-ok(!/data-haunt-id="/.test(nov2Html) && (nov2Html.match(/data-tour-id="/g) || []).length === nov2.tours.length && nov2Grid >= 0 && nov2.tours.length > 0, "Nov 2 renders each remaining ghost tour once and no haunt card");
+ok(!/data-haunt-id="/.test(nov2Html) && (nov2Html.match(/data-tour-id="/g) || []).length === nov2.tours.length + nov2.eventTours.length && nov2Grid >= 0 && nov2.tours.length > 0, "Nov 2 renders each remaining ghost tour once, the ended event card, and no haunt card");
+const nov2Pier = nov2Html.slice(nov2Html.indexOf('data-tour-id="180859P9"'), nov2Html.indexOf("</article>", nov2Html.indexOf('data-tour-id="180859P9"')));
+ok(nov2Pier.includes(">Season ended<") && !nov2Pier.includes("boo-buy"), "Nov 2 ended event card says Season ended and has no booking button");
 const groupOf = (id) => (liveModel.eventTours.some((t) => t.id === id) ? "haunt event" : liveModel.tours.some((t) => t.id === id) ? "ghost tour" : model.haunts.some((h) => h.id === id) ? "haunt" : "none");
-ok(groupOf("180859P9") === "haunt event" && groupOf("38620P1") === "ghost tour" && groupOf("howlTampa") === "haunt", "grouping spot checks");
+ok(groupOf("180859P9") === "haunt event" && groupOf("38620P1") === "ghost tour" && groupOf("howlTampa") === "haunt", "Fear at the Pier stays an ended event card; ghost tours and haunts stay grouped");
 ok(/filters\.map/.test(readFileSync("app/components/BoHalloweenHaunt.js", "utf8")) && /aria-pressed/.test(defaultHtml), "chip lives in the existing filter row");
 
 // Every buy href is one of OUR go routes; organizer links are an explicit allow list
@@ -599,9 +605,16 @@ for (const row of model.haunts) {
   if (row.cta.kind === "affiliate") ok(GO_ROUTE.test(row.cta.href) && !/^https?:/.test(row.cta.href), row.id + " buy href is our go route");
   else ok(row.cta.kind === "organizer" && ORGANIZER_ALLOW.has(row.cta.href) && !/sponsored/.test(row.cta.rel), row.id + " is a non commercial organizer link on the allow list (no affiliate param)");
 }
-for (const t of allTours) ok(GO_ROUTE.test(t.cta.href) && t.cta.href.includes("provider=viator"), t.id + " buy href is our go route");
+for (const t of allTours) {
+  if (!t.cta.href) {
+    ok(t.group === "event" && t.cta.label === "Season ended", t.id + " ended event has the Season ended label and no booking href");
+    continue;
+  }
+  ok(GO_ROUTE.test(t.cta.href) && t.cta.href.includes("provider=viator"), t.id + " buy href is our go route");
+}
 const buyHrefs = [...(defaultHtml + chipHtml).matchAll(/class="boo-buy(?: is-muted)?" href="([^"]+)"/g)].map((m) => m[1].replace(/&amp;/g, "&"));
-ok(buyHrefs.length === 17 + liveModel.eventTours.length + chipCount + chipCount, "every rendered buy button was checked (" + buyHrefs.length + ")");
+const eventBuys = liveModel.eventTours.filter((t) => t.cta && t.cta.href).length;
+ok(buyHrefs.length === 17 + eventBuys + chipCount + chipCount, "every rendered buy button was checked (" + buyHrefs.length + ")");
 for (const href of buyHrefs) ok(GO_ROUTE.test(href) || ORGANIZER_ALLOW.has(href), "rendered buy href is a go route or an allowed organizer link: " + href.slice(0, 60));
 
 // Tracking: the page mounts the one delegated beacon, and no card carries its own second tracker

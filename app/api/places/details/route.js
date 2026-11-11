@@ -57,6 +57,8 @@ async function inventoryPlace(placeId) {
   return {
     id: row.place_id,
     displayName: { text: row.name },
+    // Curator-owned street address keeps non-Google place links geographically exact.
+    ...(typeof signals.official_address === "string" && signals.official_address.trim() ? { formattedAddress: signals.official_address.trim() } : {}),
     location: { latitude: row.lat, longitude: row.lng },
     rating: typeof signals.rating === "number" ? signals.rating : null,
     userRatingCount: Number(signals.reviews) || 0,

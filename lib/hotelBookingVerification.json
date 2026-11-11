@@ -3994,5 +3994,14 @@
     "allowed": true,
     "reason": "exact-verified:name-identity",
     "at": "2026-09-23T18:08:59+00:00"
+  },
+  {
+    "key": "wfh-gaylord-palms-resort-convention-center-28343",
+    "placeId": "ChIJl0CYCGZ_3YgRL05pG5wZSsE",
+    "resolved": "Gaylord Palms Resort & Convention Center",
+    "google": "Gaylord Palms Resort & Convention Center",
+    "allowed": true,
+    "reason": "exact-verified:name-identity",
+    "at": "2026-11-10T03:30:00+00:00"
   }
 ]
