@@ -10,37 +10,24 @@ import { dayStr } from "../../../lib/commandCenter/time.js";
 
 const CANON = "https://www.gowayfind.com";
 
-// One market at a time: overpass-api.de grants each IP two query slots, and
-// the old 4-wide fan-out (each racing two hosts) starved itself into 429s, so
-// every market came back unavailable. The route's cron-only warm mode spends
-// up to WARM_BUDGET_MS on one Overpass slot and only reports "live" once the
-// result is saved. Markets already fresh answer from cache in ~100ms, so
-// coverage accumulates day over day; whatever the time box leaves for
-// tomorrow is reported as deferred, never as unavailable.
-const WARM_DEADLINE_MS = 38000;
-const WARM_BUDGET_MS = 15000;
-async function warmOsm(startedAt = Date.now()) {
+// OSM parks / beaches / piers: refreshed in-process by the shared regional
+// warm (lib/osmRegional.js) — no HTTP self-call, so a firewall challenge on
+// our own domain cannot masquerade as a provider outage. The result carries
+// one status per REGION (refreshed / cached / stale / unavailable / deferred,
+// summing to the region total) plus the sanitized per-attempt log.
+async function warmOsm() {
   try {
-    const secret = process.env.CRON_SECRET;
-    const { LANDING_CITIES } = await import("../../../lib/landingCities.js");
-    const cities = Object.values(LANDING_CITIES);
-    let live = 0, cached = 0, stale = 0, missed = 0, deferred = 0;
-    for (const city of cities) {
-      const left = WARM_DEADLINE_MS - (Date.now() - startedAt);
-      if (left < 5000) { deferred++; continue; }
-      const budget = Math.min(WARM_BUDGET_MS, left - 1500);
-      let result = "miss";
-      try {
-        const response = await fetch(`${CANON}/api/outdoors?lat=${city.lat.toFixed(4)}&lng=${city.lng.toFixed(4)}&radius=27359&warm=1&budget=${budget}`, { cache: "no-store", headers: { authorization: `Bearer ${secret}` }, signal: AbortSignal.timeout(budget + 1500) });
-        if (response.ok) {
-          const data = await response.json();
-          result = data.osm === "live" ? "live" : data.osm === "cached" ? "cached" : data.osm === "stale" ? "stale" : "miss";
-        }
-      } catch {}
-      if (result === "live") live++; else if (result === "cached") cached++; else if (result === "stale") stale++; else missed++;
-    }
-    return { live, cached, stale, missed, deferred, total: cities.length };
-  } catch { return null; }
+    const { warmRegions } = await import("../../../lib/osmRegional.js");
+    const raw = String(process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || "").trim().replace(/^['"]+|['"]+$/g, "").replace(/\/+$/, "");
+    const url = raw ? (/^https?:\/\//i.test(raw) ? raw.replace(/^http:\/\//i, "https://") : "https://" + raw) : "";
+    const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    return await warmRegions(url && key ? { url, key } : null, { holder: "cron-" + Date.now(), deadlineMs: 38000, perAttemptMs: 18000 });
+  } catch (e) {
+    // A thrown warm is still reported: every region not attempted.
+    let total = 0;
+    try { total = (await import("../../../lib/osmRegional.js")).REGIONS.length; } catch {}
+    return { unit: "region", total, refreshed: 0, cached: 0, stale: 0, unavailable: 0, deferred: total, regions: {}, error: String((e && e.message) || e).slice(0, 160) };
+  }
 }
 
 function reminders(dateKey) {

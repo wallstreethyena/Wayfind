@@ -151,7 +151,7 @@ ok(!secondaryTicketPrimaryMatches({ ...reviewedTmPrimary, href: reviewedTmPrimar
   const zooTicket = ticketAction(base({ id: "zootampa-christmas-wild-2026" }));
   ok(zooTicket?.provider === "viator" && zooTicket.via === "Event tickets at Viator" && new URL(zooTicket.href, "https://www.gowayfind.com").searchParams.get("offer") === "28841P3", "the published ZooTampa card now sells the exact evening event, without adding a recommended tour or substituting daytime admission");
   const guide = CHRISTMAS_2026_GUIDES["florida-theme-park-christmas-2026"];
-  for (const [name, offer] of [["Mickey's Very Merry Christmas Party", "38"], ["Disney Jollywood Nights", "39"], ["Holidays at Universal Orlando", "6"]]) {
+  for (const [name, offer] of [["Mickey's Very Merry Christmas Party", "38"], ["Disney Jollywood Nights", "39"], ["Holidays at Universal Orlando", "66"]]) {
     const pick = guide.picks.find((p) => p.name === name);
     const ticket = guidePickTicket(pick?.ticket);
     ok(ticket?.affiliate === true && new URL(ticket.href, "https://www.gowayfind.com").searchParams.get("offer") === offer, `${name}: the real guide pick carries the right ticket product`);
@@ -203,8 +203,19 @@ ok(!secondaryTicketPrimaryMatches({ ...reviewedTmPrimary, href: reviewedTmPrimar
     "Enchant official ticket checkout remains primary");
   ok(row.secondaryCta?.kind === "affiliate" && /^\/api\/commerce\/go\?/.test(row.secondaryCta.href)
     && new URL(row.secondaryCta.href, "https://www.gowayfind.com").searchParams.get("provider") === "ticketsmarter"
-    && new URL(row.secondaryCta.href, "https://www.gowayfind.com").searchParams.get("offer") === "enchant-stpete-ticketsmarter",
-    "Enchant secondary resale link earns through the approved CJ provider and offer");
+    && new URL(row.secondaryCta.href, "https://www.gowayfind.com").searchParams.get("offer") === "enchant-stpete-nov20-ticketsmarter",
+    "Enchant secondary resale link on Nov 20 earns through the dated TicketSmarter page");
+  const afterDated = christmasTicketsModel([enchant], "2026-11-23").rows[0];
+  ok(new URL(afterDated.secondaryCta.href, "https://www.gowayfind.com").searchParams.get("offer") === "enchant-stpete-nov25-ticketsmarter",
+    "after Nov 22, Enchant uses the next listed night, not the venue page");
+  const shown = christmasTicketsModel([{ ...enchant, start_date: "2026-12-06", end_date: "2026-12-06" }], "2026-11-20").rows[0];
+  ok(new URL(shown.secondaryCta.href, "https://www.gowayfind.com").searchParams.get("offer") === "enchant-stpete-dec6-ticketsmarter",
+    "a card that shows one date uses that night's ticket listing");
+  ok(secondaryEventTicketAction({ ...enchant, start_date: "2026-11-23", end_date: "2026-11-23" }, { today: "2026-11-20" }) === null,
+    "a shown date with no TicketSmarter listing gets no resale button");
+  ok(!String(row.secondaryCta.href).includes("enchant-stpete-ticketsmarter")
+    && !String(afterDated.secondaryCta.href).includes("venues"),
+    "Enchant resale never uses the Tropicana Field venue page");
   ok(/resale/i.test(row.secondaryCta.label + " " + row.secondaryCta.via) && /fees vary/i.test(row.secondaryCta.via)
     && /commission/i.test(row.secondaryCta.via), "resale, variable fees and earning disclosure are explicit");
   ok(secondaryEventTicketAction({ ...enchant, is_free: true }, { today: "2026-11-20" }) === null
@@ -252,10 +263,10 @@ ok(!secondaryTicketPrimaryMatches({ ...reviewedTmPrimary, href: reviewedTmPrimar
   for (const row of m.rows) {
     ok(row.cta.kind === "affiliate" && /^\/api\/[a-z0-9/_-]+\/go\?/i.test(row.cta.href), row.id + " partner link is our /api/*/go route");
     ok(!/https?:\/\/|anrdoezrs|cj\.com|jdoqocy|tkqlhce/i.test(row.cta.href), row.id + " href is not a partner URL");
-    ok(["Get Tickets", "Book Now & Save", "See availability ↗"].includes(row.cta.label), row.id + " label is one of the approved partner labels: " + row.cta.label);
+    ok(["Undercover Tourist", "TicketSmarter", "Ticketmaster", "Tiqets", "Klook", "TicketNetwork", "Viator", "See availability ↗"].includes(row.cta.label), row.id + " button names only the partner: " + row.cta.label);
+    ok(!/commission|we may earn|disclosure/i.test(row.cta.label), row.id + " button has no disclosure words");
     ok(/^(?:Admission|Event) tickets at \S/.test(row.cta.via) || row.cta.via === "Tour tickets at Viator", row.id + " carries the partner line: " + row.cta.via);
     eventTicketHrefs.set(row.id, row.cta.href);
-    ok(row.cta.label === (row.cta.product === "park-admission" ? "Book Now & Save" : "Get Tickets"), row.id + " label follows the registry product (" + row.cta.product + ")");
   }
   // Same bytes the registry hands every other surface (surface differs, the rest is the registry's).
   const { eventTicketHref } = await import("../lib/eventTicketDeals.js");
@@ -295,7 +306,7 @@ for (const today of ["2026-10-30", "2026-12-20", "2027-01-01"]) {
     ok(live, today + ": " + row.id + " is upcoming or ongoing");
     ok(/^\/api\/[a-z0-9/_-]+\/go\?/i.test(row.cta.href) || /^https:\/\/[^/\s]+\.[^/\s]+/.test(row.cta.href), row.id + " href is our /api/*/go or an https official page: " + row.cta.href);
     ok(row.cta.kind !== "organizer" || (new URL(row.cta.href).hostname === new URL(card.official_ticket_url).hostname && new URL(row.cta.href).pathname.replace(/\/$/, "") === new URL(card.official_ticket_url).pathname.replace(/\/$/, "")), row.id + " organizer link is the row's own official_ticket_url");
-    ok(["Get Tickets", "Official Tickets", "Book Now & Save", "See availability ↗"].includes(row.cta.label), row.id + " label approved");
+    ok(["Undercover Tourist", "TicketSmarter", "Ticketmaster", "Tiqets", "Klook", "TicketNetwork", "Viator", "Official Tickets", "See availability ↗"].includes(row.cta.label), row.id + " label approved");
     for (const [k, v] of Object.entries({ name: row.name, chip: row.chip, city: row.city, venue: row.venue, when: row.when, price: row.price.text, unit: row.price.unit || "", via: row.cta.via, label: row.cta.label })) {
       ok(typeof v === "string" && !DASH.test(v), row.id + " " + k + " is dash free: " + v);
     }
@@ -404,7 +415,7 @@ for (const today of ["2026-10-30", "2026-12-20", "2027-01-01"]) {
   const listings = christmasBrowseListings([], TODAY);
   const sCard = listings.find((c) => c.id === "stetson-mansion-christmas-2026-2");
   const wCard = listings.find((c) => c.id === "winterfest-boat-parade-2026");
-  ok(sCard && sCard.image === "/events/christmas/stetson-mansion-christmas-2026-2.webp" && /DanTD/.test(sCard.photoAttr || ""), "the Stetson browse card keeps its licensed photo and credit");
+  ok(sCard && sCard.image === stetsonShots[0].src && !/DanTD/.test(sCard.photoAttr || ""), "the Stetson browse card opens on its holiday gallery cover, not the daytime gate photo (intent batch 11x)");
   ok(wCard && wCard.image === winterShots[0].src && /Winterfest Boat Parade/.test(wCard.photoAttr || ""), "the Winterfest card shows the gallery cover and its credit");
   const featured = await withChristmasTicketPhotos(christmasTicketsModel(listings, TODAY), { noMemo: true, readGoogle: async () => null, readVault: async () => [] });
   const featuredStetson = featured.rows.find((r) => r.id === "stetson-mansion-christmas-2026-2");
@@ -549,7 +560,7 @@ ok(html.includes("data-christmas-filter") && html.includes(">Tickets<") && html.
   const { attachBrowseTickets, browseTicketFields } = await import("../lib/christmasTickets.js");
   const { christmasBrowseCardJson } = await import("../lib/christmasBrowse.js");
   const draw = (card) => renderToStaticMarkup(createElement(ChristmasBrowseCard, { card, rank: 1, today: TODAY }));
-  const text = (h) => h.replace(/<style[\s\S]*?<\/style>/g, " ").replace(/<[^>]+>/g, " ").replace(/&amp;/g, "&").replace(/\s+/g, " ");
+  const text = (h) => h.replace(/<style[\s\S]*?<\/style>/g, " ").replace(/<[^>]+>/g, " ").replace(/&amp;/g, "&").replace(/&#x27;|&#39;|&apos;/g, "'").replace(/\s+/g, " ");
   const through = (cards, dealsById = new Map()) => attachBrowseTickets({ cards: cards.map(christmasBrowseCardJson) }, cards, TODAY, dealsById).cards;
 
   for (const fixture of resalePerformances) {
@@ -579,8 +590,8 @@ ok(html.includes("data-christmas-filter") && html.includes(">Tickets<") && html.
   const resaleHref = enchantCard.ticketRow.secondaryCta.href.replace(/&/g, "&amp;");
   ok(resale.includes('href="' + resaleHref + '"') && resale.includes('rel="sponsored nofollow noopener"')
     && resale.includes('target="_blank"'), "Enchant renders the exact attributed resale link with sponsored external-link semantics");
-  ok(text(resale).includes("Browse resale tickets at TicketSmarter") && text(resale).includes("Dates, prices and fees vary.")
-    && text(resale).includes("We may earn a commission."), "Enchant's rendered resale choice discloses marketplace, variable fees and commission");
+  ok(text(resale).includes("Check Nov 20 resale tickets at TicketSmarter") && text(resale).includes("this performance only")
+    && text(resale).includes("We may earn a commission."), "Enchant's rendered resale choice on Nov 20 is the dated page and still discloses commission");
   ok(enchantHtml.includes('href="' + enchant.official_ticket_url + '"') && enchantHtml.indexOf("Official Tickets") >= 0
     && enchantHtml.indexOf("Official Tickets") < enchantHtml.indexOf("data-secondary-resale"), "Enchant's real official checkout renders before the secondary resale choice");
   ok(enchantHtml.includes('href="' + enchant.detailHref + '"'), "Enchant keeps its event detail link alongside the resale choice");
@@ -629,6 +640,48 @@ ok(html.includes("data-christmas-filter") && html.includes(">Tickets<") && html.
   const parkDown = draw(through([park], new Map())[0]);
   ok(!/\/go\?/.test(parkDown) && text(parkDown).includes("Full event page"), "browse a partner ticket with no live deal shows no ticket button, only the event page");
   ok(browseTicketFields(park, TODAY, allDeals).cta.kind === "affiliate", "browseTicketFields hands the card exactly ticketAction's way in");
+
+  // Save and Remind me on the one card (owner 2026-11-01). Fixture dates sit
+  // ahead of the real clock so RemindMe (which reads the real today) shows.
+  {
+    const { siteTodayStr } = await import("../lib/siteTime.js");
+    const { addDays } = await import("../lib/eventReminder.js");
+    const now = siteTodayStr();
+    const ahead = (d) => addDays(now, d);
+    const dated = base({ id: "bx-remind", slug: "bx-remind", detailHref: "/florida-events/bx-remind", start_date: ahead(10), end_date: ahead(20), start_time: "18:00:00" });
+    const viaServer = attachBrowseTickets({ cards: [dated].map(christmasBrowseCardJson) }, [dated], now, new Map()).cards[0];
+    const r = draw(JSON.parse(JSON.stringify(viaServer)));
+    const rText = text(r);
+    ok(viaServer.ticketRow.remind && viaServer.ticketRow.remind.slug === "bx-remind" && viaServer.ticketRow.remindTicketHref === null, "a dated ticketed row with an event page gets server reminder facts; an organizer ticket gives no Google ticket link");
+    ok(/class="xm-actions"/.test(r) && /class="xm-save"[^>]*aria-pressed="false"/.test(r) && rText.includes("Save") && /wf-place-card-remind/.test(r) && rText.includes("Remind me"), "a dated ticketed card with an event page renders Save and Remind me");
+    ok((r.match(/class="xm-buy"/g) || []).length === 1 && !/wf-place-card-like|wf-place-card-dislike|>Like<|Directions/i.test(r), "the card keeps exactly one .xm-buy and has no Like and no Directions");
+    ok(r.indexOf('class="xm-buy"') < r.indexOf('class="xm-actions"') && r.indexOf('class="xm-actions"') < r.indexOf("</article>"), "the action row sits after the ticket button inside the card");
+    ok(!DASH.test(rText) && !/[–—]/.test(rText), "the card with actions is dash free");
+    // A partner ticket carries our own /go route into the Google Calendar link, never a raw partner URL.
+    const parkDated = { ...park, slug: "christmas-town-2026", start_date: ahead(5), end_date: ahead(60) };
+    const parkFields = browseTicketFields(parkDated, now, allDeals);
+    ok(parkFields.remind && /^\/api\/[a-z0-9/_-]+\/go\?/i.test(parkFields.remindTicketHref || "") && parkFields.remindTicketHref === parkFields.cta.href, "a partner ticket hands Remind me our own /go route");
+    // No facts: undated, no event page, past. Save stays, Remind me does not.
+    const noFacts = [
+      base({ id: "bx-undated", slug: "bx-undated", detailHref: "/florida-events/bx-undated", season_undated: true, start_date: null, end_date: null }),
+      base({ id: "bx-watch", slug: "bx-watch", detailHref: "/florida-events/bx-watch", christmas_watchlist: true, start_date: ahead(10), end_date: ahead(20) }),
+      base({ id: "bx-nopage2", detailHref: null, start_date: ahead(10), end_date: ahead(20) }),
+      base({ id: "bx-past", slug: "bx-past", detailHref: "/florida-events/bx-past", start_date: "2025-12-01", end_date: "2025-12-05" }),
+    ];
+    for (const c of noFacts) {
+      const row = browseTicketFields(c, now, new Map());
+      const hc = draw(attachBrowseTickets({ cards: [c].map(christmasBrowseCardJson) }, [c], now, new Map()).cards[0]);
+      ok(row.remind === null && /class="xm-save"/.test(hc) && !/wf-place-card-remind|Remind me/.test(hc) && (hc.match(/class="xm-buy"/g) || []).length <= 1, c.id + ": no reminder facts, Save still renders, no Remind me");
+    }
+    // The top grid rows carry the same fields.
+    const gridRow = christmasTicketsModel([dated], now).rows[0];
+    ok(gridRow && gridRow.remind && gridRow.remind.slug === "bx-remind" && "remindTicketHref" in gridRow, "christmasTicketsModel rows carry remind and remindTicketHref");
+    // A place card never gets Save or Remind me (places use the place signal store).
+    ok(!/xm-save|wf-place-card-remind/.test(c), "a place card has no event Save and no Remind me");
+    const cardSrc2 = strip(read("app/components/ChristmasTicketCard.js"));
+    ok(/useContentCardActions\(item\)/.test(cardSrc2) && /type: "event"/.test(cardSrc2) && /\{ id: row\.id, type: "event"/.test(cardSrc2), "Save uses the content card store under the bare event id (same key as the Christmas rails)");
+    ok(/\.xm-actions>button\{[^}]*min-height:44px/.test(cardSrc2), "the action buttons are at least 44px tall");
+  }
 
   // every real browse card renders through the one card, dash free, one main button at most
   const listings = christmasBrowseListings([], TODAY);

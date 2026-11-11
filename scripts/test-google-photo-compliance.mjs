@@ -166,7 +166,7 @@ async function runScenarios(mod, tag) {
   }
   // e2. quota 429: trips the breaker and refunds the grant
   {
-    const w = world({ media: [() => res(429)] });
+    const w = world({ media: [() => res(429, { error: { status: "RESOURCE_EXHAUSTED" } })] });
     const { r, err } = await settle(resolvePlacePhoto(base(w), w.deps));
     chk(!err && r.type === "miss", "e2: a quota answer is a miss");
     chk(w.trips.length === 1 && w.trips[0][0] === GOOGLE_PHOTOS_QUOTA_PROVIDER && w.trips[0][1] === "quota", "e2: the quota breaker is tripped once");
@@ -213,7 +213,7 @@ async function loadMutated(needle, replacement, label) {
     { label: "b: singleflight removed", needle: "  if (inflight) return inflight;\n", rep: "", expect: /^b:/ },
     { label: "c: probe branch disabled", needle: "  if (probe) {\n    // A probe (monitor header", rep: "  if (false) {\n    // A probe (monitor header", expect: /^c:/ },
     { label: "d: spend refusal ignored", needle: "if (!spendAllowed) {", rep: "if (false) {", expect: /^d\(/ },
-    { label: "e2: quota breaker trip removed", needle: "try { await tripTheBreaker(GOOGLE_PHOTOS_QUOTA_PROVIDER, \"quota\", \"google photos daily quota exhausted\", quotaBreakerCooldownMs(now)); } catch { /* best-effort */ }", rep: "", expect: /^e2:/ },
+    { label: "e2: quota breaker trip removed", needle: "try { await tripTheBreaker(GOOGLE_PHOTOS_QUOTA_PROVIDER, \"quota\", trip.reason, trip.cooldownMs); } catch { /* best-effort */ }", rep: "", expect: /^e2:/ },
     { label: "e1: media retry removed", needle: "const retryable = threw || (r && r.status >= 500 && r.status < 600);", rep: "const retryable = false;", expect: /^e1:/ },
     { label: "f: Details no-store dropped", needle: "          { cache: \"no-store\" }\n        );\n        if (d && d.ok) {", rep: "          { next: { revalidate: 3600 } }\n        );\n        if (d && d.ok) {", expect: /^f:/ },
   ];

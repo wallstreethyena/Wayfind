@@ -186,7 +186,7 @@ export async function GET(req) {
         }));
       } catch {}
     }
-  } else if (provider === "viator") {
+  } else if (provider === "viator" && trafficClass === "human") {
     try {
       const attributed = await attributedViatorDestination({
         offerId,
@@ -197,6 +197,7 @@ export async function GET(req) {
         clientClickId: clickId,
         cookieHeader: req.headers.get("cookie") || "",
         distinctId: cookieDistinctId || null,
+        trafficClass,
       });
       if (attributed && attributed.url) {
         finalDest = attributed.url;

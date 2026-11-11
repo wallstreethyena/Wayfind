@@ -104,6 +104,7 @@ function fakeMapkit({ places = [], geocode = [], searchError = null, geocodeErro
   class Search {
     constructor(options) { this.options = options; }
     search(query, options) {
+      if ("includeQueries" in options) throw new Error("includeQueries is not a valid Search option");
       calls.search.push({ query, options });
       if (searchError) return Promise.reject(searchError);
       return new Promise((resolve) => setTimeout(() => resolve({ places }), searchDelay));

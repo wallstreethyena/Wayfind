@@ -73,6 +73,8 @@ import { decidePromotion, dedupeById, partitionSplitVenues, PROMOTE_METROS, metr
 import { clampBatchLimit, nextBatchLimit } from "../../../../lib/promoteThrottle";
 import { CORE_DETAILS_MASK, RATING_DETAILS_MASK, PROMOTE_SKU, RATING_SKU, withIndexSignals, hasIndexRating, classifyDetailsFailure, minutesUntilQuotaReset, ratingBuyAllowed } from "../../../../lib/promoteDetails";
 import { jobFailed } from "../../../../lib/jobFail";
+import { deadlineSignal, NET_DEADLINE_MS } from "../../../../lib/fetchDeadline";
+import { createBudget, runWithinBudget, PROMOTE_MAX_DURATION_S } from "../../../../lib/promoteBudget";
 import { breakerOpen, tripBreaker, GOOGLE_DETAILS_DAILY_BREAKER } from "../../../../lib/providerHealth";
 
 export const runtime = "nodejs";
@@ -82,6 +84,7 @@ export const dynamic = "force-dynamic";
 // note above rpc(). lib/inventoryServe.js already sets no-store on every call
 // for the same reason; this route just failed to copy that.
 export const fetchCache = "force-no-store";
+// Keep equal to PROMOTE_MAX_DURATION_S (lib/promoteBudget.js); test-promote-deadline.mjs checks it.
 export const maxDuration = 60;
 
 // The CORE mask (Pro tier) — see lib/promoteDetails.js for why it is not the
@@ -108,7 +111,7 @@ function isTerminalStatus(status) {
   return status >= 400 && status < 500 && status !== 429;
 }
 
-async function details(key, placeId, mask = DETAILS_MASK, sku = PROMOTE_SKU, monthCap = 4800, onRetryGrant = null) {
+async function details(key, placeId, mask = DETAILS_MASK, sku = PROMOTE_SKU, monthCap = 4800, onRetryGrant = null, budget = null) {
   for (let attempt = 0; attempt < 3; attempt++) {
     // Attempt zero was granted by the caller. Every subsequent provider
     // request must obtain its own grant under that same SKU and ceiling.
@@ -116,10 +119,22 @@ async function details(key, placeId, mask = DETAILS_MASK, sku = PROMOTE_SKU, mon
       return { ok: false, budget: true, terminal: false, error: `details retry budget unavailable (${sku})` };
     }
     if (attempt > 0 && onRetryGrant) onRetryGrant(); // a retry grant counts toward the caller's share too
-    const r = await fetch(`https://places.googleapis.com/v1/places/${encodeURIComponent(placeId)}`, {
-      cache: "no-store", // a cached 200 here would mean promoting a place from a stale snapshot
-      headers: { "X-Goog-Api-Key": key, "X-Goog-FieldMask": mask },
-    });
+    // Every Google call is bounded by the per call ceiling AND what is left of the
+    // run's wall clock budget, so one hung request can no longer hold the function
+    // past maxDuration. A bounded call that is cut off is not a verdict on the place.
+    let r;
+    try {
+      r = await fetch(`https://places.googleapis.com/v1/places/${encodeURIComponent(placeId)}`, {
+        cache: "no-store", // a cached 200 here would mean promoting a place from a stale snapshot
+        headers: { "X-Goog-Api-Key": key, "X-Goog-FieldMask": mask },
+        signal: deadlineSignal(budget ? Math.max(1000, Math.min(NET_DEADLINE_MS, budget.remainingMs())) : NET_DEADLINE_MS),
+      });
+    } catch (e) {
+      if (budget && budget.expired()) return { ok: false, terminal: false, deadline: true, error: "details: run budget spent" };
+      if (attempt === 2) return { ok: false, terminal: false, error: `details: ${String((e && e.name) || "network")} (no response)` };
+      await sleep(500 * (attempt + 1));
+      continue;
+    }
     if (r.ok) return { ok: true, place: await r.json() };
     const body = (await r.text()).slice(0, 160);
     // A 429 is never retried here: retrying a quota answer buys nothing and
@@ -272,6 +287,8 @@ export async function GET(req) {
     return Response.json({ error: "unauthorized" }, { status: 401 });
   }
 
+  // The wall clock starts here: claim, config and lookups below spend the same 60s.
+  const budget = createBudget();
   const s = sbEnv();
   const gkey = GKEY();
   // Pulse the misconfiguration too. An unset key that returns a quiet {ok:false}
@@ -371,9 +388,10 @@ export async function GET(req) {
   // no rating buys this run. The ledger's own cap still applies underneath.
   const ratingUsage = await readLedgerUsage(RATING_SKU);
   const ratingFreeLine = freeTierLine(RATING_SKU); // the free line itself, in every gate mode (never effectiveCap: open mode returns month_cap)
-  for (const item of claimed) {
-    if (budgetExhausted) { released.push(item.place_id); continue; }
-    if (quotaKind) { quotaReleased.push(item.place_id); continue; }
+  const inFlightHeld = []; // started, then cut off by the deadline
+  const walk = await runWithinBudget(claimed, async (item) => {
+    if (budgetExhausted) { released.push(item.place_id); return; }
+    if (quotaKind) { quotaReleased.push(item.place_id); return; }
     // THE MONEY GUARD. Exactly one atomic ledger grant per Google call, for the
     // SKU that call actually bills at, before the call:
     //   index has the stars (~88%)  -> CORE mask, one Pro grant.
@@ -391,51 +409,44 @@ export async function GET(req) {
       if (!(await spendAllowCapped(PROMOTE_SKU, monthCap))) {
         budgetExhausted = true;
         released.push(item.place_id);
-        continue;
+        return;
       }
     }
     const requestSku = mask === RATING_DETAILS_MASK ? RATING_SKU : PROMOTE_SKU;
-    const d = await details(gkey, item.place_id, mask, requestSku, monthCap, requestSku === RATING_SKU ? () => { ratingBought++; } : null);
+    const d = await details(gkey, item.place_id, mask, requestSku, monthCap, requestSku === RATING_SKU ? () => { ratingBought++; } : null, budget);
     if (!d.ok) {
       if (d.budget) {
         budgetExhausted = true;
         released.push(item.place_id);
-        continue;
+        return;
+      }
+      if (d.deadline) {
+        inFlightHeld.push(item.place_id);
+        return;
       }
       if (d.quota) {
         // Google's quota, not the place. Park this one and the rest of the
         // batch with the attempt refunded, instead of burning toward a reject.
-        // THE LEDGER GRANT IS REFUNDED TOO (2026-11-03). The grant above was
-        // taken before the call; Google bills OK / NOT_FOUND / INVALID_REQUEST
-        // only, never a 429 (lib/spendGate.js refund note). Leaving it counted
-        // is how details_enterprise read 950/950 and details_pro 5,6xx within
-        // the first hours of 2026-11-01 (promote ramped 5->50 places per 5-min
-        // run into the daily-quota 429, each unbilled answer keeping its
-        // grant), which starved user-facing enrichment (lib/placeDetails.js)
-        // and the inventory refresh for the rest of the month and paged
-        // spend-pacing with "capped by day 2".
+        // THE LEDGER GRANT IS REFUNDED TOO (2026-11-03). A 429 is not billed.
         quotaKind = d.quota;
         quotaReleased.push(item.place_id);
         await refundToLedger(requestSku, 1);
-        continue;
+        return;
       }
       (d.terminal ? rejects : retries).push({ place_id: item.place_id, name: item.name, error: d.error });
-      continue;
+      return;
     }
-    // ONE decision, shared with the hand-run promoter and locked by
-    // scripts/test-promote-decision.mjs. A "reject" is a verdict about the DATA
-    // (unclassifiable, closed, out of bounds) — re-fetching buys the same answer,
-    // so the queue must not retry it and pay Google again.
     const place = withIndexSignals(d.place, sig);
     const verdict = decidePromotion(place, item.metro, nowIso, adjudicated.get(item.place_id) || null, metros);
     if (verdict.action !== "promote") {
       rejects.push({ place_id: item.place_id, name: item.name, error: verdict.error });
-      continue;
+      return;
     }
     writeRows.push(verdict.row);
     okIds.push(item.place_id);
-  }
-
+  }, budget);
+  const deadlineDeferred = [...walk.deferred.map((item) => item.place_id), ...inFlightHeld];
+  const stoppedBy = walk.stopped || (inFlightHeld.length ? "deadline" : null);
   const { rows: idRows, dropped } = dedupeById(writeRows);
 
   // One venue, one card. decidePromotion() is per-place and dedupeById() is per
@@ -504,9 +515,12 @@ export async function GET(req) {
     const parkNote = `google ${quotaKind === "quota_daily" ? "daily" : "rate"} quota 429: parked ${delay}m, attempt refunded`;
     for (const id of quotaReleased) settle.push(rpc(s, "wf_promotion_release", { p_place_id: id, p_delay_minutes: delay, p_note: parkNote }));
   }
+  // Deadline: places the clock never reached (or cut off mid call). Same refund as a
+  // ledger release, parked only one minute so the next 5 minute run takes them.
+  for (const id of deadlineDeferred) settle.push(rpc(s, "wf_promotion_release", { p_place_id: id, p_delay_minutes: 1, p_note: `deadline: run budget ${budget.budgetMs}ms spent, attempt refunded` }));
   await Promise.allSettled(settle);
 
-  const attempted = claimed.length - released.length - quotaReleased.length; // places we actually paid to look at
+  const attempted = claimed.length - released.length - quotaReleased.length - deadlineDeferred.length; // places we actually paid to look at
   const succeeded = writeError ? 0 : written;
   // Real used/cap for the label; a failed ledger read falls back to the ceiling
   // (a refusal means used had reached it), never blocks the pulse.
@@ -523,10 +537,13 @@ export async function GET(req) {
         // "quota:" is the jobPulse prefix that pages after ONE dead run (CLAUDE.md rule 2).
         ? `quota: google places details per-day quota exhausted (429); parked ${quotaReleased.length}/${claimed.length} until reset`.slice(0, 200)
       : (succeeded === 0 && attempted > 0 ? `0/${attempted} promoted; top reject: ${(rejects[0] && rejects[0].error) || "none"}`.slice(0, 200) : null);
+  const finalNote = stoppedBy === "deadline"
+    ? `${note ? note + "; " : ""}deadline: stopped after ${Math.round(budget.elapsedMs() / 1000)}s, ${deadlineDeferred.length}/${claimed.length} deferred to the next run`.slice(0, 240)
+    : note;
   // attempted counts only what was bought. A run that released its whole batch
   // pulses as attempted 0 with the budget note, so job-watch reads it as IDLE
   // (budget), never as "tried everything, achieved nothing".
-  await recordPulse("promote-index", { attempted, succeeded, note });
+  await recordPulse("promote-index", { attempted, succeeded, note: finalNote });
 
   // Adaptive step (2026-09-01) — see lib/promoteThrottle.js. `errors` here is
   // OPERATIONAL distress (transient/retry fetch failures + a failed upsert),
@@ -554,6 +571,10 @@ export async function GET(req) {
     retrying: retries.length,
     released: released.length,
     quotaParked: quotaReleased.length,
+    // "deadline" when the wall clock budget (not the end of the batch) ended the walk.
+    stopped: stoppedBy,
+    deferred: deadlineDeferred.length,
+    elapsedMs: budget.elapsedMs(),
     quota: quotaKind,
     ratingBought,
     ratingSkipped,

@@ -361,19 +361,22 @@ export async function GET(req) {
       });
       if (chosen.ok) {
         let finalLocation = chosen.location;
-        try {
-          const attributed = await attributedViatorDestination({
-            offerId: offerCode || placeId || "product",
-            destinationUrl: chosen.location,
-            pageHint: pageHintVal,
-            surface,
-            contentId: contentId || placeId,
-            clientClickId: clickId,
-            cookieHeader: req.headers.get("cookie") || "",
-            distinctId: cookieDistinctId || null,
-          });
-          if (attributed && attributed.url) finalLocation = attributed.url;
-        } catch {}
+        if (trafficClass === "human") {
+          try {
+            const attributed = await attributedViatorDestination({
+              offerId: offerCode || placeId || "product",
+              destinationUrl: chosen.location,
+              pageHint: pageHintVal,
+              surface,
+              contentId: contentId || placeId,
+              clientClickId: clickId,
+              cookieHeader: req.headers.get("cookie") || "",
+              distinctId: cookieDistinctId || null,
+              trafficClass,
+            });
+            if (attributed && attributed.url) finalLocation = attributed.url;
+          } catch {}
+        }
         emit("provider_redirect_started", { offer_id: "product:" + rawProduct.slice(0, 120), resolver_path: chosen.resolver_path });
         return new Response(null, {
           status: 302,
@@ -458,7 +461,7 @@ export async function GET(req) {
   });
 
   let finalResolvedLocation = chosen.location;
-  if (chosen.ok) {
+  if (chosen.ok && trafficClass === "human") {
     try {
       const attributed = await attributedViatorDestination({
         offerId: viatorProductCode(chosen.location) || placeId || "resolved",
@@ -469,6 +472,7 @@ export async function GET(req) {
         clientClickId: clickId,
         cookieHeader: req.headers.get("cookie") || "",
         distinctId: cookieDistinctId || null,
+        trafficClass,
       });
       if (attributed && attributed.url) finalResolvedLocation = attributed.url;
     } catch {}
