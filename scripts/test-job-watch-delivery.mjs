@@ -50,6 +50,29 @@ const reminder = jobWatchNotificationDecision(sameIncidentNextHour, prior, now +
 const recovery = jobWatchNotificationDecision([], prior, now + 2 * 60 * 60 * 1000);
 assert.ok(reminder.send && reminder.kind === 'reminder' && recovery.send && recovery.kind === 'recovery' && jobWatchNotificationDecision(incidents, null, now).kind === 'incident', 'new incidents send immediately, unchanged incidents remind at 24h, and recovery sends once');
 
+const monitored = (day, age, count) => [
+  { job: 'spend-pacing', last_note: `quota: capped by day ${day} (<=10): details_enterprise,provider_viator` },
+  { job: 'heartbeat-watch', last_note: `OVERDUE (2/20): event-truth-daily (${age}min vs 1800min max); event-truth-sweep (${age}min vs 600min max)` },
+  { job: 'event-freshness', last_note: `DEGRADED: imminent_past_sla ${count} > 10; last useful event-truth-daily pulse ${age}h old > 30.0h | imminent ${count} past_sla ${count} last_useful changing` },
+];
+const firstMonitors = monitored(7, 2000.1, 116);
+const monitorState = { status: 'open', fingerprint: incidentFingerprint(firstMonitors), lastSentAt: now };
+const nextMonitors = monitored(8, 2060.1, 117);
+assert.equal(jobWatchNotificationDecision(nextMonitors, monitorState, now + 3600_000).kind, 'suppressed', 'moving day, elapsed age and sample counts preserve incident identity');
+assert.equal(jobWatchNotificationDecision(nextMonitors, monitorState, now + JOB_WATCH_REMINDER_MS).kind, 'reminder', 'unchanged monitor failures still remind after 24h');
+for (const [index, oldText, newText] of [
+  [0, 'provider_viator', 'provider_viator,photos'],
+  [1, 'event-truth-sweep', 'event-truth-sla'],
+  [1, '600min max', '300min max'],
+  [2, '> 10', '> 20'],
+  [2, ' | ', '; imminent_past_fuse 6 | '],
+]) {
+  const changed = firstMonitors.map((row, i) => i === index ? { ...row, last_note: row.last_note.replace(oldText, newText) } : row);
+  assert.equal(jobWatchNotificationDecision(changed, monitorState, now + 3600_000).kind, 'incident', 'new affected SKU/job, changed threshold or newly failed check pages immediately');
+}
+assert.notEqual(incidentFingerprint([{ job: 'other', last_note: 'HTTP 400' }]), incidentFingerprint([{ job: 'other', last_note: 'HTTP 500' }]), 'unknown numeric operational codes remain distinct');
+assert.notEqual(incidentFingerprint([{ job: 'heartbeat-watch', last_note: 'OVERDUE (2/20): event-truth-daily (2000min vs 1800min max); broken 400' }]), incidentFingerprint([{ job: 'heartbeat-watch', last_note: 'OVERDUE (2/20): event-truth-daily (2000min vs 1800min max); broken 500' }]), 'incomplete monitor notes remain exact');
+
 // The Supabase watcher runs every 15 minutes. Vercel job-watch independently
 // checks its newest persisted beat and must reject total silence even though
 // wf_job_health cannot classify a row that has disappeared from its window.
@@ -162,7 +185,12 @@ const routeModule = await import('data:text/javascript,' + encodeURIComponent(`
   const encodeJobWatchState = () => "fixture-state"; const resolveOverride = () => ({ value: null });
   const Sentry = { captureException: () => {}, flush: async () => {} };
   ${routeBody}
+  export { incidentHtml };
 `));
+const budgetHtml = routeModule.incidentHtml(firstMonitors, [], [], 'incident');
+assert.match(budgetHtml, /Budget limits were reached early\. Spending remains capped\./, 'pacing budget refusal is described as a limit, not a broken metered job');
+assert.doesNotMatch(budgetHtml, /produced nothing|0\/41 succeeded/, 'a successful budget monitor does not claim to be producing nothing');
+assert.match(budgetHtml, /consecutive checks report a problem/, 'other monitored failures remain visible');
 // This standalone guard owns the fixture secret; no shell value is consulted.
 try {
   process.env.CRON_SECRET = 'watch-fixture';

@@ -16,7 +16,7 @@ writeFileSync(join(tmp, "package.json"), '{"type":"module"}\n');
 cpSync("lib", join(tmp, "lib"), { recursive: true });
 const copiedLib = join(tmp, "lib");
 const aff = await import(join(copiedLib, "affiliates.js"));
-const { CAT_NOTES, TOWN_NOTES } = await import(join(copiedLib, "culture.js"));
+const { CAT_NOTES, TOWN_NOTES } = await import(join(copiedLib, "cultureNotes.js"));
 const { CULTURE } = await import(join(copiedLib, "cultureCorpus.js"));
 const { GUIDES } = await import(join(copiedLib, "guides.js"));
 await import(join(copiedLib, "site.js"));
