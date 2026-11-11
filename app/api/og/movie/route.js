@@ -14,6 +14,7 @@ import { defaultModel } from "../../../../lib/shareCardCopy.js";
 import { siteTodayStr } from "../../../../lib/siteTime.js";
 import { bytesToDataUri } from "../../../../lib/heroCard.js";
 import { RAIL_CARD } from "../../../../lib/railShareCard.js";
+import { moviePosterFile } from "../../../../lib/moviePosterFile.js";
 
 export const runtime = "nodejs";
 
@@ -30,11 +31,12 @@ function loadFonts() {
 }
 
 async function posterDataUri(movie) {
-  const src = movie && movie.art && movie.art.src;
-  // The registry guard pins art.src to /movies/<name>.webp; re-check so a bad row can never leave public/movies.
-  if (!src || !/^\/movies\/[\w.-]+\.webp$/.test(src)) return null;
+  // lib/moviePosterFile builds the path from the fixed public/movies folder and the base name only
+  // (a path joined from the whole src once pulled all of public/ into this function; see that file).
+  const file = moviePosterFile(movie && movie.art && movie.art.src);
+  if (!file) return null;
   try {
-    const buf = await readFile(path.join(process.cwd(), "public", src));
+    const buf = await readFile(file);
     const jpeg = await sharp(buf)
       .resize({ width: RAIL_CARD.posterW * 2, height: RAIL_CARD.posterH * 2, fit: "cover", position: "top" })
       .jpeg({ quality: 86, mozjpeg: true })
