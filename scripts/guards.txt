@@ -2540,3 +2540,6 @@ node scripts/test-feed-deferral.mjs
 # 2026-11-10 (Sentry WAYFIND-19): a dropped visitor connection gets one retry and is
 # never filed as a Wayfind map service failure; real service answers still are.
 node scripts/test-client-transport-retry.mjs
+# 2026-11-10 (Sentry WAYFIND-W): reading window.localStorage outside a try throws where
+# site data is blocked; PostHogProvider did, so those visitors were never measured.
+node scripts/check-storage-access.mjs

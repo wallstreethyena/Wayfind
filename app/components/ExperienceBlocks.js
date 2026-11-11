@@ -58,6 +58,7 @@ import { couponsForIntent, couponEndsLabel } from "../../lib/coupons";
 // is the exact duplication ("three art maps, two area_known_for definitions")
 // this extraction exists to prevent. Deleted in favour of these.
 import { dealScope } from "../../lib/dealSheet";
+import { safeLocalStorage } from "../../lib/safeStorage.js";
 import { nearestMetro } from "../../lib/orderInFeatured";
 import { businessStatus } from "../../lib/businessStatus";
 import { venueLean } from "../../lib/ranking";
@@ -99,7 +100,7 @@ export function CouponStrip({ intentId, lat, lng, onOpenCoupons, onLog, max = 3 
   const dl = deals.slice(0, max);
   const go = (coupon) => {
     if (!coupon || !coupon.id) return;
-    const saved = typeof window !== "undefined" ? clipCouponToWallet(coupon, window.localStorage) : { clipped: false };
+    const saved = typeof window !== "undefined" ? clipCouponToWallet(coupon, safeLocalStorage()) : { clipped: false };
     try { onLog && onLog("coupon_strip_tap", null, { id: coupon.id, theme: intentId, clipped: saved.clipped }); } catch (e) {}
     onOpenCoupons && onOpenCoupons(coupon, { wallet: true, clipped: saved.clipped });
   };
