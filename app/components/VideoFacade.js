@@ -16,7 +16,7 @@ export function startCreatorPlayback(setPlay, collapseDetails) {
   if (collapseDetails) collapseDetails();
 }
 
-export default function VideoFacade({ platform, url, label, poster: posterProp = null, fallbackPoster = null, coverTitle = null, coverCity = null, coverEyebrow = null, fallbackLabel = "Cindy Selects · Video guide" }) {
+export default function VideoFacade({ platform, url, label, poster: posterProp = null, fallbackPoster = null, coverTitle = null, coverCity = null, coverEyebrow = null, fallbackLabel = "Cindy Selects · Video guide", posterCredit = null }) {
   // A Google venue photo (/api/photo) is only served to a credited surface, and this cover has
   // nowhere to print the credit, so it is never used as a bare <img> cover: the branded cover shows.
   const poster = isApiPhotoSrc(posterProp) ? null : posterProp;
@@ -63,6 +63,8 @@ export default function VideoFacade({ platform, url, label, poster: posterProp =
         {instagramPost ? <svg data-creator-post-icon="" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2" /><path d="m3 16 5-5 4 4 3-3 6 6" /><circle cx="16" cy="8" r="1" /></svg> : <svg data-creator-play-icon="" width="22" height="26" viewBox="0 0 22 26" fill="currentColor" style={{ marginLeft: 4 }}><path d="M2 2L21 13L2 24Z" /></svg>}
       </span>
       {instagramPost ? <span aria-hidden="true" style={{ position: "absolute", top: "calc(50% + 38px)", left: 12, right: 12, color: "#fff", fontSize: 11.5, fontWeight: 800, textAlign: "center", textShadow: "0 1px 5px #000" }}>View post</span> : null}
+      {/* Batch 12e (owner rule 2026-11-04): a licensed cover carries its credit as a tiny muted line on the photo itself. */}
+      {posterCredit && poster && loadedPoster === poster && failedPoster !== poster ? <span data-poster-credit="" style={{ position: "absolute", bottom: 4, right: 8, maxWidth: "85%", overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis", fontSize: 9, lineHeight: 1.2, color: "rgba(255,255,255,.62)", textShadow: "0 1px 2px rgba(0,0,0,.6)" }}>{posterCredit}</span> : null}
       <span style={{ position: "absolute", bottom: premium ? 22 : 10, left: premium ? 20 : 12, right: 16, fontFamily: premium ? "Georgia,serif" : "inherit", textAlign: "left", fontSize: premium ? 28 : 12.5, fontWeight: 700, color: "#fff", textShadow: "0 1px 5px rgba(0,0,0,.75)", lineHeight: 1.3 }}>{premium ? <><span style={{ display: "block", fontFamily: "system-ui", fontSize: 10, letterSpacing: ".16em", textTransform: "uppercase", color: "#e7c899", marginBottom: 8 }}>{coverCity}</span>{coverTitle}</> : label}</span>
     </button>
   );

@@ -1,0 +1,1492 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 33. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJJcjMuPC22YgR6qCdc4fpZ0I",
+   "name": "Azucar Ice Cream - Little Havana",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "ice_cream_shop",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.azucaricecream.com/press/",
+     "source_name": "Azucar Ice Cream - Little Havana \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Azucar Ice Cream is at 1503 SW Eighth St. in Little Havana",
+      "Azucar Ice Cream serves Cuban and tropical flavors like flan, pl\u00e1tano maduro, and passionfruit",
+      "Abuela Maria is classic vanilla ice cream with guava, chunks of cream cheese, and Maria cookies"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Cuban and tropical flavors like flan and pl\u00e1tano maduro in Little Havana",
+    "why_here": "Go for Cuban and tropical flavors like flan, pl\u00e1tano maduro, and passionfruit, and try Abuela Maria, classic vanilla ice cream with guava, chunks of cream cheese, and Maria cookies.",
+    "know_before": "Azucar Ice Cream is at 1503 SW Eighth St. in Little Havana",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.azucaricecream.com/press/"
+     ],
+     "why_here": [
+      "https://www.azucaricecream.com/press/"
+     ],
+     "know_before": [
+      "https://www.azucaricecream.com/press/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Azucar Ice Cream is at 1503 SW Eighth St. in Little Havana",
+      "source": "https://www.azucaricecream.com/press/"
+     },
+     {
+      "claim": "Azucar Ice Cream serves Cuban and tropical flavors like flan, pl\u00e1tano maduro, and passionfruit",
+      "source": "https://www.azucaricecream.com/press/"
+     },
+     {
+      "claim": "Abuela Maria is classic vanilla ice cream with guava, chunks of cream cheese, and Maria cookies",
+      "source": "https://www.azucaricecream.com/press/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ9WF3GoG22YgRXEvIGy5Z4s8",
+   "name": "Brickell Arch, a Luxury Collection Hotel, Miami",
+   "category": "hotels",
+   "metro": "miami-dade",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.marriott.com/en-us/hotels/miald-brickell-arch-a-luxury-collection-hotel-miami/overview/",
+     "source_name": "Brickell Arch, a Luxury Collection Hotel, Miami \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Brickell Arch, a Luxury Collection Hotel, Miami is at 1395 Brickell Ave, Miami, Florida, USA, 33131",
+      "The 25th-floor Sky Lounge provides panoramic views of Miami",
+      "ADRIFT Mare, led by Chef David Myers, brings the flavors of the Mediterranean to Brickell",
+      "Brickell Arch is in the Brickell district in Miami"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "25th-floor Sky Lounge with panoramic views of Miami",
+    "why_here": "Stay in the Brickell district in Miami for the 25th-floor Sky Lounge with panoramic views of Miami, plus ADRIFT Mare, led by Chef David Myers, bringing the flavors of the Mediterranean to Brickell.",
+    "know_before": "Brickell Arch is at 1395 Brickell Ave, Miami, Florida, USA, 33131.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.marriott.com/en-us/hotels/miald-brickell-arch-a-luxury-collection-hotel-miami/overview/"
+     ],
+     "why_here": [
+      "https://www.marriott.com/en-us/hotels/miald-brickell-arch-a-luxury-collection-hotel-miami/overview/"
+     ],
+     "know_before": [
+      "https://www.marriott.com/en-us/hotels/miald-brickell-arch-a-luxury-collection-hotel-miami/overview/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Brickell Arch, a Luxury Collection Hotel, Miami is at 1395 Brickell Ave, Miami, Florida, USA, 33131",
+      "source": "https://www.marriott.com/en-us/hotels/miald-brickell-arch-a-luxury-collection-hotel-miami/overview/"
+     },
+     {
+      "claim": "The 25th-floor Sky Lounge provides panoramic views of Miami",
+      "source": "https://www.marriott.com/en-us/hotels/miald-brickell-arch-a-luxury-collection-hotel-miami/overview/"
+     },
+     {
+      "claim": "ADRIFT Mare, led by Chef David Myers, brings the flavors of the Mediterranean to Brickell",
+      "source": "https://www.marriott.com/en-us/hotels/miald-brickell-arch-a-luxury-collection-hotel-miami/overview/"
+     },
+     {
+      "claim": "Brickell Arch is in the Brickell district in Miami",
+      "source": "https://www.marriott.com/en-us/hotels/miald-brickell-arch-a-luxury-collection-hotel-miami/overview/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ5_Y9GBG52YgRQEL5rtPzpvs",
+   "name": "City Food Hall Doral (formerly Shoma Bazaar)",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.shomabazaar.com/vendor-list",
+     "source_name": "City Food Hall Doral (formerly Shoma Bazaar) \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Shoma Bazaar is at 9420 NW 41st Street Doral, FL 33178",
+      "Shoma Bazaar is a community hub for local happenings, where local chefs set the standard for culinary excellence in Miami"
+     ]
+    },
+    {
+     "source": "https://www.shomabazaar.com/vendor-inquiries",
+     "source_name": "City Food Hall Doral (formerly Shoma Bazaar) \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "FoodHall Hours are 10:00 a.m. - 10 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Food hall at 9420 NW 41st Street in Doral with local chefs",
+    "why_here": "Go to a community hub for local happenings where local chefs set the standard, at 9420 NW 41st Street Doral, FL 33178, with FoodHall Hours of 10:00 a.m. - 10 p.m.",
+    "know_before": "FoodHall Hours are 10:00 a.m. - 10 p.m. at 9420 NW 41st Street Doral, FL 33178",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.shomabazaar.com/vendor-list",
+      "https://www.shomabazaar.com/vendor-inquiries"
+     ],
+     "why_here": [
+      "https://www.shomabazaar.com/vendor-list",
+      "https://www.shomabazaar.com/vendor-inquiries"
+     ],
+     "know_before": [
+      "https://www.shomabazaar.com/vendor-list",
+      "https://www.shomabazaar.com/vendor-inquiries"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Shoma Bazaar is at 9420 NW 41st Street Doral, FL 33178",
+      "source": "https://www.shomabazaar.com/vendor-list"
+     },
+     {
+      "claim": "Shoma Bazaar is a community hub for local happenings, where local chefs set the standard for culinary excellence in Miami",
+      "source": "https://www.shomabazaar.com/vendor-list"
+     },
+     {
+      "claim": "FoodHall Hours are 10:00 a.m. - 10 p.m.",
+      "source": "https://www.shomabazaar.com/vendor-inquiries"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJX8tvhLRbw4gR8DFcGtZYtHM",
+   "name": "Darrell's Restaurant",
+   "category": "food",
+   "metro": "manatee-sarasota",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.darrellsrestaurant.net/",
+     "source_name": "Darrell's Restaurant \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Darrell's Restaurant is at 215 S Tamiami Trl, Venice, FL 34285",
+      "Darrell's Restaurant is a Southern Restaurant in Venice, FL",
+      "Darrell's Restaurant is open Monday through Sunday from 11:00 a.m. to 9:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Southern Restaurant in Venice, open Monday through Sunday",
+    "why_here": "Go for a Southern Restaurant in Venice at 215 S Tamiami Trl, Venice, FL 34285, open Monday through Sunday from 11:00 a.m. to 9:00 p.m. during the day and evening.",
+    "know_before": "Open Monday through Sunday from 11:00 a.m. to 9:00 p.m. at 215 S Tamiami Trl, Venice, FL 34285.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.darrellsrestaurant.net/"
+     ],
+     "why_here": [
+      "https://www.darrellsrestaurant.net/"
+     ],
+     "know_before": [
+      "https://www.darrellsrestaurant.net/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Darrell's Restaurant is at 215 S Tamiami Trl, Venice, FL 34285",
+      "source": "https://www.darrellsrestaurant.net/"
+     },
+     {
+      "claim": "Darrell's Restaurant is a Southern Restaurant in Venice, FL",
+      "source": "https://www.darrellsrestaurant.net/"
+     },
+     {
+      "claim": "Darrell's Restaurant is open Monday through Sunday from 11:00 a.m. to 9:00 p.m.",
+      "source": "https://www.darrellsrestaurant.net/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJSQ5hWQS35YgRcmF0c3eORPw",
+   "name": "bb's restaurant and bar",
+   "category": "food",
+   "metro": "jacksonville-fl",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.bbsrestaurant.com/brunch-menu",
+     "source_name": "bb's restaurant and bar \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "bb's restaurant and bar is at 1019 Hendricks Avenue, Jacksonville, FL 32207",
+      "bb's restaurant and bar is serving lunch and dinner, with an award winning wine list and full bar in Jacksonville, FL",
+      "Brunch is Sat + Sun 10:00 a.m. - 3:00 p.m."
+     ]
+    },
+    {
+     "source": "https://www.bbsrestaurant.com/lunch-specials",
+     "source_name": "bb's restaurant and bar \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Lunch Specials are available from 11:00 a.m. - 2:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Restaurant and bar serving lunch and dinner in Jacksonville, FL",
+    "why_here": "Go for lunch and dinner with a full bar in Jacksonville, FL, plus Brunch on Sat + Sun from 10:00 a.m. - 3:00 p.m. and Lunch Specials available from 11:00 a.m. - 2:00 p.m.",
+    "know_before": "Brunch is Sat + Sun 10:00 a.m. - 3:00 p.m. at 1019 Hendricks Avenue",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.bbsrestaurant.com/brunch-menu",
+      "https://www.bbsrestaurant.com/lunch-specials"
+     ],
+     "why_here": [
+      "https://www.bbsrestaurant.com/brunch-menu",
+      "https://www.bbsrestaurant.com/lunch-specials"
+     ],
+     "know_before": [
+      "https://www.bbsrestaurant.com/brunch-menu",
+      "https://www.bbsrestaurant.com/lunch-specials"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "bb's restaurant and bar is at 1019 Hendricks Avenue, Jacksonville, FL 32207",
+      "source": "https://www.bbsrestaurant.com/brunch-menu"
+     },
+     {
+      "claim": "bb's restaurant and bar is serving lunch and dinner, with an award winning wine list and full bar in Jacksonville, FL",
+      "source": "https://www.bbsrestaurant.com/brunch-menu"
+     },
+     {
+      "claim": "Brunch is Sat + Sun 10:00 a.m. - 3:00 p.m.",
+      "source": "https://www.bbsrestaurant.com/brunch-menu"
+     },
+     {
+      "claim": "Lunch Specials are available from 11:00 a.m. - 2:00 p.m.",
+      "source": "https://www.bbsrestaurant.com/lunch-specials"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJjbVygOUVw4gR8Wjj3G4-enA",
+   "name": "Bayshore Gardens Shopping Center",
+   "category": "shopping",
+   "metro": "manatee-sarasota",
+   "primary_type": "shopping_mall",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.publix.com/locations/1897-bayshore-gardens-shopping-center",
+     "source_name": "Bayshore Gardens Shopping Center \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Bayshore Gardens Shopping Center is Publix store number 1897",
+      "Bayshore Gardens Shopping Center is at 6030 14th St W, Bradenton, FL 34207-4104",
+      "Bayshore Gardens Shopping Center departments include Floral, Meats & Cheeses, Produce, Bakery, Deli and Seafood",
+      "Bayshore Gardens Shopping Center services include Check Cashing, Coin Counting, Money Order Sales, Money Transfers, Presto! ATM and Recycling",
+      "Bayshore Gardens Shopping Center has a Publix Pharmacy at 6030 14th St W, Bradenton, FL 34207-4104",
+      "Bayshore Gardens Shopping Center also offers Wine & Beer and Sushi"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Publix store number 1897 with Floral, Bakery, Deli and Seafood departments",
+    "why_here": "Shop Publix departments including Floral, Meats & Cheeses, Produce, Bakery, Deli and Seafood, with services including Check Cashing, Coin Counting and Recycling at this Bradenton store.",
+    "know_before": "A Publix Pharmacy is at 6030 14th St W, Bradenton, FL 34207-4104.",
+    "local_tip": "Wine & Beer and Sushi are also available.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.publix.com/locations/1897-bayshore-gardens-shopping-center"
+     ],
+     "why_here": [
+      "https://www.publix.com/locations/1897-bayshore-gardens-shopping-center"
+     ],
+     "know_before": [
+      "https://www.publix.com/locations/1897-bayshore-gardens-shopping-center"
+     ],
+     "local_tip": [
+      "https://www.publix.com/locations/1897-bayshore-gardens-shopping-center"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Bayshore Gardens Shopping Center is Publix store number 1897",
+      "source": "https://www.publix.com/locations/1897-bayshore-gardens-shopping-center"
+     },
+     {
+      "claim": "Bayshore Gardens Shopping Center is at 6030 14th St W, Bradenton, FL 34207-4104",
+      "source": "https://www.publix.com/locations/1897-bayshore-gardens-shopping-center"
+     },
+     {
+      "claim": "Bayshore Gardens Shopping Center departments include Floral, Meats & Cheeses, Produce, Bakery, Deli and Seafood",
+      "source": "https://www.publix.com/locations/1897-bayshore-gardens-shopping-center"
+     },
+     {
+      "claim": "Bayshore Gardens Shopping Center services include Check Cashing, Coin Counting, Money Order Sales, Money Transfers, Presto! ATM and Recycling",
+      "source": "https://www.publix.com/locations/1897-bayshore-gardens-shopping-center"
+     },
+     {
+      "claim": "Bayshore Gardens Shopping Center has a Publix Pharmacy at 6030 14th St W, Bradenton, FL 34207-4104",
+      "source": "https://www.publix.com/locations/1897-bayshore-gardens-shopping-center"
+     },
+     {
+      "claim": "Bayshore Gardens Shopping Center also offers Wine & Beer and Sushi",
+      "source": "https://www.publix.com/locations/1897-bayshore-gardens-shopping-center"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJxTJuLeN654gRR2uxgjd_0Lc",
+   "name": "Publix Super Market at The Paramount on Lake Eola",
+   "category": "shopping",
+   "metro": "orlando",
+   "primary_type": "supermarket",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.publix.com/locations/1131-the-paramount-on-lake-eola",
+     "source_name": "Publix Super Market at The Paramount on Lake Eola \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Paramount on Lake Eola is Publix store number 1131",
+      "The Paramount on Lake Eola is at 400 E Central Blvd, Orlando, FL 32801-1923",
+      "The Paramount on Lake Eola departments include Floral, Meats & Cheeses, Produce, Bakery, Deli and Seafood",
+      "The Paramount on Lake Eola services include Check Cashing, Coin Counting, Money Order Sales, Money Transfers, Presto! ATM and Recycling",
+      "The Paramount on Lake Eola has a Publix Pharmacy at 400 E Central Blvd, Orlando, FL 32801-1923",
+      "The Paramount on Lake Eola also offers Wine & Beer and Sushi"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Publix store number 1131 with Floral, Bakery, Deli and Seafood departments",
+    "why_here": "Shop Publix departments including Floral, Meats & Cheeses, Produce, Bakery, Deli and Seafood, with services including Check Cashing, Coin Counting and Recycling at this Orlando store.",
+    "know_before": "A Publix Pharmacy is at 400 E Central Blvd, Orlando, FL 32801-1923.",
+    "local_tip": "Wine & Beer and Sushi are also available.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.publix.com/locations/1131-the-paramount-on-lake-eola"
+     ],
+     "why_here": [
+      "https://www.publix.com/locations/1131-the-paramount-on-lake-eola"
+     ],
+     "know_before": [
+      "https://www.publix.com/locations/1131-the-paramount-on-lake-eola"
+     ],
+     "local_tip": [
+      "https://www.publix.com/locations/1131-the-paramount-on-lake-eola"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Paramount on Lake Eola is Publix store number 1131",
+      "source": "https://www.publix.com/locations/1131-the-paramount-on-lake-eola"
+     },
+     {
+      "claim": "The Paramount on Lake Eola is at 400 E Central Blvd, Orlando, FL 32801-1923",
+      "source": "https://www.publix.com/locations/1131-the-paramount-on-lake-eola"
+     },
+     {
+      "claim": "The Paramount on Lake Eola departments include Floral, Meats & Cheeses, Produce, Bakery, Deli and Seafood",
+      "source": "https://www.publix.com/locations/1131-the-paramount-on-lake-eola"
+     },
+     {
+      "claim": "The Paramount on Lake Eola services include Check Cashing, Coin Counting, Money Order Sales, Money Transfers, Presto! ATM and Recycling",
+      "source": "https://www.publix.com/locations/1131-the-paramount-on-lake-eola"
+     },
+     {
+      "claim": "The Paramount on Lake Eola has a Publix Pharmacy at 400 E Central Blvd, Orlando, FL 32801-1923",
+      "source": "https://www.publix.com/locations/1131-the-paramount-on-lake-eola"
+     },
+     {
+      "claim": "The Paramount on Lake Eola also offers Wine & Beer and Sushi",
+      "source": "https://www.publix.com/locations/1131-the-paramount-on-lake-eola"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJWy3SxfC22YgRhv9FYwSWjiY",
+   "name": "Little Havana Visitors Center",
+   "category": "attractions",
+   "metro": "miami-dade",
+   "primary_type": "tourist_attraction",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://prod.miamiandbeaches.com/l/visitor-information-and-local-services/little-havana-visitor-center/6094",
+     "source_name": "Little Havana Visitors Center \u2014 official source",
+     "source_class": "tourism_dmo",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Little Havana Visitor Center is at 1442 SW 8th St., Miami, FL 33135",
+      "Little Havana Visitor Center is centrally located in the heart of Little Havana on Calle Ocho (Southwest 8th Street) between Domino Park and McDonald's",
+      "Little Havana Visitor Center provides visitors and residents with a resource for information about the attractions and happenings in Little Havana",
+      "Little Havana Visitor Center provides information about other heritage and multicultural neighborhoods throughout Greater Miami",
+      "Little Havana Visitor Center is open Tuesdays and Wednesdays, 11 a.m. to 4 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Welcome center on Calle Ocho in Little Havana",
+    "why_here": "Stop in Little Havana on Calle Ocho (Southwest 8th Street) for information about the attractions and happenings in Little Havana and other heritage and multicultural neighborhoods throughout Greater Miami.",
+    "know_before": "Open Tuesdays and Wednesdays, 11 a.m. to 4 p.m. at 1442 SW 8th St., Miami, FL 33135",
+    "local_tip": "Between Domino Park and McDonald's on Calle Ocho",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://prod.miamiandbeaches.com/l/visitor-information-and-local-services/little-havana-visitor-center/6094"
+     ],
+     "why_here": [
+      "https://prod.miamiandbeaches.com/l/visitor-information-and-local-services/little-havana-visitor-center/6094"
+     ],
+     "know_before": [
+      "https://prod.miamiandbeaches.com/l/visitor-information-and-local-services/little-havana-visitor-center/6094"
+     ],
+     "local_tip": [
+      "https://prod.miamiandbeaches.com/l/visitor-information-and-local-services/little-havana-visitor-center/6094"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Little Havana Visitor Center is at 1442 SW 8th St., Miami, FL 33135",
+      "source": "https://prod.miamiandbeaches.com/l/visitor-information-and-local-services/little-havana-visitor-center/6094"
+     },
+     {
+      "claim": "Little Havana Visitor Center is centrally located in the heart of Little Havana on Calle Ocho (Southwest 8th Street) between Domino Park and McDonald's",
+      "source": "https://prod.miamiandbeaches.com/l/visitor-information-and-local-services/little-havana-visitor-center/6094"
+     },
+     {
+      "claim": "Little Havana Visitor Center provides visitors and residents with a resource for information about the attractions and happenings in Little Havana",
+      "source": "https://prod.miamiandbeaches.com/l/visitor-information-and-local-services/little-havana-visitor-center/6094"
+     },
+     {
+      "claim": "Little Havana Visitor Center provides information about other heritage and multicultural neighborhoods throughout Greater Miami",
+      "source": "https://prod.miamiandbeaches.com/l/visitor-information-and-local-services/little-havana-visitor-center/6094"
+     },
+     {
+      "claim": "Little Havana Visitor Center is open Tuesdays and Wednesdays, 11 a.m. to 4 p.m.",
+      "source": "https://prod.miamiandbeaches.com/l/visitor-information-and-local-services/little-havana-visitor-center/6094"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJkWpfE-mq2YgR-gN3-HA5Mus",
+   "name": "West Lake Park",
+   "category": "attractions",
+   "metro": "broward",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.broward.org/Parks/ThingsToDo/Pages/SplashPads.aspx",
+     "source_name": "West Lake Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "West Lake Park has a splash pad",
+      "Splash pads at West Lake Park are free to use daily during normal operating hours",
+      "On weekends and holidays, the regional parks' gate entrance fee of $3/vehicle (for 8 or fewer occupants) will be in effect",
+      "West Lake Park is listed by Broward County Parks"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Park with a splash pad free to use daily",
+    "why_here": "Visit West Lake Park for a splash pad that is free to use daily during normal operating hours, as listed by Broward County Parks.",
+    "know_before": "On weekends and holidays, the gate entrance fee is $3/vehicle for 8 or fewer occupants.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.broward.org/Parks/ThingsToDo/Pages/SplashPads.aspx"
+     ],
+     "why_here": [
+      "https://www.broward.org/Parks/ThingsToDo/Pages/SplashPads.aspx"
+     ],
+     "know_before": [
+      "https://www.broward.org/Parks/ThingsToDo/Pages/SplashPads.aspx"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "West Lake Park has a splash pad",
+      "source": "https://www.broward.org/Parks/ThingsToDo/Pages/SplashPads.aspx"
+     },
+     {
+      "claim": "Splash pads at West Lake Park are free to use daily during normal operating hours",
+      "source": "https://www.broward.org/Parks/ThingsToDo/Pages/SplashPads.aspx"
+     },
+     {
+      "claim": "On weekends and holidays, the regional parks' gate entrance fee of $3/vehicle (for 8 or fewer occupants) will be in effect",
+      "source": "https://www.broward.org/Parks/ThingsToDo/Pages/SplashPads.aspx"
+     },
+     {
+      "claim": "West Lake Park is listed by Broward County Parks",
+      "source": "https://www.broward.org/Parks/ThingsToDo/Pages/SplashPads.aspx"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJO_7ZQlj9wogRS3uCehMeAJs",
+   "name": "Larry's Ice Cream & Gelatos",
+   "category": "food",
+   "metro": "st-pete",
+   "primary_type": "ice_cream_shop",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.larrysicecream.com/about.php",
+     "source_name": "Larry's Ice Cream & Gelatos \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Larry's is family-owned and operated, since 1984",
+      "Larry's is known for homemade waffle cones, super-premium ice cream, authentic Italian gelato, and fresh mini donuts",
+      "Larry's is located at 6595 Gulf Blvd St Pete Beach, FL 33706",
+      "Larry's offers gluten-free and dairy-free items"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Family-owned ice cream shop in St Pete Beach since 1984",
+    "why_here": "Go for homemade waffle cones, super-premium ice cream, authentic Italian gelato, and fresh mini donuts at this family-owned shop in St Pete Beach.",
+    "know_before": "Located at 6595 Gulf Blvd, St Pete Beach, FL 33706.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.larrysicecream.com/about.php"
+     ],
+     "why_here": [
+      "https://www.larrysicecream.com/about.php"
+     ],
+     "know_before": [
+      "https://www.larrysicecream.com/about.php"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Larry's is family-owned and operated, since 1984",
+      "source": "https://www.larrysicecream.com/about.php"
+     },
+     {
+      "claim": "Larry's is known for homemade waffle cones, super-premium ice cream, authentic Italian gelato, and fresh mini donuts",
+      "source": "https://www.larrysicecream.com/about.php"
+     },
+     {
+      "claim": "Larry's is located at 6595 Gulf Blvd St Pete Beach, FL 33706",
+      "source": "https://www.larrysicecream.com/about.php"
+     },
+     {
+      "claim": "Larry's offers gluten-free and dairy-free items",
+      "source": "https://www.larrysicecream.com/about.php"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJFSjnKAW35YgRNr8IliS-va0",
+   "name": "Chart House",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.chart-house.com/",
+     "source_name": "Chart House \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Chart House serves Seafood, Prime Rib & Steaks",
+      "For 60 years, Chart House seafood restaurant has redefined the ideal dining experience",
+      "Chart House has 24 waterfront restaurants",
+      "Chart House specializes in unique cuisine and exceptional service"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Waterfront seafood restaurant serving Seafood, Prime Rib & Steaks",
+    "why_here": "Go for Seafood, Prime Rib & Steaks and unique cuisine at Chart House, a seafood restaurant with 24 waterfront restaurants and 60 years of history.",
+    "know_before": "Chart House specializes in unique cuisine and exceptional service",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.chart-house.com/"
+     ],
+     "why_here": [
+      "https://www.chart-house.com/"
+     ],
+     "know_before": [
+      "https://www.chart-house.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Chart House serves Seafood, Prime Rib & Steaks",
+      "source": "https://www.chart-house.com/"
+     },
+     {
+      "claim": "For 60 years, Chart House seafood restaurant has redefined the ideal dining experience",
+      "source": "https://www.chart-house.com/"
+     },
+     {
+      "claim": "Chart House has 24 waterfront restaurants",
+      "source": "https://www.chart-house.com/"
+     },
+     {
+      "claim": "Chart House specializes in unique cuisine and exceptional service",
+      "source": "https://www.chart-house.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJP54F8O4A2YgRO0yIo94ZC7Q",
+   "name": "The Riverside Market Cafe",
+   "category": "nightlife",
+   "metro": "broward",
+   "primary_type": "bar",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://theriversidemarket.com/about-us/",
+     "source_name": "The Riverside Market Cafe \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Riverside Market is located at 608 SW 12th Avenue, Fort Lauderdale, FL 33312",
+      "The Riverside Market is a family owned and operated restaurant in Fort Lauderdale",
+      "The Riverside Market serves over 550 craft beers",
+      "The Riverside Market has specialty wines and over 50 gourmet sodas, teas, and waters"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Family owned restaurant in Fort Lauderdale with over 550 craft beers",
+    "why_here": "Go for over 550 craft beers, specialty wines, and over 50 gourmet sodas, teas, and waters at this family owned and operated restaurant in Fort Lauderdale.",
+    "know_before": "Located at 608 SW 12th Avenue, Fort Lauderdale, FL 33312",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://theriversidemarket.com/about-us/"
+     ],
+     "why_here": [
+      "https://theriversidemarket.com/about-us/"
+     ],
+     "know_before": [
+      "https://theriversidemarket.com/about-us/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Riverside Market is located at 608 SW 12th Avenue, Fort Lauderdale, FL 33312",
+      "source": "https://theriversidemarket.com/about-us/"
+     },
+     {
+      "claim": "The Riverside Market is a family owned and operated restaurant in Fort Lauderdale",
+      "source": "https://theriversidemarket.com/about-us/"
+     },
+     {
+      "claim": "The Riverside Market serves over 550 craft beers",
+      "source": "https://theriversidemarket.com/about-us/"
+     },
+     {
+      "claim": "The Riverside Market has specialty wines and over 50 gourmet sodas, teas, and waters",
+      "source": "https://theriversidemarket.com/about-us/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJxXJBTBP17IgRE6FB01zaplY",
+   "name": "Railroad Square Art District",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "tourist_attraction",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.artdistrict.com/railroad-square",
+     "source_name": "Railroad Square Art District \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "A WWII-era industrial warehouse park turned urban core art district",
+      "Railroad Square is a 10-acre haven for the CREATIVES of Tallahassee with more than 70 shops, galleries, and small businesses",
+      "The First Friday Monthly Festival provides a lively, enjoyable experience with open galleries/shops, live music, and food",
+      "Many Railroad Square businesses open Wednesday through Sunday each week"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "WWII-era industrial warehouse park turned urban core art district",
+    "why_here": "Go for more than 70 shops, galleries, and small businesses across a 10-acre haven for the CREATIVES of Tallahassee, with open galleries/shops, live music, and food at the First Friday Monthly Festival.",
+    "know_before": "Many Railroad Square businesses open Wednesday through Sunday each week",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.artdistrict.com/railroad-square"
+     ],
+     "why_here": [
+      "https://www.artdistrict.com/railroad-square"
+     ],
+     "know_before": [
+      "https://www.artdistrict.com/railroad-square"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "A WWII-era industrial warehouse park turned urban core art district",
+      "source": "https://www.artdistrict.com/railroad-square"
+     },
+     {
+      "claim": "Railroad Square is a 10-acre haven for the CREATIVES of Tallahassee with more than 70 shops, galleries, and small businesses",
+      "source": "https://www.artdistrict.com/railroad-square"
+     },
+     {
+      "claim": "The First Friday Monthly Festival provides a lively, enjoyable experience with open galleries/shops, live music, and food",
+      "source": "https://www.artdistrict.com/railroad-square"
+     },
+     {
+      "claim": "Many Railroad Square businesses open Wednesday through Sunday each week",
+      "source": "https://www.artdistrict.com/railroad-square"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJr9lrRCy32YgR2foMft9iLDc",
+   "name": "Amaz\u00f3nico Miami",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.amazonicorestaurant.com/miami/",
+     "source_name": "Amaz\u00f3nico Miami \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Amaz\u00f3nico Miami in Brickell, spread across three floors offering Latin American inspired cuisine, exotic cocktails, live music, and an electric atmosphere",
+      "Reservations can be booked up to 30 days in advance",
+      "800 Brickell Avenue, 33131, Miami, FL",
+      "Amaz\u00f3nico Miami Restaurant, Rooftop, Bar & Lounge"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Latin American inspired cuisine, exotic cocktails, live music",
+    "why_here": "Go to Amaz\u00f3nico Miami in Brickell, spread across three floors offering Latin American inspired cuisine, exotic cocktails, live music, and an electric atmosphere in the Restaurant, Rooftop, Bar & Lounge.",
+    "know_before": "Reservations can be booked up to 30 days in advance",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.amazonicorestaurant.com/miami/"
+     ],
+     "why_here": [
+      "https://www.amazonicorestaurant.com/miami/"
+     ],
+     "know_before": [
+      "https://www.amazonicorestaurant.com/miami/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Amaz\u00f3nico Miami in Brickell, spread across three floors offering Latin American inspired cuisine, exotic cocktails, live music, and an electric atmosphere",
+      "source": "https://www.amazonicorestaurant.com/miami/"
+     },
+     {
+      "claim": "Reservations can be booked up to 30 days in advance",
+      "source": "https://www.amazonicorestaurant.com/miami/"
+     },
+     {
+      "claim": "800 Brickell Avenue, 33131, Miami, FL",
+      "source": "https://www.amazonicorestaurant.com/miami/"
+     },
+     {
+      "claim": "Amaz\u00f3nico Miami Restaurant, Rooftop, Bar & Lounge",
+      "source": "https://www.amazonicorestaurant.com/miami/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJK69z3qO22YgROBJC2vDIXAI",
+   "name": "CLUB SPACE",
+   "category": "nightlife",
+   "metro": "miami-dade",
+   "primary_type": "night_club",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.clubspace.com/",
+     "source_name": "CLUB SPACE \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Electronic music marathons in Downtown Miami",
+      "A Mecca for electronic music Marathons. Home to Miami's most dedicated dancefloor community",
+      "The Terrace Experience Opens at 11 p.m.",
+      "Club Space contains The Terrace, Floyd, and The Ground",
+      "34 NE 11th St Downtown Miami, FL 33132"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Electronic music marathons in Downtown Miami",
+    "why_here": "Go for electronic music marathons in Downtown Miami at a Mecca for electronic music Marathons, home to Miami's most dedicated dancefloor community, with The Terrace, Floyd, and The Ground.",
+    "know_before": "The Terrace Experience Opens at 11 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.clubspace.com/"
+     ],
+     "why_here": [
+      "https://www.clubspace.com/"
+     ],
+     "know_before": [
+      "https://www.clubspace.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Electronic music marathons in Downtown Miami",
+      "source": "https://www.clubspace.com/"
+     },
+     {
+      "claim": "A Mecca for electronic music Marathons. Home to Miami's most dedicated dancefloor community",
+      "source": "https://www.clubspace.com/"
+     },
+     {
+      "claim": "The Terrace Experience Opens at 11 p.m.",
+      "source": "https://www.clubspace.com/"
+     },
+     {
+      "claim": "Club Space contains The Terrace, Floyd, and The Ground",
+      "source": "https://www.clubspace.com/"
+     },
+     {
+      "claim": "34 NE 11th St Downtown Miami, FL 33132",
+      "source": "https://www.clubspace.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ24Kn3Jm32YgRXG6CiDF05ko",
+   "name": "Baires Grill - Coral Gables",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "argentinian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.bairesgrill.com/",
+     "source_name": "Baires Grill - Coral Gables \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Baires Grill | Authentic Argentine Resto",
+      "In 1999 we set out on a dream: To bring the best Argentinean dining experience to Miami",
+      "Premium cuts, Malbec and unforgettable nights",
+      "Coral Gables 180 ARAGON AVE. CORAL GABLES, FL 33134",
+      "Happy hour Monday to Friday: 4 p.m. \u2013 7 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Authentic Argentine restaurant in Coral Gables",
+    "why_here": "Go for the Argentinean dining experience Baires Grill set out to bring to Miami in 1999, with premium cuts and Malbec at 180 ARAGON AVE. CORAL GABLES, FL 33134 in Coral Gables.",
+    "know_before": "Happy hour is Monday to Friday: 4 p.m. \u2013 7 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.bairesgrill.com/"
+     ],
+     "why_here": [
+      "https://www.bairesgrill.com/"
+     ],
+     "know_before": [
+      "https://www.bairesgrill.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Baires Grill | Authentic Argentine Resto",
+      "source": "https://www.bairesgrill.com/"
+     },
+     {
+      "claim": "In 1999 we set out on a dream: To bring the best Argentinean dining experience to Miami",
+      "source": "https://www.bairesgrill.com/"
+     },
+     {
+      "claim": "Premium cuts, Malbec and unforgettable nights",
+      "source": "https://www.bairesgrill.com/"
+     },
+     {
+      "claim": "Coral Gables 180 ARAGON AVE. CORAL GABLES, FL 33134",
+      "source": "https://www.bairesgrill.com/"
+     },
+     {
+      "claim": "Happy hour Monday to Friday: 4 p.m. \u2013 7 p.m.",
+      "source": "https://www.bairesgrill.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJsSzTxNr9wogRj9Du3yLgZLU",
+   "name": "John's Pass Village & Boardwalk",
+   "category": "attractions",
+   "metro": "st-pete",
+   "primary_type": "tourist_attraction",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://johnspass.com/",
+     "source_name": "John's Pass Village & Boardwalk \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Located on the waterfront at Johns Pass, this quaint turn-of-the-century fishing village",
+      "Over one hundred merchants inhabit the Village with unique retail shopping, a variety of restaurants, the local fishing fleet, dolphin watching and shelling tours, boat rentals, parasailing and jet skiing",
+      "Open daily"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "turn-of-the-century fishing village on the waterfront",
+    "why_here": "Go for a quaint turn-of-the-century fishing village on the waterfront at Johns Pass, where over one hundred merchants inhabit the Village with unique retail shopping, a variety of restaurants, dolphin watching and shelling tours, boat rentals, parasailing and jet skiing.",
+    "know_before": "Open daily",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://johnspass.com/"
+     ],
+     "why_here": [
+      "https://johnspass.com/"
+     ],
+     "know_before": [
+      "https://johnspass.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Located on the waterfront at Johns Pass, this quaint turn-of-the-century fishing village",
+      "source": "https://johnspass.com/"
+     },
+     {
+      "claim": "Over one hundred merchants inhabit the Village with unique retail shopping, a variety of restaurants, the local fishing fleet, dolphin watching and shelling tours, boat rentals, parasailing and jet skiing",
+      "source": "https://johnspass.com/"
+     },
+     {
+      "claim": "Open daily",
+      "source": "https://johnspass.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJt5lAy2kb2YgRn4hYYw9G_6Y",
+   "name": "MTB Top Burgers",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "brazilian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://mtbtopburgers.com/menu/",
+     "source_name": "MTB Top Burgers \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Handcrafted, homemade and completely original Brazilian-style burgers. Made in South Florida since 2018",
+      "MTB Top Burgers serves Brazilian-style burgers, plates and milkshakes",
+      "The X-Tudo Burger has Angus beef with mozzarella, ham, a fried egg and bacon",
+      "MTB Top Burgers Coral Springs is at 4320 N State Road 7, Coral Springs, FL 33067"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Handcrafted, homemade and completely original Brazilian-style burgers",
+    "why_here": "Go for handcrafted, homemade and original Brazilian-style burgers made in South Florida since 2018, including the signature X-Tudo Burger and Brazilian-style burgers, plates and milkshakes on the menu.",
+    "know_before": "The Coral Springs location is at 4320 N State Road 7, Coral Springs, FL 33067",
+    "local_tip": "Try the signature X-Tudo Burger",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://mtbtopburgers.com/menu/"
+     ],
+     "why_here": [
+      "https://mtbtopburgers.com/menu/"
+     ],
+     "know_before": [
+      "https://mtbtopburgers.com/menu/"
+     ],
+     "local_tip": [
+      "https://mtbtopburgers.com/menu/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Handcrafted, homemade and completely original Brazilian-style burgers. Made in South Florida since 2018",
+      "source": "https://mtbtopburgers.com/menu/"
+     },
+     {
+      "claim": "MTB Top Burgers serves Brazilian-style burgers, plates and milkshakes",
+      "source": "https://mtbtopburgers.com/menu/"
+     },
+     {
+      "claim": "The X-Tudo Burger has Angus beef with mozzarella, ham, a fried egg and bacon",
+      "source": "https://mtbtopburgers.com/menu/"
+     },
+     {
+      "claim": "MTB Top Burgers Coral Springs is at 4320 N State Road 7, Coral Springs, FL 33067",
+      "source": "https://mtbtopburgers.com/menu/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJQRYUPeT6wogRmQ3a5YR2QJc",
+   "name": "Golden Bear Restaurant",
+   "category": "food",
+   "metro": "st-pete",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://goldenbearlargo.com/",
+     "source_name": "Golden Bear Restaurant \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Golden Bear Restaurant serves breakfast and lunch in Largo",
+      "Golden Bear Restaurant serves classic American comfort food",
+      "Golden Bear Restaurant has served Largo since the early 1980s",
+      "Golden Bear Restaurant is located at 12540 Starkey Road in Largo, Florida 33773",
+      "Hours are Monday through Friday 6 a.m. to 3 p.m. and Saturday and Sunday 6 a.m. to 2 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Breakfast and lunch diner serving classic American comfort food in Largo",
+    "why_here": "Go for breakfast and lunch with classic American comfort food in Largo. Golden Bear Restaurant has served Largo since the early 1980s at 12540 Starkey Road in Largo, Florida 33773.",
+    "know_before": "Hours are Monday through Friday 6 a.m. to 3 p.m. and Saturday and Sunday 6 a.m. to 2 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://goldenbearlargo.com/"
+     ],
+     "why_here": [
+      "https://goldenbearlargo.com/"
+     ],
+     "know_before": [
+      "https://goldenbearlargo.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Golden Bear Restaurant serves breakfast and lunch in Largo",
+      "source": "https://goldenbearlargo.com/"
+     },
+     {
+      "claim": "Golden Bear Restaurant serves classic American comfort food",
+      "source": "https://goldenbearlargo.com/"
+     },
+     {
+      "claim": "Golden Bear Restaurant has served Largo since the early 1980s",
+      "source": "https://goldenbearlargo.com/"
+     },
+     {
+      "claim": "Golden Bear Restaurant is located at 12540 Starkey Road in Largo, Florida 33773",
+      "source": "https://goldenbearlargo.com/"
+     },
+     {
+      "claim": "Hours are Monday through Friday 6 a.m. to 3 p.m. and Saturday and Sunday 6 a.m. to 2 p.m.",
+      "source": "https://goldenbearlargo.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJAQBALbrX2IgRzUc67GBLlJI",
+   "name": "Cox Science Center and Aquarium",
+   "category": "attractions",
+   "metro": "palm-beach",
+   "primary_type": "museum",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.coxsciencecenter.org/",
+     "source_name": "Cox Science Center and Aquarium \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Cox Science Center and Aquarium is located at 4801 Dreher Trail North, West Palm Beach, FL 33405",
+      "Hours are Monday through Friday 9:00 a.m. to 5:00 p.m. and Saturday through Sunday 10:00 a.m. to 6:00 p.m."
+     ]
+    },
+    {
+     "source": "https://www.coxsciencecenter.org/node/579",
+     "source_name": "Cox Science Center and Aquarium \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Aquariums of the Atlantic houses Florida native fish in a 10,000-gallon aquarium",
+      "Explorers' Cove is for little adventurers ages six and under",
+      "The Fisher Family Science Trail is a quarter-mile trail"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Science center and aquarium with Aquariums of the Atlantic in West Palm Beach",
+    "why_here": "Visit for Aquariums of the Atlantic and the Fisher Family Science Trail in West Palm Beach. Explorers' Cove is for little adventurers ages six and under, with ocean fun and discovery.",
+    "know_before": "Hours are Monday through Friday 9:00 a.m. to 5:00 p.m. and Saturday through Sunday 10:00 a.m. to 6:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.coxsciencecenter.org/",
+      "https://www.coxsciencecenter.org/node/579"
+     ],
+     "why_here": [
+      "https://www.coxsciencecenter.org/",
+      "https://www.coxsciencecenter.org/node/579"
+     ],
+     "know_before": [
+      "https://www.coxsciencecenter.org/",
+      "https://www.coxsciencecenter.org/node/579"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Cox Science Center and Aquarium is located at 4801 Dreher Trail North, West Palm Beach, FL 33405",
+      "source": "https://www.coxsciencecenter.org/"
+     },
+     {
+      "claim": "Hours are Monday through Friday 9:00 a.m. to 5:00 p.m. and Saturday through Sunday 10:00 a.m. to 6:00 p.m.",
+      "source": "https://www.coxsciencecenter.org/"
+     },
+     {
+      "claim": "Aquariums of the Atlantic houses Florida native fish in a 10,000-gallon aquarium",
+      "source": "https://www.coxsciencecenter.org/node/579"
+     },
+     {
+      "claim": "Explorers' Cove is for little adventurers ages six and under",
+      "source": "https://www.coxsciencecenter.org/node/579"
+     },
+     {
+      "claim": "The Fisher Family Science Trail is a quarter-mile trail",
+      "source": "https://www.coxsciencecenter.org/node/579"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJewYW5pzhwogRVwUNT6orFW8",
+   "name": "Joey Brooklyn's Famous Pizza Kitchen",
+   "category": "food",
+   "metro": "st-pete",
+   "primary_type": "pizza_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://joeybrooklynsfamouspizzakitchen.com/",
+     "source_name": "Joey Brooklyn's Famous Pizza Kitchen \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Joey Brooklyn's Famous Pizza Kitchen is at 210 1st Ave N, St. Petersburg, FL 33701",
+      "Joey Brooklyn's Famous Pizza Kitchen is in Downtown St. Petersburg at Jannus Live",
+      "Pizza is served as whole pies, thin crust, thick crust, or by the slice",
+      "Hours on Monday are 11:00 a.m. to 1:00 a.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Pizza kitchen in Downtown St. Petersburg at Jannus Live, serving pizza by the slice",
+    "why_here": "Go for pizza as whole pies, thin crust, thick crust, or by the slice in Downtown St. Petersburg at Jannus Live. Joey Brooklyn's Famous Pizza Kitchen is at 210 1st Ave N, St. Petersburg, FL 33701.",
+    "know_before": "Hours on Monday are 11:00 a.m. to 1:00 a.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://joeybrooklynsfamouspizzakitchen.com/"
+     ],
+     "why_here": [
+      "https://joeybrooklynsfamouspizzakitchen.com/"
+     ],
+     "know_before": [
+      "https://joeybrooklynsfamouspizzakitchen.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Joey Brooklyn's Famous Pizza Kitchen is at 210 1st Ave N, St. Petersburg, FL 33701",
+      "source": "https://joeybrooklynsfamouspizzakitchen.com/"
+     },
+     {
+      "claim": "Joey Brooklyn's Famous Pizza Kitchen is in Downtown St. Petersburg at Jannus Live",
+      "source": "https://joeybrooklynsfamouspizzakitchen.com/"
+     },
+     {
+      "claim": "Pizza is served as whole pies, thin crust, thick crust, or by the slice",
+      "source": "https://joeybrooklynsfamouspizzakitchen.com/"
+     },
+     {
+      "claim": "Hours on Monday are 11:00 a.m. to 1:00 a.m.",
+      "source": "https://joeybrooklynsfamouspizzakitchen.com/"
+     }
+    ]
+   }
+  }
+ ]
+}

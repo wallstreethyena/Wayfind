@@ -14,7 +14,7 @@ import { captureOrQueue } from "../../lib/browserAnalytics.js";
 import { BooGhostSvg } from "./booGhost.js";
 import { SantaSvg, santaPose } from "./santaArt.js";
 import SantaDock from "./SantaDock.js";
-import { pickCharacter, santaSeasonOpen, santaApiFor, isChristmasPath, CHRISTMAS_PATH, SANTA_API, SANTA_HIDE_KEY } from "./companionCharacter.js";
+import { pickCharacter, santaSeasonOpen, santaApiFor, isChristmasPath, CHRISTMAS_PATH, SANTA_API, SANTA_HIDE_KEY, santaOffPath } from "./companionCharacter.js";
 import { SANTA, SANTA_CHIPS, SANTA_FINDER_CHIPS, SANTA_GAGS, SANTA_ZAP_LINES, SANTA_REACT_LINES, santaTimeLines, santaRouteLine, santaOpenerFor } from "./santaCopy.js";
 import { openerFor } from "./booOpeners.js";
 import { coverageState, coverageLines, coverageSheetLine, unknownSheetLine, coverageButtonText, roundMiles } from "./booCoverage.js";
@@ -624,10 +624,10 @@ export default function BooCompanion() {
   useEffect(() => {
     let ok = false;
     try {
-      ok = seasonFor(character) && !reservedPath(pathname);
+      ok = seasonFor(character) && !reservedPath(pathname) && !(character === "santa" && santaOffPath(pathname));
       // Each character has its own hide key: hiding Boo never hides Santa.
       if (ok) ok = (santa ? sessionStorage.getItem(SANTA_HIDE_KEY) : sessionStorage.getItem(HIDE_KEY)) !== "1";
-    } catch { ok = seasonFor(character) && !reservedPath(pathname); }
+    } catch { ok = seasonFor(character) && !reservedPath(pathname) && !(character === "santa" && santaOffPath(pathname)); }
     setElig({ ok, ch: character });
   }, [pathname]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -1083,8 +1083,23 @@ export default function BooCompanion() {
 
   // One place that puts a line in the bubble: picks the side with room, owns
   // the hide timer, and records when he last spoke so reactions keep a gap.
-  const showBubble = useCallback((text, ms) => {
-    relocateIfCovered(estimateBubble(text));
+  const showBubble = useCallback((text, ms, must) => {
+    const need = estimateBubble(text);
+    relocateIfCovered(need);
+    // Owner 2026-10-30: he never talks in front of text. An unprompted line
+    // with no clear side (a packed phone screen) is skipped, not laid over the
+    // menu or a heading; he will find a clear moment for the next one. A tap on
+    // him (zapBoo) still always answers.
+    // `must`: the out-of-coverage explanation, which the owner wants every
+    // visitor to see, still shows on the least covered side.
+    if (!must) {
+      const cur = reducedRef.current ? corner() : posRef.current, b = bounds();
+      const pref = { v: cur.y < 150 ? "below" : "above", h: cur.x + SIZE / 2 > b.vw / 2 ? "left" : "right" };
+      // controlRects returns controls only; readable words are the second list.
+      // A clear side means both, or the line would land on a heading.
+      const [ctl, txt] = restLists(true);
+      if (!bubbleSideIfClear(cur.x, cur.y, SIZE, need.bw, need.bh, pref, ctl, b.vw, b.vh, txt)) { track("boo_line_skipped_no_room", { path: pathRef.current }); return; }
+    }
     const { v, h } = sideFor(text);
     clearTimeout(bubbleT.current);
     lastSay.current = Date.now();
@@ -1379,7 +1394,7 @@ export default function BooCompanion() {
       const delay = travel ? wait : 0;
       showTimer = window.setTimeout(() => {
         if (dead || openRef.current) return;
-        showBubble(text);
+        showBubble(text, undefined, src === "coverage");
         if (src !== "opener" && src !== "route" && !travel && Math.random() < 0.4) { prefetch("sassy"); setPose("sassy"); }
         track("boo_companion_gag", { path: pathRef.current, n: gagCount.current, source: src, antic: name });
       }, delay);
@@ -1399,7 +1414,7 @@ export default function BooCompanion() {
           if (dead || openRef.current || coverQuiet()) return;
           const pp = last ? "up" : i === 1 ? "idle" : "talk";
           prefetch(pp); setPose(pp);
-          showBubble(line);
+          showBubble(line, undefined, true);
         }, at));
         at += readMs(line) + LINE_GAP;
       });
@@ -1686,7 +1701,7 @@ export default function BooCompanion() {
     const on = (e) => {
       let ok = false;
       const ch = charFor(pathRef.current);
-      try { ok = seasonFor(ch) && !reservedPath(pathRef.current); } catch { /* ignore */ }
+      try { ok = seasonFor(ch) && !reservedPath(pathRef.current) && !(ch === "santa" && santaOffPath(pathRef.current)); } catch { /* ignore */ }
       if (!ok) return;
       try { if (ch === "santa") sessionStorage.removeItem(SANTA_HIDE_KEY); else sessionStorage.removeItem(HIDE_KEY); } catch { /* ignore */ }
       setElig({ ok: true, ch });

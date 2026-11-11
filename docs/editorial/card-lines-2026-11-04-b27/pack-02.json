@@ -1,0 +1,781 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 27. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJr4sd4uJB24gR4LDd663JYLs",
+   "name": "Izzy's Fish & Oyster",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.izzysftmyers.com/",
+     "source_name": "Izzy's Fish & Oyster \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Izzy's Fish & Oyster serves fresh seafood in Fort Myers",
+      "Izzy's describes its dining as unpretentious dining with ingredient-forward, comfort food",
+      "Sunday to Thursday hours are 11:00 a.m. to 9:00 p.m.",
+      "Friday to Saturday hours are 11:00 a.m. to 10:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Fresh seafood and comfort food in Fort Myers",
+    "why_here": "Come for fresh seafood in Fort Myers at a spot that describes its dining as unpretentious dining with ingredient-forward, comfort food. Fish and oysters are the focus in the name Izzy's Fish & Oyster.",
+    "know_before": "Sunday to Thursday hours are 11:00 a.m. to 9:00 p.m.; Friday to Saturday hours are 11:00 a.m. to 10:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.izzysftmyers.com/"
+     ],
+     "why_here": [
+      "https://www.izzysftmyers.com/"
+     ],
+     "know_before": [
+      "https://www.izzysftmyers.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Izzy's Fish & Oyster serves fresh seafood in Fort Myers",
+      "source": "https://www.izzysftmyers.com/"
+     },
+     {
+      "claim": "Izzy's describes its dining as unpretentious dining with ingredient-forward, comfort food",
+      "source": "https://www.izzysftmyers.com/"
+     },
+     {
+      "claim": "Sunday to Thursday hours are 11:00 a.m. to 9:00 p.m.",
+      "source": "https://www.izzysftmyers.com/"
+     },
+     {
+      "claim": "Friday to Saturday hours are 11:00 a.m. to 10:00 p.m.",
+      "source": "https://www.izzysftmyers.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJZQxD4rdbw4gRtyFW5ObUJNM",
+   "name": "Gold Rush BBQ",
+   "category": "food",
+   "metro": "manatee-sarasota",
+   "primary_type": "barbecue_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.goldrushbbq.com/",
+     "source_name": "Gold Rush BBQ \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Gold Rush BBQ is in Venice",
+      "Gold Rush BBQ offers dry rubbed, hickory smoked Ribs, Chicken, Pulled Pork and Beef Brisket",
+      "Gold Rush BBQ also offers sandwiches, burgers, steaks and fresh seafood",
+      "All You Can Eat Specials are dine in only",
+      "Gold Rush BBQ is open 11 a.m. - 9 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Dry rubbed, hickory smoked Ribs, Chicken, Pulled Pork and Beef Brisket in Venice",
+    "why_here": "Go for dry rubbed, hickory smoked Ribs, Chicken, Pulled Pork and Beef Brisket in Venice, with sandwiches, burgers, steaks and fresh seafood also offered at Gold Rush BBQ.",
+    "know_before": "All You Can Eat Specials are dine in only",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.goldrushbbq.com/"
+     ],
+     "why_here": [
+      "https://www.goldrushbbq.com/"
+     ],
+     "know_before": [
+      "https://www.goldrushbbq.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Gold Rush BBQ is in Venice",
+      "source": "https://www.goldrushbbq.com/"
+     },
+     {
+      "claim": "Gold Rush BBQ offers dry rubbed, hickory smoked Ribs, Chicken, Pulled Pork and Beef Brisket",
+      "source": "https://www.goldrushbbq.com/"
+     },
+     {
+      "claim": "Gold Rush BBQ also offers sandwiches, burgers, steaks and fresh seafood",
+      "source": "https://www.goldrushbbq.com/"
+     },
+     {
+      "claim": "All You Can Eat Specials are dine in only",
+      "source": "https://www.goldrushbbq.com/"
+     },
+     {
+      "claim": "Gold Rush BBQ is open 11 a.m. - 9 p.m.",
+      "source": "https://www.goldrushbbq.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJAxBmzS0b2YgRWQDzYh27TiM",
+   "name": "KPOT Korean BBQ & Hot Pot",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "korean_barbecue_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://thekpot.com/",
+     "source_name": "KPOT Korean BBQ & Hot Pot \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "KPOT blends the culinary traditions of Korean BBQ and Hot Pot",
+      "Guests at KPOT grill premium cuts of meat at the table",
+      "KPOT offers a variety of rich broths, fresh vegetables, and hand-selected ingredients",
+      "Korean BBQ selection includes beef brisket, pork belly, and short ribs",
+      "Hot Pot includes thinly sliced meats, seafood, vegetables, and noodles"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Korean BBQ and Hot Pot restaurant where guests grill meat at the table",
+    "why_here": "Come to KPOT for Korean BBQ and Hot Pot where you grill premium cuts of meat at the table, including beef brisket, pork belly, and short ribs, with rich broths and fresh vegetables.",
+    "know_before": "KPOT offers a variety of rich broths, fresh vegetables, and hand-selected ingredients",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://thekpot.com/"
+     ],
+     "why_here": [
+      "https://thekpot.com/"
+     ],
+     "know_before": [
+      "https://thekpot.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "KPOT blends the culinary traditions of Korean BBQ and Hot Pot",
+      "source": "https://thekpot.com/"
+     },
+     {
+      "claim": "Guests at KPOT grill premium cuts of meat at the table",
+      "source": "https://thekpot.com/"
+     },
+     {
+      "claim": "KPOT offers a variety of rich broths, fresh vegetables, and hand-selected ingredients",
+      "source": "https://thekpot.com/"
+     },
+     {
+      "claim": "Korean BBQ selection includes beef brisket, pork belly, and short ribs",
+      "source": "https://thekpot.com/"
+     },
+     {
+      "claim": "Hot Pot includes thinly sliced meats, seafood, vegetables, and noodles",
+      "source": "https://thekpot.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJrwZdPRk53YgRsOMStUtcui8",
+   "name": "Bonnet Springs Park",
+   "category": "attractions",
+   "metro": "avon-park-fl",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://bonnetspringspark.com/",
+     "source_name": "Bonnet Springs Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Bonnet Springs Park is a 168-acre urban-nature park in Lakeland",
+      "Bonnet Springs Park is open daily with free admission",
+      "Bonnet Springs Park has scenic trails, gardens, playgrounds, and unique attractions",
+      "Gates open at 6 a.m. and park gates close at 6 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "168-acre urban-nature park in Lakeland with free admission",
+    "why_here": "Explore scenic trails, gardens, playgrounds, and unique attractions in a 168-acre urban-nature park in Lakeland, with Bonnet Springs Park open daily with free admission.",
+    "know_before": "Gates open at 6 a.m. and park gates close at 6 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://bonnetspringspark.com/"
+     ],
+     "why_here": [
+      "https://bonnetspringspark.com/"
+     ],
+     "know_before": [
+      "https://bonnetspringspark.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Bonnet Springs Park is a 168-acre urban-nature park in Lakeland",
+      "source": "https://bonnetspringspark.com/"
+     },
+     {
+      "claim": "Bonnet Springs Park is open daily with free admission",
+      "source": "https://bonnetspringspark.com/"
+     },
+     {
+      "claim": "Bonnet Springs Park has scenic trails, gardens, playgrounds, and unique attractions",
+      "source": "https://bonnetspringspark.com/"
+     },
+     {
+      "claim": "Gates open at 6 a.m. and park gates close at 6 p.m.",
+      "source": "https://bonnetspringspark.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJC3cAVaG-2YgRnDe3GmQcsrY",
+   "name": "Baru Doral Resto-Bar",
+   "category": "nightlife",
+   "metro": "miami-dade",
+   "primary_type": "bar",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.barudoral.com/",
+     "source_name": "Baru Doral Resto-Bar \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Bar\u00fa Doral offers drinks, music and food",
+      "Bar\u00fa Doral captures Latin culture from the flavors of his cuisine, to the rhythms of his music",
+      "Bar\u00fa Doral is at 11402 NW 41st St. Doral, FL 33178"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Latin food, drinks and music in Doral",
+    "why_here": "Go for drinks, music and food shaped by Latin culture, from the flavors of his cuisine, to the rhythms of his music. Bar\u00fa Doral brings that Latin culture focus to Doral.",
+    "know_before": "Bar\u00fa Doral is at 11402 NW 41st St. Doral, FL 33178.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.barudoral.com/"
+     ],
+     "why_here": [
+      "https://www.barudoral.com/"
+     ],
+     "know_before": [
+      "https://www.barudoral.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Bar\u00fa Doral offers drinks, music and food",
+      "source": "https://www.barudoral.com/"
+     },
+     {
+      "claim": "Bar\u00fa Doral captures Latin culture from the flavors of his cuisine, to the rhythms of his music",
+      "source": "https://www.barudoral.com/"
+     },
+     {
+      "claim": "Bar\u00fa Doral is at 11402 NW 41st St. Doral, FL 33178",
+      "source": "https://www.barudoral.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ7WZ06yJj54gRcB01izHLtKY",
+   "name": "Made In PR Latin Cuisine Orlando Fl.",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://madeinpuertoricoorlando.com/",
+     "source_name": "Made In PR Latin Cuisine Orlando Fl. \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Made in Puerto Rico Latin Cuisine is a Caribbean Style Restaurant and Lounge in Orlando",
+      "Its signature dish is the Trifongo, a blend of green plantains, sweet plantains and yucca cassava",
+      "Signature items include Pernil Asado, Paella Puerto Rico and Churrasco",
+      "Wednesday hours are 12:00 p.m. to 10:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Caribbean Style Restaurant and Lounge serving the Trifongo in Orlando",
+    "why_here": "Try the Trifongo, a blend of green plantains, sweet plantains and yucca cassava, at this Caribbean Style Restaurant and Lounge in Orlando. Signature items include Pernil Asado, Paella Puerto Rico and Churrasco.",
+    "know_before": "Wednesday hours are 12:00 p.m. to 10:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://madeinpuertoricoorlando.com/"
+     ],
+     "why_here": [
+      "https://madeinpuertoricoorlando.com/"
+     ],
+     "know_before": [
+      "https://madeinpuertoricoorlando.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Made in Puerto Rico Latin Cuisine is a Caribbean Style Restaurant and Lounge in Orlando",
+      "source": "https://madeinpuertoricoorlando.com/"
+     },
+     {
+      "claim": "Its signature dish is the Trifongo, a blend of green plantains, sweet plantains and yucca cassava",
+      "source": "https://madeinpuertoricoorlando.com/"
+     },
+     {
+      "claim": "Signature items include Pernil Asado, Paella Puerto Rico and Churrasco",
+      "source": "https://madeinpuertoricoorlando.com/"
+     },
+     {
+      "claim": "Wednesday hours are 12:00 p.m. to 10:00 p.m.",
+      "source": "https://madeinpuertoricoorlando.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJpQ8EVlCt2YgRVvFGgAGr7yM",
+   "name": "Divieto Ristorante - Aventura",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.divietoristorante.com/menu",
+     "source_name": "Divieto Ristorante - Aventura \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Divieto Ristorante offers over 70 Signature Italian Dishes",
+      "DIVIETO POLPO is tender marinated octopus served over roasted potatoes, peppers, and red onion",
+      "All of our pizzas are thin crust at Divieto Ristorante"
+     ]
+    },
+    {
+     "source": "https://www.divietoristorante.com/locations",
+     "source_name": "Divieto Ristorante - Aventura \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Divieto Ristorante Aventura is at 19575 Biscayne Blvd. #375"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Over 70 Signature Italian Dishes at Divieto Ristorante in Aventura",
+    "why_here": "Try DIVIETO POLPO, tender marinated octopus served over roasted potatoes, peppers, and red onion, from over 70 Signature Italian Dishes. All of our pizzas are thin crust at Divieto Ristorante.",
+    "know_before": "Divieto Ristorante Aventura is at 19575 Biscayne Blvd. #375.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.divietoristorante.com/menu",
+      "https://www.divietoristorante.com/locations"
+     ],
+     "why_here": [
+      "https://www.divietoristorante.com/menu",
+      "https://www.divietoristorante.com/locations"
+     ],
+     "know_before": [
+      "https://www.divietoristorante.com/menu",
+      "https://www.divietoristorante.com/locations"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Divieto Ristorante offers over 70 Signature Italian Dishes",
+      "source": "https://www.divietoristorante.com/menu"
+     },
+     {
+      "claim": "DIVIETO POLPO is tender marinated octopus served over roasted potatoes, peppers, and red onion",
+      "source": "https://www.divietoristorante.com/menu"
+     },
+     {
+      "claim": "All of our pizzas are thin crust at Divieto Ristorante",
+      "source": "https://www.divietoristorante.com/menu"
+     },
+     {
+      "claim": "Divieto Ristorante Aventura is at 19575 Biscayne Blvd. #375",
+      "source": "https://www.divietoristorante.com/locations"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJoVbu0YXmwogRNCmNDswa5yU",
+   "name": "Glory Days Grill",
+   "category": "nightlife",
+   "metro": "st-pete",
+   "primary_type": "sports_bar",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.glorydaysgrill.com/locations/fl-tyrone/",
+     "source_name": "Glory Days Grill \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Glory Days Grill Tyrone is at 4088 Park Street N, St Petersburg, FL 33709",
+      "Glory Days Grill Tyrone serves jumbo chicken wings with flavorful sauces",
+      "Glory Days Grill serves hand-crafted burgers",
+      "Glory Days Grill serves the Fabulous Fish Fry"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "jumbo chicken wings, hand-crafted burgers and the Fabulous Fish Fry",
+    "why_here": "Come for jumbo chicken wings with flavorful sauces and hand-crafted burgers, and try the Fabulous Fish Fry on the menu during your visit.",
+    "know_before": "Glory Days Grill Tyrone is at 4088 Park Street N, St Petersburg, FL 33709.",
+    "local_tip": "Try the Fabulous Fish Fry.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.glorydaysgrill.com/locations/fl-tyrone/"
+     ],
+     "why_here": [
+      "https://www.glorydaysgrill.com/locations/fl-tyrone/"
+     ],
+     "know_before": [
+      "https://www.glorydaysgrill.com/locations/fl-tyrone/"
+     ],
+     "local_tip": [
+      "https://www.glorydaysgrill.com/locations/fl-tyrone/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Glory Days Grill Tyrone is at 4088 Park Street N, St Petersburg, FL 33709",
+      "source": "https://www.glorydaysgrill.com/locations/fl-tyrone/"
+     },
+     {
+      "claim": "Glory Days Grill Tyrone serves jumbo chicken wings with flavorful sauces",
+      "source": "https://www.glorydaysgrill.com/locations/fl-tyrone/"
+     },
+     {
+      "claim": "Glory Days Grill serves hand-crafted burgers",
+      "source": "https://www.glorydaysgrill.com/locations/fl-tyrone/"
+     },
+     {
+      "claim": "Glory Days Grill serves the Fabulous Fish Fry",
+      "source": "https://www.glorydaysgrill.com/locations/fl-tyrone/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJrZP7x3rhwogRawwn-2hvnOY",
+   "name": "Three Birds Tavern",
+   "category": "food",
+   "metro": "st-pete",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.threebirdstavern.com/",
+     "source_name": "Three Birds Tavern \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Three Birds Tavern is in a century-old farmhouse",
+      "Three Birds Tavern embodies the spirit of Old Florida",
+      "Three Birds Tavern is at 1492 4th Street N, St. Petersburg, FL 33704",
+      "Three Birds Tavern is open Sunday through Thursday from 11 a.m. to 10 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "century-old farmhouse embodying the spirit of Old Florida",
+    "why_here": "Relax in a century-old farmhouse that embodies the spirit of Old Florida, with room to linger with family, friends and neighbors during a casual visit.",
+    "know_before": "Three Birds Tavern is open Sunday through Thursday from 11 a.m. to 10 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.threebirdstavern.com/"
+     ],
+     "why_here": [
+      "https://www.threebirdstavern.com/"
+     ],
+     "know_before": [
+      "https://www.threebirdstavern.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Three Birds Tavern is in a century-old farmhouse",
+      "source": "https://www.threebirdstavern.com/"
+     },
+     {
+      "claim": "Three Birds Tavern embodies the spirit of Old Florida",
+      "source": "https://www.threebirdstavern.com/"
+     },
+     {
+      "claim": "Three Birds Tavern is at 1492 4th Street N, St. Petersburg, FL 33704",
+      "source": "https://www.threebirdstavern.com/"
+     },
+     {
+      "claim": "Three Birds Tavern is open Sunday through Thursday from 11 a.m. to 10 p.m.",
+      "source": "https://www.threebirdstavern.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJwacPloS02YgRczTrK6Zixwk",
+   "name": "The Fillmore Miami Beach",
+   "category": "beach",
+   "metro": "miami-dade",
+   "primary_type": "live_music_venue",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.fillmore-miami.com/our-story",
+     "source_name": "The Fillmore Miami Beach \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Fillmore Miami Beach originally opened as the Miami Beach Municipal Auditorium in 1950",
+      "The Fillmore Miami Beach is a concert venue",
+      "In 1964, the venue welcomed The Jackie Gleason Show and hosted The Dick Clark Show and The Ed Sullivan Show",
+      "The theater was renamed the Jackie Gleason Theater in 1987",
+      "In 2007, the venue became The Fillmore Miami Beach",
+      "The Fillmore Miami Beach is at 1700 Washington Ave, Miami Beach, FL 33139"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "concert venue opened as the Miami Beach Municipal Auditorium in 1950",
+    "why_here": "See a concert at a venue opened as the Miami Beach Municipal Auditorium in 1950, renamed the Jackie Gleason Theater in 1987, and became The Fillmore Miami Beach in 2007.",
+    "know_before": "The Fillmore Miami Beach is at 1700 Washington Ave, Miami Beach, FL 33139.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.fillmore-miami.com/our-story"
+     ],
+     "why_here": [
+      "https://www.fillmore-miami.com/our-story"
+     ],
+     "know_before": [
+      "https://www.fillmore-miami.com/our-story"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Fillmore Miami Beach originally opened as the Miami Beach Municipal Auditorium in 1950",
+      "source": "https://www.fillmore-miami.com/our-story"
+     },
+     {
+      "claim": "The Fillmore Miami Beach is a concert venue",
+      "source": "https://www.fillmore-miami.com/our-story"
+     },
+     {
+      "claim": "In 1964, the venue welcomed The Jackie Gleason Show and hosted The Dick Clark Show and The Ed Sullivan Show",
+      "source": "https://www.fillmore-miami.com/our-story"
+     },
+     {
+      "claim": "The theater was renamed the Jackie Gleason Theater in 1987",
+      "source": "https://www.fillmore-miami.com/our-story"
+     },
+     {
+      "claim": "In 2007, the venue became The Fillmore Miami Beach",
+      "source": "https://www.fillmore-miami.com/our-story"
+     },
+     {
+      "claim": "The Fillmore Miami Beach is at 1700 Washington Ave, Miami Beach, FL 33139",
+      "source": "https://www.fillmore-miami.com/our-story"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJd_A5uzGxwogRaEo_JQUJKlQ",
+   "name": "The Living Room of Wesley Chapel",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.tlr.restaurant/",
+     "source_name": "The Living Room of Wesley Chapel \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Living Room is a family-owned, chef-driven New American restaurant",
+      "Everything at The Living Room is scratch-made",
+      "The Living Room in Wesley Chapel is at 2001 Piazza Ave, Suite 100, Wesley Chapel, FL 33543",
+      "The Living Room serves craft cocktails",
+      "Weekend brunch at The Living Room runs Saturday and Sunday"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Family-owned, chef-driven New American dining, scratch-made",
+    "why_here": "Try chef-driven New American dining where everything is scratch-made, pair the meal with craft cocktails, and return Saturday and Sunday for weekend brunch.",
+    "know_before": "Weekend brunch runs Saturday and Sunday.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.tlr.restaurant/"
+     ],
+     "why_here": [
+      "https://www.tlr.restaurant/"
+     ],
+     "know_before": [
+      "https://www.tlr.restaurant/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Living Room is a family-owned, chef-driven New American restaurant",
+      "source": "https://www.tlr.restaurant/"
+     },
+     {
+      "claim": "Everything at The Living Room is scratch-made",
+      "source": "https://www.tlr.restaurant/"
+     },
+     {
+      "claim": "The Living Room in Wesley Chapel is at 2001 Piazza Ave, Suite 100, Wesley Chapel, FL 33543",
+      "source": "https://www.tlr.restaurant/"
+     },
+     {
+      "claim": "The Living Room serves craft cocktails",
+      "source": "https://www.tlr.restaurant/"
+     },
+     {
+      "claim": "Weekend brunch at The Living Room runs Saturday and Sunday",
+      "source": "https://www.tlr.restaurant/"
+     }
+    ]
+   }
+  }
+ ]
+}

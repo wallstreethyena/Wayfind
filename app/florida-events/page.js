@@ -30,7 +30,7 @@ export const revalidate = 3600;
 // Packed + scrubbed (lib/curatedEventsCache.js): the raw row list passed
 // Next's 2 MB data-cache limit, so the hourly refresh never saved and one old
 // entry was served for good. New key retires that pinned entry.
-const fetchHubEvents = cachedCuratedEventList("fetchHubEvents", ["florida-events-hub-packed-v2"]);
+const fetchHubEvents = cachedCuratedEventList("fetchHubEvents", ["florida-events-hub-packed-v3-holiday-discovery"]);
 
 const TITLE = "Florida Events 2026: What's Actually Worth Going To";
 const DESC = "Verified Florida festival dates, checked against official sources: Halloween Horror Nights, Fantasy Fest, Hulaween, EDC, Gasparilla.";

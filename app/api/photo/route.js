@@ -3,6 +3,7 @@ import { gateShut, spendAllow, spendAllowPhotos, spendAllowPhotosDetailed, photo
 // Licensed images keep their normal cache policy. Google image bytes and same-
 // photo credits use the shared private store; metadata remains revocable.
 import { NextResponse } from "next/server";
+import { waitUntil } from "@vercel/functions";
 import { FALLBACK_PATH, PHOTO_REF_RX, placeIdFromRef, resolvePlacePhoto } from "../../../lib/placePhotoServe";
 import { findFreePhoto } from "../../../lib/freePhoto";
 import { recordPhotoOutcome, recordPhotoDeniedCeiling, ledgerOutcomeClass } from "../../../lib/photoOutcomes";
@@ -240,10 +241,14 @@ async function handlePhotoGet(req) {
   // Every other reason (cache/inventory/gate-shut/unconfigured/
   // probe-no-spend/no-photo) is a free read with nothing Google-side to
   // count, and correctly records nothing here.
+  const outcomeWrites = [];
+  const queueOutcome = (cls) => {
+    try { outcomeWrites.push(Promise.resolve(recordPhotoOutcome(cls)).catch(() => {})); } catch { /* telemetry only */ }
+  };
   if (!probe) {
     const outcomeClass = result.reason === "spend-denied" ? ledgerOutcomeClass(result.ledgerReason) : result.reason === "not-page-request" ? "not-page-request" : result.reason === "not-place-id" ? "not-place-id" : result.upstream;
     if (outcomeClass) {
-      try { await recordPhotoOutcome(outcomeClass); } catch { /* recordPhotoOutcome never throws; defensive anyway */ }
+      queueOutcome(outcomeClass);
     }
     // 2026-09-30: on a LEDGER denial, also record which ceiling refused. The
     // Sep 24-27 blackout left no trace of the value that caused it, because
@@ -255,7 +260,7 @@ async function handlePhotoGet(req) {
       try { await recordPhotoDeniedCeiling(photosCeiling()); } catch { /* never throws; defensive */ }
     }
     if (Number.isFinite(result.refunded) && result.refunded > 0) {
-      try { await recordPhotoOutcome("refunded"); } catch { /* same */ }
+      queueOutcome("refunded");
     }
     // PURCHASE LOG (2026-10-15, observe-only): one privacy-safe row when the paid
     // decision point was reached. Fire-and-forget; never alters the response.
@@ -287,8 +292,19 @@ async function handlePhotoGet(req) {
     status: 200,
     headers: { "Cache-Control": cacheControl, "x-wayfind-photo-result": reason, "x-wayfind-photo-probe": probe ? "1" : "0" },
   });
+  // Count the final answer separately from upstream/purchase outcomes. A
+  // stored or licensed response serves an image without buying anything.
+  const recordResponse = (cls) => {
+    if (!probe && cls) queueOutcome(cls);
+    // Keep bounded telemetry alive after the response without making stored
+    // or licensed image hits wait for a ledger round trip.
+    if (outcomeWrites.length) {
+      try { waitUntil(Promise.all(outcomeWrites)); } catch { /* telemetry only */ }
+    }
+  };
 
   if (result.type === "redirect" && result.location) {
+    recordResponse("response-served");
     if (wantJson) {
       if (result.reason === "google" && !probe) logGoogleGrant(req, result.reason);
       const c = result.credit || {};
@@ -342,6 +358,7 @@ async function handlePhotoGet(req) {
   // verified against this exact entity. It is this place's own photo, never a
   // shared stock pool.
   const free = await getFreePhoto();
+  if (free && free.url) recordResponse("response-served");
   if (free && free.url && wantJson) {
     return jsonAnswer({ src: free.url, source: free.source === "wikimedia" ? "licensed" : "permitted", credit: { name: free.attributionText, uri: free.attributionUrl, license: free.license } }, "public, max-age=" + FREE_REDIRECT_TTL + ", s-maxage=" + FREE_REDIRECT_TTL, "owned-free");
   }
@@ -376,6 +393,10 @@ async function handlePhotoGet(req) {
     result,
     probe,
   });
+
+  const refusal = result.reason === "spend-denied" ? ledgerOutcomeClass(result.ledgerReason) : result.upstream;
+  const refusedResponse = /^(?:ledger-(?:denied|cap|timeout|http|unconfigured)|quota-open|storage-failed|place-lookup-denied|(?:(?:place-lookup-failed|fresh-failed|stale-heal-failed):)?(?:quota|key-denied|server|network|badjson|unowned|redirect))$/.test(refusal || "");
+  recordResponse(refusedResponse ? "response-refused" : null);
 
   if (wantJson) {
     return jsonAnswer({ src: null, source: "none", credit: null }, "private, no-store", result.reason || "no-photo");

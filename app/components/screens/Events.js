@@ -3,12 +3,16 @@
 // EventCard move too (this screen is their only consumer); the event helpers
 // they use stay in home.js — other surfaces share them — and arrive via ctx.
 import { useEffect, useRef, useState } from "react";
-import { C, TARGET } from "../kit";
+import { C } from "../kit";
 import { resolveMetro } from "../../../lib/culture";
 import { eventPlaceholder } from "../../../lib/eventPlaceholder.js";
 import { eventPriceFact } from "../../../lib/eventPriceFact.js";
 import { fallSkinLive } from "../../../lib/fallSkin.js";
 import { isSpookyCard, sayHalloween, withSpookyChip } from "../../../lib/spookySkin.js";
+import { rankIntentEvents } from "../../../lib/eventPopularity.js";
+import { useDeviceLocation } from "../PlaceDistance.js";
+import { distanceMiles } from "../../../lib/deviceDistance.js";
+import { spookySkinLive } from "../../../lib/spookySkin.js";
 import { siteTodayStr } from "../../../lib/siteTime";
 import { rankExperiences } from "../../../lib/experiencesData";
 import { partnerTicketLabel } from "../../../lib/partnerCopy";
@@ -47,10 +51,12 @@ function EventCard({ e, onVenue, ctx }) {
   // shows its own image (organizer photo, or a labelled venue photo) or a
   // designed category tile from lib/eventPlaceholder.js.
   const image = ctx.eventUseImage(e) || fall ? (e.thumb || e.image || "") : "";
-  const placeholder = eventPlaceholder(ctx.eventBucket(e), e);
+  const placeholder = eventPlaceholder(ctx.eventBucket(e), e, siteTodayStr());
   const hasCta = !fall || !!e.ticketVia || !!e.ticketed;
   return <RailCard
     photo={image}
+    photoAttr={e.photoAttr}
+    photoAttrHref={e.photoAttrHref}
     visitFacts={e.visitFacts || null}
     planningHref={internal && !fall ? e.dest : null}
     className={fallSkin ? "wf-fall-card" : undefined}
@@ -73,46 +79,25 @@ function EventCard({ e, onVenue, ctx }) {
   />;
 }
 
-// v6.20 — the ONE events filter (owner direction, image 3 style): a single
-// dropdown pill, not a chip row. Categories only — Concerts is the marquee
-// default; "Local events" merges the old Near me + Community civic feed;
-// "Business events" is a new source (venues that publish an RSS/iCal/API feed),
-// shown with an honest empty state until those feeds are configured.
+// Categories are always-visible rails. The only dropdown decision is ordering.
 const EVENT_FILTERS = [
-  // v6.34 — owner ask: the affiliate inventory gets its own category so
-  // EVERYTHING bookable shows as the main list, not only the pinned rail.
-  // bucket:null — tours are not events; the count/render special-case on key.
-  { key: "tours", label: "Local tours", icon: "🎟️", bucket: null },
-  { key: "concerts", label: "Concerts", icon: "🎵", bucket: "concerts" },
-  { key: "comedy", label: "Comedy", icon: "😂", bucket: "comedy" },
-  { key: "theater", label: "Theater", icon: "🎭", bucket: "theater" },
-  { key: "sports", label: "Sports", icon: "⚾", bucket: "sports" },
-  { key: "local", label: "Local events", icon: "🏘️", bucket: "community" },
-  { key: "business", label: "Business events", icon: "💼", bucket: "business" },
+  { key: "christmas", label: "Christmas and holiday events", match: (e) => e.christmas === true },
+  { key: "concerts", label: "Concerts", bucket: "concerts" },
+  { key: "comedy", label: "Comedy", bucket: "comedy" },
+  { key: "theater", label: "Theater", bucket: "theater" },
+  { key: "sports", label: "Sports", bucket: "sports" },
+  { key: "local", label: "Local events", bucket: "community" },
+  { key: "business", label: "Business events", bucket: "business" },
 ];
-// The category we land on when the user hasn't picked one: the best-paying
-// category that actually has events (ticketed first), then the local feed.
-const DEFAULT_PRIORITY = ["concerts", "sports", "comedy", "theater", "local"];
-// Fall and Halloween (owner, 2026-10-08): in season, people opening Events must
-// see local fall events without hunting for the "Local events" filter. The
-// filter exists, and leads the auto default, ONLY while fallSkinLive(today).
-// Off season it is absent, so ?cat=fall resolves like any unknown value.
-// The match needs a fall or Halloween THEME (e.fallTheme, lib/fallTheme.js),
-// not only the season tag: holiday lights and a musical are not "Fall and
-// Halloween" just because they run in October (2026-10-08).
-const FALL_FILTER = { key: "fall", label: "Fall and Halloween", icon: "🎃", match: (e) => e.fallTheme === true };
+const FALL_FILTER = { key: "fall", label: "Fall events", match: (e) => e.fallTheme === true };
 export function eventFiltersFor(seasonLive) { return seasonLive ? [FALL_FILTER, ...EVENT_FILTERS] : EVENT_FILTERS; }
-// 2026-10-08 (owner): later October events must stay discoverable by date.
-// The strip shows the next eight days; while the fall season is live and
-// Halloween is past that window, one more chip jumps straight to Oct 31.
+export function filterMatches(f, e, eventBucket) { return f.match ? f.match(e) : eventBucket(e) === f.bucket; }
 export function halloweenChipFor(chips, todayStr, seasonLive) {
   if (!seasonLive || typeof todayStr !== "string" || todayStr.length !== 10) return null;
   const value = todayStr.slice(0, 4) + "-10-31";
   if (todayStr > value || (chips || []).some((c) => c.value === value)) return null;
   return { value, top: "Halloween", day: 31, label: "Halloween, Oct 31" };
 }
-export function defaultPriorityFor(seasonLive) { return seasonLive ? ["fall", ...DEFAULT_PRIORITY] : DEFAULT_PRIORITY; }
-export function filterMatches(f, e, eventBucket) { return f.match ? f.match(e) : eventBucket(e) === f.bucket; }
 
 // RUNNING EVENTS AND THE DAY STRIP (2026-10-08). A season-long event that
 // opened before today is still on: it belongs under Today and every later day
@@ -226,220 +211,121 @@ function RailMore({ remaining, onMore }) {
   );
 }
 
+// Venue-local calendar weeks run Monday through Sunday, keeping the whole
+// weekend together. Dates are ET calendar strings; UTC math avoids DST shifts.
+function eventWeek(day) {
+  if (!ISO_DAY.test(day)) return Infinity;
+  const [y, m, d] = day.split("-").map(Number);
+  const date = new Date(Date.UTC(y, m - 1, d));
+  return date.getTime() - ((date.getUTCDay() + 6) % 7) * 86400000;
+}
+// Best: upcoming weeks first, demand/quality within a week, then next date.
+// Apply the order to the full inventory before paging; never remove a row.
+export function orderEventRail(rows, { sort = "best", today, distMi = () => Infinity, eventBucket } = {}) {
+  const anchor = today || siteTodayStr();
+  const chronological = sortEventsForList(rows, { today: anchor, distMi });
+  if (sort !== "distance") {
+    const dates = new Map(chronological.map((e) => [e, effectiveEventDate(e, anchor)]));
+    const weeks = new Map(chronological.map((e) => [e, eventWeek(dates.get(e))]));
+    return rankIntentEvents(chronological, eventBucket, { dateOf: (e) => dates.get(e) })
+      .sort((a, b) => weeks.get(a) - weeks.get(b) || 0);
+  }
+  return chronological.sort((a, b) => {
+    const da = distMi(a), db = distMi(b);
+    return (Number.isFinite(da) ? da : Infinity) - (Number.isFinite(db) ? db : Infinity) || 0;
+  });
+}
+export function expandedEventRails(rows, { today, eventDate = "all", eventBucket, dedupeEvents, sort = "best", distMi } = {}) {
+  const all = (rows || []).filter((e) => e && e.dest);
+  const dated = eventDate === "all" ? all : all.filter((e) => eventRunsOn(e, eventDate));
+  const remaining = new Set(dated);
+  const defs = eventFiltersFor(fallSkinLive(today));
+  // Seasonal rails lead, but do not duplicate those events in Local events.
+  defs.sort((a, b) => (a.key === "christmas" ? -1 : b.key === "christmas" ? 1 : 0));
+  return defs.map((f) => {
+    const matching = dated.filter((e) => remaining.has(e) && filterMatches(f, e, eventBucket));
+    matching.forEach((e) => remaining.delete(e));
+    return { ...f, items: orderEventRail(dedupeEvents(matching, eventDate === "all"), { sort, today, distMi, eventBucket }) };
+  }).filter((rail) => rail.items.length > 0);
+}
+function EventRail({ id, title, description, items, ctx }) {
+  const [visible, setVisible] = useState(EVENTS_PAGE);
+  const page = pageOfEvents(items, visible);
+  const showMore = () => setVisible((n) => n + EVENTS_PAGE);
+  return <section aria-label={title} style={{ marginBottom: 22 }}>
+    <div style={{ marginBottom: 8 }}>
+      <h2 style={{ margin: 0, fontSize: 16, fontWeight: 800, color: C.text }}>{title}</h2>
+      {description ? <div style={{ marginTop: 3, fontSize: 11.5, lineHeight: 1.45, color: C.muted }}>{description}</div> : null}
+    </div>
+    <RailNav railId={id} count={items.length} total={items.length} loaded={page.items.length} unit="events" />
+    <div className="wf-rail" data-rail={id} role="region" tabIndex={0} aria-label={title}>
+      {page.items.map((e) => <EventCard key={e.id} e={e} onVenue={() => ctx.openVenue(e)} ctx={ctx} />)}
+      {page.remaining > 0 ? <RailMore remaining={page.remaining} onMore={showMore} /> : null}
+    </div>
+    <RailDots railId={id} count={page.items.length} />
+  </section>;
+}
 export default function EventsScreen({ ctx }) {
-  const { events, eventCat, setEventCat, eventDate, setEventDate, locName, center, submitSearch, eventsLoading, eventsUnavailable, eventsError, loadEvents, openVenue, dedupeEvents, AreaInsight, Loader, eventsTours, eventBucket, ViatorRail, eventSegmentMeta } = ctx;
-  const all = events || [];
-  // ── WORTH PLANNING FOR (v8.29.16) ─────────────────────────────────────────
-  //
-  // The curated schedule (wf_events, joined to the feed in app/api/events)
-  // is DATED MONTHS OUT — Halloween Horror Nights, both Gasparillas, the
-  // Strawberry Festival. This screen is built around an eight-day strip and a
-  // category dropdown, which is right for "what is on tonight" and is exactly
-  // why eighteen hand-verified events could be sitting in the payload and still
-  // be invisible: the reader would have to guess a category AND widen the date.
-  //
-  // So they get their own shelf, above the controls, outside both filters. It
-  // is the one place on this screen where the answer is "here is the thing you
-  // should put in your calendar", and every card opens OUR event page — the one
-  // carrying the why-go, the parking and the insider tip a calendar cannot have.
+  const { events, eventDate, setEventDate, locName, center, submitSearch, eventsLoading, eventsUnavailable, eventsError, loadEvents, dedupeEvents, AreaInsight, Loader, eventsTours, eventBucket, ViatorRail } = ctx;
   const [filterOpen, setFilterOpen] = useState(false);
-  const [paged, setPaged] = useState({ key: "", n: EVENTS_PAGE });
-  // v6.20 — geo distance so ties break by proximity.
-  const distMi = (e) => { if (!center || e == null || e.lat == null || e.lng == null) return Infinity; const R = 3958.8, t = (d) => (d * Math.PI) / 180; const s = Math.sin(t(e.lat - center.lat) / 2) ** 2 + Math.cos(t(center.lat)) * Math.cos(t(e.lat)) * Math.sin(t(e.lng - center.lng) / 2) ** 2; return R * 2 * Math.asin(Math.sqrt(s)); };
+  const [sort, setSort] = useState("best");
+  const device = useDeviceLocation();
+  const origin = device || center;
+  const distMi = (e) => distanceMiles(origin, e) ?? Infinity;
   const todayStr = siteTodayStr();
-  const plannable = sortEventsForList(all.filter((e) => e && e.curated && e.dest), { today: todayStr, distMi }).slice(0, 8);
-  const seasonLive = fallSkinLive(siteTodayStr());
-  const FILTERS = eventFiltersFor(seasonLive);
-  const countForFilter = (f) => all.filter((e) => filterMatches(f, e, eventBucket)).length;
-  // Resolve the active filter. A real category the user picked is respected even
-  // when empty; the "auto" default (and any legacy tours/all/community value)
-  // resolves to the best populated category so the page never lands empty.
-  const isRealKey = FILTERS.some((f) => f.key === eventCat);
-  let activeKey = eventCat;
-  if (!isRealKey) {
-    activeKey = defaultPriorityFor(seasonLive).find((k) => { const f = FILTERS.find((x) => x.key === k); return f && countForFilter(f) > 0; }) || "local";
-  }
-  const activeFilter = FILTERS.find((f) => f.key === activeKey) || FILTERS[0];
-  const isBusiness = activeFilter.key === "business";
-  const isTours = activeFilter.key === "tours"; // v6.34 — affiliate list view
-  const catBase = all.filter((e) => filterMatches(activeFilter, e, eventBucket));
-  const countFor = (dateVal) => dedupeEvents(catBase.filter((e) => eventRunsOn(e, dateVal)), false).length;
-  const allCount = dedupeEvents(catBase, true).length;
-  let shown = catBase;
-  if (eventDate !== "all") shown = shown.filter((e) => eventRunsOn(e, eventDate));
-  shown = dedupeEvents(shown, eventDate === "all");
-  // Soonest day first; nearby before the wider reach within a day.
-  shown = sortEventsForList(shown, { today: todayStr, distMi });
-  // A new filter or day starts again at the first page.
-  const listKey = activeFilter.key + "|" + eventDate;
-  const page = pageOfEvents(shown, paged.key === listKey ? paged.n : EVENTS_PAGE);
-  const showMore = () => setPaged((prev) => ({ key: listKey, n: (prev.key === listKey ? prev.n : EVENTS_PAGE) + EVENTS_PAGE }));
-  // Curated rows reach further than the feed radius (CURATED_REACH_MI); say so.
-  const widerReach = shown.some((e) => e.curated && distMi(e) > EVENTS_NEAR_MI);
-  // Defensive at the render boundary: the source normally arrives ranked,
-  // but this screen owns both the compact rail and the full Local tours grid.
-  // Sorting here keeps both views honest even if a caller/API changes order.
+  const all = (events || []).filter((e) => e && e.dest);
+  const rails = expandedEventRails(all, { today: todayStr, eventDate, eventBucket, dedupeEvents, sort, distMi });
+  const curated = all.filter((e) => e.curated && e.dest && (eventDate === "all" || eventRunsOn(e, eventDate)));
+  const plannable = orderEventRail(dedupeEvents(curated, eventDate === "all"), { sort, today: todayStr, distMi, eventBucket });
+  const countFor = (dateVal) => dedupeEvents(all.filter((e) => eventRunsOn(e, dateVal)), false).length;
+  const allCount = dedupeEvents(all, true).length;
   const tours = rankExperiences(eventsTours);
+  const orderedTours = sort === "distance" ? [...tours].sort((a, b) => distMi(a) - distMi(b) || 0) : tours;
   const eventDateChips = [];
-  const enow = new Date();
-  // Keep the first decision compact. A four-week strip made the most useful
-  // dates feel buried; eight days covers the immediate planning window while
-  // "Any" still exposes the complete inventory.
+  const [year, month, day] = todayStr.split("-").map(Number);
   for (let i = 0; i < 8; i++) {
-    const d = new Date(enow.getFullYear(), enow.getMonth(), enow.getDate() + i);
-    const value = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-    eventDateChips.push({ value, top: i === 0 ? "Today" : ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][d.getDay()], day: d.getDate() });
+    const d = new Date(Date.UTC(year, month - 1, day + i));
+    eventDateChips.push({ value: `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}-${String(d.getUTCDate()).padStart(2, "0")}`, top: i === 0 ? "Today" : ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][d.getUTCDay()], day: d.getUTCDate() });
   }
+  const seasonLive = spookySkinLive(todayStr);
   const halloweenChip = halloweenChipFor(eventDateChips, siteTodayStr(), seasonLive);
   if (halloweenChip) eventDateChips.push(halloweenChip);
   const dchip = (on) => ({ flexShrink: 0, minWidth: 46, padding: "6px 9px", borderRadius: 12, border: `1px solid ${on ? C.light : C.border}`, cursor: "pointer", textAlign: "center", background: on ? C.light : C.panel, color: on ? "#0D1117" : C.light, fontWeight: 700 });
-  const businessEmpty = (
-    <div style={{ textAlign: "center", padding: "40px 24px", color: C.muted }}>
-      <div style={{ fontSize: 40, marginBottom: 12 }}>💼</div>
-      <strong style={{ display: "block", color: C.light }}>No business events yet</strong>
-      <span style={{ fontSize: 13, lineHeight: 1.5 }}>We&apos;re onboarding local businesses that publish a public calendar (RSS, iCal, or API). When they do, their events show up here — never invented.</span>
+  const orderDescription = sort === "distance" ? (device ? "Closest to your current location first" : "Closest to your selected area first") : "Upcoming weeks first. Popularity and quality within each week";
+  return <div style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 24px)" }}>
+    <div style={{ paddingTop: 4, marginBottom: 12 }}>
+      <h1 style={{ fontSize: 20, fontWeight: 800, color: C.text, margin: 0 }}>Events near you</h1>
+      {(() => { const metro = resolveMetro(locName); return metro ? <div style={{ marginTop: 10 }}><AreaInsight metro={metro} cat="events" town={locName ? locName.split(",")[0] : null} center={center} onFind={(q) => submitSearch(q, { miles: 45 })} /></div> : null; })()}
+      <div style={{ fontSize: 12.5, color: C.muted, marginTop: 4 }}>Holiday plans, concerts, comedy, theater, sports and local discoveries. Every category, ready to browse.</div>
     </div>
-  );
-  return (
-    <div>
-      <div style={{ paddingTop: 4, marginBottom: 12 }}>
-        <h1 style={{ fontSize: 20, fontWeight: 800, color: C.text, margin: 0 }}>Events near you</h1>
-        {(() => { const _cm = resolveMetro(locName); return _cm ? <div style={{ marginTop: 10 }}><AreaInsight metro={_cm} cat={"events"} town={locName ? locName.split(",")[0] : null} center={center} onFind={(q) => submitSearch(q, { miles: 45 })} /></div> : null; })()}
-        <div style={{ fontSize: 12.5, color: C.muted, marginTop: 2 }}>{seasonLive ? "Fall and Halloween plans, bookable tours, concerts, comedy, theater, sports, and local happenings near you" : "Bookable tours, concerts, comedy, theater, sports, and local happenings near you"}</div>
-      </div>
-
-      {plannable.length > 0 && (
-        <section aria-label="Worth planning for" style={{ marginBottom: 18 }}>
-          <div style={{ marginBottom: 8 }}>
-            <div style={{ fontSize: 13.5, fontWeight: 800, color: C.text }}>Worth planning for</div>
-            <div style={{ marginTop: 2, fontSize: 11.5, lineHeight: 1.45, color: C.muted }}>Dates we checked ourselves — the ones worth putting in the calendar now.</div>
-          </div>
-          <RailNav railId="events-worth-planning" count={plannable.length} total={plannable.length} unit="events" />
-          <div className="wf-rail" data-rail="events-worth-planning" role="region" tabIndex={0} aria-label="Worth planning for">
-            {plannable.map((e) => <EventCard key={e.id} e={e} onVenue={() => openVenue(e)} ctx={ctx} />)}
-          </div>
-          <RailDots railId="events-worth-planning" count={plannable.length} />
-        </section>
-      )}
-
-      {/* v6.26 — the events category filter, ABOVE the bookable-experiences
-          rail (owner direction) and styled to match the app's SortControl
-          ("≡ Top rated ▾"): outlined orange pill + sliders icon + chevron. */}
-      <div style={{ position: "relative", marginBottom: 14 }}>
-        <button onClick={() => setFilterOpen((v) => !v)} aria-haspopup="listbox" aria-expanded={filterOpen} style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "9px 16px", borderRadius: 999, background: C.card, border: `1px solid ${C.border}`, color: C.text, fontSize: 14, fontWeight: 800, cursor: "pointer" }}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={C.accent} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18M6 12h12M10 18h4" /></svg>
-          <span>{activeFilter.label}</span>
-          <span style={{ fontSize: 10, color: C.muted, transform: filterOpen ? "rotate(180deg)" : "none", transition: "transform .2s" }}>{"▼"}</span>
-        </button>
-        {filterOpen && (
-          <>
-            <div onClick={() => setFilterOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 40 }} />
-            <div role="listbox" style={{ position: "absolute", top: "calc(100% + 8px)", left: 0, zIndex: 41, width: 292, background: "#161B22", border: `1px solid ${C.border}`, borderRadius: 16, boxShadow: "0 16px 44px rgba(0,0,0,.55)", padding: 10 }}>
-              <div style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: "1px", color: C.muted, textTransform: "uppercase", padding: "4px 8px 6px" }}>Category</div>
-              {FILTERS.map((f) => { const on = f.key === activeFilter.key; const n = f.key === "tours" ? tours.length : countForFilter(f); return (
-                <button key={f.key} role="option" aria-selected={on} onClick={() => { setEventCat(f.key); setFilterOpen(false); }} style={{ display: "flex", alignItems: "center", gap: 10, width: "100%", padding: "10px 8px", borderRadius: 10, border: "none", background: on ? "rgba(249,115,22,.12)" : "transparent", cursor: "pointer", textAlign: "left" }}>
-                  <span style={{ width: 17, height: 17, borderRadius: "50%", border: `2px solid ${on ? C.light : C.border}`, display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{on ? <span style={{ width: 8, height: 8, borderRadius: "50%", background: C.accent }} /> : null}</span>
-                  <span style={{ fontSize: 16 }}>{f.icon}</span>
-                  <span style={{ flex: 1, fontSize: 13.5, fontWeight: on ? 800 : 600, color: on ? C.text : C.light }}>{f.label}</span>
-                  {n > 0 && <span style={{ fontSize: 12.5, fontWeight: 700, color: on ? C.light : C.muted }}>{n}</span>}
-                </button>
-              ); })}
-            </div>
-          </>
-        )}
-      </div>
-
-      {/* Dates are a navigation decision, so they belong before inventory. */}
-      {!isBusiness && !isTours && !eventsLoading && !eventsUnavailable && !eventsError && allCount > 0 && (
-        <div style={{ marginBottom: 16 }}>
-          <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 12, marginBottom: 7 }}>
-            <span style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: ".8px", textTransform: "uppercase", color: C.muted }}>Choose a day</span>
-            <span style={{ fontSize: 10.5, color: C.muted }}>{allCount} upcoming</span>
-          </div>
-          <div style={{ display: "flex", gap: 6, overflowX: "auto", overscrollBehaviorX: "contain", paddingBottom: 4, WebkitOverflowScrolling: "touch" }}>
-            <button aria-label="Show events on any date" onClick={() => setEventDate("all")} style={dchip(eventDate === "all")}><div style={{ fontSize: 10, opacity: 0.85 }}>Any</div><div style={{ fontSize: 14 }}>All</div><div style={{ fontSize: 9, opacity: 0.75, height: 11 }}>{allCount}</div></button>
-            {eventDateChips.map((d) => { const count = countFor(d.value); return (
-              <button key={d.value} aria-label={d.label ? `Show events on ${d.label}` : `Show events ${d.top} ${d.day}`} onClick={() => setEventDate(d.value)} style={dchip(eventDate === d.value)}>
-                <div style={{ fontSize: 10, opacity: 0.85 }}>{d.top}</div>
-                <div style={{ fontSize: 14 }}>{d.day}</div>
-                <div style={{ fontSize: 9, opacity: 0.75, height: 11 }}>{count > 0 ? count : ""}</div>
-              </button>
-            ); })}
-          </div>
+    <div style={{ position: "relative", marginBottom: 14 }}>
+      <button type="button" aria-label="Sort events" onClick={() => setFilterOpen((v) => !v)} aria-haspopup="listbox" aria-expanded={filterOpen} style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "9px 16px", borderRadius: 999, background: C.card, border: `1px solid ${C.border}`, color: C.text, fontSize: 14, fontWeight: 800, cursor: "pointer" }}>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={C.accent} strokeWidth="2.5" strokeLinecap="round"><path d="M3 6h18M6 12h12M10 18h4" /></svg>
+        {sort === "best" ? "Best" : "Distance"}<span style={{ fontSize: 10, color: C.muted }}>{filterOpen ? "▲" : "▼"}</span>
+      </button>
+      {filterOpen && <>
+        <div onClick={() => setFilterOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 40 }} />
+        <div role="listbox" aria-label="Event order" style={{ position: "absolute", top: "calc(100% + 8px)", left: 0, zIndex: 41, width: 220, background: C.panel, border: `1px solid ${C.border}`, borderRadius: 16, padding: 8 }}>
+          {[{ key: "best", label: "Best" }, { key: "distance", label: "Distance" }].map((option) => <button type="button" key={option.key} role="option" aria-selected={sort === option.key} onClick={() => { setSort(option.key); setFilterOpen(false); }} style={{ display: "block", width: "100%", padding: "12px", borderRadius: 10, border: 0, background: sort === option.key ? "rgba(249,115,22,.12)" : "transparent", color: C.text, textAlign: "left", fontWeight: 700, cursor: "pointer" }}>{option.label}</button>)}
         </div>
-      )}
-
-      {/* v6.20 — the bookable-experiences (Viator) rail; pinned on every
-          event-category view, after the controls so it never blocks browsing. */}
-      {/* v6.34: when the Local-tours CATEGORY is selected, the main area below
-          owns the full affiliate list — don't double-render the pinned rail. */}
-      {!isTours && (eventsTours === null ? (
-        <Loader label="Finding bookable experiences" pad="6px 2px" />
-      ) : tours.length > 0 ? (
-        <div style={{ marginBottom: 16 }}>
-          <div style={{ marginBottom: 8 }}>
-            <div style={{ fontSize: 13.5, fontWeight: 800, color: C.text }}>Make more of the day</div>
-            <div style={{ marginTop: 2, fontSize: 11.5, lineHeight: 1.45, color: C.muted }}>Highly rated tours and activities near {String(locName || "you").split(",")[0]} when the event is only one part of the plan.</div>
-          </div>
-          <ViatorRail title="Bookable experiences near you" items={tours} theme="events-tours" />
-        </div>
-      ) : null)}
-      {isTours && (
-        eventsTours === null ? <Loader label="Finding bookable experiences" pad="8px 2px" /> :
-        tours.length > 0 ? (
-          <div style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 24px)" }}>
-            <ViatorRail title={`Everything bookable near you · ${tours.length}`} items={tours} theme="events-tours" />
-          </div>
-        ) : <div style={{ color: C.muted, fontSize: 13, padding: "8px 2px" }}>No bookable tours are loading right now — check back shortly.</div>
-      )}
-
-      {/* Event grid for the selected category (Business events flow through the
-          same path — a distinct source, shown only when its feeds return real
-          events; otherwise the honest empty state below). */}
-      {!isTours && eventsLoading && <Loader label="Finding plans" pad="8px 2px" />}
-      {!isTours && !eventsLoading && eventsUnavailable && !isBusiness && <div style={{ color: C.muted, fontSize: 13, padding: "8px 2px" }}>Local events aren&apos;t turned on for your area yet — but the bookable experiences above always work.</div>}
-      {!eventsLoading && (eventsUnavailable ? isBusiness : true) && !eventsError && shown.length > 0 && (
-        <section aria-label={`${activeFilter.label} events`} style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 24px)" }}>
-          <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 12, marginBottom: 9 }}>
-            <div>
-              <div style={{ fontSize: 13.5, fontWeight: 800, color: C.text }}>{activeFilter.label} worth planning around</div>
-              <div style={{ marginTop: 2, fontSize: 10.5, color: C.muted }}>{widerReach ? `Soonest first, nearest first each day · includes dated events up to 60 mi away` : "Soonest first · tap a card for the full story"}</div>
-            </div>
-            <span style={{ fontSize: 11, fontWeight: 750, color: C.muted }}>{shown.length}</span>
-          </div>
-          <RailNav railId={`events-${activeFilter.key}`} count={shown.length} total={shown.length} loaded={page.items.length} unit="events" />
-          <div className="wf-rail" data-rail={`events-${activeFilter.key}`} role="region" tabIndex={0} aria-label={`${activeFilter.label} events`}>
-            {page.items.map((e) => <EventCard key={e.id} e={e} onVenue={() => openVenue(e)} ctx={ctx} />)}
-            {page.remaining > 0 ? <RailMore remaining={page.remaining} onMore={showMore} /> : null}
-          </div>
-          <RailDots railId={`events-${activeFilter.key}`} count={page.items.length} />
-        </section>
-      )}
-      {!isTours && !eventsLoading && !eventsError && shown.length === 0 && (
-        isBusiness
-          ? businessEmpty
-          : eventsUnavailable
-            ? null
-            : all.length === 0
-              ? <div style={{ textAlign: "center", padding: "48px 24px", color: C.muted }}>
-                  <div style={{ fontSize: 40, marginBottom: 12 }}>🎟️</div>
-                  <strong style={{ display: "block", color: C.light }}>No events in your area yet</strong>
-                  <span style={{ fontSize: 13 }}>We&apos;re still expanding Wayfind events to your area. Check back soon.</span>
-                </div>
-              : <div style={{ textAlign: "center", padding: "32px 24px", color: C.muted }}>
-                  <div style={{ fontSize: 32, marginBottom: 8 }}>📅</div>
-                  <strong style={{ display: "block", color: C.light }}>Nothing in {activeFilter.label.toLowerCase()} {eventDate === "all" ? "right now" : "on this day"}</strong>
-                  <span style={{ fontSize: 13 }}>Try another category or choose Local tours for bookable plans nearby.</span>
-                </div>
-      )}
-      {!eventsLoading && eventsError && !isBusiness && (
-        <div style={{ textAlign: "center", padding: "40px 24px", color: C.muted }}>
-          <div style={{ fontSize: 40, marginBottom: 12 }}>🎟️</div>
-          <strong style={{ display: "block", color: C.light }}>No events to show right now</strong>
-          <span style={{ fontSize: 13 }}>Check back in a little while.</span>
-          <div onClick={loadEvents} style={{ marginTop: 12, color: C.muted, fontWeight: 700, cursor: "pointer", fontSize: 13 }}>Refresh ↻</div>
-        </div>
-      )}
+      </>}
     </div>
-  );
+    {allCount > 0 && <div style={{ marginBottom: 18 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", gap: 12, marginBottom: 7, fontSize: 11, color: C.muted }}><span>Choose a day</span><span>{allCount} upcoming</span></div>
+      <div style={{ display: "flex", gap: 6, overflowX: "auto", overscrollBehaviorX: "contain", WebkitOverflowScrolling: "touch", paddingBottom: 4 }}>
+        <button type="button" aria-label="Show events on any date" onClick={() => setEventDate("all")} style={dchip(eventDate === "all")}><div>Any</div><div>All</div><div style={{ fontSize: 10 }}>{allCount}</div></button>
+        {eventDateChips.map((d) => <button type="button" key={d.value} aria-label={`Show events ${d.top} ${d.day}`} onClick={() => setEventDate(d.value)} style={dchip(eventDate === d.value)}><div style={{ fontSize: 10 }}>{d.top}</div><div>{d.day}</div><div style={{ fontSize: 10 }}>{countFor(d.value) || " "}</div></button>)}
+      </div>
+    </div>}
+    {eventsLoading && <Loader label="Finding plans" pad="8px 2px" />}
+    {plannable.length > 0 && <EventRail key={`planning|${sort}|${eventDate}`} id="events-worth-planning" title="Worth planning for" description={`${orderDescription}. Verified dates worth putting in your calendar.`} items={plannable} ctx={ctx} />}
+    {rails.map((rail) => <EventRail key={`${rail.key}|${sort}|${eventDate}`} id={`events-${rail.key}`} title={rail.label} description={`${orderDescription}. Includes dated events up to 60 mi away.`} items={rail.items} ctx={ctx} />)}
+    {!eventsLoading && eventsError && <div role="status" style={{ padding: "20px 2px", color: C.muted }}>Some events couldn&apos;t load. <button type="button" onClick={loadEvents}>Refresh events</button></div>}
+    {!eventsLoading && !eventsError && rails.length === 0 && <div style={{ padding: "24px 2px", color: C.muted }}>{eventDate !== "all" ? "No events on this day. Choose Any to browse upcoming plans." : eventsUnavailable ? "Local events are unavailable right now. Try refreshing events." : "No upcoming events in this area yet."}</div>}
+    {eventsTours === null ? <Loader label="Finding bookable experiences" pad="6px 2px" /> : orderedTours.length > 0 ? <section aria-label="Local tours" style={{ marginBottom: 16 }}>
+      <h2 style={{ fontSize: 16, color: C.text }}>Local tours</h2>
+      <div style={{ fontSize: 11.5, color: C.muted, marginBottom: 8 }}>Everything bookable near you · {tours.length}. Available dates shown when booking.</div>
+      <ViatorRail title="Bookable experiences near you" items={orderedTours} query={locName ? locName.split(",")[0] : ""} theme="events-tours" preserveOrder={sort === "distance"} />
+    </section> : <ViatorRail title="Bookable experiences near you" items={[]} query={locName ? locName.split(",")[0] : ""} theme="events-tours" providerState="zero_candidates" />}
+  </div>;
 }

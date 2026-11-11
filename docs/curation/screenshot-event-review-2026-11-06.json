@@ -1,0 +1,320 @@
+{
+  "researched_at": "2026-11-07",
+  "scope": "Read-only verification of nine supplied screenshot event identities. No new candidates, repository edits, or database writes.",
+  "timezone": "America/New_York",
+  "taxonomy_note": "All nine are bounded, dated events. Do not create permanent place/category records for the event names; use the verified venue separately. Secondary taxonomy below is a research recommendation, not an asserted database enum.",
+  "events": [
+    {
+      "name": "Enchant Christmas St. Petersburg",
+      "start_date": "2026-11-20",
+      "end_date": "2026-12-27",
+      "schedule": "Selected evenings; exact operating dates and daily closing hours require the official ticket calendar. Do not imply daily operation.",
+      "hours": null,
+      "venue": "Tropicana Field",
+      "address": "1 Tropicana Drive, St. Petersburg, FL 33705",
+      "ticket_url": "https://tickets.enchantchristmas.com/st-petersburg-fl-tropicana-field/calendar",
+      "official_url": "https://www.enchantchristmas.com/st-petersburg/",
+      "sources": [
+        {
+          "url": "https://www.enchantchristmas.com/st-petersburg/",
+          "ref": "turn5view0",
+          "supports": "2026 season; Nov20-Dec27; official ticket link"
+        },
+        {
+          "url": "https://help.enchantchristmas.com/en/articles/7993768-enchant-christmas-location-2026",
+          "ref": "turn17view0",
+          "supports": "exact Tropicana Field address"
+        }
+      ],
+      "taxonomy": {
+        "entity": "event",
+        "secondary": "holiday lights / Christmas"
+      },
+      "conflicts": [
+        "Official ticket calendar is JavaScript and web text extraction returned no daily schedule; do not copy reseller time slots as verified event hours."
+      ]
+    },
+    {
+      "name": "Ripley's Believe It or Not! Christmas Park",
+      "start_date": "2026-11-12",
+      "end_date": "2027-01-03",
+      "schedule": "Daily",
+      "hours": "17:00–24:00 except the listed 17:00–22:00 dates",
+      "hours_exceptions_22_close": [
+        "2026-11-12",
+        "2026-11-16",
+        "2026-11-17",
+        "2026-11-18",
+        "2026-11-30",
+        "2026-12-01",
+        "2026-12-07",
+        "2026-12-08",
+        "2026-12-09",
+        "2026-12-31"
+      ],
+      "venue": "Amelia Earhart Park",
+      "address": "401 East 65 Street, Hialeah, FL 33013",
+      "entrance": "Enter on Palm Avenue",
+      "ticket_url": "https://ripleyschristmaspark.com/tickets",
+      "ticket_redirect": "https://ripleyschristmas.magicmoneyllc.com/MagicMoney_Web/ETicket/TicketDetails/1",
+      "official_url": "https://ripleyschristmaspark.com/",
+      "sources": [
+        {
+          "url": "https://ripleyschristmaspark.com/",
+          "ref": "turn11view1",
+          "supports": "Explicit grand opening Thursday Nov12,2026; season and address; ticket CTA"
+        },
+        {
+          "url": "https://ripleyschristmaspark.com/hours",
+          "ref": "turn11view0",
+          "supports": "2026 daily and exception hours"
+        }
+      ],
+      "taxonomy": {
+        "entity": "event",
+        "secondary": "Christmas / seasonal amusement festival"
+      },
+      "conflicts": [
+        "Older Showare ticket domain and Miami tourism listing say Nov11,2026. Organizer current homepage explicitly says Thursday Nov12 and current /tickets redirects to MagicMoney; prefer Nov12 with this conflict preserved.",
+        "Showare general admission description also carries 2025-11-13 through 2026-01-04, demonstrating stale season copy."
+      ]
+    },
+    {
+      "name": "Sarasota Medieval Fair",
+      "start_date": "2026-11-07",
+      "end_date": "2026-12-06",
+      "schedule": "Saturdays and Sundays only",
+      "hours": "09:45–17:30",
+      "occurrence_dates": [
+        "2026-11-07",
+        "2026-11-08",
+        "2026-11-14",
+        "2026-11-15",
+        "2026-11-21",
+        "2026-11-22",
+        "2026-11-28",
+        "2026-11-29",
+        "2026-12-05",
+        "2026-12-06"
+      ],
+      "venue": "Woods of Mallaranny",
+      "address": "29847 FL-70 E, Myakka City, FL 34251",
+      "ticket_url": "https://www.sarasotamedievalfair.com/buy-tickets",
+      "official_url": "https://www.sarasotamedievalfair.com/the-festival/general-info/information",
+      "sources": [
+        {
+          "url": "https://www.sarasotamedievalfair.com/the-festival/general-info/information",
+          "ref": "turn5view1",
+          "supports": "2026 weekends, hours, venue, full address"
+        },
+        {
+          "url": "https://sarasotamedievalfair.com/buy-tickets",
+          "ref": "turn14view2",
+          "supports": "official 2026 dated ticketing"
+        }
+      ],
+      "taxonomy": {
+        "entity": "event",
+        "secondary": "festival / medieval fair"
+      },
+      "conflicts": [
+        "2025 dates Nov1–30 in old press release are not valid for 2026.",
+        "Sarasota is event brand; physical venue is Myakka City."
+      ]
+    },
+    {
+      "name": "Ferraris on the Circle",
+      "start_date": "2026-11-07",
+      "end_date": "2026-11-07",
+      "hours": "09:00–15:00",
+      "venue": "St. Armands Circle Park",
+      "address": "1 St. Armands Circle, Sarasota, FL 34236",
+      "ticket_url": null,
+      "admission": "Free spectator event; donation/registration for vehicle exhibitors",
+      "official_url": "https://www.sarasotafl.gov/Events-directory/Ferraris-on-the-Circle-2026",
+      "sources": [
+        {
+          "url": "https://www.sarasotafl.gov/Events-directory/Ferraris-on-the-Circle-2026",
+          "ref": "turn8search6",
+          "supports": "city official 2026 date, hours, exact address, free cost; full page extracted by primary search though direct open 403"
+        },
+        {
+          "url": "https://www.ferrariownersclub.org/events/ferraris-on-the-circle",
+          "ref": "turn14view1",
+          "supports": "Nov7,2026 9am–3pm and exhibitor donation"
+        }
+      ],
+      "taxonomy": {
+        "entity": "event",
+        "secondary": "car show / community"
+      },
+      "conflicts": [
+        "Do not use St Armands Association office address 300 Madison Dr as the event location."
+      ]
+    },
+    {
+      "name": "Siesta Key Crystal Classic International Sand Sculpting Festival",
+      "start_date": "2026-11-13",
+      "end_date": "2026-11-16",
+      "daily_hours": {
+        "2026-11-13": "10:00–17:30",
+        "2026-11-14": "10:00–21:00",
+        "2026-11-15": "10:00–17:30",
+        "2026-11-16": "10:00–15:00"
+      },
+      "venue": "Siesta Beach",
+      "address": "948 Beach Road, Siesta Key, FL 34242",
+      "ticket_url": "https://siestakeychamber.ticketspice.com/2026-siesta-key-crystal-classic",
+      "official_url": "https://www.siestakeycrystalclassic.com/event-info/about",
+      "sources": [
+        {
+          "url": "https://www.siestakeycrystalclassic.com/event-info/about",
+          "ref": "turn5view4",
+          "supports": "daily admission event hours; vendor village free separately"
+        },
+        {
+          "url": "https://siestakeychamber.ticketspice.com/2026-siesta-key-crystal-classic",
+          "ref": "turn11view5",
+          "supports": "2026 daily hours and exact Siesta Beach location"
+        }
+      ],
+      "taxonomy": {
+        "entity": "event",
+        "secondary": "arts festival / sand sculpting"
+      },
+      "conflicts": [
+        "2025 event was Nov14–17; 2026 is Nov13–16.",
+        "Vendor Village hours differ from paid sculpture-event hours; use admission event hours above."
+      ]
+    },
+    {
+      "name": "Santa's Grand Arrival Parade at UTC",
+      "start_date": "2026-11-14",
+      "end_date": "2026-11-14",
+      "hours": "15:00–21:30 overall celebration; parade 18:30",
+      "venue": "University Town Center / N. Cattlemen Road",
+      "address": "N. Cattlemen Road, University Town Center, Sarasota, FL 34243",
+      "address_note": "Official event describes a linear parade route, not a single numbered street address. Event page footer 210 North Cattlemen Road is general UTC address; do not misrepresent it as parade starting point.",
+      "ticket_url": null,
+      "admission": "Free and open to everyone",
+      "official_url": "https://utcsarasota.com/event/santas-grand-arrival-parade-2026/",
+      "sources": [
+        {
+          "url": "https://utcsarasota.com/event/santas-grand-arrival-parade-2026/",
+          "ref": "turn5view5",
+          "supports": "overall 3pm–9:30pm, parade6:30pm, free admission, N Cattlemen route"
+        },
+        {
+          "url": "https://utcsarasota.com/holidays/parade/register/",
+          "ref": "turn21search1",
+          "supports": "explicit November14,2026 year"
+        }
+      ],
+      "taxonomy": {
+        "entity": "event",
+        "secondary": "Christmas / holiday parade"
+      },
+      "conflicts": [
+        "Food truck tourism listing says parade starts6pm; direct parade organizer specifies tree-lighting6pm and parade6:30pm.",
+        "Evergreen /holidays/parade title still mentions Nov8,2025 while current body is Nov14,2026. Prefer dated /event/2026 and explicit registration year.",
+        "Mall at UTC 140 University Town Center Dr is parking/venue anchor, not a verified precise parade start address."
+      ]
+    },
+    {
+      "name": "37th Annual St. Armands Circle Art Festival",
+      "start_date": "2026-11-14",
+      "end_date": "2026-11-15",
+      "hours": "10:00–17:00 both days",
+      "venue": "St. Armands Circle",
+      "address": "1 St. Armands Circle, Sarasota, FL 34236",
+      "ticket_url": null,
+      "admission": "Free admission",
+      "official_url": "https://www.artfestival.com/festivals/st-armands-art-festival-sarasota-florida",
+      "sources": [
+        {
+          "url": "https://www.artfestival.com/festivals/st-armands-art-festival-sarasota-florida",
+          "ref": "turn5view6",
+          "supports": "2026 dates, hours, exact address, free admission"
+        }
+      ],
+      "taxonomy": {
+        "entity": "event",
+        "secondary": "art festival"
+      },
+      "conflicts": [
+        "Do not conflate November festival with September19–20,2026 craft-marketplace edition."
+      ]
+    },
+    {
+      "name": "Suncoast's Largest Food Truck Festival 10",
+      "screenshot_alias": "Sarasota Food Truck Festival",
+      "start_date": "2026-11-14",
+      "end_date": "2026-11-14",
+      "hours": "11:00–21:00",
+      "venue": "The Mall at University Town Center, Parking Lot 9",
+      "address": "140 University Town Center Drive, Sarasota, FL 34243",
+      "ticket_url": "https://www.eventbrite.com/e/suncoasts-largest-food-truck-festival-10-tickets-1998446925551",
+      "admission": "Free entry and parking; Eventbrite listing is available but not evidence that spectators must purchase admission",
+      "official_url": "https://floridapenguinproductions.com/upcoming-events-list",
+      "sources": [
+        {
+          "url": "https://floridapenguinproductions.com/upcoming-events-list",
+          "ref": "turn14view0",
+          "supports": "organizer Nov14,2026 11am–9pm address"
+        },
+        {
+          "url": "https://www.visitsarasota.com/events-festivals/suncoast-largest-food-truck-festival-10",
+          "ref": "turn19view1",
+          "supports": "Lot9, free entry, linked Eventbrite exact URL"
+        },
+        {
+          "url": "https://www.eventbrite.com/e/suncoasts-largest-food-truck-festival-10-tickets-1998446925551",
+          "ref": "turn12search9",
+          "supports": "organizer-owned listing confirms 2026 hours and free admission; direct open429"
+        }
+      ],
+      "taxonomy": {
+        "entity": "event",
+        "secondary": "food festival"
+      },
+      "conflicts": [
+        "Same-day associated UTC parade is a distinct event identity; avoid treating two identities as duplicates solely because location/date overlap.",
+        "If screenshot does not show UTC/Nov14 context, alias match remains provisional; generic title alone is insufficient to identify every Sarasota food-truck event."
+      ]
+    },
+    {
+      "name": "2026 Siesta Key Holiday Parade and Santa Visit",
+      "start_date": "2026-11-28",
+      "end_date": "2026-11-28",
+      "hours": "17:30–21:00 listed event; Santa photos15:00–17:00 before parade",
+      "venue": "Siesta Key Village / Beach Road and Ocean Boulevard",
+      "address": "Parade starts at Avenida del Mare & Beach Road, Siesta Key, FL 34242",
+      "route": "North along Beach Road, onto Ocean Boulevard, into Siesta Key Village",
+      "santa_before": "Historic Siesta Key Village Gazebo at Ocean Boulevard, Avenida Messina and Canal Road",
+      "santa_after": "The Big Tiki Lounge, 5311 Ocean Blvd, Sarasota, FL 34242",
+      "ticket_url": null,
+      "admission": "Public parade; Santa photos explicitly free; float participant registration is separate",
+      "official_url": "https://my.siestakeychamber.com/events/details/2026-holiday-parade-3642",
+      "sources": [
+        {
+          "url": "https://my.siestakeychamber.com/events/details/2026-holiday-parade-3642",
+          "ref": "turn11view3",
+          "supports": "Nov28,2026, hours, exact start intersection and route, Santa addresses"
+        }
+      ],
+      "taxonomy": {
+        "entity": "event",
+        "secondary": "Christmas / holiday parade"
+      },
+      "conflicts": [
+        "Do not confuse with downtown Sarasota Holiday Parade on Dec5,2026."
+      ]
+    }
+  ],
+  "limitations": [
+    "No screenshots were directly provided to this research agent; matches use parent-supplied unique event names.",
+    "Only Enchant's daily calendar/closing hours remain unverified from primary pages; nine identities have primary date evidence.",
+    "This file is research, not a production-import payload. Conflicts and null fields require faithful handling."
+  ],
+  "reviewed_local_date": "2026-11-06"
+}

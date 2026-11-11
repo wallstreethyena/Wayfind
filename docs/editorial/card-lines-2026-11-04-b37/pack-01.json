@@ -1,0 +1,1911 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 37. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJDYfQ9InW2IgRdQ4X0s6vZ5s",
+   "name": "West Palm Beach Escape Rooms",
+   "category": "beach",
+   "metro": "palm-beach",
+   "primary_type": "amusement_center",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://westpalmbeachescaperooms.com/",
+     "source_name": "West Palm Beach Escape Rooms \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "All escape rooms are private",
+      "Teams must find clues, decode hidden messages, and solve puzzles to escape within 60 minutes or less",
+      "Rooms include The Classroom, The Asylum, The Mortuary, The Vault, and Candy Factory",
+      "The cost is $35.95 per person",
+      "West Palm Beach Escape Rooms offers private rooms"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Private escape rooms where teams solve puzzles to escape within 60 minutes or less",
+    "why_here": "West Palm Beach Escape Rooms offers private rooms including The Classroom, The Asylum, The Mortuary, The Vault, and Candy Factory. Teams find clues, decode hidden messages, and solve puzzles together.",
+    "know_before": "The cost is $35.95 per person.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://westpalmbeachescaperooms.com/"
+     ],
+     "why_here": [
+      "https://westpalmbeachescaperooms.com/"
+     ],
+     "know_before": [
+      "https://westpalmbeachescaperooms.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "All escape rooms are private",
+      "source": "https://westpalmbeachescaperooms.com/"
+     },
+     {
+      "claim": "Teams must find clues, decode hidden messages, and solve puzzles to escape within 60 minutes or less",
+      "source": "https://westpalmbeachescaperooms.com/"
+     },
+     {
+      "claim": "Rooms include The Classroom, The Asylum, The Mortuary, The Vault, and Candy Factory",
+      "source": "https://westpalmbeachescaperooms.com/"
+     },
+     {
+      "claim": "The cost is $35.95 per person",
+      "source": "https://westpalmbeachescaperooms.com/"
+     },
+     {
+      "claim": "West Palm Beach Escape Rooms offers private rooms",
+      "source": "https://westpalmbeachescaperooms.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJNbuz7Be35YgRovksWT5bCKI",
+   "name": "James Weldon Johnson Park",
+   "category": "attractions",
+   "metro": "jacksonville-fl",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://jamesweldonjohnsonpark.org/learn-history/",
+     "source_name": "James Weldon Johnson Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "James Weldon Johnson Park is a 1.5-acre public square in the center of the city"
+     ]
+    },
+    {
+     "source": "https://jamesweldonjohnsonpark.org/about/",
+     "source_name": "James Weldon Johnson Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "James Weldon Johnson Park is Jacksonville's first and most historic public park",
+      "Friends of James Weldon Johnson Park is a nonprofit organization founded in 2014",
+      "Friends of James Weldon Johnson Park is contracted with the City of Jacksonville"
+     ]
+    },
+    {
+     "source": "https://jamesweldonjohnsonpark.org/?p=145",
+     "source_name": "James Weldon Johnson Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "James Weldon Johnson Park is open from sunrise to sunset and for special events"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "A 1.5-acre public square described as Jacksonville's first and most historic public park",
+    "why_here": "James Weldon Johnson Park is a 1.5-acre public square in the center of the city. Friends of James Weldon Johnson Park is a nonprofit organization founded in 2014 and contracted with the City of Jacksonville.",
+    "know_before": "James Weldon Johnson Park is open from sunrise to sunset and for special events.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://jamesweldonjohnsonpark.org/learn-history/"
+     ],
+     "why_here": [
+      "https://jamesweldonjohnsonpark.org/learn-history/"
+     ],
+     "know_before": [
+      "https://jamesweldonjohnsonpark.org/learn-history/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "James Weldon Johnson Park is a 1.5-acre public square in the center of the city",
+      "source": "https://jamesweldonjohnsonpark.org/learn-history/"
+     },
+     {
+      "claim": "James Weldon Johnson Park is Jacksonville's first and most historic public park",
+      "source": "https://jamesweldonjohnsonpark.org/about/"
+     },
+     {
+      "claim": "Friends of James Weldon Johnson Park is a nonprofit organization founded in 2014",
+      "source": "https://jamesweldonjohnsonpark.org/about/"
+     },
+     {
+      "claim": "Friends of James Weldon Johnson Park is contracted with the City of Jacksonville",
+      "source": "https://jamesweldonjohnsonpark.org/about/"
+     },
+     {
+      "claim": "James Weldon Johnson Park is open from sunrise to sunset and for special events",
+      "source": "https://jamesweldonjohnsonpark.org/?p=145"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJcbovVjqx2YgRGUTjHLULkH8",
+   "name": "Jass Kitchen Turkish Cuisine",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "turkish_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.jasskitchenmiami.com/menu",
+     "source_name": "Jass Kitchen Turkish Cuisine \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Jass Kitchen serves cold mezzes inspired by traditional Turkish and Mediterranean cuisine",
+      "Hummus is chickpeas ground with tahini, garlic, freshly squeezed lemon juice, cumin, and extra virgin olive oil",
+      "Adana Kebab is hand chopped 100% lamb kebab served with jasmine rice",
+      "Manti (Turkish Ravioli) is beef stuffed ravioli topped with garlic yogurt and spiced melted butter sauce"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Turkish and Mediterranean cold mezzes, kebabs, and Manti (Turkish Ravioli)",
+    "why_here": "Jass Kitchen serves cold mezzes inspired by traditional Turkish and Mediterranean cuisine, including Hummus, Adana Kebab served with jasmine rice, and Manti (Turkish Ravioli) topped with garlic yogurt and spiced melted butter sauce.",
+    "know_before": "Manti (Turkish Ravioli) is beef stuffed ravioli topped with garlic yogurt and spiced melted butter sauce.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.jasskitchenmiami.com/menu"
+     ],
+     "why_here": [
+      "https://www.jasskitchenmiami.com/menu"
+     ],
+     "know_before": [
+      "https://www.jasskitchenmiami.com/menu"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Jass Kitchen serves cold mezzes inspired by traditional Turkish and Mediterranean cuisine",
+      "source": "https://www.jasskitchenmiami.com/menu"
+     },
+     {
+      "claim": "Hummus is chickpeas ground with tahini, garlic, freshly squeezed lemon juice, cumin, and extra virgin olive oil",
+      "source": "https://www.jasskitchenmiami.com/menu"
+     },
+     {
+      "claim": "Adana Kebab is hand chopped 100% lamb kebab served with jasmine rice",
+      "source": "https://www.jasskitchenmiami.com/menu"
+     },
+     {
+      "claim": "Manti (Turkish Ravioli) is beef stuffed ravioli topped with garlic yogurt and spiced melted butter sauce",
+      "source": "https://www.jasskitchenmiami.com/menu"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJq33KfSN83YgRQePjvtyKnPs",
+   "name": "Sakura Asian Fusion",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "asian_fusion_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://sakuraasianfusion.com/",
+     "source_name": "Sakura Asian Fusion \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Menu at Sakura Asian Fusion includes Udon (Japanese Noodles) and Hibachi (Japanese Grill) categories",
+      "Menu at Sakura Asian Fusion includes Tempura & Katsu and Sushi Bar categories",
+      "Sakura Asian Fusion lists Sakura Special Fried Rice",
+      "Sakura Asian Fusion lists Beef Yaki Udon",
+      "Sakura Asian Fusion offers Book a Table reservations"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Menu with Udon (Japanese Noodles), Hibachi (Japanese Grill), and Sushi Bar dishes",
+    "why_here": "Sakura Asian Fusion lists Udon (Japanese Noodles), Hibachi (Japanese Grill), Tempura & Katsu, and Sushi Bar categories, plus Sakura Special Fried Rice and Beef Yaki Udon for a varied order.",
+    "know_before": "Book a Table reservations are offered through Sakura Asian Fusion.",
+    "local_tip": "Sakura Special Fried Rice pairs with Beef Yaki Udon.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://sakuraasianfusion.com/"
+     ],
+     "why_here": [
+      "https://sakuraasianfusion.com/"
+     ],
+     "know_before": [
+      "https://sakuraasianfusion.com/"
+     ],
+     "local_tip": [
+      "https://sakuraasianfusion.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Menu at Sakura Asian Fusion includes Udon (Japanese Noodles) and Hibachi (Japanese Grill) categories",
+      "source": "https://sakuraasianfusion.com/"
+     },
+     {
+      "claim": "Menu at Sakura Asian Fusion includes Tempura & Katsu and Sushi Bar categories",
+      "source": "https://sakuraasianfusion.com/"
+     },
+     {
+      "claim": "Sakura Asian Fusion lists Sakura Special Fried Rice",
+      "source": "https://sakuraasianfusion.com/"
+     },
+     {
+      "claim": "Sakura Asian Fusion lists Beef Yaki Udon",
+      "source": "https://sakuraasianfusion.com/"
+     },
+     {
+      "claim": "Sakura Asian Fusion offers Book a Table reservations",
+      "source": "https://sakuraasianfusion.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJlwej9lQA2YgRgRp3E9hZMQg",
+   "name": "Top Hat Deli",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "deli",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://tophatftl.com/",
+     "source_name": "Top Hat Deli \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Top Hat Deli is at 415 NE 3rd Street, Fort Lauderdale, FL 33301",
+      "Breakfast and lunch are served from 8:00 a.m. - 3:00 p.m."
+     ]
+    },
+    {
+     "source": "https://tophatftl.com/menus",
+     "source_name": "Top Hat Deli \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Matzo Ball Soup is listed at $14",
+      "Reuben is listed at $18",
+      "Nova Lox Sandwich includes bagel, cream cheese, onion, and tomato"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Deli serving Matzo Ball Soup, Reuben, and Nova Lox Sandwich",
+    "why_here": "Top Hat Deli serves breakfast and lunch including Matzo Ball Soup, Reuben, and Nova Lox Sandwich with bagel, cream cheese, onion, and tomato. It is located at 415 NE 3rd Street in Fort Lauderdale.",
+    "know_before": "Breakfast and lunch are served from 8:00 a.m. - 3:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://tophatftl.com/"
+     ],
+     "why_here": [
+      "https://tophatftl.com/"
+     ],
+     "know_before": [
+      "https://tophatftl.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Top Hat Deli is at 415 NE 3rd Street, Fort Lauderdale, FL 33301",
+      "source": "https://tophatftl.com/"
+     },
+     {
+      "claim": "Breakfast and lunch are served from 8:00 a.m. - 3:00 p.m.",
+      "source": "https://tophatftl.com/"
+     },
+     {
+      "claim": "Matzo Ball Soup is listed at $14",
+      "source": "https://tophatftl.com/menus"
+     },
+     {
+      "claim": "Reuben is listed at $18",
+      "source": "https://tophatftl.com/menus"
+     },
+     {
+      "claim": "Nova Lox Sandwich includes bagel, cream cheese, onion, and tomato",
+      "source": "https://tophatftl.com/menus"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJlX5muXqd5ogRUR2vZszNBHw",
+   "name": "Embassy Suites by Hilton St Augustine Beach Oceanfront Resort",
+   "category": "hotels",
+   "metro": "florida",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.hilton.com/en/hotels/ustboes-embassy-suites-st-augustine-beach-oceanfront-resort/",
+     "source_name": "Embassy Suites by Hilton St Augustine Beach Oceanfront Resort \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Embassy Suites by Hilton St Augustine Beach Oceanfront Resort offers free made-to-order breakfast",
+      "The resort offers a complimentary evening reception",
+      "The resort has an outdoor pool",
+      "Castaway Cantina serves Latin-inspired dishes with a wide selection of craft beers",
+      "Castaway Cantina is a poolside bar at the resort"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Oceanfront resort with outdoor pool and poolside Castaway Cantina",
+    "why_here": "Stay for free made-to-order breakfast and a complimentary evening reception, then use the outdoor pool and poolside Castaway Cantina, which serves Latin-inspired dishes with craft beers.",
+    "know_before": "Free made-to-order breakfast and a complimentary evening reception are offered at the resort.",
+    "local_tip": "Castaway Cantina serves Latin-inspired dishes and craft beers by the outdoor pool.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.hilton.com/en/hotels/ustboes-embassy-suites-st-augustine-beach-oceanfront-resort/"
+     ],
+     "why_here": [
+      "https://www.hilton.com/en/hotels/ustboes-embassy-suites-st-augustine-beach-oceanfront-resort/"
+     ],
+     "know_before": [
+      "https://www.hilton.com/en/hotels/ustboes-embassy-suites-st-augustine-beach-oceanfront-resort/"
+     ],
+     "local_tip": [
+      "https://www.hilton.com/en/hotels/ustboes-embassy-suites-st-augustine-beach-oceanfront-resort/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Embassy Suites by Hilton St Augustine Beach Oceanfront Resort offers free made-to-order breakfast",
+      "source": "https://www.hilton.com/en/hotels/ustboes-embassy-suites-st-augustine-beach-oceanfront-resort/"
+     },
+     {
+      "claim": "The resort offers a complimentary evening reception",
+      "source": "https://www.hilton.com/en/hotels/ustboes-embassy-suites-st-augustine-beach-oceanfront-resort/"
+     },
+     {
+      "claim": "The resort has an outdoor pool",
+      "source": "https://www.hilton.com/en/hotels/ustboes-embassy-suites-st-augustine-beach-oceanfront-resort/"
+     },
+     {
+      "claim": "Castaway Cantina serves Latin-inspired dishes with a wide selection of craft beers",
+      "source": "https://www.hilton.com/en/hotels/ustboes-embassy-suites-st-augustine-beach-oceanfront-resort/"
+     },
+     {
+      "claim": "Castaway Cantina is a poolside bar at the resort",
+      "source": "https://www.hilton.com/en/hotels/ustboes-embassy-suites-st-augustine-beach-oceanfront-resort/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJd1obl3gB2YgRBCA14NQZcR4",
+   "name": "Nub\u00e9 Rooftop",
+   "category": "nightlife",
+   "metro": "broward",
+   "primary_type": "cocktail_bar",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://nuberooftop.com/brunch/",
+     "source_name": "Nub\u00e9 Rooftop \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Nub\u00e9 is on the 26th floor above Fort Lauderdale Beach",
+      "Nub\u00e9 offers weekend brunch every Saturday and Sunday from 11 a.m. to 4 p.m.",
+      "Nub\u00e9 serves crafted cocktails and shareable plates",
+      "Nub\u00e9 offers sweeping views of Fort Lauderdale Beach"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Rooftop brunch on the 26th floor above Fort Lauderdale Beach",
+    "why_here": "Go for weekend brunch every Saturday and Sunday from 11 a.m. to 4 p.m., with crafted cocktails and shareable plates above Fort Lauderdale Beach on the 26th floor.",
+    "know_before": "Weekend brunch runs Saturday and Sunday from 11 a.m. to 4 p.m.",
+    "local_tip": "Crafted cocktails and shareable plates are served during weekend brunch.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://nuberooftop.com/brunch/"
+     ],
+     "why_here": [
+      "https://nuberooftop.com/brunch/"
+     ],
+     "know_before": [
+      "https://nuberooftop.com/brunch/"
+     ],
+     "local_tip": [
+      "https://nuberooftop.com/brunch/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Nub\u00e9 is on the 26th floor above Fort Lauderdale Beach",
+      "source": "https://nuberooftop.com/brunch/"
+     },
+     {
+      "claim": "Nub\u00e9 offers weekend brunch every Saturday and Sunday from 11 a.m. to 4 p.m.",
+      "source": "https://nuberooftop.com/brunch/"
+     },
+     {
+      "claim": "Nub\u00e9 serves crafted cocktails and shareable plates",
+      "source": "https://nuberooftop.com/brunch/"
+     },
+     {
+      "claim": "Nub\u00e9 offers sweeping views of Fort Lauderdale Beach",
+      "source": "https://nuberooftop.com/brunch/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJyW9tubGz2YgRHHWbuh2sJJI",
+   "name": "Neya Restaurant",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://neyarestaurant.com/",
+     "source_name": "Neya Restaurant \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Neya in Surfside serves Mediterranean and Israeli cuisine",
+      "Neya is Kosher Certified",
+      "Executive Chef Ben Siman Tov creates modern Israeli cuisine with Mediterranean flavors",
+      "The bar serves craft cocktails inspired by Middle Eastern flavors"
+     ]
+    },
+    {
+     "source": "https://neyarestaurant.com/news-category/our-menu/",
+     "source_name": "Neya Restaurant \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The menu features Hamachi Carpaccio and TLV Seafood Paella"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Kosher Certified Mediterranean and Israeli cuisine in Surfside",
+    "why_here": "Try modern Israeli cuisine with Mediterranean flavors from Executive Chef Ben Siman Tov, including Hamachi Carpaccio and TLV Seafood Paella, plus craft cocktails inspired by Middle Eastern flavors.",
+    "know_before": "Neya is Kosher Certified.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://neyarestaurant.com/"
+     ],
+     "why_here": [
+      "https://neyarestaurant.com/"
+     ],
+     "know_before": [
+      "https://neyarestaurant.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Neya in Surfside serves Mediterranean and Israeli cuisine",
+      "source": "https://neyarestaurant.com/"
+     },
+     {
+      "claim": "Neya is Kosher Certified",
+      "source": "https://neyarestaurant.com/"
+     },
+     {
+      "claim": "Executive Chef Ben Siman Tov creates modern Israeli cuisine with Mediterranean flavors",
+      "source": "https://neyarestaurant.com/"
+     },
+     {
+      "claim": "The menu features Hamachi Carpaccio and TLV Seafood Paella",
+      "source": "https://neyarestaurant.com/news-category/our-menu/"
+     },
+     {
+      "claim": "The bar serves craft cocktails inspired by Middle Eastern flavors",
+      "source": "https://neyarestaurant.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJe-Xf3B-92YgRRg7WqR-SWH0",
+   "name": "Takesh Grill",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "mediterranean_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://takeshgrill.com/",
+     "source_name": "Takesh Grill \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Takesh Grill blends Mediterranean and Lebanese flavors",
+      "Takesh Grill serves a traditional mezze platter of hummus, baba ganoush, tabbouleh, and stuffed grape leaves",
+      "Takesh Grill signature shawarma is served with aromatic rice",
+      "Takesh Grill serves freshly baked pita bread",
+      "Takesh Grill menu includes vegetarian and vegan options"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Mediterranean and Lebanese restaurant serving mezze platter and signature shawarma",
+    "why_here": "Start with a traditional mezze platter of hummus, baba ganoush, tabbouleh, and stuffed grape leaves, then try signature shawarma served with aromatic rice and freshly baked pita bread.",
+    "know_before": "Takesh Grill menu includes vegetarian and vegan options.",
+    "local_tip": "Freshly baked pita bread pairs with the traditional mezze platter.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://takeshgrill.com/"
+     ],
+     "why_here": [
+      "https://takeshgrill.com/"
+     ],
+     "know_before": [
+      "https://takeshgrill.com/"
+     ],
+     "local_tip": [
+      "https://takeshgrill.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Takesh Grill blends Mediterranean and Lebanese flavors",
+      "source": "https://takeshgrill.com/"
+     },
+     {
+      "claim": "Takesh Grill serves a traditional mezze platter of hummus, baba ganoush, tabbouleh, and stuffed grape leaves",
+      "source": "https://takeshgrill.com/"
+     },
+     {
+      "claim": "Takesh Grill signature shawarma is served with aromatic rice",
+      "source": "https://takeshgrill.com/"
+     },
+     {
+      "claim": "Takesh Grill serves freshly baked pita bread",
+      "source": "https://takeshgrill.com/"
+     },
+     {
+      "claim": "Takesh Grill menu includes vegetarian and vegan options",
+      "source": "https://takeshgrill.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJZbR_3aO22YgROu6kdumheKA",
+   "name": "E11EVEN MIAMI",
+   "category": "nightlife",
+   "metro": "miami-dade",
+   "primary_type": "night_club",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.11miami.com",
+     "source_name": "E11EVEN MIAMI \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "E11EVEN Miami is a 24-hour ultraclub in downtown Miami",
+      "E11EVEN Miami features performers and DJs, food and drinks, and private VIP rooms",
+      "E11EVEN Miami features cirque-style theatrical shows",
+      "E11EVEN Miami is at 29 Northeast 11th Street"
+     ]
+    },
+    {
+     "source": "https://www.11miami.com/accessibility",
+     "source_name": "E11EVEN MIAMI \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "E11EVEN Miami is a 21+ venue"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "24-hour ultraclub in downtown Miami with performers and DJs",
+    "why_here": "Go for a 24-hour ultraclub in downtown Miami with performers and DJs, food and drinks, private VIP rooms, and cirque-style theatrical shows at 29 Northeast 11th Street.",
+    "know_before": "E11EVEN Miami is a 21+ venue.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.11miami.com"
+     ],
+     "why_here": [
+      "https://www.11miami.com"
+     ],
+     "know_before": [
+      "https://www.11miami.com"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "E11EVEN Miami is a 24-hour ultraclub in downtown Miami",
+      "source": "https://www.11miami.com"
+     },
+     {
+      "claim": "E11EVEN Miami features performers and DJs, food and drinks, and private VIP rooms",
+      "source": "https://www.11miami.com"
+     },
+     {
+      "claim": "E11EVEN Miami features cirque-style theatrical shows",
+      "source": "https://www.11miami.com"
+     },
+     {
+      "claim": "E11EVEN Miami is at 29 Northeast 11th Street",
+      "source": "https://www.11miami.com"
+     },
+     {
+      "claim": "E11EVEN Miami is a 21+ venue",
+      "source": "https://www.11miami.com/accessibility"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ-w3buNqDk4gRNAXjBrpP4WY",
+   "name": "O'Charley's Restaurant & Bar",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.ocharleys.com/vip",
+     "source_name": "O'Charley's Restaurant & Bar \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "O'Charley's Famous Chicken Tenders are hand-breaded in seasonings, dipped in buttermilk, breaded again, and cooked to order",
+      "O'Charley's Famous Chicken Tenders are served with honey mustard",
+      "Four tenders are served with fries at O'Charley's"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Hand-breaded chicken tenders served with honey mustard",
+    "why_here": "O'Charley's Famous Chicken Tenders are hand-breaded in seasonings, dipped in buttermilk, breaded again, and cooked to order, served with honey mustard.",
+    "know_before": "Four tenders are served with fries at O'Charley's.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.ocharleys.com/vip"
+     ],
+     "why_here": [
+      "https://www.ocharleys.com/vip"
+     ],
+     "know_before": [
+      "https://www.ocharleys.com/vip"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "O'Charley's Famous Chicken Tenders are hand-breaded in seasonings, dipped in buttermilk, breaded again, and cooked to order",
+      "source": "https://www.ocharleys.com/vip"
+     },
+     {
+      "claim": "O'Charley's Famous Chicken Tenders are served with honey mustard",
+      "source": "https://www.ocharleys.com/vip"
+     },
+     {
+      "claim": "Four tenders are served with fries at O'Charley's",
+      "source": "https://www.ocharleys.com/vip"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJxyd_L9iD3YgRuxJbuXKMRtk",
+   "name": "Chimiking Restaurant | Kissimmee",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "latin_american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://chimikingrestaurant.com/chimiking-kissimmee/",
+     "source_name": "Chimiking Restaurant | Kissimmee \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Chimiking Kissimmee is a full-service Dominican and Puerto Rican dining location on John Young Parkway",
+      "Chimiking serves mofongo, sancocho, and pernil",
+      "Chimiking serves tostones, chicharrones, and alcapurrias",
+      "Mofongo is hand-mashed in the traditional pil\u00f3n at Chimiking"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Dominican and Puerto Rican dining on John Young Parkway",
+    "why_here": "Chimiking Kissimmee is a full-service Dominican and Puerto Rican dining location on John Young Parkway, serving mofongo, sancocho, and pernil plus tostones.",
+    "know_before": "Mofongo is hand-mashed in the traditional pil\u00f3n at Chimiking.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://chimikingrestaurant.com/chimiking-kissimmee/"
+     ],
+     "why_here": [
+      "https://chimikingrestaurant.com/chimiking-kissimmee/"
+     ],
+     "know_before": [
+      "https://chimikingrestaurant.com/chimiking-kissimmee/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Chimiking Kissimmee is a full-service Dominican and Puerto Rican dining location on John Young Parkway",
+      "source": "https://chimikingrestaurant.com/chimiking-kissimmee/"
+     },
+     {
+      "claim": "Chimiking serves mofongo, sancocho, and pernil",
+      "source": "https://chimikingrestaurant.com/chimiking-kissimmee/"
+     },
+     {
+      "claim": "Chimiking serves tostones, chicharrones, and alcapurrias",
+      "source": "https://chimikingrestaurant.com/chimiking-kissimmee/"
+     },
+     {
+      "claim": "Mofongo is hand-mashed in the traditional pil\u00f3n at Chimiking",
+      "source": "https://chimikingrestaurant.com/chimiking-kissimmee/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ44JhAYoZ24gR0npqIdA7KTw",
+   "name": "Wonder Gardens",
+   "category": "attractions",
+   "metro": "immokalee-fl",
+   "primary_type": "zoo",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://wondergardens.org/",
+     "source_name": "Wonder Gardens \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Wonder Gardens is a botanical garden and refuge for rescued and non-releasable birds and reptiles"
+     ]
+    },
+    {
+     "source": "https://wondergardens.org/admission/",
+     "source_name": "Wonder Gardens \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Business hours are 9 a.m. to 4 p.m.",
+      "Last admission is at 3 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Botanical garden and refuge for rescued and non-releasable birds and reptiles",
+    "why_here": "Visit a botanical garden that is a refuge for rescued and non-releasable birds and reptiles. Plan entry before last admission at 3 p.m., during business hours of 9 a.m. to 4 p.m.",
+    "know_before": "Last admission is at 3 p.m.; business hours are 9 a.m. to 4 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://wondergardens.org/"
+     ],
+     "why_here": [
+      "https://wondergardens.org/"
+     ],
+     "know_before": [
+      "https://wondergardens.org/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Wonder Gardens is a botanical garden and refuge for rescued and non-releasable birds and reptiles",
+      "source": "https://wondergardens.org/"
+     },
+     {
+      "claim": "Business hours are 9 a.m. to 4 p.m.",
+      "source": "https://wondergardens.org/admission/"
+     },
+     {
+      "claim": "Last admission is at 3 p.m.",
+      "source": "https://wondergardens.org/admission/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJlV1YTvzo3ogR7tNB272ZeB0",
+   "name": "Port St. Lucie Botanical Gardens",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "botanical_garden",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.pslbg.org/admission/",
+     "source_name": "Port St. Lucie Botanical Gardens \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Port St. Lucie Botanical Gardens opened March 2010 and is 21 acres",
+      "Pavilion and Garden Hours are Tuesday \u2013 Saturday 10 a.m. \u2013 4 p.m.",
+      "Suggested donation is $5.00 per person",
+      "Closed on Mondays and Major Holidays"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Botanical Gardens opened March 2010 on 21 acres",
+    "why_here": "Walk a 21 acres botanical garden that opened March 2010. Visit during Pavilion and Garden Hours Tuesday \u2013 Saturday 10 a.m. \u2013 4 p.m. for a suggested donation of $5.00 per person.",
+    "know_before": "Closed on Mondays.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.pslbg.org/admission/"
+     ],
+     "why_here": [
+      "https://www.pslbg.org/admission/"
+     ],
+     "know_before": [
+      "https://www.pslbg.org/admission/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Port St. Lucie Botanical Gardens opened March 2010 and is 21 acres",
+      "source": "https://www.pslbg.org/admission/"
+     },
+     {
+      "claim": "Pavilion and Garden Hours are Tuesday \u2013 Saturday 10 a.m. \u2013 4 p.m.",
+      "source": "https://www.pslbg.org/admission/"
+     },
+     {
+      "claim": "Suggested donation is $5.00 per person",
+      "source": "https://www.pslbg.org/admission/"
+     },
+     {
+      "claim": "Closed on Mondays and Major Holidays",
+      "source": "https://www.pslbg.org/admission/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJJV0KY4G22YgR4nLcqfiVgv0",
+   "name": "JW Marriott Miami",
+   "category": "hotels",
+   "metro": "miami-dade",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.marriott.com/en-us/hotels/miajw-jw-marriott-miami/overview/",
+     "source_name": "JW Marriott Miami \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "JW Marriott Miami has 296 guest rooms",
+      "JW Marriott Miami has a stylish stainless steel pool on the 7th floor",
+      "JW Marriott Miami is in Brickell, Miami",
+      "JW Marriott Miami has over 25,000 sq ft of flexible meeting space"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Hotel with 296 guest rooms and a stainless steel pool on the 7th floor",
+    "why_here": "Stay in Brickell, Miami, with 296 guest rooms and a stylish stainless steel pool on the 7th floor for a swim between plans in the city.",
+    "know_before": "The pool is on the 7th floor, and the hotel has 296 guest rooms.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.marriott.com/en-us/hotels/miajw-jw-marriott-miami/overview/"
+     ],
+     "why_here": [
+      "https://www.marriott.com/en-us/hotels/miajw-jw-marriott-miami/overview/"
+     ],
+     "know_before": [
+      "https://www.marriott.com/en-us/hotels/miajw-jw-marriott-miami/overview/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "JW Marriott Miami has 296 guest rooms",
+      "source": "https://www.marriott.com/en-us/hotels/miajw-jw-marriott-miami/overview/"
+     },
+     {
+      "claim": "JW Marriott Miami has a stylish stainless steel pool on the 7th floor",
+      "source": "https://www.marriott.com/en-us/hotels/miajw-jw-marriott-miami/overview/"
+     },
+     {
+      "claim": "JW Marriott Miami is in Brickell, Miami",
+      "source": "https://www.marriott.com/en-us/hotels/miajw-jw-marriott-miami/overview/"
+     },
+     {
+      "claim": "JW Marriott Miami has over 25,000 sq ft of flexible meeting space",
+      "source": "https://www.marriott.com/en-us/hotels/miajw-jw-marriott-miami/overview/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJnfHh8xgA2YgRVZyn89wf5_k",
+   "name": "Lago Mar Beach Resort & Club",
+   "category": "hotels",
+   "metro": "broward",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://lagomar.com/play/",
+     "source_name": "Lago Mar Beach Resort & Club \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The 10-acre private estate includes a lagoon-style pool, 500-foot private beach, mini-golf, playground, tennis, pickleball, basketball, and giant lawn chess",
+      "Lago Mar has a large lagoon-style pool designed for families with children and a quieter pool situated closer to the ocean",
+      "Both pools are heated year-round"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Resort with a lagoon-style pool and a 500-foot private beach",
+    "why_here": "Stay on the 10-acre private estate with a lagoon-style pool, a 500-foot private beach, mini-golf, playground, tennis, pickleball, basketball, and giant lawn chess.",
+    "know_before": "Both pools are heated year-round, with a quieter pool closer to the ocean.",
+    "local_tip": "Pick the quieter pool closer to the ocean for a relaxed day.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://lagomar.com/play/"
+     ],
+     "why_here": [
+      "https://lagomar.com/play/"
+     ],
+     "know_before": [
+      "https://lagomar.com/play/"
+     ],
+     "local_tip": [
+      "https://lagomar.com/play/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The 10-acre private estate includes a lagoon-style pool, 500-foot private beach, mini-golf, playground, tennis, pickleball, basketball, and giant lawn chess",
+      "source": "https://lagomar.com/play/"
+     },
+     {
+      "claim": "Lago Mar has a large lagoon-style pool designed for families with children and a quieter pool situated closer to the ocean",
+      "source": "https://lagomar.com/play/"
+     },
+     {
+      "claim": "Both pools are heated year-round",
+      "source": "https://lagomar.com/play/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJSUgxuDvFkIgRRxUc_J2_PdI",
+   "name": "Bounce Beach Pensacola",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://bouncesportingclub.com/pensacola/",
+     "source_name": "Bounce Beach Pensacola \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Bounce Beach Pensacola is located at 400 Quietwater Beach Rd, Pensacola Beach, Florida 32561",
+      "Bounce Beach Pensacola describes itself as Your Beachside Sports Bar",
+      "The Pensacola page lists a FOOD MENU, BRUNCH MENU and DRINK MENU",
+      "Hours are Tuesday to Thursday 11 a.m. to 9 p.m.",
+      "Hours are Friday 11 a.m. to 10 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Your Beachside Sports Bar at 400 Quietwater Beach Rd, Pensacola Beach",
+    "why_here": "Go for Your Beachside Sports Bar at 400 Quietwater Beach Rd, Pensacola Beach, Florida 32561, where the Pensacola page lists a FOOD MENU, BRUNCH MENU and DRINK MENU.",
+    "know_before": "Hours are Tuesday to Thursday 11 a.m. to 9 p.m. and Friday 11 a.m. to 10 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://bouncesportingclub.com/pensacola/"
+     ],
+     "why_here": [
+      "https://bouncesportingclub.com/pensacola/"
+     ],
+     "know_before": [
+      "https://bouncesportingclub.com/pensacola/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Bounce Beach Pensacola is located at 400 Quietwater Beach Rd, Pensacola Beach, Florida 32561",
+      "source": "https://bouncesportingclub.com/pensacola/"
+     },
+     {
+      "claim": "Bounce Beach Pensacola describes itself as Your Beachside Sports Bar",
+      "source": "https://bouncesportingclub.com/pensacola/"
+     },
+     {
+      "claim": "The Pensacola page lists a FOOD MENU, BRUNCH MENU and DRINK MENU",
+      "source": "https://bouncesportingclub.com/pensacola/"
+     },
+     {
+      "claim": "Hours are Tuesday to Thursday 11 a.m. to 9 p.m.",
+      "source": "https://bouncesportingclub.com/pensacola/"
+     },
+     {
+      "claim": "Hours are Friday 11 a.m. to 10 p.m.",
+      "source": "https://bouncesportingclub.com/pensacola/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJhzQvX3oB3ogRShkmzDQUqGU",
+   "name": "My Island Pancake House",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "breakfast_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.merrittislandpancakehouse.com/our-story/",
+     "source_name": "My Island Pancake House \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "My Island Pancake House is Locally Owned and Operated",
+      "My Island Pancake House opened in September of 2020",
+      "My Island Pancake House is in Rockledge, FL",
+      "There are Three Pancake houses in Brevard County",
+      "The most recent location is in Melbourne, Florida"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Locally Owned and Operated pancake house in Rockledge, FL",
+    "why_here": "Visit a Locally Owned and Operated pancake house in Rockledge, FL that opened in September of 2020, part of Three Pancake houses in Brevard County with a location in Melbourne, Florida.",
+    "know_before": "My Island Pancake House opened in September of 2020 in Rockledge, FL.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.merrittislandpancakehouse.com/our-story/"
+     ],
+     "why_here": [
+      "https://www.merrittislandpancakehouse.com/our-story/"
+     ],
+     "know_before": [
+      "https://www.merrittislandpancakehouse.com/our-story/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "My Island Pancake House is Locally Owned and Operated",
+      "source": "https://www.merrittislandpancakehouse.com/our-story/"
+     },
+     {
+      "claim": "My Island Pancake House opened in September of 2020",
+      "source": "https://www.merrittislandpancakehouse.com/our-story/"
+     },
+     {
+      "claim": "My Island Pancake House is in Rockledge, FL",
+      "source": "https://www.merrittislandpancakehouse.com/our-story/"
+     },
+     {
+      "claim": "There are Three Pancake houses in Brevard County",
+      "source": "https://www.merrittislandpancakehouse.com/our-story/"
+     },
+     {
+      "claim": "The most recent location is in Melbourne, Florida",
+      "source": "https://www.merrittislandpancakehouse.com/our-story/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJmcZ22HARw4gR5Th1Pxcl9II",
+   "name": "Star Fish Company",
+   "category": "shopping",
+   "metro": "manatee-sarasota",
+   "primary_type": "market",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.starfishcompany.com/",
+     "source_name": "Star Fish Company \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Star Fish Company is a Seafood Market and Dockside Restaurant",
+      "Star Fish Company has a dockside dining area with views of Sarasota Bay",
+      "Most seafood at Star Fish Company Seafood Market is caught locally",
+      "Dishes at Star Fish Company are fresh from the Star Fish Seafood Market",
+      "Seafood at Star Fish Company can be prepared grilled, saut\u00e9ed, or fried",
+      "Star Fish Company is in Cortez"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Seafood Market and Dockside Restaurant with views of Sarasota Bay",
+    "why_here": "Come for a Seafood Market and Dockside Restaurant in Cortez where most seafood is caught locally, dishes are fresh from the Star Fish Seafood Market, and dining looks over Sarasota Bay.",
+    "know_before": "Seafood at Star Fish Company can be prepared grilled, saut\u00e9ed, or fried.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.starfishcompany.com/"
+     ],
+     "why_here": [
+      "https://www.starfishcompany.com/"
+     ],
+     "know_before": [
+      "https://www.starfishcompany.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Star Fish Company is a Seafood Market and Dockside Restaurant",
+      "source": "https://www.starfishcompany.com/"
+     },
+     {
+      "claim": "Star Fish Company has a dockside dining area with views of Sarasota Bay",
+      "source": "https://www.starfishcompany.com/"
+     },
+     {
+      "claim": "Most seafood at Star Fish Company Seafood Market is caught locally",
+      "source": "https://www.starfishcompany.com/"
+     },
+     {
+      "claim": "Dishes at Star Fish Company are fresh from the Star Fish Seafood Market",
+      "source": "https://www.starfishcompany.com/"
+     },
+     {
+      "claim": "Seafood at Star Fish Company can be prepared grilled, saut\u00e9ed, or fried",
+      "source": "https://www.starfishcompany.com/"
+     },
+     {
+      "claim": "Star Fish Company is in Cortez",
+      "source": "https://www.starfishcompany.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJcbXLCFI_kYgRzw7B43Oe02Q",
+   "name": "Wild Willy's Adventure Zone",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "amusement_park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://wwazone.com/",
+     "source_name": "Wild Willy's Adventure Zone \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Wild Willy's Adventure Zone is a family amusement park in Okaloosa Island",
+      "Wild Willy's Adventure Zone brings indoor attractions and outdoor rides together",
+      "Guests can head indoors for arcade action and interactive attractions at Wild Willy's Adventure Zone",
+      "A private room is available for celebrations at Wild Willy's Adventure Zone"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Family amusement park in Okaloosa Island with indoor attractions and outdoor rides",
+    "why_here": "Bring a group to a family amusement park in Okaloosa Island that brings indoor attractions and outdoor rides together, with arcade action and interactive attractions indoors and a private room for celebrations.",
+    "know_before": "A private room is available for celebrations at Wild Willy's Adventure Zone.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://wwazone.com/"
+     ],
+     "why_here": [
+      "https://wwazone.com/"
+     ],
+     "know_before": [
+      "https://wwazone.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Wild Willy's Adventure Zone is a family amusement park in Okaloosa Island",
+      "source": "https://wwazone.com/"
+     },
+     {
+      "claim": "Wild Willy's Adventure Zone brings indoor attractions and outdoor rides together",
+      "source": "https://wwazone.com/"
+     },
+     {
+      "claim": "Guests can head indoors for arcade action and interactive attractions at Wild Willy's Adventure Zone",
+      "source": "https://wwazone.com/"
+     },
+     {
+      "claim": "A private room is available for celebrations at Wild Willy's Adventure Zone",
+      "source": "https://wwazone.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJKwPVA7Pi2IgRwh1yesXjCZc",
+   "name": "The Nauti Dawg Waterfront Restaurant & Bar",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.nautidawg.com/",
+     "source_name": "The Nauti Dawg Waterfront Restaurant & Bar \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Nauti Dawg offers a unique waterfront dining experience",
+      "Nauti Dawg serves fresh-catch seafood",
+      "Guests can arrive by boat or by land at Nauti Dawg",
+      "Brunch selections are offered every Saturday and Sunday at Nauti Dawg"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Waterfront dining with fresh-catch seafood at Nauti Dawg",
+    "why_here": "Try waterfront dining with fresh-catch seafood at Nauti Dawg, where guests can arrive by boat or by land and brunch selections are offered every Saturday and Sunday.",
+    "know_before": "Brunch selections are offered every Saturday and Sunday at Nauti Dawg.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.nautidawg.com/"
+     ],
+     "why_here": [
+      "https://www.nautidawg.com/"
+     ],
+     "know_before": [
+      "https://www.nautidawg.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Nauti Dawg offers a unique waterfront dining experience",
+      "source": "https://www.nautidawg.com/"
+     },
+     {
+      "claim": "Nauti Dawg serves fresh-catch seafood",
+      "source": "https://www.nautidawg.com/"
+     },
+     {
+      "claim": "Guests can arrive by boat or by land at Nauti Dawg",
+      "source": "https://www.nautidawg.com/"
+     },
+     {
+      "claim": "Brunch selections are offered every Saturday and Sunday at Nauti Dawg",
+      "source": "https://www.nautidawg.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJY59o-zQH2YgRlKK3kMiqqrI",
+   "name": "Kaluz Restaurant Plantation",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.kaluzrestaurant.com/kaluz-plantation/",
+     "source_name": "Kaluz Restaurant Plantation \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Kaluz Plantation is located in the heart of Plantation",
+      "Kaluz Plantation serves Chilean Seabass",
+      "Kaluz Plantation serves Classic Filet Mignon with B\u00e9arnaise",
+      "Kaluz Plantation serves Fire Grilled Artichoke",
+      "Kaluz Plantation offers five made from scratch desserts",
+      "Reservations for parties 4 or less can be made directly on line; for larger parties, call 954-820-9050"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Restaurant in the heart of Plantation serving Chilean Seabass",
+    "why_here": "Order Chilean Seabass, Classic Filet Mignon with B\u00e9arnaise or Fire Grilled Artichoke in the heart of Plantation, and finish with one of five made from scratch desserts at Kaluz Plantation.",
+    "know_before": "Reservations for parties 4 or less can be made directly on line; for larger parties, call 954-820-9050.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.kaluzrestaurant.com/kaluz-plantation/"
+     ],
+     "why_here": [
+      "https://www.kaluzrestaurant.com/kaluz-plantation/"
+     ],
+     "know_before": [
+      "https://www.kaluzrestaurant.com/kaluz-plantation/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Kaluz Plantation is located in the heart of Plantation",
+      "source": "https://www.kaluzrestaurant.com/kaluz-plantation/"
+     },
+     {
+      "claim": "Kaluz Plantation serves Chilean Seabass",
+      "source": "https://www.kaluzrestaurant.com/kaluz-plantation/"
+     },
+     {
+      "claim": "Kaluz Plantation serves Classic Filet Mignon with B\u00e9arnaise",
+      "source": "https://www.kaluzrestaurant.com/kaluz-plantation/"
+     },
+     {
+      "claim": "Kaluz Plantation serves Fire Grilled Artichoke",
+      "source": "https://www.kaluzrestaurant.com/kaluz-plantation/"
+     },
+     {
+      "claim": "Kaluz Plantation offers five made from scratch desserts",
+      "source": "https://www.kaluzrestaurant.com/kaluz-plantation/"
+     },
+     {
+      "claim": "Reservations for parties 4 or less can be made directly on line; for larger parties, call 954-820-9050",
+      "source": "https://www.kaluzrestaurant.com/kaluz-plantation/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJk03A9WbL5YgR38sH4dxiDwo",
+   "name": "Carolina Jax",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.carolinajax.com",
+     "source_name": "Carolina Jax \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Carolina Jax serves burgers made with fresh 80/20 chuck",
+      "Carolina Jax uses Idaho grown US No 1 potatoes",
+      "Carolina Jax is at 2548 Oak Street, Jacksonville, Florida 32204, United States"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Burgers made with fresh 80/20 chuck in Jacksonville",
+    "why_here": "Carolina Jax serves burgers made with fresh 80/20 chuck and Idaho grown US No 1 potatoes in Jacksonville. The site describes seasoned ground beef pressed for burgers and potatoes prepared for crisp fries.",
+    "know_before": "Carolina Jax is at 2548 Oak Street, Jacksonville, Florida 32204, United States.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.carolinajax.com"
+     ],
+     "why_here": [
+      "https://www.carolinajax.com"
+     ],
+     "know_before": [
+      "https://www.carolinajax.com"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Carolina Jax serves burgers made with fresh 80/20 chuck",
+      "source": "https://www.carolinajax.com"
+     },
+     {
+      "claim": "Carolina Jax uses Idaho grown US No 1 potatoes",
+      "source": "https://www.carolinajax.com"
+     },
+     {
+      "claim": "Carolina Jax is at 2548 Oak Street, Jacksonville, Florida 32204, United States",
+      "source": "https://www.carolinajax.com"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ_9LfFEQb2YgRgpJBjfKNotw",
+   "name": "Rock n Roll Ribs",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "barbecue_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.rocknrollribs.org",
+     "source_name": "Rock n Roll Ribs \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Rock n Roll Ribs serves Baby Back Ribs",
+      "Rock n Roll Ribs serves barbecue with signature sauces",
+      "Rock n Roll Ribs is at 4651 State Rd 7 (US 441) Coral Springs, FL 33073",
+      "Rock n Roll Ribs serves pulled pork"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Barbecue including Baby Back Ribs in Coral Springs",
+    "why_here": "Rock n Roll Ribs serves barbecue including Baby Back Ribs in Coral Springs. The official site describes a menu with Baby Back Ribs and signature sauces, plus pulled pork and chicken dishes for barbecue meals.",
+    "know_before": "Rock n Roll Ribs is at 4651 State Rd 7 (US 441) Coral Springs, FL 33073.",
+    "local_tip": "Try Baby Back Ribs at Rock n Roll Ribs.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.rocknrollribs.org"
+     ],
+     "why_here": [
+      "https://www.rocknrollribs.org"
+     ],
+     "know_before": [
+      "https://www.rocknrollribs.org"
+     ],
+     "local_tip": [
+      "https://www.rocknrollribs.org"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Rock n Roll Ribs serves Baby Back Ribs",
+      "source": "https://www.rocknrollribs.org"
+     },
+     {
+      "claim": "Rock n Roll Ribs serves barbecue with signature sauces",
+      "source": "https://www.rocknrollribs.org"
+     },
+     {
+      "claim": "Rock n Roll Ribs is at 4651 State Rd 7 (US 441) Coral Springs, FL 33073",
+      "source": "https://www.rocknrollribs.org"
+     },
+     {
+      "claim": "Rock n Roll Ribs serves pulled pork",
+      "source": "https://www.rocknrollribs.org"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJc6bO0wb9wogREYiMEYjINqY",
+   "name": "Mad Beach Cantina",
+   "category": "food",
+   "metro": "st-pete",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://madbeachcantina.com",
+     "source_name": "Mad Beach Cantina \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Mad Beach Cantina serves Mexican cuisine",
+      "Mad Beach Cantina serves ceviche",
+      "Mad Beach Cantina serves tacos",
+      "Mad Beach Cantina serves contemporary Mexican cuisine",
+      "Mad Beach Cantina is at 13205 Gulf Ln, Madeira Beach, FL 33708"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Mexican cuisine including ceviche and tacos in Madeira Beach",
+    "why_here": "Mad Beach Cantina serves Mexican cuisine including ceviche and tacos in Madeira Beach. The official site describes contemporary Mexican cuisine and lists ceviche and tacos among the dishes offered at the restaurant.",
+    "know_before": "Mad Beach Cantina is at 13205 Gulf Ln, Madeira Beach, FL 33708.",
+    "local_tip": "Try ceviche and tacos at Mad Beach Cantina.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://madbeachcantina.com"
+     ],
+     "why_here": [
+      "https://madbeachcantina.com"
+     ],
+     "know_before": [
+      "https://madbeachcantina.com"
+     ],
+     "local_tip": [
+      "https://madbeachcantina.com"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Mad Beach Cantina serves Mexican cuisine",
+      "source": "https://madbeachcantina.com"
+     },
+     {
+      "claim": "Mad Beach Cantina serves ceviche",
+      "source": "https://madbeachcantina.com"
+     },
+     {
+      "claim": "Mad Beach Cantina serves tacos",
+      "source": "https://madbeachcantina.com"
+     },
+     {
+      "claim": "Mad Beach Cantina serves contemporary Mexican cuisine",
+      "source": "https://madbeachcantina.com"
+     },
+     {
+      "claim": "Mad Beach Cantina is at 13205 Gulf Ln, Madeira Beach, FL 33708",
+      "source": "https://madbeachcantina.com"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJr5bMKYfmwogRYGfC3PXRvYs",
+   "name": "Slice of The Burg",
+   "category": "food",
+   "metro": "st-pete",
+   "primary_type": "pizza_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://sliceoftheburg.com/blank",
+     "source_name": "Slice of The Burg \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Slice of The Burg serves New York-style pizza",
+      "Slice of The Burg serves Pizza alla Vodka",
+      "Slice of The Burg serves wings",
+      "Slice of The Burg serves cheesesteaks",
+      "Slice of The Burg is at 10484 Roosevelt Blvd N, Saint Petersburg, FL 33716"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "New York-style pizza including Pizza alla Vodka in St. Petersburg",
+    "why_here": "Slice of The Burg serves New York-style pizza including Pizza alla Vodka in St. Petersburg. The official site describes pizza made with housemade dough and also lists wings, cheesesteaks and a vegan menu.",
+    "know_before": "Slice of The Burg is at 10484 Roosevelt Blvd N, Saint Petersburg, FL 33716.",
+    "local_tip": "Try Pizza alla Vodka at Slice of The Burg.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://sliceoftheburg.com/blank"
+     ],
+     "why_here": [
+      "https://sliceoftheburg.com/blank"
+     ],
+     "know_before": [
+      "https://sliceoftheburg.com/blank"
+     ],
+     "local_tip": [
+      "https://sliceoftheburg.com/blank"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Slice of The Burg serves New York-style pizza",
+      "source": "https://sliceoftheburg.com/blank"
+     },
+     {
+      "claim": "Slice of The Burg serves Pizza alla Vodka",
+      "source": "https://sliceoftheburg.com/blank"
+     },
+     {
+      "claim": "Slice of The Burg serves wings",
+      "source": "https://sliceoftheburg.com/blank"
+     },
+     {
+      "claim": "Slice of The Burg serves cheesesteaks",
+      "source": "https://sliceoftheburg.com/blank"
+     },
+     {
+      "claim": "Slice of The Burg is at 10484 Roosevelt Blvd N, Saint Petersburg, FL 33716",
+      "source": "https://sliceoftheburg.com/blank"
+     }
+    ]
+   }
+  }
+ ]
+}

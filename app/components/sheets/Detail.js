@@ -24,7 +24,8 @@ import { fallShareLine } from "../../../lib/fallSkin.js";
 import { siteTodayStr } from "../../../lib/siteTime";
 import { couponForPlace, couponIsLive, couponEndsLabel } from "../../../lib/coupons";
 import { eventWhenLabel } from "../../../lib/eventTime";
-import { detailLocationLine } from "../../../lib/locationHonesty.js";
+import { detailLocationLine, localityFromFormattedAddress, placeHeaderLabel } from "../../../lib/locationHonesty.js";
+import { placeCity } from "../../../lib/placeCity.js";
 import * as Dining from "../../../lib/dining";
 import * as Ranking from "../../../lib/ranking";
 import * as Tags from "../../../lib/tags";
@@ -43,6 +44,7 @@ import { useCommerceImpression } from "../useCommerceImpression";
 import { nearbyTourListAllowed, placePartnerPick } from "../../../lib/placePartnerPicks";
 import { usePinQuarantine } from "../../../lib/pinQuarantine";
 import { pairsWellWith } from "../../../lib/pairsWellWith";
+import { chooseDetailNextStep, DETAIL_NEXT_STEP_OPEN, DETAIL_NEXT_STEP_SHOWN } from "../../../lib/detailNextStep.js";
 import { detailNearbyPool, detailDistanceMi, DETAIL_NEARBY_RADIUS_MI } from "../../../lib/detailNearby.js";
 import { askShareIntent } from "../shareIntentSheet";
 import { placeKinds } from "../../../lib/dateInvite";
@@ -472,7 +474,7 @@ export function detailFeedbackPath(detail) {
 }
 
 export default function DetailSheet({ ctx }) {
-  const { detail, setDetail, detailExtra, setLightbox, reviewsOpen, setReviewsOpen, hoursOpen, setHoursOpen, venueEvents, venueEventsLoading, venueEventsOpen, setVenueEventsOpen, videos, videosLoading, beachCond, beachCondLoading, insight, insightLoading, insightFull, insightFullLoading, showMore, viaTours, debugOn, placeComments, setPlaceComments, commentType, setCommentType, placePosts, setPlacePosts, confirmDel, setConfirmDel, taInfo, insider, detailContext, myVotes, communityVotes, galleryRef, noteRef, scrollGallery, loadFullInsight, addReservation, handleVote, loadVenueEvents, placeShareUrl, FeaturedTag, curatedNote, curatedFor, wayfindNotes, betterAlternatives, similarPlaces, relatedPicks, placeKind, isBeach, suggested, places, offers, locName, blurbs, blurbLine, liked, disliked, user, authReady, sheetDragStart, sheetDragMove, sheetDragEnd, quickSaveFavorite, isSaved, toggleLike, toggleDislike, addShared, giveawayMark, logEvent, openExternal, openCuisine, openExperience, openDetail, setAuthOpen, ticketUrl, formatEventDate, shareLink, showToast, dedupePlaces, primaryCategory, experienceBadges, Critter, FallbackImg, liveOpen, weather, isSharedPlaceArrival, BUILD_ID } = ctx;
+  const { detail, setDetail, detailExtra, setLightbox, reviewsOpen, setReviewsOpen, hoursOpen, setHoursOpen, venueEvents, venueEventsLoading, venueEventsOpen, setVenueEventsOpen, videos, videosLoading, beachCond, beachCondLoading, insight, insightLoading, insightFull, insightFullLoading, showMore, viaTours, debugOn, placeComments, setPlaceComments, commentType, setCommentType, placePosts, setPlacePosts, confirmDel, setConfirmDel, taInfo, insider, detailContext, myVotes, communityVotes, galleryRef, noteRef, scrollGallery, loadFullInsight, addReservation, handleVote, loadVenueEvents, placeShareUrl, FeaturedTag, curatedNote, curatedFor, wayfindNotes, betterAlternatives, similarPlaces, relatedPicks, detailGuides, placeKind, isBeach, suggested, places, offers, locName, blurbs, blurbLine, liked, disliked, user, authReady, sheetDragStart, sheetDragMove, sheetDragEnd, quickSaveFavorite, isSaved, toggleLike, toggleDislike, addShared, giveawayMark, logEvent, openExternal, openCuisine, openExperience, openDetail, setAuthOpen, ticketUrl, formatEventDate, shareLink, showToast, dedupePlaces, primaryCategory, experienceBadges, Critter, FallbackImg, liveOpen, weather, isSharedPlaceArrival, BUILD_ID } = ctx;
   const userDistance = usePlaceDistance(detail);
   const venueNearby = useVenueNearby(detail, [...(suggested || []), ...(places || [])], !detail?._event);
   const [lunchChallengeView, setLunchChallengeView] = useState(false);
@@ -564,7 +566,12 @@ export default function DetailSheet({ ctx }) {
   const ftcNearPrimary = !!(detail && !detail._event && primaryCta && primaryCta.monetized && (primaryCta.exact || (primaryCta.type !== DETAIL_CTA_TYPES.tickets && primaryCta.type !== DETAIL_CTA_TYPES.rates)));
   const verdict = detailVerdict({ detail, weather, openState });
   const ctaCategory = Dining.cuisineLabel(detail) || primaryCategory(detail) || placeKind(detail) || "";
-  const ctaCity = locName ? locName.split(",")[0] : "";
+  // The place's own city first. The Viator search term, the list lookup and
+  // the commerce city are about THIS place, not about where the visitor is: a
+  // Parrish visitor opening an Orlando museum sent Viator "The Charles Hosmer
+  // Morse Museum of American Art Parrish" (live, 2026-11-11). The visitor's
+  // city stays the fallback for a place with no trustworthy city.
+  const ctaCity = placeCity(detail) || (locName ? locName.split(",")[0] : "");
   const commerceCtx = primaryCta.monetized ? {
     ...funnelProps("commerce_impression", { metro: ctaCity, cuisine: ctaCategory, placeId: detail.id }),
     surface: "detail",
@@ -848,6 +855,53 @@ export default function DetailSheet({ ctx }) {
   const expandedHero = heroLayoutRef.current.expanded;
   const heroCredit = showHero ? liveCreditFor(detail, galleryPhotos[Math.min(galleryIdx, galleryPhotos.length - 1)]) : null;
 
+  // One closer after the rails that are already on the sheet. A guide that
+  // names this place shows immediately. Anything else waits until the venue
+  // pool has places, or the nearby read has finished, so the index link does
+  // not flash and then get replaced.
+  let nextStep = null;
+  if (detail && !detail._event) {
+    try {
+      const pool = venueNearby.places || [];
+      const badgesOf = (x) => { try { return new Set(experienceBadges(x, null, 99).map((b) => b.key)); } catch (er) { return new Set(); } };
+      const excludeIds = [];
+      for (const pick of pairsWellWith(detail, pool, { max: 3, radiusMi: DETAIL_NEARBY_RADIUS_MI })) if (pick && pick.p && pick.p.id) excludeIds.push(pick.p.id);
+      const shownSimilar = typeof similarPlaces === "function" ? similarPlaces(pool, detail, 4, badgesOf) : [];
+      for (const row of shownSimilar || []) if (row && row.id) excludeIds.push(row.id);
+      const alts = typeof betterAlternatives === "function" ? betterAlternatives(detail, pool, 3) : [];
+      if (alts && alts.length) {
+        for (const alt of alts) if (alt && alt.p && alt.p.id) excludeIds.push(alt.p.id);
+      } else if (typeof relatedPicks === "function") {
+        for (const row of relatedPicks(pool, detail, 4).filter((row) => row && row.id !== detail.id).slice(0, 3)) excludeIds.push(row.id);
+      }
+      const ranked = typeof similarPlaces === "function" ? similarPlaces(pool, detail, 12, badgesOf) : [];
+      const nearbyStatus = venueNearby.status;
+      nextStep = chooseDetailNextStep({
+        place: detail,
+        guides: detailGuides,
+        similar: ranked,
+        excludeIds,
+        similarReady: nearbyStatus === "ready" || nearbyStatus === "error" || nearbyStatus === "unavailable" || pool.length > 0,
+        cityNames: [detail.postalCity, detail.locality, detail.city, localityFromFormattedAddress(detail.address), placeHeaderLabel(detail)].filter(Boolean),
+      });
+    } catch (e) {
+      // Literal on purpose. test-detail-photo-acquisition evals this slice
+      // without the module scope, so this catch cannot call an import.
+      nextStep = { kind: "guides", match: "next_step_failed", target: "guides", href: "/guides", title: "Wayfind guides", teaser: "", mins: null, region: "", kicker: "See the guides" };
+    }
+  }
+  const nextStepKey = nextStep && detail ? detail.id + "|" + nextStep.match + "|" + nextStep.target : "";
+  const nextStepShown = useRef("");
+  useEffect(() => {
+    if (!nextStepKey || !nextStep) return;
+    if (nextStepShown.current === nextStepKey) return;
+    nextStepShown.current = nextStepKey;
+    if (nextStep.match === "guides_unconfigured" || nextStep.match === "next_step_failed") {
+      try { console.error("[wf] detail next step used the guides index", nextStep.match); } catch (e) {}
+    }
+    try { logEvent(DETAIL_NEXT_STEP_SHOWN, detail, { match: nextStep.match, kind: nextStep.kind, target: nextStep.target }); } catch (e) {}
+  }, [nextStepKey]);
+
   return (
         <div style={isSharedPlaceArrival ? { ...sheetBg, background: "#050608" } : sheetBg} onClick={() => window.history.back()}>
           <div style={{ ...sheet, overscrollBehaviorY: "contain", transition: SHEET_EASE }} onClick={(e) => e.stopPropagation()} onTouchStart={(e) => sheetDragStart(e, () => window.history.back())} onTouchMove={sheetDragMove} onTouchEnd={sheetDragEnd}>
@@ -977,7 +1031,7 @@ export default function DetailSheet({ ctx }) {
               {/* Premium action dock (v6.72): verdict pill + Add to plan + primary CTA ladder. */}
               <div style={{ marginBottom: 16, padding: 10, background: "linear-gradient(145deg, rgba(25,34,47,.98), rgba(12,18,27,.98))", border: `1px solid ${C.border}`, borderRadius: 16, boxShadow: "0 16px 34px rgba(0,0,0,.24)" }}>
 
-                {!detail._event && <VerdictPill verdict={verdict} />}
+                {!detail._event && verdict && <VerdictPill verdict={verdict} />}
                 {/* v6.44: the second column exists only if BookingCTA will actually
                     render into it. Previously this was always 2 columns, so a place
                     with no booking target left "Directions" at half width beside an
@@ -1760,6 +1814,24 @@ export default function DetailSheet({ ctx }) {
                   </div>
                 );
               })()}
+              {nextStep ? (
+                <div data-detail-next-step={nextStep.match} style={{ marginBottom: 16 }}>
+                  <div style={{ fontSize: 10, fontWeight: 700, color: C.muted, marginBottom: 8 }}>{nextStep.kicker}</div>
+                  {nextStep.kind === "place" ? (
+                    <WhereToGoNextRow p={nextStep.place} partner={null} reason={nextStep.reason} pairDistMi={null} openDetail={(p) => { try { logEvent(DETAIL_NEXT_STEP_OPEN, detail, { match: nextStep.match, kind: nextStep.kind, target: nextStep.target }); } catch (e) {} openDetail(p); }} liveOpen={liveOpen} FallbackImg={FallbackImg} ctaCity={ctaCity} />
+                  ) : (
+                    <div style={{ border: "1px solid " + C.border, borderRadius: 14, background: "#0B0E15", overflow: "hidden" }}>
+                      <a href={nextStep.href} onClick={() => { try { logEvent(DETAIL_NEXT_STEP_OPEN, detail, { match: nextStep.match, kind: nextStep.kind, target: nextStep.target }); } catch (e) {} }} style={{ display: "flex", alignItems: "flex-start", gap: 12, padding: "12px 13px", textDecoration: "none" }}>
+                        <span style={{ flex: 1, minWidth: 0 }}>
+                          <span style={{ display: "block", fontSize: 14, fontWeight: 700, color: C.text, lineHeight: 1.3 }}>{nextStep.title}</span>
+                          {nextStep.teaser ? <span style={{ display: "block", fontSize: 12, color: "#8D9AAB", lineHeight: 1.4, marginTop: 3 }}>{nextStep.teaser}</span> : null}
+                        </span>
+                        {nextStep.mins ? <span style={{ flexShrink: 0, fontSize: 11, color: C.muted, whiteSpace: "nowrap", paddingTop: 2 }}>{nextStep.mins} min</span> : null}
+                      </a>
+                    </div>
+                  )}
+                </div>
+              ) : null}
             </div>
           </div>
         </div>
