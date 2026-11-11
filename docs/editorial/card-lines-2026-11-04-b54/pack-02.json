@@ -1,0 +1,354 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 54. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJB4-9zB8Ww4gRUfO0-HD7tUo",
+   "name": "Quality Inn Sarasota Near Lido Key Beach",
+   "category": "hotels",
+   "metro": "manatee-sarasota",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://qualityinnsarasotafl.com/",
+     "source_name": "Quality Inn Sarasota Near Lido Key Beach \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The hotel provides an outdoor pool and sun deck",
+      "Amenities include free continental breakfast, free parking and free wifi",
+      "Check-in is at 3:00 p.m. and check-out is at 11:00 a.m.",
+      "No pets are allowed at the hotel"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Sarasota hotel with an outdoor pool and sun deck plus free continental breakfast",
+    "why_here": "Quality Inn Sarasota Near Lido Key Beach lists an outdoor pool and sun deck among its amenities for guests in Sarasota. The hotel also lists free parking, free wifi and free continental breakfast.",
+    "know_before": "Check-in is at 3:00 p.m. and check-out is at 11:00 a.m.; no pets are allowed.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://qualityinnsarasotafl.com/"
+     ],
+     "why_here": [
+      "https://qualityinnsarasotafl.com/"
+     ],
+     "know_before": [
+      "https://qualityinnsarasotafl.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The hotel provides an outdoor pool and sun deck",
+      "source": "https://qualityinnsarasotafl.com/"
+     },
+     {
+      "claim": "Amenities include free continental breakfast, free parking and free wifi",
+      "source": "https://qualityinnsarasotafl.com/"
+     },
+     {
+      "claim": "Check-in is at 3:00 p.m. and check-out is at 11:00 a.m.",
+      "source": "https://qualityinnsarasotafl.com/"
+     },
+     {
+      "claim": "No pets are allowed at the hotel",
+      "source": "https://qualityinnsarasotafl.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJZXQ_k_bEwogRtcdeOZB4QDM",
+   "name": "District Tavern",
+   "category": "food",
+   "metro": "tampa",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.districttaverntampa.com/",
+     "source_name": "District Tavern \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "District Tavern is a modern neighborhood tavern and sports bar in Tampa's Channel District",
+      "It serves elevated American cuisine, handcrafted cocktails, local craft beer, and weekend brunch",
+      "It is just steps from Water Street and Benchmark International Arena",
+      "Brunch is listed Saturday and Sunday from 11:00 a.m. to 3:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Modern Channel District tavern for elevated American food, craft cocktails and local craft beer",
+    "why_here": "District Tavern describes itself as a modern neighborhood tavern and sports bar in Tampa's vibrant Channel District, serving elevated American cuisine, handcrafted cocktails and local craft beer. The homepage also lists weekend brunch, lunch, happy hour, game days and late-night bites.",
+    "know_before": "Brunch is served Saturday and Sunday from 11:00 a.m. to 3:00 p.m., per the homepage.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.districttaverntampa.com/"
+     ],
+     "why_here": [
+      "https://www.districttaverntampa.com/"
+     ],
+     "know_before": [
+      "https://www.districttaverntampa.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "District Tavern is a modern neighborhood tavern and sports bar in Tampa's Channel District",
+      "source": "https://www.districttaverntampa.com/"
+     },
+     {
+      "claim": "It serves elevated American cuisine, handcrafted cocktails, local craft beer, and weekend brunch",
+      "source": "https://www.districttaverntampa.com/"
+     },
+     {
+      "claim": "It is just steps from Water Street and Benchmark International Arena",
+      "source": "https://www.districttaverntampa.com/"
+     },
+     {
+      "claim": "Brunch is listed Saturday and Sunday from 11:00 a.m. to 3:00 p.m.",
+      "source": "https://www.districttaverntampa.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ_9JiHaS12YgRfm7KCLLMD1c",
+   "name": "Miami Boat Tours",
+   "category": "attractions",
+   "metro": "miami-dade",
+   "primary_type": "tour_agency",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.miamiboattours.com/miami-boat-tours-faq",
+     "source_name": "Miami Boat Tours \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Each 90-minute tour explores Biscayne Bay, five Miami skylines and over 20 celebrity mansions",
+      "Tours are narrated live in English and Spanish by local guides",
+      "During a Biscayne Bay boat tour, guests pass Star Island, Palm Island and Monument Island",
+      "All tours depart from Bayside Marketplace"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "90-minute Biscayne Bay cruise past five skylines and over 20 celebrity mansions.",
+    "why_here": "Miami Boat Tours says each 90-minute tour explores Biscayne Bay, five Miami skylines and over 20 celebrity mansions. Tours are narrated live in English and Spanish by local guides and pass Star Island, Palm Island and Monument Island.",
+    "know_before": "All tours depart from Bayside Marketplace, according to the official FAQ.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.miamiboattours.com/miami-boat-tours-faq"
+     ],
+     "why_here": [
+      "https://www.miamiboattours.com/miami-boat-tours-faq"
+     ],
+     "know_before": [
+      "https://www.miamiboattours.com/miami-boat-tours-faq"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Each 90-minute tour explores Biscayne Bay, five Miami skylines and over 20 celebrity mansions",
+      "source": "https://www.miamiboattours.com/miami-boat-tours-faq"
+     },
+     {
+      "claim": "Tours are narrated live in English and Spanish by local guides",
+      "source": "https://www.miamiboattours.com/miami-boat-tours-faq"
+     },
+     {
+      "claim": "During a Biscayne Bay boat tour, guests pass Star Island, Palm Island and Monument Island",
+      "source": "https://www.miamiboattours.com/miami-boat-tours-faq"
+     },
+     {
+      "claim": "All tours depart from Bayside Marketplace",
+      "source": "https://www.miamiboattours.com/miami-boat-tours-faq"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJk4vowW682YgRVKbrLsDPjuM",
+   "name": "Doral Legacy Park",
+   "category": "attractions",
+   "metro": "miami-dade",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://prod.miamiandbeaches.com/l/outdoor-experiences/doral-legacy-park/53359",
+     "source_name": "Doral Legacy Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Doral Legacy Park is an 18-acre park designed for the whole community",
+      "The park features outdoor athletic fields for football, softball and soccer",
+      "Families can cool down at the splash pad or use the playground",
+      "The park has a two-story recreation center with an indoor basketball court and exercise track"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "18-acre Doral park with a splash pad, sports courts and a recreation center",
+    "why_here": "Doral Legacy Park is described as a sprawling 18-acre park designed for the whole community, with outdoor athletic fields for football, softball and soccer. Families can use the splash pad and playground alongside tennis, basketball and volleyball courts.",
+    "know_before": "Doral Legacy Park has a two-story recreation center offering an indoor basketball court, exercise track and multi-purpose rooms for community events or meetings.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://prod.miamiandbeaches.com/l/outdoor-experiences/doral-legacy-park/53359"
+     ],
+     "why_here": [
+      "https://prod.miamiandbeaches.com/l/outdoor-experiences/doral-legacy-park/53359"
+     ],
+     "know_before": [
+      "https://prod.miamiandbeaches.com/l/outdoor-experiences/doral-legacy-park/53359"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Doral Legacy Park is an 18-acre park designed for the whole community",
+      "source": "https://prod.miamiandbeaches.com/l/outdoor-experiences/doral-legacy-park/53359"
+     },
+     {
+      "claim": "The park features outdoor athletic fields for football, softball and soccer",
+      "source": "https://prod.miamiandbeaches.com/l/outdoor-experiences/doral-legacy-park/53359"
+     },
+     {
+      "claim": "Families can cool down at the splash pad or use the playground",
+      "source": "https://prod.miamiandbeaches.com/l/outdoor-experiences/doral-legacy-park/53359"
+     },
+     {
+      "claim": "The park has a two-story recreation center with an indoor basketball court and exercise track",
+      "source": "https://prod.miamiandbeaches.com/l/outdoor-experiences/doral-legacy-park/53359"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ68feOtF_54gRG2PaWcu6g7U",
+   "name": "The Bureau Escape Rooms",
+   "category": "attractions",
+   "metro": "orlando",
+   "primary_type": "amusement_center",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://thebureauorlando.com/experiences/",
+     "source_name": "The Bureau Escape Rooms \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Bureau combines immersive escape rooms, a live TV-style game show and private karaoke and game rooms behind one secret entrance",
+      "It offers six immersive missions where crews play as agents",
+      "Escape room missions last 45 to 60 minutes for 2 to 10 per room",
+      "The venue says it was voted the #1 escape room in the USA"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Escape rooms, a live game show and karaoke rooms behind one secret entrance",
+    "why_here": "The Bureau describes itself as an adventure venue with immersive escape rooms, a live TV-style game show, and private karaoke and game rooms behind one secret entrance. It offers six immersive missions where crews play as agents.",
+    "know_before": "The Bureau combines immersive escape rooms, a live TV-style game show and private karaoke and game rooms behind one secret entrance",
+    "local_tip": "Private karaoke rooms hold up to 8 per room and are booked in hourly blocks.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://thebureauorlando.com/experiences/"
+     ],
+     "why_here": [
+      "https://thebureauorlando.com/experiences/"
+     ],
+     "know_before": [
+      "https://thebureauorlando.com/experiences/"
+     ],
+     "local_tip": [
+      "https://thebureauorlando.com/experiences/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Bureau combines immersive escape rooms, a live TV-style game show and private karaoke and game rooms behind one secret entrance",
+      "source": "https://thebureauorlando.com/experiences/"
+     },
+     {
+      "claim": "It offers six immersive missions where crews play as agents",
+      "source": "https://thebureauorlando.com/experiences/"
+     },
+     {
+      "claim": "Escape room missions last 45 to 60 minutes for 2 to 10 per room",
+      "source": "https://thebureauorlando.com/experiences/"
+     },
+     {
+      "claim": "The venue says it was voted the #1 escape room in the USA",
+      "source": "https://thebureauorlando.com/experiences/"
+     }
+    ]
+   }
+  }
+ ]
+}
