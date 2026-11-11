@@ -513,7 +513,7 @@ ok(html.includes("data-christmas-filter") && html.includes(">Tickets<") && html.
   ok(!/commerceHref\(|viatorProductGoUrl|withViatorTracking|anrdoezrs|jdoqocy|tkqlhce|cj\.com/.test(lib), "no affiliate URL is built in lib/christmasTickets.js (hrefs come from the registry)");
   ok(!/\.ticket\b|commission|cpa|payout|rate/i.test(lib.slice(lib.indexOf("function merit"), lib.indexOf("export function christmasTicketsModel"))), "the merit sort reads no ticket, commission or payout field");
   const page = strip(read("app/christmas-in-florida/page.js"));
-  ok(/export const revalidate = 3600/.test(page) && /canonical: SITE_URL \+ "\/christmas-in-florida"/.test(page), "the page keeps revalidate and the canonical URL");
+  ok(/export const revalidate = 600;/.test(page) && /canonical: SITE_URL \+ "\/christmas-in-florida"/.test(page), "the page keeps revalidate and the canonical URL");
   ok(/<ChristmasTickets /.test(page) && /browse=\{/.test(page) && /<ChristmasBrowse /.test(page) && !/id="watchlist"/.test(page) && /"@type": "ItemList"/.test(page), "the page renders tickets and browse without the internal research watchlist, preserving ItemList");
   ok(/<SeasonalSearchHub slug="christmas-in-florida" today=\{today\} seoOnly/.test(page), "the SEO guide content stays on the page");
   const strings = (page.match(/"[^"\n]{3,}"|`[^`\n]{3,}`|>[^<>{}\n]{3,}</g) || []).filter((t) => /[–—]| - /.test(t) && !/RX|regex|replace/.test(t));
