@@ -66,9 +66,7 @@ import { useCardTapIntent } from "./useCardTapIntent.js";
 import { trendPulseClass } from "../../lib/trendPulse.js";
 import { storedPlaceHeader } from "../../lib/locationHonesty.js";
 import { useReservePartner } from "../../lib/reserveClient.js";
-import { lazy, Suspense } from "react";
-// Lazy on purpose: only partner cards ever need the button, and the card is eager on "/".
-const ReserveCtaSlot = lazy(() => import("./ReserveCta"));
+// The button itself rides inside the lazy partners chunk (see lib/reserveClient.js); the hook hands the card that component.
 
 // ---------------------------------------------------------------------------
 // Experience-tag chips (owner: "I need the cards to look like the cards from
@@ -339,7 +337,7 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
   // reservation partner. A hook, so it sits above the early return; a caller
   // cta passes null, which opts out of the subscription entirely. False on the
   // server and the hydrating render, so server HTML never differs.
-  const reservePartner = useReservePartner(cta ? null : (place && place.id));
+  const ReserveSlot = useReservePartner(cta ? null : (place && place.id));
   const needsFallback = !cardActionsReadOnly && !(onSave && onLike && onDislike && onShare);
   const fb = useCardActions(needsFallback);
   // LIVE QUARANTINE (2026-09-10). A pinned product that dies in the
@@ -564,7 +562,7 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
     <li ref={cardRef} data-iconic-place-card data-card-opens-detail data-place-id={place.id}
       onPointerDown={tapIntent.onPointerDown} onPointerMove={tapIntent.onPointerMove}
       onPointerUp={tapIntent.onPointerUp} onPointerCancel={tapIntent.onPointerCancel}
-      onClick={openCard} className={`wf-place-card${fallCardClass(place.id, siteDay)}${spookyOverFall(place, siteDay)}${trendPulseClass(place)}${awardWinnerClass(award)}${isCuratorPick ? " is-curator-pick" : ""}${isLikedNow ? " is-liked" : ""}${isDislikedNow ? " is-disliked" : ""}${hasTake ? "" : " is-no-take"}${take && editorialMore && cardHref ? " has-more" : ""}${cta || reservePartner ? " has-cta" : ""}`} style={{ listStyle: "none", cursor: cardHref ? "pointer" : "default" }}>
+      onClick={openCard} className={`wf-place-card${fallCardClass(place.id, siteDay)}${spookyOverFall(place, siteDay)}${trendPulseClass(place)}${awardWinnerClass(award)}${isCuratorPick ? " is-curator-pick" : ""}${isLikedNow ? " is-liked" : ""}${isDislikedNow ? " is-disliked" : ""}${hasTake ? "" : " is-no-take"}${take && editorialMore && cardHref ? " has-more" : ""}${cta || ReserveSlot ? " has-cta" : ""}`} style={{ listStyle: "none", cursor: cardHref ? "pointer" : "default" }}>
       {/* v8.62 (owner, 2026-08-26, live): the Wayfind Score sits in the top
           right corner of the CARD, never on the photo. Direct child of
           .wf-place-card so the shared css.js rule anchors it to the card. */}
@@ -806,7 +804,7 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
               card's detail sheet (the <li> opens on any click that is not
               inside an a/button/etc — this wrapper is neither, so it needs
               its own guard). */}
-          {cta ? <div className="wf-place-card-cta" onClick={(e) => e.stopPropagation()}>{cta}</div> : (reservePartner ? <Suspense><ReserveCtaSlot place={place} surface={surface} /></Suspense> : null)}
+          {cta ? <div className="wf-place-card-cta" onClick={(e) => e.stopPropagation()}>{cta}</div> : (ReserveSlot ? <ReserveSlot place={place} surface={surface} /> : null)}
 
           {/* v8.34 — the creator credit sits in the bottom band, directly above
               the actions (see css.js .wf-place-card-credit). It carries the

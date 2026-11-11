@@ -1015,7 +1015,7 @@ scripts/test-redirect-visitor-scope.mjs	0	CALL	blocks-ci-and-deploy	1	-	19	0	0	b
 scripts/test-refresh-reserve.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	12	0	0	fbff7f398a7c411c0e88e4490a10ce721a0709f7ca7ec4a672a62ee62f373d6c
 scripts/test-refresh-selector-trap.mjs	0	CALL	blocks-ci-and-deploy	1	-	8	0	0	6fcc1659059272ba2e47c5b54fb071342403bda38739d36bb87ac5ccdc4fb28c
 scripts/test-reserve-logic.mjs	0	CALL	blocks-ci-and-deploy	1	-	91	0	0	bf49481dd449bbd77750454186968ad86a53b7e09da648a82e679696990db5b5
-scripts/test-reserve-ui.mjs	0	RENDER	blocks-ci-and-deploy	1	-	60	0	0	8f2447a009865808e832635bc11ec39f662d9b4947b3a0132c554027e942a2f2
+scripts/test-reserve-ui.mjs	0	RENDER	blocks-ci-and-deploy	1	-	61	0	0	b8054c89b1c92a5ab54eeb50e0ae46962ddf5fd68ad3ac968c36f1a5c0716bf0
 scripts/test-resolver-word-boundary.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	7	0	0	5a42f16bb1b72847758f21eef58dba011dcfa77ecdaa04f3eabe3088c3107fb1
 scripts/test-revenue-heartbeat.mjs	0	CALL	blocks-ci-and-deploy	1	-	30	0	0	7917041ebf9acc5edb73f65b7ea94cf57e1b109c29d446fd610f7d616fd63633
 scripts/test-review-depth-deduction.mjs	0	CALL	blocks-ci-and-deploy	1	-	18	0	0	0b678c1ae6a5ca8dd778a212c5c51ea2db88d85266cebea6d2103da1c4f61e01
