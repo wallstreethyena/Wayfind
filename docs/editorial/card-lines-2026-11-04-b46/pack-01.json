@@ -1,0 +1,1478 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 46. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJdX0ZF2ut2YgRAPDuhbHj1TI",
+   "name": "Smash House Burgers Miami",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "hamburger_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.smashhouseburgers.com/our-story/",
+     "source_name": "Smash House Burgers Miami \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Smash House Burgers grew from the Original Kosher Burger in North Miami Beach, where the first Smash House served the burger in 2022",
+      "Every Smash House restaurant has been Glatt Kosher from the start",
+      "Smash House serves burgers alongside crispy chicken, sandos, salads and fries",
+      "Smash House serves Dirty Fries"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Glatt Kosher burger that started in North Miami Beach in 2022",
+    "why_here": "Come for a Glatt Kosher smashed burger from the place that started in North Miami Beach in 2022, and add Dirty sides or crispy chicken to share around the table with everyone.",
+    "know_before": "Every Smash House restaurant has been Glatt Kosher from the start",
+    "local_tip": "Add Dirty sides or crispy chicken to share",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.smashhouseburgers.com/our-story/"
+     ],
+     "why_here": [
+      "https://www.smashhouseburgers.com/our-story/"
+     ],
+     "know_before": [
+      "https://www.smashhouseburgers.com/our-story/"
+     ],
+     "local_tip": [
+      "https://www.smashhouseburgers.com/our-story/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Smash House Burgers grew from the Original Kosher Burger in North Miami Beach, where the first Smash House served the burger in 2022",
+      "source": "https://www.smashhouseburgers.com/our-story/"
+     },
+     {
+      "claim": "Every Smash House restaurant has been Glatt Kosher from the start",
+      "source": "https://www.smashhouseburgers.com/our-story/"
+     },
+     {
+      "claim": "Smash House serves burgers alongside crispy chicken, sandos, salads and fries",
+      "source": "https://www.smashhouseburgers.com/our-story/"
+     },
+     {
+      "claim": "Smash House serves Dirty Fries",
+      "source": "https://www.smashhouseburgers.com/our-story/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJxbj3NlS12YgRINnbHJNJIXo",
+   "name": "CHARLY'S",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "dessert_shop",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.thecharlys.com/",
+     "source_name": "CHARLY'S \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "CHARLY'S is known for freshly made churros and waffles",
+      "CHARLY'S flagship is located on Lincoln Road in Miami Beach, Florida",
+      "Classic Churros are freshly made all day with our 6 dipping sauces",
+      "CHARLY'S serves signature coffee, refreshing iced matcha and all-day breakfast favorites"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Freshly made churros and waffles on Lincoln Road in Miami Beach",
+    "why_here": "CHARLY'S is known for freshly made churros and waffles on Lincoln Road in Miami Beach, with Classic Churros served all day and signature coffee and iced matcha to go with them.",
+    "know_before": "Classic Churros are freshly made all day with 6 dipping sauces",
+    "local_tip": "Try Classic Churros with 6 dipping sauces",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.thecharlys.com/"
+     ],
+     "why_here": [
+      "https://www.thecharlys.com/"
+     ],
+     "know_before": [
+      "https://www.thecharlys.com/"
+     ],
+     "local_tip": [
+      "https://www.thecharlys.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "CHARLY'S is known for freshly made churros and waffles",
+      "source": "https://www.thecharlys.com/"
+     },
+     {
+      "claim": "CHARLY'S flagship is located on Lincoln Road in Miami Beach, Florida",
+      "source": "https://www.thecharlys.com/"
+     },
+     {
+      "claim": "Classic Churros are freshly made all day with our 6 dipping sauces",
+      "source": "https://www.thecharlys.com/"
+     },
+     {
+      "claim": "CHARLY'S serves signature coffee, refreshing iced matcha and all-day breakfast favorites",
+      "source": "https://www.thecharlys.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ71KjTtzF5YgRvlsJJQkcNdU",
+   "name": "Clarke House Park",
+   "category": "attractions",
+   "metro": "jacksonville-fl",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.townoforangepark.com/p/residents/parks/clarke-house-park",
+     "source_name": "Clarke House Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Clarke House Park is home to the Clarke House, which is listed in the National Register of Historic Places",
+      "Park facilities include a large playground, sand volleyball court, nature trails, gardens, lake, pavilions, grills, restrooms, and numerous beautiful oak trees",
+      "Pavilions are available to rent"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Clarke House listed in the National Register of Historic Places",
+    "why_here": "Visit Clarke House Park for the Clarke House, a large playground, sand volleyball court, nature trails, gardens, and a lake, with pavilions available to rent for gatherings.",
+    "know_before": "Pavilions are available to rent",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.townoforangepark.com/p/residents/parks/clarke-house-park"
+     ],
+     "why_here": [
+      "https://www.townoforangepark.com/p/residents/parks/clarke-house-park"
+     ],
+     "know_before": [
+      "https://www.townoforangepark.com/p/residents/parks/clarke-house-park"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Clarke House Park is home to the Clarke House, which is listed in the National Register of Historic Places",
+      "source": "https://www.townoforangepark.com/p/residents/parks/clarke-house-park"
+     },
+     {
+      "claim": "Park facilities include a large playground, sand volleyball court, nature trails, gardens, lake, pavilions, grills, restrooms, and numerous beautiful oak trees",
+      "source": "https://www.townoforangepark.com/p/residents/parks/clarke-house-park"
+     },
+     {
+      "claim": "Pavilions are available to rent",
+      "source": "https://www.townoforangepark.com/p/residents/parks/clarke-house-park"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJWfveiaoC2YgRYFFKej_m4QQ",
+   "name": "Sicilian Oven",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "italian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.sicilianoven.com/story.html",
+     "source_name": "Sicilian Oven \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Ralph DiSalvo and Andrew Garavuso opened the first Sicilian Oven in Lighthouse Point in 2008",
+      "Many of the recipes have been handed down through generations of the DiSalvo and Garavuso families",
+      "Sicilian Oven serves wood-fired pizza",
+      "The menu is designed so you can comfortably taste many dishes in a single sitting"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Wood-fired pizza from recipes handed down through generations of the DiSalvo and Garavuso families",
+    "why_here": "Go for wood-fired pizza and a menu designed so you can comfortably taste many dishes in a single sitting, with recipes handed down through generations of the DiSalvo and Garavuso families since the first Sicilian Oven opened in Lighthouse Point in 2008.",
+    "know_before": "The first Sicilian Oven opened in Lighthouse Point in 2008",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.sicilianoven.com/story.html"
+     ],
+     "why_here": [
+      "https://www.sicilianoven.com/story.html"
+     ],
+     "know_before": [
+      "https://www.sicilianoven.com/story.html"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Ralph DiSalvo and Andrew Garavuso opened the first Sicilian Oven in Lighthouse Point in 2008",
+      "source": "https://www.sicilianoven.com/story.html"
+     },
+     {
+      "claim": "Many of the recipes have been handed down through generations of the DiSalvo and Garavuso families",
+      "source": "https://www.sicilianoven.com/story.html"
+     },
+     {
+      "claim": "Sicilian Oven serves wood-fired pizza",
+      "source": "https://www.sicilianoven.com/story.html"
+     },
+     {
+      "claim": "The menu is designed so you can comfortably taste many dishes in a single sitting",
+      "source": "https://www.sicilianoven.com/story.html"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJZzkKrdzf2IgR-7_g7cYzd1M",
+   "name": "Gary Rack's Farmhouse - Delray Beach",
+   "category": "food",
+   "metro": "palm-beach",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://farmhousekitchenboca.com/",
+     "source_name": "Gary Rack's Farmhouse - Delray Beach \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Locally sourced, seasonal menus that honor our guests, local purveyors, and the environment",
+      "Both of our locations offer ethical and contemporary takes on classic dishes that focus on using local ingredients",
+      "Delray Beach location is at 204 E Atlantic Ave, Delray Beach, FL 33444",
+      "Gary Rack's Farmhouse changes its menu several times throughout the year",
+      "Reservations are recommended at Gary Rack's Farmhouse"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Locally sourced, seasonal menus with contemporary takes on classic dishes",
+    "why_here": "Visit the Delray Beach location at 204 E Atlantic Ave for locally sourced, seasonal menus and contemporary takes on classic dishes that focus on using local ingredients, with the menu changed several times throughout the year.",
+    "know_before": "Reservations are recommended at Gary Rack's Farmhouse",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://farmhousekitchenboca.com/"
+     ],
+     "why_here": [
+      "https://farmhousekitchenboca.com/"
+     ],
+     "know_before": [
+      "https://farmhousekitchenboca.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Locally sourced, seasonal menus that honor our guests, local purveyors, and the environment",
+      "source": "https://farmhousekitchenboca.com/"
+     },
+     {
+      "claim": "Both of our locations offer ethical and contemporary takes on classic dishes that focus on using local ingredients",
+      "source": "https://farmhousekitchenboca.com/"
+     },
+     {
+      "claim": "Delray Beach location is at 204 E Atlantic Ave, Delray Beach, FL 33444",
+      "source": "https://farmhousekitchenboca.com/"
+     },
+     {
+      "claim": "Gary Rack's Farmhouse changes its menu several times throughout the year",
+      "source": "https://farmhousekitchenboca.com/"
+     },
+     {
+      "claim": "Reservations are recommended at Gary Rack's Farmhouse",
+      "source": "https://farmhousekitchenboca.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJXRG1PJGr2YgRU2bB1D0oTCE",
+   "name": "Kimchi Mart \uae40\uce58\ub9c8\ud2b8 at Hollywood FL",
+   "category": "shopping",
+   "metro": "broward",
+   "primary_type": "asian_grocery_store",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.miamikimchi.com/hollywood-fl-sales/",
+     "source_name": "Kimchi Mart \uae40\uce58\ub9c8\ud2b8 at Hollywood FL \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Kimchi Mart Hollywood is at 2420 N Dixie Hwy, Hollywood, FL 33020",
+      "Kimchi Mart Hollywood is open every day",
+      "Fresh Asian produce includes Napa cabbage, Korean radish, perilla leaves, mushrooms and seasonal vegetables",
+      "Butcher counter offers beef, pork and poultry cut in-house, including bulgogi, LA galbi, samgyeopsal and thin-sliced hot pot meat",
+      "Prepared food includes kimbap, japchae, bibimbap, banchan, sushi rolls and bento made fresh every day"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Korean market with kimbap, japchae, bibimbap, banchan, sushi rolls and bento made fresh every day",
+    "why_here": "Shop at 2420 N Dixie Hwy for fresh Asian produce and a butcher counter with beef, pork and poultry cut in-house, including bulgogi, LA galbi, samgyeopsal and thin-sliced hot pot meat, plus prepared food made fresh every day.",
+    "know_before": "Kimchi Mart Hollywood is open every day",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.miamikimchi.com/hollywood-fl-sales/"
+     ],
+     "why_here": [
+      "https://www.miamikimchi.com/hollywood-fl-sales/"
+     ],
+     "know_before": [
+      "https://www.miamikimchi.com/hollywood-fl-sales/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Kimchi Mart Hollywood is at 2420 N Dixie Hwy, Hollywood, FL 33020",
+      "source": "https://www.miamikimchi.com/hollywood-fl-sales/"
+     },
+     {
+      "claim": "Kimchi Mart Hollywood is open every day",
+      "source": "https://www.miamikimchi.com/hollywood-fl-sales/"
+     },
+     {
+      "claim": "Fresh Asian produce includes Napa cabbage, Korean radish, perilla leaves, mushrooms and seasonal vegetables",
+      "source": "https://www.miamikimchi.com/hollywood-fl-sales/"
+     },
+     {
+      "claim": "Butcher counter offers beef, pork and poultry cut in-house, including bulgogi, LA galbi, samgyeopsal and thin-sliced hot pot meat",
+      "source": "https://www.miamikimchi.com/hollywood-fl-sales/"
+     },
+     {
+      "claim": "Prepared food includes kimbap, japchae, bibimbap, banchan, sushi rolls and bento made fresh every day",
+      "source": "https://www.miamikimchi.com/hollywood-fl-sales/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJrY8sVU7GwogRdO1D1VgRosg",
+   "name": "Cobra's Curse",
+   "category": "attractions",
+   "metro": "tampa",
+   "primary_type": "roller_coaster",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://buschgardens.com/tampa/roller-coasters/cobras-curse/",
+     "source_name": "Cobra's Curse \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Cobra's Curse features a 70-foot vertical lift",
+      "Coaster trains speed along at 40 mph down 2,100 feet of serpentine-like track, traveling backward, forward and then spinning freely",
+      "Cobra's Curse is a three-and-a-half-minute ride",
+      "Minimum rider height is 42 inches for Cobra's Curse"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Spinning roller coaster with a 70-foot vertical lift and 2,100 feet of serpentine-like track",
+    "why_here": "Ride Cobra's Curse, a spinning roller coaster where coaster trains speed along at 40 mph down 2,100 feet of serpentine-like track, traveling backward, forward and then spinning freely during a three-and-a-half-minute ride.",
+    "know_before": "Minimum rider height is 42 inches for Cobra's Curse",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://buschgardens.com/tampa/roller-coasters/cobras-curse/"
+     ],
+     "why_here": [
+      "https://buschgardens.com/tampa/roller-coasters/cobras-curse/"
+     ],
+     "know_before": [
+      "https://buschgardens.com/tampa/roller-coasters/cobras-curse/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Cobra's Curse features a 70-foot vertical lift",
+      "source": "https://buschgardens.com/tampa/roller-coasters/cobras-curse/"
+     },
+     {
+      "claim": "Coaster trains speed along at 40 mph down 2,100 feet of serpentine-like track, traveling backward, forward and then spinning freely",
+      "source": "https://buschgardens.com/tampa/roller-coasters/cobras-curse/"
+     },
+     {
+      "claim": "Cobra's Curse is a three-and-a-half-minute ride",
+      "source": "https://buschgardens.com/tampa/roller-coasters/cobras-curse/"
+     },
+     {
+      "claim": "Minimum rider height is 42 inches for Cobra's Curse",
+      "source": "https://buschgardens.com/tampa/roller-coasters/cobras-curse/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJzchCcZ3ZwogR9mIGNHp9Tyc",
+   "name": "Poseidon Fishing Charters",
+   "category": "attractions",
+   "metro": "tampa",
+   "primary_type": "fishing_charter",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://poseidonfishingcharters.com/inshore-fishing/",
+     "source_name": "Poseidon Fishing Charters \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Poseidon Fishing Charters offers Inshore Fishing in Tampa Bay",
+      "Inshore Fishing charters are 4 or 8 hour charters for up to 6 people",
+      "Poseidon Fishing Charters uses a Crevalle Bay boat with a shallow draft for low tide",
+      "Fishing Licenses are taken care of by Poseidon Fishing Charters, which is licensed and fully insured"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Inshore Fishing in Tampa Bay on a boat with a shallow draft",
+    "why_here": "Poseidon Fishing Charters offers Inshore Fishing in Tampa Bay. Poseidon Fishing Charters uses a Crevalle Bay boat with a shallow draft for low tide. Inshore Fishing charters are 4 or 8 hour charters for up to 6 people.",
+    "know_before": "Fishing Licenses are taken care of by Poseidon Fishing Charters, which is licensed and fully insured.",
+    "local_tip": "Inshore Fishing charters are 4 or 8 hour charters for up to 6 people.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://poseidonfishingcharters.com/inshore-fishing/"
+     ],
+     "why_here": [
+      "https://poseidonfishingcharters.com/inshore-fishing/"
+     ],
+     "know_before": [
+      "https://poseidonfishingcharters.com/inshore-fishing/"
+     ],
+     "local_tip": [
+      "https://poseidonfishingcharters.com/inshore-fishing/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Poseidon Fishing Charters offers Inshore Fishing in Tampa Bay",
+      "source": "https://poseidonfishingcharters.com/inshore-fishing/"
+     },
+     {
+      "claim": "Inshore Fishing charters are 4 or 8 hour charters for up to 6 people",
+      "source": "https://poseidonfishingcharters.com/inshore-fishing/"
+     },
+     {
+      "claim": "Poseidon Fishing Charters uses a Crevalle Bay boat with a shallow draft for low tide",
+      "source": "https://poseidonfishingcharters.com/inshore-fishing/"
+     },
+     {
+      "claim": "Fishing Licenses are taken care of by Poseidon Fishing Charters, which is licensed and fully insured",
+      "source": "https://poseidonfishingcharters.com/inshore-fishing/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ-WaCAxMH2YgRdn1q1MHe16o",
+   "name": "Phat Boy Sushi, Kitchen & Bar - Davie",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "japanese_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://phatboysushi.com/menu/",
+     "source_name": "Phat Boy Sushi, Kitchen & Bar - Davie \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Phat Boy Sushi, Kitchen & Bar - Davie is a Davie location listed on the official site",
+      "The official menu lists Phat Girl Roll",
+      "The official menu lists Samurai Noodles",
+      "The official menu lists Gyoza"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Davie location with Phat Girl Roll and Samurai Noodles",
+    "why_here": "Phat Boy Sushi, Kitchen & Bar - Davie is a Davie location listed on the official site. The official menu lists Phat Girl Roll. The official menu lists Samurai Noodles. The official menu lists Gyoza.",
+    "know_before": "The official menu lists Phat Girl Roll and Samurai Noodles.",
+    "local_tip": "Phat Girl Roll is listed on the official menu.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://phatboysushi.com/menu/"
+     ],
+     "why_here": [
+      "https://phatboysushi.com/menu/"
+     ],
+     "know_before": [
+      "https://phatboysushi.com/menu/"
+     ],
+     "local_tip": [
+      "https://phatboysushi.com/menu/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Phat Boy Sushi, Kitchen & Bar - Davie is a Davie location listed on the official site",
+      "source": "https://phatboysushi.com/menu/"
+     },
+     {
+      "claim": "The official menu lists Phat Girl Roll",
+      "source": "https://phatboysushi.com/menu/"
+     },
+     {
+      "claim": "The official menu lists Samurai Noodles",
+      "source": "https://phatboysushi.com/menu/"
+     },
+     {
+      "claim": "The official menu lists Gyoza",
+      "source": "https://phatboysushi.com/menu/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJX9MLqVFHw4gRZKMIQKlRSK8",
+   "name": "Kacey's Seafood",
+   "category": "food",
+   "metro": "manatee-sarasota",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.kaceysseafood.com/menu",
+     "source_name": "Kacey's Seafood \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Kacey's Seafood & More is in Sarasota",
+      "Kacey's Seafood & More menu lists Big Bang Shrimp",
+      "Kacey's Seafood & More menu lists Fish N' Chips with battered cod",
+      "Kacey's Seafood & More serves lunch from 11:30 a.m. to 8:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Sarasota seafood spot with Big Bang Shrimp and Fish N' Chips",
+    "why_here": "Kacey's Seafood & More is in Sarasota. Kacey's Seafood & More menu lists Big Bang Shrimp. Kacey's Seafood & More menu lists Fish N' Chips with battered cod. Kacey's Seafood & More serves lunch from 11:30 a.m. to 8:00 p.m.",
+    "know_before": "Kacey's Seafood & More serves lunch from 11:30 a.m. to 8:00 p.m.",
+    "local_tip": "Big Bang Shrimp is listed on the menu.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.kaceysseafood.com/menu"
+     ],
+     "why_here": [
+      "https://www.kaceysseafood.com/menu"
+     ],
+     "know_before": [
+      "https://www.kaceysseafood.com/menu"
+     ],
+     "local_tip": [
+      "https://www.kaceysseafood.com/menu"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Kacey's Seafood & More is in Sarasota",
+      "source": "https://www.kaceysseafood.com/menu"
+     },
+     {
+      "claim": "Kacey's Seafood & More menu lists Big Bang Shrimp",
+      "source": "https://www.kaceysseafood.com/menu"
+     },
+     {
+      "claim": "Kacey's Seafood & More menu lists Fish N' Chips with battered cod",
+      "source": "https://www.kaceysseafood.com/menu"
+     },
+     {
+      "claim": "Kacey's Seafood & More serves lunch from 11:30 a.m. to 8:00 p.m.",
+      "source": "https://www.kaceysseafood.com/menu"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJne185Ud854gRqmYzwndsaT0",
+   "name": "Bar Harbor Seafood",
+   "category": "shopping",
+   "metro": "orlando",
+   "primary_type": "market",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://barharborseafood.com/",
+     "source_name": "Bar Harbor Seafood \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Bar Harbor Seafood provides Wholesale Seafood to the Public at its Orlando warehouse through its Retail Market",
+      "Bar Harbor Seafood is a distributor of live, fresh and frozen seafood in Florida",
+      "Bar Harbor Seafood prepares lunch 6 days a week",
+      "Bar Harbor Seafood has operated in Florida since 1986"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Retail Market with Wholesale Seafood to the Public in Orlando",
+    "why_here": "Bar Harbor Seafood provides Wholesale Seafood to the Public at its Orlando warehouse through its Retail Market. Bar Harbor Seafood is a distributor of live, fresh and frozen seafood in Florida. Bar Harbor Seafood prepares lunch 6 days a week.",
+    "know_before": "Bar Harbor Seafood prepares lunch 6 days a week at its Orlando warehouse.",
+    "local_tip": "Retail Market seafood is available at the Orlando warehouse.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://barharborseafood.com/"
+     ],
+     "why_here": [
+      "https://barharborseafood.com/"
+     ],
+     "know_before": [
+      "https://barharborseafood.com/"
+     ],
+     "local_tip": [
+      "https://barharborseafood.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Bar Harbor Seafood provides Wholesale Seafood to the Public at its Orlando warehouse through its Retail Market",
+      "source": "https://barharborseafood.com/"
+     },
+     {
+      "claim": "Bar Harbor Seafood is a distributor of live, fresh and frozen seafood in Florida",
+      "source": "https://barharborseafood.com/"
+     },
+     {
+      "claim": "Bar Harbor Seafood prepares lunch 6 days a week",
+      "source": "https://barharborseafood.com/"
+     },
+     {
+      "claim": "Bar Harbor Seafood has operated in Florida since 1986",
+      "source": "https://barharborseafood.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJswNQR2ix2YgRUk_Jin8WRvc",
+   "name": "Clive's Cafe Little Haiti",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://clivescafe.com/our-menu/",
+     "source_name": "Clive's Cafe Little Haiti \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Clive's Cafe is a Jamaican Caribbean Restaurant with 2 locations in Little Haiti and North Miami",
+      "Clive's Cafe Jamaican & Caribbean Food Menu includes a Little Haiti Menu",
+      "The Little Haiti Menu lists Jerk Chicken, Curry Chicken and Oxtail"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Jamaican and Caribbean food in Little Haiti with Jerk Chicken and Curry Chicken",
+    "why_here": "Go for Jamaican and Caribbean dishes from the Little Haiti Menu, including Jerk Chicken, Curry Chicken and Oxtail, at a Jamaican Caribbean restaurant with locations in Little Haiti and North Miami.",
+    "know_before": "Clive's Cafe has 2 locations, in Little Haiti and North Miami, so check the Little Haiti Menu before ordering.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://clivescafe.com/our-menu/"
+     ],
+     "why_here": [
+      "https://clivescafe.com/our-menu/"
+     ],
+     "know_before": [
+      "https://clivescafe.com/our-menu/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Clive's Cafe is a Jamaican Caribbean Restaurant with 2 locations in Little Haiti and North Miami",
+      "source": "https://clivescafe.com/our-menu/"
+     },
+     {
+      "claim": "Clive's Cafe Jamaican & Caribbean Food Menu includes a Little Haiti Menu",
+      "source": "https://clivescafe.com/our-menu/"
+     },
+     {
+      "claim": "The Little Haiti Menu lists Jerk Chicken, Curry Chicken and Oxtail",
+      "source": "https://clivescafe.com/our-menu/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJG6BO4qDH2YgROrTdZZSkqCk",
+   "name": "The Thousand Sunny",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://thethousandsunny.getsauce.com/",
+     "source_name": "The Thousand Sunny \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Thousand Sunny is located at 9545 S Dixie Hwy, Pinecrest, FL 33156.",
+      "The Thousand Sunny serves Asian cuisine featuring egg noodles, poke bowls, and dim sum.",
+      "The Thousand Sunny is open Monday through Sunday from 12:00 p.m. to 10:00 p.m.",
+      "The Thousand Sunny offers delivery and pickup."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Asian cuisine with egg noodles, poke bowls, and dim sum in Pinecrest",
+    "why_here": "Go for Asian cuisine built around egg noodles, poke bowls, and dim sum, with delivery and pickup available from the Pinecrest location at 9545 S Dixie Hwy.",
+    "know_before": "Open Monday through Sunday from 12:00 p.m. to 10:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://thethousandsunny.getsauce.com/"
+     ],
+     "why_here": [
+      "https://thethousandsunny.getsauce.com/"
+     ],
+     "know_before": [
+      "https://thethousandsunny.getsauce.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Thousand Sunny is located at 9545 S Dixie Hwy, Pinecrest, FL 33156.",
+      "source": "https://thethousandsunny.getsauce.com/"
+     },
+     {
+      "claim": "The Thousand Sunny serves Asian cuisine featuring egg noodles, poke bowls, and dim sum.",
+      "source": "https://thethousandsunny.getsauce.com/"
+     },
+     {
+      "claim": "The Thousand Sunny is open Monday through Sunday from 12:00 p.m. to 10:00 p.m.",
+      "source": "https://thethousandsunny.getsauce.com/"
+     },
+     {
+      "claim": "The Thousand Sunny offers delivery and pickup.",
+      "source": "https://thethousandsunny.getsauce.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJc9v6gC4A2YgRAdplFhDT_e0",
+   "name": "Nanou French Bakery & Caf\u00e9",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "breakfast_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://nanoufrenchbakery.com/",
+     "source_name": "Nanou French Bakery & Caf\u00e9 \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Nanou Bakery is a French bakery and caf\u00e9 specialized in breakfast, coffees and viennoiseries.",
+      "Nanou is Your local French Bakery in South Florida, since 2015.",
+      "Nanou French Bakery LAS OLAS is located at 2915 E Las Olas Boulevard, Fort Lauderdale, FL 33316.",
+      "Nanou French Bakery LAS OLAS opening hours are Monday through Sunday 7:00 a.m. to 3:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "French bakery and caf\u00e9 specialized in breakfast, coffees and viennoiseries",
+    "why_here": "Go for a French bakery and caf\u00e9 specialized in breakfast, coffees and viennoiseries, from a local French Bakery in South Florida, since 2015, at the LAS OLAS location.",
+    "know_before": "Located at 2915 E Las Olas Boulevard, Fort Lauderdale, FL 33316",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://nanoufrenchbakery.com/"
+     ],
+     "why_here": [
+      "https://nanoufrenchbakery.com/"
+     ],
+     "know_before": [
+      "https://nanoufrenchbakery.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Nanou Bakery is a French bakery and caf\u00e9 specialized in breakfast, coffees and viennoiseries.",
+      "source": "https://nanoufrenchbakery.com/"
+     },
+     {
+      "claim": "Nanou is Your local French Bakery in South Florida, since 2015.",
+      "source": "https://nanoufrenchbakery.com/"
+     },
+     {
+      "claim": "Nanou French Bakery LAS OLAS is located at 2915 E Las Olas Boulevard, Fort Lauderdale, FL 33316.",
+      "source": "https://nanoufrenchbakery.com/"
+     },
+     {
+      "claim": "Nanou French Bakery LAS OLAS opening hours are Monday through Sunday 7:00 a.m. to 3:00 p.m.",
+      "source": "https://nanoufrenchbakery.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJTeIQ_2_h2IgRx80IipvDfV0",
+   "name": "Boca Aquarium",
+   "category": "attractions",
+   "metro": "palm-beach",
+   "primary_type": "aquarium",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.bocaaquarium.com/pages/plan-your-visit",
+     "source_name": "Boca Aquarium \u2014 official source",
+     "source_class": "tourism_dmo",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Boca Aquarium is located inside Diamonds by Raymond Lee at 2801 N Federal Hwy, Boca Raton, FL 33431.",
+      "Boca Aquarium hours are Monday through Saturday, 10:00 a.m. to 5:00 p.m., and Closed Sunday.",
+      "Boca Aquarium admission is always free.",
+      "A visit to Boca Aquarium typically lasts 20\u201325 minutes and includes a 2000-gallon shark tank, 700-gallon reef tanks, nano reef, and seahorse sanctuary."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "inside Diamonds by Raymond Lee, with a 2000-gallon shark tank and seahorse sanctuary",
+    "why_here": "See a 2000-gallon shark tank, 700-gallon reef tanks, nano reef, and seahorse sanctuary inside Diamonds by Raymond Lee, with admission that is always free for visitors.",
+    "know_before": "Hours are Monday through Saturday, 10:00 a.m. to 5:00 p.m., and Closed Sunday",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.bocaaquarium.com/pages/plan-your-visit"
+     ],
+     "why_here": [
+      "https://www.bocaaquarium.com/pages/plan-your-visit"
+     ],
+     "know_before": [
+      "https://www.bocaaquarium.com/pages/plan-your-visit"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Boca Aquarium is located inside Diamonds by Raymond Lee at 2801 N Federal Hwy, Boca Raton, FL 33431.",
+      "source": "https://www.bocaaquarium.com/pages/plan-your-visit"
+     },
+     {
+      "claim": "Boca Aquarium hours are Monday through Saturday, 10:00 a.m. to 5:00 p.m., and Closed Sunday.",
+      "source": "https://www.bocaaquarium.com/pages/plan-your-visit"
+     },
+     {
+      "claim": "Boca Aquarium admission is always free.",
+      "source": "https://www.bocaaquarium.com/pages/plan-your-visit"
+     },
+     {
+      "claim": "A visit to Boca Aquarium typically lasts 20\u201325 minutes and includes a 2000-gallon shark tank, 700-gallon reef tanks, nano reef, and seahorse sanctuary.",
+      "source": "https://www.bocaaquarium.com/pages/plan-your-visit"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJwyZQ3_Ju54gRNbya66gu7ng",
+   "name": "Red Bug Lake Park",
+   "category": "attractions",
+   "metro": "orlando",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://playorlandonorth.com/facilities/",
+     "source_name": "Red Bug Lake Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Red Bug Lake Park is located on Red Bug Lake with 60 acres of active and passive recreation",
+      "Red Bug Lake Park has the second largest tennis complex in Orlando North",
+      "Red Bug Lake Park has hosted Regional and Sectional USTA Tournaments",
+      "Red Bug Lake Park has hosted Florida High School Athletic Association District and State Championships"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "60 acres of active and passive recreation on Red Bug Lake",
+    "why_here": "Red Bug Lake Park offers 60 acres of active and passive recreation on Red Bug Lake, with the second largest tennis complex in Orlando North for tennis visitors planning a game.",
+    "know_before": "Red Bug Lake Park has hosted Regional and Sectional USTA Tournaments.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://playorlandonorth.com/facilities/"
+     ],
+     "why_here": [
+      "https://playorlandonorth.com/facilities/"
+     ],
+     "know_before": [
+      "https://playorlandonorth.com/facilities/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Red Bug Lake Park is located on Red Bug Lake with 60 acres of active and passive recreation",
+      "source": "https://playorlandonorth.com/facilities/"
+     },
+     {
+      "claim": "Red Bug Lake Park has the second largest tennis complex in Orlando North",
+      "source": "https://playorlandonorth.com/facilities/"
+     },
+     {
+      "claim": "Red Bug Lake Park has hosted Regional and Sectional USTA Tournaments",
+      "source": "https://playorlandonorth.com/facilities/"
+     },
+     {
+      "claim": "Red Bug Lake Park has hosted Florida High School Athletic Association District and State Championships",
+      "source": "https://playorlandonorth.com/facilities/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJXa0Fua573YgRwXPJySyfs9E",
+   "name": "Flippers Pizza Co. - Reunion",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "pizza_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.flipperspizzaco.com/",
+     "source_name": "Flippers Pizza Co. - Reunion \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Flippers Pizza Co. serves all-natural craft pizza",
+      "Flippers Pizza Co. uses hand-stretched dough",
+      "Flippers Pizza Co. lists a Reunion location among its locations",
+      "Flippers Pizza Co. offers dine-in, carry out, and delivery",
+      "Flippers Pizza Co. offers $5 Happy Hour Monday through Friday from 3 p.m. to 6 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "all-natural craft pizza with hand-stretched dough",
+    "why_here": "Flippers Pizza Co. serves all-natural craft pizza made with hand-stretched dough. Flippers lists a Reunion location among its locations, with dine-in, carry out, and delivery available for pizza orders.",
+    "know_before": "Flippers Pizza Co. offers $5 Happy Hour Monday through Friday from 3 p.m. to 6 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.flipperspizzaco.com/"
+     ],
+     "why_here": [
+      "https://www.flipperspizzaco.com/"
+     ],
+     "know_before": [
+      "https://www.flipperspizzaco.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Flippers Pizza Co. serves all-natural craft pizza",
+      "source": "https://www.flipperspizzaco.com/"
+     },
+     {
+      "claim": "Flippers Pizza Co. uses hand-stretched dough",
+      "source": "https://www.flipperspizzaco.com/"
+     },
+     {
+      "claim": "Flippers Pizza Co. lists a Reunion location among its locations",
+      "source": "https://www.flipperspizzaco.com/"
+     },
+     {
+      "claim": "Flippers Pizza Co. offers dine-in, carry out, and delivery",
+      "source": "https://www.flipperspizzaco.com/"
+     },
+     {
+      "claim": "Flippers Pizza Co. offers $5 Happy Hour Monday through Friday from 3 p.m. to 6 p.m.",
+      "source": "https://www.flipperspizzaco.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ4e-IeI7h2IgRJE3qeOzeCuw",
+   "name": "Gumbo Limbo Nature Center",
+   "category": "attractions",
+   "metro": "palm-beach",
+   "primary_type": "nature_preserve",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.myboca.us/2485/Gumbo-Limbo-Nature-Center",
+     "source_name": "Gumbo Limbo Nature Center \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Gumbo Limbo Nature Center is a 20-acre coastal preserve on Boca Raton's barrier island",
+      "Gumbo Limbo Nature Center has a 40-foot-tall observation tower",
+      "Native fish and resident sea turtles reside in large outdoor marine aquariums at Gumbo Limbo Nature Center",
+      "Nature Center hours are 9 a.m. to 4 p.m. Tuesday through Sunday at Gumbo Limbo Nature Center"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "20-acre coastal preserve on Boca Raton's barrier island",
+    "why_here": "Gumbo Limbo Nature Center is a 20-acre coastal preserve on Boca Raton's barrier island. Visitors can see native fish and resident sea turtles in large outdoor marine aquariums and climb a 40-foot-tall observation tower.",
+    "know_before": "Nature Center hours are 9 a.m. to 4 p.m. Tuesday through Sunday",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.myboca.us/2485/Gumbo-Limbo-Nature-Center"
+     ],
+     "why_here": [
+      "https://www.myboca.us/2485/Gumbo-Limbo-Nature-Center"
+     ],
+     "know_before": [
+      "https://www.myboca.us/2485/Gumbo-Limbo-Nature-Center"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Gumbo Limbo Nature Center is a 20-acre coastal preserve on Boca Raton's barrier island",
+      "source": "https://www.myboca.us/2485/Gumbo-Limbo-Nature-Center"
+     },
+     {
+      "claim": "Gumbo Limbo Nature Center has a 40-foot-tall observation tower",
+      "source": "https://www.myboca.us/2485/Gumbo-Limbo-Nature-Center"
+     },
+     {
+      "claim": "Native fish and resident sea turtles reside in large outdoor marine aquariums at Gumbo Limbo Nature Center",
+      "source": "https://www.myboca.us/2485/Gumbo-Limbo-Nature-Center"
+     },
+     {
+      "claim": "Nature Center hours are 9 a.m. to 4 p.m. Tuesday through Sunday at Gumbo Limbo Nature Center",
+      "source": "https://www.myboca.us/2485/Gumbo-Limbo-Nature-Center"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ7Uq6MTTZ2IgRtCv0K70WK3s",
+   "name": "Oceanwalk",
+   "category": "food",
+   "metro": "palm-beach",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://oceanwalkbybennys.com/",
+     "source_name": "Oceanwalk \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Oceanwalk is a sister restaurant to Benny's on the Beach",
+      "Oceanwalk menu features grilled seafood, prime steaks, and raw bar selections",
+      "Oceanwalk cocktail menu features fresh pressed juices and house-made syrups",
+      "Oceanwalk is located in Lake Worth Beach",
+      "Oceanwalk is closed on Tuesday and Wednesday",
+      "Oceanwalk is open Monday, Thursday and Friday from 12:00 p.m. to 9:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "grilled seafood, prime steaks, and raw bar selections",
+    "why_here": "Oceanwalk is a sister restaurant to Benny's on the Beach in Lake Worth Beach. Its menu features grilled seafood, prime steaks, and raw bar selections, with fresh pressed juices and house-made syrups on the drinks menu.",
+    "know_before": "Oceanwalk is closed on Tuesday and Wednesday.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://oceanwalkbybennys.com/"
+     ],
+     "why_here": [
+      "https://oceanwalkbybennys.com/"
+     ],
+     "know_before": [
+      "https://oceanwalkbybennys.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Oceanwalk is a sister restaurant to Benny's on the Beach",
+      "source": "https://oceanwalkbybennys.com/"
+     },
+     {
+      "claim": "Oceanwalk menu features grilled seafood, prime steaks, and raw bar selections",
+      "source": "https://oceanwalkbybennys.com/"
+     },
+     {
+      "claim": "Oceanwalk cocktail menu features fresh pressed juices and house-made syrups",
+      "source": "https://oceanwalkbybennys.com/"
+     },
+     {
+      "claim": "Oceanwalk is located in Lake Worth Beach",
+      "source": "https://oceanwalkbybennys.com/"
+     },
+     {
+      "claim": "Oceanwalk is closed on Tuesday and Wednesday",
+      "source": "https://oceanwalkbybennys.com/"
+     },
+     {
+      "claim": "Oceanwalk is open Monday, Thursday and Friday from 12:00 p.m. to 9:00 p.m.",
+      "source": "https://oceanwalkbybennys.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJrcgD5gyr2YgR1CL04kLq9hU",
+   "name": "Farmer's Milk",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "bakery",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://farmersmilk.miami/products/eggs-benedict-with-chicken",
+     "source_name": "Farmer's Milk \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Farmer's Milk sells Eggs Benedict with Chicken",
+      "Farmer's Milk sells Whole Chocolate Loaf",
+      "Farmer's Milk sells Lemon Loaf",
+      "Farmer's Milk sells Slice Apple Pie",
+      "Farmer's Milk sells Sandwich with chicken"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Counter selling Eggs Benedict with Chicken, Lemon Loaf and Slice Apple Pie",
+    "why_here": "Farmer's Milk sells Eggs Benedict with Chicken alongside baked goods including Whole Chocolate Loaf, Lemon Loaf and Slice Apple Pie. The menu also lists Sandwich with chicken, so visitors can choose a savoury plate or a loaf or pie to take away.",
+    "know_before": "Farmer's Milk also sells Lemon Loaf and Slice Apple Pie.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://farmersmilk.miami/products/eggs-benedict-with-chicken"
+     ],
+     "why_here": [
+      "https://farmersmilk.miami/products/eggs-benedict-with-chicken"
+     ],
+     "know_before": [
+      "https://farmersmilk.miami/products/eggs-benedict-with-chicken"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Farmer's Milk sells Eggs Benedict with Chicken",
+      "source": "https://farmersmilk.miami/products/eggs-benedict-with-chicken"
+     },
+     {
+      "claim": "Farmer's Milk sells Whole Chocolate Loaf",
+      "source": "https://farmersmilk.miami/products/eggs-benedict-with-chicken"
+     },
+     {
+      "claim": "Farmer's Milk sells Lemon Loaf",
+      "source": "https://farmersmilk.miami/products/eggs-benedict-with-chicken"
+     },
+     {
+      "claim": "Farmer's Milk sells Slice Apple Pie",
+      "source": "https://farmersmilk.miami/products/eggs-benedict-with-chicken"
+     },
+     {
+      "claim": "Farmer's Milk sells Sandwich with chicken",
+      "source": "https://farmersmilk.miami/products/eggs-benedict-with-chicken"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ_wqgYvK02YgR2hA12ijkWTg",
+   "name": "Local House",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "brunch_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.localhouse.com/restaurant",
+     "source_name": "Local House \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Local House is at 400 Ocean Drive, Miami Beach, FL",
+      "Local House is known for Lobster Eggs Benedict, fluffy pancakes and signature mimosas",
+      "Local House brunch is served daily from 8 a.m. to 4 p.m.",
+      "Local House is Italian-owned since 2012 in South of Fifth, Miami Beach"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Ocean Drive brunch spot known for Lobster Eggs Benedict in Miami Beach",
+    "why_here": "At 400 Ocean Drive in Miami Beach, Local House serves brunch daily and is known for Lobster Eggs Benedict, fluffy pancakes and signature mimosas. The Italian-owned restaurant has operated since 2012 in South of Fifth, making it a daytime stop on Ocean Drive.",
+    "know_before": "Brunch is served daily from 8 a.m. to 4 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.localhouse.com/restaurant"
+     ],
+     "why_here": [
+      "https://www.localhouse.com/restaurant"
+     ],
+     "know_before": [
+      "https://www.localhouse.com/restaurant"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Local House is at 400 Ocean Drive, Miami Beach, FL",
+      "source": "https://www.localhouse.com/restaurant"
+     },
+     {
+      "claim": "Local House is known for Lobster Eggs Benedict, fluffy pancakes and signature mimosas",
+      "source": "https://www.localhouse.com/restaurant"
+     },
+     {
+      "claim": "Local House brunch is served daily from 8 a.m. to 4 p.m.",
+      "source": "https://www.localhouse.com/restaurant"
+     },
+     {
+      "claim": "Local House is Italian-owned since 2012 in South of Fifth, Miami Beach",
+      "source": "https://www.localhouse.com/restaurant"
+     }
+    ]
+   }
+  }
+ ]
+}
