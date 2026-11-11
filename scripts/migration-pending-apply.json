@@ -75,12 +75,5 @@
     "decision_owner": "wallstreethyena",
     "tracking": "#20261109",
     "reason": "Official one-day product pages for EPCOT 61, SeaWorld 62, Busch Gardens 65 and LEGOLAND 64. Category attractions, scope local and fail_count 0 match rows 5, 7, 15 and 16. The statements already ran and the ids were read back. schema_migrations has no row because SUPABASE_ACCESS_TOKEN is absent, so this stays pending until scripts/apply-migration.mjs records the ledger. The insert is where-not-exists and the update excludes the hub ids."
-  },
-  {
-    "file": "supabase/migrations/20261110140000_wf_deals_ut_universal_one_day.sql",
-    "sha256": "d8da4cc446ab93b18974d6861928475e2d534bddaf6fa5156faec34668e09eeb",
-    "decision_owner": "wallstreethyena",
-    "tracking": "#PRNUM",
-    "reason": "Christmas ticket button audit 2026-11-10. Inserts one Undercover Tourist row, Universal Orlando 1-Day 1-Park Base Ticket, copied from row 6, so the three Universal Christmas cards and the theme park Christmas guide pick sell a one-day ticket instead of the 3-day ticket. Idempotent (skips if the dest_url exists). Must be applied BEFORE the lib/eventTicketDeals.js change merges, and the new id must read back as 66. Owner applies after review. Not applied."
   }
 ]
