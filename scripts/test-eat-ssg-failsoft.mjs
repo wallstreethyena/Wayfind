@@ -222,8 +222,24 @@ ok(isSsgBuild() === false, "CONTROL: deleting NEXT_PHASE is not SSG");
   ok(/notFound\(\)/.test(cuisine),
     "CONTROL: runtime empty/unknown cuisine still 404s — we did not delete the honest empty");
 
-  ok(/if \(isSsgBuild\(\)\) return \[\]/.test(curated),
+  ok(/if \(isSsgBuild\(\)(?: && !buildRead)?\) return \[\]/.test(curated),
     "fetchCuratedEvents returns [] at SSG — anastasia-manatee cannot hang the build");
+  // 2026-11-11: the one opt-in (`buildRead`) is the single cached
+  // /christmas-in-florida page, and it bounds its read with its own timeout.
+  {
+    const { readdirSync, statSync } = await import("node:fs");
+    const walk = (dir) => readdirSync(dir).flatMap((name) => {
+      const full = join(dir, name);
+      return statSync(full).isDirectory() ? walk(full) : (/\.(?:js|jsx|mjs)$/.test(name) ? [full] : []);
+    });
+    const files = [...walk(join(ROOT, "app")), ...walk(join(ROOT, "lib"))];
+    const callers = files.filter((f) => /buildRead:\s*true/.test(readFileSync(f, "utf8").replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "")));
+    ok(files.length > 100, "PROBE: the buildRead caller scan walked app/ and lib/ (" + files.length + " files)");
+    ok(callers.length === 1 && callers[0].endsWith(join("app", "christmas-in-florida", "page.js")),
+      "only /christmas-in-florida opts into a build-time events read (" + callers.map((f) => f.slice(ROOT.length + 1)).join(", ") + ")");
+    ok(/fetchCuratedEvents\(\{ signal: AbortSignal\.timeout\(4000\), buildRead: true \}\)/.test(read("app/christmas-in-florida/page.js")),
+      "that build-time read carries a 4 second timeout, so it cannot hang the build");
+  }
   ok(/if \(isSsgBuild\(\)\) return null/.test(curated),
     "fetchCuratedEventBySlug returns null at SSG");
 

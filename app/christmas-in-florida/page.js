@@ -5,7 +5,8 @@ import ChristmasBrowse from "../components/ChristmasBrowse";
 import ChristmasTickets from "../components/ChristmasTickets";
 import ShareButton from "../components/ShareButton";
 import { pageShareUrl } from "../../lib/pageShareUrl";
-import { attachBrowseTickets, withBrowseTicketPhotos, christmasTicketsModel, christmasTicketsSchema, fetchChristmasTicketDeals, withChristmasTicketPhotos } from "../../lib/christmasTickets";
+import { attachBrowseTickets, withBrowseTicketPhotos, christmasTicketsModel, christmasTicketsSchema, readChristmasTicketDeals, withChristmasTicketPhotos } from "../../lib/christmasTickets";
+import { isSsgBuild } from "../../lib/landingInventory";
 import { fetchCuratedEvents } from "../../lib/curatedEvents";
 import { siteTodayStr } from "../../lib/siteTime";
 import CreatorVideoRail from "../components/CreatorVideoRail.js";
@@ -18,9 +19,13 @@ import { christmasBrowseCached, christmasBrowseListings, christmasBrowsePage, ch
 
 // Christmas v4 (lead packet, 2026-10-13): #1714's seasonal hub (metadata,
 // sharing, nav, schema, guide sections) plus the full statewide browse,
-// server rendered (first page, filters from the URL) and paged through
+// server rendered (first page; URL filters apply in the browser) and paged through
 // /api/christmas/browse. Unconfirmed research stays out of this consumer page.
-export const revalidate = 3600;
+// Refreshed in the background every 10 minutes, the same freshness as
+// /api/christmas/browse (s-maxage=600). force-cache keeps the live (no-store)
+// Supabase reads below from turning the page back into a per-visit build.
+export const revalidate = 600;
+export const fetchCache = "force-cache";
 const seasonal = seasonalSearchMetadata("christmas-in-florida");
 const title = "Florida Christmas Lights, Shows and Event Tickets | Wayfind";
 const description = "Compare Florida Christmas light shows, theme park nights, parades and parties with prices, dates and hours. Book tickets from the organizer or a partner.";
@@ -74,20 +79,32 @@ function ChristmasCreatorPosts({ posts }) {
   </section>;
 }
 
-export default async function Page({ searchParams }) {
+// 2026-11-11: one cached page for every visitor. The page reads no
+// searchParams: every Meta ad click carries a unique ?fbclid=, and reading the
+// URL made each visit a fresh server build (x-vercel-cache MISS, 0.9 to 2.8 s
+// before the first byte). Shared filter links (?region=, ?category=, ...) still
+// work: ChristmasBrowse applies them in the browser after load.
+//
+// A failed read never becomes the cached page. During a background refresh it
+// throws, so the CDN keeps serving the last good page. Only next build, which
+// has no older page to fall back on, renders the research listings instead.
+export default async function Page() {
   const today = siteTodayStr();
-  const params = (await searchParams) || {};
-  const query = parseChristmasBrowseQuery(params);
-  // The same 10 minute cache as /api/christmas/browse (lib/christmasBrowse.js
-  // christmasBrowseCached), keyed by the normalized filters. A failed read
-  // renders the research listings uncached, never an empty page.
+  const building = isSsgBuild();
+  const query = parseChristmasBrowseQuery({});
+  // The browse, the ticket deals and (below) the two photo passes are
+  // independent reads, so they run side by side instead of one after another.
+  const [browse, dealRead] = await Promise.all([
+    christmasBrowseCached(query, today, () => fetchCuratedEvents({ signal: AbortSignal.timeout(4000), buildRead: true })).catch((error) => ({ error })),
+    readChristmasTicketDeals(),
+  ]);
+  if (!building && (browse.error || !dealRead.ok)) throw browse.error || new Error("Christmas ticket deals unavailable");
   let listings, first;
-  try {
-    ({ listings, page: first } = await christmasBrowseCached(query, today, () => fetchCuratedEvents({ signal: AbortSignal.timeout(4000) })));
-  } catch {
+  if (browse.error) {
     listings = christmasBrowseListings([], today);
     first = christmasBrowsePage(listings, query, today);
-  }
+  } else ({ listings, page: first } = browse);
+  const dealsById = dealRead.deals;
   const itemList = {
     "@context": "https://schema.org", "@type": "ItemList", name: "Christmas events in Florida, 2026 season",
     numberOfItems: listings.length,
@@ -95,27 +112,24 @@ export default async function Page({ searchParams }) {
       "@type": "ListItem", position: i + 1, name: card.title, url: card.detailHref ? SITE_URL + card.detailHref : (card.url || undefined),
     })),
   };
-  // The featured ticket cards come from the same listings (no second source).
-  // A failed side read (deals, stored photos) only means fewer buttons or
-  // photos, never an empty page.
+  // The featured ticket cards come from the same listings (no second source),
+  // and the statewide browse wears the same ticket card, so its cards carry
+  // the same server built ticket fields (way in, honest price, dates text).
+  // A failed stored photo read only means fewer photos, never an empty page.
   let tickets;
-  let dealsById = new Map();
-  try {
-    dealsById = await fetchChristmasTicketDeals();
-    tickets = await withChristmasTicketPhotos(christmasTicketsModel(listings, today, { dealsById }));
-  } catch {
-    tickets = christmasTicketsModel([], today);
-  }
-  // The statewide browse wears the same ticket card, so its cards carry the
-  // same server built ticket fields (way in, honest price, dates text).
-  first = await withBrowseTicketPhotos(attachBrowseTickets(first, listings, today, dealsById), listings, today, dealsById);
+  [tickets, first] = await Promise.all([
+    Promise.resolve().then(() => withChristmasTicketPhotos(christmasTicketsModel(listings, today, { dealsById }))).catch((error) => {
+      if (!building) throw error;
+      return christmasTicketsModel([], today);
+    }),
+    withBrowseTicketPhotos(attachBrowseTickets(first, listings, today, dealsById), listings, today, dealsById),
+  ]);
   const ticketsSchema = christmasTicketsSchema(tickets);
-  const initialQuery = Object.fromEntries(Object.entries({ ...query, page: undefined, undated: query.undated || undefined }).filter(([, v]) => v !== undefined && v !== "" && v !== null && v !== false));
   return <>
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ticketsSchema).replace(/</g, "\\u003c") }} />
     <ChristmasTickets model={tickets} share={<ShareButton url={pageShareUrl("/christmas-in-florida")} title={title} text={description} tone="dark" label="Share" />} browse={<>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemList).replace(/</g, "\\u003c") }} />
-      <ChristmasBrowse initial={first} facets={{ ...christmasBrowseFacets(), pills: christmasBrowsePills(listings) }} today={today} initialQuery={initialQuery} />
+      <ChristmasBrowse initial={first} facets={{ ...christmasBrowseFacets(), pills: christmasBrowsePills(listings) }} today={today} />
       <ChristmasCreatorPosts posts={seasonalCreatorVideos("christmas")} />
 
     </>} />
