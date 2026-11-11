@@ -614,8 +614,7 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
               : <div className="wf-place-card-monogram" aria-hidden="true">{initials}</div>}
           {rank ? <span className="wf-place-card-rank" aria-label={"Rank " + rank}>{rank}</span> : null}
           <AwardSticker award={award} />
-          {/* v8.56.13 (#1188) — same CC credit badge as RailCard.js, same
-              reasoning: see its comment above the equivalent block. */}
+          {/* Same on-photo credit line as RailCard.js. */}
           {photoAttr && primaryPhoto
             ? (photoAttrHref
                 ? <a
@@ -626,8 +625,8 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
                     title={"Photo: " + photoAttr}
                     aria-label={"Photo credit: " + photoAttr + " (new tab)"}
                     onClick={(e) => e.stopPropagation()}
-                  >©</a>
-                : <span className="wf-place-card-photo-attr" title={"Photo: " + photoAttr} aria-label={"Photo credit: " + photoAttr}>©</span>)
+                  >{photoAttr}</a>
+                : <span className="wf-place-card-photo-attr" title={"Photo: " + photoAttr} aria-label={"Photo credit: " + photoAttr}>{photoAttr}</span>)
             : null}
         </div>
         <div className="wf-place-card-content" style={{ position: "relative" }}>

@@ -22,8 +22,25 @@ ok(pinScoreLabel(105, 2, toDisplayScore) === "2", "an out-of-range score is null
 // ── 2. wiring, pinned where it cannot be executed ───────────────────────────
 const view = readFileSync("app/components/MapView.js", "utf8");
 ok(/map\.on\("moveend"/.test(view), "MapView listens on moveend");
-ok(/areaMoved\(searchOriginRef\.current/.test(view), "…and asks the PURE areaMoved, not an inline copy");
-ok(/cb\(areaMoved\([^)]*\) \? here : null\)/.test(view), "the offer RETRACTS (null) when the map returns near the origin");
+ok(/fitSettleRef\.current\.afterMove\(here, searchOriginRef\.current, !!\(e && e\.originalEvent\)\)/.test(view), "…and asks the PURE fit-aware tracker (lib/mapExplorer.js createFitSettleTracker), not an inline copy");
+ok(/fitSettleRef\.current\.beginFit\(\); map\.fitBounds\(/.test(view) && /if \(!fit\) fitSettleRef\.current\.endFit\(\);/.test(view), "…and marks every programmatic fitBounds, and clears it outside fit mode");
+// EXECUTED (2026-11-05, #2121 for the MapLibre renderer): a list fit is not a pan.
+{
+  const { createFitSettleTracker } = await import("../lib/mapExplorer.js");
+  const origin = { lat: 27.3, lng: -82.5 }, fitted = { lat: 27.9, lng: -82.9 };
+  const t = createFitSettleTracker();
+  ok(t.afterMove(fitted, origin, true) && t.afterMove(fitted, origin, false), "control: without a fit, a 40mi move offers (user or not) — the probe can say yes");
+  t.beginFit();
+  ok(t.afterMove(fitted, origin, false) === null, "the settle of a programmatic fit far from the origin never offers (the unpinned note stays)");
+  ok(t.afterMove({ lat: 27.905, lng: -82.905 }, origin, true) === null, "a sub-threshold user nudge after the fit does not offer (measured from the FITTED center)");
+  const far = t.afterMove({ lat: 28.4, lng: -82.9 }, origin, true);
+  ok(far && far.lat === 28.4, "a real user pan away from the fitted center still offers the area search");
+  t.endFit();
+  ok(t.afterMove(fitted, origin, true)?.lat === 27.9, "leaving fit mode measures pans from the search origin again");
+  t.beginFit();
+  ok(t.afterMove(fitted, origin, true)?.lat === 27.9, "a user gesture that lands while a fit is pending is a real move, never swallowed");
+  ok(t.afterMove(origin, origin, true) === null, "the offer RETRACTS (null) when the map returns near the origin");
+}
 // v7.16 (owner): pins carry NO score text — they are tip-anchored teardrop
 // sprites, and the score renders in the bottom card as the full Wayfind
 // badge. What must hold now is the inverse: no score-text layer sneaks back

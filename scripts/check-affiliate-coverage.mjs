@@ -55,13 +55,26 @@ import { TP_PROGRAMS, isTpProgramLive } from "../lib/travelpayouts.js";
 import { partnerTicketLabel } from "../lib/partnerCopy.js";
 import { venueOfferFor } from "../lib/venueOffers.js";
 import { bookItTarget } from "../lib/monetize.js";
-import { AFFILIATE_MERCHANTS, MERCHANT_HOSTS, affiliateMerchantForUrl, eventAffiliateCoverage, unmappedSellableEvents, COVERAGE } from "../lib/affiliateLibrary.js";
+import { AFFILIATE_MERCHANTS, MERCHANT_HOSTS, affiliateMerchantForUrl, eventAffiliateCoverage, unmappedSellableEvents, affiliateCoverageCandidates, COVERAGE } from "../lib/affiliateLibrary.js";
+import { mergeChristmasResearch } from "../lib/christmasResearch.js";
 import { coveragePulseRow, tallyCoverage } from "../app/api/cron/affiliate-coverage/route.js";
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const read = (p) => readFileSync(path.join(ROOT, p), "utf8");
 let pass = 0, fail = 0;
 const ok = (c, m) => { c ? pass++ : (fail++, console.log("  FAIL:", m)); };
+
+// The deployed catalog includes research-only events. A DB-only watch missed
+// the actual Grinchmas/parade/Gatorland cards while reporting clean coverage.
+const researchCoverage = affiliateCoverageCandidates(mergeChristmasResearch([]), "2026-11-06");
+for (const id of ["islands-adventure-grinchmas-2026", "universal-studios-holiday-parade-2026", "gatorland-holiday-ho-down-2026", "wdw-holidays-2026", "wdw-holiday-season-2026", "epcot-candlelight-2026", "mosi-santa-in-space-2026"]) {
+  const row = researchCoverage.find((r) => r.event_id === id);
+  ok(!!row && eventAffiliateCoverage(row).status === COVERAGE.MAPPED, `${id}: the published research card is monitored and mapped`);
+}
+const monitorFixture = (patch) => ({ event_id: "fixture", event_status: "scheduled", start_date: "2026-11-01", end_date: "2026-12-01", ...patch });
+ok(affiliateCoverageCandidates([monitorFixture({}), monitorFixture({ event_status: "needs_review" }), monitorFixture({ christmas_excluded: true }), monitorFixture({ end_date: "2026-11-05" })], "2026-11-06").length === 1, "held, excluded and ended rows cannot inflate the monitor's coverage");
+ok(read("app/api/cron/affiliate-coverage/route.js").includes("affiliateCoverageCandidates(mergeChristmasResearch("), "the real cron merges the published research source before classifying coverage");
+ok(read("next.config.js").includes('"/api/cron/affiliate-coverage": ["./data/christmas-2026-research.json"]'), "production coverage lambda receives its research file");
 
 // ── 1. unknown is not dead, executed on the shipped row shape ──────────────
 const tracked = `https://www.anrdoezrs.net/links/${CJ_PID}/type/dlg/sid/coupon_hos_tampa/https://www.undercovertourist.com/orlando/busch-gardens-tampa-howl-o-scream/`;
@@ -73,8 +86,9 @@ ok(isServableDeal({ ...shipped, active: false }) === false, "active=false is NOT
 ok(isServableDeal({ ...shipped, affiliate_url: "https://www.undercovertourist.com/orlando/x/" }) === false, "a row that lost its CJ PID is NOT servable (better dark than unattributed)");
 ok(isServableDeal(null) === false && isServableDeal(undefined) === false && isServableDeal("x") === false, "garbage is not servable");
 // …and the rest of the chain agrees: a servable row yields the CTA.
-const cta = eventTicketCta("howl-o-scream-tampa-2026", { surface: "fall_intent_rail", liveDeal: shipped });
-ok(cta && cta.href === "/api/commerce/go?provider=undercover_tourist&offer=20&surface=fall_intent_rail&content=howl-o-scream-tampa-2026", `Howl-O-Scream on the null-health row still gets the commerce-go ticket (${cta && cta.href})`);
+const cta = eventTicketCta("christmas-town-2026", { surface: "christmas_intent_rail", liveDeal: { ...shipped, id: 65 } });
+ok(cta && cta.href === "/api/commerce/go?provider=undercover_tourist&offer=65&surface=christmas_intent_rail&content=christmas-town-2026", `a live holiday ticket on the null-health row still gets the commerce-go ticket (${cta && cta.href})`);
+ok(eventTicketCta("howl-o-scream-tampa-2026", { surface: "fall_intent_rail", liveDeal: shipped }) === null, "the retired Howl O Scream deal does not emit a commerce link");
 
 // ── 2. one predicate at the route ──────────────────────────────────────────
 const route = read("app/api/events/fall/route.js");
@@ -167,6 +181,11 @@ for (const m of AFFILIATE_MERCHANTS) {
       ok(reg && reg.provider === m.admission.provider, `${m.key}: admission offer resolves in PARTNER_OFFER_REGISTRY under ${m.admission.provider}`);
     }
     ok(m.partners.some((p) => p.provider === m.admission.provider && p.offerId === m.admission.offerId), `${m.key}: the admission row is listed among its partners`);
+    for (const day of m.dayTickets || []) {
+      ok(day.provider === "undercover_tourist" && Number.isInteger(day.offerId), `${m.key}: a day ticket is a UT wf_deals id`);
+      ok(m.partners.some((p) => p.provider === day.provider && p.offerId === day.offerId), `${m.key}: day ticket ${day.offerId} is listed among its partners`);
+      ok(!(String(day.offerId) in UT_EVENT_DEAL_IDS), `${m.key}: day ticket ${day.offerId} is not an event-ticket row`);
+    }
   }
   for (const p of m.partners) {
     ok(p.provider in PROVIDERS, `${m.key}: partner provider ${p.provider} is a live commerce provider`);
@@ -181,19 +200,26 @@ for (const m of AFFILIATE_MERCHANTS) {
 // what makes SELLABLE_NO_UT_PATH retirable: there is no merchant left in the
 // library that is sellable but structurally cannot hold an admission row.
 ok(AFFILIATE_MERCHANTS.every((m) => !!m.admission), "every library merchant carries an admission offer (UT or Tiqets/Klook) — none is admission:null");
-const admissionByOffer = new Map(AFFILIATE_MERCHANTS.filter((m) => m.admission).map((m) => [`${m.admission.provider}:${m.admission.offerId}`, m.key]));
+const admissionByOffer = new Map();
+for (const m of AFFILIATE_MERCHANTS) {
+  for (const offer of [m.admission, ...(m.dayTickets || [])]) {
+    if (offer) admissionByOffer.set(`${offer.provider}:${offer.offerId}`, m.key);
+  }
+}
 for (const eventId of Object.keys(EVENT_TICKET_DEALS)) {
   const norm = eventTicketDeal(eventId);
-  if (norm.product !== "park-admission") continue;
+  if (!norm || norm.product !== "park-admission") continue;
   const key = `${norm.provider}:${norm.offerId}`;
   ok(admissionByOffer.has(key), `${eventId}: park-admission offer ${key} is a library admission row (${admissionByOffer.get(key) || "MISSING"})`);
 }
-ok(EVENT_TICKET_DEALS["christmas-town-2026"]?.deal === 15 && EVENT_TICKET_DEALS["seaworld-orlando-christmas-2026"]?.deal === 7 && EVENT_TICKET_DEALS["legoland-fl-holidays-2026"]?.deal === 16,
-  "the three organizer-confirmed included-with-admission holiday runs are mapped to their park's admission row");
+ok(EVENT_TICKET_DEALS["christmas-town-2026"]?.deal === 65 && EVENT_TICKET_DEALS["seaworld-orlando-christmas-2026"]?.deal === 62 && EVENT_TICKET_DEALS["legoland-fl-holidays-2026"]?.deal === 64,
+  "the three organizer-confirmed included-with-admission holiday runs sell that park's one-day ticket");
 ok(EVENT_TICKET_DEALS["mvmcp-2026"]?.deal === 38 && EVENT_TICKET_DEALS["mvmcp-2026"]?.product === "event-ticket", "MVMCP maps to its exact Undercover Tourist event-ticket row, never Disney park admission");
 ok(EVENT_TICKET_DEALS["jollywood-nights-2026"]?.deal === 39 && EVENT_TICKET_DEALS["jollywood-nights-2026"]?.product === "event-ticket", "Jollywood maps to its exact Undercover Tourist event-ticket row, never Disney park admission");
-ok(EVENT_TICKET_DEALS["epcot-festival-holidays-2026"]?.deal === 5 && EVENT_TICKET_DEALS["epcot-festival-holidays-2026"]?.product === "park-admission", "EPCOT Festival of the Holidays uses the verified Disney admission path");
-ok(EVENT_TICKET_DEALS["universal-orlando-holidays-2026"]?.deal === 6 && EVENT_TICKET_DEALS["universal-orlando-holidays-2026"]?.product === "park-admission", "Universal Holidays uses the verified Universal admission path");
+ok(EVENT_TICKET_DEALS["epcot-festival-holidays-2026"]?.deal === 61 && EVENT_TICKET_DEALS["epcot-festival-holidays-2026"]?.product === "park-admission", "EPCOT Festival of the Holidays sells the EPCOT one-day base ticket");
+ok(EVENT_TICKET_DEALS["epcot-candlelight-2026"]?.deal === 61 && EVENT_TICKET_DEALS["epcot-candlelight-2026"]?.product === "park-admission", "EPCOT Candlelight sells the same EPCOT one-day base ticket");
+ok(["universal-orlando-holidays-2026", "universal-holidays-2026", "universal-studios-holiday-parade-2026", "islands-adventure-grinchmas-2026"].every((id) => EVENT_TICKET_DEALS[id]?.deal === 66 && EVENT_TICKET_DEALS[id]?.product === "park-admission"),
+  "the Universal Christmas cards sell Universal's one-day, one-park base ticket (row 66), not the 3-day ticket (row 6)");
 ok(!EVENT_TICKET_DEALS["sideshow-obscura-hhn35-2026"] && NO_EXACT_AFFILIATE_PRODUCT["sideshow-obscura-hhn35-2026"]?.reviewedAt === "2026-10-29", "Sideshow Obscura is a gift shop: no Universal pass button, a dated reviewed decision instead");
 ok(EVENT_TICKET_DEALS["peppas-halloween-party-2026"]?.deal === 18 && EVENT_TICKET_DEALS["peppas-halloween-party-2026"]?.product === "park-admission",
   "Peppa's Halloween Party (organizer-confirmed 'Included in General Admission' on peppapigthemepark.com) maps to Peppa Pig Theme Park's UT admission row (deal 18)");
@@ -231,7 +257,7 @@ const statuses = fx.map((e) => eventAffiliateCoverage(e, { today: FIXTURE_TODAY 
 ok(statuses.slice(0, 5).every((x) => x === COVERAGE.MAPPED), "verified event-ticket and included-with-admission cases all classify mapped");
 ok(statuses[5] === COVERAGE.DECIDED_NO_EXACT_PRODUCT, "Sideshow Obscura (a store, not a ticketed event) is a current reviewed no-product decision");
 ok(statuses[6] === COVERAGE.DECIDED_NO_EXACT_PRODUCT, "Asian Lantern is a current reviewed no-exact-product decision, not a silent leak");
-ok(statuses[7] === COVERAGE.DECIDED_NO_EXACT_PRODUCT, "ZooTampa Christmas is a current reviewed no-exact-product decision until partner entitlement is proven");
+ok(statuses[7] === COVERAGE.MAPPED, "ZooTampa Christmas maps to its verified bookable evening-event SKU, replacing the obsolete Tiqets availability decision");
 ok(statuses[8] === COVERAGE.UNMAPPED, "a new event at an affiliate merchant with no mapping or current decision is a revenue leak");
 ok(statuses[9] === COVERAGE.NO_PARTNER && statuses[10] === COVERAGE.NO_URL, "a merchant nobody sells → no-partner; no URL → no-url");
 ok(statuses[11] === COVERAGE.MAPPED, "Zoo Boo, mapped to Tiqets' Zoo Miami admission offer → mapped");
@@ -245,14 +271,17 @@ ok(zooLightsFeed.url === zooLights.official_ticket_url && !zooLightsFeed.ticketV
   "Zoo Lights feed preserves the organizer ticket URL without a false affiliate claim");
 ok(zooLightsTicket?.kind === "organizer" && zooLightsTicket.href === zooLights.official_ticket_url,
   "Zoo Lights detail keeps the official ticket CTA while its affiliate product is unavailable");
-ok(eventAffiliateCoverage(zooLights, { today: "2026-11-01" }).status === COVERAGE.DECIDED_NO_EXACT_PRODUCT,
+ok(eventAffiliateCoverage(zooLights, { today: "2026-11-17" }).status === COVERAGE.DECIDED_NO_EXACT_PRODUCT,
   "Zoo Lights decision remains current on its review-by boundary");
-const zooLightsExpired = tallyCoverage([zooLights], { today: "2026-11-02" });
+const zooLightsExpired = tallyCoverage([zooLights], { today: "2026-11-18" });
 ok(zooLightsExpired.unmapped.length === 1 && zooLightsExpired.decidedNoExactProduct === 0 && coveragePulseRow(zooLightsExpired).succeeded === 0,
   "the day after review-by, Zoo Lights returns to the leak alert and fails its coverage pulse");
-ok(staleNoProductDecisions("2026-11-02").some((r) => r.eventId === zooLights.event_id),
+ok(staleNoProductDecisions("2026-11-18").some((r) => r.eventId === zooLights.event_id),
   "the existing no-product review guard also detects an overdue Zoo Lights decision");
-ok(eventAffiliateCoverage({ event_id: "wfc:howl-o-scream-tampa-2026", official_event_url: "https://buschgardens.com/tampa/" }).status === COVERAGE.MAPPED, "the feed's wfc: prefix resolves like the bare id");
+const howlBare = eventAffiliateCoverage({ event_id: "howl-o-scream-tampa-2026", official_event_url: "https://buschgardens.com/tampa/" }, { today: FIXTURE_TODAY });
+const howlPrefixed = eventAffiliateCoverage({ event_id: "wfc:howl-o-scream-tampa-2026", official_event_url: "https://buschgardens.com/tampa/" }, { today: FIXTURE_TODAY });
+ok(howlBare.status === COVERAGE.MAPPED && howlPrefixed.status === howlBare.status, "the feed's wfc: prefix resolves like the bare id while the ticket is still for sale");
+ok(eventAffiliateCoverage({ event_id: "wfc:howl-o-scream-tampa-2026", official_event_url: "https://buschgardens.com/tampa/" }, { today: "2026-11-10" }).status === eventAffiliateCoverage({ event_id: "howl-o-scream-tampa-2026", official_event_url: "https://buschgardens.com/tampa/" }, { today: "2026-11-10" }).status, "after the last night the wfc prefix and the bare id still agree");
 
 for (const [eventId, row] of Object.entries(NO_EXACT_AFFILIATE_PRODUCT)) {
   const reviewed = Date.parse(row.reviewedAt + "T00:00:00Z");
@@ -281,15 +310,15 @@ const cleanTally = tallyCoverage(fx.filter((e) => e.event_id !== "new-central-fl
 const leakTally = tallyCoverage(fx, { today: FIXTURE_TODAY });
 const cleanRow = coveragePulseRow(cleanTally);
 const leakRow = coveragePulseRow(leakTally);
-ok(cleanTally.decidedNoExactProduct === 4 && cleanTally.decidedNoExactProductIds.includes(zooLights.event_id),
-  "tally counts all four reviewed no-exact-product decisions, including Zoo Lights and the Sideshow Obscura store");
-ok(cleanTally.noUrl === 1 && cleanTally.noPartner === 1 && cleanTally.mapped === 6,
+ok(cleanTally.decidedNoExactProduct === 3 && cleanTally.decidedNoExactProductIds.includes(zooLights.event_id),
+  "tally counts the three remaining reviewed no-exact-product decisions, including Zoo Lights and the Sideshow Obscura store");
+ok(cleanTally.noUrl === 1 && cleanTally.noPartner === 1 && cleanTally.mapped === 7,
   "reviewed decisions do not inflate the missing-URL bucket; mapped and no-partner controls stay distinct");
 ok(cleanTally.mapped + cleanTally.decidedNoExactProduct + cleanTally.noPartner + cleanTally.noUrl + cleanTally.unmapped.length === fx.length - 1,
   "coverage buckets account for every scanned row exactly once");
 ok(cleanTally.decidedSeparatelyTicketed === cleanTally.decidedNoExactProduct && cleanTally.decidedSeparatelyTicketedIds === cleanTally.decidedNoExactProductIds,
   "legacy tally aliases preserve compatibility with the corrected reviewed decision count");
-ok(/4 reviewed-no-exact-product/.test(cleanRow.note), "clean pulse names and counts the actual reviewed no-exact-product state");
+ok(/3 reviewed-no-exact-product/.test(cleanRow.note), "clean pulse names and counts the actual reviewed no-exact-product state");
 ok(cleanRow.attempted === 1 && cleanRow.succeeded === 1 && cleanRow.failed === 0 && /^clean:/.test(cleanRow.note), "a run with no leak pulses succeeded=1");
 ok(leakRow.attempted === 1 && leakRow.succeeded === 0 && leakRow.failed === 1 && /new-central-florida-zoo-special-2026/.test(leakRow.note), "a run with a leak pulses succeeded=0 and NAMES the event, so job-watch's email says what to map");
 ok(leakRow.note.length <= 200, "the note fits the pulse column");
