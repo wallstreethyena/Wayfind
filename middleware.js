@@ -98,6 +98,14 @@ export const config = {
     // Santa's Christmas ticket chat: same gate as Bo (shared Anthropic gate in
     // lib/paidAi.js), full same-origin + per-IP guard.
     "/api/santa-chat",
+    // Reserve a table chat: same shared Anthropic gate as Santa (lib/paidAi.js),
+    // full same-origin + per-IP guard. Signed in users only (the route verifies).
+    "/api/reserve-chat",
+    // Reserve a table writes: unmetered, so per-IP rate limit only (RATE_LIMIT_ONLY_ROUTES
+    // below). Both POSTs also demand a same-origin JSON request inside the route, and
+    // the respond GET is opened from an email link and must never change anything.
+    "/api/reserve/request",
+    "/api/reserve/respond",
     "/api/viator/tours",
     // Intent-sheet curated enrichment: exact product artwork and commercial
     // metadata come from the metered Viator Partner API on cache misses.
@@ -200,6 +208,10 @@ const NAV_302_ROUTES = new Set(["/api/viator/go", "/api/commerce/go", "/api/even
 // shared-link image, so keep the per-IP rate limit (the real cost guard) but
 // skip the same-origin block.
 const IMAGE_ROUTES = new Set(["/api/photo", "/api/creator-avatar"]);
+// Unmetered write routes for Reserve a table: per-IP rate limit, no middleware
+// same-origin block (the routes check the exact Origin themselves; a restaurant
+// opening an emailed link may arrive with stripped browser headers).
+const RATE_LIMIT_ONLY_ROUTES = new Set(["/api/reserve/request", "/api/reserve/respond"]);
 
 export function middleware(req) {
   const path = req.nextUrl && req.nextUrl.pathname;
@@ -211,7 +223,7 @@ export function middleware(req) {
   // drift. The route's own Bearer check stays the only authority on 401 vs
   // success, and the per-IP limiter still applies. See apiGuard.js for the
   // measured 403-before-401 failure this repairs.
-  const rateLimitOnly = NAV_302_ROUTES.has(path) || IMAGE_ROUTES.has(path)
+  const rateLimitOnly = NAV_302_ROUTES.has(path) || IMAGE_ROUTES.has(path) || RATE_LIMIT_ONLY_ROUTES.has(path)
     || isOperatorDiagnostic(path, req.nextUrl && req.nextUrl.searchParams);
   // Apple pin budget: its own 10/min per-IP window (lib/apiGuard.APPLE_BUDGET_RL).
   const routeLimit = path === "/api/maps/apple-budget" ? APPLE_BUDGET_RL : undefined;
