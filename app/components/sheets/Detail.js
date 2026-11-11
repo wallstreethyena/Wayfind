@@ -43,6 +43,7 @@ import { funnelProps } from "../../../lib/funnel";
 import { useCommerceImpression } from "../useCommerceImpression";
 import { nearbyTourListAllowed, placePartnerPick } from "../../../lib/placePartnerPicks";
 import { usePinQuarantine } from "../../../lib/pinQuarantine";
+import { useReservePartner, openReserveSheet } from "../../../lib/reserveClient.js";
 import { pairsWellWith } from "../../../lib/pairsWellWith";
 import { chooseDetailNextStep, DETAIL_NEXT_STEP_OPEN, DETAIL_NEXT_STEP_SHOWN } from "../../../lib/detailNextStep.js";
 import { detailNearbyPool, detailDistanceMi, DETAIL_NEARBY_RADIUS_MI } from "../../../lib/detailNearby.js";
@@ -315,6 +316,15 @@ function PrimaryActionButton({ primaryCta, detail, kind, viaTours, locName, logE
     );
   }
 
+  // Wayfind table request: opens the lazy sheet, never navigates ("#reserve" is a marker, not a link).
+  if (primaryCta.type === DETAIL_CTA_TYPES.reserve) {
+    return (
+      <button ref={ctaRef} type="button" data-reserve-cta="1" aria-label={`Reserve a table at ${detail.name}`} onClick={() => { onClick(); openReserveSheet(detail, { surface: "detail" }); }} style={style}>
+        <span>{primaryCta.label}</span>
+      </button>
+    );
+  }
+
   if (primaryCta.type === DETAIL_CTA_TYPES.tickets || primaryCta.type === DETAIL_CTA_TYPES.rates) {
     return (
       <BookingCTA
@@ -560,7 +570,9 @@ export default function DetailSheet({ ctx }) {
   // it is unconditionally safe. Declared with the other top-level hooks,
   // above every early return. See lib/pinQuarantine.js.
   const pinQ = usePinQuarantine();
-  const primaryCta = resolveDetailCta({ detail, kind: placeKind(detail), viaTours, locName, offers, openState, catalog: pinQ });
+  // "Reserve a table" parity with the place card: the same partner list decides both.
+  const reservePartner = useReservePartner(detail && detail.id);
+  const primaryCta = resolveDetailCta({ detail, kind: placeKind(detail), viaTours, locName, offers, openState, catalog: pinQ, reservePartner });
   // The one disclosure line under the primary action. When it renders, the
   // BookingCTA disclosure lower in the sheet stays off (one line per sheet).
   const ftcNearPrimary = !!(detail && !detail._event && primaryCta && primaryCta.monetized && (primaryCta.exact || (primaryCta.type !== DETAIL_CTA_TYPES.tickets && primaryCta.type !== DETAIL_CTA_TYPES.rates)));

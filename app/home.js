@@ -5501,6 +5501,21 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
     showToast(msg || "Sign up free — save your spots and sync them to every device.");
     return false;
   }
+  // "Reserve a table" (lib/reserveClient.js) lives in a lazy sheet outside this
+  // shell, so it asks for the site's own sign in sheet by event instead of
+  // owning a second auth prompt. It sets detail.handled so it knows we heard it.
+  useEffect(() => {
+    const onReserveAuth = (e) => {
+      const d = e && e.detail;
+      if (!d || d.src !== "reserve") return;
+      d.handled = true;
+      setAuthOpen(true, "reserve");
+      showToast(d.message || "Sign in to request a table");
+    };
+    window.addEventListener("wf:open-auth", onReserveAuth);
+    return () => window.removeEventListener("wf:open-auth", onReserveAuth);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // THE SAVE MOMENT IS THE SIGNUP MOMENT (2026-08-07). Measured: 30 days,
   // 929 external visitors, zero signups — the passive header "Sign in" button
