@@ -8,7 +8,7 @@
 // public/place-photos) into that one function. Vercel refused the production
 // build ("api/og/movie is 1.09gb uncompressed ... exceeds 250mb"), which
 // blocked every deploy after it. The read now joins a fixed public/movies
-// folder with the file name only, and next.config.js excludes the big photo
+// folder with the file name only (lib/moviePosterFile.js), and next.config.js excludes the big photo
 // folders from that function as a second wall. A local `next build` after the
 // fix traced 37 files, 4.1 MB, with the 20 posters and 3 fonts present.
 //
@@ -17,19 +17,27 @@
 import assert from "node:assert/strict";
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { createRequire } from "node:module";
+import { moviePosterFile } from "../lib/moviePosterFile.js";
 
 let n = 0;
 const ok = (c, msg) => { assert.ok(c, msg); n++; };
 const strip = (s) => s.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
 
-// The route: the poster read is a fixed folder plus a base name.
+// The CALL: the poster path is the fixed public/movies folder plus a base name.
+const root = "/srv/app";
+assert.equal(moviePosterFile("/movies/dune-part-three-2026-400.webp", root), "/srv/app/public/movies/dune-part-three-2026-400.webp"); n++;
+for (const bad of ["/movies/../place-photos/x.webp", "/place-photos/x.webp", "/movies/x.jpg", "movies/x.webp", "/movies/sub/x.webp", "/movies/.hidden.webp", "", null, undefined]) {
+  assert.equal(moviePosterFile(bad, root), null, `A1 ${JSON.stringify(bad)} is refused`); n++;
+}
+// Every registry poster on disk resolves inside public/movies.
+const disk = readdirSync(new URL("../public/movies/", import.meta.url)).filter((f) => f.endsWith(".webp"));
+ok(disk.length > 0 && disk.every((f) => moviePosterFile("/movies/" + f, root) === "/srv/app/public/movies/" + f), `A2 all ${disk.length} posters on disk resolve inside public/movies`);
+
+// The WIRING: the route reads only through the helper.
 const route = strip(readFileSync(new URL("../app/api/og/movie/route.js", import.meta.url), "utf8"));
-const reads = route.match(/readFile\(\s*path\.join\(([^)]*\([^)]*\)[^)]*|[^)]*)\)/g) || [];
-ok(reads.length >= 1, "A1 the route reads files with readFile(path.join(...))");
-ok(/readFile\(\s*path\.join\(\s*process\.cwd\(\),\s*"public",\s*"movies",\s*path\.basename\(src\)\s*\)\s*\)/.test(route),
-  "A2 the poster is read from the fixed public/movies folder by base name");
-ok(!/path\.join\(\s*process\.cwd\(\),\s*"public",\s*src\s*\)/.test(route), "A3 no read joins public/ with the whole src");
-ok(/\^\\\/movies\\\/\[\\w\.-\]\+\\\.webp\$/.test(route), "A4 the src shape check (/movies/<name>.webp) is still there");
+ok(/import\s*\{\s*moviePosterFile\s*\}\s*from\s*"\.\.\/\.\.\/\.\.\/\.\.\/lib\/moviePosterFile\.js"/.test(route), "A3 the route imports moviePosterFile");
+ok(/const file = moviePosterFile\(movie && movie\.art && movie\.art\.src\);[\s\S]*?readFile\(file\)/.test(route), "A4 the poster is read from moviePosterFile's path");
+ok(!/path\.join\([^)]*"public"/.test(route), "A5 the route never joins a path into public/ itself");
 
 // The config: includes the posters and fonts, excludes the big folders.
 const require = createRequire(import.meta.url);
@@ -57,4 +65,4 @@ for (const e of readdirSync(pub, { withFileTypes: true })) {
   if (mb > 2) ok(exc.includes(`./public/${e.name}/**`), `C1 public/${e.name} (${mb.toFixed(0)} MB) is excluded from /api/og/movie`);
 }
 
-console.log(`test-og-movie-function-size: OK — ${n} assertions (poster read is public/movies + base name; posters and fonts traced in; big public folders excluded)`);
+console.log(`test-og-movie-function-size: OK — ${n} assertions (moviePosterFile called on 11 shapes + every poster on disk; route wired to it; posters and fonts traced in; big public folders excluded)`);
