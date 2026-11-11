@@ -47,6 +47,8 @@ import CreatorPlaybackDetails from "../../components/CreatorPlaybackDetails.js";
 import CreatorVideoRail from "../../components/CreatorVideoRail.js";
 import { isEmbeddable } from "../../../lib/videoEmbed";
 import { loadEventDetailPhotos } from "../../../lib/placeDetailGallery.js";
+import SnowcatTicketExplainer from "../../components/SnowcatTicketExplainer.js";
+import { isSnowcatTicketPage, SNOWCAT_PLACE_ID } from "../../../lib/snowcatTickets.js";
 
 // Same two-letter monogram convention as RailCard/IconicPlaceCard's card
 // fallback (app/components/css.js .wf-place-card-monogram) — the letters an
@@ -345,6 +347,7 @@ export default async function CuratedEventPage({ params }) {
           ) : null}
         </div>
       ) : null}
+      {isSnowcatTicketPage({ event_id: e.event_id, slug: params.slug }) ? <SnowcatTicketExplainer /> : null}
 
       {/* Save + share, together, near the top — the owner's premium-event
           list (2026-09-07). Save runs through the SAME lib/contentCardActions
@@ -471,6 +474,7 @@ export default async function CuratedEventPage({ params }) {
         picks={pairings}
         ticketLink={crownTracked}
         location={{ trust: "verified" }}
+        placeId={isSnowcatTicketPage({ event_id: e.event_id, slug: params.slug }) ? SNOWCAT_PLACE_ID : ""}
       />
       {pairingResult.unavailable ? (
         <p role="status" style={{ ...S.p, maxWidth: 820, margin: "12px auto 24px", color: "#aab4c2" }}>

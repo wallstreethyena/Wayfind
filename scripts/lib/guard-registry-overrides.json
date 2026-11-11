@@ -712,6 +712,14 @@
   },
   "owner": "Revenue QA"
  },
+ "scripts/test-orlando-guide-tiqets.mjs": {
+  "protects": "The Orlando non park guide shows the ten existing exact Tiqets products through /api/commerce/go, the button names Tiqets, and theme park products stay off that list.",
+  "blastRadius": {
+   "category": "revenue",
+   "detail": "Without the list the guide's focused offers hide the exact Orlando Tiqets catalog, or a theme park ticket lands on a page that promised the opposite."
+  },
+  "owner": "Revenue QA"
+ },
  "scripts/test-bookable-highlights-30.mjs": {
   "protects": "The existing Bookable highlights rail can render 30 qualified unique local affiliate cards when that many valid products exist, without dead links, missing art, duplicates, filler, or another city's inventory.",
   "blastRadius": {
@@ -733,6 +741,14 @@
   "blastRadius": {
    "category": "revenue",
    "detail": "2026-09-15: one inline `deal.link_ok &&` filter after PR #1200 dropped every Undercover Tourist ticket CTA on the Fall in Florida rails for six days (HHN, both Howl-O-Screams, Not-So-Scary, Spooktacular, Brick-or-Treat, Gatorland, EPCOT) while check-event-ticket-deals stayed green, because that guard executed the library and never the caller."
+  },
+  "owner": "Revenue QA"
+ },
+ "scripts/test-qualified-click.mjs": {
+  "protects": "A qualified click counts only a partner redirect whose click_id also exists on an on-page commerce_cta_clicked, and that count never feeds the revenue heartbeat incident.",
+  "blastRadius": {
+   "category": "revenue",
+   "detail": "Raw human redirect counts are mostly unmatched bot traffic. Using them as the money signal, or refusing the redirect to clean the number, either pages on noise or blocks a real buyer."
   },
   "owner": "Revenue QA"
  },
@@ -877,6 +893,14 @@
   "blastRadius": {
    "category": "revenue",
    "detail": "Incorrect Atmosphere or Autocomplete terminal accounting can overspend provider limits; fixture requests prove cache-first, key-before-grant and conservative legacy-ledger denial."
+  },
+  "owner": "Revenue QA"
+ },
+ "scripts/test-viator-rail-fallback.mjs": {
+  "protects": "An empty Viator rail switches to GetYourGuide when its publisher id is set, then to live Tiqets, and stays empty when neither can link. A rail that already has Viator products stays on Viator. The button names the partner and routes through /api/commerce/go.",
+  "blastRadius": {
+   "category": "revenue",
+   "detail": "A wrong partner, a client-built partner URL, or a payout-ordered rail would sell the wrong booking path or imply ranking is for sale."
   },
   "owner": "Revenue QA"
  },
@@ -1061,6 +1085,14 @@
   "blastRadius": {
    "category": "revenue",
    "detail": "Regressing click-token attribution, commission separation, or Google Ads API v26 conversion adjustment contracts either drops booking attribution, reports customer gross booking spend as Wayfind commission, or sends retired API v18 / invalid dual-identifier payloads that Google Ads rejects."
+  },
+  "owner": "Revenue QA"
+ },
+ "scripts/test-viator-visitor-hash.mjs": {
+  "protects": "A Viator click that carries a PostHog distinct id or a gclid stores a 32 hex visitor_context_hash the click table accepts, and persists the gclid on that same row.",
+  "blastRadius": {
+   "category": "revenue",
+   "detail": "A 64 character hash fails the visitor_context_hash check, the insert is rejected, and every cookied or gclid click is saved with both fields null, so bookings cannot be tied back to the ad click."
   },
   "owner": "Revenue QA"
  }
