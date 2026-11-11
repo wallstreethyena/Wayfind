@@ -145,7 +145,8 @@ ok(!secondaryTicketPrimaryMatches({ ...reviewedTmPrimary, href: reviewedTmPrimar
   ok(cta.kind === "affiliate" && u.pathname === "/api/ticketmaster/go" && u.searchParams.get("url") === url, "Christmas Live Nation cards use the shared tracked resolver, not a raw organizer link");
   ok(u.searchParams.get("content") === tm.id && u.searchParams.get("surface") === "christmas_tickets", "the original event and Christmas placement survive the tracked handoff");
   ok(ticketAction({ ...tm, is_free: true }) === null && ticketAction({ ...tm, ticket_status: "sold_out" }) === null, "free and unavailable Christmas cards never advertise a buy link");
-  const lookalike = ticketAction({ ...tm, official_ticket_url: "https://livenation.com.evil.example/buy" });
+  // A fixture id with no Ticketmaster match (lib/christmasTicketmaster.js), so only the organizer URL is in play.
+  const lookalike = ticketAction({ ...tm, id: "lookalike-fixture-2026", official_ticket_url: "https://livenation.com.evil.example/buy" });
   ok(lookalike?.kind !== "affiliate", "a deceptive Live Nation host never becomes a Ticketmaster affiliate destination");
   ok(ticketAction(base({ id: "mvmcp-2026", ticket_status: "sold_out" }), allDeals) === null, "a mapped party cannot bypass sold-out gating");
   const zooTicket = ticketAction(base({ id: "zootampa-christmas-wild-2026" }));
@@ -723,11 +724,42 @@ ok(html.includes("data-christmas-filter") && html.includes(">Tickets<") && html.
   const { eventOrganizerTicketUrl: orgUrl } = await import("../lib/curatedEvents.js");
   const { eventTicketDeal: dealOf } = await import("../lib/eventTicketDeals.js");
   const full = new Map(all.map((c) => [c.id, c]));
-  const flags = page1.map((c) => !!(c.kind !== "place" && (orgUrl(full.get(c.id)) || dealOf(c.id))));
+  // Shows within a week of their next performance lead the list (owner
+  // 2026-11-10); the ticket order below applies to everything after them.
+  const pinnedCount = page1.findIndex((c) => !b.christmasShowPinDate(full.get(c.id) || c, day));
+  ok(page1.slice(0, pinnedCount < 0 ? page1.length : pinnedCount).every((c) => b.christmasShowPinDate(full.get(c.id) || c, day)) && page1.slice(pinnedCount < 0 ? page1.length : pinnedCount).every((c) => !b.christmasShowPinDate(full.get(c.id) || c, day)), "shows within a week of their next performance sit in one block at the top");
+  const flags = page1.slice(pinnedCount < 0 ? page1.length : pinnedCount).map((c) => !!(c.kind !== "place" && (orgUrl(full.get(c.id)) || dealOf(c.id))));
   const firstNo = flags.indexOf(false);
   ok(flags.slice(0, 8).filter(Boolean).length >= 1 && (firstNo < 0 || !flags.slice(firstNo).includes(true)), "events with a real way in come first on the first page, then the rest in date order");
   const src = strip(read("lib/christmasBrowse.js"));
   ok(!/commission|payout|\bcpa\b/i.test(src.slice(src.indexOf("function ticketTier"), src.indexOf("export function sortChristmasBrowse"))), "the ticket tier reads no commission, payout or partner rate");
+  {
+    // Owner 2026-11-10: every Christmas concert, theater and ballet jumps to the
+    // top one week before its next performance, like clockwork, and drops off
+    // once it has passed.
+    const show = (o) => base({ browse_categories: ["theater"], ...o });
+    const t = "2026-11-10";
+    ok(b.christmasShowPinDate(show({ id: "s7", start_date: "2026-11-17", end_date: "2026-11-17" }), t) === "2026-11-17", "a show exactly 7 days out is pinned");
+    ok(b.christmasShowPinDate(show({ id: "s8", start_date: "2026-11-18", end_date: "2026-11-29" }), t) === null, "a show 8 days out is not pinned yet");
+    ok(b.christmasShowPinDate(show({ id: "s8" , start_date: "2026-11-18", end_date: "2026-11-29" }), "2026-11-11") === "2026-11-18", "the same show pins itself the next day with no other change");
+    ok(b.christmasShowPinDate(show({ id: "run", start_date: "2026-11-01", end_date: "2026-12-09" }), t) === t, "a show already running stays pinned through its run");
+    ok(b.christmasShowPinDate(show({ id: "gone", start_date: "2026-11-01", end_date: "2026-11-09" }), t) === null, "a show that ended drops off");
+    ok(b.christmasShowPinDate(show({ id: "nights", start_date: "2026-11-01", occurrence_dates: ["2026-11-05", "2026-11-20"] }), t) === null, "a show between listed nights waits for the next night's week");
+    ok(b.christmasShowPinDate(base({ id: "lights", browse_categories: ["lights"], start_date: "2026-11-11", end_date: "2026-11-11" }), t) === null, "light displays and other non shows are never pinned");
+    ok(b.christmasShowPinDate(show({ id: "undated", season_undated: true, start_date: null }), t) === null, "an undated show is never pinned");
+    ok(b.christmasShowPinDate(base({ id: "lit", own_categories: ["lights", "gardens", "concert"], christmasRail: "lights", start_date: "2026-11-11", end_date: "2026-11-11" }), t) === null, "a light display that lists live music is not a show");
+    ok(b.christmasShowPinDate(base({ id: "train", own_categories: ["train"], christmasRail: "shows-outings", title: "North Pole Express", start_date: "2026-11-11", end_date: "2026-11-11" }), t) === null, "a train on the shows rail is not a show");
+    ok(b.christmasShowPinDate(base({ id: "theatre", own_categories: ["theatre", "family show"], christmasRail: "shows-outings", start_date: "2026-11-11", end_date: "2026-11-11" }), t) === "2026-11-11", "British spelling and free text stage categories count");
+    const far = base({ id: "far-ticketed", browse_categories: ["lights"], popularity_score: 10, start_date: "2026-11-11" });
+    const later = show({ id: "show-later", official_ticket_url: "", start_date: "2026-11-16", end_date: "2026-11-16" });
+    const sooner = show({ id: "show-sooner", official_ticket_url: "", start_date: "2026-11-12", end_date: "2026-11-12" });
+    const order = b.sortChristmasBrowse([far, later, sooner], b.parseChristmasBrowseQuery({}), t).map((c) => c.id).join(",");
+    ok(order === "show-sooner,show-later,far-ticketed", "pinned shows lead, soonest first, even ahead of ticketed and popular listings (" + order + ")");
+    const located = b.sortChristmasBrowse([far, later], b.parseChristmasBrowseQuery({ lat: "27.95", lng: "-82.46" }), t).map((c) => c.id).join(",");
+    ok(located === "show-later,far-ticketed", "the pin also leads the located (nearest first) list");
+    const pinSrc = src.slice(src.indexOf("export function isChristmasShow"), src.indexOf("export function sortChristmasBrowse"));
+    ok(pinSrc.length > 100 && !/commission|payout|\bcpa\b|provider|partner/i.test(pinSrc), "the show pin reads only dates and categories, never a partner or payout");
+  }
   const popular = base({ id: "popular", popularity_score: 9, start_date: "2026-12-10" });
   const quieter = base({ id: "quieter", popularity_score: 3, start_date: "2026-12-01" });
   const unknown = base({ id: "unknown", popularity_score: null });
@@ -778,6 +810,7 @@ ok(html.includes("data-christmas-filter") && html.includes(">Tickets<") && html.
   const shell = strip(read("app/components/ChristmasTickets.js"));
   ok(/w < 720 \? 36 : 70/.test(shell) && /visibilitychange/.test(shell) && /prefers-reduced-motion: reduce/.test(shell) && /aria-hidden="true" data-xm-snow/.test(shell), "snow: 36 flakes on a phone, 70 on desktop, pauses on a hidden tab, still frame for reduced motion, aria-hidden");
   ok(/#FF4458/.test(shell) && /#3DDC84/.test(shell) && /#FFC94A/.test(shell) && /#4DA3FF/.test(shell) && /#FF7AC8/.test(shell) && /xm-chase/.test(shell) && /xm-alt/.test(shell) && /xm-twinkle/.test(shell), "lights: red, green, gold, blue and pink bulbs with chase, alternate and twinkle sequences");
+  ok(/#FF8A3D/.test(shell) && !/#B98CFF/i.test(shell) && !/#6A3FC2/i.test(shell), "the seventh bulb is amber; a purple bulb is not on the strand");
   const kf = [...shell.matchAll(/@keyframes (xm-(?:twinkle|chase|alt|bloom|sparkle))\{((?:[^{}]|\{[^{}]*\})*)\}/g)];
   ok(kf.length === 4 && !/xm-bloom/.test(shell) && kf.every((m) => !/box-shadow|filter|top:|left:|width:|height:|background/.test(m[2]) && /opacity/.test(m[2])), "light animations touch only opacity and transform (GPU cheap), " + kf.length + " keyframes checked");
   ok(/background:radial-gradient\(120% 55% at 50% 0%,#7A0F22/.test(shell) && !/--bg:#050A14/.test(shell), "the page background is deep red burgundy, not navy");
