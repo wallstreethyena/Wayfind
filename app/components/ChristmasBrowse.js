@@ -86,30 +86,6 @@ export function ChristmasBrowseCard({ card, rank = 0, today }) {
   return <TicketCard row={browseRowFor(card)} chrome={CHROME} idPrefix="xb-" headingLevel={3} priority={false} />;
 }
 
-// The page is one cached copy for every visitor (2026-11-11), so filters in a
-// shared link (?region=, ?category=, ...) are read here, after load. Only
-// values the filter itself offers are kept, the same rules as the server's
-// parseChristmasBrowseQuery, and /api/christmas/browse validates them again.
-export function christmasUrlQuery(search, facets = {}) {
-  let params;
-  try { params = new URLSearchParams(String(search || "")); } catch { return {}; }
-  const get = (k) => String(params.get(k) || "").trim();
-  const ids = (list) => new Set((Array.isArray(list) ? list : []).map((item) => (item && typeof item === "object" ? item.id : item)).filter(Boolean));
-  const out = {};
-  const pick = (k, allowed) => { const v = get(k); if (v && allowed.has(v)) out[k] = v; };
-  pick("region", ids(facets.regions));
-  pick("category", new Set([...ids(facets.categories), ...ids(facets.pills)]));
-  pick("when", ids(facets.dates));
-  pick("price", ids(facets.prices));
-  pick("audience", ids(facets.audiences));
-  if (/^\d{4}-\d{2}-\d{2}$/.test(get("date"))) out.date = get("date");
-  if (get("undated") === "1") out.undated = true;
-  if (get("q")) out.q = get("q").slice(0, 60);
-  const lat = Number.parseFloat(get("lat")), lng = Number.parseFloat(get("lng"));
-  if (Number.isFinite(lat) && lat > 24 && lat < 31.2 && Number.isFinite(lng) && lng > -88 && lng < -79.5) { out.lat = String(lat); out.lng = String(lng); }
-  return out;
-}
-
 export default function ChristmasBrowse({ initial, facets, today, initialQuery = {} }) {
   const [query, setQuery] = useState(() => ({ ...initialQuery }));
   const [data, setData] = useState(initial);
@@ -132,12 +108,6 @@ export default function ChristmasBrowse({ initial, facets, today, initialQuery =
       .finally(() => setLoading(false));
     return () => controller.abort();
   }, [query]);
-  useEffect(() => {
-    const fromUrl = christmasUrlQuery(window.location.search, facets);
-    if (Object.keys(fromUrl).length) setQuery((q) => ({ ...q, ...fromUrl }));
-    // Once, on load: later filter changes write the URL themselves.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   const set = (k, v) => setQuery((q) => ({ ...q, [k]: v, ...(k === "when" ? { date: "", undated: false } : {}), ...(k === "date" && v ? { when: "", undated: false } : {}), ...(k === "undated" && v ? { when: "", date: "" } : {}) }));
   const more = () => {
