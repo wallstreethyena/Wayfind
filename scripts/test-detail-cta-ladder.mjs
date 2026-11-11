@@ -174,6 +174,43 @@ const noOffers = {};
   ok(/verdict && <VerdictPill/.test(detailSrc), "Detail hides the pill when the verdict is null");
 }
 
+// 2026-11-11 — "Reserve a table" rung. Every assertion CALLS the ladder.
+{
+  const rest = place({ types: ["restaurant"], id: "rest_reserve_1", name: "Mario's Trattoria", lat: 27.33, lng: -82.53 });
+  const bar = place({ types: ["bar", "night_club"], id: "bar_reserve_1", name: "The Rusty Anchor", lat: 27.33, lng: -82.53 });
+  const run = (detail, extra) => resolveDetailCta({ detail, kind: "restaurant", viaTours: noTours, locName: "Sarasota, FL", offers: noOffers, openState: open, ...extra });
+  ok(DETAIL_CTA_TYPES.reserve === "reserve" && resolveDetailCta({ detail: rest, kind: "restaurant", viaTours: noTours, locName: "", offers: noOffers, openState: open, reservePartner: true }).label === "Reserve a table",
+    "the reserve rung's label is exactly 'Reserve a table'");
+  const withFlag = run(rest, { reservePartner: true });
+  ok(withFlag.type === DETAIL_CTA_TYPES.reserve && withFlag.href === "#reserve" && withFlag.monetized === false && withFlag.provider === null && withFlag.offerId === null && !!withFlag.mapsUrl,
+    "partner restaurant → reserve rung with the #reserve marker, not monetized, maps url kept — got " + JSON.stringify(withFlag));
+  ok(run(rest).type === DETAIL_CTA_TYPES.menu && run(rest, { reservePartner: false }).type === DETAIL_CTA_TYPES.menu,
+    "reserve appears ONLY with the flag: without it (or false) a restaurant still gets See menu");
+  ok(run(bar, { reservePartner: true }).type === DETAIL_CTA_TYPES.reserve && run(bar).type === DETAIL_CTA_TYPES.directions,
+    "a bar / nightlife partner gets reserve; without the flag it is unchanged (Directions)");
+  // never for non food places, even with the flag set
+  for (const [label, types, kind] of [["museum", ["tourist_attraction", "museum"], "attraction"], ["cafe", ["cafe", "coffee_shop"], "cafe"], ["beach", ["natural_feature"], "beach"], ["shop", ["clothing_store", "store"], "shopping"], ["park", ["park"], "park"]]) {
+    const c = run(place({ types, id: "np_" + label, category: label === "beach" ? "beach" : undefined }), { reservePartner: true, kind });
+    ok(c.type !== DETAIL_CTA_TYPES.reserve, `${label} never gets the reserve rung even if flagged — got ${c.type}`);
+  }
+  // a live deal still wins
+  const dealOffers = { [rest.id]: { url: "https://example.com/deal", source: "offer", id: "o1" } };
+  ok(run(rest, { reservePartner: true, offers: dealOffers }).type === DETAIL_CTA_TYPES.deal, "a live deal still beats reserve (restaurant)");
+  ok(run(bar, { reservePartner: true, offers: { [bar.id]: { url: "https://example.com/deal", source: "offer", id: "o2" } } }).type === DETAIL_CTA_TYPES.deal, "a live deal still beats reserve (bar)");
+  // a founder pinned partner pick still wins (Shell Key kayak pin, ladder rung 1 for every place type)
+  const pinned = place({ id: "ChIJ_pin_reserve_000000000", name: "Shell Key Preserve", types: ["restaurant"] });
+  const pinRes = run(pinned, { reservePartner: true });
+  ok(pinRes.type === DETAIL_CTA_TYPES.tickets && pinRes.exact === true, "a founder pinned partner pick still beats reserve — got " + pinRes.type);
+  // closed right now: a table request is for a later time, so a partner still gets reserve
+  ok(run(rest, { reservePartner: true, openState: closed }).type === DETAIL_CTA_TYPES.reserve, "closed right now + partner → still reserve");
+  ok(run(rest, { openState: closed }).type === DETAIL_CTA_TYPES.plan, "closed right now + NOT a partner → Add to my trip, exactly as before");
+  ok(run(rest, { reservePartner: true, openState: null }).type === DETAIL_CTA_TYPES.reserve, "unknown hours + partner → reserve");
+  // the sheet routes #reserve to the opener, never a navigation
+  const detailSrc2 = readFileSync(new URL("../app/components/sheets/Detail.js", import.meta.url), "utf8");
+  ok(/primaryCta\.type === DETAIL_CTA_TYPES\.reserve[\s\S]{0,400}openReserveSheet\(detail/.test(detailSrc2) && /resolveDetailCta\(\{[^}]*reservePartner[^}]*\}\)/.test(detailSrc2),
+    "Detail.js passes the partner flag and calls openReserveSheet(detail) for the reserve CTA");
+}
+
 if (fail) {
   console.error(`test-detail-cta-ladder: FAIL — ${fail} assertion(s) failed`);
   process.exit(1);
