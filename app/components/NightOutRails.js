@@ -184,7 +184,7 @@ function NightOutRailSection({
 export default function NightOutRails({
   active = true, places = [], center = null, city = "", eventsSlot = null,
   onOpenPlace = null, isSaved, liked, disliked, isLiked, isDisliked,
-  onSave, onLike, onDislike, onShare,
+  onSave, onLike, onDislike, onShare, emptyLocation = null,
 }) {
   // Owner pick applied BEFORE compose/sort/slice (lib/curatorPicks.js).
   const curatedPlaces = useCuratedRows(places);
@@ -264,7 +264,7 @@ export default function NightOutRails({
     || Object.values(eventSurface?.byRail || {}).some((cards) => Array.isArray(cards) && cards.length);
 
   if (!active) return null;
-  if (!key) return <p style={{ color: C.muted, fontSize: 13 }}>Choose a location to see Night Out places near you.</p>;
+  if (!key) return emptyLocation || <p style={{ color: C.muted, fontSize: 13 }}>Choose a location to see Night Out places near you.</p>;
 
   if (!remote && !failure && !hasContent) {
     return <RailLoading label="Building Night Out" />;
