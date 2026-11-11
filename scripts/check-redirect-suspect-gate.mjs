@@ -157,6 +157,7 @@ ok(ROUTES.length >= 4, `PROBE BROKEN: expected at least the 4 known go routes, f
 // commerce/go has no hermetic offer row (same limitation as
 // check-go-routes-crawler-gate), so its human positive asserts the request was
 // NOT classified/refused as non-human rather than a partner host.
+process.env.STUBHUB_PARTNERIZE_CAMREF = "guardcamref1"; // hermetic fixture: the StubHub route ships dark and only redirects with a camref (WRITE only)
 const FIX = {
   "app/api/commerce/go/route.js": { q: "provider=unknown&offer=xyz", partner: null },
   "app/api/hotels/go/route.js": {
@@ -164,6 +165,7 @@ const FIX = {
     partner: "stay22.com",
   },
   "app/api/ticketmaster/go/route.js": { q: "url=" + encodeURIComponent("https://www.ticketmaster.com/event/123"), partner: "ticketmaster" },
+  "app/api/stubhub/go/route.js": { q: "url=" + encodeURIComponent("https://www.stubhub.com/event/123"), partner: "stubhub.prf.hn" },
   "app/api/viator/go/route.js": { q: "product=" + encodeURIComponent("https://www.viator.com/tours/Orlando/Airboat/d827-1234P5"), partner: "viator.com" },
 };
 const missing = ROUTES.filter((r) => !(r in FIX));

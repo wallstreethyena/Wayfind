@@ -1,0 +1,574 @@
+{
+ "generated": "2026-11-04",
+ "pass": "blank homepage Christmas cards, Commons and Flickr free licence search; parades and boat parades rate limited",
+ "count": 81,
+ "gaps": [
+  {
+   "id": "sarasota-holiday-parade-2026",
+   "name": "Downtown Sarasota Holiday Parade",
+   "city": "Sarasota",
+   "searched": "not completed",
+   "reason": "Wikimedia API rate-limited (HTTP 429) for most of the run; Flickr fetch blocked by permission. Card not researched (not a confirmed no-photo-exists)."
+  },
+  {
+   "id": "safety-harbor-holiday-parade-2026",
+   "name": "Safety Harbor Holiday Parade",
+   "city": "Safety Harbor",
+   "searched": "not completed",
+   "reason": "Wikimedia API rate-limited (HTTP 429) for most of the run; Flickr fetch blocked by permission. Card not researched (not a confirmed no-photo-exists)."
+  },
+  {
+   "id": "brandon-parade-of-lights-2026",
+   "name": "Brandon Parade of Lights",
+   "city": "Brandon",
+   "searched": "not completed",
+   "reason": "Wikimedia API rate-limited (HTTP 429) for most of the run; Flickr fetch blocked by permission. Card not researched (not a confirmed no-photo-exists)."
+  },
+  {
+   "id": "pinellas-park-holiday-christmas-parade-2026",
+   "name": "Pinellas Park Holiday Christmas Parade",
+   "city": "Pinellas Park",
+   "searched": "not completed",
+   "reason": "Wikimedia API rate-limited (HTTP 429) for most of the run; Flickr fetch blocked by permission. Card not researched (not a confirmed no-photo-exists)."
+  },
+  {
+   "id": "st-pete-christmas-classic-car-cart-parade-2026",
+   "name": "Christmas Classic Car and Cart Parade",
+   "city": "Treasure Island",
+   "searched": "not completed",
+   "reason": "Wikimedia API rate-limited (HTTP 429) for most of the run; Flickr fetch blocked by permission. Card not researched (not a confirmed no-photo-exists)."
+  },
+  {
+   "id": "illuminations-parade-2026",
+   "name": "Illuminations Parade (Fort Myers Beach)",
+   "city": "Fort Myers Beach",
+   "searched": "not completed",
+   "reason": "Wikimedia API rate-limited (HTTP 429) for most of the run; Flickr fetch blocked by permission. Card not researched (not a confirmed no-photo-exists)."
+  },
+  {
+   "id": "lakeland-christmas-parade-2026",
+   "name": "45th Annual Lakeland Christmas Parade",
+   "city": "Lakeland",
+   "searched": "not completed",
+   "reason": "Wikimedia API rate-limited (HTTP 429) for most of the run; Flickr fetch blocked by permission. Card not researched (not a confirmed no-photo-exists)."
+  },
+  {
+   "id": "havendale-christmas-parade-2026",
+   "name": "Havendale Christmas Parade",
+   "city": "Winter Haven",
+   "searched": "not completed",
+   "reason": "Wikimedia API rate-limited (HTTP 429) for most of the run; Flickr fetch blocked by permission. Card not researched (not a confirmed no-photo-exists)."
+  },
+  {
+   "id": "dade-city-christmas-parade-2026",
+   "name": "Dade City Christmas Parade",
+   "city": "Dade City",
+   "searched": "not completed",
+   "reason": "Wikimedia API rate-limited (HTTP 429) for most of the run; Flickr fetch blocked by permission. Card not researched (not a confirmed no-photo-exists)."
+  },
+  {
+   "id": "north-port-poinsettia-parade-2026",
+   "name": "Poinsettia Parade and Festival",
+   "city": "North Port",
+   "searched": "not completed",
+   "reason": "Wikimedia API rate-limited (HTTP 429) for most of the run; Flickr fetch blocked by permission. Card not researched (not a confirmed no-photo-exists)."
+  },
+  {
+   "id": "arcadia-christmas-through-the-decades-parade-2026",
+   "name": "Christmas Through the Decades Parade",
+   "city": "Arcadia",
+   "searched": "not completed",
+   "reason": "Wikimedia API rate-limited (HTTP 429) for most of the run; Flickr fetch blocked by permission. Card not researched (not a confirmed no-photo-exists)."
+  },
+  {
+   "id": "captiva-holiday-golf-cart-parade-2026",
+   "name": "Captiva Holiday Golf Cart Parade",
+   "city": "Captiva",
+   "searched": "not completed",
+   "reason": "Wikimedia API rate-limited (HTTP 429) for most of the run; Flickr fetch blocked by permission. Card not researched (not a confirmed no-photo-exists)."
+  },
+  {
+   "id": "clermont-christmas-parade-2026",
+   "name": "Clermont Christmas Parade",
+   "city": "Clermont",
+   "searched": "not completed",
+   "reason": "Wikimedia API rate-limited (HTTP 429) for most of the run; Flickr fetch blocked by permission. Card not researched (not a confirmed no-photo-exists)."
+  },
+  {
+   "id": "winter-garden-golf-cart-parade-night-market-2026",
+   "name": "Winter Garden Christmas Golf Cart Parade and Holiday Night Market",
+   "city": "Winter Garden",
+   "searched": "not completed",
+   "reason": "Wikimedia API rate-limited (HTTP 429) for most of the run; Flickr fetch blocked by permission. Card not researched (not a confirmed no-photo-exists)."
+  },
+  {
+   "id": "winter-garden-christmas-parade-2026",
+   "name": "Winter Garden Christmas Parade",
+   "city": "Winter Garden",
+   "searched": "not completed",
+   "reason": "Wikimedia API rate-limited (HTTP 429) for most of the run; Flickr fetch blocked by permission. Card not researched (not a confirmed no-photo-exists)."
+  },
+  {
+   "id": "dunedin-holiday-parade-old-fashioned-christmas-2026",
+   "name": "Holiday Parade and Old Fashioned Christmas",
+   "city": "Dunedin",
+   "searched": "not completed",
+   "reason": "Wikimedia API rate-limited (HTTP 429) for most of the run; Flickr fetch blocked by permission. Card not researched (not a confirmed no-photo-exists)."
+  },
+  {
+   "id": "charlotte-county-chamber-christmas-parade-2026",
+   "name": "48th Annual Charlotte County Chamber Christmas Parade",
+   "city": "Punta Gorda",
+   "searched": "not completed",
+   "reason": "Wikimedia API rate-limited (HTTP 429) for most of the run; Flickr fetch blocked by permission. Card not researched (not a confirmed no-photo-exists)."
+  },
+  {
+   "id": "lake-wales-christmas-parade-2026",
+   "name": "Lake Wales Christmas Parade",
+   "city": "Lake Wales",
+   "searched": "not completed",
+   "reason": "Wikimedia API rate-limited (HTTP 429) for most of the run; Flickr fetch blocked by permission. Card not researched (not a confirmed no-photo-exists)."
+  },
+  {
+   "id": "brooksville-kiwanis-christmas-parade-2026",
+   "name": "52nd Annual Brooksville Christmas Parade",
+   "city": "Brooksville",
+   "searched": "not completed",
+   "reason": "Wikimedia API rate-limited (HTTP 429) for most of the run; Flickr fetch blocked by permission. Card not researched (not a confirmed no-photo-exists)."
+  },
+  {
+   "id": "inverness-christmas-parade-2026",
+   "name": "Inverness Christmas Parade",
+   "city": "Inverness",
+   "searched": "not completed",
+   "reason": "Wikimedia API rate-limited (HTTP 429) for most of the run; Flickr fetch blocked by permission. Card not researched (not a confirmed no-photo-exists)."
+  },
+  {
+   "id": "tarpon-springs-cartin-tarpon-golf-cart-parade-2026",
+   "name": "Cartin' Tarpon Christmas Golf Cart Parade",
+   "city": "Tarpon Springs",
+   "searched": "not completed",
+   "reason": "Wikimedia API rate-limited (HTTP 429) for most of the run; Flickr fetch blocked by permission. Card not researched (not a confirmed no-photo-exists)."
+  },
+  {
+   "id": "venice-christmas-boat-parade-2026",
+   "name": "Venice Christmas Boat Parade",
+   "city": "Venice",
+   "searched": "not completed",
+   "reason": "Wikimedia API rate-limited (HTTP 429) for most of the run; Flickr fetch blocked by permission. Card not researched (not a confirmed no-photo-exists)."
+  },
+  {
+   "id": "sarasota-holiday-boat-parade-of-lights-2026",
+   "name": "Sarasota Holiday Boat Parade of Lights",
+   "city": "Sarasota",
+   "searched": "not completed",
+   "reason": "Wikimedia API rate-limited (HTTP 429) for most of the run; Flickr fetch blocked by permission. Card not researched (not a confirmed no-photo-exists)."
+  },
+  {
+   "id": "venice-holiday-parade-2026",
+   "name": "Venice Holiday Parade (50th Annual)",
+   "city": "Venice",
+   "searched": "Commons",
+   "reason": "candidate rejected by lead review: Venice Avenue, described as stretch between downtown and Venice Beach. WEAK: not the W. Venice Ave downtown parade block; lead should judge."
+  },
+  {
+   "id": "manatee-river-boat-parade-2026",
+   "name": "Manatee River Holiday Boat Parade",
+   "city": "Bradenton",
+   "searched": "Commons API search on venue/event terms (1-3 queries); Flickr not reached; Commons heavily rate limited (HTTP 429)",
+   "reason": "Only plain Bradenton Riverwalk/Manatee River waterfront photos (CC BY 2.0 / BY-SA); a plain waterfront must not represent a boat parade."
+  },
+  {
+   "id": "downtown-st-pete-lighted-christmas-boat-parade-2026",
+   "name": "Downtown St. Pete Lighted Christmas Boat Parade",
+   "city": "St. Petersburg",
+   "searched": "Commons API search on venue/event terms (1-3 queries); Flickr not reached; Commons heavily rate limited (HTTP 429)",
+   "reason": "Marina search returned no usable results (Commons API rate limited); no licensed photo confirmed."
+  },
+  {
+   "id": "st-pete-beach-christmas-boat-parade-2026",
+   "name": "St. Pete Beach Christmas Boat Parade",
+   "city": "St. Pete Beach",
+   "searched": "Commons API search on venue/event terms (1-3 queries); Flickr not reached; Commons heavily rate limited (HTTP 429)",
+   "reason": "No Boca Ciega Bay boat parade file found."
+  },
+  {
+   "id": "indian-rocks-beach-christmas-boat-parade-2026",
+   "name": "Indian Rocks Beach Christmas Boat Parade",
+   "city": "Indian Rocks Beach",
+   "searched": "Commons API search on venue/event terms (1-3 queries); Flickr not reached; Commons heavily rate limited (HTTP 429)",
+   "reason": "Only generic beach/street photos; no boat parade imagery."
+  },
+  {
+   "id": "the-saturday-night-before-christmas-eve-boat-parade-punta-gorda-isles-2026",
+   "name": "The Saturday Night Before Christmas Eve Boat Parade (Punta Gorda Isles)",
+   "city": "Punta Gorda",
+   "searched": "Commons API search on venue/event terms (1-3 queries); Flickr not reached; Commons heavily rate limited (HTTP 429)",
+   "reason": "No Commons results for Punta Gorda Isles or its boat parade."
+  },
+  {
+   "id": "leesburg-light-up-venetian-gardens-2026",
+   "name": "Light Up Venetian Gardens and lighted boat parade",
+   "city": "Leesburg",
+   "searched": "Commons API search on venue/event terms (1-3 queries); Flickr not reached; Commons heavily rate limited (HTTP 429)",
+   "reason": "Only daytime Venetian Gardens bridge/park photos (BY-SA 2.5); not a lighted boat parade; prior pass also rejected."
+  },
+  {
+   "id": "winter-park-christmas-cruise-2026",
+   "name": "The Winter Park Old Fashioned Christmas Cruise",
+   "city": "Winter Park",
+   "searched": "Commons API search on venue/event terms (1-3 queries); Flickr not reached; Commons heavily rate limited (HTTP 429)",
+   "reason": "Search returned only unrelated results; prior pass also found nothing."
+  },
+  {
+   "id": "christmas-boat-parade-on-naples-bay-2026",
+   "name": "Christmas Boat Parade on Naples Bay",
+   "city": "Naples",
+   "searched": "Commons API search on venue/event terms (1-3 queries); Flickr not reached; Commons heavily rate limited (HTTP 429)",
+   "reason": "Only plain Naples City Dock photos (BY-SA 4.0); plain waterfront cannot stand in for a boat parade."
+  },
+  {
+   "id": "deland-christmas-boat-parade-2026",
+   "name": "DeLand Christmas Boat Parade",
+   "city": "DeLand",
+   "searched": "Commons API search on venue/event terms (1-3 queries); Flickr not reached; Commons heavily rate limited (HTTP 429)",
+   "reason": "No Commons results for DeLand St. Johns River/Lake Beresford."
+  },
+  {
+   "id": "clearwater-festival-of-trees-2026",
+   "name": "Festival of Trees",
+   "city": "Clearwater",
+   "searched": "Commons API search on venue/event terms (1-3 queries); Flickr not reached; Commons heavily rate limited (HTTP 429)",
+   "reason": "No Long Center imagery found."
+  },
+  {
+   "id": "light-up-longboat-2026",
+   "name": "Light Up Longboat",
+   "city": "Longboat Key",
+   "searched": "Commons API search on venue/event terms (1-3 queries); Flickr not reached; Commons heavily rate limited (HTTP 429)",
+   "reason": "No Town Center Green imagery found."
+  },
+  {
+   "id": "clearwater-bright-beautiful-tree-lighting-2026",
+   "name": "Clearwater's Bright and Beautiful Tree Lighting",
+   "city": "Clearwater",
+   "searched": "Commons API search on venue/event terms (1-3 queries); Flickr not reached; Commons heavily rate limited (HTTP 429)",
+   "reason": "No Coachman Park or tree lighting imagery found."
+  },
+  {
+   "id": "venice-christmas-walk-2026",
+   "name": "Christmas Walk (Downtown Venice)",
+   "city": "Venice",
+   "searched": "Commons API search on venue/event terms (1-3 queries); Flickr not reached; Commons heavily rate limited (HTTP 429)",
+   "reason": "Only VeniceAve.jpg (BY-SA 3.0, 2007), avenue between downtown and beach, not downtown; too weak."
+  },
+  {
+   "id": "plant-city-lights-of-love-tree-lighting-2026",
+   "name": "Lights of Love Tree Lighting",
+   "city": "Plant City",
+   "searched": "Commons API search on venue/event terms (1-3 queries); Flickr not reached; Commons heavily rate limited (HTTP 429)",
+   "reason": "No McCall Park imagery found."
+  },
+  {
+   "id": "safety-harbor-tree-lighting-2026",
+   "name": "Safety Harbor Tree Lighting",
+   "city": "Safety Harbor",
+   "searched": "Commons API search on venue/event terms (1-3 queries); Flickr not reached; Commons heavily rate limited (HTTP 429)",
+   "reason": "No John Wilson Park imagery found."
+  },
+  {
+   "id": "indian-rocks-beach-tree-lighting-2026",
+   "name": "Indian Rocks Beach Christmas Tree Lighting",
+   "city": "Indian Rocks Beach",
+   "searched": "Commons API search on venue/event terms (1-3 queries); Flickr not reached; Commons heavily rate limited (HTTP 429)",
+   "reason": "No 12th Avenue Park imagery found."
+  },
+  {
+   "id": "bradenton-winter-wonderland-2026",
+   "name": "Winter Wonderland on Old Main Street",
+   "city": "Bradenton",
+   "searched": "Commons API search on venue/event terms (1-3 queries); Flickr not reached; Commons heavily rate limited (HTTP 429)",
+   "reason": "Only a circa 1910 Main Street postcard (PD), which misrepresents the current event."
+  },
+  {
+   "id": "plant-city-merry-market-2026",
+   "name": "Plant City Merry Market",
+   "city": "Plant City",
+   "searched": "Commons API search on venue/event terms (1-3 queries); Flickr not reached; Commons heavily rate limited (HTTP 429)",
+   "reason": "Only Old Plant City High School (historic building), not clearly the current venue."
+  },
+  {
+   "id": "madeira-beach-merry-beach-market-2026",
+   "name": "Merry Beach Market Holiday Festival",
+   "city": "Madeira Beach",
+   "searched": "Commons API search on venue/event terms (1-3 queries); Flickr not reached; Commons heavily rate limited (HTTP 429)",
+   "reason": "No R.O.C. Park imagery searched successfully; the only Madeira Beach licensed photos are night boat parade shots, wrong for a daytime market."
+  },
+  {
+   "id": "safety-harbor-holiday-arts-crafts-show-2026",
+   "name": "Holiday Arts and Crafts Show",
+   "city": "Safety Harbor",
+   "searched": "Commons API search on venue/event terms (1-3 queries); Flickr not reached; Commons heavily rate limited (HTTP 429)",
+   "reason": "No Safety Harbor Main Street imagery found."
+  },
+  {
+   "id": "fishermens-village-holiday-festival-of-lights-2026",
+   "name": "Holiday Festival of Lights at Fishermen's Village",
+   "city": "Punta Gorda",
+   "searched": "Commons API search on venue/event terms (1-3 queries); Flickr not reached; Commons heavily rate limited (HTTP 429)",
+   "reason": "No Fishermen's Village imagery found."
+  },
+  {
+   "id": "haven-holiday-market-2026",
+   "name": "Haven Holiday Market",
+   "city": "Winter Haven",
+   "searched": "Commons API search on venue/event terms (1-3 queries); Flickr not reached; Commons heavily rate limited (HTTP 429)",
+   "reason": "No Winter Haven Central Park imagery found."
+  },
+  {
+   "id": "enchanted-forest-of-trees-clermont-2026",
+   "name": "Enchanted Forest of Trees",
+   "city": "Clermont",
+   "searched": "Commons API search on venue/event terms (1-3 queries); Flickr not reached; Commons heavily rate limited (HTTP 429)",
+   "reason": "Only a runner photo at Victory Pointe; does not show event or venue."
+  },
+  {
+   "id": "cape-coral-holiday-nights-on-the-lawn-2026",
+   "name": "Holiday Nights on the Lawn",
+   "city": "Cape Coral",
+   "searched": "Commons: Cape Coral city hall; Cape Coral city hall (2nd); Cape Coral Christmas",
+   "reason": "No Cape Coral City Hall or lawn photo on Commons; results were unrelated books."
+  },
+  {
+   "id": "theres-snow-place-like-tarpon-springs-2026",
+   "name": "There\u2019s Snow Place Like Tarpon Springs",
+   "city": "Tarpon Springs",
+   "searched": "Commons: Tarpon Springs Christmas; Tarpon Springs downtown",
+   "reason": "Only a 2014 panoramio image of unconfirmed content and no event or downtown street photo verified."
+  },
+  {
+   "id": "cultural-park-theatre-holiday-lighting-2026",
+   "name": "4th Annual Holiday Lighting Ceremony at Cultural Park Theatre",
+   "city": "Cape Coral",
+   "searched": "Commons: Cultural Park Theatre; Cape Coral Christmas; Cape Coral City Hall",
+   "reason": "No Commons image of the theatre."
+  },
+  {
+   "id": "luminary-holiday-stroll-sanibel-2026",
+   "name": "Sanibel Luminary Holiday Stroll (40th Annual)",
+   "city": "Sanibel",
+   "searched": "Commons: Sanibel Periwinkle Way; Sanibel Christmas OR holiday",
+   "reason": "Only Sanibel Light at Christmas (lighthouse, CC BY-SA 4.0), which is not Periwinkle Way; no Periwinkle Way street photo."
+  },
+  {
+   "id": "deck-the-tower-tree-lighting-fort-myers-2026",
+   "name": "Deck the Tower Tree Lighting Celebration",
+   "city": "Fort Myers",
+   "searched": "Commons: Bell Tower Shops; Bell Tower Fort Myers",
+   "reason": "No Commons image of Bell Tower Shops."
+  },
+  {
+   "id": "cape-coral-holiday-festival-of-lights-2026",
+   "name": "Holiday Festival of Lights (Cape Coral Parkway)",
+   "city": "Cape Coral",
+   "searched": "Commons: Cape Coral Parkway (x2 variants)",
+   "reason": "Only Cape coral parkway.jpg at 320x213, too small; Cape Coral monument.jpg not the parkway."
+  },
+  {
+   "id": "captiva-luminary-celebration-2026",
+   "name": "Captiva Luminary Celebration",
+   "city": "Captiva",
+   "searched": "Commons: Captiva Island; Captiva luminary",
+   "reason": "Only beach, wildlife and aerial shots; nothing of the village or a luminary event."
+  },
+  {
+   "id": "boca-grande-tree-lighting-2026",
+   "name": "Boca Grande Annual Christmas Tree Lighting",
+   "city": "Boca Grande",
+   "searched": "Commons: Boca Grande (x1)",
+   "reason": "Only beach, pier and lighthouse photos; none of the village center or Hudson's Grocery area."
+  },
+  {
+   "id": "dade-city-christmas-stroll-2026",
+   "name": "Dade City Christmas Stroll",
+   "city": "Dade City",
+   "searched": "Commons: Dade City Florida",
+   "reason": "No Meridian St or downtown square photo; only trail visitor center, birds, historical markers."
+  },
+  {
+   "id": "ocoee-jolly-jamboree-2026",
+   "name": "Jolly Jamboree and Tree Lighting",
+   "city": "Ocoee",
+   "searched": "Commons: Ocoee Florida",
+   "reason": "Only Ocoee City Hall and mall photos, not the downtown event area; prior pass also rejected."
+  },
+  {
+   "id": "bonita-kris-kringle-village-2026",
+   "name": "Kris Kringle Village",
+   "city": "Bonita Springs",
+   "searched": "Commons: Bonita Springs Florida",
+   "reason": "Nothing of Liles Hotel History Center."
+  },
+  {
+   "id": "apopka-tree-lighting-2026",
+   "name": "City of Apopka Tree Lighting",
+   "city": "Apopka",
+   "searched": "Commons: Apopka Florida",
+   "reason": "Only Apopka City Hall and generic street photos; none of Kit Land Nelson Park."
+  },
+  {
+   "id": "clermont-enchanted-forest-2026",
+   "name": "Enchanted Forest of Trees",
+   "city": "Clermont",
+   "searched": "Commons: Clermont Victory Pointe",
+   "reason": "Only one runner photo at Victory Pointe; no venue or trees photo."
+  },
+  {
+   "id": "christmas-lane-plant-city-2026",
+   "name": "Christmas Lane",
+   "city": "Plant City",
+   "searched": "Commons: Plant City Christmas",
+   "reason": "Only a 2007 Plant City Christmas Parade (different event, 600px); nothing of Christmas Lane or the Strawberry Festival grounds."
+  },
+  {
+   "id": "celebration-of-lights-concourse-2026",
+   "name": "Celebration of Lights at The Concourse",
+   "city": "Shady Hills",
+   "searched": "Commons: Shady Hills Florida",
+   "reason": "Nothing of The Concourse."
+  },
+  {
+   "id": "plantation-baptist-christmas-lights-acres-2026",
+   "name": "Christmas Lights in The Acres",
+   "city": "Plantation",
+   "searched": "Plantation Baptist Church Acres lights; Commons 'Plantation Baptist Church'; Wikimedia Commons only (Flickr not reached, WebFetch blocked, Commons API rate limited)",
+   "reason": "Commons results are other 'Plantation' (Louisiana/Georgia) churches; no photo of this Plantation, FL venue."
+  },
+  {
+   "id": "a-merry-winter-garden-light-show-2026",
+   "name": "A Merry Winter Garden Light Show",
+   "city": "Winter Garden",
+   "searched": "Winter Garden City Hall Florida; Winter Garden Florida Plant Street; Wikimedia Commons only (Flickr not reached, WebFetch blocked, Commons API rate limited)",
+   "reason": "No Commons photo of Winter Garden City Hall; Plant Street downtown photos are a different place, so rejected."
+  },
+  {
+   "id": "ergle-christmas-tree-farm-2026",
+   "name": "Ergle Christmas Tree Farm",
+   "city": "Dade City",
+   "searched": "Ergle Christmas Tree Farm; Christmas tree farm Dade City Pasco; Category:Dade City, Florida; Wikimedia Commons only (Flickr not reached, WebFetch blocked, Commons API rate limited)",
+   "reason": "No Ergle farm photo on Commons; Dade City category has no tree farm."
+  },
+  {
+   "id": "wbtt-motown-christmas-2026",
+   "name": "A Motown Christmas",
+   "city": "Sarasota",
+   "searched": "West Coast Black Theatre Troupe; Donelly Theatre Sarasota; Wikimedia Commons only (Flickr not reached, WebFetch blocked, Commons API rate limited)",
+   "reason": "Nothing on Commons for the troupe or the Donelly Theatre."
+  },
+  {
+   "id": "sarasota-orchestra-happy-holley-days-2026",
+   "name": "Happy Holley Days",
+   "city": "Sarasota",
+   "searched": "Holley Hall Sarasota; Sarasota Orchestra Beatrice Friedman Symphony Center; Category:Sarasota Orchestra; Wikimedia Commons only (Flickr not reached, WebFetch blocked, Commons API rate limited)",
+   "reason": "Category holds only the logo; no hall photo."
+  },
+  {
+   "id": "christmas-classical-candlelight-clearwater-2026",
+   "name": "Christmas Classical by Candlelight",
+   "city": "Clearwater",
+   "searched": "North Bay Community Church Clearwater; Wikimedia Commons only (Flickr not reached, WebFetch blocked, Commons API rate limited)",
+   "reason": "No Commons file for this church."
+  },
+  {
+   "id": "winter-garden-oranges-ornaments-2026",
+   "name": "Oranges and Ornaments: A Festival of Trees and Wreaths",
+   "city": "Winter Garden",
+   "searched": "Heller Hall Winter Garden; Winter Garden City Hall Florida; Wikimedia Commons only (Flickr not reached, WebFetch blocked, Commons API rate limited)",
+   "reason": "No Commons file for Heller Hall."
+  },
+  {
+   "id": "enchanted-holiday-experience-port-charlotte-2026",
+   "name": "Enchanted Holiday Circus and Santa's Village",
+   "city": "Port Charlotte",
+   "searched": "Charlotte County Fairgrounds Port Charlotte; Port Charlotte Fairgrounds; Wikimedia Commons only (Flickr not reached, WebFetch blocked, Commons API rate limited)",
+   "reason": "No Commons file for the fairgrounds."
+  },
+  {
+   "id": "firehouse-theatre-doublewide-texas-christmas-2026",
+   "name": "A Doublewide, Texas Christmas",
+   "city": "LaBelle",
+   "searched": "Firehouse Community Theatre LaBelle; LaBelle Florida theatre; Wikimedia Commons only (Flickr not reached, WebFetch blocked, Commons API rate limited)",
+   "reason": "No Commons file for the theatre."
+  },
+  {
+   "id": "bbmann-gulfshore-ballet-nutcracker-2026",
+   "name": "The Nutcracker with Gulfshore Ballet and Gulf Coast Symphony",
+   "city": "Fort Myers",
+   "searched": "Barbara B. Mann Performing Arts Hall; Barbara Mann Performing Arts Hall Fort Myers; Barbara Mann Hall FSW; Wikimedia Commons only (Flickr not reached, WebFetch blocked, Commons API rate limited)",
+   "reason": "No Commons photo of the hall (only an FSW library garden photo, not the venue)."
+  },
+  {
+   "id": "brooksville-family-sensory-christmas-2026",
+   "name": "Family Sensory Christmas Celebration (4th annual)",
+   "city": "Brooksville",
+   "searched": "Hernando Park Brooksville; Brooksville Florida park; Wikimedia Commons only (Flickr not reached, WebFetch blocked, Commons API rate limited)",
+   "reason": "No Commons file for Hernando Park."
+  },
+  {
+   "id": "bbmann-nutcracker-magical-christmas-ballet-2026",
+   "name": "NUTCRACKER! Magical Christmas Ballet (touring production)",
+   "city": "Fort Myers",
+   "searched": "Barbara B. Mann Performing Arts Hall; Barbara Mann Hall FSW Fort Myers theater; Wikimedia Commons only (Flickr not reached, WebFetch blocked, Commons API rate limited)",
+   "reason": "No Commons photo of the hall."
+  },
+  {
+   "id": "bonita-christmas-eve-candlelight-2026",
+   "name": "Christmas Eve Candle Light Service at Riverside Park",
+   "city": "Bonita Springs",
+   "searched": "Riverside Park Bonita Springs; Wikimedia Commons only (Flickr not reached, WebFetch blocked, Commons API rate limited)",
+   "reason": "No Commons file for Riverside Park."
+  },
+  {
+   "id": "carrollwood-holiday-village-2026",
+   "name": "Carrollwood Holiday Village",
+   "city": "Tampa",
+   "searched": "Carrollwood Cultural Center; Wikimedia Commons only (Flickr not reached, WebFetch blocked, Commons API rate limited)",
+   "reason": "No Commons file for the cultural center."
+  },
+  {
+   "id": "st-pete-santacon-bar-crawl-2026",
+   "name": "St. Petersburg SantaCon Bar Crawl 2026",
+   "city": "St. Petersburg",
+   "searched": "Welcome to the Farm St. Petersburg; Wikimedia Commons only (Flickr not reached, WebFetch blocked, Commons API rate limited)",
+   "reason": "No Commons file; private bar, event photos only on Eventbrite/social."
+  },
+  {
+   "id": "ugly-sweater-pub-crawl-sarasota-2026",
+   "name": "Do The Ugly Sweater Pub Crawl Sarasota",
+   "city": "Sarasota",
+   "searched": "Joe's On Main Sarasota; Wikimedia Commons only (Flickr not reached, WebFetch blocked, Commons API rate limited)",
+   "reason": "No Commons file; bar venue."
+  },
+  {
+   "id": "avalon-aglow-wesley-chapel-2026",
+   "name": "Avalon Aglow",
+   "city": "Wesley Chapel",
+   "searched": "Avalon Park Wesley Chapel; Wesley Chapel Avalon Park; Wikimedia Commons only (Flickr not reached, WebFetch blocked, Commons API rate limited)",
+   "reason": "No Commons file for Avalon Park."
+  },
+  {
+   "id": "fort-myers-santacon-bar-crawl-2026",
+   "name": "Fort Myers SantaCon Bar Crawl 2026",
+   "city": "Fort Myers",
+   "searched": "The Standard Fort Myers Broadway; Wikimedia Commons only (Flickr not reached, WebFetch blocked, Commons API rate limited)",
+   "reason": "No Commons file of The Standard; results were unrelated Fort Myers buildings."
+  },
+  {
+   "id": "orlando-phil-messiah-2026",
+   "name": "Handel's Messiah",
+   "city": "Orlando",
+   "searched": "Commons",
+   "reason": "candidate rejected by lead review: First United Methodist Church of Orlando, one of the two listed venues (the other is Community Presbyterian). Raw wikitext confirms cc-by-sa-3.0. Steeple-only framing, daytime. Alternate: 'First Unite"
+  }
+ ]
+}
