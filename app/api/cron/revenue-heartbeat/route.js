@@ -50,9 +50,10 @@ export async function GET(req) {
   const baselineEnd = windowStart; // no overlap with the window being judged
   const baselineStart = new Date(baselineEnd.getTime() - BASELINE_DAYS * 86400000);
 
-  const [current, dailyHist] = await Promise.all([
+  const [current, dailyHist, qualified] = await Promise.all([
     ph.revenueHeartbeatCounts(windowStart, now),
     ph.revenueHeartbeatDaily(baselineStart, baselineEnd),
+    ph.qualifiedClickCounts(windowStart, now),
   ]);
 
   if (!current.source || current.source.connected === false) {
@@ -67,6 +68,11 @@ export async function GET(req) {
   const baselineRatio = baselineRatioFromHistory(
     historyRows.map((r) => ({ trafficCount: Number(r.traffic) || 0, affiliateCount: Number(r.affiliate_activity) || 0 }))
   );
+
+  const qualifiedRow = (qualified && qualified.data && qualified.data[0]) || {};
+  const qualifiedClicks = qualified && qualified.source && qualified.source.connected !== false && Number.isFinite(Number(qualifiedRow.qualified_clicks))
+    ? Number(qualifiedRow.qualified_clicks)
+    : null;
 
   const signal = revenueSignal({ trafficCount, affiliateCount, baselineRatio });
   const pulseRow = toPulseRow(signal, { trafficCount, affiliateCount });
@@ -85,6 +91,7 @@ export async function GET(req) {
     baselineDays: BASELINE_DAYS,
     trafficCount,
     affiliateCount,
+    qualifiedClicks,
     ratio: signal.ratio,
     baselineRatio: signal.baselineRatio,
     historyDays: historyRows.length,

@@ -19,6 +19,8 @@ import { resolveLocationContext, milesBetween } from "../../lib/locationHonesty"
 import { nowContext } from "../../lib/nowContext";
 import { canonicalShareUrl } from "../../lib/site";
 import { track } from "../../lib/track";
+import { readStoredCenter, fetchIpCenter } from "../../lib/intentLocationFallback.js";
+import IntentLocationChooser from "./IntentLocationChooser";
 import { useCuratedRows } from "../../lib/curatorPicks.js";
 import { normalizePartnerCity } from "../../lib/intentPartnerPicks.js";
 
@@ -307,21 +309,28 @@ export default function FamilyDayPage({ embedded = false, center = null, city = 
   const [moment, setMoment] = useState(null);
   const [retryAll, setRetryAll] = useState(0);
   const [copied, setCopied] = useState(false);
+  const [locating, setLocating] = useState(false);
 
   useEffect(() => {
     if (hasProvidedPoint) {
       setLoc({ lat: providedLat, lng: providedLng, city: String(city || "").slice(0, 40) });
       return;
     }
-    let stored = null;
-    try {
-      const value = JSON.parse(localStorage.getItem("wf_center") || "null");
-      if (value && Number.isFinite(Number(value.lat)) && Number.isFinite(Number(value.lng))) {
-        stored = { lat: Number(value.lat), lng: Number(value.lng), loc: value.loc || "" };
-      }
-    } catch (error) {}
-    setLoc(familyLocation({ urlCity, urlLat, urlLng, stored }));
-  }, [urlCity, urlLat, urlLng, hasProvidedPoint, providedLat, providedLng, city]);
+    const stored = readStoredCenter();
+    const next = familyLocation({ urlCity, urlLat, urlLng, stored });
+    setLoc(next);
+    if (embedded || (Number.isFinite(next.lat) && Number.isFinite(next.lng))) { setLocating(false); return undefined; }
+    // No URL point and no saved homepage location: try the free IP location,
+    // then show the city chooser (lib/intentLocationFallback.js).
+    let cancelled = false;
+    setLocating(true);
+    fetchIpCenter().then((ip) => {
+      if (cancelled) return;
+      if (ip) setLoc(familyLocation({ urlCity, urlLat, urlLng, stored: ip }));
+      setLocating(false);
+    });
+    return () => { cancelled = true; };
+  }, [urlCity, urlLat, urlLng, hasProvidedPoint, providedLat, providedLng, city, embedded]);
 
   useEffect(() => {
     if (DISTANCES.includes(requestedRadius)) setRadiusMi(requestedRadius);
@@ -401,7 +410,9 @@ export default function FamilyDayPage({ embedded = false, center = null, city = 
       {outdoorGateClosed ? <p className="wf-family-weather">Outdoor picks are paused because {moment.gateWhy || "current weather is not a safe fit"}. {weatherPaused ? "Your weather choice is preserved; choose Indoors or clear it to continue." : "The rails are using verified indoor evidence."}</p> : null}
       <ThemeParkRail mode="family" familyContext={{ lat: loc.lat, lng: loc.lng, radiusMi, filters, indoorOnly, ready: weatherSettled && !!moment, paused: weatherPaused }} onOpenPlace={onOpenPlace} {...cardActions} />
       {showCuratedPartner ? <IntentPartnerPick city={partnerCity} intent="family" lat={loc.lat} lng={loc.lng} curatedOnly curatedOfferIds={INDOOR_FAMILY_OFFERS} photoNoSpend /> : null}
-      {!hasPoint ? <div className="wf-family-message"><p>This page needs a location before it can rank nearby family picks. Open the Family Day poster after choosing a location.</p></div> : (
+      {!hasPoint ? (embedded
+        ? <div className="wf-family-message"><p>This page needs a location before it can rank nearby family picks. Open the Family Day poster after choosing a location.</p></div>
+        : <IntentLocationChooser intent="family" locating={locating} />) : (
         <>
           {FAMILY_DAY_RAILS.map((rail) => <FamilyRail key={rail.id} rail={rail} loc={loc} radiusMi={embedded && ["water", "animals"].includes(rail.id) ? 50 : radiusMi} filters={filters} indoorOnly={indoorOnly} weatherSettled={weatherSettled && !!moment} weatherPaused={weatherPaused} retryAll={retryAll} onOpenPlace={onOpenPlace} cardActions={cardActions} />)}
           <button type="button" className="wf-family-clear" onClick={() => setRetryAll((value) => value + 1)}>Refresh loaded rails</button>

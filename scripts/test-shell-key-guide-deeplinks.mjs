@@ -16,7 +16,7 @@ import { readFileSync } from "node:fs";
 import { GUIDES } from "../lib/guides.js";
 import { guideRegions } from "../lib/guideIndex.js";
 import { currentGuides, pastGuides } from "../lib/guideLifecycle.js";
-import { TOWN_PROFILES, TOWN_ALIASES } from "../lib/culture.js";
+import { TOWN_PROFILES, TOWN_ALIASES } from "../lib/cultureNotes.js";
 import { CULTURE } from "../lib/cultureCorpus.js";
 import { SUMMER_UNIVERSE } from "../lib/summerUniverse.js";
 

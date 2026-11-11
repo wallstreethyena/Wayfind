@@ -78,7 +78,7 @@ const missed = applyStoredStartCorrections(applyFreshTicketmasterStarts([rays], 
 ok(missed[0].time === "20:08:00" && missed[0].name.includes("ALCS Game 6"), "a missed re-read still applies the one stored Rays correction");
 const route = read("app/api/events/route.js");
 const refreshLib = read("lib/eventStartRefresh.js");
-ok(/payload\.cached\) payload\.events = await refreshCachedTicketmasterStarts\(/.test(route), "a cached feed re-reads Ticketmaster starts before it is served");
+ok(/if \(payload\.cached\) \{[\s\S]+?payload\.events = await refreshCachedTicketmasterStarts\([\s\S]+?\n  \}/.test(route), "a cached feed re-reads Ticketmaster starts before it is served");
 ok(/startsOnly: true/.test(route), "the re-read is one existing Discovery query");
 ok(/cset\(evK, events, 21 \* DAY\)/.test(route), "the 21-day event-feed cache rule is unchanged");
 ok(!/mlbGameTimes|statsapi\.mlb\.com|reconcileMlbGames/.test(route + refreshLib + read("app/events/[city]/[slug]/page.js")), "the MLB stats API is not called");
