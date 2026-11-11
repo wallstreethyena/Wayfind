@@ -201,8 +201,9 @@ for (const item of VIATOR_SEARCH_INTENTS) {
 // exact call shape (the same function the page calls) without needing a
 // live Supabase read.
 {
-  const cta = eventTicketCta("hhn-orlando-2026", { surface: SURFACE });
-  ok(Boolean(cta), 'eventTicketCta("hhn-orlando-2026", { surface: paid_florida }) resolves (real registry row)');
+  const cta = eventTicketCta("christmas-town-2026", { surface: SURFACE });
+  ok(Boolean(cta), 'eventTicketCta("christmas-town-2026", { surface: paid_florida }) resolves (live holiday registry row)');
+  ok(eventTicketCta("hhn-orlando-2026", { surface: SURFACE }) === null, "the retired HHN deal does not resolve a paid Florida ticket");
   ok(cta && cta.href.startsWith("/api/commerce/go?"), "eventTicketCta() href is our own /api/commerce/go path");
   ok(cta && cta.href.includes("surface=paid_florida"), "eventTicketCta() href carries surface=paid_florida");
   ok(cta && !DASH_RX.test(cta.label), `eventTicketCta() label has no dash: "${cta && cta.label}"`);
