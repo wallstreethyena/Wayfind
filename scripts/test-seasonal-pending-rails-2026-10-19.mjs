@@ -16,7 +16,7 @@ import { halloweenCardRail, composeHalloweenRails } from "../lib/halloweenIntent
 import { composeChristmasIntentRails, christmasEventRail, inChristmasWindow } from "../lib/christmasIntentRails.js";
 import { isTrusted, distanceMi } from "../lib/curatedEvents.js";
 import { isFallEvent } from "../lib/fallPool.js";
-import { fallEventCardImageSrc, mergeFallDiscoveryRows } from "../lib/fallEventImage.js";
+import { CHRISTMAS_INTENT_IMAGE_HOLDS, fallEventCardImageSrc, mergeFallDiscoveryRows } from "../lib/fallEventImage.js";
 import { christmasEventCard } from "../lib/christmasCards.js";
 import { fallIntentsEpoch } from "./lib/fallCacheEpoch.mjs";
 
@@ -145,7 +145,11 @@ for (const event of ready.christmas) {
   ok(isTrusted(event) && christmasEventRail(event) === src.christmas_rail && inChristmasWindow(event), `${src.row_id} is a trusted Christmas card on ${src.christmas_rail}`);
   const place = places.find((row) => row.place_id === event.place_id);
   const card = christmasEventCard(event, { today: TODAY, inventory: place, pageSlugs: new Set(), byDealId: new Map() });
-  ok(card.image && card.image.startsWith("/api/photo?ref=") && card.image.includes(event.place_id) && !card.placeholder, `${src.row_id} Christmas card uses the stored photo and no placeholder`);
+  if (CHRISTMAS_INTENT_IMAGE_HOLDS.has(event.event_id)) {
+    ok(!card.image && !!card.placeholder, `${src.row_id} Christmas card uses the designed tile instead of a year-round venue photo`);
+  } else {
+    ok(card.image && card.image.startsWith("/api/photo?ref=") && card.image.includes(event.place_id) && !card.placeholder, `${src.row_id} Christmas card uses the stored photo and no placeholder`);
+  }
 }
 
 const largo = photoPlace(byId.get("K037"), { name: "Heritage Village", lat: 27.909, lng: -82.787, place_id: "ChIJC8LjwjH6wogRKE2kKOD0BkI" });
@@ -243,8 +247,8 @@ ok(idsOn(fallNamesLater.rails, "festivals").includes(dale.event_id)
 const fallRoute = readFileSync(new URL("../app/api/events/fall/route.js", import.meta.url), "utf8");
 const christmasRoute = readFileSync(new URL("../app/api/events/christmas/route.js", import.meta.url), "utf8");
 ok(fallIntentsEpoch(fallRoute) >= 41 && fallRoute.includes("resolveSeasonalLiveArea") && fallRoute.includes("...resolved.fall"), "the Fall route uses the v41 or later verified-event epoch and merges resolved rows");
-ok(christmasRoute.includes("christmas-intents:v12:") && christmasRoute.includes("resolveSeasonalLiveArea")
-  && /mergeChristmasResearch\(rows \|\| \[\]\)\.concat\(resolved\.christmas\)/.test(christmasRoute), "the Christmas route bumps to v10 and appends resolved rows");
+ok(christmasRoute.includes("christmas-intents:v14:") && christmasRoute.includes("resolveSeasonalLiveArea")
+  && /mergeChristmasResearch\(rows \|\| \[\]\)\.concat\(resolved\.christmas\)/.test(christmasRoute), "the Christmas route uses v13 and appends resolved rows");
 ok(!/googleapis|maps\.google|places\.googleapis|fetch\(/.test(christmasRoute), "the Christmas route still makes no Google call and no fetch");
 ok(!/googleapis|maps\.google|places\.googleapis/.test(fallRoute), "the Fall route still makes no Google call");
 
