@@ -2584,3 +2584,5 @@ node scripts/test-detail-cta-place-city.mjs
 node scripts/test-place-link-name.mjs
 node scripts/test-og-movie-function-size.mjs
 node scripts/check-event-not-found-recovery.mjs
+# 2026-11-10: StubHub (Partnerize) affiliate adapter ships DARK until STUBHUB_PARTNERIZE_CAMREF is set.
+node scripts/test-stubhub-dark.mjs
