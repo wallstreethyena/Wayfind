@@ -360,6 +360,7 @@ const askShareIntent = (o) => {
 import { placeKinds } from "../lib/dateInvite";
 import { isDateRoom } from "../lib/dateRoom.js";
 import { createDetailOpenGate } from "../lib/detailOpenGate.js";
+import { safeLocalStorage, safeSessionStorage } from "../lib/safeStorage.js";
 import { createPlaceActionGate } from "../lib/placeActionOnce.js";
 import { planDeepLinkAction, humanConfirmed, deepLinkEventProps, deepLinkPromptLabel } from "../lib/deepLinkAction.js";
 import { isSeedCenter, cityLabel, landingSlugFromLoc, centerAgreesWithLabel, firstPaintRailOrigin, localityFromFormattedAddress, storedPinFresh, storedPlaceHeader } from "../lib/locationHonesty";
@@ -370,6 +371,7 @@ import { centerAfterGeoDecision, landingSearchFromSearch } from "../lib/searchDe
 const loadBooCoverage = () => import("./components/booCoverage.js");
 import { ownedPlacePhotoSrc } from "../lib/placePhoto";
 import { sanitizeRestoredPosition } from "../lib/restorePosition.js";
+import { FEED_DEFERRAL_MAX_WAIT_MS, initialFeedReleased, isFeedDeferred, shouldReleaseFeed } from "../lib/feedDeferral.js";
 
 const BUILD = "beta";
 
@@ -4320,6 +4322,13 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
   const [err, setErr] = useState("");
   const [detail, setDetail] = useState(null);
   const detailOpenRequestRef = useRef(0);
+  // INP: on a direct /p/{id} landing the home feed subtree is not rendered
+  // while the place sheet is open (lib/feedDeferral.js). One-way flag: it only
+  // ever flips to true, so the feed is never re-deferred. Initial value reads
+  // only the initialPlaceId prop, so server and client first render agree.
+  const [feedReleased, setFeedReleased] = useState(() => initialFeedReleased(initialPlaceId));
+  const feedDetailWasOpenRef = useRef(false);
+  const feedDeferred = isFeedDeferred(initialPlaceId, feedReleased);
   // One detail_open per closed->open transition: openDetail can be called twice
   // for one opening (deep-link effect re-runs on supabaseReady). Reset on close.
   const detailOpenGateRef = useRef(null);
@@ -5400,7 +5409,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
             } else if (!d2Err) {
               import("../lib/itinerarySync.js").then((m) => {
                 if (!active) return;
-                const isolated = m.ensureSignedOutTripIsolation(localStorage, { authReady: true });
+                const isolated = m.ensureSignedOutTripIsolation(safeLocalStorage(), { authReady: true });
                 if (isolated !== null) {
                   setTrips(isolated);
                   setActiveTrip(null);
@@ -5443,7 +5452,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
       try {
         if (typeof window !== "undefined") {
           loadAuthJourney().then((aj) => {
-            const _done = aj.runAuthTransition({ event: _event, session, now: Date.now(), local: window.localStorage, sess: window.sessionStorage, log: (n, pl, ex) => { if (logEventRef.current) logEventRef.current(n, pl, ex); } });
+            const _done = aj.runAuthTransition({ event: _event, session, now: Date.now(), local: safeLocalStorage(), sess: safeSessionStorage(), log: (n, pl, ex) => { if (logEventRef.current) logEventRef.current(n, pl, ex); } });
             if (_done && _done.indexOf("signup") === 0) { try { noteExplodingSignup((...a) => logEventRef.current && logEventRef.current(...a)); } catch (e) {} }
           }).catch(() => {});
         }
@@ -6474,6 +6483,10 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
   }
   function readPosition() {
     const key = positionEntryKey();
+    // A local of the same name on purpose: reading the storage global throws
+    // where site data is blocked, and no storage means no saved position.
+    const sessionStorage = safeSessionStorage();
+    if (!sessionStorage) return null;
     const entryRaw = sessionStorage.getItem("wf_pos_entry_" + key);
     const genericRaw = entryRaw ? null
       : (["/", "/v8"].includes(window.location.pathname) && !window.location.search ? sessionStorage.getItem("wf_pos") : null);
@@ -7456,11 +7469,29 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
             if (linkPlan.prompt) setLinkActionPrompt({ place: opened, action: placeAction });
           }
           openDetail(opened);
+        } else {
+          // No sheet will ever open over the feed: release it (INP deferral).
+          if (shouldReleaseFeed({ placeOpenSettled: true })) setFeedReleased(true);
         }
-      })();
+      })().catch((e) => {
+        setFeedReleased(true);
+        throw e; // same unhandled-rejection visibility as before this wrapper
+      });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [supabaseReady]);
+
+  // INP: release the deferred feed once the visitor leaves the place sheet or
+  // changes screen. Runs only while deferred; never re-defers.
+  useEffect(() => {
+    if (feedReleased) return;
+    if (detail) feedDetailWasOpenRef.current = true;
+    if (shouldReleaseFeed({ detailOpen: !!detail, detailWasOpen: feedDetailWasOpenRef.current, screen })) setFeedReleased(true);
+    if (detail) return;
+    // Fail-safe: a sheet that never opens must not leave an empty page.
+    const feedFailSafe = setTimeout(() => setFeedReleased(true), FEED_DEFERRAL_MAX_WAIT_MS);
+    return () => clearTimeout(feedFailSafe);
+  }, [detail, screen, feedReleased]);
 
   // Part 4 measurement: count one "session" per tab (share_rate denominator) and
   // fire "share_return" if a shared-card visitor is back within 7 days. Wait for
@@ -7549,7 +7580,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
     if (!itineraryFlags.sync || !user || !supabase) return undefined;
     let cancelled = false;
     import("../lib/itinerarySync.js").then((m) => m.syncOwnerTrips({
-      supabase, userId: user.id, storage: localStorage, isCancelled: () => cancelled,
+      supabase, userId: user.id, storage: safeLocalStorage(), isCancelled: () => cancelled,
       setTrips, syncReadyRef: itinerarySyncReady, syncKeysRef: itinerarySyncKeys, skipPushRef: itinerarySkipPush, logEvent,
     })).catch(() => {});
     return () => { cancelled = true; };
@@ -11027,6 +11058,8 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
             deliberate placement; it simply has no render site on "/" — the
             same treatment HomeAside and BestNearby received. */}
         {screen === "suggested" && (() => {
+          // INP: direct /p/{id} landing: skip the whole feed subtree until released.
+          if (feedDeferred) return <div data-wf-feed-deferred="1" aria-hidden="true" style={{ minHeight: "70vh" }} />;
           if (searchFeed && searchFeed.length) {
             return (
               <div className="wf-cols">

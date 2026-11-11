@@ -181,6 +181,7 @@ node scripts/test-owner-places-2026-08-29c.mjs
 node scripts/test-owner-places-2026-08-29d.mjs
 node scripts/test-owner-places-2026-08-29e.mjs
 node scripts/test-command-center.mjs
+node scripts/test-qualified-click.mjs
 node scripts/test-browse-interaction-reuse.mjs
 # Command Center partner-click predicate + #1603 exclude_devices: the migration
 # must stay byte-identical to command-center.sql (2026-10-02).
@@ -1636,6 +1637,7 @@ node scripts/test-photo-upstream-truth.mjs
 # breaker stops asking Google at all once a quota outcome is seen, until
 # Google's own Pacific-midnight reset. Red-proved.
 node scripts/test-photo-quota-truth.mjs
+node scripts/test-places-photo-breaker.mjs
 
 # 2026-09-16: Google Cloud metrics traced every billed photo call to
 # defaultFetchOwnedUri, one ledger grant per outbound request, and found
@@ -2305,6 +2307,7 @@ node scripts/test-photo-dedupe.mjs
 node scripts/test-halloween-tours.mjs
 # 2026-10-30: Christmas ticket cards (premium Halloween style page): same listings as the browse, upcoming only, registry /go hrefs untouched, honest prices, dash free, merit order never reads commission.
 node scripts/test-christmas-tickets.mjs
+node scripts/test-snowcat-tickets.mjs
 node scripts/test-christmas-tours.mjs
 
 node scripts/test-halloween-intent-rails.mjs
@@ -2509,6 +2512,7 @@ node scripts/test-hydrate-editorial-precedence.mjs
 node scripts/check-this-week-events.mjs
 # 2026-11-03: Viator per-click opaque attribution, stale-attribution merge prevention, booking ingestion/reconciliation, 4-way financial separation, and Google Data Manager offline conversion pipeline.
 node scripts/test-viator-booking-attribution.mjs
+node scripts/test-viator-visitor-hash.mjs
 node scripts/check-schedule-note-days.mjs
 node scripts/check-event-assessment-policy.mjs
 # Place city ladder: one placeCity() for title/share/PostalAddress/headers; postal_city > Census locality; never a state/county/slug/street.
@@ -2530,3 +2534,11 @@ node scripts/check-homepage-events-deadline.mjs
 node scripts/test-holiday-discovery-2026-11-06.mjs
 # Verified official street addresses and safe non-Google map links.
 node scripts/test-owned-place-directions.mjs
+# INP: a direct /p/{id} landing must not mount the home feed under the place sheet.
+node scripts/test-feed-deferral.mjs
+# 2026-11-10 (Sentry WAYFIND-19): a dropped visitor connection gets one retry and is
+# never filed as a Wayfind map service failure; real service answers still are.
+node scripts/test-client-transport-retry.mjs
+# 2026-11-10 (Sentry WAYFIND-W): reading window.localStorage outside a try throws where
+# site data is blocked; PostHogProvider did, so those visitors were never measured.
+node scripts/check-storage-access.mjs

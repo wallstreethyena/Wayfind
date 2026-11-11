@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { commerceHref, emitCommerce, mintClickId } from "../../lib/commerce";
+import { safeLocalStorage } from "../../lib/safeStorage.js";
 import { resolvedIntentPartnerPicks, fetchPartnerInventory, qualifyPartnerInventory, PARTNER_INVENTORY_CANDIDATE_COUNT, PARTNER_RAIL_RENDER_LIMIT } from "../../lib/intentPartnerPicks";
 import { rankExperiences, experienceWayfindScore } from "../../lib/experiencesData";
 import { couponsForIntent } from "../../lib/coupons";
@@ -243,7 +244,7 @@ export default function IntentPartnerPick({ city, intent, inventory, initialInve
               onClick={(event) => {
                 if (pick.kind === "coupon") {
                   event.preventDefault();
-                  const saved = typeof window !== "undefined" ? clipCouponToWallet(pick.coupon, window.localStorage) : { clipped: false };
+                  const saved = typeof window !== "undefined" ? clipCouponToWallet(pick.coupon, safeLocalStorage()) : { clipped: false };
                   try { onLog && onLog("coupon_strip_tap", null, { id: pick.offerId, theme: couponIntent, clipped: saved.clipped }); } catch {}
                   if (onOpenCoupons) onOpenCoupons(pick.coupon, { wallet: true, clipped: saved.clipped });
                   return;
