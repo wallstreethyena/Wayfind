@@ -1,0 +1,1920 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 40. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJnWNEVS5754gRMu5U5aI5Fo4",
+   "name": "Chronic Guru Dispensary & Lounge - Orlando",
+   "category": "shopping",
+   "metro": "orlando",
+   "primary_type": "store",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://chronicguru.com/downtown-orlando/",
+     "source_name": "Chronic Guru Dispensary & Lounge - Orlando \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Chronic Guru Dispensary & Lounge - Orlando is at 16 W Pine St, Orlando, FL 32801.",
+      "Chronic Guru is a dispensary and lounge in Orlando.",
+      "Hours are 11 a.m. to 2 a.m. on Tuesday through Saturday.",
+      "Monday hours are 11 a.m. to midnight."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Dispensary and lounge at 16 W Pine St in Orlando",
+    "why_here": "Go for the dispensary and lounge at 16 W Pine St in Orlando, where Tuesday through Saturday hours run from 11 a.m. to 2 a.m. for a late visit.",
+    "know_before": "Monday hours are 11 a.m. to midnight.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://chronicguru.com/downtown-orlando/"
+     ],
+     "why_here": [
+      "https://chronicguru.com/downtown-orlando/"
+     ],
+     "know_before": [
+      "https://chronicguru.com/downtown-orlando/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Chronic Guru Dispensary & Lounge - Orlando is at 16 W Pine St, Orlando, FL 32801.",
+      "source": "https://chronicguru.com/downtown-orlando/"
+     },
+     {
+      "claim": "Chronic Guru is a dispensary and lounge in Orlando.",
+      "source": "https://chronicguru.com/downtown-orlando/"
+     },
+     {
+      "claim": "Hours are 11 a.m. to 2 a.m. on Tuesday through Saturday.",
+      "source": "https://chronicguru.com/downtown-orlando/"
+     },
+     {
+      "claim": "Monday hours are 11 a.m. to midnight.",
+      "source": "https://chronicguru.com/downtown-orlando/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJJRwjkaUZw4gRa-t6H7I7TDA",
+   "name": "Terra Ceia Aquatic Preserve",
+   "category": "attractions",
+   "metro": "manatee-sarasota",
+   "primary_type": "nature_preserve",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://floridaaquaticpreserves.org/managed-areas/aquatic-preserves/terra-ceia-aquatic-preserve",
+     "source_name": "Terra Ceia Aquatic Preserve \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Terra Ceia Aquatic Preserve starts at the south end of Port Manatee and extends out into Tampa Bay.",
+      "Terra Ceia Aquatic Preserve includes Terra Ceia Bay and Bishop Harbor.",
+      "Mangrove communities flourish in Terra Ceia Aquatic Preserve, including red, black and white mangroves.",
+      "Seagrass and algal beds are prevalent throughout Terra Ceia Aquatic Preserve.",
+      "There are no set hours for Terra Ceia Aquatic Preserve.",
+      "Terra Ceia Aquatic Preserve offers no facilities."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Mangrove communities with red, black and white mangroves in Tampa Bay",
+    "why_here": "Visit Terra Ceia Aquatic Preserve to see mangrove communities with red, black and white mangroves, plus seagrass and algal beds prevalent throughout the preserve by Tampa Bay.",
+    "know_before": "There are no set hours and no facilities, so plan access before visiting the preserve.",
+    "local_tip": "See seagrass and algal beds throughout the preserve.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://floridaaquaticpreserves.org/managed-areas/aquatic-preserves/terra-ceia-aquatic-preserve"
+     ],
+     "why_here": [
+      "https://floridaaquaticpreserves.org/managed-areas/aquatic-preserves/terra-ceia-aquatic-preserve"
+     ],
+     "know_before": [
+      "https://floridaaquaticpreserves.org/managed-areas/aquatic-preserves/terra-ceia-aquatic-preserve"
+     ],
+     "local_tip": [
+      "https://floridaaquaticpreserves.org/managed-areas/aquatic-preserves/terra-ceia-aquatic-preserve"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Terra Ceia Aquatic Preserve starts at the south end of Port Manatee and extends out into Tampa Bay.",
+      "source": "https://floridaaquaticpreserves.org/managed-areas/aquatic-preserves/terra-ceia-aquatic-preserve"
+     },
+     {
+      "claim": "Terra Ceia Aquatic Preserve includes Terra Ceia Bay and Bishop Harbor.",
+      "source": "https://floridaaquaticpreserves.org/managed-areas/aquatic-preserves/terra-ceia-aquatic-preserve"
+     },
+     {
+      "claim": "Mangrove communities flourish in Terra Ceia Aquatic Preserve, including red, black and white mangroves.",
+      "source": "https://floridaaquaticpreserves.org/managed-areas/aquatic-preserves/terra-ceia-aquatic-preserve"
+     },
+     {
+      "claim": "Seagrass and algal beds are prevalent throughout Terra Ceia Aquatic Preserve.",
+      "source": "https://floridaaquaticpreserves.org/managed-areas/aquatic-preserves/terra-ceia-aquatic-preserve"
+     },
+     {
+      "claim": "There are no set hours for Terra Ceia Aquatic Preserve.",
+      "source": "https://floridaaquaticpreserves.org/managed-areas/aquatic-preserves/terra-ceia-aquatic-preserve"
+     },
+     {
+      "claim": "Terra Ceia Aquatic Preserve offers no facilities.",
+      "source": "https://floridaaquaticpreserves.org/managed-areas/aquatic-preserves/terra-ceia-aquatic-preserve"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJbb4I1uGxwogROAndMgvsgSU",
+   "name": "Wesley Chapel District Park",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.pascocountyfl.gov/services/parks_recreation_and_natural_resources/park_directory.php",
+     "source_name": "Wesley Chapel District Park \u2014 official source",
+     "source_class": "government",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Wesley Chapel District Park park hours are 7 days a week from 8:00 a.m. to 10:00 p.m.",
+      "Wesley Chapel District Park Recreation Center hours are Monday through Friday from 8:00 a.m. to 9:00 p.m.",
+      "Wesley Chapel District Park Recreation Center hours are Saturday from 9:30 a.m. to 6:00 p.m.",
+      "Wesley Chapel District Park Recreation Center is closed on Sundays."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Recreation Center inside a district park open 7 days a week",
+    "why_here": "Go to Wesley Chapel District Park for a long daily window from 8:00 a.m. to 10:00 p.m., 7 days a week, with a Recreation Center adding more hours on Saturday.",
+    "know_before": "Recreation Center is closed on Sundays, while the park stays open 7 days a week.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.pascocountyfl.gov/services/parks_recreation_and_natural_resources/park_directory.php"
+     ],
+     "why_here": [
+      "https://www.pascocountyfl.gov/services/parks_recreation_and_natural_resources/park_directory.php"
+     ],
+     "know_before": [
+      "https://www.pascocountyfl.gov/services/parks_recreation_and_natural_resources/park_directory.php"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Wesley Chapel District Park park hours are 7 days a week from 8:00 a.m. to 10:00 p.m.",
+      "source": "https://www.pascocountyfl.gov/services/parks_recreation_and_natural_resources/park_directory.php"
+     },
+     {
+      "claim": "Wesley Chapel District Park Recreation Center hours are Monday through Friday from 8:00 a.m. to 9:00 p.m.",
+      "source": "https://www.pascocountyfl.gov/services/parks_recreation_and_natural_resources/park_directory.php"
+     },
+     {
+      "claim": "Wesley Chapel District Park Recreation Center hours are Saturday from 9:30 a.m. to 6:00 p.m.",
+      "source": "https://www.pascocountyfl.gov/services/parks_recreation_and_natural_resources/park_directory.php"
+     },
+     {
+      "claim": "Wesley Chapel District Park Recreation Center is closed on Sundays.",
+      "source": "https://www.pascocountyfl.gov/services/parks_recreation_and_natural_resources/park_directory.php"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJLTFgVQcC2YgRgbaKYjqr8Io",
+   "name": "Bamboo Beach Tiki Bar & Cafe",
+   "category": "nightlife",
+   "metro": "broward",
+   "primary_type": "bar",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://bamboobeachtikibar.com/?p=2446",
+     "source_name": "Bamboo Beach Tiki Bar & Cafe \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Bamboo Beach Tiki Bar is located at Ocean Manor.",
+      "Bamboo Beach Club features a full made-to-order menu.",
+      "The Tiki Bar serves fresh seafood, juicy burgers, and handcrafted cocktails for beachside dining."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Tiki Bar at Ocean Manor for fresh seafood, burgers and cocktails",
+    "why_here": "Go to the Tiki Bar at Ocean Manor for fresh seafood, juicy burgers and handcrafted cocktails, with a full made-to-order menu for beachside dining during a visit.",
+    "know_before": "Bamboo Beach Club features a full made-to-order menu at the Tiki Bar.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://bamboobeachtikibar.com/?p=2446"
+     ],
+     "why_here": [
+      "https://bamboobeachtikibar.com/?p=2446"
+     ],
+     "know_before": [
+      "https://bamboobeachtikibar.com/?p=2446"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Bamboo Beach Tiki Bar is located at Ocean Manor.",
+      "source": "https://bamboobeachtikibar.com/?p=2446"
+     },
+     {
+      "claim": "Bamboo Beach Club features a full made-to-order menu.",
+      "source": "https://bamboobeachtikibar.com/?p=2446"
+     },
+     {
+      "claim": "The Tiki Bar serves fresh seafood, juicy burgers, and handcrafted cocktails for beachside dining.",
+      "source": "https://bamboobeachtikibar.com/?p=2446"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJAXxL_vx654gRzpoeMOGaVFM",
+   "name": "Embassy Suites by Hilton Orlando Downtown",
+   "category": "hotels",
+   "metro": "orlando",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.hilton.com/en/hotels/mcodtes-embassy-suites-orlando-downtown/",
+     "source_name": "Embassy Suites by Hilton Orlando Downtown \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Embassy Suites by Hilton Orlando Downtown is at 191 East Pine Street, Orlando, Florida, 32801, USA",
+      "A free cooked-to-order breakfast is served daily",
+      "The hotel hosts a complimentary evening reception for guests",
+      "The hotel has an outdoor pool and a fitness center",
+      "The hotel has 167 suites"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Hotel at 191 East Pine Street with a free cooked-to-order breakfast served daily",
+    "why_here": "Stay for the free cooked-to-order breakfast served daily, a complimentary evening reception for guests, an outdoor pool, and a fitness center at 191 East Pine Street.",
+    "know_before": "The hotel has an outdoor pool and a fitness center.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.hilton.com/en/hotels/mcodtes-embassy-suites-orlando-downtown/"
+     ],
+     "why_here": [
+      "https://www.hilton.com/en/hotels/mcodtes-embassy-suites-orlando-downtown/"
+     ],
+     "know_before": [
+      "https://www.hilton.com/en/hotels/mcodtes-embassy-suites-orlando-downtown/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Embassy Suites by Hilton Orlando Downtown is at 191 East Pine Street, Orlando, Florida, 32801, USA",
+      "source": "https://www.hilton.com/en/hotels/mcodtes-embassy-suites-orlando-downtown/"
+     },
+     {
+      "claim": "A free cooked-to-order breakfast is served daily",
+      "source": "https://www.hilton.com/en/hotels/mcodtes-embassy-suites-orlando-downtown/"
+     },
+     {
+      "claim": "The hotel hosts a complimentary evening reception for guests",
+      "source": "https://www.hilton.com/en/hotels/mcodtes-embassy-suites-orlando-downtown/"
+     },
+     {
+      "claim": "The hotel has an outdoor pool and a fitness center",
+      "source": "https://www.hilton.com/en/hotels/mcodtes-embassy-suites-orlando-downtown/"
+     },
+     {
+      "claim": "The hotel has 167 suites",
+      "source": "https://www.hilton.com/en/hotels/mcodtes-embassy-suites-orlando-downtown/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJTeJpVFrEwogRoWp95zvu1sk",
+   "name": "Hampton Inn & Suites Tampa/Ybor City/Downtown",
+   "category": "hotels",
+   "metro": "tampa",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.hilton.com/en/hotels/tpaybhx-hampton-suites-tampa-ybor-city-downtown/",
+     "source_name": "Hampton Inn & Suites Tampa/Ybor City/Downtown \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Hampton Inn & Suites Tampa/Ybor City/Downtown is at 1301 East 7th Avenue, Tampa, Florida, 33605, USA",
+      "The hotel offers free hot breakfast",
+      "The hotel offers free WiFi and an outdoor pool",
+      "Self-parking is on-site, $30.00 per day"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Free hot breakfast and an outdoor pool in Tampa",
+    "why_here": "Stay at Hampton Inn & Suites Tampa/Ybor City/Downtown for free hot breakfast, free WiFi, and an outdoor pool, with a Tampa address on East 7th Avenue for the stay.",
+    "know_before": "Self-parking is on-site, $30.00 per day.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.hilton.com/en/hotels/tpaybhx-hampton-suites-tampa-ybor-city-downtown/"
+     ],
+     "why_here": [
+      "https://www.hilton.com/en/hotels/tpaybhx-hampton-suites-tampa-ybor-city-downtown/"
+     ],
+     "know_before": [
+      "https://www.hilton.com/en/hotels/tpaybhx-hampton-suites-tampa-ybor-city-downtown/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Hampton Inn & Suites Tampa/Ybor City/Downtown is at 1301 East 7th Avenue, Tampa, Florida, 33605, USA",
+      "source": "https://www.hilton.com/en/hotels/tpaybhx-hampton-suites-tampa-ybor-city-downtown/"
+     },
+     {
+      "claim": "The hotel offers free hot breakfast",
+      "source": "https://www.hilton.com/en/hotels/tpaybhx-hampton-suites-tampa-ybor-city-downtown/"
+     },
+     {
+      "claim": "The hotel offers free WiFi and an outdoor pool",
+      "source": "https://www.hilton.com/en/hotels/tpaybhx-hampton-suites-tampa-ybor-city-downtown/"
+     },
+     {
+      "claim": "Self-parking is on-site, $30.00 per day",
+      "source": "https://www.hilton.com/en/hotels/tpaybhx-hampton-suites-tampa-ybor-city-downtown/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJKya42G-D54gR3hYVgWKiZmU",
+   "name": "Crooked Can Brewing Company",
+   "category": "nightlife",
+   "metro": "orlando",
+   "primary_type": "brewery",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://crookedcan.com/",
+     "source_name": "Crooked Can Brewing Company \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Crooked Can Brewing Company is within Plant Street Market in downtown Winter Garden, Florida",
+      "Crooked Can Brewing Company is at 426 W Plant St, Winter Garden, FL 34787",
+      "The Winter Garden brewery hours are 11 a.m. \u2013 11 p.m. on Sunday through Thursday",
+      "Crooked Can Brewing Company offers brewery tours with fresh pours"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Brewery within Plant Street Market in downtown Winter Garden, Florida",
+    "why_here": "Go for brewery tours with fresh pours within Plant Street Market in downtown Winter Garden, Florida, at 426 W Plant St, Winter Garden, FL 34787.",
+    "know_before": "The Winter Garden brewery hours are 11 a.m. \u2013 11 p.m. on Sunday through Thursday.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://crookedcan.com/"
+     ],
+     "why_here": [
+      "https://crookedcan.com/"
+     ],
+     "know_before": [
+      "https://crookedcan.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Crooked Can Brewing Company is within Plant Street Market in downtown Winter Garden, Florida",
+      "source": "https://crookedcan.com/"
+     },
+     {
+      "claim": "Crooked Can Brewing Company is at 426 W Plant St, Winter Garden, FL 34787",
+      "source": "https://crookedcan.com/"
+     },
+     {
+      "claim": "The Winter Garden brewery hours are 11 a.m. \u2013 11 p.m. on Sunday through Thursday",
+      "source": "https://crookedcan.com/"
+     },
+     {
+      "claim": "Crooked Can Brewing Company offers brewery tours with fresh pours",
+      "source": "https://crookedcan.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJbza2bwAB2YgR4V7vqLVspEM",
+   "name": "La Birra Bar (Burgers) - Fort Lauderdale",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "hamburger_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.labirrabar.com/",
+     "source_name": "La Birra Bar (Burgers) - Fort Lauderdale \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "La Birra Bar has a Fort Lauderdale location at 2031 E Oakland Park Blvd",
+      "La Birra Bar was born in 2001 in Boedo",
+      "La Birra Bar serves hamburgers"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Hamburgers in Fort Lauderdale since 2001 in Boedo",
+    "why_here": "Go for hamburgers at the Fort Lauderdale location of La Birra Bar, a burger place born in 2001 in Boedo, at 2031 E Oakland Park Blvd for hamburgers in Fort Lauderdale.",
+    "know_before": "The Fort Lauderdale location is at 2031 E Oakland Park Blvd.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.labirrabar.com/"
+     ],
+     "why_here": [
+      "https://www.labirrabar.com/"
+     ],
+     "know_before": [
+      "https://www.labirrabar.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "La Birra Bar has a Fort Lauderdale location at 2031 E Oakland Park Blvd",
+      "source": "https://www.labirrabar.com/"
+     },
+     {
+      "claim": "La Birra Bar was born in 2001 in Boedo",
+      "source": "https://www.labirrabar.com/"
+     },
+     {
+      "claim": "La Birra Bar serves hamburgers",
+      "source": "https://www.labirrabar.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJz5n5t9jF2YgRjza5I32Cz3w",
+   "name": "Deering Estate",
+   "category": "attractions",
+   "metro": "miami-dade",
+   "primary_type": "museum",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://deeringestate.org/visit/plan-your-visit/",
+     "source_name": "Deering Estate \u2014 official source",
+     "source_class": "tourism_dmo",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Deering Estate general admission is open from 10 a.m. to 5 p.m., with no admission after 4 p.m.",
+      "Deering Estate is open every day except Thanksgiving and Christmas",
+      "Adult general admission (ages 15+) is $18",
+      "Youth general admission (ages 4-14) is $10",
+      "The Main Grounds, Mangrove Boardwalk, and Garden Brook Trail are open for self-guided exploration",
+      "Guided Museum Tours are offered daily at 11:30 a.m. and are included with paid general admission"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Mangrove Boardwalk and Garden Brook Trail open for self-guided exploration",
+    "why_here": "Go for self-guided exploration on the Main Grounds, Mangrove Boardwalk, and Garden Brook Trail, plus Guided Museum Tours included with paid general admission.",
+    "know_before": "No admission after 4 p.m.; open every day except Thanksgiving and Christmas",
+    "local_tip": "Guided Museum Tours are offered daily at 11:30 a.m.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://deeringestate.org/visit/plan-your-visit/"
+     ],
+     "why_here": [
+      "https://deeringestate.org/visit/plan-your-visit/"
+     ],
+     "know_before": [
+      "https://deeringestate.org/visit/plan-your-visit/"
+     ],
+     "local_tip": [
+      "https://deeringestate.org/visit/plan-your-visit/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Deering Estate general admission is open from 10 a.m. to 5 p.m., with no admission after 4 p.m.",
+      "source": "https://deeringestate.org/visit/plan-your-visit/"
+     },
+     {
+      "claim": "Deering Estate is open every day except Thanksgiving and Christmas",
+      "source": "https://deeringestate.org/visit/plan-your-visit/"
+     },
+     {
+      "claim": "Adult general admission (ages 15+) is $18",
+      "source": "https://deeringestate.org/visit/plan-your-visit/"
+     },
+     {
+      "claim": "Youth general admission (ages 4-14) is $10",
+      "source": "https://deeringestate.org/visit/plan-your-visit/"
+     },
+     {
+      "claim": "The Main Grounds, Mangrove Boardwalk, and Garden Brook Trail are open for self-guided exploration",
+      "source": "https://deeringestate.org/visit/plan-your-visit/"
+     },
+     {
+      "claim": "Guided Museum Tours are offered daily at 11:30 a.m. and are included with paid general admission",
+      "source": "https://deeringestate.org/visit/plan-your-visit/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJZ44y3y3iwogRE9KpVMPCH4k",
+   "name": "The Burg Bar & Grill",
+   "category": "nightlife",
+   "metro": "st-pete",
+   "primary_type": "bar_and_grill",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://theburgbar.com/",
+     "source_name": "The Burg Bar & Grill \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Burg Bar & Grill is located at 1752 Central Ave, St. Petersburg, FL 33712",
+      "The Burg Bar offers a large variety of burgers, sandwiches, & tap beers",
+      "Happy Hour is 4 p.m. to 7 p.m. (Mon - Fri) with $1 OFF DRAFTS",
+      "On Monday, The Burg Bar is open from 11:00 a.m. to 11:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "burgers, sandwiches, & tap beers in St. Petersburg",
+    "why_here": "Go for a large variety of burgers, sandwiches, & tap beers in St. Petersburg, with Happy Hour drafts and a burger-focused bar and grill menu.",
+    "know_before": "Happy Hour is 4 p.m. to 7 p.m. (Mon - Fri) with $1 OFF DRAFTS",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://theburgbar.com/"
+     ],
+     "why_here": [
+      "https://theburgbar.com/"
+     ],
+     "know_before": [
+      "https://theburgbar.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Burg Bar & Grill is located at 1752 Central Ave, St. Petersburg, FL 33712",
+      "source": "https://theburgbar.com/"
+     },
+     {
+      "claim": "The Burg Bar offers a large variety of burgers, sandwiches, & tap beers",
+      "source": "https://theburgbar.com/"
+     },
+     {
+      "claim": "Happy Hour is 4 p.m. to 7 p.m. (Mon - Fri) with $1 OFF DRAFTS",
+      "source": "https://theburgbar.com/"
+     },
+     {
+      "claim": "On Monday, The Burg Bar is open from 11:00 a.m. to 11:00 p.m.",
+      "source": "https://theburgbar.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJk_ue2Qe72YgRZ2lBHVcRJwI",
+   "name": "Sushi Sake Miami Springs",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "sushi_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.sarione.com/",
+     "source_name": "Sushi Sake Miami Springs \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Sa Ri One offers authentic Korean cuisine",
+      "Yook Gae Jang is spicy beef soup with vegetable, thin noodle, and egg",
+      "Dol Sot Bi Bim Bob is hot stone bowl rice topped with assorted vegetables and Bulgoki and fried egg",
+      "Sarione is at 3940 W Cypress St, Tampa, FL 33607",
+      "Sarione is open Monday from 11:00 a.m. to 9:30 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Authentic Korean cuisine with Yook Gae Jang and Dol Sot Bi Bim Bob",
+    "why_here": "Go for authentic Korean cuisine and try Yook Gae Jang, spicy beef soup with vegetable, thin noodle, and egg, or Dol Sot Bi Bim Bob with vegetables, Bulgoki, and fried egg.",
+    "know_before": "Sarione is open Monday from 11:00 a.m. to 9:30 p.m.",
+    "local_tip": "Try Dol Sot Bi Bim Bob in a hot stone bowl.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.sarione.com/"
+     ],
+     "why_here": [
+      "https://www.sarione.com/"
+     ],
+     "know_before": [
+      "https://www.sarione.com/"
+     ],
+     "local_tip": [
+      "https://www.sarione.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Sa Ri One offers authentic Korean cuisine",
+      "source": "https://www.sarione.com/"
+     },
+     {
+      "claim": "Yook Gae Jang is spicy beef soup with vegetable, thin noodle, and egg",
+      "source": "https://www.sarione.com/"
+     },
+     {
+      "claim": "Dol Sot Bi Bim Bob is hot stone bowl rice topped with assorted vegetables and Bulgoki and fried egg",
+      "source": "https://www.sarione.com/"
+     },
+     {
+      "claim": "Sarione is at 3940 W Cypress St, Tampa, FL 33607",
+      "source": "https://www.sarione.com/"
+     },
+     {
+      "claim": "Sarione is open Monday from 11:00 a.m. to 9:30 p.m.",
+      "source": "https://www.sarione.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJZabExZYf24gRbUDOfsRltNM",
+   "name": "The 239 Naples",
+   "category": "food",
+   "metro": "immokalee-fl",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://the239naples.com/",
+     "source_name": "The 239 Naples \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The 239 Naples is a local family-owned restaurant at 9108 Strada Place, Naples, FL 34108",
+      "The 239 Naples serves locally sourced provisions and fresh fish delivered daily",
+      "The 239 Naples offers fresh local pasta and pastured eggs",
+      "The 239 Naples offers a 100% available gluten-free menu"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "local family-owned restaurant with locally sourced provisions in Naples",
+    "why_here": "Go for locally sourced provisions, fresh fish delivered daily, fresh local pasta, and pastured eggs at this local family-owned restaurant in Naples.",
+    "know_before": "The 239 Naples offers a 100% available gluten-free menu",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://the239naples.com/"
+     ],
+     "why_here": [
+      "https://the239naples.com/"
+     ],
+     "know_before": [
+      "https://the239naples.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The 239 Naples is a local family-owned restaurant at 9108 Strada Place, Naples, FL 34108",
+      "source": "https://the239naples.com/"
+     },
+     {
+      "claim": "The 239 Naples serves locally sourced provisions and fresh fish delivered daily",
+      "source": "https://the239naples.com/"
+     },
+     {
+      "claim": "The 239 Naples offers fresh local pasta and pastured eggs",
+      "source": "https://the239naples.com/"
+     },
+     {
+      "claim": "The 239 Naples offers a 100% available gluten-free menu",
+      "source": "https://the239naples.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ4yC24GK32YgRAEsm4jvWV30",
+   "name": "Moxies Miami Restaurant",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://moxies.com/restaurants/miami-mary-brickell",
+     "source_name": "Moxies Miami Restaurant \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Moxies Miami Brickell is located at 900 S Miami Ave, Unit 161, Miami",
+      "Moxies Miami Brickell is located in Mary Brickell Village",
+      "Moxies offers a globally inspired menu with freshly prepared dishes",
+      "Moxies Miami Brickell Happy Hour is from 3:00 p.m. to 6:00 p.m.",
+      "Moxies Miami Brickell is open on Sunday from 11:00 a.m. to 12:00 a.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "globally inspired menu in Mary Brickell Village",
+    "why_here": "Go for a globally inspired menu with freshly prepared dishes in Mary Brickell Village, with Happy Hour and dining at 900 S Miami Ave, Unit 161, Miami.",
+    "know_before": "Moxies Miami Brickell Happy Hour is from 3:00 p.m. to 6:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://moxies.com/restaurants/miami-mary-brickell"
+     ],
+     "why_here": [
+      "https://moxies.com/restaurants/miami-mary-brickell"
+     ],
+     "know_before": [
+      "https://moxies.com/restaurants/miami-mary-brickell"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Moxies Miami Brickell is located at 900 S Miami Ave, Unit 161, Miami",
+      "source": "https://moxies.com/restaurants/miami-mary-brickell"
+     },
+     {
+      "claim": "Moxies Miami Brickell is located in Mary Brickell Village",
+      "source": "https://moxies.com/restaurants/miami-mary-brickell"
+     },
+     {
+      "claim": "Moxies offers a globally inspired menu with freshly prepared dishes",
+      "source": "https://moxies.com/restaurants/miami-mary-brickell"
+     },
+     {
+      "claim": "Moxies Miami Brickell Happy Hour is from 3:00 p.m. to 6:00 p.m.",
+      "source": "https://moxies.com/restaurants/miami-mary-brickell"
+     },
+     {
+      "claim": "Moxies Miami Brickell is open on Sunday from 11:00 a.m. to 12:00 a.m.",
+      "source": "https://moxies.com/restaurants/miami-mary-brickell"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJDx15Tw4_kYgRXhCdyiaHkWM",
+   "name": "AJ's on the Bayou",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://ajsonthebayou.com/",
+     "source_name": "AJ's on the Bayou \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "AJ's on the Bayou is located at 200 Eglin Pkwy NE, Fort Walton Beach, FL 32547",
+      "AJ's has been serving cold Gulf Coast oysters since 1984",
+      "AJ's on the Bayou hosts Trivia Night on Thursday",
+      "AJ's on the Bayou offers Sunday Brunch"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "cold Gulf Coast oysters in Fort Walton Beach",
+    "why_here": "Go for cold Gulf Coast oysters served since 1984, Sunday Brunch, and Trivia Night on Thursday at 200 Eglin Pkwy NE, Fort Walton Beach, FL 32547.",
+    "know_before": "AJ's on the Bayou hosts Trivia Night on Thursday",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://ajsonthebayou.com/"
+     ],
+     "why_here": [
+      "https://ajsonthebayou.com/"
+     ],
+     "know_before": [
+      "https://ajsonthebayou.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "AJ's on the Bayou is located at 200 Eglin Pkwy NE, Fort Walton Beach, FL 32547",
+      "source": "https://ajsonthebayou.com/"
+     },
+     {
+      "claim": "AJ's has been serving cold Gulf Coast oysters since 1984",
+      "source": "https://ajsonthebayou.com/"
+     },
+     {
+      "claim": "AJ's on the Bayou hosts Trivia Night on Thursday",
+      "source": "https://ajsonthebayou.com/"
+     },
+     {
+      "claim": "AJ's on the Bayou offers Sunday Brunch",
+      "source": "https://ajsonthebayou.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ79nKoJu02YgR9JmY-V9V0Nc",
+   "name": "National Hotel",
+   "category": "hotels",
+   "metro": "miami-dade",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://nationalhotel.com/",
+     "source_name": "National Hotel \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The National Hotel is an adult only oceanfront resort",
+      "The National Hotel has been an iconic hotel since 1939",
+      "The National Hotel offers the longest infinity pool in Miami Beach",
+      "The National Hotel is in South Beach"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Adult only oceanfront resort in South Beach since 1939",
+    "why_here": "Go for the longest infinity pool in Miami Beach at an adult only oceanfront resort in South Beach, in place since 1939, for a beachfront stay by the pool and the ocean.",
+    "know_before": "The National Hotel is an adult only oceanfront resort.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://nationalhotel.com/"
+     ],
+     "why_here": [
+      "https://nationalhotel.com/"
+     ],
+     "know_before": [
+      "https://nationalhotel.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The National Hotel is an adult only oceanfront resort",
+      "source": "https://nationalhotel.com/"
+     },
+     {
+      "claim": "The National Hotel has been an iconic hotel since 1939",
+      "source": "https://nationalhotel.com/"
+     },
+     {
+      "claim": "The National Hotel offers the longest infinity pool in Miami Beach",
+      "source": "https://nationalhotel.com/"
+     },
+     {
+      "claim": "The National Hotel is in South Beach",
+      "source": "https://nationalhotel.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJvQfUtV3EwogR3NIyRTwlS_4",
+   "name": "Salem's Fresh Eats",
+   "category": "food",
+   "metro": "tampa",
+   "primary_type": "fast_food_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://salemsfresheats.com/locations/st-pete-34th-st-s/",
+     "source_name": "Salem's Fresh Eats \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Salem's Fresh Eats is located at 1701 34th St S, St. Petersburg, FL 33711.",
+      "Salem's Fresh Eats hours are 10 a.m. to 4 a.m.",
+      "Salem's Fresh Eats is a Fast Casual Restaurant serving Gyros, Seafood, Chicken Wings, Salads and More.",
+      "Salem's Fresh Eats is on 34th St S."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Fast Casual Restaurant serving Gyros, Seafood, Chicken Wings, Salads and More",
+    "why_here": "Visit Salem's Fresh Eats on 34th St S for Gyros, Seafood, Chicken Wings, Salads and More at a Fast Casual Restaurant in St. Petersburg.",
+    "know_before": "Hours are 10 a.m. to 4 a.m. at Salem's Fresh Eats on 34th St S.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://salemsfresheats.com/locations/st-pete-34th-st-s/"
+     ],
+     "why_here": [
+      "https://salemsfresheats.com/locations/st-pete-34th-st-s/"
+     ],
+     "know_before": [
+      "https://salemsfresheats.com/locations/st-pete-34th-st-s/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Salem's Fresh Eats is located at 1701 34th St S, St. Petersburg, FL 33711.",
+      "source": "https://salemsfresheats.com/locations/st-pete-34th-st-s/"
+     },
+     {
+      "claim": "Salem's Fresh Eats hours are 10 a.m. to 4 a.m.",
+      "source": "https://salemsfresheats.com/locations/st-pete-34th-st-s/"
+     },
+     {
+      "claim": "Salem's Fresh Eats is a Fast Casual Restaurant serving Gyros, Seafood, Chicken Wings, Salads and More.",
+      "source": "https://salemsfresheats.com/locations/st-pete-34th-st-s/"
+     },
+     {
+      "claim": "Salem's Fresh Eats is on 34th St S.",
+      "source": "https://salemsfresheats.com/locations/st-pete-34th-st-s/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJYxIiqDu45YgRTtaUY-JhZQ8",
+   "name": "Casbah Cafe",
+   "category": "food",
+   "metro": "jacksonville-fl",
+   "primary_type": "middle_eastern_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.thecasbahcafe.com/",
+     "source_name": "Casbah Cafe \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Casbah Cafe offers Middle Eastern Food & Hookah in Jacksonville.",
+      "The Casbah Cafe is located at 3628 St. Johns Ave. Jacksonville, FL 32205.",
+      "Happy Hour is daily from 3:00 p.m. to 7:00 p.m. at The Casbah Cafe.",
+      "The Casbah Cafe is located in the Heart of Historic Avondale.",
+      "You must be a minimum of 21 years old with up to two forms of identification to smoke a hookah at The Casbah Cafe.",
+      "Monday hours are 11 a.m. to 12 a.m. at The Casbah Cafe."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Middle Eastern Food & Hookah in Jacksonville",
+    "why_here": "Come to The Casbah Cafe in the Heart of Historic Avondale for Middle Eastern Food & Hookah in Jacksonville, with Happy Hour daily from 3:00 p.m. to 7:00 p.m.",
+    "know_before": "You must be a minimum of 21 years old to smoke a hookah.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.thecasbahcafe.com/"
+     ],
+     "why_here": [
+      "https://www.thecasbahcafe.com/"
+     ],
+     "know_before": [
+      "https://www.thecasbahcafe.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Casbah Cafe offers Middle Eastern Food & Hookah in Jacksonville.",
+      "source": "https://www.thecasbahcafe.com/"
+     },
+     {
+      "claim": "The Casbah Cafe is located at 3628 St. Johns Ave. Jacksonville, FL 32205.",
+      "source": "https://www.thecasbahcafe.com/"
+     },
+     {
+      "claim": "Happy Hour is daily from 3:00 p.m. to 7:00 p.m. at The Casbah Cafe.",
+      "source": "https://www.thecasbahcafe.com/"
+     },
+     {
+      "claim": "The Casbah Cafe is located in the Heart of Historic Avondale.",
+      "source": "https://www.thecasbahcafe.com/"
+     },
+     {
+      "claim": "You must be a minimum of 21 years old with up to two forms of identification to smoke a hookah at The Casbah Cafe.",
+      "source": "https://www.thecasbahcafe.com/"
+     },
+     {
+      "claim": "Monday hours are 11 a.m. to 12 a.m. at The Casbah Cafe.",
+      "source": "https://www.thecasbahcafe.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJp5B-h7YH3ogRZhGFDva3fPo",
+   "name": "Urban Prime Marketplace & Restaurant",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.urbanprimefoods.com/",
+     "source_name": "Urban Prime Marketplace & Restaurant \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Urban Prime Marketplace includes a Full-Service Deli, Sushi, Butcher Shop, Seafood Market, Produce, Bakery, Wine Shop & Grocery.",
+      "Urban Prime Restaurant serves Steak, Seafood, Sushi, Pasta, Salad, Craft Cocktails, and Wine Bar.",
+      "Urban Prime is located at 2435 Metfield Dr., Melbourne, FL 32940."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Marketplace with Deli, Sushi, Butcher Shop, Seafood Market, Bakery, and Wine Shop",
+    "why_here": "Shop the Urban Prime Marketplace for a Full-Service Deli, Sushi, Butcher Shop, Seafood Market, Produce, Bakery, Wine Shop & Grocery, then dine at Urban Prime Restaurant.",
+    "know_before": "The Marketplace and Restaurant are at 2435 Metfield Dr., Melbourne, FL 32940.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.urbanprimefoods.com/"
+     ],
+     "why_here": [
+      "https://www.urbanprimefoods.com/"
+     ],
+     "know_before": [
+      "https://www.urbanprimefoods.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Urban Prime Marketplace includes a Full-Service Deli, Sushi, Butcher Shop, Seafood Market, Produce, Bakery, Wine Shop & Grocery.",
+      "source": "https://www.urbanprimefoods.com/"
+     },
+     {
+      "claim": "Urban Prime Restaurant serves Steak, Seafood, Sushi, Pasta, Salad, Craft Cocktails, and Wine Bar.",
+      "source": "https://www.urbanprimefoods.com/"
+     },
+     {
+      "claim": "Urban Prime is located at 2435 Metfield Dr., Melbourne, FL 32940.",
+      "source": "https://www.urbanprimefoods.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJWzHMUQf17IgR72inky3hsyM",
+   "name": "Cold Stone Creamery",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "ice_cream_shop",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.coldstonecreamery.com/menu/ice-cream/create-your-own/",
+     "source_name": "Cold Stone Creamery \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Cold Stone Creamery ice cream is made fresh, in every store.",
+      "A Create Your Own Creation can be topped with your choice of candy, fruit, nuts, and mix-ins.",
+      "Cold Stone Creamery offers Cake Batter, Cheesecake, Chocolate, and French vanilla flavors.",
+      "Selections may vary from store to store at Cold Stone Creamery."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Ice cream made fresh, in every store, with candy, fruit, and nuts",
+    "why_here": "Build a Create Your Own Creation at Cold Stone Creamery from ice cream made fresh, in every store, topped with your choice of candy, fruit, nuts, and mix-ins.",
+    "know_before": "Selections may vary from store to store at Cold Stone Creamery.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.coldstonecreamery.com/menu/ice-cream/create-your-own/"
+     ],
+     "why_here": [
+      "https://www.coldstonecreamery.com/menu/ice-cream/create-your-own/"
+     ],
+     "know_before": [
+      "https://www.coldstonecreamery.com/menu/ice-cream/create-your-own/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Cold Stone Creamery ice cream is made fresh, in every store.",
+      "source": "https://www.coldstonecreamery.com/menu/ice-cream/create-your-own/"
+     },
+     {
+      "claim": "A Create Your Own Creation can be topped with your choice of candy, fruit, nuts, and mix-ins.",
+      "source": "https://www.coldstonecreamery.com/menu/ice-cream/create-your-own/"
+     },
+     {
+      "claim": "Cold Stone Creamery offers Cake Batter, Cheesecake, Chocolate, and French vanilla flavors.",
+      "source": "https://www.coldstonecreamery.com/menu/ice-cream/create-your-own/"
+     },
+     {
+      "claim": "Selections may vary from store to store at Cold Stone Creamery.",
+      "source": "https://www.coldstonecreamery.com/menu/ice-cream/create-your-own/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJwwyriK3zwogRgjpEvrkVj0U",
+   "name": "Cricketers British Pub & Restaurant Dunedin",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://cricketerspub.com/",
+     "source_name": "Cricketers British Pub & Restaurant Dunedin \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Cricketers British Pub & Restaurant menu features British staples such as Famous Fish & Chips, Shepherd's Pie, and Bangers & Mash.",
+      "Cricketers British Pub & Restaurant menu items are prepared fresh daily.",
+      "Cricketers British Pub & Restaurant is located at 2634 Bayshore Boulevard, Dunedin, FL 34698.",
+      "Cricketers British Pub & Restaurant opens at 11 a.m. on Monday."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "British pub serving Famous Fish & Chips, Shepherd's Pie, and Bangers & Mash",
+    "why_here": "Order Famous Fish & Chips, Shepherd's Pie, and Bangers & Mash at Cricketers British Pub & Restaurant, where British staples and menu items are prepared fresh daily.",
+    "know_before": "Cricketers British Pub & Restaurant opens at 11 a.m. on Monday.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://cricketerspub.com/"
+     ],
+     "why_here": [
+      "https://cricketerspub.com/"
+     ],
+     "know_before": [
+      "https://cricketerspub.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Cricketers British Pub & Restaurant menu features British staples such as Famous Fish & Chips, Shepherd's Pie, and Bangers & Mash.",
+      "source": "https://cricketerspub.com/"
+     },
+     {
+      "claim": "Cricketers British Pub & Restaurant menu items are prepared fresh daily.",
+      "source": "https://cricketerspub.com/"
+     },
+     {
+      "claim": "Cricketers British Pub & Restaurant is located at 2634 Bayshore Boulevard, Dunedin, FL 34698.",
+      "source": "https://cricketerspub.com/"
+     },
+     {
+      "claim": "Cricketers British Pub & Restaurant opens at 11 a.m. on Monday.",
+      "source": "https://cricketerspub.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJwQAljHui54gRlv-O0GHCPdM",
+   "name": "Gilbert Park",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://mountdora.gov/Facilities/Facility/Details/Gilbert-Park-7",
+     "source_name": "Gilbert Park \u2014 official source",
+     "source_class": "government",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Located at the lakefront at the intersection of Tremain Street and Liberty Avenue",
+      "Gilbert Park is at 310 South Tremain Street Mount Dora, FL 32757",
+      "Park contains the City of Mount Dora's staple playground",
+      "Playground includes a pirate ship and several climbing features",
+      "Park includes 2 pavilions, restrooms and a walking trail",
+      "Gilbert Park was named for its donor, Mr. Earl Gilbert"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Lakefront park with a pirate ship playground in Mount Dora",
+    "why_here": "Go for the lakefront setting at Tremain Street and Liberty Avenue and the City of Mount Dora's staple playground, which includes a pirate ship and several climbing features, plus 2 pavilions and a walking trail.",
+    "know_before": "Park includes 2 pavilions, restrooms and a walking trail.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://mountdora.gov/Facilities/Facility/Details/Gilbert-Park-7"
+     ],
+     "why_here": [
+      "https://mountdora.gov/Facilities/Facility/Details/Gilbert-Park-7"
+     ],
+     "know_before": [
+      "https://mountdora.gov/Facilities/Facility/Details/Gilbert-Park-7"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Located at the lakefront at the intersection of Tremain Street and Liberty Avenue",
+      "source": "https://mountdora.gov/Facilities/Facility/Details/Gilbert-Park-7"
+     },
+     {
+      "claim": "Gilbert Park is at 310 South Tremain Street Mount Dora, FL 32757",
+      "source": "https://mountdora.gov/Facilities/Facility/Details/Gilbert-Park-7"
+     },
+     {
+      "claim": "Park contains the City of Mount Dora's staple playground",
+      "source": "https://mountdora.gov/Facilities/Facility/Details/Gilbert-Park-7"
+     },
+     {
+      "claim": "Playground includes a pirate ship and several climbing features",
+      "source": "https://mountdora.gov/Facilities/Facility/Details/Gilbert-Park-7"
+     },
+     {
+      "claim": "Park includes 2 pavilions, restrooms and a walking trail",
+      "source": "https://mountdora.gov/Facilities/Facility/Details/Gilbert-Park-7"
+     },
+     {
+      "claim": "Gilbert Park was named for its donor, Mr. Earl Gilbert",
+      "source": "https://mountdora.gov/Facilities/Facility/Details/Gilbert-Park-7"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJOQryhx252YgROl9-J69nawg",
+   "name": "La Tremenda",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "spanish_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://latremenda.us/",
+     "source_name": "La Tremenda \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "La Tremenda is located in Doral at 9533 Northwest 41st Street.",
+      "La Tremenda is known for Spanish food in Doral, featuring seafood paella, shareable tapas, Iberian ham boards, and Basque cheesecake.",
+      "Tapas span croquettes, meatballs, cheese and ham boards, tuna tartare, and bite-sized paella.",
+      "La Tremenda is open Monday from 11:30 a.m. to 10:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Spanish food in Doral featuring seafood paella and shareable tapas",
+    "why_here": "Try Spanish food in Doral featuring seafood paella and shareable tapas, with Iberian ham boards and Basque cheesecake, plus croquettes and tuna tartare at La Tremenda.",
+    "know_before": "La Tremenda is open Monday from 11:30 a.m. to 10:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://latremenda.us/"
+     ],
+     "why_here": [
+      "https://latremenda.us/"
+     ],
+     "know_before": [
+      "https://latremenda.us/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "La Tremenda is located in Doral at 9533 Northwest 41st Street.",
+      "source": "https://latremenda.us/"
+     },
+     {
+      "claim": "La Tremenda is known for Spanish food in Doral, featuring seafood paella, shareable tapas, Iberian ham boards, and Basque cheesecake.",
+      "source": "https://latremenda.us/"
+     },
+     {
+      "claim": "Tapas span croquettes, meatballs, cheese and ham boards, tuna tartare, and bite-sized paella.",
+      "source": "https://latremenda.us/"
+     },
+     {
+      "claim": "La Tremenda is open Monday from 11:30 a.m. to 10:00 p.m.",
+      "source": "https://latremenda.us/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ7Z5CtRq32YgR0NhNggWhXMM",
+   "name": "Pinecrest Bakery - Coconut Grove",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "bakery",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://pinecrestbakery.com/blogs/post",
+     "source_name": "Pinecrest Bakery - Coconut Grove \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Pinecrest Bakery brings Cuban sabor to Coconut Grove.",
+      "Pinecrest Bakery serves fresh pastelitos, croquetas, and cafecito served all day in Coconut Grove."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Cuban bakery in Coconut Grove serving pastelitos, croquetas and cafecito",
+    "why_here": "Visit Pinecrest Bakery in Coconut Grove for fresh pastelitos, croquetas, and cafecito served all day, where Cuban sabor shapes classic bakery favorites for a quick stop.",
+    "know_before": "Pastelitos, croquetas, and cafecito are served all day.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://pinecrestbakery.com/blogs/post"
+     ],
+     "why_here": [
+      "https://pinecrestbakery.com/blogs/post"
+     ],
+     "know_before": [
+      "https://pinecrestbakery.com/blogs/post"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Pinecrest Bakery brings Cuban sabor to Coconut Grove.",
+      "source": "https://pinecrestbakery.com/blogs/post"
+     },
+     {
+      "claim": "Pinecrest Bakery serves fresh pastelitos, croquetas, and cafecito served all day in Coconut Grove.",
+      "source": "https://pinecrestbakery.com/blogs/post"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJAQ0N6Ukp54gRZiBWVjJ71aU",
+   "name": "Riverside Park",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.coralsprings.gov/Parks-Directory/Riverside-Park",
+     "source_name": "Riverside Park \u2014 official source",
+     "source_class": "government",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Riverside Park is 15 acres in Coral Springs.",
+      "Riverside Park is at 205 Coral Ridge Drive, Coral Springs 33071.",
+      "Riverside Park has Pickleball courts, Ninja and obstacle courses, basketball courts, sand volleyball courts, a domed climbing playground, fitness stations, jog/walk trail, and a boat ramp."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "15-acre park in Coral Springs with Pickleball courts and a boat ramp",
+    "why_here": "Go to Riverside Park in Coral Springs for Pickleball courts, basketball courts, sand volleyball courts, a domed climbing playground, fitness stations, and a boat ramp across 15 acres.",
+    "know_before": "Riverside Park is at 205 Coral Ridge Drive, Coral Springs 33071.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.coralsprings.gov/Parks-Directory/Riverside-Park"
+     ],
+     "why_here": [
+      "https://www.coralsprings.gov/Parks-Directory/Riverside-Park"
+     ],
+     "know_before": [
+      "https://www.coralsprings.gov/Parks-Directory/Riverside-Park"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Riverside Park is 15 acres in Coral Springs.",
+      "source": "https://www.coralsprings.gov/Parks-Directory/Riverside-Park"
+     },
+     {
+      "claim": "Riverside Park is at 205 Coral Ridge Drive, Coral Springs 33071.",
+      "source": "https://www.coralsprings.gov/Parks-Directory/Riverside-Park"
+     },
+     {
+      "claim": "Riverside Park has Pickleball courts, Ninja and obstacle courses, basketball courts, sand volleyball courts, a domed climbing playground, fitness stations, jog/walk trail, and a boat ramp.",
+      "source": "https://www.coralsprings.gov/Parks-Directory/Riverside-Park"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJQUzpuAZJ5IgRf8TUea2vZkY",
+   "name": "Casa Marina Hotel and Restaurant",
+   "category": "hotels",
+   "metro": "florida",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.casamarinahotel.com/",
+     "source_name": "Casa Marina Hotel and Restaurant \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Casa Marina Hotel is a Jacksonville Beach landmark since 1925.",
+      "Casa Marina Hotel has 23 boutique rooms.",
+      "Casa Marina Hotel is a proud member of Historic Hotels of America.",
+      "The Penthouse Lounge is open Monday to Thursday from 3 p.m. to 11 p.m.",
+      "Casa Marina Hotel is at 691 1st St N Jacksonville Beach, FL 32250."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Jacksonville Beach landmark since 1925 with 23 boutique rooms",
+    "why_here": "Stay in 23 boutique rooms at a Jacksonville Beach landmark since 1925, as a proud member of Historic Hotels of America, with the Penthouse Lounge in Jacksonville Beach.",
+    "know_before": "The Penthouse Lounge is open Monday to Thursday from 3 p.m. to 11 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.casamarinahotel.com/"
+     ],
+     "why_here": [
+      "https://www.casamarinahotel.com/"
+     ],
+     "know_before": [
+      "https://www.casamarinahotel.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Casa Marina Hotel is a Jacksonville Beach landmark since 1925.",
+      "source": "https://www.casamarinahotel.com/"
+     },
+     {
+      "claim": "Casa Marina Hotel has 23 boutique rooms.",
+      "source": "https://www.casamarinahotel.com/"
+     },
+     {
+      "claim": "Casa Marina Hotel is a proud member of Historic Hotels of America.",
+      "source": "https://www.casamarinahotel.com/"
+     },
+     {
+      "claim": "The Penthouse Lounge is open Monday to Thursday from 3 p.m. to 11 p.m.",
+      "source": "https://www.casamarinahotel.com/"
+     },
+     {
+      "claim": "Casa Marina Hotel is at 691 1st St N Jacksonville Beach, FL 32250.",
+      "source": "https://www.casamarinahotel.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ_4UUFBfa5ogR0JX6i-SPkow",
+   "name": "Fountain Beach Resort Daytona Beach",
+   "category": "hotels",
+   "metro": "florida",
+   "primary_type": "resort_hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://daytonafountainbeach.com/",
+     "source_name": "Fountain Beach Resort Daytona Beach \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Fountain Beach Resort is at 313 S. Atlantic Ave Daytona Beach, FL 32118.",
+      "Rooms offer private balconies, all with some sort of an ocean view.",
+      "Outside, there is an expansive deck around a seasonally heated pool and hot tub.",
+      "The Oasis Tiki Bar & Grill is on site, where American cuisine and cold drinks meet ocean views.",
+      "Fountain Beach Resort is a non-smoking facility."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Resort in Daytona Beach with a seasonally heated pool and hot tub",
+    "why_here": "Stay in Daytona Beach in rooms with private balconies and an ocean view, with an expansive deck around a seasonally heated pool and hot tub and the Oasis Tiki Bar & Grill on site.",
+    "know_before": "Fountain Beach Resort is a non-smoking facility.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://daytonafountainbeach.com/"
+     ],
+     "why_here": [
+      "https://daytonafountainbeach.com/"
+     ],
+     "know_before": [
+      "https://daytonafountainbeach.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Fountain Beach Resort is at 313 S. Atlantic Ave Daytona Beach, FL 32118.",
+      "source": "https://daytonafountainbeach.com/"
+     },
+     {
+      "claim": "Rooms offer private balconies, all with some sort of an ocean view.",
+      "source": "https://daytonafountainbeach.com/"
+     },
+     {
+      "claim": "Outside, there is an expansive deck around a seasonally heated pool and hot tub.",
+      "source": "https://daytonafountainbeach.com/"
+     },
+     {
+      "claim": "The Oasis Tiki Bar & Grill is on site, where American cuisine and cold drinks meet ocean views.",
+      "source": "https://daytonafountainbeach.com/"
+     },
+     {
+      "claim": "Fountain Beach Resort is a non-smoking facility.",
+      "source": "https://daytonafountainbeach.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJJe-UU1sRw4gRnDNft0Vfbl0",
+   "name": "Cortez Clam Factory",
+   "category": "nightlife",
+   "metro": "manatee-sarasota",
+   "primary_type": "bar_and_grill",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.clamfactory.com/",
+     "source_name": "Cortez Clam Factory \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Cortez Clam Factory is located in the historic Cortez fishing village",
+      "The Cortez Clam Factory offers fresh seafood, including Grouper, Triple Tail, North Atlantic Cod, Shrimp, Lobster, Clams, and Oysters",
+      "Hours are 10 a.m. - 2 a.m.",
+      "Steak Night is on Saturday at 5 p.m., with a steak dinner special available every Saturday evening"
+     ]
+    },
+    {
+     "source": "https://www.clamfactory.com/music",
+     "source_name": "Cortez Clam Factory \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Live music is hosted Thursday, Friday, Saturday, and Sunday afternoons, starting at 5:30 p.m. until 8:30 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Fresh seafood in the historic Cortez fishing village, including Grouper, Clams, and Oysters",
+    "why_here": "Try fresh seafood, including Grouper, Triple Tail, Shrimp, Lobster, Clams, and Oysters, and stay for live music on Thursday, Friday, Saturday, and Sunday afternoons in the historic Cortez fishing village.",
+    "know_before": "Hours are 10 a.m. - 2 a.m.; Steak Night is on Saturday at 5 p.m.",
+    "local_tip": "Live music starts at 5:30 p.m. on Thursday, Friday, Saturday, and Sunday afternoons.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.clamfactory.com/"
+     ],
+     "why_here": [
+      "https://www.clamfactory.com/"
+     ],
+     "know_before": [
+      "https://www.clamfactory.com/"
+     ],
+     "local_tip": [
+      "https://www.clamfactory.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Cortez Clam Factory is located in the historic Cortez fishing village",
+      "source": "https://www.clamfactory.com/"
+     },
+     {
+      "claim": "The Cortez Clam Factory offers fresh seafood, including Grouper, Triple Tail, North Atlantic Cod, Shrimp, Lobster, Clams, and Oysters",
+      "source": "https://www.clamfactory.com/"
+     },
+     {
+      "claim": "Hours are 10 a.m. - 2 a.m.",
+      "source": "https://www.clamfactory.com/"
+     },
+     {
+      "claim": "Steak Night is on Saturday at 5 p.m., with a steak dinner special available every Saturday evening",
+      "source": "https://www.clamfactory.com/"
+     },
+     {
+      "claim": "Live music is hosted Thursday, Friday, Saturday, and Sunday afternoons, starting at 5:30 p.m. until 8:30 p.m.",
+      "source": "https://www.clamfactory.com/music"
+     }
+    ]
+   }
+  }
+ ]
+}
