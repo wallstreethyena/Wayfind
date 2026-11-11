@@ -2586,3 +2586,5 @@ node scripts/test-og-movie-function-size.mjs
 node scripts/check-event-not-found-recovery.mjs
 # 2026-11-10: StubHub (Partnerize) affiliate adapter ships DARK until STUBHUB_PARTNERIZE_CAMREF is set.
 node scripts/test-stubhub-dark.mjs
+# 2026-11-11: human traffic reserve - background jobs may not use the last 20% of a visitor-shared Google line.
+node scripts/test-human-traffic-reserve.mjs

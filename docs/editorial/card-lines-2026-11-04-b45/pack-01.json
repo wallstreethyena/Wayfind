@@ -1,0 +1,1937 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 45. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJUxm5bHYI2YgRZ1ZwAkytsRs",
+   "name": "Ella Cafe - Plantation",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "coffee_shop",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://ellacafe.com/",
+     "source_name": "Ella Cafe - Plantation \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Ella Cafe opened in 2016",
+      "Ella Cafe specializes in Italian-style coffee using a proprietary blend of beans",
+      "Ella Cafe serves freshly made pastries",
+      "All items are prepared in-house at Ella Cafe"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Italian-style coffee using a proprietary blend of beans, with freshly made pastries",
+    "why_here": "Go for Italian-style coffee using a proprietary blend of beans and freshly made pastries. All items are prepared in-house at Ella Cafe, and Ella Cafe opened in 2016.",
+    "know_before": "All items are prepared in-house at Ella Cafe.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://ellacafe.com/"
+     ],
+     "why_here": [
+      "https://ellacafe.com/"
+     ],
+     "know_before": [
+      "https://ellacafe.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Ella Cafe opened in 2016",
+      "source": "https://ellacafe.com/"
+     },
+     {
+      "claim": "Ella Cafe specializes in Italian-style coffee using a proprietary blend of beans",
+      "source": "https://ellacafe.com/"
+     },
+     {
+      "claim": "Ella Cafe serves freshly made pastries",
+      "source": "https://ellacafe.com/"
+     },
+     {
+      "claim": "All items are prepared in-house at Ella Cafe",
+      "source": "https://ellacafe.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJMdTE7yAf24gRwuFSZ2wo87w",
+   "name": "LaPlaya Beach & Golf Resort",
+   "category": "hotels",
+   "metro": "florida",
+   "primary_type": "resort_hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.laplayaresort.com/",
+     "source_name": "LaPlaya Beach & Golf Resort \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "LaPlaya Beach & Golf Resort is at 9891 Gulf Shore Drive, Naples, FL 34108",
+      "LaPlaya Beach & Golf Resort has a private white-sand beach",
+      "LaPlaya Golf Club is a Robert Cupp-designed links golf course",
+      "LaPlaya Golf Club fairways wind around 14 scenic lakes",
+      "SpaTerre Naples is the full-service resort spa at LaPlaya Beach & Golf Resort"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Naples beachfront resort with a private white-sand beach and a Robert Cupp-designed links golf course",
+    "why_here": "Stay for the private white-sand beach and the Robert Cupp-designed links golf course, whose fairways wind around 14 scenic lakes. SpaTerre Naples adds a full-service resort spa, making this a beach, golf and spa stay in Naples.",
+    "know_before": "The resort address is 9891 Gulf Shore Drive, Naples, FL 34108.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.laplayaresort.com/"
+     ],
+     "why_here": [
+      "https://www.laplayaresort.com/"
+     ],
+     "know_before": [
+      "https://www.laplayaresort.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "LaPlaya Beach & Golf Resort is at 9891 Gulf Shore Drive, Naples, FL 34108",
+      "source": "https://www.laplayaresort.com/"
+     },
+     {
+      "claim": "LaPlaya Beach & Golf Resort has a private white-sand beach",
+      "source": "https://www.laplayaresort.com/"
+     },
+     {
+      "claim": "LaPlaya Golf Club is a Robert Cupp-designed links golf course",
+      "source": "https://www.laplayaresort.com/"
+     },
+     {
+      "claim": "LaPlaya Golf Club fairways wind around 14 scenic lakes",
+      "source": "https://www.laplayaresort.com/"
+     },
+     {
+      "claim": "SpaTerre Naples is the full-service resort spa at LaPlaya Beach & Golf Resort",
+      "source": "https://www.laplayaresort.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJR8uHAnn3wogR6kEazS77MC0",
+   "name": "Go Tiki Tours Clearwater - #1 Floating Tiki Boat",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "tourist_attraction",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.gotikitours.com/clearwater",
+     "source_name": "Go Tiki Tours Clearwater - #1 Floating Tiki Boat \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Go Tiki Tours private tiki boat tour can accommodate up to 26 passengers",
+      "Go Tiki Tours is the only Tiki Boat with a Bathroom on board",
+      "Go Tiki Tours offers 2 HR Private day tours in Clearwater Beach",
+      "Go Tiki Tours offers 2 HR Private Sunset tours in Clearwater Beach",
+      "For groups of more than 6, the captain is hired and paid separately at Go Tiki Tours"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Private tiki boat tours in Clearwater Beach with a Bathroom on board",
+    "why_here": "Book a private tiki boat tour in Clearwater Beach for groups of up to 26 passengers. The boat has a Bathroom on board, and the Clearwater Beach schedule includes 2 HR Private day tours and 2 HR Private Sunset tours to choose from.",
+    "know_before": "For groups of more than 6, the captain is hired and paid separately.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.gotikitours.com/clearwater"
+     ],
+     "why_here": [
+      "https://www.gotikitours.com/clearwater"
+     ],
+     "know_before": [
+      "https://www.gotikitours.com/clearwater"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Go Tiki Tours private tiki boat tour can accommodate up to 26 passengers",
+      "source": "https://www.gotikitours.com/clearwater"
+     },
+     {
+      "claim": "Go Tiki Tours is the only Tiki Boat with a Bathroom on board",
+      "source": "https://www.gotikitours.com/clearwater"
+     },
+     {
+      "claim": "Go Tiki Tours offers 2 HR Private day tours in Clearwater Beach",
+      "source": "https://www.gotikitours.com/clearwater"
+     },
+     {
+      "claim": "Go Tiki Tours offers 2 HR Private Sunset tours in Clearwater Beach",
+      "source": "https://www.gotikitours.com/clearwater"
+     },
+     {
+      "claim": "For groups of more than 6, the captain is hired and paid separately at Go Tiki Tours",
+      "source": "https://www.gotikitours.com/clearwater"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJwyT5FQVm54gRL9F9_9IOfZ8",
+   "name": "Downey Park",
+   "category": "attractions",
+   "metro": "orlando",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.orangecountyfl.net/CultureParks/Parks/tabid/350/Default.aspx?m=dtlvw&d=14",
+     "source_name": "Downey Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Downey Park is at 10107 Flowers AV, Orlando, FL 32825",
+      "Downey Park Hours of Operation: Summer 8 a.m. - 8 p.m. / Winter 8 a.m. - 6 p.m., Sunday - Saturday",
+      "Downey Park includes eight lighted outdoor pickleball courts",
+      "Downey Park includes a splash playground, picnic pavilions, sand volleyball and off-leash dog park",
+      "The splash pad is CLOSED for maintenance until further notice at Downey Park"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Orlando park with eight lighted outdoor pickleball courts, picnic pavilions and an off-leash dog park",
+    "why_here": "Go for eight lighted outdoor pickleball courts, picnic pavilions, sand volleyball and an off-leash dog park at 10107 Flowers AV, Orlando, FL 32825. The park also lists a splash playground among its facilities for a varied outdoor visit.",
+    "know_before": "Downey Park Hours of Operation: Summer 8 a.m. - 8 p.m. / Winter 8 a.m. - 6 p.m., Sunday - Saturday. The splash pad is CLOSED for maintenance until further notice.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.orangecountyfl.net/CultureParks/Parks/tabid/350/Default.aspx?m=dtlvw&d=14"
+     ],
+     "why_here": [
+      "https://www.orangecountyfl.net/CultureParks/Parks/tabid/350/Default.aspx?m=dtlvw&d=14"
+     ],
+     "know_before": [
+      "https://www.orangecountyfl.net/CultureParks/Parks/tabid/350/Default.aspx?m=dtlvw&d=14"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Downey Park is at 10107 Flowers AV, Orlando, FL 32825",
+      "source": "https://www.orangecountyfl.net/CultureParks/Parks/tabid/350/Default.aspx?m=dtlvw&d=14"
+     },
+     {
+      "claim": "Downey Park Hours of Operation: Summer 8 a.m. - 8 p.m. / Winter 8 a.m. - 6 p.m., Sunday - Saturday",
+      "source": "https://www.orangecountyfl.net/CultureParks/Parks/tabid/350/Default.aspx?m=dtlvw&d=14"
+     },
+     {
+      "claim": "Downey Park includes eight lighted outdoor pickleball courts",
+      "source": "https://www.orangecountyfl.net/CultureParks/Parks/tabid/350/Default.aspx?m=dtlvw&d=14"
+     },
+     {
+      "claim": "Downey Park includes a splash playground, picnic pavilions, sand volleyball and off-leash dog park",
+      "source": "https://www.orangecountyfl.net/CultureParks/Parks/tabid/350/Default.aspx?m=dtlvw&d=14"
+     },
+     {
+      "claim": "The splash pad is CLOSED for maintenance until further notice at Downey Park",
+      "source": "https://www.orangecountyfl.net/CultureParks/Parks/tabid/350/Default.aspx?m=dtlvw&d=14"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ7RKigSeLqYQRFNlf67TRZpM",
+   "name": "Exotic Waffles & Cuban Pizzas - Westchester",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "dessert_shop",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://exoticwaffles.com/",
+     "source_name": "Exotic Waffles & Cuban Pizzas - Westchester \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Exotic Waffles serves homemade waffles, desserts, and pizzas",
+      "Exotic Waffles lists Pizza de Jamon (Ham, Cheese Pizza)",
+      "Exotic Waffles lists Pizza Napolitana (Cheese Pizza)",
+      "Exotic Waffles is popping up every Friday",
+      "Deliveries start rolling out on Mondays at Exotic Waffles"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Homemade waffles, desserts, and pizzas, including Pizza de Jamon and Pizza Napolitana",
+    "why_here": "Come for homemade waffles, desserts, and pizzas at Exotic Waffles. The menu lists Pizza de Jamon (Ham, Cheese Pizza) and Pizza Napolitana (Cheese Pizza), giving the stop a sweet-and-savory focus for dessert and pizza together.",
+    "know_before": "Exotic Waffles is popping up every Friday, and deliveries start rolling out on Mondays.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://exoticwaffles.com/"
+     ],
+     "why_here": [
+      "https://exoticwaffles.com/"
+     ],
+     "know_before": [
+      "https://exoticwaffles.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Exotic Waffles serves homemade waffles, desserts, and pizzas",
+      "source": "https://exoticwaffles.com/"
+     },
+     {
+      "claim": "Exotic Waffles lists Pizza de Jamon (Ham, Cheese Pizza)",
+      "source": "https://exoticwaffles.com/"
+     },
+     {
+      "claim": "Exotic Waffles lists Pizza Napolitana (Cheese Pizza)",
+      "source": "https://exoticwaffles.com/"
+     },
+     {
+      "claim": "Exotic Waffles is popping up every Friday",
+      "source": "https://exoticwaffles.com/"
+     },
+     {
+      "claim": "Deliveries start rolling out on Mondays at Exotic Waffles",
+      "source": "https://exoticwaffles.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJcSzEgcMN54gRCo0u2XG2cbg",
+   "name": "Elev8 Fun",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "amusement_park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.elev8fun.com/locations/orlando",
+     "source_name": "Elev8 Fun \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Elev8 Fun Orlando is an Indoor Adventure Park in Sanford",
+      "Elev8 Fun Orlando is at 320 Towne Center Cir, Sanford, FL 32771",
+      "Elev8 Fun Orlando offers Go-Karts, Bowling, Laser Tag, and Arcade",
+      "Elev8 Fun Orlando offers Ropes Course and Mini-Golf",
+      "Elev8 Fun Orlando offers parties and events with catering options"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Indoor adventure park with Go-Karts, Bowling, and Laser Tag in Sanford",
+    "why_here": "Go for Go-Karts, Bowling, Laser Tag, and Arcade play under one roof in Sanford, then add Ropes Course and Mini-Golf to mix racing, games, and active challenges in a single visit.",
+    "know_before": "Elev8 Fun Orlando is at 320 Towne Center Cir, Sanford, FL 32771.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.elev8fun.com/locations/orlando"
+     ],
+     "why_here": [
+      "https://www.elev8fun.com/locations/orlando"
+     ],
+     "know_before": [
+      "https://www.elev8fun.com/locations/orlando"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Elev8 Fun Orlando is an Indoor Adventure Park in Sanford",
+      "source": "https://www.elev8fun.com/locations/orlando"
+     },
+     {
+      "claim": "Elev8 Fun Orlando is at 320 Towne Center Cir, Sanford, FL 32771",
+      "source": "https://www.elev8fun.com/locations/orlando"
+     },
+     {
+      "claim": "Elev8 Fun Orlando offers Go-Karts, Bowling, Laser Tag, and Arcade",
+      "source": "https://www.elev8fun.com/locations/orlando"
+     },
+     {
+      "claim": "Elev8 Fun Orlando offers Ropes Course and Mini-Golf",
+      "source": "https://www.elev8fun.com/locations/orlando"
+     },
+     {
+      "claim": "Elev8 Fun Orlando offers parties and events with catering options",
+      "source": "https://www.elev8fun.com/locations/orlando"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJs03BD-4H3YgRRoL9p0DmlUc",
+   "name": "The Crooked Bass Grill and Tavern",
+   "category": "nightlife",
+   "metro": "florida",
+   "primary_type": "bar",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://crookedbass.com/",
+     "source_name": "The Crooked Bass Grill and Tavern \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Seafood is served at The Crooked Bass Grill and Tavern in Babson Park, FL",
+      "The Crooked Bass Grill and Tavern is at 1010 N Scenic Hwy, Babson Park, FL",
+      "The Crooked Bass Grill and Tavern menu includes steaks, burgers, wings, and pizza",
+      "The Crooked Bass Grill and Tavern offers a Lunch and Dinner Menu, a Pizza Menu, and Gluten-Free and Low Carb options",
+      "The Crooked Bass Grill and Tavern offers weekly All You Can Eat specials",
+      "Business hours Monday through Thursday are 11:30 a.m. to 8 p.m. at The Crooked Bass Grill and Tavern"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Seafood grill in Babson Park with steaks, burgers, wings, and pizza",
+    "why_here": "Go for Seafood with steaks, burgers, wings, and pizza in Babson Park, plus weekly All You Can Eat specials and a Pizza Menu alongside the Lunch and Dinner Menu for more choice at the table.",
+    "know_before": "Business hours Monday through Thursday are 11:30 a.m. to 8 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://crookedbass.com/"
+     ],
+     "why_here": [
+      "https://crookedbass.com/"
+     ],
+     "know_before": [
+      "https://crookedbass.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Seafood is served at The Crooked Bass Grill and Tavern in Babson Park, FL",
+      "source": "https://crookedbass.com/"
+     },
+     {
+      "claim": "The Crooked Bass Grill and Tavern is at 1010 N Scenic Hwy, Babson Park, FL",
+      "source": "https://crookedbass.com/"
+     },
+     {
+      "claim": "The Crooked Bass Grill and Tavern menu includes steaks, burgers, wings, and pizza",
+      "source": "https://crookedbass.com/"
+     },
+     {
+      "claim": "The Crooked Bass Grill and Tavern offers a Lunch and Dinner Menu, a Pizza Menu, and Gluten-Free and Low Carb options",
+      "source": "https://crookedbass.com/"
+     },
+     {
+      "claim": "The Crooked Bass Grill and Tavern offers weekly All You Can Eat specials",
+      "source": "https://crookedbass.com/"
+     },
+     {
+      "claim": "Business hours Monday through Thursday are 11:30 a.m. to 8 p.m. at The Crooked Bass Grill and Tavern",
+      "source": "https://crookedbass.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ7_YlkOzU2IgRI_h_VJyHP2o",
+   "name": "The Singer Oceanfront Resort, Curio Collection by Hilton",
+   "category": "hotels",
+   "metro": "palm-beach",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.hilton.com/en/hotels/pbisiqq-the-singer-oceanfront-resort/",
+     "source_name": "The Singer Oceanfront Resort, Curio Collection by Hilton \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Singer Oceanfront Resort, Curio Collection by Hilton is an oceanfront hotel on Singer Island",
+      "The Singer Oceanfront Resort, Curio Collection by Hilton is on a four mile stretch of sandy beach on Singer Island",
+      "The Singer Oceanfront Resort, Curio Collection by Hilton has an outdoor pool",
+      "Caretta Caretta serves contemporary American cuisine with an emphasis on seafood at The Singer Oceanfront Resort, Curio Collection by Hilton",
+      "Top Shell is an oceanfront patio bar overlooking the pool deck and beach at The Singer Oceanfront Resort, Curio Collection by Hilton",
+      "Check-in at The Singer Oceanfront Resort, Curio Collection by Hilton is at 4:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Oceanfront resort on a four mile stretch of sandy beach on Singer Island",
+    "why_here": "Go for a sandy beach stay on Singer Island with an outdoor pool, then try Caretta Caretta for contemporary American cuisine with an emphasis on seafood and Top Shell overlooking the pool deck and beach.",
+    "know_before": "Check-in at The Singer Oceanfront Resort, Curio Collection by Hilton is at 4:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.hilton.com/en/hotels/pbisiqq-the-singer-oceanfront-resort/"
+     ],
+     "why_here": [
+      "https://www.hilton.com/en/hotels/pbisiqq-the-singer-oceanfront-resort/"
+     ],
+     "know_before": [
+      "https://www.hilton.com/en/hotels/pbisiqq-the-singer-oceanfront-resort/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Singer Oceanfront Resort, Curio Collection by Hilton is an oceanfront hotel on Singer Island",
+      "source": "https://www.hilton.com/en/hotels/pbisiqq-the-singer-oceanfront-resort/"
+     },
+     {
+      "claim": "The Singer Oceanfront Resort, Curio Collection by Hilton is on a four mile stretch of sandy beach on Singer Island",
+      "source": "https://www.hilton.com/en/hotels/pbisiqq-the-singer-oceanfront-resort/"
+     },
+     {
+      "claim": "The Singer Oceanfront Resort, Curio Collection by Hilton has an outdoor pool",
+      "source": "https://www.hilton.com/en/hotels/pbisiqq-the-singer-oceanfront-resort/"
+     },
+     {
+      "claim": "Caretta Caretta serves contemporary American cuisine with an emphasis on seafood at The Singer Oceanfront Resort, Curio Collection by Hilton",
+      "source": "https://www.hilton.com/en/hotels/pbisiqq-the-singer-oceanfront-resort/"
+     },
+     {
+      "claim": "Top Shell is an oceanfront patio bar overlooking the pool deck and beach at The Singer Oceanfront Resort, Curio Collection by Hilton",
+      "source": "https://www.hilton.com/en/hotels/pbisiqq-the-singer-oceanfront-resort/"
+     },
+     {
+      "claim": "Check-in at The Singer Oceanfront Resort, Curio Collection by Hilton is at 4:00 p.m.",
+      "source": "https://www.hilton.com/en/hotels/pbisiqq-the-singer-oceanfront-resort/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJq6pGXCC02YgRhcQhwRKCtjE",
+   "name": "Kuba On The Bay",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "cuban_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://kubamiami.com/bay",
+     "source_name": "Kuba On The Bay \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Kuba On The Bay offers Contemporary Latin-Caribbean cuisine and waterfront dining at Bayside Marketplace in Miami",
+      "Kuba On The Bay serves Latin American, Caribbean, and Contemporary Latin cuisine",
+      "Kuba On The Bay is open Monday through Sunday from 12 p.m. to 11 p.m.",
+      "Kuba On The Bay accepts reservations"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Contemporary Latin-Caribbean cuisine and waterfront dining at Bayside Marketplace in Miami",
+    "why_here": "Go for Contemporary Latin-Caribbean cuisine and waterfront dining at Bayside Marketplace in Miami. Kuba On The Bay serves Latin American, Caribbean, and Contemporary Latin cuisine by the water.",
+    "know_before": "Kuba On The Bay is open Monday through Sunday from 12 p.m. to 11 p.m. and accepts reservations.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://kubamiami.com/bay"
+     ],
+     "why_here": [
+      "https://kubamiami.com/bay"
+     ],
+     "know_before": [
+      "https://kubamiami.com/bay"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Kuba On The Bay offers Contemporary Latin-Caribbean cuisine and waterfront dining at Bayside Marketplace in Miami",
+      "source": "https://kubamiami.com/bay"
+     },
+     {
+      "claim": "Kuba On The Bay serves Latin American, Caribbean, and Contemporary Latin cuisine",
+      "source": "https://kubamiami.com/bay"
+     },
+     {
+      "claim": "Kuba On The Bay is open Monday through Sunday from 12 p.m. to 11 p.m.",
+      "source": "https://kubamiami.com/bay"
+     },
+     {
+      "claim": "Kuba On The Bay accepts reservations",
+      "source": "https://kubamiami.com/bay"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJk05EA_Ko2YgRfjb7v1E2-8Q",
+   "name": "Capriccio Ristorante",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "italian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://capriccios.net/",
+     "source_name": "Capriccio Ristorante \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Capriccio Ristorante has been serving Pembroke Pines and South Florida since 1987",
+      "The kitchen at Capriccio Ristorante runs traditional Italian by section: Antipasti, Pasta, Frutta di Mare, Pesce, and Chef Select Entrees",
+      "Capriccio Ristorante is open Monday from 5 p.m. to 10 p.m.",
+      "Capriccio Ristorante is open Sunday from 4 p.m. to 10 p.m.",
+      "Live music fills Capriccio Ristorante Wednesday through Sunday"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Traditional Italian restaurant in Pembroke Pines serving since 1987",
+    "why_here": "Go for traditional Italian cooking in Pembroke Pines. Capriccio Ristorante runs its kitchen by section with Antipasti, Pasta, Frutta di Mare, and Pesce, plus Chef Select Entrees, and live music fills the restaurant Wednesday through Sunday.",
+    "know_before": "Capriccio Ristorante is open Monday from 5 p.m. to 10 p.m. and Sunday from 4 p.m. to 10 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://capriccios.net/"
+     ],
+     "why_here": [
+      "https://capriccios.net/"
+     ],
+     "know_before": [
+      "https://capriccios.net/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Capriccio Ristorante has been serving Pembroke Pines and South Florida since 1987",
+      "source": "https://capriccios.net/"
+     },
+     {
+      "claim": "The kitchen at Capriccio Ristorante runs traditional Italian by section: Antipasti, Pasta, Frutta di Mare, Pesce, and Chef Select Entrees",
+      "source": "https://capriccios.net/"
+     },
+     {
+      "claim": "Capriccio Ristorante is open Monday from 5 p.m. to 10 p.m.",
+      "source": "https://capriccios.net/"
+     },
+     {
+      "claim": "Capriccio Ristorante is open Sunday from 4 p.m. to 10 p.m.",
+      "source": "https://capriccios.net/"
+     },
+     {
+      "claim": "Live music fills Capriccio Ristorante Wednesday through Sunday",
+      "source": "https://capriccios.net/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJxZsBVJy02YgRz20NMJIwoWM",
+   "name": "The Setai, Miami Beach",
+   "category": "hotels",
+   "metro": "miami-dade",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.thesetaihotel.com/faqs",
+     "source_name": "The Setai, Miami Beach \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Setai offers three temperature-controlled pools: a lap pool (75\u00b0F), a central lounge pool (85\u00b0F), and a family pool (90\u00b0F)",
+      "Ocean Grill, serving Mediterranean-Italian flavors in an oceanfront setting (serving lunch and dinner)",
+      "Guests enjoy private beach access with full service, including chairs and umbrellas",
+      "Check-in begins at 4:00 p.m. and check-out is at 12:00 p.m.",
+      "The Setai offers valet parking for an additional daily and overnight fee"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Three temperature-controlled pools with private beach access and chairs and umbrellas",
+    "why_here": "Go for three temperature-controlled pools, including a lap pool, a central lounge pool and a family pool, plus private beach access with chairs and umbrellas, and lunch and dinner at Ocean Grill.",
+    "know_before": "Check-in begins at 4:00 p.m. and check-out is at 12:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.thesetaihotel.com/faqs"
+     ],
+     "why_here": [
+      "https://www.thesetaihotel.com/faqs"
+     ],
+     "know_before": [
+      "https://www.thesetaihotel.com/faqs"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Setai offers three temperature-controlled pools: a lap pool (75\u00b0F), a central lounge pool (85\u00b0F), and a family pool (90\u00b0F)",
+      "source": "https://www.thesetaihotel.com/faqs"
+     },
+     {
+      "claim": "Ocean Grill, serving Mediterranean-Italian flavors in an oceanfront setting (serving lunch and dinner)",
+      "source": "https://www.thesetaihotel.com/faqs"
+     },
+     {
+      "claim": "Guests enjoy private beach access with full service, including chairs and umbrellas",
+      "source": "https://www.thesetaihotel.com/faqs"
+     },
+     {
+      "claim": "Check-in begins at 4:00 p.m. and check-out is at 12:00 p.m.",
+      "source": "https://www.thesetaihotel.com/faqs"
+     },
+     {
+      "claim": "The Setai offers valet parking for an additional daily and overnight fee",
+      "source": "https://www.thesetaihotel.com/faqs"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ-wwWHPPD54gRiIjtz98mGIk",
+   "name": "Redsauce American - Italian Restaurant",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "italian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.redsaucethevillages.com/",
+     "source_name": "Redsauce American - Italian Restaurant \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Redsauce brings together classic Italian favorites and a warm, lively atmosphere at 1000 Canal Street, The Villages, FL 32162",
+      "Lunch Served Daily at Redsauce",
+      "Scenic Outdoor Wraparound Patio",
+      "Stylish Indoor Modern Italian Dining Room",
+      "HOURS Monday - Sunday 11:00 a.m. - 9:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Classic Italian favorites with lunch served daily and a scenic outdoor wraparound patio",
+    "why_here": "Go for classic Italian favorites and lunch served daily, with a scenic outdoor wraparound patio and a stylish indoor modern Italian dining room for a warm, lively atmosphere in The Villages.",
+    "know_before": "Hours are Monday - Sunday 11:00 a.m. - 9:00 p.m.; located at 1000 Canal Street, The Villages, FL 32162",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.redsaucethevillages.com/"
+     ],
+     "why_here": [
+      "https://www.redsaucethevillages.com/"
+     ],
+     "know_before": [
+      "https://www.redsaucethevillages.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Redsauce brings together classic Italian favorites and a warm, lively atmosphere at 1000 Canal Street, The Villages, FL 32162",
+      "source": "https://www.redsaucethevillages.com/"
+     },
+     {
+      "claim": "Lunch Served Daily at Redsauce",
+      "source": "https://www.redsaucethevillages.com/"
+     },
+     {
+      "claim": "Scenic Outdoor Wraparound Patio",
+      "source": "https://www.redsaucethevillages.com/"
+     },
+     {
+      "claim": "Stylish Indoor Modern Italian Dining Room",
+      "source": "https://www.redsaucethevillages.com/"
+     },
+     {
+      "claim": "HOURS Monday - Sunday 11:00 a.m. - 9:00 p.m.",
+      "source": "https://www.redsaucethevillages.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJkSXUElHGwogR6YwSDFvHgTk",
+   "name": "SheiKra",
+   "category": "attractions",
+   "metro": "tampa",
+   "primary_type": "roller_coaster",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://buschgardens.com/tampa/roller-coasters/sheikra/",
+     "source_name": "SheiKra \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Climb 200 feet to the edge of a 90-degree drop",
+      "dive straight down into a 70 mph roller coaster whirlwind with an Immelmann loop, a second dive into an underground tunnel and a splashdown finale",
+      "Min. Rider Height 54\"",
+      "Ride Type Roller Coaster",
+      "Drop 200 Feet"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Roller Coaster with a 200 feet climb and a 90-degree drop",
+    "why_here": "Ride SheiKra to climb 200 feet to a 90-degree drop, dive into a 70 mph whirlwind with an Immelmann loop, a second dive into an underground tunnel, and a splashdown finale.",
+    "know_before": "Min. Rider Height 54\"",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://buschgardens.com/tampa/roller-coasters/sheikra/"
+     ],
+     "why_here": [
+      "https://buschgardens.com/tampa/roller-coasters/sheikra/"
+     ],
+     "know_before": [
+      "https://buschgardens.com/tampa/roller-coasters/sheikra/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Climb 200 feet to the edge of a 90-degree drop",
+      "source": "https://buschgardens.com/tampa/roller-coasters/sheikra/"
+     },
+     {
+      "claim": "dive straight down into a 70 mph roller coaster whirlwind with an Immelmann loop, a second dive into an underground tunnel and a splashdown finale",
+      "source": "https://buschgardens.com/tampa/roller-coasters/sheikra/"
+     },
+     {
+      "claim": "Min. Rider Height 54\"",
+      "source": "https://buschgardens.com/tampa/roller-coasters/sheikra/"
+     },
+     {
+      "claim": "Ride Type Roller Coaster",
+      "source": "https://buschgardens.com/tampa/roller-coasters/sheikra/"
+     },
+     {
+      "claim": "Drop 200 Feet",
+      "source": "https://buschgardens.com/tampa/roller-coasters/sheikra/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJRYqQNDul2YgRU1op3THRM5A",
+   "name": "Chifa Du Kang (Miramar)",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "peruvian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://chifadukang.com/locations/",
+     "source_name": "Chifa Du Kang (Miramar) \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Miramar Address: 14633 Miramar Pkwy. Miramar, FL 33027 Opening: 12:00 p.m. to 9:30 p.m.",
+      "Authentic Peruvian Chifa in Miami",
+      "Open Everyday"
+     ]
+    },
+    {
+     "source": "https://chifadukang.com/",
+     "source_name": "Chifa Du Kang (Miramar) \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Chifa is a unique fusion of Chinese cooking techniques and Peruvian ingredients",
+      "Every day, we prepare classics like Chaufa Especial, Lomo Saltado, Want\u00e1n Frito, and Tallar\u00edn Saltado"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Authentic Peruvian Chifa in Miramar, open everyday",
+    "why_here": "Go for Authentic Peruvian Chifa, a fusion of Chinese cooking techniques and Peruvian ingredients, with classics like Chaufa Especial, Lomo Saltado, and Tallar\u00edn Saltado at the Miramar location.",
+    "know_before": "Miramar 14633 Miramar Pkwy. Miramar, FL 33027; Opening: 12:00 p.m. to 9:30 p.m.",
+    "local_tip": "Try Chaufa Especial, Lomo Saltado, Want\u00e1n Frito, and Tallar\u00edn Saltado",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://chifadukang.com/locations/"
+     ],
+     "why_here": [
+      "https://chifadukang.com/locations/"
+     ],
+     "know_before": [
+      "https://chifadukang.com/locations/"
+     ],
+     "local_tip": [
+      "https://chifadukang.com/locations/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Miramar Address: 14633 Miramar Pkwy. Miramar, FL 33027 Opening: 12:00 p.m. to 9:30 p.m.",
+      "source": "https://chifadukang.com/locations/"
+     },
+     {
+      "claim": "Authentic Peruvian Chifa in Miami",
+      "source": "https://chifadukang.com/locations/"
+     },
+     {
+      "claim": "Chifa is a unique fusion of Chinese cooking techniques and Peruvian ingredients",
+      "source": "https://chifadukang.com/"
+     },
+     {
+      "claim": "Every day, we prepare classics like Chaufa Especial, Lomo Saltado, Want\u00e1n Frito, and Tallar\u00edn Saltado",
+      "source": "https://chifadukang.com/"
+     },
+     {
+      "claim": "Open Everyday",
+      "source": "https://chifadukang.com/locations/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJuTI9UDi45YgR0aTJs81ViAw",
+   "name": "Boone Park",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.jacksonville.gov/departments/parks,-recreation-and-community-services/jaxparks/athletics/tennis/boone-park-tennis-complex",
+     "source_name": "Boone Park \u2014 official source",
+     "source_class": "government",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Boone Park Tennis Complex 3730 Park St. Jacksonville, FL 32205",
+      "Courts: 14 har-tru clay courts; 4 pickleball courts; 1 hard court (singles lines only); hitting wall",
+      "Hours of Operation: Monday - Friday 9 a.m. to 9 p.m.",
+      "Saturday - Sunday 8 a.m. to 6 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Park tennis complex with 14 har-tru clay courts and 4 pickleball courts",
+    "why_here": "Go to Boone Park Tennis Complex at 3730 Park St. in Jacksonville for 14 har-tru clay courts, 4 pickleball courts, 1 hard court, and a hitting wall for tennis and pickleball play.",
+    "know_before": "Monday - Friday 9 a.m. to 9 p.m.; Saturday - Sunday 8 a.m. to 6 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.jacksonville.gov/departments/parks,-recreation-and-community-services/jaxparks/athletics/tennis/boone-park-tennis-complex"
+     ],
+     "why_here": [
+      "https://www.jacksonville.gov/departments/parks,-recreation-and-community-services/jaxparks/athletics/tennis/boone-park-tennis-complex"
+     ],
+     "know_before": [
+      "https://www.jacksonville.gov/departments/parks,-recreation-and-community-services/jaxparks/athletics/tennis/boone-park-tennis-complex"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Boone Park Tennis Complex 3730 Park St. Jacksonville, FL 32205",
+      "source": "https://www.jacksonville.gov/departments/parks,-recreation-and-community-services/jaxparks/athletics/tennis/boone-park-tennis-complex"
+     },
+     {
+      "claim": "Courts: 14 har-tru clay courts; 4 pickleball courts; 1 hard court (singles lines only); hitting wall",
+      "source": "https://www.jacksonville.gov/departments/parks,-recreation-and-community-services/jaxparks/athletics/tennis/boone-park-tennis-complex"
+     },
+     {
+      "claim": "Hours of Operation: Monday - Friday 9 a.m. to 9 p.m.",
+      "source": "https://www.jacksonville.gov/departments/parks,-recreation-and-community-services/jaxparks/athletics/tennis/boone-park-tennis-complex"
+     },
+     {
+      "claim": "Saturday - Sunday 8 a.m. to 6 p.m.",
+      "source": "https://www.jacksonville.gov/departments/parks,-recreation-and-community-services/jaxparks/athletics/tennis/boone-park-tennis-complex"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJdU_aLI7jwogR45UrfwaeF5E",
+   "name": "Kane's Furniture",
+   "category": "shopping",
+   "metro": "st-pete",
+   "primary_type": "furniture_store",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.kanesfurniture.com/",
+     "source_name": "Kane's Furniture \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Kane's Furniture sells Living Rooms, Bedrooms, Dining Rooms and Mattresses",
+      "Kane's Furniture lists Sectionals, Recliners and Dining sets",
+      "Mattress brands listed include Tempur-Pedic, Beautyrest, Serta and Therapedic",
+      "Special Financing Available is listed on the Kane's Furniture site",
+      "Trending searches include Sectionals, Recliners, Mattresses, Dining sets and Area rugs"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Furniture store for Living Rooms, Bedrooms, Dining Rooms and Mattresses",
+    "why_here": "Shop Living Rooms, Bedrooms, Dining Rooms and Mattresses in one store, including Sectionals, Recliners and Dining sets. Mattress brands listed include Tempur-Pedic, Beautyrest, Serta and Therapedic.",
+    "know_before": "Special Financing Available is listed on the Kane's Furniture site.",
+    "local_tip": "Check Trending searches for Sectionals, Recliners, Mattresses, Dining sets and Area rugs.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.kanesfurniture.com/"
+     ],
+     "why_here": [
+      "https://www.kanesfurniture.com/"
+     ],
+     "know_before": [
+      "https://www.kanesfurniture.com/"
+     ],
+     "local_tip": [
+      "https://www.kanesfurniture.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Kane's Furniture sells Living Rooms, Bedrooms, Dining Rooms and Mattresses",
+      "source": "https://www.kanesfurniture.com/"
+     },
+     {
+      "claim": "Kane's Furniture lists Sectionals, Recliners and Dining sets",
+      "source": "https://www.kanesfurniture.com/"
+     },
+     {
+      "claim": "Mattress brands listed include Tempur-Pedic, Beautyrest, Serta and Therapedic",
+      "source": "https://www.kanesfurniture.com/"
+     },
+     {
+      "claim": "Special Financing Available is listed on the Kane's Furniture site",
+      "source": "https://www.kanesfurniture.com/"
+     },
+     {
+      "claim": "Trending searches include Sectionals, Recliners, Mattresses, Dining sets and Area rugs",
+      "source": "https://www.kanesfurniture.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJnw-33OJ754gR9_Rc6rJhn4c",
+   "name": "Stanton Optical",
+   "category": "shopping",
+   "metro": "orlando",
+   "primary_type": "health",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.stantonoptical.com/",
+     "source_name": "Stanton Optical \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Stanton Optical offers Eyeglasses, Contacts and Eye Exams",
+      "Stanton Optical offers Same-Day Eye Exams and Same-Day Glasses",
+      "Stanton Optical has 1,000+ Frames to Choose From",
+      "2 Single Vision Pairs for $79 + Exam is listed, with a Free Eye Exam",
+      "Stanton Optical offers Virtual Try-On"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Eye care for Eyeglasses, Contacts and Eye Exams",
+    "why_here": "Visit for Eyeglasses, Contacts and Eye Exams, with Same-Day Eye Exams and Same-Day Glasses. Browse 1,000+ Frames to Choose From and use Virtual Try-On before you buy in store or online.",
+    "know_before": "2 Single Vision Pairs for $79 + Exam is listed, with a Free Eye Exam",
+    "local_tip": "Try Virtual Try-On before ordering Eyeglasses online or in store.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.stantonoptical.com/"
+     ],
+     "why_here": [
+      "https://www.stantonoptical.com/"
+     ],
+     "know_before": [
+      "https://www.stantonoptical.com/"
+     ],
+     "local_tip": [
+      "https://www.stantonoptical.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Stanton Optical offers Eyeglasses, Contacts and Eye Exams",
+      "source": "https://www.stantonoptical.com/"
+     },
+     {
+      "claim": "Stanton Optical offers Same-Day Eye Exams and Same-Day Glasses",
+      "source": "https://www.stantonoptical.com/"
+     },
+     {
+      "claim": "Stanton Optical has 1,000+ Frames to Choose From",
+      "source": "https://www.stantonoptical.com/"
+     },
+     {
+      "claim": "2 Single Vision Pairs for $79 + Exam is listed, with a Free Eye Exam",
+      "source": "https://www.stantonoptical.com/"
+     },
+     {
+      "claim": "Stanton Optical offers Virtual Try-On",
+      "source": "https://www.stantonoptical.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJCfk-Rb-32YgRZBupvIHlf3c",
+   "name": "Vale Healthy Kitchen - Miami (Brickell)",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://valehealthykitchen.com/",
+     "source_name": "Vale Healthy Kitchen - Miami (Brickell) \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Born in Florida in 2014, Vale began with a simple mission: make healthy food convenient and affordable",
+      "All food made fresh in house each day",
+      "Vale lists Miami - Brickell among its Locations",
+      "Vale is cooking with 100% extra virgin olive oil",
+      "Vale menu categories include Signature Bowls, Salads, Wraps and Smoothie Bowls & Shakes, including the Mediterranean Chicken Wrap"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Fast-casual kitchen born in Florida in 2014",
+    "why_here": "Born in Florida in 2014, Vale makes healthy food convenient and affordable, with All food made fresh in house each day. Order Signature Bowls, Salads, Wraps and Smoothie Bowls & Shakes, including the Mediterranean Chicken Wrap.",
+    "know_before": "Vale lists Miami - Brickell among its Locations.",
+    "local_tip": "Vale is cooking with 100% extra virgin olive oil.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://valehealthykitchen.com/"
+     ],
+     "why_here": [
+      "https://valehealthykitchen.com/"
+     ],
+     "know_before": [
+      "https://valehealthykitchen.com/"
+     ],
+     "local_tip": [
+      "https://valehealthykitchen.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Born in Florida in 2014, Vale began with a simple mission: make healthy food convenient and affordable",
+      "source": "https://valehealthykitchen.com/"
+     },
+     {
+      "claim": "All food made fresh in house each day",
+      "source": "https://valehealthykitchen.com/"
+     },
+     {
+      "claim": "Vale lists Miami - Brickell among its Locations",
+      "source": "https://valehealthykitchen.com/"
+     },
+     {
+      "claim": "Vale is cooking with 100% extra virgin olive oil",
+      "source": "https://valehealthykitchen.com/"
+     },
+     {
+      "claim": "Vale menu categories include Signature Bowls, Salads, Wraps and Smoothie Bowls & Shakes, including the Mediterranean Chicken Wrap",
+      "source": "https://valehealthykitchen.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJTTNLQ0Fk5ogRU_Y5zqC0B6s",
+   "name": "Boathouse Riverfront Park",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://palatka-fl.gov/Facilities/Facility/Details/James-A-Goodwin-Riverfront-Park-12",
+     "source_name": "Boathouse Riverfront Park \u2014 official source",
+     "source_class": "government",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "James C. Godwin Riverfront Park, also known as Riverfront Park, is along the banks of the St. Johns River in Palatka, Florida",
+      "The park offers a kayak launch, boat and fishing piers, and a floating dock"
+     ]
+    },
+    {
+     "source": "https://palatka-fl.gov/150/Parks-Recreation",
+     "source_name": "Boathouse Riverfront Park \u2014 official source",
+     "source_class": "government",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The ramps are free and open 24 hours a day and provide access to the St. Johns River"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Riverfront Park on the St. Johns River with a kayak launch and fishing piers",
+    "why_here": "Go for water access on the St. Johns River in Palatka, Florida, where the park offers a kayak launch, boat and fishing piers, and a floating dock.",
+    "know_before": "The ramps are free and open 24 hours a day",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://palatka-fl.gov/Facilities/Facility/Details/James-A-Goodwin-Riverfront-Park-12"
+     ],
+     "why_here": [
+      "https://palatka-fl.gov/Facilities/Facility/Details/James-A-Goodwin-Riverfront-Park-12"
+     ],
+     "know_before": [
+      "https://palatka-fl.gov/Facilities/Facility/Details/James-A-Goodwin-Riverfront-Park-12"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "James C. Godwin Riverfront Park, also known as Riverfront Park, is along the banks of the St. Johns River in Palatka, Florida",
+      "source": "https://palatka-fl.gov/Facilities/Facility/Details/James-A-Goodwin-Riverfront-Park-12"
+     },
+     {
+      "claim": "The park offers a kayak launch, boat and fishing piers, and a floating dock",
+      "source": "https://palatka-fl.gov/Facilities/Facility/Details/James-A-Goodwin-Riverfront-Park-12"
+     },
+     {
+      "claim": "The ramps are free and open 24 hours a day and provide access to the St. Johns River",
+      "source": "https://palatka-fl.gov/150/Parks-Recreation"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJzdsZhbS32YgRPMjZIIUhsfo",
+   "name": "The Original Daily Bread Marketplace",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "middle_eastern_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://dailybreadmiami.com/",
+     "source_name": "The Original Daily Bread Marketplace \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Daily Bread is a family-owned and operated Middle Eastern restaurant and marketplace located in Pinecrest, Miami",
+      "Daily Bread offers food made fresh daily with a full menu available for delivery, takeout, dining in, or catering"
+     ]
+    },
+    {
+     "source": "https://dailybreadmiami.com/news/daily-bread-pinecrest-featured-in-voyage-mia/",
+     "source_name": "The Original Daily Bread Marketplace \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Hummus, Baba Ghanoush, Tabouli, Pita Bread, all made in-house and fresh from scratch",
+      "We sell groceries and ingredients in our market for customers to have for their homes"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Middle Eastern restaurant and marketplace with food made fresh daily",
+    "why_here": "Go for Middle Eastern food made fresh daily, including Hummus, Baba Ghanoush, Tabouli, and Pita Bread made in-house, plus groceries and ingredients in our market.",
+    "know_before": "Full menu available for delivery, takeout, dining in, or catering",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://dailybreadmiami.com/"
+     ],
+     "why_here": [
+      "https://dailybreadmiami.com/"
+     ],
+     "know_before": [
+      "https://dailybreadmiami.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Daily Bread is a family-owned and operated Middle Eastern restaurant and marketplace located in Pinecrest, Miami",
+      "source": "https://dailybreadmiami.com/"
+     },
+     {
+      "claim": "Daily Bread offers food made fresh daily with a full menu available for delivery, takeout, dining in, or catering",
+      "source": "https://dailybreadmiami.com/"
+     },
+     {
+      "claim": "Hummus, Baba Ghanoush, Tabouli, Pita Bread, all made in-house and fresh from scratch",
+      "source": "https://dailybreadmiami.com/news/daily-bread-pinecrest-featured-in-voyage-mia/"
+     },
+     {
+      "claim": "We sell groceries and ingredients in our market for customers to have for their homes",
+      "source": "https://dailybreadmiami.com/news/daily-bread-pinecrest-featured-in-voyage-mia/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ0x5DRC-D54gRagoMpss4SK0",
+   "name": "Winter Garden Farmers Market",
+   "category": "shopping",
+   "metro": "orlando",
+   "primary_type": "farmers_market",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://wgfl.gov/322/Winter-Garden-Farmers-Market",
+     "source_name": "Winter Garden Farmers Market \u2014 official source",
+     "source_class": "government",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Winter Garden Farmers Market takes place every Saturday year-round from 8:00 a.m. to 1:00 p.m.",
+      "More than 100 vendors participate weekly selling fresh produce, artisan crafts, jewelry, pet items, and flowers",
+      "The market is at Downtown Pavilion, 104 S. Lakeview Avenue"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Saturday market with More than 100 vendors and fresh produce",
+    "why_here": "Go on Saturday for fresh produce, artisan crafts, jewelry, pet items, and flowers from More than 100 vendors at a year-round market.",
+    "know_before": "Every Saturday year-round from 8:00 a.m. to 1:00 p.m. at Downtown Pavilion, 104 S. Lakeview Avenue",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://wgfl.gov/322/Winter-Garden-Farmers-Market"
+     ],
+     "why_here": [
+      "https://wgfl.gov/322/Winter-Garden-Farmers-Market"
+     ],
+     "know_before": [
+      "https://wgfl.gov/322/Winter-Garden-Farmers-Market"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Winter Garden Farmers Market takes place every Saturday year-round from 8:00 a.m. to 1:00 p.m.",
+      "source": "https://wgfl.gov/322/Winter-Garden-Farmers-Market"
+     },
+     {
+      "claim": "More than 100 vendors participate weekly selling fresh produce, artisan crafts, jewelry, pet items, and flowers",
+      "source": "https://wgfl.gov/322/Winter-Garden-Farmers-Market"
+     },
+     {
+      "claim": "The market is at Downtown Pavilion, 104 S. Lakeview Avenue",
+      "source": "https://wgfl.gov/322/Winter-Garden-Farmers-Market"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJU1AXgy7R54gR2osCqNcT_5c",
+   "name": "Flying Boat Tap Room LLC",
+   "category": "food",
+   "metro": "ocala-fl",
+   "primary_type": "bar",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://flyingboattaproom.com/",
+     "source_name": "Flying Boat Tap Room LLC \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Flying Boat Tap Room carries 28 beers Florida Brewer's have to offer, wood fired pizza, and unique cuisine",
+      "Flying Boat Tap Room offers homemade wood fired pizza and a wide collection of beer",
+      "Flying Boat Tap Room is at 9672 SE 58th Avenue, Ocala, Florida",
+      "Monday hours are 11:00 a.m. to 8 p.m. at Flying Boat Tap Room",
+      "Tuesday is CLOSED at Flying Boat Tap Room",
+      "Sunday Brunch Menu hours are 10:00 a.m. to 12:00 p.m. at Flying Boat Tap Room"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Tap room carrying 28 beers with wood fired pizza and unique cuisine",
+    "why_here": "Go for 28 beers from Florida, wood fired pizza and unique cuisine, with homemade wood fired pizza and a wide collection of beer to choose from at the tap room during a visit.",
+    "know_before": "Monday hours are 11:00 a.m. to 8 p.m.; check before a Tuesday visit.",
+    "local_tip": "Try the homemade wood fired pizza with a beer from the wide collection.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://flyingboattaproom.com/"
+     ],
+     "why_here": [
+      "https://flyingboattaproom.com/"
+     ],
+     "know_before": [
+      "https://flyingboattaproom.com/"
+     ],
+     "local_tip": [
+      "https://flyingboattaproom.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Flying Boat Tap Room carries 28 beers Florida Brewer's have to offer, wood fired pizza, and unique cuisine",
+      "source": "https://flyingboattaproom.com/"
+     },
+     {
+      "claim": "Flying Boat Tap Room offers homemade wood fired pizza and a wide collection of beer",
+      "source": "https://flyingboattaproom.com/"
+     },
+     {
+      "claim": "Flying Boat Tap Room is at 9672 SE 58th Avenue, Ocala, Florida",
+      "source": "https://flyingboattaproom.com/"
+     },
+     {
+      "claim": "Monday hours are 11:00 a.m. to 8 p.m. at Flying Boat Tap Room",
+      "source": "https://flyingboattaproom.com/"
+     },
+     {
+      "claim": "Tuesday is CLOSED at Flying Boat Tap Room",
+      "source": "https://flyingboattaproom.com/"
+     },
+     {
+      "claim": "Sunday Brunch Menu hours are 10:00 a.m. to 12:00 p.m. at Flying Boat Tap Room",
+      "source": "https://flyingboattaproom.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ-yQ6lzA_kYgRHPLiRonlx74",
+   "name": "Fort Walton Beach Landing Park",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://fwb.org/Facilities/Facility/Details/Fort-Walton-Beach-Landing-20",
+     "source_name": "Fort Walton Beach Landing Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Fort Walton Beach Landing is at 131 Brooks Street, SE Fort Walton Beach, FL 32548",
+      "Hours are Sunrise to 9 p.m.",
+      "The facility includes 700 feet of waterfront, boardwalk, fishing pier, and playground equipment",
+      "Park amenities include Picnic Tables, Playground, and Restrooms",
+      "Recreation includes picnics, fishing, and special community events"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Waterfront park with 700 feet of waterfront, a boardwalk, and a fishing pier",
+    "why_here": "Go for picnics, fishing, and special community events at a waterfront park with a boardwalk, fishing pier, playground equipment, Picnic Tables, and Restrooms.",
+    "know_before": "Hours are Sunrise to 9 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://fwb.org/Facilities/Facility/Details/Fort-Walton-Beach-Landing-20"
+     ],
+     "why_here": [
+      "https://fwb.org/Facilities/Facility/Details/Fort-Walton-Beach-Landing-20"
+     ],
+     "know_before": [
+      "https://fwb.org/Facilities/Facility/Details/Fort-Walton-Beach-Landing-20"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Fort Walton Beach Landing is at 131 Brooks Street, SE Fort Walton Beach, FL 32548",
+      "source": "https://fwb.org/Facilities/Facility/Details/Fort-Walton-Beach-Landing-20"
+     },
+     {
+      "claim": "Hours are Sunrise to 9 p.m.",
+      "source": "https://fwb.org/Facilities/Facility/Details/Fort-Walton-Beach-Landing-20"
+     },
+     {
+      "claim": "The facility includes 700 feet of waterfront, boardwalk, fishing pier, and playground equipment",
+      "source": "https://fwb.org/Facilities/Facility/Details/Fort-Walton-Beach-Landing-20"
+     },
+     {
+      "claim": "Park amenities include Picnic Tables, Playground, and Restrooms",
+      "source": "https://fwb.org/Facilities/Facility/Details/Fort-Walton-Beach-Landing-20"
+     },
+     {
+      "claim": "Recreation includes picnics, fishing, and special community events",
+      "source": "https://fwb.org/Facilities/Facility/Details/Fort-Walton-Beach-Landing-20"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ5bd5tDP3wogRkEnbA4NKOeM",
+   "name": "Sand Key Beach",
+   "category": "beach",
+   "metro": "florida",
+   "primary_type": "beach",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://pinellas.gov/parks/sand-key-park",
+     "source_name": "Sand Key Beach \u2014 official source",
+     "source_class": "government",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Sand Key Park is 95 acres with two distinct areas of beach and park in Clearwater",
+      "Sand Key Park is at 1060 Gulf Boulevard Clearwater, Florida 33767",
+      "This park has a white sandy beach with sea turtles that nest from April \u2013 October",
+      "The park provides benches for viewing the salt marsh",
+      "Amenities include a Playground, Restrooms, and Two Picnic Shelters with Grills",
+      "Hours are Open 7 days a week, 7 a.m. to sunset"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "95 acres of beach and park in Clearwater with a white sandy beach",
+    "why_here": "Go for a white sandy beach in Clearwater where sea turtles nest from April \u2013 October, with benches for viewing the salt marsh, a Playground, Restrooms, and Two Picnic Shelters with Grills.",
+    "know_before": "Hours are 7 a.m. to sunset, 7 days a week",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://pinellas.gov/parks/sand-key-park"
+     ],
+     "why_here": [
+      "https://pinellas.gov/parks/sand-key-park"
+     ],
+     "know_before": [
+      "https://pinellas.gov/parks/sand-key-park"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Sand Key Park is 95 acres with two distinct areas of beach and park in Clearwater",
+      "source": "https://pinellas.gov/parks/sand-key-park"
+     },
+     {
+      "claim": "Sand Key Park is at 1060 Gulf Boulevard Clearwater, Florida 33767",
+      "source": "https://pinellas.gov/parks/sand-key-park"
+     },
+     {
+      "claim": "This park has a white sandy beach with sea turtles that nest from April \u2013 October",
+      "source": "https://pinellas.gov/parks/sand-key-park"
+     },
+     {
+      "claim": "The park provides benches for viewing the salt marsh",
+      "source": "https://pinellas.gov/parks/sand-key-park"
+     },
+     {
+      "claim": "Amenities include a Playground, Restrooms, and Two Picnic Shelters with Grills",
+      "source": "https://pinellas.gov/parks/sand-key-park"
+     },
+     {
+      "claim": "Hours are Open 7 days a week, 7 a.m. to sunset",
+      "source": "https://pinellas.gov/parks/sand-key-park"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ5xUvLNHpwogRpwtmyklzxsY",
+   "name": "Ben T Davis Beach",
+   "category": "beach",
+   "metro": "tampa",
+   "primary_type": "beach",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.tampa.gov/parks-and-recreation/parks-and-facilities/beaches",
+     "source_name": "Ben T Davis Beach \u2014 official source",
+     "source_class": "government",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "We manage four beaches along the shores of Tampa Bay",
+      "Hours of operation are from sunrise to sunset",
+      "Ben T Davis Beach is at 7740 W Courtney Campbell Causeway, 33607",
+      "Metered Parking is $2.50/hour at Ben T Davis Beach"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Beach along Tampa Bay open from sunrise to sunset",
+    "why_here": "Go for a beach along Tampa Bay at 7740 W Courtney Campbell Causeway, open from sunrise to sunset, one of four beaches along the shores of Tampa Bay.",
+    "know_before": "Metered Parking is $2.50/hour",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.tampa.gov/parks-and-recreation/parks-and-facilities/beaches"
+     ],
+     "why_here": [
+      "https://www.tampa.gov/parks-and-recreation/parks-and-facilities/beaches"
+     ],
+     "know_before": [
+      "https://www.tampa.gov/parks-and-recreation/parks-and-facilities/beaches"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "We manage four beaches along the shores of Tampa Bay",
+      "source": "https://www.tampa.gov/parks-and-recreation/parks-and-facilities/beaches"
+     },
+     {
+      "claim": "Hours of operation are from sunrise to sunset",
+      "source": "https://www.tampa.gov/parks-and-recreation/parks-and-facilities/beaches"
+     },
+     {
+      "claim": "Ben T Davis Beach is at 7740 W Courtney Campbell Causeway, 33607",
+      "source": "https://www.tampa.gov/parks-and-recreation/parks-and-facilities/beaches"
+     },
+     {
+      "claim": "Metered Parking is $2.50/hour at Ben T Davis Beach",
+      "source": "https://www.tampa.gov/parks-and-recreation/parks-and-facilities/beaches"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJmxWkLtVrkYgR3ihijltb11E",
+   "name": "Turkey Creek Park",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://cityofniceville.org/271/Turkey-Creek-Nature-Trail",
+     "source_name": "Turkey Creek Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Turkey Creek Nature Trail boardwalk is 1 mile long",
+      "Turkey Creek Park is at 340 John Sims Parkway West Niceville, FL 32578",
+      "Visitors can be seen canoeing, kayaking, and tubing down the creek",
+      "The swimming areas provide a place for families to cool off",
+      "Canoes, kayaks, and tubes are allowed on the water, but gasoline engines are not permitted",
+      "The pavilion has picnic tables, grills, and a stone fireplace hearth"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Boardwalk along Turkey Creek with swimming areas and a pavilion",
+    "why_here": "Go for canoeing, kayaking, and tubing down the creek, swimming areas, and a boardwalk, with a pavilion that has picnic tables, grills, and a stone fireplace hearth.",
+    "know_before": "Canoes, kayaks, and tubes are allowed on the water, but gasoline engines are not permitted",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://cityofniceville.org/271/Turkey-Creek-Nature-Trail"
+     ],
+     "why_here": [
+      "https://cityofniceville.org/271/Turkey-Creek-Nature-Trail"
+     ],
+     "know_before": [
+      "https://cityofniceville.org/271/Turkey-Creek-Nature-Trail"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Turkey Creek Nature Trail boardwalk is 1 mile long",
+      "source": "https://cityofniceville.org/271/Turkey-Creek-Nature-Trail"
+     },
+     {
+      "claim": "Turkey Creek Park is at 340 John Sims Parkway West Niceville, FL 32578",
+      "source": "https://cityofniceville.org/271/Turkey-Creek-Nature-Trail"
+     },
+     {
+      "claim": "Visitors can be seen canoeing, kayaking, and tubing down the creek",
+      "source": "https://cityofniceville.org/271/Turkey-Creek-Nature-Trail"
+     },
+     {
+      "claim": "The swimming areas provide a place for families to cool off",
+      "source": "https://cityofniceville.org/271/Turkey-Creek-Nature-Trail"
+     },
+     {
+      "claim": "Canoes, kayaks, and tubes are allowed on the water, but gasoline engines are not permitted",
+      "source": "https://cityofniceville.org/271/Turkey-Creek-Nature-Trail"
+     },
+     {
+      "claim": "The pavilion has picnic tables, grills, and a stone fireplace hearth",
+      "source": "https://cityofniceville.org/271/Turkey-Creek-Nature-Trail"
+     }
+    ]
+   }
+  }
+ ]
+}

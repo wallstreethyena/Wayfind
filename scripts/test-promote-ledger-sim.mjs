@@ -169,16 +169,35 @@ eq(pass, 20, "every case ran (red-proved 2026-11-05: deleting `await refundToLed
 // ── PROMOTION'S HALF OF THE ENTERPRISE LINE (#2131), on the CALL ─────────────
 // 950 free line -> promotion stops at 475 used. Unrated places past the share
 // promote from CORE (Pro), never Enterprise.
+//
+// 2026-11-11 HUMAN TRAFFIC RESERVE (lib/spendGate.js): the route now declares itself
+// BACKGROUND, so a SECOND, tighter ceiling applies inside the same half: promotion
+// stops at HUMAN_LINE = 380 used (80% of the 475 visitors can draw) and the last 95
+// are visitor-only. The 475 share is unchanged and still binds when it is the lower
+// number (it is not, for the Enterprise row, any more). Cases 6, 8, 9 and 10 below
+// were re-pinned from used=470/472 (5 and 3 buys up to 475) to used=375/377 (5 and 3
+// buys up to 380) with the SAME assertions about what a buy costs and where it lands.
+// Case 7 (at/over the share nothing is even asked) is untouched, and 6b/7b are new:
+// they pin the reserve itself on the real route.
+const HUMAN_LINE = 380;
 const unrated = (n, p = "u") => Array.from({ length: n }, (_, i) => ({ id: p + i, rated: false }));
 const ent = (w, m = M) => (w.row("details_enterprise", m) || { used: 0 }).used;
-// 6. Remaining allowance: 470 used, 10 unrated places -> exactly 5 rating buys, 5 CORE.
+// 6. Remaining allowance: 375 used, 10 unrated places -> exactly 5 rating buys, 5 CORE.
 {
-  const w = makeWorld({ dbMonth: M, ledger: { [M + "|details_enterprise"]: { used: 470, cap: 950 }, [M + "|details_pro"]: { used: 0, cap: 4800 } }, places: unrated(10), google: {} });
+  const w = makeWorld({ dbMonth: M, ledger: { [M + "|details_enterprise"]: { used: 375, cap: 950 }, [M + "|details_pro"]: { used: 0, cap: 4800 } }, places: unrated(10), google: {} });
   const out = await runCron(w, "free");
   eq(out.ratingBought, 5, "6: the route's response counts exactly 5 rating buys");
-  eq(ent(w), 475, "6: promotion buys up to the share and stops at 475 used");
+  eq(ent(w), HUMAN_LINE, "6: promotion buys up to the human reserve line and stops at 380 used (the 475 share is a second ceiling)");
   eq(w.googleCalls.filter((c) => c.mask.includes("rating")).length, 5, "6: five rating-mask calls");
   eq(w.row("details_pro").used, 5, "6: the other five promote from CORE on Pro");
+}
+// 6b. AT the human line (380): no Enterprise take at all, every place promotes from CORE,
+//     and the run is not a failure (all five promoted).
+{
+  const w = makeWorld({ dbMonth: M, ledger: { [M + "|details_enterprise"]: { used: HUMAN_LINE, cap: 950 }, [M + "|details_pro"]: { used: 0, cap: 4800 } }, places: unrated(5), google: {} });
+  const out = await runCron(w, "free");
+  eq([out.ratingBought, ent(w), w.takes.filter((t) => t.sku === "details_enterprise").length], [0, HUMAN_LINE, 0], "6b: at the human line the Enterprise ledger is not asked and nothing is bought");
+  eq([out.promoted, w.row("details_pro").used], [5, 5], "6b: the five places still promote from CORE on Pro");
 }
 // 7. Exhausted share: 475 used -> no Enterprise take at all.
 {
@@ -187,31 +206,32 @@ const ent = (w, m = M) => (w.row("details_enterprise", m) || { used: 0 }).used;
   eq(w.takes.filter((t) => t.sku === "details_enterprise").length, 0, "7: at the share the Enterprise ledger is not even asked");
   eq(ent(w), 475, "7: the refresh's half is untouched");
 }
-// 8. OPEN gate mode, month_cap 7,500: the share is still half the FREE line (475), not half of 7,500.
-//    Red-proved: with ratingFreeLine = effectiveCap(RATING_SKU, monthCap) all 10 buy (480 used).
+// 8. OPEN gate mode, month_cap 7,500: the ceiling is still the FREE line's, not month_cap's.
+//    Red-proved: with ratingFreeLine = effectiveCap(RATING_SKU, monthCap) all 10 buy (385 used).
 {
-  const w = makeWorld({ dbMonth: M, ledger: { [M + "|details_enterprise"]: { used: 470, cap: 950 } }, places: unrated(10), google: {}, monthCap: 7500 });
+  const w = makeWorld({ dbMonth: M, ledger: { [M + "|details_enterprise"]: { used: 375, cap: 950 } }, places: unrated(10), google: {}, monthCap: 7500 });
   const out = await runCron(w, "open");
   eq(out.ratingBought, 5, "8: open mode: the route's response counts 5 rating buys, not 10");
-  eq(ent(w), 475, "8: open mode stops at 475 too (the share comes from the free line, never month_cap)");
+  eq(ent(w), HUMAN_LINE, "8: open mode stops at the same 380 (the line comes from the free line and the visitor ceiling, never month_cap)");
 }
 // 9. Retries: a rating buy that 5xx's twice takes three grants; they count toward the share,
 //    so the next unrated place cannot buy past it.
 {
-  const w = makeWorld({ dbMonth: M, ledger: { [M + "|details_enterprise"]: { used: 472, cap: 950 } },
+  const w = makeWorld({ dbMonth: M, ledger: { [M + "|details_enterprise"]: { used: 377, cap: 950 } },
     places: [{ id: "r0", rated: false }, { id: "r1", rated: false }, { id: "r2", rated: false }], google: { r0: [503, 503, 200] } });
   await runCron(w, "free");
-  eq(ent(w), 475, "9: 472 + three grants for one retried call = 475; no further rating buys");
+  eq(ent(w), HUMAN_LINE, "9: 377 + three grants for one retried call = 380; no further rating buys");
   eq(w.googleCalls.filter((c) => c.mask.includes("rating")).length, 3, "9: only the retried place used the rating mask");
 }
 // 10. Month boundary, database first: the DB has rolled to the next month while the app
-//     clock has not. The run reads this month's 470 (a stale, higher number) and buys 5;
-//     the grants land on the new month's row. Bounded and never over the share.
+//     clock has not. The run reads this month's 375 (a stale number) and buys all 10 (the
+//     reserve re-reads the same stale month, so it cannot see the new row's count);
+//     the grants land on the new month's row. Bounded by the batch and by the share.
 {
   const next = new Date(Date.UTC(+M.slice(0, 4), +M.slice(5, 7), 1)).toISOString().slice(0, 7);
-  const w = makeWorld({ dbMonth: next, ledger: { [M + "|details_enterprise"]: { used: 470, cap: 950 } }, places: unrated(10), google: {} });
+  const w = makeWorld({ dbMonth: next, ledger: { [M + "|details_enterprise"]: { used: 375, cap: 950 } }, places: unrated(10), google: {} });
   await runCron(w, "free");
-  eq([ent(w, M), ent(w, next)], [470, 5], "10: the old month is untouched; the new month gets the 5 the stale read allowed");
+  eq([ent(w, M), ent(w, next)], [375, 10], "10: the old month is untouched; the new month gets the 10 the stale read allowed");
 }
 // 11. Month boundary, fresh month with no row yet: the usage read finds nothing and the
 //     buy FAILS CLOSED (no stars bought, places promote from CORE) until another caller
@@ -245,6 +265,6 @@ const ent = (w, m = M) => (w.row("details_enterprise", m) || { used: 0 }).used;
     "12: STRUCTURAL (the worker is a CLI): the worker reserves the share slot before awaiting the ledger");
   ok(/const ratingFreeLine = freeTierLine\(RATING_SKU\);/.test(wsrc), "12: STRUCTURAL: the worker computes the share from the free line");
 }
-eq(pass, 37, "every share case ran");
+eq(pass, 39, "every share case ran (37 + the two 6b reserve assertions added 2026-11-11)");
 
 console.log(`test-promote-ledger-sim: OK (${pass} checks: 429 refunds by SKU, retry 429 refunds once, parked places take no grant, billed answers keep their grant, refused grants make no call; promotion's Enterprise share holds at remaining/exhausted/open-mode/retries/both month-boundary directions/8-way concurrency)`);

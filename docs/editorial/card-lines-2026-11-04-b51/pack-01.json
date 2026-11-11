@@ -1,0 +1,1747 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 51. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJZ0bJ52s624gRjsEoMTp5Slg",
+   "name": "Lighthouse Cafe of Sanibel Island",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "cafe",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.lighthousecafe.com/about",
+     "source_name": "Lighthouse Cafe of Sanibel Island \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Lighthouse Caf\u00e9 was established in 1987 by Michael Billheimer.",
+      "Menu items are scratch-made with many unique offerings.",
+      "The cafe is filled with history and pictures of lighthouses.",
+      "The longest working employee has been with the cafe for 41 years."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Scratch-made breakfast cafe established in 1987 on Sanibel Island",
+    "why_here": "Established in 1987 by Michael Billheimer, the cafe serves scratch-made menu items and is filled with history and pictures of lighthouses from around the country.",
+    "know_before": "The Lighthouse Caf\u00e9 was established in 1987 by Michael Billheimer.",
+    "local_tip": "Look for the history and pictures of lighthouses from around the country and world inside the cafe.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.lighthousecafe.com/about"
+     ],
+     "why_here": [
+      "https://www.lighthousecafe.com/about"
+     ],
+     "know_before": [
+      "https://www.lighthousecafe.com/about"
+     ],
+     "local_tip": [
+      "https://www.lighthousecafe.com/about"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Lighthouse Caf\u00e9 was established in 1987 by Michael Billheimer.",
+      "source": "https://www.lighthousecafe.com/about"
+     },
+     {
+      "claim": "Menu items are scratch-made with many unique offerings.",
+      "source": "https://www.lighthousecafe.com/about"
+     },
+     {
+      "claim": "The cafe is filled with history and pictures of lighthouses.",
+      "source": "https://www.lighthousecafe.com/about"
+     },
+     {
+      "claim": "The longest working employee has been with the cafe for 41 years.",
+      "source": "https://www.lighthousecafe.com/about"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJdS3lEPgB2YgRtQqmunYHoFU",
+   "name": "Baires Grill - Las Olas",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "argentinian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.bairesgrill.com/",
+     "source_name": "Baires Grill - Las Olas \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Baires Grill opened more than 27 years ago to bring the spirit of Argentina to the United States.",
+      "Baires Grill has nine locations, including Las Olas.",
+      "Las Olas hours are Sunday to Thursday 12:00 p.m. to 10:00 p.m. and Friday to Saturday 12:00 p.m. to 11:00 p.m.",
+      "Happy hour is Monday to Friday from 4:00 p.m. to 7:00 p.m. with 50% off all drinks, valid only at the bar area."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Nine locations built on the fire of the grill and the ritual of a long dinner",
+    "why_here": "More than 27 years ago, Baires Grill opened its doors with a simple idea: bring the spirit of Argentina to the United States. Today, with nine locations, that idea still guides everything the restaurant does.",
+    "know_before": "Las Olas hours are Sunday to Thursday 12:00 p.m. to 10:00 p.m. and Friday to Saturday 12:00 p.m. to 11:00 p.m.",
+    "local_tip": "Happy hour is Monday to Friday from 4:00 p.m. to 7:00 p.m. with 50% off all drinks, valid only at the bar area.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.bairesgrill.com/"
+     ],
+     "why_here": [
+      "https://www.bairesgrill.com/"
+     ],
+     "know_before": [
+      "https://www.bairesgrill.com/"
+     ],
+     "local_tip": [
+      "https://www.bairesgrill.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Baires Grill opened more than 27 years ago to bring the spirit of Argentina to the United States.",
+      "source": "https://www.bairesgrill.com/"
+     },
+     {
+      "claim": "Baires Grill has nine locations, including Las Olas.",
+      "source": "https://www.bairesgrill.com/"
+     },
+     {
+      "claim": "Las Olas hours are Sunday to Thursday 12:00 p.m. to 10:00 p.m. and Friday to Saturday 12:00 p.m. to 11:00 p.m.",
+      "source": "https://www.bairesgrill.com/"
+     },
+     {
+      "claim": "Happy hour is Monday to Friday from 4:00 p.m. to 7:00 p.m. with 50% off all drinks, valid only at the bar area.",
+      "source": "https://www.bairesgrill.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJFUDn3k0b2YgRVLWip_g0wi8",
+   "name": "NYY Steak",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "steak_house",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://casino.hardrock.com/coconut-creek/dining/nyy-steak",
+     "source_name": "NYY Steak \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "NYY Steak serves hand-selected dry-aged USDA Prime steaks aged in its in-house Butcher Shop a minimum of 21 days",
+      "The signature dish is the Long Bone Ribeye",
+      "NYY Steak has been awarded the Wine Spectator Award of Excellence",
+      "The ambiance is an upscale steakhouse with a New York Yankees theme",
+      "NYY Steak is open 7 days a week for dinner"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Hand-selected dry-aged USDA Prime steaks, aged in-house a minimum of 21 days",
+    "why_here": "NYY Steak serves hand-selected dry-aged USDA Prime steaks aged in its in-house Butcher Shop a minimum of 21 days, alongside pristine seafood and expertly curated wine, beer and spirits.",
+    "know_before": "NYY Steak serves hand-selected dry-aged USDA Prime steaks aged in its in-house Butcher Shop a minimum of 21 days",
+    "local_tip": "Speak with an NYY Steak butcher and select your perfect hand-cut USDA Prime steak.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://casino.hardrock.com/coconut-creek/dining/nyy-steak"
+     ],
+     "why_here": [
+      "https://casino.hardrock.com/coconut-creek/dining/nyy-steak"
+     ],
+     "know_before": [
+      "https://casino.hardrock.com/coconut-creek/dining/nyy-steak"
+     ],
+     "local_tip": [
+      "https://casino.hardrock.com/coconut-creek/dining/nyy-steak"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "NYY Steak serves hand-selected dry-aged USDA Prime steaks aged in its in-house Butcher Shop a minimum of 21 days",
+      "source": "https://casino.hardrock.com/coconut-creek/dining/nyy-steak"
+     },
+     {
+      "claim": "The signature dish is the Long Bone Ribeye",
+      "source": "https://casino.hardrock.com/coconut-creek/dining/nyy-steak"
+     },
+     {
+      "claim": "NYY Steak has been awarded the Wine Spectator Award of Excellence",
+      "source": "https://casino.hardrock.com/coconut-creek/dining/nyy-steak"
+     },
+     {
+      "claim": "The ambiance is an upscale steakhouse with a New York Yankees theme",
+      "source": "https://casino.hardrock.com/coconut-creek/dining/nyy-steak"
+     },
+     {
+      "claim": "NYY Steak is open 7 days a week for dinner",
+      "source": "https://casino.hardrock.com/coconut-creek/dining/nyy-steak"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJNQkm6YTXwogR5hBsreCMsfM",
+   "name": "Glory Days Grill",
+   "category": "nightlife",
+   "metro": "tampa",
+   "primary_type": "sports_bar",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.glorydaysgrill.com/about-glory-days-grill/",
+     "source_name": "Glory Days Grill \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Glory Days Grill began in 1996 in Burke, Virginia.",
+      "It was founded by Richard Danker, Robert Garner and Jeff Newman.",
+      "In 2023, the Florida franchise purchased the 22 mid-Atlantic restaurants.",
+      "The Victory Club earns 1 point for every $1 spent."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Sports-centric grill founded in 1996 for sports fans and families",
+    "why_here": "Glory Days Grill began in 1996 in Burke, Virginia, and aims to provide a fun sports experience with a multitude of televisions broadcasting sports games and other entertainment.",
+    "know_before": "The Victory Club earns 1 point for every $1 spent, with exclusive offers and surprise discounts.",
+    "local_tip": "Expect a multitude of televisions broadcasting sports games and other entertainment during a visit.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.glorydaysgrill.com/about-glory-days-grill/"
+     ],
+     "why_here": [
+      "https://www.glorydaysgrill.com/about-glory-days-grill/"
+     ],
+     "know_before": [
+      "https://www.glorydaysgrill.com/about-glory-days-grill/"
+     ],
+     "local_tip": [
+      "https://www.glorydaysgrill.com/about-glory-days-grill/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Glory Days Grill began in 1996 in Burke, Virginia.",
+      "source": "https://www.glorydaysgrill.com/about-glory-days-grill/"
+     },
+     {
+      "claim": "It was founded by Richard Danker, Robert Garner and Jeff Newman.",
+      "source": "https://www.glorydaysgrill.com/about-glory-days-grill/"
+     },
+     {
+      "claim": "In 2023, the Florida franchise purchased the 22 mid-Atlantic restaurants.",
+      "source": "https://www.glorydaysgrill.com/about-glory-days-grill/"
+     },
+     {
+      "claim": "The Victory Club earns 1 point for every $1 spent.",
+      "source": "https://www.glorydaysgrill.com/about-glory-days-grill/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ9XMMw_C22YgR88_owccBXfo",
+   "name": "Cubaocho Museum & Performing Arts Center",
+   "category": "attractions",
+   "metro": "miami-dade",
+   "primary_type": "art_museum",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.cubaocho.net/",
+     "source_name": "Cubaocho Museum & Performing Arts Center \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Its mission is to preserve, celebrate and share the richness of Cuban culture through fine art, live music and community connection.",
+      "The museum is open Tuesday through Sunday at 11:00 a.m.",
+      "Happy Hour offers 2-for-1 selected cocktails and $6 beers.",
+      "Its flexible event spaces are nestled within a vibrant gallery."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Museum and performing arts center where fine art, live music and community connection meet",
+    "why_here": "Cubaocho Museum & Performing Arts Center describes its mission as preserving, celebrating and sharing the richness of Cuban culture through fine art, live music and community connection. It calls itself a living cultural center where history, creativity and expression come together.",
+    "know_before": "Our museum is open Tuesday through Sunday at 11:00 a.m.",
+    "local_tip": "Ask about the appetizers, described as the perfect pairing during Happy Hour.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.cubaocho.net/"
+     ],
+     "why_here": [
+      "https://www.cubaocho.net/"
+     ],
+     "know_before": [
+      "https://www.cubaocho.net/"
+     ],
+     "local_tip": [
+      "https://www.cubaocho.net/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Its mission is to preserve, celebrate and share the richness of Cuban culture through fine art, live music and community connection.",
+      "source": "https://www.cubaocho.net/"
+     },
+     {
+      "claim": "The museum is open Tuesday through Sunday at 11:00 a.m.",
+      "source": "https://www.cubaocho.net/"
+     },
+     {
+      "claim": "Happy Hour offers 2-for-1 selected cocktails and $6 beers.",
+      "source": "https://www.cubaocho.net/"
+     },
+     {
+      "claim": "Its flexible event spaces are nestled within a vibrant gallery.",
+      "source": "https://www.cubaocho.net/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJg2Dr_bL9wogRJfce7SOCimk",
+   "name": "Boca Ciega Waterfront Bar & Grill",
+   "category": "food",
+   "metro": "st-pete",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://bocaciegawaterfront.com/",
+     "source_name": "Boca Ciega Waterfront Bar & Grill \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Boca Ciega Waterfront Bar & Grill offers approachable coastal food, cold drinks, friendly hospitality and a view along Boca Ciega Bay",
+      "The menu features seafood favorites, satisfying sandwiches, fresh salads and shareable appetizers",
+      "The meal can be paired with a tropical cocktail or an ice-cold beer",
+      "For normal reservations, call (727) 290-9578"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Your newest waterfront hangout with coastal food, cold drinks and a Boca Ciega Bay view",
+    "why_here": "Boca Ciega Waterfront Bar & Grill brings together approachable coastal food, cold drinks, friendly hospitality and an unbeatable view along Boca Ciega Bay. Its menu features seafood favorites, satisfying sandwiches, fresh salads and shareable appetizers.",
+    "know_before": "Boca Ciega Waterfront Bar & Grill offers approachable coastal food, cold drinks, friendly hospitality and a view along Boca Ciega Bay",
+    "local_tip": "Settle in to watch the sunset over Boca Ciega Bay.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://bocaciegawaterfront.com/"
+     ],
+     "why_here": [
+      "https://bocaciegawaterfront.com/"
+     ],
+     "know_before": [
+      "https://bocaciegawaterfront.com/"
+     ],
+     "local_tip": [
+      "https://bocaciegawaterfront.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Boca Ciega Waterfront Bar & Grill offers approachable coastal food, cold drinks, friendly hospitality and a view along Boca Ciega Bay",
+      "source": "https://bocaciegawaterfront.com/"
+     },
+     {
+      "claim": "The menu features seafood favorites, satisfying sandwiches, fresh salads and shareable appetizers",
+      "source": "https://bocaciegawaterfront.com/"
+     },
+     {
+      "claim": "The meal can be paired with a tropical cocktail or an ice-cold beer",
+      "source": "https://bocaciegawaterfront.com/"
+     },
+     {
+      "claim": "For normal reservations, call (727) 290-9578",
+      "source": "https://bocaciegawaterfront.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJP1PTVVhDkYgRCSGjkzcywwo",
+   "name": "Spark by Hilton Destin",
+   "category": "hotels",
+   "metro": "florida",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.hilton.com/en/hotels/vpscdpe-spark-destin/hotel-info/",
+     "source_name": "Spark by Hilton Destin \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Free breakfast is listed among the hotel amenities",
+      "Outdoor pool is listed under fitness and recreation amenities",
+      "Hotel offers a fitness center and outdoor swimming pool"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Hilton's Spark stay in Destin with free breakfast and an outdoor pool",
+    "why_here": "Spark by Hilton Destin lists free breakfast among its core amenities on the official Hilton hotel-info page. The property also offers an outdoor pool and a fitness center for a simple, budget-friendly Destin base.",
+    "know_before": "Free breakfast is included, per the official Hilton amenities list.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.hilton.com/en/hotels/vpscdpe-spark-destin/hotel-info/"
+     ],
+     "why_here": [
+      "https://www.hilton.com/en/hotels/vpscdpe-spark-destin/hotel-info/"
+     ],
+     "know_before": [
+      "https://www.hilton.com/en/hotels/vpscdpe-spark-destin/hotel-info/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Free breakfast is listed among the hotel amenities",
+      "source": "https://www.hilton.com/en/hotels/vpscdpe-spark-destin/hotel-info/"
+     },
+     {
+      "claim": "Outdoor pool is listed under fitness and recreation amenities",
+      "source": "https://www.hilton.com/en/hotels/vpscdpe-spark-destin/hotel-info/"
+     },
+     {
+      "claim": "Hotel offers a fitness center and outdoor swimming pool",
+      "source": "https://www.hilton.com/en/hotels/vpscdpe-spark-destin/hotel-info/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJSSXfn2wB2YgR-wGyp1CBDeY",
+   "name": "Pura Vida Miami",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "coffee_shop",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.puravidamiami.com/our-mission",
+     "source_name": "Pura Vida Miami \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Pura Vida Miami was established in 2012 by founder Omer Horev in South Florida.",
+      "The menu includes vegan and gluten-free options.",
+      "Fresh fruits and veggies are prepped in-house.",
+      "The brand participates in quarterly beach cleanups."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Wellness and lifestyle brand established in 2012 in South Florida",
+    "why_here": "Pura Vida Miami aims to provide delicious and healthy food and create a like-minded community, with colorful plates filled with fruits, vegetables, and proteins.",
+    "know_before": "The menu includes vegan and gluten-free options for diverse dietary needs.",
+    "local_tip": "Leftovers are put aside for composting partners to turn into fertile soil donated to local farmers.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.puravidamiami.com/our-mission"
+     ],
+     "why_here": [
+      "https://www.puravidamiami.com/our-mission"
+     ],
+     "know_before": [
+      "https://www.puravidamiami.com/our-mission"
+     ],
+     "local_tip": [
+      "https://www.puravidamiami.com/our-mission"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Pura Vida Miami was established in 2012 by founder Omer Horev in South Florida.",
+      "source": "https://www.puravidamiami.com/our-mission"
+     },
+     {
+      "claim": "The menu includes vegan and gluten-free options.",
+      "source": "https://www.puravidamiami.com/our-mission"
+     },
+     {
+      "claim": "Fresh fruits and veggies are prepped in-house.",
+      "source": "https://www.puravidamiami.com/our-mission"
+     },
+     {
+      "claim": "The brand participates in quarterly beach cleanups.",
+      "source": "https://www.puravidamiami.com/our-mission"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJIZ6NopZrw4gRajHvz0sFgqc",
+   "name": "Bird Key Park",
+   "category": "attractions",
+   "metro": "manatee-sarasota",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.sarasotafl.gov/Home/Components/FacilityDirectory/FacilityDirectory/82/3666",
+     "source_name": "Bird Key Park \u2014 official source",
+     "source_class": "government",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Park is open 5:00 a.m. - 11:00 p.m. daily.",
+      "The park is a popular location to fish, bike, launch a canoe or kayak or walk a leashed pet.",
+      "Kayak / Canoeing is listed among park amenities."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Park for fishing, biking and launching a canoe or kayak",
+    "why_here": "This park is described as a popular location to fish, bike, launch a canoe or kayak or walk a leashed pet. Kayak and canoeing are listed among its amenities on the official park listing.",
+    "know_before": "Park is open 5:00 a.m. - 11:00 p.m. daily, per the official listing.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.sarasotafl.gov/Home/Components/FacilityDirectory/FacilityDirectory/82/3666"
+     ],
+     "why_here": [
+      "https://www.sarasotafl.gov/Home/Components/FacilityDirectory/FacilityDirectory/82/3666"
+     ],
+     "know_before": [
+      "https://www.sarasotafl.gov/Home/Components/FacilityDirectory/FacilityDirectory/82/3666"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Park is open 5:00 a.m. - 11:00 p.m. daily.",
+      "source": "https://www.sarasotafl.gov/Home/Components/FacilityDirectory/FacilityDirectory/82/3666"
+     },
+     {
+      "claim": "The park is a popular location to fish, bike, launch a canoe or kayak or walk a leashed pet.",
+      "source": "https://www.sarasotafl.gov/Home/Components/FacilityDirectory/FacilityDirectory/82/3666"
+     },
+     {
+      "claim": "Kayak / Canoeing is listed among park amenities.",
+      "source": "https://www.sarasotafl.gov/Home/Components/FacilityDirectory/FacilityDirectory/82/3666"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJq8Ks0TbH5YgRRQjnltiBURA",
+   "name": "Kids Empire Jacksonville",
+   "category": "attractions",
+   "metro": "jacksonville-fl",
+   "primary_type": "indoor_playground",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.kidsempire.com/store-locator/kids-empire-jacksonville",
+     "source_name": "Kids Empire Jacksonville \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Indoor playground serves children ages 1-12 in a safe, colorful space",
+      "Features multi-level play structures, winding slides, ball pit and dance floor",
+      "Toddler zone for ages 1-3 has mini slides, soft construction blocks and a small ball pit",
+      "Admission is valid all day with re-entry; 2 adults included free per child admission"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "All-day indoor playground for ages 1-12 with slides, ball pit and dance floor",
+    "why_here": "Kids Empire Jacksonville is an indoor playground for children ages 1-12 with a multi-level maze, winding slides, obstacle passages, a ball pit and a dance floor. Admission is valid all day with re-entry, and toddlers ages 1-3 get their own zone with mini slides and soft blocks.",
+    "know_before": "Open every day, rain or shine, including holidays; hours vary by weekday per the official page.",
+    "local_tip": "Admission includes 2 free adults per child ticket and same-day re-entry.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.kidsempire.com/store-locator/kids-empire-jacksonville"
+     ],
+     "why_here": [
+      "https://www.kidsempire.com/store-locator/kids-empire-jacksonville"
+     ],
+     "know_before": [
+      "https://www.kidsempire.com/store-locator/kids-empire-jacksonville"
+     ],
+     "local_tip": [
+      "https://www.kidsempire.com/store-locator/kids-empire-jacksonville"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Indoor playground serves children ages 1-12 in a safe, colorful space",
+      "source": "https://www.kidsempire.com/store-locator/kids-empire-jacksonville"
+     },
+     {
+      "claim": "Features multi-level play structures, winding slides, ball pit and dance floor",
+      "source": "https://www.kidsempire.com/store-locator/kids-empire-jacksonville"
+     },
+     {
+      "claim": "Toddler zone for ages 1-3 has mini slides, soft construction blocks and a small ball pit",
+      "source": "https://www.kidsempire.com/store-locator/kids-empire-jacksonville"
+     },
+     {
+      "claim": "Admission is valid all day with re-entry; 2 adults included free per child admission",
+      "source": "https://www.kidsempire.com/store-locator/kids-empire-jacksonville"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJH8axf8cn5IgR0RJpwT5gTXQ",
+   "name": "DoubleTree by Hilton St. Augustine Historic District",
+   "category": "hotels",
+   "metro": "florida",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.hilton.com/en/hotels/ustsmdt-doubletree-st-augustine-historic-district/",
+     "source_name": "DoubleTree by Hilton St. Augustine Historic District \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Guests enjoy a warm DoubleTree cookie on arrival",
+      "Hotel has an outdoor pool and a restaurant",
+      "Located in St. Augustine's Historic District for exploring the nation's oldest city"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Historic District stay greeting guests with a warm DoubleTree cookie on arrival",
+    "why_here": "DoubleTree by Hilton St. Augustine Historic District welcomes guests with the brand's warm cookie on arrival, per the official Hilton page. The hotel has an outdoor pool and a restaurant in the Historic District of the nation's oldest city.",
+    "know_before": "Expect a warm DoubleTree cookie on arrival, per Hilton.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.hilton.com/en/hotels/ustsmdt-doubletree-st-augustine-historic-district/"
+     ],
+     "why_here": [
+      "https://www.hilton.com/en/hotels/ustsmdt-doubletree-st-augustine-historic-district/"
+     ],
+     "know_before": [
+      "https://www.hilton.com/en/hotels/ustsmdt-doubletree-st-augustine-historic-district/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Guests enjoy a warm DoubleTree cookie on arrival",
+      "source": "https://www.hilton.com/en/hotels/ustsmdt-doubletree-st-augustine-historic-district/"
+     },
+     {
+      "claim": "Hotel has an outdoor pool and a restaurant",
+      "source": "https://www.hilton.com/en/hotels/ustsmdt-doubletree-st-augustine-historic-district/"
+     },
+     {
+      "claim": "Located in St. Augustine's Historic District for exploring the nation's oldest city",
+      "source": "https://www.hilton.com/en/hotels/ustsmdt-doubletree-st-augustine-historic-district/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ6QiaDACn2YgR27VyEWRtltk",
+   "name": "Adrian Fish Market & Restaurant",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://adrianfishseafood.com/our-menus/",
+     "source_name": "Adrian Fish Market & Restaurant \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "It is described as a fish market and casual seafood eatery in a quirky space with blue walls and marine-life decor.",
+      "The page lists two locations: Hialeah Gardens and Southwest Ranches.",
+      "Hialeah Gardens hours are Mon-Thurs 8:00 a.m. to 9:00 p.m., Fri-Sat 8:00 a.m. to 11:00 p.m. and Sun 10:00 a.m. to 9:00 p.m.",
+      "Southwest Ranches hours are Sun-Thurs 11:00 a.m. to 10:00 p.m. and Fri-Sat 11:00 a.m. to 11:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Fish market and casual seafood eatery in a quirky space with blue walls and marine-life decor",
+    "why_here": "Adrian Fish Market & Restaurant describes its Hialeah Gardens site as a fish market and casual seafood eatery in a quirky space with blue walls and marine-life decor. Its menus page lists a main menu and a drinks and dessert menu for that location.",
+    "know_before": "Hialeah Gardens hours listed are Mon-Thurs 8:00 a.m. to 9:00 p.m., Fri-Sat 8:00 a.m. to 11:00 p.m. and Sun 10:00 a.m. to 9:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://adrianfishseafood.com/our-menus/"
+     ],
+     "why_here": [
+      "https://adrianfishseafood.com/our-menus/"
+     ],
+     "know_before": [
+      "https://adrianfishseafood.com/our-menus/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "It is described as a fish market and casual seafood eatery in a quirky space with blue walls and marine-life decor.",
+      "source": "https://adrianfishseafood.com/our-menus/"
+     },
+     {
+      "claim": "The page lists two locations: Hialeah Gardens and Southwest Ranches.",
+      "source": "https://adrianfishseafood.com/our-menus/"
+     },
+     {
+      "claim": "Hialeah Gardens hours are Mon-Thurs 8:00 a.m. to 9:00 p.m., Fri-Sat 8:00 a.m. to 11:00 p.m. and Sun 10:00 a.m. to 9:00 p.m.",
+      "source": "https://adrianfishseafood.com/our-menus/"
+     },
+     {
+      "claim": "Southwest Ranches hours are Sun-Thurs 11:00 a.m. to 10:00 p.m. and Fri-Sat 11:00 a.m. to 11:00 p.m.",
+      "source": "https://adrianfishseafood.com/our-menus/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ1TvYFcPC54gRws9U8eSjPZI",
+   "name": "Gator's Dockside Brownwood",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://gatorsdockside.com/restaurants/locations/the-villages-brownwood/",
+     "source_name": "Gator's Dockside Brownwood \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Gator's Dockside is a casual sports themed restaurant.",
+      "It caters to sports enthusiasts as well as families with children.",
+      "The restaurant started with one neighborhood family restaurant in Jacksonville Florida in May 1991.",
+      "Hours are listed as Mon-Sun 11:00 a.m. to 12:00 a.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Casual sports themed restaurant for sports enthusiasts and families",
+    "why_here": "Gator's Dockside is a casual sports themed restaurant that caters to sports enthusiasts as well as families with children, and started with one neighborhood family restaurant in Jacksonville Florida in May 1991.",
+    "know_before": "Hours are listed as Mon-Sun 11:00 a.m. to 12:00 a.m. on the official location page.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://gatorsdockside.com/restaurants/locations/the-villages-brownwood/"
+     ],
+     "why_here": [
+      "https://gatorsdockside.com/restaurants/locations/the-villages-brownwood/"
+     ],
+     "know_before": [
+      "https://gatorsdockside.com/restaurants/locations/the-villages-brownwood/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Gator's Dockside is a casual sports themed restaurant.",
+      "source": "https://gatorsdockside.com/restaurants/locations/the-villages-brownwood/"
+     },
+     {
+      "claim": "It caters to sports enthusiasts as well as families with children.",
+      "source": "https://gatorsdockside.com/restaurants/locations/the-villages-brownwood/"
+     },
+     {
+      "claim": "The restaurant started with one neighborhood family restaurant in Jacksonville Florida in May 1991.",
+      "source": "https://gatorsdockside.com/restaurants/locations/the-villages-brownwood/"
+     },
+     {
+      "claim": "Hours are listed as Mon-Sun 11:00 a.m. to 12:00 a.m.",
+      "source": "https://gatorsdockside.com/restaurants/locations/the-villages-brownwood/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJd28tXwK32YgRO57zVtNFWSs",
+   "name": "Sha Wynwood",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "mediterranean_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.shawynwood.com/",
+     "source_name": "Sha Wynwood \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The cuisine is Mediterranean with Asian Influences, producing a Euro-Asian-American menu.",
+      "The restaurant combines the freshest local ingredients and original recipes.",
+      "When night falls, the restaurant revamps into a playground for the evening with Live Music and DJs.",
+      "Sha Wynwood was established in 2022.",
+      "Opening hours are Monday to Friday 4:00 p.m. to 2:00 a.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Mediterranean with Asian Influences, with Live Music and DJs",
+    "why_here": "Sha Wynwood combines Mediterranean cooking with Asian influences in a Euro-Asian-American menu using the freshest local ingredients and original recipes. When night falls, the restaurant revamps into a playground for the evening with Live Music and DJs.",
+    "know_before": "The cuisine is Mediterranean with Asian Influences, producing a Euro-Asian-American menu.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.shawynwood.com/"
+     ],
+     "why_here": [
+      "https://www.shawynwood.com/"
+     ],
+     "know_before": [
+      "https://www.shawynwood.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The cuisine is Mediterranean with Asian Influences, producing a Euro-Asian-American menu.",
+      "source": "https://www.shawynwood.com/"
+     },
+     {
+      "claim": "The restaurant combines the freshest local ingredients and original recipes.",
+      "source": "https://www.shawynwood.com/"
+     },
+     {
+      "claim": "When night falls, the restaurant revamps into a playground for the evening with Live Music and DJs.",
+      "source": "https://www.shawynwood.com/"
+     },
+     {
+      "claim": "Sha Wynwood was established in 2022.",
+      "source": "https://www.shawynwood.com/"
+     },
+     {
+      "claim": "Opening hours are Monday to Friday 4:00 p.m. to 2:00 a.m.",
+      "source": "https://www.shawynwood.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJA7SGqLJ954gRm31fciaocfA",
+   "name": "Meson Sandwiches",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://mesonsandwiches.com/",
+     "source_name": "Meson Sandwiches \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Meson Sandwiches is a Puerto Rican icon for over 50 years.",
+      "Travel + Leisure ranked Meson Sandwiches as one of the best restaurant chains in the world.",
+      "Its coffee uses 100% Arabica beans medium-roasted in the traditional style.",
+      "Breakfasts are served all day."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Puerto Rican icon for over 50 years, known for hot grilled sandwiches and coffee",
+    "why_here": "Meson Sandwiches describes itself as a Puerto Rican icon for over 50 years, ranked by Travel + Leisure as one of the best restaurant chains in the world. Its site highlights hot grilled sandwiches and breakfasts served all day.",
+    "know_before": "Breakfasts are served all day, including breakfast sandwiches and platters.",
+    "local_tip": "The coffee uses 100% Arabica beans, medium roasted in the traditional style.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://mesonsandwiches.com/"
+     ],
+     "why_here": [
+      "https://mesonsandwiches.com/"
+     ],
+     "know_before": [
+      "https://mesonsandwiches.com/"
+     ],
+     "local_tip": [
+      "https://mesonsandwiches.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Meson Sandwiches is a Puerto Rican icon for over 50 years.",
+      "source": "https://mesonsandwiches.com/"
+     },
+     {
+      "claim": "Travel + Leisure ranked Meson Sandwiches as one of the best restaurant chains in the world.",
+      "source": "https://mesonsandwiches.com/"
+     },
+     {
+      "claim": "Its coffee uses 100% Arabica beans medium-roasted in the traditional style.",
+      "source": "https://mesonsandwiches.com/"
+     },
+     {
+      "claim": "Breakfasts are served all day.",
+      "source": "https://mesonsandwiches.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJn_JGk3Th2YgRz-Laz-Q058Y",
+   "name": "Guy Bradley Visitor Center (at Flamingo)",
+   "category": "attractions",
+   "metro": "keys",
+   "primary_type": "visitor_center",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.nps.gov/ever/planyourvisit/gbvc.htm",
+     "source_name": "Guy Bradley Visitor Center (at Flamingo) \u2014 official source",
+     "source_class": "government",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Guy Bradley Visitor Center provides access to the southernmost region of Everglades National Park.",
+      "Visitors can explore coastal ecosystems, enjoy wildlife viewing, and access boating, camping and waterfront experiences.",
+      "The visitor center offers visitor information from park rangers, educational displays, informational brochures, a gift shop and backcountry permits.",
+      "There is no other public transportation to this site.",
+      "The visitor center is open from 8:00 a.m. to 5:00 p.m. daily November 16 to April 30."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Gateway to the southernmost, most remote region of Everglades National Park",
+    "why_here": "The Guy Bradley Visitor Center, located in Flamingo, provides access to the southernmost region of Everglades National Park. Visitors can explore coastal ecosystems, enjoy wildlife viewing, and access boating, camping and waterfront experiences.",
+    "know_before": "There is no other public transportation to this site, and visitors arriving by on-demand transportation may be unable to acquire return transportation.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.nps.gov/ever/planyourvisit/gbvc.htm"
+     ],
+     "why_here": [
+      "https://www.nps.gov/ever/planyourvisit/gbvc.htm"
+     ],
+     "know_before": [
+      "https://www.nps.gov/ever/planyourvisit/gbvc.htm"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Guy Bradley Visitor Center provides access to the southernmost region of Everglades National Park.",
+      "source": "https://www.nps.gov/ever/planyourvisit/gbvc.htm"
+     },
+     {
+      "claim": "Visitors can explore coastal ecosystems, enjoy wildlife viewing, and access boating, camping and waterfront experiences.",
+      "source": "https://www.nps.gov/ever/planyourvisit/gbvc.htm"
+     },
+     {
+      "claim": "The visitor center offers visitor information from park rangers, educational displays, informational brochures, a gift shop and backcountry permits.",
+      "source": "https://www.nps.gov/ever/planyourvisit/gbvc.htm"
+     },
+     {
+      "claim": "There is no other public transportation to this site.",
+      "source": "https://www.nps.gov/ever/planyourvisit/gbvc.htm"
+     },
+     {
+      "claim": "The visitor center is open from 8:00 a.m. to 5:00 p.m. daily November 16 to April 30.",
+      "source": "https://www.nps.gov/ever/planyourvisit/gbvc.htm"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJTQ5vtFMow4gRgXnhbGgK2e0",
+   "name": "Little Manatee River State Park",
+   "category": "attractions",
+   "metro": "tampa",
+   "primary_type": "state_park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.floridastateparks.org/parks-and-trails/little-manatee-river-state-park",
+     "source_name": "Little Manatee River State Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Visitors can paddle the Little Manatee River or hike the vast system of trails",
+      "The Little Manatee River flows almost 40 miles before emptying into Tampa Bay",
+      "The park is open 8:00 a.m. until sunset"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Paddle the Little Manatee River or hike a vast system of trails",
+    "why_here": "Visitors can paddle down the beautiful Little Manatee River or hike the vast system of trails at Little Manatee River State Park. The river flows almost 40 miles, making this a river and trails outing.",
+    "know_before": "The park is open 8:00 a.m. until sunset, and an entrance fee is required.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.floridastateparks.org/parks-and-trails/little-manatee-river-state-park"
+     ],
+     "why_here": [
+      "https://www.floridastateparks.org/parks-and-trails/little-manatee-river-state-park"
+     ],
+     "know_before": [
+      "https://www.floridastateparks.org/parks-and-trails/little-manatee-river-state-park"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Visitors can paddle the Little Manatee River or hike the vast system of trails",
+      "source": "https://www.floridastateparks.org/parks-and-trails/little-manatee-river-state-park"
+     },
+     {
+      "claim": "The Little Manatee River flows almost 40 miles before emptying into Tampa Bay",
+      "source": "https://www.floridastateparks.org/parks-and-trails/little-manatee-river-state-park"
+     },
+     {
+      "claim": "The park is open 8:00 a.m. until sunset",
+      "source": "https://www.floridastateparks.org/parks-and-trails/little-manatee-river-state-park"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJyae_Kcin4IgRQ3rR4rwzfb0",
+   "name": "Big Daddy J's 5 Great Things",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.bigdaddyjs5gt.com/",
+     "source_name": "Big Daddy J's 5 Great Things \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Big Daddy J's is the culmination of working in the bar and restaurant business for 30 years.",
+      "The team wanted something completely different and fun.",
+      "The site lists outdoor seating, parties and 2 full bars.",
+      "The restaurant lists hours from 11:00 a.m. to 12:00 a.m. daily."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Local favorite built from 30 years in the bar and restaurant business",
+    "why_here": "Big Daddy J's 5 Great Things calls itself the culmination of working in the bar and restaurant business for 30 years. Its site says the team wanted something completely different and fun for guests.",
+    "know_before": "The restaurant lists hours from 11:00 a.m. to 12:00 a.m. daily.",
+    "local_tip": "The site lists outdoor seating and 2 full bars.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.bigdaddyjs5gt.com/"
+     ],
+     "why_here": [
+      "https://www.bigdaddyjs5gt.com/"
+     ],
+     "know_before": [
+      "https://www.bigdaddyjs5gt.com/"
+     ],
+     "local_tip": [
+      "https://www.bigdaddyjs5gt.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Big Daddy J's is the culmination of working in the bar and restaurant business for 30 years.",
+      "source": "https://www.bigdaddyjs5gt.com/"
+     },
+     {
+      "claim": "The team wanted something completely different and fun.",
+      "source": "https://www.bigdaddyjs5gt.com/"
+     },
+     {
+      "claim": "The site lists outdoor seating, parties and 2 full bars.",
+      "source": "https://www.bigdaddyjs5gt.com/"
+     },
+     {
+      "claim": "The restaurant lists hours from 11:00 a.m. to 12:00 a.m. daily.",
+      "source": "https://www.bigdaddyjs5gt.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJP-a2pxyE3YgRgMWf0bYKBds",
+   "name": "Kabayan Grill Filipino Restaurant",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "filipino_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.kabayangrillrestaurant.com/",
+     "source_name": "Kabayan Grill Filipino Restaurant \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Kabayan Grill serves Authentic Filipino Food with dine-in, catering and to go orders.",
+      "Featured Dishes include Tuna Panga, Pork Ribs Kaldereta and Lechon Belly.",
+      "The restaurant is closed on Monday.",
+      "Business hours on Tuesday are 11:00 a.m. to 5:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Authentic Filipino Food with dine-in, catering and to go orders",
+    "why_here": "Kabayan Grill presents Authentic Filipino Food with dine-in, catering and to go orders available through its official site. Its Featured Dishes include Tuna Panga, Pork Ribs Kaldereta and Lechon Belly, as listed on the site.",
+    "know_before": "The restaurant is closed on Monday, according to the business hours listed on the official site.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.kabayangrillrestaurant.com/"
+     ],
+     "why_here": [
+      "https://www.kabayangrillrestaurant.com/"
+     ],
+     "know_before": [
+      "https://www.kabayangrillrestaurant.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Kabayan Grill serves Authentic Filipino Food with dine-in, catering and to go orders.",
+      "source": "https://www.kabayangrillrestaurant.com/"
+     },
+     {
+      "claim": "Featured Dishes include Tuna Panga, Pork Ribs Kaldereta and Lechon Belly.",
+      "source": "https://www.kabayangrillrestaurant.com/"
+     },
+     {
+      "claim": "The restaurant is closed on Monday.",
+      "source": "https://www.kabayangrillrestaurant.com/"
+     },
+     {
+      "claim": "Business hours on Tuesday are 11:00 a.m. to 5:00 p.m.",
+      "source": "https://www.kabayangrillrestaurant.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJEbIJ3TQZ24gRvKCw_ieEGZg",
+   "name": "The Bay House Restaurant",
+   "category": "food",
+   "metro": "immokalee-fl",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.bayhousenaples.com/",
+     "source_name": "The Bay House Restaurant \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Bay House Restaurant is located directly on the Cocohatchee River in North Naples",
+      "It offers waterfront dining and views of the Cocohatchee wildlife preserve",
+      "Outdoor seating is available on the waterfront deck",
+      "Live music is offered in the Tavern 7 nights a week",
+      "Many signature dishes include locally-grown and locally-sourced ingredients"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Waterfront dining on the Cocohatchee River with views of the wildlife preserve",
+    "why_here": "The Bay House Restaurant is located directly on the Cocohatchee River in North Naples, offering waterfront dining and views of the Cocohatchee wildlife preserve. Many signature dishes include locally-grown and locally-sourced ingredients.",
+    "know_before": "The Bay House Restaurant is located directly on the Cocohatchee River in North Naples",
+    "local_tip": "Outdoor seating is available on the waterfront deck and around the fire pit on the front patio.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.bayhousenaples.com/"
+     ],
+     "why_here": [
+      "https://www.bayhousenaples.com/"
+     ],
+     "know_before": [
+      "https://www.bayhousenaples.com/"
+     ],
+     "local_tip": [
+      "https://www.bayhousenaples.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Bay House Restaurant is located directly on the Cocohatchee River in North Naples",
+      "source": "https://www.bayhousenaples.com/"
+     },
+     {
+      "claim": "It offers waterfront dining and views of the Cocohatchee wildlife preserve",
+      "source": "https://www.bayhousenaples.com/"
+     },
+     {
+      "claim": "Outdoor seating is available on the waterfront deck",
+      "source": "https://www.bayhousenaples.com/"
+     },
+     {
+      "claim": "Live music is offered in the Tavern 7 nights a week",
+      "source": "https://www.bayhousenaples.com/"
+     },
+     {
+      "claim": "Many signature dishes include locally-grown and locally-sourced ingredients",
+      "source": "https://www.bayhousenaples.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJWxTBfIwH2YgRn7uD6O3aAME",
+   "name": "Spiked Rich Nitrogen Ice Cream",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "ice_cream_shop",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://spikedrich.com/about-us/",
+     "source_name": "Spiked Rich Nitrogen Ice Cream \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Creamists flash freeze ice cream using liquid nitrogen at negative 321 degrees Fahrenheit.",
+      "Spiked Rich is a liquid nitrogen, alcohol infused custom ice cream restaurant.",
+      "Creamists create each dessert in front of customers.",
+      "The shop has a steampunk factory theme and experience."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Liquid-nitrogen ice cream flash-frozen in a steampunk factory setting",
+    "why_here": "Creamists flash-freeze ice cream using liquid nitrogen at negative 321 degrees Fahrenheit and create each dessert in front of customers. The experience is built around a steampunk factory theme with custom props and a live show.",
+    "know_before": "Alcohol infused treats are for those over 21 only.",
+    "local_tip": "Everyone can watch as each dish is prepared from scratch in the steampunk themed factory.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://spikedrich.com/about-us/"
+     ],
+     "why_here": [
+      "https://spikedrich.com/about-us/"
+     ],
+     "know_before": [
+      "https://spikedrich.com/about-us/"
+     ],
+     "local_tip": [
+      "https://spikedrich.com/about-us/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Creamists flash freeze ice cream using liquid nitrogen at negative 321 degrees Fahrenheit.",
+      "source": "https://spikedrich.com/about-us/"
+     },
+     {
+      "claim": "Spiked Rich is a liquid nitrogen, alcohol infused custom ice cream restaurant.",
+      "source": "https://spikedrich.com/about-us/"
+     },
+     {
+      "claim": "Creamists create each dessert in front of customers.",
+      "source": "https://spikedrich.com/about-us/"
+     },
+     {
+      "claim": "The shop has a steampunk factory theme and experience.",
+      "source": "https://spikedrich.com/about-us/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJEzFNEg5Aw4gRDrZ35pHXaiw",
+   "name": "Toasted Mango Cafe",
+   "category": "food",
+   "metro": "manatee-sarasota",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://toastedmangocafe.com/",
+     "source_name": "Toasted Mango Cafe \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Toasted Mango Cafe has been a Sarasota staple since 2011 and is family-owned and operated",
+      "The cafe serves fresh, made-from-scratch breakfast and lunch favorites served all day"
+     ]
+    },
+    {
+     "source": "https://toastedmangocafe.com/menu/",
+     "source_name": "Toasted Mango Cafe \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The menu lists an Award Winning Toasted Mango Waffle topped with fresh mango and toasted coconut",
+      "The menu lists Toasted Mango Avocado Toast with avocado smash, sweet mango, arugula and feta"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Award Winning Toasted Mango Waffle with fresh mango, toasted coconut and whipped cream",
+    "why_here": "A Sarasota staple since 2011, the cafe serves fresh, made-from-scratch breakfast and lunch favorites all day. Its menu features the Award Winning Toasted Mango Waffle and Toasted Mango Avocado Toast with sweet mango and feta.",
+    "know_before": "The official homepage states the cafe is open daily, with breakfast and lunch served all day.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://toastedmangocafe.com/"
+     ],
+     "why_here": [
+      "https://toastedmangocafe.com/"
+     ],
+     "know_before": [
+      "https://toastedmangocafe.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Toasted Mango Cafe has been a Sarasota staple since 2011 and is family-owned and operated",
+      "source": "https://toastedmangocafe.com/"
+     },
+     {
+      "claim": "The cafe serves fresh, made-from-scratch breakfast and lunch favorites served all day",
+      "source": "https://toastedmangocafe.com/"
+     },
+     {
+      "claim": "The menu lists an Award Winning Toasted Mango Waffle topped with fresh mango and toasted coconut",
+      "source": "https://toastedmangocafe.com/menu/"
+     },
+     {
+      "claim": "The menu lists Toasted Mango Avocado Toast with avocado smash, sweet mango, arugula and feta",
+      "source": "https://toastedmangocafe.com/menu/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJp9IZttan2YgRXrjVzAy1-QI",
+   "name": "Round1 Bowling & Arcade - Pembroke Pines",
+   "category": "attractions",
+   "metro": "broward",
+   "primary_type": "amusement_center",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.round1usa.com/activities/",
+     "source_name": "Round1 Bowling & Arcade - Pembroke Pines \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Round1 offers bowling, billiards, karaoke, ping pong and a Kids Play Zone.",
+      "The arcade features exclusive games imported straight from Japan.",
+      "The Kids Play Zone is described as a clean, safe place for families to visit.",
+      "The party package includes unlimited access to bowling lanes, karaoke and party rooms, and arcade games."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Bowling, karaoke and arcade games imported straight from Japan",
+    "why_here": "Round1 lists bowling, billiards, karaoke, ping pong and a Kids Play Zone alongside its arcade on the official activities page. The arcade features exclusive games imported straight from Japan, as described on that page.",
+    "know_before": "The party package includes unlimited access to bowling lanes, karaoke and party rooms, and arcade games throughout the event.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.round1usa.com/activities/"
+     ],
+     "why_here": [
+      "https://www.round1usa.com/activities/"
+     ],
+     "know_before": [
+      "https://www.round1usa.com/activities/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Round1 offers bowling, billiards, karaoke, ping pong and a Kids Play Zone.",
+      "source": "https://www.round1usa.com/activities/"
+     },
+     {
+      "claim": "The arcade features exclusive games imported straight from Japan.",
+      "source": "https://www.round1usa.com/activities/"
+     },
+     {
+      "claim": "The Kids Play Zone is described as a clean, safe place for families to visit.",
+      "source": "https://www.round1usa.com/activities/"
+     },
+     {
+      "claim": "The party package includes unlimited access to bowling lanes, karaoke and party rooms, and arcade games.",
+      "source": "https://www.round1usa.com/activities/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJLcj77sKl2YgR9R-Om2kZVV4",
+   "name": "La Famiglia Italian Restaurant & Pizzeria",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "italian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.lafamigliamiramar.com/",
+     "source_name": "La Famiglia Italian Restaurant & Pizzeria \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Founder Vittorio started selling gelato door to door in Monte Di Procida in Naples, Italy.",
+      "Its first rule is quality ingredients.",
+      "It uses the line Let Our Family Cook For Your Family.",
+      "Hours are Monday to Thursday 11:00 a.m. to 10:00 p.m., Friday to Saturday 11:00 a.m. to 11:00 p.m. and Sunday 2:00 p.m. to 10:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Italian restaurant focused on authentic regional cuisine and quality ingredients",
+    "why_here": "La Famiglia says it focuses on authentic regional cuisine and ingredients to develop an enticing Italian menu experience, apart from generic interpretations of Italian food. Its founder Vittorio started selling gelato door to door in Monte Di Procida in Naples, Italy.",
+    "know_before": "Hours listed are Monday to Thursday 11:00 a.m. to 10:00 p.m., Friday to Saturday 11:00 a.m. to 11:00 p.m. and Sunday 2:00 p.m. to 10:00 p.m.",
+    "local_tip": "Look for a special using ingredients that are local and in season, which the restaurant says you will often find.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.lafamigliamiramar.com/"
+     ],
+     "why_here": [
+      "https://www.lafamigliamiramar.com/"
+     ],
+     "know_before": [
+      "https://www.lafamigliamiramar.com/"
+     ],
+     "local_tip": [
+      "https://www.lafamigliamiramar.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Founder Vittorio started selling gelato door to door in Monte Di Procida in Naples, Italy.",
+      "source": "https://www.lafamigliamiramar.com/"
+     },
+     {
+      "claim": "Its first rule is quality ingredients.",
+      "source": "https://www.lafamigliamiramar.com/"
+     },
+     {
+      "claim": "It uses the line Let Our Family Cook For Your Family.",
+      "source": "https://www.lafamigliamiramar.com/"
+     },
+     {
+      "claim": "Hours are Monday to Thursday 11:00 a.m. to 10:00 p.m., Friday to Saturday 11:00 a.m. to 11:00 p.m. and Sunday 2:00 p.m. to 10:00 p.m.",
+      "source": "https://www.lafamigliamiramar.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJhdv-nfh654gRt191l96-wd8",
+   "name": "Marriott Orlando Downtown",
+   "category": "hotels",
+   "metro": "orlando",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.marriott.com/en-us/hotels/mcodo-marriott-orlando-downtown/dining/",
+     "source_name": "Marriott Orlando Downtown \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Shade Bar and Grill serves American favorites, craft drinks and local flavor",
+      "Shade Bar and Grill has a relaxed setting with TVs for game-day viewing",
+      "The hotel has an on-site Starbucks with handcrafted coffee and a shaded outdoor patio",
+      "Room service is available at Marriott Orlando Downtown",
+      "Breakfast is available onsite at Shade Bar and Grill and Starbucks for a fee"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Downtown Orlando hotel dining with Shade Bar and Grill and an on-site Starbucks",
+    "why_here": "Shade Bar and Grill serves American favorites, craft drinks and local flavor in a relaxed setting with TVs for game-day viewing. The hotel also has an on-site Starbucks with handcrafted coffee and a shaded outdoor patio.",
+    "know_before": "Breakfast is available onsite at Shade Bar and Grill and Starbucks for a fee, and room service is available at the hotel.",
+    "local_tip": "Enjoy complimentary Wi-Fi and relax on the shaded outdoor patio at the on-site Starbucks.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.marriott.com/en-us/hotels/mcodo-marriott-orlando-downtown/dining/"
+     ],
+     "why_here": [
+      "https://www.marriott.com/en-us/hotels/mcodo-marriott-orlando-downtown/dining/"
+     ],
+     "know_before": [
+      "https://www.marriott.com/en-us/hotels/mcodo-marriott-orlando-downtown/dining/"
+     ],
+     "local_tip": [
+      "https://www.marriott.com/en-us/hotels/mcodo-marriott-orlando-downtown/dining/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Shade Bar and Grill serves American favorites, craft drinks and local flavor",
+      "source": "https://www.marriott.com/en-us/hotels/mcodo-marriott-orlando-downtown/dining/"
+     },
+     {
+      "claim": "Shade Bar and Grill has a relaxed setting with TVs for game-day viewing",
+      "source": "https://www.marriott.com/en-us/hotels/mcodo-marriott-orlando-downtown/dining/"
+     },
+     {
+      "claim": "The hotel has an on-site Starbucks with handcrafted coffee and a shaded outdoor patio",
+      "source": "https://www.marriott.com/en-us/hotels/mcodo-marriott-orlando-downtown/dining/"
+     },
+     {
+      "claim": "Room service is available at Marriott Orlando Downtown",
+      "source": "https://www.marriott.com/en-us/hotels/mcodo-marriott-orlando-downtown/dining/"
+     },
+     {
+      "claim": "Breakfast is available onsite at Shade Bar and Grill and Starbucks for a fee",
+      "source": "https://www.marriott.com/en-us/hotels/mcodo-marriott-orlando-downtown/dining/"
+     }
+    ]
+   }
+  }
+ ]
+}
