@@ -50,10 +50,11 @@ export async function GET(req) {
   const baselineEnd = windowStart; // no overlap with the window being judged
   const baselineStart = new Date(baselineEnd.getTime() - BASELINE_DAYS * 86400000);
 
-  const [current, dailyHist, qualified] = await Promise.all([
+  const [current, dailyHist, qualified, failures] = await Promise.all([
     ph.revenueHeartbeatCounts(windowStart, now),
     ph.revenueHeartbeatDaily(baselineStart, baselineEnd),
     ph.qualifiedClickCounts(windowStart, now),
+    ph.redirectFailureCounts(windowStart, now),
   ]);
 
   if (!current.source || current.source.connected === false) {
@@ -74,12 +75,22 @@ export async function GET(req) {
     ? Number(qualifiedRow.qualified_clicks)
     : null;
 
+  // Partner redirect failures, raw beside qualified (lib/redirectFailureQuality.js).
+  // Report-only like qualifiedClicks: crawler refusals stay visible in `raw`
+  // but are not broken links, and neither number feeds the incident signal.
+  const failureRows = failures && failures.source && failures.source.connected !== false && Array.isArray(failures.data) ? failures.data : null;
+  const redirectFailures = failureRows ? {
+    raw: failureRows.reduce((n, r) => n + (Number(r.raw_failures) || 0), 0),
+    qualified: failureRows.reduce((n, r) => n + (Number(r.qualified_failures) || 0), 0),
+    byReason: Object.fromEntries(failureRows.map((r) => [String(r.failure_reason || "unknown"), { raw: Number(r.raw_failures) || 0, qualified: Number(r.qualified_failures) || 0 }])),
+  } : null;
+
   const signal = revenueSignal({ trafficCount, affiliateCount, baselineRatio });
   const pulseRow = toPulseRow(signal, { trafficCount, affiliateCount });
   const pulsed = await recordPulse(JOB, pulseRow);
 
   try {
-    console.log(JSON.stringify({ tag: "revenue_heartbeat", status: signal.status, ratio: signal.ratio, baselineRatio: signal.baselineRatio, trafficCount, affiliateCount, windowHours: WINDOW_HOURS, baselineDays: BASELINE_DAYS }));
+    console.log(JSON.stringify({ tag: "revenue_heartbeat", status: signal.status, ratio: signal.ratio, baselineRatio: signal.baselineRatio, trafficCount, affiliateCount, redirectFailuresRaw: redirectFailures ? redirectFailures.raw : null, redirectFailuresQualified: redirectFailures ? redirectFailures.qualified : null, windowHours: WINDOW_HOURS, baselineDays: BASELINE_DAYS }));
   } catch {}
 
   return Response.json({
@@ -92,6 +103,7 @@ export async function GET(req) {
     trafficCount,
     affiliateCount,
     qualifiedClicks,
+    redirectFailures,
     ratio: signal.ratio,
     baselineRatio: signal.baselineRatio,
     historyDays: historyRows.length,

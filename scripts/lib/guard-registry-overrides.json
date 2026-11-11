@@ -744,6 +744,14 @@
   },
   "owner": "Revenue QA"
  },
+ "scripts/test-redirect-failure-quality.mjs": {
+  "protects": "The failed-partner-link signal (Command Center diagnostics, revenue-heartbeat report) counts only qualified provider_redirect_failed rows: never crawler-refused, only traffic_class human, and only with an on-page tap or first-party click proof. Raw counts stay reported, and no /go route consults the rule.",
+  "blastRadius": {
+   "category": "revenue",
+   "detail": "Counting crawler refusals pages the owner on every crawler wave (2026-11-10: 288 of 290 failures were crawlers). Dropping real failures hides broken links; filtering inside a /go route would block or slow a real buyer."
+  },
+  "owner": "Revenue QA"
+ },
  "scripts/test-qualified-click.mjs": {
   "protects": "A qualified click counts only a partner redirect whose click_id also exists on an on-page commerce_cta_clicked, and that count never feeds the revenue heartbeat incident.",
   "blastRadius": {
