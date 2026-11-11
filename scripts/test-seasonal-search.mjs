@@ -51,7 +51,7 @@ for (const hub of SEASONAL_SEARCH_HUBS) {
 }
 const sponsoredCount = (slug) => SEASONAL_SEARCH_HUBS.find((h) => h.slug === slug).sections.flatMap((s) => s.links).filter((l) => l.sponsored).length;
 assert.equal(sponsoredCount("fall-in-florida"), 2, "fall hub ticket links");
-assert.equal(sponsoredCount("halloween-in-florida"), 4, "halloween hub ticket links");
+assert.equal(sponsoredCount("halloween-in-florida"), 1, "halloween hub drops the ended event tickets and keeps the still live park admission link");
 const fall = SEASONAL_SEARCH_HUBS[0];
 assert.ok(seasonalSearchSections(fall, "2026-11-30")[0].links.some((l) => l.href.includes("fall-festivals")));
 assert.ok(!seasonalSearchSections(fall, "2026-12-01")[0].links.some((l) => l.href.includes("fall-festivals")));
