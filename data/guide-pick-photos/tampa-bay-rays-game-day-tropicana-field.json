@@ -1,6 +1,47 @@
 {
   "slug": "tampa-bay-rays-game-day-tropicana-field",
-  "picks": {},
+  "picks": {
+    "The tilted roof and the catwalks": {
+      "src": "/guides/picks/tampa-bay-rays-game-day-tropicana-field/the-tilted-roof-and-the-catwalks.jpg",
+      "width": 1280,
+      "height": 853,
+      "alt": "Looking up at the tilted fabric roof and ring catwalks inside Tropicana Field",
+      "caption": "The tilted roof and catwalks inside Tropicana Field.",
+      "credit": "Doctorindy",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Tropicanafieldceiling.jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Tropicanafieldceiling.jpg",
+      "author": "Doctorindy",
+      "position": "50% 50%",
+      "modificationNotice": "Cropped to 1280x853 and saved as JPEG for page loading. The photograph remains available under the same licence.",
+      "sourceKind": "commons",
+      "placeId": null,
+      "verification": "Commons file titled Tropicanafieldceiling by Doctorindy. Visually inspected: the cable supported dome roof with its catwalk rings, the exact subject of the pick.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-11-04"
+    },
+    "2026: the third pennant": {
+      "src": "/guides/picks/tampa-bay-rays-game-day-tropicana-field/2026-the-third-pennant.jpg",
+      "width": 1280,
+      "height": 853,
+      "alt": "The Tampa Bay Rays American League trophy ceremony on the field at Tropicana Field on October 19, 2026",
+      "caption": "Trophy ceremony after the Rays won the 2026 American League pennant, October 19, 2026.",
+      "credit": "Trevorrrrvalent",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:October_19_2026_Tampa_Bay_Rays_Game_6_American_League_Champions.jpg",
+      "license": "CC BY 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:October_19_2026_Tampa_Bay_Rays_Game_6_American_League_Champions.jpg",
+      "author": "Trevorrrrvalent",
+      "position": "50% 50%",
+      "modificationNotice": "Cropped to 1280x853 and saved as JPEG for page loading. The photograph remains available under the same licence.",
+      "sourceKind": "commons",
+      "placeId": null,
+      "verification": "Commons file titled October 19 2026 Tampa Bay Rays Game 6 American League Champions. Description: trophy ceremony after the 7 3 win over Cleveland in Game 6. Visually inspected: the ceremony on the field under the Trop roof, fans in the foreground. Outfield signage is small and incidental.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-11-04"
+    }
+  },
   "gaps": {
     "The 2026 World Series comes to the Trop": {
       "reason": "no-verified-source",
@@ -38,19 +79,7 @@
       "needsPermissionFrom": null,
       "note": "October 21, 2026 pass: no reuse-cleared photograph of this exact subject was verified for this row. No photo is shown for it; the hero is a credited CC BY 4.0 photo of Tropicana Field itself."
     },
-    "2026: the third pennant": {
-      "reason": "no-verified-source",
-      "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "October 21, 2026 pass: no reuse-cleared photograph of this exact subject was verified for this row. No photo is shown for it; the hero is a credited CC BY 4.0 photo of Tropicana Field itself."
-    },
     "Older than the team": {
-      "reason": "no-verified-source",
-      "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "October 21, 2026 pass: no reuse-cleared photograph of this exact subject was verified for this row. No photo is shown for it; the hero is a credited CC BY 4.0 photo of Tropicana Field itself."
-    },
-    "The tilted roof and the catwalks": {
       "reason": "no-verified-source",
       "placeId": null,
       "needsPermissionFrom": null,

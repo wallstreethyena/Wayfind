@@ -54,7 +54,10 @@ for (const env of [{ WAYFIND_PROMOTE_PAID: "1" }, { PROMOTE_DETAILS_MONTH_CAP: P
 }
 
 // The actual grant: spendAllowCapped sends the paid cap to wf_spend_take;
-// spendAllow (user-facing details) still sends the fixed 4,800.
+// spendAllow (user-facing details) sends the site-reserved cap: since the
+// owner's 2026-11-03 option-b decision it stops at 2,400 (4,800 free line
+// minus the 2,400 refresh reserve, scripts/test-refresh-reserve.mjs). The
+// promote-paid path itself is unchanged by that decision.
 const sent = [];
 globalThis.fetch = async (url, init) => { sent.push(JSON.parse(init.body)); return new Response("true", { status: 200, headers: { "content-type": "application/json" } }); };
 setEnv({ WAYFIND_GATE: "free", WAYFIND_PROMOTE_PAID: "1", PROMOTE_DETAILS_MONTH_CAP: PAID, SUPABASE_URL: "https://stub.test", SUPABASE_SERVICE_ROLE_KEY: "stub" });
@@ -65,7 +68,7 @@ globalThis.fetch = savedFetch;
 const caps = sent.map((b) => b.p_cap ?? b.cap ?? Object.values(b).find((v) => typeof v === "number"));
 eq(sent.length, 3, "three ledger grants were requested");
 eq(caps[0], PAID, "promotion grant asks the ledger for the paid cap");
-eq(caps[1], 4800, "user-facing spendAllow(details_pro) still asks for the free-tier 4,800");
+eq(caps[1], 2400, "user-facing spendAllow(details_pro) asks for the reserved 2,400 (free line minus refresh reserve, owner 2026-11-03)");
 eq(caps[2], 950, "details_enterprise promotion grant still clamps to its free tier");
 
 setEnv({});

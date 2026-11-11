@@ -144,7 +144,9 @@ export default function SeasonalMoviesRail({ collection = "fall", active = true,
             actionItem={{ id: "movie:" + movie.id, type: "event", title: movie.title, url: movie.ticket && movie.ticket.href ? movie.ticket.href : "" }}
             title={movie.title} eyebrow={spooky ? spookyEyebrow(title) : title} rank={index + 1} spooky={spooky}
             score={null} when={movieWhen(movie)}
-            facts={[movie.rating || null, runtimeLabel(movie.runtimeMin), art && art.credit ? art.credit : null].filter(Boolean)}
+            facts={[movie.rating || null, runtimeLabel(movie.runtimeMin)].filter(Boolean)}
+            photoAttr={art && art.credit ? art.credit : null}
+            photoAttrHref={art && (art.licenseUrl || art.source) ? (art.licenseUrl || art.source) : null}
             chips={spooky ? withSpookyChip(baseChips) : baseChips}
             take={movie.why || null} cta={movieCta(movie, collection, onTrack)}
             ariaLabel={movie.title} />;
