@@ -40,7 +40,7 @@ assert.match(home, /browseCat === "family" && <ThemeParkRail mode="family"/,
   "Family browse has the permanent park rail");
 assert.match(home, /browseCat === "attractions" && \(!sub \|\| sub === "all" \|\| sub === "themeparks"\) && <ThemeParkRail/,
   "Activities All and Theme Parks have the park rail");
-assert.match(home, /Culture\.resolveMetro\(locName\) === "orlando" \? "orlando" : "flagship"/,
+assert.match(home, /resolveMetro\(locName\) === "orlando" \? "orlando" : "flagship"/,
   "Orlando uses its dedicated park mode while other cities keep the honest Florida label");
 
 const intentIndex = home.indexOf("const parkIntent = themeParkIntent(q)");

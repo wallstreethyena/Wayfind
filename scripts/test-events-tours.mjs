@@ -11,13 +11,13 @@ const ok = (c, m) => { if (!c) fail(m); pass++; };
 const src = readFileSync(new URL("../app/components/screens/Events.js", import.meta.url), "utf8");
 const rail = readFileSync(new URL("../app/components/ViatorRail.js", import.meta.url), "utf8");
 
-ok(/<ViatorRail[^>]+items=\{tours\}/.test(src), "the tours category passes the FULL list into the canonical bookable rail");
+ok(/<ViatorRail[^>]+items=\{orderedTours\}/.test(src), "the tours category passes the FULL list into the canonical bookable rail");
 ok(/Everything bookable near you/.test(src) && /\{tours\.length\}/.test(src), "list header shows the real inventory count");
-ok(/!isBusiness && !isTours && !eventsLoading/.test(src), "date chips hidden on the tours view (they zeroed out and read as broken)");
-ok(!/\.slice\(/.test(src.slice(src.indexOf("{isTours && ("), src.indexOf("{/* Event grid"))), "the full tours category does not truncate its inventory");
+ok(!/isTours|setEventCat\(f.key\)/.test(src), "tours appear in their own always-expanded rail, not behind a category filter");
+ok(/const orderedTours = sort === "distance"/.test(src) && /preserveOrder=\{sort === "distance"\}/.test(src), "distance order reaches the tours renderer");
 ok(/ViatorRail title="Bookable experiences near you"/.test(src), "the pinned rail on event categories is untouched");
 ok((src.match(/earn a commission/gi) || []).length === 0 && (rail.match(/earn a commission/gi) || []).length === 0, "Events and ViatorRail render no inline commission disclosure (one footer disclosure plus one on true detail pages is the law now)");
-ok(/No bookable tours are loading right now/.test(src), "honest empty state kept");
+ok(/orderedTours.length > 0/.test(src), "empty tours rail is hidden");
 ok(/<RailCard[\s\S]+?ctaNode=\{<ViatorCommerceLink/.test(rail), "every tour uses RailCard while the booking CTA still routes through ViatorCommerceLink");
 
 // ── v6.44 + v6.88: full inventory, score-first, honest demand badge ─────────

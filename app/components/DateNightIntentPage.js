@@ -18,6 +18,8 @@ import { currentSeason } from "../../lib/seasons";
 import { resolveLocationContext, locationSurface, milesBetween } from "../../lib/locationHonesty";
 import { canonicalShareUrl } from "../../lib/site";
 import { track } from "../../lib/track";
+import { readStoredCenter, fetchIpCenter } from "../../lib/intentLocationFallback.js";
+import IntentLocationChooser from "./IntentLocationChooser";
 
 function dateNightLocation({ urlCity = "", urlLat = NaN, urlLng = NaN, stored = null } = {}) {
   const coords = { lat: Number(urlLat), lng: Number(urlLng) };
@@ -56,13 +58,22 @@ export default function DateNightIntentPage() {
   // in an effect, so a returning visitor cannot trigger React #425/#422 and
   // lose hydration on this page. Explicit URL coordinates remain authoritative.
   const [loc, setLoc] = useState(() => dateNightLocation({ urlCity, urlLat, urlLng }));
+  // No URL point and no saved homepage location: try the free IP location,
+  // then show the city chooser (lib/intentLocationFallback.js).
+  const [locating, setLocating] = useState(false);
   useEffect(() => {
-    let stored = null;
-    try {
-      const c = JSON.parse(localStorage.getItem("wf_center") || "null");
-      if (c && isFinite(c.lat) && isFinite(c.lng)) stored = { lat: Number(c.lat), lng: Number(c.lng), loc: c.loc };
-    } catch (e) {}
-    setLoc(dateNightLocation({ urlCity, urlLat, urlLng, stored }));
+    const stored = readStoredCenter();
+    const next = dateNightLocation({ urlCity, urlLat, urlLng, stored });
+    setLoc(next);
+    if (Number.isFinite(next.lat) && Number.isFinite(next.lng)) { setLocating(false); return undefined; }
+    let cancelled = false;
+    setLocating(true);
+    fetchIpCenter().then((ip) => {
+      if (cancelled) return;
+      if (ip) setLoc(dateNightLocation({ urlCity, urlLat, urlLng, stored: ip }));
+      setLocating(false);
+    });
+    return () => { cancelled = true; };
   }, [urlCity, urlLat, urlLng]);
 
   const areaCtx = areaSeasonalContext(loc && loc.city, currentSeason());
@@ -106,6 +117,7 @@ export default function DateNightIntentPage() {
         city={loc.city}
         partnerCity={Number.isFinite(urlLat) && Number.isFinite(urlLng) && (urlLat !== loc.lat || urlLng !== loc.lng) ? "" : urlCity || loc.city}
         hour={Number.isFinite(parseFloat(sp.get("hour"))) ? parseFloat(sp.get("hour")) : null}
+        emptyLocation={<IntentLocationChooser intent="date-night" locating={locating} />}
         onTrack={(name, props) => { try { track(name, props); } catch (e) {} }}
       />
     </RankedExperiencePage>

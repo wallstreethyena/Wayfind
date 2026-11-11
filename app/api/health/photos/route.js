@@ -31,7 +31,7 @@ export const dynamic = "force-dynamic";
 import { computePhotoCoverage, computePhotoRunway, ledgerMonth } from "../../../../lib/photoCoverage";
 import { describePhotoRunway, photosPaidConfigured } from "../../../../lib/photoRunwayTruth";
 import { siteTodayStr } from "../../../../lib/siteTime";
-import { GOOGLE_PHOTOS_QUOTA_PROVIDER, quotaBreakerCooldownMs } from "../../../../lib/placePhotoServe";
+import { GOOGLE_PHOTOS_QUOTA_PROVIDER, photoQuotaBreakerDetails } from "../../../../lib/placePhotoServe";
 import { breakerOpen } from "../../../../lib/providerHealth";
 import { computeImageHealth } from "../../../../lib/imageHealth";
 import { photoGoogleQuota } from "../../../../lib/commandCenter/sources/photoQuota.js";
@@ -41,7 +41,7 @@ import { buildGoogleQuota } from "../../../../lib/googlePhotoQuota.js";
 // classes; anything else recorded (redirect/badjson/unowned/stale/client/
 // stale-heal-*) rolls up into `other` so this shape never needs to change
 // again when a new stale-heal-* subclass string appears.
-const NAMED_OUTCOME_CLASSES = new Set(["ok", "quota", "server", "network", "key-denied", "ledger-denied", "ledger-cap", "ledger-timeout", "ledger-http", "ledger-unconfigured", "free-photo-preferred", "gate-shut", "quota-open", "refunded", "not-page-request", "visitor-cap", "not-place-id"]);
+const NAMED_OUTCOME_CLASSES = new Set(["response-served", "response-refused", "ok", "quota", "server", "network", "key-denied", "ledger-denied", "ledger-cap", "ledger-timeout", "ledger-http", "ledger-unconfigured", "free-photo-preferred", "gate-shut", "quota-open", "refunded", "not-page-request", "visitor-cap", "not-place-id"]);
 
 function sbEnvHere() {
   const raw = String(process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || "").trim().replace(/\/+$/, "");
@@ -114,15 +114,8 @@ export async function GET(req) {
   }
   let breakerState = null;
   try { breakerState = await breakerOpen(GOOGLE_PHOTOS_QUOTA_PROVIDER); } catch { breakerState = null; }
-  // breakerOpen()'s stored value carries WHEN it tripped (`at`), not when it
-  // expires — reconstructed here via the SAME deterministic
-  // quotaBreakerCooldownMs(tripMs) the trip itself used, since the cooldown
-  // is a pure function of the trip instant (next Pacific midnight + buffer).
-  let breakerUntil = null;
-  if (breakerState && breakerState.at) {
-    const trippedAtMs = Date.parse(breakerState.at);
-    if (Number.isFinite(trippedAtMs)) breakerUntil = new Date(trippedAtMs + quotaBreakerCooldownMs(trippedAtMs)).toISOString();
-  }
+  const breakerHold = photoQuotaBreakerDetails(breakerState);
+  const breakerUntil = breakerHold?.expiresAt || null;
 
   const pulseRow = Array.isArray(lastPulse) && lastPulse[0];
   const pctMatch = pulseRow && /placeholder-rate\s+(\d+)%/.exec(String(pulseRow.note || ""));
@@ -163,6 +156,10 @@ export async function GET(req) {
     today: todayByClass
       ? {
           ok: todayByClass.ok || 0,
+          // Response counts include stored and licensed reuse; ok remains an
+          // upstream Google outcome, so these must never be added together.
+          servedResponses: todayByClass["response-served"] ?? null,
+          refusedResponses: todayByClass["response-refused"] ?? null,
           quota: todayByClass.quota || 0,
           server: todayByClass.server || 0,
           network: todayByClass.network || 0,
@@ -190,7 +187,7 @@ export async function GET(req) {
           other: Object.entries(todayByClass).reduce((sum, [k, v]) => (NAMED_OUTCOME_CLASSES.has(k) ? sum : sum + v), 0),
         }
       : null,
-    breaker: { open: !!breakerState, until: breakerUntil },
+    breaker: { open: !!breakerState, until: breakerUntil, scope: breakerHold?.scope || null },
   };
 
   const threshold = Math.max(50, activeWithRef * 0.05);
