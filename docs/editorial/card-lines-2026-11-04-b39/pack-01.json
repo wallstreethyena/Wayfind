@@ -1,0 +1,2133 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 39. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJPUMWfJ4T54gRxh_Ky_ubxlY",
+   "name": "Escape Artists Sanford",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "amusement_center",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://escapeartistssanford.com/",
+     "source_name": "Escape Artists Sanford \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Teams of 2 to 6 players are given 60 minutes to work together to solve puzzles, decode cyphers, and uncover secret passages in order to escape",
+      "Escape Artists Sanford is at 115 N Oak Ave, Sanford, FL 32771"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Escape room experience with 60 minutes to solve puzzles",
+    "why_here": "Escape Artists Sanford gives teams of 2 to 6 players 60 minutes to work together to solve puzzles, decode cyphers, and uncover secret passages in order to escape.",
+    "know_before": "Teams of 2 to 6 players are given 60 minutes to solve puzzles, decode cyphers, and uncover secret passages.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://escapeartistssanford.com/"
+     ],
+     "why_here": [
+      "https://escapeartistssanford.com/"
+     ],
+     "know_before": [
+      "https://escapeartistssanford.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Teams of 2 to 6 players are given 60 minutes to work together to solve puzzles, decode cyphers, and uncover secret passages in order to escape",
+      "source": "https://escapeartistssanford.com/"
+     },
+     {
+      "claim": "Escape Artists Sanford is at 115 N Oak Ave, Sanford, FL 32771",
+      "source": "https://escapeartistssanford.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJXyVG0We52YgR0RInUGwc_jk",
+   "name": "Doral Central Park",
+   "category": "attractions",
+   "metro": "miami-dade",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://doral.powerappsportals.us/all-departments/parks-and-recreation/facilities-and-rentals/doral-central-park/",
+     "source_name": "Doral Central Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Doral Central Park contains picnic pavilions, playgrounds, beach volleyball courts, multi-purpose fields, skatepark and pump track, and an open-air Amphitheater",
+      "The lake at Doral Central Park has a kayak launch and boardwalk",
+      "Park Hours: Monday-Friday: 7:00 a.m. - 9:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Park with playgrounds, beach volleyball courts and multi-purpose fields",
+    "why_here": "Doral Central Park contains picnic pavilions, playgrounds, beach volleyball courts, multi-purpose fields, skatepark and pump track, as well as an open-air Amphitheater, and the lake also has a kayak launch and boardwalk.",
+    "know_before": "Doral Central Park hours are Monday-Friday: 7:00 a.m. - 9:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://doral.powerappsportals.us/all-departments/parks-and-recreation/facilities-and-rentals/doral-central-park/"
+     ],
+     "why_here": [
+      "https://doral.powerappsportals.us/all-departments/parks-and-recreation/facilities-and-rentals/doral-central-park/"
+     ],
+     "know_before": [
+      "https://doral.powerappsportals.us/all-departments/parks-and-recreation/facilities-and-rentals/doral-central-park/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Doral Central Park contains picnic pavilions, playgrounds, beach volleyball courts, multi-purpose fields, skatepark and pump track, and an open-air Amphitheater",
+      "source": "https://doral.powerappsportals.us/all-departments/parks-and-recreation/facilities-and-rentals/doral-central-park/"
+     },
+     {
+      "claim": "The lake at Doral Central Park has a kayak launch and boardwalk",
+      "source": "https://doral.powerappsportals.us/all-departments/parks-and-recreation/facilities-and-rentals/doral-central-park/"
+     },
+     {
+      "claim": "Park Hours: Monday-Friday: 7:00 a.m. - 9:00 p.m.",
+      "source": "https://doral.powerappsportals.us/all-departments/parks-and-recreation/facilities-and-rentals/doral-central-park/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ3yE1EjvXwogRZUfpjLeliBU",
+   "name": "Cold Stone Creamery",
+   "category": "food",
+   "metro": "tampa",
+   "primary_type": "ice_cream_shop",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.coldstonecreamery.com/stores/ice-cream-near-tampa/21217",
+     "source_name": "Cold Stone Creamery \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Cold Stone Creamery mixes your custom Ice Cream Creation on a frozen granite stone",
+      "Cold Stone Creamery is Store 21217"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Ice Cream Creation mixed on a frozen granite stone",
+    "why_here": "Cold Stone Creamery mixes your custom Ice Cream Creation on a frozen granite stone, so each custom Ice Cream Creation is mixed on a frozen granite stone for the dessert you choose.",
+    "know_before": "Your custom Ice Cream Creation is mixed on a frozen granite stone.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.coldstonecreamery.com/stores/ice-cream-near-tampa/21217"
+     ],
+     "why_here": [
+      "https://www.coldstonecreamery.com/stores/ice-cream-near-tampa/21217"
+     ],
+     "know_before": [
+      "https://www.coldstonecreamery.com/stores/ice-cream-near-tampa/21217"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Cold Stone Creamery mixes your custom Ice Cream Creation on a frozen granite stone",
+      "source": "https://www.coldstonecreamery.com/stores/ice-cream-near-tampa/21217"
+     },
+     {
+      "claim": "Cold Stone Creamery is Store 21217",
+      "source": "https://www.coldstonecreamery.com/stores/ice-cream-near-tampa/21217"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJywnqHDu30YgRPGrEedr52nA",
+   "name": "Old Town Tavern & Beer Garden",
+   "category": "food",
+   "metro": "keys",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.oldtowntavernkw.com/",
+     "source_name": "Old Town Tavern & Beer Garden \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Old Town Tavern & Beer Garden is located on Duval Street in Key West, Florida",
+      "Old Town Tavern & Beer Garden serves housemade food including Scotch Eggs and Pork Belly, Flatbreads and Shepherd's Pie",
+      "Old Town Tavern & Beer Garden is open Daily 11 a.m.-2 a.m. and serves food until 1 a.m.",
+      "Old Town Tavern & Beer Garden is at 900 Duval Street, Key West, Florida 33040"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Key West bar and restaurant on Duval Street serving food until 1 a.m.",
+    "why_here": "Old Town Tavern & Beer Garden is located on Duval Street in Key West, Florida and serves housemade food including Scotch Eggs and Pork Belly, Flatbreads and Shepherd's Pie, with food served until 1 a.m.",
+    "know_before": "Old Town Tavern & Beer Garden is open Daily 11 a.m.-2 a.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.oldtowntavernkw.com/"
+     ],
+     "why_here": [
+      "https://www.oldtowntavernkw.com/"
+     ],
+     "know_before": [
+      "https://www.oldtowntavernkw.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Old Town Tavern & Beer Garden is located on Duval Street in Key West, Florida",
+      "source": "https://www.oldtowntavernkw.com/"
+     },
+     {
+      "claim": "Old Town Tavern & Beer Garden serves housemade food including Scotch Eggs and Pork Belly, Flatbreads and Shepherd's Pie",
+      "source": "https://www.oldtowntavernkw.com/"
+     },
+     {
+      "claim": "Old Town Tavern & Beer Garden is open Daily 11 a.m.-2 a.m. and serves food until 1 a.m.",
+      "source": "https://www.oldtowntavernkw.com/"
+     },
+     {
+      "claim": "Old Town Tavern & Beer Garden is at 900 Duval Street, Key West, Florida 33040",
+      "source": "https://www.oldtowntavernkw.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJIzphYSwA2YgRBJz_mehQwaU",
+   "name": "Escapology Escape Rooms Fort Lauderdale",
+   "category": "attractions",
+   "metro": "broward",
+   "primary_type": "amusement_center",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.escapology.com/en/fort-lauderdale-fl/escape-games",
+     "source_name": "Escapology Escape Rooms Fort Lauderdale \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Escapology Escape Rooms Fort Lauderdale offers Mansion Murder",
+      "Escapology Escape Rooms Fort Lauderdale offers Scooby-Doo and the Spooky Castle Adventure",
+      "The game itself lasts 60 minutes",
+      "Allow 90 minutes for your entire experience at Escapology"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Escape games with Mansion Murder in Fort Lauderdale",
+    "why_here": "Escapology Escape Rooms Fort Lauderdale offers Mansion Murder and Scooby-Doo and the Spooky Castle Adventure, and the game itself lasts 60 minutes during each escape game session played together inside.",
+    "know_before": "Allow 90 minutes for your entire experience at Escapology.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.escapology.com/en/fort-lauderdale-fl/escape-games"
+     ],
+     "why_here": [
+      "https://www.escapology.com/en/fort-lauderdale-fl/escape-games"
+     ],
+     "know_before": [
+      "https://www.escapology.com/en/fort-lauderdale-fl/escape-games"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Escapology Escape Rooms Fort Lauderdale offers Mansion Murder",
+      "source": "https://www.escapology.com/en/fort-lauderdale-fl/escape-games"
+     },
+     {
+      "claim": "Escapology Escape Rooms Fort Lauderdale offers Scooby-Doo and the Spooky Castle Adventure",
+      "source": "https://www.escapology.com/en/fort-lauderdale-fl/escape-games"
+     },
+     {
+      "claim": "The game itself lasts 60 minutes",
+      "source": "https://www.escapology.com/en/fort-lauderdale-fl/escape-games"
+     },
+     {
+      "claim": "Allow 90 minutes for your entire experience at Escapology",
+      "source": "https://www.escapology.com/en/fort-lauderdale-fl/escape-games"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJjX0-gFit4IgRvuvF8e4P2V4",
+   "name": "Playalinda Brewing Company",
+   "category": "nightlife",
+   "metro": "florida",
+   "primary_type": "brewpub",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.playalindabrewingcompany.com/",
+     "source_name": "Playalinda Brewing Company \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Playalinda Brewing Company is made in Titusville since 2014",
+      "Playalinda Brewing Company is located on the Space Coast",
+      "Playalinda Brewing Company first opened its doors in 2014",
+      "Brix Project is open 7 days a week"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Playalinda Brewing Company made in Titusville since 2014",
+    "why_here": "Playalinda Brewing Company is made in Titusville since 2014 and is located on the Space Coast, and Playalinda Brewing Company first opened its doors in 2014 as a brewery gathering place.",
+    "know_before": "Brix Project is open 7 days a week.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.playalindabrewingcompany.com/"
+     ],
+     "why_here": [
+      "https://www.playalindabrewingcompany.com/"
+     ],
+     "know_before": [
+      "https://www.playalindabrewingcompany.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Playalinda Brewing Company is made in Titusville since 2014",
+      "source": "https://www.playalindabrewingcompany.com/"
+     },
+     {
+      "claim": "Playalinda Brewing Company is located on the Space Coast",
+      "source": "https://www.playalindabrewingcompany.com/"
+     },
+     {
+      "claim": "Playalinda Brewing Company first opened its doors in 2014",
+      "source": "https://www.playalindabrewingcompany.com/"
+     },
+     {
+      "claim": "Brix Project is open 7 days a week",
+      "source": "https://www.playalindabrewingcompany.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ8c-Pz_YB2YgRQvfmxVnph3s",
+   "name": "Think Escape Games - Fort Lauderdale",
+   "category": "attractions",
+   "metro": "broward",
+   "primary_type": "amusement_center",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.thinkescapegames.com/fort-lauderdale/",
+     "source_name": "Think Escape Games - Fort Lauderdale \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Think Escape Games in Fort Lauderdale offers Mayan Ruins",
+      "Think Escape Games in Fort Lauderdale offers The Dollhouse",
+      "Think Escape Games in Fort Lauderdale offers The Study",
+      "Think Escape Games in Fort Lauderdale offers Mutant X",
+      "Mayan Ruins difficulty is 7/10"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Escape rooms in Fort Lauderdale including Mayan Ruins and Mutant X",
+    "why_here": "Think Escape Games in Fort Lauderdale offers Mayan Ruins, The Dollhouse, The Study, and Mutant X, with escape rooms for groups choosing a room and solving clues together inside the room during play.",
+    "know_before": "Mayan Ruins difficulty is 7/10.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.thinkescapegames.com/fort-lauderdale/"
+     ],
+     "why_here": [
+      "https://www.thinkescapegames.com/fort-lauderdale/"
+     ],
+     "know_before": [
+      "https://www.thinkescapegames.com/fort-lauderdale/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Think Escape Games in Fort Lauderdale offers Mayan Ruins",
+      "source": "https://www.thinkescapegames.com/fort-lauderdale/"
+     },
+     {
+      "claim": "Think Escape Games in Fort Lauderdale offers The Dollhouse",
+      "source": "https://www.thinkescapegames.com/fort-lauderdale/"
+     },
+     {
+      "claim": "Think Escape Games in Fort Lauderdale offers The Study",
+      "source": "https://www.thinkescapegames.com/fort-lauderdale/"
+     },
+     {
+      "claim": "Think Escape Games in Fort Lauderdale offers Mutant X",
+      "source": "https://www.thinkescapegames.com/fort-lauderdale/"
+     },
+     {
+      "claim": "Mayan Ruins difficulty is 7/10",
+      "source": "https://www.thinkescapegames.com/fort-lauderdale/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ3d1dToKl2YgRmNGhQ-fkavA",
+   "name": "Vanilla Espresso French Caf\u00e9",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "french_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://vanillaespresso.com/miami-lakes",
+     "source_name": "Vanilla Espresso French Caf\u00e9 \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Vanilla Espresso French Caf\u00e9 has locations in Miami Lakes and Miramar",
+      "Vanilla Espresso French Caf\u00e9 serves coffee, breakfast, or lunch",
+      "Coffee includes lattes and cold brew",
+      "Hours on Monday are 7:00 a.m. to 5:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "French caf\u00e9 in Miami Lakes and Miramar for coffee, breakfast, or lunch",
+    "why_here": "Vanilla Espresso French Caf\u00e9 has locations in Miami Lakes and Miramar and serves coffee, breakfast, or lunch, with lattes and cold brew for a relaxed caf\u00e9 stop during the morning or afternoon hours.",
+    "know_before": "Hours on Monday are 7:00 a.m. to 5:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://vanillaespresso.com/miami-lakes"
+     ],
+     "why_here": [
+      "https://vanillaespresso.com/miami-lakes"
+     ],
+     "know_before": [
+      "https://vanillaespresso.com/miami-lakes"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Vanilla Espresso French Caf\u00e9 has locations in Miami Lakes and Miramar",
+      "source": "https://vanillaespresso.com/miami-lakes"
+     },
+     {
+      "claim": "Vanilla Espresso French Caf\u00e9 serves coffee, breakfast, or lunch",
+      "source": "https://vanillaespresso.com/miami-lakes"
+     },
+     {
+      "claim": "Coffee includes lattes and cold brew",
+      "source": "https://vanillaespresso.com/miami-lakes"
+     },
+     {
+      "claim": "Hours on Monday are 7:00 a.m. to 5:00 p.m.",
+      "source": "https://vanillaespresso.com/miami-lakes"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ5cW10fX92IgRqHr7jJ4RNHk",
+   "name": "101 Ocean",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://101oceanlbts.com/",
+     "source_name": "101 Ocean \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "101 Ocean is located in Lauderdale-by-the-Sea and offers fresh seafood and an open-air bar",
+      "101 Ocean serves breakfast, brunch, lunch, and dinner menus",
+      "Dining hours are Monday-Thursday: 11:30 a.m. - 12:00 a.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Fresh seafood and an open-air bar in Lauderdale-by-the-Sea",
+    "why_here": "101 Ocean in Lauderdale-by-the-Sea offers fresh seafood and an open-air bar, with breakfast, brunch, lunch, and dinner menus, for beachfront dining in the heart of Lauderdale-by-the-Sea during the day or evening.",
+    "know_before": "Dining hours are Monday-Thursday: 11:30 a.m. - 12:00 a.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://101oceanlbts.com/"
+     ],
+     "why_here": [
+      "https://101oceanlbts.com/"
+     ],
+     "know_before": [
+      "https://101oceanlbts.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "101 Ocean is located in Lauderdale-by-the-Sea and offers fresh seafood and an open-air bar",
+      "source": "https://101oceanlbts.com/"
+     },
+     {
+      "claim": "101 Ocean serves breakfast, brunch, lunch, and dinner menus",
+      "source": "https://101oceanlbts.com/"
+     },
+     {
+      "claim": "Dining hours are Monday-Thursday: 11:30 a.m. - 12:00 a.m.",
+      "source": "https://101oceanlbts.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ0_zizp0T54gRMZBj2xOIl4A",
+   "name": "The Breezeway Restaurant & Bar",
+   "category": "nightlife",
+   "metro": "florida",
+   "primary_type": "bar_and_grill",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://thebreezewayrestaurantandbarfl.com/",
+     "source_name": "The Breezeway Restaurant & Bar \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Breezeway Restaurant in Sanford offers a combination of fresh seafood and southern fare from a scratch kitchen",
+      "Hours are Tuesday - Thursday: 11:00 a.m. - 9:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Fresh seafood and southern fare from a scratch kitchen in Sanford",
+    "why_here": "The Breezeway Restaurant in Sanford offers a combination of fresh seafood and southern fare from a scratch kitchen, for lunch or dinner in Sanford with seafood and southern fare made in a scratch kitchen setting.",
+    "know_before": "Hours are Tuesday - Thursday: 11:00 a.m. - 9:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://thebreezewayrestaurantandbarfl.com/"
+     ],
+     "why_here": [
+      "https://thebreezewayrestaurantandbarfl.com/"
+     ],
+     "know_before": [
+      "https://thebreezewayrestaurantandbarfl.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Breezeway Restaurant in Sanford offers a combination of fresh seafood and southern fare from a scratch kitchen",
+      "source": "https://thebreezewayrestaurantandbarfl.com/"
+     },
+     {
+      "claim": "Hours are Tuesday - Thursday: 11:00 a.m. - 9:00 p.m.",
+      "source": "https://thebreezewayrestaurantandbarfl.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJn-dWsClCw4gRxo6e-AWmcUE",
+   "name": "Paradise Boat Tours",
+   "category": "attractions",
+   "metro": "manatee-sarasota",
+   "primary_type": "tour_agency",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.seedolphins.com/home",
+     "source_name": "Paradise Boat Tours \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Paradise Boat Tours offers tours 7 days a week at 9:00 a.m., 11:00 a.m., 1:00 p.m., 3:00 p.m., 5:00 p.m. and Sunset",
+      "Tours through the waters of Anna Maria Island look for dolphins, manatees, fish, rays, and other wildlife",
+      "Paradise Boat Tours has operated eco-tours since 2014"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Boat tours through the waters of Anna Maria Island looking for dolphins and manatees",
+    "why_here": "Paradise Boat Tours offers tours through the waters of Anna Maria Island looking for dolphins, manatees, fish, rays, and other wildlife, with a narrated experience on the water during the scheduled tour times each week.",
+    "know_before": "Tours run 7 days a week at 9:00 a.m., 11:00 a.m., 1:00 p.m., 3:00 p.m., 5:00 p.m. and Sunset",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.seedolphins.com/home"
+     ],
+     "why_here": [
+      "https://www.seedolphins.com/home"
+     ],
+     "know_before": [
+      "https://www.seedolphins.com/home"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Paradise Boat Tours offers tours 7 days a week at 9:00 a.m., 11:00 a.m., 1:00 p.m., 3:00 p.m., 5:00 p.m. and Sunset",
+      "source": "https://www.seedolphins.com/home"
+     },
+     {
+      "claim": "Tours through the waters of Anna Maria Island look for dolphins, manatees, fish, rays, and other wildlife",
+      "source": "https://www.seedolphins.com/home"
+     },
+     {
+      "claim": "Paradise Boat Tours has operated eco-tours since 2014",
+      "source": "https://www.seedolphins.com/home"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJu7ZwRzyr2YgRX8WxXOcLnyg",
+   "name": "Costa Hollywood Beach Hotel",
+   "category": "hotels",
+   "metro": "broward",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.costahollywoodhotel.com/private-beach-pool",
+     "source_name": "Costa Hollywood Beach Hotel \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Costa Hollywood Beach Resort offers a rooftop pool and access to Hollywood Beach",
+      "Costa Hollywood Beach Resort offers a private beach area",
+      "Guests are offered two complimentary beach chairs throughout their stay"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Rooftop pool and access to Hollywood Beach",
+    "why_here": "Costa Hollywood Beach Resort offers a rooftop pool and access to Hollywood Beach, with a private beach area, for a stay with rooftop pool time and a quick walk to the beach area during a Hollywood Beach visit.",
+    "know_before": "Guests are offered two complimentary beach chairs throughout their stay",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.costahollywoodhotel.com/private-beach-pool"
+     ],
+     "why_here": [
+      "https://www.costahollywoodhotel.com/private-beach-pool"
+     ],
+     "know_before": [
+      "https://www.costahollywoodhotel.com/private-beach-pool"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Costa Hollywood Beach Resort offers a rooftop pool and access to Hollywood Beach",
+      "source": "https://www.costahollywoodhotel.com/private-beach-pool"
+     },
+     {
+      "claim": "Costa Hollywood Beach Resort offers a private beach area",
+      "source": "https://www.costahollywoodhotel.com/private-beach-pool"
+     },
+     {
+      "claim": "Guests are offered two complimentary beach chairs throughout their stay",
+      "source": "https://www.costahollywoodhotel.com/private-beach-pool"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ2xFXTkOj2YgR7xEra4EBlnk",
+   "name": "The Horrorland Miami",
+   "category": "attractions",
+   "metro": "miami-dade",
+   "primary_type": "event_venue",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.thehorrorland.com/",
+     "source_name": "The Horrorland Miami \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Horrorland is set inside Jungle Island in Miami",
+      "The Horrorland offers five haunted houses",
+      "Gates open at 7 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Haunted experience inside Jungle Island in Miami with five haunted houses",
+    "why_here": "The Horrorland inside Jungle Island in Miami offers five haunted houses as a haunted experience, for a night inside Jungle Island moving through haunted houses and the grounds during the seasonal event in Miami.",
+    "know_before": "Gates open at 7 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.thehorrorland.com/"
+     ],
+     "why_here": [
+      "https://www.thehorrorland.com/"
+     ],
+     "know_before": [
+      "https://www.thehorrorland.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Horrorland is set inside Jungle Island in Miami",
+      "source": "https://www.thehorrorland.com/"
+     },
+     {
+      "claim": "The Horrorland offers five haunted houses",
+      "source": "https://www.thehorrorland.com/"
+     },
+     {
+      "claim": "Gates open at 7 p.m.",
+      "source": "https://www.thehorrorland.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJHQAAkaNG24gRMOisuJ0iVWs",
+   "name": "Gator Mike's Family Fun Park",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "amusement_center",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://gatormikes.com/",
+     "source_name": "Gator Mike's Family Fun Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Gator Mike's Family Fun Park in Cape Coral offers Go-Karts, Mini Golf, Ziplining, Rock Climbing, and Arcade activities",
+      "Hours are Sunday - Thursday 11:00 a.m. - 9:00 p.m. and Friday - Saturday 11:00 a.m. - 10:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Go-Karts, Mini Golf, Ziplining, Rock Climbing, and Arcade activities in Cape Coral",
+    "why_here": "Gator Mike's Family Fun Park in Cape Coral offers Go-Karts, Mini Golf, Ziplining, Rock Climbing, and Arcade activities, for a day in Cape Coral choosing among outdoor rides and indoor arcade play at the park.",
+    "know_before": "Hours are Sunday - Thursday 11:00 a.m. - 9:00 p.m. and Friday - Saturday 11:00 a.m. - 10:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://gatormikes.com/"
+     ],
+     "why_here": [
+      "https://gatormikes.com/"
+     ],
+     "know_before": [
+      "https://gatormikes.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Gator Mike's Family Fun Park in Cape Coral offers Go-Karts, Mini Golf, Ziplining, Rock Climbing, and Arcade activities",
+      "source": "https://gatormikes.com/"
+     },
+     {
+      "claim": "Hours are Sunday - Thursday 11:00 a.m. - 9:00 p.m. and Friday - Saturday 11:00 a.m. - 10:00 p.m.",
+      "source": "https://gatormikes.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ5ao80Nlr24gRpGjrE2JI_DY",
+   "name": "Flea Market of Ortiz Ave",
+   "category": "shopping",
+   "metro": "florida",
+   "primary_type": "flea_market",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.ortizfleamarket.com/",
+     "source_name": "Flea Market of Ortiz Ave \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Family owned & operated since 1967",
+      "With nearly 600 spaces, we offer everything from A - Z",
+      "1501 Ortiz Avenue Fort Myers Florida 33905",
+      "Free parking",
+      "We are open every weekend",
+      "Flea Market Hours (Rain or Shine) Saturday 8 a.m.-4 p.m. Sunday 6 a.m.-4 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Family owned and operated since 1967, with nearly 600 spaces in Fort Myers",
+    "why_here": "Open every weekend in Fort Myers, the market lists nearly 600 spaces and says we offer everything from A - Z, with vendors selling across open and covered spaces at 1501 Ortiz Avenue.",
+    "know_before": "Free parking. Flea Market Hours (Rain or Shine) Saturday 8 a.m.-4 p.m. and Sunday 6 a.m.-4 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.ortizfleamarket.com/"
+     ],
+     "why_here": [
+      "https://www.ortizfleamarket.com/"
+     ],
+     "know_before": [
+      "https://www.ortizfleamarket.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Family owned & operated since 1967",
+      "source": "https://www.ortizfleamarket.com/"
+     },
+     {
+      "claim": "With nearly 600 spaces, we offer everything from A - Z",
+      "source": "https://www.ortizfleamarket.com/"
+     },
+     {
+      "claim": "1501 Ortiz Avenue Fort Myers Florida 33905",
+      "source": "https://www.ortizfleamarket.com/"
+     },
+     {
+      "claim": "Free parking",
+      "source": "https://www.ortizfleamarket.com/"
+     },
+     {
+      "claim": "We are open every weekend",
+      "source": "https://www.ortizfleamarket.com/"
+     },
+     {
+      "claim": "Flea Market Hours (Rain or Shine) Saturday 8 a.m.-4 p.m. Sunday 6 a.m.-4 p.m.",
+      "source": "https://www.ortizfleamarket.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ3QcjC-qp4IgRDbrVsxKZC4E",
+   "name": "Island Pancake House",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "breakfast_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.islandpancakeshouse.com/",
+     "source_name": "Island Pancake House \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Welcome to Island Pancake House, where we serve up delicious breakfast and lunch options",
+      "950 N Courtenay Pkwy Suite #18 Merritt Island, FL 32953",
+      "you can enjoy incredible breakfast combos, pancakes, waffles, French toast",
+      "from fluffy pancakes and savory omelets to mouthwatering burgers and fresh salads",
+      "We also cater"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Breakfast and lunch on Merritt Island, from pancakes to burgers and salads",
+    "why_here": "Island Pancake House on Merritt Island serves breakfast and lunch, with a menu described as filled with a variety of choices including pancakes, waffles, French toast, omelets, burgers and fresh salads.",
+    "know_before": "We also cater, per the official site. Address is 950 N Courtenay Pkwy Suite #18 Merritt Island, FL 32953.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.islandpancakeshouse.com/"
+     ],
+     "why_here": [
+      "https://www.islandpancakeshouse.com/"
+     ],
+     "know_before": [
+      "https://www.islandpancakeshouse.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Welcome to Island Pancake House, where we serve up delicious breakfast and lunch options",
+      "source": "https://www.islandpancakeshouse.com/"
+     },
+     {
+      "claim": "950 N Courtenay Pkwy Suite #18 Merritt Island, FL 32953",
+      "source": "https://www.islandpancakeshouse.com/"
+     },
+     {
+      "claim": "you can enjoy incredible breakfast combos, pancakes, waffles, French toast",
+      "source": "https://www.islandpancakeshouse.com/"
+     },
+     {
+      "claim": "from fluffy pancakes and savory omelets to mouthwatering burgers and fresh salads",
+      "source": "https://www.islandpancakeshouse.com/"
+     },
+     {
+      "claim": "We also cater",
+      "source": "https://www.islandpancakeshouse.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJcxKBYBbi2IgRydbcm-_5qa4",
+   "name": "The Boca Raton",
+   "category": "hotels",
+   "metro": "palm-beach",
+   "primary_type": "resort_hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.thebocaraton.com/experiences/",
+     "source_name": "The Boca Raton \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "around our eight sparkling pools, each with its own distinct scene, or along our private white sand beach",
+      "Oceanfront cabanas, with private butler service",
+      "full-service Racquet Club, featuring 16 Hydro-Grid tennis courts, full-service tennis concierge, expert instruction, 4 pickleball courts",
+      "explore the waters of the Atlantic and the Intracoastal Waterway with water sports like surfing, sailing, snorkeling, paddle boarding"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Resort with eight pools, a private white sand beach and a Racquet Club",
+    "why_here": "The Boca Raton lists eight pools and a private white sand beach for Beach & Pools, plus a full-service Racquet Club featuring 16 Hydro-Grid tennis courts and 4 pickleball courts, and water sports on the Atlantic and the Intracoastal Waterway.",
+    "know_before": "Oceanfront cabanas, with private butler service, are listed for Beach & Pools.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.thebocaraton.com/experiences/"
+     ],
+     "why_here": [
+      "https://www.thebocaraton.com/experiences/"
+     ],
+     "know_before": [
+      "https://www.thebocaraton.com/experiences/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "around our eight sparkling pools, each with its own distinct scene, or along our private white sand beach",
+      "source": "https://www.thebocaraton.com/experiences/"
+     },
+     {
+      "claim": "Oceanfront cabanas, with private butler service",
+      "source": "https://www.thebocaraton.com/experiences/"
+     },
+     {
+      "claim": "full-service Racquet Club, featuring 16 Hydro-Grid tennis courts, full-service tennis concierge, expert instruction, 4 pickleball courts",
+      "source": "https://www.thebocaraton.com/experiences/"
+     },
+     {
+      "claim": "explore the waters of the Atlantic and the Intracoastal Waterway with water sports like surfing, sailing, snorkeling, paddle boarding",
+      "source": "https://www.thebocaraton.com/experiences/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJaemZl1tk54gRj81GPBHiQ2s",
+   "name": "Fancy Fruit & Produce",
+   "category": "shopping",
+   "metro": "orlando",
+   "primary_type": "grocery_store",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://fancyfruitandproduce.com/about/",
+     "source_name": "Fancy Fruit & Produce \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Fancy Fruit & Produce is a family-owned business founded in 2006",
+      "always offering fresh produce and quality meats at affordable prices",
+      "Today, we have 9 stores in Central Florida, from Port Orange to Lakeland, open daily",
+      "fruits, vegetables, and meats that are cleaned and restocked hourly"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Family-owned business founded in 2006, offering fresh produce and quality meats",
+    "why_here": "Fancy Fruit & Produce says it has 9 stores in Central Florida, from Port Orange to Lakeland, built to deliver fruits, vegetables, and meats that are cleaned and restocked hourly, with fresh produce and quality meats at affordable prices.",
+    "know_before": "Today, we have 9 stores in Central Florida, from Port Orange to Lakeland, open daily.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://fancyfruitandproduce.com/about/"
+     ],
+     "why_here": [
+      "https://fancyfruitandproduce.com/about/"
+     ],
+     "know_before": [
+      "https://fancyfruitandproduce.com/about/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Fancy Fruit & Produce is a family-owned business founded in 2006",
+      "source": "https://fancyfruitandproduce.com/about/"
+     },
+     {
+      "claim": "always offering fresh produce and quality meats at affordable prices",
+      "source": "https://fancyfruitandproduce.com/about/"
+     },
+     {
+      "claim": "Today, we have 9 stores in Central Florida, from Port Orange to Lakeland, open daily",
+      "source": "https://fancyfruitandproduce.com/about/"
+     },
+     {
+      "claim": "fruits, vegetables, and meats that are cleaned and restocked hourly",
+      "source": "https://fancyfruitandproduce.com/about/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJraVcblPCwogRgJZTR_h9S3Y",
+   "name": "Bar Louie - Tampa",
+   "category": "nightlife",
+   "metro": "tampa",
+   "primary_type": "bar_and_grill",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.barlouie.com/locations/us/fl/tampa/international-plaza",
+     "source_name": "Bar Louie - Tampa \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Bar Louie in Tampa is at 2223 North Westshore Boulevard #202 Suite B-202, Tampa, FL 33607",
+      "Martini Monday's Monday All Day Half Off Signature Martinis",
+      "Burger Day Tuesdays All Day $8 Craft Burgers with a choice of Fries or Tots"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Bar Louie Tampa lists Martini Monday's and Burger Day specials",
+    "why_here": "Bar Louie in Tampa lists Martini Monday's on Monday and Burger Day on Tuesdays, with Craft Burgers and a choice of sides or Tots and Signature Martinis listed for guests during the week.",
+    "know_before": "Burger Day is on Tuesdays with $8 Craft Burgers with a choice of sides or Tots.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.barlouie.com/locations/us/fl/tampa/international-plaza"
+     ],
+     "why_here": [
+      "https://www.barlouie.com/locations/us/fl/tampa/international-plaza"
+     ],
+     "know_before": [
+      "https://www.barlouie.com/locations/us/fl/tampa/international-plaza"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Bar Louie in Tampa is at 2223 North Westshore Boulevard #202 Suite B-202, Tampa, FL 33607",
+      "source": "https://www.barlouie.com/locations/us/fl/tampa/international-plaza"
+     },
+     {
+      "claim": "Martini Monday's Monday All Day Half Off Signature Martinis",
+      "source": "https://www.barlouie.com/locations/us/fl/tampa/international-plaza"
+     },
+     {
+      "claim": "Burger Day Tuesdays All Day $8 Craft Burgers with a choice of Fries or Tots",
+      "source": "https://www.barlouie.com/locations/us/fl/tampa/international-plaza"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ_WaGerKu2YgRivlK41APjKU",
+   "name": "Chef Tally World Famous Jerk Chicken",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.cheftallys.com/",
+     "source_name": "Chef Tally World Famous Jerk Chicken \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Chef Tally World Famous Jerk Chicken, a beloved family-run business",
+      "authentic Jamaican flavor meets soul meets serious heat that has been serving the community since 1999",
+      "2481 SW 56th Terrace West Park, FL 33023"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Family-run Jamaican spot serving the community since 1999 in West Park",
+    "why_here": "Chef Tally World Famous Jerk Chicken describes itself as a beloved family-run business serving the community since 1999, where authentic Jamaican flavor meets soul, at 2481 SW 56th Terrace in West Park.",
+    "know_before": "Address listed is 2481 SW 56th Terrace West Park, FL 33023.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.cheftallys.com/"
+     ],
+     "why_here": [
+      "https://www.cheftallys.com/"
+     ],
+     "know_before": [
+      "https://www.cheftallys.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Chef Tally World Famous Jerk Chicken, a beloved family-run business",
+      "source": "https://www.cheftallys.com/"
+     },
+     {
+      "claim": "authentic Jamaican flavor meets soul meets serious heat that has been serving the community since 1999",
+      "source": "https://www.cheftallys.com/"
+     },
+     {
+      "claim": "2481 SW 56th Terrace West Park, FL 33023",
+      "source": "https://www.cheftallys.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJzz5gegC12YgRmQPucpLKGtk",
+   "name": "Avo Miami",
+   "category": "shopping",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.avo-miami.com/",
+     "source_name": "Avo Miami \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Visit us in South Miami, Sunset Harbour, or Coconut Grove",
+      "OPEN from 7 a.m. TO 10 p.m.",
+      "we are proud to serve grass-fed and organic meats, fresh wild-caught fish, and plant-based specialties",
+      "Indulge in our colorful Acai Bowls, energizing Protein Shakes, and artisanal Avo Toasts"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Miami spot for Acai Bowls, Protein Shakes and artisanal Avo Toasts",
+    "why_here": "Avo Miami lists locations in South Miami, Sunset Harbour, and Coconut Grove, open from 7 a.m. to 10 p.m., serving grass-fed and organic meats, fresh wild-caught fish, and plant-based specialties, plus Acai Bowls, Protein Shakes and Avo Toasts.",
+    "know_before": "Visit us in South Miami, Sunset Harbour, or Coconut Grove. Locations list OPEN from 7 a.m. TO 10 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.avo-miami.com/"
+     ],
+     "why_here": [
+      "https://www.avo-miami.com/"
+     ],
+     "know_before": [
+      "https://www.avo-miami.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Visit us in South Miami, Sunset Harbour, or Coconut Grove",
+      "source": "https://www.avo-miami.com/"
+     },
+     {
+      "claim": "OPEN from 7 a.m. TO 10 p.m.",
+      "source": "https://www.avo-miami.com/"
+     },
+     {
+      "claim": "we are proud to serve grass-fed and organic meats, fresh wild-caught fish, and plant-based specialties",
+      "source": "https://www.avo-miami.com/"
+     },
+     {
+      "claim": "Indulge in our colorful Acai Bowls, energizing Protein Shakes, and artisanal Avo Toasts",
+      "source": "https://www.avo-miami.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ4d9KGYKx2YgRQfGYveH9IXE",
+   "name": "The Citadel",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://thecitadelmiami.com/",
+     "source_name": "The Citadel \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Citadel is a daily destination offering local artisanal foods, handcrafted cocktails, maker driven retail, and culturally immersive experiences",
+      "With nearly a dozen restaurants, there is something for everyone at The Citadel",
+      "The Citadel is open Tuesday through Sunday 8:30 a.m. \u2013 Close",
+      "Rooftop Open: Thursday: 6 p.m. - Close, Friday-Saturday: 4 p.m.-Close, Sunday: 12 p.m.-Close",
+      "The Citadel is at 8300 NE Second Avenue Miami, FL 33138",
+      "Eats at The Citadel include Manjay, PHO SHO, and Vice City Bean"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "daily destination offering local artisanal foods, handcrafted cocktails, and maker driven retail",
+    "why_here": "The Citadel is a daily destination offering local artisanal foods, handcrafted cocktails, maker driven retail, and culturally immersive experiences, with nearly a dozen restaurants including Manjay, PHO SHO, and Vice City Bean.",
+    "know_before": "The Citadel is open Tuesday through Sunday 8:30 a.m. \u2013 Close.",
+    "local_tip": "Rooftop Open: Thursday: 6 p.m. - Close.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://thecitadelmiami.com/"
+     ],
+     "why_here": [
+      "https://thecitadelmiami.com/"
+     ],
+     "know_before": [
+      "https://thecitadelmiami.com/"
+     ],
+     "local_tip": [
+      "https://thecitadelmiami.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Citadel is a daily destination offering local artisanal foods, handcrafted cocktails, maker driven retail, and culturally immersive experiences",
+      "source": "https://thecitadelmiami.com/"
+     },
+     {
+      "claim": "With nearly a dozen restaurants, there is something for everyone at The Citadel",
+      "source": "https://thecitadelmiami.com/"
+     },
+     {
+      "claim": "The Citadel is open Tuesday through Sunday 8:30 a.m. \u2013 Close",
+      "source": "https://thecitadelmiami.com/"
+     },
+     {
+      "claim": "Rooftop Open: Thursday: 6 p.m. - Close, Friday-Saturday: 4 p.m.-Close, Sunday: 12 p.m.-Close",
+      "source": "https://thecitadelmiami.com/"
+     },
+     {
+      "claim": "The Citadel is at 8300 NE Second Avenue Miami, FL 33138",
+      "source": "https://thecitadelmiami.com/"
+     },
+     {
+      "claim": "Eats at The Citadel include Manjay, PHO SHO, and Vice City Bean",
+      "source": "https://thecitadelmiami.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJIcZU0WKi54gRJVS7BTWVt10",
+   "name": "The Goblin Market Restaurant & Lounge",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.goblinmarketrestaurant.com/",
+     "source_name": "The Goblin Market Restaurant & Lounge \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Goblin Market Restaurant & Lounge Hours of Operation: Wednesday: Lunch 11:00 a.m. - 3:00 p.m., Dinner 4:30 p.m. - 8:30 p.m.",
+      "Thursday: Lunch 11:00 a.m. - 3:00 p.m., Dinner 4:30 p.m. - 8:30 p.m.",
+      "Friday: Lunch 11:00 a.m. - 3:00 p.m., Dinner 4:30 p.m. - 9:00 p.m.",
+      "Saturday: Lunch 11:00 a.m. - 3:00 p.m., Dinner 4:30 p.m. - 9:00 p.m.",
+      "Sunday: Lunch 11:00 a.m. - 3:00 p.m., Dinner 4:30 p.m. - 8:30 p.m.",
+      "The Goblin Market Restaurant & Lounge is a Restaurant in Mt. Dora, FL"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Restaurant in Mt. Dora, FL with Lunch and Dinner on Wednesday, Thursday, Friday, Saturday, and Sunday",
+    "why_here": "The Goblin Market Restaurant & Lounge is a Restaurant in Mt. Dora, FL serving Lunch 11:00 a.m. - 3:00 p.m. and Dinner on Wednesday, Thursday, Friday, Saturday, and Sunday, with Dinner 4:30 p.m. - 8:30 p.m. on Wednesday.",
+    "know_before": "Wednesday: Lunch 11:00 a.m. - 3:00 p.m., Dinner 4:30 p.m. - 8:30 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.goblinmarketrestaurant.com/"
+     ],
+     "why_here": [
+      "https://www.goblinmarketrestaurant.com/"
+     ],
+     "know_before": [
+      "https://www.goblinmarketrestaurant.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Goblin Market Restaurant & Lounge Hours of Operation: Wednesday: Lunch 11:00 a.m. - 3:00 p.m., Dinner 4:30 p.m. - 8:30 p.m.",
+      "source": "https://www.goblinmarketrestaurant.com/"
+     },
+     {
+      "claim": "Thursday: Lunch 11:00 a.m. - 3:00 p.m., Dinner 4:30 p.m. - 8:30 p.m.",
+      "source": "https://www.goblinmarketrestaurant.com/"
+     },
+     {
+      "claim": "Friday: Lunch 11:00 a.m. - 3:00 p.m., Dinner 4:30 p.m. - 9:00 p.m.",
+      "source": "https://www.goblinmarketrestaurant.com/"
+     },
+     {
+      "claim": "Saturday: Lunch 11:00 a.m. - 3:00 p.m., Dinner 4:30 p.m. - 9:00 p.m.",
+      "source": "https://www.goblinmarketrestaurant.com/"
+     },
+     {
+      "claim": "Sunday: Lunch 11:00 a.m. - 3:00 p.m., Dinner 4:30 p.m. - 8:30 p.m.",
+      "source": "https://www.goblinmarketrestaurant.com/"
+     },
+     {
+      "claim": "The Goblin Market Restaurant & Lounge is a Restaurant in Mt. Dora, FL",
+      "source": "https://www.goblinmarketrestaurant.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJYcnr7B2B3YgRY2iQCebUT1Y",
+   "name": "U & Me Revolving Hot Pot\u4f1a\u53cb\u5ddd\u5473\u706b\u9505",
+   "category": "shopping",
+   "metro": "orlando",
+   "primary_type": "hot_pot_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://uandmerevolvinghotpot.com/",
+     "source_name": "U & Me Revolving Hot Pot\u4f1a\u53cb\u5ddd\u5473\u706b\u9505 \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "U & Me Revolving Hot Pot is at 12384 S APOPKA VINELAND RD ORLANDO, FL 32836",
+      "U & Me Revolving Hot Pot specializes in a unique and interactive hot pot experience",
+      "Broth options include traditional bone broth, Sichuan and Thai broths, rich beef broth, and mushroom broth",
+      "BoBa Tea, also known as Bubble Tea, combines tea, chewy tapioca pearls, and flavorful toppings",
+      "U & Me Revolving Hot Pot is open daily 12:00 p.m. to 12:00 a.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Interactive hot pot with Sichuan and Thai broths and BoBa Tea",
+    "why_here": "U & Me Revolving Hot Pot specializes in a unique and interactive hot pot experience, with traditional bone broth, Sichuan and Thai broths, rich beef broth, mushroom broth, and BoBa Tea for groups sharing a meal.",
+    "know_before": "Hours are 12:00 p.m. to 12:00 a.m. daily; broth options include Sichuan and Thai broths.",
+    "local_tip": "Try BoBa Tea, also known as Bubble Tea, with chewy tapioca pearls.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://uandmerevolvinghotpot.com/"
+     ],
+     "why_here": [
+      "https://uandmerevolvinghotpot.com/"
+     ],
+     "know_before": [
+      "https://uandmerevolvinghotpot.com/"
+     ],
+     "local_tip": [
+      "https://uandmerevolvinghotpot.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "U & Me Revolving Hot Pot is at 12384 S APOPKA VINELAND RD ORLANDO, FL 32836",
+      "source": "https://uandmerevolvinghotpot.com/"
+     },
+     {
+      "claim": "U & Me Revolving Hot Pot specializes in a unique and interactive hot pot experience",
+      "source": "https://uandmerevolvinghotpot.com/"
+     },
+     {
+      "claim": "Broth options include traditional bone broth, Sichuan and Thai broths, rich beef broth, and mushroom broth",
+      "source": "https://uandmerevolvinghotpot.com/"
+     },
+     {
+      "claim": "BoBa Tea, also known as Bubble Tea, combines tea, chewy tapioca pearls, and flavorful toppings",
+      "source": "https://uandmerevolvinghotpot.com/"
+     },
+     {
+      "claim": "U & Me Revolving Hot Pot is open daily 12:00 p.m. to 12:00 a.m.",
+      "source": "https://uandmerevolvinghotpot.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJnU35_ADNwogR1cvoTTYex-U",
+   "name": "Valrico Commons",
+   "category": "shopping",
+   "metro": "tampa",
+   "primary_type": "shopping_mall",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.phillipsedison.com/property/florida/tampa-fl/valrico/valrico-commons",
+     "source_name": "Valrico Commons \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Valrico Commons is a shopping center at 1901 SR 60 E, Valrico, FL 33594",
+      "Major Tenants at Valrico Commons are Publix, Five Below, The UPS Store",
+      "Valrico Commons is Fully Leased"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Shopping center with Publix, Five Below and The UPS Store",
+    "why_here": "Valrico Commons is a shopping center in Valrico with Major Tenants Publix, Five Below and The UPS Store, covering grocery and everyday retail stops in one place for local errands and shopping.",
+    "know_before": "Valrico Commons is Fully Leased and is at 1901 SR 60 E, Valrico, FL 33594.",
+    "local_tip": "Combine Publix, Five Below and The UPS Store in one shopping center stop.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.phillipsedison.com/property/florida/tampa-fl/valrico/valrico-commons"
+     ],
+     "why_here": [
+      "https://www.phillipsedison.com/property/florida/tampa-fl/valrico/valrico-commons"
+     ],
+     "know_before": [
+      "https://www.phillipsedison.com/property/florida/tampa-fl/valrico/valrico-commons"
+     ],
+     "local_tip": [
+      "https://www.phillipsedison.com/property/florida/tampa-fl/valrico/valrico-commons"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Valrico Commons is a shopping center at 1901 SR 60 E, Valrico, FL 33594",
+      "source": "https://www.phillipsedison.com/property/florida/tampa-fl/valrico/valrico-commons"
+     },
+     {
+      "claim": "Major Tenants at Valrico Commons are Publix, Five Below, The UPS Store",
+      "source": "https://www.phillipsedison.com/property/florida/tampa-fl/valrico/valrico-commons"
+     },
+     {
+      "claim": "Valrico Commons is Fully Leased",
+      "source": "https://www.phillipsedison.com/property/florida/tampa-fl/valrico/valrico-commons"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJTxEPEqSP3YgRbmhF8uo5024",
+   "name": "Gator's Dockside St Cloud",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://gatorsdockside.com/restaurants/locations/st-cloud/",
+     "source_name": "Gator's Dockside St Cloud \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Gator's Dockside St. Cloud is at 4001 13th St., St. Cloud, FL 34769",
+      "Gator's Dockside serves wings, ribs, seafood, and sports viewing on many TVs",
+      "Specials include all you can eat wings, bingo, trivia, happy hour, and daily drink specials",
+      "Monday offers All You Can Eat Wings from 6:00 p.m. \u2013 10:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Wings, ribs, and seafood spot in St. Cloud with sports on many TVs",
+    "why_here": "Go for wings, ribs, and seafood while watching your favorite team on one of many TVs, with bingo, trivia, happy hour, and daily drink specials for groups and family visits.",
+    "know_before": "Monday offers All You Can Eat Wings from 6:00 p.m. \u2013 10:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://gatorsdockside.com/restaurants/locations/st-cloud/"
+     ],
+     "why_here": [
+      "https://gatorsdockside.com/restaurants/locations/st-cloud/"
+     ],
+     "know_before": [
+      "https://gatorsdockside.com/restaurants/locations/st-cloud/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Gator's Dockside St. Cloud is at 4001 13th St., St. Cloud, FL 34769",
+      "source": "https://gatorsdockside.com/restaurants/locations/st-cloud/"
+     },
+     {
+      "claim": "Gator's Dockside serves wings, ribs, seafood, and sports viewing on many TVs",
+      "source": "https://gatorsdockside.com/restaurants/locations/st-cloud/"
+     },
+     {
+      "claim": "Specials include all you can eat wings, bingo, trivia, happy hour, and daily drink specials",
+      "source": "https://gatorsdockside.com/restaurants/locations/st-cloud/"
+     },
+     {
+      "claim": "Monday offers All You Can Eat Wings from 6:00 p.m. \u2013 10:00 p.m.",
+      "source": "https://gatorsdockside.com/restaurants/locations/st-cloud/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJYY0OrNzf2IgRju0bWxyKlyg",
+   "name": "City Oyster & Sushi Bar",
+   "category": "food",
+   "metro": "palm-beach",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.cityoysterdelray.com/",
+     "source_name": "City Oyster & Sushi Bar \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "City Oyster is at 213 E Atlantic Ave, Delray Beach, FL 33444",
+      "City Oyster has a full sushi bar and a rotating selection of fresh oysters from the East and West Coast",
+      "Fresh seafood is delivered and prepared daily in the kitchen at City Oyster",
+      "The bakery located above the restaurant provides house made desserts, pies, bread, crackers and pasta",
+      "Lunch is Monday - Friday 11:30 a.m. - 3 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Fresh seafood and sushi bar on Atlantic Ave in Delray Beach",
+    "why_here": "Come for fresh seafood delivered and prepared daily, a full sushi bar, and a rotating selection of fresh oysters from the East and West Coast, plus house made desserts from the bakery above the restaurant.",
+    "know_before": "Lunch is Monday - Friday 11:30 a.m. - 3 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.cityoysterdelray.com/"
+     ],
+     "why_here": [
+      "https://www.cityoysterdelray.com/"
+     ],
+     "know_before": [
+      "https://www.cityoysterdelray.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "City Oyster is at 213 E Atlantic Ave, Delray Beach, FL 33444",
+      "source": "https://www.cityoysterdelray.com/"
+     },
+     {
+      "claim": "City Oyster has a full sushi bar and a rotating selection of fresh oysters from the East and West Coast",
+      "source": "https://www.cityoysterdelray.com/"
+     },
+     {
+      "claim": "Fresh seafood is delivered and prepared daily in the kitchen at City Oyster",
+      "source": "https://www.cityoysterdelray.com/"
+     },
+     {
+      "claim": "The bakery located above the restaurant provides house made desserts, pies, bread, crackers and pasta",
+      "source": "https://www.cityoysterdelray.com/"
+     },
+     {
+      "claim": "Lunch is Monday - Friday 11:30 a.m. - 3 p.m.",
+      "source": "https://www.cityoysterdelray.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJr9jjh4qRwogRefYfVW5RABE",
+   "name": "The Social NPR",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.thesocialnpr.com/menus",
+     "source_name": "The Social NPR \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Social is at 5650 Main St., New Port Richey, FL 34652",
+      "Smash Burgers are served on a Brioche Bun with Kettle Chips",
+      "Flat Breads include Chicken Tuscany and California Dreaming",
+      "Entrees include Social Salmon, Bacon Jam Meatloaf, and Red Fish"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Smash Burgers and Flat Breads in New Port Richey",
+    "why_here": "Try Smash Burgers served on a Brioche Bun with Kettle Chips, Flat Breads such as Chicken Tuscany, and entrees including Social Salmon, Bacon Jam Meatloaf, and Red Fish at The Social in New Port Richey.",
+    "know_before": "The Social is at 5650 Main St., New Port Richey, FL 34652.",
+    "local_tip": "Order Smash Burgers on a Brioche Bun with Kettle Chips.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.thesocialnpr.com/menus"
+     ],
+     "why_here": [
+      "https://www.thesocialnpr.com/menus"
+     ],
+     "know_before": [
+      "https://www.thesocialnpr.com/menus"
+     ],
+     "local_tip": [
+      "https://www.thesocialnpr.com/menus"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Social is at 5650 Main St., New Port Richey, FL 34652",
+      "source": "https://www.thesocialnpr.com/menus"
+     },
+     {
+      "claim": "Smash Burgers are served on a Brioche Bun with Kettle Chips",
+      "source": "https://www.thesocialnpr.com/menus"
+     },
+     {
+      "claim": "Flat Breads include Chicken Tuscany and California Dreaming",
+      "source": "https://www.thesocialnpr.com/menus"
+     },
+     {
+      "claim": "Entrees include Social Salmon, Bacon Jam Meatloaf, and Red Fish",
+      "source": "https://www.thesocialnpr.com/menus"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJidr4f1HEwogRxDn8aulMSl4",
+   "name": "The Orpheum",
+   "category": "attractions",
+   "metro": "tampa",
+   "primary_type": "concert_hall",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.theorpheum.com/",
+     "source_name": "The Orpheum \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Orpheum is at 14802 North Nebraska Avenue, Tampa, Florida 33613",
+      "The Orpheum has been showcasing live music and events for more than two decades",
+      "The Orpheum was formerly located in the Historic Ybor City entertainment district of Tampa, Florida",
+      "The Orpheum has now taken up residence in North Tampa",
+      "The Orpheum is minutes away from the University of South Florida"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Live music and events venue in North Tampa",
+    "why_here": "See live music and events at The Orpheum in North Tampa, a venue showcasing live music and events for more than two decades and minutes away from the University of South Florida.",
+    "know_before": "The Orpheum is at 14802 North Nebraska Avenue, Tampa, Florida 33613.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.theorpheum.com/"
+     ],
+     "why_here": [
+      "https://www.theorpheum.com/"
+     ],
+     "know_before": [
+      "https://www.theorpheum.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Orpheum is at 14802 North Nebraska Avenue, Tampa, Florida 33613",
+      "source": "https://www.theorpheum.com/"
+     },
+     {
+      "claim": "The Orpheum has been showcasing live music and events for more than two decades",
+      "source": "https://www.theorpheum.com/"
+     },
+     {
+      "claim": "The Orpheum was formerly located in the Historic Ybor City entertainment district of Tampa, Florida",
+      "source": "https://www.theorpheum.com/"
+     },
+     {
+      "claim": "The Orpheum has now taken up residence in North Tampa",
+      "source": "https://www.theorpheum.com/"
+     },
+     {
+      "claim": "The Orpheum is minutes away from the University of South Florida",
+      "source": "https://www.theorpheum.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJO00l3z212YgRMR2YmhbLEVE",
+   "name": "Carbone Miami",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "italian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.carbonemiami.com/",
+     "source_name": "Carbone Miami \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Carbone Miami is at 49 Collins Ave, Miami Beach, FL 33139",
+      "The menu features Caesar Salad alla ZZ, Carpaccio Piemontese, Baked Clams, and Veal Parmesan",
+      "Carbone Miami serves Italian-American cuisine by Chef Mario Carbone",
+      "Dinner is Monday - Sunday 5:30 p.m. - 11:00 p.m.",
+      "Lunch is Friday - Sunday 11:30 a.m. - 2:30 p.m.",
+      "The patio can seat 50 people"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Italian-American dining on Collins Ave in Miami Beach",
+    "why_here": "Try Caesar Salad alla ZZ, Carpaccio Piemontese, Baked Clams, and Veal Parmesan from the Italian-American menu at Carbone Miami, where the patio can seat 50 people.",
+    "know_before": "Dinner is Monday - Sunday 5:30 p.m. - 11:00 p.m.; lunch is Friday - Sunday 11:30 a.m. - 2:30 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.carbonemiami.com/"
+     ],
+     "why_here": [
+      "https://www.carbonemiami.com/"
+     ],
+     "know_before": [
+      "https://www.carbonemiami.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Carbone Miami is at 49 Collins Ave, Miami Beach, FL 33139",
+      "source": "https://www.carbonemiami.com/"
+     },
+     {
+      "claim": "The menu features Caesar Salad alla ZZ, Carpaccio Piemontese, Baked Clams, and Veal Parmesan",
+      "source": "https://www.carbonemiami.com/"
+     },
+     {
+      "claim": "Carbone Miami serves Italian-American cuisine by Chef Mario Carbone",
+      "source": "https://www.carbonemiami.com/"
+     },
+     {
+      "claim": "Dinner is Monday - Sunday 5:30 p.m. - 11:00 p.m.",
+      "source": "https://www.carbonemiami.com/"
+     },
+     {
+      "claim": "Lunch is Friday - Sunday 11:30 a.m. - 2:30 p.m.",
+      "source": "https://www.carbonemiami.com/"
+     },
+     {
+      "claim": "The patio can seat 50 people",
+      "source": "https://www.carbonemiami.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJIy2phKu35YgRpyRCQUrpfJ4",
+   "name": "Arepa Please",
+   "category": "food",
+   "metro": "jacksonville-fl",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.arepaplease.com/",
+     "source_name": "Arepa Please \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Arepa Please is a Venezuelan restaurant in Jacksonville, serving authentic Venezuelan arepas since 2018",
+      "Reina Pepiada combines shredded chicken with avocado and mayonnaise",
+      "Pabell\u00f3n features shredded beef, black beans, sweet plantains, and queso blanco",
+      "Arepa Please is open daily 10 a.m. \u2014 8 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Venezuelan arepas in Jacksonville since 2018",
+    "why_here": "Try authentic Venezuelan arepas including Reina Pepiada with shredded chicken and avocado, and Pabell\u00f3n with shredded beef, black beans, sweet plantains, and queso blanco in Jacksonville.",
+    "know_before": "Arepa Please is open daily 10 a.m. \u2014 8 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.arepaplease.com/"
+     ],
+     "why_here": [
+      "https://www.arepaplease.com/"
+     ],
+     "know_before": [
+      "https://www.arepaplease.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Arepa Please is a Venezuelan restaurant in Jacksonville, serving authentic Venezuelan arepas since 2018",
+      "source": "https://www.arepaplease.com/"
+     },
+     {
+      "claim": "Reina Pepiada combines shredded chicken with avocado and mayonnaise",
+      "source": "https://www.arepaplease.com/"
+     },
+     {
+      "claim": "Pabell\u00f3n features shredded beef, black beans, sweet plantains, and queso blanco",
+      "source": "https://www.arepaplease.com/"
+     },
+     {
+      "claim": "Arepa Please is open daily 10 a.m. \u2014 8 p.m.",
+      "source": "https://www.arepaplease.com/"
+     }
+    ]
+   }
+  }
+ ]
+}
