@@ -178,7 +178,7 @@ ok(eventTicketDeal("hhn-orlando-2026") === null && eventTicketDeal("wfc:hhn-orla
 ok(eventTicketDeal("howl-o-scream-tampa-2026") === null && eventTicketDeal("howl-o-scream-seaworld-2026") === null, "both Howl O Scream rows are retired with HHN");
 const deal = eventTicketDeal("christmas-town-2026");
 ok(deal && deal.deal === 65 && deal.provider === "undercover_tourist", "a live holiday park ticket still resolves: Christmas Town is deal 65");
-ok(eventTicketDeal("busch-gardens-christmas-town-2026")?.deal === 65 && eventTicketDeal("seaworld-christmas-2026")?.deal === 62 && eventTicketDeal("legoland-christmas-bricktacular-2026")?.deal === 64 && eventTicketDeal("universal-holidays-2026")?.deal === 6, "research ids for the same holiday runs use the same live Undercover Tourist rows");
+ok(eventTicketDeal("busch-gardens-christmas-town-2026")?.deal === 65 && eventTicketDeal("seaworld-christmas-2026")?.deal === 62 && eventTicketDeal("legoland-christmas-bricktacular-2026")?.deal === 64 && eventTicketDeal("universal-holidays-2026")?.deal === 66, "research ids for the same holiday runs use the same live Undercover Tourist rows");
 ok(eventTicketDeal("screamageddon-2026") === null, "an event nobody sells returns null, never a search page");
 ok(SEPARATELY_TICKETED.includes("christmas-at-gaylord-palms-2026") && eventTicketDeal("christmas-at-gaylord-palms-2026") === null && eventTicketCta("christmas-at-gaylord-palms-2026") === null,
   "ICE at Gaylord Palms stays on the organizer ticket; no partner product is mapped");
