@@ -13,7 +13,7 @@ import { PGlite } from "@electric-sql/pglite";
 const ROOT = new URL("../", import.meta.url);
 const read = (p) => readFileSync(new URL(p, ROOT), "utf8");
 const FLOOR = "supabase/migrations/20261104150000_event_truth_held_recheck_floor.sql";
-const GUARD = "supabase/migrations/20261105120000_event_truth_held_recheck_guard.sql";
+const GUARD = "supabase/migrations/20261105120030_event_truth_held_recheck_guard.sql";
 const CAP = "supabase/migrations/20261105120035_event_truth_held_recheck_renewal_cap.sql";
 const baseline = String.raw`
 CREATE OR REPLACE FUNCTION public.wf_event_truth_integrity()
@@ -162,7 +162,7 @@ try {
 
   const guard = read(GUARD);
   const cap = read(CAP);
-  await assert.rejects(db.exec(cap), /apply 20261105120000_event_truth_held_recheck_guard.sql first/, "renewal cap refuses missing prerequisite trigger");
+  await assert.rejects(db.exec(cap), /apply 20261105120030_event_truth_held_recheck_guard.sql first/, "renewal cap refuses missing prerequisite trigger");
   checks++;
   await db.exec(guard);
   await db.exec(guard);

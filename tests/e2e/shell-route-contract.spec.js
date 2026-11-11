@@ -114,7 +114,7 @@ test("no place-card action is a navigation", async ({ page }) => {
   }
 });
 
-// SURFACE NOTE (2026-09-29). These two Like tests ran on
+// SURFACE NOTE (2026-09-29). These Like tests ran on
 // /guides/things-to-do-sarasota because guide cards were prerendered, which is
 // where the pre-hydration tap window lived. #1510 replaced guide cards with
 // editorial photos on purpose (owner directive 2026-09-24), so the guide has no
@@ -123,55 +123,150 @@ test("no place-card action is a navigation", async ({ page }) => {
 // carries Like buttons (client-rendered: the button exists once it can work).
 // If a prerendered card surface ships again, add it here; do NOT point these
 // back at a route that has no Like button.
+//
+// STORE NOTE (2026-11-10). The homepage's first thumb is often an event or a
+// bookable tour (Lights, then Best bookable activities). Those cards must not
+// write wf_liked: that map ranks places. They persist in
+// wf_content_card_actions_v1. A canary that clicks button.wf-place-card-like
+// .first() and then demands wf_liked fails on a recorded content like. Measured
+// on production: "Holidays at UTC" flipped aria-pressed and wrote
+// event:utc-holiday-2026, and a pinned "Clear Kayak" tour wrote
+// experience:173028P1 and restored after reload, while wf_liked stayed empty.
+// The same session's Universal Studios place thumb (data-wf-act="like") wrote
+// wf_liked and was still pressed after reload. The place assertion below stays
+// on that control. The leading-thumb assertion checks the store that control
+// owns, then reloads. .first() is not a stable target: another rail can insert
+// a card in front of it before the assertion reads it.
+
+function likeTitle(label) {
+  return String(label || "").replace(/^(Like |Remove like: )/, "");
+}
+
+function titledLike(page, title) {
+  const escaped = title.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return page.getByRole("button", { name: new RegExp(`^(Like |Remove like: )${escaped}$`) });
+}
+
+async function readLikeStores(page) {
+  return page.evaluate(() => {
+    const parse = (key) => {
+      try { return JSON.parse(localStorage.getItem(key) || "null"); } catch (e) { return null; }
+    };
+    const liked = parse("wf_liked") || {};
+    const content = parse("wf_content_card_actions_v1") || {};
+    const contentLiked = content.liked || {};
+    return {
+      placeIds: Object.keys(liked).filter((id) => liked[id] === true).sort(),
+      contentKeys: Object.keys(contentLiked).filter((id) => contentLiked[id] === true).sort(),
+    };
+  });
+}
+
+function addedKeys(before, after) {
+  const prior = new Set(before);
+  return after.filter((key) => !prior.has(key));
+}
+
 test("Like registers in place and does not leave the page", async ({ page }) => {
-  // TAP IT THE INSTANT IT APPEARS. That is not an unfair test — it is what a
-  // reader does, and until 2026-08-21 it was a silent no-op. Measured on
-  // production with the connection throttled to a normal 1.5 Mbps phone:
-  //
-  //     Like button PAINTED at 1,186 ms   React handler ATTACHED at 7,572 ms
-  //
-  // Guide pages are prerendered, so their cards ship inside the HTML and are
-  // tappable for six seconds before any bundle can hear them. The earlier
-  // version of this test slept 600 ms and then 2,500 ms to get past that
-  // window, which is how a real bug stayed invisible: the test was waiting out
-  // the exact interval the bug lived in.
-  //
-  // The contract now has two halves, and both must hold:
-  //   1. the tap is ACKNOWLEDGED immediately — aria-pressed flips on the tick
-  //      it happens, wired or not (lib/cardActionAttrs.js's inline bridge),
-  //   2. the tap is RECORDED — wf_liked is written once the page comes alive
-  //      (lib/cardActions.js's useActionBridge replays the queue).
-  // A tap that paints but never records is a lie; one that records but does not
-  // paint is the complaint that started all of this.
+  // The place contract, not whichever thumb paints first. data-wf-act="like"
+  // is the control whose handler writes wf_liked (IconicPlaceCard). A changed
+  // thumb is not the proof: the id has to be in wf_liked, still be there after
+  // a reload, and be gone after Unlike.
   await page.goto("/", { waitUntil: "domcontentloaded" });
-  const like = page.locator("button.wf-place-card-like").first();
-  await expect(like).toBeVisible({ timeout: 20_000 });
+  const like = page.locator('button[data-wf-act="like"]').first();
+  await expect(like, "the homepage rendered no place Like").toBeVisible({ timeout: 20_000 });
+  const placeId = await like.getAttribute("data-wf-act-place");
+  expect(placeId, "a place Like has no place id to record").toBeTruthy();
+  const pinned = page.locator(`button[data-wf-act="like"][data-wf-act-place="${placeId}"]`);
 
-  const before = page.url();
-  const pressedBefore = await like.getAttribute("aria-pressed");
-  const expected = pressedBefore === "true" ? "false" : "true";
-  await like.click();
+  const beforeUrl = page.url();
+  const before = await readLikeStores(page);
+  expect(before.placeIds, "the fixture started already liked").not.toContain(placeId);
+  await pinned.first().click();
 
-  await expect(like, "the thumb did not respond to the tap — a visible control that does nothing")
-    .toHaveAttribute("aria-pressed", expected, { timeout: 5_000 });
-  expect(page.url(), "clicking Like navigated — it must toggle in place").toBe(before);
+  await expect(pinned.first(), "the place thumb did not respond to the tap").toHaveAttribute("aria-pressed", "true", { timeout: 5_000 });
+  expect(page.url(), "clicking Like navigated. It must toggle in place").toBe(beforeUrl);
+  await expect.poll(async () => (await readLikeStores(page)).placeIds.includes(placeId), {
+    timeout: 15_000,
+    message: "wf_liked never recorded this place id",
+  }).toBe(true);
+  const once = await readLikeStores(page);
+  expect(addedKeys(before.placeIds, once.placeIds), "one tap wrote more than one place like").toEqual([placeId]);
 
-  await expect
-    .poll(async () => await page.evaluate(() => localStorage.getItem("wf_liked")), {
-      timeout: 30_000,
-      message: "wf_liked was never written — the thumb moved but nothing was recorded",
-    })
-    .toBeTruthy();
+  await page.reload({ waitUntil: "domcontentloaded" });
+  await expect(pinned.first(), "the liked place thumb did not come back after reload").toBeVisible({ timeout: 20_000 });
+  await expect(pinned.first(), "reload dropped the liked thumb").toHaveAttribute("aria-pressed", "true", { timeout: 5_000 });
+  expect((await readLikeStores(page)).placeIds, "reload dropped wf_liked").toContain(placeId);
 
-  // And the state the reader is looking at is the state that was stored.
-  await expect(like, "the thumb disagrees with what was recorded")
-    .toHaveAttribute("aria-pressed", expected, { timeout: 5_000 });
+  await pinned.first().click();
+  await expect(pinned.first(), "Unlike did not release the thumb").toHaveAttribute("aria-pressed", "false", { timeout: 5_000 });
+  await expect.poll(async () => (await readLikeStores(page)).placeIds.includes(placeId), {
+    timeout: 15_000,
+    message: "Unlike left the place id in wf_liked",
+  }).toBe(false);
+
+  await page.reload({ waitUntil: "domcontentloaded" });
+  await expect(pinned.first()).toBeVisible({ timeout: 20_000 });
+  await expect(pinned.first(), "reload restored a like that was removed").toHaveAttribute("aria-pressed", "false");
+  expect((await readLikeStores(page)).placeIds, "a removed like came back from storage").not.toContain(placeId);
+});
+
+test("the leading homepage Like persists in the store that card owns", async ({ page }) => {
+  // This is the control the old canary clicked. An event or tour thumb records
+  // a content like and must leave wf_liked alone. A place thumb, if it leads,
+  // still has to write wf_liked. Either way the proof is a reload, not the paint.
+  await page.goto("/", { waitUntil: "domcontentloaded" });
+  const first = page.locator("button.wf-place-card-like").first();
+  await expect(first).toBeVisible({ timeout: 20_000 });
+  const placeId = await first.getAttribute("data-wf-act-place");
+  const title = likeTitle(await first.getAttribute("aria-label"));
+  expect(title, "the leading Like has no name to pin").toBeTruthy();
+  const pinned = placeId
+    ? page.locator(`button[data-wf-act="like"][data-wf-act-place="${placeId}"]`)
+    : titledLike(page, title);
+  const beforeUrl = page.url();
+  const before = await readLikeStores(page);
+  await pinned.first().click();
+  await expect(pinned.first(), "the leading thumb did not respond").toHaveAttribute("aria-pressed", "true", { timeout: 5_000 });
+  expect(page.url(), "clicking the leading Like navigated").toBe(beforeUrl);
+
+  if (placeId) {
+    await expect.poll(async () => (await readLikeStores(page)).placeIds.includes(placeId), {
+      timeout: 15_000,
+      message: "the leading place Like never wrote wf_liked",
+    }).toBe(true);
+  } else {
+    await expect.poll(async () => addedKeys(before.contentKeys, (await readLikeStores(page)).contentKeys).length, {
+      timeout: 15_000,
+      message: "the leading event or tour Like never wrote wf_content_card_actions_v1",
+    }).toBe(1);
+    expect((await readLikeStores(page)).placeIds, "an event or tour Like wrote wf_liked").toEqual(before.placeIds);
+  }
+
+  const saved = await readLikeStores(page);
+  await page.reload({ waitUntil: "domcontentloaded" });
+  await expect(pinned.first(), "the leading Like did not return after reload").toBeVisible({ timeout: 20_000 });
+  await expect(pinned.first(), "reload lost the leading Like").toHaveAttribute("aria-pressed", "true", { timeout: 5_000 });
+  const restored = await readLikeStores(page);
+  if (placeId) expect(restored.placeIds).toContain(placeId);
+  else expect(restored.contentKeys).toEqual(saved.contentKeys);
+  expect(restored.placeIds, "reload changed place likes").toEqual(saved.placeIds);
+
+  await pinned.first().click();
+  await expect(pinned.first()).toHaveAttribute("aria-pressed", "false", { timeout: 5_000 });
+  await expect.poll(async () => {
+    const now = await readLikeStores(page);
+    return placeId ? now.placeIds.includes(placeId) : addedKeys(before.contentKeys, now.contentKeys).length;
+  }, { timeout: 15_000, message: "Unlike left the leading Like stored" }).toBe(placeId ? false : 0);
 });
 
 test("a tap on a card that has not hydrated yet is never lost", async ({ browser }) => {
   test.setTimeout(150_000);
-  // The regression test for the six seconds above, driven at phone speed. Its
-  // own context so no earlier test's localStorage can make this pass.
+  // Phone-speed regression for the pre-hydration window. Its own context so
+  // no earlier test's localStorage can make this pass. The button is pinned
+  // by place id or title at the moment it becomes visible. Re-reading .first()
+  // after the click follows a different card when a later rail inserts itself
+  // in front, and that card was never tapped.
   const context = await browser.newContext();
   const page = await context.newPage();
   try {
@@ -183,24 +278,36 @@ test("a tap on a card that has not hydrated yet is never lost", async ({ browser
       uploadThroughput: (750 * 1024) / 8,
     });
   } catch (e) {
+    await context.close();
     test.skip(true, "CDP throttling unavailable on this browser");
   }
   await page.goto("/", { waitUntil: "domcontentloaded" });
   const like = page.locator("button.wf-place-card-like").first();
-  // The homepage's cards are client-rendered, so on a throttled phone the
-  // button appears only after the bundle AND the rail data land (the old guide
-  // surface shipped it in the HTML). Give that whole chain room; the tap
-  // assertions below stay tight.
   await like.waitFor({ state: "visible", timeout: 75_000 });
-  await like.click();
-  await expect(like, "throttled: the tap was not acknowledged")
+  const placeId = await like.getAttribute("data-wf-act-place");
+  const title = likeTitle(await like.getAttribute("aria-label"));
+  const pinned = placeId
+    ? page.locator(`button[data-wf-act="like"][data-wf-act-place="${placeId}"]`)
+    : titledLike(page, title);
+  const before = await readLikeStores(page);
+  await pinned.first().click();
+  await expect(pinned.first(), "throttled: the tap was not acknowledged")
     .toHaveAttribute("aria-pressed", "true", { timeout: 5_000 });
-  await expect
-    .poll(async () => await page.evaluate(() => localStorage.getItem("wf_liked")), {
-      timeout: 45_000,
-      message: "throttled: the tap was acknowledged and then dropped on the floor",
-    })
-    .toBeTruthy();
+  await expect.poll(async () => {
+    const now = await readLikeStores(page);
+    if (placeId) return now.placeIds.includes(placeId);
+    return addedKeys(before.contentKeys, now.contentKeys).length === 1 && now.placeIds.join() === before.placeIds.join();
+  }, {
+    timeout: 45_000,
+    message: "throttled: the tap was acknowledged and then dropped on the floor",
+  }).toBe(true);
+
+  await page.reload({ waitUntil: "domcontentloaded" });
+  await expect(pinned.first(), "throttled: the liked card did not return").toBeVisible({ timeout: 75_000 });
+  await expect(pinned.first(), "throttled: reload lost the like").toHaveAttribute("aria-pressed", "true", { timeout: 5_000 });
+  const restored = await readLikeStores(page);
+  if (placeId) expect(restored.placeIds).toContain(placeId);
+  else expect(addedKeys(before.contentKeys, restored.contentKeys)).toHaveLength(1);
   await context.close();
 });
 

@@ -49,7 +49,7 @@
     "reason": "Function-only patch (no schema, grant, RLS or data change at apply time): wf_event_truth_integrity reports held_without_recheck and the existing daily enforce cron sets recheck_on = today + 2 on a held row with a future start_date and no recheck_on. Dry-run on production inside BEGIN/ROLLBACK 2026-11-04 proved it (Noah Kahan row: detected after clearing recheck_on, enforce set 2026-11-06, status unchanged). Idempotent (skips if already patched). Until applied, a held row whose recheck_on the daily task clears waits for the monthly hidden-events watch. Owner applies (or approves) via scripts/apply-migration.mjs; the session's apply was refused by its permission policy."
   },
   {
-    "file": "supabase/migrations/20261105120000_event_truth_held_recheck_guard.sql",
+    "file": "supabase/migrations/20261105120030_event_truth_held_recheck_guard.sql",
     "sha256": "8e3a3a2935209d28357320449a96b85db797af1fc0f2288a2335fb8d6e340049",
     "decision_owner": "wallstreethyena",
     "tracking": "#2245 held event recheck guard (owner approved 2026-11-05)",
@@ -78,9 +78,9 @@
   },
   {
     "file": "supabase/migrations/20261105120035_event_truth_held_recheck_renewal_cap.sql",
-    "sha256": "f47491ca6e20338dc65c60fe48cbe184a7418be4d7a37f04a8f21aac126447cf",
+    "sha256": "edb6495267ddae1f8ffb7c9c484c9445044111caca42a6edbf6327d21c622418",
     "decision_owner": "wallstreethyena",
     "tracking": "#2245 follow-up: owner-authorized held-event recurrence hardening 2026-11-05",
-    "reason": "NOT APPLIED. Forward function-only repair for the reproduced due-held-row update recheck_on=today -> today+30: if the old deadline is absent/due, cap an explicitly supplied later renewal at ET today+2. NULL renewal still gets ET+2; preserve existing future deadlines and metadata, permit earlier proposals, and leave past/undated/displayable rows unchanged. Requires the enabled trigger from 20261105120000_event_truth_held_recheck_guard.sql; changes no rows, triggers, grants or RLS at apply time. Complete SQL payload executed twice in PGlite with a missing-prerequisite control, original-failure proof and healthy controls. Pending canonical scripts/apply-migration.mjs application; this session has no Management API/PostgREST credentials and performed no production writes."
+    "reason": "NOT APPLIED. Forward function-only repair for the reproduced due-held-row update recheck_on=today -> today+30: if the old deadline is absent/due, cap an explicitly supplied later renewal at ET today+2. NULL renewal still gets ET+2; preserve existing future deadlines and metadata, permit earlier proposals, and leave past/undated/displayable rows unchanged. Requires the enabled trigger from 20261105120030_event_truth_held_recheck_guard.sql; changes no rows, triggers, grants or RLS at apply time. Complete SQL payload executed twice in PGlite with a missing-prerequisite control, original-failure proof and healthy controls. Pending canonical scripts/apply-migration.mjs application; this session has no Management API/PostgREST credentials and performed no production writes."
   }
 ]

@@ -31,9 +31,37 @@ import { experienceWayfindScore, rankExperiences } from "../../lib/experiencesDa
 import { toDisplayScore } from "../../lib/score";
 import ViatorCommerceLink from "./ViatorCommerceLink";
 import RailCard, { RailDots, RailNav } from "./RailCard";
+import { railFallbackHref, viatorRailFallback } from "../../lib/viatorRailFallback";
 
-export default function ViatorRail({ title, items, theme, onLog, onOpenExternal, preserveOrder = false }) {
-  if (!Array.isArray(items) || !items.length) return null;
+export default function ViatorRail({ title, items, theme, query, providerState, onLog, onOpenExternal, preserveOrder = false }) {
+  if (!Array.isArray(items)) return null;
+  if (!items.length) {
+    const choice = viatorRailFallback({ items, providerState: providerState || "zero_candidates" });
+    const href = railFallbackHref({ partner: choice.partner, query, contentId: theme });
+    if (!choice.partner || !href) return null;
+    const railId = `viator-${String(theme || title || "experiences").replace(/[^a-z0-9]+/gi, "-").toLowerCase()}-fallback`;
+    return (
+      <div style={{ margin: "4px 0 14px" }}>
+        <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 8 }}>
+          <span style={{ fontSize: 12, fontWeight: 800, color: C.muted, textTransform: "uppercase", letterSpacing: ".4px" }}>{title}</span>
+          <span style={{ fontSize: 9.5, color: C.muted }}>via {choice.label}</span>
+        </div>
+        <div className="wf-rail" data-rail={railId} role="region" tabIndex={0} aria-label={title}>
+          <RailCard
+            photo={eventCategoryArt("tours")}
+            title={choice.label}
+            eyebrow="Bookable experience"
+            rank={1}
+            facts={[query ? `Tours in ${query}` : null].filter(Boolean)}
+            href={href}
+            external
+            ariaLabel={choice.label}
+            ctaNode={<a className="wf-place-card-book wf-rail-card-cta" href={href} target="_blank" rel="sponsored nofollow noopener">{choice.label}</a>}
+          />
+        </div>
+      </div>
+    );
+  }
   const rankedItems = preserveOrder ? (Array.isArray(items) ? items : []) : rankExperiences(items);
   const categoryImage = theme === "events-tours" ? eventCategoryArt("tours") : "";
   const railId = `viator-${String(theme || title || "experiences").replace(/[^a-z0-9]+/gi, "-").toLowerCase()}`;

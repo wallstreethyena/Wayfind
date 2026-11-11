@@ -1,5 +1,5 @@
 -- Follow-up to #2245: a due held event cannot be explicitly renewed beyond ET today+2.
--- 20261105120000 protects NULL writes and existing future milestones. Its old-deadline
+-- 20261105120030 (the guard) protects NULL writes and existing future milestones. Its old-deadline
 -- test left a gap: recheck_on=today -> today+30 was accepted on a PARTIAL check.
 -- Bound only UPDATE renewals whose OLD deadline is absent/due; preserve intentional
 -- still-future deadlines (including the Noah Kahan presale check) and earlier proposals.
@@ -14,7 +14,7 @@ begin
        and not tgisinternal and tgenabled in ('O', 'A')
        and tgfoid = to_regprocedure('public.wf_events_held_recheck_guard()')
   ) then
-    raise exception 'apply 20261105120000_event_truth_held_recheck_guard.sql first: enabled held recheck trigger required';
+    raise exception 'apply 20261105120030_event_truth_held_recheck_guard.sql first: enabled held recheck trigger required';
   end if;
 end
 $precondition$;
