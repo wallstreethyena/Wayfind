@@ -140,7 +140,7 @@ eq(minutesUntilQuotaReset(NaN), 60, "a bad clock falls back to an hour, never 0 
   // 2026-11-03: Google does not bill a 429, so the ledger grant taken before
   // the call goes back too — inside the quota branch, under the SKU actually
   // requested (details_pro or details_enterprise), before `continue`.
-  ok(/if \(d\.quota\)\s*\{[^}]*quotaReleased\.push\(item\.place_id\);\s*await refundToLedger\(requestSku, 1\);\s*continue;/.test(src), "a quota answer refunds the pre-call ledger grant for the SKU it was taken under");
+  ok(/if \(d\.quota\)\s*\{[^}]*quotaReleased\.push\(item\.place_id\);\s*await refundToLedger\(requestSku, 1\);\s*return;/.test(src), "a quota answer refunds the pre-call ledger grant for the SKU it was taken under");
   ok(/import \{[^}]*\brefundToLedger\b[^}]*\} from "\.\.\/\.\.\/\.\.\/\.\.\/lib\/spendGate"/.test(src), "refundToLedger is the real lib/spendGate export, not a local stand-in");
   const worker = readFileSync(new URL("./promote-worker.mjs", import.meta.url), "utf8").replace(/(^|[^:])\/\/.*$/gm, "$1");
   ok(/d\.quota\)\s*\{\s*quotaKind = d\.quota;\s*await refundToLedger\(/.test(worker), "the hand-run worker refunds the ledger grant on a 429 the same way");
