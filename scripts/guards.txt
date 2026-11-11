@@ -2536,6 +2536,11 @@ node scripts/test-ticketmaster-gating.mjs
 node scripts/test-ticket-handoff-verdict.mjs
 # /christmas and the bare category paths land on real pages (next.config.js redirects(), 2026-11-04 audit).
 node scripts/check-bare-path-redirects.mjs
+# 2026-11-05: Execute both held-event recheck SQL migrations in PGlite; atomic ET+2 renewal,
+# preservation of earlier deadlines and excluded rows, and nonzero historical-defect controls.
+# 2026-11-05: Execute all held-event recheck SQL migrations in PGlite; atomic ET+2 renewal
+# including explicit due renewals, earlier deadline/exclusion controls, and 5 process mutations.
+node scripts/test-event-truth-held-recheck.mjs
 
 node scripts/test-events-expanded-rails.mjs
 node scripts/test-licensed-event-covers.mjs
