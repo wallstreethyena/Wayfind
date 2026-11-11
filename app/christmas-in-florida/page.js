@@ -81,6 +81,10 @@ export default async function Page({ searchParams }) {
   // The same 10 minute cache as /api/christmas/browse (lib/christmasBrowse.js
   // christmasBrowseCached), keyed by the normalized filters. A failed read
   // renders the research listings uncached, never an empty page.
+  // 2026-11-11: the browse and the ticket deals are independent reads, so they
+  // run side by side (they used to run one after another on every visit).
+  // fetchChristmasTicketDeals never throws (a failed read is an empty map).
+  const dealsRead = fetchChristmasTicketDeals().catch(() => new Map());
   let listings, first;
   try {
     ({ listings, page: first } = await christmasBrowseCached(query, today, () => fetchCuratedEvents({ signal: AbortSignal.timeout(4000) })));
@@ -88,6 +92,7 @@ export default async function Page({ searchParams }) {
     listings = christmasBrowseListings([], today);
     first = christmasBrowsePage(listings, query, today);
   }
+  const dealsById = await dealsRead;
   const itemList = {
     "@context": "https://schema.org", "@type": "ItemList", name: "Christmas events in Florida, 2026 season",
     numberOfItems: listings.length,
@@ -98,17 +103,14 @@ export default async function Page({ searchParams }) {
   // The featured ticket cards come from the same listings (no second source).
   // A failed side read (deals, stored photos) only means fewer buttons or
   // photos, never an empty page.
-  let tickets;
-  let dealsById = new Map();
-  try {
-    dealsById = await fetchChristmasTicketDeals();
-    tickets = await withChristmasTicketPhotos(christmasTicketsModel(listings, today, { dealsById }));
-  } catch {
-    tickets = christmasTicketsModel([], today);
-  }
   // The statewide browse wears the same ticket card, so its cards carry the
-  // same server built ticket fields (way in, honest price, dates text).
-  first = await withBrowseTicketPhotos(attachBrowseTickets(first, listings, today, dealsById), listings, today, dealsById);
+  // same server built ticket fields (way in, honest price, dates text). The
+  // two photo passes are independent, so they also run side by side.
+  let tickets;
+  [tickets, first] = await Promise.all([
+    Promise.resolve().then(() => withChristmasTicketPhotos(christmasTicketsModel(listings, today, { dealsById }))).catch(() => christmasTicketsModel([], today)),
+    withBrowseTicketPhotos(attachBrowseTickets(first, listings, today, dealsById), listings, today, dealsById),
+  ]);
   const ticketsSchema = christmasTicketsSchema(tickets);
   const initialQuery = Object.fromEntries(Object.entries({ ...query, page: undefined, undated: query.undated || undefined }).filter(([, v]) => v !== undefined && v !== "" && v !== null && v !== false));
   return <>

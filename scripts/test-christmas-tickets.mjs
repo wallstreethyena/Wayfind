@@ -516,6 +516,9 @@ ok(html.includes("data-christmas-filter") && html.includes(">Tickets<") && html.
   ok(/export const revalidate = 3600/.test(page) && /canonical: SITE_URL \+ "\/christmas-in-florida"/.test(page), "the page keeps revalidate and the canonical URL");
   ok(/<ChristmasTickets /.test(page) && /browse=\{/.test(page) && /<ChristmasBrowse /.test(page) && !/id="watchlist"/.test(page) && /"@type": "ItemList"/.test(page), "the page renders tickets and browse without the internal research watchlist, preserving ItemList");
   ok(/<SeasonalSearchHub slug="christmas-in-florida" today=\{today\} seoOnly/.test(page), "the SEO guide content stays on the page");
+  // 2026-11-11: the page builds on every visit, so its independent reads run side by side.
+  ok(page.indexOf("const dealsRead = fetchChristmasTicketDeals()") > -1 && page.indexOf("const dealsRead = fetchChristmasTicketDeals()") < page.indexOf("await christmasBrowseCached(") && /const dealsById = await dealsRead;/.test(page), "the deals read starts before the browse read and is awaited after it");
+  ok(/\[tickets, first\] = await Promise\.all\(\[[\s\S]{0,300}withChristmasTicketPhotos\([\s\S]{0,300}withBrowseTicketPhotos\(/.test(page), "the two photo passes run side by side");
   const strings = (page.match(/"[^"\n]{3,}"|`[^`\n]{3,}`|>[^<>{}\n]{3,}</g) || []).filter((t) => /[–—]| - /.test(t) && !/RX|regex|replace/.test(t));
   ok(strings.length === 0, "the page copy has no punctuation dash");
   const sitemap = read("app/sitemap.js");
