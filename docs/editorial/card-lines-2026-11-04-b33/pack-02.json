@@ -1,0 +1,408 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 33. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJj1fp_IK22YgRmWi2_JOAaxk",
+   "name": "Truluck's Ocean's Finest Seafood and Crab",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://trulucks.com/locations/miami-florida/",
+     "source_name": "Truluck's Ocean's Finest Seafood and Crab \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Truluck's is a seafood restaurant at 777 Brickell Ave., Miami, FL 33131",
+      "Truluck's is at the intersection of 8th Street and Brickell Avenue",
+      "Between October and May, Truluck's presents fresh Florida Stone Crab served chilled, pre-cracked, and served with mustard sauce",
+      "Hours Monday through Thursday are 11:30 a.m. to 10:00 p.m.",
+      "Truluck's showcases sustainable seafood and USDA Prime hand-carved steaks including filet mignon"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Fresh Florida Stone Crab served chilled and pre-cracked",
+    "why_here": "Go for fresh Florida Stone Crab served chilled and pre-cracked with mustard sauce, plus sustainable seafood and USDA Prime hand-carved steaks including filet mignon in Miami.",
+    "know_before": "Hours Monday through Thursday are 11:30 a.m. to 10:00 p.m.",
+    "local_tip": "Between October and May, try fresh Florida Stone Crab.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://trulucks.com/locations/miami-florida/"
+     ],
+     "why_here": [
+      "https://trulucks.com/locations/miami-florida/"
+     ],
+     "know_before": [
+      "https://trulucks.com/locations/miami-florida/"
+     ],
+     "local_tip": [
+      "https://trulucks.com/locations/miami-florida/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Truluck's is a seafood restaurant at 777 Brickell Ave., Miami, FL 33131",
+      "source": "https://trulucks.com/locations/miami-florida/"
+     },
+     {
+      "claim": "Truluck's is at the intersection of 8th Street and Brickell Avenue",
+      "source": "https://trulucks.com/locations/miami-florida/"
+     },
+     {
+      "claim": "Between October and May, Truluck's presents fresh Florida Stone Crab served chilled, pre-cracked, and served with mustard sauce",
+      "source": "https://trulucks.com/locations/miami-florida/"
+     },
+     {
+      "claim": "Hours Monday through Thursday are 11:30 a.m. to 10:00 p.m.",
+      "source": "https://trulucks.com/locations/miami-florida/"
+     },
+     {
+      "claim": "Truluck's showcases sustainable seafood and USDA Prime hand-carved steaks including filet mignon",
+      "source": "https://trulucks.com/locations/miami-florida/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ1755B2Mv2YgRkc1ToxV5Jd8",
+   "name": "Kaluz Restaurant Wellington",
+   "category": "food",
+   "metro": "palm-beach",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.kaluzrestaurant.com/kaluz-wellington/",
+     "source_name": "Kaluz Restaurant Wellington \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Kaluz Wellington serves Chilean Seabass and Filet Mignon",
+      "Reservations are accepted for indoor dining only",
+      "Patio dining is seated on a first come, first serve basis",
+      "Kaluz Restaurant is closed on Thanksgiving Day and Christmas Day",
+      "Wellington hours are Sunday through Thursday 11:30 a.m. to 9 p.m. and Friday and Saturday 11:30 a.m. to 10 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Restaurant in Wellington serving Chilean Seabass and Filet Mignon",
+    "why_here": "Go for Chilean Seabass and Filet Mignon in Wellington. Kaluz Wellington accepts reservations for indoor dining only, and patio dining is seated on a first come, first serve basis.",
+    "know_before": "Wellington hours are Sunday through Thursday 11:30 a.m. to 9 p.m. and Friday and Saturday 11:30 a.m. to 10 p.m. Kaluz Restaurant is closed on Thanksgiving Day and Christmas Day.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.kaluzrestaurant.com/kaluz-wellington/"
+     ],
+     "why_here": [
+      "https://www.kaluzrestaurant.com/kaluz-wellington/"
+     ],
+     "know_before": [
+      "https://www.kaluzrestaurant.com/kaluz-wellington/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Kaluz Wellington serves Chilean Seabass and Filet Mignon",
+      "source": "https://www.kaluzrestaurant.com/kaluz-wellington/"
+     },
+     {
+      "claim": "Reservations are accepted for indoor dining only",
+      "source": "https://www.kaluzrestaurant.com/kaluz-wellington/"
+     },
+     {
+      "claim": "Patio dining is seated on a first come, first serve basis",
+      "source": "https://www.kaluzrestaurant.com/kaluz-wellington/"
+     },
+     {
+      "claim": "Kaluz Restaurant is closed on Thanksgiving Day and Christmas Day",
+      "source": "https://www.kaluzrestaurant.com/kaluz-wellington/"
+     },
+     {
+      "claim": "Wellington hours are Sunday through Thursday 11:30 a.m. to 9 p.m. and Friday and Saturday 11:30 a.m. to 10 p.m.",
+      "source": "https://www.kaluzrestaurant.com/kaluz-wellington/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJA-aZBjFz6IgRlYzYxB8P-uQ",
+   "name": "Coach's Pub & Eatery",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://coachspubeatery.com/",
+     "source_name": "Coach's Pub & Eatery \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Coach's Pub & Eatery is at 114 W Main St, Inverness, FL 34450",
+      "Coach's Pub & Eatery is a downtown Inverness institution since 1991 serving signature American classics",
+      "Coach's Pub & Eatery serves handcrafted burgers, artisanal sandwiches, and fresh-made wraps",
+      "Coach's Pub & Eatery opens Saturday at 11 a.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Downtown Inverness institution since 1991 serving American classics",
+    "why_here": "Visit Coach's Pub & Eatery in downtown Inverness for signature American classics, handcrafted burgers, artisanal sandwiches, and fresh-made wraps served since 1991.",
+    "know_before": "Coach's Pub & Eatery opens Saturday at 11 a.m.",
+    "local_tip": "Try handcrafted burgers or fresh-made wraps.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://coachspubeatery.com/"
+     ],
+     "why_here": [
+      "https://coachspubeatery.com/"
+     ],
+     "know_before": [
+      "https://coachspubeatery.com/"
+     ],
+     "local_tip": [
+      "https://coachspubeatery.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Coach's Pub & Eatery is at 114 W Main St, Inverness, FL 34450",
+      "source": "https://coachspubeatery.com/"
+     },
+     {
+      "claim": "Coach's Pub & Eatery is a downtown Inverness institution since 1991 serving signature American classics",
+      "source": "https://coachspubeatery.com/"
+     },
+     {
+      "claim": "Coach's Pub & Eatery serves handcrafted burgers, artisanal sandwiches, and fresh-made wraps",
+      "source": "https://coachspubeatery.com/"
+     },
+     {
+      "claim": "Coach's Pub & Eatery opens Saturday at 11 a.m.",
+      "source": "https://coachspubeatery.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJqTBzBLFB6IgRwWNWaSVhKZw",
+   "name": "Fun 2 Dive - Swim with Manatees",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "tour_agency",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.fun2dive.com/tours/manatee-encounters/classic-manatee-swim/",
+     "source_name": "Fun 2 Dive - Swim with Manatees \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Fun 2 Dive conducts tours to swim with manatees in the Crystal River National Wildlife Refuge",
+      "Crystal River Florida is the only place in the United States where you can legally swim with manatees in their natural habitat",
+      "The Classic Manatee Swim is offered daily, year-round",
+      "The Classic Manatee Swim is an approximately three-hour snorkeling trip to swim with manatees"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Swim and snorkel with manatees in Crystal River, Florida",
+    "why_here": "Swim with manatees in the Crystal River National Wildlife Refuge, where Crystal River Florida is the only place in the United States where you can legally swim with manatees in their natural habitat.",
+    "know_before": "The Classic Manatee Swim is offered daily, year-round.",
+    "local_tip": "Try the Classic Manatee Swim, an approximately three-hour snorkeling trip.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.fun2dive.com/tours/manatee-encounters/classic-manatee-swim/"
+     ],
+     "why_here": [
+      "https://www.fun2dive.com/tours/manatee-encounters/classic-manatee-swim/"
+     ],
+     "know_before": [
+      "https://www.fun2dive.com/tours/manatee-encounters/classic-manatee-swim/"
+     ],
+     "local_tip": [
+      "https://www.fun2dive.com/tours/manatee-encounters/classic-manatee-swim/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Fun 2 Dive conducts tours to swim with manatees in the Crystal River National Wildlife Refuge",
+      "source": "https://www.fun2dive.com/tours/manatee-encounters/classic-manatee-swim/"
+     },
+     {
+      "claim": "Crystal River Florida is the only place in the United States where you can legally swim with manatees in their natural habitat",
+      "source": "https://www.fun2dive.com/tours/manatee-encounters/classic-manatee-swim/"
+     },
+     {
+      "claim": "The Classic Manatee Swim is offered daily, year-round",
+      "source": "https://www.fun2dive.com/tours/manatee-encounters/classic-manatee-swim/"
+     },
+     {
+      "claim": "The Classic Manatee Swim is an approximately three-hour snorkeling trip to swim with manatees",
+      "source": "https://www.fun2dive.com/tours/manatee-encounters/classic-manatee-swim/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJiROF-8pn54gRQb59J_5KbrE",
+   "name": "Zaza Cuban Comfort Food",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "cuban_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://zazacubancomfort.com/",
+     "source_name": "Zaza Cuban Comfort Food \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Zaza Cuban Comfort Food menu includes Coffee, Sandwiches, Empanadas, Breakfast, Bowls, Pastries, Platos and Cuban Sides",
+      "Zaza Cuban Comfort Food is open daily from breakfast to dinner"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Cuban Comfort Food with Coffee, Sandwiches and Empanadas",
+    "why_here": "Go for Coffee, Sandwiches, Empanadas, Breakfast, Bowls, baked goods, Platos and Cuban Sides at Zaza Cuban Comfort Food, open daily from breakfast to dinner.",
+    "know_before": "Open daily from breakfast to dinner.",
+    "local_tip": "Try Empanadas or baked goods with Coffee.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://zazacubancomfort.com/"
+     ],
+     "why_here": [
+      "https://zazacubancomfort.com/"
+     ],
+     "know_before": [
+      "https://zazacubancomfort.com/"
+     ],
+     "local_tip": [
+      "https://zazacubancomfort.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Zaza Cuban Comfort Food menu includes Coffee, Sandwiches, Empanadas, Breakfast, Bowls, Pastries, Platos and Cuban Sides",
+      "source": "https://zazacubancomfort.com/"
+     },
+     {
+      "claim": "Zaza Cuban Comfort Food is open daily from breakfast to dinner",
+      "source": "https://zazacubancomfort.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJd6xh--A_24gRM1cR_UEu4t8",
+   "name": "Market Square",
+   "category": "shopping",
+   "metro": "florida",
+   "primary_type": "shopping_mall",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://kprcenters.propertycapsule.com/p/commercial-real-estate-listings/Fort+Myers-FL-33919/marketsquare",
+     "source_name": "Market Square \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Market Square is a large power center located on busy South Tamiami Trail in Fort Myers, FL",
+      "Market Square is occupied by Total Wine & More, American Signature Furniture, LongHorn Steakhouse, Glory Days Grill and Starbucks",
+      "Market Square is shadow anchored by Target, Barnes & Noble, and Michaels",
+      "Market Square is at 13300 S Tamiami Trail, Fort Myers, FL 33919"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Large power center on South Tamiami Trail with Total Wine & More",
+    "why_here": "Shop a large power center on South Tamiami Trail in Fort Myers, FL, occupied by Total Wine & More, American Signature Furniture, LongHorn Steakhouse, Glory Days Grill and Starbucks.",
+    "know_before": "Shadow anchored by Target, Barnes & Noble, and Michaels.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://kprcenters.propertycapsule.com/p/commercial-real-estate-listings/Fort+Myers-FL-33919/marketsquare"
+     ],
+     "why_here": [
+      "https://kprcenters.propertycapsule.com/p/commercial-real-estate-listings/Fort+Myers-FL-33919/marketsquare"
+     ],
+     "know_before": [
+      "https://kprcenters.propertycapsule.com/p/commercial-real-estate-listings/Fort+Myers-FL-33919/marketsquare"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Market Square is a large power center located on busy South Tamiami Trail in Fort Myers, FL",
+      "source": "https://kprcenters.propertycapsule.com/p/commercial-real-estate-listings/Fort+Myers-FL-33919/marketsquare"
+     },
+     {
+      "claim": "Market Square is occupied by Total Wine & More, American Signature Furniture, LongHorn Steakhouse, Glory Days Grill and Starbucks",
+      "source": "https://kprcenters.propertycapsule.com/p/commercial-real-estate-listings/Fort+Myers-FL-33919/marketsquare"
+     },
+     {
+      "claim": "Market Square is shadow anchored by Target, Barnes & Noble, and Michaels",
+      "source": "https://kprcenters.propertycapsule.com/p/commercial-real-estate-listings/Fort+Myers-FL-33919/marketsquare"
+     },
+     {
+      "claim": "Market Square is at 13300 S Tamiami Trail, Fort Myers, FL 33919",
+      "source": "https://kprcenters.propertycapsule.com/p/commercial-real-estate-listings/Fort+Myers-FL-33919/marketsquare"
+     }
+    ]
+   }
+  }
+ ]
+}
