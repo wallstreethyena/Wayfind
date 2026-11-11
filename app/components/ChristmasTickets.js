@@ -32,7 +32,8 @@ const PHONE_WIRE_PATH = (() => {
   return d;
 })();
 // Seven colors (an odd count), so every other bulb on a phone still cycles
-// through all of them: red, green, gold, blue, pink, warm white, purple.
+// through all of them: red, green, gold, blue, pink, warm white, amber.
+// Amber, not purple. A purple bulb is off the palette.
 const BULB_COLORS = [
   ["#FF4458", "#B3111F", "rgba(255,68,88,.75)", "rgba(255,68,88,.32)"],
   ["#3DDC84", "#13803F", "rgba(61,220,132,.7)", "rgba(61,220,132,.3)"],
@@ -40,7 +41,7 @@ const BULB_COLORS = [
   ["#4DA3FF", "#1456B8", "rgba(77,163,255,.75)", "rgba(77,163,255,.32)"],
   ["#FF7AC8", "#B02C86", "rgba(255,122,200,.75)", "rgba(255,122,200,.32)"],
   ["#FFF1D6", "#D8B27A", "rgba(255,241,214,.7)", "rgba(255,241,214,.28)"],
-  ["#B98CFF", "#6A3FC2", "rgba(185,140,255,.72)", "rgba(185,140,255,.3)"],
+  ["#FF8A3D", "#C4510A", "rgba(255,138,61,.75)", "rgba(255,138,61,.32)"],
 ];
 const LIGHT_PATTERNS = ["twinkle", "chase", "alt", "chase"];
 

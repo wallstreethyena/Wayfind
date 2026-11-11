@@ -22,6 +22,7 @@ const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const { placePartnerPick, PLACE_PARTNER_PICKS, isBeachName } = await import("../lib/placePartnerPicks.js");
 const { resolveDetailCta } = await import("../lib/detailCta.js");
 const { placePagePartner } = await import("../lib/placeData.js");
+const { isHeldPartnerOffer } = await import("../lib/partnerOfferHolds.js");
 const Card = (await loadComponent(path.join(ROOT, "app/components/IconicPlaceCard.js"), ROOT)).default;
 
 let pass = 0;
@@ -150,9 +151,24 @@ for (const l of LEGIT) {
 // A pin keyed to such a name (fixture row via the placeId path is not available;
 // the registry is frozen) is asserted through the real table instead: every
 // non-bare-beach alias in it keeps resolving.
+// A row on hold (lib/partnerOfferHolds.js: the partner's own page cannot take an
+// order) paints no button on purpose, so for those the assertion is the null —
+// and the count below keeps "held" from quietly becoming most of the table.
+let heldAliases = 0;
+let liveAliases = 0;
 for (const row of PLACE_PARTNER_PICKS) {
-  for (const alias of row.aliases) if (!isBeachName(alias)) ok(placePartnerPick({ name: alias })?.offerId === row.offerId || placePartnerPick({ name: alias }) !== null, `table row ${row.offerId}: non-beach alias "${alias}" still resolves`);
+  for (const alias of row.aliases) {
+    if (isBeachName(alias)) continue;
+    if (isHeldPartnerOffer(row.offerId)) {
+      heldAliases++;
+      ok(placePartnerPick({ name: alias }) === null, `table row ${row.offerId}: on hold, alias "${alias}" paints no button`);
+      continue;
+    }
+    liveAliases++;
+    ok(placePartnerPick({ name: alias })?.offerId === row.offerId || placePartnerPick({ name: alias }) !== null, `table row ${row.offerId}: non-beach alias "${alias}" still resolves`);
+  }
 }
+ok(liveAliases >= 200 && heldAliases * 10 < liveAliases, `the table rows that still resolve are the large majority (${liveAliases} live aliases, ${heldAliases} on hold)`);
 
 // ── FERRY / TOUR PINS: still resolve, label is experience language ────────────
 const TOURS = [

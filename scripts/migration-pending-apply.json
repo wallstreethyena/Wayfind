@@ -42,13 +42,6 @@
     "reason": "Data only, one row: wf_inventory ChIJZUZzwm5Aw4gR1qnftvzg0lg (Indigenous Restaurant, Sarasota) to status CLOSED_PERMANENTLY, locked, with a closure reason. Closure confirmed 2026-11-03 by Sarasota Magazine (2026-09-15, closed after 15 years) and the restaurant's OpenTable page (Permanently Closed). Guarded DO block, nothing deleted, replay raises. Reverse supabase/data-fixes/20261103120000_indigenous_sarasota_closed_permanently_REVERSE.sql. Not applied: the agent's direct apply was refused, so the owner applies via scripts/apply-migration.mjs."
   },
   {
-    "file": "supabase/migrations/20261104150000_event_truth_held_recheck_floor.sql",
-    "sha256": "8af5dc0b86fe1c275708f36858a10ea3efabe6fd2fd07a58616928eba279c6c9",
-    "decision_owner": "wallstreethyena",
-    "tracking": "#2212 event truth held-row recheck floor",
-    "reason": "Function-only patch (no schema, grant, RLS or data change at apply time): wf_event_truth_integrity reports held_without_recheck and the existing daily enforce cron sets recheck_on = today + 2 on a held row with a future start_date and no recheck_on. Dry-run on production inside BEGIN/ROLLBACK 2026-11-04 proved it (Noah Kahan row: detected after clearing recheck_on, enforce set 2026-11-06, status unchanged). Idempotent (skips if already patched). Until applied, a held row whose recheck_on the daily task clears waits for the monthly hidden-events watch. Owner applies (or approves) via scripts/apply-migration.mjs; the session's apply was refused by its permission policy."
-  },
-  {
     "file": "supabase/migrations/20261105120030_event_truth_held_recheck_guard.sql",
     "sha256": "8e3a3a2935209d28357320449a96b85db797af1fc0f2288a2335fb8d6e340049",
     "decision_owner": "wallstreethyena",

@@ -597,6 +597,7 @@ node scripts/check-intent-partner-picks.mjs
 # url:null by design, and tpDeepLink required one, so a VENUE_OFFERS row
 # like nyc-budget-911-memorial could never surface there).
 node scripts/check-place-page-partner.mjs
+node scripts/check-partner-offer-holds.mjs
 # 2026-09-10 — a visible Book button must have a product behind it. 16 of 35
 # pinned Viator codes had no wf_experiences row; each painted a CTA that 302'd
 # the customer home. Feeds a fabricated code through a real copy of the module.
@@ -2319,6 +2320,7 @@ node scripts/test-photo-dedupe.mjs
 node scripts/test-halloween-tours.mjs
 # 2026-10-30: Christmas ticket cards (premium Halloween style page): same listings as the browse, upcoming only, registry /go hrefs untouched, honest prices, dash free, merit order never reads commission.
 node scripts/test-christmas-tickets.mjs
+node scripts/test-christmas-ticketmaster.mjs
 node scripts/test-snowcat-tickets.mjs
 node scripts/test-christmas-tours.mjs
 
