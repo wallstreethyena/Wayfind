@@ -1,4 +1,4 @@
-import { gateShut, spendAllowRefresh, refundToLedger, refreshCounterSku } from "../../../../lib/spendGate";
+import { gateShut, spendAllowRefresh, refundToLedger, refreshCounterSku, runWithTraffic, TRAFFIC } from "../../../../lib/spendGate";
 // app/api/cron/inventory-refresh/route.js — keep wf_inventory checked against
 // Google at $0 EXTRA cost, a few rows at a time, and NEVER lose anything.
 //
@@ -45,7 +45,12 @@ const REFRESH_AFTER_DAYS = 25;
 const PARALLEL = 5;
 const BREAKER = "google_places_refresh";
 
+// Traffic class (lib/spendGate.js human traffic reserve): REFRESH, not BACKGROUND. The refresh has its own refresh_* counters and the owner's half-and-half split (REFRESH_SUBCAPS), so the human reserve does not apply to it.
 export async function GET(req) {
+  return runWithTraffic(TRAFFIC.REFRESH, () => runInventoryRefresh(req));
+}
+
+async function runInventoryRefresh(req) {
   const secret = process.env.CRON_SECRET;
   const auth = req.headers.get("authorization") || "";
   if (!secret || auth !== "Bearer " + secret) return Response.json({ error: "unauthorized" }, { status: 401 });
