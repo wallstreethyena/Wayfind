@@ -1,0 +1,1957 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 43. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJjZmg8UoB2YgR1eY5qIUdTho",
+   "name": "Vale Healthy Kitchen - Fort Lauderdale",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://valehealthykitchen.com/pages/menus",
+     "source_name": "Vale Healthy Kitchen - Fort Lauderdale \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The menu lists Signature Bowls including Earthsgiving Bowl.",
+      "The menu lists Wraps.",
+      "The menu lists Salads including Avocado Greens with Spinach and Arugula.",
+      "The menu lists Smoothie Bowls."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Signature Bowls, Wraps, Salads, and Smoothie Bowls",
+    "why_here": "Signature Bowls include Earthsgiving Bowl, and the menu also lists Wraps, Salads including Avocado Greens with Spinach and Arugula, and Smoothie Bowls for a bowl, wrap, or salad choice.",
+    "know_before": "The menu lists Wraps, Salads, and Smoothie Bowls.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://valehealthykitchen.com/pages/menus"
+     ],
+     "why_here": [
+      "https://valehealthykitchen.com/pages/menus"
+     ],
+     "know_before": [
+      "https://valehealthykitchen.com/pages/menus"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The menu lists Signature Bowls including Earthsgiving Bowl.",
+      "source": "https://valehealthykitchen.com/pages/menus"
+     },
+     {
+      "claim": "The menu lists Wraps.",
+      "source": "https://valehealthykitchen.com/pages/menus"
+     },
+     {
+      "claim": "The menu lists Salads including Avocado Greens with Spinach and Arugula.",
+      "source": "https://valehealthykitchen.com/pages/menus"
+     },
+     {
+      "claim": "The menu lists Smoothie Bowls.",
+      "source": "https://valehealthykitchen.com/pages/menus"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJOY2mJVID2YgRbK1PzucGWj0",
+   "name": "Anthony's Clam House & Grill",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.anthonysclamhouse.com/",
+     "source_name": "Anthony's Clam House & Grill \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Anthony's Clam House & Grill presents a world-class wine list.",
+      "Fresh seafood, steaks, and pasta pair with Old World and New World wines.",
+      "Hours are Sunday through Thursday from 11 a.m. to 10 p.m.",
+      "Hours are Friday through Saturday from 11 a.m. to 11 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Fresh seafood, steaks, and pasta with a world-class wine list",
+    "why_here": "Fresh seafood, steaks, and pasta pair with Old World and New World wines from a world-class wine list at Anthony's Clam House & Grill, with wines for seafood, steaks, and pasta.",
+    "know_before": "Hours are Sunday through Thursday from 11 a.m. to 10 p.m. and Friday through Saturday from 11 a.m. to 11 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.anthonysclamhouse.com/"
+     ],
+     "why_here": [
+      "https://www.anthonysclamhouse.com/"
+     ],
+     "know_before": [
+      "https://www.anthonysclamhouse.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Anthony's Clam House & Grill presents a world-class wine list.",
+      "source": "https://www.anthonysclamhouse.com/"
+     },
+     {
+      "claim": "Fresh seafood, steaks, and pasta pair with Old World and New World wines.",
+      "source": "https://www.anthonysclamhouse.com/"
+     },
+     {
+      "claim": "Hours are Sunday through Thursday from 11 a.m. to 10 p.m.",
+      "source": "https://www.anthonysclamhouse.com/"
+     },
+     {
+      "claim": "Hours are Friday through Saturday from 11 a.m. to 11 p.m.",
+      "source": "https://www.anthonysclamhouse.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJA6g08AHkwogRZHgTY3ywu0I",
+   "name": "Jacks London Grill",
+   "category": "food",
+   "metro": "st-pete",
+   "primary_type": "british_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.jackslondongrill.com/",
+     "source_name": "Jacks London Grill \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Jacks London Grill is named after the British flag the Union Jack.",
+      "Jacks London Grill is owned and operated by a chef from the London Area.",
+      "The menu offers British and American specialties including Fish and Chips.",
+      "Jacks London Grill is located at 1050 62nd Avenue in St. Pete.",
+      "The venue offers Happy Hour specials and a lineup of soccer games."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "British and American specialties, including Fish and Chips",
+    "why_here": "Jacks London Grill is named after the British flag the Union Jack and is owned and operated by a chef from the London Area, serving British and American specialties including Fish and Chips.",
+    "know_before": "Jacks London Grill is located at 1050 62nd Avenue in St. Pete.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.jackslondongrill.com/"
+     ],
+     "why_here": [
+      "https://www.jackslondongrill.com/"
+     ],
+     "know_before": [
+      "https://www.jackslondongrill.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Jacks London Grill is named after the British flag the Union Jack.",
+      "source": "https://www.jackslondongrill.com/"
+     },
+     {
+      "claim": "Jacks London Grill is owned and operated by a chef from the London Area.",
+      "source": "https://www.jackslondongrill.com/"
+     },
+     {
+      "claim": "The menu offers British and American specialties including Fish and Chips.",
+      "source": "https://www.jackslondongrill.com/"
+     },
+     {
+      "claim": "Jacks London Grill is located at 1050 62nd Avenue in St. Pete.",
+      "source": "https://www.jackslondongrill.com/"
+     },
+     {
+      "claim": "The venue offers Happy Hour specials and a lineup of soccer games.",
+      "source": "https://www.jackslondongrill.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJj4k8AU_GwogRTBk0nAqYRS0",
+   "name": "Montu",
+   "category": "attractions",
+   "metro": "tampa",
+   "primary_type": "roller_coaster",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://buschgardens.com/tampa/events/cinco-de-mayo/",
+     "source_name": "Montu \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Montu is an Inverted roller coaster with seven inversions.",
+      "Montu includes a Batwing and an Immelmann loop.",
+      "Montu is at Busch Gardens Tampa Bay.",
+      "Riders must be at least 54 inches tall to ride Montu."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Inverted roller coaster with seven inversions",
+    "why_here": "Montu at Busch Gardens Tampa Bay is an Inverted roller coaster with seven inversions, including a Batwing and an Immelmann loop, for riders who want inversions and a loop during the ride.",
+    "know_before": "Riders must be at least 54 inches tall to ride Montu.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://buschgardens.com/tampa/events/cinco-de-mayo/"
+     ],
+     "why_here": [
+      "https://buschgardens.com/tampa/events/cinco-de-mayo/"
+     ],
+     "know_before": [
+      "https://buschgardens.com/tampa/events/cinco-de-mayo/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Montu is an Inverted roller coaster with seven inversions.",
+      "source": "https://buschgardens.com/tampa/events/cinco-de-mayo/"
+     },
+     {
+      "claim": "Montu includes a Batwing and an Immelmann loop.",
+      "source": "https://buschgardens.com/tampa/events/cinco-de-mayo/"
+     },
+     {
+      "claim": "Montu is at Busch Gardens Tampa Bay.",
+      "source": "https://buschgardens.com/tampa/events/cinco-de-mayo/"
+     },
+     {
+      "claim": "Riders must be at least 54 inches tall to ride Montu.",
+      "source": "https://buschgardens.com/tampa/events/cinco-de-mayo/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJTc5Av5zhwogR3UTde2pMqrs",
+   "name": "Five Bucks Drinkery",
+   "category": "nightlife",
+   "metro": "st-pete",
+   "primary_type": "bar_and_grill",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://fivebucksdrinkery.com/locations/downtown/food-menu/",
+     "source_name": "Five Bucks Drinkery \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Downtown menu lists The Original Mac & Cheese Melt.",
+      "The Original Mac & Cheese Melt was featured on Travel Channel and Food Paradise.",
+      "The Original Mac & Cheese Melt has Smokey BBQ pulled pork and sweet honey BBQ sauce on golden Texas Toast.",
+      "All sandwiches and wraps are served with crispy seasoned fries.",
+      "Burgers use fresh never frozen certified Angus beef, hand pattied in house daily."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "The Original Mac & Cheese Melt, featured on Travel Channel and Food Paradise",
+    "why_here": "The Downtown menu lists The Original Mac & Cheese Melt, featured on Travel Channel and Food Paradise, with Smokey BBQ pulled pork and sweet honey BBQ sauce on golden Texas Toast.",
+    "know_before": "All sandwiches and wraps are served with crispy seasoned fries.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://fivebucksdrinkery.com/locations/downtown/food-menu/"
+     ],
+     "why_here": [
+      "https://fivebucksdrinkery.com/locations/downtown/food-menu/"
+     ],
+     "know_before": [
+      "https://fivebucksdrinkery.com/locations/downtown/food-menu/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Downtown menu lists The Original Mac & Cheese Melt.",
+      "source": "https://fivebucksdrinkery.com/locations/downtown/food-menu/"
+     },
+     {
+      "claim": "The Original Mac & Cheese Melt was featured on Travel Channel and Food Paradise.",
+      "source": "https://fivebucksdrinkery.com/locations/downtown/food-menu/"
+     },
+     {
+      "claim": "The Original Mac & Cheese Melt has Smokey BBQ pulled pork and sweet honey BBQ sauce on golden Texas Toast.",
+      "source": "https://fivebucksdrinkery.com/locations/downtown/food-menu/"
+     },
+     {
+      "claim": "All sandwiches and wraps are served with crispy seasoned fries.",
+      "source": "https://fivebucksdrinkery.com/locations/downtown/food-menu/"
+     },
+     {
+      "claim": "Burgers use fresh never frozen certified Angus beef, hand pattied in house daily.",
+      "source": "https://fivebucksdrinkery.com/locations/downtown/food-menu/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJu6eA6FwN3ogRaLV_2tFSENE",
+   "name": "Another Broken Egg Cafe",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "brunch_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.anotherbrokenegg.com/menu/traditional-menu/",
+     "source_name": "Another Broken Egg Cafe \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The menu lists breakfast and brunch options including Chicken & Waffles, Shrimp 'N Grits, and customizable omelettes.",
+      "Chicken & Waffles has fried chicken tenders on a Belgian waffle, drizzled with house-made chipotle honey.",
+      "Shrimp 'N Grits has Gulf shrimp and andouille sausage over creamy cheese grits.",
+      "Shrimp 'N Grits is served with garlic bread and a lemon."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Chicken & Waffles and Shrimp 'N Grits for breakfast and brunch",
+    "why_here": "Chicken & Waffles has fried chicken tenders on a Belgian waffle with house-made chipotle honey, while Shrimp 'N Grits has Gulf shrimp and andouille sausage over creamy cheese grits at breakfast and brunch.",
+    "know_before": "Shrimp 'N Grits is served with garlic bread and a lemon.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.anotherbrokenegg.com/menu/traditional-menu/"
+     ],
+     "why_here": [
+      "https://www.anotherbrokenegg.com/menu/traditional-menu/"
+     ],
+     "know_before": [
+      "https://www.anotherbrokenegg.com/menu/traditional-menu/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The menu lists breakfast and brunch options including Chicken & Waffles, Shrimp 'N Grits, and customizable omelettes.",
+      "source": "https://www.anotherbrokenegg.com/menu/traditional-menu/"
+     },
+     {
+      "claim": "Chicken & Waffles has fried chicken tenders on a Belgian waffle, drizzled with house-made chipotle honey.",
+      "source": "https://www.anotherbrokenegg.com/menu/traditional-menu/"
+     },
+     {
+      "claim": "Shrimp 'N Grits has Gulf shrimp and andouille sausage over creamy cheese grits.",
+      "source": "https://www.anotherbrokenegg.com/menu/traditional-menu/"
+     },
+     {
+      "claim": "Shrimp 'N Grits is served with garlic bread and a lemon.",
+      "source": "https://www.anotherbrokenegg.com/menu/traditional-menu/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJxf1K4M3s7ogRjk1EoWCBhn8",
+   "name": "Madison Blue Spring State Park",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "state_park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.floridastateparks.org/parks-and-trails/madison-blue-spring-state-park",
+     "source_name": "Madison Blue Spring State Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Madison Blue Spring State Park has a Crystal-clear, first-magnitude spring.",
+      "The spring is a popular spot for swimming and cave diving.",
+      "Madison Blue Spring State Park is at 8300 N.E. State Road 6.",
+      "The park is open from 8 a.m. until sundown, 365 days a year."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Crystal-clear, first-magnitude spring for swimming and cave diving",
+    "why_here": "Madison Blue Spring State Park centers on a Crystal-clear, first-magnitude spring that is a popular spot for swimming and cave diving, with the spring as the focus of a visit.",
+    "know_before": "The park is open from 8 a.m. until sundown, 365 days a year.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.floridastateparks.org/parks-and-trails/madison-blue-spring-state-park"
+     ],
+     "why_here": [
+      "https://www.floridastateparks.org/parks-and-trails/madison-blue-spring-state-park"
+     ],
+     "know_before": [
+      "https://www.floridastateparks.org/parks-and-trails/madison-blue-spring-state-park"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Madison Blue Spring State Park has a Crystal-clear, first-magnitude spring.",
+      "source": "https://www.floridastateparks.org/parks-and-trails/madison-blue-spring-state-park"
+     },
+     {
+      "claim": "The spring is a popular spot for swimming and cave diving.",
+      "source": "https://www.floridastateparks.org/parks-and-trails/madison-blue-spring-state-park"
+     },
+     {
+      "claim": "Madison Blue Spring State Park is at 8300 N.E. State Road 6.",
+      "source": "https://www.floridastateparks.org/parks-and-trails/madison-blue-spring-state-park"
+     },
+     {
+      "claim": "The park is open from 8 a.m. until sundown, 365 days a year.",
+      "source": "https://www.floridastateparks.org/parks-and-trails/madison-blue-spring-state-park"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJs6rBd8j6wogRQzURcaHJ4Ck",
+   "name": "Finley's Irish Pub & Eatery",
+   "category": "food",
+   "metro": "st-pete",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.finleysirishpub.com/",
+     "source_name": "Finley's Irish Pub & Eatery \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Finley's Irish Pub & Eatery is at 13477 South Belcher Road, Largo, Florida 33771.",
+      "The lunch and dinner menu includes Corned Beef and Cabbage, Shepherd's Pie, Beer-Battered Fish & Chips, Liver & Onions and Bangers & Mash.",
+      "Finley's features 18 big screen TV's with the NFL and MLB packages.",
+      "Finley's offers its entire menu for take out.",
+      "Opening hours are Sunday thru Thursday from 11 a.m. to 11 p.m. and Friday and Saturday from 11 a.m. to 12 a.m.",
+      "Finley's has 22 beers on draft."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Corned Beef and Cabbage, Shepherd's Pie, and Beer-Battered Fish & Chips",
+    "why_here": "Finley's Irish Pub & Eatery in Largo serves Corned Beef and Cabbage, Shepherd's Pie, and Beer-Battered Fish & Chips for lunch and dinner, plus Liver & Onions and Bangers & Mash.",
+    "know_before": "Opening hours are Sunday thru Thursday from 11 a.m. to 11 p.m. and Friday and Saturday from 11 a.m. to 12 a.m.",
+    "local_tip": "Finley's offers its entire menu for take out.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.finleysirishpub.com/"
+     ],
+     "why_here": [
+      "https://www.finleysirishpub.com/"
+     ],
+     "know_before": [
+      "https://www.finleysirishpub.com/"
+     ],
+     "local_tip": [
+      "https://www.finleysirishpub.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Finley's Irish Pub & Eatery is at 13477 South Belcher Road, Largo, Florida 33771.",
+      "source": "https://www.finleysirishpub.com/"
+     },
+     {
+      "claim": "The lunch and dinner menu includes Corned Beef and Cabbage, Shepherd's Pie, Beer-Battered Fish & Chips, Liver & Onions and Bangers & Mash.",
+      "source": "https://www.finleysirishpub.com/"
+     },
+     {
+      "claim": "Finley's features 18 big screen TV's with the NFL and MLB packages.",
+      "source": "https://www.finleysirishpub.com/"
+     },
+     {
+      "claim": "Finley's offers its entire menu for take out.",
+      "source": "https://www.finleysirishpub.com/"
+     },
+     {
+      "claim": "Opening hours are Sunday thru Thursday from 11 a.m. to 11 p.m. and Friday and Saturday from 11 a.m. to 12 a.m.",
+      "source": "https://www.finleysirishpub.com/"
+     },
+     {
+      "claim": "Finley's has 22 beers on draft.",
+      "source": "https://www.finleysirishpub.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ373koSpHw4gRE5ZZ27ZY5-Y",
+   "name": "Evie\u2019s Tavern & Grill",
+   "category": "nightlife",
+   "metro": "manatee-sarasota",
+   "primary_type": "bar_and_grill",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://eviesbeeridge.com/",
+     "source_name": "Evie\u2019s Tavern & Grill \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Evie's Tavern & Grill On Bee Ridge is at 4725 Bee Ridge Road, Sarasota, FL 34233.",
+      "Driving range and mini golf, plus burgers, pizza, wings, ice cream, and arcade games are offered at Evie's on Bee Ridge.",
+      "Evie's is open Daily from 11 a.m. to Midnight.",
+      "Evie's Driving Range has 40 hitting stations, club rentals, and night hitting under the lights."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Driving range and mini golf, plus burgers, pizza, wings, and arcade games",
+    "why_here": "Evie's Tavern & Grill On Bee Ridge in Sarasota pairs a driving range and mini golf with burgers, pizza, wings, ice cream, and arcade games, so visitors can eat and play at one stop.",
+    "know_before": "Evie's is open Daily from 11 a.m. to Midnight at 4725 Bee Ridge Road.",
+    "local_tip": "The Driving Range has 40 hitting stations, club rentals, and night hitting under the lights.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://eviesbeeridge.com/"
+     ],
+     "why_here": [
+      "https://eviesbeeridge.com/"
+     ],
+     "know_before": [
+      "https://eviesbeeridge.com/"
+     ],
+     "local_tip": [
+      "https://eviesbeeridge.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Evie's Tavern & Grill On Bee Ridge is at 4725 Bee Ridge Road, Sarasota, FL 34233.",
+      "source": "https://eviesbeeridge.com/"
+     },
+     {
+      "claim": "Driving range and mini golf, plus burgers, pizza, wings, ice cream, and arcade games are offered at Evie's on Bee Ridge.",
+      "source": "https://eviesbeeridge.com/"
+     },
+     {
+      "claim": "Evie's is open Daily from 11 a.m. to Midnight.",
+      "source": "https://eviesbeeridge.com/"
+     },
+     {
+      "claim": "Evie's Driving Range has 40 hitting stations, club rentals, and night hitting under the lights.",
+      "source": "https://eviesbeeridge.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJG2RSu4PhwogRGl12c3hMuNg",
+   "name": "Angelo's Grill & Bar",
+   "category": "food",
+   "metro": "st-pete",
+   "primary_type": "pizza_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.stpeteangelos.com/",
+     "source_name": "Angelo's Grill & Bar \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Angelo's Grill & Bar is located at 536 1st Ave N, St. Petersburg, FL 33701",
+      "The menu lists pizza, gyros, wings, burgers, salads, and sandwiches"
+     ]
+    },
+    {
+     "source": "https://www.stpeteangelos.com/menus/",
+     "source_name": "Angelo's Grill & Bar \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The menu lists Spaghetti & Meatballs and Chicken Parmesan",
+      "Dinners are not available after 10:30 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Pizza, gyros, wings, burgers, salads, and sandwiches in St. Petersburg",
+    "why_here": "Go for pizza, gyros, wings, burgers, salads, and sandwiches at 536 1st Ave N, St. Petersburg, FL 33701, with Spaghetti & Meatballs and Chicken Parmesan listed among the dinner choices.",
+    "know_before": "Dinners are not available after 10:30 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.stpeteangelos.com/"
+     ],
+     "why_here": [
+      "https://www.stpeteangelos.com/"
+     ],
+     "know_before": [
+      "https://www.stpeteangelos.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Angelo's Grill & Bar is located at 536 1st Ave N, St. Petersburg, FL 33701",
+      "source": "https://www.stpeteangelos.com/"
+     },
+     {
+      "claim": "The menu lists pizza, gyros, wings, burgers, salads, and sandwiches",
+      "source": "https://www.stpeteangelos.com/"
+     },
+     {
+      "claim": "The menu lists Spaghetti & Meatballs and Chicken Parmesan",
+      "source": "https://www.stpeteangelos.com/menus/"
+     },
+     {
+      "claim": "Dinners are not available after 10:30 p.m.",
+      "source": "https://www.stpeteangelos.com/menus/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ_f-hCZq32YgRP_Wvr_wb0pY",
+   "name": "Ichimi (Coral Gables)",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "ramen_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://ichimiramenbar.com/coral-gables",
+     "source_name": "Ichimi (Coral Gables) \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Ichimi (Coral Gables) serves Build Your Own Ramen.",
+      "Spicy Miso Ramen is spicy miso with tonkotsu soup base infused with butter.",
+      "Spicy Miso Ramen toppings include scallions, kikurage mushrooms, hanjuku egg, bean sprouts, bamboo shoots, and sesame.",
+      "The Lunch Special is offered Mon-Fri from 12 p.m. to 3 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Build Your Own Ramen and Spicy Miso Ramen in Coral Gables",
+    "why_here": "Ichimi (Coral Gables) serves Build Your Own Ramen and Spicy Miso Ramen, a spicy miso with tonkotsu soup base infused with butter and toppings including scallions and hanjuku egg.",
+    "know_before": "The Lunch Special is offered Mon-Fri from 12 p.m. to 3 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://ichimiramenbar.com/coral-gables"
+     ],
+     "why_here": [
+      "https://ichimiramenbar.com/coral-gables"
+     ],
+     "know_before": [
+      "https://ichimiramenbar.com/coral-gables"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Ichimi (Coral Gables) serves Build Your Own Ramen.",
+      "source": "https://ichimiramenbar.com/coral-gables"
+     },
+     {
+      "claim": "Spicy Miso Ramen is spicy miso with tonkotsu soup base infused with butter.",
+      "source": "https://ichimiramenbar.com/coral-gables"
+     },
+     {
+      "claim": "Spicy Miso Ramen toppings include scallions, kikurage mushrooms, hanjuku egg, bean sprouts, bamboo shoots, and sesame.",
+      "source": "https://ichimiramenbar.com/coral-gables"
+     },
+     {
+      "claim": "The Lunch Special is offered Mon-Fri from 12 p.m. to 3 p.m.",
+      "source": "https://ichimiramenbar.com/coral-gables"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJdZ6BP_f6wogRQBJFbdjpHew",
+   "name": "Cajun Cafe on the Bayou",
+   "category": "food",
+   "metro": "st-pete",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.cafeonthebayou.com/",
+     "source_name": "Cajun Cafe on the Bayou \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Cajun Cafe on the Bayou is located at 8260 66th Street North in Pinellas Park",
+      "The cafe serves authentic Louisiana cooking",
+      "Hours are Tuesday to Thursday from 11 a.m. to 8 p.m.",
+      "Hours are Friday to Saturday from 11 a.m. to 9 p.m.",
+      "The cafe is closed Sunday and Monday"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Authentic Louisiana cooking in Pinellas Park",
+    "why_here": "Go for authentic Louisiana cooking at 8260 66th Street North in Pinellas Park, where Cajun Cafe on the Bayou serves authentic Louisiana cooking in Pinellas Park.",
+    "know_before": "Closed Sunday and Monday; Tuesday to Thursday hours are 11 a.m. to 8 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.cafeonthebayou.com/"
+     ],
+     "why_here": [
+      "https://www.cafeonthebayou.com/"
+     ],
+     "know_before": [
+      "https://www.cafeonthebayou.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Cajun Cafe on the Bayou is located at 8260 66th Street North in Pinellas Park",
+      "source": "https://www.cafeonthebayou.com/"
+     },
+     {
+      "claim": "The cafe serves authentic Louisiana cooking",
+      "source": "https://www.cafeonthebayou.com/"
+     },
+     {
+      "claim": "Hours are Tuesday to Thursday from 11 a.m. to 8 p.m.",
+      "source": "https://www.cafeonthebayou.com/"
+     },
+     {
+      "claim": "Hours are Friday to Saturday from 11 a.m. to 9 p.m.",
+      "source": "https://www.cafeonthebayou.com/"
+     },
+     {
+      "claim": "The cafe is closed Sunday and Monday",
+      "source": "https://www.cafeonthebayou.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJR5WYD6z92IgRwgDlXyeW6GQ",
+   "name": "The Rabbit Hole - Elevated Vegan Comfort Cuisine",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "vegan_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://therabbithole.life/",
+     "source_name": "The Rabbit Hole - Elevated Vegan Comfort Cuisine \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Rabbit Hole - Elevated Vegan Comfort Cuisine is located at 2659 East Atlantic Blvd, Pompano Beach, FL 33062",
+      "The restaurant serves cruelty-free comfort cuisine with plant-based proteins",
+      "The restaurant welcomes vegans, vegetarians, flexitarians, and omnivores",
+      "Sunday hours are 11 a.m. to 4 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Cruelty-free comfort cuisine with plant-based proteins in Pompano Beach",
+    "why_here": "Go for cruelty-free comfort cuisine with plant-based proteins at 2659 East Atlantic Blvd, Pompano Beach, FL 33062, where The Rabbit Hole - Elevated Vegan Comfort Cuisine welcomes vegans, vegetarians, flexitarians, and omnivores.",
+    "know_before": "Sunday hours are 11 a.m. to 4 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://therabbithole.life/"
+     ],
+     "why_here": [
+      "https://therabbithole.life/"
+     ],
+     "know_before": [
+      "https://therabbithole.life/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Rabbit Hole - Elevated Vegan Comfort Cuisine is located at 2659 East Atlantic Blvd, Pompano Beach, FL 33062",
+      "source": "https://therabbithole.life/"
+     },
+     {
+      "claim": "The restaurant serves cruelty-free comfort cuisine with plant-based proteins",
+      "source": "https://therabbithole.life/"
+     },
+     {
+      "claim": "The restaurant welcomes vegans, vegetarians, flexitarians, and omnivores",
+      "source": "https://therabbithole.life/"
+     },
+     {
+      "claim": "Sunday hours are 11 a.m. to 4 p.m.",
+      "source": "https://therabbithole.life/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJcdzq5BzF54gReXTManxDZPc",
+   "name": "Chop House at Lake Sumter",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "steak_house",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.chophousedining.com/",
+     "source_name": "Chop House at Lake Sumter \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Chop House at Lake Sumter is located at 1045 Old Camp Rd, The Villages, FL 32162",
+      "The menu focuses on aged steaks, pork chops, chicken, and seafood",
+      "Happy Hour runs 11 a.m. to 4 p.m. and 8 p.m. to close",
+      "Monday to Thursday hours are 11 a.m. to 9 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Aged steaks, pork chops, chicken, and seafood in The Villages",
+    "why_here": "Go for aged steaks, pork chops, chicken, and seafood at 1045 Old Camp Rd, The Villages, FL 32162, where Chop House at Lake Sumter serves an elegant menu focused on those dishes.",
+    "know_before": "Happy Hour runs 11 a.m. to 4 p.m. and 8 p.m. to close",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.chophousedining.com/"
+     ],
+     "why_here": [
+      "https://www.chophousedining.com/"
+     ],
+     "know_before": [
+      "https://www.chophousedining.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Chop House at Lake Sumter is located at 1045 Old Camp Rd, The Villages, FL 32162",
+      "source": "https://www.chophousedining.com/"
+     },
+     {
+      "claim": "The menu focuses on aged steaks, pork chops, chicken, and seafood",
+      "source": "https://www.chophousedining.com/"
+     },
+     {
+      "claim": "Happy Hour runs 11 a.m. to 4 p.m. and 8 p.m. to close",
+      "source": "https://www.chophousedining.com/"
+     },
+     {
+      "claim": "Monday to Thursday hours are 11 a.m. to 9 p.m.",
+      "source": "https://www.chophousedining.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJH7dYtJQn5IgRjdC01e4dt00",
+   "name": "The Blue Hen Caf\u00e9",
+   "category": "food",
+   "metro": "st-augustine-fl",
+   "primary_type": "cafe",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.bluehencafe.com/",
+     "source_name": "The Blue Hen Caf\u00e9 \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Blue Hen Caf\u00e9 is located at 223 west king street, st. Augustine, FL 32084",
+      "Hours are Thursday to Monday from 8 a.m. to 2 p.m.",
+      "The cafe is closed Tuesday and Wednesday",
+      "Full Breakfast is served from 8 a.m. to 11 a.m. and lunch is served after 11 a.m.",
+      "No reservations or call ahead seating available"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Full Breakfast and lunch, Thursday to Monday in St. Augustine",
+    "why_here": "Go for Full Breakfast and lunch at 223 west king street, st. Augustine, FL 32084, where The Blue Hen Caf\u00e9 serves Full Breakfast from 8 a.m. to 11 a.m. and lunch after 11 a.m.",
+    "know_before": "No reservations or call ahead seating available; closed Tuesday and Wednesday",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.bluehencafe.com/"
+     ],
+     "why_here": [
+      "https://www.bluehencafe.com/"
+     ],
+     "know_before": [
+      "https://www.bluehencafe.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Blue Hen Caf\u00e9 is located at 223 west king street, st. Augustine, FL 32084",
+      "source": "https://www.bluehencafe.com/"
+     },
+     {
+      "claim": "Hours are Thursday to Monday from 8 a.m. to 2 p.m.",
+      "source": "https://www.bluehencafe.com/"
+     },
+     {
+      "claim": "The cafe is closed Tuesday and Wednesday",
+      "source": "https://www.bluehencafe.com/"
+     },
+     {
+      "claim": "Full Breakfast is served from 8 a.m. to 11 a.m. and lunch is served after 11 a.m.",
+      "source": "https://www.bluehencafe.com/"
+     },
+     {
+      "claim": "No reservations or call ahead seating available",
+      "source": "https://www.bluehencafe.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJM6cv59Pn2YgRdXaKYZKWWms",
+   "name": "Fruit & Spice Park",
+   "category": "attractions",
+   "metro": "miami-dade",
+   "primary_type": "tourist_attraction",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.miamidade.gov/fruitandspicepark/home.page",
+     "source_name": "Fruit & Spice Park \u2014 official source",
+     "source_class": "government",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Fruit & Spice Park is the only tropical botanical garden of its kind in the United States",
+      "It hosts over 500 varieties of fruits, vegetables, spices, herbs, nuts and other commercially important plant specimens from around the world"
+     ]
+    },
+    {
+     "source": "https://www.miamidade.gov/fruitandspicepark/plan-your-visit.page",
+     "source_name": "Fruit & Spice Park \u2014 official source",
+     "source_class": "government",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Fruit & Spice Park is open seven days a week from 10 a.m. to 5 p.m., except on Thanksgiving Day and Christmas Day"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Only tropical botanical garden of its kind in the United States",
+    "why_here": "Explore the only tropical botanical garden of its kind in the United States, hosting over 500 varieties of fruits, vegetables, spices, herbs, nuts and other commercially important plant specimens from around the world.",
+    "know_before": "Open seven days a week from 10 a.m. to 5 p.m., except on Thanksgiving Day and Christmas Day",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.miamidade.gov/fruitandspicepark/home.page"
+     ],
+     "why_here": [
+      "https://www.miamidade.gov/fruitandspicepark/home.page"
+     ],
+     "know_before": [
+      "https://www.miamidade.gov/fruitandspicepark/home.page"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Fruit & Spice Park is the only tropical botanical garden of its kind in the United States",
+      "source": "https://www.miamidade.gov/fruitandspicepark/home.page"
+     },
+     {
+      "claim": "It hosts over 500 varieties of fruits, vegetables, spices, herbs, nuts and other commercially important plant specimens from around the world",
+      "source": "https://www.miamidade.gov/fruitandspicepark/home.page"
+     },
+     {
+      "claim": "Fruit & Spice Park is open seven days a week from 10 a.m. to 5 p.m., except on Thanksgiving Day and Christmas Day",
+      "source": "https://www.miamidade.gov/fruitandspicepark/plan-your-visit.page"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJa99GR3a52YgRvTKugwAvEtk",
+   "name": "Doral Billiards & Sports Bar",
+   "category": "nightlife",
+   "metro": "miami-dade",
+   "primary_type": "sports_bar",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://doralbilliards.com/",
+     "source_name": "Doral Billiards & Sports Bar \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Doral Billiards & Sports Bar is located in Doral (Miami), Florida",
+      "Doral Billiards & Sports Bar has 3 Chevillotte Billiards Tables and 19 Brunswick 9' Pool Metro Tables",
+      "Doral Billiards & Sports Bar is the place in Miami to enjoy and improve your game"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "3 Chevillotte Billiards Tables and 19 Brunswick Pool Metro Tables in Doral",
+    "why_here": "Doral Billiards & Sports Bar is located in Doral (Miami), Florida, with 3 Chevillotte Billiards Tables and 19 Brunswick Pool Metro Tables, a place in Miami to enjoy and improve your game.",
+    "know_before": "Doral Billiards & Sports Bar has 3 Chevillotte Billiards Tables and 19 Brunswick Pool Metro Tables.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://doralbilliards.com/"
+     ],
+     "why_here": [
+      "https://doralbilliards.com/"
+     ],
+     "know_before": [
+      "https://doralbilliards.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Doral Billiards & Sports Bar is located in Doral (Miami), Florida",
+      "source": "https://doralbilliards.com/"
+     },
+     {
+      "claim": "Doral Billiards & Sports Bar has 3 Chevillotte Billiards Tables and 19 Brunswick 9' Pool Metro Tables",
+      "source": "https://doralbilliards.com/"
+     },
+     {
+      "claim": "Doral Billiards & Sports Bar is the place in Miami to enjoy and improve your game",
+      "source": "https://doralbilliards.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJD4yJwlHiwogRvplh-Q38_pM",
+   "name": "Burger King",
+   "category": "food",
+   "metro": "st-pete",
+   "primary_type": "fast_food_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.bk.com/",
+     "source_name": "Burger King \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Burger King is Home of the Whopper.",
+      "Burger King serves flame-grilled burgers, crispy fries, and more at our locations.",
+      "You can find a Burger King near you, browse the full menu, and start an order for pickup or delivery."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "flame-grilled burgers and crispy fries",
+    "why_here": "Burger King serves flame-grilled burgers, crispy fries, and more at our locations, and it is Home of the Whopper, so come for flame-grilled burgers and crispy fries.",
+    "know_before": "You can start an order for pickup or delivery.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.bk.com/"
+     ],
+     "why_here": [
+      "https://www.bk.com/"
+     ],
+     "know_before": [
+      "https://www.bk.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Burger King is Home of the Whopper.",
+      "source": "https://www.bk.com/"
+     },
+     {
+      "claim": "Burger King serves flame-grilled burgers, crispy fries, and more at our locations.",
+      "source": "https://www.bk.com/"
+     },
+     {
+      "claim": "You can find a Burger King near you, browse the full menu, and start an order for pickup or delivery.",
+      "source": "https://www.bk.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJVTTajpu02YgRsOdS1T5BdzI",
+   "name": "Backyard Miami",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.backyardmiamibeach.com/",
+     "source_name": "Backyard Miami \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Backyard Miami Beach is a Mediterranean-inspired restaurant, caf\u00e9, poolside destination and beach club at the Marseilles Hotel.",
+      "Backyard offers three experiences: Backyard Cafe, Backyard Poolside and Backyard Beach Club.",
+      "The Backyard Cafe is an indoor restaurant and patio serving breakfast, lunch and cocktails.",
+      "Backyard Cafe is open Monday to Sunday from 9 a.m. to 5 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Mediterranean-inspired restaurant, caf\u00e9, poolside destination and beach club at the Marseilles Hotel",
+    "why_here": "Go for Mediterranean-inspired food across the Backyard Cafe, Backyard Poolside and Backyard Beach Club at the Marseilles Hotel, where the cafe lists breakfast, lunch and cocktails in an indoor restaurant and patio setting.",
+    "know_before": "Backyard Cafe is open Monday to Sunday from 9 a.m. to 5 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.backyardmiamibeach.com/"
+     ],
+     "why_here": [
+      "https://www.backyardmiamibeach.com/"
+     ],
+     "know_before": [
+      "https://www.backyardmiamibeach.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Backyard Miami Beach is a Mediterranean-inspired restaurant, caf\u00e9, poolside destination and beach club at the Marseilles Hotel.",
+      "source": "https://www.backyardmiamibeach.com/"
+     },
+     {
+      "claim": "Backyard offers three experiences: Backyard Cafe, Backyard Poolside and Backyard Beach Club.",
+      "source": "https://www.backyardmiamibeach.com/"
+     },
+     {
+      "claim": "The Backyard Cafe is an indoor restaurant and patio serving breakfast, lunch and cocktails.",
+      "source": "https://www.backyardmiamibeach.com/"
+     },
+     {
+      "claim": "Backyard Cafe is open Monday to Sunday from 9 a.m. to 5 p.m.",
+      "source": "https://www.backyardmiamibeach.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJaXDYCGKz2YgRZcbuI00YQuY",
+   "name": "Watr at the 1 Rooftop",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "japanese_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.1hotels.com/south-beach/taste/watr-at-the-rooftop",
+     "source_name": "Watr at the 1 Rooftop \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Watr is located 18 stories above South Beach and serves Japanese-influenced cuisine.",
+      "Watr serves fresh seafood and sushi and offers craft cocktails and ocean views.",
+      "Watr is the rooftop restaurant at 1 Hotel South Beach.",
+      "Watr is open Daily from 11 a.m. to 11 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Rooftop restaurant 18 stories above South Beach serving Japanese-influenced cuisine",
+    "why_here": "Go for Japanese-influenced cuisine 18 stories above South Beach, with fresh seafood and sushi, craft cocktails and ocean views at the rooftop restaurant of 1 Hotel South Beach.",
+    "know_before": "Watr is open Daily from 11 a.m. to 11 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.1hotels.com/south-beach/taste/watr-at-the-rooftop"
+     ],
+     "why_here": [
+      "https://www.1hotels.com/south-beach/taste/watr-at-the-rooftop"
+     ],
+     "know_before": [
+      "https://www.1hotels.com/south-beach/taste/watr-at-the-rooftop"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Watr is located 18 stories above South Beach and serves Japanese-influenced cuisine.",
+      "source": "https://www.1hotels.com/south-beach/taste/watr-at-the-rooftop"
+     },
+     {
+      "claim": "Watr serves fresh seafood and sushi and offers craft cocktails and ocean views.",
+      "source": "https://www.1hotels.com/south-beach/taste/watr-at-the-rooftop"
+     },
+     {
+      "claim": "Watr is the rooftop restaurant at 1 Hotel South Beach.",
+      "source": "https://www.1hotels.com/south-beach/taste/watr-at-the-rooftop"
+     },
+     {
+      "claim": "Watr is open Daily from 11 a.m. to 11 p.m.",
+      "source": "https://www.1hotels.com/south-beach/taste/watr-at-the-rooftop"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJk9zfPVUd2YgRg2XXnwy1WYw",
+   "name": "Fish Shack",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://fishshacklhp.com/",
+     "source_name": "Fish Shack \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Fish Shack in Lighthouse Point serves freshly prepared Florida seafood daily.",
+      "The menu includes grilled mahi and grouper, classic fish & chips and lobster rolls.",
+      "The menu includes conch fritters, scallops and shrimp.",
+      "Fish Shack is closed on Sunday and open Monday to Saturday from 11:30 a.m. to 9:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Lighthouse Point seafood restaurant serving grilled mahi, grouper, fish & chips and lobster rolls",
+    "why_here": "Go for freshly prepared Florida seafood in Lighthouse Point, including grilled mahi and grouper, classic fish & chips, lobster rolls, conch fritters, scallops and shrimp.",
+    "know_before": "Fish Shack is closed on Sunday and open Monday to Saturday from 11:30 a.m. to 9:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://fishshacklhp.com/"
+     ],
+     "why_here": [
+      "https://fishshacklhp.com/"
+     ],
+     "know_before": [
+      "https://fishshacklhp.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Fish Shack in Lighthouse Point serves freshly prepared Florida seafood daily.",
+      "source": "https://fishshacklhp.com/"
+     },
+     {
+      "claim": "The menu includes grilled mahi and grouper, classic fish & chips and lobster rolls.",
+      "source": "https://fishshacklhp.com/"
+     },
+     {
+      "claim": "The menu includes conch fritters, scallops and shrimp.",
+      "source": "https://fishshacklhp.com/"
+     },
+     {
+      "claim": "Fish Shack is closed on Sunday and open Monday to Saturday from 11:30 a.m. to 9:00 p.m.",
+      "source": "https://fishshacklhp.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ-2kAuhlDw4gRSvSQ35tcHC8",
+   "name": "High Tide Tiki Tours",
+   "category": "attractions",
+   "metro": "manatee-sarasota",
+   "primary_type": "tour_agency",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://hightidetikiboat.com/",
+     "source_name": "High Tide Tiki Tours \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "High Tide Tiki Tours offers Private, Semi-Private, or Public Tours from Siesta Key.",
+      "The 33-foot open-air boat accommodates up to 26 passengers with a captain and crew.",
+      "The boat has bench seating, bar stools and a bathroom on board.",
+      "The boat has a bathroom on board and accommodates up to 26 passengers."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Siesta Key tiki boat tours with private, semi-private and public options for up to 26 passengers",
+    "why_here": "Book a tiki boat tour from Siesta Key on a 33-foot open-air boat with a captain and crew, bench seating and bar stools, with private, semi-private or public tours available.",
+    "know_before": "The boat has a bathroom on board and accommodates up to 26 passengers.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://hightidetikiboat.com/"
+     ],
+     "why_here": [
+      "https://hightidetikiboat.com/"
+     ],
+     "know_before": [
+      "https://hightidetikiboat.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "High Tide Tiki Tours offers Private, Semi-Private, or Public Tours from Siesta Key.",
+      "source": "https://hightidetikiboat.com/"
+     },
+     {
+      "claim": "The 33-foot open-air boat accommodates up to 26 passengers with a captain and crew.",
+      "source": "https://hightidetikiboat.com/"
+     },
+     {
+      "claim": "The boat has bench seating, bar stools and a bathroom on board.",
+      "source": "https://hightidetikiboat.com/"
+     },
+     {
+      "claim": "The boat has a bathroom on board and accommodates up to 26 passengers.",
+      "source": "https://hightidetikiboat.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJd_16thYWw4gRROlMoDSG8v0",
+   "name": "Centre Point Commons",
+   "category": "shopping",
+   "metro": "manatee-sarasota",
+   "primary_type": "shopping_mall",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://kiterealty.com/properties/centre-point-commons",
+     "source_name": "Centre Point Commons \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Centre Point Commons is in Bradenton, FL.",
+      "Centre Point Commons is a Community Center with Total GLA 119,366.",
+      "Property resources include a Site Plan, a Location Map and Available Space information."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Community Center in Bradenton, FL with Total GLA 119,366",
+    "why_here": "Visit a Community Center in Bradenton, FL with Total GLA 119,366, listed with Property resources including a Site Plan, a Location Map and Available Space information.",
+    "know_before": "Property resources include a Site Plan, a Location Map and Available Space information.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://kiterealty.com/properties/centre-point-commons"
+     ],
+     "why_here": [
+      "https://kiterealty.com/properties/centre-point-commons"
+     ],
+     "know_before": [
+      "https://kiterealty.com/properties/centre-point-commons"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Centre Point Commons is in Bradenton, FL.",
+      "source": "https://kiterealty.com/properties/centre-point-commons"
+     },
+     {
+      "claim": "Centre Point Commons is a Community Center with Total GLA 119,366.",
+      "source": "https://kiterealty.com/properties/centre-point-commons"
+     },
+     {
+      "claim": "Property resources include a Site Plan, a Location Map and Available Space information.",
+      "source": "https://kiterealty.com/properties/centre-point-commons"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJtUoCliq7wogRHxfmQJ8NJzo",
+   "name": "PopStroke",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "miniature_golf_course",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://popstroke.com/about/",
+     "source_name": "PopStroke \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Every location has two 18-hole putting courses, a lively bar, a scratch kitchen, ice cream, and a playground",
+      "Every location is made for every age, from family outings to date nights",
+      "Keep score and order drinks to the course from the app"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Two 18-hole putting courses with a scratch kitchen and ice cream",
+    "why_here": "Play two 18-hole putting courses, then use a scratch kitchen, a lively bar, ice cream and a playground made for every age, from family outings to date nights.",
+    "know_before": "Keep score and order drinks to the course from the app.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://popstroke.com/about/"
+     ],
+     "why_here": [
+      "https://popstroke.com/about/"
+     ],
+     "know_before": [
+      "https://popstroke.com/about/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Every location has two 18-hole putting courses, a lively bar, a scratch kitchen, ice cream, and a playground",
+      "source": "https://popstroke.com/about/"
+     },
+     {
+      "claim": "Every location is made for every age, from family outings to date nights",
+      "source": "https://popstroke.com/about/"
+     },
+     {
+      "claim": "Keep score and order drinks to the course from the app",
+      "source": "https://popstroke.com/about/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJnSmCcBMt5ogR77EQ6u2Rvi8",
+   "name": "Get Up And Go Kayaking - Silver Springs",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "tour_agency",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://getupandgokayaking.com/locations/florida/silver-springs/silver-springs-tour/",
+     "source_name": "Get Up And Go Kayaking - Silver Springs \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Come take a 100% clear kayak tour through Silver Springs",
+      "Your expert tour guide will point out many of the sites where Hollywood films have been created",
+      "You may see manatees, otters, alligators, turtles",
+      "Weight Limit: 425 pounds per boat (two guests) and no more than 250 pounds per seat"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "100% clear kayak tour through Silver Springs",
+    "why_here": "Paddle a 100% clear kayak tour in Silver Springs with an expert tour guide, looking for manatees, otters, alligators and turtles at sites where Hollywood films have been created.",
+    "know_before": "Weight Limit is 425 pounds per boat and no more than 250 pounds per seat.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://getupandgokayaking.com/locations/florida/silver-springs/silver-springs-tour/"
+     ],
+     "why_here": [
+      "https://getupandgokayaking.com/locations/florida/silver-springs/silver-springs-tour/"
+     ],
+     "know_before": [
+      "https://getupandgokayaking.com/locations/florida/silver-springs/silver-springs-tour/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Come take a 100% clear kayak tour through Silver Springs",
+      "source": "https://getupandgokayaking.com/locations/florida/silver-springs/silver-springs-tour/"
+     },
+     {
+      "claim": "Your expert tour guide will point out many of the sites where Hollywood films have been created",
+      "source": "https://getupandgokayaking.com/locations/florida/silver-springs/silver-springs-tour/"
+     },
+     {
+      "claim": "You may see manatees, otters, alligators, turtles",
+      "source": "https://getupandgokayaking.com/locations/florida/silver-springs/silver-springs-tour/"
+     },
+     {
+      "claim": "Weight Limit: 425 pounds per boat (two guests) and no more than 250 pounds per seat",
+      "source": "https://getupandgokayaking.com/locations/florida/silver-springs/silver-springs-tour/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJd1BjrUHa5ogRBVRDgQaxrZM",
+   "name": "Daytona Grande Oceanfront Hotel",
+   "category": "hotels",
+   "metro": "florida",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://daytonagrande.com/",
+     "source_name": "Daytona Grande Oceanfront Hotel \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "With direct access to the beach, Daytona Grande towers 27 stories above the waves",
+      "All rooms feature floor-to-ceiling windows offering dramatic views of the Atlantic Ocean or Intracoastal Waterway",
+      "Relax around the only infinity pool on Daytona Beach"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Oceanfront resort with direct access to the beach and an infinity pool",
+    "why_here": "Stay where All rooms feature floor-to-ceiling windows offering views of the Atlantic Ocean or Intracoastal Waterway, with direct access to the beach and the only infinity pool on Daytona Beach.",
+    "know_before": "Daytona Grande towers 27 stories above the waves.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://daytonagrande.com/"
+     ],
+     "why_here": [
+      "https://daytonagrande.com/"
+     ],
+     "know_before": [
+      "https://daytonagrande.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "With direct access to the beach, Daytona Grande towers 27 stories above the waves",
+      "source": "https://daytonagrande.com/"
+     },
+     {
+      "claim": "All rooms feature floor-to-ceiling windows offering dramatic views of the Atlantic Ocean or Intracoastal Waterway",
+      "source": "https://daytonagrande.com/"
+     },
+     {
+      "claim": "Relax around the only infinity pool on Daytona Beach",
+      "source": "https://daytonagrande.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJaWJirJcWw4gRboJr7F108HM",
+   "name": "Clancy's Irish Sports Pub & Grill",
+   "category": "nightlife",
+   "metro": "manatee-sarasota",
+   "primary_type": "bar_and_grill",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://clancysirishsportspub.com/",
+     "source_name": "Clancy's Irish Sports Pub & Grill \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Step into Clancy's Irish Pub & Grill and experience the warmth of true Irish hospitality mixed with the fun vibes of a Florida tiki bar",
+      "Since 2000, we've been the heart of Bradenton, serving up delicious food, refreshing drinks",
+      "From our legendary Freaki Tiki bar to the best sports watching in town",
+      "Every week at Clancy's is packed with live music and exciting events"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Irish Pub & Grill in Bradenton with a Freaki Tiki bar",
+    "why_here": "Visit Clancy's Irish Pub & Grill for Irish hospitality mixed with a Florida tiki bar, with delicious food, refreshing drinks, live music and sports watching in Bradenton.",
+    "know_before": "Since 2000, Clancy's has been in Bradenton.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://clancysirishsportspub.com/"
+     ],
+     "why_here": [
+      "https://clancysirishsportspub.com/"
+     ],
+     "know_before": [
+      "https://clancysirishsportspub.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Step into Clancy's Irish Pub & Grill and experience the warmth of true Irish hospitality mixed with the fun vibes of a Florida tiki bar",
+      "source": "https://clancysirishsportspub.com/"
+     },
+     {
+      "claim": "Since 2000, we've been the heart of Bradenton, serving up delicious food, refreshing drinks",
+      "source": "https://clancysirishsportspub.com/"
+     },
+     {
+      "claim": "From our legendary Freaki Tiki bar to the best sports watching in town",
+      "source": "https://clancysirishsportspub.com/"
+     },
+     {
+      "claim": "Every week at Clancy's is packed with live music and exciting events",
+      "source": "https://clancysirishsportspub.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJqwo10S3dwogRnC3CEXFQNwI",
+   "name": "Green Iguana Bar & Grill",
+   "category": "nightlife",
+   "metro": "tampa",
+   "primary_type": "bar_and_grill",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://greeniguana.com/",
+     "source_name": "Green Iguana Bar & Grill \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Green Iguana is at 4029 S. West Shore Blvd. Tampa, FL 33611",
+      "Green Iguana bar is open daily from 11 a.m. to 3 a.m.",
+      "Green Iguana offers live music 7 nights a week",
+      "Green Iguana has provided food to the Bay Area for over 30 years"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Live music 7 nights a week at Green Iguana",
+    "why_here": "Go for live music 7 nights a week at Green Iguana, a Tampa spot that has provided food to the Bay Area for over 30 years and keeps its bar open daily from 11 a.m. to 3 a.m.",
+    "know_before": "Bar is open daily from 11 a.m. to 3 a.m. at 4029 S. West Shore Blvd. Tampa, FL 33611",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://greeniguana.com/"
+     ],
+     "why_here": [
+      "https://greeniguana.com/"
+     ],
+     "know_before": [
+      "https://greeniguana.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Green Iguana is at 4029 S. West Shore Blvd. Tampa, FL 33611",
+      "source": "https://greeniguana.com/"
+     },
+     {
+      "claim": "Green Iguana bar is open daily from 11 a.m. to 3 a.m.",
+      "source": "https://greeniguana.com/"
+     },
+     {
+      "claim": "Green Iguana offers live music 7 nights a week",
+      "source": "https://greeniguana.com/"
+     },
+     {
+      "claim": "Green Iguana has provided food to the Bay Area for over 30 years",
+      "source": "https://greeniguana.com/"
+     }
+    ]
+   }
+  }
+ ]
+}
