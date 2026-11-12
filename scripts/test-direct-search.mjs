@@ -305,4 +305,41 @@ assert.equal(splitCityQualifier("Dolce & Bake, Orlando, FL").text, "dolce and ba
   assert.equal(dish.status, "empty", "key lime pie with no owned dish signal is an honest empty, never invented");
 }
 
+{
+  // Apostrophe-joined names ("Ca' d'Zan") emit an apostrophe-free stem (*zan*)
+  // in the Postgres prefilter and remain eligible across adjacent metro towns
+  // within QUALIFIED_CITY_RADIUS_M (Bradenton, Palmetto, Ellenton, Lakewood Ranch -> Sarasota).
+  const cadzanRow = row({
+    place_id: "ChIJpXGK53VC24gRWMneFVtK6hY",
+    name: "Ca' d'Zan",
+    lat: 27.3824,
+    lng: -82.5647,
+    category: "attractions",
+    primary_type: "museum",
+    google_types: ["museum", "tourist_attraction"],
+  });
+  const cadzanAddress = [
+    { placeId: "ChIJpXGK53VC24gRWMneFVtK6hY", name: "Ca' d'Zan", address: "5401 Bay Shore Rd, Sarasota, FL 34243", city: "Sarasota", category: "Activities" },
+  ];
+  for (const q of ["Ca' d'Zan Bradenton FL", "Ca' d'Zan Palmetto FL", "Ca' d'Zan Ellenton FL", "Ca' d'Zan Lakewood Ranch FL"]) {
+    const capture = {};
+    const res = await searchOwnedPlaces({ query: q, env: ENV, nowMs: NOW, addressIndex: cadzanAddress, fetchImpl: fetchRows([cadzanRow], capture) });
+    assert.equal(res.status, "ok", `${q} resolves Ca' d'Zan within the 30km metro radius`);
+    assert.equal(res.places[0].id, "ChIJpXGK53VC24gRWMneFVtK6hY");
+    assert.equal(res.places[0].exactMatch, true);
+    const invOr = capture.calls.find((c) => c.url.pathname.endsWith("/wf_inventory")).url.searchParams.get("or");
+    assert.match(invOr, /name\.ilike\.\*zan\*/, `${q} prefilter carries apostrophe-free stem *zan*`);
+  }
+  // Without GPS coordinates, a leading covered-city venue name ("Bradenton Riverwalk",
+  // "Ellenton Premium Outlets") or a unique stored covered-city landmark ("Ca' d'Zan")
+  // anchors on its covered city instead of failing with unsupported_location.
+  const riverwalkRow = row({ place_id: "ChIJriverwalk", name: "Bradenton Riverwalk", lat: 27.4989, lng: -82.5748, category: "attractions", primary_type: "park", google_types: ["park"] });
+  const rw = await searchOwnedPlaces({ query: "Bradenton Riverwalk", lat: null, lng: null, env: ENV, nowMs: NOW, addressIndex: [], fetchImpl: fetchRows([riverwalkRow]) });
+  assert.equal(rw.status, "ok", "leading covered-city venue query without GPS resolves its covered city");
+  assert.equal(rw.places[0].id, "ChIJriverwalk");
+  const cdNoPoint = await searchOwnedPlaces({ query: "Ca' d'Zan", lat: null, lng: null, env: ENV, nowMs: NOW, addressIndex: cadzanAddress, fetchImpl: fetchRows([cadzanRow]) });
+  assert.equal(cdNoPoint.status, "ok", "unique stored covered-city landmark without GPS resolves its covered city");
+  assert.equal(cdNoPoint.places[0].id, "ChIJpXGK53VC24gRWMneFVtK6hY");
+}
+
 console.log("test-direct-search: OK — punctuation, city intent, stored addresses, 30-day freshness, empty, scope and failures");

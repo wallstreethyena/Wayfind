@@ -12,6 +12,7 @@ import { readFileSync } from "node:fs";
 import { gzipSync } from "node:zlib";
 import { fileURLToPath } from "node:url";
 import { scanBuiltRegexes } from "./lib/browserRegexCompatibility.mjs";
+import { runFunctionSizeGate } from "./check-function-size.mjs";
 
 // ─── v7.29: THIS GUARD WAS NEVER RUNNING, AND IT HAD BEEN RED FOR MONTHS ────
 // It was wired ONLY into `npm run audit:regression`, which nothing runs
@@ -47,7 +48,9 @@ const ROUTE_CHUNK_BUDGET_KB = 175; // static/chunks/app/page-*.js, gzipped. RATC
 // the homepage measured 501.1KB on Vercel; later code splits brought it to
 // 488.1KB on Vercel (488.0 here), so the raise is no longer needed and the
 // ratchet comes back down to measured + 4KB.
-const TOTAL_BUDGET_KB = 492;       // every JS asset for route "/", gzipped.  RATCHET: lower only.
+const TOTAL_BUDGET_KB = 494;       // every JS asset for route "/", gzipped.  RATCHET: lower only.
+// 2026-11-12 owner decision (Gabe, in chat): raised 492 -> 494 so the eight
+// Christmas creator reels (PR #2418) ship; main sat at 490.9KB with 1.1KB headroom.
 const WARN_HEADROOM_KB = 2;        // print a loud warning below this. See below.
 // Vercel's gzip has measured up to ~0.6KB more than this machine for the same
 // tree (500.9 here vs 501.1 on Vercel for #2190, 2026-11-04, which failed six
@@ -175,3 +178,13 @@ if (headroomKb < WARN_HEADROOM_KB) {
 const compatibility = scanBuiltRegexes(fileURLToPath(new URL("../.next/static/chunks", import.meta.url)));
 if (compatibility.issues.length) fail("Safari-incompatible lookbehind in browser chunks: " + JSON.stringify(compatibility.issues));
 console.log(`check-bundle: browser regex compatibility OK — ${compatibility.files} built chunks checked`);
+
+// Every server function under Vercel's 250 MiB size limit, measured from this
+// same build output (scripts/check-function-size.mjs). It lives here because
+// this file is the one post-build step BOTH shipping paths run: GitHub's
+// `guards` job ("Homepage bundle ratchet", after its `npx next build`) and
+// Vercel's `npm run build` (postbuild). 2026-11-11: an oversized
+// /api/og/movie passed every check and then failed three production deploys.
+const fnSize = runFunctionSizeGate(fileURLToPath(new URL("../.next", import.meta.url)));
+for (const line of fnSize.lines) (fnSize.ok ? console.log : console.error)(line);
+if (!fnSize.ok) process.exit(1);
