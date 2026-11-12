@@ -15,7 +15,7 @@
 -- Privacy: a guest phone number is stored only with consent (check constraint: guest_phone is
 --   null or phone_consent_at is not null).
 -- Concurrency: booking, proposing and accepting a proposal take one transaction advisory lock
---   per place and day, so two guests can never take the last seats at the same moment.
+--   per restaurant, so two guests can never take the last seats at the same moment.
 -- Rollback: drop function public.wf_reserve_respond_proposal(uuid, uuid, boolean);
 --   drop function public.wf_reserve_propose(uuid, text, date, time);
 --   drop function public.wf_reserve_cancel(uuid, text, uuid, text, text);

@@ -78,7 +78,7 @@
   },
   {
     "file": "supabase/migrations/20261111210000_wf_reserve_partners_requests.sql",
-    "sha256": "709ab37c026bbb5424cc618d6d5a56b8003b60b021b361b681446a73573ef5a2",
+    "sha256": "827eebcbea81e8127381e1053ba128973b5bdca70b04825545cbae7da14a4dd4",
     "decision_owner": "wallstreethyena",
     "tracking": "#20261111 Reserve a table (no issue number yet, owner to assign)",
     "reason": "NOT APPLIED; owner approved 2026-11-12, to be applied by the integrator after review. Instant booking for Reserve a table: two new tables (wf_reserve_partners, wf_reserve_bookings) and five SECURITY DEFINER functions (wf_reserve_slots, wf_reserve_book, wf_reserve_cancel, wf_reserve_propose, wf_reserve_respond_proposal; search_path pinned, EXECUTE service_role only, a per place per day advisory lock serializes capacity). RLS on both tables; clients may only SELECT their own bookings, partner contact emails and manage token hashes are service role only. Additive, no existing table touched; rollback = drop the five functions and both tables. Applied cleanly and exercised in PGlite (supabase/tests/reserve_booking_test.sql via scripts/test-reserve-schema.mjs). Deploy order: migration first, then the seed scripts/reserve-seed-test-kitchen.sql on a preview database, then code. Production stays dark until a partner row has stage live (demo partners are never listed, bookable or emailed in production)."
