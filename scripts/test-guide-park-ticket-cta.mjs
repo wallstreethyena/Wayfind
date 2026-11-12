@@ -32,12 +32,23 @@ for (const place of ["Universal CityWalk Orlando", "Halloween Horror Nights", "U
 
 const event = guidePrimaryCta({
   region: "Orlando",
+  eventTicket: "mvmcp-2026",
+  eventTicketPlace: "Mickey's Very Merry Christmas Party",
+  parkTicketPlace: "Universal Epic Universe",
+  picks: [],
+});
+assert.equal(event.place, "Mickey's Very Merry Christmas Party", "an event guide keeps its exact event ticket ahead of park admission");
+assert.match(event.href, /offer=38/, "the Christmas party ticket is Undercover Tourist deal 38");
+
+const retiredHaunt = guidePrimaryCta({
+  region: "Orlando",
   eventTicket: "hhn-orlando-2026",
   eventTicketPlace: "Halloween Horror Nights",
   parkTicketPlace: "Universal Epic Universe",
   picks: [],
 });
-assert.equal(event.place, "Halloween Horror Nights", "an event guide keeps its exact event ticket ahead of park admission");
+assert.equal(retiredHaunt.place, "Universal Epic Universe", "after the last HHN night the guide sells the park ticket, not the retired event row");
+assert.doesNotMatch(retiredHaunt.href, /offer=19/, "the retired HHN Undercover Tourist row is not the link");
 
 assert.equal(GUIDES["things-to-do-tampa-summer-2026"].parkTicketPlace, undefined,
   "a Tampa roundup with an existing CityPASS primary must keep that broader offer");
@@ -108,9 +119,11 @@ assert.equal(tourCta({ ...good, offerId: "https://www.viator.com/tours/x/d1-3001
 assert.equal(tourCta({ ...good, offerId: "236862P2" }).kind, "none", "a denied SKU never resolves");
 assert.equal(tourCta({ ...good, label: "Book now" }).kind, "none", "a label that does not name the place is refused");
 // The HHN food guide sells the admission its own teaser says you need.
+const themeParkChristmas = guidePrimaryCta(GUIDES["florida-theme-park-christmas-2026"]);
+assert.equal(new URLSearchParams(themeParkChristmas.href.split("?")[1]).get("provider"), "undercover_tourist");
+assert.equal(new URLSearchParams(themeParkChristmas.href.split("?")[1]).get("offer"), "38", "theme park Christmas guide sells Mickey's Very Merry Christmas Party");
 const hhnFood = guidePrimaryCta(GUIDES["orlando-halloween-food-2026"]);
-assert.equal(hhnFood.provider || new URLSearchParams(hhnFood.href.split("?")[1]).get("provider"), "undercover_tourist");
-assert.equal(hhnFood.label, "Halloween Horror Nights tickets");
+assert.equal(hhnFood == null || !String(hhnFood.href || "").includes("offer=19"), true, "the Halloween food guide does not sell the ended HHN ticket");
 
 // Owner rule (test-guide-search-as-book): no Crystal River SKU is pinned.
 assert.equal(GUIDES["swim-with-manatees-crystal-river"].parkTicketPlace, undefined, "Crystal River stays unpinned");

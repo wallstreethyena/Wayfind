@@ -348,7 +348,7 @@ if (!browserConfig) {
     award: addRootClass(skinBase, "is-award-winner"),
   });
   const richFallMarkup = renderToStaticMarkup(richFall);
-  ok(richFallMarkup.includes("Tickets at Undercover Tourist") && richFallMarkup.includes("wf-place-card-photo-attr") && !richFallMarkup.includes("Plan your visit") && !richFallMarkup.includes("Official details") && !richFallMarkup.includes("Venue photo") && !richFallMarkup.includes("wf-event-card-backdrop") && !richFallMarkup.includes("wf-rail-card-links") && richFallMarkup.includes(">©<") && !richFallMarkup.includes(">Robin Teng"), "PROBE: rich Fall fixture is the standard card: one CTA, (c) chip only, no caption, backdrop, link grid or Official details");
+  ok(richFallMarkup.includes("Tickets at Undercover Tourist") && richFallMarkup.includes("wf-place-card-photo-attr") && !richFallMarkup.includes("Plan your visit") && !richFallMarkup.includes("Official details") && !richFallMarkup.includes("Venue photo") && !richFallMarkup.includes("wf-event-card-backdrop") && !richFallMarkup.includes("wf-rail-card-links") && richFallMarkup.includes(">Robin Teng · Unsplash License</a>") && !richFallMarkup.includes(">©<"), "PROBE: rich Fall fixture is the standard card: one CTA, credit line on the photo, no caption, backdrop, link grid or Official details");
   ok((richFallMarkup.match(/wf-rail-card-cta/g) || []).length === 1, "LOCK: a rail card never renders two .wf-rail-card-cta links");
   for (const file of ["app/components/RailCard.js", "app/components/FallIntentRails.js", "app/components/PosterEventCard.js"]) {
     const src = readFileSync(path.join(ROOT, file), "utf8");

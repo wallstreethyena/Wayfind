@@ -1,7 +1,7 @@
 import CommerceClickBeacon from "../../components/CommerceClickBeacon";
 import { eventCostSummary, eventRestrictions } from "../../../lib/eventVisitFacts.js";
 import { eventImageIsVenue } from "../../../lib/fallEventImage.js";
-import { christmasEventPageRow } from "../../../lib/christmasEventPage.js";
+import { christmasEventPageRow, retiredChristmasEventTarget } from "../../../lib/christmasEventPage.js";
 import { eventPlaceholder } from "../../../lib/eventPlaceholder.js";
 // v7.45 — The individual event page. Google is explicit that Event structured
 // data belongs on a single-event page with its own URL, not on a roundup, and
@@ -17,7 +17,7 @@ import { EventHeroPhotoProvider, EventHeroCredit } from "../../components/EventH
 import EventDetailShell from "../../components/EventDetailShell.js";
 import EventSectionNav from "../../components/EventSectionNav.js";
 import EventExperienceStyles from "../../components/EventExperienceStyles.js";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { safeUrl } from "../../../lib/links.js";
 import { SITE_URL } from "../../../lib/site";
 import { fetchCuratedEvents, fetchCuratedEventBySlug, eventJsonLd, dateRangeLabel, eventWebsiteUrl, eventDetailTicketAction } from "../../../lib/curatedEvents";
@@ -29,6 +29,7 @@ import RemindMe from "../../components/RemindMe.js";
 import { addressLine, appleDirectionsUrl } from "../../../lib/placeWhere";
 import { eventTitleWithYear } from "../../../lib/eventTitle.js";
 import { partnerAvailabilityNote } from "../../../lib/eventTicketDeals.js";
+import { secondaryEventTicketAction } from "../../../lib/secondaryEventTickets.js";
 import { eventMapPoint, isApproximateLocation } from "../../../lib/eventLocation";
 import ShareButton from "../../components/ShareButton";
 import SaveEventButton from "./SaveEventButton.js";
@@ -46,6 +47,10 @@ import CreatorPlaybackDetails from "../../components/CreatorPlaybackDetails.js";
 import CreatorVideoRail from "../../components/CreatorVideoRail.js";
 import { isEmbeddable } from "../../../lib/videoEmbed";
 import { loadEventDetailPhotos } from "../../../lib/placeDetailGallery.js";
+import { eventRailPhotoCredit } from "../../../lib/christmasPlacePhotos.js";
+import PhotoCreditLink from "../../components/PhotoCreditLink.js";
+import SnowcatTicketExplainer from "../../components/SnowcatTicketExplainer.js";
+import { isSnowcatTicketPage, SNOWCAT_PLACE_ID } from "../../../lib/snowcatTickets.js";
 
 // Same two-letter monogram convention as RailCard/IconicPlaceCard's card
 // fallback (app/components/css.js .wf-place-card-monogram) — the letters an
@@ -174,10 +179,22 @@ const S = {
   pmeta: { fontSize: 12.5, color: "#8B949E", fontWeight: 600 },
 };
 
+// Throws on a failed read like the page itself: an outage never becomes a
+// redirect or a 404. Returns normally when there is nowhere valid to go.
+async function redirectRetiredChristmasEvent(slug) {
+  const moved = retiredChristmasEventTarget(slug);
+  if (!moved) return;
+  const landing = await fetchCuratedEventBySlug(moved).then((row) => christmasEventPageRow(row, moved));
+  if (landing) permanentRedirect("/florida-events/" + moved);
+}
+
 export default async function CuratedEventPage({ params }) {
   // Throws on a failed read. notFound() is only the honest miss (row
   // absent or not displayable). An outage must not 404 a live event.
   const e = await fetchCuratedEventBySlug(params.slug).then((row) => christmasEventPageRow(row, params.slug)).then(withTampaPassFacts);
+  // A merged research id keeps a valid destination (lib/christmasEventPage.js):
+  // redirect after a successful miss, and only to a listing that resolves.
+  if (!e) await redirectRetiredChristmasEvent(params.slug);
   if (!e) notFound();
 
   const shots = eventPhotos(e.event_id);
@@ -228,6 +245,7 @@ export default async function CuratedEventPage({ params }) {
   // organiser's own verified ticket link (rel nofollow, not sponsored). Same
   // gates the card uses (lib/curatedEvents.eventDetailTicketAction).
   const ticket = eventDetailTicketAction(e, { surface: "florida_event_page" });
+  const resaleTicket = secondaryEventTicketAction(e, { surface: "florida_event_page", primaryAction: ticket });
   // Partner tickets gone (NO_EXACT_AFFILIATE_PRODUCT visitorNote): say so plainly
   // and offer the bookable alternatives, instead of a silent organizer fallback.
   const availability = partnerAvailabilityNote(e.event_id);
@@ -323,6 +341,12 @@ export default async function CuratedEventPage({ params }) {
             {"🎟️ " + ticket.label}
           </a>
           {ticket.kind === "affiliate" ? <p style={S.disclosure}>We may earn a commission when you book through partner links. It never changes our rankings.</p> : null}
+          {resaleTicket ? <p style={S.disclosure} data-secondary-resale="">
+            <a href={resaleTicket.href} target="_blank" rel="sponsored nofollow noopener" style={S.link}>
+              {resaleTicket.label} at TicketSmarter
+            </a>
+            {" · "}{resaleTicket.via}
+          </p> : null}
         </div>
       ) : null}
       {availability ? (
@@ -337,6 +361,7 @@ export default async function CuratedEventPage({ params }) {
           ) : null}
         </div>
       ) : null}
+      {isSnowcatTicketPage({ event_id: e.event_id, slug: params.slug }) ? <SnowcatTicketExplainer /> : null}
 
       {/* Save + share, together, near the top — the owner's premium-event
           list (2026-09-07). Save runs through the SAME lib/contentCardActions
@@ -373,11 +398,13 @@ export default async function CuratedEventPage({ params }) {
         </>}
         note={e.is_free ? "Confirm dates and availability on the official listing." : "Confirm availability and booking terms with the ticket provider before paying."}
         media={<>
-      {detailPhotos.length ? detailPhotos.map((photo, i) => (
-        <div key={photo.src} className="wf-event-photo" data-detail-photo="">
+      {detailPhotos.length ? detailPhotos.map((photo, i) => {
+        const credit = eventRailPhotoCredit(photo);
+        return <div key={photo.src} className="wf-event-photo" data-detail-photo="">
           <EventPlacePhoto hero={i === 0} priority={i === 0} src={photo.src} name={photo.alt || e.event_name} />
-        </div>
-      )) : shots && shots.hero ? (
+          {credit ? <span className="wf-event-photo-credit" data-event-photo-credit="">{credit.href ? <PhotoCreditLink href={credit.href} rel="nofollow noopener noreferrer">{credit.text}</PhotoCreditLink> : credit.text}</span> : null}
+        </div>;
+      }) : shots && shots.hero ? (
         <div className="wf-event-photo"><EventPlacePhoto hero priority src={shots.hero.src} name={shots.hero.alt || e.event_name} /></div>
       ) : e.hero_image ? (
         <div className="wf-event-photo"><EventPlacePhoto hero priority src={e.hero_image} name={e.image_alt || `${e.event_name} at ${e.venue || e.city}`} /></div>
@@ -402,13 +429,13 @@ export default async function CuratedEventPage({ params }) {
         </div>
       ))}
         </>}
-        credit={<EventHeroCredit
+        credit={eventRailPhotoCredit(detailPhotos[0]) ? null : <EventHeroCredit
           eventName={e.event_name}
           isVenue={eventImageIsVenue(e, heroSrc)}
           registryCredit={shots && shots.credit ? shots.credit : null}
           registryCreditHref={shots && shots.credit && shots.creditUrl ? shots.creditUrl : null}
-          attr={e.photoAttr || null}
-          attrHref={e.photoAttrHref || null}
+          attr={e.photoAttr && heroSrc === e.hero_image ? e.photoAttr : null}
+          attrHref={e.photoAttrHref && heroSrc === e.hero_image ? e.photoAttrHref : null}
           style={S.credit}
           linkStyle={S.link}
         />}
@@ -463,6 +490,7 @@ export default async function CuratedEventPage({ params }) {
         picks={pairings}
         ticketLink={crownTracked}
         location={{ trust: "verified" }}
+        placeId={isSnowcatTicketPage({ event_id: e.event_id, slug: params.slug }) ? SNOWCAT_PLACE_ID : ""}
       />
       {pairingResult.unavailable ? (
         <p role="status" style={{ ...S.p, maxWidth: 820, margin: "12px auto 24px", color: "#aab4c2" }}>
