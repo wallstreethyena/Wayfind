@@ -108,6 +108,15 @@ ok(classifyFile("scripts/foo.mjs") === null, "scripts are not content");
   ok(records.length === 1 && records[0].rec.image === "javascript:alert(1)", "sql extractor takes image-column literals only, not other URL columns");
   const md = await extractRecords("content/blog/p.md", "---\ntitle: T\nimage: undefined\n---\nbody");
   ok(md.records.length === 1 && md.records[0].rec.image === "undefined", "blog frontmatter image is extracted");
+  // A bare 'null' literal is a placeholder only when WRITTEN into an image column
+  // (2026-11-12: the carousel guard function's coalesce(ev.e_city,'null') beside
+  // `hero_image is null` was read as an image write).
+  const sqlRecs = async (q) => (await extractRecords("supabase/migrations/20990101_fx.sql", q)).records.length;
+  ok(await sqlRecs("update wf_events set hero_image = 'null' where event_id = 'x';") === 1, "sql: hero_image = 'null' is still a placeholder write");
+  ok(await sqlRecs("begin photo_url := 'undefined'; end;") === 1, "sql: photo_url := 'undefined' is still a placeholder write");
+  ok(await sqlRecs("insert into wf_events(event_id, hero_image) values ('a', 'null');") === 1, "sql: an insert into an image column with 'null' is still flagged");
+  ok(await sqlRecs("select coalesce(hero_image, 'https://x.example/a.jpg') from t;") === 1, "sql: an image URL literal is still caught anywhere in the statement");
+  ok(await sqlRecs("select coalesce(city, 'null'), hero_image is null from t;") === 0, "sql: a 'null' display string beside an image column is not an image write");
 }
 
 // the runner, SPAWNED: non-zero on a bad fixture, zero on good / imageless
