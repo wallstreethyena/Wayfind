@@ -86,6 +86,7 @@ export function browseRowFor(card) {
     placeholder: card.placeholder || null,
     cta: ticket ? ticket.cta : null,
     secondaryCta: ticket ? ticket.secondaryCta : null,
+    options: ticket && Array.isArray(ticket.options) ? ticket.options : [],
     eventHref: card.detailHref || null,
     pageLabel: isPlace ? "View place" : null,
     isPlace,
