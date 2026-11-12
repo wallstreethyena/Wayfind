@@ -43,6 +43,13 @@ const FIREFOX = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:128.0) Gecko/2
 const SAFARI = "Mozilla/5.0 (iPhone; CPU iPhone OS 17_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Mobile/15E148 Safari/604.1";
 const MONITOR = "WayfindSyntheticMonitor/1.0 (+https://www.gowayfind.com)";
 const NAV = { "sec-fetch-dest": "document", "sec-fetch-mode": "navigate", "sec-fetch-site": "cross-site", "sec-fetch-user": "?1" };
+// 2026-11-11 owner rule: a desktop browser with ZERO click proof now gets the
+// Continue page (lib/redirectTrafficClass.js zeroProofDesktopReason). The desktop
+// human fixtures therefore carry one proof (a same-site Referer). Real taps usually
+// prove themselves with the page-minted click_id or a cookie of ours, since most
+// partner links are rel="noreferrer"; those shapes and the zero-proof case are
+// asserted in scripts/check-redirect-suspect-gate.mjs.
+const TAP = { ...NAV, "sec-fetch-site": "same-origin", referer: "https://www.gowayfind.com/guides/things-to-do-sarasota" };
 
 const mkHeaders = (o) => { const m = new Map(Object.entries(o).map(([k, v]) => [k.toLowerCase(), v])); return { get: (n) => (m.has(String(n).toLowerCase()) ? m.get(String(n).toLowerCase()) : null) }; };
 process.env.STUBHUB_PARTNERIZE_CAMREF = "guardcamref1"; // hermetic fixture so the ships-dark StubHub route is exercised lit (WRITE only)
@@ -89,10 +96,10 @@ for (const name of Object.keys(ROUTES)) {
   const r = ROUTES[name];
   // Positive controls: real people reach the partner / the normal path, tagged human.
   for (const [label, h] of [
-    ["Chrome anchor click (navigate/document)", { "user-agent": CHROME, ...NAV }],
-    ["Firefox anchor click", { "user-agent": FIREFOX, ...NAV }],
+    ["Chrome anchor click on a Wayfind page (navigate/document, same-site Referer)", { "user-agent": CHROME, ...TAP }],
+    ["Firefox anchor click on a Wayfind page", { "user-agent": FIREFOX, ...TAP }],
     ["old Safari (no Sec-Fetch headers at all)", { "user-agent": SAFARI }],
-    ["iframe navigation (navigate/iframe)", { "user-agent": CHROME, ...NAV, "sec-fetch-dest": "iframe" }],
+    ["iframe navigation (navigate/iframe)", { "user-agent": CHROME, ...TAP, "sec-fetch-dest": "iframe" }],
     ["Node fetch() as the weekly watchdog sends it (lone sec-fetch-mode: cors, no Dest/Site)", { "user-agent": SAFARI, "sec-fetch-mode": "cors" }],
     ["PostHog-cookie visitor", { "user-agent": CHROME, ...NAV, cookie: "ph_phc_guardtest_not_a_real_key_posthog=" + encodeURIComponent('{"distinct_id":"abc"}') }],
   ]) {
@@ -161,9 +168,11 @@ for (const name of Object.keys(ROUTES)) {
 /* ── burst gate, route level (ticketmaster: distinct offer per request) ──── */
 const { classifyRedirectRequest, BURST_DISTINCT_OFFERS, __resetMemoryBurstStore } = await import(REPO + "lib/redirectTrafficClass.js");
 ok(BURST_DISTINCT_OFFERS === 6, "burst threshold constant is 6");
+// 2026-11-11: the burst fixtures are cookie-less visitors who DID tap on a Wayfind page (same-site
+// Referer). A desktop with zero click proof never reaches the burst gate now: it stops at the Continue page.
 process.env.REDIRECT_BURST_GATE = "1";
 __resetMemoryBurstStore();
-const botnet = { "user-agent": CHROME, ...NAV, "x-forwarded-for": "140.248.50.86" };
+const botnet = { "user-agent": CHROME, ...TAP, "x-forwarded-for": "140.248.50.86" };
 const results = [];
 for (let i = 1; i <= 8; i++) results.push(await hit("ticketmaster", botnet, i));
 ok(results.slice(0, 6).every((x) => x.loc && x.loc.includes("ticketmaster.com")), "burst: the first 6 distinct offers still reach the partner");
@@ -171,15 +180,15 @@ ok(results.slice(6).every((x) => x.loc && !x.loc.includes("ticketmaster.com") &&
   "burst: the 7th and 8th distinct offers from one IP+UA are refused as synthetic with a burst reason");
 const other = await hit("ticketmaster", { ...botnet, "x-forwarded-for": "140.248.50.97" }, 1);
 ok(other.loc && other.loc.includes("ticketmaster.com"), "burst: a different IP is unaffected");
-const sameOfferAgain = await hit("ticketmaster", { "user-agent": CHROME, ...NAV, "x-forwarded-for": "9.9.9.9" }, 1);
-for (let i = 0; i < 10; i++) await hit("ticketmaster", { "user-agent": CHROME, ...NAV, "x-forwarded-for": "9.9.9.9" }, 1);
-const rep = await hit("ticketmaster", { "user-agent": CHROME, ...NAV, "x-forwarded-for": "9.9.9.9" }, 1);
+const sameOfferAgain = await hit("ticketmaster", { "user-agent": CHROME, ...TAP, "x-forwarded-for": "9.9.9.9" }, 1);
+for (let i = 0; i < 10; i++) await hit("ticketmaster", { "user-agent": CHROME, ...TAP, "x-forwarded-for": "9.9.9.9" }, 1);
+const rep = await hit("ticketmaster", { "user-agent": CHROME, ...TAP, "x-forwarded-for": "9.9.9.9" }, 1);
 ok(sameOfferAgain.loc.includes("ticketmaster.com") && rep.loc.includes("ticketmaster.com"), "burst: the SAME offer clicked repeatedly is not a burst (distinct offers count)");
 {
   __resetMemoryBurstStore();
   const cookie = "ph_phc_guardtest_not_a_real_key_posthog=" + encodeURIComponent('{"distinct_id":"abc"}');
   let last;
-  for (let i = 1; i <= 9; i++) last = await hit("ticketmaster", { "user-agent": CHROME, ...NAV, cookie, "x-forwarded-for": "7.7.7.7" }, i);
+  for (let i = 1; i <= 9; i++) last = await hit("ticketmaster", { "user-agent": CHROME, ...TAP, cookie, "x-forwarded-for": "7.7.7.7" }, i);
   ok(last.loc.includes("ticketmaster.com"), "burst: a PostHog-cookie visitor is never burst-refused");
   let mlast;
   for (let i = 1; i <= 9; i++) mlast = await hit("ticketmaster", { "user-agent": MONITOR, "x-forwarded-for": "6.6.6.6" }, i);
@@ -189,7 +198,7 @@ delete process.env.REDIRECT_BURST_GATE;
 __resetMemoryBurstStore();
 {
   let last;
-  for (let i = 1; i <= 9; i++) last = await hit("ticketmaster", { "user-agent": CHROME, ...NAV, "x-forwarded-for": "5.5.5.5" }, i);
+  for (let i = 1; i <= 9; i++) last = await hit("ticketmaster", { "user-agent": CHROME, ...TAP, "x-forwarded-for": "5.5.5.5" }, i);
   ok(last.loc.includes("ticketmaster.com"), "burst: with REDIRECT_BURST_GATE unset (default) nobody is burst-refused");
 }
 
@@ -197,11 +206,11 @@ __resetMemoryBurstStore();
 process.env.REDIRECT_BURST_GATE = "1";
 const req = (h) => ({ url: "http://localhost/x", headers: mkHeaders(h) });
 const throwing = { async record() { throw new Error("db down"); } };
-const c1 = await classifyRedirectRequest(req({ "user-agent": CHROME, ...NAV, "x-forwarded-for": "1.1.1.1" }), { offerKey: "a", burstStore: throwing });
+const c1 = await classifyRedirectRequest(req({ "user-agent": CHROME, ...TAP, "x-forwarded-for": "1.1.1.1" }), { offerKey: "a", burstStore: throwing });
 ok(c1.klass === "human", `fail-open: a throwing state store classifies human (${c1.klass})`);
-const c2 = await classifyRedirectRequest(req({ "user-agent": CHROME, ...NAV }), { offerKey: "a", burstStore: { async record() { return 99; } } });
+const c2 = await classifyRedirectRequest(req({ "user-agent": CHROME, ...TAP }), { offerKey: "a", burstStore: { async record() { return 99; } } });
 ok(c2.klass === "human", "fail-open: no client IP -> human even if the store would say burst");
-const c3 = await classifyRedirectRequest(req({ "user-agent": CHROME, ...NAV, "x-forwarded-for": "1.1.1.1" }), { offerKey: "a", burstStore: { async record() { return 99; } } });
+const c3 = await classifyRedirectRequest(req({ "user-agent": CHROME, ...TAP, "x-forwarded-for": "1.1.1.1" }), { offerKey: "a", burstStore: { async record() { return 99; } } });
 ok(c3.klass === "synthetic", "probe: a store reporting 99 distinct offers IS classified synthetic (so the fail-open results above are meaningful)");
 const c4 = await classifyRedirectRequest({ headers: null }, { offerKey: "a" });
 ok(c4.klass === "human", "fail-open: a request with no headers object is human");
@@ -216,17 +225,27 @@ delete process.env.REDIRECT_BURST_GATE;
   ok(clickProof(at("", { "user-agent": CHROME, ...NAV, cookie: "wf_device=d_1" }), "guide") === "first_party_cookie", "click_proof: our own cookie is first_party_cookie");
   ok(clickProof(at("", { "user-agent": SAFARI }), "instagram") === "direct_link" && clickProof(at("", { "user-agent": SAFARI }), "x") === "direct_link", "click_proof: bio-link surfaces (instagram, x) are direct_link");
   ok(clickProof(at("", { "user-agent": CHROME, ...NAV }), "intent_partner_rail") === "none", "click_proof: no click_id, cookie, Referer or direct surface is none (the 10-30 link-follower shape)");
+  // 2026-11-11: a zero-proof request that tapped Continue is labelled, so stopped people can be counted.
+  ok(clickProof(at("&wf_confirm=1", { "user-agent": CHROME, ...NAV }), "intent_partner_rail") === "continue_tap", "click_proof: zero proof + a Continue tap (wf_confirm=1) is continue_tap");
+  ok(clickProof(at("&wf_confirm=1&click_id=wf-abc12345", { "user-agent": CHROME, ...NAV }), "guide") === "client_click_id", "click_proof: a real proof outranks continue_tap");
+  ok(clickProof(at("&wf_confirm=0", { "user-agent": CHROME, ...NAV }), "guide") === "none", "click_proof: only wf_confirm=1 is a Continue tap");
+  ok(clickProof(at("", { "user-agent": CHROME, ...NAV }), "social_shortlink") === "direct_link", "click_proof: our own /go shortlink surface is direct_link");
+  ok(clickProof(at("", { "user-agent": CHROME, ...NAV }), "social_find_browse") === "none" && clickProof(at("", { "user-agent": CHROME, ...NAV }), "social_club") === "none", "click_proof: on-site social_* surfaces are not direct links");
+  ok(clickProof(at("", { "user-agent": CHROME, ...NAV, referer: "https://blog.gowayfind.com/post" }), "blog") === "first_party_referer", "click_proof: a Referer from our own blog host is first_party_referer");
   ok(clickProof(at("&click_id=x", { "user-agent": CHROME, ...NAV }), "guide") === "none", "click_proof: a malformed click_id is not proof");
   ok(clickProof(at("", { "user-agent": CHROME, ...NAV, referer: "https://evil.example/" }), "experience") === "none", "click_proof: a foreign Referer is not proof");
-  // The 10-30 shape still gets the REAL redirect, labelled none (labelled, never refused).
-  const b = await hit("ticketmaster", { "user-agent": CHROME, ...NAV });
-  ok(b.loc && b.loc.includes("ticketmaster.com") && b.events.some((e) => e.event === "provider_redirect_started" && e.p.click_proof === "none" && e.p.traffic_class === "human"), `click_proof: an unproven request still reaches the partner, labelled human + none (${JSON.stringify(b.events.map((e) => [e.event, e.p.click_proof]))})`);
+  // On a PHONE the 10-30 shape still gets the REAL redirect, labelled none (labelled, never refused).
+  const b = await hit("ticketmaster", { "user-agent": SAFARI });
+  ok(b.loc && b.loc.includes("ticketmaster.com") && b.events.some((e) => e.event === "provider_redirect_started" && e.p.click_proof === "none" && e.p.traffic_class === "human"), `click_proof: an unproven PHONE request still reaches the partner, labelled human + none (${JSON.stringify(b.events.map((e) => [e.event, e.p.click_proof]))})`);
+  // 2026-11-11 owner rule: the same shape on a DESKTOP gets the Continue page, never the partner.
+  const dz = await hit("ticketmaster", { "user-agent": CHROME, ...NAV }, 9);
+  ok(dz.res.status === 200 && !(dz.loc && dz.loc.includes("ticketmaster.com")) && !dz.events.some((e) => e.event === "provider_redirect_started") && dz.events.some((e) => e.event === "provider_redirect_refused" && String(e.p.refusal_reason).startsWith("desktop-zero-proof:")), `click_proof: an unproven DESKTOP request is held at the Continue page (status ${dz.res.status}, ${JSON.stringify(dz.events.map((e) => [e.event, e.p.refusal_reason || e.p.click_proof]))})`);
   // ?wf_test= on the go link itself is a test request too.
-  const t = await hit("ticketmaster", { "user-agent": CHROME, ...NAV, "x-test": "1" }, 7);
+  const t = await hit("ticketmaster", { "user-agent": CHROME, ...TAP, "x-test": "1" }, 7);
   ok(!t.events.some((e) => e.event === "provider_redirect_refused"), "probe: the same request without wf_test is not refused (so the wf_test refusal below is caused by the tag)");
   const { GET: tmGET } = await import(REPO + "app/api/ticketmaster/go/route.js");
   const before = captured.length;
-  const tr = await tmGET({ url: "http://localhost:3000/api/ticketmaster/go?" + ROUTES.ticketmaster.q(8) + "&wf_test=qa-run", headers: mkHeaders({ "user-agent": CHROME, ...NAV }) });
+  const tr = await tmGET({ url: "http://localhost:3000/api/ticketmaster/go?" + ROUTES.ticketmaster.q(8) + "&wf_test=qa-run", headers: mkHeaders({ "user-agent": CHROME, ...TAP }) });
   await new Promise((s) => setImmediate(s));
   const tev = captured.slice(before);
   ok(tr.status === 302 && !String(tr.headers.get("location")).includes("ticketmaster.com") && tr.headers.get("x-wayfind-refused") === "qa/test-param" && tev.some((e) => e.event === "provider_redirect_refused"), `?wf_test= on the go link is refused as qa/test-param (${tr.headers.get("location")}, ${tr.headers.get("x-wayfind-refused")})`);
