@@ -76,8 +76,7 @@ export default function TrendingSocialShelf({ center = null, onTrack = null }) {
               title={item.title}
               eyebrow={socialEyebrow(item)}
               rank={index + 1}
-              when={socialWhen(item) ? { label: socialWhen(item) } : null}
-              facts={[item.entity.city, more].filter(Boolean)}
+              facts={[socialWhen(item), item.entity.city, more].filter(Boolean)}
               take={(item.trend && item.trend.labels && item.trend.labels[0]) || item.caption || null}
               ctaNode={<div className="wf-trend-social-links" style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                 <a className="wf-place-card-book wf-rail-card-cta" href={item.permalink} target="_blank" rel="noopener"
