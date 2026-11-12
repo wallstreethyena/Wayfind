@@ -39,6 +39,17 @@ create table if not exists public.wf_owned_social (
   -- Last day the post's content is useful (an event guide's end date). Null =
   -- evergreen; lib/ownedSocial.js then applies the freshness window.
   relevant_until     date,
+  -- Evergreen place content (a cafe, a park, a shop) stays live past the
+  -- freshness window while it is still useful. Dated guides never use this:
+  -- relevant_until always wins, so an expired event guide disappears on time.
+  evergreen          boolean not null default false,
+  -- Where the eligibility call came from. 'audit' and 'owner' decisions are
+  -- never changed by automation: the sync only inserts new posts and refreshes
+  -- source fields, so an excluded ad, meme, duplicate or out-of-state post can
+  -- not be silently re-added.
+  decision_source    text not null default 'auto' check (decision_source in ('auto', 'audit', 'owner')),
+  -- Matching Wayfind pages for the post: [{"label": "...", "href": "/florida-events/<slug>" | "/p/<place id>"}].
+  wayfind_links      jsonb not null default '[]'::jsonb check (jsonb_typeof(wayfind_links) = 'array'),
   eligibility        text not null default 'eligible' check (eligibility in ('eligible', 'excluded')),
   -- No silent omissions: an excluded row must say why, an eligible row must not.
   exclusion_reason   text check (exclusion_reason is null or exclusion_reason in (

@@ -33,17 +33,57 @@ Default: **eligible**. A post is excluded only with a stored reason (CHECK const
 ## What the shelf shows
 
 `lib/ownedSocial.js selectShelf`: every published, eligible Reel and carousel that is
-**live**, newest first, one card per post, never capped. Live means `relevant_until`
-has not passed (dated guides) or, when undated, published within 45 days. Expired
-posts stay in the table and are counted as excluded with reason `expired`. The
-shelf is its own row at the top of Trending and never takes a slot from the five
+**live**, newest first, one card per post, never capped. Live means:
+
+- dated guides (`relevant_until` set): until that date, then hidden automatically;
+- `evergreen = true` place content: stays live past the window;
+- everything else: published within 45 days.
+
+Expired posts stay in the table and are counted as excluded with reason `expired`.
+The shelf is its own row at the top of Trending and never takes a slot from the five
 earned shelves, so owned posts cannot starve or be starved.
+
+**Paging.** `/api/owned-social?offset=N` serves 12 posts per page (max 24) with
+`total` and `next_offset`. The shelf loads page 1, then the next page only when the
+visitor swipes near the end. CDN cache 5 min, stale-while-revalidate 10 min.
+
+**Reel and carousel pairs.** The stronger post is eligible; the twin is excluded as
+`companion_duplicate` with `companion_of` naming the kept post. Both stay in the table.
+
+**Titles.** `cleanDisplayTitle` strips leaked internal phrases ("here it is with",
+"main carousel caption", "comment X and I'll send", "link in bio", URLs), emoji and
+dashes, caps at 60 characters, and falls back to "Wayfind Reel, <city>". Instagram
+captions themselves are never modified.
+
+**Playback and links.** Tapping plays the post in a Wayfind dialog (iframe unmounts
+on close, so audio stops), with `@gowayfind.app`, "Watch on Instagram" and, from
+`wayfind_links`, "See <x> on Wayfind" (same-site `/florida-events/<slug>` or `/p/<id>`
+only, max 4).
+
+**Decisions are sticky.** `decision_source` is `auto`, `audit` or `owner`. Sync never
+changes eligibility, reason, title, evergreen or links on an existing row: the insert
+ignores duplicates and the follow-up PATCH sets only `last_seen_at`, `lifecycle`,
+`updated_at` (locked by the regression guard).
+
+## Analytics funnel (PostHog)
+
+`owned_social_impression` (shelf 40% on screen, once) → `owned_social_open` (card tap,
+with rank) → `owned_social_player_loaded` (embed loaded; Instagram reports no play
+event to the page, so this is the honest proxy for a play) → `owned_social_instagram_open`
+/ `owned_social_wayfind_open`.
+
+## Runtime only, never a deploy blocker
+
+The build guard locks code and invariants with fixtures. Real posts, Metricool and
+Instagram are checked only at runtime by the cron below, which alerts through
+job-watch. An outage or an old post can never block a deploy; a failed shelf read
+renders nothing and leaves the other Trending shelves untouched.
 
 ## Monitoring (fail loud)
 
 `/api/cron/owned-social` (twice daily) fetches the shelf **through the CDN** the way
 a visitor does, reconciles it against the table, and pulses
-`owned-social-reconcile` with `succeeded = 1` only when missing = 0, broken = 0 and
+`owned-social-reconcile` (walking every page) with `succeeded = 1` only when missing = 0, broken = 0 and
 ingestion is fresh (last ingest within 36 h). Two failed runs in a row are a
 job-watch incident; a dead shelf endpoint (`unavailable:`) pages on the first run.
 The note names the first offending shortcodes.
@@ -64,13 +104,15 @@ D missing from Wayfind · E excluded with reason · F broken. C, D and F are def
 Scheduled task "Wayfind Instagram → Trending ingestion", 8:47 AM and 8:47 PM ET,
 created only after `wf_owned_social` exists. Each run:
 
-1. Read every Instagram Reel (Metricool IGRE02/IGRE04/IGRE06/IGRE03/IGRE05) and
-   feed post (IGPO02/IGPO04/IGPO06/IGPO07/IGPO03/IGPO05) for brand 6668336 from
-   2026-08-01 to now, in date windows small enough for the tool, plus scheduled
-   posts (`getScheduledPosts`, inserted with lifecycle `scheduled`).
+1. Incremental: read Reels (Metricool IGRE02/IGRE04/IGRE06/IGRE03/IGRE05) and feed
+   posts (IGPO02/IGPO04/IGPO06/IGPO07/IGPO03/IGPO05) for brand 6668336 only from the
+   watermark (newest `published_at` in the table minus 3 days) to now. Once a week
+   (Sunday evening run) sweep from 2026-08-01 to catch deletions. Never reprocess
+   the full catalog on an ordinary run.
 2. For each post not yet in `wf_owned_social`: classify it with the rules above
    (default eligible; exclusion only with a listed reason), write a dash free
-   title of at most 60 characters, city, region, places, relevant_until.
+   title of at most 60 characters, city, region, places, relevant_until, evergreen,
+   `decision_source = 'auto'`.
 3. Upsert by shortcode (never overwrite an existing classification), refresh
    `cover_source_url` for rows without a stored cover, mark scheduled rows
    `published` once Metricool lists them as published.

@@ -78,7 +78,7 @@
   },
   {
     "file": "supabase/migrations/20261112190000_wf_owned_social.sql",
-    "sha256": "1c9fd4bb2f45d57d7033b5396a59571f7d64ab1f7ea8c9661c048df4a7896ab7",
+    "sha256": "b3ecbd8490447722edb7a2103955c3b720574c6132437cd520e29467adb27d1a",
     "decision_owner": "wallstreethyena",
     "tracking": "#2437",
     "reason": "NOT APPLIED. New table wf_owned_social (RLS on, public read of published+eligible only, no write policies) and public storage bucket owned-social, for the Instagram to Trending guarantee. No existing object changes. Rollback: drop the table, empty and delete the bucket. Claude's apply_migration was refused by the session's production-deploy gate on 2026-11-12, so the owner applies (or approves the apply) after review; then the 167-post backfill and the daily Metricool ingestion task follow."

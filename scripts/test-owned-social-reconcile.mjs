@@ -15,7 +15,9 @@ import { loadComponent } from "./lib/jsxLoad.mjs";
 import {
   selectShelf, toShelfItem, reconcile, ingestionFreshness, shelfBlocker, normalizeAsset,
   canonicalPermalink, parsePermalink, deriveTitle, LIVE_WINDOW_DAYS, EXCLUSION_REASONS,
+  shelfPage, cleanDisplayTitle, safeWayfindLinks, rowDefect, SHELF_PAGE_SIZE,
 } from "../lib/ownedSocial.js";
+import { upsertSourceRows } from "../lib/ownedSocialStore.js";
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 let pass = 0, fail = 0;
@@ -55,6 +57,37 @@ ok(carousel && carousel.format === "carousel" && carousel.permalink === "https:/
 const image = normalizeAsset({ permalink: "https://www.instagram.com/p/AbCdEfGh1/", type: "FEED_IMAGE" }, { source: "metricool" });
 ok(image.eligibility === "excluded" && image.exclusion_reason === "format_single_image", "a single photo is excluded WITH its reason, never dropped");
 ok(!/[‐-―-]/.test(deriveTitle("Snow. Ice. Cocktails — Florida - 8 picks")), "derived titles carry no dashes");
+
+// Evergreen place content outlives the window; dated guides still expire on their date.
+ok(shelfBlocker({ ...ROWS.find((r) => r.shortcode === "ReelOld001"), evergreen: true }, TODAY) === null, "an evergreen place post stays live past the 45 day window");
+ok(shelfBlocker({ ...ROWS.find((r) => r.shortcode === "ReelPast01"), evergreen: true }, TODAY) === "expired", "a dated event guide expires on its date even if marked evergreen");
+
+// Paging: unlimited catalog, small first page, pages cover everything exactly once.
+const many = Array.from({ length: 30 }, (_, i) => row("ReelPage" + String(i).padStart(2, "0"), { published_at: new Date(Date.parse("2026-11-11T12:00:00Z") - i * 3600000).toISOString() }));
+const p1 = shelfPage(many, TODAY), p2 = shelfPage(many, TODAY, { offset: p1.next_offset }), p3 = shelfPage(many, TODAY, { offset: p2.next_offset });
+const pagedCodes = [...p1.items, ...p2.items, ...p3.items].map((i) => i.shortcode);
+ok(p1.items.length === SHELF_PAGE_SIZE && SHELF_PAGE_SIZE <= 12 && p1.total === 30 && p1.next_offset === 12, `first page is small (${p1.items.length} of ${p1.total}, next ${p1.next_offset})`);
+ok(p3.next_offset === null && pagedCodes.length === 30 && new Set(pagedCodes).size === 30, "pages reach every post exactly once and end with next_offset null");
+ok(shelfPage(many, TODAY, { limit: 9999 }).items.length <= 24, "a client cannot ask for an unbounded page");
+
+// Display titles: the leaked internal phrases never reach a card; originals are untouched.
+const leaked = "Here it is with the hook: Ed Sheeran or $0? Comment TAMPA and I'll send the list. Which one are you doing first? Link in bio";
+const cleaned = cleanDisplayTitle(leaked, { format: "reel", city: "Tampa" });
+ok(cleaned === "Ed Sheeran or $0?", `leaked caption phrases are stripped from the display title (got "${cleaned}")`);
+ok(cleanDisplayTitle("main carousel caption 🔥 — https://x.co/a", { format: "carousel", city: "Tampa" }) === "Wayfind Carousel, Tampa", "a title with nothing usable falls back to the format and city");
+ok(cleanDisplayTitle("x".repeat(30) + " " + "y".repeat(40)).length <= 60, "display titles cap at 60 characters");
+ok(toShelfItem(row("ReelLeak01", { title: leaked })).title === "Ed Sheeran or $0?", "the shelf item carries the cleaned title");
+
+// Wayfind links: same-site event and place pages only.
+const links = safeWayfindLinks([
+  { label: "Tampa Bay Lightning", href: "/florida-events/lightning-vs-bruins-2026-11-14" },
+  { label: "Place", href: "/p/ChIJabcdef123" },
+  { label: "Off site", href: "https://evil.example/x" },
+  { label: "Script", href: "javascript:alert(1)" },
+  { label: "Protocol relative", href: "//evil.example/p/ChIJabcdef123" },
+]);
+ok(links.length === 2 && links.every((l) => l.href.startsWith("/florida-events/") || l.href.startsWith("/p/")), `only same-site Wayfind links survive (got ${JSON.stringify(links)})`);
+ok(rowDefect(row("ReelLinks1", { wayfind_links: "nope" })) === "bad_links" && rowDefect(row("ReelLinks2", { wayfind_links: [] })) === null, "a malformed links field is a defect, an empty list is fine");
 
 // ── 2. Reconciliation: green on the correct shelf ───────────────────────────
 const served = shelf.map(toShelfItem);
@@ -128,6 +161,17 @@ const apiBody = await apiRes.json();
 ok(apiRes.status === 200 && apiBody.ok === true && JSON.stringify(apiBody.items.map((i) => i.shortcode)) === JSON.stringify(["ReelLive01", "CarLive001"]), `/api/owned-social serves every live post newest first and no draft (got ${JSON.stringify(apiBody.items && apiBody.items.map((i) => i.shortcode))})`);
 stub({ tableRows: liveRows, tableOk: false });
 const apiFail = await shelfGET();
+const pagedRows = Array.from({ length: 15 }, (_, i) => row("ReelApi" + String(i).padStart(3, "0"), { published_at: iso(i % 40) }));
+stub({ tableRows: pagedRows });
+const page2 = await (await shelfGET(new Request("https://www.gowayfind.com/api/owned-social?offset=12"))).json();
+ok(page2.ok === true && page2.items.length === 3 && page2.total === 15 && page2.next_offset === null, `/api/owned-social?offset=12 serves the last page (got ${page2.items && page2.items.length} of ${page2.total}, next ${page2.next_offset})`);
+// The incremental upsert never sends a classification field: audited and owner decisions survive every sync.
+const sent = [];
+await upsertSourceRows([{ shortcode: "ReelLive01", format: "reel" }], { env: { SUPABASE_URL: "https://stub.supabase.co", SUPABASE_SERVICE_ROLE_KEY: "stub" }, fetchImpl: async (u, init) => { sent.push(init); return { ok: true, status: 204 }; } });
+const patch = sent.find((x) => x.method === "PATCH");
+const insertPrefer = (sent.find((x) => x.method === "POST") || {}).headers || {};
+ok(patch && Object.keys(JSON.parse(patch.body)).sort().join(",") === "last_seen_at,lifecycle,updated_at", `the sync PATCH touches only seen/lifecycle fields (got ${patch && patch.body})`);
+ok(/ignore-duplicates/.test(JSON.stringify(insertPrefer)), "the sync insert ignores existing rows instead of overwriting them");
 ok(apiFail.status === 503 && (await apiFail.json()).ok === false, "a failed table read answers 503, never an empty shelf");
 
 const { GET: cronGET } = await import("../app/api/cron/owned-social/route.js");
@@ -145,18 +189,45 @@ stub({ tableRows: liveRows, servedBody: { ok: false, error: "x" } });
 await cronGET(cronReq());
 const pu = lastPulse("owned-social-reconcile");
 ok(pu && pu.succeeded === 0 && /^unavailable:/.test(pu.note), "a dead shelf endpoint is an immediate incident (unavailable: prefix)");
+// The monitor walks every served page: a post on page 2 is not "missing".
+const bigRows = Array.from({ length: 30 }, (_, i) => row("ReelBig" + String(i).padStart(3, "0"), { published_at: iso(i % 40) }));
+const allServed = selectShelf(bigRows, today).map(toShelfItem);
+const pageCalls = [];
+stub({ tableRows: bigRows });
+const pagedFetch = globalThis.fetch;
+globalThis.fetch = async (url, init) => {
+  const u = String(url);
+  if (u.includes("/api/owned-social")) {
+    const off = Number(new URL(u).searchParams.get("offset") || 0);
+    pageCalls.push(off);
+    const items = allServed.slice(off, off + 24);
+    return { ok: true, status: 200, json: async () => ({ ok: true, items, total: allServed.length, next_offset: off + 24 < allServed.length ? off + 24 : null }), headers: { get: () => "application/json" } };
+  }
+  return pagedFetch(url, init);
+};
+await cronGET(cronReq());
+const pp = lastPulse("owned-social-reconcile");
+ok(pp && pp.succeeded === 1 && pageCalls.join(",") === "0,24", `the monitor reads every page before judging (pages ${pageCalls}, note ${pp && pp.note})`);
 const unauth = await cronGET(new Request("https://www.gowayfind.com/api/cron/owned-social"));
 ok(unauth.status === 401, "the monitor refuses unauthenticated calls");
 globalThis.fetch = realFetch;
 
+const strip = (src) => src.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "$1");
 // ── 5. What renders under TRENDING NOW ──────────────────────────────────────
 const shelfMod = await loadComponent(path.join(root, "app/components/OwnedSocialShelf.js"), root);
 const html = renderToStaticMarkup(createElement(shelfMod.OwnedSocialCards, { items: apiBody.items, onOpen: () => {} }));
 ok(/data-trending-rail="seen-on-wayfind"/.test(html) && /Seen on Wayfind/.test(html), "the Seen on Wayfind shelf renders");
 ok(apiBody.items.every((i) => html.includes(i.title)) && (html.match(/Wayfind Reel/g) || []).length === 1 && (html.match(/Wayfind Carousel/g) || []).length === 1, "one card per served post, Reels and carousels labeled");
 ok(renderToStaticMarkup(createElement(shelfMod.OwnedSocialCards, { items: [] })) === "", "an empty shelf renders nothing (no padding)");
+ok(/@gowayfind\.app/.test(html), "the shelf names @gowayfind.app");
+const shelfSrc = strip(readFileSync(path.join(root, "app/components/OwnedSocialShelf.js"), "utf8"));
+for (const ev of ["owned_social_impression", "owned_social_open", "owned_social_player_loaded", "owned_social_instagram_open", "owned_social_wayfind_open"]) {
+  ok((shelfSrc.match(new RegExp(`logEvent\\("${ev}"`, "g")) || []).length === 1, `funnel event ${ev} is captured exactly once`);
+}
+ok(/fetch\(`\/api\/owned-social\?offset=\$\{offset\}`\)/.test(shelfSrc) && /next_offset/.test(shelfSrc), "the shelf loads page by page from next_offset");
+ok(/href=\{OWNED_HANDLE_URL\}/.test(shelfSrc) && /Watch on Instagram/.test(shelfSrc), "the player links to @gowayfind.app and the original post");
+ok(/onLoad=\{onLoad\}/.test(strip(readFileSync(path.join(root, "app/components/CreatorVideoPlayer.js"), "utf8"))), "the player reports its load (player_loaded is measurable)");
 
-const strip = (src) => src.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "$1");
 const rails = strip(readFileSync(path.join(root, "app/components/TrendingRails.js"), "utf8"));
 ok(/import OwnedSocialShelf from "\.\/OwnedSocialShelf"/.test(rails) && /<OwnedSocialShelf[\s/>]/.test(rails), "TrendingRails mounts the Seen on Wayfind shelf");
 ok((rails.match(/\{owned\}/g) || []).length === 3, "the shelf renders on all three TrendingRails paths (loading, empty, full)");
@@ -165,4 +236,4 @@ ok((vercel.crons || []).some((c) => c.path === "/api/cron/owned-social"), "the p
 ok(EXCLUSION_REASONS.length === 8, "exclusion reasons match the table's CHECK list (8)");
 
 if (fail) { console.error(`test-owned-social-reconcile: FAIL (${fail} failed, ${pass} passed)`); process.exit(1); }
-console.log(`test-owned-social-reconcile: OK — ${pass} assertions by CALL: rules, reconciliation (9 negative controls each RED: missing Reel, missing carousel, never ingested, duplicate card, broken permalink, reasonless exclusion, hidden post, served draft, stray card), ingest freshness (3 RED controls), /api/owned-social (serves live posts, 503 on read failure), /api/cron/owned-social (GREEN, RED naming the missing Reel, unavailable incident, 401), rendered shelf and TrendingRails wiring on all 3 paths.`);
+console.log(`test-owned-social-reconcile: OK — ${pass} assertions by CALL: rules (evergreen, paging, display titles, same-site links), reconciliation (9 negative controls each RED: missing Reel, missing carousel, never ingested, duplicate card, broken permalink, reasonless exclusion, hidden post, served draft, stray card), ingest freshness (3 RED controls), /api/owned-social (serves live posts, pages, 503 on read failure), sync never overwrites classification, /api/cron/owned-social (GREEN, RED naming the missing Reel, unavailable incident, reads every page, 401), funnel events, rendered shelf and TrendingRails wiring on all 3 paths.`);

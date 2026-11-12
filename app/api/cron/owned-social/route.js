@@ -89,12 +89,21 @@ export async function GET(request) {
   // What a visitor actually gets, through the CDN.
   let served = [];
   let servedOk = false;
+  // Walk every page a visitor can reach by swiping (the shelf pages 12 at a time).
   try {
     const origin = new URL(request.url).origin;
-    const r = await fetch(`${origin}/api/owned-social`, { cache: "no-store" });
-    const body = await r.json();
-    if (r.ok && body && body.ok === true && Array.isArray(body.items)) { served = body.items; servedOk = true; }
-    else report.servedError = `HTTP ${r.status}${body && body.error ? ": " + body.error : ""}`;
+    let offset = 0;
+    for (let page = 0; page < 200; page++) {
+      const r = await fetch(`${origin}/api/owned-social?offset=${offset}&limit=24`, { cache: "no-store" });
+      const body = await r.json();
+      if (!(r.ok && body && body.ok === true && Array.isArray(body.items))) {
+        report.servedError = `HTTP ${r.status}${body && body.error ? ": " + body.error : ""}`;
+        break;
+      }
+      served.push(...body.items);
+      if (body.next_offset == null) { servedOk = true; break; }
+      offset = body.next_offset;
+    }
   } catch (e) { report.servedError = String(e.message || e).slice(0, 160); }
 
   const rec = reconcile({ sourceAssets, rows, served, todayStr: today });
