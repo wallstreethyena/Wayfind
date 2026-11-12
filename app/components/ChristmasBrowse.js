@@ -15,6 +15,7 @@ import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import ChristmasFilter from "./ChristmasFilter.js";
 import ChristmasWeekendRow from "./ChristmasWeekendRow.js";
+import ChristmasPlan from "./ChristmasPlan.js";
 import useChristmasLocation from "./useChristmasLocation.js";
 import { TicketCard } from "./ChristmasTicketCard.js";
 import { GuideCommissionLine } from "./GuideCommissionLine.js";
@@ -152,6 +153,9 @@ export default function ChristmasBrowse({ initial, facets, today, initialQuery =
       params.set(k, v);
       if (!(query.auto && PRIVATE_KEYS.has(k))) shown.set(k, v);
     }
+    // A shared plan link (?plan=) is not a filter; keep it so a reload or a
+    // copied URL still opens the friend's plan.
+    try { const plan = new URLSearchParams(location.search).get("plan"); if (plan) shown.set("plan", plan); } catch {}
     try { window.history.replaceState(null, "", shown.toString() ? "?" + shown.toString() + "#browse" : location.pathname + "#browse"); } catch {}
     const controller = new AbortController();
     setLoading(true); setFailed(false);
@@ -200,6 +204,7 @@ export default function ChristmasBrowse({ initial, facets, today, initialQuery =
   const hasPartner = cards.some((c) => c.ticketRow && c.ticketRow.cta && c.ticketRow.cta.kind === "affiliate");
   return <section id="browse" aria-label="Florida Christmas events" style={{ margin: "0 0 28px" }} data-christmas-browse="">
     <ChristmasWeekendRow initial={weekend} lat={located ? query.lat : null} lng={located ? query.lng : null} />
+    <ChristmasPlan />
     <div className="xm-controls" data-boo-clear="" role="toolbar" aria-label="Filter Christmas events">
       <ChristmasFilter query={query} facets={facets} onSet={set} onNear={nearMe} onReset={clearAll} />
       <span className="xm-sort-note">{ticketsFirst ? "Tickets first" : located ? "Top rated near you" : "Top rated and trending"}</span>

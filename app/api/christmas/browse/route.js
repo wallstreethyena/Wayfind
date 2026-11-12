@@ -10,6 +10,8 @@ export const dynamic = "force-dynamic";
 import { fetchCuratedEvents } from "../../../../lib/curatedEvents.js";
 import { siteTodayStr } from "../../../../lib/siteTime.js";
 import { christmasBrowseCached, parseChristmasBrowseQuery } from "../../../../lib/christmasBrowse.js";
+import { christmasPlanItems } from "../../../../lib/christmasPlan.js";
+import { christmasBrowseCardJson } from "../../../../lib/christmasBrowse.js";
 import { christmasBrowsePins } from "../../../../lib/christmasMap.js";
 import { christmasWeekendGroups } from "../../../../lib/christmasWeekend.js";
 import { attachBrowseTickets, fetchChristmasTicketDeals, withBrowseTicketPhotos } from "../../../../lib/christmasTickets.js";
@@ -29,6 +31,14 @@ export async function GET(request) {
       return Response.json({ today, total: pins.length, pins }, { headers: { "cache-control": "public, s-maxage=600, stale-while-revalidate=86400" } });
     }
     const dealsById = await fetchChristmasTicketDeals();
+    // ids=a,b,c: the visitor's saved plan. Untrusted ids are shaped, capped and
+    // checked against the real listings (lib/christmasPlan.js): unknown ids are dropped.
+    if (params.has("ids")) {
+      const items = christmasPlanItems(listings, params.get("ids"));
+      const planPage = { total: items.length, cards: items.map(christmasBrowseCardJson) };
+      const withPlanTickets = await withBrowseTicketPhotos(attachBrowseTickets(planPage, listings, today, dealsById), listings, today, dealsById);
+      return Response.json({ today, ids: items.map((c) => c.id), ...withPlanTickets }, { headers: { "cache-control": "public, s-maxage=300, stale-while-revalidate=3600" } });
+    }
     // group=weekend: the "This weekend" row, top 3 per category (lib/christmasWeekend.js),
     // the same card shape as the list.
     if (params.get("group") === "weekend") {
