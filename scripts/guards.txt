@@ -2368,6 +2368,7 @@ node scripts/check-christmas-rejected-photos.mjs
 node scripts/check-event-rail-photo-credits.mjs
 # Licensed static gallery batches (2026-11p+): free licence, author, Commons source, provenance row, file on disk.
 node scripts/check-christmas-static-gallery-rights.mjs
+node scripts/check-christmas-gallery-no-news-credit.mjs
 node scripts/test-area-twins.mjs
 node scripts/check-map-note-attribution.mjs
 node scripts/test-cc-alert-drill.mjs
