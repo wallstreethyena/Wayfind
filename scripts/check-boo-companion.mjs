@@ -63,7 +63,7 @@ ok(/inSeason\(\)/.test(comp.replace(/function\s+inSeason\s*\(\)/, "")), "inSeaso
 // 3. reserved paths
 const rp = comp.match(/const\s+RESERVED_PATHS\s*=\s*\[([^\]]*)\]/);
 ok(!!rp, "BooCompanion must declare const RESERVED_PATHS = [...]");
-if (rp) for (const p of ["/api", "/go", "/oauth", "/embed", "/share", "/group-plans"]) ok(rp[1].includes('"' + p + '"'), "RESERVED_PATHS must include " + p);
+if (rp) for (const p of ["/api", "/go", "/oauth", "/embed", "/share", "/group-plans", "/partners"]) ok(rp[1].includes('"' + p + '"'), "RESERVED_PATHS must include " + p);
 // Owner 2026-10-30: he never parks in front of text. Resting and bubble
 // placement read controls AND readable text blocks.
 {
@@ -71,6 +71,9 @@ if (rp) for (const p of ["/api", "/go", "/oauth", "/embed", "/share", "/group-pl
   ok(!!rs, "BooCompanion must declare const READ_SEL for text he must not cover");
   if (rs) for (const t of ["h1", "h2", "p", "li", "[role=alert]", "[role=status]", "[data-boo-clear]"]) ok(rs[1].split(",").includes(t), "READ_SEL must include " + t);
   ok(/querySelectorAll\(CONTROL_SEL \+ "," \+ READ_SEL\)/.test(comp), "controlRects must read controls and text together");
+  const sb = comp.slice(comp.indexOf("const showBubble = useCallback"), comp.indexOf("const sayRef"));
+  ok(/if \(!must\)[\s\S]*restLists\(true\)[\s\S]*bubbleSideIfClear\([^)]*\btxt\b[^)]*\)[\s\S]*return;/.test(sb), "an unprompted line with no clear side is skipped, never laid over text");
+  ok(/showBubble\(line, undefined, true\)/.test(comp) && /src === "coverage"/.test(comp), "the out-of-coverage explanation is never skipped");
 }
 ok(/reservedPath\(/.test(comp.replace(/function\s+reservedPath\s*\(/, "")), "reservedPath() must be called by the gate");
 
@@ -470,7 +473,7 @@ ok(/el\.matches\(PERCH_SEL\)\)\s*\{\s*const ps = perchSpot\(r, SIZE, b, ctl, MAX
   const bubble = body(/const showBubble = useCallback\([\s\S]*?\n  \}, \[corner\]\);/);
   const zap = body(/const zapBoo = useCallback\(\(\) => \{[\s\S]*?\n  \}, \[stopZap\]\);/);
   ok(/relocateIfCovered\(\)/.test(antic), "the guard runs on the antic path");
-  ok(/relocateIfCovered\(estimateBubble\(text\)\)/.test(bubble) && /sideFor\(/.test(bubble), "the guard and the side flip run on the bubble path");
+  ok((/relocateIfCovered\(estimateBubble\(text\)\)/.test(bubble) || (/const need = estimateBubble\(text\)/.test(bubble) && /relocateIfCovered\(need\)/.test(bubble))) && /sideFor\(/.test(bubble), "the guard and the side flip run on the bubble path");
   ok(/relocateIfCovered\(estimateBubble\(text\)\)/.test(zap) && /sideFor\(/.test(zap), "the guard and the side flip run on the zap path");
   ok(/parkClear\(\)/.test(comp.slice(comp.indexOf("const frame = (ts)"))), "arrival (pause) in the roam loop calls parkClear");
   // Cheap: the hit check is cached rect math per frame, with the layout read throttled to HIT_MS (100).
@@ -517,7 +520,7 @@ ok(/el\.matches\(PERCH_SEL\)\)\s*\{\s*const ps = perchSpot\(r, SIZE, b, ctl, MAX
   ok(/HIT_SEL\s*=\s*CONTROL_SEL[^;]*summary[^;]*label[^;]*\[role=link\][^;]*HEADER_SEL/.test(comp.replace(/\n/g, " ")) && /wf-topbar/.test(comp.match(/const HEADER_SEL = "[^"]*"/)[0]) && /wf-navtabs/.test(comp) && /boo-goto/.test(comp) && /boo-buy/.test(comp) && /boo-picks/.test(comp), "control list covers links, buttons, inputs, summary, label, role button/link, header rows, buy, goto, picks, chips");
   // Second line of defense only: a tap that still lands on the hit while a control is under it is handed over and counted.
   ok(/e\.detail > 0 && underTap\(e\)/.test(comp) && /elementsFromPoint\(/.test(comp) && /__booBackstop/.test(comp), "backstop: a tap on the hit with a control under it goes to the control (counted in window.__booBackstop)");
-  ok(/hitRef\.current\.focus\(/.test(comp.slice(comp.indexOf("const closeSheet"))), "closing the sheet returns focus to the hit button");
+  ok(/const back = hitRef\.current \|\| document\.querySelector\("\.wf-sd-av"\); if \(back\) back\.focus\(/.test(comp.slice(comp.indexOf("const closeSheet"))), "closing the sheet returns focus to the hit button (Boo) or Santa's dock avatar");
   // Reduced motion: bottom left, lifted clear of nav and sticky bars.
   ok(/const settleReduced = /.test(comp) && /pickClearSpot\(SIZE, b, list, \{ x: b\.minX, y: b\.maxY \}, rand, 0, MAX_COVER, null, txt\)/.test(comp), "reduced motion spot is checked clear of controls and text");
 }

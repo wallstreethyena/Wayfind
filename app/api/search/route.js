@@ -4,7 +4,7 @@
 import { searchOwnedPlaces } from "../../../lib/directSearch.js";
 import { resolveSearchIntent } from "../../../lib/searchIntent.js";
 import { searchLibrary } from "../../../lib/unifiedSearch.js";
-import { searchResultCards } from "../../../lib/searchCards.js";
+import { searchResultCards, isFreeOwnedPlace } from "../../../lib/searchCards.js";
 import { pluralFallbackQuery } from "../../../lib/searchRank.js";
 
 export const runtime = "nodejs";
@@ -45,6 +45,12 @@ export async function GET(request) {
     } catch {
       // The first answer stands.
     }
+  }
+  // A "free" search returns only places the free rule admits. The place
+  // matcher reads the raw query, and the client lists `places` as choices
+  // when there are no cards, so a paid name match must not ride along.
+  if (result && Array.isArray(result.places) && result.places.length && resolveSearchIntent(params.get("q"), { lat: params.get("lat"), lng: params.get("lng") }).free) {
+    result = { ...result, places: result.places.filter(isFreeOwnedPlace) };
   }
   // An out-of-coverage point, or a named city we do not cover, stays a place
   // miss. Gastonia must keep that exact JSON. A known phrase with no point
