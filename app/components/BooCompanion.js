@@ -24,7 +24,9 @@ import { MAX_COVER, rectOf, isClear, touchesAny, besideSpot, perchSpot, pickClea
 const HIDE_KEY = "wf_boo_hidden";
 // /group-plans: owner 2026-10-30, "get him out of the group pages". Friends
 // open those links to vote; nothing there should float over the ballot.
-const RESERVED_PATHS = ["/api", "/go", "/oauth", "/embed", "/share", "/group-plans"];
+// /partners: owner 2026-11-12, "Remove Santa from /partners. Keep the page
+// executive-grade, premium, clean and credible."
+const RESERVED_PATHS = ["/api", "/go", "/oauth", "/embed", "/share", "/group-plans", "/partners"];
 const HAUNT_PATH = "/halloween-in-florida";
 
 // Oct 1 through Oct 31 inclusive, by the Eastern site date (Santa takes Nov 1).
