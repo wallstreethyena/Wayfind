@@ -47,7 +47,9 @@ const ROUTE_CHUNK_BUDGET_KB = 175; // static/chunks/app/page-*.js, gzipped. RATC
 // the homepage measured 501.1KB on Vercel; later code splits brought it to
 // 488.1KB on Vercel (488.0 here), so the raise is no longer needed and the
 // ratchet comes back down to measured + 4KB.
-const TOTAL_BUDGET_KB = 492;       // every JS asset for route "/", gzipped.  RATCHET: lower only.
+const TOTAL_BUDGET_KB = 494;       // every JS asset for route "/", gzipped.  RATCHET: lower only.
+// 2026-11-12 owner decision (Gabe, in chat): raised 492 -> 494 so the eight
+// Christmas creator reels (PR #2418) ship; main sat at 490.9KB with 1.1KB headroom.
 const WARN_HEADROOM_KB = 2;        // print a loud warning below this. See below.
 // Vercel's gzip has measured up to ~0.6KB more than this machine for the same
 // tree (500.9 here vs 501.1 on Vercel for #2190, 2026-11-04, which failed six
