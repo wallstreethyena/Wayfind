@@ -321,8 +321,8 @@ ok(governedWayfindScore(90, { hasCreatorVideo: true, trending: true, distanceMi:
   // keys on city — so this assertion was quietly holding the creator term dead
   // as a precondition of checking the trending term. The city argument is now
   // required; the trending-flag assertion itself is unchanged and still binds.
-  ok(/governedWayfindScore\(q, \{ hasCreatorVideo: hasCreatorVideoAt\(p, [A-Za-z_$][\w$.]*\), hasFeaturedCreatorVideo: hasFeaturedCreatorVideoAt\(p, [A-Za-z_$][\w$.]*\), distanceMi: [^}]*trending: !!p\.trending \}\)/.test(land),
-    "rankedFor's governed call carries the trending flag AND passes the city to hasCreatorVideoAt");
+  ok(/governedWayfindScore\(q, \{ hasCreatorVideo: hasScoringCreatorVideoAt\(p, [A-Za-z_$][\w$.]*\), hasFeaturedCreatorVideo: hasFeaturedCreatorVideoAt\(p, [A-Za-z_$][\w$.]*\), distanceMi: [^}]*trending: !!p\.trending \}\)/.test(land),
+    "rankedFor's governed call carries the trending flag AND passes the city to hasScoringCreatorVideoAt (score-eligible creators only, 2026-11-12)");
   const rankingWhy = readFileSync(path.resolve("lib/rankingWhy.js"), "utf8");
   ok(/export function whyLine\s*\(/.test(land) && /rankingWhyLine\(p\)/.test(land),
     "landing whyLine is the ranking-surface export and delegates to rankingWhyLine");
