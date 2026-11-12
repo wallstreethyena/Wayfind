@@ -66,6 +66,11 @@ export default function TrendingSocialShelf({ center = null, onTrack = null }) {
             };
             return <RailCard key={item.id} className="wf-exploding-primary"
               photo={item.cover && item.cover.src || null}
+              photoAttr={item.cover && item.cover.credit ? item.cover.credit.label : undefined}
+              photoAttrHref={item.cover && item.cover.credit && item.cover.credit.href ? item.cover.credit.href : undefined}
+              photoFallback={item.cover && item.cover.fallback || undefined}
+              photoFallbackCategory={item.entity.type === "place" ? "attractions" : "events"}
+              eagerMedia={index < 6}
               placeholder={item.cover ? null : { icon: item.format === "reel" ? "🎬" : "🖼️", label: socialEyebrow(item), tint: "linear-gradient(160deg,#3a1f4d,#12091a)" }}
               title={item.title}
               eyebrow={socialEyebrow(item)}
