@@ -22,11 +22,16 @@
 //
 // HOW IT MEASURES (the way @vercel/next 4.x builds a function, read from its
 // source): each function = a shared base layer + the route's own trace.
-//   base  = .next/next-server.js.nft.json files
+//   base  = .next/next-minimal-server.js.nft.json files (the bundled server,
+//           Next >= 13.5.4 — this repo; next-server.js.nft.json only for
+//           older Next, as in the builder)
 //         + .next/server/instrumentation.js.nft.json files (if any)
 //         + required-server-files.json "files"
 //   route = the route file + its <route>.js.nft.json files
-//         + the pages-router internals (_app, _document, _error) when built
+//         + the internals _app, _document, _error (added to EVERY function)
+//         + app/_not-found (added to every App Router function)
+// A Node route with no .nft.json FAILS the gate: the builder would trace it
+// itself, so a missing trace means the size is unknown, never small.
 // Sizes are lstat sizes of real files (a symlink counts as itself, as in the
 // builder), each file once. Vercel may pack several small routes into one
 // function, but only up to 225 MiB, and a route too big for that gets its own
@@ -52,6 +57,7 @@ export const FAIL_AT_BYTES = 200 * MIB;
 export const WARN_AT_BYTES = 150 * MIB;
 
 const INTERNAL_PAGES = ["/_app", "/_document", "/_error"];
+const APP_NOT_FOUND = "/_not-found/page";
 const mb = (b) => (b / MIB).toFixed(1);
 
 function readJson(file) {
@@ -59,8 +65,9 @@ function readJson(file) {
 }
 
 // Absolute paths of the files an .nft.json lists (they are relative to it).
+// null when the trace file does not exist.
 function traceFiles(nftFile) {
-  if (!existsSync(nftFile)) return [];
+  if (!existsSync(nftFile)) return null;
   const dir = path.dirname(nftFile);
   return (readJson(nftFile).files || []).map((f) => path.resolve(dir, f));
 }
@@ -112,8 +119,11 @@ export function measureFunctions(nextDir, { projectDir = path.dirname(nextDir) }
     throw new Error(`no build output at ${nextDir} — run \`next build\` first`);
   }
   const cache = new Map();
-  const base = new Set(traceFiles(path.join(nextDir, "next-server.js.nft.json")));
-  for (const f of traceFiles(path.join(nextDir, "server", "instrumentation.js.nft.json"))) base.add(f);
+  const serverTrace = ["next-minimal-server.js.nft.json", "next-server.js.nft.json"]
+    .map((f) => path.join(nextDir, f)).find((f) => existsSync(f));
+  if (!serverTrace) throw new Error(`no next-minimal-server.js.nft.json or next-server.js.nft.json in ${nextDir} — cannot measure the shared server files`);
+  const base = new Set(traceFiles(serverTrace));
+  for (const f of traceFiles(path.join(nextDir, "server", "instrumentation.js.nft.json")) || []) base.add(f);
   const rsfPath = path.join(nextDir, "required-server-files.json");
   if (existsSync(rsfPath)) {
     for (const f of readJson(rsfPath).files || []) base.add(path.resolve(projectDir, f));
@@ -130,18 +140,23 @@ export function measureFunctions(nextDir, { projectDir = path.dirname(nextDir) }
       if (pm[r] && String(pm[r]).endsWith(".js")) internal.push(path.join(serverDir, pm[r]));
     }
   }
+  const appNotFound = routes.find((r) => r.route === APP_NOT_FOUND);
 
   const rows = [];
   for (const { route, file, router } of routes) {
     const own = new Map(); // file -> size, excluding the base layer
-    for (const entry of [...(router === "pages" ? internal : []), file]) {
-      for (const f of [entry, ...traceFiles(entry + ".nft.json")]) {
+    const untraced = [];
+    const entries = [...internal, file, ...(router === "app" && appNotFound && appNotFound.file !== file ? [appNotFound.file] : [])];
+    for (const entry of entries) {
+      const traced = traceFiles(entry + ".nft.json");
+      if (traced === null) untraced.push(path.relative(serverDir, entry));
+      for (const f of [entry, ...(traced || [])]) {
         if (!base.has(f) && !own.has(f)) own.set(f, sizeOf(f, cache));
       }
     }
     let ownBytes = 0;
     for (const s of own.values()) ownBytes += s;
-    rows.push({ route, bytes: baseBytes + ownBytes, ownBytes, files: own });
+    rows.push({ route, bytes: baseBytes + ownBytes, ownBytes, files: own, untraced });
   }
   rows.sort((a, b) => b.bytes - a.bytes);
   return { baseBytes, baseFiles: base.size, rows };
@@ -163,6 +178,10 @@ export function runFunctionSizeGate(nextDir, opts = {}) {
   const projectDir = opts.projectDir || path.dirname(nextDir);
   const { baseBytes, rows } = measureFunctions(nextDir, { projectDir });
   const lines = [];
+  const unmeasured = rows.filter((r) => r.untraced.length);
+  for (const r of unmeasured) {
+    lines.push(`check-function-size: FAIL — ${r.route} has no file trace (${r.untraced.join(", ")}.nft.json missing), so its size is unknown. Vercel would trace it itself and could find anything. Re-run \`next build\`; if it persists, the route's build output is incomplete.`);
+  }
   const failing = rows.filter((r) => r.bytes >= FAIL_AT_BYTES);
   const warning = rows.filter((r) => r.bytes >= WARN_AT_BYTES && r.bytes < FAIL_AT_BYTES);
   for (const r of failing) {
@@ -179,15 +198,15 @@ export function runFunctionSizeGate(nextDir, opts = {}) {
   }
   const top = rows[0];
   lines.push(
-    failing.length
-      ? `check-function-size: FAIL — ${failing.length} of ${rows.length} functions at or over ${mb(FAIL_AT_BYTES)} MiB.`
+    failing.length || unmeasured.length
+      ? `check-function-size: FAIL — ${failing.length} of ${rows.length} functions at or over ${mb(FAIL_AT_BYTES)} MiB, ${unmeasured.length} without a file trace.`
       : `check-function-size: OK — ${rows.length} functions; largest ${top ? `${top.route} ${mb(top.bytes)} MiB` : "none"} (gate ${mb(FAIL_AT_BYTES)} MiB, Vercel limit ${mb(VERCEL_LIMIT_BYTES)} MiB); shared server files ${mb(baseBytes)} MiB.`,
   );
-  return { ok: failing.length === 0, lines, rows, baseBytes };
+  return { ok: failing.length === 0 && unmeasured.length === 0, lines, rows, baseBytes };
 }
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1])) {
-  const nextDir = path.resolve(process.argv[2] || ".next");
+  const nextDir = path.resolve(process.argv.slice(2).find((a) => !a.startsWith("--")) || ".next");
   const { ok, lines, rows } = runFunctionSizeGate(nextDir);
   if (process.argv.includes("--top")) {
     for (const r of rows.slice(0, 10)) console.log(`  ${mb(r.bytes).padStart(8)} MiB  ${r.route}`);

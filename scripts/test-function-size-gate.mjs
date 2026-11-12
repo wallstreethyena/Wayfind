@@ -26,7 +26,7 @@ const ok = (c, msg) => { assert.ok(c, msg); n++; };
 const tmpRoots = [];
 
 // A fake project: { base: {file: MiB}, routes: {route: {file: MiB}}, edge: [route] }
-function fixture({ base = {}, routes = {}, edge = [], pages = {} }) {
+function fixture({ base = {}, routes = {}, edge = [], pages = {}, legacyServerTrace = false, untraced = [] }) {
   const root = mkdtempSync(path.join(tmpdir(), "wf-fnsize-"));
   tmpRoots.push(root);
   const next = path.join(root, ".next");
@@ -41,7 +41,9 @@ function fixture({ base = {}, routes = {}, edge = [], pages = {} }) {
   };
   // Base layer: next-server trace (paths relative to .next).
   const baseFiles = Object.entries(base).map(([f, mib]) => (put(f, mib), path.relative(next, path.join(root, f))));
-  writeFileSync(path.join(next, "next-server.js.nft.json"), JSON.stringify({ version: 1, files: baseFiles }));
+  // Next >= 13.5.4 (this repo) ships the bundled server; the builder reads
+  // next-minimal-server.js.nft.json and ignores the full next-server trace.
+  writeFileSync(path.join(next, legacyServerTrace ? "next-server.js.nft.json" : "next-minimal-server.js.nft.json"), JSON.stringify({ version: 1, files: baseFiles }));
   writeFileSync(path.join(next, "required-server-files.json"), JSON.stringify({ files: [".next/BUILD_ID"] }));
   put(".next/BUILD_ID", 0.001);
   const appPaths = {};
@@ -54,7 +56,7 @@ function fixture({ base = {}, routes = {}, edge = [], pages = {} }) {
       if (mib !== null) put(f, mib);
       return path.relative(path.dirname(routeFile), abs);
     });
-    writeFileSync(routeFile + ".nft.json", JSON.stringify({ version: 1, files: traced }));
+    if (!untraced.includes(route)) writeFileSync(routeFile + ".nft.json", JSON.stringify({ version: 1, files: traced }));
   }
   writeFileSync(path.join(server, "app-paths-manifest.json"), JSON.stringify(appPaths));
   writeFileSync(path.join(server, "middleware-manifest.json"),
@@ -134,6 +136,25 @@ try {
   ok(em.rows.some((r) => r.route === "/legacy") && !em.rows.some((r) => r.route === "/_app"), "F2 pages routes are measured, internals are not functions of their own");
   const legacy = em.rows.find((r) => r.route === "/legacy");
   ok(legacy.ownBytes > 2.4 * MIB, "F3 a pages route carries _app and _document");
+  const nodeRoute = em.rows.find((r) => r.route === "/api/node/route");
+  ok(nodeRoute.ownBytes > 2.9 * MIB, "F4 an App Router route carries _app and _document too (the builder adds them to every function)");
+
+  // F'. App Router functions also carry app/_not-found.
+  const nf = fixture({
+    base: { "node_modules/next/x.js": 10 },
+    routes: { "/api/a/route": { "lib/a.js": 1 }, "/_not-found/page": { "lib/notfound-big.js": 30 } },
+  });
+  const nfa = measureFunctions(nf.next).rows.find((r) => r.route === "/api/a/route");
+  ok(nfa.ownBytes > 30 * MIB, `F5 an App Router function carries _not-found's files (${(nfa.ownBytes / MIB).toFixed(1)} MiB)`);
+
+  // F''. The base is the bundled-server trace when it exists, as in the builder.
+  const both = fixture({ base: { "node_modules/next/minimal.js": 5 }, routes: { "/api/b/route": { "lib/b.js": 1 } } });
+  const decoy = path.join(both.root, "node_modules/next/full-server.js");
+  writeFileSync(decoy, ""); truncateSync(decoy, 230 * MIB);
+  writeFileSync(path.join(both.next, "next-server.js.nft.json"), JSON.stringify({ version: 1, files: [path.relative(both.next, decoy)] }));
+  ok(runFunctionSizeGate(both.next).ok === true, "F6 next-minimal-server.js.nft.json wins over next-server.js.nft.json");
+  const old = fixture({ base: { "node_modules/next/full.js": 195 }, routes: { "/api/c/route": { "lib/c.js": 10 } }, legacyServerTrace: true });
+  ok(runFunctionSizeGate(old.next).ok === false, "F7 without the bundled server, next-server.js.nft.json is the base");
 
   // G. A symlink counts as the link, not its target (the builder lstat()s).
   const link = fixture({ base: { "node_modules/next/x.js": 10 }, routes: { "/api/l/route": { "lib/l.js": 1 } } });
@@ -154,6 +175,15 @@ try {
   ok(cliBad.status === 1 && /FAIL — \/api\/og\/movie\/route is 270/.test(cliBad.stderr), `C7 the CLI exits 1 and prints the failure (status ${cliBad.status})`);
   ok(cliGood.status === 0 && /check-function-size: OK/.test(cliGood.stdout), `C8 the CLI exits 0 on a normal build (status ${cliGood.status})`);
 
+  // G'. A Node route without a file trace fails: its size is unknown, not small.
+  const blind = fixture({ base: { "node_modules/next/x.js": 10 }, routes: { "/api/blind/route": { "lib/z.js": 1 } }, untraced: ["/api/blind/route"] });
+  const bl = runFunctionSizeGate(blind.next);
+  ok(bl.ok === false && bl.lines.some((l) => /FAIL — \/api\/blind\/route has no file trace/.test(l)), "G2 a route with no .nft.json fails the gate");
+  // ...and no server trace at all is an error, not a pass.
+  const noBase = fixture({ routes: { "/api/n/route": { "lib/n.js": 1 } } });
+  rmSync(path.join(noBase.next, "next-minimal-server.js.nft.json"));
+  assert.throws(() => runFunctionSizeGate(noBase.next), /cannot measure the shared server files/); n++;
+
   // H. No build output is an error, not a silent pass.
   assert.throws(() => runFunctionSizeGate(path.join(tmpdir(), "wf-no-such-build-" + process.pid, ".next")), /run `next build` first/); n++;
 
@@ -171,4 +201,4 @@ try {
   for (const r of tmpRoots) rmSync(r, { recursive: true, force: true });
 }
 
-console.log(`test-function-size-gate: OK — ${n} assertions (gate called on 7 fake builds: pass, #2044-shaped fail, shared-layer fail, dedupe, warn band, edge/pages, symlink; CLI exit codes; missing build throws; wired after the build in CI and on Vercel)`);
+console.log(`test-function-size-gate: OK — ${n} assertions (gate called on 12 fake builds: pass, #2044-shaped fail, shared-layer fail, dedupe, warn band, edge/pages, internals + _not-found on every route, bundled-server base, untraced route fails, symlink; CLI exit codes; missing build throws; wired after the build in CI and on Vercel)`);
