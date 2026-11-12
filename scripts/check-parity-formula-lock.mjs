@@ -68,9 +68,9 @@ ok(/q == null/.test(landing) && /q == null/.test(parity),
 //
 // The city argument is now REQUIRED on both sides, so parity still binds AND
 // the thing it holds constant is the ranker the site actually runs.
-ok(/governedWayfindScore\(q, \{ hasCreatorVideo: hasCreatorVideoAt\(p, [A-Za-z_$][\w$.]*\)/.test(landing),
-  "lib/landing.js ranks through governedWayfindScore AND passes the city to hasCreatorVideoAt — bare, it is false for every place and the creator term does nothing");
-ok(/governedWayfindScore\(q, \{ hasCreatorVideo: hasCreatorVideoAt\(p, [A-Za-z_$][\w$.]*\)/.test(parity),
+ok(/governedWayfindScore\(q, \{ hasCreatorVideo: hasScoringCreatorVideoAt\(p, [A-Za-z_$][\w$.]*\)/.test(landing),
+  "lib/landing.js ranks through governedWayfindScore AND passes the city to hasScoringCreatorVideoAt (score-eligible creators only, 2026-11-12) — bare, it is false for every place and the creator term does nothing");
+ok(/governedWayfindScore\(q, \{ hasCreatorVideo: hasScoringCreatorVideoAt\(p, [A-Za-z_$][\w$.]*\)/.test(parity),
   "scripts/census-parity.mjs mirrors the same governed call, city argument included — otherwise parity is held on a ranker the site does not run");
 ok(!/\(mi - 4\) \* 1\.3/.test(landing) && !/\(p\.distMi \|\| 0\) - 4\) \* 1\.3/.test(parity),
   "neither side still carries the retired 1.3/mi model");
@@ -86,7 +86,7 @@ if (sExpr) {
   // Dotted call sites are captured whole ("CURATED_NAMES.has", not
   // "CURATED_NAMES"), so the allowlist must carry the exact captured form.
   // hasFeaturedCreatorVideoAt (2026-10-29): the featured-creator score term; census-parity mirrors it.
-  const known = ["wayfindScore", "governedWayfindScore", "hasCreatorVideoAt", "hasFeaturedCreatorVideoAt", "isFinite", "Math.min", "CURATED_NAMES.has", "_nn", "localCategoryBoost"];
+  const known = ["wayfindScore", "governedWayfindScore", "hasScoringCreatorVideoAt", "hasFeaturedCreatorVideoAt", "isFinite", "Math.min", "CURATED_NAMES.has", "_nn", "localCategoryBoost"];
   const calls = [...sExpr[1].matchAll(/([A-Za-z_$][A-Za-z0-9_$.]*)\s*\(/g)].map((m) => m[1]);
   const unknown = calls.filter((c) => !known.includes(c));
   ok(unknown.length === 0,
