@@ -13,9 +13,15 @@ import { pageShareUrl } from "../../lib/pageShareUrl";
 import { unstable_noStore as noStore } from "next/cache";
 import ReturnToWayfind from "../components/ReturnToWayfind";
 import ShareButton from "../components/ShareButton";
+import { cachedEventPairings } from "../../lib/eventPairingsCache.js";
+import { cachedEventStays } from "../../lib/eventStaysCached.js";
+import { pairingHref } from "../../lib/eventPairings.js";
+import { WF_PLACE_CARD_CSS } from "../components/css";
+import EventStayCards from "../components/EventStayCards";
 import {
   cosmicFloridaRows, COSMIC_VENUES, COSMIC_TICKET_STEPS, COSMIC_UNKNOWN,
   COSMIC_LOTTERY_URL, COSMIC_SCHEDULE_URL, COSMIC_FACTS_CHECKED,
+  COSMIC_WHAT_IS, COSMIC_LOTTERY_WINDOW, COSMIC_DO_NOW,
 } from "../../lib/cosmicBaseballFlorida.js";
 
 export const revalidate = 3600;
@@ -24,8 +30,9 @@ export const revalidate = 3600;
 const fetchHubEvents = cachedCuratedEventList("fetchHubEvents", ["florida-events-hub-packed-v3-holiday-discovery"]);
 
 const PATH = "/cosmic-baseball-florida";
-const TITLE = "Cosmic Baseball Florida 2027: Dates, Lottery Tickets and Planning";
-const DESC = "All four Florida Cosmic Baseball nights in 2027: Jacksonville, Miami and Tropicana Field. How the ticket lottery really works, parking, bags and how to choose a date.";
+const COSMIC_SERIES_PREFIX_ANCHOR = "cosmic-baseball-";
+const TITLE = "Cosmic Baseball Florida 2027: Jacksonville, Miami and Tampa Bay Tickets Guide";
+const DESC = "Every Florida Cosmic Baseball night in 2027, how the ticket lottery really works (selection is not a ticket), which date fits you, parking, bag rules, food and hotels near each ballpark.";
 
 export const metadata = {
   title: TITLE + " | Wayfind",
@@ -76,6 +83,22 @@ export default async function CosmicBaseballFlorida() {
     bySeries.get(k).push(e);
   }
 
+  // Food and stays per ballpark: the same cached, inventory-only reads the
+  // event pages use (no paid lookup). One read per venue, keyed by its first
+  // night, so Jacksonville's two nights share one result.
+  const nearby = new Map();
+  await Promise.all([...bySeries.entries()].map(async ([k, list]) => {
+    const first = list[0];
+    const ok = Number.isFinite(Number(first.lat)) && Number.isFinite(Number(first.lng));
+    const [eat, stay] = ok
+      ? await Promise.all([cachedEventPairings(first), cachedEventStays(Number(first.lat), Number(first.lng))])
+      : [{ places: [] }, { places: [] }];
+    nearby.set(k, {
+      eat: (eat?.places || []).slice(0, 4).map((p) => ({ ...p, href: pairingHref(p) })),
+      stay: (stay?.places || []).slice(0, 6),
+    });
+  }));
+
   const jsonLd = rows.length ? {
     "@context": "https://schema.org",
     "@type": "ItemList",
@@ -93,25 +116,30 @@ export default async function CosmicBaseballFlorida() {
 
   return (
     <main style={S.page}>
+      <style dangerouslySetInnerHTML={{ __html: WF_PLACE_CARD_CSS + ".wf-cosmic-stays{margin:12px -4px 0;min-width:0}.wf-cosmic-stays:not(:has(.wf-event-place-rail)){display:none}" }} />
       {jsonLd ? <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} /> : null}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(crumbs) }} />
       <ReturnToWayfind style={S.back} />{" "}
       <a style={S.back} href="/florida-events">&lsaquo; Florida Events</a>
       <div style={S.kicker}>Wayfind planner</div>
       <h1 style={S.h1}>Cosmic Baseball in Florida, 2027</h1>
-      <p style={S.sub}>
-        Baseball played under black lights: glowing bats, balls and uniforms, UV reactive gear and a live DJ.
-        The tour sold out 74 games in 2026, and Florida gets {rows.length === 1 ? "one night" : `${rows.length} nights`} in 2027.
-        Here is every Florida date, how tickets really work, and what to know before you go.
-      </p>
+      <p style={S.sub}>{COSMIC_WHAT_IS}</p>
       <ShareButton url={pageShareUrl("/cosmic-baseball-florida")} title={TITLE} text="Every Florida Cosmic Baseball date for 2027, and how the ticket lottery works" label="Share this guide" event="series_hub_share" meta={{ hub: "cosmic-baseball-florida" }} />
+
+      <section style={{ ...S.box, marginTop: 16 }} aria-label="Quick answers">
+        <p style={S.p}><span style={S.label}>Where in Florida: </span>{rows.length ? [...bySeries.values()].map((l) => `${l[0].city} (${l.map((e) => dateRangeLabel(e)).join(" and ")})`).join(", ") : "no Florida date is confirmed right now"}.</p>
+        <p style={S.p}><span style={S.label}>How to get tickets: </span>only through the organiser&rsquo;s Cosmic Lottery.</p>
+        <p style={S.p}><span style={S.label}>Does being selected guarantee a ticket? </span>No. Selection gives you a chance to buy, and only until the game sells out.</p>
+        <p style={S.p}><span style={S.label}>When does the lottery open and close? </span>{COSMIC_LOTTERY_WINDOW}</p>
+        <p style={{ ...S.p, marginBottom: 0 }}><span style={S.label}>Not announced yet: </span>first pitch, prices, gate times and each night&rsquo;s teams.</p>
+      </section>
 
       <h2 style={S.h2}>The Florida dates</h2>
       {rows.length ? rows.map((e) => (
         <a key={e.event_id} style={S.card} href={`/florida-events/${e.slug}`} data-wf-series-date="1">
           <p style={S.when}>{weekday(e.start_date)}, {dateRangeLabel(e)}, {e.year}</p>
           <p style={S.t}>{e.venue}, {e.city}</p>
-          <p style={S.meta}>Tickets by lottery · first pitch not announced · map, food and stays nearby &rsaquo;</p>
+          <p style={S.meta}>Tickets by lottery · first pitch not announced · map, food and stays &rsaquo;</p>
         </a>
       )) : <p style={S.p}>No Florida date is currently confirmed. Check the organiser&rsquo;s <a style={S.link} href={COSMIC_SCHEDULE_URL} rel="nofollow noopener" target="_blank">schedule</a>.</p>}
 
@@ -119,37 +147,55 @@ export default async function CosmicBaseballFlorida() {
       <div style={S.box}>
         <ol style={S.ol}>{COSMIC_TICKET_STEPS.map((s) => <li key={s}>{s}</li>)}</ol>
         <a style={S.cta} href={COSMIC_LOTTERY_URL} rel="nofollow noopener" target="_blank" data-wf-outbound-ticket="organizer" data-wf-content-id="cosmic-baseball-florida">Enter the ticket lottery ↗</a>
-        <p style={S.small}>{COSMIC_UNKNOWN}</p>
+        <p style={S.small}>Wayfind does not sell Cosmic Baseball tickets. This button opens the organiser&rsquo;s own lottery page.</p>
       </div>
 
-      <h2 style={S.h2}>Which Florida date is right for you</h2>
+      <h2 style={S.h2}>What to do now</h2>
+      <ol style={S.ol}>{COSMIC_DO_NOW.map((s) => <li key={s}>{s}</li>)}</ol>
+
+      <h2 style={S.h2}>Which Florida date is best for you</h2>
       {[...bySeries.keys()].map((k) => {
         const v = COSMIC_VENUES[k];
         if (!v) return null;
-        const dates = bySeries.get(k).map((e) => `${weekday(e.start_date)} ${dateRangeLabel(e)}`).join(" and ");
+        const list = bySeries.get(k);
+        const dates = list.map((e) => `${weekday(e.start_date)} ${dateRangeLabel(e)}`).join(" and ");
+        const nb = nearby.get(k) || { eat: [], stay: [] };
         return (
-          <section key={k} style={S.box}>
+          <section key={k} style={S.box} id={`venue-${k.replace(COSMIC_SERIES_PREFIX_ANCHOR, "")}`}>
             <p style={S.when}>{dates}</p>
-            <h3 style={{ ...S.h3, marginTop: 2 }}>{v.venue}, {v.city}</h3>
+            <h3 style={{ ...S.h3, marginTop: 2 }}>Cosmic Baseball {v.city === "St. Petersburg" ? "Tampa Bay" : v.city}: {v.venue}</h3>
             <p style={S.p}>{v.pick}</p>
-            <p style={S.p}><span style={S.label}>Getting there: </span>{v.getThere}</p>
-            <p style={S.p}><span style={S.label}>What to bring: </span>{v.bring}</p>
+            <p style={S.p}><span style={S.label}>Parking and transit: </span>{v.getThere}</p>
+            <p style={S.p}><span style={S.label}>Bag rules: </span>{v.bring}</p>
             <p style={S.p}><span style={S.label}>Gates: </span>{v.gates} Cosmic night gate times are not announced.</p>
-            <p style={S.p}><span style={S.label}>Accessibility: </span>{v.access}</p>
+            <p style={S.p}><span style={S.label}>Accessibility and sensory: </span>{v.access} The show itself is black lights, loud music and effects.</p>
+            {nb.eat.length ? (<>
+              <p style={{ ...S.p, marginBottom: 4 }}><span style={S.label}>Eat and drink nearby</span> (ranked by Wayfind):</p>
+              <ul style={{ ...S.ol, listStyle: "disc" }}>
+                {nb.eat.map((p) => <li key={p.id}><a style={S.link} href={p.href}>{p.name}</a>{p.outing?.slotLabel ? ` · ${p.outing.slotLabel}` : ""}{Number.isFinite(p.distMi) ? ` · ${p.distMi < 0.1 ? "next door" : p.distMi.toFixed(1) + " mi"}` : ""}</li>)}
+              </ul>
+            </>) : null}
             <p style={S.p}>
-              {bySeries.get(k).map((e, i) => (
-                <span key={e.event_id}>{i ? " · " : ""}<a style={S.link} href={`/florida-events/${e.slug}`}>Plan {weekday(e.start_date)}: map, food and stays nearby &rsaquo;</a></span>
+              {list.map((e, i) => (
+                <span key={e.event_id}>{i ? " · " : ""}<a style={S.link} href={`/florida-events/${e.slug}`}>Plan {weekday(e.start_date)}: map and more nearby &rsaquo;</a></span>
               ))}
             </p>
             <p style={S.small}>
               Sources: {v.sources.map((u, i) => <span key={u}>{i ? ", " : ""}<a style={{ ...S.link, fontWeight: 600 }} href={u} rel="nofollow noopener" target="_blank">{new URL(u).hostname.replace(/^www\./, "")}</a></span>)}
             </p>
+            {nb.stay.length ? (
+              <div className="wf-cosmic-stays">
+                <EventStayCards places={nb.stay} title={`Where to stay near ${v.venue}`} description="Top stays within 12 miles, ranked by Wayfind." label={`Hotels near ${v.venue}`} />
+              </div>
+            ) : null}
           </section>
         );
       })}
 
-      <h2 style={S.h2}>Good to know for every date</h2>
-      <p style={S.p}>The whole show is black lights, loud music and effects, so plan accordingly for anyone sensitive to light or noise. Venue rules above are the ballpark&rsquo;s normal game day rules and can change for a special event; check again closer to your date.</p>
+      <h2 style={S.h2}>Not announced yet</h2>
+      <p style={S.p}>{COSMIC_UNKNOWN} Wayfind rechecks these dates and updates this page when the organiser or the ballpark publishes them.</p>
+
+      <p style={S.small}>Venue rules above are each ballpark&rsquo;s normal game day rules and can change for a special event; check again closer to your date.</p>
 
       <p style={S.foot}>
         Dates checked against the organiser&rsquo;s <a style={S.link} href={COSMIC_SCHEDULE_URL} rel="nofollow noopener" target="_blank">schedule</a> and <a style={S.link} href={COSMIC_LOTTERY_URL} rel="nofollow noopener" target="_blank">lottery page</a>; venue details checked {COSMIC_FACTS_CHECKED} on each ballpark&rsquo;s own site. More in <a style={S.link} href="/florida-events">Florida Events</a>.
