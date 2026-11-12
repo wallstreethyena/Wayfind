@@ -191,6 +191,7 @@ scripts/check-florida-icons.mjs	0	CALL	blocks-ci-and-deploy	1	-	13	0	0	8bf78774b
 scripts/check-food-list-continuation.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	36	0	0	166c49458986fc5915e4d578f0423589b9b873e0f94efe302b396a5eb7bb9b09
 scripts/check-food-no-tour-rail.mjs	0	CALL	blocks-ci-and-deploy	1	-	23	0	0	46611935917ee15a14ac41c8d0c1c16cc6b937a66d70da76b9a2441a74fa7753
 scripts/check-food-tour-rail.mjs	0	CALL	blocks-ci-and-deploy	1	-	37	0	0	f70e96c4a0dcfe30ba3c8ae3860b77a602e3393a47d5f6095733a91f028fb073
+scripts/check-function-size.mjs	0	STRUCTURAL	unwired	0	-	0	1	0	6def0985bbb77080b0c4f9bfa04c13b064a430560d85e68cae898cb0c56684fa
 scripts/check-gate.mjs	0	CALL	blocks-ci-and-deploy	1	-	5	0	0	a950323ada49b469e997588d0d5c12525c13b4aaa7e636cdca4ae7c433a34704
 scripts/check-geo-gated-boosts.mjs	1	STRUCTURAL	blocks-ci-and-deploy	1	Qwen (Engineering)	11	1	0	ca24402a9eeb218cc7c8c18da68105e373275a98f08f494d2e438e0b0ae76f01
 scripts/check-go-florida-landing.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	88	0	0	b8403419192a7bc898fe8739aa528cfcac83ca7c3ee818b4c594f3556676d119
@@ -753,6 +754,7 @@ scripts/test-foursquare.mjs	0	CALL	blocks-ci-and-deploy	1	-	81	0	0	a75abeb9d2779
 scripts/test-free-photo-serving.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	121	0	0	450cee11678c13b5737e43837a1211f3d5f76e21d489b8e256c524c54f99f8d2
 scripts/test-free-source-hotlink.mjs	0	CALL	blocks-ci-and-deploy	1	-	31	0	0	3a771165af9ced894476435411410ee57459dc0cb65ba1413590bf7d27dfb14a
 scripts/test-front-events.mjs	0	CALL	blocks-ci-and-deploy	1	-	44	0	0	32f11e82bf230d69cf5d3eb549b2c1ea2e4ae54874a1028586579072027ee933
+scripts/test-function-size-gate.mjs	0	CALL	blocks-ci-and-deploy	1	-	37	0	0	c83c9bc6522c0e4af594dea24e79007427e29eafd104838a06dc33f153f52280
 scripts/test-geocode-owned-fallback.mjs	0	CALL	blocks-ci-and-deploy	1	-	16	0	0	38f6ae5c295717398225347a4156cc75ad1bb38b4f166bf64176b0bb04179b0b
 scripts/test-global-share-entrypoints.mjs	0	CALL	blocks-ci-and-deploy	1	-	18	0	0	60375cbb4391fae7b6aedb73012b864f74f38e4218db4128cb88037f20842270
 scripts/test-google-daily-quota-breaker.mjs	0	CALL	blocks-ci-and-deploy	1	-	16	0	0	c5629486e614473b98f257a68333170ca063de597c8fe4a09290145753235780
