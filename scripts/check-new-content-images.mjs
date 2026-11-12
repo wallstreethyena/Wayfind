@@ -109,8 +109,17 @@ export async function extractRecords(rel, text) {
       if (!/\b(hero_image|photo_url|image_url)\b/i.test(stmt)) continue;
       for (const m of stmt.matchAll(/'((?:[^']|'')*)'/g)) {
         const lit = m[1].replace(/''/g, "'");
+        // A bare 'null'/'undefined' literal is an image placeholder only when it is
+        // WRITTEN into an image column (`hero_image = 'null'`) or the statement
+        // inserts into an image column. In a SELECT or function body it is just a
+        // display string: 2026-11-12, the carousel guard function's
+        // coalesce(ev.e_city,'null') sat next to `hero_image is null` and was read
+        // as an image write. URL-shaped literals are still caught anywhere.
+        const placeholder = /^(?:undefined|null)$/i.test(lit)
+          && (new RegExp(`\\b(?:hero_image|photo_url|image_url)\\s*:?=\\s*'${lit}'`, "i").test(stmt)
+            || /\binsert\s+into\s+[\w."]+\s*\([^)]*\b(?:hero_image|photo_url|image_url)\b/i.test(stmt));
         if (/^(?:https?:|javascript:|data:|\/\/)/i.test(lit) && /\.(?:jpe?g|png|webp|avif|gif|svg)\b|^javascript:|^data:|^http:|\/api\/photo/i.test(lit)
-          || /^\/(?:[\w-]+\/)+[\w.-]+\.(?:jpe?g|png|webp|avif|gif|svg)$/i.test(lit) || /^(?:undefined|null)$/i.test(lit)) {
+          || /^\/(?:[\w-]+\/)+[\w.-]+\.(?:jpe?g|png|webp|avif|gif|svg)$/i.test(lit) || placeholder) {
           push({ id: `${path.basename(rel)}`, image: lit }, type);
         }
       }
