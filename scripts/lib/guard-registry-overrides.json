@@ -1056,6 +1056,14 @@
   },
   "owner": "Revenue QA"
  },
+ "scripts/test-meta-partner-handoff.mjs": {
+  "protects": "Meta receives exactly one conversion, PartnerHandoff, only for a human non-test partner redirect from a browser Meta already knows, with a closed key set (fbp, fbc, IP, user agent; provider, surface, content id) and no personal data, campaign labels or click id values; every partner redirect route reaches it; ad and ad set ids survive landing to the redirect event.",
+  "blastRadius": {
+   "category": "revenue",
+   "detail": "If it regresses, Meta optimizes toward unverified taps or receives personal data, and partner clicks can no longer be tied to the Meta campaign, ad set and ad that produced them, so ad spend decisions run on wrong numbers."
+  },
+  "owner": "Revenue QA"
+ },
  "scripts/test-campaign-attribution.mjs": {
   "protects": "One ticket activation records exactly one commerce_cta_clicked carrying landing campaign, path, seller and placement; first-touch and session campaign attribution stay captured without PII; test and verifier traffic stays tagged or excluded; the Meta OutboundTicketClick custom event and its CAPI twin share one name and event_id.",
   "blastRadius": {
