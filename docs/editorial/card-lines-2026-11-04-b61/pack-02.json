@@ -1,0 +1,78 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 61. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJ8z5LjrJ93YgRkTOolm4wx2Q",
+   "name": "CRAZY CRAB",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.crazycrabusa.com/",
+     "source_name": "CRAZY CRAB \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Crazy Crab is a Cajun Juicy Seafood & Bar in Kissimmee",
+      "It says it has close relations with sustainable fisheries and farms to provide quality seafood",
+      "Private dining rooms are available",
+      "Listed open hours include Mon - Thu 12:00 p.m. - 10:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Cajun juicy seafood in Kissimmee, with private dining rooms for parties",
+    "why_here": "The Crazy Crab Cajun Juicy Seafood & Bar in Kissimmee says it always aims to give customers the freshest and most delicious seafood. It says it has close relations with sustainable fisheries and farms to provide quality seafood, and describes itself as like a family.",
+    "know_before": "Private dining rooms are available now, and the restaurant says it loves hosting a party.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.crazycrabusa.com/"
+     ],
+     "why_here": [
+      "https://www.crazycrabusa.com/"
+     ],
+     "know_before": [
+      "https://www.crazycrabusa.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Crazy Crab is a Cajun Juicy Seafood & Bar in Kissimmee",
+      "source": "https://www.crazycrabusa.com/"
+     },
+     {
+      "claim": "It says it has close relations with sustainable fisheries and farms to provide quality seafood",
+      "source": "https://www.crazycrabusa.com/"
+     },
+     {
+      "claim": "Private dining rooms are available",
+      "source": "https://www.crazycrabusa.com/"
+     },
+     {
+      "claim": "Listed open hours include Mon - Thu 12:00 p.m. - 10:00 p.m.",
+      "source": "https://www.crazycrabusa.com/"
+     }
+    ]
+   }
+  }
+ ]
+}

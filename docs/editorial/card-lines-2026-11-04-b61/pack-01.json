@@ -1,0 +1,2075 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 61. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJM7LT1UApw4gRPwn9xztqgHo",
+   "name": "Southshore Bay Lagoon",
+   "category": "attractions",
+   "metro": "tampa",
+   "primary_type": "water_park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.metrolagoons.com/lagoon/southshore-bay/",
+     "source_name": "Southshore Bay Lagoon \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Southshore Bay Lagoon offers five acres of fun in Wimauma, FL",
+      "Activities include a giant water slide, floating obstacle course, kayaks and paddleboards",
+      "All-day entry includes complimentary parking and beach loungers, with access to a swim-up bar and bumper boats",
+      "Buy online and save up to $10 per ticket compared with gate pricing"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Five-acre Wimauma lagoon with a giant slide, floating obstacle course, kayaks and paddleboards",
+    "why_here": "MetroLagoons calls Southshore Bay Lagoon in Wimauma a five-acre lagoon with a giant water slide, floating obstacles, kayaks and paddleboards. Its listed activities also include a swim-up bar, bumper boats, a kids water obstacle course and volleyball courts.",
+    "know_before": "MetroLagoons says all-day tickets must be purchased for guests 4 years and older, with a complimentary ticket for guests 3 and younger.",
+    "local_tip": "MetroLagoons says buying tickets online can save up to $10 per ticket versus gate pricing.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.metrolagoons.com/lagoon/southshore-bay/"
+     ],
+     "why_here": [
+      "https://www.metrolagoons.com/lagoon/southshore-bay/"
+     ],
+     "know_before": [
+      "https://www.metrolagoons.com/lagoon/southshore-bay/"
+     ],
+     "local_tip": [
+      "https://www.metrolagoons.com/lagoon/southshore-bay/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Southshore Bay Lagoon offers five acres of fun in Wimauma, FL",
+      "source": "https://www.metrolagoons.com/lagoon/southshore-bay/"
+     },
+     {
+      "claim": "Activities include a giant water slide, floating obstacle course, kayaks and paddleboards",
+      "source": "https://www.metrolagoons.com/lagoon/southshore-bay/"
+     },
+     {
+      "claim": "All-day entry includes complimentary parking and beach loungers, with access to a swim-up bar and bumper boats",
+      "source": "https://www.metrolagoons.com/lagoon/southshore-bay/"
+     },
+     {
+      "claim": "Buy online and save up to $10 per ticket compared with gate pricing",
+      "source": "https://www.metrolagoons.com/lagoon/southshore-bay/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ5yk1mWcC2YgRG6aulZPzAW4",
+   "name": "BrewFish Bar & Grill",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://brewfish.com/",
+     "source_name": "BrewFish Bar & Grill \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "BrewFish is a waterfront sports bar and tiki bar in Pompano Beach",
+      "The menu includes seafood, burgers, wings, salads and bar food",
+      "Dogs are welcome in the dog-friendly outdoor area",
+      "Weekly happenings include trivia, lobster night, live music, karaoke and Sunday brunch"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Waterfront sports bar and tiki bar in Pompano Beach with a dog-friendly outdoor area",
+    "why_here": "BrewFish describes itself as your waterfront sports bar and tiki bar in Pompano Beach, serving seafood, burgers, wings, salads and bar food. It invites guests to pull up a chair, catch the game, and pair food with a cold beer or a cocktail from the tiki bar.",
+    "know_before": "BrewFish is a waterfront sports bar and tiki bar in Pompano Beach",
+    "local_tip": "Bring your dog along, as dogs are welcome in the dog-friendly outdoor area.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://brewfish.com/"
+     ],
+     "why_here": [
+      "https://brewfish.com/"
+     ],
+     "know_before": [
+      "https://brewfish.com/"
+     ],
+     "local_tip": [
+      "https://brewfish.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "BrewFish is a waterfront sports bar and tiki bar in Pompano Beach",
+      "source": "https://brewfish.com/"
+     },
+     {
+      "claim": "The menu includes seafood, burgers, wings, salads and bar food",
+      "source": "https://brewfish.com/"
+     },
+     {
+      "claim": "Dogs are welcome in the dog-friendly outdoor area",
+      "source": "https://brewfish.com/"
+     },
+     {
+      "claim": "Weekly happenings include trivia, lobster night, live music, karaoke and Sunday brunch",
+      "source": "https://brewfish.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJLzUK7aPH5YgRSqH8yd8B03A",
+   "name": "LeaderBoard Arcade Bar & Pizzeria",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "video_arcade",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.leaderboardarcade.com/",
+     "source_name": "LeaderBoard Arcade Bar & Pizzeria \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "LeaderBoard says great games are timeless, with everything from retro arcade and pinball classics to the newest releases",
+      "LeaderBoard says its pizza is freshly made and crafted from the highest quality ingredients",
+      "LeaderBoard says it now offers $25 all day play or pay as you go at its Shad Road and Wells Road locations",
+      "LeaderBoard says it now has 3 great locations"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Retro arcade and pinball classics to the newest releases, plus hand-made fresh pizza",
+    "why_here": "LeaderBoard says it has everything from the retro arcade and pinball classics to the newest releases, and that great games are timeless. It also says its pizza is freshly made and crafted from the highest quality ingredients, prepared with care in every pie.",
+    "know_before": "LeaderBoard says it now offers $25 all day play or pay as you go at its Shad Road and Wells Road locations.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.leaderboardarcade.com/"
+     ],
+     "why_here": [
+      "https://www.leaderboardarcade.com/"
+     ],
+     "know_before": [
+      "https://www.leaderboardarcade.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "LeaderBoard says great games are timeless, with everything from retro arcade and pinball classics to the newest releases",
+      "source": "https://www.leaderboardarcade.com/"
+     },
+     {
+      "claim": "LeaderBoard says its pizza is freshly made and crafted from the highest quality ingredients",
+      "source": "https://www.leaderboardarcade.com/"
+     },
+     {
+      "claim": "LeaderBoard says it now offers $25 all day play or pay as you go at its Shad Road and Wells Road locations",
+      "source": "https://www.leaderboardarcade.com/"
+     },
+     {
+      "claim": "LeaderBoard says it now has 3 great locations",
+      "source": "https://www.leaderboardarcade.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJpY08C26D54gRiF6x-TyQTl8",
+   "name": "Axum Coffee",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "coffee_shop",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.axumcoffee.com/pages/our-story",
+     "source_name": "Axum Coffee \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Axum Coffee opened its doors for the first time on December 5, 2010",
+      "In 2015, the Roastery opened",
+      "Beyond paying staff and keeping the business running, all profits are given away to help vulnerable children",
+      "Axum Coffee was born out of a love for community, mission and great coffee"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Oldest craft coffee shop in Orlando giving all profits to help vulnerable children",
+    "why_here": "Axum Coffee says it was born out of a love for community, mission and great coffee, and that beyond paying staff and keeping the business running, all profits are given away to help vulnerable children.",
+    "know_before": "Axum Coffee opened its doors for the first time on December 5, 2010, and its Roastery opened in 2015.",
+    "local_tip": "Axum says guests can come and sit awhile, enjoy drinks and food, work, connect with friends, or just relax.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.axumcoffee.com/pages/our-story"
+     ],
+     "why_here": [
+      "https://www.axumcoffee.com/pages/our-story"
+     ],
+     "know_before": [
+      "https://www.axumcoffee.com/pages/our-story"
+     ],
+     "local_tip": [
+      "https://www.axumcoffee.com/pages/our-story"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Axum Coffee opened its doors for the first time on December 5, 2010",
+      "source": "https://www.axumcoffee.com/pages/our-story"
+     },
+     {
+      "claim": "In 2015, the Roastery opened",
+      "source": "https://www.axumcoffee.com/pages/our-story"
+     },
+     {
+      "claim": "Beyond paying staff and keeping the business running, all profits are given away to help vulnerable children",
+      "source": "https://www.axumcoffee.com/pages/our-story"
+     },
+     {
+      "claim": "Axum Coffee was born out of a love for community, mission and great coffee",
+      "source": "https://www.axumcoffee.com/pages/our-story"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJORWRQMZx54gRLvnSIdpwlMs",
+   "name": "AJ Chocolate House",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "dessert_shop",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.ajchocolate.com/",
+     "source_name": "AJ Chocolate House \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "AJ Chocolate House was founded in 2002 in Vilnius, Lithuania",
+      "AJ Chocolate House lists 150+ handcrafted chocolate delicacies",
+      "Its U.S. home store is open in Winter Park, next to Rollins College",
+      "AJ Chocolate House blends European artisanal tradition with a modern cafe experience"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Lithuanian-founded chocolate house, now with its U.S. home store in Winter Park",
+    "why_here": "AJ Chocolate House says it was founded in 2002 in Vilnius, Lithuania, and grew from a family dream as shops expanded throughout Europe. It says its U.S. home store is now open in Winter Park, next to Rollins College, blending European artisanal tradition with a modern cafe experience.",
+    "know_before": "AJ Chocolate House lists 150+ handcrafted chocolate delicacies and 0 artificial ingredients on its official site.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.ajchocolate.com/"
+     ],
+     "why_here": [
+      "https://www.ajchocolate.com/"
+     ],
+     "know_before": [
+      "https://www.ajchocolate.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "AJ Chocolate House was founded in 2002 in Vilnius, Lithuania",
+      "source": "https://www.ajchocolate.com/"
+     },
+     {
+      "claim": "AJ Chocolate House lists 150+ handcrafted chocolate delicacies",
+      "source": "https://www.ajchocolate.com/"
+     },
+     {
+      "claim": "Its U.S. home store is open in Winter Park, next to Rollins College",
+      "source": "https://www.ajchocolate.com/"
+     },
+     {
+      "claim": "AJ Chocolate House blends European artisanal tradition with a modern cafe experience",
+      "source": "https://www.ajchocolate.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJHyAg5bvX2IgRJgVCUA7vLPE",
+   "name": "Eataly",
+   "category": "shopping",
+   "metro": "palm-beach",
+   "primary_type": "italian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.eataly.com/us_en/stores/aventura",
+     "source_name": "Eataly \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Eataly Aventura has a marketplace selling Italian pasta, sauces, bakery, coffee and pantry goods",
+      "Eataly Aventura hours are Mon-Thu 8:30 AM-9:00 PM, Fri-Sat 8:30 AM-10:00 PM, Sun 8:30 AM-9:00 PM",
+      "Eataly lists Aventura classes including pasta making, pizza making, Italian classics, baking and dessert"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Eataly Aventura marketplace for Italian pasta, sauces, bakery, coffee and pantry goods",
+    "why_here": "Eataly's official Aventura store page lists an Aventura marketplace with Italian categories including pasta, sauces, bakery, coffee and tea, and pantry goods. The same official page lists Aventura restaurants and classes including pasta making, pizza making, Italian classics, baking and dessert.",
+    "know_before": "Eataly lists Aventura hours as Mon-Thu 8:30 AM-9:00 PM, Fri-Sat 8:30 AM-10:00 PM and Sun 8:30 AM-9:00 PM.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.eataly.com/us_en/stores/aventura"
+     ],
+     "why_here": [
+      "https://www.eataly.com/us_en/stores/aventura"
+     ],
+     "know_before": [
+      "https://www.eataly.com/us_en/stores/aventura"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Eataly Aventura has a marketplace selling Italian pasta, sauces, bakery, coffee and pantry goods",
+      "source": "https://www.eataly.com/us_en/stores/aventura"
+     },
+     {
+      "claim": "Eataly Aventura hours are Mon-Thu 8:30 AM-9:00 PM, Fri-Sat 8:30 AM-10:00 PM, Sun 8:30 AM-9:00 PM",
+      "source": "https://www.eataly.com/us_en/stores/aventura"
+     },
+     {
+      "claim": "Eataly lists Aventura classes including pasta making, pizza making, Italian classics, baking and dessert",
+      "source": "https://www.eataly.com/us_en/stores/aventura"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJtc0sYey20YgR-zhJnw8WGwc",
+   "name": "Key West Shipwreck Museum",
+   "category": "attractions",
+   "metro": "keys",
+   "primary_type": "museum",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.keywestshipwreck.com/",
+     "source_name": "Key West Shipwreck Museum \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The museum blends actors, films and authentic artifacts recovered from the 1985 rediscovery of the Isaac Allerton",
+      "The Isaac Allerton wrecked in 1856 and was rediscovered in 1985",
+      "Visitors can climb a 65-foot Captain's Observatory",
+      "Visitors can lift a genuine silver bar from a Spanish galleon",
+      "The museum is open everyday 9:00 a.m. to 5:30 p.m., with final entry 5:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Climb a 65-foot Captain's Observatory and lift a genuine silver bar from a Spanish galleon",
+    "why_here": "The museum blends actors, films and authentic artifacts recovered from the 1985 rediscovery of the wrecked vessel Isaac Allerton, which met its fate in 1856. Visitors can hear the story of the Isaac Allerton which wrecked off Key West and discover the world of shipwrecking.",
+    "know_before": "The museum says it is open everyday 9:00 a.m. to 5:30 p.m., with final entry 5:00 p.m.",
+    "local_tip": "Climb the 65-foot lookout tower for a sweeping view.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.keywestshipwreck.com/"
+     ],
+     "why_here": [
+      "https://www.keywestshipwreck.com/"
+     ],
+     "know_before": [
+      "https://www.keywestshipwreck.com/"
+     ],
+     "local_tip": [
+      "https://www.keywestshipwreck.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The museum blends actors, films and authentic artifacts recovered from the 1985 rediscovery of the Isaac Allerton",
+      "source": "https://www.keywestshipwreck.com/"
+     },
+     {
+      "claim": "The Isaac Allerton wrecked in 1856 and was rediscovered in 1985",
+      "source": "https://www.keywestshipwreck.com/"
+     },
+     {
+      "claim": "Visitors can climb a 65-foot Captain's Observatory",
+      "source": "https://www.keywestshipwreck.com/"
+     },
+     {
+      "claim": "Visitors can lift a genuine silver bar from a Spanish galleon",
+      "source": "https://www.keywestshipwreck.com/"
+     },
+     {
+      "claim": "The museum is open everyday 9:00 a.m. to 5:30 p.m., with final entry 5:00 p.m.",
+      "source": "https://www.keywestshipwreck.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ2wg8dBexwogR-0RvJAy9cUU",
+   "name": "Glory Days Grill",
+   "category": "nightlife",
+   "metro": "florida",
+   "primary_type": "sports_bar",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.glorydaysgrill.com/menu/",
+     "source_name": "Glory Days Grill \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Glory Days Grill & Sports House says it is committed to using the highest-quality ingredients in everything it does",
+      "The menu highlights four Jumbo Chicken Wing styles and Handcrafted Burgers with freshly baked buns",
+      "Starters listed include Slam Dunk Pretzels served with beer cheese",
+      "The page invites guests to join the Victory Club and earn 1 point for every $1 spent"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Sports-house grill built on jumbo wings, handcrafted burgers and freshly baked buns",
+    "why_here": "Glory Days Grill & Sports House says it is committed to using the highest-quality ingredients in everything it does. Its menu highlights four Jumbo Chicken Wing styles and Handcrafted Burgers with freshly baked buns, alongside many other fan favorites.",
+    "know_before": "Glory Days Grill & Sports House says it is committed to using the highest-quality ingredients in everything it does",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.glorydaysgrill.com/menu/"
+     ],
+     "why_here": [
+      "https://www.glorydaysgrill.com/menu/"
+     ],
+     "know_before": [
+      "https://www.glorydaysgrill.com/menu/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Glory Days Grill & Sports House says it is committed to using the highest-quality ingredients in everything it does",
+      "source": "https://www.glorydaysgrill.com/menu/"
+     },
+     {
+      "claim": "The menu highlights four Jumbo Chicken Wing styles and Handcrafted Burgers with freshly baked buns",
+      "source": "https://www.glorydaysgrill.com/menu/"
+     },
+     {
+      "claim": "Starters listed include Slam Dunk Pretzels served with beer cheese",
+      "source": "https://www.glorydaysgrill.com/menu/"
+     },
+     {
+      "claim": "The page invites guests to join the Victory Club and earn 1 point for every $1 spent",
+      "source": "https://www.glorydaysgrill.com/menu/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJGTF7WnMDw4gR3tTn1NUVXvU",
+   "name": "Coconut Charlie's Beach Bar & Grill",
+   "category": "food",
+   "metro": "st-pete",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.coconutcharliesstpete.com/",
+     "source_name": "Coconut Charlie's Beach Bar & Grill \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Coconut Charlie's promotes killer tacos, seafood, boozy slushies and beach bites, with live music every day"
+     ]
+    },
+    {
+     "source": "https://www.coconutcharliesstpete.com/bb-menu",
+     "source_name": "Coconut Charlie's Beach Bar & Grill \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Grill and Beach Bar are separate dining venues, with the Grill at the front of the hotel and the Beach Bar by the beach at the back of the hotel",
+      "The Beach Bar menu includes Fish Tacos with island-spiced fresh catch and a Blackened Grouper Sandwich",
+      "The Beach Bar serves sharables including Local Smoked Fish dip and Loaded Nachos"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Beachfront grill and separate beach bar with live music every day in St. Pete Beach",
+    "why_here": "Coconut Charlie's official site promotes killer tacos, seafood, boozy slushies and beach bites, with live music every day. Its Grill and Beach Bar are separate venues: the Grill is at the front of the hotel while the Beach Bar is by the beach at the back, serving dishes such as fish tacos and a blackened grouper sandwich.",
+    "know_before": "The Grill and Beach Bar are separate dining venues; the Grill is at the front of the hotel and the Beach Bar is at the back by the beach.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.coconutcharliesstpete.com/"
+     ],
+     "why_here": [
+      "https://www.coconutcharliesstpete.com/"
+     ],
+     "know_before": [
+      "https://www.coconutcharliesstpete.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Coconut Charlie's promotes killer tacos, seafood, boozy slushies and beach bites, with live music every day",
+      "source": "https://www.coconutcharliesstpete.com/"
+     },
+     {
+      "claim": "The Grill and Beach Bar are separate dining venues, with the Grill at the front of the hotel and the Beach Bar by the beach at the back of the hotel",
+      "source": "https://www.coconutcharliesstpete.com/bb-menu"
+     },
+     {
+      "claim": "The Beach Bar menu includes Fish Tacos with island-spiced fresh catch and a Blackened Grouper Sandwich",
+      "source": "https://www.coconutcharliesstpete.com/bb-menu"
+     },
+     {
+      "claim": "The Beach Bar serves sharables including Local Smoked Fish dip and Loaded Nachos",
+      "source": "https://www.coconutcharliesstpete.com/bb-menu"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJcaKyvO6wwogRXnQzFG5rRoM",
+   "name": "Burger Monger",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "hamburger_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.burgermonger.com/",
+     "source_name": "Burger Monger \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Burger Monger brings handcrafted burgers made with the freshest ingredients and bold flavors",
+      "Only the finest farm-fresh produce and quality meats go into every burger",
+      "Burger Monger uses artisan buns and handcrafted patties",
+      "The Impossible Burger is a vegan, plant-based option served on your choice of bun and toppings",
+      "Every Monday the site lists a $5.99 burger monger deal"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Handcrafted burgers made with the freshest ingredients and bold flavors",
+    "why_here": "Burger Monger brings handcrafted burgers made with the freshest ingredients and bold flavors, with only the finest farm-fresh produce and quality meats in every burger. Its handcrafted recipes, artisan buns and handcrafted patties are made for true burger enthusiasts.",
+    "know_before": "Every Monday the site lists a $5.99 burger monger deal.",
+    "local_tip": "The Impossible Burger is a vegan, plant-based option served on your choice of bun and toppings from the Craft Your Own menu.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.burgermonger.com/"
+     ],
+     "why_here": [
+      "https://www.burgermonger.com/"
+     ],
+     "know_before": [
+      "https://www.burgermonger.com/"
+     ],
+     "local_tip": [
+      "https://www.burgermonger.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Burger Monger brings handcrafted burgers made with the freshest ingredients and bold flavors",
+      "source": "https://www.burgermonger.com/"
+     },
+     {
+      "claim": "Only the finest farm-fresh produce and quality meats go into every burger",
+      "source": "https://www.burgermonger.com/"
+     },
+     {
+      "claim": "Burger Monger uses artisan buns and handcrafted patties",
+      "source": "https://www.burgermonger.com/"
+     },
+     {
+      "claim": "The Impossible Burger is a vegan, plant-based option served on your choice of bun and toppings",
+      "source": "https://www.burgermonger.com/"
+     },
+     {
+      "claim": "Every Monday the site lists a $5.99 burger monger deal",
+      "source": "https://www.burgermonger.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJVVXlb8993YgRLPdbInK4Q-E",
+   "name": "Simply Capri",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "italian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.simplycapri.com/",
+     "source_name": "Simply Capri \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Simply Capri brings the best of Italy's Amalfi Coast to Flamingo Crossing",
+      "The menu includes wood-fired pizza, house-made pastas, classic meat and seafood dishes and fresh salads",
+      "The dining experience is described as upscale yet casual, with warm hospitality",
+      "The concept is great food made from the freshest ingredients at reasonable prices"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Amalfi Coast cooking in Flamingo Crossing, from wood-fired pizza to house-made pastas",
+    "why_here": "Simply Capri brings the best of Italy's Amalfi Coast to Flamingo Crossing, with wood-fired pizza, house-made pastas, classic meat and seafood dishes and fresh salads. Warm hospitality creates an upscale yet casual dining experience for all, built on great food made from the freshest ingredients at reasonable prices.",
+    "know_before": "Reservations can be made through the official site, which also lists online ordering.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.simplycapri.com/"
+     ],
+     "why_here": [
+      "https://www.simplycapri.com/"
+     ],
+     "know_before": [
+      "https://www.simplycapri.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Simply Capri brings the best of Italy's Amalfi Coast to Flamingo Crossing",
+      "source": "https://www.simplycapri.com/"
+     },
+     {
+      "claim": "The menu includes wood-fired pizza, house-made pastas, classic meat and seafood dishes and fresh salads",
+      "source": "https://www.simplycapri.com/"
+     },
+     {
+      "claim": "The dining experience is described as upscale yet casual, with warm hospitality",
+      "source": "https://www.simplycapri.com/"
+     },
+     {
+      "claim": "The concept is great food made from the freshest ingredients at reasonable prices",
+      "source": "https://www.simplycapri.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJLYfvf6t_3YgRVyF0YfzHsH4",
+   "name": "Juicy & Crab",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://juicycrabfl.com/",
+     "source_name": "Juicy & Crab \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Juicy & Crab is a seafood restaurant in Kissimmee",
+      "Generous combos, fried shrimp and crab cakes are made for sharing",
+      "The kitchen offers oysters, scallops and hearty platters",
+      "Catering is offered for birthdays, family reunions and business gatherings"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Fresh catches shared around the table at a seafood restaurant in Kissimmee",
+    "why_here": "Juicy & Crab in Kissimmee says coastal fare leads the way, with generous combos, fried shrimp and crab cakes all made for sharing. It describes a relaxed atmosphere where friends and family can settle in, with oysters, scallops and hearty platters from the kitchen.",
+    "know_before": "The official site says it is taking online reservations and recommends making a reservation ahead of time.",
+    "local_tip": "For groups, the site highlights catering and party bookings for birthdays, family reunions and business gatherings.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://juicycrabfl.com/"
+     ],
+     "why_here": [
+      "https://juicycrabfl.com/"
+     ],
+     "know_before": [
+      "https://juicycrabfl.com/"
+     ],
+     "local_tip": [
+      "https://juicycrabfl.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Juicy & Crab is a seafood restaurant in Kissimmee",
+      "source": "https://juicycrabfl.com/"
+     },
+     {
+      "claim": "Generous combos, fried shrimp and crab cakes are made for sharing",
+      "source": "https://juicycrabfl.com/"
+     },
+     {
+      "claim": "The kitchen offers oysters, scallops and hearty platters",
+      "source": "https://juicycrabfl.com/"
+     },
+     {
+      "claim": "Catering is offered for birthdays, family reunions and business gatherings",
+      "source": "https://juicycrabfl.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJw2CvBgfCwogR5N8g7R2NXVc",
+   "name": "Blasys Pizzeria & Bar",
+   "category": "food",
+   "metro": "tampa",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://blasyspizzeria.com/",
+     "source_name": "Blasys Pizzeria & Bar \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Blasys describes itself as the Cuban pizza of Tampa since 2018",
+      "Blasys says it has three locations in Tampa with one shared essence",
+      "Its specialty pizza has a soft and fluffy dough, a generous layer of cheese and a toasted edge",
+      "The site offers pickup at the location and delivery as ordering options"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Tampa's Cuban pizza since 2018: soft fluffy dough, generous cheese and a toasted edge",
+    "why_here": "Blasys describes itself as the Cuban pizza of Tampa since 2018, served across three locations with one shared essence. Its specialty pizza has a soft and fluffy dough, a generous layer of cheese and a toasted edge, alongside tropical shakes prepared to share.",
+    "know_before": "The site asks you to choose how you want to receive your order first, with pickup at the location or delivery, and then select the most convenient Blasys before ordering.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://blasyspizzeria.com/"
+     ],
+     "why_here": [
+      "https://blasyspizzeria.com/"
+     ],
+     "know_before": [
+      "https://blasyspizzeria.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Blasys describes itself as the Cuban pizza of Tampa since 2018",
+      "source": "https://blasyspizzeria.com/"
+     },
+     {
+      "claim": "Blasys says it has three locations in Tampa with one shared essence",
+      "source": "https://blasyspizzeria.com/"
+     },
+     {
+      "claim": "Its specialty pizza has a soft and fluffy dough, a generous layer of cheese and a toasted edge",
+      "source": "https://blasyspizzeria.com/"
+     },
+     {
+      "claim": "The site offers pickup at the location and delivery as ordering options",
+      "source": "https://blasyspizzeria.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJh1KHkmPEwogRS1B9uXC_2Ow",
+   "name": "Oceanic Oriental Supermarket",
+   "category": "shopping",
+   "metro": "tampa",
+   "primary_type": "asian_grocery_store",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.oceanicmarket.net/",
+     "source_name": "Oceanic Oriental Supermarket \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Oceanic Market is a Tampa, Florida based family-owned company that has been in business for 40 years",
+      "The family moved to the US from Malaysia and found demand for hard-to-find Asian groceries in the Tampa Bay area",
+      "Oceanic Market categories include Indonesian, Malaysian, Japanese and Thai groceries",
+      "Oceanic Market also lists Snacks, Teas, Noodles, Drinks and Kitchenwares"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Tampa family market for hard-to-find Asian groceries, in business for 40 years",
+    "why_here": "Oceanic Market says its Tampa, Florida based family-owned company has been in business for 40 years after the family moved to the US from Malaysia and found demand for hard-to-find Asian groceries in the Tampa Bay area.",
+    "know_before": "Oceanic Market is a Tampa, Florida based family-owned company that has been in business for 40 years",
+    "local_tip": "Oceanic says it carries a few thousand items not on this site, so email or message if looking for anything in particular.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.oceanicmarket.net/"
+     ],
+     "why_here": [
+      "https://www.oceanicmarket.net/"
+     ],
+     "know_before": [
+      "https://www.oceanicmarket.net/"
+     ],
+     "local_tip": [
+      "https://www.oceanicmarket.net/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Oceanic Market is a Tampa, Florida based family-owned company that has been in business for 40 years",
+      "source": "https://www.oceanicmarket.net/"
+     },
+     {
+      "claim": "The family moved to the US from Malaysia and found demand for hard-to-find Asian groceries in the Tampa Bay area",
+      "source": "https://www.oceanicmarket.net/"
+     },
+     {
+      "claim": "Oceanic Market categories include Indonesian, Malaysian, Japanese and Thai groceries",
+      "source": "https://www.oceanicmarket.net/"
+     },
+     {
+      "claim": "Oceanic Market also lists Snacks, Teas, Noodles, Drinks and Kitchenwares",
+      "source": "https://www.oceanicmarket.net/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJd1WXbfCRwogR_aZ0N9vB2i4",
+   "name": "Holiday's Farmers Market",
+   "category": "shopping",
+   "metro": "florida",
+   "primary_type": "farmers_market",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.holidaysfarmersmarket.com/",
+     "source_name": "Holiday's Farmers Market \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Holiday's Farmers Market is a family-owned market and deli offering fresh meats, quality produce, specialty groceries and made-to-order meals",
+      "It serves made-to-order sandwiches, fresh salads, hearty soups and grab-and-go meals, with party trays and catering",
+      "Business hours are Monday to Saturday 9:00 AM-7:00 PM and Sunday 9:00 AM-5:00 PM"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Family-owned market and deli with fresh produce, meats and made-to-order sandwiches.",
+    "why_here": "Holiday's Farmers Market is a family-owned market and deli offering fresh meats, quality produce and specialty groceries alongside made-to-order meals. Shoppers can order sandwiches, salads, soups and grab-and-go items or browse shelves for ingredients and pantry staples.",
+    "know_before": "Business hours on the official site are Mon-Sat 9:00 AM-7:00 PM and Sun 9:00 AM-5:00 PM.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.holidaysfarmersmarket.com/"
+     ],
+     "why_here": [
+      "https://www.holidaysfarmersmarket.com/"
+     ],
+     "know_before": [
+      "https://www.holidaysfarmersmarket.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Holiday's Farmers Market is a family-owned market and deli offering fresh meats, quality produce, specialty groceries and made-to-order meals",
+      "source": "https://www.holidaysfarmersmarket.com/"
+     },
+     {
+      "claim": "It serves made-to-order sandwiches, fresh salads, hearty soups and grab-and-go meals, with party trays and catering",
+      "source": "https://www.holidaysfarmersmarket.com/"
+     },
+     {
+      "claim": "Business hours are Monday to Saturday 9:00 AM-7:00 PM and Sunday 9:00 AM-5:00 PM",
+      "source": "https://www.holidaysfarmersmarket.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJVRmTZ6GP3YgR4mL61_Eyl28",
+   "name": "Marsh Landing Adventures / Orlando Airboat Tours",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "tour_agency",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://orlandoairboattours.com/",
+     "source_name": "Marsh Landing Adventures / Orlando Airboat Tours \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Marsh Landing Adventures is one of the only airboat tour operators to offer four-hour tours of the Everglades",
+      "Tours explore the Headwaters of the Florida Everglades and Lake Tohopekaliga",
+      "Tour options include 60-minute, 90-minute, 2-hour and 4-hour Eco-Safari tours",
+      "Private airboat rides are also offered",
+      "Visitors may encounter Florida alligators and other wildlife"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Airboat the Everglades headwaters with one of the only operators offering a four-hour tour",
+    "why_here": "Marsh Landing Adventures is one of the only airboat tour operators to offer four-hour tours of the Everglades Tours explore the Headwaters of the Florida Everglades and Lake Tohopekaliga",
+    "know_before": "Tour options include 60-minute, 90-minute, 2-hour and 4-hour Eco-Safari tours, plus private airboat rides.",
+    "local_tip": "The 90-minute tour goes deeper into the Headwaters for more wildlife encounters and photo opportunities.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://orlandoairboattours.com/"
+     ],
+     "why_here": [
+      "https://orlandoairboattours.com/"
+     ],
+     "know_before": [
+      "https://orlandoairboattours.com/"
+     ],
+     "local_tip": [
+      "https://orlandoairboattours.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Marsh Landing Adventures is one of the only airboat tour operators to offer four-hour tours of the Everglades",
+      "source": "https://orlandoairboattours.com/"
+     },
+     {
+      "claim": "Tours explore the Headwaters of the Florida Everglades and Lake Tohopekaliga",
+      "source": "https://orlandoairboattours.com/"
+     },
+     {
+      "claim": "Tour options include 60-minute, 90-minute, 2-hour and 4-hour Eco-Safari tours",
+      "source": "https://orlandoairboattours.com/"
+     },
+     {
+      "claim": "Private airboat rides are also offered",
+      "source": "https://orlandoairboattours.com/"
+     },
+     {
+      "claim": "Visitors may encounter Florida alligators and other wildlife",
+      "source": "https://orlandoairboattours.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ0Xuyb82R3YgRdeNXH2-k35s",
+   "name": "Crosscreek Village",
+   "category": "shopping",
+   "metro": "florida",
+   "primary_type": "shopping_mall",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.phillipsedison.com/property/florida/orlando-fl/st-cloud/cross-creek-village",
+     "source_name": "Crosscreek Village \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Cross Creek Village is in St. Cloud, Florida, according to Phillips Edison",
+      "Major tenants listed for Cross Creek Village are Publix and Anytime Fitness",
+      "Phillips Edison describes itself as one of the nation's largest owners and operators of grocery-anchored shopping centers"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "St. Cloud retail listed with Publix and Anytime Fitness as major tenants",
+    "why_here": "Cross Creek Village is in St. Cloud, Florida, according to Phillips Edison Major tenants listed for Cross Creek Village are Publix and Anytime Fitness",
+    "know_before": "The property listing names Publix and Anytime Fitness as major tenants of Cross Creek Village in St. Cloud.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.phillipsedison.com/property/florida/orlando-fl/st-cloud/cross-creek-village"
+     ],
+     "why_here": [
+      "https://www.phillipsedison.com/property/florida/orlando-fl/st-cloud/cross-creek-village"
+     ],
+     "know_before": [
+      "https://www.phillipsedison.com/property/florida/orlando-fl/st-cloud/cross-creek-village"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Cross Creek Village is in St. Cloud, Florida, according to Phillips Edison",
+      "source": "https://www.phillipsedison.com/property/florida/orlando-fl/st-cloud/cross-creek-village"
+     },
+     {
+      "claim": "Major tenants listed for Cross Creek Village are Publix and Anytime Fitness",
+      "source": "https://www.phillipsedison.com/property/florida/orlando-fl/st-cloud/cross-creek-village"
+     },
+     {
+      "claim": "Phillips Edison describes itself as one of the nation's largest owners and operators of grocery-anchored shopping centers",
+      "source": "https://www.phillipsedison.com/property/florida/orlando-fl/st-cloud/cross-creek-village"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJPUjFU_D-5IgRTxRDmYaBRC0",
+   "name": "Wicked Bao",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://wickedbao.com/restaurant/",
+     "source_name": "Wicked Bao \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Wicked BAO says it serves authentic and delicious Asian street food, like Pot Stickers, Pork Belly BAO, and dry-rubbed wings",
+      "Wicked BAOs, its specialty, are made with steamed Taiwanese BAO buns",
+      "Wicked BAO says it is open for dine-in and take-out in a historical building",
+      "Wicked BAO says all dishes are carefully crafted to be enjoyed as is, with no substitutions"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Asian street food anchored by steamed Taiwanese pork belly bao",
+    "why_here": "Wicked BAO says it serves authentic and delicious Asian street food, like Pot Stickers, Pork Belly BAO, and dry-rubbed wings, in a historical building. Its specialty Wicked BAOs are made with steamed Taiwanese BAO buns, and it is open for dine-in and take-out.",
+    "know_before": "Wicked BAO says all its dishes are carefully crafted to be enjoyed as is, asks for no substitutions, and says the entire menu is available online.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://wickedbao.com/restaurant/"
+     ],
+     "why_here": [
+      "https://wickedbao.com/restaurant/"
+     ],
+     "know_before": [
+      "https://wickedbao.com/restaurant/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Wicked BAO says it serves authentic and delicious Asian street food, like Pot Stickers, Pork Belly BAO, and dry-rubbed wings",
+      "source": "https://wickedbao.com/restaurant/"
+     },
+     {
+      "claim": "Wicked BAOs, its specialty, are made with steamed Taiwanese BAO buns",
+      "source": "https://wickedbao.com/restaurant/"
+     },
+     {
+      "claim": "Wicked BAO says it is open for dine-in and take-out in a historical building",
+      "source": "https://wickedbao.com/restaurant/"
+     },
+     {
+      "claim": "Wicked BAO says all dishes are carefully crafted to be enjoyed as is, with no substitutions",
+      "source": "https://wickedbao.com/restaurant/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ00eIVqzpwogR_azUY6etLms",
+   "name": "Totally Tiki Tours",
+   "category": "attractions",
+   "metro": "tampa",
+   "primary_type": "tourist_attraction",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.totallytikitours.com/",
+     "source_name": "Totally Tiki Tours \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Totally Tiki Tours has three locations: Tampa Bay (Rocky Point Island), Downtown Tampa (Riverwalk), and Downtown St. Petersburg at the Pier",
+      "Its tiki boat can accommodate up to 13 passengers for private charters and has a bathroom and Bluetooth speakers on board",
+      "Totally Tiki provides complimentary water and multiple coolers filled with ice, and does not provide or sell alcoholic beverages",
+      "All locations can make stops at shallow/sandbar areas for guests to take a dip in the Bay"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Tiki-boat cruising Tampa Bay with dolphin and manatee sightings",
+    "why_here": "Totally Tiki Tours runs tiki-boat tours on Tampa Bay from three locations including Rocky Point, the Tampa Riverwalk and the St. Petersburg Pier. Boats can stop at shallow sandbar areas for a dip, with complimentary water and coolers with ice on board.",
+    "know_before": "Totally Tiki does not provide or sell alcoholic beverages, so guests bring their own drinks on board.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.totallytikitours.com/"
+     ],
+     "why_here": [
+      "https://www.totallytikitours.com/"
+     ],
+     "know_before": [
+      "https://www.totallytikitours.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Totally Tiki Tours has three locations: Tampa Bay (Rocky Point Island), Downtown Tampa (Riverwalk), and Downtown St. Petersburg at the Pier",
+      "source": "https://www.totallytikitours.com/"
+     },
+     {
+      "claim": "Its tiki boat can accommodate up to 13 passengers for private charters and has a bathroom and Bluetooth speakers on board",
+      "source": "https://www.totallytikitours.com/"
+     },
+     {
+      "claim": "Totally Tiki provides complimentary water and multiple coolers filled with ice, and does not provide or sell alcoholic beverages",
+      "source": "https://www.totallytikitours.com/"
+     },
+     {
+      "claim": "All locations can make stops at shallow/sandbar areas for guests to take a dip in the Bay",
+      "source": "https://www.totallytikitours.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJK_zyQoT17IgRK58X5Qu182c",
+   "name": "Table 23",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.table23tally.com/",
+     "source_name": "Table 23 \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Table 23 embraces the original bones of its 1920s restored residence in Tallahassee's Midtown",
+      "Table 23 serves southern hospitality for nearly 300 through its main floor, second floor rental space, and an outdoor porch bar",
+      "Table 23 describes its food beliefs as cooking food that is honest and unassuming with high quality ingredients and traditional preparations",
+      "Table 23 lists dinner Monday to Saturday 4:00 p.m. - 9:00 p.m. and Sunday brunch 10:00 a.m. - 2:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Southern hospitality inside a restored 1920s residence under moss-covered oaks",
+    "why_here": "Table 23 in Tallahassee's Midtown says it embraces the original bones of its 1920s restored residence and serves southern hospitality, with food it describes as honest and unassuming using high-quality ingredients and traditional preparations.",
+    "know_before": "Table 23 lists dinner Monday to Saturday 4:00 p.m. - 9:00 p.m. and Sunday brunch 10:00 a.m. - 2:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.table23tally.com/"
+     ],
+     "why_here": [
+      "https://www.table23tally.com/"
+     ],
+     "know_before": [
+      "https://www.table23tally.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Table 23 embraces the original bones of its 1920s restored residence in Tallahassee's Midtown",
+      "source": "https://www.table23tally.com/"
+     },
+     {
+      "claim": "Table 23 serves southern hospitality for nearly 300 through its main floor, second floor rental space, and an outdoor porch bar",
+      "source": "https://www.table23tally.com/"
+     },
+     {
+      "claim": "Table 23 describes its food beliefs as cooking food that is honest and unassuming with high quality ingredients and traditional preparations",
+      "source": "https://www.table23tally.com/"
+     },
+     {
+      "claim": "Table 23 lists dinner Monday to Saturday 4:00 p.m. - 9:00 p.m. and Sunday brunch 10:00 a.m. - 2:00 p.m.",
+      "source": "https://www.table23tally.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ7dd2_5vX5ogRdszoVOnSG9o",
+   "name": "High Tide Kitchen",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "breakfast_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://hightidekitchenfl.com/",
+     "source_name": "High Tide Kitchen \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "High Tide Kitchen is a cozy, family-run restaurant in Daytona Beach Shores offering breakfast and lunch",
+      "High Tide Kitchen describes itself as Mira's kitchen, opened to the neighborhood",
+      "Its menu lists the Harvest Bowl with roasted sweet potatoes, greens, avocado, feta, and two eggs any style with cilantro drizzle",
+      "Opening times are Monday to Sunday 7:00 a.m. to 3:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Family-run breakfast and lunch built around Mira's scratch cooking",
+    "why_here": "High Tide Kitchen is a cozy, family-run restaurant in the heart of Daytona Beach Shores, offering breakfast and lunch made with fresh ingredients. It is presented as Mira's kitchen opened to the neighborhood, with simple, generous cooking made from scratch.",
+    "know_before": "Opening times are Monday to Sunday 7:00 a.m. to 3:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://hightidekitchenfl.com/"
+     ],
+     "why_here": [
+      "https://hightidekitchenfl.com/"
+     ],
+     "know_before": [
+      "https://hightidekitchenfl.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "High Tide Kitchen is a cozy, family-run restaurant in Daytona Beach Shores offering breakfast and lunch",
+      "source": "https://hightidekitchenfl.com/"
+     },
+     {
+      "claim": "High Tide Kitchen describes itself as Mira's kitchen, opened to the neighborhood",
+      "source": "https://hightidekitchenfl.com/"
+     },
+     {
+      "claim": "Its menu lists the Harvest Bowl with roasted sweet potatoes, greens, avocado, feta, and two eggs any style with cilantro drizzle",
+      "source": "https://hightidekitchenfl.com/"
+     },
+     {
+      "claim": "Opening times are Monday to Sunday 7:00 a.m. to 3:00 p.m.",
+      "source": "https://hightidekitchenfl.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJW5bZ3mKi54gR792LYQVYrXk",
+   "name": "The Frog and Monkey Restaurant & Pub",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.thefrogandmonkey.com/story",
+     "source_name": "The Frog and Monkey Restaurant & Pub \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Frog and Monkey is located in the basement of the Renaissance Building in downtown Mount Dora",
+      "The official site says it is known for having the best burgers in Lake County",
+      "The official site describes a vast selection of cocktails, wines and beers",
+      "The official site describes innovating for a global palate since 2019"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Basement pub in the Renaissance Building in downtown Mount Dora, known for burgers",
+    "why_here": "The Frog and Monkey says it is located in the basement of the Renaissance Building in beautiful downtown Mount Dora, Florida. Its story page says it is known for having the best burgers in Lake County, with a diverse menu and whimsical atmosphere.",
+    "know_before": "The restaurant is located in the basement of the Renaissance Building in downtown Mount Dora.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.thefrogandmonkey.com/story"
+     ],
+     "why_here": [
+      "https://www.thefrogandmonkey.com/story"
+     ],
+     "know_before": [
+      "https://www.thefrogandmonkey.com/story"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Frog and Monkey is located in the basement of the Renaissance Building in downtown Mount Dora",
+      "source": "https://www.thefrogandmonkey.com/story"
+     },
+     {
+      "claim": "The official site says it is known for having the best burgers in Lake County",
+      "source": "https://www.thefrogandmonkey.com/story"
+     },
+     {
+      "claim": "The official site describes a vast selection of cocktails, wines and beers",
+      "source": "https://www.thefrogandmonkey.com/story"
+     },
+     {
+      "claim": "The official site describes innovating for a global palate since 2019",
+      "source": "https://www.thefrogandmonkey.com/story"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJI-Q-nKx_54gRaM8S59gjHFo",
+   "name": "Will To Escape",
+   "category": "attractions",
+   "metro": "orlando",
+   "primary_type": "amusement_center",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://willtoescape.com/",
+     "source_name": "Will To Escape \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Will To Escape describes itself as an escape room center in Orlando and Jupiter, FL",
+      "Will To Escape says guests get a private experience with just their closest friends, with no strangers",
+      "The official site lists rooms at 60 Minutes for 2-8 Players",
+      "Will To Escape says reservations can be cancelled for a full refund with more than 48 hours notice"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Private 60-minute escape rooms where your group solves the story",
+    "why_here": "Will To Escape describes itself as an escape room center in Orlando and Jupiter, FL, offering a private experience with just your closest friends and no strangers. It says guests do not just solve puzzles but unravel a real detective story during the adventure, inside rooms with decorations and effects.",
+    "know_before": "Will To Escape says reservations can be cancelled for a full refund with more than 48 hours notice.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://willtoescape.com/"
+     ],
+     "why_here": [
+      "https://willtoescape.com/"
+     ],
+     "know_before": [
+      "https://willtoescape.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Will To Escape describes itself as an escape room center in Orlando and Jupiter, FL",
+      "source": "https://willtoescape.com/"
+     },
+     {
+      "claim": "Will To Escape says guests get a private experience with just their closest friends, with no strangers",
+      "source": "https://willtoescape.com/"
+     },
+     {
+      "claim": "The official site lists rooms at 60 Minutes for 2-8 Players",
+      "source": "https://willtoescape.com/"
+     },
+     {
+      "claim": "Will To Escape says reservations can be cancelled for a full refund with more than 48 hours notice",
+      "source": "https://willtoescape.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJs-9xq_UF2YgRbnI9-3mfgJc",
+   "name": "E41 - Embarcadero 41 Coral Springs",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "peruvian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.embarcadero41.us/reservations-coral-springs",
+     "source_name": "E41 - Embarcadero 41 Coral Springs \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Embarcadero 41 describes itself as a Peruvian Nikkei Fusion Restaurant in Florida",
+      "Embarcadero 41 Coral Springs lists Tiraditos & Ceviches including CEVICHE MIXTO DE CORVINA",
+      "Embarcadero 41 Coral Springs lists TIRADITO SAKURA under Tiraditos & Ceviches"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Peruvian Nikkei Fusion Restaurant in Florida serving Tiraditos & Ceviches",
+    "why_here": "Embarcadero 41's official Coral Springs page is titled Peruvian Nikkei Fusion Restaurant in Florida and lists a Tiraditos & Ceviches section including CEVICHE MIXTO DE CORVINA and TIRADITO SAKURA.",
+    "know_before": "Embarcadero 41 describes itself as a Peruvian Nikkei Fusion Restaurant in Florida",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.embarcadero41.us/reservations-coral-springs"
+     ],
+     "why_here": [
+      "https://www.embarcadero41.us/reservations-coral-springs"
+     ],
+     "know_before": [
+      "https://www.embarcadero41.us/reservations-coral-springs"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Embarcadero 41 describes itself as a Peruvian Nikkei Fusion Restaurant in Florida",
+      "source": "https://www.embarcadero41.us/reservations-coral-springs"
+     },
+     {
+      "claim": "Embarcadero 41 Coral Springs lists Tiraditos & Ceviches including CEVICHE MIXTO DE CORVINA",
+      "source": "https://www.embarcadero41.us/reservations-coral-springs"
+     },
+     {
+      "claim": "Embarcadero 41 Coral Springs lists TIRADITO SAKURA under Tiraditos & Ceviches",
+      "source": "https://www.embarcadero41.us/reservations-coral-springs"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ1Rr4lX7rwogRrEeh_FCjpE4",
+   "name": "Ellie's Breakfast & Lunch",
+   "category": "food",
+   "metro": "tampa",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://elliestampa.com/",
+     "source_name": "Ellie's Breakfast & Lunch \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Ellie's serves fantastic breakfast and lunch 7 days a week",
+      "Ellie's is open for dine-in and to-go 7am-2pm, 7 days a week",
+      "Ellie's offers quick bites and call-ahead carry-out orders"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Seven-day breakfast and lunch in Tampa, dine-in or to-go",
+    "why_here": "Ellie's Breakfast & Lunch in Tampa serves fantastic breakfast and lunch seven days a week, open for dine-in and to-go. Its official site pitches quick bites for a short lunch break, with call-ahead carry-out orders alongside dining in.",
+    "know_before": "Ellie's official site says to call ahead to place a carry-out order.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://elliestampa.com/"
+     ],
+     "why_here": [
+      "https://elliestampa.com/"
+     ],
+     "know_before": [
+      "https://elliestampa.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Ellie's serves fantastic breakfast and lunch 7 days a week",
+      "source": "https://elliestampa.com/"
+     },
+     {
+      "claim": "Ellie's is open for dine-in and to-go 7am-2pm, 7 days a week",
+      "source": "https://elliestampa.com/"
+     },
+     {
+      "claim": "Ellie's offers quick bites and call-ahead carry-out orders",
+      "source": "https://elliestampa.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJu5RmLe8B2YgR3t2oYru3R_w",
+   "name": "BRGR STOP FT. LAUDERDALE",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "hamburger_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://brgrstop.com/?p=86",
+     "source_name": "BRGR STOP FT. LAUDERDALE \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "BRGR STOP stacks gourmet burgers with serious ingredients",
+      "BRGR STOP sends craft shakes way over the top and keeps craft beer ice-cold",
+      "A rotating Burger and Shake of the Month features gourmet combinations"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Gourmet burgers stacked with serious ingredients, plus craft shakes sent over the top",
+    "why_here": "BRGR STOP stacks gourmet burgers with serious ingredients, sends craft shakes way over the top and keeps the craft beer ice-cold. A rotating Burger and Shake of the Month brings new gourmet combinations, so the menu offers something different to try alongside the regular burgers and shakes.",
+    "know_before": "Check the rotating Burger and Shake of the Month before ordering, as a new month brings new gourmet combinations.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://brgrstop.com/?p=86"
+     ],
+     "why_here": [
+      "https://brgrstop.com/?p=86"
+     ],
+     "know_before": [
+      "https://brgrstop.com/?p=86"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "BRGR STOP stacks gourmet burgers with serious ingredients",
+      "source": "https://brgrstop.com/?p=86"
+     },
+     {
+      "claim": "BRGR STOP sends craft shakes way over the top and keeps craft beer ice-cold",
+      "source": "https://brgrstop.com/?p=86"
+     },
+     {
+      "claim": "A rotating Burger and Shake of the Month features gourmet combinations",
+      "source": "https://brgrstop.com/?p=86"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJSd_Vwy0V24gRpMvksQIviBU",
+   "name": "Sandbox VR",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "amusement_center",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://sandboxvr.com/",
+     "source_name": "Sandbox VR \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Sandbox VR is full-body VR with friends",
+      "Experiences include Deadwood, Seekers of the Shard: Dragonfire, Squid Game Virtuals and Stranger Things: Catalyst"
+     ]
+    },
+    {
+     "source": "https://sandboxvr.com/locations",
+     "source_name": "Sandbox VR \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Florida locations include Fort Myers, Jacksonville, Orlando, Greater Miami Area, Tampa Bay and St. Petersburg"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Full-body VR with friends \u2014 zombie, dragon and Squid Game worlds you play together",
+    "why_here": "Sandbox VR describes itself as full-body VR with friends, with worlds including Deadwood, Seekers of the Shard: Dragonfire, Squid Game Virtuals and Stranger Things: Catalyst. Its Florida locations list includes Orlando, Tampa Bay, St. Petersburg, Fort Myers and Miami-area venues.",
+    "know_before": "Sandbox VR also markets parties and events for birthdays and corporate celebrations on its official site.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://sandboxvr.com/"
+     ],
+     "why_here": [
+      "https://sandboxvr.com/"
+     ],
+     "know_before": [
+      "https://sandboxvr.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Sandbox VR is full-body VR with friends",
+      "source": "https://sandboxvr.com/"
+     },
+     {
+      "claim": "Experiences include Deadwood, Seekers of the Shard: Dragonfire, Squid Game Virtuals and Stranger Things: Catalyst",
+      "source": "https://sandboxvr.com/"
+     },
+     {
+      "claim": "Florida locations include Fort Myers, Jacksonville, Orlando, Greater Miami Area, Tampa Bay and St. Petersburg",
+      "source": "https://sandboxvr.com/locations"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJPcVLPpzhwogRfnFRIurhvxs",
+   "name": "Williams Park",
+   "category": "attractions",
+   "metro": "st-pete",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.visitstpeteclearwater.com/profile/williams-park/140065",
+     "source_name": "Williams Park \u2014 official source",
+     "source_class": "tourism_dmo",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Williams Park in downtown St. Petersburg is a versatile green space that comes alive with local festivals and public events",
+      "Williams Park hosts the popular St. Pete Saturday Morning Market during the summer months",
+      "Williams Park features a performance stage, known as the bandshell",
+      "Williams Park lists hours Monday 6:00 a.m. - 10:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Downtown St. Petersburg green space with a performance stage known as the bandshell",
+    "why_here": "Visit St. Pete-Clearwater describes Williams Park in downtown St. Petersburg as a versatile green space that comes alive with local festivals and public events, and hosts the popular St. Pete Saturday Morning Market during the summer months.",
+    "know_before": "Williams Park lists hours Monday 6:00 a.m. - 10:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.visitstpeteclearwater.com/profile/williams-park/140065"
+     ],
+     "why_here": [
+      "https://www.visitstpeteclearwater.com/profile/williams-park/140065"
+     ],
+     "know_before": [
+      "https://www.visitstpeteclearwater.com/profile/williams-park/140065"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Williams Park in downtown St. Petersburg is a versatile green space that comes alive with local festivals and public events",
+      "source": "https://www.visitstpeteclearwater.com/profile/williams-park/140065"
+     },
+     {
+      "claim": "Williams Park hosts the popular St. Pete Saturday Morning Market during the summer months",
+      "source": "https://www.visitstpeteclearwater.com/profile/williams-park/140065"
+     },
+     {
+      "claim": "Williams Park features a performance stage, known as the bandshell",
+      "source": "https://www.visitstpeteclearwater.com/profile/williams-park/140065"
+     },
+     {
+      "claim": "Williams Park lists hours Monday 6:00 a.m. - 10:00 p.m.",
+      "source": "https://www.visitstpeteclearwater.com/profile/williams-park/140065"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ9-m_PQAn5IgRdSbzMpSgBF0",
+   "name": "Saint Italian Restaurant",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "italian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://saintsta.com/",
+     "source_name": "Saint Italian Restaurant \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Saint features handmade pastas, fresh ingredients and a curated selection of seasonal dishes",
+      "The menu highlights include creamy risotto and house-made tiramisu",
+      "The rooftop patio overlooks St. Augustine's historic sights and the Bayfront",
+      "Restaurant hours are Monday and Tuesday 4:00 p.m. to 10:00 p.m. and Wednesday to Sunday 11:00 a.m. to 10:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Handmade pasta and house-made tiramisu with a rooftop patio in historic Saint Augustine",
+    "why_here": "Saint offers authentic Italian flavors with modern sophistication in historic Saint Augustine, featuring handmade pastas, fresh ingredients and a curated selection of seasonal dishes. Guests can enjoy a creamy risotto or house-made tiramisu paired with expertly crafted cocktails.",
+    "know_before": "Restaurant hours are Monday and Tuesday 4:00 p.m. to 10:00 p.m. and Wednesday to Sunday 11:00 a.m. to 10:00 p.m.",
+    "local_tip": "Head to the rooftop patio \u2014 Saint says on a clear day you can see all the way to the lighthouse.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://saintsta.com/"
+     ],
+     "why_here": [
+      "https://saintsta.com/"
+     ],
+     "know_before": [
+      "https://saintsta.com/"
+     ],
+     "local_tip": [
+      "https://saintsta.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Saint features handmade pastas, fresh ingredients and a curated selection of seasonal dishes",
+      "source": "https://saintsta.com/"
+     },
+     {
+      "claim": "The menu highlights include creamy risotto and house-made tiramisu",
+      "source": "https://saintsta.com/"
+     },
+     {
+      "claim": "The rooftop patio overlooks St. Augustine's historic sights and the Bayfront",
+      "source": "https://saintsta.com/"
+     },
+     {
+      "claim": "Restaurant hours are Monday and Tuesday 4:00 p.m. to 10:00 p.m. and Wednesday to Sunday 11:00 a.m. to 10:00 p.m.",
+      "source": "https://saintsta.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJh3cdT-i22YgRd4Cg84l8UyU",
+   "name": "Pinecrest Bakery - Miami River",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "bakery",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://pinecrestbakery.com/pages/p-team",
+     "source_name": "Pinecrest Bakery - Miami River \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Pinecrest Bakery serves authentic pastelitos, caf\u00e9 cubano and over 60 desserts",
+      "The first Pinecrest Bakery opened in 2012 in Pinecrest to bring traditional Cuban flavors with a modern twist",
+      "The slogan is 'Bite into tradition,' reflecting a passion for preserving Cuban culinary heritage",
+      "Pinecrest Bakery lists 20+ locations open 24/7"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Authentic pastelitos, caf\u00e9 cubano and over 60 desserts, under the 'Bite into tradition' banner",
+    "why_here": "Pinecrest Bakery serves authentic pastelitos, caf\u00e9 cubano, over 60 desserts, traditional and oven-toasted sandwiches, party platters and custom cakes. The first bakery opened in 2012 in Pinecrest to bring traditional Cuban flavors to the table with a modern twist, under the slogan 'Bite into tradition.'",
+    "know_before": "Pinecrest Bakery serves authentic pastelitos, caf\u00e9 cubano and over 60 desserts",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://pinecrestbakery.com/pages/p-team"
+     ],
+     "why_here": [
+      "https://pinecrestbakery.com/pages/p-team"
+     ],
+     "know_before": [
+      "https://pinecrestbakery.com/pages/p-team"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Pinecrest Bakery serves authentic pastelitos, caf\u00e9 cubano and over 60 desserts",
+      "source": "https://pinecrestbakery.com/pages/p-team"
+     },
+     {
+      "claim": "The first Pinecrest Bakery opened in 2012 in Pinecrest to bring traditional Cuban flavors with a modern twist",
+      "source": "https://pinecrestbakery.com/pages/p-team"
+     },
+     {
+      "claim": "The slogan is 'Bite into tradition,' reflecting a passion for preserving Cuban culinary heritage",
+      "source": "https://pinecrestbakery.com/pages/p-team"
+     },
+     {
+      "claim": "Pinecrest Bakery lists 20+ locations open 24/7",
+      "source": "https://pinecrestbakery.com/pages/p-team"
+     }
+    ]
+   }
+  }
+ ]
+}
