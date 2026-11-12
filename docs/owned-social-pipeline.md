@@ -58,3 +58,23 @@ nine negative controls that must each go red.
 
 A present and correct · B present but misassociated · C ingested but not trending ·
 D missing from Wayfind · E excluded with reason · F broken. C, D and F are defects.
+
+## The daily Metricool ingestion task (until Graph credentials exist)
+
+Scheduled task "Wayfind Instagram → Trending ingestion", 8:47 AM and 8:47 PM ET,
+created only after `wf_owned_social` exists. Each run:
+
+1. Read every Instagram Reel (Metricool IGRE02/IGRE04/IGRE06/IGRE03/IGRE05) and
+   feed post (IGPO02/IGPO04/IGPO06/IGPO07/IGPO03/IGPO05) for brand 6668336 from
+   2026-08-01 to now, in date windows small enough for the tool, plus scheduled
+   posts (`getScheduledPosts`, inserted with lifecycle `scheduled`).
+2. For each post not yet in `wf_owned_social`: classify it with the rules above
+   (default eligible; exclusion only with a listed reason), write a dash free
+   title of at most 60 characters, city, region, places, relevant_until.
+3. Upsert by shortcode (never overwrite an existing classification), refresh
+   `cover_source_url` for rows without a stored cover, mark scheduled rows
+   `published` once Metricool lists them as published.
+4. Completeness: every source shortcode must now have a row. Pulse
+   `owned-social-ingest` (`attempted` = source posts, `succeeded` = posts with a
+   row, `failed` = posts without one). A run that cannot read Metricool pulses
+   `unavailable: metricool read failed` so job-watch pages on the first run.
