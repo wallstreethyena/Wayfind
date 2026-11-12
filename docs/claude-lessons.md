@@ -129,7 +129,13 @@ that must read the real partner Location uses the synthetic monitor UA with redi
 of 52 had no page click_id, no first-party cookie and no same-site Referer. They are not
 refused (an ad-blocked person looks the same) but every redirect event now carries
 `click_proof` (client_click_id | first_party_cookie | first_party_referer | direct_link |
-none). Count real taps with `traffic_class = 'human' AND click_proof != 'none'`.
+continue_tap | none). Count real taps with `traffic_class = 'human' AND click_proof != 'none'`.
+2026-11-11 owner rule, DESKTOP only: a computer browser with click_proof none now gets
+the one-tap Continue page (`provider_redirect_refused`, `refusal_reason`
+`desktop-zero-proof:<Sec-Fetch-Site>`); a person who taps Continue is counted as human
+with `click_proof = continue_tap`. Phones and in-app browsers keep the 10-31 rule. Most
+partner links are `rel="noreferrer"`, so a real tap proves itself with the page-minted
+click_id or a cookie, not a Referer. Off switch: `REDIRECT_ZERO_PROOF_GATE=off`.
 
 ## ⚠️ Concurrency rules
 
