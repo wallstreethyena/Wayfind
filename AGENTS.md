@@ -3,6 +3,8 @@
 Paste this at the start of every session, in every terminal (Claude, GWEN, DeepSeek, LLAMA, Kim).
 If anything below conflicts with your own reasoning, this file wins.
 
+**Wayfind brand assets:** before creating any Wayfind-branded visual, use the official logos in `public/brand/wayfind/` (source of truth: `public/brand/wayfind/manifest.json`, guide: `docs/brand-assets.md`). Never redraw or substitute the logo when one of those fits.
+
 **Kim** = CPO / product strategy + owner of the money funnel. Kim owns recommendations, specs, critiques, metrics framing, and the server-side commerce-event capture pipeline. Kim routes product-code work to lane owners and does not write product code owned by another lane, but builds the instrumentation and analytics that prove revenue changes worked.
 > **⚠ SECTION NUMBERS CHANGED — 2026-07-29, in the commit that added §5.** §5 ("Absent configuration fails loudly") was
 > INSERTED, which shifted every section after it by one. Any citation written before this
