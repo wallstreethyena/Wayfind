@@ -18,7 +18,10 @@ import { GuideCommissionLine } from "./GuideCommissionLine.js";
 import { reminderFactsFor } from "../../lib/eventReminderFacts.js";
 import { CHRISTMAS_CARD_LABELS, CHRISTMAS_PRICE_UNKNOWN_TEXT, CHRISTMAS_SEASON_UNDATED_TEXT, christmasCopy, christmasPitch, christmasPriceLabel } from "../../lib/christmasCardCopy.js";
 
-const FILTER_KEYS = ["region", "category", "when", "date", "price", "audience", "undated", "q", "lat", "lng"];
+const FILTER_KEYS = ["region", "category", "when", "date", "price", "audience", "undated", "q", "lat", "lng", "sort"];
+// A location found quietly on load (auto) ranks the list but never goes into
+// the shareable address bar: a shared link must not carry the sharer's spot.
+const PRIVATE_KEYS = new Set(["lat", "lng"]);
 const CHROME = { eventPage: "Full event page" };
 const PLACE_CHIP = { "popup-bars": "Bars and dining", "seasonal-food": "Festive bites" };
 
@@ -93,12 +96,37 @@ export default function ChristmasBrowse({ initial, facets, today, initialQuery =
   const [loading, setLoading] = useState(false);
   const [failed, setFailed] = useState(false);
   const first = useRef(true);
-  // Tickets remains the default until the visitor explicitly requests distance.
+  // Owner 2026-11-11: the default order for every category is the best rated,
+  // trending choices near the visitor. On load the page finds a location
+  // without a permission prompt: the device position only when the visitor
+  // already allowed it, else the coarse Florida-only city lookup (/api/geo,
+  // the same one home uses). Nothing found means best rated statewide. A
+  // link that already carries a location or sort=tickets is left alone.
+  useEffect(() => {
+    if (initialQuery.lat || initialQuery.sort === "tickets" || typeof window === "undefined") return undefined;
+    let dead = false;
+    const adopt = (lat, lng) => {
+      if (dead || !Number.isFinite(lat) || !Number.isFinite(lng)) return;
+      setQuery((q) => (q.lat || q.sort === "tickets" ? q : { ...q, lat: lat.toFixed(3), lng: lng.toFixed(3), auto: true }));
+    };
+    const byCity = () => fetch("/api/geo", { cache: "no-store" }).then((r) => r.json()).then((j) => { if (j && j.ok) adopt(Number(j.lat), Number(j.lng)); }).catch(() => {});
+    const byDevice = () => navigator.geolocation.getCurrentPosition((pos) => adopt(pos.coords.latitude, pos.coords.longitude), byCity, { timeout: 8000 });
+    try {
+      if (navigator.permissions && navigator.geolocation) navigator.permissions.query({ name: "geolocation" }).then((p) => (p.state === "granted" ? byDevice() : byCity()), byCity);
+      else byCity();
+    } catch { byCity(); }
+    return () => { dead = true; };
+  }, []);
   useEffect(() => {
     if (first.current) { first.current = false; return; }
     const params = new URLSearchParams();
-    for (const k of FILTER_KEYS) if (query[k] !== undefined && query[k] !== "" && query[k] !== false && query[k] !== null) params.set(k, query[k] === true ? "1" : String(query[k]));
-    try { window.history.replaceState(null, "", params.toString() ? "?" + params.toString() + "#browse" : location.pathname + "#browse"); } catch {}
+    const shown = new URLSearchParams();
+    for (const k of FILTER_KEYS) if (query[k] !== undefined && query[k] !== "" && query[k] !== false && query[k] !== null) {
+      const v = query[k] === true ? "1" : String(query[k]);
+      params.set(k, v);
+      if (!(query.auto && PRIVATE_KEYS.has(k))) shown.set(k, v);
+    }
+    try { window.history.replaceState(null, "", shown.toString() ? "?" + shown.toString() + "#browse" : location.pathname + "#browse"); } catch {}
     const controller = new AbortController();
     setLoading(true); setFailed(false);
     fetch("/api/christmas/browse?" + params.toString(), { signal: controller.signal })
@@ -117,25 +145,30 @@ export default function ChristmasBrowse({ initial, facets, today, initialQuery =
     setLoading(true);
     fetch("/api/christmas/browse?" + params.toString()).then((r) => r.json()).then((json) => { setData(json); setCards((prev) => [...prev, ...(json.cards || [])]); }).catch(() => setFailed(true)).finally(() => setLoading(false));
   };
+  // "Best near you" from the menu: back to the default order, and the precise
+  // device location when the visitor taps it (the one place that may prompt).
   const nearMe = () => {
+    setQuery((q) => ({ ...q, sort: "" }));
     try {
-      navigator.geolocation.getCurrentPosition((pos) => setQuery((q) => ({ ...q, lat: pos.coords.latitude.toFixed(3), lng: pos.coords.longitude.toFixed(3) })), () => {}, { timeout: 8000 });
+      navigator.geolocation.getCurrentPosition((pos) => setQuery((q) => ({ ...q, sort: "", auto: false, lat: pos.coords.latitude.toFixed(3), lng: pos.coords.longitude.toFixed(3) })), () => {}, { timeout: 8000 });
     } catch {}
   };
 
   const pills = Array.isArray(facets.pills) ? facets.pills : [];
   const dates = Array.isArray(facets.dates) ? facets.dates : [];
   const summary = [(pills.find((p) => p.id === query.category) || {}).label, (dates.find((d) => d.id === query.when) || {}).label, query.region].filter(Boolean).join(" · ");
-  const located = query.lat != null && query.lat !== "";
-  const anyFilter = !!(query.category || query.when || query.region || query.q || query.date || query.price || query.audience || query.undated || located);
-  const clearAll = () => setQuery({});
+  const ticketsFirst = query.sort === "tickets";
+  const located = !ticketsFirst && query.lat != null && query.lat !== "";
+  const anyFilter = !!(query.category || query.when || query.region || query.q || query.date || query.price || query.audience || query.undated || ticketsFirst || (located && !query.auto));
+  // Reset clears the filters but keeps a quietly found location, so the list
+  // stays on the default best near you order.
+  const clearAll = () => setQuery((q) => (q.auto && q.lat ? { lat: q.lat, lng: q.lng, auto: true } : {}));
   const shownCards = cards.length;
   const hasPartner = cards.some((c) => c.ticketRow && c.ticketRow.cta && c.ticketRow.cta.kind === "affiliate");
   return <section id="browse" aria-label="Florida Christmas events" style={{ margin: "0 0 28px" }} data-christmas-browse="">
     <div className="xm-controls" data-boo-clear="" role="toolbar" aria-label="Filter Christmas events">
-      <ChristmasFilter query={query} facets={facets} onSet={set} onNear={nearMe} onReset={clearAll}
-        onClearNear={() => setQuery((q) => ({ ...q, lat: "", lng: "" }))} />
-      <span className="xm-sort-note">{located ? "Closest to you" : "Popular choices first"}</span>
+      <ChristmasFilter query={query} facets={facets} onSet={set} onNear={nearMe} onReset={clearAll} />
+      <span className="xm-sort-note">{ticketsFirst ? "Tickets first" : located ? "Top rated near you" : "Top rated and trending"}</span>
       {anyFilter ? <button type="button" className="xm-clear" onClick={clearAll}>Reset</button> : null}
     </div>
     <p className="xm-count" role="status" aria-live="polite">

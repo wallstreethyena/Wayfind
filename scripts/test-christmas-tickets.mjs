@@ -487,12 +487,50 @@ ok(!html.includes('type="date"') && !html.includes('aria-label="Price"') && !htm
 // Owner 2026-11-01 ("Why dint we use this filter? … Please fix it"): the list
 // uses the site's one filter pill (CollectionFilter look), not its own region
 // <select> and "Nearest to me" button.
-ok(html.includes("data-christmas-filter") && html.includes(">Tickets<") && html.includes('aria-haspopup="dialog"') && !html.includes('aria-label="Region"') && !html.includes("Nearest to me"), "the list is filtered by the standard filter pill, with no region select or nearest button beside it");
+ok(html.includes("data-christmas-filter") && html.includes(">Best rated<") && html.includes('aria-haspopup="dialog"') && !html.includes('aria-label="Region"') && !html.includes("Nearest to me"), "the list is filtered by the standard filter pill, with no region select or nearest button beside it");
 {
   const f = strip(read("app/components/ChristmasFilter.js"));
-  ok(/"Tickets"/.test(f) && /"Tickets first"/.test(f) && /"Closest first"/.test(f) && /onSet\("when"/.test(f) && /onSet\("region"/.test(f) && /onSet\("category"/.test(f),
-    "Tickets is the default and the one menu offers categories, date, region and optional distance");
+  ok(/"Best rated"/.test(f) && /"Best near you"/.test(f) && /"Tickets first"/.test(f) && /onSet\("sort", "tickets"\)/.test(f) && /onSet\("when"/.test(f) && /onSet\("region"/.test(f) && /onSet\("category"/.test(f),
+    "Best rated near you is the default (owner 2026-11-11) and the one menu offers categories, date, region and an opt in Tickets first order");
   ok(/createPortal/.test(f) && /aria-modal="true"/.test(f) && /Escape/.test(f) && /event.shiftKey/.test(f) && /#E8B48A/.test(f) && /#3E0C19/.test(f), "the holiday menu is a burgundy and gold modal with Escape, a focus trap and a body portal");
+}
+// Top picks for social ad visitors (2026-11-12): Meta ad visitors stayed on the
+// first screen and never saw a photo or a ticket button. A Facebook / Instagram
+// landing gets up to three featured rows with a photo and the card's exact
+// ticket button between the title and the lede; every other visit is unchanged.
+{
+  const { isSocialAdLanding, christmasTopPicks, CHRISTMAS_TOP_PICKS_MAX } = await import("../lib/christmasTickets.js");
+  ok(isSocialAdLanding({ fbclid: "abc" }) && isSocialAdLanding({ utm_source: "meta" }) && isSocialAdLanding({ utm_source: "Instagram" }) && isSocialAdLanding({ utm_source: ["facebook"] }),
+    "an fbclid or a Facebook, Instagram or Meta utm_source is a social landing");
+  ok(!isSocialAdLanding({}) && !isSocialAdLanding(null) && !isSocialAdLanding({ gclid: "x" }) && !isSocialAdLanding({ utm_source: "google" }) && !isSocialAdLanding({ fbclid: "  " }),
+    "Google, direct and empty visits are not social landings");
+  const withPhoto = (r, i) => ({ ...r, photos: i === 1 ? [] : [{ src: "/christmas/test-" + i + ".webp", alt: "Photo of " + r.name, credit: "Photo by test" }] });
+  const photoModel = { ...partnerModel, rows: partnerModel.rows.map(withPhoto) };
+  const picks = christmasTopPicks(photoModel);
+  const eligible = photoModel.rows.filter((r) => r.cta && r.photos.length);
+  ok(CHRISTMAS_TOP_PICKS_MAX === 3 && picks.length === Math.min(3, eligible.length) && picks.every((r, i) => r === eligible[i]),
+    "top picks are the first featured rows with a photo and a way in, in merit order, at most three");
+  ok(christmasTopPicks({ rows: [] }).length === 0 && christmasTopPicks(null).length === 0, "no rows, no picks");
+  const plainHtml = renderPage(partnerModel, partnerList);
+  ok(!plainHtml.includes("data-top-picks") && !plainHtml.includes("Top picks with tickets"), "a visit without picks renders the page exactly as before");
+  const pickHtml = renderPage(partnerModel, partnerList, { topPicks: picks });
+  const title = pickHtml.indexOf('id="xm-title"'), row = pickHtml.indexOf("data-top-picks"), lede = pickHtml.indexOf('class="xm-lede"');
+  ok(picks.length > 0 && title > -1 && title < row && row < lede, "the picks sit right under the title, above the lede and the list");
+  ok((pickHtml.match(/data-pick-id="/g) || []).length === picks.length && picks.every((r) => pickHtml.includes('data-pick-id="' + r.id + '"')
+    && pickHtml.includes("href=\"" + r.cta.href.replace(/&/g, "&amp;") + "\"") && pickHtml.includes(">" + r.cta.label.replace(/&/g, "&amp;") + "<") && pickHtml.includes(r.photos[0].src)),
+    "each pick shows its photo and the exact registry href and label of its ticket button");
+  ok(picks.every((r) => r.cta.kind !== "affiliate" || new RegExp('rel="sponsored nofollow noopener"[^>]*href="' + r.cta.href.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/&/g, "&amp;")).test(pickHtml) || pickHtml.includes('rel="sponsored nofollow noopener"')),
+    "partner buttons in the picks are marked sponsored");
+  ok((pickHtml.match(/<h2/g) || []).length === 0 && (pickHtml.match(/<h3>/g) || []).length >= picks.length, "pick titles are h3, so the page still has no second section heading");
+  const pickVisible = pickHtml.replace(/<style[\s\S]*?<\/style>/g, " ").replace(/<script[\s\S]*?<\/script>/g, " ").replace(/<[^>]+>/g, " ").replace(/&amp;/g, "&").replace(/\s+/g, " ");
+  ok(!DASH.test(pickVisible) && ((pickVisible.match(/Wayfind may earn a commission/g)) || []).length === 1, "with picks the page is still dash free and keeps one commission line");
+  ok(!renderPage(partnerModel, partnerList, { topPicks: [{ ...picks[0], photos: [] }] }).includes("data-top-picks"), "a pick without a photo is never drawn as an empty slot");
+  const comp = strip(read("app/components/ChristmasTickets.js"));
+  ok(/data-commerce-owner=\{affiliate \? undefined : "ChristmasTickets"\}/.test(comp.slice(comp.indexOf("export function TopPicks"))) && /onClick=\{affiliate \? undefined : \(\) => organizerTap\(row\)\}/.test(comp) && /import \{ XM_CARD_CSS, organizerTap \} from "\.\/ChristmasTicketCard\.js"/.test(comp) && !/commerce_cta_clicked/.test(comp),
+    "pick organizer taps are recorded once here and /go taps by the beacon, under the same christmas_tickets surface");
+  const page = strip(read("app/christmas-in-florida/page.js"));
+  ok(/const topPicks = isSocialAdLanding\(params\) \? christmasTopPicks\(tickets\) : null;/.test(page) && /<ChristmasTickets model=\{tickets\} topPicks=\{topPicks\}/.test(page),
+    "the page builds picks only for a social landing, from the same featured rows");
 }
 {
   const cardsHtml = html.slice(html.indexOf('data-ticket-id="'));
@@ -516,6 +554,9 @@ ok(html.includes("data-christmas-filter") && html.includes(">Tickets<") && html.
   ok(/export const revalidate = 3600/.test(page) && /canonical: SITE_URL \+ "\/christmas-in-florida"/.test(page), "the page keeps revalidate and the canonical URL");
   ok(/<ChristmasTickets /.test(page) && /browse=\{/.test(page) && /<ChristmasBrowse /.test(page) && !/id="watchlist"/.test(page) && /"@type": "ItemList"/.test(page), "the page renders tickets and browse without the internal research watchlist, preserving ItemList");
   ok(/<SeasonalSearchHub slug="christmas-in-florida" today=\{today\} seoOnly/.test(page), "the SEO guide content stays on the page");
+  // 2026-11-11: the page builds on every visit, so its independent reads run side by side.
+  ok(page.indexOf("const dealsRead = fetchChristmasTicketDeals()") > -1 && page.indexOf("const dealsRead = fetchChristmasTicketDeals()") < page.indexOf("await christmasBrowseCached(") && /const dealsById = await dealsRead;/.test(page), "the deals read starts before the browse read and is awaited after it");
+  ok(/\[tickets, first\] = await Promise\.all\(\[[\s\S]{0,300}withChristmasTicketPhotos\([\s\S]{0,300}withBrowseTicketPhotos\(/.test(page), "the two photo passes run side by side");
   const strings = (page.match(/"[^"\n]{3,}"|`[^`\n]{3,}`|>[^<>{}\n]{3,}</g) || []).filter((t) => /[–—]| - /.test(t) && !/RX|regex|replace/.test(t));
   ok(strings.length === 0, "the page copy has no punctuation dash");
   const sitemap = read("app/sitemap.js");
@@ -548,7 +589,7 @@ ok(html.includes("data-christmas-filter") && html.includes(">Tickets<") && html.
   const cardSrc = strip(read("app/components/ChristmasTicketCard.js"));
   const ticketsSrc = strip(read("app/components/ChristmasTickets.js"));
   ok(/import \{ TicketCard \} from "\.\/ChristmasTicketCard\.js"/.test(browseSrc) && /<TicketCard[\s/]/.test(browseSrc), "the browse renders the one TicketCard");
-  ok(/import \{ XM_CARD_CSS \} from "\.\/ChristmasTicketCard\.js"/.test(ticketsSrc) && !/<TicketCard[\s/]/.test(ticketsSrc), "the shell carries the one card's CSS; the only place cards render is the browse list");
+  ok(/import \{ XM_CARD_CSS(?:, organizerTap)? \} from "\.\/ChristmasTicketCard\.js"/.test(ticketsSrc) && !/<TicketCard[\s/]/.test(ticketsSrc), "the shell carries the one card's CSS; the only place cards render is the browse list (the social top picks are a compact strip, not a second card)");
   ok(!/RailCard|WF_PLACE_CARD_CSS|wf-christmas|wf-place-card/.test(browseSrc), "the browse no longer uses RailCard or the red .wf-christmas skin");
   ok(!/<h2/.test(browseSrc) && !/Verified Christmas outings/.test(browseSrc) && !/<h2/.test(ticketsSrc) && !/xm-jump|xm-all/.test(ticketsSrc), "no second section heading and no jump button: one list under the hero");
   ok(/aria-label="Florida Christmas events"/.test(browseSrc), "the one list section is labelled for assistive tech");
@@ -765,9 +806,27 @@ ok(html.includes("data-christmas-filter") && html.includes(">Tickets<") && html.
   const unknown = base({ id: "unknown", popularity_score: null });
   const noTicket = base({ id: "no-ticket", official_ticket_url: "", popularity_score: 10 });
   const ranked = b.sortChristmasBrowse([unknown, quieter, noTicket, popular], b.parseChristmasBrowseQuery({}), day);
-  ok(ranked.map((c) => c.id).join(",") === "popular,quieter,unknown,no-ticket", "default ranking puts ticketed choices first and popularity ahead of date within the ticket tier");
+  ok(ranked.map((c) => c.id).join(",") === "no-ticket,popular,quieter,unknown", "default ranking (owner 2026-11-11): with equal ratings the most trending leads, ticket or not");
+  const ticketsRanked = b.sortChristmasBrowse([unknown, quieter, noTicket, popular], b.parseChristmasBrowseQuery({ sort: "tickets" }), day);
+  ok(ticketsRanked.map((c) => c.id).join(",") === "popular,quieter,unknown,no-ticket", "Tickets first puts ticketed choices first and popularity ahead of date within the ticket tier");
+  {
+    const rated = base({ id: "rated", wfScore: 91, popularity_score: null });
+    const hot = base({ id: "hot", popularity_score: 9 });
+    ok(b.sortChristmasBrowse([hot, rated], b.parseChristmasBrowseQuery({}), day).map((c) => c.id).join(",") === "rated,hot", "default ranking: the best rated leads, then trending");
+    const nearA = base({ id: "near-a", lat: 27.96, lng: -82.46, wfScore: 88, popularity_score: 2 });
+    const nearB = base({ id: "near-b", lat: 27.97, lng: -82.46, wfScore: 88, popularity_score: 8 });
+    const farTop = base({ id: "far-top", lat: 28.54, lng: -81.38, wfScore: 99 });
+    const near = b.sortChristmasBrowse([nearA, farTop, nearB], b.parseChristmasBrowseQuery({ lat: "27.95", lng: "-82.46" }), day).map((c) => c.id).join(",");
+    ok(near === "near-b,near-a,far-top", "near the visitor: the closest ring first, then best rated, then trending inside the ring (" + near + ")");
+    ok(b.parseChristmasBrowseQuery({ sort: "bogus" }).sort === "" && b.parseChristmasBrowseQuery({ sort: "tickets" }).sort === "tickets", "sort accepts only tickets");
+  }
   ok(b.sortChristmasBrowse([unknown, base({ id: "zero", popularity_score: 0, local_rank: 0 })], b.parseChristmasBrowseQuery({}), day)[0].id === "zero", "measured PredictHQ zero remains distinct from unknown demand");
-  ok(!/storedPinFresh|wf_center|maximumAge/.test(strip(read("app/components/ChristmasBrowse.js"))), "saved location cannot automatically override Tickets");
+  {
+    const bsrc = strip(read("app/components/ChristmasBrowse.js"));
+    ok(!/storedPinFresh|wf_center|maximumAge/.test(bsrc), "a saved or cached pin never ranks the list, only a live position or the city lookup");
+    ok(/permissions\.query\(\{ name: "geolocation" \}\)/.test(bsrc) && /p\.state === "granted" \? byDevice\(\) : byCity\(\)/.test(bsrc) && /fetch\("\/api\/geo"/.test(bsrc), "the default location never prompts: device position only when already allowed, else the city lookup");
+    ok(/query\.auto && PRIVATE_KEYS\.has\(k\)/.test(bsrc), "a quietly found location stays out of the shareable address bar");
+  }
   ok(b.sortChristmasBrowse([unknown, base({ id: "zero-default", popularity_score: 0, start_date: "2026-12-20" })], b.parseChristmasBrowseQuery({}), day)[0].id === "unknown", "the database default curated zero is unassessed and uses the date fallback");
   // ticketed cards keep their photo galleries inside the one list
   {
@@ -837,22 +896,22 @@ ok(html.includes("data-christmas-filter") && html.includes(">Tickets<") && html.
   let queryNow;
   function Harness() {
     const [query, set] = useState({}); queryNow = query;
-    return createElement(Filter, { query, facets: { pills: [{ id: "lights", label: "Light shows" }], dates: [{ id: "weekend", label: "This weekend" }], regions: ["Tampa Bay"] }, onSet: (k, v) => set((q) => ({ ...q, [k]: v })), onNear: () => set((q) => ({ ...q, lat: 27.9, lng: -82.4 })), onClearNear: () => set((q) => ({ ...q, lat: "", lng: "" })), onReset: () => set({}) });
+    return createElement(Filter, { query, facets: { pills: [{ id: "lights", label: "Light shows" }], dates: [{ id: "weekend", label: "This weekend" }], regions: ["Tampa Bay"] }, onSet: (k, v) => set((q) => ({ ...q, [k]: v })), onNear: () => set((q) => ({ ...q, sort: "", lat: 27.9, lng: -82.4 })), onReset: () => set({}) });
   }
   const uiRoot = createRoot(document.getElementById("menu-test"));
   const click = async (selector) => act(async () => document.querySelector(selector).click());
   const pick = async (text) => act(async () => [...document.querySelectorAll("button")].find((b) => b.textContent === text).click());
   try {
     await act(async () => uiRoot.render(createElement(Harness)));
-    ok(/Tickets/.test(document.querySelector(".xm-filter-trigger").textContent) && !document.querySelector("input"), "interactive default is Tickets with no search field");
+    ok(/Best rated/.test(document.querySelector(".xm-filter-trigger").textContent) && !document.querySelector("input"), "interactive default is Best rated (owner 2026-11-11) with no search field");
     await click(".xm-filter-trigger");
     ok(document.querySelector('[role="dialog"]').getAttribute("aria-modal") === "true" && document.querySelector(".xm-menu-overlay").parentNode === document.body, "the sheet is a body-level modal above page stacking contexts");
     ok(document.activeElement.className === "xm-menu-close" && document.body.style.overflow === "hidden", "opening focuses Close and locks background scrolling");
     await pick("Light shows"); await pick("This weekend");
     await act(async () => { const select = document.querySelector("select"); select.value = "Tampa Bay"; select.dispatchEvent(new window.Event("change", { bubbles: true })); });
     ok(queryNow.category === "lights" && queryNow.when === "weekend" && queryNow.region === "Tampa Bay" && document.querySelector('[role="dialog"]'), "category, date and region can be combined without repeatedly reopening the sheet");
-    await pick("Closest first"); ok(queryNow.lat === 27.9, "distance requires an explicit choice");
-    await pick("Tickets first"); ok(queryNow.lat === "", "Tickets restores popularity ordering");
+    await pick("Tickets first"); ok(queryNow.sort === "tickets", "Tickets first is an opt in order");
+    await pick("Best near you"); ok(queryNow.sort === "" && queryNow.lat === 27.9, "Best near you returns to the default order and asks for the precise location");
     document.querySelector(".xm-menu-done").focus();
     await act(async () => document.dispatchEvent(new window.KeyboardEvent("keydown", { key: "Tab", bubbles: true, cancelable: true })));
     ok(document.activeElement.className === "xm-menu-close", "Tab wraps within the modal");
