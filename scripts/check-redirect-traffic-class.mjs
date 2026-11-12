@@ -45,6 +45,7 @@ const MONITOR = "WayfindSyntheticMonitor/1.0 (+https://www.gowayfind.com)";
 const NAV = { "sec-fetch-dest": "document", "sec-fetch-mode": "navigate", "sec-fetch-site": "cross-site", "sec-fetch-user": "?1" };
 
 const mkHeaders = (o) => { const m = new Map(Object.entries(o).map(([k, v]) => [k.toLowerCase(), v])); return { get: (n) => (m.has(String(n).toLowerCase()) ? m.get(String(n).toLowerCase()) : null) }; };
+process.env.STUBHUB_PARTNERIZE_CAMREF = "guardcamref1"; // hermetic fixture so the ships-dark StubHub route is exercised lit (WRITE only)
 const ROUTES = {
   hotels: { rel: "app/api/hotels/go/route.js", host: "stay22.com",
     q: () => "name=" + encodeURIComponent("Days Inn Bradenton - Near the Gulf") + "&address=" + encodeURIComponent("3506 1st Street West, Bradenton, FL") + "&content=wfh-days-inn-bradenton-near-the-gulf-27469" },
@@ -52,6 +53,8 @@ const ROUTES = {
     q: (i = 1) => "url=" + encodeURIComponent("https://www.ticketmaster.com/event/" + (100 + i)) },
   viator: { rel: "app/api/viator/go/route.js", host: "viator.com",
     q: () => "product=" + encodeURIComponent("https://www.viator.com/tours/Orlando/Airboat/d827-1234P5") },
+  stubhub: { rel: "app/api/stubhub/go/route.js", host: "stubhub.prf.hn",
+    q: (i = 1) => "url=" + encodeURIComponent("https://www.stubhub.com/event/" + (100 + i)) },
   commerce: { rel: "app/api/commerce/go/route.js", host: null, q: (i = 1) => "provider=unknown&offer=xyz" + i },
 };
 async function hit(name, headers, i = 1) {

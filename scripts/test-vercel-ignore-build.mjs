@@ -1,0 +1,190 @@
+// Gate: scripts/vercel-ignore-build.sh (Vercel "Ignored Build Step") skips a build
+// ONLY when every changed path is data/docs, and builds on everything else.
+// Exit 0 = skip, exit 1 = build. Executes the real script against a temp git repo
+// fixture (no regex over the source), and asserts on exit code AND the printed
+// reason line. Code PR previews must never be skipped (owner rule); every doubt
+// (missing/unknown previous SHA, production, git failure) must BUILD.
+import { spawnSync } from "node:child_process";
+import { mkdtempSync, mkdirSync, writeFileSync, rmSync, existsSync } from "node:fs";
+import { tmpdir } from "node:os";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+const HERE = path.dirname(fileURLToPath(import.meta.url));
+const SCRIPT = path.join(HERE, "vercel-ignore-build.sh");
+let fails = 0;
+let asserts = 0;
+const ok = (c, m) => { asserts++; if (!c) { console.error("test-vercel-ignore-build: FAIL - " + m); fails++; } };
+
+ok(existsSync(SCRIPT), "scripts/vercel-ignore-build.sh exists");
+
+const root = mkdtempSync(path.join(tmpdir(), "wf-vercel-ignore-"));
+const git = (args, opts = {}) => {
+  const r = spawnSync("git", args, { cwd: root, encoding: "utf8", ...opts });
+  if (r.status !== 0) throw new Error("git " + args.join(" ") + " failed: " + r.stderr);
+  return r.stdout.trim();
+};
+const put = (rel, body) => {
+  const p = path.join(root, rel);
+  mkdirSync(path.dirname(p), { recursive: true });
+  writeFileSync(p, body);
+};
+
+git(["init", "-q", "-b", "main"]);
+git(["config", "user.name", "fixture"]);
+git(["config", "user.email", "fixture@example.com"]);
+git(["config", "commit.gpgsign", "false"]);
+for (const f of ["app/page.js", "lib/a.js", "scripts/check-x.mjs", "public/logo.svg", "docs/a.md", "package.json", "middleware.js", "next.config.js"]) put(f, "base\n");
+// The running code names this doc (like lib/atlasCache.js does), so changing it must build.
+put("lib/atlas.js", "const STANDARD = path.resolve(process.cwd(), \"docs/WAYFIND_CARD_STANDARD.md\");\n");
+put("docs/WAYFIND_CARD_STANDARD.md", "base\n");
+git(["add", "-A"]);
+git(["commit", "-q", "-m", "base"]);
+const BASE = git(["rev-parse", "HEAD"]);
+
+// Make a commit on top of BASE touching `files`, return its SHA, then reset to BASE.
+function commitOf(files) {
+  git(["checkout", "-q", "--detach", BASE]);
+  for (const f of files) put(f, "changed " + Math.random() + "\n");
+  git(["add", "-A"]);
+  git(["commit", "-q", "-m", "case"]);
+  return git(["rev-parse", "HEAD"]);
+}
+
+function run({ files, prev = BASE, cur, env = {}, gitShim }) {
+  const sha = cur || commitOf(files);
+  const clean = { ...process.env };
+  for (const k of Object.keys(clean)) if (k.startsWith("VERCEL")) delete clean[k];
+  delete clean.WAYFIND_IGNORE_REMOTE;
+  if (gitShim) {
+    clean.WF_TEST_REAL_PATH = clean.PATH;
+    clean.PATH = gitShim + path.delimiter + clean.PATH;
+  }
+  const r = spawnSync("bash", [SCRIPT], {
+    cwd: root,
+    encoding: "utf8",
+    env: { ...clean, VERCEL_GIT_COMMIT_SHA: sha, ...(prev === null ? {} : { VERCEL_GIT_PREVIOUS_SHA: prev }), ...env },
+  });
+  return { code: r.status, out: (r.stdout || "") + (r.stderr || "") };
+}
+const expectSkip = (name, r) => {
+  ok(r.code === 0, `${name}: expected SKIP (exit 0), got exit ${r.code}: ${r.out.trim()}`);
+  ok(/vercel-ignore-build: SKIP/.test(r.out), `${name}: prints a SKIP reason line: ${r.out.trim()}`);
+};
+const expectBuild = (name, r) => {
+  ok(r.code === 1, `${name}: expected BUILD (exit 1), got exit ${r.code}: ${r.out.trim()}`);
+  ok(/vercel-ignore-build: BUILD/.test(r.out), `${name}: prints a BUILD reason line: ${r.out.trim()}`);
+};
+
+try {
+  // SKIP cases: data / docs only
+  expectSkip("photo-only diff", run({ files: ["public/place-photos/batch-2026-11/ChIJabc/site_1.jpg", "public/place-photos/batch-2026-11/ChIJabc/site_2.jpg"] }));
+  expectSkip("docs-only diff", run({ files: ["docs/new-lesson.md", "docs/sub/dir/x.txt"] }));
+  expectSkip("markdown anywhere outside code dirs", run({ files: ["README.md", "ops/notes.md"] }));
+  expectSkip("stored supabase SQL + photo batch notes", run({ files: ["supabase/photo-batches/2026-11-01/apply.sql", "supabase/photo-batches/2026-11-01/before_snapshot.json", "supabase/new-table.sql"] }));
+  expectSkip("photos + docs together", run({ files: ["public/place-photos/batch-2026-11/ChIJabc/site_3.jpg", "docs/claude-lessons.md"] }));
+
+  // BUILD cases: any code change must still get a preview
+  expectBuild("one lib file", run({ files: ["lib/a.js"] }));
+  expectBuild("one app file", run({ files: ["app/page.js"] }));
+  expectBuild("public/ non-photo file", run({ files: ["public/logo.svg"] }));
+  expectBuild("scripts file (guards run in prebuild)", run({ files: ["scripts/check-x.mjs"] }));
+  expectBuild("package.json", run({ files: ["package.json"] }));
+  expectBuild("middleware.js", run({ files: ["middleware.js"] }));
+  expectBuild("next.config.js", run({ files: ["next.config.js"] }));
+  expectBuild("photo + one lib file mixed", run({ files: ["public/place-photos/batch-2026-11/ChIJabc/site_4.jpg", "lib/a.js"] }));
+  expectBuild("markdown inside a code dir", run({ files: ["lib/notes.md"] }));
+  expectBuild("unlisted top-level path", run({ files: ["tools/thing.py"] }));
+
+  // BUILD cases: every doubt fails closed
+  const photoSha = commitOf(["public/place-photos/batch-2026-11/ChIJabc/site_5.jpg"]);
+  expectBuild("empty previous SHA", run({ cur: photoSha, prev: "" }));
+  expectBuild("previous SHA unset", run({ cur: photoSha, prev: null }));
+  expectBuild("unknown previous SHA", run({ cur: photoSha, prev: "0123456789abcdef0123456789abcdef01234567" }));
+  expectBuild("VERCEL_ENV=production even for a photo-only diff", run({ cur: photoSha, env: { VERCEL_ENV: "production" } }));
+  expectSkip("VERCEL_ENV=preview photo-only diff", run({ cur: photoSha, env: { VERCEL_ENV: "preview" } }));
+  expectBuild("no changed files (cannot prove data-only)", run({ cur: BASE }));
+
+  // Superseded previews: the fixture repo itself is the "remote" (WAYFIND_IGNORE_REMOTE).
+  git(["checkout", "-q", "--detach", BASE]);
+  git(["branch", "-f", "lane/x", BASE]);
+  const older = commitOf(["lib/a.js"]);
+  const newer = commitOf(["lib/a.js"]);
+  git(["branch", "-f", "lane/x", newer]);
+  const R = { WAYFIND_IGNORE_REMOTE: root, VERCEL_GIT_COMMIT_REF: "lane/x", VERCEL_ENV: "preview" };
+  const sup = run({ cur: older, env: R });
+  expectSkip("a code commit that is no longer its branch head (superseded)", sup);
+  ok(/superseded/.test(sup.out), "the superseded skip names its reason: " + sup.out.trim());
+  expectBuild("the branch head itself still builds (code change)", run({ cur: newer, env: R }));
+  expectBuild("production is never skipped as superseded", run({ cur: older, env: { ...R, VERCEL_ENV: "production" } }));
+  expectBuild("an unreachable remote falls through to the code rule (build)", run({ cur: older, env: { ...R, WAYFIND_IGNORE_REMOTE: path.join(root, "no-such-remote") } }));
+  expectBuild("a branch the remote does not have falls through (build)", run({ cur: older, env: { ...R, VERCEL_GIT_COMMIT_REF: "lane/missing" } }));
+  expectBuild("no branch name falls through (build)", run({ cur: older, env: { WAYFIND_IGNORE_REMOTE: root, VERCEL_ENV: "preview" } }));
+
+  // 2026-11-05 audit: production compares with the last deployed commit and skips only
+  // docs the running site never reads; runtime-read docs and photos always build.
+  const docsOnly = commitOf(["docs/new-lesson.md"]);
+  expectSkip("production, docs-only change the site never reads", run({ cur: docsOnly, env: { VERCEL_ENV: "production" } }));
+  const stdDoc = commitOf(["docs/WAYFIND_CARD_STANDARD.md"]);
+  const stdProd = run({ cur: stdDoc, env: { VERCEL_ENV: "production" } });
+  expectBuild("production, a doc the running code reads (lib names it)", stdProd);
+  ok(/runtime-read doc changed: docs\/WAYFIND_CARD_STANDARD\.md/.test(stdProd.out), "the build names the runtime-read doc: " + stdProd.out.trim());
+  expectBuild("preview, a doc the running code reads", run({ cur: stdDoc, env: { VERCEL_ENV: "preview" } }));
+  expectBuild("production, no previous deployment SHA", run({ cur: docsOnly, prev: null, env: { VERCEL_ENV: "production" } }));
+  // A code commit whose production deploy was superseded, then a docs-only commit: compared
+  // with the last DEPLOYED commit (BASE), the code change is still in the diff and builds.
+  git(["checkout", "-q", "--detach", BASE]);
+  put("lib/a.js", "code " + Math.random() + "\n"); git(["add", "-A"]); git(["commit", "-q", "-m", "code"]);
+  put("docs/later.md", "x\n"); git(["add", "-A"]); git(["commit", "-q", "-m", "docs"]);
+  const stacked = git(["rev-parse", "HEAD"]);
+  expectBuild("production, docs commit on top of an undeployed code commit (diff from last deploy)", run({ cur: stacked, prev: BASE, env: { VERCEL_ENV: "production" } }));
+
+  // Exercise failures in the actual git subprocesses, including partial output.
+  // Forward every other command to real git against the same fixture repository.
+  const shimDir = path.join(root, "git-shim");
+  mkdirSync(shimDir);
+  writeFileSync(path.join(shimDir, "git"), `#!/usr/bin/env bash
+if [ "$1" = "$WF_TEST_GIT_COMMAND" ]; then
+  if [ -n "$WF_TEST_GIT_OUTPUT" ]; then
+    case "$1" in
+      diff) printf '%s\\0' "$WF_TEST_GIT_OUTPUT" ;;
+      ls-remote) printf '%s\\trefs/heads/lane/x\\n' "$WF_TEST_GIT_OUTPUT" ;;
+      *) printf '%s\\n' "$WF_TEST_GIT_OUTPUT" ;;
+    esac
+  fi
+  exit "$WF_TEST_GIT_STATUS"
+fi
+PATH="$WF_TEST_REAL_PATH" exec git "$@"
+`, { mode: 0o755 });
+  const shimEnv = {
+    VERCEL_ENV: "production", WF_TEST_GIT_COMMAND: "",
+    WF_TEST_GIT_OUTPUT: "", WF_TEST_GIT_STATUS: "0",
+  };
+  const runWithGitShim = (options) => run({ ...options, gitShim: shimDir });
+  expectSkip("git shim positive control: ordinary docs still skip", runWithGitShim({ cur: docsOnly, env: shimEnv }));
+  expectBuild("git shim positive control: code still builds", runWithGitShim({ cur: older, env: shimEnv }));
+  expectBuild("git shim positive control: runtime docs still build", runWithGitShim({ cur: stdDoc, env: shimEnv }));
+  for (const output of ["", "docs/new-lesson.md"]) {
+    const failedDiff = runWithGitShim({ cur: docsOnly, env: {
+      ...shimEnv, WF_TEST_GIT_COMMAND: "diff", WF_TEST_GIT_STATUS: "128", WF_TEST_GIT_OUTPUT: output,
+    } });
+    expectBuild(`git diff failure with ${output ? "partial" : "no"} output`, failedDiff);
+    ok(/BUILD - git diff failed/.test(failedDiff.out), "a failed diff names the failed operation");
+    const failedGrep = runWithGitShim({ cur: stdDoc, env: {
+      ...shimEnv, WF_TEST_GIT_COMMAND: "grep", WF_TEST_GIT_STATUS: "2", WF_TEST_GIT_OUTPUT: output,
+    } });
+    expectBuild(`git grep failure with ${output ? "partial" : "no"} output`, failedGrep);
+    ok(/BUILD - runtime doc reference scan failed/.test(failedGrep.out), "a failed reference scan names the failed operation");
+  }
+  expectSkip("git grep exit 1 is a successful scan with no runtime references", runWithGitShim({ cur: docsOnly, env: {
+    ...shimEnv, WF_TEST_GIT_COMMAND: "grep", WF_TEST_GIT_STATUS: "1",
+  } }));
+  expectBuild("failed remote lookup with partial head output cannot suppress a code preview", runWithGitShim({ cur: older, env: {
+    ...shimEnv, ...R, WF_TEST_GIT_COMMAND: "ls-remote", WF_TEST_GIT_STATUS: "128", WF_TEST_GIT_OUTPUT: newer,
+  } }));
+} finally {
+  rmSync(root, { recursive: true, force: true });
+}
+
+if (fails) { console.error(`test-vercel-ignore-build: ${fails} failure(s)`); process.exit(1); }
+console.log(`test-vercel-ignore-build: OK - ${asserts} assertions (data/docs skips, code/runtime builds, superseded previews, and git failure controls) against a temp git fixture`);

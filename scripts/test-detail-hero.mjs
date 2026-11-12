@@ -180,7 +180,7 @@ for (const [label, expandedHero, showHero, liveId, photos, galleryIdx = 0] of [
 ]) {
   let openedPhoto, galleryDirection;
   const ctx = { expandedHero, showHero, liveId, galleryPhotos: photos, heroSrc: photos[0], galleryIdx,
-    detail: { name: 'Fixture place' }, PLACE_DETAIL_PHOTO_STANDARD, C: {}, FallbackImg: 'fixture-image', galleryRef: null,
+    detail: { name: 'Fixture place' }, heroCredit: null, PhotoCredit: 'fixture-credit', PLACE_DETAIL_PHOTO_STANDARD, C: {}, FallbackImg: 'fixture-image', galleryRef: null,
     onGalleryScroll() {}, scrollGallery(direction) { galleryDirection = direction; }, galleryBtn: () => ({}), setLightbox(src) { openedPhoto = src; },
     primaryCategory: () => 'Food', isLivePlaceId: id => !!id };
   const render = new Function('React', ...Object.keys(ctx), heroJs + ';return render;')({ createElement, Fragment: 'fragment' }, ...Object.values(ctx));
@@ -201,6 +201,7 @@ for (const [label, expandedHero, showHero, liveId, photos, galleryIdx = 0] of [
   ok(nodes.some(n => n.props['aria-label'] === 'Back'), label + ': Back control remains available');
   if (label === 'pending photo') ok(nodes.some(n => 'data-detail-photo-pending' in n.props), 'pending photo reserves the full frame without a fallback image');
   if (!expandedHero) ok(nodes.some(n => 'data-detail-photo-unavailable' in n.props), label + ': compact truthful no-photo text');
+  ok(!nodes.some(n => n.type === 'fixture-credit'), label + ': no credit without a credited photo');
   if (photos.length > 1) {
     const direction = galleryIdx > 0 ? -1 : 1;
     const arrow = nodes.find(n => n.props['aria-label'] === (direction === -1 ? 'Previous photo' : 'Next photo'));
@@ -209,6 +210,21 @@ for (const [label, expandedHero, showHero, liveId, photos, galleryIdx = 0] of [
     ok(nodes.some(n => n.props['aria-hidden'] === 'true' && n.children.includes(galleryIdx + 1) && n.children.includes(photos.length)), label + ': gallery keeps its current-photo counter');
     ok(nodes.some(n => n.props.onScroll === ctx.onGalleryScroll && n.props.style.scrollSnapType === 'x mandatory'), 'gallery keeps native swipe and snap');
   }
+}
+
+{
+  const ctx = { expandedHero: true, showHero: true, liveId: 'ChIJfixture', galleryPhotos: ['portrait.jpg'], heroSrc: 'portrait.jpg', galleryIdx: 0,
+    detail: { name: 'Fixture place' }, heroCredit: { name: 'Fixture photographer', source: 'google', mapsUri: 'https://maps.google.com/?cid=1' }, PhotoCredit: 'fixture-credit',
+    PLACE_DETAIL_PHOTO_STANDARD, C: {}, FallbackImg: 'fixture-image', galleryRef: null,
+    onGalleryScroll() {}, scrollGallery() {}, galleryBtn: () => ({}), setLightbox() {},
+    primaryCategory: () => 'Food', isLivePlaceId: id => !!id };
+  const render = new Function('React', ...Object.keys(ctx), heroJs + ';return render;')({ createElement, Fragment: 'fragment' }, ...Object.values(ctx));
+  const nodes = walk(render());
+  const media = nodes.find(n => 'data-detail-photo-media' in n.props);
+  const credit = nodes.find(n => n.type === 'fixture-credit');
+  const title = nodes.find(n => n.children.includes('Fixture place'));
+  ok(!!credit && credit.props.onPhoto === true && walk(media).includes(credit), 'a credited photo pins its credit inside the photo');
+  ok(nodes.indexOf(credit) < nodes.indexOf(title), 'the credit is not a line under the headline');
 }
 
 if (failures) process.exit(1);

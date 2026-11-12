@@ -14,14 +14,14 @@
  *   - REST URLs containing wf_inventory?select=<columns>
  * Each selected column (aliases `a:b` resolved to b; embeds `x(...)`, `*`,
  * `count` skipped) must be in WF_INVENTORY_COLUMNS, the live column list read
- * from Supabase information_schema on 2026-10-23. A migration that adds a
+ * from Supabase information_schema on 2026-10-23 (+2 by 20261103230000). A migration that adds a
  * column must add it here too.
  */
 // STRUCTURAL-ONLY: the truth is the live wf_inventory schema, which CI cannot reach, and a Next route.js may not export its column list; the scan carries negative, positive and REST controls.
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import path from "node:path";
 
-const WF_INVENTORY_COLUMNS = new Set(("place_id,name,lat,lng,category,tags,google_types,primary_type,metro,signals,editorial,photo_ref,status,anchor,source,needs_review,last_verified_at,locked,seen_at,refreshed_at,editorial_card,cuisines,cuisine_confidence,cuisine_sources,cuisine_reason,cuisine_checked_at,cuisine_conf,excluded,exclusion_reason,secondary_categories,locality,county,independent_coords").split(","));
+const WF_INVENTORY_COLUMNS = new Set(("place_id,name,lat,lng,category,tags,google_types,primary_type,metro,signals,editorial,photo_ref,status,anchor,source,needs_review,last_verified_at,locked,seen_at,refreshed_at,editorial_card,cuisines,cuisine_confidence,cuisine_sources,cuisine_reason,cuisine_checked_at,cuisine_conf,excluded,exclusion_reason,secondary_categories,locality,county,independent_coords,postal_city,postal_city_source").split(","));
 
 const ROOTS = ["app", "lib"];
 const EXT = /\.(?:m?js|jsx|ts|tsx)$/;
