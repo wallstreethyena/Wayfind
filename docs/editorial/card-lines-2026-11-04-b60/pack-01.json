@@ -1,0 +1,2231 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 60. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJX6tR6ZO12YgRXPkf-fa41RE",
+   "name": "Salt Cafe Miami Beach",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://saltcafemiamibeach.com/",
+     "source_name": "Salt Cafe Miami Beach \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Salt Cafe Miami Beach is a welcoming spot on Collins Avenue",
+      "The menu takes inspiration from Mediterranean-style flavors and crowd-friendly favorites",
+      "Desserts include baklava and chocolate favorites",
+      "Brunch, lunch and dinner are served at Salt Cafe Miami Beach"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Welcoming spot on Collins Avenue for relaxed brunch, casual lunch and flavorful dinner",
+    "why_here": "Salt Cafe Miami Beach describes itself as a welcoming spot on Collins Avenue where locals and visitors come for great food and warm service. Its menu takes inspiration from Mediterranean-style flavors and crowd-friendly favorites made for sharing.",
+    "know_before": "Salt Cafe Miami Beach is a welcoming spot on Collins Avenue",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://saltcafemiamibeach.com/"
+     ],
+     "why_here": [
+      "https://saltcafemiamibeach.com/"
+     ],
+     "know_before": [
+      "https://saltcafemiamibeach.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Salt Cafe Miami Beach is a welcoming spot on Collins Avenue",
+      "source": "https://saltcafemiamibeach.com/"
+     },
+     {
+      "claim": "The menu takes inspiration from Mediterranean-style flavors and crowd-friendly favorites",
+      "source": "https://saltcafemiamibeach.com/"
+     },
+     {
+      "claim": "Desserts include baklava and chocolate favorites",
+      "source": "https://saltcafemiamibeach.com/"
+     },
+     {
+      "claim": "Brunch, lunch and dinner are served at Salt Cafe Miami Beach",
+      "source": "https://saltcafemiamibeach.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJmXnXeLK22YgRAp98Vjwp2rs",
+   "name": "Morelia Ice Cream Paletas - Wynwood",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "ice_cream_shop",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.paletasmorelia.com/location/wynwood-ice-cream/",
+     "source_name": "Morelia Ice Cream Paletas - Wynwood \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Wynwood store opened in 2018 and was the second location in Miami after Coral Gables",
+      "Morelia offers over 18 different flavors made with 100% natural ingredients",
+      "A paleta can be customized with a dipping or a topping or both",
+      "Paleta shakes can be made with favorite paleta flavors"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Opened in 2018 as the second location in Miami, after the first one in Coral Gables",
+    "why_here": "This store was opened in 2018 and was the second location in Miami, after the first one in Coral Gables. It offers over 18 different flavors made with 100% natural ingredients, with a dipping or a topping to customize each paleta.",
+    "know_before": "The Wynwood store opened in 2018 and was the second location in Miami after Coral Gables",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.paletasmorelia.com/location/wynwood-ice-cream/"
+     ],
+     "why_here": [
+      "https://www.paletasmorelia.com/location/wynwood-ice-cream/"
+     ],
+     "know_before": [
+      "https://www.paletasmorelia.com/location/wynwood-ice-cream/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Wynwood store opened in 2018 and was the second location in Miami after Coral Gables",
+      "source": "https://www.paletasmorelia.com/location/wynwood-ice-cream/"
+     },
+     {
+      "claim": "Morelia offers over 18 different flavors made with 100% natural ingredients",
+      "source": "https://www.paletasmorelia.com/location/wynwood-ice-cream/"
+     },
+     {
+      "claim": "A paleta can be customized with a dipping or a topping or both",
+      "source": "https://www.paletasmorelia.com/location/wynwood-ice-cream/"
+     },
+     {
+      "claim": "Paleta shakes can be made with favorite paleta flavors",
+      "source": "https://www.paletasmorelia.com/location/wynwood-ice-cream/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ_RU0V6OGk4gRHJ5wKrZDEB4",
+   "name": "FINNS Island Style Grub in St. Andrew\u2019s",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "taco_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.finnsgrub.com/",
+     "source_name": "FINNS Island Style Grub in St. Andrew\u2019s \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "FINNS mission is to keep it small, fresh, and simple",
+      "No fryers or microwaves here, just a grill and an oven",
+      "FINNS Island Style Grub serves tacos, burritos and ceviche",
+      "FINNS catering bars are made the same day of the event and can be picked up or delivered"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Island style grub with tacos, burritos and ceviche \u2014 no fryers or microwaves, just a grill and an oven.",
+    "why_here": "FINNS Island Style Grub says its mission is to keep it small, fresh, and simple so it can focus on quality and consistency. It says it embraces the outdoors and takes pride in everything it cooks.",
+    "know_before": "FINNS catering bars featuring tacos or burrito bowl are made the same day of the event and can be picked up or delivered.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.finnsgrub.com/"
+     ],
+     "why_here": [
+      "https://www.finnsgrub.com/"
+     ],
+     "know_before": [
+      "https://www.finnsgrub.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "FINNS mission is to keep it small, fresh, and simple",
+      "source": "https://www.finnsgrub.com/"
+     },
+     {
+      "claim": "No fryers or microwaves here, just a grill and an oven",
+      "source": "https://www.finnsgrub.com/"
+     },
+     {
+      "claim": "FINNS Island Style Grub serves tacos, burritos and ceviche",
+      "source": "https://www.finnsgrub.com/"
+     },
+     {
+      "claim": "FINNS catering bars are made the same day of the event and can be picked up or delivered",
+      "source": "https://www.finnsgrub.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ5xPbrgCt5YgR5FWGutyAOUo",
+   "name": "La Catrina Tacos & Tequila Bar, Jacksonville",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "mexican_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.lacatrinalovers.com",
+     "source_name": "La Catrina Tacos & Tequila Bar, Jacksonville \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "La Catrina lists locations in Jacksonville, Middleburg and St. Augustine",
+      "Hours are Mon - Sat 11:00 a.m. to 10:00 p.m. and Sun 11:00 a.m. to 9:00 p.m.",
+      "The site offers a Food Menu and a Cocktail Menu",
+      "The site says Let us Cater your next event"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Tacos & Tequila Bar with locations in Jacksonville, Middleburg and St. Augustine",
+    "why_here": "La Catrina is presented as a Tacos & Tequila Bar with locations in Jacksonville, Middleburg and St. Augustine. Its site invites guests to check out the food and drink menu and to try specials.",
+    "know_before": "Hours are listed as Mon - Sat 11:00 a.m. to 10:00 p.m. and Sun 11:00 a.m. to 9:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.lacatrinalovers.com"
+     ],
+     "why_here": [
+      "https://www.lacatrinalovers.com"
+     ],
+     "know_before": [
+      "https://www.lacatrinalovers.com"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "La Catrina lists locations in Jacksonville, Middleburg and St. Augustine",
+      "source": "https://www.lacatrinalovers.com"
+     },
+     {
+      "claim": "Hours are Mon - Sat 11:00 a.m. to 10:00 p.m. and Sun 11:00 a.m. to 9:00 p.m.",
+      "source": "https://www.lacatrinalovers.com"
+     },
+     {
+      "claim": "The site offers a Food Menu and a Cocktail Menu",
+      "source": "https://www.lacatrinalovers.com"
+     },
+     {
+      "claim": "The site says Let us Cater your next event",
+      "source": "https://www.lacatrinalovers.com"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJF2fr9LpO5IgRHUaitDRgWOU",
+   "name": "The Hangar Bay Caf\u00e9 and Gallery",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://hangarbaycafe.com/",
+     "source_name": "The Hangar Bay Caf\u00e9 and Gallery \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Hangar Bay is the area of a ship where aircraft live during deployment",
+      "The cafe serves comfort food without pretense or fanfare, with eclectic menu choices by design",
+      "Special menu items listed include Bayou Ramen, Four Piece Half Chicken and Veggie Ramen",
+      "The site lists pick up in the restaurant and delivery by GrubHub and UberEats"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "The Hangar Bay is the area of a ship where aircraft live during deployment",
+    "why_here": "The Hangar Bay Caf\u00e9 and Gallery takes its name from the area of a ship where aircraft live during deployment. It serves comfort food without pretense or fanfare, with menu choices that are eclectic by design.",
+    "know_before": "The Hangar Bay is the area of a ship where aircraft live during deployment",
+    "local_tip": "Order online for pick up in the restaurant, with delivery by GrubHub and UberEats also listed.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://hangarbaycafe.com/"
+     ],
+     "why_here": [
+      "https://hangarbaycafe.com/"
+     ],
+     "know_before": [
+      "https://hangarbaycafe.com/"
+     ],
+     "local_tip": [
+      "https://hangarbaycafe.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Hangar Bay is the area of a ship where aircraft live during deployment",
+      "source": "https://hangarbaycafe.com/"
+     },
+     {
+      "claim": "The cafe serves comfort food without pretense or fanfare, with eclectic menu choices by design",
+      "source": "https://hangarbaycafe.com/"
+     },
+     {
+      "claim": "Special menu items listed include Bayou Ramen, Four Piece Half Chicken and Veggie Ramen",
+      "source": "https://hangarbaycafe.com/"
+     },
+     {
+      "claim": "The site lists pick up in the restaurant and delivery by GrubHub and UberEats",
+      "source": "https://hangarbaycafe.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJn9Pnx5m32YgR0YyS1bFgadk",
+   "name": "Rice Mediterranean Kitchen",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "mediterranean_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.ricekitchen.com",
+     "source_name": "Rice Mediterranean Kitchen \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Chef Ali Shabani developed the menu in his South Miami test kitchen from his family's Mediterranean heritage",
+      "Build your own bowl: select 2 bases, 3 dips, 2 proteins and 2 dressings",
+      "The menu includes kabobs, hummus and fresh salads crafted with premium ingredients"
+     ]
+    },
+    {
+     "source": "https://www.ricekitchen.com/menu",
+     "source_name": "Rice Mediterranean Kitchen \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Kabob platters are served with basmati rice, Greek salad, pita, hummus, sumac sauce and dressing"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Build-your-own Mediterranean bowls, kabob platters and salads from a South Miami test kitchen.",
+    "why_here": "Chef Ali Shabani developed the Rice Mediterranean Kitchen menu in his South Miami test kitchen, drawing from his family's Mediterranean heritage. Popular formats include salads with a protein choice, build-your-own bowls and kabob platters with basmati rice, Greek salad, hummus and pita.",
+    "know_before": "Build-your-own bowls let you select 2 bases, 3 dips, 2 proteins and 2 dressings, per the official site.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.ricekitchen.com"
+     ],
+     "why_here": [
+      "https://www.ricekitchen.com"
+     ],
+     "know_before": [
+      "https://www.ricekitchen.com"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Chef Ali Shabani developed the menu in his South Miami test kitchen from his family's Mediterranean heritage",
+      "source": "https://www.ricekitchen.com"
+     },
+     {
+      "claim": "Build your own bowl: select 2 bases, 3 dips, 2 proteins and 2 dressings",
+      "source": "https://www.ricekitchen.com"
+     },
+     {
+      "claim": "Kabob platters are served with basmati rice, Greek salad, pita, hummus, sumac sauce and dressing",
+      "source": "https://www.ricekitchen.com/menu"
+     },
+     {
+      "claim": "The menu includes kabobs, hummus and fresh salads crafted with premium ingredients",
+      "source": "https://www.ricekitchen.com"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ69NMJCcF2YgRUuCDfRtLDQw",
+   "name": "HALLYU KOREAN BBQ & BAR",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "korean_barbecue_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://hallyukbbq.com/about",
+     "source_name": "HALLYU KOREAN BBQ & BAR \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Hallyu KBBQ & Bar was established in 2023",
+      "Hallyu embraces the All-You-Can-Eat concept with protein options, Korean beer and soju",
+      "Hallyu blends sophisticated decor and lighting with outstanding service",
+      "Hallyu offers the freshest and finest cuts of meat"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "All-you-can-eat Korean BBQ established in 2023 with Korean beer and soju",
+    "why_here": "Established in 2023, Hallyu KBBQ & Bar is dedicated to providing a premier Korean BBQ experience with sophisticated decor and lighting. It embraces the All-You-Can-Eat concept with protein options complemented by Korean beer and soju.",
+    "know_before": "Hallyu embraces the All-You-Can-Eat concept at competitive prices, with protein options complemented by Korean beer and soju.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://hallyukbbq.com/about"
+     ],
+     "why_here": [
+      "https://hallyukbbq.com/about"
+     ],
+     "know_before": [
+      "https://hallyukbbq.com/about"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Hallyu KBBQ & Bar was established in 2023",
+      "source": "https://hallyukbbq.com/about"
+     },
+     {
+      "claim": "Hallyu embraces the All-You-Can-Eat concept with protein options, Korean beer and soju",
+      "source": "https://hallyukbbq.com/about"
+     },
+     {
+      "claim": "Hallyu blends sophisticated decor and lighting with outstanding service",
+      "source": "https://hallyukbbq.com/about"
+     },
+     {
+      "claim": "Hallyu offers the freshest and finest cuts of meat",
+      "source": "https://hallyukbbq.com/about"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJOU_6GZC02YgR6XSCs2ild2A",
+   "name": "Lost Weekend",
+   "category": "nightlife",
+   "metro": "miami-dade",
+   "primary_type": "bar",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://sub-culture.org/lw-miami/",
+     "source_name": "Lost Weekend \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Lost Weekend features vintage video games from the 80's, billiard tables and craft beers",
+      "Lost Weekend's official page lists hours as EVERYDAY 4pm-4AM",
+      "Lost Weekend is listed by Subculture at 218 Espanola Way, Miami Beach"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Miami Beach dive bar with vintage 1980s video games, billiard tables, craft beers and tacos.",
+    "why_here": "Lost Weekend's official Subculture page says it carries on a tradition with an environment you can truly lose yourself in. It features vintage video games from the 80's, billiard tables, craft beers and what it calls the best tacos.",
+    "know_before": "Official hours are listed as every day 4pm-4AM.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://sub-culture.org/lw-miami/"
+     ],
+     "why_here": [
+      "https://sub-culture.org/lw-miami/"
+     ],
+     "know_before": [
+      "https://sub-culture.org/lw-miami/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Lost Weekend features vintage video games from the 80's, billiard tables and craft beers",
+      "source": "https://sub-culture.org/lw-miami/"
+     },
+     {
+      "claim": "Lost Weekend's official page lists hours as EVERYDAY 4pm-4AM",
+      "source": "https://sub-culture.org/lw-miami/"
+     },
+     {
+      "claim": "Lost Weekend is listed by Subculture at 218 Espanola Way, Miami Beach",
+      "source": "https://sub-culture.org/lw-miami/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJk4k41fDG2YgRrkEWLjBeVVY",
+   "name": "Pinecrest Bakery - Pinecrest",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "bakery",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://pinecrestbakery.com/pages/p-team",
+     "source_name": "Pinecrest Bakery - Pinecrest \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The first Pinecrest Bakery opened in Pinecrest in 2012",
+      "Pinecrest Bakery describes 20+ locations open 24/7",
+      "Pinecrest Bakery serves caf\u00e9 cubano and over 60 desserts",
+      "Pinecrest Bakery slogan is Bite into tradition"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "First Pinecrest Bakery opened in Pinecrest in 2012 to bring traditional Cuban flavors to the table.",
+    "why_here": "The first Pinecrest Bakery opened in Pinecrest in 2012 Pinecrest Bakery describes 20+ locations open 24/7 Pinecrest Bakery serves caf\u00e9 cubano and over 60 desserts",
+    "know_before": "Pinecrest Bakery describes its locations as open 24/7, and its team page describes 20+ locations.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://pinecrestbakery.com/pages/p-team"
+     ],
+     "why_here": [
+      "https://pinecrestbakery.com/pages/p-team"
+     ],
+     "know_before": [
+      "https://pinecrestbakery.com/pages/p-team"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The first Pinecrest Bakery opened in Pinecrest in 2012",
+      "source": "https://pinecrestbakery.com/pages/p-team"
+     },
+     {
+      "claim": "Pinecrest Bakery describes 20+ locations open 24/7",
+      "source": "https://pinecrestbakery.com/pages/p-team"
+     },
+     {
+      "claim": "Pinecrest Bakery serves caf\u00e9 cubano and over 60 desserts",
+      "source": "https://pinecrestbakery.com/pages/p-team"
+     },
+     {
+      "claim": "Pinecrest Bakery slogan is Bite into tradition",
+      "source": "https://pinecrestbakery.com/pages/p-team"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJjTmY-_X92IgRiPJEYw_fCUw",
+   "name": "Billy Jack's Shack",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.billyjacksshack.com/lauderdale-by-the-sea-fl/",
+     "source_name": "Billy Jack's Shack \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The 50/50 Grind uses a house wagyu beef blend with smoked bacon, melted cheddar, caramelized onions and BJ's sauce",
+      "Sticky Nuggs are fried boneless white chicken nuggets tossed in your choice of one house made sauce",
+      "The menu lists Salads, Boxes, Sliders, Napkin Burgers, Shack Dogs, Signatures and a Raw Bar",
+      "House Made Sauces include sticky sweet chili, garlic herb and parmesan, classic buffalo and habanero shocker"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Napkin Burgers with house wagyu beef blend, plus Sticky Nuggs in house made sauce",
+    "why_here": "The menu lists Salads, Boxes, Sliders, Napkin Burgers, Shack Dogs, Signatures and a Raw Bar. Napkin Burgers use a house wagyu beef blend, and Sticky Nuggs are tossed in your choice of one house made sauce.",
+    "know_before": "Sticky Nuggs are fried boneless white chicken nuggets tossed in your choice of one house made sauce.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.billyjacksshack.com/lauderdale-by-the-sea-fl/"
+     ],
+     "why_here": [
+      "https://www.billyjacksshack.com/lauderdale-by-the-sea-fl/"
+     ],
+     "know_before": [
+      "https://www.billyjacksshack.com/lauderdale-by-the-sea-fl/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The 50/50 Grind uses a house wagyu beef blend with smoked bacon, melted cheddar, caramelized onions and BJ's sauce",
+      "source": "https://www.billyjacksshack.com/lauderdale-by-the-sea-fl/"
+     },
+     {
+      "claim": "Sticky Nuggs are fried boneless white chicken nuggets tossed in your choice of one house made sauce",
+      "source": "https://www.billyjacksshack.com/lauderdale-by-the-sea-fl/"
+     },
+     {
+      "claim": "The menu lists Salads, Boxes, Sliders, Napkin Burgers, Shack Dogs, Signatures and a Raw Bar",
+      "source": "https://www.billyjacksshack.com/lauderdale-by-the-sea-fl/"
+     },
+     {
+      "claim": "House Made Sauces include sticky sweet chili, garlic herb and parmesan, classic buffalo and habanero shocker",
+      "source": "https://www.billyjacksshack.com/lauderdale-by-the-sea-fl/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJjw7lcZN854gRYlXDMkxSEUc",
+   "name": "Ray's Deli and More",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "deli",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://raysdeliandmore.com/",
+     "source_name": "Ray's Deli and More \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Ray's Deli and More says it has been serving Orlando since 2015",
+      "The deli serves hand-sliced pastrami and oven roasted turkey",
+      "The site lists a freshly made hot buffet and authentic pasta dishes",
+      "Business hours are Monday to Saturday 6:00 a.m. to 10:00 p.m. and Sunday 6:00 a.m. to 9:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Ray's Deli and More says it has been serving Orlando since 2015",
+    "why_here": "Ray's Deli and More says it has been serving Orlando since 2015 The deli serves hand-sliced pastrami and oven roasted turkey",
+    "know_before": "Business hours listed are Monday to Saturday 6:00 a.m. to 10:00 p.m. and Sunday 6:00 a.m. to 9:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://raysdeliandmore.com/"
+     ],
+     "why_here": [
+      "https://raysdeliandmore.com/"
+     ],
+     "know_before": [
+      "https://raysdeliandmore.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Ray's Deli and More says it has been serving Orlando since 2015",
+      "source": "https://raysdeliandmore.com/"
+     },
+     {
+      "claim": "The deli serves hand-sliced pastrami and oven roasted turkey",
+      "source": "https://raysdeliandmore.com/"
+     },
+     {
+      "claim": "The site lists a freshly made hot buffet and authentic pasta dishes",
+      "source": "https://raysdeliandmore.com/"
+     },
+     {
+      "claim": "Business hours are Monday to Saturday 6:00 a.m. to 10:00 p.m. and Sunday 6:00 a.m. to 9:00 p.m.",
+      "source": "https://raysdeliandmore.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJyWdASvjV54gRcfknNp9Q0c4",
+   "name": "Huddys Escape",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "amusement_center",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.ocalamarion.com/directory/huddys-escape/",
+     "source_name": "Huddys Escape \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Huddy's Escape offers movie-quality environments and award-winning puzzle design",
+      "Experiences feature high-end scenic builds, custom lighting, hidden mechanisms, sound design and story-driven gameplay",
+      "Every experience is completely private with no mixed groups"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Cinematic escape rooms with movie-quality sets and fully private experiences",
+    "why_here": "Huddy's Escape delivers immersive, cinematic experiences with movie-quality environments and award-winning puzzle design. Every experience is completely private with no mixed groups, with high-end scenic builds, custom lighting and story-driven gameplay.",
+    "know_before": "Every experience is completely private with no mixed groups, according to the listing.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.ocalamarion.com/directory/huddys-escape/"
+     ],
+     "why_here": [
+      "https://www.ocalamarion.com/directory/huddys-escape/"
+     ],
+     "know_before": [
+      "https://www.ocalamarion.com/directory/huddys-escape/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Huddy's Escape offers movie-quality environments and award-winning puzzle design",
+      "source": "https://www.ocalamarion.com/directory/huddys-escape/"
+     },
+     {
+      "claim": "Experiences feature high-end scenic builds, custom lighting, hidden mechanisms, sound design and story-driven gameplay",
+      "source": "https://www.ocalamarion.com/directory/huddys-escape/"
+     },
+     {
+      "claim": "Every experience is completely private with no mixed groups",
+      "source": "https://www.ocalamarion.com/directory/huddys-escape/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJubELXVMA2YgRBAr3bgNpibA",
+   "name": "Temple Street Eatery",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.templestreeteatery.com/our-story",
+     "source_name": "Temple Street Eatery \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Temple Street Eatery describes itself as a local staple for Asian American comfort food since 2014",
+      "Global street food is reimagined with local ingredients",
+      "The menu features homemade daily specials and signature savory bowls",
+      "The menu includes light salads and small bites"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Asian American comfort food since 2014, with global street food reimagined with local ingredients.",
+    "why_here": "Temple Street Eatery calls itself a local staple for Asian American comfort food since 2014 and says it creates a casual, friendly space. It says global street food is reimagined with local ingredients, with homemade daily specials and signature savory bowls.",
+    "know_before": "Temple Street Eatery describes itself as a local staple for Asian American comfort food since 2014",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.templestreeteatery.com/our-story"
+     ],
+     "why_here": [
+      "https://www.templestreeteatery.com/our-story"
+     ],
+     "know_before": [
+      "https://www.templestreeteatery.com/our-story"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Temple Street Eatery describes itself as a local staple for Asian American comfort food since 2014",
+      "source": "https://www.templestreeteatery.com/our-story"
+     },
+     {
+      "claim": "Global street food is reimagined with local ingredients",
+      "source": "https://www.templestreeteatery.com/our-story"
+     },
+     {
+      "claim": "The menu features homemade daily specials and signature savory bowls",
+      "source": "https://www.templestreeteatery.com/our-story"
+     },
+     {
+      "claim": "The menu includes light salads and small bites",
+      "source": "https://www.templestreeteatery.com/our-story"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJA_-_8oBrw4gRIVCWIvrEbEE",
+   "name": "The Big Tiki Lounge",
+   "category": "nightlife",
+   "metro": "manatee-sarasota",
+   "primary_type": "bar",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://thebigtikilounge.com/",
+     "source_name": "The Big Tiki Lounge \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Big Tiki Lounge describes itself as Siesta Key's largest tiki bar",
+      "It offers a full liquor bar, specialty cocktails, wine, and spirits",
+      "The venue lists seating for up to 90 and 70-inch flat screens",
+      "Opening hours listed are Monday-Sunday 11:00am-9:00pm"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Siesta Key's largest tiki bar, with specialty cocktails and a full liquor bar",
+    "why_here": "The Big Tiki Lounge calls itself Siesta Key's largest tiki bar and says it offers a full liquor bar, specialty cocktails, wine and spirits. Its site also lists bar games, entertainment and seating for up to 90 guests.",
+    "know_before": "Opening hours listed are Monday-Sunday 11:00am-9:00pm",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://thebigtikilounge.com/"
+     ],
+     "why_here": [
+      "https://thebigtikilounge.com/"
+     ],
+     "know_before": [
+      "https://thebigtikilounge.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Big Tiki Lounge describes itself as Siesta Key's largest tiki bar",
+      "source": "https://thebigtikilounge.com/"
+     },
+     {
+      "claim": "It offers a full liquor bar, specialty cocktails, wine, and spirits",
+      "source": "https://thebigtikilounge.com/"
+     },
+     {
+      "claim": "The venue lists seating for up to 90 and 70-inch flat screens",
+      "source": "https://thebigtikilounge.com/"
+     },
+     {
+      "claim": "Opening hours listed are Monday-Sunday 11:00am-9:00pm",
+      "source": "https://thebigtikilounge.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ66hj6kSP3YgRm04fN3d2pPM",
+   "name": "Culver\u2019s",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.culvers.com/about-culvers",
+     "source_name": "Culver\u2019s \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Every ButterBurger is cooked to order and topped with a lightly buttered, toasted bun",
+      "Fresh Frozen Custard is made in small batches right in the restaurant all day, every day",
+      "Culver's always uses fresh, never frozen beef",
+      "Cheese Curds served have come from a Wisconsin dairy farm"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "ButterBurgers cooked to order and Fresh Frozen Custard made in small batches daily",
+    "why_here": "Every ButterBurger is cooked to order and topped with a lightly buttered, toasted bun. Fresh Frozen Custard is made in small batches right in the restaurant all day, every day, and beef is always fresh, never frozen.",
+    "know_before": "Fresh Frozen Custard is made in small batches right in the restaurant all day, every day.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.culvers.com/about-culvers"
+     ],
+     "why_here": [
+      "https://www.culvers.com/about-culvers"
+     ],
+     "know_before": [
+      "https://www.culvers.com/about-culvers"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Every ButterBurger is cooked to order and topped with a lightly buttered, toasted bun",
+      "source": "https://www.culvers.com/about-culvers"
+     },
+     {
+      "claim": "Fresh Frozen Custard is made in small batches right in the restaurant all day, every day",
+      "source": "https://www.culvers.com/about-culvers"
+     },
+     {
+      "claim": "Culver's always uses fresh, never frozen beef",
+      "source": "https://www.culvers.com/about-culvers"
+     },
+     {
+      "claim": "Cheese Curds served have come from a Wisconsin dairy farm",
+      "source": "https://www.culvers.com/about-culvers"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJXzjSt6oB2YgRxPUhuhl0AkM",
+   "name": "Drip n Dip - Fort Lauderdale",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "ice_cream_shop",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://dripndipusa.com/",
+     "source_name": "Drip n Dip - Fort Lauderdale \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Most ordered items include Dubai Chocolate Crepe and Dubai Chocolate Strawberry Cup",
+      "The cafe serves rolled ice cream, crepes, waffles and pancakes",
+      "Online ordering is available for pickup or delivery",
+      "Walk-ins are always welcome at Drip n Dip"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Dubai Chocolate Crepe, rolled ice cream, crepes and waffles in Fort Lauderdale",
+    "why_here": "Drip n Dip lists Dubai Chocolate Crepe, Dubai Chocolate Strawberry Cup and Dubai Chocolate Ice Cream Roll among its most ordered items. The cafe also serves rolled ice cream, crepes, waffles, pancakes, milkshakes, bubble tea, matcha tea, coffee and refreshers.",
+    "know_before": "You can order online through the website for pickup or delivery, and walk-ins are always welcome.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://dripndipusa.com/"
+     ],
+     "why_here": [
+      "https://dripndipusa.com/"
+     ],
+     "know_before": [
+      "https://dripndipusa.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Most ordered items include Dubai Chocolate Crepe and Dubai Chocolate Strawberry Cup",
+      "source": "https://dripndipusa.com/"
+     },
+     {
+      "claim": "The cafe serves rolled ice cream, crepes, waffles and pancakes",
+      "source": "https://dripndipusa.com/"
+     },
+     {
+      "claim": "Online ordering is available for pickup or delivery",
+      "source": "https://dripndipusa.com/"
+     },
+     {
+      "claim": "Walk-ins are always welcome at Drip n Dip",
+      "source": "https://dripndipusa.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ79VlBIG32YgRf4e8ZYeShWA",
+   "name": "Chef Creole Seasoned Restaurant",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://chefcreole.com/store/",
+     "source_name": "Chef Creole Seasoned Restaurant \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Chef Creole first opened in December 1992",
+      "Chef Creole blends Creole spices and flavors of the Caribbean",
+      "The main draw at Chef Creole is spiced up seafood",
+      "Chef Creole lists six locations"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Spiced up seafood is the main draw, blended with Creole spices and Caribbean flavors.",
+    "why_here": "Chef Creole says it blends Creole spices and adds flavors of the Caribbean to create a taste that is mouth watering. It says the main draw is spiced up seafood, alongside queue boeuf (oxtail), barbecue ribs and fried chicken.",
+    "know_before": "Chef Creole lists six locations on its page, so check the hours of operation listed for your location before visiting.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://chefcreole.com/store/"
+     ],
+     "why_here": [
+      "https://chefcreole.com/store/"
+     ],
+     "know_before": [
+      "https://chefcreole.com/store/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Chef Creole first opened in December 1992",
+      "source": "https://chefcreole.com/store/"
+     },
+     {
+      "claim": "Chef Creole blends Creole spices and flavors of the Caribbean",
+      "source": "https://chefcreole.com/store/"
+     },
+     {
+      "claim": "The main draw at Chef Creole is spiced up seafood",
+      "source": "https://chefcreole.com/store/"
+     },
+     {
+      "claim": "Chef Creole lists six locations",
+      "source": "https://chefcreole.com/store/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJNybV9Z-D54gRKjNqjiXFLWE",
+   "name": "Country House Restaurant",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.chr239.com/",
+     "source_name": "Country House Restaurant \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Country House believes in finding tranquility within Southern Comfort Food",
+      "Country House provides quality Southern brunch cuisine with a nostalgic ambiance",
+      "The Lazy Rooster was rebranded as Country House and has been a Naples family favorite for 25 plus years",
+      "The menu covers BREAKFAST, SANDWICHES, LUNCH, DESSERTS and DRINKS"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Southern brunch spot rebranded from the Lazy Rooster, a Naples family favorite",
+    "why_here": "Country House says it believes in finding tranquility within Southern Comfort Food and providing quality Southern brunch cuisine with a nostalgic ambiance. Rebranded from the Lazy Rooster, it describes itself as a Naples family favorite for 25 plus years.",
+    "know_before": "Country House believes in finding tranquility within Southern Comfort Food",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.chr239.com/"
+     ],
+     "why_here": [
+      "https://www.chr239.com/"
+     ],
+     "know_before": [
+      "https://www.chr239.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Country House believes in finding tranquility within Southern Comfort Food",
+      "source": "https://www.chr239.com/"
+     },
+     {
+      "claim": "Country House provides quality Southern brunch cuisine with a nostalgic ambiance",
+      "source": "https://www.chr239.com/"
+     },
+     {
+      "claim": "The Lazy Rooster was rebranded as Country House and has been a Naples family favorite for 25 plus years",
+      "source": "https://www.chr239.com/"
+     },
+     {
+      "claim": "The menu covers BREAKFAST, SANDWICHES, LUNCH, DESSERTS and DRINKS",
+      "source": "https://www.chr239.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJL6ke35C_2YgRQQZqa7vN4Ps",
+   "name": "Caf\u00e9 Bea",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "brunch_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.cafebea.com/",
+     "source_name": "Caf\u00e9 Bea \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Cafe Bea has served Miami, Florida for over 5 years",
+      "Cafe Bea serves breakfasts, salads, burgers and Mediterranean dishes fresh, natural and cooked to order",
+      "Cafe Bea offers its entire menu at any time of the day",
+      "Cafe Bea lists two Miami locations in Kendall and Pinecrest"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Miami brunch favourite serving its full Mediterranean menu all day",
+    "why_here": "Caf\u00e9 Bea says it has served Miami for over five years, cooking breakfasts, salads and burgers to order alongside Mediterranean dishes. Everything is described as fresh, natural and cooked to order, with the entire menu available at any time of day across its Kendall and Pinecrest sites.",
+    "know_before": "Official site says the entire menu is offered at any time of the day.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.cafebea.com/"
+     ],
+     "why_here": [
+      "https://www.cafebea.com/"
+     ],
+     "know_before": [
+      "https://www.cafebea.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Cafe Bea has served Miami, Florida for over 5 years",
+      "source": "https://www.cafebea.com/"
+     },
+     {
+      "claim": "Cafe Bea serves breakfasts, salads, burgers and Mediterranean dishes fresh, natural and cooked to order",
+      "source": "https://www.cafebea.com/"
+     },
+     {
+      "claim": "Cafe Bea offers its entire menu at any time of the day",
+      "source": "https://www.cafebea.com/"
+     },
+     {
+      "claim": "Cafe Bea lists two Miami locations in Kendall and Pinecrest",
+      "source": "https://www.cafebea.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJn4UOoAi62YgRLOwKgliE00A",
+   "name": "Paco's Way Miami",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "spanish_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://pacoswayrestaurant.com/",
+     "source_name": "Paco's Way Miami \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Paco's Way is an authentic Spanish tapas style restaurant",
+      "Paco's Way offers tapas, paellas and other Spanish cuisine",
+      "Paco's Way cites 28 years of Spain's culinary traditions",
+      "Contact listed on the site is (305) 823-9000"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Paco's Way is an authentic Spanish tapas style restaurant",
+    "why_here": "Paco's Way describes itself as an authentic Spanish tapas style restaurant specializing in Spanish food and culture. It offers a unique variety of tapas, paellas and other Spanish cuisine, committed to faithful preservation of 28 years of Spain's culinary traditions.",
+    "know_before": "Paco's Way is an authentic Spanish tapas style restaurant",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://pacoswayrestaurant.com/"
+     ],
+     "why_here": [
+      "https://pacoswayrestaurant.com/"
+     ],
+     "know_before": [
+      "https://pacoswayrestaurant.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Paco's Way is an authentic Spanish tapas style restaurant",
+      "source": "https://pacoswayrestaurant.com/"
+     },
+     {
+      "claim": "Paco's Way offers tapas, paellas and other Spanish cuisine",
+      "source": "https://pacoswayrestaurant.com/"
+     },
+     {
+      "claim": "Paco's Way cites 28 years of Spain's culinary traditions",
+      "source": "https://pacoswayrestaurant.com/"
+     },
+     {
+      "claim": "Contact listed on the site is (305) 823-9000",
+      "source": "https://pacoswayrestaurant.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJe_mBmnfhwogRNjPOX-bv8sM",
+   "name": "Palladium at St. Petersburg College",
+   "category": "attractions",
+   "metro": "st-pete",
+   "primary_type": "performing_arts_theater",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://mypalladium.org/about/",
+     "source_name": "Palladium at St. Petersburg College \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Palladium is an historic theater in Downtown St. Petersburg, Florida",
+      "The Palladium consists of two entertainment spaces: Hough Hall and Side Door Cabaret",
+      "Hough Hall is the Palladium's 850-seat mainstage performance space",
+      "The Side Door Cabaret is a 175-seat intimate listening room",
+      "The Palladium is a partnership with St. Petersburg College"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Historic St. Petersburg theater with an 850-seat hall and intimate 175-seat cabaret",
+    "why_here": "The Palladium is a historic theater in Downtown St. Petersburg in partnership with St. Petersburg College. Its 850-seat Hough Hall and 175-seat Side Door Cabaret host classical, jazz, blues, opera and dance performances.",
+    "know_before": "Audiences at the Side Door Cabaret can enjoy beer, wine, soft drinks and snacks during performances.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://mypalladium.org/about/"
+     ],
+     "why_here": [
+      "https://mypalladium.org/about/"
+     ],
+     "know_before": [
+      "https://mypalladium.org/about/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Palladium is an historic theater in Downtown St. Petersburg, Florida",
+      "source": "https://mypalladium.org/about/"
+     },
+     {
+      "claim": "The Palladium consists of two entertainment spaces: Hough Hall and Side Door Cabaret",
+      "source": "https://mypalladium.org/about/"
+     },
+     {
+      "claim": "Hough Hall is the Palladium's 850-seat mainstage performance space",
+      "source": "https://mypalladium.org/about/"
+     },
+     {
+      "claim": "The Side Door Cabaret is a 175-seat intimate listening room",
+      "source": "https://mypalladium.org/about/"
+     },
+     {
+      "claim": "The Palladium is a partnership with St. Petersburg College",
+      "source": "https://mypalladium.org/about/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ1eVvDfF954gRlAW_QvCWGlI",
+   "name": "Daninos trattoria",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "italian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.daninostrattoria.com/",
+     "source_name": "Daninos trattoria \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Danino's Trattoria serves authentic Italian cuisine featuring lasagna, pizza, and Alfredo",
+      "The restaurant lists freshly made Lasagna, Pizza, and Alfredo among its most popular items",
+      "Danino's Trattoria offers delivery and pickup options",
+      "Danino's Trattoria provides contact-free delivery"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Orlando Italian spot serving fresh lasagna, pizza and Alfredo for pickup and delivery.",
+    "why_here": "Danino's Trattoria in Orlando serves authentic Italian cuisine featuring lasagna, pizza, and Alfredo, all made fresh and packed with flavor. It describes itself as a warm, welcoming Italian restaurant offering dining in and online ordering for pickup and delivery.",
+    "know_before": "Danino's Trattoria serves authentic Italian cuisine featuring lasagna, pizza, and Alfredo",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.daninostrattoria.com/"
+     ],
+     "why_here": [
+      "https://www.daninostrattoria.com/"
+     ],
+     "know_before": [
+      "https://www.daninostrattoria.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Danino's Trattoria serves authentic Italian cuisine featuring lasagna, pizza, and Alfredo",
+      "source": "https://www.daninostrattoria.com/"
+     },
+     {
+      "claim": "The restaurant lists freshly made Lasagna, Pizza, and Alfredo among its most popular items",
+      "source": "https://www.daninostrattoria.com/"
+     },
+     {
+      "claim": "Danino's Trattoria offers delivery and pickup options",
+      "source": "https://www.daninostrattoria.com/"
+     },
+     {
+      "claim": "Danino's Trattoria provides contact-free delivery",
+      "source": "https://www.daninostrattoria.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ_UMLnQ2m2YgRk7RAmVA0kYQ",
+   "name": "PINCHO",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "hamburger_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://pincho.com/about-us/",
+     "source_name": "PINCHO \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "PINCHO was founded by Otto Othman, Nedal Ahmad and Nizar Ahmad in 2010",
+      "PINCHO was inspired by Otto's mother's famous kebabs and a Latin take on the classic American burger",
+      "Everything is made from scratch with no preservatives and absolutely no frozen beef ever",
+      "Burgers are part of the Certified Black Angus Beef Program"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Kebabs inspired by a mother's famous kebabs, plus a Latin take on the classic American burger",
+    "why_here": "PINCHO was inspired by a mother's famous kebabs and a Latin take on the classic American burger. Everything is made from scratch, with no preservatives and absolutely no frozen beef, and food is prepped fresh every day.",
+    "know_before": "PINCHO was founded by Otto Othman, Nedal Ahmad and Nizar Ahmad in 2010",
+    "local_tip": "Everything is made from scratch and prepped fresh every day, with absolutely no frozen beef ever.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://pincho.com/about-us/"
+     ],
+     "why_here": [
+      "https://pincho.com/about-us/"
+     ],
+     "know_before": [
+      "https://pincho.com/about-us/"
+     ],
+     "local_tip": [
+      "https://pincho.com/about-us/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "PINCHO was founded by Otto Othman, Nedal Ahmad and Nizar Ahmad in 2010",
+      "source": "https://pincho.com/about-us/"
+     },
+     {
+      "claim": "PINCHO was inspired by Otto's mother's famous kebabs and a Latin take on the classic American burger",
+      "source": "https://pincho.com/about-us/"
+     },
+     {
+      "claim": "Everything is made from scratch with no preservatives and absolutely no frozen beef ever",
+      "source": "https://pincho.com/about-us/"
+     },
+     {
+      "claim": "Burgers are part of the Certified Black Angus Beef Program",
+      "source": "https://pincho.com/about-us/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ20ByLKCr2YgRZpgj1tODoQw",
+   "name": "VILLA ROMANA Italian & Romanian Restaurant",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "italian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.villaromanarestaurant.com/",
+     "source_name": "VILLA ROMANA Italian & Romanian Restaurant \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Villa Romana is an Italian and Romanian restaurant in downtown Hollywood Florida",
+      "The restaurant offers Italian and Romanian menus for dine in or take out",
+      "Villa Romana states it has been open since 08/04/2021",
+      "Orders can be placed by calling (954) 251-3698"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Italian and Romanian restaurant in downtown Hollywood with dine-in or take-out menus",
+    "why_here": "Villa Romana is situated in the heart of downtown Hollywood Florida and offers Italian and Romanian menus for dine in or take out. The restaurant says it has been open since 08/04/2021 and offers a diverse menu of rotating specialties.",
+    "know_before": "Villa Romana is an Italian and Romanian restaurant in downtown Hollywood Florida",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.villaromanarestaurant.com/"
+     ],
+     "why_here": [
+      "https://www.villaromanarestaurant.com/"
+     ],
+     "know_before": [
+      "https://www.villaromanarestaurant.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Villa Romana is an Italian and Romanian restaurant in downtown Hollywood Florida",
+      "source": "https://www.villaromanarestaurant.com/"
+     },
+     {
+      "claim": "The restaurant offers Italian and Romanian menus for dine in or take out",
+      "source": "https://www.villaromanarestaurant.com/"
+     },
+     {
+      "claim": "Villa Romana states it has been open since 08/04/2021",
+      "source": "https://www.villaromanarestaurant.com/"
+     },
+     {
+      "claim": "Orders can be placed by calling (954) 251-3698",
+      "source": "https://www.villaromanarestaurant.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJZdc1UqeNwogRXUnyujlSdSo",
+   "name": "Odyssey Cruises",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "tour_agency",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.odysseycruises.net/faq",
+     "source_name": "Odyssey Cruises \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Tours depart from the Historic Tarpon Springs Sponge Docks and travel down the Anclote River out to the Gulf and to Anclote Island",
+      "The FAQ strongly recommends purchasing tickets in advance as tours quite often sell out"
+     ]
+    },
+    {
+     "source": "https://www.odysseycruises.net/",
+     "source_name": "Odyssey Cruises \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Odyssey offers a narrated nature tour led by a certified Florida Master Naturalist",
+      "Odyssey describes dolphin sightings and shelling adventures on Anclote Key aboard Tarpon Springs' largest tour boat"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Tarpon Springs dolphin and shelling cruises to Anclote Key with a naturalist.",
+    "why_here": "Odyssey Cruises departs the Historic Tarpon Springs Sponge Docks, travels down the Anclote River to the Gulf and Anclote Island, and offers narrated tours led by a certified Florida Master Naturalist with dolphin and shelling experiences.",
+    "know_before": "Book tickets in advance online, as the FAQ says tours quite often sell out.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.odysseycruises.net/faq"
+     ],
+     "why_here": [
+      "https://www.odysseycruises.net/faq"
+     ],
+     "know_before": [
+      "https://www.odysseycruises.net/faq"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Tours depart from the Historic Tarpon Springs Sponge Docks and travel down the Anclote River out to the Gulf and to Anclote Island",
+      "source": "https://www.odysseycruises.net/faq"
+     },
+     {
+      "claim": "Odyssey offers a narrated nature tour led by a certified Florida Master Naturalist",
+      "source": "https://www.odysseycruises.net/"
+     },
+     {
+      "claim": "Odyssey describes dolphin sightings and shelling adventures on Anclote Key aboard Tarpon Springs' largest tour boat",
+      "source": "https://www.odysseycruises.net/"
+     },
+     {
+      "claim": "The FAQ strongly recommends purchasing tickets in advance as tours quite often sell out",
+      "source": "https://www.odysseycruises.net/faq"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ3fDGsSja5ogRTLi_Af5SGtI",
+   "name": "Zen Bistro",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "thai_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.zenbistrodaytona.com/",
+     "source_name": "Zen Bistro \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Zen Bistro is a top choice for authentic Thai cuisine in Daytona Beach",
+      "Zen Bistro uses fresh all natural ingredients",
+      "Zen Bistro is a family owned restaurant in the heart of Daytona Beach"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Family-owned authentic Thai in Daytona Beach using fresh, natural ingredients",
+    "why_here": "Zen Bistro is a family owned restaurant in the heart of Daytona Beach serving authentic Thai cuisine. It uses fresh all natural ingredients with a perfect balance of seasoning, herbs and spices for its dishes.",
+    "know_before": "Zen Bistro is a top choice for authentic Thai cuisine in Daytona Beach",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.zenbistrodaytona.com/"
+     ],
+     "why_here": [
+      "https://www.zenbistrodaytona.com/"
+     ],
+     "know_before": [
+      "https://www.zenbistrodaytona.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Zen Bistro is a top choice for authentic Thai cuisine in Daytona Beach",
+      "source": "https://www.zenbistrodaytona.com/"
+     },
+     {
+      "claim": "Zen Bistro uses fresh all natural ingredients",
+      "source": "https://www.zenbistrodaytona.com/"
+     },
+     {
+      "claim": "Zen Bistro is a family owned restaurant in the heart of Daytona Beach",
+      "source": "https://www.zenbistrodaytona.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ6XnJIVQA2YgRoh1uisu88Rk",
+   "name": "Morton's The Steakhouse",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.mortons.com/faqs/",
+     "source_name": "Morton's The Steakhouse \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Morton's The Steakhouse features USDA Prime steaks including filet mignon, ribeye, New York strip, and Wagyu selections",
+      "Popular items include the Cajun ribeye and the legendary hot chocolate cake",
+      "Reservations are not required but are recommended",
+      "Proper attire is required at Morton's The Steakhouse"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "USDA Prime steaks including filet mignon, ribeye, New York strip and Wagyu selections.",
+    "why_here": "Morton's The Steakhouse features USDA Prime steaks, including filet mignon, ribeye, New York strip, and Wagyu selections. Popular items include the Cajun ribeye, lobster mac & cheese, and the legendary hot chocolate cake.",
+    "know_before": "Reservations are not required but are recommended, and Morton's enforces a business attire or smart casual dress code.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.mortons.com/faqs/"
+     ],
+     "why_here": [
+      "https://www.mortons.com/faqs/"
+     ],
+     "know_before": [
+      "https://www.mortons.com/faqs/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Morton's The Steakhouse features USDA Prime steaks including filet mignon, ribeye, New York strip, and Wagyu selections",
+      "source": "https://www.mortons.com/faqs/"
+     },
+     {
+      "claim": "Popular items include the Cajun ribeye and the legendary hot chocolate cake",
+      "source": "https://www.mortons.com/faqs/"
+     },
+     {
+      "claim": "Reservations are not required but are recommended",
+      "source": "https://www.mortons.com/faqs/"
+     },
+     {
+      "claim": "Proper attire is required at Morton's The Steakhouse",
+      "source": "https://www.mortons.com/faqs/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJwxbD0jsB2YgRbPMid2aMEdg",
+   "name": "Bellagamba's Fine Italian Restaurant",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.bellagambas.com/?p=33",
+     "source_name": "Bellagamba's Fine Italian Restaurant \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Bellagamba's is a celebration of generations of family recipes passed down through the years",
+      "Signature dishes listed include Ossobuco alla Milanese, Spaghetti Carbonara and Ravioli Lobster",
+      "Bellagamba's describes itself as a proud family-owned restaurant",
+      "Happy Hour is available from 4:00 p.m. to 6:00 p.m. on weekdays"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Family-owned Italian restaurant built on generations of family recipes",
+    "why_here": "Bellagamba's describes its restaurant as a celebration of generations of family recipes, lovingly crafted and passed down through the years. It says every dish is prepared with passion and authenticity and aims to make guests feel like a cherished guest in its home.",
+    "know_before": "Happy Hour is available from 4:00 p.m. to 6:00 p.m. on weekdays, exclusively at the bar and in the patio.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.bellagambas.com/?p=33"
+     ],
+     "why_here": [
+      "https://www.bellagambas.com/?p=33"
+     ],
+     "know_before": [
+      "https://www.bellagambas.com/?p=33"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Bellagamba's is a celebration of generations of family recipes passed down through the years",
+      "source": "https://www.bellagambas.com/?p=33"
+     },
+     {
+      "claim": "Signature dishes listed include Ossobuco alla Milanese, Spaghetti Carbonara and Ravioli Lobster",
+      "source": "https://www.bellagambas.com/?p=33"
+     },
+     {
+      "claim": "Bellagamba's describes itself as a proud family-owned restaurant",
+      "source": "https://www.bellagambas.com/?p=33"
+     },
+     {
+      "claim": "Happy Hour is available from 4:00 p.m. to 6:00 p.m. on weekdays",
+      "source": "https://www.bellagambas.com/?p=33"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ5ToE9R632YgR6dqJmzPijRQ",
+   "name": "La Rosa Gastrobar",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.larosagastrobar.com/home-1",
+     "source_name": "La Rosa Gastrobar \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "La Rosa is an intimate gastrobar in Coral Gables where shared plates meet handcrafted cocktails",
+      "Dishes named on the site include Branzino Ceviche, Prime Filet Mignon on Fire, and Lobster Gnocchi",
+      "The site lists tapas and tacos to steaks flamed tableside, fresh seafood, and creative cocktails",
+      "La Rosa is open Tuesday to Sunday"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Intimate gastrobar in Coral Gables where shared plates meet handcrafted cocktails",
+    "why_here": "La Rosa Gastrobar is an intimate gastrobar in Coral Gables where shared plates meet handcrafted cocktails, in a candle-lit dining room with emerald velvet and rose blooms. Its menu features refined dishes like Branzino Ceviche, Prime Filet Mignon on Fire, and Lobster Gnocchi.",
+    "know_before": "La Rosa is an intimate gastrobar in Coral Gables where shared plates meet handcrafted cocktails",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.larosagastrobar.com/home-1"
+     ],
+     "why_here": [
+      "https://www.larosagastrobar.com/home-1"
+     ],
+     "know_before": [
+      "https://www.larosagastrobar.com/home-1"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "La Rosa is an intimate gastrobar in Coral Gables where shared plates meet handcrafted cocktails",
+      "source": "https://www.larosagastrobar.com/home-1"
+     },
+     {
+      "claim": "Dishes named on the site include Branzino Ceviche, Prime Filet Mignon on Fire, and Lobster Gnocchi",
+      "source": "https://www.larosagastrobar.com/home-1"
+     },
+     {
+      "claim": "The site lists tapas and tacos to steaks flamed tableside, fresh seafood, and creative cocktails",
+      "source": "https://www.larosagastrobar.com/home-1"
+     },
+     {
+      "claim": "La Rosa is open Tuesday to Sunday",
+      "source": "https://www.larosagastrobar.com/home-1"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJFZj5r-yr2YgRfB641iIdAg0",
+   "name": "Flippo's Hallandale",
+   "category": "attractions",
+   "metro": "broward",
+   "primary_type": "indoor_playground",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.flippos.net/attractions/",
+     "source_name": "Flippo's Hallandale \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Flippo's indoor playground structure is perfect for kids from toddlers to 14 years of age",
+      "Attractions include main playground, laser maze, time freak, toddler area, ball blaster and sports court",
+      "Flippo's is a family entertainment center with indoor play activities for kids and parents",
+      "Flippo's also arranges birthday parties with add-ons such as Magic Show and face painting"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Indoor playground with laser maze, toddler zone and sports court for ages up to 14",
+    "why_here": "Flippo's Hallandale is a family entertainment center whose indoor playground structure is designed for kids from toddlers to 14 years of age. Attractions listed by Flippo's include the main playground, laser maze, time freak, toddler area, ball blaster and sports court.",
+    "know_before": "Flippo's indoor playground structure is perfect for kids from toddlers to 14 years of age, per the official attractions page.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.flippos.net/attractions/"
+     ],
+     "why_here": [
+      "https://www.flippos.net/attractions/"
+     ],
+     "know_before": [
+      "https://www.flippos.net/attractions/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Flippo's indoor playground structure is perfect for kids from toddlers to 14 years of age",
+      "source": "https://www.flippos.net/attractions/"
+     },
+     {
+      "claim": "Attractions include main playground, laser maze, time freak, toddler area, ball blaster and sports court",
+      "source": "https://www.flippos.net/attractions/"
+     },
+     {
+      "claim": "Flippo's is a family entertainment center with indoor play activities for kids and parents",
+      "source": "https://www.flippos.net/attractions/"
+     },
+     {
+      "claim": "Flippo's also arranges birthday parties with add-ons such as Magic Show and face painting",
+      "source": "https://www.flippos.net/attractions/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJXb9Ybf232YgRirIXZSYa1pU",
+   "name": "Miami Skyline Cruises",
+   "category": "attractions",
+   "metro": "miami-dade",
+   "primary_type": "tour_agency",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.miamiskylinecruises.com/",
+     "source_name": "Miami Skyline Cruises \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Miami Skyline Cruises offers 90-minute sightseeing cruises from Bayside Marketplace",
+      "The signature cruise offers views of Miami's skyline and celebrity waterfront homes"
+     ]
+    },
+    {
+     "source": "https://www.miamiskylinecruises.com/skyline-cruises",
+     "source_name": "Miami Skyline Cruises \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The operator says it has over 20 years of experience as the original Skyline Cruise operator in Miami",
+      "Skyline Cruises glide along Biscayne Bay past Downtown Miami towers and celebrity homes on Star Island"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "90-minute sightseeing cruises from Bayside Marketplace past Miami's skyline",
+    "why_here": "Miami Skyline Cruises offers 90-minute sightseeing cruises from Bayside Marketplace with views of Miami's skyline and celebrity waterfront homes. The operator says it has over 20 years of experience as the original Skyline Cruise operator in Miami.",
+    "know_before": "Official site lists the signature Miami Skyline Cruise as 90 minutes departing from Bayside Marketplace.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.miamiskylinecruises.com/"
+     ],
+     "why_here": [
+      "https://www.miamiskylinecruises.com/"
+     ],
+     "know_before": [
+      "https://www.miamiskylinecruises.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Miami Skyline Cruises offers 90-minute sightseeing cruises from Bayside Marketplace",
+      "source": "https://www.miamiskylinecruises.com/"
+     },
+     {
+      "claim": "The signature cruise offers views of Miami's skyline and celebrity waterfront homes",
+      "source": "https://www.miamiskylinecruises.com/"
+     },
+     {
+      "claim": "The operator says it has over 20 years of experience as the original Skyline Cruise operator in Miami",
+      "source": "https://www.miamiskylinecruises.com/skyline-cruises"
+     },
+     {
+      "claim": "Skyline Cruises glide along Biscayne Bay past Downtown Miami towers and celebrity homes on Star Island",
+      "source": "https://www.miamiskylinecruises.com/skyline-cruises"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJu5LMITzF5YgRJcglbrROWao",
+   "name": "Maple Street Biscuit Company - Fleming Island",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.maplestreetbiscuits.com/our-story",
+     "source_name": "Maple Street Biscuit Company - Fleming Island \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The first Maple Street opened in Jacksonville, Florida in 2012",
+      "Maple Street has served handcrafted daytime meals since 2012",
+      "Maple Street expanded to 10 states in 2023",
+      "Maple Street headquarters moved to Nashville, Tennessee in 2019"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Handcrafted daytime meals since 2012, starting with the first Maple Street in Jacksonville, Florida.",
+    "why_here": "Maple Street Biscuit Company says it has been serving handcrafted daytime meals since 2012, starting in Jacksonville, Florida. Its golden rule is that if it does not taste great, it is not leaving the kitchen, with fresh ingredients hand-crafted into each meal.",
+    "know_before": "The first Maple Street opened in Jacksonville, Florida in 2012",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.maplestreetbiscuits.com/our-story"
+     ],
+     "why_here": [
+      "https://www.maplestreetbiscuits.com/our-story"
+     ],
+     "know_before": [
+      "https://www.maplestreetbiscuits.com/our-story"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The first Maple Street opened in Jacksonville, Florida in 2012",
+      "source": "https://www.maplestreetbiscuits.com/our-story"
+     },
+     {
+      "claim": "Maple Street has served handcrafted daytime meals since 2012",
+      "source": "https://www.maplestreetbiscuits.com/our-story"
+     },
+     {
+      "claim": "Maple Street expanded to 10 states in 2023",
+      "source": "https://www.maplestreetbiscuits.com/our-story"
+     },
+     {
+      "claim": "Maple Street headquarters moved to Nashville, Tennessee in 2019",
+      "source": "https://www.maplestreetbiscuits.com/our-story"
+     }
+    ]
+   }
+  }
+ ]
+}
