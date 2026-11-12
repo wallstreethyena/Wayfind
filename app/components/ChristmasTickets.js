@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { isSocialAdLanding } from "../../lib/socialAdLanding.js";
 import { XM_CARD_CSS, organizerTap } from "./ChristmasTicketCard.js";
 import CommerceClickBeacon from "./CommerceClickBeacon.js";
 import { activeSeasonalMark } from "../../lib/seasonalBrand.js";
@@ -325,6 +326,19 @@ function WayfindHeader({ seasonal }) {
 // /go links are recorded by CommerceClickBeacon; organizer links once, by the
 // card's own organizerTap (same surface, same event).
 
+// The page is one cached copy for everyone (#2424), so the server always sends
+// the picks and the visitor's own URL decides whether they show (#2419: only
+// Facebook and Instagram ad landings see them on the first screen).
+export function SocialTopPicks({ picks }) {
+  const [show, setShow] = useState(false);
+  useEffect(() => {
+    try { setShow(isSocialAdLanding(Object.fromEntries(new URLSearchParams(window.location.search)))); } catch { setShow(false); }
+  }, []);
+  // Rendered hidden in the shared HTML so a social visitor sees it the moment the
+  // check runs; everyone else never sees it.
+  return <div data-social-picks="" hidden={!show}><TopPicks picks={picks} /></div>;
+}
+
 export function TopPicks({ picks }) {
   const rows = Array.isArray(picks) ? picks.filter((r) => r && r.cta && Array.isArray(r.photos) && r.photos[0]) : [];
   if (!rows.length) return null;
@@ -394,7 +408,7 @@ export default function ChristmasTickets({ model, share = null, browse = null, t
       <div className="xm-main">
         <div className="xm-hero" id="xm-hero" data-boo-clear="">
           <h1 id="xm-title">{chrome.title}</h1>
-          <TopPicks picks={topPicks} />
+          <SocialTopPicks picks={topPicks} />
           <p className="xm-lede">{chrome.lede}</p>
           <p className="xm-honest">{chrome.honest}</p>
           <div className="xm-hero-actions">
