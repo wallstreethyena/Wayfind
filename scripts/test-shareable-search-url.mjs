@@ -15,6 +15,8 @@ import {
   searchSharePath,
   searchShareState,
 } from "../lib/searchShareUrl.js";
+import { centerAfterGeoDecision, landingSearchFromSearch, landingSkipsDefaultPoster } from "../lib/searchDeepLink.js";
+import { resolveSearchIntent } from "../lib/searchIntent.js";
 
 let n = 0, failn = 0;
 const ok = (c, m) => { n++; if (!c) { failn++; console.error("FAIL:", m); } };
@@ -69,9 +71,41 @@ ok(!sitemap.includes('"/search"') && !sitemap.includes("'/search'"), "/search st
 
 // ── the consumers the bridge feeds are untouched in contract ──────────
 const home = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
-ok(home.includes('sp.get("q")') && home.includes('sp.get("intent")') && home.includes('sp.get("near")'), "home.js still restores q/intent/near from the landing URL");
+ok(home.includes("landingSearchFromSearch(window.location.search)"), "home.js still restores q/intent/near from the landing URL");
 const api = readFileSync(new URL("../app/api/search/route.js", import.meta.url), "utf8");
 ok(api.includes('params.get("q")') && api.includes('params.get("lat")') && api.includes('params.get("lng")'), "/api/search contract unchanged (q/lat/lng in, ranked JSON out)");
+
+// ── /?q= runs without a map center, and beach is not the Christmas poster ──
+{
+  const beach = landingSearchFromSearch("?q=beach");
+  eq(beach && beach.q, "beach", "q=beach is a landing search");
+  eq(beach && beach.placeIntent, false, "q=beach is not the place-mode flag");
+  ok(landingSkipsDefaultPoster("?q=beach"), "a beach deep link skips the default poster");
+  ok(landingSkipsDefaultPoster("?intent=brunch"), "a bare intent keyword skips the default poster");
+  ok(!landingSkipsDefaultPoster(""), "a bare homepage still opens the seasonal poster");
+  ok(!landingSkipsDefaultPoster("?intent=place"), "intent=place alone is the old mode flag, not a search");
+  const denied = centerAfterGeoDecision({ ok: false, outsideFlorida: true, current: null, gotGPS: false, manual: false });
+  eq(denied && denied.center.lat, 27.5689, "a refused geo answer adopts the Parrish seed latitude");
+  eq(denied && denied.center.lng, -82.4393, "a refused geo answer adopts the Parrish seed longitude");
+  eq(denied && denied.name, "Parrish, FL", "a refused geo answer keeps the seed city name");
+  eq(denied && denied.device, false, "the seed is not treated as the device location");
+  const inside = centerAfterGeoDecision({ ok: true, lat: 27.3364, lng: -82.5307, name: "Sarasota, FL", current: null });
+  eq(inside && inside.center.lat, 27.3364, "an in-Florida geo answer replaces the seed");
+  eq(inside && inside.device, true, "an in-Florida geo answer is a device location");
+  eq(centerAfterGeoDecision({ ok: false, gotGPS: true, current: null }), null, "GPS already won: geo does not move the pin");
+  const kept = { lat: 25.76, lng: -80.19 };
+  eq(centerAfterGeoDecision({ ok: false, current: kept }), null, "a resolved center is not replaced by the seed");
+  const intent = resolveSearchIntent("beach", {});
+  eq(intent.id, "beaches", "beach is the beaches phrase, not a Christmas collection");
+  ok(intent.result && intent.result.href && !/christmas/i.test(intent.result.href), "the beach result href is not a Christmas page");
+  ok(!/christmas/i.test(intent.result.title), "the beach result title is not Showing Florida Christmas");
+  const restore = home.slice(home.indexOf("landingSearchFromSearch(window.location.search)"), home.indexOf("landingSearchFromSearch(window.location.search)") + 500);
+  ok(restore.includes("submitSearch(pending.q"), "the landing effect calls submitSearch");
+  ok(!restore.includes("!center") && !restore.includes("[center]"), "the pending search runner does not wait on center");
+  ok(home.includes("centerAfterGeoDecision("), "ipFallback adopts the geo decision, including a refused answer");
+  const rail = readFileSync(new URL("../app/components/DaypartRail.js", import.meta.url), "utf8");
+  ok(rail.includes("landingSkipsDefaultPoster(window.location.search)") && rail.includes("setSelected(null)"), "a search landing closes the default poster before it can show Christmas");
+}
 
 console.log(`test-shareable-search-url: ${n - failn}/${n} passed`);
 if (failn) process.exit(1);

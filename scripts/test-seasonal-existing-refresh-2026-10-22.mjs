@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { CHRISTMAS_RESEARCH_ROWS } from "../lib/christmasResearch.js";
 // Existing-card October 22 refresh: exercise the actual merge, poster composer,
 // calendar/session helpers and Christmas hold. No new listing or paid lookup.
 import assert from "node:assert/strict";
@@ -73,7 +74,7 @@ ok(eventVisitStatus(legends, new Date("2026-10-23T01:00:00Z")).label !== "Open n
 ok(fallScheduleChip(legends).label === "Fri–Sun · hours vary" && !hasUpcomingFallOccurrence(legends, "2026-10-26"), "variable-hour chip and final date remain truthful");
 ok(occurrenceDatesFor({ event_id: "no-such-event" }) === null, "unregistered calendar neighbor remains unknown");
 ok(JSON.stringify(occurrenceDatesFor({ event_id: legendsId, occurrence_dates: ["2026-10-24"] })) === '["2026-10-24"]', "explicit row dates retain calendar precedence");
-const raw = JSON.parse(readFileSync("data/christmas-2026-research.json", "utf8"));
+const raw = CHRISTMAS_RESEARCH_ROWS;
 const zoo = raw.find((row) => row.id === "zootampa-christmas-in-the-wild-2026");
 // 2026-10-28: zootampa.org now states the 2026 run (Nov 27 to Dec 30), so the hold is lifted; Nov 27 stays flagged as members only.
 ok(zoo.state === "confirmed_dated" && zoo.start_date === "2026-11-27" && zoo.end_date === "2026-12-30", "ZooTampa is published with the organizer's stated 2026 run");

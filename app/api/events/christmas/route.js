@@ -28,6 +28,7 @@ import { seasonalHospitalityIds, seasonalHospitalityPlaces, mergeSeasonalHospita
 import { withChristmasGuides } from "../../../../lib/christmasGuides.js";
 import { resolveSeasonalLiveArea } from "../../../../lib/seasonalLiveAreaResolve.js";
 import { readSeasonalPendingInventory } from "../../../../lib/seasonalLiveAreaInventory.js";
+import { christmasTourListings, christmasTileTourCards } from "../../../../lib/christmasTours.js";
 
 const CHRISTMAS_DB_DEADLINE_MS = 3500;
 const PLACE_COLUMNS = "place_id,name,lat,lng,metro,category,primary_type,google_types,signals,editorial,photo_ref,status,excluded";
@@ -67,7 +68,15 @@ export async function GET(request) {
     // payload was built before that venue existed, so it must not hide the card.
     // v11 adds Snowcat Ridge, Robert's Christmas Wonderland and the Freedom
     // Factory lights festival. A cached v10 payload was built without them.
-    const key = `christmas-intents:v12:${today}:${geoCell(lat)}:${geoCell(lng)}`;
+    // v15: tagged Christmas galleries now supply the card photo, so a cached
+    // v14 payload (corrected dates and affiliate mappings, previous photos)
+    // must not outlive this deploy.
+    const key = `christmas-intents:v15:${today}:${geoCell(lat)}:${geoCell(lng)}`;
+    // Viator Christmas light tours for the tile's own small rail (owner,
+    // 2026-11-04). Read beside the rails, never inside the cached answer, so a
+    // tour read can never mark the rails degraded; it never throws (snapshot
+    // fallback, dead or vanished tours dropped).
+    const toursRead = railId ? Promise.resolve([]) : christmasTourListings().catch(() => []);
     const cached = await fastCachedRail(key, async () => {
       if (!supabase) throw new Error("Supabase unavailable");
       const signal = AbortSignal.timeout(CHRISTMAS_DB_DEADLINE_MS);
@@ -164,7 +173,8 @@ export async function GET(request) {
       return Response.json({ rail: railId, today: cached.value.today,
         sourceFailures: cached.value.sourceFailures, ...paged }, { headers });
     }
-    return Response.json(windowRailAnswer(cached.value, full), { headers });
+    const tours = christmasTileTourCards(await toursRead, { lat, lng });
+    return Response.json({ ...windowRailAnswer(cached.value, full), tours }, { headers });
   } catch (error) {
     console.error("[api/events/christmas] inventory unavailable", { message: String(error?.message || error) });
     return json({ error: "Christmas inventory is temporarily unavailable" }, 503, "no-store");

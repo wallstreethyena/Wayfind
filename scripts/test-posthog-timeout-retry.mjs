@@ -77,6 +77,27 @@ const win = (day) => [new Date(Date.UTC(2026, 0, day)), new Date(Date.UTC(2026, 
   ok(seen.length === 2 && seen[1] >= seen[0], `4: the retry waits at least as long as the first attempt (${seen.join("ms, ")}ms)`);
 }
 
+/* ── 5. PostHog's own 504 "max execution time" is a transient timeout too ─── */
+const HOG_504 = { type: "server_error", code: "error", detail: "Query has hit the max execution time before completing. See our docs for how to improve your query." };
+{
+  const s = script(answer(HOG_504, 504), answer({ columns: ["visitors"], results: [[9]] }));
+  const r = await PH.overviewCounts(...win(5), { ...fast, fetchImpl: s.fetchImpl, exclusionFetchImpl: answer({ columns: [], results: [] }) });
+  ok(s.calls.length === 2, `5: a 504 max-execution-time answer is retried exactly once (fetch called ${s.calls.length}x)`);
+  ok(r.source && r.source.connected === true && Number(r.data && r.data[0] && r.data[0].visitors) === 9, "5: …and the retry's rows are the data");
+}
+{
+  const s = script(answer(HOG_504, 504), answer(HOG_504, 504));
+  const r = await PH.overviewCounts(...win(6), { ...fast, fetchImpl: s.fetchImpl, exclusionFetchImpl: answer({ columns: [], results: [] }) });
+  ok(s.calls.length === 2, `5b: two 504s stop at two attempts (fetch called ${s.calls.length}x)`);
+  ok(r.source && r.source.connected === false && /timed out twice/i.test(String(r.source.note)) && /504/.test(String(r.source.note)),
+    `5b: a second 504 IS a source error, named as PostHog's own timeout (got ${JSON.stringify(r.source && r.source.note)})`);
+}
+{
+  const s = script(answer({ detail: "boom" }, 500));
+  const r = await PH.overviewCounts(...win(7), { ...fast, fetchImpl: s.fetchImpl, exclusionFetchImpl: answer({ columns: [], results: [] }) });
+  ok(s.calls.length === 1 && r.source && r.source.connected === false, `5c: a plain 500 is still reported on the first attempt, never retried (fetch called ${s.calls.length}x)`);
+}
+
 if (fail.length) {
   console.error("test-posthog-timeout-retry: FAIL");
   fail.forEach((f) => console.error("  - " + f));

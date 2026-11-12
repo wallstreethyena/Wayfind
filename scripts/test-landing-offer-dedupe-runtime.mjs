@@ -259,7 +259,8 @@ for (const [label, props] of [
   net.rail = null;
   const m = await mount({ seeds, railInventory: [] }, "rail failed to load");
   const v = m.view();
-  ok(v.rail.length === 0, `positive control: the real rail rendered nothing when its load failed (${fmt(v)})`);
+  ok(!v.rail.includes("A1") && !v.rail.includes("A2") && !v.rail.includes("A3"), `failed viator load does not keep the predicted products (${fmt(v)})`);
+  ok(v.rail.length === 0 || (v.rail.length === 1 && String(v.rail[0]).startsWith("q-")), `failed viator load stays empty or switches to one partner search (${fmt(v)})`);
   ok(v.strip.join() === "A1,A2,S1,S2", `(d) rail failed to load: predicted products return to the strip (${fmt(v)})`);
   await m.done();
 }
