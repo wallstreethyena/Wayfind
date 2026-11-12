@@ -58,6 +58,16 @@ ok(knownForLine(realConfirmed) !== null, "a real hook containing 'confirmed' was
 const runOn = { place_id: "x4", hook: "a".repeat(400), issues: null };
 ok(knownForLine(runOn) === null || !/…|\.\.\./.test(knownForLine(runOn)), "a too-long hook was shipped truncated with an ellipsis instead of dropped");
 
+// Hook + tip must join on a sentence boundary. A fragment hook (no closing
+// punctuation) welded to the tip with a bare space reads as broken data
+// ("…street eatery Come for a quick lunch…", live batch-59 sample).
+const welded = { place_id: "x8", hook: "Handcrafted ramen and Japanese curry as an Asian street eatery", local_tip: "Come for a quick lunch or a relaxed dinner.", issues: null };
+const weldedLine = knownForLine(welded) || "";
+ok(weldedLine.includes("eatery. Come"), `hook and tip welded without a sentence boundary: ${weldedLine}`);
+ok(!/eatery Come/.test(weldedLine), "hook and tip joined mid-thought");
+const punctuated = { place_id: "x9", hook: "Handcrafted ramen and Japanese curry.", local_tip: "Come for a quick lunch.", issues: null };
+ok((knownForLine(punctuated) || "").includes("curry. Come"), "an already-punctuated hook gained a second period or lost its tip");
+
 // ---- wiring, asserted on the call not the string ----
 const home = code(readFileSync(new URL("../app/home.js", import.meta.url), "utf8"));
 const api = code(readFileSync(new URL("../app/api/known-for/route.js", import.meta.url), "utf8"));
