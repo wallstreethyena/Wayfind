@@ -112,6 +112,8 @@ const ringLabels = controller.map.annotations.filter((a) => /mile distance ring/
 assert.equal(ringLabels.length, 4, "every distance ring has an accessible 5/10/15/20-mile label");
 assert.deepEqual(ringLabels.map((a) => a.accessibilityLabel), ["5 mile distance ring", "10 mile distance ring", "15 mile distance ring", "20 mile distance ring"], "ring labels preserve the fixed scale");
 assert.deepEqual(controller.map.padding, new Padding(150, 68, 150, 12), "native MapKit content is inset clear of overlay controls and drawers");
+assert.equal(controller.map.options.showsZoomControl, false, "Apple MapKit native zoom control is disabled so no +/- widget floats in the map discovery interior");
+assert.equal(/NavigationControl/.test(readFileSync(new URL("../app/components/MapView.js", import.meta.url), "utf8")), false, "MapLibre 3D does not mount a floating NavigationControl zoom widget");
 
 controller.map.listeners.get("select")({ annotation: placePins[1] });
 assert.equal(selected.id, "p-1", "select returns the original place object");
