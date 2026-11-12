@@ -82,6 +82,11 @@ const fixturePlaces = [
   place("p-boyd", "Boyd Hill Nature Preserve", "park"),
   place("p-desoto", "Fort De Soto Park", "park"),
   place("p-lettuce", "Lettuce Lake Regional Park", "park"),
+  // Live on production 2026-11-12, exact Google types: a kayak rental typed
+  // as a hiking area. Only the commercial secondary type gives it away.
+  { ...place("p-venture", "Venture Outdoors", "hiking_area"), google_types: ["hiking_area", "sports_activity_location", "point_of_interest", "establishment"] },
+  // Its real public neighbour, exact types, must stay a free card.
+  { ...place("p-baldwin", "Lake Baldwin Dog Park", "park"), google_types: ["park", "dog_park", "point_of_interest", "establishment"] },
 ];
 const fixtureEvents = [
   { event_id: "e1", slug: "free-concert", event_name: "Free Bayfront Concert", city: "Sarasota", is_free: true, lat: 27.33, lng: -82.54 },
@@ -91,10 +96,10 @@ const fixtureEvents = [
   const free = await searchResultCards({ query: "free things to do in sarasota", places: fixturePlaces, events: fixtureEvents, guides: [], env: QUIET, fetchImpl: async () => { throw new Error("no network"); } });
   const ids = free.cards.map((c) => c.id).sort();
   ok(free.cards.length > 0, "free things to do in sarasota returns cards (was empty)");
-  for (const id of ["p-museum", "p-zoo", "p-state", "p-parkname", "p-unknown", "p-cat", "p-mote", "p-oscar", "p-boyd", "p-desoto", "p-lettuce", "event:e2"]) ok(!ids.includes(id), `${id} is never a free card`);
-  for (const id of ["p-beach", "p-park", "p-trail"]) ok(ids.includes(id), `${id} is a free card`);
+  for (const id of ["p-museum", "p-zoo", "p-state", "p-parkname", "p-unknown", "p-cat", "p-mote", "p-oscar", "p-boyd", "p-desoto", "p-lettuce", "p-venture", "event:e2"]) ok(!ids.includes(id), `${id} is never a free card`);
+  for (const id of ["p-beach", "p-park", "p-trail", "p-baldwin"]) ok(ids.includes(id), `${id} is a free card`);
   const all = await searchResultCards({ query: "things to do in sarasota", places: fixturePlaces, events: fixtureEvents, guides: [], env: QUIET, fetchImpl: async () => { throw new Error("no network"); } });
-  const refused = ["p-museum", "p-zoo", "p-state", "p-parkname", "p-cat", "p-mote", "p-oscar", "p-boyd", "p-desoto", "p-lettuce"];
+  const refused = ["p-museum", "p-zoo", "p-state", "p-parkname", "p-cat", "p-mote", "p-oscar", "p-boyd", "p-desoto", "p-lettuce", "p-venture"];
   ok(all.cards.some((c) => refused.includes(c.id)), "without 'free' places the free rule refuses still rank: the filter is free-only");
 }
 // (a) the ownedPlaces path: the route hands its place matches in this shape.
@@ -127,6 +132,7 @@ const owned = (id, name, primaryType) => ({ id, displayName: { text: name }, pri
 eq(isFreeOwnedPlace(owned("r-beach", "Lido Beach", "beach")), true, "route helper: an owned beach is free");
 eq(isFreeOwnedPlace(owned("r-aq", "Mote Marine Laboratory", "aquarium")), false, "route helper: an owned aquarium is not free");
 eq(isFreeOwnedPlace(owned("r-boyd", "Boyd Hill Nature Preserve", "park")), false, "route helper: a paid preserve typed park is not free");
+eq(isFreeOwnedPlace({ ...owned("r-venture", "Venture Outdoors", "hiking_area"), types: ["hiking_area", "sports_activity_location", "point_of_interest", "establishment"] }), false, "route helper: a rental business typed hiking_area is not free");
 eq(isFreeDoc({ kind: "event", free: true }), true, "an event marked free is free");
 eq(isFreeDoc({ kind: "event" }), false, "an event with no evidence is not free");
 eq(isFreeDoc({ kind: "guide", title: "Free things" }), false, "a guide is never a free card");
