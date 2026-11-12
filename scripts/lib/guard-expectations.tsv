@@ -75,7 +75,7 @@ scripts/check-christmas-research.mjs	0	CALL	blocks-ci-and-deploy	1	-	161	0	0	a19
 scripts/check-christmas-retired-redirects.mjs	0	CALL	blocks-ci-and-deploy	1	-	15	0	0	c074760686ffb6e21e1bbcbcda11b080f975645a89524e757414d1c8c1eadff3
 scripts/check-christmas-static-gallery-rights.mjs	0	CALL	blocks-ci-and-deploy	1	-	10	0	0	8034aeecc1fae46c7c29699a51a43245bd5ecb3b553f6fe978116fe73179f170
 scripts/check-christmas-treats-rail.mjs	0	CALL	blocks-ci-and-deploy	1	-	11	0	0	8812634010a3162b8cad7985dd3d2b0eaa859b49f21fd05d3050e2e3f14c93b8
-scripts/check-christmas-twins-live.mjs	0	CALL	unwired	0	-	0	0	0	94908b5e42c24012e6a83d268ebd67e90180901a3ae6e4017894b6566e63d055
+scripts/check-christmas-twins-live.mjs	0	CALL	unwired	0	-	0	0	0	84ab75afee8634f9e1bdaaa4b766ef4821b7b171e6a5c02ae6bb3694bc8c0f93
 scripts/check-christmas-venue-matches.mjs	0	CALL	blocks-ci-and-deploy	1	-	17	0	0	e1219fd7ecf3e0eaa78cca1cd8fed2d0e849c35f9120a5ef6d873a993a650958
 scripts/check-citypass.mjs	0	CALL	blocks-ci-and-deploy	1	-	34	0	0	0d8c182546f20762819ff16535323a8cde407967f6a41884e27dacdc18380d1a
 scripts/check-client-writes-have-policies.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	3	1	0	46db82c5841a98f27be9cd3ba7aea88b3b802145534e092603ed9b0d608cd0da
