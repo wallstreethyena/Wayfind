@@ -304,6 +304,25 @@ const nextConfig = {
       },
     ];
   },
+  // 2026-11-12 — no Buffer polyfill in BROWSER bundles. Next's client
+  // ProvidePlugin injects its ~7KB gz `buffer` polyfill into any client module
+  // that names the `Buffer` global. Every browser path in this app already
+  // guards that name (typeof Buffer / typeof atob / TextEncoder), so the
+  // polyfill only ever shipped dead weight to every page, through the root
+  // layout (@supabase/storage-js, lib/adClickCookie.js) and the homepage.
+  // Server and edge keep Next's default. Locked by scripts/check-bundle.mjs:
+  // no client chunk may carry the polyfill, and no client chunk may use
+  // `Buffer` without a guard.
+  webpack(config, { isServer, nextRuntime }) {
+    if (!isServer && nextRuntime !== "edge") {
+      for (const plugin of config.plugins || []) {
+        if (plugin && plugin.constructor && plugin.constructor.name === "ProvidePlugin" && plugin.definitions && plugin.definitions.Buffer) {
+          delete plugin.definitions.Buffer;
+        }
+      }
+    }
+    return config;
+  },
 };
 // withSentryConfig auto-instruments the SERVER + EDGE runtimes for error
 // capture. There is deliberately NO sentry.client.config.js, so the browser SDK
