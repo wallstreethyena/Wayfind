@@ -182,12 +182,12 @@ await Promise.all(allEntries.map(async ({ slug, pickName, entry }) => {
 }));
 
 // ── 4/5. LICENSE ALLOW-LIST + LICENSE URL MAPPING + NO ND/NC/GFDL ─────────
-const CC_RX = /^CC (BY|BY-SA) (2\.0|3\.0|4\.0)$/;
+const CC_RX = /^CC (BY|BY-SA) (2\.0|2\.5|3\.0|4\.0)$/;
 const PERMISSION_RX = /^Used with permission of .+ \(owner-confirmed \d{4}-\d{2}-\d{2}\); credit required$/;
 const ALLOWED_LICENSE_STRINGS = new Set([
-  "CC0 1.0 Universal", "Unsplash License",
+  "CC0 1.0 Universal", "Public domain", "Unsplash License",
   "CC BY 2.0", "CC BY 3.0", "CC BY 4.0",
-  "CC BY-SA 2.0", "CC BY-SA 3.0", "CC BY-SA 4.0",
+  "CC BY-SA 2.0", "CC BY-SA 2.5", "CC BY-SA 3.0", "CC BY-SA 4.0",
 ]);
 const FORBIDDEN_LICENSE_RX = /\bND\b|\bNC\b|GFDL/i;
 
@@ -196,6 +196,9 @@ function licenseProblem(license, licenseUrl) {
   if (FORBIDDEN_LICENSE_RX.test(String(license))) return `license "${license}" contains a forbidden ND/NC/GFDL term`;
   if (license === "CC0 1.0 Universal") {
     return licenseUrl === "https://creativecommons.org/publicdomain/zero/1.0/" ? null : `CC0 licenseUrl must be exactly https://creativecommons.org/publicdomain/zero/1.0/, got ${JSON.stringify(licenseUrl)}`;
+  }
+  if (license === "Public domain") {
+    return licenseUrl === "https://creativecommons.org/publicdomain/mark/1.0/" ? null : `Public domain licenseUrl must be the Public Domain Mark, got ${JSON.stringify(licenseUrl)}`;
   }
   if (license === "Unsplash License") return licenseUrl === "https://unsplash.com/license" ? null : "Unsplash License requires its canonical license URL";
   const ccMatch = CC_RX.exec(String(license));
@@ -211,11 +214,13 @@ function licenseProblem(license, licenseUrl) {
   if (PERMISSION_RX.test(String(license))) {
     return typeof licenseUrl === "string" && /^https:\/\//.test(licenseUrl) ? null : "a permission license still needs a real https licenseUrl";
   }
-  return `license ${JSON.stringify(license)} is not one of the allowed strings (CC0/CC BY/CC BY-SA at 2.0-4.0, or the owner-permission pattern)`;
+  return `license ${JSON.stringify(license)} is not one of the allowed strings (CC0, Public domain, CC BY/CC BY-SA at 2.0, 2.5, 3.0 or 4.0, or the owner-permission pattern)`;
 }
 {
   // positive controls — every allowed shape must pass with its canonical URL.
   ok(licenseProblem("CC0 1.0 Universal", "https://creativecommons.org/publicdomain/zero/1.0/") === null, "positive control: CC0 with its canonical URL is legal");
+  ok(licenseProblem("Public domain", "https://creativecommons.org/publicdomain/mark/1.0/") === null, "positive control: a public domain work with the Public Domain Mark is legal");
+  ok(licenseProblem("CC BY-SA 2.5", "https://creativecommons.org/licenses/by-sa/2.5/") === null, "positive control: CC BY-SA 2.5 with its canonical URL is legal");
   for (const kind of ["by", "by-sa"]) {
     for (const v of ["2.0", "3.0", "4.0"]) {
       const label = kind === "by" ? `CC BY ${v}` : `CC BY-SA ${v}`;
@@ -439,7 +444,7 @@ for (const { file, json } of dataFiles) {
 const LEDGER_PATH = "data/guide-pick-photos/_reports/license-evidence.json";
 const ledger = JSON.parse(readFileSync(abs(LEDGER_PATH), "utf8"));
 const ledgerBySrc = new Map((ledger.files || []).map((r) => [r.src, r]));
-const COMMERCIAL_OK_RX = /^(CC0 1\.0 Universal|CC BY(-SA)? [234]\.0|Unsplash License)$/;
+const COMMERCIAL_OK_RX = /^(CC0 1\.0 Universal|Public domain|CC BY(-SA)? (2\.5|[234]\.0)|Unsplash License)$/;
 function ledgerProblems(row, stored) {
   if (!row) return ["no licence-evidence row"];
   const p = [];

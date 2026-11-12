@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { XM_CARD_CSS } from "./ChristmasTicketCard.js";
 import CommerceClickBeacon from "./CommerceClickBeacon.js";
 import { activeSeasonalMark } from "../../lib/seasonalBrand.js";
+import ChristmasElves from "./ChristmasElves.js";
 
 // Wayfind home header replica plus Christmas ticket cards, built like the
 // Halloween page (BoHalloweenHaunt). Deep night, warm white text, one festive
@@ -32,7 +33,8 @@ const PHONE_WIRE_PATH = (() => {
   return d;
 })();
 // Seven colors (an odd count), so every other bulb on a phone still cycles
-// through all of them: red, green, gold, blue, pink, warm white, purple.
+// through all of them: red, green, gold, blue, pink, warm white, amber.
+// Amber, not purple. A purple bulb is off the palette.
 const BULB_COLORS = [
   ["#FF4458", "#B3111F", "rgba(255,68,88,.75)", "rgba(255,68,88,.32)"],
   ["#3DDC84", "#13803F", "rgba(61,220,132,.7)", "rgba(61,220,132,.3)"],
@@ -40,7 +42,7 @@ const BULB_COLORS = [
   ["#4DA3FF", "#1456B8", "rgba(77,163,255,.75)", "rgba(77,163,255,.32)"],
   ["#FF7AC8", "#B02C86", "rgba(255,122,200,.75)", "rgba(255,122,200,.32)"],
   ["#FFF1D6", "#D8B27A", "rgba(255,241,214,.7)", "rgba(255,241,214,.28)"],
-  ["#B98CFF", "#6A3FC2", "rgba(185,140,255,.72)", "rgba(185,140,255,.3)"],
+  ["#FF8A3D", "#C4510A", "rgba(255,138,61,.75)", "rgba(255,138,61,.32)"],
 ];
 const LIGHT_PATTERNS = ["twinkle", "chase", "alt", "chase"];
 
@@ -88,22 +90,22 @@ const CSS = XM_CARD_CSS + `
 .xm-main{position:relative;z-index:2}
 
 /* Festival string lights: green garland, multicolor bulbs with real glow, rotating chase and twinkle sequences */
-.xm-lights{position:relative;height:36px;pointer-events:none;overflow-x:clip;z-index:30}
+.xm-lights{position:relative;height:36px;margin-bottom:12px;pointer-events:none;overflow-x:clip;z-index:30}
 .xm-wire{position:absolute;inset:0;width:100%;height:100%}
 /* Cute bulbs (owner 2026-11-03): chubby round glass with a shine dot and a gold
    cap, each hanging from the wire and gently swaying; little red bows on the wire. */
 .xm-sway{position:absolute;top:9px;width:0;height:0;transform-origin:0 0;animation:xm-sway var(--sw,3.6s) ease-in-out var(--d,0s) infinite alternate}
 @keyframes xm-sway{from{rotate:-7deg}to{rotate:7deg}}
 .xm-bulb{
-  position:absolute;left:-7.5px;top:5px;width:15px;height:18px;
-  border-radius:50% 50% 50% 50% / 56% 56% 44% 44%;
-  background:radial-gradient(circle at 34% 30%,#fff 0 9%,var(--bc) 34%,var(--bd) 100%);
+  position:absolute;left:-8px;top:5px;width:16px;height:20px;
+  border-radius:50% 50% 48% 48% / 42% 42% 58% 58%;
+  background:radial-gradient(ellipse 22% 30% at 33% 30%,rgba(255,255,255,.95),rgba(255,255,255,0) 72%),radial-gradient(circle at 42% 38%,var(--bc) 0 38%,var(--bd) 100%);
   box-shadow:0 0 6px 1px var(--bg-glow),0 0 16px 4px var(--bg-glow2);
   will-change:opacity,transform;
 }
 .xm-bow{position:absolute;top:2px;width:16px;height:12px;margin-left:-8px;filter:drop-shadow(0 1px 1px rgba(0,0,0,.35))}
 .xm-wire-phone{display:none}
-@media(max-width:600px){.xm-wire-desk{display:none}.xm-wire-phone{display:block}.xm-sway{left:var(--lp)!important}.xm-sway:nth-of-type(even),.xm-bow.xm-bow-desk{display:none}.xm-bow{left:var(--bp)!important}}
+@media(max-width:600px){.xm-bulb{left:-9px;width:18px;height:22px}.xm-wire-desk{display:none}.xm-wire-phone{display:block}.xm-sway{left:var(--lp)!important}.xm-sway:nth-of-type(even),.xm-bow.xm-bow-desk{display:none}.xm-bow{left:var(--bp)!important}}
 .xm-bulb::before{content:"";position:absolute;left:4px;top:-5px;width:7px;height:6px;border-radius:2px 2px 1px 1px;background:linear-gradient(180deg,#F7D774,#B8860B)}
 .xm-bulb::after{content:"";position:absolute;left:50%;top:50%;width:30px;height:30px;margin:-15px 0 0 -15px;border-radius:50%;background:radial-gradient(circle,var(--bg-glow) 0%,rgba(0,0,0,0) 66%);opacity:.45}
 [data-pattern="twinkle"] .xm-bulb{animation:xm-twinkle var(--f,3.2s) ease-in-out var(--d,0s) infinite}
@@ -116,7 +118,7 @@ const CSS = XM_CARD_CSS + `
 @media(prefers-reduced-motion:reduce){.xm-bulb,.xm-sway,.xm-sparkles{animation:none!important}.xm-sparkles{opacity:.4}}
 
 /* Wayfind header replica (home classes and values) */
-.wf-topbar{background:transparent;border:0;padding:6px 16px 4px;position:relative;z-index:20}
+.wf-topbar{background:transparent;border:0;padding:4px 16px 6px;position:relative;z-index:20}
 .xm-topin{max-width:800px;margin:0 auto}
 .wf-topbar-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0}
 .wf-wordmark{display:flex;align-items:center;gap:5px;flex-shrink:0;filter:drop-shadow(0 4px 12px rgba(0,0,0,.3));text-decoration:none}
@@ -129,22 +131,18 @@ const CSS = XM_CARD_CSS + `
 .xm-goto:focus-visible{outline:2px solid #F97316;outline-offset:2px;border-radius:6px}
 
 /* Page body */
-.xm-main{max-width:720px;margin:0 auto;padding:20px 16px 0}
+.xm-main{max-width:720px;margin:0 auto;padding:26px 16px 0}
 .xm-hero h1{margin:0 0 6px;font-size:26px;line-height:1.2;font-weight:700;color:var(--cream);letter-spacing:-.01em;text-wrap:balance;text-shadow:0 2px 10px rgba(30,0,6,.6)}
-.xm-lede{margin:0;font-size:15px;line-height:1.5;color:var(--muted)}
+.xm-lede{margin:4px 0 0;font-size:15px;line-height:1.5;color:var(--muted)}
 .xm-honest{margin:8px 0 0;font-size:13px;line-height:1.5;color:var(--soft)}
-.xm-ask{margin-top:16px;width:100%;min-height:48px;border-radius:12px;border:1px solid var(--line);cursor:pointer;background:linear-gradient(180deg,#E0303F,#B01728);color:#fff;font-size:15px;font-weight:700;box-shadow:0 0 14px rgba(232,180,138,.2)}
-.xm-share{margin-top:8px;display:flex;justify-content:flex-start}
+.xm-hero-actions{display:flex;align-items:center;gap:10px;margin-top:16px}.xm-ask{flex:1;min-width:0;min-height:48px;border-radius:12px;border:1px solid var(--line);cursor:pointer;background:linear-gradient(180deg,#E0303F,#B01728);color:#fff;font-size:15px;font-weight:700;box-shadow:0 0 14px rgba(232,180,138,.2)}
+.xm-share{display:flex;flex:0 0 auto;justify-content:flex-start}
 .xm-share button,.xm-share a{min-height:44px}
 .xm-ask:focus-visible,.xm-filters button:focus-visible,.xm-more:focus-visible{outline:2px solid #FFD9AE;outline-offset:2px}
 
 #xm-tickets{margin-top:22px;scroll-margin-top:12px}
-.xm-filters{display:flex;flex-wrap:wrap;gap:8px}
-@media(max-width:719px){.xm-filters{flex-wrap:nowrap;overflow-x:auto;margin:0 -16px;padding:2px 16px 6px;scrollbar-width:none;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch}.xm-filters::-webkit-scrollbar{display:none}.xm-filters button{flex:0 0 auto;white-space:nowrap}}
-.xm-filters button{min-height:44px;padding:8px 14px;border-radius:999px;cursor:pointer;background:rgba(24,2,8,.5);color:#FFE9C8;border:1px solid rgba(232,180,138,.7);font-size:14px;font-weight:600}
-.xm-filters button[aria-pressed="true"]{background:linear-gradient(180deg,#FFE9B8,#F5C451);color:#4A0610;border-color:#F5C451;font-weight:800;box-shadow:0 0 12px rgba(245,196,81,.35)}
-.xm-controls{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
-.xm-controls input::placeholder{color:#D9B3A3;opacity:1}
+.xm-controls{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-top:18px;padding-bottom:16px;border-bottom:1px solid rgba(232,180,138,.22)}
+.xm-sort-note{font-size:13px;color:#E1C6B6;line-height:1.4}.xm-clear{min-height:44px;margin-left:auto;padding:8px 4px;border:0;background:transparent;color:#E8B48A;cursor:pointer;font:inherit;font-size:13px}.xm-clear:focus-visible{outline:2px solid #FFE9C8;outline-offset:3px}
 .xm-count{margin:14px 0 0;font-size:14px;color:var(--muted)}
 .xm-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;margin-top:12px}
 @media(min-width:720px){.xm-main{max-width:960px}.xm-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
@@ -170,10 +168,12 @@ function FestivalLights() {
   return (
     <div className="xm-lights" aria-hidden="true" data-pattern={pattern}>
       <svg className="xm-wire xm-wire-desk" viewBox="0 0 1200 36" preserveAspectRatio="none">
-        <path d={WIRE_PATH} fill="none" stroke="#1F4D2E" strokeWidth="2" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
+        <path d={WIRE_PATH} fill="none" stroke="#143B22" strokeWidth="2.6" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
+        <path d={WIRE_PATH} fill="none" stroke="#3E8F5A" strokeWidth="1" strokeDasharray="3 4" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
       </svg>
       <svg className="xm-wire xm-wire-phone" viewBox="0 0 1200 36" preserveAspectRatio="none">
-        <path d={PHONE_WIRE_PATH} fill="none" stroke="#1F4D2E" strokeWidth="2" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
+        <path d={PHONE_WIRE_PATH} fill="none" stroke="#143B22" strokeWidth="2.6" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
+        <path d={PHONE_WIRE_PATH} fill="none" stroke="#3E8F5A" strokeWidth="1" strokeDasharray="3 4" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
       </svg>
       {Array.from({ length: BULB_COUNT }, (_, i) => (
         <span
@@ -312,6 +312,7 @@ export default function ChristmasTickets({ model, share = null, browse = null })
       <div className="xm-sparkles" aria-hidden="true" />
       <Snow />
       <FestivalLights />
+      <ChristmasElves />
       <WayfindHeader seasonal={seasonal} />
 
       <div className="xm-main">
@@ -319,8 +320,10 @@ export default function ChristmasTickets({ model, share = null, browse = null })
           <h1 id="xm-title">{chrome.title}</h1>
           <p className="xm-lede">{chrome.lede}</p>
           <p className="xm-honest">{chrome.honest}</p>
-          <button type="button" className="xm-ask" onClick={askSanta}>{chrome.ask}</button>
-          {share ? <div className="xm-share">{share}</div> : null}
+          <div className="xm-hero-actions">
+            <button type="button" className="xm-ask" onClick={askSanta}>{chrome.ask}</button>
+            {share ? <div className="xm-share">{share}</div> : null}
+          </div>
         </div>
 
         <div id="xm-tickets" data-ticket-grid="">{browse}</div>

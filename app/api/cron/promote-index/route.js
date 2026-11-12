@@ -1,4 +1,4 @@
-import { gateShut, spendAllowCapped, effectiveCap, gateMode } from "../../../../lib/spendGate";
+import { gateShut, spendAllowCapped, effectiveCap, gateMode, refundToLedger, freeTierLine, runWithTraffic, TRAFFIC, backgroundReserveStatus } from "../../../../lib/spendGate";
 // app/api/cron/promote-index/route.js — drains wf_promotion_queue: index places
 // (wf_place_ids) become owned cards (wf_inventory), a bounded batch at a time.
 //
@@ -68,11 +68,14 @@ import { gateShut, spendAllowCapped, effectiveCap, gateMode } from "../../../../
 // rate climbs past 20% or Google returns a 429. The job idles at $0 the
 // moment the queue is empty either way.
 import { sbEnv } from "../../../../lib/serverCache";
-import { recordPulse, budgetLimitNote, readLedgerUsage } from "../../../../lib/jobPulse";
+import { recordPulse, budgetLimitNote, budgetReserveNote, readLedgerUsage } from "../../../../lib/jobPulse";
 import { decidePromotion, dedupeById, partitionSplitVenues, PROMOTE_METROS, metrosFromRows } from "../../../../lib/promoteIndex";
 import { clampBatchLimit, nextBatchLimit } from "../../../../lib/promoteThrottle";
-import { CORE_DETAILS_MASK, RATING_DETAILS_MASK, PROMOTE_SKU, RATING_SKU, withIndexSignals, hasIndexRating, classifyDetailsFailure, minutesUntilQuotaReset } from "../../../../lib/promoteDetails";
+import { CORE_DETAILS_MASK, RATING_DETAILS_MASK, PROMOTE_SKU, RATING_SKU, withIndexSignals, hasIndexRating, classifyDetailsFailure, minutesUntilQuotaReset, ratingBuyAllowed } from "../../../../lib/promoteDetails";
 import { jobFailed } from "../../../../lib/jobFail";
+import { deadlineSignal, NET_DEADLINE_MS } from "../../../../lib/fetchDeadline";
+import { createBudget, runWithinBudget, PROMOTE_MAX_DURATION_S } from "../../../../lib/promoteBudget";
+import { breakerOpen, tripBreaker, GOOGLE_DETAILS_DAILY_BREAKER } from "../../../../lib/providerHealth";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -81,6 +84,7 @@ export const dynamic = "force-dynamic";
 // note above rpc(). lib/inventoryServe.js already sets no-store on every call
 // for the same reason; this route just failed to copy that.
 export const fetchCache = "force-no-store";
+// Keep equal to PROMOTE_MAX_DURATION_S (lib/promoteBudget.js); test-promote-deadline.mjs checks it.
 export const maxDuration = 60;
 
 // The CORE mask (Pro tier) — see lib/promoteDetails.js for why it is not the
@@ -107,17 +111,30 @@ function isTerminalStatus(status) {
   return status >= 400 && status < 500 && status !== 429;
 }
 
-async function details(key, placeId, mask = DETAILS_MASK, sku = PROMOTE_SKU, monthCap = 4800) {
+async function details(key, placeId, mask = DETAILS_MASK, sku = PROMOTE_SKU, monthCap = 4800, onRetryGrant = null, budget = null) {
   for (let attempt = 0; attempt < 3; attempt++) {
     // Attempt zero was granted by the caller. Every subsequent provider
     // request must obtain its own grant under that same SKU and ceiling.
     if (attempt > 0 && !(await spendAllowCapped(sku, monthCap))) {
       return { ok: false, budget: true, terminal: false, error: `details retry budget unavailable (${sku})` };
     }
-    const r = await fetch(`https://places.googleapis.com/v1/places/${encodeURIComponent(placeId)}`, {
-      cache: "no-store", // a cached 200 here would mean promoting a place from a stale snapshot
-      headers: { "X-Goog-Api-Key": key, "X-Goog-FieldMask": mask },
-    });
+    if (attempt > 0 && onRetryGrant) onRetryGrant(); // a retry grant counts toward the caller's share too
+    // Every Google call is bounded by the per call ceiling AND what is left of the
+    // run's wall clock budget, so one hung request can no longer hold the function
+    // past maxDuration. A bounded call that is cut off is not a verdict on the place.
+    let r;
+    try {
+      r = await fetch(`https://places.googleapis.com/v1/places/${encodeURIComponent(placeId)}`, {
+        cache: "no-store", // a cached 200 here would mean promoting a place from a stale snapshot
+        headers: { "X-Goog-Api-Key": key, "X-Goog-FieldMask": mask },
+        signal: deadlineSignal(budget ? Math.max(1000, Math.min(NET_DEADLINE_MS, budget.remainingMs())) : NET_DEADLINE_MS),
+      });
+    } catch (e) {
+      if (budget && budget.expired()) return { ok: false, terminal: false, deadline: true, error: "details: run budget spent" };
+      if (attempt === 2) return { ok: false, terminal: false, error: `details: ${String((e && e.name) || "network")} (no response)` };
+      await sleep(500 * (attempt + 1));
+      continue;
+    }
     if (r.ok) return { ok: true, place: await r.json() };
     const body = (await r.text()).slice(0, 160);
     // A 429 is never retried here: retrying a quota answer buys nothing and
@@ -260,7 +277,14 @@ async function writePromoteConfig(s, { batchLimit, promoted, rejected, errors })
   }
 }
 
+// Every grant this run takes is declared BACKGROUND (lib/spendGate.js human
+// traffic reserve): once a visitor-shared SKU is inside its last 20% the grant
+// is refused and the run pauses, so a person opening a place still gets served.
 export async function GET(req) {
+  return runWithTraffic(TRAFFIC.BACKGROUND, () => runPromoteIndex(req));
+}
+
+async function runPromoteIndex(req) {
   // COST GUARD (2026-08-25): WAYFIND_GATE=shut stops ALL metered Google spend.
   if (gateShut()) return Response.json({ skipped: "gate shut" });
   const secret = process.env.CRON_SECRET;
@@ -270,6 +294,8 @@ export async function GET(req) {
     return Response.json({ error: "unauthorized" }, { status: 401 });
   }
 
+  // The wall clock starts here: claim, config and lookups below spend the same 60s.
+  const budget = createBudget();
   const s = sbEnv();
   const gkey = GKEY();
   // Pulse the misconfiguration too. An unset key that returns a quiet {ok:false}
@@ -307,6 +333,25 @@ export async function GET(req) {
   }
   const metro = metroParam || null;
   const nowIso = new Date().toISOString();
+
+  // A per-day Google quota 429 (tripped below, or by inventory-refresh) holds
+  // until the Pacific reset. Skip BEFORE the claim so a parked provider costs
+  // no claim, no release round trips and no Google probe every five minutes.
+  const dailyOpen = await breakerOpen(GOOGLE_DETAILS_DAILY_BREAKER);
+  if (dailyOpen) {
+    await recordPulse("promote-index", { attempted: 0, succeeded: 0, note: `quota: google places details per-day quota exhausted; breaker open, skipped until reset (${dailyOpen.reason || "429"})`.slice(0, 200) });
+    return Response.json({ ok: true, skipped: "breaker open", kind: dailyOpen.kind, claimed: 0, promoted: 0 });
+  }
+
+  // HUMAN TRAFFIC RESERVE preflight: when the Details row is inside the last 20%
+  // kept for visitors, pause BEFORE the claim. A pause is an expected state:
+  // attempted 0, failed 0, "skipped: budget-reserve" (lib/jobPulse.js), which
+  // job-watch reads as idle. No claim, no release round trips, no Google call.
+  const reserve = await backgroundReserveStatus(PROMOTE_SKU);
+  if (reserve.blocked) {
+    await recordPulse("promote-index", { attempted: 0, succeeded: 0, failed: 0, note: budgetReserveNote(PROMOTE_SKU, reserve.used, reserve.line).slice(0, 200) });
+    return Response.json({ ok: true, skipped: "budget-reserve", sku: PROMOTE_SKU, used: reserve.used, line: reserve.line, claimed: 0, promoted: 0 });
+  }
 
   let claimed = [];
   try {
@@ -353,11 +398,17 @@ export async function GET(req) {
   let quotaKind = null;     // "quota_daily" | "rate_limited" once Google says no
 
   let budgetExhausted = false;
-  let ratingBought = 0; // places that had no index rating and bought it (Enterprise, its own free allowance)
-  let ratingSkipped = 0; // ... and could not (Enterprise ledger said no) — promoted from CORE, no stars yet
-  for (const item of claimed) {
-    if (budgetExhausted) { released.push(item.place_id); continue; }
-    if (quotaKind) { quotaReleased.push(item.place_id); continue; }
+  let ratingBought = 0; // places that had no index rating and bought it (Enterprise, within promotion's half of the line)
+  let ratingSkipped = 0; // ... and could not (promotion's share spent, or the Enterprise ledger said no) — promoted from CORE, no stars yet
+  // Promotion's share of the shared Enterprise line (lib/promoteDetails.js
+  // PROMOTE_RATING_SHARE): read the month's usage ONCE per run; past the share,
+  // no rating buys this run. The ledger's own cap still applies underneath.
+  const ratingUsage = await readLedgerUsage(RATING_SKU);
+  const ratingFreeLine = freeTierLine(RATING_SKU); // the free line itself, in every gate mode (never effectiveCap: open mode returns month_cap)
+  const inFlightHeld = []; // started, then cut off by the deadline
+  const walk = await runWithinBudget(claimed, async (item) => {
+    if (budgetExhausted) { released.push(item.place_id); return; }
+    if (quotaKind) { quotaReleased.push(item.place_id); return; }
     // THE MONEY GUARD. Exactly one atomic ledger grant per Google call, for the
     // SKU that call actually bills at, before the call:
     //   index has the stars (~88%)  -> CORE mask, one Pro grant.
@@ -368,48 +419,51 @@ export async function GET(req) {
     // place in this batch would be refused too, so stop asking and hand them back.
     const sig = indexSignals.get(item.place_id);
     let mask = DETAILS_MASK;
-    if (!hasIndexRating(sig) && (await spendAllowCapped(RATING_SKU, monthCap))) {
+    if (!hasIndexRating(sig) && ratingBuyAllowed(ratingUsage, ratingBought, ratingFreeLine) && (await spendAllowCapped(RATING_SKU, monthCap))) {
       mask = RATING_DETAILS_MASK; ratingBought++;
     } else {
       if (!hasIndexRating(sig)) ratingSkipped++;
       if (!(await spendAllowCapped(PROMOTE_SKU, monthCap))) {
         budgetExhausted = true;
         released.push(item.place_id);
-        continue;
+        return;
       }
     }
     const requestSku = mask === RATING_DETAILS_MASK ? RATING_SKU : PROMOTE_SKU;
-    const d = await details(gkey, item.place_id, mask, requestSku, monthCap);
+    const d = await details(gkey, item.place_id, mask, requestSku, monthCap, requestSku === RATING_SKU ? () => { ratingBought++; } : null, budget);
     if (!d.ok) {
       if (d.budget) {
         budgetExhausted = true;
         released.push(item.place_id);
-        continue;
+        return;
+      }
+      if (d.deadline) {
+        inFlightHeld.push(item.place_id);
+        return;
       }
       if (d.quota) {
         // Google's quota, not the place. Park this one and the rest of the
         // batch with the attempt refunded, instead of burning toward a reject.
+        // THE LEDGER GRANT IS REFUNDED TOO (2026-11-03). A 429 is not billed.
         quotaKind = d.quota;
         quotaReleased.push(item.place_id);
-        continue;
+        await refundToLedger(requestSku, 1);
+        return;
       }
       (d.terminal ? rejects : retries).push({ place_id: item.place_id, name: item.name, error: d.error });
-      continue;
+      return;
     }
-    // ONE decision, shared with the hand-run promoter and locked by
-    // scripts/test-promote-decision.mjs. A "reject" is a verdict about the DATA
-    // (unclassifiable, closed, out of bounds) — re-fetching buys the same answer,
-    // so the queue must not retry it and pay Google again.
     const place = withIndexSignals(d.place, sig);
     const verdict = decidePromotion(place, item.metro, nowIso, adjudicated.get(item.place_id) || null, metros);
     if (verdict.action !== "promote") {
       rejects.push({ place_id: item.place_id, name: item.name, error: verdict.error });
-      continue;
+      return;
     }
     writeRows.push(verdict.row);
     okIds.push(item.place_id);
-  }
-
+  }, budget);
+  const deadlineDeferred = [...walk.deferred.map((item) => item.place_id), ...inFlightHeld];
+  const stoppedBy = walk.stopped || (inFlightHeld.length ? "deadline" : null);
   const { rows: idRows, dropped } = dedupeById(writeRows);
 
   // One venue, one card. decidePromotion() is per-place and dedupeById() is per
@@ -474,12 +528,16 @@ export async function GET(req) {
   for (const id of released) settle.push(rpc(s, "wf_promotion_release", { p_place_id: id, p_delay_minutes: RELEASE_DELAY_MINUTES, p_note: `spend ledger: ${PROMOTE_SKU} ceiling ${effectiveCap(PROMOTE_SKU, monthCap)} reached (month_cap ${monthCap}, gate ${gateMode()})` }));
   if (quotaReleased.length) {
     const delay = quotaKind === "quota_daily" ? minutesUntilQuotaReset(Date.now()) : RATE_LIMIT_DELAY_MINUTES;
+    if (quotaKind === "quota_daily") await tripBreaker(GOOGLE_DETAILS_DAILY_BREAKER, "quota", "google 429 per day", delay * 60 * 1000);
     const parkNote = `google ${quotaKind === "quota_daily" ? "daily" : "rate"} quota 429: parked ${delay}m, attempt refunded`;
     for (const id of quotaReleased) settle.push(rpc(s, "wf_promotion_release", { p_place_id: id, p_delay_minutes: delay, p_note: parkNote }));
   }
+  // Deadline: places the clock never reached (or cut off mid call). Same refund as a
+  // ledger release, parked only one minute so the next 5 minute run takes them.
+  for (const id of deadlineDeferred) settle.push(rpc(s, "wf_promotion_release", { p_place_id: id, p_delay_minutes: 1, p_note: `deadline: run budget ${budget.budgetMs}ms spent, attempt refunded` }));
   await Promise.allSettled(settle);
 
-  const attempted = claimed.length - released.length - quotaReleased.length; // places we actually paid to look at
+  const attempted = claimed.length - released.length - quotaReleased.length - deadlineDeferred.length; // places we actually paid to look at
   const succeeded = writeError ? 0 : written;
   // Real used/cap for the label; a failed ledger read falls back to the ceiling
   // (a refusal means used had reached it), never blocks the pulse.
@@ -488,18 +546,25 @@ export async function GET(req) {
     const led = await readLedgerUsage(PROMOTE_SKU);
     if (led && Number.isFinite(led.used)) budgetUsed = led.used;
   }
+  // A refusal mid-run can be the human traffic reserve (a pause), not the ceiling: say which.
+  const reservePause = budgetExhausted && !writeError ? await backgroundReserveStatus(PROMOTE_SKU) : null;
   const note = writeError
     ? `upsert failed: ${writeError.slice(0, 120)}`
+    : budgetExhausted && reservePause && reservePause.blocked
+      ? `${budgetReserveNote(PROMOTE_SKU, reservePause.used, reservePause.line)}; released ${released.length}/${claimed.length}`.slice(0, 200)
     : budgetExhausted
       ? `${budgetLimitNote(PROMOTE_SKU, budgetUsed, effectiveCap(PROMOTE_SKU, monthCap))}; ceiling ${effectiveCap(PROMOTE_SKU, monthCap)} reached (month_cap ${monthCap}, gate ${gateMode()}); released ${released.length}/${claimed.length}`.slice(0, 200)
       : quotaKind === "quota_daily"
         // "quota:" is the jobPulse prefix that pages after ONE dead run (CLAUDE.md rule 2).
         ? `quota: google places details per-day quota exhausted (429); parked ${quotaReleased.length}/${claimed.length} until reset`.slice(0, 200)
       : (succeeded === 0 && attempted > 0 ? `0/${attempted} promoted; top reject: ${(rejects[0] && rejects[0].error) || "none"}`.slice(0, 200) : null);
+  const finalNote = stoppedBy === "deadline"
+    ? `${note ? note + "; " : ""}deadline: stopped after ${Math.round(budget.elapsedMs() / 1000)}s, ${deadlineDeferred.length}/${claimed.length} deferred to the next run`.slice(0, 240)
+    : note;
   // attempted counts only what was bought. A run that released its whole batch
   // pulses as attempted 0 with the budget note, so job-watch reads it as IDLE
   // (budget), never as "tried everything, achieved nothing".
-  await recordPulse("promote-index", { attempted, succeeded, note });
+  await recordPulse("promote-index", { attempted, succeeded, note: finalNote });
 
   // Adaptive step (2026-09-01) — see lib/promoteThrottle.js. `errors` here is
   // OPERATIONAL distress (transient/retry fetch failures + a failed upsert),
@@ -527,6 +592,10 @@ export async function GET(req) {
     retrying: retries.length,
     released: released.length,
     quotaParked: quotaReleased.length,
+    // "deadline" when the wall clock budget (not the end of the batch) ended the walk.
+    stopped: stoppedBy,
+    deferred: deadlineDeferred.length,
+    elapsedMs: budget.elapsedMs(),
     quota: quotaKind,
     ratingBought,
     ratingSkipped,

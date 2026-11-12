@@ -231,7 +231,9 @@ async function checkNoBump({ patchMod, placeDetailsMutate = (s) => s, cronMutate
   const cron = await sourceModule("app/api/cron/inventory-refresh/route.js", `
     import { inventoryRefreshPatch, refreshSlice, REFRESH_WINDOW_SLOTS } from "${fileUrl("lib/inventoryRefreshPatch.js")}";
     import { planCheck, planEnterprise, tierOrder, ESSENTIALS_MASK, PRO_MASK, TIER_SKU } from "${fileUrl("lib/inventoryGoogleCheck.js")}";
+    import { breakerCooldownMs, GOOGLE_DETAILS_DAILY_BREAKER } from "${fileUrl("lib/providerHealth.js")}";
     const gateShut = () => false;
+    const runWithTraffic = (_class, run) => run(); const TRAFFIC = { REFRESH: "refresh" }; // the route now declares its traffic class; the stub just runs it
     const spendAllowRefresh = async () => true; const refundToLedger = async () => true; const refreshCounterSku = (s) => "refresh_" + s;
     const recordPulse = async () => {}; const budgetGateNote = () => "gate"; const budgetLimitNote = () => "limit";
     const jobCannotRun = (j, m) => Response.json({ cannot: m }, { status: 503 });

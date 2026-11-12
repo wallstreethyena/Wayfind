@@ -193,6 +193,26 @@ assert.equal(controller.map.annotations.length, 2, "updates replace stale annota
 assert.equal(controller.map.overlays.length, 0, "updates remove obsolete rings");
 assert.equal(controller.map.shown.length, 2, "explicit fit frames the current annotations");
 
+// A PROGRAMMATIC FIT IS NOT A PAN (2026-11-03, synthetic monitor red since #2079
+// shipped 2026-10-31 22:44Z). showItems frames the list's pins; the settled
+// center may sit miles from the search origin. That settle must NOT raise
+// "Search this area" (it also hides the unpinned note), and a later real pan is
+// measured from the FITTED center.
+area = "unset";
+controller.map.region = new CoordinateRegion(new Coordinate(27.9, -82.9), new CoordinateSpan(0.2, 0.3)); // far from the 27.3/-82.5 origin
+controller.map.listeners.get("region-change-end")();
+assert.equal(area, null, "the settle after a programmatic list fit never offers an area search");
+controller.map.region = new CoordinateRegion(new Coordinate(27.905, -82.905), new CoordinateSpan(0.2, 0.3)); // a nudge well under the move threshold
+controller.map.listeners.get("region-change-end")();
+assert.equal(area, null, "a sub-threshold nudge after the fit still does not offer");
+controller.map.region = new CoordinateRegion(new Coordinate(28.4, -82.9), new CoordinateSpan(0.2, 0.3)); // ~35 mi north of the fitted center
+controller.map.listeners.get("region-change-end")();
+assert.equal(area && area.lat, 28.4, "a real pan away from the FITTED center offers the area search");
+controller.update({ center: { lat: 27.3, lng: -82.5 }, places: places.slice(0, 2), category: "food", rings: false, showOrigin: false, fit: false });
+controller.map.region = new CoordinateRegion(new Coordinate(27.9, -82.9), new CoordinateSpan(0.2, 0.3));
+controller.map.listeners.get("region-change-end")();
+assert.equal(area && area.lat, 27.9, "leaving fit mode measures pans from the search origin again");
+
 const selectListener = controller.map.listeners.get("select");
 const selectedBeforeDestroy = selected;
 controller.destroy();

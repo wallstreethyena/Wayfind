@@ -1,4 +1,4 @@
-import { gateShut, spendAllowRefresh, refundToLedger, refreshCounterSku } from "../../../../lib/spendGate";
+import { gateShut, spendAllowRefresh, refundToLedger, refreshCounterSku, runWithTraffic, TRAFFIC } from "../../../../lib/spendGate";
 // app/api/cron/inventory-refresh/route.js — keep wf_inventory checked against
 // Google at $0 EXTRA cost, a few rows at a time, and NEVER lose anything.
 //
@@ -35,7 +35,7 @@ import { normalizeDetails, PLACE_DETAILS_FIELDS, PLACE_DETAILS_CACHE_MS } from "
 import { cset } from "../../../../lib/serverCache.js";
 import { inventoryRefreshPatch, refreshSlice, REFRESH_WINDOW_SLOTS } from "../../../../lib/inventoryRefreshPatch.js";
 import { planCheck, planEnterprise, tierOrder, fetchGoogleCheck, ESSENTIALS_MASK, PRO_MASK, TIER_SKU } from "../../../../lib/inventoryGoogleCheck.js";
-import { classifyProviderFailure, breakerOpen, tripBreaker } from "../../../../lib/providerHealth.js";
+import { classifyProviderFailure, breakerOpen, tripBreaker, breakerCooldownMs, GOOGLE_DETAILS_DAILY_BREAKER } from "../../../../lib/providerHealth.js";
 import { recordPulse, budgetGateNote, budgetLimitNote } from "../../../../lib/jobPulse";
 import { jobCannotRun, jobFailed } from "../../../../lib/jobFail";
 
@@ -45,7 +45,12 @@ const REFRESH_AFTER_DAYS = 25;
 const PARALLEL = 5;
 const BREAKER = "google_places_refresh";
 
+// Traffic class (lib/spendGate.js human traffic reserve): REFRESH, not BACKGROUND. The refresh has its own refresh_* counters and the owner's half-and-half split (REFRESH_SUBCAPS), so the human reserve does not apply to it.
 export async function GET(req) {
+  return runWithTraffic(TRAFFIC.REFRESH, () => runInventoryRefresh(req));
+}
+
+async function runInventoryRefresh(req) {
   const secret = process.env.CRON_SECRET;
   const auth = req.headers.get("authorization") || "";
   if (!secret || auth !== "Bearer " + secret) return Response.json({ error: "unauthorized" }, { status: 401 });
@@ -61,7 +66,7 @@ export async function GET(req) {
   const gkey = (process.env.GOOGLE_MAPS_SERVER_KEY || "").trim();
   if (!url || !svc) return jobCannotRun("inventory-refresh", "SUPABASE_SERVICE_ROLE_KEY or NEXT_PUBLIC_SUPABASE_URL is missing");
   if (!gkey) return jobCannotRun("inventory-refresh", "GOOGLE_MAPS_SERVER_KEY is missing");
-  const open = await breakerOpen(BREAKER);
+  const open = (await breakerOpen(BREAKER)) || (await breakerOpen(GOOGLE_DETAILS_DAILY_BREAKER));
   if (open) {
     await recordPulse("inventory-refresh", { attempted: 0, succeeded: 0, failed: 0, note: `${open.kind}: breaker open, skipped (${open.reason})` });
     return Response.json({ skipped: "breaker open", kind: open.kind });
@@ -146,7 +151,12 @@ export async function GET(req) {
         if (res.kind === "denied") {
           const kind = classifyProviderFailure(res.status, res.body);
           denied = { status: res.status, kind };
-          if (kind) await tripBreaker(BREAKER, kind, "google " + res.status);
+          if (kind) {
+            const cool = breakerCooldownMs(kind, res.status, res.body);
+            await tripBreaker(BREAKER, kind, "google " + res.status, cool);
+            // A per-day quota is shared with promote-index: park both until the reset.
+            if (kind === "quota" && Number(res.status) === 429 && /per\s*day/i.test(String(res.body || ""))) await tripBreaker(GOOGLE_DETAILS_DAILY_BREAKER, kind, "google " + res.status + " per day", cool);
+          }
           continue;
         }
         if (res.kind === "error") { failed++; continue; }

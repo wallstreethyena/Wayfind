@@ -478,5 +478,15 @@
     "kind": "comments-or-whitespace-only",
     "reason": "Applied without the long header comment, one inline comment and the trailing newline. Verified 2026-09-29: the committed file from its first statement on, minus that inline comment and the final newline, hashes byte-identical to the production ledger row; cron job wf-promotion-recheck-temp-closed is live at 50 4 * * 1.",
     "reviewed_by": "claude (Wayfind lane), migration reconciliation 2026-09-29 (canary red since 2026-09-27); production SQL read via supabase_migrations.schema_migrations, read-only"
+  },
+  {
+    "version": "20261111055655",
+    "name": "event_truth_held_recheck_floor",
+    "file": "20261104150000_event_truth_held_recheck_floor.sql",
+    "ledger_sha256": "29e910da320535ec04efb4e3d51b9ab9091cf0d7cad14dc36011295ea66c9c52",
+    "file_sha256": "405c153286f8d62b2b917022826702bdd303626d3bef36750f11f8868b753462",
+    "kind": "comments-or-whitespace-only",
+    "reason": "Applied without the trailing newline, nothing else. Verified 2026-11-11: the production statement was read in full and compared with the committed file, and removing exactly the final newline from the committed file hashes byte-identical to the production ledger row.",
+    "reviewed_by": "claude.exe (Wayfind lane), canary red 2026-11-11 (run 42970549034); production SQL read via supabase_migrations.schema_migrations, read-only"
   }
 ]

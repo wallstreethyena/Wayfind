@@ -261,26 +261,6 @@
       "sameAsCardPhoto": false,
       "reviewedAt": "2026-10-07"
     },
-    "Keyholder Bar: Frank's Fizz and Bleeding Eye": {
-      "src": "/guides/picks/orlando-halloween-food-2026/usf-new-york-macys.webp",
-      "width": 1023,
-      "height": 689,
-      "alt": "A New York style street at Universal Studios Florida with a holiday parade sign and a roller coaster behind the rooftops",
-      "caption": "A street in the New York area of Universal Studios Florida, shown here with holiday decorations, in the park where this Halloween Horror Nights item is sold. The photo shows the place, not the food or drink.",
-      "credit": "Jared",
-      "creditHref": "https://www.flickr.com/photos/93283041@N00/6669323099",
-      "license": "CC BY 2.0",
-      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
-      "sourceUrl": "https://www.flickr.com/photos/93283041@N00/6669323099",
-      "author": "Jared",
-      "position": "50% 50%",
-      "modificationNotice": "Resized, cropped for display and converted to WebP.",
-      "sourceKind": "flickr",
-      "placeId": null,
-      "verification": "Viewed the photo: A New York style street at Universal Studios Florida with a holiday parade sign and a roller coaster behind the rooftops. No people as the subject. The pick is sold inside Universal Studios Florida, so a real photo of the park setting stands in for the item. Live Flickr licence checked: CC BY 2.0.",
-      "sameAsCardPhoto": false,
-      "reviewedAt": "2026-10-07"
-    },
     "Raglan Ghostly Guinness Pie": {
       "src": "/guides/picks/orlando-halloween-food-2026/raglan-night-exterior.webp",
       "width": 1023,
@@ -420,6 +400,26 @@
       "verification": "Viewed the photo: Red brick buildings with fire escapes in the New York area of Universal Studios Florida, with a Louie's sign at street level. No people as the subject. The pick is sold inside Universal Studios Florida, so a real photo of the park setting stands in for the item. Live Flickr licence checked: CC BY 2.0.",
       "sameAsCardPhoto": false,
       "reviewedAt": "2026-10-07"
+    },
+    "Keyholder Bar: Frank's Fizz and Bleeding Eye": {
+      "src": "/guides/picks/orlando-halloween-food-2026/hhn-orlando-nightingales-blood-pit.jpg",
+      "width": 1280,
+      "height": 853,
+      "alt": "A costumed spiked helmet monster stands in fog in front of the stone facade of the Nightingales: Blood Pit haunted house at Halloween Horror Nights Orlando",
+      "caption": "The Nightingales: Blood Pit facade at Halloween Horror Nights Orlando, the event this bar serves. The photo shows the event, not the bar or the drinks.",
+      "credit": "U+1F360",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Nightingales_Blood_Pit.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Nightingales_Blood_Pit.jpg",
+      "author": "U+1F360",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped to 1280x853 and converted to JPEG. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
+      "verification": "Wikimedia Commons file Nightingales Blood Pit.jpg, described as the facade of Nightingales: Blood Pit at Halloween Horror Nights Orlando 29, taken 2019-09-15 by U+1F360, CC BY-SA 4.0. Viewed the full image: a Halloween Horror Nights house facade and scare actor at Universal Orlando. Replaces a Christmas decorated street that did not fit a Halloween guide. No text or watermark.",
+      "placeId": null,
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-11-09"
     }
   },
   "hero": {

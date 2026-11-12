@@ -1,0 +1,119 @@
+{
+ "events": {
+  "utc-wonderland-circus-2026": [
+   {
+    "key": "utc-wonderland-circus-2026",
+    "file": "/workspace/wt12e/public/place-photos/batch-2026-12e/utc-wonderland-circus-2026/ev_99e0d3fb6cf59b92.jpg",
+    "url": "https://pixlcms.s3.us-east-1.amazonaws.com/wonderland-circus/1786747494104-Daring.avif",
+    "page": "https://wonderlandcircus.com/",
+    "phash": "9e93716836646c73",
+    "exist": 18,
+    "near": "026-11/ChIJFY7wCsjD2YgRn8R_2IMRjtw/xmas_5016fd3bb5b9b2d4.jpg"
+   },
+   {
+    "key": "utc-wonderland-circus-2026",
+    "file": "/workspace/wt12e/public/place-photos/batch-2026-12e/utc-wonderland-circus-2026/ev_f22a49f6415d9633.jpg",
+    "url": "https://pixlcms.s3.us-east-1.amazonaws.com/wonderland-circus/1786578217891-DJI_20251022144402_0001_D_2.avif",
+    "page": "https://wonderlandcircus.com/",
+    "phash": "c11e28f122f3bf70",
+    "exist": 16,
+    "near": "ter-street-season-spectacular-2026/xmas_78e80f6689de20b3.jpg"
+   },
+   {
+    "key": "utc-wonderland-circus-2026",
+    "file": "/workspace/wt12e/public/place-photos/batch-2026-12e/utc-wonderland-circus-2026/ev_2fc44c800c06fc96.jpg",
+    "url": "https://pixlcms.s3.us-east-1.amazonaws.com/wonderland-circus/1788369823281-ABC_7195.avif",
+    "page": "https://wonderlandcircus.com/",
+    "phash": "9d72638595c37a26",
+    "exist": 16,
+    "near": "-christmas-orlando-family-stage-2026/ev_7c2d6045fe661ce1.jpg"
+   }
+  ]
+ },
+ "places": {
+  "ChIJl0CYCGZ_3YgRL05pG5wZSsE": [
+   {
+    "url": "https://www.gowayfind.com/place-photos/batch-2026-12e/ChIJl0CYCGZ_3YgRL05pG5wZSsE/pl_4e5e03a19222f9a7.jpg",
+    "phash": "c80d5f90af1f0ed8",
+    "width": 1280,
+    "height": 853,
+    "storage_path": null,
+    "source": "official",
+    "license": "official website",
+    "source_ref": "https://www.christmasatgaylordpalms.com/",
+    "original_url": "https://www.christmasatgaylordpalms.com/resourcefiles/gallery-page/christmas-lights-1.jpg",
+    "attribution_url": "https://www.christmasatgaylordpalms.com/",
+    "attribution_text": "Christmas at Gaylord Palms official website"
+   },
+   {
+    "url": "https://www.gowayfind.com/place-photos/batch-2026-12e/ChIJl0CYCGZ_3YgRL05pG5wZSsE/pl_a26f024922964a1d.jpg",
+    "phash": "f2712c45b31e07c7",
+    "width": 1280,
+    "height": 853,
+    "storage_path": null,
+    "source": "official",
+    "license": "official website",
+    "source_ref": "https://www.christmasatgaylordpalms.com/",
+    "original_url": "https://www.christmasatgaylordpalms.com/resourcefiles/home-hero-slider/polar-express.jpg",
+    "attribution_url": "https://www.christmasatgaylordpalms.com/",
+    "attribution_text": "Christmas at Gaylord Palms official website"
+   },
+   {
+    "url": "https://www.gowayfind.com/place-photos/batch-2026-12e/ChIJl0CYCGZ_3YgRL05pG5wZSsE/pl_0d5ebfc2e7ba6e2a.jpg",
+    "phash": "d23c2fc3e41987c6",
+    "width": 1280,
+    "height": 853,
+    "storage_path": null,
+    "source": "official",
+    "license": "official website",
+    "source_ref": "https://www.christmasatgaylordpalms.com/",
+    "original_url": "https://www.christmasatgaylordpalms.com/resourcefiles/gallery-page/scaletta-ice-at-gaylord-palms.jpg",
+    "attribution_url": "https://www.christmasatgaylordpalms.com/",
+    "attribution_text": "Christmas at Gaylord Palms official website"
+   },
+   {
+    "url": "https://www.gowayfind.com/place-photos/batch-2026-12e/ChIJl0CYCGZ_3YgRL05pG5wZSsE/pl_73e8cdd2be27d77d.jpg",
+    "phash": "e92c9bb324b59a4a",
+    "width": 1280,
+    "height": 853,
+    "storage_path": null,
+    "source": "official",
+    "license": "official website",
+    "source_ref": "https://www.christmasatgaylordpalms.com/",
+    "original_url": "https://www.christmasatgaylordpalms.com/resourcefiles/gallery-page/kid-enjoying-ice-slide-at-gaylord-palms.jpg",
+    "attribution_url": "https://www.christmasatgaylordpalms.com/",
+    "attribution_text": "Christmas at Gaylord Palms official website"
+   }
+  ],
+  "ChIJtdT-ATl63YgRVrvPfarcWHU": [
+   {
+    "url": "https://www.gowayfind.com/place-photos/batch-2026-12e/ChIJtdT-ATl63YgRVrvPfarcWHU/pl_cd36422e81ced8da.jpg",
+    "phash": "d1e6f43a2322c3ec",
+    "width": 1280,
+    "height": 853,
+    "storage_path": null,
+    "source": "flickr",
+    "license": "CC BY 2.0",
+    "source_ref": "https://www.flickr.com/photos/19932288@N00/3014078261",
+    "original_url": "https://live.staticflickr.com/3147/3014078261_87051726cd_o.jpg",
+    "attribution_url": "https://www.flickr.com/photos/19932288@N00/3014078261",
+    "attribution_text": "supervillain via Flickr, CC BY 2.0"
+   }
+  ]
+ },
+ "posters": {
+  "holly-bluff-resort-marina-deland": [
+   {
+    "key": "holly-bluff-resort-marina-deland",
+    "file": "/workspace/wt12e/public/place-photos/batch-2026-12e/holly-bluff-resort-marina-deland/cp_9c06b36a77ddeb40.jpg",
+    "url": "https://images.squarespace-cdn.com/content/683f8a2254fa063c049774e3/8b2d3664-c2a3-44de-8b8b-bd6c63d601ed/F86DBD04-FFDA-46B7-9806-0CFA580F08B0.PNG?format=2500w",
+    "page": "https://hollybluffmarina.com/",
+    "phash": "c02e3e3a39e127d9",
+    "exist": 16,
+    "near": "atch-2026-11z/marco-boat-parade-2026/ev_ec6867e1177d45c3.jpg"
+   }
+  ],
+  "omni-orlando-championsgate-blitzens": "same file as the Omni place photo"
+ },
+ "wf_events_link": "already linked live at 9:54 PM ET Nov 9 by another change; not part of this batch"
+}

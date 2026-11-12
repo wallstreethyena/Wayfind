@@ -541,7 +541,9 @@ async function main() {
   for (const name of ["SUPABASE_URL", "SUPABASE_SERVICE_ROLE_KEY", "WAYFIND_GATE", "WAYFIND_PROMOTE_PAID", "PROMOTE_DETAILS_MONTH_CAP"]) {
     if (env[name] && !process.env[name]) process.env[name] = env[name];
   }
-  const { spendAllow, spendAllowCapped, spendAllowSeasonalVenue, seasonalVenueOctoberCap, gateShut, refundToLedger } = await import("../lib/spendGate.js");
+  const { spendAllow, spendAllowCapped, spendAllowSeasonalVenue, seasonalVenueOctoberCap, gateShut, refundToLedger, declareProcessTraffic, TRAFFIC } = await import("../lib/spendGate.js");
+  // An operator batch, no visitor waiting: BACKGROUND for the human traffic reserve (lib/spendGate.js).
+  declareProcessTraffic(TRAFFIC.BACKGROUND);
 
   const secrets = [key, googleKey];
   const H = { apikey: key, Authorization: `Bearer ${key}`, "Content-Type": "application/json" };
