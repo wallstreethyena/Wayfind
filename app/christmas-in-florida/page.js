@@ -5,7 +5,7 @@ import ChristmasBrowse from "../components/ChristmasBrowse";
 import ChristmasTickets from "../components/ChristmasTickets";
 import ShareButton from "../components/ShareButton";
 import { pageShareUrl } from "../../lib/pageShareUrl";
-import { attachBrowseTickets, withBrowseTicketPhotos, christmasTicketsModel, christmasTicketsSchema, fetchChristmasTicketDeals, withChristmasTicketPhotos } from "../../lib/christmasTickets";
+import { attachBrowseTickets, withBrowseTicketPhotos, christmasTicketsModel, christmasTicketsSchema, christmasTopPicks, fetchChristmasTicketDeals, isSocialAdLanding, withChristmasTicketPhotos } from "../../lib/christmasTickets";
 import { fetchCuratedEvents } from "../../lib/curatedEvents";
 import { siteTodayStr } from "../../lib/siteTime";
 import CreatorVideoRail from "../components/CreatorVideoRail.js";
@@ -112,10 +112,13 @@ export default async function Page({ searchParams }) {
     withBrowseTicketPhotos(attachBrowseTickets(first, listings, today, dealsById), listings, today, dealsById),
   ]);
   const ticketsSchema = christmasTicketsSchema(tickets);
+  // 2026-11-12: a Facebook or Instagram visit sees three photo picks with a
+  // ticket button on the first screen (lib/christmasTickets.js isSocialAdLanding).
+  const topPicks = isSocialAdLanding(params) ? christmasTopPicks(tickets) : null;
   const initialQuery = Object.fromEntries(Object.entries({ ...query, page: undefined, undated: query.undated || undefined }).filter(([, v]) => v !== undefined && v !== "" && v !== null && v !== false));
   return <>
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ticketsSchema).replace(/</g, "\\u003c") }} />
-    <ChristmasTickets model={tickets} share={<ShareButton url={pageShareUrl("/christmas-in-florida")} title={title} text={description} tone="dark" label="Share" />} browse={<>
+    <ChristmasTickets model={tickets} topPicks={topPicks} share={<ShareButton url={pageShareUrl("/christmas-in-florida")} title={title} text={description} tone="dark" label="Share" />} browse={<>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemList).replace(/</g, "\\u003c") }} />
       <ChristmasBrowse initial={first} facets={{ ...christmasBrowseFacets(), pills: christmasBrowsePills(listings) }} today={today} initialQuery={initialQuery} />
       <ChristmasCreatorPosts posts={seasonalCreatorVideos("christmas")} />
