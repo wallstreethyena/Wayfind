@@ -2602,4 +2602,5 @@ node scripts/test-home-feed-rerender.mjs
 node scripts/check-home-diet.mjs
 # 2026-11-12: Place Detail "Your Game Plan" decision brief + Commerce Entity-Resolution guard.
 node scripts/test-game-plan-and-entity-resolution.mjs
-
+# 2026-11-12: owner directive. CLAUDE.md keeps the GABRIEL EXECUTION AUTONOMY section and every safety section (an approved edit cannot silently drop a rule).
+node scripts/check-claude-md-owner-sections.mjs

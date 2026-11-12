@@ -645,6 +645,18 @@ the guard green, the assertion is decoration.
 
 ---
 
+## Gabriel execution autonomy (2026-11-12)
+
+Rule: CLAUDE.md "GABRIEL EXECUTION AUTONOMY". Incident: on PR #2437 (Instagram to Trending)
+the owner had approved creating the table, loading 167 posts, merging and verifying. The
+Supabase `apply_migration` tool showed the owner a confirmation dialog that timed out; the
+agent then stopped the whole mission and asked him to type "go". The owner called it a
+repeated systemic failure: an approved mission was handed back over a tool prompt. Fix: a
+confirmation dialog is not a new decision. Ask only for the exact click when the platform
+requires one, keep doing every independent part, and ask for a NEW decision only at the
+eight hard stops. Platform safety gates and denials are still never bypassed. Locked by
+`scripts/check-claude-md-owner-sections.mjs`.
+
 ## Recent state (for context, not instructions)
 
 - Two audits complete (recent-release surfaces + full-site sweep). 14 fixes shipped
