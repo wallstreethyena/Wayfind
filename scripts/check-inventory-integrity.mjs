@@ -38,6 +38,8 @@ import { PLACE_PARTNER_PICKS, RETIRED_VIATOR_PINS, pinServeability } from "../li
 import { placeIdentityIssues } from "../lib/placeIdentity.js";
 import { bucketMetro, PROMOTE_METROS } from "../lib/promoteIndex.js";
 import { findAreaTwins } from "../lib/areaTwins.js";
+import { spawnSync } from "node:child_process";
+import { fileURLToPath } from "node:url";
 
 // Documented allowances. These are CEILINGS on known, triaged debt — not targets.
 // Lowering them as the debt is paid is the point; raising one requires a human to
@@ -246,6 +248,15 @@ const noPhoto = [...byMetro].filter(([, m]) => m.photos === 0);
 const seedOnly = [...byMetro].filter(([, m]) => m.total <= 120);
 if (noPhoto.length) console.log(`check-inventory-integrity: NOTE — ${noPhoto.length} metros have ZERO photos (${noPhoto.slice(0, 6).map(([k]) => k).join(", ")}). Every card there is imageless.`);
 if (seedOnly.length) console.log(`check-inventory-integrity: NOTE — ${seedOnly.length}/${byMetro.size} metros hold <=120 places, i.e. cold-start seed depth, not real coverage.`);
+
+// Christmas twins (2026-11-12): the same event as a wf_events row AND its
+// research twin rendered as two cards 28 times. Weekly discovery inserts are
+// the usual source, so the live check rides this 30 minute canary step.
+// Child process: its own module graph and exit code, same credentials.
+{
+  const twin = spawnSync(process.execPath, [fileURLToPath(new URL("./check-christmas-twins-live.mjs", import.meta.url))], { stdio: "inherit", env: process.env, timeout: 170000 });
+  if (twin.status !== 0) { console.error(`check-inventory-integrity: FAIL — check-christmas-twins-live exited ${twin.status ?? twin.signal}`); bad++; }
+}
 
 if (bad) { console.error(`check-inventory-integrity: ${bad} failure(s)`); process.exit(1); }
 console.log(`check-inventory-integrity: OK — ${checks} assertions over ${rows.length} live rows, ${byMetro.size} metros, and every founder-pinned Viator product verified present + not-proven-dead in wf_experiences (unknown counted as unknown, never as dead)`);

@@ -17,7 +17,7 @@
     "unique_place_association_count": 86,
     "sources_with_roundup_event_mentions": 2,
     "roundup_event_mention_count": 11,
-    "exact_event_association_count": 27,
+    "exact_event_association_count": 26,
     "sources_with_venue_context_association": 2,
     "venue_context_association_count": 2
   },
@@ -2638,18 +2638,12 @@
           "native_wayfind_surface": "/florida-events/surfing-santas-of-cocoa-beach-2026",
           "renderability": "server_rendered_creator_credit_and_native_link",
           "association_kind": "exact_event"
-        },
-        {
-          "event_id": "surfing-santas-cocoa-beach-2026",
-          "native_wayfind_surface": "/florida-events/surfing-santas-cocoa-beach-2026",
-          "renderability": "server_rendered_creator_credit_and_native_link",
-          "association_kind": "exact_event"
         }
       ],
       "association_status": "prepared",
       "public_navigation": "/florida-events/surfing-santas-of-cocoa-beach-2026",
       "native_link_renderable": true,
-      "evidence": "Owner submitted link read 2026-11-12 from public share metadata. Organizer's own reel for Surfing Santas, Cocoa Beach, Dec 24. Event listed twice on the Christmas page; both ids carry it."
+      "evidence": "Owner submitted link read 2026-11-12 from public share metadata. Organizer's own reel for Surfing Santas, Cocoa Beach, Dec 24. The duplicate research listing (surfing-santas-cocoa-beach-2026) was folded into this event on 2026-11-12."
     },
     {
       "shortcode": "Dfn5LEBRZ7K",

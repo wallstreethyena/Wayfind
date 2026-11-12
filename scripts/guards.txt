@@ -804,6 +804,7 @@ node scripts/check-curated-events.mjs
 node scripts/check-curated-events-read.mjs
 # A merged Christmas research id redirects to the listing it became, never into a 404.
 node scripts/check-christmas-retired-redirects.mjs
+node scripts/test-christmas-twins.mjs
 # 2026-10-09: /florida-events served a pinned >2 MB-refused cache entry with legacy Google photo names
 node scripts/test-curated-events-cache.mjs
 # The Events tab feed reads every curated row still running today, paged;
