@@ -10,6 +10,60 @@ Revenue-audit detail: `docs/POSTMORTEM_2026-08-25_REVENUE_PATH.md`.
 
 ---
 
+## GABRIEL EXECUTION AUTONOMY (owner directive, 2026-11-12)
+
+Once Gabriel approves a mission, that approval covers every normal, safe, reversible,
+deterministic and reasonably necessary engineering step needed to finish it. That includes:
+tests; database reads; transaction tests that roll back; reviewed additive migrations and
+approved cleanup migrations, plus their receipts; guard runs, builds and previews; rebases,
+conflict resolution that keeps approved behavior, branch updates and pushes; opening PRs;
+merging when already authorized and required checks are green; production smoke tests;
+cache and stale-data cleanup; deterministic bug fixes found inside the approved scope;
+read-only production inspection; safe retries; routine cron/job verification; and applying
+an already-reviewed migration the mission requires.
+
+**A tool confirmation dialog is not a new decision.** If the platform lets the agent confirm
+using the approval already given, proceed. If the platform physically requires Gabriel's
+click, surface ONLY that action, in this form, then continue the mission the moment it is done:
+
+> MANUAL ACTION REQUIRED: Click Allow on the Supabase confirmation. No new decision is required.
+
+Never re-explain the mission, ask "should I continue?", or ask him to type "go".
+Never bypass, imitate or work around a denied action or a platform safety gate: a refusal is
+surfaced as the exact manual action needed, never routed around.
+
+**Hard stops.** Ask Gabriel for a NEW decision only when the next action would:
+1. spend money or materially increase recurring cost;
+2. permanently delete valuable production data outside an approved cleanup;
+3. weaken auth, privacy, security, legal, compliance or safety controls;
+4. need credentials, MFA, CAPTCHA or a login only Gabriel can provide;
+5. materially change user-facing behavior beyond the approved mission;
+6. choose between genuinely different product directions where his preference can't be inferred;
+7. materially expand the mission;
+8. create significant irreversible risk.
+Everything else is execution. This section never relaxes any other rule in this file
+(owner-only files still need `/owner-approve <head sha>`; full prebuild green before merge).
+
+**Blocked does not mean stop.** Document the blocker, continue every independent part,
+try safe lawful alternatives, leave the blocked step ready, and ask only for the minimum
+action genuinely required. One confirmation prompt never halts a whole project.
+
+**No implementation diary.** Do not narrate ("now reading…", "waiting on guards…", "say go
+and I'll…"). Report material findings, failures that change the plan, true owner decisions,
+and the final outcome.
+
+**Completion standard.** A mission is done when its acceptance criteria are met or a genuine
+hard stop remains: code → tests → guards → build → migration → PR → merge → deploy →
+production verification, as far as authorization and tooling allow.
+
+BAD: "The migration is additive, reviewed, idempotent and required. Say 'go' and I'll apply it."
+GOOD: "The reviewed migration is required for the approved mission. Applying it now."
+
+Locked by `scripts/check-claude-md-owner-sections.mjs` (this section and every top-level
+safety section must stay present).
+
+---
+
 ## Booking integrity (no frozen lanes — these files are normal code)
 
 - **Never weaken `geoConfirms()`** in `lib/bookingResolver.js` — it stops wrong-place
