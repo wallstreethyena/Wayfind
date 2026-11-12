@@ -12,6 +12,7 @@
 // "Price not announced" and a ticket button exists only where the existing
 // data has a real ticket or official link.
 import { useEffect, useRef, useState } from "react";
+import dynamic from "next/dynamic";
 import ChristmasFilter from "./ChristmasFilter.js";
 import ChristmasWeekendRow from "./ChristmasWeekendRow.js";
 import useChristmasLocation from "./useChristmasLocation.js";
@@ -20,6 +21,11 @@ import { GuideCommissionLine } from "./GuideCommissionLine.js";
 import { reminderFactsFor } from "../../lib/eventReminderFacts.js";
 import { CHRISTMAS_CARD_LABELS, CHRISTMAS_PRICE_UNKNOWN_TEXT, CHRISTMAS_SEASON_UNDATED_TEXT, christmasCopy, christmasPitch, christmasPriceLabel } from "../../lib/christmasCardCopy.js";
 
+// The map (Apple Maps) loads only when opened.
+const ChristmasMap = dynamic(() => import("./ChristmasMap.js"), { ssr: false, loading: () => <p className="xm-count" role="status">Loading the map…</p> });
+const MAP_CSS = `.xm-map-toggle{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 18px;border:1px solid #E8B48A;border-radius:999px;background:transparent;color:#FFE9C8;font:inherit;font-size:15px;font-weight:800;cursor:pointer}
+.xm-map-toggle[aria-expanded="true"]{background:#E8B48A22}.xm-map-toggle[data-promoted]{background:linear-gradient(180deg,#FFE9C8,#E8C395);color:#3D0914;box-shadow:0 3px 12px #18020826}
+.xm-map-toggle:focus-visible{outline:2px solid #FFE9C8;outline-offset:3px}`;
 const FILTER_KEYS = ["region", "category", "when", "date", "price", "audience", "undated", "q", "lat", "lng", "sort"];
 // A location found quietly on load (auto) ranks the list but never goes into
 // the shareable address bar: a shared link must not carry the sharer's spot.
@@ -123,6 +129,7 @@ export default function ChristmasBrowse({ initial, facets, today, initialQuery =
   const [loading, setLoading] = useState(false);
   const [failed, setFailed] = useState(false);
   const first = useRef(true);
+  const [mapOpen, setMapOpen] = useState(false);
   // Owner 2026-11-11: the default order for every category is the best rated,
   // trending choices near the visitor. The one quiet lookup lives in
   // useChristmasLocation and feeds both the list and the weekend row. A link
@@ -188,6 +195,7 @@ export default function ChristmasBrowse({ initial, facets, today, initialQuery =
   // Reset clears the filters but keeps a quietly found location, so the list
   // stays on the default best near you order.
   const clearAll = () => setQuery((q) => (q.auto && q.lat ? { lat: q.lat, lng: q.lng, auto: true } : {}));
+  const lightsView = query.category === "lights";
   const shownCards = cards.length;
   const hasPartner = cards.some((c) => c.ticketRow && c.ticketRow.cta && c.ticketRow.cta.kind === "affiliate");
   return <section id="browse" aria-label="Florida Christmas events" style={{ margin: "0 0 28px" }} data-christmas-browse="">
@@ -195,8 +203,13 @@ export default function ChristmasBrowse({ initial, facets, today, initialQuery =
     <div className="xm-controls" data-boo-clear="" role="toolbar" aria-label="Filter Christmas events">
       <ChristmasFilter query={query} facets={facets} onSet={set} onNear={nearMe} onReset={clearAll} />
       <span className="xm-sort-note">{ticketsFirst ? "Tickets first" : located ? "Top rated near you" : "Top rated and trending"}</span>
+      <button type="button" className="xm-map-toggle" data-promoted={lightsView ? "" : undefined} aria-expanded={mapOpen} aria-controls="xm-map-panel" onClick={() => setMapOpen((v) => !v)}>
+        {mapOpen ? "Hide the map" : lightsView ? "See the lights on a map" : "Map"}
+      </button>
       {anyFilter ? <button type="button" className="xm-clear" onClick={clearAll}>Reset</button> : null}
     </div>
+    <style dangerouslySetInnerHTML={{ __html: MAP_CSS }} />
+    {mapOpen ? <div id="xm-map-panel" data-boo-clear=""><ChristmasMap query={query} /></div> : null}
     <p className="xm-count" role="status" aria-live="polite">
       {failed ? "We could not load these listings. Try again in a moment." : loading ? "Updating…" : `${data.total} ${data.total === 1 ? "Christmas plan" : "Christmas plans"}${summary ? " · " + summary : ""}`}
     </p>

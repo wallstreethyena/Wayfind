@@ -10,6 +10,7 @@ export const dynamic = "force-dynamic";
 import { fetchCuratedEvents } from "../../../../lib/curatedEvents.js";
 import { siteTodayStr } from "../../../../lib/siteTime.js";
 import { christmasBrowseCached, parseChristmasBrowseQuery } from "../../../../lib/christmasBrowse.js";
+import { christmasBrowsePins } from "../../../../lib/christmasMap.js";
 import { christmasWeekendGroups } from "../../../../lib/christmasWeekend.js";
 import { attachBrowseTickets, fetchChristmasTicketDeals, withBrowseTicketPhotos } from "../../../../lib/christmasTickets.js";
 
@@ -22,6 +23,11 @@ export async function GET(request) {
     // Every result is the one ticket card (owner 2026-11-01), so each event
     // card carries its server built ticket fields. A failed deals read only
     // means fewer partner buttons (fetchChristmasTicketDeals never throws).
+    // pins=1: every verified pin in the current result set (not paged), no ticket reads.
+    if (params.get("pins") === "1") {
+      const pins = christmasBrowsePins(listings, query, today);
+      return Response.json({ today, total: pins.length, pins }, { headers: { "cache-control": "public, s-maxage=600, stale-while-revalidate=86400" } });
+    }
     const dealsById = await fetchChristmasTicketDeals();
     // group=weekend: the "This weekend" row, top 3 per category (lib/christmasWeekend.js),
     // the same card shape as the list.
