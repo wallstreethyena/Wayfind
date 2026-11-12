@@ -30,7 +30,9 @@ import {
   yesText, noText, invitePath, inviteSeed, CURIOUS_LINES, newInviteKey, askHeadline, needsName,
   activityForPlace, kindsForPlace, planFitsPlace, datedCardPath, inviteKinds,
   INVITE_TEXTS, smsHref, inviteShareText, geoPoint, placeKinds,
+  inviteDirectionsHref, inviteCalendarEvent, inviteItineraryStop,
 } from "../lib/dateInvite.js";
+import { addStopToStoredTrips } from "../lib/itineraryAdd.js";
 import { inviteModel, dateModel, footFits } from "../lib/shareCardCopy.js";
 import { textWidth, CARD } from "../lib/shareCard.js";
 // The audit is imported, not just shipped alongside — its verdict gates the build.
@@ -267,8 +269,28 @@ ok(noScale(50) >= SCALE.noMin && SCALE.noMin > 0.4,
   const styleRaw = readFileSync(path.join(REPO, "app/ask/style.js"), "utf8");
   ok(/inv\.place \|\| suggestedActivityLabel/.test(askClientRaw),
      "AskClient must render the proposed plan preview for activity-only invitations too");
-  ok(/setNos\(\(n\)\s*=>\s*n\s*\+\s*1\)/.test(askClientRaw) && /var\(--s,1\)/.test(styleRaw) && /var\(--n,1\)/.test(styleRaw),
-     "pressing No must escalate the mood ladder and dynamically grow YES while shrinking No");
+  ok(/setNos\(\(n\)\s*=>\s*n\s*\+\s*1\)/.test(askClientRaw) && /style=\{\{\s*"--s":\s*1\s*\}\}/.test(askClientRaw) && /style=\{\{\s*"--n":\s*1\s*\}\}/.test(askClientRaw),
+     "pressing No must reveal playful Elf reactions without coercively shrinking No or enlarging YES");
+  ok(/Maybe another day/.test(askClientRaw) && /Suggest something else/.test(askClientRaw) && /No thanks/.test(askClientRaw) && /\.wfx-pivots/.test(styleRaw),
+     "pressing No must reveal respectful pivot choices (Maybe another day, Suggest something else, No thanks)");
+
+  // Plan Together completion helpers: Calendar (.ics + Google), Directions, and Itinerary persistence
+  const calInv = decodeInvite(encodeInvite({ place: "Ulele", city: "Tampa", id: "ulele-1", from: "Gabe", note: "Sunset table" }));
+  const calEvt = inviteCalendarEvent(calInv, "dinner", "2026-11-20", "Fri, November 20");
+  ok(calEvt && calEvt.startYmd === "20261120" && calEvt.endYmd === "20261121" && /dates=20261120\/20261121/.test(calEvt.googleHref) && /DTSTART;VALUE=DATE:20261120/.test(calEvt.icsText) && /SUMMARY:Dinner at Ulele/.test(calEvt.icsText),
+     "inviteCalendarEvent must produce an honest all-day VALUE=DATE .ics and Google Calendar URL without fabricating hours");
+  ok(inviteCalendarEvent(calInv, "dinner", "Friday", "Friday") === null,
+     "inviteCalendarEvent must return null when no concrete YYYY-MM-DD calendar date was selected");
+  const dirHref = inviteDirectionsHref(calInv, "dinner");
+  ok(/google\.com\/maps\/search\/\?api=1&query=Ulele%2C%20Tampa%2C%20FL/.test(dirHref),
+     "inviteDirectionsHref must build a direct Google Maps query for a compatible place");
+  const cafeInv = decodeInvite(encodeInvite({ place: "Keke's Breakfast Cafe", city: "Tampa" }));
+  ok(inviteDirectionsHref(cafeInv, "tonight") === "",
+     "inviteDirectionsHref must not point to an incompatible place after the recipient pivots to a conflicting activity");
+  const stop = inviteItineraryStop(calInv, "dinner", "Fri, November 20");
+  const savedRes = addStopToStoredTrips({}, stop, 1700000000000, { autoOrder: true, addedVia: "ask_invite" });
+  ok(savedRes && savedRes.trips && savedRes.trips.fl_tampa && savedRes.trips.fl_tampa.items.length === 1 && savedRes.trips.fl_tampa.items[0].place.name === "Ulele" && /wf_trips_v1/.test(askClientRaw),
+     "inviteItineraryStop + addStopToStoredTrips must file an agreed Tampa invite directly into the fl_tampa itinerary trip and persist to wf_trips_v1");
 }
 
 // ── 6c. ONE LINK PER PERSON, AND A LEGIBLE ANSWER ──────────────────────────
