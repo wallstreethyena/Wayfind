@@ -207,7 +207,8 @@ const wide = (host) => [...host.querySelectorAll(".wf-place-card-cta > *")];
   const now = new Date("2026-11-11T15:00:00Z");
   const { min, max } = rc.reserveDateRange(now);
   ok(min === "2026-11-11" && max === "2027-01-10", `date range is today through today+60 days Eastern (got ${min}..${max})`);
-  ok(rc.reserveDateRange(new Date("2026-11-12T03:00:00Z")).min === "2026-11-11", "…anchored to US Eastern, not UTC (3am UTC on the 12th is still the 11th)");
+  ok(rc.reserveDateRange(new Date("2026-11-12T00:00:00Z")).min === "2026-11-11", "…anchored to US Eastern, not UTC (midnight UTC on the 12th is 7 PM on the 11th, and 9 PM is still bookable)");
+  ok(rc.reserveDateRange(new Date("2026-11-12T03:00:00Z")).min === "2026-11-12", "…once no time is left today (10 PM Eastern plus 2 hours), today is not offered and the range starts tomorrow");
   const good = { partySize: 4, date: "2026-11-14", time: "19:00", guestName: "Gabe", note: "" };
   ok(rc.validateDraft(good, now) === null, "a good draft validates");
   ok(rc.summaryLine(good) === "4 people · Sat, Nov 14 · 7:00 PM · under Gabe", "summary line reads '4 people · Sat, Nov 14 · 7:00 PM · under Gabe' — got " + rc.summaryLine(good));
@@ -217,6 +218,15 @@ const wide = (host) => [...host.querySelectorAll(".wf-place-card-cta > *")];
   ok(bad({ time: "19:10" }) && !bad({ time: "19:45" }), "time in 15 minute steps");
   ok(bad({ guestName: "" }) && bad({ guestName: "x".repeat(41) }) && !bad({ guestName: "x".repeat(40) }), "name 1 to 40");
   ok(bad({ note: "x".repeat(201) }) && !bad({ note: "x".repeat(200) }), "note max 200");
+  // 2 hour lead time: the form never offers a too soon time for today (10:00 Eastern on 2026-11-11).
+  {
+    const today = rc.reserveTimeSlots("2026-11-11", now), later = rc.reserveTimeSlots("2026-11-14", now), all = rc.reserveTimeSlots();
+    ok(today[0] === "12:00" && !today.includes("11:45") && !today.includes("11:00") && today.length === all.length - 4, `today's first offered time is 12:00 (2 hours after 10:00), got ${today[0]}`);
+    ok(later.length === all.length && later[0] === "11:00", "a later day offers every time");
+    ok(rc.reserveTimeSlots("2026-11-11", new Date("2026-11-11T16:07:00Z"))[0] === "13:15", "11:07 Eastern plus 2 hours is 13:07, so the first offered time is 13:15");
+    ok(rc.reserveTimeSlots("2026-11-11", new Date("2026-11-12T03:00:00Z")).length === 0, "no times left late in the evening");
+    ok(rc.validateDraft({ ...good, date: "2026-11-11", time: "11:00" }, now) === "That is too soon for a table request. Pick a time at least 2 hours from now, or call the restaurant." && rc.validateDraft({ ...good, date: "2026-11-11", time: "12:00" }, now) === null, "validateDraft mirrors the server TOO_SOON");
+  }
   const slots = rc.reserveTimeSlots();
   ok(slots.length > 20 && slots.every((s) => /^\d{2}:(00|15|30|45)$/.test(s)), "time slots are all quarter hours");
 }

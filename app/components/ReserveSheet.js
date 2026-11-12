@@ -185,6 +185,8 @@ export function ReserveSheet({ place, surface, onClose }) {
     if (!alive.current) return;
     setBusy(false);
     if (r.status === 401) { boot(); return; }
+    // Too soon or already passed: back to the form with the rest of the draft kept, so they only pick another time.
+    if (r.error === "TOO_SOON" || r.error === "TIME_PAST") { toForm(r.message || "That time will not work. Pick a later time, or call the restaurant."); return; }
     if (!r.ok || !r.request) { setError(r.message || "We could not send that. Please try again."); return; }
     trackReserve("reserve_request_sent", { place_id: place.id, party_size: draft.partySize, used_fallback_form: usedForm });
     setRequest(r.request); setJustSent(true);
@@ -193,7 +195,7 @@ export function ReserveSheet({ place, surface, onClose }) {
   }
 
   const range = reserveDateRange();
-  const slots = reserveTimeSlots();
+  const slots = reserveTimeSlots(draft.date);
   const setD = (k) => (e) => setDraft((d) => ({ ...d, [k]: e.target.value }));
   const sc = request ? statusCopy(request.status, name) : null;
   const hidden = phase === "boot" || phase === "signin-wait";
@@ -252,7 +254,7 @@ export function ReserveSheet({ place, surface, onClose }) {
             <label htmlFor="wf-reserve-date" style={label}>Day</label>
             <input id="wf-reserve-date" type="date" min={range.min} max={range.max} value={draft.date} onChange={setD("date")} style={field} />
             <label htmlFor="wf-reserve-time" style={label}>Time</label>
-            <select id="wf-reserve-time" value={draft.time} onChange={setD("time")} style={field}>{slots.map((s) => <option key={s} value={s}>{timeLabel(s)}</option>)}</select>
+            <select id="wf-reserve-time" value={slots.includes(draft.time) ? draft.time : ""} onChange={setD("time")} style={field}><option value="" disabled>Pick a time</option>{slots.map((s) => <option key={s} value={s}>{timeLabel(s)}</option>)}</select>
             <label htmlFor="wf-reserve-name" style={label}>Name for the table</label>
             <input id="wf-reserve-name" value={draft.guestName} onChange={setD("guestName")} maxLength={RESERVE_LIMITS.nameMax} autoComplete="given-name" style={field} />
             <label htmlFor="wf-reserve-note" style={label}>Note (optional)</label>

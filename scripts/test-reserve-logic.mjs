@@ -5,6 +5,7 @@ import {
   validateReserveInput, newRespondToken, hashRespondToken, isRespondTokenShape, nextReserveStatus,
   isExpired, effectiveStatus, partnerVisible, reserveEmailReady, normalizeDraft, isDraftComplete,
   parseChatOutput, cleanReply, computeExpiresAt, easternToUtcMs, addDays, hasContactDetails,
+  snapTimeToStep, cleanGuestName, finishChatTurn, RESERVE_MIN_LEAD_MINUTES, cleanTime,
 } from "../lib/reserve.js";
 
 let failed = 0, count = 0;
@@ -26,7 +27,7 @@ ok(run({ date: addDays(TODAY, 60) }).ok, "today+60 is accepted");
 ok(errOf(run({ date: addDays(TODAY, 61) })) === "DATE_TOO_FAR", "today+61 is rejected");
 ok(errOf(run({ date: "2026-02-30" })) === "INVALID_DATE" && errOf(run({ date: "11/14/2026" })) === "INVALID_DATE" && errOf(run({ date: undefined })) === "INVALID_DATE", "non dates are rejected");
 ok(errOf(run({ date: TODAY, time: "10:00" }, { now: easternToUtcMs(TODAY, "12:00") })) === "TIME_PAST", "a time already passed today is rejected when now is known");
-ok(run({ date: TODAY, time: "13:00" }, { now: easternToUtcMs(TODAY, "12:00") }).ok, "a later time today is accepted");
+ok(errOf(run({ date: TODAY, time: "13:00" }, { now: easternToUtcMs(TODAY, "12:00") })) === "TOO_SOON", "one hour from now is TOO_SOON, not accepted");
 
 // 15 minute steps
 for (const t of ["00:00", "18:15", "18:30", "18:45", "23:45"]) ok(run({ time: t }).ok, `time ${t} accepted`);
@@ -113,6 +114,71 @@ const emptyDraft = normalizeDraft({}, ctx);
 ok(cleanReply("Great, how many people?", emptyDraft) === "Great, how many people?", "a safe reply passes (positive control)");
 for (const r of ["Your table is booked!", "Good news, 7 PM is available.", "You're all set", "Confirmed for Saturday", "Email me at a@b.co", "See https://x.com", ""]) ok(cleanReply(r, emptyDraft) === "How many people will be dining?", `unsafe reply replaced: ${JSON.stringify(r)}`);
 ok(!/[–—]| - /.test(cleanReply("Sure — what day – works? Or - maybe Friday", emptyDraft)), "dashes are removed from replies");
+
+// ---- NEW: snap to the quarter hour (loose model times only; cleanTime stays strict) ----
+for (const [inp, want] of [["19:20", "19:15"], ["19:23", "19:30"], ["19:53", "20:00"], ["23:55", "23:45"], ["23:53", "23:45"], ["23:30", "23:30"], ["07:07", "07:00"], ["07:08", "07:15"], ["00:05", "00:00"], ["7:20", "07:15"], ["19:30", "19:30"]]) ok(snapTimeToStep(inp) === want, `snapTimeToStep(${inp}) is ${want}, got ${snapTimeToStep(inp)}`);
+for (const g of ["garbage", "24:00", "12:60", "", null, undefined, 1930, "7pm"]) ok(snapTimeToStep(g) === null, `snapTimeToStep(${JSON.stringify(g)}) is null`);
+ok(cleanTime("19:20") === null && cleanTime("19:15") === "19:15", "cleanTime stays strict (an off step is still rejected)");
+
+// ---- NEW: lower case names get capitals, a name with any capital is left exactly as typed ----
+for (const [inp, want] of [["gabe", "Gabe"], ["mary-anne o'brien", "Mary-Anne O'Brien"], ["mary \u2019jo", "Mary \u2019Jo"], ["zo\u00eb m\u00fcller", "Zo\u00eb M\u00fcller"], ["Gabe", "Gabe"], ["gabe P", "gabe P"], ["McDonald", "McDonald"], ["de la Cruz", "de la Cruz"], ["MARY", "MARY"]]) ok(cleanGuestName(inp) === want, `cleanGuestName(${JSON.stringify(inp)}) is ${JSON.stringify(want)}, got ${JSON.stringify(cleanGuestName(inp))}`);
+ok(run({ guestName: "gabe" }).value.guestName === "Gabe", "validateReserveInput applies the capitalization (form, chat and email agree)");
+
+// ---- NEW: TOO_SOON vs TIME_PAST vs ok around the 120 minute edge ----
+ok(RESERVE_MIN_LEAD_MINUTES === 120, "lead time is 120 minutes");
+{
+  const T = "2026-11-12", now = easternToUtcMs(T, "12:00");
+  const at = (time, n = now) => errOf(run({ date: T, time }, { now: n })) || "ok";
+  ok(at("11:45") === "TIME_PAST" && at("12:00") === "TIME_PAST", "a time already passed keeps TIME_PAST");
+  ok(at("12:15") === "TOO_SOON" && at("13:45") === "TOO_SOON", "inside the lead time is TOO_SOON");
+  ok(at("14:00") === "ok" && at("14:15") === "ok", "exactly 120 minutes is accepted");
+  ok(at("13:45", now + 59000) === "TOO_SOON" && at("14:00", now + 1000) === "TOO_SOON", "one second under the edge is TOO_SOON");
+  ok(run({ date: T, time: "13:00" }, { now }).message === "That is too soon for a table request. Pick a time at least 2 hours from now, or call the restaurant.", "the TOO_SOON message is the agreed words");
+  // late evening, next day just after midnight is under 2 hours too
+  ok(errOf(run({ date: "2026-11-13", time: "00:30" }, { now: easternToUtcMs(T, "23:00") })) === "TOO_SOON", "just after midnight, from 11 PM, is TOO_SOON");
+  // DST: spring forward 2027-03-14 (02:00 EST jumps to 03:00 EDT). Wall clock says 165 minutes, real time says 105.
+  const D = "2027-03-14", dnow = easternToUtcMs(D, "00:30");
+  ok(errOf(run({ date: D, time: "03:15" }, { now: dnow, today: D })) === "TOO_SOON", "DST spring forward: 00:30 to 03:15 is only 105 real minutes, TOO_SOON");
+  ok(!errOf(run({ date: D, time: "03:30" }, { now: dnow, today: D })), "DST spring forward: 00:30 to 03:30 is exactly 120 real minutes, ok");
+  // fall back 2026-11-01 (02:00 EDT returns to 01:00 EST): 00:30 EDT to 02:30 EST is 180 real minutes (wall clock says 120), ok.
+  // The real gap is what counts: a wall clock subtraction would be wrong across the repeated hour.
+  const F = "2026-11-01", fnow = easternToUtcMs(F, "00:30");
+  ok(easternToUtcMs(F, "02:30") - fnow === 180 * 60000, "fall back day: the real gap from 00:30 to 02:30 is 180 minutes (the clock alone would say 120)");
+  ok(!errOf(run({ date: F, time: "02:30" }, { now: fnow, today: F })) && errOf(run({ date: F, time: "02:15" }, { now: easternToUtcMs(F, "00:30") + 61 * 60000 + 1, today: F })) === "TOO_SOON", "DST fall back: real minutes decide");
+}
+
+// ---- NEW: finishChatTurn, the one function the chat handler calls ----
+{
+  const T = "2026-11-12", nowMs = easternToUtcMs(T, "10:00"), c = { today: T, nowMs, maxParty: 12, restaurantName: "Test Bistro" };
+  const turn = (draft, reply = "Got it. Anything else?") => finishChatTurn({ parsed: { reply, draft }, ...c });
+  const full = { partySize: 2, date: "2026-11-14", time: "19:15", guestName: "Gabe", note: null };
+  const clean = turn(full, "Great, anything the restaurant should know?");
+  ok(clean.reply === cleanReply("Great, anything the restaurant should know?", clean.draft) && clean.reply === "Great, anything the restaurant should know?" && clean.complete === true, "clean output passes the model reply through cleanReply unchanged and is complete");
+  ok(turn({ ...full, guestName: null }, "What name?").complete === false && turn({ ...full, partySize: null }).complete === false && turn({ ...full, date: null }).complete === false && turn({ ...full, time: null }).complete === false, "complete is true only when all four fields are set");
+  const snap = turn({ ...full, time: "19:20" }, "A table for 2 this Saturday, November 14 at 7:20 PM. What name?");
+  ok(snap.draft.time === "19:15" && snap.reply === "Tables go on quarter hours, so I set 7:15 PM. Does that look right? The restaurant will answer you after you send it." && !snap.reply.includes("7:20") && snap.complete === true, "19:20 snaps to 19:15 and the reply is the quarter hours line");
+  const snapNoName = turn({ ...full, time: "19:20", guestName: null }, "at 7:20 PM, what name?");
+  ok(snapNoName.reply === "Tables go on quarter hours, so I set 7:15 PM. What name should the table be under?" && snapNoName.complete === false, "the adjusted line is followed by the next question");
+  const past = turn({ ...full, date: "2026-11-10" }, "Tuesday it is!");
+  ok(past.draft.date === null && past.reply === "Which day would you like? I can take today through January 11." && past.complete === false, "a past date gives the day line (last allowed date January 11) and null date");
+  const party = turn({ ...full, partySize: 15 });
+  ok(party.draft.partySize === null && party.reply === "How many people? The most Test Bistro takes here is 12." && party.complete === false, "party 15 with max 12 gives the party line");
+  const soon = turn({ ...full, date: T, time: "10:30" }, "10:30 today, done!");
+  ok(soon.draft.time === null && soon.reply === "That time is too soon for a request. Pick a time at least 2 hours from now, or call the restaurant." && soon.complete === false, "today plus a time 30 minutes away gives the too soon line and null time");
+  ok(turn({ ...full, date: T, time: "12:00" }).draft.time === "12:00" && turn({ ...full, date: T, time: "11:45" }).draft.time === null, "today at exactly 2 hours is kept, a minute under is dropped");
+  const badTime = turn({ ...full, time: "banana" });
+  ok(badTime.draft.time === null && badTime.reply === "What time would you like? For example 7:00 PM or 7:15 PM.", "an unusable time gives the time line");
+  const badName = turn({ ...full, guestName: "Bob123" });
+  ok(badName.draft.guestName === null && badName.reply === "What name should the table be under? Letters only, please.", "an unusable name gives the name line");
+  ok(turn({ ...full, partySize: 99, date: "2020-01-01" }).reply.startsWith("How many people?") && turn({ ...full, date: "2020-01-01", time: "19:20" }).reply.startsWith("Which day"), "precedence: party first, then day, before a time adjustment");
+  ok(turn({ ...full, date: T, time: "10:20" }).reply.startsWith("That time is too soon") && !turn({ ...full, date: T, time: "10:20" }).reply.includes("quarter"), "too soon wins over adjusted");
+  ok(turn({ ...full, guestName: "gabe" }).draft.guestName === "Gabe", "chat names are capitalized");
+  const claim = turn(full, "Your table is booked for 7 PM!");
+  ok(!/booked/i.test(claim.reply) && claim.reply === "Does that look right? The restaurant will answer you after you send it.", "a reply that claims booked is still replaced");
+  ok(turn({ partySize: null, date: null, time: null, guestName: null, note: null }, "Hi! How many people?").reply === "Hi! How many people?", "nothing supplied: nothing rejected, the model reply stands");
+  ok(finishChatTurn({ parsed: null, ...c }).complete === false && finishChatTurn({ parsed: { reply: 5, draft: "x" }, ...c }).complete === false, "garbage parsed input gives an empty, incomplete turn");
+  for (const l of [snap.reply, past.reply, party.reply, soon.reply, badTime.reply, badName.reply]) ok(!/[\u2013\u2014]| - /.test(l) && !/\b(booked|confirmed|available|reserved)\b/i.test(l), "server line has no dashes and no booked or available claim: " + l);
+}
 
 if (failed) { console.error(`test-reserve-logic: ${failed} of ${count} assertions failed`); process.exit(1); }
 console.log(`test-reserve-logic: OK - ${count} assertions on lib/reserve.js (called, not grepped)`);
