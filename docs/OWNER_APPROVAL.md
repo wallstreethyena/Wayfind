@@ -39,6 +39,36 @@ head, so the old approval stops matching and the owner has to approve again.
 **What does not count:** commit author or committer names (anyone can type
 "Gabriel Pereira" into a commit), labels, and a green local run.
 
+## Catching up with main does not void an approval (2026-11-12)
+
+Branch protection makes a pull request catch up with main before it merges, and
+catching up makes a new head commit. An approval names a commit, so it used to
+expire with every catch-up (PRs #2175 and #2107 were approved three times each).
+
+Now an `/owner-approve <sha>` for an earlier head still counts when the pull
+request's OWN change is the same change. All three checks read GitHub's three-dot
+diff (`GET /compare/main...<sha>`, which starts at the merge base, so commits that
+came in from main are on neither side) for the approved commit and for the current
+head, and `scripts/lib/ownerApproval.mjs` compares them file by file:
+
+- **Carried forward:** the same files with identical edits (hunk line numbers
+  ignored, so main editing elsewhere in a file is fine); guard-registry rows
+  (`scripts/guards.txt`, `scripts/lib/guard-expectations.tsv`) that only moved;
+  new `"applied"` receipts in `scripts/migration-apply-log.jsonl` for migrations
+  the approved change already contains, unedited.
+- **Fresh approval needed:** any new, removed or re-edited file; a changed line, even
+  one moved or reworded; an added or dropped registry row; a receipt for any other
+  migration; a conflict resolution that changes main's text; binary files GitHub
+  shows no diff for; changes of 300 files or more. The failing check names exactly
+  what changed.
+
+Only the owner's own unedited approval comments are compared (the same evidence as
+an exact-head approval), at most the three newest. Each comparison is logged as an
+`approval-audit` JSON record (PR, approved and current head and base commits, a
+fingerprint of each change, the files, the approver, the approval time, the
+decision and why), and the Owner Gate App puts the records on its check run.
+Tests: `scripts/test-owner-approval-carry-forward.mjs`.
+
 ## Where it is checked
 
 Only by GitHub Actions, twice:

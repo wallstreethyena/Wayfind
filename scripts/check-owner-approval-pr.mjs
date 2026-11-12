@@ -18,8 +18,8 @@
  * Fails closed: outside GitHub Actions, on any other event, without a token, on any
  * API error, on an incomplete file list, or when the head moves mid-read.
  */
-import { decideOwnerApproval } from "./lib/ownerApproval.mjs";
-import { fetchPullEvidence, readPullContext } from "./lib/githubPullEvidence.mjs";
+import { decideOwnerApproval, findOwnerApproval, ownerOnlyChanges } from "./lib/ownerApproval.mjs";
+import { fetchCarryForward, fetchPullEvidence, readPullContext } from "./lib/githubPullEvidence.mjs";
 
 const refuse = (reason) => {
   console.error(`check-owner-approval-pr: FAIL — ${reason}.`);
@@ -47,12 +47,27 @@ if (ctx.eventHeadSha !== live.liveHeadSha) {
   refuse(`PR #${ctx.number} moved from ${ctx.eventHeadSha.slice(0, 12) || "nothing"} to ${live.liveHeadSha.slice(0, 12)} after this run started; the run for the new head decides`);
 }
 
+// An approval of an earlier head counts when the pull request's own change is
+// unchanged (ownerApproval.mjs, "APPROVAL CARRY-FORWARD"); read those diffs only
+// when they could matter.
+let carryForward = [];
+if (ownerOnlyChanges(live.files).length && !findOwnerApproval(live.comments, live.liveHeadSha)) {
+  try {
+    carryForward = await fetchCarryForward(ctx, live);
+  } catch (e) {
+    refuse(`owner approval cannot be evaluated: ${(e && e.message) || e}`);
+  }
+}
+
 const verdict = decideOwnerApproval({
   changedPaths: live.files,
   mergeGate: true,
   pr: { number: ctx.number, eventHeadSha: ctx.eventHeadSha, liveHeadSha: live.liveHeadSha },
   comments: live.comments,
   error: null,
+  carryForward,
 });
+// Audit trail: every earlier approval that was compared, and why it carried or expired.
+for (const record of verdict.audit || []) console.log(`check-owner-approval-pr: approval-audit ${JSON.stringify(record)}`);
 if (!verdict.ok) refuse(verdict.reason);
 console.log(`check-owner-approval-pr: OK — ${verdict.reason} (${live.files.length} changed path(s) read from the GitHub API and judged by the base branch's rules)`);
