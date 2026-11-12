@@ -13,6 +13,8 @@
 // data has a real ticket or official link.
 import { useEffect, useRef, useState } from "react";
 import ChristmasFilter from "./ChristmasFilter.js";
+import ChristmasWeekendRow from "./ChristmasWeekendRow.js";
+import useChristmasLocation from "./useChristmasLocation.js";
 import { TicketCard } from "./ChristmasTicketCard.js";
 import { GuideCommissionLine } from "./GuideCommissionLine.js";
 import { reminderFactsFor } from "../../lib/eventReminderFacts.js";
@@ -114,7 +116,7 @@ export function christmasUrlQuery(search, facets = {}) {
   return out;
 }
 
-export default function ChristmasBrowse({ initial, facets, today, initialQuery = {} }) {
+export default function ChristmasBrowse({ initial, facets, today, initialQuery = {}, weekend = null }) {
   const [query, setQuery] = useState(() => ({ ...initialQuery }));
   const [data, setData] = useState(initial);
   const [cards, setCards] = useState(initial.cards || []);
@@ -122,29 +124,18 @@ export default function ChristmasBrowse({ initial, facets, today, initialQuery =
   const [failed, setFailed] = useState(false);
   const first = useRef(true);
   // Owner 2026-11-11: the default order for every category is the best rated,
-  // trending choices near the visitor. On load the page finds a location
-  // without a permission prompt: the device position only when the visitor
-  // already allowed it, else the coarse Florida-only city lookup (/api/geo,
-  // the same one home uses). Nothing found means best rated statewide. A
-  // link that already carries a location or sort=tickets is left alone.
-  useEffect(() => {
-    if (typeof window === "undefined") return undefined;
+  // trending choices near the visitor. The one quiet lookup lives in
+  // useChristmasLocation and feeds both the list and the weekend row. A link
+  // that already carries a location or sort=tickets is left alone.
+  const found = useChristmasLocation(() => {
     // The cached page passes no filters, so the link's own query decides.
     const linked = { ...initialQuery, ...christmasUrlQuery(window.location.search, facets) };
-    if (linked.lat || linked.sort === "tickets") return undefined;
-    let dead = false;
-    const adopt = (lat, lng) => {
-      if (dead || !Number.isFinite(lat) || !Number.isFinite(lng)) return;
-      setQuery((q) => (q.lat || q.sort === "tickets" ? q : { ...q, lat: lat.toFixed(3), lng: lng.toFixed(3), auto: true }));
-    };
-    const byCity = () => fetch("/api/geo", { cache: "no-store" }).then((r) => r.json()).then((j) => { if (j && j.ok) adopt(Number(j.lat), Number(j.lng)); }).catch(() => {});
-    const byDevice = () => navigator.geolocation.getCurrentPosition((pos) => adopt(pos.coords.latitude, pos.coords.longitude), byCity, { timeout: 8000 });
-    try {
-      if (navigator.permissions && navigator.geolocation) navigator.permissions.query({ name: "geolocation" }).then((p) => (p.state === "granted" ? byDevice() : byCity()), byCity);
-      else byCity();
-    } catch { byCity(); }
-    return () => { dead = true; };
-  }, []);
+    return !!(linked.lat || linked.sort === "tickets");
+  });
+  useEffect(() => {
+    if (!found) return;
+    setQuery((q) => (q.lat || q.sort === "tickets" ? q : { ...q, lat: found.lat, lng: found.lng, auto: true }));
+  }, [found]);
   useEffect(() => {
     if (first.current) { first.current = false; return; }
     const params = new URLSearchParams();
@@ -200,6 +191,7 @@ export default function ChristmasBrowse({ initial, facets, today, initialQuery =
   const shownCards = cards.length;
   const hasPartner = cards.some((c) => c.ticketRow && c.ticketRow.cta && c.ticketRow.cta.kind === "affiliate");
   return <section id="browse" aria-label="Florida Christmas events" style={{ margin: "0 0 28px" }} data-christmas-browse="">
+    <ChristmasWeekendRow initial={weekend} lat={located ? query.lat : null} lng={located ? query.lng : null} />
     <div className="xm-controls" data-boo-clear="" role="toolbar" aria-label="Filter Christmas events">
       <ChristmasFilter query={query} facets={facets} onSet={set} onNear={nearMe} onReset={clearAll} />
       <span className="xm-sort-note">{ticketsFirst ? "Tickets first" : located ? "Top rated near you" : "Top rated and trending"}</span>
