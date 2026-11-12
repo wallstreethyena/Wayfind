@@ -7,37 +7,32 @@
 // buttons the card CTA uses, and a plain chat look (assistant bubble on C.card,
 // user bubble in the accent). No new visual language.
 //
-// Truth rule: nothing here ever says a table is booked until the server says
-// status === "confirmed".
+// Truth rule: nothing here ever says "You're booked" unless the server answered 201 with a
+// saved booking (or a saved confirmed booking came back from /api/reserve/mine).
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { createRoot } from "react-dom/client";
 import { C, sheetBg, sheet, Grabber, useDialogFocus } from "./kit";
 import {
-  RESERVE_LIMITS, reserveChat, sendReserveRequest, myReserveRequests, reserveDateRange, reserveTimeSlots,
-  timeLabel, summaryLine, validateDraft, draftIsSendable,
+  RESERVE_LIMITS, reserveChat, reserveSlots, bookTable, myBookings, cancelBooking, answerProposal, reserveDateRange,
+  timeLabel, dateLabel, summaryLine, validateDraft, cleanPhoneInput, newIdempotencyKey, downloadIcs,
 } from "../../lib/reserveClientApi.js";
 import { trackReserve } from "../../lib/reserveOpen.js";
 import { siteTodayStr } from "../../lib/siteTime.js";
 import { showLikeFeedback } from "../../lib/cardActions";
 
 const FIRST_LINE = "How many people, and what day and time?";
-const POLL_MS = 20000;
+const EMPTY_DRAFT = { partySize: null, date: null, time: null, guestName: null, note: null };
 
 const mainBtn = { width: "100%", minHeight: 48, padding: "0 16px", background: C.accent, border: "none", borderRadius: 12, color: "#0D1117", fontSize: 15, fontWeight: 800, cursor: "pointer", fontFamily: "inherit" };
 const quietBtn = { width: "100%", minHeight: 44, padding: "0 16px", background: "transparent", border: `1px solid ${C.border}`, borderRadius: 12, color: C.light, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "inherit" };
 const field = { width: "100%", minHeight: 44, padding: "0 12px", background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, color: C.text, fontSize: 16, fontFamily: "inherit", boxSizing: "border-box" };
 const label = { display: "block", fontSize: 13, fontWeight: 700, color: C.light, margin: "12px 0 6px" };
 const stepBtn = { width: 44, height: 44, borderRadius: 12, background: C.card, border: `1px solid ${C.border}`, color: C.text, fontSize: 20, fontWeight: 700, cursor: "pointer", fontFamily: "inherit" };
-
-function statusCopy(status, name) {
-  if (status === "pending") return { title: `Waiting for ${name} to answer`, tone: C.light };
-  if (status === "confirmed") return { title: "You're booked.", tone: C.green };
-  if (status === "declined") return { title: `${name} can't fit that time. Try another time?`, tone: C.light };
-  if (status === "expired") return { title: "No answer yet. You may want to call them.", tone: C.light };
-  if (status === "cancelled") return { title: "This request was cancelled.", tone: C.light };
-  return { title: "", tone: C.light };
-}
+const chip = { minHeight: 44, padding: "0 16px", background: C.card, border: `1px solid ${C.accent}`, borderRadius: 999, color: C.text, fontSize: 15, fontWeight: 800, cursor: "pointer", fontFamily: "inherit" };
+// The action bar stays at the bottom of the scrolling sheet, so the keyboard never hides the Book button.
+const actionBar = { position: "sticky", bottom: 0, background: C.panel, padding: "10px 0 2px", display: "grid", gap: 8, zIndex: 1 };
+const keepVisible = (e) => { try { const el = e.target; setTimeout(() => el && el.scrollIntoView && el.scrollIntoView({ block: "center", behavior: "smooth" }), 250); } catch (er) {} };
 
 function Bubble({ role, children }) {
   const mine = role === "user";
@@ -48,10 +43,11 @@ function Bubble({ role, children }) {
   );
 }
 
-function Summary({ draft }) {
+function Summary({ draft, openAt }) {
   return (
     <div data-reserve-summary="1" style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "12px 14px", margin: "4px 0 12px" }}>
       <div style={{ fontSize: 15, fontWeight: 800, color: C.text, lineHeight: 1.4 }}>{summaryLine(draft)}</div>
+      {openAt ? <div data-reserve-open="1" style={{ fontSize: 14, fontWeight: 700, color: C.green, marginTop: 6 }}>Open at {timeLabel(openAt)}</div> : null}
       {draft.note ? <div style={{ fontSize: 13, color: C.muted, marginTop: 6, overflowWrap: "anywhere" }}>Note: {draft.note}</div> : null}
     </div>
   );
@@ -61,21 +57,29 @@ export function ReserveSheet({ place, surface, onClose }) {
   const name = place.name || "this restaurant";
   const dlgRef = useRef(null);
   useDialogFocus(true, dlgRef, onClose);
-  // boot | signin | signin-wait | status | chat | form | summary | sent
+  // boot | signin | signin-wait | status | chat | form | summary | full | booked
   const [phase, setPhase] = useState("boot");
   const [msgs, setMsgs] = useState([{ role: "assistant", content: FIRST_LINE, local: true }]);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
-  const [draft, setDraft] = useState({ partySize: 2, date: "", time: "19:00", guestName: "", note: "" });
+  const [draft, setDraft] = useState({ partySize: 2, date: "", time: "", guestName: "", note: "" });
+  const [chatDraft, setChatDraft] = useState(EMPTY_DRAFT);
+  const [verifiedTime, setVerifiedTime] = useState(null); // the open time the server confirmed for this summary
   const [formNote, setFormNote] = useState("");
   const [usedForm, setUsedForm] = useState(false);
   const [error, setError] = useState("");
-  const [request, setRequest] = useState(null); // { id, status, partySize, date, time }
-  const [justSent, setJustSent] = useState(false);
-  const [demoUrl, setDemoUrl] = useState("");
+  const [booking, setBooking] = useState(null); // the booking as the server saved it
+  const [alternatives, setAlternatives] = useState([]);
+  const [slots, setSlots] = useState({ state: "idle", list: [] });
+  const [maxParty, setMaxParty] = useState(RESERVE_LIMITS.maxParty);
+  const [restaurantPhone, setRestaurantPhone] = useState("");
+  const [sharePhone, setSharePhone] = useState(false);
+  const [phone, setPhone] = useState("");
+  const [confirmingCancel, setConfirmingCancel] = useState(false);
   const [unhandledSignIn, setUnhandledSignIn] = useState(false);
   const alive = useRef(true);
   const logRef = useRef(null);
+  const idemKey = useRef("");
   useEffect(() => { alive.current = true; return () => { alive.current = false; }; }, []);
 
   const boot = useCallback(async () => {
@@ -92,18 +96,17 @@ export function ReserveSheet({ place, surface, onClose }) {
       // shell is not edited for this, and no second auth prompt exists. If this surface has no shell, say so plainly.
       const door = document.querySelector(".wf-signin-button");
       const detail = { handled: !!door };
-      if (door) { try { door.click(); showLikeFeedback("Sign in to request a table"); } catch (e) { detail.handled = false; } }
+      if (door) { try { door.click(); showLikeFeedback("Sign in to book a table"); } catch (e) { detail.handled = false; } }
       setUnhandledSignIn(!detail.handled);
       setPhase(detail.handled ? "signin-wait" : "signin");
       return;
     }
     const first = user.user_metadata && (user.user_metadata.full_name || user.user_metadata.name);
     if (first) setDraft((d) => (d.guestName ? d : { ...d, guestName: String(first).split(/\s+/)[0].slice(0, RESERVE_LIMITS.nameMax) }));
-    const r = await myReserveRequests(place.id);
+    const r = await myBookings(place.id);
     if (!alive.current) return;
-    const latest = r && r.ok && Array.isArray(r.requests) ? r.requests.slice().sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)))[0] : null;
-    // A confirmed table whose day has passed is history, not news.
-    if (latest && !(latest.status === "confirmed" && latest.date < siteTodayStr())) { setRequest(latest); setPhase("status"); }
+    const live = r && r.ok && Array.isArray(r.bookings) ? r.bookings.find((b) => (b.status === "confirmed" || b.status === "proposed") && b.date >= siteTodayStr()) : null;
+    if (live) { setBooking(live); if (live.restaurantPhone) setRestaurantPhone(live.restaurantPhone); setPhase("status"); }
     else setPhase("chat");
   }, [place.id]);
   useEffect(() => { boot(); }, [boot]);
@@ -121,30 +124,34 @@ export function ReserveSheet({ place, surface, onClose }) {
     return () => { try { sub && sub.unsubscribe(); } catch (e) {} clearTimeout(timer); };
   }, [phase, boot, onClose]);
 
-  // Poll every 20s while pending, the sheet is open and the tab is visible. Stops when the status changes.
-  useEffect(() => {
-    if (!request || request.status !== "pending" || (phase !== "sent" && phase !== "status")) return undefined;
-    let stop = false;
-    const poll = async () => {
-      if (stop || document.hidden) return;
-      const r = await myReserveRequests(place.id);
-      if (stop || !alive.current || !r || !r.ok || !Array.isArray(r.requests)) return;
-      const hit = r.requests.find((x) => x.id === request.id);
-      if (hit && hit.status !== request.status) {
-        trackReserve("reserve_request_result", { place_id: place.id, status: hit.status });
-        setRequest(hit);
-      }
-    };
-    const t = setInterval(poll, POLL_MS);
-    const vis = () => { if (!document.hidden) poll(); };
-    document.addEventListener("visibilitychange", vis);
-    return () => { stop = true; clearInterval(t); document.removeEventListener("visibilitychange", vis); };
-  }, [request, phase, place.id]);
-
   useEffect(() => { const el = logRef.current; if (el) el.scrollTop = el.scrollHeight; }, [msgs, busy]);
 
-  function toForm(note) { setFormNote(note || ""); setError(""); setPhase("form"); }
-  function restart() { setMsgs([{ role: "assistant", content: FIRST_LINE, local: true }]); setInput(""); setError(""); setUsedForm(false); setJustSent(false); setDemoUrl(""); setRequest(null); setPhase("chat"); }
+  // Form mode: only REAL open times are offered, from /api/reserve/slots for this day and party.
+  useEffect(() => {
+    if (phase !== "form" || !/^\d{4}-\d{2}-\d{2}$/.test(draft.date || "") || !draft.partySize) { return undefined; }
+    let stop = false;
+    setSlots({ state: "loading", list: [] });
+    reserveSlots(place.id, draft.date, draft.partySize).then((r) => {
+      if (stop || !alive.current) return;
+      if (r && r.ok && Array.isArray(r.slots)) {
+        setSlots({ state: "ready", list: r.slots });
+        if (r.phone) setRestaurantPhone(r.phone);
+        if (Number.isInteger(r.maxParty)) setMaxParty(r.maxParty);
+        setDraft((d) => (d.time && !r.slots.includes(d.time) ? { ...d, time: "" } : d));
+      } else setSlots({ state: "error", list: [] });
+    });
+    return () => { stop = true; };
+  }, [phase, draft.date, draft.partySize, place.id]);
+
+  function toForm(note, from) {
+    if (from) setDraft((d) => ({ ...d, partySize: from.partySize || d.partySize || 2, date: from.date || d.date, time: from.time || "", note: from.note || d.note }));
+    setFormNote(note || ""); setError(""); setPhase("form");
+  }
+  function toSummary(time) { idemKey.current = newIdempotencyKey(); setVerifiedTime(time); setError(""); setPhase("summary"); }
+  function restart() {
+    setMsgs([{ role: "assistant", content: FIRST_LINE, local: true }]); setInput(""); setError(""); setUsedForm(false); setBooking(null);
+    setChatDraft(EMPTY_DRAFT); setAlternatives([]); setConfirmingCancel(false); setPhase("chat");
+  }
 
   async function sendChat(e) {
     e && e.preventDefault();
@@ -153,53 +160,143 @@ export function ReserveSheet({ place, surface, onClose }) {
     const next = msgs.concat([{ role: "user", content: text }]);
     setMsgs(next); setInput(""); setBusy(true); setError("");
     // The local greeting is not sent: the server only needs the guest's own words and its own replies.
-    const r = await reserveChat(place.id, next.filter((m) => !m.local));
+    const r = await reserveChat(place.id, next.filter((m) => !m.local), chatDraft);
     if (!alive.current) return;
     setBusy(false);
     if (r.status === 401) { boot(); return; }
-    if (r.ok && r.fallback === "form") { setUsedForm(true); toForm("Chat is not available right now. Fill this in instead."); return; }
-    if (!r.ok || typeof r.reply !== "string") { setUsedForm(true); toForm("Chat is not available right now. Fill this in instead."); return; }
-    const d = r.draft || {};
-    const merged = { partySize: d.partySize || draft.partySize, date: d.date || draft.date, time: d.time || draft.time, guestName: d.guestName || draft.guestName, note: d.note || "" };
-    setDraft(merged);
+    if (!r.ok || r.fallback === "form" || typeof r.reply !== "string") { setUsedForm(true); toForm("Chat is not available right now. Fill this in instead.", chatDraft); return; }
+    // The server draft is the whole truth: a time it dropped (taken) must not come back from an old draft.
+    const d = r.draft || EMPTY_DRAFT;
+    setChatDraft(d);
     setMsgs(next.concat([{ role: "assistant", content: r.reply }]));
-    if (r.complete && draftIsSendable(merged)) setPhase("summary");
+    if (r.complete && r.verified && d.time) {
+      setDraft((cur) => ({ ...cur, partySize: d.partySize, date: d.date, time: d.time, guestName: d.guestName || cur.guestName, note: d.note || "" }));
+      toSummary(d.time);
+    }
   }
 
   function submitForm(e) {
     e.preventDefault();
     const clean = { ...draft, guestName: String(draft.guestName || "").trim(), note: String(draft.note || "").trim() };
-    const bad = validateDraft(clean);
+    const bad = validateDraft(clean, new Date(), maxParty) || (slots.list.includes(clean.time) ? null : "Pick one of the open times.");
     if (bad) { setError(bad); return; }
-    setDraft(clean); setUsedForm(true); setError(""); setPhase("summary");
+    setDraft(clean); setUsedForm(true); toSummary(clean.time);
   }
 
-  async function send() {
+  // Book with the key made for this summary. Retrying the same summary reuses the same key.
+  async function book(d, key) {
     if (busy) return;
-    const bad = validateDraft(draft);
-    if (bad) { toForm(bad); return; }
+    const bad = validateDraft(d, new Date(), maxParty);
+    if (bad) { toForm(bad, d); return; }
+    let phoneOut = null;
+    if (sharePhone) {
+      phoneOut = cleanPhoneInput(phone);
+      if (!phoneOut) { setError("Add a phone number with 10 digits, or turn off sharing your phone."); return; }
+    }
     setBusy(true); setError("");
-    const body = { placeId: place.id, partySize: draft.partySize, date: draft.date, time: draft.time, guestName: String(draft.guestName).trim() };
-    if (draft.note && String(draft.note).trim()) body.note = String(draft.note).trim();
-    const r = await sendReserveRequest(body);
+    const body = { placeId: place.id, partySize: d.partySize, date: d.date, time: d.time, guestName: String(d.guestName).trim(), idempotencyKey: key };
+    if (d.note && String(d.note).trim()) body.note = String(d.note).trim();
+    if (sharePhone) { body.phone = phoneOut; body.phoneConsent = true; }
+    const r = await bookTable(body);
     if (!alive.current) return;
     setBusy(false);
     if (r.status === 401) { boot(); return; }
-    // Too soon or already passed: back to the form with the rest of the draft kept, so they only pick another time.
-    if (r.error === "TOO_SOON" || r.error === "TIME_PAST") { toForm(r.message || "That time will not work. Pick a later time, or call the restaurant."); return; }
-    if (!r.ok || !r.request) { setError(r.message || "We could not send that. Please try again."); return; }
-    trackReserve("reserve_request_sent", { place_id: place.id, party_size: draft.partySize, used_fallback_form: usedForm });
-    setRequest(r.request); setJustSent(true);
-    setDemoUrl(typeof r.demoRespondUrl === "string" && /^(\/|https:\/\/)/.test(r.demoRespondUrl) ? r.demoRespondUrl : "");
-    setPhase("sent");
+    if (r.status === 201 && r.ok && r.booking && r.booking.confirmationCode) {
+      trackReserve("reserve_booked", { place_id: place.id, party_size: d.partySize, used_fallback_form: usedForm, shared_phone: sharePhone });
+      setBooking(r.booking); if (r.booking.restaurantPhone) setRestaurantPhone(r.booking.restaurantPhone);
+      setConfirmingCancel(false); setPhase("booked");
+      return;
+    }
+    if (r.status === 409 && r.error === "SLOT_FULL") {
+      setDraft(d); setAlternatives(Array.isArray(r.alternatives) ? r.alternatives.slice(0, 3) : []); setPhase("full");
+      return;
+    }
+    // Closed, too soon, outside the window: back to the form with the rest of the draft kept.
+    if (r.error === "CLOSED" || r.error === "TOO_SOON" || r.error === "OUT_OF_WINDOW") { toForm(r.message || "That time will not work. Pick another.", d); return; }
+    // Not confirmed (network or server): stay here, keep the key, so a retry can never book twice.
+    setError(r.message || "We could not confirm your table. Tap Book table again.");
+  }
+  const bookNow = () => book({ ...draft, time: verifiedTime || draft.time }, idemKey.current);
+  const bookAlternative = (t) => { const d = { ...draft, time: t }; setDraft(d); idemKey.current = newIdempotencyKey(); setVerifiedTime(t); setPhase("summary"); book(d, idemKey.current); };
+
+  async function doCancel() {
+    if (busy || !booking) return;
+    setBusy(true); setError("");
+    const r = await cancelBooking(booking.id);
+    if (!alive.current) return;
+    setBusy(false);
+    if (r.status === 401) { boot(); return; }
+    if (r.ok && r.booking) { trackReserve("reserve_cancelled", { place_id: place.id }); setBooking(r.booking); setConfirmingCancel(false); return; }
+    setError(r.message || "We could not cancel that. Please try again, or call the restaurant.");
+  }
+  async function doAnswer(accept) {
+    if (busy || !booking) return;
+    setBusy(true); setError("");
+    const r = await answerProposal(booking.id, accept);
+    if (!alive.current) return;
+    setBusy(false);
+    if (r.status === 401) { boot(); return; }
+    if (r.ok && r.booking) { trackReserve("reserve_proposal", { place_id: place.id, accepted: accept }); setBooking(r.booking); return; }
+    if (r.error === "SLOT_FULL" && r.booking) { setBooking(r.booking); }
+    setError(r.message || "We could not save your answer. Please try again.");
   }
 
   const range = reserveDateRange();
-  const slots = reserveTimeSlots(draft.date);
   const setD = (k) => (e) => setDraft((d) => ({ ...d, [k]: e.target.value }));
-  const sc = request ? statusCopy(request.status, name) : null;
   const hidden = phase === "boot" || phase === "signin-wait";
   if (hidden) return null;
+  const callLine = restaurantPhone ? `Running late? Call ${restaurantPhone}.` : "Running late? Call the restaurant.";
+
+  // One view for a saved booking: confirmed, proposed, or cancelled. Every word comes from the server's row.
+  const bookingView = () => {
+    const b = booking;
+    const view = { partySize: b.partySize, date: b.date, time: b.time, guestName: "", note: "" };
+    if (b.status === "cancelled") {
+      return (
+        <div>
+          <div data-reserve-status="cancelled" aria-live="polite" style={{ fontSize: 16, fontWeight: 800, color: C.text, margin: "0 0 10px" }}>Your table is cancelled.</div>
+          <Summary draft={view} />
+          <button type="button" style={mainBtn} onClick={restart}>Find another time</button>
+        </div>
+      );
+    }
+    if (b.status === "proposed") {
+      return (
+        <div>
+          <div data-reserve-status="proposed" aria-live="polite" style={{ fontSize: 16, fontWeight: 800, color: C.text, margin: "0 0 10px", lineHeight: 1.35 }}>{name} asked to move your table to {timeLabel(b.proposedTime)}</div>
+          <Summary draft={view} />
+          <div style={{ fontSize: 14, color: C.light, marginBottom: 6 }}>New time: {dateLabel(b.proposedDate)} {"·"} {timeLabel(b.proposedTime)}</div>
+          {error ? <div role="alert" style={{ color: "#FCA5A5", fontSize: 14, margin: "6px 0" }}>{error}</div> : null}
+          <div style={actionBar}>
+            <button type="button" style={{ ...mainBtn, opacity: busy ? 0.7 : 1 }} disabled={busy} onClick={() => doAnswer(true)}>Accept new time</button>
+            <button type="button" style={quietBtn} disabled={busy} onClick={() => doAnswer(false)}>Keep looking</button>
+            <div style={{ fontSize: 12, color: C.muted, textAlign: "center" }}>Keep looking cancels your current table.</div>
+          </div>
+        </div>
+      );
+    }
+    return (
+      <div>
+        <div data-reserve-status="confirmed" aria-live="polite" style={{ fontSize: 20, fontWeight: 800, color: C.green, margin: "0 0 8px" }}>You're booked.</div>
+        <div data-reserve-code="1" style={{ fontSize: 14, color: C.light, marginBottom: 8 }}>Confirmation code <strong style={{ color: C.text, letterSpacing: 1.5, fontSize: 18 }}>{b.confirmationCode}</strong></div>
+        <Summary draft={view} />
+        <div style={{ fontSize: 14, color: C.light, margin: "0 0 10px", overflowWrap: "anywhere" }}>{callLine}</div>
+        {error ? <div role="alert" style={{ color: "#FCA5A5", fontSize: 14, margin: "6px 0" }}>{error}</div> : null}
+        {confirmingCancel ? (
+          <div style={actionBar}>
+            <div style={{ fontSize: 15, fontWeight: 700, color: C.text }}>Cancel this table?</div>
+            <button type="button" style={{ ...mainBtn, opacity: busy ? 0.7 : 1 }} disabled={busy} onClick={doCancel}>Yes, cancel it</button>
+            <button type="button" style={quietBtn} disabled={busy} onClick={() => setConfirmingCancel(false)}>Keep my table</button>
+          </div>
+        ) : (
+          <div style={actionBar}>
+            <button type="button" style={mainBtn} onClick={() => downloadIcs(b)}>Add to calendar</button>
+            <button type="button" style={quietBtn} onClick={() => { setError(""); setConfirmingCancel(true); }}>Cancel booking</button>
+          </div>
+        )}
+      </div>
+    );
+  };
 
   const dialog = (
     <div style={sheetBg} onClick={onClose} data-reserve-backdrop="1">
@@ -212,20 +309,12 @@ export function ReserveSheet({ place, surface, onClose }) {
 
         {phase === "signin" ? (
           <div>
-            <div style={{ fontSize: 15, color: C.text, marginBottom: 12 }}>Sign in to request a table</div>
+            <div style={{ fontSize: 15, color: C.text, marginBottom: 12 }}>Sign in to book a table</div>
             {unhandledSignIn ? <a href="/" style={{ ...mainBtn, display: "flex", alignItems: "center", justifyContent: "center", textDecoration: "none", boxSizing: "border-box" }}>Open Wayfind to sign in</a> : null}
           </div>
         ) : null}
 
-        {phase === "status" && request ? (
-          <div>
-            <div data-reserve-status={request.status} style={{ fontSize: 16, fontWeight: 800, color: sc.tone, margin: "0 0 10px", lineHeight: 1.35 }}>{sc.title}</div>
-            <Summary draft={{ partySize: request.partySize, date: request.date, time: request.time, guestName: "" , note: ""}} />
-            <div style={{ display: "grid", gap: 8 }}>
-              {request.status === "declined" || request.status === "expired" || request.status === "cancelled" ? <button type="button" style={mainBtn} onClick={restart}>{request.status === "declined" ? "Try another time" : "Make a new request"}</button> : <button type="button" style={quietBtn} onClick={restart}>Request a different time</button>}
-            </div>
-          </div>
-        ) : null}
+        {(phase === "status" || phase === "booked") && booking ? bookingView() : null}
 
         {phase === "chat" ? (
           <div>
@@ -235,10 +324,10 @@ export function ReserveSheet({ place, surface, onClose }) {
             </div>
             <form onSubmit={sendChat} style={{ display: "flex", gap: 8, marginTop: 8 }}>
               <label htmlFor="wf-reserve-msg" style={{ position: "absolute", width: 1, height: 1, overflow: "hidden", clip: "rect(0 0 0 0)" }}>Your message</label>
-              <input id="wf-reserve-msg" value={input} onChange={(e) => setInput(e.target.value)} maxLength={500} autoComplete="off" placeholder="Example: 4 people Saturday at 7" style={{ ...field, flex: 1, minWidth: 0 }} />
+              <input id="wf-reserve-msg" value={input} onChange={(e) => setInput(e.target.value)} onFocus={keepVisible} maxLength={500} autoComplete="off" placeholder="Example: 4 people Saturday at 7" style={{ ...field, flex: 1, minWidth: 0 }} />
               <button type="submit" disabled={busy || !input.trim()} style={{ ...mainBtn, width: "auto", padding: "0 16px", opacity: busy || !input.trim() ? 0.6 : 1 }}>Send</button>
             </form>
-            <button type="button" onClick={() => { setUsedForm(true); toForm(""); }} style={{ ...quietBtn, marginTop: 10, border: "none", color: C.muted, minHeight: 44 }}>Use a form instead</button>
+            <button type="button" onClick={() => { setUsedForm(true); toForm("", chatDraft); }} style={{ ...quietBtn, marginTop: 10, border: "none", color: C.muted, minHeight: 44 }}>Use a form instead</button>
           </div>
         ) : null}
 
@@ -249,39 +338,60 @@ export function ReserveSheet({ place, surface, onClose }) {
             <div role="group" aria-labelledby="wf-reserve-party-l" style={{ display: "flex", alignItems: "center", gap: 10 }}>
               <button type="button" aria-label="One fewer person" style={stepBtn} onClick={() => setDraft((d) => ({ ...d, partySize: Math.max(1, (d.partySize || 2) - 1) }))}>{"−"}</button>
               <div aria-live="polite" style={{ minWidth: 36, textAlign: "center", fontSize: 18, fontWeight: 800, color: C.text }}>{draft.partySize}</div>
-              <button type="button" aria-label="One more person" style={stepBtn} onClick={() => setDraft((d) => ({ ...d, partySize: Math.min(RESERVE_LIMITS.maxParty, (d.partySize || 2) + 1) }))}>+</button>
+              <button type="button" aria-label="One more person" style={stepBtn} onClick={() => setDraft((d) => ({ ...d, partySize: Math.min(maxParty, (d.partySize || 2) + 1) }))}>+</button>
             </div>
             <label htmlFor="wf-reserve-date" style={label}>Day</label>
             <input id="wf-reserve-date" type="date" min={range.min} max={range.max} value={draft.date} onChange={setD("date")} style={field} />
             <label htmlFor="wf-reserve-time" style={label}>Time</label>
-            <select id="wf-reserve-time" value={slots.includes(draft.time) ? draft.time : ""} onChange={setD("time")} style={field}><option value="" disabled>Pick a time</option>{slots.map((s) => <option key={s} value={s}>{timeLabel(s)}</option>)}</select>
+            <select id="wf-reserve-time" data-reserve-times="1" value={slots.list.includes(draft.time) ? draft.time : ""} onChange={setD("time")} style={field} disabled={slots.state !== "ready" || !slots.list.length}>
+              <option value="" disabled>{!draft.date ? "Pick a day first" : slots.state === "loading" ? "Checking open times" : slots.list.length ? "Pick a time" : "No open times"}</option>
+              {slots.list.map((s) => <option key={s} value={s}>{timeLabel(s)}</option>)}
+            </select>
+            {draft.date && slots.state === "ready" && !slots.list.length ? <div style={{ fontSize: 13, color: C.light, marginTop: 6 }}>No open tables that day. Try another day.</div> : null}
+            {slots.state === "error" ? <div role="alert" style={{ fontSize: 13, color: "#FCA5A5", marginTop: 6 }}>We could not check open times. Please try again.</div> : null}
             <label htmlFor="wf-reserve-name" style={label}>Name for the table</label>
-            <input id="wf-reserve-name" value={draft.guestName} onChange={setD("guestName")} maxLength={RESERVE_LIMITS.nameMax} autoComplete="given-name" style={field} />
+            <input id="wf-reserve-name" value={draft.guestName} onChange={setD("guestName")} onFocus={keepVisible} maxLength={RESERVE_LIMITS.nameMax} autoComplete="given-name" style={field} />
             <label htmlFor="wf-reserve-note" style={label}>Note (optional)</label>
-            <textarea id="wf-reserve-note" value={draft.note} onChange={setD("note")} maxLength={RESERVE_LIMITS.noteMax} rows={2} style={{ ...field, padding: "10px 12px", resize: "none" }} />
+            <textarea id="wf-reserve-note" value={draft.note} onChange={setD("note")} onFocus={keepVisible} maxLength={RESERVE_LIMITS.noteMax} rows={2} style={{ ...field, padding: "10px 12px", resize: "none" }} />
             {error ? <div role="alert" style={{ color: "#FCA5A5", fontSize: 14, marginTop: 10 }}>{error}</div> : null}
-            <button type="submit" style={{ ...mainBtn, marginTop: 14 }}>Review request</button>
+            <div style={actionBar}><button type="submit" style={mainBtn}>Review booking</button></div>
           </form>
         ) : null}
 
         {phase === "summary" ? (
           <div>
-            <Summary draft={draft} />
-            {error ? <div role="alert" style={{ color: "#FCA5A5", fontSize: 14, marginBottom: 10 }}>{error}</div> : null}
-            <div style={{ display: "grid", gap: 8 }}>
-              <button type="button" style={{ ...mainBtn, opacity: busy ? 0.7 : 1 }} disabled={busy} onClick={send}>{busy ? "Sending…" : "Send request"}</button>
-              <button type="button" style={quietBtn} onClick={() => toForm("")}>Change something</button>
+            <Summary draft={draft} openAt={verifiedTime} />
+            <label style={{ display: "flex", alignItems: "flex-start", gap: 10, minHeight: 44, padding: "6px 0", fontSize: 14, color: C.light, cursor: "pointer" }}>
+              <input type="checkbox" role="switch" data-reserve-share="1" checked={sharePhone} onChange={(e) => { setSharePhone(e.target.checked); setError(""); }} style={{ width: 24, height: 24, marginTop: 2, flexShrink: 0 }} />
+              <span>Share my phone with {name} so they can reach me</span>
+            </label>
+            {sharePhone ? (
+              <div>
+                <label htmlFor="wf-reserve-phone" style={label}>Your phone number</label>
+                <input id="wf-reserve-phone" type="tel" inputMode="tel" autoComplete="tel" value={phone} onChange={(e) => setPhone(e.target.value)} onFocus={keepVisible} maxLength={20} style={field} />
+                <div style={{ fontSize: 12, color: C.muted, marginTop: 4 }}>Only {name} sees it, for this booking.</div>
+              </div>
+            ) : null}
+            {error ? <div role="alert" style={{ color: "#FCA5A5", fontSize: 14, margin: "10px 0 0" }}>{error}</div> : null}
+            <div style={actionBar}>
+              <button type="button" style={{ ...mainBtn, opacity: busy ? 0.7 : 1 }} disabled={busy} onClick={bookNow}>{busy ? "Booking…" : "Book table"}</button>
+              <button type="button" style={quietBtn} onClick={() => toForm("", draft)}>Change something</button>
             </div>
           </div>
         ) : null}
 
-        {phase === "sent" && request ? (
+        {phase === "full" ? (
           <div>
-            {justSent && request.status === "pending" ? <div style={{ fontSize: 16, fontWeight: 800, color: C.text, marginBottom: 6 }}>Request sent.</div> : null}
-            <div data-reserve-status={request.status} aria-live="polite" style={{ fontSize: justSent && request.status === "pending" ? 14 : 16, fontWeight: justSent && request.status === "pending" ? 600 : 800, color: sc.tone, margin: "0 0 10px", lineHeight: 1.35 }}>{sc.title}</div>
-            <Summary draft={{ ...draft, partySize: request.partySize || draft.partySize, date: request.date || draft.date, time: request.time || draft.time }} />
-            {request.status === "declined" || request.status === "expired" ? <button type="button" style={mainBtn} onClick={restart}>Try another time</button> : null}
-            {demoUrl ? <a href={demoUrl} target="_blank" rel="noopener noreferrer" style={{ display: "block", textAlign: "center", marginTop: 12, fontSize: 12, color: C.muted, textDecoration: "underline", minHeight: 44, lineHeight: "44px" }}>Demo only: answer as the restaurant</a> : null}
+            <div data-reserve-status="full" role="alert" style={{ fontSize: 16, fontWeight: 800, color: C.text, margin: "0 0 6px", lineHeight: 1.35 }}>{timeLabel(draft.time)} just filled up.</div>
+            {alternatives.length ? (
+              <div>
+                <div style={{ fontSize: 14, color: C.light, marginBottom: 10 }}>These times are open. Tap one to book it.</div>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                  {alternatives.map((t) => <button key={t} type="button" data-reserve-alt={t} style={chip} disabled={busy} onClick={() => bookAlternative(t)}>{timeLabel(t)}</button>)}
+                </div>
+              </div>
+            ) : <div style={{ fontSize: 14, color: C.light }}>No other times are open that day. Try another day.</div>}
+            <div style={actionBar}><button type="button" style={quietBtn} onClick={() => toForm("", { ...draft, time: "" })}>Pick another day</button></div>
           </div>
         ) : null}
       </div>

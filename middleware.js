@@ -101,11 +101,15 @@ export const config = {
     // Reserve a table chat: same shared Anthropic gate as Santa (lib/paidAi.js),
     // full same-origin + per-IP guard. Signed in users only (the route verifies).
     "/api/reserve-chat",
-    // Reserve a table writes: unmetered, so per-IP rate limit only (RATE_LIMIT_ONLY_ROUTES
-    // below). Both POSTs also demand a same-origin JSON request inside the route, and
-    // the respond GET is opened from an email link and must never change anything.
-    "/api/reserve/request",
-    "/api/reserve/respond",
+    // Reserve a table: unmetered, so per-IP rate limit only (RATE_LIMIT_ONLY_ROUTES below).
+    // The POSTs (book, cancel, proposal, manage) also demand a same-origin JSON request inside
+    // the route. slots is a public read with no sign in; manage is the restaurant dashboard,
+    // opened from a private link, and its GET never changes anything.
+    "/api/reserve/slots",
+    "/api/reserve/book",
+    "/api/reserve/cancel",
+    "/api/reserve/proposal",
+    "/api/reserve/manage",
     "/api/viator/tours",
     // Intent-sheet curated enrichment: exact product artwork and commercial
     // metadata come from the metered Viator Partner API on cache misses.
@@ -208,10 +212,10 @@ const NAV_302_ROUTES = new Set(["/api/viator/go", "/api/commerce/go", "/api/even
 // shared-link image, so keep the per-IP rate limit (the real cost guard) but
 // skip the same-origin block.
 const IMAGE_ROUTES = new Set(["/api/photo", "/api/creator-avatar"]);
-// Unmetered write routes for Reserve a table: per-IP rate limit, no middleware
+// Unmetered routes for Reserve a table (book, cancel, proposal, manage, slots): per-IP rate limit, no middleware
 // same-origin block (the routes check the exact Origin themselves; a restaurant
 // opening an emailed link may arrive with stripped browser headers).
-const RATE_LIMIT_ONLY_ROUTES = new Set(["/api/reserve/request", "/api/reserve/respond"]);
+const RATE_LIMIT_ONLY_ROUTES = new Set(["/api/reserve/slots", "/api/reserve/book", "/api/reserve/cancel", "/api/reserve/proposal", "/api/reserve/manage"]);
 
 export function middleware(req) {
   const path = req.nextUrl && req.nextUrl.pathname;

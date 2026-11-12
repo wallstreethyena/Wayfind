@@ -2594,9 +2594,11 @@ node scripts/test-stubhub-dark.mjs
 node scripts/test-human-traffic-reserve.mjs
 # 2026-11-11: home feed INP: a parent render must not re-render the Christmas rail cards; the itinerary flag poll keeps object identity.
 node scripts/test-home-feed-rerender.mjs
-# 2026-11-11: Reserve a table, pure rules (date window, 15 minute steps, name/note rules, tokens, status machine, partner visibility, draft normalization).
+# 2026-11-12: Reserve a table, pure rules for INSTANT booking (date window, restaurant timezone and DST, lead time, idempotency keys, phone only with consent, manage tokens, partner visibility, slot helpers, chat draft + applyAvailability). Runs in both NODE_ENV modes.
 node scripts/test-reserve-logic.mjs
-# 2026-11-11: Reserve a table, API behaviour via injected fakes (GET never mutates, one user email, no demo url in production, empty list when email not ready, chat only via paidAnthropicRequest with form fallback).
+# 2026-11-12: Reserve a table, instant booking API via injected fakes (201 only after the saved row, 503 BOOKING_NOT_CONFIRMED on storage failure, SLOT_FULL 409 with alternatives, phone only with consent, demo never bookable or emailed in production, email failure never fails a booking, cancel/proposal/dashboard authorization with a constant time token compare, chat never reports a time the slots RPC did not return, reminder claim before send, route verbs, middleware matcher, preview test page 404 in production, cron secret).
 node scripts/check-reserve-routes.mjs
-# 2026-11-11: Reserve a table, card button and sheet (real render: one wide button in the existing card slot, non partner cards unchanged, no Directions, chevron character, pending copy).
+# 2026-11-12: Reserve a table, card button and sheet (real render, pins NODE_ENV=test before react so act() works under the production pass: one wide button, non partner cards unchanged, signed in booking flow against a mocked server: form times only from /api/reserve/slots, You're booked only after the 201, retry reuses the idempotency key, 409 alternatives rebook with a new key, phone only behind the consent switch, proposal accept/decline, .ics escaping).
 node scripts/test-reserve-ui.mjs
+# 2026-11-12: Reserve a table, database (RLS, SECURITY DEFINER + pinned search_path, EXECUTE service_role only; PGlite applies the migration, runs supabase/tests/reserve_booking_test.sql, refuses anon/authenticated, runs the seed twice and books against it).
+node scripts/test-reserve-schema.mjs

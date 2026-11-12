@@ -91,6 +91,16 @@ EXEMPT["app/components/PhotoCredit.js"] =
 EXEMPT["app/components/SeasonalMoviesRail.js"] =
   "movie cards, not place cards: it reuses RailCard only for the standard rail card look and passes place={null}, so there is no place id and no Google place photo to source. The image is a self-hosted official poster under /movies/ (registry art.src, downloaded once, no /api/photo) or the designed placeholder tile (EventPlaceholderTile); it never passes photoFallback or a /api/photo URL.";
 
+// (2026-11-12) Reserve a table preview page: a fixture, not a surface visitors see.
+EXEMPT["app/reserve/test/TestCard.js"] =
+  "preview-only test page (404 in production, noindex, not in the sitemap) for the Reserve a table booking flow. It renders the real IconicPlaceCard for ONE hardcoded fixture place (wf-test-kitchen) whose photo is a bundled repo image (/cards/where-to-eat.jpg) with photoNoSpend:true, so it never requests /api/photo, never spends a Google photo call and has no place photo that can be missing.";
+
+// The fixture exemption's claim is enforced: no photo ref, no /api/photo, a local /cards/ image and photoNoSpend.
+{
+  const tc = readFileSync(path.join(REPO, "app/reserve/test/TestCard.js"), "utf8").replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "$1");
+  ok(/photoNoSpend:\s*true/.test(tc) && /photo:\s*"\/cards\/[^"]+"/.test(tc) && /photoRef:\s*null/.test(tc) && !/\/api\/photo|googleusercontent|places\.googleapis/.test(tc), "app/reserve/test/TestCard.js is EXEMPT as a bundled-photo fixture but now has a photo ref, an /api/photo or Google URL, or lost photoNoSpend/local photo: register it in a PHOTO_SURFACES entry instead");
+}
+
 // The exemption's own claim is enforced, not trusted: PhotoCredit.js must paint no image.
 {
   const pc = readFileSync(path.join(REPO, "app/components/PhotoCredit.js"), "utf8").replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "$1");
