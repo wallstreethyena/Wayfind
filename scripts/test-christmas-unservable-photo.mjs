@@ -85,6 +85,33 @@ const base = { noMemo: true, readTagged: async () => [], readGoogle: async () =>
   ok(keep.cards.find((c) => c.id === "ev").image === URL_G, "control: servable browse image kept");
 }
 
+// Place cards fall back to the venue's own stored photo (live 2026-11-12: 14 of
+// 15 "Photo unavailable" place cards on /christmas-in-florida had a ready,
+// credited stored photo the card never read).
+{
+  const STORED = { src: "/api/photo/stored/" + GOODWOOD + "?v=" + "b".repeat(64), width: 1280, height: 853, source: "google", credit: { authors: [{ name: "Venue Owner", uri: "https://maps.google.com/v" }] } };
+  const asked = [];
+  const readGoogle = async (id) => { asked.push(id); return STORED; };
+  const place = { kind: "place", id: "pl2", title: "Decorated Bar", name: "Decorated Bar", venue: "Decorated Bar", image: URL_G, place_id: GOODWOOD, christmasRail: "popup-bars", tags: [] };
+  const onlyPlace = await withBrowseTicketPhotos({ cards: [place], total: 1 }, [], TODAY, new Map(), { ...base, servable: dead, readGoogle });
+  const pc = onlyPlace.cards[0];
+  ok(pc.image === null, "the dead place URL is still dropped first");
+  ok(Array.isArray(pc.photos) && pc.photos.length === 1 && pc.photos[0].src === STORED.src && pc.photos[0].source === "google", "the place card now shows its stored venue photo instead of the tile");
+  ok(/Venue Owner/.test(pc.photos[0].credit) && /Google Maps/.test(pc.photos[0].credit), "the stored photo carries its visible credit");
+  ok(asked.length === 1 && asked[0] === GOODWOOD, "it asked the store once, for the card's own place id");
+  const mixed = [place, { ...mk("ev3", URL_G), imageIsVenue: true }];
+  const mixedOut = await withBrowseTicketPhotos(attachBrowseTickets({ cards: mixed, total: 2 }, [mixed[1]], TODAY, new Map()), [mixed[1]], TODAY, new Map(), { ...base, servable: dead, readGoogle });
+  ok(mixedOut.cards.find((c) => c.id === "pl2").photos?.[0]?.src === STORED.src, "the same fallback runs on a page that also has event cards");
+  // Controls: no stored photo keeps the designed tile; a card with a working photo is never touched.
+  const none = await withBrowseTicketPhotos({ cards: [place], total: 1 }, [], TODAY, new Map(), { ...base, servable: dead });
+  ok(none.cards[0].image === null && !(none.cards[0].photos || []).length && none.cards[0].placeholder, "control: no stored photo still paints the tile");
+  asked.length = 0;
+  const live = await withBrowseTicketPhotos({ cards: [{ ...place, id: "pl3", image: "/events/christmas/stetson-mansion-christmas-2026-2.webp" }], total: 1 }, [], TODAY, new Map(), { ...base, servable: dead, readGoogle });
+  ok(live.cards[0].image === "/events/christmas/stetson-mansion-christmas-2026-2.webp" && !live.cards[0].photos && asked.length === 0, "control: a place card with a working photo is untouched and the store is not asked");
+  const uncredited = await withBrowseTicketPhotos({ cards: [{ ...place, id: "pl4" }], total: 1 }, [], TODAY, new Map(), { ...base, servable: dead, readGoogle: async () => ({ ...STORED, credit: { authors: [] } }) });
+  ok(!(uncredited.cards[0].photos || []).length, "a stored photo with no author credit is never shown");
+}
+
 // Vercel prebuild has a service key. GitHub CI and a laptop do not.
 // The composition guard injects readers and uses fixture place ids. Those ids
 // are not in inventory, so a live lookup drops the photo the guard is counting.
