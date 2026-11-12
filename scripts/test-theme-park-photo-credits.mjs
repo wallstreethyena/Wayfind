@@ -132,7 +132,7 @@ const credited = applyThemeParkPhotoCredits([card(USF, "Universal Studios Florid
 // ── 6. HookDetail (theme-park search results) — STRUCTURAL: a real render needs the full home ctx ──
 {
   const src = readFileSync(path.join(ROOT, "app/components/sheets/HookDetail.js"), "utf8").replace(/\{\/\*[\s\S]*?\*\/\}/g, "").replace(/^\s*\/\/.*$/gm, "");
-  ok(/\{p\.photo && p\.photoAttr \? \(\s*<div className="wf-hook-photo-credit"/.test(src) && /\{p\.photoAttr\}<\/a>/.test(src), "STRUCTURAL: HookDetail list cards print the photo credit when the place carries one");
+  ok(/\{p\.photo && p\.photoAttr \? \(\s*<div className="wf-hook-photo-credit"/.test(src) && /\{p\.photoAttr\}<\/PhotoCreditLink>/.test(src), "STRUCTURAL: HookDetail list cards print the photo credit when the place carries one");
 }
 
 console.log(`test-theme-park-photo-credits: OK — ${n} assertions (real credit picker, card shaping, loader with stubbed REST, IconicPlaceCard + ThemeParkRail renders with positive controls; 1 structural HookDetail check, labelled)`);

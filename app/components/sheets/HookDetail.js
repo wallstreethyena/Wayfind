@@ -1,5 +1,6 @@
 "use client";
 import PlaceDistance from "../PlaceDistance.js";
+import PhotoCreditLink from "../PhotoCreditLink.js";
 // Extracted from app/home.js (G2, July 2026 decomposition). Render-only.
 import { Fragment } from "react";
 import { C, sheetBg, sheet, SHEET_EASE, PlaceScoreChip } from "../kit";
@@ -234,7 +235,7 @@ export default function HookDetailSheet({ ctx }) {
                           <div className="wf-hook-photo-credit" style={{ fontSize: 10.5, color: C.muted, lineHeight: 1.3, marginBottom: 5, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                             {"Photo: "}
                             {p.photoAttrHref
-                              ? <a href={p.photoAttrHref} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} style={{ color: C.muted, textDecoration: "underline" }}>{p.photoAttr}</a>
+                              ? <PhotoCreditLink href={p.photoAttrHref} rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} style={{ color: C.muted, textDecoration: "underline" }}>{p.photoAttr}</PhotoCreditLink>
                               : p.photoAttr}
                           </div>
                         ) : null}
