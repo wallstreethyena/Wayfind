@@ -4,6 +4,13 @@ This directory is the single source of truth for the approved Wayfind appearance
 assets. Files in `public/brand` are served directly by Vercel at `/brand/<file>`.
 Keep the names stable: the welcome experience selects these files at runtime.
 
+## Official logos (the Wayfind Brand Asset Vault)
+
+The official Wayfind logos Gabriel supplied on 2026-11-12 are stored, unchanged,
+in `public/brand/wayfind/` and listed in **`public/brand/wayfind/manifest.json`**
+(guide: `docs/brand-assets.md`). Check there first before creating any
+Wayfind-branded visual. The files below predate the vault and are kept as they are.
+
 ## Brand marks
 
 | File | Purpose | Use |

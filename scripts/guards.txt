@@ -574,6 +574,8 @@ node scripts/check-doc-ownership.mjs
 node scripts/test-owner-approval.mjs
 node scripts/test-owner-approval-gate.mjs
 node scripts/test-owner-approval-carry-forward.mjs
+node scripts/check-brand-vault.mjs
+node scripts/test-brand-vault.mjs
 node scripts/test-doc-ownership-shallow.mjs
 node scripts/test-safe-force-push.mjs
 node scripts/check-locks.mjs
