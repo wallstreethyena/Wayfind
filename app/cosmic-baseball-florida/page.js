@@ -1,0 +1,159 @@
+// /cosmic-baseball-florida — the Florida Cosmic Baseball 2027 hub (owner
+// mission, 2026-11-12). One page to understand the event, choose a Florida
+// date, know how the lottery really works and plan the night. The dates are
+// live wf_events rows (lib/cosmicBaseballFlorida.js cosmicFloridaRows), so a
+// change to any night reaches this page on the next hourly refresh; each date
+// links to its own event page, where nearby food, stays and the map live.
+import { cachedCuratedEventList } from "../../lib/curatedEventsCache";
+import { isEligible, dateRangeLabel } from "../../lib/curatedEvents";
+import { isSsgBuild } from "../../lib/landingInventory";
+import { SITE_URL } from "../../lib/site";
+import { socialMeta } from "../../lib/socialMeta";
+import { pageShareUrl } from "../../lib/pageShareUrl";
+import { unstable_noStore as noStore } from "next/cache";
+import ReturnToWayfind from "../components/ReturnToWayfind";
+import ShareButton from "../components/ShareButton";
+import {
+  cosmicFloridaRows, COSMIC_VENUES, COSMIC_TICKET_STEPS, COSMIC_UNKNOWN,
+  COSMIC_LOTTERY_URL, COSMIC_SCHEDULE_URL, COSMIC_FACTS_CHECKED,
+} from "../../lib/cosmicBaseballFlorida.js";
+
+export const revalidate = 3600;
+
+// Same cache entry as /florida-events (same label + key), so this page adds no read.
+const fetchHubEvents = cachedCuratedEventList("fetchHubEvents", ["florida-events-hub-packed-v3-holiday-discovery"]);
+
+const PATH = "/cosmic-baseball-florida";
+const TITLE = "Cosmic Baseball Florida 2027: Dates, Lottery Tickets and Planning";
+const DESC = "All four Florida Cosmic Baseball nights in 2027: Jacksonville, Miami and Tropicana Field. How the ticket lottery really works, parking, bags and how to choose a date.";
+
+export const metadata = {
+  title: TITLE + " | Wayfind",
+  description: DESC,
+  ...socialMeta({ title: TITLE, description: DESC, url: SITE_URL + PATH }),
+  alternates: { canonical: SITE_URL + PATH },
+};
+
+const DAY = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+function weekday(iso) {
+  const [y, m, d] = String(iso || "").split("-").map(Number);
+  if (!y || !m || !d) return "";
+  return DAY[new Date(Date.UTC(y, m - 1, d)).getUTCDay()];
+}
+
+const S = {
+  page: { maxWidth: 760, margin: "0 auto", padding: "28px 18px 60px", background: "#0D1117", color: "#E6EDF3", fontFamily: "var(--wf-sans)", lineHeight: 1.6 },
+  back: { display: "inline-flex", alignItems: "center", gap: 6, padding: "8px 14px", borderRadius: 999, background: "#161B22", border: "1px solid #21262D", color: "#FF8A3D", fontSize: 13.5, fontWeight: 800, textDecoration: "none", marginBottom: 18 },
+  kicker: { fontSize: 12, fontWeight: 800, letterSpacing: 1, textTransform: "uppercase", color: "#C4A7FF" },
+  h1: { fontSize: 30, lineHeight: 1.2, margin: "10px 0 8px", fontWeight: 800, color: "#FFFFFF" },
+  sub: { fontSize: 16, color: "#C9D1D9", margin: "0 0 14px" },
+  h2: { fontSize: 20, fontWeight: 800, color: "#FFFFFF", margin: "30px 0 10px" },
+  h3: { fontSize: 16, fontWeight: 800, color: "#FFFFFF", margin: "16px 0 4px" },
+  p: { fontSize: 15, color: "#C9D1D9", margin: "0 0 10px" },
+  box: { background: "#161B22", border: "1px solid #30363D", borderRadius: 14, padding: "14px 16px", margin: "0 0 12px" },
+  ol: { margin: "6px 0 10px", paddingLeft: 20, fontSize: 15, color: "#C9D1D9" },
+  card: { display: "block", background: "#161B22", border: "1px solid #21262D", borderRadius: 14, padding: "13px 15px", marginBottom: 10, textDecoration: "none" },
+  when: { fontSize: 12, fontWeight: 800, letterSpacing: 0.6, textTransform: "uppercase", color: "#FF8A3D", margin: 0 },
+  t: { fontSize: 16.5, fontWeight: 800, color: "#FFFFFF", margin: "3px 0 0" },
+  meta: { fontSize: 13.5, color: "#8B949E", margin: "4px 0 0" },
+  label: { fontWeight: 800, color: "#E6EDF3" },
+  link: { color: "#FF8A3D", textDecoration: "none", fontWeight: 700 },
+  cta: { display: "inline-block", padding: "11px 18px", borderRadius: 999, background: "#FF8A3D", color: "#0D1117", fontWeight: 800, textDecoration: "none", fontSize: 15, margin: "4px 0 6px" },
+  small: { fontSize: 12.5, color: "#8B949E", margin: "6px 0 0" },
+  foot: { fontSize: 13.5, color: "#8B949E", marginTop: 34, borderTop: "1px solid #21262D", paddingTop: 16 },
+};
+
+export default async function CosmicBaseballFlorida() {
+  noStore();
+  const now = new Date();
+  // Throws on an outage (do not catch): an empty-success page must never be cached.
+  const all = isSsgBuild() ? [] : await fetchHubEvents();
+  const rows = cosmicFloridaRows(all).filter((e) => isEligible(e, { now }));
+  const bySeries = new Map();
+  for (const e of rows) {
+    const k = e.event_series_id;
+    if (!bySeries.has(k)) bySeries.set(k, []);
+    bySeries.get(k).push(e);
+  }
+
+  const jsonLd = rows.length ? {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name: TITLE,
+    numberOfItems: rows.length,
+    itemListElement: rows.map((e, i) => ({ "@type": "ListItem", position: i + 1, name: `${e.event_name}, ${dateRangeLabel(e)}, ${e.year}`, url: `${SITE_URL}/florida-events/${e.slug}` })),
+  } : null;
+  const crumbs = {
+    "@context": "https://schema.org", "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Florida Events", item: `${SITE_URL}/florida-events` },
+      { "@type": "ListItem", position: 2, name: "Cosmic Baseball Florida 2027", item: `${SITE_URL}${PATH}` },
+    ],
+  };
+
+  return (
+    <main style={S.page}>
+      {jsonLd ? <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} /> : null}
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(crumbs) }} />
+      <ReturnToWayfind style={S.back} />{" "}
+      <a style={S.back} href="/florida-events">&lsaquo; Florida Events</a>
+      <div style={S.kicker}>Wayfind planner</div>
+      <h1 style={S.h1}>Cosmic Baseball in Florida, 2027</h1>
+      <p style={S.sub}>
+        Baseball played under black lights: glowing bats, balls and uniforms, UV reactive gear and a live DJ.
+        The tour sold out 74 games in 2026, and Florida gets {rows.length === 1 ? "one night" : `${rows.length} nights`} in 2027.
+        Here is every Florida date, how tickets really work, and what to know before you go.
+      </p>
+      <ShareButton url={pageShareUrl("/cosmic-baseball-florida")} title={TITLE} text="Every Florida Cosmic Baseball date for 2027, and how the ticket lottery works" label="Share this guide" event="series_hub_share" meta={{ hub: "cosmic-baseball-florida" }} />
+
+      <h2 style={S.h2}>The Florida dates</h2>
+      {rows.length ? rows.map((e) => (
+        <a key={e.event_id} style={S.card} href={`/florida-events/${e.slug}`} data-wf-series-date="1">
+          <p style={S.when}>{weekday(e.start_date)}, {dateRangeLabel(e)}, {e.year}</p>
+          <p style={S.t}>{e.venue}, {e.city}</p>
+          <p style={S.meta}>Tickets by lottery · first pitch not announced · map, food and stays nearby &rsaquo;</p>
+        </a>
+      )) : <p style={S.p}>No Florida date is currently confirmed. Check the organiser&rsquo;s <a style={S.link} href={COSMIC_SCHEDULE_URL} rel="nofollow noopener" target="_blank">schedule</a>.</p>}
+
+      <h2 style={S.h2}>How tickets actually work</h2>
+      <div style={S.box}>
+        <ol style={S.ol}>{COSMIC_TICKET_STEPS.map((s) => <li key={s}>{s}</li>)}</ol>
+        <a style={S.cta} href={COSMIC_LOTTERY_URL} rel="nofollow noopener" target="_blank" data-wf-outbound-ticket="organizer" data-wf-content-id="cosmic-baseball-florida">Enter the ticket lottery ↗</a>
+        <p style={S.small}>{COSMIC_UNKNOWN}</p>
+      </div>
+
+      <h2 style={S.h2}>Which Florida date is right for you</h2>
+      {[...bySeries.keys()].map((k) => {
+        const v = COSMIC_VENUES[k];
+        if (!v) return null;
+        const dates = bySeries.get(k).map((e) => `${weekday(e.start_date)} ${dateRangeLabel(e)}`).join(" and ");
+        return (
+          <section key={k} style={S.box}>
+            <p style={S.when}>{dates}</p>
+            <h3 style={{ ...S.h3, marginTop: 2 }}>{v.venue}, {v.city}</h3>
+            <p style={S.p}>{v.pick}</p>
+            <p style={S.p}><span style={S.label}>Getting there: </span>{v.getThere}</p>
+            <p style={S.p}><span style={S.label}>What to bring: </span>{v.bring}</p>
+            <p style={S.p}><span style={S.label}>Gates: </span>{v.gates} Cosmic night gate times are not announced.</p>
+            <p style={S.p}><span style={S.label}>Accessibility: </span>{v.access}</p>
+            <p style={S.p}>
+              {bySeries.get(k).map((e, i) => (
+                <span key={e.event_id}>{i ? " · " : ""}<a style={S.link} href={`/florida-events/${e.slug}`}>Plan {weekday(e.start_date)}: map, food and stays nearby &rsaquo;</a></span>
+              ))}
+            </p>
+            <p style={S.small}>
+              Sources: {v.sources.map((u, i) => <span key={u}>{i ? ", " : ""}<a style={{ ...S.link, fontWeight: 600 }} href={u} rel="nofollow noopener" target="_blank">{new URL(u).hostname.replace(/^www\./, "")}</a></span>)}
+            </p>
+          </section>
+        );
+      })}
+
+      <h2 style={S.h2}>Good to know for every date</h2>
+      <p style={S.p}>The whole show is black lights, loud music and effects, so plan accordingly for anyone sensitive to light or noise. Venue rules above are the ballpark&rsquo;s normal game day rules and can change for a special event; check again closer to your date.</p>
+
+      <p style={S.foot}>
+        Dates checked against the organiser&rsquo;s <a style={S.link} href={COSMIC_SCHEDULE_URL} rel="nofollow noopener" target="_blank">schedule</a> and <a style={S.link} href={COSMIC_LOTTERY_URL} rel="nofollow noopener" target="_blank">lottery page</a>; venue details checked {COSMIC_FACTS_CHECKED} on each ballpark&rsquo;s own site. More in <a style={S.link} href="/florida-events">Florida Events</a>.
+      </p>
+    </main>
+  );
+}
