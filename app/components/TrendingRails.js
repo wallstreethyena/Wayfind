@@ -21,6 +21,7 @@ import { priceLabel } from "../../lib/price.js";
 import { toDisplayScore } from "../../lib/score.js";
 import { railScoreOf } from "../../lib/railRank.js";
 import { useCuratedRows } from "../../lib/curatorPicks.js";
+import TrendingSocialShelf from "./TrendingSocialShelf.js";
 
 const C = { muted: "#8B93A1" };
 const compact = (n) => Number(n) >= 1000 ? Math.round(Number(n) / 100) / 10 + "k" : String(Number(n) || 0);
@@ -70,7 +71,7 @@ function TrendingShelf({ rail, eventCards, places, city, onOpenPlace, isSaved, l
 
 export default function TrendingRails({
   active = true, places = [], placesPending = false, hasMore = false, loadingMore = false, onLoadMore = null,
-  eventsSlot = null, city = "", onOpenPlace = null,
+  eventsSlot = null, city = "", onOpenPlace = null, center = null, onTrack = null,
   isSaved, liked, disliked, isLiked, isDisliked, onSave, onLike, onDislike, onShare,
 }) {
   // Owner picks re-score rows before they are split (lib/curatorPicks.js).
@@ -89,10 +90,15 @@ export default function TrendingRails({
     + (Array.isArray(eventsByRail[rail.id]) ? eventsByRail[rail.id].length : 0)
     + byPlaceRail[rail.id].length, 0);
 
-  if (!total && (placesPending || (eventSurface && eventSurface.pending))) return <RailLoading label="Finding what's trending" />;
-  if (!total) return <p role="status" style={{ color: C.muted, fontSize: 13, lineHeight: 1.5, padding: "7px 2px 13px" }}>Nothing verified is trending near you yet. Check back soon.</p>;
+  if (!total && (placesPending || (eventSurface && eventSurface.pending))) return <><TrendingSocialShelf center={center} onTrack={onTrack} /><RailLoading label="Finding what's trending" /></>;
+  if (!total) return <><TrendingSocialShelf center={center} onTrack={onTrack} /><p role="status" style={{ color: C.muted, fontSize: 13, lineHeight: 1.5, padding: "7px 2px 13px" }}>Nothing else verified is trending near you yet. Check back soon.</p></>;
 
+  // Social leads the poster (owner brief, 2026-11-12): every eligible Wayfind
+  // Reel and carousel and current creator post, ranked server side. It loads
+  // on its own, so it shows even while the place pool is still empty.
+  const social = <TrendingSocialShelf center={center} onTrack={onTrack} />;
   return <>
+    {social}
     {eventSurface && eventSurface.failed ? <p role="status" style={{ margin: "8px 0 0", fontSize: 13, color: C.muted }}>Wayfind could not reach this week&rsquo;s event inventory. Trending places are still shown.</p> : null}
     {TRENDING_RAIL_DEFS.map((rail) => (
       <TrendingShelf key={rail.id} rail={rail}

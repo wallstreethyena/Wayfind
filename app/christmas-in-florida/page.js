@@ -13,6 +13,7 @@ import CreatorPlaybackDetails from "../components/CreatorPlaybackDetails.js";
 import CreatorVideoAction from "../components/CreatorVideoAction";
 import { isEmbeddable } from "../../lib/videoEmbed";
 import { seasonalCreatorVideos } from "../../lib/creatorVideos";
+import { seasonalSocialPosts } from "../../lib/socialAssets.js";
 import { christmasBrowsePage, christmasBrowseFacets, christmasBrowsePills, parseChristmasBrowseQuery } from "../../lib/christmasBrowse";
 
 // Christmas v4 (lead packet, 2026-10-13): #1714's seasonal hub (metadata,
@@ -103,7 +104,7 @@ export default async function Page() {
     <ChristmasTickets model={tickets} topPicks={topPicks} share={<ShareButton url={pageShareUrl("/christmas-in-florida")} title={title} text={description} tone="dark" label="Share" />} browse={<>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemList).replace(/</g, "\\u003c") }} />
       <ChristmasBrowse initial={first} facets={{ ...christmasBrowseFacets(), pills: christmasBrowsePills(listings) }} today={today} />
-      <ChristmasCreatorPosts posts={seasonalCreatorVideos("christmas")} />
+      <ChristmasCreatorPosts posts={seasonalSocialPosts("christmas", listings, seasonalCreatorVideos("christmas"))} />
 
     </>} />
     <SeasonalSearchHub slug="christmas-in-florida" today={today} seoOnly />

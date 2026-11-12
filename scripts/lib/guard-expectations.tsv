@@ -448,6 +448,7 @@ scripts/check-social-extract-cannot-invent.mjs	0	CALL	blocks-ci-and-deploy	1	-	4
 scripts/check-social-intelligence.mjs	0	CALL	blocks-ci-and-deploy	1	-	87	0	0	7bfffc0e5f351ec00104f971f4ada35b756c03c908b9a3717e33da14a2a96864
 scripts/check-social-provider-registry.mjs	0	CALL	blocks-ci-and-deploy	1	-	13	0	0	0834c27ae3626330964a39e56ca29fb655c5a9957287ae951e92a4bbced1bd1c
 scripts/check-social-qualification.mjs	0	CALL	blocks-ci-and-deploy	1	-	27	0	0	934766bf5b6476c28a535634d851b6a2bd4d91e2b1176f2c6b956327cc947113
+scripts/check-social-trending-live.mjs	0	STRUCTURAL	unwired	0	-	0	1	0	17b44a63f5045341d4cee07a95e109caea64b8eb99e02de7c7b68b6a6a255730
 scripts/check-soft-404.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	0	1	0	4ff2f18137ee39e902f6829384ca91eb8000b8af655f952d72e1a0d665a13536
 scripts/check-spend-effective-cap.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	11	1	3	f7bf12fa0f2929101500ba8c301fa1545884da68536b3466ad76f90840b0a56b
 scripts/check-spend-guard.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	14	1	0	0bb3323f1b663b89b4d5ebc768419d26baff705b0e47ca12a28de5a724e027e8
@@ -1070,6 +1071,7 @@ scripts/test-site-feedback.mjs	0	RENDER	blocks-ci-and-deploy	1	-	27	0	0	e25164f0
 scripts/test-site-fixes-20261019.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	50	0	0	aacd0520f12a518b38e1967e259a560c292abb8e3ea0effaa85d44dcab6b05f6
 scripts/test-site-time.mjs	0	CALL	blocks-ci-and-deploy	1	-	19	1	1	0e3112c1683fd967704d6bbda5a029df3e5b952533e319b0c8cc6090da62bdec
 scripts/test-snowcat-tickets.mjs	0	RENDER	blocks-ci-and-deploy	1	-	23	0	0	d140470f7bf14995d892c522c0c63ca2653124614e32b78c8b4f61b2cf1d3409
+scripts/test-social-trending.mjs	0	CALL	blocks-ci-and-deploy	1	-	26	0	0	b5f4d66c64c7fc7c91c6d3084facc2eef670e5a5f2e5c5a13e201c2c721eb866
 scripts/test-sort-modes.mjs	0	CALL	blocks-ci-and-deploy	1	-	24	0	0	0016368f6700aa5f04378532f0dddbbd17c00d4fbfee345eae5e4bbbbf26876f
 scripts/test-sparse-category.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	9	1	0	0f7c4d415efec36680b9357ee540ab5d0f6333736087ee9107aa1963779fc10f
 scripts/test-spend-bypass-regression.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	59	0	0	fb0b9d3ab8902a3336ed26382e9e65ce8b9bf5a4c420d971c7b95fc032f555ab
@@ -1099,6 +1101,7 @@ scripts/test-travelpayouts-provisioning.mjs	0	CALL	blocks-ci-and-deploy	1	Revenu
 scripts/test-travelpayouts.mjs	0	CALL	blocks-ci-and-deploy	1	-	43	1	3	08ccecd9c4471cb2f69a94dabe19eb8eb8c5ddc0e8bc20ff1677ae6a01b4f562
 scripts/test-treeumph-empty-slot.mjs	0	CALL	blocks-ci-and-deploy	1	-	10	0	0	75d241b455bbec5763a65eafbad4c44ec92facafddbc85c287d67c8d39389a38
 scripts/test-trend-classify.mjs	0	CALL	blocks-ci-and-deploy	1	-	81	0	0	d832a2f1cda484ea39c48bec6f1a23d930036dc304cdd95c0e77b2597526d853
+scripts/test-trend-engine.mjs	0	CALL	blocks-ci-and-deploy	1	-	53	0	0	652ec71a0932124182ff411f9e503925f93114454dec135e0deec4044c193ca4
 scripts/test-trend-ingest.mjs	0	CALL	blocks-ci-and-deploy	1	-	70	0	0	814a09f1a5970cff9ff53c8115385b76426505785b009beddaa17a19c76e82e8
 scripts/test-trend-order.mjs	0	CALL	blocks-ci-and-deploy	1	-	81	0	0	05529853cee9a4b8bf8c2767f13f5fd242f1fa7472ad2458442acd7bc290a0bd
 scripts/test-trend-rights.mjs	0	CALL	blocks-ci-and-deploy	1	-	18	1	2	f6c5d94eb0fe66f363bc43dbddc46ac28701aed4e4af6b6e1b94a3eb6edc7217

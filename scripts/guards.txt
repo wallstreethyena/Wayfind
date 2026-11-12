@@ -2603,3 +2603,8 @@ node scripts/check-home-diet.mjs
 # 2026-11-12: Place Detail "Your Game Plan" decision brief + Commerce Entity-Resolution guard.
 node scripts/test-game-plan-and-entity-resolution.mjs
 
+# 2026-11-12: Wayfind Trend Score V1 (lib/trendEngine.js): the brief's worked examples order as designed; eligibility, velocity bot cap, decay, collapse, receipts.
+node scripts/test-trend-engine.mjs
+# 2026-11-12: social Trending zero-miss: every eligible @gowayfind.app post and creator reel is in exactly one Trending card (missing 0, unknown 0); production twin: check-social-trending-live.mjs.
+node scripts/gen-wayfind-social.mjs --check
+node scripts/test-social-trending.mjs

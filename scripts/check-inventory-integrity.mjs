@@ -247,5 +247,14 @@ const seedOnly = [...byMetro].filter(([, m]) => m.total <= 120);
 if (noPhoto.length) console.log(`check-inventory-integrity: NOTE — ${noPhoto.length} metros have ZERO photos (${noPhoto.slice(0, 6).map(([k]) => k).join(", ")}). Every card there is imageless.`);
 if (seedOnly.length) console.log(`check-inventory-integrity: NOTE — ${seedOnly.length}/${byMetro.size} metros hold <=120 places, i.e. cold-start seed depth, not real coverage.`);
 
+// Social Trending zero-miss monitor (same canary clock, same "production data,
+// not a code deploy" coupling): every eligible @gowayfind.app post and creator
+// reel must be in production Trending. Its own output names what failed.
+{
+  const { spawnSync } = await import("node:child_process");
+  const social = spawnSync(process.execPath, [new URL("./check-social-trending-live.mjs", import.meta.url).pathname], { stdio: "inherit", timeout: 60000 });
+  if (social.status !== 0) { bad++; console.error(`check-inventory-integrity: FAIL — social Trending monitor exited ${social.status ?? social.signal}`); }
+}
+
 if (bad) { console.error(`check-inventory-integrity: ${bad} failure(s)`); process.exit(1); }
 console.log(`check-inventory-integrity: OK — ${checks} assertions over ${rows.length} live rows, ${byMetro.size} metros, and every founder-pinned Viator product verified present + not-proven-dead in wf_experiences (unknown counted as unknown, never as dead)`);

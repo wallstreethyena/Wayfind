@@ -2188,6 +2188,8 @@ export default function DaypartRail({
           {selRail && selRail.id === "trending" ? (
             <TrendingRails
               active
+              center={center || (Number.isFinite(lat) && Number.isFinite(lng) ? { lat, lng } : null)}
+              onTrack={(name, props) => logEvent(name, props)}
               places={dropList}
               placesPending={isPending(railLoad)}
               hasMore={selectedHasMore}
