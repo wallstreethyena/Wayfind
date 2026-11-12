@@ -25,6 +25,7 @@ export function socialWhen(item, today = new Date()) {
 }
 
 export default function TrendingSocialShelf({ center = null, onTrack = null }) {
+  const track = (name, item, postId) => { if (onTrack) { try { onTrack(name, { social_id: postId, card_id: item.id, entity: item.entity.type + ":" + item.entity.id, rank: item.rank }); } catch (e) {} } };
   const [state, setState] = useState({ items: [], status: "loading" });
   useEffect(() => {
     let live = true;
@@ -58,7 +59,7 @@ export default function TrendingSocialShelf({ center = null, onTrack = null }) {
       {!count ? <p role="status" style={{ color: C.muted, fontSize: 13, padding: "7px 2px 13px" }}>Loading trending posts…</p> : (
         <div className="wf-rail wf-rail-exploding" data-rail={railId} tabIndex={0} role="region" aria-label="Trending on social">
           {items.map((item, index) => {
-            const more = item.alternates && item.alternates.length ? "+" + item.alternates.length + " more " + (item.alternates.length === 1 ? "post" : "posts") : null;
+            const more = item.alternates && item.alternates.length ? "+" + item.alternates.length + " more " + (item.alternates.length === 1 ? "post" : "posts") + " below" : null;
             const open = () => {
               if (onTrack) { try { onTrack("trend_social_open", { social_id: item.id, entity: item.entity.type + ":" + item.entity.id, rank: item.rank, score: item.trend && item.trend.score }); } catch (e) {} }
               if (item.entity.href) window.location.assign(item.entity.href);
@@ -78,7 +79,15 @@ export default function TrendingSocialShelf({ center = null, onTrack = null }) {
               when={socialWhen(item) ? { label: socialWhen(item) } : null}
               facts={[item.entity.city, more].filter(Boolean)}
               take={(item.trend && item.trend.labels && item.trend.labels[0]) || item.caption || null}
-              cta={{ label: item.owned ? "Watch on Instagram ↗" : "Watch the post ↗", href: item.permalink, external: true }}
+              ctaNode={<div className="wf-trend-social-links" style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                <a className="wf-place-card-book wf-rail-card-cta" href={item.permalink} target="_blank" rel="noopener"
+                  onClick={(e) => { e.stopPropagation(); track("trend_social_watch", item, item.id); }}>{item.owned ? "Watch on Instagram ↗" : "Watch the post ↗"}</a>
+                {item.alternates && item.alternates.length ? <div style={{ display: "flex", flexWrap: "wrap", gap: "4px 10px", fontSize: 12 }}>
+                  {item.alternates.map((a, i) => <a key={a.id} href={a.permalink} target="_blank" rel="noopener" style={{ color: "#FF9B50", minHeight: 24, display: "inline-flex", alignItems: "center" }}
+                    aria-label={"Watch " + socialEyebrow(a) + " about " + item.title}
+                    onClick={(e) => { e.stopPropagation(); track("trend_social_watch", item, a.id); }}>{(a.owned ? "Wayfind " : "@" + (a.owner || "creator") + " ") + (FORMAT[a.format] || "post").toLowerCase() + " ↗"}</a>)}
+                </div> : null}
+              </div>}
               ariaLabel={(item.entity.href ? "Open " : "Watch ") + item.title}
               onOpen={open} />;
           })}

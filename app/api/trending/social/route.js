@@ -27,7 +27,9 @@ export async function GET(request) {
     if (url.searchParams.get("audit") === "1") {
       const ok = audit.missing.length === 0 && audit.unknown.length === 0 && audit.broken.length === 0
         && audit.duplicates.length === 0 && audit.excludedWithoutReason.length === 0;
-      return Response.json({ ok, socialTable, lastReconciledAt: reconciled && reconciled.at, reconciledFrom: reconciled && reconciled.source, ...audit,
+      // Scheduled and draft posts are counted, never named, on this public report.
+      const excluded = audit.excluded.map((x) => (/^not_(yet_)?published/.test(String(x.reason)) ? { reason: x.reason } : x));
+      return Response.json({ ok, socialTable, lastReconciledAt: reconciled && reconciled.at, reconciledFrom: reconciled && reconciled.source, ...audit, excluded,
         cards: items.map((it) => ({ rank: it.rank, id: it.id, entity: it.entity.type + ":" + it.entity.id, alternates: it.alternates.map((a) => a.id), score: it.trend.score })) },
       { headers: { "cache-control": "no-store" } });
     }

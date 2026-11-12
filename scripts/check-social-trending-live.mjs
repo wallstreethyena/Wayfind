@@ -10,8 +10,9 @@
 //   - any eligible post is missing from Trending (MISSING > 0)
 //   - any post is in no bucket (UNKNOWN > 0) or excluded without a reason
 //   - any permalink is broken or duplicated
-//   - the newest owned post was published but is not in the inventory
-//     (published-but-not-ingested): reported by the reconciler, see below
+//   (Published-but-not-ingested is checked against Metricool by the twice
+//   daily reconciliation scheduled task, which alerts on any new post; this
+//   monitor has no Instagram access of its own.)
 //   - the last successful reconciliation is older than STALE_HOURS
 //
 // Prints TOTAL PUBLISHED, ELIGIBLE, TRENDING, EXCLUDED, MISSING, LATEST

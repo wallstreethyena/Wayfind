@@ -1071,7 +1071,7 @@ scripts/test-site-feedback.mjs	0	RENDER	blocks-ci-and-deploy	1	-	27	0	0	e25164f0
 scripts/test-site-fixes-20261019.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	50	0	0	aacd0520f12a518b38e1967e259a560c292abb8e3ea0effaa85d44dcab6b05f6
 scripts/test-site-time.mjs	0	CALL	blocks-ci-and-deploy	1	-	19	1	1	0e3112c1683fd967704d6bbda5a029df3e5b952533e319b0c8cc6090da62bdec
 scripts/test-snowcat-tickets.mjs	0	RENDER	blocks-ci-and-deploy	1	-	23	0	0	d140470f7bf14995d892c522c0c63ca2653124614e32b78c8b4f61b2cf1d3409
-scripts/test-social-trending.mjs	0	CALL	blocks-ci-and-deploy	1	-	31	0	0	28a8c0f46b092df1dfd9fd069cefd3a3e85f367e0d57f155cbf20ff3db071f49
+scripts/test-social-trending.mjs	0	CALL	blocks-ci-and-deploy	1	-	35	0	0	09ff910487b2a053232cdc8f7bab33b8d3d05350f29c195b4ae6f1a059763339
 scripts/test-sort-modes.mjs	0	CALL	blocks-ci-and-deploy	1	-	24	0	0	0016368f6700aa5f04378532f0dddbbd17c00d4fbfee345eae5e4bbbbf26876f
 scripts/test-sparse-category.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	9	1	0	0f7c4d415efec36680b9357ee540ab5d0f6333736087ee9107aa1963779fc10f
 scripts/test-spend-bypass-regression.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	59	0	0	fb0b9d3ab8902a3336ed26382e9e65ce8b9bf5a4c420d971c7b95fc032f555ab

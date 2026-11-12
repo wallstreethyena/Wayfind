@@ -127,6 +127,15 @@ ok(neg.broken.some((b) => b.id === "ig:synthetic-broken"), "negative control: un
 ok(neg.excluded.some((x) => x.id === "ig:synthetic-future" && x.reason === "not_yet_published") && !neg.eligible.includes("ig:synthetic-future"), "negative control: an unpublished post was not held back");
 ok(neg.excluded.some((x) => x.id === "ig:synthetic-scheduled" && x.reason === "not_published:scheduled") && !neg.eligible.includes("ig:synthetic-scheduled"), "negative control: a scheduled (not yet published) post was not held back");
 
+// 7b: every post folded into a card is still reachable (its own link), and a
+// Wayfind roundup post is titled by itself, not by its first linked plan.
+for (const it of items) for (const a of it.alternates) ok(/^https:\/\/www\.instagram\.com\/(p|reel)\//.test(a.permalink), `alternate ${a.id} in card ${it.id} has no link`);
+{
+  const roundup = items.find((it) => it.id === "ig:DfmwfHEFvPw");
+  ok(!roundup || roundup.title !== roundup.entity.name, `the multi-plan carousel ig:DfmwfHEFvPw is titled by one plan (${roundup && roundup.title})`);
+  if (roundup) ok(!/[\u2010-\u2015-]|#|@/.test(roundup.title), `post title carries a dash, tag or mention: ${roundup.title}`);
+}
+
 // 8: rows from the ingestion table (wf_owned_social) override the snapshot.
 {
   const code = newest.permalink.match(/\/(?:p|reel)\/([^/?#]+)/)[1];
@@ -140,6 +149,10 @@ ok(neg.excluded.some((x) => x.id === "ig:synthetic-scheduled" && x.reason === "n
   const card = cover.items.find((it) => it.id === newest.id || it.alternates.some((x) => x.id === newest.id));
   ok(card && cover.audit.missing.length === 0, "a table-synced eligible post is not in Trending");
   if (card && card.id === newest.id) ok(card.cover && card.cover.kind === "post" && /owned-social/.test(card.cover.src), "the stored first-party cover is not used for our own post");
+  const brandSnap = assets.find((x) => x.owned && x.kind === "brand" && !x.twinOf);
+  const bcode = brandSnap.permalink.match(/\/(?:p|reel)\/([^/?#]+)/)[1];
+  const back = buildTrendingSocial({ origin: null, deps: makeDeps(assets, { extraOwned: [ownedRowToAsset({ shortcode: bcode, permalink: brandSnap.permalink, format: brandSnap.format, published_at: new Date(NOW - 86400000).toISOString(), caption: "x", place_ids: [], event_ids: [], lifecycle: "published", eligibility: "eligible" })] }) }).audit;
+  ok(!back.excluded.some((x) => x.id === brandSnap.id && x.reason === "brand_post"), "the ingestion table cannot reinstate a post the snapshot marked brand");
   const cdn = run({ ...base, lifecycle: "published", eligibility: "eligible", cover_url: "https://scontent.cdninstagram.com/v/x.jpg" }).items.find((it) => it.id === newest.id);
   ok(!cdn || !cdn.cover || !/cdninstagram/.test(cdn.cover.src), "an Instagram CDN cover leaked onto a card");
 }
