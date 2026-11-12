@@ -5,22 +5,26 @@ import ChristmasBrowse from "../components/ChristmasBrowse";
 import ChristmasTickets from "../components/ChristmasTickets";
 import ShareButton from "../components/ShareButton";
 import { pageShareUrl } from "../../lib/pageShareUrl";
-import { attachBrowseTickets, withBrowseTicketPhotos, christmasTicketsModel, christmasTicketsSchema, christmasTopPicks, fetchChristmasTicketDeals, isSocialAdLanding, withChristmasTicketPhotos } from "../../lib/christmasTickets";
-import { fetchCuratedEvents } from "../../lib/curatedEvents";
-import { siteTodayStr } from "../../lib/siteTime";
+import { christmasTicketsSchema, christmasTopPicks } from "../../lib/christmasTickets";
+import { christmasPageData } from "../../lib/christmasPageData";
 import CreatorVideoRail from "../components/CreatorVideoRail.js";
 import VideoFacade from "../components/VideoFacade.js";
 import CreatorPlaybackDetails from "../components/CreatorPlaybackDetails.js";
 import CreatorVideoAction from "../components/CreatorVideoAction";
 import { isEmbeddable } from "../../lib/videoEmbed";
 import { seasonalCreatorVideos } from "../../lib/creatorVideos";
-import { christmasBrowseCached, christmasBrowseListings, christmasBrowsePage, christmasBrowseFacets, christmasBrowsePills, parseChristmasBrowseQuery } from "../../lib/christmasBrowse";
+import { christmasBrowsePage, christmasBrowseFacets, christmasBrowsePills, parseChristmasBrowseQuery } from "../../lib/christmasBrowse";
 
 // Christmas v4 (lead packet, 2026-10-13): #1714's seasonal hub (metadata,
 // sharing, nav, schema, guide sections) plus the full statewide browse,
-// server rendered (first page, filters from the URL) and paged through
+// server rendered (first page; URL filters apply in the browser) and paged through
 // /api/christmas/browse. Unconfirmed research stays out of this consumer page.
-export const revalidate = 3600;
+// One cached copy, refreshed in the background every 5 minutes. force-static
+// keeps it cached even though its Supabase reads are live (no-store): those
+// reads still run fresh on every refresh. Do NOT use fetchCache "force-cache"
+// here: Next would then keep each Supabase answer forever.
+export const revalidate = 300;
+export const dynamic = "force-static";
 const seasonal = seasonalSearchMetadata("christmas-in-florida");
 const title = "Florida Christmas Lights, Shows and Event Tickets | Wayfind";
 const description = "Compare Florida Christmas light shows, theme park nights, parades and parties with prices, dates and hours. Book tickets from the organizer or a partner.";
@@ -74,25 +78,14 @@ function ChristmasCreatorPosts({ posts }) {
   </section>;
 }
 
-export default async function Page({ searchParams }) {
-  const today = siteTodayStr();
-  const params = (await searchParams) || {};
-  const query = parseChristmasBrowseQuery(params);
-  // The same 10 minute cache as /api/christmas/browse (lib/christmasBrowse.js
-  // christmasBrowseCached), keyed by the normalized filters. A failed read
-  // renders the research listings uncached, never an empty page.
-  // 2026-11-11: the browse and the ticket deals are independent reads, so they
-  // run side by side (they used to run one after another on every visit).
-  // fetchChristmasTicketDeals never throws (a failed read is an empty map).
-  const dealsRead = fetchChristmasTicketDeals().catch(() => new Map());
-  let listings, first;
-  try {
-    ({ listings, page: first } = await christmasBrowseCached(query, today, () => fetchCuratedEvents({ signal: AbortSignal.timeout(4000) })));
-  } catch {
-    listings = christmasBrowseListings([], today);
-    first = christmasBrowsePage(listings, query, today);
-  }
-  const dealsById = await dealsRead;
+// One cached page for every visitor. The page reads nothing from the request:
+// every ad click carries a unique ?fbclid=, and reading the URL made each
+// visit a fresh server render. Shared filter links (?region=, ?category=, ...)
+// still work: ChristmasBrowse applies them in the browser after load.
+// The reads live in lib/christmasPageData.js (no network during next build; a
+// failed background refresh throws, so the last good page keeps serving).
+export default async function Page() {
+  const { today, listings, first, tickets } = await christmasPageData();
   const itemList = {
     "@context": "https://schema.org", "@type": "ItemList", name: "Christmas events in Florida, 2026 season",
     numberOfItems: listings.length,
@@ -100,27 +93,16 @@ export default async function Page({ searchParams }) {
       "@type": "ListItem", position: i + 1, name: card.title, url: card.detailHref ? SITE_URL + card.detailHref : (card.url || undefined),
     })),
   };
-  // The featured ticket cards come from the same listings (no second source).
-  // A failed side read (deals, stored photos) only means fewer buttons or
-  // photos, never an empty page.
-  // The statewide browse wears the same ticket card, so its cards carry the
-  // same server built ticket fields (way in, honest price, dates text). The
-  // two photo passes are independent, so they also run side by side.
-  let tickets;
-  [tickets, first] = await Promise.all([
-    Promise.resolve().then(() => withChristmasTicketPhotos(christmasTicketsModel(listings, today, { dealsById }))).catch(() => christmasTicketsModel([], today)),
-    withBrowseTicketPhotos(attachBrowseTickets(first, listings, today, dealsById), listings, today, dealsById),
-  ]);
   const ticketsSchema = christmasTicketsSchema(tickets);
-  // 2026-11-12: a Facebook or Instagram visit sees three photo picks with a
-  // ticket button on the first screen (lib/christmasTickets.js isSocialAdLanding).
-  const topPicks = isSocialAdLanding(params) ? christmasTopPicks(tickets) : null;
-  const initialQuery = Object.fromEntries(Object.entries({ ...query, page: undefined, undated: query.undated || undefined }).filter(([, v]) => v !== undefined && v !== "" && v !== null && v !== false));
+  // #2419 photo picks for Facebook and Instagram visitors: the cached copy is
+  // shared by everyone, so the picks are always in it and ChristmasTickets shows
+  // them only when the visitor's own URL is a social ad landing (isSocialAdLanding).
+  const topPicks = christmasTopPicks(tickets);
   return <>
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ticketsSchema).replace(/</g, "\\u003c") }} />
     <ChristmasTickets model={tickets} topPicks={topPicks} share={<ShareButton url={pageShareUrl("/christmas-in-florida")} title={title} text={description} tone="dark" label="Share" />} browse={<>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemList).replace(/</g, "\\u003c") }} />
-      <ChristmasBrowse initial={first} facets={{ ...christmasBrowseFacets(), pills: christmasBrowsePills(listings) }} today={today} initialQuery={initialQuery} />
+      <ChristmasBrowse initial={first} facets={{ ...christmasBrowseFacets(), pills: christmasBrowsePills(listings) }} today={today} />
       <ChristmasCreatorPosts posts={seasonalCreatorVideos("christmas")} />
 
     </>} />
