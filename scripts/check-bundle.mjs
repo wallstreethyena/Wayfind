@@ -12,6 +12,7 @@ import { readFileSync } from "node:fs";
 import { gzipSync } from "node:zlib";
 import { fileURLToPath } from "node:url";
 import { scanBuiltRegexes } from "./lib/browserRegexCompatibility.mjs";
+import { runFunctionSizeGate } from "./check-function-size.mjs";
 
 // ─── v7.29: THIS GUARD WAS NEVER RUNNING, AND IT HAD BEEN RED FOR MONTHS ────
 // It was wired ONLY into `npm run audit:regression`, which nothing runs
@@ -177,3 +178,13 @@ if (headroomKb < WARN_HEADROOM_KB) {
 const compatibility = scanBuiltRegexes(fileURLToPath(new URL("../.next/static/chunks", import.meta.url)));
 if (compatibility.issues.length) fail("Safari-incompatible lookbehind in browser chunks: " + JSON.stringify(compatibility.issues));
 console.log(`check-bundle: browser regex compatibility OK — ${compatibility.files} built chunks checked`);
+
+// Every server function under Vercel's 250 MiB size limit, measured from this
+// same build output (scripts/check-function-size.mjs). It lives here because
+// this file is the one post-build step BOTH shipping paths run: GitHub's
+// `guards` job ("Homepage bundle ratchet", after its `npx next build`) and
+// Vercel's `npm run build` (postbuild). 2026-11-11: an oversized
+// /api/og/movie passed every check and then failed three production deploys.
+const fnSize = runFunctionSizeGate(fileURLToPath(new URL("../.next", import.meta.url)));
+for (const line of fnSize.lines) (fnSize.ok ? console.log : console.error)(line);
+if (!fnSize.ok) process.exit(1);

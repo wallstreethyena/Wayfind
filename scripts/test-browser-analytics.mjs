@@ -30,6 +30,39 @@ equal(analytics.analyticsSuppressionReason({ storage: new Storage(), userAgent: 
 // counted as a human page visit — see lib/browserAnalytics.js's BOT_RX comment.
 equal(analytics.analyticsSuppressionReason({ storage: new Storage(), userAgent: "WayfindSyntheticMonitor/1.0 (+https://www.gowayfind.com)" }), "bot", "our own synthetic monitor UA is suppressed as a bot, never counted as a human visit");
 equal(analytics.analyticsSuppressionReason({ storage: new Storage(), userAgent: "Mozilla/5.0" }), null, "ordinary anonymous browser is not falsely suppressed");
+// The "2023 rotation" scraper (2026-11-10, lib/crawler.js isStaleRotationUa):
+// ten exact desktop identities AND its 1280x720 viewport. Suppression here is
+// invisible to the visitor and cannot be undone, so it needs BOTH; either one
+// alone is a person. scripts/check-redirect-suspect-gate.mjs sweeps the UA list.
+{
+  const staleWinChrome = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
+  const staleMacFirefox = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:121.0) Gecko/20100101 Firefox/121.0";
+  const currentChrome = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36";
+  const android119 = "Mozilla/5.0 (Linux; Android 7.0; SM-G930V) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36";
+  const scraperViewport = { width: 1280, height: 720 };
+  const why = (userAgent, viewport) => analytics.analyticsSuppressionReason({ storage: new Storage(), userAgent, viewport });
+  equal(why(staleWinChrome, scraperViewport), "bot", "2023-rotation identity at the scraper's 1280x720 viewport is suppressed as a bot");
+  equal(why(staleMacFirefox, scraperViewport), "bot", "a second 2023-rotation identity at 1280x720 is suppressed as a bot");
+  equal(why(staleWinChrome, { width: 1440, height: 900 }), null, "a person on an old desktop build at any other viewport is NOT suppressed");
+  equal(why(staleWinChrome, { width: 1280, height: 721 }), null, "one pixel off the scraper's viewport is NOT suppressed (exact match only)");
+  equal(why(staleWinChrome, null), null, "an unknown viewport is never suppressed (fail open)");
+  equal(why(staleWinChrome), null, "with no viewport passed and no window (this test), nothing is suppressed (fail open)");
+  equal(why(currentChrome, scraperViewport), null, "a current desktop browser at 1280x720 is a person");
+  equal(why(android119, scraperViewport), null, "Android 7's Chrome 119 is a person, whatever its viewport");
+  equal(analytics.STALE_ROTATION_VIEWPORT, scraperViewport, "the scraper viewport constant is 1280x720");
+  // The six call sites pass no viewport: the live window size is read instead.
+  const had = ["innerWidth", "innerHeight"].map((k) => [k, Object.getOwnPropertyDescriptor(globalThis, k)]);
+  try {
+    globalThis.innerWidth = 1280; globalThis.innerHeight = 720;
+    equal(why(staleWinChrome), "bot", "with no viewport passed, the live window size (1280x720) is read");
+    equal(why(currentChrome), null, "a current browser in a 1280x720 window is still a person");
+    globalThis.innerWidth = 1512;
+    equal(why(staleWinChrome), null, "with no viewport passed, a live window of another size is a person");
+  } finally {
+    for (const [k, d] of had) { if (d) Object.defineProperty(globalThis, k, d); else delete globalThis[k]; }
+  }
+  ok(typeof globalThis.innerWidth === "undefined", "the fake window size is cleaned up");
+}
 equal(analytics.analyticsSuppressionReason({ storage: new Storage(), user: { user_metadata: { user_name: "gabrielpereira" } }, userAgent: "Mozilla/5.0" }), "internal", "owner auth handle is suppressed when the provider omits email");
 
 equal(analytics.safePagePath("https://gowayfind.com/explore?email=private@example.com#secret"), "/explore", "query and fragment are discarded");

@@ -494,6 +494,44 @@ ok(html.includes("data-christmas-filter") && html.includes(">Best rated<") && ht
     "Best rated near you is the default (owner 2026-11-11) and the one menu offers categories, date, region and an opt in Tickets first order");
   ok(/createPortal/.test(f) && /aria-modal="true"/.test(f) && /Escape/.test(f) && /event.shiftKey/.test(f) && /#E8B48A/.test(f) && /#3E0C19/.test(f), "the holiday menu is a burgundy and gold modal with Escape, a focus trap and a body portal");
 }
+// Top picks for social ad visitors (2026-11-12): Meta ad visitors stayed on the
+// first screen and never saw a photo or a ticket button. A Facebook / Instagram
+// landing gets up to three featured rows with a photo and the card's exact
+// ticket button between the title and the lede; every other visit is unchanged.
+{
+  const { isSocialAdLanding, christmasTopPicks, CHRISTMAS_TOP_PICKS_MAX } = await import("../lib/christmasTickets.js");
+  ok(isSocialAdLanding({ fbclid: "abc" }) && isSocialAdLanding({ utm_source: "meta" }) && isSocialAdLanding({ utm_source: "Instagram" }) && isSocialAdLanding({ utm_source: ["facebook"] }),
+    "an fbclid or a Facebook, Instagram or Meta utm_source is a social landing");
+  ok(!isSocialAdLanding({}) && !isSocialAdLanding(null) && !isSocialAdLanding({ gclid: "x" }) && !isSocialAdLanding({ utm_source: "google" }) && !isSocialAdLanding({ fbclid: "  " }),
+    "Google, direct and empty visits are not social landings");
+  const withPhoto = (r, i) => ({ ...r, photos: i === 1 ? [] : [{ src: "/christmas/test-" + i + ".webp", alt: "Photo of " + r.name, credit: "Photo by test" }] });
+  const photoModel = { ...partnerModel, rows: partnerModel.rows.map(withPhoto) };
+  const picks = christmasTopPicks(photoModel);
+  const eligible = photoModel.rows.filter((r) => r.cta && r.photos.length);
+  ok(CHRISTMAS_TOP_PICKS_MAX === 3 && picks.length === Math.min(3, eligible.length) && picks.every((r, i) => r === eligible[i]),
+    "top picks are the first featured rows with a photo and a way in, in merit order, at most three");
+  ok(christmasTopPicks({ rows: [] }).length === 0 && christmasTopPicks(null).length === 0, "no rows, no picks");
+  const plainHtml = renderPage(partnerModel, partnerList);
+  ok(!plainHtml.includes("data-top-picks") && !plainHtml.includes("Top picks with tickets"), "a visit without picks renders the page exactly as before");
+  const pickHtml = renderPage(partnerModel, partnerList, { topPicks: picks });
+  const title = pickHtml.indexOf('id="xm-title"'), row = pickHtml.indexOf("data-top-picks"), lede = pickHtml.indexOf('class="xm-lede"');
+  ok(picks.length > 0 && title > -1 && title < row && row < lede, "the picks sit right under the title, above the lede and the list");
+  ok((pickHtml.match(/data-pick-id="/g) || []).length === picks.length && picks.every((r) => pickHtml.includes('data-pick-id="' + r.id + '"')
+    && pickHtml.includes("href=\"" + r.cta.href.replace(/&/g, "&amp;") + "\"") && pickHtml.includes(">" + r.cta.label.replace(/&/g, "&amp;") + "<") && pickHtml.includes(r.photos[0].src)),
+    "each pick shows its photo and the exact registry href and label of its ticket button");
+  ok(picks.every((r) => r.cta.kind !== "affiliate" || new RegExp('rel="sponsored nofollow noopener"[^>]*href="' + r.cta.href.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/&/g, "&amp;")).test(pickHtml) || pickHtml.includes('rel="sponsored nofollow noopener"')),
+    "partner buttons in the picks are marked sponsored");
+  ok((pickHtml.match(/<h2/g) || []).length === 0 && (pickHtml.match(/<h3>/g) || []).length >= picks.length, "pick titles are h3, so the page still has no second section heading");
+  const pickVisible = pickHtml.replace(/<style[\s\S]*?<\/style>/g, " ").replace(/<script[\s\S]*?<\/script>/g, " ").replace(/<[^>]+>/g, " ").replace(/&amp;/g, "&").replace(/\s+/g, " ");
+  ok(!DASH.test(pickVisible) && ((pickVisible.match(/Wayfind may earn a commission/g)) || []).length === 1, "with picks the page is still dash free and keeps one commission line");
+  ok(!renderPage(partnerModel, partnerList, { topPicks: [{ ...picks[0], photos: [] }] }).includes("data-top-picks"), "a pick without a photo is never drawn as an empty slot");
+  const comp = strip(read("app/components/ChristmasTickets.js"));
+  ok(/data-commerce-owner=\{affiliate \? undefined : "ChristmasTickets"\}/.test(comp.slice(comp.indexOf("export function TopPicks"))) && /onClick=\{affiliate \? undefined : \(\) => organizerTap\(row\)\}/.test(comp) && /import \{ XM_CARD_CSS, organizerTap \} from "\.\/ChristmasTicketCard\.js"/.test(comp) && !/commerce_cta_clicked/.test(comp),
+    "pick organizer taps are recorded once here and /go taps by the beacon, under the same christmas_tickets surface");
+  const page = strip(read("app/christmas-in-florida/page.js"));
+  ok(/const topPicks = isSocialAdLanding\(params\) \? christmasTopPicks\(tickets\) : null;/.test(page) && /<ChristmasTickets model=\{tickets\} topPicks=\{topPicks\}/.test(page),
+    "the page builds picks only for a social landing, from the same featured rows");
+}
 {
   const cardsHtml = html.slice(html.indexOf('data-ticket-id="'));
   const order = [...html.matchAll(/data-ticket-id="([^"]+)"/g)].map((m) => m[1]);
@@ -551,7 +589,7 @@ ok(html.includes("data-christmas-filter") && html.includes(">Best rated<") && ht
   const cardSrc = strip(read("app/components/ChristmasTicketCard.js"));
   const ticketsSrc = strip(read("app/components/ChristmasTickets.js"));
   ok(/import \{ TicketCard \} from "\.\/ChristmasTicketCard\.js"/.test(browseSrc) && /<TicketCard[\s/]/.test(browseSrc), "the browse renders the one TicketCard");
-  ok(/import \{ XM_CARD_CSS \} from "\.\/ChristmasTicketCard\.js"/.test(ticketsSrc) && !/<TicketCard[\s/]/.test(ticketsSrc), "the shell carries the one card's CSS; the only place cards render is the browse list");
+  ok(/import \{ XM_CARD_CSS(?:, organizerTap)? \} from "\.\/ChristmasTicketCard\.js"/.test(ticketsSrc) && !/<TicketCard[\s/]/.test(ticketsSrc), "the shell carries the one card's CSS; the only place cards render is the browse list (the social top picks are a compact strip, not a second card)");
   ok(!/RailCard|WF_PLACE_CARD_CSS|wf-christmas|wf-place-card/.test(browseSrc), "the browse no longer uses RailCard or the red .wf-christmas skin");
   ok(!/<h2/.test(browseSrc) && !/Verified Christmas outings/.test(browseSrc) && !/<h2/.test(ticketsSrc) && !/xm-jump|xm-all/.test(ticketsSrc), "no second section heading and no jump button: one list under the hero");
   ok(/aria-label="Florida Christmas events"/.test(browseSrc), "the one list section is labelled for assistive tech");
