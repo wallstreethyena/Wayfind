@@ -1,72 +1,126 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 
-// The Christmas list's filter, built to look and behave like the one filter
-// every ranked collection uses (app/components/CollectionFilter.js): one pill
-// with the orange lines icon and a caret, opening a sheet with radio rows.
-// Owner 2026-11-01: "Why dint we use this filter? … Please fix it", replacing
-// the page's own region <select> and "Nearest to me" button.
-//
-// Only choices the browse API already understands (lib/christmasBrowse.js
-// parseChristmasBrowseQuery): order (tickets first, or nearest from lat/lng),
-// a date window (`when`) and a region.
-const SORTS = [["tickets", "Tickets first"], ["near", "Closest first"]];
+// One Christmas control, using the page's burgundy, cream and gold palette.
+// The default order is the best rated, trending choices near the visitor
+// (owner 2026-11-11); Tickets first is the opt in alternative.
+const SORTS = [["best", "Best near you"], ["tickets", "Tickets first"]];
+const CSS = `
+.xm-filter-trigger{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:48px;padding:11px 19px;border:1px solid #E8B48A;border-radius:999px;background:linear-gradient(180deg,#FFE9C8,#E8C395);color:#3D0914;font:inherit;font-size:15px;font-weight:800;cursor:pointer;box-shadow:0 3px 12px #18020826;white-space:nowrap}
+.xm-filter-trigger svg{flex:none}.xm-filter-caret{font-size:12px;opacity:.65}.xm-filter-badge{display:inline-grid;place-items:center;min-width:20px;height:20px;padding:0 4px;border-radius:999px;background:#630F22;color:#FFF7ED;font-size:11px}
+.xm-filter-trigger:focus-visible,.xm-menu button:focus-visible,.xm-menu select:focus-visible{outline:2px solid #FFE9C8;outline-offset:3px}
+.xm-menu-overlay{position:fixed;inset:0;z-index:1200;display:flex;align-items:center;justify-content:center;padding:24px;background:#120207b8;backdrop-filter:blur(7px)}
+.xm-menu{box-sizing:border-box;display:flex;flex-direction:column;width:min(100%,520px);max-height:min(85dvh,760px);border:1px solid #E8B48A66;border-radius:24px;background:linear-gradient(160deg,#3E0C19,#230710 75%);color:#FFF7ED;box-shadow:0 24px 90px #0008;font-family:inherit;overflow:hidden}
+.xm-menu-head{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:24px 24px 19px;border-bottom:1px solid #E8B48A26}.xm-menu-kicker{display:block;margin:0 0 6px;color:#E8B48A;font-size:10px;font-weight:750;letter-spacing:2px;text-transform:uppercase}.xm-menu h2{margin:0;color:#FFF7ED;font-family:Georgia,serif;font-size:25px;font-weight:500;line-height:1.2;letter-spacing:-.5px}
+.xm-menu-close{display:grid;place-items:center;flex:none;width:44px;height:44px;border:1px solid #E8B48A40;border-radius:50%;background:transparent;color:#FFE9C8;font-size:24px;cursor:pointer}
+.xm-menu-body{overflow-y:auto;overscroll-behavior:contain;padding:22px 24px;min-height:0}.xm-menu-group{margin:0 0 24px}.xm-menu-group:last-child{margin-bottom:0}.xm-menu-label{display:block;margin:0 0 10px;color:#E8B48A;font-size:11px;font-weight:750;letter-spacing:1.3px;text-transform:uppercase}.xm-menu-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.xm-menu-choice{min-width:0;min-height:46px;padding:11px 12px;border:1px solid #E8B48A35;border-radius:12px;background:#1802083b;color:#E5D0C6;font:inherit;font-size:13px;line-height:1.35;text-align:left;cursor:pointer;transition:background .15s,border-color .15s}.xm-menu-choice[aria-pressed="true"]{border-color:#E8B48A;background:#E8B48A20;color:#FFF7ED;font-weight:750}.xm-menu-choice:hover{border-color:#E8B48A99}.xm-menu-hint{margin:9px 0 0;color:#C9B8B0;font-size:12px;line-height:1.5}
+.xm-menu-dates{display:flex;flex-wrap:wrap;gap:8px}.xm-menu-dates .xm-menu-choice{text-align:center;flex:1 0 auto;padding:10px 13px}
+.xm-menu-select{box-sizing:border-box;min-width:0;width:100%;min-height:48px;padding:10px 12px;border:1px solid #E8B48A55;border-radius:12px;background:#2A0A12;color:#FFF7ED;font:inherit;font-size:14px}.xm-menu-foot{display:flex;align-items:center;gap:16px;padding:16px 24px max(16px,env(safe-area-inset-bottom));border-top:1px solid #E8B48A26;background:#230710}.xm-menu-reset{min-height:44px;padding:8px 4px;border:0;background:transparent;color:#E8B48A;font:inherit;font-size:14px;cursor:pointer}.xm-menu-done{flex:1;min-height:48px;border:1px solid #E8B48A;border-radius:12px;background:linear-gradient(180deg,#FFE9C8,#E8C395);color:#3D0914;font:inherit;font-size:15px;font-weight:800;cursor:pointer}
+@media(max-width:600px){.xm-menu-overlay{align-items:flex-end;padding:0}.xm-menu{width:100%;max-height:88dvh;border-radius:24px 24px 0 0;border-bottom:0}.xm-menu-head{padding:20px 20px 17px}.xm-menu-body{padding:20px}.xm-menu-foot{padding-left:20px;padding-right:20px}}
+@media(prefers-reduced-motion:reduce){.xm-menu-choice{transition:none}}
+.xm-menu{position:relative}
+/* Menu-only names (2026-11-11): the page's top strand is .xm-lights with its own
+   @keyframes xm-twinkle. Sharing either name leaked this absolute overlay onto the
+   page strand and pulled it over the logo and Go to Wayfind button. */
+.xm-menu-lights{position:absolute;inset:0;pointer-events:none;z-index:2}
+.xm-menu-lights i{position:absolute;display:block;--d:radial-gradient(circle,#FF3B3B 3px,#FF3B3B00 4.5px),radial-gradient(circle,#2ECC40 3px,#2ECC4000 4.5px),radial-gradient(circle,#FFD23F 3px,#FFD23F00 4.5px),radial-gradient(circle,#3FA9FF 3px,#3FA9FF00 4.5px);background-image:var(--d);filter:drop-shadow(0 0 3px #FFE9C8aa);animation:xm-menu-twinkle 1.6s ease-in-out infinite alternate}
+.xm-menu-lights i:nth-child(1),.xm-menu-lights i:nth-child(3){left:18px;right:18px;height:12px;background-size:104px 12px;background-position:0 0,26px 0,52px 0,78px 0;background-repeat:repeat-x}
+.xm-menu-lights i:nth-child(1){top:2px}.xm-menu-lights i:nth-child(3){bottom:2px;animation-delay:.8s}
+.xm-menu-lights i:nth-child(2),.xm-menu-lights i:nth-child(4){top:18px;bottom:18px;width:12px;background-size:12px 104px;background-position:0 0,0 26px,0 52px,0 78px;background-repeat:repeat-y}
+.xm-menu-lights i:nth-child(2){right:2px;animation-delay:.4s}.xm-menu-lights i:nth-child(4){left:2px;animation-delay:1.2s}
+@keyframes xm-menu-twinkle{from{opacity:1}to{opacity:.55}}
+.xm-menu-head{position:relative;padding-top:74px}
+.xm-wreath{position:absolute;left:50%;top:10px;transform:translateX(-50%);width:62px;height:62px;pointer-events:none}
+.xm-menu-choice.xm-choice-wreath{position:relative;border-color:#E8B48A;box-shadow:0 0 0 2px #1F6B34,0 0 14px #FF3B3B55}
+.xm-choice-wreath .xm-wreath-mini{position:absolute;right:-6px;top:-10px;width:28px;height:28px;pointer-events:none}
+@media(prefers-reduced-motion:reduce){.xm-menu-lights i{animation:none}}
+`;
 
-const head = { color: "#9AA7BB", fontSize: 10.5, fontWeight: 900, letterSpacing: "1.25px", textTransform: "uppercase", margin: "2px 4px 7px" };
-const rule = { height: 1, background: "rgba(255,255,255,.14)", margin: "10px 2px 11px" };
-
-function Row({ on, text, onClick }) {
-  return (
-    <button type="button" role="radio" aria-checked={on} onClick={onClick} style={{ width: "100%", minHeight: 44, display: "flex", alignItems: "center", gap: 11, padding: "9px 10px", border: 0, borderRadius: 11, background: on ? "rgba(249,115,22,.13)" : "transparent", color: on ? "#F8F5EE" : "#C6CEDB", fontSize: 13.5, fontWeight: on ? 850 : 650, textAlign: "left", cursor: "pointer" }}>
-      <span aria-hidden="true" style={{ width: 18, height: 18, borderRadius: "50%", border: "2px solid " + (on ? "#F97316" : "#64748B"), display: "grid", placeItems: "center", flexShrink: 0 }}>{on ? <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#F97316" }} /> : null}</span>
-      {text}
-    </button>
-  );
+// Holiday wreath (owner approved 2026-11-10). Pure SVG, fixed geometry so
+// server and client render the same markup.
+const BULBS = ["#FF3B3B", "#2ECC40", "#FFD23F", "#3FA9FF"];
+const LEAVES = Array.from({ length: 36 }, (_, i) => {
+  const a = (i / 36) * Math.PI * 2, r = 40 + (i % 3) * 4;
+  return { x: +(58 + Math.cos(a) * r).toFixed(1), y: +(58 + Math.sin(a) * r).toFixed(1), rot: +((a * 180) / Math.PI + 40).toFixed(1), dark: i % 2 === 1 };
+});
+function Wreath({ className, bulbs = 14 }) {
+  return <svg className={className} viewBox="0 0 116 116" aria-hidden="true" focusable="false">
+    {LEAVES.map((l, i) => <ellipse key={i} cx={l.x} cy={l.y} rx="11" ry="6" fill={l.dark ? "#1F6B34" : "#2D8A45"} transform={`rotate(${l.rot} ${l.x} ${l.y})`} />)}
+    {Array.from({ length: bulbs }, (_, i) => { const a = (i / bulbs) * Math.PI * 2; return <circle key={i} cx={(58 + Math.cos(a) * 44).toFixed(1)} cy={(58 + Math.sin(a) * 44).toFixed(1)} r="5" fill={BULBS[i % 4]} />; })}
+    <path d="M48 96l10-8 10 8-4 16-6-6-6 6z" fill="#C8102E" /><circle cx="58" cy="90" r="6" fill="#E01E3C" />
+  </svg>;
 }
 
-export default function ChristmasFilter({ query, facets, onSet, onNear, onClearNear }) {
+function Choice({ on, text, onClick, wreath }) {
+  return <button type="button" className={"xm-menu-choice" + (wreath ? " xm-choice-wreath" : "")} aria-pressed={on} onClick={onClick}>{text}{wreath ? <Wreath className="xm-wreath-mini" bulbs={8} /> : null}</button>;
+}
+
+export default function ChristmasFilter({ query, facets, onSet, onNear, onReset }) {
   const [open, setOpen] = useState(false);
-  const near = query.lat != null && query.lat !== "";
+  const id = useId();
+  const trigger = useRef(null), dialog = useRef(null), close = useRef(null);
+  const tickets = query.sort === "tickets";
+  const near = !tickets && query.lat != null && query.lat !== "";
   const dates = Array.isArray(facets.dates) ? facets.dates : [];
   const regions = Array.isArray(facets.regions) ? facets.regions : [];
-  const whenLabel = (dates.find((d) => d.id === query.when) || {}).label || "";
-  const label = near ? "Closest first" : whenLabel || query.region || "Tickets first";
-  const active = (near ? 1 : 0) + (query.when ? 1 : 0) + (query.region ? 1 : 0);
-  const pick = (fn) => { fn(); setOpen(false); };
-  return (
-    <div data-christmas-filter="" data-collection-filter="" style={{ position: "relative", flex: "0 0 auto" }}>
-      <button type="button" aria-expanded={open} aria-haspopup="dialog" onClick={() => setOpen((v) => !v)} style={{ minHeight: 46, display: "inline-flex", alignItems: "center", gap: 9, padding: "10px 16px", borderRadius: 999, border: "1px solid " + (open ? "#F97316" : "rgba(255,255,255,.14)"), background: "#161D2B", color: "#E5EAF2", fontSize: 14, fontWeight: 850, cursor: "pointer", whiteSpace: "nowrap" }}>
-        <svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#F97316" strokeWidth="2.5" strokeLinecap="round"><path d="M3 6h18M6 12h12M10 18h4" /></svg>
-        {label}
-        {active > 1 ? <span aria-label={active + " filters on"} style={{ minWidth: 20, height: 20, borderRadius: 999, background: "#F97316", color: "#0D1117", fontSize: 11.5, fontWeight: 900, display: "inline-grid", placeItems: "center", padding: "0 5px" }}>{active}</span> : null}
-        <span aria-hidden="true" style={{ color: "#9AA5B7", transform: open ? "rotate(180deg)" : "none", transition: "transform .2s" }}>▾</span>
-      </button>
-      {open ? (
-        <>
-          <button type="button" aria-label="Close filter" onClick={() => setOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 39, border: 0, background: "transparent", cursor: "default" }} />
-          <div role="dialog" aria-label="Filter and sort Christmas events" style={{ position: "absolute", zIndex: 40, left: 0, top: 52, width: "min(356px,calc(100vw - 32px))", maxHeight: "min(70vh,560px)", overflowY: "auto", padding: 14, borderRadius: 17, border: "1px solid rgba(255,255,255,.16)", background: "#161B22", boxShadow: "0 18px 52px rgba(0,0,0,.58)" }}>
-            <div style={head}>Sort by</div>
-            <div role="radiogroup" aria-label="Sort by">
-              {SORTS.map(([key, text]) => (
-                <Row key={key} on={key === "near" ? near : !near} text={text} onClick={() => pick(key === "near" ? onNear : onClearNear)} />
-              ))}
-            </div>
-            <div style={rule} />
-            <div style={head}>When</div>
-            <div role="radiogroup" aria-label="When">
-              <Row on={!query.when} text="Any time" onClick={() => pick(() => onSet("when", ""))} />
-              {dates.map((d) => <Row key={d.id} on={query.when === d.id} text={d.label} onClick={() => pick(() => onSet("when", d.id))} />)}
-            </div>
-            <div style={rule} />
-            <div style={head}>Region</div>
-            <div role="radiogroup" aria-label="Region">
-              <Row on={!query.region} text="All of Florida" onClick={() => pick(() => onSet("region", ""))} />
-              {regions.map((r) => <Row key={r} on={query.region === r} text={r} onClick={() => pick(() => onSet("region", r))} />)}
-            </div>
-          </div>
-        </>
-      ) : null}
-    </div>
-  );
+  const pills = Array.isArray(facets.pills) ? facets.pills : [];
+  const label = tickets ? "Tickets first" : near ? "Best near you" : "Best rated";
+  const active = [query.category, query.when || query.date, query.region].filter(Boolean).length;
+
+  useEffect(() => {
+    if (!open) return undefined;
+    const oldOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    close.current?.focus();
+    window.dispatchEvent(new CustomEvent("wf:dialog", { detail: { open: true } }));
+    const onKey = (event) => {
+      if (event.key === "Escape") { event.preventDefault(); setOpen(false); }
+      if (event.key !== "Tab") return;
+      const controls = dialog.current?.querySelectorAll('button:not([disabled]),select:not([disabled]),[tabindex="0"]');
+      if (!controls?.length) return;
+      const first = controls[0], last = controls[controls.length - 1];
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+    };
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = oldOverflow;
+      window.dispatchEvent(new CustomEvent("wf:dialog", { detail: { open: false } }));
+      trigger.current?.focus();
+    };
+  }, [open]);
+
+  return <div data-christmas-filter="" data-collection-filter="">
+    <style dangerouslySetInnerHTML={{ __html: CSS }} />
+    <button ref={trigger} type="button" className="xm-filter-trigger" aria-expanded={open} aria-haspopup="dialog" aria-controls={open ? id : undefined} onClick={() => setOpen(true)}>
+      <svg aria-hidden="true" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M4 5h16v5a2 2 0 0 0 0 4v5H4v-5a2 2 0 0 0 0-4V5Z"/><path d="M15 5v3m0 3v2m0 3v3"/></svg>
+      {label}{active ? <span className="xm-filter-badge" aria-label={active + " filters on"}>{active}</span> : null}
+      <span aria-hidden="true" className="xm-filter-caret">▾</span>
+    </button>
+    {open ? createPortal(<div className="xm-menu-overlay" onClick={(event) => { if (event.target === event.currentTarget) setOpen(false); }}>
+      <div ref={dialog} id={id} className="xm-menu" role="dialog" aria-modal="true" aria-labelledby={id + "-title"} data-boo-clear="">
+        <div className="xm-menu-lights" aria-hidden="true"><i /><i /><i /><i /></div>
+        <div className="xm-menu-head"><Wreath className="xm-wreath" /><div><span className="xm-menu-kicker">Christmas in Florida</span><h2 id={id + "-title"}>Christmas, your way</h2></div><button ref={close} type="button" className="xm-menu-close" aria-label="Close filter" onClick={() => setOpen(false)}>×</button></div>
+        <div className="xm-menu-body">
+          <div className="xm-menu-group" role="group" aria-label="Category"><span className="xm-menu-label">Experience</span><div className="xm-menu-options">
+            <Choice on={!query.category} text="All Christmas choices" onClick={() => onSet("category", "")} />
+            {pills.map((pill) => <Choice key={pill.id} on={query.category === pill.id} text={pill.label} wreath={pill.id === "popup-bars"} onClick={() => onSet("category", pill.id)} />)}
+          </div></div>
+          <div className="xm-menu-group" role="group" aria-label="Sort by"><span className="xm-menu-label">Order</span><div className="xm-menu-options">
+            {SORTS.map(([key, text]) => <Choice key={key} on={key === "tickets" ? tickets : !tickets} text={text} onClick={key === "tickets" ? () => onSet("sort", "tickets") : onNear} />)}
+          </div><p className="xm-menu-hint">{tickets ? "Tickets first, with popular choices leading." : near ? "Top rated and trending, closest to you first." : "Top rated and trending across Florida. Tap Best near you to use your location."}</p></div>
+          <div className="xm-menu-group" role="group" aria-label="When"><span className="xm-menu-label">When</span><div className="xm-menu-dates">
+            <Choice on={!query.when && !query.date} text="Any time" onClick={() => onSet("when", "")} />
+            {dates.map((date) => <Choice key={date.id} on={query.when === date.id} text={date.label} onClick={() => onSet("when", date.id)} />)}
+          </div></div>
+          <div className="xm-menu-group"><label htmlFor={id + "-region"} className="xm-menu-label">Where</label><select id={id + "-region"} className="xm-menu-select" aria-label="Region" value={query.region || ""} onChange={(event) => onSet("region", event.target.value)}><option value="">All of Florida</option>{regions.map((region) => <option key={region} value={region}>{region}</option>)}</select></div>
+        </div>
+        <div className="xm-menu-foot">{onReset ? <button type="button" className="xm-menu-reset" onClick={onReset}>Reset</button> : null}<button type="button" className="xm-menu-done" onClick={() => setOpen(false)}>Show Christmas plans</button></div>
+      </div>
+    </div>, document.body) : null}
+  </div>;
 }

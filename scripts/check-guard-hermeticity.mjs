@@ -48,6 +48,8 @@ const ok = (c, m) => { if (c) pass++; else fails.push(m); };
 // Every exemption names a file and argues for itself. An exemption that stops
 // being true is itself a failure below, so this list cannot quietly rot.
 const EXEMPT = {
+  "check-bundle.mjs":
+    "Postbuild size gate, not a prebuild guard (2026-11-05). GITHUB_ACTIONS selects only the extra 1KB safety margin on the merge gate (guards.yml runs it after next build): Vercel's gzip measured up to ~0.6KB more than CI for the same tree, so on 2026-11-04 #2190 passed CI at 500.9KB and failed six production deploys at 501.1KB. The budget itself never depends on the environment; Vercel (which also sets CI) and local runs use the plain budget, so the margin can never block a production build whose own measurement is under budget. The margin was red-proven with a 488.5KB budget against a 488.0KB build.",
   "test-share-intent-fit.mjs":
     "GITHUB_ACTIONS selects browser availability strictness only: the merge workflow installs Chromium, so a missing browser there must fail; browser-free Vercel prebuilds explicitly report NOT VERIFIED. This never changes any geometry assertion or accepts bad layout: whenever a browser exists, the same 175 assertions run, and --require-browser also makes absence fatal locally. The original 32px overflow fails the rendered test; the no-browser path was checked with GITHUB_ACTIONS=true and fails closed.",
   "test-credited-photo-warm.mjs":

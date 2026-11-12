@@ -11,7 +11,7 @@ import { placeDiscoveryRef } from "../../../../lib/discoveryRef.js";
 import { pickBestPhoto } from "../../../../lib/heroImage";
 import { gateImageForWrite } from "../../../../lib/imageWriteGate.js";
 import { jobCannotRun } from "../../../../lib/jobFail";
-import { gateShut, spendAllow } from "../../../../lib/spendGate";
+import { gateShut, spendAllow, runWithTraffic, TRAFFIC } from "../../../../lib/spendGate";
 
 const CENTROIDS = { "manatee-sarasota": { lat: 27.4, lng: -82.55 }, tampa: { lat: 27.85, lng: -82.6 }, orlando: { lat: 28.54, lng: -81.38 } };
 
@@ -39,7 +39,12 @@ function imageRefused(placeId, out) {
   return g.refused;
 }
 
+// Traffic class (lib/spendGate.js human traffic reserve): a batch job, no visitor waiting; refused inside the last 20% of a visitor-shared SKU.
 export async function GET(req) {
+  return runWithTraffic(TRAFFIC.BACKGROUND, () => runHeroImages(req));
+}
+
+async function runHeroImages(req) {
   const secret = process.env.CRON_SECRET;
   const auth = req.headers.get("authorization") || "";
   if (!secret || auth !== "Bearer " + secret) return Response.json({ error: "unauthorized" }, { status: 401 });
