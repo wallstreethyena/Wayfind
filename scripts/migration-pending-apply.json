@@ -80,7 +80,7 @@
     "file": "supabase/migrations/20261112200000_wf_social_assets.sql",
     "sha256": "e82b13095b42cdf9f439a3ee9b9623944a1d963fb9f498e3f2aefceb281f0a88",
     "decision_owner": "wallstreethyena",
-    "tracking": "#2445",
+    "tracking": "#2447",
     "reason": "SOCIAL TRENDING INGESTION (zero-miss guarantee). Creates wf_social_assets (Wayfind's own published posts synced by the scheduled reconciler after a deploy) and wf_social_reconciliations (one row per reconciler run, read by scripts/check-social-trending-live.mjs for freshness). Both RLS on with no policies: service role only. Additive, no data, no existing table touched; the code already works without them (snapshot only). Owner applies after review. Not applied."
   }
 ]
