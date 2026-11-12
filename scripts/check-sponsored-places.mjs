@@ -348,19 +348,33 @@ ok(idxFlat.includes("Featured Sponsored Card")
 ok(/clearly labeled card shown alongside Wayfind[’']s picks, outside ranked lists/.test(idxFlat)
   && !/stand out in search/i.test(idxFlat),
   "Featured Sponsored Card copy states it is a clearly labeled card shown alongside Wayfind's picks outside ranked lists, never claiming to stand out in search");
-ok(idxFlat.includes("$99") && idxFlat.includes("/ week")
-  && idxFlat.includes("$199") && idxFlat.includes("/ month")
-  && idxFlat.includes("$299") && idxFlat.includes("/ quarter")
+ok(idxFlat.includes("$99") && idxFlat.includes("/ week") && idxFlat.includes("$14.14/day")
+  && idxFlat.includes("$199") && idxFlat.includes("/ month") && idxFlat.includes("$6.63/day")
+  && idxFlat.includes("$299") && idxFlat.includes("/ quarter") && idxFlat.includes("$3.32/day")
   && /Holiday Promo/i.test(idxFlat),
-  "the index renders the $99/week, $199/month, and $299/quarter Holiday Promo pricing tiers");
-ok(!/Save\s+\d+%|at our best rate|0%\s+booking\s+commission/i.test(idxFlat),
-  "the index does not invent unapproved discount percentages, rate superlatives, or commission claims");
+  "the index renders the $99/week ($14.14/day), $199/month ($6.63/day), and $299/quarter ($3.32/day) Holiday Promo pricing tiers");
+ok(/0%\s+Wayfind\s+commission/i.test(idxFlat)
+  && !/Save\s+\d+%|at our best rate|marketplaces?\s+take\s+\d+|20\s*[–—-]\s*30%/i.test(idxFlat),
+  "the index highlights 0% Wayfind commission on direct bookings without inventing discount percentages, rate superlatives, or unverified competitor commission claims");
+ok(typeof pageMod.VERIFIED_FLORIDA_CITY_COUNT === "number" && pageMod.VERIFIED_FLORIDA_CITY_COUNT >= 30
+  && typeof pageMod.VERIFIED_LIVE_GUIDE_COUNT === "number" && pageMod.VERIFIED_LIVE_GUIDE_COUNT >= 50
+  && idxFlat.includes(`${pageMod.VERIFIED_FLORIDA_CITY_COUNT} Covered Florida Cities`)
+  && idxFlat.includes(`${pageMod.VERIFIED_LIVE_GUIDE_COUNT} Published Florida Local Guides`)
+  && !/\b77\+\s*guides\b|\b24\+\s*hubs\b/i.test(idxFlat),
+  "authority counts come directly from live codebase registries rather than unverified handoff numbers");
+ok(/See a Live Partner/i.test(idxFlat)
+  && idxHtml.includes('data-wf-live-partner="rio-body-wax-gastonia"')
+  && /What Happens After You Contact Us/i.test(idxFlat)
+  && idxHtml.includes('data-analytics-page="partners_index"'),
+  "the index renders the See a Live Partner proof CTA, post-inquiry workflow certainty, and partners_index analytics surface");
 ok(/Example Illustration/i.test(idxFlat) && /not an active sponsor or customer result/i.test(idxFlat),
   "the phone mockup is explicitly labeled as an illustrative example, never implying an existing customer or performance result");
 ok(pageMod.PARTNER_CONTACT_EMAIL === "hello@gowayfind.com" && idxFlat.includes("hello@gowayfind.com") && /Send note without a mail app/.test(idxFlat),
   "the index displays hello@gowayfind.com and provides an in-page contact fallback for visitors without a configured mail app");
 ok(Array.isArray(pageMod.PARTNER_PACKAGES) && pageMod.PARTNER_PACKAGES.length === 3, "PARTNER_PACKAGES defines the 3 approved packages");
 for (const pkg of pageMod.PARTNER_PACKAGES || []) {
+  const expectedPerDay = "$" + (pkg.priceUsd / pkg.days).toFixed(2) + "/day";
+  ok(pkg.perDayDisplay === expectedPerDay, `${pkg.id}: per-day math is exact (${pkg.priceUsd} / ${pkg.days} = ${expectedPerDay}, got ${pkg.perDayDisplay})`);
   const href = pageMod.partnerPackageMailto(pkg);
   ok(href.startsWith("mailto:hello@gowayfind.com?subject="), `${pkg.id}: mailto targets hello@gowayfind.com`);
   const q = href.slice("mailto:hello@gowayfind.com?".length);
@@ -745,6 +759,11 @@ const RED = [
     const params = new URLSearchParams(weeklyHref.slice("mailto:hello@gowayfind.com?".length));
     const corruptedSubj = (params.get("subject") || "") + " $299/quarter";
     return corruptedSubj.includes("$299") && !(params.get("subject") || "").includes("$299");
+  }],
+  ["unverified competitor commission claims on /partners are detectable", () => {
+    const mutated = idxFlat + " Other marketplaces take 20–30% commission on bookings.";
+    const passes = !/Save\s+\d+%|at our best rate|marketplaces?\s+take\s+\d+|20\s*[–—-]\s*30%/i.test(mutated);
+    return passes === false && !/marketplaces?\s+take\s+\d+|20\s*[–—-]\s*30%/i.test(idxFlat);
   }],
 ];
 for (const [label, fn] of RED) ok(fn() === true, "RED PROOF failed to fail: " + label);
