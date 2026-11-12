@@ -347,7 +347,7 @@ function CITIES() {
   ok(reads === 1 && a2.cached === true && a1.page.total === a2.page.total && b1.page.total !== a1.page.total, "two requests with the same filters inside 10 minutes read wf_events once; a different filter is its own page");
   await christmasBrowseCached(parseChristmasBrowseQuery({ region: "Tampa Bay" }), TODAY, fetchRows, { fetchPlaces: async () => [], now: t0 + CHRISTMAS_BROWSE_TTL_MS + 5_000 });
   ok(reads === 2 && CHRISTMAS_BROWSE_TTL_MS === 600_000, "after 10 minutes the listings are read again");
-  ok(/christmasBrowseCached\(query, today, \(\) => fetchCuratedEvents/.test(read("app/christmas-in-florida/page.js")) && /christmasBrowseCached\(query, today, \(\) => fetchCuratedEvents/.test(read("app/api/christmas/browse/route.js")), "the page and the API both read through christmasBrowseCached (static)");
+  ok(/browse = christmasBrowseCached,/.test(read("lib/christmasPageData.js")) && /browse\(query, today, \(\) => fetchCuratedEvents/.test(read("lib/christmasPageData.js")) && /await christmasPageData\(\)/.test(read("app/christmas-in-florida/page.js")) && /christmasBrowseCached\(query, today, \(\) => fetchCuratedEvents/.test(read("app/api/christmas/browse/route.js")), "the page and the API both read through christmasBrowseCached (static)");
   // 5. Every published detailHref resolves through the page lookup, collisions included.
   const bySlug = new Map(DB.map((r) => [r.slug, r]));
   const unresolved = cards.filter((c) => c.detailHref).filter((c) => {

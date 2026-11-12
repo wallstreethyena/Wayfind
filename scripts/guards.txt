@@ -2324,6 +2324,8 @@ node scripts/test-christmas-tickets.mjs
 node scripts/test-christmas-ticketmaster.mjs
 node scripts/test-snowcat-tickets.mjs
 node scripts/test-christmas-tours.mjs
+# /christmas-in-florida is one cached page: zero network during next build (executed with fetch stubbed), no searchParams.
+node scripts/test-christmas-cached-page.mjs
 
 node scripts/test-halloween-intent-rails.mjs
 node scripts/test-halloween-route.mjs
