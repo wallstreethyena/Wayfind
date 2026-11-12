@@ -32,6 +32,7 @@ import { partnerAvailabilityNote } from "../../../lib/eventTicketDeals.js";
 import { secondaryEventTicketAction } from "../../../lib/secondaryEventTickets.js";
 import { eventMapPoint, isApproximateLocation } from "../../../lib/eventLocation";
 import ShareButton from "../../components/ShareButton";
+import AskSomeoneButton from "../../components/AskSomeoneButton";
 import SaveEventButton from "./SaveEventButton.js";
 import EventWhere from "../../components/EventWhere";
 import CrownOutbound from "../../components/CrownOutbound.js";
@@ -392,6 +393,18 @@ export default async function CuratedEventPage({ params }) {
             tone="dark"
             event="event_share"
             meta={{ slug: params.slug, event_id: e.event_id || null, city: e.city || null, placement: "hero" }}
+          />
+          <AskSomeoneButton
+            url={shareUrl}
+            name={e.event_name}
+            city={e.city || ""}
+            placeId={e.place_id || ""}
+            category={e.category || ""}
+            when={e.start_date ? String(e.start_date).slice(0, 10) : ""}
+            eventDate={e.start_date ? (e.end_date && e.end_date !== e.start_date ? `${String(e.start_date).slice(0, 10)}..${String(e.end_date).slice(0, 10)}` : String(e.start_date).slice(0, 10)) : ""}
+            geo={mapPoint && Number.isFinite(mapPoint.lat) && Number.isFinite(mapPoint.lng) ? `${mapPoint.lat},${mapPoint.lng}` : ""}
+            surface="event"
+            label="Ask someone"
           />
         </div>
       </div>

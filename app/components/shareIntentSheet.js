@@ -200,9 +200,19 @@ export function askShareIntent(o) {
   //
   // It is skippable in one tap, it never blocks, and pressing Enter sends.
   const askWho = () => {
-    trackSheet("ask_invite_started", { has_place: Boolean(name), city: opt.city || "" });
+    const surface = opt.surface || (opt.directInvite ? "direct" : "share_sheet");
+    trackSheet("ask_invite_started", {
+      surface,
+      has_place: Boolean(name),
+      has_when: Boolean(opt.when || opt.eventDate),
+      city: opt.city || "",
+    });
     card.textContent = "";
     card.appendChild(el("div", "font-size:16px;font-weight:800;color:#E6EDF3;margin-bottom:3px", "Who are you asking?"));
+    const contextBits = [name, opt.when || opt.eventDate || "", opt.city || ""].filter(Boolean);
+    if (contextBits.length) {
+      card.appendChild(el("div", "font-size:12px;font-weight:700;color:#F97316;margin-bottom:4px", contextBits.join(" · ")));
+    }
     card.appendChild(el("div", "font-size:13px;color:#8B98A9;margin-bottom:14px",
       "Just a first name. It goes on their invite, and it comes back with their answer."));
 
@@ -233,22 +243,33 @@ export function askShareIntent(o) {
       // tap of the whole flow land on real places instead of "Nothing near you
       // clears the bar" — and it costs the callers nothing, so a share button
       // added later cannot forget it.
-      let geo = "";
-      try {
-        const c = JSON.parse(window.localStorage.getItem("wf_center") || "null");
-        // v8.46 — THE PAIRING LAW, and it matters MORE here than anywhere else:
-        // these coordinates are baked into a link a friend opens, permanently,
-        // with no session of their own to self-correct from. A stored pair whose
-        // label and point contradict each other would ship the recipient a
-        // ranking origin in the wrong state under this invite's city name.
-        // Sending no geo at all is honest — the recipient's own location
-        // resolves on arrival — and a lie is not.
-        if (c && isFinite(c.lat) && isFinite(c.lng) && centerAgreesWithLabel({ lat: c.lat, lng: c.lng }, c.loc)) {
-          geo = c.lat + "," + c.lng;
-        }
-      } catch (e) {}
-      if (!geo && opt.geo) geo = opt.geo;
-      const code = encodeInvite({ place: name, city: opt.city, id: opt.id, to: who, kind: opt.kind, geo });
+      let geo = opt.geo || "";
+      if (!geo) {
+        try {
+          const c = JSON.parse(window.localStorage.getItem("wf_center") || "null");
+          // v8.46 — THE PAIRING LAW, and it matters MORE here than anywhere else:
+          // these coordinates are baked into a link a friend opens, permanently,
+          // with no session of their own to self-correct from. A stored pair whose
+          // label and point contradict each other would ship the recipient a
+          // ranking origin in the wrong state under this invite's city name.
+          // Sending no geo at all is honest — the recipient's own location
+          // resolves on arrival — and a lie is not.
+          if (c && isFinite(c.lat) && isFinite(c.lng) && centerAgreesWithLabel({ lat: c.lat, lng: c.lng }, c.loc)) {
+            geo = c.lat + "," + c.lng;
+          }
+        } catch (e) {}
+      }
+      const code = encodeInvite({
+        place: name,
+        city: opt.city,
+        id: opt.id,
+        to: who,
+        kind: opt.kind,
+        when: opt.when,
+        eventDate: opt.eventDate,
+        surface,
+        geo,
+      });
       if (!code) { opt.onPlain && opt.onPlain(); close(); return; }
       // The LIVE origin, not a constant: a preview deployment then shares a link
       // that opens on the preview instead of bouncing to production.
@@ -261,8 +282,18 @@ export function askShareIntent(o) {
       close();
       let opened = false;
       try { opened = !!runShareChoice(() => opt.onInvite && opt.onInvite(url, text, { to: who, key: code })); } catch (err) {}
-      trackSheet("ask_invite_created", { has_place: Boolean(name), has_to: Boolean(who), city: opt.city || "" });
-      trackSheet("ask_invite_shared", { transport: opened ? "native" : "chooser", has_to: Boolean(who) });
+      trackSheet("ask_invite_created", {
+        surface,
+        has_place: Boolean(name),
+        has_to: Boolean(who),
+        has_when: Boolean(opt.when || opt.eventDate),
+        city: opt.city || "",
+      });
+      trackSheet("ask_invite_shared", {
+        surface,
+        transport: opened ? "native" : "chooser",
+        has_to: Boolean(who),
+      });
       if (opened) { close(); return; } // the chosen transport has visible UI
       showReady(url, who, text);
     };
@@ -313,7 +344,13 @@ export function askShareIntent(o) {
   viewport?.addEventListener("resize", fitViewport);
   viewport?.addEventListener("scroll", fitViewport);
   fitViewport();
-  if (opt.startInInvite) {
+  if (opt.directInvite || opt.startInInvite) {
+    trackSheet("ask_invite_cta_clicked", {
+      surface: opt.surface || "direct",
+      has_place: Boolean(name),
+      has_when: Boolean(opt.when || opt.eventDate),
+      city: opt.city || "",
+    });
     askWho();
     return;
   }

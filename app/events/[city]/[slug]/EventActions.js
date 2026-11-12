@@ -4,9 +4,11 @@ import { useEffect, useState } from "react";
 import { useContentCardActions } from "../../../../lib/contentCardActions";
 import { addStopToStoredTrips } from "../../../../lib/itineraryAdd";
 import { readItineraryFlags } from "../../../../lib/itineraryFlags";
+import { openDirectInvite } from "../../../../lib/shareFlow";
 import { track } from "../../../../lib/track";
 
 const TRIPS_KEY = "wayfind_trips";
+const CANONICAL_TRIPS_KEY = "wf_trips_v1";
 
 function Thumb({ down = false }) {
   return <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -31,7 +33,11 @@ export default function EventActions({ event }) {
     if (!event || !event.id) return;
     try {
       const trips = JSON.parse(localStorage.getItem(TRIPS_KEY) || "{}") || {};
-      setInTrip(Object.values(trips).some((trip) => Array.isArray(trip && trip.items) && trip.items.some((item) => item && item.id === `event:${event.id}`)));
+      const canonicalTrips = JSON.parse(localStorage.getItem(CANONICAL_TRIPS_KEY) || "{}") || {};
+      const inEither = [trips, canonicalTrips].some((store) =>
+        Object.values(store || {}).some((trip) => Array.isArray(trip && trip.items) && trip.items.some((item) => item && item.id === `event:${event.id}`))
+      );
+      setInTrip(inEither);
     } catch {}
   }, [event]);
 
@@ -56,9 +62,28 @@ export default function EventActions({ event }) {
       const flags = readItineraryFlags(typeof window !== "undefined" ? window.posthog : null);
       const result = addStopToStoredTrips(trips, place, Date.now(), { autoOrder: flags.autoOrder, addedVia: "event_page" });
       if (!result.already) localStorage.setItem(TRIPS_KEY, JSON.stringify(result.trips));
+      try {
+        const canonicalTrips = JSON.parse(localStorage.getItem(CANONICAL_TRIPS_KEY) || "{}") || {};
+        const canonicalRes = addStopToStoredTrips(canonicalTrips, place, Date.now(), { autoOrder: flags.autoOrder, addedVia: "event_page" });
+        if (canonicalRes && canonicalRes.trips) localStorage.setItem(CANONICAL_TRIPS_KEY, JSON.stringify(canonicalRes.trips));
+      } catch {}
       setInTrip(true);
       for (const ev of result.events) track(ev.name, ev.props);
     } catch {}
+  };
+
+  const askSomeone = () => {
+    const eventIso = typeof event.date === "string" ? event.date.slice(0, 10) : "";
+    openDirectInvite({
+      url: typeof window !== "undefined" ? window.location.href : "https://www.gowayfind.com/ask",
+      title: event.name,
+      name: event.name,
+      city: event.city || "",
+      when: eventIso,
+      eventDate: eventIso,
+      surface: "event",
+      geo: event.lat != null && event.lng != null ? `${event.lat},${event.lng}` : "",
+    });
   };
 
   const button = { minHeight: 46, borderRadius: 13, border: "1px solid rgba(159,177,203,.24)", background: "linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.01)),#0A1019", color: "#E7EDF5", fontSize: 13, fontWeight: 850, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 7, cursor: "pointer" };
@@ -69,7 +94,8 @@ export default function EventActions({ event }) {
         <button type="button" aria-pressed={inTrip} onClick={addEvent} style={{ ...button, ...(inTrip ? { background: "#38BDF8", borderColor: "#38BDF8", color: "#08121B" } : {}) }}>{inTrip ? "✓ In itinerary" : "+ Add to itinerary"}</button>
         <button type="button" aria-label="Like this event" aria-pressed={actions.liked} onClick={actions.toggleLike} style={{ ...button, ...(actions.liked ? { background: "#34D399", borderColor: "#34D399", color: "#06231A" } : {}) }}><Thumb /> Like</button>
         <button type="button" aria-label="Not for me" aria-pressed={actions.disliked} onClick={actions.toggleDislike} style={{ ...button, ...(actions.disliked ? { background: "#F87171", borderColor: "#F87171", color: "#2A0A0A" } : {}) }}><Thumb down /> Not for me</button>
-        <button type="button" onClick={actions.share} style={{ ...button, gridColumn: "1 / -1", borderColor: "rgba(249,115,22,.5)", color: "#FDBA74" }}>↗ Share this event</button>
+        <button type="button" data-wf-ask-someone="event" onClick={askSomeone} style={{ ...button, borderColor: "rgba(249,115,22,.5)", background: "rgba(249,115,22,.14)", color: "#FDBA74" }}>♡ Ask someone to go</button>
+        <button type="button" onClick={actions.share} style={{ ...button, borderColor: "rgba(249,115,22,.5)", color: "#FDBA74" }}>↗ Share this event</button>
       </div>
     </section>
   );
