@@ -33,7 +33,7 @@ const DEFAULT_LIMIT = 120;
 
 import { warmCreditedPhotos, blockedReason, HARD_MAX_PER_RUN } from "../../../../lib/creditedPhotoWarm";
 import { loadBlogTargets, guideTargets, mergeTargets, viewedFirst, loadReaderViews, backfillScope, loadPhotosUsed, PLACE_ID_RX } from "../../../../lib/creditedPhotoTargets";
-import { photosCeiling } from "../../../../lib/spendGate";
+import { photosCeiling, runWithTraffic, TRAFFIC } from "../../../../lib/spendGate";
 import { GUIDES } from "../../../../lib/guides";
 import { GUIDE_PLACE_RAILS } from "../../../../lib/guidePlaceRails";
 import { guidePickMayResolvePlaceCard } from "../../../../lib/guidePlaceIdentity";
@@ -47,7 +47,12 @@ function sbEnv() {
   return url && key ? { url, key } : null;
 }
 
+// Traffic class (lib/spendGate.js human traffic reserve): a batch job, no visitor waiting; refused inside the last 20% of the photos line.
 export async function GET(req) {
+  return runWithTraffic(TRAFFIC.BACKGROUND, () => runCreditedPhotos(req));
+}
+
+async function runCreditedPhotos(req) {
   const secret = process.env.CRON_SECRET;
   const auth = req.headers.get("authorization") || "";
   if (!secret || auth !== "Bearer " + secret) return new Response("unauthorized", { status: 401 });

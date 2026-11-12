@@ -1,0 +1,245 @@
+{
+ "reviewed": "2026-11-03 photo review of #2150 and #2152 (Cursor lane), confirmed by the release owner 2026-11-05",
+ "rule": "A photo listed here was rejected in review. scope=global: never served on any Wayfind surface. scope=christmas: never a Christmas card or gallery photo. scope=event: never served for the listed events (it may be valid for the event it actually shows). Matching is by file path, by source URL, and by exact bytes, so a renamed or re-downloaded copy is still caught.",
+ "photos": [
+  {
+   "sha256": "52578b6163cc0af7dad94dd0c37937266253e94a0cbb199c6c264242bfd1f1e9",
+   "bytes": 299474,
+   "files": [
+    "/place-photos/batch-2026-11i/amelia-island-museum-of-history-holiday-home-tour-2026/xmas_0d00945b48782a1d.jpg"
+   ],
+   "source_href": "https://www.ameliaisland.com/wp-content/uploads/Dickens-on-Centre-Enchanted-Village.jpeg",
+   "scope": "event",
+   "events": [
+    "amelia-island-museum-of-history-holiday-home-tour-2026",
+    "fernandina-holiday-home-tour-2026"
+   ],
+   "why": "Dickens on Centre, a different Amelia event than the Holiday Home Tour.",
+   "removed_in": "ca229a5e7af8dff18b6a8cca1b375abb8a716a53"
+  },
+  {
+   "sha256": "8f099691cf884aa5a790810d1e6ea69a621b340b031c18d41f7ed8fe2617078f",
+   "bytes": 204004,
+   "files": [
+    "/place-photos/batch-2026-11i/amelia-island-museum-of-history-holiday-home-tour-2026/xmas_21497ba1f900dc66.jpg"
+   ],
+   "source_href": "https://www.ameliaisland.com/wp-content/uploads/Amelia-Holidays-Downtown-Tree-Lighting.jpg",
+   "scope": "event",
+   "events": [
+    "amelia-island-museum-of-history-holiday-home-tour-2026",
+    "fernandina-holiday-home-tour-2026"
+   ],
+   "why": "Downtown Fernandina tree lighting, a different Amelia event than the Holiday Home Tour.",
+   "removed_in": "ca229a5e7af8dff18b6a8cca1b375abb8a716a53"
+  },
+  {
+   "sha256": "ac8507bcd8c6d50d0cbcc1ca51879268050b998b8bae0b682bf8775a6564742f",
+   "bytes": 290311,
+   "files": [
+    "/place-photos/batch-2026-11i/amelia-island-museum-of-history-holiday-home-tour-2026/xmas_a6ce528e34872bd9.jpg"
+   ],
+   "source_href": "https://www.ameliaisland.com/wp-content/uploads/2024-Amelia-Omni-Tree-Lighting-Holiday-Lights-Celebration.jpg",
+   "scope": "event",
+   "events": [
+    "amelia-island-museum-of-history-holiday-home-tour-2026",
+    "fernandina-holiday-home-tour-2026"
+   ],
+   "why": "Omni Amelia Island tree lighting, a different Amelia event than the Holiday Home Tour.",
+   "removed_in": "ca229a5e7af8dff18b6a8cca1b375abb8a716a53"
+  },
+  {
+   "sha256": "358766291d2b287b91e3ee883c157bed6c52426bc69ddebf5cfc79cdcab1aa20",
+   "bytes": 263049,
+   "files": [
+    "/place-photos/batch-2026-11i/amelia-island-museum-of-history-holiday-home-tour-2026/xmas_ec99a94d47f24f33.jpg"
+   ],
+   "source_href": "https://www.ameliaisland.com/wp-content/uploads/Dickens-Tidings-and-Twinkle-.jpg",
+   "scope": "event",
+   "events": [
+    "amelia-island-museum-of-history-holiday-home-tour-2026",
+    "fernandina-holiday-home-tour-2026"
+   ],
+   "why": "Dickens on Centre (Tidings and Twinkle), a different Amelia event than the Holiday Home Tour.",
+   "removed_in": "ca229a5e7af8dff18b6a8cca1b375abb8a716a53"
+  },
+  {
+   "sha256": "3fc625c58685bd63270646ac70e14864dd1ba53afda4d3a5f1e05fdb0f26fe00",
+   "bytes": 320376,
+   "files": [
+    "/place-photos/batch-2026-11i/wec-winter-wonderland-2026/xmas_b3d1c37af0fdce3d.jpg"
+   ],
+   "source_href": "https://worldequestriancenter.com/wp-content/uploads/2026/08/WW_Carriage.png",
+   "scope": "global",
+   "events": [
+    "wec-winter-wonderland-2026",
+    "ocala-wec-winter-wonderland-2026"
+   ],
+   "why": "Composited night scene (milky way sky, posed figures, light painted hoop), not a photograph of the WEC plaza. Synthetic imagery is never a card photo.",
+   "removed_in": "ca229a5e7af8dff18b6a8cca1b375abb8a716a53"
+  },
+  {
+   "sha256": "67eecd8843a5b06b1ba59dc1d7538fef798fbb24f6de57d0e9ea76727d76bd24",
+   "bytes": 300402,
+   "files": [
+    "/place-photos/batch-2026-11k/captiva-holiday-golf-cart-parade-2026/xmas_49351f9e4e663279.jpg",
+    "/place-photos/batch-2026-11k/captiva-luminary-celebration-2026/xmas_49351f9e4e663279.jpg"
+   ],
+   "source_href": "https://commons.wikimedia.org/wiki/File:South_Seas_Island_Resort,_Captiva_Island,_Florida.jpg",
+   "scope": "christmas",
+   "events": [
+    "captiva-holiday-golf-cart-parade-2026",
+    "captiva-luminary-celebration-2026"
+   ],
+   "why": "Generic Captiva beach, sunset or resort trolley scenery; it does not depict any Christmas event.",
+   "removed_in": "7c6303fa1d28e790acd9488cf227e62bfcd0131f"
+  },
+  {
+   "sha256": "5a5909319e1ccba10ac34893432c9b0e6ff436f1067b17246907d32614d1e28e",
+   "bytes": 98888,
+   "files": [
+    "/place-photos/batch-2026-11k/captiva-holiday-golf-cart-parade-2026/xmas_5df73da5e55edc71.jpg",
+    "/place-photos/batch-2026-11k/captiva-luminary-celebration-2026/xmas_5df73da5e55edc71.jpg"
+   ],
+   "source_href": "https://commons.wikimedia.org/wiki/File:Captiva_Beach.JPG",
+   "scope": "christmas",
+   "events": [
+    "captiva-holiday-golf-cart-parade-2026",
+    "captiva-luminary-celebration-2026"
+   ],
+   "why": "Generic Captiva beach, sunset or resort trolley scenery; it does not depict any Christmas event.",
+   "removed_in": "7c6303fa1d28e790acd9488cf227e62bfcd0131f"
+  },
+  {
+   "sha256": "6c46c5a01a1e054ecf376075b2d14e303026832a60ff1f67a0b89d2234d9421c",
+   "bytes": 375914,
+   "files": [
+    "/place-photos/batch-2026-11k/captiva-holiday-golf-cart-parade-2026/xmas_9cbccdf188f98215.jpg",
+    "/place-photos/batch-2026-11k/captiva-luminary-celebration-2026/xmas_9cbccdf188f98215.jpg"
+   ],
+   "source_href": "https://commons.wikimedia.org/wiki/File:Tween_Waters_Inn_Historic_District_10.jpg",
+   "scope": "christmas",
+   "events": [
+    "captiva-holiday-golf-cart-parade-2026",
+    "captiva-luminary-celebration-2026"
+   ],
+   "why": "Generic Captiva beach, sunset or resort trolley scenery; it does not depict any Christmas event.",
+   "removed_in": "7c6303fa1d28e790acd9488cf227e62bfcd0131f"
+  },
+  {
+   "sha256": "20c8680dead076e49bed0a8740b9b244a03139eea1c2be6254cea28cc6649e2f",
+   "bytes": 284348,
+   "files": [
+    "/place-photos/batch-2026-11k/captiva-holiday-golf-cart-parade-2026/xmas_cd895bafda386876.jpg",
+    "/place-photos/batch-2026-11k/captiva-luminary-celebration-2026/xmas_cd895bafda386876.jpg"
+   ],
+   "source_href": "https://commons.wikimedia.org/wiki/File:Sunset_Splashes.jpg",
+   "scope": "christmas",
+   "events": [
+    "captiva-holiday-golf-cart-parade-2026",
+    "captiva-luminary-celebration-2026"
+   ],
+   "why": "Generic Captiva beach, sunset or resort trolley scenery; it does not depict any Christmas event.",
+   "removed_in": "7c6303fa1d28e790acd9488cf227e62bfcd0131f"
+  },
+  {
+   "sha256": "e1fc0603a46369338a165ac8804e3bd0d44d9fc219d611e1d6f617dcb46cc71f",
+   "bytes": 165270,
+   "files": [
+    "/place-photos/batch-2026-11k/captiva-holiday-golf-cart-parade-2026/xmas_d3135fdf863cb22b.jpg",
+    "/place-photos/batch-2026-11k/captiva-luminary-celebration-2026/xmas_d3135fdf863cb22b.jpg"
+   ],
+   "source_href": "https://commons.wikimedia.org/wiki/File:Captiva_-_panoramio.jpg",
+   "scope": "christmas",
+   "events": [
+    "captiva-holiday-golf-cart-parade-2026",
+    "captiva-luminary-celebration-2026"
+   ],
+   "why": "Generic Captiva beach, sunset or resort trolley scenery; it does not depict any Christmas event.",
+   "removed_in": "7c6303fa1d28e790acd9488cf227e62bfcd0131f"
+  },
+  {
+   "sha256": "051135e5ce1dba5055b4060c03e26eb2bb350a3ed68ecbb097d7eb7bbe74af9c",
+   "bytes": 197283,
+   "files": [
+    "/place-photos/batch-2026-11k/captiva-holiday-golf-cart-parade-2026/xmas_e56657c8e5151196.jpg",
+    "/place-photos/batch-2026-11k/captiva-luminary-celebration-2026/xmas_e56657c8e5151196.jpg"
+   ],
+   "source_href": "https://commons.wikimedia.org/wiki/File:Captiva_sunshine_(4176633546).jpg",
+   "scope": "christmas",
+   "events": [
+    "captiva-holiday-golf-cart-parade-2026",
+    "captiva-luminary-celebration-2026"
+   ],
+   "why": "Generic Captiva beach, sunset or resort trolley scenery; it does not depict any Christmas event.",
+   "removed_in": "7c6303fa1d28e790acd9488cf227e62bfcd0131f"
+  },
+  {
+   "sha256": "2919c3a9b12df77599ad0a666587e4b9899bea3e273bcadbed19a8a508d1216f",
+   "bytes": 169423,
+   "files": [
+    "/place-photos/batch-2026-11k/captiva-holiday-golf-cart-parade-2026/xmas_f861953f6d9a270f.jpg",
+    "/place-photos/batch-2026-11k/captiva-luminary-celebration-2026/xmas_f861953f6d9a270f.jpg"
+   ],
+   "source_href": "https://commons.wikimedia.org/wiki/File:Island_Sunset,_Christmas_Day.jpg",
+   "scope": "christmas",
+   "events": [
+    "captiva-holiday-golf-cart-parade-2026",
+    "captiva-luminary-celebration-2026"
+   ],
+   "why": "Generic Captiva beach, sunset or resort trolley scenery; it does not depict any Christmas event.",
+   "removed_in": "7c6303fa1d28e790acd9488cf227e62bfcd0131f"
+  },
+  {
+   "sha256": "a375fe11a454815f5dedf34171f5f7b90e0a39a50ecf9bff12bd54539610ba36",
+   "bytes": 436852,
+   "files": [
+    "/place-photos/batch-2026-11k/st-pete-holiday-lights-displays-2026/xmas_0619f1ff0e5c3410.jpg",
+    "/place-photos/batch-2026-11k/st-pete-santa-in-the-park-2026/xmas_0619f1ff0e5c3410.jpg",
+    "/place-photos/batch-2026-11k/st-pete-santa-parade-tree-lighting-2026/xmas_0619f1ff0e5c3410.jpg",
+    "/place-photos/batch-2026-11k/st-pete-snowfest-2026/xmas_0619f1ff0e5c3410.jpg"
+   ],
+   "source_href": "https://commons.wikimedia.org/wiki/File:St._Pete_BW_sculpture01.jpg",
+   "scope": "event",
+   "events": [
+    "st-pete-holiday-lights-displays-2026",
+    "st-pete-santa-in-the-park-2026",
+    "st-pete-santa-parade-tree-lighting-2026",
+    "st-pete-snowfest-2026"
+   ],
+   "why": "Daytime fountain under the old Wachovia tower; does not show the St. Pete holiday event it was attached to.",
+   "removed_in": "7c6303fa1d28e790acd9488cf227e62bfcd0131f"
+  },
+  {
+   "sha256": "39cf9450c6705c0e7d043fc1761c45a77590ac99442fa33b90ad96e6b93eb667",
+   "bytes": 326980,
+   "files": [
+    "/place-photos/batch-2026-11k/tavares-christmas-parade-2026/xmas_cbbbe03953603f3b.jpg",
+    "/place-photos/batch-2026-11k/tavares-christmas-parade-and-festival-2026/xmas_cbbbe03953603f3b.jpg"
+   ],
+   "source_href": "https://commons.wikimedia.org/wiki/File:Tavares_FL_Union_Congreg_Church02.jpg",
+   "scope": "christmas",
+   "events": [
+    "tavares-christmas-parade-2026",
+    "tavares-christmas-parade-and-festival-2026"
+   ],
+   "why": "Tavares church frame cropped through traffic lights; fails as a card cover.",
+   "removed_in": "7c6303fa1d28e790acd9488cf227e62bfcd0131f"
+  },
+  {
+   "sha256": "ad1152c12742962f70405816cf22edd89d6e3ea62003cf614af5247691876a1b",
+   "bytes": 340915,
+   "files": [
+    "/place-photos/batch-2026-11k/tavares-christmas-parade-2026/xmas_d6bce42db39a0e7a.jpg",
+    "/place-photos/batch-2026-11k/tavares-christmas-parade-and-festival-2026/xmas_d6bce42db39a0e7a.jpg"
+   ],
+   "source_href": "https://commons.wikimedia.org/wiki/File:Tavares_FL_Union_Congreg_Church03.jpg",
+   "scope": "christmas",
+   "events": [
+    "tavares-christmas-parade-2026",
+    "tavares-christmas-parade-and-festival-2026"
+   ],
+   "why": "Tavares church frame cropped through traffic lights; fails as a card cover.",
+   "removed_in": "7c6303fa1d28e790acd9488cf227e62bfcd0131f"
+  }
+ ]
+}

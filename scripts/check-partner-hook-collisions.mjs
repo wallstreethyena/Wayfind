@@ -24,6 +24,7 @@
 // below therefore INVOKES the real resolver and checks the returned offer id,
 // which is the thing that actually ships.
 import { PLACE_PARTNER_PICKS, RETIRED_VIATOR_PINS, placePartnerPick, isBeachName } from "../lib/placePartnerPicks.js";
+import { isHeldPartnerOffer } from "../lib/partnerOfferHolds.js";
 import { VENUE_OFFERS, venueOfferFor } from "../lib/venueOffers.js";
 import { PARTNER_OFFER_REGISTRY, partnerOfferById } from "../lib/partnerOfferRegistry.js";
 import { UT_PLACE_DEAL_IDS } from "../lib/deals.js";
@@ -99,6 +100,7 @@ ok(VENUE_OFFERS.length >= 20, `VENUE_OFFERS is populated (got ${VENUE_OFFERS.len
 // alias, the loser's own alias resolves to the winner's offer id and this
 // fails — naming both sides.
 const aliasOwner = new Map();
+let held = 0;
 for (const row of PLACE_PARTNER_PICKS) {
   for (const alias of row.aliases) {
     const key = norm(alias);
@@ -119,10 +121,18 @@ for (const row of PLACE_PARTNER_PICKS) {
     // A bare beach name is refused by the beach rule (placePartnerPick never
     // serves a beach card); every OTHER alias must still resolve to its row.
     if (isBeachName(alias)) { ok(got === null, `beach alias "${alias}" resolves to null (the beach rule), never to ${row.offerId}`); continue; }
+    // A HELD offer (lib/partnerOfferHolds.js: the partner's own page cannot
+    // sell a ticket right now) paints no button, so its alias resolves to null,
+    // and never to a DIFFERENT row. The ownership claim above still ran, so a
+    // held row cannot hide a collision. Count them: a hold list that grew to
+    // swallow the catalogue would make this loop vacuous.
+    if (isHeldPartnerOffer(row.offerId)) { held++; ok(got === null, `held offer ${row.offerId}: alias "${alias}" resolves to null while it is on the hold list (got ${got ? got.offerId : "null"})`); continue; }
     ok(got && got.offerId === row.offerId,
        `placePartnerPick("${alias}") returns ${row.offerId} (got ${got ? got.offerId : "null"}) — the lookup must resolve each alias to the row that declared it`);
   }
 }
+ok(held * 2 < aliasOwner.size,
+   `held aliases are a minority (${held} of ${aliasOwner.size}) — past half, section 1 is checking the hold list, not the lookup`);
 
 // ── 2. NO BARE MULTI-MARKET BRAND may appear in the un-gated list ─────────
 // A brand is "multi-market" when VENUE_OFFERS sells it under two different
@@ -213,7 +223,7 @@ ok(placePartnerPick({ name: "Zoo Miami Gift Shop" }) === null,
    "a SUPERSTRING of a listed venue does not match — exact names, never substrings");
 
 const registryIds = Object.keys(PARTNER_OFFER_REGISTRY).length;
-console.log(`check-partner-hook-collisions: OK — ${pass} assertions (${PLACE_PARTNER_PICKS.length} un-gated place hooks with ${aliasOwner.size} aliases, all resolved BY CALL; ${VENUE_OFFERS.length} geo-gated venues; ${multiMarket.length} multi-market brands proven separated by market; ${registryIds} registry destinations checked for host + placeholders)`);
+console.log(`check-partner-hook-collisions: OK — ${pass} assertions (${PLACE_PARTNER_PICKS.length} un-gated place hooks with ${aliasOwner.size} aliases, all resolved BY CALL, ${held} on hold and proven null; ${VENUE_OFFERS.length} geo-gated venues; ${multiMarket.length} multi-market brands proven separated by market; ${registryIds} registry destinations checked for host + placeholders)`);
 
 // ── TICKETNETWORK PATH LAW (added 2026-08-12) ─────────────────────────────
 // TicketNetwork serves TWO paths. `/venues/<slug>-tickets` is legacy and

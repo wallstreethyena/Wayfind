@@ -111,7 +111,7 @@ ok(quiet.length === 0, "C2 control: a normal list logs nothing");
 
 // ---------------------------------------------------------------- D: wiring
 const stripComments = (s) => s.split("\n").map((l) => l.replace(/^\s*\/\/.*$/, "").replace(/\s\/\/.*$/, "")).join("\n");
-for (const [file, key] of [["app/florida-events/page.js", "florida-events-hub-packed-v2"], ["app/go/florida/page.js", "go-florida-landing-events-packed-v2"]]) {
+for (const [file, key] of [["app/florida-events/page.js", "florida-events-hub-packed-v3-holiday-discovery"], ["app/go/florida/page.js", "go-florida-landing-events-packed-v2"]]) {
   const src = stripComments(readFileSync(path.join(ROOT, file), "utf8"));
   ok(/=\s*cachedCuratedEventList\(/.test(src), `D1 ${file} reads through cachedCuratedEventList`);
   ok(src.includes(`"${key}"`), `D2 ${file} uses the fresh cache key ${key}`);
