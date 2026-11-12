@@ -2456,6 +2456,11 @@ node scripts/test-seasonal-existing-refresh-2026-10-22.mjs
 # Claude filter (off unless WAYFIND_SEARCH_UNDERSTAND=on). The migration is
 # not applied here.
 node scripts/test-unified-search.mjs
+# "free things to do in sarasota" came back empty for real visitors (PostHog
+# search_outcome, 30d, 2026-11-11). Modifiers reach the real city page; a free
+# search shows only evidence-free cards (beach/park/trail types, is_free events),
+# never a museum, zoo, state park or priced event; Gastonia JSON unchanged.
+node scripts/test-search-free-modifier.mjs
 node scripts/check-search-understand.mjs
 node scripts/test-search-taxonomy.mjs
 
