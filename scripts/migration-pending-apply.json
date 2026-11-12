@@ -75,5 +75,12 @@
     "decision_owner": "wallstreethyena",
     "tracking": "#2245 follow-up: owner-authorized held-event recurrence hardening 2026-11-05",
     "reason": "NOT APPLIED. Forward function-only repair for the reproduced due-held-row update recheck_on=today -> today+30: if the old deadline is absent/due, cap an explicitly supplied later renewal at ET today+2. NULL renewal still gets ET+2; preserve existing future deadlines and metadata, permit earlier proposals, and leave past/undated/displayable rows unchanged. Requires the enabled trigger from 20261105120030_event_truth_held_recheck_guard.sql; changes no rows, triggers, grants or RLS at apply time. Complete SQL payload executed twice in PGlite with a missing-prerequisite control, original-failure proof and healthy controls. Pending canonical scripts/apply-migration.mjs application; this session has no Management API/PostgREST credentials and performed no production writes."
+  },
+  {
+    "file": "supabase/migrations/20261112190000_wf_owned_social.sql",
+    "sha256": "1c9fd4bb2f45d57d7033b5396a59571f7d64ab1f7ea8c9661c048df4a7896ab7",
+    "decision_owner": "wallstreethyena",
+    "tracking": "#2437",
+    "reason": "NOT APPLIED. New table wf_owned_social (RLS on, public read of published+eligible only, no write policies) and public storage bucket owned-social, for the Instagram to Trending guarantee. No existing object changes. Rollback: drop the table, empty and delete the bucket. Claude's apply_migration was refused by the session's production-deploy gate on 2026-11-12, so the owner applies (or approves the apply) after review; then the 167-post backfill and the daily Metricool ingestion task follow."
   }
 ]
