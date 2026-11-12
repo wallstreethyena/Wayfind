@@ -45,12 +45,12 @@ if (body && body.counts && Array.isArray(body.missing)) {
   if ((body.duplicates || []).length) problems.push(`DUPLICATES ${body.duplicates.length}: ${JSON.stringify(body.duplicates.slice(0, 5))}`);
   if (!(c.eligible > 0) || !(c.in_trending_cards > 0)) problems.push(`nothing eligible or nothing shown (eligible ${c.eligible}, cards ${c.in_trending_cards}): the pipeline is not running`);
   // Freshness is enforced once the reconciler writes to production
-  // (wf_social_reconciliations). Until that table exists the only clock is the
+  // (wf_owned_social.last_seen_at). Until that table exists the only clock is the
   // committed snapshot, which moves with merges, so staleness is a NOTE rather
   // than a permanently red canary.
   const stale = recAgeH == null || recAgeH > STALE_HOURS;
   const staleMsg = `last successful reconciliation is ${recAgeH == null ? "unknown" : recAgeH.toFixed(1) + "h"} old (limit ${STALE_HOURS}h): new posts may not be ingested`;
-  if (stale && body.reconciledFrom === "wf_social_reconciliations") problems.push(staleMsg);
+  if (stale && body.reconciledFrom === "wf_owned_social") problems.push(staleMsg);
   else if (stale) console.log("check-social-trending-live: NOTE — " + staleMsg + " (reconciler table not live yet; snapshot clock only)");
   if (body.ok !== true) problems.push("audit body reports ok=false");
 } else if (body) {

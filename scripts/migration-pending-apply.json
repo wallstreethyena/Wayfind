@@ -75,12 +75,5 @@
     "decision_owner": "wallstreethyena",
     "tracking": "#2245 follow-up: owner-authorized held-event recurrence hardening 2026-11-05",
     "reason": "NOT APPLIED. Forward function-only repair for the reproduced due-held-row update recheck_on=today -> today+30: if the old deadline is absent/due, cap an explicitly supplied later renewal at ET today+2. NULL renewal still gets ET+2; preserve existing future deadlines and metadata, permit earlier proposals, and leave past/undated/displayable rows unchanged. Requires the enabled trigger from 20261105120030_event_truth_held_recheck_guard.sql; changes no rows, triggers, grants or RLS at apply time. Complete SQL payload executed twice in PGlite with a missing-prerequisite control, original-failure proof and healthy controls. Pending canonical scripts/apply-migration.mjs application; this session has no Management API/PostgREST credentials and performed no production writes."
-  },
-  {
-    "file": "supabase/migrations/20261112200000_wf_social_assets.sql",
-    "sha256": "e82b13095b42cdf9f439a3ee9b9623944a1d963fb9f498e3f2aefceb281f0a88",
-    "decision_owner": "wallstreethyena",
-    "tracking": "#2447",
-    "reason": "SOCIAL TRENDING INGESTION (zero-miss guarantee). Creates wf_social_assets (Wayfind's own published posts synced by the scheduled reconciler after a deploy) and wf_social_reconciliations (one row per reconciler run, read by scripts/check-social-trending-live.mjs for freshness). Both RLS on with no policies: service role only. Additive, no data, no existing table touched; the code already works without them (snapshot only). Owner applies after review. Not applied."
   }
 ]

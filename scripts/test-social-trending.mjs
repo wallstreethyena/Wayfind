@@ -23,6 +23,7 @@
 // The production twin of this check is scripts/check-social-trending-live.mjs.
 import { buildTrendingSocial } from "../lib/trendingSocial.js";
 import { allSocialAssets } from "../lib/socialAssets.js";
+import { ownedRowToAsset } from "../lib/trendingSocialServer.js";
 
 const NOW = Date.parse("2026-11-12T17:00:00Z");
 const TODAY = "2026-11-12";
@@ -125,5 +126,22 @@ ok(neg.duplicates.some((d) => d.id === "ig:synthetic-dupe" || d.other === "ig:sy
 ok(neg.broken.some((b) => b.id === "ig:synthetic-broken"), "negative control: unreadable permalink was not caught");
 ok(neg.excluded.some((x) => x.id === "ig:synthetic-future" && x.reason === "not_yet_published") && !neg.eligible.includes("ig:synthetic-future"), "negative control: an unpublished post was not held back");
 ok(neg.excluded.some((x) => x.id === "ig:synthetic-scheduled" && x.reason === "not_published:scheduled") && !neg.eligible.includes("ig:synthetic-scheduled"), "negative control: a scheduled (not yet published) post was not held back");
+
+// 8: rows from the ingestion table (wf_owned_social) override the snapshot.
+{
+  const code = newest.permalink.match(/\/(?:p|reel)\/([^/?#]+)/)[1];
+  const base = { shortcode: code, permalink: newest.permalink, format: newest.format, published_at: new Date(newest.publishedMs).toISOString(), caption: "x", place_ids: [], event_ids: [] };
+  const run = (row) => buildTrendingSocial({ origin: null, deps: makeDeps(assets, { extraOwned: [ownedRowToAsset(row)] }) });
+  const del = run({ ...base, lifecycle: "deleted", eligibility: "excluded", exclusion_reason: "deleted_on_instagram" }).audit;
+  ok(del.excluded.some((x) => x.id === newest.id && /^not_published:deleted|^excluded:deleted_on_instagram/.test(x.reason)) && !del.eligible.includes(newest.id), "a post deleted on Instagram (table row) still shows");
+  const brand = run({ ...base, lifecycle: "published", eligibility: "excluded", exclusion_reason: "ad_creative" }).audit;
+  ok(brand.excluded.some((x) => x.id === newest.id), "a table brand exclusion does not apply");
+  const cover = run({ ...base, lifecycle: "published", eligibility: "eligible", cover_url: "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/owned-social/" + code + ".jpg" });
+  const card = cover.items.find((it) => it.id === newest.id || it.alternates.some((x) => x.id === newest.id));
+  ok(card && cover.audit.missing.length === 0, "a table-synced eligible post is not in Trending");
+  if (card && card.id === newest.id) ok(card.cover && card.cover.kind === "post" && /owned-social/.test(card.cover.src), "the stored first-party cover is not used for our own post");
+  const cdn = run({ ...base, lifecycle: "published", eligibility: "eligible", cover_url: "https://scontent.cdninstagram.com/v/x.jpg" }).items.find((it) => it.id === newest.id);
+  ok(!cdn || !cdn.cover || !/cdninstagram/.test(cdn.cover.src), "an Instagram CDN cover leaked onto a card");
+}
 
 console.log(`test-social-trending: OK — ${n} assertions; ${assets.length} assets (${c.published_owned} owned: ${c.owned_reels} reels, ${c.owned_carousels} carousels, ${c.owned_images} images; ${c.creator_assets} creator), eligible ${c.eligible}, in ${c.in_trending_cards} cards, excluded ${c.excluded}, twins riding ${c.twins_represented_by_carousel}, missing 0, unknown 0, broken 0, duplicates 0`);

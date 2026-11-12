@@ -65,7 +65,7 @@ cached 10 minutes in the function, 5 minutes at the edge).
 
 CREATED / SCHEDULED (never shown: `status` must be `published`, and a publish time in the future
 is `not_yet_published`) → PUBLISHED → INGESTED (`data/social/wayfind-instagram.json`, compiled to
-`lib/wayfindSocialAssets.generated.js`; plus `wf_social_assets` once applied) → ENTITY MATCHED →
+`lib/wayfindSocialAssets.generated.js`; plus `wf_owned_social` rows once that table from #2437 is applied: lifecycle, exclusions with reasons and stored covers) → ENTITY MATCHED →
 TRENDING ELIGIBLE → TRENDING VERIFIED (`?audit=1`: missing, unknown, broken, duplicates must be 0).
 Every post lands in exactly one bucket: in a card, excluded with a reason (`brand_post`,
 `aged_out`, `event_ended`, `twin_of_excluded:…`, `subject_not_on_wayfind`, …) or broken.
