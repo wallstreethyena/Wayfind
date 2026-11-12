@@ -13,21 +13,52 @@ import { track } from "../../lib/track";
 import { captureAttribution, decorateHref } from "../../lib/attribution";
 import { styleHtml } from "../../lib/styleHtml.js";
 
-const INTENTS = [
-  { key: "tonight", label: "Tonight", note: "Open and worth leaving for", icon: "moon" },
-  { key: "family", label: "Family day", note: "Easy wins for every age", icon: "sun" },
-  { key: "outdoors", label: "Outside", note: "Fresh air, no overplanning", icon: "leaf" },
-  { key: "must", label: "Orlando icons", note: "The places that earn the hype", icon: "spark" },
-];
+function intentsForCity(cityLabel = "Orlando") {
+  const isOrlando = String(cityLabel || "").trim().toLowerCase() === "orlando";
+  return [
+    { key: "tonight", label: "Tonight", note: "Open and worth leaving for", icon: "moon" },
+    { key: "family", label: "Family day", note: "Easy wins for every age", icon: "sun" },
+    { key: "outdoors", label: "Outside", note: "Fresh air, no overplanning", icon: "leaf" },
+    { key: "must", label: isOrlando ? "Orlando icons" : `${cityLabel} icons`, note: "The places that earn the hype", icon: "spark" },
+  ];
+}
 
-const COPY = {
-  en: {
-    eyebrow: "ORLANDO · CURATED FOR THIS MOMENT",
-    title: "Your Orlando plan starts here.",
-    intro: "Orlando gives you thousands of options. You only need the right three. Tell us the moment and we’ll find the places worth building your day around.",
+function copyForCity(cityLabel = "Orlando", language = "en") {
+  const upper = String(cityLabel || "Orlando").toUpperCase();
+  if (language === "es") {
+    return {
+      eyebrow: `${upper} · ELEGIDO PARA ESTE MOMENTO`,
+      title: `Tu plan en ${cityLabel} empieza aquí.`,
+      intro: `${cityLabel} te ofrece cientos de opciones. Solo necesitas las tres correctas. Cuéntanos el momento y encontraremos lugares que merecen ser parte de tu día.`,
+      prompt: "Elige tu momento",
+      action: "Muéstrame mis 3 mejores opciones",
+      skip: `O explora la guía completa de ${cityLabel}`,
+      proof: "Selección independiente · actualizada a diario · nadie paga por subir",
+      reveal: "TU SELECCIÓN",
+      matchTitle: "Tres lugares. Una decisión fácil.",
+      matchIntro: "Sin relleno. Cada opción se gana su lugar por sus reseñas, popularidad, distancia y disponibilidad.",
+      best: "MEJOR OPCIÓN",
+      alternate: "ALTERNATIVA",
+      why: "Por qué encaja",
+      details: "Ver detalles",
+      add: "Añadir a mi plan",
+      added: "En mi plan",
+      open: "Abrir todos los detalles",
+      plan: `Tu plan en ${cityLabel}`,
+      planEmpty: "Elige un lugar para guardarlo mientras comparas.",
+      planCta: "Continuar con mi primera opción",
+      all: `Ver todo en ${cityLabel}`,
+      trustTitle: "Elegido por mérito. Nunca comprado.",
+      trustBody: "Wayfind considera reseñas reales, volumen de opiniones, cercanía y disponibilidad. Nadie puede pagar para ser tu mejor opción.",
+    };
+  }
+  return {
+    eyebrow: `${upper} · CURATED FOR THIS MOMENT`,
+    title: `Your ${cityLabel} plan starts here.`,
+    intro: `${cityLabel} gives you countless options. You only need the right three. Tell us the moment and we’ll find the places worth building your day around.`,
     prompt: "Choose your moment",
     action: "Show my 3 best matches",
-    skip: "Or explore the full Orlando guide",
+    skip: `Or explore the full ${cityLabel} guide`,
     proof: "Independent picks · refreshed daily · nobody pays to rank",
     reveal: "YOUR SHORTLIST",
     matchTitle: "Three places. One easy decision.",
@@ -39,39 +70,14 @@ const COPY = {
     add: "Add to my plan",
     added: "In my plan",
     open: "Open full details",
-    plan: "Your Orlando plan",
+    plan: `Your ${cityLabel} plan`,
     planEmpty: "Choose a place to keep it close while you compare.",
     planCta: "Continue with my top pick",
-    all: "See everything in Orlando",
+    all: `See everything in ${cityLabel}`,
     trustTitle: "Chosen on merit. Never bought.",
     trustBody: "Wayfind weighs real guest ratings, review depth, proximity, and current availability. Nobody can pay to become your best match.",
-  },
-  es: {
-    eyebrow: "ORLANDO · ELEGIDO PARA ESTE MOMENTO",
-    title: "Tu plan en Orlando empieza aquí.",
-    intro: "Orlando te ofrece miles de opciones. Solo necesitas las tres correctas. Cuéntanos el momento y encontraremos lugares que merecen ser parte de tu día.",
-    prompt: "Elige tu momento",
-    action: "Muéstrame mis 3 mejores opciones",
-    skip: "O explora la guía completa de Orlando",
-    proof: "Selección independiente · actualizada a diario · nadie paga por subir",
-    reveal: "TU SELECCIÓN",
-    matchTitle: "Tres lugares. Una decisión fácil.",
-    matchIntro: "Sin relleno. Cada opción se gana su lugar por sus reseñas, popularidad, distancia y disponibilidad.",
-    best: "MEJOR OPCIÓN",
-    alternate: "ALTERNATIVA",
-    why: "Por qué encaja",
-    details: "Ver detalles",
-    add: "Añadir a mi plan",
-    added: "En mi plan",
-    open: "Abrir todos los detalles",
-    plan: "Tu plan en Orlando",
-    planEmpty: "Elige un lugar para guardarlo mientras comparas.",
-    planCta: "Continuar con mi primera opción",
-    all: "Ver todo en Orlando",
-    trustTitle: "Elegido por mérito. Nunca comprado.",
-    trustBody: "Wayfind considera reseñas reales, volumen de opiniones, cercanía y disponibilidad. Nadie puede pagar para ser tu mejor opción.",
-  },
-};
+  };
+}
 
 const PHOTO_FALLBACKS = [
   "/cards/date-night-adobestock-190984224.jpeg",
@@ -197,7 +203,7 @@ function icon(kind) {
   return kind === "moon" ? "☾" : kind === "sun" ? "☀" : kind === "leaf" ? "⌁" : "✦";
 }
 
-function categoryOf(place) {
+function categoryOf(place, cityLabel = "Orlando") {
   const name = String(place?.name || "").toLowerCase();
   const t = Array.isArray(place?.types) ? place.types : [];
   if (/ghost|tour|cruise|boat/.test(name)) return "Tour & experience";
@@ -208,7 +214,7 @@ function categoryOf(place) {
   if (t.some((x) => /zoo|aquarium/.test(x))) return "Zoo & aquarium";
   if (t.some((x) => /park|natural_feature/.test(x))) return "Outdoors";
   if (t.some((x) => /restaurant|cafe|bar/.test(x))) return "Food & drink";
-  return "Orlando experience";
+  return `${cityLabel} experience`;
 }
 
 // Status for this card, computed from structured hours + venue offset. Falls
@@ -244,16 +250,16 @@ function fit(place, intent) {
   return n - Math.min(Number(place?.distMi || 0), 20) * .35;
 }
 
-function whyLine(place, intent, language = "en") {
-  const cat = categoryOf(place);
+function whyLine(place, intent, language = "en", cityLabel = "Orlando") {
+  const cat = categoryOf(place, cityLabel);
   const reviews = Number(place?.reviews || 0);
   const curated = CURATED_WHY[String(place?.name || "").trim().toLowerCase()];
   if (curated) return curated[language] || curated.en;
   if (intent === "tonight" && place?.openNow === true) return `Open now, with ${reviews.toLocaleString()} guest reviews behind it.`;
   if (intent === "family" && /park|zoo|aquarium|garden|museum|theme/.test(cat.toLowerCase())) return `${cat} appeal backed by a ${place.rating || "high"}★ rating and ${reviews.toLocaleString()} reviews.`;
   if (intent === "outdoors" && /outdoors|garden/.test(cat.toLowerCase())) return `An outdoor reset, validated by ${reviews.toLocaleString()} reviews.`;
-  if (intent === "tours" && /tour/.test(cat.toLowerCase())) return `A bookable Orlando experience with ${reviews.toLocaleString()} reviews and a ${place.rating || "high"}★ rating.`;
-  if (reviews >= 50000) return `One of Orlando’s most proven crowd favorites — ${place.rating || "highly rated"}★ across ${reviews.toLocaleString()} guest reviews.`;
+  if (intent === "tours" && /tour/.test(cat.toLowerCase())) return `A bookable ${cityLabel} experience with ${reviews.toLocaleString()} reviews and a ${place.rating || "high"}★ rating.`;
+  if (reviews >= 50000) return `One of ${cityLabel}’s most proven crowd favorites — ${place.rating || "highly rated"}★ across ${reviews.toLocaleString()} guest reviews.`;
   return `${place.rating || "Highly rated"}★ across ${reviews.toLocaleString()} reviews — a place with enough proof to earn your time.`;
 }
 
@@ -297,7 +303,8 @@ export default function PaidLanding({ city, places }) {
   const [plan, setPlan] = useState([]);
   const list = Array.isArray(places) ? places : [];
   const cityLabel = city?.name || "Orlando";
-  const t = COPY[language] || COPY.en;
+  const t = copyForCity(cityLabel, language);
+  const cityIntents = intentsForCity(cityLabel);
 
   useEffect(() => {
     let a = {};
@@ -356,7 +363,7 @@ export default function PaidLanding({ city, places }) {
 
   function openDetails(place, position) {
     setActive(place);
-    go("detail_open", { place_id: place.id, place_name: place.name, surface: "paid_landing", position, city: cityLabel, category: categoryOf(place), intent: intent || "must" });
+    go("detail_open", { place_id: place.id, place_name: place.name, surface: "paid_landing", position, city: cityLabel, category: categoryOf(place, cityLabel), intent: intent || "must" });
   }
 
   function togglePlan(place) {
@@ -386,7 +393,7 @@ export default function PaidLanding({ city, places }) {
             <p className="lede">{t.intro}</p>
             <div className="prompt">{t.prompt}</div>
             <div className="intents">
-              {INTENTS.map((item) => (
+              {cityIntents.map((item) => (
                 <button className={`intent ${intent === item.key ? "selected" : ""}`} key={item.key} onClick={() => choose(item.key)} aria-pressed={intent === item.key}>
                   <span className="intentIcon" aria-hidden="true">{icon(item.icon)}</span>
                   <span><b>{item.label}</b><small>{item.note}</small></span>
@@ -412,7 +419,7 @@ export default function PaidLanding({ city, places }) {
               ))}
             </div>
             {heroPhotos.length > 1 ? (
-              <div className="visualControls" aria-label="Choose Orlando highlight">
+              <div className="visualControls" aria-label={`Choose ${cityLabel} highlight`}>
                 {heroPhotos.map((place, i) => (
                   <button className={`visualDot ${i === heroIndex ? "active" : ""}`} key={place?.src || place.id || i} onClick={() => { setHeroIndex(i); setHeroCycle((cycle) => cycle + 1); }} aria-label={`Show image ${i + 1}`} aria-pressed={i === heroIndex} />
                 ))}
@@ -444,10 +451,10 @@ export default function PaidLanding({ city, places }) {
                       })()}
                     </div>
                     <div className="matchBody">
-                      <span className="category">{categoryOf(place)}</span>
+                      <span className="category">{categoryOf(place, cityLabel)}</span>
                       <h3>{place.name}</h3>
                       <Meta place={place} />
-                      <p className="why"><b>{t.why}</b>{whyLine(place, intent || "must", language)}</p>
+                      <p className="why"><b>{t.why}</b>{whyLine(place, intent || "must", language, cityLabel)}</p>
                       <div className="actions">
                         <button className="detailBtn" onClick={() => openDetails(place, index + 1)}>{t.details} →</button>
                         <button className={`planBtn ${inPlan ? "on" : ""}`} onClick={() => togglePlan(place)} aria-pressed={inPlan}>{inPlan ? "✓" : "+"} {inPlan ? t.added : t.add}</button>
@@ -480,12 +487,12 @@ export default function PaidLanding({ city, places }) {
         <div className="drawerShade" role="presentation" onMouseDown={(e) => { if (e.target === e.currentTarget) setActive(null); }}>
           <section className="drawer" role="dialog" aria-modal="true" aria-labelledby="drawer-title">
             <button className="close" onClick={() => setActive(null)} aria-label="Close">×</button>
-            <PlaceDetailPhotoHeader className="drawerHeader" placeId={active.id} name={active.name} initialPhoto={curatedDetailPhoto(active)} titleAs="h2" titleId="drawer-title" eyebrow={<span className="category">{categoryOf(active)}</span>} />
+            <PlaceDetailPhotoHeader className="drawerHeader" placeId={active.id} name={active.name} initialPhoto={curatedDetailPhoto(active)} titleAs="h2" titleId="drawer-title" eyebrow={<span className="category">{categoryOf(active, cityLabel)}</span>} />
             <div className="drawerCopy">
               <Meta place={active} />
-              <p className="why"><b>{t.why}</b>{whyLine(active, intent || "must", language)}</p>
+              <p className="why"><b>{t.why}</b>{whyLine(active, intent || "must", language, cityLabel)}</p>
               <div className="drawerActions">
-                <a href={dh(`/?place=${encodeURIComponent(active.id)}`)} onClick={() => go("detail_open", { place_id: active.id, place_name: active.name, surface: "paid_landing_drawer", city: cityLabel, category: categoryOf(active) })}>{t.open} →</a>
+                <a href={dh(`/?place=${encodeURIComponent(active.id)}`)} onClick={() => go("detail_open", { place_id: active.id, place_name: active.name, surface: "paid_landing_drawer", city: cityLabel, category: categoryOf(active, cityLabel) })}>{t.open} →</a>
                 <button onClick={() => togglePlan(active)}>{plan.some((x) => x.id === active.id) ? `✓ ${t.added}` : `+ ${t.add}`}</button>
               </div>
             </div>

@@ -12,7 +12,6 @@ import { normName, betterPlace, dedupePlaces } from "../lib/placeDedupe";
 import { comparatorFor, sortPlacesBy, nearestBranch } from "../lib/sortModes";
 import { openBrowseHistory } from "../lib/browseHistory";
 import { localCitySuggestions, createSearchAttempt } from "../lib/searchExperience.js";
-import { resolveSearchIntent } from "../lib/searchIntent.js";
 import { mergeHealedPlacePhotos } from "../lib/detailHero";
 import { RON_DUPRAT_TOP7, chefHookCard, chefPickPlaces } from "../lib/chefPicks";
 import { fallCardClass, fallShareLine } from "../lib/fallSkin.js";
@@ -9436,6 +9435,8 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
         }
         // A recognized search phrase ("date night", "brunch") renders cards.
         // The experience poster and the mood shortcut stay for everything else.
+        const { resolveSearchIntent } = await import("../lib/searchIntent.js");
+        if (!current()) return;
         const recognizedSearch = resolveSearchIntent(q, {}).recognized === true;
         const expHit = Object.keys(EXPERIENCES).find((k) => {
           const e = EXPERIENCES[k];
@@ -9526,7 +9527,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
         if (options.placeIntent) logEvent("guide_place_open", exact[0].place, { q: attempt.meta.q, search_id: attempt.id });
         return;
       }
-      const choices = [...localCitySuggestions(q), ...result.matches.filter((item) => item.kind === "place")].slice(0, 8);
+      const choices = [...localCitySuggestions(q), ...result.matches.filter((item) => item.kind === "place" || (!options.placeIntent && isSafeSearchHref(item.href)))].slice(0, 8);
       if (choices.length) {
         setSuggestions(choices.map((item) => ({ ...item, _searchAttempt: attempt })));
         setSearchFeedback("Choose the place or city you meant below.");
