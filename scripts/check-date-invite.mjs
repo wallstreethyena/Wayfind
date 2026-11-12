@@ -31,6 +31,7 @@ import {
   activityForPlace, kindsForPlace, planFitsPlace, datedCardPath, inviteKinds,
   INVITE_TEXTS, smsHref, inviteShareText, geoPoint, placeKinds,
   inviteDirectionsHref, inviteCalendarEvent, inviteItineraryStop,
+  eventDateMismatch, normalizeEventDateIso,
 } from "../lib/dateInvite.js";
 import { addStopToStoredTrips } from "../lib/itineraryAdd.js";
 import { inviteModel, dateModel, footFits } from "../lib/shareCardCopy.js";
@@ -1162,11 +1163,93 @@ ok(noScale(50) >= SCALE.noMin && SCALE.noMin > 0.4,
     ok(!document.getElementById(SHEET_ID), "Cancel no longer closes the sheet");
   }
 
+  // (g) 1-TAP DIRECT INVITE: directInvite=true opens "Who are you asking?" immediately
+  // with prefilled place/event, date, city, surface, and eventDate carried into the URL.
+  {
+    const body = mount();
+    let handedUrl = "";
+    askShareIntent({
+      name: "Enchant Christmas",
+      city: "St. Petersburg",
+      id: "xmas-enchant",
+      kind: "hidden",
+      when: "2026-12-19",
+      eventDate: "2026-12-19",
+      surface: "christmas",
+      geo: "27.7676,-82.6403",
+      directInvite: true,
+      onPlain() {},
+      onInvite(u) { handedUrl = u; return true; },
+    });
+    ok(/Who are you asking\?/.test(body.textContent) && !/Just share it/.test(body.textContent),
+       "directInvite must open 'Who are you asking?' in one tap without the intermediate Share chooser");
+    ok(/Enchant Christmas/.test(body.textContent) && /2026-12-19/.test(body.textContent),
+       "directInvite must display the prefilled place/event and date context");
+    body.walk((x) => x.tag === "input").value = "Maya";
+    btn(body, "Send the invite").fire("click");
+    const code = handedUrl.split("/ask?d=")[1] || "";
+    const decoded = decodeInvite(decodeURIComponent(code));
+    ok(decoded && decoded.place === "Enchant Christmas" && decoded.city === "St. Petersburg"
+       && decoded.when === "2026-12-19" && decoded.eventDate === "2026-12-19"
+       && decoded.surface === "christmas" && decoded.to === "Maya",
+       "directInvite must carry prefilled place, city, when, eventDate, surface, and recipient name into the invite URL");
+  }
+
   if (originalNavigator === undefined) delete globalThis.navigator;
   else Object.defineProperty(globalThis, "navigator", { configurable: true, value: originalNavigator });
   delete process.env.NEXT_PUBLIC_SITE_URL;
   delete globalThis.document;
   delete globalThis.window;
+}
+
+// ── 9. DISCOVERABLE ENTRYPOINTS, EVENT DATE SAFETY & RECIPIENT ATTRIBUTION ──
+{
+  ok(normalizeEventDateIso("2026-12-19T19:00:00Z") === "2026-12-19", "normalizeEventDateIso extracts YYYY-MM-DD");
+  ok(normalizeEventDateIso("2026-12-18..2026-12-20") === "2026-12-18..2026-12-20", "normalizeEventDateIso preserves date ranges");
+  const singleDayEvent = decodeInvite(encodeInvite({
+    place: "Gasparilla Music Festival",
+    city: "Tampa",
+    eventDate: "2026-12-19",
+    surface: "event",
+  }));
+  ok(singleDayEvent && singleDayEvent.eventDate === "2026-12-19" && singleDayEvent.when === "2026-12-19" && singleDayEvent.surface === "event",
+     "encodeInvite/decodeInvite round-trips eventDate, when, and surface");
+  ok(eventDateMismatch(singleDayEvent, "2026-12-19") === false, "selecting the exact event date has no mismatch");
+  ok(eventDateMismatch(singleDayEvent, "2026-12-21") === true, "selecting a different date for a single-day event flags a mismatch");
+
+  const rangeEvent = decodeInvite(encodeInvite({
+    place: "St. Pete Pier Holiday Market",
+    city: "St. Petersburg",
+    eventDate: "2026-12-18..2026-12-20",
+    surface: "christmas",
+  }));
+  ok(eventDateMismatch(rangeEvent, "2026-12-19") === false, "a date inside an event range has no mismatch");
+  ok(eventDateMismatch(rangeEvent, "2026-12-24") === true, "a date outside an event range flags a mismatch");
+
+  const askClientSrc = readFileSync(path.join(REPO, "app/ask/AskClient.js"), "utf8");
+  ok(askClientSrc.includes('data-event-date-mismatch="1"') && askClientSrc.includes("eventDateMismatch(inv, dayIso)"),
+     "AskClient must warn when the selected date conflicts with a dated event");
+  ok(askClientSrc.includes('data-wf-build-day="1"') && askClientSrc.includes("Build the rest of the day") && askClientSrc.includes("ask_invite_planner_opened"),
+     "AskClient must offer 'Build the rest of the day' planner handoff on the agreed plan screen");
+
+  const trackSrc = readFileSync(path.join(REPO, "lib/track.js"), "utf8");
+  ok(trackSrc.includes("wf_invite_recipient_v1") && trackSrc.includes("recordInviteRecipient") && trackSrc.includes("ask_recipient_activated"),
+     "lib/track.js must record privacy-safe invite recipient attribution and emit ask_recipient_activated");
+
+  for (const [rel, marker] of [
+    ["app/components/DateNightIntentPage.js", 'data-wf-ask-someone="date_night"'],
+    ["app/components/DateNightRails.js", "openDirectInvite("],
+    ["app/components/ChristmasTicketCard.js", 'data-wf-ask-someone="christmas"'],
+    ["app/events/[city]/[slug]/EventActions.js", 'data-wf-ask-someone="event"'],
+    ["app/florida-events/[slug]/page.js", "<AskSomeoneButton"],
+    ["app/components/PosterEventCard.js", "openDirectInvite("],
+    ["app/components/sheets/Detail.js", "data-detail-ask-someone"],
+    ["lib/placePage.js", "<AskSomeoneButton"],
+    ["app/components/screens/Itinerary.js", 'data-wf-ask-someone="itinerary"'],
+  ]) {
+    const s = readFileSync(path.join(REPO, rel), "utf8");
+    ok(s.includes(marker), `${rel} must expose a direct 1-tap Plan Together entrypoint (${marker})`);
+  }
 }
 
 if (fails.length) {

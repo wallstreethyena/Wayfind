@@ -6,6 +6,7 @@ import PhotoCreditLink from "./PhotoCreditLink.js";
 import { emitCommerce } from "../../lib/commerce.js";
 import { secondaryTicketPrimaryMatches } from "../../lib/secondaryTicketPrimary.js";
 import { useContentCardActions } from "../../lib/contentCardActions.js";
+import { openDirectInvite } from "../../lib/shareFlow.js";
 import RemindMe from "./RemindMe.js";
 
 // THE one Christmas card on /christmas-in-florida (owner direction 2026-11-01:
@@ -166,6 +167,7 @@ function saveItemFor(row) {
 function CardActions({ row, item }) {
   const actions = useContentCardActions(item);
   const on = actions.hydrated && actions.saved;
+  const eventIso = (row && row.remind && row.remind.startIso ? String(row.remind.startIso).slice(0, 10) : "") || "";
   return (
     <div className="xm-actions" data-card-actions="">
       <button
@@ -176,6 +178,25 @@ function CardActions({ row, item }) {
         onClick={(e) => { e.preventDefault(); e.stopPropagation(); actions.toggleSave(); }}
       ><Heart on={on} /><span>{on ? "Saved" : "Save"}</span></button>
       {row.remind ? <RemindMe facts={row.remind} variant="card" ticketHref={row.remindTicketHref || null} surface={REMIND_SURFACE} /> : null}
+      <button
+        type="button"
+        className="xm-ask"
+        data-wf-ask-someone="christmas"
+        aria-label={"Ask someone: " + item.title}
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          openDirectInvite({
+            url: item.url || "https://www.gowayfind.com/christmas-in-florida",
+            title: item.title,
+            name: item.title,
+            city: row.city || "",
+            when: eventIso || row.when || "",
+            eventDate: eventIso,
+            surface: "christmas",
+          });
+        }}
+      ><Heart on={false} /><span>Ask someone</span></button>
     </div>
   );
 }

@@ -18,7 +18,8 @@ import { PLANNER_EVENTS, trackPlannerEvent, isPlannedStopItem } from "../../../l
 import { checkPlannerEntitlement } from "../../../lib/plannerEntitlement";
 import { COVERED_CITIES } from "../../../lib/landingCities";
 import { cardComplete, searchEditorialCard } from "../../../lib/score";
-
+import { openDirectInvite } from "../../../lib/shareFlow";
+import { placeKinds } from "../../../lib/dateInvite";
 const Trips = { ...TripCore, ...TripDays };
 
 function shortDayTabLabel(ymd) {
@@ -1442,6 +1443,27 @@ export default function ItineraryScreen({ ctx }) {
                               <button type="button" aria-label={`Move ${p.name || "stop"} later`} onClick={() => { if (!hasLocalTrip && !requireAuth("Sign up free to plan your trip and pick up right where you left off, anywhere.")) return; try { logEvent("stop_reorder", p, { key: t.key, from: i, to: i + 1, dir: 1 }); } catch (e) {} setTrips((prev) => Trips.moveItem(prev, t.key, stopKey, 1, todayOpt)); }} disabled={i === group.items.length - 1} style={{ ...tripCtl, opacity: i === group.items.length - 1 ? 0.35 : 1 }}>↓</button>
                               <button type="button" onClick={() => { if (!hasLocalTrip && !requireAuth("Sign up free to plan your trip and pick up right where you left off, anywhere.")) return; try { logEvent("stop_visited", p, { key: t.key, visited: !it.visited }); } catch (e) {} setTrips((prev) => Trips.toggleVisited(prev, t.key, stopKey)); }} style={{ ...tripChip, ...(it.visited ? { background: C.adim, borderColor: C.accent, color: C.light } : {}) }}>{it.visited ? "✓ Visited" : "Mark visited"}</button>
                               <button type="button" onClick={() => { if (!hasLocalTrip && !requireAuth("Sign up free to jot trip notes that travel with you.")) return; setTripNoteEdit(stopKey); setTripMoveFor(null); setDateEditFor(null); }} style={tripChip}>{it.note ? "Edit note" : "Add note"}</button>
+                              <button
+                                type="button"
+                                data-wf-ask-someone="itinerary"
+                                aria-label={`Ask someone to ${p.name || "this stop"}`}
+                                onClick={() => {
+                                  openDirectInvite({
+                                    title: p.name || "Trip stop",
+                                    name: p.name || "",
+                                    city: t.city || "",
+                                    placeId: p.id || "",
+                                    kind: placeKinds(p),
+                                    when: stopDay || "",
+                                    eventDate: p.itemType === "event" ? (stopDay || p.date || "") : "",
+                                    surface: "itinerary",
+                                    geo: p.lat != null && p.lng != null ? `${p.lat},${p.lng}` : "",
+                                  });
+                                }}
+                                style={{ ...tripChip, borderColor: "rgba(249,115,22,.45)", color: C.light }}
+                              >
+                                ♡ Ask someone
+                              </button>
                               <button type="button" onClick={() => { if (!hasLocalTrip && !requireAuth("Sign up free to plan your trip and pick up right where you left off, anywhere.")) return; setTripMoveFor(stopKey); setTripNoteEdit(null); setDateEditFor(null); }} style={tripChip}>Move</button>
                               <button type="button" onClick={() => { if (!hasLocalTrip && !requireAuth("Sign up free to plan your trip and pick up right where you left off, anywhere.")) return; if (typeof window !== "undefined" && window.confirm("Remove this place from the trip? It stays in your Favorites.")) { try { logEvent("stop_remove", p, { key: t.key, remaining: items.length - 1 }); } catch (e) {} setTrips((prev) => Trips.removePlaceFromTrip(prev, t.key, stopKey)); } }} style={{ ...tripChip, color: C.red }}>Remove</button>
                             </div>
