@@ -32,14 +32,28 @@ for (const [query, id, free, slug] of [
   ["family friendly things to do in sarasota", "family", false, "sarasota"],
   ["free events tampa", "events", true, "tampa"],
   ["free beaches sarasota", "beaches", true, "sarasota"],
+  ["things to do in Sarasota, FL", "things-to-do", false, "sarasota"],
+  ["free things to do in Sarasota, FL", "things-to-do", true, "sarasota"],
+  ["family friendly things to do in Sarasota, Florida", "family", false, "sarasota"],
 ]) {
   const intent = resolveSearchIntent(query, {});
   eq([intent.recognized, intent.id, intent.free, intent.city.slug], [true, id, free, slug], `${query} -> ${id}${free ? " (free)" : ""} in ${slug}`);
 }
+// State-suffixed venue handoffs from /florida/[town] strip the state token so
+// loadTextInventory does not require "fl" in the venue name.
+for (const [query, expectedText, expectedSlug] of [
+  ["LECOM Park Bradenton FL", "lecom park", "bradenton"],
+  ["Get Up and Go Kayaking - Robinson Preserve Palmetto FL", "get up and go kayaking robinson preserve", "palmetto"],
+  ["Get Up and Go Kayaking - Shell Key Preserve Palmetto FL", "get up and go kayaking shell key preserve", "palmetto"],
+  ["tacos in Tampa, FL", "tacos", "tampa"],
+]) {
+  const intent = resolveSearchIntent(query, {});
+  eq([intent.text, intent.city.slug], [expectedText, expectedSlug], `${query} strips state suffix cleanly`);
+}
 // Exact phrases keep their old answer and are never "free".
 eq(resolveSearchIntent("things to do in sarasota", {}).free, false, "an exact phrase is not a free search");
 // Not a known remainder: stays unrecognized, so the route keeps its old JSON.
-for (const query of ["free things to do in gastonia", "free", "free pizza", "best tacos", "free date night", "top"]) {
+for (const query of ["free things to do in gastonia", "free things to do in gastonia, nc", "free", "free pizza", "best tacos", "free date night", "top"]) {
   eq(resolveSearchIntent(query, {}).recognized, false, `${query} stays unrecognized`);
 }
 
@@ -127,6 +141,30 @@ const owned = (id, name, primaryType) => ({ id, displayName: { text: name }, pri
   const hrefs = viaIndex.cards.map((c) => c.href);
   ok(hrefs.includes("/florida-events/free-fair"), "an index event marked free is a card");
   ok(!hrefs.includes("/florida-events/priced-expo"), "a priced index event is never a free card");
+}
+// (c) the loadTextInventory path: /florida/[town] handoffs ("... Palmetto FL",
+// "Ca' d'Zan Bradenton FL") strip the state suffix and emit an apostrophe-free
+// stem (*zan*) so bookable partner tours and apostrophe landmarks return cards.
+{
+  const invRows = [
+    { place_id: "ChIJkayak", name: "Get Up and Go Kayaking - Robinson Preserve", lat: 27.5146, lng: -82.6614, category: "attractions", primary_type: "tourist_attraction", status: "OPERATIONAL", excluded: false, signals: { rating: 4.9, reviews: 420 } },
+    { place_id: "ChIJcadzan", name: "Ca' d'Zan", lat: 27.3824, lng: -82.5647, category: "attractions", primary_type: "museum", status: "OPERATIONAL", excluded: false, signals: { rating: 4.8, reviews: 1850 } },
+  ];
+  const seenOr = [];
+  const fetchImpl = async (url) => {
+    const u = new URL(String(url));
+    if (u.pathname.endsWith("/wf_inventory")) {
+      seenOr.push(u.searchParams.get("or") || "");
+      return new Response(JSON.stringify(invRows), { status: 200, headers: { "content-type": "application/json" } });
+    }
+    return new Response("[]", { status: 200, headers: { "content-type": "application/json" } });
+  };
+  const env = { NEXT_PUBLIC_SUPABASE_URL: "https://abcdefghijklmnopqrst.supabase.co", NEXT_PUBLIC_SUPABASE_ANON_KEY: "k".repeat(64), WAYFIND_SEARCH_UNDERSTAND: "" };
+  const kayak = await searchResultCards({ query: "Get Up and Go Kayaking - Robinson Preserve Palmetto FL", events: [], guides: [], env, fetchImpl });
+  eq(kayak.cards.map((c) => c.id), ["ChIJkayak"], "state-suffixed /florida/[town] handoff returns the pinned kayak tour card");
+  const cadzan = await searchResultCards({ query: "Ca' d'Zan Bradenton FL", events: [], guides: [], env, fetchImpl });
+  eq(cadzan.cards.map((c) => c.id), ["ChIJcadzan"], "Ca' d'Zan Bradenton FL returns Ca' d'Zan card via loadTextInventory");
+  ok(seenOr.some((or) => or.includes("name.ilike.*zan*")), "loadTextInventory prefilter includes apostrophe-free stem *zan*");
 }
 // The route filters its own `places` with this helper under a free search.
 eq(isFreeOwnedPlace(owned("r-beach", "Lido Beach", "beach")), true, "route helper: an owned beach is free");
