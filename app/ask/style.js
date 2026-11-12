@@ -187,6 +187,28 @@ export const ASK_CSS = `
 .wfx-go2{margin-top:12px;background:rgba(255,255,255,.12);color:#FFFFFF;
   border:1.5px solid rgba(255,255,255,.32);box-shadow:0 6px 18px rgba(12,5,26,.32)}
 
+.wfx-pivots{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;width:100%;max-width:380px;margin-top:14px;
+  animation:wfxPop .26s cubic-bezier(.2,1.4,.3,1)}
+.wfx-pivot-btn{border:1.5px solid rgba(255,255,255,.32);cursor:pointer;font-family:inherit;font-weight:750;
+  color:#F5E6FF;background:rgba(26,15,46,.82);backdrop-filter:blur(10px);
+  border-radius:999px;min-height:44px;padding:10px 16px;font-size:14px;letter-spacing:.01em;
+  box-shadow:0 6px 16px rgba(12,5,26,.34);transition:transform .12s ease,border-color .15s ease,background .15s ease}
+.wfx-pivot-btn:hover{border-color:#00F5D4;background:rgba(44,26,74,.92);color:#FFFFFF}
+.wfx-pivot-btn:active{transform:translateY(2px)}
+.wfx-pivot-decline{border-color:rgba(255,117,151,.42);color:#FFD6E7}
+
+.wfx-toolkit{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;margin-top:14px}
+.wfx-tool-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  border:1.5px solid rgba(255,255,255,.28);cursor:pointer;font-family:inherit;font-weight:750;
+  color:#FFFFFF;background:rgba(26,15,46,.78);backdrop-filter:blur(10px);
+  border-radius:16px;min-height:46px;padding:10px 12px;font-size:13.5px;line-height:1.25;
+  text-decoration:none;text-align:center;box-shadow:0 6px 16px rgba(12,5,26,.3);
+  transition:transform .12s ease,border-color .15s ease,background .15s ease}
+.wfx-tool-btn:hover{border-color:#00F5D4;background:rgba(40,22,68,.9)}
+.wfx-tool-btn:active{transform:translateY(2px)}
+.wfx-tool-btn-full{grid-column:1 / -1}
+.wfx-tool-saved{border-color:#00F5D4;background:rgba(0,245,212,.16);color:#00F5D4}
+
 .wfx-quiet{display:inline-block;margin-top:14px;border:0;background:transparent;color:#FFD166;font-family:inherit;
   font-size:15px;font-weight:750;letter-spacing:.01em;cursor:pointer;text-decoration:underline;
   text-underline-offset:4px;text-shadow:0 2px 8px rgba(12,5,26,.5)}

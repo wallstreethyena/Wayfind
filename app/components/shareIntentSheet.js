@@ -4,6 +4,8 @@ import { encodeInvite, invitePath, inviteShareText, activityForPlace } from "../
 import { centerAgreesWithLabel } from "../../lib/locationHonesty";
 import { shareOut } from "../../lib/shareOut.js";
 import { groupPlanHref, placeSharePreview, runShareChoice } from "../../lib/shareContext.js";
+import { track } from "../../lib/track.js";
+
 
 // app/components/shareIntentSheet.js — the question, callable from anywhere (v7.28).
 //
@@ -194,6 +196,7 @@ export function askShareIntent(o) {
   //
   // It is skippable in one tap, it never blocks, and pressing Enter sends.
   const askWho = () => {
+    try { track("ask_invite_started", { has_place: Boolean(name), city: opt.city || "" }); } catch (e) {}
     card.textContent = "";
     card.appendChild(el("div", "font-size:16px;font-weight:800;color:#E6EDF3;margin-bottom:3px", "Who are you asking?"));
     card.appendChild(el("div", "font-size:13px;color:#8B98A9;margin-bottom:14px",
@@ -253,6 +256,10 @@ export function askShareIntent(o) {
       close();
       let opened = false;
       try { opened = !!runShareChoice(() => opt.onInvite && opt.onInvite(url, text, { to: who, key: code })); } catch (err) {}
+      try {
+        track("ask_invite_created", { has_place: Boolean(name), has_to: Boolean(who), city: opt.city || "" });
+        track("ask_invite_shared", { transport: opened ? "native" : "chooser", has_to: Boolean(who) });
+      } catch (e) {}
       if (opened) { close(); return; } // the chosen transport has visible UI
       showReady(url, who, text);
     };
