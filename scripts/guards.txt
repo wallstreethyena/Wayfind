@@ -2610,3 +2610,5 @@ node scripts/test-owned-social-reconcile.mjs
 node scripts/test-background-daily-line.mjs
 node scripts/test-refresh-dedup.mjs
 node scripts/test-game-plan.mjs
+# 2026-11-12: owner directive. CLAUDE.md keeps the GABRIEL EXECUTION AUTONOMY section and every safety section (an approved edit cannot silently drop a rule).
+node scripts/check-claude-md-owner-sections.mjs
