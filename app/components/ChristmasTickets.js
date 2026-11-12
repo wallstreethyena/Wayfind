@@ -1,10 +1,12 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { XM_CARD_CSS } from "./ChristmasTicketCard.js";
+import { isSocialAdLanding } from "../../lib/socialAdLanding.js";
+import { XM_CARD_CSS, organizerTap } from "./ChristmasTicketCard.js";
 import CommerceClickBeacon from "./CommerceClickBeacon.js";
 import { activeSeasonalMark } from "../../lib/seasonalBrand.js";
 import ChristmasElves from "./ChristmasElves.js";
+import GuidePhoto from "./GuidePhoto.js";
 
 // Wayfind home header replica plus Christmas ticket cards, built like the
 // Halloween page (BoHalloweenHaunt). Deep night, warm white text, one festive
@@ -140,6 +142,23 @@ const CSS = XM_CARD_CSS + `
 .xm-share button,.xm-share a{min-height:44px}
 .xm-ask:focus-visible,.xm-filters button:focus-visible,.xm-more:focus-visible{outline:2px solid #FFD9AE;outline-offset:2px}
 
+/* Top picks (2026-11-12): social ad visitors see a photo and a ticket button
+   on the first screen. Wide cards so the next one peeks and invites a swipe. */
+.xm-picks{margin:12px 0 4px}
+.xm-picks-label{margin:0 0 8px;font-size:13px;font-weight:700;letter-spacing:.02em;color:#FFE9C8}
+.xm-picks-row{display:flex;gap:10px;margin:0 -16px;padding:0 16px 4px;list-style:none;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch}
+.xm-picks-row::-webkit-scrollbar{display:none}
+.xm-pick{flex:0 0 min(78vw,300px);min-width:0;scroll-snap-align:start;display:flex;flex-direction:column;overflow:hidden;border-radius:12px;border:1px solid rgba(232,180,138,.9);background:#5A0712;box-shadow:0 8px 20px rgba(40,2,8,.5)}
+.xm-pick-photo{position:relative;height:132px;background:#3A0510;overflow:hidden}
+.xm-pick-photo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.xm-pick-ph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:10px;text-align:center;background:linear-gradient(180deg,#5A0712,#2A0309);color:#F7DCCB;font-size:12px;font-weight:600}
+.xm-pick-credit{position:absolute;left:6px;right:8px;bottom:5px;margin:0;color:rgba(255,255,255,.7);font-size:9.5px;line-height:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 1px 2px rgba(0,0,0,.7)}
+.xm-pick-body{display:flex;flex-direction:column;gap:4px;padding:10px 12px 12px}
+.xm-pick h3{margin:0;font-size:15px;line-height:1.3;font-weight:700;color:#FFF6F0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.xm-pick-meta{margin:0;font-size:12.5px;line-height:1.35;color:#F7DCCB;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.xm-pick-buy{display:flex;align-items:center;justify-content:center;min-height:44px;margin-top:6px;padding:6px 8px;border-radius:12px;background:linear-gradient(180deg,#FFE9B8,#F5C451);color:#4A0610;border:2px solid #E8B48A;font-size:15px;font-weight:800;line-height:1.2;text-decoration:none;text-align:center}
+.xm-pick-buy:focus-visible{outline:2px solid #FFD9AE;outline-offset:2px}
+.xm-pick-via{margin:0;font-size:11px;line-height:1.3;color:#E9C3B0;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #xm-tickets{margin-top:22px;scroll-margin-top:12px}
 .xm-controls{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-top:18px;padding-bottom:16px;border-bottom:1px solid rgba(232,180,138,.22)}
 .xm-sort-note{font-size:13px;color:#E1C6B6;line-height:1.4}.xm-clear{min-height:44px;margin-left:auto;padding:8px 4px;border:0;background:transparent;color:#E8B48A;cursor:pointer;font:inherit;font-size:13px}.xm-clear:focus-visible{outline:2px solid #FFE9C8;outline-offset:3px}
@@ -298,10 +317,81 @@ function WayfindHeader({ seasonal }) {
   );
 }
 
+// Top picks (2026-11-12, morning brief on this task: Meta ad visitors land
+// here, stay about 30 seconds, and 65% never scroll, so they never see a photo
+// or a ticket button). For a visit from a Facebook or Instagram ad or post the
+// page passes up to three featured ticket rows (christmasTicketsModel: merit
+// order, never the partner or the commission), each with a real photo and a
+// way in. The buttons carry the exact registry href and label of the card.
+// /go links are recorded by CommerceClickBeacon; organizer links once, by the
+// card's own organizerTap (same surface, same event).
+
+// The page is one cached copy for everyone (#2424), so the server always sends
+// the picks and the visitor's own URL decides whether they show (#2419: only
+// Facebook and Instagram ad landings see them on the first screen).
+export function SocialTopPicks({ picks }) {
+  const [show, setShow] = useState(false);
+  useEffect(() => {
+    try { setShow(isSocialAdLanding(Object.fromEntries(new URLSearchParams(window.location.search)))); } catch { setShow(false); }
+  }, []);
+  // Rendered hidden in the shared HTML so a social visitor sees it the moment the
+  // check runs; everyone else never sees it.
+  return <div data-social-picks="" hidden={!show}><TopPicks picks={picks} /></div>;
+}
+
+export function TopPicks({ picks }) {
+  const rows = Array.isArray(picks) ? picks.filter((r) => r && r.cta && Array.isArray(r.photos) && r.photos[0]) : [];
+  if (!rows.length) return null;
+  return (
+    <div className="xm-picks" data-top-picks="" data-boo-clear="">
+      <p className="xm-picks-label" id="xm-picks-label">Top picks with tickets</p>
+      <ul className="xm-picks-row" aria-labelledby="xm-picks-label">
+        {rows.map((row, i) => {
+          const photo = row.photos[0];
+          const affiliate = row.cta.kind === "affiliate";
+          const meta = [row.when, row.city].filter(Boolean).join(" · ");
+          return (
+            <li key={row.id} className="xm-pick" data-pick-id={row.id} data-rank={i + 1}>
+              <div className="xm-pick-photo">
+                <GuidePhoto
+                  src={photo.src}
+                  alt={photo.alt}
+                  width={photo.width}
+                  height={photo.height}
+                  sizes="(min-width: 720px) 300px, 78vw"
+                  loading={i === 0 ? "eager" : "lazy"}
+                  fetchpriority={i === 0 ? "high" : undefined}
+                  fallbackClassName="xm-pick-ph"
+                  fallbackText={(row.placeholder && row.placeholder.label) || "Christmas event"}
+                />
+                {photo.credit ? <p className="xm-pick-credit">{photo.credit}</p> : null}
+              </div>
+              <div className="xm-pick-body">
+                <h3>{row.name}</h3>
+                {meta ? <p className="xm-pick-meta">{meta}</p> : null}
+                <a
+                  className="xm-pick-buy"
+                  href={row.cta.href}
+                  target="_blank"
+                  rel={affiliate ? "sponsored nofollow noopener" : "nofollow noopener"}
+                  data-commerce-owner={affiliate ? undefined : "ChristmasTickets"}
+                  onClick={affiliate ? undefined : () => organizerTap(row)}
+                  aria-label={row.cta.label + ": tickets for " + row.name}
+                >{row.cta.label}</a>
+                {row.cta.via ? <p className="xm-pick-via">{row.cta.via}</p> : null}
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+}
+
 // The page shell: theme, lights, snow, header and hero. The one list of every
 // Christmas listing (ticketed events first, one pill menu) arrives as `browse`
 // (owner direction 2026-11-01). `model` supplies the hero copy.
-export default function ChristmasTickets({ model, share = null, browse = null }) {
+export default function ChristmasTickets({ model, share = null, browse = null, topPicks = null }) {
   const { chrome } = model;
   const seasonal = activeSeasonalMark();
   return (
@@ -318,6 +408,7 @@ export default function ChristmasTickets({ model, share = null, browse = null })
       <div className="xm-main">
         <div className="xm-hero" id="xm-hero" data-boo-clear="">
           <h1 id="xm-title">{chrome.title}</h1>
+          <SocialTopPicks picks={topPicks} />
           <p className="xm-lede">{chrome.lede}</p>
           <p className="xm-honest">{chrome.honest}</p>
           <div className="xm-hero-actions">

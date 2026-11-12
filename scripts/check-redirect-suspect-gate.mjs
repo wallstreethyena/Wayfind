@@ -28,9 +28,16 @@
  *     local server serving the REAL ticketmaster/hotels handlers with every
  *     off-127.0.0.1 fetch recorded: PASSes its tracking checks from the first
  *     hop, makes ZERO partner requests, produces ZERO captured events.
+ *   - THE "2023 ROTATION" SCRAPER (2026-11-10): the ten exact desktop
+ *     identities in lib/crawler.js isStaleRotationUa() get the SAME Continue
+ *     page even WITH full Fetch Metadata and a same-site Referer, unless the
+ *     request carries a cookie this site sets or wf_confirm=1. Exactly ten
+ *     identities match in a version sweep (a phone on the same Chrome never
+ *     does), lib/browserAnalytics.js's inlined mirror agrees on every one, and
+ *     every discovered go route is disallowed in app/robots.js.
  * Everything is CALLED. Each negative has a positive control in the same harness.
  */
-import { readdirSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { createServer } from "node:http";
 import { spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";
@@ -64,7 +71,8 @@ globalThis.fetch = async (url, init) => {
 const settle = () => new Promise((r) => setTimeout(r, 15));
 
 const { classifyRedirectRequest } = await import(REPO + "lib/redirectTrafficClass.js");
-const { isCrawler, isSyntheticMonitor } = await import(REPO + "lib/crawler.js");
+const { isCrawler, isSyntheticMonitor, isStaleRotationUa } = await import(REPO + "lib/crawler.js");
+const browserAnalytics = await import(REPO + "lib/browserAnalytics.js");
 
 /* ── fixtures ─────────────────────────────────────────────────────────────── */
 const FETCH_META = { "sec-fetch-mode": "navigate", "sec-fetch-dest": "document", "sec-fetch-site": "same-origin", "sec-fetch-user": "?1" };
@@ -86,7 +94,18 @@ const UA = {
   // The 2026-10-21 pattern as the owner quoted it (Windows variant).
   incidentWin: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36",
   synthetic: "WayfindSyntheticMonitor/1.0 (+https://www.gowayfind.com)",
+  // 2026-11-10 "2023 rotation" scraper: three of its ten exact identities.
+  staleWinChrome: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+  staleWinEdge: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36 Edg/119.0.0.0",
+  staleMacFirefox: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:121.0) Gecko/20100101 Firefox/121.0",
+  // Android 7 is stuck on Chrome 119 for good: a person, never the scraper.
+  androidChrome119: "Mozilla/5.0 (Linux; Android 7.0; SM-G930V) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36",
+  // One major either side of the Windows Chrome range, and a Mac build the scraper never used.
+  winChrome117: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36",
+  winChrome121: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
+  macChrome118: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36",
 };
+const GUARD_PH_COOKIE = "ph_phc_guardtest_not_a_real_key_posthog=" + encodeURIComponent(JSON.stringify({ distinct_id: "guard-person" }));
 const req = (url, { ua, meta = false, method = "GET", extra = {} } = {}) => {
   const h = new Headers();
   if (ua) h.set("user-agent", ua);
@@ -132,12 +151,75 @@ const A = [
   ["10-21 UA, no Fetch Metadata + empty wf_ cookie", { ua: UA.incidentWin, extra: { cookie: "wf_device=" } }, "suspect"],
   ["2026-10-21 incident UA WITH Fetch Metadata (a real headful browser)", { ua: UA.incident, meta: true }, "human"],
   ["our synthetic monitor / watchdog (exempt: real redirect; captureServer drops it)", { ua: UA.synthetic }, "human"],
+  // 2026-11-10: the 2023-rotation scraper drives a real browser, so it HAS Fetch Metadata.
+  ["2023 rotation: Windows Chrome/120 WITH Fetch Metadata, no cookie", { ua: UA.staleWinChrome, meta: true }, "suspect"],
+  ["2023 rotation: Windows Edg/119 WITH Fetch Metadata, no cookie", { ua: UA.staleWinEdge, meta: true }, "suspect"],
+  ["2023 rotation: Mac Firefox/121 WITH Fetch Metadata, no cookie", { ua: UA.staleMacFirefox, meta: true }, "suspect"],
+  ["2023 rotation: no Fetch Metadata, no cookie", { ua: UA.staleWinChrome }, "suspect"],
+  // 6 of its 281 go-route requests sent a same-site Referer: NOT a pass for these ten identities.
+  ["2023 rotation + same-site Referer, no cookie", { ua: UA.staleWinChrome, meta: true, extra: { referer: "https://www.gowayfind.com/guides/things-to-do-sarasota" } }, "suspect"],
+  ["2023 rotation + third-party cookie only", { ua: UA.staleWinChrome, meta: true, extra: { cookie: "_ga=GA1.2.3; session=abc" } }, "suspect"],
+  ["2023 rotation + empty wf_ cookie", { ua: UA.staleWinChrome, meta: true, extra: { cookie: "wf_device=" } }, "suspect"],
+  // A cookie this site sets is the pass: a person on an old build who loaded any page has one.
+  ["2023 rotation UA + wf_device cookie (a person on an old build)", { ua: UA.staleWinChrome, meta: true, extra: { cookie: "foo=1; wf_device=d_abc123" } }, "human"],
+  ["2023 rotation UA + PostHog cookie", { ua: UA.staleMacFirefox, meta: true, extra: { cookie: GUARD_PH_COOKIE } }, "human"],
+  ["2023 rotation UA + wf_device cookie AND same-site Referer", { ua: UA.staleWinEdge, meta: true, extra: { cookie: "wf_device=d_abc123", referer: "https://www.gowayfind.com/" } }, "human"],
+  // Controls: the same Chrome on a phone, and the nearest desktop builds the scraper never used.
+  ["Android 7 Chrome/119 Mobile (stuck there for good), no cookie", { ua: UA.androidChrome119, meta: true }, "human"],
+  ["Windows Chrome/117 (one below the range) WITH Fetch Metadata", { ua: UA.winChrome117, meta: true }, "human"],
+  ["Windows Chrome/121 (one above the range) WITH Fetch Metadata", { ua: UA.winChrome121, meta: true }, "human"],
+  ["Mac Chrome/118 (a Windows-only identity) WITH Fetch Metadata", { ua: UA.macChrome118, meta: true }, "human"],
 ];
 for (const [label, o, want] of A) {
   const got = await cls(o);
   ok(got === want, `classifier: ${label} → expected ${want}, got ${got}`);
 }
 ok((await cls({ ua: UA.incident }, U + "&wf_confirm=1")) === "human", "classifier: a suspect that tapped the interstitial (wf_confirm=1) is human");
+ok((await cls({ ua: UA.staleWinChrome, meta: true }, U + "&wf_confirm=1")) === "human", "classifier: a 2023-rotation identity that tapped the interstitial (wf_confirm=1) is human");
+{
+  const r = await classifyRedirectRequest(req(U, { ua: UA.staleWinChrome, meta: true }), { env: {} });
+  ok(r.reason === "stale-rotation-ua", `classifier: the 2023-rotation suspect carries its own reason (got ${r.reason})`);
+}
+
+/* ── A2. the ten identities, SWEPT, and the browser-side mirror ───────────── */
+{
+  const SHAPES = {
+    "windows chrome": (v) => `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${v}.0.0.0 Safari/537.36`,
+    "windows edge": (v) => `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${v}.0.0.0 Safari/537.36 Edg/${v}.0.0.0`,
+    "windows firefox": (v) => `Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:${v}.0) Gecko/20100101 Firefox/${v}.0`,
+    "mac chrome": (v) => `Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${v}.0.0.0 Safari/537.36`,
+    "mac edge": (v) => `Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${v}.0.0.0 Safari/537.36 Edg/${v}.0.0.0`,
+    "mac firefox": (v) => `Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:${v}.0) Gecko/20100101 Firefox/${v}.0`,
+    "linux chrome": (v) => `Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${v}.0.0.0 Safari/537.36`,
+    "chromeos chrome": (v) => `Mozilla/5.0 (X11; CrOS x86_64 14541.0.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${v}.0.0.0 Safari/537.36`,
+    "linux firefox": (v) => `Mozilla/5.0 (X11; Linux x86_64; rv:${v}.0) Gecko/20100101 Firefox/${v}.0`,
+    "android chrome": (v) => `Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${v}.0.0.0 Mobile Safari/537.36`,
+    "android tablet chrome": (v) => `Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${v}.0.0.0 Safari/537.36`,
+    "android firefox": (v) => `Mozilla/5.0 (Android 14; Mobile; rv:${v}.0) Gecko/${v}.0 Firefox/${v}.0`,
+    "windows opera": (v) => `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${v}.0.0.0 Safari/537.36 OPR/106.0.0.0`,
+    "android webview (in-app)": (v) => `Mozilla/5.0 (Linux; Android 14; Pixel 8 Build/UQ1A; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/${v}.0.0.0 Mobile Safari/537.36`,
+    "windows headless chrome": (v) => `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/${v}.0.0.0 Safari/537.36`,
+  };
+  const WANT = ["mac chrome 119", "mac chrome 120", "mac firefox 121", "windows chrome 118", "windows chrome 119", "windows chrome 120", "windows edge 119", "windows edge 120", "windows firefox 120", "windows firefox 121"];
+  const hit = [];
+  const drift = [];
+  let swept = 0;
+  for (const [shape, make] of Object.entries(SHAPES)) {
+    for (let v = 100; v <= 160; v++) {
+      const ua = make(v);
+      swept++;
+      if (isStaleRotationUa(ua)) hit.push(shape + " " + v);
+      if (browserAnalytics.isStaleRotationUa(ua) !== isStaleRotationUa(ua)) drift.push(shape + " " + v);
+    }
+  }
+  ok(swept === Object.keys(SHAPES).length * 61, `PROBE BROKEN: the sweep must cover every shape x 61 majors (covered ${swept})`);
+  ok(JSON.stringify(hit.sort()) === JSON.stringify(WANT), `isStaleRotationUa() matches EXACTLY the ten measured identities in a ${swept}-UA sweep, nothing wider (matched: ${hit.join(", ") || "none"})`);
+  ok(drift.length === 0, `lib/browserAnalytics.js isStaleRotationUa() (the inlined mirror) agrees with lib/crawler.js on every swept UA (drift: ${drift.slice(0, 6).join(", ") || "none"})`);
+  for (const [label, ua] of [["empty", ""], ["null", null], ["Safari 18", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.3.1 Safari/605.1.15"], ["iPhone Safari", UA.mobileSafari], ["Instagram in-app", UA.instagramAndroid], ["Pinterest in-app", UA.pinterestIos], ["Googlebot", UA.googlebot]]) {
+    ok(isStaleRotationUa(ua) === false && browserAnalytics.isStaleRotationUa(ua) === false, `isStaleRotationUa(): ${label} is never the scraper, in either copy`);
+  }
+}
+
 ok(isCrawler(UA.pinterestIos) === false, "isCrawler(): the Pinterest in-app browser is a person, never refused by the /go crawler gate");
 ok(isCrawler("Pinterestbot/1.0 (+http://www.pinterest.com/bot.html)") === true, "isCrawler(): Pinterest's own crawler is still refused (positive control for the carve-out)");
 
@@ -256,6 +338,33 @@ for (const rel of ROUTES.filter((r) => r in FIX)) {
   {
     const r = await run({ ua: UA.incidentWin });
     ok(r.res.status === 200 && !r.loc && r.refused.length === 1 && r.refused[0].properties.refusal_class === "suspect", `${rel} (10-21 Windows UA, no cookie, no Referer) gets the Continue page (status ${r.res.status})`);
+  }
+
+  // THE 2023-ROTATION SCRAPER, through the real handler: full Fetch Metadata
+  // (it drives a real browser) and still the Continue page, never a partner.
+  for (const [label, o] of [
+    ["Windows Chrome/120", { ua: UA.staleWinChrome, meta: true }],
+    ["Mac Firefox/121", { ua: UA.staleMacFirefox, meta: true }],
+    ["Windows Edg/119 + same-site Referer", { ua: UA.staleWinEdge, meta: true, extra: { referer: "https://www.gowayfind.com/guides/things-to-do-sarasota" } }],
+  ]) {
+    const r = await run(o);
+    ok(r.res.status === 200 && !r.loc, `${rel} (2023 rotation, ${label}) gets a 200 Continue page, not a redirect (got ${r.res.status}, Location ${r.loc.slice(0, 60)})`);
+    ok(/noindex/.test(r.res.headers.get("x-robots-tag") || "") && /no-store/.test(r.res.headers.get("cache-control") || ""), `${rel} (2023 rotation, ${label}) Continue page is noindex + no-store`);
+    ok(!/https?:\/\/[^\s"'<>]*(?:viator|ticketmaster|stay22|evyy|booking|stubhub|prf)\./i.test(r.body.replace(/value="[^"]*"/g, "")), `${rel} (2023 rotation, ${label}) Continue page carries no partner URL outside the echoed form values`);
+    ok(/name="wf_confirm" value="1"/.test(r.body), `${rel} (2023 rotation, ${label}) Continue page offers the one-tap continue (wf_confirm=1)`);
+    ok(r.started.length === 0 && r.events.length === 1 && r.refused.length === 1 && r.refused[0].properties.refusal_class === "suspect" && r.refused[0].properties.refusal_reason === "stale-rotation-ua", `${rel} (2023 rotation, ${label}) emits one provider_redirect_refused (suspect / stale-rotation-ua) and no started (got ${r.events.map((e) => e.event + "/" + (e.properties.refusal_reason || "")).join(",")})`);
+  }
+  // A person on one of those old builds: one tap, or any cookie this site sets, and the real redirect.
+  for (const [label, o, extra] of [
+    ["after tapping Continue", { ua: UA.staleWinChrome, meta: true }, "&wf_confirm=1"],
+    ["wf_device cookie", { ua: UA.staleWinChrome, meta: true, extra: { cookie: "wf_device=d_guard123" } }, ""],
+    ["PostHog cookie", { ua: UA.staleMacFirefox, meta: true, extra: { cookie: GUARD_PH_COOKIE } }, ""],
+    ["Android 7 Chrome/119 Mobile, no cookie", { ua: UA.androidChrome119, meta: true }, ""],
+    ["Windows Chrome/121, no cookie", { ua: UA.winChrome121, meta: true }, ""],
+  ]) {
+    const r = await run(o, extra);
+    ok(r.refused.length === 0 && r.res.status === 302, `${rel} (2023 rotation control: ${label}) is NOT held at the Continue page (status ${r.res.status}, refused ${r.refused.length})`);
+    if (fx.partner) ok(reachesPartner(r) && r.started.length === 1 && r.started[0].properties.traffic_class === "human", `${rel} (2023 rotation control: ${label}) gets the real partner redirect + one human started event (Location ${r.loc.slice(0, 60)}, started ${r.started.length})`);
   }
 
   // CACHE POLICY: every response shape from every go route is per-request.
@@ -425,6 +534,20 @@ for (const rel of ROUTES.filter((r) => r in FIX)) {
   const f = await book(p2, "q=" + encodeURIComponent("Robinson Preserve sunset") + "&city=Bradenton&region=" + encodeURIComponent("Bradenton, Tampa Bay") + "&kind=waterfront");
   ok(f.calls === 1, `PROBE BROKEN unless 1: a new query must still reach the API (calls ${f.calls}) — else the zeros above prove nothing`);
   globalThis.fetch = prev;
+}
+
+/* ── R. app/robots.js keeps compliant crawlers off every go route ────────── */
+{
+  const robotsSrc = readFileSync(REPO + "app/robots.js", "utf8");
+  const m = robotsSrc.match(/disallow:\s*\[([^\]]*)\]/);
+  ok(!!m, "PROBE BROKEN: app/robots.js must declare `disallow: [ ... ]` as an array literal this guard can read");
+  const listed = m ? [...m[1].matchAll(/"([^"]+)"/g)].map((x) => x[1]) : [];
+  ok(listed.includes("/api/photo"), `app/robots.js still disallows the metered /api/photo proxy (listed: ${listed.join(", ") || "none"})`);
+  for (const rel of ROUTES) {
+    const path = "/" + rel.replace(/^app\//, "").replace(/\/route\.js$/, "");
+    ok(listed.includes(path), `app/robots.js disallows ${path} (every discovered go route must be listed; listed: ${listed.join(", ") || "none"})`);
+  }
+  ok(/allow:\s*"\/"/.test(robotsSrc) && !listed.some((p) => p === "/" || p === "/api" || p === "/api/"), "app/robots.js still allows the site itself (no blanket disallow sneaks in with the go routes)");
 }
 
 globalThis.fetch = realFetch;
