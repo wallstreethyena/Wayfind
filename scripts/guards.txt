@@ -251,6 +251,7 @@ node scripts/check-soft-404.mjs
 node scripts/check-og-absolute.mjs
 node scripts/test-intent-pages.mjs
 node scripts/test-beach-water.mjs
+node scripts/test-locality-fill.mjs
 node scripts/test-beach-decision.mjs
 node scripts/test-blurbs-cache.mjs
 node scripts/test-editorial-contract.mjs
@@ -2323,6 +2324,8 @@ node scripts/test-christmas-tickets.mjs
 node scripts/test-christmas-ticketmaster.mjs
 node scripts/test-snowcat-tickets.mjs
 node scripts/test-christmas-tours.mjs
+# /christmas-in-florida is one cached page: zero network during next build (executed with fetch stubbed), no searchParams.
+node scripts/test-christmas-cached-page.mjs
 
 node scripts/test-halloween-intent-rails.mjs
 node scripts/test-halloween-route.mjs
@@ -2588,6 +2591,7 @@ node scripts/check-storage-access.mjs
 node scripts/test-detail-cta-place-city.mjs
 node scripts/test-place-link-name.mjs
 node scripts/test-og-movie-function-size.mjs
+node scripts/test-function-size-gate.mjs
 node scripts/check-event-not-found-recovery.mjs
 # 2026-11-10: StubHub (Partnerize) affiliate adapter ships DARK until STUBHUB_PARTNERIZE_CAMREF is set.
 node scripts/test-stubhub-dark.mjs
@@ -2595,3 +2599,8 @@ node scripts/test-stubhub-dark.mjs
 node scripts/test-human-traffic-reserve.mjs
 # 2026-11-11: home feed INP: a parent render must not re-render the Christmas rail cards; the itinerary flag poll keeps object identity.
 node scripts/test-home-feed-rerender.mjs
+# 2026-11-12: homepage JS diet - the live sports poster tile loads lib/posterEvents.js (event pipeline, ~13.9KB gz) lazily; lock the import-graph boundary.
+node scripts/check-home-diet.mjs
+# 2026-11-12: Place Detail "Your Game Plan" decision brief + Commerce Entity-Resolution guard.
+node scripts/test-game-plan-and-entity-resolution.mjs
+

@@ -1010,7 +1010,24 @@ export default async function GuidePage({ params }) {
           event="guide_share"
           meta={{ slug: params.slug, region: g.region || null, placement: "hero" }}
         />}
-      />
+      >
+        {/* 2026-11-11 (owner: "Choose quickly directly under the title, in the
+            first phone screen"). It rendered below the intro, the facts and the
+            event map: 1,147 to 1,428px down at 390x844, where most phone
+            visitors never reach. It is now the hero's children, so on a phone
+            it sits between the title block and the photo. Same markup, same
+            styles, same on/off rule; static server HTML, so nothing shifts.
+            The choices are authored in lib/guideSeo.js (each quotes its guide)
+            and audited by scripts/check-guide-seo-audit.mjs. */}
+        {chrome.chooseQuickly && quickChoices.length ? (
+          <section className="wf-guide-quick" aria-labelledby="guide-quick-title" style={{ margin: 0 }}>
+            <h2 id="guide-quick-title">Choose quickly</h2>
+            <div>{quickChoices.map((choice) => (
+              <a key={choice.href} href={choice.href}><span>{choice.need}</span><strong>{choice.label}</strong></a>
+            ))}</div>
+          </section>
+        ) : null}
+      </GuideArticleHero>
       <article id="guide" className="wf-guide-article">
       <SeasonalSearchNav hubs={seasonalHubsForGuide(params.slug)} />
       <div style={S.meta}>By <a href="/about" style={{ color: "#CBD5E1", textDecoration: "none", fontWeight: 700 }}>Gabriel Pereira</a> · {g.published ? <>Published {g.published} · </> : null}Updated {g.updated}</div>
@@ -1030,14 +1047,6 @@ export default async function GuidePage({ params }) {
         <div className="wf-guide-event-map">
           <EventWhere {...eventMap} />
         </div>
-      ) : null}
-      {chrome.chooseQuickly && quickChoices.length ? (
-        <section className="wf-guide-quick" aria-labelledby="guide-quick-title">
-          <h2 id="guide-quick-title">Choose quickly</h2>
-          <div>{quickChoices.map((choice) => (
-            <a key={choice.href} href={choice.href}><span>{choice.need}</span><strong>{choice.label}</strong></a>
-          ))}</div>
-        </section>
       ) : null}
       <GuideReadingNav guide={g} />
       {chrome.exploreBridge ? <ExploreBridge city={bridgeCity} picks={bridgePicks} entryPage={"/guides/" + params.slug} pageType="guide" /> : null}
