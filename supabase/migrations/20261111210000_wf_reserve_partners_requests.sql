@@ -136,7 +136,7 @@ begin
         from public.wf_reserve_bookings b
         where b.place_id = p_place_id
           and b.status <> 'cancelled'
-          and b.reserve_date between p_date - 1 and p_date
+          and b.reserve_date between p_date - 1 and p_date + 1
           and (p_exclude is null or b.id <> p_exclude)
           and (b.reserve_date + b.reserve_time) < c.ts + dur
           and c.ts < (b.reserve_date + b.reserve_time) + dur
@@ -184,7 +184,7 @@ begin
     return jsonb_build_object('ok', true, 'booking', to_jsonb(existing) || jsonb_build_object('restaurant_name', pt.name, 'restaurant_phone', pt.phone));
   end if;
 
-  perform pg_advisory_xact_lock(hashtext('wf_reserve:' || p_place_id || ':' || p_date::text));
+  perform pg_advisory_xact_lock(hashtext('wf_reserve:' || p_place_id));
 
   -- A concurrent first attempt with the same key may have finished while we waited for the lock.
   select * into existing from public.wf_reserve_bookings where user_id = p_user_id and idempotency_key = p_idem;
@@ -326,7 +326,7 @@ begin
   if p_booking_id is null or p_place_id is null or p_date is null or p_time is null then
     return jsonb_build_object('ok', false, 'code', 'NOT_FOUND');
   end if;
-  perform pg_advisory_xact_lock(hashtext('wf_reserve:' || p_place_id || ':' || p_date::text));
+  perform pg_advisory_xact_lock(hashtext('wf_reserve:' || p_place_id));
   select * into b from public.wf_reserve_bookings where id = p_booking_id and place_id = p_place_id for update;
   if not found then return jsonb_build_object('ok', false, 'code', 'NOT_FOUND'); end if;
   select * into pt from public.wf_reserve_partners where place_id = b.place_id;
@@ -371,7 +371,7 @@ begin
   select * into peek from public.wf_reserve_bookings where id = p_booking_id and user_id = p_user_id;
   if not found then return jsonb_build_object('ok', false, 'code', 'NOT_FOUND'); end if;
   if p_accept and peek.proposed_date is not null then
-    perform pg_advisory_xact_lock(hashtext('wf_reserve:' || peek.place_id || ':' || peek.proposed_date::text));
+    perform pg_advisory_xact_lock(hashtext('wf_reserve:' || peek.place_id));
   end if;
   select * into b from public.wf_reserve_bookings where id = p_booking_id and user_id = p_user_id for update;
   select * into pt from public.wf_reserve_partners where place_id = b.place_id;
