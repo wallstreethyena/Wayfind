@@ -755,6 +755,7 @@ scripts/test-free-photo-serving.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	121
 scripts/test-free-source-hotlink.mjs	0	CALL	blocks-ci-and-deploy	1	-	31	0	0	3a771165af9ced894476435411410ee57459dc0cb65ba1413590bf7d27dfb14a
 scripts/test-front-events.mjs	0	CALL	blocks-ci-and-deploy	1	-	44	0	0	32f11e82bf230d69cf5d3eb549b2c1ea2e4ae54874a1028586579072027ee933
 scripts/test-function-size-gate.mjs	0	CALL	blocks-ci-and-deploy	1	-	37	0	0	c83c9bc6522c0e4af594dea24e79007427e29eafd104838a06dc33f153f52280
+scripts/test-game-plan-and-entity-resolution.mjs	0	RENDER	blocks-ci-and-deploy	1	-	48	0	0	0d04317a18105a1ea8ff1b56cbb23ee984c14b4eccb419d60e2c0fde36556d7d
 scripts/test-geocode-owned-fallback.mjs	0	CALL	blocks-ci-and-deploy	1	-	16	0	0	38f6ae5c295717398225347a4156cc75ad1bb38b4f166bf64176b0bb04179b0b
 scripts/test-global-share-entrypoints.mjs	0	CALL	blocks-ci-and-deploy	1	-	18	0	0	60375cbb4391fae7b6aedb73012b864f74f38e4218db4128cb88037f20842270
 scripts/test-google-daily-quota-breaker.mjs	0	CALL	blocks-ci-and-deploy	1	-	16	0	0	c5629486e614473b98f257a68333170ca063de597c8fe4a09290145753235780

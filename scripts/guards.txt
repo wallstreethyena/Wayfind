@@ -2598,3 +2598,6 @@ node scripts/test-human-traffic-reserve.mjs
 node scripts/test-home-feed-rerender.mjs
 # 2026-11-12: homepage JS diet - the live sports poster tile loads lib/posterEvents.js (event pipeline, ~13.9KB gz) lazily; lock the import-graph boundary.
 node scripts/check-home-diet.mjs
+# 2026-11-12: Place Detail "Your Game Plan" decision brief + Commerce Entity-Resolution guard.
+node scripts/test-game-plan-and-entity-resolution.mjs
+
