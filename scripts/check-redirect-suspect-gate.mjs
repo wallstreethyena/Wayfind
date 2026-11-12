@@ -8,8 +8,9 @@
  *     provider_redirect_refused (refusal_class suspect), never a started event;
  *     one tap (wf_confirm=1) proceeds as human.
  *   - OWNER RULE (2026-10-29): missing Fetch Metadata ALONE never makes a
- *     visitor suspect. A same-site Referer (gowayfind.com / www) or any
- *     first-party cookie (ph_<key>_posthog, wf_*) keeps the real redirect.
+ *     visitor suspect. A first-party cookie (ph_<key>_posthog, wf_*) keeps
+ *     the real redirect. Since 2026-11-11 a same-site Referer ALONE does not
+ *     (forgeable; the Nov 4-11 Viator sweep forged it); it gets Continue.
  *   - Every /go response is private, no-store with CDN-Cache-Control /
  *     Vercel-CDN-Cache-Control: no-store (a CDN-cached partner 302 is replayed
  *     without running the classifier), and /api/viator/go's ?q= Book keeps its
@@ -119,9 +120,13 @@ const A = [
   ["x-middleware-prefetch", { ua: UA.desktopChrome, meta: true, extra: { "x-middleware-prefetch": "1" } }, "prefetch"],
   ["2026-10-21 incident UA, no Fetch Metadata", { ua: UA.incident }, "suspect"],
   ["10-21 Windows Chrome/129.0, no Fetch Metadata, no cookie, no Referer", { ua: UA.incidentWin }, "suspect"],
-  // OWNER RULE: missing Fetch Metadata alone is never enough.
-  ["10-21 UA, no Fetch Metadata + Referer www.gowayfind.com", { ua: UA.incidentWin, extra: { referer: "https://www.gowayfind.com/guides/halloween" } }, "human"],
-  ["10-21 UA, no Fetch Metadata + Referer gowayfind.com (apex)", { ua: UA.incidentWin, extra: { referer: "https://gowayfind.com/" } }, "human"],
+  // OWNER RULE: missing Fetch Metadata alone is never enough; a cookie we set vouches.
+  // OWNER RULE UPDATE 2026-11-11: a same-site Referer alone no longer vouches
+  // (forged by the Nov 4-11 one-click-per-IP Viator sweep); it gets Continue.
+  ["10-21 UA, no Fetch Metadata + Referer www.gowayfind.com (forgeable)", { ua: UA.incidentWin, extra: { referer: "https://www.gowayfind.com/guides/halloween" } }, "suspect"],
+  ["10-21 UA, no Fetch Metadata + Referer gowayfind.com apex (forgeable)", { ua: UA.incidentWin, extra: { referer: "https://gowayfind.com/" } }, "suspect"],
+  ["10-21 UA, no Fetch Metadata + Referer + wf_device cookie", { ua: UA.incidentWin, extra: { referer: "https://www.gowayfind.com/", cookie: "wf_device=d_abc123" } }, "human"],
+  ["desktop Chrome WITH Fetch Metadata + Referer, no cookie (a real tap)", { ua: UA.desktopChrome, meta: true, extra: { referer: "https://www.gowayfind.com/guides/x" } }, "human"],
   ["10-21 UA, no Fetch Metadata + PostHog ph_<key>_posthog cookie", { ua: UA.incidentWin, extra: { cookie: "ph_phc_abc123_posthog=%7B%22distinct_id%22%3A%22x%22%7D" } }, "human"],
   ["10-21 UA, no Fetch Metadata + wf_device cookie", { ua: UA.incidentWin, extra: { cookie: "foo=1; wf_device=d_abc123" } }, "human"],
   ["10-21 UA, no Fetch Metadata + wf_rails_collapsed cookie", { ua: UA.incidentWin, extra: { cookie: "wf_rails_collapsed=x" } }, "human"],
@@ -242,10 +247,10 @@ for (const rel of ROUTES.filter((r) => r in FIX)) {
     }
   }
 
-  // OWNER RULE, through the real handler: the 10-21 UA with a first-party
-  // signal is a human (real redirect, one human started event, no refusal).
+  // OWNER RULE, through the real handler: the 10-21 UA with a cookie this
+  // site set is a human (real redirect, one human started event, no refusal).
+  // A same-site Referer alone is not enough since 2026-11-11 (asserted below).
   for (const [label, extra] of [
-    ["same-site Referer", { referer: "https://www.gowayfind.com/guides/halloween" }],
     ["PostHog cookie", { cookie: "ph_phc_guardtest_not_a_real_key_posthog=" + encodeURIComponent(JSON.stringify({ distinct_id: "guard-person" })) }],
     ["wf_device cookie", { cookie: "wf_device=d_guard123" }],
   ]) {
@@ -256,6 +261,20 @@ for (const rel of ROUTES.filter((r) => r in FIX)) {
   {
     const r = await run({ ua: UA.incidentWin });
     ok(r.res.status === 200 && !r.loc && r.refused.length === 1 && r.refused[0].properties.refusal_class === "suspect", `${rel} (10-21 Windows UA, no cookie, no Referer) gets the Continue page (status ${r.res.status})`);
+  }
+  {
+    // 2026-11-11: a forged same-site Referer with no Fetch Metadata and no cookie
+    // never reaches the partner and never counts as a human started event...
+    const r = await run({ ua: UA.incidentWin, extra: { referer: "https://www.gowayfind.com/guides/halloween" } });
+    ok(r.res.status === 200 && !r.loc && r.started.length === 0 && r.refused.length === 1 && r.refused[0].properties.refusal_reason === "referer-only-no-fetch-metadata", `${rel} (forged Referer, no Fetch Metadata, no cookie) gets the Continue page, refusal_reason referer-only-no-fetch-metadata (status ${r.res.status}, started ${r.started.length})`);
+    // ...and the same request after one Continue tap goes through as a human.
+    const c = await run({ ua: UA.incidentWin, extra: { referer: "https://www.gowayfind.com/guides/halloween" } }, "&wf_confirm=1");
+    ok(c.res.status === 302 && c.refused.length === 0 && (!fx.partner || reachesPartner(c)), `${rel} (forged-Referer shape after tapping Continue) gets the real redirect (status ${c.res.status})`);
+  }
+  {
+    // A real modern browser tap: Fetch Metadata + same-site Referer, no cookie yet.
+    const r = await run({ ua: UA.desktopChrome, meta: true, extra: { referer: "https://www.gowayfind.com/guides/x" } });
+    ok(r.res.status === 302 && r.refused.length === 0, `${rel} (real Chrome tap: Fetch Metadata + Referer, no cookie) is redirected with no friction (status ${r.res.status})`);
   }
 
   // CACHE POLICY: every response shape from every go route is per-request.
@@ -433,4 +452,4 @@ if (fail.length) {
   fail.forEach((f) => console.error("  - " + f));
   process.exit(1);
 }
-console.log(`check-redirect-suspect-gate: OK — ${pass} assertions; ${A.length + 1} classifier fixtures, ${ROUTES.length} go routes called (humans incl. Instagram/Pinterest in-app redirected + counted; crawlers/unfurlers/meta-ads/HEAD/Next-prefetch/10-21-incident-UA never reach a partner nor count as human; synthetic monitor captures nothing; first-party Referer/cookie keeps a header-less visitor human; every /go response private no-store); watchdog run end-to-end with 0 off-origin fetches; Viator ?q= resolved-URL cache holds spend with no CDN-cached redirect`);
+console.log(`check-redirect-suspect-gate: OK — ${pass} assertions; ${A.length + 1} classifier fixtures, ${ROUTES.length} go routes called (humans incl. Instagram/Pinterest in-app redirected + counted; crawlers/unfurlers/meta-ads/HEAD/Next-prefetch/10-21-incident-UA never reach a partner nor count as human; synthetic monitor captures nothing; a first-party cookie keeps a header-less visitor human; a forged same-site Referer alone gets Continue; every /go response private no-store); watchdog run end-to-end with 0 off-origin fetches; Viator ?q= resolved-URL cache holds spend with no CDN-cached redirect`);
