@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { XM_CARD_CSS } from "./ChristmasTicketCard.js";
 import CommerceClickBeacon from "./CommerceClickBeacon.js";
 import { activeSeasonalMark } from "../../lib/seasonalBrand.js";
+import ChristmasElves from "./ChristmasElves.js";
 
 // Wayfind home header replica plus Christmas ticket cards, built like the
 // Halloween page (BoHalloweenHaunt). Deep night, warm white text, one festive
@@ -89,22 +90,22 @@ const CSS = XM_CARD_CSS + `
 .xm-main{position:relative;z-index:2}
 
 /* Festival string lights: green garland, multicolor bulbs with real glow, rotating chase and twinkle sequences */
-.xm-lights{position:relative;height:36px;pointer-events:none;overflow-x:clip;z-index:30}
+.xm-lights{position:relative;height:36px;margin-bottom:12px;pointer-events:none;overflow-x:clip;z-index:30}
 .xm-wire{position:absolute;inset:0;width:100%;height:100%}
 /* Cute bulbs (owner 2026-11-03): chubby round glass with a shine dot and a gold
    cap, each hanging from the wire and gently swaying; little red bows on the wire. */
 .xm-sway{position:absolute;top:9px;width:0;height:0;transform-origin:0 0;animation:xm-sway var(--sw,3.6s) ease-in-out var(--d,0s) infinite alternate}
 @keyframes xm-sway{from{rotate:-7deg}to{rotate:7deg}}
 .xm-bulb{
-  position:absolute;left:-7.5px;top:5px;width:15px;height:18px;
-  border-radius:50% 50% 50% 50% / 56% 56% 44% 44%;
-  background:radial-gradient(circle at 34% 30%,#fff 0 9%,var(--bc) 34%,var(--bd) 100%);
+  position:absolute;left:-8px;top:5px;width:16px;height:20px;
+  border-radius:50% 50% 48% 48% / 42% 42% 58% 58%;
+  background:radial-gradient(ellipse 22% 30% at 33% 30%,rgba(255,255,255,.95),rgba(255,255,255,0) 72%),radial-gradient(circle at 42% 38%,var(--bc) 0 38%,var(--bd) 100%);
   box-shadow:0 0 6px 1px var(--bg-glow),0 0 16px 4px var(--bg-glow2);
   will-change:opacity,transform;
 }
 .xm-bow{position:absolute;top:2px;width:16px;height:12px;margin-left:-8px;filter:drop-shadow(0 1px 1px rgba(0,0,0,.35))}
 .xm-wire-phone{display:none}
-@media(max-width:600px){.xm-wire-desk{display:none}.xm-wire-phone{display:block}.xm-sway{left:var(--lp)!important}.xm-sway:nth-of-type(even),.xm-bow.xm-bow-desk{display:none}.xm-bow{left:var(--bp)!important}}
+@media(max-width:600px){.xm-bulb{left:-9px;width:18px;height:22px}.xm-wire-desk{display:none}.xm-wire-phone{display:block}.xm-sway{left:var(--lp)!important}.xm-sway:nth-of-type(even),.xm-bow.xm-bow-desk{display:none}.xm-bow{left:var(--bp)!important}}
 .xm-bulb::before{content:"";position:absolute;left:4px;top:-5px;width:7px;height:6px;border-radius:2px 2px 1px 1px;background:linear-gradient(180deg,#F7D774,#B8860B)}
 .xm-bulb::after{content:"";position:absolute;left:50%;top:50%;width:30px;height:30px;margin:-15px 0 0 -15px;border-radius:50%;background:radial-gradient(circle,var(--bg-glow) 0%,rgba(0,0,0,0) 66%);opacity:.45}
 [data-pattern="twinkle"] .xm-bulb{animation:xm-twinkle var(--f,3.2s) ease-in-out var(--d,0s) infinite}
@@ -117,7 +118,7 @@ const CSS = XM_CARD_CSS + `
 @media(prefers-reduced-motion:reduce){.xm-bulb,.xm-sway,.xm-sparkles{animation:none!important}.xm-sparkles{opacity:.4}}
 
 /* Wayfind header replica (home classes and values) */
-.wf-topbar{background:transparent;border:0;padding:6px 16px 4px;position:relative;z-index:20}
+.wf-topbar{background:transparent;border:0;padding:4px 16px 6px;position:relative;z-index:20}
 .xm-topin{max-width:800px;margin:0 auto}
 .wf-topbar-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0}
 .wf-wordmark{display:flex;align-items:center;gap:5px;flex-shrink:0;filter:drop-shadow(0 4px 12px rgba(0,0,0,.3));text-decoration:none}
@@ -130,9 +131,9 @@ const CSS = XM_CARD_CSS + `
 .xm-goto:focus-visible{outline:2px solid #F97316;outline-offset:2px;border-radius:6px}
 
 /* Page body */
-.xm-main{max-width:720px;margin:0 auto;padding:20px 16px 0}
+.xm-main{max-width:720px;margin:0 auto;padding:26px 16px 0}
 .xm-hero h1{margin:0 0 6px;font-size:26px;line-height:1.2;font-weight:700;color:var(--cream);letter-spacing:-.01em;text-wrap:balance;text-shadow:0 2px 10px rgba(30,0,6,.6)}
-.xm-lede{margin:0;font-size:15px;line-height:1.5;color:var(--muted)}
+.xm-lede{margin:4px 0 0;font-size:15px;line-height:1.5;color:var(--muted)}
 .xm-honest{margin:8px 0 0;font-size:13px;line-height:1.5;color:var(--soft)}
 .xm-hero-actions{display:flex;align-items:center;gap:10px;margin-top:16px}.xm-ask{flex:1;min-width:0;min-height:48px;border-radius:12px;border:1px solid var(--line);cursor:pointer;background:linear-gradient(180deg,#E0303F,#B01728);color:#fff;font-size:15px;font-weight:700;box-shadow:0 0 14px rgba(232,180,138,.2)}
 .xm-share{display:flex;flex:0 0 auto;justify-content:flex-start}
@@ -167,10 +168,12 @@ function FestivalLights() {
   return (
     <div className="xm-lights" aria-hidden="true" data-pattern={pattern}>
       <svg className="xm-wire xm-wire-desk" viewBox="0 0 1200 36" preserveAspectRatio="none">
-        <path d={WIRE_PATH} fill="none" stroke="#1F4D2E" strokeWidth="2" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
+        <path d={WIRE_PATH} fill="none" stroke="#143B22" strokeWidth="2.6" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
+        <path d={WIRE_PATH} fill="none" stroke="#3E8F5A" strokeWidth="1" strokeDasharray="3 4" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
       </svg>
       <svg className="xm-wire xm-wire-phone" viewBox="0 0 1200 36" preserveAspectRatio="none">
-        <path d={PHONE_WIRE_PATH} fill="none" stroke="#1F4D2E" strokeWidth="2" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
+        <path d={PHONE_WIRE_PATH} fill="none" stroke="#143B22" strokeWidth="2.6" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
+        <path d={PHONE_WIRE_PATH} fill="none" stroke="#3E8F5A" strokeWidth="1" strokeDasharray="3 4" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
       </svg>
       {Array.from({ length: BULB_COUNT }, (_, i) => (
         <span
@@ -309,6 +312,7 @@ export default function ChristmasTickets({ model, share = null, browse = null })
       <div className="xm-sparkles" aria-hidden="true" />
       <Snow />
       <FestivalLights />
+      <ChristmasElves />
       <WayfindHeader seasonal={seasonal} />
 
       <div className="xm-main">
