@@ -63,7 +63,7 @@ ok(/inSeason\(\)/.test(comp.replace(/function\s+inSeason\s*\(\)/, "")), "inSeaso
 // 3. reserved paths
 const rp = comp.match(/const\s+RESERVED_PATHS\s*=\s*\[([^\]]*)\]/);
 ok(!!rp, "BooCompanion must declare const RESERVED_PATHS = [...]");
-if (rp) for (const p of ["/api", "/go", "/oauth", "/embed", "/share", "/group-plans"]) ok(rp[1].includes('"' + p + '"'), "RESERVED_PATHS must include " + p);
+if (rp) for (const p of ["/api", "/go", "/oauth", "/embed", "/share", "/group-plans", "/partners"]) ok(rp[1].includes('"' + p + '"'), "RESERVED_PATHS must include " + p);
 // Owner 2026-10-30: he never parks in front of text. Resting and bubble
 // placement read controls AND readable text blocks.
 {

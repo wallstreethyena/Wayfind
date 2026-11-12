@@ -72,7 +72,7 @@ const SURFACE = "christmas_tickets";
 // Organizer links (no affiliate, not one of our /go routes) are invisible to
 // CommerceClickBeacon, so the card records its own single tap. Our /go links
 // are recorded once by the beacon and never here.
-function organizerTap(row) {
+export function organizerTap(row) {
   try {
     emitCommerce("commerce_cta_clicked", { surface: SURFACE, provider: "organizer", merchant: new URL(row.cta.href).hostname, content_id: row.id });
   } catch { /* ignore */ }

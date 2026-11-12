@@ -1,24 +1,26 @@
 "use client";
 import { shareOut } from "../../lib/shareOut.js";
-import { concreteSharePlaceId } from "../../lib/shareContext.js";
+import { concreteSharePlaceId, groupPlanHref } from "../../lib/shareContext.js";
+import { addStopToStoredTrips } from "../../lib/itineraryAdd.js";
 import { track } from "../../lib/track.js";
 import { useState, useMemo, useEffect, useRef } from "react";
 import { Cat, Heart, Portrait, Couple } from "./pixel.js";
 import { ASK_CSS } from "./style.js";
 import {
   ACTIVITIES, activityFor, activityHref, activityLinkLabel, askHeadline, yayLine,
-  pleaAt, moodAt, yesScale, noScale, yesText, noText, needsName, planFitsPlace, datedCardPath,
-  inviteKinds,
+  pleaAt, moodAt, yesText, noText, needsName, planFitsPlace, datedCardPath,
+  inviteKinds, inviteDirectionsHref, inviteCalendarEvent, inviteItineraryStop,
 } from "../../lib/dateInvite.js";
 
-// app/ask/AskClient.js — Wayfind Chibi Elf invitation flow.
+// app/ask/AskClient.js — Wayfind Chibi Elf invitation & Plan Together flow.
 //
-//   1 ASK       "Will you go out with me?" + proposed plan summary + YES / No
+//   1 ASK       "Will you go out with me?" + proposed plan + YES / No + respectful pivots
 //   2 YAY       warm celebration with the Elf couple
 //   3 ACTIVITY  what would you like to do
 //   4 WHEN      pick or confirm a date
-//   5 DONE      proposed plan summary, share your answer, save card, open venue
-//   6 DECLINED  kind acknowledgment when the visitor answers No
+//   5 DONE      agreed plan summary, share reply, add to itinerary, add to calendar, directions, open venue
+//   6 DECLINED  kind acknowledgment when the visitor declines
+
 
 const DAYS = ["S", "M", "T", "W", "T", "F", "S"];
 const MONTHS = ["January", "February", "March", "April", "May", "June", "July",
@@ -272,8 +274,83 @@ export default function AskClient({ inv, bad = false }) {
   })();
 
   const [saving, setSaving] = useState(false);
+  const [itinerarySaved, setItinerarySaved] = useState(false);
   const cardUrl = () => datedCardPath(activity, dayLabel,
     inv && inv.place && planFitsPlace(inv, activity) ? inv.place : "");
+
+  const proposedIsPast = useMemo(() => {
+    if (!proposedWhen.date) return false;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return proposedWhen.date < today;
+  }, [proposedWhen.date]);
+
+  const calendarEvent = useMemo(
+    () => inviteCalendarEvent(inv, activity, dayIso, dayLabel),
+    [inv, activity, dayIso, dayLabel]
+  );
+  const directionsHref = useMemo(
+    () => inviteDirectionsHref(inv, activity),
+    [inv, activity]
+  );
+  const itineraryStop = useMemo(
+    () => inviteItineraryStop(inv, activity, dayLabel),
+    [inv, activity, dayLabel]
+  );
+  const groupHref = useMemo(
+    () => groupPlanHref(placeId, inv && inv.place),
+    [placeId, inv]
+  );
+
+  const saveToItinerary = () => {
+    if (!itineraryStop) return;
+    try {
+      if (typeof window !== "undefined" && window.localStorage) {
+        let current = {};
+        try {
+          const raw = window.localStorage.getItem("wf_trips_v1");
+          const parsed = raw ? JSON.parse(raw) : null;
+          if (parsed && typeof parsed === "object") current = parsed;
+        } catch (er) {}
+        const res = addStopToStoredTrips(current, itineraryStop, Date.now(), {
+          autoOrder: true,
+          addedVia: "ask_invite",
+        });
+        if (res && res.trips) {
+          window.localStorage.setItem("wf_trips_v1", JSON.stringify(res.trips));
+        }
+        if (res && Array.isArray(res.events)) {
+          for (const ev of res.events) {
+            if (ev && ev.name) track(ev.name, ev.props);
+          }
+        }
+        setItinerarySaved(true);
+        track("ask_invite_itinerary_saved", {
+          has_place: Boolean(inv && inv.place && planFitsPlace(inv, activity)),
+          activity,
+          city,
+          already: Boolean(res && res.already),
+        });
+      }
+    } catch (e) {}
+  };
+
+  const downloadIcs = () => {
+    if (!calendarEvent || !calendarEvent.icsText) return;
+    track("ask_invite_calendar_added", { target: "ics", activity, has_place: Boolean(inv && inv.place) });
+    try {
+      const blob = new Blob([calendarEvent.icsText], { type: "text/calendar;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "wayfind-plan.ics";
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => {
+        try { a.remove(); URL.revokeObjectURL(url); } catch (er) {}
+      }, 400);
+    } catch (e) {}
+  };
 
   const saveCard = async () => {
     if (saving) return;
@@ -310,11 +387,11 @@ export default function AskClient({ inv, bad = false }) {
 
   const suggestedActivityLabel = suggested[0] && activityFor(suggested[0]) ? activityFor(suggested[0]).label : "";
   const BUBBLES = [
-    "Wait—your finger slipped, right?! 👀",
-    "Deploying emergency puppy eyes 🥺",
-    "EMOTIONAL DAMAGE: 999% 😭",
-    "Even my hat bell stopped jingling 💔",
-    "Plot twist: “No” is purely decorative ✨",
+    "Not feeling this exact plan? Pick what works for you! ✨",
+    "We can totally switch the day or the spot 🥺",
+    "Your call — another day, another vibe, or no thanks 💛",
+    "Even my hat bell is rooting for a good plan 🔔",
+    "Whatever you choose, thanks for checking it out! ✨",
   ];
 
   return (
@@ -359,20 +436,51 @@ export default function AskClient({ inv, bad = false }) {
               </div>
             ) : null}
             <div className="wfx-row">
-              <button className="wfx-yes" style={{ "--s": yesScale(nos) }}
+              <button className="wfx-yes" style={{ "--s": 1 }}
                 onClick={(e) => {
                   burst(e);
                   setSent("");
                   track("ask_invite_choice", { choice: "yes", has_place: Boolean(inv && inv.place) });
                   setStep("yay");
                 }}>YES</button>
-              <button className="wfx-no" style={{ "--n": noScale(nos) }}
+              <button className="wfx-no" style={{ "--n": 1 }}
                 onClick={() => {
                   setNos((n) => n + 1);
                   track("ask_invite_choice", { choice: "no", has_place: Boolean(inv && inv.place) });
                 }}>No</button>
             </div>
-            {nos > 0 ? <p className="wfx-plea" key={nos}>{pleaAt(nos)}</p> : null}
+            {nos > 0 ? (
+              <>
+                <p className="wfx-plea" key={nos}>{pleaAt(nos)}</p>
+                <div className="wfx-pivots" role="group" aria-label="Other ways to answer">
+                  <button className="wfx-pivot-btn" data-pivot="day"
+                    onClick={() => {
+                      setSent("");
+                      if (!activity) setActivity(suggested[0] || "dinner");
+                      track("ask_invite_choice", { choice: "maybe_another_day", has_place: Boolean(inv && inv.place) });
+                      setStep("when");
+                    }}>
+                    Maybe another day
+                  </button>
+                  <button className="wfx-pivot-btn" data-pivot="activity"
+                    onClick={() => {
+                      setSent("");
+                      track("ask_invite_choice", { choice: "suggest_something_else", has_place: Boolean(inv && inv.place) });
+                      setStep("activity");
+                    }}>
+                    Suggest something else
+                  </button>
+                  <button className="wfx-pivot-btn wfx-pivot-decline" data-pivot="decline"
+                    onClick={() => {
+                      setSent("");
+                      track("ask_invite_choice", { choice: "decline", has_place: Boolean(inv && inv.place) });
+                      setStep("declined");
+                    }}>
+                    No thanks
+                  </button>
+                </div>
+              </>
+            ) : null}
           </>
         )}
 
@@ -382,8 +490,8 @@ export default function AskClient({ inv, bad = false }) {
             <h1 className="wfx-h1" key={step}>No worries. Thanks for letting me know.</h1>
             <p className="wfx-sub">
               {from
-                ? "You can share a quick reply with " + from + " below, or head out whenever you’re ready."
-                : "You can share a quick reply below, or head out whenever you’re ready."}
+                ? "You can share a quick reply with " + from + " below, or suggest another plan whenever you’re ready."
+                : "You can share a quick reply below, or suggest another plan whenever you’re ready."}
             </p>
             {needsName(inv) ? (
               <input className="wfx-field" value={who} maxLength={24} enterKeyHint="done"
@@ -405,6 +513,21 @@ export default function AskClient({ inv, bad = false }) {
                  "Could not open share options — copy your reply above and text it to " + (from || "them") + "."}
               </p>
             ) : null}
+            <div className="wfx-pivots" role="group" aria-label="Change or pivot answer">
+              <button className="wfx-pivot-btn" onClick={() => {
+                setSent("");
+                if (!activity) setActivity(suggested[0] || "dinner");
+                setStep("when");
+              }}>
+                Maybe another day
+              </button>
+              <button className="wfx-pivot-btn" onClick={() => {
+                setSent("");
+                setStep("activity");
+              }}>
+                Suggest something else
+              </button>
+            </div>
             <button className="wfx-go wfx-go2" onClick={() => { setSent(""); setNos(0); setStep("yay"); }}>
               Changed my mind — say YES
             </button>
@@ -438,7 +561,14 @@ export default function AskClient({ inv, bad = false }) {
                 </button>
               ))}
             </div>
-            <button className="wfx-go" disabled={!activity} onClick={() => setStep("when")}>LOCK IT IN</button>
+            <button className="wfx-go" disabled={!activity} onClick={() => {
+              track("ask_invite_activity_selected", {
+                activity,
+                matches_suggested: suggested.indexOf(activity) === 0,
+                fits_place: Boolean(planFitsPlace(inv, activity)),
+              });
+              setStep("when");
+            }}>LOCK IT IN</button>
           </>
         )}
 
@@ -446,8 +576,8 @@ export default function AskClient({ inv, bad = false }) {
           <>
             <Portrait><Cat tone="panda" mood="happy" size={104} look={look} fidget={eager} /></Portrait>
             <h1 className="wfx-h1" key={step}>Pick a date</h1>
-            <p className="wfx-sub">Choose the day for our cute little plans</p>
-            {proposedWhen.label ? (
+            <p className="wfx-sub">Choose the day for our plans together</p>
+            {proposedWhen.label && !proposedIsPast ? (
               <button
                 className="wfx-chip"
                 style={{ width: "100%", marginTop: "14px", minHeight: "48px" }}
@@ -459,11 +589,28 @@ export default function AskClient({ inv, bad = false }) {
                 <span>{from ? from + "’s proposed date: " : "Proposed date: "}{proposedWhen.label}</span>
               </button>
             ) : null}
+            {proposedWhen.label && proposedIsPast ? (
+              <div className="wfx-alert" role="status">
+                The originally proposed date ({proposedWhen.label}) has passed — pick a fresh day below.
+              </div>
+            ) : null}
             <Calendar value={dayIso} onPick={(iso, d) => {
               setDayIso(iso);
               setDayLabel(d.toLocaleDateString(undefined, { weekday: "short", month: "long", day: "numeric" }));
             }} />
-            <button className="wfx-go" disabled={!dayIso} onClick={() => setStep("done")}>IT'S A DATE</button>
+            <button className="wfx-go" disabled={!dayIso} onClick={() => {
+              track("ask_invite_date_selected", {
+                day_iso: dayIso,
+                kept_proposed: Boolean(proposedWhen.iso && dayIso === proposedWhen.iso),
+              });
+              track("ask_invite_completed", {
+                activity,
+                day_iso: dayIso,
+                has_place: Boolean(inv && inv.place && planFitsPlace(inv, activity)),
+                city,
+              });
+              setStep("done");
+            }}>IT'S A DATE</button>
           </>
         )}
 
@@ -471,7 +618,7 @@ export default function AskClient({ inv, bad = false }) {
           <>
             <Portrait size={138}><Couple size={64} /></Portrait>
             <h1 className="wfx-h1" key={step}>It's a date</h1>
-            <p className="wfx-sub">Proposed plan — no table or tickets are booked yet.</p>
+            <p className="wfx-sub">Plan agreed — share your answer and lock in the outing below.</p>
             <div className="wfx-card">
               <div><b>When</b> · {dayLabel}</div>
               <div><b>What</b> · {(activityFor(activity) || {}).label}</div>
@@ -509,19 +656,62 @@ export default function AskClient({ inv, bad = false }) {
                  "Could not open share options — copy the plan above and text it to " + (from || "them") + "."}
               </p>
             ) : null}
+
+            <div className="wfx-toolkit" role="group" aria-label="Complete your plan">
+              {itineraryStop ? (
+                <button
+                  type="button"
+                  className={"wfx-tool-btn wfx-tool-btn-full" + (itinerarySaved ? " wfx-tool-saved" : "")}
+                  onClick={saveToItinerary}>
+                  {itinerarySaved ? "SAVED TO ITINERARY ✓" : "+ ADD TO WAYFIND ITINERARY"}
+                </button>
+              ) : null}
+              {itinerarySaved ? (
+                <a className="wfx-tool-btn wfx-tool-btn-full" href="/itinerary"
+                  onClick={() => track("ask_invite_action", { action: "open_itinerary" })}>
+                  Open Itinerary · Build the rest of the outing →
+                </a>
+              ) : null}
+              {calendarEvent ? (
+                <>
+                  <a className="wfx-tool-btn" href={calendarEvent.googleHref}
+                    target="_blank" rel="noopener noreferrer"
+                    onClick={() => track("ask_invite_calendar_added", { target: "google", activity })}>
+                    + Google Calendar
+                  </a>
+                  <button type="button" className="wfx-tool-btn" onClick={downloadIcs}>
+                    + Apple / iCal (.ics)
+                  </button>
+                </>
+              ) : null}
+              {placeId && inv && inv.place && planFitsPlace(inv, activity) ? (
+                <a className="wfx-tool-btn" href={"/p/" + encodeURIComponent(placeId)}
+                  onClick={() => track("ask_invite_action", { action: "open_place" })}>
+                  {"Open " + inv.place + " on Wayfind"}
+                </a>
+              ) : null}
+              {directionsHref ? (
+                <a className="wfx-tool-btn" href={directionsHref}
+                  target="_blank" rel="noopener noreferrer"
+                  onClick={() => track("ask_invite_directions", { has_place: Boolean(inv && inv.place), city })}>
+                  Directions →
+                </a>
+              ) : null}
+            </div>
+
             <button className="wfx-go wfx-go2" onClick={saveCard} disabled={saving}>
               {saving ? "MAKING IT…" : "SAVE THE CARD"}
             </button>
-            {placeId && inv && inv.place && planFitsPlace(inv, activity) ? (
-              <a className="wfx-quiet" href={"/p/" + encodeURIComponent(placeId)}
-                onClick={() => track("ask_invite_action", { action: "open_place" })}>
-                {"Open " + inv.place + " on Wayfind"}
-              </a>
-            ) : null}
             <a className="wfx-quiet" href={activityHref(activity, city, inv && inv.geo)}
               onClick={() => track("ask_invite_action", { action: "explore_activity" })}>
               {activityLinkLabel(activity, city)}
             </a>
+            {groupHref ? (
+              <a className="wfx-quiet" href={groupHref}
+                onClick={() => track("ask_invite_action", { action: "group_vote" })}>
+                Bringing friends too? Start a Group Vote →
+              </a>
+            ) : null}
             <div className="wfx-mark">
               <span>arranged with</span>
               <svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true">
@@ -537,4 +727,5 @@ export default function AskClient({ inv, bad = false }) {
     </div>
   );
 }
+
 

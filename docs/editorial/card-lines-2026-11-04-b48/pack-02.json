@@ -1,0 +1,431 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 48. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJjeOHh8nZ2IgRcbZU4bElno0",
+   "name": "Bryant Park",
+   "category": "attractions",
+   "metro": "palm-beach",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://lakeworthbeachfl.gov/locations/bryant-park",
+     "source_name": "Bryant Park \u2014 official source",
+     "source_class": "government",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Bryant Park is at Lake Avenue and Golfview on the Intracoastal Waterway, Lake Worth Beach FL, 33460",
+      "Bryant Park has a concert band shell with stage, 150 person seating area and restroom facilities",
+      "Bryant Park has a one mile, 12 station Heart Trail, a boat ramp with four launching pads, boat trailer parking, horseshoe pits and a fishing pier"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Waterfront park on the Intracoastal Waterway with a fishing pier",
+    "why_here": "Visit Bryant Park on the Intracoastal Waterway in Lake Worth Beach, walk the one mile, 12 station Heart Trail, use the boat ramp with four launching pads, and stop at the fishing pier.",
+    "know_before": "Bryant Park has restroom facilities and a 150 person seating area.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://lakeworthbeachfl.gov/locations/bryant-park"
+     ],
+     "why_here": [
+      "https://lakeworthbeachfl.gov/locations/bryant-park"
+     ],
+     "know_before": [
+      "https://lakeworthbeachfl.gov/locations/bryant-park"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Bryant Park is at Lake Avenue and Golfview on the Intracoastal Waterway, Lake Worth Beach FL, 33460",
+      "source": "https://lakeworthbeachfl.gov/locations/bryant-park"
+     },
+     {
+      "claim": "Bryant Park has a concert band shell with stage, 150 person seating area and restroom facilities",
+      "source": "https://lakeworthbeachfl.gov/locations/bryant-park"
+     },
+     {
+      "claim": "Bryant Park has a one mile, 12 station Heart Trail, a boat ramp with four launching pads, boat trailer parking, horseshoe pits and a fishing pier",
+      "source": "https://lakeworthbeachfl.gov/locations/bryant-park"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJzawLFPG02YgRRXt65Y9OOWw",
+   "name": "Call Me Gaby",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "italian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.callmegaby.com/",
+     "source_name": "Call Me Gaby \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Call Me Gaby is at 22 Washington Avenue, Miami Beach, FL 33139",
+      "Owners Cathy and Anthony create Pinsa Romana style pizza and casual fare",
+      "The entire kitchen is staffed with Italian chefs",
+      "Hours are Monday-Sunday 12:00 p.m. to 12:00 a.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Pinsa Romana style pizza and casual fare in Miami Beach",
+    "why_here": "Try the Pinsa Romana style pizza and casual fare from owners Cathy and Anthony, in a kitchen staffed with Italian chefs, at 22 Washington Avenue in Miami Beach.",
+    "know_before": "Hours are Monday-Sunday from 12:00 p.m. to 12:00 a.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.callmegaby.com/"
+     ],
+     "why_here": [
+      "https://www.callmegaby.com/"
+     ],
+     "know_before": [
+      "https://www.callmegaby.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Call Me Gaby is at 22 Washington Avenue, Miami Beach, FL 33139",
+      "source": "https://www.callmegaby.com/"
+     },
+     {
+      "claim": "Owners Cathy and Anthony create Pinsa Romana style pizza and casual fare",
+      "source": "https://www.callmegaby.com/"
+     },
+     {
+      "claim": "The entire kitchen is staffed with Italian chefs",
+      "source": "https://www.callmegaby.com/"
+     },
+     {
+      "claim": "Hours are Monday-Sunday 12:00 p.m. to 12:00 a.m.",
+      "source": "https://www.callmegaby.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJw2NNO4MT54gRZ9tjoEUu8es",
+   "name": "Sanford Riverwalk",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://sanfordfl.gov/visitors/riverwalk/",
+     "source_name": "Sanford Riverwalk \u2014 official source",
+     "source_class": "government",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Sanford RiverWalk is a multi-use trail spanning nearly five miles along Lake Monroe",
+      "The Sanford RiverWalk connects to the 210-mile Florida Coast-to-Coast trail",
+      "The Sanford RiverWalk completes the 26-mile loop around Lake Monroe",
+      "The Sanford RiverWalk was originally conceived as a simple sidewalk along Lake Monroe in 1995"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Multi-use trail spanning nearly five miles along Lake Monroe",
+    "why_here": "Walk the Sanford RiverWalk along Lake Monroe, a multi-use trail spanning nearly five miles that connects to the 210-mile Florida Coast-to-Coast trail and completes the 26-mile loop around Lake Monroe.",
+    "know_before": "The Sanford RiverWalk was originally conceived as a simple sidewalk along Lake Monroe in 1995.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://sanfordfl.gov/visitors/riverwalk/"
+     ],
+     "why_here": [
+      "https://sanfordfl.gov/visitors/riverwalk/"
+     ],
+     "know_before": [
+      "https://sanfordfl.gov/visitors/riverwalk/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Sanford RiverWalk is a multi-use trail spanning nearly five miles along Lake Monroe",
+      "source": "https://sanfordfl.gov/visitors/riverwalk/"
+     },
+     {
+      "claim": "The Sanford RiverWalk connects to the 210-mile Florida Coast-to-Coast trail",
+      "source": "https://sanfordfl.gov/visitors/riverwalk/"
+     },
+     {
+      "claim": "The Sanford RiverWalk completes the 26-mile loop around Lake Monroe",
+      "source": "https://sanfordfl.gov/visitors/riverwalk/"
+     },
+     {
+      "claim": "The Sanford RiverWalk was originally conceived as a simple sidewalk along Lake Monroe in 1995",
+      "source": "https://sanfordfl.gov/visitors/riverwalk/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJC4Kxmw1Q54gRDgebXuv8Xfw",
+   "name": "Jungle Adventures, A Real Florida Animal Park",
+   "category": "attractions",
+   "metro": "ocala-fl",
+   "primary_type": "zoo",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.jungleadventures.com/",
+     "source_name": "Jungle Adventures, A Real Florida Animal Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Jungle Adventures is the natural habitat jungle home of a rare Florida Panther, Tropical Birds, Reptiles, and Mammals",
+      "Guides hand feed 8 to 15 foot alligators",
+      "The Jungle Swamp Queen River Boat Cruise travels on Green Gator River"
+     ]
+    },
+    {
+     "source": "https://www.jungleadventures.com/hours-passes/",
+     "source_name": "Jungle Adventures, A Real Florida Animal Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Jungle Adventures is open every day of the year from 9:30 a.m. to 5:30 p.m.",
+      "Last park admittance is 4 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Animal park home to a rare Florida Panther, Tropical Birds and Reptiles",
+    "why_here": "See a rare Florida Panther, Tropical Birds, Reptiles and Mammals, watch guides hand feed 8 to 15 foot alligators, and ride the Jungle Swamp Queen River Boat Cruise on Green Gator River.",
+    "know_before": "Open every day of the year from 9:30 a.m. to 5:30 p.m.; last park admittance is 4 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.jungleadventures.com/"
+     ],
+     "why_here": [
+      "https://www.jungleadventures.com/"
+     ],
+     "know_before": [
+      "https://www.jungleadventures.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Jungle Adventures is the natural habitat jungle home of a rare Florida Panther, Tropical Birds, Reptiles, and Mammals",
+      "source": "https://www.jungleadventures.com/"
+     },
+     {
+      "claim": "Guides hand feed 8 to 15 foot alligators",
+      "source": "https://www.jungleadventures.com/"
+     },
+     {
+      "claim": "The Jungle Swamp Queen River Boat Cruise travels on Green Gator River",
+      "source": "https://www.jungleadventures.com/"
+     },
+     {
+      "claim": "Jungle Adventures is open every day of the year from 9:30 a.m. to 5:30 p.m.",
+      "source": "https://www.jungleadventures.com/hours-passes/"
+     },
+     {
+      "claim": "Last park admittance is 4 p.m.",
+      "source": "https://www.jungleadventures.com/hours-passes/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJUS8HNuXH2YgRgAPcdaO1Tfw",
+   "name": "GameTime Miami",
+   "category": "attractions",
+   "metro": "miami-dade",
+   "primary_type": "video_arcade",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://gametimeplayers.com/locations/",
+     "source_name": "GameTime Miami \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "GameTime Miami is at 5701 Sunset Drive, #330, South Miami, FL 33143",
+      "GameTime has five Florida venues including Daytona Beach, Fort Myers, Kissimmee, Ocoee and South Miami",
+      "GameTime venues offer games, menus, hours and party options",
+      "GameTime Miami is open Monday through Wednesday from 4:00 p.m. to 11:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "South Miami venue for games, menus and party options",
+    "why_here": "Visit GameTime Miami in South Miami for games, menus and party options, at one of five Florida venues including Daytona Beach, Fort Myers, Kissimmee, Ocoee and South Miami.",
+    "know_before": "GameTime Miami is open Monday through Wednesday from 4:00 p.m. to 11:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://gametimeplayers.com/locations/"
+     ],
+     "why_here": [
+      "https://gametimeplayers.com/locations/"
+     ],
+     "know_before": [
+      "https://gametimeplayers.com/locations/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "GameTime Miami is at 5701 Sunset Drive, #330, South Miami, FL 33143",
+      "source": "https://gametimeplayers.com/locations/"
+     },
+     {
+      "claim": "GameTime has five Florida venues including Daytona Beach, Fort Myers, Kissimmee, Ocoee and South Miami",
+      "source": "https://gametimeplayers.com/locations/"
+     },
+     {
+      "claim": "GameTime venues offer games, menus, hours and party options",
+      "source": "https://gametimeplayers.com/locations/"
+     },
+     {
+      "claim": "GameTime Miami is open Monday through Wednesday from 4:00 p.m. to 11:00 p.m.",
+      "source": "https://gametimeplayers.com/locations/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJAdtlzdbj2IgRwn96pwC5DmA",
+   "name": "Little Havana Restaurant",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "cuban_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://littlehavanarestaurant.com/",
+     "source_name": "Little Havana Restaurant \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Little Havana Restaurant locations include North Miami, Deerfield Beach and Coral Springs/Parkland",
+      "Little Havana Restaurant is known for Ropa Vieja, Cubano and Arroz Con Pollo",
+      "Little Havana Restaurant is known for Frita and Natilla",
+      "Little Havana Restaurant offers authentic recipes, generous portions and warm hospitality"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Ropa Vieja, Cubano and Arroz Con Pollo",
+    "why_here": "Try Ropa Vieja, Cubano and Arroz Con Pollo at Little Havana Restaurant, known also for Frita and Natilla, with authentic recipes, generous portions and warm hospitality across North Miami, Deerfield Beach and Coral Springs/Parkland.",
+    "know_before": "Little Havana Restaurant locations include North Miami, Deerfield Beach and Coral Springs/Parkland.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://littlehavanarestaurant.com/"
+     ],
+     "why_here": [
+      "https://littlehavanarestaurant.com/"
+     ],
+     "know_before": [
+      "https://littlehavanarestaurant.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Little Havana Restaurant locations include North Miami, Deerfield Beach and Coral Springs/Parkland",
+      "source": "https://littlehavanarestaurant.com/"
+     },
+     {
+      "claim": "Little Havana Restaurant is known for Ropa Vieja, Cubano and Arroz Con Pollo",
+      "source": "https://littlehavanarestaurant.com/"
+     },
+     {
+      "claim": "Little Havana Restaurant is known for Frita and Natilla",
+      "source": "https://littlehavanarestaurant.com/"
+     },
+     {
+      "claim": "Little Havana Restaurant offers authentic recipes, generous portions and warm hospitality",
+      "source": "https://littlehavanarestaurant.com/"
+     }
+    ]
+   }
+  }
+ ]
+}

@@ -1111,5 +1111,13 @@
    "detail": "2026-11-11: five Tiqets destinations answered 200 with nothing to buy (Six Flags Great America, Hurricane Harbor Chicago and Island H2O with every option unavailable; Selfie WRLD and Calypso Queen landing on a category page) and three out-of-state namesakes (Adventure Island in Orange Beach AL, Dinosaur World in Cave City KY, Titanic in Las Vegas) were sold the Florida venue's ticket. Every existing check read the status code, so all of it passed. A visitor who clicks Book and finds nothing to buy, or the wrong venue, is a lost sale and a trust loss on the page that was supposed to earn."
   },
   "owner": "Revenue QA"
+ },
+ "scripts/test-human-traffic-reserve.mjs": {
+  "protects": "Background jobs (promotion, atlas, hero images, credited photos) are refused once a visitor-shared Google SKU has used 80% of what visitors can draw, the last 20% stays for live visitors, the inventory refresh keeps its own split, and every cron route that can reach a grant declares its traffic class.",
+  "blastRadius": {
+   "category": "revenue",
+   "detail": "If the reserve or a job's declaration regresses, a background job can again use a whole monthly free Google line in the first hours of the month (details_enterprise 988/950 by day 3 in November 2026) and every detail sheet, search and photo a person is waiting on is refused until the month rolls over."
+  },
+  "owner": "Revenue QA"
  }
 }

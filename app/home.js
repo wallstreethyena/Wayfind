@@ -239,7 +239,7 @@ const SponsoredPlaceCard = nextDynamic(() => import("./components/SponsoredPlace
 // link on a client-rendered card, nothing SEO reads it, and it must never be
 // crawled as our own content.
 const BookingCTA = nextDynamic(() => import("./components/BookingCTA"), { ssr: false, loading: () => null });
-import { EMPTY_ITINERARY_FLAGS, readItineraryFlags } from "../lib/itineraryFlags";
+import { EMPTY_ITINERARY_FLAGS, nextItineraryFlags, readItineraryFlags } from "../lib/itineraryFlags";
 import * as Ranking from "../lib/ranking";
 // v6.72: ViatorRail EXTRACTED to app/components/ViatorRail.js so the nine
 // standalone intent pages can render the bookable rail too — it was a local
@@ -7559,7 +7559,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
   }, [trips]);
   useEffect(() => {
     let stop = false;
-    const read = () => { if (!stop) { try { setItineraryFlags(readItineraryFlags(window.posthog)); } catch (e) {} } };
+    const read = () => { if (!stop) { try { const next = readItineraryFlags(window.posthog); setItineraryFlags((prev) => nextItineraryFlags(prev, next)); } catch (e) {} } };
     read();
     let unsub = null;
     try { if (window.posthog && typeof window.posthog.onFeatureFlags === "function") unsub = window.posthog.onFeatureFlags(read); } catch (e) {}

@@ -26,6 +26,10 @@
       "schedule": "23 */2 * * *"
     },
     {
+      "path": "/api/cron/locality-fill",
+      "schedule": "47 9 * * *"
+    },
+    {
       "path": "/api/cron/beach-water",
       "schedule": "0 12 * * 2,5"
     },

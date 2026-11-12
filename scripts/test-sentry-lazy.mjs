@@ -55,7 +55,7 @@ ok(/process\.env\.SENTRY_DSN/.test(read("sentry.server.config.js")), "server con
 
 // 6. The measured full-homepage bundle ratchet remains enforced.
 const cb = read("scripts/check-bundle.mjs");
-ok(/const TOTAL_BUDGET_KB = 492;/.test(cb), "check-bundle enforces the documented 492KB homepage ceiling (ratcheted down from 504 on 2026-11-05)");
+ok(/const TOTAL_BUDGET_KB = 494;/.test(cb), "check-bundle enforces the documented 494KB homepage ceiling (ratcheted down from 504 on 2026-11-05; owner raised 492 to 494 on 2026-11-12)");
 ok(/const CI_GAP_KB = 1\.0;/.test(cb) && /if \(process\.env\.GITHUB_ACTIONS === "true" && headroomKb < CI_GAP_KB\) \{\s*fail\(/.test(cb), "in CI the bundle gate fails inside the 1KB Vercel gzip margin, before merge");
 
 // 7. THIRD-PARTY FRAMES ARE NOT OUR ERRORS (v8.29.7). The Vercel Toolbar's

@@ -1,0 +1,290 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 47. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJXyBVj5Yn5IgRFG8P_SlcN98",
+   "name": "Nonnas Trattoria",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "italian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.nonnastrattoria.com/about-us",
+     "source_name": "Nonnas Trattoria \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Nonnas Trattoria has been a family-owned restaurant in St. Augustine, Florida for 16 years",
+      "Nonnas Trattoria offers authentic Italian cuisine crafted from traditional family recipes passed down through generations",
+      "Nonnas Trattoria is located on historic Aviles Street at 2 Aviles Street, St. Augustine, FL 32084",
+      "Nonnas Trattoria is open every night for dinner from 5 p.m. to 10 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Family-owned Italian restaurant on Aviles Street in St. Augustine",
+    "why_here": "Eat authentic Italian cuisine crafted from traditional family recipes passed down through generations at this family-owned restaurant in St. Augustine, located on historic Aviles Street and open every night for dinner.",
+    "know_before": "Open every night for dinner from 5 p.m. to 10 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.nonnastrattoria.com/about-us"
+     ],
+     "why_here": [
+      "https://www.nonnastrattoria.com/about-us"
+     ],
+     "know_before": [
+      "https://www.nonnastrattoria.com/about-us"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Nonnas Trattoria has been a family-owned restaurant in St. Augustine, Florida for 16 years",
+      "source": "https://www.nonnastrattoria.com/about-us"
+     },
+     {
+      "claim": "Nonnas Trattoria offers authentic Italian cuisine crafted from traditional family recipes passed down through generations",
+      "source": "https://www.nonnastrattoria.com/about-us"
+     },
+     {
+      "claim": "Nonnas Trattoria is located on historic Aviles Street at 2 Aviles Street, St. Augustine, FL 32084",
+      "source": "https://www.nonnastrattoria.com/about-us"
+     },
+     {
+      "claim": "Nonnas Trattoria is open every night for dinner from 5 p.m. to 10 p.m.",
+      "source": "https://www.nonnastrattoria.com/about-us"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJWXyZ5tu72YgRn_GvOU4IL_4",
+   "name": "Sweet Paris Cr\u00eaperie & Caf\u00e9",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "dessert_shop",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.sweetparis.com/",
+     "source_name": "Sweet Paris Cr\u00eaperie & Caf\u00e9 \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Sweet Paris Cr\u00eaperie & Caf\u00e9 was first opened in Rice Village in 2012",
+      "Sweet Paris serves sweet and savory cr\u00eapes",
+      "Popular items include the Nutella\u00ae Waffle, the Philly Cheesesteak Savory Cr\u00eape and the Ham & Gruy\u00e8re Savory Cr\u00eape",
+      "Sweet Paris offers order ahead for pickup"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Sweet and savory cr\u00eapes at a caf\u00e9 first opened in Rice Village in 2012",
+    "why_here": "Come for sweet and savory cr\u00eapes at a caf\u00e9 first opened in Rice Village in 2012, with popular items including the Nutella\u00ae Waffle, the Philly Cheesesteak Savory Cr\u00eape and the Ham & Gruy\u00e8re Savory Cr\u00eape.",
+    "know_before": "Order ahead for pickup is available.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.sweetparis.com/"
+     ],
+     "why_here": [
+      "https://www.sweetparis.com/"
+     ],
+     "know_before": [
+      "https://www.sweetparis.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Sweet Paris Cr\u00eaperie & Caf\u00e9 was first opened in Rice Village in 2012",
+      "source": "https://www.sweetparis.com/"
+     },
+     {
+      "claim": "Sweet Paris serves sweet and savory cr\u00eapes",
+      "source": "https://www.sweetparis.com/"
+     },
+     {
+      "claim": "Popular items include the Nutella\u00ae Waffle, the Philly Cheesesteak Savory Cr\u00eape and the Ham & Gruy\u00e8re Savory Cr\u00eape",
+      "source": "https://www.sweetparis.com/"
+     },
+     {
+      "claim": "Sweet Paris offers order ahead for pickup",
+      "source": "https://www.sweetparis.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJa4pU3ioB2YgRgqk6sKCTv5c",
+   "name": "MIAM CAFE - FORT LAUDERDALE",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "cafe",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.miamcafe.com/",
+     "source_name": "MIAM CAFE - FORT LAUDERDALE \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "MIAM Cafe is a coffee shop.",
+      "MIAM CAFE - FORT LAUDERDALE is in Fort Lauderdale at 110 SE 6th Street.",
+      "MIAM Cafe - Fort Lauderdale is open Monday to Sunday 8:00 a.m. to 4:00 p.m.",
+      "MIAM Cafe invites guests to gather around and enjoy good food and to unwind."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Coffee shop in Fort Lauderdale at 110 SE 6th Street",
+    "why_here": "Visit the Fort Lauderdale coffee shop at 110 SE 6th Street to gather around and enjoy good food. The site frames MIAM Cafe as a place to unwind and gather, rather than only fuel for the next meeting.",
+    "know_before": "Open Monday to Sunday 8:00 a.m. to 4:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.miamcafe.com/"
+     ],
+     "why_here": [
+      "https://www.miamcafe.com/"
+     ],
+     "know_before": [
+      "https://www.miamcafe.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "MIAM Cafe is a coffee shop.",
+      "source": "https://www.miamcafe.com/"
+     },
+     {
+      "claim": "MIAM CAFE - FORT LAUDERDALE is in Fort Lauderdale at 110 SE 6th Street.",
+      "source": "https://www.miamcafe.com/"
+     },
+     {
+      "claim": "MIAM Cafe - Fort Lauderdale is open Monday to Sunday 8:00 a.m. to 4:00 p.m.",
+      "source": "https://www.miamcafe.com/"
+     },
+     {
+      "claim": "MIAM Cafe invites guests to gather around and enjoy good food and to unwind.",
+      "source": "https://www.miamcafe.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJf11TlFT8wogRdS9kLyzCYgs",
+   "name": "Royal Conquest Pirate Ship",
+   "category": "attractions",
+   "metro": "st-pete",
+   "primary_type": "tourist_attraction",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://boattoursjohnspass.com/pirates-cruise-florida/",
+     "source_name": "Royal Conquest Pirate Ship \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Royal Conquest is a 90-minute cruise around Boca Ciega Bay.",
+      "The Royal Conquest is a bi-level, 46-foot pirate ship that can hold up to 46 passengers.",
+      "Cruise activities include a Water Gun Battle, Treasure Hunt, Pirate Story, Music and Limbo.",
+      "Departure times listed are 11:30 a.m., 1:30 p.m., 4:30 p.m. and 7:00 p.m., and times may vary.",
+      "Children receive a Paper Pirate Hat, Pirate Certificate and Beads."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "90-minute pirate cruise around Boca Ciega Bay on a 46-foot ship",
+    "why_here": "Sail around Boca Ciega Bay on a bi-level, 46-foot pirate ship that can hold up to 46 passengers. The cruise includes a Water Gun Battle, Treasure Hunt, Pirate Story, Music and Limbo, with sightseeing along the way.",
+    "know_before": "Departure times listed include 11:30 a.m., 1:30 p.m., 4:30 p.m. and 7:00 p.m.; times may vary.",
+    "local_tip": "Children receive a Paper Pirate Hat, Pirate Certificate and Beads.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://boattoursjohnspass.com/pirates-cruise-florida/"
+     ],
+     "why_here": [
+      "https://boattoursjohnspass.com/pirates-cruise-florida/"
+     ],
+     "know_before": [
+      "https://boattoursjohnspass.com/pirates-cruise-florida/"
+     ],
+     "local_tip": [
+      "https://boattoursjohnspass.com/pirates-cruise-florida/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Royal Conquest is a 90-minute cruise around Boca Ciega Bay.",
+      "source": "https://boattoursjohnspass.com/pirates-cruise-florida/"
+     },
+     {
+      "claim": "The Royal Conquest is a bi-level, 46-foot pirate ship that can hold up to 46 passengers.",
+      "source": "https://boattoursjohnspass.com/pirates-cruise-florida/"
+     },
+     {
+      "claim": "Cruise activities include a Water Gun Battle, Treasure Hunt, Pirate Story, Music and Limbo.",
+      "source": "https://boattoursjohnspass.com/pirates-cruise-florida/"
+     },
+     {
+      "claim": "Departure times listed are 11:30 a.m., 1:30 p.m., 4:30 p.m. and 7:00 p.m., and times may vary.",
+      "source": "https://boattoursjohnspass.com/pirates-cruise-florida/"
+     },
+     {
+      "claim": "Children receive a Paper Pirate Hat, Pirate Certificate and Beads.",
+      "source": "https://boattoursjohnspass.com/pirates-cruise-florida/"
+     }
+    ]
+   }
+  }
+ ]
+}

@@ -1,0 +1,460 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 43. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJKQcneca20YgR955Fvrf61Ug",
+   "name": "Baby\u2019s Coffee",
+   "category": "food",
+   "metro": "keys",
+   "primary_type": "coffee_shop",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://babyscoffee.com/",
+     "source_name": "Baby\u2019s Coffee \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Roasting in Key West since 1991",
+      "Baby's Coffee has been roasting and brewing coffee in Key West for over 30 years"
+     ]
+    },
+    {
+     "source": "https://babyscoffee.com/pages/key-west-sunset-cam",
+     "source_name": "Baby\u2019s Coffee \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Baby's Coffee is located at Mile Marker 15 in Key West"
+     ]
+    },
+    {
+     "source": "https://babyscoffee.com/collections/all",
+     "source_name": "Baby\u2019s Coffee \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Baby's Key West Old Town Roast is a Nutty Full City Medium Roast from Key West",
+      "Jet Black is a Bold Dark Roast Coffee from Key West"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Key West coffee roaster roasting in Key West since 1991",
+    "why_here": "Try coffee from a Key West roaster that says it has been roasting and brewing coffee in Key West for over 30 years, including Baby's Key West Old Town Roast and Jet Black.",
+    "know_before": "Located at Mile Marker 15 in Key West",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://babyscoffee.com/"
+     ],
+     "why_here": [
+      "https://babyscoffee.com/"
+     ],
+     "know_before": [
+      "https://babyscoffee.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Roasting in Key West since 1991",
+      "source": "https://babyscoffee.com/"
+     },
+     {
+      "claim": "Baby's Coffee has been roasting and brewing coffee in Key West for over 30 years",
+      "source": "https://babyscoffee.com/"
+     },
+     {
+      "claim": "Baby's Coffee is located at Mile Marker 15 in Key West",
+      "source": "https://babyscoffee.com/pages/key-west-sunset-cam"
+     },
+     {
+      "claim": "Baby's Key West Old Town Roast is a Nutty Full City Medium Roast from Key West",
+      "source": "https://babyscoffee.com/collections/all"
+     },
+     {
+      "claim": "Jet Black is a Bold Dark Roast Coffee from Key West",
+      "source": "https://babyscoffee.com/collections/all"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJtQCVt7G32YgR3aHrmstwrrk",
+   "name": "Cafe Motek - Downtown",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "mediterranean_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://motek.com/downtown/",
+     "source_name": "Cafe Motek - Downtown \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Motek downtown is the original Motek, located inside the historic Seybold Building in Downtown Miami",
+      "Motek opened in Downtown Miami in 2020 and offers Mediterranean cuisine",
+      "Motek downtown is at 36 Ne 1st St, Miami, FL 33132",
+      "Motek downtown hours are Monday to Saturday from 10 a.m. to 6:30 p.m. for dine in",
+      "Motek downtown is closed on Sunday"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Original Motek inside the historic Seybold Building in Downtown Miami",
+    "why_here": "Go for Mediterranean cuisine at the original Motek inside the historic Seybold Building in Downtown Miami, where Motek opened in Downtown Miami in 2020 and serves downtown diners today.",
+    "know_before": "Hours are Monday to Saturday 10 a.m. to 6:30 p.m.; Sunday is closed",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://motek.com/downtown/"
+     ],
+     "why_here": [
+      "https://motek.com/downtown/"
+     ],
+     "know_before": [
+      "https://motek.com/downtown/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Motek downtown is the original Motek, located inside the historic Seybold Building in Downtown Miami",
+      "source": "https://motek.com/downtown/"
+     },
+     {
+      "claim": "Motek opened in Downtown Miami in 2020 and offers Mediterranean cuisine",
+      "source": "https://motek.com/downtown/"
+     },
+     {
+      "claim": "Motek downtown is at 36 Ne 1st St, Miami, FL 33132",
+      "source": "https://motek.com/downtown/"
+     },
+     {
+      "claim": "Motek downtown hours are Monday to Saturday from 10 a.m. to 6:30 p.m. for dine in",
+      "source": "https://motek.com/downtown/"
+     },
+     {
+      "claim": "Motek downtown is closed on Sunday",
+      "source": "https://motek.com/downtown/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJs0qbkh77wogRuVxUZRciJLw",
+   "name": "Little Greek Fresh Grill",
+   "category": "food",
+   "metro": "st-pete",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://littlegreekfreshgrill.com/menu/",
+     "source_name": "Little Greek Fresh Grill \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Little Greek Fresh Grill menu lists Chicken Skewers (Souvlaki) served over rice with a side Greek salad",
+      "Little Greek Fresh Grill menu lists Steak Skewers (Souvlaki) served over rice with a side Greek salad",
+      "Gyro Platter is gyro meat over rice with a side Greek salad"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Chicken Skewers (Souvlaki) and Gyro Platter at Little Greek Fresh Grill",
+    "why_here": "Go for Chicken Skewers (Souvlaki) and a Gyro Platter at Little Greek Fresh Grill, where the menu lists Steak Skewers (Souvlaki) and gyro meat over rice with a side Greek salad for lunch or dinner.",
+    "know_before": "Chicken Skewers (Souvlaki) are served over rice with a side Greek salad",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://littlegreekfreshgrill.com/menu/"
+     ],
+     "why_here": [
+      "https://littlegreekfreshgrill.com/menu/"
+     ],
+     "know_before": [
+      "https://littlegreekfreshgrill.com/menu/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Little Greek Fresh Grill menu lists Chicken Skewers (Souvlaki) served over rice with a side Greek salad",
+      "source": "https://littlegreekfreshgrill.com/menu/"
+     },
+     {
+      "claim": "Little Greek Fresh Grill menu lists Steak Skewers (Souvlaki) served over rice with a side Greek salad",
+      "source": "https://littlegreekfreshgrill.com/menu/"
+     },
+     {
+      "claim": "Gyro Platter is gyro meat over rice with a side Greek salad",
+      "source": "https://littlegreekfreshgrill.com/menu/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJBdBiD9U35IgRBC9qVep28MU",
+   "name": "Ponte Vedra Inn & Club",
+   "category": "hotels",
+   "metro": "florida",
+   "primary_type": "resort_hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.pontevedra.com/stay/inn-club",
+     "source_name": "Ponte Vedra Inn & Club \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Ponte Vedra Inn & Club is a Florida beach resort setting the standard since 1928",
+      "Ponte Vedra Inn & Club offers a full-service luxury spa offering over 100 services",
+      "Ponte Vedra Inn & Club offers 36 holes of golf",
+      "Ponte Vedra Inn & Club offers 12 Har-Tru clay tennis courts"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Florida beach resort setting the standard since 1928",
+    "why_here": "Go for a Florida beach resort setting the standard since 1928 at Ponte Vedra Inn & Club, with a full-service luxury spa offering over 100 services and 36 holes of golf on site.",
+    "know_before": "Ponte Vedra Inn & Club offers 12 Har-Tru clay tennis courts",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.pontevedra.com/stay/inn-club"
+     ],
+     "why_here": [
+      "https://www.pontevedra.com/stay/inn-club"
+     ],
+     "know_before": [
+      "https://www.pontevedra.com/stay/inn-club"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Ponte Vedra Inn & Club is a Florida beach resort setting the standard since 1928",
+      "source": "https://www.pontevedra.com/stay/inn-club"
+     },
+     {
+      "claim": "Ponte Vedra Inn & Club offers a full-service luxury spa offering over 100 services",
+      "source": "https://www.pontevedra.com/stay/inn-club"
+     },
+     {
+      "claim": "Ponte Vedra Inn & Club offers 36 holes of golf",
+      "source": "https://www.pontevedra.com/stay/inn-club"
+     },
+     {
+      "claim": "Ponte Vedra Inn & Club offers 12 Har-Tru clay tennis courts",
+      "source": "https://www.pontevedra.com/stay/inn-club"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJZ1r97-u20YgRDk5-Rim5LUs",
+   "name": "First Flight Island Restaurant & Brewery",
+   "category": "food",
+   "metro": "keys",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://firstflightkw.com/home",
+     "source_name": "First Flight Island Restaurant & Brewery \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "First Flight is located at 301 Whitehead St. in Key West, FL 33040",
+      "First Flight is the birthplace of Pan American World Airways",
+      "Pan-Am first tickets were sold out of this building in 1927",
+      "First Flight is open daily for lunch and dinner, including Happy Hour from 4 p.m. to 6 p.m.",
+      "First Flight brews original beers on the property"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Birthplace of Pan American World Airways in Key West",
+    "why_here": "Go for lunch and dinner in Key West at First Flight, the birthplace of Pan American World Airways, where Pan-Am first tickets were sold in 1927 and original beers are brewed on the property.",
+    "know_before": "Happy Hour is from 4 p.m. to 6 p.m. daily",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://firstflightkw.com/home"
+     ],
+     "why_here": [
+      "https://firstflightkw.com/home"
+     ],
+     "know_before": [
+      "https://firstflightkw.com/home"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "First Flight is located at 301 Whitehead St. in Key West, FL 33040",
+      "source": "https://firstflightkw.com/home"
+     },
+     {
+      "claim": "First Flight is the birthplace of Pan American World Airways",
+      "source": "https://firstflightkw.com/home"
+     },
+     {
+      "claim": "Pan-Am first tickets were sold out of this building in 1927",
+      "source": "https://firstflightkw.com/home"
+     },
+     {
+      "claim": "First Flight is open daily for lunch and dinner, including Happy Hour from 4 p.m. to 6 p.m.",
+      "source": "https://firstflightkw.com/home"
+     },
+     {
+      "claim": "First Flight brews original beers on the property",
+      "source": "https://firstflightkw.com/home"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJqzqaNWy32YgRqOkC7Mzqqm8",
+   "name": "OMAKAI sushi",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "sushi_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://omakai.com/about/",
+     "source_name": "OMAKAI sushi \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "OMAKAI offers highest-quality seasonal and chef-selected appetizers, nigiris and hand rolls"
+     ]
+    },
+    {
+     "source": "https://omakai.com/faq/",
+     "source_name": "OMAKAI sushi \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Guests can select from four different set menus, or they can order a la carte, choosing from specialty hand rolls or sashimi"
+     ]
+    },
+    {
+     "source": "https://omakai.com/locations/",
+     "source_name": "OMAKAI sushi \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "OMAKAI sushi Coconut Grove is at 3304 Mary Street, Miami, FL 33133"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Miami sushi restaurant with chef-selected nigiris and hand rolls",
+    "why_here": "Go for sushi built around seasonal and chef-selected appetizers, nigiris and hand rolls, with set menus and a la carte specialty hand rolls or sashimi to choose from.",
+    "know_before": "Coconut Grove is at 3304 Mary Street, Miami, FL 33133",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://omakai.com/about/"
+     ],
+     "why_here": [
+      "https://omakai.com/about/"
+     ],
+     "know_before": [
+      "https://omakai.com/about/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "OMAKAI offers highest-quality seasonal and chef-selected appetizers, nigiris and hand rolls",
+      "source": "https://omakai.com/about/"
+     },
+     {
+      "claim": "Guests can select from four different set menus, or they can order a la carte, choosing from specialty hand rolls or sashimi",
+      "source": "https://omakai.com/faq/"
+     },
+     {
+      "claim": "OMAKAI sushi Coconut Grove is at 3304 Mary Street, Miami, FL 33133",
+      "source": "https://omakai.com/locations/"
+     }
+    ]
+   }
+  }
+ ]
+}
