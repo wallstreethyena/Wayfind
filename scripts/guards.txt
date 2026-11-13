@@ -2630,3 +2630,5 @@ node scripts/test-christmas-plan.mjs
 node scripts/test-frontier-moment-decisions.mjs
 # 2026-11-12: Grounded Wayfind AI Itinerary Builder end-to-end verification (all 7 acceptance scenarios, ungrounded ID refusal, closed-day check, local->Supabase sync, and fallback resilience).
 node scripts/test-ai-itinerary-planner.mjs
+# 2026-11-13: GitHub-hosted serial merge queue worker (scripts/merge-queue.mjs): ordering, update-branch pinning, conflict/CI/approval drops, error isolation, main-moved retests, merge retry cap, fingerprint approval surviving the queue's update, tree proof, refusal outside Actions/main. Fake GitHub, no network.
+node scripts/test-merge-queue.mjs

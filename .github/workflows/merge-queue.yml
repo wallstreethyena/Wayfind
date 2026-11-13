@@ -30,22 +30,28 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+  # Safety net, not a poller: if a drain dies (GitHub outage, runner loss, timeout)
+  # the next sweep resumes labelled PRs without anyone re-labelling. An empty queue
+  # exits in seconds.
+  schedule:
+    - cron: "41 * * * *"
 permissions:
   contents: write
   pull-requests: write
   issues: write
   checks: write
   actions: write
-# One drainer at a time, never cancelled mid-merge. GitHub keeps at most one
-# pending run per group; the drainer re-lists labelled PRs until none remain, so a
-# replaced pending run loses nothing.
-concurrency:
-  group: merge-queue
-  cancel-in-progress: false
 jobs:
   drain:
     name: merge-queue
     if: github.event_name != 'pull_request_target' || github.event.label.name == 'merge-queue'
+    # One drainer at a time, never cancelled mid-merge. On the JOB, after the label
+    # filter, so an unrelated label event can never displace a pending drain.
+    # GitHub keeps one pending run per group; the drainer re-lists labelled PRs
+    # until none remain, so a replaced pending run loses nothing.
+    concurrency:
+      group: merge-queue
+      cancel-in-progress: false
     runs-on: ubuntu-latest
     timeout-minutes: 300
     steps:

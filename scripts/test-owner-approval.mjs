@@ -138,17 +138,31 @@ globalThis.fetch = async (url, init = {}) => {
     const sha = ++pullReads > 1 && cfg.liveHeadLater ? cfg.liveHeadLater : cfg.liveHead;
     return { ok: true, status: 200, json: async () => ({ head: { sha }, base: { ref: "main" }, changed_files: cfg.changedFiles ?? (cfg.files || []).length }) };
   }
-  // Protected-content evidence: merge base is MB; blob shas per path come from
-  // cfg.blobs ({ path: { base, head } }), default base 1111…, head 2222….
+  // Protected-content evidence via git trees (2026-11-13): merge base is c…c.
+  // Tree sha = "<ref>~<dir as base64url>"; each listing shows every known path's
+  // child in that dir. Blob per path from cfg.blobs ({ path: { base, head, baseMode, headMode } }),
+  // default base 1111…, head 2222…, mode 100644; null = absent.
   if (/\\/compare\\//.test(path)) return { ok: true, status: 200, json: async () => ({ merge_base_commit: { sha: "c".repeat(40) } }) };
-  const content = path.match(/\\/contents\\/(.+)$/);
-  if (content) {
-    const p = decodeURIComponent(content[1]);
-    const ref = new URL(url).searchParams.get("ref");
-    const b = (cfg.blobs || {})[p] || { base: "1".repeat(40), head: "2".repeat(40) };
-    const sha = ref === "c".repeat(40) ? b.base : b.head;
-    if (sha === null) return { ok: false, status: 404, json: async () => ({}) };
-    return { ok: true, status: 200, json: async () => ({ type: "file", sha }) };
+  const gc = path.match(/\\/git\\/commits\\/([^/]+)$/);
+  if (gc) return { ok: true, status: 200, json: async () => ({ tree: { sha: gc[1] + "~" } }) };
+  const gt = path.match(/\\/git\\/trees\\/([^/]+)$/);
+  if (gt) {
+    const [ref, enc] = decodeURIComponent(gt[1]).split("~");
+    const dir = enc ? Buffer.from(enc, "base64url").toString() : "";
+    const known = new Set(["CLAUDE.md", "AGENTS.md", "scripts/check-doc-ownership.mjs", "scripts/lib/ownerApproval.mjs", "scripts/owner-approval-gate.mjs", ".github/workflows/fake-owner-approval.yml", ".github/workflows/owner-approval-gate.yml", ...Object.keys(cfg.blobs || {}), ...(cfg.files || []).flatMap((f) => [f.filename, f.previous_filename].filter(Boolean))]);
+    const entries = new Map();
+    for (const p of known) {
+      if (dir && !p.startsWith(dir + "/")) continue;
+      const rest = dir ? p.slice(dir.length + 1) : p;
+      const [first, ...more] = rest.split("/");
+      if (more.length) { entries.set(first, { path: first, type: "tree", mode: "040000", sha: ref + "~" + Buffer.from(dir ? dir + "/" + first : first).toString("base64url") }); continue; }
+      const b = (cfg.blobs || {})[p] || {};
+      const isBase = ref === "c".repeat(40);
+      const sha = isBase ? ("base" in b ? b.base : "1".repeat(40)) : ("head" in b ? b.head : "2".repeat(40));
+      if (sha === null) continue;
+      entries.set(first, { path: first, type: (isBase ? b.baseType : b.headType) || "blob", mode: (isBase ? b.baseMode : b.headMode) || "100644", sha });
+    }
+    return { ok: true, status: 200, json: async () => ({ tree: [...entries.values()], truncated: false }) };
   }
   if (/\\/pulls\\/\\d+\\/files$/.test(path)) return { ok: true, status: 200, json: async () => cfg.files || [] };
   if (/\\/issues\\/\\d+\\/comments$/.test(path)) {
@@ -304,6 +318,10 @@ globalThis.fetch = async (url, init = {}) => {
   ok(r.code === 1, `FP prefix: a 40-hex prefix of the fingerprint is not an approval (${r.code})`);
   r = run({ dir: edit.dir, gate: true, eventHead: edit.head, liveHead: edit.head, comments: [approve(FP_EDIT)] });
   ok(r.code === 0, `FP guards: check-doc-ownership (the guards check) accepts the same fingerprint (${r.code}: ${r.out.trim()})`);
+  r = pr({ files: [file("CLAUDE.md")], comments: [approve(FP())], blobs: { "CLAUDE.md": { base: "1".repeat(40), head: "2".repeat(40), headMode: "120000" } } });
+  ok(r.code === 1 && /symlinks and submodules cannot carry owner approval/.test(r.out), `FP symlink: an approved file swapped for a symlink (same target blob) fails closed (${r.code}: ${r.out.trim()})`);
+  r = pr({ files: [file("CLAUDE.md")], comments: [approve(FP())], blobs: { "CLAUDE.md": { base: "1".repeat(40), head: "2".repeat(40), headMode: "100755" } } });
+  ok(r.code === 1, `FP mode: making a protected file executable is a protected change that needs a new approval (${r.code})`);
   ok(protectedFingerprint(1478, []) === null && protectedFingerprint(1478, [{ path: "CLAUDE.md", base: "x", head: null }]) === null
     && protectedFingerprint(1478, [{ path: "CLAUDE.md", base: null, head: null }]) === null, "FP pure: malformed or empty evidence yields no fingerprint (never a pass)");
   ok(protectedFingerprint(1478, [{ path: "A", base: null, head: "2".repeat(40) }, { path: "B", base: "1".repeat(40), head: null }])
@@ -335,6 +353,16 @@ globalThis.fetch = async (url, init = {}) => {
     && /^  guards:\n    name: guards\n    if: always\(\)\n    needs: \[shard, rendered, build\]/m.test(wfCode)
     && /test "\$SHARD" = "success" && test "\$RENDERED" = "success" && test "\$BUILD" = "success"/.test(wfCode),
     "guards: four GUARD_SHARD jobs + rendered + build, and the required 'guards' job fails unless every part succeeded");
+  // Merge queue code runs from main with a write token: it and everything it
+  // imports from this repository must be owner-only (2026-11-13 review, C1).
+  const queueFiles = ["scripts/merge-queue.mjs", "scripts/lib/mergeQueue.mjs", "scripts/test-merge-queue.mjs"];
+  const queueImports = [];
+  for (const f of ["scripts/merge-queue.mjs", "scripts/lib/mergeQueue.mjs"]) {
+    const src = readFileSync(join(REPO, f), "utf8");
+    for (const m of src.matchAll(/^\s*import\s[^;]*?from\s+"(\.{1,2}\/[^"]+)"/gm)) queueImports.push(join(f, "..", m[1]).replace(/\\/g, "/"));
+  }
+  ok(queueImports.length >= 3 && [...queueFiles, ...queueImports].every(isOwnerOnly),
+    `merge queue code and its ${queueImports.length} local imports are owner-only (${[...new Set(queueImports)].join(", ")})`);
   // Merge queue (2026-11-13): holds a write token, so it must never run PR code.
   const mq = readFileSync(join(REPO, ".github", "workflows", "merge-queue.yml"), "utf8").split("\n").filter((l) => !/^\s*#/.test(l)).join("\n");
   const mqUses = [...mq.matchAll(/uses:\s*(\S+)/g)].map((m) => m[1]);
@@ -360,7 +388,7 @@ globalThis.fetch = async (url, init = {}) => {
   ok(uses.length === 2 && uses.every((u) => /@[0-9a-f]{40}$/.test(u)), `owner-approval pins every action to a full commit sha (${uses.join(", ")})`);
 }
 
-const EXPECTED = 81;
+const EXPECTED = 84;
 if (checks !== EXPECTED) {
   console.error(`test-owner-approval: FAIL — ran ${checks} assertions, expected exactly ${EXPECTED}; a proof was skipped or added without review.`);
   process.exit(1);

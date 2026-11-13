@@ -64,6 +64,11 @@ export const OWNER_ONLY = Object.freeze([
   /^scripts\/lib\/githubAppAuth\.mjs$/i,
   /^scripts\/test-owner-approval-gate\.mjs$/i,
   /^scripts\/owner-gate-setup-check\.mjs$/i,
+  // The merge queue runs from main with a WRITE token and posts the required
+  // owner-approval check (2026-11-13), so its code is owner-only like the gate's.
+  /^scripts\/merge-queue\.mjs$/i,
+  /^scripts\/lib\/mergeQueue\.mjs$/i,
+  /^scripts\/test-merge-queue\.mjs$/i,
   // Everything under .github/: every workflow, CODEOWNERS, and anything added
   // later. A workflow can report a check under any name and can read repository
   // secrets, so adding or editing one is an owner decision (2026-09-24).
@@ -79,8 +84,9 @@ export const FINGERPRINT_VERSION = "wayfind-owner-approval-fingerprint/v1";
 
 /**
  * Content fingerprint of a pull request's protected change.
- * entries: [{ path, base, head }] with base/head = 40-hex git blob sha at the
- * merge base / head, or null when the file is absent there. Returns 64-hex, or
+ * entries: [{ path, base, head, baseMode, headMode }] with base/head = 40-hex git
+ * blob sha at the merge base / head (null when absent there) and the git file
+ * mode (100644/100755; anything else, e.g. a symlink, cannot be fingerprinted). Returns 64-hex, or
  * null when the input cannot be fingerprinted (never a guess).
  */
 export function protectedFingerprint(number, entries) {
@@ -90,9 +96,12 @@ export function protectedFingerprint(number, entries) {
   for (const e of entries) {
     if (!e || typeof e.path !== "string" || !e.path || seen.has(e.path)) return null;
     for (const side of [e.base, e.head]) if (side !== null && !(typeof side === "string" && SHA40.test(side))) return null;
-    if (e.base === e.head) return null; // listed as changed but identical: evidence is wrong
+    const baseMode = e.base === null ? "-" : String(e.baseMode ?? "100644");
+    const headMode = e.head === null ? "-" : String(e.headMode ?? "100644");
+    if (![baseMode, headMode].every((m) => m === "-" || /^100(644|755)$/.test(m))) return null; // only regular files
+    if (e.base === e.head && baseMode === headMode) return null; // listed as changed but identical: evidence is wrong
     seen.add(e.path);
-    rows.push(`${e.path}\t${e.base || "-"}\t${e.head || "-"}`);
+    rows.push(`${e.path}\t${e.base || "-"}\t${baseMode}\t${e.head || "-"}\t${headMode}`);
   }
   rows.sort();
   return createHash("sha256").update(`${FINGERPRINT_VERSION}\npr ${number}\n${rows.join("\n")}\n`).digest("hex");

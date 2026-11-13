@@ -111,20 +111,50 @@ export async function fetchPullEvidence(ctx, { withFiles = false, protectedFilte
     const cmp = await call(`/compare/${encodeURIComponent(baseRef)}...${head}`);
     const mergeBase = String((cmp && cmp.merge_base_commit && cmp.merge_base_commit.sha) || "");
     if (!/^[0-9a-f]{40}$/.test(mergeBase)) throw new Error("GitHub returned no merge base for the pull request");
-    const blobAt = async (path, ref) => {
-      const enc = path.split("/").map(encodeURIComponent).join("/");
-      const response = await fetchImpl(`${ctx.api}/repos/${ctx.repo}/contents/${enc}?ref=${ref}`, {
-        headers: { Authorization: `Bearer ${ctx.token}`, Accept: "application/vnd.github.object+json", "X-GitHub-Api-Version": "2022-11-28" },
-        signal: AbortSignal.timeout(15000),
-      });
-      if (response && response.status === 404) return null;
-      if (!response || !response.ok) throw new Error(`GitHub API /contents answered HTTP ${response ? response.status : "nothing"} for ${path}`);
-      const body = await response.json();
-      if (!body || body.type !== "file" || !/^[0-9a-f]{40}$/.test(String(body.sha || ""))) throw new Error(`${path} is not a regular file at ${ref.slice(0, 12)}`);
-      return body.sha;
+    // Read each path from git TREES, not /contents: /contents follows a symlink and
+    // reports the target's blob as a "file", so swapping an approved file for a
+    // symlink to an unprotected copy would keep the fingerprint (2026-11-13 review).
+    // The tree entry gives the real mode; symlinks and submodules are refused.
+    const trees = new Map();
+    const listTree = async (sha) => {
+      if (!trees.has(sha)) {
+        const t = await call(`/git/trees/${sha}`);
+        if (!t || !Array.isArray(t.tree) || t.truncated) throw new Error("GitHub returned an incomplete git tree; refusing to judge");
+        trees.set(sha, t.tree);
+      }
+      return trees.get(sha);
+    };
+    const roots = new Map();
+    const blobAt = async (path, commit) => {
+      if (!roots.has(commit)) {
+        const c = await call(`/git/commits/${commit}`);
+        const tree = String((c && c.tree && c.tree.sha) || "");
+        if (!tree) throw new Error(`GitHub returned no tree for ${commit.slice(0, 12)}`);
+        roots.set(commit, tree);
+      }
+      let tree = roots.get(commit);
+      const parts = path.split("/");
+      for (let i = 0; i < parts.length; i++) {
+        const entry = (await listTree(tree)).find((e) => e && e.path === parts[i]);
+        if (!entry) return { sha: null, mode: null };
+        if (i < parts.length - 1) {
+          if (entry.type !== "tree") return { sha: null, mode: null };
+          tree = entry.sha;
+          continue;
+        }
+        if (entry.type !== "blob" || !/^100(644|755)$/.test(String(entry.mode)) || !/^[0-9a-f]{40}$/.test(String(entry.sha || ""))) {
+          throw new Error(`${path} is not a regular file at ${commit.slice(0, 12)} (mode ${entry.mode}, type ${entry.type}); symlinks and submodules cannot carry owner approval`);
+        }
+        return { sha: entry.sha, mode: String(entry.mode) };
+      }
+      return { sha: null, mode: null };
     };
     protectedEntries = [];
-    for (const path of wanted) protectedEntries.push({ path, base: await blobAt(path, mergeBase), head: await blobAt(path, head) });
+    for (const path of wanted) {
+      const base = await blobAt(path, mergeBase);
+      const tip = await blobAt(path, head);
+      protectedEntries.push({ path, base: base.sha, head: tip.sha, baseMode: base.mode, headMode: tip.mode });
+    }
   }
   const comments = await paged(`/issues/${ctx.number}/comments`, MAX_COMMENT_PAGES, "comments");
   const second = await call(`/pulls/${ctx.number}`);
