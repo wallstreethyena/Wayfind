@@ -33,11 +33,12 @@ async function fillOne(place, center, signal) {
   });
   try {
     const r = await fetch("/api/places/search?" + params.toString(), { signal });
-    const body = r.ok ? await r.json() : null;
+    if (!r.ok) return; // Transient 429/5xx must not permanently poison session photo healing
+    const body = await r.json();
     const ref = selectPlacePhotoRef(body && body.places, place);
     RESOLVED.set(id, ref || null);
   } catch (e) {
-    if (!signal.aborted) RESOLVED.set(id, null);
+    // Network drop or abort: leave unresolved so a subsequent settle can retry cleanly
   }
 }
 
