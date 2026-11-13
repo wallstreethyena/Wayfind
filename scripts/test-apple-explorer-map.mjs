@@ -223,4 +223,18 @@ selectListener({ annotation: placePins[0] });
 assert.equal(selected, selectedBeforeDestroy, "late native callbacks after teardown are inert");
 
 assert.equal(appleMapBounds({ region: null }), null, "bounds fail closed until MapKit has a real region");
+{
+  // Compact (embedded) maps: small insets so a 340px box can still frame its
+  // pins (Christmas lights map at continent zoom, 2026-11-13). Full screen
+  // insets are unchanged for the map screen.
+  const small = createAppleExplorerController({ mapkit, container: {}, center: { lat: 28.2, lng: -82.3 }, events: [{ id: "a", name: "A", lat: 27.3, lng: -82.5 }, { id: "b", name: "B", lat: 30.3, lng: -81.6 }], fit: true, showOrigin: false, compact: true });
+  assert.deepEqual(small.map.padding, new Padding(16, 16, 28, 16), "a compact map uses small insets, not the full screen ones");
+  assert.deepEqual(small.map.showOptions && small.map.showOptions.padding, new Padding(24, 20, 32, 20), "a compact map frames its pins with small padding");
+  assert.ok(Array.isArray(small.map.shown) && small.map.shown.length >= 2, "a compact fit frames every pin");
+  small.destroy();
+  const { readFileSync } = await import("node:fs");
+  const strip = (s) => s.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "$1");
+  assert.ok(/<AppleExplorerMap compact /.test(strip(readFileSync(new URL("../app/components/ChristmasMap.js", import.meta.url), "utf8"))), "the Christmas lights map renders compact");
+  assert.ok(/\.\.\.dataRef\.current, compact,/.test(strip(readFileSync(new URL("../app/components/AppleExplorerMap.js", import.meta.url), "utf8"))), "AppleExplorerMap passes compact to the controller");
+}
 console.log("test-apple-explorer-map: OK — full result set, numeric coordinates, score pills, diffing, clustering, rings, selection, viewport reporting, focus, updates, and teardown");
