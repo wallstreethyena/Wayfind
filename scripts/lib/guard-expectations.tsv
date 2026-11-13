@@ -509,7 +509,7 @@ scripts/test-address-search.mjs	0	CALL	blocks-ci-and-deploy	1	-	90	0	0	34d4a5084
 scripts/test-affiliate-chip.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	22	0	0	51b2e8430c66e6a504d795aed9e59e0ed3443bf36cdde234285e8b34ea068c2a
 scripts/test-affiliate-tags.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	22	0	0	c6816c329a1a3cefe2cf8e2aec37cfee8e0d871fb8082575e5c9e85c27635ffd
 scripts/test-affiliates.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	16	0	0	50facb4684811511654df66a057b13563dcb91afed2961a4f266b5093d9d4343
-scripts/test-ai-itinerary-planner.mjs	0	RENDER	blocks-ci-and-deploy	1	-	100	0	0	a69659a43c9ae8823392be875941a18a07a91a7b8cf188620eff983eee6d8ea4
+scripts/test-ai-itinerary-planner.mjs	0	RENDER	blocks-ci-and-deploy	1	-	103	0	0	345b4490ab3041d31fa4d589184254b99d31d149177df0c6ba99efd1454c0dae
 scripts/test-analytics-attribution-meta.mjs	0	CALL	blocks-ci-and-deploy	1	-	13	0	0	346c0a79c94fdb93509d27d97948b971c4fb400bb3fb05ccd9f2f8febdaa39d1
 scripts/test-analytics-write-suppression.mjs	0	CALL	blocks-ci-and-deploy	1	-	8	0	0	80ca8962f5280349833df026eb8704f60d8fe597fc7d940af85f5335b5097e55
 scripts/test-analytics.mjs	0	CALL	blocks-ci-and-deploy	1	-	133	0	0	8f74781ff9edb598679327a1f7d0f0f24bce0613f3dadd81144efca8af637121
