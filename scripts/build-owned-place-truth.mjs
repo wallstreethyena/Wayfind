@@ -50,9 +50,9 @@ const HIGH_INTENT_FIXTURES = {
     place_id: "ChIJ5d9yNNEXw4gRm2kGIGmpfT4",
     name: "Riverwalk Splash Park",
     locality: "Bradenton",
-    category: "Park",
-    types: ["Park", "amusement_center", "park", "point_of_interest", "tourist_attraction", "water_park"],
-    gap_class: "FREE_PUBLIC_SPLASH_PARK",
+    category: "Water Park",
+    types: ["water_park", "amusement_park", "point_of_interest", "establishment"],
+    gap_class: "MUNICIPAL_SPLASH_PARK",
   },
 };
 
@@ -79,7 +79,7 @@ let atlasProseOnlyCount = 0;
 for (const { raw, editorial } of atlasById.values()) {
   if (!raw.hours && !editorial?.hoursText) continue;
   atlasWithHoursText += 1;
-  const parsed = parseEditorialHours(editorial || raw.hours);
+  const parsed = parseEditorialHours(editorial || raw.hours, { venueName: raw.name || editorial?.name || null });
   if (parsed.ok && parsed.periods.length > 0) {
     atlasStructuredHoursCount += 1;
   } else {
@@ -100,6 +100,7 @@ let menuOrReserveCount = 0;
 let freePaidClassifiedCount = 0;
 let zeroPaidReadyCount = 0;
 let actionabilitySum = 0;
+let fallbackReadinessSum = 0;
 
 const GENERATED_AT = "2026-11-13T15:00:00.000Z";
 const NOW_MS = Date.parse(GENERATED_AT);
@@ -182,18 +183,20 @@ for (const placeId of allTargetIds) {
   if (hasClassifiedAdmission) freePaidClassifiedCount += 1;
   if (isZeroPaidReady) zeroPaidReadyCount += 1;
   actionabilitySum += actionability.score;
+  fallbackReadinessSum += actionability.fallbackReadiness.score;
 
   placesLedger[placeId] = {
     place_id: placeId,
     name: syntheticDetail.name,
     locality: syntheticDetail.locality,
     gap_class: fpEntry.gap_class || (atlasRaw ? "ATLAS_TOP_INVENTORY" : null),
-    timezone: "America/New_York",
+    timezone: ownedHours.timezone || "America/New_York",
     official_website: resolvedActions?.officialWebsite || (officialUrl ? {
       url: officialUrl,
       source: "atlas_editorial_card",
       confidence: "EXACT",
       verification_status: "verified",
+      verified_at: atlasRaw?.verified_at || null,
     } : null),
     ticket_url: resolvedActions?.ticket_url || null,
     admission_url: resolvedActions?.admission_url || null,
@@ -205,9 +208,15 @@ for (const placeId of allTargetIds) {
       confidence: ownedHours.confidence,
       parser_version: ownedHours.parserVersion || null,
       source_fact: ownedHours.sourceFact || null,
+      timezone: ownedHours.timezone || "America/New_York",
+      verified_at: ownedHours.verifiedAt || null,
+      freshness: ownedHours.freshness || "unverified_timestamp",
+      exceptions: Array.isArray(ownedHours.exceptions) ? ownedHours.exceptions : [],
       periods_count: periods.length,
+      periods: hasStructuredHours ? periods : [],
       weekday_descriptions: weekdayDescriptions,
       special_hours_count: Array.isArray(ownedHours.specialHours) ? ownedHours.specialHours.length : 0,
+      special_hours: Array.isArray(ownedHours.specialHours) ? ownedHours.specialHours : [],
     },
     admission_truth: admissionTruth,
     actionability: {
@@ -216,6 +225,8 @@ for (const placeId of allTargetIds) {
       total_dimensions: actionability.totalDimensions,
       dimensions: actionability.dimensions,
       missing_dimensions: actionability.missingDimensions,
+      verified_coverage: actionability.verifiedCoverage,
+      fallback_readiness: actionability.fallbackReadiness,
       affects_wayfind_score: false,
     },
     trace_summary: {
@@ -272,6 +283,7 @@ for (const [placeId, { raw, editorial }] of atlasById.entries()) {
 reviewQueue.sort((a, b) => a.actionability_score - b.actionability_score || a.place_id.localeCompare(b.place_id));
 
 const avgActionabilityScore = allTargetIds.length > 0 ? Number((actionabilitySum / allTargetIds.length).toFixed(2)) : 0;
+const avgFallbackReadinessScore = allTargetIds.length > 0 ? Number((fallbackReadinessSum / allTargetIds.length).toFixed(2)) : 0;
 
 const ownedTruthPayload = {
   schema_version: 1,
@@ -280,6 +292,7 @@ const ownedTruthPayload = {
     wayfind_score_independent: true,
     affiliate_never_outranks_verified_official_in_primary_cta: true,
     zero_paid_lookup_capable: true,
+    fallback_readiness_separate_from_verified_coverage: true,
   },
   summary: {
     high_intent_places_total: allTargetIds.length,
@@ -300,6 +313,8 @@ const ownedTruthPayload = {
       free_paid_classified_count: freePaidClassifiedCount,
       zero_paid_ready_count: zeroPaidReadyCount,
       avg_actionability_score: avgActionabilityScore,
+      avg_verified_coverage_score: avgActionabilityScore,
+      avg_fallback_readiness_score: avgFallbackReadinessScore,
     },
     atlas_wide: {
       cards_with_hours_fact: atlasWithHoursText,
