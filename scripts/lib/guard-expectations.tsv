@@ -653,6 +653,7 @@ scripts/test-curated-events-cache.mjs	0	CALL	blocks-ci-and-deploy	1	-	29	0	0	927
 scripts/test-curator-boost.mjs	0	CALL	blocks-ci-and-deploy	1	-	37	1	2	57ce83b191efdd6fb7fec477711dcda15f37e3937133cad1c8d87ef2a891654d
 scripts/test-curator-picks.mjs	0	CALL	blocks-ci-and-deploy	1	-	66	0	0	c76fc9eccfe0f0298e99a3a0b8059f21dbf86d12cd16c6c1de4d83f70259e4ea
 scripts/test-daily-trend-intelligence.mjs	0	CALL	blocks-ci-and-deploy	1	-	17	0	0	61d9790c0010704166b1481641010e830a3022f71d278f4438dc11ffefdf42ed
+scripts/test-data-manager-ingest-contract.mjs	0	CALL	blocks-ci-and-deploy	1	Revenue QA	16	0	0	6838d65a9bec6e72c769d328a00b459302aeadd7a6a6353eb6fda38f7a33a792
 scripts/test-date-night-intent.mjs	0	RENDER	blocks-ci-and-deploy	1	-	125	0	0	951bf8b336ff0864ecff30516391c589fb6dd732936460adea30a7af82d0f70b
 scripts/test-datenight-tag.mjs	0	RENDER	blocks-ci-and-deploy	1	-	13	0	0	e0ffa6a3a36c71b43d2f5bcec5e1f09b8c91aa7659825c635abb56345b55e1a6
 scripts/test-dayparts.mjs	0	CALL	blocks-ci-and-deploy	1	-	99	0	0	2e079d041b6d0fc43c1aee017467e3e0a11d5d5aa8123fbb07e34bc7080d161f
