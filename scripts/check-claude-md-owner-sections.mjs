@@ -16,7 +16,8 @@
 //
 // Positive control: the committed CLAUDE.md passes. Negative controls: each
 // mutation below (section removed, a hard stop removed, the no-bypass clause
-// removed, a safety section removed, a section duplicated) must fail.
+// removed, a safety section removed, a section duplicated, the manual
+// action minimization rule removed) must fail.
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -56,6 +57,9 @@ const AUTONOMY_CLAUSES = [
   "**Blocked does not mean stop.**",
   "**No implementation diary.**",
   "**Completion standard.**",
+  "**Manual Action Minimization.**",
+  "GABRIEL ACTION REQUIRED: NONE",
+  "C re-approval of approved scope → never ask again",
 ];
 
 /** The section body: from its heading to the next top-level heading. */
@@ -94,7 +98,7 @@ if (realErrors.length) fail.push("CLAUDE.md: " + realErrors.join("; "));
 const mutate = (label, from, to) => {
   assertions++;
   if (!real.includes(from)) { fail.push(`control "${label}": probe text not found, the control cannot run`); return; }
-  const broken = real.replace(from, to);
+  const broken = real.split(from).join(to); // every copy, so a second mention can't mask the removal
   if (broken === real) { fail.push(`control "${label}": mutation did not change the text`); return; }
   if (!evaluate(broken).length) fail.push(`control "${label}" stayed green`);
 };
@@ -104,6 +108,7 @@ mutate("hard stop 8 removed", "\n8. create significant irreversible risk.", "");
 mutate("no-bypass clause removed", "Never bypass, imitate or work around a denied action or a platform safety gate", "Proceed");
 mutate("relaxes-nothing clause removed", "This section never relaxes any other rule in this file", "This section overrides");
 mutate("manual action format removed", "MANUAL ACTION REQUIRED", "Say go");
+mutate("manual action minimization removed", "**Manual Action Minimization.**", "**Ask freely.**");
 mutate("booking safety section removed", sectionBody(real, "## Booking integrity") || "\u0000", "");
 mutate("owner-gated merges removed", "**Merges are owner-gated.**", "Merge freely.");
 mutate("autonomy section duplicated", autonomy, autonomy + autonomy);
@@ -112,4 +117,4 @@ if (fail.length) {
   console.error("check-claude-md-owner-sections: FAIL\n  " + fail.join("\n  "));
   process.exit(1);
 }
-console.log(`check-claude-md-owner-sections: OK — ${assertions} assertions: CLAUDE.md carries the GABRIEL EXECUTION AUTONOMY section once (${AUTONOMY_CLAUSES.length} clauses, hard stops 1 to 8), ${SAFETY_SECTIONS.length} safety sections exactly once and ${SAFETY_SENTENCES.length} core safety sentences; 8 negative controls each went red. False-positive surface: an owner-approved rewording of a pinned sentence fails here until this guard is updated in the same PR.`);
+console.log(`check-claude-md-owner-sections: OK — ${assertions} assertions: CLAUDE.md carries the GABRIEL EXECUTION AUTONOMY section once (${AUTONOMY_CLAUSES.length} clauses, hard stops 1 to 8), ${SAFETY_SECTIONS.length} safety sections exactly once and ${SAFETY_SENTENCES.length} core safety sentences; 9 negative controls each went red. False-positive surface: an owner-approved rewording of a pinned sentence fails here until this guard is updated in the same PR.`);

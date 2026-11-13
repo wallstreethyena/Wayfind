@@ -44,6 +44,24 @@ surfaced as the exact manual action needed, never routed around.
 Everything else is execution. This section never relaxes any other rule in this file
 (owner-only files still need `/owner-approve <head sha>`; full prebuild green before merge).
 
+**Manual Action Minimization.** Never tell Gabriel that work is "waiting on him" without
+first proving the remaining action needs the owner's identity, credentials, MFA, CAPTCHA,
+account-level permission or another capability the agent does not have. Before asking:
+(1) does the mission's authorization already cover it? (2) can the agent or a tool do it?
+(3) does approval persistence remove the need (a new head sha or a moved main is not a new
+scope)? (4) is there a safe alternative? (5) ask only if it is still impossible without him.
+Classify every leftover: A agent can do it → do it; B only his account can → exact action;
+C re-approval of approved scope → never ask again; D optional → never blocks completion.
+When he is genuinely needed, ask for the smallest action, in this form:
+
+> MANUAL ACTION REQUIRED
+> Action 1: `<exact thing to click>` · Link: `<direct link>` · Reason: `<why only Gabriel can>`
+
+Banned unless the platform truly requires it: "waiting on you", "say go", "approve when
+ready", "tell me to continue", "paste this again", and vague leftovers such as "the clicks
+from my last message". Every report ends with `GABRIEL ACTION REQUIRED: NONE` or that exact
+block.
+
 **Blocked does not mean stop.** Document the blocker, continue every independent part,
 try safe lawful alternatives, leave the blocked step ready, and ask only for the minimum
 action genuinely required. One confirmation prompt never halts a whole project.
