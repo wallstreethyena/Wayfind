@@ -2668,3 +2668,5 @@ node scripts/test-nervous-system-health.mjs
 node scripts/test-owned-hours-cohort.mjs
 # 2026-11-13: Wayfind Self-Healing "Should I Go?" Truth Engine (truth provenance, commerce health quarantine, owned hours persistence, 7-state cold location, event temporal eligibility, and actionability coverage).
 node scripts/test-self-healing-truth-engine.mjs
+# 2026-11-13: Closed-place guide/rail/index exclusion, inline card golf_course/duplicate-chip/false-Brazilian/Star-Fish fixes, Santa family outing classification, screen-reader flex-span spacing, and CardPhoto eager/monogram behavior.
+node scripts/test-closed-places-and-inline-cards.mjs
