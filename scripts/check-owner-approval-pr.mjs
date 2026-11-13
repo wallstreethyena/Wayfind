@@ -3,8 +3,9 @@
  * check-owner-approval-pr — the "owner-approval" check (2026-09-23).
  *
  * Owner-only files (the list is OWNER_ONLY in scripts/lib/ownerApproval.mjs) change
- * only with an "/owner-approve <head sha>" pull-request comment by an owner GitHub
- * login. scripts/check-doc-ownership.mjs enforces that inside the "guards" check,
+ * only with an owner GitHub login's pull-request comment approving the protected
+ * diff ("/owner-approve-diff <fingerprint>", v2, 2026-11-13) or, legacy, the exact
+ * head ("/owner-approve <head sha>"). scripts/check-doc-ownership.mjs enforces that inside the "guards" check,
  * but "guards" runs on pull_request, which executes the pull request's OWN copy of
  * the guard: a pull request that deletes CLAUDE.md from OWNER_ONLY, or rewrites the
  * guard to print OK, is judged by its own edit.
@@ -19,7 +20,7 @@
  * API error, on an incomplete file list, or when the head moves mid-read.
  */
 import { decideOwnerApproval } from "./lib/ownerApproval.mjs";
-import { fetchPullEvidence, readPullContext } from "./lib/githubPullEvidence.mjs";
+import { fetchApprovedManifests, fetchPullEvidence, readPullContext } from "./lib/githubPullEvidence.mjs";
 
 const refuse = (reason) => {
   console.error(`check-owner-approval-pr: FAIL — ${reason}.`);
@@ -30,12 +31,14 @@ const refuse = (reason) => {
 if (process.env.GITHUB_ACTIONS !== "true") {
   refuse("this is the GitHub Actions \"owner-approval\" check; a local run cannot see or grant owner approval");
 }
-const ctx = readPullContext(process.env, ["pull_request_target"]);
+// "merge-train": the merge train on main evaluates the same rule for the head it
+// just brought up to date (an update by the workflow token fires no pull_request_target).
+const ctx = readPullContext(process.env, ["pull_request_target", "merge-train"]);
 if (ctx.error) refuse(`owner approval cannot be evaluated: ${ctx.error}`);
 
 let live;
 try {
-  live = await fetchPullEvidence(ctx, { withFiles: true });
+  live = await fetchPullEvidence(ctx, { withFiles: true, withProtectedDiff: true });
 } catch (e) {
   refuse(`owner approval cannot be evaluated: ${(e && e.message) || e}`);
 }
@@ -47,12 +50,19 @@ if (ctx.eventHeadSha !== live.liveHeadSha) {
   refuse(`PR #${ctx.number} moved from ${ctx.eventHeadSha.slice(0, 12) || "nothing"} to ${live.liveHeadSha.slice(0, 12)} after this run started; the run for the new head decides`);
 }
 
-const verdict = decideOwnerApproval({
+const evidence = {
   changedPaths: live.files,
   mergeGate: true,
   pr: { number: ctx.number, eventHeadSha: ctx.eventHeadSha, liveHeadSha: live.liveHeadSha },
   comments: live.comments,
   error: null,
-});
+  protectedDiff: live.protectedDiff,
+  protectedDiffError: live.protectedDiffError,
+};
+let verdict = decideOwnerApproval(evidence);
+if (!verdict.ok && verdict.protectedPaths.length && live.protectedDiff) {
+  // Audit trail only: name the protected files that changed since an earlier approval.
+  verdict = decideOwnerApproval({ ...evidence, approvedManifests: await fetchApprovedManifests(ctx, live) });
+}
 if (!verdict.ok) refuse(verdict.reason);
 console.log(`check-owner-approval-pr: OK — ${verdict.reason} (${live.files.length} changed path(s) read from the GitHub API and judged by the base branch's rules)`);

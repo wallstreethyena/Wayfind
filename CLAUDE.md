@@ -76,8 +76,10 @@ Revenue-audit detail: `docs/POSTMORTEM_2026-08-25_REVENUE_PATH.md`.
 2. Assertion-guarded splice + a lock test wired into `npm run prebuild`.
 3. Full `npm run prebuild` green before commit. Anything red → report-only, do not merge.
 4. Squash-merge + delete branch. **Merges are owner-gated.** Owner-only files (CLAUDE.md,
-   AGENTS.md, `.github/**`, … see `scripts/lib/ownerApproval.mjs`) need an
-   `/owner-approve <head sha>` comment by the owner.
+   AGENTS.md, `.github/**`, … see `scripts/lib/ownerApproval.mjs`) need the owner's
+   `/owner-approve-diff <fingerprint>` comment, which approves the protected diff and survives
+   rebases, branch updates and unrelated changes (docs/OWNER_APPROVAL.md). Never ask the owner
+   to approve again unless the check shows the protected content itself changed.
 5. After merge: confirm the merged union is prebuild-green and the Vercel deploy is green.
 
 `gh`/merge traps:
@@ -134,6 +136,22 @@ Revenue-audit detail: `docs/POSTMORTEM_2026-08-25_REVENUE_PATH.md`.
   each call site; confirm with a click. A surface with no door is OK only while something
   tracks it (`docs/KIMI_QUEUE.md`).
 - **Verify on a surface that actually mounts what you changed.**
+- **Never change live visitor behavior just to prove a switch works (2026-11-13).** Prove it in
+  this order and stop at the first that works: a deterministic automated test; a preview or
+  staging deploy; an isolated canary or test route; a production check that does not change
+  what visitors get. Toggle a production kill switch on live traffic only when nothing else can
+  prove the behavior and the risk is worth it; then treat the toggle as a production change and
+  keep the window as short as possible. A kill switch is an emergency control, not a test.
+
+## Temporary infrastructure cleanup (2026-11-13)
+
+Temporary watchers, polling loops, keep-awake processes, scheduled checks, workarounds and
+debugging automation each get an explicit cleanup condition when created (write it next to
+the thing: "remove when X"). When the mission completes or durable infrastructure replaces the
+workaround, remove it in the same session. Never leave Gabriel's Mac acting as production
+infrastructure: merging is the merge train's job (`.github/workflows/merge-train.yml`), not a
+local script's. To get a PR merged, turn on auto-merge and let the train update it; do not run
+your own update loop.
 
 ## Extraction PRs (moving a function between modules) — run BOTH
 
