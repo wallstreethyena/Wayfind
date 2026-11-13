@@ -318,6 +318,7 @@ import { BEST_OF_NAMES, LOCAL_FAVE_EXTRA, WAYFIND_PHOTOS, WAYFIND_NOTES, WAYFIND
 // v7.02 (owner, 2026-08-08): the ONE card every homepage rail renders — the
 // /best-of place card at rail width, not a second card shape. See RailCard.js.
 import RailCard, { RailNav, RailDots } from "./components/RailCard";
+import { useReserveEntry } from "../lib/reserveClient.js";
 import LocalEdit from "./components/LocalEdit";
 import ThisWeekEvents from "./components/ThisWeekEvents";
 import { MARKETS, marketForLocation } from "../lib/destinations";
@@ -5462,6 +5463,8 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
       else if (_event === "SIGNED_OUT") setUser(null);
       // Group Vote sign-in resume: go back to the stored /group-plans path (same tab, validated).
       try { if (session && session.user && (_event === "SIGNED_IN" || _event === "INITIAL_SESSION")) { const _ret = consumeAuthReturn(window.sessionStorage); if (_ret) window.location.assign(_ret); } } catch (e) {}
+      // Reserve concierge sign-in resume: a full page OAuth redirect forgets the restaurant, so reopen it (sessionStorage intent, 30 min).
+      try { if (session && session.user && (_event === "SIGNED_IN" || _event === "INITIAL_SESSION") && window.sessionStorage.getItem("wf_reserve_pending_v1")) import("../lib/reserveOpen.js").then((m) => m.resumeReserveIntent()).catch(() => {}); } catch (e) {}
       try { if (session && session.user && typeof window !== "undefined" && window.__WF_NOTE_AUTH_USER) window.__WF_NOTE_AUTH_USER(session.user); } catch (e) {}
       try { if (typeof window !== "undefined") captureOrQueue(window, "auth_event", { event: _event, hasSession: !!(session && session.user) }); } catch (e) {}
       // THE ONLY place signup_completed / login_completed are emitted (lib/authJourney.js).
@@ -12578,6 +12581,9 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [p && p.id, p && p.lat, p && p.lng]);
   const cardProduct = usePlaceProduct(p && p.id);
+  // Reservation entry (lib/reserveCapability.js): restaurants and bars only; a verified Viator product keeps the card's one money action.
+  const reserveEntry = useReserveEntry(p);
+  const ReserveSlot = reserveEntry && !(cardProduct && cardProduct.url) ? reserveEntry.Slot : null;
   const tapIntent = useCardTapIntent();
   // THE GATE COMES LAST. Every hook above runs on every render; `cardComplete`
   // reads p.photo, which the heal effect above writes, so this gate genuinely
@@ -12851,6 +12857,7 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
               why the credit's own margin-top:auto is what bottom-anchors the
               pair. */}
           <CreatorCardMark videos={cardCreatorVideos} />
+          {ReserveSlot ? <ReserveSlot place={p} surface="browse_card" lane={reserveEntry.lane} /> : null}
           <div className="wf-place-card-actions wf-sheet-card-actions" style={{ marginTop: 9, pointerEvents: "auto" }}>
             {cardProduct && cardProduct.url && (
               <ViatorCommerceLink
