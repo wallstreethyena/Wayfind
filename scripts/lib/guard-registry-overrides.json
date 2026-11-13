@@ -1119,5 +1119,37 @@
    "detail": "If the reserve or a job's declaration regresses, a background job can again use a whole monthly free Google line in the first hours of the month (details_enterprise 988/950 by day 3 in November 2026) and every detail sheet, search and photo a person is waiting on is refused until the month rolls over."
   },
   "owner": "Revenue QA"
+ },
+ "scripts/test-background-daily-line.mjs": {
+  "protects": "Background Place Details lookups stop at a per-Pacific-day line (promotion 340, scheduled refresh 400, new inventory 500 of 500) on the existing spend ledger; visitors are never counted or refused; the pause is an expected pulse and an unreadable counter fails closed.",
+  "blastRadius": {
+   "category": "revenue",
+   "detail": "If the daily line regresses, cron jobs again spend 700-925 Place Details lookups a day before Google's first per-day 429, live visitor lookups fail with RESOURCE_EXHAUSTED and photos fall back to placeholders every night (Sentry WAYFIND-1Q, 229 trips by 2026-11-12)."
+  },
+  "owner": "Revenue QA"
+ },
+ "scripts/test-refresh-dedup.mjs": {
+  "protects": "The inventory refresh never buys the same place twice inside its 25 day window (only a richer tier may re-check), takes never-checked inventory before scheduled re-checks, and obeys the daily line with an expected pause.",
+  "blastRadius": {
+   "category": "revenue",
+   "detail": "If dedup regresses, the 160 head places are re-checked at essentials every four hours (7,402 lookups on about 670 places in 11 days, about 91% waste) and the lookups starve live visitors."
+  },
+  "owner": "Revenue QA"
+ },
+ "scripts/test-promote-ledger-sim.mjs": {
+  "protects": "The promotion cron's Google grants and refunds balance exactly (one grant per call, an unbilled 429 refunds once, parked places take no grant, refused grants make no call) including the per-day background counter.",
+  "blastRadius": {
+   "category": "revenue",
+   "detail": "If the ledger accounting regresses, the monthly Google lines drift from the real bill: grants leak (the free line empties early and visitors are refused) or refunds are doubled (spend past the free line becomes paid)."
+  },
+  "owner": "Revenue QA"
+ },
+ "scripts/test-viator-click-row-db-contract.mjs": {
+  "protects": "Viator click rows built by attributedViatorDestination are inserted into PGlite loaded with the production wf_viator_clicks migration and must be accepted with their gclid/gbraid for real ad landing shapes (campaign name in utm_campaign, numeric id, auto-tag only, iOS gbraid, legacy storage); store failures are logged without identifiers.",
+  "blastRadius": {
+   "category": "revenue",
+   "detail": "Regressing it lets Postgres reject every ad visitor's click row (gclid included) while the redirect still works, so no Viator booking can ever be tied to a Google ad and nothing alerts."
+  },
+  "owner": "Revenue QA"
  }
 }

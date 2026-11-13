@@ -351,12 +351,11 @@ ok(governedWayfindScore(90, { hasCreatorVideo: true, trending: true, distanceMi:
   ok(/p\.governed_score = governedScoreOf\(p, row\.metro\)/.test(mapArea) && /byGovernedScore\(a, b\)/.test(mapArea)
     && /selectMapPlaces\(applyCuratorPicks\(liveAreaPlaces, curatorSnap\)/.test(mapSrc),
     "the full map pool uses the same governed score (including recorded trend and creator inputs) that the shared card displays");
-  // v7.16: the map's bottom slot renders IconicPlaceCard, whose facts row
-  // carries the mandatory 🔥 trend_reason disclosure — assert the card is
-  // there and that the shared card still discloses.
-  ok(/<IconicPlaceCard/.test(mapSrc), "the map preview renders the shared IconicPlaceCard (which owns the \u{1F525} disclosure)");
+  // The map's compact preview card carries the mandatory 🔥 trend_reason
+  // disclosure alongside IconicPlaceCard's facts row.
+  ok(/<MapCompactPreviewCard/.test(mapSrc) && /place\.trending && place\.trend_reason \? "\u{1F525} " \+ place\.trend_reason/u.test(mapSrc), "the map preview renders MapCompactPreviewCard (which owns the \u{1F525} disclosure)");
   ok(/place\.trending && place\.trend_reason \? "\u{1F525} " \+ place\.trend_reason/u.test(readFileSync(path.resolve("app/components/IconicPlaceCard.js"), "utf8")),
-    "IconicPlaceCard's facts row discloses the \u{1F525} reason — the map card inherits it");
+    "IconicPlaceCard's facts row discloses the \u{1F525} reason — the shared card keeps it");
   ok(/p && p\.trending && p\.trend_reason/.test(mapSrc), "the map card chips render the unified flame (beach-only flame folded in)");
   const HOME_SRC2 = readFileSync(path.resolve("app/home.js"), "utf8");
   ok((HOME_SRC2.match(/await attachTrendSignals\(/g) || []).length >= 3,

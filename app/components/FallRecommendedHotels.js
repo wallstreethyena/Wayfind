@@ -7,6 +7,7 @@ import EventStayCards from "./EventStayCards.js";
 import RailLoading from "./RailLoading.js";
 import RailHeading from "./RailHeading.js";
 import { WF_PLACE_CARD_CSS } from "./css.js";
+import { styleHtml } from "../../lib/styleHtml.js";
 
 const REQUEST_DEADLINE_MS = 8000;
 const RECOMMENDED_HOTEL_LIMIT = 20;
@@ -99,7 +100,7 @@ export default function FallRecommendedHotels({ center = null }) {
   if (!state.places.length) return null;
 
   return <section aria-label="Recommended hotels" style={{ marginTop: 28 }}>
-    <style dangerouslySetInnerHTML={{ __html: WF_PLACE_CARD_CSS }} />
+    <style dangerouslySetInnerHTML={styleHtml(WF_PLACE_CARD_CSS)} />
     <EventStayCards
       places={state.places}
       title="Recommended Hotels"

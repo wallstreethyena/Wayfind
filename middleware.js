@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { guardPaidRoute, isOperatorDiagnostic, APPLE_BUDGET_RL } from "./lib/apiGuard";
+import { guardPaidRoute, isOperatorDiagnostic, APPLE_BUDGET_RL, PLAN_VOTES_RL } from "./lib/apiGuard";
 
 // Cost-leak fix (the $735 Google Places incident): these routes are public,
 // unauthenticated proxies to METERED third-party APIs — Google Places
@@ -38,6 +38,8 @@ export const config = {
     "/api/feedback",
     // Private group ballots use their own capability/owner authorization too.
     "/api/group-plans/:path*",
+    // Friend votes on a shared Christmas plan (anonymous voter token, service role write): same-origin + per-IP rate limit.
+    "/api/christmas/plan-votes",
     "/api/places/search",
     // Free Apple Maps pins: same-origin POST that reserves units against the
     // one daily Apple service-call ceiling (lib/applePlaceIds.js). Not a cost
@@ -214,6 +216,7 @@ export function middleware(req) {
   const rateLimitOnly = NAV_302_ROUTES.has(path) || IMAGE_ROUTES.has(path)
     || isOperatorDiagnostic(path, req.nextUrl && req.nextUrl.searchParams);
   // Apple pin budget: its own 10/min per-IP window (lib/apiGuard.APPLE_BUDGET_RL).
-  const routeLimit = path === "/api/maps/apple-budget" ? APPLE_BUDGET_RL : undefined;
+  const routeLimit = path === "/api/maps/apple-budget" ? APPLE_BUDGET_RL
+    : path === "/api/christmas/plan-votes" ? PLAN_VOTES_RL : undefined;
   return guardPaidRoute(req, { rateLimitOnly, routeLimit }) || NextResponse.next();
 }

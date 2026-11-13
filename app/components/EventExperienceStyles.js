@@ -1,3 +1,4 @@
+import { styleHtml } from "../../lib/styleHtml.js";
 // Shared presentation for curated and provider event detail pages.
 // Booking controls remain their existing attributed, availability-gated components.
 export const EVENT_EXPERIENCE_CSS = `
@@ -68,4 +69,4 @@ export const EVENT_EXPERIENCE_CSS = `
 @media(max-width:380px){.wf-event-wrap{padding:16px 14px 40px}.wf-event-booking{padding:18px}.wf-event-booking h1{font-size:30px!important}.wf-event-fact{grid-template-columns:1fr;gap:2px}}
 @media(prefers-reduced-motion:reduce){.wf-event-experience *{scroll-behavior:auto!important;transition:none!important}}
 `;
-export default function EventExperienceStyles(){return <style dangerouslySetInnerHTML={{__html:EVENT_EXPERIENCE_CSS}} />;}
+export default function EventExperienceStyles(){return <style dangerouslySetInnerHTML={styleHtml(EVENT_EXPERIENCE_CSS)} />;}
