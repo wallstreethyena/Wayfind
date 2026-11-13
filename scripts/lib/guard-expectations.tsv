@@ -112,7 +112,7 @@ scripts/check-cuisine-shortlist.mjs	0	RENDER	blocks-ci-and-deploy	1	-	36	0	0	8d0
 scripts/check-cuisine-sql-in-sync.mjs	0	CALL	blocks-ci-and-deploy	1	-	5	0	0	6bb978e558175a259c153d3de029cac1433831fef24051c728d486be43f7fe50
 scripts/check-curated-events-read.mjs	0	CALL	blocks-ci-and-deploy	1	-	122	0	0	30a7306691730a19b937be5df1198bccbe6c47af632c3e8e3fc078ef1b59fbea
 scripts/check-curated-events-surface.mjs	0	CALL	blocks-ci-and-deploy	1	-	31	0	0	013721e9e52fa6fa0d0ce6026c78100622a17e8eb6eb5a13dee27ddb3def8369
-scripts/check-curated-events.mjs	0	CALL	blocks-ci-and-deploy	1	-	61	0	0	fda727be4c51b4069bf8d72edbc76951d05e91a3cd48d04581b19d2a441af6f7
+scripts/check-curated-events.mjs	0	CALL	blocks-ci-and-deploy	1	-	69	0	0	236fe570a4974fc35a7a002f9f6bd33644dcd76ee39dcce13c4aab3e20d7649c
 scripts/check-curated-library-fallback.mjs	0	CALL	blocks-ci-and-deploy	1	-	33	0	0	9853a598fe599efafd8308324dc89d2e8085e38e5d139b13ac655c1b4a46595d
 scripts/check-customer-copy-leaks.mjs	0	CALL	blocks-ci-and-deploy	1	-	0	0	0	abcaac7de2704211b26a30c5bb6b6f09940b7804d3cb44167b3180203a55e8ff
 scripts/check-cwv.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	14	1	0	005e59cd7fbc6966cb81707a9fb96e29b187307a7c21c1747d6d05f9619bd328
@@ -163,6 +163,7 @@ scripts/check-event-price-fact.mjs	0	CALL	blocks-ci-and-deploy	1	-	14	0	0	a07df8
 scripts/check-event-price-language.mjs	0	CALL	blocks-ci-and-deploy	1	-	13	0	0	037c93a05348a8f360185bb2582a766b8f13fb0e1bef02b7f95af0881a0fa558
 scripts/check-event-providers-not-google-gated.mjs	0	CALL	blocks-ci-and-deploy	1	-	9	0	0	63d382c301f64eddbbf565aaf7f6fb225b828078c5e6cf9207e3ca56f44ed11e
 scripts/check-event-rail-photo-credits.mjs	0	CALL	blocks-ci-and-deploy	1	-	16	0	0	540cf2c346b6904352790f2d1bf5523e96a812e60e59ef32df99d2ab2d41c25d
+scripts/check-event-series-hubs.mjs	0	CALL	blocks-ci-and-deploy	1	-	19	0	0	5e6a22c7009380bff755e1a81e40d3cd053f7461c2f7580e414a90ad10c5fe87
 scripts/check-event-ticket-deals.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	92	0	0	fe865105724f22fcc8fa487d8a67ef028fbae578b48b5e2984de4f4989db5243
 scripts/check-event-ticket-fallback.mjs	0	CALL	blocks-ci-and-deploy	1	-	35	0	0	143cc8f2a9dc163bc90921e17d4318140da8d5155a51a9b47baebf3efa5f374b
 scripts/check-event-where.mjs	0	CALL	blocks-ci-and-deploy	1	-	99	0	0	b09f1ac213535a462998b3fb0b8b4fc6d8d11335ae7c2e0c3b770e4a3fddf0d6
