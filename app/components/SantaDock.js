@@ -22,12 +22,15 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } fr
 import { createPortal } from "react-dom";
 import { SantaSvg } from "./santaArt.js";
 import { CHRISTMAS_PATH, isChristmasPath } from "./companionCharacter.js";
+import { DOCK_H, DOCK_H_WIDE } from "./santaDockMetrics.js";
+import { watchRootPresence } from "../../lib/rootPresence.js";
 import { captureOrQueue } from "../../lib/browserAnalytics.js";
 import { siteTodayParts } from "../../lib/siteTime.js";
 import { siteHourFloat, bucketForHour, BUCKET_EDGES } from "../../lib/nowContext.js";
 
-export const DOCK_H = 64; // px, the dock's height above the safe area (phones)
-export const DOCK_H_WIDE = 68; // px, from 720px wide
+// The heights live in santaDockMetrics.js so app/layout.js can declare --wf-santa-dock with
+// the document (see that file for why); re-exported here for the callers that always had them.
+export { DOCK_H, DOCK_H_WIDE };
 export const SAID_KEY = "wf_santa_said"; // unsolicited messages this tab session
 export const SAID_MAX = 2; // at most this many per session, across navigation
 export const SHOWN_KEY = "wf_santa_dock_shown"; // one "shown" event per session
@@ -146,20 +149,25 @@ const between = (a, b) => a + Math.random() * (b - a);
 const CSS = `
 html.wf-santa-docked body{padding-bottom:calc(var(--wf-santa-dock,${DOCK_H}px) + env(safe-area-inset-bottom))}
 html.wf-santa-docked .wf-scrollarea{padding-bottom:calc(var(--wf-santa-dock,${DOCK_H}px) + 34px + env(safe-area-inset-bottom))!important}
-html.wf-santa-docked{--wf-santa-dock:${DOCK_H}px;--wf-santa-lift:0px}
+/* --wf-santa-dock is declared on html by app/layout.js (santaDockMetrics.js), never here: a
+   custom property that appears on the root when the dock mounts re-styles the whole page.
+   "Is there a .wf-scrollarea / .wf-bottom-nav / .wf-site-feedback-doc on this page?" is a
+   class on html kept by lib/rootPresence.js, never html:has() or body:has(): a :has() on
+   the root is re-checked on every DOM change anywhere and re-styles every link and button
+   (scripts/test-root-has-selectors.mjs). */
 /* The app shell ("/", /p) is a 100dvh box that scrolls itself: no body padding
    there (it would add document scroll under the browser chrome); its own
    scroll area gets the room instead (rule above). */
-html.wf-santa-docked body:has(.wf-scrollarea){padding-bottom:0}
+html.wf-santa-docked.wf-has-scrollarea body{padding-bottom:0}
 /* Phone documents already stack a bottom bar under #wf-scroll for Feedback
    (SiteFeedback.js). Santa's dock becomes that bar: one row, the Feedback
    control moves into it, so the reading area is not cut twice. */
 
-@media(min-width:720px){html.wf-santa-docked{--wf-santa-dock:${DOCK_H_WIDE}px}}
-html.wf-santa-docked:has(.wf-bottom-nav){--wf-santa-lift:78px}
-@media(min-width:1024px){html.wf-santa-docked:has(.wf-bottom-nav){--wf-santa-lift:118px}}
-html.wf-santa-docked:has(.wf-bottom-nav) body{padding-bottom:calc(var(--wf-santa-dock) + var(--wf-santa-lift) + env(safe-area-inset-bottom))}
-.wf-sd{position:fixed;left:0;right:0;bottom:var(--wf-santa-lift);z-index:930;box-sizing:border-box;padding:0 max(10px,env(safe-area-inset-right)) env(safe-area-inset-bottom) max(10px,env(safe-area-inset-left));background:rgba(10,15,24,.95);-webkit-backdrop-filter:blur(14px) saturate(1.2);backdrop-filter:blur(14px) saturate(1.2);border-top:1px solid rgba(255,255,255,.08);box-shadow:0 -10px 28px rgba(0,0,0,.28);font-family:var(--wf-sans,system-ui,sans-serif);contain:layout paint}
+html.wf-santa-docked.wf-has-bottom-nav body{padding-bottom:calc(var(--wf-santa-dock,${DOCK_H}px) + 78px + env(safe-area-inset-bottom))}
+@media(min-width:1024px){html.wf-santa-docked.wf-has-bottom-nav body{padding-bottom:calc(var(--wf-santa-dock,${DOCK_H_WIDE}px) + 118px + env(safe-area-inset-bottom))}}
+html.wf-has-bottom-nav .wf-sd{--wf-santa-lift:78px}
+@media(min-width:1024px){html.wf-has-bottom-nav .wf-sd{--wf-santa-lift:118px}}
+.wf-sd{--wf-santa-lift:0px;position:fixed;left:0;right:0;bottom:var(--wf-santa-lift);z-index:930;box-sizing:border-box;padding:0 max(10px,env(safe-area-inset-right)) env(safe-area-inset-bottom) max(10px,env(safe-area-inset-left));background:rgba(10,15,24,.95);-webkit-backdrop-filter:blur(14px) saturate(1.2);backdrop-filter:blur(14px) saturate(1.2);border-top:1px solid rgba(255,255,255,.08);box-shadow:0 -10px 28px rgba(0,0,0,.28);font-family:var(--wf-sans,system-ui,sans-serif);contain:layout paint}
 .wf-sd::before{content:"";position:absolute;left:0;right:0;top:-1px;height:2px;background:linear-gradient(90deg,#D92C37,#F5C451 50%,#3FBF7F);opacity:.85}
 .wf-sd.is-in{animation:wf-sd-rise .45s cubic-bezier(.2,.8,.25,1) both}
 @keyframes wf-sd-rise{from{transform:translateY(100%)}to{transform:none}}
@@ -213,11 +221,11 @@ html.wf-santa-docked:has(.wf-bottom-nav) body{padding-bottom:calc(var(--wf-santa
 .wf-sd-s{display:none}
 .wf-sd-cta:focus-visible{outline:2px solid #fff;outline-offset:2px}
 @media(max-width:520px){
-  html.wf-santa-docked body:has(.wf-site-feedback-doc){padding-bottom:0}
-  html.wf-santa-docked body:has(.wf-site-feedback-doc) .wf-site-feedback-dock{display:none}
-  html.wf-santa-docked body:has(.wf-site-feedback-doc) .wf-sd{position:relative;bottom:auto;flex:0 0 auto}
-  html.wf-santa-docked body:has(.wf-site-feedback-doc) .wf-site-feedback-panel{bottom:calc(var(--wf-santa-dock) + 10px + env(safe-area-inset-bottom))}
-  html.wf-santa-docked body:has(.wf-site-feedback-doc) .wf-sd-fb{display:grid}
+  html.wf-santa-docked.wf-has-feedback-doc body{padding-bottom:0}
+  html.wf-santa-docked.wf-has-feedback-doc body .wf-site-feedback-dock{display:none}
+  html.wf-santa-docked.wf-has-feedback-doc body .wf-sd{position:relative;bottom:auto;flex:0 0 auto}
+  html.wf-santa-docked.wf-has-feedback-doc body .wf-site-feedback-panel{bottom:calc(var(--wf-santa-dock) + 10px + env(safe-area-inset-bottom))}
+  html.wf-santa-docked.wf-has-feedback-doc body .wf-sd-fb{display:grid}
   .wf-sd-msg{-webkit-line-clamp:3;font-size:12.5px;line-height:1.25}
   .wf-sd-in{gap:8px}
   .wf-sd-x{display:none}
@@ -260,6 +268,15 @@ export default function SantaDock({ path, reduced = false, onOpen, onAsk }) {
     later(() => { actRef.current = null; setAct(null); if (after) after(); }, ACT_MS[name]);
     return true;
   }, [later]);
+
+  // What the dock's CSS needs to know about the page, as classes on html (lib/rootPresence.js).
+  // Declared BEFORE the docking effect on purpose: effects run in order, so the answers are
+  // on html in the same flush that adds wf-santa-docked and the first docked frame is right.
+  useEffect(() => watchRootPresence({
+    "wf-has-scrollarea": [".wf-scrollarea"],
+    "wf-has-bottom-nav": [".wf-bottom-nav"],
+    "wf-has-feedback-doc": [".wf-site-feedback-doc"],
+  }), []);
 
   // Reserve the room: the page grows by the dock's height at the bottom.
   useEffect(() => {
