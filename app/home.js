@@ -8302,7 +8302,9 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
       if (go === "map") {
         const mcity = (sp.get("city") || "").trim().slice(0, 64);
         const mq = (sp.get("q") || "").trim().slice(0, 120);
-        pendingColdMapUrlRef.current = { city: mcity || "", q: mq || "" };
+        if ((mcity || mq) && typeof pendingColdMapUrlRef !== "undefined" && pendingColdMapUrlRef) {
+          pendingColdMapUrlRef.current = { city: mcity || "", q: mq || "" };
+        }
       }
       if (valid[go]) setScreen(valid[go]);
       // Coupon strips clip the exact deal before navigating here. Open the
@@ -8352,26 +8354,30 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
         if (mp) keep.set("place", mp);
         if (mq) keep.set("q", mq);
         window.history.replaceState({ wf: "screen" }, "", "/map" + (keep.toString() ? "?" + keep.toString() : ""));
-        (async () => {
-          let g = null;
-          try {
-            if (mcity) {
-              g = await geocodeCity(mcity).catch(() => null);
-              if (g) {
-                manualRef.current = true;
-                setCenter(g);
-                setLocResolved(true);
-                setLocName(g.name.split(",").slice(0, 2).join(",").trim());
-                setMapFocus({ lat: g.lat, lng: g.lng, ts: Date.now() });
+        if (mcity || mq) {
+          (async () => {
+            let g = null;
+            try {
+              if (mcity) {
+                g = await geocodeCity(mcity).catch(() => null);
+                if (g) {
+                  manualRef.current = true;
+                  setCenter(g);
+                  setLocResolved(true);
+                  setLocName(g.name.split(",").slice(0, 2).join(",").trim());
+                  setMapFocus({ lat: g.lat, lng: g.lng, ts: Date.now() });
+                }
+              }
+              if (mq) {
+                await submitSearch(mq, { keepMapScreen: true, mapSearchCenter: g });
+              }
+            } finally {
+              if (typeof pendingColdMapUrlRef !== "undefined" && pendingColdMapUrlRef) {
+                pendingColdMapUrlRef.current = null;
               }
             }
-            if (mq) {
-              await submitSearch(mq, { keepMapScreen: true, mapSearchCenter: g });
-            }
-          } finally {
-            pendingColdMapUrlRef.current = null;
-          }
-        })();
+          })();
+        }
         return;
       }
       // v5.78 (B1): the other standalone screens restore their OWN path (was:
@@ -8413,7 +8419,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
           const cleanCity = (coldCity && !/^this map area$/i.test(coldCity))
             ? coldCity
             : ((locName && !/^this map area$/i.test(locName)) ? locName.split(",")[0].trim() : (curSp.get("city") || ""));
-          if (cleanCity && /^[A-Za-z0-9 .,'-]{2,64}$/.test(cleanCity)) safeSp.set("city", cleanCity);
+          if (cleanCity && /^[A-Za-z0-9 .,\x27-]{2,64}$/.test(cleanCity)) safeSp.set("city", cleanCity);
           const c = cat && cat !== "all" && cat !== "attractions" ? cat : curSp.get("cat");
           if (c && ["food", "nightlife", "attractions", "beach", "hotels", "shopping"].includes(c)) safeSp.set("cat", c);
           const s = sub && sub !== "all" ? sub : curSp.get("sub");
@@ -10527,8 +10533,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
   // applyMemberSignal. Nothing here is allocated until the events tile opens.
   // Specialty selectors travel with the lazy poster that needs them. Keeping
   // this dependency out of home's eager imports protects first-load JS.
-  const eventsRailSlot = (mode = "events", customSelectPosterEvents = null) => {
-    const selectPosterEvents = customSelectPosterEvents;
+  const eventsRailSlot = (mode = "events", selectPosterEvents = null) => {
     if (foryouEvents === null) {
       if (["night-out", "date-night", "summer-sports", "today-entertainment", "trending"].includes(mode)) return { pending: true, byRail: {} };
       return (
