@@ -24,6 +24,8 @@ import { styleHtml } from "../../lib/styleHtml.js";
 
 // Table picks for "book Ulele Friday at 7 for 4": a lazy chunk, fetched only when a reservation request is typed.
 const ReservePicks = lazy(() => import("./ReservePicks.js"));
+// The concierge chat, inline in this same thread. Lazy so the main bundle does not grow.
+const ReserveConcierge = lazy(() => import("./ReserveConcierge.js"));
 const RESERVE_ASK_RX = /\b(?:book|reserve|reservations?|table)\b|\bfor\s+(?:\d{1,2}|two|three|four|five|six)\b/i;
 
 const HIDE_KEY = "wf_boo_hidden";
@@ -1697,7 +1699,7 @@ export default function BooCompanion() {
       if (!intent && RESERVE_ASK_RX.test(message)) {
         try { const { parseReserveIntent } = await import("../../lib/guestReserveIntent.js"); intent = parseReserveIntent(message, siteTodayStr()); } catch { intent = null; }
       }
-      if (intent) setReserve({ intent, point, k: Date.now() });
+      if (intent) setReserve({ intent, point, k: Date.now(), message, place: data.reservePlace && data.reservePlace.id ? data.reservePlace : (intent.placeId ? { id: intent.placeId, name: intent.name || intent.restaurant || "" } : null) });
       if (wrap) { wrapRef.current = true; setWrapped(true); }
       const nCards = Array.isArray(data.cards) ? data.cards.length : 0;
       const rp = wrap ? "bye" : data.smallTalk ? "talk" : !nCards ? "greet" : KID_RX.test(message) ? "kids" : PRICE_RX.test(message) ? "price" : "sales";
@@ -1896,7 +1898,8 @@ export default function BooCompanion() {
               ) : null}
               {reserve ? (
                 <Suspense fallback={null}>
-                  <ReservePicks key={reserve.k} intent={reserve.intent} point={reserve.point} title="Tables to look at" />
+                  <ReserveConcierge key={"c" + reserve.k} embedded initialPlace={reserve.place} initialMessage={reserve.message} />
+                  {reserve.place ? null : <ReservePicks key={reserve.k} intent={reserve.intent} point={reserve.point} title="Tables to look at" />}
                 </Suspense>
               ) : null}
               {wrapped ? <a className="boo-wrap" href={listPath}>{santa ? SANTA.wrapLink : "Open the full haunt list"}</a> : null}

@@ -420,7 +420,7 @@ scripts/check-ranking-integrity.mjs	0	CALL	blocks-ci-and-deploy	1	-	33	0	0	9cc97
 scripts/check-redirect-host-classification.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	14	0	0	3cbc3295d6609ec3c431fc1bd43265a7f5ae29d413b1d27bcfce07211dec3e59
 scripts/check-redirect-suspect-gate.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	104	0	0	70a85c3007c4e8186de9b2e6561b4de58523e7f591b9b6f641bda78a9c17a2ea
 scripts/check-redirect-traffic-class.mjs	0	CALL	blocks-ci-and-deploy	1	-	69	0	0	46aefdea49373e6beff72362559440e5a13b0963d2f854d6a07392e7a702d4f3
-scripts/check-reserve-routes.mjs	0	CALL	blocks-ci-and-deploy	1	-	235	0	0	74c69a201d47109f174f56794d8aa39cd9048fdc0853e16c5f0b3a4c2d8c37d9
+scripts/check-reserve-routes.mjs	0	CALL	blocks-ci-and-deploy	1	-	236	0	0	8466c1f650aab6dceaf1ee5608604c20bfa86f6c3ac89635f77d0c8ce166d1da
 scripts/check-response-imports.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	0	1	0	cef5e7b06943a1d81b650f617738518f8c62940e24314fec252d445da9115485
 scripts/check-reverse-migration-reconciliation.mjs	0	CALL	blocks-ci-and-deploy	1	-	12	0	0	67b3d315407af74ea68fdb83d46a2f5f4ace4ae8f99497431767ad21434598bc
 scripts/check-rpc-schema-contract.mjs	0	CALL	scheduled-monitoring-only	0	-	1	0	0	999e384ea587c72237ef9fbaea68d51505bc9e41f195be227f0506f5d7a16198
@@ -1032,10 +1032,11 @@ scripts/test-redirect-visitor-scope.mjs	0	CALL	blocks-ci-and-deploy	1	-	19	0	0	b
 scripts/test-refresh-dedup.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	51	0	0	eebb4b8e45484d40df3902307f472adba754682e287f0bfc5436088561537a10
 scripts/test-refresh-reserve.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	12	0	0	fbff7f398a7c411c0e88e4490a10ce721a0709f7ca7ec4a672a62ee62f373d6c
 scripts/test-refresh-selector-trap.mjs	0	CALL	blocks-ci-and-deploy	1	-	8	0	0	6fcc1659059272ba2e47c5b54fb071342403bda38739d36bb87ac5ccdc4fb28c
-scripts/test-reserve-guest.mjs	0	RENDER	blocks-ci-and-deploy	1	-	71	0	0	3963afba8a184e5e92eaa7a3bf756df6d1b116ef6d97231c7537126c4c5ed3da
+scripts/test-reserve-concierge.mjs	0	CALL	blocks-ci-and-deploy	1	-	126	0	0	31caafd48151265979ca621e7ffe5f0711c76db8d3244502e0b847dda495f726
+scripts/test-reserve-guest.mjs	0	RENDER	blocks-ci-and-deploy	1	-	34	0	0	7d41458098f7bd282c745e70b27708ec589abf4bb9397feb735985ebb8b97635
 scripts/test-reserve-logic.mjs	0	CALL	blocks-ci-and-deploy	1	-	183	0	0	8ac39821a2db6169e60d7fb355232a519da58a294661d70a64ce3f311e4ef3ae
 scripts/test-reserve-schema.mjs	0	CALL	blocks-ci-and-deploy	1	-	46	0	0	f19a6fd8025b5fa57245b01cc0f759277085ee60e8472f78dd6969f894fa936a
-scripts/test-reserve-ui.mjs	0	RENDER	blocks-ci-and-deploy	1	-	117	0	0	36a5b5db79c026bc48f2a78b0358ad4868f7bb7a8a53d25781cdc8bdad5854e5
+scripts/test-reserve-ui.mjs	0	RENDER	blocks-ci-and-deploy	1	-	146	0	0	dc87f760a8b68a530eb502d74f5bd9ec2dbe966f50cc1b8e9f5156df24447836
 scripts/test-reserve-v2.mjs	0	CALL	blocks-ci-and-deploy	1	-	156	0	0	ac22f770f09247065bb6b83aa88e9dfe8ebf1f404505eab5429156d7719f1fe7
 scripts/test-resolver-word-boundary.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	7	0	0	5a42f16bb1b72847758f21eef58dba011dcfa77ecdaa04f3eabe3088c3107fb1
 scripts/test-revenue-heartbeat.mjs	0	CALL	blocks-ci-and-deploy	1	-	30	0	0	7917041ebf9acc5edb73f65b7ea94cf57e1b109c29d446fd610f7d616fd63633

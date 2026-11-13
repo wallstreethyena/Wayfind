@@ -8,7 +8,7 @@ import { mainBtn, quietBtn, linkBtn, errStyle, Shell, showInHost } from "./reser
 import { reserveHistory, cancelBooking, answerProposal, readHandoffs, reserveGoUrl, timeLabel, dateLabel } from "../../lib/reserveClientApi.js";
 import { siteTodayStr } from "../../lib/siteTime.js";
 
-const STATUS = { confirmed: "Booked", proposed: "New time offered", cancelled: "Cancelled", completed: "Done", no_show: "Missed" };
+const STATUS = { confirmed: "Booked", requested: "Waiting for the restaurant", declined: "Declined", proposed: "New time offered", cancelled: "Cancelled", completed: "Done", no_show: "Missed" };
 
 function Row({ children, id }) {
   return <div data-reserve-row={id} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "12px 14px", marginBottom: 10 }}>{children}</div>;
@@ -59,7 +59,8 @@ export function ReserveHistoryView({ onClose }) {
           <Row key={b.id} id={b.id}>
             <div style={{ fontSize: 15, fontWeight: 800, color: C.text, overflowWrap: "anywhere" }}>{b.restaurantName || "Restaurant"}</div>
             <div style={{ fontSize: 14, color: C.light, margin: "2px 0" }}>{dateLabel(b.date)} {"·"} {timeLabel(b.time)} {"·"} {b.partySize} {b.partySize === 1 ? "person" : "people"}</div>
-            <div style={{ fontSize: 13, color: b.status === "cancelled" ? C.muted : C.green, fontWeight: 700 }}>{STATUS[b.status] || b.status}{b.confirmationCode && b.status === "confirmed" ? " · Code " + b.confirmationCode : ""}</div>
+            <div style={{ fontSize: 13, color: b.status === "cancelled" || b.status === "declined" ? C.muted : C.green, fontWeight: 700 }}>{STATUS[b.status] || b.status}{b.confirmationCode && b.status === "confirmed" ? " · Code " + b.confirmationCode : ""}</div>
+            {b.status === "declined" && (b.declineReason || b.reason) ? <div data-reserve-reason="1" style={{ fontSize: 13, color: C.light, marginTop: 4, overflowWrap: "anywhere" }}>{b.declineReason || b.reason}</div> : null}
             {b.status === "proposed" && live ? (
               <div style={{ marginTop: 8, display: "grid", gap: 8 }}>
                 <div style={{ fontSize: 14, color: C.text }}>New time: {dateLabel(b.proposedDate)} {"·"} {timeLabel(b.proposedTime)}</div>

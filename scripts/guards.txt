@@ -2617,6 +2617,8 @@ node scripts/test-reserve-ui.mjs
 node scripts/test-reserve-schema.mjs
 # 2026-11-12: Reserve v2, server (Booking Profile consent + validation, provider routing wayfind > opentable handoff > none, OpenTable restref URL shape + half hour rounding, OpenTable API seam stays off, saved profile fills book, NO name/phone/email in the chat model request, find never invents availability, go 302 targets, history, partner list includes verified OpenTable restaurants).
 node scripts/test-reserve-v2.mjs
+# 2026-11-13: Reserve concierge (lib/reserveConcierge.js, lib/reserveProviders/*, POST /api/reserve/concierge) with NO AI key and an injected fake repository: instant times card from real slots only, returning guest "book it again", OpenTable handoff card never says booked or available, no provider alternatives, request lane (request, accept, decline), the model request never carries name, phone, email or ids, nothing books from model output.
+node scripts/test-reserve-concierge.mjs
 # 2026-11-12: Reserve v2, guest app (real render: wayfind confirm card, OpenTable handoff card never shows times or says booked, none state, profile reuse, name question collected outside the chat, similar picks, history, profile editor consent/save/delete, Santa reserve chips, no dashes, 44px targets).
 node scripts/test-reserve-guest.mjs
 node scripts/test-staged-rails.mjs

@@ -116,32 +116,8 @@ const wide = (host) => [...host.querySelectorAll(".wf-place-card-cta > *")];
   ok(bubbled === 0, "ReserveCta stops propagation on its own, so a tap never reaches whatever wraps it");
   ok(btn.getAttribute("type") === "button" && btn.textContent.trim().startsWith("Reserve a table"), "ReserveCta renders <button type=button> labelled 'Reserve a table'");
   ok(btn.textContent.trim() === "Reserve a table\u203a", "ReserveCta renders the real single-character chevron (U+203A) in a real render, not mojibake");
-  { const sheetSrc = fs.readFileSync(path.join(ROOT, "app/components/ReserveSheet.js"), "utf8"); ok(/You're booked at/.test(sheetSrc) && !/Request sent|will answer here|wait for|waiting for the restaurant/i.test(sheetSrc), "the sheet says \"You're booked.\" and no longer talks about a request or waiting on the restaurant"); }
+  { const cs = fs.readFileSync(path.join(ROOT, "app/components/ReserveConcierge.js"), "utf8"); ok(/"Booked\. "/.test(cs) && /Request sent to /.test(cs) && !/You're booked/.test(cs), "the concierge says \"Booked.\" for a confirmed booking and \"Request sent\" for a request"); }
   await m.unmount();
-}
-
-// ── 1c. Signed out: the site's own sign in prompt, never a second one ───────
-{
-  const Sheet = await loadComponent(path.join(ROOT, "app/components/ReserveSheet.js"), ROOT);
-  const hasDialog = () => !!document.querySelector('[role="dialog"]');
-  const settle = () => act(async () => { await new Promise((r) => setTimeout(r, 150)); });
-  document.querySelectorAll("[data-reserve-host]").forEach((n) => n.remove()); // sheets opened by the earlier card taps
-  document.querySelectorAll('[role="dialog"]').forEach((n) => n.remove());
-  // (a) with the shell's header Sign in button present, the sheet opens the shell's sign in and stays hidden
-  const door = document.createElement("button"); door.className = "wf-signin-button"; let clicks = 0; door.addEventListener("click", () => { clicks++; }); document.body.appendChild(door);
-  await act(async () => { Sheet.showReserveSheet({ id: "partner-1", name: "Mario's" }, {}); }); await settle();
-  ok(clicks === 1 && !hasDialog(), `signed out with the shell present: clicks the shell's own Sign in button once (clicks=${clicks}) and shows no second dialog`);
-  const toast = document.getElementById("wf-like-feedback");
-  ok(!!toast && toast.textContent === "Sign in to book a table", "…and says 'Sign in to book a table'");
-  door.remove();
-  // (b) no shell on this surface: the sheet itself says it, with a way to the site
-  document.querySelectorAll("[data-reserve-host]").forEach((n) => n.remove());
-  await act(async () => { Sheet.showReserveSheet({ id: "partner-1", name: "Mario's" }, {}); }); await settle();
-  const dlg = document.querySelector('[role="dialog"]');
-  ok(!!dlg && dlg.getAttribute("aria-modal") === "true" && /Sign in to book a table/.test(dlg.textContent) && !!dlg.querySelector('a[href="/"]'), "no shell: a modal dialog says 'Sign in to book a table' with a link to Wayfind");
-  ok(!!dlg && !!dlg.querySelector('button[aria-label="Close"]'), "…with a Close button");
-  await act(async () => { document.dispatchEvent(new w.KeyboardEvent("keydown", { key: "Escape", bubbles: true })); }); await settle();
-  ok(!hasDialog(), "Escape closes the sheet");
 }
 
 // ── 2. A non partner card is byte for byte the normal card ───────────────────
@@ -255,154 +231,209 @@ const wide = (host) => [...host.querySelectorAll(".wf-place-card-cta > *")];
   ok(!staticImports(client).some((x) => /reservePartners|reserveClientApi|reserveOpen/.test(x)) && /import\(\s*["']\.\/reservePartners\.js["']\s*\)/.test(client), "reserveClient (eager) reaches the partner loader only by dynamic import");
   ok(/import\(\s*["']\.\.\/app\/components\/ReserveSheet\.js["']\s*\)/.test(read("lib/reserveOpen.js")) && !staticImports(read("lib/reserveOpen.js")).some((x) => /ReserveSheet/.test(x)), "openReserveSheet loads the sheet with a dynamic import, never a static one");
   const home = readFileSync(path.join(ROOT, "app/home.js"), "utf8");
-  ok(/className="wf-signin-button"/.test(home) && /querySelector\(\s*["']\.wf-signin-button["']\s*\)/.test(read("app/components/ReserveSheet.js")), "the shell's header Sign in button still carries .wf-signin-button, the door the sheet uses");
+  ok(/className="wf-signin-button"/.test(home) && /querySelector\(\s*["']\.wf-signin-button["']\s*\)/.test(read("app/components/ReserveConcierge.js")), "the shell's header Sign in button still carries .wf-signin-button, the door the sheet uses");
   ok(!staticImports(read("app/components/sheets/Detail.js")).some((x) => /ReserveSheet/.test(x)), "Detail.js never statically imports the sheet");
 }
 
-// ── 8. The sheet, signed in, against a mocked server: it books for real or it says nothing ─────
+// ── 8. The concierge, against a mocked server: every card renders, and it books for real or says nothing ─────
 {
   const rc = await loadComponent(path.join(ROOT, "lib/reserveClientApi.js"), ROOT);
   const { siteTodayStr } = await loadComponent(path.join(ROOT, "lib/siteTime.js"), ROOT);
+  const Concierge = (await loadComponent(path.join(ROOT, "app/components/ReserveConcierge.js"), ROOT)).default;
   const Sheet = await loadComponent(path.join(ROOT, "app/components/ReserveSheet.js"), ROOT);
+  const History = await loadComponent(path.join(ROOT, "app/components/ReserveHistory.js"), ROOT);
   const DAY = rc.addDaysIso(siteTodayStr(), 3);
-  // a seeded local session: supabase-js reads it from localStorage and never calls the network
-  localStorage.setItem("sb-e2eplaceholder-auth-token", JSON.stringify({ access_token: "tok", refresh_token: "ref", token_type: "bearer", expires_in: 3600, expires_at: Math.floor(Date.now() / 1000) + 3600, user: { id: "11111111-1111-4111-8111-111111111111", aud: "authenticated", role: "authenticated", user_metadata: { full_name: "Gabe Test" } } }));
+  const WD = rc.weekdayLabel(DAY);
+  localStorage.setItem("sb-e2eplaceholder-auth-token", JSON.stringify({ access_token: "tok", refresh_token: "ref", token_type: "bearer", expires_in: 3600, expires_at: Math.floor(Date.now() / 1000) + 3600, user: { id: "11111111-1111-4111-8111-111111111111", aud: "authenticated", role: "authenticated", email: "t@example.com", user_metadata: {}, app_metadata: {} } }));
   const settle = (ms = 80) => act(async () => { await new Promise((r) => setTimeout(r, ms)); });
-  const dlg = () => document.querySelector('[role="dialog"]');
-  const text = () => (dlg() ? dlg().textContent : "");
-  const btn = (label) => [...(dlg() ? dlg().querySelectorAll("button") : [])].find((b) => (b.textContent || "").trim() === label);
   const click = async (el) => { await act(async () => { el.dispatchEvent(new w.MouseEvent("click", { bubbles: true, cancelable: true })); }); await settle(); };
-  const setVal = async (el, v) => {
-    const proto = el.tagName === "SELECT" ? w.HTMLSelectElement.prototype : el.tagName === "TEXTAREA" ? w.HTMLTextAreaElement.prototype : w.HTMLInputElement.prototype;
-    Object.getOwnPropertyDescriptor(proto, "value").set.call(el, v);
-    await act(async () => { el.dispatchEvent(new w.Event(el.tagName === "SELECT" ? "change" : "input", { bubbles: true })); });
-  };
-  const closeSheet = async () => { await act(async () => { document.dispatchEvent(new w.KeyboardEvent("keydown", { key: "Escape", bubbles: true })); }); await settle(10); document.querySelectorAll("[data-reserve-host],[role=dialog]").forEach((n) => n.remove()); };
-  const open = async () => { await act(async () => { Sheet.showReserveSheet({ id: "partner-1", name: "Mario's" }, {}); }); await settle(150); };
-  const SLOTS = ["18:00", "18:30", "19:30"];
-  const booking = (o) => ({ id: "22222222-2222-4222-8222-000000000000", confirmationCode: "K7M2QX", status: "confirmed", placeId: "partner-1", partySize: 2, date: DAY, time: "19:30", restaurantName: "Mario's Trattoria", restaurantPhone: "(941) 555-0100", ...o });
-  const reset = () => { for (const k of Object.keys(routes)) delete routes[k]; calls.length = 0; routes["GET /api/reserve/path"] = async () => [200, { ok: true, path: "wayfind", restaurant: { placeId: "partner-1", name: "Mario's", phone: null } }]; routes["GET /api/reserve/profile"] = async () => [200, { ok: true, profile: { firstName: "Gabe", lastName: "Test", defaultPartySize: 2 } }]; routes["GET /api/reserve/mine"] = async () => [200, { ok: true, bookings: [] }]; routes["GET /api/reserve/slots"] = async () => [200, { ok: true, slots: SLOTS, phone: "(941) 555-0100", maxParty: 12 }]; };
-  const bookCalls = () => calls.filter((c) => c.method === "POST" && c.url === "/api/reserve/book");
-  // form -> summary, the path every flow below shares
-  async function toSummary() {
-    await click(btn("Use a form instead"));
-    await setVal(dlg().querySelector("#wf-reserve-date"), DAY); await settle();
-    await setVal(dlg().querySelector("#wf-reserve-time"), "19:30");
-    await click(btn("Review booking"));
+  const setVal = async (el, v) => { Object.getOwnPropertyDescriptor(w.HTMLInputElement.prototype, "value").set.call(el, v); await act(async () => { el.dispatchEvent(new w.Event("input", { bubbles: true })); }); };
+  const submit = async (form) => { await act(async () => { form.dispatchEvent(new w.Event("submit", { bubbles: true, cancelable: true })); }); await settle(); };
+  const reset = () => { for (const k of Object.keys(routes)) delete routes[k]; calls.length = 0; localStorage.removeItem("wf_reserve_handoffs"); };
+  const callsTo = (m, u) => calls.filter((c) => c.method === m && c.url.split("?")[0] === u);
+  const STATE = { placeId: "partner-1", restaurantName: "Mario's Trattoria", lane: "instant", date: DAY, time: null, partySize: 4 };
+  const turn = (card, say, extra) => async () => [200, { ok: true, say: say || "Here you go.", state: STATE, missing: [], card, profile: { hasName: true, hasPhone: false, display: "Gabriel P." }, ...extra }];
+  const timesCard = { type: "times", date: DAY, partySize: 4, options: [{ time: "18:45", label: "6:45 PM" }, { time: "19:00", label: "7:00 PM" }] };
+  async function mountC(props) {
+    const m = await mount(React.createElement(Concierge, { initialPlace: { id: "partner-1", name: "Mario's Trattoria" }, ...props }));
+    await settle(60);
+    return m;
   }
+  const q = (m) => (sel) => m.host.querySelector(sel);
+  const bt = (m, label) => [...m.host.querySelectorAll("button")].find((b) => (b.textContent || "").trim() === label);
+  const say = async (m, t) => { await setVal(m.host.querySelector("#wf-reserve-msg"), t); await submit(m.host.querySelector("form:last-of-type")); };
 
-  // (a) form: times come ONLY from the server; summary; phone hidden until the switch; one tap to book
-  reset(); await open();
-  ok(!!dlg().querySelector("#wf-reserve-msg") && /How many people/.test(text()), "signed in with no booking: the chat opens");
-  await click(btn("Use a form instead"));
-  await setVal(dlg().querySelector("#wf-reserve-date"), DAY); await settle();
-  const sl = calls.filter((c) => c.url.startsWith("/api/reserve/slots"));
-  ok(sl.length >= 1 && sl[sl.length - 1].url === `/api/reserve/slots?placeId=partner-1&date=${DAY}&party=2`, "choosing a day asks /api/reserve/slots for that place, day and party: " + (sl[sl.length - 1] || {}).url);
-  const opts = [...dlg().querySelectorAll("#wf-reserve-time option")].filter((o) => o.value).map((o) => o.value);
-  ok(JSON.stringify(opts) === JSON.stringify(SLOTS), "the time list is exactly the server's open times, nothing made up: " + opts.join());
-  ok(!w.document.querySelector("#wf-reserve-name") && !/What name should I put/.test(text()) && /Booking as Gabe T\./.test(text()), "with a saved profile the sheet never asks for a name and says 'Booking as Gabe T.'");
-  await setVal(dlg().querySelector("#wf-reserve-time"), "19:30");
-  await click(btn("Review booking"));
-  ok(!!btn("Book table") && !!dlg().querySelector("[data-reserve-summary]") && /4 people|2 people/.test(text()) && /Open at 7:30 PM/.test(text()), "the summary shows the booking, 'Open at 7:30 PM' and a Book table button");
-  ok(!/You're booked/.test(text()) && !/Request sent/.test(text()), "the summary does not claim a booking");
-  const sw = dlg().querySelector("[data-reserve-share]");
-  ok(!!sw && sw.getAttribute("role") === "switch" && sw.checked === false && !dlg().querySelector('input[type="tel"]') && /Share my phone with Mario's so they can reach me/.test(text()), "phone sharing is an OFF switch and no phone box is shown");
-  await click(sw);
-  ok(!!dlg().querySelector('input[type="tel"]'), "turning the switch on reveals the phone box");
-  await click(dlg().querySelector("[data-reserve-share]"));
-  ok(!dlg().querySelector('input[type="tel"]'), "turning it off hides the box again");
-  let release; const gate = new Promise((r) => { release = r; });
-  routes["POST /api/reserve/book"] = async () => { await gate; return [201, { ok: true, booking: booking({ partySize: 2 }) }]; };
-  await click(btn("Book table"));
-  ok(bookCalls().length === 1 && !/You're booked/.test(text()) && /Booking/.test(text()), "while the request is in flight the sheet says Booking and does NOT say 'You're booked'");
-  const b1 = bookCalls()[0].body;
-  ok(b1.placeId === "partner-1" && b1.partySize === 2 && b1.date === DAY && b1.time === "19:30" && !("guestName" in b1) && /^[0-9a-f-]{36}$/.test(b1.idempotencyKey), "the request carries place, party, day, time and an idempotency key (the name comes from the saved profile on the server)");
-  ok(!("phone" in b1) && !("phoneConsent" in b1), "with the switch off the request has no phone and no consent");
-  release(); await settle(120);
-  ok(/You're booked at/.test(text()) && !!dlg().querySelector('[data-reserve-status="confirmed"]') && /K7M2QX/.test(dlg().querySelector("[data-reserve-code]").textContent), "after the 201 (and only then): You're booked. with the confirmation code");
-  ok(/Running late\? Call \(941\) 555-0100\./.test(text()) && !!btn("Add to calendar") && !!btn("Cancel booking"), "the restaurant phone line, Add to calendar and Cancel booking are offered");
-  routes["POST /api/reserve/cancel"] = async () => [200, { ok: true, booking: booking({ status: "cancelled" }) }];
-  await click(btn("Cancel booking"));
-  ok(/Cancel this table\?/.test(text()) && !!btn("Yes, cancel it") && !!btn("Keep my table") && !calls.some((c) => c.url === "/api/reserve/cancel"), "Cancel booking asks once before anything is sent");
-  await click(btn("Keep my table"));
-  ok(!!btn("Cancel booking") && !calls.some((c) => c.url === "/api/reserve/cancel"), "Keep my table sends nothing");
-  await click(btn("Cancel booking")); await click(btn("Yes, cancel it"));
-  ok(!!dlg().querySelector('[data-reserve-status="cancelled"]') && /Your table is cancelled\./.test(text()) && calls.some((c) => c.url === "/api/reserve/cancel" && c.body.bookingId === booking().id), "cancelling shows Your table is cancelled. only after the server answered");
-  await closeSheet();
-
-  // (b) not confirmed: never 'booked', the SAME key on retry
-  reset(); await open(); await toSummary();
-  routes["POST /api/reserve/book"] = async () => [503, { ok: false, error: "BOOKING_NOT_CONFIRMED", message: "We could not confirm your table. Nothing was booked." }];
-  await click(btn("Book table"));
-  ok(!/You're booked/.test(text()) && /Nothing was booked/.test(text()) && !!btn("Book table"), "a 503 shows the server's message, no booking, and the Book table button stays");
-  routes["POST /api/reserve/book"] = async () => [201, { ok: true, booking: booking() }];
-  await click(btn("Book table"));
-  const [f1, f2] = bookCalls().map((c) => c.body.idempotencyKey);
-  ok(bookCalls().length === 2 && f1 === f2 && /You're booked at/.test(text()), "the retry reuses the same idempotency key (it can never book twice) and then shows the booking");
-  await closeSheet();
-
-  // (c) the slot filled up: alternatives, one tap, a NEW key
-  reset(); await open(); await toSummary();
-  routes["POST /api/reserve/book"] = async () => [409, { ok: false, error: "SLOT_FULL", message: "7:30 PM just filled up.", alternatives: ["18:30", "20:00"] }];
-  await click(btn("Book table"));
-  const alts = [...dlg().querySelectorAll("[data-reserve-alt]")];
-  ok(!/You're booked/.test(text()) && /7:30 PM just filled up\./.test(text()) && alts.map((a) => a.getAttribute("data-reserve-alt")).join() === "18:30,20:00" && alts.map((a) => a.textContent).join() === "6:30 PM,8:00 PM", "a 409 shows 'just filled up' and the server's alternatives as chips, with no booking");
-  routes["POST /api/reserve/book"] = async () => [201, { ok: true, booking: booking({ time: "20:00" }) }];
-  await click(alts[1]);
-  const c = bookCalls();
-  ok(c.length === 2 && c[1].body.time === "20:00" && c[1].body.idempotencyKey !== c[0].body.idempotencyKey && /You're booked at/.test(text()) && /8:00 PM/.test(text()), "tapping a chip books THAT time with a new idempotency key");
-  await closeSheet();
-
-  // (d) phone only with consent
-  reset(); await open(); await toSummary();
-  await click(dlg().querySelector("[data-reserve-share]"));
-  await setVal(dlg().querySelector("#wf-reserve-phone"), "12");
-  await click(btn("Book table"));
-  ok(bookCalls().length === 0 && /10 digits/.test(text()), "sharing on with a bad number is stopped in the sheet: nothing is sent");
-  routes["POST /api/reserve/book"] = async () => [201, { ok: true, booking: booking() }];
-  await setVal(dlg().querySelector("#wf-reserve-phone"), "941-555-0199");
-  await click(btn("Book table"));
-  const pb = bookCalls()[0] && bookCalls()[0].body;
-  ok(!!pb && pb.phone === "(941) 555-0199" && pb.phoneConsent === true, "sharing on with a good number sends the formatted phone AND phoneConsent true");
-  ok(!/555-0199/.test(text()), "the guest's own number is not echoed back in the booked view");
-  await closeSheet();
-
-  // (e) chat: only a verified, complete turn becomes a summary
+  // (a) the opening message goes to the concierge with context and state; a times card renders chips; a tap books with an idempotency key
   reset();
-  routes["POST /api/reserve-chat"] = async () => [200, { ok: true, reply: "Got it.", draft: { partySize: 4, date: DAY, time: "19:30", guestName: "Gabe", note: null }, complete: true, verified: false }];
-  await open();
-  await setVal(dlg().querySelector("#wf-reserve-msg"), "4 on saturday at 7:30"); await click(dlg().querySelector('button[type="submit"]'));
-  ok(!!dlg().querySelector("#wf-reserve-msg") && !btn("Book table"), "a complete but UNVERIFIED chat turn never reaches the summary");
-  routes["POST /api/reserve-chat"] = async () => [200, { ok: true, reply: "Got it.", draft: { partySize: 4, date: DAY, time: "19:30", guestName: "Gabe", note: null }, complete: true, verified: true }];
-  await setVal(dlg().querySelector("#wf-reserve-msg"), "yes"); await click(dlg().querySelector('button[type="submit"]'));
-  ok(!!btn("Book table") && /4 people/.test(text()) && /Open at 7:30 PM/.test(text()), "a verified, complete chat turn shows the summary with the open time");
-  const chatCalls = calls.filter((x) => x.url === "/api/reserve-chat");
-  ok(chatCalls.length === 2 && chatCalls[1].body.draft && chatCalls[1].body.draft.date === DAY && chatCalls[1].body.draft.partySize === 4 && chatCalls[1].body.messages.every((m) => !m.local), "the second chat turn carries the day and party so the server can read real open times; the local greeting is not sent");
-  await closeSheet();
-  reset(); routes["POST /api/reserve-chat"] = async () => [200, { ok: true, fallback: "form", reason: "availability_unavailable" }];
-  await open(); await setVal(dlg().querySelector("#wf-reserve-msg"), "hi"); await click(dlg().querySelector('button[type="submit"]'));
-  ok(!!dlg().querySelector("#wf-reserve-date") && /Fill this in instead/.test(text()), "a form fallback from the server opens the form");
-  await closeSheet();
+  routes["POST /api/reserve/concierge"] = turn(timesCard, "I found 6:45 PM and 7:00 PM for 4.");
+  routes["POST /api/reserve/book"] = async () => [201, { ok: true, booking: { id: "b1", status: "confirmed", confirmationCode: "K7M2QX", restaurantName: "Mario's Trattoria", date: DAY, time: "19:00", partySize: 4 } }];
+  let m = await mountC({ initialMessage: "four tomorrow around 7" });
+  const t1 = callsTo("POST", "/api/reserve/concierge")[0];
+  ok(!!t1 && t1.body.context.placeId === "partner-1" && t1.body.messages[0].content === "four tomorrow around 7" && !!t1.body.state, "the seeded message posts {messages, context:{placeId}, state} to /api/reserve/concierge");
+  const chips = [...m.host.querySelectorAll("[data-reserve-time]")];
+  ok(chips.length === 2 && chips[0].textContent === "6:45 PM" && chips[1].textContent === "7:00 PM" && /I found 6:45 PM/.test(m.host.textContent), "times card: the server's sentence plus one chip per open time");
+  ok(!!m.host.querySelector('[role="log"][aria-live="polite"]'), "the thread is an aria-live log");
+  ok(calls.filter((c) => c.url === "/api/reserve/book").length === 0, "nothing is booked until a chip is tapped");
+  await click(chips[1]);
+  const bk = callsTo("POST", "/api/reserve/book")[0];
+  ok(!!bk && bk.body.placeId === "partner-1" && bk.body.date === DAY && bk.body.time === "19:00" && bk.body.partySize === 4 && /^[0-9a-f-]{36}$/.test(bk.body.idempotencyKey), "tapping a time posts /api/reserve/book with placeId, date, time, party and an idempotency key");
+  const bookedEl = m.host.querySelector('[data-reserve-card="booked"]');
+  ok(!!bookedEl && bookedEl.textContent.includes(`Booked. Mario's Trattoria, ${WD} at 7:00 PM for 4.`), "booked card reads exactly 'Booked. <Restaurant>, <Weekday> at <h:mm PM> for <N>.' (got " + (bookedEl && bookedEl.textContent.slice(0, 90)) + ")");
+  ok(/K7M2QX/.test(bookedEl.textContent) && !!bt(m, "Add to itinerary") && !!bt(m, "Add to calendar") && !!bt(m, "Cancel") && /^https:\/\/www\.google\.com\/maps\/dir\//.test(bookedEl.querySelector("[data-reserve-directions]").getAttribute("href")), "booked card: confirmation code, Add to itinerary, Directions, Add to calendar, Cancel");
+  ok(/Booking as Gabriel P\./.test(m.host.textContent) && !!bt(m, "Change"), "'Booking as Gabriel P. · Change' comes from response.profile.display");
+  await click(bt(m, "Add to itinerary"));
+  ok(JSON.stringify(JSON.parse(localStorage.getItem("wf_trips_v1") || "{}")).includes("partner-1"), "Add to itinerary files the place into wf_trips_v1");
+  routes["POST /api/reserve/cancel"] = async () => [200, { ok: true, booking: { id: "b1", status: "cancelled" } }];
+  await click(bt(m, "Cancel"));
+  ok(/Cancel this table\?/.test(m.host.textContent) && callsTo("POST", "/api/reserve/cancel").length === 0, "Cancel asks once before sending");
+  await click(bt(m, "Yes, cancel it"));
+  ok(callsTo("POST", "/api/reserve/cancel").length === 1 && /Your table is cancelled\./.test(m.host.textContent), "confirming cancels through /api/reserve/cancel");
+  await m.unmount();
 
-  // (f) an existing booking: shown from the server's row; a proposal can be accepted or declined
-  reset(); routes["GET /api/reserve/mine"] = async () => [200, { ok: true, bookings: [booking()] }];
-  await open();
-  ok(!!dlg().querySelector('[data-reserve-status="confirmed"]') && /K7M2QX/.test(text()), "an existing confirmed booking opens straight to its confirmation");
-  await closeSheet();
-  reset(); routes["GET /api/reserve/mine"] = async () => [200, { ok: true, bookings: [booking({ status: "proposed", proposedDate: DAY, proposedTime: "20:00" })] }];
-  routes["POST /api/reserve/proposal"] = async (b) => [200, { ok: true, booking: booking(b.accept ? { time: "20:00" } : { status: "cancelled" }) }];
-  await open();
-  ok(/Mario's asked to move your table to 8:00 PM/.test(text()) && !!btn("Accept new time") && !!btn("Keep looking") && /Keep looking cancels your current table\./.test(text()), "a proposal reads '{name} asked to move your table to {time}' with Accept new time / Keep looking, and says declining cancels");
-  ok(!calls.some((x) => x.url === "/api/reserve/proposal"), "nothing is sent until the guest chooses");
-  await click(btn("Accept new time"));
-  ok(calls.some((x) => x.url === "/api/reserve/proposal" && x.body.accept === true) && /You're booked at/.test(text()) && /8:00 PM/.test(text()), "Accept new time sends accept:true and shows the moved booking");
-  await closeSheet();
-  reset(); routes["GET /api/reserve/mine"] = async () => [200, { ok: true, bookings: [booking({ status: "proposed", proposedDate: DAY, proposedTime: "20:00" })] }];
-  routes["POST /api/reserve/proposal"] = async () => [200, { ok: true, booking: booking({ status: "cancelled" }) }];
-  await open(); await click(btn("Keep looking"));
-  ok(calls.some((x) => x.url === "/api/reserve/proposal" && x.body.accept === false) && /Your table is cancelled\./.test(text()) && !!btn("Find another time"), "Keep looking sends accept:false and shows the table cancelled");
-  await closeSheet();
+  // (b) retry reuses the idempotency key; a request status says 'Request sent', never 'Booked'
+  reset();
+  routes["POST /api/reserve/concierge"] = turn({ type: "request", date: DAY, time: "19:15", partySize: 4 }, "Mario's takes requests.");
+  let n = 0;
+  routes["POST /api/reserve/book"] = async () => (++n === 1 ? [500, { ok: false, error: "SERVER", message: "Try again." }] : [201, { ok: true, booking: { id: "b2", status: "requested", restaurantName: "Mario's Trattoria", date: DAY, time: "19:15", partySize: 4 } }]);
+  m = await mountC({ initialMessage: "request 7:15 for four" });
+  ok(!!bt(m, "Send request") && !!m.host.querySelector('[data-reserve-card="request"]'), "request card renders a 'Send request' button");
+  await click(bt(m, "Send request"));
+  ok(/Try again\./.test(m.host.textContent) && !/Booked/.test(m.host.textContent), "a failed send says so and never claims a booking");
+  await click(bt(m, "Try again"));
+  const keysSeen = callsTo("POST", "/api/reserve/book").map((c) => c.body.idempotencyKey);
+  ok(keysSeen.length === 2 && keysSeen[0] === keysSeen[1], "a retry reuses the same idempotency key");
+  const reqEl = m.host.querySelector('[data-reserve-card="requested"]');
+  ok(!!reqEl && reqEl.textContent.includes(`Request sent to Mario's Trattoria for ${WD} at 7:15 PM for 4. We'll show their answer in My reservations.`) && !/Booked/.test(m.host.textContent), "requested status shows 'Request sent to <name> for <Weekday> at <time> for <N>. We'll show their answer in My reservations.' and never 'Booked'");
+  await m.unmount();
+
+  // (c) SLOT_FULL shows the alternatives from the error as chips
+  reset();
+  routes["POST /api/reserve/concierge"] = turn(timesCard);
+  routes["POST /api/reserve/book"] = async () => [409, { ok: false, error: "SLOT_FULL", alternatives: ["19:30", "20:00"] }];
+  m = await mountC({ initialMessage: "x" });
+  await click(m.host.querySelector('[data-reserve-time="19:00"]'));
+  const alts = [...m.host.querySelectorAll("[data-reserve-time]")].map((b) => b.textContent);
+  ok(/7:00 PM just filled up/.test(m.host.textContent) && alts.includes("7:30 PM") && alts.includes("8:00 PM") && !/Booked/.test(m.host.textContent), "SLOT_FULL: 'just filled up' plus the server's alternative times as chips");
+  await m.unmount();
+
+  // (d) handoff: a link, the finish-on-OpenTable note, never 'Booked'; the tap is logged
+  reset();
+  const goUrl = `/api/reserve/go?placeId=partner-1&date=${DAY}&time=19%3A00&party=4`;
+  routes["POST /api/reserve/concierge"] = turn({ type: "handoff", url: goUrl, label: "Open Mario's on OpenTable", sentTime: "19:00" }, "Mario's books through OpenTable.");
+  m = await mountC({ initialMessage: "x" });
+  const go = m.host.querySelector("[data-reserve-go]");
+  ok(!!go && go.tagName === "A" && go.getAttribute("href") === goUrl && go.getAttribute("target") === "_blank" && /noopener/.test(go.getAttribute("rel")) && go.textContent === "Open Mario's on OpenTable", "handoff card: link to card.url, target _blank, rel noopener, labelled card.label");
+  ok(/You'll finish on OpenTable\. Wayfind hasn't booked this yet\./.test(m.host.textContent) && !/Booked/.test(m.host.textContent) && !/booked at|You're booked/i.test(m.host.textContent), "handoff card never says Booked and carries the finish-on-OpenTable note");
+  ok(!/opentable\.com/i.test(m.host.innerHTML), "the client never builds an OpenTable address");
+  go.addEventListener("click", (e) => e.preventDefault());
+  await click(go);
+  const hand = JSON.parse(localStorage.getItem("wf_reserve_handoffs") || "[]");
+  ok(hand.length === 1 && hand[0].placeId === "partner-1" && hand[0].time === "19:00" && hand[0].party === 4, "tapping the handoff link logs it to wf_reserve_handoffs");
+  await m.unmount();
+
+  // (e) profile card: save checkbox (checked), PUT /api/reserve/profile, then the turn is resent
+  reset();
+  let first = true;
+  routes["POST /api/reserve/concierge"] = async () => (first ? ((first = false), [200, { ok: true, say: "What name should I use?", state: STATE, card: { type: "profile", needs: ["name"] } }]) : [200, { ok: true, say: "Thanks. Here are times.", state: STATE, card: timesCard, profile: { display: "Gabe P." } }]);
+  routes["PUT /api/reserve/profile"] = async (b) => [200, { ok: true, profile: { firstName: b.firstName } }];
+  m = await mountC({ initialMessage: "x" });
+  const save = m.host.querySelector("[data-reserve-save-name]");
+  ok(!!save && save.checked && /Save for future bookings/.test(m.host.textContent) && !!m.host.querySelector("#wf-rc-first") && !!m.host.querySelector("#wf-rc-last") && !!m.host.querySelector("#wf-rc-phone"), "profile card: first, last, optional mobile and a checked 'Save for future bookings'");
+  await setVal(m.host.querySelector("#wf-rc-first"), "Gabe"); await setVal(m.host.querySelector("#wf-rc-last"), "Pereira");
+  await submit(m.host.querySelector('[data-reserve-card="profile"]'));
+  const put = callsTo("PUT", "/api/reserve/profile")[0];
+  ok(!!put && put.body.firstName === "Gabe" && put.body.lastName === "Pereira" && put.body.consent === true, "submitting PUTs the profile with consent:true");
+  ok(callsTo("POST", "/api/reserve/concierge").length === 2 && !!m.host.querySelector("[data-reserve-time]"), "…then the last turn is resent");
+  await m.unmount();
+  // unchecked: nothing saved, the name rides the one booking
+  reset(); first = true;
+  routes["POST /api/reserve/concierge"] = async () => (first ? ((first = false), [200, { ok: true, say: "Name?", state: STATE, card: { type: "profile" } }]) : [200, { ok: true, say: "ok", state: STATE, card: timesCard }]);
+  routes["POST /api/reserve/book"] = async () => [201, { ok: true, booking: { id: "b3", status: "confirmed", confirmationCode: "ZZ9", date: DAY, time: "19:00", partySize: 4 } }];
+  m = await mountC({ initialMessage: "x" });
+  await setVal(m.host.querySelector("#wf-rc-first"), "Sam");
+  await click(m.host.querySelector("[data-reserve-save-name]"));
+  await submit(m.host.querySelector('[data-reserve-card="profile"]'));
+  await click(m.host.querySelector('[data-reserve-time="19:00"]'));
+  ok(callsTo("PUT", "/api/reserve/profile").length === 0 && callsTo("POST", "/api/reserve/book")[0].body.guestName === "Sam", "Save unchecked: no profile PUT, the name travels once with the booking");
+  await m.unmount();
+
+  // (f) signin card opens the shell's own sign in; choose and alternatives chips resend with the chosen place
+  reset();
+  routes["POST /api/reserve/concierge"] = turn({ type: "signin" }, "Sign in to book.");
+  const door = document.createElement("button"); door.className = "wf-signin-button"; let door_clicks = 0; door.addEventListener("click", () => { door_clicks++; }); document.body.appendChild(door);
+  m = await mountC({ initialMessage: "x" });
+  ok(!!bt(m, "Sign in to book"), "signin card has a 'Sign in to book' button");
+  await click(bt(m, "Sign in to book"));
+  ok(door_clicks === 1, "…which uses the site's own sign in door (.wf-signin-button)");
+  door.remove(); await m.unmount();
+  reset();
+  routes["POST /api/reserve/concierge"] = turn({ type: "choose", restaurants: [{ placeId: "r-1", name: "Mario's North", address: "1 Main St" }, { placeId: "r-2", name: "Mario's South", address: "2 Main St" }] }, "Which one?");
+  m = await mountC({ initialPlace: null, initialMessage: "mario's" });
+  ok(m.host.querySelectorAll("[data-reserve-choose]").length === 2, "choose card renders one chip per restaurant");
+  routes["POST /api/reserve/concierge"] = turn(null, "Great.");
+  await click(m.host.querySelector('[data-reserve-choose="r-2"]'));
+  const cc = callsTo("POST", "/api/reserve/concierge").pop();
+  ok(cc.body.context.placeId === "r-2", "choosing a restaurant resends the turn with context.placeId set");
+  await m.unmount();
+  reset();
+  routes["POST /api/reserve/find"] = async () => [200, { ok: true, picks: [] }];
+  routes["POST /api/reserve/concierge"] = turn({ type: "alternatives", picks: [{ placeId: "pick-1", name: "Osteria Uno", locality: "Tampa", cuisines: ["Italian"] }] }, "Fully booked. Try these.");
+  m = await mountC({ initialMessage: "x" });
+  ok(!!m.host.querySelector('[data-reserve-pick="pick-1"]') && callsTo("POST", "/api/reserve/find").length === 0, "alternatives card shows pick chips from the card without another lookup");
+  await m.unmount();
+  reset();
+  routes["POST /api/reserve/concierge"] = turn(null, "What day works?");
+  m = await mountC({ initialMessage: "x" });
+  ok(!m.host.querySelector("[data-reserve-card]") && /What day works\?/.test(m.host.textContent), "a null card is just the assistant bubble");
+  await m.unmount();
+
+  // (g) the sheet is a host around the concierge
+  reset();
+  routes["POST /api/reserve/concierge"] = turn(null, "Sure.");
+  await act(async () => { Sheet.showReserveSheet({ id: "partner-1", name: "Mario's" }, { prefill: { date: DAY, time: "19:30", partySize: 4 } }); }); await settle(150);
+  const dlg = document.querySelector('[role="dialog"]');
+  ok(!!dlg && !!dlg.querySelector("[data-reserve-concierge]") && callsTo("POST", "/api/reserve/concierge").length === 1 && /Table for 4/.test(callsTo("POST", "/api/reserve/concierge")[0].body.messages[0].content), "the sheet hosts the concierge, seeded with the prefill as plain words");
+  await act(async () => { document.dispatchEvent(new w.KeyboardEvent("keydown", { key: "Escape", bubbles: true })); }); await settle(10);
+  document.querySelectorAll("[data-reserve-host],[role=dialog]").forEach((x) => x.remove());
+
+  // (h) My reservations: every status label
+  reset();
+  const hb = (id, status, extra) => ({ id, status, placeId: "p", partySize: 2, date: DAY, time: "19:00", restaurantName: "R-" + id, ...extra });
+  routes["GET /api/reserve/history"] = async () => [200, { ok: true, bookings: [hb("req", "requested"), hb("dec", "declined", { declineReason: "Closed for a private event" }), hb("con", "confirmed", { confirmationCode: "CODE1" }), hb("can", "cancelled"), hb("pro", "proposed", { proposedDate: DAY, proposedTime: "20:00" })] }];
+  await act(async () => { History.showReserveHistory(); }); await settle(150);
+  const row = (id) => (document.querySelector(`[data-reserve-row="${id}"]`) || { textContent: "" }).textContent;
+  ok(/Waiting for the restaurant/.test(row("req")) && !/Booked/.test(row("req")), "history: requested reads 'Waiting for the restaurant'");
+  ok(/Declined/.test(row("dec")) && /Closed for a private event/.test(row("dec")), "history: declined reads 'Declined' with the reason");
+  ok(/Booked/.test(row("con")) && /CODE1/.test(row("con")) && /Cancelled/.test(row("can")) && /New time offered/.test(row("pro")), "history: confirmed, cancelled and proposed keep their labels");
+  document.querySelectorAll("[data-reserve-host],[role=dialog]").forEach((x) => x.remove());
+
+  // (i) the restaurant page: Accept / Decline only on requested rows
+  reset();
+  const Manage = (await loadComponent(path.join(ROOT, "app/reserve/manage/[token]/ManageClient.js"), ROOT)).default;
+  const mb = (id, status) => ({ id, status, date: DAY, time: "19:00", partySize: 2, guestName: "Guest " + id, confirmationCode: "C" + id });
+  routes["GET /api/reserve/manage"] = async () => [200, { ok: true, partner: { name: "Mario's" }, today: DAY, bookings: [mb("r1", "requested"), mb("c1", "confirmed")] }];
+  routes["POST /api/reserve/manage"] = async () => [200, { ok: true }];
+  const mm = await mount(React.createElement(Manage, { token: "tok123" }));
+  await settle(80);
+  const lis = [...mm.host.querySelectorAll("li")];
+  const lab = (li) => [...li.querySelectorAll("button")].map((b) => b.textContent.trim());
+  ok(lis.length === 2 && lab(lis[0]).includes("Accept") && lab(lis[0]).includes("Decline") && !lab(lis[1]).includes("Accept") && !lab(lis[1]).includes("Decline"), "manage: Accept and Decline appear on the requested row only");
+  await click([...lis[0].querySelectorAll("button")].find((b) => b.textContent === "Accept"));
+  const acc = callsTo("POST", "/api/reserve/manage")[0];
+  ok(!!acc && acc.body.token === "tok123" && acc.body.bookingId === "r1" && acc.body.action === "accept", "Accept posts {token, bookingId, action:'accept'} to /api/reserve/manage");
+  await click([...mm.host.querySelectorAll("li")[0].querySelectorAll("button")].find((b) => b.textContent === "Decline"));
+  await setVal(mm.host.querySelector("#dwhy-r1"), "Full that night");
+  await click([...mm.host.querySelectorAll("button")].find((b) => b.textContent === "Send decline"));
+  const dec = callsTo("POST", "/api/reserve/manage").pop();
+  ok(dec.body.action === "decline" && dec.body.reason === "Full that night", "Decline posts action:'decline' with the optional reason");
+  await mm.unmount();
+
+  // (j) source locks
+  const strip = (s) => s.replace(/\/\*[\s\S]*?\*\//g, " ").replace(/^\s*\/\/.*$/gm, " ");
+  const boo = strip(fs.readFileSync(path.join(ROOT, "app/components/BooCompanion.js"), "utf8"));
+  ok(/const\s+ReserveConcierge\s*=\s*lazy\(\s*\(\)\s*=>\s*import\(\s*["']\.\/ReserveConcierge\.js["']\s*\)\s*\)/.test(boo) && !/^\s*import[^;\n]*ReserveConcierge/m.test(boo) && /<ReserveConcierge[\s/>]/.test(boo) && /<ReservePicks[\s/>]/.test(boo), "BooCompanion loads ReserveConcierge with lazy(import()), never statically, renders it inline, and keeps the pick chips");
 }
+
 
 if (failures.length) {
   console.error("test-reserve-ui: FAIL");

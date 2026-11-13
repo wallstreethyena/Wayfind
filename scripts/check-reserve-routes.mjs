@@ -457,10 +457,10 @@ const src = (p) => strip(readFileSync(new URL("../" + p, import.meta.url), "utf8
   ok(!/anthropic\.com/.test(chatRoute + api), "no direct Anthropic URL in the route or its handler");
   ok(!/\bfetch\s*\(/.test(chatRoute), "the chat route itself makes no fetch call");
   ok(/finishChatTurn\(/.test(api) && /applyAvailability\(/.test(api) && !/\bcleanReply\(|\bnormalizeDraft\(/.test(api), "the chat handler builds its answer only through finishChatTurn then applyAvailability");
-  ok((api.match(/deps\.paidAnthropicRequest\s*\(/g) || []).length === 1, "the handler reaches Claude through exactly one injected paidAnthropicRequest call");
+  ok((api.match(/deps\.paidAnthropicRequest\s*\(/g) || []).length === 2, "the handlers reach Claude through exactly two injected paidAnthropicRequest calls (chat and concierge)");
   ok(/classifyProviderFailure/.test(api) && /tripBreaker/.test(api), "the handler classifies provider failures and trips the breaker (no retry loop)");
   ok(!/\bfor\s*\(|\bwhile\s*\(/.test(api.slice(api.indexOf("chat: guarded"))), "the chat handler has no retry loop");
-  const routes = [["app/api/reserve/partners/route.js", ["GET"]], ["app/api/reserve/slots/route.js", ["GET"]], ["app/api/reserve/book/route.js", ["POST"]], ["app/api/reserve/cancel/route.js", ["POST"]], ["app/api/reserve/proposal/route.js", ["POST"]], ["app/api/reserve/mine/route.js", ["GET"]], ["app/api/reserve/manage/route.js", ["GET", "POST"]], ["app/api/reserve-chat/route.js", ["POST"]], ["app/api/cron/reserve-reminders/route.js", ["GET"]]];
+  const routes = [["app/api/reserve/partners/route.js", ["GET"]], ["app/api/reserve/slots/route.js", ["GET"]], ["app/api/reserve/book/route.js", ["POST"]], ["app/api/reserve/cancel/route.js", ["POST"]], ["app/api/reserve/proposal/route.js", ["POST"]], ["app/api/reserve/mine/route.js", ["GET"]], ["app/api/reserve/manage/route.js", ["GET", "POST"]], ["app/api/reserve-chat/route.js", ["POST"]], ["app/api/reserve/concierge/route.js", ["POST"]], ["app/api/cron/reserve-reminders/route.js", ["GET"]]];
   for (const [file, verbs] of routes) {
     const s = src(file);
     ok(/export const runtime\s*=\s*"nodejs"/.test(s) && /export const dynamic\s*=\s*"force-dynamic"/.test(s), `${file} is nodejs + force-dynamic`);
@@ -475,6 +475,7 @@ const src = (p) => strip(readFileSync(new URL("../" + p, import.meta.url), "utf8
   for (const p of guarded) ok(matcher.includes(`"${p}"`), `${p} is in the middleware matcher (rate limited)`);
   const rl = /const RATE_LIMIT_ONLY_ROUTES\s*=\s*new Set\(\[([^\]]*)\]\)/.exec(mw);
   ok(rl && guarded.slice(1).every((p) => rl[1].includes(`"${p}"`)) && !rl[1].includes("reserve-chat") && /RATE_LIMIT_ONLY_ROUTES\.has\(path\)/.test(mw), "slots, book, cancel, proposal and manage are rate limit only; reserve-chat keeps the full same-origin guard");
+  ok(matcher.includes('"/api/reserve/concierge"') && rl && !rl[1].includes("concierge"), "/api/reserve/concierge is in the matcher with the full same-origin guard, like reserve-chat (paid AI proxy), never rate limit only");
   ok(!/\/api\/reserve\/(request|respond)/.test(mw), "middleware no longer names the removed routes");
   const page = readFileSync(new URL("../app/reserve/manage/[token]/page.js", import.meta.url), "utf8");
   ok(/robots:\s*\{\s*index:\s*false,\s*follow:\s*false\s*\}/.test(page) && /referrer:\s*"no-referrer"/.test(page), "the manage page is noindex, nofollow, no referrer");
@@ -486,7 +487,7 @@ const src = (p) => strip(readFileSync(new URL("../" + p, import.meta.url), "utf8
   ok(/robots:\s*\{\s*index:\s*false,\s*follow:\s*false\s*\}/.test(tp), "the preview test page is noindex");
   const tc = src("app/reserve/test/TestCard.js");
   ok(/import\s+IconicPlaceCard\s+from/.test(tc) && /<IconicPlaceCard[\s/>]/.test(tc) && /id:\s*"wf-test-kitchen"/.test(tc) && /name:\s*"Wayfind Test Kitchen"/.test(tc) && /photo:\s*"\/cards\/[^"]+"/.test(tc) && existsSync(new URL("../public/cards/where-to-eat.jpg", import.meta.url)), "the test page renders the real IconicPlaceCard for the wf-test-kitchen fixture with a local repo photo");
-  ok(/import\s*\{\s*WF_PLACE_CARD_CSS\s*\}\s*from\s*"\.\.\/\.\.\/components\/css\.js"/.test(tc) && /<style\s+dangerouslySetInnerHTML=\{\{\s*__html:\s*WF_PLACE_CARD_CSS\s*\}\}\s*\/>/.test(tc), "the test page injects WF_PLACE_CARD_CSS itself (the card renders unstyled without it)");
+  ok(/import\s*\{\s*WF_PLACE_CARD_CSS\s*\}\s*from\s*"\.\.\/\.\.\/components\/css\.js"/.test(tc) && /<style\s+dangerouslySetInnerHTML=\{styleHtml\(\s*WF_PLACE_CARD_CSS\s*\)\}\s*\/>/.test(tc), "the test page injects WF_PLACE_CARD_CSS itself (the card renders unstyled without it)");
   // cron: protected like the other cron routes, scheduled every 15 minutes
   const cron = src("app/api/cron/reserve-reminders/route.js");
   ok(/process\.env\.CRON_SECRET/.test(cron) && /timingSafeEqual\(actual,\s*expected\)/.test(cron) && /401/.test(cron) && cron.indexOf("timingSafeEqual(actual") < cron.indexOf("runReserveReminders({"), "the reminder cron checks CRON_SECRET (constant time) before doing any work");

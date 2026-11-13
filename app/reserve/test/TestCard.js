@@ -2,6 +2,7 @@
 import IconicPlaceCard from "../../components/IconicPlaceCard.js";
 import { WF_PLACE_CARD_CSS } from "../../components/css.js";
 import { C } from "../../components/kit.js";
+import { styleHtml } from "../../../lib/styleHtml.js";
 
 // A fixture place with a local repo photo. The real card shows the Reserve a table button
 // for any place id the partner list returns (the preview lists demo partners).
@@ -16,7 +17,7 @@ export default function TestCard() {
   return (
     <main style={{ maxWidth: 440, margin: "0 auto", padding: "24px 16px", minHeight: "100vh", background: C.bg, color: C.text }}>
       {/* The card's classes live in WF_PLACE_CARD_CSS; without it the card renders unstyled (check-place-card-css-contract). */}
-      <style dangerouslySetInnerHTML={{ __html: WF_PLACE_CARD_CSS }} />
+      <style dangerouslySetInnerHTML={styleHtml(WF_PLACE_CARD_CSS)} />
       <h1 style={{ fontSize: 20, margin: "0 0 12px" }}>Reserve a table: test kitchen</h1>
       <p style={{ margin: "0 0 16px", fontSize: 14 }}>Preview only. Sign in, then tap Reserve a table.</p>
       <IconicPlaceCard place={PLACE} rank={1} href="/p/wf-test-kitchen" onSave={noop} onLike={noop} onDislike={noop} onShare={noop} />

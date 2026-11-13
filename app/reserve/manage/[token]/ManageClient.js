@@ -7,7 +7,7 @@ import { formatReserveDate, formatReserveTime } from "../../../../lib/reserveFor
 const api = "/api/reserve/manage";
 
 function Booking({ b, token, onChanged }) {
-  const [mode, setMode] = useState(null); // null | "cancel" | "offer"
+  const [mode, setMode] = useState(null); // null | "cancel" | "offer" | "decline"
   const [reason, setReason] = useState("");
   const [date, setDate] = useState(b.date);
   const [slots, setSlots] = useState(null);
@@ -45,7 +45,26 @@ function Booking({ b, token, onChanged }) {
       {b.note ? <div style={{ overflowWrap: "anywhere" }}>Note: {b.note}</div> : null}
       {b.phone ? <div>Phone (shared by the guest): <a href={`tel:${b.phone.replace(/[^\d+]/g, "")}`}>{b.phone}</a></div> : null}
       {b.status === "proposed" ? <div role="status" style={{ marginTop: 6 }}>Waiting for the guest to answer your offer of {formatReserveTime(b.proposedTime)} on {formatReserveDate(b.proposedDate)}.</div> : null}
-      {mode === null ? (
+      {b.status === "requested" ? <div role="status" style={{ marginTop: 6, fontWeight: 700 }}>Request from the guest. Wayfind has not confirmed this table.</div> : null}
+      {b.status === "requested" && mode === null ? (
+        <div style={{ display: "grid", gap: 8, marginTop: 10 }}>
+          <button type="button" className="gp-button primary" style={{ minHeight: 44 }} disabled={busy} onClick={() => send({ action: "accept" })}>Accept</button>
+          <button type="button" className="gp-button" style={{ minHeight: 44 }} disabled={busy} onClick={() => setMode("decline")}>Decline</button>
+          {notice ? <p className="gp-status gp-error" role="alert">{notice}</p> : null}
+        </div>
+      ) : null}
+      {mode === "decline" ? (
+        <div style={{ marginTop: 10 }}>
+          <label htmlFor={`dwhy-${b.id}`} style={{ display: "block", fontWeight: 700, marginBottom: 6 }}>Reason for the guest (optional)</label>
+          <input id={`dwhy-${b.id}`} value={reason} maxLength={120} onChange={(e) => setReason(e.target.value)} style={{ width: "100%", minHeight: 44, fontSize: 16, boxSizing: "border-box", padding: "0 12px" }} />
+          {notice ? <p className="gp-status gp-error" role="alert">{notice}</p> : null}
+          <div style={{ display: "grid", gap: 8, marginTop: 10 }}>
+            <button type="button" className="gp-button primary" style={{ minHeight: 44 }} disabled={busy} onClick={() => send({ action: "decline", reason: reason.trim() || undefined })}>Send decline</button>
+            <button type="button" className="gp-button" style={{ minHeight: 44 }} onClick={() => setMode(null)}>Never mind</button>
+          </div>
+        </div>
+      ) : null}
+      {mode === null && b.status !== "requested" ? (
         <div style={{ display: "grid", gap: 8, marginTop: 10 }}>
           <button type="button" className="gp-button" style={{ minHeight: 44 }} onClick={() => setMode("offer")}>Offer another time</button>
           <button type="button" className="gp-button" style={{ minHeight: 44 }} onClick={() => setMode("cancel")}>Cancel booking</button>

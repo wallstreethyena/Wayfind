@@ -95,104 +95,17 @@ const reset = (over = {}) => {
 };
 const calls_ = (m, u) => calls.filter((c) => c.method === m && c.url.split("?")[0] === u);
 
-// ── 1. Wayfind path: the confirmation card ───────────────────────────────────
-reset(); routes["POST /api/reserve/book"] = async () => [201, { ok: true, booking: booking() }];
-await open();
-ok(!!dlg().querySelector("#wf-reserve-msg") && !/What name should I put/.test(text()), "wayfind with a saved profile opens the chat and never asks for a name");
-await click(btn("Use a form instead"));
-await setVal(dlg().querySelector("#wf-reserve-date"), DAY); await settle();
-await setVal(dlg().querySelector("#wf-reserve-time"), "19:30");
-await click(btn("Review booking"));
-await click(btn("Book table"));
-const bookBody = calls_("POST", "/api/reserve/book")[0] && calls_("POST", "/api/reserve/book")[0].body;
-ok(!!bookBody && !("guestName" in bookBody) && bookBody.partySize === 4, "profile reuse: the booking request carries no name (the server fills it from the profile) and the usual party of 4");
-ok(/You're booked at 7:15 PM for 4 at Mario's Trattoria\./.test(text()) && /K7M2QX/.test(text()), "confirm card reads \"You're booked at 7:15 PM for 4 at Mario's Trattoria.\" with the confirmation code");
-const dir = dlg().querySelector("[data-reserve-directions]");
-ok(!!dir && dir.tagName === "A" && /^https:\/\/www\.google\.com\/maps\/dir\//.test(dir.getAttribute("href")) && dir.getAttribute("href").includes("partner-1"), "Directions is a Google Maps link for the place");
-ok(!!btn("Add to itinerary") && !!btn("Cancel booking") && !!btn("Add to calendar"), "Add to itinerary, Add to calendar and Cancel booking are offered");
-await click(btn("Add to itinerary"));
-const trips = JSON.parse(localStorage.getItem("wf_trips_v1") || "{}");
-ok(JSON.stringify(trips).includes("partner-1") && /Added to your itinerary/.test(text()), "Add to itinerary files the place into wf_trips_v1");
-ok(smallTargets().length === 0 && noSideways(), "confirm card: every tap target is 44px or taller, nothing wider than 390px (small: " + smallTargets().join() + ")");
-await closeAll();
-
-// ── 2. Name question when there is no profile ────────────────────────────────
-reset({ "GET /api/reserve/profile": async () => [200, { ok: true, profile: null }] });
-routes["PUT /api/reserve/profile"] = async (b) => [200, { ok: true, profile: { firstName: b.firstName, defaultPartySize: 2, consentAt: "now" } }];
-routes["POST /api/reserve-chat"] = async () => [200, { ok: true, reply: "Got it. What day?", draft: { partySize: 2, date: null, time: null, note: null }, complete: false, verified: false }];
-await open();
-const nameForm = dlg().querySelector("[data-reserve-name-form]");
-ok(/What name should I put the table under\?/.test(text()) && !!nameForm && !!dlg().querySelector("#wf-reserve-first") && !dlg().querySelector("#wf-reserve-msg"), "no profile: Santa style bubble asks \"What name should I put the table under?\" and the answer goes in a structured input, not the chat box");
-const save = dlg().querySelector("[data-reserve-save-name]");
-ok(!!save && save.checked && /Save for future bookings/.test(text()), "the \"Save for future bookings\" checkbox is there (consent for the save)");
-ok(smallTargets().length === 0, "name step: tap targets are 44px or taller (small: " + smallTargets().join() + ")");
-await setVal(dlg().querySelector("#wf-reserve-first"), "Gabriel");
-await submit(nameForm);
-const put = calls_("PUT", "/api/reserve/profile")[0];
-ok(!!put && put.body.firstName === "Gabriel" && put.body.consent === true && !("consentAt" in put.body), "saving posts the first name to /api/reserve/profile with consent:true");
-ok(!!dlg().querySelector("#wf-reserve-msg") && /Booking as Gabriel/.test(text()), "then the chat opens, labelled 'Booking as Gabriel'");
-await setVal(dlg().querySelector("#wf-reserve-msg"), "four on saturday"); await click(dlg().querySelector('button[type="submit"]'));
-const chatBodies = calls_("POST", "/api/reserve-chat").map((c) => JSON.stringify(c.body));
-ok(chatBodies.length === 1 && !/Gabriel/.test(chatBodies[0]), "the name never goes to the chat model");
-await closeAll();
-// unchecked: nothing saved, the name rides the one booking request
-reset({ "GET /api/reserve/profile": async () => [200, { ok: true, profile: null }] });
-routes["POST /api/reserve/book"] = async () => [201, { ok: true, booking: booking() }];
-await open();
-await setVal(dlg().querySelector("#wf-reserve-first"), "Sam"); await setCheck(dlg().querySelector("[data-reserve-save-name]"), false);
-await submit(dlg().querySelector("[data-reserve-name-form]"));
-ok(calls_("PUT", "/api/reserve/profile").length === 0 && /Booking as Sam/.test(text()), "with Save unchecked nothing is posted to the profile");
-await click(btn("Use a form instead")); await setVal(dlg().querySelector("#wf-reserve-date"), DAY); await settle(); await setVal(dlg().querySelector("#wf-reserve-time"), "19:30");
-await click(btn("Review booking")); await click(btn("Book table"));
-ok(calls_("POST", "/api/reserve/book")[0].body.guestName === "Sam", "…and the name travels only in that booking request");
-await closeAll();
-
-// ── 3. OpenTable handoff ─────────────────────────────────────────────────────
-reset({ "GET /api/reserve/path": PATH("opentable") });
+// ── 1-5. The sheet is a host around the concierge (the booking, request and handoff cards are covered in test-reserve-ui) ──
+reset();
+routes["POST /api/reserve/concierge"] = async () => [200, { ok: true, say: "Sure.", state: { placeId: "ot-1" }, card: { type: "handoff", url: "/api/reserve/go?placeId=ot-1&date=" + DAY + "&time=19%3A30&party=4", label: "Open Ulele on OpenTable" } }];
 await open({ id: "ot-1", name: "Ulele" }, { prefill: { date: DAY, time: "19:30", partySize: 4 } });
-const otText = text();
-const go = dlg().querySelector("[data-reserve-go]");
-ok(/I can take you directly to Ulele on OpenTable for /.test(otText) && /around 7:30 PM for 4\./.test(otText), "handoff copy: 'I can take you directly to Ulele on OpenTable for <day> around 7:30 PM for 4.'");
-ok(!!go && go.textContent.trim() === "Open Ulele on OpenTable", "the button reads 'Open Ulele on OpenTable'");
-const gu = go && new URL(go.getAttribute("href"), "https://gowayfind.com");
-ok(!!gu && gu.pathname === "/api/reserve/go" && gu.searchParams.get("placeId") === "ot-1" && gu.searchParams.get("date") === DAY && gu.searchParams.get("time") === "19:30" && gu.searchParams.get("party") === "4" && go.getAttribute("target") === "_blank", "the button href is /api/reserve/go with placeId, date, time and party (new tab)");
-ok(!/opentable\.com/i.test(dlg().innerHTML), "the client never builds an OpenTable address");
-ok(!/booked|confirmed/i.test(otText) && !/Open at/.test(otText) && !dlg().querySelector("[data-reserve-alt]") && calls.filter((c) => c.url.startsWith("/api/reserve/slots")).length === 0, "handoff shows no times, no slots call and never says booked");
-ok(/You'll pick the exact time and confirm on OpenTable\./.test(otText) && !!dlg().querySelector("[data-reserve-directions]") && !!btn("Add to itinerary") && !!dlg().querySelector("[data-reserve-picks]"), "note, Directions, Add to itinerary and similar picks are the backups");
-ok([...dlg().querySelectorAll("#wf-reserve-ot-time option")].every((o) => /:(00|30) /.test(o.textContent)), "the around-time list only has :00 and :30 (OpenTable's own steps)");
-ok(smallTargets().length === 0 && noSideways(), "handoff card: 44px tap targets, no sideways scroll (small: " + smallTargets().join() + ")");
-go.addEventListener("click", (e) => e.preventDefault());
-await click(go);
-const hand = JSON.parse(localStorage.getItem("wf_reserve_handoffs") || "[]");
-ok(hand.length === 1 && hand[0].placeId === "ot-1" && hand[0].time === "19:30" && hand[0].party === 4, "tapping the button records the handoff in wf_reserve_handoffs");
+ok(!!dlg().querySelector("[data-reserve-concierge]") && /Ulele/.test(text()), "the sheet opens the concierge for the place");
+{ const go = dlg().querySelector("[data-reserve-go]"); ok(!!go && go.getAttribute("href").startsWith("/api/reserve/go?") && !/Booked/.test(text()) && !/opentable\.com/i.test(dlg().innerHTML), "handoff: a /api/reserve/go link, no OpenTable address built here, never 'Booked'"); }
+ok(smallTargets().length === 0 && noSideways(), "concierge in the sheet: 44px tap targets, no sideways scroll (small: " + smallTargets().join() + ")");
+await closeAll();
 for (let i = 0; i < 25; i++) rc.addHandoff({ placeId: "p" + i, name: "P" + i, date: DAY, time: "19:00", party: 2 });
 ok(rc.readHandoffs().length === 20 && rc.readHandoffs()[0].placeId === "p24", "handoffs are capped at 20, newest first");
-await closeAll();
-
-ok(rc.nearestHalfHour("19:15") === "19:30" && rc.nearestHalfHour("19:10") === "19:00" && rc.nearestHalfHour("23:50") === "23:30" && rc.nearestHalfHour("00:05") === "00:00", "around time rounds to the nearest :00 or :30 (19:15 to 19:30, 19:10 to 19:00, 23:50 to 23:30, never the next day)");
-
-// ── 4. None state ────────────────────────────────────────────────────────────
-reset({ "GET /api/reserve/path": PATH("none") });
-await open({ id: "none-1", name: "Corner Cafe" });
-const call = dlg().querySelector("[data-reserve-call]");
-ok(!!call && call.getAttribute("href") === "tel:8135550142" && /Call \(813\) 555-0142/.test(call.textContent), "none: a Call link (tel:8135550142) with the restaurant's phone");
-ok(!!dlg().querySelector("[data-reserve-directions]") && !!dlg().querySelector("[data-reserve-picks]") && !dlg().querySelector("[data-reserve-go]") && !btn("Book table") && !/booked/i.test(text()), "none: Directions and similar picks, no booking and no OpenTable button");
-ok(smallTargets().length === 0, "none state: 44px tap targets (small: " + smallTargets().join() + ")");
-await closeAll();
-
-// ── 5. Similar picks reopen the sheet for that place ─────────────────────────
-reset({ "GET /api/reserve/slots": async () => [200, { ok: true, slots: [], maxParty: 12 }] });
-await open();
-await click(btn("Use a form instead")); await setVal(dlg().querySelector("#wf-reserve-date"), DAY); await settle(200);
-const pickBtns = [...dlg().querySelectorAll("[data-reserve-pick]")];
-ok(/No open tables that day/.test(text()) && pickBtns.length === 3 && pickBtns[0].textContent.includes("Osteria Uno"), "a day with no times shows up to 3 similar picks");
-const find = calls_("POST", "/api/reserve/find").pop();
-ok(!!find && find.body.placeId === "partner-1" && find.body.date === DAY && find.body.party === 4, "the picks come from /api/reserve/find with placeId, date and party");
-routes["GET /api/reserve/path"] = PATH("wayfind");
-calls.length = 0;
-await click(pickBtns[0]); await settle(200);
-ok(calls.some((c) => c.url.startsWith("/api/reserve/path?placeId=pick-1")) && /Osteria Uno/.test(text()), "tapping a pick reopens the sheet for that place");
-await closeAll();
+ok(rc.nearestHalfHour("19:15") === "19:30" && rc.nearestHalfHour("19:10") === "19:00" && rc.nearestHalfHour("23:50") === "23:30" && rc.nearestHalfHour("00:05") === "00:00", "around time rounds to the nearest :00 or :30");
 
 // ── 6. My reservations ───────────────────────────────────────────────────────
 reset();
@@ -248,7 +161,7 @@ reset();
   ok(chips.every((c) => parseFloat(c.style.minHeight) >= 44), "chips are 44px or taller");
   calls.length = 0;
   await click(chips[1]); await settle(200);
-  ok(calls.some((c) => c.url.startsWith("/api/reserve/path?placeId=pick-2")) && /Bella Due/.test(text()), "tapping a chip opens the Reserve sheet for that place");
+  ok(!!dlg() && !!dlg().querySelector("[data-reserve-concierge]") && /Bella Due/.test(text()), "tapping a chip opens the Reserve sheet (concierge) for that place");
   await act(async () => { root.unmount(); }); host.remove();
   await closeAll();
 }
@@ -257,7 +170,7 @@ reset();
   ok(/const ReservePicks = lazy\(\(\) => import\("\.\/ReservePicks\.js"\)\)/.test(src) && !/^import[^\n]*ReservePicks/m.test(src) && /<ReservePicks key=\{reserve\.k\}/.test(src) && /data\.reserve/.test(src), "BooCompanion loads ReservePicks lazily and shows it when the reply carries a table request");
   const acct = fs.readFileSync(path.join(ROOT, "app/components/sheets/Account.js"), "utf8");
   ok(/import\("\.\.\/ReserveHistory\.js"\)/.test(acct) && /import\("\.\.\/ReserveProfile\.js"\)/.test(acct) && !/^import[^\n]*Reserve/m.test(acct), "the account sheet reaches My reservations and Booking profile only by dynamic import");
-  const copy = ["ReserveSheet", "ReserveHistory", "ReserveProfile", "ReservePicks", "reserveUi"].map((f) => fs.readFileSync(path.join(ROOT, "app/components/" + f + ".js"), "utf8")).join("\n");
+  const copy = ["ReserveSheet", "ReserveConcierge", "ReserveHistory", "ReserveProfile", "ReservePicks", "reserveUi"].map((f) => fs.readFileSync(path.join(ROOT, "app/components/" + f + ".js"), "utf8")).join("\n");
   const uiText = [...copy.matchAll(/>([^<>{}\n]{12,})</g)].map((m) => m[1]).concat([...copy.matchAll(/"([A-Z][^"\n]{12,})"/g)].map((m) => m[1]));
   ok(uiText.length > 20 && !uiText.some((t) => /[\u2013\u2014]/.test(t)) && !uiText.some((t) => / - /.test(t)), "no long dashes or spaced dashes in the UI copy (" + uiText.length + " strings checked)");
 }

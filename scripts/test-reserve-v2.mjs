@@ -121,12 +121,12 @@ function harness({ env = PROD, ...repoOpts } = {}, extra = {}) {
 
   const h = harness();
   const w = await json(await h.handlers.path(get("/api/reserve/path?placeId=" + PARTNER_PLACE)));
-  ok(w.status === 200 && JSON.stringify(w.body) === JSON.stringify({ ok: true, path: "wayfind", restaurant: { placeId: PARTNER_PLACE, name: "Test Bistro", phone: "(941) 555-0100" }, maxParty: 12 }), "path route shape for a partner: " + JSON.stringify(w.body));
+  ok(w.status === 200 && JSON.stringify(w.body) === JSON.stringify({ ok: true, path: "wayfind", lane: "instant", restaurant: { placeId: PARTNER_PLACE, name: "Test Bistro", phone: "(941) 555-0100" }, maxParty: 12 }), "path route shape for a partner: " + JSON.stringify(w.body));
   const h2 = harness({ inventory: [{ place_id: ULELE, name: "Ulele", status: "OPERATIONAL" }] });
   const o = await json(await h2.handlers.path(get("/api/reserve/path?placeId=" + ULELE)));
-  ok(JSON.stringify(o.body) === JSON.stringify({ ok: true, path: "opentable", restaurant: { placeId: ULELE, name: "Ulele", phone: null }, maxParty: 20 }), "path route shape for OpenTable: " + JSON.stringify(o.body));
+  ok(JSON.stringify(o.body) === JSON.stringify({ ok: true, path: "opentable", lane: "handoff", restaurant: { placeId: ULELE, name: "Ulele", phone: null }, maxParty: 20 }), "path route shape for OpenTable: " + JSON.stringify(o.body));
   const n = await json(await h2.handlers.path(get("/api/reserve/path?placeId=ChIJunknownplace0001")));
-  ok(JSON.stringify(n.body) === JSON.stringify({ ok: true, path: "none", restaurant: { placeId: "ChIJunknownplace0001", name: null, phone: null } }), "path route shape for none has no maxParty");
+  ok(JSON.stringify(n.body) === JSON.stringify({ ok: true, path: "none", lane: "none", restaurant: { placeId: "ChIJunknownplace0001", name: null, phone: null } }), "path route shape for none has no maxParty");
   ok((await json(await h2.handlers.path(get("/api/reserve/path?placeId=a b")))).status === 400 && o.headers.get("cache-control") === "no-store", "bad place id is 400 and the answer is never cached");
 }
 

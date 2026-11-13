@@ -103,6 +103,8 @@ export const config = {
     // Reserve a table chat: same shared Anthropic gate as Santa (lib/paidAi.js),
     // full same-origin + per-IP guard. Signed in users only (the route verifies).
     "/api/reserve-chat",
+    // Reserve concierge: same paid Anthropic proxy treatment as reserve-chat (shared gate, full same-origin + per-IP guard).
+    "/api/reserve/concierge",
     // Reserve a table: unmetered, so per-IP rate limit only (RATE_LIMIT_ONLY_ROUTES below).
     // The POSTs (book, cancel, proposal, manage) also demand a same-origin JSON request inside
     // the route. slots is a public read with no sign in; manage is the restaurant dashboard,
