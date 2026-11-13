@@ -20,6 +20,8 @@ import { openerFor } from "./booOpeners.js";
 import { coverageState, coverageLines, coverageSheetLine, unknownSheetLine, coverageButtonText, roundMiles } from "./booCoverage.js";
 import { pickLine, routeLine, timeLines } from "./booReactions.js";
 import { MAX_COVER, rectOf, isClear, touchesAny, besideSpot, perchSpot, pickClearSpot, estimateBubble, bubbleSideIfClear, chooseBubbleSide, TUCK_MAX } from "./booClear.js";
+import { styleHtml } from "../../lib/styleHtml.js";
+import { maybeHandoffCompanionToPlanner } from "../../lib/plannerCompanionBridge.js";
 
 const HIDE_KEY = "wf_boo_hidden";
 // /group-plans: owner 2026-10-30, "get him out of the group pages". Friends
@@ -1655,6 +1657,11 @@ export default function BooCompanion() {
   const send = useCallback(async (raw, source) => {
     const message = String(raw || "").trim().slice(0, 300);
     if (!message || pendingRef.current || wrapRef.current) return;
+    if (maybeHandoffCompanionToPlanner(message, { santa: santaNow(), pathname: pathRef.current })) {
+      setDraft("");
+      closeSheet();
+      return;
+    }
     pendingRef.current = true;
     setPending(true);
     setDraft("");
@@ -1793,7 +1800,7 @@ export default function BooCompanion() {
 
   return (
     <>
-      <style dangerouslySetInnerHTML={{ __html: CSS }} />
+      <style dangerouslySetInnerHTML={styleHtml(CSS)} />
       {santa ? (
         <SantaDock
           path={pathname}

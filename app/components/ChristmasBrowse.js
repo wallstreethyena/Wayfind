@@ -15,11 +15,13 @@ import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import ChristmasFilter from "./ChristmasFilter.js";
 import ChristmasWeekendRow from "./ChristmasWeekendRow.js";
+import ChristmasPlan from "./ChristmasPlan.js";
 import useChristmasLocation from "./useChristmasLocation.js";
 import { TicketCard } from "./ChristmasTicketCard.js";
 import { GuideCommissionLine } from "./GuideCommissionLine.js";
 import { reminderFactsFor } from "../../lib/eventReminderFacts.js";
 import { CHRISTMAS_CARD_LABELS, CHRISTMAS_PRICE_UNKNOWN_TEXT, CHRISTMAS_SEASON_UNDATED_TEXT, christmasCopy, christmasPitch, christmasPriceLabel } from "../../lib/christmasCardCopy.js";
+import { styleHtml } from "../../lib/styleHtml.js";
 
 // The map (Apple Maps) loads only when opened.
 const ChristmasMap = dynamic(() => import("./ChristmasMap.js"), { ssr: false, loading: () => <p className="xm-count" role="status">Loading the map…</p> });
@@ -84,6 +86,7 @@ export function browseRowFor(card) {
     placeholder: card.placeholder || null,
     cta: ticket ? ticket.cta : null,
     secondaryCta: ticket ? ticket.secondaryCta : null,
+    options: ticket && Array.isArray(ticket.options) ? ticket.options : [],
     eventHref: card.detailHref || null,
     pageLabel: isPlace ? "View place" : null,
     isPlace,
@@ -152,6 +155,9 @@ export default function ChristmasBrowse({ initial, facets, today, initialQuery =
       params.set(k, v);
       if (!(query.auto && PRIVATE_KEYS.has(k))) shown.set(k, v);
     }
+    // A shared plan link (?plan=) is not a filter; keep it so a reload or a
+    // copied URL still opens the friend's plan.
+    try { const plan = new URLSearchParams(location.search).get("plan"); if (plan) shown.set("plan", plan); } catch {}
     try { window.history.replaceState(null, "", shown.toString() ? "?" + shown.toString() + "#browse" : location.pathname + "#browse"); } catch {}
     const controller = new AbortController();
     setLoading(true); setFailed(false);
@@ -200,6 +206,7 @@ export default function ChristmasBrowse({ initial, facets, today, initialQuery =
   const hasPartner = cards.some((c) => c.ticketRow && c.ticketRow.cta && c.ticketRow.cta.kind === "affiliate");
   return <section id="browse" aria-label="Florida Christmas events" style={{ margin: "0 0 28px" }} data-christmas-browse="">
     <ChristmasWeekendRow initial={weekend} lat={located ? query.lat : null} lng={located ? query.lng : null} />
+    <ChristmasPlan />
     <div className="xm-controls" data-boo-clear="" role="toolbar" aria-label="Filter Christmas events">
       <ChristmasFilter query={query} facets={facets} onSet={set} onNear={nearMe} onReset={clearAll} />
       <span className="xm-sort-note">{ticketsFirst ? "Tickets first" : located ? "Top rated near you" : "Top rated and trending"}</span>
@@ -208,7 +215,7 @@ export default function ChristmasBrowse({ initial, facets, today, initialQuery =
       </button>
       {anyFilter ? <button type="button" className="xm-clear" onClick={clearAll}>Reset</button> : null}
     </div>
-    <style dangerouslySetInnerHTML={{ __html: MAP_CSS }} />
+    <style dangerouslySetInnerHTML={styleHtml(MAP_CSS)} />
     {mapOpen ? <div id="xm-map-panel" data-boo-clear=""><ChristmasMap query={query} /></div> : null}
     <p className="xm-count" role="status" aria-live="polite">
       {failed ? "We could not load these listings. Try again in a moment." : loading ? "Updating…" : `${data.total} ${data.total === 1 ? "Christmas plan" : "Christmas plans"}${summary ? " · " + summary : ""}`}

@@ -26,10 +26,10 @@ const map = strip(readFileSync(new URL("../app/components/screens/Map.js", impor
 const view = strip(readFileSync(new URL("../app/components/MapView.js", import.meta.url), "utf8"));
 const iconic = strip(readFileSync(new URL("../app/components/IconicPlaceCard.js", import.meta.url), "utf8"));
 
-// ── the card: THE iconic place card, in a capped scrollable shell ────────
-ok(/<IconicPlaceCard/.test(map), "the bottom slot no longer renders IconicPlaceCard — the owner's money card IS the map result card (v7.16)");
-ok(/import IconicPlaceCard from "\.\.\/IconicPlaceCard"/.test(map), "Map.js imports the shared card — never a second card system");
-ok(/maxHeight: 356/.test(map) && /overflowY: "auto"/.test(map), "the card shell lost its 356px cap + scroll — the map must stay visible behind it");
+// ── the card: MapCompactPreviewCard in a compact 168px-max shell ────────
+ok(/<MapCompactPreviewCard/.test(map) && /className="wf-map-preview-card"/.test(map), "the bottom slot renders MapCompactPreviewCard (.wf-map-preview-card)");
+ok(/WayfindScoreBadge/.test(map) && /<WayfindScoreBadge/.test(map), "Map.js renders WayfindScoreBadge inside the compact preview card");
+ok(/maxHeight: 168/.test(map) && /overflow: "hidden"/.test(map), "the compact preview card shell is capped at 168px so 80–90% of the map stays visible");
 ok(/Wayfind Score 9\.2\+/.test(map), "the ranked-position footer is gone — it is the payoff of a ranked map");
 ok(/aria-label="Next place"/.test(map) && /aria-label="Previous place"/.test(map), "the paging arrows are gone");
 ok(/onTouchEnd=/.test(map) && /dy > 60/.test(map), "swipe-down no longer dismisses the card");

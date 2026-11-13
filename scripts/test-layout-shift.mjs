@@ -49,7 +49,9 @@ const css = cssM[1].replaceAll("${WF_DESKTOP_BP}", bpM[1]);
 // The guarantee this assertion protects — WF_LAYOUT_CSS is concatenated into
 // a SERVER-RENDERED <style> tag, not injected by a client-side effect — still
 // holds under the new form, so we just recognize the new syntax.
-ok(/<style dangerouslySetInnerHTML=\{\{ __html: `[^`]*\$\{WF_LAYOUT_CSS\}/.test(src), "WF_LAYOUT_CSS must be rendered into the inline <style dangerouslySetInnerHTML> block");
+// RE-POINTED again 2026-11-13: the { __html } object now comes from lib/styleHtml.js (same markup;
+// a fresh object per render made React rewrite the sheet on every commit, see that file). Same guarantee.
+ok(/<style dangerouslySetInnerHTML=\{styleHtml\(`[^`]*\$\{WF_LAYOUT_CSS\}/.test(src), "WF_LAYOUT_CSS must be rendered into the inline <style dangerouslySetInnerHTML> block");
 
 // 2. The breakpoint must stay in lockstep with the old JS threshold (900).
 ok(shell.includes("const WF_DESKTOP_BP = 900"), "WF_DESKTOP_BP must be 900 to match the previous vw >= 900 behaviour");

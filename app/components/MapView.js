@@ -5,7 +5,7 @@ import { eventMapFamily } from "../../lib/eventMapPlaces.js";
 import { eventMapPoint } from "../../lib/eventLocation.js";
 
 import { useEffect, useRef, useState } from "react";
-import { LngLatBounds, Map as MapLibreMap, Marker, NavigationControl, setWorkerUrl } from "maplibre-gl";
+import { LngLatBounds, Map as MapLibreMap, Marker, setWorkerUrl } from "maplibre-gl";
 import { pinImageKey } from "../../lib/mapPinGlyph.js";
 import { createFitSettleTracker, distanceRingData, MAP_RING_MILES } from "../../lib/mapExplorer";
 import { safeRemoveMap } from "../../lib/mapTeardown";
@@ -336,7 +336,6 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
       return undefined;
     }
     mapRef.current = map;
-    if (!compact) map.addControl(new NavigationControl({ showCompass: false }), "bottom-right");
     // Watchdog: the blank-map bug above produced NO error event, so `failed`
     // never flipped and users saw an empty panel with no explanation. If the
     // style has not loaded well after any plausible slow-network load, show

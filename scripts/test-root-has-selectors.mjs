@@ -209,8 +209,10 @@ const CSS = strip(dockMod.SANTA_DOCK_CSS || "");
   ok(SANTA_DOCK_ROOT_CSS === "html{--wf-santa-dock:" + DOCK_H + "px}@media(min-width:720px){html{--wf-santa-dock:" + DOCK_H_WIDE + "px}}", "the root sheet declares the dock height for phones and from 720px");
   const layout = strip(read("app/layout.js"));
   ok(/import\s*\{\s*SANTA_DOCK_ROOT_CSS\s*\}\s*from\s*"\.\/components\/santaDockMetrics\.js"/.test(layout), "app/layout.js imports the root sheet from the plain metrics module");
-  const firstStyle = layout.slice(layout.indexOf('<style dangerouslySetInnerHTML={{ __html: ".wf-skip-link:focus'));
-  const firstStyleEnd = firstStyle.indexOf("}} />");
+  const firstStyleAt = layout.indexOf('<style dangerouslySetInnerHTML={styleHtml(".wf-skip-link:focus');
+  ok(firstStyleAt > 0, "the document's first inline <style> is found in app/layout.js");
+  const firstStyle = layout.slice(firstStyleAt);
+  const firstStyleEnd = firstStyle.indexOf(")} />");
   ok(firstStyleEnd > 0 && /\+\s*SANTA_DOCK_ROOT_CSS\b/.test(firstStyle.slice(0, firstStyleEnd)), "and concatenates it into the document's first inline <style> (so it exists before any content)");
   ok(!/"use client"/.test(read("app/components/santaDockMetrics.js").split("\n").filter((l) => !/^\s*\/\//.test(l)).join("\n")), "the metrics module is a plain module (a client module would hand the server layout a reference, not the string)");
 

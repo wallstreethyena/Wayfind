@@ -401,26 +401,24 @@ for (const today of ["2026-10-30", "2026-12-20", "2027-01-01"]) {
   ok(universal.rows[0].placeId === "ChIJvRBCrN9-54gRGZuuaCLGrQE", "Universal links to the existing Universal Orlando place");
   const stetsonShots = christmasStaticPhotos("stetson-mansion-christmas-2026-2", "Stetson Mansion");
   const winterShots = christmasStaticPhotos("winterfest-boat-parade-2026", "Winterfest");
-  ok(stetsonShots.length === 9 && stetsonShots[0].src.endsWith("/xmas_08c508314b0a24ca.jpg") && stetsonShots.every((p) => existsSync(path.join(root, "public", p.src))), "Stetson opens on its cover and every gallery file is on disk");
+  // 2026-11-12: the Stetson gallery was news photos (ABC Action News) with no
+  // permission on file, so it was removed. Credit is not permission.
+  ok(stetsonShots.length === 0 && !existsSync(path.join(root, "public/events/christmas-gallery/stetson-mansion-christmas-2026-2")), "Stetson has no static gallery and its news photo folder is gone");
   ok(winterShots.length === 6 && winterShots[0].src === christmasStaticPhotos("winterfest-boat-parade-fort-lauderdale-2026", "Winterfest")[0].src && winterShots.every((p) => existsSync(path.join(root, "public", p.src))), "Winterfest card id and event page slug share the same gallery files");
-  ok(stetsonShots.every((p) => p.credit && p.creditHref && p.alt === "Photo of Stetson Mansion") && winterShots.every((p) => /^Photo by Seminole Hard Rock/.test(p.credit)), "static photos carry a credit and a source link");
-  const stetsonCard = await withChristmasTicketPhotos(christmasTicketsModel([base({ id: "stetson-mansion-christmas-2026-2", place_id: null, venue: "Stetson Mansion", image: "/events/christmas/stetson-mansion-christmas-2026-2.webp" })], TODAY), {
-    noMemo: true,
-    readGoogle: async () => { throw new Error("static photos replace the venue rail"); },
-    readVault: async () => { throw new Error("static photos replace the venue rail"); },
-  });
-  ok(stetsonCard.rows[0].photos[0].src === stetsonShots[0].src && stetsonCard.rows[0].photos.length === 9, "the Stetson ticket card shows its gallery, cover first");
+  ok(winterShots.length > 0 && winterShots.every((p) => /^Photo by Seminole Hard Rock/.test(p.credit)), "static photos carry a credit and a source link");
+  const stetsonCard = await withChristmasTicketPhotos(christmasTicketsModel([base({ id: "stetson-mansion-christmas-2026-2", place_id: null, venue: "Stetson Mansion", image: null })], TODAY), { noMemo: true, readGoogle: async () => null, readVault: async () => [] });
+  ok(!(stetsonCard.rows[0].photos || []).some((p) => /christmas-gallery\/stetson|brightspot|Action News/i.test(JSON.stringify(p))), "the Stetson ticket card carries no news photo");
   let fetches = 0;
   const pageShots = await readChristmasEventPhotos("winterfest-boat-parade-fort-lauderdale-2026", "ChIJf45X0KoB2YgRUi5C_dEm-Q8", { label: "Winterfest", env: {}, fetchImpl: async () => { fetches += 1; return { ok: false, json: async () => [] }; } });
   ok(fetches === 0 && pageShots[0].src === winterShots[0].src && pageShots.length === 6, "the Winterfest event page uses the static gallery and does not read the place row");
   const listings = christmasBrowseListings([], TODAY);
   const sCard = listings.find((c) => c.id === "stetson-mansion-christmas-2026-2");
   const wCard = listings.find((c) => c.id === "winterfest-boat-parade-2026");
-  ok(sCard && sCard.image === stetsonShots[0].src && !/DanTD/.test(sCard.photoAttr || ""), "the Stetson browse card opens on its holiday gallery cover, not the daytime gate photo (intent batch 11x)");
+  ok(sCard && !sCard.image && !/DanTD|Action News/.test(sCard.photoAttr || ""), "the Stetson browse card shows the tile, not a news photo and not the daytime gate photo (intent batch 11x)");
   ok(wCard && wCard.image === winterShots[0].src && /Winterfest Boat Parade/.test(wCard.photoAttr || ""), "the Winterfest card shows the gallery cover and its credit");
   const featured = await withChristmasTicketPhotos(christmasTicketsModel(listings, TODAY), { noMemo: true, readGoogle: async () => null, readVault: async () => [] });
   const featuredStetson = featured.rows.find((r) => r.id === "stetson-mansion-christmas-2026-2");
-  ok(featuredStetson && featuredStetson.photos[0].src === stetsonShots[0].src && featuredStetson.photos.length === stetsonShots.length, "the Stetson featured card shows its gallery, cover first");
+  ok(featuredStetson && !(featuredStetson.photos || []).some((p) => /christmas-gallery\/stetson|Action News/i.test(JSON.stringify(p))), "the Stetson featured card carries no news photo");
   let fantasyCard = null;
   for (let page = 1; page < 40 && !fantasyCard; page++) {
     const out = christmasBrowsePage(listings, parseChristmasBrowseQuery({ page: String(page) }), TODAY);
@@ -529,8 +527,27 @@ ok(html.includes("data-christmas-filter") && html.includes(">Best rated<") && ht
   ok(/data-commerce-owner=\{affiliate \? undefined : "ChristmasTickets"\}/.test(comp.slice(comp.indexOf("export function TopPicks"))) && /onClick=\{affiliate \? undefined : \(\) => organizerTap\(row\)\}/.test(comp) && /import \{ XM_CARD_CSS, organizerTap \} from "\.\/ChristmasTicketCard\.js"/.test(comp) && !/commerce_cta_clicked/.test(comp),
     "pick organizer taps are recorded once here and /go taps by the beacon, under the same christmas_tickets surface");
   const page = strip(read("app/christmas-in-florida/page.js"));
-  ok(/const topPicks = christmasTopPicks\(tickets\);/.test(page) && /<ChristmasTickets model=\{tickets\} topPicks=\{topPicks\}/.test(page) && /setShow\(isSocialAdLanding\(Object\.fromEntries\(new URLSearchParams\(window\.location\.search\)\)\)\)/.test(comp) && /<SocialTopPicks picks=\{topPicks\} \/>/.test(comp) && /<div data-social-picks="" hidden=\{!show\}>/.test(comp),
+  ok(/const topPicks = christmasTopPicks\(tickets\);/.test(page) && /<ChristmasTickets model=\{tickets\} topPicks=\{topPicks\}/.test(page) && /isSocialAdLanding\(Object\.fromEntries\(new URLSearchParams\(window\.location\.search\)\)\)\) root\.setAttribute\(SOCIAL_AD_ATTR, ""\)/.test(comp) && /<SocialTopPicks picks=\{topPicks\} \/>/.test(comp) && /<div data-social-picks="">/.test(comp),
     "the cached page always carries the picks; only a social landing URL shows them, from the same featured rows");
+  ok(/<script dangerouslySetInnerHTML=\{\{ __html: SOCIAL_AD_SCRIPT \}\} \/>/.test(page) && page.indexOf("SOCIAL_AD_SCRIPT }}") < page.indexOf("<ChristmasTickets ")
+    && /\[data-social-picks\]\{display:none\}html\[data-wf-social\] \[data-social-picks\]\{display:block\}/.test(comp),
+    "the social mark is set by an inline script before the picks are parsed, so they are drawn in place with no layout shift");
+  ok(!/fetchpriority/.test(comp.slice(comp.indexOf("export function TopPicks"), comp.indexOf("export default function"))) && !/loading=\{i === 0/.test(comp),
+    "pick photos are lazy, so the hidden row never downloads them for Google or plain visitors");
+  {
+    const { SOCIAL_AD_SCRIPT, SOCIAL_AD_ATTR, isSocialAdLanding: isSocial } = await import("../lib/socialAdLanding.js");
+    const saved = { location: globalThis.location, document: globalThis.document };
+    let agree = true;
+    for (const q of ["?fbclid=abc", "?fbclid=", "?fbclid=%20", "?utm_source=Instagram", "?utm_source=google&gclid=1", "", "?utm_source=ig&x=1", "?utm_source=metaX", "?utm_source=%20meta%20"]) {
+      let set = null;
+      globalThis.location = { search: q };
+      globalThis.document = { documentElement: { setAttribute: (k) => { set = k; } } };
+      new Function(SOCIAL_AD_SCRIPT)();
+      if ((set === SOCIAL_AD_ATTR) !== isSocial(Object.fromEntries(new URLSearchParams(q)))) agree = false;
+    }
+    globalThis.location = saved.location; globalThis.document = saved.document;
+    ok(agree && SOCIAL_AD_ATTR === "data-wf-social", "the before-paint script and isSocialAdLanding agree on every landing URL");
+  }
 }
 {
   const cardsHtml = html.slice(html.indexOf('data-ticket-id="'));

@@ -513,12 +513,12 @@ function CITIES() {
   // The data is read with fs at runtime: every route that reaches lib/christmasResearch.js
   // must trace the file (next.config.js outputFileTracingIncludes), or the deployed lambda has none.
   const cfg = read("next.config.js");
-  for (const route of ["/api/events", "/api/events/christmas", "/api/christmas/browse", "/api/cron/affiliate-coverage", "/christmas-in-florida", "/florida-events/[slug]", "/sitemap.xml"]) {
+  for (const route of ["/api/events", "/api/events/christmas", "/api/christmas/browse", "/api/christmas/plan-votes", "/api/cron/affiliate-coverage", "/christmas-in-florida", "/florida-events/[slug]", "/sitemap.xml"]) {
     ok(cfg.includes(JSON.stringify(route) + ': ["./data/christmas-2026-research.json"]'), `next.config.js traces the research data into ${route}`);
   }
   ok(/readFileSync\(path\.join\(process\.cwd\(\), CHRISTMAS_RESEARCH_FILE\)/.test(read("lib/christmasResearch.js")) && !/christmas-2026-research\.json" with/.test(read("lib/christmasResearch.js")), "the module reads the file with fs (jsxLoad safe), never a JSON import");
   const importers = walkSource(path.join(ROOT, "app")).filter((f) => /from "[^"]*lib\/(?:christmasResearch|christmasBrowse|christmasCards|christmasEventPage)(?:\.js)?"/.test(readFileSync(f, "utf8"))).map((f) => path.relative(ROOT, f));
-  const traced = { "app/api/events/christmas/route.js": 1, "app/api/christmas/browse/route.js": 1, "app/api/cron/affiliate-coverage/route.js": 1, "app/christmas-in-florida/page.js": 1, "app/florida-events/[slug]/page.js": 1, "app/sitemap.js": 1 };
+  const traced = { "app/api/events/christmas/route.js": 1, "app/api/christmas/browse/route.js": 1, "app/api/christmas/plan-votes/route.js": 1, "app/api/cron/affiliate-coverage/route.js": 1, "app/christmas-in-florida/page.js": 1, "app/florida-events/[slug]/page.js": 1, "app/sitemap.js": 1 };
   ok(importers.length >= 5 && importers.every((f) => traced[f]), `every app file that reaches the research data is a traced route (${importers.join(", ")})`);
   const chunks = path.join(ROOT, ".next/static/chunks");
   // Only a production build (.next/BUILD_ID) has production chunks; `next dev` output is skipped.
