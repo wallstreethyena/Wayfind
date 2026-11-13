@@ -78,11 +78,13 @@ function fsExists(rel) { try { readFileSync(path.join(root, rel)); return true; 
 // 4. The page makes room: reserved space, never an overlay on words.
 {
   ok(/html\.wf-santa-docked body\{padding-bottom:calc\(var\(--wf-santa-dock,64px\) \+ env\(safe-area-inset-bottom\)\)\}/.test(CSS), "documents grow by the dock's height at the bottom");
-  ok(/html\.wf-santa-docked \.wf-scrollarea\{padding-bottom:calc\(var\(--wf-santa-dock,64px\) \+ 34px/.test(CSS) && /html\.wf-santa-docked body:has\(\.wf-scrollarea\)\{padding-bottom:0\}/.test(CSS), "the app shell gets the room inside its own scroll area, with no extra document scroll");
+  ok(/html\.wf-santa-docked \.wf-scrollarea\{padding-bottom:calc\(var\(--wf-santa-dock,64px\) \+ 34px/.test(CSS) && /html\.wf-santa-docked\.wf-has-scrollarea body\{padding-bottom:0\}/.test(CSS), "the app shell gets the room inside its own scroll area, with no extra document scroll");
   const phone = CSS.slice(CSS.indexOf("@media(max-width:520px){"));
   ok(/\.wf-site-feedback-dock\{display:none\}/.test(phone) && /\.wf-sd\{position:relative;bottom:auto;flex:0 0 auto\}/.test(phone) && /\.wf-sd-fb\{display:grid\}/.test(phone), "phone documents: the dock IS the bottom bar (in flow), the Feedback control moves into it");
   ok(CSS.indexOf("@media(max-width:520px){") > CSS.indexOf(".wf-sd-cta{flex:0 0 auto"), "the phone rules come after the base rules, so they win");
-  ok(/:has\(\.wf-bottom-nav\)\{--wf-santa-lift:78px\}/.test(CSS) && /bottom:var\(--wf-santa-lift\)/.test(CSS), "where the app shows its own bottom navigation, the dock sits above it");
+  // 2026-11-13: "is there a bottom nav / scroll area on this page" is an html.wf-has-* class kept by
+  // lib/rootPresence.js, not html:has() (scripts/test-root-has-selectors.mjs has the measurements).
+  ok(/html\.wf-has-bottom-nav \.wf-sd\{--wf-santa-lift:78px\}/.test(CSS) && /bottom:var\(--wf-santa-lift\)/.test(CSS), "where the app shows its own bottom navigation, the dock sits above it");
   ok(/\.wf-sd-av\{[^}]*overflow:hidden/.test(CSS) && /\.wf-sd\{[^}]*contain:layout paint/.test(CSS), "his moving parts are clipped to his own spot; the dock contains its own layout");
   ok(DOCK_H >= 56 && DOCK_H <= 72, "the dock stays slim (" + DOCK_H + "px)");
   ok(/\.wf-sd-msg\{[^}]*-webkit-line-clamp:2/.test(CSS) && /\.wf-sd-msg\{-webkit-line-clamp:3/.test(phone), "messages are clamped to fit inside the dock");
