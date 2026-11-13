@@ -3,6 +3,7 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { usePathname } from "next/navigation.js";
 import CommunityFooter from "./CommunityFooter";
+import { styleHtml } from "../../lib/styleHtml.js";
 
 // An allowlist keeps account, operational, and future private routes out of
 // this public-page control. Home already has feedback beside search/footer.
@@ -86,7 +87,7 @@ function FeedbackControl({ pathname }) {
     return () => document.removeEventListener("keydown", onKeyDown);
   }, [open]);
   return <>
-    <style dangerouslySetInnerHTML={{ __html: CSS }} />
+    <style dangerouslySetInnerHTML={styleHtml(CSS)} />
     <div className="wf-site-feedback-dock">
       <button ref={triggerRef} type="button" className={"wf-site-feedback-trigger" + (reservesSpace ? " wf-site-feedback-doc" : "")} aria-expanded={open} aria-controls={panelId} onClick={() => open ? closeFeedback() : setOpen(true)} style={open ? { visibility: "hidden" } : undefined}>Feedback</button>
     </div>

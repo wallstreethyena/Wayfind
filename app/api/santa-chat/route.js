@@ -21,6 +21,8 @@ import {
   santaModel,
   santaPageKind,
   santaPrompt,
+  santaReserveAnswer,
+  santaReserveIntent,
   santaSmallTalk,
   santaWrapReply,
 } from "../../../lib/santaChat.js";
@@ -161,6 +163,10 @@ export async function POST(req) {
 
   // Small talk (hi, who are you, lol, a joke): local in character answer, zero
   // cards, no pitch, no model call, no rate bucket.
+  // A table request: no model call, no ledger grant. The client asks /api/reserve/find with these fields.
+  const intent = santaReserveIntent(message, model.today);
+  if (intent) return answer({ ...santaReserveAnswer(intent), source: "reserve" });
+
   const chat = santaSmallTalk(message, message.length + turn);
   if (chat) return answer({ ...chat, source: "smalltalk" });
 

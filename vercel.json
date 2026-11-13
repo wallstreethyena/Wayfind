@@ -178,10 +178,6 @@
       "schedule": "10,25,40,55 * * * *"
     },
     {
-      "path": "/api/cron/credited-photos?run=1&limit=120",
-      "schedule": "37 */4 * * *"
-    },
-    {
       "path": "/api/cron/weekend-picks",
       "schedule": "0 15 * * 5"
     },
@@ -196,6 +192,10 @@
     {
       "path": "/api/cron/viator-bookings",
       "schedule": "15 */4 * * *"
+    },
+    {
+      "path": "/api/cron/reserve-reminders",
+      "schedule": "*/15 * * * *"
     }
   ]
 }

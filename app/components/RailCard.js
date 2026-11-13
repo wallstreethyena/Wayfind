@@ -230,7 +230,7 @@ export function RailNav({ railId, count, unit, total, loaded }) {
 // already know. When there is more beyond an edge, that edge dot shrinks —
 // that taper IS the "there's more this way" signal the text pill used to spell
 // out, carried by the same vocabulary as the rest of the strip.
-export function RailDots({ railId, count }) {
+export function RailDots({ railId, count, layoutKey = 0 }) {
   const [page, setPage] = useState(0);
   // v8.39 — THE DOTS COUNT PAGES, AND A PAGE STOPPED BEING ONE CARD.
   //
@@ -270,7 +270,7 @@ export function RailDots({ railId, count }) {
       if (ro) ro.disconnect();
       else if (typeof window !== "undefined") window.removeEventListener("resize", read);
     };
-  }, [railId, count]);
+  }, [railId, count, layoutKey]);
   if (!count || count < 2 || pages < 2) return null;
   // The sliding window. Clamped at both ends so the strip never shows blanks:
   // near the start it pins to 0, near the end it pins to pages - W, and only in

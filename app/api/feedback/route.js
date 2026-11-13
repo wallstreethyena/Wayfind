@@ -4,6 +4,7 @@
 import { waitUntil } from "@vercel/functions";
 import { randomUUID } from "node:crypto";
 import { notifyFeedback } from "../../../lib/feedbackNotification.js";
+import { evaluateProductionWrite, isSyntheticRequest } from "../../../lib/productionWriteFirewall.js";
 
 // Untrusted input, treated as such: the message is length-capped and stored as
 // data (never interpolated into anything executable), the fields the client may
@@ -42,6 +43,13 @@ export async function POST(req) {
 
   const sentiment = body && (body.sentiment === "up" || body.sentiment === "down") ? body.sentiment : null;
 
+  if (typeof isSyntheticRequest === "function" && isSyntheticRequest(req)) {
+    return Response.json(
+      { ok: false, stored: false, blocked: true, error: "synthetic_write_blocked" },
+      { status: 403, headers: { "cache-control": "no-store" } },
+    );
+  }
+
   const s = sb();
   // A note is accepted only when it is stored. Keep failures retryable and honest.
   if (!s) return Response.json({ ok: false, stored: false, error: "unconfigured" }, { status: 503 });
@@ -59,6 +67,23 @@ export async function POST(req) {
     user_id: /^[0-9a-f-]{36}$/i.test(String(body && body.userId || "")) ? body.userId : null,
     ua: str(req.headers.get("user-agent"), 300),
   };
+
+  if (typeof evaluateProductionWrite === "function" && globalThis.fetch && globalThis.fetch.__wfFirewallWrapped === true) {
+    const fw = evaluateProductionWrite({
+      surface: "feedback_submit",
+      table: "wf_feedback",
+      method: "POST",
+      targetUrl: `${s.url}/rest/v1/wf_feedback`,
+      payload: row,
+      req,
+    });
+    if (!fw.allowed) {
+      return Response.json(
+        { ok: false, stored: false, blocked: true, error: "production_write_blocked", reason: fw.reason },
+        { status: 403, headers: { "cache-control": "no-store" } },
+      );
+    }
+  }
 
   try {
     const r = await fetch(`${s.url}/rest/v1/wf_feedback`, {

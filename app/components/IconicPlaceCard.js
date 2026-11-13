@@ -65,6 +65,8 @@ import { normalizePlaceCardHref } from "../../lib/placeCardRoute.js";
 import { useCardTapIntent } from "./useCardTapIntent.js";
 import { trendPulseClass } from "../../lib/trendPulse.js";
 import { storedPlaceHeader } from "../../lib/locationHonesty.js";
+import { useReservePartner } from "../../lib/reserveClient.js";
+// The button itself rides inside the lazy partners chunk (see lib/reserveClient.js); the hook hands the card that component.
 
 // ---------------------------------------------------------------------------
 // Experience-tag chips (owner: "I need the cards to look like the cards from
@@ -262,6 +264,9 @@ const compactCount = (n) => Number(n) >= 1000
 // photoNoSpend (evergreen landing towns): the row's own no-spend `photo` only,
 // and the id retry below keeps nospend=1 — see lib/evergreenCities.js.
 const photoUrl = (p) => {
+  // The server withheld this photo (its licence credit could not be read), so
+  // no fallback may fetch it uncredited: the card shows its monogram.
+  if (p && p.photoWithheld) return null;
   if (typeof p?.photo === "string" && /^\/api\/photo\/stored\/[A-Za-z0-9_-]+(?:[?#]|$)/.test(p.photo)) return p.photo;
   if (p && p.photoNoSpend) return p.photo || ownedPlacePhotoSrc(p.place_id || p.id, 640, true) || null;
   const ref = p && (p.photoRef || p.photo_ref);
@@ -330,6 +335,12 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
   // dislike but not share left `fb.hydrated` false, so `doShare` resolved to
   // null and the Share button was dead on exactly the surfaces that looked
   // most correctly wired. Three of four is not wired.
+  // "Reserve a table": fills the existing cta slot ONLY when the caller did not
+  // fill it (one wide button per card, never two) and the place is a Wayfind
+  // reservation partner. A hook, so it sits above the early return; a caller
+  // cta passes null, which opts out of the subscription entirely. False on the
+  // server and the hydrating render, so server HTML never differs.
+  const ReserveSlot = useReservePartner(cta ? null : (place && place.id));
   const needsFallback = !cardActionsReadOnly && !(onSave && onLike && onDislike && onShare);
   const fb = useCardActions(needsFallback);
   // LIVE QUARANTINE (2026-09-10). A pinned product that dies in the
@@ -554,7 +565,7 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
     <li ref={cardRef} data-iconic-place-card data-card-opens-detail data-place-id={place.id}
       onPointerDown={tapIntent.onPointerDown} onPointerMove={tapIntent.onPointerMove}
       onPointerUp={tapIntent.onPointerUp} onPointerCancel={tapIntent.onPointerCancel}
-      onClick={openCard} className={`wf-place-card${fallCardClass(place.id, siteDay)}${spookyOverFall(place, siteDay)}${trendPulseClass(place)}${awardWinnerClass(award)}${isCuratorPick ? " is-curator-pick" : ""}${isLikedNow ? " is-liked" : ""}${isDislikedNow ? " is-disliked" : ""}${hasTake ? "" : " is-no-take"}${take && editorialMore && cardHref ? " has-more" : ""}${cta ? " has-cta" : ""}`} style={{ listStyle: "none", cursor: cardHref ? "pointer" : "default" }}>
+      onClick={openCard} className={`wf-place-card${fallCardClass(place.id, siteDay)}${spookyOverFall(place, siteDay)}${trendPulseClass(place)}${awardWinnerClass(award)}${isCuratorPick ? " is-curator-pick" : ""}${isLikedNow ? " is-liked" : ""}${isDislikedNow ? " is-disliked" : ""}${hasTake ? "" : " is-no-take"}${take && editorialMore && cardHref ? " has-more" : ""}${cta || ReserveSlot ? " has-cta" : ""}`} style={{ listStyle: "none", cursor: cardHref ? "pointer" : "default" }}>
       {/* v8.62 (owner, 2026-08-26, live): the Wayfind Score sits in the top
           right corner of the CARD, never on the photo. Direct child of
           .wf-place-card so the shared css.js rule anchors it to the card. */}
@@ -796,7 +807,7 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
               card's detail sheet (the <li> opens on any click that is not
               inside an a/button/etc — this wrapper is neither, so it needs
               its own guard). */}
-          {cta ? <div className="wf-place-card-cta" onClick={(e) => e.stopPropagation()}>{cta}</div> : null}
+          {cta ? <div className="wf-place-card-cta" onClick={(e) => e.stopPropagation()}>{cta}</div> : (ReserveSlot ? <ReserveSlot place={place} surface={surface} /> : null)}
 
           {/* v8.34 — the creator credit sits in the bottom band, directly above
               the actions (see css.js .wf-place-card-credit). It carries the

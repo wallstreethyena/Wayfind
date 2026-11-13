@@ -120,8 +120,8 @@ assert.equal(tourCta({ ...good, offerId: "236862P2" }).kind, "none", "a denied S
 assert.equal(tourCta({ ...good, label: "Book now" }).kind, "none", "a label that does not name the place is refused");
 // The HHN food guide sells the admission its own teaser says you need.
 const themeParkChristmas = guidePrimaryCta(GUIDES["florida-theme-park-christmas-2026"]);
-assert.equal(new URLSearchParams(themeParkChristmas.href.split("?")[1]).get("provider"), "undercover_tourist");
-assert.equal(new URLSearchParams(themeParkChristmas.href.split("?")[1]).get("offer"), "38", "theme park Christmas guide sells Mickey's Very Merry Christmas Party");
+assert.equal(new URLSearchParams(themeParkChristmas.href.split("?")[1]).get("provider"), "viator");
+assert.equal(new URLSearchParams(themeParkChristmas.href.split("?")[1]).get("offer"), "3805P5", "theme park Christmas guide sells Mickey's Very Merry Christmas Party through Viator's exact party ticket");
 const hhnFood = guidePrimaryCta(GUIDES["orlando-halloween-food-2026"]);
 assert.equal(hhnFood == null || !String(hhnFood.href || "").includes("offer=19"), true, "the Halloween food guide does not sell the ended HHN ticket");
 

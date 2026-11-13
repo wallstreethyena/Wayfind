@@ -67,6 +67,7 @@ import { nowContext } from "../../../lib/nowContext";
 import { guidePicksForNow, guideNowHeadline, guideNowExplainer, guideWeather, indoorSiblingFor, indoorFromInventory, regionCity, regionCoords } from "../../../lib/guideNow";
 import { CATEGORY_SECTION, existingTypeSignals } from "../../../lib/placeCategory";
 import { wayfindScore } from "../../../lib/wayfindScore";
+import { styleHtml } from "../../../lib/styleHtml.js";
 
 /**
  * Rating + review count for a place from OUR OWN inventory.
@@ -881,7 +882,7 @@ export default async function GuidePage({ params }) {
       <nav aria-label="Breadcrumb" style={{ display: "flex", gap: 10, alignItems: "center", marginBottom: 18 }}>
         <ReturnToWayfind style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "8px 14px", borderRadius: 999, background: "#161B22", border: "1px solid #21262D", color: "#FF8A3D", fontSize: 13.5, fontWeight: 800, textDecoration: "none" }} />
       </nav>
-      <style dangerouslySetInnerHTML={{ __html: `
+      <style dangerouslySetInnerHTML={styleHtml(`
         .wf-guide-article{max-width:860px;margin:0 auto}
         .wf-guide-intro{max-width:760px;font-family:Georgia,"Times New Roman",serif;font-size:21px;line-height:1.55;color:#F1F5F9}
         .wf-guide-disclosure{font-size:13px;line-height:1.5;color:#94A3B8;margin:12px 0 20px;padding:0}
@@ -955,7 +956,7 @@ export default async function GuidePage({ params }) {
         }
         ${WF_PLACE_CARD_CSS}
         ${GUIDE_EDITORIAL_CSS}
-      ` }} />
+      `)} />
       {faqLd ? <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }} /> : null}
       {itemListLd ? <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListLd) }} /> : null}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "Article", headline: g.title, description: g.description, ...((g.published || g.updated) ? { datePublished: ldDateTime(g.published || g.updated) } : {}), ...(g.updated ? { dateModified: ldDateTime(g.updated) } : {}), ...(articleImage ? { image: articleImage } : {}), author: { "@type": "Person", name: "Gabriel Pereira", url: SITE_URL + "/about" }, publisher: { "@type": "Organization", name: "WAYFIND LLC", logo: { "@type": "ImageObject", url: SITE_URL + "/icon-512.png" } }, mainEntityOfPage: SITE_URL + "/guides/" + params.slug }) }} />
