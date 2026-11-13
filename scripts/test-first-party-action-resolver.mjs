@@ -637,6 +637,9 @@ const makeProbe = ({ status = 200, finalUrl = null, html = "", error = null } = 
   ok(pHigh > pFree, `10d. priority score ranks high-intent ticketed gap (${pHigh}) above free outdoor park (${pFree})`);
   ok(classifyCtaGap({ place_id: "ChIJ_free", name: "Celery Fields", google_types: ["park"] }, { editorial: { goodToKnow: "Free admission." } }) === "F",
     "10e. classifyCtaGap classifies verified free outdoor place as Class F");
+  const detailSheetSrc = readFileSync(new URL("../app/components/sheets/Detail.js", import.meta.url), "utf8");
+  ok(/primaryCta\.type === DETAIL_CTA_TYPES\.reserve\s*&&\s*primaryCta\.href === "#reserve"/.test(detailSheetSrc),
+    "10f. Detail.js only intercepts '#reserve' for in-app ReserveSheet so external https:// reservation URLs render outbound links");
 }
 
 if (failures.length > 0) {

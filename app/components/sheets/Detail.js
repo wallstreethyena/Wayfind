@@ -318,8 +318,8 @@ function PrimaryActionButton({ primaryCta, detail, kind, viaTours, locName, logE
     );
   }
 
-  // Wayfind table request: opens the lazy sheet, never navigates ("#reserve" is a marker, not a link).
-  if (primaryCta.type === DETAIL_CTA_TYPES.reserve) {
+  // Wayfind table request: opens the lazy sheet when href is "#reserve"; verified external https:// reservation URLs fall through to the outbound <a> below.
+  if (primaryCta.type === DETAIL_CTA_TYPES.reserve && primaryCta.href === "#reserve") {
     return (
       <button ref={ctaRef} type="button" data-reserve-cta="1" aria-label={`Reserve a table at ${detail.name}`} onClick={() => { onClick(); openReserveSheet(detail, { surface: "detail" }); }} style={style}>
         <span>{primaryCta.label}</span>
