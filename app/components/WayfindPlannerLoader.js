@@ -23,6 +23,22 @@ import {
   dismissProactiveOffers,
   proactiveWaitsForAdPicks,
 } from "../../lib/plannerProactive.js";
+import { siteTodayStr } from "../../lib/siteTime.js";
+import { pickCharacter, santaOffPath } from "./companionCharacter.js";
+
+// Santa season: the offer is Santa's, popped up in place of his dock and
+// pointing at the button (owner 2026-11-13). Lazy, so his artwork stays out of
+// first paint and out of every page that never shows an offer.
+const PlannerSantaOffer = dynamic(() => import("./PlannerSantaOffer"), { ssr: false });
+
+function santaSeasonOn(pathname) {
+  try {
+    if (santaOffPath(pathname)) return false;
+    return pickCharacter(pathname, siteTodayStr()) === "santa";
+  } catch {
+    return false;
+  }
+}
 
 const WayfindPlannerSheet = dynamic(() => import("./WayfindPlannerSheet"), {
   ssr: false,
@@ -161,9 +177,38 @@ export default function WayfindPlannerLoader() {
     };
   }, [pathname, sheetMounted, ctxTick]);
 
+  const dismissOffer = () => {
+    if (!proactiveOffer) return;
+    dismissProactiveOffers(safeSessionStorage(), proactiveOffer.kind);
+    setProactiveOffer(null);
+  };
+  const acceptOffer = () => {
+    const offer = proactiveOffer;
+    if (!offer) return;
+    setProactiveOffer(null);
+    const appCtx = (typeof window !== "undefined" && window.__wfPlannerContext) || {};
+    openWayfindPlanner({
+      surface: `proactive_${offer.kind}`,
+      city: offer.city || "",
+      activeTripKey: offer.activeTripKey || "",
+      seedPlace: offer.kind === "place" ? appCtx.activePlace || null : null,
+      prompt: offer.seedPrompt,
+      pathname,
+    });
+  };
+  const santaOffer = Boolean(proactiveOffer && !sheetMounted && santaSeasonOn(pathname));
+
   return (
     <>
-      {proactiveOffer && !sheetMounted && (
+      {santaOffer && (
+        <PlannerSantaOffer
+          message={proactiveOffer.message}
+          ctaLabel={proactiveOffer.ctaLabel}
+          onOpen={acceptOffer}
+          onDismiss={dismissOffer}
+        />
+      )}
+      {proactiveOffer && !sheetMounted && !santaOffer && (
         <>
           <style dangerouslySetInnerHTML={styleHtml(PROACTIVE_CSS)} />
           <aside
@@ -178,10 +223,7 @@ export default function WayfindPlannerLoader() {
                 className="wfp-pro-x"
                 data-wf-proactive-dismiss="1"
                 aria-label="Dismiss trip planner suggestion"
-                onClick={() => {
-                  dismissProactiveOffers(safeSessionStorage(), proactiveOffer.kind);
-                  setProactiveOffer(null);
-                }}
+                onClick={dismissOffer}
               >
                 ×
               </button>
@@ -189,19 +231,7 @@ export default function WayfindPlannerLoader() {
             <button
               type="button"
               className="wfp-pro-cta"
-              onClick={() => {
-                const offer = proactiveOffer;
-                setProactiveOffer(null);
-                const appCtx = (typeof window !== "undefined" && window.__wfPlannerContext) || {};
-                openWayfindPlanner({
-                  surface: `proactive_${offer.kind}`,
-                  city: offer.city || "",
-                  activeTripKey: offer.activeTripKey || "",
-                  seedPlace: offer.kind === "place" ? appCtx.activePlace || null : null,
-                  prompt: offer.seedPrompt,
-                  pathname,
-                });
-              }}
+              onClick={acceptOffer}
             >
               ✨ {proactiveOffer.ctaLabel}
             </button>

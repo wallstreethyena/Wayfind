@@ -7,9 +7,10 @@
 //      Santa season (`voice: "santa"`) and neutral Wayfind voice otherwise.
 //   2. Context-aware, session-capped proactive offer pill on place, city,
 //      Christmas, and unassigned-save moments (`lib/plannerProactive.js`).
-//   3. Multi-day proposed plan preview showing real Wayfind cards, confidence
-//      pills (`Confirmed` / `Check hours`), deterministic distance connectors,
-//      and explicit `Save itinerary` confirmation before committing.
+//   3. Multi-day proposed plan written as one iMessage style text bubble
+//      (owner reference recording 2026-11-13): emoji bullet per real Wayfind
+//      stop, "Check hours" when not confirmed, and explicit
+//      `Add to my itinerary` confirmation before committing.
 //   4. Conversational follow-up edits on an active trip with immediate feedback
 //      and 1-tap `Undo`.
 
@@ -19,8 +20,8 @@ import { siteTodayStr } from "../../lib/siteTime.js";
 import { setLocal } from "../../lib/localStore.js";
 import { safeLocalStorage } from "../../lib/safeStorage.js";
 import { styleHtml } from "../../lib/styleHtml.js";
-import { railPhotoSrc } from "../../lib/cardPhotoRequest.js";
-import SafeImg from "./SafeImg.js";
+import { SantaSvg } from "./santaArt.js";
+import { plannerPersona, plannerVoiceForCharacter, pickLine, stopEmoji } from "../../lib/plannerPersona.js";
 import { pickCharacter, santaOffPath } from "./companionCharacter.js";
 import {
   PLANNER_OPEN_EVENT,
@@ -43,7 +44,8 @@ function defaultVoiceForPath(pathname) {
   try {
     const today = siteTodayStr();
     if (santaOffPath(pathname)) return "wayfind";
-    return pickCharacter(pathname, today) === "santa" ? "santa" : "wayfind";
+    // The host on the page owns the chat: Santa in Santa season, Boo in October.
+    return plannerVoiceForCharacter(pickCharacter(pathname, today));
   } catch {
     return "wayfind";
   }
@@ -93,14 +95,6 @@ function starterChipsForContext({ pathname, city, hasActiveTrip, voice }) {
   ];
 }
 
-function stopThumbSrc(stop) {
-  if (!stop) return "";
-  return railPhotoSrc({
-    id: stop.placeId || stop.id,
-    photo: stop.photo,
-  }) || "";
-}
-
 const PLANNER_CSS = `
 .wfp-proactive{position:fixed;right:14px;bottom:88px;z-index:935;max-width:300px;background:#0F172A;border:1px solid rgba(249,115,22,.45);border-radius:16px;padding:11px 13px;color:#F8FAFC;font-family:var(--wf-sans),system-ui,sans-serif;box-shadow:0 12px 30px rgba(0,0,0,.48);display:flex;flex-direction:column;gap:8px;animation:wfp-in .24s ease-out both}
 @media (max-width:640px){.wfp-proactive{left:12px;right:12px;bottom:82px;max-width:none}}
@@ -109,36 +103,129 @@ const PLANNER_CSS = `
 .wfp-pro-msg{font-size:13.5px;font-weight:700;line-height:1.35;color:#F8FAFC}
 .wfp-pro-x{all:unset;cursor:pointer;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;color:#94A3B8;font-size:18px;flex:none}
 .wfp-pro-cta{all:unset;box-sizing:border-box;cursor:pointer;min-height:40px;padding:8px 14px;border-radius:10px;background:#F97316;color:#0D1117;font-size:13px;font-weight:800;text-align:center}
-.wfp-back{position:fixed;inset:0;z-index:99500;background:rgba(4,8,16,.72);backdrop-filter:blur(4px);display:flex;align-items:flex-end;justify-content:center}
+.wfp-back{position:fixed;inset:0;z-index:99500;background:rgba(0,0,0,.6);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);display:flex;align-items:flex-end;justify-content:center;animation:wfp-fade .2s ease-out both}
 @media (min-width:720px){.wfp-back{align-items:center;padding:20px}}
-.wfp-modal{box-sizing:border-box;width:100%;max-width:640px;max-height:88dvh;display:flex;flex-direction:column;background:#0B111E;border:1px solid #1E293B;border-radius:22px 22px 0 0;color:#F8FAFC;font-family:var(--wf-sans),system-ui,sans-serif;box-shadow:0 24px 64px rgba(0,0,0,.6);overflow:hidden}
-@media (min-width:720px){.wfp-modal{border-radius:22px;max-height:84dvh}}
-.wfp-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 16px;border-bottom:1px solid #1E293B;background:#0F172A}
-.wfp-title-wrap{min-width:0}
-.wfp-badge{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:#F97316}
-.wfp-title{margin:2px 0 0;font-size:17px;font-weight:800;color:#F8FAFC}
-.wfp-close{all:unset;cursor:pointer;min-width:44px;min-height:44px;border-radius:12px;display:grid;place-items:center;color:#94A3B8;font-size:22px}
-.wfp-close:focus-visible,.wfp-pro-cta:focus-visible,.wfp-send:focus-visible,.wfp-save-btn:focus-visible{outline:2px solid #F97316;outline-offset:2px}
-.wfp-body{flex:1 1 auto;min-height:0;overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:12px}
-.wfp-msg{max-width:90%;padding:10px 13px;border-radius:14px;font-size:14px;line-height:1.45}
-.wfp-msg.assistant{align-self:flex-start;background:#131C2E;border:1px solid #1E293B;color:#E2E8F0}
-.wfp-msg.user{align-self:flex-end;background:#F97316;color:#0D1117;font-weight:700}
-.wfp-plan{background:#0F172A;border:1px solid rgba(249,115,22,.35);border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:12px}
-.wfp-plan-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;border-bottom:1px solid #1E293B;padding-bottom:10px}
-.wfp-day{display:flex;flex-direction:column;gap:8px}
-.wfp-day-hdr{display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding-top:4px}
-.wfp-stop{display:flex;gap:10px;padding:10px;border-radius:12px;background:#131C2E;border:1px solid #1E293B;align-items:flex-start}
-.wfp-thumb{width:56px;height:56px;border-radius:10px;object-fit:cover;flex:none;background:#1E293B}
-.wfp-conn{margin-left:22px;padding:2px 0 2px 10px;border-left:2px dashed #334155;font-size:11.5px;color:#94A3B8;font-weight:600}
-.wfp-save-bar{position:sticky;bottom:-14px;z-index:2;display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;padding:10px 0 4px;background:rgba(15,23,42,.96);backdrop-filter:blur(6px);border-top:1px solid #1E293B}
-.wfp-save-btn{all:unset;box-sizing:border-box;cursor:pointer;min-height:46px;padding:0 20px;border-radius:12px;background:#F97316;color:#0D1117;font-size:14.5px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;gap:6px}
-.wfp-chips{display:flex;flex-wrap:wrap;gap:6px}
-.wfp-chip{all:unset;box-sizing:border-box;cursor:pointer;min-height:38px;padding:6px 12px;border-radius:999px;background:#131C2E;border:1px solid #334155;color:#CBD5E1;font-size:12.5px;font-weight:600}
-.wfp-foot{display:flex;gap:8px;padding:12px 16px calc(12px + env(safe-area-inset-bottom));border-top:1px solid #1E293B;background:#0F172A}
-.wfp-in{flex:1;min-width:0;height:46px;border-radius:12px;border:1px solid #334155;background:#0B111E;color:#F8FAFC;padding:0 12px;font:500 15px var(--wf-sans),system-ui,sans-serif}
-.wfp-send{all:unset;box-sizing:border-box;cursor:pointer;height:46px;padding:0 18px;border-radius:12px;background:#F97316;color:#0D1117;font-size:14px;font-weight:800;display:grid;place-items:center}
-.wfp-send:disabled{opacity:.5;cursor:default}
+@keyframes wfp-fade{from{opacity:0}to{opacity:1}}
+@keyframes wfp-up{from{transform:translateY(40px);opacity:.4}to{transform:none;opacity:1}}
+.wfp-modal{box-sizing:border-box;width:100%;max-width:520px;height:92dvh;max-height:92dvh;display:flex;flex-direction:column;background:#000;border-radius:14px 14px 0 0;color:#fff;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",var(--wf-sans),system-ui,sans-serif;box-shadow:0 24px 64px rgba(0,0,0,.7);overflow:hidden;animation:wfp-up .28s cubic-bezier(.2,.85,.3,1) both}
+@media (min-width:720px){.wfp-modal{border-radius:22px;height:84dvh;max-height:760px}}
+.wfp-head{flex:none;position:relative;display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 56px 8px;background:rgba(28,28,30,.94);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);border-bottom:.5px solid rgba(84,84,88,.65)}
+.wfp-grab{width:36px;height:5px;border-radius:3px;background:#48484A;margin-bottom:5px}
+.wfp-av{flex:none;width:30px;height:30px;border-radius:50%;background:linear-gradient(180deg,#A2A2A7,#7C7C82);overflow:hidden;display:grid;place-items:center}
+.wfp-av{position:relative}
+.wfp-av svg{position:absolute;width:170%!important;height:224%!important;left:-32%;top:-34%}
+.wfp-av.wf{background:#F97316;color:#fff;font-weight:800;font-size:14px}
+.wfp-head .wfp-av{width:46px;height:46px}
+.wfp-head .wfp-av.wf{font-size:20px}
+.wfp-name{font-size:12px;font-weight:500;color:#fff;display:flex;align-items:center;gap:2px}
+.wfp-name small{color:#8E8E93;font-size:12px}
+.wfp-close{all:unset;position:absolute;left:4px;top:22px;cursor:pointer;min-width:44px;min-height:44px;display:grid;place-items:center;color:#0A84FF}
+.wfp-close:focus-visible,.wfp-send:focus-visible,.wfp-save-btn:focus-visible{outline:2px solid #0A84FF;outline-offset:2px}
+.wfp-body{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:10px 12px 14px;display:flex;flex-direction:column;gap:2px}
+.wfp-stamp{align-self:center;text-align:center;font-size:11px;color:#8E8E93;margin:4px 0 10px;line-height:1.35}
+.wfp-stamp b{font-weight:600}
+.wfp-row{display:flex;align-items:flex-end;gap:7px;animation:wfp-pop .22s cubic-bezier(.2,.9,.3,1.15) both}
+.wfp-row.user{justify-content:flex-end}
+.wfp-row.gap{margin-top:9px}
+.wfp-host{flex:none;width:46px;height:60px;margin-bottom:-2px;visibility:hidden}
+.wfp-host img{width:100%;height:100%;object-fit:contain;display:block}
+.wfp-host.wf{width:28px;height:28px;border-radius:50%;background:#F97316;color:#fff;font-weight:800;font-size:13px;display:grid;place-items:center}
+.wfp-row.last .wfp-host{visibility:visible}
+.wfp-row.assistant .wfp-host{animation:wfp-hop .5s cubic-bezier(.3,.7,.35,1.4) both}
+@keyframes wfp-hop{0%{transform:translateY(6px) scale(.9)}60%{transform:translateY(-3px) scale(1.04)}100%{transform:none}}
+@keyframes wfp-pop{from{opacity:0;transform:translateY(6px) scale(.97)}to{opacity:1;transform:none}}
+.wfp-msg{position:relative;max-width:76%;padding:7px 12px 8px;border-radius:18px;font-size:16px;line-height:1.3;word-wrap:break-word;white-space:pre-wrap}
+.wfp-msg.assistant{background:#26252A;color:#fff}
+.wfp-msg.user{background:linear-gradient(180deg,#2B8CFF,#0A6CFF);color:#fff}
+.wfp-tail{position:absolute;bottom:0;width:17px;height:21px;display:none}
+.wfp-row.last .wfp-tail{display:block}
+.wfp-msg.assistant .wfp-tail{left:-6px}
+.wfp-msg.user .wfp-tail{right:-6px;transform:scaleX(-1)}
+.wfp-read{align-self:flex-end;font-size:11px;color:#8E8E93;margin:2px 4px 0 0}
+.wfp-typing{display:inline-flex;align-items:center;gap:4px;padding:12px 14px}
+.wfp-typing i{width:8px;height:8px;border-radius:50%;background:#8E8E93;animation:wfp-dot 1.3s ease-in-out infinite}
+.wfp-typing i:nth-child(2){animation-delay:.18s}
+.wfp-typing i:nth-child(3){animation-delay:.36s}
+@keyframes wfp-dot{0%,60%,100%{opacity:.35;transform:translateY(0)}30%{opacity:1;transform:translateY(-3px)}}
+.wfp-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.wfp-plan{margin:2px 0 2px 53px;max-width:min(84%,calc(100% - 53px));align-self:flex-start;background:#26252A;border-radius:18px;padding:9px 13px 10px;display:flex;flex-direction:column;gap:6px;font-size:15px;line-height:1.32;animation:wfp-pop .25s ease-out both}
+.wfp-plan a{color:#fff;text-decoration:none}
+.wfp-li{display:flex;gap:6px}
+.wfp-li-e{flex:none;width:20px;text-align:center}
+.wfp-li small{display:block;color:#AEAEB2;font-size:12.5px;line-height:1.3}
+.wfp-day{display:flex;flex-direction:column;gap:6px}
+.wfp-day-hdr{font-weight:700;padding-top:4px}
+.wfp-save-bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding-top:6px}
+.wfp-save-btn{all:unset;box-sizing:border-box;cursor:pointer;min-height:44px;padding:0 20px;border-radius:999px;background:#0A84FF;color:#fff;font-size:15px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.wfp-foot{flex:none;display:flex;align-items:flex-end;gap:8px;padding:8px 10px calc(8px + env(safe-area-inset-bottom));background:rgba(28,28,30,.94);border-top:.5px solid rgba(84,84,88,.65)}
+.wfp-field{flex:1;min-width:0;display:flex;align-items:center;min-height:36px;border:1px solid #3A3A3C;border-radius:18px;padding:0 3px 0 13px;background:#000}
+.wfp-in{flex:1;min-width:0;height:34px;border:0;outline:0;background:transparent;color:#fff;font:400 16px -apple-system,BlinkMacSystemFont,var(--wf-sans),system-ui,sans-serif}
+.wfp-in::placeholder{color:#8E8E93}
+.wfp-modal .wfp-in:focus,.wfp-modal .wfp-in:focus-visible{outline:none!important;box-shadow:none!important}
+.wfp-field:focus-within{border-color:#48484A}
+.wfp-send{all:unset;box-sizing:border-box;cursor:pointer;flex:none;width:30px;height:30px;border-radius:50%;background:#0A84FF;color:#fff;display:grid;place-items:center}
+.wfp-send:disabled{background:#3A3A3C;color:#8E8E93;cursor:default}
+@media (prefers-reduced-motion:reduce){.wfp-back,.wfp-modal,.wfp-row,.wfp-plan,.wfp-typing i{animation:none!important}}
 `;
+
+const TAIL_PATH = "M17 0v21H4.5C2 21 .6 20.6 0 20.2 4 18.8 6.5 15 6.5 9V0z";
+
+function BubbleTail({ fill }) {
+  return (
+    <svg className="wfp-tail" viewBox="0 0 17 21" aria-hidden="true">
+      <path d={TAIL_PATH} fill={fill} />
+    </svg>
+  );
+}
+
+const BOO_POSE = "/boo/poses/01-pointing-right-star-wink-128.webp";
+
+// The contact photo in the header: the season's host.
+function PlannerAvatar({ voice }) {
+  if (voice === "santa") {
+    return (
+      <span className="wfp-av" aria-hidden="true">
+        <SantaSvg face="happy" arm="rest" glow={false} />
+      </span>
+    );
+  }
+  if (voice === "boo") {
+    return (
+      <span className="wfp-av" aria-hidden="true" style={{ background: "#2C2C2E" }}>
+        <img src={BOO_POSE} alt="" width={46} height={46} style={{ width: "100%", height: "100%", objectFit: "contain" }} />
+      </span>
+    );
+  }
+  return <span className="wfp-av wf" aria-hidden="true">W</span>;
+}
+
+// The host standing next to his own bubbles, full body, like the owner's
+// reference recording (2026-11-13): Santa with his wand beside the dots.
+function HostFigure({ voice }) {
+  if (voice === "santa") {
+    return (
+      <span className="wfp-host" aria-hidden="true">
+        <SantaSvg face="happy" arm="wand" glow={false} />
+      </span>
+    );
+  }
+  if (voice === "boo") {
+    return (
+      <span className="wfp-host" aria-hidden="true">
+        <img src={BOO_POSE} alt="" width={46} height={60} />
+      </span>
+    );
+  }
+  return <span className="wfp-host wf" aria-hidden="true">W</span>;
+}
+
+function stampTime() {
+  try {
+    return new Date().toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", timeZone: "America/New_York" });
+  } catch {
+    return "";
+  }
+}
 
 export default function WayfindPlannerSheet() {
   const pathname = usePathname() || "/";
@@ -157,6 +244,7 @@ export default function WayfindPlannerSheet() {
   const [savedTripKey, setSavedTripKey] = useState(null);
   const [undoSnapshot, setUndoSnapshot] = useState(null);
   const [lastEditSummary, setLastEditSummary] = useState(null);
+  const [openedAt, setOpenedAt] = useState("");
 
   const bodyRef = useRef(null);
   const inputRef = useRef(null);
@@ -165,6 +253,12 @@ export default function WayfindPlannerSheet() {
   const savedRef = useRef(null);
   savedRef.current = savedTripKey;
   const savingRef = useRef(false);
+  const recentRef = useRef([]);
+  const messagesRef = useRef([]);
+  messagesRef.current = messages;
+  // The phone keyboard shrinks the visual viewport, not the layout one: size the
+  // sheet to what is actually visible so the composer and newest reply stay up.
+  const [vv, setVv] = useState(null);
 
   const submitPlannerPrompt = useCallback(async (rawPrompt, overrideOpts = {}) => {
     const text = String(rawPrompt || "").trim().slice(0, 500);
@@ -179,6 +273,9 @@ export default function WayfindPlannerSheet() {
 
     setDraft("");
     setLoading(true);
+    // What the visitor already told the host this session (newest last), so a
+    // follow up like "Tampa" after "this weekend, two adults" keeps both.
+    recentRef.current = messagesRef.current.filter((m) => m.role === "user").map((m) => m.text).slice(-3);
     setLastEditSummary(null);
     setMessages((prev) => [...prev, { role: "user", text }]);
 
@@ -203,6 +300,7 @@ export default function WayfindPlannerSheet() {
           point: readStoredPoint(),
           activeTrip: currentActiveTrip,
           seedPlace: effSeed,
+          recent: recentRef.current,
         }),
       });
       const data = await res.json().catch(() => null);
@@ -211,7 +309,7 @@ export default function WayfindPlannerSheet() {
           ...prev,
           {
             role: "assistant",
-            text: "I ran into a snag checking Wayfind's listings right now. Your manual Itinerary tools are still completely ready to use.",
+            text: plannerPersona(effVoice).snag,
           },
         ]);
         return;
@@ -266,7 +364,7 @@ export default function WayfindPlannerSheet() {
         ...prev,
         {
           role: "assistant",
-          text: "Wayfind Planner couldn't reach the server right now. You can still manage your trips manually anytime.",
+          text: plannerPersona(effVoice).offline,
         },
       ]);
     } finally {
@@ -290,6 +388,7 @@ export default function WayfindPlannerSheet() {
       setContextCity(nextCity);
       setSeedPlace(detail.seedPlace || null);
       setActiveTripKey(detail.activeTripKey || null);
+      setOpenedAt((t) => t || stampTime());
       setOpen(true);
 
       trackPlannerEvent(PLANNER_EVENTS.OPENED, {
@@ -305,9 +404,7 @@ export default function WayfindPlannerSheet() {
             : [
                 {
                   role: "assistant",
-                  text: nextVoice === "santa"
-                    ? "Tell me where in Florida you are going, your dates, and what you love (lights, great food, kids, minimal driving) and I will build your itinerary from real Wayfind spots."
-                    : "Tell me where you're heading, your dates, and what matters most (great food, Christmas lights, kid-friendly, minimal driving). I'll build a grounded day-by-day Wayfind itinerary.",
+                  text: pickLine(plannerPersona(nextVoice).greet, siteTodayStr()),
                 },
               ]
         );
@@ -365,6 +462,22 @@ export default function WayfindPlannerSheet() {
       document.removeEventListener("keydown", onKey, true);
     };
   }, [open, handleClose]);
+
+  useEffect(() => {
+    if (!open || typeof window === "undefined" || !window.visualViewport) return undefined;
+    const v = window.visualViewport;
+    const sync = () => {
+      const kb = window.innerHeight - v.height > 120;
+      setVv(kb ? { h: Math.round(v.height), top: Math.round(v.offsetTop) } : null);
+    };
+    sync();
+    v.addEventListener("resize", sync);
+    v.addEventListener("scroll", sync);
+    return () => {
+      v.removeEventListener("resize", sync);
+      v.removeEventListener("scroll", sync);
+    };
+  }, [open]);
 
   useEffect(() => {
     if (!open || !bodyRef.current) return;
@@ -434,12 +547,11 @@ export default function WayfindPlannerSheet() {
     setLastEditSummary("Reverted the last change.");
   };
 
-  const chips = starterChipsForContext({
-    pathname,
-    city: contextCity,
-    hasActiveTrip: Boolean(activeTripKey || savedTripKey),
-    voice,
-  });
+  const host = voice || "wayfind";
+  const persona = plannerPersona(host);
+  let lastUserIdx = -1;
+  messages.forEach((m, i) => { if (m.role === "user") lastUserIdx = i; });
+
 
   return (
     <>
@@ -448,176 +560,97 @@ export default function WayfindPlannerSheet() {
         <div
           className="wfp-back"
           data-wf-planner-sheet="1"
+          style={vv ? { top: vv.top, bottom: "auto", height: vv.h } : undefined}
           onClick={(e) => {
             if (e.target === e.currentTarget) handleClose();
           }}
         >
-          <div className="wfp-modal" role="dialog" aria-modal="true" aria-label="Wayfind Trip Planner">
+          <div className="wfp-modal" style={vv ? { height: vv.h, maxHeight: vv.h, borderRadius: 0 } : undefined} role="dialog" aria-modal="true" aria-label={`Chat with ${persona.name}, Wayfind trip planner`}>
             <div className="wfp-head">
-              <div className="wfp-title-wrap">
-                <span className="wfp-badge">
-                  ✨ {voice === "santa" ? "Wayfind Planner · Holiday Edition" : "Wayfind Planner"}
-                </span>
-                <h2 className="wfp-title">
-                  {activeTripKey || savedTripKey ? "Refine Your Itinerary" : "Build a Trip with Wayfind"}
-                </h2>
-              </div>
-              <button type="button" className="wfp-close" aria-label="Close Wayfind Planner" onClick={handleClose}>
-                ×
+              <span className="wfp-grab" aria-hidden="true" />
+              <button type="button" className="wfp-close" aria-label="Close chat" onClick={handleClose}>
+                <svg width="13" height="22" viewBox="0 0 13 22" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M11 2 2 11l9 9" /></svg>
               </button>
+              <PlannerAvatar voice={host} />
+              <span className="wfp-name">
+                {persona.name} <small aria-hidden="true">›</small>
+              </span>
             </div>
 
             <div className="wfp-body" ref={bodyRef} aria-live="polite">
-              {messages.map((m, idx) => (
-                <div key={idx} className={`wfp-msg ${m.role === "user" ? "user" : "assistant"}`}>
-                  {m.text}
-                </div>
-              ))}
+              <div className="wfp-stamp">
+                <b>iMessage</b>
+                <br />
+                Today {openedAt}
+              </div>
+
+              {messages.map((m, idx) => {
+                const isUser = m.role === "user";
+                const prev = messages[idx - 1];
+                const next = messages[idx + 1];
+                const firstOfGroup = !prev || prev.role !== m.role;
+                // The typing dots continue Santa's group, so his last bubble keeps no tail then.
+                const lastOfGroup = next ? next.role !== m.role : !(loading && !isUser);
+                const cls = `wfp-row ${isUser ? "user" : "assistant"}${firstOfGroup && idx ? " gap" : ""}${lastOfGroup ? " last" : ""}`;
+                return (
+                  <div key={idx} className={cls}>
+                    {!isUser && <HostFigure voice={host} />}
+                    <div className={`wfp-msg ${isUser ? "user" : "assistant"}`}>
+                      <BubbleTail fill={isUser ? "#0A84FF" : "#26252A"} />
+                      {m.text}
+                    </div>
+                  </div>
+                );
+              })}
+
+              {lastUserIdx === messages.length - 1 && lastUserIdx >= 0 && !loading && (
+                <div className="wfp-read">Delivered</div>
+              )}
 
               {loading && (
-                <div className="wfp-msg assistant" style={{ color: "#94A3B8", fontStyle: "italic" }}>
-                  {voice === "santa"
-                    ? "Checking Wayfind's verified places, dates, and neighborhood clusters..."
-                    : "Searching Wayfind inventory and grouping stops by area..."}
+                <div className={`wfp-row assistant last${messages.length && messages[messages.length - 1].role === "assistant" ? "" : " gap"}`} data-wf-planner-typing="1">
+                  <HostFigure voice={host} />
+                  <div className="wfp-msg assistant wfp-typing" role="status">
+                    <BubbleTail fill="#26252A" />
+                    <i /><i /><i />
+                    <span className="wfp-sr">{persona.typing}</span>
+                  </div>
                 </div>
               )}
 
               {proposedPlan && (
                 <div className="wfp-plan" data-wf-proposed-plan="1">
-                  <div className="wfp-plan-head">
-                    <div>
-                      <div style={{ fontSize: 16, fontWeight: 800, color: "#F8FAFC" }}>{proposedPlan.title}</div>
-                      <div style={{ fontSize: 12.5, color: "#94A3B8", marginTop: 2 }}>
-                        {proposedPlan.city}, {proposedPlan.state}
-                        {proposedPlan.startDate ? ` · ${proposedPlan.startDate}${proposedPlan.endDate && proposedPlan.endDate !== proposedPlan.startDate ? ` to ${proposedPlan.endDate}` : ""}` : ""}
-                        {` · ${proposedPlan.days.reduce((s, d) => s + d.stops.length, 0)} stops`}
-                      </div>
-                    </div>
-                    {proposedPlan.confidenceSummary && (
-                      <span
-                        style={{
-                          fontSize: 11.5,
-                          fontWeight: 700,
-                          padding: "4px 9px",
-                          borderRadius: 999,
-                          background: "rgba(16,185,129,.14)",
-                          border: "1px solid rgba(16,185,129,.35)",
-                          color: "#6EE7B7",
-                        }}
-                      >
-                        {proposedPlan.confidenceSummary.confirmedCount} confirmed
-                        {proposedPlan.confidenceSummary.checkHoursCount > 0
-                          ? ` · ${proposedPlan.confidenceSummary.checkHoursCount} check hours`
-                          : ""}
-                      </span>
-                    )}
+                  <div style={{ fontWeight: 700 }}>
+                    {proposedPlan.title}
                   </div>
-
                   {proposedPlan.days.map((day, dIdx) => (
                     <div key={day.date || dIdx} className="wfp-day" data-wf-proposed-day={day.date || String(dIdx)}>
-                      <div className="wfp-day-hdr">
-                        <strong style={{ fontSize: 13.5, color: "#F97316", textTransform: "uppercase", letterSpacing: ".04em" }}>
-                          {day.label}
-                        </strong>
-                        {day.areaSummary && (
-                          <span style={{ fontSize: 11.5, color: "#94A3B8" }}>{day.areaSummary}</span>
-                        )}
-                      </div>
-
-                      {day.stops.map((stop, sIdx) => {
-                        const thumb = stopThumbSrc(stop);
-                        const isConfirmed = stop.confidence && stop.confidence.level === "confirmed";
-                        return (
-                          <div key={stop.id}>
-                            <div className="wfp-stop" data-wf-proposed-stop={stop.id}>
-                              {thumb ? (
-                                <SafeImg
-                                  src={thumb}
-                                  alt=""
-                                  compact
-                                  category={stop.category}
-                                  className="wfp-thumb"
-                                  loading="lazy"
-                                  style={{ width: 52, height: 52, borderRadius: 10, objectFit: "cover", flexShrink: 0 }}
-                                />
-                              ) : (
-                                <div className="wfp-thumb" style={{ display: "grid", placeItems: "center", color: "#F97316", fontWeight: 800, fontSize: 18 }}>
-                                  {String(stop.name || "W").charAt(0)}
-                                </div>
-                              )}
-                              <div style={{ flex: 1, minWidth: 0 }}>
-                                <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 6 }}>
-                                  {stop.slotLabel && (
-                                    <span style={{ fontSize: 11, fontWeight: 800, color: "#F97316" }}>{stop.slotLabel}</span>
-                                  )}
-                                  <span
-                                    style={{
-                                      fontSize: 10.5,
-                                      fontWeight: 700,
-                                      padding: "2px 7px",
-                                      borderRadius: 999,
-                                      background: isConfirmed ? "rgba(16,185,129,.14)" : "rgba(245,158,11,.14)",
-                                      color: isConfirmed ? "#6EE7B7" : "#FCD34D",
-                                    }}
-                                    title={stop.confidence?.detail || ""}
-                                  >
-                                    {stop.confidence?.label || "Verified"}
-                                  </span>
-                                  {stop.price && (
-                                    <span style={{ fontSize: 11, color: "#CBD5E1", fontWeight: 700 }}>{stop.price}</span>
-                                  )}
-                                  {(stop.wfScore || stop.rating) && (
-                                    <span style={{ fontSize: 11, color: "#94A3B8" }}>
-                                      ★ {stop.wfScore ? `${Math.round(stop.wfScore)} WF` : stop.rating.toFixed(1)}
-                                    </span>
-                                  )}
-                                </div>
-                                <div style={{ fontSize: 14.5, fontWeight: 700, color: "#F8FAFC", marginTop: 2 }}>
-                                  {stop.detailHref ? (
-                                    <a
-                                      href={stop.detailHref}
-                                      style={{ color: "#F8FAFC", textDecoration: "underline", textUnderlineOffset: 2 }}
-                                    >
-                                      {stop.name}
-                                    </a>
-                                  ) : (
-                                    stop.name
-                                  )}
-                                </div>
-                                {stop.why && (
-                                  <div style={{ fontSize: 12.5, color: "#94A3B8", marginTop: 2 }}>{stop.why}</div>
-                                )}
-                              </div>
-                            </div>
-                            {stop.travelToNext && sIdx < day.stops.length - 1 && (
-                              <div className="wfp-conn">↓ {stop.travelToNext.label}</div>
-                            )}
-                          </div>
-                        );
-                      })}
+                      <div className="wfp-day-hdr">{day.label}</div>
+                      {day.stops.map((stop) => (
+                        <div key={stop.id} className="wfp-li" data-wf-proposed-stop={stop.id} title={stop.confidence?.detail || ""}>
+                          <span className="wfp-li-e" aria-hidden="true">{stopEmoji(stop, host)}</span>
+                          <span>
+                            {stop.slotLabel ? `${stop.slotLabel} ` : ""}
+                            {stop.detailHref ? <a href={stop.detailHref}>{stop.name}</a> : stop.name}
+                            {stop.confidence && stop.confidence.level !== "confirmed" ? <small>{stop.confidence.label || "Check hours"}</small> : null}
+                          </span>
+                        </div>
+                      ))}
                     </div>
                   ))}
-
                   <div className="wfp-save-bar">
                     {!savedTripKey ? (
-                      <>
-                        <span style={{ fontSize: 12.5, color: "#94A3B8" }}>
-                          Saves to your Itinerary — edit days, notes, or stops anytime.
-                        </span>
-                        <button
-                          type="button"
-                          className="wfp-save-btn"
-                          data-wf-planner-save="1"
-                          onClick={handleSaveProposedPlan}
-                        >
-                          Save itinerary
-                        </button>
-                      </>
+                      <button
+                        type="button"
+                        className="wfp-save-btn"
+                        data-wf-planner-save="1"
+                        onClick={handleSaveProposedPlan}
+                      >
+                        Add to my itinerary
+                      </button>
                     ) : (
-                      <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: 10, width: "100%" }}>
-                        <span style={{ fontSize: 13.5, fontWeight: 700, color: "#6EE7B7" }}>
-                          ✓ Saved to your Itinerary
-                        </span>
+                      <>
+                        <span style={{ fontSize: 14, color: "#30D158", fontWeight: 600 }}>✓ Saved to your Itinerary</span>
                         <a
                           href="/?go=itinerary"
                           className="wfp-save-btn"
@@ -629,9 +662,9 @@ export default function WayfindPlannerSheet() {
                           }}
                           style={{ textDecoration: "none" }}
                         >
-                          Open in Itinerary ›
+                          Open Itinerary
                         </a>
-                      </div>
+                      </>
                     )}
                   </div>
                 </div>
@@ -677,20 +710,6 @@ export default function WayfindPlannerSheet() {
                 </div>
               )}
 
-              {!loading && (
-                <div className="wfp-chips" role="group" aria-label="Suggested trip requests">
-                  {chips.map((chip) => (
-                    <button
-                      key={chip}
-                      type="button"
-                      className="wfp-chip"
-                      onClick={() => submitPlannerPrompt(chip)}
-                    >
-                      {chip}
-                    </button>
-                  ))}
-                </div>
-              )}
             </div>
 
             <form
@@ -700,22 +719,25 @@ export default function WayfindPlannerSheet() {
                 submitPlannerPrompt(draft);
               }}
             >
-              <input
-                ref={inputRef}
-                className="wfp-in"
-                value={draft}
-                maxLength={500}
-                onChange={(e) => setDraft(e.target.value)}
-                placeholder={
-                  activeTripKey || savedTripKey
-                    ? "Ask to move a stop, make a day cheaper, or add food..."
-                    : "e.g. Orlando Nov 20 to 23, two adults, Christmas and food"
-                }
-                aria-label="Tell Wayfind what trip to build or edit"
-              />
-              <button type="submit" className="wfp-send" disabled={loading || !draft.trim()}>
-                {loading ? "..." : "Plan"}
-              </button>
+              <div className="wfp-field">
+                <input
+                  ref={inputRef}
+                  className="wfp-in"
+                  value={draft}
+                  maxLength={500}
+                  onChange={(e) => setDraft(e.target.value)}
+                  placeholder="iMessage"
+                  aria-label="Tell Wayfind what trip to build or edit"
+                  enterKeyHint="send"
+                />
+                {draft.trim() ? (
+                <button type="submit" className="wfp-send" aria-label="Send" disabled={loading}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="M12 19V5M5 12l7-7 7 7" />
+                  </svg>
+                </button>
+                ) : null}
+              </div>
             </form>
           </div>
         </div>
