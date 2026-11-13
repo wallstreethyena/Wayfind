@@ -1159,6 +1159,14 @@
    "detail": "If any of these invariants regress, place detail can send high-intent visitors to another city's venue, a dead/expired ticket page, a fake Google Maps 'See menu' search, or a paid product on a free park, breaking user trust and conversion at the exact decision moment."
   },
   "owner": "Revenue QA"
+ },
+ "scripts/test-owned-place-truth-frontier.mjs": {
+  "protects": "Owned Place Truth Architecture: deterministic editorial hours parser converts verified hours prose into structured weekly periods and holiday closures while rejecting ambiguous strings as PROSE_ONLY; holiday closures override regular weekday hours so venues never claim 'Go now' on closed holidays; municipal splash pads/parks never fabricate gate admission fees; Zero-Paid-Lookup Mode preserves live open/closed, expandable 7-day hours, official CTAs, and Game Plan when Google Place Details returns 503; unservable wfplacediscovery pseudo-ref card images are dropped before render; and Actionability Coverage never alters Wayfind Score.",
+  "blastRadius": {
+   "category": "trust",
+   "detail": "If this regresses, budget-gated detail views lose open/closed status and expandable hours, municipal splash parks claim paid gate admission, closed venues on Thanksgiving/Christmas tell visitors to 'Go now', or unservable wfplacediscovery refs trigger 404 image requests."
+  },
+  "owner": "Revenue QA"
  }
 }
 

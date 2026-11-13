@@ -2650,3 +2650,5 @@ node scripts/test-ai-itinerary-planner.mjs
 node scripts/test-map-spatial-decision-engine.mjs
 # 2026-11-12: First-Party Action Resolver & Detail CTA coverage gap guardrails (8 invariants + idempotency + production batch).
 node scripts/test-first-party-action-resolver.mjs
+# 2026-11-13: Owned Place Truth Architecture frontier guard (deterministic editorial hours parser, holiday closure protection, free splash-park truth, Zero-Paid-Lookup Mode, red-team CTA/URL gates, wfplacediscovery photo resilience, and diagnostic truth trace).
+node scripts/test-owned-place-truth-frontier.mjs

@@ -26,6 +26,8 @@ import { guideDescriptionFor } from "../../../lib/guideDescriptionFills";
 import { siteTodayStr } from "../../../lib/siteTime";
 import { filterEligibleVenueEvents } from "../../../lib/gamePlan";
 import { firstPartyActionsForPlace } from "../../../lib/firstPartyActionStore";
+import { parseEditorialHours } from "../../../lib/editorialHoursParser";
+import { resolveAdmissionTruth } from "../../../lib/ownedPlaceTruth";
 
 const FPA_STORES = {
   places: (firstPartyLedger && firstPartyLedger.places) || {},
@@ -169,11 +171,32 @@ export async function GET(req) {
       resolveApprovedFpa(candidate),
     ]);
     let out = curatedEvents.length > 0 ? { ...payload, curatedEvents } : payload;
+    let enrichedEditorial = out.editorial || null;
     if (fpa) {
-      const enrichedEditorial = out.editorial && !out.editorial.officialWebsite && fpa.officialWebsite && fpa.officialWebsite.url
-        ? { ...out.editorial, officialWebsite: fpa.officialWebsite.url }
-        : out.editorial;
-      out = { ...out, ...(enrichedEditorial ? { editorial: enrichedEditorial } : {}), firstPartyActions: fpa };
+      if (enrichedEditorial && !enrichedEditorial.officialWebsite && fpa.officialWebsite && fpa.officialWebsite.url) {
+        enrichedEditorial = { ...enrichedEditorial, officialWebsite: fpa.officialWebsite.url };
+      }
+      out = { ...out, firstPartyActions: fpa };
+    }
+    if (enrichedEditorial) {
+      const parsedHours = parseEditorialHours(enrichedEditorial);
+      const ownedHours = parsedHours && parsedHours.ok && parsedHours.periods.length > 0 ? parsedHours : null;
+      const admissionTruth = resolveAdmissionTruth(
+        { id: candidate.placeId || id, name: candidate.name || rawName },
+        enrichedEditorial,
+        fpa || null
+      );
+      enrichedEditorial = {
+        ...enrichedEditorial,
+        ...(ownedHours ? { ownedHours } : {}),
+        ...(admissionTruth ? { admissionTruth } : {}),
+      };
+      out = {
+        ...out,
+        editorial: enrichedEditorial,
+        ...(ownedHours ? { ownedHours } : {}),
+        ...(admissionTruth ? { admissionTruth } : {}),
+      };
     }
     return NextResponse.json(out, { headers });
   };
