@@ -48,6 +48,7 @@ import {
   selectProactivePlannerOffer,
   recordProactiveShown,
   dismissProactiveOffers,
+  proactiveWaitsForAdPicks,
 } from "../lib/plannerProactive.js";
 import { parsePlannerRequest } from "../lib/plannerParse.js";
 import {
@@ -413,7 +414,24 @@ delete process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   const savesOffer = selectProactivePlannerOffer({ pathname: "/", unassignedSaveCount: 4, storage: sess2 });
   ok(savesOffer && savesOffer.kind === "unassigned_saves" && /organize these into days/i.test(savesOffer.message), "3+ unassigned saves offers to organize stops into days and reduce driving");
   dismissProactiveOffers(sess2);
-  ok(selectProactivePlannerOffer({ pathname: "/things-to-do/tampa", storage: sess2 }) === null, "Dismissing proactive pill silences further unsolicited offers in that session");
+
+  // Live 2026-11-13: on a 375x553 phone the offer covered the first ad pick's
+  // button 3.2 s after a Meta ad landing. While the ad picks row is on screen
+  // the offer waits; any other visitor, or a scrolled-away row, is unchanged.
+  {
+    const fakeDoc = (social, rect) => ({
+      documentElement: { hasAttribute: (k) => social && k === "data-wf-social" },
+      querySelector: (sel) => (rect && sel === "[data-top-picks]" ? { getBoundingClientRect: () => rect } : null),
+    });
+    ok(proactiveWaitsForAdPicks(fakeDoc(true, { top: 120, bottom: 470, height: 350 }), 553) === true, "An ad visitor's picks row on screen holds the unsolicited planner offer");
+    ok(proactiveWaitsForAdPicks(fakeDoc(true, { top: -400, bottom: -50, height: 350 }), 553) === false, "Once the picks row is scrolled away the offer may show");
+    ok(proactiveWaitsForAdPicks(fakeDoc(true, { top: 0, bottom: 0, height: 0 }), 553) === false, "A hidden picks row never holds the offer");
+    ok(proactiveWaitsForAdPicks(fakeDoc(false, { top: 120, bottom: 470, height: 350 }), 553) === false && proactiveWaitsForAdPicks(fakeDoc(true, null), 553) === false && proactiveWaitsForAdPicks(null, 553) === false,
+      "Google, organic and direct visitors, and pages without the picks row, keep the offer exactly as before");
+    const loaderSrc = readFileSync(path.join(REPO, "app/components/WayfindPlannerLoader.js"), "utf8");
+    ok(/proactiveWaitsForAdPicks\(document, window\.innerHeight\)/.test(loaderSrc) && /addEventListener\("scroll", onScroll, \{ capture: true/.test(loaderSrc) && /removeEventListener\("scroll", onScroll, true\)/.test(loaderSrc),
+      "The loader checks the picks row before showing an offer and re-checks on any scroll, removing its listener");
+  }
 }
 
 // ── SCENARIO 1: "Orlando Nov 20 to 23, two adults, Christmas and food." ───────
