@@ -1,4 +1,5 @@
 "use client";
+import { useEffect, useState } from "react";
 import { usePlaceDistance } from "./PlaceDistance.js";
 
 // Paid inventory uses the canonical place renderer. The purchased position,
@@ -65,6 +66,10 @@ export function sponsoredActions({ hasStoreKey, actionPlace, wired, fb, content 
 }
 
 export default function SponsoredPlaceCard({ pick, onLog, saved: savedProp, liked: likedProp, disliked: dislikedProp, onSave, onLike, onDislike, onShare }) {
+  const [hydrated, setHydrated] = useState(false);
+  useEffect(() => {
+    setHydrated(true);
+  }, []);
   const userDistance = usePlaceDistance(pick);
   const ctx = pick ? {
     surface: "home_sponsored_card",
@@ -154,7 +159,7 @@ export default function SponsoredPlaceCard({ pick, onLog, saved: savedProp, like
           {branch || pick.advertiser}{distance ? " · " + distance + " away" : ""}{snapshotMeta(pick)}
         </div>
         {pick.body ? <p className="wf-place-card-attachment-body">{pick.body}</p> : null}
-        <a href={pick.outboundHref} target="_blank" rel="sponsored nofollow noopener" data-commerce-owner="SponsoredPlaceCard" onClick={onBook}
+        <a href={hydrated && pick.outboundTrackHref ? pick.outboundTrackHref : pick.outboundHref} target="_blank" rel="sponsored nofollow noopener" data-commerce-owner="SponsoredPlaceCard" onClick={onBook}
           aria-label={pick.cta + " at " + pick.advertiser + (branch ? " " + branch : "")}
           className="wf-place-card-attachment-primary">
           {pick.cta} <span aria-hidden="true">→</span>

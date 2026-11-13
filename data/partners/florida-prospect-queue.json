@@ -1,0 +1,1187 @@
+{
+  "schemaVersion": "1.0.0",
+  "asOf": "2026-11-13",
+  "prospectingEthicsPolicy": {
+    "publicChannelsOnly": true,
+    "privatePersonalScrapingForbidden": true,
+    "unsolicitedMassOutreachSentBySystem": false,
+    "editorialScoreFirewall": "Partner Fit Score is strictly internal for sales prioritization and never touches wayfindScore() or organic rank."
+  },
+  "prospects": [
+    {
+      "id": "marie-selby-botanical-gardens",
+      "rank": 1,
+      "tier": "TIER_1_FREE_WAYFIND_TRAFFIC",
+      "name": "Marie Selby Botanical Gardens",
+      "region": "Sarasota / Bradenton",
+      "city": "Sarasota, FL",
+      "category": "Museums, Botanical Gardens & Holiday Attractions",
+      "placeId": "ChIJPTvxtmpAw4gReToYD5mTNwE",
+      "eventId": "selby-lights-in-bloom-2026",
+      "rating": 4.7,
+      "reviews": 6457,
+      "wayfindScore": 94,
+      "fitBand": "STRONG_FIT",
+      "fitScoreInternal": 96,
+      "wayfindEvidence": {
+        "detailOpens": 88,
+        "uniqueDevices": 56,
+        "primaryCtaNulls": 69,
+        "freeOrganizerClicks": 7,
+        "directionsClicks": 8,
+        "saves": 2,
+        "shares": 1,
+        "guides": [
+          "things-to-do-sarasota",
+          "things-to-do-in-sarasota-florida",
+          "florida-holiday-nights-out-2026"
+        ]
+      },
+      "buyerJob": "Fill perishable Sunday–Thursday Lights in Bloom timed-entry slots (Dec 5 – Jan 2) where advance online tickets are mandatory and walk-up gate admission is closed.",
+      "whyYouBrief": "56 Sarasota visitors opened Selby Gardens 88 times on Wayfind with 69 hitting a null-CTA screen and 7 clicking straight to your Lights in Bloom event — all with $0 commission.",
+      "recommendedPackage": {
+        "packageId": "monthly",
+        "priceUsd": 199,
+        "measurementPeriodDays": 30,
+        "decisionDate": "2026-12-28"
+      },
+      "publicContact": {
+        "officialWebsite": "https://selby.org/",
+        "bookingUrl": "https://selby.ticketapp.org/",
+        "bookingPlatform": "TicketApp / Blackbaud",
+        "onlineBookingAvailable": true,
+        "publicEmail": "info@selby.org",
+        "contactFormUrl": "https://selby.org/",
+        "publicPhone": "(941) 366-5731",
+        "instagram": "@selbygardens",
+        "verifiedFact": "Lights in Bloom runs select nights Dec 5, 2026 – Jan 2, 2027 ($30 GA non-member / $40 Early Entry; online advance purchase required).",
+        "flags": []
+      },
+      "outreachAngle": "Convert 69 existing Sarasota null-CTA opens into direct $30 weeknight TicketApp orders at 0% Wayfind fee.",
+      "measurementPlan": "Server-witnessed /api/partner/outbound clicks + selby.ticketapp.org UTM campaign tracking."
+    },
+    {
+      "id": "sarasota-jungle-gardens",
+      "rank": 2,
+      "tier": "TIER_1_FREE_WAYFIND_TRAFFIC",
+      "name": "Sarasota Jungle Gardens",
+      "region": "Sarasota / Bradenton",
+      "city": "Sarasota, FL",
+      "category": "Ticketed Attractions & Wildlife Parks",
+      "placeId": "ChIJ_37IauQ_w4gRz03lc0QInIE",
+      "rating": 4.3,
+      "reviews": 6479,
+      "wayfindScore": 86,
+      "fitBand": "STRONG_FIT",
+      "fitScoreInternal": 94,
+      "wayfindEvidence": {
+        "detailOpens": 124,
+        "uniqueDevices": 72,
+        "primaryCtaNulls": 103,
+        "freeOrganizerClicks": 0,
+        "directionsClicks": 5,
+        "saves": 0,
+        "shares": 1,
+        "guides": [
+          "things-to-do-sarasota",
+          "things-to-do-in-sarasota-florida"
+        ]
+      },
+      "buyerJob": "Capture direct $24.99 adult / $14.99 child family admissions in a market where Tiqets has zero Sarasota coverage.",
+      "whyYouBrief": "Sarasota Jungle Gardens has the #1 highest null-CTA count on all of Wayfind: 72 unique visitors opened your detail card 124 times and 103 had no ticket button to tap.",
+      "recommendedPackage": {
+        "packageId": "quarterly",
+        "priceUsd": 299,
+        "measurementPeriodDays": 90,
+        "decisionDate": "2027-02-15"
+      },
+      "publicContact": {
+        "officialWebsite": "https://sarasotajunglegardens.com/",
+        "bookingUrl": "https://sarasotajunglegardens.com/",
+        "bookingPlatform": "Integrated Native Website Ticketing",
+        "onlineBookingAvailable": true,
+        "publicEmail": "Marketing@sarasotajunglegardens.com",
+        "contactFormUrl": "https://sarasotajunglegardens.com/contact-us/",
+        "publicPhone": "(941) 355-5305",
+        "instagram": "@sarasotajunglegardens",
+        "verifiedFact": "Daytime General Admission is $24.99 Adults, $14.99 Children (4–12), 3 & under free; includes trails and daily Jungle Bird & Reptile shows.",
+        "flags": [
+          "FORM_PREFERRED_OVER_ON_PAGE_EMAIL"
+        ]
+      },
+      "outreachAngle": "Unlock 103 unserved ticket-intent views in Sarasota at ~$3.32/day flat with 0% ticket commission.",
+      "measurementPlan": "Server-witnessed /api/partner/outbound clicks to native ticket cart + UTM referral sessions."
+    },
+    {
+      "id": "the-ringling-sarasota",
+      "rank": 3,
+      "tier": "TIER_1_FREE_WAYFIND_TRAFFIC",
+      "name": "The John and Mable Ringling Museum of Art",
+      "region": "Sarasota / Bradenton",
+      "city": "Sarasota, FL",
+      "category": "Museums, Botanical Gardens & Aquariums",
+      "placeId": "ChIJ6y2dx9g_w4gRWoZIRhLk-JI",
+      "rating": 4.8,
+      "reviews": 9874,
+      "wayfindScore": 96,
+      "fitBand": "STRONG_FIT",
+      "fitScoreInternal": 95,
+      "wayfindEvidence": {
+        "detailOpens": 126,
+        "uniqueDevices": 89,
+        "primaryCtaNulls": 16,
+        "freeOrganizerClicks": 0,
+        "directionsClicks": 7,
+        "saves": 5,
+        "stopAdds": 3,
+        "directSearches": 4,
+        "guides": [
+          "things-to-do-sarasota",
+          "sarasota-rainy-day",
+          "things-to-do-in-sarasota-florida"
+        ]
+      },
+      "buyerJob": "Convert winter snowbirds and rainy-day Sarasota visitors into full-price $25–$35 Tue–Sun Tessitura admissions and Ca' d'Zan mansion walkthroughs.",
+      "whyYouBrief": "89 visitors opened The Ringling and Ca' d'Zan 126 times on Wayfind, saved it 5 times, and added it to 3 multi-stop Sarasota itineraries — with zero OTA middlemen.",
+      "recommendedPackage": {
+        "packageId": "quarterly",
+        "priceUsd": 299,
+        "measurementPeriodDays": 90,
+        "decisionDate": "2027-02-15"
+      },
+      "publicContact": {
+        "officialWebsite": "https://www.ringling.org/",
+        "bookingUrl": "https://my.ringling.org/",
+        "bookingPlatform": "Tessitura",
+        "onlineBookingAvailable": true,
+        "publicEmail": "info@ringling.org",
+        "contactFormUrl": "https://www.ringling.org/hours-and-admission",
+        "publicPhone": "(941) 359-5700",
+        "instagram": "@ringlingmuseum",
+        "verifiedFact": "Standard Adult Admission is $25 ($35 with Ca' d'Zan Mansion 1st floor); Free Mondays for Museum of Art & Bayfront Gardens.",
+        "flags": [
+          "FORM_PREFERRED_OVER_ON_PAGE_EMAIL"
+        ]
+      },
+      "outreachAngle": "Direct Tessitura ticket handoffs on Tue–Sun peak cultural days at 0% fee.",
+      "measurementPlan": "Server-witnessed /api/partner/outbound clicks to my.ringling.org + Tessitura UTM tracking."
+    },
+    {
+      "id": "mote-sea-sarasota",
+      "rank": 4,
+      "tier": "TIER_1_FREE_WAYFIND_TRAFFIC",
+      "name": "Mote Science Education Aquarium (Mote SEA)",
+      "region": "Sarasota / Bradenton",
+      "city": "Sarasota, FL",
+      "category": "Museums, Botanical Gardens & Aquariums",
+      "placeId": "ChIJRyOEfAo5w4gR664aD_YYBLU",
+      "rating": 4.5,
+      "reviews": 1643,
+      "wayfindScore": 89,
+      "fitBand": "STRONG_FIT",
+      "fitScoreInternal": 93,
+      "wayfindEvidence": {
+        "detailOpens": 16,
+        "uniqueDevices": 14,
+        "primaryCtaNulls": 16,
+        "directSearches": 13,
+        "directionsClicks": 3,
+        "saves": 1,
+        "guides": [
+          "things-to-do-sarasota",
+          "sarasota-rainy-day"
+        ]
+      },
+      "buyerJob": "Educate I-75 / UTC visitors on Plan-Ahead date-based timed ticketing (~$33+ adult) at the new University Town Center aquarium campus.",
+      "whyYouBrief": "'mote sea' is already the #5 most-searched query across all of Wayfind (13 direct searches) and 100% of your 16 detail opens hit a screen without a direct ticket CTA.",
+      "recommendedPackage": {
+        "packageId": "quarterly",
+        "priceUsd": 299,
+        "measurementPeriodDays": 90,
+        "decisionDate": "2027-02-15"
+      },
+      "publicContact": {
+        "officialWebsite": "https://mote.org/",
+        "bookingUrl": "https://ticketing.mote.org/",
+        "bookingPlatform": "Custom Mote Admission Portal",
+        "onlineBookingAvailable": true,
+        "publicEmail": "guestservices@mote.org",
+        "contactFormUrl": "https://mote.org/about/contact-us",
+        "publicPhone": "(941) 388-6683",
+        "instagram": "@motemarinelab",
+        "verifiedFact": "Mote SEA at 225 University Town Center Dr uses Plan-Ahead timed-entry pricing starting ~$33 Adults.",
+        "flags": []
+      },
+      "outreachAngle": "Route high-intent 'mote sea' searchers straight to ticketing.mote.org Plan-Ahead slots.",
+      "measurementPlan": "Server-witnessed /api/partner/outbound clicks + ticketing.mote.org UTM sessions."
+    },
+    {
+      "id": "florida-railroad-museum",
+      "rank": 5,
+      "tier": "TIER_1_FREE_WAYFIND_TRAFFIC",
+      "name": "Florida Railroad Museum (North Pole Express)",
+      "region": "Sarasota / Bradenton",
+      "city": "Parrish, FL",
+      "category": "Christmas & Holiday Attractions",
+      "placeId": "ChIJ______8sw4gRMudh58gsGMU",
+      "rating": 4.5,
+      "reviews": 1888,
+      "wayfindScore": 89,
+      "fitBand": "STRONG_FIT",
+      "fitScoreInternal": 92,
+      "wayfindEvidence": {
+        "detailOpens": 8,
+        "directSearches": 29,
+        "guides": [
+          "sarasota-rainy-day",
+          "things-to-do-in-parrish-florida",
+          "florida-santa-and-christmas-trains-2026"
+        ]
+      },
+      "buyerJob": "Fill remaining 5:15 PM & 7:15 PM North Pole Express departures (Nov 27 – Dec 22) and winter weekend heritage train excursions on FareHarbor.",
+      "whyYouBrief": "Parrish has 29 direct consumer searches on Wayfind and we already feature Florida Railroad Museum across 3 live guides including Florida Santa & Christmas Trains 2026.",
+      "recommendedPackage": {
+        "packageId": "monthly",
+        "priceUsd": 199,
+        "measurementPeriodDays": 30,
+        "decisionDate": "2026-12-23"
+      },
+      "publicContact": {
+        "officialWebsite": "https://www.frrm.org/",
+        "bookingUrl": "https://www.frrm.org/north-pole-express",
+        "bookingPlatform": "FareHarbor",
+        "onlineBookingAvailable": true,
+        "publicEmail": "tickets@frrm.org",
+        "contactFormUrl": "https://www.frrm.org/",
+        "publicPhone": "(941) 776-0906",
+        "instagram": "@flrrrmuseum",
+        "verifiedFact": "North Pole Express runs select nights Nov 27 – Dec 22, 2026 (5:15 PM & 7:15 PM departures from Parrish) starting ~$30.50+ on FareHarbor.",
+        "flags": []
+      },
+      "outreachAngle": "Direct FareHarbor ticket handoffs during your 26-day North Pole Express window at 0% Wayfind fee.",
+      "measurementPlan": "Server-witnessed /api/partner/outbound clicks + FareHarbor UTM source=wayfind attribution."
+    },
+    {
+      "id": "manatee-performing-arts-center",
+      "rank": 6,
+      "tier": "TIER_1_FREE_WAYFIND_TRAFFIC",
+      "name": "Manatee Performing Arts Center",
+      "region": "Sarasota / Bradenton",
+      "city": "Bradenton, FL",
+      "category": "Ticketed Attractions & Performing Arts",
+      "placeId": "ChIJB-QyVtEXw4gRk5F8bn3YV28",
+      "rating": 4.8,
+      "reviews": 688,
+      "wayfindScore": 94,
+      "fitBand": "STRONG_FIT",
+      "fitScoreInternal": 90,
+      "wayfindEvidence": {
+        "detailOpens": 9,
+        "saves": 10,
+        "stopAdds": 10,
+        "guides": [
+          "things-to-do-in-bradenton-florida"
+        ]
+      },
+      "buyerJob": "Sell single-show mainstage seats for Anastasia (Dec 3–13), The Da Vinci Code (Jan 14–24), and Come From Away (Jan 21–31) directly through the box office.",
+      "whyYouBrief": "Manatee Performing Arts Center is tied for #1 most-added venue to user itineraries on all of Wayfind (10 stop_adds and 10 saves) — couples are literally building date nights around your shows.",
+      "recommendedPackage": {
+        "packageId": "quarterly",
+        "priceUsd": 299,
+        "measurementPeriodDays": 90,
+        "decisionDate": "2027-02-15"
+      },
+      "publicContact": {
+        "officialWebsite": "https://www.manateeperformingartscenter.com/",
+        "bookingUrl": "https://tickets.manateeperformingartscenter.com/",
+        "bookingPlatform": "Dedicated Box Office Ticketing Portal",
+        "onlineBookingAvailable": true,
+        "publicEmail": "rentals@manateeperformingartscenter.com",
+        "contactFormUrl": "https://www.manateeperformingartscenter.com/",
+        "publicPhone": "(941) 748-5875",
+        "instagram": "@manateeperformingartscenter",
+        "verifiedFact": "2026–2027 Bradenton mainstage features Anastasia (Dec 3–13, 2026), The Da Vinci Code (Jan 14–24, 2027), and Come From Away (Jan 21–31, 2027).",
+        "flags": [
+          "DEPARTMENT_EMAILS_AND_FORM_NO_GENERIC_INFO_EMAIL"
+        ]
+      },
+      "outreachAngle": "Turn Bradenton date-night itinerary builders into direct box-office single-ticket buyers across Dec–Feb runs.",
+      "measurementPlan": "Server-witnessed /api/partner/outbound clicks to tickets.manateeperformingartscenter.com."
+    },
+    {
+      "id": "agave-bandido-lakewood-ranch",
+      "rank": 7,
+      "tier": "TIER_1_FREE_WAYFIND_TRAFFIC",
+      "name": "Agave Bandido & Maya SpeakTiki",
+      "region": "Sarasota / Bradenton",
+      "city": "Lakewood Ranch, FL",
+      "category": "Experiential & Date-Night Restaurants",
+      "placeId": "ChIJ7QsLgxQ5w4gRSLtMON-sOaI",
+      "rating": 4.8,
+      "reviews": 2548,
+      "wayfindScore": 96,
+      "fitBand": "STRONG_FIT",
+      "fitScoreInternal": 89,
+      "wayfindEvidence": {
+        "detailOpens": 12,
+        "uniqueDevices": 15,
+        "primaryCtaNulls": 12,
+        "addToPlanClicks": 4,
+        "saves": 3,
+        "stopAdds": 3,
+        "guides": [
+          "gulf-coast-brunch-and-date-night",
+          "sarasota-restaurants"
+        ]
+      },
+      "buyerJob": "Drive Taco Tuesday traffic, pre-5 PM / post-9 PM shoulder reservations, and upstairs Maya SpeakTiki hidden tiki bar bookings.",
+      "whyYouBrief": "15 Waterside/Sarasota devices opened Agave Bandido on Wayfind, with 4 add-to-plan clicks, 3 saves, and 3 itinerary adds — all hitting a card with no speakeasy or reservation CTA.",
+      "recommendedPackage": {
+        "packageId": "quarterly",
+        "priceUsd": 299,
+        "measurementPeriodDays": 90,
+        "decisionDate": "2027-02-15"
+      },
+      "publicContact": {
+        "officialWebsite": "https://www.agavebandido.com/",
+        "bookingUrl": "https://www.agavebandido.com/reservations",
+        "bookingPlatform": "OpenTable & Toast",
+        "onlineBookingAvailable": true,
+        "publicEmail": "info@agavebandido.com",
+        "contactFormUrl": "https://www.agavebandido.com/",
+        "publicPhone": "(941) 260-8866",
+        "instagram": "@agavebandido",
+        "verifiedFact": "Waterside Place Mexican kitchen with hidden upstairs Maya SpeakTiki speakeasy and Taco Tuesday specials; peak 5–9 PM dinner uses walk-in/call-ahead waitlist.",
+        "flags": [
+          "NO_STANDARD_RESERVATIONS_PEAK_5PM_TO_9PM_CALL_AHEAD_WAITLIST"
+        ]
+      },
+      "outreachAngle": "Promote Maya SpeakTiki reservations and Taco Tuesday / shoulder seatings without per-cover diner-network fees.",
+      "measurementPlan": "Server-witnessed /api/partner/outbound clicks + phone waitlist taps."
+    },
+    {
+      "id": "ultimate-kayak-srq",
+      "rank": 8,
+      "tier": "TIER_2_DEMAND_NO_PARTNER_SUPPLY",
+      "name": "Ultimate Kayak SRQ",
+      "region": "Sarasota / Bradenton",
+      "city": "Sarasota (Siesta Key), FL",
+      "category": "Clear-Kayak, Manatee & Eco-Tours",
+      "placeId": "ChIJd4gdriVHw4gRi_-RHaFV__o",
+      "rating": 4.9,
+      "reviews": 954,
+      "wayfindScore": 96,
+      "fitBand": "STRONG_FIT",
+      "fitScoreInternal": 91,
+      "wayfindEvidence": {
+        "detailOpens": 8,
+        "uniqueDevices": 8,
+        "saves": 2,
+        "guides": [
+          "things-to-do-sarasota"
+        ]
+      },
+      "buyerJob": "Book $65/person Siesta Key clear-kayak mangrove & wildlife tours directly in Peek Pro instead of surrendering 20–30% margin to third-party tour marketplaces.",
+      "whyYouBrief": "8 Siesta Key visitors opened Ultimate Kayak SRQ and 2 saved it on Wayfind, while Sarasota mangrove tunnel tours generated 8 external commerce clicks.",
+      "recommendedPackage": {
+        "packageId": "quarterly",
+        "priceUsd": 299,
+        "measurementPeriodDays": 90,
+        "decisionDate": "2027-02-15"
+      },
+      "publicContact": {
+        "officialWebsite": "https://ultimatekayaksrq.com/",
+        "bookingUrl": "https://ultimatekayaksrq.com/",
+        "bookingPlatform": "Peek Pro",
+        "onlineBookingAvailable": true,
+        "publicEmail": "ultimatekayaksrq@gmail.com",
+        "contactFormUrl": "https://ultimatekayaksrq.com/contact/",
+        "publicPhone": "(941) 720-8807",
+        "instagram": "@ultimatekayaksrq",
+        "verifiedFact": "Siesta Key rentals $35–$45 (2 hrs) and guided Clear Kayak / Glass-Bottom LED tours ~$65/person via Peek Pro.",
+        "flags": []
+      },
+      "outreachAngle": "Three 2-person clear kayak bookings ($390 gross) on Peek Pro pay for a full 90-day winter flight at 0% Wayfind commission.",
+      "measurementPlan": "Server-witnessed /api/partner/outbound clicks + Peek Pro UTM referral attribution."
+    },
+    {
+      "id": "harry-p-leu-gardens-dazzling-nights",
+      "rank": 9,
+      "tier": "TIER_1_FREE_WAYFIND_TRAFFIC",
+      "name": "Harry P. Leu Gardens (Dazzling Nights Orlando)",
+      "region": "Orlando / Central Florida",
+      "city": "Orlando, FL",
+      "category": "Christmas & Holiday Attractions",
+      "placeId": "ChIJCRCYGrx654gR3G9qoVbWlpY",
+      "eventId": "dazzling-nights-leu-2026",
+      "rating": 4.7,
+      "reviews": 5745,
+      "wayfindScore": 94,
+      "fitBand": "STRONG_FIT",
+      "fitScoreInternal": 93,
+      "wayfindEvidence": {
+        "detailOpens": 43,
+        "uniqueDevices": 28,
+        "primaryCtaNulls": 30,
+        "freeOrganizerClicks": 10,
+        "directionsClicks": 3,
+        "guides": [
+          "things-to-do-orlando-not-theme-parks",
+          "florida-holiday-nights-out-2026"
+        ]
+      },
+      "buyerJob": "Sell weeknight timed-entry blocks ($35–$56 adult) for Dazzling Nights (Nov 20 – Jan 3) to Orlando locals and non-theme-park visitors.",
+      "whyYouBrief": "Wayfind's Orlando non-theme-park and Christmas surfaces already logged 43 detail opens on Leu Gardens and sent 10 free ticket clicks straight to Dazzling Nights.",
+      "recommendedPackage": {
+        "packageId": "monthly",
+        "priceUsd": 199,
+        "measurementPeriodDays": 30,
+        "decisionDate": "2026-12-26"
+      },
+      "publicContact": {
+        "officialWebsite": "https://www.leugardens.org/",
+        "bookingUrl": "https://www.dazzlingorlando.com/",
+        "bookingPlatform": "Universe / Eventbrite (Dazzling Nights)",
+        "onlineBookingAvailable": true,
+        "publicEmail": "info@dazzlingorlando.com",
+        "contactFormUrl": "https://www.dazzlingorlando.com/",
+        "publicPhone": "(407) 246-2620",
+        "instagram": "@creativecityproject",
+        "verifiedFact": "Dazzling Nights runs select nights Nov 20, 2026 – Jan 3, 2027 ($35–$56 Adults timed entry).",
+        "flags": [
+          "DUAL_ENTITY_VENUE_AND_PRODUCER"
+        ]
+      },
+      "outreachAngle": "Pitch Creative City Project (info@dazzlingorlando.com) on a $199 30-day Orlando geo-gated flight targeting weeknight timed-entry inventory.",
+      "measurementPlan": "Server-witnessed /api/partner/outbound clicks + Universe/Eventbrite UTM tracking."
+    },
+    {
+      "id": "scenic-boat-tour-winter-park",
+      "rank": 10,
+      "tier": "TIER_1_FREE_WAYFIND_TRAFFIC",
+      "name": "Scenic Boat Tour (Winter Park)",
+      "region": "Orlando / Central Florida",
+      "city": "Winter Park, FL",
+      "category": "Boat, Dolphin & Sunset Charters",
+      "placeId": "ChIJ4XkjoBtw54gRGiqFxtWvbM8",
+      "rating": 4.8,
+      "reviews": 3693,
+      "wayfindScore": 96,
+      "fitBand": "POSSIBLE_FIT",
+      "fitScoreInternal": 76,
+      "wayfindEvidence": {
+        "detailOpens": 87,
+        "uniqueDevices": 44,
+        "primaryCtaNulls": 58,
+        "directionsClicks": 3,
+        "saves": 2,
+        "stopAdds": 1,
+        "guides": [
+          "winter-park-scenic-boat-tour",
+          "things-to-do-orlando-not-theme-parks"
+        ]
+      },
+      "buyerJob": "Drive weekday morning dock arrivals (10 AM–12 PM) and phone-booked 18+ private group charters without misleading guests into expecting online e-tickets.",
+      "whyYouBrief": "Wayfind publishes a dedicated Winter Park Scenic Boat Tour guide and logged 87 detail opens (58 null-CTA). Because your regular hourly boats are walk-up only at 312 E Morse Blvd, a placement must honestly feature 'Get dock directions / Call for 18+ group charters' rather than fake online checkout.",
+      "recommendedPackage": {
+        "packageId": "quarterly",
+        "priceUsd": 299,
+        "measurementPeriodDays": 90,
+        "decisionDate": "2027-02-15"
+      },
+      "publicContact": {
+        "officialWebsite": "https://www.scenicboattours.com/",
+        "bookingUrl": "https://www.scenicboattours.com/",
+        "bookingPlatform": "Walk-Up Only at Dock (Phone for 18+ Groups & Charters)",
+        "onlineBookingAvailable": false,
+        "publicEmail": "ron@scenicboattours.com",
+        "contactFormUrl": "https://www.scenicboattours.com/",
+        "publicPhone": "(407) 644-4056",
+        "instagram": null,
+        "verifiedFact": "Hourly 1-hr pontoon tours daily 10 AM–4 PM ($20 Adults, $10 Children tax incl.); walk-up only at dock, phone reservations only for groups 18+ or charters.",
+        "flags": [
+          "WALK_UP_ONLY_NO_ONLINE_BOOKING",
+          "NO_OFFICIAL_IG_ON_SITE"
+        ]
+      },
+      "outreachAngle": "Honest awareness + weekday morning dock-directions & private group phone-charter placement (measured via outbound + directions + phone taps, never claiming online cart attribution).",
+      "measurementPlan": "Server-witnessed /api/partner/outbound website visits + dock directions taps + charter phone clicks."
+    },
+    {
+      "id": "kissimmee-swamp-tours",
+      "rank": 11,
+      "tier": "TIER_1_FREE_WAYFIND_TRAFFIC",
+      "name": "Kissimmee Swamp Tours",
+      "region": "Orlando / Central Florida",
+      "city": "Kenansville / Kissimmee, FL",
+      "category": "Clear-Kayak, Manatee & Eco-Tours",
+      "placeId": "ChIJAUlrAtC-3YgR0qMMOSkNu7I",
+      "rating": 4.9,
+      "reviews": 735,
+      "wayfindScore": 95,
+      "fitBand": "POSSIBLE_FIT",
+      "fitScoreInternal": 81,
+      "wayfindEvidence": {
+        "detailOpens": 17,
+        "uniqueDevices": 15,
+        "primaryCtaNulls": 17,
+        "saves": 1,
+        "stopAdds": 1,
+        "guides": [
+          "things-to-do-orlando-not-theme-parks"
+        ]
+      },
+      "buyerJob": "Capture high-AOV 60-min ($48/adult) and 90-min ($74/adult) Lake Kissimmee headwaters airboat requests directly without OTA commissions.",
+      "whyYouBrief": "15 Central Florida visitors opened Kissimmee Swamp Tours 17 times on Wayfind (100% hitting primary_cta_null), while Orlando headwaters airboat content drove 7 commerce clicks.",
+      "recommendedPackage": {
+        "packageId": "quarterly",
+        "priceUsd": 299,
+        "measurementPeriodDays": 90,
+        "decisionDate": "2027-02-15"
+      },
+      "publicContact": {
+        "officialWebsite": "https://www.kissimmeeswamptours.com/",
+        "bookingUrl": "https://www.kissimmeeswamptours.com/",
+        "bookingPlatform": "Custom On-Site Reservation Request Form + Phone Confirmation",
+        "onlineBookingAvailable": true,
+        "publicEmail": "kissimmeeswamptours@gmail.com",
+        "contactFormUrl": "https://www.kissimmeeswamptours.com/",
+        "publicPhone": "(407) 460-6481",
+        "instagram": "@kissimmeeswamptours",
+        "verifiedFact": "60-min airboat $48 Adult / $42 Child; 90-min $74 Adult / $64 Child; Private 60-min $200.",
+        "flags": [
+          "REQUEST_FORM_NOT_INSTANT_CART"
+        ]
+      },
+      "outreachAngle": "Two 90-min family airboat bookings cover an entire 90-day Central Florida pilot; note on-site reservation form + phone confirmation workflow.",
+      "measurementPlan": "Server-witnessed /api/partner/outbound clicks + UTM-tagged reservation form submissions."
+    },
+    {
+      "id": "the-salt-room-orlando",
+      "rank": 12,
+      "tier": "TIER_3_STRATEGIC_CATEGORY_ANCHOR",
+      "name": "The Salt Room Orlando Day Spa",
+      "region": "Orlando / Central Florida",
+      "city": "Orlando, FL",
+      "category": "Boutique Spas & Wellness Studios",
+      "placeId": "ChIJ5SW7Y5Z654gRay03ShatKBY",
+      "rating": 4.8,
+      "reviews": 751,
+      "wayfindScore": 94,
+      "fitBand": "STRONG_FIT",
+      "fitScoreInternal": 87,
+      "wayfindEvidence": {
+        "detailOpens": 3,
+        "saves": 1,
+        "guides": []
+      },
+      "buyerJob": "Fill weekday salt-cave halotherapy & couples massage appointments ($180–$350+) and Nov–Dec holiday spa gift cards.",
+      "whyYouBrief": "Wayfind's Orlando catalog has 114 spas with ~0% affiliate clutter, letting The Salt Room (4.8 stars, 751 reviews) own rainy-day and date-night wellness discovery around Mills 50 / Ivanhoe.",
+      "recommendedPackage": {
+        "packageId": "monthly",
+        "priceUsd": 199,
+        "measurementPeriodDays": 30,
+        "decisionDate": "2026-12-28"
+      },
+      "publicContact": {
+        "officialWebsite": "https://saltroomorlando.com/",
+        "bookingUrl": "https://saltroomorlando.com/",
+        "bookingPlatform": "Online Spa Booking Portal",
+        "onlineBookingAvailable": true,
+        "publicEmail": "info@saltroomorlando.com",
+        "contactFormUrl": "https://saltroomorlando.com/",
+        "publicPhone": "(407) 965-4346",
+        "instagram": "@saltroomorlando",
+        "verifiedFact": "Mills 50 / Ivanhoe boutique salt cave offering halotherapy, couples massage packages, and online gift cards.",
+        "flags": []
+      },
+      "outreachAngle": "One couples salt-cave package covers the $199 30-day holiday wellness & gift-card pilot.",
+      "measurementPlan": "Server-witnessed /api/partner/outbound clicks + UTM spa booking & gift-card clicks."
+    },
+    {
+      "id": "snowcat-ridge-dade-city",
+      "rank": 13,
+      "tier": "TIER_1_FREE_WAYFIND_TRAFFIC",
+      "name": "Snowcat Ridge Alpine Snow Park",
+      "region": "Tampa Bay",
+      "city": "Dade City, FL",
+      "category": "Christmas & Holiday Attractions",
+      "placeId": "ChIJF05ORfWpwogRI74PwJotNf4",
+      "eventId": "snowcat-ridge-2026",
+      "rating": null,
+      "reviews": null,
+      "wayfindScore": null,
+      "fitBand": "STRONG_FIT",
+      "fitScoreInternal": 91,
+      "wayfindEvidence": {
+        "detailOpens": 0,
+        "freeOrganizerClicks": 10,
+        "guides": [
+          "florida-holiday-nights-out-2026"
+        ]
+      },
+      "buyerJob": "Drive advance online Leap Events tubing tickets ($26.95+, $6 cheaper than box office) for weekday/Sunday sessions starting Nov 14, 2026.",
+      "whyYouBrief": "Before your Nov 14 opening day, Wayfind visitors already clicked through to Snowcat Ridge 10 times from our Christmas surfaces — and we maintain a dedicated ticket-tier breakdown for your guests.",
+      "recommendedPackage": {
+        "packageId": "monthly",
+        "priceUsd": 199,
+        "measurementPeriodDays": 30,
+        "decisionDate": "2026-12-20"
+      },
+      "publicContact": {
+        "officialWebsite": "https://snowcatridge.com/",
+        "bookingUrl": "https://snowcatridge.com/buy-tickets",
+        "bookingPlatform": "Leap Events",
+        "onlineBookingAvailable": true,
+        "publicEmail": null,
+        "contactFormUrl": "https://snowcatridge.com/contact",
+        "publicPhone": "(813) 576-1450",
+        "instagram": "@snowcatridge",
+        "verifiedFact": "2026–2027 season opens Nov 14, 2026; online GA starts at $26.95 ($6 cheaper than box office) via Leap Events.",
+        "flags": [
+          "MISSING_PUBLIC_EMAIL_CONTACT_FORM_ONLY",
+          "SEASONAL_EVENT_NO_PLACE_SCORE_BADGE"
+        ]
+      },
+      "outreachAngle": "Submit concise partnership note via snowcatridge.com/contact: 10 pre-opening Wayfind ticket clicks already observed; $199/30d dated seasonal rail sponsorship.",
+      "measurementPlan": "Server-witnessed /api/partner/outbound clicks to snowcatridge.com/buy-tickets + Leap Events UTM tracking."
+    },
+    {
+      "id": "yacht-starship-tampa",
+      "rank": 14,
+      "tier": "TIER_1_FREE_WAYFIND_TRAFFIC",
+      "name": "Yacht StarShip Cruises & Events",
+      "region": "Tampa Bay",
+      "city": "Tampa & Clearwater, FL",
+      "category": "Boat, Dolphin & Sunset Charters",
+      "placeId": "ChIJHxcB0vPEwogR3fFnuF_MWmg",
+      "rating": 4.4,
+      "reviews": 2213,
+      "wayfindScore": 88,
+      "fitBand": "STRONG_FIT",
+      "fitScoreInternal": 93,
+      "wayfindEvidence": {
+        "detailOpens": 6,
+        "guides": [
+          "florida-santa-and-christmas-trains-2026"
+        ],
+        "seasonalFeatures": 3
+      },
+      "buyerJob": "Fill high-ticket Sunset Dinner, Santa Brunch, and Lighted Boat Parade cruises ($49.95–$150+/person) directly in RocketRez across Tampa and Clearwater.",
+      "whyYouBrief": "Wayfind already features Yacht StarShip across our 2026 holiday cruise listings in both Tampa Channelside and Clearwater Marina with $0 commission.",
+      "recommendedPackage": {
+        "packageId": "quarterly",
+        "priceUsd": 299,
+        "measurementPeriodDays": 90,
+        "decisionDate": "2027-02-15"
+      },
+      "publicContact": {
+        "officialWebsite": "https://yachtstarship.com/",
+        "bookingUrl": "https://yachtstarship.com/",
+        "bookingPlatform": "RocketRez",
+        "onlineBookingAvailable": true,
+        "publicEmail": "info@yachtstarship.com",
+        "contactFormUrl": "https://yachtstarship.com/contact-us",
+        "publicPhone": "(813) 223-7999",
+        "instagram": "@yachtstarship",
+        "verifiedFact": "Sunset Dinner, Brunch & Holiday cruises from Tampa (603 Channelside Dr) & Clearwater (25 Causeway Blvd) starting ~$49.95+ on RocketRez.",
+        "flags": []
+      },
+      "outreachAngle": "Two couple dinner-cruise bookings ($280–$360) pay back an entire 90-day Tampa Bay sponsorship at 0% Wayfind commission.",
+      "measurementPlan": "Server-witnessed /api/partner/outbound clicks + RocketRez UTM campaign tracking."
+    },
+    {
+      "id": "clear-kayaking-tours-crystal-river",
+      "rank": 15,
+      "tier": "TIER_2_DEMAND_NO_PARTNER_SUPPLY",
+      "name": "Clear Kayaking Tours Crystal River",
+      "region": "Tampa Bay",
+      "city": "Crystal River, FL",
+      "category": "Clear-Kayak, Manatee & Eco-Tours",
+      "placeId": "ChIJQSlpkrpB6IgRX-DTkxQ5Njg",
+      "rating": 5,
+      "reviews": 2573,
+      "wayfindScore": 99,
+      "fitBand": "STRONG_FIT",
+      "fitScoreInternal": 95,
+      "wayfindEvidence": {
+        "corridorCommerceClicks": 148,
+        "guides": [
+          "swim-with-manatees-crystal-river",
+          "florida-manatee-season-2026"
+        ]
+      },
+      "buyerJob": "Route winter manatee-season paddlers (Nov 15 – Mar 31) directly to Peek Pro ($59.99–$69+/person) instead of paying 20–30% OTA fees.",
+      "whyYouBrief": "Wayfind's Crystal River manatee guides already generated 148 outbound commerce clicks, and your 5.0-star / 2,573-review operation earns a 9.9 organic Wayfind Score.",
+      "recommendedPackage": {
+        "packageId": "quarterly",
+        "priceUsd": 299,
+        "measurementPeriodDays": 90,
+        "decisionDate": "2027-02-15"
+      },
+      "publicContact": {
+        "officialWebsite": "https://clearkayakingtours.com/",
+        "bookingUrl": "https://clearkayakingtours.com/",
+        "bookingPlatform": "Peek Pro",
+        "onlineBookingAvailable": true,
+        "publicEmail": "clearkayakingtours@gmail.com",
+        "contactFormUrl": "https://clearkayakingtours.com/",
+        "publicPhone": "(352) 586-1631",
+        "instagram": "@clearkayakingtours",
+        "verifiedFact": "100% clear kayak Crystal River manatee season & Three Sisters Springs tours starting $59.99–$69.00+/person via Peek Pro.",
+        "flags": []
+      },
+      "outreachAngle": "Capture peak Nov 15 – Mar 31 manatee-season bookings direct in Peek Pro for ~$3.32/day flat.",
+      "measurementPlan": "Server-witnessed /api/partner/outbound clicks + Peek Pro UTM referral attribution."
+    },
+    {
+      "id": "jc-newman-cigar-company",
+      "rank": 16,
+      "tier": "TIER_2_DEMAND_NO_PARTNER_SUPPLY",
+      "name": "J.C. Newman Cigar Company (El Reloj)",
+      "region": "Tampa Bay",
+      "city": "Tampa (Ybor City), FL",
+      "category": "Ticketed Attractions & Heritage Tours",
+      "placeId": "ChIJsxtTEU_EwogREc-soNYgMu0",
+      "rating": 4.9,
+      "reviews": 584,
+      "wayfindScore": 95,
+      "fitBand": "STRONG_FIT",
+      "fitScoreInternal": 88,
+      "wayfindEvidence": {
+        "guides": [
+          "ybor-city-tampa-guide"
+        ]
+      },
+      "buyerJob": "Fill Mon–Fri Guided Factory Tours (~$15) and high-margin Hand-Rolling Cigar Classes directly on jcnewman.com/tours where zero OTA tickets exist.",
+      "whyYouBrief": "America's oldest family-owned cigar factory sits right inside our Ybor City Tampa discovery corridor with a 9.5 organic Wayfind Score and zero third-party tour resellers.",
+      "recommendedPackage": {
+        "packageId": "quarterly",
+        "priceUsd": 299,
+        "measurementPeriodDays": 90,
+        "decisionDate": "2027-02-15"
+      },
+      "publicContact": {
+        "officialWebsite": "https://www.jcnewman.com/",
+        "bookingUrl": "https://www.jcnewman.com/tours",
+        "bookingPlatform": "Integrated Native Website Checkout",
+        "onlineBookingAvailable": true,
+        "publicEmail": "tours@jcnewman.com",
+        "contactFormUrl": "https://www.jcnewman.com/",
+        "publicPhone": "(813) 248-2124",
+        "instagram": "@j.c.newmancigarco",
+        "verifiedFact": "Free El Reloj museum (Mon–Fri 9–5) plus paid 60-min Guided Factory Tours (~$15) and Hand-Rolling Classes at jcnewman.com/tours.",
+        "flags": []
+      },
+      "outreachAngle": "Drive weekday Ybor rainy-day & culture visitors directly into paid factory tours and rolling classes.",
+      "measurementPlan": "Server-witnessed /api/partner/outbound clicks to jcnewman.com/tours + UTM tracking."
+    },
+    {
+      "id": "dolphin-quest-johns-pass",
+      "rank": 17,
+      "tier": "TIER_2_DEMAND_NO_PARTNER_SUPPLY",
+      "name": "Dolphin Quest Eco Tours (Boat Tours John's Pass)",
+      "region": "St. Pete / Clearwater",
+      "city": "Madeira Beach, FL",
+      "category": "Boat, Dolphin & Sunset Charters",
+      "placeId": "ChIJ5cQh61T8wogRvptDJYwOURM",
+      "rating": 4.9,
+      "reviews": 2760,
+      "wayfindScore": 98,
+      "fitBand": "STRONG_FIT",
+      "fitScoreInternal": 93,
+      "wayfindEvidence": {
+        "regionDetailOpens": 676,
+        "regionSaves": 70,
+        "guides": [
+          "things-to-do-st-petersburg-clearwater-summer-2026"
+        ]
+      },
+      "buyerJob": "Win direct $29+ adult family dolphin & sunset bookings on FareHarbor in OTA-heavy John's Pass Boardwalk.",
+      "whyYouBrief": "With 4.9 stars across 2,760 reviews (Wayfind Score 9.8), Dolphin Quest can capture Pinellas beach families directly on FareHarbor at 0% Wayfind commission.",
+      "recommendedPackage": {
+        "packageId": "quarterly",
+        "priceUsd": 299,
+        "measurementPeriodDays": 90,
+        "decisionDate": "2027-02-15"
+      },
+      "publicContact": {
+        "officialWebsite": "https://boattoursjohnspass.com/",
+        "bookingUrl": "https://boattoursjohnspass.com/",
+        "bookingPlatform": "FareHarbor",
+        "onlineBookingAvailable": true,
+        "publicEmail": "info@boattoursjohnspass.com",
+        "contactFormUrl": "https://boattoursjohnspass.com/",
+        "publicPhone": "(727) 392-7090",
+        "instagram": "@boattoursjohnspass",
+        "verifiedFact": "Daily Dolphin Quest Boca Ciega Bay eco-tours & sunset cruises from John's Pass starting at $29 Adults via FareHarbor.",
+        "flags": []
+      },
+      "outreachAngle": "Bypass boardwalk reseller fees with direct FareHarbor handoffs across Pinellas barrier islands.",
+      "measurementPlan": "Server-witnessed /api/partner/outbound clicks + FareHarbor UTM source=wayfind orders."
+    },
+    {
+      "id": "hollander-hotel-st-pete",
+      "rank": 18,
+      "tier": "TIER_1_FREE_WAYFIND_TRAFFIC",
+      "name": "Hollander Hotel St. Petersburg",
+      "region": "St. Pete / Clearwater",
+      "city": "St. Petersburg, FL",
+      "category": "Independent & Boutique Hotels",
+      "placeId": "ChIJkxb2bHjhwogRVTJAsj2KP-M",
+      "rating": 4.7,
+      "reviews": 3209,
+      "wayfindScore": 94,
+      "fitBand": "STRONG_FIT",
+      "fitScoreInternal": 90,
+      "wayfindEvidence": {
+        "detailOpens": 8,
+        "uniqueDevices": 7,
+        "primaryCtaNulls": 6,
+        "saves": 2,
+        "stopAdds": 2,
+        "guides": []
+      },
+      "buyerJob": "Drive direct room bookings (0% OTA commission, free parking, zero resort fees) and Tap Room / poolside dining in Downtown St. Pete.",
+      "whyYouBrief": "7 visitors opened Hollander Hotel 8 times on Wayfind (6 hitting primary_cta_null), saved it twice, and added it to 2 St. Pete weekend trips — with zero Expedia/Stay22 middleman.",
+      "recommendedPackage": {
+        "packageId": "quarterly",
+        "priceUsd": 299,
+        "measurementPeriodDays": 90,
+        "decisionDate": "2027-02-15"
+      },
+      "publicContact": {
+        "officialWebsite": "https://hollanderhotel.com/",
+        "bookingUrl": "https://hollanderhotel.com/",
+        "bookingPlatform": "Direct Integrated Hotel Booking Engine",
+        "onlineBookingAvailable": true,
+        "publicEmail": "Events@hollanderhotel.com",
+        "contactFormUrl": "https://hollanderhotel.com/contact",
+        "publicPhone": "(727) 873-7900",
+        "instagram": "@hollanderhotel",
+        "verifiedFact": "Downtown St. Pete boutique hotel with heated pool, free cabanas, free parking, zero resort fees, and direct promo booking.",
+        "flags": [
+          "EVENTS_EMAIL_AND_FORM_NO_GENERIC_INFO_EMAIL"
+        ]
+      },
+      "outreachAngle": "A single 2-night direct weekend stay pays back the entire $299 90-day placement.",
+      "measurementPlan": "Server-witnessed /api/partner/outbound clicks to hollanderhotel.com booking engine."
+    },
+    {
+      "id": "st-pete-comedy-club",
+      "rank": 19,
+      "tier": "TIER_1_FREE_WAYFIND_TRAFFIC",
+      "name": "St. Pete Comedy Club (St. Pete Stand Up)",
+      "region": "St. Pete / Clearwater",
+      "city": "St. Petersburg, FL",
+      "category": "Ticketed Attractions & Nightlife",
+      "placeId": "ChIJkeB3AiDhwogRFErS2ugR_58",
+      "rating": 5,
+      "reviews": 653,
+      "wayfindScore": 97,
+      "fitBand": "STRONG_FIT",
+      "fitScoreInternal": 86,
+      "wayfindEvidence": {
+        "detailOpens": 5,
+        "uniqueDevices": 7,
+        "saves": 5,
+        "stopAdds": 3,
+        "addToPlanClicks": 1,
+        "guides": []
+      },
+      "buyerJob": "Fill Friday/Saturday showcase rooms and 2-drink-minimum bar tabs at 1745 1st Ave S via Eventbrite.",
+      "whyYouBrief": "St. Pete Comedy Club has a 100% save-to-open ratio on Wayfind (5 opens, 5 saves, 3 itinerary stop_adds) from Grand Central date-night planners.",
+      "recommendedPackage": {
+        "packageId": "monthly",
+        "priceUsd": 199,
+        "measurementPeriodDays": 30,
+        "decisionDate": "2026-12-28"
+      },
+      "publicContact": {
+        "officialWebsite": "https://www.stpetestandup.com/",
+        "bookingUrl": "https://www.stpetestandup.com/",
+        "bookingPlatform": "Eventbrite",
+        "onlineBookingAvailable": true,
+        "publicEmail": "info@stpetestandup.com",
+        "contactFormUrl": "https://www.stpetestandup.com/",
+        "publicPhone": "(301) 305-7491",
+        "instagram": "@stpetestandup",
+        "verifiedFact": "Grand Central District comedy room (1745 1st Ave S) selling Eventbrite show tickets ($5–$15+).",
+        "flags": [
+          "OPERATES_ON_STPETESTANDUP_DOMAIN_DISTINCT_FROM_SUNSHINE_CITY_COMEDY_CLUB"
+        ]
+      },
+      "outreachAngle": "Promote weekend comedy showcases on St. Pete Tonight/Weekend surfaces.",
+      "measurementPlan": "Server-witnessed /api/partner/outbound clicks + Eventbrite UTM tracking."
+    },
+    {
+      "id": "fairchild-tropical-botanic-garden",
+      "rank": 20,
+      "tier": "TIER_1_FREE_WAYFIND_TRAFFIC",
+      "name": "Fairchild Tropical Botanic Garden (NightGarden)",
+      "region": "Miami / South Florida",
+      "city": "Coral Gables / Miami, FL",
+      "category": "Museums, Botanical Gardens & Holiday Attractions",
+      "placeId": "ChIJu_e4BnTI2YgREAOg3GxMK8g",
+      "rating": 4.8,
+      "reviews": 5125,
+      "wayfindScore": 96,
+      "fitBand": "STRONG_FIT",
+      "fitScoreInternal": 92,
+      "wayfindEvidence": {
+        "regionDetailOpens": 1101,
+        "guides": [
+          "florida-holiday-nights-out-2026"
+        ]
+      },
+      "buyerJob": "Drive weeknight NightGarden timed-entry tickets ($28–$38+ Nov 13 – Jan 3) and $24.95 daytime Coral Gables conservatory admissions.",
+      "whyYouBrief": "NightGarden opens Nov 13, 2026 across our Miami/South Florida holiday surfaces where 99.6% of places have zero paid sponsor clutter.",
+      "recommendedPackage": {
+        "packageId": "monthly",
+        "priceUsd": 199,
+        "measurementPeriodDays": 30,
+        "decisionDate": "2026-12-27"
+      },
+      "publicContact": {
+        "officialWebsite": "https://fairchildgarden.org/",
+        "bookingUrl": "https://fairchildgarden.org/",
+        "bookingPlatform": "TicketApp / Blackbaud (Daytime) & Fever (NightGarden)",
+        "onlineBookingAvailable": true,
+        "publicEmail": "ContactUs@FairchildGarden.org",
+        "contactFormUrl": "https://fairchildgarden.org/",
+        "publicPhone": "(305) 667-1651",
+        "instagram": "@fairchildgarden",
+        "verifiedFact": "NightGarden runs Nov 13, 2026 – Jan 3, 2027 ($28–$38+); Daytime Admission starts at $24.95 Adults.",
+        "flags": [
+          "DUAL_PLATFORM_FEVER_AND_BLACKBAUD"
+        ]
+      },
+      "outreachAngle": "Coral Gables / Miami geo-gated holiday & daytime botanical showcase at 0% Wayfind commission.",
+      "measurementPlan": "Server-witnessed /api/partner/outbound clicks + UTM tracking."
+    },
+    {
+      "id": "naples-botanical-garden",
+      "rank": 21,
+      "tier": "TIER_1_FREE_WAYFIND_TRAFFIC",
+      "name": "Naples Botanical Garden (Night Lights in the Garden)",
+      "region": "Miami / South Florida",
+      "city": "Naples, FL",
+      "category": "Museums, Botanical Gardens & Holiday Attractions",
+      "placeId": "ChIJlcQil-Pj2ogRZXbB55ldZcQ",
+      "eventId": "naples-night-lights-2026",
+      "rating": 4.8,
+      "reviews": 6289,
+      "wayfindScore": 96,
+      "fitBand": "STRONG_FIT",
+      "fitScoreInternal": 93,
+      "wayfindEvidence": {
+        "freeOrganizerClicks": 5,
+        "guides": [
+          "florida-holiday-nights-out-2026"
+        ]
+      },
+      "buyerJob": "Sell early-season $36 non-member timed tickets (Nov 27 – Dec 17) on ACME Ticketing ahead of Dec 18 peak sellouts.",
+      "whyYouBrief": "Wayfind already sent 5 free ticket clicks to Naples Night Lights in the Garden from our 2026 Holiday Nights Out guide in a SWFL market with zero affiliate competition.",
+      "recommendedPackage": {
+        "packageId": "monthly",
+        "priceUsd": 199,
+        "measurementPeriodDays": 30,
+        "decisionDate": "2026-12-27"
+      },
+      "publicContact": {
+        "officialWebsite": "https://www.naplesgarden.org/",
+        "bookingUrl": "https://ticketing.naplesgarden.org/",
+        "bookingPlatform": "ACME Ticketing",
+        "onlineBookingAvailable": true,
+        "publicEmail": "info@naplesgarden.org",
+        "contactFormUrl": "https://www.naplesgarden.org/",
+        "publicPhone": "(239) 643-7275",
+        "instagram": "@naplesbotanicalgarden",
+        "verifiedFact": "Johnsonville Night Lights runs Nov 27, 2026 – Jan 3, 2027 ($36 Adult Nov 27–Dec 17 / $42 Dec 18–Jan 3 via ACME Ticketing).",
+        "flags": []
+      },
+      "outreachAngle": "Six early-season $36 adult tickets on ticketing.naplesgarden.org cover the entire $199 30-day SWFL flight.",
+      "measurementPlan": "Server-witnessed /api/partner/outbound clicks + ACME Ticketing UTM tracking."
+    },
+    {
+      "id": "edison-ford-winter-estates",
+      "rank": 22,
+      "tier": "TIER_1_FREE_WAYFIND_TRAFFIC",
+      "name": "Edison & Ford Winter Estates",
+      "region": "Miami / South Florida",
+      "city": "Fort Myers, FL",
+      "category": "Museums, Botanical Gardens & Holiday Attractions",
+      "placeId": "ChIJVVUNg8JB24gRo5VjblNO_c8",
+      "rating": 4.7,
+      "reviews": 7729,
+      "wayfindScore": 94,
+      "fitBand": "STRONG_FIT",
+      "fitScoreInternal": 91,
+      "wayfindEvidence": {
+        "detailOpens": 16,
+        "uniqueDevices": 15,
+        "primaryCtaNulls": 14,
+        "directionsClicks": 3,
+        "guides": [
+          "florida-holiday-nights-out-2026"
+        ]
+      },
+      "buyerJob": "Convert SWFL winter visitors into online $23 Holiday Nights admissions (Nov 27 – Jan 3) and daytime riverfront estate tours.",
+      "whyYouBrief": "15 visitors opened Edison & Ford Winter Estates 16 times on Wayfind (14 hitting primary_cta_null) with 3 directions taps — zero ticket button currently wired.",
+      "recommendedPackage": {
+        "packageId": "quarterly",
+        "priceUsd": 299,
+        "measurementPeriodDays": 90,
+        "decisionDate": "2027-02-15"
+      },
+      "publicContact": {
+        "officialWebsite": "https://www.edisonfordwinterestates.org/",
+        "bookingUrl": "https://ecommerce.edisonfordwinterestates.org/",
+        "bookingPlatform": "Dedicated Estates E-Commerce Portal",
+        "onlineBookingAvailable": true,
+        "publicEmail": "info@edisonfordwinterestates.org",
+        "contactFormUrl": "https://www.edisonfordwinterestates.org/contact-us/",
+        "publicPhone": "(239) 334-7419",
+        "instagram": "@edisonfordwinterestates",
+        "verifiedFact": "51st annual Holiday Nights runs nightly Nov 27, 2026 – Jan 3, 2027 ($23 Adults online GA).",
+        "flags": []
+      },
+      "outreachAngle": "Own Fort Myers winter cultural discovery for ~$3.32/day across Holiday Nights + Jan–Feb snowbird season.",
+      "measurementPlan": "Server-witnessed /api/partner/outbound clicks to ecommerce.edisonfordwinterestates.org."
+    },
+    {
+      "id": "florida-water-tours-st-augustine",
+      "rank": 23,
+      "tier": "TIER_1_FREE_WAYFIND_TRAFFIC",
+      "name": "Florida Water Tours St. Augustine",
+      "region": "North Florida",
+      "city": "St. Augustine, FL",
+      "category": "Boat, Dolphin & Sunset Charters",
+      "placeId": "ChIJRza3INOC5ogRWk0oNr5bVOE",
+      "rating": 4.9,
+      "reviews": 6638,
+      "wayfindScore": 98,
+      "fitBand": "STRONG_FIT",
+      "fitScoreInternal": 95,
+      "wayfindEvidence": {
+        "regionDetailOpens": 473,
+        "regionSaves": 62,
+        "guides": [
+          "things-to-do-st-augustine-summer-2026",
+          "florida-holiday-nights-out-2026"
+        ]
+      },
+      "buyerJob": "Capture direct $39–$49/person Nights of Lights boat tour bookings (Nov 21 – Jan 18) in FareHarbor without OTA commission leakage.",
+      "whyYouBrief": "With 4.9 stars across 6,638 reviews (Wayfind Score 9.8) and Nights of Lights running Nov 21 – Jan 18, two direct 4-seat bookings cover a 90-day St. Augustine sponsorship.",
+      "recommendedPackage": {
+        "packageId": "quarterly",
+        "priceUsd": 299,
+        "measurementPeriodDays": 90,
+        "decisionDate": "2027-02-15"
+      },
+      "publicContact": {
+        "officialWebsite": "https://floridawatertour.com/",
+        "bookingUrl": "https://floridawatertour.com/",
+        "bookingPlatform": "FareHarbor",
+        "onlineBookingAvailable": true,
+        "publicEmail": "info@FLwatertours.com",
+        "contactFormUrl": "https://floridawatertour.com/contact",
+        "publicPhone": "(904) 827-7728",
+        "instagram": "@fl_watertours",
+        "verifiedFact": "Nights of Lights boat tours run nightly Nov 21, 2026 – Jan 18, 2027 ($39–$49/person across family & 21+ boats via FareHarbor).",
+        "flags": [
+          "CANONICAL_DOMAIN_SINGULAR_FLORIDAWATERTOUR_COM"
+        ]
+      },
+      "outreachAngle": "Direct FareHarbor handoffs for St. Augustine Nights of Lights & winter dolphin eco-cruises at 0% fee.",
+      "measurementPlan": "Server-witnessed /api/partner/outbound clicks + FareHarbor UTM source=wayfind tracking."
+    },
+    {
+      "id": "coastal-wildlife-adventures-pcb",
+      "rank": 24,
+      "tier": "TIER_2_DEMAND_NO_PARTNER_SUPPLY",
+      "name": "Coastal Wildlife Adventures",
+      "region": "Panhandle",
+      "city": "Panama City Beach, FL",
+      "category": "Boat, Dolphin & Sunset Charters",
+      "placeId": "ChIJl7RuQFeGk4gRdwcg-SOIJsI",
+      "rating": 5,
+      "reviews": 1197,
+      "wayfindScore": 98,
+      "fitBand": "STRONG_FIT",
+      "fitScoreInternal": 89,
+      "wayfindEvidence": {
+        "regionDetailOpens": 208,
+        "guides": []
+      },
+      "buyerJob": "Book private 6-passenger USCG-captained Shell Island dolphin & snorkel eco-tours ($79–$345+) direct with zero Panhandle affiliate clutter.",
+      "whyYouBrief": "Wayfind's unlocked Panama City Beach market has 208 place opens and zero real Viator/affiliate competition, and your 5.0-star / 1,197-review charter earns a 9.8 Wayfind Score.",
+      "recommendedPackage": {
+        "packageId": "quarterly",
+        "priceUsd": 299,
+        "measurementPeriodDays": 90,
+        "decisionDate": "2027-02-15"
+      },
+      "publicContact": {
+        "officialWebsite": "https://dolphinandsnorkeltours.com/",
+        "bookingUrl": "https://dolphinandsnorkeltours.com/",
+        "bookingPlatform": "Integrated Native Website Checkout",
+        "onlineBookingAvailable": true,
+        "publicEmail": "snorkelpcb@gmail.com",
+        "contactFormUrl": "https://dolphinandsnorkeltours.com/",
+        "publicPhone": "(850) 866-8815",
+        "instagram": null,
+        "verifiedFact": "Private USCG-captained (up to 6 guests) Shell Island Dolphin & Snorkeling Eco-Tours starting $79–$345+.",
+        "flags": [
+          "NO_PROMINENT_IG_ON_SITE"
+        ]
+      },
+      "outreachAngle": "One private Shell Island charter ($345) pays back an entire 90-day Panama City Beach category-anchor placement.",
+      "measurementPlan": "Server-witnessed /api/partner/outbound clicks to dolphinandsnorkeltours.com cart."
+    },
+    {
+      "id": "sunset-watersports-key-west",
+      "rank": 25,
+      "tier": "TIER_3_STRATEGIC_CATEGORY_ANCHOR",
+      "name": "Sunset Watersports Key West",
+      "region": "Keys",
+      "city": "Key West, FL",
+      "category": "Boat, Dolphin & Sunset Charters",
+      "placeId": "ChIJ-wAGmOq20YgRh4pc8Cqzs88",
+      "rating": 4.8,
+      "reviews": 23755,
+      "wayfindScore": 96,
+      "fitBand": "POSSIBLE_FIT",
+      "fitScoreInternal": 84,
+      "wayfindEvidence": {
+        "regionDetailOpens": 91,
+        "regionSaves": 14,
+        "guides": []
+      },
+      "buyerJob": "Capture direct $139.95 'Do It All' reef/watersports & sunset cruise bookings in FareHarbor instead of paying high Duval Street concierge booth commissions.",
+      "whyYouBrief": "Family-owned since 1984 with 23,755 reviews (Wayfind Score 9.6). Note: Key West landing feed is currently held pending feed fill (91 Keys detail opens today), so hold active column pitch until Key West feed gate unlocks or scope strictly to /partners/sunset-watersports-key-west + geo-gated visitors in Key West.",
+      "recommendedPackage": {
+        "packageId": "quarterly",
+        "priceUsd": 299,
+        "measurementPeriodDays": 90,
+        "decisionDate": "2027-02-15"
+      },
+      "publicContact": {
+        "officialWebsite": "https://sunsetwatersportskeywest.com/",
+        "bookingUrl": "https://sunsetwatersportskeywest.com/",
+        "bookingPlatform": "FareHarbor",
+        "onlineBookingAvailable": true,
+        "publicEmail": "info@sunsetwatersports.com",
+        "contactFormUrl": "https://sunsetwatersportskeywest.com/",
+        "publicPhone": "(305) 296-2554",
+        "instagram": "@sunsetwatersports",
+        "verifiedFact": "Signature 'Do It All' 10-activity Key West Adventure ~$139.95 promo plus Sunset Cruises on FareHarbor.",
+        "flags": [
+          "KEY_WEST_LANDING_CITY_HELD_GATE_DISCLOSE_BEFORE_OUTREACH"
+        ]
+      },
+      "outreachAngle": "Stage behind Wave 1 Sarasota/Orlando/Tampa Bay; two 'Do It All' tickets ($280) cover 90 days once Key West unlocks.",
+      "measurementPlan": "Server-witnessed /api/partner/outbound clicks + FareHarbor UTM source=wayfind tracking."
+    }
+  ]
+}

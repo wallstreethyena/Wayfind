@@ -202,6 +202,10 @@ export const config = {
     // forwards one custom event to Graph when a token is configured. Dormant
     // (204) otherwise. Full same-origin guard + per-IP rate limit.
     "/api/meta/capi",
+    // Direct sponsor inquiry POST (same-origin + per-IP rate limit) and
+    // server-witnessed sponsor outbound GET 302 (navigation rate-limit only).
+    "/api/partner/inquire",
+    "/api/partner/outbound",
   ],
 };
 
@@ -217,7 +221,7 @@ export const config = {
 // link resolves through this route, so the comment described the intent and the
 // code did the opposite. check-clipp-deals.mjs asserts membership in this Set, not
 // merely that the path appears somewhere in this file.
-const NAV_302_ROUTES = new Set(["/api/viator/go", "/api/commerce/go", "/api/events/reminder"]);
+const NAV_302_ROUTES = new Set(["/api/viator/go", "/api/commerce/go", "/api/events/reminder", "/api/partner/outbound"]);
 // Image proxies loaded via <img> — including cross-origin OG/share-preview
 // crawlers (Facebook, Twitter, iMessage). A same-origin 403 would break every
 // shared-link image, so keep the per-IP rate limit (the real cost guard) but

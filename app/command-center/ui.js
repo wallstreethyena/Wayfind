@@ -37,7 +37,7 @@ const RANGES = [
 const GROUPS = [
   { id: "today", label: "Briefing & metrics", short: "Briefing", sections: ["briefing", "alerts", "overview"], description: "The fixed previous-day report, live current-day alerts, and metrics for the selected date range." },
   { id: "visitors", label: "Visitors", short: "Visitors", sections: ["traffic", "journey", "retention"], description: "How people find Wayfind, what they do next, and whether they come back." },
-  { id: "commerce", label: "Places & tickets", short: "Places", sections: ["places"], description: "Which places people open, save, share, and choose for tickets or booking." },
+  { id: "commerce", label: "Places & sponsors", short: "Places", sections: ["places", "partners"], description: "Which places people open, save, share, and choose for tickets, plus direct sponsor pipeline, campaign health, and Florida pilot prospects." },
   { id: "reliability", label: "Reliability", short: "Health", sections: ["health"], description: "Whether Wayfind is working quickly and reliably for visitors." },
   { id: "details", label: "Details", short: "Details", sections: ["intelligence", "feedback", "ops", "sources"], description: "Research leads, the saved team inbox, releases, and the exact definitions behind every number." },
 ];
@@ -852,6 +852,124 @@ function PlacesSection({ auth, range }) {
   );
 }
 
+function PartnersRevenueSection({ auth, range }) {
+  // HOOKS RULE: all hooks before any conditional return.
+  const p = usePanel("partners", auth, range);
+  const d = dget(p.data, "data", null);
+  if (p.error) return <Section id="partners" title="Direct sponsors & Florida sales engine"><PanelError {...p} reload={p.reload} /></Section>;
+  const truth = dget(d, "commercialTruth", {}) || {};
+  const leadsBlock = dget(d, "inboundLeads", null);
+  const leads = dget(leadsBlock, "data", null);
+  const evBlock = dget(d, "funnelEvents", null);
+  const ev = dget(evBlock, "data", null);
+  const campaigns = dget(d, "campaigns", null) || [];
+  const pilots = dget(d, "pilots", null) || [];
+  const prospects = dget(d, "topProspects", null) || [];
+  const regions = dget(d, "regions", null) || [];
+  return (
+    <Section id="partners" title="Direct sponsors & Florida sales engine" loading={p.loading && !p.data}
+      sub={dget(d, "integrityNote", "")}>
+      <Grid min={175}>
+        <StatTile label="Collected sponsor revenue" value={truth.confirmedCollectedPartnerRevenueUsd != null ? fmtUsd(truth.confirmedCollectedPartnerRevenueUsd) : "–"} sub="0% commission on direct bookings" def="Confirmed collected direct-sponsorship revenue. Inquiries and proposals never count as revenue." source={dget(d, "staticSource")} />
+        <StatTile label="Real inbound leads" value={leads ? fmtNum(leads.realLeadCount) : "–"} sub={leads ? `${fmtNum(leads.syntheticExcludedCount)} synthetic/QA excluded` : "source unavailable"} def="Validated non-synthetic B2B inquiries saved from /partners. Automated QA probes are isolated and excluded." source={dget(leadsBlock, "source")} />
+        <StatTile label="Sponsor outbound clicks" value={ev ? fmtNum(ev.sponsorOutboundClicks) : "–"} sub={ev ? `${fmtNum(ev.inquiryClicks)} form clicks · ${fmtNum(ev.leadsCreated)} leads` : "in selected window"} def="Server-witnessed human sponsor_out redirects in the selected ET window (bots and synthetic probes excluded)." source={dget(evBlock, "source")} />
+        <StatTile label="Active FL paid sponsors" value={truth.activeFloridaPaidSponsorsCount != null ? fmtNum(truth.activeFloridaPaidSponsorsCount) : "–"} sub={`${fmtNum(truth.activeNonFloridaPaidSponsorsCount || 0)} out-of-state showcase live`} def={truth.proofGapDisclosure || "Active geo-gated paid placements in Florida vs out-of-state showcase."} />
+      </Grid>
+      <div style={{ height: 12 }} />
+      <Two min={300}>
+        <Card>
+          <Frame title="Inbound B2B lead pipeline (/partners)" def="Saved inquiries from /partners parsed into the 12-stage evidence-gated CRM model. Synthetic tests are excluded from realLeadCount."
+            source={dget(leadsBlock, "source")}>
+            {leads ? (
+              leads.leads && leads.leads.length ? (
+                <DataTable caption="Inbound sponsor leads"
+                  columns={["When", "Business", "Market", "Stage", "Fit", "Offer", "Contact"]}
+                  rows={leads.leads.map((l) => [
+                    String(l.createdAt || "").slice(0, 16).replace("T", " "),
+                    l.businessName,
+                    l.cityMarket,
+                    l.stage,
+                    l.fitScoreInternal != null ? `${l.fitBand} (${l.fitScoreInternal})` : l.fitBand,
+                    l.priceUsd != null ? `$${l.priceUsd}` : "—",
+                    l.contactChannel || "—",
+                  ])} />
+              ) : (
+                <EmptyNote>0 real B2B leads stored yet ({fmtNum(leads.syntheticExcludedCount)} synthetic QA probe(s) cleanly isolated from sales metrics). Full raw messages remain in Details → Team feedback inbox.</EmptyNote>
+              )
+            ) : <NotConnected source={dget(leadsBlock, "source")} compact />}
+          </Frame>
+        </Card>
+        <Card>
+          <Frame title="Sponsored campaign registry & health" def="Every entry in SPONSORED_PLACES evaluated against flight dates, 30-day score snapshot freshness, server-witnessed clicks, and renewal gates. Unreconciled external bookings remain 'unknown', never 0."
+            source={dget(evBlock, "source") || dget(d, "staticSource")}>
+            <DataTable caption="Sponsored campaigns"
+              columns={["Venue", "Health", "Flight", "Clicks", "Bookings", "Renewal"]}
+              rows={campaigns.map((c) => [
+                c.name,
+                `${c.healthStatus}${c.snapshotFresh ? "" : " · score withheld"}`,
+                `${c.startsOn || "—"} → ${c.endsOn || "open"}`,
+                c.observedClicksInWindow != null ? fmtNum(c.observedClicksInWindow) : "–",
+                String(c.reconciledBookings),
+                c.renewalDecision,
+              ])} />
+          </Frame>
+        </Card>
+      </Two>
+      <div style={{ height: 12 }} />
+      <Two min={300}>
+        <Card>
+          <Frame title="5 Flagship Florida pilot offers" def="Ready-to-pitch measurable pilots grounded in first-party Florida demand and verified direct booking flows."
+            source={dget(d, "staticSource")}>
+            <DataTable caption="Flagship Florida pilots"
+              columns={["#", "Venue", "City", "Package", "Price", "Window"]}
+              rows={pilots.map((pl) => [
+                pl.pilotNumber,
+                pl.businessName,
+                pl.city,
+                pl.packageName,
+                `$${pl.priceUsd}`,
+                `${pl.flightStartsOn || "—"} → ${pl.flightEndsOn || "—"}`,
+              ])} />
+          </Frame>
+        </Card>
+        <Card>
+          <Frame title="Florida regional demand vs sponsor supply" def="30-day observed detail opens and unmonetized primary-CTA gaps across all 8 Florida regions."
+            source={dget(d, "staticSource")}>
+            <DataTable caption="Florida regional gap matrix"
+              columns={["Region", "Places", "Guides", "Opens (30d)", "CTA gaps", "Paid"]}
+              rows={regions.map((r) => [
+                r.name,
+                fmtNum(r.servablePlaces),
+                fmtNum(r.liveGuides),
+                fmtNum(r.detailOpens30d),
+                fmtNum(r.primaryCtaNulls30d),
+                fmtNum(r.activePaidSponsors),
+              ])} />
+          </Frame>
+        </Card>
+      </Two>
+      <div style={{ height: 12 }} />
+      <Card>
+        <Frame title="Top 15 Florida prospect queue (editorial score vs internal fit)" def="Organic WF Score comes strictly from public Google reviews (wayfindScore.js). Internal Fit Score guides B2B outreach only and never touches rankings."
+          source={dget(d, "staticSource")}>
+          <DataTable caption="Top 15 Florida non-sponsor prospects"
+            columns={["#", "Business", "City", "Category", "WF Score", "Internal Fit", "Recommended", "Checkout"]}
+            rows={prospects.map((pr) => [
+              pr.rank,
+              pr.name,
+              pr.city,
+              pr.category,
+              pr.wayfindScore != null ? (pr.wayfindScore / 10).toFixed(1) : "Event",
+              `${pr.fitBand} (${pr.fitScoreInternal})`,
+              pr.recommendedPackage,
+              pr.onlineBookingAvailable ? (pr.bookingPlatform || "Online") : "Walk-up only",
+            ])} />
+        </Frame>
+      </Card>
+    </Section>
+  );
+}
+
 function RetentionSection({ auth, range }) {
   // HOOKS RULE: all hooks before any conditional return (see TrafficSection).
   const p = usePanel("retention", auth, range);
@@ -1284,6 +1402,7 @@ export default function CommandCenter() {
           <>
             <GroupHeading group={group} />
             <PlacesSection auth={auth} range={range} />
+            <PartnersRevenueSection auth={auth} range={range} />
           </>
         ) : null}
         {activeGroup === "reliability" ? (
