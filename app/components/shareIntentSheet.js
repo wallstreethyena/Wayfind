@@ -3,6 +3,7 @@ import { encodeInvite, invitePath, inviteShareText, activityForPlace } from "../
 // v8.46 — the pairing law. wf_center is shared state; every reader validates.
 import { centerAgreesWithLabel } from "../../lib/locationHonesty";
 import { shareOut } from "../../lib/shareOut.js";
+import { beginShareFlow } from "../../lib/shareAttribution.js";
 import { groupPlanHref, placeSharePreview, runShareChoice } from "../../lib/shareContext.js";
 import { captureOrQueue } from "../../lib/browserAnalytics";
 
@@ -67,6 +68,8 @@ export function askShareIntent(o) {
   if (typeof document === "undefined") { try { opt.onPlain && opt.onPlain(); } catch (e) {} return; }
 
   if (activeIntentClose) activeIntentClose();
+  // Share attribution v2: the sheet opening IS the deliberate share_opened.
+  try { beginShareFlow(window, { surface: "intent_sheet", kind: opt.kind || (opt.id ? "place" : "") }); } catch (e) {}
   const returnFocus = document.activeElement;
   const prior = document.getElementById(ID);
   if (prior) { try { prior.remove(); } catch (e) {} }
