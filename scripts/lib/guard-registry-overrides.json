@@ -1151,5 +1151,14 @@
    "detail": "Regressing it lets Postgres reject every ad visitor's click row (gclid included) while the redirect still works, so no Viator booking can ever be tied to a Google ad and nothing alerts."
   },
   "owner": "Revenue QA"
+ },
+ "scripts/test-first-party-action-resolver.mjs": {
+  "protects": "First-Party Action Resolver and Detail CTA execution truth: official links never point to a wrong venue or wrong city branch, free places never get a paid CTA, generic city or root homepages never overwrite exact venue ticket URLs, menu links never degrade to Google Maps or Google Search, expired event tickets fail closed, manual_verified sources outrank automation, affiliate coverage never alters Wayfind Score, invalid/quarantined/ambiguous URLs fail closed, and batch merges are strictly idempotent.",
+  "blastRadius": {
+   "category": "revenue",
+   "detail": "If any of these invariants regress, place detail can send high-intent visitors to another city's venue, a dead/expired ticket page, a fake Google Maps 'See menu' search, or a paid product on a free park, breaking user trust and conversion at the exact decision moment."
+  },
+  "owner": "Revenue QA"
  }
 }
+

@@ -667,7 +667,7 @@ scripts/test-deals-geo.mjs	0	CALL	blocks-ci-and-deploy	1	-	23	0	0	fc13dfcd99db05
 scripts/test-deals.mjs	0	CALL	blocks-ci-and-deploy	1	-	36	0	0	e2b6b8650ae5690ce454a6e40067abd09a6bed4dc35e22e5440f201122902fa6
 scripts/test-deep-link-no-mutation.mjs	0	RENDER	blocks-ci-and-deploy	1	-	40	0	0	db47da0ae7e7a73132199648c975779590322ab2f94888b2106a72a15e811719
 scripts/test-destinations.mjs	0	CALL	blocks-ci-and-deploy	1	-	47	0	0	2bb096d5825913daa1d0ac015fd48ee045571985348fded71468f787e2fc4e03
-scripts/test-detail-cta-ladder.mjs	0	CALL	blocks-ci-and-deploy	1	-	57	0	0	c1deb758cd23feb7f787fb545335d4db58ad7409a59fde1fd964a895297e5ce7
+scripts/test-detail-cta-ladder.mjs	0	CALL	blocks-ci-and-deploy	1	-	58	0	0	c3c8efda65bf54eea9aa2049d18572e0425e01e7687d62e99015f7312bf047e3
 scripts/test-detail-cta-place-city.mjs	0	CALL	blocks-ci-and-deploy	1	-	9	0	0	21bd53f1159f5c14909bdd90ad0fbc6ffb6616a71e9cd87efbc33e175d7791d9
 scripts/test-detail-event-editorial.mjs	0	CALL	blocks-ci-and-deploy	1	-	55	0	0	7aa6bf67e41dc3d536e43e6d871d729593c6e964daec5d1969086b82fd135bb1
 scripts/test-detail-hero.mjs	0	CALL	blocks-ci-and-deploy	1	-	79	0	0	092f94efd97d4fd9f1bdc97574a5769bd28266ba1f060a5b16031de73d77935d
@@ -759,6 +759,7 @@ scripts/test-feed-deferral.mjs	0	CALL	blocks-ci-and-deploy	1	-	28	0	0	04b1f4c575
 scripts/test-feedback-notification.mjs	0	CALL	blocks-ci-and-deploy	1	-	23	0	0	3e87b13c6c0ee6a669edaa757c53c2763b264831f6f9d678ad2f662fd493cab2
 scripts/test-feedback-storage.mjs	0	CALL	blocks-ci-and-deploy	1	-	19	0	0	67c47f49d57145f343d88c497bd1567cb06b3c14da729510c43a21fe297cd5cf
 scripts/test-fetch-socket-retry.mjs	0	CALL	blocks-ci-and-deploy	1	-	35	0	0	b6cc463d6e6491efef403a4970784a2f6a8ac8bdcafbaedb44bfd3b6e6b60e48
+scripts/test-first-party-action-resolver.mjs	0	CALL	blocks-ci-and-deploy	1	Revenue QA	41	0	0	563e12563f6159fd2d450fc2d51cd6d3f0b1baa37951c3bffda1f9bced03e395
 scripts/test-first-screen.mjs	0	RENDER	blocks-ci-and-deploy	1	-	61	0	0	502018e993e95e537f88dcd67851a875f7b9adf9bb4e4951113779e0e1bc0018
 scripts/test-florida-catalog-location.mjs	0	CALL	blocks-ci-and-deploy	1	-	31	0	0	6bb29c934f7ce5d96324eb0bd9e0f3af318105bd35be674a4f95ddbcc0571cb8
 scripts/test-florida-venue-rule.mjs	0	CALL	blocks-ci-and-deploy	1	-	37	0	0	1b8f5817064acf8436ac62cca837a38c543014752b913de7a1d2decd852b5de8

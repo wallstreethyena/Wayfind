@@ -689,28 +689,31 @@ export default function DetailSheet({ ctx }) {
   // field. Unsourced stays empty-slot. No filler, no LLM-on-render.
   const [editorial, setEditorial] = useState(() => (ctx.initialEditorial && hasSourcedEditorialFields(ctx.initialEditorial)) ? ctx.initialEditorial : carriedEditorial(detail));
   const [curatedEvents, setCuratedEvents] = useState(() => Array.isArray(ctx.initialCuratedEvents) ? ctx.initialCuratedEvents : []);
+  const [firstPartyActions, setFirstPartyActions] = useState(() => ctx.initialFirstPartyActions || null);
   const [editorialLoaded, setEditorialLoaded] = useState(false);
   const [gamePlanExpanded, setGamePlanExpanded] = useState(false);
   useEffect(() => {
     let dead = false;
     setEditorial(carriedEditorial(detail));
     setCuratedEvents([]);
+    setFirstPartyActions(null);
     setEditorialLoaded(false);
     setGamePlanExpanded(false);
     if (!detail) return;
     const q = editorialRequestQuery(detail);
-    const apply = (ed, evs) => {
+    const apply = (ed, evs, fpa = null) => {
       if (dead) return;
       if (ed && hasSourcedEditorialFields(ed)) setEditorial(ed);
       else setEditorial(carriedEditorial(detail));
       setCuratedEvents(Array.isArray(evs) ? evs : []);
+      setFirstPartyActions(fpa && typeof fpa === "object" ? fpa : null);
       setEditorialLoaded(true);
     };
-    if (!q) { apply(null, []); return; }
+    if (!q) { apply(null, [], null); return; }
     fetch("/api/editorial?" + q) // v6.42: place_id so a richer Atlas card wins; event/venue aliases ride in `also`
       .then((r) => r.json())
-      .then((j) => apply(j && j.editorial, j && j.curatedEvents))
-      .catch(() => apply(null, []));
+      .then((j) => apply(j && j.editorial, j && j.curatedEvents, j && j.firstPartyActions))
+      .catch(() => apply(null, [], null));
     return () => { dead = true; };
   }, [detail && detail.id, detail && detail.name, detail && detail._event && detail._event.name]);
 
@@ -722,7 +725,15 @@ export default function DetailSheet({ ctx }) {
   // ledger short-circuits without a network call).
   const effectiveEditorial = editorial || (detail && detail.editorial && hasSourcedEditorialFields(detail.editorial) ? detail.editorial : (detail ? carriedEditorial(detail) : null));
   const websiteCandidate = detailExtra ? safeUrl(detailExtra.website) : null;
-  const verdictTargetUrl = websiteCandidate || (effectiveEditorial ? safeUrl(effectiveEditorial.officialWebsite) : null);
+  const fpaSiteCandidate = firstPartyActions && firstPartyActions.officialWebsite ? safeUrl(firstPartyActions.officialWebsite.url) : null;
+  const fpaPrimaryCandidate = firstPartyActions ? safeUrl(
+    (firstPartyActions.ticket_url && firstPartyActions.ticket_url.url)
+    || (firstPartyActions.admission_url && firstPartyActions.admission_url.url)
+    || (firstPartyActions.reservation_url && firstPartyActions.reservation_url.url)
+    || (firstPartyActions.menu_url && firstPartyActions.menu_url.url)
+    || fpaSiteCandidate
+  ) : null;
+  const verdictTargetUrl = websiteCandidate || fpaPrimaryCandidate || (effectiveEditorial ? safeUrl(effectiveEditorial.officialWebsite) : null);
   const [websiteOk, setWebsiteOk] = useState(null); // null = pending / none
   useEffect(() => {
     setWebsiteOk(null);
@@ -740,7 +751,8 @@ export default function DetailSheet({ ctx }) {
     return () => { dead = true; ctrl.abort(); };
   }, [verdictTargetUrl, detail && detail.id]);
   const websiteHref = websiteOk === true ? websiteCandidate : null;
-  const verifiedOfficialUrl = websiteOk === true ? verdictTargetUrl : null;
+  const verifiedOfficialUrl = websiteOk === true ? (websiteCandidate || fpaSiteCandidate || (effectiveEditorial ? safeUrl(effectiveEditorial.officialWebsite) : null)) : null;
+  const verifiedFirstPartyActions = websiteOk === true ? firstPartyActions : null;
 
   // v6.31: open/closed must match the list card — compute live from the
   // hours periods (hydrated with detailExtra.oh when the place arrived from
@@ -776,6 +788,7 @@ export default function DetailSheet({ ctx }) {
     editorial: effectiveEditorial,
     curatedNotes: curatedNotesList,
     reservePartner,
+    firstPartyActions: verifiedFirstPartyActions,
   });
   const gamePlan = detail ? buildGamePlan({
     detail: hydratedDetail,
@@ -840,11 +853,12 @@ export default function DetailSheet({ ctx }) {
         label: primaryCta.label || "",
         monetized: !!primaryCta.monetized,
         exact: !!primaryCta.exact,
+        action_source: primaryCta.actionSource || null,
         open_state: openState,
         upgraded,
       });
     } catch (e) {}
-  }, [detail && detail.id, primaryCta && primaryCta.type, primaryCta && primaryCta.label, primaryCta && primaryCta.monetized, primaryCta && primaryCta.exact, openState, logEvent]);
+  }, [detail && detail.id, primaryCta && primaryCta.type, primaryCta && primaryCta.label, primaryCta && primaryCta.monetized, primaryCta && primaryCta.exact, primaryCta && primaryCta.actionSource, openState, logEvent]);
 
   const gamePlanShownFor = useRef(null);
   useEffect(() => {
@@ -871,7 +885,7 @@ export default function DetailSheet({ ctx }) {
     // monetized/exact (2026-10-02): the Command Center partner-click count needs
     // to tell a partner CTA (an exact pin, a deal, a tracked delivery) from a
     // plan/directions/menu tap; both arrive here as primary_cta_clicked.
-    try { logEvent("primary_cta_clicked", detail, { cta_type: primaryCta.type, provider: primaryCta.provider, monetized: !!primaryCta.monetized, exact: !!primaryCta.exact }); } catch (e) {}
+    try { logEvent("primary_cta_clicked", detail, { cta_type: primaryCta.type, provider: primaryCta.provider, monetized: !!primaryCta.monetized, exact: !!primaryCta.exact, action_source: primaryCta.actionSource || null }); } catch (e) {}
     if (primaryCta.type === "directions") {
       try { logEvent("directions", detail, { src: "primary" }); } catch (e) {}
     }
