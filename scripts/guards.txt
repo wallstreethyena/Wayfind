@@ -2605,3 +2605,7 @@ node scripts/check-home-diet.mjs
 node scripts/test-game-plan-and-entity-resolution.mjs
 
 node scripts/test-owned-social-reconcile.mjs
+
+# 2026-11-12: background Place Details daily line + refresh dedup (Lane B, google lookup waste).
+node scripts/test-background-daily-line.mjs
+node scripts/test-refresh-dedup.mjs
