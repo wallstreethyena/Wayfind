@@ -43,7 +43,7 @@ import { funnelProps } from "../../../lib/funnel";
 import { useCommerceImpression } from "../useCommerceImpression";
 import { nearbyTourListAllowed, placePartnerPick } from "../../../lib/placePartnerPicks";
 import { usePinQuarantine } from "../../../lib/pinQuarantine";
-import { useReservePartner } from "../../../lib/reserveClient.js";
+import { useReserveEntry } from "../../../lib/reserveClient.js";
 import { openReserveSheet } from "../../../lib/reserveOpen.js";
 import { pairsWellWith } from "../../../lib/pairsWellWith";
 import { chooseDetailNextStep, DETAIL_NEXT_STEP_OPEN, DETAIL_NEXT_STEP_SHOWN } from "../../../lib/detailNextStep.js";
@@ -321,7 +321,7 @@ function PrimaryActionButton({ primaryCta, detail, kind, viaTours, locName, logE
   // Wayfind table request: opens the lazy sheet when href is "#reserve"; verified external https:// reservation URLs fall through to the outbound <a> below.
   if (primaryCta.type === DETAIL_CTA_TYPES.reserve && primaryCta.href === "#reserve") {
     return (
-      <button ref={ctaRef} type="button" data-reserve-cta="1" aria-label={`Reserve a table at ${detail.name}`} onClick={() => { onClick(); openReserveSheet(detail, { surface: "detail" }); }} style={style}>
+      <button ref={ctaRef} type="button" data-reserve-cta="1" data-reserve-lane={primaryCta.reserveLane || ""} aria-label={`${primaryCta.label} at ${detail.name}`} onClick={() => { onClick(); openReserveSheet(detail, { surface: "detail", lane: primaryCta.reserveLane }); }} style={style}>
         <span>{primaryCta.label}</span>
       </button>
     );
@@ -777,7 +777,7 @@ export default function DetailSheet({ ctx }) {
   // above every early return. See lib/pinQuarantine.js.
   const pinQ = usePinQuarantine();
   // "Reserve a table" parity with the place card: the same partner list decides both.
-  const reservePartner = useReservePartner(detail && detail.id);
+  const reserveEntry = useReserveEntry(hydratedDetail);
   const primaryCta = resolveDetailCta({
     detail: hydratedDetail,
     kind: placeKind(detail),
@@ -789,7 +789,7 @@ export default function DetailSheet({ ctx }) {
     websiteHref: verifiedOfficialUrl,
     editorial: effectiveEditorial,
     curatedNotes: curatedNotesList,
-    reservePartner,
+    reserveLane: reserveEntry ? reserveEntry.lane : null,
     firstPartyActions: verifiedFirstPartyActions,
   });
   const gamePlan = detail ? buildGamePlan({

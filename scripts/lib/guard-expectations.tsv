@@ -670,7 +670,7 @@ scripts/test-deals-geo.mjs	0	CALL	blocks-ci-and-deploy	1	-	23	0	0	fc13dfcd99db05
 scripts/test-deals.mjs	0	CALL	blocks-ci-and-deploy	1	-	36	0	0	e2b6b8650ae5690ce454a6e40067abd09a6bed4dc35e22e5440f201122902fa6
 scripts/test-deep-link-no-mutation.mjs	0	RENDER	blocks-ci-and-deploy	1	-	40	0	0	db47da0ae7e7a73132199648c975779590322ab2f94888b2106a72a15e811719
 scripts/test-destinations.mjs	0	CALL	blocks-ci-and-deploy	1	-	47	0	0	2bb096d5825913daa1d0ac015fd48ee045571985348fded71468f787e2fc4e03
-scripts/test-detail-cta-ladder.mjs	0	CALL	blocks-ci-and-deploy	1	-	58	0	0	c3c8efda65bf54eea9aa2049d18572e0425e01e7687d62e99015f7312bf047e3
+scripts/test-detail-cta-ladder.mjs	0	CALL	blocks-ci-and-deploy	1	-	90	0	0	e6b1cdac6e13e7fb1d6c9a15ec5e0e5da2f940fbf7b1e48ffd988b0f08ef65fb
 scripts/test-detail-cta-place-city.mjs	0	CALL	blocks-ci-and-deploy	1	-	9	0	0	21bd53f1159f5c14909bdd90ad0fbc6ffb6616a71e9cd87efbc33e175d7791d9
 scripts/test-detail-event-editorial.mjs	0	CALL	blocks-ci-and-deploy	1	-	55	0	0	7aa6bf67e41dc3d536e43e6d871d729593c6e964daec5d1969086b82fd135bb1
 scripts/test-detail-hero.mjs	0	CALL	blocks-ci-and-deploy	1	-	79	0	0	092f94efd97d4fd9f1bdc97574a5769bd28266ba1f060a5b16031de73d77935d
@@ -1051,8 +1051,8 @@ scripts/test-reserve-concierge.mjs	0	CALL	blocks-ci-and-deploy	1	-	127	0	0	1f04e
 scripts/test-reserve-guest.mjs	0	RENDER	blocks-ci-and-deploy	1	-	34	0	0	7d41458098f7bd282c745e70b27708ec589abf4bb9397feb735985ebb8b97635
 scripts/test-reserve-logic.mjs	0	CALL	blocks-ci-and-deploy	1	-	183	0	0	8ac39821a2db6169e60d7fb355232a519da58a294661d70a64ce3f311e4ef3ae
 scripts/test-reserve-schema.mjs	0	CALL	blocks-ci-and-deploy	1	-	46	0	0	f19a6fd8025b5fa57245b01cc0f759277085ee60e8472f78dd6969f894fa936a
-scripts/test-reserve-ui.mjs	0	RENDER	blocks-ci-and-deploy	1	-	146	0	0	dc87f760a8b68a530eb502d74f5bd9ec2dbe966f50cc1b8e9f5156df24447836
-scripts/test-reserve-v2.mjs	0	CALL	blocks-ci-and-deploy	1	-	156	0	0	ac22f770f09247065bb6b83aa88e9dfe8ebf1f404505eab5429156d7719f1fe7
+scripts/test-reserve-ui.mjs	0	RENDER	blocks-ci-and-deploy	1	-	217	0	0	45546f5c42638c4d275227b57e592f5ac71595c86323e3d2643636797abed41c
+scripts/test-reserve-v2.mjs	0	CALL	blocks-ci-and-deploy	1	-	161	0	0	deb1df84954a0ec6060d4979e350e16a3ae1aa983570ba25246cfa56a27c4753
 scripts/test-resolver-word-boundary.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	7	0	0	5a42f16bb1b72847758f21eef58dba011dcfa77ecdaa04f3eabe3088c3107fb1
 scripts/test-revenue-heartbeat.mjs	0	CALL	blocks-ci-and-deploy	1	-	30	0	0	7917041ebf9acc5edb73f65b7ea94cf57e1b109c29d446fd610f7d616fd63633
 scripts/test-review-depth-deduction.mjs	0	CALL	blocks-ci-and-deploy	1	-	18	0	0	0b678c1ae6a5ca8dd778a212c5c51ea2db88d85266cebea6d2103da1c4f61e01
