@@ -6,7 +6,7 @@
 // never renders anywhere else (companionCharacter.js picks from the path). He drifts, drops one liners, and opens a small chat sheet backed by
 // POST /api/bo-haunt. One element, transform only, rAF loop stops whenever he
 // is not drifting (sheet open, bubble up, tab hidden, reduced motion).
-import { useCallback, useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { siteTodayStr } from "../../lib/siteTime.js";
 import { siteHourFloat } from "../../lib/nowContext.js";
@@ -22,6 +22,12 @@ import { pickLine, routeLine, timeLines } from "./booReactions.js";
 import { MAX_COVER, rectOf, isClear, touchesAny, besideSpot, perchSpot, pickClearSpot, estimateBubble, bubbleSideIfClear, chooseBubbleSide, TUCK_MAX } from "./booClear.js";
 import { styleHtml } from "../../lib/styleHtml.js";
 import { maybeHandoffCompanionToPlanner } from "../../lib/plannerCompanionBridge.js";
+
+// Table picks for "book Ulele Friday at 7 for 4": a lazy chunk, fetched only when a reservation request is typed.
+const ReservePicks = lazy(() => import("./ReservePicks.js"));
+// The concierge chat, inline in this same thread. Lazy so the main bundle does not grow.
+const ReserveConcierge = lazy(() => import("./ReserveConcierge.js"));
+const RESERVE_ASK_RX = /\b(?:book|reserve|reservations?|table)\b|\bfor\s+(?:\d{1,2}|two|three|four|five|six)\b/i;
 
 const HIDE_KEY = "wf_boo_hidden";
 // /group-plans: owner 2026-10-30, "get him out of the group pages". Friends
@@ -503,6 +509,8 @@ export default function BooCompanion() {
   const [antic, setAntic] = useState(null); // { name, key }
   const [msgs, setMsgs] = useState([]);
   const [cards, setCards] = useState([]);
+  const [reserve, setReserve] = useState(null); // a table request: { intent, point } -> up to 3 pick chips
+
   const [pending, setPending] = useState(false);
   const [wrapped, setWrapped] = useState(false);
   const [draft, setDraft] = useState("");
@@ -648,7 +656,7 @@ export default function BooCompanion() {
     openerSpoken.current = false;
     wrapRef.current = false;
     turnRef.current = 0;
-    setMsgs([]); setCards([]); setWrapped(false); setDraft(""); setPose("idle");
+    setMsgs([]); setCards([]); setReserve(null); setWrapped(false); setDraft(""); setPose("idle");
   }, [character]);
 
   useEffect(() => {
@@ -1665,6 +1673,7 @@ export default function BooCompanion() {
     pendingRef.current = true;
     setPending(true);
     setDraft("");
+    setReserve(null);
     setMsgs((m) => m.concat([{ role: "user", text: message }]));
     turnRef.current += 1;
     const turn = turnRef.current;
@@ -1691,6 +1700,12 @@ export default function BooCompanion() {
       setMsgs((m) => m.concat([{ role: "boo", text: clean(data.reply), fresh: true }]));
       playAntic(data.antic);
       setCards(Array.isArray(data.cards) ? data.cards.filter((c) => c && c.cta && c.cta.href).slice(0, 4) : []);
+      // A table request: the brain may send reserve, or (any brain) the shared reader finds it. Only dates and a party, never a name.
+      let intent = data.reserve && typeof data.reserve === "object" ? data.reserve : null;
+      if (!intent && RESERVE_ASK_RX.test(message)) {
+        try { const { parseReserveIntent } = await import("../../lib/guestReserveIntent.js"); intent = parseReserveIntent(message, siteTodayStr()); } catch { intent = null; }
+      }
+      if (intent) setReserve({ intent, point, k: Date.now(), message, place: data.reservePlace && data.reservePlace.id ? data.reservePlace : (intent.placeId ? { id: intent.placeId, name: intent.name || intent.restaurant || "" } : null) });
       if (wrap) { wrapRef.current = true; setWrapped(true); }
       const nCards = Array.isArray(data.cards) ? data.cards.length : 0;
       const rp = wrap ? "bye" : data.smallTalk ? "talk" : !nCards ? "greet" : KID_RX.test(message) ? "kids" : PRICE_RX.test(message) ? "price" : "sales";
@@ -1886,6 +1901,12 @@ export default function BooCompanion() {
                     </div>
                   ))}
                 </div>
+              ) : null}
+              {reserve ? (
+                <Suspense fallback={null}>
+                  <ReserveConcierge key={"c" + reserve.k} embedded initialPlace={reserve.place} initialMessage={reserve.message} />
+                  {reserve.place ? null : <ReservePicks key={reserve.k} intent={reserve.intent} point={reserve.point} title="Tables to look at" />}
+                </Suspense>
               ) : null}
               {wrapped ? <a className="boo-wrap" href={listPath}>{santa ? SANTA.wrapLink : "Open the full haunt list"}</a> : null}
               {!wrapped && !hasUser && !pending && gap ? (
