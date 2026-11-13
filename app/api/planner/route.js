@@ -276,10 +276,12 @@ async function gatherDraftRevisionCandidates(rawDraft, draftParsed, message, { p
     `breakfast coffee${citySuffix}`,
   ];
   if (message) {
+    if (/\b(?:coffee|cafe|bakery)\b/i.test(message)) {
+      queries.unshift(`breakfast coffee${citySuffix}`, `coffee bakery${citySuffix}`);
+    }
     const cleanMsg = message.replace(/[^a-zA-Z0-9\s]/g, " ").trim();
     if (cleanMsg) {
       queries.push(`${cleanMsg.slice(0, 40)}${citySuffix}`);
-      if (/\bcoffee\b/i.test(message)) queries.push(`coffee bakery${citySuffix}`);
       if (/\bsushi\b/i.test(message)) queries.push(`sushi${citySuffix}`);
       if (/\btacos?\b/i.test(message)) queries.push(`tacos mexican${citySuffix}`);
       if (/\bseafood\b/i.test(message)) queries.push(`seafood${citySuffix}`);
@@ -344,11 +346,11 @@ async function gatherDraftRevisionCandidates(rawDraft, draftParsed, message, { p
   const atlasPlaces = isFloridaDest ? getFirstPartyAtlasPlaces() : [];
 
   const rawGroups = [
-    { sourceKind: "draft_verified_ids", items: exactPlaces },
     { sourceKind: "christmas", items: christmasCards },
     ...searchLists.map((items) => ({ sourceKind: "owned_search", items })),
     { sourceKind: "curated_events", items: curatedRows },
     { sourceKind: "atlas_places", items: atlasPlaces },
+    { sourceKind: "draft_verified_ids", items: exactPlaces },
     { sourceKind: "user_saved", items: Array.isArray(savedPlaces) ? savedPlaces.slice(0, 24) : [] },
   ];
 
