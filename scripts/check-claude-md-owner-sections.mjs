@@ -7,9 +7,12 @@
 // needs an "/owner-approve <head sha>" comment. That stops unapproved edits but
 // not an approved edit that quietly loses a rule along the way. This guard
 // pins what must stay:
-//   - the GABRIEL EXECUTION AUTONOMY section, exactly once, with its manual
-//     action format, its eight hard stops, its no-bypass clause and its
-//     "never relaxes any other rule" clause;
+//   - the GABRIEL EXECUTION AUTONOMY section (the owner operating mode),
+//     exactly once, with its manual action format, its ten hard stops, its
+//     no-bypass clause, its "never relaxes any other rule" clause, and the
+//     2026-11-13 operating rules (approval follows meaning, notification
+//     classes, completion report, temporary automation cleanup, TESTED vs
+//     DEPLOYED vs VERIFIED, brand assets);
 //   - every top-level safety section and the core safety sentences they carry.
 // Changing a pinned rule on purpose means editing this guard in the same
 // owner-approved PR, so the change is visible in review.
@@ -56,6 +59,20 @@ const AUTONOMY_CLAUSES = [
   "**Blocked does not mean stop.**",
   "**No implementation diary.**",
   "**Completion standard.**",
+  "**Approval follows meaning, not the commit hash.**",
+  "Never weaken owner protection to avoid an approval",
+  "Previously approved scope changed: YES / NO",
+  "**Classify before notifying.**",
+  "An error code alone is not an incident",
+  "**Completion report.**",
+  "Production: LIVE + VERIFIED | NOT YET VERIFIED",
+  "Concise never means hiding failed tests",
+  "**Temporary automation must die.**",
+  "Gabriel's Mac is not production infrastructure.",
+  "**TESTED, DEPLOYED, VERIFIED are different words.**",
+  "Never disable a live safeguard just to prove its off switch works.",
+  "**Fix systems, not symptoms.**",
+  "**Brand assets.**",
 ];
 
 /** The section body: from its heading to the next top-level heading. */
@@ -75,8 +92,8 @@ export function evaluate(text) {
   const body = sectionBody(text, AUTONOMY);
   if (body) {
     for (const c of AUTONOMY_CLAUSES) if (!body.includes(c)) errors.push(`autonomy section lost: ${c}`);
-    const stops = body.split("\n").filter((l) => /^[1-8]\. /.test(l)).map((l) => Number(l[0]));
-    if (stops.join(",") !== "1,2,3,4,5,6,7,8") errors.push(`autonomy section must list hard stops 1 to 8 in order (found ${stops.join(",") || "none"})`);
+    const stops = body.split("\n").map((l) => /^(\d+)\. /.exec(l)).filter(Boolean).map((m) => Number(m[1]));
+    if (stops.join(",") !== "1,2,3,4,5,6,7,8,9,10") errors.push(`autonomy section must list hard stops 1 to 10 in order (found ${stops.join(",") || "none"})`);
   }
   for (const h of SAFETY_SECTIONS) if (headingCount(h) !== 1) errors.push(`safety section "${h}" must appear exactly once (found ${headingCount(h)})`);
   for (const s of SAFETY_SENTENCES) if (!text.includes(s)) errors.push(`safety rule lost: ${s}`);
@@ -100,7 +117,11 @@ const mutate = (label, from, to) => {
 };
 const autonomy = sectionBody(real, AUTONOMY) || "";
 mutate("autonomy section removed", autonomy, "");
-mutate("hard stop 8 removed", "\n8. create significant irreversible risk.", "");
+mutate("hard stop 8 removed", "\n8. create significant irreversible risk;", "");
+mutate("hard stop 10 removed", "\n10. technically require his own identity or account", "");
+mutate("approval-by-meaning rule removed", "**Approval follows meaning, not the commit hash.**", "Approval follows the SHA.");
+mutate("no-hiding clause removed", "Concise never means hiding failed tests", "Keep it short");
+mutate("temporary automation rule removed", "**Temporary automation must die.**", "Watchers may stay.");
 mutate("no-bypass clause removed", "Never bypass, imitate or work around a denied action or a platform safety gate", "Proceed");
 mutate("relaxes-nothing clause removed", "This section never relaxes any other rule in this file", "This section overrides");
 mutate("manual action format removed", "MANUAL ACTION REQUIRED", "Say go");
@@ -112,4 +133,4 @@ if (fail.length) {
   console.error("check-claude-md-owner-sections: FAIL\n  " + fail.join("\n  "));
   process.exit(1);
 }
-console.log(`check-claude-md-owner-sections: OK — ${assertions} assertions: CLAUDE.md carries the GABRIEL EXECUTION AUTONOMY section once (${AUTONOMY_CLAUSES.length} clauses, hard stops 1 to 8), ${SAFETY_SECTIONS.length} safety sections exactly once and ${SAFETY_SENTENCES.length} core safety sentences; 8 negative controls each went red. False-positive surface: an owner-approved rewording of a pinned sentence fails here until this guard is updated in the same PR.`);
+console.log(`check-claude-md-owner-sections: OK — ${assertions} assertions: CLAUDE.md carries the GABRIEL EXECUTION AUTONOMY section once (${AUTONOMY_CLAUSES.length} clauses, hard stops 1 to 10), ${SAFETY_SECTIONS.length} safety sections exactly once and ${SAFETY_SENTENCES.length} core safety sentences; 12 negative controls each went red. False-positive surface: an owner-approved rewording of a pinned sentence fails here until this guard is updated in the same PR.`);
