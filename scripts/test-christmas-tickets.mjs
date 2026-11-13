@@ -539,10 +539,10 @@ ok(html.includes("data-christmas-filter") && html.includes(">Best rated<") && ht
   ok(!DASH.test(pickVisible) && ((pickVisible.match(/Wayfind may earn a commission/g)) || []).length === 1, "with picks the page is still dash free and keeps one commission line");
   ok(!renderPage(partnerModel, partnerList, { topPicks: [{ ...picks[0], photos: [] }] }).includes("data-top-picks"), "a pick without a photo is never drawn as an empty slot");
   const comp = strip(read("app/components/ChristmasTickets.js"));
-  ok(/data-commerce-owner=\{affiliate \? undefined : "ChristmasTickets"\}/.test(comp.slice(comp.indexOf("export function TopPicks"))) && /onClick=\{affiliate \? undefined : \(\) => organizerTap\(row\)\}/.test(comp) && /import \{ XM_CARD_CSS, organizerTap \} from "\.\/ChristmasTicketCard\.js"/.test(comp) && !/commerce_cta_clicked/.test(comp),
+  ok(/data-commerce-owner=\{affiliate \|\| internal \? undefined : "ChristmasTickets"\}/.test(comp.slice(comp.indexOf("export function TopPicks"))) && /onClick=\{affiliate \|\| internal \? undefined : \(\) => organizerTap\(row\)\}/.test(comp) && /import \{ XM_CARD_CSS, organizerTap \} from "\.\/ChristmasTicketCard\.js"/.test(comp) && !/commerce_cta_clicked/.test(comp),
     "pick organizer taps are recorded once here and /go taps by the beacon, under the same christmas_tickets surface");
   const page = strip(read("app/christmas-in-florida/page.js"));
-  ok(/const topPicks = christmasTopPicks\(tickets\);/.test(page) && /<ChristmasTickets model=\{tickets\} topPicks=\{topPicks\}/.test(page) && /isSocialAdLanding\(Object\.fromEntries\(new URLSearchParams\(window\.location\.search\)\)\)\) root\.setAttribute\(SOCIAL_AD_ATTR, ""\)/.test(comp) && /<SocialTopPicks picks=\{topPicks\} \/>/.test(comp) && /<div data-social-picks="">/.test(comp),
+  ok(/const topPicks = \[\.\.\.featured, \.\.\.christmasTopPicks\(tickets\)/.test(page) && /<ChristmasTickets model=\{tickets\} topPicks=\{topPicks\}/.test(page) && /if \(isSocialAdLanding\(params\) \|\| feature\) root\.setAttribute\(SOCIAL_AD_ATTR, ""\)/.test(comp) && /<SocialTopPicks picks=\{topPicks\} \/>/.test(comp) && /<div data-social-picks="">/.test(comp),
     "the cached page always carries the picks; only a social landing URL shows them, from the same featured rows");
   ok(/<script dangerouslySetInnerHTML=\{\{ __html: SOCIAL_AD_SCRIPT \}\} \/>/.test(page) && page.indexOf("SOCIAL_AD_SCRIPT }}") < page.indexOf("<ChristmasTickets ")
     && /\[data-social-picks\]\{display:none\}html\[data-wf-social\] \[data-social-picks\]\{display:block\}/.test(comp),
@@ -563,6 +563,95 @@ ok(html.includes("data-christmas-filter") && html.includes(">Best rated<") && ht
     globalThis.location = saved.location; globalThis.document = saved.document;
     ok(agree && SOCIAL_AD_ATTR === "data-wf-social", "the before-paint script and isSocialAdLanding agree on every landing URL");
   }
+  // The ad's own subject first (2026-11-13): 82% of Meta landing views came
+  // from one ad about Robert's Christmas Wonderland, and the page never showed
+  // it. The listing an ad is about is the first pick, for that ad's visitors only.
+  {
+    const { SOCIAL_AD_SCRIPT, SOCIAL_AD_FEATURES, SOCIAL_AD_FEATURE_IDS, SOCIAL_AD_FEATURE_ATTR, socialAdFeature } = await import("../lib/socialAdLanding.js");
+    const { christmasFeaturePick } = await import("../lib/christmasTickets.js");
+    const { christmasBrowseListings } = await import("../lib/christmasBrowse.js");
+    const adId = Object.keys(SOCIAL_AD_FEATURES)[0];
+    const featureId = SOCIAL_AD_FEATURES[adId];
+    ok(socialAdFeature({ utm_source: "meta", utm_content: adId }) === featureId && socialAdFeature({ utm_content: adId }) === null && socialAdFeature({ utm_source: "google", utm_content: adId }) === null
+      && socialAdFeature({ feature: featureId }) === featureId && socialAdFeature({ feature: "not-a-feature" }) === null && socialAdFeature({ utm_source: "meta", utm_content: "999" }) === null,
+      "a mapped Meta ad (or ?feature= naming a mapped listing) features its listing; Google, unknown ads and unknown ids never do");
+    const saved = { location: globalThis.location, document: globalThis.document };
+    let agree = true;
+    for (const q of ["?utm_source=meta&utm_content=" + adId, "?utm_content=" + adId, "?utm_source=google&utm_content=" + adId, "?feature=" + featureId, "?feature=nope", "?fbclid=x&utm_content=" + adId, "?utm_source=meta&utm_content=1"]) {
+      const attrs = {};
+      globalThis.location = { search: q };
+      globalThis.document = { documentElement: { setAttribute: (k, v) => { attrs[k] = v; } } };
+      new Function(SOCIAL_AD_SCRIPT)();
+      const want = socialAdFeature(Object.fromEntries(new URLSearchParams(q)));
+      if ((attrs[SOCIAL_AD_FEATURE_ATTR] || null) !== want) agree = false;
+      if (want && !("data-wf-social" in attrs)) agree = false;
+    }
+    globalThis.location = saved.location; globalThis.document = saved.document;
+    ok(agree, "the before-paint script and socialAdFeature agree on every landing URL, and a featured landing always shows the row");
+    const listings = christmasBrowseListings([], "2026-11-13");
+    const featurePicks = SOCIAL_AD_FEATURE_IDS.map((id) => christmasFeaturePick(listings, id, "2026-11-13")).filter(Boolean);
+    ok(featurePicks.length === SOCIAL_AD_FEATURE_IDS.length && featurePicks.every((r) => r.feature === true && r.photos[0] && r.photos[0].src && /^https:\/\//.test(r.cta.href) && r.name),
+      "every mapped listing exists in the Christmas listings and builds a pick with a real photo and an https way in");
+    const robert = featurePicks.find((r) => r.id === "roberts-christmas-wonderland-2026");
+    ok(robert && robert.cta.label === "Official site" && robert.cta.kind === "organizer" && !/2027|through/i.test(robert.when),
+      "a shop with no ticket and no Wayfind page gets its own site, and never a made up closing date");
+    const withPage = christmasFeaturePick(listings.map((c) => (c.id === "roberts-christmas-wonderland-2026" ? { ...c, detailHref: "/florida-events/roberts-christmas-wonderland-2026" } : c)), "roberts-christmas-wonderland-2026", "2026-11-13");
+    ok(withPage && withPage.cta.kind === "internal" && withPage.cta.href === "/florida-events/roberts-christmas-wonderland-2026" && withPage.cta.label === "Hours and directions",
+      "with a Wayfind event page, the featured card opens it, so the visitor keeps exploring Wayfind");
+    const internalHtml = renderPage(partnerModel, partnerList, { topPicks: [withPage, ...picks] });
+    const a = internalHtml.slice(internalHtml.indexOf('href="/florida-events/roberts-christmas-wonderland-2026"') - 200, internalHtml.indexOf('href="/florida-events/roberts-christmas-wonderland-2026"') + 200);
+    ok(a.includes('class="xm-pick-buy"') && !/target="_blank"/.test(a) && !/data-commerce-owner/.test(a), "the internal button opens in place and is not counted as a partner click");
+    ok(christmasFeaturePick(listings, "no-such-listing", "2026-11-13") === null, "an unknown listing never builds an empty card");
+    const featHtml = renderPage(partnerModel, partnerList, { topPicks: [...featurePicks, ...picks] });
+    const fi = featHtml.indexOf('data-feature-pick="' + featureId + '"'), ri = featHtml.indexOf('data-rank="1"');
+    ok(fi > -1 && fi < ri && /\.xm-pick\[data-feature-pick\]\{display:none\}/.test(featHtml)
+      && featHtml.includes('html[data-wf-feature="' + featureId + '"] .xm-pick[data-feature-pick="' + featureId + '"]{display:flex}')
+      && (featHtml.match(/data-rank="/g) || []).length === picks.length,
+      "the featured card comes first, hidden by CSS unless that ad's visitor is on the page; the regular picks keep ranks 1 to 3");
+    ok(featHtml.includes(">From the video<") && !renderPage(partnerModel, partnerList, { topPicks: featurePicks }).includes("data-top-picks"),
+      "the featured card says it is from the video, and a row of only featured cards is never drawn");
+    const bare = renderPage(partnerModel, partnerList, { topPicks: picks });
+    ok(!bare.includes("data-feature-pick=\"") && !bare.includes(">From the video<"), "without a mapped ad the picks render as before");
+  }
+}
+// Ad tags survive the page's own address updates (2026-11-13): the quiet
+// location lookup rewrote the whole query, erasing utm_* and fbclid before
+// analytics loaded, so 85% of Meta ad visits were filed as plain Facebook.
+{
+  const { christmasAddressSearch } = await import("../app/components/ChristmasBrowse.js").catch(() => ({}));
+  const browseSrc = strip(read("app/components/ChristmasBrowse.js"));
+  const fn = browseSrc.slice(browseSrc.indexOf("export function christmasAddressSearch"), browseSrc.indexOf("}", browseSrc.indexOf("return next.toString()")) + 1);
+  // eslint-disable-next-line no-new-func
+  const addr = christmasAddressSearch || new Function("FILTER_KEYS", fn.replace("export function christmasAddressSearch", "return function") )(["region", "category", "when", "date", "price", "audience", "undated", "q", "lat", "lng", "sort"]);
+  const kept = new URLSearchParams(addr("?utm_source=meta&utm_medium=paid_social&utm_content=1&fbclid=AbC&region=old&plan=p1", new URLSearchParams("region=tampa-bay")));
+  ok(kept.get("utm_source") === "meta" && kept.get("utm_content") === "1" && kept.get("fbclid") === "AbC" && kept.get("plan") === "p1" && kept.get("region") === "tampa-bay" && kept.getAll("region").length === 1,
+    "a filter change keeps the ad tags, click ids and a shared plan, and replaces only the filter keys");
+  ok(new URLSearchParams(addr("?gclid=G&lat=27.9&lng=-82.4", new URLSearchParams(""))).toString() === "gclid=G", "private and cleared filter keys leave the address, everything else stays");
+  ok(/if \(!\(query\.auto && next === new URLSearchParams\(location\.search\)\.toString\(\)\)\)/.test(browseSrc) && !/replaceState\(null, "", shown\.toString\(\)/.test(browseSrc),
+    "the automatic near you location never rewrites the address");
+  const prov = strip(read("app/components/PostHogProvider.js"));
+  ok(/const landing = sessionCampaignProps\(st\);/.test(prov) && /ph\.register_for_session\(landing\)/.test(prov), "PostHog keeps the landing's own campaign for the whole session");
+  const { sessionCampaignProps } = await import("../lib/campaignAttribution.js");
+  const props = sessionCampaignProps({ sess: { p: { utm_source: "meta", utm_medium: "paid_social", fbclid: "x", other: "no" }, rd: "facebook.com" } });
+  ok(props.utm_source === "meta" && props.utm_medium === "paid_social" && props.fbclid === "x" && !("other" in props) && Object.keys(sessionCampaignProps({ sess: null })).length === 0 && Object.keys(sessionCampaignProps({})).length === 0,
+    "the session campaign is the landing's own utm_* and click ids, nothing else, and empty for a visit without one");
+  // Field vitals on the landing (2026-11-13): the Christmas page reported no
+  // field LCP, CLS or INP at all, so a layout fix could not be measured on
+  // real ad visits. Same event and base properties as the home app.
+  const { startFieldVitals, vitalsProps } = await import("../lib/fieldVitals.js");
+  const sent = [];
+  const win = { location: { pathname: "/christmas-in-florida" }, innerWidth: 393, performance: { timeOrigin: 1794544000000 }, posthog: { capture: (e, p) => sent.push([e, p]) }, navigator: { userAgent: "Mozilla/5.0 (iPhone) FBAN/FBIOS" }, localStorage: { getItem: () => null } };
+  const fake = (name, value, extra = {}) => (cb) => cb({ name, value, rating: "good", id: "v1-" + name, attribution: { largestShiftTarget: "p.xm-lede", largestShiftValue: 0.02, target: "img", url: "/x.webp", timeToFirstByte: 90, node: {}, ...extra } });
+  ok(startFieldVitals(win, { load: async () => ({ onLCP: fake("LCP", 1800.4), onCLS: fake("CLS", 0.0213), onINP: fake("INP", 120), onTTFB: fake("TTFB", 90), onFCP: fake("FCP", 900) }) }) === true && startFieldVitals(win) === false,
+    "field vitals start once per page load");
+  await new Promise((r) => setTimeout(r, 0));
+  const cls = sent.find(([, p]) => p.metric === "CLS");
+  ok(sent.length === 5 && sent.every(([e, p]) => e === "web_vitals" && p.route === "/christmas-in-florida" && p.device === "mobile" && p.vitals_surface === "landing" && Object.values(p).every((v) => v === null || ["string", "number", "boolean"].includes(typeof v)))
+    && cls && cls[1].value === 21 && cls[1].cls_target === "p.xm-lede",
+    "each metric is one web_vitals row with only primitives, CLS in thousandths like the home app");
+  ok(vitalsProps({ name: "INP", value: 99.6, rating: "good", id: "i", attribution: { interactionTarget: "a.xm-pick-buy" } }, { route: "/x" }).inp_target === "a.xm-pick-buy", "INP keeps the element that was tapped");
+  const pageSrc = strip(read("app/christmas-in-florida/page.js"));
+  ok(/import FieldVitals from "\.\.\/components\/FieldVitals"/.test(pageSrc) && /<FieldVitals \/>/.test(pageSrc), "the Christmas landing mounts the field vitals");
 }
 {
   const cardsHtml = html.slice(html.indexOf('data-ticket-id="'));
