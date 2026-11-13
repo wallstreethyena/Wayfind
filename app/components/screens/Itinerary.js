@@ -1,13 +1,94 @@
 "use client";
 // Extracted from app/home.js (G1, July 2026 decomposition). Render-only; the
 // two original sibling branches (trip list, open trip) keep their conditions.
-import { useEffect, useState } from "react";
+// Upgraded into the Wayfind Trip-Planning Workspace while preserving every
+// manual itinerary capability, date picker contract, share flow, and auth gate.
+import { useEffect, useRef, useState } from "react";
 import { C, Icon } from "../kit";
 import { openExternal } from "../../../lib/links";
 import * as TripCore from "../../../lib/trips";
 import * as TripDays from "../../../lib/tripDays";
 import { measureItineraryShare, measureListShare } from "../../../lib/itineraryShare";
+import { railPhotoSrc } from "../../../lib/cardPhotoRequest";
+import SafeImg from "../SafeImg";
+import { stopTravelRelationship } from "../../../lib/plannerGeo";
+import { executePlannerAction, executePlannerActionBatch } from "../../../lib/plannerActions";
+import { openWayfindPlanner } from "../../../lib/plannerCompanionBridge";
+import { PLANNER_EVENTS, trackPlannerEvent, isPlannedStopItem } from "../../../lib/plannerAnalytics";
+import { checkPlannerEntitlement } from "../../../lib/plannerEntitlement";
+import { COVERED_CITIES } from "../../../lib/landingCities";
+import { cardComplete, searchEditorialCard } from "../../../lib/score";
+
 const Trips = { ...TripCore, ...TripDays };
+
+function shortDayTabLabel(ymd) {
+  const clean = Trips.normalizeStopDate(ymd);
+  if (!clean) return "";
+  const [y, m, d] = clean.split("-").map(Number);
+  const utcNoon = new Date(Date.UTC(y, m - 1, d, 12, 0, 0));
+  const wk = new Intl.DateTimeFormat("en-US", { timeZone: "UTC", weekday: "short" }).format(utcNoon);
+  return `${wk} ${d}`;
+}
+
+function resolveTripHeroPhoto(trip) {
+  const items = Array.isArray(trip && trip.items) ? trip.items : [];
+  for (const it of items) {
+    const p = it && it.place;
+    if (!p) continue;
+    const src = railPhotoSrc(p);
+    if (src) return src;
+  }
+  return "";
+}
+
+function summarizeTripPlanningStatus(trip, todayOpt) {
+  const items = Array.isArray(trip && trip.items) ? trip.items : [];
+  const total = items.length;
+  let datedCount = 0;
+  const distinctDays = new Set();
+  for (const it of items) {
+    const d = Trips.itemDayOf(it);
+    if (d) {
+      datedCount += 1;
+      distinctDays.add(d);
+    }
+  }
+  let spanDays = distinctDays.size;
+  if (spanDays === 0 && trip && trip.startDate && trip.endDate) {
+    const s = Trips.normalizeStopDate(trip.startDate);
+    const e = Trips.normalizeStopDate(trip.endDate);
+    if (s && e && e >= s) {
+      let cur = s;
+      let n = 0;
+      while (cur && cur <= e && n < 30) {
+        n += 1;
+        cur = Trips.addCalendarDays(cur, 1);
+      }
+      spanDays = n;
+    }
+  }
+  let statusLabel = "Dates flexible";
+  let statusTone = "muted";
+  if (total > 0 && datedCount === total) {
+    statusLabel = trip && trip.plannedBy === "wayfind_planner" ? "✨ Planned" : "✓ Planned";
+    statusTone = "ready";
+  } else if (total > 0 && datedCount > 0) {
+    const rem = total - datedCount;
+    statusLabel = `${rem} stop${rem === 1 ? "" : "s"} need dates`;
+    statusTone = "partial";
+  } else if (total === 0 && (trip && (trip.startDate || trip.endDate))) {
+    statusLabel = "Ready for stops";
+    statusTone = "partial";
+  }
+  const dateSum = Trips.tripDateSummary(trip, todayOpt) || (
+    trip && trip.startDate && trip.endDate
+      ? (trip.startDate === trip.endDate
+        ? Trips.formatStopDate(trip.startDate, { compact: true })
+        : `${Trips.formatStopDate(trip.startDate, { compact: true })} – ${Trips.formatStopDate(trip.endDate, { compact: true })}`)
+      : ""
+  );
+  return { total, datedCount, spanDays, statusLabel, statusTone, dateSum };
+}
 
 export default function ItineraryScreen({ ctx }) {
   const { activeTrip, setActiveTrip, trips, setTrips, tripNoteEdit, setTripNoteEdit, tripMoveFor, setTripMoveFor, sub, logEvent, openBrowse, reservations, removeRes, saveResConf, isSaved, liked, disliked, openDetail, quickSaveFavorite, toggleLike, toggleDislike, addShared, giveawayMark, blurbs, openExperience, openCuisine, PlaceCard, CategoryMenu, StateBadge, shareList, itineraryFlags, shareTrip, user, setAuthOpen, requireAuth } = ctx;
@@ -16,17 +97,94 @@ export default function ItineraryScreen({ ctx }) {
   const [dateEditFor, setDateEditFor] = useState(null);
   const [dateDraft, setDateDraft] = useState("");
   const [shareConfirmPending, setShareConfirmPending] = useState(null);
+
+  // Manual trip creator state (Trip Index)
+  const [manualCreateOpen, setManualCreateOpen] = useState(false);
+  const [manualCity, setManualCity] = useState("Orlando");
+  const [manualTitle, setManualTitle] = useState("");
+  const [manualStart, setManualStart] = useState("");
+  const [manualEnd, setManualEnd] = useState("");
+  const [manualErr, setManualErr] = useState("");
+
+  // Day-by-day filter & inline Ask Wayfind state (Open Trip)
+  const [selectedDayFilter, setSelectedDayFilter] = useState("overview");
+  const [askInput, setAskInput] = useState("");
+  const [askBusy, setAskBusy] = useState(false);
+  const [askFeedback, setAskFeedback] = useState(null); // { text, warnings, isError }
+  const [inlineUndoSnapshot, setInlineUndoSnapshot] = useState(null);
+  const askInputRef = useRef(null);
+  const trackedPlanOpenRef = useRef(new Set());
+
   useEffect(() => {
     setDateEditFor(null);
     setDateDraft("");
     setShareConfirmPending(null);
+    setSelectedDayFilter("overview");
+    setAskInput("");
+    setAskFeedback(null);
+    setInlineUndoSnapshot(null);
   }, [activeTrip]);
+
+  useEffect(() => {
+    if (!activeTrip || !trips || !trips[activeTrip]) return;
+    const t = trips[activeTrip];
+    const hasPlanned = t.plannedBy === "wayfind_planner" || (Array.isArray(t.items) && t.items.some(isPlannedStopItem));
+    if (hasPlanned && !trackedPlanOpenRef.current.has(activeTrip)) {
+      trackedPlanOpenRef.current.add(activeTrip);
+      trackPlannerEvent(
+        PLANNER_EVENTS.ITINERARY_OPENED_AFTER_PLAN,
+        {
+          city: t.city || "",
+          saved_stop_count: Array.isArray(t.items) ? t.items.length : 0,
+        },
+        { logEvent }
+      );
+    }
+  }, [activeTrip, trips, logEvent]);
+
   useEffect(() => {
     if (!mapOn) { setRouteMap(null); return undefined; }
     let cancelled = false;
     import("../ItineraryRouteMap").then((mod) => { if (!cancelled) setRouteMap(() => mod.default); }).catch(() => {});
     return () => { cancelled = true; };
   }, [mapOn]);
+
+  const handleManualCreateSubmit = (e) => {
+    if (e && typeof e.preventDefault === "function") e.preventDefault();
+    const cityTrim = String(manualCity || "").trim();
+    if (!cityTrim) {
+      setManualErr("Choose or enter a destination city.");
+      return;
+    }
+    if (manualStart && manualEnd && manualEnd < manualStart) {
+      setManualErr("End date cannot be earlier than start date.");
+      return;
+    }
+    const res = executePlannerAction(
+      trips || {},
+      {
+        type: "CREATE_TRIP",
+        city: cityTrim,
+        state: "FL",
+        title: String(manualTitle || "").trim() || null,
+        startDate: manualStart || null,
+        endDate: manualEnd || manualStart || null,
+      },
+      { allowManualCreate: true }
+    );
+    if (!res.ok) {
+      setManualErr(res.error || "Could not create trip.");
+      return;
+    }
+    setManualErr("");
+    setManualCreateOpen(false);
+    setManualTitle("");
+    setManualStart("");
+    setManualEnd("");
+    setTrips(res.nextTrips);
+    setActiveTrip(res.tripKey);
+  };
+
   return (
     <>
         {!user && (
@@ -75,24 +233,223 @@ export default function ItineraryScreen({ ctx }) {
         )}
         {!activeTrip && (() => {
           const list = Trips.tripList(trips);
+          const todayOpt = ctx.__today ? { today: ctx.__today } : {};
+          const entitlement = checkPlannerEntitlement(user);
           return (
             <div>
-              {/* v8.41 — THIS ROW WENT NOWHERE. It called setScreen("home"), and
-                  there is no screen called "home": the feed is "suggested"
-                  (app/home.js renders it under `screen === "suggested"`), so a
-                  category tap here left the reader on an empty scroller with no
-                  itinerary and no feed, and the bottom nav highlighted nothing.
-                  The 60ms setTimeout was covering for the same confusion — two
-                  state changes in one handler are batched, they never needed a
-                  timer. openBrowse switches to the feed, sets the category
+              {/* v8.41 — openBrowse switches to the feed, sets the category
                   WITHOUT toggling, and lands the reader on the place cards. */}
               <CategoryMenu activeCat={null} sub={sub} onCat={(id, label) => { try { logEvent("intent_chip", null, { intent: label, layer: 1, src: "itinerary" }); } catch (e) {} openBrowse(id); }} onSub={() => {}} />
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6, paddingTop: 4 }}>
-                <div style={{ fontSize: 18, fontWeight: 700, color: C.text }}>Your trips</div>
-                {list.length > 0 && <span style={{ fontSize: 13, color: C.muted }}>{list.length} destination{list.length !== 1 ? "s" : ""}</span>}
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginBottom: 12, paddingTop: 4, flexWrap: "wrap" }}>
+                <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
+                  <div style={{ fontSize: 19, fontWeight: 800, color: C.text }}>Your trips</div>
+                  {list.length > 0 && <span style={{ fontSize: 12.5, color: C.muted }}>{list.length} trip{list.length !== 1 ? "s" : ""}</span>}
+                </div>
+                {user && itineraryFlags && itineraryFlags.sync ? <span style={{ fontSize: 12, color: C.light }}>Synced across devices</span> : null}
               </div>
-              <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.4, marginBottom: 16 }}>Save a place and it lands here under its city. Group stops by day, reorder them, mark what you have hit, and route each day or the whole trip in Google Maps.</div>
-              {user && itineraryFlags && itineraryFlags.sync ? <div style={{ fontSize: 12.5, color: C.light, lineHeight: 1.4, marginTop: -10, marginBottom: 16 }}>Your trips sync across your devices.</div> : null}
+
+              {/* Primary Trip Index Actions: Build with Wayfind + Create manually */}
+              <div
+                data-wf-trip-index-actions="1"
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(auto-fit, minmax(210px, 1fr))",
+                  gap: 10,
+                  marginBottom: 16,
+                }}
+              >
+                {entitlement.allowed && (
+                  <button
+                    type="button"
+                    data-wf-planner-open="trip-index"
+                    onClick={() => openWayfindPlanner({ surface: "itinerary_index" })}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      gap: 10,
+                      padding: "13px 16px",
+                      minHeight: 52,
+                      borderRadius: 14,
+                      border: "none",
+                      background: "linear-gradient(135deg, #F97316, #FB923C)",
+                      color: "#0D1117",
+                      fontSize: 14,
+                      fontWeight: 900,
+                      cursor: "pointer",
+                      textAlign: "left",
+                      boxShadow: "0 8px 22px rgba(249, 115, 22, 0.22)",
+                    }}
+                  >
+                    <span>✨ Build a trip with Wayfind</span>
+                    <span style={{ fontSize: 16, fontWeight: 900 }}>›</span>
+                  </button>
+                )}
+                <button
+                  type="button"
+                  data-wf-create-manual-btn="1"
+                  aria-expanded={manualCreateOpen}
+                  onClick={() => { setManualCreateOpen((v) => !v); setManualErr(""); }}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    gap: 10,
+                    padding: "13px 16px",
+                    minHeight: 52,
+                    borderRadius: 14,
+                    border: "1px solid " + C.border,
+                    background: C.card,
+                    color: C.text,
+                    fontSize: 14,
+                    fontWeight: 800,
+                    cursor: "pointer",
+                    textAlign: "left",
+                  }}
+                >
+                  <span>＋ Create manually</span>
+                  <span style={{ fontSize: 14, color: C.muted }}>{manualCreateOpen ? "✕" : "›"}</span>
+                </button>
+              </div>
+
+              {manualCreateOpen && (
+                <form
+                  data-wf-manual-trip-form="1"
+                  onSubmit={handleManualCreateSubmit}
+                  style={{
+                    background: C.card,
+                    border: "1px solid " + C.border,
+                    borderRadius: 14,
+                    padding: 14,
+                    marginBottom: 16,
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 10,
+                  }}
+                >
+                  <div style={{ fontSize: 13.5, fontWeight: 800, color: C.text }}>New Florida trip</div>
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))", gap: 8 }}>
+                    <label style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: 11.5, color: C.muted }}>
+                      Destination
+                      <select
+                        aria-label="Destination city"
+                        value={manualCity}
+                        onChange={(e) => setManualCity(e.target.value)}
+                        style={{
+                          minHeight: 44,
+                          borderRadius: 10,
+                          border: "1px solid " + C.border,
+                          background: C.bg,
+                          color: C.text,
+                          padding: "8px 10px",
+                          fontSize: 14,
+                        }}
+                      >
+                        {(Array.isArray(COVERED_CITIES) && COVERED_CITIES.length > 0 ? COVERED_CITIES : [{ name: "Orlando" }, { name: "Tampa" }, { name: "Sarasota" }, { name: "Miami" }, { name: "St. Petersburg" }]).map((c) => (
+                          <option key={c.slug || c.name} value={c.name}>{c.name}, FL</option>
+                        ))}
+                      </select>
+                    </label>
+                    <label style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: 11.5, color: C.muted }}>
+                      Trip name (optional)
+                      <input
+                        type="text"
+                        placeholder={`e.g. ${manualCity} Weekend`}
+                        value={manualTitle}
+                        onChange={(e) => setManualTitle(e.target.value)}
+                        style={{
+                          minHeight: 44,
+                          borderRadius: 10,
+                          border: "1px solid " + C.border,
+                          background: C.bg,
+                          color: C.text,
+                          padding: "8px 10px",
+                          fontSize: 14,
+                          boxSizing: "border-box",
+                        }}
+                      />
+                    </label>
+                  </div>
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(145px, 1fr))", gap: 8 }}>
+                    <label style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: 11.5, color: C.muted }}>
+                      Start date (optional)
+                      <input
+                        type="date"
+                        value={manualStart}
+                        onChange={(e) => setManualStart(e.target.value)}
+                        style={{
+                          minHeight: 44,
+                          borderRadius: 10,
+                          border: "1px solid " + C.border,
+                          background: C.bg,
+                          color: C.text,
+                          padding: "8px 10px",
+                          fontSize: 14,
+                          colorScheme: "dark",
+                          boxSizing: "border-box",
+                        }}
+                      />
+                    </label>
+                    <label style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: 11.5, color: C.muted }}>
+                      End date (optional)
+                      <input
+                        type="date"
+                        value={manualEnd}
+                        onChange={(e) => setManualEnd(e.target.value)}
+                        style={{
+                          minHeight: 44,
+                          borderRadius: 10,
+                          border: "1px solid " + C.border,
+                          background: C.bg,
+                          color: C.text,
+                          padding: "8px 10px",
+                          fontSize: 14,
+                          colorScheme: "dark",
+                          boxSizing: "border-box",
+                        }}
+                      />
+                    </label>
+                  </div>
+                  {manualErr ? <div style={{ fontSize: 12, color: C.red }}>{manualErr}</div> : null}
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                    <button
+                      type="submit"
+                      data-wf-manual-trip-submit="1"
+                      style={{
+                        background: C.accent,
+                        border: "none",
+                        color: "#0D1117",
+                        fontSize: 13,
+                        fontWeight: 800,
+                        padding: "9px 16px",
+                        minHeight: 44,
+                        borderRadius: 22,
+                        cursor: "pointer",
+                      }}
+                    >
+                      Create trip
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => { setManualCreateOpen(false); setManualErr(""); }}
+                      style={{
+                        background: "transparent",
+                        border: "1px solid " + C.border,
+                        color: C.muted,
+                        fontSize: 12.5,
+                        fontWeight: 700,
+                        padding: "9px 14px",
+                        minHeight: 44,
+                        borderRadius: 22,
+                        cursor: "pointer",
+                      }}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </form>
+              )}
+
               {reservations.length > 0 && (
                 <div style={{ marginBottom: 20 }}>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
@@ -117,24 +474,117 @@ export default function ItineraryScreen({ ctx }) {
                   <div style={{ fontSize: 10.5, color: C.muted, lineHeight: 1.45 }}>Wayfind logs when you head out to book. Your confirmation details stay on this device.</div>
                 </div>
               )}
+
               {list.length === 0 ? (
-                <div style={{ textAlign: "center", padding: "48px 24px", color: C.muted, fontSize: 14, lineHeight: 1.5 }}>No trips yet. Save any place from Home or the Map and a city trip is created for you automatically.</div>
+                <div
+                  data-wf-trip-empty="1"
+                  style={{
+                    textAlign: "center",
+                    padding: "36px 20px",
+                    background: C.card,
+                    border: `1px solid ${C.border}`,
+                    borderRadius: 16,
+                    color: C.muted,
+                    fontSize: 13.5,
+                    lineHeight: 1.5,
+                  }}
+                >
+                  <div style={{ fontSize: 15, fontWeight: 800, color: C.text, marginBottom: 6 }}>No trips saved yet</div>
+                  <div>Tell Wayfind where and when you are going, or save any place while browsing to start a city trip automatically.</div>
+                </div>
               ) : (
-                list.map((t) => {
-                  const st = Trips.tripStats(t);
-                  const dateSum = Trips.tripDateSummary(t, ctx.__today ? { today: ctx.__today } : {});
-                  const listTitle = t.title || (t.city + (t.state ? ", " + t.state : ""));
-                  return (
-                    <div key={t.key} onClick={() => { setActiveTrip(t.key); try { window.scrollTo(0, 0); } catch {} }} style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 0", borderBottom: `1px solid ${C.border}`, cursor: "pointer" }}>
-                      <StateBadge code={t.state} />
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontSize: 15.5, fontWeight: 700, color: C.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{listTitle}</div>
-                        <div style={{ fontSize: 13, color: C.muted }}>{st.total} place{st.total !== 1 ? "s" : ""}{dateSum ? " · " + dateSum : ""}{st.visited > 0 ? " · " + st.visited + " visited" : ""}</div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                  {list.map((t) => {
+                    const st = Trips.tripStats(t);
+                    const planMeta = summarizeTripPlanningStatus(t, todayOpt);
+                    const heroSrc = resolveTripHeroPhoto(t);
+                    const destLabel = (t.city || "Florida") + (t.state ? ", " + t.state : "");
+                    const listTitle = t.title || destLabel;
+                    const showDestSub = Boolean(t.title && t.title.trim() && t.title.trim().toLowerCase() !== destLabel.toLowerCase());
+                    return (
+                      <div
+                        key={t.key}
+                        data-wf-trip-card={t.key}
+                        onClick={() => { setActiveTrip(t.key); try { window.scrollTo(0, 0); } catch {} }}
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 13,
+                          padding: 12,
+                          background: C.card,
+                          border: `1px solid ${C.border}`,
+                          borderRadius: 16,
+                          cursor: "pointer",
+                        }}
+                      >
+                        <div
+                          style={{
+                            width: 72,
+                            height: 72,
+                            borderRadius: 12,
+                            overflow: "hidden",
+                            flexShrink: 0,
+                            background: "linear-gradient(135deg, rgba(249,115,22,0.18), rgba(15,23,42,0.9))",
+                            border: `1px solid ${C.border}`,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            position: "relative",
+                          }}
+                        >
+                          {heroSrc ? (
+                            <SafeImg
+                              src={heroSrc}
+                              alt=""
+                              compact
+                              loading="lazy"
+                              style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                            />
+                          ) : (
+                            <StateBadge code={t.state} />
+                          )}
+                        </div>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                            <div style={{ fontSize: 15.5, fontWeight: 800, color: C.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "100%" }}>
+                              {listTitle}
+                            </div>
+                            <span
+                              style={{
+                                fontSize: 10.5,
+                                fontWeight: 800,
+                                padding: "2px 8px",
+                                borderRadius: 999,
+                                background: planMeta.statusTone === "ready"
+                                  ? "rgba(16, 185, 129, 0.14)"
+                                  : planMeta.statusTone === "partial"
+                                    ? "rgba(249, 115, 22, 0.14)"
+                                    : "rgba(148, 163, 184, 0.12)",
+                                color: planMeta.statusTone === "ready"
+                                  ? "#6EE7B7"
+                                  : planMeta.statusTone === "partial"
+                                    ? C.light
+                                    : C.muted,
+                              }}
+                            >
+                              {planMeta.statusLabel}
+                            </span>
+                          </div>
+                          {showDestSub && (
+                            <div style={{ fontSize: 12, color: C.light, marginTop: 2 }}>{destLabel}</div>
+                          )}
+                          <div style={{ fontSize: 12.5, color: C.muted, marginTop: 4, lineHeight: 1.35 }}>
+                            {planMeta.dateSum ? `${planMeta.dateSum} · ` : ""}
+                            {planMeta.spanDays > 0 ? `${planMeta.spanDays} day${planMeta.spanDays === 1 ? "" : "s"} · ` : ""}
+                            {st.total} stop{st.total !== 1 ? "s" : ""}
+                            {st.visited > 0 ? ` · ${st.visited} visited` : ""}
+                          </div>
+                        </div>
+                        <span style={{ color: C.muted, fontSize: 20, paddingRight: 2 }}>›</span>
                       </div>
-                      <span style={{ color: C.muted, fontSize: 20 }}>›</span>
-                    </div>
-                  );
-                })
+                    );
+                  })}
+                </div>
               )}
             </div>
           );
@@ -160,6 +610,19 @@ export default function ItineraryScreen({ ctx }) {
           const st = Trips.tripStats(t);
           const tripTitle = t.title || (t.city + (t.state ? ", " + t.state : ""));
           const others = Trips.tripList(trips).filter((x) => x.key !== t.key);
+          const entitlement = checkPlannerEntitlement(user);
+          const tripHasPlannedStops = t.plannedBy === "wayfind_planner" || items.some(isPlannedStopItem);
+          const undatedStopCount = items.filter((it) => !Trips.itemDayOf(it)).length;
+
+          const activeFilterValid =
+            selectedDayFilter === "overview" ||
+            grouped.groups.some((g) => (g.day || "unscheduled") === selectedDayFilter);
+          const effectiveDayFilter = grouped.hasDates && activeFilterValid ? selectedDayFilter : "overview";
+          const visibleGroups =
+            effectiveDayFilter === "overview"
+              ? grouped.groups
+              : grouped.groups.filter((g) => (g.day || "unscheduled") === effectiveDayFilter);
+
           const tripCtl = { width: 44, height: 44, minWidth: 44, minHeight: 44, borderRadius: 10, border: "1px solid " + C.border, background: C.card, color: C.text, fontSize: 15, fontWeight: 700, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center" };
           const tripChip = { border: "1px solid " + C.border, background: C.card, color: C.muted, fontSize: 12, fontWeight: 700, padding: "8px 12px", minHeight: 44, borderRadius: 22, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 6 };
           const focusDateToggle = (stopId) => {
@@ -197,6 +660,13 @@ export default function ItineraryScreen({ ctx }) {
             if (u) {
               openExternal(u);
               try { logEvent("trip_route", null, { key: t.key, n: items.length }); } catch {}
+              if (tripHasPlannedStops) {
+                trackPlannerEvent(
+                  PLANNER_EVENTS.HIGH_INTENT_FROM_PLANNED_STOP,
+                  { action_kind: "route_trip", city: t.city || "", saved_stop_count: items.length },
+                  { logEvent }
+                );
+              }
             }
           };
           const doRouteDay = (group, legUrl) => {
@@ -204,6 +674,13 @@ export default function ItineraryScreen({ ctx }) {
             if (u) {
               openExternal(u);
               try { logEvent("trip_route_day", null, { key: t.key, day: group.day, n: group.items.length }); } catch {}
+              if (group.items.some(isPlannedStopItem) || t.plannedBy === "wayfind_planner") {
+                trackPlannerEvent(
+                  PLANNER_EVENTS.HIGH_INTENT_FROM_PLANNED_STOP,
+                  { action_kind: "route_day", city: t.city || "", saved_stop_count: group.items.length },
+                  { logEvent }
+                );
+              }
             }
           };
           const applyStopDate = (place, nextDate, stopIdOverride) => {
@@ -216,6 +693,146 @@ export default function ItineraryScreen({ ctx }) {
             setDateDraft("");
             focusDateToggle(targetId);
           };
+
+          const runInlineAskWayfind = async (rawPrompt) => {
+            const text = String(rawPrompt || "").trim();
+            if (!text || askBusy) return;
+            // If the trip currently has 0 stops and the user asks to build a plan,
+            // open the rich multi-day preview sheet so they can inspect & confirm.
+            if (items.length === 0) {
+              openWayfindPlanner({
+                activeTripKey: t.key,
+                city: t.city || "",
+                prompt: text,
+                surface: "itinerary_empty_trip",
+              });
+              setAskInput("");
+              return;
+            }
+            setAskBusy(true);
+            setAskFeedback(null);
+            trackPlannerEvent(
+              PLANNER_EVENTS.REQUEST,
+              { mode: "inline_edit", surface: "itinerary_workspace", trip_key: t.key, saved_stop_count: items.length },
+              { logEvent }
+            );
+            const controller = typeof AbortController !== "undefined" ? new AbortController() : null;
+            const timeoutId = controller && typeof window !== "undefined"
+              ? window.setTimeout(() => { try { controller.abort(); } catch {} }, 16000)
+              : null;
+            try {
+              const res = await fetch("/api/planner", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                ...(controller ? { signal: controller.signal } : {}),
+                body: JSON.stringify({
+                  message: text,
+                  contextCity: t.city || null,
+                  activeTrip: t,
+                }),
+              });
+              const data = await res.json().catch(() => null);
+              if (!res.ok || !data || !data.ok) {
+                setAskFeedback({
+                  text: (data && data.reply) || "Wayfind couldn't apply that change right now. Your manual itinerary controls remain ready below.",
+                  warnings: [],
+                  isError: true,
+                });
+                return;
+              }
+              if (data.mode === "propose_trip" && data.proposedPlan) {
+                openWayfindPlanner({
+                  activeTripKey: t.key,
+                  city: t.city || "",
+                  prompt: text,
+                  surface: "itinerary_workspace_handoff",
+                });
+                setAskInput("");
+                return;
+              }
+              if (data.mode === "edit_trip" && Array.isArray(data.actions) && data.actions.length > 0) {
+                const batch = executePlannerActionBatch(trips, data.actions, {
+                  verifiedCatalog: data.candidateCatalog || {},
+                });
+                if (batch.ok) {
+                  setInlineUndoSnapshot(batch.undoSnapshot);
+                  setTrips(batch.nextTrips);
+                  setAskInput("");
+                  setAskFeedback({
+                    text: data.reply || batch.summary || "Updated your trip.",
+                    warnings: Array.isArray(data.warnings) ? data.warnings : [],
+                    isError: false,
+                  });
+                  for (const act of data.actions) {
+                    if (act.type === "ADD_STOP") trackPlannerEvent(PLANNER_EVENTS.STOP_ADDED, { trip_key: t.key }, { logEvent });
+                    else if (act.type === "REMOVE_STOP") trackPlannerEvent(PLANNER_EVENTS.STOP_REMOVED, { trip_key: t.key }, { logEvent });
+                    else if (act.type === "REPLACE_STOP") trackPlannerEvent(PLANNER_EVENTS.STOP_REPLACED, { trip_key: t.key }, { logEvent });
+                    else if (act.type === "OPTIMIZE_DAY") trackPlannerEvent(PLANNER_EVENTS.DAY_OPTIMIZED, { trip_key: t.key }, { logEvent });
+                  }
+                  return;
+                }
+                setAskFeedback({
+                  text: batch.errors && batch.errors[0] ? batch.errors[0] : "Wayfind refused an unverified change so your trip stays accurate.",
+                  warnings: [],
+                  isError: true,
+                });
+                return;
+              }
+              setAskFeedback({
+                text: data.reply || "Tell me which day or stop you'd like to adjust.",
+                warnings: Array.isArray(data.warnings) ? data.warnings : [],
+                isError: false,
+              });
+            } catch {
+              setAskFeedback({
+                text: "Planner connection unavailable right now. You can still reorder, date, note, and route every stop manually.",
+                warnings: [],
+                isError: true,
+              });
+            } finally {
+              if (timeoutId != null && typeof window !== "undefined") window.clearTimeout(timeoutId);
+              setAskBusy(false);
+            }
+          };
+
+          const handleInlineUndo = () => {
+            if (!inlineUndoSnapshot) return;
+            setTrips(inlineUndoSnapshot);
+            setInlineUndoSnapshot(null);
+            setAskFeedback({ text: "Undid the last Wayfind change.", warnings: [], isError: false });
+          };
+
+          const scopedDayPrefix =
+            effectiveDayFilter !== "overview" && effectiveDayFilter !== "unscheduled"
+              ? ` on ${Trips.formatStopDate(effectiveDayFilter)}`
+              : "";
+
+          const workspaceSuggestions = items.length === 0
+            ? [
+                { label: `Build 3-day ${t.city || "Florida"} plan`, prompt: `${t.city || "Orlando"} 3 days, great food and minimal driving`, immediate: true },
+                { label: "Weekend highlights & dinner", prompt: `${t.city || "Orlando"} weekend for two adults, top sights and dinner`, immediate: true },
+              ]
+            : [
+                {
+                  label: effectiveDayFilter !== "overview" && effectiveDayFilter !== "unscheduled"
+                    ? `Optimize ${shortDayTabLabel(effectiveDayFilter)}`
+                    : "Optimize route",
+                  prompt: effectiveDayFilter !== "overview" && effectiveDayFilter !== "unscheduled"
+                    ? `Optimize ${effectiveDayFilter}`
+                    : "Optimize route to reduce driving",
+                  immediate: true,
+                },
+                { label: "Add breakfast", prompt: `Add breakfast${scopedDayPrefix}`, immediate: true },
+                { label: "Find dinner nearby", prompt: `Add dinner nearby${scopedDayPrefix}`, immediate: true },
+                { label: "Make this cheaper", prompt: `Make${scopedDayPrefix || " this trip"} cheaper`, immediate: true },
+                { label: "Reduce driving", prompt: "Optimize route to reduce driving", immediate: true },
+                { label: "Add something indoors", prompt: `Add something indoors${scopedDayPrefix}`, immediate: true },
+                { label: "Replace a stop", prompt: "Replace ", immediate: false },
+                ...(undatedStopCount >= 3
+                  ? [{ label: "Organize into days", prompt: `${t.city || "Orlando"} 3 days — organize my saved stops and reduce driving`, immediate: false, openSheet: true }]
+                  : []),
+              ];
+
           const preShareNotices = [];
           if (items.length > 40) {
             preShareNotices.push("Share ↗ includes the first 25 places. Share privately creates an unlisted link with the first 40 stops (anyone with the link can view and save a copy; your original trip stays unchanged).");
@@ -233,7 +850,7 @@ export default function ItineraryScreen({ ctx }) {
             <div>
               <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", paddingBottom: 14, borderBottom: "1px solid " + C.border, marginBottom: 14, paddingTop: 4 }}>
                 <button type="button" aria-label="Back to all trips" onClick={() => { setActiveTrip(null); setTripNoteEdit(null); setTripMoveFor(null); setDateEditFor(null); setDateDraft(""); setShareConfirmPending(null); }} style={{ background: "none", border: "none", color: C.light, fontSize: 22, minWidth: 44, minHeight: 44, display: "inline-flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>‹</button>
-                <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ flex: "1 1 190px", minWidth: 190 }}>
                   <div style={{ fontSize: 17, fontWeight: 700, color: C.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{tripTitle}</div>
                   <div style={{ fontSize: 12.5, color: C.muted }}>{st.total} place{st.total !== 1 ? "s" : ""}{dateSum ? " · " + dateSum : ""}{st.visited > 0 ? " · " + st.visited + " visited" : ""}</div>
                 </div>
@@ -310,10 +927,255 @@ export default function ItineraryScreen({ ctx }) {
                   </div>
                 </div>
               )}
+
+              {/* Integrated Ask Wayfind Trip Workspace Bar */}
+              {entitlement.allowed && (
+                <div
+                  data-wf-ask-wayfind-bar="1"
+                  style={{
+                    background: C.card,
+                    border: "1px solid " + C.border,
+                    borderRadius: 14,
+                    padding: "11px 12px",
+                    marginBottom: 14,
+                  }}
+                >
+                  <form
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      runInlineAskWayfind(askInput);
+                    }}
+                    style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}
+                  >
+                    <input
+                      ref={askInputRef}
+                      type="text"
+                      data-wf-ask-wayfind-input="1"
+                      aria-label={`Ask Wayfind about ${tripTitle}`}
+                      value={askInput}
+                      disabled={askBusy}
+                      onChange={(e) => setAskInput(e.target.value)}
+                      placeholder={
+                        items.length === 0
+                          ? `Describe your ${t.city || "Florida"} trip (dates, interests, pace)…`
+                          : "Ask Wayfind (e.g. Move a stop, Make Saturday cheaper, Add dinner nearby)…"
+                      }
+                      style={{
+                        flex: "1 1 220px",
+                        minWidth: 0,
+                        minHeight: 44,
+                        borderRadius: 11,
+                        border: "1px solid " + C.border,
+                        background: C.bg,
+                        color: C.text,
+                        padding: "8px 12px",
+                        fontSize: 14,
+                        boxSizing: "border-box",
+                        outline: "none",
+                      }}
+                    />
+                    <button
+                      type="submit"
+                      data-wf-ask-wayfind-submit="1"
+                      disabled={askBusy || !askInput.trim()}
+                      style={{
+                        background: C.accent,
+                        border: "none",
+                        color: "#0D1117",
+                        fontSize: 12.5,
+                        fontWeight: 800,
+                        padding: "8px 14px",
+                        minHeight: 44,
+                        borderRadius: 20,
+                        cursor: askBusy || !askInput.trim() ? "default" : "pointer",
+                        opacity: askBusy || !askInput.trim() ? 0.55 : 1,
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      {askBusy ? "Updating…" : "✨ Ask Wayfind"}
+                    </button>
+                  </form>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap", marginTop: 9 }}>
+                    {workspaceSuggestions.map((chip) => (
+                      <button
+                        key={chip.label}
+                        type="button"
+                        data-wf-ask-chip={chip.label}
+                        disabled={askBusy}
+                        onClick={() => {
+                          if (chip.openSheet) {
+                            openWayfindPlanner({
+                              activeTripKey: t.key,
+                              city: t.city || "",
+                              prompt: chip.prompt,
+                              surface: "itinerary_organize_saves",
+                            });
+                            return;
+                          }
+                          if (chip.immediate) {
+                            runInlineAskWayfind(chip.prompt);
+                          } else {
+                            setAskInput(chip.prompt);
+                            if (askInputRef.current && typeof askInputRef.current.focus === "function") {
+                              askInputRef.current.focus();
+                            }
+                          }
+                        }}
+                        style={{
+                          background: "rgba(255,255,255,0.03)",
+                          border: "1px solid " + C.border,
+                          color: C.light,
+                          fontSize: 11.5,
+                          fontWeight: 700,
+                          padding: "6px 11px",
+                          minHeight: 34,
+                          borderRadius: 999,
+                          cursor: askBusy ? "default" : "pointer",
+                        }}
+                      >
+                        {chip.label}
+                      </button>
+                    ))}
+                  </div>
+                  {(askFeedback || inlineUndoSnapshot) && (
+                    <div
+                      role="status"
+                      data-wf-inline-planner-feedback="1"
+                      style={{
+                        marginTop: 10,
+                        paddingTop: 9,
+                        borderTop: "1px solid " + C.border,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        gap: 10,
+                        flexWrap: "wrap",
+                      }}
+                    >
+                      <div style={{ flex: 1, minWidth: 180, fontSize: 12.5, color: askFeedback && askFeedback.isError ? C.red : C.text, lineHeight: 1.4 }}>
+                        {askFeedback ? askFeedback.text : "Trip updated."}
+                        {askFeedback && Array.isArray(askFeedback.warnings) && askFeedback.warnings.length > 0 ? (
+                          <div style={{ fontSize: 11.5, color: C.muted, marginTop: 3 }}>{askFeedback.warnings.join(" ")}</div>
+                        ) : null}
+                      </div>
+                      {inlineUndoSnapshot && (
+                        <button
+                          type="button"
+                          data-wf-inline-planner-undo="1"
+                          onClick={handleInlineUndo}
+                          style={{
+                            background: "transparent",
+                            border: "1px solid " + C.accent,
+                            color: C.light,
+                            fontSize: 12,
+                            fontWeight: 800,
+                            padding: "6px 13px",
+                            minHeight: 38,
+                            borderRadius: 18,
+                            cursor: "pointer",
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          Undo
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Day Navigation Tabs (rendered only when trip has dated stops) */}
+              {grouped.hasDates && (
+                <div
+                  role="tablist"
+                  aria-label="Trip day filter"
+                  data-wf-day-tabs="1"
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 6,
+                    overflowX: "auto", overscrollBehaviorX: "contain",
+                    paddingBottom: 6,
+                    marginBottom: 12,
+                  }}
+                >
+                  <button
+                    type="button"
+                    role="tab"
+                    data-wf-day-tab="overview"
+                    aria-selected={effectiveDayFilter === "overview"}
+                    onClick={() => setSelectedDayFilter("overview")}
+                    style={{
+                      background: effectiveDayFilter === "overview" ? C.accent : C.card,
+                      border: "1px solid " + (effectiveDayFilter === "overview" ? C.accent : C.border),
+                      color: effectiveDayFilter === "overview" ? "#0D1117" : C.text,
+                      fontSize: 12.5,
+                      fontWeight: 800,
+                      padding: "7px 13px",
+                      minHeight: 40,
+                      borderRadius: 999,
+                      cursor: "pointer",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    Overview ({items.length})
+                  </button>
+                  {grouped.groups.map((g) => {
+                    const tabKey = g.day || "unscheduled";
+                    const selected = effectiveDayFilter === tabKey;
+                    const tabLabel = g.day ? shortDayTabLabel(g.day) : "No date";
+                    return (
+                      <button
+                        key={tabKey}
+                        type="button"
+                        role="tab"
+                        data-wf-day-tab={tabKey}
+                        aria-selected={selected}
+                        onClick={() => setSelectedDayFilter(tabKey)}
+                        style={{
+                          background: selected ? C.accent : C.card,
+                          border: "1px solid " + (selected ? C.accent : C.border),
+                          color: selected ? "#0D1117" : (g.isPast ? C.muted : C.text),
+                          fontSize: 12.5,
+                          fontWeight: 800,
+                          padding: "7px 13px",
+                          minHeight: 40,
+                          borderRadius: 999,
+                          cursor: "pointer",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        {tabLabel} ({g.items.length})
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+
               {RouteMap ? <RouteMap items={items} /> : null}
               {items.length === 0 ? (
-                <div style={{ textAlign: "center", padding: "40px", color: C.muted }}>This trip is empty.</div>
-              ) : grouped.groups.map((group, gi) => {
+                <div style={{ textAlign: "center", padding: "36px 20px", background: C.card, border: "1px solid " + C.border, borderRadius: 14, color: C.muted }}>
+                  <div style={{ fontSize: 14.5, fontWeight: 700, color: C.text, marginBottom: 6 }}>This trip has no stops yet.</div>
+                  <div style={{ fontSize: 13, marginBottom: 14 }}>Use Ask Wayfind above to generate a grounded day-by-day plan, or browse places to add stops manually.</div>
+                  <button
+                    type="button"
+                    onClick={() => openBrowse(null)}
+                    style={{
+                      background: "transparent",
+                      border: "1px solid " + C.border,
+                      color: C.light,
+                      fontSize: 12.5,
+                      fontWeight: 800,
+                      padding: "8px 14px",
+                      minHeight: 44,
+                      borderRadius: 20,
+                      cursor: "pointer",
+                    }}
+                  >
+                    Browse places
+                  </button>
+                </div>
+              ) : visibleGroups.map((group, gi) => {
                 const routeLegs = group.day ? Trips.dayRouteLegs(t, group.day, routeOpts) : [];
                 return (
                   <div key={group.key} data-wf-day-group={grouped.hasDates ? (group.day || "unscheduled") : "plain"} style={{ marginBottom: grouped.hasDates ? 18 : 0 }}>
@@ -401,10 +1263,128 @@ export default function ItineraryScreen({ ctx }) {
                       const editing = tripNoteEdit === stopKey;
                       const moving = tripMoveFor === stopKey;
                       const dating = dateEditFor === stopKey;
+                      const slotLabel = it.slotLabel || (p && p.slotLabel) || "";
+                      const confidence = (p && p.confidence) || "";
+                      const confidenceNote = (p && p.confidenceNote) || "";
+                      const nextStopInDay =
+                        grouped.hasDates && group.day && i < group.items.length - 1
+                          ? group.items[i + 1]
+                          : null;
+                      const travelRel = nextStopInDay ? stopTravelRelationship(it, nextStopInDay) : null;
+
                       return (
                         <div key={stopKey} data-wf-stop-id={stopKey} style={{ marginBottom: 12 }}>
+                          {(slotLabel || confidence) && (
+                            <div
+                              data-wf-stop-plan-meta={stopKey}
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "space-between",
+                                gap: 8,
+                                flexWrap: "wrap",
+                                marginBottom: 6,
+                              }}
+                            >
+                              {slotLabel ? (
+                                <span style={{ fontSize: 11.5, fontWeight: 800, color: C.light, letterSpacing: "0.02em" }}>
+                                  {slotLabel}
+                                </span>
+                              ) : <span />}
+                              {confidence ? (
+                                <span
+                                  data-wf-stop-confidence={confidence}
+                                  title={confidenceNote || undefined}
+                                  style={{
+                                    fontSize: 10.5,
+                                    fontWeight: 800,
+                                    padding: "2px 8px",
+                                    borderRadius: 999,
+                                    background: confidence === "confirmed" ? "rgba(16, 185, 129, 0.14)" : "rgba(245, 158, 11, 0.14)",
+                                    color: confidence === "confirmed" ? "#6EE7B7" : "#FCD34D",
+                                  }}
+                                >
+                                  {confidence === "confirmed" ? "✓ Confirmed" : "Check hours"}
+                                </span>
+                              ) : null}
+                            </div>
+                          )}
                           <div style={{ position: "relative", opacity: it.visited ? 0.62 : 1 }}>
-                            <PlaceCard p={p} saved={isSaved(p.id)} liked={!!liked[p.id]} disliked={!!disliked[p.id]} onDetail={() => openDetail(p)} onSave={() => quickSaveFavorite(p)} onLike={(e) => toggleLike(e, p)} onDislike={(e) => toggleDislike(e, p)} onShareCard={(pl) => { try { addShared(pl); giveawayMark(pl.id); } catch (e) {} }} line={blurbs[p.id]} onBadge={openExperience} onCuisineTap={openCuisine} />
+                            <PlaceCard
+                              p={p}
+                              saved={isSaved(p.id)}
+                              liked={!!liked[p.id]}
+                              disliked={!!disliked[p.id]}
+                              onDetail={() => {
+                                if (isPlannedStopItem(it)) {
+                                  trackPlannerEvent(
+                                    PLANNER_EVENTS.HIGH_INTENT_FROM_PLANNED_STOP,
+                                    { action_kind: "detail_open", city: t.city || "", saved_stop_count: items.length },
+                                    { logEvent }
+                                  );
+                                }
+                                openDetail(p);
+                              }}
+                              onSave={() => quickSaveFavorite(p)}
+                              onLike={(e) => toggleLike(e, p)}
+                              onDislike={(e) => toggleDislike(e, p)}
+                              onShareCard={(pl) => { try { addShared(pl); giveawayMark(pl.id); } catch (e) {} }}
+                              line={blurbs[p.id]}
+                              onBadge={openExperience}
+                              onCuisineTap={openCuisine}
+                            />
+                            {typeof window !== "undefined" && !cardComplete(p) && !searchEditorialCard(p) && (
+                              <div
+                                data-wf-unscored-stop-card={p.id}
+                                onClick={() => {
+                                  if (isPlannedStopItem(it)) {
+                                    trackPlannerEvent(
+                                      PLANNER_EVENTS.HIGH_INTENT_FROM_PLANNED_STOP,
+                                      { action_kind: "detail_open", city: t.city || "", saved_stop_count: items.length },
+                                      { logEvent }
+                                    );
+                                  }
+                                  openDetail(p);
+                                }}
+                                role="button"
+                                tabIndex={0}
+                                onKeyDown={(e) => {
+                                  if (e.key === "Enter" || e.key === " ") {
+                                    e.preventDefault();
+                                    openDetail(p);
+                                  }
+                                }}
+                                style={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: 12,
+                                  padding: "12px 14px",
+                                  borderRadius: 14,
+                                  background: C.card,
+                                  border: `1px solid ${C.border}`,
+                                  cursor: "pointer",
+                                }}
+                              >
+                                <div style={{ width: 64, height: 64, borderRadius: 10, overflow: "hidden", flexShrink: 0 }}>
+                                  <SafeImg
+                                    src={railPhotoSrc(p) || ""}
+                                    alt=""
+                                    compact
+                                    category={p.type}
+                                    style={{ width: 64, height: 64, borderRadius: 10, objectFit: "cover", display: "block" }}
+                                  />
+                                </div>
+                                <div style={{ flex: 1, minWidth: 0 }}>
+                                  <div style={{ fontSize: 15, fontWeight: 800, color: C.text, lineHeight: 1.3 }}>
+                                    {p.name || "Saved stop"}
+                                  </div>
+                                  <div style={{ fontSize: 12.5, color: C.muted, marginTop: 3 }}>
+                                    {[p.type, p.price, p.address || p.city].filter(Boolean).join(" · ")}
+                                  </div>
+                                </div>
+                                <span style={{ color: C.accent, fontSize: 16, fontWeight: 800, flexShrink: 0 }} aria-hidden="true">›</span>
+                              </div>
+                            )}
                             {it.visited && <div style={{ position: "absolute", top: 8, left: 8, background: C.accent, color: "#0D1117", fontSize: 11, fontWeight: 800, padding: "3px 8px", borderRadius: 20, zIndex: 2 }}>✓ Visited</div>}
                           </div>
                           {it.note && !editing && <div style={{ fontSize: 12.5, color: C.light, background: C.card, border: "1px solid " + C.border, borderRadius: 10, padding: "8px 10px", marginTop: 6 }}>📝 {it.note}</div>}
@@ -596,9 +1576,55 @@ export default function ItineraryScreen({ ctx }) {
                               </div>
                             </div>
                           )}
+                          {travelRel && travelRel.label && (
+                            <div
+                              data-wf-travel-connector="1"
+                              style={{
+                                marginTop: 10,
+                                paddingLeft: 12,
+                                borderLeft: "2px dashed " + C.border,
+                                fontSize: 11.5,
+                                color: C.muted,
+                                lineHeight: 1.4,
+                              }}
+                            >
+                              ↓ {travelRel.label}
+                            </div>
+                          )}
                         </div>
                       );
                     })}
+                    {grouped.hasDates && group.day && !group.isPast && (
+                      <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginTop: 4 }}>
+                        <button
+                          type="button"
+                          data-wf-day-add={group.day}
+                          onClick={() => {
+                            const promptPrefix = `Add a stop on ${Trips.formatStopDate(group.day)}: `;
+                            setAskInput(promptPrefix);
+                            if (askInputRef.current) {
+                              try {
+                                askInputRef.current.scrollIntoView({ behavior: "smooth", block: "nearest" });
+                                askInputRef.current.focus();
+                              } catch {}
+                            }
+                          }}
+                          style={{
+                            background: "transparent",
+                            border: "1px dashed " + C.border,
+                            color: C.light,
+                            fontSize: 12,
+                            fontWeight: 700,
+                            padding: "8px 14px",
+                            minHeight: 40,
+                            borderRadius: 20,
+                            cursor: "pointer",
+                          }}
+                        >
+                          ＋ Add something to {shortDayTabLabel(group.day)}
+                        </button>
+                      </div>
+                    )}
                   </div>
                 );
               })}

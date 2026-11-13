@@ -21,6 +21,7 @@ import { coverageState, coverageLines, coverageSheetLine, unknownSheetLine, cove
 import { pickLine, routeLine, timeLines } from "./booReactions.js";
 import { MAX_COVER, rectOf, isClear, touchesAny, besideSpot, perchSpot, pickClearSpot, estimateBubble, bubbleSideIfClear, chooseBubbleSide, TUCK_MAX } from "./booClear.js";
 import { styleHtml } from "../../lib/styleHtml.js";
+import { maybeHandoffCompanionToPlanner } from "../../lib/plannerCompanionBridge.js";
 
 // Table picks for "book Ulele Friday at 7 for 4": a lazy chunk, fetched only when a reservation request is typed.
 const ReservePicks = lazy(() => import("./ReservePicks.js"));
@@ -1664,6 +1665,11 @@ export default function BooCompanion() {
   const send = useCallback(async (raw, source) => {
     const message = String(raw || "").trim().slice(0, 300);
     if (!message || pendingRef.current || wrapRef.current) return;
+    if (maybeHandoffCompanionToPlanner(message, { santa: santaNow(), pathname: pathRef.current })) {
+      setDraft("");
+      closeSheet();
+      return;
+    }
     pendingRef.current = true;
     setPending(true);
     setDraft("");
