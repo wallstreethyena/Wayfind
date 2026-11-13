@@ -21,11 +21,14 @@
 // GOOGLE_MAPS_SERVER_KEY configured -> 501, client falls back to the direct
 // SDK path (see pickSuggestionDetails's fallback in app/home.js).
 import { NextResponse } from "next/server";
-import { gateShut, spendAllow, spendAllowDetailsAtmosphere } from "../../../../lib/spendGate";
+import { gateShut, spendAllow, spendAllowDetailsAtmosphere, runWithTraffic, TRAFFIC } from "../../../../lib/spendGate";
 import { placeDiscoveryRef } from "../../../../lib/discoveryRef.js";
 import { getInventoryIdentity } from "../../../../lib/inventoryIdentity.js";
 import { getCachedPlaceIdentity } from "../../../../lib/cachedPlaceIdentity.js";
 import { loadPlaceDetailPhotos } from "../../../../lib/placeDetailGallery.js";
+import { resolveOwnedDetailBeforeSpend, persistLiveDetailEnrichment, resolveGracefulDetailFallback } from "../../../../lib/placeDetailSpine.js";
+import { recordDetailMetric } from "../../../../lib/detailTelemetry.js";
+import { isSyntheticRequest } from "../../../../lib/productionWriteFirewall.js";
 
 export const dynamic = "force-dynamic";
 
@@ -77,6 +80,13 @@ async function inventoryPlace(placeId) {
 }
 
 export async function POST(req) {
+  if (typeof isSyntheticRequest === "function" && typeof runWithTraffic === "function" && typeof TRAFFIC === "object" && isSyntheticRequest(req)) {
+    return runWithTraffic(TRAFFIC.SYNTHETIC_QA, () => handleDetailsPost(req));
+  }
+  return handleDetailsPost(req);
+}
+
+async function handleDetailsPost(req) {
   const serverKey = process.env.GOOGLE_MAPS_SERVER_KEY;
 
   let body;
@@ -84,6 +94,11 @@ export async function POST(req) {
   const placeId = String(body.placeId || "").trim();
   const kind = FIELDS[body.kind] ? body.kind : "place";
   const sessionToken = typeof body.sessionToken === "string" ? body.sessionToken.slice(0, 100) : undefined;
+  let allowPartial = Boolean(body.allowPartial);
+  if (!allowPartial) {
+    try { allowPartial = new URL(req.url).searchParams.get("allowPartial") === "1"; } catch {}
+  }
+  const forceLive = Boolean(body.forceLive);
   if (!PLACE_ID_RX.test(placeId)) return NextResponse.json({ error: "bad request" }, { status: 400 });
   // The wf_inventory identity for this id, read AT MOST ONCE per request.
   // kind "place" resolves it below before the gate; the budget refusals near
@@ -107,8 +122,22 @@ export async function POST(req) {
       if (cached) return NextResponse.json({ place: cached, source: "cached" });
     } catch { /* a cache outage keeps the original guarded live path */ }
   }
+  // Layered Place Detail Spine (Missions 9 & 22): serve rich owned/cached detail
+  // before consuming paid Google Atmosphere quota.
+  if (kind === "detail" && typeof resolveOwnedDetailBeforeSpend === "function") {
+    try {
+      const ownedDetail = await resolveOwnedDetailBeforeSpend(placeId, { forceLive });
+      if (ownedDetail) return NextResponse.json(ownedDetail);
+    } catch {}
+  }
   if (!serverKey) {
-    const fallback = await inventoryPlace(placeId);
+    if (kind === "detail" && typeof resolveGracefulDetailFallback === "function") {
+      try {
+        const graceful = await resolveGracefulDetailFallback(placeId, { reason: "server key not configured", allowPartial, isUpstreamError: false });
+        if (graceful) return NextResponse.json(graceful);
+      } catch {}
+    }
+    const fallback = kind === "detail" ? null : await inventoryPlace(placeId);
     return fallback
       ? NextResponse.json({ place: fallback, source: "inventory" })
       : NextResponse.json({ error: "server key not configured" }, { status: 501 });
@@ -134,13 +163,17 @@ export async function POST(req) {
     // accounting below is untouched — scripts/test-google-details-accounting.mjs
     // still reads `.error` off the body, which both shapes keep.
     const budgetRefusal = async (reason) => {
-      // NEVER for kind "detail". That mask asks for hours, reviews, phone and
-      // website; wf_inventory holds none of them, so answering one with an
-      // identity row would turn "we never asked Google" into "this place has
-      // no hours" — the exact conflation lib/google.js's {ok:false} shape and
-      // scripts/check-place-detail-honest.mjs exist to prevent.
+      if (kind === "detail" && typeof resolveGracefulDetailFallback === "function") {
+        try {
+          const graceful = await resolveGracefulDetailFallback(placeId, { reason, allowPartial, isUpstreamError: false });
+          if (graceful) return NextResponse.json(graceful);
+        } catch {}
+      }
+      // NEVER borrow a bare identity row for kind "detail" unless allowPartial
+      // or substantive owned enrichment was explicitly resolved above.
       const fallback = kind === "detail" ? null : await ownedIdentity();
       if (fallback) return NextResponse.json({ place: fallback, source: "inventory", degraded: reason });
+      if (typeof recordDetailMetric === "function") recordDetailMetric("detail_503_returned", reason);
       // Nothing held. Say so with a STATUS, so the caller's transport branch
       // handles it instead of its empty-payload branch.
       return NextResponse.json({ error: reason, degraded: reason }, { status: 503 });
@@ -152,16 +185,28 @@ export async function POST(req) {
     if (!allowed) {
       return budgetRefusal("budget");
     }
+    if (typeof recordDetailMetric === "function") recordDetailMetric("paid_lookup_attempted", kind);
     const r = await fetch("https://places.googleapis.com/v1/places/" + encodeURIComponent(placeId) + qs, {
       headers: { "X-Goog-Api-Key": serverKey, "X-Goog-FieldMask": FIELDS[kind] },
     });
     if (!r.ok) {
-      const fallback = await inventoryPlace(placeId);
+      if (kind === "detail" && typeof resolveGracefulDetailFallback === "function") {
+        try {
+          const graceful = await resolveGracefulDetailFallback(placeId, { reason: "upstream " + r.status, allowPartial, isUpstreamError: true });
+          if (graceful) return NextResponse.json(graceful);
+        } catch {}
+      }
+      const fallback = kind === "detail" ? null : await inventoryPlace(placeId);
       return fallback
         ? NextResponse.json({ place: fallback, source: "inventory" })
         : NextResponse.json({ error: "upstream " + r.status }, { status: 502 });
     }
     const place = await r.json();
+    // Self-healing writeback (Mission 22): persist structured owned_hours + rich cache
+    // BEFORE photo discovery-ref stripping so owned gallery/hours survive 30 days.
+    if (typeof persistLiveDetailEnrichment === "function") {
+      try { await persistLiveDetailEnrichment(placeId, place, { kind }); } catch {}
+    }
     // The REST API returns fully-qualified enum strings ("PRICE_LEVEL_MODERATE");
     // the Maps JS SDK this route replaces returned the short form ("MODERATE").
     // Normalize here so client-side price-level matching (unchanged from the
@@ -175,7 +220,13 @@ export async function POST(req) {
     if ("photos" in place) place.photos = Array.isArray(place.photos) && place.photos.length ? [{ name: placeDiscoveryRef(placeId) }] : [];
     return NextResponse.json({ place });
   } catch {
-    const fallback = await inventoryPlace(placeId);
+    if (kind === "detail" && typeof resolveGracefulDetailFallback === "function") {
+      try {
+        const graceful = await resolveGracefulDetailFallback(placeId, { reason: "upstream failure", allowPartial, isUpstreamError: true });
+        if (graceful) return NextResponse.json(graceful);
+      } catch {}
+    }
+    const fallback = kind === "detail" ? null : await inventoryPlace(placeId);
     return fallback
       ? NextResponse.json({ place: fallback, source: "inventory" })
       : NextResponse.json({ error: "upstream failure" }, { status: 502 });

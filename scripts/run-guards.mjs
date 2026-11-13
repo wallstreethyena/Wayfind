@@ -194,7 +194,7 @@ if (jobs === 1) {
   for (let i = 0; i < N; i++) {
     const cmd = guards[i];
     const gs = Date.now();
-    const r = spawnSync(cmd, { shell: true, stdio: "inherit", env: { ...process.env, WF_SUPPRESS_ANALYTICS: "1" } });
+    const r = spawnSync(cmd, { shell: true, stdio: "inherit", env: { ...process.env, WF_SUPPRESS_ANALYTICS: "1", WF_GUARD_SUITE: "1", WF_VIATOR_TOKEN_CAPTURE: "0" } });
     durations[i] = (Date.now() - gs) / 1000;
     if (r.error) failUnrunnable(i, r.error.message);
     if (r.status !== 0) {
@@ -214,7 +214,7 @@ if (jobs === 1) {
     const done = (r) => { if (!settled) { settled = true; resolve({ ...r, secs: (Date.now() - started) / 1000, out: Buffer.concat(chunks) }); } };
     let child;
     try {
-      child = spawn(cmd, { shell: true, stdio: ["ignore", "pipe", "pipe"], env: { ...process.env, WF_SUPPRESS_ANALYTICS: "1" } });
+      child = spawn(cmd, { shell: true, stdio: ["ignore", "pipe", "pipe"], env: { ...process.env, WF_SUPPRESS_ANALYTICS: "1", WF_GUARD_SUITE: "1", WF_VIATOR_TOKEN_CAPTURE: "0" } });
     } catch (e) {
       done({ error: e, status: null, signal: null });
       return;
@@ -286,7 +286,7 @@ for (const g of CREDENTIALED_GUARDS) {
   const r = spawnSync(g.cmd, {
     shell: true,
     stdio: "inherit",
-    env: { ...credentialedEnv(), WF_SUPPRESS_ANALYTICS: "1" },
+    env: { ...credentialedEnv(), WF_SUPPRESS_ANALYTICS: "1", WF_GUARD_SUITE: "1", WF_VIATOR_TOKEN_CAPTURE: "0" },
   });
   if (r.error) {
     console.error(`\nrun-guards: FAIL — credentialed pass could not run: ${g.cmd}`);

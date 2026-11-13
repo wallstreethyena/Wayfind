@@ -1167,6 +1167,14 @@
    "detail": "If this regresses, budget-gated detail views lose open/closed status and expandable hours, municipal splash parks claim paid gate admission, closed venues on Thanksgiving/Christmas tell visitors to 'Go now', or unservable wfplacediscovery refs trigger 404 image requests."
   },
   "owner": "Revenue QA"
+ },
+ "scripts/test-quota-exhaustion-simulation.mjs": {
+  "protects": "Owned regular opening hours (with strict <=30d Google ToS TTL and holiday uncertainty), 5-class spend accounting (human_interactive, background_enrichment, cron_refresh, repair_backfill, synthetic_qa), and the layered Place Detail spine serve HTTP 200 owned/cached/partial snapshots with zero user-facing 503s under daily quota exhaustion or upstream 429 storms, zero paid calls on synthetic QA requests, and self-healing writeback on justified live lookups.",
+  "blastRadius": {
+   "category": "revenue",
+   "detail": "If background/synthetic spend can consume human reserve or /api/places/details returns 503 when the Google Atmosphere daily gate binds, morning crons or synthetic probes exhaust the daily cap and live visitors hit broken 503 detail sheets every afternoon."
+  },
+  "owner": "Revenue QA"
  }
 }
 
