@@ -824,7 +824,10 @@ ok(html.includes("data-christmas-filter") && html.includes(">Best rated<") && ht
   }
   ok(b.sortChristmasBrowse([unknown, base({ id: "zero", popularity_score: 0, local_rank: 0 })], b.parseChristmasBrowseQuery({}), day)[0].id === "zero", "measured PredictHQ zero remains distinct from unknown demand");
   {
-    const bsrc = strip(read("app/components/ChristmasBrowse.js"));
+    // The quiet lookup lives in the shared hook (one lookup feeds the list and the weekend row).
+    const hsrc = strip(read("app/components/useChristmasLocation.js"));
+    const bsrc = strip(read("app/components/ChristmasBrowse.js")) + "\n" + hsrc;
+    ok(/useChristmasLocation\(/.test(strip(read("app/components/ChristmasBrowse.js"))), "the browse takes its location from the shared hook");
     ok(!/storedPinFresh|wf_center|maximumAge/.test(bsrc), "a saved or cached pin never ranks the list, only a live position or the city lookup");
     ok(/permissions\.query\(\{ name: "geolocation" \}\)/.test(bsrc) && /p\.state === "granted" \? byDevice\(\) : byCity\(\)/.test(bsrc) && /fetch\("\/api\/geo"/.test(bsrc), "the default location never prompts: device position only when already allowed, else the city lookup");
     ok(/query\.auto && PRIVATE_KEYS\.has\(k\)/.test(bsrc), "a quietly found location stays out of the shareable address bar");

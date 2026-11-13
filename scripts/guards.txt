@@ -2611,3 +2611,7 @@ node scripts/test-owned-social-reconcile.mjs
 node scripts/test-background-daily-line.mjs
 node scripts/test-refresh-dedup.mjs
 node scripts/test-game-plan.mjs
+# 2026-11-12: Christmas page weekend row: window math, top 3 per category, max 4, location rings.
+node scripts/test-christmas-weekend.mjs
+# 2026-11-12: Christmas map pins: never an approximate location; count equals verified listings.
+node scripts/test-christmas-map-pins.mjs
