@@ -116,7 +116,10 @@ ok(MAPLIBRE_ATTRIBUTION_LIFT + 10 + 44 <= NOTE.bottom, "3D attribution (worst ca
 const lib = strip(readFileSync("lib/appleExplorerMap.js", "utf8"));
 ok(!/Padding\(\s*150/.test(lib), "appleExplorerMap has no numeric Padding(150, ...) safe-area literal left");
 ok(/Padding\(\s*150/.test("map.padding = new mapkit.Padding(150, 68, 150, 12);"), "control: the Padding(150 probe finds the pre-fix literal, so its absence above is meaningful");
-ok((lib.match(/new mapkit\.Padding\(MAP_SAFE_PADDING\.top, MAP_SAFE_PADDING\.right, MAP_SAFE_PADDING\.bottom, MAP_SAFE_PADDING\.left\)/g) || []).length === 2, "both map.padding and the cluster showItems padding use MAP_SAFE_PADDING");
+// 2026-11-13: an embedded (compact) map may use COMPACT_MAP_PADDING; every
+// full screen map (compact defaults to false) still gets MAP_SAFE_PADDING.
+ok(/const SAFE = compact \? COMPACT_MAP_PADDING : MAP_SAFE_PADDING;/.test(lib) && /compact = false,/.test(lib), "full screen maps (compact defaults false) use MAP_SAFE_PADDING; only compact embeds use the small insets");
+ok((lib.match(/new mapkit\.Padding\(SAFE\.top, SAFE\.right, SAFE\.bottom, SAFE\.left\)/g) || []).length === 2, "both map.padding and the cluster showItems padding use the selected safe area");
 
 console.log(failures ? `check-map-note-attribution: ${failures} FAILURE(S)` : "check-map-note-attribution: all green — constants executed, 4 viewports simulated against attribution/sheet/controls (real-browser rects need a MapKit token: measured by hand in the PR)");
 process.exit(failures ? 1 : 0);
