@@ -8,7 +8,7 @@ import { formatDistanceMiles } from "../../lib/deviceDistance.js";
 import { WayfindScoreBadge } from "./kit";
 import CardPhoto from "./CardPhoto";
 import { businessStatus } from "../../lib/businessStatus";
-import { coarseCat } from "../../lib/ranking";
+import { coarseCat, humanTypeFallback } from "../../lib/ranking";
 import { toDisplayScore } from "../../lib/score";
 import { wayfindScore } from "../../lib/google";
 import { priceLabel } from "../../lib/price";
@@ -382,7 +382,7 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
   // Guide inventory rows carry the stored Wayfind category as cardCategory.
   // It is the adjudicated display bucket; unordered Google secondary types
   // must not relabel an airboat as Shopping or a spring park as Hotels.
-  const category = place ? (place.cardCategory || coarseCat(place) || place.primaryType || place.type || "Local pick") : "";
+  const category = place ? (place.cardCategory || coarseCat(place) || humanTypeFallback(place.primaryType || place.primary_type || place.type) || "Local pick") : "";
   // v8.49.1 — house cards do not share a category+city stock scene. A
   // photoless indoor playground and a photoless escape room in the same
   // town used to paint the same beach sunset. Own photo, or the monogram.

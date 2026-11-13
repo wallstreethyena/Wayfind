@@ -178,6 +178,7 @@ async function inventoryPlaceByStem(stem, near, exactNames = null) {
     const rows = await r.json();
     if (!Array.isArray(rows)) return null;
     for (const row of rows) {
+      if (isNotPublicPlace(row && row.place_id)) continue;
       // Editorial aliases require a whole-name match, never a hotel containing a beach name.
       const normalize = (name) => String(name || "").toLowerCase().replace(/[’‘]/g, "'").replace(/\s+/g, " ").trim();
       if (exactNames && !exactNames.some((name) => normalize(name) === normalize(row.name))) continue;
@@ -230,6 +231,7 @@ async function inventoryPlace(pick, near) {
   // venue. Without a reviewed Place ID or whole-name alias contract, keep the
   // editorial pick and Open in Wayfind action but render NO place card.
   if (!guidePickMayResolvePlaceCard(pick)) return null;
+  if (isNotPublicPlace(pick)) return null;
   // v8.17 — a pick that CARRIES a placeId (the Gulf Coast guides embed real
   // ids) resolves on it directly: exact, no ilike ambiguity, no geo gate
   // needed (the id IS the identity). The name path below stays the fallback
@@ -252,7 +254,7 @@ async function inventoryPlace(pick, near) {
         if (r.ok) {
           const rows = await r.json();
           const row = Array.isArray(rows) && rows[0];
-          if (row) {
+          if (row && !isNotPublicPlace(row.place_id)) {
             const rating = Number(row.signals && row.signals.rating);
             const reviews = Number(row.signals && row.signals.reviews);
             if (rating > 0 && reviews >= 15) {
@@ -323,7 +325,7 @@ async function inventoryPlace(pick, near) {
 }
 
 async function inventoryPlacesByExactIds(placeIds) {
-  const ids = [...new Set((placeIds || []).map((id) => String(id || "").trim()).filter(Boolean))];
+  const ids = [...new Set((placeIds || []).map((id) => String(id || "").trim()).filter((id) => id && !isNotPublicPlace(id)))];
   const url = (process.env.NEXT_PUBLIC_SUPABASE_URL || "").trim().replace(/\/+$/, "");
   const anon = (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "").trim();
   if (!ids.length || !url || !anon) return [];
@@ -335,7 +337,7 @@ async function inventoryPlacesByExactIds(placeIds) {
     );
     if (!r.ok) return [];
     const rows = await r.json();
-    return Array.isArray(rows) ? rows : [];
+    return Array.isArray(rows) ? rows.filter((row) => !isNotPublicPlace(row && row.place_id)) : [];
   } catch (e) {
     return [];
   }
@@ -372,7 +374,7 @@ async function inventoryPlacesForRegion(region, limit = 80) {
       const rating = Number(row && row.signals && row.signals.rating);
       const reviews = Number(row && row.signals && row.signals.reviews);
       const score = wayfindScore(rating, reviews);
-      if (!row || !row.place_id || !row.name || score == null) return null;
+      if (!row || !row.place_id || isNotPublicPlace(row.place_id) || !row.name || score == null) return null;
       return {
         id: row.place_id, name: row.name, rating, reviews,
         lat: row.lat, lng: row.lng, photoRef: row.photo_ref || null,
@@ -385,6 +387,7 @@ async function inventoryPlacesForRegion(region, limit = 80) {
   } catch (e) { return []; }
 }
 
+import { isNotPublicPlace } from "../../../lib/notPublicPlaces.js";
 import { guidePlaceFigureImage } from "../../../lib/guidePlaceFigureImage.js";
 import { guidePickFacts } from "../../../lib/guidePickFacts.js";
 import { withAttributableSpotPhotos } from "../../../lib/guideSpotPhotos.js";
