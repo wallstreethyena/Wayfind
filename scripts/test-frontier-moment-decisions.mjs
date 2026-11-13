@@ -381,6 +381,63 @@ const eq = (a, b, msg) => { assert.deepEqual(a, b, msg); checks++; };
   ok(libHrefs.includes("/florida-events/open-tonight"), "searchLibrary keeps active Christmas event");
   ok(!libHrefs.includes("/florida-events/dec-15"), "searchLibrary drops upcoming Dec 15 Christmas event when openNow is requested");
   ok(!libHrefs.includes("/florida-events/nov-5"), "searchLibrary drops ended Nov 5 Christmas event");
+
+  // Live production regression lock (2026-11-13):
+  //   1. loadEvents must never request non-existent wf_events.occurrence_dates (PostgREST 400).
+  //   2. Undated wf_search_documents_query RPC event rows (no start_date) must NEVER leak into openNow/tonight.
+  //   3. select_nights + schedule_note lists must distinguish Nov 13 active (MVMCP) from Nov 14 next-night (Jollywood).
+  //   4. Distant-metro events (> radiusMi, e.g. Miami 205mi from Orlando) must NEVER leak into Orlando openNow via title prefix.
+  const searchCardsSrc = readFileSync(path.join(ROOT, "lib/searchCards.js"), "utf8");
+  ok(!/searchParams\.set\("select",\s*"[^"]*occurrence_dates/.test(searchCardsSrc), "loadEvents PostgREST select never queries non-existent wf_events.occurrence_dates");
+  ok(/searchParams\.set\("select",\s*"[^"]*select_nights,schedule_note/.test(searchCardsSrc), "loadEvents PostgREST select fetches select_nights and schedule_note");
+
+  const nov13RpcStub = async (url) => {
+    const u = String(url);
+    if (u.includes("/rpc/wf_search_documents_query")) {
+      return new Response(JSON.stringify([
+        { kind: "event", title: "A Christmas Carol", href: "/florida-events/a-christmas-carol-orlando-shakes-2026", city_slug: "orlando", city_name: "Orlando", category: "events", keywords: ["christmas"], lat: ORLANDO.lat, lng: ORLANDO.lng },
+        { kind: "event", title: "Christmas Through the Decades Parade", href: "/florida-events/arcadia-christmas-through-the-decades-parade-2026", city_slug: "arcadia", city_name: "Arcadia", category: "events", keywords: ["christmas"], lat: 27.2159, lng: -81.8584 },
+      ]), { status: 200, headers: { "content-type": "application/json" } });
+    }
+    if (u.includes("/rest/v1/wf_events")) {
+      return new Response(JSON.stringify([
+        { event_id: "mvmcp-2026", slug: "mickeys-very-merry-christmas-party-2026", event_name: "Mickey's Very Merry Christmas Party", city: "Orlando", category: "holiday", event_status: "scheduled", start_date: "2026-11-08", end_date: "2026-12-22", select_nights: true, schedule_note: "25 select nights only, not a continuous run: Nov 8, 9, 12, 13, 15, 17, 19, 20", lat: 28.4177, lng: -81.5812 },
+        { event_id: "jollywood-nights-2026", slug: "jollywood-nights-2026", event_name: "Disney Jollywood Nights", city: "Orlando", category: "holiday", event_status: "scheduled", start_date: "2026-11-07", end_date: "2026-12-22", select_nights: true, schedule_note: "15 select nights only, not a continuous run: Nov 7, 14, 16, 21, 23, 28", lat: 28.3575, lng: -81.5583 },
+        { event_id: "a-christmas-carol-orlando-shakes-2026", slug: "a-christmas-carol-orlando-shakes-2026", event_name: "A Christmas Carol", city: "Orlando", category: "holiday", event_status: "scheduled", start_date: "2026-11-25", end_date: "2026-12-24", select_nights: false, schedule_note: "", lat: ORLANDO.lat, lng: ORLANDO.lng },
+        { event_id: "miami-tropical-xmas", slug: "christmas-wonderland-at-tropical-park-2026", event_name: "Christmas Wonderland at Tropical Park", city: "Miami", category: "holiday", event_status: "scheduled", start_date: "2026-11-12", end_date: "2027-01-03", select_nights: false, schedule_note: "Daily 5-11PM", lat: 25.7332, lng: -80.3248 },
+      ]), { status: 200, headers: { "content-type": "application/json" } });
+    }
+    return new Response("[]", { status: 200, headers: { "content-type": "application/json" } });
+  };
+  const stubEnv = { NEXT_PUBLIC_SUPABASE_URL: "https://abcdefghijklmnopqrst.supabase.co", NEXT_PUBLIC_SUPABASE_ANON_KEY: "k".repeat(64), WAYFIND_SEARCH_UNDERSTAND: "" };
+
+  const rpcCards = await searchResultCards({
+    query: "Christmas stuff open now",
+    ...ORLANDO,
+    today: "2026-11-13",
+    places: [],
+    guides: [],
+    env: stubEnv,
+    fetchImpl: nov13RpcStub,
+  });
+  const rpcCardHrefs = rpcCards.cards.map((c) => c.href);
+  ok(rpcCardHrefs.includes("/florida-events/mickeys-very-merry-christmas-party-2026"), "MVMCP (running Nov 13 per schedule_note) surfaces in Orlando 'Christmas stuff open now' cards");
+  ok(!rpcCardHrefs.includes("/florida-events/jollywood-nights-2026"), "Jollywood Nights (Nov 7 & Nov 14, NOT Nov 13) is excluded on Nov 13");
+  ok(!rpcCardHrefs.includes("/florida-events/a-christmas-carol-orlando-shakes-2026"), "undated RPC + Nov 25 A Christmas Carol never leaks into Nov 13 'Christmas stuff open now' cards");
+  ok(!rpcCardHrefs.includes("/florida-events/arcadia-christmas-through-the-decades-parade-2026"), "undated RPC December parade never leaks into 'Christmas stuff open now' cards");
+  ok(!rpcCardHrefs.includes("/florida-events/christmas-wonderland-at-tropical-park-2026"), "Miami Christmas event (205mi away) never leaks into Orlando 'Christmas stuff open now' cards");
+
+  const rpcLib = await searchLibrary({
+    query: "Christmas stuff open now",
+    ...ORLANDO,
+    today: "2026-11-13",
+    env: stubEnv,
+    fetchImpl: nov13RpcStub,
+  });
+  const rpcLibHrefs = rpcLib.results.map((r) => r.href);
+  ok(rpcLibHrefs.includes("/florida-events/mickeys-very-merry-christmas-party-2026"), "MVMCP surfaces in searchLibrary for Orlando 'Christmas stuff open now'");
+  ok(!rpcLibHrefs.includes("/florida-events/a-christmas-carol-orlando-shakes-2026"), "undated RPC A Christmas Carol never leaks into searchLibrary under openNow");
+  ok(!rpcLibHrefs.includes("/florida-events/jollywood-nights-2026"), "Jollywood Nights excluded on Nov 13 in searchLibrary under openNow");
 }
 
 // ── 4. Weather Date-Night Logic (650ms budget + all 6 weather/marine states) ──
