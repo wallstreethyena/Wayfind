@@ -24,12 +24,18 @@ export function edgeFadeState(el) {
 
 export function useEdgeFade(ref) {
   const bound = useRef({ el: null, off: null });
+  const frame = useRef(0);
   useEffect(() => {
     const el = ref.current;
     // The class is added here, not in the JSX, so the row markup other guards pin
     // (check-one-nav-per-screen counts className="wf-dests") stays byte-identical.
     if (el && !el.classList.contains("wf-edgefade")) el.classList.add("wf-edgefade");
-    const update = () => { if (ref.current) ref.current.setAttribute("data-fade", edgeFadeState(ref.current)); };
+    const update = () => {
+      const row = ref.current;
+      if (!row) return;
+      const next = edgeFadeState(row);
+      if (row.getAttribute("data-fade") !== next) row.setAttribute("data-fade", next);
+    };
     if (bound.current.el !== el) {
       if (bound.current.off) bound.current.off();
       bound.current = { el, off: null };
@@ -41,7 +47,19 @@ export function useEdgeFade(ref) {
         bound.current.off = () => { el.removeEventListener("scroll", update); if (ro) ro.disconnect(); window.removeEventListener("resize", update); };
       }
     }
-    update();
+    // Re-check after every render, but ONCE per frame and inside the frame, not here.
+    // Reading scrollWidth in this effect forced a full layout of the page right after a
+    // commit, and a burst of commits in one task (the home page makes several back to
+    // back) laid the ~14,000-element page out again for each of them (2.9 s of forced
+    // layout in one phone profile). requestAnimationFrame runs just before the frame's own
+    // layout, so the read shares that layout instead of adding one.
+    if (typeof requestAnimationFrame !== "function") { update(); return undefined; }
+    if (!frame.current) frame.current = requestAnimationFrame(() => { frame.current = 0; update(); });
+    return undefined;
   });
-  useEffect(() => () => { if (bound.current.off) bound.current.off(); }, []);
+  useEffect(() => () => {
+    if (bound.current.off) bound.current.off();
+    if (frame.current && typeof cancelAnimationFrame === "function") cancelAnimationFrame(frame.current);
+    frame.current = 0;
+  }, []);
 }
