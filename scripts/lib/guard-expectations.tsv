@@ -999,6 +999,7 @@ scripts/test-place-recommendation-order.mjs	0	RENDER	blocks-ci-and-deploy	1	-	71
 scripts/test-place-share-metadata.mjs	0	CALL	blocks-ci-and-deploy	1	-	34	0	0	8d7145c18f93d4d962483ec96bf7fc83c01aa272a0c1adc4a4b6323ed77eab83
 scripts/test-place-suggestions.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	41	1	0	118b2fd364e3f09a18419f254667082f85805150c1a8260b97a0d00afc197505
 scripts/test-places-photo-breaker.mjs	0	CALL	blocks-ci-and-deploy	1	-	31	0	0	155b8dade6f47b1ce08e45c0f31a60e615b42e8d09d4badb1c7f68c5a3e6b8c4
+scripts/test-planner-imessage.mjs	0	RENDER	blocks-ci-and-deploy	1	-	40	0	0	af257ea00afe1cb05bb31b0c8b5afe1a55eb7033ade1e68b96357e512bc6ee75
 scripts/test-plist-parse.mjs	0	CALL	blocks-ci-and-deploy	1	-	29	0	0	60eca4881e8f46ca518cce4708a8e6c9f530af4e7b8bead1cc4d53d04066f3cf
 scripts/test-popularity.mjs	0	CALL	blocks-ci-and-deploy	1	-	94	0	0	7870002a209202401d6786ba3df16131fad8528baeeaf82e2d6a4b821fa4c867
 scripts/test-poster-accepts-healthy-art.mjs	0	CALL	blocks-ci-and-deploy	1	-	11	0	0	9dd23839f1839b057b9c9acc96601ebff321d4c07e547f5f7324f1fc15d4ff07
