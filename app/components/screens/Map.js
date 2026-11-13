@@ -425,7 +425,7 @@ export default function MapScreen({ ctx }) {
               const subsVisible = filtersExpanded && !mapPreview && !allCategories;
               return (
                 <div className="wf-map-explorer" style={{ position: "relative", width: "100%", height: "100%" }}>
-                  <style dangerouslySetInnerHTML={styleHtml(`@media (min-width: 760px) { .wf-map-explorer .wf-map-results { width: 390px; right: auto !important; } .wf-map-explorer .wf-map-results.is-drawer-open { max-height: calc(100% - 294px) !important; width: 390px; right: auto !important; } .wf-map-explorer .wf-map-note { width: 390px; right: auto !important; } } .wf-map-explorer .maplibregl-ctrl-bottom-left, .wf-map-explorer .maplibregl-ctrl-bottom-right { margin-bottom: ${MAPLIBRE_ATTRIBUTION_LIFT}px; }`)} />
+                  <style dangerouslySetInnerHTML={styleHtml(`html.wf-santa-docked .wf-scrollarea[data-analytics-page="map"] { padding-bottom: calc(78px + env(safe-area-inset-bottom)) !important; } @media (min-width: 1024px) { html.wf-santa-docked .wf-scrollarea[data-analytics-page="map"] { padding-bottom: calc(118px + env(safe-area-inset-bottom)) !important; } } @media (min-width: 760px) { .wf-map-explorer .wf-map-results { width: 390px; right: auto !important; } .wf-map-explorer .wf-map-results.is-drawer-open { max-height: calc(100% - 294px) !important; width: 390px; right: auto !important; } .wf-map-explorer .wf-map-note { width: 390px; right: auto !important; } } .wf-map-explorer .maplibregl-ctrl-bottom-left, .wf-map-explorer .maplibregl-ctrl-bottom-right { margin-bottom: ${MAPLIBRE_ATTRIBUTION_LIFT}px; }`)} />
                   <div style={{ position: "absolute", top: 0, left: 0, right: 0, zIndex: 30, padding: "6px 10px 0" }}>
                     <CategoryMenu compact activeCat={cat} subsExpanded={subsVisible} sub={sub}
                       onCat={(id, label) => {
@@ -603,7 +603,7 @@ export default function MapScreen({ ctx }) {
                     const ev = eventPreview;
                     const dl = ev.date ? (() => { try { return new Date(ev.date + "T00:00:00").toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" }); } catch { return ev.date; } })() : "";
                     return (
-                      <div style={{ position: "absolute", left: 12, right: 12, bottom: 22, zIndex: 6 }}>
+                      <div className="wf-map-event-preview" style={{ position: "absolute", left: 12, right: 12, bottom: 76, zIndex: 6 }}>
                         <div style={{ position: "relative", background: C.panel, border: `1px solid ${C.border}`, borderRadius: 16, overflow: "hidden", boxShadow: "0 10px 34px rgba(0,0,0,.6)" }}>
                           {ev.dest ? (
                             <a href={ev.destKind === "internal" ? ev.dest : ticketUrl(ev.dest)} {...(ev.destKind === "internal" ? {} : { target: "_blank", rel: "noreferrer" })} onClick={() => { try { logEvent("event_open", null, { id: ev.id, kind: ev.destKind, src: "map_preview" }); } catch (e2) {} }} style={{ display: "flex", minWidth: 0, textDecoration: "none" }}>

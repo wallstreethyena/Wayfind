@@ -2622,3 +2622,5 @@ node scripts/test-christmas-weekend.mjs
 node scripts/test-christmas-map-pins.mjs
 # 2026-11-12: Christmas plan share links: id validation, vote storage fails closed, migration shape (never applied).
 node scripts/test-christmas-plan.mjs
+# 2026-11-12: Wayfind Frontier moment-of-decision search constraints, open-now event gating, running event windows, bounded date-night weather race, dynamic PaidLanding cities, redirect attribution preservation, trip city fallback, and Map SantaDock clearance.
+node scripts/test-frontier-moment-decisions.mjs
