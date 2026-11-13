@@ -112,6 +112,15 @@ ok(/window\.visualViewport/.test(sheet) && /style=\{vv \? \{ top: vv\.top/.test(
 ok(/finally \{[\s\S]{0,160}setLoading\(false\)/.test(sheet), "typing dots stop on success, failure and abort (loading cleared in finally)");
 ok(/if \(!text \|\| loading\) return;/.test(sheet), "no duplicate submissions while a reply is pending");
 
+// Live 2026-11-13 findings, locked: no hyphenated words in the host's text,
+// stops in clock order, and the plan reply may only mention planned stops.
+ok(P.stripDashes("on the naughty-free list \u2014 yay") === "on the naughty free list, yay", "hyphens and em dashes are stripped from the host's words");
+ok(/stripDashes\(String\(obj\.reply/.test(plannerSrc), "the model's plan reply goes through stripDashes");
+ok(/only mention stops that are in your plan/.test(P.personaVoiceRule("santa")), "the plan prompt forbids mentioning stops the plan does not contain");
+const ordered = P.sortStopsByTime([{ slotLabel: "8:00 PM", n: 1 }, { slotLabel: "5:30 PM", n: 2 }, { slotLabel: "12:00 PM", n: 3 }, { n: 4 }]).map((x) => x.n);
+ok(JSON.stringify(ordered) === "[3,2,1,4]", `stops render in clock order, untimed keep their place (got ${JSON.stringify(ordered)})`);
+ok(/sortStopsByTime\(day\.stops\)\.map/.test(sheet), "the plan bubble renders each day through sortStopsByTime");
+
 if (fails.length) {
   for (const f of fails) console.error("test-planner-imessage: FAIL: " + f);
   process.exit(1);

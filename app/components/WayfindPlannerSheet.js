@@ -21,7 +21,7 @@ import { setLocal } from "../../lib/localStore.js";
 import { safeLocalStorage } from "../../lib/safeStorage.js";
 import { styleHtml } from "../../lib/styleHtml.js";
 import { SantaSvg } from "./santaArt.js";
-import { plannerPersona, plannerVoiceForCharacter, pickLine, stopEmoji } from "../../lib/plannerPersona.js";
+import { plannerPersona, plannerVoiceForCharacter, pickLine, stopEmoji, sortStopsByTime } from "../../lib/plannerPersona.js";
 import { pickCharacter, santaOffPath } from "./companionCharacter.js";
 import {
   PLANNER_OPEN_EVENT,
@@ -626,7 +626,7 @@ export default function WayfindPlannerSheet() {
                   {proposedPlan.days.map((day, dIdx) => (
                     <div key={day.date || dIdx} className="wfp-day" data-wf-proposed-day={day.date || String(dIdx)}>
                       <div className="wfp-day-hdr">{day.label}</div>
-                      {day.stops.map((stop) => (
+                      {sortStopsByTime(day.stops).map((stop) => (
                         <div key={stop.id} className="wfp-li" data-wf-proposed-stop={stop.id} title={stop.confidence?.detail || ""}>
                           <span className="wfp-li-e" aria-hidden="true">{stopEmoji(stop, host)}</span>
                           <span>
