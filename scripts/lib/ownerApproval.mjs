@@ -21,9 +21,24 @@
 // "owner-approval" check, which applies the BASE branch's copy of this file);
 // a local run can never grant approval.
 //
+// CONTENT FINGERPRINT (2026-11-13). The owner approves protected CONTENT, not a
+// transient commit. Besides the legacy 40-hex head sha, the command accepts a
+// 64-hex fingerprint:
+//
+//     /owner-approve <sha256 fingerprint shown in the owner-approval check>
+//
+// The fingerprint (protectedFingerprint below) hashes the PR number and, for every
+// changed owner-only path, the git blob at the merge base and at the head. So it
+// SURVIVES a rebase, a merge of main, or any change outside the protected files,
+// and it CHANGES (approval stops matching) when protected content changes, a
+// protected file is added or removed, main edits the same protected file (its
+// merge-base blob moves), or the approval is pasted on another PR.
+//
 // Pure module: no environment, filesystem, network or git access. The caller
 // (scripts/check-doc-ownership.mjs) gathers evidence and passes it in, so every
 // rule here is executable in hermetic tests.
+
+import { createHash } from "node:crypto";
 
 // Accounts allowed to approve: the login (compared case-insensitively, as GitHub
 // does) AND the numeric account id, which never changes, so a renamed or released
@@ -49,6 +64,11 @@ export const OWNER_ONLY = Object.freeze([
   /^scripts\/lib\/githubAppAuth\.mjs$/i,
   /^scripts\/test-owner-approval-gate\.mjs$/i,
   /^scripts\/owner-gate-setup-check\.mjs$/i,
+  // The merge queue runs from main with a WRITE token and posts the required
+  // owner-approval check (2026-11-13), so its code is owner-only like the gate's.
+  /^scripts\/merge-queue\.mjs$/i,
+  /^scripts\/lib\/mergeQueue\.mjs$/i,
+  /^scripts\/test-merge-queue\.mjs$/i,
   // Everything under .github/: every workflow, CODEOWNERS, and anything added
   // later. A workflow can report a check under any name and can read repository
   // secrets, so adding or editing one is an owner decision (2026-09-24).
@@ -56,8 +76,36 @@ export const OWNER_ONLY = Object.freeze([
 ]);
 
 export const APPROVAL_COMMAND = "/owner-approve";
-const APPROVAL_LINE = /^\/owner-approve[ \t]+([0-9a-fA-F]{40})[ \t]*$/gm;
+// 64 hex = content fingerprint (sha256), 40 hex = legacy head commit sha.
+const APPROVAL_LINE = /^\/owner-approve[ \t]+([0-9a-fA-F]{64}|[0-9a-fA-F]{40})[ \t]*$/gm;
 const SHA40 = /^[0-9a-f]{40}$/;
+const SHA256 = /^[0-9a-f]{64}$/;
+export const FINGERPRINT_VERSION = "wayfind-owner-approval-fingerprint/v1";
+
+/**
+ * Content fingerprint of a pull request's protected change.
+ * entries: [{ path, base, head, baseMode, headMode }] with base/head = 40-hex git
+ * blob sha at the merge base / head (null when absent there) and the git file
+ * mode (100644/100755; anything else, e.g. a symlink, cannot be fingerprinted). Returns 64-hex, or
+ * null when the input cannot be fingerprinted (never a guess).
+ */
+export function protectedFingerprint(number, entries) {
+  if (!Number.isInteger(number) || number < 1 || !Array.isArray(entries) || !entries.length) return null;
+  const rows = [];
+  const seen = new Set();
+  for (const e of entries) {
+    if (!e || typeof e.path !== "string" || !e.path || seen.has(e.path)) return null;
+    for (const side of [e.base, e.head]) if (side !== null && !(typeof side === "string" && SHA40.test(side))) return null;
+    const baseMode = e.base === null ? "-" : String(e.baseMode ?? "100644");
+    const headMode = e.head === null ? "-" : String(e.headMode ?? "100644");
+    if (![baseMode, headMode].every((m) => m === "-" || /^100(644|755)$/.test(m))) return null; // only regular files
+    if (e.base === e.head && baseMode === headMode) return null; // listed as changed but identical: evidence is wrong
+    seen.add(e.path);
+    rows.push(`${e.path}\t${e.base || "-"}\t${baseMode}\t${e.head || "-"}\t${headMode}`);
+  }
+  rows.sort();
+  return createHash("sha256").update(`${FINGERPRINT_VERSION}\npr ${number}\n${rows.join("\n")}\n`).digest("hex");
+}
 
 export function isOwnerOnly(path) {
   return typeof path === "string" && OWNER_ONLY.some((rx) => rx.test(path));
@@ -87,8 +135,9 @@ function unedited(comment) {
  * (REST shape: { id, body, user: { login, id, type }, created_at, updated_at }).
  * Returns the approving comment or null. Never throws on odd input.
  */
-export function findOwnerApproval(comments, headSha, owners = OWNERS) {
+export function findOwnerApproval(comments, headSha, owners = OWNERS, fingerprint = null) {
   const head = String(headSha || "").toLowerCase();
+  const print = SHA256.test(String(fingerprint || "")) ? String(fingerprint) : null;
   if (!SHA40.test(head) || !Array.isArray(owners) || !owners.length) return null;
   for (const comment of Array.isArray(comments) ? comments : []) {
     const user = comment && comment.user;
@@ -96,7 +145,8 @@ export function findOwnerApproval(comments, headSha, owners = OWNERS) {
     if (!unedited(comment)) continue;
     const body = typeof comment.body === "string" ? comment.body : "";
     for (const match of body.matchAll(APPROVAL_LINE)) {
-      if (match[1].toLowerCase() === head) return comment;
+      const named = match[1].toLowerCase();
+      if (named === head || (print && named === print)) return comment;
     }
   }
   return null;
@@ -111,6 +161,10 @@ export function findOwnerApproval(comments, headSha, owners = OWNERS) {
  *   mergeGate: boolean                running as the GitHub Actions merge gate
  *   pr: { number, eventHeadSha, liveHeadSha } | null
  *   comments: array | null            PR comments read from the GitHub API
+ *   protectedEntries: array | null    [{ path, base, head }] blob shas of every
+ *                                     changed owner-only path (see protectedFingerprint);
+ *                                     optional: without it only the legacy head-sha
+ *                                     approval can match
  *   error: string | null              why evidence could not be read
  * }
  * returns { ok, protectedPaths, reason }
@@ -130,9 +184,23 @@ export function decideOwnerApproval(evidence) {
   if (pr.eventHeadSha !== pr.liveHeadSha) {
     return { ok: false, protectedPaths, reason: `owner-only files changed (${list}) but PR #${pr.number} moved from ${pr.eventHeadSha.slice(0, 12)} to ${pr.liveHeadSha.slice(0, 12)} after this run started; re-run on the new head` };
   }
-  const approval = findOwnerApproval(evidence.comments, pr.liveHeadSha);
+  const fingerprint = fingerprintFor(pr.number, protectedPaths, evidence.protectedEntries);
+  const approval = findOwnerApproval(evidence.comments, pr.liveHeadSha, OWNERS, fingerprint);
   if (!approval) {
-    return { ok: false, protectedPaths, reason: `owner-only files changed (${list}) with no owner approval for head ${pr.liveHeadSha.slice(0, 12)}. The owner (${OWNER_LOGINS.join(", ")}) approves by commenting on PR #${pr.number}: "${APPROVAL_COMMAND} ${pr.liveHeadSha}" (the full sha), then re-running the checks` };
+    const how = fingerprint
+      ? `"${APPROVAL_COMMAND} ${fingerprint}" (the protected-content fingerprint; it stays valid across rebases and unrelated changes until the protected content itself changes)`
+      : `"${APPROVAL_COMMAND} ${pr.liveHeadSha}" (the full head sha)`;
+    return { ok: false, protectedPaths, fingerprint, reason: `owner-only files changed (${list}) with no owner approval for this protected content. The owner (${OWNER_LOGINS.join(", ")}) approves once by commenting on PR #${pr.number}: ${how}` };
   }
-  return { ok: true, protectedPaths, reason: `owner-only files changed (${list}); approved by @${approval.user.login} for head ${pr.liveHeadSha.slice(0, 12)} in comment ${approval.id}` };
+  const named = fingerprint && String(approval.body || "").toLowerCase().includes(fingerprint) ? `protected content ${fingerprint.slice(0, 12)}` : `head ${pr.liveHeadSha.slice(0, 12)}`;
+  return { ok: true, protectedPaths, fingerprint, reason: `owner-only files changed (${list}); approved by @${approval.user.login} for ${named} in comment ${approval.id}` };
+}
+
+// The fingerprint only when the evidence covers exactly the protected paths being
+// judged; anything less falls back to the legacy head-sha match (never a pass).
+function fingerprintFor(number, protectedPaths, entries) {
+  if (!Array.isArray(entries) || entries.length !== protectedPaths.length) return null;
+  const want = new Set(protectedPaths);
+  if (!entries.every((e) => e && want.has(e.path))) return null;
+  return protectedFingerprint(number, entries);
 }

@@ -13,12 +13,23 @@
 #
 # The suite is the SAME `npm run prebuild` every lane already runs — no new
 # rules, just nowhere left to skip them.
+# SHARDED 2026-11-13 (Wayfind engineering OS). One 15 min job made every merge
+# stale every other green PR. The SAME suite now runs as four GUARD_SHARD jobs
+# (scripts/lib/guardShards.mjs; test-guard-shards.mjs proves the shards cover
+# scripts/guards.txt exactly once) next to the rendered/audit and build jobs. The
+# final job is still named "guards" and fails unless every part succeeded, so
+# branch protection is unchanged and nothing is skipped.
 name: guards
 on:
-  # Recovery path when the normal pull_request event cannot produce a runnable
-  # check (for example a bot-written head commit or a previously blocked run).
-  # This executes the exact same `guards` job below; it is not a bypass.
+  # The merge queue (.github/workflows/merge-queue.yml) re-runs this on a branch
+  # it just brought up to date: GITHUB_TOKEN pushes fire no pull_request event.
+  # "pr" tells check-doc-ownership which pull request the run belongs to.
   workflow_dispatch:
+    inputs:
+      pr:
+        description: "Pull request number this run proves (merge queue)"
+        required: false
+        default: ""
   pull_request:
   push:
     branches: [main]
@@ -26,31 +37,24 @@ concurrency:
   group: guards-${{ github.ref }}
   cancel-in-progress: true
 # Read-only token. check-doc-ownership reads the pull request and its comments to
-# verify an owner "/owner-approve <head sha>" (see docs/OWNER_APPROVAL.md).
+# verify owner approval (see docs/OWNER_APPROVAL.md).
 permissions:
   contents: read
   pull-requests: read
   issues: read
 jobs:
-  guards:
-    name: guards
+  shard:
+    name: guards-shard-${{ matrix.shard }}
     runs-on: ubuntu-latest
-    # 20 cancelled green work. Measured: 96 runs from Nov 3 had p50 15.5 min and
-    # p90 17.9 min; #2253 died at 20m15s on guard 1014/1049; #2213 died at 20m17s;
-    # a Nov 10 main run (42806411865) finished in 15 min; #2160 recorded checkouts
-    # of 4 to 11 min on top of a ~12 min suite and a ~2 min build. #2335
-    # (run 42761703644) was cancelled with "exceeded the maximum execution time
-    # of 20m0s" while still in "Install Chromium", which is the apt crawl below,
-    # not a red guard. 35 covers a slow checkout plus a cache-miss browser
-    # install plus a finished suite. Nothing is skipped. A real hang still ends
-    # the job.
-    timeout-minutes: 35
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
     steps:
       - uses: actions/checkout@v4
         with:
-          # 2026-09-09: the default depth 1 made origin/main unreadable, and
-          # check-doc-ownership answered SKIP on the one run that gates merge.
-          # PR #1197 merged an AGENTS.md edit by a lane through that gap.
+          # 2026-09-09: depth 1 made origin/main unreadable for check-doc-ownership.
           fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
@@ -58,15 +62,6 @@ jobs:
           cache: npm
       - name: Install
         run: npm ci --no-audit --no-fund
-      # Build tooling also executes in trusted CI. Audit the whole lockfile,
-      # not only production dependencies, before running the application checks.
-      - name: Dependency security audit
-        run: npm audit --audit-level=moderate
-      # These guards measure real rendered cards. Without a browser they
-      # explicitly skip, which is insufficient evidence for a merge review.
-      # Cache the Playwright browser download (~/.cache/ms-playwright on
-      # Linux runners); the key tracks package-lock.json, which pins the
-      # exact Playwright/Chromium build, so a version bump busts the cache.
       - name: Cache Playwright Chromium
         uses: actions/cache@v4
         id: playwright-cache
@@ -75,19 +70,9 @@ jobs:
           key: ${{ runner.os }}-playwright-${{ hashFiles('package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-playwright-
-      # if: always() — the rendered checks below also run with if: always()
-      # so they produce evidence even when an earlier step (e.g. the audit)
-      # failed; skipping this install in that case made them fail with
-      # "no executable is available" instead of a real result.
+      # Rendered guards inside the suite measure real cards; keep the browser
+      # available in every shard exactly as the single job had it.
       - name: Install Chromium for rendered guards
-        if: always()
-        # 2026-11-05: on a cache hit, install-deps still ran apt-get against the
-        # Ubuntu mirrors; on PRs #2253 and #2260 that download crawled ("Fetched
-        # 21.1 MB in 8min 33s (41.1 kB/s)") and the job hit its timeout with
-        # every guard green. The runner image usually has Chromium's system
-        # libraries already, so launch the cached browser first and reach for
-        # apt only when it cannot start. A browser that still cannot launch
-        # fails the required rendered guard below, as before.
         run: |
           if [ "${{ steps.playwright-cache.outputs.cache-hit }}" = "true" ]; then
             if node -e "require('playwright').chromium.launch().then((b) => b.close()).catch((e) => { console.error(e.message); process.exit(1); })"; then
@@ -98,9 +83,50 @@ jobs:
           else
             npx playwright install --with-deps chromium
           fi
-      # The regular suite remains runnable in browser-free deploy images. Merge
-      # CI has installed Chromium above, so absence/launch failure is fatal here.
-      # Run this first so layout failures always have reviewable evidence.
+      - name: Guard suite shard ${{ matrix.shard }}/4 (scripts/guards.txt)
+        env:
+          GUARD_SHARD: ${{ matrix.shard }}/4
+          # Evidence for check-doc-ownership's owner approval; read-only (see permissions above).
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node scripts/run-guards.mjs
+
+  rendered:
+    name: guards-rendered-audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install
+        run: npm ci --no-audit --no-fund
+      # Build tooling also executes in trusted CI. Audit the whole lockfile.
+      - name: Dependency security audit
+        run: npm audit --audit-level=moderate
+      - name: Cache Playwright Chromium
+        if: always()
+        uses: actions/cache@v4
+        id: playwright-cache
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-playwright-
+      # 2026-11-05: on a cache hit launch the cached browser first; apt only when it cannot start.
+      - name: Install Chromium for rendered guards
+        if: always()
+        run: |
+          if [ "${{ steps.playwright-cache.outputs.cache-hit }}" = "true" ]; then
+            if node -e "require('playwright').chromium.launch().then((b) => b.close()).catch((e) => { console.error(e.message); process.exit(1); })"; then
+              echo "cached Chromium launches: system dependencies already present, apt skipped"
+            else
+              npx playwright install-deps chromium
+            fi
+          else
+            npx playwright install --with-deps chromium
+          fi
       - name: Required rendered place-card standard
         if: always()
         run: node scripts/check-place-card-standard.mjs --require-browser
@@ -113,18 +139,46 @@ jobs:
           if-no-files-found: error
           retention-days: 14
       - name: Required rendered map pin standard
+        if: always()
         run: node scripts/test-map-pin-standard.mjs --require-browser
-      - name: Guard suite (all of scripts/guards.txt)
+
+  build:
+    name: guards-build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install
+        run: npm ci --no-audit --no-fund
         env:
-          # Evidence for check-doc-ownership's owner approval; read-only (see permissions above).
-          GITHUB_TOKEN: ${{ github.token }}
-        run: node scripts/run-guards.mjs
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
       - name: Production build
         env:
           PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
         run: npx next build
-      # postbuild (check-bundle) only runs on `npm run build`. GitHub used
-      # to stop at `npx next build`, so #949 shipped green here and died on
-      # Vercel — 67 gzipped bytes over the 500KB homepage ratchet.
+      # postbuild (check-bundle) only runs on `npm run build`. #949 shipped green
+      # here and died on Vercel; the ratchet must run after the build.
       - name: Homepage bundle ratchet
         run: node scripts/check-bundle.mjs
+
+  # The ONE check branch protection requires. Green only when every shard, the
+  # rendered/audit job and the build succeeded; a skipped or cancelled part is red.
+  guards:
+    name: guards
+    if: always()
+    needs: [shard, rendered, build]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Every part of the merge gate succeeded
+        env:
+          SHARD: ${{ needs.shard.result }}
+          RENDERED: ${{ needs.rendered.result }}
+          BUILD: ${{ needs.build.result }}
+        run: |
+          echo "shards=$SHARD rendered=$RENDERED build=$BUILD"
+          test "$SHARD" = "success" && test "$RENDERED" = "success" && test "$BUILD" = "success"

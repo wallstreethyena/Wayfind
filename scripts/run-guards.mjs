@@ -61,6 +61,35 @@
  *                    speedup (sum of per-guard time / wall time) are printed.
  *                    Nothing is written to the tree.
  *
+ * ── SHARDING (added 2026-11-13) ──────────────────────────────────────────────
+ * CI splits the suite across parallel jobs; each job runs one slice.
+ *
+ *   GUARD_SHARD=i/n  run only shard i of n (1-based, 1 <= i <= n <= 16). Unset or
+ *                    empty = the whole manifest, byte-identical to before: same
+ *                    selection, same order, same output. Malformed values
+ *                    ("0/4", "5/4", "1/17", "2", "a/b", " 1/4") exit 1.
+ *
+ *   Partition        a pure function of the manifest (scripts/lib/guardShards.mjs,
+ *                    locked by scripts/test-guard-shards.mjs): pooled guards and
+ *                    serial guards are numbered separately in manifest order and
+ *                    the k-th of each goes to shard (k % n) + 1, so the serial tail
+ *                    spreads over every shard. Shards are disjoint and their union
+ *                    is the full manifest exactly once. A guard keeps its kind.
+ *
+ *   Inside a shard   everything above applies unchanged to the shard's slice:
+ *                    manifest order, worker pool, serial guards alone afterwards,
+ *                    fail-fast, timing summary. "[i/N]" in the logs is the index
+ *                    WITHIN the shard. FLOOR and the guards-serial.txt check still
+ *                    judge the FULL manifest, so a truncated manifest fails every
+ *                    shard. A shard that selects zero guards exits 1.
+ *
+ *   Credentialed     a credentialed re-run happens in the shard that owns the
+ *                    guard's bare run, so across all n shards each runs once.
+ *
+ *   Success line     names the shard: "run-guards: OK — shard 2/4: 281/281 guards
+ *                    + 1 credentialed re-run(s) green in 140.2s". CI must run ALL
+ *                    n shards; one green shard says nothing about the others.
+ *
  * TEST OVERRIDES (used only by scripts/test-run-guards.mjs):
  *   GUARD_MANIFEST=<file>  run that manifest instead of scripts/guards.txt and
  *                          bypass FLOOR (a 10 line fake manifest is the point).
@@ -87,6 +116,7 @@ import { spawn, spawnSync } from "node:child_process";
 import os from "node:os";
 import path from "node:path";
 import { CREDENTIALED_GUARDS, credentialedEnv } from "./lib/guardEnv.mjs";
+import { parseShardSpec, selectShard } from "./lib/guardShards.mjs";
 
 const OVERRIDE = process.env.GUARD_MANIFEST || "";
 const MANIFEST = OVERRIDE ? path.resolve(OVERRIDE) : path.resolve("scripts/guards.txt");
@@ -114,6 +144,20 @@ let jobs;
   }
 }
 
+// GUARD_SHARD=i/n (see header). Unset or empty = run everything, exactly as before.
+// The shard applies to THIS run only: every guard is spawned with GUARD_SHARD=""
+// so a guard that runs the runner itself (test-run-guards and its --red-prove)
+// sees its own fake manifest whole. Found by the first sharded CI run, #2499.
+let shard = null;
+if (process.env.GUARD_SHARD) {
+  try {
+    shard = parseShardSpec(process.env.GUARD_SHARD);
+  } catch (e) {
+    console.error(`run-guards: FAIL — ${e.message}`);
+    process.exit(1);
+  }
+}
+
 let raw;
 try {
   raw = readFileSync(MANIFEST, "utf8");
@@ -126,7 +170,7 @@ try {
 // Comments and blanks out; de-dupe (a union merge legitimately creates dupes
 // when two branches add the same guard) while preserving first-seen order.
 const seen = new Set();
-const guards = [];
+let guards = [];
 for (const line of raw.split(/\r?\n/)) {
   const cmd = line.trim();
   if (!cmd || cmd.startsWith("#")) continue;
@@ -176,10 +220,28 @@ if (SERIAL_LIST) {
 // (Spelled out inline at each spawn below: scripts/check-guards-emit-no-analytics.mjs
 // reads this file and wants the literal env object next to the spawn call.)
 
+// ── SHARDING ─────────────────────────────────────────────────────────────────
+// Everything above (FLOOR, the serial-list check) judged the FULL manifest. From
+// here on `guards` is just this shard's slice, still in manifest order, so the
+// pool, the serial phase and the timing summary below run unchanged.
+const fullGuards = guards;
+let shardTag = "";
+if (shard) {
+  const idx = selectShard(fullGuards, serialSet, shard.index, shard.count);
+  if (idx.length === 0) {
+    console.error(`run-guards: FAIL — shard ${shard.index}/${shard.count} selected zero of ${fullGuards.length} guards.`);
+    console.error("run-guards: an empty shard would report success while running nothing. Use fewer shards.");
+    process.exit(1);
+  }
+  guards = idx.map((i) => fullGuards[i]);
+  shardTag = `shard ${shard.index}/${shard.count}: `;
+}
+
 const t0 = Date.now();
 const N = guards.length;
 const durations = new Array(N).fill(0); // seconds per guard, for the timing summary
-console.log(`run-guards: ${N} guards from ${OVERRIDE ? path.relative(process.cwd(), MANIFEST) || MANIFEST : "scripts/guards.txt"} (jobs=${jobs}, ${serialSet.size} serial)`);
+const shardSerial = shard ? guards.filter((g) => serialSet.has(g)).length : serialSet.size;
+console.log(`run-guards: ${shardTag}${N} guards from ${OVERRIDE ? path.relative(process.cwd(), MANIFEST) || MANIFEST : "scripts/guards.txt"} (jobs=${jobs}, ${shardSerial} serial)`);
 
 const fmt = (s) => s.toFixed(1) + "s";
 
@@ -194,7 +256,7 @@ if (jobs === 1) {
   for (let i = 0; i < N; i++) {
     const cmd = guards[i];
     const gs = Date.now();
-    const r = spawnSync(cmd, { shell: true, stdio: "inherit", env: { ...process.env, WF_SUPPRESS_ANALYTICS: "1", WF_GUARD_SUITE: "1", WF_VIATOR_TOKEN_CAPTURE: "0" } });
+    const r = spawnSync(cmd, { shell: true, stdio: "inherit", env: { ...process.env, GUARD_SHARD: "", WF_SUPPRESS_ANALYTICS: "1", WF_GUARD_SUITE: "1", WF_VIATOR_TOKEN_CAPTURE: "0" } });
     durations[i] = (Date.now() - gs) / 1000;
     if (r.error) failUnrunnable(i, r.error.message);
     if (r.status !== 0) {
@@ -214,7 +276,7 @@ if (jobs === 1) {
     const done = (r) => { if (!settled) { settled = true; resolve({ ...r, secs: (Date.now() - started) / 1000, out: Buffer.concat(chunks) }); } };
     let child;
     try {
-      child = spawn(cmd, { shell: true, stdio: ["ignore", "pipe", "pipe"], env: { ...process.env, WF_SUPPRESS_ANALYTICS: "1", WF_GUARD_SUITE: "1", WF_VIATOR_TOKEN_CAPTURE: "0" } });
+      child = spawn(cmd, { shell: true, stdio: ["ignore", "pipe", "pipe"], env: { ...process.env, GUARD_SHARD: "", WF_SUPPRESS_ANALYTICS: "1", WF_GUARD_SUITE: "1", WF_VIATOR_TOKEN_CAPTURE: "0" } });
     } catch (e) {
       done({ error: e, status: null, signal: null });
       return;
@@ -282,11 +344,15 @@ if (jobs === 1) {
 const guardsWallSecs = (Date.now() - t0) / 1000;
 let credOk = 0;
 for (const g of CREDENTIALED_GUARDS) {
+  // Sharded: re-run a credentialed guard only in the shard that owns its bare
+  // run, so the union of shards re-runs it exactly once. A credentialed guard
+  // that is not in the manifest at all (fake test manifests) goes to shard 1.
+  if (shard && !(guards.includes(g.cmd) || (shard.index === 1 && !seen.has(g.cmd)))) continue;
   console.log(`\nrun-guards: credentialed pass — ${g.cmd}`);
   const r = spawnSync(g.cmd, {
     shell: true,
     stdio: "inherit",
-    env: { ...credentialedEnv(), WF_SUPPRESS_ANALYTICS: "1", WF_GUARD_SUITE: "1", WF_VIATOR_TOKEN_CAPTURE: "0" },
+    env: { ...credentialedEnv(), GUARD_SHARD: "", WF_SUPPRESS_ANALYTICS: "1", WF_GUARD_SUITE: "1", WF_VIATOR_TOKEN_CAPTURE: "0" },
   });
   if (r.error) {
     console.error(`\nrun-guards: FAIL — credentialed pass could not run: ${g.cmd}`);
@@ -311,7 +377,7 @@ for (const g of CREDENTIALED_GUARDS) {
     console.log(`  ${s.toFixed(1).padStart(7)}s  [${String(i + 1).padStart(String(N).length)}/${N}] ${guards[i]}${serialSet.has(guards[i]) && jobs > 1 ? "  (serial)" : ""}`);
   }
   const speedup = guardsWallSecs > 0 ? sum / guardsWallSecs : 1;
-  console.log(`run-guards: guard wall time ${fmt(guardsWallSecs)} vs ${fmt(sum)} summed guard time = ${speedup.toFixed(2)}x effective speedup (jobs=${jobs}${jobs > 1 ? `, ${N - serialSet.size} pooled + ${serialSet.size} serial` : ", all serial"})`);
+  console.log(`run-guards: guard wall time ${fmt(guardsWallSecs)} vs ${fmt(sum)} summed guard time = ${speedup.toFixed(2)}x effective speedup (jobs=${jobs}${jobs > 1 ? `, ${N - shardSerial} pooled + ${shardSerial} serial` : ", all serial"})`);
 }
 
-console.log(`\nrun-guards: OK — ${N}/${N} guards + ${credOk} credentialed re-run(s) green in ${((Date.now() - t0) / 1000).toFixed(1)}s`);
+console.log(`\nrun-guards: OK — ${shardTag}${N}/${N} guards + ${credOk} credentialed re-run(s) green in ${((Date.now() - t0) / 1000).toFixed(1)}s`);

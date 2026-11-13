@@ -79,7 +79,7 @@ function drive(runner, { guards, serial, jobs, env = {}, rawSerial } ) {
   const manifest = path.join(dir, "guards.txt");
   const lines = typeof guards === "function" ? guards(path.join(dir, "log")) : guards;
   writeFileSync(manifest, "# fake manifest\n" + lines.join("\n") + "\n");
-  const e = { ...process.env, GUARD_MANIFEST: manifest };
+  const e = { ...process.env, GUARD_SHARD: "", GUARD_MANIFEST: manifest };
   delete e.GUARD_SERIAL; delete e.GUARD_JOBS;
   if (serial) {
     const sp = path.join(dir, "serial.txt");
@@ -239,11 +239,11 @@ const scenarios = {
       if (r.status !== 1 || r.recs.a) f.push(`GUARD_JOBS=${bad} must exit 1 before running anything, got ${r.status}`);
     }
     // GUARD_SERIAL without GUARD_MANIFEST must not be honoured for the real suite.
-    const e = { ...process.env, GUARD_SERIAL: path.join(tmp, "nothing.txt") };
+    const e = { ...process.env, GUARD_SHARD: "", GUARD_SERIAL: path.join(tmp, "nothing.txt") };
     delete e.GUARD_MANIFEST;
     const r = spawnSync(process.execPath, [runner], { cwd: ROOT, env: e, encoding: "utf8" });
     if (r.status !== 1 || !/only honoured together with GUARD_MANIFEST/.test(r.stderr)) f.push(`GUARD_SERIAL alone must be refused with exit 1, got ${r.status}`);
-    const missing = spawnSync(process.execPath, [runner], { cwd: ROOT, env: { ...process.env, GUARD_MANIFEST: path.join(tmp, "does-not-exist.txt") }, encoding: "utf8" });
+    const missing = spawnSync(process.execPath, [runner], { cwd: ROOT, env: { ...process.env, GUARD_SHARD: "", GUARD_MANIFEST: path.join(tmp, "does-not-exist.txt") }, encoding: "utf8" });
     if (missing.status !== 1) f.push(`a missing manifest must exit 1, got ${missing.status}`);
     return f;
   },
@@ -273,6 +273,7 @@ try {
     // not found fails the guard (the red-prove would otherwise rot silently).
     const src = readFileSync(REAL_RUNNER, "utf8");
     const guardEnvUrl = pathToFileURL(path.join(ROOT, "scripts/lib/guardEnv.mjs")).href;
+    const guardShardsUrl = pathToFileURL(path.join(ROOT, "scripts/lib/guardShards.mjs")).href;
     const mutants = [
       { name: "exit code propagation dropped", from: "process.exit(f.status || 1);", to: "process.exit(1);", scenario: "failCode", expect: /must make the runner exit 3/ },
       { name: "serial gate removed", from: "(serialSet.has(g) ? serialIdx : parallelIdx).push(i)", to: "parallelIdx.push(i)", scenario: "serialGate", expect: /overlapped|started before the parallel phase/ },
@@ -283,7 +284,7 @@ try {
     for (const m of mutants) {
       const idx = src.indexOf(m.from);
       if (idx < 0 || src.indexOf(m.from, idx + 1) >= 0) { failed.push(`red-prove "${m.name}": mutation target not found exactly once in run-guards.mjs — update the red-prove`); continue; }
-      const mutated = src.replace(m.from, m.to).replace('"./lib/guardEnv.mjs"', JSON.stringify(guardEnvUrl));
+      const mutated = src.replace(m.from, m.to).replace('"./lib/guardEnv.mjs"', JSON.stringify(guardEnvUrl)).replace('"./lib/guardShards.mjs"', JSON.stringify(guardShardsUrl));
       if (mutated === src) { failed.push(`red-prove "${m.name}": mutation did not change the source`); continue; }
       const mp = path.join(tmp, `mutant-${counter++}.mjs`);
       writeFileSync(mp, mutated);

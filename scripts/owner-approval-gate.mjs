@@ -30,7 +30,7 @@
  * rule that requires it. Half a configuration is an error.
  */
 import { readFileSync } from "node:fs";
-import { decideOwnerApproval } from "./lib/ownerApproval.mjs";
+import { decideOwnerApproval, isOwnerOnly } from "./lib/ownerApproval.mjs";
 import { fetchPullEvidence } from "./lib/githubPullEvidence.mjs";
 import { mintInstallationToken } from "./lib/githubAppAuth.mjs";
 
@@ -85,7 +85,7 @@ if (!/^https:\/\/[^\s/]+/.test(api)) refuse("GITHUB_API_URL is missing or not an
 let live = null;
 let evidenceError = null;
 try {
-  live = await fetchPullEvidence({ api, repo, token, number }, { withFiles: true });
+  live = await fetchPullEvidence({ api, repo, token, number }, { withFiles: true, protectedFilter: isOwnerOnly });
 } catch (e) {
   evidenceError = String((e && e.message) || e);
 }
@@ -108,6 +108,7 @@ const verdict = evidenceError
     mergeGate: true,
     pr: { number, eventHeadSha: live.liveHeadSha, liveHeadSha: live.liveHeadSha },
     comments: live.comments,
+    protectedEntries: live.protectedEntries,
     error: null,
   });
 

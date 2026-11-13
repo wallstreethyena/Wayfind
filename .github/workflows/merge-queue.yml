@@ -1,0 +1,72 @@
+# .github/workflows/merge-queue.yml — THE WAYFIND MERGE QUEUE (2026-11-13).
+#
+# The repository is owned by a personal account, so GitHub's native merge queue is
+# unavailable, and branch protection keeps "require branches to be up to date".
+# Without a queue every merge made every other green pull request stale and lanes
+# raced main with rebase/retest loops. This workflow is the queue: it runs on
+# GitHub (no Mac, no local bot) and lands labelled pull requests ONE AT A TIME:
+#
+#   lane adds label "merge-queue"
+#   → bring the branch up to date with main (update-branch, pinned to the head)
+#   → dispatch "guards" on that exact head and wait for it (the union is tested)
+#   → judge owner approval with main's scripts/lib/ownerApproval.mjs and post the
+#     required "owner-approval" check on the new head (content fingerprint, so an
+#     approval survives the update; a changed protected file still needs one)
+#   → squash-merge pinned to the tested head
+#   → prove main's tree equals the tested tree (deterministic union proof)
+#   → dispatch "guards" on main
+#
+# Strict protection is unchanged: the queue satisfies it, it does not bypass it.
+# Rollback: stop adding the label (or delete this file); nothing else depends on it.
+#
+# SECURITY: the job holds a write token, so it never checks out, installs or runs
+# anything from a pull request. It checks out main's scripts only (pull_request_target
+# and push and workflow_dispatch all run from main), reads pull requests as API data,
+# and no event text reaches a shell. Every action is pinned to a full commit sha.
+name: merge-queue
+on:
+  pull_request_target:
+    types: [labeled]
+  push:
+    branches: [main]
+  workflow_dispatch:
+  # Safety net, not a poller: if a drain dies (GitHub outage, runner loss, timeout)
+  # the next sweep resumes labelled PRs without anyone re-labelling. An empty queue
+  # exits in seconds.
+  schedule:
+    - cron: "41 * * * *"
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+  checks: write
+  actions: write
+jobs:
+  drain:
+    name: merge-queue
+    if: github.event_name != 'pull_request_target' || github.event.label.name == 'merge-queue'
+    # One drainer at a time, never cancelled mid-merge. On the JOB, after the label
+    # filter, so an unrelated label event can never displace a pending drain.
+    # GitHub keeps one pending run per group; the drainer re-lists labelled PRs
+    # until none remain, so a replaced pending run loses nothing.
+    concurrency:
+      group: merge-queue
+      cancel-in-progress: false
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+      - name: Check out main (never the pull request)
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: main
+          persist-credentials: false
+          sparse-checkout: scripts
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+      - name: Drain the merge queue
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          MERGE_QUEUE_LABEL: merge-queue
+          GUARDS_WORKFLOW_FILE: guards.yml
+        run: node scripts/merge-queue.mjs

@@ -94,6 +94,32 @@ globalThis.fetch = async (url, init = {}) => {
   if (cfg.apiStatus) return reply(cfg.apiStatus, {});
   if (/\\/pulls\\/\\d+$/.test(path)) return reply(200, { head: { sha: ++pullReads > 1 && cfg.liveHeadLater ? cfg.liveHeadLater : cfg.liveHead }, base: { ref: cfg.baseRef || "main" }, changed_files: cfg.files.length });
   if (/\\/pulls\\/\\d+\\/files$/.test(path)) return reply(200, cfg.files);
+  // Protected-content evidence via git trees (2026-11-13): merge base is c…c.
+  // Tree sha = "<ref>~<dir as base64url>"; each listing shows every known path's
+  // child in that dir. Blob per path from cfg.blobs ({ path: { base, head, baseMode, headMode } }),
+  // default base 1111…, head 2222…, mode 100644; null = absent.
+  if (/\\/compare\\//.test(path)) return { ok: true, status: 200, json: async () => ({ merge_base_commit: { sha: "c".repeat(40) } }) };
+  const gc = path.match(/\\/git\\/commits\\/([^/]+)$/);
+  if (gc) return { ok: true, status: 200, json: async () => ({ tree: { sha: gc[1] + "~" } }) };
+  const gt = path.match(/\\/git\\/trees\\/([^/]+)$/);
+  if (gt) {
+    const [ref, enc] = decodeURIComponent(gt[1]).split("~");
+    const dir = enc ? Buffer.from(enc, "base64url").toString() : "";
+    const known = new Set(["CLAUDE.md", "AGENTS.md", "scripts/check-doc-ownership.mjs", "scripts/lib/ownerApproval.mjs", "scripts/owner-approval-gate.mjs", ".github/workflows/fake-owner-approval.yml", ".github/workflows/owner-approval-gate.yml", ...Object.keys(cfg.blobs || {}), ...(cfg.files || []).flatMap((f) => [f.filename, f.previous_filename].filter(Boolean))]);
+    const entries = new Map();
+    for (const p of known) {
+      if (dir && !p.startsWith(dir + "/")) continue;
+      const rest = dir ? p.slice(dir.length + 1) : p;
+      const [first, ...more] = rest.split("/");
+      if (more.length) { entries.set(first, { path: first, type: "tree", mode: "040000", sha: ref + "~" + Buffer.from(dir ? dir + "/" + first : first).toString("base64url") }); continue; }
+      const b = (cfg.blobs || {})[p] || {};
+      const isBase = ref === "c".repeat(40);
+      const sha = isBase ? ("base" in b ? b.base : "1".repeat(40)) : ("head" in b ? b.head : "2".repeat(40));
+      if (sha === null) continue;
+      entries.set(first, { path: first, type: (isBase ? b.baseType : b.headType) || "blob", mode: (isBase ? b.baseMode : b.headMode) || "100644", sha });
+    }
+    return { ok: true, status: 200, json: async () => ({ tree: [...entries.values()], truncated: false }) };
+  }
   if (/\\/issues\\/\\d+\\/comments$/.test(path)) return reply(200, cfg.comments || []);
   return reply(404, {});
 };`);
