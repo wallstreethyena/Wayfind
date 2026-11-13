@@ -2544,6 +2544,7 @@ node scripts/check-blog-redirect.mjs
 
 # /christmas-in-florida must not emit an /api/photo?place= image the route cannot serve (Goodwood 404); executes the real resolver on the Goodwood row.
 node scripts/test-christmas-unservable-photo.mjs
+node scripts/check-christmas-venue-photo-reviews.mjs
 
 # promote-index must bound its own wall clock (45s of 60) and return stopped: "deadline" instead of being killed; quota 429 handling untouched.
 node scripts/test-promote-deadline.mjs
