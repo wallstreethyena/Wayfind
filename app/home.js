@@ -4144,6 +4144,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
   const [mapSearch, setMapSearch] = useState(null);
   const [mapUrlLens, setMapUrlLens] = useState(null);
   const [mapUrlPlaceId, setMapUrlPlaceId] = useState(null);
+  const pendingColdMapUrlRef = useRef(null);
   useEffect(() => { if (mapSearchOpen) setTimeout(() => { try { searchInputRef.current?.focus({ preventScroll: true }); } catch (e) {} }, 20); }, [mapSearchOpen]);
   const [a2hs, setA2hs] = useState(false); // add-to-home-screen nudge (2nd visit, dismissible, never in standalone)
   const [isStandalone, setIsStandalone] = useState(false); // home-screen (PWA) mode: Google OAuth redirect cannot return here, so lead with email
@@ -7445,7 +7446,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
     // page — leaving action=like in the address bar re-opens the sheet as
     // the only UI on refresh. Never collapse /p/{id} to "/" here; Back does
     // that via placeRouteBackPlan when it should.
-    if (params.get("place") || backPlan.stripAction || placeAction) {
+    if (((params.get("place") && params.get("go") !== "map" && window.location.pathname !== "/map")) || backPlan.stripAction || placeAction) {
       try {
         const _sp = new URLSearchParams(window.location.search);
         _sp.delete("place");
@@ -8298,6 +8299,13 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
       if (go === "saved") rememberAuthReturn(window.sessionStorage, sp.get("return"));
       const valid = { events: "events", map: "map", saved: "saved", favorites: "saved", itinerary: "itinerary", coupons: "coupons" };
       if (go === "lunch") setMenuSheet("pick");
+      if (go === "map") {
+        const mcity = (sp.get("city") || "").trim().slice(0, 64);
+        const mq = (sp.get("q") || "").trim().slice(0, 120);
+        if ((mcity || mq) && typeof pendingColdMapUrlRef !== "undefined" && pendingColdMapUrlRef) {
+          pendingColdMapUrlRef.current = { city: mcity || "", q: mq || "" };
+        }
+      }
       if (valid[go]) setScreen(valid[go]);
       // Coupon strips clip the exact deal before navigating here. Open the
       // wallet immediately so the user lands on what they just saved instead
@@ -8346,19 +8354,30 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
         if (mp) keep.set("place", mp);
         if (mq) keep.set("q", mq);
         window.history.replaceState({ wf: "screen" }, "", "/map" + (keep.toString() ? "?" + keep.toString() : ""));
-        (async () => {
-          if (mcity) {
-            const g = await geocodeCity(mcity).catch(() => null);
-            if (g) {
-              manualRef.current = true;
-              setCenter(g);
-              setLocResolved(true);
-              setLocName(g.name.split(",").slice(0, 2).join(",").trim());
-              setMapFocus({ lat: g.lat, lng: g.lng, ts: Date.now() });
+        if (mcity || mq) {
+          (async () => {
+            let g = null;
+            try {
+              if (mcity) {
+                g = await geocodeCity(mcity).catch(() => null);
+                if (g) {
+                  manualRef.current = true;
+                  setCenter(g);
+                  setLocResolved(true);
+                  setLocName(g.name.split(",").slice(0, 2).join(",").trim());
+                  setMapFocus({ lat: g.lat, lng: g.lng, ts: Date.now() });
+                }
+              }
+              if (mq) {
+                await submitSearch(mq, { keepMapScreen: true, mapSearchCenter: g });
+              }
+            } finally {
+              if (typeof pendingColdMapUrlRef !== "undefined" && pendingColdMapUrlRef) {
+                pendingColdMapUrlRef.current = null;
+              }
             }
-          }
-          if (mq) setTimeout(() => { submitSearch(mq); }, 50);
-        })();
+          })();
+        }
         return;
       }
       // v5.78 (B1): the other standalone screens restore their OWN path (was:
@@ -8393,11 +8412,26 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
           if (eventDate !== "all") sp.set("date", eventDate);
           if (eventCat !== "auto") sp.set("cat", eventCat);
           if (sp.toString()) target += "?" + sp.toString();
-        } else if (screen === "map" && window.location.pathname === "/map" && window.location.search) {
+        } else if (screen === "map") {
           const curSp = new URLSearchParams(window.location.search);
           const safeSp = new URLSearchParams();
-          for (const k of ["city", "cat", "sub", "lens", "place", "q"]) {
-            if (curSp.get(k)) safeSp.set(k, curSp.get(k));
+          const coldCity = pendingColdMapUrlRef.current?.city;
+          const cleanCity = (coldCity && !/^this map area$/i.test(coldCity))
+            ? coldCity
+            : ((locName && !/^this map area$/i.test(locName)) ? locName.split(",")[0].trim() : (curSp.get("city") || ""));
+          if (cleanCity && /^[A-Za-z0-9 .,\x27-]{2,64}$/.test(cleanCity)) safeSp.set("city", cleanCity);
+          const c = cat && cat !== "all" && cat !== "attractions" ? cat : curSp.get("cat");
+          if (c && ["food", "nightlife", "attractions", "beach", "hotels", "shopping"].includes(c)) safeSp.set("cat", c);
+          const s = sub && sub !== "all" ? sub : curSp.get("sub");
+          if (s && /^[a-z0-9_-]{2,32}$/.test(s)) safeSp.set("sub", s);
+          const l = mapUrlLens || curSp.get("lens");
+          if (l) safeSp.set("lens", l);
+          const p = mapUrlPlaceId || curSp.get("place");
+          if (p && /^[A-Za-z0-9_:-]{6,180}$/.test(p)) safeSp.set("place", p);
+          if (mapSearch && mapSearch.query) {
+            safeSp.set("q", String(mapSearch.query).trim().slice(0, 120));
+          } else if (pendingColdMapUrlRef.current?.q) {
+            safeSp.set("q", String(pendingColdMapUrlRef.current.q).trim().slice(0, 120));
           }
           if (safeSp.toString()) target += "?" + safeSp.toString();
         }
@@ -8421,7 +8455,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
       document.title = titles[screen] || "Wayfind | One place worth leaving home for";
     } catch (e) {}
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [screen, eventDate, eventCat]);
+  }, [screen, eventDate, eventCat, mapSearch, locName, cat, sub, mapUrlLens, mapUrlPlaceId]);
 
   // Back/Forward traverse the entries the effect above creates. The detail
   // sheet has its own popstate contract ({wf:"detail"} entries) — this
@@ -9494,10 +9528,13 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
     setSugIdx(-1);
     setSearchBusy(true);
     const current = () => submittedRequest === suggestionRequestRef.current;
+    const onMapScreen = Boolean(options && (options.keepMapScreen === true || screen === "map"));
     const userPickedLocation = manualRef.current;
-    const mapCamCenter = screen === "map" && typeof mapCameraRef === "object" && mapCameraRef && mapCameraRef.current && mapCameraRef.current.center;
+    const mapCamCenter = onMapScreen && typeof mapCameraRef === "object" && mapCameraRef && mapCameraRef.current && mapCameraRef.current.center;
     const searchCenter = (userPickedLocation && center)
-      ? (mapCamCenter || { lat: center.lat, lng: center.lng })
+      ? ((options && options.mapSearchCenter) || mapCamCenter || { lat: center.lat, lng: center.lng })
+      : (options && options.mapSearchCenter)
+      ? options.mapSearchCenter
       : mapCamCenter ? { lat: mapCamCenter.lat, lng: mapCamCenter.lng }
       : deviceLoc ? { lat: deviceLoc.lat, lng: deviceLoc.lng }
       : center ? { lat: center.lat, lng: center.lng } : null;
@@ -9529,7 +9566,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
         if (category) {
           closeSearchLayers();
           setQuery("");
-          if (screen === "map") {
+          if (onMapScreen) {
             setMapSearch(null);
             setMapSearchOpen(false);
             setCat(category);
@@ -9622,7 +9659,8 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
         setSearchFeedback("");
         setSearchRecovery(false);
         setSearchMissing(false);
-        if (screen === "map") {
+        if (onMapScreen) {
+          setScreen("map");
           setMapSearch({ query: q, center: nearGeo || searchCenter, cards: result.cards, constraints: result.constraints || null, ts: Date.now() });
           setMapSearchOpen(false);
         } else {
@@ -9634,12 +9672,34 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
       // Exact identity, not merely one fuzzy result, grants automatic opening.
       const exact = result.matches.filter((item) => item.exactMatch);
       if (result.status === "ok" && result.matches.length === 1 && exact.length === 1) {
+        if (onMapScreen && exact[0].place && Number.isFinite(exact[0].place.lat) && Number.isFinite(exact[0].place.lng)) {
+          closeSearchLayers();
+          setScreen("map");
+          setMapSearch({
+            query: q,
+            center: nearGeo || searchCenter,
+            cards: result.cards && result.cards.length ? result.cards : [exact[0].place],
+            constraints: result.constraints || null,
+            ts: Date.now(),
+          });
+          setMapPreview(exact[0].place);
+          setMapSearchOpen(false);
+          attempt.finish("results_shown", { status: "ok", count: 1, result_source: "owned-library" });
+          return;
+        }
         openSearchPlace(exact[0].place, attempt, options.placeIntent ? "guide_place_search" : "search", nearGeo);
         if (options.placeIntent) logEvent("guide_place_open", exact[0].place, { q: attempt.meta.q, search_id: attempt.id });
         return;
       }
       const choices = [...localCitySuggestions(q), ...result.matches.filter((item) => item.kind === "place" || (!options.placeIntent && isSafeSearchHref(item.href)))].slice(0, 8);
       if (choices.length) {
+        if (onMapScreen && !(typeof mapSearchOpen !== "undefined" && mapSearchOpen)) {
+          setScreen("map");
+          setMapSearch({ query: q, center: nearGeo || searchCenter, cards: [], constraints: result.constraints || null, ts: Date.now() });
+          setMapSearchOpen(false);
+          attempt.finish("empty", { status: "empty", count: 0, reason: result.reason || "not_in_library", result_source: "owned-inventory" });
+          return;
+        }
         setSuggestions(choices.map((item) => ({ ...item, _searchAttempt: attempt })));
         setSearchFeedback("Choose the place or city you meant below.");
         attempt.finish("choices_shown", { status: "ok", count: choices.length, result_source: "owned-library" });
@@ -9649,6 +9709,11 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
       setSearchMissing(outcome === "empty");
       setSearchFeedback(searchFailureMessage(outcome === "unavailable" ? { ...result, status: "unavailable" } : result));
       setSearchRecovery(true);
+      if (onMapScreen) {
+        setScreen("map");
+        setMapSearch({ query: q, center: nearGeo || searchCenter, cards: [], constraints: result.constraints || null, ts: Date.now() });
+        setMapSearchOpen(false);
+      }
       attempt.finish(outcome, { status: outcome, count: 0, reason: parkUnavailable ? "source_unavailable" : (result.reason || "not_in_library"), result_source: "owned-inventory" });
     } catch {
       if (!current()) return;
@@ -10501,7 +10566,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
       />
     );
     if (["night-out", "date-night", "summer-sports", "today-entertainment", "trending"].includes(mode)) {
-      const rows = selectPosterEvents(fp.usable.filter((event) => eventSignals.disliked[event.id] !== true), { mode, center, bucketOf: eventBucket });
+      const rows = typeof selectPosterEvents === "function" ? selectPosterEvents(fp.usable.filter((event) => eventSignals.disliked[event.id] !== true), { mode, center, bucketOf: eventBucket }) : {};
       return {
         pending: false,
         failed: foryouEventsFailed,
