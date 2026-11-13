@@ -11,6 +11,7 @@ import { toDisplayScore } from "../../lib/score.js";
 import { placeDecision, openStateBonus } from "../../lib/placePolicy.js";
 import { track } from "../../lib/track";
 import { captureAttribution, decorateHref } from "../../lib/attribution";
+import { styleHtml } from "../../lib/styleHtml.js";
 
 const INTENTS = [
   { key: "tonight", label: "Tonight", note: "Open and worth leaving for", icon: "moon" },
@@ -371,7 +372,7 @@ export default function PaidLanding({ city, places }) {
 
   return (
     <div className="paid">
-      <style dangerouslySetInnerHTML={{ __html: css }} />
+      <style dangerouslySetInnerHTML={styleHtml(css)} />
       <main className="shell">
         <header className="brandbar">
           <img className="brandLogo" src="/brand/wayfind-official-white.png" alt="Wayfind" />

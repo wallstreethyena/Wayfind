@@ -20,6 +20,7 @@ import { publishVenueResolution } from "../../lib/venueResolutionStore.js";
 import { priceLabel } from "../../lib/price.js";
 import { toHookLine } from "../../lib/editorialHook.js";
 import useEditorialHooks from "./useEditorialHooks.js";
+import { styleHtml } from "../../lib/styleHtml.js";
 
 const ACCENT = "#F97316";
 const PICK = "#2EC9A6";
@@ -196,7 +197,7 @@ export default function EventVenueMap({ venue, picks = [], onSelect, onMapReady,
   const unavailable = !appleMapsTokenUsable(token);
   return (
     <div className="wfev-grid">
-      <style dangerouslySetInnerHTML={{ __html: CSS }} />
+      <style dangerouslySetInnerHTML={styleHtml(CSS)} />
       <div className="wfev-cats" aria-label="Map categories">
         <button type="button" className="wfev-cat" aria-pressed={active === null} onClick={() => chooseCategory(null)}><MapCategoryPin />{nearbyStatus === "loading" && pins.length === 0 ? <><span>All places</span><span>…</span></> : nearbyStatus === "error" && pins.length === 0 ? <span>All places</span> : <><span>All places</span><b>{pins.length}</b></>}</button>
         {canPark ? <button type="button" className="wfev-cat" aria-pressed={parkingMode} onClick={() => { if (!parkingMode) chooseCategory("parking"); }}><MapCategoryPin family="parking" /><span>Parking</span></button> : null}

@@ -6,6 +6,7 @@
 // opens the same page the card opens (its event or place page, else the
 // organizer's own page). Photos are shown only when the card already has one.
 import { useEffect, useState } from "react";
+import { styleHtml } from "../../lib/styleHtml.js";
 
 const CSS = `
 .xw-row{margin:22px 0 4px;padding:18px 0 6px;border-top:1px solid rgba(232,180,138,.22)}
@@ -77,7 +78,7 @@ export default function ChristmasWeekendRow({ initial, lat, lng }) {
   const near = !!data.located;
   const range = weekendRangeText(data.window);
   return <section className="xw-row" aria-labelledby="xw-heading" data-boo-clear="" data-christmas-weekend="" data-weekend-located={near ? "1" : "0"}>
-    <style dangerouslySetInnerHTML={{ __html: CSS }} />
+    <style dangerouslySetInnerHTML={styleHtml(CSS)} />
     <div className="xw-head">
       <h2 id="xw-heading">{near ? "This weekend near you" : "This weekend in Florida"}</h2>
       {range ? <p className="xw-when">{range}. Top rated choices, three in each kind.</p> : null}

@@ -30,6 +30,7 @@ import { websiteHost } from "../../lib/placeWhere.js";
 import { APPROXIMATE_LOCATION_LINE } from "../../lib/eventLocation.js";
 import { Suspense } from "react";
 import { eventNearbyPlaces } from "../../lib/eventNearbyPlaces.js";
+import { styleHtml } from "../../lib/styleHtml.js";
 
 const ACCENT = "#F97316";
 const PICK = "#2EC9A6";
@@ -98,7 +99,7 @@ export default function EventWhere({ venue, address, directionsHref, website, la
   const pins = eventNearbyPlaces(picks, hasPoint);
   return (
     <section id="event-location" data-event-section="Map & directions" tabIndex={-1} className="wfw" aria-label="Where it is and how to get there">
-      <style dangerouslySetInnerHTML={{ __html: WF_PLACE_CARD_CSS + CSS }} />
+      <style dangerouslySetInnerHTML={styleHtml(WF_PLACE_CARD_CSS + CSS)} />
       <EventMapPlaces key={`${lat}:${lng}`}><div className="wfw-card">
         <div className="wfw-head">
           <div style={{ minWidth: 0, flex: "1 1 260px" }}>

@@ -30,6 +30,7 @@ import { toDisplayScore } from "../../../lib/score.js";
 import { wayfindScore } from "../../../lib/google.js";
 
 import SafeImg from "../SafeImg.js";
+import { styleHtml } from "../../../lib/styleHtml.js";
 
 function mapPreviewPhotoUrl(p) {
   if (!p) return null;
@@ -424,7 +425,7 @@ export default function MapScreen({ ctx }) {
               const subsVisible = filtersExpanded && !mapPreview && !allCategories;
               return (
                 <div className="wf-map-explorer" style={{ position: "relative", width: "100%", height: "100%" }}>
-                  <style dangerouslySetInnerHTML={{ __html: `@media (min-width: 760px) { .wf-map-explorer .wf-map-results { width: 390px; right: auto !important; } .wf-map-explorer .wf-map-results.is-drawer-open { max-height: calc(100% - 294px) !important; width: 390px; right: auto !important; } .wf-map-explorer .wf-map-note { width: 390px; right: auto !important; } } .wf-map-explorer .maplibregl-ctrl-bottom-left, .wf-map-explorer .maplibregl-ctrl-bottom-right { margin-bottom: ${MAPLIBRE_ATTRIBUTION_LIFT}px; }` }} />
+                  <style dangerouslySetInnerHTML={styleHtml(`@media (min-width: 760px) { .wf-map-explorer .wf-map-results { width: 390px; right: auto !important; } .wf-map-explorer .wf-map-results.is-drawer-open { max-height: calc(100% - 294px) !important; width: 390px; right: auto !important; } .wf-map-explorer .wf-map-note { width: 390px; right: auto !important; } } .wf-map-explorer .maplibregl-ctrl-bottom-left, .wf-map-explorer .maplibregl-ctrl-bottom-right { margin-bottom: ${MAPLIBRE_ATTRIBUTION_LIFT}px; }`)} />
                   <div style={{ position: "absolute", top: 0, left: 0, right: 0, zIndex: 30, padding: "6px 10px 0" }}>
                     <CategoryMenu compact activeCat={cat} subsExpanded={subsVisible} sub={sub}
                       onCat={(id, label) => {

@@ -27,6 +27,7 @@ import { watchRootPresence } from "../../lib/rootPresence.js";
 import { captureOrQueue } from "../../lib/browserAnalytics.js";
 import { siteTodayParts } from "../../lib/siteTime.js";
 import { siteHourFloat, bucketForHour, BUCKET_EDGES } from "../../lib/nowContext.js";
+import { styleHtml } from "../../lib/styleHtml.js";
 
 // The heights live in santaDockMetrics.js so app/layout.js can declare --wf-santa-dock with
 // the document (see that file for why); re-exported here for the callers that always had them.
@@ -408,7 +409,7 @@ export function DockView({ action, msg, quip = "", tight = false, act, face = "h
   );
   return (
     <>
-      <style dangerouslySetInnerHTML={{ __html: CSS }} />
+      <style dangerouslySetInnerHTML={styleHtml(CSS)} />
       <aside className={"wf-sd" + (rise && !reduced ? " is-in" : "")} aria-label="Santa, Wayfind's holiday host" data-santa-dock="">
         <div className="wf-sd-in">
           <button type="button" className="wf-sd-av" onClick={onTap} aria-label="Chat with Santa, Wayfind's holiday host" aria-haspopup="dialog">
