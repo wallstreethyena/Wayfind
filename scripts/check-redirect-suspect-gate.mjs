@@ -63,6 +63,12 @@ delete process.env.NEXT_PUBLIC_TM_IMPACT_AD;
 delete process.env.NEXT_PUBLIC_TM_IMPACT_DESTPARAM;
 delete process.env.WAYFIND_PREVIEW_PUBLIC_EVENTS;
 delete process.env.REDIRECT_BURST_GATE;
+// The zero-proof desktop rule has an operator off switch read from the live
+// environment (REDIRECT_ZERO_PROOF_GATE=off). This test asserts the rule's default
+// behaviour, so it must not inherit the switch: 2026-11-13 the switch was set in
+// Vercel production and every production build failed here. The switch itself is
+// asserted below through explicit env arguments (classifyRedirectRequest ctx.env).
+delete process.env.REDIRECT_ZERO_PROOF_GATE;
 
 const captured = [];
 const realFetch = globalThis.fetch;

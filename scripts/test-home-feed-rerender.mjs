@@ -120,7 +120,7 @@ const center = { lat: 27.95, lng: -82.46 };
 const calls = [];
 const handlersA = { onOpenPlace: (p) => calls.push("A:" + p.id), onTrack: () => {}, isSaved: () => false, onSave: () => {}, onLike: () => {}, onDislike: () => {}, onShare: () => {} };
 const mount = (handlers, likedMap) => e(Rails, { active: true, center, city: "Tampa", ...handlers, liked: likedMap, disliked: {}, isLiked: undefined, isDisliked: undefined });
-const settle = async () => { for (let i = 0; i < 8; i++) await act(async () => { await new Promise((r) => setTimeout(r, 15)); }); };
+const settle = async () => { for (let i = 0; i < 70; i++) await act(async () => { await new Promise((r) => setTimeout(r, 25)); }); }; // long enough for the staged rail mounts (STAGE_MS apiece)
 
 const likedEmpty = {};
 await act(async () => { root.render(mount(handlersA, likedEmpty)); });
@@ -165,4 +165,147 @@ ok(!!Card && Card.$$typeof === Symbol.for("react.memo"), "ChristmasRailCard is e
 ok(Card.compare == null, "ChristmasRailCard uses React's default shallow comparison, not a custom one");
 
 await act(async () => { root.unmount(); });
-console.log("test-home-feed-rerender: OK, " + checks + " assertions (flag identity helper executed, home.js call site, real ChristmasIntentRails mounted in jsdom: " + total + " cards, 0 re-renders on a parent render, 1 on a real change, newest handler on tap)");
+
+/* 3b. the nine Christmas rails mount one after another, not in one freeze --------------------------*/
+{
+  ok(mod.STAGE_FIRST >= 1 && mod.STAGE_FIRST <= 3 && mod.STAGE_MS >= 60 && mod.STAGE_MS <= 400, "stage constants are sane (first " + mod.STAGE_FIRST + " at once, then one per " + mod.STAGE_MS + " ms)");
+  const host = document.createElement("div"); document.body.appendChild(host);
+  const r2 = createRoot(host);
+  const railsWithCards = () => [...host.querySelectorAll("[data-rail^='christmas-intent-']")].length;
+  await act(async () => { r2.render(mount(handlersA, likedEmpty)); });
+  await act(async () => { await new Promise((res) => setTimeout(res, 40)); });
+  const early = railsWithCards();
+  ok(early >= 1 && early <= mod.STAGE_FIRST + 1, "right after the data lands only the first rails hold cards (" + early + " of " + RAIL_IDS.length + "), the rest wait their turn");
+  await settle();
+  ok(railsWithCards() === RAIL_IDS.length, "CONTROL: after the staging window every rail holds its cards (" + railsWithCards() + " of " + RAIL_IDS.length + ")");
+  await act(async () => { r2.unmount(); });
+  host.remove();
+}
+
+/* 4. the home page's `center` keeps its identity when the place did not move ---------------------*/
+{
+  const { nextCenter } = await import("../lib/centerIdentity.js");
+  const a = { lat: 27.5689, lng: -82.4393 };
+  ok(nextCenter(a, { lat: 27.5689, lng: -82.4393 }) === a, "an equal-value center keeps the previous object (no effect keyed on `center` re-runs)");
+  const moved = { lat: 27.9, lng: -82.4393 };
+  ok(nextCenter(a, moved) === moved, "CONTROL: a real move hands back the NEW object, so the feed still refreshes");
+  const renamed = { lat: 27.5689, lng: -82.4393, name: "Tampa" };
+  ok(nextCenter(a, renamed) === renamed, "CONTROL: the same point with a different name is a change");
+  ok(nextCenter(null, a) === a && nextCenter(a, null) === null, "first value and clearing both pass through");
+  const home = strip(readFileSync(path.join(ROOT, "app/home.js"), "utf8"));
+  ok(/const \[center, setCenter\] = useState\(null\);/.test(home), "home.js still declares center exactly as check-daypart-art-ready pins it");
+  ok(/setCenter\(\(prev\) => nextCenter\(prev, adopted\.center\)\)/.test(home), "the IP/GPS adoption (the equal-value Parrish seed re-adopt) routes through nextCenter");
+  ok(/setCenter\(\(prev\) => nextCenter\(prev, \{ lat: saved\.lat, lng: saved\.lng \}\)\)/.test(home), "the saved-location restore routes through nextCenter");
+  ok(/setCenter\(\(prev\) => nextCenter\(prev, c\)\)/.test(home), "the geolocation fix routes through nextCenter");
+  ok((home.match(/nextCenter\(prev,/g) || []).length === 3, "exactly three startup call sites use nextCenter (" + (home.match(/nextCenter\(prev,/g) || []).length + ")");
+  ok(!/setCenter\(adopted\.center\)/.test(home), "CONTROL: the bare setCenter(adopted.center) form is gone");
+  ok(/import \{ nextCenter \} from "\.\.\/lib\/centerIdentity"/.test(home), "home.js imports nextCenter");
+}
+
+/* 5. the theme park rail: a parent render with new closures re-renders no park card ---------------*/
+{
+  const TP = await loadComponent(path.join(ROOT, "app/components/ThemeParkRail.js"), ROOT);
+  const ParkRail = TP.default;
+  ok(typeof ParkRail === "function", "CONTROL: the real ThemeParkRail loaded");
+  const names = ["Magic Kingdom Park", "EPCOT", "Universal Studios Florida", "SeaWorld Orlando"];
+  const items = names.map((name, i) => ({ id: "park-" + i, name, lat: 28.4, lng: -81.5 + i / 100, wfScore: 90, reviews: 1000, photo: null }));
+  const tpRoot = createRoot((() => { const d = document.createElement("div"); document.body.appendChild(d); return d; })());
+  const tpCalls = [];
+  const mk = (tag, likedMap) => e(ParkRail, { mode: "flagship", items, onOpenPlace: (p) => tpCalls.push(tag + ":" + p.id), isSaved: () => false, isOnTrip: () => false, liked: likedMap, disliked: {}, onSave: (ev, p) => tpCalls.push(tag + ":save:" + p.id), onItinerary: () => {}, onLike: () => {}, onDislike: () => {}, onShare: () => {} });
+  const likedNone = {};
+  await act(async () => { tpRoot.render(mk("A", likedNone)); });
+  await settle();
+  const parkCards = () => [...document.querySelectorAll('ol[data-rail="theme-parks-flagship"] > li[data-place-id]')];
+  ok(parkCards().length === names.length, "the rail rendered every park card (" + parkCards().length + " of " + names.length + ")");
+  const first = parkCards()[0];
+  let n0 = renderedByName.length;
+  await act(async () => { tpRoot.render(mk("B", likedNone)); });
+  let counts = renderedByName.slice(n0);
+  const railRenders = counts.reduce((s, c) => s + (c.ThemeParkRail || 0), 0);
+  const cardRenders = counts.reduce((s, c) => s + (c.IconicPlaceCard || 0), 0);
+  ok(railRenders >= 1, "CONTROL: the rail itself re-rendered for the new props (" + railRenders + "), so the counter sees renders and a zero below is real");
+  ok(cardRenders === 0, "a parent render with new closures re-rendered " + cardRenders + " park cards; it must be 0");
+  ok(parkCards()[0] === first, "the park card DOM nodes are the same objects");
+  // a real change to one place's liked state repaints exactly that card
+  n0 = renderedByName.length;
+  await act(async () => { tpRoot.render(mk("C", { "park-1": true })); });
+  counts = renderedByName.slice(n0);
+  const changed = counts.reduce((s, c) => s + (c.IconicPlaceCard || 0), 0);
+  ok(changed === 1, "liking one park re-rendered exactly that card (got " + changed + ")");
+  // a tap after the re-renders runs the NEWEST handler, never a stale one
+  tpCalls.length = 0;
+  await act(async () => { parkCards().find((n) => n.getAttribute("data-place-id") === "park-2").dispatchEvent(new dom.window.MouseEvent("click", { bubbles: true })); });
+  ok(tpCalls.length === 1 && tpCalls[0] === "C:park-2", "the tap ran the newest onOpenPlace (calls: " + JSON.stringify(tpCalls) + ")");
+  tpCalls.length = 0;
+  const saveBtn = parkCards().find((n) => n.getAttribute("data-place-id") === "park-3").querySelector('button[aria-label^="Save "]');
+  ok(!!saveBtn, "CONTROL: the park card renders a Save button to tap");
+  await act(async () => { saveBtn.dispatchEvent(new dom.window.MouseEvent("click", { bubbles: true })); });
+  ok(tpCalls.length === 1 && tpCalls[0] === "C:save:park-3", "the Save tap ran the newest onSave on a card that was skipped by memo (calls: " + JSON.stringify(tpCalls) + ")");
+  await act(async () => { tpRoot.unmount(); });
+}
+
+/* 5b. the tour rail and the movies rail: a parent render with a new tracker re-renders no card ----*/
+{
+  const mkRoot = () => { const d = document.createElement("div"); document.body.appendChild(d); return createRoot(d); };
+  const tours = [1, 2, 3].map((n) => ({ id: "tour-" + n, href: "/api/commerce/go?x=" + n, title: "Light tour " + n, image: null, city: "Tampa", distMi: 5 * n, price: "$" + 20 * n, chip: "Boat", when: "Nightly", label: "See availability", code: "T" + n, via: "Viator" }));
+  const tRoot = mkRoot();
+  const tracked = [];
+  await act(async () => { tRoot.render(e(mod.ChristmasTourRail, { tours, onTrack: (n) => tracked.push("A:" + n) })); });
+  const before2 = renderedByName.length;
+  await act(async () => { tRoot.render(e(mod.ChristmasTourRail, { tours, onTrack: (n) => tracked.push("B:" + n) })); });
+  const c2 = renderedByName.slice(before2);
+  ok(c2.reduce((x, c) => x + (c.ChristmasTourRail || 0), 0) >= 1, "CONTROL: the tour rail itself re-rendered for the new tracker");
+  ok(c2.reduce((x, c) => x + (c.TourRailCard || 0), 0) === 0, "a parent render with a new tracker re-rendered " + c2.reduce((x, c) => x + (c.TourRailCard || 0), 0) + " tour cards; it must be 0");
+  const cta = document.querySelector("a[href*='/api/commerce/go?x=1']");
+  ok(!!cta, "found the tour CTA");
+  cta.addEventListener("click", (ev) => ev.preventDefault());
+  tracked.length = 0;
+  await act(async () => { cta.dispatchEvent(new dom.window.MouseEvent("click", { bubbles: true, cancelable: true })); });
+  ok(tracked.length === 1 && tracked[0] === "B:tickets_out", "the CTA tap ran the NEWEST tracker (calls: " + JSON.stringify(tracked) + ")");
+  await act(async () => { tRoot.unmount(); });
+
+  const MoviesRail = (await loadComponent(path.join(ROOT, "app/components/SeasonalMoviesRail.js"), ROOT)).default;
+  const moviePayload = { ctaLive: true, railTitle: "Movies in Theaters", deck: "d", movies: [1, 2, 3].map((n) => ({ id: "m" + n, title: "Movie " + n, status: "now_playing", rating: "PG", runtimeMin: 100, vibes: ["Cozy"], art: null, why: "w", ticket: { href: "/api/commerce/go?m=" + n, merchant: "Fandango", provider: "cj", offerId: "o" + n } })) };
+  const realFetch = globalThis.fetch;
+  globalThis.fetch = (url) => String(url).startsWith("/api/movies/seasonal") ? Promise.resolve({ ok: true, status: 200, headers: { get: () => "application/json" }, json: async () => moviePayload, text: async () => JSON.stringify(moviePayload) }) : realFetch(url);
+  const mRoot = mkRoot();
+  await act(async () => { mRoot.render(e(MoviesRail, { collection: "christmas", active: true, onTrack: () => {} })); });
+  await settle();
+  ok(document.querySelectorAll("[data-rail='christmas-intent-movies'] > *").length >= 3, "the movies rail rendered its cards");
+  const before3 = renderedByName.length;
+  await act(async () => { mRoot.render(e(MoviesRail, { collection: "christmas", active: true, onTrack: () => {} })); });
+  const c3 = renderedByName.slice(before3);
+  ok(c3.reduce((x, c) => x + (c.SeasonalMoviesRail || 0), 0) >= 1, "CONTROL: the movies rail itself re-rendered");
+  ok(c3.reduce((x, c) => x + (c.MovieRailCard || 0), 0) === 0, "a parent render re-rendered " + c3.reduce((x, c) => x + (c.MovieRailCard || 0), 0) + " movie cards; it must be 0");
+  await act(async () => { mRoot.unmount(); });
+  globalThis.fetch = realFetch;
+}
+
+/* 6. the quick bar's edge-fade check shares the frame's layout instead of forcing its own ----------*/
+{
+  const rafQueue = [];
+  globalThis.requestAnimationFrame = (fn) => { rafQueue.push(fn); return rafQueue.length; };
+  globalThis.cancelAnimationFrame = () => {};
+  const { useEdgeFade } = await loadComponent(path.join(ROOT, "app/components/EdgeFade.js"), ROOT);
+  let reads = 0;
+  const Row = ({ tick }) => {
+    const ref = React.useRef(null);
+    useEdgeFade(ref);
+    return e("div", { ref, "data-tick": tick });
+  };
+  const efRoot = createRoot((() => { const d = document.createElement("div"); document.body.appendChild(d); return d; })());
+  await act(async () => { efRoot.render(e(Row, { tick: 0 })); });
+  const row = document.querySelector("[data-tick]");
+  Object.defineProperty(row, "scrollWidth", { configurable: true, get() { reads += 1; return 900; } });
+  Object.defineProperty(row, "clientWidth", { configurable: true, get() { return 300; } });
+  rafQueue.splice(0).forEach((fn) => fn()); reads = 0;
+  for (let i = 1; i <= 4; i++) await act(async () => { efRoot.render(e(Row, { tick: i })); });
+  ok(reads === 0, "four renders in a row read layout " + reads + " times inside the effects; it must be 0 (forced layout)");
+  ok(rafQueue.length === 1, "the four renders queued ONE frame callback (" + rafQueue.length + ")");
+  rafQueue.splice(0).forEach((fn) => fn());
+  ok(reads >= 1 && row.getAttribute("data-fade") === "end", "CONTROL: the frame callback does the read and writes data-fade=end (reads=" + reads + ", fade=" + row.getAttribute("data-fade") + ")");
+  ok(row.classList.contains("wf-edgefade"), "the wf-edgefade class is still added");
+  await act(async () => { efRoot.unmount(); });
+}
+
+console.log("test-home-feed-rerender: OK, " + checks + " assertions (flag identity, center identity, real ChristmasIntentRails and ThemeParkRail mounted in jsdom: 0 card re-renders on a parent render, exactly 1 on a real change, newest handler on tap, edge-fade reads share the frame)");

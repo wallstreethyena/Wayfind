@@ -21,6 +21,8 @@ import { cardToEditorial, resolveAtlasId, atlasCardForName } from "../../../lib/
 import { editorialNameCandidates } from "../../../lib/editorialLookup";
 import { approveCandidate } from "../../../lib/placeServable";
 import { guideDescriptionFor } from "../../../lib/guideDescriptionFills";
+import { siteTodayStr } from "../../../lib/siteTime";
+import { filterEligibleVenueEvents } from "../../../lib/gamePlan";
 
 export const dynamic = "force-dynamic";
 
@@ -45,6 +47,13 @@ for (const c of atlasCards) if (c && c.placeId) CARD_BY_ID.set(c.placeId, c);
 // day), long SWR, so new verified rows surface without a deploy.
 const HEADERS_LIVE = { "Cache-Control": "public, s-maxage=300, stale-while-revalidate=300" };
 
+const EVENT_SELECT =
+  "event_id,event_name,short_title,slug,start_date,end_date,start_time,end_time," +
+  "schedule_note,event_status,venue,city,place_id,is_free,price_min,price_max," +
+  "price_band,admission_offer,ticket_status,official_ticket_url,official_event_url," +
+  "card_hook,insider_tip,parking_tip,duration_recommendation,pairing,wayfind_verdict," +
+  "source_tier,verification_confidence,link_ok";
+
 async function wfEditorialFor(id) {
   const base = (process.env.NEXT_PUBLIC_SUPABASE_URL || "").trim().replace(/\/+$/, "");
   const anon = (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "").trim();
@@ -60,6 +69,59 @@ async function wfEditorialFor(id) {
     const rows = await r.json();
     return mapWfEditorial(Array.isArray(rows) ? rows[0] : null);
   } catch { return null; }
+}
+
+async function wfInventoryCardFor(id) {
+  const base = (process.env.NEXT_PUBLIC_SUPABASE_URL || "").trim().replace(/\/+$/, "");
+  const anon = (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "").trim();
+  if (!base || !anon || !id) return null;
+  try {
+    const r = await fetch(base + "/rest/v1/wf_inventory?select=place_id,name,editorial_card&place_id=eq." + encodeURIComponent(id) + "&limit=1", {
+      headers: { apikey: anon, Authorization: "Bearer " + anon },
+      cache: "no-store",
+    });
+    if (!r.ok) return null;
+    const rows = await r.json();
+    const row = Array.isArray(rows) ? rows[0] : null;
+    if (!row || !row.editorial_card || typeof row.editorial_card !== "object") return null;
+    const mapped = cardToEditorial(row.editorial_card);
+    return mapped && (mapped.why || mapped.vibe || mapped.knownFor || mapped.insiderMove) ? { editorial: mapped, name: row.name } : null;
+  } catch { return null; }
+}
+
+async function wfCuratedEventsForPlace(placeId, placeName) {
+  const base = (process.env.NEXT_PUBLIC_SUPABASE_URL || "").trim().replace(/\/+$/, "");
+  const anon = (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "").trim();
+  if (!base || !anon || (!placeId && !placeName)) return [];
+  const today = siteTodayStr();
+  const dateOr = `or=(end_date.gte.${today},and(end_date.is.null,start_date.gte.${today}))`;
+  const headers = { apikey: anon, Authorization: "Bearer " + anon };
+  const detailStub = { id: placeId || "", name: placeName || "" };
+  try {
+    if (placeId) {
+      const r = await fetch(
+        `${base}/rest/v1/wf_events?select=${EVENT_SELECT}&place_id=eq.${encodeURIComponent(placeId)}&event_status=in.(scheduled,sold_out)&${dateOr}&limit=8`,
+        { headers, cache: "no-store" }
+      );
+      if (r.ok) {
+        const rows = await r.json();
+        const hit = filterEligibleVenueEvents(Array.isArray(rows) ? rows : [], detailStub);
+        if (hit.length > 0) return hit;
+      }
+    }
+    const cleanName = String(placeName || "").replace(/[,%()*]/g, " ").replace(/\s+/g, " ").trim();
+    if (cleanName.length >= 5) {
+      const r2 = await fetch(
+        `${base}/rest/v1/wf_events?select=${EVENT_SELECT}&venue=ilike.${encodeURIComponent("*" + cleanName + "*")}&event_status=in.(scheduled,sold_out)&${dateOr}&limit=8`,
+        { headers, cache: "no-store" }
+      );
+      if (r2.ok) {
+        const rows2 = await r2.json();
+        return filterEligibleVenueEvents(Array.isArray(rows2) ? rows2 : [], detailStub);
+      }
+    }
+    return [];
+  } catch { return []; }
 }
 
 export async function GET(req) {
@@ -81,7 +143,10 @@ export async function GET(req) {
   const refuse = (reason) => NextResponse.json({ none: true, refused: reason }, { headers: HEADERS_REFUSED });
   const serve = async (candidate, payload, headers) => {
     const verdict = await approveCandidate(candidate);
-    return verdict.ok ? NextResponse.json(payload, { headers }) : refuse(verdict.reason);
+    if (!verdict.ok) return refuse(verdict.reason);
+    const curatedEvents = await wfCuratedEventsForPlace(candidate.placeId || id, candidate.name || rawName);
+    const out = curatedEvents.length > 0 ? { ...payload, curatedEvents } : payload;
+    return NextResponse.json(out, { headers });
   };
 
   // Tier 1: the owner's Atlas card always wins — hand curation beats machine.
@@ -102,6 +167,13 @@ export async function GET(req) {
     if (fleet) {
       return serve({ placeId: id, name: fleet.name || rawName },
         { editorial: fleet, sources: fleet.sources || [] }, HEADERS_LIVE);
+    }
+    // Tier 2.5: researched Atlas card stored directly on wf_inventory.editorial_card
+    // (e.g. Mote SEA, which holds a full 20-field card in wf_inventory).
+    const invCard = await wfInventoryCardFor(id);
+    if (invCard) {
+      return serve({ placeId: id, name: invCard.name || rawName },
+        { editorial: invCard.editorial }, HEADERS_LIVE);
     }
   }
 

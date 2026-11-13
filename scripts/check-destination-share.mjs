@@ -63,6 +63,8 @@ const STANDARD = {
   "app/christmas-in-florida/page.js": "app/components/SeasonalSearchHub.js",
   "app/new-years-in-florida/page.js": "app/components/SeasonalSearchHub.js",
   "app/florida-events/page.js": "app/florida-events/page.js",
+  // 2026-11-12: tour hub (Cosmic Baseball Florida), own ShareButton.
+  "app/cosmic-baseball-florida/page.js": "app/cosmic-baseball-florida/page.js",
   // 2026-11-03: /events renders real inventory now (it was a route shim).
   "app/events/page.js": "app/events/page.js",
   // Category hubs: one shared renderer, shareUrl built from SITE_URL + path.

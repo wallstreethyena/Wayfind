@@ -36,6 +36,12 @@ globalThis.fetch = async (url, init) => {
 process.env.NEXT_PUBLIC_POSTHOG_KEY = "phc_guardtest_not_a_real_key";
 delete process.env.WF_SUPPRESS_ANALYTICS;
 delete process.env.REDIRECT_BURST_GATE;
+// The zero-proof desktop rule has an operator off switch read from the live
+// environment (REDIRECT_ZERO_PROOF_GATE=off). This test asserts the rule's default
+// behaviour, so it must not inherit the switch: 2026-11-13 the switch was set in
+// Vercel production and every production build failed here. The switch itself is
+// asserted through explicit env arguments in check-redirect-suspect-gate.mjs.
+delete process.env.REDIRECT_ZERO_PROOF_GATE;
 delete process.env.SUPABASE_URL; delete process.env.NEXT_PUBLIC_SUPABASE_URL; delete process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 const CHROME = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36";
