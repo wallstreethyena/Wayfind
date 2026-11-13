@@ -1,5 +1,7 @@
 # Share metrics (List Engine, Part 4)
 
+> **Schema v1. Retired for attribution on 2026-11-13.** `open_rate` and `return_rate` below are built on `share_open` (any deep-link landing, including internal navigation) and `share_return` (a guess). Do not use them to judge whether shares bring visitors. Use share schema v2: `docs/SHARE_ATTRIBUTION.md`.
+
 Virality is not a plan. **Share rate is the one number to move.** If `share_rate`
 is under **2% of sessions**, the content is not shareable and no menu change will
 fix it. That number, not traffic, is the target.
