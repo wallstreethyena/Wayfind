@@ -50,7 +50,7 @@ export default function ChristmasMap({ query }) {
       : pins === null ? <p className="xmap-note" role="status">Loading the map…</p>
       : !pins.length ? <p className="xmap-note" role="status">No places with an exact location match this filter. They are all in the list below.</p>
       : <>
-        <div className="xmap-box"><AppleExplorerMap events={events} center={center} fit showOrigin={false} selectedId={picked} onSelectEvent={(e) => setPicked(e && e.id ? String(e.id) : null)} /></div>
+        <div className="xmap-box"><AppleExplorerMap compact events={events} center={center} fit showOrigin={false} selectedId={picked} onSelectEvent={(e) => setPicked(e && e.id ? String(e.id) : null)} /></div>
         <p className="xmap-note" role="status">{pins.length} {pins.length === 1 ? "place" : "places"} on the map. Listings without an exact spot are only in the list.</p>
         {chosen ? <div className="xmap-pick" data-map-pick="">
           <div><strong>{chosen.title}</strong>{chosen.city ? <span>{chosen.city}</span> : null}</div>
