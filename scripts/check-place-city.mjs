@@ -150,6 +150,20 @@ eq(placePageTitle({ name: "Z", county: "Kings" }), "Z | Wayfind", "county fallba
 eq(placePageTitle({ name: "Z", county: "orlando" }), "Z | Wayfind", "county fallback: a metro slug is never shown as a county");
 eq(placeCountyLabel(null), null, "county fallback: no place, no label");
 {
+  // The WIRING, not just the function: the place page reads its stored row
+  // through getInventoryIdentity -> inventoryToSkeleton, and lib/placeData.js
+  // copies row.county to page.inventoryCounty. #2455 shipped the title rule but
+  // the skeleton dropped county, so live titles did not change (2026-11-13).
+  const { inventoryToSkeleton } = await import("../lib/atlasPlaceAllowlist.js");
+  const sk = inventoryToSkeleton({ place_id: "ChIJx", name: "The Grove at Wesley Chapel", locality: null, postal_city: null, county: "Pasco" });
+  eq(sk && sk.county, "Pasco", "county wiring: the stored-row skeleton keeps county");
+  const dataSrc = readFileSync(new URL("../lib/placeData.js", import.meta.url), "utf8").replace(/^\s*\/\/.*$/gm, "");
+  ok(/page\.inventoryCounty\s*=\s*row\.county/.test(dataSrc), "county wiring: lib/placeData.js copies the row's county onto the page");
+  const idSrc = readFileSync(new URL("../lib/inventoryIdentity.js", import.meta.url), "utf8");
+  ok(/select=[^`"&]*\bcounty\b/.test(idSrc), "county wiring: getInventoryIdentity selects county");
+  eq(placePageTitle({ name: sk.name, inventoryCounty: sk.county }), "The Grove at Wesley Chapel in Pasco County, FL | Wayfind", "county wiring: the page-shaped object gets the county title");
+}
+{
   const pa = placePostalAddress(uninc);
   ok(!pa || !/county/i.test(JSON.stringify(pa)), "county fallback: PostalAddress never carries the county as a locality");
 }
