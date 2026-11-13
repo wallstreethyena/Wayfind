@@ -21,6 +21,7 @@ import {
   selectProactivePlannerOffer,
   recordProactiveShown,
   dismissProactiveOffers,
+  proactiveWaitsForAdPicks,
 } from "../../lib/plannerProactive.js";
 
 const WayfindPlannerSheet = dynamic(() => import("./WayfindPlannerSheet"), {
@@ -116,8 +117,22 @@ export default function WayfindPlannerLoader() {
       setProactiveOffer(null);
       return undefined;
     }
+    let onScroll = null;
     const timer = window.setTimeout(() => {
       try {
+        // An ad visitor's picks row is still on screen: wait for a scroll
+        // instead of covering the buttons they came for.
+        if (proactiveWaitsForAdPicks(document, window.innerHeight)) {
+          onScroll = () => {
+            if (proactiveWaitsForAdPicks(document, window.innerHeight)) return;
+            document.removeEventListener("scroll", onScroll, true);
+            onScroll = null;
+            setCtxTick((n) => n + 1);
+          };
+          // Capture phase: the page may scroll inside #wf-scroll, not the window.
+          document.addEventListener("scroll", onScroll, { capture: true, passive: true });
+          return;
+        }
         const sess = safeSessionStorage();
         const trips = readStoredTripsSnapshot();
         const unassignedSaveCount = countUnassignedStops(trips);
@@ -140,7 +155,10 @@ export default function WayfindPlannerLoader() {
         setProactiveOffer(null);
       }
     }, 3200);
-    return () => window.clearTimeout(timer);
+    return () => {
+      window.clearTimeout(timer);
+      if (onScroll) document.removeEventListener("scroll", onScroll, true);
+    };
   }, [pathname, sheetMounted, ctxTick]);
 
   return (
