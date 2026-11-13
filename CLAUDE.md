@@ -164,6 +164,28 @@ one production chunk was swept.
 - **Paid API proxies** are guarded in `middleware.js` (`lib/apiGuard.js`); add any new
   metered/scrape proxy to the matcher. `/api/eats/go` is GET-302 → `rateLimitOnly`.
 
+## Notifications — Expected-State Rule (owner directive, 2026-11-13)
+
+Before ANY push notification, email or alert to Gabriel (agent run, scheduled task or
+monitoring code), classify the condition first. An error code alone never decides it;
+context does.
+
+| class | meaning | action |
+|---|---|---|
+| **EXPECTED** | known consequence of undeployed, intentionally disabled, scheduled, expired, unavailable or explicitly pending work (an unmerged PR's route 404s, a migration not applied yet, preview queued, CI waiting) | **do not notify** |
+| **INFORMATIONAL** | useful, needs no decision (no new posts, healthy reconciliation, routine cron done, expected exclusion) | final report / logs only, **no push** |
+| **ACTIONABLE** | something only Gabriel can do (owner-account action the agent literally cannot perform) | ask for the ONE smallest exact manual action |
+| **INCIDENT** | unexpected production failure, material regression, security/privacy issue, revenue or booking path broken, data corruption, major unexpected inventory loss, critical job repeatedly failing, an owner-only action blocking a time-sensitive release | **notify** |
+
+- **Never notify because unfinished work is unfinished.** An open PR or its undeployed
+  surface is a task to finish (fix, merge-ready, or retire), not an alert.
+- **Never re-notify the same unresolved condition** unless its severity materially changes.
+  An already-known blocker with no change stays silent.
+- **Data health ≠ UI health.** "Table/DB counts are right" never becomes "the feature
+  works"; verify the user-facing surface separately and report the two separately.
+- Scheduled-task prompts must encode this rule; never write a "notify when the endpoint is
+  down" step for an endpoint that is not deployed yet.
+
 ## Housekeeping
 
 - The July 2026 "AI Operating System" block lives in `docs/history/AI_OPERATING_SYSTEM_2026-07.md`.
