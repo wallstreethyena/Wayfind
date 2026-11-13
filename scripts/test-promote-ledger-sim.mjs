@@ -35,7 +35,7 @@ export function makeWorld({ dbMonth, ledger = {}, places, google, monthCap = 750
   // A world is an independent fixture, including the shared provider cache.
   // Consecutive runs within one world retain its breaker, as production does.
   globalThis.__wfServerCacheMem?.clear();
-  const w = { dbMonth, ledger: new Map(Object.entries(ledger)), googleCalls: [], takes: [], refunds: [], claims: 0, places, google, monthCap, batchLimit };
+  const w = { dbMonth, ledger: new Map(Object.entries(ledger)), googleCalls: [], takes: [], refunds: [], dayTakes: [], dayRefunds: [], claims: 0, places, google, monthCap, batchLimit };
   w.row = (sku, month = w.dbMonth) => w.ledger.get(month + "|" + sku) || null;
   w.fetch = async (url, init = {}) => {
     const u = String(url);
@@ -57,13 +57,15 @@ export function makeWorld({ dbMonth, ledger = {}, places, google, monthCap = 750
       const r = w.ledger.get(k);
       const granted = r.used + n <= p_cap;
       if (granted) { r.used += n; r.cap = p_cap; }
-      w.takes.push({ sku: p_sku, cap: p_cap, granted });
+      // The per-day background counter (lib/spendGate.js BACKGROUND DAILY LINE) rides the same RPC. It is a
+      // second row, not a monthly SKU: it is recorded apart so every assertion below stays about the monthly grants.
+      (isBackgroundDailySku(p_sku) ? w.dayTakes : w.takes).push({ sku: p_sku, cap: p_cap, granted });
       return json(granted);
     }
     if (u.includes("/rest/v1/rpc/wf_spend_refund")) {
       const { p_sku, p_n } = JSON.parse(init.body);
       const r = w.ledger.get(w.dbMonth + "|" + p_sku);
-      w.refunds.push({ sku: p_sku, n: p_n });
+      (isBackgroundDailySku(p_sku) ? w.dayRefunds : w.refunds).push({ sku: p_sku, n: p_n });
       if (!r || !(p_n >= 1 && p_n <= 10)) return json(false);
       r.used = Math.max(r.used - p_n, 0);
       return json(true);
@@ -93,6 +95,7 @@ export function makeWorld({ dbMonth, ledger = {}, places, google, monthCap = 750
 }
 
 const { GET } = await import("../app/api/cron/promote-index/route.js");
+const { isBackgroundDailySku } = await import("../lib/spendGate.js");
 export async function runCron(w, mode = "free") {
   process.env.WAYFIND_GATE = mode;
   const realFetch = globalThis.fetch;
@@ -124,6 +127,8 @@ const sum = (arr, sku) => arr.filter((x) => x.sku === sku && (x.granted === unde
   eq(sum(w.takes, "details_pro"), 1, "1: exactly one Pro grant was taken");
   eq(w.refunds, [{ sku: "details_pro", n: 1 }], "1: exactly one Pro refund, nothing for the parked places");
   eq(w.row("details_pro").used, 100, "1: the Pro row is back where it started (the 429 was unbilled)");
+  // The day counter moves in step with the monthly row: one tick taken for the one grant, one given back for the unbilled 429.
+  eq([w.dayTakes.length, w.dayRefunds.length], [1, 1], "1: the one Pro grant ticked the Pacific day's counter once and the unbilled 429 gave that tick back");
   const again = await runCron(w);
   eq([again.skipped, again.claimed], ["breaker open", 0], "1: a later run in the same world skips while the daily breaker holds");
   eq([w.claims, w.googleCalls.length, w.takes.length, w.refunds.length], [1, 1, 1, 1], "1: the later run adds no claim, provider call, grant or refund");
@@ -164,7 +169,7 @@ const sum = (arr, sku) => arr.filter((x) => x.sku === sku && (x.granted === unde
   eq(w.refunds.length, 0, "5: a refused grant is never refunded");
   eq(w.row("details_pro").used, 4800, "5: the row never goes past its cap");
 }
-eq(pass, 20, "every case ran (red-proved 2026-11-05: deleting `await refundToLedger(requestSku, 1)` from the route fails case 1)");
+eq(pass, 21, "every case ran (red-proved 2026-11-05: deleting `await refundToLedger(requestSku, 1)` from the route fails case 1)");
 
 // ── PROMOTION'S HALF OF THE ENTERPRISE LINE (#2131), on the CALL ─────────────
 // 950 free line -> promotion stops at 475 used. Unrated places past the share
@@ -265,6 +270,6 @@ const ent = (w, m = M) => (w.row("details_enterprise", m) || { used: 0 }).used;
     "12: STRUCTURAL (the worker is a CLI): the worker reserves the share slot before awaiting the ledger");
   ok(/const ratingFreeLine = freeTierLine\(RATING_SKU\);/.test(wsrc), "12: STRUCTURAL: the worker computes the share from the free line");
 }
-eq(pass, 39, "every share case ran (37 + the two 6b reserve assertions added 2026-11-11)");
+eq(pass, 40, "every share case ran (37 + the two 6b reserve assertions added 2026-11-11 + the one day-counter tick/refund assertion added 2026-11-12)");
 
 console.log(`test-promote-ledger-sim: OK (${pass} checks: 429 refunds by SKU, retry 429 refunds once, parked places take no grant, billed answers keep their grant, refused grants make no call; promotion's Enterprise share holds at remaining/exhausted/open-mode/retries/both month-boundary directions/8-way concurrency)`);

@@ -204,6 +204,7 @@ const TripConnections = nextDynamic(() => import("./components/TripConnections")
 // on a lazy chunk + then its own /api/theme-parks fetch: first card 4.2s vs
 // 2.7s (median of 5, same Vercel preview infra, 390px).
 import ThemeParkRail from "./components/ThemeParkRail";
+import { nextCenter } from "../lib/centerIdentity";
 const loadTrips = () => import("../lib/trips");
 const SHEET_LOADERS = [loadHookDetail, loadAccount, loadMenu, loadAuth, loadDetail, loadIntro, loadSocialFind];
 const SCREEN_LOADERS = [loadSurprise, loadCoupons, loadSaved, loadItinerary, loadShared, loadEventsScreen, loadMap, loadExperience, loadThingsToDo, loadTrips, ...SHEET_LOADERS];
@@ -7634,7 +7635,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
         if (adopted) {
           if (adopted.device) setDeviceLoc((prev) => prev || adopted.center);
           setLocResolved(true);
-          setCenter(adopted.center);
+          setCenter((prev) => nextCenter(prev, adopted.center));
           if (adopted.name) setLocName(adopted.name);
         }
       } catch (e) {}
@@ -7681,7 +7682,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
               const dLng = (saved.lng - c.lng) * 69 * Math.cos((c.lat * Math.PI) / 180);
               const movedMi = Math.sqrt(dLat * dLat + dLng * dLng);
               if (movedMi <= 2) {
-                setCenter({ lat: saved.lat, lng: saved.lng });
+                setCenter((prev) => nextCenter(prev, { lat: saved.lat, lng: saved.lng }));
                 setLocResolved(true);
                 if (saved.loc) setLocName((prev) => prev || saved.loc);
                 return;
@@ -7695,7 +7696,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
           // BEFORE the await, so re-check it after (a late GPS answer used to
           // load Tampa's feed over a just-picked St. Petersburg).
           if (manualRef.current) return;
-          setCenter(c);
+          setCenter((prev) => nextCenter(prev, c));
           setLocResolved(true);
           setLocName(name);
         },
@@ -9574,10 +9575,10 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
     }
     return false;
   }
-  function addToItinerary(p) {
+  function addToItinerary(p, src = "card_itinerary") {
     if (!p || !p.id) return;
     if (isOnTrip(p)) { showToast("Already on your itinerary"); return; }
-    loadTrips().then((m) => m.filePlaceIntoTrips({ p, trips, setTrips, autoOrder: itineraryFlags.autoOrder, src: "card_itinerary", isCardItinerary: true, logEvent, showToast })).catch(() => {});
+    loadTrips().then((m) => m.filePlaceIntoTrips({ p, trips, setTrips, autoOrder: itineraryFlags.autoOrder, src, isCardItinerary: true, logEvent, showToast })).catch(() => {});
   }
 
   // One-tap save straight to Favorites from a card heart.
@@ -10230,7 +10231,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
     // auth + password-recovery sheets
     authOpen, authMode, setAuthMode, isStandalone, signInWithProvider, authEmail, setAuthEmail, authPassword, setAuthPassword, passwordAuth, authSending, resetSending, sendPasswordReset, recoveryOpen, setRecoveryOpen, newPw, setNewPw, newPw2, setNewPw2, pwSaving, saveNewPassword, authReady,
     // detail sheet (G3)
-    detail, setDetail, detailExtra, setLightbox, reviewsOpen, setReviewsOpen, hoursOpen, setHoursOpen, venueEvents, venueEventsLoading, venueEventsOpen, setVenueEventsOpen, videos, videosLoading, beachCond, beachCondLoading, insight, insightLoading, insightFull, insightFullLoading, showMore, viaTours, debugOn, placeComments, setPlaceComments, commentType, setCommentType, placePosts, setPlacePosts, confirmDel, setConfirmDel, taInfo, insider, detailContext, myVotes, communityVotes, galleryRef, noteRef, scrollGallery, loadFullInsight, addReservation, handleVote, loadVenueEvents, placeShareUrl, FeaturedTag, curatedNote, curatedFor, wayfindNotes, betterAlternatives, similarPlaces, relatedPicks, detailGuides: railMenu && Array.isArray(railMenu.guides) ? railMenu.guides : null, placeKind, isBeach, beachSignals, weather, isSharedPlaceArrival: !!initialPlaceId,
+    detail, setDetail, detailExtra, setLightbox, reviewsOpen, setReviewsOpen, hoursOpen, setHoursOpen, venueEvents, venueEventsLoading, venueEventsOpen, setVenueEventsOpen, videos, videosLoading, beachCond, beachCondLoading, insight, insightLoading, insightFull, insightFullLoading, showMore, viaTours, debugOn, placeComments, setPlaceComments, commentType, setCommentType, placePosts, setPlacePosts, confirmDel, setConfirmDel, taInfo, insider, detailContext, myVotes, communityVotes, galleryRef, noteRef, scrollGallery, loadFullInsight, addReservation, handleVote, loadVenueEvents, placeShareUrl, FeaturedTag, curatedNote, curatedFor, wayfindNotes, betterAlternatives, similarPlaces, relatedPicks, detailGuides: railMenu && Array.isArray(railMenu.guides) ? railMenu.guides : null, placeKind, isBeach, beachSignals, weather, isSharedPlaceArrival: !!initialPlaceId, isOnTrip, addToItinerary,
     // social find sheet (v6.93) — the "bookshelf" of curated creator-video
     // places: the place+video the user tapped in from, every other nearby
     // find (for the "more near you" strip), and the region-availability list

@@ -7,7 +7,7 @@ import { hospitalityDateChipLabel } from "../../lib/seasonalHospitalityCopy.js";
 // rail card: no seasonal skin, no spooky skin, no Directions button, score
 // badge top right. Each rail pages independently via usePagedRail, seeded from
 // the one bulk /api/events/christmas fetch (see lib/railPage.js).
-import { memo, useEffect, useMemo, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import RailCard, { RailDots, RailNav } from "./RailCard";
 import RailHeading from "./RailHeading";
 import RailLoading from "./RailLoading";
@@ -34,6 +34,23 @@ const TICKET_SURFACE = "christmas_intent_rail";
 const COLORS = { text: "#FFF7ED", muted: "#A99FA8" };
 export const CHRISTMAS_LOAD_TIMEOUT_MS = 10000;
 const RAIL_COUNT = 9;
+// Mounting nine rails of ~30 photo cards each in ONE commit was a single 2.5 s main-thread freeze
+// on a throttled phone (2026-11-12 profile: ~3,100 components and ~12,000 DOM nodes at once, most of
+// them below the fold). The first STAGE_FIRST rails mount at once; the rest follow one per
+// STAGE_MS, so no task is longer than one rail and a tap or scroll never waits behind all nine.
+// Until its turn a rail shows the same heading and loading line it already shows while its data
+// loads, and every rail is on the page within about a second.
+export const STAGE_FIRST = 2;
+export const STAGE_MS = 140;
+function useStagedMount(order) {
+  const [ready, setReady] = useState(order < STAGE_FIRST);
+  useEffect(() => {
+    if (ready) return undefined;
+    const timer = setTimeout(() => setReady(true), (order - STAGE_FIRST + 1) * STAGE_MS);
+    return () => clearTimeout(timer);
+  }, [ready, order]);
+  return ready;
+}
 const compact = (value) => Number(value) >= 1000 ? Math.round(Number(value) / 100) / 10 + "k" : String(Number(value) || 0);
 
 function eventChips(card, { onOpenVenue = null, today = "" } = {}) {
@@ -128,13 +145,14 @@ export const ChristmasRailCard = memo(function ChristmasRailCard({ card, index, 
     onShare={place && onShare ? () => onShare(place, { city }) : undefined} />;
 });
 
-function ChristmasRailSection({ rail, lat, lng, onOpenPlace, onTrack, city, isSaved, liked, disliked, isLiked, isDisliked, onSave, onLike, onDislike, onShare }) {
+function ChristmasRailSection({ rail, order = 0, lat, lng, onOpenPlace, onTrack, city, isSaved, liked, disliked, isLiked, isDisliked, onSave, onLike, onDislike, onShare }) {
   const seedItems = useMemo(() => rail.cards || [], [rail]);
   const params = useMemo(() => (lat != null && lng != null ? { lat, lng, rail: rail.id } : null), [lat, lng, rail.id]);
   const { items: pagedItems, total, sentinelIndex, sentinelRef, loading, loadingMore, error, fetchMore } = usePagedRail(
     "/api/events/christmas", params, { enabled: !!params, seedItems, seedTotal: Number.isFinite(rail.total) ? rail.total : (rail.cards || []).length, itemsKey: "cards" },
   );
   const curatorPicks = useCuratorPicks();
+  const staged = useStagedMount(order);
   const now = useEventClock();
   const nowStamp = now.getTime();
   const today = siteTodayStr(now);
@@ -156,7 +174,7 @@ function ChristmasRailSection({ rail, lat, lng, onOpenPlace, onTrack, city, isSa
   const railId = "christmas-intent-" + rail.id;
   const renderState = railRenderState(items, { loading, error });
   if (renderState === RAIL_RENDER_STATE.HIDDEN) return null;
-  if (renderState === RAIL_RENDER_STATE.LOADING) return <section aria-label={rail.title} style={{ marginTop: 22 }}>
+  if (renderState === RAIL_RENDER_STATE.LOADING || !staged) return <section aria-label={rail.title} style={{ marginTop: 22 }}>
     <RailHeading title={rail.title} description={rail.deck} />
     <RailLoading label={`Loading ${rail.title}`} />
   </section>;
@@ -199,7 +217,32 @@ export const CHRISTMAS_TOUR_RAIL_TITLE = "Christmas Light Tours";
 export const CHRISTMAS_TOUR_RAIL_DECK = "Boat, sailboat and golf cart light tours you can book.";
 const TOUR_SURFACE = "christmas_tile_tours";
 
+// One tour card: a memo of the stable `card` row, so the page's per-commit re-render of this rail skips it.
+const TourRailCard = memo(function TourRailCard({ card, index, track }) {
+  return <RailCard key={card.id} className="wf-exploding-primary"
+    photo={card.image || null} photoFallbackCategory="christmas" eagerMedia={index < 3}
+    photoAttr={card.credit || null}
+    title={card.title} eyebrow="Light tour" rank={index + 1} score={null}
+    facts={[card.city || null, christmasDistanceLabel({ distMi: card.distMi, approxLocation: true }), card.price ? "from " + card.price : null].filter(Boolean)}
+    chips={card.chip ? [{ key: "type", icon: "🎄", label: card.chip }] : []}
+    take={card.when || null}
+    cta={{
+      label: card.label, href: card.href, external: true, sponsored: true,
+      onClick: () => {
+        try { track("tickets_out", { kind: TOUR_SURFACE, id: card.id, name: card.title, deal: card.code }); } catch {}
+        import("../../lib/commerce.js").then(({ emitCommerce }) => {
+          try { emitCommerce("commerce_cta_clicked", { surface: TOUR_SURFACE, content_id: card.id, provider: "viator", merchant: card.via, offer_id: String(card.code) }); } catch {}
+        }).catch(() => {});
+      },
+    }}
+    ariaLabel={`See availability for ${card.title} on Viator`}
+    actionItem={{ id: card.id, type: "experience", title: card.title, image: card.image || null, url: card.href, provider: "viator" }} />;
+});
+
 export function ChristmasTourRail({ tours, onTrack }) {
+  const trackRef = useRef(onTrack);
+  trackRef.current = onTrack;
+  const track = useCallback((...args) => (trackRef.current ? trackRef.current(...args) : undefined), []);
   const cards = Array.isArray(tours) ? tours.filter((t) => t && t.id && t.href && t.title) : [];
   if (!cards.length) return null;
   return <section aria-label={CHRISTMAS_TOUR_RAIL_TITLE} style={{ marginTop: 22 }}>
@@ -208,24 +251,7 @@ export function ChristmasTourRail({ tours, onTrack }) {
     </RailHeading>
     <p style={{ margin: "0 0 8px", fontSize: 13, lineHeight: 1.45, color: COLORS.muted }}>{AFFILIATE_DISCLOSURE_TEXT}</p>
     <div className="wf-rail wf-rail-exploding wf-christmas" data-rail={CHRISTMAS_TOUR_RAIL_ID} tabIndex={0} role="region" aria-label={CHRISTMAS_TOUR_RAIL_TITLE}>
-      {cards.map((card, index) => <RailCard key={card.id} className="wf-exploding-primary"
-        photo={card.image || null} photoFallbackCategory="christmas" eagerMedia={index < 3}
-        photoAttr={card.credit || null}
-        title={card.title} eyebrow="Light tour" rank={index + 1} score={null}
-        facts={[card.city || null, christmasDistanceLabel({ distMi: card.distMi, approxLocation: true }), card.price ? "from " + card.price : null].filter(Boolean)}
-        chips={card.chip ? [{ key: "type", icon: "🎄", label: card.chip }] : []}
-        take={card.when || null}
-        cta={{
-          label: card.label, href: card.href, external: true, sponsored: true,
-          onClick: () => {
-            try { onTrack?.("tickets_out", { kind: TOUR_SURFACE, id: card.id, name: card.title, deal: card.code }); } catch {}
-            import("../../lib/commerce.js").then(({ emitCommerce }) => {
-              try { emitCommerce("commerce_cta_clicked", { surface: TOUR_SURFACE, content_id: card.id, provider: "viator", merchant: card.via, offer_id: String(card.code) }); } catch {}
-            }).catch(() => {});
-          },
-        }}
-        ariaLabel={`See availability for ${card.title} on Viator`}
-        actionItem={{ id: card.id, type: "experience", title: card.title, image: card.image || null, url: card.href, provider: "viator" }} />)}
+      {cards.map((card, index) => <TourRailCard key={card.id} card={card} index={index} track={track} />)}
     </div>
     {cards.length > 1 ? <RailDots railId={CHRISTMAS_TOUR_RAIL_ID} count={cards.length} /> : null}
   </section>;
@@ -294,7 +320,7 @@ export default function ChristmasIntentRails({
   // Each rail links its OWN guide (owner, 2026-10-08), carried server side on
   // rail.guide and placed INSIDE that rail as its third card (RailGuideSlot,
   // lib/railGuideSlot.js): nothing renders between the rails.
-  return <>{withChristmasTourRail(withMoviesRail(payload.rails.map((rail) => <ChristmasRailSection key={`${today}:${rail.id}`} rail={rail} lat={lat} lng={lng} onOpenPlace={onOpenPlace} onTrack={onTrack} city={city}
+  return <>{withChristmasTourRail(withMoviesRail(payload.rails.map((rail, order) => <ChristmasRailSection key={`${today}:${rail.id}`} rail={rail} order={order} lat={lat} lng={lng} onOpenPlace={onOpenPlace} onTrack={onTrack} city={city}
     isSaved={isSaved} liked={liked} disliked={disliked} isLiked={isLiked} isDisliked={isDisliked}
     onSave={onSave} onLike={onLike} onDislike={onDislike} onShare={onShare} />), <SeasonalMoviesRail key="seasonal-movies" collection="christmas" active={active} onTrack={onTrack} />),
     payload.rails, Array.isArray(payload.tours) && payload.tours.length ? <ChristmasTourRail key="christmas-tours" tours={payload.tours} onTrack={onTrack} /> : null)}
