@@ -106,7 +106,7 @@ try {
   check("lane writing a proposal is allowed", r2.code === 0 && /OK/.test(r2.out), `code ${r2.code}: ${r2.out.trim()}`);
 
   // 2026-09-23: a commit AUTHORED as the owner is no longer approval (anyone can type
-  // the name). Approval is a GitHub-authenticated "/owner-approve <head sha>" comment,
+  // the name). Approval is the owner's GitHub review of the protected-content fingerprint,
   // verified only on the merge gate; see scripts/test-owner-approval.mjs.
   const ownerRules = clone("owner-rules");
   commitFile(ownerRules, "AGENTS.md", "# rules\n\n## 1. First rule\n\n## 2. Owner wrote this\n", OWNER);

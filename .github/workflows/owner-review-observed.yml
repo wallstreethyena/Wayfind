@@ -1,0 +1,22 @@
+# .github/workflows/owner-review-observed.yml — OWNER REVIEW MARKER (Owner
+# Approval V2, 2026-11-13).
+#
+# A pull_request_review workflow runs from the pull request's own merge commit,
+# so this file must never decide, post or write anything. It has no permissions
+# and no code: it only exists so its completion triggers
+# owner-approval-recheck.yml (workflow_run), which GitHub always runs from main.
+# Only the owner's account id starts it; nobody else's review re-runs anything.
+name: owner-review-observed
+on:
+  pull_request_review:
+    types: [submitted, edited, dismissed]
+permissions: {}
+jobs:
+  observed:
+    name: owner-review-observed
+    if: github.event.review.user.id == 297334934 && github.event.review.user.type == 'User'
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Owner review observed
+        run: echo "owner review observed; owner-approval-recheck decides nothing and re-runs the gates from main"

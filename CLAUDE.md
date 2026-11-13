@@ -42,7 +42,7 @@ surfaced as the exact manual action needed, never routed around.
 7. materially expand the mission;
 8. create significant irreversible risk.
 Everything else is execution. This section never relaxes any other rule in this file
-(owner-only files still need `/owner-approve <head sha>`; full prebuild green before merge).
+(owner-only files still need the owner's GitHub review, Review changes → Approve; full prebuild green before merge).
 
 **Manual Action Minimization.** Never tell Gabriel that work is "waiting on him" without
 first proving the remaining action needs the owner's identity, credentials, MFA, CAPTCHA,
@@ -81,6 +81,18 @@ Locked by `scripts/check-claude-md-owner-sections.mjs` (this section and every t
 safety section must stay present).
 
 ---
+
+## No Magic Owner Comments (owner directive, 2026-11-13)
+
+- **Never ask Gabriel to paste `/owner-approve <SHA>`** or any other command or comment as
+  the normal approval flow.
+- Owner approval is an authenticated GitHub PR review (Review changes → Approve) by the
+  owner's account, bound to the fingerprint of the protected (owner-only) content.
+- Rebases, main moving and unrelated changes never invalidate it while the protected content
+  is unchanged. A fresh review is needed only when owner-controlled content materially changes.
+- **Never create scheduled reminders or check-ins to nag for approval.**
+- If approval is genuinely required, request one normal GitHub Approve action in the
+  MANUAL ACTION REQUIRED format (no SHA, no command) and stay silent until it happens.
 
 ## Booking integrity (no frozen lanes — these files are normal code)
 
@@ -148,8 +160,9 @@ safety section must stay present).
 2. Assertion-guarded splice + a lock test wired into `npm run prebuild`.
 3. Full `npm run prebuild` green before commit. Anything red → report-only, do not merge.
 4. Squash-merge + delete branch. **Merges are owner-gated.** Owner-only files (CLAUDE.md,
-   AGENTS.md, `.github/**`, … see `scripts/lib/ownerApproval.mjs`) need an
-   `/owner-approve <head sha>` comment by the owner.
+   AGENTS.md, `.github/**`, … see `scripts/lib/ownerApproval.mjs`) need the owner's GitHub
+   review (Review changes → Approve), bound to the protected-content fingerprint
+   (`docs/OWNER_APPROVAL.md`).
 5. After merge: confirm the merged union is prebuild-green and the Vercel deploy is green.
 
 `gh`/merge traps:

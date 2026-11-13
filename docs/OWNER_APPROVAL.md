@@ -7,8 +7,10 @@ change only with the owner's approval:
 - the pieces that enforce this rule: `scripts/check-doc-ownership.mjs`,
   `scripts/check-owner-approval-pr.mjs`, `scripts/owner-approval-gate.mjs`,
   `scripts/lib/ownerApproval.mjs`, `scripts/lib/githubPullEvidence.mjs`,
-  `scripts/lib/githubAppAuth.mjs`, `scripts/test-owner-approval.mjs`,
-  `scripts/test-owner-approval-gate.mjs`
+  `scripts/lib/githubAppAuth.mjs`, `scripts/owner-approval-recheck.mjs`,
+  this document (`docs/OWNER_APPROVAL.md`),
+  `scripts/test-owner-approval.mjs`, `scripts/test-owner-approval-gate.mjs`,
+  `scripts/test-owner-approval-v2.mjs`
 - **everything under `.github/`**: every workflow and `CODEOWNERS`. A workflow
   can report a check under any name and can read repository secrets, so adding
   or changing one is an owner decision.
@@ -16,28 +18,61 @@ change only with the owner's approval:
 The list lives in `scripts/lib/ownerApproval.mjs` (`OWNER_ONLY`). Paths match
 case-insensitively, because on a Mac `claude.md` is the same file as `CLAUDE.md`.
 
-## What counts as approval
+## What counts as approval (V2, 2026-11-13)
 
-A comment on the pull request, posted from the owner's GitHub account
-(`OWNERS`: login `wallstreethyena` and account id `297334934`, so a renamed
-or re-registered login does not count), with its own line:
+The owner opens the pull request on GitHub and clicks **Review changes → Approve**.
+Nothing to paste: no command, no commit sha, no comment.
 
-```
-/owner-approve <the PR's current head commit, all 40 characters>
-```
+The review counts only when GitHub says it came from the owner's account
+(`OWNERS`: login `wallstreethyena` **and** account id `297334934`, account type
+`User`). A bot, an App, another user, or the owner's login on a different account
+id never counts. The owner's **latest decisive** review decides: a later
+"Request changes" withdraws an approval, a **dismissed** review approves nothing
+(dismissing the owner's "Request changes" never brings an older approval back), and
+a comment-only review neither grants nor withdraws.
 
-The failing check prints the exact line to paste. A shortened sha does not
-count, because a different commit with the same short prefix can be made on
-purpose. An **edited** comment does not count either: anyone with write access
-(an App included) can edit a comment without changing its author, so an approval
-counts only as first posted. To change one, post a new comment.
+### The approval binds to the protected content, not to a commit
 
-GitHub authenticates who posted a comment, so it can't be faked by editing a
-commit. The command names one exact commit. Pushing anything new changes the
-head, so the old approval stops matching and the owner has to approve again.
+The gate computes a **protected-content fingerprint** for a commit:
 
-**What does not count:** commit author or committer names (anyone can type
-"Gabriel Pereira" into a commit), labels, and a green local run.
+1. the merge base of that commit with `main`;
+2. for every owner-only path that differs between the merge base and the commit:
+   path, base entry (mode, type, blob sha) and proposed entry (or "absent" for an
+   added or removed file);
+3. sha256 of those rows, sorted by path.
+
+The approval is valid while the fingerprint of the **reviewed commit** equals the
+fingerprint of the **live head**. So:
+
+- **Still approved:** rebasing, `main` moving, a new merge base, unrelated app
+  changes, generated registries, migration receipts, CI metadata, line-number
+  movement, and conflict resolution outside owner-only files.
+- **Needs a fresh Approve:** any changed byte or mode in an owner-only file, a
+  `.github/**` change, a change to the approval code itself, an owner-only file
+  added or removed, `main` changing an owner-only file this pull request also
+  changes (the approved diff no longer applies to the same base), or the pull
+  request's **base branch changed** after the review.
+
+It also fails closed when the head is behind `main` (the protected diff would not
+be the one that merges; update the branch), when the fingerprint does not cover
+exactly the protected paths GitHub lists as changed, and when a re-run started on
+an older `main` (an older rule never re-judges).
+
+Blob shas are git's own content hashes, read from GitHub's git data API, so the
+fingerprint is cryptographic: two different file contents cannot share one.
+
+After the owner approves, the workflows re-run on their own (see "Re-running");
+nobody needs to press anything.
+
+**What does not count:** commit author or committer names, labels, a green local
+run, any review from a bot or App, and any comment that is not the legacy form below.
+
+### Legacy comments (transition only)
+
+An `/owner-approve <full head sha>` comment from the owner is still **read** for
+pull requests approved that way before V2, with its old rules (exact head, unedited).
+It is never requested: no refusal message, doc or agent asks for it. It will be
+removed once no open pull request relies on it.
 
 ## Where it is checked
 
@@ -60,8 +95,24 @@ while it was being read).
 A local run fails whenever an owner-only file changed, because it can't see
 approvals. That is on purpose: a local pass must never look like approval.
 
-After the owner comments, re-run both checks on the pull request (the
-"Re-run jobs" button on each), or push again and approve the new head.
+Both read the pull request's reviews, fingerprint the protected content of the
+live head and of the reviewed commit, re-read the head afterwards and fail closed
+if it moved (a stale run never passes on old evidence).
+
+## Re-running after a review
+
+A review does not start `pull_request_target` runs, so two small workflows close
+the loop without trusting the pull request:
+
+1. `owner-review-observed.yml` runs on `pull_request_review`, only when the
+   reviewer's account id is the owner's. It has no permissions, no checkout and
+   no code: it only exists so its completion can be observed.
+2. `owner-approval-recheck.yml` runs on `workflow_run` of (1), which GitHub runs
+   from `main`. It checks out `main` without credentials and runs
+   `scripts/owner-approval-recheck.mjs`, which re-runs the latest **failed**
+   `owner-approval` and `guards` runs for the pull request's **live** head. It
+   decides nothing: the re-run gates judge from scratch with `main`'s rule.
+   The Owner Gate App workflow also listens to (1) directly.
 
 ## The Owner Gate App (the check a pull request cannot fake)
 
@@ -75,7 +126,7 @@ The free fix is a third required check, **`owner-approval-gate`**, created by a
 GitHub App the owner owns (the "Owner Gate App"):
 
 - `.github/workflows/owner-approval-gate.yml` runs `scripts/owner-approval-gate.mjs`
-  on `pull_request_target` and `issue_comment`. GitHub runs both from `main`.
+  on `pull_request_target`, `issue_comment` and `workflow_run`. GitHub runs all three from `main`.
 - The script applies the same rule as above and creates the check run with the
   App's installation token. GitHub records that check as coming from the App.
 - The App's private key is a secret of the `owner-gate` environment, which only
@@ -105,11 +156,11 @@ protection or the gate key, or post the gate check. Its private key lives at
 no script prints, logs or commits it. Actions write (needed to re-run jobs) also
 lets it cancel or start runs and disable or enable workflows; none of that changes
 what a workflow does, and a disabled required check can only block a merge. (The gate also refuses
-re-runs, so re-running an old run cannot apply an older rule.) An `/owner-approve` comment from `wayfind-agents[bot]`
+re-runs, so re-running an old run cannot apply an older rule.) A review or comment from `wayfind-agents[bot]`
 never counts (it is not the owner's account).
 
 After the switch, the owner's own GitHub login is removed from the machines agents
-run on, so an owner comment is something only the owner can post, from the GitHub
+run on, so an owner review is something only the owner can submit, from the GitHub
 website or app.
 
 ## Turning on the Owner Gate App
@@ -148,8 +199,8 @@ admin rights), and without turning off `guards` or `owner-approval`:
 5. Prove `wayfind-agents[bot]` can push branches, open and edit pull requests,
    comment and re-run jobs, and cannot push workflow changes, touch branch
    protection, environments, secrets or variables, push to main, merge an
-   unapproved change, or produce a passing gate check (by posting it, commenting
-   `/owner-approve`, editing an owner comment, or re-running the gate). Then switch
+   unapproved change, or produce a passing gate check (by posting it, submitting
+   an Approve review, editing an owner comment, or re-running the gate). Then switch
    agents to the App.
 6. The owner revokes his GitHub CLI login (github.com/settings/applications); the
    agent confirms GitHub rejects it and erases it from the Mac.

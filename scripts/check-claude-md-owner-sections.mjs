@@ -4,12 +4,13 @@
 // silently dropped (owner directive, 2026-11-12).
 //
 // CLAUDE.md is owner-only (scripts/lib/ownerApproval.mjs): every edit already
-// needs an "/owner-approve <head sha>" comment. That stops unapproved edits but
+// needs the owner's GitHub review (Review changes → Approve). That stops unapproved edits but
 // not an approved edit that quietly loses a rule along the way. This guard
 // pins what must stay:
 //   - the GABRIEL EXECUTION AUTONOMY section, exactly once, with its manual
 //     action format, its eight hard stops, its no-bypass clause and its
 //     "never relaxes any other rule" clause;
+//   - the No Magic Owner Comments section (2026-11-13), exactly once, with its clauses;
 //   - every top-level safety section and the core safety sentences they carry.
 // Changing a pinned rule on purpose means editing this guard in the same
 // owner-approved PR, so the change is visible in review.
@@ -24,6 +25,18 @@ import { fileURLToPath } from "node:url";
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const AUTONOMY = "## GABRIEL EXECUTION AUTONOMY";
+
+const NO_MAGIC = "## No Magic Owner Comments";
+const NO_MAGIC_CLAUSES = [
+  "**Never ask Gabriel to paste `/owner-approve <SHA>`**",
+  "authenticated GitHub PR review (Review changes → Approve)",
+  "fingerprint of the protected (owner-only) content",
+  "Rebases, main moving and unrelated changes never invalidate it",
+  "A fresh review is needed only when owner-controlled content materially changes.",
+  "**Never create scheduled reminders or check-ins to nag for approval.**",
+  "request one normal GitHub Approve action",
+  "stay silent until it happens",
+];
 
 export const SAFETY_SECTIONS = [
   "## Booking integrity",
@@ -53,7 +66,7 @@ const AUTONOMY_CLAUSES = [
   "**A tool confirmation dialog is not a new decision.**",
   "Never bypass, imitate or work around a denied action or a platform safety gate",
   "This section never relaxes any other rule in this file",
-  "`/owner-approve <head sha>`",
+  "owner-only files still need the owner's GitHub review",
   "**Blocked does not mean stop.**",
   "**No implementation diary.**",
   "**Completion standard.**",
@@ -82,6 +95,9 @@ export function evaluate(text) {
     const stops = body.split("\n").filter((l) => /^[1-8]\. /.test(l)).map((l) => Number(l[0]));
     if (stops.join(",") !== "1,2,3,4,5,6,7,8") errors.push(`autonomy section must list hard stops 1 to 8 in order (found ${stops.join(",") || "none"})`);
   }
+  if (headingCount(NO_MAGIC) !== 1) errors.push(`expected exactly one "${NO_MAGIC}" heading, found ${headingCount(NO_MAGIC)}`);
+  const noMagic = sectionBody(text, NO_MAGIC) || "";
+  for (const c of NO_MAGIC_CLAUSES) if (!noMagic.includes(c)) errors.push(`no-magic-comments section lost: ${c}`);
   for (const h of SAFETY_SECTIONS) if (headingCount(h) !== 1) errors.push(`safety section "${h}" must appear exactly once (found ${headingCount(h)})`);
   for (const s of SAFETY_SENTENCES) if (!text.includes(s)) errors.push(`safety rule lost: ${s}`);
   return errors;
@@ -112,9 +128,13 @@ mutate("manual action minimization removed", "**Manual Action Minimization.**", 
 mutate("booking safety section removed", sectionBody(real, "## Booking integrity") || "\u0000", "");
 mutate("owner-gated merges removed", "**Merges are owner-gated.**", "Merge freely.");
 mutate("autonomy section duplicated", autonomy, autonomy + autonomy);
+const noMagicBody = sectionBody(real, NO_MAGIC) || "\u0000";
+mutate("no-magic-comments section removed", noMagicBody, "");
+mutate("no-nag-reminders clause removed", "**Never create scheduled reminders or check-ins to nag for approval.**", "**Remind Gabriel daily.**");
+mutate("fingerprint binding removed", "fingerprint of the protected (owner-only) content", "exact head commit");
 
 if (fail.length) {
   console.error("check-claude-md-owner-sections: FAIL\n  " + fail.join("\n  "));
   process.exit(1);
 }
-console.log(`check-claude-md-owner-sections: OK — ${assertions} assertions: CLAUDE.md carries the GABRIEL EXECUTION AUTONOMY section once (${AUTONOMY_CLAUSES.length} clauses, hard stops 1 to 8), ${SAFETY_SECTIONS.length} safety sections exactly once and ${SAFETY_SENTENCES.length} core safety sentences; 9 negative controls each went red. False-positive surface: an owner-approved rewording of a pinned sentence fails here until this guard is updated in the same PR.`);
+console.log(`check-claude-md-owner-sections: OK — ${assertions} assertions: CLAUDE.md carries the GABRIEL EXECUTION AUTONOMY section once (${AUTONOMY_CLAUSES.length} clauses, hard stops 1 to 8), the No Magic Owner Comments section once (${NO_MAGIC_CLAUSES.length} clauses), ${SAFETY_SECTIONS.length} safety sections exactly once and ${SAFETY_SENTENCES.length} core safety sentences; 12 negative controls each went red. False-positive surface: an owner-approved rewording of a pinned sentence fails here until this guard is updated in the same PR.`);

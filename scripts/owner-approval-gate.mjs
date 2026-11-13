@@ -19,8 +19,9 @@
  *     that workflow (or add another) without the owner's approval.
  *
  * WHAT IT DECIDES. Exactly what check-owner-approval-pr decides (the same
- * scripts/lib/ownerApproval.mjs): owner-only files may change only with an
- * "/owner-approve <full head sha>" comment from the owner's account. The pull
+ * scripts/lib/ownerApproval.mjs): owner-only files may change only with the
+ * owner's GitHub review (Review changes → Approve) of the same protected
+ * content (Owner Approval V2, 2026-11-13). The pull
  * request is read only as API data with the read-only GITHUB_TOKEN; nothing from
  * it is checked out or run. The App token is used for one call: creating the
  * check run.
@@ -31,7 +32,7 @@
  */
 import { readFileSync } from "node:fs";
 import { decideOwnerApproval } from "./lib/ownerApproval.mjs";
-import { fetchPullEvidence } from "./lib/githubPullEvidence.mjs";
+import { gatherOwnerApprovalEvidence } from "./lib/githubPullEvidence.mjs";
 import { mintInstallationToken } from "./lib/githubAppAuth.mjs";
 
 const CHECK_NAME = "owner-approval-gate";
@@ -57,7 +58,7 @@ if (env.GITHUB_REF !== "refs/heads/main") refuse(`this runs only in main's conte
 if (String(env.GITHUB_RUN_ATTEMPT || "") !== "1") refuse(`re-runs are not accepted (run attempt "${env.GITHUB_RUN_ATTEMPT || ""}"): push again or comment to re-evaluate, so main's current rule decides`);
 
 const eventName = String(env.GITHUB_EVENT_NAME || "");
-if (eventName !== "pull_request_target" && eventName !== "issue_comment") refuse(`the gate decides only on pull_request_target or issue_comment, not "${eventName || "unknown"}"`);
+if (!["pull_request_target", "issue_comment", "workflow_run"].includes(eventName)) refuse(`the gate decides only on pull_request_target, issue_comment or workflow_run (an owner review was observed), not "${eventName || "unknown"}"`);
 let event;
 try { event = JSON.parse(readFileSync(String(env.GITHUB_EVENT_PATH || ""), "utf8")); } catch (e) { refuse(`cannot read the GitHub event payload (${e.message})`); }
 
@@ -66,6 +67,15 @@ let eventHeadSha = null;
 if (eventName === "pull_request_target") {
   number = event && event.pull_request && event.pull_request.number;
   eventHeadSha = String((event.pull_request && event.pull_request.head && event.pull_request.head.sha) || "");
+} else if (eventName === "workflow_run") {
+  // An owner review was observed by owner-review-observed.yml. The payload is
+  // only a pointer to the pull request; every fact is read live from the API.
+  const prs = (event && event.workflow_run && Array.isArray(event.workflow_run.pull_requests)) ? event.workflow_run.pull_requests : [];
+  if (prs.length !== 1) {
+    say(`the observed review names ${prs.length} pull requests; nothing to decide`);
+    process.exit(0);
+  }
+  number = prs[0].number;
 } else {
   if (!event || !event.issue || !event.issue.pull_request) {
     say("comment is on an issue, not a pull request; nothing to decide");
@@ -85,7 +95,7 @@ if (!/^https:\/\/[^\s/]+/.test(api)) refuse("GITHUB_API_URL is missing or not an
 let live = null;
 let evidenceError = null;
 try {
-  live = await fetchPullEvidence({ api, repo, token, number }, { withFiles: true });
+  live = await gatherOwnerApprovalEvidence({ api, repo, token, number });
 } catch (e) {
   evidenceError = String((e && e.message) || e);
 }
@@ -107,7 +117,10 @@ const verdict = evidenceError
     changedPaths: live.files,
     mergeGate: true,
     pr: { number, eventHeadSha: live.liveHeadSha, liveHeadSha: live.liveHeadSha },
+    reviews: live.reviews,
     comments: live.comments,
+    fingerprints: live.fingerprints,
+  baseChangedAt: live.baseChangedAt,
     error: null,
   });
 
