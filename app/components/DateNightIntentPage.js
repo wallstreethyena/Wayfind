@@ -84,7 +84,20 @@ export default function DateNightIntentPage() {
 
   const share = () => {
     const url = canonicalShareUrl(typeof window !== "undefined" ? window.location.href : "/date-night");
-    openShareFlow({ title: header.eyebrow || "Date night", url }, () => { setCopied(true); setTimeout(() => setCopied(false), 1800); });
+    openShareFlow({ title: header.eyebrow || "Date night", url, city: loc.city || "", surface: "date_night" }, () => { setCopied(true); setTimeout(() => setCopied(false), 1800); });
+  };
+
+  const askSomeone = () => {
+    const url = canonicalShareUrl(typeof window !== "undefined" ? window.location.href : "/date-night");
+    openShareFlow({
+      title: header.eyebrow || "Date night",
+      url,
+      city: loc.city || "",
+      kind: "dinner",
+      surface: "date_night",
+      geo: Number.isFinite(loc.lat) && Number.isFinite(loc.lng) ? `${loc.lat},${loc.lng}` : "",
+      directInvite: true,
+    }, () => { setCopied(true); setTimeout(() => setCopied(false), 1800); });
   };
 
   return (
@@ -101,9 +114,19 @@ export default function DateNightIntentPage() {
       imageTitle={header.imageTitle}
       dekLead={header.dekLead}
       actionSlot={(
-        <button onClick={share} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, minHeight: 46, padding: "10px 20px", borderRadius: 14, border: "1px solid rgba(17,24,36,.12)", background: def.accent, color: "#111824", fontSize: 12.5, fontWeight: 850, cursor: "pointer", whiteSpace: "nowrap" }}>
-          {copied ? "Link copied" : "Share this list"} <span aria-hidden="true">↗</span>
-        </button>
+        <div style={{ display: "inline-flex", flexWrap: "wrap", alignItems: "center", gap: 8 }}>
+          <button
+            type="button"
+            data-wf-ask-someone="date_night"
+            onClick={askSomeone}
+            style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, minHeight: 46, padding: "10px 18px", borderRadius: 14, border: "1px solid rgba(17,24,36,.18)", background: "#111824", color: "#F8FAFC", fontSize: 12.5, fontWeight: 850, cursor: "pointer", whiteSpace: "nowrap" }}
+          >
+            <span aria-hidden="true">♡</span> Ask someone out
+          </button>
+          <button onClick={share} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, minHeight: 46, padding: "10px 20px", borderRadius: 14, border: "1px solid rgba(17,24,36,.12)", background: def.accent, color: "#111824", fontSize: 12.5, fontWeight: 850, cursor: "pointer", whiteSpace: "nowrap" }}>
+            {copied ? "Link copied" : "Share this list"} <span aria-hidden="true">↗</span>
+          </button>
+        </div>
       )}
     >
       {/* v8.92 — the rails moved into <DateNightRails> so the DROP and this

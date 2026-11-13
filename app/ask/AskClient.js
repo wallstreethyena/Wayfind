@@ -2,7 +2,7 @@
 import { shareOut } from "../../lib/shareOut.js";
 import { concreteSharePlaceId, groupPlanHref } from "../../lib/shareContext.js";
 import { addStopToStoredTrips } from "../../lib/itineraryAdd.js";
-import { track } from "../../lib/track.js";
+import { track, recordInviteRecipient } from "../../lib/track.js";
 import { useState, useMemo, useEffect, useRef } from "react";
 import { Cat, Heart, Portrait, Couple } from "./pixel.js";
 import { ASK_CSS } from "./style.js";
@@ -10,6 +10,7 @@ import {
   ACTIVITIES, activityFor, activityHref, activityLinkLabel, askHeadline, yayLine,
   pleaAt, moodAt, yesText, noText, needsName, planFitsPlace, datedCardPath,
   inviteKinds, inviteDirectionsHref, inviteCalendarEvent, inviteItineraryStop,
+  eventDateMismatch, eventVenueTimeZone, isEventDatePast,
 } from "../../lib/dateInvite.js";
 import { styleHtml } from "../../lib/styleHtml.js";
 
@@ -97,8 +98,27 @@ function Decor() {
   );
 }
 
-function Calendar({ value, onPick }) {
-  const today = useMemo(() => { const d = new Date(); d.setHours(0, 0, 0, 0); return d; }, []);
+function venueTodayDate(timeZone) {
+  const now = new Date();
+  try {
+    const parts = new Intl.DateTimeFormat("en-CA", {
+      timeZone: timeZone || "America/New_York",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    }).formatToParts(now);
+    const y = Number((parts.find((p) => p.type === "year") || {}).value);
+    const m = Number((parts.find((p) => p.type === "month") || {}).value);
+    const da = Number((parts.find((p) => p.type === "day") || {}).value);
+    if (y && m && da) return new Date(y, m - 1, da);
+  } catch (e) {}
+  const d = new Date(now);
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+
+function Calendar({ value, onPick, timeZone }) {
+  const today = useMemo(() => venueTodayDate(timeZone), [timeZone]);
   const [offset, setOffset] = useState(0);
   const view = new Date(today.getFullYear(), today.getMonth() + offset, 1);
   const first = view.getDay();
@@ -133,6 +153,7 @@ function Calendar({ value, onPick }) {
 }
 
 export default function AskClient({ inv, bad = false }) {
+  const venueTz = useMemo(() => eventVenueTimeZone(inv && inv.geo), [inv && inv.geo]);
   const proposedWhen = useMemo(() => parseInviteWhen(inv && inv.when), [inv && inv.when]);
   const suggested = useMemo(() => inviteKinds(inv), [inv]);
 
@@ -148,12 +169,25 @@ export default function AskClient({ inv, bad = false }) {
   const [look, setLook] = useState({ x: 0, y: 0 });
   const [eager, setEager] = useState(0);
 
+  const scheduledEventWhen = useMemo(
+    () => parseInviteWhen(inv && inv.eventDate ? String(inv.eventDate).split(",")[0].split("..")[0] : ""),
+    [inv && inv.eventDate]
+  );
+  const [detachedEvent, setDetachedEvent] = useState(false);
+  const inviteSurface = (inv && inv.surface) || "direct";
+
   const loadedRef = useRef(false);
   useEffect(() => {
     if (loadedRef.current) return;
     loadedRef.current = true;
-    track("ask_invite_loaded", { has_invite: Boolean(inv), bad_link: Boolean(bad) });
-  }, [inv, bad]);
+    if (inv) recordInviteRecipient(inv);
+    track("ask_invite_loaded", {
+      has_invite: Boolean(inv),
+      bad_link: Boolean(bad),
+      surface: inviteSurface,
+      has_event_date: Boolean(inv && inv.eventDate),
+    });
+  }, [inv, bad, inviteSurface]);
 
   useEffect(() => {
     if (typeof document === "undefined") return;
@@ -276,27 +310,42 @@ export default function AskClient({ inv, bad = false }) {
 
   const [saving, setSaving] = useState(false);
   const [itinerarySaved, setItinerarySaved] = useState(false);
-  const cardUrl = () => datedCardPath(activity, dayLabel,
-    inv && inv.place && planFitsPlace(inv, activity) ? inv.place : "");
+  const eventIsPast = useMemo(
+    () => Boolean(!detachedEvent && inv && inv.eventDate && isEventDatePast(inv)),
+    [detachedEvent, inv]
+  );
+  const hasEventDateConflict = useMemo(
+    () => Boolean(!detachedEvent && !eventIsPast && inv && inv.place && planFitsPlace(inv, activity) && eventDateMismatch(inv, dayIso)),
+    [detachedEvent, eventIsPast, inv, activity, dayIso]
+  );
+  const effectiveInv = useMemo(() => {
+    if (!inv) return null;
+    if (detachedEvent || hasEventDateConflict || eventIsPast) {
+      return { ...inv, place: "", id: "", eventDate: "", when: "" };
+    }
+    return inv;
+  }, [inv, detachedEvent, hasEventDateConflict, eventIsPast]);
+
+  const cardWhere = (!detachedEvent && !hasEventDateConflict && !eventIsPast && inv && inv.place && (planFitsPlace(inv, activity) ? inv.place : "")) || "";
+  const cardUrl = () => datedCardPath(activity, dayLabel, cardWhere);
 
   const proposedIsPast = useMemo(() => {
     if (!proposedWhen.date) return false;
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const today = venueTodayDate(venueTz);
     return proposedWhen.date < today;
-  }, [proposedWhen.date]);
+  }, [proposedWhen.date, venueTz]);
 
   const calendarEvent = useMemo(
-    () => inviteCalendarEvent(inv, activity, dayIso, dayLabel),
-    [inv, activity, dayIso, dayLabel]
+    () => inviteCalendarEvent(effectiveInv, activity, dayIso, dayLabel),
+    [effectiveInv, activity, dayIso, dayLabel]
   );
   const directionsHref = useMemo(
-    () => inviteDirectionsHref(inv, activity),
-    [inv, activity]
+    () => inviteDirectionsHref(effectiveInv, activity),
+    [effectiveInv, activity]
   );
   const itineraryStop = useMemo(
-    () => inviteItineraryStop(inv, activity, dayLabel),
-    [inv, activity, dayLabel]
+    () => inviteItineraryStop(effectiveInv, activity, dayLabel, dayIso),
+    [effectiveInv, activity, dayLabel, dayIso]
   );
   const groupHref = useMemo(
     () => groupPlanHref(placeId, inv && inv.place),
@@ -304,7 +353,7 @@ export default function AskClient({ inv, bad = false }) {
   );
 
   const saveToItinerary = () => {
-    if (!itineraryStop) return;
+    if (!itineraryStop) return false;
     try {
       if (typeof window !== "undefined" && window.localStorage) {
         let current = {};
@@ -318,7 +367,26 @@ export default function AskClient({ inv, bad = false }) {
           addedVia: "ask_invite",
         });
         if (res && res.trips) {
-          window.localStorage.setItem("wf_trips_v1", JSON.stringify(res.trips));
+          const cleanDay = /^\d{4}-\d{2}-\d{2}$/.test(String(dayIso || "").trim()) ? String(dayIso).trim() : "";
+          const nextTrips = { ...res.trips };
+          for (const k of Object.keys(nextTrips)) {
+            const t = nextTrips[k];
+            if (!t || !Array.isArray(t.items)) continue;
+            if (t.items.some((it) => it && it.id === itineraryStop.id)) {
+              nextTrips[k] = {
+                ...t,
+                items: t.items.map((it) => {
+                  if (!it || it.id !== itineraryStop.id) return it;
+                  return {
+                    ...it,
+                    ...(cleanDay ? { day: it.day || cleanDay } : {}),
+                    note: it.note || itineraryStop.note || "",
+                  };
+                }),
+              };
+            }
+          }
+          window.localStorage.setItem("wf_trips_v1", JSON.stringify(nextTrips));
         }
         if (res && Array.isArray(res.events)) {
           for (const ev of res.events) {
@@ -327,18 +395,39 @@ export default function AskClient({ inv, bad = false }) {
         }
         setItinerarySaved(true);
         track("ask_invite_itinerary_saved", {
-          has_place: Boolean(inv && inv.place && planFitsPlace(inv, activity)),
+          surface: inviteSurface,
+          has_place: Boolean(effectiveInv && effectiveInv.place && planFitsPlace(effectiveInv, activity)),
           activity,
           city,
+          day_iso: dayIso || "",
           already: Boolean(res && res.already),
         });
+        return true;
       }
+    } catch (e) {}
+    return false;
+  };
+
+  const buildRestOfDay = () => {
+    saveToItinerary();
+    track("ask_invite_planner_opened", {
+      surface: inviteSurface,
+      activity,
+      city,
+      day_iso: dayIso || "",
+      has_place: Boolean(effectiveInv && effectiveInv.place),
+    });
+    try {
+      const q = [];
+      if (city) q.push("city=" + encodeURIComponent(city));
+      if (dayIso && /^\d{4}-\d{2}-\d{2}$/.test(dayIso)) q.push("date=" + encodeURIComponent(dayIso));
+      window.location.href = "/itinerary" + (q.length ? "?" + q.join("&") : "");
     } catch (e) {}
   };
 
   const downloadIcs = () => {
     if (!calendarEvent || !calendarEvent.icsText) return;
-    track("ask_invite_calendar_added", { target: "ics", activity, has_place: Boolean(inv && inv.place) });
+    track("ask_invite_calendar_added", { surface: inviteSurface, target: "ics", activity, has_place: Boolean(effectiveInv && effectiveInv.place) });
     try {
       const blob = new Blob([calendarEvent.icsText], { type: "text/calendar;charset=utf-8" });
       const url = URL.createObjectURL(blob);
@@ -582,8 +671,9 @@ export default function AskClient({ inv, bad = false }) {
               <button
                 className="wfx-chip"
                 style={{ width: "100%", marginTop: "14px", minHeight: "48px" }}
-                aria-pressed={dayIso === proposedWhen.iso && dayLabel === proposedWhen.label}
+                aria-pressed={!detachedEvent && dayIso === proposedWhen.iso && dayLabel === proposedWhen.label}
                 onClick={() => {
+                  setDetachedEvent(false);
                   setDayIso(proposedWhen.iso);
                   setDayLabel(proposedWhen.label);
                 }}>
@@ -595,19 +685,68 @@ export default function AskClient({ inv, bad = false }) {
                 The originally proposed date ({proposedWhen.label}) has passed — pick a fresh day below.
               </div>
             ) : null}
-            <Calendar value={dayIso} onPick={(iso, d) => {
+            {eventIsPast && inv && inv.place ? (
+              <div className="wfx-alert" role="status" data-event-date-past="1">
+                <div>
+                  <b>Heads up:</b> The scheduled dates for {inv.place} have passed.
+                </div>
+                <div className="wfx-pivots" style={{ marginTop: "8px" }}>
+                  <button
+                    type="button"
+                    className="wfx-pivot-btn"
+                    onClick={() => {
+                      setDetachedEvent(true);
+                      track("ask_invite_action", { action: "detach_past_event", surface: inviteSurface });
+                    }}>
+                    {"Keep " + (dayLabel || "this date") + " & pick another spot"}
+                  </button>
+                </div>
+              </div>
+            ) : null}
+            {hasEventDateConflict ? (
+              <div className="wfx-alert" role="status" data-event-date-mismatch="1">
+                <div>
+                  <b>Heads up:</b> {inv.place} is scheduled for {scheduledEventWhen.label || inv.eventDate}, not {dayLabel || dayIso}.
+                </div>
+                <div className="wfx-pivots" style={{ marginTop: "8px" }}>
+                  <button
+                    type="button"
+                    className="wfx-pivot-btn"
+                    onClick={() => {
+                      setDetachedEvent(false);
+                      setDayIso(scheduledEventWhen.iso || proposedWhen.iso);
+                      setDayLabel(scheduledEventWhen.label || proposedWhen.label);
+                    }}>
+                    {"Use event date (" + (scheduledEventWhen.label || inv.eventDate) + ")"}
+                  </button>
+                  <button
+                    type="button"
+                    className="wfx-pivot-btn"
+                    onClick={() => {
+                      setDetachedEvent(true);
+                      track("ask_invite_action", { action: "detach_dated_event", surface: inviteSurface });
+                    }}>
+                    {"Keep " + (dayLabel || "this date") + " & pick another spot"}
+                  </button>
+                </div>
+              </div>
+            ) : null}
+            <Calendar value={dayIso} timeZone={venueTz} onPick={(iso, d) => {
               setDayIso(iso);
               setDayLabel(d.toLocaleDateString(undefined, { weekday: "short", month: "long", day: "numeric" }));
             }} />
             <button className="wfx-go" disabled={!dayIso} onClick={() => {
               track("ask_invite_date_selected", {
+                surface: inviteSurface,
                 day_iso: dayIso,
                 kept_proposed: Boolean(proposedWhen.iso && dayIso === proposedWhen.iso),
+                event_date_mismatch: hasEventDateConflict,
               });
               track("ask_invite_completed", {
+                surface: inviteSurface,
                 activity,
                 day_iso: dayIso,
-                has_place: Boolean(inv && inv.place && planFitsPlace(inv, activity)),
+                has_place: Boolean(effectiveInv && effectiveInv.place && planFitsPlace(effectiveInv, activity)),
                 city,
               });
               setStep("done");
@@ -623,11 +762,13 @@ export default function AskClient({ inv, bad = false }) {
             <div className="wfx-card">
               <div><b>When</b> · {dayLabel}</div>
               <div><b>What</b> · {(activityFor(activity) || {}).label}</div>
-              {inv && inv.place && planFitsPlace(inv, activity)
+              {!detachedEvent && !hasEventDateConflict && !eventIsPast && inv && inv.place && planFitsPlace(inv, activity)
                 ? <div><b>{from ? from + "'s idea" : "Their idea"}</b> · {inv.place}{city ? " (" + city + ")" : ""}</div>
-                : (inv && inv.place
-                    ? <div><b>New plan</b> · not {inv.place} then — pick the spot below</div>
-                    : null)}
+                : ((detachedEvent || hasEventDateConflict || eventIsPast) && inv && inv.place
+                    ? <div><b>Date note</b> · {inv.place} runs on {scheduledEventWhen.label || inv.eventDate} — pick a spot for {dayLabel} below</div>
+                    : (inv && inv.place
+                        ? <div><b>New plan</b> · not {inv.place} then — pick the spot below</div>
+                        : null))}
               {inv && inv.note ? <div><b>Note</b> · “{inv.note}”</div> : null}
               {from ? <div><b>With</b> · {from}</div> : null}
               {(who || (inv && inv.to)) ? <div><b>From</b> · {who || inv.to}</div> : null}
@@ -667,17 +808,20 @@ export default function AskClient({ inv, bad = false }) {
                   {itinerarySaved ? "SAVED TO ITINERARY ✓" : "+ ADD TO WAYFIND ITINERARY"}
                 </button>
               ) : null}
-              {itinerarySaved ? (
-                <a className="wfx-tool-btn wfx-tool-btn-full" href="/itinerary"
-                  onClick={() => track("ask_invite_action", { action: "open_itinerary" })}>
-                  Open Itinerary · Build the rest of the outing →
-                </a>
+              {itineraryStop ? (
+                <button
+                  type="button"
+                  className="wfx-tool-btn wfx-tool-btn-full"
+                  data-wf-build-day="1"
+                  onClick={buildRestOfDay}>
+                  Build the rest of the day →
+                </button>
               ) : null}
               {calendarEvent ? (
                 <>
                   <a className="wfx-tool-btn" href={calendarEvent.googleHref}
                     target="_blank" rel="noopener noreferrer"
-                    onClick={() => track("ask_invite_calendar_added", { target: "google", activity })}>
+                    onClick={() => track("ask_invite_calendar_added", { surface: inviteSurface, target: "google", activity })}>
                     + Google Calendar
                   </a>
                   <button type="button" className="wfx-tool-btn" onClick={downloadIcs}>
@@ -685,16 +829,16 @@ export default function AskClient({ inv, bad = false }) {
                   </button>
                 </>
               ) : null}
-              {placeId && inv && inv.place && planFitsPlace(inv, activity) ? (
+              {placeId && !detachedEvent && !hasEventDateConflict && !eventIsPast && inv && inv.place && planFitsPlace(inv, activity) ? (
                 <a className="wfx-tool-btn" href={"/p/" + encodeURIComponent(placeId)}
-                  onClick={() => track("ask_invite_action", { action: "open_place" })}>
+                  onClick={() => track("ask_invite_action", { action: "open_place", surface: inviteSurface })}>
                   {"Open " + inv.place + " on Wayfind"}
                 </a>
               ) : null}
               {directionsHref ? (
                 <a className="wfx-tool-btn" href={directionsHref}
                   target="_blank" rel="noopener noreferrer"
-                  onClick={() => track("ask_invite_directions", { has_place: Boolean(inv && inv.place), city })}>
+                  onClick={() => track("ask_invite_directions", { surface: inviteSurface, has_place: Boolean(effectiveInv && effectiveInv.place), city })}>
                   Directions →
                 </a>
               ) : null}

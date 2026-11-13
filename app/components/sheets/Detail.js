@@ -960,13 +960,18 @@ export default function DetailSheet({ ctx }) {
     const placeGeo = detail && Number.isFinite(Number(detail.lat)) && Number.isFinite(Number(detail.lng))
       ? [Number(detail.lat), Number(detail.lng)]
       : null;
+    const detailEventDate = (detail._event && detail._event.date) || "";
     askShareIntent({
       name: detail.name,
       city: ctaCity || locName,
       id: detail.id,
       kind: placeKinds(detail),
+      when: detailEventDate,
+      eventDate: detailEventDate,
+      surface: "place_detail",
       geo: placeGeo,
       startInInvite: !!startInInvite,
+      directInvite: !!startInInvite,
       onPlain: () => shareLink(detail.name, placeShareUrl(detail, locName, blurbLine(blurbs[detail.id])), () => showToast("Link copied"), fallShareLine(`Want to go to ${detail.name} together? Found it on Wayfind`, detail.id, siteTodayStr()), () => { try { logEvent("share", detail, { kind: "place" }); } catch (e) {} giveawayMark(detail.id); addShared(detail); }),
       onInvite: (u, t) => shareLink("A question for you", u, null, t, () => { try { logEvent("share", detail, { kind: "invite", from: startInInvite ? "game_plan" : "place" }); } catch (e) {} giveawayMark(detail.id); addShared(detail); }),
     });
@@ -1441,6 +1446,9 @@ export default function DetailSheet({ ctx }) {
                   </>)}
                   <button data-add-to-trip onClick={addToPlan} aria-label={isSaved(detail.id) ? "In your trip" : "Add to my trip"} style={{ flex: "1 1 46%", minWidth: 104, height: 44, padding: "0 10px", background: isSaved(detail.id) ? C.adim : "rgba(255,255,255,.035)", border: `1px solid ${isSaved(detail.id) ? C.light : C.border}`, borderRadius: 12, color: isSaved(detail.id) ? C.light : C.text, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6, fontSize: 12.5, fontWeight: 800, whiteSpace: "nowrap" }}>{isSaved(detail.id) ? "\u2713 In my trip" : "\u2661 Add to my trip"}</button>
                   <button onClick={() => openDetailShare(false)} aria-label={lunchChallengeView ? "Challenge someone for Lunch in My City" : "Share"} style={{ flex: "1 1 46%", minWidth: 88, height: 44, padding: "0 10px", background: lunchChallengeView ? "linear-gradient(135deg,#F97316,#FBBF24)" : "rgba(255,255,255,.035)", border: `1px solid ${lunchChallengeView ? "#F8D447" : C.border}`, borderRadius: 12, color: lunchChallengeView ? "#10151B" : C.text, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6, fontSize: 12.5, fontWeight: lunchChallengeView ? 900 : 750, whiteSpace: "nowrap" }}><span aria-hidden="true">{lunchChallengeView ? "⚡" : "↗"}</span><span>{lunchChallengeView ? "Challenge" : "Share"}</span></button>
+                  {!lunchChallengeView && (
+                    <button data-detail-ask-someone onClick={() => openDetailShare(true)} aria-label={`Ask someone to ${detail.name}`} style={{ flex: "1 1 100%", minWidth: 120, height: 44, padding: "0 12px", background: "rgba(249,115,22,.1)", border: `1px solid rgba(249,115,22,.38)`, borderRadius: 12, color: C.light, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6, fontSize: 12.5, fontWeight: 800, whiteSpace: "nowrap" }}><span aria-hidden="true">♡</span><span>{detail._event ? "Ask someone to go" : "Ask someone"}</span></button>
+                  )}
                 </div>
               </div>
               {(() => { /* Verified Florida vacation-rental browsing, through the tracked commerce route only. */
