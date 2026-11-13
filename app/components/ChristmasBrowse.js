@@ -21,6 +21,7 @@ import { TicketCard } from "./ChristmasTicketCard.js";
 import { GuideCommissionLine } from "./GuideCommissionLine.js";
 import { reminderFactsFor } from "../../lib/eventReminderFacts.js";
 import { CHRISTMAS_CARD_LABELS, CHRISTMAS_PRICE_UNKNOWN_TEXT, CHRISTMAS_SEASON_UNDATED_TEXT, christmasCopy, christmasPitch, christmasPriceLabel } from "../../lib/christmasCardCopy.js";
+import { styleHtml } from "../../lib/styleHtml.js";
 
 // The map (Apple Maps) loads only when opened.
 const ChristmasMap = dynamic(() => import("./ChristmasMap.js"), { ssr: false, loading: () => <p className="xm-count" role="status">Loading the map…</p> });
@@ -213,7 +214,7 @@ export default function ChristmasBrowse({ initial, facets, today, initialQuery =
       </button>
       {anyFilter ? <button type="button" className="xm-clear" onClick={clearAll}>Reset</button> : null}
     </div>
-    <style dangerouslySetInnerHTML={{ __html: MAP_CSS }} />
+    <style dangerouslySetInnerHTML={styleHtml(MAP_CSS)} />
     {mapOpen ? <div id="xm-map-panel" data-boo-clear=""><ChristmasMap query={query} /></div> : null}
     <p className="xm-count" role="status" aria-live="polite">
       {failed ? "We could not load these listings. Try again in a moment." : loading ? "Updating…" : `${data.total} ${data.total === 1 ? "Christmas plan" : "Christmas plans"}${summary ? " · " + summary : ""}`}

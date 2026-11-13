@@ -78,6 +78,7 @@ import { attributionParams } from "../lib/attribution";
 // map interactions never mint a second $pageview).
 import { noteSessionProgress } from "../lib/activation";
 import { noteExplodingSignup } from "../lib/explodingExperiment";
+import { styleHtml } from "../lib/styleHtml.js";
 // lib/authJourney is loaded on demand (a sign-in moment, never first paint): the
 // homepage bundle sits 0.4KB under its 501KB ratchet and this code is not needed
 // until someone signs in. See check-bundle.mjs.
@@ -603,7 +604,7 @@ function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, tight, 
     const open = !!(activeCat && subs.length > 1);
     return (
       <div className={`wf-mapfp${subsExpanded === false ? " is-subs-collapsed" : ""}`}>
-        <style dangerouslySetInnerHTML={{ __html: `
+        <style dangerouslySetInnerHTML={styleHtml(`
           .wf-mapfp{background:rgba(10,14,20,.82);-webkit-backdrop-filter:blur(18px) saturate(140%);backdrop-filter:blur(18px) saturate(140%);border:1px solid rgba(255,255,255,.12);border-radius:15px;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,.28)}
           .wf-mapfp-row{position:relative}
           .wf-mapfp-scroll{display:flex;gap:6px;overflow-x:auto;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:5px 8px}
@@ -634,7 +635,7 @@ function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, tight, 
              compete with the active category pill directly above them. */
           .wf-mapfp-tap[aria-selected="true"] .wf-mapfp-sub{background:rgba(249,115,22,.16);border-color:rgba(249,115,22,.42);color:${C.accent};font-weight:800}
           @media (prefers-reduced-motion: reduce){ .wf-mapfp-subs{transition:none} }
-        ` }} />
+        `)} />
         <div className="wf-mapfp-row">
           <div className="wf-mapfp-scroll" role="tablist" aria-label="Map categories" ref={mapfpArrowKeys}>
             {Cats.CATEGORY_TILES.map((m) => { const on = activeCat === m.id; return (
@@ -2124,11 +2125,11 @@ function RadiusSlider({ mi, onChange, where, max = 30 }) {
   const pct = Math.round(((mi - 1) / (max - 1)) * 100);
   return (
     <div style={{ padding: "11px 14px 12px", background: C.card, border: `1px solid ${C.border}`, borderRadius: 14 }}>
-      <style dangerouslySetInnerHTML={{ __html: `.wf-radius{-webkit-appearance:none;appearance:none;width:100%;height:26px;background:transparent;outline:none;margin:4px 0 2px;cursor:pointer}
+      <style dangerouslySetInnerHTML={styleHtml(`.wf-radius{-webkit-appearance:none;appearance:none;width:100%;height:26px;background:transparent;outline:none;margin:4px 0 2px;cursor:pointer}
 .wf-radius::-webkit-slider-runnable-track{height:7px;border-radius:999px;background:linear-gradient(90deg,#FB923C 0%,#F97316 var(--wfp),#2D3748 var(--wfp))}
 .wf-radius::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:26px;height:26px;border-radius:50%;background:radial-gradient(circle at 32% 30%,#FFD9B3,#F97316 68%);border:2.5px solid #fff;box-shadow:0 0 0 5px rgba(249,115,22,.22),0 3px 10px rgba(0,0,0,.5);cursor:pointer;margin-top:-10px}
 .wf-radius::-moz-range-track{height:7px;border-radius:999px;background:linear-gradient(90deg,#FB923C 0%,#F97316 var(--wfp),#2D3748 var(--wfp))}
-.wf-radius::-moz-range-thumb{width:26px;height:26px;border-radius:50%;background:radial-gradient(circle at 32% 30%,#FFD9B3,#F97316 68%);border:2.5px solid #fff;box-shadow:0 0 0 5px rgba(249,115,22,.22),0 3px 10px rgba(0,0,0,.5);cursor:pointer}` }} />
+.wf-radius::-moz-range-thumb{width:26px;height:26px;border-radius:50%;background:radial-gradient(circle at 32% 30%,#FFD9B3,#F97316 68%);border:2.5px solid #fff;box-shadow:0 0 0 5px rgba(249,115,22,.22),0 3px 10px rgba(0,0,0,.5);cursor:pointer}`)} />
       <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between" }}>
         <div style={{ fontSize: 14, fontWeight: 800, color: C.text }}>Within <span style={{ color: C.accent, fontSize: 17 }}>{mi} mi</span></div>
         <div style={{ fontSize: 11.5, color: C.muted }}>of {where}</div>
@@ -6398,7 +6399,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
     if (!locationPromoAllowed({ coverage: railsCoverage })) return null; if (Hol.worldCupDaysToNext(new Date()) > 2) return null; if (!!topSlot !== Hol.worldCupMatchToday(new Date())) return null; const _wc = Hol.themeFor(_w.key); const _wct = Hol.contentFor(_w.key, _w.name); return (
                       <div style={{ borderRadius: 18, padding: "18px 16px 16px", marginBottom: 12, background: _wc.grad, border: `1px solid ${_wc.border}`, boxShadow: "0 10px 28px rgba(0,0,0,.42)", position: "relative", overflow: "hidden" }}>
                       <button type="button" className="wf-holiday-open" onClick={() => openHoliday(_w)} aria-label={_wct.headline(locName)} style={{ position: "absolute", inset: 0, zIndex: 1, opacity: 0, border: 0, padding: 0, cursor: "pointer", background: "transparent" }} />
-                      <style dangerouslySetInnerHTML={{ __html: "@keyframes wcJuggle{0%{transform:translateY(0) rotate(0deg);animation-timing-function:cubic-bezier(.17,.84,.44,1)}45%{transform:translateY(-26px) rotate(180deg);animation-timing-function:cubic-bezier(.55,0,.85,.36)}90%{transform:translateY(0) rotate(360deg)}100%{transform:translateY(0) rotate(360deg)}}@keyframes wcBob{0%,86%,100%{transform:translateY(0)}93%{transform:translateY(2px)}}@keyframes wcGlow{0%,100%{opacity:.5}50%{opacity:1}}" }} />
+                      <style dangerouslySetInnerHTML={styleHtml("@keyframes wcJuggle{0%{transform:translateY(0) rotate(0deg);animation-timing-function:cubic-bezier(.17,.84,.44,1)}45%{transform:translateY(-26px) rotate(180deg);animation-timing-function:cubic-bezier(.55,0,.85,.36)}90%{transform:translateY(0) rotate(360deg)}100%{transform:translateY(0) rotate(360deg)}}@keyframes wcBob{0%,86%,100%{transform:translateY(0)}93%{transform:translateY(2px)}}@keyframes wcGlow{0%,100%{opacity:.5}50%{opacity:1}}")} />
                       <span style={{ position: "absolute", inset: 0, background: "repeating-linear-gradient(90deg, rgba(255,255,255,.03) 0px, rgba(255,255,255,.03) 26px, transparent 26px, transparent 52px)", pointerEvents: "none" }} />
                       <span aria-hidden="true" style={{ position: "absolute", right: 12, bottom: 6, width: 64, height: 116, pointerEvents: "none", opacity: .97 }}><span style={{ position: "absolute", left: 35, bottom: 72, fontSize: 15, animation: "wcJuggle 1.5s infinite" }}>⚽</span><picture><source type="image/avif" srcSet="/opt/wf-player-142.avif" /><source type="image/webp" srcSet="/opt/wf-player-142.webp" /><img src="/wf-player.png" alt="" draggable={false} loading="lazy" decoding="async" style={{ position: "absolute", left: 32, bottom: 0, height: 74, width: "auto", animation: "wcBob 1.5s infinite", filter: "drop-shadow(0 3px 8px rgba(0,0,0,.5))" }} /></picture></span>
                       
@@ -10173,7 +10174,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
       {renderUniqueFinds()}
       {homeRolling && (
         <>
-          <style dangerouslySetInnerHTML={{ __html: "@keyframes wfDiceSpin{0%{transform:rotate(0deg) scale(1)}50%{transform:rotate(180deg) scale(1.14)}100%{transform:rotate(360deg) scale(1)}}" }} />
+          <style dangerouslySetInnerHTML={styleHtml("@keyframes wfDiceSpin{0%{transform:rotate(0deg) scale(1)}50%{transform:rotate(180deg) scale(1.14)}100%{transform:rotate(360deg) scale(1)}}")} />
           <div style={{ position: "fixed", bottom: "calc(84px + env(safe-area-inset-bottom))", right: 16, zIndex: 60, pointerEvents: "none", width: 62, height: 62, borderRadius: 16, background: "linear-gradient(135deg, #7C3AED, #4C1D95)", boxShadow: "0 10px 30px rgba(124,58,237,.55)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 32, animation: "wfDiceSpin .7s linear infinite" }}>{homeDiceFace}</div>
         </>
       )}
@@ -10608,7 +10609,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
   return (
     <div style={shell}>
     <div className="wf-shell" style={{ ...wrap, maxWidth: undefined }}>
-      <style dangerouslySetInnerHTML={{ __html: `@keyframes wfpulse{0%,100%{transform:scale(.8);opacity:.45}50%{transform:scale(1.08);opacity:1}}@keyframes wfdot{0%,80%,100%{opacity:.25}40%{opacity:1}}@keyframes wfbob{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-3px) scale(1.06)}}${WF_LAYOUT_CSS}${WF_SEARCH_CSS}${WF_PLACE_CARD_CSS}${WF_TASTE_CSS}${WF_RAIL_SECTION_CSS}${WF_RAIL_COLLAPSED_CSS}${WF_ASIDE_CSS}${WF_RAIL_MENU_CSS}` }} />
+      <style dangerouslySetInnerHTML={styleHtml(`@keyframes wfpulse{0%,100%{transform:scale(.8);opacity:.45}50%{transform:scale(1.08);opacity:1}}@keyframes wfdot{0%,80%,100%{opacity:.25}40%{opacity:1}}@keyframes wfbob{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-3px) scale(1.06)}}${WF_LAYOUT_CSS}${WF_SEARCH_CSS}${WF_PLACE_CARD_CSS}${WF_TASTE_CSS}${WF_RAIL_SECTION_CSS}${WF_RAIL_COLLAPSED_CSS}${WF_ASIDE_CSS}${WF_RAIL_MENU_CSS}`)} />
       {/* Header */}
       <div className="wf-topbar" style={{ background: "#040810", borderBottom: `1px solid ${C.border}`, padding: screen === "map" ? "8px 12px" : "12px 14px", paddingTop: screen === "map" ? "max(8px, env(safe-area-inset-top))" : "max(12px, env(safe-area-inset-top))", flexShrink: 0, position: "relative", zIndex: 20 }}>
         {screen !== "map" && (
@@ -11694,7 +11695,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
                         const _c = Hol.themeFor(_h.key); const _ct = Hol.contentFor(_h.key, _h.name); return (
                         <div style={{ borderRadius: 18, padding: "18px 16px 16px", marginBottom: 12, background: _c.grad, border: `1px solid ${_c.border}`, boxShadow: "0 10px 28px rgba(0,0,0,.42)", position: "relative", overflow: "hidden" }}>
                           <button type="button" className="wf-holiday-open" onClick={() => openHoliday(_h)} aria-label={_ct.headline(locName)} style={{ position: "absolute", inset: 0, zIndex: 1, opacity: 0, border: 0, padding: 0, cursor: "pointer", background: "transparent" }} />
-                          <style dangerouslySetInnerHTML={{ __html: "@keyframes wfBurst{0%{transform:scale(.15);opacity:.95}70%{opacity:.4}100%{transform:scale(1);opacity:0}}@keyframes wfGlow{0%,100%{opacity:.55}50%{opacity:1}}@keyframes wfTwinkle{0%,100%{opacity:.15;transform:scale(.7)}50%{opacity:1;transform:scale(1.2)}}@keyframes wfSweep{0%{transform:translateX(-140%) skewX(-18deg)}100%{transform:translateX(240%) skewX(-18deg)}}" }} />
+                          <style dangerouslySetInnerHTML={styleHtml("@keyframes wfBurst{0%{transform:scale(.15);opacity:.95}70%{opacity:.4}100%{transform:scale(1);opacity:0}}@keyframes wfGlow{0%,100%{opacity:.55}50%{opacity:1}}@keyframes wfTwinkle{0%,100%{opacity:.15;transform:scale(.7)}50%{opacity:1;transform:scale(1.2)}}@keyframes wfSweep{0%{transform:translateX(-140%) skewX(-18deg)}100%{transform:translateX(240%) skewX(-18deg)}}")} />
                           <span style={{ position: "absolute", top: -18, right: 26, width: 120, height: 120, borderRadius: "50%", border: "2px solid #FFD166", opacity: 0, animation: "wfBurst 2.4s ease-out infinite", pointerEvents: "none" }} />
                           <span style={{ position: "absolute", top: 14, right: 96, width: 76, height: 76, borderRadius: "50%", border: "2px solid #FF6B6B", opacity: 0, animation: "wfBurst 2.4s ease-out .8s infinite", pointerEvents: "none" }} />
                           <span style={{ position: "absolute", top: -6, right: 150, width: 54, height: 54, borderRadius: "50%", border: "1.5px solid #7EA6FF", opacity: 0, animation: "wfBurst 2.4s ease-out 1.5s infinite", pointerEvents: "none" }} />
@@ -11768,7 +11769,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
       </div>
 
       {/* Roll the dice */}
-      <style dangerouslySetInnerHTML={{ __html: "@keyframes wfroll{0%{transform:rotate(0deg) scale(1)}50%{transform:rotate(180deg) scale(1.25)}100%{transform:rotate(360deg) scale(1)}}" }} />
+      <style dangerouslySetInnerHTML={styleHtml("@keyframes wfroll{0%{transform:rotate(0deg) scale(1)}50%{transform:rotate(180deg) scale(1.25)}100%{transform:rotate(360deg) scale(1)}}")} />
       {rolling && (
         <div style={{ position: "fixed", inset: 0, zIndex: 1100, background: "rgba(13,17,23,.88)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 18 }}>
           <div style={{ fontSize: 92, lineHeight: 1, animation: "wfroll 0.5s linear infinite" }}>{diceFace}</div>

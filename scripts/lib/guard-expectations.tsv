@@ -456,6 +456,7 @@ scripts/check-sponsored-places.mjs	0	RENDER	blocks-ci-and-deploy	1	-	222	0	0	8a6
 scripts/check-spooky-skin.mjs	0	RENDER	blocks-ci-and-deploy	1	-	121	0	0	cb1bd6008a2eb80752f2fa3e6dfa9e65549d86ddc24bcc8da72a91c55507c8ae
 scripts/check-state-affordance.mjs	0	RENDER	blocks-ci-and-deploy	1	-	8	0	0	128c6c78e702d511f4ebbead87ce144bcbd949dbaf15ed4a486a23a3aa7664a5
 scripts/check-storage-access.mjs	0	CALL	blocks-ci-and-deploy	1	-	9	0	0	bb547d145075b0c84315759e92efc6187b1a3fd425b37b57902e864acc03e71a
+scripts/check-style-html-stable.mjs	0	CALL	blocks-ci-and-deploy	1	-	17	0	0	96aa1fbe6886685e82469f3fd8a90c9090c030fe6e32b19f6326522ddfee6c7a
 scripts/check-sub-contracts.mjs	0	CALL	blocks-ci-and-deploy	1	-	7	0	0	094d35a19f9397472c7b6b5062c179f2d645181739dc038ef07da9e245fc8adf
 scripts/check-subfilter-experience-coverage.mjs	0	CALL	blocks-ci-and-deploy	1	-	39	0	0	65f61f7d4840c7097af0781772e10e5aff4b8d70148d30e1bfdd703071b1b3f0
 scripts/check-supabase-key-live.mjs	0	CALL	blocks-ci-and-deploy	1	-	8	0	0	f559e6389e54dc2e46c6884de9bd7e2e9d278486f41661be6824ac660e42657e
@@ -1032,7 +1033,7 @@ scripts/test-resolver-word-boundary.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA
 scripts/test-revenue-heartbeat.mjs	0	CALL	blocks-ci-and-deploy	1	-	30	0	0	7917041ebf9acc5edb73f65b7ea94cf57e1b109c29d446fd610f7d616fd63633
 scripts/test-review-depth-deduction.mjs	0	CALL	blocks-ci-and-deploy	1	-	18	0	0	0b678c1ae6a5ca8dd778a212c5c51ea2db88d85266cebea6d2103da1c4f61e01
 scripts/test-richness-loading-path.mjs	0	CALL	blocks-ci-and-deploy	1	-	31	0	0	f7d60ea7b20a700e4f1f95642bf20ac26e9fc45aa61e2d309fb7ee4e6d011a15
-scripts/test-root-has-selectors.mjs	0	RENDER	blocks-ci-and-deploy	1	-	51	0	0	8ab7f9cb50c9cce5a76046f63476871398b67c3a3e517d7b03482d8c644c9b02
+scripts/test-root-has-selectors.mjs	0	RENDER	blocks-ci-and-deploy	1	-	52	0	0	90bdd8075db88d3d50eeb5cbddc941db1b859d730b094de652545593f8638160
 scripts/test-run-guards.mjs	0	CALL	blocks-ci-and-deploy	1	-	22	0	0	981a56d2931ce19ee4699c3b5ef0a06ed633860efe0a6b365be7b6c872574c31
 scripts/test-safe-force-push.mjs	0	CALL	blocks-ci-and-deploy	1	-	52	0	0	09804c6ab5a9bf5154763b7c14e422d56ec58f4fdbaab039ef805a0b1e0566d2
 scripts/test-santa-chat.mjs	0	RENDER	blocks-ci-and-deploy	1	-	66	0	0	9b773c2780fd49b38f8fa8cfd43896ca6ce0c1db803c3290d5463cb4618c74a9

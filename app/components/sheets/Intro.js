@@ -17,6 +17,7 @@ import { C, useDialogFocus, Icon } from "../kit";
 import { nowContext } from "../../../lib/nowContext.js";
 import { markIntroSeen } from "../../../lib/introGate.js";
 import { activeSeasonalMark, NORMAL_MARK } from "../../../lib/seasonalBrand.js";
+import { styleHtml } from "../../../lib/styleHtml.js";
 
 // Premium redesign, Phase 4: the mood tiles draw from the app's one line-icon
 // language instead of an emoji grid, calmer and on-brand.
@@ -122,7 +123,7 @@ export default function IntroSheet({ ctx }) {
   useDialogFocus(introOpen, introDlgRef, dismissIntro);
   return (
         <div className="wf-intro-backdrop" onClick={() => closeIntro("backdrop")}>
-          <style dangerouslySetInnerHTML={{ __html: `
+          <style dangerouslySetInnerHTML={styleHtml(`
             @keyframes wfIntroIn{from{opacity:0;transform:scale(.985) translateY(18px)}to{opacity:1;transform:scale(1) translateY(0)}}
             @keyframes wfIntroTileIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
             .wf-intro-backdrop{position:fixed;inset:0;z-index:90;background:rgba(5,15,23,.64);backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);display:flex;align-items:center;justify-content:center;padding:24px;overflow-y:auto}
@@ -208,7 +209,7 @@ export default function IntroSheet({ ctx }) {
               .wf-intro-foot{display:none}
             }
             @media(prefers-reduced-motion:reduce){.wf-intro-pop,.wf-mood-tile,.wf-intro-cta{animation:none!important;transition:none!important}}
-          ` }} />
+          `)} />
           <div ref={introDlgRef} role="dialog" aria-modal="true" aria-label="Welcome to Wayfind — choose a local experience" tabIndex={-1} onClick={(e) => e.stopPropagation()} className="wf-intro-pop">
             <button onClick={() => closeIntro("close")} aria-label="Close" className="wf-intro-close">{"\u2715"}</button>
             <section className="wf-intro-visual" aria-label="A local moment waiting to be discovered">

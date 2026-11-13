@@ -9,6 +9,7 @@
 import { useEffect, useState } from "react";
 import { openShareFlow } from "../../lib/shareFlow.js";
 import { removeSavedContent, useSavedContentIds } from "../../lib/contentCardActions.js";
+import { styleHtml } from "../../lib/styleHtml.js";
 
 const CSS = `
 .xp-plan{margin:22px 0 4px;padding:16px;border:1px solid #E8B48A55;border-radius:18px;background:linear-gradient(160deg,#3E0C19,#230710 80%);color:#FFF7ED}
@@ -92,7 +93,7 @@ export default function ChristmasPlan() {
   }, [idsKey, voter]);
 
   if (!ready || !wanted || cards === null) return null;
-  if (!cards.length) return shared ? <section className="xp-plan" data-christmas-plan="shared"><style dangerouslySetInnerHTML={{ __html: CSS }} /><h2>A Christmas plan</h2><p className="xp-sub">None of the events in this link are on the list right now. Browse below to build your own.</p></section> : null;
+  if (!cards.length) return shared ? <section className="xp-plan" data-christmas-plan="shared"><style dangerouslySetInnerHTML={styleHtml(CSS)} /><h2>A Christmas plan</h2><p className="xp-sub">None of the events in this link are on the list right now. Browse below to build your own.</p></section> : null;
 
   const share = () => {
     try { openShareFlow({ title: "My Christmas plan", text: "Here is my Christmas plan in Florida. Tell me which ones you are in for.", url: planLink(window.location.origin, ids) }); } catch {}
@@ -105,7 +106,7 @@ export default function ChristmasPlan() {
       .then((r) => r.json()).then((json) => { if (!json || json.available !== true) setVotes(null); }).catch(() => setVotes(null));
   };
   return <section className="xp-plan" aria-labelledby="xp-heading" data-boo-clear="" data-christmas-plan={shared ? "shared" : "mine"} data-plan-votes={votes ? "on" : "off"}>
-    <style dangerouslySetInnerHTML={{ __html: CSS }} />
+    <style dangerouslySetInnerHTML={styleHtml(CSS)} />
     <h2 id="xp-heading">{shared ? "A Christmas plan to vote on" : "My Christmas plan"}</h2>
     <p className="xp-sub">{shared ? (votes ? "Tap I'm in on the ones you want to do." : "Here is the plan a friend shared with you.") : "The events you saved with the heart, all in one place."}</p>
     <ul className="xp-list">

@@ -9,6 +9,7 @@ import { placePartnerPick } from "../../lib/placePartnerPicks.js";
 import { usePinQuarantine } from "../../lib/pinQuarantine.js";
 import { useCuratedRows } from "../../lib/curatorPicks.js";
 import useEditorialHooks from "./useEditorialHooks.js";
+import { styleHtml } from "../../lib/styleHtml.js";
 
 // One number per place OBJECT: a refetch or a curator stamp hands over a new object, which must repaint its card.
 const seqs = new WeakMap();
@@ -76,7 +77,7 @@ export default function ThemeParkRail({ mode = "flagship", query = "", items = n
   const heading = themeParkHeading(mode);
   const railId = `theme-parks-${mode}`;
   return <section aria-labelledby={`${railId}-title`}>
-    <style dangerouslySetInnerHTML={{ __html: WF_PLACE_CARD_CSS }} />
+    <style dangerouslySetInnerHTML={styleHtml(WF_PLACE_CARD_CSS)} />
     <RailHeading id={`${railId}-title`} title={heading.title} description={heading.description}>
       <RailNav railId={railId} count={rows.length} total={rows.length} unit="parks" />
     </RailHeading>

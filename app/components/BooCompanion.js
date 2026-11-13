@@ -20,6 +20,7 @@ import { openerFor } from "./booOpeners.js";
 import { coverageState, coverageLines, coverageSheetLine, unknownSheetLine, coverageButtonText, roundMiles } from "./booCoverage.js";
 import { pickLine, routeLine, timeLines } from "./booReactions.js";
 import { MAX_COVER, rectOf, isClear, touchesAny, besideSpot, perchSpot, pickClearSpot, estimateBubble, bubbleSideIfClear, chooseBubbleSide, TUCK_MAX } from "./booClear.js";
+import { styleHtml } from "../../lib/styleHtml.js";
 
 const HIDE_KEY = "wf_boo_hidden";
 // /group-plans: owner 2026-10-30, "get him out of the group pages". Friends
@@ -1793,7 +1794,7 @@ export default function BooCompanion() {
 
   return (
     <>
-      <style dangerouslySetInnerHTML={{ __html: CSS }} />
+      <style dangerouslySetInnerHTML={styleHtml(CSS)} />
       {santa ? (
         <SantaDock
           path={pathname}

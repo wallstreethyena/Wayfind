@@ -7,6 +7,7 @@ import CommerceClickBeacon from "./CommerceClickBeacon.js";
 import { activeSeasonalMark } from "../../lib/seasonalBrand.js";
 import ChristmasElves from "./ChristmasElves.js";
 import GuidePhoto from "./GuidePhoto.js";
+import { styleHtml } from "../../lib/styleHtml.js";
 
 // Wayfind home header replica plus Christmas ticket cards, built like the
 // Halloween page (BoHalloweenHaunt). Deep night, warm white text, one festive
@@ -402,7 +403,7 @@ export default function ChristmasTickets({ model, share = null, browse = null, t
   const seasonal = activeSeasonalMark();
   return (
     <section className="xm-page" aria-labelledby="xm-title" data-analytics-page={SURFACE}>
-      <style dangerouslySetInnerHTML={{ __html: CSS + seasonalMarkCss(seasonal) }} />
+      <style dangerouslySetInnerHTML={styleHtml(CSS + seasonalMarkCss(seasonal))} />
       <CommerceClickBeacon surface={SURFACE} />
       <div className="xm-doodles" aria-hidden="true" />
       <div className="xm-sparkles" aria-hidden="true" />
