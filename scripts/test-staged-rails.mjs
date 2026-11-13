@@ -40,16 +40,18 @@ globalThis.ResizeObserver = class { observe() {} unobserve() {} disconnect() {} 
 process.env.NODE_ENV = "test";
 
 const staged = await import("../lib/stagedMount.js");
-const { CARD_FIRST, CARD_CHUNK, CARD_GAP_MS, enqueueMount, pendingMounts, shownCount } = staged;
+const { CARD_FIRST, CARD_CHUNK, CARD_GAP_MS, INPUT_HOLD_MS, COMMIT_WAIT_MS, enqueueMount, mountCommitted, pendingMounts, shownCount, noteInput, inputHoldLeft } = staged;
+// A job's owner reports its commit (the hooks do it from an effect); test jobs report at once.
+const reported = (fn) => () => { fn(); mountCommitted(); };
 
 /* 1. the queue, executed ------------------------------------------------------------------------*/
 {
-  ok(CARD_FIRST >= 1 && CARD_FIRST <= 12 && CARD_CHUNK >= 2 && CARD_CHUNK <= 16 && CARD_GAP_MS >= 0 && CARD_GAP_MS <= 100, "slice constants are sane (first " + CARD_FIRST + ", then " + CARD_CHUNK + " per task, " + CARD_GAP_MS + " ms apart)");
+  ok(CARD_FIRST >= 1 && CARD_FIRST <= 12 && CARD_CHUNK >= 2 && CARD_CHUNK <= 24 && CARD_GAP_MS >= 0 && CARD_GAP_MS <= 100, "slice constants are sane (first " + CARD_FIRST + ", then " + CARD_CHUNK + " per task, " + CARD_GAP_MS + " ms apart)");
   ok(shownCount(Infinity, 40) === 40 && shownCount(6, 40) === 6 && shownCount(6, 4) === 4, "shownCount: Infinity = everything, otherwise the smaller of limit and total");
   const ran = [];
-  const cancelB = enqueueMount(() => ran.push("b"));
-  enqueueMount(() => ran.push("a"));
-  const cancelC = enqueueMount(() => ran.push("c"));
+  const cancelB = enqueueMount(reported(() => ran.push("b")));
+  enqueueMount(reported(() => ran.push("a")));
+  const cancelC = enqueueMount(reported(() => ran.push("c")));
   ok(ran.length === 0 && pendingMounts() === 3, "CONTROL: nothing runs synchronously inside enqueueMount (" + ran.length + " ran, " + pendingMounts() + " queued)");
   cancelB(); cancelC();
   ok(pendingMounts() === 1, "cancel removes a queued job");
@@ -57,20 +59,39 @@ const { CARD_FIRST, CARD_CHUNK, CARD_GAP_MS, enqueueMount, pendingMounts, shownC
   ok(ran.join("") === "a" && pendingMounts() === 0, "a cancelled job never runs; the rest do (" + ran.join("") + ")");
   // one job per task: three jobs enqueued together are separated by timers, never run back to back
   const stamps = [];
-  for (let i = 0; i < 3; i++) enqueueMount(() => stamps.push(process.hrtime.bigint()));
+  for (let i = 0; i < 3; i++) enqueueMount(reported(() => stamps.push(process.hrtime.bigint())));
   await sleep((CARD_GAP_MS + 20) * 3 + 60);
   ok(stamps.length === 3, "three jobs ran");
   ok(stamps[1] - stamps[0] >= BigInt(Math.max(0, CARD_GAP_MS - 5)) * 1_000_000n, "CONTROL: jobs are separated by at least the gap (not one task): " + Number(stamps[1] - stamps[0]) / 1e6 + " ms");
   // a pending touch holds the slice back
   let pending = true; const ran2 = [];
   Object.defineProperty(globalThis.navigator, "scheduling", { value: { isInputPending: () => pending }, configurable: true });
-  enqueueMount(() => ran2.push("x"));
+  enqueueMount(reported(() => ran2.push("x")));
   await sleep(CARD_GAP_MS * 3 + 30);
   ok(ran2.length === 0, "input pending: the slice waits (" + ran2.length + " ran)");
   pending = false;
   await sleep(CARD_GAP_MS * 2 + 30);
   ok(ran2.length === 1, "input handled: the slice runs");
   delete globalThis.navigator.scheduling;
+  // ONE slice in flight: the next job waits for the previous one's commit report, so two slices can
+  // never be rendered into one React commit (they were: "slices of 20" landed as commits of 40).
+  ok(COMMIT_WAIT_MS >= 150 && COMMIT_WAIT_MS <= 1000, "the no-report fallback is bounded (" + COMMIT_WAIT_MS + " ms)");
+  const order = [];
+  enqueueMount(() => order.push("first"));            // its owner has NOT reported yet
+  await sleep(CARD_GAP_MS * 2 + 40);
+  ok(order.join() === "first", "CONTROL: the first job started");
+  // queued WHILE the first is in flight, which is what the other rails' effects do on the page
+  enqueueMount(reported(() => order.push("second")));
+  await sleep(CARD_GAP_MS * 3 + 60);
+  ok(order.join() === "first", "a job queued during a flight does not start while that slice is uncommitted (" + order.join() + ")");
+  mountCommitted();
+  await sleep(CARD_GAP_MS * 3 + 80);
+  ok(order.join() === "first,second", "the commit report releases the next job");
+  const lone = [];
+  enqueueMount(() => lone.push("silent"));             // an owner that never reports
+  enqueueMount(reported(() => lone.push("next")));
+  await sleep(COMMIT_WAIT_MS + CARD_GAP_MS * 3 + 250);
+  ok(lone.join() === "silent,next", "an owner that never reports only delays the queue by the fallback, it cannot stall it");
 }
 
 /* 2. the real rails, mounted ----------------------------------------------------------------------*/
@@ -83,7 +104,7 @@ const Rails = mod.default;
 ok(typeof Rails === "function", "CONTROL: the real ChristmasIntentRails loaded");
 
 const RAIL_IDS = ["lights", "towns", "theme", "boats", "parades", "movies", "shopping", "parties", "treats"];
-const N = 40;
+const N = 80; // four slices of CARD_CHUNK and change: a whole rail in one batch would need four slices to coalesce
 const pl = (rid, i) => ({ id: `${rid}-pl-${i}`, kind: "place", name: `${rid} place ${i}`, image: null, wfScore: 88, reviews: 120, take: "A reason to go." });
 const makeRails = (n) => RAIL_IDS.map((id) => ({ id, title: "Rail " + id, deck: "Deck " + id, guide: null, total: n, cards: Array.from({ length: n }, (_, i) => pl(id, i + 1)) }));
 let payload = { rails: makeRails(N), tours: [] };
@@ -183,6 +204,30 @@ await new Promise((r) => { root.unmount(); setTimeout(r, 20); });
   ok(/useStagedCards\(\s*items\.length,\s*staged\s*&&\s*renderState\s*===\s*RAIL_RENDER_STATE\.CONTENT\s*\)/.test(rails), "ChristmasRailSection stages its cards only while it is drawing them");
   ok(/items\.slice\(0,\s*shown\)\.map\(/.test(rails), "ChristmasRailSection draws items.slice(0, shown)");
   ok(/loadingMore\s*&&\s*shown\s*>=\s*items\.length/.test(rails), "the 'Loading more' tile waits for the last slice");
+}
+
+// A person touching the page pauses the queue (2026-11-13: with slices still mounting, a card tap
+// on production took about 4.4 s instead of about 3.0 s; the tap now gets the main thread first).
+{
+  ok(INPUT_HOLD_MS >= 500 && INPUT_HOLD_MS <= 3000, "the input hold is long enough for a sheet to open and short enough to resume (" + INPUT_HOLD_MS + " ms)");
+  ok(inputHoldLeft() === 0, "CONTROL: with no recent input the queue is free to run");
+  let ranFree = false; enqueueMount(reported(() => { ranFree = true; }));
+  await sleep(CARD_GAP_MS * 3 + 60);
+  ok(ranFree, "CONTROL: a job runs promptly when nobody is touching the page");
+  noteInput();
+  ok(inputHoldLeft() > INPUT_HOLD_MS - 200 && inputHoldLeft() <= INPUT_HOLD_MS, "after input the queue holds for INPUT_HOLD_MS");
+  let ranHeld = false; enqueueMount(reported(() => { ranHeld = true; }));
+  await sleep(CARD_GAP_MS * 3 + 120);
+  ok(!ranHeld, "a job queued right after input does NOT run inside the hold");
+  // a real DOM event on window re-arms the hold (the listener is installed by the queue itself)
+  await sleep(INPUT_HOLD_MS / 2);
+  window.dispatchEvent(new window.Event("pointerdown"));
+  const afterEvent = inputHoldLeft();
+  ok(afterEvent > INPUT_HOLD_MS - 200, "a pointerdown on the page re-arms the hold (" + Math.round(afterEvent) + " ms left)");
+  await sleep(INPUT_HOLD_MS / 2 + 150);
+  ok(!ranHeld, "and the job is still waiting after the ORIGINAL hold would have ended");
+  await sleep(INPUT_HOLD_MS / 2 + CARD_GAP_MS * 3 + 250);
+  ok(ranHeld && pendingMounts() === 0, "once the hold ends the job runs: nothing is lost, only delayed");
 }
 
 console.log("test-staged-rails: OK, " + checks + " assertions (queue executed; real ChristmasIntentRails mounted with " + RAIL_IDS.length + "x" + N + " cards: " + batches.length + " DOM batches, largest " + maxBatch + ", all " + total + " cards present in order; server-rendered rails untouched; home.js wiring)");

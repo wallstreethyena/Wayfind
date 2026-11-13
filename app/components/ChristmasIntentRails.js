@@ -19,7 +19,7 @@ import { siteTodayStr } from "../../lib/siteTime.js";
 import { emitRailDegraded, isRailCancelled, railDeveloperFailure } from "../../lib/railFailure.js";
 import { fetchClassifiedPosterJson as fetchRailJson } from "../../lib/posterJson.js";
 import { usePagedRail } from "./usePagedRail.js";
-import { enqueueMount, useStagedCards } from "../../lib/stagedMount.js";
+import { enqueueMount, mountCommitted, useStagedCards } from "../../lib/stagedMount.js";
 import { railRenderState, RAIL_RENDER_STATE } from "../../lib/railVisibility.js";
 import useEventClock from "./useEventClock.js";
 import { eventVisitStatus, eventRestrictionChips } from "../../lib/eventVisitFacts.js";
@@ -46,7 +46,8 @@ export const STAGE_MS = 140;
 function useStagedMount(order) {
   const [ready, setReady] = useState(order < STAGE_FIRST);
   useEffect(() => {
-    if (ready) return undefined;
+    // Ready is in the DOM now (effects run after the commit): the shared queue may start its next job.
+    if (ready) { mountCommitted(); return undefined; }
     // The timer says when a rail MAY mount; the shared queue (lib/stagedMount.js) makes sure only one
     // rail or card slice commits per task, so a backlog of expired timers never lands as one freeze.
     let cancel = null;
