@@ -2652,3 +2652,12 @@ node scripts/test-map-spatial-decision-engine.mjs
 node scripts/test-first-party-action-resolver.mjs
 # 2026-11-13: Owned Place Truth Architecture frontier guard (deterministic editorial hours parser, holiday closure protection, free splash-park truth, Zero-Paid-Lookup Mode, red-team CTA/URL gates, wfplacediscovery photo resilience, and diagnostic truth trace).
 node scripts/test-owned-place-truth-frontier.mjs
+# 2026-11-13: Wayfind Carbon Production Nervous System — hard test/production write firewall, release/data contamination firewalls, 8-state migration reconciler, owned hours & zero-503 quota exhaustion spine, 10-query semantic moment search red-team, strict Christmas temporal modes, and /api/health/nervous-system observability.
+node scripts/test-production-write-firewall.mjs
+node scripts/check-production-data-quality.mjs
+node scripts/check-release-contamination.mjs
+node scripts/test-migration-state-reconciler.mjs
+node scripts/test-quota-exhaustion-simulation.mjs
+node scripts/test-moment-search-redteam.mjs
+node scripts/test-christmas-temporal-modes.mjs
+node scripts/test-nervous-system-health.mjs

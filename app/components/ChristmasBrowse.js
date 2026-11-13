@@ -27,7 +27,19 @@ import { styleHtml } from "../../lib/styleHtml.js";
 const ChristmasMap = dynamic(() => import("./ChristmasMap.js"), { ssr: false, loading: () => <p className="xm-count" role="status">Loading the map…</p> });
 const MAP_CSS = `.xm-map-toggle{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 18px;border:1px solid #E8B48A;border-radius:999px;background:transparent;color:#FFE9C8;font:inherit;font-size:15px;font-weight:800;cursor:pointer}
 .xm-map-toggle[aria-expanded="true"]{background:#E8B48A22}.xm-map-toggle[data-promoted]{background:linear-gradient(180deg,#FFE9C8,#E8C395);color:#3D0914;box-shadow:0 3px 12px #18020826}
-.xm-map-toggle:focus-visible{outline:2px solid #FFE9C8;outline-offset:3px}`;
+.xm-map-toggle:focus-visible{outline:2px solid #FFE9C8;outline-offset:3px}
+.xm-temporal-bar{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:2px 0 12px;margin:0;-webkit-overflow-scrolling:touch}
+.xm-temporal-bar::-webkit-scrollbar{display:none}
+.xm-temporal-btn{flex:0 0 auto;display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 16px;border:1px solid #E8B48A66;border-radius:999px;background:#230710aa;color:#FFE9C8;font:inherit;font-size:14px;font-weight:750;white-space:nowrap;cursor:pointer}
+.xm-temporal-btn[aria-pressed="true"]{border-color:#E8B48A;background:linear-gradient(180deg,#FFE9C8,#E8C395);color:#3D0914;box-shadow:0 3px 12px #18020833}
+.xm-temporal-btn:focus-visible{outline:2px solid #FFE9C8;outline-offset:3px}
+.xm-temporal-cnt{font-size:12px;opacity:.82}`;
+const TEMPORAL_TABS = [
+  { id: "", countKey: "all", label: "All Christmas" },
+  { id: "tonight", countKey: "tonight", label: "Open tonight" },
+  { id: "weekend", countKey: "weekend", label: "Open this weekend" },
+  { id: "opening-soon", countKey: "openingSoon", label: "Opening soon" },
+];
 const FILTER_KEYS = ["region", "category", "when", "date", "price", "audience", "undated", "q", "lat", "lng", "sort"];
 // A location found quietly on load (auto) ranks the list but never goes into
 // the shareable address bar: a shared link must not carry the sharer's spot.
@@ -89,6 +101,8 @@ export function browseRowFor(card) {
     name,
     pitch: christmasPitch(card),
     chip: isPlace ? (PLACE_CHIP[card.christmasRail] || "Christmas") : ticket ? ticket.chip : sentenceCase(CHRISTMAS_CARD_LABELS[card.christmasRail]),
+    temporalBadge: card.temporalBadge ? christmasCopy(card.temporalBadge) : "",
+    temporalState: card.temporalState || "",
     city: christmasCopy(card.city || ""),
     when: isPlace ? christmasCopy(card.seasonalWhen || "") : ticket ? ticket.when : christmasCopy(card.when || season || ""),
     price,
@@ -123,7 +137,9 @@ export function christmasUrlQuery(search, facets = {}) {
   const pick = (k, allowed) => { const v = get(k); if (v && allowed.has(v)) out[k] = v; };
   pick("region", ids(facets.regions));
   pick("category", new Set([...ids(facets.categories), ...ids(facets.pills)]));
-  pick("when", ids(facets.dates));
+  const rawWhen = get("when").toLowerCase();
+  if (rawWhen === "all") out.when = "";
+  else pick("when", new Set([...ids(facets.dates), "tonight", "weekend", "opening-soon"]));
   pick("price", ids(facets.prices));
   pick("audience", ids(facets.audiences));
   if (/^\d{4}-\d{2}-\d{2}$/.test(get("date"))) out.date = get("date");
@@ -210,6 +226,8 @@ export default function ChristmasBrowse({ initial, facets, today, initialQuery =
 
   const pills = Array.isArray(facets.pills) ? facets.pills : [];
   const dates = Array.isArray(facets.dates) ? facets.dates : [];
+  const temporalCounts = data?.temporalCounts || initial?.temporalCounts || null;
+  const activeWhen = query.date || query.undated ? "__custom__" : (query.when || "");
   const summary = [(pills.find((p) => p.id === query.category) || {}).label, (dates.find((d) => d.id === query.when) || {}).label, query.region].filter(Boolean).join(" · ");
   const ticketsFirst = query.sort === "tickets";
   const located = !ticketsFirst && query.lat != null && query.lat !== "";
@@ -223,6 +241,24 @@ export default function ChristmasBrowse({ initial, facets, today, initialQuery =
   return <section id="browse" aria-label="Florida Christmas events" style={{ margin: "0 0 28px" }} data-christmas-browse="">
     <ChristmasWeekendRow initial={weekend} lat={located ? query.lat : null} lng={located ? query.lng : null} />
     <ChristmasPlan />
+    <div className="xm-temporal-bar" role="group" aria-label="When to go" data-christmas-temporal-modes="" data-boo-clear="">
+      {TEMPORAL_TABS.map((tab) => {
+        const cnt = temporalCounts && Number.isFinite(temporalCounts[tab.countKey]) ? temporalCounts[tab.countKey] : null;
+        return (
+          <button
+            key={tab.id || "all"}
+            type="button"
+            className="xm-temporal-btn"
+            data-temporal-mode={tab.id || "all"}
+            aria-pressed={activeWhen === tab.id ? "true" : "false"}
+            onClick={() => set("when", tab.id)}
+          >
+            <span>{tab.label}</span>
+            {cnt !== null ? <span className="xm-temporal-cnt">({cnt})</span> : null}
+          </button>
+        );
+      })}
+    </div>
     <div className="xm-controls" data-boo-clear="" role="toolbar" aria-label="Filter Christmas events">
       <ChristmasFilter query={query} facets={facets} onSet={set} onNear={nearMe} onReset={clearAll} />
       <span className="xm-sort-note">{ticketsFirst ? "Tickets first" : located ? "Top rated near you" : "Top rated and trending"}</span>
