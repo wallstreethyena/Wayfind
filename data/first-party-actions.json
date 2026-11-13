@@ -14,6 +14,13 @@
           "retrieved_at": "2026-11-13T04:23:22.606Z",
           "confidence": "HIGH_CONFIDENCE",
           "verification_status": "verified"
+        },
+        "menu_url": {
+          "url": "https://piscoperuviangastrobar.com/menu",
+          "source": "official_venue_subpage",
+          "retrieved_at": "2026-11-13T20:36:00.000Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
         }
       }
     },
@@ -30,10 +37,10 @@
           "confidence": "EXACT",
           "verification_status": "verified"
         },
-        "ticket_url": {
-          "url": "https://veniceperformingartscenter.com/booking/",
+        "admission_url": {
+          "url": "https://veniceperformingartscenter.com/events/",
           "source": "official_venue_subpage",
-          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "retrieved_at": "2026-11-13T20:42:00.000Z",
           "confidence": "EXACT",
           "verification_status": "verified"
         }
@@ -221,6 +228,13 @@
           "retrieved_at": "2026-11-13T04:23:22.606Z",
           "confidence": "EXACT",
           "verification_status": "verified"
+        },
+        "menu_url": {
+          "url": "https://www.stpeteathletic.com/roses-menu",
+          "source": "official_venue_subpage",
+          "retrieved_at": "2026-11-13T20:36:00.000Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
         }
       }
     },
@@ -314,6 +328,13 @@
           "url": "https://www.atria.cafe/",
           "source": "wf_editorial_citation",
           "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        },
+        "menu_url": {
+          "url": "https://order.toasttab.com/online/atria-cafe-lwr",
+          "source": "official_venue_subpage",
+          "retrieved_at": "2026-11-13T20:36:00.000Z",
           "confidence": "EXACT",
           "verification_status": "verified"
         }
@@ -638,13 +659,6 @@
           "retrieved_at": "2026-11-13T04:23:22.606Z",
           "confidence": "EXACT",
           "verification_status": "verified"
-        },
-        "reservation_url": {
-          "url": "https://www.coyoteuglysaloon.com/book/florida/",
-          "source": "official_venue_subpage",
-          "retrieved_at": "2026-11-13T04:23:22.606Z",
-          "confidence": "EXACT",
-          "verification_status": "verified"
         }
       }
     },
@@ -782,6 +796,13 @@
           "retrieved_at": "2026-11-13T04:23:22.606Z",
           "confidence": "HIGH_CONFIDENCE",
           "verification_status": "verified"
+        },
+        "menu_url": {
+          "url": "https://eathawkers.com/menus/dining/",
+          "source": "official_venue_subpage",
+          "retrieved_at": "2026-11-13T20:36:00.000Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
         }
       }
     },
@@ -863,6 +884,13 @@
           "retrieved_at": "2026-11-13T04:23:22.606Z",
           "confidence": "HIGH_CONFIDENCE",
           "verification_status": "verified"
+        },
+        "menu_url": {
+          "url": "https://tampaichibansushi.com/menu",
+          "source": "official_venue_subpage",
+          "retrieved_at": "2026-11-13T20:36:00.000Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
         }
       }
     },
@@ -873,9 +901,16 @@
       "gap_class": "E",
       "actions": {
         "officialWebsite": {
-          "url": "https://www.thesteinandvine.com/about",
+          "url": "https://www.thesteinandvine.com/",
           "source": "wf_editorial_citation",
-          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "retrieved_at": "2026-11-13T20:36:00.000Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        },
+        "menu_url": {
+          "url": "https://www.thesteinandvine.com/brandon/menu",
+          "source": "official_venue_subpage",
+          "retrieved_at": "2026-11-13T20:36:00.000Z",
           "confidence": "EXACT",
           "verification_status": "verified"
         }
@@ -1074,6 +1109,13 @@
           "url": "https://arwafl.com/",
           "source": "wf_editorial_citation",
           "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        },
+        "menu_url": {
+          "url": "https://arwafl.com/brand-order",
+          "source": "official_venue_subpage",
+          "retrieved_at": "2026-11-13T20:36:00.000Z",
           "confidence": "EXACT",
           "verification_status": "verified"
         }
@@ -1302,13 +1344,6 @@
           "confidence": "EXACT",
           "verification_status": "verified"
         },
-        "reservation_url": {
-          "url": "https://badmonkeyybor.com/event-reservation/",
-          "source": "official_venue_subpage",
-          "retrieved_at": "2026-11-13T04:23:22.606Z",
-          "confidence": "EXACT",
-          "verification_status": "verified"
-        },
         "menu_url": {
           "url": "https://badmonkeyybor.com/food-and-drink-menus/",
           "source": "official_venue_subpage",
@@ -1332,10 +1367,10 @@
           "verification_status": "verified"
         },
         "reservation_url": {
-          "url": "https://resy.com/cities/bradenton-fl/venues/obricks-irish-pub",
+          "url": "https://resy.com/cities/bradenton-fl/venues/obricks",
           "source": "official_venue_subpage",
-          "retrieved_at": "2026-11-13T04:23:22.606Z",
-          "confidence": "HIGH_CONFIDENCE",
+          "retrieved_at": "2026-11-13T20:40:00.000Z",
+          "confidence": "EXACT",
           "verification_status": "verified"
         },
         "menu_url": {
@@ -1400,6 +1435,13 @@
           "url": "https://www.kaizenjapanesekitchen.com/",
           "source": "wf_editorial_citation",
           "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        },
+        "menu_url": {
+          "url": "https://www.kaizenjapanesekitchen.com/order",
+          "source": "official_venue_subpage",
+          "retrieved_at": "2026-11-13T20:36:00.000Z",
           "confidence": "EXACT",
           "verification_status": "verified"
         }

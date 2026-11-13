@@ -47,6 +47,7 @@ import {
 import { addPlaceToTrips, parseCityState } from "../lib/trips.js";
 import { mapWfEditorial } from "../lib/editorialRule.js";
 import { cardToEditorial } from "../lib/atlasCards.js";
+import { ADMISSION_STATUS, resolveAdmissionTruth } from "../lib/ownedPlaceTruth.js";
 
 const REPO = fileURLToPath(new URL("..", import.meta.url));
 let pass = 0;
@@ -988,6 +989,110 @@ function makeDetailCtx(overrides = {}) {
     globalThis.document = prevDoc;
     globalThis.window = prevWin;
   }
+}
+
+// ── CASE 14: OPTIONAL PAID TOURS REMAIN DISTINCT FROM FREE PARK ADMISSION ──
+{
+  const PlacePageBookLinkMod = await loadComponent(
+    fileURLToPath(new URL("../app/components/PlacePageBookLink.js", import.meta.url)),
+    REPO,
+  );
+  const PlacePageBookLink = PlacePageBookLinkMod.default;
+
+  const freeParkWithTourCases = [
+    {
+      id: "ChIJ5_NkHLUcw4gRndvLQGe_Ox8",
+      name: "Shell Key Preserve",
+      postalCity: "Tierra Verde",
+      types: ["park", "tourist_attraction", "point_of_interest"],
+      lat: 27.6648,
+      lng: -82.7393,
+      openNow: true,
+      _liveDone: true,
+    },
+    {
+      id: "ChIJJ3XVfEhrw4gRY3oXQ874Cco",
+      name: "Ted Sperling Park",
+      postalCity: "Sarasota",
+      types: ["park", "tourist_attraction", "point_of_interest"],
+      lat: 27.3025,
+      lng: -82.5675,
+      openNow: true,
+      _liveDone: true,
+    },
+  ];
+
+  for (const park of freeParkWithTourCases) {
+    const adm = resolveAdmissionTruth(park, null);
+    ok(adm.status === ADMISSION_STATUS.FREE && adm.requiresTicket === false,
+      `Case 14a (${park.name}): admission truth remains FREE with requiresTicket=false (got ${adm.status} / ${adm.requiresTicket})`);
+
+    const cta = resolveDetailCta({
+      detail: park,
+      kind: "nature",
+      openState: true,
+      locName: `${park.postalCity}, FL`,
+    });
+    ok(cta.product === "tour" && /Tours at Viator/.test(cta.label) && !/Tickets/i.test(cta.label),
+      `Case 14b (${park.name}): resolveDetailCta preserves product='tour' and Tours label, never Tickets (got ${cta.product} / ${cta.label})`);
+
+    const gp = buildGamePlan({
+      detail: park,
+      editorial: { goodToKnow: "Arrive before 9:30 AM for calm water and easy launch parking." },
+      primaryCta: cta,
+      openState: true,
+    });
+    const costRow = gp.rows.find((r) => r.key === "cost");
+    ok(costRow && costRow.label === "Admission & tours" && costRow.text === "Free park entry · Optional guided tours via Viator" && costRow.action && costRow.action.kind === "partner_tour",
+      `Case 14c (${park.name}): Game Plan distinguishes free park entry from optional guided tour (got ${JSON.stringify(costRow)})`);
+
+    const sheetHtml = renderToStaticMarkup(createElement(DetailSheet, {
+      ctx: makeDetailCtx({
+        detail: park,
+        initialEditorial: { goodToKnow: "Arrive before 9:30 AM for calm water and easy launch parking." },
+        locName: `${park.postalCity}, FL`,
+      }),
+    }));
+    ok(sheetHtml.includes(`aria-label="Tours for ${park.name} via Viator"`) && !sheetHtml.includes(`aria-label="Tickets for ${park.name}`),
+      `Case 14d (${park.name}): DetailSheet primary CTA aria-label says Tours, never Tickets`);
+    ok(sheetHtml.includes("Free park entry · Optional guided tours via Viator") && sheetHtml.includes("We may earn a commission if you book through them. It never changes our rankings."),
+      `Case 14e (${park.name}): DetailSheet renders explicit free-entry note alongside FTC partner disclosure`);
+
+    const placePageCtaHtml = renderToStaticMarkup(createElement(PlacePageBookLink, {
+      provider: cta.provider,
+      offerId: cta.offerId,
+      contentId: park.id,
+      merchant: cta.merchant,
+      product: cta.product,
+    }));
+    ok(placePageCtaHtml.includes("Tours at Viator") && !placePageCtaHtml.includes("Tickets at Viator"),
+      `Case 14f (${park.name}): PlacePageBookLink renders Tours at Viator, never Tickets at Viator`);
+  }
+
+  // Commercial tour operator control: Get Up and Go Kayaking - Shell Key Preserve is NOT a free public park,
+  // and its Game Plan cost row describes tours rather than venue admission tickets.
+  const kayakOperator = {
+    id: "ChIJk04qcKEdw4gRHykY4WhCYBI",
+    name: "Get Up and Go Kayaking - Shell Key Preserve",
+    postalCity: "Tierra Verde",
+    types: ["tour_agency", "tourist_attraction", "point_of_interest"],
+    lat: 27.6815,
+    lng: -82.7244,
+    openNow: true,
+  };
+  const opAdm = resolveAdmissionTruth(kayakOperator, null);
+  ok(opAdm.status !== ADMISSION_STATUS.FREE,
+    `Case 14g (Commercial operator control): tour_agency with park name in title is not marked FREE public park (got ${opAdm.status})`);
+  const opCta = resolveDetailCta({ detail: kayakOperator, kind: "entertainment", openState: true, locName: "Tierra Verde, FL" });
+  const opGp = buildGamePlan({
+    detail: kayakOperator,
+    editorial: { goodToKnow: "Plan 2.5 hours on the water." },
+    primaryCta: opCta,
+    openState: true,
+  });
+  const opCost = opGp.rows.find((r) => r.key === "cost");
+  ok(opCost && opCost.label === "Tours & pricing" && opCost.text === "Guided tours available via Viator",
+    `Case 14h (Commercial operator control): tour operator uses Tours & pricing copy, never tickets (got ${JSON.stringify(opCost)})`);
 }
 
 if (fail.length) {
