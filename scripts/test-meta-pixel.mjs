@@ -41,35 +41,34 @@ const fbq = (...a) => calls.push(a);
 const t0 = 1_000_000;
 A._resetDedupe();
 
+// Affiliate clicks are NEVER sent from the browser (2026-11-12): Meta's only
+// conversion is the server-witnessed PartnerHandoff (scripts/test-meta-partner-handoff.mjs).
 let r = M.forwardToMeta("partner_click", { place_id: "p1", partner: "viator", email: "x@y.z" }, { fbq, now: t0 });
-ok(r.meta === true && r.name === "Lead", `partner_click -> Lead (got ${JSON.stringify(r)})`);
-ok(calls.length === 1 && calls[0][0] === "track" && calls[0][1] === "Lead", "fbq('track','Lead') was called");
-ok(!("email" in calls[0][2]) && calls[0][2].partner === "viator", "params are sanitized: partner kept, email dropped");
-
-r = M.forwardToMeta("partner_click", { place_id: "p1", partner: "viator" }, { fbq, now: t0 + 10 });
-ok(r.skipped === "duplicate" && calls.length === 1, "an immediate repeat is deduped");
+ok(r.meta === false && r.skipped === "not_mapped", `partner_click is NOT sent to Meta from the browser (got ${JSON.stringify(r)})`);
+ok(calls.length === 0, "…and fbq was not called");
+for (const ev of A.AFFILIATE_EVENTS) {
+  ok(M.metaEventFor(ev, {}) === null, `${ev} is not a browser Meta event (unverified tap)`);
+}
+ok(M.metaEventFor("partner_click", {}) === null, "partner_click is not a browser Meta event");
 
 const expect = { detail_open: "ViewContent", save: "AddToWishlist", signup_completed: "CompleteRegistration" };
 for (const [ev, name] of Object.entries(expect)) {
-  r = M.forwardToMeta(ev, { place_id: "p-" + ev }, { fbq, now: t0 + 1000 });
+  r = M.forwardToMeta(ev, { place_id: "p-" + ev, email: "a@b.c" }, { fbq, now: t0 + 1000 });
   ok(r.meta === true && r.name === name, `${ev} -> ${name} (got ${JSON.stringify(r)})`);
 }
-ok(calls.filter((c) => c[0] === "track").length === 4, "four standard events fired so far");
+ok(calls.filter((c) => c[0] === "track").length === 3, "three standard events fired so far");
+ok(calls.every((c) => !c[2] || !("email" in c[2])), "params are sanitized: no email reaches fbq");
+
+r = M.forwardToMeta("detail_open", { place_id: "p-detail_open" }, { fbq, now: t0 + 1010 });
+ok(r.skipped === "duplicate" && calls.length === 3, "an immediate repeat is deduped");
 
 r = M.forwardToMeta("screen_view", { screen: "home" }, { fbq, now: t0 + 2000 });
 ok(r.skipped === "not_mapped" && r.meta === false, "analytics-only noise is NOT forwarded");
-ok(calls.length === 4, "…and did not call fbq");
+ok(calls.length === 3, "…and did not call fbq");
 
-r = M.forwardToMeta("tickets_out", { place_id: "p9" }, { now: t0 + 3000 });
+r = M.forwardToMeta("detail_open", { place_id: "p9" }, { now: t0 + 3000 });
 ok(r.skipped === "no_fbq" && r.meta === false, "without fbq on the page nothing throws and nothing fires");
 ok(M.trackMetaPageView("/x").skipped === "ssr", "trackMetaPageView is a no-op without window");
-
-// Every affiliate event name the Google bridge treats as revenue intent maps
-// to Lead here too — the two bridges must not drift apart.
-for (const ev of A.AFFILIATE_EVENTS) {
-  const m = M.metaEventFor(ev, {});
-  ok(m && m.name === "Lead", `${ev} is a Lead on the Meta side as well`);
-}
 
 // ── 3. component + wiring ────────────────────────────────────────────────
 const comp = strip(read("app/components/MetaPixel.js"));
@@ -96,7 +95,7 @@ ok(fg > -1 && fm > fg, "logEvent forwards to Meta right after Google");
 
 const trk = strip(read("lib/track.js"));
 ok(/import\s*\{\s*forwardToMeta\s*\}\s*from\s*"\.\/metaPixel"/.test(trk), "lib/track.js imports forwardToMeta");
-ok(trk.indexOf("forwardToMeta(name, payload)") > trk.indexOf("forwardToGoogle(name, payload)"), "track() forwards partner_click to Meta after Google (partner_click only travels this path)");
+ok(trk.indexOf("forwardToMeta(name, payload)") > trk.indexOf("forwardToGoogle(name, payload)"), "track() still mirrors mapped events (ViewContent etc.) to Meta after Google");
 
 // ── 4. CSP ───────────────────────────────────────────────────────────────
 const csp = read("next.config.js");
@@ -105,4 +104,4 @@ ok(dir("script-src").includes("https://connect.facebook.net"), "script-src allow
 ok(dir("img-src").includes("https://www.facebook.com"), "img-src allows www.facebook.com (noscript + image beacons)");
 ok(dir("connect-src").includes("https://www.facebook.com"), "connect-src allows www.facebook.com (event beacons)");
 
-console.log(`test-meta-pixel: OK — ${pass} assertions (bridge executed: Lead/ViewContent/AddToWishlist/CompleteRegistration fire, noise and duplicates dropped, emails stripped; id defaults to the live dataset; component gated below hooks and mounted once; CSP allows the three hosts)`);
+console.log(`test-meta-pixel: OK — ${pass} assertions (bridge executed: ViewContent/AddToWishlist/CompleteRegistration fire, affiliate taps never sent from the browser, noise and duplicates dropped, emails stripped; id defaults to the live dataset; component gated below hooks and mounted once; CSP allows the three hosts)`);
