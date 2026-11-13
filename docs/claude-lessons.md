@@ -663,6 +663,17 @@ requires one, keep doing every independent part, and ask for a NEW decision only
 eight hard stops. Platform safety gates and denials are still never bypassed. Locked by
 `scripts/check-claude-md-owner-sections.mjs`.
 
+Extended 2026-11-13 (owner operating mode): the owner said the same friction kept coming
+back in other forms: play-by-play status messages, "still queued" pings, watchers left
+running, expected states (an undeployed route's 404, a queued preview) reported as alarms,
+approvals re-requested after a rebase, and long completion essays. The section now also
+covers approval by meaning instead of commit hash, a four-step check before any manual ask,
+hard stops 9 and 10, notification classes (EXPECTED / INFORMATIONAL / ACTIONABLE / INCIDENT),
+a short default completion report, async queues without babysitting (folded in from the
+Async Infrastructure Rule draft, PR #2467), cleanup of temporary automation, TESTED vs
+DEPLOYED vs VERIFIED, rigor matched to risk, and the brand asset vault. Concise reports
+must still name failed tests, incomplete deploys, regressions and real blockers.
+
 ## Recent state (for context, not instructions)
 
 - Two audits complete (recent-release surfaces + full-site sweep). 14 fixes shipped

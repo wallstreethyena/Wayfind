@@ -744,7 +744,7 @@
     },
     {
       "file": "scripts/check-claude-md-owner-sections.mjs",
-      "reason": "STRUCTURAL-ONLY (2026-11-12): the protected thing is a document (CLAUDE.md owner rules), not code; asserts required sections and sentences with 8 in-process negative controls"
+      "reason": "STRUCTURAL-ONLY (2026-11-12): the protected thing is a document (CLAUDE.md owner rules), not code; asserts required sections and sentences with 12 in-process negative controls"
     }
   ]
 }
