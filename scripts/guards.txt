@@ -2601,6 +2601,7 @@ node scripts/test-function-size-gate.mjs
 node scripts/check-event-not-found-recovery.mjs
 # 2026-11-10: StubHub (Partnerize) affiliate adapter ships DARK until STUBHUB_PARTNERIZE_CAMREF is set.
 node scripts/test-stubhub-dark.mjs
+node scripts/test-christmas-stubhub-dark.mjs
 # 2026-11-11: human traffic reserve - background jobs may not use the last 20% of a visitor-shared Google line.
 node scripts/test-human-traffic-reserve.mjs
 # 2026-11-11: home feed INP: a parent render must not re-render the Christmas rail cards; the itinerary flag poll keeps object identity.
