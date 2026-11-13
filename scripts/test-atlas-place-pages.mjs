@@ -58,7 +58,9 @@ const index = indexAtlasCards(cards);
 // The three Tampa farms stay HOLD — they must not mint ids or grow this count.
 // 2026-09-29: owner-approved Atlas-590 completion (wayfind-atlas-editorial #1/#2) → additive merge: 262 live kept + 197 new = 459 (was 264); 28 held for source vetting.
 // 2026-10-03: owner-requested Best Breakfast 2026 winners editorial (La Croisette, Bistro Café, Eggs Up Grill, two Keke's) → 459 + 5 = 464.
-const PUBLISH_READY = 464;
+// 2026-10-20: owner-requested Best Cafés 2026 winners editorial (Café Bastille, Tealicious, Dolce and Bake, Hashtag Café, Joy Coffee, ATRIA Cafe) → 464 + 6 = 470.
+// 2026-11-13: Best Experiences 2026 winners editorial (11 new cards; Gatorland already had one) → 470 + 11 = 481.
+const PUBLISH_READY = 481;
 
 // ── 1. allowlist size + the three live-404 examples open ──────────────────
 const allow = listPublishReadyAtlasIds();

@@ -111,6 +111,43 @@ const EXPLICIT_CROSS_CARD_SOURCES = new Map([
   // Bistro Café Coral Gables: the Miami Herald opening feature (Sarah Moreno,
   // May 2023), read through its AOL syndication URL.
   ["ChIJRUCXlqO32YgR2cVEptp7ZW8", new Set(["aol.com"])],
+  // Best Cafés 2026 winners (2026-10-20), reviewed per card:
+  // Café Bastille Downtown Miami: Time Out Miami's brunch feature names the
+  // Nutella French toast at this café.
+  ["ChIJG2-9xp222YgRJ_Dqby74tmg", new Set(["timeout.com"])],
+  // Tealicious Cafe: I Love The Burg (owner interview, Puffles) and Tampa
+  // Magazine's 2026 Notable Bites list.
+  ["ChIJY_kA8nfjwogR1AhPPGA2k7o", new Set(["ilovetheburg.com", "tampamagazines.com"])],
+  // Dolce and Bake has no official site; its Tripadvisor listing and its
+  // Uber Eats menu are the only first-hand menu evidence.
+  ["ChIJIQE2BMF954gRRQ97-X89_G0", new Set(["tripadvisor.com", "ubereats.com"])],
+  // Hashtag Café: SRQ Magazine's opening feature (owners, Moroccan mint tea).
+  ["ChIJEUEmzE1Bw4gRHHXe_oxJF7E", new Set(["srqmagazine.com"])],
+  // Joy Coffee: its own Linktree, plus the Crema listing that carries the
+  // shop hours and the coffee cake review.
+  ["ChIJ1U_vFp0Xw4gRGKl6mJGJ9UI", new Set(["linktr.ee", "cremaapp.com"])],
+  // ATRIA Cafe: The Local Palate's bakery profile.
+  ["ChIJA-QkamE7w4gRfdzcxEHyPls", new Set(["thelocalpalate.com"])],
+  // Best Experiences 2026 winners (2026-11-13), reviewed per card:
+  // Typhoon Lagoon: no Disney page is ever opened (collection ban), so the
+  // facts come from Wikipedia and independent park guides, including the
+  // Nov 2026 reopening notice.
+  ["ChIJ-cylLpl_3YgRLc_XNEh9I2I", new Set(["orlando-themeparks.com", "mickeyblog.com", "deeparrival.com"])],
+  // Animal EDventure Park has no reachable official site: family event
+  // listings carry its address, phone and tour format.
+  ["ChIJb3VDF7rW3ogRTKctGjuXzJM", new Set(["macaronikid.com", "everyparentpbc.org"])],
+  // Florida Keys Aquarium Encounters: the Florida Keys tourism council page.
+  ["ChIJbW0DuCra0IgRW-jZTHa3lqs", new Set(["fla-keys.com"])],
+  // Don Garlits Museum: RACER's 2026 museum feature.
+  ["ChIJ0wVCGeHW54gRNAxvOilMJYY", new Set(["racer.com"])],
+  // St. Pete Coastal Cruises: the tour listing that names Shell Key shelling.
+  ["ChIJoyuEA-3jwogR25UxMPCIDt0", new Set(["advcollective.com"])],
+  // Get Up and Go Kayaking Shell Key: ABC Action News feature.
+  ["ChIJk04qcKEdw4gRHykY4WhCYBI", new Set(["tampabay28.com"])],
+  // The Escape Game Orlando: Time Out Orlando.
+  ["ChIJOeE5xFR-54gR0waxD2npG4M", new Set(["timeout.com"])],
+  // Outta Control Magic Dinner Show: the I-Drive district guide (address).
+  ["ChIJRdxzRk1-54gRvzuwSgYoDV0", new Set(["internationaldriveorlando.com"])],
 ]);
 
 // ── hostname handling ─────────────────────────────────────────────────────
