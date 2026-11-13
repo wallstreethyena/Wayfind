@@ -1,5 +1,5 @@
 -- Reserve a table: database tests for the five wf_reserve_* functions.
--- Self contained. Run AFTER 20261111210000_wf_reserve_partners_requests.sql is applied. Everything
+-- Self contained. Run AFTER 20261112191807_wf_reserve_partners_requests.sql is applied. Everything
 -- happens inside one transaction that is ROLLED BACK, so nothing is left behind. A failed check
 -- raises an exception that names it. Run as a role that may execute the functions (service_role
 -- or the database owner). Seeds only rows whose place_id starts with 'tst-reserve-'.

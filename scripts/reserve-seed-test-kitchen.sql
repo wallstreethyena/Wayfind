@@ -1,5 +1,5 @@
 -- Reserve a table: the TEST restaurant. NOT RUN by the code lane; the integrator runs it against the
--- preview or production database after the 20261111210000 migration is applied.
+-- preview or production database after the 20261112191807 migration is applied.
 -- Idempotent: safe to run again, it updates the same row. Stage 'demo' means it is visible only
 -- outside production (the partner list never returns a demo partner in production) and no email is
 -- ever sent for it. Try it at /reserve/test on a preview deployment.

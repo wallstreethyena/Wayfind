@@ -22,7 +22,7 @@ let count = 0;
 const ok = (c, m) => { assert.ok(c, m); count++; };
 const eq = (a, b, m) => { assert.deepEqual(a, b, m); count++; };
 const read = (p) => readFileSync(new URL("../" + p, import.meta.url), "utf8");
-const MIG = "supabase/migrations/20261111210000_wf_reserve_partners_requests.sql";
+const MIG = "supabase/migrations/20261112191807_wf_reserve_partners_requests.sql";
 const stripSql = (s) => s.replace(/\/\*[\s\S]*?\*\//g, " ").replace(/--[^\n]*/g, " ");
 const mig = stripSql(read(MIG));
 
