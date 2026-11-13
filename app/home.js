@@ -11440,11 +11440,13 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
                   dashboard flatlines at cutover. */}
                       {!browseCat && <HomeAffiliateActivityRail
                         items={homeAffiliateItems}
+                        stagedCards
                         contentId={cityNow}
                         onLog={(action, place, extra) => { try { logEvent(action, place, extra); } catch (e) {} }}
                       />}
                       {!browseCat && <ThemeParkRail
                         mode="flagship"
+                        stagedCards
                         onOpenPlace={(place) => openDetail(place, "theme_park_rail")}
                         isSaved={isSaved}
                         isOnTrip={isOnTrip}

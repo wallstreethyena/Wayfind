@@ -1089,6 +1089,7 @@ scripts/test-spend-bypass-regression.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue Q
 scripts/test-spend-pacing.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	54	0	0	a79bfc97b05e1af475e00693748ab9ea7973d9d93f72e0e08fa66f17ec1ff7f6
 scripts/test-spend-tests-prod-env.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	0	0	0	978bdd9019c8b3d5d067e43152f4cd77fc24007428375ad3dc304e472e66dee5
 scripts/test-sports-rail.mjs	0	CALL	blocks-ci-and-deploy	1	-	23	0	0	7907c59504cb6b0b57e031720dc0490f40cdd3e1a8fcc78c8cbff1de19ab6d08
+scripts/test-staged-rails.mjs	0	RENDER	blocks-ci-and-deploy	1	-	32	0	0	63ae44b3a8f8b1875e9db0a8dfc3381e5fb7e5c132f02c46735a9ce5b9bf381d
 scripts/test-stale-tab.mjs	0	CALL	blocks-ci-and-deploy	1	-	20	0	0	4e023919ebef1c7dd7c381ffd5a90f727cb1d140b689851b280ca4da768ad44f
 scripts/test-stubhub-dark.mjs	0	CALL	blocks-ci-and-deploy	1	-	33	0	0	0bd51a90d78dfccb5c782bc89065890d9d38cdbab8bdc8ce5d71f595b7adfcd2
 scripts/test-subfilters.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	24	1	0	28f2c7b49c2e57431923eb46b32a52b5112502d168f94531a93a79a127325bf0
