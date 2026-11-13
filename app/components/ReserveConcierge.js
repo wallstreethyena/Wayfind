@@ -366,7 +366,12 @@ export default function ReserveConcierge({ initialPlace, initialMessage, embedde
       case "profile": return <ProfileCard busy={busy} error={cardError} onSubmit={submitProfile} />;
       case "signin": return <SigninCard onSignedIn={() => { clearPendingReserve(); afterSignIn(); }} place={pl} />;
       case "choose": return <ChooseCard card={c} busy={busy} onChoose={choose} />;
-      case "alternatives": return <ReservePicks picks={c.picks} title="Places you can book" exclude={pid.current} onPick={pickAlt} />;
+      case "alternatives": return (
+        <div data-reserve-card="alternatives">
+          {c.contact && c.contact.url ? <a data-reserve-contact="1" href={c.contact.url} style={{ ...linkBtn, margin: "0 0 10px" }}>{c.contact.label}</a> : null}
+          {Array.isArray(c.picks) && c.picks.length ? <ReservePicks picks={c.picks} title="Similar places nearby" exclude={pid.current} onPick={pickAlt} /> : null}
+        </div>
+      );
       case "booked": return <BookedCard card={c} place={pl} />;
       case "requested": return <RequestedCard card={c} place={pl} />;
       case "retry": return <div style={{ margin: "0 0 10px" }}><button type="button" style={quietBtn} disabled={busy} onClick={retry}>Try again</button></div>;
