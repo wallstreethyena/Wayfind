@@ -651,6 +651,33 @@ the guard green, the assertion is decoration.
 
 ---
 
+## Gabriel execution autonomy (2026-11-12)
+
+Rule: CLAUDE.md "GABRIEL EXECUTION AUTONOMY". Incident: on PR #2437 (Instagram to Trending)
+the owner had approved creating the table, loading 167 posts, merging and verifying. The
+Supabase `apply_migration` tool showed the owner a confirmation dialog that timed out; the
+agent then stopped the whole mission and asked him to type "go". The owner called it a
+repeated systemic failure: an approved mission was handed back over a tool prompt. Fix: a
+confirmation dialog is not a new decision. Ask only for the exact click when the platform
+requires one, keep doing every independent part, and ask for a NEW decision only at the
+eight hard stops. Platform safety gates and denials are still never bypassed. Locked by
+`scripts/check-claude-md-owner-sections.mjs`.
+
+Extended 2026-11-13 (owner operating mode): the owner said the same friction kept coming
+back in other forms: play-by-play status messages, "still queued" pings, watchers left
+running, expected states (an undeployed route's 404, a queued preview) reported as alarms,
+approvals re-requested after a rebase, and long completion essays. The section now also
+covers approval by meaning instead of commit hash, a four-step check before any manual ask,
+hard stops 9 and 10, notification classes (EXPECTED / INFORMATIONAL / ACTIONABLE / INCIDENT),
+a short default completion report, async queues without babysitting (folded in from the
+Async Infrastructure Rule draft, PR #2467), cleanup of temporary automation, TESTED vs
+DEPLOYED vs VERIFIED, rigor matched to risk, and the brand asset vault. Concise reports
+must still name failed tests, incomplete deploys, regressions and real blockers.
+Same day: AGENTS.md section 11 still told every agent to confirm before each push, PR,
+merge or deploy, which contradicted the mission rule. It now asks first outside an approved
+mission, treats those steps as approved inside one, and keeps the hard stops; the same guard
+pins it so the two files can't drift apart again.
+
 ## Recent state (for context, not instructions)
 
 - Two audits complete (recent-release surfaces + full-site sweep). 14 fixes shipped

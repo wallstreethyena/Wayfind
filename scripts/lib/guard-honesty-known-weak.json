@@ -741,6 +741,10 @@
     {
       "file": "scripts/check-migration-receipts.mjs",
       "reason": "STRUCTURAL-ONLY (2026-10-07): production's migration ledger cannot be read from prebuild; checks the repo's receipts/pending record with 10 in-process controls; live ledger is checked by check-migration-reconciliation in the canary"
+    },
+    {
+      "file": "scripts/check-claude-md-owner-sections.mjs",
+      "reason": "STRUCTURAL-ONLY (2026-11-12): the protected thing is a document (CLAUDE.md owner rules), not code; asserts required sections and sentences with 12 in-process negative controls"
     }
   ]
 }
