@@ -61,6 +61,7 @@ import { isOwnerPick } from "../../../lib/ownerBump";
 import { ATTRACTION_DISCOVERY_IDS } from "../../../lib/tripAttractions.js";
 import CommunityFooter from "../CommunityFooter";
 import PlacePhotoContribution from "../PlacePhotoContribution";
+import { buildGamePlan } from "../../../lib/gamePlan.js";
 
 // An internal redirect can still be an affiliate handoff; origin is not the
 // sponsorship signal. Free operator offers retain ordinary link semantics.
@@ -479,6 +480,138 @@ function WhereToGoNextRow({ p, partner, reason, pairDistMi, openDetail, liveOpen
   );
 }
 
+function GamePlanBrief({ gamePlan, detail, logEvent, openDetail, openExternal }) {
+  const [expanded, setExpanded] = useState(false);
+  useEffect(() => { setExpanded(false); }, [detail && detail.id]);
+  if (!gamePlan || !gamePlan.show || !Array.isArray(gamePlan.rows) || !gamePlan.rows.length) return null;
+  const visibleRows = expanded ? gamePlan.rows : gamePlan.primaryRows;
+  const hiddenCount = gamePlan.secondaryRows ? gamePlan.secondaryRows.length : 0;
+  const openUrl = (url) => {
+    if (url && typeof openExternal === "function") openExternal(url);
+  };
+  return (
+    <section
+      data-game-plan
+      aria-label="Your Game Plan"
+      style={{
+        margin: "0 0 16px",
+        padding: "13px 14px",
+        background: "linear-gradient(155deg, rgba(22,30,43,.96), rgba(11,16,24,.98))",
+        border: `1px solid ${C.border}`,
+        borderRadius: 16,
+        boxShadow: "0 12px 28px rgba(0,0,0,.22)",
+      }}
+    >
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, marginBottom: 10 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 7, minWidth: 0 }}>
+          <span aria-hidden="true" style={{ fontSize: 13 }}>🧭</span>
+          <span style={{ fontSize: 11.5, fontWeight: 900, letterSpacing: ".08em", textTransform: "uppercase", color: C.light }}>Your Game Plan</span>
+        </div>
+        <span style={{ fontSize: 10.5, fontWeight: 700, color: C.muted, whiteSpace: "nowrap" }}>Verified brief</span>
+      </div>
+      <div style={{ display: "grid", gap: 8 }}>
+        {visibleRows.map((row) => {
+          const isTarget = !!(row.targetPlace && typeof openDetail === "function");
+          const isOfficial = !!(row.action && row.action.kind === "official_admission" && row.action.href);
+          const valueColor = row.tone === "go" ? "#4ADE80" : row.tone === "wait" ? "#F87171" : C.text;
+          return (
+            <div
+              key={row.key}
+              data-game-plan-row={row.key}
+              onClick={isTarget ? () => {
+                try { logEvent("game_plan_action", detail, { action: row.label === "Rain backup nearby" ? "weather_pivot" : "next_stop", target_id: row.targetPlace.id }); } catch (e) {}
+                openDetail(row.targetPlace);
+              } : undefined}
+              style={{
+                display: "flex",
+                alignItems: "flex-start",
+                justifyContent: "space-between",
+                gap: 10,
+                padding: "8px 10px",
+                borderRadius: 11,
+                background: "rgba(255,255,255,.028)",
+                border: "1px solid rgba(255,255,255,.06)",
+                cursor: isTarget ? "pointer" : "default",
+                minWidth: 0,
+              }}
+            >
+              <div style={{ minWidth: 0, flex: 1 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 2 }}>
+                  <span aria-hidden="true" style={{ fontSize: 12 }}>{row.icon}</span>
+                  <span style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: ".05em", textTransform: "uppercase", color: C.muted }}>{row.label}</span>
+                </div>
+                <div style={{ fontSize: 13, fontWeight: 750, color: valueColor, lineHeight: 1.38, overflowWrap: "anywhere" }}>{row.value}</div>
+                {row.sub ? <div style={{ fontSize: 11.5, color: C.muted, lineHeight: 1.35, marginTop: 2, overflowWrap: "anywhere" }}>{row.sub}</div> : null}
+              </div>
+              {isOfficial ? (
+                <a
+                  data-game-plan-official-link
+                  href={row.action.href}
+                  target="_blank"
+                  rel="noreferrer"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    try { logEvent("official_ticket_click", detail, { href: row.action.href, surface: "game_plan" }); } catch (err) {}
+                    try { logEvent("game_plan_action", detail, { action: "official_admission", href: row.action.href }); } catch (err) {}
+                    openUrl(row.action.href);
+                  }}
+                  style={{
+                    flexShrink: 0,
+                    alignSelf: "center",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 4,
+                    padding: "6px 10px",
+                    borderRadius: 9,
+                    background: "rgba(56,189,248,.12)",
+                    border: "1px solid rgba(56,189,248,.32)",
+                    color: C.accent,
+                    fontSize: 11.5,
+                    fontWeight: 800,
+                    textDecoration: "none",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  <span>{row.action.label || "Official site ↗"}</span>
+                </a>
+              ) : isTarget ? (
+                <span aria-hidden="true" style={{ alignSelf: "center", color: C.accent, fontSize: 15, fontWeight: 800, flexShrink: 0 }}>›</span>
+              ) : null}
+            </div>
+          );
+        })}
+      </div>
+      {hiddenCount > 0 ? (
+        <button
+          type="button"
+          data-game-plan-toggle
+          onClick={() => {
+            const next = !expanded;
+            setExpanded(next);
+            try { logEvent("game_plan_action", detail, { action: next ? "expand" : "collapse", hidden_count: hiddenCount }); } catch (e) {}
+          }}
+          style={{
+            marginTop: 8,
+            width: "100%",
+            padding: "6px 10px",
+            borderRadius: 9,
+            background: "transparent",
+            border: `1px dashed ${C.border}`,
+            color: C.light,
+            fontSize: 11.5,
+            fontWeight: 750,
+            cursor: "pointer",
+            textAlign: "center",
+          }}
+        >
+          {expanded ? "Show fewer details ▴" : `Show ${hiddenCount} more planning detail${hiddenCount === 1 ? "" : "s"} ▾`}
+        </button>
+      ) : null}
+    </section>
+  );
+}
+
 export function detailFeedbackPath(detail) {
   const id = String(detail && detail.id || "").trim();
   return id ? "/p/" + encodeURIComponent(id) : "/p";
@@ -847,6 +980,39 @@ export default function DetailSheet({ ctx }) {
     } catch (e) {}
   }, [detail && detail.id, primaryCta.type, primaryCta.monetized]);
 
+  // Decision brief ("Your Game Plan") synthesized from owned editorial, hours,
+  // weather, insider notes, verified cost/admission, and destination-gated nearby pool.
+  const effectiveEditorial = editorial || (detail && detail.editorial && hasSourcedEditorialFields(detail.editorial) ? detail.editorial : (detail ? carriedEditorial(detail) : null));
+  const gamePlan = detail ? buildGamePlan({
+    detail,
+    editorial: effectiveEditorial,
+    detailExtra,
+    verdict,
+    openState,
+    weather,
+    insider,
+    wayfindNotesList: !detail._event && typeof wayfindNotes === "function" ? wayfindNotes(detail.name) : null,
+    primaryCta,
+    websiteHref,
+    nearbyPicks: !detail._event ? pairsWellWith(detail, venueNearby.places || [], { max: 3, radiusMi: DETAIL_NEARBY_RADIUS_MI }) : [],
+    nearbyPool: venueNearby.places || [],
+    formatEventDate,
+    eventWhenLabel,
+  }) : null;
+  const gamePlanShownFor = useRef(null);
+  useEffect(() => {
+    if (!detail || !detail.id || !gamePlan || !gamePlan.show) return;
+    const key = `${detail.id}:${gamePlan.rows.length}:${!!gamePlan.officialAction}`;
+    if (gamePlanShownFor.current === key) return;
+    gamePlanShownFor.current = key;
+    try {
+      logEvent("game_plan_shown", detail, {
+        rows: gamePlan.rows.length,
+        has_official: !!gamePlan.officialAction,
+        has_weather_pivot: !!gamePlan.weatherPivot,
+      });
+    } catch (e) {}
+  }, [detail && detail.id, gamePlan && gamePlan.show, gamePlan && gamePlan.rows && gamePlan.rows.length, gamePlan && !!gamePlan.officialAction, gamePlan && !!gamePlan.weatherPivot]);
 
   // Shared credited answer, with bounded free-only recovery for a transient
   // acquisition failure before an image has mounted.
@@ -1124,6 +1290,15 @@ export default function DetailSheet({ ctx }) {
               {/* 2026-09-23 (owner): ONE disclosure line per detail sheet. When the
                   line already rendered under the primary action, this one stays off. */}
               {!ftcNearPrimary && <BookingCTA variant="disclosure" detail={detail} kind={placeKind(detail)} viaTours={viaTours} />}
+              {gamePlan && gamePlan.show ? (
+                <GamePlanBrief
+                  gamePlan={gamePlan}
+                  detail={detail}
+                  logEvent={logEvent}
+                  openDetail={openDetail}
+                  openExternal={openExternal}
+                />
+              ) : null}
               <PlaceParkingMap place={detail} nearby={venueNearby} />
               {Array.isArray(detail._children) && detail._children.length ? (
                 <section data-contained-venues style={{ margin: "10px 0 16px", padding: "13px 14px", background: "rgba(255,255,255,.025)", border: `1px solid ${C.border}`, borderRadius: 14 }}>

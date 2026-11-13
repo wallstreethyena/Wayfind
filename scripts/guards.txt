@@ -2324,6 +2324,8 @@ node scripts/test-christmas-tickets.mjs
 node scripts/test-christmas-ticketmaster.mjs
 node scripts/test-snowcat-tickets.mjs
 node scripts/test-christmas-tours.mjs
+# /christmas-in-florida is one cached page: zero network during next build (executed with fetch stubbed), no searchParams.
+node scripts/test-christmas-cached-page.mjs
 
 node scripts/test-halloween-intent-rails.mjs
 node scripts/test-halloween-route.mjs
@@ -2610,3 +2612,7 @@ node scripts/test-reserve-v2.mjs
 node scripts/test-reserve-guest.mjs
 # 2026-11-12: homepage JS diet - the live sports poster tile loads lib/posterEvents.js (event pipeline, ~13.9KB gz) lazily; lock the import-graph boundary.
 node scripts/check-home-diet.mjs
+# 2026-11-12: Place Detail "Your Game Plan" decision brief + Commerce Entity-Resolution guard.
+node scripts/test-game-plan-and-entity-resolution.mjs
+
+node scripts/test-owned-social-reconcile.mjs

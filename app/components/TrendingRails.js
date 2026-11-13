@@ -21,6 +21,7 @@ import { priceLabel } from "../../lib/price.js";
 import { toDisplayScore } from "../../lib/score.js";
 import { railScoreOf } from "../../lib/railRank.js";
 import { useCuratedRows } from "../../lib/curatorPicks.js";
+import OwnedSocialShelf from "./OwnedSocialShelf";
 
 const C = { muted: "#8B93A1" };
 const compact = (n) => Number(n) >= 1000 ? Math.round(Number(n) / 100) / 10 + "k" : String(Number(n) || 0);
@@ -89,10 +90,14 @@ export default function TrendingRails({
     + (Array.isArray(eventsByRail[rail.id]) ? eventsByRail[rail.id].length : 0)
     + byPlaceRail[rail.id].length, 0);
 
-  if (!total && (placesPending || (eventSurface && eventSurface.pending))) return <RailLoading label="Finding what's trending" />;
-  if (!total) return <p role="status" style={{ color: C.muted, fontSize: 13, lineHeight: 1.5, padding: "7px 2px 13px" }}>Nothing verified is trending near you yet. Check back soon.</p>;
+  // Wayfind's own Reels and carousels lead Trending on every path, loading and
+  // empty included (lib/ownedSocial.js; reconciled by /api/cron/owned-social).
+  const owned = <OwnedSocialShelf active={active} />;
+  if (!total && (placesPending || (eventSurface && eventSurface.pending))) return <>{owned}<RailLoading label="Finding what's trending" /></>;
+  if (!total) return <>{owned}<p role="status" style={{ color: C.muted, fontSize: 13, lineHeight: 1.5, padding: "7px 2px 13px" }}>Nothing verified is trending near you yet. Check back soon.</p></>;
 
   return <>
+    {owned}
     {eventSurface && eventSurface.failed ? <p role="status" style={{ margin: "8px 0 0", fontSize: 13, color: C.muted }}>Wayfind could not reach this week&rsquo;s event inventory. Trending places are still shown.</p> : null}
     {TRENDING_RAIL_DEFS.map((rail) => (
       <TrendingShelf key={rail.id} rail={rail}

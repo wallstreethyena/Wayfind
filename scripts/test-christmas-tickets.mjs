@@ -529,8 +529,8 @@ ok(html.includes("data-christmas-filter") && html.includes(">Best rated<") && ht
   ok(/data-commerce-owner=\{affiliate \? undefined : "ChristmasTickets"\}/.test(comp.slice(comp.indexOf("export function TopPicks"))) && /onClick=\{affiliate \? undefined : \(\) => organizerTap\(row\)\}/.test(comp) && /import \{ XM_CARD_CSS, organizerTap \} from "\.\/ChristmasTicketCard\.js"/.test(comp) && !/commerce_cta_clicked/.test(comp),
     "pick organizer taps are recorded once here and /go taps by the beacon, under the same christmas_tickets surface");
   const page = strip(read("app/christmas-in-florida/page.js"));
-  ok(/const topPicks = isSocialAdLanding\(params\) \? christmasTopPicks\(tickets\) : null;/.test(page) && /<ChristmasTickets model=\{tickets\} topPicks=\{topPicks\}/.test(page),
-    "the page builds picks only for a social landing, from the same featured rows");
+  ok(/const topPicks = christmasTopPicks\(tickets\);/.test(page) && /<ChristmasTickets model=\{tickets\} topPicks=\{topPicks\}/.test(page) && /setShow\(isSocialAdLanding\(Object\.fromEntries\(new URLSearchParams\(window\.location\.search\)\)\)\)/.test(comp) && /<SocialTopPicks picks=\{topPicks\} \/>/.test(comp) && /<div data-social-picks="" hidden=\{!show\}>/.test(comp),
+    "the cached page always carries the picks; only a social landing URL shows them, from the same featured rows");
 }
 {
   const cardsHtml = html.slice(html.indexOf('data-ticket-id="'));
@@ -551,12 +551,14 @@ ok(html.includes("data-christmas-filter") && html.includes(">Best rated<") && ht
   ok(!/commerceHref\(|viatorProductGoUrl|withViatorTracking|anrdoezrs|jdoqocy|tkqlhce|cj\.com/.test(lib), "no affiliate URL is built in lib/christmasTickets.js (hrefs come from the registry)");
   ok(!/\.ticket\b|commission|cpa|payout|rate/i.test(lib.slice(lib.indexOf("function merit"), lib.indexOf("export function christmasTicketsModel"))), "the merit sort reads no ticket, commission or payout field");
   const page = strip(read("app/christmas-in-florida/page.js"));
-  ok(/export const revalidate = 3600/.test(page) && /canonical: SITE_URL \+ "\/christmas-in-florida"/.test(page), "the page keeps revalidate and the canonical URL");
+  ok(/export const revalidate = 300;/.test(page) && /canonical: SITE_URL \+ "\/christmas-in-florida"/.test(page), "the page keeps revalidate and the canonical URL");
   ok(/<ChristmasTickets /.test(page) && /browse=\{/.test(page) && /<ChristmasBrowse /.test(page) && !/id="watchlist"/.test(page) && /"@type": "ItemList"/.test(page), "the page renders tickets and browse without the internal research watchlist, preserving ItemList");
   ok(/<SeasonalSearchHub slug="christmas-in-florida" today=\{today\} seoOnly/.test(page), "the SEO guide content stays on the page");
-  // 2026-11-11: the page builds on every visit, so its independent reads run side by side.
-  ok(page.indexOf("const dealsRead = fetchChristmasTicketDeals()") > -1 && page.indexOf("const dealsRead = fetchChristmasTicketDeals()") < page.indexOf("await christmasBrowseCached(") && /const dealsById = await dealsRead;/.test(page), "the deals read starts before the browse read and is awaited after it");
-  ok(/\[tickets, first\] = await Promise\.all\(\[[\s\S]{0,300}withChristmasTicketPhotos\([\s\S]{0,300}withBrowseTicketPhotos\(/.test(page), "the two photo passes run side by side");
+  // The page is one cached copy; its reads live in lib/christmasPageData.js
+  // (executed by test-christmas-cached-page.mjs). Independent reads run side by side.
+  const pageData = strip(read("lib/christmasPageData.js"));
+  ok(/await christmasPageData\(\)/.test(page) && /const \[found, dealRead\] = await Promise\.all\(\[\s*browse\(query, today,[\s\S]{0,200}readDeals\(\),\s*\]\)/.test(pageData), "the browse and the deals read run side by side");
+  ok(/const \[tickets, first\] = await Promise\.all\(\[[\s\S]{0,300}ticketPhotos\([\s\S]{0,300}browsePhotos\(/.test(pageData), "the two photo passes run side by side");
   const strings = (page.match(/"[^"\n]{3,}"|`[^`\n]{3,}`|>[^<>{}\n]{3,}</g) || []).filter((t) => /[–—]| - /.test(t) && !/RX|regex|replace/.test(t));
   ok(strings.length === 0, "the page copy has no punctuation dash");
   const sitemap = read("app/sitemap.js");

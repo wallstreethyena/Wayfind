@@ -89,6 +89,31 @@ export function ChristmasBrowseCard({ card, rank = 0, today }) {
   return <TicketCard row={browseRowFor(card)} chrome={CHROME} idPrefix="xb-" headingLevel={3} priority={false} />;
 }
 
+// The page is one cached copy for every visitor, so filters in a shared link
+// (?region=, ?category=, ?sort=tickets, ...) are read here, after load. Only
+// values the filter itself offers are kept, the same rules as the server's
+// parseChristmasBrowseQuery, and /api/christmas/browse validates them again.
+export function christmasUrlQuery(search, facets = {}) {
+  let params;
+  try { params = new URLSearchParams(String(search || "")); } catch { return {}; }
+  const get = (k) => String(params.get(k) || "").trim();
+  const ids = (list) => new Set((Array.isArray(list) ? list : []).map((item) => (item && typeof item === "object" ? item.id : item)).filter(Boolean));
+  const out = {};
+  const pick = (k, allowed) => { const v = get(k); if (v && allowed.has(v)) out[k] = v; };
+  pick("region", ids(facets.regions));
+  pick("category", new Set([...ids(facets.categories), ...ids(facets.pills)]));
+  pick("when", ids(facets.dates));
+  pick("price", ids(facets.prices));
+  pick("audience", ids(facets.audiences));
+  if (/^\d{4}-\d{2}-\d{2}$/.test(get("date"))) out.date = get("date");
+  if (get("undated") === "1") out.undated = true;
+  if (get("q")) out.q = get("q").slice(0, 60);
+  const lat = Number.parseFloat(get("lat")), lng = Number.parseFloat(get("lng"));
+  if (Number.isFinite(lat) && lat > 24 && lat < 31.2 && Number.isFinite(lng) && lng > -88 && lng < -79.5) { out.lat = String(lat); out.lng = String(lng); }
+  if (get("sort") === "tickets") out.sort = "tickets";
+  return out;
+}
+
 export default function ChristmasBrowse({ initial, facets, today, initialQuery = {} }) {
   const [query, setQuery] = useState(() => ({ ...initialQuery }));
   const [data, setData] = useState(initial);
@@ -103,7 +128,10 @@ export default function ChristmasBrowse({ initial, facets, today, initialQuery =
   // the same one home uses). Nothing found means best rated statewide. A
   // link that already carries a location or sort=tickets is left alone.
   useEffect(() => {
-    if (initialQuery.lat || initialQuery.sort === "tickets" || typeof window === "undefined") return undefined;
+    if (typeof window === "undefined") return undefined;
+    // The cached page passes no filters, so the link's own query decides.
+    const linked = { ...initialQuery, ...christmasUrlQuery(window.location.search, facets) };
+    if (linked.lat || linked.sort === "tickets") return undefined;
     let dead = false;
     const adopt = (lat, lng) => {
       if (dead || !Number.isFinite(lat) || !Number.isFinite(lng)) return;
@@ -136,6 +164,12 @@ export default function ChristmasBrowse({ initial, facets, today, initialQuery =
       .finally(() => setLoading(false));
     return () => controller.abort();
   }, [query]);
+  useEffect(() => {
+    const fromUrl = christmasUrlQuery(window.location.search, facets);
+    if (Object.keys(fromUrl).length) setQuery((q) => ({ ...q, ...fromUrl }));
+    // Once, on load: later filter changes write the URL themselves.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const set = (k, v) => setQuery((q) => ({ ...q, [k]: v, ...(k === "when" ? { date: "", undated: false } : {}), ...(k === "date" && v ? { when: "", undated: false } : {}), ...(k === "undated" && v ? { when: "", date: "" } : {}) }));
   const more = () => {
