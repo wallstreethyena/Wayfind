@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { SOCIAL_AD_ATTR, isSocialAdLanding } from "../../lib/socialAdLanding.js";
+import { SOCIAL_AD_ATTR, SOCIAL_AD_FEATURE_ATTR, isSocialAdLanding, socialAdFeature } from "../../lib/socialAdLanding.js";
 import { XM_CARD_CSS, organizerTap } from "./ChristmasTicketCard.js";
 import CommerceClickBeacon from "./CommerceClickBeacon.js";
 import { activeSeasonalMark } from "../../lib/seasonalBrand.js";
@@ -146,6 +146,9 @@ const CSS = XM_CARD_CSS + `
 /* Top picks (2026-11-12): social ad visitors see a photo and a ticket button
    on the first screen. Wide cards so the next one peeks and invites a swipe. */
 [data-social-picks]{display:none}html[data-wf-social] [data-social-picks]{display:block}
+.xm-pick[data-feature-pick]{display:none}
+.xm-picks-label .xm-picks-from{display:none}html[data-wf-feature] .xm-picks-label .xm-picks-from{display:inline}html[data-wf-feature] .xm-picks-label .xm-picks-plain{display:none}
+.xm-pick-from{position:absolute;left:8px;top:8px;z-index:1;margin:0;padding:3px 8px;border-radius:999px;background:#F5C451;color:#4A0610;font-size:11px;font-weight:800;line-height:1.3}
 .xm-picks{margin:12px 0 4px}
 .xm-picks-label{margin:0 0 8px;font-size:13px;font-weight:700;letter-spacing:.02em;color:#FFE9C8}
 .xm-picks-row{display:flex;gap:10px;margin:0 -16px;padding:0 16px 4px;list-style:none;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch}
@@ -339,28 +342,42 @@ export function SocialTopPicks({ picks }) {
   useEffect(() => {
     const root = document.documentElement;
     try {
-      if (isSocialAdLanding(Object.fromEntries(new URLSearchParams(window.location.search)))) root.setAttribute(SOCIAL_AD_ATTR, "");
+      const params = Object.fromEntries(new URLSearchParams(window.location.search));
+      const feature = socialAdFeature(params);
+      if (isSocialAdLanding(params) || feature) root.setAttribute(SOCIAL_AD_ATTR, "");
       else root.removeAttribute(SOCIAL_AD_ATTR);
-    } catch { root.removeAttribute(SOCIAL_AD_ATTR); }
-    return () => root.removeAttribute(SOCIAL_AD_ATTR);
+      if (feature) root.setAttribute(SOCIAL_AD_FEATURE_ATTR, feature);
+      else root.removeAttribute(SOCIAL_AD_FEATURE_ATTR);
+    } catch { root.removeAttribute(SOCIAL_AD_ATTR); root.removeAttribute(SOCIAL_AD_FEATURE_ATTR); }
+    return () => { root.removeAttribute(SOCIAL_AD_ATTR); root.removeAttribute(SOCIAL_AD_FEATURE_ATTR); };
   }, []);
   return <div data-social-picks=""><TopPicks picks={picks} /></div>;
 }
 
+// A row with `feature: true` is the listing a Meta ad is about
+// (lib/socialAdLanding.js): it stays display:none until the page's inline
+// script marks <html data-wf-feature="<its id>">, so only the visitor who
+// tapped that ad sees it, first, before the regular picks.
+const FEATURE_ID_RX = /^[a-z0-9-]{1,80}$/;
 export function TopPicks({ picks }) {
-  const rows = Array.isArray(picks) ? picks.filter((r) => r && r.cta && Array.isArray(r.photos) && r.photos[0]) : [];
-  if (!rows.length) return null;
+  const rows = Array.isArray(picks) ? picks.filter((r) => r && r.cta && Array.isArray(r.photos) && r.photos[0] && (!r.feature || FEATURE_ID_RX.test(r.id))) : [];
+  if (!rows.some((r) => !r.feature)) return null;
+  const featured = rows.filter((r) => r.feature);
+  let rank = 0;
   return (
     <div className="xm-picks" data-top-picks="" data-boo-clear="">
-      <p className="xm-picks-label" id="xm-picks-label">Top picks with tickets</p>
+      {featured.length ? <style dangerouslySetInnerHTML={styleHtml(featured.map((r) => `html[data-wf-feature="${r.id}"] .xm-pick[data-feature-pick="${r.id}"]{display:flex}`).join(""))} /> : null}
+      <p className="xm-picks-label" id="xm-picks-label"><span className="xm-picks-plain">Top picks with tickets</span><span className="xm-picks-from">From the video, then top picks</span></p>
       <ul className="xm-picks-row" aria-labelledby="xm-picks-label">
-        {rows.map((row, i) => {
+        {rows.map((row) => {
           const photo = row.photos[0];
           const affiliate = row.cta.kind === "affiliate";
+          const internal = row.cta.kind === "internal";
           const meta = [row.when, row.city].filter(Boolean).join(" · ");
           return (
-            <li key={row.id} className="xm-pick" data-pick-id={row.id} data-rank={i + 1}>
+            <li key={row.id} className="xm-pick" data-pick-id={row.id} data-rank={row.feature ? undefined : ++rank} data-feature-pick={row.feature ? row.id : undefined}>
               <div className="xm-pick-photo">
+                {row.feature ? <p className="xm-pick-from">From the video</p> : null}
                 <GuidePhoto
                   src={photo.src}
                   alt={photo.alt}
@@ -379,11 +396,11 @@ export function TopPicks({ picks }) {
                 <a
                   className="xm-pick-buy"
                   href={row.cta.href}
-                  target="_blank"
-                  rel={affiliate ? "sponsored nofollow noopener" : "nofollow noopener"}
-                  data-commerce-owner={affiliate ? undefined : "ChristmasTickets"}
-                  onClick={affiliate ? undefined : () => organizerTap(row)}
-                  aria-label={row.cta.label + ": tickets for " + row.name}
+                  target={internal ? undefined : "_blank"}
+                  rel={internal ? undefined : affiliate ? "sponsored nofollow noopener" : "nofollow noopener"}
+                  data-commerce-owner={affiliate || internal ? undefined : "ChristmasTickets"}
+                  onClick={affiliate || internal ? undefined : () => organizerTap(row)}
+                  aria-label={row.cta.label + (row.feature ? ": " : ": tickets for ") + row.name}
                 >{row.cta.label}</a>
                 {row.cta.via ? <p className="xm-pick-via">{row.cta.via}</p> : null}
               </div>

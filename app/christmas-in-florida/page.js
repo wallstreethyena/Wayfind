@@ -3,11 +3,12 @@ import { christmasCreatorPoster } from "../../lib/christmasCreatorPosters.js";
 import SeasonalSearchHub, { seasonalSearchMetadata } from "../components/SeasonalSearchHub";
 import ChristmasBrowse from "../components/ChristmasBrowse";
 import ChristmasTickets from "../components/ChristmasTickets";
+import FieldVitals from "../components/FieldVitals";
 import ShareButton from "../components/ShareButton";
 import { pageShareUrl } from "../../lib/pageShareUrl";
-import { christmasTicketsSchema, christmasTopPicks } from "../../lib/christmasTickets";
+import { christmasFeaturePick, christmasTicketsSchema, christmasTopPicks } from "../../lib/christmasTickets";
 import { christmasPageData } from "../../lib/christmasPageData";
-import { SOCIAL_AD_SCRIPT } from "../../lib/socialAdLanding.js";
+import { SOCIAL_AD_FEATURE_IDS, SOCIAL_AD_SCRIPT } from "../../lib/socialAdLanding.js";
 import CreatorVideoRail from "../components/CreatorVideoRail.js";
 import VideoFacade from "../components/VideoFacade.js";
 import CreatorPlaybackDetails from "../components/CreatorPlaybackDetails.js";
@@ -98,9 +99,14 @@ export default async function Page() {
   // #2419 photo picks for Facebook and Instagram visitors: the cached copy is
   // shared by everyone, so the picks are always in it and ChristmasTickets shows
   // them only when the visitor's own URL is a social ad landing (isSocialAdLanding).
-  const topPicks = christmasTopPicks(tickets);
+  // The listing a Meta ad is about comes first, only for the visitor who
+  // tapped that ad (lib/socialAdLanding.js SOCIAL_AD_FEATURES); the inline
+  // script picks it before first paint.
+  const featured = SOCIAL_AD_FEATURE_IDS.map((id) => christmasFeaturePick(listings, id, today)).filter(Boolean);
+  const topPicks = [...featured, ...christmasTopPicks(tickets).filter((r) => !featured.some((f) => f.id === r.id))];
   return <>
     <script dangerouslySetInnerHTML={{ __html: SOCIAL_AD_SCRIPT }} />
+    <FieldVitals />
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ticketsSchema).replace(/</g, "\\u003c") }} />
     <ChristmasTickets model={tickets} topPicks={topPicks} share={<ShareButton url={pageShareUrl("/christmas-in-florida")} title={title} text={description} tone="dark" label="Share" />} browse={<>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemList).replace(/</g, "\\u003c") }} />
