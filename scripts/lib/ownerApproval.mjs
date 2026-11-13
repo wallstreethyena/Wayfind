@@ -8,7 +8,29 @@
 // owner's name. PR #1478 (the CLAUDE.md cleanup) hit the check and the only
 // way through was to impersonate the owner, which is not approval at all.
 //
-// WHAT IS TRUSTED NOW. A pull-request comment whose author is an owner LOGIN
+// OWNER APPROVAL V2 (2026-11-13): THE OWNER APPROVES THE PROTECTED DIFF. Binding
+// approval to the whole head commit made every rebase, every "Update branch" and
+// every merge-train step void it, so the owner re-approved the same protected
+// bytes again and again. The owner now approves a fingerprint of exactly the
+// owner-only change (see protectedFingerprint below):
+//
+//     /owner-approve-diff <64-character fingerprint>
+//
+// The fingerprint covers the repository, the pull request number, every
+// owner-only path the pull request touches, and the SHA-256 of each such file's
+// content at the merge base (what main has) and at the head (what the pull
+// request proposes). The base and head contents determine the protected diff
+// exactly, so the fingerprint IS the protected diff. Unrelated code, a rebase,
+// main moving, or generated files outside the owner-only list leave it unchanged
+// and the approval stands. One byte of a protected file, a protected file added,
+// removed or renamed, or main changing a protected file the pull request also
+// touches changes it, and the owner approves again. This gate governs only the
+// owner-only files; every other file is judged by the normal checks.
+//
+// LEGACY (kept for the transition): the original command below, bound to the
+// exact head commit, still approves that one head.
+//
+// WHAT IS TRUSTED. A pull-request comment whose author is an owner LOGIN
 // (resolved by GitHub from the authenticated account that posted it, never
 // from git metadata) with a line
 //
@@ -45,6 +67,7 @@ export const OWNER_ONLY = Object.freeze([
   /^scripts\/lib\/ownerApproval\.mjs$/i,
   /^scripts\/lib\/githubPullEvidence\.mjs$/i,
   /^scripts\/test-owner-approval\.mjs$/i,
+  /^scripts\/test-owner-approval-v2\.mjs$/i,
   /^scripts\/owner-approval-gate\.mjs$/i,
   /^scripts\/lib\/githubAppAuth\.mjs$/i,
   /^scripts\/test-owner-approval-gate\.mjs$/i,
@@ -56,6 +79,10 @@ export const OWNER_ONLY = Object.freeze([
 ]);
 
 export const APPROVAL_COMMAND = "/owner-approve";
+export const DIFF_APPROVAL_COMMAND = "/owner-approve-diff";
+export const FINGERPRINT_VERSION = "wayfind-owner-protected-diff/v2";
+const DIFF_APPROVAL_LINE = /^\/owner-approve-diff[ \t]+([0-9a-fA-F]{64})[ \t]*$/gm;
+const SHA256_HEX = /^[0-9a-f]{64}$/;
 const APPROVAL_LINE = /^\/owner-approve[ \t]+([0-9a-fA-F]{40})[ \t]*$/gm;
 const SHA40 = /^[0-9a-f]{40}$/;
 
@@ -103,6 +130,76 @@ export function findOwnerApproval(comments, headSha, owners = OWNERS) {
 }
 
 /**
+ * Find an owner approval for exactly `fingerprint` (a protected-diff
+ * fingerprint, 64 hex characters). Same authentication as findOwnerApproval:
+ * a real User account whose login AND numeric id are an owner's, in a comment
+ * that was never edited. Returns the approving comment or null.
+ */
+export function findOwnerDiffApproval(comments, fingerprint, owners = OWNERS) {
+  const want = String(fingerprint || "").toLowerCase();
+  if (!SHA256_HEX.test(want) || !Array.isArray(owners) || !owners.length) return null;
+  for (const comment of Array.isArray(comments) ? comments : []) {
+    const user = comment && comment.user;
+    if (!user || user.type !== "User" || !isOwner(user, owners)) continue;
+    if (!unedited(comment)) continue;
+    const body = typeof comment.body === "string" ? comment.body : "";
+    for (const match of body.matchAll(DIFF_APPROVAL_LINE)) {
+      if (match[1].toLowerCase() === want) return comment;
+    }
+  }
+  return null;
+}
+
+/** Every protected-diff fingerprint the owner approved on this PR (newest comment first). */
+export function ownerApprovedFingerprints(comments, owners = OWNERS) {
+  const list = (Array.isArray(comments) ? comments : []).slice()
+    .sort((x, y) => String(y && y.created_at).localeCompare(String(x && x.created_at)));
+  const out = [];
+  for (const comment of list) {
+    const body = comment && typeof comment.body === "string" ? comment.body : "";
+    for (const match of body.matchAll(DIFF_APPROVAL_LINE)) {
+      const fp = match[1].toLowerCase();
+      if (!out.includes(fp) && findOwnerDiffApproval([comment], fp, owners)) out.push(fp);
+    }
+  }
+  return out;
+}
+
+/**
+ * The protected-diff fingerprint. entries: one per owner-only path the pull
+ * request touches, { path, base, head }, where base / head are the lowercase
+ * SHA-256 hex of the file's bytes at the merge base / at the head, or null when
+ * the file does not exist there. Returns { fingerprint, manifest } or null when
+ * the input is incomplete (never a fingerprint for evidence it did not see).
+ * sha256 is passed in (node:crypto in the callers) so this module stays pure.
+ */
+export function protectedFingerprint({ repo, number, entries }, sha256) {
+  if (typeof repo !== "string" || !/^[\w.-]+\/[\w.-]+$/.test(repo)) return null;
+  if (!Number.isInteger(number) || number < 1 || typeof sha256 !== "function") return null;
+  if (!Array.isArray(entries) || !entries.length) return null;
+  const files = [];
+  const seen = new Set();
+  for (const e of entries) {
+    if (!e || typeof e.path !== "string" || !isOwnerOnly(e.path) || seen.has(e.path)) return null;
+    const okHash = (h) => h === null || (typeof h === "string" && SHA256_HEX.test(h));
+    if (!okHash(e.base) || !okHash(e.head) || (e.base === null && e.head === null)) return null;
+    seen.add(e.path);
+    files.push({ path: e.path, base: e.base, head: e.head });
+  }
+  files.sort((a, b) => (a.path < b.path ? -1 : a.path > b.path ? 1 : 0));
+  const manifest = { v: FINGERPRINT_VERSION, repo: repo.toLowerCase(), pr: number, files };
+  const fingerprint = String(sha256(JSON.stringify(manifest))).toLowerCase();
+  return SHA256_HEX.test(fingerprint) ? { fingerprint, manifest } : null;
+}
+
+/** Paths whose protected content differs between two manifests (audit trail). */
+export function changedProtectedPaths(before, after) {
+  const index = (m) => new Map(((m && m.files) || []).map((f) => [f.path, `${f.base}|${f.head}`]));
+  const a = index(before), b = index(after);
+  return [...new Set([...a.keys(), ...b.keys()])].filter((p) => a.get(p) !== b.get(p)).sort();
+}
+
+/**
  * The whole verdict, from gathered evidence. Author names are not an input;
  * there is deliberately no parameter through which they could matter.
  *
@@ -112,11 +209,14 @@ export function findOwnerApproval(comments, headSha, owners = OWNERS) {
  *   pr: { number, eventHeadSha, liveHeadSha } | null
  *   comments: array | null            PR comments read from the GitHub API
  *   error: string | null              why evidence could not be read
- *   carry: { fromSha, inPullCommits, ownChangeAtApproval, ownChangeAtHead } | null
- *                                     optional: an earlier approved head of
- *                                     this PR and the PR's own change at that
- *                                     head and at the current head (see
- *                                     carriedApproval below)
+ *   protectedDiff: { fingerprint, manifest, headSha } | null
+ *                                     the protected-diff fingerprint computed
+ *                                     from the GitHub API for headSha (the gate
+ *                                     computes it; see protectedFingerprint)
+ *   protectedDiffError: string | null why it could not be computed
+ *   approvedManifests: { [fingerprint]: manifest }  optional, for the audit
+ *                                     trail: manifests of earlier approved
+ *                                     fingerprints the gate could reproduce
  * }
  * returns { ok, protectedPaths, reason }
  */
@@ -135,80 +235,52 @@ export function decideOwnerApproval(evidence) {
   if (pr.eventHeadSha !== pr.liveHeadSha) {
     return { ok: false, protectedPaths, reason: `owner-only files changed (${list}) but PR #${pr.number} moved from ${pr.eventHeadSha.slice(0, 12)} to ${pr.liveHeadSha.slice(0, 12)} after this run started; re-run on the new head` };
   }
-  const approval = findOwnerApproval(evidence.comments, pr.liveHeadSha);
-  if (!approval) {
-    const carried = carriedApproval(evidence.comments, evidence.carry);
-    if (carried) {
-      return { ok: true, protectedPaths, reason: `owner-only files changed (${list}); approved by @${carried.user.login} for ${evidence.carry.fromSha.slice(0, 12)} in comment ${carried.id}, and head ${pr.liveHeadSha.slice(0, 12)} only brings main in: the pull request's own change is byte-for-byte the one the owner approved` };
-    }
-    return { ok: false, protectedPaths, reason: `owner-only files changed (${list}) with no owner approval for head ${pr.liveHeadSha.slice(0, 12)}. The owner (${OWNER_LOGINS.join(", ")}) approves by commenting on PR #${pr.number}: "${APPROVAL_COMMAND} ${pr.liveHeadSha}" (the full sha), then re-running the checks` };
+  const audit = (lines) => lines.filter(Boolean).join("\n    ");
+  // Legacy: an approval naming this exact head commit.
+  const legacy = findOwnerApproval(evidence.comments, pr.liveHeadSha);
+  if (legacy) {
+    return { ok: true, protectedPaths, reason: `owner-only files changed (${list}); approved by @${legacy.user.login} for head ${pr.liveHeadSha.slice(0, 12)} in comment ${legacy.id} (legacy head approval)` };
   }
-  return { ok: true, protectedPaths, reason: `owner-only files changed (${list}); approved by @${approval.user.login} for head ${pr.liveHeadSha.slice(0, 12)} in comment ${approval.id}` };
-}
-
-// APPROVAL CARRIES ACROSS INTEGRATION (2026-11-13). Owner rule (2026-11-12): the
-// owner approves a scope, not a hash, and must never be asked again only because
-// main moved. Keeping a pull request current with main (GitHub "Update branch",
-// the merge train) creates a new head whose OWN change is unchanged. An approval
-// for an earlier head carries to the current head only when ALL of these hold:
-//   - the approval is a genuine owner approval for exactly that earlier head
-//     (findOwnerApproval: owner login AND id, unedited comment, full sha);
-//   - that earlier head is a commit of this pull request;
-//   - the pull request's own change (every changed file, diffed against its merge
-//     base with main, patch text with line numbers removed, or the file's blob id
-//     when GitHub gives no patch) is identical at both heads.
-// Any edit by the branch, any conflict resolution that touches its lines, or any
-// main change close enough to alter the diff context makes the fingerprints
-// differ, and the owner approves again. It fails closed: a missing piece of
-// evidence is never a carry.
-export function carriedApproval(comments, carry) {
-  if (!carry || typeof carry !== "object") return null;
-  const from = String(carry.fromSha || "").toLowerCase();
-  if (!SHA40.test(from) || carry.inPullCommits !== true) return null;
-  const a = carry.ownChangeAtApproval, b = carry.ownChangeAtHead;
-  if (typeof a !== "string" || typeof b !== "string" || !a || a !== b) return null;
-  return findOwnerApproval(comments, from);
-}
-
-/** Every distinct head sha the owner approved on this PR, newest comment first. */
-export function ownerApprovedShas(comments, owners = OWNERS) {
-  const list = (Array.isArray(comments) ? comments : []).slice()
-    .sort((x, y) => String(y && y.created_at).localeCompare(String(x && x.created_at)));
-  const seen = [];
-  for (const comment of list) {
-    const body = comment && typeof comment.body === "string" ? comment.body : "";
-    for (const match of body.matchAll(APPROVAL_LINE)) {
-      const sha = match[1].toLowerCase();
-      if (!seen.includes(sha) && findOwnerApproval([comment], sha, owners)) seen.push(sha);
-    }
+  // V2: an approval of the protected diff itself.
+  const diff = evidence.protectedDiff;
+  const diffOk = diff && typeof diff.fingerprint === "string" && SHA256_HEX.test(diff.fingerprint)
+    && diff.manifest && diff.manifest.pr === pr.number && diff.headSha === pr.liveHeadSha;
+  if (!diffOk) {
+    const why = evidence.protectedDiffError || (diff && diff.headSha !== pr.liveHeadSha ? `it was read for ${String(diff.headSha).slice(0, 12)}, not the live head` : "it was not computed");
+    return { ok: false, protectedPaths, reason: audit([
+      `owner-only files changed (${list}) and the protected diff could not be fingerprinted (${why}); failing closed.`,
+      "Owner approval: INVALID",
+      `The owner can still approve this exact head: "${APPROVAL_COMMAND} ${pr.liveHeadSha}"`,
+    ]) };
   }
-  return seen;
-}
-
-/**
- * Fingerprint of a pull request's own change from GitHub compare "files"
- * entries ({ filename, previous_filename, status, patch, sha }). Hunk headers
- * (line numbers) are dropped; every +, - and context line is kept, so moving
- * an edit to another place changes the fingerprint. Returns null (no carry)
- * on anything incomplete.
- */
-export function ownChangeFingerprint(files) {
-  if (!Array.isArray(files) || !files.length || files.length >= 300) return null;
-  const parts = [];
-  for (const f of files) {
-    if (!f || typeof f.filename !== "string" || !f.filename) return null;
-    let body;
-    if (typeof f.patch === "string" && f.patch) {
-      body = f.patch.split("\n").map((line) => (line.startsWith("@@") ? "@@" : line)).join("\n");
-    } else if (typeof f.sha === "string" && /^[0-9a-f]{40}$/.test(f.sha)) {
-      body = `blob:${f.sha}`;
-    } else if (f.status === "removed") {
-      body = "removed";
-    } else {
-      return null;
-    }
-    parts.push(`${f.status || ""}\u0000${f.previous_filename || ""}\u0000${f.filename}\u0000${body}`);
+  const covered = new Set(diff.manifest.files.map((f) => f.path));
+  const uncovered = protectedPaths.filter((p) => !covered.has(p));
+  if (uncovered.length) {
+    return { ok: false, protectedPaths, reason: audit([
+      `owner-only files changed (${list}) but the protected diff fingerprint does not cover ${uncovered.join(", ")}; failing closed.`,
+      "Owner approval: INVALID",
+    ]) };
   }
-  parts.sort();
-  return parts.join("\u0001");
+  const current = diff.fingerprint;
+  const approved = findOwnerDiffApproval(evidence.comments, current);
+  if (approved) {
+    return { ok: true, protectedPaths, reason: audit([
+      `owner-only files changed (${list}); approved by @${approved.user.login} in comment ${approved.id}.`,
+      "Owner approval: VALID",
+      `Approved protected fingerprint: ${current}`,
+      `Current protected fingerprint: ${current}`,
+      "Protected content changed since approval: NO",
+    ]) };
+  }
+  const earlier = ownerApprovedFingerprints(evidence.comments)[0] || null;
+  const earlierManifest = earlier && evidence.approvedManifests ? evidence.approvedManifests[earlier] : null;
+  const changed = earlierManifest ? changedProtectedPaths(earlierManifest, diff.manifest) : null;
+  return { ok: false, protectedPaths, reason: audit([
+    `owner-only files changed (${list}) with no owner approval for this protected diff.`,
+    "Owner approval: INVALID",
+    earlier ? `Approved protected fingerprint: ${earlier}` : "Approved protected fingerprint: none",
+    `Current protected fingerprint: ${current}`,
+    earlier ? `Changed protected files: ${changed ? changed.join(", ") || "(none listed; the base or the set of files moved)" : "unknown (the approved version is not one of this pull request's recent heads)"}` : "",
+    `The owner (${OWNER_LOGINS.join(", ")}) approves by commenting on PR #${pr.number}: "${DIFF_APPROVAL_COMMAND} ${current}". It stays valid through rebases and unrelated changes, and stops matching if any owner-only content changes. Then re-run the checks (the merge train re-checks queued pull requests by itself).`,
+  ]) };
 }

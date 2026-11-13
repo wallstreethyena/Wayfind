@@ -76,8 +76,10 @@ Revenue-audit detail: `docs/POSTMORTEM_2026-08-25_REVENUE_PATH.md`.
 2. Assertion-guarded splice + a lock test wired into `npm run prebuild`.
 3. Full `npm run prebuild` green before commit. Anything red → report-only, do not merge.
 4. Squash-merge + delete branch. **Merges are owner-gated.** Owner-only files (CLAUDE.md,
-   AGENTS.md, `.github/**`, … see `scripts/lib/ownerApproval.mjs`) need an
-   `/owner-approve <head sha>` comment by the owner.
+   AGENTS.md, `.github/**`, … see `scripts/lib/ownerApproval.mjs`) need the owner's
+   `/owner-approve-diff <fingerprint>` comment, which approves the protected diff and survives
+   rebases, branch updates and unrelated changes (docs/OWNER_APPROVAL.md). Never ask the owner
+   to approve again unless the check shows the protected content itself changed.
 5. After merge: confirm the merged union is prebuild-green and the Vercel deploy is green.
 
 `gh`/merge traps:

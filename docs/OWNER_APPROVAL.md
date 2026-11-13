@@ -8,7 +8,7 @@ change only with the owner's approval:
   `scripts/check-owner-approval-pr.mjs`, `scripts/owner-approval-gate.mjs`,
   `scripts/lib/ownerApproval.mjs`, `scripts/lib/githubPullEvidence.mjs`,
   `scripts/lib/githubAppAuth.mjs`, `scripts/test-owner-approval.mjs`,
-  `scripts/test-owner-approval-gate.mjs`
+  `scripts/test-owner-approval-gate.mjs`, `scripts/test-owner-approval-v2.mjs`
 - **everything under `.github/`**: every workflow and `CODEOWNERS`. A workflow
   can report a check under any name and can read repository secrets, so adding
   or changing one is an owner decision.
@@ -16,38 +16,63 @@ change only with the owner's approval:
 The list lives in `scripts/lib/ownerApproval.mjs` (`OWNER_ONLY`). Paths match
 case-insensitively, because on a Mac `claude.md` is the same file as `CLAUDE.md`.
 
-## What counts as approval
+## What counts as approval (v2, 2026-11-13)
 
-A comment on the pull request, posted from the owner's GitHub account
-(`OWNERS`: login `wallstreethyena` and account id `297334934`, so a renamed
-or re-registered login does not count), with its own line:
+**The owner approves the protected diff, not the commit.** A comment on the pull
+request, posted from the owner's GitHub account (`OWNERS`: login
+`wallstreethyena` and account id `297334934`, so a renamed or re-registered
+login does not count), with its own line:
 
 ```
-/owner-approve <the PR's current head commit, all 40 characters>
+/owner-approve-diff <fingerprint, 64 characters>
 ```
 
-The failing check prints the exact line to paste. A shortened sha does not
-count, because a different commit with the same short prefix can be made on
-purpose. An **edited** comment does not count either: anyone with write access
-(an App included) can edit a comment without changing its author, so an approval
-counts only as first posted. To change one, post a new comment.
+The failing `owner-approval` check prints the exact line to paste, with an audit
+trail:
 
-GitHub authenticates who posted a comment, so it can't be faked by editing a
-commit. The command names one exact commit.
+```
+Owner approval: INVALID
+Approved protected fingerprint: none
+Current protected fingerprint: 3d91...
+```
 
-**Keeping a PR current does not need a new approval (2026-11-13).** The owner
-approves a change, not a hash. When the head moves only because main was merged
-in ("Update branch" or the merge train), the approval of the earlier head
-carries, but only if that earlier head is a commit of this PR and the PR's own
-change (every file, diffed against main, line numbers removed) is identical at
-both heads. Any edit to the branch, a conflict fix that touches its lines, or a
-main change close enough to alter the diff context breaks the match, and the
-owner approves again. Rule: `carriedApproval` in `scripts/lib/ownerApproval.mjs`;
-evidence: `fetchApprovalCarry` in `scripts/lib/githubPullEvidence.mjs`; tests:
-`scripts/test-merge-train.mjs`.
+**What the fingerprint covers.** SHA-256 over: the repository, the pull request
+number, every owner-only path the pull request touches (renames count on both
+paths), and the SHA-256 of each such file's bytes at the merge base (what main
+has) and at the head (what the pull request proposes). The bytes are checked
+against their git blob ids. Base and head contents fix the protected diff
+exactly, so the fingerprint is the protected diff.
 
-**What does not count:** commit author or committer names (anyone can type
-"Gabriel Pereira" into a commit), labels, and a green local run.
+**It stays valid** when only things outside the owner-only files change: a
+rebase, "Update branch", the merge train, main moving, application code,
+generated files such as `scripts/lib/guard-expectations.tsv`. Same command, no
+new comment.
+
+**It stops matching** when any protected content changes: one byte of
+`CLAUDE.md`, any workflow, the approval code, a protected file added, removed or
+renamed, or main changing a protected file the pull request also touches (the
+merged result would no longer be what was reviewed). The check then shows the
+new fingerprint and names the changed protected files.
+
+It answers only "did the approved protected content change?". Everything else in
+the pull request is judged by the normal required checks; approving
+`CLAUDE.md` does not approve later application code.
+
+**Still never evidence:** commit author or committer names, branch names,
+labels, a green local run, a **bot or App account** (even with the owner's
+login), a login whose account id is not the owner's, and an **edited** comment
+(anyone with write access can edit a comment without changing its author, so an
+approval counts only as first posted; to change one, post a new comment). A
+fingerprint approved on another pull request never matches (the PR number is
+inside it). A run that reads one protected diff while the pull request moves to
+another fails closed; the run for the new head decides.
+
+**Transition (legacy).** The original `/owner-approve <full 40-character head
+sha>` still approves that exact head commit, and nothing more, so old
+approvals keep working while new ones use the protected diff. New pull requests
+are told the protected-diff command. Rule: `decideOwnerApproval` in
+`scripts/lib/ownerApproval.mjs`; fingerprint: `protectedDiffFor` in
+`scripts/lib/githubPullEvidence.mjs`; tests: `scripts/test-owner-approval-v2.mjs`.
 
 ## Where it is checked
 
@@ -175,7 +200,7 @@ themselves current raced forever. GitHub's merge queue is not available to
 personal-account repositories, so `.github/workflows/merge-train.yml` does the
 same job from main: turn on auto-merge and the PR joins the line; one PR at a
 time is updated with main, `guards` is dispatched on it, `owner-approval` is
-judged for its new head by main's copy of the rule, and auto-merge merges it.
+judged for its new head by main's copy of the rule (a protected-diff approval survives the update), and auto-merge merges it.
 A PR whose guards fail on the merged result leaves the line until its author
 pushes. Nothing else should update queued PRs. To pause the train, disable the
 workflow in Actions.

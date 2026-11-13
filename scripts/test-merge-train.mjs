@@ -1,9 +1,8 @@
 #!/usr/bin/env node
-// test-merge-train — the merge train's queue decision and the owner approval
-// carry it relies on (2026-11-13). Hermetic: no network, no git.
+// test-merge-train — the merge train's queue decision and wiring (2026-11-13).
+// Owner approval across train updates is tested in test-owner-approval-v2.mjs. Hermetic: no network, no git.
 import { readFileSync } from "node:fs";
 import { planTrain, checkState } from "./lib/mergeTrain.mjs";
-import { carriedApproval, decideOwnerApproval, ownChangeFingerprint, ownerApprovedShas, OWNERS } from "./lib/ownerApproval.mjs";
 import { readPullContext } from "./lib/githubPullEvidence.mjs";
 
 let checks = 0;
@@ -33,38 +32,9 @@ ok(p.type === "update" && p.number === 11 && p.skipped.length === 2, "failed and
 p = planTrain([{ number: 7, behindBy: 0, mergeable: true, checks: { guards: pass, "owner-approval": fail } }, { number: 9, behindBy: 3, mergeable: true, checks: {} }]);
 ok(p.type === "update" && p.number === 9 && p.skipped.some((s) => s.number === 7 && s.recheck), "a car waiting for an owner approval is rechecked every pass but does not block the line");
 
-// --- owner approval carry across integration
-const OWNER = OWNERS[0];
-const T = { created_at: "2026-11-13T01:00:00Z", updated_at: "2026-11-13T01:00:00Z" };
-const A = "a".repeat(40), H = "b".repeat(40), X = "c".repeat(40);
-const approve = (sha, login = OWNER.login, id = OWNER.id, extra = {}) => ({ id: 9, ...T, ...extra, user: { login, id, type: "User" }, body: `/owner-approve ${sha}` });
-const file = (patch, extra = {}) => ({ filename: "CLAUDE.md", status: "modified", patch, ...extra });
-const fpApproved = ownChangeFingerprint([file("@@ -10,3 +10,4 @@ rules\n keep\n+new rule\n keep2")]);
-const fpShifted = ownChangeFingerprint([file("@@ -40,3 +40,4 @@ other\n keep\n+new rule\n keep2")]);
-const fpEdited = ownChangeFingerprint([file("@@ -40,3 +40,4 @@\n keep\n+new rule, weakened\n keep2")]);
-const fpMoved = ownChangeFingerprint([file("@@ -80,3 +80,4 @@\n elsewhere\n+new rule\n keep2")]);
-ok(fpApproved && fpApproved === fpShifted, "main moving the lines (new line numbers only) keeps the same own change");
-ok(fpEdited !== fpApproved && fpMoved !== fpApproved, "editing the approved lines or moving them elsewhere changes the own change");
-ok(ownChangeFingerprint([{ filename: "logo.png", status: "modified" }]) === null && ownChangeFingerprint([]) === null, "incomplete evidence never fingerprints (fails closed)");
-ok(ownChangeFingerprint([{ filename: "logo.png", status: "modified", sha: "d".repeat(40) }]) !== null, "a binary file is compared by its blob id");
-
-const carryOf = (atA, atH, extra = {}) => ({ fromSha: A, inPullCommits: true, ownChangeAtApproval: atA, ownChangeAtHead: atH, ...extra });
-ok(carriedApproval([approve(A)], carryOf(fpApproved, fpShifted)), "an owner approval carries to an integration-only head");
-ok(!carriedApproval([approve(A)], carryOf(fpApproved, fpEdited)), "a material change does not carry the approval");
-ok(!carriedApproval([approve(A)], carryOf(fpApproved, fpShifted, { inPullCommits: false })), "an approved sha that is not a commit of this pull request does not carry");
-ok(!carriedApproval([approve(A, "someone-else", 1)], carryOf(fpApproved, fpShifted)), "a non-owner approval never carries");
-ok(!carriedApproval([approve(A, OWNER.login, OWNER.id, { updated_at: "2026-11-13T02:00:00Z" })], carryOf(fpApproved, fpShifted)), "an edited approval comment never carries");
-ok(!carriedApproval([approve(A)], carryOf(null, null)) && !carriedApproval([approve(A)], null), "missing evidence never carries");
-
-const ev = (carry) => ({ changedPaths: ["CLAUDE.md"], mergeGate: true, pr: { number: 1, eventHeadSha: H, liveHeadSha: H }, comments: [approve(A)], error: null, carry });
-ok(decideOwnerApproval(ev(carryOf(fpApproved, fpShifted))).ok === true, "decision: approval of an earlier head passes after main is merged in, with no new approval");
-ok(decideOwnerApproval(ev(carryOf(fpApproved, fpEdited))).ok === false, "decision: a material change after approval still needs a new approval");
-ok(decideOwnerApproval(ev(null)).ok === false, "decision: no carry evidence keeps the exact-head rule");
-ok(decideOwnerApproval({ ...ev(carryOf(fpApproved, fpShifted)), pr: { number: 1, eventHeadSha: X, liveHeadSha: H } }).ok === false, "decision: a moved head is still refused even with a carry");
-ok(JSON.stringify(ownerApprovedShas([approve(A), approve(H, "someone-else", 1)])) === JSON.stringify([A]), "only owner approvals are carry candidates");
-
 // --- train and dispatched-guards context
 const base = { GITHUB_TOKEN: "t", GITHUB_REPOSITORY: "wallstreethyena/Wayfind", GITHUB_API_URL: "https://api.github.com" };
+const H = "b".repeat(40);
 let ctx = readPullContext({ ...base, GITHUB_EVENT_NAME: "merge-train", WF_PR_NUMBER: "2440", WF_PR_HEAD: H }, ["pull_request_target", "merge-train"]);
 ok(!ctx.error && ctx.number === 2440 && ctx.eventHeadSha === H, "a train run names the pull request and the exact head it judges");
 ctx = readPullContext({ ...base, GITHUB_EVENT_NAME: "merge-train", WF_PR_NUMBER: "2440", WF_PR_HEAD: "" }, ["merge-train"]);
@@ -85,4 +55,4 @@ ok(!/\/merge["`]/.test(runner) && !/git push|checkout/.test(runner.replace(/neve
 const guardsTxt = readFileSync(new URL("./guards.txt", import.meta.url), "utf8");
 ok(/node scripts\/test-merge-train\.mjs/.test(guardsTxt), "wired into guards.txt");
 
-console.log(`test-merge-train: OK — ${checks} assertions: one car at a time, failed and conflicting cars leave the line, approval carries only across integration-only heads, material changes need a new approval, train runs judge an exact head, main-only wiring`);
+console.log(`test-merge-train: OK — ${checks} assertions: one car at a time, failed and conflicting cars leave the line, train runs judge an exact head, main-only wiring`);

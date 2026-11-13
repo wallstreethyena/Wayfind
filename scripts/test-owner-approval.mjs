@@ -127,8 +127,14 @@ try {
   const preload = join(root, "fetch-stub.mjs");
   writeFileSync(preload, `
 import { readFileSync, appendFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
 const cfg = JSON.parse(readFileSync(process.env.STUB_CONFIG, "utf8"));
 let pullReads = 0;
+// Default changed-file list: the real net diff of the clone (what GitHub would list).
+if (cfg.files === undefined || cfg.files === null) {
+  try { cfg.files = execFileSync("git", ["diff", "--name-only", "origin/main...HEAD"], { encoding: "utf8" }).split("\\n").filter(Boolean).map((filename) => ({ filename })); }
+  catch { cfg.files = []; }
+}
 globalThis.fetch = async (url, init = {}) => {
   appendFileSync(process.env.STUB_LOG, String(url) + "\\n");
   if (!String((init.headers || {}).Authorization || "").startsWith("Bearer ")) throw new Error("no token sent");
@@ -136,7 +142,24 @@ globalThis.fetch = async (url, init = {}) => {
   const path = new URL(url).pathname;
   if (/\\/pulls\\/\\d+$/.test(path)) {
     const sha = ++pullReads > 1 && cfg.liveHeadLater ? cfg.liveHeadLater : cfg.liveHead;
-    return { ok: true, status: 200, json: async () => ({ head: { sha }, changed_files: cfg.changedFiles ?? (cfg.files || []).length }) };
+    return { ok: true, status: 200, json: async () => ({ head: { sha }, base: { ref: "main" }, changed_files: cfg.changedFiles ?? (cfg.files || []).length }) };
+  }
+  // Owner approval v2: merge base and file contents come from the real clone (cwd).
+  const sh = (args) => execFileSync("git", args, { encoding: "buffer", stdio: ["ignore", "pipe", "ignore"] });
+  const cmp = path.match(/\\/compare\\/([^/]+)\\.\\.\\.([0-9a-f]{40})$/);
+  if (cmp) {
+    try { const base = sh(["merge-base", "origin/" + decodeURIComponent(cmp[1]), cmp[2]]).toString().trim(); const tip = sh(["rev-parse", "origin/" + decodeURIComponent(cmp[1])]).toString().trim(); return { ok: true, status: 200, json: async () => ({ merge_base_commit: { sha: base }, base_commit: { sha: tip } }) }; }
+    catch { return { ok: false, status: 404, json: async () => ({}) }; }
+  }
+  const cont = path.match(/\\/contents\\/(.+)$/);
+  if (cont) {
+    const ref = new URL(url).searchParams.get("ref");
+    const file = cont[1].split("/").map(decodeURIComponent).join("/");
+    try {
+      const bytes = sh(["cat-file", "blob", ref + ":" + file]);
+      const sha = sh(["rev-parse", ref + ":" + file]).toString().trim();
+      return { ok: true, status: 200, json: async () => ({ type: "file", encoding: "base64", size: bytes.length, sha, content: bytes.toString("base64") }) };
+    } catch { return { ok: false, status: 404, json: async () => ({}) }; }
   }
   if (/\\/pulls\\/\\d+\\/files$/.test(path)) return { ok: true, status: 200, json: async () => cfg.files || [] };
   if (/\\/issues\\/\\d+\\/comments$/.test(path)) {
@@ -179,7 +202,7 @@ globalThis.fetch = async (url, init = {}) => {
   // B. owner-only change, no approval -> fail.
   const edit = branch([["CLAUDE.md", "# rules\n\nkeep this\nnew rule\n"]]);
   r = run({ dir: edit.dir, gate: true, eventHead: edit.head, liveHead: edit.head, comments: [] });
-  ok(r.code === 1 && /no owner approval for head/.test(r.out) && r.out.includes(`/owner-approve ${edit.head}`), `B: unapproved CLAUDE.md change fails and names the exact command (${r.code}: ${r.out.trim()})`);
+  ok(r.code === 1 && /no owner approval for this protected diff/.test(r.out) && /\/owner-approve-diff [0-9a-f]{64}"/.test(r.out) && /Owner approval: INVALID/.test(r.out), `B: unapproved CLAUDE.md change fails and names the one stable protected-diff command (${r.code}: ${r.out.trim()})`);
 
   // C. forged owner author/committer -> still fail, every way.
   const forged = branch([["CLAUDE.md", "# rules\n\nkeep this\nforged rule\n"]], FORGED_OWNER);
@@ -239,7 +262,7 @@ globalThis.fetch = async (url, init = {}) => {
   r = pr({ files: [file("lib/thing.js"), file("docs/history/a.md")] });
   ok(r.code === 0 && /no owner-only files changed/.test(r.out) && r.calls.some((c) => /\/pulls\/1478\/files/.test(c)), `P ordinary: judged from the API file list and passes (${r.code}: ${r.out.trim()})`);
   r = pr({ files: [file("CLAUDE.md")] });
-  ok(r.code === 1 && r.out.includes(`/owner-approve ${H}`), `P B: unapproved CLAUDE.md change fails and names the command (${r.code}: ${r.out.trim()})`);
+  ok(r.code === 1 && /Owner approval: INVALID/.test(r.out) && r.out.includes(`/owner-approve ${H}`), `P B: unapproved CLAUDE.md change fails closed (fixture head is not a real commit, so no fingerprint) and names the exact-head command (${r.code}: ${r.out.trim()})`);
   r = pr({ files: [file("CLAUDE.md")], comments: [approve(H)] });
   ok(r.code === 0 && new RegExp(`approved by @${OWNER_LOGIN}`).test(r.out), `P D: owner approval of the exact head passes (${r.code}: ${r.out.trim()})`);
   const filler = Array.from({ length: 100 }, (_, i) => ({ id: i + 1, ...T, user: { login: "someone", type: "User", id: 7 }, body: "noise" }));

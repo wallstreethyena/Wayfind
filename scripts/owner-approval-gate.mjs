@@ -85,7 +85,7 @@ if (!/^https:\/\/[^\s/]+/.test(api)) refuse("GITHUB_API_URL is missing or not an
 let live = null;
 let evidenceError = null;
 try {
-  live = await fetchPullEvidence({ api, repo, token, number }, { withFiles: true });
+  live = await fetchPullEvidence({ api, repo, token, number }, { withFiles: true, withProtectedDiff: true });
 } catch (e) {
   evidenceError = String((e && e.message) || e);
 }
@@ -109,6 +109,8 @@ const verdict = evidenceError
     pr: { number, eventHeadSha: live.liveHeadSha, liveHeadSha: live.liveHeadSha },
     comments: live.comments,
     error: null,
+    protectedDiff: live.protectedDiff,
+    protectedDiffError: live.protectedDiffError,
   });
 
 let appToken;

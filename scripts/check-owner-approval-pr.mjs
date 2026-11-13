@@ -3,8 +3,9 @@
  * check-owner-approval-pr — the "owner-approval" check (2026-09-23).
  *
  * Owner-only files (the list is OWNER_ONLY in scripts/lib/ownerApproval.mjs) change
- * only with an "/owner-approve <head sha>" pull-request comment by an owner GitHub
- * login. scripts/check-doc-ownership.mjs enforces that inside the "guards" check,
+ * only with an owner GitHub login's pull-request comment approving the protected
+ * diff ("/owner-approve-diff <fingerprint>", v2, 2026-11-13) or, legacy, the exact
+ * head ("/owner-approve <head sha>"). scripts/check-doc-ownership.mjs enforces that inside the "guards" check,
  * but "guards" runs on pull_request, which executes the pull request's OWN copy of
  * the guard: a pull request that deletes CLAUDE.md from OWNER_ONLY, or rewrites the
  * guard to print OK, is judged by its own edit.
@@ -19,7 +20,7 @@
  * API error, on an incomplete file list, or when the head moves mid-read.
  */
 import { decideOwnerApproval } from "./lib/ownerApproval.mjs";
-import { fetchApprovalCarry, fetchPullEvidence, readPullContext } from "./lib/githubPullEvidence.mjs";
+import { fetchApprovedManifests, fetchPullEvidence, readPullContext } from "./lib/githubPullEvidence.mjs";
 
 const refuse = (reason) => {
   console.error(`check-owner-approval-pr: FAIL — ${reason}.`);
@@ -37,7 +38,7 @@ if (ctx.error) refuse(`owner approval cannot be evaluated: ${ctx.error}`);
 
 let live;
 try {
-  live = await fetchPullEvidence(ctx, { withFiles: true });
+  live = await fetchPullEvidence(ctx, { withFiles: true, withProtectedDiff: true });
 } catch (e) {
   refuse(`owner approval cannot be evaluated: ${(e && e.message) || e}`);
 }
@@ -55,11 +56,13 @@ const evidence = {
   pr: { number: ctx.number, eventHeadSha: ctx.eventHeadSha, liveHeadSha: live.liveHeadSha },
   comments: live.comments,
   error: null,
-  carry: null,
+  protectedDiff: live.protectedDiff,
+  protectedDiffError: live.protectedDiffError,
 };
 let verdict = decideOwnerApproval(evidence);
-if (!verdict.ok && verdict.protectedPaths.length) {
-  verdict = decideOwnerApproval({ ...evidence, carry: await fetchApprovalCarry(ctx, live) });
+if (!verdict.ok && verdict.protectedPaths.length && live.protectedDiff) {
+  // Audit trail only: name the protected files that changed since an earlier approval.
+  verdict = decideOwnerApproval({ ...evidence, approvedManifests: await fetchApprovedManifests(ctx, live) });
 }
 if (!verdict.ok) refuse(verdict.reason);
 console.log(`check-owner-approval-pr: OK — ${verdict.reason} (${live.files.length} changed path(s) read from the GitHub API and judged by the base branch's rules)`);
