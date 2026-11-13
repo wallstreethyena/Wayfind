@@ -1,0 +1,1541 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-11-13T04:23:22.606Z",
+  "places": {
+    "ChIJ0ZQFl2Bj54gRNGUh-uvNoM4": {
+      "place_id": "ChIJ0ZQFl2Bj54gRNGUh-uvNoM4",
+      "name": "Pisco Peruvian Gastrobar - Orlando",
+      "locality": "Orlando",
+      "gap_class": "E",
+      "actions": {
+        "officialWebsite": {
+          "url": "https://piscoperuviangastrobar.com/",
+          "source": "wf_editorial_citation",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "HIGH_CONFIDENCE",
+          "verification_status": "verified"
+        }
+      }
+    },
+    "ChIJ19i72bBbw4gRbAZaOOPhzKE": {
+      "place_id": "ChIJ19i72bBbw4gRbAZaOOPhzKE",
+      "name": "Venice Performing Arts Center",
+      "locality": "Venice",
+      "gap_class": "D",
+      "actions": {
+        "officialWebsite": {
+          "url": "https://veniceperformingartscenter.com/",
+          "source": "atlas_editorial_card",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        },
+        "ticket_url": {
+          "url": "https://veniceperformingartscenter.com/booking/",
+          "source": "official_venue_subpage",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        }
+      }
+    },
+    "ChIJ1T2OiMEp34gRcRQOutyc6j8": {
+      "place_id": "ChIJ1T2OiMEp34gRcRQOutyc6j8",
+      "name": "Guanabanas Restaurant",
+      "locality": "Jupiter",
+      "gap_class": "E",
+      "actions": {
+        "officialWebsite": {
+          "url": "https://www.guanabanas.com/",
+          "source": "wf_editorial_citation",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        },
+        "menu_url": {
+          "url": "https://www.guanabanas.com/food-drink-menus/",
+          "source": "official_venue_subpage",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        }
+      }
+    },
+    "ChIJ40f7rFQ_24gRHy2uNMDhi2M": {
+      "place_id": "ChIJ40f7rFQ_24gRHy2uNMDhi2M",
+      "name": "Back Streets Sports Bar",
+      "locality": "Cape Coral",
+      "gap_class": "E",
+      "actions": {
+        "officialWebsite": {
+          "url": "https://www.backstreetssportsbar.com/",
+          "source": "wf_editorial_citation",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        },
+        "menu_url": {
+          "url": "https://www.backstreetssportsbar.com/our-food-menu",
+          "source": "official_venue_subpage",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        }
+      }
+    },
+    "ChIJ4XkjoBtw54gRGiqFxtWvbM8": {
+      "place_id": "ChIJ4XkjoBtw54gRGiqFxtWvbM8",
+      "name": "Scenic Boat Tour",
+      "locality": "Winter Park",
+      "gap_class": "D",
+      "actions": {
+        "officialWebsite": {
+          "url": "https://scenicboattours.com/",
+          "source": "atlas_editorial_card",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        }
+      }
+    },
+    "ChIJ4y3uJwAT54gRoKZ0xpPqeZ8": {
+      "place_id": "ChIJ4y3uJwAT54gRoKZ0xpPqeZ8",
+      "name": "Ace Cafe Sanford",
+      "locality": "Sanford",
+      "gap_class": "E",
+      "actions": {
+        "officialWebsite": {
+          "url": "https://www.acecafesanford.com/about",
+          "source": "wf_editorial_citation",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        },
+        "menu_url": {
+          "url": "https://www.acecafesanford.com/menu",
+          "source": "official_venue_subpage",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "HIGH_CONFIDENCE",
+          "verification_status": "verified"
+        }
+      }
+    },
+    "ChIJ58ADOrK52YgROLJMckI4joA": {
+      "place_id": "ChIJ58ADOrK52YgROLJMckI4joA",
+      "name": "Escapology Escape Rooms Doral",
+      "locality": "Doral",
+      "gap_class": "D",
+      "actions": {
+        "officialWebsite": {
+          "url": "https://www.escapology.com/en/doral-fl",
+          "source": "wf_editorial_citation",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        }
+      }
+    },
+    "ChIJ5SaFmKfhwogRWtzKX_Uq4Mo": {
+      "place_id": "ChIJ5SaFmKfhwogRWtzKX_Uq4Mo",
+      "name": "Welcome To The Farm",
+      "locality": "St. Petersburg",
+      "gap_class": "E",
+      "actions": {
+        "officialWebsite": {
+          "url": "https://welcometothefarm.squarespace.com/stpete",
+          "source": "wf_editorial_citation",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        }
+      }
+    },
+    "ChIJ6-BO3CdCw4gRQ0s2hmjlIuk": {
+      "place_id": "ChIJ6-BO3CdCw4gRQ0s2hmjlIuk",
+      "name": "Siesta Key Watersports",
+      "locality": "South Sarasota",
+      "gap_class": "D",
+      "actions": {
+        "officialWebsite": {
+          "url": "https://siestakeywatersports.com/dolphin-tours-siesta-key/",
+          "source": "wf_editorial_citation",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        },
+        "ticket_url": {
+          "url": "https://fareharbor.com/embeds/book/siestakeywatersports/?full-items=yes&flow=71811",
+          "source": "official_venue_subpage",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "HIGH_CONFIDENCE",
+          "verification_status": "verified"
+        }
+      }
+    },
+    "ChIJ68KQvyDd5ogRp5BhQ62tEfA": {
+      "place_id": "ChIJ68KQvyDd5ogRp5BhQ62tEfA",
+      "name": "Twin Peaks",
+      "locality": "Daytona Beach",
+      "gap_class": "E",
+      "actions": {
+        "officialWebsite": {
+          "url": "https://twinpeaksrestaurant.com/",
+          "source": "wf_editorial_citation",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "HIGH_CONFIDENCE",
+          "verification_status": "verified"
+        },
+        "menu_url": {
+          "url": "https://twinpeaksrestaurant.com/menu",
+          "source": "official_venue_subpage",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "HIGH_CONFIDENCE",
+          "verification_status": "verified"
+        }
+      }
+    },
+    "ChIJ6_hQr4AXw4gRwfUFqlfdRfA": {
+      "place_id": "ChIJ6_hQr4AXw4gRwfUFqlfdRfA",
+      "name": "Bellabean",
+      "locality": "South Bradenton",
+      "gap_class": "E",
+      "actions": {
+        "officialWebsite": {
+          "url": "https://bellabeanco.com/",
+          "source": "wf_editorial_citation",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "HIGH_CONFIDENCE",
+          "verification_status": "verified"
+        }
+      }
+    },
+    "ChIJ6cPIn0fiwogRklWu_EbSja0": {
+      "place_id": "ChIJ6cPIn0fiwogRklWu_EbSja0",
+      "name": "Rose's at St. Pete Athletic",
+      "locality": "St. Petersburg",
+      "gap_class": "E",
+      "actions": {
+        "officialWebsite": {
+          "url": "https://www.stpeteathletic.com/roses-menu",
+          "source": "wf_editorial_citation",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        }
+      }
+    },
+    "ChIJ6fLbnXYRw4gRoW_2igruY88": {
+      "place_id": "ChIJ6fLbnXYRw4gRoW_2igruY88",
+      "name": "Tide Tables Restaurant and Marina",
+      "locality": "Cortez",
+      "gap_class": "E",
+      "actions": {
+        "officialWebsite": {
+          "url": "https://www.tidetablescortez.com/",
+          "source": "atlas_editorial_card",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        },
+        "menu_url": {
+          "url": "https://www.tidetablescortez.com/menu.html",
+          "source": "official_venue_subpage",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        }
+      }
+    },
+    "ChIJ6y2dx9g_w4gRWoZIRhLk-JI": {
+      "place_id": "ChIJ6y2dx9g_w4gRWoZIRhLk-JI",
+      "name": "The John and Mable Ringling Museum of Art",
+      "locality": "Sarasota",
+      "gap_class": "D",
+      "actions": {
+        "officialWebsite": {
+          "url": "https://www.ringling.org/",
+          "source": "atlas_editorial_card",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        },
+        "ticket_url": {
+          "url": "https://www.ringling.org/tickets-admission/",
+          "source": "wayfind_coupons_direct",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        },
+        "admission_url": {
+          "url": "https://www.ringling.org/visit/",
+          "source": "official_venue_subpage",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "HIGH_CONFIDENCE",
+          "verification_status": "verified"
+        }
+      }
+    },
+    "ChIJ7QsLgxQ5w4gRSLtMON-sOaI": {
+      "place_id": "ChIJ7QsLgxQ5w4gRSLtMON-sOaI",
+      "name": "Agave Bandido",
+      "locality": "Lakewood Ranch",
+      "gap_class": "E",
+      "actions": {
+        "officialWebsite": {
+          "url": "https://www.agavebandido.com/",
+          "source": "atlas_editorial_card",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        },
+        "reservation_url": {
+          "url": "https://www.agavebandido.com/reservation",
+          "source": "official_venue_subpage",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        },
+        "menu_url": {
+          "url": "https://www.agavebandido.com/menu",
+          "source": "official_venue_subpage",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        }
+      }
+    },
+    "ChIJA-QkamE7w4gRfdzcxEHyPls": {
+      "place_id": "ChIJA-QkamE7w4gRfdzcxEHyPls",
+      "name": "ATRIA Cafe",
+      "locality": "Lakewood Ranch",
+      "gap_class": "E",
+      "actions": {
+        "officialWebsite": {
+          "url": "https://www.atria.cafe/",
+          "source": "wf_editorial_citation",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        }
+      }
+    },
+    "ChIJAdipByc9w4gR2lYv8gezcWM": {
+      "place_id": "ChIJAdipByc9w4gR2lYv8gezcWM",
+      "name": "Shake Station",
+      "locality": "Ellenton",
+      "gap_class": "E",
+      "actions": {
+        "officialWebsite": {
+          "url": "https://shakestation.com/",
+          "source": "wf_editorial_citation",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        }
+      }
+    },
+    "ChIJB-QyVtEXw4gRk5F8bn3YV28": {
+      "place_id": "ChIJB-QyVtEXw4gRk5F8bn3YV28",
+      "name": "Manatee Performing Arts Center",
+      "locality": "Bradenton",
+      "gap_class": "D",
+      "actions": {
+        "officialWebsite": {
+          "url": "https://www.manateeperformingartscenter.com/",
+          "source": "atlas_editorial_card",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        }
+      }
+    },
+    "ChIJCRCYGrx654gR3G9qoVbWlpY": {
+      "place_id": "ChIJCRCYGrx654gR3G9qoVbWlpY",
+      "name": "Harry P Leu Gardens",
+      "locality": "Orlando",
+      "gap_class": "D",
+      "actions": {
+        "officialWebsite": {
+          "url": "https://www.leugardens.org/Home",
+          "source": "atlas_editorial_card",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        },
+        "ticket_url": {
+          "url": "https://4285.blackbaudhosting.com/4285/tickets?tab=3&txobjid=2509c055-e68c-49df-885c-c1b15380e26f",
+          "source": "official_venue_subpage",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "HIGH_CONFIDENCE",
+          "verification_status": "verified"
+        },
+        "admission_url": {
+          "url": "https://www.leugardens.org/Visit",
+          "source": "wf_inventory_editorial_card",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        }
+      }
+    },
+    "ChIJCVj4hF5_54gR63DS1stJONA": {
+      "place_id": "ChIJCVj4hF5_54gR63DS1stJONA",
+      "name": "Sandbox VR",
+      "gap_class": "D",
+      "actions": {
+        "officialWebsite": {
+          "url": "https://sandboxvr.com/orlando/pointe-orlando",
+          "source": "wf_editorial_citation",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        },
+        "ticket_url": {
+          "url": "https://sandboxvr.com/orlando/pointe-orlando/booking/experiences",
+          "source": "official_venue_subpage",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        }
+      }
+    },
+    "ChIJE0_XXFVJw4gRroRqJ-TSTXg": {
+      "place_id": "ChIJE0_XXFVJw4gRroRqJ-TSTXg",
+      "name": "Myakka Canopy Walkway and Observation Tower",
+      "gap_class": "D",
+      "actions": {
+        "officialWebsite": {
+          "url": "https://www.floridastateparks.org/learn/canopy-walkway-myakka",
+          "source": "atlas_editorial_card",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "HIGH_CONFIDENCE",
+          "verification_status": "verified"
+        },
+        "admission_url": {
+          "url": "https://www.floridastateparks.org/parks-and-trails/myakka-river-state-park",
+          "source": "wf_inventory_editorial_card",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "HIGH_CONFIDENCE",
+          "verification_status": "verified"
+        }
+      }
+    },
+    "ChIJE4yoZTJ754gRn-n-gsk9UL4": {
+      "place_id": "ChIJE4yoZTJ754gRn-n-gsk9UL4",
+      "name": "Charlie's Bakery & Creamery",
+      "locality": "Orlando",
+      "gap_class": "E",
+      "actions": {
+        "officialWebsite": {
+          "url": "https://charliesbakery.com/about-us/",
+          "source": "wf_editorial_citation",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "HIGH_CONFIDENCE",
+          "verification_status": "verified"
+        },
+        "menu_url": {
+          "url": "https://charliesbakery.com/menu/",
+          "source": "official_venue_subpage",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "HIGH_CONFIDENCE",
+          "verification_status": "verified"
+        }
+      }
+    },
+    "ChIJEUEmzE1Bw4gRHHXe_oxJF7E": {
+      "place_id": "ChIJEUEmzE1Bw4gRHHXe_oxJF7E",
+      "name": "Hashtag Café",
+      "locality": "Southgate",
+      "gap_class": "E",
+      "actions": {
+        "officialWebsite": {
+          "url": "https://www.hashtagcafesrq.com/",
+          "source": "wf_editorial_citation",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        }
+      }
+    },
+    "ChIJHZo0qDhA24gR1ifSPvqF-Ag": {
+      "place_id": "ChIJHZo0qDhA24gR1ifSPvqF-Ag",
+      "name": "Broadway Palm Dinner Theatre",
+      "locality": "Fort Myers",
+      "gap_class": "D",
+      "actions": {
+        "officialWebsite": {
+          "url": "https://broadwaypalm.com/",
+          "source": "wf_editorial_citation",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        },
+        "ticket_url": {
+          "url": "https://broadwaypalm.com/booking/",
+          "source": "official_venue_subpage",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        }
+      }
+    },
+    "ChIJIZt3d7DFwogRQ5Lg2tPMXyk": {
+      "place_id": "ChIJIZt3d7DFwogRQ5Lg2tPMXyk",
+      "name": "Dracula's Legacy Wine Bar & Bistro Tampa",
+      "locality": "Tampa",
+      "gap_class": "E",
+      "actions": {
+        "officialWebsite": {
+          "url": "https://draculaslegacywinebar.com/",
+          "source": "wf_editorial_citation",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        },
+        "reservation_url": {
+          "url": "https://draculaslegacywinebar.com/reservations",
+          "source": "official_venue_subpage",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        },
+        "menu_url": {
+          "url": "https://draculaslegacywinebar.com/drink-menu",
+          "source": "official_venue_subpage",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        }
+      }
+    },
+    "ChIJJeuujrDFwogRZWZ69psQAa4": {
+      "place_id": "ChIJJeuujrDFwogRZWZ69psQAa4",
+      "name": "SORSI Waterfront",
+      "locality": "Tampa",
+      "gap_class": "E",
+      "actions": {
+        "officialWebsite": {
+          "url": "https://www.jacksonsbistro.com/sorsi-waterfront",
+          "source": "wf_editorial_citation",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "HIGH_CONFIDENCE",
+          "verification_status": "verified"
+        }
+      }
+    },
+    "ChIJJzZWD1PX2IgREC3NijoLNd8": {
+      "place_id": "ChIJJzZWD1PX2IgREC3NijoLNd8",
+      "name": "Skinny Louie",
+      "locality": "West Palm Beach",
+      "gap_class": "E",
+      "actions": {
+        "officialWebsite": {
+          "url": "https://www.skinnylouie.com/louiespot/westpalmbeach",
+          "source": "wf_editorial_citation",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "HIGH_CONFIDENCE",
+          "verification_status": "verified"
+        }
+      }
+    },
+    "ChIJK6b43nXhwogRCV39bMyGJGo": {
+      "place_id": "ChIJK6b43nXhwogRCV39bMyGJGo",
+      "name": "Juno & The Peacock",
+      "locality": "St. Petersburg",
+      "gap_class": "E",
+      "actions": {
+        "officialWebsite": {
+          "url": "https://www.junoandthepeacock.com/",
+          "source": "wf_editorial_citation",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        },
+        "reservation_url": {
+          "url": "https://www.junoandthepeacock.com/reservations/",
+          "source": "official_venue_subpage",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        },
+        "menu_url": {
+          "url": "https://www.junoandthepeacock.com/menus/",
+          "source": "official_venue_subpage",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        }
+      }
+    },
+    "ChIJKSOkH3XhwogROw34kxu5slM": {
+      "place_id": "ChIJKSOkH3XhwogROw34kxu5slM",
+      "name": "The Floridian Social",
+      "locality": "St. Petersburg",
+      "gap_class": "D",
+      "actions": {
+        "officialWebsite": {
+          "url": "https://thefloridiansocial.com/",
+          "source": "wf_editorial_citation",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        }
+      }
+    },
+    "ChIJL0bExYvEwogRWA4X9n0d7MA": {
+      "place_id": "ChIJL0bExYvEwogRWA4X9n0d7MA",
+      "name": "The Great Escape Room Tampa",
+      "locality": "Tampa",
+      "gap_class": "D",
+      "actions": {
+        "officialWebsite": {
+          "url": "https://thegreatescaperoom.com/tampa",
+          "source": "wf_editorial_citation",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        },
+        "ticket_url": {
+          "url": "https://thegreatescaperoom.com/tampa/book-online",
+          "source": "official_venue_subpage",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        }
+      }
+    },
+    "ChIJMTpK3B-q2YgRsI58IHDJFHo": {
+      "place_id": "ChIJMTpK3B-q2YgRsI58IHDJFHo",
+      "name": "The Field Irish Pub & Eatery",
+      "locality": "Dania Beach",
+      "gap_class": "E",
+      "actions": {
+        "officialWebsite": {
+          "url": "https://www.thefieldfl.com/about/",
+          "source": "wf_editorial_citation",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "HIGH_CONFIDENCE",
+          "verification_status": "verified"
+        },
+        "reservation_url": {
+          "url": "https://www.thefieldfl.com/reservations/",
+          "source": "official_venue_subpage",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "HIGH_CONFIDENCE",
+          "verification_status": "verified"
+        }
+      }
+    },
+    "ChIJOdY8qlHEwogRXPbXY1cq2xo": {
+      "place_id": "ChIJOdY8qlHEwogRXPbXY1cq2xo",
+      "name": "Coyote Ugly Saloon",
+      "locality": "Tampa",
+      "gap_class": "E",
+      "actions": {
+        "officialWebsite": {
+          "url": "https://www.coyoteuglysaloon.com/tampa/",
+          "source": "wf_editorial_citation",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        },
+        "reservation_url": {
+          "url": "https://www.coyoteuglysaloon.com/book/florida/",
+          "source": "official_venue_subpage",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        }
+      }
+    },
+    "ChIJOeE5xFR-54gR0waxD2npG4M": {
+      "place_id": "ChIJOeE5xFR-54gR0waxD2npG4M",
+      "name": "The Escape Game Orlando",
+      "gap_class": "D",
+      "actions": {
+        "officialWebsite": {
+          "url": "https://theescapegame.com/orlando/",
+          "source": "wf_editorial_citation",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        },
+        "ticket_url": {
+          "url": "https://theescapegame.com/orlando/book-now/",
+          "source": "official_venue_subpage",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        }
+      }
+    },
+    "ChIJPTvxtmpAw4gReToYD5mTNwE": {
+      "place_id": "ChIJPTvxtmpAw4gReToYD5mTNwE",
+      "name": "Marie Selby Botanical Gardens Downtown Sarasota",
+      "locality": "Sarasota",
+      "gap_class": "D",
+      "actions": {
+        "officialWebsite": {
+          "url": "https://selby.org/",
+          "source": "atlas_editorial_card",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        },
+        "admission_url": {
+          "url": "https://selby.org/visit/",
+          "source": "wf_inventory_editorial_card",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        }
+      }
+    },
+    "ChIJPd6UAfJ_3YgRP-V0GS5jS8I": {
+      "place_id": "ChIJPd6UAfJ_3YgRP-V0GS5jS8I",
+      "name": "Gideon's Bakehouse",
+      "locality": "Lake Buena Vista",
+      "gap_class": "E",
+      "actions": {
+        "officialWebsite": {
+          "url": "https://gideonsbakehouse.com/locations/disney-springs/",
+          "source": "wf_editorial_citation",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "HIGH_CONFIDENCE",
+          "verification_status": "verified"
+        }
+      }
+    },
+    "ChIJQ_3WRVN-54gR2mMdWDLIJ2s": {
+      "place_id": "ChIJQ_3WRVN-54gR2mMdWDLIJ2s",
+      "name": "Lockbusters Escape Game",
+      "gap_class": "D",
+      "actions": {
+        "officialWebsite": {
+          "url": "https://www.lockbustersgame.com/",
+          "source": "wf_editorial_citation",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        },
+        "ticket_url": {
+          "url": "https://www.lockbustersgame.com/book-now/",
+          "source": "official_venue_subpage",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        }
+      }
+    },
+    "ChIJQbK7aM4B2YgRsEdjzN8G4xs": {
+      "place_id": "ChIJQbK7aM4B2YgRsEdjzN8G4xs",
+      "name": "Freaky Tiki Boat Charters",
+      "locality": "Fort Lauderdale",
+      "gap_class": "D",
+      "actions": {
+        "officialWebsite": {
+          "url": "https://www.freakytikicharters.com/",
+          "source": "wf_editorial_citation",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "HIGH_CONFIDENCE",
+          "verification_status": "verified"
+        }
+      }
+    },
+    "ChIJRyOEfAo5w4gR664aD_YYBLU": {
+      "place_id": "ChIJRyOEfAo5w4gR664aD_YYBLU",
+      "name": "Mote Science Education Aquarium (SEA)",
+      "gap_class": "D",
+      "actions": {
+        "officialWebsite": {
+          "url": "https://mote.org/",
+          "source": "atlas_editorial_card",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        },
+        "ticket_url": {
+          "url": "https://ticketing.mote.org/events/06635617-3233-f0f3-79fa-092eea8061c6",
+          "source": "official_venue_subpage",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "HIGH_CONFIDENCE",
+          "verification_status": "verified"
+        },
+        "admission_url": {
+          "url": "https://mote.org/visit/",
+          "source": "official_venue_subpage",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        }
+      }
+    },
+    "ChIJS0fk0SviwogRVpPveF0qH9w": {
+      "place_id": "ChIJS0fk0SviwogRVpPveF0qH9w",
+      "name": "Hawkers Asian Street Food",
+      "locality": "St. Petersburg",
+      "gap_class": "E",
+      "actions": {
+        "officialWebsite": {
+          "url": "https://eathawkers.com/",
+          "source": "wf_editorial_citation",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "HIGH_CONFIDENCE",
+          "verification_status": "verified"
+        }
+      }
+    },
+    "ChIJSaQDBuNB24gR9p9LdqtWEe0": {
+      "place_id": "ChIJSaQDBuNB24gR9p9LdqtWEe0",
+      "name": "Downtown House of Pizza",
+      "locality": "Fort Myers",
+      "gap_class": "E",
+      "actions": {
+        "officialWebsite": {
+          "url": "https://downtownhouseofpizza.com/about-downtown-house-of-pizza/",
+          "source": "wf_editorial_citation",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        },
+        "menu_url": {
+          "url": "https://downtownhouseofpizza.com/menu/",
+          "source": "official_venue_subpage",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        }
+      }
+    },
+    "ChIJUcSOQap_3YgRzKLq5rYIdYI": {
+      "place_id": "ChIJUcSOQap_3YgRzKLq5rYIdYI",
+      "name": "The Cake Bake Shop by Gwendolyn Rogers",
+      "locality": "Lake Buena Vista",
+      "gap_class": "E",
+      "actions": {
+        "officialWebsite": {
+          "url": "https://thecakebakeshop.com/pages/disneys-boardwalk-walt-disney-world-resort",
+          "source": "wf_editorial_citation",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "HIGH_CONFIDENCE",
+          "verification_status": "verified"
+        }
+      }
+    },
+    "ChIJVVUNg8JB24gRo5VjblNO_c8": {
+      "place_id": "ChIJVVUNg8JB24gRo5VjblNO_c8",
+      "name": "Edison & Ford Winter Estates",
+      "locality": "Fort Myers",
+      "gap_class": "D",
+      "actions": {
+        "officialWebsite": {
+          "url": "https://www.edisonfordwinterestates.org/",
+          "source": "wf_editorial_citation",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        },
+        "ticket_url": {
+          "url": "https://www.edisonfordwinterestates.org/visit/tickets-tours/",
+          "source": "official_venue_subpage",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        },
+        "admission_url": {
+          "url": "https://www.edisonfordwinterestates.org/visit/visitor-information/",
+          "source": "official_venue_subpage",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        }
+      }
+    },
+    "ChIJXze1LS_FwogRIeQKUSTt268": {
+      "place_id": "ChIJXze1LS_FwogRIeQKUSTt268",
+      "name": "Ichiban Sushi & Ramen",
+      "locality": "Tampa",
+      "gap_class": "E",
+      "actions": {
+        "officialWebsite": {
+          "url": "https://tampaichibansushi.com/",
+          "source": "wf_editorial_citation",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "HIGH_CONFIDENCE",
+          "verification_status": "verified"
+        }
+      }
+    },
+    "ChIJYShqxAbSwogRimPjoqBckPc": {
+      "place_id": "ChIJYShqxAbSwogRimPjoqBckPc",
+      "name": "The Stein & Vine",
+      "locality": "Bloomingdale",
+      "gap_class": "E",
+      "actions": {
+        "officialWebsite": {
+          "url": "https://www.thesteinandvine.com/about",
+          "source": "wf_editorial_citation",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        }
+      }
+    },
+    "ChIJ_1EOeJrFwogR3FwZdANqM_w": {
+      "place_id": "ChIJ_1EOeJrFwogR3FwZdANqM_w",
+      "name": "Escapology Escape Rooms Tampa",
+      "locality": "Tampa",
+      "gap_class": "D",
+      "actions": {
+        "officialWebsite": {
+          "url": "https://www.escapology.com/en/tampa-armature-works-fl",
+          "source": "wf_editorial_citation",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        }
+      }
+    },
+    "ChIJ_37IauQ_w4gRz03lc0QInIE": {
+      "place_id": "ChIJ_37IauQ_w4gRz03lc0QInIE",
+      "name": "Sarasota Jungle Gardens",
+      "locality": "Sarasota",
+      "gap_class": "B",
+      "actions": {
+        "officialWebsite": {
+          "url": "https://sarasotajunglegardens.com/",
+          "source": "atlas_editorial_card",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        },
+        "ticket_url": {
+          "url": "https://sarasotajunglegardens.com/tickets-annual-passes/",
+          "source": "wf_inventory_editorial_card",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        }
+      }
+    },
+    "ChIJ_azYMG5Dw4gRi_ACS_yl7Tw": {
+      "place_id": "ChIJ_azYMG5Dw4gRi_ACS_yl7Tw",
+      "name": "Max's Table",
+      "locality": "Osprey",
+      "gap_class": "E",
+      "actions": {
+        "officialWebsite": {
+          "url": "https://maxstablesrq.com/",
+          "source": "atlas_editorial_card",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        }
+      }
+    },
+    "ChIJbWcxKEO15YgRXIOwyi6J7Wg": {
+      "place_id": "ChIJbWcxKEO15YgRXIOwyi6J7Wg",
+      "name": "Prototype Escape Games Jacksonville",
+      "locality": "Jacksonville",
+      "gap_class": "D",
+      "actions": {
+        "officialWebsite": {
+          "url": "https://prototypejax.com/",
+          "source": "wf_editorial_citation",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        }
+      }
+    },
+    "ChIJd_yTxUh054gR9cGD0gI_yHw": {
+      "place_id": "ChIJd_yTxUh054gR9cGD0gI_yHw",
+      "name": "Wekiwa Springs State Park",
+      "gap_class": "D",
+      "actions": {
+        "officialWebsite": {
+          "url": "https://www.floridastateparks.org/parks-and-trails/wekiwa-springs-state-park",
+          "source": "wikidata_p856",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "HIGH_CONFIDENCE",
+          "verification_status": "verified"
+        },
+        "admission_url": {
+          "url": "https://www.floridastateparks.org/parks-and-trails/wekiwa-springs-state-park/experiences-amenities",
+          "source": "wf_editorial_citation",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "HIGH_CONFIDENCE",
+          "verification_status": "verified"
+        }
+      }
+    },
+    "ChIJe5Ox97ECw4gR2fGQC-g97jc": {
+      "place_id": "ChIJe5Ox97ECw4gR2fGQC-g97jc",
+      "name": "Café Soleil",
+      "locality": "St. Pete Beach",
+      "gap_class": "E",
+      "actions": {
+        "officialWebsite": {
+          "url": "https://www.cafesoleilbakery.com/",
+          "source": "wf_editorial_citation",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "HIGH_CONFIDENCE",
+          "verification_status": "verified"
+        }
+      }
+    },
+    "ChIJeRyi7D5p54gRyScetdt6y6c": {
+      "place_id": "ChIJeRyi7D5p54gRyScetdt6y6c",
+      "name": "Teapioca Lounge",
+      "locality": "Oviedo",
+      "gap_class": "E",
+      "actions": {
+        "officialWebsite": {
+          "url": "https://teapiocalounge.com/",
+          "source": "wf_editorial_citation",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        },
+        "menu_url": {
+          "url": "https://teapiocalounge.com/menu/",
+          "source": "official_venue_subpage",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "HIGH_CONFIDENCE",
+          "verification_status": "verified"
+        }
+      }
+    },
+    "ChIJe_sgCQTFwogRzB1ctERShiI": {
+      "place_id": "ChIJe_sgCQTFwogRzB1ctERShiI",
+      "name": "Ro Hyde Park Sushi Bar & Asian Restaurant",
+      "locality": "Tampa",
+      "gap_class": "E",
+      "actions": {
+        "menu_url": {
+          "url": "https://www.rohydepark.com/menus/",
+          "source": "wf_editorial_citation",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "HIGH_CONFIDENCE",
+          "verification_status": "verified"
+        }
+      }
+    },
+    "ChIJhWCYaL4n5IgRhwgdf5lIGbc": {
+      "place_id": "ChIJhWCYaL4n5IgRhwgdf5lIGbc",
+      "name": "St. Augustine Coffee House",
+      "locality": "St. Augustine",
+      "gap_class": "E",
+      "actions": {
+        "officialWebsite": {
+          "url": "https://staugustinecoffeehouse.com/",
+          "source": "wf_editorial_citation",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        },
+        "menu_url": {
+          "url": "https://staugustinecoffeehouse.com/menu",
+          "source": "official_venue_subpage",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        }
+      }
+    },
+    "ChIJhcub0Rs_w4gRCEvPuk8tBok": {
+      "place_id": "ChIJhcub0Rs_w4gRCEvPuk8tBok",
+      "name": "Escape Reality",
+      "gap_class": "D",
+      "actions": {
+        "officialWebsite": {
+          "url": "https://escaperealitysarasota.com/",
+          "source": "wf_editorial_citation",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "HIGH_CONFIDENCE",
+          "verification_status": "verified"
+        },
+        "ticket_url": {
+          "url": "https://escaperealitysarasota.com/book-now",
+          "source": "official_venue_subpage",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        }
+      }
+    },
+    "ChIJjYZbT6_HwogRWy7ZriWtKEg": {
+      "place_id": "ChIJjYZbT6_HwogRWy7ZriWtKEg",
+      "name": "Arwa Coffee",
+      "locality": "Temple Terrace",
+      "gap_class": "E",
+      "actions": {
+        "officialWebsite": {
+          "url": "https://arwafl.com/",
+          "source": "wf_editorial_citation",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        }
+      }
+    },
+    "ChIJjwUZ8htHw4gR6-xAgrevYLM": {
+      "place_id": "ChIJjwUZ8htHw4gR6-xAgrevYLM",
+      "name": "Twin Peaks",
+      "locality": "Fruitville",
+      "gap_class": "E",
+      "actions": {
+        "officialWebsite": {
+          "url": "https://twinpeaksrestaurant.com/locations/sarasota",
+          "source": "wf_editorial_citation",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        },
+        "menu_url": {
+          "url": "https://twinpeaksrestaurant.com/menu",
+          "source": "official_venue_subpage",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "HIGH_CONFIDENCE",
+          "verification_status": "verified"
+        }
+      }
+    },
+    "ChIJk04qcKEdw4gRHykY4WhCYBI": {
+      "place_id": "ChIJk04qcKEdw4gRHykY4WhCYBI",
+      "name": "Get Up and Go Kayaking - Shell Key Preserve",
+      "locality": "Tierra Verde",
+      "gap_class": "C",
+      "actions": {
+        "officialWebsite": {
+          "url": "https://getupandgokayaking.com/locations/tampa-bay/clear-kayak-tours-at-shell-key-preserve-family-friendly-eco-adventures/",
+          "source": "wf_editorial_citation",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        }
+      }
+    },
+    "ChIJkTDP2OLFwogR9W0EjRYIL-0": {
+      "place_id": "ChIJkTDP2OLFwogR9W0EjRYIL-0",
+      "name": "Naked Farmer",
+      "locality": "Tampa",
+      "gap_class": "E",
+      "actions": {
+        "officialWebsite": {
+          "url": "https://www.eatnakedfarmer.com/",
+          "source": "wf_editorial_citation",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "HIGH_CONFIDENCE",
+          "verification_status": "verified"
+        },
+        "menu_url": {
+          "url": "https://www.eatnakedfarmer.com/menu",
+          "source": "official_venue_subpage",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "HIGH_CONFIDENCE",
+          "verification_status": "verified"
+        }
+      }
+    },
+    "ChIJl0CYCGZ_3YgRL05pG5wZSsE": {
+      "place_id": "ChIJl0CYCGZ_3YgRL05pG5wZSsE",
+      "name": "Gaylord Palms Resort & Convention Center",
+      "gap_class": "D",
+      "actions": {
+        "officialWebsite": {
+          "url": "https://www.marriott.com/en-us/hotels/mcogp-gaylord-palms-resort-and-convention-center/events/",
+          "source": "wf_editorial_citation",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        },
+        "ticket_url": {
+          "url": "https://tickets.gaylordpalms.com/",
+          "source": "wf_events_active",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified",
+          "valid_until": "2027-01-03"
+        }
+      }
+    },
+    "ChIJlcQil-Pj2ogRZXbB55ldZcQ": {
+      "place_id": "ChIJlcQil-Pj2ogRZXbB55ldZcQ",
+      "name": "Naples Botanical Garden",
+      "gap_class": "A",
+      "actions": {
+        "officialWebsite": {
+          "url": "https://www.naplesgarden.org/",
+          "source": "wikidata_p856",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        },
+        "ticket_url": {
+          "url": "https://www.naplesgarden.org/tickets/",
+          "source": "official_venue_subpage",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        },
+        "admission_url": {
+          "url": "https://www.naplesgarden.org/visit/",
+          "source": "official_venue_subpage",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        }
+      }
+    },
+    "ChIJmToCpQ4J3YgRof6hhxcoTIM": {
+      "place_id": "ChIJmToCpQ4J3YgRof6hhxcoTIM",
+      "name": "Bok Tower Gardens",
+      "gap_class": "D",
+      "actions": {
+        "officialWebsite": {
+          "url": "https://boktowergardens.org/",
+          "source": "wf_editorial_citation",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        },
+        "admission_url": {
+          "url": "https://boktowergardens.org/admission/",
+          "source": "official_venue_subpage",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "HIGH_CONFIDENCE",
+          "verification_status": "verified"
+        }
+      }
+    },
+    "ChIJn_4zMBJAw4gRnyPviItiNRs": {
+      "place_id": "ChIJn_4zMBJAw4gRnyPviItiNRs",
+      "name": "Art Ovation Hotel, Autograph Collection",
+      "locality": "Sarasota",
+      "gap_class": "D",
+      "actions": {
+        "officialWebsite": {
+          "url": "https://art.artovationhotel.com/",
+          "source": "wf_inventory_editorial_card",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        }
+      }
+    },
+    "ChIJo2bql5B654gR_ITN9PGhBbU": {
+      "place_id": "ChIJo2bql5B654gR_ITN9PGhBbU",
+      "name": "Orlando Science Center",
+      "locality": "Orlando",
+      "gap_class": "D",
+      "actions": {
+        "officialWebsite": {
+          "url": "https://www.osc.org/",
+          "source": "atlas_editorial_card",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        },
+        "ticket_url": {
+          "url": "https://www.osc.org/tickets/",
+          "source": "wf_inventory_editorial_card",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        },
+        "admission_url": {
+          "url": "https://www.osc.org/visit/",
+          "source": "wf_inventory_editorial_card",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        }
+      }
+    },
+    "ChIJo_IdHf0lw4gRHDbQNKBRE84": {
+      "place_id": "ChIJo_IdHf0lw4gRHDbQNKBRE84",
+      "name": "Ryan's Coffee House",
+      "gap_class": "E",
+      "actions": {
+        "officialWebsite": {
+          "url": "https://ryanscoffeehouse.com/",
+          "source": "wf_editorial_citation",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        }
+      }
+    },
+    "ChIJpXGK53VC24gRWMneFVtK6hY": {
+      "place_id": "ChIJpXGK53VC24gRWMneFVtK6hY",
+      "name": "Ca' d'Zan",
+      "locality": "Sarasota",
+      "gap_class": "B",
+      "actions": {
+        "officialWebsite": {
+          "url": "https://www.ringling.org/visit/venues/ca-dzan/",
+          "source": "manual_verified",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "manual_verified"
+        },
+        "admission_url": {
+          "url": "https://www.ringling.org/visit/venues/ca-dzan/",
+          "source": "atlas_editorial_card",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        }
+      }
+    },
+    "ChIJq2_lAFHEwogRRCeJJ77fHgg": {
+      "place_id": "ChIJq2_lAFHEwogRRCeJJ77fHgg",
+      "name": "Bad Monkey Ybor",
+      "locality": "Tampa",
+      "gap_class": "E",
+      "actions": {
+        "officialWebsite": {
+          "url": "https://badmonkeyybor.com/",
+          "source": "wf_editorial_citation",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        },
+        "reservation_url": {
+          "url": "https://badmonkeyybor.com/event-reservation/",
+          "source": "official_venue_subpage",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        },
+        "menu_url": {
+          "url": "https://badmonkeyybor.com/food-and-drink-menus/",
+          "source": "official_venue_subpage",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        }
+      }
+    },
+    "ChIJqQsqj80Xw4gRev0L3y4_-lM": {
+      "place_id": "ChIJqQsqj80Xw4gRev0L3y4_-lM",
+      "name": "O'bricks Irish Pub & Martini Bar",
+      "locality": "Bradenton",
+      "gap_class": "E",
+      "actions": {
+        "officialWebsite": {
+          "url": "https://obricks.com/",
+          "source": "atlas_editorial_card",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        },
+        "reservation_url": {
+          "url": "https://resy.com/cities/bradenton-fl/venues/obricks-irish-pub",
+          "source": "official_venue_subpage",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "HIGH_CONFIDENCE",
+          "verification_status": "verified"
+        },
+        "menu_url": {
+          "url": "https://obricks.com/dinner/",
+          "source": "official_venue_subpage",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "HIGH_CONFIDENCE",
+          "verification_status": "verified"
+        }
+      }
+    },
+    "ChIJqwo10S3dwogRnC3CEXFQNwI": {
+      "place_id": "ChIJqwo10S3dwogRnC3CEXFQNwI",
+      "name": "Green Iguana Bar & Grill",
+      "locality": "Tampa",
+      "gap_class": "E",
+      "actions": {
+        "officialWebsite": {
+          "url": "https://greeniguana.com/",
+          "source": "wf_editorial_citation",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        }
+      }
+    },
+    "ChIJr7ec9tEXw4gRwicCx3wfH2w": {
+      "place_id": "ChIJr7ec9tEXw4gRwicCx3wfH2w",
+      "name": "The Bishop Museum of Science and Nature",
+      "locality": "Bradenton",
+      "gap_class": "D",
+      "actions": {
+        "officialWebsite": {
+          "url": "https://bishopscience.org/",
+          "source": "atlas_editorial_card",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        },
+        "ticket_url": {
+          "url": "https://26965.blackbaudhosting.com/26965/tickets?tab=3&txobjid=604e2f5d-de55-4582-a814-bfe941af2433",
+          "source": "official_venue_subpage",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        },
+        "admission_url": {
+          "url": "https://bishopscience.org/plan-your-visit/",
+          "source": "wf_inventory_editorial_card",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        }
+      }
+    },
+    "ChIJrZufuCg5w4gRXu8owbAhZss": {
+      "place_id": "ChIJrZufuCg5w4gRXu8owbAhZss",
+      "name": "Kaizen Japanese Kitchen",
+      "gap_class": "E",
+      "actions": {
+        "officialWebsite": {
+          "url": "https://www.kaizenjapanesekitchen.com/",
+          "source": "wf_editorial_citation",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        }
+      }
+    },
+    "ChIJs8X39n07w4gR0NEp6j5PNdc": {
+      "place_id": "ChIJs8X39n07w4gR0NEp6j5PNdc",
+      "name": "Cracker Barrel Old Country Store",
+      "gap_class": "E",
+      "actions": {
+        "officialWebsite": {
+          "url": "https://www.crackerbarrel.com/",
+          "source": "wf_editorial_citation",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "HIGH_CONFIDENCE",
+          "verification_status": "verified"
+        }
+      }
+    },
+    "ChIJv4dyuXnPwogRMK5yN-Ke2Iw": {
+      "place_id": "ChIJv4dyuXnPwogRMK5yN-Ke2Iw",
+      "name": "Hammered Harry's Tampa",
+      "locality": "Tampa",
+      "gap_class": "E",
+      "actions": {
+        "officialWebsite": {
+          "url": "https://hammeredharrys.com/locations/tampa-florida/",
+          "source": "wf_editorial_citation",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        }
+      }
+    },
+    "ChIJww1nz5VBw4gRl0xv985c9E4": {
+      "place_id": "ChIJww1nz5VBw4gRl0xv985c9E4",
+      "name": "Cedar Fox Coffee",
+      "locality": "Sarasota",
+      "gap_class": "E",
+      "actions": {
+        "officialWebsite": {
+          "url": "https://cedarfoxcoffee.com/",
+          "source": "wf_editorial_citation",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        },
+        "menu_url": {
+          "url": "https://cedarfoxcoffee.com/our-menu/",
+          "source": "official_venue_subpage",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        }
+      }
+    },
+    "ChIJxxfE0BJAw4gRfwZZylL_Q-A": {
+      "place_id": "ChIJxxfE0BJAw4gRfwZZylL_Q-A",
+      "name": "The Gator Club",
+      "locality": "Sarasota",
+      "gap_class": "E",
+      "actions": {
+        "officialWebsite": {
+          "url": "https://www.thegatorclub.com/",
+          "source": "atlas_editorial_card",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        }
+      }
+    },
+    "ChIJy6vf9_dBw4gRGg1sXR5UTGU": {
+      "place_id": "ChIJy6vf9_dBw4gRGg1sXR5UTGU",
+      "name": "Project Coffee",
+      "locality": "Sarasota",
+      "gap_class": "E",
+      "actions": {
+        "officialWebsite": {
+          "url": "https://www.projectcoffee.us/",
+          "source": "wf_editorial_citation",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "HIGH_CONFIDENCE",
+          "verification_status": "verified"
+        }
+      }
+    },
+    "ChIJyYEUav8P54gRatuv_zQzm20": {
+      "place_id": "ChIJyYEUav8P54gRatuv_zQzm20",
+      "name": "Blue Spring State Park",
+      "gap_class": "D",
+      "actions": {
+        "officialWebsite": {
+          "url": "https://www.floridastateparks.org/parks-and-trails/blue-spring-state-park",
+          "source": "wikidata_p856",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "HIGH_CONFIDENCE",
+          "verification_status": "verified"
+        },
+        "admission_url": {
+          "url": "https://www.floridastateparks.org/parks-and-trails/blue-spring-state-park",
+          "source": "wf_editorial_citation",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "HIGH_CONFIDENCE",
+          "verification_status": "verified"
+        }
+      }
+    },
+    "ChIJz4eUs7N654gRiMJs2630XVc": {
+      "place_id": "ChIJz4eUs7N654gRiMJs2630XVc",
+      "name": "East End Market",
+      "locality": "Orlando",
+      "gap_class": "E",
+      "actions": {
+        "officialWebsite": {
+          "url": "https://eastendmkt.com/",
+          "source": "wf_editorial_citation",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        }
+      }
+    },
+    "wfadd_nueva_cantina_brandon": {
+      "place_id": "wfadd_nueva_cantina_brandon",
+      "name": "Nueva Cantina - Brandon",
+      "locality": "Brandon",
+      "gap_class": "E",
+      "actions": {
+        "menu_url": {
+          "url": "https://www.nuevacantina.com/food-menu",
+          "source": "wf_editorial_citation",
+          "retrieved_at": "2026-11-13T04:23:22.606Z",
+          "confidence": "EXACT",
+          "verification_status": "verified"
+        }
+      }
+    }
+  }
+}

@@ -31,6 +31,7 @@ import NativeOfflineOverlay from "./components/NativeOfflineOverlay";
 import BooCompanionLoader from "./components/BooCompanionLoader";
 import { SANTA_DOCK_ROOT_CSS } from "./components/santaDockMetrics.js";
 import { styleHtml } from "../lib/styleHtml.js";
+import WayfindPlannerLoader from "./components/WayfindPlannerLoader";
 
 // Origin of the Supabase photo vault, for the preconnect hint below. Server-only
 // read (never a NEXT_PUBLIC_* template href); an invalid/missing URL renders no hint.
@@ -354,6 +355,7 @@ export default function RootLayout({ children }) {
         <div id="wf-scroll">
         <main id="wf-main" style={{ minHeight: "100dvh" }}>{children}</main>
         <BooCompanionLoader />
+        <WayfindPlannerLoader />
         {/* v4.55 PROTECTED (check-seo.mjs): server-rendered SEO layer. A real
             H1, description, and crawlable links to guides, cities, and legal
             pages, rendered below the app so the visual design is untouched. */}

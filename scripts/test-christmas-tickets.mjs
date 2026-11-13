@@ -5,6 +5,7 @@
 // exactly as the registry builds them (never built here), honest prices, a
 // dash free page, no empty photo slot, and an order that never reads the
 // partner or the commission.
+import { mergeChristmasResearch } from "../lib/christmasResearch.js";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { createHash } from "node:crypto";
@@ -33,7 +34,7 @@ import {
   ticketAction, ticketDatesText, ticketPrice, withChristmasTicketPhotos, christmasVaultPhoto, christmasGooglePhoto,
 } from "../lib/christmasTickets.js";
 import { existsSync } from "node:fs";
-import { CHRISTMAS_EVENT_PLACE, CHRISTMAS_MAX_PHOTOS, LEGOLAND_ARCH_FILE, christmasCardRail, christmasPlaceFor, christmasStaticPhotos, christmasTaggedPhotos, readChristmasEventPhotos } from "../lib/christmasPlacePhotos.js";
+import { CHRISTMAS_EVENT_PLACE, CHRISTMAS_MAX_PHOTOS, CHRISTMAS_STATIC_GALLERY, LEGOLAND_ARCH_FILE, christmasCardRail, christmasPlaceFor, christmasStaticPhotos, christmasTaggedPhotos, readChristmasEventPhotos } from "../lib/christmasPlacePhotos.js";
 
 const root = process.cwd();
 let checks = 0;
@@ -401,26 +402,24 @@ for (const today of ["2026-10-30", "2026-12-20", "2027-01-01"]) {
   ok(universal.rows[0].placeId === "ChIJvRBCrN9-54gRGZuuaCLGrQE", "Universal links to the existing Universal Orlando place");
   const stetsonShots = christmasStaticPhotos("stetson-mansion-christmas-2026-2", "Stetson Mansion");
   const winterShots = christmasStaticPhotos("winterfest-boat-parade-2026", "Winterfest");
-  ok(stetsonShots.length === 9 && stetsonShots[0].src.endsWith("/xmas_08c508314b0a24ca.jpg") && stetsonShots.every((p) => existsSync(path.join(root, "public", p.src))), "Stetson opens on its cover and every gallery file is on disk");
+  // 2026-11-12: the Stetson gallery was news photos (ABC Action News) with no
+  // permission on file, so it was removed. Credit is not permission.
+  ok(stetsonShots.length === 0 && !existsSync(path.join(root, "public/events/christmas-gallery/stetson-mansion-christmas-2026-2")), "Stetson has no static gallery and its news photo folder is gone");
   ok(winterShots.length === 6 && winterShots[0].src === christmasStaticPhotos("winterfest-boat-parade-fort-lauderdale-2026", "Winterfest")[0].src && winterShots.every((p) => existsSync(path.join(root, "public", p.src))), "Winterfest card id and event page slug share the same gallery files");
-  ok(stetsonShots.every((p) => p.credit && p.creditHref && p.alt === "Photo of Stetson Mansion") && winterShots.every((p) => /^Photo by Seminole Hard Rock/.test(p.credit)), "static photos carry a credit and a source link");
-  const stetsonCard = await withChristmasTicketPhotos(christmasTicketsModel([base({ id: "stetson-mansion-christmas-2026-2", place_id: null, venue: "Stetson Mansion", image: "/events/christmas/stetson-mansion-christmas-2026-2.webp" })], TODAY), {
-    noMemo: true,
-    readGoogle: async () => { throw new Error("static photos replace the venue rail"); },
-    readVault: async () => { throw new Error("static photos replace the venue rail"); },
-  });
-  ok(stetsonCard.rows[0].photos[0].src === stetsonShots[0].src && stetsonCard.rows[0].photos.length === 9, "the Stetson ticket card shows its gallery, cover first");
+  ok(winterShots.length > 0 && winterShots.every((p) => /^Photo by Seminole Hard Rock/.test(p.credit)), "static photos carry a credit and a source link");
+  const stetsonCard = await withChristmasTicketPhotos(christmasTicketsModel([base({ id: "stetson-mansion-christmas-2026-2", place_id: null, venue: "Stetson Mansion", image: null })], TODAY), { noMemo: true, readGoogle: async () => null, readVault: async () => [] });
+  ok(!(stetsonCard.rows[0].photos || []).some((p) => /christmas-gallery\/stetson|brightspot|Action News/i.test(JSON.stringify(p))), "the Stetson ticket card carries no news photo");
   let fetches = 0;
   const pageShots = await readChristmasEventPhotos("winterfest-boat-parade-fort-lauderdale-2026", "ChIJf45X0KoB2YgRUi5C_dEm-Q8", { label: "Winterfest", env: {}, fetchImpl: async () => { fetches += 1; return { ok: false, json: async () => [] }; } });
   ok(fetches === 0 && pageShots[0].src === winterShots[0].src && pageShots.length === 6, "the Winterfest event page uses the static gallery and does not read the place row");
   const listings = christmasBrowseListings([], TODAY);
   const sCard = listings.find((c) => c.id === "stetson-mansion-christmas-2026-2");
   const wCard = listings.find((c) => c.id === "winterfest-boat-parade-2026");
-  ok(sCard && sCard.image === stetsonShots[0].src && !/DanTD/.test(sCard.photoAttr || ""), "the Stetson browse card opens on its holiday gallery cover, not the daytime gate photo (intent batch 11x)");
+  ok(sCard && !sCard.image && !/DanTD|Action News/.test(sCard.photoAttr || ""), "the Stetson browse card shows the tile, not a news photo and not the daytime gate photo (intent batch 11x)");
   ok(wCard && wCard.image === winterShots[0].src && /Winterfest Boat Parade/.test(wCard.photoAttr || ""), "the Winterfest card shows the gallery cover and its credit");
   const featured = await withChristmasTicketPhotos(christmasTicketsModel(listings, TODAY), { noMemo: true, readGoogle: async () => null, readVault: async () => [] });
   const featuredStetson = featured.rows.find((r) => r.id === "stetson-mansion-christmas-2026-2");
-  ok(featuredStetson && featuredStetson.photos[0].src === stetsonShots[0].src && featuredStetson.photos.length === stetsonShots.length, "the Stetson featured card shows its gallery, cover first");
+  ok(featuredStetson && !(featuredStetson.photos || []).some((p) => /christmas-gallery\/stetson|Action News/i.test(JSON.stringify(p))), "the Stetson featured card carries no news photo");
   let fantasyCard = null;
   for (let page = 1; page < 40 && !fantasyCard; page++) {
     const out = christmasBrowsePage(listings, parseChristmasBrowseQuery({ page: String(page) }), TODAY);
@@ -428,8 +427,22 @@ for (const today of ["2026-10-30", "2026-12-20", "2027-01-01"]) {
     if (!out.hasMore) break;
   }
   const fantasyShots = christmasStaticPhotos("holiday-fantasy-of-lights-2026", "Holiday Fantasy of Lights");
-  ok(fantasyCard && Array.isArray(fantasyCard.photos) && fantasyCard.photos.length === fantasyShots.length && fantasyCard.photos.length === 9 && fantasyCard.photos[0].src === fantasyShots[0].src, "Holiday Fantasy's guide card carries its 9 photo rail in the page data");
+  ok(fantasyCard && Array.isArray(fantasyCard.photos) && fantasyCard.photos.length === fantasyShots.length && fantasyCard.photos.length === 8 && fantasyCard.photos[0].src === fantasyShots[0].src, "Holiday Fantasy's guide card carries its 8 photo rail in the page data (the Fort Lauderdale Journal photo was removed 2026-11-12: news site, no permission)");
   ok(fantasyShots.every((p) => existsSync(path.join(root, "public", p.src))), "every Holiday Fantasy rail file is on disk");
+  // Rights audit 2026-11-12: news/media hosted and third-party photographer photos
+  // (no licence or permission on file) are gone from every Christmas gallery.
+  const RIGHTS_REMOVED = ["/place-photos/batch-2026-11b/holiday-fantasy-of-lights-2026/xmas_05e00b767ac813ca.jpg", "/place-photos/batch-2026-11b/pensacola-winterfest-elf-parade-and-trolley-tours-2026/xmas_59238e7952449343.jpg", "/place-photos/batch-2026-11b/pensacola-winterfest-elf-parade-and-trolley-tours-2026/xmas_98f20948dc451589.jpg", "/place-photos/batch-2026-11b/pensacola-winterfest-elf-parade-and-trolley-tours-2026/xmas_ac30f0ea925822e6.jpg", "/place-photos/batch-2026-11b/pensacola-winterfest-elf-parade-and-trolley-tours-2026/xmas_ea0b504e74622007.jpg", "/place-photos/batch-2026-11p/tallahassee-candlelight-christmas-classics-2026/ev_28512e58cfca766a.jpg", "/place-photos/batch-2026-11p/tallahassee-ugly-sweater-pub-crawl-2026/ev_f2de211ad8fabfd8.jpg", "/place-photos/batch-2026-11s/carrollwood-market-2026-12-12/ev_0eff104ec5603b7e.jpg", "/place-photos/batch-2026-11s/carrollwood-market-2026-12-12/ev_446ddecbf8de6d2e.jpg", "/place-photos/batch-2026-11s/carrollwood-market-2026-12-12/ev_fc2d0e13b16452eb.jpg", "/place-photos/batch-2026-11s/seminole-heights-sunday-market-2026-11-08/ev_446ddecbf8de6d2e.jpg", "/place-photos/batch-2026-11s/seminole-heights-sunday-market-2026-11-08/ev_505ad8cac27dd9b9.jpg", "/place-photos/batch-2026-11s/sunset-market-midtown-2026-12-03/ev_446ddecbf8de6d2e.jpg", "/place-photos/batch-2026-11z-b/celebration-of-lights-concourse-2026/ev_254be51bd19e9bbc.jpg", "/place-photos/batch-2026-11z-b/celebration-of-lights-concourse-2026/ev_6efc7cfab2e62437.jpg", "/place-photos/batch-2026-11z-b/celebration-of-lights-concourse-2026/ev_9d1eda241d49bbf4.jpg", "/place-photos/batch-2026-11z-b/celebration-of-lights-concourse-2026/ev_b9aa9777a6afbeb5.jpg", "/place-photos/batch-2026-11z-b/surfing-santas-cocoa-beach-2026/ev_6369cb2b139abc9c.jpg"];
+  const servedSrcs = new Set();
+  for (const id of new Set([...Object.keys(CHRISTMAS_STATIC_GALLERY), ...listings.map((c) => c.id)])) for (const p of christmasStaticPhotos(id)) servedSrcs.add(p.src);
+  ok(servedSrcs.size > 300, "the gallery sweep served photos (" + servedSrcs.size + ")");
+  ok(RIGHTS_REMOVED.length === 18 && RIGHTS_REMOVED.every((src) => !servedSrcs.has(src) && !existsSync(path.join(root, "public", src))), "the 18 rights-audit removals are not served and not on disk");
+  // Duplicate cleanup 2026-11-12: each wf_events twin claims its research row,
+  // so the experience shows once.
+  const twins = { "enchanted-forest-of-trees-clermont-2026": "clermont-enchanted-forest-2026", "fishermens-village-holiday-festival-of-lights-2026": "fishermens-village-festival-of-lights-2026", "holiday-light-display-dorothy-b-oven-park-2026": "tallahassee-oven-park-lights-2026" };
+  const twinOut = mergeChristmasResearch(Object.keys(twins).map((id) => ({ event_id: id, slug: id, event_name: id, venue: "v", city: "c", start_date: "2026-11-26", end_date: "2026-12-31", tags: ["christmas"], lat: 28, lng: -81 })));
+  ok(Object.entries(twins).every(([dbId, rid]) => twinOut.filter((x) => x.event_id === rid || x.slug === rid).length === 0 && twinOut.filter((x) => x.event_id === dbId && x.christmas_research_id === rid).length === 1), "the 3 duplicate pairs merge into one card each");
+  const wg = christmasBrowseListings([], "2026-11-12").find((c) => c.id === "wiregrass-symphony-in-lights-2026"); // the kickoff is Nov 14, before TODAY
+  ok(wg && wg.image === "/events/christmas/wiregrass-symphony-in-lights-2026.webp" && /Public domain/.test(wg.photoAttr || "") && /commons\.wikimedia\.org/.test(wg.photoAttrHref || ""), "Wiregrass Symphony in Lights shows its public domain holiday photo with credit");
 }
 
 // ── Schema ───────────────────────────────────────────────────────────────────
@@ -526,10 +539,10 @@ ok(html.includes("data-christmas-filter") && html.includes(">Best rated<") && ht
   ok(!DASH.test(pickVisible) && ((pickVisible.match(/Wayfind may earn a commission/g)) || []).length === 1, "with picks the page is still dash free and keeps one commission line");
   ok(!renderPage(partnerModel, partnerList, { topPicks: [{ ...picks[0], photos: [] }] }).includes("data-top-picks"), "a pick without a photo is never drawn as an empty slot");
   const comp = strip(read("app/components/ChristmasTickets.js"));
-  ok(/data-commerce-owner=\{affiliate \? undefined : "ChristmasTickets"\}/.test(comp.slice(comp.indexOf("export function TopPicks"))) && /onClick=\{affiliate \? undefined : \(\) => organizerTap\(row\)\}/.test(comp) && /import \{ XM_CARD_CSS, organizerTap \} from "\.\/ChristmasTicketCard\.js"/.test(comp) && !/commerce_cta_clicked/.test(comp),
+  ok(/data-commerce-owner=\{affiliate \|\| internal \? undefined : "ChristmasTickets"\}/.test(comp.slice(comp.indexOf("export function TopPicks"))) && /onClick=\{affiliate \|\| internal \? undefined : \(\) => organizerTap\(row\)\}/.test(comp) && /import \{ XM_CARD_CSS, organizerTap \} from "\.\/ChristmasTicketCard\.js"/.test(comp) && !/commerce_cta_clicked/.test(comp),
     "pick organizer taps are recorded once here and /go taps by the beacon, under the same christmas_tickets surface");
   const page = strip(read("app/christmas-in-florida/page.js"));
-  ok(/const topPicks = christmasTopPicks\(tickets\);/.test(page) && /<ChristmasTickets model=\{tickets\} topPicks=\{topPicks\}/.test(page) && /isSocialAdLanding\(Object\.fromEntries\(new URLSearchParams\(window\.location\.search\)\)\)\) root\.setAttribute\(SOCIAL_AD_ATTR, ""\)/.test(comp) && /<SocialTopPicks picks=\{topPicks\} \/>/.test(comp) && /<div data-social-picks="">/.test(comp),
+  ok(/const topPicks = \[\.\.\.featured, \.\.\.christmasTopPicks\(tickets\)/.test(page) && /<ChristmasTickets model=\{tickets\} topPicks=\{topPicks\}/.test(page) && /if \(isSocialAdLanding\(params\) \|\| feature\) root\.setAttribute\(SOCIAL_AD_ATTR, ""\)/.test(comp) && /<SocialTopPicks picks=\{topPicks\} \/>/.test(comp) && /<div data-social-picks="">/.test(comp),
     "the cached page always carries the picks; only a social landing URL shows them, from the same featured rows");
   ok(/<script dangerouslySetInnerHTML=\{\{ __html: SOCIAL_AD_SCRIPT \}\} \/>/.test(page) && page.indexOf("SOCIAL_AD_SCRIPT }}") < page.indexOf("<ChristmasTickets ")
     && /\[data-social-picks\]\{display:none\}html\[data-wf-social\] \[data-social-picks\]\{display:block\}/.test(comp),
@@ -550,6 +563,126 @@ ok(html.includes("data-christmas-filter") && html.includes(">Best rated<") && ht
     globalThis.location = saved.location; globalThis.document = saved.document;
     ok(agree && SOCIAL_AD_ATTR === "data-wf-social", "the before-paint script and isSocialAdLanding agree on every landing URL");
   }
+  // The ad's own subject first (2026-11-13): 82% of Meta landing views came
+  // from one ad about Robert's Christmas Wonderland, and the page never showed
+  // it. The listing an ad is about is the first pick, for that ad's visitors only.
+  {
+    const { SOCIAL_AD_SCRIPT, SOCIAL_AD_FEATURES, SOCIAL_AD_FEATURE_IDS, SOCIAL_AD_FEATURE_ATTR, socialAdFeature } = await import("../lib/socialAdLanding.js");
+    const { christmasFeaturePick } = await import("../lib/christmasTickets.js");
+    const { christmasBrowseListings } = await import("../lib/christmasBrowse.js");
+    const adId = Object.keys(SOCIAL_AD_FEATURES)[0];
+    const featureId = SOCIAL_AD_FEATURES[adId];
+    ok(socialAdFeature({ utm_source: "meta", utm_content: adId }) === featureId && socialAdFeature({ utm_content: adId }) === null && socialAdFeature({ utm_source: "google", utm_content: adId }) === null
+      && socialAdFeature({ feature: featureId }) === featureId && socialAdFeature({ feature: "not-a-feature" }) === null && socialAdFeature({ utm_source: "meta", utm_content: "999" }) === null,
+      "a mapped Meta ad (or ?feature= naming a mapped listing) features its listing; Google, unknown ads and unknown ids never do");
+    const saved = { location: globalThis.location, document: globalThis.document };
+    let agree = true;
+    for (const q of ["?utm_source=meta&utm_content=" + adId, "?utm_content=" + adId, "?utm_source=google&utm_content=" + adId, "?feature=" + featureId, "?feature=nope", "?fbclid=x&utm_content=" + adId, "?utm_source=meta&utm_content=1"]) {
+      const attrs = {};
+      globalThis.location = { search: q };
+      globalThis.document = { documentElement: { setAttribute: (k, v) => { attrs[k] = v; } } };
+      new Function(SOCIAL_AD_SCRIPT)();
+      const want = socialAdFeature(Object.fromEntries(new URLSearchParams(q)));
+      if ((attrs[SOCIAL_AD_FEATURE_ATTR] || null) !== want) agree = false;
+      if (want && !("data-wf-social" in attrs)) agree = false;
+    }
+    globalThis.location = saved.location; globalThis.document = saved.document;
+    ok(agree, "the before-paint script and socialAdFeature agree on every landing URL, and a featured landing always shows the row");
+    const listings = christmasBrowseListings([], "2026-11-13");
+    const featurePicks = SOCIAL_AD_FEATURE_IDS.map((id) => christmasFeaturePick(listings, id, "2026-11-13")).filter(Boolean);
+    ok(featurePicks.length === SOCIAL_AD_FEATURE_IDS.length && featurePicks.every((r) => r.feature === true && r.photos[0] && r.photos[0].src && /^https:\/\//.test(r.cta.href) && r.name),
+      "every mapped listing exists in the Christmas listings and builds a pick with a real photo and an https way in");
+    const robert = featurePicks.find((r) => r.id === "roberts-christmas-wonderland-2026");
+    ok(robert && robert.cta.label === "Official site" && robert.cta.kind === "organizer" && !/2027|through/i.test(robert.when),
+      "a shop with no ticket and no Wayfind page gets its own site, and never a made up closing date");
+    const withPage = christmasFeaturePick(listings.map((c) => (c.id === "roberts-christmas-wonderland-2026" ? { ...c, detailHref: "/florida-events/roberts-christmas-wonderland-2026" } : c)), "roberts-christmas-wonderland-2026", "2026-11-13");
+    ok(withPage && withPage.cta.kind === "internal" && withPage.cta.href === "/florida-events/roberts-christmas-wonderland-2026" && withPage.cta.label === "Hours and directions",
+      "with a Wayfind event page, the featured card opens it, so the visitor keeps exploring Wayfind");
+    const internalHtml = renderPage(partnerModel, partnerList, { topPicks: [withPage, ...picks] });
+    const a = internalHtml.slice(internalHtml.indexOf('href="/florida-events/roberts-christmas-wonderland-2026"') - 200, internalHtml.indexOf('href="/florida-events/roberts-christmas-wonderland-2026"') + 200);
+    ok(a.includes('class="xm-pick-buy"') && !/target="_blank"/.test(a) && !/data-commerce-owner/.test(a), "the internal button opens in place and is not counted as a partner click");
+    ok(christmasFeaturePick(listings, "no-such-listing", "2026-11-13") === null, "an unknown listing never builds an empty card");
+    // Live 2026-11-13: the featured card rendered an /api/photo?place= URL the
+    // route answered "no photo" for, so the ad's visitors saw an empty tile.
+    {
+      const { christmasFeaturePickServable } = await import("../lib/christmasTickets.js");
+      const placeUrl = "/api/photo?place=ChIJdeadPhotoFixture000000";
+      const deadListings = listings.map((c) => (c.id === "roberts-christmas-wonderland-2026" ? { ...c, image: placeUrl, photoAttr: null, photoAttrHref: null } : c));
+      const no = { servable: { noMemo: true, resolve: async () => ({ type: "missing" }), findFree: async () => null }, readGoogle: async () => null, readVault: async () => [], noMemo: true };
+      const yes = { servable: { noMemo: true, resolve: async () => ({ type: "redirect", location: "/x.jpg" }), findFree: async () => null } };
+      const kept = await christmasFeaturePickServable(deadListings, "roberts-christmas-wonderland-2026", "2026-11-13", new Map(), yes);
+      ok(kept && kept.photos[0].src === placeUrl, "a place photo the route can serve stays on the featured card");
+      const dropped = await christmasFeaturePickServable(deadListings, "roberts-christmas-wonderland-2026", "2026-11-13", new Map(), no);
+      ok(dropped && dropped.feature === true && dropped.photos.length === 0 && dropped.placeholder && dropped.placeholder.label && dropped.cta && dropped.name,
+        "a place photo the route cannot serve never reaches the featured card; with no reviewed venue photo it keeps its designed tile");
+      const tileHtml = renderPage(partnerModel, partnerList, { topPicks: [dropped, ...picks] });
+      const ti = tileHtml.indexOf('data-feature-pick="roberts-christmas-wonderland-2026"');
+      const tileCard = tileHtml.slice(ti, tileHtml.indexOf("</li>", ti));
+      ok(ti > -1 && tileCard.includes('class="xm-pick-ph"') && !tileCard.includes("<img") && !tileCard.includes("xm-pick-credit") && !tileCard.includes("/api/photo"),
+        "the photo-less featured card paints its tile: no image request, no photo credit, no dead photo URL");
+      const noPhotoRegular = renderPage(partnerModel, partnerList, { topPicks: [...picks.slice(0, 2), { ...picks[2], photos: [] }] });
+      ok((noPhotoRegular.match(/data-rank="/g) || []).length === 2, "a regular pick with no photo is still never shown");
+      ok((await christmasFeaturePickServable(listings, "no-such-listing", "2026-11-13", new Map(), no)) === null, "an unknown listing never builds a card on the checked path either");
+      const pageSrc = readFileSync(new URL("../app/christmas-in-florida/page.js", import.meta.url), "utf8");
+      ok(/christmasFeaturePickServable\(listings, id, today\)/.test(pageSrc) && !/[^A-Za-z]christmasFeaturePick\(listings/.test(pageSrc), "the page builds the featured card through the photo check, never the unchecked builder");
+    }
+    const featHtml = renderPage(partnerModel, partnerList, { topPicks: [...featurePicks, ...picks] });
+    const fi = featHtml.indexOf('data-feature-pick="' + featureId + '"'), ri = featHtml.indexOf('data-rank="1"');
+    ok(fi > -1 && fi < ri && /\.xm-pick\[data-feature-pick\]\{display:none\}/.test(featHtml)
+      && featHtml.includes('html[data-wf-feature="' + featureId + '"] .xm-pick[data-feature-pick="' + featureId + '"]{display:flex}')
+      && (featHtml.match(/data-rank="/g) || []).length === picks.length,
+      "the featured card comes first, hidden by CSS unless that ad's visitor is on the page; the regular picks keep ranks 1 to 3");
+    {
+      const css = featHtml;
+      ok(!/html\[data-wf-feature\] \.xm-picks-label/.test(css) && css.includes('html[data-wf-feature="' + featureId + '"] .xm-picks-label .xm-picks-from{display:inline}'),
+        "the label says From the video only when that ad's featured card is actually on the page");
+      const noFeat = renderPage(partnerModel, partnerList, { topPicks: picks });
+      ok(!/xm-picks-from\{display:inline\}/.test(noFeat), "with no featured card rendered, no landing URL can switch the label to From the video");
+    }
+    ok(featHtml.includes(">From the video<") && !renderPage(partnerModel, partnerList, { topPicks: featurePicks }).includes("data-top-picks"),
+      "the featured card says it is from the video, and a row of only featured cards is never drawn");
+    const bare = renderPage(partnerModel, partnerList, { topPicks: picks });
+    ok(!bare.includes("data-feature-pick=\"") && !bare.includes(">From the video<"), "without a mapped ad the picks render as before");
+  }
+}
+// Ad tags survive the page's own address updates (2026-11-13): the quiet
+// location lookup rewrote the whole query, erasing utm_* and fbclid before
+// analytics loaded, so 85% of Meta ad visits were filed as plain Facebook.
+{
+  const { christmasAddressSearch } = await import("../app/components/ChristmasBrowse.js").catch(() => ({}));
+  const browseSrc = strip(read("app/components/ChristmasBrowse.js"));
+  const fn = browseSrc.slice(browseSrc.indexOf("export function christmasAddressSearch"), browseSrc.indexOf("}", browseSrc.indexOf("return next.toString()")) + 1);
+  // eslint-disable-next-line no-new-func
+  const addr = christmasAddressSearch || new Function("FILTER_KEYS", fn.replace("export function christmasAddressSearch", "return function") )(["region", "category", "when", "date", "price", "audience", "undated", "q", "lat", "lng", "sort"]);
+  const kept = new URLSearchParams(addr("?utm_source=meta&utm_medium=paid_social&utm_content=1&fbclid=AbC&region=old&plan=p1", new URLSearchParams("region=tampa-bay")));
+  ok(kept.get("utm_source") === "meta" && kept.get("utm_content") === "1" && kept.get("fbclid") === "AbC" && kept.get("plan") === "p1" && kept.get("region") === "tampa-bay" && kept.getAll("region").length === 1,
+    "a filter change keeps the ad tags, click ids and a shared plan, and replaces only the filter keys");
+  ok(new URLSearchParams(addr("?gclid=G&lat=27.9&lng=-82.4", new URLSearchParams(""))).toString() === "gclid=G", "private and cleared filter keys leave the address, everything else stays");
+  ok(/if \(!\(query\.auto && next === new URLSearchParams\(location\.search\)\.toString\(\)\)\)/.test(browseSrc) && !/replaceState\(null, "", shown\.toString\(\)/.test(browseSrc),
+    "the automatic near you location never rewrites the address");
+  const prov = strip(read("app/components/PostHogProvider.js"));
+  ok(/const landing = sessionCampaignProps\(st\);/.test(prov) && /ph\.register_for_session\(landing\)/.test(prov), "PostHog keeps the landing's own campaign for the whole session");
+  const { sessionCampaignProps } = await import("../lib/campaignAttribution.js");
+  const props = sessionCampaignProps({ sess: { p: { utm_source: "meta", utm_medium: "paid_social", fbclid: "x", other: "no" }, rd: "facebook.com" } });
+  ok(props.utm_source === "meta" && props.utm_medium === "paid_social" && props.fbclid === "x" && !("other" in props) && Object.keys(sessionCampaignProps({ sess: null })).length === 0 && Object.keys(sessionCampaignProps({})).length === 0,
+    "the session campaign is the landing's own utm_* and click ids, nothing else, and empty for a visit without one");
+  // Field vitals on the landing (2026-11-13): the Christmas page reported no
+  // field LCP, CLS or INP at all, so a layout fix could not be measured on
+  // real ad visits. Same event and base properties as the home app.
+  const { startFieldVitals, vitalsProps } = await import("../lib/fieldVitals.js");
+  const sent = [];
+  const win = { location: { pathname: "/christmas-in-florida" }, innerWidth: 393, performance: { timeOrigin: 1794544000000 }, posthog: { capture: (e, p) => sent.push([e, p]) }, navigator: { userAgent: "Mozilla/5.0 (iPhone) FBAN/FBIOS" }, localStorage: { getItem: () => null } };
+  const fake = (name, value, extra = {}) => (cb) => cb({ name, value, rating: "good", id: "v1-" + name, attribution: { largestShiftTarget: "p.xm-lede", largestShiftValue: 0.02, target: "img", url: "/x.webp", timeToFirstByte: 90, node: {}, ...extra } });
+  ok(startFieldVitals(win, { load: async () => ({ onLCP: fake("LCP", 1800.4), onCLS: fake("CLS", 0.0213), onINP: fake("INP", 120), onTTFB: fake("TTFB", 90), onFCP: fake("FCP", 900) }) }) === true && startFieldVitals(win) === false,
+    "field vitals start once per page load");
+  await new Promise((r) => setTimeout(r, 0));
+  const cls = sent.find(([, p]) => p.metric === "CLS");
+  ok(sent.length === 5 && sent.every(([e, p]) => e === "web_vitals" && p.route === "/christmas-in-florida" && p.device === "mobile" && p.vitals_surface === "landing" && Object.values(p).every((v) => v === null || ["string", "number", "boolean"].includes(typeof v)))
+    && cls && cls[1].value === 21 && cls[1].cls_target === "p.xm-lede",
+    "each metric is one web_vitals row with only primitives, CLS in thousandths like the home app");
+  ok(vitalsProps({ name: "INP", value: 99.6, rating: "good", id: "i", attribution: { interactionTarget: "a.xm-pick-buy" } }, { route: "/x" }).inp_target === "a.xm-pick-buy", "INP keeps the element that was tapped");
+  const pageSrc = strip(read("app/christmas-in-florida/page.js"));
+  ok(/import FieldVitals from "\.\.\/components\/FieldVitals"/.test(pageSrc) && /<FieldVitals \/>/.test(pageSrc), "the Christmas landing mounts the field vitals");
 }
 {
   const cardsHtml = html.slice(html.indexOf('data-ticket-id="'));

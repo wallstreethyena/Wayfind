@@ -2332,13 +2332,20 @@ function SortControl({ sortBy, onSort, mi, onMi, where, dealsAvailable, dealsOnl
 // behind it; the auth dialog auto-opens. Reuses the one auth source of truth
 // (setAuthOpen) — no second auth system.
 const AUTH_SCREENS = new Set(["saved", "itinerary"]);
-function AuthWall({ label, onSignIn, detail }) {
+function AuthWall({ label, onSignIn, detail, onBuildTrip }) {
   return (
     <div style={{ textAlign: "center", padding: "56px 24px", color: C.muted }}>
       <div style={{ display: "flex", justifyContent: "center", marginBottom: 14 }}><NavIcon name="saved" color={C.accent} size={40} /></div>
       <strong style={{ display: "block", color: C.text, fontSize: 17 }}>Sign in to view {label}</strong>
       <p style={{ fontSize: 13.5, color: C.muted, maxWidth: 320, margin: "8px auto 18px", lineHeight: 1.55 }}>{detail || "Sign in to save places, create lists, and plan trips. Your saves sync across all your devices."}</p>
-      <button onClick={onSignIn} style={{ minHeight: 44, padding: "11px 22px", borderRadius: 12, background: C.accent, border: "none", color: "#0D1117", fontSize: 14.5, fontWeight: 800, cursor: "pointer" }}>Sign in</button>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 10, justifyContent: "center" }}>
+        <button onClick={onSignIn} style={{ minHeight: 44, padding: "11px 22px", borderRadius: 12, background: C.accent, border: "none", color: "#0D1117", fontSize: 14.5, fontWeight: 800, cursor: "pointer" }}>Sign in</button>
+        {onBuildTrip && (
+          <button type="button" data-wf-authwall-build-trip="1" onClick={onBuildTrip} style={{ minHeight: 44, padding: "11px 18px", borderRadius: 12, background: "rgba(249,115,22,0.12)", border: "1px solid rgba(249,115,22,0.45)", color: C.accent, fontSize: 14, fontWeight: 800, cursor: "pointer" }}>
+            ✨ Build a trip with Wayfind
+          </button>
+        )}
+      </div>
     </div>
   );
 }
@@ -4132,6 +4139,11 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
   const giveawayMark = (itemId) => { try { if (!giveawayLive() || !itemId) return; const g = JSON.parse(localStorage.getItem("wf_gw26") || "[]"); if (g.indexOf(itemId) === -1 && g.length < 10) { g.push(itemId); setLocal("wf_gw26", JSON.stringify(g)); setGwCount(g.length); if (g.length >= 3) { try { const st = JSON.parse(localStorage.getItem("wf_gw_pop") || "{}"); st.entered = true; localStorage.setItem("wf_gw_pop", JSON.stringify(st)); } catch (er) {} } } } catch (e) {} };
   const [mapFocus, setMapFocus] = useState(null); // drawer row -> fly the map to this pin
   const [mapSearchOpen, setMapSearchOpen] = useState(false); // map keeps a magnifier; tap slides the field down
+  const mapCameraRef = useRef(null);
+  const [mapSearch, setMapSearch] = useState(null);
+  const [mapUrlLens, setMapUrlLens] = useState(null);
+  const [mapUrlPlaceId, setMapUrlPlaceId] = useState(null);
+  useEffect(() => { if (mapSearchOpen) setTimeout(() => { try { searchInputRef.current?.focus({ preventScroll: true }); } catch (e) {} }, 20); }, [mapSearchOpen]);
   const [a2hs, setA2hs] = useState(false); // add-to-home-screen nudge (2nd visit, dismissible, never in standalone)
   const [isStandalone, setIsStandalone] = useState(false); // home-screen (PWA) mode: Google OAuth redirect cannot return here, so lead with email
   const [deferredPrompt, setDeferredPrompt] = useState(null);
@@ -4277,10 +4289,10 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
       // so an incoherent row here is a corrupt pin one tap away, forever. The
       // owner's list held `{"lat":35.2619678,"lng":-81.126481,"loc":"Parrish, FL"}`
       // for exactly this reason.
-      if (center && isFinite(center.lat) && isFinite(center.lng) && locName && centerAgreesWithLabel(center, locName)) {
+      if (manualRef.current && center && isFinite(center.lat) && isFinite(center.lng) && locName && centerAgreesWithLabel(center, locName)) {
         const raw = localStorage.getItem("wf_recent_locs");
         const prev = raw ? JSON.parse(raw) : [];
-        const next = [{ lat: center.lat, lng: center.lng, loc: locName, ts: Date.now() },
+        const next = [{ lat: +center.lat.toFixed(3), lng: +center.lng.toFixed(3), loc: locName, ts: Date.now() },
           ...(Array.isArray(prev) ? prev : []).filter((r) => r && r.loc && r.loc.split(",")[0] !== locName.split(",")[0])].slice(0, 6);
         localStorage.setItem("wf_recent_locs", JSON.stringify(next));
         setRecentLocs(next);
@@ -7564,6 +7576,28 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
     try { setLocal("wayfind_trips", JSON.stringify(trips)); } catch {}
   }, [trips]);
   useEffect(() => {
+    const onPlannerCommit = (e) => {
+      const d = (e && e.detail) || {};
+      if (d.nextTrips && typeof d.nextTrips === "object") setTrips(d.nextTrips);
+      if (d.tripKey !== undefined) setActiveTrip(d.tripKey);
+      if (d.openItinerary) setScreen("itinerary");
+      if (d.toast) showToast(d.toast);
+    };
+    window.addEventListener("wf:planner-commit", onPlannerCommit);
+    return () => window.removeEventListener("wf:planner-commit", onPlannerCommit);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  useEffect(() => {
+    try {
+      window.__wfPlannerContext = {
+        screen,
+        activePlace: detail || null,
+        activeTrip: activeTrip && trips && trips[activeTrip] ? trips[activeTrip] : null,
+      };
+      window.dispatchEvent(new Event("wf:planner-context"));
+    } catch {}
+  }, [screen, detail, activeTrip, trips]);
+  useEffect(() => {
     let stop = false;
     const read = () => { if (!stop) { try { const next = readItineraryFlags(window.posthog); setItineraryFlags((prev) => nextItineraryFlags(prev, next)); } catch (e) {} } };
     read();
@@ -8286,6 +8320,44 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
         window.history.replaceState({ wf: "screen" }, "", "/events" + (keep.toString() ? "?" + keep.toString() : ""));
         return;
       }
+      if (go === "map") {
+        const mcity = (sp.get("city") || "").trim().slice(0, 64);
+        const mc = (sp.get("cat") || "").trim().slice(0, 24);
+        const ms = (sp.get("sub") || "").trim().slice(0, 32);
+        const ml = (sp.get("lens") || "").trim().slice(0, 24);
+        const mp = (sp.get("place") || "").trim().slice(0, 120);
+        const mq = (sp.get("q") || "").trim().slice(0, 120);
+        if (["food", "nightlife", "attractions", "beach", "hotels", "shopping"].includes(mc)) {
+          categoryChosenRef.current = true;
+          mapDefaultAppliedRef.current = true;
+          setCat(mc);
+        }
+        if (ms) setSub(ms);
+        if (ml) setMapUrlLens(ml);
+        if (mp) setMapUrlPlaceId(mp);
+        const keep = new URLSearchParams();
+        if (mcity) keep.set("city", mcity);
+        if (mc) keep.set("cat", mc);
+        if (ms) keep.set("sub", ms);
+        if (ml) keep.set("lens", ml);
+        if (mp) keep.set("place", mp);
+        if (mq) keep.set("q", mq);
+        window.history.replaceState({ wf: "screen" }, "", "/map" + (keep.toString() ? "?" + keep.toString() : ""));
+        (async () => {
+          if (mcity) {
+            const g = await geocodeCity(mcity).catch(() => null);
+            if (g) {
+              manualRef.current = true;
+              setCenter(g);
+              setLocResolved(true);
+              setLocName(g.name.split(",").slice(0, 2).join(",").trim());
+              setMapFocus({ lat: g.lat, lng: g.lng, ts: Date.now() });
+            }
+          }
+          if (mq) setTimeout(() => { submitSearch(mq); }, 50);
+        })();
+        return;
+      }
       // v5.78 (B1): the other standalone screens restore their OWN path (was:
       // stripped to "/", which lost the view on refresh/share).
       const scr = valid[go];
@@ -8318,6 +8390,13 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
           if (eventDate !== "all") sp.set("date", eventDate);
           if (eventCat !== "auto") sp.set("cat", eventCat);
           if (sp.toString()) target += "?" + sp.toString();
+        } else if (screen === "map" && window.location.pathname === "/map" && window.location.search) {
+          const curSp = new URLSearchParams(window.location.search);
+          const safeSp = new URLSearchParams();
+          for (const k of ["city", "cat", "sub", "lens", "place", "q"]) {
+            if (curSp.get(k)) safeSp.set(k, curSp.get(k));
+          }
+          if (safeSp.toString()) target += "?" + safeSp.toString();
         }
         const cur = window.location.pathname + window.location.search;
         if (cur === target) return;
@@ -8951,6 +9030,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
     onQueryChange("");
     setSugIdx(-1);
     setScopeOpen(false);
+    setMapSearch(null);
     searchInputRef.current?.focus({ preventScroll: true });
   }
 
@@ -9086,6 +9166,8 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
     const name = g.name.split(",").slice(0, 2).join(",").trim();
     setLocName(name);
     setMapFocus({ lat: g.lat, lng: g.lng, ts: Date.now() });
+    setMapSearch(null);
+    setMapSearchOpen(false);
     setSearchMode(false);
     setSearchLabel("");
     setSearchFeed(null);
@@ -9104,13 +9186,20 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
 
   function openSearchPlace(place, attempt, context = "search", nearGeo = null) {
     if (!place || !place.id || !Number.isFinite(place.lat) || !Number.isFinite(place.lng)) throw new Error("invalid_search_place");
-    manualRef.current = true;
-    setCenter({ lat: place.lat, lng: place.lng });
-    setLocResolved(true);
-    const placeCity = localityFromFormattedAddress(place.address);
-    if (placeCity) setLocName(placeCity);
-    else if (nearGeo && centerAgreesWithLabel(place, nearGeo.name)) setLocName(nearGeo.name.split(",").slice(0, 2).join(",").trim());
-    else if (!centerAgreesWithLabel(place, locName)) setLocName("");
+    if (screen !== "map") {
+      manualRef.current = true;
+      setCenter({ lat: place.lat, lng: place.lng });
+      setLocResolved(true);
+      const placeCity = localityFromFormattedAddress(place.address);
+      if (placeCity) setLocName(placeCity);
+      else if (nearGeo && centerAgreesWithLabel(place, nearGeo.name)) setLocName(nearGeo.name.split(",").slice(0, 2).join(",").trim());
+      else if (!centerAgreesWithLabel(place, locName)) setLocName("");
+      setSearchMode(true);
+    } else {
+      setMapFocus({ lat: place.lat, lng: place.lng, ts: Date.now() });
+      setMapPreview(place);
+      setMapSearchOpen(false);
+    }
     setQuery("");
     setSuggestions([]);
     setSearchFeedback("");
@@ -9118,7 +9207,6 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
     setSearchMissing(false);
     setCityTransition(null);
     setHookDetail(null);
-    setSearchMode(true);
     openDetail({ ...place, _searchId: attempt.id, _ownedSearchOnly: true }, context);
     attempt.finish("place_opened", { status: "ok", count: 1, place_id: place.id, result_source: context === "theme_park_search" ? "owned-theme-parks" : "owned-inventory" });
   }
@@ -9160,10 +9248,11 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
   function searchMapArea(c) {
     if (!c || !isFinite(c.lat) || !isFinite(c.lng)) return;
     manualRef.current = true;
+    setMapSearch(null);
     setCenter({ lat: c.lat, lng: c.lng });
     setLocResolved(true);
     setLocName("this map area");
-    try { logEvent("map_search_area", null, { lat: +Number(c.lat).toFixed(3), lng: +Number(c.lng).toFixed(3) }); } catch (e) {}
+    try { logEvent("map_search_area", null, {}); } catch (e) {}
   }
 
   // Coupons screen manual area pick (a covered metro's own center). Same contract
@@ -9303,7 +9392,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
       // recenterToMe cleared manualRef on entry; set again means the reader
       // picked a city during the geocode, and that pick wins.
       if (manualRef.current) return;
-      setCenter({ lat: deviceLoc.lat, lng: deviceLoc.lng });
+      setCenter({ lat: +deviceLoc.lat.toFixed(3), lng: +deviceLoc.lng.toFixed(3) });
       setLocResolved(true);
       setMapFocus({ lat: deviceLoc.lat, lng: deviceLoc.lng, ts: Date.now() });
       // No name is honest (locationHonesty prints no city rather than "you");
@@ -9312,7 +9401,10 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
       try { logEvent("recenter_to_me", null, { hadFix: true }); } catch (e) {}
       return;
     }
-    if (typeof navigator === "undefined" || !navigator.geolocation) return;
+    if (typeof navigator === "undefined" || !navigator.geolocation) {
+      if (screen === "map") try { showToast("Location unavailable — exploring map area"); } catch (e) {}
+      return;
+    }
     navigator.geolocation.getCurrentPosition(
       async (pos) => {
         const c = { lat: pos.coords.latitude, lng: pos.coords.longitude };
@@ -9331,7 +9423,10 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
         setLocName(name || "");
         try { logEvent("recenter_to_me", null, { hadFix: false }); } catch (e) {}
       },
-      () => { try { logEvent("recenter_to_me_denied", null, {}); } catch (e) {} },
+      () => {
+        if (screen === "map") try { showToast("Location is off — exploring map area"); } catch (e) {}
+        try { logEvent("recenter_to_me_denied", null, {}); } catch (e) {}
+      },
       // v8.14 — map-grade precision (see the note above): a fresh
       // high-accuracy fix, never a cached coarse one.
       { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
@@ -9397,8 +9492,10 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
     setSearchBusy(true);
     const current = () => submittedRequest === suggestionRequestRef.current;
     const userPickedLocation = manualRef.current;
+    const mapCamCenter = screen === "map" && typeof mapCameraRef === "object" && mapCameraRef && mapCameraRef.current && mapCameraRef.current.center;
     const searchCenter = (userPickedLocation && center)
-      ? { lat: center.lat, lng: center.lng }
+      ? (mapCamCenter || { lat: center.lat, lng: center.lng })
+      : mapCamCenter ? { lat: mapCamCenter.lat, lng: mapCamCenter.lng }
       : deviceLoc ? { lat: deviceLoc.lat, lng: deviceLoc.lng }
       : center ? { lat: center.lat, lng: center.lng } : null;
     const collapse = (x) => [x, x.replace(/(.)\1{2,}/g, "$1$1"), x.replace(/(.)\1{1,}/g, "$1")];
@@ -9429,7 +9526,13 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
         if (category) {
           closeSearchLayers();
           setQuery("");
-          pickCat(category);
+          if (screen === "map") {
+            setMapSearch(null);
+            setMapSearchOpen(false);
+            setCat(category);
+          } else {
+            pickCat(category);
+          }
           attempt.finish("category_opened", { status: "opened", category });
           return;
         }
@@ -9516,7 +9619,12 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
         setSearchFeedback("");
         setSearchRecovery(false);
         setSearchMissing(false);
-        setScreen("suggested");
+        if (screen === "map") {
+          setMapSearch({ query: q, center: nearGeo || searchCenter, cards: result.cards, constraints: result.constraints || null, ts: Date.now() });
+          setMapSearchOpen(false);
+        } else {
+          setScreen("suggested");
+        }
         attempt.finish("results_shown", { status: "ok", count: result.cards.length, result_source: "owned-library" });
         return;
       }
@@ -10237,7 +10345,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
     // auth + password-recovery sheets
     authOpen, authMode, setAuthMode, isStandalone, signInWithProvider, authEmail, setAuthEmail, authPassword, setAuthPassword, passwordAuth, authSending, resetSending, sendPasswordReset, recoveryOpen, setRecoveryOpen, newPw, setNewPw, newPw2, setNewPw2, pwSaving, saveNewPassword, authReady,
     // detail sheet (G3)
-    detail, setDetail, detailExtra, setLightbox, reviewsOpen, setReviewsOpen, hoursOpen, setHoursOpen, venueEvents, venueEventsLoading, venueEventsOpen, setVenueEventsOpen, videos, videosLoading, beachCond, beachCondLoading, insight, insightLoading, insightFull, insightFullLoading, showMore, viaTours, debugOn, placeComments, setPlaceComments, commentType, setCommentType, placePosts, setPlacePosts, confirmDel, setConfirmDel, taInfo, insider, detailContext, myVotes, communityVotes, galleryRef, noteRef, scrollGallery, loadFullInsight, addReservation, handleVote, loadVenueEvents, placeShareUrl, FeaturedTag, curatedNote, curatedFor, wayfindNotes, betterAlternatives, similarPlaces, relatedPicks, detailGuides: railMenu && Array.isArray(railMenu.guides) ? railMenu.guides : null, placeKind, isBeach, beachSignals, weather, isSharedPlaceArrival: !!initialPlaceId, isOnTrip, addToItinerary,
+    detail, setDetail, detailExtra, setLightbox, reviewsOpen, setReviewsOpen, hoursOpen, setHoursOpen, venueEvents, venueEventsLoading, venueEventsOpen, setVenueEventsOpen, videos, videosLoading, beachCond, beachCondLoading, insight, insightLoading, insightFull, insightFullLoading, showMore, viaTours, debugOn, placeComments, setPlaceComments, commentType, setCommentType, placePosts, setPlacePosts, confirmDel, setConfirmDel, taInfo, insider, detailContext, myVotes, communityVotes, galleryRef, noteRef, scrollGallery, loadFullInsight, addReservation, handleVote, loadVenueEvents, placeShareUrl, FeaturedTag, curatedNote, curatedFor, wayfindNotes, betterAlternatives, similarPlaces, relatedPicks, detailGuides: railMenu && Array.isArray(railMenu.guides) ? railMenu.guides : null, placeKind, isBeach, beachSignals, isSharedPlaceArrival: !!initialPlaceId, isOnTrip, addToItinerary,
     // social find sheet (v6.93) — the "bookshelf" of curated creator-video
     // places: the place+video the user tapped in from, every other nearby
     // find (for the "more near you" strip), and the region-availability list
@@ -10249,7 +10357,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
     // places/locName/dedupePlaces, all already passed through ctx elsewhere.
     socialFind, setSocialFind, screen,
     // map screen (G4)
-    mapMode, setMapMode, mapBrowse, setMapBrowse, mapPool, mapListOverride, searchMode, map3D, setMap3D, mapRetryKey, setMapRetryKey, mapDefaultAppliedRef, categoryChosenRef, cat, setCat, setSub, setVibe, sortBy, deviceLoc, searchMapArea, mapFocus, setMapFocus, setMapSearchOpen, mapDate, setMapDate, mapPreview, setMapPreview, mapDrawer, setMapDrawer, eventPreview, setEventPreview, view, featuredBoost, MapView, Hol, recenterToMe,
+    mapMode, setMapMode, mapBrowse, setMapBrowse, mapPool, mapListOverride, searchMode, map3D, setMap3D, mapRetryKey, setMapRetryKey, mapDefaultAppliedRef, categoryChosenRef, cat, setCat, setSub, setVibe, sortBy, deviceLoc, locApprox, mapCameraRef, mapSearch, setMapSearch, mapUrlLens, setMapUrlLens, mapUrlPlaceId, setMapUrlPlaceId, searchMapArea, mapFocus, setMapFocus, setMapSearchOpen, mapDate, setMapDate, mapPreview, setMapPreview, mapDrawer, setMapDrawer, eventPreview, setEventPreview, view, featuredBoost, MapView, Hol,
     // experience badge screen (G4)
     activeBadge, setActiveBadge, EXPERIENCES, expPlaces, expMi, setExpMi, expSort, setExpSort, expTours, expLoading, momentPicks, setBrowseCat, ViatorRail, intentScopeLabel,
     // intro overlay (G4) — the 3.2s auto-show timer stays in PageInner, flips introOpen
@@ -11764,7 +11872,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
             It stays usable before sign-in; the screen offers sign-in only as
             optional cloud sync. Itinerary remains account-backed. */}
         {screen === "saved" && <SavedScreen ctx={ctx} />}
-        {screen === "itinerary" && (authReady && !user && !hasLocalGuestTrip ? <AuthWall label="your Itinerary" onSignIn={() => setAuthOpen(true, "auth_wall")} detail={itineraryFlags.sync ? "Sign in to plan trips. Your trips sync across your devices." : "Sign in to plan trips and build itineraries."} /> : <ItineraryScreen ctx={ctx} />)}
+        {screen === "itinerary" && (authReady && !user && !hasLocalGuestTrip ? <AuthWall label="your Itinerary" onSignIn={() => setAuthOpen(true, "auth_wall")} onBuildTrip={() => { setAuthOpen(false); try { const detail = { surface: "itinerary_auth_wall" }; window.__wfPendingPlannerOpen = detail; window.dispatchEvent(new CustomEvent("wf:planner-open", { detail })); } catch {} }} detail={itineraryFlags.sync ? "Sign in to plan trips. Your trips sync across your devices." : "Sign in to plan trips and build itineraries."} /> : <ItineraryScreen ctx={ctx} />)}
 
         {screen === "shared" && sharedList && <SharedScreen ctx={ctx} />}
         {screen === "shared" && sharedItinerary && !sharedList && <SharedItineraryScreen ctx={ctx} />}
