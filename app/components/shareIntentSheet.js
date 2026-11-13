@@ -1,5 +1,5 @@
 "use client";
-import { encodeInvite, invitePath, inviteShareText, activityForPlace } from "../../lib/dateInvite";
+import { encodeInvite, decodeInvite, invitePath, inviteShareText, activityForPlace } from "../../lib/dateInvite";
 // v8.46 — the pairing law. wf_center is shared state; every reader validates.
 import { centerAgreesWithLabel } from "../../lib/locationHonesty";
 import { shareOut } from "../../lib/shareOut.js";
@@ -261,6 +261,15 @@ export function askShareIntent(o) {
       }
       const code = encodeInvite({ place: name, city: opt.city, id: opt.id, to: who, kind: opt.kind, when: opt.when, eventDate: opt.eventDate, surface, geo });
       if (!code) { opt.onPlain && opt.onPlain(); close(); return; }
+      try {
+        const decodedKey = (decodeInvite(code) || {}).key;
+        if (decodedKey && typeof window !== "undefined" && window.localStorage) {
+          const prev = JSON.parse(window.localStorage.getItem("wf_invite_sent_v1") || "[]");
+          const list = (Array.isArray(prev) ? prev : []).filter((x) => x && x.k && x.k !== decodedKey).slice(-49);
+          list.push({ k: decodedKey, ts: Date.now() });
+          window.localStorage.setItem("wf_invite_sent_v1", JSON.stringify(list));
+        }
+      } catch (e) {}
       // The LIVE origin, not a constant: a preview deployment then shares a link
       // that opens on the preview instead of bouncing to production.
       const origin = (typeof window !== "undefined" && window.location && window.location.origin)

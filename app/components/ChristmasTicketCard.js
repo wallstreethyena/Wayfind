@@ -167,7 +167,7 @@ function saveItemFor(row) {
 function CardActions({ row, item }) {
   const actions = useContentCardActions(item);
   const on = actions.hydrated && actions.saved;
-  const eventIso = (row && row.remind && row.remind.startIso ? String(row.remind.startIso).slice(0, 10) : "") || "";
+  const eventIso = (row && !row.watchlist && row.remind && row.remind.startIso ? String(row.remind.startIso).slice(0, 10) : "") || "";
   return (
     <div className="xm-actions" data-card-actions="">
       <button
@@ -191,7 +191,7 @@ function CardActions({ row, item }) {
             title: item.title,
             name: item.title,
             city: row.city || "",
-            when: eventIso || row.when || "",
+            when: eventIso,
             eventDate: eventIso,
             surface: "christmas",
             directInvite: true,

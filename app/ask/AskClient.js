@@ -10,7 +10,7 @@ import {
   ACTIVITIES, activityFor, activityHref, activityLinkLabel, askHeadline, yayLine,
   pleaAt, moodAt, yesText, noText, needsName, planFitsPlace, datedCardPath,
   inviteKinds, inviteDirectionsHref, inviteCalendarEvent, inviteItineraryStop,
-  eventDateMismatch,
+  eventDateMismatch, eventVenueTimeZone, isEventDatePast,
 } from "../../lib/dateInvite.js";
 import { styleHtml } from "../../lib/styleHtml.js";
 
@@ -98,8 +98,27 @@ function Decor() {
   );
 }
 
-function Calendar({ value, onPick }) {
-  const today = useMemo(() => { const d = new Date(); d.setHours(0, 0, 0, 0); return d; }, []);
+function venueTodayDate(timeZone) {
+  const now = new Date();
+  try {
+    const parts = new Intl.DateTimeFormat("en-CA", {
+      timeZone: timeZone || "America/New_York",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    }).formatToParts(now);
+    const y = Number((parts.find((p) => p.type === "year") || {}).value);
+    const m = Number((parts.find((p) => p.type === "month") || {}).value);
+    const da = Number((parts.find((p) => p.type === "day") || {}).value);
+    if (y && m && da) return new Date(y, m - 1, da);
+  } catch (e) {}
+  const d = new Date(now);
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+
+function Calendar({ value, onPick, timeZone }) {
+  const today = useMemo(() => venueTodayDate(timeZone), [timeZone]);
   const [offset, setOffset] = useState(0);
   const view = new Date(today.getFullYear(), today.getMonth() + offset, 1);
   const first = view.getDay();
@@ -134,6 +153,7 @@ function Calendar({ value, onPick }) {
 }
 
 export default function AskClient({ inv, bad = false }) {
+  const venueTz = useMemo(() => eventVenueTimeZone(inv && inv.geo), [inv && inv.geo]);
   const proposedWhen = useMemo(() => parseInviteWhen(inv && inv.when), [inv && inv.when]);
   const suggested = useMemo(() => inviteKinds(inv), [inv]);
 
@@ -150,7 +170,7 @@ export default function AskClient({ inv, bad = false }) {
   const [eager, setEager] = useState(0);
 
   const scheduledEventWhen = useMemo(
-    () => parseInviteWhen(inv && inv.eventDate ? String(inv.eventDate).split("..")[0] : ""),
+    () => parseInviteWhen(inv && inv.eventDate ? String(inv.eventDate).split(",")[0].split("..")[0] : ""),
     [inv && inv.eventDate]
   );
   const [detachedEvent, setDetachedEvent] = useState(false);
@@ -290,27 +310,30 @@ export default function AskClient({ inv, bad = false }) {
 
   const [saving, setSaving] = useState(false);
   const [itinerarySaved, setItinerarySaved] = useState(false);
+  const eventIsPast = useMemo(
+    () => Boolean(!detachedEvent && inv && inv.eventDate && isEventDatePast(inv)),
+    [detachedEvent, inv]
+  );
   const hasEventDateConflict = useMemo(
-    () => Boolean(!detachedEvent && inv && inv.place && planFitsPlace(inv, activity) && eventDateMismatch(inv, dayIso)),
-    [detachedEvent, inv, activity, dayIso]
+    () => Boolean(!detachedEvent && !eventIsPast && inv && inv.place && planFitsPlace(inv, activity) && eventDateMismatch(inv, dayIso)),
+    [detachedEvent, eventIsPast, inv, activity, dayIso]
   );
   const effectiveInv = useMemo(() => {
     if (!inv) return null;
-    if (detachedEvent || hasEventDateConflict) {
-      return { ...inv, place: "", id: "" };
+    if (detachedEvent || hasEventDateConflict || eventIsPast) {
+      return { ...inv, place: "", id: "", eventDate: "", when: "" };
     }
     return inv;
-  }, [inv, detachedEvent, hasEventDateConflict]);
+  }, [inv, detachedEvent, hasEventDateConflict, eventIsPast]);
 
-  const cardWhere = (!detachedEvent && !hasEventDateConflict && inv && inv.place && (planFitsPlace(inv, activity) ? inv.place : "")) || "";
+  const cardWhere = (!detachedEvent && !hasEventDateConflict && !eventIsPast && inv && inv.place && (planFitsPlace(inv, activity) ? inv.place : "")) || "";
   const cardUrl = () => datedCardPath(activity, dayLabel, cardWhere);
 
   const proposedIsPast = useMemo(() => {
     if (!proposedWhen.date) return false;
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const today = venueTodayDate(venueTz);
     return proposedWhen.date < today;
-  }, [proposedWhen.date]);
+  }, [proposedWhen.date, venueTz]);
 
   const calendarEvent = useMemo(
     () => inviteCalendarEvent(effectiveInv, activity, dayIso, dayLabel),
@@ -321,8 +344,8 @@ export default function AskClient({ inv, bad = false }) {
     [effectiveInv, activity]
   );
   const itineraryStop = useMemo(
-    () => inviteItineraryStop(effectiveInv, activity, dayLabel),
-    [effectiveInv, activity, dayLabel]
+    () => inviteItineraryStop(effectiveInv, activity, dayLabel, dayIso),
+    [effectiveInv, activity, dayLabel, dayIso]
   );
   const groupHref = useMemo(
     () => groupPlanHref(placeId, inv && inv.place),
@@ -344,7 +367,26 @@ export default function AskClient({ inv, bad = false }) {
           addedVia: "ask_invite",
         });
         if (res && res.trips) {
-          window.localStorage.setItem("wf_trips_v1", JSON.stringify(res.trips));
+          const cleanDay = /^\d{4}-\d{2}-\d{2}$/.test(String(dayIso || "").trim()) ? String(dayIso).trim() : "";
+          const nextTrips = { ...res.trips };
+          for (const k of Object.keys(nextTrips)) {
+            const t = nextTrips[k];
+            if (!t || !Array.isArray(t.items)) continue;
+            if (t.items.some((it) => it && it.id === itineraryStop.id)) {
+              nextTrips[k] = {
+                ...t,
+                items: t.items.map((it) => {
+                  if (!it || it.id !== itineraryStop.id) return it;
+                  return {
+                    ...it,
+                    ...(cleanDay ? { day: it.day || cleanDay } : {}),
+                    note: it.note || itineraryStop.note || "",
+                  };
+                }),
+              };
+            }
+          }
+          window.localStorage.setItem("wf_trips_v1", JSON.stringify(nextTrips));
         }
         if (res && Array.isArray(res.events)) {
           for (const ev of res.events) {
@@ -357,6 +399,7 @@ export default function AskClient({ inv, bad = false }) {
           has_place: Boolean(effectiveInv && effectiveInv.place && planFitsPlace(effectiveInv, activity)),
           activity,
           city,
+          day_iso: dayIso || "",
           already: Boolean(res && res.already),
         });
         return true;
@@ -366,15 +409,19 @@ export default function AskClient({ inv, bad = false }) {
   };
 
   const buildRestOfDay = () => {
-    if (!itinerarySaved) saveToItinerary();
+    saveToItinerary();
     track("ask_invite_planner_opened", {
       surface: inviteSurface,
       activity,
       city,
+      day_iso: dayIso || "",
       has_place: Boolean(effectiveInv && effectiveInv.place),
     });
     try {
-      window.location.href = "/itinerary";
+      const q = [];
+      if (city) q.push("city=" + encodeURIComponent(city));
+      if (dayIso && /^\d{4}-\d{2}-\d{2}$/.test(dayIso)) q.push("date=" + encodeURIComponent(dayIso));
+      window.location.href = "/itinerary" + (q.length ? "?" + q.join("&") : "");
     } catch (e) {}
   };
 
@@ -638,6 +685,24 @@ export default function AskClient({ inv, bad = false }) {
                 The originally proposed date ({proposedWhen.label}) has passed — pick a fresh day below.
               </div>
             ) : null}
+            {eventIsPast && inv && inv.place ? (
+              <div className="wfx-alert" role="status" data-event-date-past="1">
+                <div>
+                  <b>Heads up:</b> The scheduled dates for {inv.place} have passed.
+                </div>
+                <div className="wfx-pivots" style={{ marginTop: "8px" }}>
+                  <button
+                    type="button"
+                    className="wfx-pivot-btn"
+                    onClick={() => {
+                      setDetachedEvent(true);
+                      track("ask_invite_action", { action: "detach_past_event", surface: inviteSurface });
+                    }}>
+                    {"Keep " + (dayLabel || "this date") + " & pick another spot"}
+                  </button>
+                </div>
+              </div>
+            ) : null}
             {hasEventDateConflict ? (
               <div className="wfx-alert" role="status" data-event-date-mismatch="1">
                 <div>
@@ -666,7 +731,7 @@ export default function AskClient({ inv, bad = false }) {
                 </div>
               </div>
             ) : null}
-            <Calendar value={dayIso} onPick={(iso, d) => {
+            <Calendar value={dayIso} timeZone={venueTz} onPick={(iso, d) => {
               setDayIso(iso);
               setDayLabel(d.toLocaleDateString(undefined, { weekday: "short", month: "long", day: "numeric" }));
             }} />
@@ -697,9 +762,9 @@ export default function AskClient({ inv, bad = false }) {
             <div className="wfx-card">
               <div><b>When</b> · {dayLabel}</div>
               <div><b>What</b> · {(activityFor(activity) || {}).label}</div>
-              {!detachedEvent && !hasEventDateConflict && inv && inv.place && planFitsPlace(inv, activity)
+              {!detachedEvent && !hasEventDateConflict && !eventIsPast && inv && inv.place && planFitsPlace(inv, activity)
                 ? <div><b>{from ? from + "'s idea" : "Their idea"}</b> · {inv.place}{city ? " (" + city + ")" : ""}</div>
-                : ((detachedEvent || hasEventDateConflict) && inv && inv.place
+                : ((detachedEvent || hasEventDateConflict || eventIsPast) && inv && inv.place
                     ? <div><b>Date note</b> · {inv.place} runs on {scheduledEventWhen.label || inv.eventDate} — pick a spot for {dayLabel} below</div>
                     : (inv && inv.place
                         ? <div><b>New plan</b> · not {inv.place} then — pick the spot below</div>
@@ -764,7 +829,7 @@ export default function AskClient({ inv, bad = false }) {
                   </button>
                 </>
               ) : null}
-              {placeId && !detachedEvent && !hasEventDateConflict && inv && inv.place && planFitsPlace(inv, activity) ? (
+              {placeId && !detachedEvent && !hasEventDateConflict && !eventIsPast && inv && inv.place && planFitsPlace(inv, activity) ? (
                 <a className="wfx-tool-btn" href={"/p/" + encodeURIComponent(placeId)}
                   onClick={() => track("ask_invite_action", { action: "open_place", surface: inviteSurface })}>
                   {"Open " + inv.place + " on Wayfind"}
