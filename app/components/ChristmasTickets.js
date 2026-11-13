@@ -1,12 +1,13 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { isSocialAdLanding } from "../../lib/socialAdLanding.js";
+import { SOCIAL_AD_ATTR, isSocialAdLanding } from "../../lib/socialAdLanding.js";
 import { XM_CARD_CSS, organizerTap } from "./ChristmasTicketCard.js";
 import CommerceClickBeacon from "./CommerceClickBeacon.js";
 import { activeSeasonalMark } from "../../lib/seasonalBrand.js";
 import ChristmasElves from "./ChristmasElves.js";
 import GuidePhoto from "./GuidePhoto.js";
+import { styleHtml } from "../../lib/styleHtml.js";
 
 // Wayfind home header replica plus Christmas ticket cards, built like the
 // Halloween page (BoHalloweenHaunt). Deep night, warm white text, one festive
@@ -144,6 +145,7 @@ const CSS = XM_CARD_CSS + `
 
 /* Top picks (2026-11-12): social ad visitors see a photo and a ticket button
    on the first screen. Wide cards so the next one peeks and invites a swipe. */
+[data-social-picks]{display:none}html[data-wf-social] [data-social-picks]{display:block}
 .xm-picks{margin:12px 0 4px}
 .xm-picks-label{margin:0 0 8px;font-size:13px;font-weight:700;letter-spacing:.02em;color:#FFE9C8}
 .xm-picks-row{display:flex;gap:10px;margin:0 -16px;padding:0 16px 4px;list-style:none;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch}
@@ -328,15 +330,21 @@ function WayfindHeader({ seasonal }) {
 
 // The page is one cached copy for everyone (#2424), so the server always sends
 // the picks and the visitor's own URL decides whether they show (#2419: only
-// Facebook and Instagram ad landings see them on the first screen).
+// Facebook and Instagram ad landings see them on the first screen). The page's
+// inline SOCIAL_AD_SCRIPT marks <html> before first paint, so the picks are
+// drawn in place with no layout shift; CSS keeps them display:none otherwise,
+// and their photos are lazy so a hidden row never downloads them. This effect
+// only keeps the mark right after a client side navigation.
 export function SocialTopPicks({ picks }) {
-  const [show, setShow] = useState(false);
   useEffect(() => {
-    try { setShow(isSocialAdLanding(Object.fromEntries(new URLSearchParams(window.location.search)))); } catch { setShow(false); }
+    const root = document.documentElement;
+    try {
+      if (isSocialAdLanding(Object.fromEntries(new URLSearchParams(window.location.search)))) root.setAttribute(SOCIAL_AD_ATTR, "");
+      else root.removeAttribute(SOCIAL_AD_ATTR);
+    } catch { root.removeAttribute(SOCIAL_AD_ATTR); }
+    return () => root.removeAttribute(SOCIAL_AD_ATTR);
   }, []);
-  // Rendered hidden in the shared HTML so a social visitor sees it the moment the
-  // check runs; everyone else never sees it.
-  return <div data-social-picks="" hidden={!show}><TopPicks picks={picks} /></div>;
+  return <div data-social-picks=""><TopPicks picks={picks} /></div>;
 }
 
 export function TopPicks({ picks }) {
@@ -359,8 +367,7 @@ export function TopPicks({ picks }) {
                   width={photo.width}
                   height={photo.height}
                   sizes="(min-width: 720px) 300px, 78vw"
-                  loading={i === 0 ? "eager" : "lazy"}
-                  fetchpriority={i === 0 ? "high" : undefined}
+                  loading="lazy"
                   fallbackClassName="xm-pick-ph"
                   fallbackText={(row.placeholder && row.placeholder.label) || "Christmas event"}
                 />
@@ -396,7 +403,7 @@ export default function ChristmasTickets({ model, share = null, browse = null, t
   const seasonal = activeSeasonalMark();
   return (
     <section className="xm-page" aria-labelledby="xm-title" data-analytics-page={SURFACE}>
-      <style dangerouslySetInnerHTML={{ __html: CSS + seasonalMarkCss(seasonal) }} />
+      <style dangerouslySetInnerHTML={styleHtml(CSS + seasonalMarkCss(seasonal))} />
       <CommerceClickBeacon surface={SURFACE} />
       <div className="xm-doodles" aria-hidden="true" />
       <div className="xm-sparkles" aria-hidden="true" />

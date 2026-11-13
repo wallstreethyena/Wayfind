@@ -2,6 +2,7 @@
 
 import { useId } from "react";
 import { parkingDirectionsUrl, parkingMapsUrl } from "../../lib/appleParking.js";
+import { styleHtml } from "../../lib/styleHtml.js";
 
 const CSS = `
 .wfev-parking{color:#CBD5E1;font-size:13px;line-height:1.5}.wfev-parking p{margin:6px 0}.wfev-parking h3{margin:14px 0 4px;color:#F8FAFC;font-size:18px}.wfev-parking-list{list-style:none;margin:8px 0 0;padding:0}.wfev-parking-list li{padding:12px 0;border-top:1px solid rgba(148,163,184,.2)}
@@ -23,7 +24,7 @@ export default function VenueParkingResults({ venue, places = [], status = "idle
       : places.length ? `${places.length} parking ${places.length === 1 ? "option" : "options"} near ${venue.name}.`
         : `No parking found${Number.isFinite(radiusMeters) ? ` within ${(radiusMeters / 1609.344).toFixed(1)} mi` : " nearby"}. Check Apple Maps or the venue for other options.`;
   return <section className="wfev-parking" aria-label={`Parking near ${venue.name}`} aria-busy={status === "loading" || status === "idle"}>
-    <style dangerouslySetInnerHTML={{ __html: CSS }} />
+    <style dangerouslySetInnerHTML={styleHtml(CSS)} />
     <h3>Your parking guide</h3>
     <p>Choose a location, drive there, then open the walking route to {venue.name}.</p>
     <p role="status" aria-live="polite">{statusText}</p>

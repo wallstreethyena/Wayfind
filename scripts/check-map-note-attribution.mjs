@@ -103,8 +103,7 @@ ok(/bottom: MAP_NOTE_OFFSET\.bottom/.test(style), "column bottom comes from MAP_
 ok(/left: MAP_NOTE_OFFSET\.left/.test(style) && /right: MAP_NOTE_OFFSET\.right/.test(style), "column left/right come from MAP_NOTE_OFFSET");
 ok(/zIndex: 17/.test(style) && /flexDirection: "column"/.test(style), "column is zIndex 17 (above map, below the sheet's 18) and stacks credit over note");
 ok(!/\bbottom:\s*\d/.test(style), "no numeric bottom: literal on the column");
-const noteTag = screenSrc.match(/<div role="note"[^>]*>/)?.[0] || "";
-ok(noteTag.length > 0 && !/position:\s*"absolute"/.test(screenSrc.match(/<div role="note"[^\n]*?\}\}>/)?.[0] || ""), "the note itself is no longer absolutely positioned on its own numeric offsets");
+ok(!/<div role="note"/.test(screenSrc) && !/data-wf-map-unpinned/.test(screenSrc), "internal unpinned-place disclosures are absent from customer-facing DOM (kept in window.__wfMapList telemetry only)");
 const creditTag = screenSrc.match(/<div data-wf-map-credit=[^\n]*?\}\}>/)?.[0] || "";
 ok(creditTag.length > 0 && !/position:\s*"absolute"|\bbottom:/.test(creditTag), "the licence credit has no absolute/bottom of its own (lives in the column, inside the safe area)");
 ok(screenSrc.indexOf("data-wf-map-credit") > screenSrc.indexOf("data-wf-map-notes"), "credit renders inside the column");
@@ -116,7 +115,10 @@ ok(MAPLIBRE_ATTRIBUTION_LIFT + 10 + 44 <= NOTE.bottom, "3D attribution (worst ca
 const lib = strip(readFileSync("lib/appleExplorerMap.js", "utf8"));
 ok(!/Padding\(\s*150/.test(lib), "appleExplorerMap has no numeric Padding(150, ...) safe-area literal left");
 ok(/Padding\(\s*150/.test("map.padding = new mapkit.Padding(150, 68, 150, 12);"), "control: the Padding(150 probe finds the pre-fix literal, so its absence above is meaningful");
-ok((lib.match(/new mapkit\.Padding\(MAP_SAFE_PADDING\.top, MAP_SAFE_PADDING\.right, MAP_SAFE_PADDING\.bottom, MAP_SAFE_PADDING\.left\)/g) || []).length === 2, "both map.padding and the cluster showItems padding use MAP_SAFE_PADDING");
+// 2026-11-13: an embedded (compact) map may use COMPACT_MAP_PADDING; every
+// full screen map (compact defaults to false) still gets MAP_SAFE_PADDING.
+ok(/const SAFE = compact \? COMPACT_MAP_PADDING : MAP_SAFE_PADDING;/.test(lib) && /compact = false,/.test(lib), "full screen maps (compact defaults false) use MAP_SAFE_PADDING; only compact embeds use the small insets");
+ok((lib.match(/new mapkit\.Padding\(SAFE\.top, SAFE\.right, SAFE\.bottom, SAFE\.left\)/g) || []).length === 2, "both map.padding and the cluster showItems padding use the selected safe area");
 
 console.log(failures ? `check-map-note-attribution: ${failures} FAILURE(S)` : "check-map-note-attribution: all green — constants executed, 4 viewports simulated against attribution/sheet/controls (real-browser rects need a MapKit token: measured by hand in the PR)");
 process.exit(failures ? 1 : 0);

@@ -7,6 +7,7 @@ import ShareButton from "../components/ShareButton";
 import { pageShareUrl } from "../../lib/pageShareUrl";
 import { christmasTicketsSchema, christmasTopPicks } from "../../lib/christmasTickets";
 import { christmasPageData } from "../../lib/christmasPageData";
+import { SOCIAL_AD_SCRIPT } from "../../lib/socialAdLanding.js";
 import CreatorVideoRail from "../components/CreatorVideoRail.js";
 import VideoFacade from "../components/VideoFacade.js";
 import CreatorPlaybackDetails from "../components/CreatorPlaybackDetails.js";
@@ -85,7 +86,7 @@ function ChristmasCreatorPosts({ posts }) {
 // The reads live in lib/christmasPageData.js (no network during next build; a
 // failed background refresh throws, so the last good page keeps serving).
 export default async function Page() {
-  const { today, listings, first, tickets } = await christmasPageData();
+  const { today, listings, first, tickets, weekend } = await christmasPageData();
   const itemList = {
     "@context": "https://schema.org", "@type": "ItemList", name: "Christmas events in Florida, 2026 season",
     numberOfItems: listings.length,
@@ -99,10 +100,11 @@ export default async function Page() {
   // them only when the visitor's own URL is a social ad landing (isSocialAdLanding).
   const topPicks = christmasTopPicks(tickets);
   return <>
+    <script dangerouslySetInnerHTML={{ __html: SOCIAL_AD_SCRIPT }} />
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ticketsSchema).replace(/</g, "\\u003c") }} />
     <ChristmasTickets model={tickets} topPicks={topPicks} share={<ShareButton url={pageShareUrl("/christmas-in-florida")} title={title} text={description} tone="dark" label="Share" />} browse={<>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemList).replace(/</g, "\\u003c") }} />
-      <ChristmasBrowse initial={first} facets={{ ...christmasBrowseFacets(), pills: christmasBrowsePills(listings) }} today={today} />
+      <ChristmasBrowse initial={first} facets={{ ...christmasBrowseFacets(), pills: christmasBrowsePills(listings) }} today={today} weekend={weekend} />
       <ChristmasCreatorPosts posts={seasonalCreatorVideos("christmas")} />
 
     </>} />
