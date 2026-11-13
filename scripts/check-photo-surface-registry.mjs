@@ -91,6 +91,14 @@ EXEMPT["app/components/PhotoCredit.js"] =
 EXEMPT["app/components/SeasonalMoviesRail.js"] =
   "movie cards, not place cards: it reuses RailCard only for the standard rail card look and passes place={null}, so there is no place id and no Google place photo to source. The image is a self-hosted official poster under /movies/ (registry art.src, downloaded once, no /api/photo) or the designed placeholder tile (EventPlaceholderTile); it never passes photoFallback or a /api/photo URL.";
 
+// (2026-11-12) "Seen on Wayfind": Wayfind's OWN Instagram posts under TRENDING NOW. A post is not a place.
+EXEMPT["app/components/OwnedSocialShelf.js"] =
+  "owned social posts, not place cards: it reuses RailCard only for the standard rail look and passes no place, so there is no place id and no Google place photo to source. The image is the post's own cover, copied by /api/cron/owned-social into the owned-social storage bucket (Wayfind's own content), or the designed placeholder; it never passes photoFallback or a /api/photo URL. Reconciled by scripts/test-owned-social-reconcile.mjs.";
+{
+  const os = readFileSync(path.join(REPO, "app/components/OwnedSocialShelf.js"), "utf8").replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "$1");
+  ok(!/\/api\/photo|photoFallback=|\bplace=\{|cardImageSrc|photoUrl\(/.test(os), "app/components/OwnedSocialShelf.js is EXEMPT as an owned-post shelf but now references place-photo plumbing (/api/photo, photoFallback=, place={...}, cardImageSrc, photoUrl) — register it in a PHOTO_SURFACES entry instead");
+}
+
 // The exemption's own claim is enforced, not trusted: PhotoCredit.js must paint no image.
 {
   const pc = readFileSync(path.join(REPO, "app/components/PhotoCredit.js"), "utf8").replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "$1");
