@@ -1,5 +1,6 @@
 "use client";
 import PlaceDistance from "../PlaceDistance.js";
+import PhotoCreditLink from "../PhotoCreditLink.js";
 // Extracted from app/home.js (G2, July 2026 decomposition). Render-only.
 import { Fragment } from "react";
 import { C, sheetBg, sheet, SHEET_EASE, PlaceScoreChip } from "../kit";
@@ -229,6 +230,15 @@ export default function HookDetailSheet({ ctx }) {
                               ? <span style={{ fontSize: 12, color: C.green, fontWeight: 700 }}>{"$".repeat(Math.max(1, Math.min(4, Number(p.price_level ?? p.priceLevel) || 1)))}</span>
                               : null}
                         </div>
+                        {/* A licensed photo (CC BY / BY-SA) carries its credit wherever it is shown. */}
+                        {p.photo && p.photoAttr ? (
+                          <div className="wf-hook-photo-credit" style={{ fontSize: 10.5, color: C.muted, lineHeight: 1.3, marginBottom: 5, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                            {"Photo: "}
+                            {p.photoAttrHref
+                              ? <PhotoCreditLink href={p.photoAttrHref} rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} style={{ color: C.muted, textDecoration: "underline" }}>{p.photoAttr}</PhotoCreditLink>
+                              : p.photoAttr}
+                          </div>
+                        ) : null}
                         {badges.length > 0 && (
                           <div style={{ display: "flex", gap: 5, flexWrap: "wrap", marginBottom: 6 }}>
                             {/* v6.47 (owner: "the little experience chip are also

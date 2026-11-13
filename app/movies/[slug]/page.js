@@ -15,6 +15,7 @@ import {
   allMovieIds, movieById, otherMovies, movieMetadata, movieJsonLd, movieWhen, movieRuntimeLabel,
   movieBuyHref, moviePath, MOVIE_BUY_NOTE, MOVIE_PAGE_SURFACE, MOVIE_TICKET_OFFER,
 } from "../../../lib/moviePages.js";
+import { styleHtml } from "../../../lib/styleHtml.js";
 
 export const revalidate = 3600;
 export const dynamicParams = false;
@@ -71,7 +72,7 @@ export default function MoviePage({ params }) {
   return (
     <div className="wf-event-experience">
       <EventExperienceStyles />
-      <style dangerouslySetInnerHTML={{ __html: MOVIE_CSS }} />
+      <style dangerouslySetInnerHTML={styleHtml(MOVIE_CSS)} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(movieJsonLd(movie)) }} />
       <div className="wf-event-wrap">
         <nav style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 14, marginBottom: 18 }}>

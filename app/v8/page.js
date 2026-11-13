@@ -16,6 +16,7 @@ import SiteDaySeed from "../components/SiteDaySeed";
 import { siteTodayStr } from "../../lib/siteTime";
 import { WF_RAIL_MENU_CSS } from "../components/railMenuCss";
 import { WF_PLACE_CARD_CSS } from "../components/css";
+import { styleHtml } from "../../lib/styleHtml.js";
 
 // Hourly, like the homepage. Every Google call behind this is Supabase-cached
 // for 30 days, so a regeneration is a cache read, not a bill.
@@ -41,7 +42,7 @@ export default async function Page({ searchParams }) {
 
   return (
     <>
-      <style dangerouslySetInnerHTML={{ __html: WF_PLACE_CARD_CSS + WF_RAIL_MENU_CSS }} />
+      <style dangerouslySetInnerHTML={styleHtml(WF_PLACE_CARD_CSS + WF_RAIL_MENU_CSS)} />
       <h1 style={{ position: "absolute", width: 1, height: 1, padding: 0, margin: -1, overflow: "hidden", clip: "rect(0 0 0 0)", whiteSpace: "nowrap", border: 0 }}>
         Wayfind — find the best things to do near {city.name}, {city.state}, right now
       </h1>

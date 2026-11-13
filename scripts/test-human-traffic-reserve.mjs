@@ -32,7 +32,7 @@ import { spawnSync } from "node:child_process";
 import {
   TRAFFIC, HUMAN_RESERVE_SHARE, VISITOR_SHARED_SKUS, runWithTraffic, currentTraffic,
   humanReserveLine, visitorCeiling, spendAllow, spendAllowCapped, spendAllowRefresh,
-  backgroundReserveStatus, takeFromLedgerDetailed, freeTierLine, siteReservedCap,
+  backgroundReserveStatus, takeFromLedgerDetailed, freeTierLine, siteReservedCap, isBackgroundDailySku,
 } from "../lib/spendGate.js";
 import {
   budgetReserveNote, isBudgetReserveNote, isDeterministicFailureNote, classifyHealth, budgetLimitNote,
@@ -112,7 +112,10 @@ eq(r, false, "BACKGROUND via spendAllowCapped (the promotion path) refused at th
 eq(rpcCalls, rpcBefore, "a refused background grant never reaches wf_spend_take");
 const detail = await runWithTraffic(TRAFFIC.BACKGROUND, () => takeFromLedgerDetailed("details_enterprise", 950));
 eq(detail.reason, "reserve", "the refusal says WHY (reserve), not 'cap'");
-ok(takeCaps.every(([, cap]) => cap === 475 || cap === 950), "the cap sent to the ledger is always the caller's real ceiling, never a lowered one (spend-pacing reads the cap column)");
+// 2026-11-12: a background grant of a Details SKU now also ticks the Google DAILY counter row (its own sku, its own
+// line, skipped by spend pacing, see test-background-daily-line.mjs). The never-lowered rule is about the MONTHLY
+// rows pacing reads, so the daily row is the only sku this filter lets through unchecked.
+ok(takeCaps.filter(([sku]) => !isBackgroundDailySku(sku)).every(([, cap]) => cap === 475 || cap === 950), "the cap sent to the ledger is always the caller's real ceiling, never a lowered one (spend-pacing reads the cap column)");
 
 // ── A2. VISITOR: unaffected up to its cap ────────────────────────────────
 env(); resetLedger({ details_enterprise: 380 });
