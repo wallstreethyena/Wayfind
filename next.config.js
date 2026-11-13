@@ -158,6 +158,8 @@ const nextConfig = {
     "/api/og/movie": ["./app/api/og/fonts/*.ttf", "./public/movies/*.webp"],
     // Atlas paid lane priority list is read with fs at runtime (lib/atlasPaidLane.js).
     "/api/cron/atlas-build": ["./data/atlas/priority-place-ids.json"],
+    // Wayfind Planner reads seasonal research & first-party Atlas cards on the server via fs.
+    "/api/planner": ["./data/christmas-2026-research.json", "./data/atlas/editorial-cards.json"],
   },
   // 2026-11-11: /api/og/movie once traced ALL of public/ (1.1 GB) and Vercel refused every
   // production deploy. It needs only public/movies, listed above. These excludes keep the big
