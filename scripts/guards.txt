@@ -2661,3 +2661,5 @@ node scripts/test-quota-exhaustion-simulation.mjs
 node scripts/test-moment-search-redteam.mjs
 node scripts/test-christmas-temporal-modes.mjs
 node scripts/test-nervous-system-health.mjs
+# 2026-11-13: Closed-place guide/rail/index exclusion, inline card golf_course/duplicate-chip/false-Brazilian/Star-Fish fixes, Santa family outing classification, screen-reader flex-span spacing, and CardPhoto eager/monogram behavior.
+node scripts/test-closed-places-and-inline-cards.mjs

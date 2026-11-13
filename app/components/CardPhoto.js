@@ -4,8 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import PhotoCreditLink from "./PhotoCreditLink.js";
 import PhotoFallbackTile from "./PhotoFallbackTile.js";
-import { cardPhotoRequest, fetchCardPhoto } from "../../lib/cardPhotoRequest.js";
-import { MAX_ATTEMPTS, RETRY_DELAY_MS } from "../../lib/photoAnswers.js";
+import { cardPhotoRequest, fetchCardPhoto, photoPlaceIdFromSrc } from "../../lib/cardPhotoRequest.js";
+import { MAX_ATTEMPTS, RETRY_DELAY_MS, photoAnswerStatus } from "../../lib/photoAnswers.js";
 
 const control = { background: "#101820", color: "#fff", border: "1px solid #64748b", borderRadius: 6, cursor: "pointer", pointerEvents: "auto" };
 const safe = (href) => typeof href === "string" && /^https:\/\//.test(href) ? href : undefined;
@@ -89,17 +89,37 @@ export default function CardPhoto({ src, alt = "", onError, onLoad, onClick, sty
   // credit through a separate control without changing card geometry.
   const baseRequest = cardPhotoRequest(src);
   const request = baseRequest && inLink && !/[?&]nospend=1(?:&|$)/.test(baseRequest) ? baseRequest + "&nospend=1" : baseRequest;
+  const eager = props.loading === "eager";
   const anchor = useRef(null);
+  const onErrorRef = useRef(onError);
+  onErrorRef.current = onError;
+  const fallbackAttrRef = useRef(props["data-fallback"]);
+  fallbackAttrRef.current = props["data-fallback"];
   const [answer, setAnswer] = useState(null);
   const [failed, setFailed] = useState(null);
   const [viewer, setViewer] = useState(null);
   const [rawFailed, setRawFailed] = useState(null);
   const answered = answer?.request === request ? answer.photo : null;
   const photo = inLink && answered?.source === "google" && !answered.src?.startsWith("/api/photo/stored/") ? null : answered;
+  const notifyError = () => {
+    if (!onErrorRef.current || missSrc) return;
+    const fbRaw = fallbackAttrRef.current || "";
+    // When both primary and fallback compile to the exact same /api/photo JSON
+    // request, skip the duplicate state swap and go straight to the card monogram.
+    const fb = fbRaw && cardPhotoRequest(fbRaw) !== baseRequest ? fbRaw : "";
+    onErrorRef.current({
+      currentTarget: {
+        dataset: { fallback: fb },
+        closest: (sel) => anchor.current?.closest?.(sel) || null,
+      },
+    });
+  };
   useEffect(() => {
     setViewer(null);
-    if (!request || !anchor.current) return;
+    if (!request || (!eager && !anchor.current)) return;
     let disposed = false, started = false, retry = null;
+    const pid = photoPlaceIdFromSrc(src);
+    const nospend = /[?&]nospend=1(?:&|$)/.test(request);
     // One request now; if the failure was temporary, ONE more after the shared
     // delay. photoAnswers enforces the attempt limit, so this can never loop.
     const run = (attempt) => {
@@ -108,7 +128,9 @@ export default function CardPhoto({ src, alt = "", onError, onLoad, onClick, sty
         const usable = inLink && result?.source === "google" && !result.src?.startsWith("/api/photo/stored/") ? null : result;
         setAnswer({ request, photo: usable });
         setFailed(usable ? null : request);
-        if (!result && attempt + 1 < MAX_ATTEMPTS) retry = setTimeout(() => run(attempt + 1), RETRY_DELAY_MS + 50);
+        const retryable = !result && attempt + 1 < MAX_ATTEMPTS && photoAnswerStatus(pid, { nospend }).retryable;
+        if (retryable) retry = setTimeout(() => run(attempt + 1), RETRY_DELAY_MS + 50);
+        else if (!usable) notifyError();
       });
     };
     const load = () => {
@@ -116,23 +138,23 @@ export default function CardPhoto({ src, alt = "", onError, onLoad, onClick, sty
       started = true;
       run(0);
     };
-    const observer = typeof IntersectionObserver !== "undefined" ? new IntersectionObserver((entries) => {
+    const observer = !eager && typeof IntersectionObserver !== "undefined" ? new IntersectionObserver((entries) => {
       if (entries.some((e) => e.isIntersecting && e.intersectionRatio > 0)) { observer.disconnect(); load(); }
     }) : null;
     if (observer) observer.observe(anchor.current); else load();
     return () => { disposed = true; observer?.disconnect(); if (retry) clearTimeout(retry); };
-  }, [request]);
+  }, [request, eager]);
   // Image-load recovery state, scoped to THIS request: a place change resets it
   // and cancels any pending recovery (no stale photo can land on a new place).
   const recovery = useRef({ request: null, tries: 0, timer: null });
   useEffect(() => () => { clearTimeout(recovery.current.timer); recovery.current = { request: null, tries: 0, timer: null }; }, [request]);
   const onImageError = () => {
-    const run = (mod) => mod.recoverCardImage({ request, photo, inLink, recovery, setAnswer, setFailed });
+    const run = (mod) => mod.recoverCardImage({ request, photo, inLink, recovery, setAnswer, setFailed, onTerminalFail: notifyError });
     // The rendered guards eval this file as a classic script and supply the module.
     if (typeof window !== "undefined" && window.__cardPhotoRecovery) { run(window.__cardPhotoRecovery); return; }
     // A harness that evals this file as a classic script and does not inject the
     // module must still land on the unavailable tile, never an uncaught error.
-    import("./cardPhotoRecovery.js").then(run, () => setFailed(request));
+    import("./cardPhotoRecovery.js").then(run, () => { setFailed(request); notifyError(); });
   };
   if (!request) {
     // Ordinary owned/partner image. A caller that passes onError owns its own ladder
@@ -145,7 +167,7 @@ export default function CardPhoto({ src, alt = "", onError, onLoad, onClick, sty
   const visible = !!photo && failed !== request;
   // `missSrc`: an owned stand-in image for a slot that has always shown one (e.g. paid landing
   // cards). Used only after the credited lane has answered "no photo"; never while pending.
-  if (!visible && failed === request && missSrc) return <img {...props} src={missSrc} alt={alt} style={style} />;
+  if (!visible && failed === request && missSrc) return <img {...props} src={missSrc} alt={alt} style={style} onError={onError} onLoad={onLoad} />;
   // The viewer holds the exact {photo, credit} object of THIS request; a place
   // change makes viewer.request stale, so an old photo/credit pair can't render.
   const open = (e) => { e.preventDefault(); e.stopPropagation(); setViewer({ request, photo }); };

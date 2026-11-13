@@ -42,7 +42,7 @@ import { C, TYPE } from "./kit";
 import RailCard, { RailNav, RailDots } from "./RailCard";
 import useEditorialHooks from "./useEditorialHooks.js";
 import { toHookLine } from "../../lib/editorialHook.js";
-import { coarseCat } from "../../lib/ranking";
+import { coarseCat, humanTypeFallback } from "../../lib/ranking";
 import { toDisplayScore } from "../../lib/score";
 import { wayfindScore } from "../../lib/google";
 import { governedWayfindScore } from "../../lib/wayfindScore";
@@ -305,7 +305,7 @@ export default function CreatorFinds({ items, byCity, center, excludePlaceIds, o
                 key={p.id}
                 photo={p.photo || null}
                 title={p.name}
-                eyebrow={coarseCat(p) || p.primaryType || "Local find"}
+                eyebrow={coarseCat(p) || humanTypeFallback(p.primaryType || p.primary_type) || "Local find"}
                 rank={i + 1}
                 score={cardScore(p)}
                 facts={cardFacts(p)}

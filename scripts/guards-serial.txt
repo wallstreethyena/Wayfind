@@ -74,6 +74,7 @@ node scripts/test-place-card-layout.mjs
 node scripts/test-reaction-affordance.mjs
 node scripts/test-share-intent-fit.mjs
 node scripts/test-venue-parking-ui.mjs
+node scripts/test-closed-places-and-inline-cards.mjs
 
 # ── 5. Enumerate the repo ROOT. ~150 parallel guards compile JSX through scripts/lib/
 # jsxLoad.mjs, which makes a transient, uniquely named .wf-jsx-XXXXXX directory AT THE REPO
