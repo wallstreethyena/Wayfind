@@ -135,6 +135,33 @@ Revenue-audit detail: `docs/POSTMORTEM_2026-08-25_REVENUE_PATH.md`.
   tracks it (`docs/KIMI_QUEUE.md`).
 - **Verify on a surface that actually mounts what you changed.**
 
+## Async Infrastructure Rule (owner directive, 2026-11-12)
+
+External queues, preview builds, CI queues, provider processing and other asynchronous
+infrastructure must not be actively babysat through repeated status messages or temporary
+polling jobs unless monitoring itself is required by the mission. Continue independent work
+and return to the dependency when useful. A queued dependency is not automatically a blocker.
+Never claim unverified behavior passed.
+
+**Do not create scheduled check-ins merely to compensate for waiting on CI/Vercel.**
+
+When a preview is queued:
+1. Record the deployment ID.
+2. Continue every independent task.
+3. Do not repeatedly poll it.
+4. Do not create timers or check-in jobs merely to watch it.
+5. Check it naturally when the mission reaches the verification stage.
+6. If it is still unavailable, use the strongest safe alternative verification available.
+7. Never call preview-dependent behavior PASS until it was actually verified.
+
+A preview queue does not automatically freeze a release. When required CI is green, the
+deterministic tests and guards pass, the diff is understood, the change is inside the approved
+scope, production rollback is available, and the preview is the ONLY thing missing because
+Vercel itself is backed up: decide whether the change can safely ship with production
+verification immediately after deploy. If yes, ship under the existing authorization and
+verify production at once. If no, leave it ready and report ONE actual blocker.
+No queue-position updates, "still queued" messages or reports about cancelled previews.
+
 ## Extraction PRs (moving a function between modules) — run BOTH
 
 | guard | catches |
