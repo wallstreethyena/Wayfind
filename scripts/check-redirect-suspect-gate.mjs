@@ -49,6 +49,13 @@ import { spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
 const REPO = fileURLToPath(new URL("..", import.meta.url));
+// HERMETIC (2026-11-12): this guard runs inside every production build, where the
+// owner's off switch REDIRECT_ZERO_PROOF_GATE may be set. Setting it to "off" made the
+// build fail (this guard asserts the rule is on), so the switch blocked every deploy
+// instead of turning the rule off. The guard pins its own value; the switch itself is
+// asserted below with an explicit value.
+const OWNER_ZERO_PROOF_SWITCH = process.env.REDIRECT_ZERO_PROOF_GATE;
+delete process.env.REDIRECT_ZERO_PROOF_GATE;
 let pass = 0;
 const fail = [];
 const ok = (c, m) => { if (c) pass++; else fail.push(m); };
@@ -665,6 +672,18 @@ for (const rel of ROUTES.filter((r) => r in FIX)) {
     ok(listed.includes(path), `app/robots.js disallows ${path} (every discovered go route must be listed; listed: ${listed.join(", ") || "none"})`);
   }
   ok(/allow:\s*"\/"/.test(robotsSrc) && !listed.some((p) => p === "/" || p === "/api" || p === "/api/"), "app/robots.js still allows the site itself (no blanket disallow sneaks in with the go routes)");
+}
+
+/* ── S. the owner's off switch, read from the real environment (no ctx.env) ── */
+{
+  const zero = { ua: UA.desktopChrome, meta: true };
+  for (const [value, want] of [["off", "human"], ["OFF", "human"], ["0", "human"], ["on", "suspect"], [undefined, "suspect"]]) {
+    if (value === undefined) delete process.env.REDIRECT_ZERO_PROOF_GATE; else process.env.REDIRECT_ZERO_PROOF_GATE = value;
+    const k = await classifyRedirectRequest(req(U, zero), {});
+    ok(k.klass === want, `off switch from the real environment: REDIRECT_ZERO_PROOF_GATE=${value === undefined ? "(unset)" : value} gives ${want} for a desktop with zero proof (got ${k.klass}/${k.reason})`);
+  }
+  delete process.env.REDIRECT_ZERO_PROOF_GATE;
+  ok(typeof OWNER_ZERO_PROOF_SWITCH === "undefined" || typeof OWNER_ZERO_PROOF_SWITCH === "string", "PROBE: the build's own switch value was captured, not used");
 }
 
 globalThis.fetch = realFetch;

@@ -20,6 +20,13 @@ import { readdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
 const REPO = fileURLToPath(new URL("..", import.meta.url));
+// HERMETIC (2026-11-12): this guard runs inside every production build, where the
+// owner's off switch REDIRECT_ZERO_PROOF_GATE may be set. Setting it to "off" made the
+// build fail (this guard asserts the rule is on), so the switch blocked every deploy
+// instead of turning the rule off. The guard pins its own value; the switch itself is
+// asserted below with an explicit value.
+const OWNER_ZERO_PROOF_SWITCH = process.env.REDIRECT_ZERO_PROOF_GATE;
+delete process.env.REDIRECT_ZERO_PROOF_GATE;
 let pass = 0;
 const fail = [];
 const ok = (c, m) => { if (c) pass++; else fail.push(m); };
