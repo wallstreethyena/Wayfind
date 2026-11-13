@@ -401,26 +401,24 @@ for (const today of ["2026-10-30", "2026-12-20", "2027-01-01"]) {
   ok(universal.rows[0].placeId === "ChIJvRBCrN9-54gRGZuuaCLGrQE", "Universal links to the existing Universal Orlando place");
   const stetsonShots = christmasStaticPhotos("stetson-mansion-christmas-2026-2", "Stetson Mansion");
   const winterShots = christmasStaticPhotos("winterfest-boat-parade-2026", "Winterfest");
-  ok(stetsonShots.length === 9 && stetsonShots[0].src.endsWith("/xmas_08c508314b0a24ca.jpg") && stetsonShots.every((p) => existsSync(path.join(root, "public", p.src))), "Stetson opens on its cover and every gallery file is on disk");
+  // 2026-11-12: the Stetson gallery was news photos (ABC Action News) with no
+  // permission on file, so it was removed. Credit is not permission.
+  ok(stetsonShots.length === 0 && !existsSync(path.join(root, "public/events/christmas-gallery/stetson-mansion-christmas-2026-2")), "Stetson has no static gallery and its news photo folder is gone");
   ok(winterShots.length === 6 && winterShots[0].src === christmasStaticPhotos("winterfest-boat-parade-fort-lauderdale-2026", "Winterfest")[0].src && winterShots.every((p) => existsSync(path.join(root, "public", p.src))), "Winterfest card id and event page slug share the same gallery files");
-  ok(stetsonShots.every((p) => p.credit && p.creditHref && p.alt === "Photo of Stetson Mansion") && winterShots.every((p) => /^Photo by Seminole Hard Rock/.test(p.credit)), "static photos carry a credit and a source link");
-  const stetsonCard = await withChristmasTicketPhotos(christmasTicketsModel([base({ id: "stetson-mansion-christmas-2026-2", place_id: null, venue: "Stetson Mansion", image: "/events/christmas/stetson-mansion-christmas-2026-2.webp" })], TODAY), {
-    noMemo: true,
-    readGoogle: async () => { throw new Error("static photos replace the venue rail"); },
-    readVault: async () => { throw new Error("static photos replace the venue rail"); },
-  });
-  ok(stetsonCard.rows[0].photos[0].src === stetsonShots[0].src && stetsonCard.rows[0].photos.length === 9, "the Stetson ticket card shows its gallery, cover first");
+  ok(winterShots.length > 0 && winterShots.every((p) => /^Photo by Seminole Hard Rock/.test(p.credit)), "static photos carry a credit and a source link");
+  const stetsonCard = await withChristmasTicketPhotos(christmasTicketsModel([base({ id: "stetson-mansion-christmas-2026-2", place_id: null, venue: "Stetson Mansion", image: null })], TODAY), { noMemo: true, readGoogle: async () => null, readVault: async () => [] });
+  ok(!(stetsonCard.rows[0].photos || []).some((p) => /christmas-gallery\/stetson|brightspot|Action News/i.test(JSON.stringify(p))), "the Stetson ticket card carries no news photo");
   let fetches = 0;
   const pageShots = await readChristmasEventPhotos("winterfest-boat-parade-fort-lauderdale-2026", "ChIJf45X0KoB2YgRUi5C_dEm-Q8", { label: "Winterfest", env: {}, fetchImpl: async () => { fetches += 1; return { ok: false, json: async () => [] }; } });
   ok(fetches === 0 && pageShots[0].src === winterShots[0].src && pageShots.length === 6, "the Winterfest event page uses the static gallery and does not read the place row");
   const listings = christmasBrowseListings([], TODAY);
   const sCard = listings.find((c) => c.id === "stetson-mansion-christmas-2026-2");
   const wCard = listings.find((c) => c.id === "winterfest-boat-parade-2026");
-  ok(sCard && sCard.image === stetsonShots[0].src && !/DanTD/.test(sCard.photoAttr || ""), "the Stetson browse card opens on its holiday gallery cover, not the daytime gate photo (intent batch 11x)");
+  ok(sCard && !sCard.image && !/DanTD|Action News/.test(sCard.photoAttr || ""), "the Stetson browse card shows the tile, not a news photo and not the daytime gate photo (intent batch 11x)");
   ok(wCard && wCard.image === winterShots[0].src && /Winterfest Boat Parade/.test(wCard.photoAttr || ""), "the Winterfest card shows the gallery cover and its credit");
   const featured = await withChristmasTicketPhotos(christmasTicketsModel(listings, TODAY), { noMemo: true, readGoogle: async () => null, readVault: async () => [] });
   const featuredStetson = featured.rows.find((r) => r.id === "stetson-mansion-christmas-2026-2");
-  ok(featuredStetson && featuredStetson.photos[0].src === stetsonShots[0].src && featuredStetson.photos.length === stetsonShots.length, "the Stetson featured card shows its gallery, cover first");
+  ok(featuredStetson && !(featuredStetson.photos || []).some((p) => /christmas-gallery\/stetson|Action News/i.test(JSON.stringify(p))), "the Stetson featured card carries no news photo");
   let fantasyCard = null;
   for (let page = 1; page < 40 && !fantasyCard; page++) {
     const out = christmasBrowsePage(listings, parseChristmasBrowseQuery({ page: String(page) }), TODAY);
