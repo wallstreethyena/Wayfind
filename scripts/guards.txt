@@ -2617,3 +2617,5 @@ node scripts/test-game-plan.mjs
 node scripts/test-christmas-weekend.mjs
 # 2026-11-12: Christmas map pins: never an approximate location; count equals verified listings.
 node scripts/test-christmas-map-pins.mjs
+# 2026-11-12: Christmas plan share links: id validation, vote storage fails closed, migration shape (never applied).
+node scripts/test-christmas-plan.mjs
