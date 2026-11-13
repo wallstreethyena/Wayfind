@@ -233,10 +233,14 @@ async function gatherServerCandidates(parsed, { point = null, savedPlaces = [] }
 
 async function askClaudePlanner(promptObj) {
   const key = aiKey();
-  if (!key || breakerOpen("anthropic")) return { ok: false, reason: "unavailable" };
+  if (!key) return { ok: false, reason: "unavailable" };
+  try {
+    if (await breakerOpen("anthropic")) return { ok: false, reason: "unavailable" };
+  } catch { /* fail open on cache read */ }
 
   try {
     const res = await paidAnthropicRequest({
+      method: "POST",
       headers: {
         "content-type": "application/json",
         "x-api-key": key,
@@ -244,7 +248,7 @@ async function askClaudePlanner(promptObj) {
       },
       body: JSON.stringify({
         model: MODEL,
-        max_tokens: 900,
+        max_tokens: 1400,
         system: promptObj.system,
         messages: [{ role: "user", content: promptObj.user }],
       }),
@@ -256,8 +260,10 @@ async function askClaudePlanner(promptObj) {
     if (!res.ok) {
       const text = await res.text().catch(() => "");
       const kind = classifyProviderFailure(res.status, text);
-      if (kind !== "transient") tripBreaker("anthropic", kind);
-      return { ok: false, reason: kind };
+      if (kind) {
+        try { await tripBreaker("anthropic", kind, text); } catch { /* fail soft */ }
+      }
+      return { ok: false, reason: kind || "http_error" };
     }
     const data = await res.json().catch(() => null);
     const textBlock = data && Array.isArray(data.content)
@@ -275,6 +281,7 @@ export async function POST(req) {
   if (!entitlement.allowed) {
     return jsonNoStore({ ok: false, code: "ENTITLEMENT_REQUIRED", entitlement }, 402);
   }
+  const okJson = (payload) => jsonNoStore({ ok: true, entitlement, ...payload });
 
   let body = null;
   try {
@@ -305,8 +312,7 @@ export async function POST(req) {
 
   // 1. Missing critical destination or dates -> ask ONE high-value question immediately (zero AI cost).
   if (parsed.clarificationQuestion) {
-    return jsonNoStore({
-      ok: true,
+    return okJson({
       mode: "clarify",
       voice,
       reply: parsed.clarificationQuestion,
@@ -331,8 +337,7 @@ export async function POST(req) {
         verifiedCatalog: catalogObj,
       });
       if (check.ok) {
-        return jsonNoStore({
-          ok: true,
+        return okJson({
           mode: "edit_trip",
           voice,
           reply: resolved.reply,
@@ -355,7 +360,7 @@ export async function POST(req) {
     : null;
   if (cacheKey) {
     const cached = readPublicCache(cacheKey);
-    if (cached) return jsonNoStore({ ...cached, cached: true });
+    if (cached) return okJson({ ...cached, cached: true });
   }
 
   // 2. Gather grounded candidates from Wayfind's real owned inventory + curated events
@@ -363,8 +368,7 @@ export async function POST(req) {
 
   if (candidates.length === 0) {
     const cityLabel = parsed.destination ? parsed.destination.name : "that area";
-    return jsonNoStore({
-      ok: true,
+    return okJson({
       mode: "empty_inventory",
       voice,
       reply: `I don't have enough verified Wayfind listings in ${cityLabel} yet to build a grounded plan without guessing. Try Orlando, Tampa, Sarasota, St. Petersburg, or Miami.`,
@@ -400,8 +404,7 @@ export async function POST(req) {
     }
 
     if (!editPayload) {
-      return jsonNoStore({
-        ok: true,
+      return okJson({
         mode: "no_change",
         voice,
         reply: "I couldn't find a matching verified replacement in Wayfind's inventory for that change. Try naming a specific day or stop.",
@@ -439,8 +442,7 @@ export async function POST(req) {
       if (catalogObj[id]) slimCatalog[id] = catalogObj[id];
     }
 
-    return jsonNoStore({
-      ok: true,
+    return okJson({
       mode: "edit_trip",
       voice,
       reply: editPayload.reply,
@@ -476,8 +478,7 @@ export async function POST(req) {
   }
 
   if (!proposedPlan) {
-    return jsonNoStore({
-      ok: true,
+    return okJson({
       mode: "empty_inventory",
       voice,
       reply: "I couldn't assemble enough open stops on those exact dates from Wayfind's verified listings.",
@@ -503,6 +504,7 @@ export async function POST(req) {
 
   const responseBody = {
     ok: true,
+    entitlement,
     mode: "propose_trip",
     voice,
     reply: proposedPlan.explanation,
