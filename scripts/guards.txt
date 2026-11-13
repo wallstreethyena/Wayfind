@@ -2610,6 +2610,20 @@ node scripts/test-christmas-stubhub-dark.mjs
 node scripts/test-human-traffic-reserve.mjs
 # 2026-11-11: home feed INP: a parent render must not re-render the Christmas rail cards; the itinerary flag poll keeps object identity.
 node scripts/test-home-feed-rerender.mjs
+# 2026-11-12: Reserve a table, pure rules for INSTANT booking (date window, restaurant timezone and DST, lead time, idempotency keys, phone only with consent, manage tokens, partner visibility, slot helpers, chat draft + applyAvailability). Runs in both NODE_ENV modes.
+node scripts/test-reserve-logic.mjs
+# 2026-11-12: Reserve a table, instant booking API via injected fakes (201 only after the saved row, 503 BOOKING_NOT_CONFIRMED on storage failure, SLOT_FULL 409 with alternatives, phone only with consent, demo never bookable or emailed in production, email failure never fails a booking, cancel/proposal/dashboard authorization with a constant time token compare, chat never reports a time the slots RPC did not return, reminder claim before send, route verbs, middleware matcher, preview test page 404 in production, cron secret).
+node scripts/check-reserve-routes.mjs
+# 2026-11-12: Reserve a table, card button and sheet (real render, pins NODE_ENV=test before react so act() works under the production pass: one wide button, non partner cards unchanged, signed in booking flow against a mocked server: form times only from /api/reserve/slots, You're booked only after the 201, retry reuses the idempotency key, 409 alternatives rebook with a new key, phone only behind the consent switch, proposal accept/decline, .ics escaping).
+node scripts/test-reserve-ui.mjs
+# 2026-11-12: Reserve a table, database (RLS, SECURITY DEFINER + pinned search_path, EXECUTE service_role only; PGlite applies the migration, runs supabase/tests/reserve_booking_test.sql, refuses anon/authenticated, runs the seed twice and books against it).
+node scripts/test-reserve-schema.mjs
+# 2026-11-12: Reserve v2, server (Booking Profile consent + validation, provider routing wayfind > opentable handoff > none, OpenTable restref URL shape + half hour rounding, OpenTable API seam stays off, saved profile fills book, NO name/phone/email in the chat model request, find never invents availability, go 302 targets, history, partner list includes verified OpenTable restaurants).
+node scripts/test-reserve-v2.mjs
+# 2026-11-13: Reserve concierge (lib/reserveConcierge.js, lib/reserveProviders/*, POST /api/reserve/concierge) with NO AI key and an injected fake repository: instant times card from real slots only, returning guest "book it again", OpenTable handoff card never says booked or available, no provider alternatives, request lane (request, accept, decline), the model request never carries name, phone, email or ids, nothing books from model output.
+node scripts/test-reserve-concierge.mjs
+# 2026-11-12: Reserve v2, guest app (real render: wayfind confirm card, OpenTable handoff card never shows times or says booked, none state, profile reuse, name question collected outside the chat, similar picks, history, profile editor consent/save/delete, Santa reserve chips, no dashes, 44px targets).
+node scripts/test-reserve-guest.mjs
 node scripts/test-staged-rails.mjs
 # 2026-11-12: homepage JS diet - the live sports poster tile loads lib/posterEvents.js (event pipeline, ~13.9KB gz) lazily; lock the import-graph boundary.
 node scripts/check-home-diet.mjs

@@ -43,6 +43,8 @@ import { funnelProps } from "../../../lib/funnel";
 import { useCommerceImpression } from "../useCommerceImpression";
 import { nearbyTourListAllowed, placePartnerPick } from "../../../lib/placePartnerPicks";
 import { usePinQuarantine } from "../../../lib/pinQuarantine";
+import { useReservePartner } from "../../../lib/reserveClient.js";
+import { openReserveSheet } from "../../../lib/reserveOpen.js";
 import { pairsWellWith } from "../../../lib/pairsWellWith";
 import { chooseDetailNextStep, DETAIL_NEXT_STEP_OPEN, DETAIL_NEXT_STEP_SHOWN } from "../../../lib/detailNextStep.js";
 import { detailNearbyPool, detailDistanceMi, DETAIL_NEARBY_RADIUS_MI } from "../../../lib/detailNearby.js";
@@ -313,6 +315,15 @@ function PrimaryActionButton({ primaryCta, detail, kind, viaTours, locName, logE
       >
         <span>{primaryCta.label}</span><span aria-hidden="true">↗</span>
       </a>
+    );
+  }
+
+  // Wayfind table request: opens the lazy sheet, never navigates ("#reserve" is a marker, not a link).
+  if (primaryCta.type === DETAIL_CTA_TYPES.reserve) {
+    return (
+      <button ref={ctaRef} type="button" data-reserve-cta="1" aria-label={`Reserve a table at ${detail.name}`} onClick={() => { onClick(); openReserveSheet(detail, { surface: "detail" }); }} style={style}>
+        <span>{primaryCta.label}</span>
+      </button>
     );
   }
 
@@ -751,6 +762,8 @@ export default function DetailSheet({ ctx }) {
   // it is unconditionally safe. Declared with the other top-level hooks,
   // above every early return. See lib/pinQuarantine.js.
   const pinQ = usePinQuarantine();
+  // "Reserve a table" parity with the place card: the same partner list decides both.
+  const reservePartner = useReservePartner(detail && detail.id);
   const primaryCta = resolveDetailCta({
     detail: hydratedDetail,
     kind: placeKind(detail),
@@ -762,6 +775,7 @@ export default function DetailSheet({ ctx }) {
     websiteHref: verifiedOfficialUrl,
     editorial: effectiveEditorial,
     curatedNotes: curatedNotesList,
+    reservePartner,
   });
   const gamePlan = detail ? buildGamePlan({
     detail: hydratedDetail,
