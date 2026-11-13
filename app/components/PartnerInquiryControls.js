@@ -175,12 +175,69 @@ export function PartnerInquiryLink({
   );
 }
 
+const CATEGORY_OPTIONS = [
+  { value: "", label: "Select category (optional)" },
+  { value: "Ticketed Attraction / Museum / Garden", label: "Ticketed Attraction / Museum / Botanical Garden" },
+  { value: "Boat Charter / Kayak / Eco-Tour", label: "Boat Charter / Sunset Cruise / Kayak / Eco-Tour" },
+  { value: "Christmas / Holiday Attraction", label: "Holiday / Seasonal Light Event or Excursion" },
+  { value: "Experiential Restaurant / Date Night", label: "Restaurant / Cocktail Bar / Date-Night Venue" },
+  { value: "Boutique Spa / Wellness Studio", label: "Boutique Spa / Wellness / Fitness Studio" },
+  { value: "Boutique Hotel / Resort", label: "Independent / Boutique Hotel or Inn" },
+  { value: "Other Local Experience", label: "Other Local Florida Experience" },
+];
+
+/**
+ * Server-witnessed outbound link for /partners/[slug].
+ * Preserves canonical UTM href on SSR static markup (satisfying SEO & static
+ * link guards) and upgrades on hydration to /api/partner/outbound so real
+ * visitor clicks are server-witnessed and protected by live kill-switches.
+ */
+export function PartnerOutboundLink({
+  canonicalHref,
+  trackHref,
+  sponsorId,
+  medium = "partner_page",
+  style,
+  className,
+  ariaLabel,
+  children,
+}) {
+  const [hydrated, setHydrated] = useState(false);
+  useEffect(() => {
+    setHydrated(true);
+  }, []);
+
+  const onClick = () => {
+    try {
+      track("partner_outbound_clicked", {
+        surface: medium,
+        sponsor_id: sponsorId || "unknown",
+      });
+    } catch (err) {}
+  };
+
+  return (
+    <a
+      href={hydrated && trackHref ? trackHref : canonicalHref}
+      target="_blank"
+      rel="sponsored nofollow noopener"
+      data-wf-partner-outbound={sponsorId || "unknown"}
+      aria-label={ariaLabel}
+      className={className}
+      style={style}
+      onClick={onClick}
+    >
+      {children}
+    </a>
+  );
+}
+
 /**
  * Accessible in-page business inquiry form & direct email fallback for visitors
  * without a configured mail app (or owners on mobile who prefer submitting in 20s
- * right on the page). Uses the existing team inbox route (POST /api/feedback ->
- * wf_feedback + team email notification) and records categorical funnel events
- * (opened -> initiated -> completed) with zero PII in analytics.
+ * right on the page). Submits to the dedicated commercial lead endpoint
+ * (POST /api/partner/inquire) with qualification, synthetic QA isolation, and
+ * zero PII leaked into client analytics.
  */
 export function PartnerEmailFallback({
   email = "hello@gowayfind.com",
@@ -192,11 +249,14 @@ export function PartnerEmailFallback({
   const [selectedPkg, setSelectedPkg] = useState(defaultPackageId);
   const [businessName, setBusinessName] = useState("");
   const [cityMarket, setCityMarket] = useState("");
+  const [category, setCategory] = useState("");
   const [bookingUrl, setBookingUrl] = useState("");
   const [contactInfo, setContactInfo] = useState("");
   const [notes, setNotes] = useState("");
+  const [honeypot, setHoneypot] = useState("");
   const [status, setStatus] = useState("idle"); // idle | sending | done | error
   const [errorMsg, setErrorMsg] = useState("");
+  const [leadReceipt, setLeadReceipt] = useState(null);
   const initiatedRef = useRef(false);
   const inflightRef = useRef(null);
 
@@ -246,6 +306,14 @@ export function PartnerEmailFallback({
 
   const pkgOption = PACKAGE_OPTIONS.find((o) => o.id === selectedPkg) || PACKAGE_OPTIONS[0];
 
+  const normalizeBookingUrl = (raw) => {
+    const trimmed = String(raw || "").trim();
+    if (!trimmed) return "";
+    if (/^https?:\/\//i.test(trimmed)) return trimmed.replace(/^http:\/\//i, "https://");
+    if (trimmed.includes(".") && !trimmed.includes(" ")) return "https://" + trimmed;
+    return trimmed;
+  };
+
   const buildBackupMailto = () => {
     const subj = `Sponsored Partner Inquiry — ${pkgOption.shortLabel}`;
     const body = [
@@ -254,6 +322,7 @@ export function PartnerEmailFallback({
       `Package: ${pkgOption.shortLabel}`,
       `Business name: ${businessName.trim() || "(not entered)"}`,
       `City / Florida market: ${cityMarket.trim() || "(not entered)"}`,
+      category ? `Category: ${category}` : null,
       `Website or booking link: ${bookingUrl.trim() || "(not entered)"}`,
       `Reply email or phone: ${contactInfo.trim() || "(not entered)"}`,
       notes.trim() ? `Details / preferred start: ${notes.trim()}` : null,
@@ -270,6 +339,15 @@ export function PartnerEmailFallback({
     const reply = contactInfo.trim();
     if (!biz || !city || !reply || status === "sending" || inflightRef.current) return;
 
+    const looksLikeEmail = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(reply);
+    const phoneDigits = reply.replace(/\D+/g, "");
+    if (!looksLikeEmail && (phoneDigits.length < 10 || phoneDigits.length > 15)) {
+      setErrorMsg("Please enter a valid business email address or 10-digit phone number so we can reply.");
+      setStatus("error");
+      return;
+    }
+
+    const normalizedUrl = normalizeBookingUrl(bookingUrl);
     noteInitiated(selectedPkg);
 
     const controller = new AbortController();
@@ -278,43 +356,49 @@ export function PartnerEmailFallback({
     setStatus("sending");
     setErrorMsg("");
 
-    const formattedMessage = [
-      `[PARTNER INQUIRY · ${pkgOption.shortLabel}]`,
-      `Business: ${biz}`,
-      `City / Market: ${city}`,
-      `Reply contact: ${reply}`,
-      bookingUrl.trim() ? `Website / Booking URL: ${bookingUrl.trim()}` : null,
-      notes.trim() ? `Notes: ${notes.trim()}` : null,
-    ].filter(Boolean).join("\n").slice(0, 1950);
+    const isUrlTest =
+      typeof window !== "undefined" &&
+      new URLSearchParams(window.location.search).get("wf_test") === "1";
 
     try {
-      const r = await fetch("/api/feedback", {
+      const r = await fetch("/api/partner/inquire", {
         method: "POST",
         signal: controller.signal,
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
-          message: formattedMessage,
-          place: `${biz} (${city})`.slice(0, 200),
-          loc: city.slice(0, 120),
-          path: "/partners",
+          businessName: biz,
+          cityMarket: city,
+          contact: reply,
+          packageId: selectedPkg,
+          category: category || undefined,
+          bookingUrl: normalizedUrl || undefined,
+          notes: notes.trim() || undefined,
+          companyWebsiteFax: honeypot || undefined,
+          isTest: isUrlTest || undefined,
         }),
       });
       const j = await r.json().catch(() => ({}));
-      if (r.ok && j.ok === true && j.stored === true) {
+      if (r.ok && j.ok === true && (j.stored === true || j.synthetic === true)) {
+        setLeadReceipt({
+          leadId: j.lead && j.lead.leadId ? j.lead.leadId : null,
+          synthetic: Boolean(j.synthetic),
+        });
         setStatus("done");
-        try {
-          track("partner_inquiry_completed", {
-            surface: "partners_index",
-            package_id: selectedPkg || "general",
-            placement,
-            channel: "inline_form",
-          });
-        } catch (err) {}
+        if (!j.synthetic) {
+          try {
+            track("partner_inquiry_completed", {
+              surface: "partners_index",
+              package_id: selectedPkg || "general",
+              placement,
+              channel: "inline_form",
+            });
+          } catch (err) {}
+        }
       } else {
         setErrorMsg(
           r.status === 429 || j.error === "rate_limited"
             ? "Too many submissions right now. Your details are still filled below — please try again in a few minutes or use the direct email link."
-            : "We couldn't save your inquiry automatically right now. Your details are preserved below — please retry or open a pre-filled email to hello@gowayfind.com."
+            : j.detail || "We couldn't save your inquiry automatically right now. Your details are preserved below — please retry or open a pre-filled email to hello@gowayfind.com."
         );
         setStatus("error");
       }
@@ -389,6 +473,7 @@ export function PartnerEmailFallback({
             <div
               role="status"
               data-wf-inquiry-done="true"
+              data-wf-inquiry-synthetic={leadReceipt && leadReceipt.synthetic ? "true" : "false"}
               style={{
                 padding: "16px 18px",
                 borderRadius: 14,
@@ -398,21 +483,29 @@ export function PartnerEmailFallback({
               }}
             >
               <div style={{ fontSize: 15, fontWeight: 800, marginBottom: 4 }}>
-                Inquiry saved for the Wayfind team
+                {leadReceipt && leadReceipt.synthetic
+                  ? "Synthetic QA check verified (excluded from sales metrics)"
+                  : "Inquiry received by the Wayfind team"}
               </div>
               <p style={{ fontSize: 13.5, color: "#CCFBF1", margin: "0 0 12px", lineHeight: 1.5 }}>
-                Thank you — we recorded your interest in <strong>{pkgOption.shortLabel}</strong> for{" "}
-                <strong>{businessName.trim()}</strong> and notified our team. We&rsquo;ll follow up using the contact details you provided to confirm fit, build your draft placement, and share it for your review before anything goes live.
+                Thank you — we logged your inquiry for <strong>{pkgOption.shortLabel}</strong> for{" "}
+                <strong>{businessName.trim()}</strong>
+                {leadReceipt && leadReceipt.leadId ? <> (ref <code>{leadReceipt.leadId}</code>)</> : null}.{" "}
+                Next step: our team verifies local fit within 1 business day, builds your draft{" "}
+                <strong>Sponsored &middot; Paid partner</strong> preview, and shares it for your approval before any invoice is sent.
               </p>
               <button
                 type="button"
                 onClick={() => {
                   setStatus("idle");
+                  setLeadReceipt(null);
                   setBusinessName("");
                   setCityMarket("");
+                  setCategory("");
                   setBookingUrl("");
                   setContactInfo("");
                   setNotes("");
+                  setHoneypot("");
                   initiatedRef.current = false;
                   setFormOpen(false);
                 }}
@@ -433,6 +526,18 @@ export function PartnerEmailFallback({
             </div>
           ) : (
             <form onSubmit={handleSubmit} aria-busy={status === "sending"} data-wf-partner-inline-form="true">
+              <div aria-hidden="true" style={{ position: "absolute", left: "-9999px", width: 1, height: 1, overflow: "hidden" }}>
+                <label htmlFor={`${id}-fax`}>Leave this field empty</label>
+                <input
+                  id={`${id}-fax`}
+                  type="text"
+                  tabIndex={-1}
+                  autoComplete="off"
+                  value={honeypot}
+                  onChange={(e) => setHoneypot(e.target.value)}
+                />
+              </div>
+
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 12, marginBottom: 12 }}>
                 <div style={{ gridColumn: "1 / -1" }}>
                   <label htmlFor={`${id}-pkg`} style={labelStyle}>Package of interest</label>
@@ -478,7 +583,7 @@ export function PartnerEmailFallback({
                     required
                     maxLength={100}
                     disabled={status === "sending"}
-                    placeholder="e.g. Sarasota, Tampa, Key West, Miami"
+                    placeholder="e.g. Sarasota, Tampa, Orlando, Miami"
                     value={cityMarket}
                     onChange={(e) => {
                       setCityMarket(e.target.value);
@@ -486,6 +591,24 @@ export function PartnerEmailFallback({
                     }}
                     style={inputStyle}
                   />
+                </div>
+
+                <div>
+                  <label htmlFor={`${id}-cat`} style={labelStyle}>Business category (optional)</label>
+                  <select
+                    id={`${id}-cat`}
+                    value={category}
+                    disabled={status === "sending"}
+                    onChange={(e) => {
+                      setCategory(e.target.value);
+                      noteInitiated();
+                    }}
+                    style={inputStyle}
+                  >
+                    {CATEGORY_OPTIONS.map((opt) => (
+                      <option key={opt.value} value={opt.value}>{opt.label}</option>
+                    ))}
+                  </select>
                 </div>
 
                 <div>
@@ -506,7 +629,7 @@ export function PartnerEmailFallback({
                   />
                 </div>
 
-                <div>
+                <div style={{ gridColumn: "1 / -1" }}>
                   <label htmlFor={`${id}-url`} style={labelStyle}>Website or direct booking link (optional)</label>
                   <input
                     id={`${id}-url`}
@@ -564,7 +687,7 @@ export function PartnerEmailFallback({
 
               <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
                 <span style={{ fontSize: 12, color: "#94A3B8", lineHeight: 1.45, flex: "1 1 220px" }}>
-                  Sent straight to the Wayfind team inbox. No payment collected on this form — you review your draft placement before launch.
+                  Sent straight to our partnerships inbox. No payment collected on this form — you review your draft placement before launch.
                 </span>
                 <button
                   type="submit"

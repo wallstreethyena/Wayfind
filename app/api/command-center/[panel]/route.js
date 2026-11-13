@@ -34,6 +34,7 @@ import { selfCheck, integrationsStatus, labCWV } from "../../../../lib/commandCe
 import { dailyTrendIntelligence } from "../../../../lib/dailyTrendReport.js";
 import dailyTrendReport from "../../../../data/trend-reports/latest.json";
 import { gatherOwnerBriefing } from "../../../../lib/commandCenter/briefing.js";
+import { partnersPanelData } from "../../../../lib/commandCenter/sources/partners.js";
 
 function parseRange(searchParams, now) {
   const key = String(searchParams.get("range") || "today");
@@ -324,6 +325,7 @@ export async function GET(req, ctx) {
       case "visitor-story": data = await ph.visitorStory(range.from, range.to); break;
       case "journey": data = await journey(range); break;
       case "places": data = await places(range); break;
+      case "partners": data = await partnersPanelData(range, now); break;
       case "retention": data = await retention(range, now); break;
       case "health": data = await health(range); break;
       case "ops": data = await ops(); break;

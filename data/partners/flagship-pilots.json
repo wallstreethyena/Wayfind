@@ -1,0 +1,195 @@
+{
+  "schemaVersion": "1.0.0",
+  "asOf": "2026-11-13",
+  "differentiationVsSocialBoost": {
+    "summary": "Instagram boosts interrupt passive scrolling feeds with cold impressions. Wayfind places a disclosed sponsored card inside active trip-planning and 'what are we doing tonight?' workflows at the exact moment a local or visitor is within geo-range and choosing where to spend money.",
+    "structuralAdvantages": [
+      {
+        "surface": "Geo-Gated Local Column & Tonight Rail",
+        "mechanism": "Hard mile-radius gate (default 15mi) around the partner's front door so impressions never leak outside driveable range.",
+        "evidenceInCode": "lib/sponsoredPlaces.js:sponsoredPlacesNear & sponsoredRailNear"
+      },
+      {
+        "surface": "Crawlable Permanent /partners/<slug> SEO Page",
+        "mechanism": "Indexable schema-backed business showcase on gowayfind.com that captures search intent and routes 0%-commission UTM clicks directly to the owner's checkout.",
+        "evidenceInCode": "app/partners/[slug]/page.js & lib/sponsorPage.js"
+      },
+      {
+        "surface": "Itinerary Builder (trip_create + stop_add) & Group Plans",
+        "mechanism": "624 trip_create and 557 stop_add events show Wayfind users assembling multi-stop days where one ticketed anchor locks in dinner and drinks nearby.",
+        "evidenceInCode": "public.events action IN ('trip_create','stop_add')"
+      },
+      {
+        "surface": "Ask Someone / Game Plan Social Decision Loop",
+        "mechanism": "4,806 share_open events show couples and friend groups sharing Wayfind options to agree on plans together rather than scrolling solo.",
+        "evidenceInCode": "app/components/sheets/Detail.js:openDetailShare"
+      },
+      {
+        "surface": "Seasonal & Holiday High-Intent Rails",
+        "mechanism": "156 Christmas commerce clicks and live mobile user prompts ('Where can i go right now for something chritmas themed') prove active seasonal purchase intent.",
+        "evidenceInCode": "public.events surface LIKE 'christmas%' & wf_feedback id=11,12"
+      }
+    ]
+  },
+  "pilots": [
+    {
+      "pilotId": "pilot-1-holiday-attraction",
+      "archetype": "Holiday Ticketed Attraction",
+      "prospectId": "marie-selby-botanical-gardens",
+      "targetBusiness": "Marie Selby Botanical Gardens (Lights in Bloom)",
+      "city": "Sarasota, FL",
+      "region": "Sarasota / Bradenton",
+      "placeId": "ChIJPTvxtmpAw4gReToYD5mTNwE",
+      "recommendedPackage": "monthly",
+      "priceUsd": 199,
+      "durationDays": 30,
+      "effectiveDailyRateUsd": 6.63,
+      "whyTheyCareNow": "Lights in Bloom runs select nights Dec 5, 2026 – Jan 2, 2027 ($30 GA / $40 Early Entry, online advance purchase required, zero walk-up gate sales). Peak Saturdays fill organically while Sun–Thu timed-entry windows are perishable capacity. Wayfind already logged 88 detail opens, 69 null-CTA dead-ends, 5 live guide citations, and 7 free outbound organizer ticket clicks.",
+      "exactSurface": "Geo-gated Sarasota/Bradenton home-column Sponsored Place Card (15mi radius) + /partners/marie-selby-lights-in-bloom showcase page",
+      "exactCta": "Reserve Lights in Bloom tickets -> https://selby.ticketapp.org/?utm_source=wayfind&utm_medium=sponsored_card&utm_campaign=marie-selby-lights-in-bloom",
+      "measurementPlan": "Server-witnessed /api/partner/outbound non-bot clicks split by sponsored_card vs partner_page + TicketApp UTM session/order reconciliation on Sun–Thu dates",
+      "pilotSuccessDefinition": "At least 7 incremental non-member $30 GA tickets (~$210 gross at 0% Wayfind commission) or >=40 verified local outbound clicks to selby.ticketapp.org within 30 days",
+      "upgradeRenewalPath": "Upgrade on Jan 3, 2027 to the $299 Quarterly Growth flight (90 days, ~$3.32/day) pivoting creative to Winter Orchid Show & Historic Spanish Point daytime admissions."
+    },
+    {
+      "pilotId": "pilot-2-water-eco-charter",
+      "archetype": "Water / Charter / Eco-Tour",
+      "prospectId": "clear-kayaking-tours-crystal-river",
+      "targetBusiness": "Clear Kayaking Tours Crystal River",
+      "city": "Crystal River, FL",
+      "region": "Tampa Bay",
+      "placeId": "ChIJQSlpkrpB6IgRX-DTkxQ5Njg",
+      "recommendedPackage": "quarterly",
+      "priceUsd": 299,
+      "durationDays": 90,
+      "effectiveDailyRateUsd": 3.32,
+      "whyTheyCareNow": "Peak manatee season runs Nov 15 – Mar 31 ($59.99–$69+/person). Wayfind's Crystal River manatee content already generated 148 commerce clicks, yet Clear Kayaking Tours (5.0 stars, 2,573 reviews, Wayfind Score 9.9) receives $0 direct placement and keeps 100% of basket on Peek Pro when booked direct.",
+      "exactSurface": "Geo-gated Springs Coast / Tampa Bay northern corridor Sponsored Place Card (25mi radius) + /partners/clear-kayaking-crystal-river SEO page",
+      "exactCta": "Book 100% clear kayak tour -> https://clearkayakingtours.com/?utm_source=wayfind&utm_medium=sponsored_card&utm_campaign=clear-kayaking-crystal-river",
+      "measurementPlan": "Server-witnessed /api/partner/outbound clicks + Peek Pro UTM source=wayfind referral tracking + optional promo code WAYFIND report",
+      "pilotSuccessDefinition": "3 two-person tour bookings (~$360–$414 gross, $0 Wayfind commission) across 90 days covers the $299 pilot outright; target >=75 verified Peek Pro clicks",
+      "upgradeRenewalPath": "Renew for Spring/Summer Three Sisters Springs emerald-water season (Mar–Aug) at $299/quarter."
+    },
+    {
+      "pilotId": "pilot-3-experiential-dining",
+      "archetype": "Date-Night / Experiential Dining",
+      "prospectId": "agave-bandido-lakewood-ranch",
+      "targetBusiness": "Agave Bandido & Maya SpeakTiki (Waterside Place)",
+      "city": "Lakewood Ranch / Sarasota, FL",
+      "region": "Sarasota / Bradenton",
+      "placeId": "ChIJ7QsLgxQ5w4gRSLtMON-sOaI",
+      "recommendedPackage": "quarterly",
+      "priceUsd": 299,
+      "durationDays": 90,
+      "effectiveDailyRateUsd": 3.32,
+      "whyTheyCareNow": "Wayfind users already opened Agave Bandido 12 times (100% primary_cta_null), clicked add_to_plan 4 times, saved it 3 times, and added it to 3 itineraries. Because they restrict standard 5–9 PM dinner reservations to walk-ins/call-ahead, their real lever is Taco Tuesday, pre-5 PM/late-night dining, and upstairs Maya SpeakTiki speakeasy discovery.",
+      "exactSurface": "Geo-gated Lakewood Ranch / Sarasota (15mi radius) Sponsored Place Card + /partners/agave-bandido-waterside showcase highlighting Maya SpeakTiki & Taco Tuesday",
+      "exactCta": "Reserve table or speakeasy -> https://www.agavebandido.com/reservations?utm_source=wayfind&utm_medium=sponsored_card&utm_campaign=agave-bandido-waterside",
+      "measurementPlan": "Server-witnessed /api/partner/outbound clicks + phone call taps + directions clicks split by day-of-week (Tue–Thu vs Fri–Sat)",
+      "pilotSuccessDefinition": "4 incremental date-night couples (~$400+ F&B check volume at high cocktail margin) and >=90 high-intent local taps over 90 days",
+      "upgradeRenewalPath": "Multi-unit regional expansion to sister Agave Bandido Florida locations after 90-day Sarasota proof."
+    },
+    {
+      "pilotId": "pilot-4-boutique-wellness",
+      "archetype": "Boutique Wellness / Studio",
+      "prospectId": "the-salt-room-orlando",
+      "targetBusiness": "The Salt Room Orlando Day Spa",
+      "city": "Orlando (Mills 50 / Ivanhoe), FL",
+      "region": "Orlando / Central Florida",
+      "placeId": "ChIJ5SW7Y5Z654gRay03ShatKBY",
+      "recommendedPackage": "monthly",
+      "priceUsd": 199,
+      "durationDays": 30,
+      "effectiveDailyRateUsd": 6.63,
+      "whyTheyCareNow": "Boutique spas (4.8 stars, 751 reviews, Wayfind Score 9.4) face empty Tue–Thu daytime rooms and rely heavily on Nov–Dec holiday gift-card and couples salt-cave massage packages ($180–$350+) without wanting Groupon-style brand discounting.",
+      "exactSurface": "Geo-gated Central Orlando (15mi radius) Sponsored Place Card + permanent /partners/salt-room-orlando page",
+      "exactCta": "Book salt cave or spa package -> https://saltroomorlando.com/?utm_source=wayfind&utm_medium=sponsored_card&utm_campaign=salt-room-orlando",
+      "measurementPlan": "Server-witnessed /api/partner/outbound booking-calendar clicks + holiday gift-card landing page UTM attribution",
+      "pilotSuccessDefinition": "1 couples salt-cave massage package ($220–$320) covers the entire $199 30-day pilot at 0% Wayfind commission",
+      "upgradeRenewalPath": "Convert to $299 Quarterly Growth flight for Jan 'New Year Reset' & Feb Valentine's couples spa demand."
+    },
+    {
+      "pilotId": "pilot-5-cultural-museum",
+      "archetype": "Independent Cultural / Museum Venue",
+      "prospectId": "the-ringling-sarasota",
+      "targetBusiness": "The John and Mable Ringling Museum of Art & Ca' d'Zan",
+      "city": "Sarasota, FL",
+      "region": "Sarasota / Bradenton",
+      "placeId": "ChIJ6y2dx9g_w4gRWoZIRhLk-JI",
+      "recommendedPackage": "quarterly",
+      "priceUsd": 299,
+      "durationDays": 90,
+      "effectiveDailyRateUsd": 3.32,
+      "whyTheyCareNow": "126 combined Wayfind detail opens (89 unique devices), 7 directions taps, 5 saves, 3 itinerary stop_adds, 4 direct 'the ringling sarasota' searches, and 3 live guides — with zero OTA ticketing by museum policy. Converting Free-Monday grounds browsers into $25–$35 Tessitura combo tickets + Ca' d'Zan tours on Tue–Sun is pure earned-admission lift.",
+      "exactSurface": "Geo-gated Sarasota/Bradenton (20mi radius) Sponsored Place Card + /partners/the-ringling-sarasota visitor planning page",
+      "exactCta": "Plan your visit & get tickets -> https://my.ringling.org/?utm_source=wayfind&utm_medium=sponsored_card&utm_campaign=the-ringling-sarasota",
+      "measurementPlan": "Server-witnessed /api/partner/outbound clicks to my.ringling.org (Tessitura) + Tue–Sun vs Monday click distribution",
+      "pilotSuccessDefinition": "10–12 adult combo admissions ($250–$420 direct Tessitura revenue, 0% Wayfind fee) and >=120 verified ticket-portal handoffs across peak Jan–Mar snowbird season",
+      "upgradeRenewalPath": "Annual seasonal renewal across Winter Snowbird + Summer Rainy-Day Museum flights."
+    }
+  ],
+  "hardTestPackage": {
+    "targetBusiness": "Marie Selby Botanical Gardens (Downtown Sarasota Campus — Lights in Bloom)",
+    "prospectId": "marie-selby-botanical-gardens",
+    "placeId": "ChIJPTvxtmpAw4gReToYD5mTNwE",
+    "cityMarket": "Sarasota, FL (Sarasota / Bradenton)",
+    "verifiedOrganicStanding": {
+      "googleRating": 4.7,
+      "googleReviews": 6457,
+      "derivedWayfindScore": 94,
+      "displayWayfindScore": "9.4",
+      "scoreFirewallRule": "Wayfind Score 9.4 is computed strictly from wayfindScore(4.7, 6457) in lib/wayfindScore.js and remains 9.4 whether Selby sponsors or declines."
+    },
+    "liveWayfindEvidence": {
+      "detailOpens": 88,
+      "uniqueDevices": 56,
+      "primaryCtaNullDeadEnds": 69,
+      "freeOrganizerTicketClicks": 7,
+      "nonMonetizedDirectionsClicks": 8,
+      "saves": 2,
+      "shares": 1,
+      "liveGuidesFeaturingVenue": [
+        "things-to-do-sarasota",
+        "things-to-do-in-sarasota-florida",
+        "florida-holiday-nights-out-2026"
+      ],
+      "liveConsumerIntentQuote": "Two mobile visitors on /guides/florida-holiday-nights-out-2026 submitted real-time prompts asking 'Where can i go right now for something chritmas themed'."
+    },
+    "verifiedPublicChannels": {
+      "officialWebsite": "https://selby.org/",
+      "directTicketingUrl": "https://selby.ticketapp.org/",
+      "eventInfoUrl": "https://selby.org/dsc/dsc-special-events/lights-in-bloom/",
+      "ticketingPlatform": "TicketApp / Blackbaud",
+      "publicEmail": "info@selby.org",
+      "publicPhone": "(941) 366-5731",
+      "officialInstagram": "@selbygardens",
+      "verifiedEventFact": "Lights in Bloom runs select nights Dec 5, 2026 – Jan 2, 2027; $30 GA non-member / $25 member / $15 child (5–17) / $40 Early Entry (5:30 PM); advance online tickets required with no walk-up gate sales."
+    },
+    "recommendedPilot": {
+      "packageId": "monthly",
+      "packageName": "Monthly Featured",
+      "priceUsd": 199,
+      "durationDays": 30,
+      "flightWindowProposed": "2026-11-28 to 2026-12-27",
+      "decisionReviewDate": "2026-12-28",
+      "upgradeOption": "Quarterly Growth ($299 / 90 days = ~$3.32/day) covering Lights in Bloom + Jan–Feb Winter Orchid Show",
+      "commissionPct": 0,
+      "unitEconomics": "7 non-member adult GA tickets ($30 x 7 = $210) on Selby's own TicketApp checkout pays back the entire $199 30-day pilot with 0% Wayfind commission."
+    },
+    "cardPreviewSpec": {
+      "label": "Sponsored · Paid partner",
+      "venueLine": "Marie Selby Botanical Gardens · Downtown Sarasota",
+      "headline": "Two million lights along Sarasota Bay — advance timed entry required.",
+      "body": "Walk illuminated tropical conservatory paths during Lights in Bloom (select nights Dec 5 – Jan 2). Book weeknight or 5:30 PM early-entry tickets directly with Selby Gardens.",
+      "claim": "Advance online tickets only · 0% Wayfind markup",
+      "cta": "Get Lights in Bloom tickets",
+      "destinationWithUtm": "https://selby.ticketapp.org/?utm_source=wayfind&utm_medium=sponsored_card&utm_campaign=selby-lights-in-bloom-pilot",
+      "geoGate": "15-mile radius around 1534 Mound St, Sarasota, FL (27.3274, -82.5401)"
+    },
+    "outreachEmail": {
+      "to": "info@selby.org",
+      "subject": "69 Sarasota visitors opened Selby Gardens on Wayfind — Lights in Bloom weeknight tickets",
+      "body": "Hi Selby Gardens team,\n\nWayfind (gowayfind.com) already features Marie Selby Botanical Gardens across three of our live Florida guides, including our 2026 Holiday Nights Out guide.\n\nIn our live Sarasota data, 56 unique visitors have opened Selby Gardens 88 times — and 69 of those opens hit a detail view with no direct ticket button, plus 7 visitors already tapped straight through to your Lights in Bloom event link.\n\nBecause Lights in Bloom (Dec 5 – Jan 2) requires advance online tickets on selby.ticketapp.org with no walk-up gate admission, we'd love to run a 30-day Featured Sponsored Placement ($199 flat, 0% ticket commission) focused specifically on filling Sunday–Thursday timed-entry nights and 5:30 PM Early Entry.\n\nWhat you get:\n- A clearly labeled 'Sponsored · Paid partner' card shown to Wayfind users within 15 miles of Downtown Sarasota\n- A crawlable /partners/selby-lights-in-bloom showcase page\n- Direct UTM-tagged handoffs straight to selby.ticketapp.org (we take $0 per ticket)\n- A transparent 30-day report separating verified human outbound clicks from any TicketApp UTM orders you see on your end\n\nNote: Sponsorship never changes your organic Wayfind Score (9.4) or editorial guide picks.\n\nIf useful, I can send over the exact Sarasota card preview for your team to review before Thanksgiving.\n\nBest,\nPartnerships — Wayfind Team\nhello@gowayfind.com | https://www.gowayfind.com/partners"
+    }
+  }
+}
