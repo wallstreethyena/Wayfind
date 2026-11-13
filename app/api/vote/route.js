@@ -6,6 +6,8 @@
 // Resets on cold start (acceptable for MVP). All votes are logged to console
 // (visible in Vercel → your project → Functions → Logs) and forwarded to
 // SIGNUP_WEBHOOK_URL if configured, so you have permanent records.
+import { evaluateProductionWrite, isSyntheticRequest } from "../../../lib/productionWriteFirewall.js";
+
 const store = new Map();
 
 export async function GET(req) {
@@ -22,6 +24,9 @@ export async function GET(req) {
 
 export async function POST(req) {
   try {
+    if (isSyntheticRequest(req)) {
+      return Response.json({ blocked: true, error: "synthetic_write_blocked" }, { status: 403 });
+    }
     const body = await req.json();
     const { placeId, vote, placeName, distMi } = body || {};
     if (!placeId || !["yes", "no"].includes(vote)) {
@@ -35,7 +40,7 @@ export async function POST(req) {
     console.log("[wayfind vote]", JSON.stringify(entry));
 
     const webhook = process.env.SIGNUP_WEBHOOK_URL;
-    if (webhook) {
+    if (webhook && evaluateProductionWrite({ surface: "vote_webhook", table: "signup_webhook", method: "POST", req }).allowed) {
       try {
         await fetch(webhook, {
           method: "POST",

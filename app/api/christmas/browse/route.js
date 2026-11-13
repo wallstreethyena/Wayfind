@@ -43,9 +43,13 @@ export async function GET(request) {
     // the same card shape as the list.
     if (params.get("group") === "weekend") {
       const weekend = christmasWeekendGroups(listings, today, { lat: query.lat, lng: query.lng });
+      const groups = await Promise.all(weekend.groups.map(async (g) => {
+        const enriched = await withBrowseTicketPhotos(attachBrowseTickets({ cards: g.cards }, listings, today, dealsById), listings, today, dealsById);
+        return { ...g, cards: enriched.cards };
+      }));
       return Response.json({
         today, window: weekend.window, located: weekend.located,
-        groups: weekend.groups.map((g) => ({ ...g, cards: attachBrowseTickets({ cards: g.cards }, listings, today, dealsById).cards })),
+        groups,
       }, { headers: { "cache-control": "public, s-maxage=600, stale-while-revalidate=86400" } });
     }
     const withTickets = await withBrowseTicketPhotos(attachBrowseTickets(page, listings, today, dealsById), listings, today, dealsById);

@@ -5,6 +5,7 @@
 // exactly as the registry builds them (never built here), honest prices, a
 // dash free page, no empty photo slot, and an order that never reads the
 // partner or the commission.
+import { mergeChristmasResearch } from "../lib/christmasResearch.js";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { createHash } from "node:crypto";
@@ -33,7 +34,7 @@ import {
   ticketAction, ticketDatesText, ticketPrice, withChristmasTicketPhotos, christmasVaultPhoto, christmasGooglePhoto,
 } from "../lib/christmasTickets.js";
 import { existsSync } from "node:fs";
-import { CHRISTMAS_EVENT_PLACE, CHRISTMAS_MAX_PHOTOS, LEGOLAND_ARCH_FILE, christmasCardRail, christmasPlaceFor, christmasStaticPhotos, christmasTaggedPhotos, readChristmasEventPhotos } from "../lib/christmasPlacePhotos.js";
+import { CHRISTMAS_EVENT_PLACE, CHRISTMAS_MAX_PHOTOS, CHRISTMAS_STATIC_GALLERY, LEGOLAND_ARCH_FILE, christmasCardRail, christmasPlaceFor, christmasStaticPhotos, christmasTaggedPhotos, readChristmasEventPhotos } from "../lib/christmasPlacePhotos.js";
 
 const root = process.cwd();
 let checks = 0;
@@ -426,8 +427,22 @@ for (const today of ["2026-10-30", "2026-12-20", "2027-01-01"]) {
     if (!out.hasMore) break;
   }
   const fantasyShots = christmasStaticPhotos("holiday-fantasy-of-lights-2026", "Holiday Fantasy of Lights");
-  ok(fantasyCard && Array.isArray(fantasyCard.photos) && fantasyCard.photos.length === fantasyShots.length && fantasyCard.photos.length === 9 && fantasyCard.photos[0].src === fantasyShots[0].src, "Holiday Fantasy's guide card carries its 9 photo rail in the page data");
+  ok(fantasyCard && Array.isArray(fantasyCard.photos) && fantasyCard.photos.length === fantasyShots.length && fantasyCard.photos.length === 8 && fantasyCard.photos[0].src === fantasyShots[0].src, "Holiday Fantasy's guide card carries its 8 photo rail in the page data (the Fort Lauderdale Journal photo was removed 2026-11-12: news site, no permission)");
   ok(fantasyShots.every((p) => existsSync(path.join(root, "public", p.src))), "every Holiday Fantasy rail file is on disk");
+  // Rights audit 2026-11-12: news/media hosted and third-party photographer photos
+  // (no licence or permission on file) are gone from every Christmas gallery.
+  const RIGHTS_REMOVED = ["/place-photos/batch-2026-11b/holiday-fantasy-of-lights-2026/xmas_05e00b767ac813ca.jpg", "/place-photos/batch-2026-11b/pensacola-winterfest-elf-parade-and-trolley-tours-2026/xmas_59238e7952449343.jpg", "/place-photos/batch-2026-11b/pensacola-winterfest-elf-parade-and-trolley-tours-2026/xmas_98f20948dc451589.jpg", "/place-photos/batch-2026-11b/pensacola-winterfest-elf-parade-and-trolley-tours-2026/xmas_ac30f0ea925822e6.jpg", "/place-photos/batch-2026-11b/pensacola-winterfest-elf-parade-and-trolley-tours-2026/xmas_ea0b504e74622007.jpg", "/place-photos/batch-2026-11p/tallahassee-candlelight-christmas-classics-2026/ev_28512e58cfca766a.jpg", "/place-photos/batch-2026-11p/tallahassee-ugly-sweater-pub-crawl-2026/ev_f2de211ad8fabfd8.jpg", "/place-photos/batch-2026-11s/carrollwood-market-2026-12-12/ev_0eff104ec5603b7e.jpg", "/place-photos/batch-2026-11s/carrollwood-market-2026-12-12/ev_446ddecbf8de6d2e.jpg", "/place-photos/batch-2026-11s/carrollwood-market-2026-12-12/ev_fc2d0e13b16452eb.jpg", "/place-photos/batch-2026-11s/seminole-heights-sunday-market-2026-11-08/ev_446ddecbf8de6d2e.jpg", "/place-photos/batch-2026-11s/seminole-heights-sunday-market-2026-11-08/ev_505ad8cac27dd9b9.jpg", "/place-photos/batch-2026-11s/sunset-market-midtown-2026-12-03/ev_446ddecbf8de6d2e.jpg", "/place-photos/batch-2026-11z-b/celebration-of-lights-concourse-2026/ev_254be51bd19e9bbc.jpg", "/place-photos/batch-2026-11z-b/celebration-of-lights-concourse-2026/ev_6efc7cfab2e62437.jpg", "/place-photos/batch-2026-11z-b/celebration-of-lights-concourse-2026/ev_9d1eda241d49bbf4.jpg", "/place-photos/batch-2026-11z-b/celebration-of-lights-concourse-2026/ev_b9aa9777a6afbeb5.jpg", "/place-photos/batch-2026-11z-b/surfing-santas-cocoa-beach-2026/ev_6369cb2b139abc9c.jpg"];
+  const servedSrcs = new Set();
+  for (const id of new Set([...Object.keys(CHRISTMAS_STATIC_GALLERY), ...listings.map((c) => c.id)])) for (const p of christmasStaticPhotos(id)) servedSrcs.add(p.src);
+  ok(servedSrcs.size > 300, "the gallery sweep served photos (" + servedSrcs.size + ")");
+  ok(RIGHTS_REMOVED.length === 18 && RIGHTS_REMOVED.every((src) => !servedSrcs.has(src) && !existsSync(path.join(root, "public", src))), "the 18 rights-audit removals are not served and not on disk");
+  // Duplicate cleanup 2026-11-12: each wf_events twin claims its research row,
+  // so the experience shows once.
+  const twins = { "enchanted-forest-of-trees-clermont-2026": "clermont-enchanted-forest-2026", "fishermens-village-holiday-festival-of-lights-2026": "fishermens-village-festival-of-lights-2026", "holiday-light-display-dorothy-b-oven-park-2026": "tallahassee-oven-park-lights-2026" };
+  const twinOut = mergeChristmasResearch(Object.keys(twins).map((id) => ({ event_id: id, slug: id, event_name: id, venue: "v", city: "c", start_date: "2026-11-26", end_date: "2026-12-31", tags: ["christmas"], lat: 28, lng: -81 })));
+  ok(Object.entries(twins).every(([dbId, rid]) => twinOut.filter((x) => x.event_id === rid || x.slug === rid).length === 0 && twinOut.filter((x) => x.event_id === dbId && x.christmas_research_id === rid).length === 1), "the 3 duplicate pairs merge into one card each");
+  const wg = christmasBrowseListings([], "2026-11-12").find((c) => c.id === "wiregrass-symphony-in-lights-2026"); // the kickoff is Nov 14, before TODAY
+  ok(wg && wg.image === "/events/christmas/wiregrass-symphony-in-lights-2026.webp" && /Public domain/.test(wg.photoAttr || "") && /commons\.wikimedia\.org/.test(wg.photoAttrHref || ""), "Wiregrass Symphony in Lights shows its public domain holiday photo with credit");
 }
 
 // ── Schema ───────────────────────────────────────────────────────────────────
@@ -587,12 +602,43 @@ ok(html.includes("data-christmas-filter") && html.includes(">Best rated<") && ht
     const a = internalHtml.slice(internalHtml.indexOf('href="/florida-events/roberts-christmas-wonderland-2026"') - 200, internalHtml.indexOf('href="/florida-events/roberts-christmas-wonderland-2026"') + 200);
     ok(a.includes('class="xm-pick-buy"') && !/target="_blank"/.test(a) && !/data-commerce-owner/.test(a), "the internal button opens in place and is not counted as a partner click");
     ok(christmasFeaturePick(listings, "no-such-listing", "2026-11-13") === null, "an unknown listing never builds an empty card");
+    // Live 2026-11-13: the featured card rendered an /api/photo?place= URL the
+    // route answered "no photo" for, so the ad's visitors saw an empty tile.
+    {
+      const { christmasFeaturePickServable } = await import("../lib/christmasTickets.js");
+      const placeUrl = "/api/photo?place=ChIJdeadPhotoFixture000000";
+      const deadListings = listings.map((c) => (c.id === "roberts-christmas-wonderland-2026" ? { ...c, image: placeUrl, photoAttr: null, photoAttrHref: null } : c));
+      const no = { servable: { noMemo: true, resolve: async () => ({ type: "missing" }), findFree: async () => null }, readGoogle: async () => null, readVault: async () => [], noMemo: true };
+      const yes = { servable: { noMemo: true, resolve: async () => ({ type: "redirect", location: "/x.jpg" }), findFree: async () => null } };
+      const kept = await christmasFeaturePickServable(deadListings, "roberts-christmas-wonderland-2026", "2026-11-13", new Map(), yes);
+      ok(kept && kept.photos[0].src === placeUrl, "a place photo the route can serve stays on the featured card");
+      const dropped = await christmasFeaturePickServable(deadListings, "roberts-christmas-wonderland-2026", "2026-11-13", new Map(), no);
+      ok(dropped && dropped.feature === true && dropped.photos.length === 0 && dropped.placeholder && dropped.placeholder.label && dropped.cta && dropped.name,
+        "a place photo the route cannot serve never reaches the featured card; with no reviewed venue photo it keeps its designed tile");
+      const tileHtml = renderPage(partnerModel, partnerList, { topPicks: [dropped, ...picks] });
+      const ti = tileHtml.indexOf('data-feature-pick="roberts-christmas-wonderland-2026"');
+      const tileCard = tileHtml.slice(ti, tileHtml.indexOf("</li>", ti));
+      ok(ti > -1 && tileCard.includes('class="xm-pick-ph"') && !tileCard.includes("<img") && !tileCard.includes("xm-pick-credit") && !tileCard.includes("/api/photo"),
+        "the photo-less featured card paints its tile: no image request, no photo credit, no dead photo URL");
+      const noPhotoRegular = renderPage(partnerModel, partnerList, { topPicks: [...picks.slice(0, 2), { ...picks[2], photos: [] }] });
+      ok((noPhotoRegular.match(/data-rank="/g) || []).length === 2, "a regular pick with no photo is still never shown");
+      ok((await christmasFeaturePickServable(listings, "no-such-listing", "2026-11-13", new Map(), no)) === null, "an unknown listing never builds a card on the checked path either");
+      const pageSrc = readFileSync(new URL("../app/christmas-in-florida/page.js", import.meta.url), "utf8");
+      ok(/christmasFeaturePickServable\(listings, id, today\)/.test(pageSrc) && !/[^A-Za-z]christmasFeaturePick\(listings/.test(pageSrc), "the page builds the featured card through the photo check, never the unchecked builder");
+    }
     const featHtml = renderPage(partnerModel, partnerList, { topPicks: [...featurePicks, ...picks] });
     const fi = featHtml.indexOf('data-feature-pick="' + featureId + '"'), ri = featHtml.indexOf('data-rank="1"');
     ok(fi > -1 && fi < ri && /\.xm-pick\[data-feature-pick\]\{display:none\}/.test(featHtml)
       && featHtml.includes('html[data-wf-feature="' + featureId + '"] .xm-pick[data-feature-pick="' + featureId + '"]{display:flex}')
       && (featHtml.match(/data-rank="/g) || []).length === picks.length,
       "the featured card comes first, hidden by CSS unless that ad's visitor is on the page; the regular picks keep ranks 1 to 3");
+    {
+      const css = featHtml;
+      ok(!/html\[data-wf-feature\] \.xm-picks-label/.test(css) && css.includes('html[data-wf-feature="' + featureId + '"] .xm-picks-label .xm-picks-from{display:inline}'),
+        "the label says From the video only when that ad's featured card is actually on the page");
+      const noFeat = renderPage(partnerModel, partnerList, { topPicks: picks });
+      ok(!/xm-picks-from\{display:inline\}/.test(noFeat), "with no featured card rendered, no landing URL can switch the label to From the video");
+    }
     ok(featHtml.includes(">From the video<") && !renderPage(partnerModel, partnerList, { topPicks: featurePicks }).includes("data-top-picks"),
       "the featured card says it is from the video, and a row of only featured cards is never drawn");
     const bare = renderPage(partnerModel, partnerList, { topPicks: picks });

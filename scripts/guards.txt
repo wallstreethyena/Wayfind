@@ -1267,6 +1267,7 @@ node scripts/check-christmas-rails.mjs
 node scripts/check-christmas-research.mjs
 node scripts/check-christmas-browse-credit.mjs
 node scripts/check-christmas-card-photo-slot.mjs
+node scripts/check-christmas-photo-rights-field.mjs
 node scripts/check-christmas-venue-matches.mjs
 # Homepage Christmas cards read the venue row christmas_photo_gallery (exact event id/slug tags) before the Google venue photo.
 node scripts/test-christmas-card-gallery.mjs
@@ -2650,3 +2651,18 @@ node scripts/test-frontier-moment-decisions.mjs
 node scripts/test-ai-itinerary-planner.mjs
 # 2026-11-13: GitHub-hosted serial merge queue worker (scripts/merge-queue.mjs): ordering, update-branch pinning, conflict/CI/approval drops, error isolation, main-moved retests, merge retry cap, fingerprint approval surviving the queue's update, tree proof, refusal outside Actions/main. Fake GitHub, no network.
 node scripts/test-merge-queue.mjs
+# 2026-11-13: Wayfind Map Real-Time Spatial Decision Engine (7-way location truth, Near Me vs Explore Here, Hard Test Sarasota->Tampa Christmas tonight SSR, Florida water-barrier effort, hours closing feasibility, weather fit, score law, pairings/parking/backtracking, privacy, and cluster immunity).
+node scripts/test-map-spatial-decision-engine.mjs
+# 2026-11-12: First-Party Action Resolver & Detail CTA coverage gap guardrails (8 invariants + idempotency + production batch).
+node scripts/test-first-party-action-resolver.mjs
+# 2026-11-13: Owned Place Truth Architecture frontier guard (deterministic editorial hours parser, holiday closure protection, free splash-park truth, Zero-Paid-Lookup Mode, red-team CTA/URL gates, wfplacediscovery photo resilience, and diagnostic truth trace).
+node scripts/test-owned-place-truth-frontier.mjs
+# 2026-11-13: Wayfind Carbon Production Nervous System — hard test/production write firewall, release/data contamination firewalls, 8-state migration reconciler, owned hours & zero-503 quota exhaustion spine, 10-query semantic moment search red-team, strict Christmas temporal modes, and /api/health/nervous-system observability.
+node scripts/test-production-write-firewall.mjs
+node scripts/check-production-data-quality.mjs
+node scripts/check-release-contamination.mjs
+node scripts/test-migration-state-reconciler.mjs
+node scripts/test-quota-exhaustion-simulation.mjs
+node scripts/test-moment-search-redteam.mjs
+node scripts/test-christmas-temporal-modes.mjs
+node scripts/test-nervous-system-health.mjs

@@ -34,6 +34,7 @@ export { sanitizeClientClickId };
 import { credential } from "../../../../lib/envPlaceholder.js";
 import { providerSpendAllow } from "../../../../lib/providerSpend.js";
 import { cget, cset } from "../../../../lib/serverCache.js";
+import { classifySyntheticTraffic } from "../../../../lib/productionWriteFirewall.js";
 
 // v4.29: bracket-notation env reads inside call time. Next inlines dot-access
 // process.env.NEXT_PUBLIC_* at build; bracket access forces a true runtime
@@ -294,8 +295,11 @@ export async function GET(req) {
     click_id: clickId,
   };
 
-  // Our own verifier scripts (WayfindVerify UA, bare node fetch) still get the real redirect; only the class changes.
+  // Our own verifier scripts (WayfindVerify UA, bare node fetch) and synthetic
+  // monitors still get the real redirect; only the class changes so zero click rows write.
+  const synthTraffic = classifySyntheticTraffic(req);
   let trafficClass = isInternalVerifier(req.headers.get("user-agent")) ? "automation" : "human";
+  if (trafficClass === "human" && synthTraffic.synthetic) trafficClass = "synthetic";
   const emit = (event, extra) => {
     try {
       const props = commercePayload(event, { ...baseProps, ...landingFromCookieHeader(req.headers.get("cookie")), traffic_class: trafficClass, click_proof: clickProof(req, surface), ...(extra || {}) });
@@ -373,7 +377,7 @@ export async function GET(req) {
               cookieHeader: req.headers.get("cookie") || "",
               distinctId: cookieDistinctId || null,
               trafficClass,
-            });
+            }, { headers: req.headers });
             if (attributed && attributed.url) finalLocation = attributed.url;
           } catch {}
         }

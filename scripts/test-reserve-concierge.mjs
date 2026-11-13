@@ -158,6 +158,10 @@ const bookBody = (o) => ({ placeId: KITCHEN, partySize: 4, date: "2026-11-12", t
   ok(/can't book Plain Grill through Wayfind/.test(r.body.say) && !/booked|available/i.test(r.body.say), "D: honest sentence: " + r.body.say);
   const lone = await say(harness({ extra: noAi, inventory: [INVENTORY[1]] }), "Book Plain Grill tomorrow around 7 for four");
   ok(lone.body.card === null && /can't book Plain Grill/.test(lone.body.say), "D: no alternatives means no card and no invented ones");
+  // a typed name without its apostrophe still finds the restaurant ("Berns" -> "Bern's")
+  const berns = { place_id: "ChIJbernsSteakHouse00000", name: "Bern's Steak House", locality: "Tampa", status: "OPERATIONAL", cuisines: ["steakhouse"] };
+  const typed = await say(harness({ extra: noAi, inventory: [berns] }), "Book Berns Steak House tomorrow at 7 for 2");
+  ok(typed.body.state.placeId === berns.place_id && typed.body.state.restaurantName === "Bern's Steak House", "D: 'Berns' resolves to Bern's Steak House: " + JSON.stringify(typed.body.state));
   const full = await say(harness({ extra: noAi, slotsByPlace: { [KITCHEN]: ["21:30"] } }), "Book Wayfind Test Kitchen tomorrow around 7 for four");
   ok(/has no open tables near 7:00 PM for 4 tomorrow/.test(full.body.say) && full.body.card?.type !== "times", "D: a full restaurant says so and shows no times: " + full.body.say);
 
