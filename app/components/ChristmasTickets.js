@@ -147,7 +147,7 @@ const CSS = XM_CARD_CSS + `
    on the first screen. Wide cards so the next one peeks and invites a swipe. */
 [data-social-picks]{display:none}html[data-wf-social] [data-social-picks]{display:block}
 .xm-pick[data-feature-pick]{display:none}
-.xm-picks-label .xm-picks-from{display:none}html[data-wf-feature] .xm-picks-label .xm-picks-from{display:inline}html[data-wf-feature] .xm-picks-label .xm-picks-plain{display:none}
+.xm-picks-label .xm-picks-from{display:none}
 .xm-pick-from{position:absolute;left:8px;top:8px;z-index:1;margin:0;padding:3px 8px;border-radius:999px;background:#F5C451;color:#4A0610;font-size:11px;font-weight:800;line-height:1.3}
 .xm-picks{margin:12px 0 4px}
 .xm-picks-label{margin:0 0 8px;font-size:13px;font-weight:700;letter-spacing:.02em;color:#FFE9C8}
@@ -360,13 +360,15 @@ export function SocialTopPicks({ picks }) {
 // tapped that ad sees it, first, before the regular picks.
 const FEATURE_ID_RX = /^[a-z0-9-]{1,80}$/;
 export function TopPicks({ picks }) {
-  const rows = Array.isArray(picks) ? picks.filter((r) => r && r.cta && Array.isArray(r.photos) && r.photos[0] && (!r.feature || FEATURE_ID_RX.test(r.id))) : [];
+  // A featured row may carry no photo (its venue has none Wayfind may show):
+  // it keeps its designed tile. Every regular pick still needs a real photo.
+  const rows = Array.isArray(picks) ? picks.filter((r) => r && r.cta && Array.isArray(r.photos) && (r.feature ? FEATURE_ID_RX.test(r.id) && (r.photos[0] || r.placeholder) : r.photos[0])) : [];
   if (!rows.some((r) => !r.feature)) return null;
   const featured = rows.filter((r) => r.feature);
   let rank = 0;
   return (
     <div className="xm-picks" data-top-picks="" data-boo-clear="">
-      {featured.length ? <style dangerouslySetInnerHTML={styleHtml(featured.map((r) => `html[data-wf-feature="${r.id}"] .xm-pick[data-feature-pick="${r.id}"]{display:flex}`).join(""))} /> : null}
+      {featured.length ? <style dangerouslySetInnerHTML={styleHtml(featured.map((r) => `html[data-wf-feature="${r.id}"] .xm-pick[data-feature-pick="${r.id}"]{display:flex}html[data-wf-feature="${r.id}"] .xm-picks-label .xm-picks-from{display:inline}html[data-wf-feature="${r.id}"] .xm-picks-label .xm-picks-plain{display:none}`).join(""))} /> : null}
       <p className="xm-picks-label" id="xm-picks-label"><span className="xm-picks-plain">Top picks with tickets</span><span className="xm-picks-from">From the video, then top picks</span></p>
       <ul className="xm-picks-row" aria-labelledby="xm-picks-label">
         {rows.map((row) => {
@@ -378,7 +380,7 @@ export function TopPicks({ picks }) {
             <li key={row.id} className="xm-pick" data-pick-id={row.id} data-rank={row.feature ? undefined : ++rank} data-feature-pick={row.feature ? row.id : undefined}>
               <div className="xm-pick-photo">
                 {row.feature ? <p className="xm-pick-from">From the video</p> : null}
-                <GuidePhoto
+                {photo ? <GuidePhoto
                   src={photo.src}
                   alt={photo.alt}
                   width={photo.width}
@@ -387,8 +389,8 @@ export function TopPicks({ picks }) {
                   loading="lazy"
                   fallbackClassName="xm-pick-ph"
                   fallbackText={(row.placeholder && row.placeholder.label) || "Christmas event"}
-                />
-                {photo.credit ? <p className="xm-pick-credit">{photo.credit}</p> : null}
+                /> : <div className="xm-pick-ph" role="img" aria-label={row.name}><span aria-hidden="true">{(row.placeholder && row.placeholder.icon) || "✨"}</span> {(row.placeholder && row.placeholder.label) || "Christmas event"}</div>}
+                {photo && photo.credit ? <p className="xm-pick-credit">{photo.credit}</p> : null}
               </div>
               <div className="xm-pick-body">
                 <h3>{row.name}</h3>

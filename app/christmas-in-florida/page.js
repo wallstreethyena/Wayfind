@@ -6,7 +6,7 @@ import ChristmasTickets from "../components/ChristmasTickets";
 import FieldVitals from "../components/FieldVitals";
 import ShareButton from "../components/ShareButton";
 import { pageShareUrl } from "../../lib/pageShareUrl";
-import { christmasFeaturePick, christmasTicketsSchema, christmasTopPicks } from "../../lib/christmasTickets";
+import { christmasFeaturePickServable, christmasTicketsSchema, christmasTopPicks } from "../../lib/christmasTickets";
 import { christmasPageData } from "../../lib/christmasPageData";
 import { SOCIAL_AD_FEATURE_IDS, SOCIAL_AD_SCRIPT } from "../../lib/socialAdLanding.js";
 import CreatorVideoRail from "../components/CreatorVideoRail.js";
@@ -102,7 +102,7 @@ export default async function Page() {
   // The listing a Meta ad is about comes first, only for the visitor who
   // tapped that ad (lib/socialAdLanding.js SOCIAL_AD_FEATURES); the inline
   // script picks it before first paint.
-  const featured = SOCIAL_AD_FEATURE_IDS.map((id) => christmasFeaturePick(listings, id, today)).filter(Boolean);
+  const featured = (await Promise.all(SOCIAL_AD_FEATURE_IDS.map((id) => christmasFeaturePickServable(listings, id, today)))).filter(Boolean);
   const topPicks = [...featured, ...christmasTopPicks(tickets).filter((r) => !featured.some((f) => f.id === r.id))];
   return <>
     <script dangerouslySetInnerHTML={{ __html: SOCIAL_AD_SCRIPT }} />
