@@ -640,6 +640,151 @@ const makeProbe = ({ status = 200, finalUrl = null, html = "", error = null } = 
   const detailSheetSrc = readFileSync(new URL("../app/components/sheets/Detail.js", import.meta.url), "utf8");
   ok(/primaryCta\.type === DETAIL_CTA_TYPES\.reserve\s*&&\s*primaryCta\.href === "#reserve"/.test(detailSheetSrc),
     "10f. Detail.js only intercepts '#reserve' for in-app ReserveSheet so external https:// reservation URLs render outbound links");
+
+  // 10g. ATRIA Cafe resolves to verified Toast menu ("See menu"), never non-menu homepage
+  const atriaFpa = firstPartyActionsForPlace("ChIJA-QkamE7w4gRfdzcxEHyPls", "2026-11-13", stores);
+  const atriaCta = resolveDetailCta({
+    detail: { id: "ChIJA-QkamE7w4gRfdzcxEHyPls", name: "ATRIA Cafe", primaryType: "cafe", types: ["cafe", "restaurant"], lat: 27.39, lng: -82.43 },
+    kind: "cafe",
+    viaTours: {},
+    locName: "Lakewood Ranch, FL",
+    offers: {},
+    openState: true,
+    websiteHref: atriaFpa?.officialWebsite?.url || null,
+    firstPartyActions: atriaFpa,
+  });
+  ok(atriaCta.type === DETAIL_CTA_TYPES.menu && atriaCta.label === "See menu" && atriaCta.href === "https://order.toasttab.com/online/atria-cafe-lwr",
+    `10g. ATRIA Cafe resolves to See menu -> verified Toast menu (got ${atriaCta.type} / ${atriaCta.label} -> ${atriaCta.href})`);
+
+  // 10h. Website-only dining/cafe/market places without a verified menu_url use honest "Official site", never "See menu"
+  const projectCoffeeFpa = firstPartyActionsForPlace("ChIJy6vf9_dBw4gRGg1sXR5UTGU", "2026-11-13", stores);
+  const projectCoffeeCta = resolveDetailCta({
+    detail: { id: "ChIJy6vf9_dBw4gRGg1sXR5UTGU", name: "Project Coffee", primaryType: "coffee_shop", types: ["coffee_shop", "cafe"], lat: 27.33, lng: -82.54 },
+    kind: "cafe",
+    viaTours: {},
+    locName: "Sarasota, FL",
+    offers: {},
+    openState: true,
+    websiteHref: projectCoffeeFpa?.officialWebsite?.url || null,
+    firstPartyActions: projectCoffeeFpa,
+  });
+  ok(projectCoffeeCta.type === DETAIL_CTA_TYPES.website && projectCoffeeCta.label === "Official site" && projectCoffeeCta.href === "https://www.projectcoffee.us/",
+    `10h. officialWebsite-only cafe renders honest Official site, never See menu (got ${projectCoffeeCta.type} / ${projectCoffeeCta.label} -> ${projectCoffeeCta.href})`);
+
+  // 10i. Both reservation paths work: O'bricks + Juno & The Peacock -> external https:// booking URLs; Wayfind partner -> #reserve
+  const obricksFpa = firstPartyActionsForPlace("ChIJqQsqj80Xw4gRev0L3y4_-lM", "2026-11-13", stores);
+  const obricksCta = resolveDetailCta({
+    detail: { id: "ChIJqQsqj80Xw4gRev0L3y4_-lM", name: "O'bricks Irish Pub & Martini Bar", types: ["irish_pub", "bar", "restaurant"], lat: 27.495, lng: -82.574 },
+    kind: "restaurant",
+    viaTours: {},
+    locName: "Bradenton, FL",
+    offers: {},
+    openState: true,
+    reserveLane: "ask",
+    websiteHref: obricksFpa?.officialWebsite?.url || null,
+    firstPartyActions: obricksFpa,
+  });
+  ok(obricksCta.type === DETAIL_CTA_TYPES.reserve && obricksCta.label === "Reserve" && obricksCta.href === "https://resy.com/cities/bradenton-fl/venues/obricks",
+    `10i. O'bricks resolves to live Resy venue booking URL even when reserveLane='ask' (got ${obricksCta.href})`);
+
+  const junoFpa = firstPartyActionsForPlace("ChIJK6b43nXhwogRCV39bMyGJGo", "2026-11-13", stores);
+  const junoCta = resolveDetailCta({
+    detail: { id: "ChIJK6b43nXhwogRCV39bMyGJGo", name: "Juno & The Peacock", types: ["restaurant"], lat: 27.775, lng: -82.632 },
+    kind: "restaurant",
+    viaTours: {},
+    locName: "St. Petersburg, FL",
+    offers: {},
+    openState: true,
+    reserveLane: "ask",
+    websiteHref: junoFpa?.officialWebsite?.url || null,
+    firstPartyActions: junoFpa,
+  });
+  ok(junoCta.type === DETAIL_CTA_TYPES.reserve && junoCta.label === "Reserve" && junoCta.href === "https://www.junoandthepeacock.com/reservations/",
+    `10j. Juno & The Peacock resolves to external venue booking URL (got ${junoCta.href})`);
+
+  const uleleInAppCta = resolveDetailCta({
+    detail: { id: "ChIJ3Vyq7WTEwogRA-WDC7Mze2E", name: "Ulele", types: ["restaurant"], lat: 27.961, lng: -82.463 },
+    kind: "restaurant",
+    viaTours: {},
+    locName: "Tampa, FL",
+    offers: {},
+    openState: true,
+    reserveLane: "instant",
+  });
+  ok(uleleInAppCta.type === DETAIL_CTA_TYPES.reserve && uleleInAppCta.label === "Reserve a table" && uleleInAppCta.href === "#reserve",
+    `10k. Wayfind Reserve partner keeps in-app #reserve flow (got ${uleleInAppCta.label} -> ${uleleInAppCta.href})`);
+
+  // 10l. Venice Performing Arts Center resolves to See admission -> /events/ (never hall rental /booking/)
+  const vpacFpa = firstPartyActionsForPlace("ChIJ19i72bBbw4gRbAZaOOPhzKE", "2026-11-13", stores);
+  const vpacCta = resolveDetailCta({
+    detail: { id: "ChIJ19i72bBbw4gRbAZaOOPhzKE", name: "Venice Performing Arts Center", types: ["performing_arts_theater", "tourist_attraction"], lat: 27.09, lng: -82.44 },
+    kind: "attraction",
+    viaTours: {},
+    locName: "Venice, FL",
+    offers: {},
+    openState: true,
+    websiteHref: vpacFpa?.officialWebsite?.url || null,
+    firstPartyActions: vpacFpa,
+  });
+  ok(vpacCta.type === DETAIL_CTA_TYPES.admission && vpacCta.href === "https://veniceperformingartscenter.com/events/",
+    `10l. Venice Performing Arts Center resolves to /events/ admission page, never /booking/ hall rental (got ${vpacCta.type} -> ${vpacCta.href})`);
+}
+
+// ── 11. DESTINATION-TRUTH GUARDS (NO-RESERVATIONS, PRIVATE-EVENTS, SOFT-404, RENTAL, OUT-OF-STATE TOAST) ──
+{
+  const noResCand = await verifyActionCandidate({
+    place: { id: "ChIJOdY8qlHEwogRXPbXY1cq2xo", name: "Coyote Ugly Saloon", locality: "Tampa", types: ["bar", "night_club"] },
+    slotType: "reservation_url",
+    url: "https://www.coyoteuglysaloon.com/book/florida/",
+    source: "official_venue_subpage",
+    todayIso: "2026-11-13",
+    probeImpl: makeProbe({ status: 200, html: "<title>Book - Coyote Ugly Saloon</title><body><p>The Florida locations do not take reservations. Tampa, FL.</p></body>" }),
+    lookupImpl: fakePublicLookup,
+  });
+  ok(noResCand.ok === false && noResCand.reason === "venue-states-no-reservations", `11a. page stating 'do not take reservations' is rejected (got ${noResCand.reason})`);
+
+  const privEventCand = await verifyActionCandidate({
+    place: { id: "ChIJq2_lAFHEwogRRCeJJ77fHgg", name: "Bad Monkey Ybor", locality: "Tampa", types: ["bar", "restaurant"] },
+    slotType: "reservation_url",
+    url: "https://badmonkeyybor.com/event-reservation/",
+    source: "official_venue_subpage",
+    todayIso: "2026-11-13",
+    probeImpl: makeProbe({ status: 200, html: "<title>Host an Event - Bad Monkey Ybor</title><body>Tampa, FL private event inquiry</body>" }),
+    lookupImpl: fakePublicLookup,
+  });
+  ok(privEventCand.ok === false && privEventCand.reason === "private-event-not-table-reservation", `11b. private-event inquiry path is rejected as reservation_url (got ${privEventCand.reason})`);
+
+  const soft404Resy = await verifyActionCandidate({
+    place: { id: "ChIJqQsqj80Xw4gRev0L3y4_-lM", name: "O'bricks Irish Pub & Martini Bar", locality: "Bradenton", types: ["irish_pub", "restaurant"] },
+    slotType: "reservation_url",
+    url: "https://resy.com/cities/bradenton-fl/venues/obricks-irish-pub",
+    source: "official_venue_subpage",
+    todayIso: "2026-11-13",
+    probeImpl: makeProbe({ status: 200, html: "<title>Resy | Right This Way</title><body><h1>Sorry, but we can’t find that page.</h1></body>" }),
+    lookupImpl: fakePublicLookup,
+  });
+  ok(soft404Resy.ok === false && soft404Resy.reason === "page-dead:vendor-not-found", `11c. Resy soft-404 ('can't find that page') fails closed (got ${soft404Resy.reason})`);
+
+  const hallRental = await verifyActionCandidate({
+    place: { id: "ChIJ19i72bBbw4gRbAZaOOPhzKE", name: "Venice Performing Arts Center", locality: "Venice", types: ["performing_arts_theater"] },
+    slotType: "ticket_url",
+    url: "https://veniceperformingartscenter.com/booking/",
+    source: "official_venue_subpage",
+    todayIso: "2026-11-13",
+    probeImpl: makeProbe({ status: 200, html: "<title>Booking - Venice Performing Arts Center</title><body><h2>CONTACT FOR RENTAL INFORMATION</h2><p>Venice, FL</p></body>" }),
+    lookupImpl: fakePublicLookup,
+  });
+  ok(hallRental.ok === false && hallRental.reason === "facility-rental-not-tickets", `11d. facility rental inquiry page is rejected as ticket_url (got ${hallRental.reason})`);
+
+  const wrongToastBranch = corroborateVenueAndCity({
+    place: { id: "ChIJ_cake_bake", name: "The Cake Bake Shop", locality: "Lake Buena Vista" },
+    requestedUrl: "https://order.toasttab.com/online/the-cake-bake-shop-broad-ripple-6515-carrollton-ave",
+    finalUrl: "https://order.toasttab.com/online/the-cake-bake-shop-broad-ripple-6515-carrollton-ave",
+    title: "The Cake Bake Shop - Broad Ripple, Indianapolis, IN",
+    html: "<html><body>6515 Carrollton Ave, Indianapolis, IN 46220</body></html>",
+    sourceTier: 2,
+  });
+  ok(wrongToastBranch.ok === false && /^wrong-city-/.test(wrongToastBranch.reason), `11e. out-of-state Toast branch (Broad Ripple, IN) is rejected for Florida venue (got ${wrongToastBranch.reason})`);
 }
 
 if (failures.length > 0) {

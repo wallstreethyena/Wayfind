@@ -304,7 +304,7 @@ function PrimaryActionButton({ primaryCta, detail, kind, viaTours, locName, logE
         href={exactHref}
         rel="sponsored noreferrer"
         data-commerce-owner="PrimaryActionButton"
-        aria-label={`Tickets for ${detail.name} via ${primaryCta.merchant}`}
+        aria-label={`${primaryCta.product === "tour" ? "Tours" : primaryCta.product === "storage" ? "Luggage storage" : primaryCta.product === "transfer" ? "Transfers" : "Tickets"} for ${detail.name} via ${primaryCta.merchant}`}
         title="Partner link. Wayfind may earn a commission; rankings never change."
         style={style}
         onClick={() => {
@@ -634,7 +634,7 @@ function WhereToGoNextRow({ p, partner, reason, pairDistMi, openDetail, liveOpen
           target="_blank"
           rel="sponsored noopener"
           data-commerce-owner="WhereToGoNextRow"
-          aria-label={`Tickets for ${p.name} via ${partner.merchant}`}
+          aria-label={`${partner.product === "tour" ? "Tours" : partner.product === "storage" ? "Luggage storage" : partner.product === "transfer" ? "Transfers" : "Tickets"} for ${p.name} via ${partner.merchant}`}
           title="Partner link. Wayfind may earn a commission; rankings never change."
           onClick={(e) => {
             e.stopPropagation();
@@ -644,7 +644,7 @@ function WhereToGoNextRow({ p, partner, reason, pairDistMi, openDetail, liveOpen
             try { emitCommerce("commerce_cta_clicked", { ...commerceCtx, click_id: clickId }); } catch (er) {}
           }}
           style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 5, padding: "8px 12px", borderRadius: 10, background: C.adim, border: `1px solid ${C.border}`, color: "#FDBA74", textDecoration: "none", fontSize: 11.5, fontWeight: 800, whiteSpace: "nowrap" }}
-        >🎟️ Tickets ↗</a>
+        >{partner.product === "tour" ? "🛶 Tours ↗" : partner.product === "storage" ? "🧳 Storage ↗" : partner.product === "transfer" ? "🚐 Transfers ↗" : "🎟️ Tickets ↗"}</a>
       ) : (
         <span style={{ fontSize: 18, color: C.muted, flexShrink: 0 }}>›</span>
       )}
