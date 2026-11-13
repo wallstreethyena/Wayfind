@@ -1238,13 +1238,13 @@ ok(noScale(50) >= SCALE.noMin && SCALE.noMin > 0.4,
 
   for (const [rel, marker] of [
     ["app/components/DateNightIntentPage.js", 'data-wf-ask-someone="date_night"'],
-    ["app/components/DateNightRails.js", "openDirectInvite("],
+    ["app/components/DateNightRails.js", "directInvite: true"],
     ["app/components/ChristmasTicketCard.js", 'data-wf-ask-someone="christmas"'],
     ["app/events/[city]/[slug]/EventActions.js", 'data-wf-ask-someone="event"'],
-    ["app/florida-events/[slug]/page.js", "<AskSomeoneButton"],
-    ["app/components/PosterEventCard.js", "openDirectInvite("],
+    ["app/florida-events/[slug]/page.js", 'label: "Ask someone"'],
+    ["app/components/PosterEventCard.js", "directInvite: true"],
     ["app/components/sheets/Detail.js", "data-detail-ask-someone"],
-    ["lib/placePage.js", "<AskSomeoneButton"],
+    ["lib/placePage.js", 'label: "Ask someone"'],
     ["app/components/screens/Itinerary.js", 'data-wf-ask-someone="itinerary"'],
   ]) {
     const s = readFileSync(path.join(REPO, rel), "utf8");

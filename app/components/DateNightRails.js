@@ -68,7 +68,7 @@ import { DATE_NIGHT_RAIL_DEFS, DATE_NIGHT_WIDEN_MI } from "../../lib/dateNightIn
 import { normalizePartnerCity } from "../../lib/intentPartnerPicks.js";
 import { METROS, nearestMetro } from "../../lib/orderInFeatured.js";
 import { milesBetween } from "../../lib/locationHonesty.js";
-import { openDirectInvite } from "../../lib/shareFlow.js";
+import { openShareFlow } from "../../lib/shareFlow.js";
 import { placeKinds } from "../../lib/dateInvite.js";
 
 const C = { text: "#F1F5F9", muted: "#8b93a1" };
@@ -132,7 +132,7 @@ function DateNightRailSection({ rail, lat, lng, city, hour, eventCards = [], eve
               icon: "♡",
               label: "Ask someone",
               title: "Ask someone to " + p.name,
-              onClick: () => openDirectInvite({
+              onClick: () => openShareFlow({
                 title: p.name,
                 name: p.name,
                 city: p.city || city || "",
@@ -140,6 +140,7 @@ function DateNightRailSection({ rail, lat, lng, city, hour, eventCards = [], eve
                 kind: placeKinds(p),
                 surface: "date_night",
                 geo: p.lat != null && p.lng != null ? `${p.lat},${p.lng}` : (lat != null && lng != null ? `${lat},${lng}` : ""),
+                directInvite: true,
               }),
             },
           ].filter(Boolean);

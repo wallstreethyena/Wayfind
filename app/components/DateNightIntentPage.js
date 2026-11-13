@@ -1,5 +1,5 @@
 "use client";
-import { openShareFlow, openDirectInvite } from "../../lib/shareFlow.js";
+import { openShareFlow } from "../../lib/shareFlow.js";
 import { shareOut } from "../../lib/shareOut.js";
 
 // Date Night as a QUALIFIED INTENT — not a category list.
@@ -89,13 +89,14 @@ export default function DateNightIntentPage() {
 
   const askSomeone = () => {
     const url = canonicalShareUrl(typeof window !== "undefined" ? window.location.href : "/date-night");
-    openDirectInvite({
+    openShareFlow({
       title: header.eyebrow || "Date night",
       url,
       city: loc.city || "",
       kind: "dinner",
       surface: "date_night",
       geo: Number.isFinite(loc.lat) && Number.isFinite(loc.lng) ? `${loc.lat},${loc.lng}` : "",
+      directInvite: true,
     }, () => { setCopied(true); setTimeout(() => setCopied(false), 1800); });
   };
 

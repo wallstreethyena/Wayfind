@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useContentCardActions } from "../../../../lib/contentCardActions";
 import { addStopToStoredTrips } from "../../../../lib/itineraryAdd";
 import { readItineraryFlags } from "../../../../lib/itineraryFlags";
-import { openDirectInvite } from "../../../../lib/shareFlow";
+import { openShareFlow } from "../../../../lib/shareFlow";
 import { track } from "../../../../lib/track";
 
 const TRIPS_KEY = "wayfind_trips";
@@ -74,8 +74,8 @@ export default function EventActions({ event }) {
 
   const askSomeone = () => {
     const eventIso = typeof event.date === "string" ? event.date.slice(0, 10) : "";
-    openDirectInvite({
-      url: typeof window !== "undefined" ? window.location.href : "https://www.gowayfind.com/ask",
+    openShareFlow({
+      url: event.url || "https://www.gowayfind.com/ask",
       title: event.name,
       name: event.name,
       city: event.city || "",
@@ -83,6 +83,7 @@ export default function EventActions({ event }) {
       eventDate: eventIso,
       surface: "event",
       geo: event.lat != null && event.lng != null ? `${event.lat},${event.lng}` : "",
+      directInvite: true,
     });
   };
 

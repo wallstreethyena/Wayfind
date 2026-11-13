@@ -18,7 +18,7 @@ import { PLANNER_EVENTS, trackPlannerEvent, isPlannedStopItem } from "../../../l
 import { checkPlannerEntitlement } from "../../../lib/plannerEntitlement";
 import { COVERED_CITIES } from "../../../lib/landingCities";
 import { cardComplete, searchEditorialCard } from "../../../lib/score";
-import { openDirectInvite } from "../../../lib/shareFlow";
+import { openShareFlow } from "../../../lib/shareFlow";
 import { placeKinds } from "../../../lib/dateInvite";
 const Trips = { ...TripCore, ...TripDays };
 
@@ -1448,7 +1448,7 @@ export default function ItineraryScreen({ ctx }) {
                                 data-wf-ask-someone="itinerary"
                                 aria-label={`Ask someone to ${p.name || "this stop"}`}
                                 onClick={() => {
-                                  openDirectInvite({
+                                  openShareFlow({
                                     title: p.name || "Trip stop",
                                     name: p.name || "",
                                     city: t.city || "",
@@ -1458,6 +1458,7 @@ export default function ItineraryScreen({ ctx }) {
                                     eventDate: p.itemType === "event" ? (stopDay || p.date || "") : "",
                                     surface: "itinerary",
                                     geo: p.lat != null && p.lng != null ? `${p.lat},${p.lng}` : "",
+                                    directInvite: true,
                                   });
                                 }}
                                 style={{ ...tripChip, borderColor: "rgba(249,115,22,.45)", color: C.light }}

@@ -6,7 +6,7 @@
 // bounded /api/events feed and render this truthful read-only form.
 import RailCard from "./RailCard";
 import { eventWhenLabel } from "../../lib/eventTime.js";
-import { openDirectInvite } from "../../lib/shareFlow.js";
+import { openShareFlow } from "../../lib/shareFlow.js";
 
 function dateLabel(event) {
   if (!event?.date) return "";
@@ -43,7 +43,7 @@ export default function PosterEventCard({ event, rank = null, surface = "poster_
       icon: "♡",
       label: "Ask someone",
       title: "Ask someone to " + event.name,
-      onClick: () => openDirectInvite({
+      onClick: () => openShareFlow({
         title: event.name,
         name: event.name,
         city: event.city || "",
@@ -51,6 +51,7 @@ export default function PosterEventCard({ event, rank = null, surface = "poster_
         eventDate: eventIso,
         surface: surface.includes("date_night") ? "date_night" : "event",
         geo: event.lat != null && event.lng != null ? `${event.lat},${event.lng}` : "",
+        directInvite: true,
       }),
     },
   ];

@@ -259,17 +259,7 @@ export function askShareIntent(o) {
           }
         } catch (e) {}
       }
-      const code = encodeInvite({
-        place: name,
-        city: opt.city,
-        id: opt.id,
-        to: who,
-        kind: opt.kind,
-        when: opt.when,
-        eventDate: opt.eventDate,
-        surface,
-        geo,
-      });
+      const code = encodeInvite({ place: name, city: opt.city, id: opt.id, to: who, kind: opt.kind, when: opt.when, eventDate: opt.eventDate, surface, geo });
       if (!code) { opt.onPlain && opt.onPlain(); close(); return; }
       // The LIVE origin, not a constant: a preview deployment then shares a link
       // that opens on the preview instead of bouncing to production.

@@ -16,6 +16,7 @@
 // button tap; merely opening the menu never sends or copies anything.
 import { useEffect, useRef, useState } from "react";
 import { openShareFlow } from "../../lib/shareFlow.js";
+import { placeKinds } from "../../lib/dateInvite.js";
 import { track } from "../../lib/track";
 
 const Glyph = () => (
@@ -58,7 +59,7 @@ const TONES = {
  */
 export default function ShareButton({
   url, title, text, label = "Share", tone = "dark", event = "page_share", meta,
-  full = false,
+  full = false, invite = null,
 }) {
   const [said, setSaid] = useState("");
   const timer = useRef(null);
@@ -79,7 +80,28 @@ export default function ShareButton({
     try { track(event, { ...(meta || {}), path: how, url }); } catch (err) {}
   };
 
-  return (
+  const onInviteClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!invite) return;
+    const itemName = invite.name || title || "";
+    const kind = (typeof placeKinds === "function" && placeKinds({ name: itemName, category: invite.category })) || "";
+    openShareFlow({
+      url,
+      title: itemName,
+      name: itemName,
+      city: invite.city || "",
+      placeId: invite.placeId || "",
+      kind,
+      when: invite.when || "",
+      eventDate: invite.eventDate || "",
+      geo: invite.geo || "",
+      surface: invite.surface || "direct",
+      directInvite: true,
+    });
+  };
+
+  const shareBtn = (
     <button
       type="button"
       onClick={onClick}
@@ -101,5 +123,30 @@ export default function ShareButton({
           point of this state is that the user cannot otherwise tell it worked. */}
       <span aria-live="polite">{said || label}</span>
     </button>
+  );
+
+  if (!invite) return shareBtn;
+
+  return (
+    <>
+      {shareBtn}
+      <button
+        type="button"
+        data-wf-ask-someone={invite.surface || "direct"}
+        onClick={onInviteClick}
+        aria-label={(invite.label || "Ask someone") + (invite.name ? ": " + invite.name : "")}
+        style={{
+          display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 7,
+          padding: "11px 18px", borderRadius: 999, cursor: "pointer",
+          font: "inherit", fontSize: 14, fontWeight: 800, lineHeight: 1,
+          background: "rgba(249,115,22,.14)", color: "#FDBA74", border: "1.5px solid rgba(249,115,22,.5)",
+          marginLeft: 8,
+          WebkitTapHighlightColor: "transparent",
+        }}
+      >
+        <span aria-hidden="true">♡</span>
+        <span>{invite.label || "Ask someone"}</span>
+      </button>
+    </>
   );
 }
