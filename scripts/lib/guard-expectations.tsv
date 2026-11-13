@@ -534,6 +534,7 @@ scripts/test-audit-trust-20261018.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	1
 scripts/test-auth-admin-tombstones.mjs	0	CALL	blocks-ci-and-deploy	1	-	9	0	0	7ca0ff9d466ca8b6a423420cd35ab3db291ba725f00023816d2a10b57d7df79d
 scripts/test-auth-journey.mjs	0	CALL	blocks-ci-and-deploy	1	-	22	0	0	4f33fec9f4d338c4c9e15cd183ea85b6bc2e97d407fa57f4ea1902455175bde1
 scripts/test-autocomplete-proxy.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	31	0	0	2fe0cdcb81ea98cb8b0b9f9dcf9cb098e0a2dcb8c15eebd1b8547cd368b0f7db
+scripts/test-background-daily-line.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	69	0	0	bc921a3afd0dc036875f468a2540fbf260714c3a2ea2f9740f65f40dfe5dd2f3
 scripts/test-batch-completeness.mjs	0	CALL	blocks-ci-and-deploy	1	-	8	0	0	222d43e2d14ca3641c4d64cb62a7d2cd7cc1c53b9d5b2e2e8c14ed43b5d12858
 scripts/test-beach-alert-recovery.mjs	0	CALL	blocks-ci-and-deploy	1	-	11	0	0	7f134d1c582bd8941809d9612a8e64f3a8d34fe03e79fb525d1b18ad0d8f4701
 scripts/test-beach-build-deadline.mjs	0	CALL	blocks-ci-and-deploy	1	-	16	0	0	9363ee7dd5e18f76030320d8c86cc39009cf80011a21cf85e2db46fca4db12a0
@@ -994,7 +995,7 @@ scripts/test-promote-deadline.mjs	0	CALL	blocks-ci-and-deploy	1	-	31	0	0	6a546f4
 scripts/test-promote-decision.mjs	0	CALL	blocks-ci-and-deploy	1	-	75	0	0	85aaa1acf13af8a16d7d710abd2ae81e322bc04d79617f33d40c4b2eb65c34fa
 scripts/test-promote-details.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	85	0	0	8232c14e48a48367d80591f37d233d982926fe281eb4d377070c702474ba80f9
 scripts/test-promote-index.mjs	0	CALL	blocks-ci-and-deploy	1	-	72	0	0	dcc097e3f0c77deed8ded1f97f0e276248c6e35150508bbcaa2f022521f5509f
-scripts/test-promote-ledger-sim.mjs	0	CALL	blocks-ci-and-deploy	1	-	63	0	0	3a9bbb12d940df9af9b094b22817bc47d94f7dcc427746302ebcd8283ec0f710
+scripts/test-promote-ledger-sim.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	64	0	0	9c1bb319d2104dc1205ccac97c7a85a2ea01229d4868010cb0973bdfcacaf31e
 scripts/test-promote-paid-cap.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	14	0	0	b5e4bbf5da70d67e358bc60de6adc0e9c6657ea901bbfdb22f35ccf1d6263063
 scripts/test-promote-throttle.mjs	0	CALL	blocks-ci-and-deploy	1	-	26	0	0	c1a77d57b9488879b0319df7266db59d34bdfc53f93dd9b1390f84aaf13d7c9a
 scripts/test-provider-health.mjs	0	CALL	blocks-ci-and-deploy	1	-	20	0	0	f1a6f75774cd6f6d03b8d769c4b48d0d98d1bf0f5c3bbbc08f18cd18e22c0984
@@ -1019,6 +1020,7 @@ scripts/test-reconcile-list-map-live.mjs	0	CALL	blocks-ci-and-deploy	1	-	23	0	0	
 scripts/test-red-tide.mjs	0	CALL	blocks-ci-and-deploy	1	-	18	0	0	3665c2f2520aa17bb8ea626382bfb62e9fe5e2d003f19766b480c7ef13281b5e
 scripts/test-redirect-integrity.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	12	0	0	790d24d12b3b1c8d27042d4e54666b92e602bfb441d32e31422a32a22c8bae83
 scripts/test-redirect-visitor-scope.mjs	0	CALL	blocks-ci-and-deploy	1	-	19	0	0	bd6aaa4c3eed3fa111ca756b67a22f22fb610766ec10d65cb94237d17a0c2010
+scripts/test-refresh-dedup.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	51	0	0	eebb4b8e45484d40df3902307f472adba754682e287f0bfc5436088561537a10
 scripts/test-refresh-reserve.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	12	0	0	fbff7f398a7c411c0e88e4490a10ce721a0709f7ca7ec4a672a62ee62f373d6c
 scripts/test-refresh-selector-trap.mjs	0	CALL	blocks-ci-and-deploy	1	-	8	0	0	6fcc1659059272ba2e47c5b54fb071342403bda38739d36bb87ac5ccdc4fb28c
 scripts/test-resolver-word-boundary.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	7	0	0	5a42f16bb1b72847758f21eef58dba011dcfa77ecdaa04f3eabe3088c3107fb1

@@ -230,12 +230,15 @@ async function checkNoBump({ patchMod, placeDetailsMutate = (s) => s, cronMutate
   globalThis.__cron = { updates: [], google: {}, filters: [], orders: [], limit: null };
   const cron = await sourceModule("app/api/cron/inventory-refresh/route.js", `
     import { inventoryRefreshPatch, refreshSlice, REFRESH_WINDOW_SLOTS } from "${fileUrl("lib/inventoryRefreshPatch.js")}";
-    import { planCheck, planEnterprise, tierOrder, ESSENTIALS_MASK, PRO_MASK, TIER_SKU } from "${fileUrl("lib/inventoryGoogleCheck.js")}";
+    import { planCheck, planEnterprise, tierOrder, tiersToTry, neverChecked, refreshEligible, ESSENTIALS_MASK, PRO_MASK, TIER_SKU } from "${fileUrl("lib/inventoryGoogleCheck.js")}";
     import { breakerCooldownMs, GOOGLE_DETAILS_DAILY_BREAKER } from "${fileUrl("lib/providerHealth.js")}";
     const gateShut = () => false;
     const runWithTraffic = (_class, run) => run(); const TRAFFIC = { REFRESH: "refresh" }; // the route now declares its traffic class; the stub just runs it
     const spendAllowRefresh = async () => true; const refundToLedger = async () => true; const refreshCounterSku = (s) => "refresh_" + s;
-    const recordPulse = async () => {}; const budgetGateNote = () => "gate"; const budgetLimitNote = () => "limit";
+    const recordPulse = async () => {}; const budgetGateNote = () => "gate"; const budgetLimitNote = () => "limit"; const budgetDailyReserveNote = () => "daily";
+    // 2026-11-12: the route now also asks the Google daily counter and the refresh tier budget; this fixture answers "open, everything affordable" so the executed assertions below are unchanged.
+    const runWithBackgroundPriority = (_p, run) => run(); const BACKGROUND_PRIORITY = { NEW_OR_CHANGED: "new-or-changed", SCHEDULED: "scheduled-refresh" };
+    const backgroundDailyStatus = async () => ({ blocked: false, used: 0, line: 400, unreadable: false }); const refreshRichAffordable = async () => ({ enterprise: true, pro: true });
     const jobCannotRun = (j, m) => Response.json({ cannot: m }, { status: 503 });
     const jobFailed = (j, m) => Response.json({ failed: m }, { status: 500 });
     const normalizeDetails = (p) => ({ id: p.id, name: "x", lat: p.location.latitude, lng: p.location.longitude, types: ["cafe"], businessStatus: p.businessStatus || null, photoRef: null });
