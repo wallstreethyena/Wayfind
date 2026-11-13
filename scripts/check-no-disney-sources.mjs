@@ -128,6 +128,26 @@ const EXPLICIT_CROSS_CARD_SOURCES = new Map([
   ["ChIJ1U_vFp0Xw4gRGKl6mJGJ9UI", new Set(["linktr.ee", "cremaapp.com"])],
   // ATRIA Cafe: The Local Palate's bakery profile.
   ["ChIJA-QkamE7w4gRfdzcxEHyPls", new Set(["thelocalpalate.com"])],
+  // Best Experiences 2026 winners (2026-11-13), reviewed per card:
+  // Typhoon Lagoon: no Disney page is ever opened (collection ban), so the
+  // facts come from Wikipedia and independent park guides, including the
+  // Nov 2026 reopening notice.
+  ["ChIJ-cylLpl_3YgRLc_XNEh9I2I", new Set(["orlando-themeparks.com", "mickeyblog.com", "deeparrival.com"])],
+  // Animal EDventure Park has no reachable official site: family event
+  // listings carry its address, phone and tour format.
+  ["ChIJb3VDF7rW3ogRTKctGjuXzJM", new Set(["macaronikid.com", "everyparentpbc.org"])],
+  // Florida Keys Aquarium Encounters: the Florida Keys tourism council page.
+  ["ChIJbW0DuCra0IgRW-jZTHa3lqs", new Set(["fla-keys.com"])],
+  // Don Garlits Museum: RACER's 2026 museum feature.
+  ["ChIJ0wVCGeHW54gRNAxvOilMJYY", new Set(["racer.com"])],
+  // St. Pete Coastal Cruises: the tour listing that names Shell Key shelling.
+  ["ChIJoyuEA-3jwogR25UxMPCIDt0", new Set(["advcollective.com"])],
+  // Get Up and Go Kayaking Shell Key: ABC Action News feature.
+  ["ChIJk04qcKEdw4gRHykY4WhCYBI", new Set(["tampabay28.com"])],
+  // The Escape Game Orlando: Time Out Orlando.
+  ["ChIJOeE5xFR-54gR0waxD2npG4M", new Set(["timeout.com"])],
+  // Outta Control Magic Dinner Show: the I-Drive district guide (address).
+  ["ChIJRdxzRk1-54gRvzuwSgYoDV0", new Set(["internationaldriveorlando.com"])],
 ]);
 
 // ── hostname handling ─────────────────────────────────────────────────────

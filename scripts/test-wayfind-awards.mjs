@@ -29,9 +29,43 @@ const strip = (s) => s.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:"'`])\/\/
 
 // ── 1. The registry, CALLED ────────────────────────────────────────────────
 const ids = awardedPlaceIds();
-ok(ids.length === 12, "Best Breakfast 2026 + Best Cafés 2026 have 6 + 6 winning locations (got " + ids.length + ")");
-ok(AWARDS.map((a) => a.id).join() === "best-breakfast-2026,best-cafes-2026", "the two published awards are registered");
-ok(AWARDS.every((a) => a.winners.length === 6), "each award has its 6 winning locations");
+ok(ids.length === 24, "Best Breakfast 2026 + Best Cafés 2026 + Best Experiences 2026 have 6 + 6 + 12 winning locations (got " + ids.length + ")");
+ok(AWARDS.slice(0, 2).map((a) => a.id).join() === "best-breakfast-2026,best-cafes-2026", "the two city series awards are registered first");
+ok(AWARDS.slice(0, 2).every((a) => a.winners.length === 6), "each city series award has its 6 winning locations");
+// Best Experiences 2026 (owner, 2026-11-13): one statewide #1 per Things to do
+// category, each its own award so the card label stays short.
+{
+  const EXP = {
+    "theme-park": ["ChIJ9RHZGx6H3YgRnWVYIWsHNPM", "Best Theme Park"],
+    "water-park": ["ChIJ-cylLpl_3YgRLc_XNEh9I2I", "Best Water Park"],
+    zoo: ["ChIJb3VDF7rW3ogRTKctGjuXzJM", "Best Zoo"],
+    aquarium: ["ChIJbW0DuCra0IgRW-jZTHa3lqs", "Best Aquarium"],
+    museum: ["ChIJ0wVCGeHW54gRNAxvOilMJYY", "Best Museum"],
+    "boat-tour": ["ChIJoyuEA-3jwogR25UxMPCIDt0", "Best Boat Tour"],
+    "kayak-tour": ["ChIJk04qcKEdw4gRHykY4WhCYBI", "Best Kayak Tour"],
+    "escape-room": ["ChIJOeE5xFR-54gR0waxD2npG4M", "Best Escape Room"],
+    "live-show": ["ChIJRdxzRk1-54gRvzuwSgYoDV0", "Best Live Show"],
+    garden: ["ChIJmToCpQ4J3YgRof6hhxcoTIM", "Best Garden"],
+    "state-park": ["ChIJyYEUav8P54gRatuv_zQzm20", "Best State Park"],
+    spa: ["ChIJR7zm99uH3YgRuoA9hVzLTos", "Best Spa"],
+  };
+  const exp = AWARDS.filter((a) => a.id.startsWith("best-experiences-2026-"));
+  ok(exp.length === 12 && exp.every((a) => a.winners.length === 1 && a.year === 2026), "Best Experiences 2026 is 12 one winner category awards");
+  for (const [slug, [pid, name]] of Object.entries(EXP)) {
+    const a = wayfindAwardFor(pid);
+    ok(a && a.id === "best-experiences-2026-" + slug && a.name === name, name + " 2026 is worn by its winner");
+    ok(a && a.label === name + " 2026 · Florida" && a.label.length <= 34, name + ": short statewide label (" + (a && a.label) + ")");
+    ok(a && a.detail === "#1 in Florida", name + ": detail reads #1 in Florida");
+  }
+  // Runners up and in park attractions wear nothing (the award is the #1 only).
+  for (const [pid, why] of [
+    ["ChIJM3CugoKA3YgRV1x2KktePi0", "Discovery Cove (theme park #2)"],
+    ["ChIJ0Q0aNe5-3YgRcLCOHwV45FQ", "Blizzard Beach (water park #2)"],
+    ["ChIJQ_3WRVN-54gR2mMdWDLIJ2s", "Lockbusters (escape room #2, tied score)"],
+    ["ChIJQ8ISEdq32YgRKUoI40z8SH8", "The Escape Game Miami (same chain, not the winning location)"],
+    ["ChIJDVTeduAh6IgRbe2K7oiOEkg", "Get Up And Go Kayaking Weeki Wachee (same company, not the winning location)"],
+  ]) ok(wayfindAwardFor(pid) === null, why + " wears no award");
+}
 ok(new Set(ids).size === ids.length, "no place wins twice");
 for (const award of AWARDS) {
   for (const w of award.winners) {
