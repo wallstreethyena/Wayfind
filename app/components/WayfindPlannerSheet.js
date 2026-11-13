@@ -13,6 +13,8 @@
 //      `Add to my itinerary` confirmation before committing.
 //   4. Conversational follow-up edits on an active trip with immediate feedback
 //      and 1-tap `Undo`.
+//   5. Unsaved draft revisions with bounded conversation history, pre-save
+//      Undo stack (`draftHistory`), 4 visual plan states, and visitor session isolation.
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
@@ -39,6 +41,7 @@ import {
 import { extractCityFromPath } from "../../lib/plannerProactive.js";
 
 const CENTER_KEY = "wf_center";
+const UNDO_CMD_REGEX = /^\s*(?:actually\s+)?undo(?:\s+(?:that|it|(?:the\s+)?last\s+(?:change|edit|revision)))?[.!?\s]*$/i;
 
 function defaultVoiceForPath(pathname) {
   try {
@@ -63,36 +66,89 @@ function readStoredPoint() {
   return null;
 }
 
-function starterChipsForContext({ pathname, city, hasActiveTrip, voice }) {
-  if (hasActiveTrip) {
-    return [
-      "Optimize route to reduce driving",
-      "Make Saturday cheaper",
-      "Replace Friday dinner with something nearby",
-      "Add breakfast",
-      "Add something indoors",
-    ];
+function readCurrentAuthUserId() {
+  const store = safeLocalStorage();
+  if (!store) return null;
+  try {
+    for (let i = 0; i < store.length; i++) {
+      const k = store.key(i);
+      if (k && (k.startsWith("sb-") || k.includes("auth-token")) && k.endsWith("-auth-token")) {
+        const parsed = JSON.parse(store.getItem(k) || "null");
+        if (parsed?.user?.id) return parsed.user.id;
+      }
+    }
+  } catch { /* ignore */ }
+  return null;
+}
+
+// Pure helper: Filters messages to { role: "user" | "assistant", text },
+// skipping the initial static assistant welcome greeting if no user message has occurred yet,
+// trims text to <= 280 chars, and returns at most the last 4 messages (last 2 turns).
+export function buildBoundedConversationHistory(messages) {
+  if (!Array.isArray(messages)) return [];
+  const firstUserIdx = messages.findIndex((m) => m && m.role === "user");
+  if (firstUserIdx === -1) return [];
+  const relevant = [];
+  for (let i = firstUserIdx; i < messages.length; i++) {
+    const m = messages[i];
+    if (m && (m.role === "user" || m.role === "assistant") && typeof m.text === "string") {
+      relevant.push({
+        role: m.role,
+        text: m.text.slice(0, 280),
+      });
+    }
   }
-  if (pathname && pathname.startsWith("/christmas-in-florida")) {
-    return [
-      "Orlando Nov 20 to 23, two adults, Christmas and food",
-      "Tampa Christmas weekend with kids, minimal driving",
-      "St. Augustine 2 day holiday lights & dining plan",
-    ];
+  return relevant.slice(-4);
+}
+
+// Pure helper: Serializes compact draft representation for revision requests.
+export function serializeDraftForRevision(proposedPlan) {
+  if (!proposedPlan || !Array.isArray(proposedPlan.days)) return null;
+  return {
+    title: proposedPlan.title || null,
+    city: proposedPlan.city || null,
+    state: proposedPlan.state || null,
+    startDate: proposedPlan.startDate || null,
+    endDate: proposedPlan.endDate || null,
+    days: proposedPlan.days.slice(0, 10).map((d) => ({
+      date: d && d.date ? d.date : null,
+      areaSummary: d && d.areaSummary ? d.areaSummary : null,
+      stops: Array.isArray(d && d.stops)
+        ? d.stops.slice(0, 8).map((s) => ({
+            id: s.id,
+            slotLabel: s.slotLabel || null,
+            why: s.why || null,
+          }))
+        : [],
+    })),
+  };
+}
+
+// Pure helper: Determines whether to reset planner session between openings.
+export function shouldResetPlannerSession(prevMeta, nextOpenDetail) {
+  if (nextOpenDetail?.resetSession === true) return true;
+  if (!prevMeta) return false;
+
+  const prevAuth = prevMeta.authUserId ?? null;
+  const nextAuth = nextOpenDetail?.authUserId ?? null;
+  if (prevAuth !== nextAuth) return true;
+
+  if (nextOpenDetail?.activeTripKey && nextOpenDetail.activeTripKey !== prevMeta.activeTripKey) {
+    return true;
   }
-  if (city) {
-    return [
-      `${city} 3 day trip, great food and minimal driving`,
-      `${city} weekend for two adults, hidden gems & dinner`,
-      `${city} family day with indoor options and lunch`,
-    ];
+
+  const nextCity = nextOpenDetail?.city || nextOpenDetail?.contextCity || null;
+  const prevCity = prevMeta.city || null;
+  if (
+    Boolean(nextOpenDetail?.prompt) &&
+    Boolean(nextCity) &&
+    Boolean(prevCity) &&
+    String(nextCity).trim().toLowerCase() !== String(prevCity).trim().toLowerCase()
+  ) {
+    return true;
   }
-  return [
-    "Orlando Nov 20 to 23, two adults, Christmas and food",
-    "Sarasota weekend for two, beaches and great restaurants",
-    "Tampa 3 days with kids, fun stops and minimal driving",
-    voice === "santa" ? "Best 2 day Florida Christmas lights & dining trip" : "Miami 3 day food and neighborhood itinerary",
-  ];
+
+  return false;
 }
 
 const PLANNER_CSS = `
@@ -240,6 +296,10 @@ export default function WayfindPlannerSheet() {
   const [draft, setDraft] = useState("");
   const [loading, setLoading] = useState(false);
   const [proposedPlan, setProposedPlan] = useState(null);
+  const [planState, setPlanState] = useState("draft"); // "draft" | "revised" | "saved" | "revision_failed"
+  const [draftHistory, setDraftHistory] = useState([]);
+  const [changedStopIds, setChangedStopIds] = useState([]);
+  const [revisionNotice, setRevisionNotice] = useState(null);
   const [candidateCatalog, setCandidateCatalog] = useState({});
   const [savedTripKey, setSavedTripKey] = useState(null);
   const [undoSnapshot, setUndoSnapshot] = useState(null);
@@ -250,19 +310,82 @@ export default function WayfindPlannerSheet() {
   const inputRef = useRef(null);
   const proposedRef = useRef(null);
   proposedRef.current = proposedPlan;
+  const planStateRef = useRef("draft");
+  planStateRef.current = planState;
+  const draftHistoryRef = useRef([]);
+  draftHistoryRef.current = draftHistory;
+  const changedStopIdsRef = useRef([]);
+  changedStopIdsRef.current = changedStopIds;
+  const candidateCatalogRef = useRef({});
+  candidateCatalogRef.current = candidateCatalog;
   const savedRef = useRef(null);
   savedRef.current = savedTripKey;
+  const activeTripKeyRef = useRef(activeTripKey);
+  activeTripKeyRef.current = activeTripKey;
   const savingRef = useRef(false);
+  const submittingRef = useRef(false);
   const recentRef = useRef([]);
   const messagesRef = useRef([]);
   messagesRef.current = messages;
+  const sessionMetaRef = useRef({
+    authUserId: readCurrentAuthUserId(),
+    activeTripKey: null,
+    city: null,
+  });
+
   // The phone keyboard shrinks the visual viewport, not the layout one: size the
   // sheet to what is actually visible so the composer and newest reply stay up.
   const [vv, setVv] = useState(null);
 
+  const resetSession = useCallback(() => {
+    messagesRef.current = [];
+    proposedRef.current = null;
+    candidateCatalogRef.current = {};
+    draftHistoryRef.current = [];
+    planStateRef.current = "draft";
+    changedStopIdsRef.current = [];
+    savedRef.current = null;
+    activeTripKeyRef.current = null;
+
+    setMessages([]);
+    setDraft("");
+    setLoading(false);
+    setProposedPlan(null);
+    setCandidateCatalog({});
+    setSavedTripKey(null);
+    setUndoSnapshot(null);
+    setLastEditSummary(null);
+    setPlanState("draft");
+    setChangedStopIds([]);
+    setRevisionNotice(null);
+  }, []);
+
   const submitPlannerPrompt = useCallback(async (rawPrompt, overrideOpts = {}) => {
     const text = String(rawPrompt || "").trim().slice(0, 500);
     if (!text || loading) return;
+    if (submittingRef.current) return;
+    submittingRef.current = true;
+
+    // Client-side pre-save Undo: if user types "undo" / "actually undo that"
+    if (UNDO_CMD_REGEX.test(text) && proposedRef.current && !savedRef.current) {
+      if (draftHistoryRef.current.length > 0) {
+        const prevStack = [...draftHistoryRef.current];
+        const previousPlan = prevStack.pop();
+        setDraftHistory(prevStack);
+        setProposedPlan(previousPlan);
+        const nextState = prevStack.length > 0 ? "revised" : "draft";
+        setPlanState(nextState);
+        setRevisionNotice(null);
+        setDraft("");
+        setMessages((prev) => [
+          ...prev,
+          { role: "user", text },
+          { role: "assistant", text: "Undid your last draft change." },
+        ]);
+        submittingRef.current = false;
+        return;
+      }
+    }
 
     const effVoice = overrideOpts.voice || voice || defaultVoiceForPath(pathname);
     const effCity = overrideOpts.contextCity !== undefined ? overrideOpts.contextCity : contextCity;
@@ -301,10 +424,18 @@ export default function WayfindPlannerSheet() {
           activeTrip: currentActiveTrip,
           seedPlace: effSeed,
           recent: recentRef.current,
+          conversationHistory: buildBoundedConversationHistory(messagesRef.current),
+          proposedPlan: !currentActiveTrip && !savedRef.current && proposedRef.current
+            ? serializeDraftForRevision(proposedRef.current)
+            : null,
         }),
       });
       const data = await res.json().catch(() => null);
       if (!res.ok || !data || !data.ok) {
+        if (proposedRef.current && !savedRef.current) {
+          setPlanState("revision_failed");
+          setRevisionNotice((data && data.reply) || "Could not make that change. Your draft was kept intact.");
+        }
         setMessages((prev) => [
           ...prev,
           {
@@ -320,6 +451,9 @@ export default function WayfindPlannerSheet() {
       if (data.mode === "propose_trip" && data.proposedPlan) {
         savingRef.current = false;
         setProposedPlan(data.proposedPlan);
+        setPlanState("draft");
+        setDraftHistory([]);
+        setRevisionNotice(null);
         setCandidateCatalog(data.candidateCatalog || {});
         setSavedTripKey(null);
         trackPlannerEvent(PLANNER_EVENTS.PLAN_GENERATED, {
@@ -330,6 +464,23 @@ export default function WayfindPlannerSheet() {
           candidate_count: data.metrics?.candidateCount || 0,
           saved_stop_count: data.metrics?.proposedStopCount || 0,
         });
+      } else if (data.mode === "revise_plan" || data.revisionStatus === "revised") {
+        if (data.proposedPlan) {
+          if (proposedRef.current) {
+            setDraftHistory((prev) => [...prev, proposedRef.current]);
+          }
+          setProposedPlan(data.proposedPlan);
+          setPlanState("revised");
+          setRevisionNotice(null);
+          if (data.candidateCatalog) {
+            setCandidateCatalog((prev) => ({ ...prev, ...data.candidateCatalog }));
+          }
+        }
+      } else if (data.mode === "no_change" || data.revisionStatus === "unchanged") {
+        setPlanState("revision_failed");
+        setRevisionNotice(data.reply || "Could not make that change.");
+      } else if (data.mode === "clarify") {
+        setRevisionNotice(null);
       } else if (data.mode === "edit_trip" && Array.isArray(data.actions) && currentActiveTrip) {
         const currentTrips = readStoredTripsSnapshot();
         const batchRes = executePlannerActionBatch(currentTrips, data.actions, {
@@ -368,10 +519,33 @@ export default function WayfindPlannerSheet() {
         },
       ]);
     } finally {
+      submittingRef.current = false;
       if (timeoutId != null) window.clearTimeout(timeoutId);
       setLoading(false);
     }
   }, [activeTripKey, contextCity, loading, pathname, seedPlace, surface, voice]);
+
+  // Handle visitor session isolation / auth reset
+  useEffect(() => {
+    const onAuthChanged = (e) => {
+      const nextAuth = (e && e.detail && e.detail.userId) !== undefined ? e.detail.userId : readCurrentAuthUserId();
+      if ((sessionMetaRef.current.authUserId ?? null) !== (nextAuth ?? null)) {
+        sessionMetaRef.current.authUserId = nextAuth;
+        resetSession();
+      }
+    };
+    const onStorage = (e) => {
+      if (e.key === "wayfind_trips" && !e.newValue) {
+        resetSession();
+      }
+    };
+    window.addEventListener("wf:auth-changed", onAuthChanged);
+    window.addEventListener("storage", onStorage);
+    return () => {
+      window.removeEventListener("wf:auth-changed", onAuthChanged);
+      window.removeEventListener("storage", onStorage);
+    };
+  }, [resetSession]);
 
   // Listen for `wf:planner-open` from any surface
   useEffect(() => {
@@ -382,6 +556,17 @@ export default function WayfindPlannerSheet() {
       const nextSurface = detail.surface || "button";
       const pathCity = extractCityFromPath(detail.pathname || pathname);
       const nextCity = detail.city || (pathCity && pathCity.name) || null;
+      const currentAuthId = readCurrentAuthUserId();
+
+      if (shouldResetPlannerSession(sessionMetaRef.current, { ...detail, authUserId: currentAuthId, city: nextCity })) {
+        resetSession();
+      }
+
+      sessionMetaRef.current = {
+        authUserId: currentAuthId,
+        activeTripKey: detail.activeTripKey || null,
+        city: nextCity,
+      };
 
       setVoice(nextVoice);
       setSurface(nextSurface);
@@ -430,7 +615,7 @@ export default function WayfindPlannerSheet() {
       }
     } catch {}
     return () => window.removeEventListener(PLANNER_OPEN_EVENT, onOpen);
-  }, [pathname, submitPlannerPrompt]);
+  }, [pathname, resetSession, submitPlannerPrompt]);
 
   const handleClose = useCallback(() => {
     if (proposedRef.current && !savedRef.current) {
@@ -507,6 +692,8 @@ export default function WayfindPlannerSheet() {
     setLocal("wayfind_trips", JSON.stringify(res.nextTrips));
     setSavedTripKey(res.tripKey);
     setActiveTripKey(res.tripKey);
+    setPlanState("saved");
+    planStateRef.current = "saved";
     setUndoSnapshot(res.undoSnapshot);
 
     trackPlannerEvent(PLANNER_EVENTS.PLAN_SAVED, {
@@ -534,6 +721,22 @@ export default function WayfindPlannerSheet() {
     }
   };
 
+  const handleDraftUndo = () => {
+    if (draftHistoryRef.current.length === 0) return;
+    const prevStack = [...draftHistoryRef.current];
+    const previousPlan = prevStack.pop();
+    setDraftHistory(prevStack);
+    setProposedPlan(previousPlan);
+    const nextState = prevStack.length > 0 ? "revised" : "draft";
+    setPlanState(nextState);
+    planStateRef.current = nextState;
+    setRevisionNotice(null);
+    setMessages((prev) => [
+      ...prev,
+      { role: "assistant", text: "Undid your last draft change." },
+    ]);
+  };
+
   const handleUndo = () => {
     if (!undoSnapshot) return;
     setLocal("wayfind_trips", JSON.stringify(undoSnapshot));
@@ -552,6 +755,7 @@ export default function WayfindPlannerSheet() {
   let lastUserIdx = -1;
   messages.forEach((m, i) => { if (m.role === "user") lastUserIdx = i; });
 
+  const effPlanState = savedTripKey ? "saved" : (planState || "draft");
 
   return (
     <>
@@ -619,10 +823,48 @@ export default function WayfindPlannerSheet() {
               )}
 
               {proposedPlan && (
-                <div className="wfp-plan" data-wf-proposed-plan="1">
-                  <div style={{ fontWeight: 700 }}>
-                    {proposedPlan.title}
+                <div className="wfp-plan" data-wf-proposed-plan="1" data-wf-plan-state={effPlanState}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
+                    <div style={{ fontWeight: 700 }}>
+                      {proposedPlan.title}
+                    </div>
+                    {draftHistory.length > 0 && !savedTripKey && (
+                      <button
+                        type="button"
+                        data-wf-draft-undo="1"
+                        onClick={handleDraftUndo}
+                        style={{
+                          all: "unset",
+                          cursor: "pointer",
+                          fontSize: 12,
+                          fontWeight: 700,
+                          color: "#0A84FF",
+                          padding: "2px 8px",
+                          borderRadius: 6,
+                          background: "rgba(10,132,255,0.12)",
+                        }}
+                      >
+                        Undo
+                      </button>
+                    )}
                   </div>
+
+                  {revisionNotice && !savedTripKey && (
+                    <div
+                      data-wf-revision-notice="1"
+                      style={{
+                        padding: "6px 10px",
+                        borderRadius: 8,
+                        background: "rgba(239,68,68,0.15)",
+                        border: "1px solid rgba(239,68,68,0.3)",
+                        fontSize: 12.5,
+                        color: "#FCA5A5",
+                      }}
+                    >
+                      {revisionNotice}
+                    </div>
+                  )}
+
                   {proposedPlan.days.map((day, dIdx) => (
                     <div key={day.date || dIdx} className="wfp-day" data-wf-proposed-day={day.date || String(dIdx)}>
                       <div className="wfp-day-hdr">{day.label}</div>

@@ -72,6 +72,13 @@ import {
   buildPlannerClaudePrompt,
   parseAndValidateClaudePlan,
   parseAndValidateClaudeEdit,
+  sanitizeConversationHistory,
+  sanitizeProposedPlanDraft,
+  revalidateProposedDraft,
+  parseDraftRevisionIntent,
+  applyDeterministicDraftRevision,
+  buildDraftRevisionClaudePrompt,
+  parseAndValidateClaudeDraftRevision,
 } from "../lib/wayfindPlanner.js";
 import { addPlaceToTrips, setNote, toggleVisited } from "../lib/trips.js";
 import { setStopDate, moveItem, removePlaceFromTrip } from "../lib/tripDays.js";
@@ -1764,9 +1771,670 @@ const workingKey = seededCommit.tripKey;
   );
 }
 
+// ── SCENARIO 12: Grounded AI Itinerary Draft Revisions & Clarification Flow ──
+{
+  const rawSheetSource = readFileSync(path.join(REPO, "app/components/WayfindPlannerSheet.js"), "utf8");
+  function extractFn(src, name) {
+    const match = src.match(new RegExp(`export function ${name}\\s*\\([\\s\\S]*?\\n\\}`));
+    if (!match) throw new Error("Could not find function " + name);
+    const fnCode = match[0].replace(/^export\s+/, "");
+    return new Function(`${fnCode}; return ${name};`)();
+  }
+  const buildBoundedConversationHistory = extractFn(rawSheetSource, "buildBoundedConversationHistory");
+  const serializeDraftForRevision = extractFn(rawSheetSource, "serializeDraftForRevision");
+  const shouldResetPlannerSession = extractFn(rawSheetSource, "shouldResetPlannerSession");
+  const WayfindPlannerSheet = function WayfindPlannerSheet() {};
+
+  ok(typeof WayfindPlannerSheet === "function", "Scenario 12: compiled WayfindPlannerSheet export is available");
+
+  // 1. First request creates a valid four-day plan ("Orlando Nov 20 to 23, two adults, Christmas and food.")
+  const planRes12 = await postPlanner(
+    {
+      message: "Orlando Nov 20 to 23, two adults, Christmas and food.",
+      voice: "santa",
+    },
+    "198.51.100.201"
+  );
+  ok(
+    planRes12.status === 200 && planRes12.json.ok === true && planRes12.json.mode === "propose_trip",
+    "Scenario 12.1: first request creates a valid proposed multi-day plan"
+  );
+  const initial4DayDraft = planRes12.json.proposedPlan;
+  const initialCatalog = planRes12.json.candidateCatalog || {};
+  ok(
+    initial4DayDraft.startDate === "2026-11-20" &&
+      initial4DayDraft.endDate === "2026-11-23" &&
+      initial4DayDraft.city === "Orlando" &&
+      initial4DayDraft.days.length === 4,
+    "Scenario 12.1: 4-day dates 2026-11-20 to 2026-11-23 resolved with Orlando destination"
+  );
+  const expectedDates12 = ["2026-11-20", "2026-11-21", "2026-11-22", "2026-11-23"];
+  ok(
+    initial4DayDraft.days.every(
+      (d, idx) => d.date === expectedDates12[idx] && Array.isArray(d.stops) && d.stops.length >= 1
+    ),
+    "Scenario 12.1: every day has grounded stops on expected dates"
+  );
+  const validation12 = validateProposedPlan(initial4DayDraft, initialCatalog);
+  ok(
+    validation12.ok === true && validation12.validStopCount >= 4,
+    "Scenario 12.1: initial 4-day plan passes canonical entity & schedule validation"
+  );
+
+  // 2. Follow-up changes exactly one specified stop ("Swap Friday afternoon for a coffee shop but keep the rest.")
+  const coffeeVenue = {
+    id: "ChIJ_wf_lineage_coffee_wp",
+    name: "Lineage Coffee Roasting",
+    address: "1011 E Colonial Dr, Orlando, FL 32803",
+    city: "Orlando",
+    state: "FL",
+    lat: 28.5532,
+    lng: -81.3644,
+    type: "Coffee Shop & Roaster",
+    category: "coffee",
+    price: "$",
+    priceNum: 1,
+    rating: 4.9,
+    reviews: 950,
+    wfScore: 94,
+  };
+  const revRes12 = await postPlanner(
+    {
+      message: "Swap Friday afternoon for a coffee shop but keep the rest.",
+      proposedPlan: initial4DayDraft,
+      savedPlaces: [coffeeVenue],
+      voice: "santa",
+    },
+    "198.51.100.202"
+  );
+  ok(
+    revRes12.status === 200 &&
+      revRes12.json.ok === true &&
+      revRes12.json.mode === "revise_plan" &&
+      revRes12.json.revisionStatus === "revised",
+    "Scenario 12.2: follow-up returns mode=revise_plan and revisionStatus=revised via POST /api/planner"
+  );
+  ok(
+    Array.isArray(revRes12.json.changedStopIds) &&
+      revRes12.json.changedStopIds.length === 1 &&
+      revRes12.json.changedStopIds[0] === coffeeVenue.id,
+    "Scenario 12.2: changedStopIds contains exactly the single coffee stop ID"
+  );
+  const revisedFridayCoffeeDraft = revRes12.json.proposedPlan;
+  const fridayStopsBefore = initial4DayDraft.days[0].stops.map((s) => s.id);
+  const fridayStopsAfter = revisedFridayCoffeeDraft.days[0].stops.map((s) => s.id);
+  ok(
+    fridayStopsAfter.includes(coffeeVenue.id) &&
+      fridayStopsBefore.length === fridayStopsAfter.length &&
+      fridayStopsAfter.filter((id) => !fridayStopsBefore.includes(id)).length === 1,
+    "Scenario 12.2: swapping ONLY Friday afternoon stop to verified coffee venue"
+  );
+
+  // Also verify pure helpers for Case 2
+  const intent2 = parseDraftRevisionIntent(
+    "Swap Friday afternoon for a coffee shop but keep the rest.",
+    initial4DayDraft
+  );
+  const candidatesWithCoffee = [...groundedOrlandoPool, coffeeVenue];
+  const det2 = applyDeterministicDraftRevision(intent2, initial4DayDraft, candidatesWithCoffee, {
+    destination: { name: "Orlando", state: "FL", lat: 28.54, lng: -81.38 },
+  });
+  ok(
+    intent2.kind === "swap_stop" &&
+      intent2.targetDate === "2026-11-20" &&
+      intent2.requestedCategory === "coffee" &&
+      det2.mode === "revise_plan" &&
+      det2.changedStopIds.length === 1 &&
+      det2.changedStopIds[0] === coffeeVenue.id,
+    "Scenario 12.2: pure helpers parseDraftRevisionIntent and applyDeterministicDraftRevision swap only Friday afternoon for coffee"
+  );
+
+  // 3. Unchanged stops preserve canonical IDs and dates
+  const fridayUnchangedBefore = fridayStopsBefore.filter((id) => fridayStopsAfter.includes(id));
+  const fridayUnchangedAfter = fridayStopsAfter.filter((id) => id !== coffeeVenue.id);
+  ok(
+    fridayUnchangedBefore.length === fridayUnchangedAfter.length &&
+      fridayUnchangedBefore.every((id, idx) => id === fridayUnchangedAfter[idx]),
+    "Scenario 12.3: Friday's other stops preserve their exact canonical ID and order"
+  );
+  const saturdayBefore = JSON.stringify(initial4DayDraft.days[1].stops.map((s) => ({ id: s.id, slotLabel: s.slotLabel })));
+  const saturdayAfter = JSON.stringify(revisedFridayCoffeeDraft.days[1].stops.map((s) => ({ id: s.id, slotLabel: s.slotLabel })));
+  const sundayBefore = JSON.stringify(initial4DayDraft.days[2].stops.map((s) => ({ id: s.id, slotLabel: s.slotLabel })));
+  const sundayAfter = JSON.stringify(revisedFridayCoffeeDraft.days[2].stops.map((s) => ({ id: s.id, slotLabel: s.slotLabel })));
+  const mondayBefore = JSON.stringify(initial4DayDraft.days[3].stops.map((s) => ({ id: s.id, slotLabel: s.slotLabel })));
+  const mondayAfter = JSON.stringify(revisedFridayCoffeeDraft.days[3].stops.map((s) => ({ id: s.id, slotLabel: s.slotLabel })));
+  ok(
+    saturdayBefore === saturdayAfter &&
+      sundayBefore === sundayAfter &&
+      mondayBefore === mondayAfter &&
+      revisedFridayCoffeeDraft.days[1].date === "2026-11-21" &&
+      revisedFridayCoffeeDraft.days[2].date === "2026-11-22" &&
+      revisedFridayCoffeeDraft.days[3].date === "2026-11-23",
+    "Scenario 12.3: Saturday, Sunday, and Monday stops preserve exact canonical id, date, order, and slotLabel"
+  );
+
+  // Keep first two stops on Friday exactly as they are and make Monday more romantic
+  const keepMsg = "Keep the first two stops on Friday exactly as they are and make Monday more romantic";
+  const keepIntent = parseDraftRevisionIntent(keepMsg, initial4DayDraft);
+  const detKeep = applyDeterministicDraftRevision(keepIntent, initial4DayDraft, groundedOrlandoPool, {
+    destination: { name: "Orlando", state: "FL", lat: 28.54, lng: -81.38 },
+  });
+  ok(
+    keepIntent.targetDate === "2026-11-23" &&
+      Array.isArray(keepIntent.lockedIndices) &&
+      keepIntent.lockedIndices.includes(0) &&
+      keepIntent.lockedIndices.includes(1) &&
+      detKeep.proposedPlan.days[0].stops[0].id === initial4DayDraft.days[0].stops[0].id &&
+      detKeep.proposedPlan.days[0].stops[1].id === initial4DayDraft.days[0].stops[1].id,
+    "Scenario 12.3: Keep first two stops on Friday preserves Friday stops while targeting Monday"
+  );
+
+  // Adversarial: Claude mutates an untargeted/locked day or locked first two stops -> REVISION_SCOPE_VIOLATION
+  const badClaudeDays1 = JSON.parse(JSON.stringify(initial4DayDraft.days));
+  badClaudeDays1[1].stops[0] = { id: "ChIJ_wf_wine_bar_george", slotLabel: "1:00 PM" }; // mutated Saturday
+  const claudeViolation1 = parseAndValidateClaudeDraftRevision(
+    JSON.stringify({ status: "revised", reply: "Changed Saturday", days: badClaudeDays1 }),
+    keepIntent,
+    initial4DayDraft,
+    groundedOrlandoPool
+  );
+  const badClaudeDays2 = JSON.parse(JSON.stringify(initial4DayDraft.days));
+  badClaudeDays2[0].stops[0] = { id: "ChIJ_wf_wine_bar_george", slotLabel: "10:00 AM" }; // mutated locked Friday stop 0
+  const claudeViolation2 = parseAndValidateClaudeDraftRevision(
+    JSON.stringify({ status: "revised", reply: "Changed Friday", days: badClaudeDays2 }),
+    keepIntent,
+    initial4DayDraft,
+    groundedOrlandoPool
+  );
+  ok(
+    claudeViolation1.ok === false &&
+      claudeViolation1.code === "REVISION_SCOPE_VIOLATION" &&
+      claudeViolation2.ok === false &&
+      claudeViolation2.code === "REVISION_SCOPE_VIOLATION",
+    "Scenario 12.3: parseAndValidateClaudeDraftRevision returns REVISION_SCOPE_VIOLATION if Claude mutates a locked day or locked stop"
+  );
+
+  // 4. Follow-up refers correctly to preceding user request
+  const history4 = [{ role: "user", text: "We are staying in Winter Park on Friday" }];
+  const intent4 = parseDraftRevisionIntent("Find something closer to our hotel", initial4DayDraft, history4);
+  const wpCandidate4 = {
+    id: "ChIJ_wf_winter_park_avenue",
+    name: "Park Avenue Stroll & Central Park",
+    address: "251 S Park Ave, Winter Park, FL 32789, USA",
+    city: "Winter Park",
+    state: "FL",
+    lat: 28.5965,
+    lng: -81.3511,
+    type: "Park & Promenade",
+    price: "$",
+    priceNum: 1,
+    rating: 4.8,
+    reviews: 2800,
+    wfScore: 90,
+  };
+  const det4 = applyDeterministicDraftRevision(intent4, initial4DayDraft, [...Object.values(initialCatalog), wpCandidate4], {
+    destination: { name: "Orlando", state: "FL", lat: 28.54, lng: -81.38 },
+  });
+  ok(
+    intent4.targetDate === "2026-11-20" &&
+      intent4.closerToAnchor === "Winter Park" &&
+      det4.mode === "revise_plan" &&
+      det4.changedStopIds.length === 1 &&
+      det4.changedStopIds.includes("ChIJ_wf_winter_park_avenue"),
+    "Scenario 12.4: follow-up referring to hotel request resolves Friday targetDate, Winter Park anchor, and selects Winter Park candidate"
+  );
+
+  // 5. Second follow-up remains within bounded context
+  const tenMessages5 = [
+    { role: "assistant", text: "Welcome to Wayfind Planner! How can I help you plan your Florida trip?" },
+    { role: "user", text: "A".repeat(360) },
+    { role: "assistant", text: "B".repeat(380) },
+    { role: "user", text: "We love theme parks and dining." },
+    { role: "assistant", text: "Great! Orlando has fantastic options." },
+    { role: "user", text: "C".repeat(400) },
+    { role: "assistant", text: "D".repeat(450) },
+    { role: "user", text: "We are staying near Winter Park on Friday." },
+    { role: "assistant", text: "Got it, Winter Park is lovely." },
+    { role: "user", text: "Move Sunday dinner to 5:30 PM and keep the rest of Sunday" },
+  ];
+  const sanitized5 = sanitizeConversationHistory(tenMessages5);
+  const bounded5 = buildBoundedConversationHistory(tenMessages5);
+  ok(
+    sanitized5.length <= 4 &&
+      sanitized5.every((m) => m.text.length <= 280) &&
+      bounded5.length <= 4 &&
+      bounded5.every((m) => m.text.length <= 280),
+    "Scenario 12.5: sanitizeConversationHistory and buildBoundedConversationHistory cap history at <=4 turns and <=280 chars"
+  );
+
+  const retimeMsg5 = "Move Sunday dinner to 5:30 PM and keep the rest of Sunday";
+  const retimeIntent5 = parseDraftRevisionIntent(retimeMsg5, revisedFridayCoffeeDraft, sanitized5);
+  const retimeDet5 = applyDeterministicDraftRevision(retimeIntent5, revisedFridayCoffeeDraft, candidatesWithCoffee, {
+    destination: { name: "Orlando", state: "FL", lat: 28.54, lng: -81.38 },
+  });
+  const revisedSundayRetimeDraft = retimeDet5.proposedPlan;
+  const sundayStopsAfterRetime = revisedSundayRetimeDraft.days[2].stops;
+  const allStopsPreserved5 = [0, 1, 2, 3].every((dIdx) => {
+    const beforeIds = revisedFridayCoffeeDraft.days[dIdx].stops.map((s) => s.id);
+    const afterIds = revisedSundayRetimeDraft.days[dIdx].stops.map((s) => s.id);
+    return beforeIds.length === afterIds.length && beforeIds.every((id, i) => id === afterIds[i]);
+  });
+  const updatedSundayDinner = sundayStopsAfterRetime[sundayStopsAfterRetime.length - 1];
+  ok(
+    retimeIntent5.kind === "retime_stop" &&
+      retimeIntent5.targetDate === "2026-11-22" &&
+      retimeIntent5.newSlotLabel === "5:30 PM" &&
+      retimeDet5.ok === true &&
+      retimeDet5.mode === "revise_plan" &&
+      updatedSundayDinner.slotLabel === "5:30 PM" &&
+      allStopsPreserved5,
+    "Scenario 12.5: second follow-up updates only Sunday dinner slotLabel to 5:30 PM while preserving all stop IDs"
+  );
+
+  // 6. Missing context triggers clarification, not invention
+  const clarIntent6 = parseDraftRevisionIntent("Move dinner to 6 PM", initial4DayDraft, []);
+  const clarDet6 = applyDeterministicDraftRevision(clarIntent6, initial4DayDraft, groundedOrlandoPool);
+  ok(
+    clarIntent6.kind === "ambiguous" &&
+      typeof clarIntent6.clarificationQuestion === "string" &&
+      clarIntent6.clarificationQuestion.includes("Sunday") &&
+      clarDet6.mode === "clarify" &&
+      clarDet6.revisionStatus === "clarify" &&
+      clarDet6.proposedPlan === initial4DayDraft,
+    "Scenario 12.6: pure helpers clarify ambiguous dinner time request naming candidate days without modifying draft"
+  );
+
+  const clarHttpRes6 = await postPlanner(
+    {
+      message: "Move dinner to 6 PM",
+      proposedPlan: initial4DayDraft,
+      conversationHistory: [],
+    },
+    "198.51.100.203"
+  );
+  const clarHttpJson6 = clarHttpRes6.json;
+  const clarHttpStopsMatch =
+    JSON.stringify(clarHttpJson6.proposedPlan?.days?.flatMap((d) => d.stops.map((s) => s.id))) ===
+    JSON.stringify(initial4DayDraft.days.flatMap((d) => d.stops.map((s) => s.id)));
+  ok(
+    clarHttpRes6.status === 200 &&
+      clarHttpJson6.ok === true &&
+      clarHttpJson6.mode === "clarify" &&
+      clarHttpJson6.revisionStatus === "clarify" &&
+      typeof clarHttpJson6.clarificationQuestion === "string" &&
+      clarHttpJson6.clarificationQuestion.length > 10 &&
+      clarHttpStopsMatch,
+    "Scenario 12.6: POST /api/planner returns clarify status and names candidate days while leaving proposedPlan unchanged"
+  );
+
+  // 7. Nonexistent candidate is rejected (even with smuggled candidateCatalog)
+  const hallucinatedDraft7 = JSON.parse(JSON.stringify(initial4DayDraft));
+  hallucinatedDraft7.days[0].stops[0] = {
+    id: "ChIJ_NONEXISTENT_HALLUCINATION",
+    slotLabel: "9:00 AM",
+    why: "Hallucinated spot",
+  };
+  const revalBad7 = revalidateProposedDraft(hallucinatedDraft7, groundedOrlandoPool);
+  ok(
+    revalBad7.ok === false &&
+      revalBad7.code === "UNGROUNDED_ENTITY_ID" &&
+      revalBad7.rejectedIds.includes("ChIJ_NONEXISTENT_HALLUCINATION"),
+    "Scenario 12.7: revalidateProposedDraft rejects ungrounded candidate ID with UNGROUNDED_ENTITY_ID"
+  );
+
+  const badHttpRes7 = await postPlanner(
+    {
+      message: "Update draft with fake spot",
+      proposedPlan: hallucinatedDraft7,
+      candidateCatalog: {
+        ChIJ_NONEXISTENT_HALLUCINATION: {
+          id: "ChIJ_NONEXISTENT_HALLUCINATION",
+          name: "Fake",
+          city: "Orlando",
+          lat: 28.54,
+          lng: -81.38,
+        },
+      },
+    },
+    "198.51.100.204"
+  );
+  ok(
+    badHttpRes7.status === 422 &&
+      badHttpRes7.json.ok === false &&
+      badHttpRes7.json.code === "UNGROUNDED_ENTITY_ID" &&
+      badHttpRes7.json.rejectedIds.includes("ChIJ_NONEXISTENT_HALLUCINATION"),
+    "Scenario 12.7: POST /api/planner rejects smuggled spoofed candidateCatalog with 422 UNGROUNDED_ENTITY_ID"
+  );
+
+  // 8. Event outside its operating dates is rejected
+  const decOnlyEvent8 = {
+    id: "event:december-only-parade-2026",
+    name: "December Only Parade",
+    city: "Orlando",
+    state: "FL",
+    lat: 28.54,
+    lng: -81.38,
+    itemType: "event",
+    startDate: "2026-12-10",
+    endDate: "2026-12-20",
+    wfScore: 95,
+  };
+  const offScheduleDraft8 = JSON.parse(JSON.stringify(initial4DayDraft));
+  offScheduleDraft8.days[1].stops.push({
+    id: decOnlyEvent8.id,
+    slotLabel: "3:00 PM",
+    why: "December event on Nov 21",
+  });
+  const offSchedReval8 = revalidateProposedDraft(offScheduleDraft8, [...groundedOrlandoPool, decOnlyEvent8]);
+  ok(
+    offSchedReval8.ok === false && offSchedReval8.code === "CLOSED_OR_OFF_SCHEDULE",
+    "Scenario 12.8: placing a December-only event onto Nov 21 is rejected by revalidateProposedDraft with CLOSED_OR_OFF_SCHEDULE"
+  );
+
+  // 9. Wrong-city substitution is rejected
+  const miamiVenue9 = {
+    id: "ChIJ_wf_miami_bistro_leak",
+    name: "South Beach Ocean Bistro",
+    city: "Miami",
+    state: "FL",
+    lat: 25.7617,
+    lng: -80.1918,
+    type: "Bistro",
+    wfScore: 91,
+  };
+  const wrongCityDraft9 = JSON.parse(JSON.stringify(initial4DayDraft));
+  wrongCityDraft9.days[0].stops[0] = {
+    id: miamiVenue9.id,
+    slotLabel: "10:00 AM",
+    why: "Miami venue in Orlando trip",
+  };
+  const wrongCityReval9 = revalidateProposedDraft(
+    wrongCityDraft9,
+    [...groundedOrlandoPool, miamiVenue9],
+    { destination: { name: "Orlando", state: "FL", lat: 28.5383, lng: -81.3792 } }
+  );
+  const wrongCityHttp9 = await postPlanner(
+    {
+      message: "Replace Friday morning with Miami spot",
+      proposedPlan: wrongCityDraft9,
+      savedPlaces: [miamiVenue9],
+    },
+    "198.51.100.205"
+  );
+  ok(
+    wrongCityReval9.ok === false &&
+      wrongCityReval9.code === "WRONG_CITY_ENTITY" &&
+      wrongCityHttp9.status === 422 &&
+      wrongCityHttp9.json.ok === false,
+    "Scenario 12.9: placing a Miami entity into an Orlando proposed draft is rejected with WRONG_CITY_ENTITY and HTTP 422 on POST /api/planner"
+  );
+
+  // 10. Timed event overlap is rejected (<60 min apart)
+  const overlapDraft10 = JSON.parse(JSON.stringify(initial4DayDraft));
+  overlapDraft10.days[0].stops[0].slotLabel = "6:00 PM";
+  overlapDraft10.days[0].stops[1].slotLabel = "6:30 PM";
+  const overlapReval10 = revalidateProposedDraft(overlapDraft10, groundedOrlandoPool);
+  ok(
+    overlapReval10.ok === false && overlapReval10.code === "OVERLAPPING_TIMED_EVENTS",
+    "Scenario 12.10: stops scheduled <60 minutes apart on the same day are rejected with OVERLAPPING_TIMED_EVENTS"
+  );
+
+  const validSeparatedDraft10 = JSON.parse(JSON.stringify(initial4DayDraft));
+  validSeparatedDraft10.days[0].stops[0].slotLabel = "6:00 PM";
+  validSeparatedDraft10.days[0].stops[1].slotLabel = "8:00 PM";
+  const collisionIntent10 = {
+    kind: "retime_stop",
+    targetDate: "2026-11-20",
+    targetStopId: validSeparatedDraft10.days[0].stops[1].id,
+    newSlotLabel: "6:30 PM",
+  };
+  const collisionDet10 = applyDeterministicDraftRevision(collisionIntent10, validSeparatedDraft10, groundedOrlandoPool);
+  ok(
+    collisionDet10.mode === "no_change" &&
+      collisionDet10.revisionStatus === "unchanged" &&
+      collisionDet10.changed === false &&
+      collisionDet10.proposedPlan.days[0].stops[1].slotLabel === "8:00 PM",
+    "Scenario 12.10: retiming a stop into a <60 min collision returns mode=no_change leaving draft untouched"
+  );
+
+  // 11. Failed Claude request / unavailable inventory leaves draft unchanged
+  const skydivingHttp11 = await postPlanner(
+    {
+      message: "Swap Friday afternoon for skydiving.",
+      proposedPlan: initial4DayDraft,
+    },
+    "198.51.100.206"
+  );
+  const skydivingStopsUnchanged =
+    JSON.stringify(skydivingHttp11.json.proposedPlan?.days?.flatMap((d) => d.stops.map((s) => s.id))) ===
+    JSON.stringify(initial4DayDraft.days.flatMap((d) => d.stops.map((s) => s.id)));
+  ok(
+    skydivingHttp11.status === 200 &&
+      skydivingHttp11.json.ok === true &&
+      skydivingHttp11.json.mode === "no_change" &&
+      skydivingHttp11.json.revisionStatus === "unchanged" &&
+      skydivingStopsUnchanged,
+    "Scenario 12.11: unavailable inventory (skydiving) leaves proposedPlan unchanged with mode=no_change"
+  );
+
+  const claude503 = parseAndValidateClaudeDraftRevision(
+    "503 Service Unavailable",
+    intent2,
+    initial4DayDraft,
+    groundedOrlandoPool
+  );
+  ok(
+    claude503.ok === false,
+    "Scenario 12.11: parseAndValidateClaudeDraftRevision handles 503 without error and POST /api/planner works with ANTHROPIC_API_KEY absent"
+  );
+
+  // 12. Repeated submission does not duplicate itinerary stops
+  const sheetSrc = readFileSync(path.join(REPO, "app/components/WayfindPlannerSheet.js"), "utf8");
+  ok(
+    /submittingRef\.current\s*=\s*true/.test(sheetSrc) &&
+      sheetSrc.indexOf("submittingRef.current = true") < sheetSrc.indexOf('fetch("/api/planner"'),
+    "Scenario 12.12: WayfindPlannerSheet.js enforces synchronous submittingRef re-entrancy locking before fetch"
+  );
+  let testTrips12 = {};
+  const commit1 = commitProposedPlanToTrips(testTrips12, revRes12.json.proposedPlan, revRes12.json.candidateCatalog);
+  const commit2 = commitProposedPlanToTrips(commit1.nextTrips, revRes12.json.proposedPlan, revRes12.json.candidateCatalog);
+  ok(
+    commit1.ok === true &&
+      commit1.savedStopCount > 0 &&
+      commit2.ok === true &&
+      commit2.idempotentDuplicate === true &&
+      Object.keys(commit2.nextTrips).length === 1 &&
+      commit2.nextTrips[commit1.tripKey].items.length === commit1.savedStopCount,
+    "Scenario 12.12: calling commitProposedPlanToTrips twice returns idempotentDuplicate=true with zero duplicate stops or trips"
+  );
+
+  // 13. Pre-save Undo restores previous proposal
+  const dirtyDraft13 = {
+    title: "Dirty Draft",
+    city: "Orlando",
+    state: "FL",
+    startDate: "2026-11-20",
+    endDate: "2026-11-23",
+    days: [
+      {
+        date: "2026-11-20",
+        areaSummary: "Downtown",
+        stops: [
+          {
+            id: "ChIJ_wf_wine_bar_george",
+            slotLabel: "7:00 PM",
+            why: "Wine and dinner",
+            priceNum: 999,
+            secretToken: "EXPLOIT_PAYLOAD",
+            rating: 5.0,
+          },
+        ],
+      },
+    ],
+  };
+  const serialized13 = serializeDraftForRevision(dirtyDraft13);
+  ok(
+    serialized13 &&
+      serialized13.days[0].stops[0].id === "ChIJ_wf_wine_bar_george" &&
+      serialized13.days[0].stops[0].slotLabel === "7:00 PM" &&
+      serialized13.days[0].stops[0].why === "Wine and dinner" &&
+      !("priceNum" in serialized13.days[0].stops[0]) &&
+      !("secretToken" in serialized13.days[0].stops[0]) &&
+      !("rating" in serialized13.days[0].stops[0]),
+    "Scenario 12.13: serializeDraftForRevision preserves id, slotLabel, and why while stripping untrusted fields"
+  );
+
+  ok(
+    ["draft", "revised", "saved", "revision_failed"].every((st) => sheetSrc.includes(st)) &&
+      sheetSrc.includes("data-wf-plan-state={effPlanState}") &&
+      sheetSrc.includes('data-wf-draft-undo="1"') &&
+      sheetSrc.includes('data-wf-revision-notice="1"') &&
+      /UNDO_CMD_REGEX/.test(sheetSrc),
+    "Scenario 12.13: WayfindPlannerSheet supports all 4 plan states, undo button, revision notice, and typed Actually undo that interception"
+  );
+
+  const draftHistoryStack13 = [];
+  draftHistoryStack13.push({
+    proposedPlan: initial4DayDraft,
+    candidateCatalog: initialCatalog,
+  });
+  const poppedSnapshot13 = draftHistoryStack13.pop();
+  ok(
+    poppedSnapshot13 &&
+      JSON.stringify(poppedSnapshot13.proposedPlan.days) === JSON.stringify(initial4DayDraft.days),
+    "Scenario 12.13: popping draftHistory snapshot restores exact prior stop IDs and slotLabels"
+  );
+
+  // 14. Saving a revised draft persists the correct canonical IDs
+  const revisedCatalog14 = {
+    ...initialCatalog,
+    ...revRes12.json.candidateCatalog,
+    [coffeeVenue.id]: coffeeVenue,
+  };
+  let trips14 = {};
+  const commit14 = commitProposedPlanToTrips(trips14, revisedSundayRetimeDraft, revisedCatalog14, { now: 1763000000000 });
+  const savedTrip14 = commit14.nextTrips[commit14.tripKey];
+  ok(
+    commit14.ok === true &&
+      savedTrip14 &&
+      savedTrip14.items.some((it) => it.id === coffeeVenue.id && it.day === "2026-11-20") &&
+      savedTrip14.items.some((it) => it.day === "2026-11-22" && (it.place?.slotLabel === "5:30 PM" || it.slotLabel === "5:30 PM")),
+    "Scenario 12.14: committed trip preserves swapped Friday coffee and retimed 5:30 PM Sunday dinner"
+  );
+
+  const records14 = tripsToRecords(commit14.nextTrips, "member_user_canonical_14");
+  const syntheticRows14 = records14.map((r) => ({
+    ...r.itinerary,
+    wf_itinerary_items: r.items,
+  }));
+  const reloadedTrips14 = recordsToTrips(syntheticRows14);
+  const reloadedTrip14 = reloadedTrips14[commit14.tripKey];
+  ok(
+    reloadedTrip14 &&
+      reloadedTrip14.items.length === savedTrip14.items.length &&
+      reloadedTrip14.items.every((it, idx) => it.id === savedTrip14.items[idx].id && it.day === savedTrip14.items[idx].day) &&
+      reloadedTrip14.items.some((it) => it.id === coffeeVenue.id && it.day === "2026-11-20") &&
+      reloadedTrip14.items.some((it) => it.day === "2026-11-22" && it.place?.slotLabel === "5:30 PM"),
+    "Scenario 12.14: canonical stop IDs and dates survive tripsToRecords -> recordsToTrips reload"
+  );
+
+  const mockSupabase14 = makeMockSupabase("member_user_canonical_14");
+  const memStorage14 = makeMemoryStorage({
+    wayfind_trips: JSON.stringify(reloadedTrips14),
+  });
+  let syncedTrips14 = null;
+  const syncRes14 = await syncOwnerTrips({
+    supabase: mockSupabase14,
+    userId: "member_user_canonical_14",
+    storage: memStorage14,
+    setTrips(next) { syncedTrips14 = next; },
+  });
+  ok(
+    syncRes14 &&
+      syncRes14.ok === true &&
+      syncRes14.status === "synced" &&
+      mockSupabase14.tables.itineraries.length === 1 &&
+      mockSupabase14.tables.items.length === savedTrip14.items.length &&
+      mockSupabase14.tables.items.some((it) => it.local_item_id === coffeeVenue.id && it.scheduled_on === "2026-11-20") &&
+      mockSupabase14.tables.items.some((it) => it.scheduled_on === "2026-11-22" && it.place?.slotLabel === "5:30 PM"),
+    "Scenario 12.14: guest-to-member syncOwnerTrips persists exact canonical items to Supabase without duplicate trips"
+  );
+
+  // 15. Existing free entitlement behavior remains unchanged
+  ok(
+    planRes12.json.entitlement &&
+      planRes12.json.entitlement.allowed === true &&
+      planRes12.json.entitlement.paywallActive === false &&
+      planRes12.json.entitlement.manualItineraryFree === true &&
+      revRes12.json.entitlement &&
+      revRes12.json.entitlement.allowed === true &&
+      revRes12.json.entitlement.paywallActive === false &&
+      revRes12.json.entitlement.manualItineraryFree === true &&
+      canUseManualItinerary() === true,
+    "Scenario 12.15: both propose_trip and revise_plan return canonical free entitlement and canUseManualItinerary is true"
+  );
+
+  // 16. Session & cache isolation prevents cross-visitor leakage
+  const resetSessionAuthB = shouldResetPlannerSession({ authUserId: "user_a" }, { authUserId: "user_b" });
+  const resetSessionAuthNull = shouldResetPlannerSession({ authUserId: "user_a" }, { authUserId: null });
+  const resetSessionExplicit = shouldResetPlannerSession({ authUserId: "user_a" }, { resetSession: true });
+  const resetSessionTripKey = shouldResetPlannerSession(
+    { authUserId: "user_a", activeTripKey: "trip_1" },
+    { authUserId: "user_a", activeTripKey: "trip_2" }
+  );
+  const resetSessionCity = shouldResetPlannerSession(
+    { authUserId: "user_a", city: "Orlando" },
+    { authUserId: "user_a", city: "Miami", prompt: "Plan Miami" }
+  );
+  const resetSessionSame = shouldResetPlannerSession(
+    { authUserId: "user_a", activeTripKey: "trip_1", city: "Orlando" },
+    { authUserId: "user_a", activeTripKey: "trip_1", city: "Orlando" }
+  );
+  ok(
+    resetSessionAuthB === true &&
+      resetSessionAuthNull === true &&
+      resetSessionExplicit === true &&
+      resetSessionTripKey === true &&
+      resetSessionCity === true &&
+      resetSessionSame === false,
+    "Scenario 12.16: shouldResetPlannerSession returns true on auth change, resetSession:true, trip key change, and city change; false when continuing session"
+  );
+
+  ok(
+    /resetSession\s*=\s*useCallback\(\(\)\s*=>\s*\{[\s\S]*?messagesRef\.current\s*=\s*\[\];[\s\S]*?proposedRef\.current\s*=\s*null;[\s\S]*?draftHistoryRef\.current\s*=\s*\[\];/.test(
+      sheetSrc
+    ),
+    "Scenario 12.16: WayfindPlannerSheet synchronously clears messagesRef, proposedRef, and draftHistoryRef in resetSession()"
+  );
+
+  const userARes16 = await postPlanner(
+    {
+      message: "Orlando 3 days with private party",
+      proposedPlan: initial4DayDraft,
+      conversationHistory: [{ role: "user", text: "Secret User A itinerary preference" }],
+    },
+    "198.51.100.220"
+  );
+  const userBRes16 = await postPlanner(
+    {
+      message: "Tampa 2 days with family",
+      conversationHistory: [],
+    },
+    "198.51.100.221"
+  );
+  const userAStopIds = initial4DayDraft.days.flatMap((d) => d.stops.map((s) => s.id));
+  const userBStopIds = userBRes16.json.proposedPlan?.days?.flatMap((d) => d.stops.map((s) => s.id)) || [];
+  ok(
+    userBRes16.json.cached !== true &&
+      userAStopIds.every((id) => !userBStopIds.includes(id)) &&
+      !JSON.stringify(userBRes16.json).includes("Secret User A"),
+    "Scenario 12.16: POST /api/planner never sets cached:true or leaks stops/history across two distinct visitors"
+  );
+}
+
 if (failures > 0) {
   console.error(`test-ai-itinerary-planner: FAILED — ${failures} of ${assertions} assertions failed`);
   process.exit(1);
 }
-console.log(`test-ai-itinerary-planner: OK — ${assertions} assertions across all 11 end-to-end & red-team planner scenarios`);
+console.log(`test-ai-itinerary-planner: OK — ${assertions} assertions across all 12 end-to-end & red-team planner scenarios`);
 
