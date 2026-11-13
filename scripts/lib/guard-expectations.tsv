@@ -1028,6 +1028,7 @@ scripts/test-resolver-word-boundary.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA
 scripts/test-revenue-heartbeat.mjs	0	CALL	blocks-ci-and-deploy	1	-	30	0	0	7917041ebf9acc5edb73f65b7ea94cf57e1b109c29d446fd610f7d616fd63633
 scripts/test-review-depth-deduction.mjs	0	CALL	blocks-ci-and-deploy	1	-	18	0	0	0b678c1ae6a5ca8dd778a212c5c51ea2db88d85266cebea6d2103da1c4f61e01
 scripts/test-richness-loading-path.mjs	0	CALL	blocks-ci-and-deploy	1	-	31	0	0	f7d60ea7b20a700e4f1f95642bf20ac26e9fc45aa61e2d309fb7ee4e6d011a15
+scripts/test-root-has-selectors.mjs	0	RENDER	blocks-ci-and-deploy	1	-	51	0	0	8ab7f9cb50c9cce5a76046f63476871398b67c3a3e517d7b03482d8c644c9b02
 scripts/test-run-guards.mjs	0	CALL	blocks-ci-and-deploy	1	-	22	0	0	981a56d2931ce19ee4699c3b5ef0a06ed633860efe0a6b365be7b6c872574c31
 scripts/test-safe-force-push.mjs	0	CALL	blocks-ci-and-deploy	1	-	52	0	0	09804c6ab5a9bf5154763b7c14e422d56ec58f4fdbaab039ef805a0b1e0566d2
 scripts/test-santa-chat.mjs	0	RENDER	blocks-ci-and-deploy	1	-	66	0	0	9b773c2780fd49b38f8fa8cfd43896ca6ce0c1db803c3290d5463cb4618c74a9
