@@ -2332,13 +2332,20 @@ function SortControl({ sortBy, onSort, mi, onMi, where, dealsAvailable, dealsOnl
 // behind it; the auth dialog auto-opens. Reuses the one auth source of truth
 // (setAuthOpen) — no second auth system.
 const AUTH_SCREENS = new Set(["saved", "itinerary"]);
-function AuthWall({ label, onSignIn, detail }) {
+function AuthWall({ label, onSignIn, detail, onBuildTrip }) {
   return (
     <div style={{ textAlign: "center", padding: "56px 24px", color: C.muted }}>
       <div style={{ display: "flex", justifyContent: "center", marginBottom: 14 }}><NavIcon name="saved" color={C.accent} size={40} /></div>
       <strong style={{ display: "block", color: C.text, fontSize: 17 }}>Sign in to view {label}</strong>
       <p style={{ fontSize: 13.5, color: C.muted, maxWidth: 320, margin: "8px auto 18px", lineHeight: 1.55 }}>{detail || "Sign in to save places, create lists, and plan trips. Your saves sync across all your devices."}</p>
-      <button onClick={onSignIn} style={{ minHeight: 44, padding: "11px 22px", borderRadius: 12, background: C.accent, border: "none", color: "#0D1117", fontSize: 14.5, fontWeight: 800, cursor: "pointer" }}>Sign in</button>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 10, justifyContent: "center" }}>
+        <button onClick={onSignIn} style={{ minHeight: 44, padding: "11px 22px", borderRadius: 12, background: C.accent, border: "none", color: "#0D1117", fontSize: 14.5, fontWeight: 800, cursor: "pointer" }}>Sign in</button>
+        {onBuildTrip && (
+          <button type="button" data-wf-authwall-build-trip="1" onClick={onBuildTrip} style={{ minHeight: 44, padding: "11px 18px", borderRadius: 12, background: "rgba(249,115,22,0.12)", border: "1px solid rgba(249,115,22,0.45)", color: C.accent, fontSize: 14, fontWeight: 800, cursor: "pointer" }}>
+            ✨ Build a trip with Wayfind
+          </button>
+        )}
+      </div>
     </div>
   );
 }
@@ -7564,6 +7571,28 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
     try { setLocal("wayfind_trips", JSON.stringify(trips)); } catch {}
   }, [trips]);
   useEffect(() => {
+    const onPlannerCommit = (e) => {
+      const d = (e && e.detail) || {};
+      if (d.nextTrips && typeof d.nextTrips === "object") setTrips(d.nextTrips);
+      if (d.tripKey !== undefined) setActiveTrip(d.tripKey);
+      if (d.openItinerary) setScreen("itinerary");
+      if (d.toast) showToast(d.toast);
+    };
+    window.addEventListener("wf:planner-commit", onPlannerCommit);
+    return () => window.removeEventListener("wf:planner-commit", onPlannerCommit);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  useEffect(() => {
+    try {
+      window.__wfPlannerContext = {
+        screen,
+        activePlace: detail || null,
+        activeTrip: activeTrip && trips && trips[activeTrip] ? trips[activeTrip] : null,
+      };
+      window.dispatchEvent(new Event("wf:planner-context"));
+    } catch {}
+  }, [screen, detail, activeTrip, trips]);
+  useEffect(() => {
     let stop = false;
     const read = () => { if (!stop) { try { const next = readItineraryFlags(window.posthog); setItineraryFlags((prev) => nextItineraryFlags(prev, next)); } catch (e) {} } };
     read();
@@ -11764,7 +11793,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
             It stays usable before sign-in; the screen offers sign-in only as
             optional cloud sync. Itinerary remains account-backed. */}
         {screen === "saved" && <SavedScreen ctx={ctx} />}
-        {screen === "itinerary" && (authReady && !user && !hasLocalGuestTrip ? <AuthWall label="your Itinerary" onSignIn={() => setAuthOpen(true, "auth_wall")} detail={itineraryFlags.sync ? "Sign in to plan trips. Your trips sync across your devices." : "Sign in to plan trips and build itineraries."} /> : <ItineraryScreen ctx={ctx} />)}
+        {screen === "itinerary" && (authReady && !user && !hasLocalGuestTrip ? <AuthWall label="your Itinerary" onSignIn={() => setAuthOpen(true, "auth_wall")} onBuildTrip={() => { setAuthOpen(false); try { const detail = { surface: "itinerary_auth_wall" }; window.__wfPendingPlannerOpen = detail; window.dispatchEvent(new CustomEvent("wf:planner-open", { detail })); } catch {} }} detail={itineraryFlags.sync ? "Sign in to plan trips. Your trips sync across your devices." : "Sign in to plan trips and build itineraries."} /> : <ItineraryScreen ctx={ctx} />)}
 
         {screen === "shared" && sharedList && <SharedScreen ctx={ctx} />}
         {screen === "shared" && sharedItinerary && !sharedList && <SharedItineraryScreen ctx={ctx} />}

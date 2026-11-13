@@ -1980,6 +1980,7 @@ node scripts/test-bookable-near-50.mjs
 # Statewide theme-park rail core: exact owned identities, one existing ticket
 # winner, visible-score order, standard cards, and no raw partner destinations.
 node scripts/test-theme-park-core.mjs
+node scripts/test-theme-park-photo-credits.mjs
 node scripts/test-theme-park-surfaces.mjs
 
 # Curated tiles (today / experiences / food / nightlife / shopping / stays) read
@@ -2374,6 +2375,7 @@ node scripts/check-christmas-rejected-photos.mjs
 node scripts/check-event-rail-photo-credits.mjs
 # Licensed static gallery batches (2026-11p+): free licence, author, Commons source, provenance row, file on disk.
 node scripts/check-christmas-static-gallery-rights.mjs
+node scripts/check-christmas-gallery-no-news-credit.mjs
 node scripts/test-area-twins.mjs
 node scripts/check-map-note-attribution.mjs
 node scripts/test-cc-alert-drill.mjs
@@ -2626,3 +2628,5 @@ node scripts/test-christmas-map-pins.mjs
 node scripts/test-christmas-plan.mjs
 # 2026-11-12: Wayfind Frontier moment-of-decision search constraints, open-now event gating, running event windows, bounded date-night weather race, dynamic PaidLanding cities, redirect attribution preservation, trip city fallback, and Map SantaDock clearance.
 node scripts/test-frontier-moment-decisions.mjs
+# 2026-11-12: Grounded Wayfind AI Itinerary Builder end-to-end verification (all 7 acceptance scenarios, ungrounded ID refusal, closed-day check, local->Supabase sync, and fallback resilience).
+node scripts/test-ai-itinerary-planner.mjs
