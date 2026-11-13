@@ -134,7 +134,12 @@ const PAIRS = {
   // pinning: "TRENDING / NOW / The spots everyone is talking about." over a
   // magnifying glass on a rising arrow, no CTA baked in. Rail title "Trending
   // Now", short "The spots everyone is talking about" — same words.
-  trending: { copy: "e96cd4380f8c85e4", art: "839fd667e2a5aea0" },
+  // v32 re-pin (owner, 2026-11-13) — the Santa poster, read at 760px and 380px
+  // before pinning: "TRENDING / NOW / Near You." with a lime underline over
+  // Santa in sunglasses pointing up, on green. No sub, no CTA, no count baked
+  // in. Title "Trending Now" is the headline's own words; copy unchanged.
+  // Master: art/rail-sources/trending.png, sha256 898bd08b8373734e...
+  trending: { copy: "e96cd4380f8c85e4", art: "2c09dde6959ee812" },
   // v8.95 — owner's purple 941x1672 poster, read before pinning: "wayfind /
   // YOUR BEST DAY EVER / happy birthday". It opens Birthday Plans, Solved;
   // the promise and destination agree without asserting an unsupported deal.
