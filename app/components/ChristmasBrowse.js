@@ -12,12 +12,22 @@
 // "Price not announced" and a ticket button exists only where the existing
 // data has a real ticket or official link.
 import { useEffect, useRef, useState } from "react";
+import dynamic from "next/dynamic";
 import ChristmasFilter from "./ChristmasFilter.js";
+import ChristmasWeekendRow from "./ChristmasWeekendRow.js";
+import ChristmasPlan from "./ChristmasPlan.js";
+import useChristmasLocation from "./useChristmasLocation.js";
 import { TicketCard } from "./ChristmasTicketCard.js";
 import { GuideCommissionLine } from "./GuideCommissionLine.js";
 import { reminderFactsFor } from "../../lib/eventReminderFacts.js";
 import { CHRISTMAS_CARD_LABELS, CHRISTMAS_PRICE_UNKNOWN_TEXT, CHRISTMAS_SEASON_UNDATED_TEXT, christmasCopy, christmasPitch, christmasPriceLabel } from "../../lib/christmasCardCopy.js";
+import { styleHtml } from "../../lib/styleHtml.js";
 
+// The map (Apple Maps) loads only when opened.
+const ChristmasMap = dynamic(() => import("./ChristmasMap.js"), { ssr: false, loading: () => <p className="xm-count" role="status">Loading the map…</p> });
+const MAP_CSS = `.xm-map-toggle{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 18px;border:1px solid #E8B48A;border-radius:999px;background:transparent;color:#FFE9C8;font:inherit;font-size:15px;font-weight:800;cursor:pointer}
+.xm-map-toggle[aria-expanded="true"]{background:#E8B48A22}.xm-map-toggle[data-promoted]{background:linear-gradient(180deg,#FFE9C8,#E8C395);color:#3D0914;box-shadow:0 3px 12px #18020826}
+.xm-map-toggle:focus-visible{outline:2px solid #FFE9C8;outline-offset:3px}`;
 const FILTER_KEYS = ["region", "category", "when", "date", "price", "audience", "undated", "q", "lat", "lng", "sort"];
 // A location found quietly on load (auto) ranks the list but never goes into
 // the shareable address bar: a shared link must not carry the sharer's spot.
@@ -76,6 +86,7 @@ export function browseRowFor(card) {
     placeholder: card.placeholder || null,
     cta: ticket ? ticket.cta : null,
     secondaryCta: ticket ? ticket.secondaryCta : null,
+    options: ticket && Array.isArray(ticket.options) ? ticket.options : [],
     eventHref: card.detailHref || null,
     pageLabel: isPlace ? "View place" : null,
     isPlace,
@@ -114,37 +125,27 @@ export function christmasUrlQuery(search, facets = {}) {
   return out;
 }
 
-export default function ChristmasBrowse({ initial, facets, today, initialQuery = {} }) {
+export default function ChristmasBrowse({ initial, facets, today, initialQuery = {}, weekend = null }) {
   const [query, setQuery] = useState(() => ({ ...initialQuery }));
   const [data, setData] = useState(initial);
   const [cards, setCards] = useState(initial.cards || []);
   const [loading, setLoading] = useState(false);
   const [failed, setFailed] = useState(false);
   const first = useRef(true);
+  const [mapOpen, setMapOpen] = useState(false);
   // Owner 2026-11-11: the default order for every category is the best rated,
-  // trending choices near the visitor. On load the page finds a location
-  // without a permission prompt: the device position only when the visitor
-  // already allowed it, else the coarse Florida-only city lookup (/api/geo,
-  // the same one home uses). Nothing found means best rated statewide. A
-  // link that already carries a location or sort=tickets is left alone.
-  useEffect(() => {
-    if (typeof window === "undefined") return undefined;
+  // trending choices near the visitor. The one quiet lookup lives in
+  // useChristmasLocation and feeds both the list and the weekend row. A link
+  // that already carries a location or sort=tickets is left alone.
+  const found = useChristmasLocation(() => {
     // The cached page passes no filters, so the link's own query decides.
     const linked = { ...initialQuery, ...christmasUrlQuery(window.location.search, facets) };
-    if (linked.lat || linked.sort === "tickets") return undefined;
-    let dead = false;
-    const adopt = (lat, lng) => {
-      if (dead || !Number.isFinite(lat) || !Number.isFinite(lng)) return;
-      setQuery((q) => (q.lat || q.sort === "tickets" ? q : { ...q, lat: lat.toFixed(3), lng: lng.toFixed(3), auto: true }));
-    };
-    const byCity = () => fetch("/api/geo", { cache: "no-store" }).then((r) => r.json()).then((j) => { if (j && j.ok) adopt(Number(j.lat), Number(j.lng)); }).catch(() => {});
-    const byDevice = () => navigator.geolocation.getCurrentPosition((pos) => adopt(pos.coords.latitude, pos.coords.longitude), byCity, { timeout: 8000 });
-    try {
-      if (navigator.permissions && navigator.geolocation) navigator.permissions.query({ name: "geolocation" }).then((p) => (p.state === "granted" ? byDevice() : byCity()), byCity);
-      else byCity();
-    } catch { byCity(); }
-    return () => { dead = true; };
-  }, []);
+    return !!(linked.lat || linked.sort === "tickets");
+  });
+  useEffect(() => {
+    if (!found) return;
+    setQuery((q) => (q.lat || q.sort === "tickets" ? q : { ...q, lat: found.lat, lng: found.lng, auto: true }));
+  }, [found]);
   useEffect(() => {
     if (first.current) { first.current = false; return; }
     const params = new URLSearchParams();
@@ -154,6 +155,9 @@ export default function ChristmasBrowse({ initial, facets, today, initialQuery =
       params.set(k, v);
       if (!(query.auto && PRIVATE_KEYS.has(k))) shown.set(k, v);
     }
+    // A shared plan link (?plan=) is not a filter; keep it so a reload or a
+    // copied URL still opens the friend's plan.
+    try { const plan = new URLSearchParams(location.search).get("plan"); if (plan) shown.set("plan", plan); } catch {}
     try { window.history.replaceState(null, "", shown.toString() ? "?" + shown.toString() + "#browse" : location.pathname + "#browse"); } catch {}
     const controller = new AbortController();
     setLoading(true); setFailed(false);
@@ -197,14 +201,22 @@ export default function ChristmasBrowse({ initial, facets, today, initialQuery =
   // Reset clears the filters but keeps a quietly found location, so the list
   // stays on the default best near you order.
   const clearAll = () => setQuery((q) => (q.auto && q.lat ? { lat: q.lat, lng: q.lng, auto: true } : {}));
+  const lightsView = query.category === "lights";
   const shownCards = cards.length;
   const hasPartner = cards.some((c) => c.ticketRow && c.ticketRow.cta && c.ticketRow.cta.kind === "affiliate");
   return <section id="browse" aria-label="Florida Christmas events" style={{ margin: "0 0 28px" }} data-christmas-browse="">
+    <ChristmasWeekendRow initial={weekend} lat={located ? query.lat : null} lng={located ? query.lng : null} />
+    <ChristmasPlan />
     <div className="xm-controls" data-boo-clear="" role="toolbar" aria-label="Filter Christmas events">
       <ChristmasFilter query={query} facets={facets} onSet={set} onNear={nearMe} onReset={clearAll} />
       <span className="xm-sort-note">{ticketsFirst ? "Tickets first" : located ? "Top rated near you" : "Top rated and trending"}</span>
+      <button type="button" className="xm-map-toggle" data-promoted={lightsView ? "" : undefined} aria-expanded={mapOpen} aria-controls="xm-map-panel" onClick={() => setMapOpen((v) => !v)}>
+        {mapOpen ? "Hide the map" : lightsView ? "See the lights on a map" : "Map"}
+      </button>
       {anyFilter ? <button type="button" className="xm-clear" onClick={clearAll}>Reset</button> : null}
     </div>
+    <style dangerouslySetInnerHTML={styleHtml(MAP_CSS)} />
+    {mapOpen ? <div id="xm-map-panel" data-boo-clear=""><ChristmasMap query={query} /></div> : null}
     <p className="xm-count" role="status" aria-live="polite">
       {failed ? "We could not load these listings. Try again in a moment." : loading ? "Updating…" : `${data.total} ${data.total === 1 ? "Christmas plan" : "Christmas plans"}${summary ? " · " + summary : ""}`}
     </p>

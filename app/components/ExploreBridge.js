@@ -49,6 +49,7 @@ import { captureAttribution, decorateHref } from "../../lib/attribution";
 import { recordExposure } from "../../lib/experiment";
 import { usePhotoSrcFilter } from "./photoPolicyContext";
 import CardPhoto from "./CardPhoto.js";
+import { styleHtml } from "../../lib/styleHtml.js";
 
 // useLayoutEffect warns during SSR; useEffect never runs before paint. Pick per
 // environment — the choice is stable for the lifetime of the process, so this
@@ -141,12 +142,12 @@ export default function ExploreBridge({ city, picks, entryPage, pageType }) {
 
   return (
     <aside data-explore-bridge="" data-ready={resolved ? "" : undefined} inert={resolved ? undefined : "inert"} style={S.wrap} aria-label={"Find something to do" + (where ? " in " + where : "")}>
-      <style dangerouslySetInnerHTML={{ __html: `
+      <style dangerouslySetInnerHTML={styleHtml(`
         [data-explore-bridge] a:focus-visible{outline:2px solid #FDBA74;outline-offset:3px}
         [data-explore-bridge] .wf-bridge-intent:hover{border-color:#F97316!important;color:#FDBA74!important}
         [data-explore-bridge] .wf-bridge-primary:hover{background:#FB923C!important}
         @media(max-width:380px){[data-explore-bridge] .wf-bridge-intents{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
-      ` }} />
+      `)} />
       <div style={{ color: "#FDBA74", fontSize: 10, fontWeight: 700, letterSpacing: "1.4px", textTransform: "uppercase", marginBottom: 6 }}>Find your next stop</div>
       <p style={S.q}>What are you looking for{where ? " in " + where : ""}?</p>
       <nav className="wf-bridge-intents" style={S.chips} aria-label="Explore by interest">

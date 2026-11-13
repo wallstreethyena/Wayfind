@@ -8,6 +8,7 @@ import CommerceClickBeacon from "./CommerceClickBeacon.js";
 import { GuideCommissionLine } from "./GuideCommissionLine.js";
 import { emitCommerce } from "../../lib/commerce.js";
 import { activeSeasonalMark, HALLOWEEN_MARK } from "../../lib/seasonalBrand.js";
+import { styleHtml } from "../../lib/styleHtml.js";
 
 // Wayfind home header replica plus Halloween ticket cards. Home palette, Inter via --wf-sans.
 // Visible copy comes from the server model and stays dash free.
@@ -512,7 +513,7 @@ export default function BoHalloweenHaunt({ model, share = null, initialFilter = 
 
   return (
     <section className="boo-page" aria-labelledby="boo-title" data-analytics-page="halloween_haunts">
-      <style dangerouslySetInnerHTML={{ __html: CSS }} />
+      <style dangerouslySetInnerHTML={styleHtml(CSS)} />
       <CommerceClickBeacon surface="halloween_haunts" />
       <FestivalLights />
       <WayfindHeader />

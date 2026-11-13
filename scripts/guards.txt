@@ -351,6 +351,8 @@ node scripts/test-promote-ledger-sim.mjs
 node scripts/check-promote-spend-gate.mjs
 node scripts/test-prominence.mjs
 node scripts/test-idle-defer.mjs
+# 2026-11-13: homepage screen/sheet chunks warm one at a time after the first screen's data burst (lib/chunkWarmup.js).
+node scripts/test-chunk-warmup.mjs
 node scripts/check-pick-medallion.mjs
 node scripts/check-editorial-publish.mjs
 node scripts/check-editorial-publish-symmetry.mjs
@@ -1978,6 +1980,7 @@ node scripts/test-bookable-near-50.mjs
 # Statewide theme-park rail core: exact owned identities, one existing ticket
 # winner, visible-score order, standard cards, and no raw partner destinations.
 node scripts/test-theme-park-core.mjs
+node scripts/test-theme-park-photo-credits.mjs
 node scripts/test-theme-park-surfaces.mjs
 
 # Curated tiles (today / experiences / food / nightlife / shopping / stays) read
@@ -2489,6 +2492,8 @@ node scripts/check-santa-companion.mjs
 node scripts/check-boo-companion.mjs
 node scripts/test-santa-companion.mjs
 node scripts/test-santa-dock.mjs
+node scripts/test-root-has-selectors.mjs
+node scripts/check-style-html-stable.mjs
 # 2026-10-27 (fix-affiliate-synthetic-traffic) - prefetch, QA opt-in and burst traffic never follow a
 # partner redirect; real Chrome/Firefox/Safari clicks, Node-fetch probes and the synthetic monitor
 # still do. Drives all four go handlers with the PostHog capture intercepted.
@@ -2552,6 +2557,8 @@ node scripts/test-hydrate-editorial-precedence.mjs
 node scripts/check-this-week-events.mjs
 # 2026-11-03: Viator per-click opaque attribution, stale-attribution merge prevention, booking ingestion/reconciliation, 4-way financial separation, and Google Data Manager offline conversion pipeline.
 node scripts/test-viator-booking-attribution.mjs
+# 2026-11-12: a built Viator click row is ACCEPTED by the real wf_viator_clicks constraints and keeps its gclid (campaign names never go into observed_utm_campaign).
+node scripts/test-viator-click-row-db-contract.mjs
 node scripts/test-viator-visitor-hash.mjs
 node scripts/check-schedule-note-days.mjs
 node scripts/check-event-assessment-policy.mjs
@@ -2595,6 +2602,7 @@ node scripts/test-function-size-gate.mjs
 node scripts/check-event-not-found-recovery.mjs
 # 2026-11-10: StubHub (Partnerize) affiliate adapter ships DARK until STUBHUB_PARTNERIZE_CAMREF is set.
 node scripts/test-stubhub-dark.mjs
+node scripts/test-christmas-stubhub-dark.mjs
 # 2026-11-11: human traffic reserve - background jobs may not use the last 20% of a visitor-shared Google line.
 node scripts/test-human-traffic-reserve.mjs
 # 2026-11-11: home feed INP: a parent render must not re-render the Christmas rail cards; the itinerary flag poll keeps object identity.
@@ -2611,6 +2619,7 @@ node scripts/test-reserve-schema.mjs
 node scripts/test-reserve-v2.mjs
 # 2026-11-12: Reserve v2, guest app (real render: wayfind confirm card, OpenTable handoff card never shows times or says booked, none state, profile reuse, name question collected outside the chat, similar picks, history, profile editor consent/save/delete, Santa reserve chips, no dashes, 44px targets).
 node scripts/test-reserve-guest.mjs
+node scripts/test-staged-rails.mjs
 # 2026-11-12: homepage JS diet - the live sports poster tile loads lib/posterEvents.js (event pipeline, ~13.9KB gz) lazily; lock the import-graph boundary.
 node scripts/check-home-diet.mjs
 # 2026-11-12: Place Detail "Your Game Plan" decision brief + Commerce Entity-Resolution guard.
@@ -2622,3 +2631,11 @@ node scripts/test-owned-social-reconcile.mjs
 node scripts/test-background-daily-line.mjs
 node scripts/test-refresh-dedup.mjs
 node scripts/test-game-plan.mjs
+# 2026-11-12: Christmas page weekend row: window math, top 3 per category, max 4, location rings.
+node scripts/test-christmas-weekend.mjs
+# 2026-11-12: Christmas map pins: never an approximate location; count equals verified listings.
+node scripts/test-christmas-map-pins.mjs
+# 2026-11-12: Christmas plan share links: id validation, vote storage fails closed, migration shape (never applied).
+node scripts/test-christmas-plan.mjs
+# 2026-11-12: Wayfind Frontier moment-of-decision search constraints, open-now event gating, running event windows, bounded date-night weather race, dynamic PaidLanding cities, redirect attribution preservation, trip city fallback, and Map SantaDock clearance.
+node scripts/test-frontier-moment-decisions.mjs

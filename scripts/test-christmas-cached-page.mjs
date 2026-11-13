@@ -130,7 +130,7 @@ delete process.env.NEXT_PHASE;
   equal(christmasUrlQuery(null, {}), {}, "no search and no facets is an empty query, never a crash");
   const src = code("app/components/ChristmasBrowse.js");
   ok(/useEffect\(\(\) => \{\s*const fromUrl = christmasUrlQuery\(window\.location\.search, facets\);\s*if \(Object\.keys\(fromUrl\)\.length\) setQuery\(/.test(src), "the browse applies URL filters once after load");
-  ok(/const linked = \{ \.\.\.initialQuery, \.\.\.christmasUrlQuery\(window\.location\.search, facets\) \};\s*if \(linked\.lat \|\| linked\.sort === "tickets"\) return undefined;/.test(src), "the automatic location step reads the link, so a ?lat or ?sort=tickets link is left alone");
+  ok(/useChristmasLocation\(\(\) => \{[^}]*const linked = \{ \.\.\.initialQuery, \.\.\.christmasUrlQuery\(window\.location\.search, facets\) \};\s*return !!\(linked\.lat \|\| linked\.sort === "tickets"\);/.test(src) && /if \(shouldSkip && shouldSkip\(\)\) return undefined;/.test(code("app/components/useChristmasLocation.js")), "the automatic location step reads the link, so a ?lat or ?sort=tickets link is left alone");
 }
 
 console.log(`test-christmas-cached-page: OK, ${checks} checks (build read executed with the network stubbed to throw: zero calls; refresh failure and photo budget executed with injected readers; page source checked with comments stripped)`);

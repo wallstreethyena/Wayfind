@@ -1143,5 +1143,13 @@
    "detail": "If the ledger accounting regresses, the monthly Google lines drift from the real bill: grants leak (the free line empties early and visitors are refused) or refunds are doubled (spend past the free line becomes paid)."
   },
   "owner": "Revenue QA"
+ },
+ "scripts/test-viator-click-row-db-contract.mjs": {
+  "protects": "Viator click rows built by attributedViatorDestination are inserted into PGlite loaded with the production wf_viator_clicks migration and must be accepted with their gclid/gbraid for real ad landing shapes (campaign name in utm_campaign, numeric id, auto-tag only, iOS gbraid, legacy storage); store failures are logged without identifiers.",
+  "blastRadius": {
+   "category": "revenue",
+   "detail": "Regressing it lets Postgres reject every ad visitor's click row (gclid included) while the redirect still works, so no Viator booking can ever be tied to a Google ad and nothing alerts."
+  },
+  "owner": "Revenue QA"
  }
 }

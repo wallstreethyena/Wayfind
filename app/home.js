@@ -12,7 +12,6 @@ import { normName, betterPlace, dedupePlaces } from "../lib/placeDedupe";
 import { comparatorFor, sortPlacesBy, nearestBranch } from "../lib/sortModes";
 import { openBrowseHistory } from "../lib/browseHistory";
 import { localCitySuggestions, createSearchAttempt } from "../lib/searchExperience.js";
-import { resolveSearchIntent } from "../lib/searchIntent.js";
 import { mergeHealedPlacePhotos } from "../lib/detailHero";
 import { RON_DUPRAT_TOP7, chefHookCard, chefPickPlaces } from "../lib/chefPicks";
 import { fallCardClass, fallShareLine } from "../lib/fallSkin.js";
@@ -78,6 +77,7 @@ import { attributionParams } from "../lib/attribution";
 // map interactions never mint a second $pageview).
 import { noteSessionProgress } from "../lib/activation";
 import { noteExplodingSignup } from "../lib/explodingExperiment";
+import { styleHtml } from "../lib/styleHtml.js";
 // lib/authJourney is loaded on demand (a sign-in moment, never first paint): the
 // homepage bundle sits 0.4KB under its 501KB ratchet and this code is not needed
 // until someone signs in. See check-bundle.mjs.
@@ -205,9 +205,12 @@ const TripConnections = nextDynamic(() => import("./components/TripConnections")
 // 2.7s (median of 5, same Vercel preview infra, 390px).
 import ThemeParkRail from "./components/ThemeParkRail";
 import { nextCenter } from "../lib/centerIdentity";
+import { warmChunksInSequence } from "../lib/chunkWarmup";
 const loadTrips = () => import("../lib/trips");
-const SHEET_LOADERS = [loadHookDetail, loadAccount, loadMenu, loadAuth, loadDetail, loadIntro, loadSocialFind];
-const SCREEN_LOADERS = [loadSurprise, loadCoupons, loadSaved, loadItinerary, loadShared, loadEventsScreen, loadMap, loadExperience, loadThingsToDo, loadTrips, ...SHEET_LOADERS];
+// Warm-up ORDER matters now that chunks are fetched one at a time
+// (lib/chunkWarmup.js): the place-detail sheet is the most common first tap
+// (any place card), so it goes first; then the bottom-nav screens.
+const SCREEN_LOADERS = [loadDetail, loadEventsScreen, loadMap, loadSaved, loadMenu, loadSurprise, loadItinerary, loadCoupons, loadHookDetail, loadThingsToDo, loadExperience, loadShared, loadTrips, loadAccount, loadAuth, loadIntro, loadSocialFind];
 const SurpriseScreen = nextDynamic(loadSurprise, { ssr: false, loading: () => <Loader label="Loading" pad="16px 2px" /> });
 const CouponsScreen = nextDynamic(loadCoupons, { ssr: false, loading: () => <Loader label="Loading" pad="16px 2px" /> });
 const SavedScreen = nextDynamic(loadSaved, { ssr: false, loading: () => <Loader label="Loading" pad="16px 2px" /> });
@@ -564,7 +567,7 @@ const WF_DESTINATIONS = [
   { id: "map", icon: "map", label: "Map", href: "/map" },
 ];
 
-function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, tight, showSubs = true, compact, nav, navRegion, navCitySlug, navOpenCat, onNavOpen, onNavSub }) {
+function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, tight, showSubs = true, subsExpanded = true, compact, nav, navRegion, navCitySlug, navOpenCat, onNavOpen, onNavSub }) {
   const subs = showSubs && activeCat ? (SUBFILTERS[activeCat] || []) : [];
   // Hooks run BEFORE the compact early-return below — a conditional hook here
   // would break the map screen the moment a sub-filter opened.
@@ -599,37 +602,39 @@ function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, tight, 
   if (compact) {
     const open = !!(activeCat && subs.length > 1);
     return (
-      <div className="wf-mapfp">
-        <style dangerouslySetInnerHTML={{ __html: `
-          .wf-mapfp{background:rgba(10,14,20,.86);-webkit-backdrop-filter:blur(18px) saturate(140%);backdrop-filter:blur(18px) saturate(140%);border:1px solid rgba(255,255,255,.13);border-radius:19px;overflow:hidden}
+      <div className={`wf-mapfp${subsExpanded === false ? " is-subs-collapsed" : ""}`}>
+        <style dangerouslySetInnerHTML={styleHtml(`
+          .wf-mapfp{background:rgba(10,14,20,.82);-webkit-backdrop-filter:blur(18px) saturate(140%);backdrop-filter:blur(18px) saturate(140%);border:1px solid rgba(255,255,255,.12);border-radius:15px;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,.28)}
           .wf-mapfp-row{position:relative}
-          .wf-mapfp-scroll{display:flex;gap:7px;overflow-x:auto;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:9px 11px}
+          .wf-mapfp-scroll{display:flex;gap:6px;overflow-x:auto;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:5px 8px}
           .wf-mapfp-scroll::-webkit-scrollbar{display:none}
           /* Scroll affordance. pointer-events:none so it can never eat a tap on
              the pill underneath, and it is only rendered when the row actually
              overflows — a permanent fade would imply movement that is not there. */
-          .wf-mapfp-fade{position:absolute;top:0;right:0;bottom:0;width:44px;pointer-events:none;background:linear-gradient(to right,rgba(10,14,20,0),rgba(10,14,20,.92))}
+          .wf-mapfp-fade{position:absolute;top:0;right:0;bottom:0;width:36px;pointer-events:none;background:linear-gradient(to right,rgba(10,14,20,0),rgba(10,14,20,.88))}
           /* 32px visual pill, 44px touch target — the extra comes from padding on
              a transparent wrapper, never from height, or the row grows again. */
           .wf-mapfp-tap{flex:none;scroll-snap-align:start;background:none;border:0;padding:6px 0;cursor:pointer;display:block}
-          .wf-mapfp-pill{display:flex;align-items:center;gap:6px;height:32px;padding:0 12px;border-radius:16px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.09);white-space:nowrap}
+          .wf-mapfp-pill{display:flex;align-items:center;gap:5px;height:32px;padding:0 11px;border-radius:16px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.09);white-space:nowrap}
           .wf-mapfp-pill span{font-size:12.5px;font-weight:600;color:#FFFFFF;line-height:1}
-          .wf-mapfp-tap[aria-selected="true"] .wf-mapfp-pill{background:${C.accent};border-color:${C.accent};box-shadow:0 0 0 4px rgba(249,115,22,.16),0 4px 14px rgba(249,115,22,.3)}
+          .wf-mapfp-tap[aria-selected="true"] .wf-mapfp-pill{background:${C.accent};border-color:${C.accent};box-shadow:0 0 0 3px rgba(249,115,22,.16),0 3px 10px rgba(249,115,22,.28)}
           .wf-mapfp-tap[aria-selected="true"] .wf-mapfp-pill span{color:#0B0F14;font-weight:800}
           .wf-mapfp-tap:focus-visible .wf-mapfp-pill{outline:2px solid ${C.accent};outline-offset:2px}
           /* 26px sub pill + 9px top/bottom = 44px touch target. Measured 40px at 390px
              with the shared 6px padding, which is under the floor. */
           .wf-mapfp-subs .wf-mapfp-tap{padding:9px 0}
-          .wf-mapfp-divider{height:1px;background:rgba(255,255,255,.09);margin:0 11px}
+          .wf-mapfp-divider{height:1px;background:rgba(255,255,255,.08);margin:0 9px}
           /* Height/opacity transition so the row slides rather than snaps. */
           .wf-mapfp-subs{overflow:hidden;max-height:0;opacity:0;transition:max-height .18s ease-out,opacity .18s ease-out}
-          .wf-mapfp-subs.is-open{max-height:64px;opacity:1}
+          .wf-mapfp-subs.is-open{max-height:54px;opacity:1}
+          .wf-mapfp.is-subs-collapsed .wf-mapfp-divider{display:none}
+          .wf-mapfp.is-subs-collapsed .wf-mapfp-subs.is-open{max-height:0;opacity:0;pointer-events:none}
           .wf-mapfp-sub{display:flex;align-items:center;height:26px;padding:0 10px;border-radius:13px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);font-size:12px;font-weight:600;color:#FFFFFF;white-space:nowrap;line-height:1}
           /* Subfilters are SECONDARY: a tint, never a solid fill, so they cannot
              compete with the active category pill directly above them. */
           .wf-mapfp-tap[aria-selected="true"] .wf-mapfp-sub{background:rgba(249,115,22,.16);border-color:rgba(249,115,22,.42);color:${C.accent};font-weight:800}
           @media (prefers-reduced-motion: reduce){ .wf-mapfp-subs{transition:none} }
-        ` }} />
+        `)} />
         <div className="wf-mapfp-row">
           <div className="wf-mapfp-scroll" role="tablist" aria-label="Map categories" ref={mapfpArrowKeys}>
             {Cats.CATEGORY_TILES.map((m) => { const on = activeCat === m.id; return (
@@ -2119,11 +2124,11 @@ function RadiusSlider({ mi, onChange, where, max = 30 }) {
   const pct = Math.round(((mi - 1) / (max - 1)) * 100);
   return (
     <div style={{ padding: "11px 14px 12px", background: C.card, border: `1px solid ${C.border}`, borderRadius: 14 }}>
-      <style dangerouslySetInnerHTML={{ __html: `.wf-radius{-webkit-appearance:none;appearance:none;width:100%;height:26px;background:transparent;outline:none;margin:4px 0 2px;cursor:pointer}
+      <style dangerouslySetInnerHTML={styleHtml(`.wf-radius{-webkit-appearance:none;appearance:none;width:100%;height:26px;background:transparent;outline:none;margin:4px 0 2px;cursor:pointer}
 .wf-radius::-webkit-slider-runnable-track{height:7px;border-radius:999px;background:linear-gradient(90deg,#FB923C 0%,#F97316 var(--wfp),#2D3748 var(--wfp))}
 .wf-radius::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:26px;height:26px;border-radius:50%;background:radial-gradient(circle at 32% 30%,#FFD9B3,#F97316 68%);border:2.5px solid #fff;box-shadow:0 0 0 5px rgba(249,115,22,.22),0 3px 10px rgba(0,0,0,.5);cursor:pointer;margin-top:-10px}
 .wf-radius::-moz-range-track{height:7px;border-radius:999px;background:linear-gradient(90deg,#FB923C 0%,#F97316 var(--wfp),#2D3748 var(--wfp))}
-.wf-radius::-moz-range-thumb{width:26px;height:26px;border-radius:50%;background:radial-gradient(circle at 32% 30%,#FFD9B3,#F97316 68%);border:2.5px solid #fff;box-shadow:0 0 0 5px rgba(249,115,22,.22),0 3px 10px rgba(0,0,0,.5);cursor:pointer}` }} />
+.wf-radius::-moz-range-thumb{width:26px;height:26px;border-radius:50%;background:radial-gradient(circle at 32% 30%,#FFD9B3,#F97316 68%);border:2.5px solid #fff;box-shadow:0 0 0 5px rgba(249,115,22,.22),0 3px 10px rgba(0,0,0,.5);cursor:pointer}`)} />
       <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between" }}>
         <div style={{ fontSize: 14, fontWeight: 800, color: C.text }}>Within <span style={{ color: C.accent, fontSize: 17 }}>{mi} mi</span></div>
         <div style={{ fontSize: 11.5, color: C.muted }}>of {where}</div>
@@ -6393,7 +6398,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
     if (!locationPromoAllowed({ coverage: railsCoverage })) return null; if (Hol.worldCupDaysToNext(new Date()) > 2) return null; if (!!topSlot !== Hol.worldCupMatchToday(new Date())) return null; const _wc = Hol.themeFor(_w.key); const _wct = Hol.contentFor(_w.key, _w.name); return (
                       <div style={{ borderRadius: 18, padding: "18px 16px 16px", marginBottom: 12, background: _wc.grad, border: `1px solid ${_wc.border}`, boxShadow: "0 10px 28px rgba(0,0,0,.42)", position: "relative", overflow: "hidden" }}>
                       <button type="button" className="wf-holiday-open" onClick={() => openHoliday(_w)} aria-label={_wct.headline(locName)} style={{ position: "absolute", inset: 0, zIndex: 1, opacity: 0, border: 0, padding: 0, cursor: "pointer", background: "transparent" }} />
-                      <style dangerouslySetInnerHTML={{ __html: "@keyframes wcJuggle{0%{transform:translateY(0) rotate(0deg);animation-timing-function:cubic-bezier(.17,.84,.44,1)}45%{transform:translateY(-26px) rotate(180deg);animation-timing-function:cubic-bezier(.55,0,.85,.36)}90%{transform:translateY(0) rotate(360deg)}100%{transform:translateY(0) rotate(360deg)}}@keyframes wcBob{0%,86%,100%{transform:translateY(0)}93%{transform:translateY(2px)}}@keyframes wcGlow{0%,100%{opacity:.5}50%{opacity:1}}" }} />
+                      <style dangerouslySetInnerHTML={styleHtml("@keyframes wcJuggle{0%{transform:translateY(0) rotate(0deg);animation-timing-function:cubic-bezier(.17,.84,.44,1)}45%{transform:translateY(-26px) rotate(180deg);animation-timing-function:cubic-bezier(.55,0,.85,.36)}90%{transform:translateY(0) rotate(360deg)}100%{transform:translateY(0) rotate(360deg)}}@keyframes wcBob{0%,86%,100%{transform:translateY(0)}93%{transform:translateY(2px)}}@keyframes wcGlow{0%,100%{opacity:.5}50%{opacity:1}}")} />
                       <span style={{ position: "absolute", inset: 0, background: "repeating-linear-gradient(90deg, rgba(255,255,255,.03) 0px, rgba(255,255,255,.03) 26px, transparent 26px, transparent 52px)", pointerEvents: "none" }} />
                       <span aria-hidden="true" style={{ position: "absolute", right: 12, bottom: 6, width: 64, height: 116, pointerEvents: "none", opacity: .97 }}><span style={{ position: "absolute", left: 35, bottom: 72, fontSize: 15, animation: "wcJuggle 1.5s infinite" }}>⚽</span><picture><source type="image/avif" srcSet="/opt/wf-player-142.avif" /><source type="image/webp" srcSet="/opt/wf-player-142.webp" /><img src="/wf-player.png" alt="" draggable={false} loading="lazy" decoding="async" style={{ position: "absolute", left: 32, bottom: 0, height: 74, width: "auto", animation: "wcBob 1.5s infinite", filter: "drop-shadow(0 3px 8px rgba(0,0,0,.5))" }} /></picture></span>
                       
@@ -9430,6 +9435,8 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
         }
         // A recognized search phrase ("date night", "brunch") renders cards.
         // The experience poster and the mood shortcut stay for everything else.
+        const { resolveSearchIntent } = await import("../lib/searchIntent.js");
+        if (!current()) return;
         const recognizedSearch = resolveSearchIntent(q, {}).recognized === true;
         const expHit = Object.keys(EXPERIENCES).find((k) => {
           const e = EXPERIENCES[k];
@@ -9520,7 +9527,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
         if (options.placeIntent) logEvent("guide_place_open", exact[0].place, { q: attempt.meta.q, search_id: attempt.id });
         return;
       }
-      const choices = [...localCitySuggestions(q), ...result.matches.filter((item) => item.kind === "place")].slice(0, 8);
+      const choices = [...localCitySuggestions(q), ...result.matches.filter((item) => item.kind === "place" || (!options.placeIntent && isSafeSearchHref(item.href)))].slice(0, 8);
       if (choices.length) {
         setSuggestions(choices.map((item) => ({ ...item, _searchAttempt: attempt })));
         setSearchFeedback("Choose the place or city you meant below.");
@@ -10168,7 +10175,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
       {renderUniqueFinds()}
       {homeRolling && (
         <>
-          <style dangerouslySetInnerHTML={{ __html: "@keyframes wfDiceSpin{0%{transform:rotate(0deg) scale(1)}50%{transform:rotate(180deg) scale(1.14)}100%{transform:rotate(360deg) scale(1)}}" }} />
+          <style dangerouslySetInnerHTML={styleHtml("@keyframes wfDiceSpin{0%{transform:rotate(0deg) scale(1)}50%{transform:rotate(180deg) scale(1.14)}100%{transform:rotate(360deg) scale(1)}}")} />
           <div style={{ position: "fixed", bottom: "calc(84px + env(safe-area-inset-bottom))", right: 16, zIndex: 60, pointerEvents: "none", width: 62, height: 62, borderRadius: 16, background: "linear-gradient(135deg, #7C3AED, #4C1D95)", boxShadow: "0 10px 30px rgba(124,58,237,.55)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 32, animation: "wfDiceSpin .7s linear infinite" }}>{homeDiceFace}</div>
         </>
       )}
@@ -10183,13 +10190,12 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
     </>
   );
 
-  // G1: fetch every extracted screen chunk at first idle, so the first tap on
-  // the dice, Saved, Itinerary, Coupons, or Events never waits on the network.
-  useEffect(() => {
-    const idle = window.requestIdleCallback || ((f) => setTimeout(f, 2500));
-    const h = idle(() => SCREEN_LOADERS.forEach((load) => { try { load().catch(() => {}); } catch (e) {} }));
-    return () => { try { (window.cancelIdleCallback || clearTimeout)(h); } catch (e) {} };
-  }, []);
+  // G1: warm every extracted screen chunk so the first tap on the dice, Saved,
+  // Itinerary, Coupons, or Events rarely waits on the network. 2026-11-13: one
+  // chunk at a time, after the first screen's data burst, never all 17 in the
+  // same idle slice as the feed's own fetches (lib/chunkWarmup.js has the
+  // measurement; scripts/test-chunk-warmup.mjs locks it).
+  useEffect(() => warmChunksInSequence(SCREEN_LOADERS), []);
 
   // G1: the one ctx bag handed to the extracted screens. Every hook stays in
   // PageInner — screens are render-only and read state/callbacks/module
@@ -10604,7 +10610,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
   return (
     <div style={shell}>
     <div className="wf-shell" style={{ ...wrap, maxWidth: undefined }}>
-      <style dangerouslySetInnerHTML={{ __html: `@keyframes wfpulse{0%,100%{transform:scale(.8);opacity:.45}50%{transform:scale(1.08);opacity:1}}@keyframes wfdot{0%,80%,100%{opacity:.25}40%{opacity:1}}@keyframes wfbob{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-3px) scale(1.06)}}${WF_LAYOUT_CSS}${WF_SEARCH_CSS}${WF_PLACE_CARD_CSS}${WF_TASTE_CSS}${WF_RAIL_SECTION_CSS}${WF_RAIL_COLLAPSED_CSS}${WF_ASIDE_CSS}${WF_RAIL_MENU_CSS}` }} />
+      <style dangerouslySetInnerHTML={styleHtml(`@keyframes wfpulse{0%,100%{transform:scale(.8);opacity:.45}50%{transform:scale(1.08);opacity:1}}@keyframes wfdot{0%,80%,100%{opacity:.25}40%{opacity:1}}@keyframes wfbob{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-3px) scale(1.06)}}${WF_LAYOUT_CSS}${WF_SEARCH_CSS}${WF_PLACE_CARD_CSS}${WF_TASTE_CSS}${WF_RAIL_SECTION_CSS}${WF_RAIL_COLLAPSED_CSS}${WF_ASIDE_CSS}${WF_RAIL_MENU_CSS}`)} />
       {/* Header */}
       <div className="wf-topbar" style={{ background: "#040810", borderBottom: `1px solid ${C.border}`, padding: screen === "map" ? "8px 12px" : "12px 14px", paddingTop: screen === "map" ? "max(8px, env(safe-area-inset-top))" : "max(12px, env(safe-area-inset-top))", flexShrink: 0, position: "relative", zIndex: 20 }}>
         {screen !== "map" && (
@@ -11434,11 +11440,13 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
                   dashboard flatlines at cutover. */}
                       {!browseCat && <HomeAffiliateActivityRail
                         items={homeAffiliateItems}
+                        stagedCards
                         contentId={cityNow}
                         onLog={(action, place, extra) => { try { logEvent(action, place, extra); } catch (e) {} }}
                       />}
                       {!browseCat && <ThemeParkRail
                         mode="flagship"
+                        stagedCards
                         onOpenPlace={(place) => openDetail(place, "theme_park_rail")}
                         isSaved={isSaved}
                         isOnTrip={isOnTrip}
@@ -11690,7 +11698,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
                         const _c = Hol.themeFor(_h.key); const _ct = Hol.contentFor(_h.key, _h.name); return (
                         <div style={{ borderRadius: 18, padding: "18px 16px 16px", marginBottom: 12, background: _c.grad, border: `1px solid ${_c.border}`, boxShadow: "0 10px 28px rgba(0,0,0,.42)", position: "relative", overflow: "hidden" }}>
                           <button type="button" className="wf-holiday-open" onClick={() => openHoliday(_h)} aria-label={_ct.headline(locName)} style={{ position: "absolute", inset: 0, zIndex: 1, opacity: 0, border: 0, padding: 0, cursor: "pointer", background: "transparent" }} />
-                          <style dangerouslySetInnerHTML={{ __html: "@keyframes wfBurst{0%{transform:scale(.15);opacity:.95}70%{opacity:.4}100%{transform:scale(1);opacity:0}}@keyframes wfGlow{0%,100%{opacity:.55}50%{opacity:1}}@keyframes wfTwinkle{0%,100%{opacity:.15;transform:scale(.7)}50%{opacity:1;transform:scale(1.2)}}@keyframes wfSweep{0%{transform:translateX(-140%) skewX(-18deg)}100%{transform:translateX(240%) skewX(-18deg)}}" }} />
+                          <style dangerouslySetInnerHTML={styleHtml("@keyframes wfBurst{0%{transform:scale(.15);opacity:.95}70%{opacity:.4}100%{transform:scale(1);opacity:0}}@keyframes wfGlow{0%,100%{opacity:.55}50%{opacity:1}}@keyframes wfTwinkle{0%,100%{opacity:.15;transform:scale(.7)}50%{opacity:1;transform:scale(1.2)}}@keyframes wfSweep{0%{transform:translateX(-140%) skewX(-18deg)}100%{transform:translateX(240%) skewX(-18deg)}}")} />
                           <span style={{ position: "absolute", top: -18, right: 26, width: 120, height: 120, borderRadius: "50%", border: "2px solid #FFD166", opacity: 0, animation: "wfBurst 2.4s ease-out infinite", pointerEvents: "none" }} />
                           <span style={{ position: "absolute", top: 14, right: 96, width: 76, height: 76, borderRadius: "50%", border: "2px solid #FF6B6B", opacity: 0, animation: "wfBurst 2.4s ease-out .8s infinite", pointerEvents: "none" }} />
                           <span style={{ position: "absolute", top: -6, right: 150, width: 54, height: 54, borderRadius: "50%", border: "1.5px solid #7EA6FF", opacity: 0, animation: "wfBurst 2.4s ease-out 1.5s infinite", pointerEvents: "none" }} />
@@ -11764,7 +11772,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
       </div>
 
       {/* Roll the dice */}
-      <style dangerouslySetInnerHTML={{ __html: "@keyframes wfroll{0%{transform:rotate(0deg) scale(1)}50%{transform:rotate(180deg) scale(1.25)}100%{transform:rotate(360deg) scale(1)}}" }} />
+      <style dangerouslySetInnerHTML={styleHtml("@keyframes wfroll{0%{transform:rotate(0deg) scale(1)}50%{transform:rotate(180deg) scale(1.25)}100%{transform:rotate(360deg) scale(1)}}")} />
       {rolling && (
         <div style={{ position: "fixed", inset: 0, zIndex: 1100, background: "rgba(13,17,23,.88)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 18 }}>
           <div style={{ fontSize: 92, lineHeight: 1, animation: "wfroll 0.5s linear infinite" }}>{diceFace}</div>
