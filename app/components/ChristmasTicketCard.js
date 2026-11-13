@@ -6,7 +6,7 @@ import PhotoCreditLink from "./PhotoCreditLink.js";
 import { emitCommerce } from "../../lib/commerce.js";
 import { secondaryTicketPrimaryMatches } from "../../lib/secondaryTicketPrimary.js";
 import { useContentCardActions } from "../../lib/contentCardActions.js";
-import { openDirectInvite } from "../../lib/shareFlow.js";
+import { openShareFlow } from "../../lib/shareFlow.js";
 import RemindMe from "./RemindMe.js";
 
 // THE one Christmas card on /christmas-in-florida (owner direction 2026-11-01:
@@ -186,7 +186,7 @@ function CardActions({ row, item }) {
         onClick={(e) => {
           e.preventDefault();
           e.stopPropagation();
-          openDirectInvite({
+          openShareFlow({
             url: item.url || "https://www.gowayfind.com/christmas-in-florida",
             title: item.title,
             name: item.title,
@@ -194,6 +194,7 @@ function CardActions({ row, item }) {
             when: eventIso || row.when || "",
             eventDate: eventIso,
             surface: "christmas",
+            directInvite: true,
           });
         }}
       ><Heart on={false} /><span>Ask someone</span></button>
