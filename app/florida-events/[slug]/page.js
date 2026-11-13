@@ -38,6 +38,7 @@ import CrownOutbound from "../../components/CrownOutbound.js";
 import { CROWN_EVENT_SLUGS } from "../../../lib/crownCampaign.js";
 import ReturnToWayfind from "../../components/ReturnToWayfind.js";
 import { pairingHref } from "../../../lib/eventPairings";
+import { seriesHubFor } from "../../../lib/eventSeriesHubs.js";
 import { cachedEventPairings } from "../../../lib/eventPairingsCache";
 import { clockLabel } from "../../../lib/fallPool.js";
 import { eventSocialPosts } from "../../../lib/eventSocial.js";
@@ -507,6 +508,12 @@ export default async function CuratedEventPage({ params }) {
           to match the map pins). The editorial pairing sentence stays here as
           the outing note it always was. */}
       {e.pairing ? (<><h2 style={S.h2}>Make it an outing</h2><p style={S.p}>{e.pairing}</p></>) : null}
+
+      {seriesHubFor(e) ? (
+        <p style={S.p}>
+          <a style={S.link} href={seriesHubFor(e).href} data-wf-series-hub="1">{seriesHubFor(e).label} &rsaquo;</a>
+        </p>
+      ) : null}
 
       {site ? (
         <p style={S.p}>

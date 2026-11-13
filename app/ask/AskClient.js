@@ -11,6 +11,7 @@ import {
   pleaAt, moodAt, yesText, noText, needsName, planFitsPlace, datedCardPath,
   inviteKinds, inviteDirectionsHref, inviteCalendarEvent, inviteItineraryStop,
 } from "../../lib/dateInvite.js";
+import { styleHtml } from "../../lib/styleHtml.js";
 
 // app/ask/AskClient.js — Wayfind Chibi Elf invitation & Plan Together flow.
 //
@@ -396,7 +397,7 @@ export default function AskClient({ inv, bad = false }) {
 
   return (
     <div className={"wfx" + (paused ? " wfx-paused" : "")} data-hydrated={hydrated ? "1" : undefined}>
-      <style dangerouslySetInnerHTML={{ __html: ASK_CSS }} />
+      <style dangerouslySetInnerHTML={styleHtml(ASK_CSS)} />
       <Decor />
       <div className="wfx-stage">
 

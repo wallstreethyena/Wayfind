@@ -138,6 +138,7 @@ const nextConfig = {
     "/api/events": ["./data/christmas-2026-research.json"],
     "/api/events/christmas": ["./data/christmas-2026-research.json"],
     "/api/christmas/browse": ["./data/christmas-2026-research.json"],
+    "/api/christmas/plan-votes": ["./data/christmas-2026-research.json"],
     "/api/cron/affiliate-coverage": ["./data/christmas-2026-research.json"],
     "/christmas-in-florida": ["./data/christmas-2026-research.json"],
     "/florida-events/[slug]": ["./data/christmas-2026-research.json"],

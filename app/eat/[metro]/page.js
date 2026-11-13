@@ -40,6 +40,7 @@ import ShareButton from "../../components/ShareButton";
 import FoodTourRail from "../../components/FoodTourRail";
 import { METRO_DESTS, pickFoodTours } from "../../../lib/foodTours";
 import { isSsgBuild, eatFetch } from "../../../lib/eatInventory";
+import { styleHtml } from "../../../lib/styleHtml.js";
 
 export const revalidate = 3600;
 
@@ -320,7 +321,7 @@ export default async function EatPage({ params }) {
   return (
     <main style={{ background: C.bg, minHeight: "100vh", color: C.text, fontFamily: "var(--wf-sans)" }}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ld) }} />
-      <style dangerouslySetInnerHTML={{ __html: CSS }} />
+      <style dangerouslySetInnerHTML={styleHtml(CSS)} />
       <EditorialLandingHero
         prefix="wf-eat-premium"
         backHref="/"

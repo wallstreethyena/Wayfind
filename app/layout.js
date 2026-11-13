@@ -29,6 +29,8 @@ import NativeOfflineOverlay from "./components/NativeOfflineOverlay";
 // Boo, the Halloween companion (Oct 1 to Nov 1). The loader is a client component
 // holding the next/dynamic ssr:false boundary (scripts/check-boo-companion.mjs).
 import BooCompanionLoader from "./components/BooCompanionLoader";
+import { SANTA_DOCK_ROOT_CSS } from "./components/santaDockMetrics.js";
+import { styleHtml } from "../lib/styleHtml.js";
 
 // Origin of the Supabase photo vault, for the preconnect hint below. Server-only
 // read (never a NEXT_PUBLIC_* template href); an invalid/missing URL renders no hint.
@@ -249,7 +251,10 @@ export default function RootLayout({ children }) {
         >
           Skip to main content
         </a>
-        <style dangerouslySetInnerHTML={{ __html: ".wf-skip-link:focus{left:0 !important}"
+        <style dangerouslySetInnerHTML={styleHtml(".wf-skip-link:focus{left:0 !important}"
+          // Santa's dock height, on html with the document (santaDockMetrics.js): a root
+          // custom property that first appears when the dock mounts re-styles the whole page.
+          + SANTA_DOCK_ROOT_CSS
           // Premium redesign (v5.55): global accessibility floor for motion +
           // focus. prefers-reduced-motion collapses every animation/transition
           // to near-instant (the spec requires it "everywhere"); a consistent
@@ -274,8 +279,7 @@ export default function RootLayout({ children }) {
           // global 16px floor is the fix that KEEPS pinch-zoom working (we do NOT
           // re-add user-scalable=no). Inline field styles below 16 are bumped too,
           // since an inline font-size overrides this rule.
-          + "input,select,textarea{font-size:16px}"
-        }} />
+          + "input,select,textarea{font-size:16px}")} />
         <link rel="preconnect" href="https://lh3.googleusercontent.com" />
         {/* The photo vault. Most rail images 302 from /api/photo to the Supabase
             Storage render endpoint; without this the handshake to that host
