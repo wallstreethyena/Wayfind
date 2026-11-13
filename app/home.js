@@ -205,9 +205,12 @@ const TripConnections = nextDynamic(() => import("./components/TripConnections")
 // 2.7s (median of 5, same Vercel preview infra, 390px).
 import ThemeParkRail from "./components/ThemeParkRail";
 import { nextCenter } from "../lib/centerIdentity";
+import { warmChunksInSequence } from "../lib/chunkWarmup";
 const loadTrips = () => import("../lib/trips");
-const SHEET_LOADERS = [loadHookDetail, loadAccount, loadMenu, loadAuth, loadDetail, loadIntro, loadSocialFind];
-const SCREEN_LOADERS = [loadSurprise, loadCoupons, loadSaved, loadItinerary, loadShared, loadEventsScreen, loadMap, loadExperience, loadThingsToDo, loadTrips, ...SHEET_LOADERS];
+// Warm-up ORDER matters now that chunks are fetched one at a time
+// (lib/chunkWarmup.js): the place-detail sheet is the most common first tap
+// (any place card), so it goes first; then the bottom-nav screens.
+const SCREEN_LOADERS = [loadDetail, loadEventsScreen, loadMap, loadSaved, loadMenu, loadSurprise, loadItinerary, loadCoupons, loadHookDetail, loadThingsToDo, loadExperience, loadShared, loadTrips, loadAccount, loadAuth, loadIntro, loadSocialFind];
 const SurpriseScreen = nextDynamic(loadSurprise, { ssr: false, loading: () => <Loader label="Loading" pad="16px 2px" /> });
 const CouponsScreen = nextDynamic(loadCoupons, { ssr: false, loading: () => <Loader label="Loading" pad="16px 2px" /> });
 const SavedScreen = nextDynamic(loadSaved, { ssr: false, loading: () => <Loader label="Loading" pad="16px 2px" /> });
@@ -10183,13 +10186,12 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
     </>
   );
 
-  // G1: fetch every extracted screen chunk at first idle, so the first tap on
-  // the dice, Saved, Itinerary, Coupons, or Events never waits on the network.
-  useEffect(() => {
-    const idle = window.requestIdleCallback || ((f) => setTimeout(f, 2500));
-    const h = idle(() => SCREEN_LOADERS.forEach((load) => { try { load().catch(() => {}); } catch (e) {} }));
-    return () => { try { (window.cancelIdleCallback || clearTimeout)(h); } catch (e) {} };
-  }, []);
+  // G1: warm every extracted screen chunk so the first tap on the dice, Saved,
+  // Itinerary, Coupons, or Events rarely waits on the network. 2026-11-13: one
+  // chunk at a time, after the first screen's data burst, never all 17 in the
+  // same idle slice as the feed's own fetches (lib/chunkWarmup.js has the
+  // measurement; scripts/test-chunk-warmup.mjs locks it).
+  useEffect(() => warmChunksInSequence(SCREEN_LOADERS), []);
 
   // G1: the one ctx bag handed to the extracted screens. Every hook stays in
   // PageInner — screens are render-only and read state/callbacks/module

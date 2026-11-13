@@ -351,6 +351,8 @@ node scripts/test-promote-ledger-sim.mjs
 node scripts/check-promote-spend-gate.mjs
 node scripts/test-prominence.mjs
 node scripts/test-idle-defer.mjs
+# 2026-11-13: homepage screen/sheet chunks warm one at a time after the first screen's data burst (lib/chunkWarmup.js).
+node scripts/test-chunk-warmup.mjs
 node scripts/check-pick-medallion.mjs
 node scripts/check-editorial-publish.mjs
 node scripts/check-editorial-publish-symmetry.mjs
