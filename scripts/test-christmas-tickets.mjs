@@ -33,7 +33,7 @@ import {
   ticketAction, ticketDatesText, ticketPrice, withChristmasTicketPhotos, christmasVaultPhoto, christmasGooglePhoto,
 } from "../lib/christmasTickets.js";
 import { existsSync } from "node:fs";
-import { CHRISTMAS_EVENT_PLACE, CHRISTMAS_MAX_PHOTOS, LEGOLAND_ARCH_FILE, christmasCardRail, christmasPlaceFor, christmasStaticPhotos, christmasTaggedPhotos, readChristmasEventPhotos } from "../lib/christmasPlacePhotos.js";
+import { CHRISTMAS_EVENT_PLACE, CHRISTMAS_MAX_PHOTOS, CHRISTMAS_STATIC_GALLERY, LEGOLAND_ARCH_FILE, christmasCardRail, christmasPlaceFor, christmasStaticPhotos, christmasTaggedPhotos, readChristmasEventPhotos } from "../lib/christmasPlacePhotos.js";
 
 const root = process.cwd();
 let checks = 0;
@@ -428,8 +428,17 @@ for (const today of ["2026-10-30", "2026-12-20", "2027-01-01"]) {
     if (!out.hasMore) break;
   }
   const fantasyShots = christmasStaticPhotos("holiday-fantasy-of-lights-2026", "Holiday Fantasy of Lights");
-  ok(fantasyCard && Array.isArray(fantasyCard.photos) && fantasyCard.photos.length === fantasyShots.length && fantasyCard.photos.length === 9 && fantasyCard.photos[0].src === fantasyShots[0].src, "Holiday Fantasy's guide card carries its 9 photo rail in the page data");
+  ok(fantasyCard && Array.isArray(fantasyCard.photos) && fantasyCard.photos.length === fantasyShots.length && fantasyCard.photos.length === 8 && fantasyCard.photos[0].src === fantasyShots[0].src, "Holiday Fantasy's guide card carries its 8 photo rail in the page data (the Fort Lauderdale Journal photo was removed 2026-11-12: news site, no permission)");
   ok(fantasyShots.every((p) => existsSync(path.join(root, "public", p.src))), "every Holiday Fantasy rail file is on disk");
+  // Rights audit 2026-11-12: news/media hosted and third-party photographer photos
+  // (no licence or permission on file) are gone from every Christmas gallery.
+  const RIGHTS_REMOVED = ["/place-photos/batch-2026-11b/holiday-fantasy-of-lights-2026/xmas_05e00b767ac813ca.jpg", "/place-photos/batch-2026-11b/pensacola-winterfest-elf-parade-and-trolley-tours-2026/xmas_59238e7952449343.jpg", "/place-photos/batch-2026-11b/pensacola-winterfest-elf-parade-and-trolley-tours-2026/xmas_98f20948dc451589.jpg", "/place-photos/batch-2026-11b/pensacola-winterfest-elf-parade-and-trolley-tours-2026/xmas_ac30f0ea925822e6.jpg", "/place-photos/batch-2026-11b/pensacola-winterfest-elf-parade-and-trolley-tours-2026/xmas_ea0b504e74622007.jpg", "/place-photos/batch-2026-11p/tallahassee-candlelight-christmas-classics-2026/ev_28512e58cfca766a.jpg", "/place-photos/batch-2026-11p/tallahassee-ugly-sweater-pub-crawl-2026/ev_f2de211ad8fabfd8.jpg", "/place-photos/batch-2026-11s/carrollwood-market-2026-12-12/ev_0eff104ec5603b7e.jpg", "/place-photos/batch-2026-11s/carrollwood-market-2026-12-12/ev_446ddecbf8de6d2e.jpg", "/place-photos/batch-2026-11s/carrollwood-market-2026-12-12/ev_fc2d0e13b16452eb.jpg", "/place-photos/batch-2026-11s/seminole-heights-sunday-market-2026-11-08/ev_446ddecbf8de6d2e.jpg", "/place-photos/batch-2026-11s/seminole-heights-sunday-market-2026-11-08/ev_505ad8cac27dd9b9.jpg", "/place-photos/batch-2026-11s/sunset-market-midtown-2026-12-03/ev_446ddecbf8de6d2e.jpg", "/place-photos/batch-2026-11z-b/celebration-of-lights-concourse-2026/ev_254be51bd19e9bbc.jpg", "/place-photos/batch-2026-11z-b/celebration-of-lights-concourse-2026/ev_6efc7cfab2e62437.jpg", "/place-photos/batch-2026-11z-b/celebration-of-lights-concourse-2026/ev_9d1eda241d49bbf4.jpg", "/place-photos/batch-2026-11z-b/celebration-of-lights-concourse-2026/ev_b9aa9777a6afbeb5.jpg", "/place-photos/batch-2026-11z-b/surfing-santas-cocoa-beach-2026/ev_6369cb2b139abc9c.jpg"];
+  const servedSrcs = new Set();
+  for (const id of new Set([...Object.keys(CHRISTMAS_STATIC_GALLERY), ...listings.map((c) => c.id)])) for (const p of christmasStaticPhotos(id)) servedSrcs.add(p.src);
+  ok(servedSrcs.size > 300, "the gallery sweep served photos (" + servedSrcs.size + ")");
+  ok(RIGHTS_REMOVED.length === 18 && RIGHTS_REMOVED.every((src) => !servedSrcs.has(src) && !existsSync(path.join(root, "public", src))), "the 18 rights-audit removals are not served and not on disk");
+  const wg = christmasBrowseListings([], "2026-11-12").find((c) => c.id === "wiregrass-symphony-in-lights-2026"); // the kickoff is Nov 14, before TODAY
+  ok(wg && wg.image === "/events/christmas/wiregrass-symphony-in-lights-2026.webp" && /Public domain/.test(wg.photoAttr || "") && /commons\.wikimedia\.org/.test(wg.photoAttrHref || ""), "Wiregrass Symphony in Lights shows its public domain holiday photo with credit");
 }
 
 // ── Schema ───────────────────────────────────────────────────────────────────
