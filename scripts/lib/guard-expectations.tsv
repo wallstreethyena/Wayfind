@@ -1132,7 +1132,7 @@ scripts/test-venue-resolution-store.mjs	0	CALL	blocks-ci-and-deploy	1	-	54	0	0	c
 scripts/test-vercel-ignore-build.mjs	0	CALL	blocks-ci-and-deploy	1	-	35	0	0	576f6c48d6ceb6ea672f1bee9e3601804e77f4f7640157edd86474d4e72663fd
 scripts/test-viator-booking-attribution.mjs	1	RENDER	blocks-ci-and-deploy	1	Revenue QA	90	0	0	586bb4425802c705fdb100d0aee6d0cccad196a5b59813191054dba867953726
 scripts/test-viator-campaign.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	37	0	0	77a8cd2adcfe7a64b361c83e01bcb32af49561c846d7433fcd7f00b410ec10bb
-scripts/test-viator-click-row-db-contract.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	12	0	0	a072d3f40a6a7bfc77f3f5d1f634a172447f4b9ea1a155ed555c1fb4f6ce01c0
+scripts/test-viator-click-row-db-contract.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	23	0	0	54ebd5ff473cb176b36e9651af8dae4594b04dc30f185d90070205d51fd45171
 scripts/test-viator-fanout.mjs	1	STRUCTURAL	blocks-ci-and-deploy	1	Revenue QA	6	1	0	e52a4ace80737075628558bb99888d8f2a60013d403bb4a521c170ae9172ac62
 scripts/test-viator-integrity-lock.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	73	0	0	b65083aace56a9bc63e3d55f053cfbbfa9910b672b94c3ac6f76fd587e4f09c4
 scripts/test-viator-provider-state.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	47	0	0	cc1d5644b9caf302bef30ccd99ac861eeaf81feec272273bdf29fda6bdd3aa16
