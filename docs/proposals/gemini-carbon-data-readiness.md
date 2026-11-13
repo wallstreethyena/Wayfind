@@ -2,7 +2,7 @@
 
 > **Lane:** `gemini-carbon (Wayfind Frontier)`  
 > **Worktree:** `/Users/gabrielpereira/Projects/wf-carbon-audit` (Branch: `docs/carbon-data-readiness`, Base: `origin/main` = `b19fb15827d4618c7a48b9289abb12c48f23ff3b`)  
-> **Timestamp:** `2026-11-13T18:20:50Z` (Narrow correction verification run)  
+> **Timestamp:** `2026-11-13T18:25:24Z` (Strict verifier correction run)  
 > **Ownership:** Read-only investigation and single decision document at `docs/proposals/gemini-carbon-data-readiness.md`.
 
 ---
@@ -53,18 +53,22 @@ This decision package provides a rigorous, 100% read-only operational risk and d
 4. **Hash Parity Check:** Computes and verifies sorted `click_token` SHA-256 digests (`v_src_hash` vs `v_arc_hash`) before issuing the `DELETE` statement.
 5. **Legitimate Affiliate Protection:** Zero legitimate affiliate clicks can be touched because the predicate is strictly bound to `offer_id = '1234P5'`, and foreign key / ad ID checks guarantee zero customer contamination.
 
-### Exact Rollback SQL (Column-Corrected from `supabase/data-fixes/20261113_archive_synthetic_viator_clicks.sql`)
+### Exact Rollback SQL (From `supabase/data-fixes/20261113_archive_synthetic_viator_clicks.sql` lines 95-120 / exact schema columns)
 ```sql
--- Explicit column-list rollback INSERT avoiding metadata column mismatch:
+-- Explicit rollback INSERT matching exact live public.wf_viator_clicks columns & archive batch ID filter:
 INSERT INTO public.wf_viator_clicks (
-  click_token, user_id, visitor_id, placement_id, offer_id, deeplink_url,
-  gclid, gbraid, wbraid, verified_google_campaign_id, utm_source, utm_medium,
-  utm_campaign, clicked_at, user_agent, ip_hash
+  click_token, client_click_id, visitor_context_hash, provider, offer_id, page_key, surface,
+  content_id, placement_campaign, attributed_campaign, destination_host, gclid, gbraid, wbraid,
+  observed_utm_campaign, verified_google_campaign_id, campaign_metadata_provenance,
+  campaign_verification_status, google_campaign_id, consent_ad_user_data, consent_ad_personalization,
+  session_attribution, first_touch_attribution, clicked_at, expires_at, redact_after, redacted_at
 )
 SELECT 
-  click_token, user_id, visitor_id, placement_id, offer_id, deeplink_url,
-  gclid, gbraid, wbraid, verified_google_campaign_id, utm_source, utm_medium,
-  utm_campaign, clicked_at, user_agent, ip_hash
+  click_token, client_click_id, visitor_context_hash, provider, offer_id, page_key, surface,
+  content_id, placement_campaign, attributed_campaign, destination_host, gclid, gbraid, wbraid,
+  observed_utm_campaign, verified_google_campaign_id, campaign_metadata_provenance,
+  campaign_verification_status, google_campaign_id, consent_ad_user_data, consent_ad_personalization,
+  session_attribution, first_touch_attribution, clicked_at, expires_at, redact_after, redacted_at
 FROM public.wf_viator_clicks_synthetic_archive
 WHERE archive_batch = '20261113_1234P5_fixture_cleanup'
 ON CONFLICT (click_token) DO NOTHING;
@@ -81,15 +85,15 @@ Reconciliation output from `scripts/reconcile-migrations.mjs --json` identified 
 | `20261015180000_wf_inventory_wikidata_coords.sql` | `BLOCKED` | Blocked on legal/counsel Q1 (#1809): Google-corroborated coordinate derivation. | **LEAVE BLOCKED** until counsel Q1 sign-off. Rollback: Drop inventory coordinate columns added by migration. |
 | `20261015180100_wf_inventory_official_address_coords_corroborated.sql` | `BLOCKED` | Blocked on legal/counsel Q1 (#1809): Google-corroborated coordinate derivation. | **LEAVE BLOCKED** until counsel Q1 sign-off. Rollback: Drop corroboration fields. |
 | `20261015180200_wf_inventory_official_address_coords_uncorroborated.sql` | `REQUIRES_REVIEW` | 97 US Census geocodes without secondary position corroboration; requires manual spot-check before map pin promotion. | Hold for position accuracy review before applying. Rollback: Revert coordinate updates via backup snapshot. |
-| `20261021030000_wf_inventory_coords_independent_verified.sql` | `PENDING_SAFE` | 35 Google-free dual-corroborated coordinates (19 Wikidata P625 + 16 US Census geocodes) with full reverse SQL script. | Safe to apply via `scripts/apply-migration.mjs` after owner review. Rollback: Reverse via accompanying reverse SQL script in repo. |
-| `20261027120000_wf_redirect_burst.sql` | `PENDING_SAFE` | Purely additive RLS-locked table + RPC for cross-instance redirect burst limiting; app currently fails open cleanly. | Apply via `scripts/apply-migration.mjs` when SUPABASE_ACCESS_TOKEN is provided. Rollback: `DROP TABLE public.wf_redirect_burst; DROP FUNCTION public.check_redirect_burst;`. |
-| `20261103120000_indigenous_sarasota_closed_permanently.sql` | `PENDING_SAFE` | Single-row transactional closure for permanently closed Indigenous Restaurant (Sarasota). Public surfaces protected via `lib/notPublicPlaces.js`. | Apply via `scripts/apply-migration.mjs`. Rollback: `UPDATE public.wf_places SET active = true WHERE id = ...`. |
-| `20261105120030_event_truth_held_recheck_guard.sql` | `PENDING_SAFE` | Additive BEFORE INSERT/UPDATE trigger ensuring held future events retain a <=2-day ET recheck deadline. | Apply first (before `120035`) via `scripts/apply-migration.mjs`. Rollback: `DROP TRIGGER IF EXISTS trg_held_event_recheck_guard ON public.wf_events;`. |
-| `20261105120035_event_truth_held_recheck_renewal_cap.sql` | `PENDING_SAFE` | Function-only hardening capping due held-event renewals at ET today+2; requires `20261105120030` trigger first. | Apply immediately after `20261105120030`. Rollback: `DROP FUNCTION IF EXISTS public.cap_held_event_renewals();`. |
+| `20261021030000_wf_inventory_coords_independent_verified.sql` | `PENDING_SAFE` | 35 Google-free dual-corroborated coordinates (19 Wikidata P625 + 16 US Census geocodes) with full reverse SQL script. | Safe to apply via `scripts/apply-migration.mjs` after owner review. Rollback via `supabase/data-fixes/20261021_wf_inventory_coords_independent_verified_reverse.sql`. |
+| `20261027120000_wf_redirect_burst.sql` | `PENDING_SAFE` | Purely additive RLS-locked table + RPC for cross-instance redirect burst limiting; app currently fails open cleanly. | Apply via `scripts/apply-migration.mjs` when SUPABASE_ACCESS_TOKEN is provided. Rollback: `DROP FUNCTION IF EXISTS public.wf_take_redirect_burst(text, timestamptz, integer, integer); DROP TABLE IF EXISTS public.wf_redirect_burst;`. |
+| `20261103120000_indigenous_sarasota_closed_permanently.sql` | `PENDING_SAFE` | Single-row transactional closure for permanently closed Indigenous Restaurant (Sarasota) affecting `public.wf_inventory` & `public.wf_place_editorial`. | Apply via `scripts/apply-migration.mjs`. Rollback via `supabase/data-fixes/20261103_indigenous_sarasota_reopen.sql`. |
+| `20261105120030_event_truth_held_recheck_guard.sql` | `PENDING_SAFE` | Additive BEFORE INSERT/UPDATE trigger ensuring held future events retain a <=2-day ET recheck deadline. | Apply first (before `120035`) via `scripts/apply-migration.mjs`. Rollback: `DROP TRIGGER IF EXISTS wf_events_held_recheck_guard ON public.wf_events; DROP FUNCTION IF EXISTS public.wf_enforce_held_event_recheck();`. |
+| `20261105120035_event_truth_held_recheck_renewal_cap.sql` | `PENDING_SAFE` | Function-only hardening capping due held-event renewals at ET today+2; requires `20261105120030` trigger first. | Apply immediately after `20261105120030`. Rollback: Re-apply prior `public.wf_renew_due_events(integer)` definition from `supabase/migrations/20261015010000_sighting_renewal_queue.sql` (do not drop function). |
 | `20261109160000_wf_events_christmas_short_titles.sql` | `OBSOLETE` | Christmas park event short titles already live in `wf_events` (out-of-band write). `WHERE` guards make ledger recording a 0-row no-op. | Safe 0-row ledger reconciliation via `apply-migration.mjs`. Rollback: N/A (0-row no-op ledger insert). |
-| `20261109160100_wf_deals_ut_one_day_tickets.sql` | `SUPERSEDED` | Initial UT rows (61-64) exist; row 63 deactivated for row 65; superseded by `20261109210000`. `WHERE NOT EXISTS` makes replay a 0-row no-op. | Record ledger state via `apply-migration.mjs` (0-row no-op). Rollback: N/A. |
-| `20261109210000_wf_deals_ut_one_day_product_pages.sql` | `OBSOLETE` | All 4 official one-day UT product pages already live in `wf_deals`; missing only schema_migrations ledger entry. | Safe idempotent ledger reconciliation via `apply-migration.mjs`. Rollback: N/A. |
-| `20261112200000_photo_batch_audit.sql` | `PENDING_SAFE` | Additive table `wf_photo_change_audit` + warning-only audit triggers on photo stores (`#2454`). | Review SQL and apply via canonical `scripts/apply-migration.mjs`. Rollback: `DROP TABLE public.wf_photo_change_audit; DROP TRIGGER ...`. |
+| `20261109160100_wf_deals_ut_one_day_tickets.sql` | `SUPERSEDED` | Initial UT rows (61-64) exist; row 63 deactivated for row 65; superseded by `20261109210000`. `WHERE NOT EXISTS` makes replay a 0-row no-op. | Record ledger state via `apply-migration.mjs` (0-row no-op; held unless explicitly authorized). Rollback: N/A. |
+| `20261109210000_wf_deals_ut_one_day_product_pages.sql` | `OBSOLETE` | All 4 official one-day UT product pages already live in `wf_deals`; missing only schema_migrations ledger entry. | Safe idempotent ledger reconciliation via `apply-migration.mjs` (held unless explicitly authorized). Rollback: N/A. |
+| `20261112200000_photo_batch_audit.sql` | `PENDING_SAFE` | Additive table `wf_photo_change_audit` + warning-only audit triggers on photo stores (`#2454`). | Review SQL and apply via canonical `scripts/apply-migration.mjs`. Rollback: `DROP TRIGGER IF EXISTS wf_photo_store_batch_audit ON public.wf_google_photo_store; DROP TRIGGER IF EXISTS wf_place_photo_batch_audit ON public.wf_place_photo; DROP FUNCTION IF EXISTS public.wf_audit_photo_batch(); DROP TABLE IF EXISTS public.wf_photo_change_audit;`. |
 | `held-migrations/20261002010000_wf_cc_partner_clicks_exclude_devices.sql` | `BLOCKED` | Command Center partner-click KPI exclusion (`#1627`). Held by owner decision pending CC before/after diff. | Keep held until owner completes KPI/legal review. Rollback: Drop table/function modifications if ever applied. |
 | `held-migrations/20261013180000_event_link_repairs_2026_10_13.sql` | `SUPERSEDED` | Superseded by manual writes and `#1760` (`#1740`). | Keep archived in `held-migrations`; never apply. Rollback: N/A. |
 | `<production-only>:20261113105510_wf_viator_upload_consent_basis` | `DRIFTED` | Applied in live Supabase schema migrations with no committed canonical SQL on `main` (unmerged branch PR `#2490`). | Merge originating PR `#2490` carrying canonical migration SQL + receipt. Rollback: N/A (already live). |
@@ -100,19 +104,19 @@ Reconciliation output from `scripts/reconcile-migrations.mjs --json` identified 
 
 Between `2026-11-13T16:53Z` and `17:53Z`, coordinator evidence proved that `wf_viator_clicks` `1234P5` rows grew from `3,306` to `3,398` (`+92` rows) while live `https://www.gowayfind.com` wrote `0` on synthetic probes. This proves that **pre-firewall PR branches running `guards` CI workflows with repository secrets can still write synthetic rows during test execution!**
 
-### Complete Open PR Exposure Matrix (`wallstreethyena/Wayfind`) — All 31 Open PRs
+### Complete Open PR Exposure Matrix (`wallstreethyena/Wayfind`) — All 31 Open PRs (Generated from `gh pr list`)
 | PR # | Branch Name | Head SHA | Pre-Firewall? (Ancestor = False) | Can CI Trigger Writes? | Safe Remedy |
 | :---: | :--- | :--- | :---: | :---: | :--- |
-| **2508** | `claude/planner-imessage-santa` | `743dafa3` | **False** (Post-firewall) | No (Post-firewall) | Safe to run / merge |
-| **2502** | `feat/partner-revenue-engine` | `095817c7` | **True** (Pre-firewall) | Yes | **Mandatory Rebase** on `origin/main` |
+| **2508** | `claude/planner-imessage-santa` | `743dafa3` | **False** (Post-firewall) | No | Safe to run / merge |
+| **2502** | `feat/partner-revenue-engine` | `a0347e29` | **True** (Pre-firewall) | Yes | **Mandatory Rebase** on `origin/main` |
 | **2499** | `ci/owner-approval-fingerprint` | `c6b95fc1` | **False** (Post-firewall) | No | Safe to run / merge |
-| **2498** | `feat/self-healing-truth-engine` | `37816bb1` | **True** (Pre-firewall) | Yes | **Mandatory Rebase** on `origin/main` |
-| **2494** | `claude/owner-approval-v2` | `e2a44b1c` | **True** (Pre-firewall) | Yes | **Mandatory Rebase** on `origin/main` |
-| **2491** | `claude/expected-state-notify-rule` | `c97c1d76` | **True** (Pre-firewall) | Yes | **Mandatory Rebase** on `origin/main` |
-| **2490** | `lane/claude/ad-consent-region-gate` | `3a1f94b8` | **True** (Pre-firewall) | Yes | **Mandatory Rebase** on `origin/main` (Carries canonical migration for `20261113105510`) |
-| **2478** | `infra/merge-train` | `8c413b52` | **True** (Pre-firewall) | Yes | **Mandatory Rebase** on `origin/main` |
-| **2477** | `content/card-lines-batch62` | `1bfa034d` | **True** (Pre-firewall) | Yes | **Mandatory Rebase** on `origin/main` |
-| **2475** | `fix/known-for-join-clean` | `8d5cf653` | **True** (Pre-firewall) | Yes | **Mandatory Rebase** on `origin/main` |
+| **2498** | `feat/self-healing-truth-engine` | `64957d97` | **True** (Pre-firewall) | Yes | **Mandatory Rebase** on `origin/main` |
+| **2494** | `claude/owner-approval-v2` | `9c79bb4b` | **True** (Pre-firewall) | Yes | **Mandatory Rebase** on `origin/main` |
+| **2491** | `claude/expected-state-notify-rule` | `6a16ba9f` | **True** (Pre-firewall) | Yes | **Mandatory Rebase** on `origin/main` |
+| **2490** | `lane/claude/ad-consent-region-gate` | `539f4476` | **True** (Pre-firewall) | Yes | **Mandatory Rebase** on `origin/main` (Carries canonical migration for `20261113105510`) |
+| **2478** | `infra/merge-train` | `7c35879c` | **True** (Pre-firewall) | Yes | **Mandatory Rebase** on `origin/main` |
+| **2477** | `content/card-lines-batch62` | `99c48c31` | **True** (Pre-firewall) | Yes | **Mandatory Rebase** on `origin/main` |
+| **2475** | `fix/known-for-join-clean` | `57a75cc4` | **True** (Pre-firewall) | Yes | **Mandatory Rebase** on `origin/main` |
 | **2473** | `fix/guide-sarasota-hours-clean` | `130293ec` | **True** (Pre-firewall) | Yes | **Mandatory Rebase** on `origin/main` |
 | **2472** | `fix/guide-tampa-hours-clean` | `1a42a70a` | **True** (Pre-firewall) | Yes | **Mandatory Rebase** on `origin/main` |
 | **2471** | `claude/operating-mode-consolidated` | `ae23cb70` | **False** (Post-firewall) | No | Safe to run / merge |
@@ -139,7 +143,7 @@ Between `2026-11-13T16:53Z` and `17:53Z`, coordinator evidence proved that `wf_v
 
 ## 5. Reproducible Read-Only Commands, Timestamps, Hashes & Exit Codes
 
-* **Verification Timestamp:** `2026-11-13T18:20:50.000Z`
+* **Verification Timestamp:** `2026-11-13T18:25:24.000Z`
 * **Viator Verification Script Command & Exit Code:**
   ```bash
   WF_SUPPRESS_ANALYTICS=1 WF_GUARD_SUITE=1 WF_VIATOR_TOKEN_CAPTURE=0 node --env-file=/Users/gabrielpereira/Projects/wayfind/.env.local scripts/verify-synthetic-viator-cleanup.mjs
@@ -154,5 +158,5 @@ Between `2026-11-13T16:53Z` and `17:53Z`, coordinator evidence proved that `wf_v
 * **Doc Ownership Check Command & Exit Code:**
   ```bash
   node scripts/check-doc-ownership.mjs
-  # Exit code: 0 (OK — 0 changed file(s), no owner-only files touched)
+  # Exit code: 0 (OK — 1 changed file(s), no owner-only files touched)
   ```
