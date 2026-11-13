@@ -1,4 +1,4 @@
--- 20261113120000_wf_viator_upload_consent_basis.sql
+-- 20261113105510_wf_viator_upload_consent_basis.sql
 --
 -- Owner-approved consent rule for Google Ads offline booking uploads
 -- (2026-11-12): upload on an explicit GRANTED consent, or for a click made

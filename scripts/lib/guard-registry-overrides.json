@@ -1161,7 +1161,7 @@
   "owner": "Revenue QA"
  },
  "scripts/test-viator-consent-basis.mjs": {
-  "protects": "The owner-approved consent rule for Google Ads offline booking uploads: upload only on an explicit GRANTED consent or for a click outside the EEA/UK/Switzerland with no Global Privacy Control signal; DENIED, GPC, unknown country and covered regions block. Checked end to end (click row, reconcile ledger via migration 20261113120000, JS payload builder), including the migration refusing a drifted function body.",
+  "protects": "The owner-approved consent rule for Google Ads offline booking uploads: upload only on an explicit GRANTED consent or for a click outside the EEA/UK/Switzerland with no Global Privacy Control signal; DENIED, GPC, unknown country and covered regions block. Checked end to end (click row, reconcile ledger via migration 20261113105510, JS payload builder), including the migration refusing a drifted function body.",
   "blastRadius": {
    "category": "revenue",
    "detail": "Regressing it either uploads ad click data Google's EU consent policy or a visitor's GPC opt-out forbids, or silently blocks every lawful upload so no booking reaches Google Ads."

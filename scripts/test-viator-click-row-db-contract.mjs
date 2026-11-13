@@ -38,7 +38,7 @@ await db.exec(`DO $$ BEGIN
   IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'service_role') THEN CREATE ROLE service_role; END IF;
 END $$;`);
 await db.exec(fs.readFileSync(path.join(REPO, "supabase/migrations/20261103220000_wf_viator_booking_attribution.sql"), "utf8"));
-await db.exec(fs.readFileSync(path.join(REPO, "supabase/migrations/20261113120000_wf_viator_upload_consent_basis.sql"), "utf8"));
+await db.exec(fs.readFileSync(path.join(REPO, "supabase/migrations/20261113105510_wf_viator_upload_consent_basis.sql"), "utf8"));
 // A second database with ONLY the original schema: the tier 2 fallback must land there too.
 const baseOnlyDb = new PGlite();
 await baseOnlyDb.exec(`DO $$ BEGIN

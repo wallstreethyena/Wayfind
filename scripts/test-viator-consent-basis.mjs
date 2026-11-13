@@ -2,7 +2,7 @@
 // scripts/test-viator-consent-basis.mjs
 //
 // Locks the owner-approved consent rule for Google Ads offline booking uploads
-// (2026-11-12, lib/adConsentRegion.js + migration 20261113120000):
+// (2026-11-12, lib/adConsentRegion.js + migration 20261113105510):
 //   upload ONLY on an explicit GRANTED consent, or for a click made outside the
 //   EEA / UK / Switzerland with no Global Privacy Control signal. DENIED, GPC,
 //   an unknown country, or a covered region without GRANTED all block.
@@ -26,7 +26,7 @@ import { buildGoogleDataManagerEventPayload, UPLOAD_STATES } from "../lib/google
 
 const REPO = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const BASE = fs.readFileSync(path.join(REPO, "supabase/migrations/20261103220000_wf_viator_booking_attribution.sql"), "utf8");
-const GATE = fs.readFileSync(path.join(REPO, "supabase/migrations/20261113120000_wf_viator_upload_consent_basis.sql"), "utf8");
+const GATE = fs.readFileSync(path.join(REPO, "supabase/migrations/20261113105510_wf_viator_upload_consent_basis.sql"), "utf8");
 let pass = 0;
 const fail = [];
 const ok = (c, m) => (c ? pass++ : fail.push(m));
