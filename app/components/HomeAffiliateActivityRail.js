@@ -6,11 +6,14 @@ import RailCard, { RailDots, RailNav } from "./RailCard";
 import { experienceWayfindScore } from "../../lib/experiencesData";
 import { toDisplayScore } from "../../lib/score";
 import { AFFILIATE_DISCLOSURE_TEXT } from "../../lib/affiliateDisclosure.js";
+import { useStagedCards } from "../../lib/stagedMount.js";
 
 const RAIL_ID = "home-affiliate-activities";
 
-export default function HomeAffiliateActivityRail({ items, contentId, onLog }) {
+// stagedCards: the client-only home feed draws its first cards at once and the rest in slices (lib/stagedMount.js).
+export default function HomeAffiliateActivityRail({ items, contentId, onLog, stagedCards = false }) {
   const rows = Array.isArray(items) ? items : [];
+  const shown = useStagedCards(rows.length, true, { enabled: stagedCards });
   if (!rows.length) return null;
   return (
     <section aria-labelledby="home-affiliate-activities-title" style={{ marginBottom: 18 }}>
@@ -19,7 +22,7 @@ export default function HomeAffiliateActivityRail({ items, contentId, onLog }) {
       </RailHeading>
       <p style={{ margin: "0 0 8px", fontSize: 13, lineHeight: 1.45, color: "#E6EDF3" }}>{AFFILIATE_DISCLOSURE_TEXT}</p>
       <div className="wf-rail" data-rail={RAIL_ID} aria-label="Best bookable activities">
-        {rows.map((item, index) => {
+        {rows.slice(0, shown).map((item, index) => {
           const rank = index + 1;
           const score = toDisplayScore(experienceWayfindScore(item));
           const facts = [
@@ -67,7 +70,7 @@ export default function HomeAffiliateActivityRail({ items, contentId, onLog }) {
           );
         })}
       </div>
-      <RailDots railId={RAIL_ID} count={rows.length} />
+      <RailDots railId={RAIL_ID} count={rows.length} layoutKey={shown >= rows.length ? 1 : 0} />
     </section>
   );
 }
