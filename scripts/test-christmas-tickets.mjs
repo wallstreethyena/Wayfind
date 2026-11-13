@@ -529,8 +529,27 @@ ok(html.includes("data-christmas-filter") && html.includes(">Best rated<") && ht
   ok(/data-commerce-owner=\{affiliate \? undefined : "ChristmasTickets"\}/.test(comp.slice(comp.indexOf("export function TopPicks"))) && /onClick=\{affiliate \? undefined : \(\) => organizerTap\(row\)\}/.test(comp) && /import \{ XM_CARD_CSS, organizerTap \} from "\.\/ChristmasTicketCard\.js"/.test(comp) && !/commerce_cta_clicked/.test(comp),
     "pick organizer taps are recorded once here and /go taps by the beacon, under the same christmas_tickets surface");
   const page = strip(read("app/christmas-in-florida/page.js"));
-  ok(/const topPicks = christmasTopPicks\(tickets\);/.test(page) && /<ChristmasTickets model=\{tickets\} topPicks=\{topPicks\}/.test(page) && /setShow\(isSocialAdLanding\(Object\.fromEntries\(new URLSearchParams\(window\.location\.search\)\)\)\)/.test(comp) && /<SocialTopPicks picks=\{topPicks\} \/>/.test(comp) && /<div data-social-picks="" hidden=\{!show\}>/.test(comp),
+  ok(/const topPicks = christmasTopPicks\(tickets\);/.test(page) && /<ChristmasTickets model=\{tickets\} topPicks=\{topPicks\}/.test(page) && /isSocialAdLanding\(Object\.fromEntries\(new URLSearchParams\(window\.location\.search\)\)\)\) root\.setAttribute\(SOCIAL_AD_ATTR, ""\)/.test(comp) && /<SocialTopPicks picks=\{topPicks\} \/>/.test(comp) && /<div data-social-picks="">/.test(comp),
     "the cached page always carries the picks; only a social landing URL shows them, from the same featured rows");
+  ok(/<script dangerouslySetInnerHTML=\{\{ __html: SOCIAL_AD_SCRIPT \}\} \/>/.test(page) && page.indexOf("SOCIAL_AD_SCRIPT }}") < page.indexOf("<ChristmasTickets ")
+    && /\[data-social-picks\]\{display:none\}html\[data-wf-social\] \[data-social-picks\]\{display:block\}/.test(comp),
+    "the social mark is set by an inline script before the picks are parsed, so they are drawn in place with no layout shift");
+  ok(!/fetchpriority/.test(comp.slice(comp.indexOf("export function TopPicks"), comp.indexOf("export default function"))) && !/loading=\{i === 0/.test(comp),
+    "pick photos are lazy, so the hidden row never downloads them for Google or plain visitors");
+  {
+    const { SOCIAL_AD_SCRIPT, SOCIAL_AD_ATTR, isSocialAdLanding: isSocial } = await import("../lib/socialAdLanding.js");
+    const saved = { location: globalThis.location, document: globalThis.document };
+    let agree = true;
+    for (const q of ["?fbclid=abc", "?fbclid=", "?fbclid=%20", "?utm_source=Instagram", "?utm_source=google&gclid=1", "", "?utm_source=ig&x=1", "?utm_source=metaX", "?utm_source=%20meta%20"]) {
+      let set = null;
+      globalThis.location = { search: q };
+      globalThis.document = { documentElement: { setAttribute: (k) => { set = k; } } };
+      new Function(SOCIAL_AD_SCRIPT)();
+      if ((set === SOCIAL_AD_ATTR) !== isSocial(Object.fromEntries(new URLSearchParams(q)))) agree = false;
+    }
+    globalThis.location = saved.location; globalThis.document = saved.document;
+    ok(agree && SOCIAL_AD_ATTR === "data-wf-social", "the before-paint script and isSocialAdLanding agree on every landing URL");
+  }
 }
 {
   const cardsHtml = html.slice(html.indexOf('data-ticket-id="'));
