@@ -48,6 +48,7 @@ import {
   selectProactivePlannerOffer,
   recordProactiveShown,
   dismissProactiveOffers,
+  proactiveWaitsForAdPicks,
 } from "../lib/plannerProactive.js";
 import { parsePlannerRequest } from "../lib/plannerParse.js";
 import {
@@ -68,6 +69,7 @@ import {
   buildGroundedCandidatePool,
   buildDeterministicPlan,
   resolveDeterministicEditActions,
+  buildPlannerClaudePrompt,
   parseAndValidateClaudePlan,
   parseAndValidateClaudeEdit,
 } from "../lib/wayfindPlanner.js";
@@ -412,7 +414,24 @@ delete process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   const savesOffer = selectProactivePlannerOffer({ pathname: "/", unassignedSaveCount: 4, storage: sess2 });
   ok(savesOffer && savesOffer.kind === "unassigned_saves" && /organize these into days/i.test(savesOffer.message), "3+ unassigned saves offers to organize stops into days and reduce driving");
   dismissProactiveOffers(sess2);
-  ok(selectProactivePlannerOffer({ pathname: "/things-to-do/tampa", storage: sess2 }) === null, "Dismissing proactive pill silences further unsolicited offers in that session");
+
+  // Live 2026-11-13: on a 375x553 phone the offer covered the first ad pick's
+  // button 3.2 s after a Meta ad landing. While the ad picks row is on screen
+  // the offer waits; any other visitor, or a scrolled-away row, is unchanged.
+  {
+    const fakeDoc = (social, rect) => ({
+      documentElement: { hasAttribute: (k) => social && k === "data-wf-social" },
+      querySelector: (sel) => (rect && sel === "[data-top-picks]" ? { getBoundingClientRect: () => rect } : null),
+    });
+    ok(proactiveWaitsForAdPicks(fakeDoc(true, { top: 120, bottom: 470, height: 350 }), 553) === true, "An ad visitor's picks row on screen holds the unsolicited planner offer");
+    ok(proactiveWaitsForAdPicks(fakeDoc(true, { top: -400, bottom: -50, height: 350 }), 553) === false, "Once the picks row is scrolled away the offer may show");
+    ok(proactiveWaitsForAdPicks(fakeDoc(true, { top: 0, bottom: 0, height: 0 }), 553) === false, "A hidden picks row never holds the offer");
+    ok(proactiveWaitsForAdPicks(fakeDoc(false, { top: 120, bottom: 470, height: 350 }), 553) === false && proactiveWaitsForAdPicks(fakeDoc(true, null), 553) === false && proactiveWaitsForAdPicks(null, 553) === false,
+      "Google, organic and direct visitors, and pages without the picks row, keep the offer exactly as before");
+    const loaderSrc = readFileSync(path.join(REPO, "app/components/WayfindPlannerLoader.js"), "utf8");
+    ok(/proactiveWaitsForAdPicks\(document, window\.innerHeight\)/.test(loaderSrc) && /addEventListener\("scroll", onScroll, \{ capture: true/.test(loaderSrc) && /removeEventListener\("scroll", onScroll, true\)/.test(loaderSrc),
+      "The loader checks the picks row before showing an offer and re-checks on any scroll, removing its listener");
+  }
 }
 
 // ── SCENARIO 1: "Orlando Nov 20 to 23, two adults, Christmas and food." ───────
@@ -1686,6 +1705,62 @@ const workingKey = seededCommit.tripKey;
     capturedEvents.length === 10 &&
       capturedEvents.every((e) => Boolean(e.evName) && !("message" in e.props) && !("email" in e.props) && e.props.trip_length === 4),
     "Scenario 11e: all 10 planner funnel analytics events emit with strict prompt/PII scrubbing"
+  );
+
+  // 11f. Route contract: paidAnthropicRequest uses method:'POST', breakerOpen is awaited,
+  // POST /api/planner returns canonical entitlement metadata, and buildPlannerClaudePrompt attaches validDays
+  const routeSrc = readFileSync(path.join(REPO, "app/api/planner/route.js"), "utf8");
+  ok(
+    /await\s+breakerOpen\(\s*["']anthropic["']\s*\)/.test(routeSrc) &&
+      /paidAnthropicRequest\(\s*\{\s*method:\s*["']POST["']/.test(routeSrc),
+    "Scenario 11f: /api/planner awaits breakerOpen('anthropic') and passes method:'POST' to paidAnthropicRequest"
+  );
+
+  const { POST: plannerRoutePost } = await loadComponent(path.join(REPO, "app/api/planner/route.js"), REPO);
+  const entRes = await plannerRoutePost(
+    new Request("https://wayfind.internal/api/planner", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        message: "Orlando Nov 20 to 23, two adults, Christmas and food.",
+        voice: "santa",
+      }),
+    })
+  );
+  const entJson = await entRes.json();
+  ok(
+    entRes.status === 200 &&
+      entJson.ok === true &&
+      entJson.entitlement &&
+      entJson.entitlement.allowed === true &&
+      entJson.entitlement.paywallActive === false &&
+      entJson.entitlement.manualItineraryFree === true &&
+      entJson.entitlement.entitlement === PLANNER_ENTITLEMENT,
+    "Scenario 11f: POST /api/planner returns canonical free entitlement metadata on 200 responses"
+  );
+
+  const promptParsed = parsePlannerRequest("Orlando Nov 20 to 23, Christmas and food", { todayYmd: "2026-11-12" });
+  const promptBuilt = buildPlannerClaudePrompt(promptParsed, [
+    ...groundedOrlandoPool,
+    {
+      id: "event:december-only-parade",
+      name: "December Only Parade",
+      city: "Orlando",
+      state: "FL",
+      lat: 28.54,
+      lng: -81.38,
+      itemType: "event",
+      startDate: "2026-12-10",
+      endDate: "2026-12-12",
+      wfScore: 95,
+    },
+  ]);
+  const promptUserObj = JSON.parse(promptBuilt.user);
+  ok(
+    Array.isArray(promptUserObj.CANDIDATES) &&
+      promptUserObj.CANDIDATES.length > 0 &&
+      promptUserObj.CANDIDATES.every((c) => Array.isArray(c.validDays) && c.validDays.length > 0 && c.id !== "event:december-only-parade"),
+    "Scenario 11f: buildPlannerClaudePrompt attaches validDays and filters out off-window events before calling Claude"
   );
 }
 

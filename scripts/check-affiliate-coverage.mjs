@@ -214,7 +214,7 @@ for (const eventId of Object.keys(EVENT_TICKET_DEALS)) {
 }
 ok(EVENT_TICKET_DEALS["christmas-town-2026"]?.deal === 65 && EVENT_TICKET_DEALS["seaworld-orlando-christmas-2026"]?.deal === 62 && EVENT_TICKET_DEALS["legoland-fl-holidays-2026"]?.deal === 64,
   "the three organizer-confirmed included-with-admission holiday runs sell that park's one-day ticket");
-ok(EVENT_TICKET_DEALS["mvmcp-2026"]?.deal === 38 && EVENT_TICKET_DEALS["mvmcp-2026"]?.product === "event-ticket", "MVMCP maps to its exact Undercover Tourist event-ticket row, never Disney park admission");
+ok(EVENT_TICKET_DEALS["mvmcp-2026"]?.provider === "viator" && EVENT_TICKET_DEALS["mvmcp-2026"]?.offerId === "3805P5" && EVENT_TICKET_DEALS["mvmcp-2026"]?.product === "event-ticket", "MVMCP maps to Viator's exact party ticket 3805P5, never Disney park admission");
 ok(EVENT_TICKET_DEALS["jollywood-nights-2026"]?.deal === 39 && EVENT_TICKET_DEALS["jollywood-nights-2026"]?.product === "event-ticket", "Jollywood maps to its exact Undercover Tourist event-ticket row, never Disney park admission");
 ok(EVENT_TICKET_DEALS["epcot-festival-holidays-2026"]?.deal === 61 && EVENT_TICKET_DEALS["epcot-festival-holidays-2026"]?.product === "park-admission", "EPCOT Festival of the Holidays sells the EPCOT one-day base ticket");
 ok(EVENT_TICKET_DEALS["epcot-candlelight-2026"]?.deal === 61 && EVENT_TICKET_DEALS["epcot-candlelight-2026"]?.product === "park-admission", "EPCOT Candlelight sells the same EPCOT one-day base ticket");
