@@ -56,6 +56,8 @@ const ROUTES = {
   stubhub: { rel: "app/api/stubhub/go/route.js", host: "stubhub.prf.hn",
     q: (i = 1) => "url=" + encodeURIComponent("https://www.stubhub.com/event/" + (100 + i)) },
   commerce: { rel: "app/api/commerce/go/route.js", host: null, q: (i = 1) => "provider=unknown&offer=xyz" + i },
+  // Reserve handoff: no hermetic DB here, so the human redirect lands on our own place page (host null).
+  reserve: { rel: "app/api/reserve/go/route.js", host: null, fallbackPath: "place_page_fallback", q: () => "placeId=ChIJ3Vyq7WTEwogRA-WDC7Mze2E&date=2026-11-14&time=19:15&party=4" },
 };
 async function hit(name, headers, i = 1) {
   const r = ROUTES[name];
@@ -98,6 +100,9 @@ for (const name of Object.keys(ROUTES)) {
   ]) {
     const x = await hit(name, h);
     if (r.host) ok(x.loc && x.loc.includes(r.host), `${name} human [${label}] reaches the real partner ${r.host} (Location: ${x.loc})`);
+    // A route whose hermetic landing is a working, attributed fallback (reserve: our own place page) records
+    // provider_redirect_started with that resolver_path; "failed" stays reserved for unattributable (CLAUDE.md rule 3).
+    else if (r.fallbackPath) ok(x.res.status === 302 && x.events.some((e) => e.event === "provider_redirect_started" && e.p.resolver_path === r.fallbackPath) && !x.events.some((e) => e.event === "provider_redirect_failed"), `${name} human [${label}] takes the normal path, started with resolver_path=${r.fallbackPath} (${names(x)})`);
     else ok(x.res.status === 302 && x.events.some((e) => e.event === "provider_redirect_failed"), `${name} human [${label}] takes the normal path (${names(x)})`);
     ok(x.events.length >= 1 && x.events.every((e) => e.p.traffic_class === "human"), `${name} human [${label}] events carry traffic_class=human (${JSON.stringify(x.events.map((e) => e.p.traffic_class))})`);
     ok(!x.events.some((e) => e.event === "provider_redirect_refused"), `${name} human [${label}] is never refused`);

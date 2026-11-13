@@ -2604,5 +2604,9 @@ node scripts/check-reserve-routes.mjs
 node scripts/test-reserve-ui.mjs
 # 2026-11-12: Reserve a table, database (RLS, SECURITY DEFINER + pinned search_path, EXECUTE service_role only; PGlite applies the migration, runs supabase/tests/reserve_booking_test.sql, refuses anon/authenticated, runs the seed twice and books against it).
 node scripts/test-reserve-schema.mjs
+# 2026-11-12: Reserve v2, server (Booking Profile consent + validation, provider routing wayfind > opentable handoff > none, OpenTable restref URL shape + half hour rounding, OpenTable API seam stays off, saved profile fills book, NO name/phone/email in the chat model request, find never invents availability, go 302 targets, history, partner list includes verified OpenTable restaurants).
+node scripts/test-reserve-v2.mjs
+# 2026-11-12: Reserve v2, guest app (real render: wayfind confirm card, OpenTable handoff card never shows times or says booked, none state, profile reuse, name question collected outside the chat, similar picks, history, profile editor consent/save/delete, Santa reserve chips, no dashes, 44px targets).
+node scripts/test-reserve-guest.mjs
 # 2026-11-12: homepage JS diet - the live sports poster tile loads lib/posterEvents.js (event pipeline, ~13.9KB gz) lazily; lock the import-graph boundary.
 node scripts/check-home-diet.mjs

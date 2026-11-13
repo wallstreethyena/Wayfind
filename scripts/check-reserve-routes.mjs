@@ -425,7 +425,7 @@ const chatDeps = (paid, over = {}) => { const trips = []; const calls = []; retu
   } finally { globalThis.fetch = realFetch; }
   const stall = JSON.stringify({ reply: "A table for 2 this Saturday, November 14 at 7:20 PM. What name should the table go under?", draft: { partySize: 2, date: "2026-11-14", time: "19:20", guestName: null, note: null } });
   const st = await json(await harness({ env: PROD, repo: { open: ["19:15", "19:30"] }, extra: chatDeps(aiOk(stall)).deps }).handlers.chat(post("/api/reserve-chat", chatBody)));
-  ok(st.body.draft.time === "19:15" && !st.body.reply.includes("7:20") && st.body.reply.includes("7:15 PM") && st.body.complete === false && st.body.draft.guestName === null && st.body.verified === true, "model time 19:20 becomes draft 19:15 (real open), the reply never repeats 7:20");
+  ok(st.body.draft.time === "19:15" && !st.body.reply.includes("7:20") && st.body.reply.includes("7:15 PM") && st.body.complete === true && !("guestName" in st.body.draft) && st.body.verified === true, "model time 19:20 becomes draft 19:15 (real open), the reply never repeats 7:20");
   const soonJson = JSON.stringify({ reply: "Sure, 10:30 AM today.", draft: { partySize: 2, date: "2026-11-11", time: "10:30", guestName: "Gabe", note: null } });
   const so = await json(await harness({ env: PROD, extra: chatDeps(aiOk(soonJson)).deps }).handlers.chat(post("/api/reserve-chat", chatBody)));
   ok(so.body.draft.time === null && so.body.complete === false && /too soon/.test(so.body.reply), "now is 10:00 Eastern, lead 60: 10:30 today is dropped with the too soon line");

@@ -160,7 +160,7 @@ ok(run({ guestName: "gabe" }).value.guestName === "Gabe", "validateBookInput app
   const full = { partySize: 2, date: "2026-11-14", time: "19:15", guestName: "Gabe", note: null };
   const clean = turn(full, "Great, anything the restaurant should know?");
   ok(clean.reply === "Great, anything the restaurant should know?" && clean.complete === true, "clean output passes the model reply through cleanReply unchanged and is complete");
-  ok(turn({ ...full, guestName: null }, "What name?").complete === false && turn({ ...full, partySize: null }).complete === false && turn({ ...full, date: null }).complete === false && turn({ ...full, time: null }).complete === false, "complete is true only when all four fields are set");
+  ok(turn({ ...full, partySize: null }).complete === false && turn({ ...full, date: null }).complete === false && turn({ ...full, time: null }).complete === false, "complete is true only when party, day and time are set (the name is not part of the chat draft)");
   const snap = turn({ ...full, time: "19:20" }, "A table for 2 this Saturday, November 14 at 7:20 PM. What name?");
   ok(snap.draft.time === "19:15" && snap.reply === "Tables go on quarter hours, so I set 7:15 PM. Does that look right? Tap Book table when you are ready." && !snap.reply.includes("7:20") && snap.complete === true, "19:20 snaps to 19:15 and the reply is the quarter hours line");
   const past = turn({ ...full, date: "2026-11-10" }, "Tuesday it is!");
@@ -175,10 +175,10 @@ ok(run({ guestName: "gabe" }).value.guestName === "Gabe", "validateBookInput app
   ok(turn({ ...full, date: T, time: "12:00" }).draft.time === "12:00" && turn({ ...full, date: T, time: "11:45" }).draft.time === null, "today at exactly the lead time is kept, a minute under is dropped");
   const badTime = turn({ ...full, time: "banana" });
   ok(badTime.draft.time === null && badTime.reply === "What time would you like? For example 7:00 PM or 7:15 PM.", "an unusable time gives the time line");
-  const badName = turn({ ...full, guestName: "Bob123" });
-  ok(badName.draft.guestName === null && badName.reply === "What name should the table be under? Letters only, please.", "an unusable name gives the name line");
+  const modelName = turn({ ...full, guestName: "Bob123" });
+  ok(!("guestName" in modelName.draft) && modelName.complete === true && !/name/i.test(modelName.reply), "a name from the model is ignored: the chat draft never carries or asks for a name");
   ok(turn({ ...full, partySize: 99, date: "2020-01-01" }).reply.startsWith("How many people?") && turn({ ...full, date: "2020-01-01", time: "19:20" }).reply.startsWith("Which day"), "precedence: party first, then day, before a time adjustment");
-  ok(turn({ ...full, guestName: "gabe" }).draft.guestName === "Gabe", "chat names are capitalized");
+  ok(!("guestName" in turn({ ...full, guestName: "gabe" }).draft), "the chat draft has no guestName key even when the model sends one");
   const claim = turn(full, "Your table is booked for 7 PM!");
   ok(!/booked/i.test(claim.reply) && claim.reply === "Does that look right? Tap Book table when you are ready.", "a reply that claims booked is still replaced");
   ok(finishChatTurn({ parsed: null, ...c }).complete === false && finishChatTurn({ parsed: { reply: 5, draft: "x" }, ...c }).complete === false, "garbage parsed input gives an empty, incomplete turn");
@@ -191,7 +191,7 @@ ok(run({ guestName: "gabe" }).value.guestName === "Gabe", "validateBookInput app
   ok(v.verified === true && v.complete === true && v.draft.time === "19:15" && v.reply === "Sounds good.", "a time that is in the real open list is verified and complete");
   const taken = applyAvailability({ turn: t({ ...full, time: "19:00" }), slots: ["18:30", "19:15", "19:30", "20:00", "20:30"], restaurantName: "Test Bistro" });
   ok(taken.verified === false && taken.complete === false && taken.draft.time === null && taken.reply === "7:00 PM is taken. I can do 6:30 PM, 7:15 PM or 7:30 PM. Which works?", "a time that is not open is nulled and ONE server line offers the 3 nearest: " + taken.reply);
-  ok(taken.draft.partySize === 2 && taken.draft.date === "2026-11-14" && taken.draft.guestName === "Gabe", "...and the rest of the draft is kept");
+  ok(taken.draft.partySize === 2 && taken.draft.date === "2026-11-14" && !("guestName" in taken.draft), "...and the rest of the draft is kept");
   const none = applyAvailability({ turn: withTime, slots: [], restaurantName: "Test Bistro" });
   ok(none.verified === false && none.draft.date === null && none.draft.time === null && none.reply === "Test Bistro has no open tables on Saturday, November 14. Which other day works?", "no open times that day: the date is dropped and the line asks for another day: " + none.reply);
   const unknown = applyAvailability({ turn: t({ ...full, date: null }), slots: null, restaurantName: "Test Bistro" });
@@ -199,7 +199,7 @@ ok(run({ guestName: "gabe" }).value.guestName === "Gabe", "validateBookInput app
   const noTime = applyAvailability({ turn: t({ ...full, time: null }), slots: openSlots, restaurantName: "Test Bistro" });
   ok(noTime.verified === false && noTime.complete === false, "a day with open times but no time chosen is not verified");
   ok(applyAvailability({ turn: withTime, slots: null, restaurantName: "x" }).verified === false, "no slot list at all can never verify");
-  for (const l of [snap.reply, past.reply, party.reply, soon.reply, badTime.reply, badName.reply, taken.reply, none.reply]) ok(!/[\u2013\u2014]| - /.test(l) && !/\b(booked|confirmed|available|reserved)\b/i.test(l), "server line has no dashes and no booked or available claim: " + l);
+  for (const l of [snap.reply, past.reply, party.reply, soon.reply, badTime.reply, modelName.reply, taken.reply, none.reply]) ok(!/[\u2013\u2014]| - /.test(l) && !/\b(booked|confirmed|available|reserved)\b/i.test(l), "server line has no dashes and no booked or available claim: " + l);
 }
 
 if (failed) { console.error(`test-reserve-logic: ${failed} of ${count} assertions failed`); process.exit(1); }

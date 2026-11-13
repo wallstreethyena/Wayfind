@@ -82,5 +82,12 @@
     "decision_owner": "wallstreethyena",
     "tracking": "#20261111 Reserve a table (no issue number yet, owner to assign)",
     "reason": "NOT APPLIED; owner approved 2026-11-12, to be applied by the integrator after review. Instant booking for Reserve a table: two new tables (wf_reserve_partners, wf_reserve_bookings) and five SECURITY DEFINER functions (wf_reserve_slots, wf_reserve_book, wf_reserve_cancel, wf_reserve_propose, wf_reserve_respond_proposal; search_path pinned, EXECUTE service_role only, a per place per day advisory lock serializes capacity). RLS on both tables; clients may only SELECT their own bookings, partner contact emails and manage token hashes are service role only. Additive, no existing table touched; rollback = drop the five functions and both tables. Applied cleanly and exercised in PGlite (supabase/tests/reserve_booking_test.sql via scripts/test-reserve-schema.mjs). Deploy order: migration first, then the seed scripts/reserve-seed-test-kitchen.sql on a preview database, then code. Production stays dark until a partner row has stage live (demo partners are never listed, bookable or emailed in production)."
+  },
+  {
+    "file": "supabase/migrations/20261112230000_wf_booking_profiles_platform_links.sql",
+    "sha256": "c0a048b1e1910e7a1c9af386a95b36668d3ade165168be0ac149290a0c9b2547",
+    "decision_owner": "wallstreethyena",
+    "tracking": "#2416",
+    "reason": "Reserve v2: wf_booking_profiles (own-row RLS, phone needs consent) and wf_reserve_platform_links (server only). Additive. Applied to production 2026-11-12 under the owner's Reserve approval; RLS verified with a rolled-back test (RLS_ALL_PASSED)."
   }
 ]
