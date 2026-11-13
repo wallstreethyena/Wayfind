@@ -103,8 +103,7 @@ ok(/bottom: MAP_NOTE_OFFSET\.bottom/.test(style), "column bottom comes from MAP_
 ok(/left: MAP_NOTE_OFFSET\.left/.test(style) && /right: MAP_NOTE_OFFSET\.right/.test(style), "column left/right come from MAP_NOTE_OFFSET");
 ok(/zIndex: 17/.test(style) && /flexDirection: "column"/.test(style), "column is zIndex 17 (above map, below the sheet's 18) and stacks credit over note");
 ok(!/\bbottom:\s*\d/.test(style), "no numeric bottom: literal on the column");
-const noteTag = screenSrc.match(/<div role="note"[^>]*>/)?.[0] || "";
-ok(noteTag.length > 0 && !/position:\s*"absolute"/.test(screenSrc.match(/<div role="note"[^\n]*?\}\}>/)?.[0] || ""), "the note itself is no longer absolutely positioned on its own numeric offsets");
+ok(!/<div role="note"/.test(screenSrc) && !/data-wf-map-unpinned/.test(screenSrc), "internal unpinned-place disclosures are absent from customer-facing DOM (kept in window.__wfMapList telemetry only)");
 const creditTag = screenSrc.match(/<div data-wf-map-credit=[^\n]*?\}\}>/)?.[0] || "";
 ok(creditTag.length > 0 && !/position:\s*"absolute"|\bbottom:/.test(creditTag), "the licence credit has no absolute/bottom of its own (lives in the column, inside the safe area)");
 ok(screenSrc.indexOf("data-wf-map-credit") > screenSrc.indexOf("data-wf-map-notes"), "credit renders inside the column");
