@@ -1980,6 +1980,7 @@ node scripts/test-bookable-near-50.mjs
 # Statewide theme-park rail core: exact owned identities, one existing ticket
 # winner, visible-score order, standard cards, and no raw partner destinations.
 node scripts/test-theme-park-core.mjs
+node scripts/test-theme-park-photo-credits.mjs
 node scripts/test-theme-park-surfaces.mjs
 
 # Curated tiles (today / experiences / food / nightlife / shopping / stays) read
