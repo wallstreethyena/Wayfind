@@ -29,7 +29,7 @@ import {
   sanitizeAnalyticsProperties,
 } from "../../lib/browserAnalytics";
 import { readCrownCampaign } from "../../lib/crownCampaign.js";
-import { attributionProps, captureLanding, installBridge, readState, writeLandingCookie } from "../../lib/campaignAttribution.js";
+import { attributionProps, captureLanding, installBridge, readState, sessionCampaignProps, writeLandingCookie } from "../../lib/campaignAttribution.js";
 import { syncAdClickCookieFromWindow } from "../../lib/adClickCookie.js";
 import { isNative } from "../../lib/native";
 import { safeLocalStorage, safeSessionStorage } from "../../lib/safeStorage.js";
@@ -119,6 +119,10 @@ export default function PostHogProvider({ children }) {
           const sess = attributionProps(st, "sess");
           if (Object.keys(ft).length) ph.register(ft);
           if (Object.keys(sess).length && typeof ph.register_for_session === "function") ph.register_for_session(sess);
+          // The landing's own utm_* and click ids, so the session keeps its
+          // source even when the page rewrote the address before this boot.
+          const landing = sessionCampaignProps(st);
+          if (Object.keys(landing).length && typeof ph.register_for_session === "function") ph.register_for_session(landing);
         } catch (e) {}
         try {
           const crown = readCrownCampaign(safeSessionStorage());
