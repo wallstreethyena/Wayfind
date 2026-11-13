@@ -204,6 +204,7 @@ const TripConnections = nextDynamic(() => import("./components/TripConnections")
 // on a lazy chunk + then its own /api/theme-parks fetch: first card 4.2s vs
 // 2.7s (median of 5, same Vercel preview infra, 390px).
 import ThemeParkRail from "./components/ThemeParkRail";
+import { nextCenter } from "../lib/centerIdentity";
 const loadTrips = () => import("../lib/trips");
 const SHEET_LOADERS = [loadHookDetail, loadAccount, loadMenu, loadAuth, loadDetail, loadIntro, loadSocialFind];
 const SCREEN_LOADERS = [loadSurprise, loadCoupons, loadSaved, loadItinerary, loadShared, loadEventsScreen, loadMap, loadExperience, loadThingsToDo, loadTrips, ...SHEET_LOADERS];
@@ -7634,7 +7635,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
         if (adopted) {
           if (adopted.device) setDeviceLoc((prev) => prev || adopted.center);
           setLocResolved(true);
-          setCenter(adopted.center);
+          setCenter((prev) => nextCenter(prev, adopted.center));
           if (adopted.name) setLocName(adopted.name);
         }
       } catch (e) {}
@@ -7681,7 +7682,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
               const dLng = (saved.lng - c.lng) * 69 * Math.cos((c.lat * Math.PI) / 180);
               const movedMi = Math.sqrt(dLat * dLat + dLng * dLng);
               if (movedMi <= 2) {
-                setCenter({ lat: saved.lat, lng: saved.lng });
+                setCenter((prev) => nextCenter(prev, { lat: saved.lat, lng: saved.lng }));
                 setLocResolved(true);
                 if (saved.loc) setLocName((prev) => prev || saved.loc);
                 return;
@@ -7695,7 +7696,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
           // BEFORE the await, so re-check it after (a late GPS answer used to
           // load Tampa's feed over a just-picked St. Petersburg).
           if (manualRef.current) return;
-          setCenter(c);
+          setCenter((prev) => nextCenter(prev, c));
           setLocResolved(true);
           setLocName(name);
         },
