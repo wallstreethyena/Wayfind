@@ -1143,5 +1143,38 @@
    "detail": "If the ledger accounting regresses, the monthly Google lines drift from the real bill: grants leak (the free line empties early and visitors are refused) or refunds are doubled (spend past the free line becomes paid)."
   },
   "owner": "Revenue QA"
+ },
+ "scripts/test-viator-click-row-db-contract.mjs": {
+  "protects": "Viator click rows built by attributedViatorDestination are inserted into PGlite loaded with the production wf_viator_clicks migration and must be accepted with their gclid/gbraid for real ad landing shapes (campaign name in utm_campaign, numeric id, auto-tag only, iOS gbraid, legacy storage); store failures are logged without identifiers.",
+  "blastRadius": {
+   "category": "revenue",
+   "detail": "Regressing it lets Postgres reject every ad visitor's click row (gclid included) while the redirect still works, so no Viator booking can ever be tied to a Google ad and nothing alerts."
+  },
+  "owner": "Revenue QA"
+ },
+ "scripts/test-first-party-action-resolver.mjs": {
+  "protects": "First-Party Action Resolver and Detail CTA execution truth: official links never point to a wrong venue or wrong city branch, free places never get a paid CTA, generic city or root homepages never overwrite exact venue ticket URLs, menu links never degrade to Google Maps or Google Search, expired event tickets fail closed, manual_verified sources outrank automation, affiliate coverage never alters Wayfind Score, invalid/quarantined/ambiguous URLs fail closed, and batch merges are strictly idempotent.",
+  "blastRadius": {
+   "category": "revenue",
+   "detail": "If any of these invariants regress, place detail can send high-intent visitors to another city's venue, a dead/expired ticket page, a fake Google Maps 'See menu' search, or a paid product on a free park, breaking user trust and conversion at the exact decision moment."
+  },
+  "owner": "Revenue QA"
+ },
+ "scripts/test-owned-place-truth-frontier.mjs": {
+  "protects": "Owned Place Truth Architecture: deterministic editorial hours parser converts verified hours prose into structured weekly periods and holiday closures while rejecting ambiguous strings as PROSE_ONLY; holiday closures override regular weekday hours so venues never claim 'Go now' on closed holidays; municipal splash pads/parks never fabricate gate admission fees; Zero-Paid-Lookup Mode preserves live open/closed, expandable 7-day hours, official CTAs, and Game Plan when Google Place Details returns 503; unservable wfplacediscovery pseudo-ref card images are dropped before render; and Actionability Coverage never alters Wayfind Score.",
+  "blastRadius": {
+   "category": "trust",
+   "detail": "If this regresses, budget-gated detail views lose open/closed status and expandable hours, municipal splash parks claim paid gate admission, closed venues on Thanksgiving/Christmas tell visitors to 'Go now', or unservable wfplacediscovery refs trigger 404 image requests."
+  },
+  "owner": "Revenue QA"
+ },
+ "scripts/test-quota-exhaustion-simulation.mjs": {
+  "protects": "Owned regular opening hours (with strict <=30d Google ToS TTL and holiday uncertainty), 5-class spend accounting (human_interactive, background_enrichment, cron_refresh, repair_backfill, synthetic_qa), and the layered Place Detail spine serve HTTP 200 owned/cached/partial snapshots with zero user-facing 503s under daily quota exhaustion or upstream 429 storms, zero paid calls on synthetic QA requests, and self-healing writeback on justified live lookups.",
+  "blastRadius": {
+   "category": "revenue",
+   "detail": "If background/synthetic spend can consume human reserve or /api/places/details returns 503 when the Google Atmosphere daily gate binds, morning crons or synthetic probes exhaust the daily cap and live visitors hit broken 503 detail sheets every afternoon."
+  },
+  "owner": "Revenue QA"
  }
 }
+

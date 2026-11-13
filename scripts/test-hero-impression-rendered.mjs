@@ -20,6 +20,7 @@ import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { loadComponent } from "./lib/jsxLoad.mjs";
 import { pickHook } from "../lib/hooks.js";
+import { styleHtml } from "../lib/styleHtml.js";
 import path from "node:path";
 import { createRequire } from "node:module";
 
@@ -129,6 +130,8 @@ const baselineArg = process.argv.indexOf("--baseline");
 const baseline = baselineArg > -1 ? compilePromo(readFileSync(process.argv[baselineArg + 1], "utf8")) : null;
 const costs = { badges: 0, rankings: 0, hooks: 0 };
 const scope = {
+  // the promo block renders its keyframes through the real lib/styleHtml.js (stable { __html } object)
+  styleHtml,
   ...real, displayList: [], suggested: [{ id: "parent-control", name: "No photo", types: [], photo: null }], places: [], browseCat: null, weather: null, h: 14,
   locName: "Sarasota, FL", hookLikes: new Set(), locApprox: false, locBannerGone: false,
   gwPop: false, gwOpen: false, gwCount: 1, user: null,

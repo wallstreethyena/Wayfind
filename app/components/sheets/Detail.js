@@ -43,6 +43,8 @@ import { funnelProps } from "../../../lib/funnel";
 import { useCommerceImpression } from "../useCommerceImpression";
 import { nearbyTourListAllowed, placePartnerPick } from "../../../lib/placePartnerPicks";
 import { usePinQuarantine } from "../../../lib/pinQuarantine";
+import { useReservePartner } from "../../../lib/reserveClient.js";
+import { openReserveSheet } from "../../../lib/reserveOpen.js";
 import { pairsWellWith } from "../../../lib/pairsWellWith";
 import { chooseDetailNextStep, DETAIL_NEXT_STEP_OPEN, DETAIL_NEXT_STEP_SHOWN } from "../../../lib/detailNextStep.js";
 import { detailNearbyPool, detailDistanceMi, DETAIL_NEARBY_RADIUS_MI } from "../../../lib/detailNearby.js";
@@ -59,7 +61,7 @@ import { isOwnerPick } from "../../../lib/ownerBump";
 import { ATTRACTION_DISCOVERY_IDS } from "../../../lib/tripAttractions.js";
 import CommunityFooter from "../CommunityFooter";
 import PlacePhotoContribution from "../PlacePhotoContribution";
-import { buildGamePlan, hydrateDetailHours } from "../../../lib/gamePlan.js";
+import { buildGamePlan, hydrateDetailHours, isVerifiedFreePlace } from "../../../lib/gamePlan.js";
 
 // An internal redirect can still be an affiliate handoff; origin is not the
 // sponsorship signal. Free operator offers retain ordinary link semantics.
@@ -313,6 +315,15 @@ function PrimaryActionButton({ primaryCta, detail, kind, viaTours, locName, logE
       >
         <span>{primaryCta.label}</span><span aria-hidden="true">↗</span>
       </a>
+    );
+  }
+
+  // Wayfind table request: opens the lazy sheet when href is "#reserve"; verified external https:// reservation URLs fall through to the outbound <a> below.
+  if (primaryCta.type === DETAIL_CTA_TYPES.reserve && primaryCta.href === "#reserve") {
+    return (
+      <button ref={ctaRef} type="button" data-reserve-cta="1" aria-label={`Reserve a table at ${detail.name}`} onClick={() => { onClick(); openReserveSheet(detail, { surface: "detail" }); }} style={style}>
+        <span>{primaryCta.label}</span>
+      </button>
     );
   }
 
@@ -678,28 +689,31 @@ export default function DetailSheet({ ctx }) {
   // field. Unsourced stays empty-slot. No filler, no LLM-on-render.
   const [editorial, setEditorial] = useState(() => (ctx.initialEditorial && hasSourcedEditorialFields(ctx.initialEditorial)) ? ctx.initialEditorial : carriedEditorial(detail));
   const [curatedEvents, setCuratedEvents] = useState(() => Array.isArray(ctx.initialCuratedEvents) ? ctx.initialCuratedEvents : []);
+  const [firstPartyActions, setFirstPartyActions] = useState(() => ctx.initialFirstPartyActions || null);
   const [editorialLoaded, setEditorialLoaded] = useState(false);
   const [gamePlanExpanded, setGamePlanExpanded] = useState(false);
   useEffect(() => {
     let dead = false;
     setEditorial(carriedEditorial(detail));
     setCuratedEvents([]);
+    setFirstPartyActions(null);
     setEditorialLoaded(false);
     setGamePlanExpanded(false);
     if (!detail) return;
     const q = editorialRequestQuery(detail);
-    const apply = (ed, evs) => {
+    const apply = (ed, evs, fpa = null) => {
       if (dead) return;
       if (ed && hasSourcedEditorialFields(ed)) setEditorial(ed);
       else setEditorial(carriedEditorial(detail));
       setCuratedEvents(Array.isArray(evs) ? evs : []);
+      setFirstPartyActions(fpa && typeof fpa === "object" ? fpa : null);
       setEditorialLoaded(true);
     };
-    if (!q) { apply(null, []); return; }
+    if (!q) { apply(null, [], null); return; }
     fetch("/api/editorial?" + q) // v6.42: place_id so a richer Atlas card wins; event/venue aliases ride in `also`
       .then((r) => r.json())
-      .then((j) => apply(j && j.editorial, j && j.curatedEvents))
-      .catch(() => apply(null, []));
+      .then((j) => apply(j && j.editorial, j && j.curatedEvents, j && j.firstPartyActions))
+      .catch(() => apply(null, [], null));
     return () => { dead = true; };
   }, [detail && detail.id, detail && detail.name, detail && detail._event && detail._event.name]);
 
@@ -711,7 +725,15 @@ export default function DetailSheet({ ctx }) {
   // ledger short-circuits without a network call).
   const effectiveEditorial = editorial || (detail && detail.editorial && hasSourcedEditorialFields(detail.editorial) ? detail.editorial : (detail ? carriedEditorial(detail) : null));
   const websiteCandidate = detailExtra ? safeUrl(detailExtra.website) : null;
-  const verdictTargetUrl = websiteCandidate || (effectiveEditorial ? safeUrl(effectiveEditorial.officialWebsite) : null);
+  const fpaSiteCandidate = firstPartyActions && firstPartyActions.officialWebsite ? safeUrl(firstPartyActions.officialWebsite.url) : null;
+  const fpaPrimaryCandidate = firstPartyActions ? safeUrl(
+    (firstPartyActions.ticket_url && firstPartyActions.ticket_url.url)
+    || (firstPartyActions.admission_url && firstPartyActions.admission_url.url)
+    || (firstPartyActions.reservation_url && firstPartyActions.reservation_url.url)
+    || (firstPartyActions.menu_url && firstPartyActions.menu_url.url)
+    || fpaSiteCandidate
+  ) : null;
+  const verdictTargetUrl = websiteCandidate || fpaPrimaryCandidate || (effectiveEditorial ? safeUrl(effectiveEditorial.officialWebsite) : null);
   const [websiteOk, setWebsiteOk] = useState(null); // null = pending / none
   useEffect(() => {
     setWebsiteOk(null);
@@ -729,12 +751,15 @@ export default function DetailSheet({ ctx }) {
     return () => { dead = true; ctrl.abort(); };
   }, [verdictTargetUrl, detail && detail.id]);
   const websiteHref = websiteOk === true ? websiteCandidate : null;
-  const verifiedOfficialUrl = websiteOk === true ? verdictTargetUrl : null;
+  const verifiedOfficialUrl = websiteOk === true
+    ? (websiteCandidate || fpaSiteCandidate || (effectiveEditorial ? safeUrl(effectiveEditorial.officialWebsite) : null))
+    : (websiteOk !== false ? fpaSiteCandidate : null);
+  const verifiedFirstPartyActions = websiteOk !== false ? firstPartyActions : null;
 
   // v6.31: open/closed must match the list card — compute live from the
-  // hours periods (hydrated with detailExtra.oh when the place arrived from
-  // wf_inventory without cached periods), never a stale cached openNow.
-  const hydratedDetail = hydrateDetailHours(detail, detailExtra);
+  // hours periods (hydrated with detailExtra.oh or owned editorial hours when
+  // the place arrived from wf_inventory without cached periods), never a stale cached openNow.
+  const hydratedDetail = hydrateDetailHours(detail, detailExtra, Date.now(), effectiveEditorial);
   const rawOpenState = (typeof liveOpen === "function" ? (liveOpen(hydratedDetail) ?? liveOpen(detail)) : (detail && detail.openNow != null ? detail.openNow : null));
   const curatedNotesList = detail && !detail._event && typeof wayfindNotes === "function" ? wayfindNotes(detail.name) : null;
   const curatedObj = detail && typeof curatedNote === "function" ? curatedNote(detail) : null;
@@ -751,6 +776,8 @@ export default function DetailSheet({ ctx }) {
   // it is unconditionally safe. Declared with the other top-level hooks,
   // above every early return. See lib/pinQuarantine.js.
   const pinQ = usePinQuarantine();
+  // "Reserve a table" parity with the place card: the same partner list decides both.
+  const reservePartner = useReservePartner(detail && detail.id);
   const primaryCta = resolveDetailCta({
     detail: hydratedDetail,
     kind: placeKind(detail),
@@ -762,6 +789,8 @@ export default function DetailSheet({ ctx }) {
     websiteHref: verifiedOfficialUrl,
     editorial: effectiveEditorial,
     curatedNotes: curatedNotesList,
+    reservePartner,
+    firstPartyActions: verifiedFirstPartyActions,
   });
   const gamePlan = detail ? buildGamePlan({
     detail: hydratedDetail,
@@ -826,11 +855,12 @@ export default function DetailSheet({ ctx }) {
         label: primaryCta.label || "",
         monetized: !!primaryCta.monetized,
         exact: !!primaryCta.exact,
+        action_source: primaryCta.actionSource || null,
         open_state: openState,
         upgraded,
       });
     } catch (e) {}
-  }, [detail && detail.id, primaryCta && primaryCta.type, primaryCta && primaryCta.label, primaryCta && primaryCta.monetized, primaryCta && primaryCta.exact, openState, logEvent]);
+  }, [detail && detail.id, primaryCta && primaryCta.type, primaryCta && primaryCta.label, primaryCta && primaryCta.monetized, primaryCta && primaryCta.exact, primaryCta && primaryCta.actionSource, openState, logEvent]);
 
   const gamePlanShownFor = useRef(null);
   useEffect(() => {
@@ -857,7 +887,7 @@ export default function DetailSheet({ ctx }) {
     // monetized/exact (2026-10-02): the Command Center partner-click count needs
     // to tell a partner CTA (an exact pin, a deal, a tracked delivery) from a
     // plan/directions/menu tap; both arrive here as primary_cta_clicked.
-    try { logEvent("primary_cta_clicked", detail, { cta_type: primaryCta.type, provider: primaryCta.provider, monetized: !!primaryCta.monetized, exact: !!primaryCta.exact }); } catch (e) {}
+    try { logEvent("primary_cta_clicked", detail, { cta_type: primaryCta.type, provider: primaryCta.provider, monetized: !!primaryCta.monetized, exact: !!primaryCta.exact, action_source: primaryCta.actionSource || null }); } catch (e) {}
     if (primaryCta.type === "directions") {
       try { logEvent("directions", detail, { src: "primary" }); } catch (e) {}
     }
@@ -1291,23 +1321,26 @@ export default function DetailSheet({ ctx }) {
                 {(() => { if (detail._event) return null; const isD = ["Food", "Nightlife"].includes(Ranking.coarseCat(detail) || ""); const cost = isD ? Dining.costForTwo(detail) : null; /* PriceBadge reads the NUMBER, not the glyph string: detail.price was pre-rendered "$$" with no word, and a glyph without its label is exactly the half-signal that let "$$$$" and "Moderate" disagree. costForTwo stays ahead of it — a real dollar range for two is more specific than a band. */ const lvl = priceLevelOf(detail.priceNum != null ? detail.priceNum : (detail.price_level != null ? detail.price_level : detail.priceLevel)); if (cost && cost.listed) return (<><span style={{ color: C.border }}>·</span><span style={{ color: C.green, fontWeight: 800 }}>{cost.text}</span></>); if (lvl) return (<><span style={{ color: C.border }}>·</span><PriceBadge level={lvl} /></>); return null; })()}
               </div>
               <AwardsRail place={detail} colors={C} />
-              {!detail._event && Tags.requiresParkAdmission(detail.types) && (
+              {!detail._event && Tags.requiresParkAdmission(detail.types) && !isVerifiedFreePlace(hydratedDetail, effectiveEditorial) && (
                 <div style={{ fontSize: 11.5, fontWeight: 600, color: C.muted, marginTop: -4, marginBottom: 12 }}>May require park admission.</div>
               )}
               {hoursOpen && (
                 <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "10px 12px", marginBottom: 14 }}>
                   {(() => {
                     // v6.31: hours come from whichever source we already have — the
-                    // detail fetch (detailExtra.hours) or the weekday text captured
-                    // at search time (detail.oh.weekdayDescriptions). We only sit on
-                    // "Loading…" while the detail fetch is genuinely in flight AND we
-                    // have no cached weekday text; otherwise the sheet never gets
-                    // stuck spinning when that fetch fails or returns nothing.
+                    // detail fetch (detailExtra.hours), the weekday text captured
+                    // at search time (detail.oh.weekdayDescriptions), or Wayfind's
+                    // owned editorial hours (hydratedDetail.oh.weekdayDescriptions).
+                    const isOwnedHours = !(detailExtra && Array.isArray(detailExtra.hours) && detailExtra.hours.length > 0)
+                      && !(detail.oh && Array.isArray(detail.oh.weekdayDescriptions) && detail.oh.weekdayDescriptions.length > 0)
+                      && Boolean(hydratedDetail && hydratedDetail.oh && hydratedDetail.oh.source === "wayfind_editorial_hours");
                     const lines = (detailExtra && Array.isArray(detailExtra.hours) && detailExtra.hours.length > 0)
                       ? detailExtra.hours
                       : (detail.oh && Array.isArray(detail.oh.weekdayDescriptions) && detail.oh.weekdayDescriptions.length > 0
                           ? detail.oh.weekdayDescriptions
-                          : null);
+                          : (hydratedDetail && hydratedDetail.oh && Array.isArray(hydratedDetail.oh.weekdayDescriptions) && hydratedDetail.oh.weekdayDescriptions.length > 0
+                              ? hydratedDetail.oh.weekdayDescriptions
+                              : null));
                     if (lines) {
                       return (<>
                         {lines.map((line, i) => {
@@ -1322,7 +1355,7 @@ export default function DetailSheet({ ctx }) {
                         {/* v6.34: attribution renders only under real hours — it used
                             to sit beneath "Hours not listed" too, crediting Google
                             for hours we don't have. */}
-                        <div style={{ fontSize: 10.5, color: C.muted, opacity: 0.7, marginTop: 8 }}>Hours from Google.</div>
+                        <div style={{ fontSize: 10.5, color: C.muted, opacity: 0.7, marginTop: 8 }}>{isOwnedHours ? "Verified hours from Wayfind." : "Hours from Google."}</div>
                       </>);
                     }
                     return <div style={{ fontSize: 12.5, color: C.muted }}>{detailExtra === null ? "Loading hours…" : "Hours not listed for this place."}</div>;

@@ -17,6 +17,7 @@ import { WF_PLACE_CARD_CSS } from "../../components/css";
 // full rationale. Same durable-eligible set the sitemap uses; async, fail-soft.
 import { listIndexedIds } from "../../../lib/placeIndex.js";
 import { selectEligiblePlaceLinks } from "../../../lib/hubPlaceLinks.js";
+import { styleHtml } from "../../../lib/styleHtml.js";
 
 export const revalidate = 86400;
 export const dynamicParams = false;
@@ -86,7 +87,7 @@ export default async function Page({ params }) {
   const nearby = Object.entries(TOWN_HUBS).filter(([k]) => k !== key);
   return (
     <main style={S.page}>
-      <style dangerouslySetInnerHTML={{ __html: WF_PLACE_CARD_CSS }} />
+      <style dangerouslySetInnerHTML={styleHtml(WF_PLACE_CARD_CSS)} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [{ "@type": "ListItem", position: 1, name: "Wayfind", item: SITE_URL }, { "@type": "ListItem", position: 2, name: "Florida", item: SITE_URL + "/culture/sarasota" }, { "@type": "ListItem", position: 3, name: t.title, item: SITE_URL + "/florida/" + params.town }] }) }} />
       {topTen.length >= 3 ? <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "ItemList", name: `Top things to do in ${t.title}, Florida`, itemListElement: topTen.map((p, i) => ({ "@type": "ListItem", position: i + 1, item: { "@type": "LocalBusiness", name: p.name } })) }) }} /> : null}
       <div style={S.kicker}>Wayfind · Florida destinations</div>

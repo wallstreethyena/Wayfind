@@ -6,6 +6,7 @@ import {
   SNOWCAT_TICKET_TITLE,
   SNOWCAT_TICKETS,
 } from "../../lib/snowcatTickets.js";
+import { styleHtml } from "../../lib/styleHtml.js";
 
 const CSS = `
 .wf-snowcat-tickets{margin:16px 0 0;padding:14px 14px 12px;border:1px solid #21262D;border-radius:14px;background:#161B22;color:#E6EDF3}
@@ -24,7 +25,7 @@ const CSS = `
 export default function SnowcatTicketExplainer() {
   return (
     <section className="wf-snowcat-tickets" data-snowcat-tickets="" aria-labelledby="snowcat-ticket-title">
-      <style dangerouslySetInnerHTML={{ __html: CSS }} />
+      <style dangerouslySetInnerHTML={styleHtml(CSS)} />
       <h2 id="snowcat-ticket-title">{SNOWCAT_TICKET_TITLE}</h2>
       <p>{SNOWCAT_PRICE_NOTE}</p>
       <p>{SNOWCAT_SERVICE_FEE}</p>
