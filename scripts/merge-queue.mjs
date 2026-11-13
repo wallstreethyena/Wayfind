@@ -24,8 +24,13 @@
  *      MERGE_QUEUE_DRY_RUN=1 (read and log only: no label, comment, dispatch, update or merge).
  */
 import { pathToFileURL } from "node:url";
-import { decideOwnerApproval } from "./lib/ownerApproval.mjs";
+import { decideOwnerApproval, isOwnerOnly } from "./lib/ownerApproval.mjs";
 import { fetchPullEvidence } from "./lib/githubPullEvidence.mjs";
+
+export const POST_MERGE_PATH_WORKFLOWS = Object.freeze([
+  { file: "python-audit.yml", match: (f) => f.startsWith("tools/python/") || f === "scripts/export-revenue-pins.mjs" || f === ".github/workflows/python-audit.yml" },
+  { file: "native-trends.yml", match: (f) => /^lib\/trendSources\/native[^/]*\.js$/.test(f) || f === "scripts/native-trends-collect.mjs" || f === ".github/workflows/native-trends.yml" },
+]);
 import {
   STATES, GUARDS_CHECK_NAME, OWNER_APPROVAL_CHECK_NAME,
   refuseUnlessMainOnActions, readConfig, pickNext, isQueueable, classify,
@@ -126,6 +131,18 @@ export async function runQueue({ env, fetchImpl = globalThis.fetch, sleep = REAL
     return Number.isInteger(c && c.behind_by) ? c.behind_by : null;
   };
 
+  // Workflows that run on push to main with a path filter. A GITHUB_TOKEN merge
+  // fires no push event, so the queue dispatches them when the merged PR touched
+  // their paths (mirrors their on.push.paths; kept in step by test-merge-queue).
+  const dispatchPathWorkflows = async (files) => {
+    for (const w of POST_MERGE_PATH_WORKFLOWS) {
+      if (!files.some((f) => w.match(f))) continue;
+      if (!mutate(`dispatch ${w.file} on main`)) continue;
+      const r = await call("POST", `/actions/workflows/${w.file}/dispatches`, { ref: "main" });
+      if (r.status !== 204) say(`WARNING post-merge dispatch of ${w.file} answered HTTP ${r.status}`);
+    }
+  };
+
   // ---- per-PR state --------------------------------------------------------
   const counters = new Map();
   const counter = (n) => { if (!counters.has(n)) counters.set(n, { merge: 0, moves: 0 }); return counters.get(n); };
@@ -213,14 +230,16 @@ export async function runQueue({ env, fetchImpl = globalThis.fetch, sleep = REAL
 
     // 4. owner approval, decided by the repository's own rules
     let verdict;
+    let changedFiles = [];
     try {
       const ctx = { error: null, api: cfg.api, repo: cfg.repo, token: cfg.token, number: n, eventHeadSha: head };
-      const live = await fetchPullEvidence(ctx, { withFiles: true, fetchImpl });
+      const live = await fetchPullEvidence(ctx, { withFiles: true, protectedFilter: isOwnerOnly, fetchImpl });
       if (live.liveHeadSha !== head) return moved(n, head, "head changed while reading approval evidence");
+      changedFiles = Array.isArray(live.files) ? live.files : [];
       verdict = decideOwnerApproval({
         changedPaths: live.files, mergeGate: true,
         pr: { number: n, eventHeadSha: head, liveHeadSha: live.liveHeadSha },
-        comments: live.comments, error: null,
+        comments: live.comments, protectedEntries: live.protectedEntries || null, error: null,
       });
     } catch (e) {
       verdict = { ok: false, reason: `owner approval cannot be evaluated: ${(e && e.message) || e}` };
@@ -256,6 +275,7 @@ export async function runQueue({ env, fetchImpl = globalThis.fetch, sleep = REAL
 
     // 7. post-merge: guards on main (not awaited), label off
     try { await dispatchGuards("main"); } catch (e) { say(`WARNING post-merge guards dispatch failed: ${e.message}`); }
+    try { await dispatchPathWorkflows(changedFiles); } catch (e) { say(`WARNING post-merge path dispatch failed: ${e.message}`); }
     await removeLabel(n);
     result.merged.push({ number: n, sha: mergeSha });
     say(`merged #${n} sha=${mergeSha} tree-proof=PASS`);

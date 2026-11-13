@@ -17,7 +17,8 @@
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
-import { runQueue, TreeMismatchError, RefusedError, MAX_MERGE_ATTEMPTS } from "./merge-queue.mjs";
+import { runQueue, TreeMismatchError, RefusedError, MAX_MERGE_ATTEMPTS, POST_MERGE_PATH_WORKFLOWS } from "./merge-queue.mjs";
+import { readFileSync } from "node:fs";
 import {
   pickNext, classify, STATES, pickGuardsCheck, pickDispatchedRun, treesEqual,
   readConfig, refuseUnlessMainOnActions, buildComment, isQueueable,
@@ -443,6 +444,23 @@ const botComments = (pr) => pr.comments.filter((c) => c.user.type === "Bot").map
   ok(a.status === 1 && /GitHub Actions/.test(a.stderr), "CLI: exits 1 outside GitHub Actions");
   const b = cli({ GITHUB_ACTIONS: "true", GITHUB_REF: "refs/heads/feature", GITHUB_TOKEN: "t", GITHUB_REPOSITORY: REPO });
   ok(b.status === 1 && /main/.test(b.stderr), "CLI: exits 1 when not run from main");
+}
+
+// Post-merge path workflows mirror each workflow's own on.push.paths (a GITHUB_TOKEN
+// merge fires no push event, so the queue must dispatch them itself).
+{
+  const repoRoot = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
+  for (const w of POST_MERGE_PATH_WORKFLOWS) {
+    const yml = readFileSync(path.join(repoRoot, ".github", "workflows", w.file), "utf8");
+    const push = yml.split(/\n(?=  [a-z_]+:)/).find((b) => /^\s*push:/m.test(b) && /branches:\s*\[main\]/.test(b)) || "";
+    const globs = [...push.matchAll(/^\s*-\s*'([^']+)'/gm), ...[...(push.match(/paths:\s*\[([^\]]+)\]/) || [, ""])[1].matchAll(/'([^']+)'/g)]].map((m) => m[1]);
+    ok(globs.length > 0, `${w.file}: push-to-main paths found (positive control)`);
+    for (const g of globs) {
+      const sample = g.replace("/**", "/sub/x.js").replace("*", "Sample");
+      ok(w.match(sample), `${w.file}: a change to ${g} (e.g. ${sample}) triggers the post-merge dispatch`);
+    }
+    ok(!w.match("lib/unrelated.js") && !w.match("app/page.js"), `${w.file}: unrelated changes do not dispatch it`);
+  }
 }
 
 if (fails.length) {
