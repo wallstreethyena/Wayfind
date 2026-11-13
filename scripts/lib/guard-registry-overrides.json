@@ -1151,5 +1151,21 @@
    "detail": "Regressing it lets Postgres reject every ad visitor's click row (gclid included) while the redirect still works, so no Viator booking can ever be tied to a Google ad and nothing alerts."
   },
   "owner": "Revenue QA"
+ },
+ "scripts/test-data-manager-ingest-contract.mjs": {
+  "protects": "The Google Data Manager API events:ingest body built for Viator offline booking conversions: ConsentStatus enum values (CONSENT_GRANTED/CONSENT_DENIED, unknown omitted, never invented), required eventSource, Google Ads operating account and numeric conversion action, value/currency shape, and the 2000-event cap, checked against Google's published contract.",
+  "blastRadius": {
+   "category": "revenue",
+   "detail": "Regressing it sends bodies Google rejects (bare GRANTED, missing eventSource) so no Viator booking can reach Google Ads, or reports an unknown consent signal as denied or granted."
+  },
+  "owner": "Revenue QA"
+ },
+ "scripts/test-viator-consent-basis.mjs": {
+  "protects": "The owner-approved consent rule for Google Ads offline booking uploads: upload only on an explicit GRANTED consent or for a click outside the EEA/UK/Switzerland with no Global Privacy Control signal; DENIED, GPC, unknown country and covered regions block. Checked end to end (click row, reconcile ledger via migration 20261113105510, JS payload builder), including the migration refusing a drifted function body.",
+  "blastRadius": {
+   "category": "revenue",
+   "detail": "Regressing it either uploads ad click data Google's EU consent policy or a visitor's GPC opt-out forbids, or silently blocks every lawful upload so no booking reaches Google Ads."
+  },
+  "owner": "Revenue QA"
  }
 }

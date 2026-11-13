@@ -18,7 +18,7 @@ export default function Privacy() {
     <div style={S.page}>
       <div style={S.wrap}>
         <h1 style={S.h1}>Privacy &amp; Disclosures</h1>
-        <div style={S.date}>Wayfind &middot; Operated by WAYFIND LLC &middot; Effective August 1, 2026</div>
+        <div style={S.date}>Wayfind &middot; Operated by WAYFIND LLC &middot; Effective August 1, 2026 &middot; Updated November 13, 2026</div>
 
         <h2 style={S.h2}>What Wayfind is</h2>
         <p style={S.p}>Wayfind is a local discovery app that helps visitors find great places nearby. You can use most of it without an account. WAYFIND LLC is the data controller for the personal information described here.</p>
@@ -42,7 +42,7 @@ export default function Privacy() {
         <p style={S.p}>Signed-out data lives on your device: clearing your browser storage removes it completely.</p>
 
         <h2 style={S.h2}>Sale or sharing of personal information</h2>
-        <p style={S.p}>We do not currently sell or share personal information for cross-context behavioral advertising, as those terms are defined under applicable law (for example, the CCPA/CPRA). We reserve the right to do so in the future.</p>
+        <p style={S.p}>We do not currently sell or share personal information for cross-context behavioral advertising, as those terms are defined under applicable law (for example, the CCPA/CPRA). We reserve the right to do so in the future. We treat a Global Privacy Control signal from your browser as a request to opt out of the ad measurement described below.</p>
 
         <h2 style={S.h2}>International transfers</h2>
         <p style={S.p}>Wayfind's providers (Vercel, Supabase, Apple, PostHog, Google, Resend) process data in the United States. If you use Wayfind from outside the US, your data is transferred to and processed in the US.</p>
@@ -52,6 +52,9 @@ export default function Privacy() {
 
         <h2 style={S.h2}>Analytics, consent &amp; opt-out</h2>
         <p style={S.p}>We use PostHog to understand how the app is used (screens viewed, features tapped) so we can improve it. Analytics are for product improvement only. Web performance metrics (page speed measurements) are also collected.</p>
+
+        <h2 style={S.h2}>Ad measurement</h2>
+        <p style={S.p}>If you reach Wayfind from a Google ad and later book through one of our partners (for example Viator), we may send Google the ad click identifier that Google added to the link, the time of the booking, and the commission Wayfind earned, so we can measure which ads lead to bookings. We do not send your name, email address, phone number, or street address. We do not send this for visitors in the European Economic Area, the United Kingdom, or Switzerland, or when your browser sends a Global Privacy Control signal. We keep the ad click identifier for about 90 days, then delete it from our records.</p>
 
         <h2 style={S.h2}>Device recognition</h2>
         <p style={S.p}>To remember your preferences and recognize a returning device, we store a random, anonymous device identifier in your browser &mdash; in local storage and a first-party cookie that can last up to two years. It contains no personal information and is <b>first-party only</b>: we never use it for cross-site or cross-app tracking, and we never use fingerprinting or &ldquo;evercookie&rdquo; techniques to recreate it after you delete it. If you sign in, that device is linked to your account so your saved spots and preferences follow you across sessions and devices. <b>Opt out:</b> turn on &ldquo;Do Not Track&rdquo; in your browser and we switch to a session-only identifier that is not kept between visits; clearing your browser&rsquo;s site data removes it entirely.</p>

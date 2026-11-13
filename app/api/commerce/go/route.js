@@ -32,6 +32,7 @@
 // classic affiliate link and records the degraded resolver path.
 export const runtime = "nodejs";
 
+import { countryFromHeaders, gpcFromHeaders } from "../../../../lib/adConsentRegion.js";
 import { landingFromCookieHeader } from "../../../../lib/campaignAttribution.js";
 import { randomUUID } from "node:crypto";
 // Explicit .js extensions: scripts/check-commerce-redirect.mjs imports this route
@@ -196,6 +197,8 @@ export async function GET(req) {
         contentId,
         clientClickId: clickId,
         cookieHeader: req.headers.get("cookie") || "",
+        visitorCountry: countryFromHeaders(req.headers),
+        gpc: gpcFromHeaders(req.headers),
         distinctId: cookieDistinctId || null,
         trafficClass,
       });
