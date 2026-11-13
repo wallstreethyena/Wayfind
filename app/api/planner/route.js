@@ -35,6 +35,13 @@ import {
 } from "../../../lib/plannerLocalInventory.js";
 import { GET as siteSearch } from "../search/route.js";
 import { GET as christmasBrowseGet } from "../christmas/browse/route.js";
+import {
+  normalizePlannerVoice,
+  plannerPersona,
+  pickLine,
+  personaChatSystem,
+  cleanPersonaChat,
+} from "../../../lib/plannerPersona.js";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -231,11 +238,11 @@ async function gatherServerCandidates(parsed, { point = null, savedPlaces = [] }
   });
 }
 
-async function askClaudePlanner(promptObj) {
+async function askClaudePlanner(promptObj, { maxTokens = 1400 } = {}) {
   const key = aiKey();
-  if (!key) return { ok: false, reason: "unavailable" };
+  if (!key) return { ok: false, reason: "not_configured" };
   try {
-    if (await breakerOpen("anthropic")) return { ok: false, reason: "unavailable" };
+    if (await breakerOpen("anthropic")) return { ok: false, reason: "breaker_open" };
   } catch { /* fail open on cache read */ }
 
   try {
@@ -248,7 +255,7 @@ async function askClaudePlanner(promptObj) {
       },
       body: JSON.stringify({
         model: MODEL,
-        max_tokens: 1400,
+        max_tokens: maxTokens,
         system: promptObj.system,
         messages: [{ role: "user", content: promptObj.user }],
       }),
@@ -295,7 +302,9 @@ export async function POST(req) {
     return jsonNoStore({ ok: false, code: "EMPTY_MESSAGE" }, 400);
   }
 
-  const voice = body && body.voice === "santa" ? "santa" : "wayfind";
+  // The host on the page (Santa, Boo or plain Wayfind) owns the chat's voice.
+  const voice = normalizePlannerVoice(body && body.voice);
+  const persona = plannerPersona(voice);
   const contextCity = body && typeof body.contextCity === "string" ? body.contextCity.slice(0, 80) : null;
   const point = sanitizePoint(body && body.point);
   const activeTrip = sanitizeActiveTrip(body && body.activeTrip);
@@ -303,25 +312,70 @@ export async function POST(req) {
   const savedPlaces = Array.isArray(body && body.savedPlaces) ? body.savedPlaces.slice(0, 20) : [];
   const today = siteTodayStr();
 
-  const parsed = parsePlannerRequest(message, {
+  // The visitor's earlier turns this session (client sends at most 3), so the
+  // host remembers what was already said and asks only for what is missing.
+  const recent = Array.isArray(body && body.recent)
+    ? body.recent.filter((t) => typeof t === "string").map((t) => t.trim().slice(0, 300)).filter(Boolean).slice(-3)
+    : [];
+  let parsed = parsePlannerRequest(message, {
     todayYmd: today,
     activeTrip,
     contextCity,
     seedPlace,
   });
+  if (parsed.clarificationQuestion && recent.length && !activeTrip) {
+    const merged = parsePlannerRequest([...recent, message].join(". "), {
+      todayYmd: today,
+      activeTrip,
+      contextCity,
+      seedPlace,
+    });
+    if (merged.destination && !merged.clarificationQuestion) parsed = merged;
+  }
 
   // 1. Missing critical destination or dates -> ask ONE high-value question immediately (zero AI cost).
+  // The host talks back in character (owner 2026-11-13): a short witty reply to
+  // whatever they said, always ending on the city/dates ask. Claude writes it
+  // when available; otherwise a hand written in-character line, never the bare
+  // form question.
   if (parsed.clarificationQuestion) {
+    const seed = message.toLowerCase();
+    let reply = parsed.destination
+      ? pickLine(persona.clarifyDates(parsed.destination.name), seed)
+      : pickLine(persona.clarifyCity, seed);
+    let source = "deterministic";
+    // Why a hand written line was used, so a fallback is never mistaken for a
+    // generated reply: rate_limited | unavailable (no key or breaker open) |
+    // gate_shut (AI spend cap) | <provider failure kind> | unusable_reply.
+    let fallbackReason = parsed.destination ? "not_needed" : null;
+    if (!parsed.destination) {
+      if (isRateLimited(clientIp(req))) {
+        fallbackReason = "rate_limited";
+      } else {
+        const chat = await askClaudePlanner(
+          { system: personaChatSystem(voice), user: [...recent, message].join("\n") },
+          { maxTokens: 220 },
+        );
+        const cleaned = chat.ok ? cleanPersonaChat(chat.text) : null;
+        if (cleaned) {
+          reply = cleaned;
+          source = "claude";
+        } else {
+          fallbackReason = chat.ok ? "unusable_reply" : (chat.reason || "unavailable");
+        }
+      }
+    }
     return okJson({
       mode: "clarify",
       voice,
-      reply: parsed.clarificationQuestion,
+      reply,
       clarificationQuestion: parsed.clarificationQuestion,
       metrics: {
         tripLength: 0,
         candidateCount: 0,
       },
-      source: "deterministic",
+      source,
+      ...(source === "deterministic" ? { fallbackReason } : {}),
     });
   }
 
@@ -371,7 +425,7 @@ export async function POST(req) {
     return okJson({
       mode: "empty_inventory",
       voice,
-      reply: `I don't have enough verified Wayfind listings in ${cityLabel} yet to build a grounded plan without guessing. Try Orlando, Tampa, Sarasota, St. Petersburg, or Miami.`,
+      reply: pickLine(persona.empty(cityLabel), message),
       metrics: {
         tripLength: parsed.dates.dayCount || 0,
         candidateCount: 0,
@@ -407,7 +461,7 @@ export async function POST(req) {
       return okJson({
         mode: "no_change",
         voice,
-        reply: "I couldn't find a matching verified replacement in Wayfind's inventory for that change. Try naming a specific day or stop.",
+        reply: persona.noChange,
         metrics: {
           tripLength: parsed.dates.dayCount || 0,
           candidateCount: candidates.length,
@@ -459,6 +513,7 @@ export async function POST(req) {
   // 3b. Multi-stop / multi-day Trip Proposal (requires user confirmation via `Save itinerary` before committing!)
   let proposedPlan = null;
   let source = "deterministic";
+  let fallbackReason = rateLimited ? "rate_limited" : null;
 
   if (!rateLimited) {
     const promptObj = buildPlannerClaudePrompt(parsed, candidates, { voice });
@@ -468,7 +523,11 @@ export async function POST(req) {
       if (validated.ok) {
         proposedPlan = validated.plan;
         source = "claude";
+      } else {
+        fallbackReason = `ungrounded_plan:${validated.code || "invalid"}`;
       }
+    } else {
+      fallbackReason = claudeRes.reason || "unavailable";
     }
   }
 
@@ -481,7 +540,7 @@ export async function POST(req) {
     return okJson({
       mode: "empty_inventory",
       voice,
-      reply: "I couldn't assemble enough open stops on those exact dates from Wayfind's verified listings.",
+      reply: persona.noFit,
       metrics: {
         tripLength: parsed.dates.dayCount || 0,
         candidateCount: candidates.length,
@@ -517,6 +576,7 @@ export async function POST(req) {
       proposedStopCount: proposedPlan.days.reduce((n, d) => n + d.stops.length, 0),
     },
     source,
+    ...(source === "deterministic" ? { fallbackReason } : {}),
   };
 
   if (cacheKey && source === "claude") {
