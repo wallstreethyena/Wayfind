@@ -157,7 +157,9 @@ const bookBody = (o) => ({ placeId: KITCHEN, partySize: 4, date: "2026-11-12", t
   ok(pick && pick.path === "wayfind" && pick.times.length > 0 && pick.times.every((t) => SLOTS.includes(t)), "D: a pick carries only real times");
   ok(/can't book Plain Grill through Wayfind/.test(r.body.say) && !/booked|available/i.test(r.body.say), "D: honest sentence: " + r.body.say);
   const lone = await say(harness({ extra: noAi, inventory: [INVENTORY[1]] }), "Book Plain Grill tomorrow around 7 for four");
-  ok(lone.body.card === null && /can't book Plain Grill/.test(lone.body.say), "D: no alternatives means no card and no invented ones");
+  ok(lone.body.card && lone.body.card.type === "alternatives" && lone.body.card.picks.length === 0 && /can't book Plain Grill/.test(lone.body.say) && !/similar places/i.test(lone.body.say), "D: no alternatives means no invented picks and no claim of any");
+  ok(lone.body.card.contact && /^\/p\//.test(lone.body.card.contact.url) && /Plain Grill/.test(lone.body.card.contact.label), "D: a no-provider answer always offers the restaurant's own page (phone, website): " + JSON.stringify(lone.body.card.contact));
+  ok(!/places you can book|help with/i.test(r.body.say), "D: suggestions are never described as bookable: " + r.body.say);
   // a typed name without its apostrophe still finds the restaurant ("Berns" -> "Bern's")
   const berns = { place_id: "ChIJbernsSteakHouse00000", name: "Bern's Steak House", locality: "Tampa", status: "OPERATIONAL", cuisines: ["steakhouse"] };
   const typed = await say(harness({ extra: noAi, inventory: [berns] }), "Book Berns Steak House tomorrow at 7 for 2");

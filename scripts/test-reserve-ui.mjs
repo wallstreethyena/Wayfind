@@ -238,6 +238,8 @@ const wide = (host) => [...host.querySelectorAll(".wf-place-card-cta > *")];
     await act(async () => { await new Promise((r) => setTimeout(r, 150)); });
     const dlg = document.querySelector('[role="dialog"]');
     ok(opened === 0 && !!dlg && !!dlg.querySelector("[data-reserve-concierge]") && /Mario's Trattoria/.test(dlg.textContent), `${label}: tap opens the concierge sheet for the restaurant (card stays closed)`);
+    ok(!!dlg && (dlg.querySelector("#wf-reserve-title") || {}).textContent === label, `${label}: the sheet title repeats the button, never a stronger promise (got ${(dlg && dlg.querySelector("#wf-reserve-title") || {}).textContent})`);
+    ok(document.documentElement.hasAttribute("data-wf-reserve-open") && /\.wf-sd\{visibility:hidden\}/.test(dlg.parentElement.innerHTML), `${label}: while the sheet is open the fixed Santa dock is hidden so it cannot cover the message box`);
     const input = dlg && dlg.querySelector("#wf-reserve-msg");
     if (input) { Object.getOwnPropertyDescriptor(w.HTMLInputElement.prototype, "value").set.call(input, "tomorrow at 7 for 2"); await act(async () => { input.dispatchEvent(new w.Event("input", { bubbles: true })); }); await act(async () => { dlg.querySelector("form:last-of-type").dispatchEvent(new w.Event("submit", { bubbles: true, cancelable: true })); await new Promise((r) => setTimeout(r, 80)); }); }
     const turnCall = calls.slice(before).find((c) => c.url === "/api/reserve/concierge");
@@ -509,6 +511,13 @@ const wide = (host) => [...host.querySelectorAll(".wf-place-card-cta > *")];
   routes["POST /api/reserve/concierge"] = turn({ type: "alternatives", picks: [{ placeId: "pick-1", name: "Osteria Uno", locality: "Tampa", cuisines: ["Italian"] }] }, "Fully booked. Try these.");
   m = await mountC({ initialMessage: "x" });
   ok(!!m.host.querySelector('[data-reserve-pick="pick-1"]') && callsTo("POST", "/api/reserve/find").length === 0, "alternatives card shows pick chips from the card without another lookup");
+  ok(!/Places you can book/.test(m.host.textContent) && /Similar places nearby/.test(m.host.textContent), "suggestions are titled 'Similar places nearby', never 'Places you can book'");
+  await m.unmount();
+  reset();
+  routes["POST /api/reserve/concierge"] = turn({ type: "alternatives", picks: [], contact: { url: "/p/joy-1", label: "Call or visit Joy Bar" } }, "I can't book Joy Bar through Wayfind yet.");
+  m = await mountC({ initialMessage: "x" });
+  const contactA = m.host.querySelector("[data-reserve-contact]");
+  ok(!!contactA && contactA.getAttribute("href") === "/p/joy-1" && contactA.textContent === "Call or visit Joy Bar" && !m.host.querySelector("[data-reserve-pick]"), "a no-provider answer gives the restaurant's own page as a button, and no invented picks");
   await m.unmount();
   reset();
   routes["POST /api/reserve/concierge"] = turn(null, "What day works?");
@@ -522,7 +531,9 @@ const wide = (host) => [...host.querySelectorAll(".wf-place-card-cta > *")];
   await act(async () => { Sheet.showReserveSheet({ id: "partner-1", name: "Mario's" }, { prefill: { date: DAY, time: "19:30", partySize: 4 } }); }); await settle(150);
   const dlg = document.querySelector('[role="dialog"]');
   ok(!!dlg && !!dlg.querySelector("[data-reserve-concierge]") && callsTo("POST", "/api/reserve/concierge").length === 1 && /Table for 4/.test(callsTo("POST", "/api/reserve/concierge")[0].body.messages[0].content), "the sheet hosts the concierge, seeded with the prefill as plain words");
+  ok((dlg.querySelector("#wf-reserve-title") || {}).textContent === "Find a table", "a sheet opened without a lane says 'Find a table', never 'Reserve a table'");
   await act(async () => { document.dispatchEvent(new w.KeyboardEvent("keydown", { key: "Escape", bubbles: true })); }); await settle(10);
+  ok(!document.documentElement.hasAttribute("data-wf-reserve-open"), "closing the sheet brings the Santa dock back");
   document.querySelectorAll("[data-reserve-host],[role=dialog]").forEach((x) => x.remove());
 
   // (h) My reservations: every status label
