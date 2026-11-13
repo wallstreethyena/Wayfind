@@ -9,13 +9,15 @@ import { placePartnerPick } from "../../lib/placePartnerPicks.js";
 import { usePinQuarantine } from "../../lib/pinQuarantine.js";
 import { useCuratedRows } from "../../lib/curatorPicks.js";
 import useEditorialHooks from "./useEditorialHooks.js";
+import { styleHtml } from "../../lib/styleHtml.js";
+import { useStagedCards } from "../../lib/stagedMount.js";
 
 // One number per place OBJECT: a refetch or a curator stamp hands over a new object, which must repaint its card.
 const seqs = new WeakMap();
 let nextSeq = 1;
 function placeSeq(place) { let n = seqs.get(place); if (!n) { n = nextSeq++; seqs.set(place, n); } return n; }
 
-export default function ThemeParkRail({ mode = "flagship", query = "", items = null, initialItems = null, familyContext = null, excludeOfferIds = null, onOpenPlace: onOpenPlaceProp,
+export default function ThemeParkRail({ stagedCards = false, mode = "flagship", query = "", items = null, initialItems = null, familyContext = null, excludeOfferIds = null, onOpenPlace: onOpenPlaceProp,
   isSaved, isOnTrip, isLiked, isDisliked, liked, disliked,
   onSave: onSaveProp, onItinerary: onItineraryProp, onLike: onLikeProp, onDislike: onDislikeProp, onShare: onShareProp, onBadge }) {
   // `initialItems` (2026-09-29) is a SERVER seed from lib/landingRails.js — the
@@ -72,16 +74,17 @@ export default function ThemeParkRail({ mode = "flagship", query = "", items = n
     isSaved && isSaved(place.id) ? 1 : 0, isOnTrip && isOnTrip(place) ? 1 : 0,
     (isLiked ? isLiked(place.id) : liked && liked[place.id]) ? 1 : 0, (isDisliked ? isDisliked(place.id) : disliked && disliked[place.id]) ? 1 : 0,
     verifiedLine(place) || "", onOpenPlace ? 1 : 0, onSave ? 1 : 0, onItinerary ? 1 : 0, onLike ? 1 : 0, onDislike ? 1 : 0, onShare ? 1 : 0, onBadge ? 1 : 0].join("|");
+  const shown = useStagedCards(rows.length, true, { enabled: stagedCards });
   if (!rows.length) return null;
   const heading = themeParkHeading(mode);
   const railId = `theme-parks-${mode}`;
   return <section aria-labelledby={`${railId}-title`}>
-    <style dangerouslySetInnerHTML={{ __html: WF_PLACE_CARD_CSS }} />
+    <style dangerouslySetInnerHTML={styleHtml(WF_PLACE_CARD_CSS)} />
     <RailHeading id={`${railId}-title`} title={heading.title} description={heading.description}>
       <RailNav railId={railId} count={rows.length} total={rows.length} unit="parks" />
     </RailHeading>
     <ol className="wf-rail" data-rail={railId} aria-label={heading.title}>
-      {rows.map((place, index) => <IconicPlaceCard key={place.id} memoKey={cardKey(place, index)} place={place} rank={index + 1}
+      {rows.slice(0, shown).map((place, index) => <IconicPlaceCard key={place.id} memoKey={cardKey(place, index)} place={place} rank={index + 1}
         href={`/p/${encodeURIComponent(place.id)}`} onOpen={onOpenPlace ? () => onOpenPlace(place) : undefined}
         editorial={verifiedLine(place)} editorialTier="wayfind"
         surface="theme_park_rail" eagerMedia={index < 2}
@@ -94,6 +97,6 @@ export default function ThemeParkRail({ mode = "flagship", query = "", items = n
         onDislike={onDislike ? (event) => onDislike(event, place) : undefined}
         onShare={onShare ? () => onShare(place) : undefined} onBadge={onBadge} />)}
     </ol>
-    <RailDots railId={railId} count={rows.length} />
+    <RailDots railId={railId} count={rows.length} layoutKey={shown >= rows.length ? 1 : 0} />
   </section>;
 }

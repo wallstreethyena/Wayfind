@@ -7,6 +7,7 @@ import MapCategoryPin from "./MapCategoryPin.js";
 import { useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import { eventMapFamily } from "../../lib/eventMapPlaces.js";
+import { styleHtml } from "../../lib/styleHtml.js";
 
 const CreatorAppleMap = dynamic(() => import("./CreatorAppleMap"), { ssr: false });
 
@@ -78,7 +79,7 @@ export default function CreatorMapPanel({ handle, places = [], intro = "" }) {
 
   return (
     <section aria-label={`@${handle}'s map`} style={{ margin: "30px 0 8px" }}>
-      <style dangerouslySetInnerHTML={{ __html: CSS }} />
+      <style dangerouslySetInnerHTML={styleHtml(CSS)} />
       <h2 style={{ margin: "0 0 5px", fontSize: 21, fontWeight: 850, letterSpacing: "-.4px", color: "#F8FAFC" }}>
         @{handle}&apos;s map
       </h2>

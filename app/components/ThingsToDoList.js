@@ -48,6 +48,7 @@ import { experienceVideoFor } from "../../lib/experienceVideos.js";
 // HomeAffiliateActivityRail, ViatorRail's own RailCard `actionItem`): the
 // shared non-place content store, never the place-ranking store.
 import { useContentCardActions } from "../../lib/contentCardActions";
+import { styleHtml } from "../../lib/styleHtml.js";
 
 // Same thumb glyph RailCard.js / IconicPlaceCard.js / SponsoredPlaceCard.js
 // already draw — a thumb is one drawing readers recognize, not a fourth shape
@@ -357,7 +358,7 @@ export default function ThingsToDoList({ center, city, weather, onOpenPlace, onL
 
   return (
     <div style={{ marginBottom: 16 }}>
-      <style dangerouslySetInnerHTML={{ __html: `.wf-ttd-focus:focus-visible{outline:${FOCUS.outline};outline-offset:${FOCUS.outlineOffset}}` }} />
+      <style dangerouslySetInnerHTML={styleHtml(`.wf-ttd-focus:focus-visible{outline:${FOCUS.outline};outline-offset:${FOCUS.outlineOffset}}`)} />
       <div style={{ fontSize: 12.5, color: C.muted, margin: "0 0 10px" }}>The best of right now — tours, beaches and attractions, ranked together for this hour and weather.</div>
       {list === null ? (
         <>

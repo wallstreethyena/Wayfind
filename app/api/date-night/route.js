@@ -15,7 +15,7 @@ export const runtime = "nodejs";
 import { invRowToPlace, serveFromInventory } from "../../../lib/inventoryServe.js";
 import { fetchOwnedPool } from "../../../lib/ownedPool.js";
 import { makeReadCache } from "../../../lib/inventoryReadCache.js";
-import { NET_DEADLINE_MS } from "../../../lib/fetchDeadline.js";
+import { NET_DEADLINE_MS, deadlineSignal } from "../../../lib/fetchDeadline.js";
 import { getBeachConditions } from "../../../lib/marine.js";
 import { nowContext } from "../../../lib/nowContext.js";
 import { BROWSE_INVENTORY_N } from "../../../lib/browseInventory.js";
@@ -32,6 +32,8 @@ import { windowRailAnswer } from "../../../lib/railResponse.js";
 import { pageOneRail } from "../../../lib/railPage.js";
 import { loadOwnerPickIds, applyCuratorPicksServer } from "../../../lib/curatorPicksServer.js";
 
+const WX_WAIT_MS = 650;
+
 const WX_URL =
   "https://api.open-meteo.com/v1/forecast?current=temperature_2m,apparent_temperature,relative_humidity_2m,weather_code,wind_speed_10m,dew_point_2m" +
   "&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,sunset,sunrise,uv_index_max" +
@@ -45,10 +47,21 @@ function json(obj, status = 200, cache = "public, s-maxage=3600, stale-while-rev
   });
 }
 
+export async function raceWithWeatherBudget(wxReady, budgetMs = WX_WAIT_MS) {
+  let wxTimer;
+  try {
+    await Promise.race([wxReady, new Promise((r) => { wxTimer = setTimeout(r, Math.max(0, Number(budgetMs) || 0)); })]);
+  } catch {
+    // Unknown weather fails closed to Museums.
+  } finally {
+    clearTimeout(wxTimer);
+  }
+}
+
 async function fetchWeather(lat, lng) {
   try {
     const url = WX_URL + "&latitude=" + encodeURIComponent(lat) + "&longitude=" + encodeURIComponent(lng);
-    const r = await fetch(url, { next: { revalidate: 600 } });
+    const r = await fetch(url, { next: { revalidate: 600 }, signal: deadlineSignal(1500) });
     if (!r.ok) return null;
     const j = await r.json();
     return j && typeof j === "object" ? j : null;
@@ -132,9 +145,10 @@ async function buildDateNightAnswer({ lat, lng, city, hour }) {
     ownedPools.then(([, shopping]) => shopping.places),
   ]);
 
-  // Weather is optional enrichment. Unknown conditions deliberately fail
-  // closed to Museums and must never hold the place answer hostage.
-  await Promise.race([wxReady, Promise.resolve()]);
+  // Weather is optional enrichment. Give in-flight weather/marine reads a
+  // bounded 650ms window after DB pools settle; unknown conditions still fail
+  // closed to Museums and never hold the place answer hostage.
+  await raceWithWeatherBudget(wxReady, WX_WAIT_MS);
   const seen = new Set();
   const places = [];
   for (const raw of pools.flat()) {
