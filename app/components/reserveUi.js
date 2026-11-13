@@ -1,10 +1,13 @@
 "use client";
 // Shared pieces of the Reserve a table family (sheet, My reservations, Booking profile, similar picks).
 // One look: the site's own kit.js tokens, 44px tap targets, a sheet that scrolls. Lazy: only the Reserve chunks import this.
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { createRoot } from "react-dom/client";
 import { C, sheetBg, sheet, Grabber, useDialogFocus } from "./kit";
+import { styleHtml } from "../../lib/styleHtml.js";
+
+const HIDE_DOCK_CSS = "html[data-wf-reserve-open] .wf-sd{visibility:hidden}";
 
 export const mainBtn = { width: "100%", minHeight: 48, padding: "0 16px", background: C.accent, border: "none", borderRadius: 12, color: "#0D1117", fontSize: 15, fontWeight: 800, cursor: "pointer", fontFamily: "inherit" };
 export const quietBtn = { width: "100%", minHeight: 44, padding: "0 16px", background: "transparent", border: `1px solid ${C.border}`, borderRadius: 12, color: C.light, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "inherit" };
@@ -31,8 +34,21 @@ export function Bubble({ role, children }) {
 export function Shell({ title, sub, onClose, extra, children, titleId = "wf-reserve-title" }) {
   const ref = useRef(null);
   useDialogFocus(true, ref, onClose);
+  // The fixed Santa dock (z 930) sits above every kit sheet (z 900). While a Reserve sheet is open it would cover the
+  // message box and Send on a phone, so hide it for the sheet's lifetime. Counted, so nested Reserve sheets are safe.
+  useEffect(() => {
+    const html = typeof document !== "undefined" && document.documentElement;
+    if (!html) return undefined;
+    const n = Number(html.getAttribute("data-wf-reserve-open") || 0) + 1;
+    html.setAttribute("data-wf-reserve-open", String(n));
+    return () => {
+      const left = Number(html.getAttribute("data-wf-reserve-open") || 1) - 1;
+      if (left > 0) html.setAttribute("data-wf-reserve-open", String(left)); else html.removeAttribute("data-wf-reserve-open");
+    };
+  }, []);
   return createPortal(
     <div style={sheetBg} onClick={onClose} data-reserve-backdrop="1">
+      <style dangerouslySetInnerHTML={styleHtml(HIDE_DOCK_CSS)} />
       <div ref={ref} role="dialog" aria-modal="true" aria-labelledby={titleId} tabIndex={-1} onClick={(e) => e.stopPropagation()}
         style={{ ...sheet, outline: "none", position: "relative", padding: "6px 16px calc(24px + env(safe-area-inset-bottom, 0px))", overscrollBehaviorY: "contain", overflowX: "hidden" }}>
         <Grabber />

@@ -224,7 +224,8 @@ export default function MapScreen({ ctx }) {
   const [listRead, setListRead] = useState({ key: "", status: "loading", places: [], appleIds: {} });
   const [listRetry, setListRetry] = useState(0);
   const stableList = useRef({ k: null, pins: [] });
-  const [activeLens, setActiveLens] = useState("all");
+  const initialLens = (mapUrlLens && MAP_MOMENT_LENSES.some((l) => l.id === mapUrlLens)) ? mapUrlLens : "all";
+  const [activeLens, setActiveLens] = useState(initialLens);
   const effectiveLens = activeLens === "all" ? null : activeLens;
   const activeLensMeta = MAP_MOMENT_LENSES.find((l) => l.id === activeLens) || { id: "all", label: "All" };
   const rankingLabel = mapSearch && mapSearch.query
@@ -289,6 +290,7 @@ export default function MapScreen({ ctx }) {
     viewport,
     areaOffer,
     queryGeo: mapSearch && mapSearch.center ? { ...mapSearch.center, name: mapSearch.query || "" } : null,
+    query: mapSearch?.query || null,
     screen: "map",
   }), [rawDeviceLoc, locApprox, center, locName, cityNowLabel, deviceLoc, viewport, areaOffer, mapSearch]);
 
@@ -386,7 +388,6 @@ export default function MapScreen({ ctx }) {
   const listStatus = listRead.key === listKey ? listRead.status : "loading";
   const listPins = listRead.key === listKey ? listRead.places : [];
   const listTruth = useMemo(() => (explicitList ? listScopeTruth(listSource, listPins, listStatus, listRead.key === listKey ? listRead.appleIds : null) : null), [explicitList, listSource, listPins, listStatus, listRead, listKey]);
-  const mapStatus = explicitList ? listStatus : areaStatus;
   const contextPool = useMemo(() => [...(contextualView || []), ...(mapPool || []), ...(suggested || []), ...(places || [])], [contextualView, mapPool, suggested, places]);
   const inventoryAreaPlaces = useMemo(() => mergeMapAreaContext(areaPlaces, contextPool), [areaPlaces, contextPool]);
   const listInventory = useMemo(() => (explicitList ? mergeMapAreaContext(listPins, contextPool) : []), [explicitList, listPins, contextPool]);
@@ -443,6 +444,9 @@ export default function MapScreen({ ctx }) {
     return applyCuratorPicks(out, curatorSnap).sort(byGovernedScore);
   }, [mapSearch, liveAreaPlaces, effectiveLens, curatorSnap]);
 
+  const mapStatus = explicitList ? listStatus : areaStatus;
+  const bannerStatus = mapSearchPins ? "ready" : mapStatus;
+
   // Owner picks are applied before qualification and sorting. The shared
   // category/subcategory promises still apply; an All button is map-local.
   const rankedBundle = useMemo(() => {
@@ -489,6 +493,26 @@ export default function MapScreen({ ctx }) {
     if (stableList.current.k !== k) stableList.current = { k, pins };
     return stableList.current.pins;
   }, [rankedBundle, activeLens]);
+
+  const openNowBreakdown = useMemo(() => {
+    if (activeLens !== "open_now" || view.length > 0) return null;
+    let unconfirmed = 0;
+    let closed = 0;
+    let infeasible = 0;
+    for (const ex of rankedBundle.exclusions.values()) {
+      const r = ex?.exclusionReason;
+      const hState = ex?.hoursEval?.state;
+      if (r === "hours_unconfirmed" || ex?.hoursEval?.hoursUnconfirmed) {
+        unconfirmed++;
+      } else if (r === "closed_now" || hState === "closed") {
+        closed++;
+      } else if (r === "closing_infeasible" || hState === "closing_infeasible") {
+        infeasible++;
+      }
+    }
+    const confirmedClosed = closed + infeasible;
+    return { unconfirmed, closed, infeasible, confirmedClosed, total: unconfirmed + confirmedClosed };
+  }, [activeLens, view.length, rankedBundle.exclusions]);
 
   useEffect(() => {
     if (!mapUrlPlaceId || !view.length) return;
@@ -696,11 +720,13 @@ export default function MapScreen({ ctx }) {
     if (!place) return;
     setParkingState({ placeId: place.id, status: "loading", items: [], fallbackHref: null });
     searchDestinationParking(appleSDK?.mapkit, place).then((res) => {
+      const isReady = res?.status === "ready" && Array.isArray(res.items) && res.items.length > 0
+        && res.items[0].accessStatus !== "restricted" && res.items[0].accessStatus !== "unknown_access";
       setParkingState({
         placeId: place.id,
-        status: res.status === "ready" && res.items.length ? "ready" : "empty",
-        items: res.items || [],
-        fallbackHref: res.fallbackHref || null,
+        status: isReady ? "ready" : (res?.status === "fallback" ? "fallback" : "empty"),
+        items: res?.items || [],
+        fallbackHref: res?.fallbackHref || null,
       });
     }).catch(() => {
       setParkingState({ placeId: place.id, status: "empty", items: [], fallbackHref: null });
@@ -835,23 +861,51 @@ export default function MapScreen({ ctx }) {
           <circle cx="12" cy="9.8" r="2.5" fill={deviceLoc ? "#FFFFFF" : "#F97316"} />
         </svg>
       </button>
-      {map3D ? <MapView key={mapRetryKey} onRetry={() => setMapRetryKey((k) => k + 1)} onAreaChange={setAreaOffer} onViewportChange={setViewport} rings={showRings} showOrigin={shouldShowOrigin} styleMode="3d" fit={explicitList || !!mapSearchPins} places={mapMode === "events" ? [] : view} events={mapEvents} center={center} category={mapCategory} deviceLoc={deviceLoc} focus={map3D && mapFocus?.coordSource === "apple_live" ? null : mapFocus} selectedId={mapPreview && mapPreview.id ? mapPreview.id : activeHoverId} onSelect={(p) => { setHoveredPinId(null); setFiltersExpanded(false); setPlanContextPlace(null); setMapPreview(p); setMapDrawer(false); const rk = 1 + view.findIndex((x) => x.id === p.id); sessionTrackerRef.current?.notePinSelected(actionPlace(p), { rank: rk, lens: effectiveLens }); try { logEvent("map_pin_tap", actionPlace(p), { rank: rk }); } catch (e) {} }} onSelectEvent={(e) => { setMapPreview(null); setEventPreview(e); }} />
-        : <AppleExplorerMap onReady={(mapkit) => { if (currentRendererAttempt.current === rendererAttempt) setAppleSDK({ attempt: rendererAttempt, mapkit }); }} fit={explicitList || !!mapSearchPins} key={mapRetryKey} onRetry={() => setMapRetryKey((k) => k + 1)} onLoadError={() => { if (currentRendererAttempt.current === rendererAttempt) setFailedRendererAttempt(rendererAttempt); }} onAreaChange={setAreaOffer} onViewportChange={setViewport} rings={showRings} showOrigin={shouldShowOrigin} places={mapMode === "events" ? [] : view} events={mapEvents} center={center} category={mapCategory} deviceLoc={deviceLoc} focus={map3D && mapFocus?.coordSource === "apple_live" ? null : mapFocus} selectedId={mapPreview && mapPreview.id ? mapPreview.id : activeHoverId} onSelect={(p) => { setHoveredPinId(null); setFiltersExpanded(false); setPlanContextPlace(null); setMapPreview(p); setMapDrawer(false); const rk = 1 + view.findIndex((x) => x.id === p.id); sessionTrackerRef.current?.notePinSelected(actionPlace(p), { rank: rk, lens: effectiveLens }); try { logEvent("map_pin_tap", actionPlace(p), { rank: rk }); logEvent("map_pin_selected", actionPlace(p), {}); } catch (e) {} }} onSelectEvent={(e) => { setMapPreview(null); setEventPreview(e); }} />}
-      {mapMode === "places" && !appleMapFailed && (mapStatus === "loading" ? !view.length : (mapStatus === "error" || !view.length)) && (
-        <div role="status" data-wf-map-empty-state={mapStatus === "ready" && !view.length ? (nearbyAllPlaces.length > 0 ? "recovery" : "empty") : mapStatus} style={{ position: "absolute", left: "50%", transform: view.length && !mapDrawer && !mapPreview ? "translate(-50%, -48px)" : "translateX(-50%)", bottom: 76, maxWidth: "calc(100% - 24px)", zIndex: 19, background: "rgba(11,16,24,.94)", border: "1px solid rgba(255,255,255,.12)", color: C.text, borderRadius: 999, padding: "8px 15px", fontSize: 12, fontWeight: 700, boxShadow: "0 10px 26px rgba(0,0,0,.42)", display: "inline-flex", alignItems: "center", gap: 10, whiteSpace: "nowrap", pointerEvents: mapStatus === "loading" ? "none" : "auto" }}>
-          {mapStatus === "loading" && (
+      {map3D ? <MapView key={mapRetryKey} onRetry={() => setMapRetryKey((k) => k + 1)} onAreaChange={setAreaOffer} onViewportChange={setViewport} rings={showRings} showOrigin={shouldShowOrigin} styleMode="3d" fit={explicitList || (!!mapSearchPins && view.length > 0)} places={mapMode === "events" ? [] : view} events={mapEvents} center={center} category={mapCategory} deviceLoc={deviceLoc} focus={map3D && mapFocus?.coordSource === "apple_live" ? null : mapFocus} selectedId={mapPreview && mapPreview.id ? mapPreview.id : activeHoverId} onSelect={(p) => { setHoveredPinId(null); setFiltersExpanded(false); setPlanContextPlace(null); setMapPreview(p); setMapDrawer(false); const rk = 1 + view.findIndex((x) => x.id === p.id); sessionTrackerRef.current?.notePinSelected(actionPlace(p), { rank: rk, lens: effectiveLens }); try { logEvent("map_pin_tap", actionPlace(p), { rank: rk }); logEvent("map_pin_selected", actionPlace(p), {}); } catch (e) {} }} onSelectEvent={(e) => { setMapPreview(null); setEventPreview(e); }} />
+        : <AppleExplorerMap onReady={(mapkit) => { if (currentRendererAttempt.current === rendererAttempt) setAppleSDK({ attempt: rendererAttempt, mapkit }); }} fit={explicitList || (!!mapSearchPins && view.length > 0)} key={mapRetryKey} onRetry={() => setMapRetryKey((k) => k + 1)} onLoadError={() => { if (currentRendererAttempt.current === rendererAttempt) setFailedRendererAttempt(rendererAttempt); }} onAreaChange={setAreaOffer} onViewportChange={setViewport} rings={showRings} showOrigin={shouldShowOrigin} places={mapMode === "events" ? [] : view} events={mapEvents} center={center} category={mapCategory} deviceLoc={deviceLoc} focus={map3D && mapFocus?.coordSource === "apple_live" ? null : mapFocus} selectedId={mapPreview && mapPreview.id ? mapPreview.id : activeHoverId} onSelect={(p) => { setHoveredPinId(null); setFiltersExpanded(false); setPlanContextPlace(null); setMapPreview(p); setMapDrawer(false); const rk = 1 + view.findIndex((x) => x.id === p.id); sessionTrackerRef.current?.notePinSelected(actionPlace(p), { rank: rk, lens: effectiveLens }); try { logEvent("map_pin_tap", actionPlace(p), { rank: rk }); logEvent("map_pin_selected", actionPlace(p), {}); } catch (e) {} }} onSelectEvent={(e) => { setMapPreview(null); setEventPreview(e); }} />}
+      {mapMode === "places" && !appleMapFailed && (bannerStatus === "loading" ? !view.length : (bannerStatus === "error" || !view.length)) && (
+        <div role="status" data-wf-map-empty-state={bannerStatus === "ready" && !view.length ? (mapSearch && mapSearch.query ? "search_empty" : (activeLens === "open_now" && openNowBreakdown && openNowBreakdown.total > 0 ? "open_now_empty" : (nearbyAllPlaces.length > 0 ? "recovery" : "empty"))) : bannerStatus} style={{ position: "absolute", left: "50%", transform: view.length && !mapDrawer && !mapPreview ? "translate(-50%, -48px)" : "translateX(-50%)", bottom: 76, maxWidth: "calc(100% - 24px)", zIndex: 19, background: "rgba(11,16,24,.94)", border: "1px solid rgba(255,255,255,.12)", color: C.text, borderRadius: 999, padding: "8px 15px", fontSize: 12, fontWeight: 700, boxShadow: "0 10px 26px rgba(0,0,0,.42)", display: "inline-flex", alignItems: "center", gap: 10, whiteSpace: "nowrap", pointerEvents: bannerStatus === "loading" ? "none" : "auto" }}>
+          {bannerStatus === "loading" && (
             <>
               <span aria-hidden="true" style={{ display: "inline-block", width: 7, height: 7, borderRadius: 999, background: "#F97316", boxShadow: "0 0 8px #F97316" }} />
               <span>Loading nearby…</span>
             </>
           )}
-          {mapStatus === "error" && (
+          {bannerStatus === "error" && (
             <>
               <span>{explicitList ? "Could not load this list" : "Could not load this area"}</span>
               <button type="button" onClick={() => (explicitList ? setListRetry : setAreaRetry)((n) => n + 1)} style={{ padding: "3px 10px", borderRadius: 999, background: "rgba(249,115,22,.16)", border: "1px solid rgba(249,115,22,.45)", color: "#FDBA74", cursor: "pointer", fontSize: 11.5, fontWeight: 800 }}>{explicitList ? "Retry" : "Retry area"}</button>
             </>
           )}
-          {mapStatus === "ready" && !view.length && nearbyAllPlaces.length > 0 && (
+          {bannerStatus === "ready" && !view.length && mapSearch && mapSearch.query && (
+            <>
+              <div style={{ display: "flex", flexDirection: "column", lineHeight: 1.25 }}>
+                <span style={{ fontSize: 12, fontWeight: 800, color: C.text }}>No map matches for &ldquo;{mapSearch.query}&rdquo; in this area</span>
+                <span style={{ fontSize: 11, fontWeight: 600, color: C.muted }}>Try searching a different location or clear the search query</span>
+              </div>
+              <button type="button" onClick={() => { if (setMapSearch) setMapSearch(null); }} style={{ padding: "4px 10px", borderRadius: 999, background: "rgba(249,115,22,.16)", border: "1px solid rgba(249,115,22,.45)", color: "#FDBA74", cursor: "pointer", fontSize: 11.5, fontWeight: 800, flexShrink: 0 }}>Clear search</button>
+            </>
+          )}
+          {bannerStatus === "ready" && !view.length && (!mapSearch || !mapSearch.query) && activeLens === "open_now" && openNowBreakdown && openNowBreakdown.total > 0 && (
+            <>
+              <div style={{ display: "flex", flexDirection: "column", lineHeight: 1.25 }}>
+                <span style={{ fontSize: 12, fontWeight: 800, color: C.text }}>
+                  {openNowBreakdown.confirmedClosed > 0 && openNowBreakdown.unconfirmed === 0
+                    ? "Confirmed closed nearby right now"
+                    : "No verified open hours right now"}
+                </span>
+                <span style={{ fontSize: 11, fontWeight: 600, color: C.muted }}>
+                  {openNowBreakdown.unconfirmed > 0 && openNowBreakdown.confirmedClosed === 0
+                    ? `${openNowBreakdown.unconfirmed} nearby place${openNowBreakdown.unconfirmed === 1 ? " has" : "s have"} unconfirmed hours`
+                    : openNowBreakdown.unconfirmed > 0 && openNowBreakdown.confirmedClosed > 0
+                      ? `${openNowBreakdown.confirmedClosed} confirmed closed \u00b7 ${openNowBreakdown.unconfirmed} hours unconfirmed`
+                      : `All ${openNowBreakdown.confirmedClosed} nearby places are closed at this hour`}
+                </span>
+              </div>
+              <button type="button" onClick={() => { setAreaOnly(true); setAllCategories(true); setActiveLens("all"); if (setMapSearch) setMapSearch(null); setSub("all"); setDrawerFilter(""); setHoveredPinId(null); setMapPreview(null); }} style={{ padding: "5px 11px", borderRadius: 999, background: C.accent, border: "none", color: "#0B0F14", cursor: "pointer", fontSize: 11.5, fontWeight: 800, flexShrink: 0 }}>Show all nearby</button>
+            </>
+          )}
+          {bannerStatus === "ready" && !view.length && (!mapSearch || !mapSearch.query) && (!openNowBreakdown || openNowBreakdown.total === 0) && nearbyAllPlaces.length > 0 && (
             <>
               <div style={{ display: "flex", flexDirection: "column", lineHeight: 1.25 }}>
                 <span style={{ fontSize: 12, fontWeight: 800, color: C.text }}>Nothing in {activeLens !== "all" ? `${activeLensMeta.label} · ${activeCategoryName}` : activeCategoryName} nearby</span>
@@ -860,7 +914,7 @@ export default function MapScreen({ ctx }) {
               <button type="button" onClick={() => { setAreaOnly(true); setAllCategories(true); setActiveLens("all"); if (setMapSearch) setMapSearch(null); setSub("all"); setDrawerFilter(""); setHoveredPinId(null); setMapPreview(null); }} style={{ padding: "5px 11px", borderRadius: 999, background: C.accent, border: "none", color: "#0B0F14", cursor: "pointer", fontSize: 11.5, fontWeight: 800, flexShrink: 0 }}>Show nearby</button>
             </>
           )}
-          {mapStatus === "ready" && !view.length && nearbyAllPlaces.length === 0 && (
+          {bannerStatus === "ready" && !view.length && (!mapSearch || !mapSearch.query) && (!openNowBreakdown || openNowBreakdown.total === 0) && nearbyAllPlaces.length === 0 && (
             <>
               <span>Nothing nearby matches this filter</span>
               <button type="button" onClick={() => { setAreaOnly(true); setAllCategories(true); setActiveLens("all"); if (setMapSearch) setMapSearch(null); setSub("all"); setDrawerFilter(""); setHoveredPinId(null); setMapPreview(null); }} style={{ padding: "4px 10px", borderRadius: 999, background: "rgba(249,115,22,.16)", border: "1px solid rgba(249,115,22,.45)", color: "#FDBA74", cursor: "pointer", fontSize: 11.5, fontWeight: 800, flexShrink: 0 }}>{allCategories && sub === "all" && activeLens === "all" && !mapSearch && !drawerFilter ? "Clear filters" : "Show all"}</button>
@@ -1057,10 +1111,10 @@ export default function MapScreen({ ctx }) {
                   <div style={{ marginTop: 6, color: C.light }}>
                     <span style={{ fontWeight: 800, color: "#FDBA74" }}>Parking: </span>
                     {parkingState.status === "loading" && <span>Checking nearby garages &amp; lots…</span>}
-                    {parkingState.status === "empty" && (
-                      <a href={parkingState.fallbackHref || `https://maps.apple.com/?q=Parking&sll=${encodeURIComponent(`${planContextPlace.lat},${planContextPlace.lng}`)}`} target="_blank" rel="noopener noreferrer" onClick={() => sessionTrackerRef.current?.noteDecisionExecution("parking_open", actionPlace(planContextPlace), { lens: effectiveLens })} style={{ color: "#38BDF8", textDecoration: "none", fontWeight: 700 }}>Open nearby parking in Maps ↗</a>
+                    {(parkingState.status === "empty" || parkingState.status === "fallback" || (parkingState.status === "ready" && (!parkingState.items[0] || parkingState.items[0].accessStatus === "restricted" || parkingState.items[0].accessStatus === "unknown_access"))) && (
+                      <a href={parkingState.fallbackHref || `https://maps.apple.com/?q=Parking&sll=${encodeURIComponent(`${planContextPlace.lat},${planContextPlace.lng}`)}`} target="_blank" rel="noopener noreferrer" onClick={() => sessionTrackerRef.current?.noteDecisionExecution("parking_open", actionPlace(planContextPlace), { lens: effectiveLens })} style={{ color: "#38BDF8", textDecoration: "none", fontWeight: 700 }}>Public visitor parking unconfirmed · Search nearby parking in Maps ↗</a>
                     )}
-                    {parkingState.status === "ready" && parkingState.items[0] && (
+                    {parkingState.status === "ready" && parkingState.items[0] && parkingState.items[0].accessStatus !== "restricted" && parkingState.items[0].accessStatus !== "unknown_access" && (
                       <span>
                         {parkingState.items[0].name}{parkingState.items[0].distanceLabel ? ` (${parkingState.items[0].distanceLabel})` : ""} ·{" "}
                         <a href={parkingState.items[0].driveHref || parkingState.fallbackHref} target="_blank" rel="noopener noreferrer" onClick={() => sessionTrackerRef.current?.noteDecisionExecution("parking_open", actionPlace(planContextPlace), { lens: effectiveLens })} style={{ color: "#38BDF8", textDecoration: "none", fontWeight: 700 }}>Park here ↗</a>

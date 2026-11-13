@@ -3,6 +3,7 @@
 // the 2% share-rate bar. Owner-facing: if CRON_SECRET (or METRICS_SECRET) is set,
 // require ?key=. Read-only, aggregate counts only (no PII in the response).
 import { computeShareMetrics, SHARE_EVENTS } from "../../../../lib/shareMetrics.js";
+import { SHARE_SCHEMA_CUTOVER } from "../../../../lib/shareAttribution.js";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -50,5 +51,14 @@ export async function GET(req) {
   ]);
 
   const metrics = computeShareMetrics({ sessions, shares, opens, shareVisitors: visitors, returns });
-  return Response.json({ ok: true, window_days: days, since, ...metrics });
+  // Schema v1 only. share_open counts deep-link landings (including internal
+  // navigation) and share_return is a heuristic: neither may be used for
+  // recipient attribution. v2 (share_opened … shared_recipient_converted, with
+  // a per-share token) lives in PostHog; see docs/SHARE_ATTRIBUTION.md.
+  return Response.json({
+    ok: true, window_days: days, since, ...metrics,
+    share_schema: 1,
+    attribution_suitable: false,
+    note: "open_rate and return_rate are v1 heuristics (share_open = deep-link landings, share_return = guessed). Recipient attribution is share schema v2 in PostHog from " + SHARE_SCHEMA_CUTOVER + "; see docs/SHARE_ATTRIBUTION.md.",
+  });
 }

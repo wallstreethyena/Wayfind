@@ -87,6 +87,7 @@ node scripts/test-inventory-serve.mjs
 node scripts/test-events-list.mjs
 node scripts/test-list-engine.mjs
 node scripts/test-share-metrics.mjs
+node scripts/test-share-attribution.mjs
 # Session rows carry the referring host; partner CTAs carry meta.monetized (2026-10-02).
 node scripts/test-analytics-attribution-meta.mjs
 node scripts/test-explore-menu.mjs
@@ -2649,6 +2650,8 @@ node scripts/test-frontier-moment-decisions.mjs
 node scripts/test-ai-itinerary-planner.mjs
 # 2026-11-12: owner directive. CLAUDE.md keeps the GABRIEL EXECUTION AUTONOMY section and every safety section (an approved edit cannot silently drop a rule).
 node scripts/check-claude-md-owner-sections.mjs
+node scripts/test-planner-imessage.mjs
+node scripts/test-planner-host-voice.mjs
 # 2026-11-13: Wayfind Map Real-Time Spatial Decision Engine (7-way location truth, Near Me vs Explore Here, Hard Test Sarasota->Tampa Christmas tonight SSR, Florida water-barrier effort, hours closing feasibility, weather fit, score law, pairings/parking/backtracking, privacy, and cluster immunity).
 node scripts/test-map-spatial-decision-engine.mjs
 # 2026-11-12: First-Party Action Resolver & Detail CTA coverage gap guardrails (8 invariants + idempotency + production batch).
@@ -2664,3 +2667,4 @@ node scripts/test-quota-exhaustion-simulation.mjs
 node scripts/test-moment-search-redteam.mjs
 node scripts/test-christmas-temporal-modes.mjs
 node scripts/test-nervous-system-health.mjs
+node scripts/test-owned-hours-cohort.mjs

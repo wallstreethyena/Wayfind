@@ -52,6 +52,7 @@ import {
   evaluateCameraMovement,
   parseMapDeepLink,
   buildMapDeepLink,
+  queryImpliesExplicitArea,
 } from "../lib/mapLocationTruth.js";
 import {
   detectFloridaWaterCrossing,
@@ -81,7 +82,7 @@ import {
 import { createMapSessionTracker } from "../lib/mapAnalytics.js";
 import { searchResultCards } from "../lib/searchCards.js";
 import { pairsWellWith } from "../lib/pairsWellWith.js";
-import { mapInventoryPlace, mapListIds, readMapPlacesByIds } from "../lib/mapAreaData.js";
+import { mapInventoryPlace, mapListIds, readMapPlacesByIds, mergeMapAreaContext } from "../lib/mapAreaData.js";
 import { readCompleteMapArea } from "../lib/mapAreaRead.js";
 import { createAppleExplorerController } from "../lib/appleExplorerMap.js";
 import { toDisplayScore } from "../lib/score.js";
@@ -95,6 +96,7 @@ const SIESTA_KEY = { lat: 27.2670, lng: -82.5463 };
 const MIAMI_MAINLAND = { lat: 25.7743, lng: -80.1937 };
 const MIAMI_BEACH = { lat: 25.7907, lng: -80.1300 };
 const PARRISH_BOOTSTRAP = { lat: DEFAULT_CENTER.lat, lng: DEFAULT_CENTER.lng };
+let mapComponentMod = null;
 
 // ── 1. 7-Way Location Truth & Near Me vs Explore Here ─────────────────────
 {
@@ -287,7 +289,7 @@ const PARRISH_BOOTSTRAP = { lat: DEFAULT_CENTER.lat, lng: DEFAULT_CENTER.lng };
       async search() {
         return {
           places: [
-            { name: "Palm Ave Parking Garage", formattedAddress: "1289 N Palm Ave", coordinate: { latitude: 27.3292, longitude: -82.5412 }, pointOfInterestCategory: "Parking" },
+            { name: "Palm Ave Public Parking Garage", formattedAddress: "1289 N Palm Ave", coordinate: { latitude: 27.3292, longitude: -82.5412 }, pointOfInterestCategory: "Parking" },
           ],
         };
       }
@@ -304,7 +306,7 @@ const PARRISH_BOOTSTRAP = { lat: DEFAULT_CENTER.lat, lng: DEFAULT_CENTER.lng };
 
   const parkingRes = await searchDestinationParking(fakeMapKit, { id: "selby", name: "Marie Selby Gardens", lat: 27.3275, lng: -82.5415 });
   assert.equal(parkingRes.status, "ready");
-  assert.equal(parkingRes.items[0].name, "Palm Ave Parking Garage");
+  assert.equal(parkingRes.items[0].name, "Palm Ave Public Parking Garage");
   assert.ok(parkingRes.items[0].driveHref.includes("maps.apple.com"));
 }
 
@@ -355,11 +357,143 @@ const PARRISH_BOOTSTRAP = { lat: DEFAULT_CENTER.lat, lng: DEFAULT_CENTER.lng };
   assert.equal(viableCafe.closingFeasible, true);
   assert.equal(viableCafe.state, "closing_soon");
 
-  // Unknown hours must NEVER claim confirmed open or closed
-  const unknownHoursPlace = { id: "no-hours", name: "Mystery Spot", lat: 27.33, lng: -82.53, governed_score: 94 };
+  // ── All 7 Temporal Cases for evaluateHoursAndFeasibility ──
+  // Case 1: Known open (10:00–22:00 evaluated at 14:00, plenty of time before close)
+  const wed1400 = Date.parse("2026-10-14T18:00:00Z"); // 14:00 EDT
+  const daytimePlace = {
+    id: "open-venue",
+    name: "Open Venue",
+    lat: 27.33,
+    lng: -82.53,
+    utcOffset: -240,
+    oh: { periods: [{ open: { day: 3, hour: 10, minute: 0 }, close: { day: 3, hour: 22, minute: 0 } }] },
+  };
+  const knownOpen = evaluateHoursAndFeasibility(daytimePlace, { driveMinEst: 10 }, wed1400);
+  assert.equal(knownOpen.confirmedOpen, true);
+  assert.equal(knownOpen.closingFeasible, true);
+  assert.equal(knownOpen.state, "open");
+  assert.equal(knownOpen.hoursUnconfirmed, false);
+
+  // Case 2: Known closed (10:00–17:00 evaluated at 20:00 EDT)
+  const wed2000 = Date.parse("2026-10-15T00:00:00Z"); // 20:00 EDT
+  const knownClosed = evaluateHoursAndFeasibility(museumClosing1700, null, wed2000);
+  assert.equal(knownClosed.confirmedOpen, false);
+  assert.equal(knownClosed.hoursUnconfirmed, false);
+  assert.equal(knownClosed.state, "closed");
+
+  // Case 3a: Missing / unknown hours -> hours_unconfirmed
+  const unknownHoursPlace = { id: "no-hours", name: "Mystery Spot", lat: 27.33, lng: -82.53, category: "food", governed_score: 94 };
   const unknownHrs = evaluateHoursAndFeasibility(unknownHoursPlace, null, wed1625);
   assert.equal(unknownHrs.hoursUnconfirmed, true);
   assert.equal(unknownHrs.confirmedOpen, false);
+  assert.equal(unknownHrs.state, "hours_unconfirmed");
+
+  // Case 3b: Expired Google-sourced hours (> 30 days) -> hours_unconfirmed
+  const expiredGooglePlace = {
+    ...daytimePlace,
+    hoursAsOf: wed1400 - (31 * 86400000), // 31 days old
+  };
+  const expiredGoogleHrs = evaluateHoursAndFeasibility(expiredGooglePlace, null, wed1400);
+  assert.equal(expiredGoogleHrs.hoursUnconfirmed, true);
+  assert.equal(expiredGoogleHrs.confirmedOpen, false);
+  assert.equal(expiredGoogleHrs.state, "hours_unconfirmed");
+
+  // Case 3c: Expired ownedHours -> hours_unconfirmed
+  const expiredOwnedPlace = {
+    id: "owned-expired",
+    name: "Owned Expired",
+    lat: 27.33,
+    lng: -82.53,
+    ownedHours: {
+      periods: [{ open: { day: 3, hour: 10, minute: 0 }, close: { day: 3, hour: 22, minute: 0 } }],
+      expiresAt: new Date(wed1400 - 3600000).toISOString(),
+    },
+  };
+  const expiredOwnedHrs = evaluateHoursAndFeasibility(expiredOwnedPlace, null, wed1400);
+  assert.equal(expiredOwnedHrs.hoursUnconfirmed, true);
+  assert.equal(expiredOwnedHrs.confirmedOpen, false);
+  assert.equal(expiredOwnedHrs.state, "hours_unconfirmed");
+
+  // Case 4: Overnight opening (Bar open 20:00 Fri to 02:00 Sat, evaluated at 00:45 Sat local time -> confirmed open, 75 min until close!)
+  const sat0045 = Date.parse("2026-10-17T04:45:00Z"); // Saturday 00:45 EDT (UTC-4)
+  const overnightBar = {
+    id: "overnight-bar",
+    name: "Midnight Tavern",
+    primaryType: "bar",
+    category: "nightlife",
+    lat: 27.33,
+    lng: -82.53,
+    utcOffset: -240,
+    oh: { periods: [{ open: { day: 5, hour: 20, minute: 0 }, close: { day: 6, hour: 2, minute: 0 } }] },
+  };
+  const overnightEval = evaluateHoursAndFeasibility(overnightBar, { driveMinEst: 10 }, sat0045);
+  assert.equal(overnightEval.confirmedOpen, true);
+  assert.equal(overnightEval.minutesUntilClose, 75);
+  assert.equal(overnightEval.closingFeasible, true);
+  assert.equal(overnightEval.state, "open");
+
+  // Case 5: Timezone boundary (Pensacola in Florida Panhandle America/Chicago vs Tampa America/New_York)
+  const pensacolaBar = {
+    id: "pensacola-seville",
+    name: "Seville Quarter Pensacola",
+    lat: 30.4213,
+    lng: -87.2169,
+    oh: { periods: [{ open: { day: 5, hour: 20, minute: 0 }, close: { day: 6, hour: 2, minute: 0 } }] },
+  };
+  // At 2026-10-17 04:45 UTC, local time in America/Chicago (-300 CDT) is Friday 23:45 CDT (day 5, 23:45) -> open, 135m until close!
+  const pensacolaEval = evaluateHoursAndFeasibility(pensacolaBar, { driveMinEst: 10 }, sat0045);
+  assert.equal(pensacolaEval.confirmedOpen, true);
+  assert.equal(pensacolaEval.minutesUntilClose, 135);
+
+  // Case 6: Exceptional closure / special-hours uncertainty
+  const closedPlace = {
+    id: "special-closed-place",
+    name: "Closed for Private Event",
+    lat: 27.33,
+    lng: -82.53,
+    ownedHours: {
+      periods: [{ open: { day: 3, hour: 10, minute: 0 }, close: { day: 3, hour: 22, minute: 0 } }],
+      specialHoursClosure: true,
+    },
+  };
+  const closedEval = evaluateHoursAndFeasibility(closedPlace, null, wed1400);
+  assert.equal(closedEval.confirmedOpen, false);
+  assert.equal(closedEval.hoursUnconfirmed, false);
+  assert.equal(closedEval.state, "closed");
+
+  // Holiday date (Christmas Day Dec 25) without holiday confirmation -> hours_unconfirmed
+  const xmasEpoch = Date.parse("2026-12-25T18:00:00Z"); // Dec 25, 2026 13:00 EST
+  const xmasUnverified = {
+    id: "xmas-unverified",
+    name: "Holiday Cafe",
+    lat: 27.33,
+    lng: -82.53,
+    utcOffset: -300,
+    oh: { periods: [{ open: { day: 5, hour: 8, minute: 0 }, close: { day: 5, hour: 20, minute: 0 } }] },
+  };
+  const xmasEval = evaluateHoursAndFeasibility(xmasUnverified, null, xmasEpoch);
+  assert.equal(xmasEval.confirmedOpen, false);
+  assert.equal(xmasEval.hoursUnconfirmed, true);
+  assert.equal(xmasEval.state, "hours_unconfirmed");
+  assert.equal(xmasEval.specialHoursUncertainty, true);
+
+  // Christmas Day WITH explicit holiday confirmation -> confirmed open
+  const xmasConfirmed = {
+    ...xmasUnverified,
+    holidayHoursConfirmed: true,
+  };
+  const xmasConfirmedEval = evaluateHoursAndFeasibility(xmasConfirmed, { driveMinEst: 10 }, xmasEpoch);
+  assert.equal(xmasConfirmedEval.confirmedOpen, true);
+  assert.equal(xmasConfirmedEval.state, "open");
+
+  // Case 7: Arrival-before-closing feasibility
+  assert.equal(unviable.confirmedOpen, true);
+  assert.equal(unviable.closingFeasible, false);
+  assert.equal(unviable.state, "closing_infeasible");
+  assert.equal(openNowMuseum.eligible, false);
+  assert.equal(openNowMuseum.exclusionReason, "closing_infeasible");
+  assert.equal(viableCafe.closingFeasible, true);
+  assert.equal(viableCafe.state, "closing_soon");
 
   // Heavy rain penalizes outdoor beach/park and promotes indoor aquarium/museum,
   // while NEVER changing public Wayfind Score (`governed_score` / `toDisplayScore`)!
@@ -574,7 +708,7 @@ const PARRISH_BOOTSTRAP = { lat: DEFAULT_CENTER.lat, lng: DEFAULT_CENTER.lng };
   const REPO = fileURLToPath(new URL("..", import.meta.url));
   const entry = fileURLToPath(new URL("../app/components/screens/Map.js", import.meta.url));
   let capturedAppleProps = null;
-  const mod = await loadComponent(entry, REPO, {
+  mapComponentMod = await loadComponent(entry, REPO, {
     onGraph(graph) {
       const compiled = graph.get(entry);
       let source = readFileSync(compiled, "utf8");
@@ -594,6 +728,7 @@ const PARRISH_BOOTSTRAP = { lat: DEFAULT_CENTER.lat, lng: DEFAULT_CENTER.lng };
       );
     },
   });
+  const mod = mapComponentMod;
   globalThis.__hardTestAppleProps = (p) => { capturedAppleProps = p; };
 
   const selectedTampaPlace = {
@@ -1064,6 +1199,413 @@ const PARRISH_BOOTSTRAP = { lat: DEFAULT_CENTER.lat, lng: DEFAULT_CENTER.lng };
   assert.equal(topAnn.displayPriority, 1000, "selectId dynamically promotes newly selected pin to 1000");
   assert.ok(selAnn.displayPriority < 1000, "selectId restores deselected pin to rank priority < 1000");
   explorer.destroy();
+}
+
+// ── 11. MAP TRUTH INTEGRITY SUITE: HOURS, STRICT TONIGHT EVENT EVIDENCE, HONEST RECOVERY & PARKING ACCESS ──
+{
+  const testNow = Date.parse("2026-11-13T23:30:00Z"); // Friday Nov 13, 2026 18:30 EST
+  const todayStr = "2026-11-13";
+
+  // Part A: mapInventoryPlace & mergeMapAreaContext (owned_hours hydration & Google 30-day freshness gate)
+  const baseInvRow = {
+    place_id: "test-inv-owned-1",
+    name: "Owned Hours Bistro",
+    lat: 27.95,
+    lng: -82.45,
+    category: "food",
+    primary_type: "restaurant",
+    google_types: ["restaurant"],
+    status: "OPERATIONAL",
+    refreshed_at: new Date(testNow - 5 * 86400000).toISOString(),
+    signals: {
+      rating: 4.8,
+      reviews: 500,
+      owned_hours: {
+        periods: [{ open: { day: 5, hour: 11, minute: 0 }, close: { day: 5, hour: 23, minute: 0 } }],
+        utcOffsetMinutes: -300,
+        source: "editorial_curated",
+        verifiedAt: new Date(testNow - 10 * 86400000).toISOString(),
+      },
+    },
+  };
+  const candOwned = mapInventoryPlace(baseInvRow, testNow);
+  assert.ok(candOwned, "Valid owned_hours row qualifies as map candidate");
+  assert.ok(candOwned.ownedHours, "ownedHours is hydrated onto candidate");
+  assert.equal(candOwned.oh?.periods?.length, 1);
+  assert.equal(candOwned._ownedHoursSource, "editorial_curated");
+  assert.equal(candOwned.utcOffset, -300);
+
+  // Expired Google hours (> 30 days) are excluded
+  const expiredGoogleRow = {
+    place_id: "test-inv-google-expired",
+    name: "Ancient Google Hours Cafe",
+    lat: 27.95,
+    lng: -82.45,
+    category: "food",
+    primary_type: "restaurant",
+    google_types: ["restaurant"],
+    status: "OPERATIONAL",
+    refreshed_at: new Date(testNow - 5 * 86400000).toISOString(),
+    signals: {
+      rating: 4.8,
+      reviews: 500,
+      oh: { periods: [{ open: { day: 5, hour: 11, minute: 0 }, close: { day: 5, hour: 23, minute: 0 } }] },
+      hoursAsOf: testNow - 35 * 86400000,
+    },
+  };
+  const candGoogleExpired = mapInventoryPlace(expiredGoogleRow, testNow);
+  assert.equal(candGoogleExpired.oh, null, "Google-sourced hours older than 30 days must be gated to null");
+
+  // mergeMapAreaContext preserves ownedHours and provenance
+  const contextPlace = {
+    id: "test-inv-owned-1",
+    ownedHours: baseInvRow.signals.owned_hours,
+    _ownedHoursSource: "editorial_curated",
+    utcOffset: -300,
+  };
+  const bareCand = { id: "test-inv-owned-1", name: "Bare Cand", lat: 27.95, lng: -82.45, governed_score: 95 };
+  const merged = mergeMapAreaContext([bareCand], [contextPlace]);
+  assert.ok(merged[0].ownedHours, "mergeMapAreaContext carries forward ownedHours");
+  assert.equal(merged[0]._ownedHoursSource, "editorial_curated");
+  assert.equal(merged[0].utcOffset, -300);
+
+  // Part B: Strict "Tonight" & "Christmas event tonight" Evidence
+  // 1. Plain place row without identified event identity MUST NEVER return eventEval or emit "Christmas event tonight"
+  const plainPlaceWithHolidayText = {
+    id: "oxford-plain-place",
+    name: "Oxford Exchange",
+    editorial: "Historic building with Christmas trees and holiday lights in the atrium.",
+    lat: 27.945,
+    lng: -82.465,
+    category: "food",
+    start_date: "2026-11-01",
+    end_date: "2026-12-31",
+  };
+  assert.equal(evaluateEventEligibility(plainPlaceWithHolidayText, testNow), null, "Plain place row must NEVER return eventEval");
+  const plainReason = buildMapDecisionReason(plainPlaceWithHolidayText, { eventEval: null, hoursEval: { state: "open", confirmedOpen: true, closingFeasible: true, closeLabel: "Closes 9 PM" } });
+  assert.ok(!plainReason.includes("Christmas event tonight"), "Plain place with holiday editorial must NEVER emit Christmas event tonight");
+  assert.ok(!plainReason.includes("Happening tonight"), "Plain place must NEVER emit Happening tonight");
+
+  // 2. Event with occurrence_dates list
+  const eventWithDates = {
+    id: "ev-dated-list",
+    kind: "event",
+    event_id: "ev-dated-list",
+    event_name: "Ybor Holiday Parade",
+    lat: 27.96,
+    lng: -82.44,
+    occurrence_dates: ["2026-11-13"], // Tonight!
+    start_date: "2026-11-01",
+    end_date: "2026-11-30",
+  };
+  const datedEval = evaluateEventEligibility(eventWithDates, testNow);
+  assert.equal(datedEval.activeToday, true);
+  assert.equal(datedEval.occurrenceSource, "occurrence_dates");
+  assert.equal(datedEval.venueConfirmed, true);
+
+  // Off-night date in occurrence_dates
+  const eventOffNight = {
+    ...eventWithDates,
+    occurrence_dates: ["2026-11-14"], // Tomorrow only
+  };
+  const offNightEval = evaluateEventEligibility(eventOffNight, testNow);
+  assert.equal(offNightEval.activeToday, false);
+  assert.equal(offNightEval.state, "off_night");
+
+  // 3. Event with select_nights: true without occurrence_dates or weekday cadence -> unconfirmed_select_nights
+  const eventSelectNightsBroad = {
+    id: "ev-select-nights-broad",
+    kind: "event",
+    event_id: "ev-select-nights-broad",
+    event_name: "Enchant Christmas St. Pete",
+    lat: 27.768,
+    lng: -82.653,
+    select_nights: true,
+    start_date: "2026-11-01",
+    end_date: "2027-01-05",
+    schedule_note: "Select nights in November and December",
+  };
+  const selectNightsEval = evaluateEventEligibility(eventSelectNightsBroad, testNow);
+  assert.equal(selectNightsEval.activeToday, false, "Select nights without explicit dates or weekday cadence must not be active today");
+  assert.equal(selectNightsEval.state, "unconfirmed_select_nights");
+
+  // 4. Multi-week seasonal window (> 14 days) without daily or weekday schedule -> unconfirmed_season_span
+  const eventLongWindowNoSchedule = {
+    id: "ev-long-span",
+    kind: "event",
+    event_id: "ev-long-span",
+    event_name: "Festival of Lights",
+    lat: 27.95,
+    lng: -82.45,
+    start_date: "2026-11-01",
+    end_date: "2026-12-25", // 54 days span
+    schedule_note: "Check online for details",
+  };
+  const longSpanEval = evaluateEventEligibility(eventLongWindowNoSchedule, testNow);
+  assert.equal(longSpanEval.activeToday, false, "Multi-week seasonal window without daily/weekday schedule must not claim tonight");
+  assert.equal(longSpanEval.state, "unconfirmed_season_span");
+
+  // 5. Unconfirmed venue coordinates (approx: true) -> venueConfirmed: false, reason refuses "Christmas event tonight"
+  const eventApproxVenue = {
+    id: "ev-approx-venue",
+    kind: "event",
+    event_id: "ev-approx-venue",
+    event_name: "Floating Lights",
+    approx: true,
+    lat: 27.95,
+    lng: -82.45,
+    occurrence_dates: ["2026-11-13"],
+    start_date: "2026-11-13",
+    end_date: "2026-11-13",
+    seasonal: "christmas",
+  };
+  const approxEval = evaluateEventEligibility(eventApproxVenue, testNow);
+  assert.equal(approxEval.activeToday, true);
+  assert.equal(approxEval.venueConfirmed, false, "approx: true venue coordinates are not confirmed");
+  const approxReason = buildMapDecisionReason(eventApproxVenue, { eventEval: approxEval });
+  assert.ok(!approxReason.includes("Christmas event tonight"), "Unconfirmed venue coordinates must not emit Christmas event tonight");
+
+  // Confirmed event emits "Christmas event tonight"
+  const eventConfirmedXmas = {
+    ...eventWithDates,
+    seasonal: "christmas",
+  };
+  const confirmedReason = buildMapDecisionReason(eventConfirmedXmas, { eventEval: datedEval });
+  assert.equal(confirmedReason, "Christmas event tonight");
+
+  // 6. Trace contains all required integrity fields
+  const mockRankedBundle = {
+    places: [eventConfirmedXmas],
+    evaluated: new Map([[eventConfirmedXmas.id, {
+      displayScore: 9.5,
+      governedScore: 95.0,
+      mapDecisionScore: 820,
+      reasonLine: confirmedReason,
+      hoursEval: { state: "open", confirmedOpen: true, hoursUnconfirmed: false },
+      driveEstimate: null,
+      weatherEval: { delta: 0 },
+      daypartEval: { delta: 0, tag: null },
+      daypart: { phase: "evening" },
+      eventEval: datedEval,
+      actionability: { ratio: 0.9 },
+    }]]),
+    exclusions: new Map(),
+  };
+  const trace = buildMapTruthTrace(eventConfirmedXmas.id, mockRankedBundle, null);
+  assert.ok(trace, "Trace generated");
+  assert.equal(trace.event.eventId, "ev-dated-list");
+  assert.equal(trace.event.eventName, "Ybor Holiday Parade");
+  assert.equal(trace.event.venueConfirmed, true);
+  assert.equal(trace.event.activeToday, true);
+  assert.equal(trace.event.occurrenceSource, "occurrence_dates");
+  assert.equal(trace.event.localDate, todayStr);
+
+  // Part C: SSR Tests for MapScreen (Honest Recovery Text, Empty Search Camera Protection, and Parking Access)
+  // 1. Open Now Honest Recovery:
+  // a) Unconfirmed hours only -> "No verified open hours right now" + subtitle "X nearby places have unconfirmed hours"
+  const htmlUnconfirmed = renderToStaticMarkup(
+    createElement(mapComponentMod.default, {
+      ctx: {
+        searchMapArea: () => {}, mapMode: "places", setMapMode: () => {}, mapBrowse: true, setMapBrowse: () => {},
+        mapPool: [], mapListOverride: null, map3D: false, setMap3D: () => {}, mapRetryKey: 0, setMapRetryKey: () => {},
+        cat: "food", setCat: () => {}, sub: "all", setSub: () => {}, setVibe: () => {}, sortBy: "best",
+        center: TAMPA_CENTER, deviceLoc: null, locApprox: false, mapCameraRef: { current: null },
+        mapSearch: null, setMapSearch: () => {}, mapUrlLens: "open_now", setMapUrlLens: () => {},
+        mapUrlPlaceId: null, setMapUrlPlaceId: () => {}, mapFocus: null, setMapFocus: () => {}, setMapSearchOpen: () => {},
+        events: [], eventsLoading: false, eventsUnavailable: false, mapDate: "all", setMapDate: () => {},
+        mapPreview: null, setMapPreview: () => {}, mapDrawer: false, setMapDrawer: () => {}, eventPreview: null, setEventPreview: () => {},
+        suggested: [], places: [], view: [], liked: {}, disliked: {}, featuredBoost: () => 0,
+        MapView: () => createElement("div"), CategoryMenu: () => createElement("div"), FallbackImg: () => createElement("img"),
+        iconForPlace: () => "✨", liveOpen: () => null, logEvent: () => {}, loadEvents: () => {}, openDetail: () => {},
+        openVenue: () => {}, ticketUrl: (u) => u, Hol: { worldCup: () => false, fitFor: () => 0 }, recenterToMe: () => {},
+        isBeach: () => false, beachSignals: {}, PlaceCard: () => createElement("div"), isSaved: () => false,
+        toggleLike: () => {}, toggleDislike: () => {}, quickSaveFavorite: () => {}, addShared: () => {}, giveawayMark: () => {},
+        blurbs: {}, openExperience: () => {}, openCuisine: () => {}, cityNow: "Tampa", locName: "Tampa, FL",
+        weather: { rain: 0, wet: false, temp: 75 }, trips: [], setTrips: () => {}, activeTrip: null, isOnTrip: () => false,
+        addToItinerary: () => {}, showToast: () => {}, mapDefaultAppliedRef: { current: true }, categoryChosenRef: { current: true },
+        searchMode: false,
+        __seedAreaPlaces: [
+          { id: "p1", name: "Place 1", lat: 27.95, lng: -82.45, category: "food", primaryType: "restaurant", types: ["restaurant"], governed_score: 95 },
+          { id: "p2", name: "Place 2", lat: 27.95, lng: -82.45, category: "food", primaryType: "restaurant", types: ["restaurant"], governed_score: 95 },
+        ],
+        __seedAreaStatus: "ready",
+        __seedViewport: { north: 28.05, south: 27.85, east: -82.35, west: -82.56 },
+      },
+    })
+  );
+  assert.ok(htmlUnconfirmed.includes("No verified open hours right now"), "Unconfirmed hours renders honest title");
+  assert.ok(htmlUnconfirmed.includes("nearby places have unconfirmed hours"), "Unconfirmed hours renders unconfirmed subtitle");
+  assert.ok(htmlUnconfirmed.includes("Show all nearby"), "Exposes 1-tap Show all nearby button");
+
+  // b) Confirmed closed only -> "Confirmed closed nearby right now" + "All X nearby places are closed at this hour"
+  const htmlClosed = renderToStaticMarkup(
+    createElement(mapComponentMod.default, {
+      ctx: {
+        searchMapArea: () => {}, mapMode: "places", setMapMode: () => {}, mapBrowse: true, setMapBrowse: () => {},
+        mapPool: [], mapListOverride: null, map3D: false, setMap3D: () => {}, mapRetryKey: 0, setMapRetryKey: () => {},
+        cat: "food", setCat: () => {}, sub: "all", setSub: () => {}, setVibe: () => {}, sortBy: "best",
+        center: TAMPA_CENTER, deviceLoc: null, locApprox: false, mapCameraRef: { current: null },
+        mapSearch: null, setMapSearch: () => {}, mapUrlLens: "open_now", setMapUrlLens: () => {},
+        mapUrlPlaceId: null, setMapUrlPlaceId: () => {}, mapFocus: null, setMapFocus: () => {}, setMapSearchOpen: () => {},
+        events: [], eventsLoading: false, eventsUnavailable: false, mapDate: "all", setMapDate: () => {},
+        mapPreview: null, setMapPreview: () => {}, mapDrawer: false, setMapDrawer: () => {}, eventPreview: null, setEventPreview: () => {},
+        suggested: [], places: [], view: [], liked: {}, disliked: {}, featuredBoost: () => 0,
+        MapView: () => createElement("div"), CategoryMenu: () => createElement("div"), FallbackImg: () => createElement("img"),
+        iconForPlace: () => "✨", liveOpen: () => null, logEvent: () => {}, loadEvents: () => {}, openDetail: () => {},
+        openVenue: () => {}, ticketUrl: (u) => u, Hol: { worldCup: () => false, fitFor: () => 0 }, recenterToMe: () => {},
+        isBeach: () => false, beachSignals: {}, PlaceCard: () => createElement("div"), isSaved: () => false,
+        toggleLike: () => {}, toggleDislike: () => {}, quickSaveFavorite: () => {}, addShared: () => {}, giveawayMark: () => {},
+        blurbs: {}, openExperience: () => {}, openCuisine: () => {}, cityNow: "Tampa", locName: "Tampa, FL",
+        weather: { rain: 0, wet: false, temp: 75 }, trips: [], setTrips: () => {}, activeTrip: null, isOnTrip: () => false,
+        addToItinerary: () => {}, showToast: () => {}, mapDefaultAppliedRef: { current: true }, categoryChosenRef: { current: true },
+        searchMode: false,
+        __seedAreaPlaces: [
+          {
+            id: "p-closed-1", name: "Closed Place 1", lat: 27.95, lng: -82.45, category: "food", primaryType: "restaurant", types: ["restaurant"], governed_score: 95,
+            utcOffset: -300,
+            oh: { periods: [{ open: { day: 1, hour: 10, minute: 0 }, close: { day: 1, hour: 12, minute: 0 } }] }, // closed Friday
+          },
+        ],
+        __seedAreaStatus: "ready",
+        __seedViewport: { north: 28.05, south: 27.85, east: -82.35, west: -82.56 },
+      },
+    })
+  );
+  assert.ok(htmlClosed.includes("Confirmed closed nearby right now"), "Confirmed closed renders honest title");
+  assert.ok(htmlClosed.includes("closed at this hour"), "Confirmed closed renders honest subtitle");
+
+  // 2. Empty search state & camera protection:
+  let searchCapturedProps = null;
+  globalThis.__hardTestAppleProps = (p) => { searchCapturedProps = p; };
+  const htmlEmptySearch = renderToStaticMarkup(
+    createElement(mapComponentMod.default, {
+      ctx: {
+        searchMapArea: () => {}, mapMode: "places", setMapMode: () => {}, mapBrowse: true, setMapBrowse: () => {},
+        mapPool: [], mapListOverride: null, map3D: false, setMap3D: () => {}, mapRetryKey: 0, setMapRetryKey: () => {},
+        cat: "food", setCat: () => {}, sub: "all", setSub: () => {}, setVibe: () => {}, sortBy: "best",
+        center: TAMPA_CENTER, deviceLoc: null, locApprox: false, mapCameraRef: { current: null },
+        mapSearch: { query: "ghost query", center: TAMPA_CENTER, cards: [] }, setMapSearch: () => {},
+        mapUrlLens: null, setMapUrlLens: () => {}, mapUrlPlaceId: null, setMapUrlPlaceId: () => {},
+        mapFocus: null, setMapFocus: () => {}, setMapSearchOpen: () => {}, events: [], eventsLoading: false, eventsUnavailable: false,
+        mapDate: "all", setMapDate: () => {}, mapPreview: null, setMapPreview: () => {}, mapDrawer: false, setMapDrawer: () => {},
+        eventPreview: null, setEventPreview: () => {}, suggested: [], places: [], view: [], liked: {}, disliked: {},
+        featuredBoost: () => 0, MapView: () => createElement("div"), CategoryMenu: () => createElement("div"), FallbackImg: () => createElement("img"),
+        iconForPlace: () => "✨", liveOpen: () => null, logEvent: () => {}, loadEvents: () => {}, openDetail: () => {},
+        openVenue: () => {}, ticketUrl: (u) => u, Hol: { worldCup: () => false, fitFor: () => 0 }, recenterToMe: () => {},
+        isBeach: () => false, beachSignals: {}, PlaceCard: () => createElement("div"), isSaved: () => false,
+        toggleLike: () => {}, toggleDislike: () => {}, quickSaveFavorite: () => {}, addShared: () => {}, giveawayMark: () => {},
+        blurbs: {}, openExperience: () => {}, openCuisine: () => {}, cityNow: "Tampa", locName: "Tampa, FL",
+        weather: { rain: 0, wet: false, temp: 75 }, trips: [], setTrips: () => {}, activeTrip: null, isOnTrip: () => false,
+        addToItinerary: () => {}, showToast: () => {}, mapDefaultAppliedRef: { current: true }, categoryChosenRef: { current: true },
+        searchMode: false,
+        __seedAreaPlaces: [{ id: "p1", name: "Place 1", lat: 27.95, lng: -82.45, category: "food", governed_score: 95 }],
+        __seedAreaStatus: "ready",
+        __seedViewport: { north: 28.05, south: 27.85, east: -82.35, west: -82.56 },
+      },
+    })
+  );
+  delete globalThis.__hardTestAppleProps;
+  assert.equal(searchCapturedProps.fit, false, "When search has 0 matching pins, fit is false to protect camera in Tampa");
+  assert.ok(htmlEmptySearch.includes("No map matches for") && htmlEmptySearch.includes("ghost query") && htmlEmptySearch.includes("in this area"), "Renders honest search empty state");
+  assert.ok(htmlEmptySearch.includes("Clear search"), "Exposes 1-tap Clear search button");
+}
+
+// Suite: Destination Parking Visitor Access & Eligibility (@parking)
+{
+  const makeMockMapkit = (places) => ({
+    Coordinate: class { constructor(lat, lng) { Object.assign(this, { latitude: lat, longitude: lng }); } },
+    PointsOfInterestSearch: class { search() { return Promise.resolve({ places }); } },
+    PointOfInterestCategory: { Parking: "Parking" },
+    PointOfInterestFilter: { including(cats) { return { including: cats }; } },
+  });
+
+  const castRes = await searchDestinationParking(
+    makeMockMapkit([{ id: "cast-lot", name: "Contemporary Resort Cast Parking Lot", lat: 28.4195, lng: -81.5750, distanceMeters: 300 }]),
+    { id: "mk", name: "Magic Kingdom Park", lat: 28.4188, lng: -81.5818 }
+  );
+  assert.equal(castRes.status, "fallback", "Disney Cast Member lot must never be recommended as visitor parking");
+  assert.equal(castRes.items.length, 0);
+
+  const hotelMismatchRes = await searchDestinationParking(
+    makeMockMapkit([{ id: "marriott-gar", name: "Marriott Hotel Parking Garage", lat: 27.9480, lng: -82.4390, distanceMeters: 150 }]),
+    { id: "columbia", name: "Columbia Restaurant", lat: 27.9475, lng: -82.4385 }
+  );
+  assert.equal(hotelMismatchRes.status, "fallback", "Non-matching hotel garage must not be recommended as public parking");
+  assert.equal(hotelMismatchRes.items.length, 0);
+
+  const bareGarageRes = await searchDestinationParking(
+    makeMockMapkit([{ id: "bare-gar", name: "7th Ave Parking Garage", lat: 27.9500, lng: -82.4400, distanceMeters: 200 }]),
+    { id: "columbia-2", name: "Columbia Restaurant", lat: 27.9475, lng: -82.4385 }
+  );
+  assert.equal(bareGarageRes.status, "fallback", "Unverified generic garage without public/visitor signal must fall back honestly");
+  assert.equal(bareGarageRes.items.length, 0);
+
+  const pubRes = await searchDestinationParking(
+    makeMockMapkit([{ id: "pub-gar", name: "Palm Avenue Public Parking Garage", lat: 27.3360, lng: -82.5440, distanceMeters: 220 }]),
+    { id: "sarasota-bistro", name: "Sarasota Downtown Bistro", lat: 27.3350, lng: -82.5430 }
+  );
+  assert.equal(pubRes.status, "ready", "Verified municipal/public garage within walking distance is recommended");
+  assert.equal(pubRes.items.length, 1);
+  assert.equal(pubRes.items[0].accessStatus, "public_verified");
+}
+
+// Suite: Search Geographic Relevance & Location Truth (@search)
+{
+  const tampaCity = { lat: 27.9478, lng: -82.4584, name: "Tampa", slug: "tampa" };
+  const fakeEnv = {
+    NEXT_PUBLIC_SUPABASE_URL: "https://mock.supabase.co",
+    NEXT_PUBLIC_SUPABASE_ANON_KEY: "mock-key",
+  };
+  const mockFetch = async () => ({
+    ok: true,
+    json: async () => [
+      {
+        id: "disney-magic-kingdom",
+        title: "Magic Kingdom Park",
+        kind: "event",
+        lat: 28.4177,
+        lng: -81.5812,
+        city: "Lake Buena Vista",
+        city_slug: "lake-buena-vista",
+        start_date: "2026-11-01",
+        end_date: "2027-01-05",
+      },
+    ],
+  });
+  const res = await searchResultCards({
+    query: "Christmas tonight",
+    city: tampaCity,
+    env: fakeEnv,
+    fetchImpl: mockFetch,
+    todayStr: "2026-11-13",
+  });
+  assert.equal(res.cards.length, 0, "Tampa Christmas tonight query must not return Orlando / Lake Buena Vista events 62+ mi away");
+
+  assert.equal(queryImpliesExplicitArea("Tampa"), true);
+  assert.equal(queryImpliesExplicitArea("Sarasota, FL"), true);
+  assert.equal(queryImpliesExplicitArea("Christmas tonight"), false);
+  assert.equal(queryImpliesExplicitArea("best coffee"), false);
+
+  const truth = resolveLocationTruth({
+    screen: "map",
+    locName: "Tampa, FL",
+    discoveryCenter: { lat: 27.9478, lng: -82.4584 },
+    viewport: { south: 27.8, west: -82.6, north: 28.1, east: -82.3 },
+    rawDeviceLoc: { lat: 27.3364, lng: -82.5307, accuracy: 12 },
+    queryGeo: { lat: 27.9478, lng: -82.4584, name: "Christmas tonight" },
+    query: "Christmas tonight",
+    manual: true,
+  });
+  assert.equal(truth.searchLocation.source, "map_viewport");
+  assert.equal(truth.deviceLocation?.lat, 27.3364);
+  assert.equal(resolveMapScopeMode(truth).mode, "explore_here");
+
+  const link = buildMapDeepLink({ city: "Tampa", q: "Christmas tonight" });
+  assert.equal(link.includes("lat="), false);
+  assert.equal(link.includes("lng="), false);
+  const parsed = parseMapDeepLink(link.slice("/map".length));
+  assert.equal(parsed.city, "Tampa");
+  assert.equal(parsed.q, "Christmas tonight");
 }
 
 console.log("test-map-spatial-decision-engine: OK — all 8 spatial decision engine suites & Hard Test SSR verified");

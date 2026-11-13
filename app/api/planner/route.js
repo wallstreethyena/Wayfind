@@ -27,7 +27,15 @@ import {
   buildPlannerClaudePrompt,
   parseAndValidateClaudePlan,
   parseAndValidateClaudeEdit,
+  sanitizeConversationHistory,
+  sanitizeProposedPlanDraft,
+  revalidateProposedDraft,
+  parseDraftRevisionIntent,
+  applyDeterministicDraftRevision,
+  buildDraftRevisionClaudePrompt,
+  parseAndValidateClaudeDraftRevision,
 } from "../../../lib/wayfindPlanner.js";
+import { serveInventoryByPlaceIds } from "../../../lib/inventoryServe.js";
 import { executePlannerActionBatch } from "../../../lib/plannerActions.js";
 import {
   getPublishedChristmasResearchRows,
@@ -35,6 +43,13 @@ import {
 } from "../../../lib/plannerLocalInventory.js";
 import { GET as siteSearch } from "../search/route.js";
 import { GET as christmasBrowseGet } from "../christmas/browse/route.js";
+import {
+  normalizePlannerVoice,
+  plannerPersona,
+  pickLine,
+  personaChatSystem,
+  cleanPersonaChat,
+} from "../../../lib/plannerPersona.js";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -231,11 +246,123 @@ async function gatherServerCandidates(parsed, { point = null, savedPlaces = [] }
   });
 }
 
-async function askClaudePlanner(promptObj) {
+function buildSlimCatalog(proposedPlan, candidates, seedPlace = null) {
+  const slimCatalog = {};
+  const catalogById = new Map((candidates || []).map((c) => [String(c.id), c]));
+  if (seedPlace && seedPlace.id && !catalogById.has(String(seedPlace.id))) {
+    catalogById.set(String(seedPlace.id), seedPlace);
+  }
+  if (proposedPlan && Array.isArray(proposedPlan.days)) {
+    for (const d of proposedPlan.days) {
+      for (const s of (d.stops || [])) {
+        const entity = catalogById.get(String(s.id));
+        if (entity) slimCatalog[entity.id] = entity;
+      }
+    }
+  }
+  return slimCatalog;
+}
+
+async function gatherDraftRevisionCandidates(rawDraft, draftParsed, message, { point = null, savedPlaces = [] } = {}) {
+  const origin = draftParsed.destination
+    ? { lat: draftParsed.destination.lat, lng: draftParsed.destination.lng }
+    : point;
+
+  const baseCity = rawDraft.city || (draftParsed.destination && draftParsed.destination.name) || "Orlando";
+  const citySuffix = baseCity ? ` ${baseCity}` : "";
+  const queries = [
+    `restaurants${citySuffix}`,
+    `things to do${citySuffix}`,
+    `breakfast coffee${citySuffix}`,
+  ];
+  if (message) {
+    const cleanMsg = message.replace(/[^a-zA-Z0-9\s]/g, " ").trim();
+    if (cleanMsg) {
+      queries.push(`${cleanMsg.slice(0, 40)}${citySuffix}`);
+      if (/\bcoffee\b/i.test(message)) queries.push(`coffee bakery${citySuffix}`);
+      if (/\bsushi\b/i.test(message)) queries.push(`sushi${citySuffix}`);
+      if (/\btacos?\b/i.test(message)) queries.push(`tacos mexican${citySuffix}`);
+      if (/\bseafood\b/i.test(message)) queries.push(`seafood${citySuffix}`);
+      if (/\bbreakfast\b/i.test(message)) queries.push(`breakfast${citySuffix}`);
+      if (/\bbar|cocktails?\b/i.test(message)) queries.push(`cocktail bar${citySuffix}`);
+    }
+  }
+
+  const searchPromises = [...new Set(queries)].slice(0, 5).map((q) => runOwnedSearchQuery(q, origin));
+
+  const draftStopIds = (rawDraft.days || []).flatMap((d) => (d.stops || []).map((s) => String(s.id || s.entityId))).filter(Boolean);
+  const nonEventDraftStopIds = draftStopIds.filter((id) => !id.startsWith("event:"));
+  const hasEventsInDraft = draftStopIds.some((id) => id.startsWith("event:"));
+
+  const today = siteTodayStr();
+  const inChristmasWindow = today.slice(5) >= "10-15" || today.slice(5) <= "01-05";
+  const wantsSeasonal = inChristmasWindow || hasEventsInDraft || /\b(?:christmas|holiday|lights|santa)\b/i.test(message);
+  const isFloridaDest = !draftParsed.destination || draftParsed.destination.state === "FL";
+  const hasSupabaseEnv = Boolean(
+    (process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || "").trim()
+  );
+
+  const exactPlacesPromise = (hasSupabaseEnv && origin && Number.isFinite(origin.lat) && Number.isFinite(origin.lng) && nonEventDraftStopIds.length > 0)
+    ? serveInventoryByPlaceIds(nonEventDraftStopIds, origin.lat, origin.lng, 58000).catch(() => [])
+    : Promise.resolve([]);
+
+  const christmasPromise = wantsSeasonal && isFloridaDest
+    ? (async () => {
+        if (!hasSupabaseEnv) return getPublishedChristmasResearchRows();
+        try {
+          const qs = new URLSearchParams();
+          if (draftParsed.destination && draftParsed.destination.name) qs.set("q", draftParsed.destination.name);
+          const res = await christmasBrowseGet(new Request("https://wayfind.internal/api/christmas/browse?" + qs.toString()));
+          if (res.ok) {
+            const data = await res.json();
+            const cards = Array.isArray(data && data.cards) ? data.cards : [];
+            if (cards.length >= 4 || !draftParsed.destination) return cards;
+            const broadRes = await christmasBrowseGet(new Request("https://wayfind.internal/api/christmas/browse"));
+            if (broadRes.ok) {
+              const broadData = await broadRes.json();
+              const combined = [...cards, ...(Array.isArray(broadData && broadData.cards) ? broadData.cards : [])];
+              if (combined.length > 0) return combined;
+            }
+            if (cards.length > 0) return cards;
+          }
+        } catch { /* fallback */ }
+        return getPublishedChristmasResearchRows();
+      })()
+    : Promise.resolve([]);
+
+  const curatedPromise = isFloridaDest && hasSupabaseEnv
+    ? fetchCuratedEvents({ signal: AbortSignal.timeout(2500) }).catch(() => [])
+    : Promise.resolve([]);
+
+  const [exactPlaces, searchLists, christmasCards, curatedRows] = await Promise.all([
+    exactPlacesPromise,
+    Promise.all(searchPromises),
+    christmasPromise,
+    curatedPromise,
+  ]);
+
+  const atlasPlaces = isFloridaDest ? getFirstPartyAtlasPlaces() : [];
+
+  const rawGroups = [
+    { sourceKind: "draft_verified_ids", items: exactPlaces },
+    { sourceKind: "christmas", items: christmasCards },
+    ...searchLists.map((items) => ({ sourceKind: "owned_search", items })),
+    { sourceKind: "curated_events", items: curatedRows },
+    { sourceKind: "atlas_places", items: atlasPlaces },
+    { sourceKind: "user_saved", items: Array.isArray(savedPlaces) ? savedPlaces.slice(0, 24) : [] },
+  ];
+
+  return buildGroundedCandidatePool(rawGroups, {
+    destination: draftParsed.destination,
+    maxRadiusKm: 58,
+  });
+}
+
+async function askClaudePlanner(promptObj, { maxTokens = 1400 } = {}) {
   const key = aiKey();
-  if (!key) return { ok: false, reason: "unavailable" };
+  if (!key) return { ok: false, reason: "not_configured" };
   try {
-    if (await breakerOpen("anthropic")) return { ok: false, reason: "unavailable" };
+    if (await breakerOpen("anthropic")) return { ok: false, reason: "breaker_open" };
   } catch { /* fail open on cache read */ }
 
   try {
@@ -248,7 +375,7 @@ async function askClaudePlanner(promptObj) {
       },
       body: JSON.stringify({
         model: MODEL,
-        max_tokens: 1400,
+        max_tokens: maxTokens,
         system: promptObj.system,
         messages: [{ role: "user", content: promptObj.user }],
       }),
@@ -295,7 +422,9 @@ export async function POST(req) {
     return jsonNoStore({ ok: false, code: "EMPTY_MESSAGE" }, 400);
   }
 
-  const voice = body && body.voice === "santa" ? "santa" : "wayfind";
+  // The host on the page (Santa, Boo or plain Wayfind) owns the chat's voice.
+  const voice = normalizePlannerVoice(body && body.voice);
+  const persona = plannerPersona(voice);
   const contextCity = body && typeof body.contextCity === "string" ? body.contextCity.slice(0, 80) : null;
   const point = sanitizePoint(body && body.point);
   const activeTrip = sanitizeActiveTrip(body && body.activeTrip);
@@ -303,25 +432,240 @@ export async function POST(req) {
   const savedPlaces = Array.isArray(body && body.savedPlaces) ? body.savedPlaces.slice(0, 20) : [];
   const today = siteTodayStr();
 
-  const parsed = parsePlannerRequest(message, {
+  // The visitor's earlier turns this session (client sends at most 3), so the
+  // host remembers what was already said and asks only for what is missing.
+  const recent = Array.isArray(body && body.recent)
+    ? body.recent.filter((t) => typeof t === "string").map((t) => t.trim().slice(0, 300)).filter(Boolean).slice(-3)
+    : [];
+  const conversationHistory = sanitizeConversationHistory(body && body.conversationHistory);
+  const hasRawDraft = body && body.proposedPlan !== undefined && body.proposedPlan !== null;
+
+  if (hasRawDraft) {
+    const rawDraft = sanitizeProposedPlanDraft(body.proposedPlan);
+    if (!rawDraft) {
+      return jsonNoStore({ ok: false, code: "INVALID_PLAN_SHAPE", rejectedIds: [] }, 422);
+    }
+
+    const draftParsed = parsePlannerRequest(
+      `${rawDraft.city || contextCity || ""} ${rawDraft.startDate || ""} to ${rawDraft.endDate || ""} ${message}`.trim(),
+      { todayYmd: today, contextCity: rawDraft.city || contextCity }
+    );
+
+    const candidates = await gatherDraftRevisionCandidates(rawDraft, draftParsed, message, {
+      point,
+      savedPlaces,
+    });
+
+    const reval = revalidateProposedDraft(rawDraft, candidates, { destination: draftParsed.destination });
+    if (!reval.ok) {
+      return jsonNoStore({
+        ok: false,
+        code: reval.code || "UNGROUNDED_DRAFT",
+        rejectedIds: reval.rejectedIds || [],
+        errors: reval.errors || [],
+      }, 422);
+    }
+
+    const intent = parseDraftRevisionIntent(message, reval.draft, conversationHistory, { todayYmd: today, point });
+
+    if (intent.kind === "undo" || intent.kind === "ambiguous") {
+      const candidateCatalog = buildSlimCatalog(reval.draft, candidates);
+      return okJson({
+        mode: intent.kind === "undo" ? "no_change" : "clarify",
+        revisionStatus: intent.kind === "undo" ? "unchanged" : "clarify",
+        voice,
+        reply: intent.kind === "undo"
+          ? "Use Undo on your draft to step back to the previous version, or tell me which stop you'd like changed."
+          : intent.clarificationQuestion,
+        clarificationQuestion: intent.clarificationQuestion || null,
+        proposedPlan: reval.draft,
+        candidateCatalog,
+        changedStopIds: [],
+        confidenceSummary: reval.draft.confidenceSummary,
+        metrics: {
+          tripLength: reval.draft.days.length,
+          candidateCount: candidates.length,
+        },
+        source: "deterministic",
+      });
+    }
+
+    const detAttempt = applyDeterministicDraftRevision(intent, reval.draft, candidates, {
+      voice,
+      point,
+      destination: draftParsed.destination,
+    });
+
+    if (intent.kind === "retime_stop" || intent.kind === "optimize_day") {
+      const candidateCatalog = buildSlimCatalog(detAttempt.proposedPlan, candidates);
+      return okJson({
+        mode: detAttempt.mode || (detAttempt.changed ? "revise_plan" : "no_change"),
+        revisionStatus: detAttempt.revisionStatus || (detAttempt.changed ? "revised" : "unchanged"),
+        voice,
+        reply: detAttempt.reply,
+        proposedPlan: detAttempt.proposedPlan,
+        candidateCatalog,
+        changedStopIds: detAttempt.changedStopIds || [],
+        confidenceSummary: detAttempt.proposedPlan.confidenceSummary,
+        metrics: {
+          tripLength: detAttempt.proposedPlan.days.length,
+          candidateCount: candidates.length,
+        },
+        source: "deterministic",
+      });
+    }
+
+    if (intent.requestedCategory && !detAttempt.changed) {
+      const candidateCatalog = buildSlimCatalog(detAttempt.proposedPlan, candidates);
+      return okJson({
+        mode: "no_change",
+        revisionStatus: "unchanged",
+        voice,
+        reply: detAttempt.reply,
+        proposedPlan: detAttempt.proposedPlan,
+        candidateCatalog,
+        changedStopIds: [],
+        confidenceSummary: detAttempt.proposedPlan.confidenceSummary,
+        metrics: {
+          tripLength: detAttempt.proposedPlan.days.length,
+          candidateCount: candidates.length,
+        },
+        source: "deterministic",
+      });
+    }
+
+    const ip = clientIp(req);
+    const rateLimited = isRateLimited(ip);
+
+    if (!rateLimited) {
+      const promptObj = buildDraftRevisionClaudePrompt(intent, reval.draft, candidates, conversationHistory, { voice });
+      const claudeRes = await askClaudePlanner(promptObj);
+      if (claudeRes.ok) {
+        const claudeValidated = parseAndValidateClaudeDraftRevision(
+          claudeRes.text,
+          intent,
+          reval.draft,
+          candidates,
+          { destination: draftParsed.destination }
+        );
+        if (claudeValidated.ok) {
+          const candidateCatalog = buildSlimCatalog(claudeValidated.proposedPlan, candidates);
+          return okJson({
+            mode: claudeValidated.mode || "revise_plan",
+            revisionStatus: claudeValidated.revisionStatus || "revised",
+            voice,
+            reply: claudeValidated.reply,
+            clarificationQuestion: claudeValidated.clarificationQuestion || null,
+            proposedPlan: claudeValidated.proposedPlan,
+            candidateCatalog,
+            changedStopIds: claudeValidated.changedStopIds || [],
+            confidenceSummary: claudeValidated.proposedPlan.confidenceSummary,
+            metrics: {
+              tripLength: claudeValidated.proposedPlan.days.length,
+              candidateCount: candidates.length,
+            },
+            source: "claude",
+          });
+        }
+      }
+    }
+
+    const candidateCatalog = buildSlimCatalog(detAttempt.proposedPlan, candidates);
+    return okJson({
+      mode: detAttempt.mode || (detAttempt.changed ? "revise_plan" : "no_change"),
+      revisionStatus: detAttempt.revisionStatus || (detAttempt.changed ? "revised" : "unchanged"),
+      voice,
+      reply: detAttempt.reply,
+      proposedPlan: detAttempt.proposedPlan,
+      candidateCatalog,
+      changedStopIds: detAttempt.changedStopIds || [],
+      confidenceSummary: detAttempt.proposedPlan.confidenceSummary,
+      metrics: {
+        tripLength: detAttempt.proposedPlan.days.length,
+        candidateCount: candidates.length,
+      },
+      source: "deterministic",
+    });
+  }
+
+  let parsed = parsePlannerRequest(message, {
     todayYmd: today,
     activeTrip,
     contextCity,
     seedPlace,
   });
+  if (parsed.clarificationQuestion && recent.length && !activeTrip) {
+    const merged = parsePlannerRequest([...recent, message].join(". "), {
+      todayYmd: today,
+      activeTrip,
+      contextCity,
+      seedPlace,
+    });
+    if (merged.destination && !merged.clarificationQuestion) parsed = merged;
+  }
+
+  if (!hasRawDraft && !activeTrip && conversationHistory.length > 0 && parsed.clarificationQuestion) {
+    const priorUserTexts = conversationHistory
+      .filter((m) => m && m.role === "user")
+      .map((m) => m.text)
+      .filter(Boolean);
+    if (priorUserTexts.length > 0) {
+      const combinedMsg = `${priorUserTexts.join(". ")}. ${message}`.trim();
+      const reParsed = parsePlannerRequest(combinedMsg, {
+        todayYmd: today,
+        activeTrip,
+        contextCity,
+        seedPlace,
+      });
+      if (!reParsed.clarificationQuestion) {
+        parsed = reParsed;
+      }
+    }
+  }
 
   // 1. Missing critical destination or dates -> ask ONE high-value question immediately (zero AI cost).
+  // The host talks back in character (owner 2026-11-13): a short witty reply to
+  // whatever they said, always ending on the city/dates ask. Claude writes it
+  // when available; otherwise a hand written in-character line, never the bare
+  // form question.
   if (parsed.clarificationQuestion) {
+    const seed = message.toLowerCase();
+    let reply = parsed.destination
+      ? pickLine(persona.clarifyDates(parsed.destination.name), seed)
+      : pickLine(persona.clarifyCity, seed);
+    let source = "deterministic";
+    // Why a hand written line was used, so a fallback is never mistaken for a
+    // generated reply: rate_limited | unavailable (no key or breaker open) |
+    // gate_shut (AI spend cap) | <provider failure kind> | unusable_reply.
+    let fallbackReason = parsed.destination ? "not_needed" : null;
+    if (!parsed.destination) {
+      if (isRateLimited(clientIp(req))) {
+        fallbackReason = "rate_limited";
+      } else {
+        const chat = await askClaudePlanner(
+          { system: personaChatSystem(voice), user: [...recent, message].join("\n") },
+          { maxTokens: 220 },
+        );
+        const cleaned = chat.ok ? cleanPersonaChat(chat.text) : null;
+        if (cleaned) {
+          reply = cleaned;
+          source = "claude";
+        } else {
+          fallbackReason = chat.ok ? "unusable_reply" : (chat.reason || "unavailable");
+        }
+      }
+    }
     return okJson({
       mode: "clarify",
       voice,
-      reply: parsed.clarificationQuestion,
+      reply,
       clarificationQuestion: parsed.clarificationQuestion,
       metrics: {
         tripLength: 0,
         candidateCount: 0,
       },
-      source: "deterministic",
+      source,
+      ...(source === "deterministic" ? { fallbackReason } : {}),
     });
   }
 
@@ -353,8 +697,8 @@ export async function POST(req) {
     }
   }
 
-  // Safe public cache check ONLY when there is no private user trip, seedPlace, or savedPlaces.
-  const isPublicCacheable = !activeTrip && !seedPlace && savedPlaces.length === 0;
+  // Safe public cache check ONLY when there is no private user trip, raw draft, history, seedPlace, or savedPlaces.
+  const isPublicCacheable = !activeTrip && !hasRawDraft && conversationHistory.length === 0 && !seedPlace && savedPlaces.length === 0;
   const cacheKey = isPublicCacheable
     ? `${voice}:${parsed.destination?.slug || "none"}:${parsed.dates.startDate || ""}:${parsed.dates.endDate || ""}:${message.toLowerCase().replace(/\s+/g, " ").slice(0, 180)}`
     : null;
@@ -371,7 +715,7 @@ export async function POST(req) {
     return okJson({
       mode: "empty_inventory",
       voice,
-      reply: `I don't have enough verified Wayfind listings in ${cityLabel} yet to build a grounded plan without guessing. Try Orlando, Tampa, Sarasota, St. Petersburg, or Miami.`,
+      reply: pickLine(persona.empty(cityLabel), message),
       metrics: {
         tripLength: parsed.dates.dayCount || 0,
         candidateCount: 0,
@@ -407,7 +751,7 @@ export async function POST(req) {
       return okJson({
         mode: "no_change",
         voice,
-        reply: "I couldn't find a matching verified replacement in Wayfind's inventory for that change. Try naming a specific day or stop.",
+        reply: persona.noChange,
         metrics: {
           tripLength: parsed.dates.dayCount || 0,
           candidateCount: candidates.length,
@@ -459,6 +803,7 @@ export async function POST(req) {
   // 3b. Multi-stop / multi-day Trip Proposal (requires user confirmation via `Save itinerary` before committing!)
   let proposedPlan = null;
   let source = "deterministic";
+  let fallbackReason = rateLimited ? "rate_limited" : null;
 
   if (!rateLimited) {
     const promptObj = buildPlannerClaudePrompt(parsed, candidates, { voice });
@@ -468,7 +813,11 @@ export async function POST(req) {
       if (validated.ok) {
         proposedPlan = validated.plan;
         source = "claude";
+      } else {
+        fallbackReason = `ungrounded_plan:${validated.code || "invalid"}`;
       }
+    } else {
+      fallbackReason = claudeRes.reason || "unavailable";
     }
   }
 
@@ -481,7 +830,7 @@ export async function POST(req) {
     return okJson({
       mode: "empty_inventory",
       voice,
-      reply: "I couldn't assemble enough open stops on those exact dates from Wayfind's verified listings.",
+      reply: persona.noFit,
       metrics: {
         tripLength: parsed.dates.dayCount || 0,
         candidateCount: candidates.length,
@@ -490,17 +839,7 @@ export async function POST(req) {
     });
   }
 
-  const slimCatalog = {};
-  const catalogById = new Map(candidates.map((c) => [String(c.id), c]));
-  if (seedPlace && seedPlace.id && !catalogById.has(String(seedPlace.id))) {
-    catalogById.set(String(seedPlace.id), seedPlace);
-  }
-  for (const d of proposedPlan.days) {
-    for (const s of d.stops) {
-      const entity = catalogById.get(String(s.id));
-      if (entity) slimCatalog[entity.id] = entity;
-    }
-  }
+  const slimCatalog = buildSlimCatalog(proposedPlan, candidates, seedPlace);
 
   const responseBody = {
     ok: true,
@@ -517,6 +856,7 @@ export async function POST(req) {
       proposedStopCount: proposedPlan.days.reduce((n, d) => n + d.stops.length, 0),
     },
     source,
+    ...(source === "deterministic" ? { fallbackReason } : {}),
   };
 
   if (cacheKey && source === "claude") {

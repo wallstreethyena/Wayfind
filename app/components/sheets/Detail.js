@@ -43,7 +43,7 @@ import { funnelProps } from "../../../lib/funnel";
 import { useCommerceImpression } from "../useCommerceImpression";
 import { nearbyTourListAllowed, placePartnerPick } from "../../../lib/placePartnerPicks";
 import { usePinQuarantine } from "../../../lib/pinQuarantine";
-import { useReservePartner } from "../../../lib/reserveClient.js";
+import { useReserveEntry } from "../../../lib/reserveClient.js";
 import { openReserveSheet } from "../../../lib/reserveOpen.js";
 import { pairsWellWith } from "../../../lib/pairsWellWith";
 import { chooseDetailNextStep, DETAIL_NEXT_STEP_OPEN, DETAIL_NEXT_STEP_SHOWN } from "../../../lib/detailNextStep.js";
@@ -62,6 +62,7 @@ import { ATTRACTION_DISCOVERY_IDS } from "../../../lib/tripAttractions.js";
 import CommunityFooter from "../CommunityFooter";
 import PlacePhotoContribution from "../PlacePhotoContribution";
 import { buildGamePlan, hydrateDetailHours, isVerifiedFreePlace } from "../../../lib/gamePlan.js";
+import { isMunicipalSplashOrPublicPark } from "../../../lib/ownedPlaceTruth.js";
 
 // An internal redirect can still be an affiliate handoff; origin is not the
 // sponsorship signal. Free operator offers retain ordinary link semantics.
@@ -321,7 +322,7 @@ function PrimaryActionButton({ primaryCta, detail, kind, viaTours, locName, logE
   // Wayfind table request: opens the lazy sheet when href is "#reserve"; verified external https:// reservation URLs fall through to the outbound <a> below.
   if (primaryCta.type === DETAIL_CTA_TYPES.reserve && primaryCta.href === "#reserve") {
     return (
-      <button ref={ctaRef} type="button" data-reserve-cta="1" aria-label={`Reserve a table at ${detail.name}`} onClick={() => { onClick(); openReserveSheet(detail, { surface: "detail" }); }} style={style}>
+      <button ref={ctaRef} type="button" data-reserve-cta="1" data-reserve-lane={primaryCta.reserveLane || ""} aria-label={`${primaryCta.label} at ${detail.name}`} onClick={() => { onClick(); openReserveSheet(detail, { surface: "detail", lane: primaryCta.reserveLane }); }} style={style}>
         <span>{primaryCta.label}</span>
       </button>
     );
@@ -690,6 +691,7 @@ export default function DetailSheet({ ctx }) {
   const [editorial, setEditorial] = useState(() => (ctx.initialEditorial && hasSourcedEditorialFields(ctx.initialEditorial)) ? ctx.initialEditorial : carriedEditorial(detail));
   const [curatedEvents, setCuratedEvents] = useState(() => Array.isArray(ctx.initialCuratedEvents) ? ctx.initialCuratedEvents : []);
   const [firstPartyActions, setFirstPartyActions] = useState(() => ctx.initialFirstPartyActions || null);
+  const [ownedTruthMeta, setOwnedTruthMeta] = useState(() => ctx.initialOwnedTruthMeta || null);
   const [editorialLoaded, setEditorialLoaded] = useState(false);
   const [gamePlanExpanded, setGamePlanExpanded] = useState(false);
   useEffect(() => {
@@ -697,23 +699,30 @@ export default function DetailSheet({ ctx }) {
     setEditorial(carriedEditorial(detail));
     setCuratedEvents([]);
     setFirstPartyActions(null);
+    setOwnedTruthMeta(null);
     setEditorialLoaded(false);
     setGamePlanExpanded(false);
     if (!detail) return;
     const q = editorialRequestQuery(detail);
-    const apply = (ed, evs, fpa = null) => {
+    const apply = (ed, evs, fpa = null, truthMeta = null) => {
       if (dead) return;
       if (ed && hasSourcedEditorialFields(ed)) setEditorial(ed);
       else setEditorial(carriedEditorial(detail));
       setCuratedEvents(Array.isArray(evs) ? evs : []);
       setFirstPartyActions(fpa && typeof fpa === "object" ? fpa : null);
+      setOwnedTruthMeta(truthMeta && (truthMeta.ownedHours || truthMeta.admissionTruth) ? truthMeta : null);
       setEditorialLoaded(true);
     };
-    if (!q) { apply(null, [], null); return; }
+    if (!q) { apply(null, [], null, null); return; }
     fetch("/api/editorial?" + q) // v6.42: place_id so a richer Atlas card wins; event/venue aliases ride in `also`
       .then((r) => r.json())
-      .then((j) => apply(j && j.editorial, j && j.curatedEvents, j && j.firstPartyActions))
-      .catch(() => apply(null, [], null));
+      .then((j) => apply(
+        j && j.editorial,
+        j && j.curatedEvents,
+        j && j.firstPartyActions,
+        j ? { ownedHours: j.ownedHours || null, admissionTruth: j.admissionTruth || null } : null
+      ))
+      .catch(() => apply(null, [], null, null));
     return () => { dead = true; };
   }, [detail && detail.id, detail && detail.name, detail && detail._event && detail._event.name]);
 
@@ -724,6 +733,9 @@ export default function DetailSheet({ ctx }) {
   // dead / unknown -> no button. safeUrl still runs first (the quarantine
   // ledger short-circuits without a network call).
   const effectiveEditorial = editorial || (detail && detail.editorial && hasSourcedEditorialFields(detail.editorial) ? detail.editorial : (detail ? carriedEditorial(detail) : null));
+  const effectiveEditorialForTruth = effectiveEditorial
+    ? (ownedTruthMeta ? { ...ownedTruthMeta, ...effectiveEditorial } : effectiveEditorial)
+    : (ownedTruthMeta && (ownedTruthMeta.ownedHours || ownedTruthMeta.admissionTruth) ? ownedTruthMeta : null);
   const websiteCandidate = detailExtra ? safeUrl(detailExtra.website) : null;
   const fpaSiteCandidate = firstPartyActions && firstPartyActions.officialWebsite ? safeUrl(firstPartyActions.officialWebsite.url) : null;
   const fpaPrimaryCandidate = firstPartyActions ? safeUrl(
@@ -759,7 +771,7 @@ export default function DetailSheet({ ctx }) {
   // v6.31: open/closed must match the list card — compute live from the
   // hours periods (hydrated with detailExtra.oh or owned editorial hours when
   // the place arrived from wf_inventory without cached periods), never a stale cached openNow.
-  const hydratedDetail = hydrateDetailHours(detail, detailExtra, Date.now(), effectiveEditorial);
+  const hydratedDetail = hydrateDetailHours(detail, detailExtra, Date.now(), effectiveEditorialForTruth);
   const rawOpenState = (typeof liveOpen === "function" ? (liveOpen(hydratedDetail) ?? liveOpen(detail)) : (detail && detail.openNow != null ? detail.openNow : null));
   const curatedNotesList = detail && !detail._event && typeof wayfindNotes === "function" ? wayfindNotes(detail.name) : null;
   const curatedObj = detail && typeof curatedNote === "function" ? curatedNote(detail) : null;
@@ -777,7 +789,7 @@ export default function DetailSheet({ ctx }) {
   // above every early return. See lib/pinQuarantine.js.
   const pinQ = usePinQuarantine();
   // "Reserve a table" parity with the place card: the same partner list decides both.
-  const reservePartner = useReservePartner(detail && detail.id);
+  const reserveEntry = useReserveEntry(hydratedDetail);
   const primaryCta = resolveDetailCta({
     detail: hydratedDetail,
     kind: placeKind(detail),
@@ -787,15 +799,15 @@ export default function DetailSheet({ ctx }) {
     openState: rawOpenState,
     catalog: pinQ,
     websiteHref: verifiedOfficialUrl,
-    editorial: effectiveEditorial,
+    editorial: effectiveEditorialForTruth,
     curatedNotes: curatedNotesList,
-    reservePartner,
+    reserveLane: reserveEntry ? reserveEntry.lane : null,
     firstPartyActions: verifiedFirstPartyActions,
   });
   const gamePlan = detail ? buildGamePlan({
     detail: hydratedDetail,
     detailExtra,
-    editorial: effectiveEditorial,
+    editorial: effectiveEditorialForTruth,
     curatedEvents,
     weather,
     openState: rawOpenState,
@@ -1321,7 +1333,7 @@ export default function DetailSheet({ ctx }) {
                 {(() => { if (detail._event) return null; const isD = ["Food", "Nightlife"].includes(Ranking.coarseCat(detail) || ""); const cost = isD ? Dining.costForTwo(detail) : null; /* PriceBadge reads the NUMBER, not the glyph string: detail.price was pre-rendered "$$" with no word, and a glyph without its label is exactly the half-signal that let "$$$$" and "Moderate" disagree. costForTwo stays ahead of it — a real dollar range for two is more specific than a band. */ const lvl = priceLevelOf(detail.priceNum != null ? detail.priceNum : (detail.price_level != null ? detail.price_level : detail.priceLevel)); if (cost && cost.listed) return (<><span style={{ color: C.border }}>·</span><span style={{ color: C.green, fontWeight: 800 }}>{cost.text}</span></>); if (lvl) return (<><span style={{ color: C.border }}>·</span><PriceBadge level={lvl} /></>); return null; })()}
               </div>
               <AwardsRail place={detail} colors={C} />
-              {!detail._event && Tags.requiresParkAdmission(detail.types) && !isVerifiedFreePlace(hydratedDetail, effectiveEditorial) && (
+              {!detail._event && Tags.requiresParkAdmission(detail.types) && !isVerifiedFreePlace(hydratedDetail, effectiveEditorialForTruth) && !isMunicipalSplashOrPublicPark(hydratedDetail, effectiveEditorialForTruth) && (
                 <div style={{ fontSize: 11.5, fontWeight: 600, color: C.muted, marginTop: -4, marginBottom: 12 }}>May require park admission.</div>
               )}
               {hoursOpen && (
@@ -1333,7 +1345,7 @@ export default function DetailSheet({ ctx }) {
                     // owned editorial hours (hydratedDetail.oh.weekdayDescriptions).
                     const isOwnedHours = !(detailExtra && Array.isArray(detailExtra.hours) && detailExtra.hours.length > 0)
                       && !(detail.oh && Array.isArray(detail.oh.weekdayDescriptions) && detail.oh.weekdayDescriptions.length > 0)
-                      && Boolean(hydratedDetail && hydratedDetail.oh && hydratedDetail.oh.source === "wayfind_editorial_hours");
+                      && Boolean(hydratedDetail && hydratedDetail.oh && (hydratedDetail.oh.source === "wayfind_editorial_hours" || hydratedDetail.oh.source === "wayfind_owned_truth"));
                     const lines = (detailExtra && Array.isArray(detailExtra.hours) && detailExtra.hours.length > 0)
                       ? detailExtra.hours
                       : (detail.oh && Array.isArray(detail.oh.weekdayDescriptions) && detail.oh.weekdayDescriptions.length > 0
