@@ -80,7 +80,7 @@
     "file": "supabase/migrations/20261112200000_photo_batch_audit.sql",
     "sha256": "e412348b7f4e03e57f25c280355e5746926e600a075ee4047c5dd1ae3165fa69",
     "decision_owner": "wallstreethyena",
-    "tracking": "#2424 follow-up (provisional; PR number added after open): photo batch audit 2026-11-12",
+    "tracking": "#2454 photo batch audit 2026-11-12",
     "reason": "NOT APPLIED. Additive only: new table wf_photo_change_audit (RLS on, no anon/authenticated policies) plus statement-level audit triggers on wf_google_photo_store and wf_place_photo that only ever raise a WARNING. The SQL was NOT test-run on production: the transaction test through execute_sql timed out waiting for a confirmation prompt, so it is unproven until applied or tested in a transaction that is rolled back. Pending canonical scripts/apply-migration.mjs application by the owner."
   }
 ]
