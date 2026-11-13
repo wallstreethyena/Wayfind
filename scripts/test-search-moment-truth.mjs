@@ -329,4 +329,143 @@ const HOURS_OPEN_LATE_PARK = makeHours([
   ok(!walkIds.slice(0, 2).includes("guide:sarasota-general-guide"), "Case E: Generic guide does not outrank real places/events on moment query");
 }
 
-console.log(`test-search-moment-truth: OK — ${assertions} assertions passed proving all 5 moment search truth repairs`);
+// ── Coordinator Audit Leaks 1–4 Verification ────────────────────────────────
+
+// ── Leak 1: "museum open late" in Tampa & Sarasota ──────────────────────────
+{
+  const q = "museum open late";
+  const resTampa = await searchResultCards({
+    query: q,
+    ...TAMPA,
+    today: TODAY,
+    nowMs: FRI_6PM_MS,
+    includeTrace: true,
+    env: QUIET_ENV,
+    fetchImpl: NO_NET,
+    guides: [],
+    events: [],
+    places: [
+      { id: "p-ybor-state-park", name: "Ybor City Museum State Park", primary_type: "state_park", google_types: ["state_park", "park"], category: "attractions", lat: 27.962, lng: -82.437, rating: 4.6, reviews: 1500, ownedHours: null },
+      { id: "p-ybor-closed", name: "Ybor City Museum State Park (Closing 5pm)", primary_type: "state_park", google_types: ["state_park", "park"], category: "attractions", lat: 27.962, lng: -82.437, rating: 4.6, reviews: 1500, ownedHours: HOURS_CLOSES_1700 },
+      { id: "p-publix", name: "Publix Super Market", primary_type: "supermarket", google_types: ["supermarket", "grocery_store", "store"], category: "shopping", lat: 27.96, lng: -82.44, rating: 4.6, reviews: 2000, ownedHours: makeHours(["Friday: 7:00 AM – 10:00 PM"]) },
+      { id: "p-michelangelo", name: "Michelangelo 301 Pizza", primary_type: "pizza_restaurant", google_types: ["pizza_restaurant", "restaurant", "food"], category: "food", lat: 27.96, lng: -82.44, rating: 4.5, reviews: 800, ownedHours: makeHours(["Friday: 11:00 AM – 11:00 PM"]) },
+      { id: "p-late-food", name: "Late Night Taco Diner", primary_type: "restaurant", google_types: ["restaurant", "food"], category: "food", lat: 27.96, lng: -82.44, rating: 4.5, reviews: 800, ownedHours: makeHours(["Friday: 11:00 AM – 2:00 AM"]) },
+      { id: "p-arcade-monsters", name: "Arcade Monsters Lido Beach", primary_type: "amusement_center", google_types: ["amusement_center"], category: "attractions", lat: 27.317, lng: -82.578, rating: 4.8, reviews: 900, ownedHours: makeHours(["Friday: 10:00 AM – 2:00 AM"]) },
+    ],
+  });
+
+  const ids = resTampa.cards.map((c) => c.id);
+  ok(!ids.includes("p-ybor-state-park"), "Leak 1: Ybor City Museum State Park with unverified hours rejected as daytime institution");
+  ok(!ids.includes("p-ybor-closed"), "Leak 1: Ybor City Museum State Park closing at 5pm rejected on late query");
+  ok(!ids.includes("p-publix"), "Leak 1: Supermarket Publix never returned for 'museum open late'");
+  ok(!ids.includes("p-michelangelo"), "Leak 1: Pizza restaurant Michelangelo never returned for 'museum open late'");
+  ok(!ids.includes("p-late-food"), "Leak 1: Restaurant never returned for 'museum open late'");
+  ok(
+    resTampa.cards.every((c) => c.category !== "food" && c.category !== "shopping" && !/pizza|publix|market|grocery|restaurant/i.test(c.title || c.name || "")),
+    "Leak 1: 'museum open late' results contain zero food/grocery/supermarket/restaurant cards",
+  );
+  eq(resTampa._trace.rejections.byReason.unverified_late_hours_for_daytime_venue >= 1, true, "Leak 1: Trace records unverified_late_hours_for_daytime_venue for state park museum");
+  eq(resTampa._trace.rejections.byReason.not_a_museum >= 3, true, "Leak 1: Trace records not_a_museum rejections for non-museum candidates (supermarket, pizza, restaurant)");
+}
+
+// ── Leak 2: "my parents can't walk much, what can we do tonight" ────────────
+{
+  const q = "my parents can't walk much, what can we do tonight";
+  const resParents = await searchResultCards({
+    query: q,
+    ...SARASOTA,
+    today: TODAY,
+    nowMs: FRI_6PM_MS,
+    includeTrace: true,
+    env: QUIET_ENV,
+    fetchImpl: NO_NET,
+    guides: [],
+    events: [],
+    places: [
+      { id: "p-tibbals-tonight", name: "Tibbals Learning Center & Circus Museum at The Ringling", primary_type: "museum", category: "attractions", lat: 27.381, lng: -82.563, rating: 4.7, reviews: 1200, ownedHours: null },
+      { id: "p-ringling-daytime", name: "The Ringling Museum of Art", primary_type: "museum", category: "attractions", lat: 27.381, lng: -82.563, rating: 4.8, reviews: 11200, ownedHours: HOURS_CLOSES_1700 },
+      { id: "p-seated-open-tonight", name: "Marina Jack Sunset Sightseeing Cruise", primary_type: "boat_tour", category: "attractions", lat: 27.334, lng: -82.544, rating: 4.8, reviews: 2100, ownedHours: HOURS_OPEN_UNTIL_MIDNIGHT },
+      { id: "p-seated-unknown-hours", name: "Sarasota Bayfront Stroll & Bench Seating", primary_type: "park", category: "attractions", lat: 27.336, lng: -82.541, rating: 4.6, reviews: 800, ownedHours: null },
+    ],
+  });
+
+  const ids = resParents.cards.map((c) => c.id);
+  ok(!ids.includes("p-tibbals-tonight"), "Leak 2: Tibbals unverified museum rejected on tonight query");
+  ok(!ids.includes("p-ringling-daytime"), "Leak 2: Ringling museum closing at 5pm rejected on tonight query");
+  eq(ids[0], "p-seated-open-tonight", "Leak 2: Confirmed-open tonight venue ranks #1 ahead of unknown-hours peers");
+  const cruiseCard = resParents.cards.find((c) => c.id === "p-seated-open-tonight");
+  eq([cruiseCard.hoursVerified, cruiseCard.hoursState], [true, "confirmed_open"], "Leak 2: Verified evening venue has confirmed_open state");
+}
+
+// ── Leak 3: "Christmas tonight with kids but no theme parks" (Orlando) ──────
+{
+  const q = "Christmas tonight with kids but no theme parks";
+  const resChristmas = await searchResultCards({
+    query: q,
+    ...ORLANDO,
+    today: TODAY,
+    nowMs: FRI_6PM_MS,
+    includeTrace: true,
+    env: QUIET_ENV,
+    fetchImpl: NO_NET,
+    guides: [],
+    places: [
+      { id: "ChIJN3DIZgcK54gRMqXaoB5ateU", name: "Santa's Farm & Christmas Tree Forest", primary_type: "tourist_attraction", category: "attractions", lat: 28.847, lng: -81.571, rating: 4.6, reviews: 2800, ownedHours: null },
+      { id: "p-raw-inventory-place", name: "Orlando Christmas House Lights", primary_type: "tourist_attraction", category: "attractions", lat: 28.538, lng: -81.378, rating: 4.7, reviews: 500, ownedHours: null },
+      { id: "p-verified-late-display", name: "Lake Eola Christmas Tree & Light Display", primary_type: "park", category: "attractions", lat: 28.543, lng: -81.373, rating: 4.8, reviews: 3500, ownedHours: HOURS_OPEN_UNTIL_MIDNIGHT },
+    ],
+    events: [
+      { event_id: "e-active-family-xmas", slug: "lake-eola-walk", event_name: "Lake Eola Family Holiday Lights Walk", city: "Orlando", category: "holiday", tags: ["family", "kids", "christmas"], start_date: "2026-11-10", end_date: "2026-12-30", lat: 28.543, lng: -81.373 },
+    ],
+  });
+
+  const ids = resChristmas.cards.map((c) => c.id);
+  ok(!ids.includes("ChIJN3DIZgcK54gRMqXaoB5ateU"), "Leak 3: Santa's Farm recurring_unconfirmed rejected on Christmas tonight query");
+  ok(!ids.includes("p-raw-inventory-place"), "Leak 3: Raw inventory place with unverified dates and hours rejected on Christmas tonight query");
+  ok(ids.includes("p-verified-late-display") || ids.includes("event:e-active-family-xmas"), "Leak 3: Verified evening display surfaces");
+  eq(resChristmas._trace.rejections.byReason.seasonal_not_active_today >= 2, true, "Leak 3: Trace records seasonal_not_active_today for unconfirmed displays and raw unverified places");
+}
+
+// ── Leak 4: "my 2 year old is losing it and it's pouring" ────────────────────
+{
+  const q = "my 2 year old is losing it and it's pouring";
+  const intent = resolveSearchIntent(q, SARASOTA);
+  eq(
+    [intent.recognized, intent.id, intent.constraints.ageGroup, intent.constraints.indoor],
+    [true, "rainy", "toddlers", true],
+    "Leak 4: Intent extracts rainy + toddlers + indoor",
+  );
+
+  const resToddler = await searchResultCards({
+    query: q,
+    ...SARASOTA,
+    today: TODAY,
+    nowMs: FRI_6PM_MS,
+    includeTrace: true,
+    env: QUIET_ENV,
+    fetchImpl: NO_NET,
+    guides: [],
+    events: [],
+    places: [
+      { id: "p-ringling-art", name: "The Ringling Museum of Art", primary_type: "art_museum", category: "attractions", lat: 27.381, lng: -82.563, rating: 4.8, reviews: 11200 },
+      { id: "ChIJpXGK53VC24gRWMneFVtK6hY", name: "Ca' d'Zan", primary_type: "museum", category: "attractions", lat: 27.382, lng: -82.564, rating: 4.8, reviews: 3500 },
+      { id: "p-sarasota-art", name: "Sarasota Art Museum", primary_type: "art_museum", category: "attractions", lat: 27.324, lng: -82.532, rating: 4.6, reviews: 800 },
+      { id: "p-art-center-srq", name: "Art Center Sarasota", primary_type: "art_gallery", category: "attractions", lat: 27.337, lng: -82.545, rating: 4.6, reviews: 450 },
+      { id: "p-bishop-science", name: "The Bishop Museum of Science and Nature", primary_type: "science_museum", google_types: ["science_museum", "planetarium", "aquarium"], category: "attractions", lat: 27.498, lng: -82.571, rating: 4.7, reviews: 2900 },
+      { id: "p-mote-marine", name: "Mote Marine Laboratory & Aquarium", primary_type: "aquarium", category: "attractions", lat: 27.333, lng: -82.578, rating: 4.7, reviews: 14500 },
+      { id: "p-indoor-play", name: "Jumpin Fun Inflata Park", primary_type: "amusement_center", google_types: ["amusement_center", "indoor_playground"], category: "family", lat: 27.361, lng: -82.451, rating: 4.6, reviews: 1800 },
+    ],
+  });
+
+  const ids = resToddler.cards.map((c) => c.id);
+  ok(!ids.includes("p-ringling-art"), "Leak 4: Ringling adult art museum rejected for toddlers");
+  ok(!ids.includes("ChIJpXGK53VC24gRWMneFVtK6hY"), "Leak 4: Ca' d'Zan mansion tour rejected for toddlers");
+  ok(!ids.includes("p-sarasota-art"), "Leak 4: Sarasota Art Museum rejected for toddlers");
+  ok(!ids.includes("p-art-center-srq"), "Leak 4: Art Center Sarasota gallery rejected for toddlers");
+  ok(ids.includes("p-bishop-science"), "Leak 4: Bishop Museum of Science & Nature surfaces for toddlers");
+  ok(ids.includes("p-mote-marine"), "Leak 4: Mote Aquarium surfaces for toddlers");
+  ok(ids.includes("p-indoor-play"), "Leak 4: Indoor playground surfaces for toddlers");
+  eq(resToddler._trace.rejections.byReason.not_toddler_friendly, 4, "Leak 4: Trace records 4 not_toddler_friendly rejections");
+}
+
+console.log(`test-search-moment-truth: OK — ${assertions} assertions passed proving all moment search truth repairs and leak closures`);

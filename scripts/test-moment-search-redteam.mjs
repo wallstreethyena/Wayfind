@@ -138,7 +138,7 @@ resetSearchRejectionTelemetryForTests();
       { id: "ChIJluxeMedSpa001", name: "LUXE Med Spa Aesthetics", primary_type: "spa", google_types: ["spa", "health"], category: "attractions", lat: 27.336, lng: -82.531, rating: 4.9, reviews: 420 },
       { id: "ChIJZUZzwm5Aw4gR1qnftvzg0lg", name: "Indigenous Restaurant", primary_type: "american_restaurant", category: "food", lat: 27.333, lng: -82.539, rating: 4.8, reviews: 980 },
       { id: "ChIJdaySpa002", name: "Serenity Day Spa & Massage", primary_type: "spa", category: "attractions", lat: 27.335, lng: -82.532, rating: 4.8, reviews: 310 },
-      { id: "ChIJringling001", name: "The Ringling Museum of Art", primary_type: "museum", category: "attractions", lat: 27.381, lng: -82.563, rating: 4.8, reviews: 11200 },
+      { id: "ChIJringling001", name: "The Ringling Museum of Art", primary_type: "museum", category: "attractions", lat: 27.381, lng: -82.563, rating: 4.8, reviews: 11200, ownedHours: HOURS_THU_LATE_22 },
       { id: "ChIJlebarge001", name: "LeBarge Tropical Cruises", primary_type: "boat_tour", category: "attractions", lat: 27.334, lng: -82.545, rating: 4.7, reviews: 1650 },
     ],
   });
@@ -438,7 +438,7 @@ resetSearchRejectionTelemetryForTests();
     fetchImpl: NO_NET,
     guides: [],
     places: [
-      { id: "fl-straub", name: "North Straub Park Holiday Lights", primary_type: "park", category: "attractions", lat: 27.775, lng: -82.632, rating: 4.8, reviews: 3900 },
+      { id: "fl-straub", name: "North Straub Park Holiday Lights", primary_type: "park", category: "attractions", lat: 27.775, lng: -82.632, rating: 4.8, reviews: 3900, ownedHours: HOURS_THU_LATE_22 },
       { id: "fl-busch", name: "Busch Gardens Christmas Town", primary_type: "amusement_park", category: "attractions", lat: 28.037, lng: -82.419, rating: 4.6, reviews: 42000 },
     ],
     events: [
