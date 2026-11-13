@@ -28,7 +28,7 @@
  */
 import { execFileSync } from "node:child_process";
 import { decideOwnerApproval, ownerOnlyChanges } from "./lib/ownerApproval.mjs";
-import { fetchPullEvidence, readPullContext } from "./lib/githubPullEvidence.mjs";
+import { fetchApprovalCarry, fetchPullEvidence, readPullContext } from "./lib/githubPullEvidence.mjs";
 const git = (...args) => {
   try {
     return { ok: true, out: execFileSync("git", args, { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }).trim() };
@@ -108,11 +108,16 @@ if (!ownerOnlyChanges(changedPaths).length) {
 // Owner-only files changed. Gather GitHub-authenticated evidence (merge gate only).
 // The files come from git (the net diff above); the approval comes from the API.
 async function gatherPullRequestEvidence() {
-  const ctx = readPullContext(process.env, ["pull_request", "pull_request_target"]);
+  // workflow_dispatch: a guards run the merge train dispatched on the branch
+  // (WF_PR_NUMBER / WF_PR_HEAD name the pull request and this run's commit).
+  const ctx = readPullContext(process.env, ["pull_request", "pull_request_target", "workflow_dispatch"]);
   if (ctx.error) return { pr: null, comments: null, error: ctx.error };
   try {
     const live = await fetchPullEvidence(ctx);
-    return { pr: { number: ctx.number, eventHeadSha: ctx.eventHeadSha, liveHeadSha: live.liveHeadSha }, comments: live.comments, error: null };
+    const pr = { number: ctx.number, eventHeadSha: ctx.eventHeadSha, liveHeadSha: live.liveHeadSha };
+    const direct = decideOwnerApproval({ changedPaths, mergeGate: true, pr, comments: live.comments, error: null });
+    const carry = direct.ok ? null : await fetchApprovalCarry(ctx, live);
+    return { pr, comments: live.comments, error: null, carry };
   } catch (e) {
     return { pr: null, comments: null, error: String((e && e.message) || e) };
   }

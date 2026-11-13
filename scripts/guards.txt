@@ -581,6 +581,7 @@ node scripts/test-owner-approval.mjs
 node scripts/test-owner-approval-gate.mjs
 node scripts/check-brand-vault.mjs
 node scripts/test-brand-vault.mjs
+node scripts/test-merge-train.mjs
 node scripts/test-doc-ownership-shallow.mjs
 node scripts/test-safe-force-push.mjs
 node scripts/check-locks.mjs
