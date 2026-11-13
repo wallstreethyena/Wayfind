@@ -18,7 +18,11 @@ const GOODWOOD = "ChIJn2JUR3Bf7IgRDoeGio3YFuE";
 const URL_G = "/api/photo?place=" + GOODWOOD + "&g=2&w=640";
 
 // URL classifier
+const ROBERTS = "ChIJYybWKcrvwogRT8I06QALhdI";
+const URL_ROBERTS_REF = "/api/photo?ref=places%2F" + ROBERTS + "%2Fphotos%2Fwfplacediscovery&w=800";
 ok(uncreditedPlacePhotoId(URL_G) === GOODWOOD, "plain place url recognised");
+ok(uncreditedPlacePhotoId(URL_ROBERTS_REF) === ROBERTS, "wfplacediscovery pseudo-ref url without s= recognised");
+ok(uncreditedPlacePhotoId(URL_ROBERTS_REF + "&s=card") === "", "wfplacediscovery pseudo-ref url with s= is not judged here");
 ok(uncreditedPlacePhotoId("/api/photo?place=" + GOODWOOD + "&s=card&g=2") === "", "credited surface url is not judged here");
 ok(uncreditedPlacePhotoId("/api/photo?ref=places%2Fx%2Fphotos%2Fy&g=2") === "", "ref url ignored");
 ok(uncreditedPlacePhotoId("/events/christmas/x.webp") === "" && uncreditedPlacePhotoId(null) === "", "non api urls ignored");
