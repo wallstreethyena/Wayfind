@@ -283,13 +283,18 @@ need a value to make something run, use the placeholders in §4.
 ## 10. Finish the same way every time
 
 State: **what changed, why, risks, follow-ups.** No "should work". If you did not run it, say
-you did not run it.
+you did not run it. For Gabriel, use the short DONE report in CLAUDE.md "Operating mode"
+(what changed, verification, production, remaining risk, Gabriel action).
 
 ## 11. Ask before anything outward-facing
 
 Pushing to a shared branch, opening or merging a PR, deploying, deleting remote refs,
-force-pushing: confirm with the owner first. Everything else — read, build, test, branch
-locally — go ahead without asking.
+force-pushing: confirm with the owner first **unless a mission Gabriel already approved
+covers it** (CLAUDE.md "Operating mode": pushes, PRs, merging when green and deploying are
+normal mission work; the hard stops listed there always need him). Force-pushes still follow
+the pinned compare-and-swap rule in CLAUDE.md, never touch `main`, and owner-only files
+still need the owner approval check. Everything else — read, build, test, branch locally —
+go ahead without asking.
 
 ## 12. Geographic relevance and CTA correctness are trust
 

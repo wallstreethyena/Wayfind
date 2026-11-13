@@ -34,6 +34,81 @@ Revenue-audit detail: `docs/POSTMORTEM_2026-08-25_REVENUE_PATH.md`.
 5. **New public content ships WITH sitemap + schema; new tables ship WITH RLS.** Read the
    Supabase advisor output on a schedule.
 
+## Operating mode (owner directive, 2026-11-13)
+
+Investigate → fix the root cause → search for siblings → protect → test → ship → verify →
+clean up → short report. Keep the rigor; drop the narration, babysitting and repeated asks.
+
+- **Gabriel approves missions, not steps.** An approved mission covers the normal safe work
+  needed to finish it: inspection, database reads, debugging, tests, guards, builds,
+  migrations already inside the approved scope, reversible test data, branch sync, rebases,
+  mechanical conflict resolution, pushes, opening and updating PRs, merging when green,
+  preview and production smoke checks, telemetry, regression fixes found on the way, safe
+  retries, the docs the change needs, and cleanup. Never ask "should I continue / merge /
+  verify / say go". A tool's confirmation dialog is not a new decision.
+- **Hard stops — ask first only for a genuinely new decision:** material new or recurring
+  spend; deleting valuable production data outside approved cleanup; credentials, MFA or
+  CAPTCHA only Gabriel has; meaningful privacy, security, legal or compliance risk; weakening
+  a safety control; an irreversible high-risk production action; a different product
+  direction or material scope expansion; external communication he has not authorized;
+  anything that technically needs his identity or account.
+- **Approval follows meaning, not SHA** — see "Owner Approval Persistence" below.
+- **Manual actions are the last resort.** Before asking Gabriel to do anything, confirm you
+  cannot do it, the approved mission does not cover it, approval persistence cannot handle
+  it, and no safe alternative exists. Then the whole ask is:
+  ```
+  MANUAL ACTION REQUIRED
+  Action: <exact action>
+  Link: <direct link, if any>
+  Reason: <one sentence on why only Gabriel can do it>
+  Previously approved scope changed: YES / NO
+  ```
+- **No implementation diary.** Message Gabriel only for something materially important, a
+  material change to the mission, a Gabriel-only action, a real incident, or completion.
+  No routine status ("main moved", "checks running", "trying again"), no timestamps unless
+  timing matters.
+- **Classify before notifying.** EXPECTED (undeployed route 404, queued preview or CI, open
+  PR, healthy cron, intentionally pending migration, unchanged known blocker): do not
+  notify. INFORMATIONAL: final report only. ACTIONABLE: the manual-action ask. INCIDENT
+  (unexpected material failure in availability, revenue, security, privacy, data integrity
+  or major product behavior): notify. Never re-notify an unchanged condition.
+- **Async infrastructure needs no babysitter.** Record what is queued (Vercel, CI, provider
+  jobs), keep doing independent work, come back when useful. No polling loops or "check
+  again in 15 minutes" jobs unless monitoring is the mission; prefer event-driven and
+  server-side mechanisms (PR event subscriptions, auto-merge, merge queues). If repo
+  configuration forces repeated rebases or watchers, fix that configuration.
+- **Temporary infrastructure must die.** Every watcher, poller, keep-awake process, temporary
+  cron or debug automation has an explicit cleanup condition and is removed once the
+  durable fix exists or the mission ends. Gabriel's Mac is not infrastructure.
+- **Blocked does not mean stop.** Name the blocker, check it really blocks the mission, keep
+  doing every independent task, look for lawful alternatives, and prepare the blocked step
+  as far as possible.
+- **Fix systems, not symptoms.** Symptom → failing invariant → root cause → enabling
+  condition → missing protection; search for the same failure class elsewhere; add a
+  regression guard that is wired into CI and red-proved where practical.
+- **Rigor matches risk.** Revenue, auth, privacy, destructive data changes and core
+  infrastructure get heavy protection; a copy change does not. Choose the smallest robust
+  solution. Discoveries: required or regression → fix now; small safe adjacent fix → fix if
+  sensible; future opportunity → note it in one line and move on.
+- **Say exactly what was proven.** TESTED (tests passed) ≠ DEPLOYED (target version live) ≠
+  VERIFIED (behavior observed in the right environment). Verify in this order: automated
+  test, integration/browser test, preview, isolated canary, production observation; change
+  production behavior only when necessary and authorized, and never disable a live
+  safeguard just to prove its off switch.
+- **Brand assets come from the vault** — see "Wayfind Brand Assets" below.
+- **Completion report** (default; go deeper only for high-risk incidents, migrations,
+  revenue failures or security work):
+  ```
+  DONE
+  What changed: <1–3 bullets>
+  Verification: <key evidence>
+  Production: LIVE + VERIFIED | NOT YET VERIFIED: <reason>
+  Remaining risk: NONE | <one meaningful risk>
+  Gabriel action: NONE | <exact unavoidable action>
+  ```
+  Short never hides failed tests, an incomplete deploy, an unresolved regression, material
+  uncertainty, security or privacy concerns, destructive risk or a Gabriel-only blocker.
+
 ## Owner Approval Persistence
 
 Gabriel approves a defined scope, behavior and risk envelope, not merely a transient commit hash.
@@ -46,7 +121,7 @@ Gabriel approves a defined scope, behavior and risk envelope, not merely a trans
 - Fresh approval is required only for a material change to behavior, scope, risk, spend,
   privacy, security or production data mutation.
 - If a platform physically requires Gabriel's account to perform an action, request ONLY
-  that action.
+  that action, in the MANUAL ACTION REQUIRED format above.
 - How it is enforced: `scripts/lib/ownerApproval.mjs` ("APPROVAL CARRY-FORWARD") carries an
   `/owner-approve <sha>` forward when the pull request's own change (GitHub's three-dot diff
   from the merge base) is the same change; anything it cannot prove identical, apart from
