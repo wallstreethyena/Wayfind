@@ -87,6 +87,7 @@ import { readCompleteMapArea } from "../lib/mapAreaRead.js";
 import { createAppleExplorerController } from "../lib/appleExplorerMap.js";
 import { toDisplayScore } from "../lib/score.js";
 import { DEFAULT_CENTER } from "../lib/locationHonesty.js";
+import { landingSearchFromSearch } from "../lib/searchDeepLink.js";
 
 const SARASOTA_GPS = { lat: 27.3364, lng: -82.5307 };
 const TAMPA_CENTER = { lat: 27.9506, lng: -82.4572 };
@@ -1606,6 +1607,16 @@ let mapComponentMod = null;
   const parsed = parseMapDeepLink(link.slice("/map".length));
   assert.equal(parsed.city, "Tampa");
   assert.equal(parsed.q, "Christmas tonight");
+}
+
+// Suite: Cold /map and ?go=map Deep-Link Routing Protection (@search)
+{
+  const mapSearchHandoff = landingSearchFromSearch("?go=map&city=Tampa&q=Christmas%20tonight");
+  assert.equal(mapSearchHandoff, null, "landingSearchFromSearch must return null when go=map is present to preserve standalone screen routing");
+
+  const normalHomeSearch = landingSearchFromSearch("?q=Christmas%20tonight");
+  assert.notEqual(normalHomeSearch, null, "landingSearchFromSearch must still process standard home /?q= queries");
+  assert.equal(normalHomeSearch.q, "Christmas tonight", "normal query term extracted correctly");
 }
 
 console.log("test-map-spatial-decision-engine: OK — all 8 spatial decision engine suites & Hard Test SSR verified");

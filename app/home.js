@@ -24,6 +24,7 @@ import { intentRadiusMi, intentScopeLabel } from "../lib/momentIntents";
 import { MAP_DEFAULT_CATEGORY } from "../lib/mapExplorer";
 import { nextPageOffset } from "../lib/inventoryPaging";
 import { nearMeQuery, hasSearchCenter } from "../lib/nearMeQuery";
+import { COVERED_CITIES } from "../lib/landingCities.js";
 // v8.41 — the ONE landing. Every control that swaps the feed under the reader
 // takes them to the results through this, not through its own hand-rolled
 // scroll. See lib/landOnResults.js for the three things a landing has to get
@@ -5275,6 +5276,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
   // so the box stayed empty and the Christmas poster stayed open.
   // "?intent=place" is the old MODE flag. Any other intent value is the search.
   useEffect(() => {
+    try { if (window.location.pathname === "/map") return; } catch (e) {}
     let pending = null;
     try { pending = landingSearchFromSearch(window.location.search); } catch (e) { pending = null; }
     if (!pending) return;
@@ -8293,7 +8295,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
   useEffect(() => {
     try {
       const sp = new URLSearchParams(window.location.search);
-      const go = sp.get("go");
+      const go = sp.get("go") || (window.location.pathname === "/map" ? "map" : null);
       if (!go) return;
       // Group Vote sign-in resume: /favorites?return=/group-plans/... (validated in lib/authReturn.js).
       if (go === "saved") rememberAuthReturn(window.sessionStorage, sp.get("return"));
@@ -8360,6 +8362,13 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
             try {
               if (mcity) {
                 g = await geocodeCity(mcity).catch(() => null);
+                if (!g) {
+                  const slug = mcity.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+                  const cov = COVERED_CITIES[slug] || COVERED_CITIES[mcity.toLowerCase().trim()];
+                  if (cov) {
+                    g = { name: `${cov.name}, ${cov.state}, USA`, lat: cov.lat, lng: cov.lng, isArea: true };
+                  }
+                }
                 if (g) {
                   manualRef.current = true;
                   setCenter(g);
