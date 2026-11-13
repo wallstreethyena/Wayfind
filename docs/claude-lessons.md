@@ -673,6 +673,10 @@ a short default completion report, async queues without babysitting (folded in f
 Async Infrastructure Rule draft, PR #2467), cleanup of temporary automation, TESTED vs
 DEPLOYED vs VERIFIED, rigor matched to risk, and the brand asset vault. Concise reports
 must still name failed tests, incomplete deploys, regressions and real blockers.
+Same day: AGENTS.md section 11 still told every agent to confirm before each push, PR,
+merge or deploy, which contradicted the mission rule. It now asks first outside an approved
+mission, treats those steps as approved inside one, and keeps the hard stops; the same guard
+pins it so the two files can't drift apart again.
 
 ## Recent state (for context, not instructions)
 

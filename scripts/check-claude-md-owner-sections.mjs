@@ -101,11 +101,38 @@ export function evaluate(text) {
 }
 
 const real = readFileSync(path.join(root, "CLAUDE.md"), "utf8");
+const agents = readFileSync(path.join(root, "AGENTS.md"), "utf8");
+
+// AGENTS.md §11 must agree with the operating mode: outside a mission ask first,
+// inside one the normal steps are approved, and the hard stops still apply.
+const AGENTS_11 = "## 11. Ask before anything outward-facing";
+const AGENTS_11_CLAUSES = [
+  "Outside an owner-approved mission, confirm with the owner first",
+  'CLAUDE.md "GABRIEL EXECUTION AUTONOMY"',
+  "Still ask first, even inside a mission",
+  "owner-only files still need his `/owner-approve` comment",
+];
+export function evaluateAgents(text) {
+  const errors = [];
+  const body = sectionBody(text, AGENTS_11);
+  if (!body) return [`AGENTS.md lost "${AGENTS_11}"`];
+  for (const c of AGENTS_11_CLAUSES) if (!body.includes(c)) errors.push(`AGENTS.md section 11 lost: ${c}`);
+  return errors;
+}
 let assertions = 0;
 const fail = [];
 const realErrors = evaluate(real);
 assertions++;
 if (realErrors.length) fail.push("CLAUDE.md: " + realErrors.join("; "));
+const agentsErrors = evaluateAgents(agents);
+assertions++;
+if (agentsErrors.length) fail.push("AGENTS.md: " + agentsErrors.join("; "));
+assertions++;
+{
+  const probe = "Still ask first, even inside a mission";
+  if (!agents.includes(probe)) fail.push('control "AGENTS.md hard-stop clause removed": probe text not found');
+  else if (!evaluateAgents(agents.replace(probe, "Never ask")).length) fail.push('control "AGENTS.md hard-stop clause removed" stayed green');
+}
 
 // Each mutation must turn the check red; prove the mutation applied first.
 const mutate = (label, from, to) => {
@@ -133,4 +160,4 @@ if (fail.length) {
   console.error("check-claude-md-owner-sections: FAIL\n  " + fail.join("\n  "));
   process.exit(1);
 }
-console.log(`check-claude-md-owner-sections: OK — ${assertions} assertions: CLAUDE.md carries the GABRIEL EXECUTION AUTONOMY section once (${AUTONOMY_CLAUSES.length} clauses, hard stops 1 to 10), ${SAFETY_SECTIONS.length} safety sections exactly once and ${SAFETY_SENTENCES.length} core safety sentences; 12 negative controls each went red. False-positive surface: an owner-approved rewording of a pinned sentence fails here until this guard is updated in the same PR.`);
+console.log(`check-claude-md-owner-sections: OK — ${assertions} assertions: CLAUDE.md carries the GABRIEL EXECUTION AUTONOMY section once (${AUTONOMY_CLAUSES.length} clauses, hard stops 1 to 10), ${SAFETY_SECTIONS.length} safety sections exactly once and ${SAFETY_SENTENCES.length} core safety sentences; AGENTS.md section 11 agrees with it (${AGENTS_11_CLAUSES.length} clauses); 13 negative controls each went red. False-positive surface: an owner-approved rewording of a pinned sentence fails here until this guard is updated in the same PR.`);

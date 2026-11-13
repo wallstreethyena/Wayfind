@@ -285,9 +285,22 @@ you did not run it.
 
 ## 11. Ask before anything outward-facing
 
-Pushing to a shared branch, opening or merging a PR, deploying, deleting remote refs,
-force-pushing: confirm with the owner first. Everything else — read, build, test, branch
-locally — go ahead without asking.
+Outside an owner-approved mission, confirm with the owner first before pushing to a shared
+branch, opening or merging a PR, deploying, writing production data, deleting remote refs or
+force-pushing. Reading, building, testing and branching locally never need asking.
+
+Inside a mission the owner has approved, the normal steps to finish it are already approved:
+pushing your own lane's branch, opening and updating its PR, merging when the merge is
+authorized and required checks are green, deploying through the normal pipeline, and
+production writes the mission names (reviewed migrations included). Do not ask again for
+each step (CLAUDE.md "GABRIEL EXECUTION AUTONOMY").
+
+Still ask first, even inside a mission, for anything on CLAUDE.md's hard-stop list (spend,
+deleting valuable data, weaker security or privacy, his credentials, user-facing change or
+production writes beyond the mission, a real product fork, a bigger mission, significant
+irreversible risk, outside communication he has not authorized, his own account). Never
+force-push a shared branch except through `scripts/safe-force-push.sh`, never delete another
+lane's remote refs, and owner-only files still need his `/owner-approve` comment.
 
 ## 12. Geographic relevance and CTA correctness are trust
 
