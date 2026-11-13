@@ -75,10 +75,19 @@ Revenue-audit detail: `docs/POSTMORTEM_2026-08-25_REVENUE_PATH.md`.
    touch the same anchor (rebuild the 2nd on the merged 1st).
 2. Assertion-guarded splice + a lock test wired into `npm run prebuild`.
 3. Full `npm run prebuild` green before commit. Anything red → report-only, do not merge.
-4. Squash-merge + delete branch. **Merges are owner-gated.** Owner-only files (CLAUDE.md,
-   AGENTS.md, `.github/**`, … see `scripts/lib/ownerApproval.mjs`) need an
-   `/owner-approve <head sha>` comment by the owner.
-5. After merge: confirm the merged union is prebuild-green and the Vercel deploy is green.
+4. **Land through the merge queue, never by racing main.** When the PR is ready, add the
+   label `merge-queue`. `.github/workflows/merge-queue.yml` (GitHub-hosted) lands labelled
+   PRs one at a time: update with main → `guards` on that exact head → owner-approval →
+   squash-merge pinned to the tested head → main-tree == tested-tree proof. Do not rebase,
+   click Update branch, poll, or report main movement; a dropped PR gets one comment with
+   the reason (conflict → restack, red → fix). No local merge/rebase bots.
+   Owner-only files (CLAUDE.md, AGENTS.md, `.github/**`, … see `scripts/lib/ownerApproval.mjs`)
+   need ONE owner comment `/owner-approve <fingerprint>` (the fingerprint is printed by the
+   `owner-approval` check). It binds to the protected CONTENT: it survives rebases and
+   unrelated changes and dies only when protected content changes. The legacy
+   `/owner-approve <head sha>` still works. Agents never post approvals.
+5. After merge: confirm the Vercel production deploy for the merged commit is READY and the
+   changed surface works live. Main's post-merge `guards` run is the union signal.
 
 `gh`/merge traps:
 - `--delete-branch` from a detached HEAD (or a branch held by a worktree): **the merge

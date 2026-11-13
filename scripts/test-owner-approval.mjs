@@ -40,7 +40,7 @@ import { createHash } from "node:crypto";
 import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync, existsSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { findOwnerApproval, decideOwnerApproval, isOwnerOnly, OWNERS, OWNER_LOGINS } from "./lib/ownerApproval.mjs";
+import { findOwnerApproval, decideOwnerApproval, isOwnerOnly, protectedFingerprint, OWNERS, OWNER_LOGINS } from "./lib/ownerApproval.mjs";
 
 const REPO = process.cwd();
 const GUARD = join(REPO, "scripts", "check-doc-ownership.mjs");
@@ -136,7 +136,19 @@ globalThis.fetch = async (url, init = {}) => {
   const path = new URL(url).pathname;
   if (/\\/pulls\\/\\d+$/.test(path)) {
     const sha = ++pullReads > 1 && cfg.liveHeadLater ? cfg.liveHeadLater : cfg.liveHead;
-    return { ok: true, status: 200, json: async () => ({ head: { sha }, changed_files: cfg.changedFiles ?? (cfg.files || []).length }) };
+    return { ok: true, status: 200, json: async () => ({ head: { sha }, base: { ref: "main" }, changed_files: cfg.changedFiles ?? (cfg.files || []).length }) };
+  }
+  // Protected-content evidence: merge base is MB; blob shas per path come from
+  // cfg.blobs ({ path: { base, head } }), default base 1111…, head 2222….
+  if (/\\/compare\\//.test(path)) return { ok: true, status: 200, json: async () => ({ merge_base_commit: { sha: "c".repeat(40) } }) };
+  const content = path.match(/\\/contents\\/(.+)$/);
+  if (content) {
+    const p = decodeURIComponent(content[1]);
+    const ref = new URL(url).searchParams.get("ref");
+    const b = (cfg.blobs || {})[p] || { base: "1".repeat(40), head: "2".repeat(40) };
+    const sha = ref === "c".repeat(40) ? b.base : b.head;
+    if (sha === null) return { ok: false, status: 404, json: async () => ({}) };
+    return { ok: true, status: 200, json: async () => ({ type: "file", sha }) };
   }
   if (/\\/pulls\\/\\d+\\/files$/.test(path)) return { ok: true, status: 200, json: async () => cfg.files || [] };
   if (/\\/issues\\/\\d+\\/comments$/.test(path)) {
@@ -150,12 +162,12 @@ globalThis.fetch = async (url, init = {}) => {
 };`);
 
   let runN = 0;
-  const run = ({ dir, script = GUARD, gate = false, event = "pull_request", eventHead, liveHead, liveHeadLater, comments = [], status = 200, token = "fixture-token", eventFile = true, files, changedFiles, pageSize }) => {
+  const run = ({ dir, script = GUARD, gate = false, event = "pull_request", eventHead, liveHead, liveHeadLater, comments = [], status = 200, token = "fixture-token", eventFile = true, files, changedFiles, pageSize, blobs }) => {
     const tag = ++runN;
     const log = join(root, `calls-${tag}.log`);
     writeFileSync(log, "");
     const cfgPath = join(root, `stub-${tag}.json`);
-    writeFileSync(cfgPath, JSON.stringify({ liveHead, liveHeadLater, comments, status, files, changedFiles, pageSize }));
+    writeFileSync(cfgPath, JSON.stringify({ liveHead, liveHeadLater, comments, status, files, changedFiles, pageSize, blobs }));
     const eventPath = join(root, `event-${tag}.json`);
     if (eventFile) writeFileSync(eventPath, JSON.stringify({ pull_request: { number: 1478, head: { sha: eventHead } } }));
     const env = { ...process.env, GITHUB_ACTIONS: gate ? "true" : "", STUB_CONFIG: cfgPath, STUB_LOG: log };
@@ -179,7 +191,8 @@ globalThis.fetch = async (url, init = {}) => {
   // B. owner-only change, no approval -> fail.
   const edit = branch([["CLAUDE.md", "# rules\n\nkeep this\nnew rule\n"]]);
   r = run({ dir: edit.dir, gate: true, eventHead: edit.head, liveHead: edit.head, comments: [] });
-  ok(r.code === 1 && /no owner approval for head/.test(r.out) && r.out.includes(`/owner-approve ${edit.head}`), `B: unapproved CLAUDE.md change fails and names the exact command (${r.code}: ${r.out.trim()})`);
+  const FP_EDIT = protectedFingerprint(1478, [{ path: "CLAUDE.md", base: "1".repeat(40), head: "2".repeat(40) }]);
+  ok(r.code === 1 && /no owner approval for this protected content/.test(r.out) && r.out.includes(`/owner-approve ${FP_EDIT}`), `B: unapproved CLAUDE.md change fails and names the exact command (${r.code}: ${r.out.trim()})`);
 
   // C. forged owner author/committer -> still fail, every way.
   const forged = branch([["CLAUDE.md", "# rules\n\nkeep this\nforged rule\n"]], FORGED_OWNER);
@@ -239,7 +252,8 @@ globalThis.fetch = async (url, init = {}) => {
   r = pr({ files: [file("lib/thing.js"), file("docs/history/a.md")] });
   ok(r.code === 0 && /no owner-only files changed/.test(r.out) && r.calls.some((c) => /\/pulls\/1478\/files/.test(c)), `P ordinary: judged from the API file list and passes (${r.code}: ${r.out.trim()})`);
   r = pr({ files: [file("CLAUDE.md")] });
-  ok(r.code === 1 && r.out.includes(`/owner-approve ${H}`), `P B: unapproved CLAUDE.md change fails and names the command (${r.code}: ${r.out.trim()})`);
+  const FP = (o = {}) => protectedFingerprint(o.number || 1478, o.entries || [{ path: "CLAUDE.md", base: "1".repeat(40), head: "2".repeat(40) }]);
+  ok(r.code === 1 && r.out.includes(`/owner-approve ${FP()}`) && !r.out.includes(`/owner-approve ${H}`), `P B: unapproved CLAUDE.md change fails and names the fingerprint command (${r.code}: ${r.out.trim()})`);
   r = pr({ files: [file("CLAUDE.md")], comments: [approve(H)] });
   ok(r.code === 0 && new RegExp(`approved by @${OWNER_LOGIN}`).test(r.out), `P D: owner approval of the exact head passes (${r.code}: ${r.out.trim()})`);
   const filler = Array.from({ length: 100 }, (_, i) => ({ id: i + 1, ...T, user: { login: "someone", type: "User", id: 7 }, body: "noise" }));
@@ -266,6 +280,35 @@ globalThis.fetch = async (url, init = {}) => {
   r = pr({ files: [file("lib/thing.js")], eventHead: "e".repeat(40) });
   ok(r.code === 1 && /moved/.test(r.out), `P D: a run for an older head refuses (${r.code})`);
 
+  // FP. Content-fingerprint approval (2026-11-13): approve protected CONTENT once.
+  const H2 = "9".repeat(40);
+  r = pr({ files: [file("CLAUDE.md")], comments: [approve(FP())] });
+  ok(r.code === 0 && /approved by @.* for protected content/.test(r.out), `FP: owner "/owner-approve <fingerprint>" passes (${r.code}: ${r.out.trim()})`);
+  r = pr({ files: [file("CLAUDE.md"), file("lib/other.js")], eventHead: H2, liveHead: H2, comments: [approve(FP())] });
+  ok(r.code === 0, `FP survive: same protected content on a new head (rebase, merge of main, unrelated app change) keeps the approval (${r.code}: ${r.out.trim()})`);
+  r = pr({ files: [file("CLAUDE.md")], eventHead: H2, liveHead: H2, comments: [approve(H)] });
+  ok(r.code === 1, `FP legacy: a head-sha approval still dies on a new head (${r.code})`);
+  r = pr({ files: [file("CLAUDE.md")], comments: [approve(FP())], blobs: { "CLAUDE.md": { base: "1".repeat(40), head: "3".repeat(40) } } });
+  ok(r.code === 1 && r.out.includes(`/owner-approve ${FP({ entries: [{ path: "CLAUDE.md", base: "1".repeat(40), head: "3".repeat(40) }] })}`), `FP invalidate: changed protected content needs a new approval (${r.code})`);
+  r = pr({ files: [file("CLAUDE.md")], comments: [approve(FP())], blobs: { "CLAUDE.md": { base: "4".repeat(40), head: "2".repeat(40) } } });
+  ok(r.code === 1, `FP invalidate: main changing the same protected file (new merge-base blob) needs a new approval (${r.code})`);
+  r = pr({ files: [file("CLAUDE.md"), file("AGENTS.md")], comments: [approve(FP())] });
+  ok(r.code === 1, `FP invalidate: adding another protected file needs a new approval (${r.code})`);
+  r = pr({ files: [file("CLAUDE.md")], comments: [approve(FP())], blobs: { "CLAUDE.md": { base: "1".repeat(40), head: null } } });
+  ok(r.code === 1, `FP invalidate: deleting the protected file needs a new approval (${r.code})`);
+  r = pr({ files: [file("CLAUDE.md")], comments: [approve(FP({ number: 1479 }))] });
+  ok(r.code === 1, `FP scope: a fingerprint approved on another pull request does not carry over (${r.code})`);
+  r = pr({ files: [file("CLAUDE.md")], comments: [approve(FP(), "wayfind-agent"), approve(FP(), OWNER_LOGIN, "Bot"), { ...approve(FP()), updated_at: "2026-09-25T00:00:00Z" }] });
+  ok(r.code === 1, `FP forged: non-owner, bot and edited fingerprint approvals are refused (${r.code})`);
+  r = pr({ files: [file("CLAUDE.md")], comments: [approve(FP().slice(0, 40))] });
+  ok(r.code === 1, `FP prefix: a 40-hex prefix of the fingerprint is not an approval (${r.code})`);
+  r = run({ dir: edit.dir, gate: true, eventHead: edit.head, liveHead: edit.head, comments: [approve(FP_EDIT)] });
+  ok(r.code === 0, `FP guards: check-doc-ownership (the guards check) accepts the same fingerprint (${r.code}: ${r.out.trim()})`);
+  ok(protectedFingerprint(1478, []) === null && protectedFingerprint(1478, [{ path: "CLAUDE.md", base: "x", head: null }]) === null
+    && protectedFingerprint(1478, [{ path: "CLAUDE.md", base: null, head: null }]) === null, "FP pure: malformed or empty evidence yields no fingerprint (never a pass)");
+  ok(protectedFingerprint(1478, [{ path: "A", base: null, head: "2".repeat(40) }, { path: "B", base: "1".repeat(40), head: null }])
+    === protectedFingerprint(1478, [{ path: "B", base: "1".repeat(40), head: null }, { path: "A", base: null, head: "2".repeat(40) }]), "FP pure: order of evidence does not matter");
+
   // RED proof: the pre-fix guard accepted the forged author. Pinned by blob SHA-1.
   const preFix = readFileSync(PRE_FIX);
   ok(gitBlobSha1(preFix) === PRE_FIX_BLOB, `pre-fix fixture is byte-identical to the shipped guard at a55ae1fb (blob ${gitBlobSha1(preFix)})`);
@@ -285,6 +328,23 @@ globalThis.fetch = async (url, init = {}) => {
   ok(/^\s+name:\s*guards\s*$/m.test(wf) && /pull_request:/.test(wf), "the guards workflow runs on pull requests under the job name the branch rule requires");
   ok(/GITHUB_TOKEN:\s*\$\{\{\s*github\.token\s*\}\}/.test(wf) && /pull-requests:\s*read/.test(wf) && /issues:\s*read/.test(wf) && !/:\s*write/.test(wf), "the guard suite gets a read-only token that can read PR comments");
   ok(existsSync(join(REPO, "docs", "OWNER_APPROVAL.md")), "the approval procedure is documented");
+  // Sharded gate (2026-11-13): the required "guards" job is an aggregator that is
+  // green only when all four shards, rendered/audit and build succeeded.
+  const wfCode = wf.split("\n").filter((l) => !/^\s*#/.test(l)).join("\n");
+  ok(/shard:\s*\[1, 2, 3, 4\]/.test(wfCode) && /GUARD_SHARD:\s*\$\{\{\s*matrix\.shard\s*\}\}\/4/.test(wfCode)
+    && /^  guards:\n    name: guards\n    if: always\(\)\n    needs: \[shard, rendered, build\]/m.test(wfCode)
+    && /test "\$SHARD" = "success" && test "\$RENDERED" = "success" && test "\$BUILD" = "success"/.test(wfCode),
+    "guards: four GUARD_SHARD jobs + rendered + build, and the required 'guards' job fails unless every part succeeded");
+  // Merge queue (2026-11-13): holds a write token, so it must never run PR code.
+  const mq = readFileSync(join(REPO, ".github", "workflows", "merge-queue.yml"), "utf8").split("\n").filter((l) => !/^\s*#/.test(l)).join("\n");
+  const mqUses = [...mq.matchAll(/uses:\s*(\S+)/g)].map((m) => m[1]);
+  ok(/^\s*pull_request_target:\n\s*types: \[labeled\]/m.test(mq) && !/^\s*pull_request:/m.test(mq) && /ref:\s*main\s*$/m.test(mq) && /persist-credentials:\s*false/.test(mq)
+    && !/github\.event\.pull_request\.head/.test(mq) && !/\b(npm|npx|yarn|pnpm)\b/.test(mq) && /run:\s*node scripts\/merge-queue\.mjs\s*$/m.test(mq)
+    && mqUses.length === 2 && mqUses.every((u) => /@[0-9a-f]{40}$/.test(u)),
+    `merge-queue checks out main only, runs only scripts/merge-queue.mjs, installs nothing and pins its actions (${mqUses.join(", ")})`);
+  const mqExpr = [...mq.matchAll(/\$\{\{([^}]*)\}\}/g)].map((m) => m[1].trim());
+  ok(mqExpr.every((e) => e === "github.token") && /cancel-in-progress:\s*false/.test(mq) && /group:\s*merge-queue\s*$/m.test(mq),
+    `merge-queue: no event text reaches a shell (only ${JSON.stringify([...new Set(mqExpr)])}) and one drainer is never cancelled mid-merge`);
   const oa = readFileSync(join(REPO, ".github", "workflows", "owner-approval.yml"), "utf8");
   const oaCode = oa.split("\n").filter((l) => !/^\s*#/.test(l)).join("\n");
   ok(/^\s*pull_request_target:/m.test(oaCode) && !/^\s*pull_request:/m.test(oaCode) && /^\s+name:\s*owner-approval\s*$/m.test(oaCode)
@@ -300,7 +360,7 @@ globalThis.fetch = async (url, init = {}) => {
   ok(uses.length === 2 && uses.every((u) => /@[0-9a-f]{40}$/.test(u)), `owner-approval pins every action to a full commit sha (${uses.join(", ")})`);
 }
 
-const EXPECTED = 65;
+const EXPECTED = 81;
 if (checks !== EXPECTED) {
   console.error(`test-owner-approval: FAIL — ran ${checks} assertions, expected exactly ${EXPECTED}; a proof was skipped or added without review.`);
   process.exit(1);

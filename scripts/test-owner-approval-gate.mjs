@@ -94,6 +94,9 @@ globalThis.fetch = async (url, init = {}) => {
   if (cfg.apiStatus) return reply(cfg.apiStatus, {});
   if (/\\/pulls\\/\\d+$/.test(path)) return reply(200, { head: { sha: ++pullReads > 1 && cfg.liveHeadLater ? cfg.liveHeadLater : cfg.liveHead }, base: { ref: cfg.baseRef || "main" }, changed_files: cfg.files.length });
   if (/\\/pulls\\/\\d+\\/files$/.test(path)) return reply(200, cfg.files);
+  // Protected-content fingerprint evidence (2026-11-13): merge base and blob shas.
+  if (/\\/compare\\//.test(path)) return reply(200, { merge_base_commit: { sha: "c".repeat(40) } });
+  if (/\\/contents\\//.test(path)) return reply(200, { type: "file", sha: new URL(url).searchParams.get("ref") === "c".repeat(40) ? "1".repeat(40) : "2".repeat(40) });
   if (/\\/issues\\/\\d+\\/comments$/.test(path)) return reply(200, cfg.comments || []);
   return reply(404, {});
 };`);

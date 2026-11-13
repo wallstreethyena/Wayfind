@@ -108,13 +108,13 @@ if (!ownerOnlyChanges(changedPaths).length) {
 // Owner-only files changed. Gather GitHub-authenticated evidence (merge gate only).
 // The files come from git (the net diff above); the approval comes from the API.
 async function gatherPullRequestEvidence() {
-  const ctx = readPullContext(process.env, ["pull_request", "pull_request_target"]);
-  if (ctx.error) return { pr: null, comments: null, error: ctx.error };
+  const ctx = readPullContext(process.env, ["pull_request", "pull_request_target", "workflow_dispatch"]);
+  if (ctx.error) return { pr: null, comments: null, protectedEntries: null, error: ctx.error };
   try {
-    const live = await fetchPullEvidence(ctx);
-    return { pr: { number: ctx.number, eventHeadSha: ctx.eventHeadSha, liveHeadSha: live.liveHeadSha }, comments: live.comments, error: null };
+    const live = await fetchPullEvidence(ctx, { protectedPaths: ownerOnlyChanges(changedPaths) });
+    return { pr: { number: ctx.number, eventHeadSha: ctx.eventHeadSha, liveHeadSha: live.liveHeadSha }, comments: live.comments, protectedEntries: live.protectedEntries, error: null };
   } catch (e) {
-    return { pr: null, comments: null, error: String((e && e.message) || e) };
+    return { pr: null, comments: null, protectedEntries: null, error: String((e && e.message) || e) };
   }
 }
 

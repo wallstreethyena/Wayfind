@@ -23,18 +23,35 @@ A comment on the pull request, posted from the owner's GitHub account
 or re-registered login does not count), with its own line:
 
 ```
-/owner-approve <the PR's current head commit, all 40 characters>
+/owner-approve <protected-content fingerprint, 64 hex characters>
 ```
 
-The failing check prints the exact line to paste. A shortened sha does not
+The failing `owner-approval` check prints the exact line to paste. **Approve once
+per protected content (2026-11-13).** The fingerprint (`protectedFingerprint` in
+`scripts/lib/ownerApproval.mjs`) hashes the PR number and, for every changed
+owner-only path, its git blob at the merge base and at the head. So the approval:
+
+- **survives** a rebase, the merge queue updating the branch with main, and any
+  change outside the protected files;
+- **stops matching** when protected content changes, a protected file is added,
+  removed or renamed, main edits the same protected file, or it is pasted on a
+  different pull request.
+
+The legacy form `/owner-approve <the PR's current head commit, all 40 characters>`
+still counts for exactly that head.
+
+**Honest limit:** every agent lane works through the owner's own GitHub account,
+so GitHub cannot tell an agent's comment from the owner's. Bots, Apps, other
+accounts, edited comments and pull-request code cannot approve; an agent holding
+the owner's token is stopped by policy (agents never post approvals), not by
+GitHub. Closing that needs agents on a separate GitHub account. A shortened sha does not
 count, because a different commit with the same short prefix can be made on
 purpose. An **edited** comment does not count either: anyone with write access
 (an App included) can edit a comment without changing its author, so an approval
 counts only as first posted. To change one, post a new comment.
 
 GitHub authenticates who posted a comment, so it can't be faked by editing a
-commit. The command names one exact commit. Pushing anything new changes the
-head, so the old approval stops matching and the owner has to approve again.
+commit.
 
 **What does not count:** commit author or committer names (anyone can type
 "Gabriel Pereira" into a commit), labels, and a green local run.

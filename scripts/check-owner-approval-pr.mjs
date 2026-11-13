@@ -18,7 +18,7 @@
  * Fails closed: outside GitHub Actions, on any other event, without a token, on any
  * API error, on an incomplete file list, or when the head moves mid-read.
  */
-import { decideOwnerApproval } from "./lib/ownerApproval.mjs";
+import { decideOwnerApproval, isOwnerOnly } from "./lib/ownerApproval.mjs";
 import { fetchPullEvidence, readPullContext } from "./lib/githubPullEvidence.mjs";
 
 const refuse = (reason) => {
@@ -35,7 +35,7 @@ if (ctx.error) refuse(`owner approval cannot be evaluated: ${ctx.error}`);
 
 let live;
 try {
-  live = await fetchPullEvidence(ctx, { withFiles: true });
+  live = await fetchPullEvidence(ctx, { withFiles: true, protectedFilter: isOwnerOnly });
 } catch (e) {
   refuse(`owner approval cannot be evaluated: ${(e && e.message) || e}`);
 }
@@ -52,6 +52,7 @@ const verdict = decideOwnerApproval({
   mergeGate: true,
   pr: { number: ctx.number, eventHeadSha: ctx.eventHeadSha, liveHeadSha: live.liveHeadSha },
   comments: live.comments,
+  protectedEntries: live.protectedEntries,
   error: null,
 });
 if (!verdict.ok) refuse(verdict.reason);
