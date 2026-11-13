@@ -41,7 +41,7 @@ export const XM_CARD_CSS = `
 .xm-dots i.is-on{background:#FFF8EE}
 .xm-body{display:flex;flex-direction:column;gap:6px;min-width:0;padding:12px}
 .xm-chip{align-self:flex-start;max-width:100%;padding:3px 9px;border-radius:999px;background:linear-gradient(180deg,#4A0610,#33040B);border:1px solid var(--xm-rose);color:#FFE9DC;font-size:12px;font-weight:700;line-height:1.4}
-.xm-card :is(h2,h3){margin:0;font-size:16px;line-height:1.3;min-height:calc(1.3em * 2);font-weight:700;color:var(--xm-cream);text-shadow:0 1px 3px rgba(40,0,6,.7);overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.xm-card :is(h2,h3){margin:0;font-size:16px;line-height:1.3;min-height:calc(1.3em * 2);font-weight:700;color:var(--xm-cream);text-shadow:0 1px 3px rgba(40,0,6,.7);overflow-wrap:anywhere}
 .xm-credit{position:absolute;left:6px;right:8px;bottom:6px;z-index:2;margin:0;padding:0;border:0;background:transparent;color:rgba(255,255,255,.6);font-size:9.5px;font-weight:500;line-height:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 1px 2px rgba(0,0,0,.65);pointer-events:auto}
 .xm-photo:has(.xm-dots) .xm-credit{bottom:16px}
 .xm-credit a{color:inherit;text-decoration:none}
@@ -50,13 +50,15 @@ export const XM_CARD_CSS = `
 .xm-line .xm-when{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;min-height:calc(1.4em * 2)}
 .xm-line svg{flex:0 0 auto;width:15px;height:15px;margin-top:1px}
 .xm-bottom{margin-top:auto;display:flex;flex-direction:column;gap:6px;padding-top:6px}
-.xm-pricerow,.xm-note{min-height:calc(1.2em + 12px * 1.2 + 2px)}
+.xm-pricerow{min-height:calc(1.2em + 12px * 1.2 + 2px)}
 .xm-pricerow{display:flex;flex-direction:column;align-items:flex-end;margin:0;min-width:0}
 .xm-from{font-size:12px;line-height:1.2;color:var(--xm-soft)}
 .xm-amt{text-align:right;font-size:22px;line-height:1.2;font-weight:800;color:var(--xm-cream);text-shadow:0 1px 3px rgba(40,0,6,.7)}
-.xm-note{margin:0;font-size:13px;line-height:1.35;color:var(--xm-cream);text-shadow:0 1px 2px rgba(40,0,6,.65);text-align:right;overflow-wrap:anywhere}
+.xm-note{margin:0;font-size:13px;line-height:1.35;color:var(--xm-soft);text-shadow:0 1px 2px rgba(40,0,6,.65);text-align:center;overflow-wrap:anywhere}
 .xm-buy{display:flex;align-items:center;justify-content:center;width:100%;min-height:46px;padding:6px 8px;background:linear-gradient(180deg,#FFE9B8,#F5C451);color:var(--xm-ink);border:2px solid var(--xm-rose);border-radius:12px;font-size:15px;font-weight:800;line-height:1.2;text-decoration:none;text-align:center;box-shadow:0 0 10px rgba(232,180,138,.25)}
 .xm-via{margin:0;font-size:11px;line-height:1.35;color:var(--xm-soft);text-align:center}
+.xm-opts{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin:0}
+.xm-opt{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:4px 12px;border:1.5px solid rgba(245,196,81,.75);border-radius:999px;background:rgba(40,2,8,.55);color:var(--xm-cream);font-size:12.5px;font-weight:700;line-height:1.1;text-decoration:none}
 .xm-event{display:flex;align-items:center;justify-content:center;min-height:44px;color:#FFD9AE;font-size:13px;font-weight:600;text-decoration:underline;text-underline-offset:3px}
 .xm-actions{display:flex;flex-wrap:wrap;gap:6px;margin:0;min-width:0}
 .xm-actions>button{flex:1 1 auto;display:inline-flex;align-items:center;justify-content:center;gap:5px;min-width:max-content!important;min-height:44px;margin:0;padding:6px 8px;border-radius:999px;background:rgba(40,2,8,.55);color:var(--xm-cream);border:1.5px solid rgba(245,196,81,.75);font:inherit;font-size:12.5px;font-weight:700;line-height:1.1;white-space:nowrap;cursor:pointer;-webkit-tap-highlight-color:transparent}
@@ -98,7 +100,6 @@ function PhotoStrip({ row, priority, failed = new Set(), onPhotoState }) {
         <div className="xm-tile" data-event-tile="" role="img" aria-label={tile.label + ": photo unavailable"}>
           <svg aria-hidden="true" viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="1.2"><path d="M24 5l4.5 14.5L43 24l-14.5 4.5L24 43l-4.5-14.5L5 24l14.5-4.5L24 5Z"/><path d="M39 5v8m-4-4h8M8 36v7m-3-3.5h6"/></svg>
           <b>{tile.label}</b>
-          <small>Photo unavailable</small>
         </div>
       </div>
     );
@@ -197,6 +198,7 @@ export function TicketCard({ row, chrome, priority = false, idPrefix = "xm-", he
     if (!ok) next.ok.delete(src);
     return next;
   });
+  const noteEl = price && price.kind === "note" ? <p className="xm-note" data-price-note="">{price.text}</p> : null;
   return (
     <article id={idPrefix + row.id} data-ticket-id={row.id} className="xm-card">
       <PhotoStrip row={row} priority={priority} failed={photoState.bad} onPhotoState={onPhotoState} />
@@ -225,9 +227,7 @@ export function TicketCard({ row, chrome, priority = false, idPrefix = "xm-", he
             </p>
           ) : price.kind === "free" ? (
             <p className="xm-pricerow" aria-label={price.text}><span className="xm-amt">{price.text}</span></p>
-          ) : (
-            <p className="xm-note">{price.text}</p>
-          )}
+          ) : null}
           {cta ? (
             <>
               <a
@@ -238,7 +238,15 @@ export function TicketCard({ row, chrome, priority = false, idPrefix = "xm-", he
                 data-commerce-owner={affiliate ? undefined : "ChristmasTickets"}
                 onClick={affiliate ? undefined : () => organizerTap(row)}
               >{cta.label}</a>
+              {noteEl}
               <p className="xm-via">{cta.via}</p>
+              {Array.isArray(row.options) && row.options.length ? (
+                <p className="xm-opts" data-ticket-options="">
+                  {row.options.map((o) => (
+                    <a key={o.provider} className="xm-opt" href={o.href} target="_blank" rel="sponsored nofollow noopener" data-option-provider={o.provider} aria-label={"Tickets at " + o.label + ", opens in a new tab"}>{o.label}</a>
+                  ))}
+                </p>
+              ) : null}
               {secondaryTicketPrimaryMatches(cta, secondaryCta) ? (
                 <p className="xm-via" data-secondary-resale="">
                   <a href={secondaryCta.href} target="_blank" rel="sponsored nofollow noopener">
@@ -250,12 +258,16 @@ export function TicketCard({ row, chrome, priority = false, idPrefix = "xm-", he
               {row.eventHref ? <a className="xm-event" href={row.eventHref}>{chrome.eventPage}</a> : null}
             </>
           ) : fallback ? (
+            <>
             <a
               className="xm-buy"
               href={fallback.href}
               {...(fallback.external ? { target: "_blank", rel: "nofollow noopener" } : {})}
             >{fallback.label}</a>
+            {noteEl}
+            </>
           ) : null}
+          {!cta && !fallback ? noteEl : null}
           {saveItem ? <CardActions row={row} item={saveItem} /> : null}
         </div>
       </div>

@@ -17,6 +17,7 @@ import PlaceDistance from "./PlaceDistance.js";
 import { useEffect, useState } from "react";
 import { captureOrQueue } from "../../lib/browserAnalytics";
 import CardPhoto from "./CardPhoto.js";
+import { styleHtml } from "../../lib/styleHtml.js";
 
 const CSS = `
 .wf8-xm{margin:18px 0 4px;padding:14px 0 0;border-top:1px dashed var(--wf8-line,rgba(148,163,184,.35))}
@@ -62,7 +63,7 @@ export default function ExtraMilesTail({ lat, lng }) {
   if (!data || !data.cards.length) return null;
   return (
     <section className="wf8-xm" aria-label={data.title} data-wf-extra-miles>
-      <style dangerouslySetInnerHTML={{ __html: CSS }} />
+      <style dangerouslySetInnerHTML={styleHtml(CSS)} />
       <div className="wf8-xm-h">
         <h4>{data.title}</h4>
         {data.sub ? <p>{data.sub}</p> : null}
