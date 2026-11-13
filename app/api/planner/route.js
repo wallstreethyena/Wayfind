@@ -243,6 +243,7 @@ async function gatherServerCandidates(parsed, { point = null, savedPlaces = [] }
   return buildGroundedCandidatePool(rawGroups, {
     destination: parsed.destination,
     maxRadiusKm: 58,
+    today,
   });
 }
 

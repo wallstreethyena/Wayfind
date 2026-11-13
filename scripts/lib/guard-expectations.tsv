@@ -1090,6 +1090,7 @@ scripts/test-seasonal-search.mjs	0	RENDER	blocks-ci-and-deploy	1	-	29	0	0	c038fd
 scripts/test-seasonal-venue-spend.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	45	0	0	4d246c6c8ca9e97a3d6e23626aaf9554839e8287eeb3056f638e1ce529107bbf
 scripts/test-secret-output-guard.mjs	0	CALL	blocks-ci-and-deploy	1	-	17	0	0	da1918de719a42249cfe743a5deb9d75fe0110a1b38467c897b69f0aac17f348
 scripts/test-seed.mjs	0	CALL	blocks-ci-and-deploy	1	-	29	0	0	2aba20e1c5dc6ac4b71a63c544adea5d3f7dd507c2bdd453ed782da8eb8399ec
+scripts/test-self-healing-truth-engine.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	67	0	0	abbba89d1d2676b7eb824115b4162a85ddb5f7d4a3b85b68fcff6c433bcccf4d
 scripts/test-sentry-lazy.mjs	0	CALL	blocks-ci-and-deploy	1	-	36	1	5	267ce2d798e82053364384533305fc2d91c4eea31469bd9ecefd5ac9d6a81441
 scripts/test-sentry-meta-iab.mjs	0	CALL	blocks-ci-and-deploy	1	-	34	0	0	6af19ced679b2e8dac94915fde48d9f55014fe16bf221fe83ab3e45dd0a8dee7
 scripts/test-session-map-parity.mjs	0	CALL	blocks-ci-and-deploy	1	-	25	1	1	a36511cafb73ba6a31abf5983ddac2df07a17ef57d391695c6b292814fabca4e

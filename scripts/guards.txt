@@ -2666,3 +2666,5 @@ node scripts/test-search-moment-truth.mjs
 node scripts/test-christmas-temporal-modes.mjs
 node scripts/test-nervous-system-health.mjs
 node scripts/test-owned-hours-cohort.mjs
+# 2026-11-13: Wayfind Self-Healing "Should I Go?" Truth Engine (truth provenance, commerce health quarantine, owned hours persistence, 7-state cold location, event temporal eligibility, and actionability coverage).
+node scripts/test-self-healing-truth-engine.mjs

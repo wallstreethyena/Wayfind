@@ -7681,7 +7681,6 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
           if (adopted.device) setDeviceLoc((prev) => prev || adopted.center);
           setLocResolved(true);
           setCenter((prev) => nextCenter(prev, adopted.center));
-          if (adopted.name) setLocName(adopted.name);
         }
       } catch (e) {}
     };
