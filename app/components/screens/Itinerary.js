@@ -144,6 +144,30 @@ export default function ItineraryScreen({ ctx }) {
   }, [activeTrip, trips, logEvent]);
 
   useEffect(() => {
+    if (activeTrip || !trips || typeof window === "undefined") return;
+    try {
+      const sp = new URLSearchParams(window.location && window.location.search ? window.location.search : "");
+      const wantTrip = (sp.get("trip") || "").trim();
+      const wantCity = (sp.get("city") || "").trim();
+      if (wantTrip && trips[wantTrip]) {
+        setActiveTrip(wantTrip);
+        return;
+      }
+      if (wantCity) {
+        const flKey = Trips.tripKeyOf(wantCity, "FL");
+        if (trips[flKey]) {
+          setActiveTrip(flKey);
+          return;
+        }
+        const lower = wantCity.toLowerCase();
+        const matchedKey = Object.keys(trips).find(
+          (k) => trips[k] && typeof trips[k].city === "string" && trips[k].city.toLowerCase() === lower
+        );
+        if (matchedKey) setActiveTrip(matchedKey);
+      }
+    } catch (e) {}
+  }, [activeTrip, trips, setActiveTrip]);
+  useEffect(() => {
     if (!mapOn) { setRouteMap(null); return undefined; }
     let cancelled = false;
     import("../ItineraryRouteMap").then((mod) => { if (!cancelled) setRouteMap(() => mod.default); }).catch(() => {});
