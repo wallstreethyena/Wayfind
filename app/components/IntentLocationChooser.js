@@ -11,6 +11,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import { INTENT_CHOOSER_CITIES, chooserHref } from "../../lib/intentLocationFallback.js";
 import { track } from "../../lib/track";
+import { styleHtml } from "../../lib/styleHtml.js";
 
 const INTENT_COPY = Object.freeze({
   "date-night": "Pick a city and we'll line up a date night there, ranked by the Wayfind Score.",
@@ -39,7 +40,7 @@ export default function IntentLocationChooser({ intent = "", locating = false })
   if (locating) {
     return (
       <div className="wf-intent-loc" role="status" aria-live="polite">
-        <style dangerouslySetInnerHTML={{ __html: CSS }} />
+        <style dangerouslySetInnerHTML={styleHtml(CSS)} />
         <p className="wf-intent-loc-lead">Finding picks near you…</p>
       </div>
     );
@@ -64,7 +65,7 @@ export default function IntentLocationChooser({ intent = "", locating = false })
 
   return (
     <section className="wf-intent-loc" aria-labelledby="wf-intent-loc-title">
-      <style dangerouslySetInnerHTML={{ __html: CSS }} />
+      <style dangerouslySetInnerHTML={styleHtml(CSS)} />
       <h2 id="wf-intent-loc-title" className="wf-intent-loc-title">Where are you headed?</h2>
       <p className="wf-intent-loc-lead">{INTENT_COPY[intent] || "Pick a city and we'll rank places there by the Wayfind Score."}</p>
       <div className="wf-intent-loc-cities">

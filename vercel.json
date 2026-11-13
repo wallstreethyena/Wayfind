@@ -118,6 +118,10 @@
       "schedule": "10 5 * * *"
     },
     {
+      "path": "/api/cron/owned-social",
+      "schedule": "23 14,2 * * *"
+    },
+    {
       "path": "/api/cron/instagram-scout",
       "schedule": "35 11 * * *"
     },
@@ -172,10 +176,6 @@
     {
       "path": "/api/cron/photo-warm",
       "schedule": "10,25,40,55 * * * *"
-    },
-    {
-      "path": "/api/cron/credited-photos?run=1&limit=120",
-      "schedule": "37 */4 * * *"
     },
     {
       "path": "/api/cron/weekend-picks",

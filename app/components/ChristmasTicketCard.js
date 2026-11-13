@@ -57,6 +57,8 @@ export const XM_CARD_CSS = `
 .xm-note{margin:0;font-size:13px;line-height:1.35;color:var(--xm-soft);text-shadow:0 1px 2px rgba(40,0,6,.65);text-align:center;overflow-wrap:anywhere}
 .xm-buy{display:flex;align-items:center;justify-content:center;width:100%;min-height:46px;padding:6px 8px;background:linear-gradient(180deg,#FFE9B8,#F5C451);color:var(--xm-ink);border:2px solid var(--xm-rose);border-radius:12px;font-size:15px;font-weight:800;line-height:1.2;text-decoration:none;text-align:center;box-shadow:0 0 10px rgba(232,180,138,.25)}
 .xm-via{margin:0;font-size:11px;line-height:1.35;color:var(--xm-soft);text-align:center}
+.xm-opts{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin:0}
+.xm-opt{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:4px 12px;border:1.5px solid rgba(245,196,81,.75);border-radius:999px;background:rgba(40,2,8,.55);color:var(--xm-cream);font-size:12.5px;font-weight:700;line-height:1.1;text-decoration:none}
 .xm-event{display:flex;align-items:center;justify-content:center;min-height:44px;color:#FFD9AE;font-size:13px;font-weight:600;text-decoration:underline;text-underline-offset:3px}
 .xm-actions{display:flex;flex-wrap:wrap;gap:6px;margin:0;min-width:0}
 .xm-actions>button{flex:1 1 auto;display:inline-flex;align-items:center;justify-content:center;gap:5px;min-width:max-content!important;min-height:44px;margin:0;padding:6px 8px;border-radius:999px;background:rgba(40,2,8,.55);color:var(--xm-cream);border:1.5px solid rgba(245,196,81,.75);font:inherit;font-size:12.5px;font-weight:700;line-height:1.1;white-space:nowrap;cursor:pointer;-webkit-tap-highlight-color:transparent}
@@ -238,6 +240,13 @@ export function TicketCard({ row, chrome, priority = false, idPrefix = "xm-", he
               >{cta.label}</a>
               {noteEl}
               <p className="xm-via">{cta.via}</p>
+              {Array.isArray(row.options) && row.options.length ? (
+                <p className="xm-opts" data-ticket-options="">
+                  {row.options.map((o) => (
+                    <a key={o.provider} className="xm-opt" href={o.href} target="_blank" rel="sponsored nofollow noopener" data-option-provider={o.provider} aria-label={"Tickets at " + o.label + ", opens in a new tab"}>{o.label}</a>
+                  ))}
+                </p>
+              ) : null}
               {secondaryTicketPrimaryMatches(cta, secondaryCta) ? (
                 <p className="xm-via" data-secondary-resale="">
                   <a href={secondaryCta.href} target="_blank" rel="sponsored nofollow noopener">

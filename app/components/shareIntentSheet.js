@@ -247,6 +247,7 @@ export function askShareIntent(o) {
           geo = c.lat + "," + c.lng;
         }
       } catch (e) {}
+      if (!geo && opt.geo) geo = opt.geo;
       const code = encodeInvite({ place: name, city: opt.city, id: opt.id, to: who, kind: opt.kind, geo });
       if (!code) { opt.onPlain && opt.onPlain(); close(); return; }
       // The LIVE origin, not a constant: a preview deployment then shares a link
@@ -312,5 +313,9 @@ export function askShareIntent(o) {
   viewport?.addEventListener("resize", fitViewport);
   viewport?.addEventListener("scroll", fitViewport);
   fitViewport();
+  if (opt.startInInvite) {
+    askWho();
+    return;
+  }
   try { card.querySelector("button").focus({ preventScroll: true }); } catch (e) {}
 }

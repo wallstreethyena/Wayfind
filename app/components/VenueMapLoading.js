@@ -1,6 +1,7 @@
 "use client";
 
 import MapCategoryPin from "./MapCategoryPin.js";
+import { styleHtml } from "../../lib/styleHtml.js";
 
 // The loading and live map share their category row, frame and responsive
 // height. Loading only the frame moved every detail section below it when
@@ -18,7 +19,7 @@ export const VENUE_MAP_SHELL_CSS = `
 
 export default function VenueMapLoading() {
   return <div className="wfev-grid" aria-hidden="true">
-    <style dangerouslySetInnerHTML={{ __html: VENUE_MAP_SHELL_CSS }} />
+    <style dangerouslySetInnerHTML={styleHtml(VENUE_MAP_SHELL_CSS)} />
     <div className="wfev-cats">
       <button type="button" className="wfev-cat" disabled tabIndex={-1}><MapCategoryPin /><span>All places</span></button>
     </div>

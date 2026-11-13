@@ -88,7 +88,7 @@ export default async function Page({ params }) {
 
   // Eight is the most a phone can show before the page becomes the wall of text
   // this route exists to replace. The full ranked list lives on the organic page.
-  const picks = Array.isArray(list) && list.length ? list.slice(0, 8) : process.env.NODE_ENV === "development" ? DEV_PREVIEW : [];
+  const picks = Array.isArray(list) && list.length ? list.slice(0, 8) : (process.env.NODE_ENV === "development" && citySlug === "orlando") ? DEV_PREVIEW : [];
 
   return (
     <>

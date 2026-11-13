@@ -262,6 +262,9 @@ const compactCount = (n) => Number(n) >= 1000
 // photoNoSpend (evergreen landing towns): the row's own no-spend `photo` only,
 // and the id retry below keeps nospend=1 — see lib/evergreenCities.js.
 const photoUrl = (p) => {
+  // The server withheld this photo (its licence credit could not be read), so
+  // no fallback may fetch it uncredited: the card shows its monogram.
+  if (p && p.photoWithheld) return null;
   if (typeof p?.photo === "string" && /^\/api\/photo\/stored\/[A-Za-z0-9_-]+(?:[?#]|$)/.test(p.photo)) return p.photo;
   if (p && p.photoNoSpend) return p.photo || ownedPlacePhotoSrc(p.place_id || p.id, 640, true) || null;
   const ref = p && (p.photoRef || p.photo_ref);
