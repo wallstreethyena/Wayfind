@@ -130,7 +130,7 @@ const PLANNER_CSS = `
 .wfp-stop{display:flex;gap:10px;padding:10px;border-radius:12px;background:#131C2E;border:1px solid #1E293B;align-items:flex-start}
 .wfp-thumb{width:56px;height:56px;border-radius:10px;object-fit:cover;flex:none;background:#1E293B}
 .wfp-conn{margin-left:22px;padding:2px 0 2px 10px;border-left:2px dashed #334155;font-size:11.5px;color:#94A3B8;font-weight:600}
-.wfp-save-bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;padding-top:8px;border-top:1px solid #1E293B}
+.wfp-save-bar{position:sticky;bottom:-14px;z-index:2;display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;padding:10px 0 4px;background:rgba(15,23,42,.96);backdrop-filter:blur(6px);border-top:1px solid #1E293B}
 .wfp-save-btn{all:unset;box-sizing:border-box;cursor:pointer;min-height:46px;padding:0 20px;border-radius:12px;background:#F97316;color:#0D1117;font-size:14.5px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;gap:6px}
 .wfp-chips{display:flex;flex-wrap:wrap;gap:6px}
 .wfp-chip{all:unset;box-sizing:border-box;cursor:pointer;min-height:38px;padding:6px 12px;border-radius:999px;background:#131C2E;border:1px solid #334155;color:#CBD5E1;font-size:12.5px;font-weight:600}
@@ -367,7 +367,11 @@ export default function WayfindPlannerSheet() {
   }, [open, handleClose]);
 
   useEffect(() => {
-    if (open && bodyRef.current) {
+    if (!open || !bodyRef.current) return;
+    const planEl = proposedPlan ? bodyRef.current.querySelector('[data-wf-proposed-plan="1"]') : null;
+    if (planEl && !loading) {
+      planEl.scrollIntoView({ block: "start" });
+    } else {
       bodyRef.current.scrollTop = bodyRef.current.scrollHeight;
     }
   }, [open, messages, proposedPlan, loading, lastEditSummary]);
