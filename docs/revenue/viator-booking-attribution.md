@@ -109,3 +109,9 @@
   - **Stage 5 (Go / No-Go Criteria):** Keep the offline booking action Secondary until round-trip token preservation, commission accuracy, and cancellation retractions are proven in production.
   - **Rollback:** Setting `WF_VIATOR_GOOGLE_UPLOAD_MODE="off"` immediately halts all Google uploads; setting `WF_VIATOR_TOKEN_CAPTURE="0"` reverts outbound Viator links to placement-only campaign tags (`wf-<page>-<placement>-<offer>`).
 
+
+## 2026-11-13: lessons locked in
+
+- **Never infer "no ad traffic" from a page URL.** `lib/browserAnalytics.js` strips query strings from `$current_url`, so `gclid` never appears there. A 2026-11-06 audit wrongly concluded "no Google ad visits since September" this way while the account was spending (790 clicks, $217 in the 7 days to 2026-11-12). Before declaring traffic absent, reconcile in order: Google Ads clicks (account 553-622-6713) → landing sessions (PostHog `$pageview` event property `gclid`, not the URL) → stored click ids (`wf_viator_clicks.gclid/gbraid/wbraid`) → partner redirects (`provider_redirect_started`) → bookings (`wf_viator_bookings`).
+- **A campaign name never goes into a numeric campaign-id column.** `observed_utm_campaign`, `google_campaign_id` and `verified_google_campaign_id` are `^[0-9]{8,16}$`; names live in `session_attribution` / `first_touch_attribution`. Locked by `scripts/test-viator-click-row-db-contract.mjs`.
+- **A failed click save never silently drops a Google click id.** A rejected insert is logged (`viator_click_store_failed`, status only, no identifiers) and retried with fallback rows that keep gclid/gbraid/wbraid, consent and both campaign snapshots (`viatorClickFallbackRows`); success logs `viator_click_store_recovered`. Locked by the same test, red-proven by disabling the fallback.
