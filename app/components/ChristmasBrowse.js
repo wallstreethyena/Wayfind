@@ -32,6 +32,16 @@ const FILTER_KEYS = ["region", "category", "when", "date", "price", "audience", 
 // A location found quietly on load (auto) ranks the list but never goes into
 // the shareable address bar: a shared link must not carry the sharer's spot.
 const PRIVATE_KEYS = new Set(["lat", "lng"]);
+
+// The query the address should carry after a filter change: the current query
+// with every filter key replaced by `shown`, every other key (ad tags, click
+// ids, a shared plan) kept as it was, in its place.
+export function christmasAddressSearch(search, shown) {
+  const next = new URLSearchParams(search || "");
+  for (const k of FILTER_KEYS) next.delete(k);
+  for (const [k, v] of shown) next.set(k, v);
+  return next.toString();
+}
 const CHROME = { eventPage: "Full event page" };
 const PLACE_CHIP = { "popup-bars": "Bars and dining", "seasonal-food": "Festive bites" };
 
@@ -155,10 +165,16 @@ export default function ChristmasBrowse({ initial, facets, today, initialQuery =
       params.set(k, v);
       if (!(query.auto && PRIVATE_KEYS.has(k))) shown.set(k, v);
     }
-    // A shared plan link (?plan=) is not a filter; keep it so a reload or a
-    // copied URL still opens the friend's plan.
-    try { const plan = new URLSearchParams(location.search).get("plan"); if (plan) shown.set("plan", plan); } catch {}
-    try { window.history.replaceState(null, "", shown.toString() ? "?" + shown.toString() + "#browse" : location.pathname + "#browse"); } catch {}
+    // Only the filter keys are ours to rewrite. Everything else in the address
+    // stays: a shared plan (?plan=), and the ad tags and click ids. 2026-11-13:
+    // rewriting the whole query when the quiet location lookup landed wiped
+    // utm_* and fbclid before analytics loaded, so 85% of Meta ad visits were
+    // filed as plain Facebook visits. The automatic near you location changes
+    // nothing visible, so it never touches the address.
+    try {
+      const next = christmasAddressSearch(location.search, shown);
+      if (!(query.auto && next === new URLSearchParams(location.search).toString())) window.history.replaceState(window.history.state, "", location.pathname + (next ? "?" + next : "") + "#browse");
+    } catch {}
     const controller = new AbortController();
     setLoading(true); setFailed(false);
     fetch("/api/christmas/browse?" + params.toString(), { signal: controller.signal })
