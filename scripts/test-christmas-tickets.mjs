@@ -587,12 +587,43 @@ ok(html.includes("data-christmas-filter") && html.includes(">Best rated<") && ht
     const a = internalHtml.slice(internalHtml.indexOf('href="/florida-events/roberts-christmas-wonderland-2026"') - 200, internalHtml.indexOf('href="/florida-events/roberts-christmas-wonderland-2026"') + 200);
     ok(a.includes('class="xm-pick-buy"') && !/target="_blank"/.test(a) && !/data-commerce-owner/.test(a), "the internal button opens in place and is not counted as a partner click");
     ok(christmasFeaturePick(listings, "no-such-listing", "2026-11-13") === null, "an unknown listing never builds an empty card");
+    // Live 2026-11-13: the featured card rendered an /api/photo?place= URL the
+    // route answered "no photo" for, so the ad's visitors saw an empty tile.
+    {
+      const { christmasFeaturePickServable } = await import("../lib/christmasTickets.js");
+      const placeUrl = "/api/photo?place=ChIJdeadPhotoFixture000000";
+      const deadListings = listings.map((c) => (c.id === "roberts-christmas-wonderland-2026" ? { ...c, image: placeUrl, photoAttr: null, photoAttrHref: null } : c));
+      const no = { servable: { noMemo: true, resolve: async () => ({ type: "missing" }), findFree: async () => null }, readGoogle: async () => null, readVault: async () => [], noMemo: true };
+      const yes = { servable: { noMemo: true, resolve: async () => ({ type: "redirect", location: "/x.jpg" }), findFree: async () => null } };
+      const kept = await christmasFeaturePickServable(deadListings, "roberts-christmas-wonderland-2026", "2026-11-13", new Map(), yes);
+      ok(kept && kept.photos[0].src === placeUrl, "a place photo the route can serve stays on the featured card");
+      const dropped = await christmasFeaturePickServable(deadListings, "roberts-christmas-wonderland-2026", "2026-11-13", new Map(), no);
+      ok(dropped && dropped.feature === true && dropped.photos.length === 0 && dropped.placeholder && dropped.placeholder.label && dropped.cta && dropped.name,
+        "a place photo the route cannot serve never reaches the featured card; with no reviewed venue photo it keeps its designed tile");
+      const tileHtml = renderPage(partnerModel, partnerList, { topPicks: [dropped, ...picks] });
+      const ti = tileHtml.indexOf('data-feature-pick="roberts-christmas-wonderland-2026"');
+      const tileCard = tileHtml.slice(ti, tileHtml.indexOf("</li>", ti));
+      ok(ti > -1 && tileCard.includes('class="xm-pick-ph"') && !tileCard.includes("<img") && !tileCard.includes("xm-pick-credit") && !tileCard.includes("/api/photo"),
+        "the photo-less featured card paints its tile: no image request, no photo credit, no dead photo URL");
+      const noPhotoRegular = renderPage(partnerModel, partnerList, { topPicks: [...picks.slice(0, 2), { ...picks[2], photos: [] }] });
+      ok((noPhotoRegular.match(/data-rank="/g) || []).length === 2, "a regular pick with no photo is still never shown");
+      ok((await christmasFeaturePickServable(listings, "no-such-listing", "2026-11-13", new Map(), no)) === null, "an unknown listing never builds a card on the checked path either");
+      const pageSrc = readFileSync(new URL("../app/christmas-in-florida/page.js", import.meta.url), "utf8");
+      ok(/christmasFeaturePickServable\(listings, id, today\)/.test(pageSrc) && !/[^A-Za-z]christmasFeaturePick\(listings/.test(pageSrc), "the page builds the featured card through the photo check, never the unchecked builder");
+    }
     const featHtml = renderPage(partnerModel, partnerList, { topPicks: [...featurePicks, ...picks] });
     const fi = featHtml.indexOf('data-feature-pick="' + featureId + '"'), ri = featHtml.indexOf('data-rank="1"');
     ok(fi > -1 && fi < ri && /\.xm-pick\[data-feature-pick\]\{display:none\}/.test(featHtml)
       && featHtml.includes('html[data-wf-feature="' + featureId + '"] .xm-pick[data-feature-pick="' + featureId + '"]{display:flex}')
       && (featHtml.match(/data-rank="/g) || []).length === picks.length,
       "the featured card comes first, hidden by CSS unless that ad's visitor is on the page; the regular picks keep ranks 1 to 3");
+    {
+      const css = featHtml;
+      ok(!/html\[data-wf-feature\] \.xm-picks-label/.test(css) && css.includes('html[data-wf-feature="' + featureId + '"] .xm-picks-label .xm-picks-from{display:inline}'),
+        "the label says From the video only when that ad's featured card is actually on the page");
+      const noFeat = renderPage(partnerModel, partnerList, { topPicks: picks });
+      ok(!/xm-picks-from\{display:inline\}/.test(noFeat), "with no featured card rendered, no landing URL can switch the label to From the video");
+    }
     ok(featHtml.includes(">From the video<") && !renderPage(partnerModel, partnerList, { topPicks: featurePicks }).includes("data-top-picks"),
       "the featured card says it is from the video, and a row of only featured cards is never drawn");
     const bare = renderPage(partnerModel, partnerList, { topPicks: picks });
