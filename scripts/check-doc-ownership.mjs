@@ -10,8 +10,9 @@
  * was "Gabriel Pereira". Author and committer are free text anyone can set, so the
  * check could be satisfied by impersonation (and PR #1478 could only pass that way).
  * Approval is now decided by scripts/lib/ownerApproval.mjs from evidence GitHub
- * authenticates: an "/owner-approve <head sha>" comment on the pull request by an
- * owner login, naming the PR's current head commit. Commit metadata is not read at all.
+ * authenticates: the owner's pull-request review (Review changes → Approve), valid
+ * while the protected content it approved is unchanged (Owner Approval V2,
+ * 2026-11-13). Commit metadata is not read at all.
  *
  * GitHub Actions is the only authority. This file is the "guards" check's copy of
  * the rule, and "guards" runs on pull_request, i.e. the pull request's OWN copy of
@@ -28,7 +29,7 @@
  */
 import { execFileSync } from "node:child_process";
 import { decideOwnerApproval, ownerOnlyChanges } from "./lib/ownerApproval.mjs";
-import { fetchPullEvidence, readPullContext } from "./lib/githubPullEvidence.mjs";
+import { gatherOwnerApprovalEvidence, readPullContext } from "./lib/githubPullEvidence.mjs";
 const git = (...args) => {
   try {
     return { ok: true, out: execFileSync("git", args, { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }).trim() };
@@ -109,12 +110,13 @@ if (!ownerOnlyChanges(changedPaths).length) {
 // The files come from git (the net diff above); the approval comes from the API.
 async function gatherPullRequestEvidence() {
   const ctx = readPullContext(process.env, ["pull_request", "pull_request_target"]);
-  if (ctx.error) return { pr: null, comments: null, error: ctx.error };
+  if (ctx.error) return { pr: null, comments: null, reviews: null, fingerprints: null, error: ctx.error };
   try {
-    const live = await fetchPullEvidence(ctx);
-    return { pr: { number: ctx.number, eventHeadSha: ctx.eventHeadSha, liveHeadSha: live.liveHeadSha }, comments: live.comments, error: null };
+    const live = await gatherOwnerApprovalEvidence(ctx);
+    return { pr: { number: ctx.number, eventHeadSha: ctx.eventHeadSha, liveHeadSha: live.liveHeadSha }, comments: live.comments, reviews: live.reviews, fingerprints: live.fingerprints,
+  baseChangedAt: live.baseChangedAt, error: null };
   } catch (e) {
-    return { pr: null, comments: null, error: String((e && e.message) || e) };
+    return { pr: null, comments: null, reviews: null, fingerprints: null, error: String((e && e.message) || e) };
   }
 }
 

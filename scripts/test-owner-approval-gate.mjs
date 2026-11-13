@@ -94,6 +94,7 @@ globalThis.fetch = async (url, init = {}) => {
   if (cfg.apiStatus) return reply(cfg.apiStatus, {});
   if (/\\/pulls\\/\\d+$/.test(path)) return reply(200, { head: { sha: ++pullReads > 1 && cfg.liveHeadLater ? cfg.liveHeadLater : cfg.liveHead }, base: { ref: cfg.baseRef || "main" }, changed_files: cfg.files.length });
   if (/\\/pulls\\/\\d+\\/files$/.test(path)) return reply(200, cfg.files);
+  if (/\\/pulls\\/\\d+\\/reviews$/.test(path)) return reply(200, cfg.reviews || []);
   if (/\\/issues\\/\\d+\\/comments$/.test(path)) return reply(200, cfg.comments || []);
   return reply(404, {});
 };`);
@@ -196,13 +197,13 @@ const code = (f) => readFileSync(join(WF_DIR, f), "utf8").split("\n").filter((l)
 {
   const g = code("owner-approval-gate.yml");
   const triggers = (g.match(/^on:\n((?:\s{2}\S.*\n(?:\s{4}.*\n)*)*)/m) || [, ""])[1].match(/^\s{2}([a-z_]+):/gm).map((t) => t.trim().replace(":", "")).sort();
-  ok(JSON.stringify(triggers) === JSON.stringify(["issue_comment", "pull_request_target"]), `S6: only pull_request_target and issue_comment, which GitHub runs from main (${triggers.join(", ")})`);
+  ok(JSON.stringify(triggers) === JSON.stringify(["issue_comment", "pull_request_target", "workflow_run"]), `S6: only pull_request_target, issue_comment and workflow_run, all of which GitHub runs from main (${triggers.join(", ")})`);
   ok(/environment:\s*\n\s+name:\s*owner-gate\s*\n\s+deployment:\s*false/.test(g), "S6: the key comes only from the owner-gate environment, with no deployment object");
   ok(/permissions:\s*\n\s+contents:\s*read\s*\n\s+pull-requests:\s*read\s*\n\s+issues:\s*read/.test(g) && !/:\s*write/.test(g) && !/write-all/.test(g), "S6: the workflow's own GITHUB_TOKEN is read-only (the App token is the only writer)");
   ok(/persist-credentials:\s*false/.test(g) && !/^\s*ref:/m.test(g) && !/github\.event\.pull_request\.head/.test(g) && !/repository:/.test(g) && !/\b(npm|npx|yarn|pnpm)\b/.test(g),
     "S6: main is checked out, never the pull request, and nothing is installed");
   const exprs = [...g.matchAll(/\$\{\{([^}]*)\}\}/g)].map((m) => m[1].trim()).sort();
-  ok(JSON.stringify(exprs) === JSON.stringify(["github.event.pull_request.number || github.event.issue.number", "github.token", "secrets.OWNER_GATE_PRIVATE_KEY", "vars.OWNER_GATE_APP_ID"].sort()) && !/run:\s*[|>]/.test(g),
+  ok(JSON.stringify(exprs) === JSON.stringify(["github.event.pull_request.number || github.event.issue.number || github.event.workflow_run.pull_requests[0].number || github.event.workflow_run.id", "github.token", "secrets.OWNER_GATE_PRIVATE_KEY", "vars.OWNER_GATE_APP_ID"].sort()) && !/run:\s*[|>]/.test(g),
     `S6: the only expressions are the PR number (concurrency), the token, the App id and the key, and there is no multi-line shell (${exprs.join(" ; ")})`);
   const uses = [...g.matchAll(/uses:\s*(\S+)/g)].map((m) => m[1]);
   ok(uses.length === 2 && uses.every((u) => /@[0-9a-f]{40}$/.test(u)), `S6: every action is pinned to a full commit sha (${uses.join(", ")})`);

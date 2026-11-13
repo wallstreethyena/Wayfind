@@ -576,6 +576,7 @@ node scripts/check-no-sitewide-autolinker.mjs
 node scripts/check-doc-ownership.mjs
 node scripts/test-owner-approval.mjs
 node scripts/test-owner-approval-gate.mjs
+node scripts/test-owner-approval-v2.mjs
 node scripts/test-doc-ownership-shallow.mjs
 node scripts/test-safe-force-push.mjs
 node scripts/check-locks.mjs
@@ -2647,6 +2648,8 @@ node scripts/test-christmas-plan.mjs
 node scripts/test-frontier-moment-decisions.mjs
 # 2026-11-12: Grounded Wayfind AI Itinerary Builder end-to-end verification (all 7 acceptance scenarios, ungrounded ID refusal, closed-day check, local->Supabase sync, and fallback resilience).
 node scripts/test-ai-itinerary-planner.mjs
+# 2026-11-12: owner directive. CLAUDE.md keeps the GABRIEL EXECUTION AUTONOMY section and every safety section (an approved edit cannot silently drop a rule).
+node scripts/check-claude-md-owner-sections.mjs
 node scripts/test-planner-imessage.mjs
 node scripts/test-planner-host-voice.mjs
 # 2026-11-13: Wayfind Map Real-Time Spatial Decision Engine (7-way location truth, Near Me vs Explore Here, Hard Test Sarasota->Tampa Christmas tonight SSR, Florida water-barrier effort, hours closing feasibility, weather fit, score law, pairings/parking/backtracking, privacy, and cluster immunity).

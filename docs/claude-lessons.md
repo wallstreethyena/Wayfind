@@ -651,6 +651,35 @@ the guard green, the assertion is decoration.
 
 ---
 
+## Gabriel execution autonomy (2026-11-12)
+
+Rule: CLAUDE.md "GABRIEL EXECUTION AUTONOMY". Incident: on PR #2437 (Instagram to Trending)
+the owner had approved creating the table, loading 167 posts, merging and verifying. The
+Supabase `apply_migration` tool showed the owner a confirmation dialog that timed out; the
+agent then stopped the whole mission and asked him to type "go". The owner called it a
+repeated systemic failure: an approved mission was handed back over a tool prompt. Fix: a
+confirmation dialog is not a new decision. Ask only for the exact click when the platform
+requires one, keep doing every independent part, and ask for a NEW decision only at the
+eight hard stops. Platform safety gates and denials are still never bypassed. Locked by
+`scripts/check-claude-md-owner-sections.mjs`.
+
+## No Magic Owner Comments (2026-11-13)
+
+Incident: every rebase or unrelated push changed the head sha, so each owner-only PR
+(#2459 among them) needed a new `/owner-approve <40-char sha>` comment, and agents
+scheduled reminders to ask for it again. The owner directed: approval is a native
+GitHub review, bound to the protected content, not the commit.
+
+Owner Approval V2: the gate fingerprints owner-only entries (mode, type, blob sha) at
+merge-base vs commit, and passes when the reviewed commit and the live head have the
+same fingerprint. Proofs: `scripts/test-owner-approval-v2.mjs` (16 owner cases + edges,
+real git repos, red-proved by skipping the compare, admitting bots, dropping the head
+re-read, and loosening the diff). The gate still runs from `main`; the bootstrap PR
+that introduced V2 was itself judged by the V1 rule on `main`.
+
+Rule: never ask for a pasted command or comment; never schedule approval nags; one
+normal GitHub Approve request at most, then silence.
+
 ## Recent state (for context, not instructions)
 
 - Two audits complete (recent-release surfaces + full-site sweep). 14 fixes shipped

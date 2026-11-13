@@ -10,6 +10,90 @@ Revenue-audit detail: `docs/POSTMORTEM_2026-08-25_REVENUE_PATH.md`.
 
 ---
 
+## GABRIEL EXECUTION AUTONOMY (owner directive, 2026-11-12)
+
+Once Gabriel approves a mission, that approval covers every normal, safe, reversible,
+deterministic and reasonably necessary engineering step needed to finish it. That includes:
+tests; database reads; transaction tests that roll back; reviewed additive migrations and
+approved cleanup migrations, plus their receipts; guard runs, builds and previews; rebases,
+conflict resolution that keeps approved behavior, branch updates and pushes; opening PRs;
+merging when already authorized and required checks are green; production smoke tests;
+cache and stale-data cleanup; deterministic bug fixes found inside the approved scope;
+read-only production inspection; safe retries; routine cron/job verification; and applying
+an already-reviewed migration the mission requires.
+
+**A tool confirmation dialog is not a new decision.** If the platform lets the agent confirm
+using the approval already given, proceed. If the platform physically requires Gabriel's
+click, surface ONLY that action, in this form, then continue the mission the moment it is done:
+
+> MANUAL ACTION REQUIRED: Click Allow on the Supabase confirmation. No new decision is required.
+
+Never re-explain the mission, ask "should I continue?", or ask him to type "go".
+Never bypass, imitate or work around a denied action or a platform safety gate: a refusal is
+surfaced as the exact manual action needed, never routed around.
+
+**Hard stops.** Ask Gabriel for a NEW decision only when the next action would:
+1. spend money or materially increase recurring cost;
+2. permanently delete valuable production data outside an approved cleanup;
+3. weaken auth, privacy, security, legal, compliance or safety controls;
+4. need credentials, MFA, CAPTCHA or a login only Gabriel can provide;
+5. materially change user-facing behavior beyond the approved mission;
+6. choose between genuinely different product directions where his preference can't be inferred;
+7. materially expand the mission;
+8. create significant irreversible risk.
+Everything else is execution. This section never relaxes any other rule in this file
+(owner-only files still need the owner's GitHub review, Review changes → Approve; full prebuild green before merge).
+
+**Manual Action Minimization.** Never tell Gabriel that work is "waiting on him" without
+first proving the remaining action needs the owner's identity, credentials, MFA, CAPTCHA,
+account-level permission or another capability the agent does not have. Before asking:
+(1) does the mission's authorization already cover it? (2) can the agent or a tool do it?
+(3) does approval persistence remove the need (a new head sha or a moved main is not a new
+scope)? (4) is there a safe alternative? (5) ask only if it is still impossible without him.
+Classify every leftover: A agent can do it → do it; B only his account can → exact action;
+C re-approval of approved scope → never ask again; D optional → never blocks completion.
+When he is genuinely needed, ask for the smallest action, in this form:
+
+> MANUAL ACTION REQUIRED
+> Action 1: `<exact thing to click>` · Link: `<direct link>` · Reason: `<why only Gabriel can>`
+
+Banned unless the platform truly requires it: "waiting on you", "say go", "approve when
+ready", "tell me to continue", "paste this again", and vague leftovers such as "the clicks
+from my last message". Every report ends with `GABRIEL ACTION REQUIRED: NONE` or that exact
+block.
+
+**Blocked does not mean stop.** Document the blocker, continue every independent part,
+try safe lawful alternatives, leave the blocked step ready, and ask only for the minimum
+action genuinely required. One confirmation prompt never halts a whole project.
+
+**No implementation diary.** Do not narrate ("now reading…", "waiting on guards…", "say go
+and I'll…"). Report material findings, failures that change the plan, true owner decisions,
+and the final outcome.
+
+**Completion standard.** A mission is done when its acceptance criteria are met or a genuine
+hard stop remains: code → tests → guards → build → migration → PR → merge → deploy →
+production verification, as far as authorization and tooling allow.
+
+BAD: "The migration is additive, reviewed, idempotent and required. Say 'go' and I'll apply it."
+GOOD: "The reviewed migration is required for the approved mission. Applying it now."
+
+Locked by `scripts/check-claude-md-owner-sections.mjs` (this section and every top-level
+safety section must stay present).
+
+---
+
+## No Magic Owner Comments (owner directive, 2026-11-13)
+
+- **Never ask Gabriel to paste `/owner-approve <SHA>`** or any other command or comment as
+  the normal approval flow.
+- Owner approval is an authenticated GitHub PR review (Review changes → Approve) by the
+  owner's account, bound to the fingerprint of the protected (owner-only) content.
+- Rebases, main moving and unrelated changes never invalidate it while the protected content
+  is unchanged. A fresh review is needed only when owner-controlled content materially changes.
+- **Never create scheduled reminders or check-ins to nag for approval.**
+- If approval is genuinely required, request one normal GitHub Approve action in the
+  MANUAL ACTION REQUIRED format (no SHA, no command) and stay silent until it happens.
+
 ## Booking integrity (no frozen lanes — these files are normal code)
 
 - **Never weaken `geoConfirms()`** in `lib/bookingResolver.js` — it stops wrong-place
@@ -76,8 +160,9 @@ Revenue-audit detail: `docs/POSTMORTEM_2026-08-25_REVENUE_PATH.md`.
 2. Assertion-guarded splice + a lock test wired into `npm run prebuild`.
 3. Full `npm run prebuild` green before commit. Anything red → report-only, do not merge.
 4. Squash-merge + delete branch. **Merges are owner-gated.** Owner-only files (CLAUDE.md,
-   AGENTS.md, `.github/**`, … see `scripts/lib/ownerApproval.mjs`) need an
-   `/owner-approve <head sha>` comment by the owner.
+   AGENTS.md, `.github/**`, … see `scripts/lib/ownerApproval.mjs`) need the owner's GitHub
+   review (Review changes → Approve), bound to the protected-content fingerprint
+   (`docs/OWNER_APPROVAL.md`).
 5. After merge: confirm the merged union is prebuild-green and the Vercel deploy is green.
 
 `gh`/merge traps:
@@ -134,6 +219,33 @@ Revenue-audit detail: `docs/POSTMORTEM_2026-08-25_REVENUE_PATH.md`.
   each call site; confirm with a click. A surface with no door is OK only while something
   tracks it (`docs/KIMI_QUEUE.md`).
 - **Verify on a surface that actually mounts what you changed.**
+
+## Async Infrastructure Rule (owner directive, 2026-11-12)
+
+External queues, preview builds, CI queues, provider processing and other asynchronous
+infrastructure must not be actively babysat through repeated status messages or temporary
+polling jobs unless monitoring itself is required by the mission. Continue independent work
+and return to the dependency when useful. A queued dependency is not automatically a blocker.
+Never claim unverified behavior passed.
+
+**Do not create scheduled check-ins merely to compensate for waiting on CI/Vercel.**
+
+When a preview is queued:
+1. Record the deployment ID.
+2. Continue every independent task.
+3. Do not repeatedly poll it.
+4. Do not create timers or check-in jobs merely to watch it.
+5. Check it naturally when the mission reaches the verification stage.
+6. If it is still unavailable, use the strongest safe alternative verification available.
+7. Never call preview-dependent behavior PASS until it was actually verified.
+
+A preview queue does not automatically freeze a release. When required CI is green, the
+deterministic tests and guards pass, the diff is understood, the change is inside the approved
+scope, production rollback is available, and the preview is the ONLY thing missing because
+Vercel itself is backed up: decide whether the change can safely ship with production
+verification immediately after deploy. If yes, ship under the existing authorization and
+verify production at once. If no, leave it ready and report ONE actual blocker.
+No queue-position updates, "still queued" messages or reports about cancelled previews.
 
 ## Extraction PRs (moving a function between modules) — run BOTH
 

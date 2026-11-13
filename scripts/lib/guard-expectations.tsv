@@ -80,6 +80,7 @@ scripts/check-christmas-treats-rail.mjs	0	CALL	blocks-ci-and-deploy	1	-	11	0	0	8
 scripts/check-christmas-venue-matches.mjs	0	CALL	blocks-ci-and-deploy	1	-	19	0	0	3eb7b98c253dcfa4e191dfd98afc2e0bfa59074ac2374c2849ddb8679a0676ef
 scripts/check-christmas-venue-photo-reviews.mjs	0	CALL	blocks-ci-and-deploy	1	-	28	0	0	c18c14d2ef5ddaefedfe605143f9c9dd30045ab3b4193761629f1d48942535e3
 scripts/check-citypass.mjs	0	CALL	blocks-ci-and-deploy	1	-	34	0	0	0d8c182546f20762819ff16535323a8cde407967f6a41884e27dacdc18380d1a
+scripts/check-claude-md-owner-sections.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	12	0	0	a94b1ac9af172ec9f94cfee80c4f570d87a334150a872538212b5885ba97bdd3
 scripts/check-client-writes-have-policies.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	3	1	0	46db82c5841a98f27be9cd3ba7aea88b3b802145534e092603ed9b0d608cd0da
 scripts/check-clipp-deals.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	115	0	0	2a888d958cdabc7bd85afa68f6f43e4b1172b1a119ac4e3581fa8e1119dd77e5
 scripts/check-collection-look.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	62	1	0	50ee03e73e333de1ec6a8e5d8071e73e6f72cff41f0c0a2a985cad27d7e5df0c
@@ -944,6 +945,7 @@ scripts/test-owned-place-directions.mjs	0	CALL	blocks-ci-and-deploy	1	-	22	0	0	0
 scripts/test-owned-place-truth-frontier.mjs	0	CALL	blocks-ci-and-deploy	1	Revenue QA	37	0	0	303f9b1d8834013a363edad037f3e1fe7a6581aea733bc7969eab028317c3fbc
 scripts/test-owned-social-reconcile.mjs	0	RENDER	blocks-ci-and-deploy	1	-	86	0	0	4ddc3ba033a95fdb7aca627bde5f6c8b791bc66a8ba8de42447d0e1a9824bb82
 scripts/test-owner-approval-gate.mjs	0	CALL	blocks-ci-and-deploy	1	-	39	0	0	556f0a6cd9755ffca03b40f1e7ba4c45ce378e77bf24d00668cfd0e11ff65f8e
+scripts/test-owner-approval-v2.mjs	0	CALL	blocks-ci-and-deploy	1	-	160	0	0	58ffd97efa9762a441ce82711faa4e8a504938522931ebb8051027a1519dba72
 scripts/test-owner-approval.mjs	0	CALL	blocks-ci-and-deploy	1	-	122	0	0	5067bac4471058c792d9d898ff1d1487029c74ec26d1db4c90e59db4af6fecea
 scripts/test-owner-places-2026-08-29.mjs	0	CALL	blocks-ci-and-deploy	1	-	68	0	0	8d037d63978afbe976cf9d526610cf8f31c27f49ed26cda4fce1b5a459682237
 scripts/test-owner-places-2026-08-29b.mjs	0	CALL	blocks-ci-and-deploy	1	-	58	0	0	a830a738c92e0065ac4f025e80eb1cc7e440b6e06e645c872e4d2f801dc5d44e

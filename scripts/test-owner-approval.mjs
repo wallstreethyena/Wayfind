@@ -93,7 +93,7 @@ const git = (cwd, args, env = {}) => execFileSync("git", args, { cwd, encoding: 
   ok(!decideOwnerApproval({ ...base, error: "boom" }).ok && !decideOwnerApproval({ ...base, pr: null }).ok, "decision: missing evidence fails closed");
   ok(!decideOwnerApproval({ ...base, pr: { number: 7, eventHeadSha: head, liveHeadSha: "c".repeat(40) }, comments: [{ id: 1, ...T, user: owner, body: `/owner-approve ${"c".repeat(40)}` }] }).ok, "decision: a head that moved after the run started fails");
   ok(decideOwnerApproval({ ...base, comments: [{ id: 1, ...T, user: owner, body: `/owner-approve ${head}` }] }).ok, "decision: owner approval of the exact head passes");
-  ok(decideOwnerApproval({ ...base, comments: [] }).reason.includes(`/owner-approve ${head}"`), "decision: the refusal prints the full sha to paste");
+  { const why = decideOwnerApproval({ ...base, comments: [] }).reason; ok(why.includes("Review changes → Approve") && !why.includes("/owner-approve"), `decision: the refusal asks for a GitHub review, never a pasted command (${why})`); }
 }
 
 // ── 2. The real guard, in real git repositories, with a stub GitHub API ────
@@ -139,6 +139,7 @@ globalThis.fetch = async (url, init = {}) => {
     return { ok: true, status: 200, json: async () => ({ head: { sha }, changed_files: cfg.changedFiles ?? (cfg.files || []).length }) };
   }
   if (/\\/pulls\\/\\d+\\/files$/.test(path)) return { ok: true, status: 200, json: async () => cfg.files || [] };
+  if (/\\/pulls\\/\\d+\\/reviews$/.test(path)) return { ok: true, status: 200, json: async () => cfg.reviews || [] };
   if (/\\/issues\\/\\d+\\/comments$/.test(path)) {
     // cfg.pageSize simulates GitHub pagination: page n returns items [(n-1)*size, n*size).
     const page = Number(new URL(url).searchParams.get("page") || 1);
@@ -160,7 +161,7 @@ globalThis.fetch = async (url, init = {}) => {
     if (eventFile) writeFileSync(eventPath, JSON.stringify({ pull_request: { number: 1478, head: { sha: eventHead } } }));
     const env = { ...process.env, GITHUB_ACTIONS: gate ? "true" : "", STUB_CONFIG: cfgPath, STUB_LOG: log };
     for (const k of ["GITHUB_TOKEN", "GITHUB_EVENT_NAME", "GITHUB_EVENT_PATH", "GITHUB_REPOSITORY", "GITHUB_API_URL"]) delete env[k];
-    if (gate) Object.assign(env, { GITHUB_EVENT_NAME: event, GITHUB_EVENT_PATH: eventPath, GITHUB_REPOSITORY: "wallstreethyena/Wayfind", GITHUB_API_URL: "https://api.github.fixture.invalid" });
+    if (gate) Object.assign(env, { GITHUB_EVENT_NAME: event, GITHUB_EVENT_PATH: eventPath, GITHUB_REPOSITORY: "wallstreethyena/Wayfind", GITHUB_API_URL: "https://api.github.fixture.invalid", GITHUB_RUN_ATTEMPT: "1" });
     if (gate && token) env.GITHUB_TOKEN = token;
     let code = 0, out = "";
     try { out = execFileSync(process.execPath, ["--import", preload, script], { cwd: dir, encoding: "utf8", env, stdio: ["ignore", "pipe", "pipe"] }); }
@@ -179,7 +180,7 @@ globalThis.fetch = async (url, init = {}) => {
   // B. owner-only change, no approval -> fail.
   const edit = branch([["CLAUDE.md", "# rules\n\nkeep this\nnew rule\n"]]);
   r = run({ dir: edit.dir, gate: true, eventHead: edit.head, liveHead: edit.head, comments: [] });
-  ok(r.code === 1 && /no owner approval for head/.test(r.out) && r.out.includes(`/owner-approve ${edit.head}`), `B: unapproved CLAUDE.md change fails and names the exact command (${r.code}: ${r.out.trim()})`);
+  ok(r.code === 1 && /no owner approval yet/.test(r.out) && /Review changes → Approve/.test(r.out) && !r.out.includes("/owner-approve"), `B: unapproved CLAUDE.md change fails and asks for a GitHub review, never a command (${r.code}: ${r.out.trim()})`);
 
   // C. forged owner author/committer -> still fail, every way.
   const forged = branch([["CLAUDE.md", "# rules\n\nkeep this\nforged rule\n"]], FORGED_OWNER);
@@ -239,7 +240,7 @@ globalThis.fetch = async (url, init = {}) => {
   r = pr({ files: [file("lib/thing.js"), file("docs/history/a.md")] });
   ok(r.code === 0 && /no owner-only files changed/.test(r.out) && r.calls.some((c) => /\/pulls\/1478\/files/.test(c)), `P ordinary: judged from the API file list and passes (${r.code}: ${r.out.trim()})`);
   r = pr({ files: [file("CLAUDE.md")] });
-  ok(r.code === 1 && r.out.includes(`/owner-approve ${H}`), `P B: unapproved CLAUDE.md change fails and names the command (${r.code}: ${r.out.trim()})`);
+  ok(r.code === 1 && /Review changes → Approve/.test(r.out) && !r.out.includes("/owner-approve"), `P B: unapproved CLAUDE.md change fails and asks for a GitHub review (${r.code}: ${r.out.trim()})`);
   r = pr({ files: [file("CLAUDE.md")], comments: [approve(H)] });
   ok(r.code === 0 && new RegExp(`approved by @${OWNER_LOGIN}`).test(r.out), `P D: owner approval of the exact head passes (${r.code}: ${r.out.trim()})`);
   const filler = Array.from({ length: 100 }, (_, i) => ({ id: i + 1, ...T, user: { login: "someone", type: "User", id: 7 }, body: "noise" }));

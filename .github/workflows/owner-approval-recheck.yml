@@ -1,0 +1,37 @@
+# .github/workflows/owner-approval-recheck.yml — RE-RUN THE OWNER GATES AFTER AN
+# OWNER REVIEW (Owner Approval V2, 2026-11-13).
+#
+# workflow_run always runs from main, never from the pull request, so the
+# script below is main's copy. It decides nothing: it re-runs the latest
+# "owner-approval" and "guards" runs for the pull request's CURRENT head, and
+# those checks apply their own rules to live evidence. It never checks out,
+# installs or runs anything from the pull request, and never puts event text
+# into a shell command (scripts/test-owner-approval-v2.mjs fails if that changes).
+name: owner-approval-recheck
+on:
+  workflow_run:
+    workflows: [owner-review-observed]
+    types: [completed]
+permissions:
+  actions: write
+  contents: read
+  pull-requests: read
+jobs:
+  recheck:
+    name: owner-approval-recheck
+    if: github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out main (never the pull request)
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+          sparse-checkout: scripts
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+      - name: Re-run the owner gates for the current head
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node scripts/owner-approval-recheck.mjs

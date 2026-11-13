@@ -21,6 +21,11 @@ on:
     types: [opened, synchronize, reopened, edited, ready_for_review]
   issue_comment:
     types: [created, edited, deleted]
+  # Owner Approval V2 (2026-11-13): an owner review, observed by
+  # owner-review-observed.yml, re-evaluates here from main.
+  workflow_run:
+    workflows: [owner-review-observed]
+    types: [completed]
 permissions:
   contents: read
   pull-requests: read
@@ -28,13 +33,13 @@ permissions:
 jobs:
   owner-gate-runner:
     name: owner-gate-runner
-    # Only pull request events and comments that carry (or, when edited, used to
-    # carry) the approval command, so removing an approval re-evaluates too.
+    # Pull request events, owner reviews (via owner-review-observed), and legacy
+    # comments that carry (or used to carry) the old approval command.
     # Concurrency lives on the job, not the workflow, so an unrelated comment
     # (its job is skipped) can never cancel a gate run that is in progress.
-    if: github.event_name == 'pull_request_target' || (github.event.issue.pull_request && (contains(github.event.comment.body, '/owner-approve') || contains(github.event.changes.body.from, '/owner-approve')))
+    if: github.event_name == 'pull_request_target' || (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success') || (github.event.issue.pull_request && (contains(github.event.comment.body, '/owner-approve') || contains(github.event.changes.body.from, '/owner-approve')))
     concurrency:
-      group: owner-approval-gate-${{ github.event.pull_request.number || github.event.issue.number }}
+      group: owner-approval-gate-${{ github.event.pull_request.number || github.event.issue.number || github.event.workflow_run.pull_requests[0].number || github.event.workflow_run.id }}
       cancel-in-progress: true
     runs-on: ubuntu-latest
     timeout-minutes: 5

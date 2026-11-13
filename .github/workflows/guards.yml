@@ -25,8 +25,8 @@ on:
 concurrency:
   group: guards-${{ github.ref }}
   cancel-in-progress: true
-# Read-only token. check-doc-ownership reads the pull request and its comments to
-# verify an owner "/owner-approve <head sha>" (see docs/OWNER_APPROVAL.md).
+# Read-only token. check-doc-ownership reads the pull request and its reviews to
+# verify the owner's GitHub approval of the protected content (docs/OWNER_APPROVAL.md).
 permissions:
   contents: read
   pull-requests: read
