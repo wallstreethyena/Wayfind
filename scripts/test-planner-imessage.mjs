@@ -107,6 +107,11 @@ ok(/const voice = normalizePlannerVoice\(body && body\.voice\)/.test(routeSrc) &
 const plannerSrc = stripComments(readFileSync(path.join(REPO, "lib/wayfindPlanner.js"), "utf8"));
 ok(/const voiceRule = personaVoiceRule\(voice\)/.test(plannerSrc), "every Claude planner prompt carries the host's witty voice rule");
 
+ok(/recent: recentRef\.current/.test(sheet), "the sheet sends the visitor's earlier turns so the host remembers them");
+ok(/window\.visualViewport/.test(sheet) && /style=\{vv \? \{ top: vv\.top/.test(sheet), "the sheet follows the visual viewport so the composer stays above the phone keyboard");
+ok(/finally \{[\s\S]{0,160}setLoading\(false\)/.test(sheet), "typing dots stop on success, failure and abort (loading cleared in finally)");
+ok(/if \(!text \|\| loading\) return;/.test(sheet), "no duplicate submissions while a reply is pending");
+
 if (fails.length) {
   for (const f of fails) console.error("test-planner-imessage: FAIL: " + f);
   process.exit(1);

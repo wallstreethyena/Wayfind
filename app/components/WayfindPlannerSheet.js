@@ -253,6 +253,12 @@ export default function WayfindPlannerSheet() {
   const savedRef = useRef(null);
   savedRef.current = savedTripKey;
   const savingRef = useRef(false);
+  const recentRef = useRef([]);
+  const messagesRef = useRef([]);
+  messagesRef.current = messages;
+  // The phone keyboard shrinks the visual viewport, not the layout one: size the
+  // sheet to what is actually visible so the composer and newest reply stay up.
+  const [vv, setVv] = useState(null);
 
   const submitPlannerPrompt = useCallback(async (rawPrompt, overrideOpts = {}) => {
     const text = String(rawPrompt || "").trim().slice(0, 500);
@@ -267,6 +273,9 @@ export default function WayfindPlannerSheet() {
 
     setDraft("");
     setLoading(true);
+    // What the visitor already told the host this session (newest last), so a
+    // follow up like "Tampa" after "this weekend, two adults" keeps both.
+    recentRef.current = messagesRef.current.filter((m) => m.role === "user").map((m) => m.text).slice(-3);
     setLastEditSummary(null);
     setMessages((prev) => [...prev, { role: "user", text }]);
 
@@ -291,6 +300,7 @@ export default function WayfindPlannerSheet() {
           point: readStoredPoint(),
           activeTrip: currentActiveTrip,
           seedPlace: effSeed,
+          recent: recentRef.current,
         }),
       });
       const data = await res.json().catch(() => null);
@@ -454,6 +464,22 @@ export default function WayfindPlannerSheet() {
   }, [open, handleClose]);
 
   useEffect(() => {
+    if (!open || typeof window === "undefined" || !window.visualViewport) return undefined;
+    const v = window.visualViewport;
+    const sync = () => {
+      const kb = window.innerHeight - v.height > 120;
+      setVv(kb ? { h: Math.round(v.height), top: Math.round(v.offsetTop) } : null);
+    };
+    sync();
+    v.addEventListener("resize", sync);
+    v.addEventListener("scroll", sync);
+    return () => {
+      v.removeEventListener("resize", sync);
+      v.removeEventListener("scroll", sync);
+    };
+  }, [open]);
+
+  useEffect(() => {
     if (!open || !bodyRef.current) return;
     const planEl = proposedPlan ? bodyRef.current.querySelector('[data-wf-proposed-plan="1"]') : null;
     if (planEl && !loading) {
@@ -534,11 +560,12 @@ export default function WayfindPlannerSheet() {
         <div
           className="wfp-back"
           data-wf-planner-sheet="1"
+          style={vv ? { top: vv.top, bottom: "auto", height: vv.h } : undefined}
           onClick={(e) => {
             if (e.target === e.currentTarget) handleClose();
           }}
         >
-          <div className="wfp-modal" role="dialog" aria-modal="true" aria-label={`Chat with ${persona.name}, Wayfind trip planner`}>
+          <div className="wfp-modal" style={vv ? { height: vv.h, maxHeight: vv.h, borderRadius: 0 } : undefined} role="dialog" aria-modal="true" aria-label={`Chat with ${persona.name}, Wayfind trip planner`}>
             <div className="wfp-head">
               <span className="wfp-grab" aria-hidden="true" />
               <button type="button" className="wfp-close" aria-label="Close chat" onClick={handleClose}>

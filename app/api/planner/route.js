@@ -240,9 +240,9 @@ async function gatherServerCandidates(parsed, { point = null, savedPlaces = [] }
 
 async function askClaudePlanner(promptObj, { maxTokens = 1400 } = {}) {
   const key = aiKey();
-  if (!key) return { ok: false, reason: "unavailable" };
+  if (!key) return { ok: false, reason: "not_configured" };
   try {
-    if (await breakerOpen("anthropic")) return { ok: false, reason: "unavailable" };
+    if (await breakerOpen("anthropic")) return { ok: false, reason: "breaker_open" };
   } catch { /* fail open on cache read */ }
 
   try {
@@ -312,12 +312,26 @@ export async function POST(req) {
   const savedPlaces = Array.isArray(body && body.savedPlaces) ? body.savedPlaces.slice(0, 20) : [];
   const today = siteTodayStr();
 
-  const parsed = parsePlannerRequest(message, {
+  // The visitor's earlier turns this session (client sends at most 3), so the
+  // host remembers what was already said and asks only for what is missing.
+  const recent = Array.isArray(body && body.recent)
+    ? body.recent.filter((t) => typeof t === "string").map((t) => t.trim().slice(0, 300)).filter(Boolean).slice(-3)
+    : [];
+  let parsed = parsePlannerRequest(message, {
     todayYmd: today,
     activeTrip,
     contextCity,
     seedPlace,
   });
+  if (parsed.clarificationQuestion && recent.length && !activeTrip) {
+    const merged = parsePlannerRequest([...recent, message].join(". "), {
+      todayYmd: today,
+      activeTrip,
+      contextCity,
+      seedPlace,
+    });
+    if (merged.destination && !merged.clarificationQuestion) parsed = merged;
+  }
 
   // 1. Missing critical destination or dates -> ask ONE high-value question immediately (zero AI cost).
   // The host talks back in character (owner 2026-11-13): a short witty reply to
@@ -330,15 +344,25 @@ export async function POST(req) {
       ? pickLine(persona.clarifyDates(parsed.destination.name), seed)
       : pickLine(persona.clarifyCity, seed);
     let source = "deterministic";
-    if (!parsed.destination && !isRateLimited(clientIp(req))) {
-      const chat = await askClaudePlanner(
-        { system: personaChatSystem(voice), user: message },
-        { maxTokens: 220 },
-      );
-      const cleaned = chat.ok ? cleanPersonaChat(chat.text) : null;
-      if (cleaned) {
-        reply = cleaned;
-        source = "claude";
+    // Why a hand written line was used, so a fallback is never mistaken for a
+    // generated reply: rate_limited | unavailable (no key or breaker open) |
+    // gate_shut (AI spend cap) | <provider failure kind> | unusable_reply.
+    let fallbackReason = parsed.destination ? "not_needed" : null;
+    if (!parsed.destination) {
+      if (isRateLimited(clientIp(req))) {
+        fallbackReason = "rate_limited";
+      } else {
+        const chat = await askClaudePlanner(
+          { system: personaChatSystem(voice), user: [...recent, message].join("\n") },
+          { maxTokens: 220 },
+        );
+        const cleaned = chat.ok ? cleanPersonaChat(chat.text) : null;
+        if (cleaned) {
+          reply = cleaned;
+          source = "claude";
+        } else {
+          fallbackReason = chat.ok ? "unusable_reply" : (chat.reason || "unavailable");
+        }
       }
     }
     return okJson({
@@ -351,6 +375,7 @@ export async function POST(req) {
         candidateCount: 0,
       },
       source,
+      ...(source === "deterministic" ? { fallbackReason } : {}),
     });
   }
 
@@ -488,6 +513,7 @@ export async function POST(req) {
   // 3b. Multi-stop / multi-day Trip Proposal (requires user confirmation via `Save itinerary` before committing!)
   let proposedPlan = null;
   let source = "deterministic";
+  let fallbackReason = rateLimited ? "rate_limited" : null;
 
   if (!rateLimited) {
     const promptObj = buildPlannerClaudePrompt(parsed, candidates, { voice });
@@ -497,7 +523,11 @@ export async function POST(req) {
       if (validated.ok) {
         proposedPlan = validated.plan;
         source = "claude";
+      } else {
+        fallbackReason = `ungrounded_plan:${validated.code || "invalid"}`;
       }
+    } else {
+      fallbackReason = claudeRes.reason || "unavailable";
     }
   }
 
@@ -546,6 +576,7 @@ export async function POST(req) {
       proposedStopCount: proposedPlan.days.reduce((n, d) => n + d.stops.length, 0),
     },
     source,
+    ...(source === "deterministic" ? { fallbackReason } : {}),
   };
 
   if (cacheKey && source === "claude") {

@@ -2647,6 +2647,7 @@ node scripts/test-frontier-moment-decisions.mjs
 # 2026-11-12: Grounded Wayfind AI Itinerary Builder end-to-end verification (all 7 acceptance scenarios, ungrounded ID refusal, closed-day check, local->Supabase sync, and fallback resilience).
 node scripts/test-ai-itinerary-planner.mjs
 node scripts/test-planner-imessage.mjs
+node scripts/test-planner-host-voice.mjs
 # 2026-11-13: Wayfind Map Real-Time Spatial Decision Engine (7-way location truth, Near Me vs Explore Here, Hard Test Sarasota->Tampa Christmas tonight SSR, Florida water-barrier effort, hours closing feasibility, weather fit, score law, pairings/parking/backtracking, privacy, and cluster immunity).
 node scripts/test-map-spatial-decision-engine.mjs
 # 2026-11-12: First-Party Action Resolver & Detail CTA coverage gap guardrails (8 invariants + idempotency + production batch).
