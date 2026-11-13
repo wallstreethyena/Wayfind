@@ -23,7 +23,7 @@ This decision package provides a rigorous, 100% read-only operational risk and d
 * **Action:** [ ] **Approve** / [ ] **Reject**
 
 #### [APPROVAL B] Migration Backlog Execution & Ledger Reconciliation
-* **Question for Gabe:** Do you authorize executing the 6 `PENDING_SAFE` migrations (`20261021030000`, `20261027120000`, `20261103120000`, `20261105120030`, `20261105120035`, `20261112200000`), reconciling the 5 `OBSOLETE`/`SUPERSEDED`/`DRIFTED` ledger entries, holding `20261015180200` for review, and keeping the 3 Undercover Tourist / partner migrations strictly `BLOCKED`?
+* **Question for Gabe:** Do you authorize executing the 6 `PENDING_SAFE` migrations (`20261021030000`, `20261027120000`, `20261103120000`, `20261105120030`, `20261105120035`, `20261112200000`), reconciling the 5 `OBSOLETE`/`SUPERSEDED`/`DRIFTED` ledger entries, holding `20261015180200` for review, and keeping all 3 `BLOCKED` migrations (including Undercover Tourist / partner items) strictly held unless Gabe explicitly authorizes them?
 * **Action:** [ ] **Approve** / [ ] **Reject**
 
 #### [APPROVAL C] Pre-Firewall Open PR Rebase Directive
@@ -89,7 +89,7 @@ Reconciliation output from `scripts/reconcile-migrations.mjs --json` identified 
 | `20261109160000_wf_events_christmas_short_titles.sql` | `OBSOLETE` | Christmas park event short titles already live in `wf_events` (out-of-band write). `WHERE` guards make ledger recording a 0-row no-op. | Safe 0-row ledger reconciliation via `apply-migration.mjs`. Rollback: N/A (0-row no-op ledger insert). |
 | `20261109160100_wf_deals_ut_one_day_tickets.sql` | `SUPERSEDED` | Initial UT rows (61-64) exist; row 63 deactivated for row 65; superseded by `20261109210000`. `WHERE NOT EXISTS` makes replay a 0-row no-op. | Record ledger state via `apply-migration.mjs` (0-row no-op). Rollback: N/A. |
 | `20261109210000_wf_deals_ut_one_day_product_pages.sql` | `OBSOLETE` | All 4 official one-day UT product pages already live in `wf_deals`; missing only schema_migrations ledger entry. | Safe idempotent ledger reconciliation via `apply-migration.mjs`. Rollback: N/A. |
-| `20261112200000_photo_batch_audit.sql` | `REQUIRES_REVIEW` (Reconciler classification) | Additive table `wf_photo_change_audit` + warning-only audit triggers on photo stores (`#2454`). | Review SQL and apply via canonical `scripts/apply-migration.mjs`. Rollback: `DROP TABLE public.wf_photo_change_audit; DROP TRIGGER ...`. |
+| `20261112200000_photo_batch_audit.sql` | `PENDING_SAFE` | Additive table `wf_photo_change_audit` + warning-only audit triggers on photo stores (`#2454`). | Review SQL and apply via canonical `scripts/apply-migration.mjs`. Rollback: `DROP TABLE public.wf_photo_change_audit; DROP TRIGGER ...`. |
 | `held-migrations/20261002010000_wf_cc_partner_clicks_exclude_devices.sql` | `BLOCKED` | Command Center partner-click KPI exclusion (`#1627`). Held by owner decision pending CC before/after diff. | Keep held until owner completes KPI/legal review. Rollback: Drop table/function modifications if ever applied. |
 | `held-migrations/20261013180000_event_link_repairs_2026_10_13.sql` | `SUPERSEDED` | Superseded by manual writes and `#1760` (`#1740`). | Keep archived in `held-migrations`; never apply. Rollback: N/A. |
 | `<production-only>:20261113105510_wf_viator_upload_consent_basis` | `DRIFTED` | Applied in live Supabase schema migrations with no committed canonical SQL on `main` (unmerged branch PR `#2490`). | Merge originating PR `#2490` carrying canonical migration SQL + receipt. Rollback: N/A (already live). |
