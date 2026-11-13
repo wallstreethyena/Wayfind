@@ -19,7 +19,7 @@
  * API error, on an incomplete file list, or when the head moves mid-read.
  */
 import { decideOwnerApproval } from "./lib/ownerApproval.mjs";
-import { fetchPullEvidence, readPullContext } from "./lib/githubPullEvidence.mjs";
+import { fetchApprovalCarry, fetchPullEvidence, readPullContext } from "./lib/githubPullEvidence.mjs";
 
 const refuse = (reason) => {
   console.error(`check-owner-approval-pr: FAIL — ${reason}.`);
@@ -30,7 +30,9 @@ const refuse = (reason) => {
 if (process.env.GITHUB_ACTIONS !== "true") {
   refuse("this is the GitHub Actions \"owner-approval\" check; a local run cannot see or grant owner approval");
 }
-const ctx = readPullContext(process.env, ["pull_request_target"]);
+// "merge-train": the merge train on main evaluates the same rule for the head it
+// just brought up to date (an update by the workflow token fires no pull_request_target).
+const ctx = readPullContext(process.env, ["pull_request_target", "merge-train"]);
 if (ctx.error) refuse(`owner approval cannot be evaluated: ${ctx.error}`);
 
 let live;
@@ -47,12 +49,17 @@ if (ctx.eventHeadSha !== live.liveHeadSha) {
   refuse(`PR #${ctx.number} moved from ${ctx.eventHeadSha.slice(0, 12) || "nothing"} to ${live.liveHeadSha.slice(0, 12)} after this run started; the run for the new head decides`);
 }
 
-const verdict = decideOwnerApproval({
+const evidence = {
   changedPaths: live.files,
   mergeGate: true,
   pr: { number: ctx.number, eventHeadSha: ctx.eventHeadSha, liveHeadSha: live.liveHeadSha },
   comments: live.comments,
   error: null,
-});
+  carry: null,
+};
+let verdict = decideOwnerApproval(evidence);
+if (!verdict.ok && verdict.protectedPaths.length) {
+  verdict = decideOwnerApproval({ ...evidence, carry: await fetchApprovalCarry(ctx, live) });
+}
 if (!verdict.ok) refuse(verdict.reason);
 console.log(`check-owner-approval-pr: OK — ${verdict.reason} (${live.files.length} changed path(s) read from the GitHub API and judged by the base branch's rules)`);

@@ -1,0 +1,53 @@
+# .github/workflows/merge-train.yml — THE MERGE TRAIN (2026-11-13).
+#
+# Replaces the Mac watcher. main requires pull requests to be up to date and
+# green; guards takes ~15 minutes and lanes merge every 15 to 20, so lanes that
+# each kept their own pull request current raced forever. GitHub's merge queue
+# is not offered for personal-account repositories, so this workflow does the
+# same job from main: one queued pull request (auto-merge on) at a time is
+# brought up to date, tested ("guards" dispatched on its branch, "owner-approval"
+# judged by main's rule) and merged by auto-merge; then the next.
+# Logic and tests: scripts/lib/mergeTrain.mjs, scripts/merge-train.mjs,
+# scripts/test-merge-train.mjs. To pause the train: disable this workflow.
+#
+# SECURITY: every trigger here runs main's copy of this file and of the scripts.
+# The job checks out main only (never a pull request), installs nothing, and
+# reads pull requests as API data. The write token updates branches, dispatches
+# guards and posts the owner-approval check; it never merges or pushes to main.
+name: merge-train
+on:
+  push:
+    branches: [main]
+  workflow_run:
+    workflows: [guards]
+    types: [completed]
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+permissions:
+  contents: write
+  pull-requests: write
+  actions: write
+  checks: write
+concurrency:
+  group: merge-train
+  cancel-in-progress: false
+jobs:
+  merge-train:
+    name: merge-train
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out main (never a pull request)
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: main
+          persist-credentials: false
+          sparse-checkout: scripts
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+      - name: One pass of the train
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node scripts/merge-train.mjs

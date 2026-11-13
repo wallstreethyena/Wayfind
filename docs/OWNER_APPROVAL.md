@@ -33,8 +33,18 @@ purpose. An **edited** comment does not count either: anyone with write access
 counts only as first posted. To change one, post a new comment.
 
 GitHub authenticates who posted a comment, so it can't be faked by editing a
-commit. The command names one exact commit. Pushing anything new changes the
-head, so the old approval stops matching and the owner has to approve again.
+commit. The command names one exact commit.
+
+**Keeping a PR current does not need a new approval (2026-11-13).** The owner
+approves a change, not a hash. When the head moves only because main was merged
+in ("Update branch" or the merge train), the approval of the earlier head
+carries, but only if that earlier head is a commit of this PR and the PR's own
+change (every file, diffed against main, line numbers removed) is identical at
+both heads. Any edit to the branch, a conflict fix that touches its lines, or a
+main change close enough to alter the diff context breaks the match, and the
+owner approves again. Rule: `carriedApproval` in `scripts/lib/ownerApproval.mjs`;
+evidence: `fetchApprovalCarry` in `scripts/lib/githubPullEvidence.mjs`; tests:
+`scripts/test-merge-train.mjs`.
 
 **What does not count:** commit author or committer names (anyone can type
 "Gabriel Pereira" into a commit), labels, and a green local run.
@@ -156,3 +166,16 @@ admin rights), and without turning off `guards` or `owner-approval`:
 
 After that, changing branch protection or the gate is something only the owner
 can do.
+
+## The merge train (2026-11-13)
+
+main requires a PR to be up to date and green before it merges. guards takes
+about 15 minutes and lanes merge every 15 to 20, so PRs that each kept
+themselves current raced forever. GitHub's merge queue is not available to
+personal-account repositories, so `.github/workflows/merge-train.yml` does the
+same job from main: turn on auto-merge and the PR joins the line; one PR at a
+time is updated with main, `guards` is dispatched on it, `owner-approval` is
+judged for its new head by main's copy of the rule, and auto-merge merges it.
+A PR whose guards fail on the merged result leaves the line until its author
+pushes. Nothing else should update queued PRs. To pause the train, disable the
+workflow in Actions.

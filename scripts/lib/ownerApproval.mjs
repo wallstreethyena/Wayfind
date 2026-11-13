@@ -112,6 +112,11 @@ export function findOwnerApproval(comments, headSha, owners = OWNERS) {
  *   pr: { number, eventHeadSha, liveHeadSha } | null
  *   comments: array | null            PR comments read from the GitHub API
  *   error: string | null              why evidence could not be read
+ *   carry: { fromSha, inPullCommits, ownChangeAtApproval, ownChangeAtHead } | null
+ *                                     optional: an earlier approved head of
+ *                                     this PR and the PR's own change at that
+ *                                     head and at the current head (see
+ *                                     carriedApproval below)
  * }
  * returns { ok, protectedPaths, reason }
  */
@@ -132,7 +137,78 @@ export function decideOwnerApproval(evidence) {
   }
   const approval = findOwnerApproval(evidence.comments, pr.liveHeadSha);
   if (!approval) {
+    const carried = carriedApproval(evidence.comments, evidence.carry);
+    if (carried) {
+      return { ok: true, protectedPaths, reason: `owner-only files changed (${list}); approved by @${carried.user.login} for ${evidence.carry.fromSha.slice(0, 12)} in comment ${carried.id}, and head ${pr.liveHeadSha.slice(0, 12)} only brings main in: the pull request's own change is byte-for-byte the one the owner approved` };
+    }
     return { ok: false, protectedPaths, reason: `owner-only files changed (${list}) with no owner approval for head ${pr.liveHeadSha.slice(0, 12)}. The owner (${OWNER_LOGINS.join(", ")}) approves by commenting on PR #${pr.number}: "${APPROVAL_COMMAND} ${pr.liveHeadSha}" (the full sha), then re-running the checks` };
   }
   return { ok: true, protectedPaths, reason: `owner-only files changed (${list}); approved by @${approval.user.login} for head ${pr.liveHeadSha.slice(0, 12)} in comment ${approval.id}` };
+}
+
+// APPROVAL CARRIES ACROSS INTEGRATION (2026-11-13). Owner rule (2026-11-12): the
+// owner approves a scope, not a hash, and must never be asked again only because
+// main moved. Keeping a pull request current with main (GitHub "Update branch",
+// the merge train) creates a new head whose OWN change is unchanged. An approval
+// for an earlier head carries to the current head only when ALL of these hold:
+//   - the approval is a genuine owner approval for exactly that earlier head
+//     (findOwnerApproval: owner login AND id, unedited comment, full sha);
+//   - that earlier head is a commit of this pull request;
+//   - the pull request's own change (every changed file, diffed against its merge
+//     base with main, patch text with line numbers removed, or the file's blob id
+//     when GitHub gives no patch) is identical at both heads.
+// Any edit by the branch, any conflict resolution that touches its lines, or any
+// main change close enough to alter the diff context makes the fingerprints
+// differ, and the owner approves again. It fails closed: a missing piece of
+// evidence is never a carry.
+export function carriedApproval(comments, carry) {
+  if (!carry || typeof carry !== "object") return null;
+  const from = String(carry.fromSha || "").toLowerCase();
+  if (!SHA40.test(from) || carry.inPullCommits !== true) return null;
+  const a = carry.ownChangeAtApproval, b = carry.ownChangeAtHead;
+  if (typeof a !== "string" || typeof b !== "string" || !a || a !== b) return null;
+  return findOwnerApproval(comments, from);
+}
+
+/** Every distinct head sha the owner approved on this PR, newest comment first. */
+export function ownerApprovedShas(comments, owners = OWNERS) {
+  const list = (Array.isArray(comments) ? comments : []).slice()
+    .sort((x, y) => String(y && y.created_at).localeCompare(String(x && x.created_at)));
+  const seen = [];
+  for (const comment of list) {
+    const body = comment && typeof comment.body === "string" ? comment.body : "";
+    for (const match of body.matchAll(APPROVAL_LINE)) {
+      const sha = match[1].toLowerCase();
+      if (!seen.includes(sha) && findOwnerApproval([comment], sha, owners)) seen.push(sha);
+    }
+  }
+  return seen;
+}
+
+/**
+ * Fingerprint of a pull request's own change from GitHub compare "files"
+ * entries ({ filename, previous_filename, status, patch, sha }). Hunk headers
+ * (line numbers) are dropped; every +, - and context line is kept, so moving
+ * an edit to another place changes the fingerprint. Returns null (no carry)
+ * on anything incomplete.
+ */
+export function ownChangeFingerprint(files) {
+  if (!Array.isArray(files) || !files.length || files.length >= 300) return null;
+  const parts = [];
+  for (const f of files) {
+    if (!f || typeof f.filename !== "string" || !f.filename) return null;
+    let body;
+    if (typeof f.patch === "string" && f.patch) {
+      body = f.patch.split("\n").map((line) => (line.startsWith("@@") ? "@@" : line)).join("\n");
+    } else if (typeof f.sha === "string" && /^[0-9a-f]{40}$/.test(f.sha)) {
+      body = `blob:${f.sha}`;
+    } else if (f.status === "removed") {
+      body = "removed";
+    } else {
+      return null;
+    }
+    parts.push(`${f.status || ""}\u0000${f.previous_filename || ""}\u0000${f.filename}\u0000${body}`);
+  }
+  parts.sort();
+  return parts.join("\u0001");
 }

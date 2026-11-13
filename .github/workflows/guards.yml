@@ -18,7 +18,14 @@ on:
   # Recovery path when the normal pull_request event cannot produce a runnable
   # check (for example a bot-written head commit or a previously blocked run).
   # This executes the exact same `guards` job below; it is not a bypass.
+  # The merge train (.github/workflows/merge-train.yml) also dispatches this on
+  # a queued branch it just brought up to date, naming the pull request in "pr".
   workflow_dispatch:
+    inputs:
+      pr:
+        description: "Pull request number this branch belongs to (merge train)"
+        required: false
+        default: ""
   pull_request:
   push:
     branches: [main]
@@ -118,6 +125,9 @@ jobs:
         env:
           # Evidence for check-doc-ownership's owner approval; read-only (see permissions above).
           GITHUB_TOKEN: ${{ github.token }}
+          # workflow_dispatch only: the pull request and the exact commit judged.
+          WF_PR_NUMBER: ${{ inputs.pr }}
+          WF_PR_HEAD: ${{ github.sha }}
         run: node scripts/run-guards.mjs
       - name: Production build
         env:
