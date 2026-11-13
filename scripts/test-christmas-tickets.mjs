@@ -153,7 +153,7 @@ ok(!secondaryTicketPrimaryMatches({ ...reviewedTmPrimary, href: reviewedTmPrimar
   const zooTicket = ticketAction(base({ id: "zootampa-christmas-wild-2026" }));
   ok(zooTicket?.provider === "viator" && zooTicket.via === "Event tickets at Viator" && new URL(zooTicket.href, "https://www.gowayfind.com").searchParams.get("offer") === "28841P3", "the published ZooTampa card now sells the exact evening event, without adding a recommended tour or substituting daytime admission");
   const guide = CHRISTMAS_2026_GUIDES["florida-theme-park-christmas-2026"];
-  for (const [name, offer] of [["Mickey's Very Merry Christmas Party", "38"], ["Disney Jollywood Nights", "39"], ["Holidays at Universal Orlando", "66"]]) {
+  for (const [name, offer] of [["Mickey's Very Merry Christmas Party", "3805P5"], ["Disney Jollywood Nights", "39"], ["Holidays at Universal Orlando", "66"]]) {
     const pick = guide.picks.find((p) => p.name === name);
     const ticket = guidePickTicket(pick?.ticket);
     ok(ticket?.affiliate === true && new URL(ticket.href, "https://www.gowayfind.com").searchParams.get("offer") === offer, `${name}: the real guide pick carries the right ticket product`);

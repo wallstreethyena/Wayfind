@@ -38,10 +38,10 @@ ok(!!g, `${SLUG} is registered in GUIDES`);
 
 if (g) {
   ok(g.eventTicket === undefined && g.eventTicketPlace === undefined, "the Halloween food guide no longer sells HHN's ended ticket");
-  const entry = EVENT_TICKET_DEALS["mvmcp-2026"];
-  const archived = { ...g, eventTicket: "mvmcp-2026", eventTicketPlace: "Very Merry Party" };
+  const entry = EVENT_TICKET_DEALS["jollywood-nights-2026"];
+  const archived = { ...g, eventTicket: "jollywood-nights-2026", eventTicketPlace: "Jollywood Nights" };
   ok(entry && entry.product === "event-ticket", "the named event resolves to an EVENT-TICKET row, never park admission");
-  ok(entry && UT_EVENT_DEAL_IDS[String(entry.deal)] === "mvmcp-2026", "the deal id is pinned to this exact event in lib/deals.js");
+  ok(entry && UT_EVENT_DEAL_IDS[String(entry.deal)] === "jollywood-nights-2026", "the deal id is pinned to this exact event in lib/deals.js");
   const live = guidePrimaryCta(g, "2026-11-09");
   ok(!live || !String(live.href || "").includes("offer=19"), "the published guide does not sell deal 19");
   ok(guidePrimaryCta({ ...g, eventTicket: "hhn-orlando-2026", eventTicketPlace: "Halloween Horror Nights" }, "2026-11-09") == null || !String(guidePrimaryCta({ ...g, eventTicket: "hhn-orlando-2026" }, "2026-11-09")?.href || "").includes("offer=19"), "a retired HHN eventTicket does not sell deal 19");
@@ -54,9 +54,16 @@ if (g) {
   ok(q.get("provider") === "undercover_tourist", "provider is undercover_tourist");
   ok(q.get("offer") === String(entry && entry.deal), `offer is deal ${entry && entry.deal} (got ${q.get("offer")})`);
   ok(q.get("surface") === "guide", "surface is guide (CJ sub-id)");
-  ok(q.get("content") === "mvmcp-2026", "content id is the event id");
+  ok(q.get("content") === "jollywood-nights-2026", "content id is the event id");
   ok(!/anrdoezrs|cj\.dotomi|undercovertourist\.com/i.test(cta.href), "no partner host in the href");
-  ok(cta.label === "Very Merry Party tickets", `button names the venue (got "${cta && cta.label}")`);
+  ok(cta.label === "Jollywood Nights tickets", `button names the venue (got "${cta && cta.label}")`);
+
+  // Mickey's party moved to Viator's exact party ticket (2026-11-13): the same
+  // guide CTA path routes it through the commerce redirect by product code.
+  const mv = guidePrimaryCta({ ...g, eventTicket: "mvmcp-2026", eventTicketPlace: "Very Merry Party" }, "2026-09-08");
+  const mq = new URL("https://x" + ((mv && mv.href) || "/")).searchParams;
+  ok(mv && mv.monetized === true && mq.get("provider") === "viator" && mq.get("offer") === "3805P5" && mq.get("content") === "mvmcp-2026", `MVMCP guide CTA books Viator 3805P5 (got ${mv && mv.href})`);
+  ok(mv && !/viator\.com|pid=|mcid=/.test(mv.href), "no Viator host or partner id in the MVMCP href");
   ok(cta.label.length <= 44, "label fits the 390px button");
 
   // The fall roundup's remaining picks still hand off to real event pages.
