@@ -481,6 +481,7 @@ resetSearchRejectionTelemetryForTests();
   });
   const ids = res.cards.map((c) => c.id);
   ok(!ids.includes("mu-5pm"), "Q10 blocks museum confirmed closing at 5:00 PM");
+  ok(!ids.includes("mu-unk"), "Q10 blocks daytime museum with unverified hours on late query");
   eq(ids[0], "mu-dali-late", "Q10 ranks museum confirmed open until 10:00 PM #1 ahead of unknown-hours museum");
 }
 
