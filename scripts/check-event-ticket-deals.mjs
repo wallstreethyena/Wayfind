@@ -75,20 +75,26 @@ for (const [eventId, raw] of entries) {
       ok(!(String(norm.offerId) in UT_EVENT_DEAL_IDS), `${eventId}: a park-admission mapping does not borrow an event-ticket row`);
     }
   } else if (norm.provider === "viator") {
-    // Product identity reviewed in the merchant UI and read from wf_experiences
-    // on Nov 6. Never substitute the venue's daytime admission SKU (28841P1).
-    ok(eventId === "zootampa-christmas-wild-2026" && norm.offerId === "28841P3" && norm.product === "event-ticket",
-      `${eventId}: Viator event mapping is pinned to the reviewed Christmas evening product`);
+    // Product identity reviewed and read from wf_experiences. Never substitute
+    // a venue's daytime admission SKU (28841P1) or a Disney park ticket for a
+    // separately ticketed party.
+    const REVIEWED_VIATOR_EVENTS = {
+      "zootampa-christmas-wild-2026": { code: "28841P3", path: "/tours/Tampa/Christmas-in-the-Wild-at-Tampas-Lowry-Park-Zoo/d666-28841P3" },
+      "mvmcp-2026": { code: "3805P5", path: "/tours/Orlando/Mickeys-Very-Merry-Christmas-Party/d663-3805P5" },
+    };
+    const reviewed = REVIEWED_VIATOR_EVENTS[eventId];
+    ok(!!reviewed && norm.offerId === reviewed.code && norm.product === "event-ticket",
+      `${eventId}: Viator event mapping is pinned to its reviewed event product`);
     const dest = await resolveOffer("viator", norm.offerId, {
       env: () => ({ url: "https://fixture.invalid", key: "fixture" }),
       fetch: async (url) => {
-        ok(new URL(url).searchParams.get("product_code") === "eq.28841P3", "the real resolver requests the exact Christmas product from the live catalog");
-        return { ok: true, json: async () => [{ product_code: "28841P3", product_url: "https://www.viator.com/tours/Tampa/Christmas-in-the-Wild-at-Tampas-Lowry-Park-Zoo/d666-28841P3", link_ok: true }] };
+        ok(new URL(url).searchParams.get("product_code") === "eq." + reviewed.code, `${eventId}: the real resolver requests the exact product from the live catalog`);
+        return { ok: true, json: async () => [{ product_code: reviewed.code, product_url: "https://www.viator.com" + reviewed.path, link_ok: true }] };
       },
     });
     const tracked = new URL(dest.dest);
-    ok(tracked.pathname.endsWith("d666-28841P3") && tracked.searchParams.get("pid") === "P00320881" && tracked.searchParams.get("mcid") === "42383",
-      "the exact event survives the real resolver with Wayfind's Viator attribution");
+    ok(tracked.pathname.endsWith(reviewed.path.split("/").pop()) && tracked.searchParams.get("pid") === "P00320881" && tracked.searchParams.get("mcid") === "42383",
+      `${eventId}: the exact event survives the real resolver with Wayfind's Viator attribution`);
   } else if (norm.provider === "ticketnetwork") {
     // 2026-10-29: TicketNetwork sells concert seats by EVENT page
     // (/tickets/<id>/<show>-tickets-<dow>-<mon>-<d>-<yyyy>-<venue>). There is
