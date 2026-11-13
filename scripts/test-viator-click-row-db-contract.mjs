@@ -38,6 +38,15 @@ await db.exec(`DO $$ BEGIN
   IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'service_role') THEN CREATE ROLE service_role; END IF;
 END $$;`);
 await db.exec(fs.readFileSync(path.join(REPO, "supabase/migrations/20261103220000_wf_viator_booking_attribution.sql"), "utf8"));
+await db.exec(fs.readFileSync(path.join(REPO, "supabase/migrations/20261113120000_wf_viator_upload_consent_basis.sql"), "utf8"));
+// A second database with ONLY the original schema: the tier 2 fallback must land there too.
+const baseOnlyDb = new PGlite();
+await baseOnlyDb.exec(`DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'anon') THEN CREATE ROLE anon; END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'authenticated') THEN CREATE ROLE authenticated; END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'service_role') THEN CREATE ROLE service_role; END IF;
+END $$;`);
+await baseOnlyDb.exec(fs.readFileSync(path.join(REPO, "supabase/migrations/20261103220000_wf_viator_booking_attribution.sql"), "utf8"));
 
 // Insert exactly the keys the code sends; everything else takes its DB default.
 async function insertRow(row) {
@@ -189,6 +198,12 @@ ok(stats.rows[0].n === 6 && stats.rows[0].with_id === 6, `all 6 fixture clicks s
   }
   const ins = await insertRow(t2);
   ok(ins.ok === true, `tier 2 row is accepted by the real table (got ${JSON.stringify(ins)})`);
+  ok(!("upload_consent_basis" in t2), "tier 2 uses only original-schema columns");
+  const t2b = { ...t2, click_token: "wfv_" + "b".repeat(32), surface: "tier2_baseonly" };
+  const cols = Object.keys(t2b); const ident = cols.map((c) => `"${c}"`).join(", ");
+  let baseErr = null;
+  try { await baseOnlyDb.query(`insert into public.wf_viator_clicks (${ident}) select ${ident} from json_populate_record(null::public.wf_viator_clicks, $1::json)`, [JSON.stringify(t2b)]); } catch (e) { baseErr = String(e.message || e); }
+  ok(baseErr === null, `tier 2 lands even on the original schema before newer migrations (got ${baseErr})`);
 }
 
 // Verified-campaign path only emits statuses the table allows.
@@ -201,6 +216,7 @@ ok(stats.rows[0].n === 6 && stats.rows[0].with_id === 6, `all 6 fixture clicks s
 }
 
 await db.close();
+await baseOnlyDb.close();
 if (fail.length) {
   console.error("test-viator-click-row-db-contract: FAIL");
   for (const f of fail) console.error("  - " + f);
