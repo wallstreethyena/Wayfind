@@ -7,6 +7,7 @@ import ShareButton from "../components/ShareButton";
 import { pageShareUrl } from "../../lib/pageShareUrl";
 import { christmasTicketsSchema, christmasTopPicks } from "../../lib/christmasTickets";
 import { christmasPageData } from "../../lib/christmasPageData";
+import { SOCIAL_AD_SCRIPT } from "../../lib/socialAdLanding.js";
 import CreatorVideoRail from "../components/CreatorVideoRail.js";
 import VideoFacade from "../components/VideoFacade.js";
 import CreatorPlaybackDetails from "../components/CreatorPlaybackDetails.js";
@@ -99,6 +100,7 @@ export default async function Page() {
   // them only when the visitor's own URL is a social ad landing (isSocialAdLanding).
   const topPicks = christmasTopPicks(tickets);
   return <>
+    <script dangerouslySetInnerHTML={{ __html: SOCIAL_AD_SCRIPT }} />
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ticketsSchema).replace(/</g, "\\u003c") }} />
     <ChristmasTickets model={tickets} topPicks={topPicks} share={<ShareButton url={pageShareUrl("/christmas-in-florida")} title={title} text={description} tone="dark" label="Share" />} browse={<>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemList).replace(/</g, "\\u003c") }} />
