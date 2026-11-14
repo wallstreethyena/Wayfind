@@ -40,8 +40,9 @@ defineGlobal("IS_REACT_ACT_ENVIRONMENT", true);
 defineGlobal("BroadcastChannel", undefined); // node's BroadcastChannel would deliver MessageEvents that jsdom's Event global rejects once a signed in client exists
 
 const calls = [];
-let partnersBody = { ok: true, placeIds: ["partner-1"] };
+let partnersBody = { ok: true, placeIds: ["partner-1", "partner-req", "partner-ot"], lanes: { "partner-1": "instant", "partner-req": "request", "partner-ot": "handoff" } };
 let partnersFails = false;
+let partnersGate = null; // a promise the partners fetch waits on, to test the loading state
 const jsonRes = (status, body) => ({ ok: status >= 200 && status < 300, status, json: async () => body });
 const routes = {}; // "POST /api/reserve/book" -> async (body, init) => [status, json]
 globalThis.fetch = async (url, init) => {
@@ -49,7 +50,7 @@ globalThis.fetch = async (url, init) => {
   const method = (init && init.method) || "GET";
   let body = null; try { body = init && init.body ? JSON.parse(init.body) : null; } catch (e) {}
   calls.push({ url: u, method, body });
-  if (u.startsWith("/api/reserve/partners")) { if (partnersFails) throw new Error("offline"); return jsonRes(200, partnersBody); }
+  if (u.startsWith("/api/reserve/partners")) { if (partnersGate) await partnersGate; if (partnersFails) throw new Error("offline"); return jsonRes(200, partnersBody); }
   const key = method + " " + u.split("?")[0];
   if (routes[key]) { const [status, json] = await routes[key](body, u); return jsonRes(status, json); }
   return jsonRes(404, { ok: false, error: "NOT_MOCKED", message: "not mocked" });
@@ -122,15 +123,16 @@ const wide = (host) => [...host.querySelectorAll(".wf-place-card-cta > *")];
 
 // ── 2. A non partner card is byte for byte the normal card ───────────────────
 {
-  const m = await mount(React.createElement(Card, props("other-1")));
-  ok(m.host.querySelectorAll("[data-reserve-cta]").length === 0 && !/Reserve a table/.test(m.host.innerHTML), "a non partner card has no Reserve button");
+  const cafe = { place: place("other-1", { name: "Sunrise Cafe", types: ["cafe", "food"], primaryType: "cafe" }) };
+  const m = await mount(React.createElement(Card, props("other-1", cafe)));
+  ok(m.host.querySelectorAll("[data-reserve-cta]").length === 0 && !/Reserve a table/.test(m.host.innerHTML), "a walk in cafe has no reservation button of any kind");
   ok(m.host.querySelectorAll(".wf-place-card-cta").length === 0 && !m.host.querySelector(".wf-place-card").classList.contains("has-cta"), "…no empty slot and no has-cta class");
-  const server = renderToStaticMarkup(React.createElement(Card, props("other-1")));
+  const server = renderToStaticMarkup(React.createElement(Card, props("other-1", cafe)));
   const clientHtml = m.host.innerHTML;
   // jsdom re-serialises inline styles (colours, spacing) and the live card sets data-wf-live after mount; neither is markup we changed, so structure, classes and text are compared.
   const norm = (s) => s.replace(/<!--.*?-->/g, "").replace(/ data-wf-live="1"/g, "").replace(/ style="[^"]*"/g, "").replace(/&#x27;/g, "'");
   if (norm(clientHtml) !== norm(server)) { let i = 0; const a = norm(clientHtml), b = norm(server); while (a[i] === b[i]) i++; console.error("DIFF at " + i + "\n client: " + a.slice(i - 80, i + 160) + "\n server: " + b.slice(i - 80, i + 160)); }
-  ok(norm(clientHtml) === norm(server), "non partner card markup after the partner list arrived equals its plain server markup");
+  ok(norm(clientHtml) === norm(server), "cafe card markup after the partner list arrived equals its plain server markup");
   await m.unmount();
 }
 
@@ -182,10 +184,105 @@ const wide = (host) => [...host.querySelectorAll(".wf-place-card-cta > *")];
   const n0 = calls.length;
   const a = await fresh.loadReservePartners();
   ok(a.has("partner-1") && calls.length === n0 + 1, "first load fetches once and returns the partner ids");
-  ok(JSON.parse(sessionStorage.getItem("wf_reserve_partners_v1")).ids.includes("partner-1"), "…and writes the 5 minute sessionStorage cache");
+  ok(JSON.parse(sessionStorage.getItem("wf_reserve_partners_v2")).ids.includes("partner-1"), "…and writes the 5 minute sessionStorage cache");
   const fresh2 = await loadComponent(path.join(ROOT, "lib/reservePartners.js"), ROOT);
   const b = await fresh2.loadReservePartners();
   ok(b.has("partner-1") && calls.length === n0 + 1, "a new page load within 5 minutes reads sessionStorage and does not fetch");
+}
+
+// ── 5b. Capability to CTA: every lane label, ask for sit down places, nothing for walk in, failure and loading ─
+{
+  const cap = await loadComponent(path.join(ROOT, "lib/reserveCapability.js"), ROOT);
+  ok(cap.RESERVE_LABELS.instant === "Reserve a table" && cap.RESERVE_LABELS.request === "Request a table" && cap.RESERVE_LABELS.handoff === "Reserve on OpenTable" && cap.RESERVE_LABELS.ask === "Ask about a table", "the four labels are exactly: Reserve a table, Request a table, Reserve on OpenTable, Ask about a table");
+  ok(!/[–—]/.test(Object.values(cap.RESERVE_LABELS).join("")), "labels carry no dashes");
+  const sit = (types, primaryType, extra) => cap.isSitDownPlace({ id: "x", name: "N", types, primaryType, ...extra });
+  ok(sit(["restaurant", "food"], "restaurant") && sit(["bar", "night_club"], "bar") && sit(["steak_house", "restaurant"], "steak_house") && sit(["seafood_restaurant"], null), "restaurants, bars, steakhouses are sit down");
+  ok(!sit(["cafe", "food"], "cafe") && !sit(["restaurant", "cafe"], "cafe") && !sit(["bakery", "food"], "bakery") && !sit(["restaurant", "meal_takeaway"], "meal_takeaway") && !sit(["fast_food_restaurant", "restaurant"], "fast_food_restaurant") && !sit(["ice_cream_shop"], "ice_cream_shop") && !sit(["coffee_shop", "cafe"], null), "cafes, bakeries, takeaway, fast food, ice cream are NOT sit down");
+  ok(!sit(["lodging", "restaurant"], "hotel") && !sit(["park", "tourist_attraction"], "park") && !sit([], null), "hotels, parks and untyped places are not sit down");
+  const caps = (state, lanes, ids) => ({ state, lanes: lanes || {}, ids: new Set(ids || Object.keys(lanes || {})) });
+  const rest = { id: "r1", types: ["restaurant"], primaryType: "restaurant" };
+  ok(cap.reserveLaneFor(rest, caps("loading")) === null, "while the list loads: nothing, not even Ask about a table");
+  ok(cap.reserveLaneFor(rest, caps("ok", { r1: "request" })) === "request" && cap.reserveLaneFor(rest, caps("ok", {})) === "ask", "ok: the verified lane, else Ask for a sit down place");
+  ok(cap.reserveLaneFor({ id: "c1", types: ["cafe"], primaryType: "cafe" }, caps("ok", {})) === null, "ok: a cafe without a route gets nothing");
+  ok(cap.reserveLaneFor(rest, caps("failed")) === "ask" && cap.reserveLaneFor({ id: "r1", types: ["cafe"], primaryType: "cafe" }, caps("failed")) === null, "failed list: a restaurant still gets Ask about a table (never a verified label), a cafe gets nothing");
+  ok(cap.reserveLaneFor(rest, caps("ok", {}, ["r1"])) === "ask", "a listed id with no lane (older payload) reads as Ask, never as a promise");
+}
+{
+  const btnFor = (m) => [...m.host.querySelectorAll("[data-reserve-cta]")];
+  const lane = async (id, extra, C = Card) => { const m = await mount(React.createElement(C, props(id, extra))); const b = btnFor(m); return { m, b }; };
+  // each lane renders its own label and aria label, in the one existing slot, signed out
+  ok(!Object.keys(localStorage).some((k) => /auth-token/.test(k)), "SETUP: no session exists (the checks below are a signed out visitor)");
+  for (const [id, label] of [["partner-1", "Reserve a table"], ["partner-req", "Request a table"], ["partner-ot", "Reserve on OpenTable"], ["other-rest", "Ask about a table"]]) {
+    const { m, b } = await lane(id);
+    ok(b.length === 1 && b[0].textContent.trim() === label + "›" && b[0].getAttribute("aria-label") === label + " at Mario's Trattoria" && b[0].parentElement.classList.contains("wf-place-card-cta") && wide(m.host).length === 1, `${id}: exactly one wide button labelled "${label}" in the existing slot, visible while signed out`);
+    ok(!/booked|confirmed/i.test(b[0].textContent), `${id}: label never claims a booking`);
+    await m.unmount();
+  }
+  { const { m, b } = await lane("other-bar", { place: place("other-bar", { name: "The Tap", types: ["bar", "establishment"], primaryType: "bar" }) });
+    ok(b.length === 1 && b[0].textContent.startsWith("Ask about a table"), "a bar with no route gets Ask about a table"); await m.unmount(); }
+  // walk in places and non food get nothing
+  for (const [nm, pl] of [["cafe", { types: ["cafe"], primaryType: "cafe" }], ["bakery", { types: ["bakery", "food"], primaryType: "bakery" }], ["takeaway", { types: ["meal_takeaway", "restaurant"], primaryType: "meal_takeaway" }], ["fast food", { types: ["fast_food_restaurant"], primaryType: "fast_food_restaurant" }], ["park", { types: ["park"], primaryType: "park" }]]) {
+    const { m, b } = await lane("walk-" + nm, { place: place("walk-" + nm, pl) });
+    ok(b.length === 0 && m.host.querySelectorAll(".wf-place-card-cta").length === 0 && !/table/i.test(m.host.textContent), `${nm}: no reservation action and no empty slot`);
+    await m.unmount();
+  }
+  // a caller cta is never displaced (all current caller ctas are hotel, event or commerce): one wide button, the caller's
+  { const cta = React.createElement("a", { href: "/api/hotels/go?x=1", className: "caller-cta" }, "Check rates");
+    for (const id of ["partner-1", "other-rest"]) { const { m, b } = await lane(id, { cta }); ok(b.length === 0 && !!m.host.querySelector(".caller-cta") && wide(m.host).length === 1, `${id}: a caller cta keeps the slot, no second primary button`); await m.unmount(); } }
+  // tapping opens the concierge for THAT restaurant (the sheet is the real lazy chunk, the concierge posts its place id)
+  for (const [id, label] of [["partner-1", "Reserve a table"], ["partner-req", "Request a table"], ["partner-ot", "Reserve on OpenTable"], ["other-rest", "Ask about a table"]]) {
+    routes["POST /api/reserve/concierge"] = async () => [200, { ok: true, say: "ok", state: { placeId: id }, card: null }];
+    const before = calls.length;
+    let opened = 0; const { m, b } = await lane(id, { onOpen: () => { opened++; } });
+    await act(async () => { b[0].dispatchEvent(new w.MouseEvent("click", { bubbles: true, cancelable: true })); });
+    await act(async () => { await new Promise((r) => setTimeout(r, 150)); });
+    const dlg = document.querySelector('[role="dialog"]');
+    ok(opened === 0 && !!dlg && !!dlg.querySelector("[data-reserve-concierge]") && /Mario's Trattoria/.test(dlg.textContent), `${label}: tap opens the concierge sheet for the restaurant (card stays closed)`);
+    ok(!!dlg && (dlg.querySelector("#wf-reserve-title") || {}).textContent === label, `${label}: the sheet title repeats the button, never a stronger promise (got ${(dlg && dlg.querySelector("#wf-reserve-title") || {}).textContent})`);
+    ok(document.documentElement.hasAttribute("data-wf-reserve-open") && /\.wf-sd\{visibility:hidden\}/.test(dlg.parentElement.innerHTML), `${label}: while the sheet is open the fixed Santa dock is hidden so it cannot cover the message box`);
+    const input = dlg && dlg.querySelector("#wf-reserve-msg");
+    if (input) { Object.getOwnPropertyDescriptor(w.HTMLInputElement.prototype, "value").set.call(input, "tomorrow at 7 for 2"); await act(async () => { input.dispatchEvent(new w.Event("input", { bubbles: true })); }); await act(async () => { dlg.querySelector("form:last-of-type").dispatchEvent(new w.Event("submit", { bubbles: true, cancelable: true })); await new Promise((r) => setTimeout(r, 80)); }); }
+    const turnCall = calls.slice(before).find((c) => c.url === "/api/reserve/concierge");
+    ok(!!turnCall && turnCall.body.context.placeId === id, `${label}: the concierge turn carries context.placeId = ${id}`);
+    document.querySelectorAll("[data-reserve-host],[role=dialog]").forEach((x) => x.remove());
+    delete routes["POST /api/reserve/concierge"];
+    await m.unmount();
+  }
+  // loading: the server HTML and a card whose list is still pending render nothing new
+  ok(!/Ask about a table|Request a table|OpenTable/.test(renderToStaticMarkup(React.createElement(Card, props("other-rest")))), "server HTML never carries Ask about a table either (nothing is drawn before the list answers)");
+  { const Fresh = (await loadComponent(path.join(ROOT, "app/components/IconicPlaceCard.js"), ROOT)).default;
+    sessionStorage.clear();
+    let release; partnersGate = new Promise((r) => { release = r; });
+    const m = await mount(React.createElement(Fresh, props("other-rest")));
+    ok(btnFor(m).length === 0, "while the capability request is still loading, a restaurant card shows no reservation action");
+    release(); partnersGate = null; await flush();
+    ok(btnFor(m).length === 1 && btnFor(m)[0].textContent.startsWith("Ask about a table"), "…and once it answers (no route) the Ask entry appears");
+    await m.unmount(); }
+  // failed load: restaurants still get the honest Ask entry, never a verified label; cafes get nothing
+  { const Fresh = (await loadComponent(path.join(ROOT, "app/components/IconicPlaceCard.js"), ROOT)).default;
+    sessionStorage.clear(); partnersFails = true;
+    const w0 = console.warn; console.warn = () => {};
+    const a = await lane("partner-1", {}, Fresh);
+    const c = await lane("walk-failed", { place: place("walk-failed", { types: ["cafe"], primaryType: "cafe" }) }, Fresh);
+    console.warn = w0; partnersFails = false;
+    ok(a.b.length === 1 && a.b[0].textContent.startsWith("Ask about a table") && !/Reserve a table|Request a table|OpenTable/.test(a.m.host.textContent.replace("Ask about a table", "")), "failed capability request: a restaurant gets Ask about a table (the concierge checks live), never a verified label");
+    ok(c.b.length === 0, "failed capability request: a cafe still gets nothing");
+    await a.m.unmount(); await c.m.unmount(); sessionStorage.clear(); }
+  // RailCard: the same entry in its money-action slot, and the caller's own cta (commerce) is never displaced
+  { const Rail = (await loadComponent(path.join(ROOT, "app/components/RailCard.js"), ROOT)).default;
+    const railProps = (id, extra) => ({ title: "Mario's Trattoria", photo: null, place: place(id), rank: 1, onSave: noop, onLike: noop, onDislike: noop, onShare: noop, ...extra });
+    const r1 = await mount(React.createElement(Rail, railProps("partner-1")));
+    ok(r1.host.querySelectorAll("[data-reserve-cta]").length === 1 && r1.host.querySelector("[data-reserve-cta]").textContent.startsWith("Reserve a table"), "RailCard: a partner restaurant card carries the Reserve entry");
+    await r1.unmount();
+    const r2 = await mount(React.createElement(Rail, railProps("partner-1", { cta: { label: "Book on Viator", href: "https://example.com/x", external: true } })));
+    ok(r2.host.querySelectorAll("[data-reserve-cta]").length === 0 && /Book on Viator/.test(r2.host.textContent), "RailCard: a caller commerce cta is kept and no second primary button appears");
+    await r2.unmount();
+    const r3 = await mount(React.createElement(Rail, railProps("other-rest")));
+    ok(r3.host.querySelectorAll("[data-reserve-cta]").length === 1 && r3.host.textContent.includes("Ask about a table"), "RailCard: a sit down restaurant with no route gets Ask about a table");
+    await r3.unmount();
+    const r4 = await mount(React.createElement(Rail, railProps("walk-r", { place: place("walk-r", { types: ["bakery"], primaryType: "bakery" }) })));
+    ok(r4.host.querySelectorAll("[data-reserve-cta]").length === 0, "RailCard: a bakery gets nothing");
+    await r4.unmount(); }
 }
 
 // ── 6. The form rules (shape checks; the database decides what is open) ─────
@@ -221,7 +318,7 @@ const wide = (host) => [...host.querySelectorAll(".wf-place-card-cta > *")];
   const strip = (s) => s.replace(/\/\*[\s\S]*?\*\//g, " ").replace(/^\s*\/\/.*$/gm, " ");
   const read = (f) => strip(readFileSync(path.join(ROOT, f), "utf8"));
   const card = read("app/components/IconicPlaceCard.js");
-  ok(/useReservePartner\(\s*cta\s*\?\s*null/.test(card), "the card only subscribes to partner status when the caller left the cta slot free");
+  ok(/useReserveEntry\(\s*cta\s*\?\s*null/.test(card), "the card only subscribes to partner status when the caller left the cta slot free");
   const staticImports = (src) => [...src.matchAll(/^\s*import\s[^;]*?from\s+["']([^"']+)["']/gm)].map((m) => m[1]);
   ok(!staticImports(card).some((x) => /ReserveCta|ReserveSheet|reserveClientApi|reservePartners|reserveOpen/.test(x)), "the card statically imports only lib/reserveClient.js: button, sheet, API, loader and opener are lazy chunks (homepage JS budget)");
   ok(!/\blazy\(|\bSuspense\b|import\(\s*["']\.\/ReserveCta/.test(card) && /ReserveSlot\s*\?\s*<ReserveSlot\s+place=/.test(card), "the card has no lazy(), no Suspense and no import() for the button: the hook hands it the slot component");
@@ -275,6 +372,19 @@ const wide = (host) => [...host.querySelectorAll(".wf-place-card-cta > *")];
   ok(!!m.host.querySelector('[role="log"][aria-live="polite"]'), "the thread is an aria-live log");
   ok(calls.filter((c) => c.url === "/api/reserve/book").length === 0, "nothing is booked until a chip is tapped");
   await click(chips[1]);
+  ok(callsTo("POST", "/api/reserve/book").length === 0, "tapping a time chip makes ZERO /book calls (it only shows the confirm step)");
+  const cf = m.host.querySelector('[data-reserve-card="confirm"]');
+  ok(!!cf && cf.textContent.includes(`Mario's Trattoria, ${WD} at 7:00 PM for 4.`) && /Booking as Gabriel P\./.test(cf.textContent), "confirm card: '<Restaurant>, <Weekday> at <time> for <N>. Booking as <profile.display>.' (got " + (cf && cf.textContent.slice(0, 120)) + ")");
+  ok(!!cf.querySelector('[data-reserve-confirm="1"]') && cf.querySelector('[data-reserve-confirm="1"]').textContent === "Confirm booking" && !!bt(m, "Pick another time"), "confirm card has a primary 'Confirm booking' (data-reserve-confirm) and a quiet 'Pick another time'");
+  await click(bt(m, "Pick another time"));
+  ok(callsTo("POST", "/api/reserve/book").length === 0 && m.host.querySelectorAll("[data-reserve-time]").length === 2 && !m.host.querySelector('[data-reserve-card="confirm"]'), "'Pick another time' brings the times back and still books nothing");
+  await click(m.host.querySelector('[data-reserve-time="19:00"]'));
+  routes["POST /api/reserve/book"] = (() => { const inner = routes["POST /api/reserve/book"]; return async (b, u) => { await new Promise((r) => setTimeout(r, 40)); return inner(b, u); }; })();
+  const confirmBtn = m.host.querySelector('[data-reserve-confirm="1"]');
+  await act(async () => { confirmBtn.dispatchEvent(new w.MouseEvent("click", { bubbles: true, cancelable: true })); confirmBtn.dispatchEvent(new w.MouseEvent("click", { bubbles: true, cancelable: true })); });
+  ok(confirmBtn.disabled, "Confirm booking is disabled while the booking is in flight");
+  await settle(120);
+  ok(callsTo("POST", "/api/reserve/book").length === 1, "a double tap on Confirm booking posts /book exactly once (got " + callsTo("POST", "/api/reserve/book").length + ")");
   const bk = callsTo("POST", "/api/reserve/book")[0];
   ok(!!bk && bk.body.placeId === "partner-1" && bk.body.date === DAY && bk.body.time === "19:00" && bk.body.partySize === 4 && /^[0-9a-f-]{36}$/.test(bk.body.idempotencyKey), "tapping a time posts /api/reserve/book with placeId, date, time, party and an idempotency key");
   const bookedEl = m.host.querySelector('[data-reserve-card="booked"]');
@@ -312,6 +422,7 @@ const wide = (host) => [...host.querySelectorAll(".wf-place-card-cta > *")];
   routes["POST /api/reserve/book"] = async () => [409, { ok: false, error: "SLOT_FULL", alternatives: ["19:30", "20:00"] }];
   m = await mountC({ initialMessage: "x" });
   await click(m.host.querySelector('[data-reserve-time="19:00"]'));
+  await click(m.host.querySelector('[data-reserve-confirm="1"]'));
   const alts = [...m.host.querySelectorAll("[data-reserve-time]")].map((b) => b.textContent);
   ok(/7:00 PM just filled up/.test(m.host.textContent) && alts.includes("7:30 PM") && alts.includes("8:00 PM") && !/Booked/.test(m.host.textContent), "SLOT_FULL: 'just filled up' plus the server's alternative times as chips");
   await m.unmount();
@@ -354,6 +465,7 @@ const wide = (host) => [...host.querySelectorAll(".wf-place-card-cta > *")];
   await click(m.host.querySelector("[data-reserve-save-name]"));
   await submit(m.host.querySelector('[data-reserve-card="profile"]'));
   await click(m.host.querySelector('[data-reserve-time="19:00"]'));
+  await click(m.host.querySelector('[data-reserve-confirm="1"]'));
   ok(callsTo("PUT", "/api/reserve/profile").length === 0 && callsTo("POST", "/api/reserve/book")[0].body.guestName === "Sam", "Save unchecked: no profile PUT, the name travels once with the booking");
   await m.unmount();
 
@@ -363,9 +475,28 @@ const wide = (host) => [...host.querySelectorAll(".wf-place-card-cta > *")];
   const door = document.createElement("button"); door.className = "wf-signin-button"; let door_clicks = 0; door.addEventListener("click", () => { door_clicks++; }); document.body.appendChild(door);
   m = await mountC({ initialMessage: "x" });
   ok(!!bt(m, "Sign in to book"), "signin card has a 'Sign in to book' button");
+  const writes = []; const origSet = w.Storage.prototype.setItem;
+  w.Storage.prototype.setItem = function (k, v) { if (k === "wf_reserve_pending_v1") writes.push(JSON.parse(v)); return origSet.call(this, k, v); };
   await click(bt(m, "Sign in to book"));
+  w.Storage.prototype.setItem = origSet;
   ok(door_clicks === 1, "…which uses the site's own sign in door (.wf-signin-button)");
-  door.remove(); await m.unmount();
+  const pend = writes[0] || null; // (the test session is already signed in, so the card's own listener clears it at once; real signed out visitors keep it until sign in)
+  sessionStorage.setItem("wf_reserve_pending_v1", JSON.stringify({ placeId: "partner-1", name: "Mario's Trattoria", t: Date.now() }));
+  ok(!!pend && pend.placeId === "partner-1" && pend.name === "Mario's Trattoria" && !("note" in pend), "tapping Sign in to book saves the pending intent {placeId, name} in sessionStorage (survives a full page OAuth redirect)");
+  await m.unmount();
+  { // after a redirect: no sheet open, a session exists, the home shell calls resumeReserveIntent -> the sheet reopens on the same restaurant, once
+    const ro = await loadComponent(path.join(ROOT, "lib/reserveOpen.js"), ROOT);
+    routes["POST /api/reserve/concierge"] = turn(null, "Sure.");
+    ok(ro.resumeReserveIntent() === true, "resumeReserveIntent reopens the sheet from the saved intent");
+    await settle(200);
+    const dlg2 = document.querySelector('[role="dialog"]');
+    ok(!!dlg2 && !!dlg2.querySelector("[data-reserve-concierge]") && /Mario's Trattoria/.test(dlg2.textContent), "the resumed sheet is the concierge for the same restaurant");
+    ok(sessionStorage.getItem("wf_reserve_pending_v1") === null && ro.resumeReserveIntent() === false, "the intent is consumed once, never reopens twice");
+    sessionStorage.setItem("wf_reserve_pending_v1", JSON.stringify({ placeId: "partner-1", name: "M", t: Date.now() - 31 * 60 * 1000 }));
+    ok(ro.resumeReserveIntent() === false && sessionStorage.getItem("wf_reserve_pending_v1") === null, "a stale intent (over 30 minutes) is dropped, not resumed");
+    document.querySelectorAll("[data-reserve-host],[role=dialog]").forEach((x) => x.remove());
+  }
+  door.remove();
   reset();
   routes["POST /api/reserve/concierge"] = turn({ type: "choose", restaurants: [{ placeId: "r-1", name: "Mario's North", address: "1 Main St" }, { placeId: "r-2", name: "Mario's South", address: "2 Main St" }] }, "Which one?");
   m = await mountC({ initialPlace: null, initialMessage: "mario's" });
@@ -380,6 +511,13 @@ const wide = (host) => [...host.querySelectorAll(".wf-place-card-cta > *")];
   routes["POST /api/reserve/concierge"] = turn({ type: "alternatives", picks: [{ placeId: "pick-1", name: "Osteria Uno", locality: "Tampa", cuisines: ["Italian"] }] }, "Fully booked. Try these.");
   m = await mountC({ initialMessage: "x" });
   ok(!!m.host.querySelector('[data-reserve-pick="pick-1"]') && callsTo("POST", "/api/reserve/find").length === 0, "alternatives card shows pick chips from the card without another lookup");
+  ok(!/Places you can book/.test(m.host.textContent) && /Similar places nearby/.test(m.host.textContent), "suggestions are titled 'Similar places nearby', never 'Places you can book'");
+  await m.unmount();
+  reset();
+  routes["POST /api/reserve/concierge"] = turn({ type: "alternatives", picks: [], contact: { url: "/p/joy-1", label: "Call or visit Joy Bar" } }, "I can't book Joy Bar through Wayfind yet.");
+  m = await mountC({ initialMessage: "x" });
+  const contactA = m.host.querySelector("[data-reserve-contact]");
+  ok(!!contactA && contactA.getAttribute("href") === "/p/joy-1" && contactA.textContent === "Call or visit Joy Bar" && !m.host.querySelector("[data-reserve-pick]"), "a no-provider answer gives the restaurant's own page as a button, and no invented picks");
   await m.unmount();
   reset();
   routes["POST /api/reserve/concierge"] = turn(null, "What day works?");
@@ -393,7 +531,9 @@ const wide = (host) => [...host.querySelectorAll(".wf-place-card-cta > *")];
   await act(async () => { Sheet.showReserveSheet({ id: "partner-1", name: "Mario's" }, { prefill: { date: DAY, time: "19:30", partySize: 4 } }); }); await settle(150);
   const dlg = document.querySelector('[role="dialog"]');
   ok(!!dlg && !!dlg.querySelector("[data-reserve-concierge]") && callsTo("POST", "/api/reserve/concierge").length === 1 && /Table for 4/.test(callsTo("POST", "/api/reserve/concierge")[0].body.messages[0].content), "the sheet hosts the concierge, seeded with the prefill as plain words");
+  ok((dlg.querySelector("#wf-reserve-title") || {}).textContent === "Find a table", "a sheet opened without a lane says 'Find a table', never 'Reserve a table'");
   await act(async () => { document.dispatchEvent(new w.KeyboardEvent("keydown", { key: "Escape", bubbles: true })); }); await settle(10);
+  ok(!document.documentElement.hasAttribute("data-wf-reserve-open"), "closing the sheet brings the Santa dock back");
   document.querySelectorAll("[data-reserve-host],[role=dialog]").forEach((x) => x.remove());
 
   // (h) My reservations: every status label

@@ -124,7 +124,7 @@ export default function EventWhere({ venue, address, directionsHref, website, la
               ) : null}
               {website ? (
                 <a className="wfw-btn wfw-site wfw-official" href={website} target="_blank" rel={(sponsoredWebsite ? "sponsored " : "") + "nofollow noopener"} aria-label={"Official site for " + (venue || address)} {...(ticketLink ? { "data-wf-ticket": "1" } : {})}>
-                  <span>Official site ↗</span>{host ? <small>{host}</small> : null}
+                  <span>Official site ↗</span>{host ? <>{" "}<small>{host}</small></> : null}
                 </a>
               ) : null}
             </div>
@@ -135,7 +135,7 @@ export default function EventWhere({ venue, address, directionsHref, website, la
             <EventVenueMapLoader key={`${venue || address}:${lat}:${lng}`} venue={{ name: venue || address, lat, lng, locationTrust: location.trust, street: location.street, city: location.city, state: location.state, segment: location.segment, id: placeId || undefined }} picks={pins} directionsHref={directionsHref} parkingEnabled={!approximate} />
           </div>
         ) : null}
-        {hasPoint ? <div className="wfw-foot" aria-label="Map key"><span><b className="wfw-key-venue" aria-hidden="true">★</b> Event</span>{pins.length > 0 ? <span><b className="wfw-key-nearby" aria-hidden="true">●</b> Places</span> : null}</div> : null}
+        {hasPoint ? <div className="wfw-foot" aria-label="Map key"><span><b className="wfw-key-venue" aria-hidden="true">★</b> Event</span>{pins.length > 0 ? <>{" "}<span><b className="wfw-key-nearby" aria-hidden="true">●</b> Places</span></> : null}</div> : null}
         {/* v9.01 (owner, 2026-09-11): map results belong inside the map
             panel as the standard horizontal IconicPlaceCard rail. They remain
             unmistakably separate from the ticketed venue through the teal

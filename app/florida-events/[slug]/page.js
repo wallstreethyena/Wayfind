@@ -392,6 +392,25 @@ export default async function CuratedEventPage({ params }) {
             tone="dark"
             event="event_share"
             meta={{ slug: params.slug, event_id: e.event_id || null, city: e.city || null, placement: "hero" }}
+            invite={{
+              name: e.event_name,
+              city: e.city || "",
+              placeId: e.place_id || "",
+              category: e.category || "",
+              when: (e.season_undated || e.christmas_watchlist)
+                ? ""
+                : (Array.isArray(occurrenceDatesFor(e)) && occurrenceDatesFor(e).length
+                    ? occurrenceDatesFor(e)[0]
+                    : (e.start_date ? String(e.start_date).slice(0, 10) : "")),
+              eventDate: (e.season_undated || e.christmas_watchlist)
+                ? ""
+                : (Array.isArray(occurrenceDatesFor(e)) && occurrenceDatesFor(e).length
+                    ? occurrenceDatesFor(e).join(",")
+                    : (e.start_date ? (e.end_date && e.end_date !== e.start_date ? `${String(e.start_date).slice(0, 10)}..${String(e.end_date).slice(0, 10)}` : String(e.start_date).slice(0, 10)) : "")),
+              geo: mapPoint && Number.isFinite(mapPoint.lat) && Number.isFinite(mapPoint.lng) ? `${mapPoint.lat},${mapPoint.lng}` : "",
+              surface: "event",
+              label: "Ask someone",
+            }}
           />
         </div>
       </div>
