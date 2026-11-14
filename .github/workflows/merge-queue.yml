@@ -19,6 +19,16 @@
 # Strict protection is unchanged: the queue satisfies it, it does not bypass it.
 # Rollback: stop adding the label (or delete this file); nothing else depends on it.
 #
+# HOW TO STOP IT: removing a pull request's "merge-queue" label does NOT cancel a step
+# that is already running for it (an update-branch, a dispatched guards run or a merge
+# in flight completes). The effective stop is the label "merge-queue-halt": put it on
+# ANY open issue or pull request and the drain stops before its next mutation
+# (update-branch, dispatch, check post, merge) with the log line "halted" and exit 0,
+# leaving every labelled pull request untouched. A merge already sent is not undone.
+# For an immediate stop also cancel the running workflow run (Actions tab, or
+# `gh run cancel <id>`). If the halt label cannot be read the queue counts as halted.
+# Remove the halt label, then re-label or wait for the hourly sweep, to resume.
+#
 # SECURITY: the job holds a write token, so it never checks out, installs or runs
 # anything from a pull request. It checks out main's scripts only (pull_request_target
 # and push and workflow_dispatch all run from main), reads pull requests as API data,

@@ -17,12 +17,12 @@
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
-import { runQueue, TreeMismatchError, RefusedError, MAX_MERGE_ATTEMPTS, POST_MERGE_PATH_WORKFLOWS } from "./merge-queue.mjs";
+import { runQueue, runCli, TreeMismatchError, RefusedError, MAX_MERGE_ATTEMPTS, POST_MERGE_PATH_WORKFLOWS } from "./merge-queue.mjs";
 import { readFileSync } from "node:fs";
 import { protectedFingerprint } from "./lib/ownerApproval.mjs";
 import {
   pickNext, classify, STATES, pickGuardsCheck, pickDispatchedRun, treesEqual,
-  readConfig, refuseUnlessMainOnActions, buildComment, isQueueable,
+  readConfig, refuseUnlessMainOnActions, buildComment, isQueueable, guardsRunMismatch, isGuardsWorkflowRun,
 } from "./lib/mergeQueue.mjs";
 
 let pass = 0;
@@ -44,6 +44,7 @@ class FakeGitHub {
     this.n = 0; this.clock = Date.UTC(2026, 10, 13, 12, 0, 0);
     this.commits = new Map(); this.prs = new Map(); this.runs = []; this.checkRuns = [];
     this.calls = []; this.logs = []; this.runSeq = 1000; this.mergeTreeOverride = null;
+    this.haltIssues = []; this.haltAtCheck = 0; this.haltChecks = 0; this.suiteSeq = 5000;
     this.main = this.sha(); this.commits.set(this.main, { tree: this.sha() });
   }
   sha() { return (++this.n).toString(16).padStart(40, "0"); }
@@ -89,10 +90,17 @@ class FakeGitHub {
     let m;
     if (method === "GET" && (m = p.match(/^\/issues\?labels=([^&]+)/))) {
       const label = decodeURIComponent(m[1]);
+      if (label === "merge-queue-halt") {
+        this.haltChecks++;
+        if (this.haltUnreadable) return reply(503, { message: "unavailable" });
+        const raised = this.haltAtCheck > 0 && this.haltChecks >= this.haltAtCheck;
+        return reply(200, [...this.haltIssues, ...(raised ? [{ number: 9999 }] : [])]);
+      }
       return reply(200, [...this.prs.values()].filter((x) => x.state === "open" && x.labels.includes(label)).map((x) => ({ number: x.number, pull_request: {} })));
     }
     if (method === "GET" && (m = p.match(/^\/pulls\/(\d+)$/))) {
       const pr = this.prs.get(Number(m[1]));
+      if (pr && pr.getFail) { if (pr.getFail === "throw") throw new Error("The operation was aborted due to timeout"); return reply(pr.getFail, { message: "unavailable" }); }
       return pr ? reply(200, this.pullObj(pr)) : reply(404, { message: "Not Found" });
     }
     if (method === "GET" && (m = p.match(/^\/pulls\/(\d+)\/files\?.*page=(\d+)/))) {
@@ -124,10 +132,11 @@ class FakeGitHub {
     }
     if (method === "POST" && (m = p.match(/^\/actions\/workflows\/([\w.-]+)\/dispatches$/))) {
       if (m[1] !== "guards.yml") return reply(404, { message: "workflow not found" });
-      if (body.ref === "main") { this.runs.push({ id: ++this.runSeq, head_sha: this.main, branch: "main", event: "workflow_dispatch", status: "queued", plan: null, polls: 0, created_at: this.iso(), html_url: "u" }); return reply(204); }
+      if (body.ref === "main") { this.runs.push({ id: ++this.runSeq, check_suite_id: ++this.suiteSeq, path: ".github/workflows/guards.yml", head_sha: this.main, branch: "main", event: "workflow_dispatch", status: "queued", plan: null, polls: 0, created_at: this.iso(), html_url: "u" }); return reply(204); }
       const pr = [...this.prs.values()].find((x) => x.headRef === body.ref);
       if (!pr) return reply(422, { message: "no such ref" });
-      this.runs.push({ id: ++this.runSeq, head_sha: pr.headSha, branch: pr.headRef, event: "workflow_dispatch", status: "queued", conclusion: null, plan: pr.ci, polls: 0, created_at: this.iso(), html_url: `https://example.test/runs/${this.runSeq}`, inputs: body.inputs });
+      if (pr.dispatchFail) return reply(pr.dispatchFail, { message: "bad gateway" });
+      this.runs.push({ id: ++this.runSeq, check_suite_id: ++this.suiteSeq, path: ".github/workflows/guards.yml", head_sha: pr.headSha, branch: pr.headRef, event: "workflow_dispatch", status: "queued", conclusion: null, plan: pr.ci, polls: 0, created_at: this.iso(), html_url: `https://example.test/runs/${this.runSeq}`, inputs: body.inputs });
       if (pr.onDispatch) { const hook = pr.onDispatch; pr.onDispatch = null; hook(this, pr); }
       return reply(204);
     }
@@ -140,15 +149,18 @@ class FakeGitHub {
       run.polls++;
       if (run.plan && run.plan !== "hang" && run.polls >= 2 && run.status !== "completed") {
         run.status = "completed"; run.conclusion = run.plan;
-        this.checkRuns.push({ id: ++this.runSeq, name: "guards", head_sha: run.head_sha, status: "completed", conclusion: run.plan, started_at: this.iso(), app: { id: 15368 } });
+        const owner = this.byHead(run.head_sha);
+        if (!(owner && owner.suppressGuardsCheck)) this.checkRuns.push({ id: ++this.runSeq, name: "guards", head_sha: run.head_sha, status: "completed", conclusion: run.plan, started_at: this.iso(), app: { id: 15368 }, check_suite: { id: run.check_suite_id } });
       }
-      return reply(200, { ...run });
+      return reply(200, { ...run, ...(run.override || {}) });
     }
     if (method === "GET" && (m = p.match(/^\/commits\/([0-9a-f]{40})\/check-runs/))) {
       return reply(200, { check_runs: this.checkRuns.filter((c) => c.head_sha === m[1]) });
     }
     if (method === "POST" && p === "/check-runs") {
-      this.checkRuns.push({ id: ++this.runSeq, ...body, started_at: this.iso(), app: { id: 15368 } });
+      this.checkRuns.push({ id: ++this.runSeq, ...body, started_at: this.iso(), app: { id: 15368 }, check_suite: { id: 1 } });
+      const pr = this.byHead(body.head_sha);
+      if (pr && pr.onCheckRun) { const hook = pr.onCheckRun; pr.onCheckRun = null; hook(this, pr); }
       return reply(201, {});
     }
     if (method === "PUT" && (m = p.match(/^\/pulls\/(\d+)\/merge$/))) {
@@ -159,8 +171,11 @@ class FakeGitHub {
       const tree = this.mergeTreeOverride || this.commits.get(pr.headSha).tree;
       this.main = this.sha(); this.commits.set(this.main, { tree });
       pr.state = "closed"; pr.merged = true;
-      return reply(200, { merged: true, sha: this.main });
+      const mergedAt = this.main;
+      if (pr.afterMerge) pr.afterMerge(this, pr);
+      return reply(200, { merged: true, sha: mergedAt });
     }
+    if (method === "GET" && p === "/commits/main") return reply(200, { sha: this.main, commit: { tree: { sha: this.commits.get(this.main).tree } } });
     if (method === "GET" && (m = p.match(/^\/commits\/([0-9a-f]{40})$/))) {
       const c = this.commits.get(m[1]);
       return c ? reply(200, { sha: m[1], commit: { tree: { sha: c.tree } } }) : reply(404, { message: "no commit" });
@@ -201,14 +216,25 @@ const botComments = (pr) => pr.comments.filter((c) => c.user.type === "Bot").map
   ok(classify({ pr: { mergeable: true }, behindBy: 0, guards: { conclusion: "success" }, approval: { ok: false } }) === STATES.APPROVAL_MISSING, "classify: approval missing");
   ok(classify({ pr: { mergeable: true }, behindBy: 0, guards: { conclusion: "success" }, approval: { ok: true } }) === STATES.READY, "classify: ready");
 
-  const chk = (o) => ({ name: "guards", status: "completed", conclusion: "success", started_at: "2026-11-13T00:00:00Z", app: { id: 15368 }, id: 1, ...o });
-  ok(pickGuardsCheck([chk({ name: "guards (node 20)" })]) === null, "pickGuardsCheck: exact name only");
-  ok(pickGuardsCheck([chk({ app: { id: 999 } })]) === null, "pickGuardsCheck: only GitHub Actions' check counts");
-  ok(pickGuardsCheck([chk({ status: "in_progress" })]) === null, "pickGuardsCheck: unfinished is not a result");
-  ok(pickGuardsCheck([chk({ id: 1 }), chk({ id: 2, started_at: "2026-11-13T01:00:00Z", conclusion: "failure" })]).conclusion === "failure", "pickGuardsCheck: newest wins");
+  const H = "a".repeat(40);
+  const chk = (o) => ({ name: "guards", status: "completed", conclusion: "success", started_at: "2026-11-13T00:00:00Z", app: { id: 15368 }, id: 1, head_sha: H, check_suite: { id: 77 }, ...o });
+  const pick = (list) => pickGuardsCheck(list, { checkSuiteId: 77, headSha: H });
+  ok(pick([chk({ name: "guards (node 20)" })]) === null, "pickGuardsCheck: exact name only");
+  ok(pick([chk({ app: { id: 999 } })]) === null, "pickGuardsCheck: only GitHub Actions' check counts");
+  ok(pick([chk({ status: "in_progress" })]) === null, "pickGuardsCheck: unfinished is not a result");
+  ok(pick([chk({ id: 1 }), chk({ id: 2, started_at: "2026-11-13T01:00:00Z", conclusion: "failure" })]).conclusion === "failure", "pickGuardsCheck: newest wins");
+  ok(pick([chk({ check_suite: { id: 78 } })]) === null, "pickGuardsCheck: a same-named check from another run's check suite does not count");
+  ok(pick([chk({ check_suite: undefined })]) === null, "pickGuardsCheck: a check with no check suite does not count");
+  ok(pick([chk({ head_sha: "b".repeat(40) })]) === null, "pickGuardsCheck: a check on another sha does not count");
+  ok(pick([chk({ check_suite: { id: 78 }, id: 5, started_at: "2026-11-13T09:00:00Z", conclusion: "failure" }), chk()]).conclusion === "success", "pickGuardsCheck: a newer decoy from another suite does not displace the real check");
+  ok(pickGuardsCheck([chk()], { headSha: H }) === null && pickGuardsCheck([chk()], { checkSuiteId: 77 }) === null, "pickGuardsCheck: without a suite id and a head sha nothing can match");
 
-  const run = (o) => ({ id: 1, event: "workflow_dispatch", head_sha: "a".repeat(40), created_at: "2026-11-13T12:00:10Z", ...o });
+  const run = (o) => ({ id: 1, event: "workflow_dispatch", path: ".github/workflows/guards.yml", check_suite_id: 77, head_sha: "a".repeat(40), created_at: "2026-11-13T12:00:10Z", ...o });
   const t0 = Date.parse("2026-11-13T12:00:00Z");
+  ok(pickDispatchedRun([run({ path: ".github/workflows/other.yml" })], { headSha: "a".repeat(40), notBeforeMs: t0 }) === null, "pickDispatchedRun: workflow path must be the guards workflow");
+  ok(pickDispatchedRun([run({ path: ".github/workflows/guards.yml@refs/heads/x" })], { headSha: "a".repeat(40), notBeforeMs: t0 }) !== null && !isGuardsWorkflowRun({ path: ".github/workflows/guards.yml.evil" }), "pickDispatchedRun: an @ref suffix is tolerated, a look-alike file is not");
+  const gm = (o) => guardsRunMismatch(run(o), { headSha: "a".repeat(40), notBeforeMs: t0 });
+  ok(gm({}) === null && gm({ path: "x" }) && gm({ event: "push" }) && gm({ head_sha: "b".repeat(40) }) && gm({ created_at: "2026-11-13T11:00:00Z" }) && gm({ check_suite_id: undefined }), "guardsRunMismatch: exact identity passes, every other path/event/sha/time/suite fails");
   ok(pickDispatchedRun([run({ event: "push" })], { headSha: "a".repeat(40), notBeforeMs: t0 }) === null, "pickDispatchedRun: only workflow_dispatch");
   ok(pickDispatchedRun([run({ head_sha: "b".repeat(40) })], { headSha: "a".repeat(40), notBeforeMs: t0 }) === null, "pickDispatchedRun: head sha must match");
   ok(pickDispatchedRun([run({ created_at: "2026-11-13T11:00:00Z" })], { headSha: "a".repeat(40), notBeforeMs: t0 }) === null, "pickDispatchedRun: must be created after the dispatch");
@@ -494,6 +520,207 @@ const botComments = (pr) => pr.comments.filter((c) => c.user.type === "Bot").map
       ok(w.match(sample), `${w.file}: a change to ${g} (e.g. ${sample}) triggers the post-merge dispatch`);
     }
     ok(!w.match("lib/unrelated.js") && !w.match("app/page.js"), `${w.file}: unrelated changes do not dispatch it`);
+  }
+}
+
+
+// =====================================================================================
+// Hardening round (2026-11-14): run/app identity, pre-merge revalidation, tree proof by
+// sha, isolation of unavailable PRs, the halt switch, events, trusted-code-only.
+// =====================================================================================
+const mutCalls = (gh) => gh.calls.map((c, i) => ({ ...c, i })).filter((c) => c.method !== "GET" && !/\/comments$/.test(c.path) && !(c.method === "DELETE" && /\/labels\//.test(c.path)));
+const isHaltCheck = (c) => c.method === "GET" && /labels=merge-queue-halt/.test(c.path);
+const newHead = (gh, pr) => { pr.headSha = gh.sha(); gh.commits.set(pr.headSha, { tree: gh.sha() }); };
+
+// ---- 1. identity of the guards result ---------------------------------------------------
+{
+  // decoy check-runs (other app, other suite, other sha), all newer and green, while the real run's check never appears
+  const gh = new FakeGitHub();
+  const p = gh.addPr(200, { suppressGuardsCheck: true });
+  const decoy = (o) => ({ id: ++gh.runSeq, name: "guards", head_sha: p.headSha, status: "completed", conclusion: "success", started_at: "2027-01-01T00:00:00Z", app: { id: 15368 }, check_suite: { id: 424242 }, ...o });
+  gh.checkRuns.push(decoy({ app: { id: 999 }, check_suite: { id: 5001 } }), decoy({}), decoy({ head_sha: "9".repeat(40), check_suite: { id: 5001 } }));
+  const r = await drain(gh);
+  ok(!p.merged && r.dropped.length === 1 && /no `guards` check-run/.test(botComments(p)[0] || ""), "identity: green same-named checks from another app, another run's suite or another sha never count; no real check means dropped, not merged");
+}
+{
+  // the real check is green and a NEWER failing decoy from another suite exists: the real one decides
+  const gh = new FakeGitHub();
+  const p = gh.addPr(201);
+  p.onDispatch = (g, pr) => g.checkRuns.push({ id: ++g.runSeq, name: "guards", head_sha: pr.headSha, status: "completed", conclusion: "failure", started_at: "2027-01-01T00:00:00Z", app: { id: 15368 }, check_suite: { id: 424242 } });
+  const r = await drain(gh);
+  ok(r.merged.length === 1 && p.merged, "identity: a newer failing check from a different suite does not veto the dispatched run's own green check");
+}
+{
+  // a decoy run (other workflow file / other event) with a higher id, same head, created after the dispatch
+  const gh = new FakeGitHub();
+  const p = gh.addPr(202);
+  p.onDispatch = (g, pr) => {
+    for (const o of [{ path: ".github/workflows/other.yml" }, { event: "push" }]) {
+      g.runs.push({ id: ++g.runSeq + 100, check_suite_id: ++g.suiteSeq, path: ".github/workflows/guards.yml", head_sha: pr.headSha, branch: pr.headRef, event: "workflow_dispatch", status: "completed", conclusion: "failure", plan: null, polls: 0, created_at: g.iso(), html_url: "decoy", ...o });
+    }
+  };
+  const r = await drain(gh);
+  ok(r.merged.length === 1 && p.merged && !botComments(p).length, "identity: newer runs of another workflow file or another event on the same head are never taken for ours");
+}
+{
+  // the run read back by id is not what the list said (path changed): refuse to use its result
+  const gh = new FakeGitHub();
+  const p = gh.addPr(203);
+  p.onDispatch = (g) => { g.runs[g.runs.length - 1].override = { path: ".github/workflows/other.yml" }; };
+  const r = await drain(gh);
+  ok(!p.merged && r.dropped.length === 1 && /could not be identified as ours/.test(botComments(p)[0] || ""), "identity: a run that fails the read-back identity check is not used");
+}
+
+// ---- 2. revalidate immediately before merge ---------------------------------------------
+{
+  const gh = new FakeGitHub();
+  const p = gh.addPr(210);
+  const stale = p.headSha;
+  p.onCheckRun = (g, pr) => newHead(g, pr);
+  const r = await drain(gh);
+  const merges = gh.find("PUT", /pulls\/210\/merge/);
+  ok(r.merged.length === 1 && merges.length === 1 && merges[0].body.sha === p.headSha && p.headSha !== stale, "revalidate: head changed after approval was posted, so the stale head is never sent to merge; the new head is re-tested and merged once");
+  ok(gh.find("POST", /dispatches/).filter((c) => c.body.ref === "lane-210").length === 2, "revalidate: head change re-loops the PR (guards run again)");
+}
+{
+  const gh = new FakeGitHub();
+  const p = gh.addPr(211);
+  p.onCheckRun = (g, pr) => g.externalPush();
+  const r = await drain(gh);
+  ok(r.merged.length === 1 && gh.find("PUT", /pulls\/211\/merge/).length === 1, "revalidate: main moved after approval, so no merge was attempted on stale evidence (not even a refused one)");
+  ok(gh.find("POST", /dispatches/).filter((c) => c.body.ref === "lane-211").length === 2 && gh.find("PUT", /pulls\/211\/update-branch/).length === 1, "revalidate: main moving re-loops the PR (update-branch, guards again)");
+}
+for (const [what, hook] of [
+  ["label removed", (g, pr) => { pr.labels = []; }],
+  ["PR closed", (g, pr) => { pr.state = "closed"; }],
+  ["PR retargeted off main", (g, pr) => { pr.base = "dev"; }],
+]) {
+  const gh = new FakeGitHub();
+  const p = gh.addPr(212);
+  p.onCheckRun = hook;
+  const r = await drain(gh);
+  ok(gh.find("PUT", /pulls\/212\/merge/).length === 0 && !p.merged && r.merged.length === 0 && botComments(p).length === 0, `revalidate: ${what} between approval and merge, so it is not merged and not commented on`);
+}
+{
+  const gh = new FakeGitHub();
+  const p = gh.addPr(213, { files: ["CLAUDE.md"] });
+  p.comments.push({ id: 1, body: `/owner-approve ${p.headSha}`, user: OWNER, created_at: "2026-11-13T10:00:00Z", updated_at: "2026-11-13T10:00:00Z" });
+  p.onCheckRun = (g, pr) => { pr.comments = pr.comments.filter((c) => c.user.type === "Bot"); }; // approval withdrawn after it was judged
+  const r = await drain(gh);
+  const approvals = gh.checkRuns.filter((c) => c.name === "owner-approval" && c.head_sha === p.headSha);
+  ok(!p.merged && gh.find("PUT", /pulls\/213\/merge/).length === 0 && r.dropped.length === 1 && approvals.length === 2 && approvals[1].conclusion === "failure", "revalidate: owner approval is re-decided on live evidence; a withdrawn approval blocks the merge and posts a failing owner-approval check");
+}
+
+// ---- 3. tree proof is against the merge commit's sha, never a later main -----------------
+{
+  const gh = new FakeGitHub();
+  const p = gh.addPr(220);
+  p.afterMerge = (g) => g.externalPush();   // somebody else lands on main right after our merge
+  const r = await drain(gh);
+  ok(r.merged.length === 1 && gh.logs.some((l) => /merged #220 .* tree-proof=PASS/.test(l)), "tree proof: another merge landing after ours is not a false mismatch");
+  ok(gh.find("GET", /\/commits\/[0-9a-f]{40}$/).some((c) => c.path === `/commits/${r.merged[0].sha}`) && !gh.find("GET", /\/commits\/main$/).length, "tree proof: the merge commit is fetched by the sha the merge API returned");
+}
+{
+  const gh = new FakeGitHub();
+  const p = gh.addPr(221);
+  gh.mergeTreeOverride = "e".repeat(40);
+  let thrown = null;
+  try { await drain(gh); } catch (e) { thrown = e; }
+  ok(thrown instanceof TreeMismatchError && botComments(p).length === 1 && /UNION PROOF FAILED/.test(botComments(p)[0]), "tree proof: a real mismatch posts exactly one visible comment on the PR");
+  const lines = []; const code = await (async () => {
+    const g2 = new FakeGitHub(); g2.addPr(222); g2.mergeTreeOverride = "e".repeat(40);
+    return runCli({ env: ENV, fetchImpl: g2.fetch, sleep: g2.sleep, now: g2.now, log: g2.log, timing: FAST, errorLog: (l) => lines.push(l) });
+  })();
+  ok(code === 1 && /UNION PROOF FAILED/.test(lines.join()), "tree proof: the CLI exits non-zero on a mismatch");
+}
+
+// ---- 4. isolation: unavailable PRs never block the ones behind them -----------------------
+for (const [what, opts] of [["GET answers 503", { getFail: 503 }], ["GET times out (fetch throws)", { getFail: "throw" }], ["dispatch answers 502", { dispatchFail: 502 }]]) {
+  const gh = new FakeGitHub();
+  const bad = gh.addPr(230, opts);
+  const good = gh.addPr(231);
+  const r = await drain(gh);
+  ok(good.merged && !bad.merged && r.dropped.map((d) => d.number).join() === "230" && !r.halted, `isolation: #230 unavailable (${what}) does not stop #231 merging`);
+  ok(botComments(bad).length === 1 && /unexpected problem/.test(botComments(bad)[0]) && bad.labels.length === 0, `isolation: #230 (${what}) gets exactly one comment and loses the label`);
+}
+
+// ---- 5. the halt switch -------------------------------------------------------------------
+{
+  const gh = new FakeGitHub();
+  const conflicted = gh.addPr(240, { conflict: true });
+  const ready = gh.addPr(241);
+  gh.haltIssues.push({ number: 9000 });   // an open issue (not even a PR) carries merge-queue-halt
+  const r = await drain(gh);
+  ok(r.halted === true && gh.logs.some((l) => /halted/.test(l)) && mutCalls(gh).length === 0 && gh.find("POST", /comments/).length === 0, "halt: a halt label stops the drain before any write (no update, dispatch, check, merge, comment)");
+  ok(conflicted.labels.length === 1 && ready.labels.length === 1 && !ready.merged && botComments(conflicted).length === 0, "halt: labelled PRs are left untouched (not even a conflict drop)");
+  ok(await runCli({ env: ENV, fetchImpl: gh.fetch, sleep: gh.sleep, now: gh.now, log: gh.log, timing: FAST }) === 0, "halt: the CLI exits 0 when halted");
+}
+{
+  const gh = new FakeGitHub();
+  gh.addPr(242); gh.haltUnreadable = true;
+  const r = await drain(gh);
+  ok(r.halted === true && mutCalls(gh).length === 0, "halt: an unreadable halt switch counts as halted (fail closed)");
+}
+{
+  // structure: every mutation is preceded by a halt check, and halting at ANY check stops all later mutations
+  const scenario = (haltAt) => {
+    const gh = new FakeGitHub();
+    gh.addPr(250);                                   // needs update-branch (main moves below)
+    gh.addPr(251, { files: ["CLAUDE.md"] });        // fails approval -> approval check + drop
+    gh.externalPush();
+    gh.haltAtCheck = haltAt;
+    return gh;
+  };
+  const base = scenario(0);
+  const br = await drain(base);
+  const muts = mutCalls(base);
+  const kinds = new Set(muts.map((c) => (/update-branch/.test(c.path) ? "update-branch" : /dispatches/.test(c.path) ? "dispatch" : /check-runs/.test(c.path) ? "check" : /merge$/.test(c.path) ? "merge" : "other")));
+  ok(["update-branch", "dispatch", "check", "merge"].every((k) => kinds.has(k)) && !kinds.has("other") && br.merged.length === 1, `halt: the scenario exercises update-branch, dispatch, check post and merge (${[...kinds]})`);
+  let prev = -1; let unguarded = 0;
+  for (const c of muts) { if (!base.calls.slice(prev + 1, c.i).some(isHaltCheck)) unguarded++; prev = c.i; }
+  ok(unguarded === 0, `halt: every mutation is immediately preceded by a halt check (${unguarded} unguarded of ${muts.length})`);
+  const total = base.haltChecks;
+  let leaks = 0;
+  for (let k = 1; k <= total; k++) {
+    const gh = scenario(k);
+    const rr = await drain(gh);
+    let seen = 0; let idx = -1;
+    gh.calls.forEach((c, i) => { if (isHaltCheck(c) && ++seen === k) idx = i; });
+    const after = mutCalls(gh).filter((c) => c.i > idx);
+    if (!rr.halted || after.length) leaks++;
+  }
+  ok(total >= 8 && leaks === 0, `halt: raising the halt label at each of the ${total} checks stops every later mutation (${leaks} leaks)`);
+}
+{
+  // halt raised right after our merge: the merge stands, nothing else is dispatched, the next PR is untouched
+  const gh = new FakeGitHub();
+  const a = gh.addPr(260);
+  const b = gh.addPr(261);
+  a.afterMerge = (g) => g.haltIssues.push({ number: 9001 });
+  const r = await drain(gh);
+  ok(a.merged && !b.merged && r.halted && r.merged.length === 1 && gh.find("POST", /dispatches/).filter((c) => c.body.ref === "main").length === 0, "halt: halted right after a merge keeps that merge, skips the post-merge dispatch and stops");
+  ok(b.labels.length === 1 && !gh.calls.some((c) => /\/(261)(\/|$)/.test(c.path) && c.method !== "GET") && !gh.runs.some((x) => x.branch === "lane-261"), "halt: the PR queued behind is untouched");
+}
+
+// ---- 6/7. events and trusted code ----------------------------------------------------------
+{
+  const repoRoot = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
+  const raw = readFileSync(path.join(repoRoot, ".github", "workflows", "merge-queue.yml"), "utf8");
+  const yml = raw.split("\n").filter((l) => !/^\s*#/.test(l)).join("\n");
+  const lines = yml.split("\n");
+  const at = (re) => lines.findIndex((l) => re.test(l));
+  ok(/pull_request_target:\s*\n\s*types:\s*\[labeled\]/.test(yml) && /^\s{2}push:\s*\n\s*branches:\s*\[main\]/m.test(yml) && /^\s{2}workflow_dispatch:/m.test(yml) && /^\s{2}schedule:\s*\n\s*- cron: "\d+ \* \* \* \*"/m.test(yml), "events: labeled, push to main, manual dispatch and an hourly sweep");
+  ok(!/^\s*pull_request:/m.test(yml) && !/^concurrency:/m.test(yml), "events: no pull_request trigger, and no workflow-level concurrency that unrelated label events could use to displace a drain");
+  const iJob = at(/^\s{2}drain:/); const iIf = at(/^\s{4}if: .*merge-queue'/); const iConc = at(/^\s{4}concurrency:/);
+  ok(iJob > 0 && iIf > iJob && iConc > iIf && /group:\s*merge-queue\s*$/m.test(lines.slice(iConc, iConc + 3).join("\n")) && /cancel-in-progress:\s*false/.test(lines.slice(iConc, iConc + 3).join("\n")), "events: concurrency sits on the job, after the label filter, group merge-queue, cancel-in-progress false");
+  ok(/merge-queue-halt/.test(raw) && /does not cancel/i.test(raw) && /cancel(l?ing)? the running workflow run/i.test(raw), "events: the workflow header documents that removing the PR label does not cancel an in-flight step and that the effective stop is the halt label plus cancelling the run");
+  ok(/ref:\s*main\s*$/m.test(yml) && /persist-credentials:\s*false/.test(yml) && !/\b(npm|npx|yarn|pnpm)\b/.test(yml) && ![...yml.matchAll(/\$\{\{\s*([^}]*?)\s*\}\}/g)].some((m) => m[1] !== "github.token"), "trusted: checks out main only, persists no credentials, installs nothing, no event text in any expression");
+  const strip = (src) => src.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "$1");
+  const risky = /child_process|\beval\s*\(|new\s+Function\b|\bexecSync\b|\bspawn(Sync)?\b|GITHUB_EVENT_PATH|process\.env\.GITHUB_(HEAD|BASE)_REF|import\s*\(\s*[^"']/;
+  const probe = strip(readFileSync(fileURLToPath(import.meta.url), "utf8"));
+  ok(risky.test(probe), "trusted: the probe finds a known positive (this file spawns a child process)");
+  for (const f of ["scripts/merge-queue.mjs", "scripts/lib/mergeQueue.mjs"]) {
+    ok(!risky.test(strip(readFileSync(path.join(repoRoot, f), "utf8"))), `trusted: ${f} runs no subprocess, no eval, no dynamic import and reads no event payload; pull requests are API data only`);
   }
 }
 

@@ -34,7 +34,7 @@ export const POST_MERGE_PATH_WORKFLOWS = Object.freeze([
 import {
   STATES, GUARDS_CHECK_NAME, OWNER_APPROVAL_CHECK_NAME,
   refuseUnlessMainOnActions, readConfig, pickNext, isQueueable, classify,
-  pickGuardsCheck, pickDispatchedRun, treesEqual,
+  pickGuardsCheck, pickDispatchedRun, guardsRunMismatch, treesEqual, HALT_LABEL,
   buildComment, buildTreeMismatchMessage,
 } from "./lib/mergeQueue.mjs";
 
@@ -49,6 +49,7 @@ export const DEFAULT_TIMING = Object.freeze({
   updateMaxPolls: 15,
   mergeablePollMs: 2_000,    // GitHub computes `mergeable` lazily
   mergeablePolls: 6,
+  requestTimeoutMs: 30_000,  // one API request; a hung request is "unavailable"
 });
 
 export class TreeMismatchError extends Error {
@@ -56,6 +57,10 @@ export class TreeMismatchError extends Error {
 }
 export class RefusedError extends Error {
   constructor(message) { super(message); this.name = "RefusedError"; }
+}
+// Thrown by the halt gate and caught only at the top of the drain: never a PR problem.
+export class HaltSignal extends Error {
+  constructor(message) { super(message); this.name = "HaltSignal"; }
 }
 
 const REAL_SLEEP = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -76,11 +81,17 @@ export async function runQueue({ env, fetchImpl = globalThis.fetch, sleep = REAL
   // ---- GitHub plumbing -----------------------------------------------------
   const call = async (method, path, body) => {
     for (let attempt = 0; ; attempt++) {
-      const res = await fetchImpl(`${cfg.api}/repos/${cfg.repo}${path}`, {
-        method,
-        headers: { Authorization: `Bearer ${cfg.token}`, Accept: "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28", ...(body ? { "Content-Type": "application/json" } : {}) },
-        body: body ? JSON.stringify(body) : undefined,
-      });
+      let res;
+      try {
+        res = await fetchImpl(`${cfg.api}/repos/${cfg.repo}${path}`, {
+          method,
+          headers: { Authorization: `Bearer ${cfg.token}`, Accept: "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28", ...(body ? { "Content-Type": "application/json" } : {}) },
+          body: body ? JSON.stringify(body) : undefined,
+          signal: AbortSignal.timeout(T.requestTimeoutMs),
+        });
+      } catch {
+        res = { status: 599, json: async () => null }; // timeout / connection failure: "unavailable", same as a 5xx
+      }
       if (method === "GET" && (res.status >= 500 || res.status === 429) && attempt < 2) { await sleep(2000 * (attempt + 1)); continue; }
       const data = await res.json().catch(() => null);
       return { status: res.status, data };
@@ -94,6 +105,21 @@ export async function runQueue({ env, fetchImpl = globalThis.fetch, sleep = REAL
   const say = (line) => log(`merge-queue: ${line}`);
   const mutate = (what) => { if (dryRun) { say(`DRY RUN would ${what}`); return false; } return true; };
 
+  // ---- halt switch ---------------------------------------------------------------
+  // Any open issue or PR labelled merge-queue-halt stops the drain. Checked before
+  // EVERY mutation (update-branch, dispatch, check post, merge, drop comment/label).
+  // If the check itself cannot be answered the answer is "halted": an unreadable
+  // switch must not be a switch that is off.
+  const haltedNow = async () => {
+    const r = await call("GET", `/issues?labels=${encodeURIComponent(HALT_LABEL)}&state=open&per_page=1`);
+    if (r.status === 200 && Array.isArray(r.data)) return r.data.length > 0 ? "a halt label is set" : null;
+    return `the halt switch could not be read (HTTP ${r.status})`;
+  };
+  const gate = async () => {
+    const why = await haltedNow();
+    if (why) throw new HaltSignal(why);
+  };
+
   const listQueuedPulls = async () => {
     const numbers = [];
     for (let page = 1; page <= 10; page++) {
@@ -104,7 +130,14 @@ export async function runQueue({ env, fetchImpl = globalThis.fetch, sleep = REAL
     }
     numbers.sort((a, b) => a - b);
     const pulls = [];
-    for (const n of numbers) pulls.push(await must("GET", `/pulls/${n}`));
+    for (const n of numbers) {
+      try { pulls.push(await must("GET", `/pulls/${n}`)); }
+      catch {
+        // One unreadable PR must not starve the others: queue a stub so it is picked in
+        // order, fails again in step() and is dropped there with its one comment.
+        pulls.push({ number: n, state: "open", draft: false, base: { ref: "main" }, labels: [{ name: label }], unreadable: true });
+      }
+    }
     return pulls;
   };
   const readPull = async (n) => {
@@ -123,13 +156,19 @@ export async function runQueue({ env, fetchImpl = globalThis.fetch, sleep = REAL
     if (![200, 201].includes(r.status)) say(`WARNING could not comment on #${n} (HTTP ${r.status})`);
   };
   const dispatchGuards = async (ref, inputs) => {
+    await gate();
     const r = await call("POST", `/actions/workflows/${guardsFile}/dispatches`, inputs ? { ref, inputs } : { ref });
     if (r.status !== 204) throw new Error(`dispatching ${guardsFile} on ${ref} answered HTTP ${r.status}${r.data && r.data.message ? `: ${r.data.message}` : ""}`);
   };
-  const behindBy = async (head) => {
+  // { behind: number|null, mergeBase: sha|null } for `head` against main right now.
+  const compareToMain = async (head) => {
     const c = await must("GET", `/compare/main...${head}`);
-    return Number.isInteger(c && c.behind_by) ? c.behind_by : null;
+    return {
+      behind: Number.isInteger(c && c.behind_by) ? c.behind_by : null,
+      mergeBase: (c && c.merge_base_commit && c.merge_base_commit.sha) || null,
+    };
   };
+  const behindBy = async (head) => (await compareToMain(head)).behind;
 
   // Workflows that run on push to main with a path filter. A GITHUB_TOKEN merge
   // fires no push event, so the queue dispatches them when the merged PR touched
@@ -138,6 +177,7 @@ export async function runQueue({ env, fetchImpl = globalThis.fetch, sleep = REAL
     for (const w of POST_MERGE_PATH_WORKFLOWS) {
       if (!files.some((f) => w.match(f))) continue;
       if (!mutate(`dispatch ${w.file} on main`)) continue;
+      if (await haltedNow()) return;
       const r = await call("POST", `/actions/workflows/${w.file}/dispatches`, { ref: "main" });
       if (r.status !== 204) say(`WARNING post-merge dispatch of ${w.file} answered HTTP ${r.status}`);
     }
@@ -147,6 +187,7 @@ export async function runQueue({ env, fetchImpl = globalThis.fetch, sleep = REAL
   const counters = new Map();
   const counter = (n) => { if (!counters.has(n)) counters.set(n, { merge: 0, moves: 0 }); return counters.get(n); };
   const drop = async (n, kind, details, reason) => {
+    await gate();   // a halted queue leaves labelled PRs exactly as they are
     say(`dropped #${n}: ${reason}`);
     await comment(n, buildComment(kind, details));
     await removeLabel(n);
@@ -175,6 +216,7 @@ export async function runQueue({ env, fetchImpl = globalThis.fetch, sleep = REAL
     let behind = await behindBy(pr.head.sha);
     if (behind === null || behind > 0) {
       if (!mutate(`update-branch #${n} (head ${pr.head.sha.slice(0, 12)}, behind main)`)) return "dropped";
+      await gate();
       const u = await call("PUT", `/pulls/${n}/update-branch`, { expected_head_sha: pr.head.sha });
       if (u.status === 422) return drop(n, "conflict", {}, "update-branch hit a merge conflict");
       if (u.status === 409) return moved(n, pr.head.sha, "head moved while updating");
@@ -203,7 +245,7 @@ export async function runQueue({ env, fetchImpl = globalThis.fetch, sleep = REAL
     let run = null;
     for (let waited = 0; !run && waited <= T.locateMaxMs; waited += T.locatePollMs) {
       await sleep(T.locatePollMs);
-      run = pickDispatchedRun(await listRuns(), { headSha: head, knownIds, notBeforeMs: dispatchedAt - 5000 });
+      run = pickDispatchedRun(await listRuns(), { headSha: head, knownIds, notBeforeMs: dispatchedAt - 5000, guardsFile });
     }
     if (!run) return drop(n, "ci-failed", { head, detail: "the dispatched run never appeared" }, "dispatched guards run not found");
     say(`#${n}: waiting on guards run ${run.id} for ${head.slice(0, 12)}`);
@@ -217,41 +259,70 @@ export async function runQueue({ env, fetchImpl = globalThis.fetch, sleep = REAL
     // Main (or the branch) moving during the run makes the result about a different union: test again.
     const afterPr = await must("GET", `/pulls/${n}`);
     if (afterPr.head.sha !== head) return moved(n, head, "head changed during guards");
-    const behindAfter = await behindBy(head);
+    const after = await compareToMain(head);
+    const behindAfter = after.behind;
     if (behindAfter === null || behindAfter > 0) return moved(n, head, "main moved during guards");
+    const testedBase = after.mergeBase;   // main's tip, which the tested head contains
+    if (!/^[0-9a-f]{40}$/i.test(String(testedBase || ""))) return moved(n, head, "no merge base for the tested head");
 
+    // The result must come from the run we dispatched, read back by id: right workflow
+    // file, workflow_dispatch, the tested commit, created after the dispatch.
+    const identityProblem = guardsRunMismatch(run, { headSha: head, guardsFile, notBeforeMs: dispatchedAt - 5000 });
+    if (identityProblem) return drop(n, "ci-failed", { head, detail: `the run could not be identified as ours: ${identityProblem}`, runUrl: run.html_url }, `guards run identity: ${identityProblem}`);
     const checks = await must("GET", `/commits/${head}/check-runs?check_name=${GUARDS_CHECK_NAME}&per_page=100`);
-    const guards = pickGuardsCheck(checks && checks.check_runs);
+    const guards = pickGuardsCheck(checks && checks.check_runs, { checkSuiteId: run.check_suite_id, headSha: head });
     const state = classify({ pr, behindBy: behindAfter, guards: guards || (run.conclusion === "success" ? null : { conclusion: run.conclusion || "failure" }) });
     if (state === STATES.AWAITING_CI) return drop(n, "ci-failed", { head, detail: `no \`${GUARDS_CHECK_NAME}\` check-run on the head`, runUrl: run.html_url }, "no guards check-run");
     if (state !== STATES.READY || run.conclusion !== "success") {
       return drop(n, "ci-failed", { head, detail: `run ${run.conclusion || "unfinished"}, check ${guards ? guards.conclusion : "missing"}`, runUrl: run.html_url }, `guards ${run.conclusion}`);
     }
 
-    // 4. owner approval, decided by the repository's own rules
-    let verdict;
-    let changedFiles = [];
-    try {
-      const ctx = { error: null, api: cfg.api, repo: cfg.repo, token: cfg.token, number: n, eventHeadSha: head };
-      const live = await fetchPullEvidence(ctx, { withFiles: true, protectedFilter: isOwnerOnly, fetchImpl });
-      if (live.liveHeadSha !== head) return moved(n, head, "head changed while reading approval evidence");
-      changedFiles = Array.isArray(live.files) ? live.files : [];
-      verdict = decideOwnerApproval({
-        changedPaths: live.files, mergeGate: true,
-        pr: { number: n, eventHeadSha: head, liveHeadSha: live.liveHeadSha },
-        comments: live.comments, protectedEntries: live.protectedEntries || null, error: null,
-      });
-    } catch (e) {
-      verdict = { ok: false, reason: `owner approval cannot be evaluated: ${(e && e.message) || e}` };
+    // 4. owner approval, decided by the repository's own rules, on live evidence
+    const judge = async () => {
+      try {
+        const ctx = { error: null, api: cfg.api, repo: cfg.repo, token: cfg.token, number: n, eventHeadSha: head };
+        const live = await fetchPullEvidence(ctx, { withFiles: true, protectedFilter: isOwnerOnly, fetchImpl });
+        if (live.liveHeadSha !== head) return { movedHead: true };
+        const files = Array.isArray(live.files) ? live.files : [];
+        return { files, verdict: decideOwnerApproval({
+          changedPaths: live.files, mergeGate: true,
+          pr: { number: n, eventHeadSha: head, liveHeadSha: live.liveHeadSha },
+          comments: live.comments, protectedEntries: live.protectedEntries || null, error: null,
+        }) };
+      } catch (e) {
+        return { files: [], verdict: { ok: false, reason: `owner approval cannot be evaluated: ${(e && e.message) || e}` } };
+      }
+    };
+    const postApproval = async (verdict) => {
+      await gate();
+      await must("POST", "/check-runs", {
+        name: OWNER_APPROVAL_CHECK_NAME, head_sha: head, status: "completed",
+        conclusion: verdict.ok ? "success" : "failure",
+        output: { title: verdict.ok ? "Owner approval: OK" : "Owner approval: not satisfied", summary: String(verdict.reason).slice(0, 60000) },
+      }, [201]);
+    };
+    const first = await judge();
+    if (first.movedHead) return moved(n, head, "head changed while reading approval evidence");
+    const changedFiles = first.files;
+    await postApproval(first.verdict);
+    if (!first.verdict.ok) return drop(n, "approval-missing", { head, reason: first.verdict.reason }, `owner approval: ${first.verdict.reason}`);
+
+    // 4b. revalidate on live state immediately before merging: nothing decided above
+    // may be stale. Anything that changed re-loops this PR (bounded) instead of merging.
+    const cur = await must("GET", `/pulls/${n}`);
+    if (!isQueueable(cur, { label })) { say(`#${n} is no longer queueable (closed, draft, retargeted or unlabelled); not merging`); return "skipped"; }
+    if (cur.head.sha !== head) return moved(n, head, "head changed before merge");
+    const pre = await compareToMain(head);
+    if (pre.behind === null || pre.behind > 0 || pre.mergeBase !== testedBase) return moved(n, head, "main moved before merge");
+    const second = await judge();
+    if (second.movedHead) return moved(n, head, "head changed while re-reading approval evidence");
+    if (!second.verdict.ok) {
+      await postApproval(second.verdict);
+      return drop(n, "approval-missing", { head, reason: second.verdict.reason }, `owner approval (re-checked before merge): ${second.verdict.reason}`);
     }
-    await must("POST", "/check-runs", {
-      name: OWNER_APPROVAL_CHECK_NAME, head_sha: head, status: "completed",
-      conclusion: verdict.ok ? "success" : "failure",
-      output: { title: verdict.ok ? "Owner approval: OK" : "Owner approval: not satisfied", summary: String(verdict.reason).slice(0, 60000) },
-    }, [201]);
-    if (!verdict.ok) return drop(n, "approval-missing", { head, reason: verdict.reason }, `owner approval: ${verdict.reason}`);
 
     // 5. squash-merge exactly the tested head; no commit_message so GitHub keeps every commit body (Lane: trailers)
+    await gate();
     const m = await call("PUT", `/pulls/${n}/merge`, { merge_method: "squash", sha: head });
     if (m.status !== 200 || !m.data || m.data.merged !== true) {
       const c = counter(n);
@@ -274,41 +345,59 @@ export async function runQueue({ env, fetchImpl = globalThis.fetch, sleep = REAL
     }
 
     // 7. post-merge: guards on main (not awaited), label off
-    try { await dispatchGuards("main"); } catch (e) { say(`WARNING post-merge guards dispatch failed: ${e.message}`); }
-    try { await dispatchPathWorkflows(changedFiles); } catch (e) { say(`WARNING post-merge path dispatch failed: ${e.message}`); }
+    const haltReason = await haltedNow();
+    if (!haltReason) {
+      try { await dispatchGuards("main"); } catch (e) { if (e instanceof HaltSignal) throw e; say(`WARNING post-merge guards dispatch failed: ${e.message}`); }
+      try { await dispatchPathWorkflows(changedFiles); } catch (e) { say(`WARNING post-merge path dispatch failed: ${e.message}`); }
+    }
     await removeLabel(n);
     result.merged.push({ number: n, sha: mergeSha });
     say(`merged #${n} sha=${mergeSha} tree-proof=PASS`);
+    if (haltReason) throw new HaltSignal(`${haltReason}; post-merge dispatches skipped`);
     return "merged";
   };
 
   // ---- drain loop ------------------------------------------------------------
   const done = new Set();
-  for (;;) {
-    const pr = pickNext(await listQueuedPulls(), { label, skip: done });
-    if (!pr) break;
-    let outcome;
-    try {
-      outcome = await step(pr.number);
-    } catch (e) {
-      // Only a failed union proof stops the queue; any other error drops this PR
-      // (one comment, label off) so it can never starve the PRs behind it.
-      if (e instanceof TreeMismatchError || e instanceof RefusedError) throw e;
-      try { outcome = await drop(pr.number, "unexpected", { head: pr.head && pr.head.sha, detail: String((e && e.message) || e).slice(0, 300) }, `error: ${(e && e.message) || e}`); }
-      catch { outcome = "dropped"; }
+  try {
+    for (;;) {
+      await gate();
+      const pr = pickNext(await listQueuedPulls(), { label, skip: done });
+      if (!pr) break;
+      let outcome;
+      try {
+        outcome = await step(pr.number);
+      } catch (e) {
+        // Only a failed union proof (or the halt switch) stops the queue; any other
+        // error drops this PR (one comment, label off) so it can never starve the PRs behind it.
+        if (e instanceof TreeMismatchError || e instanceof RefusedError || e instanceof HaltSignal) throw e;
+        try { outcome = await drop(pr.number, "unexpected", { head: pr.head && pr.head.sha, detail: String((e && e.message) || e).slice(0, 300) }, `error: ${(e && e.message) || e}`); }
+        catch (e2) { if (e2 instanceof HaltSignal) throw e2; outcome = "dropped"; }
+      }
+      if (outcome !== "retry") done.add(pr.number);
     }
-    if (outcome !== "retry") done.add(pr.number);
+  } catch (e) {
+    if (!(e instanceof HaltSignal)) throw e;
+    result.halted = true;
+    say(`halted: ${e.message}; labelled PRs left untouched (${result.merged.length} merged, ${result.dropped.length} dropped before the halt)`);
+    return result;
   }
   say(`queue empty: ${result.merged.length} merged, ${result.dropped.length} dropped${dryRun ? " (dry run)" : ""}`);
   return result;
 }
 
+/** Run the queue and turn the outcome into a process exit code: 0 drained or halted, 1 refused or union proof failed or any crash. */
+export async function runCli(opts) {
+  try {
+    await runQueue(opts);
+    return 0;
+  } catch (e) {
+    (opts.errorLog || console.error)(`merge-queue: FAIL — ${(e && e.message) || e}`);
+    return 1;
+  }
+}
+
 // CLI entry: only when executed directly, never when imported by the tests.
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  try {
-    await runQueue({ env: process.env });
-  } catch (e) {
-    console.error(`merge-queue: FAIL — ${(e && e.message) || e}`);
-    process.exit(1);
-  }
+  process.exit(await runCli({ env: process.env }));
 }

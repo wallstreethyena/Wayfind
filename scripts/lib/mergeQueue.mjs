@@ -9,6 +9,7 @@
 // will land on.
 
 export const DEFAULT_LABEL = "merge-queue";
+export const HALT_LABEL = "merge-queue-halt";
 export const DEFAULT_GUARDS_WORKFLOW = "guards.yml";
 export const GUARDS_CHECK_NAME = "guards";
 export const OWNER_APPROVAL_CHECK_NAME = "owner-approval";
@@ -79,23 +80,51 @@ export function classify({ pr, behindBy, guards = null, approval = null }) {
 }
 
 /**
- * The newest "guards" check-run on a commit from GitHub Actions, or null. The name
- * must match exactly: "guards (node 20)" or another app's "guards" are not it.
+ * The newest "guards" check-run that belongs to THE run the queue dispatched:
+ * name exactly "guards", created by GitHub Actions (app id 15368), completed, on the
+ * tested head sha, and inside that run's check suite (check_run.check_suite.id ===
+ * run.check_suite_id). A same-named check from another app, another run (another
+ * suite) or another commit is not it. Without a numeric checkSuiteId and a headSha
+ * nothing can match: identity is never guessed.
  */
-export function pickGuardsCheck(checkRuns) {
+export function pickGuardsCheck(checkRuns, { checkSuiteId, headSha } = {}) {
+  if (!Number.isInteger(checkSuiteId) || checkSuiteId < 1 || !SHA40.test(String(headSha || ""))) return null;
   const mine = (Array.isArray(checkRuns) ? checkRuns : []).filter((c) => c && c.name === GUARDS_CHECK_NAME
-    && c.app && c.app.id === GITHUB_ACTIONS_APP_ID && c.status === "completed");
+    && c.app && c.app.id === GITHUB_ACTIONS_APP_ID && c.status === "completed"
+    && c.check_suite && c.check_suite.id === checkSuiteId
+    && String(c.head_sha || "").toLowerCase() === String(headSha).toLowerCase());
   mine.sort((a, b) => String(b.started_at || "").localeCompare(String(a.started_at || "")) || (b.id || 0) - (a.id || 0));
   return mine.length ? mine[0] : null;
 }
 
+/** True when run.path is exactly the guards workflow file (an "@ref" suffix is tolerated). */
+export function isGuardsWorkflowRun(run, guardsFile = DEFAULT_GUARDS_WORKFLOW) {
+  const p = String((run && run.path) || "");
+  const want = `.github/workflows/${guardsFile}`;
+  return p === want || p.startsWith(`${want}@`);
+}
+
 /** The dispatched run among a workflow's recent runs, or null. */
-export function pickDispatchedRun(runs, { headSha, knownIds = new Set(), notBeforeMs = 0 }) {
-  const mine = (Array.isArray(runs) ? runs : []).filter((r) => r && r.event === "workflow_dispatch"
+export function pickDispatchedRun(runs, { headSha, knownIds = new Set(), notBeforeMs = 0, guardsFile = DEFAULT_GUARDS_WORKFLOW }) {
+  const mine = (Array.isArray(runs) ? runs : []).filter((r) => r && isGuardsWorkflowRun(r, guardsFile) && r.event === "workflow_dispatch"
     && String(r.head_sha || "").toLowerCase() === String(headSha || "").toLowerCase()
     && !knownIds.has(r.id) && Date.parse(r.created_at) >= notBeforeMs);
   mine.sort((a, b) => b.id - a.id);
   return mine.length ? mine[0] : null;
+}
+
+/**
+ * Re-check a run read back by id. Returns null when it is the run we dispatched, else
+ * the reason it is not. A run that cannot prove its identity is not used.
+ */
+export function guardsRunMismatch(run, { headSha, guardsFile = DEFAULT_GUARDS_WORKFLOW, notBeforeMs = 0 }) {
+  if (!run) return "no run";
+  if (!isGuardsWorkflowRun(run, guardsFile)) return `run is not ${guardsFile} (path ${run.path || "unknown"})`;
+  if (run.event !== "workflow_dispatch") return `run event is ${run.event || "unknown"}, not workflow_dispatch`;
+  if (String(run.head_sha || "").toLowerCase() !== String(headSha || "").toLowerCase()) return "run tested a different commit";
+  if (!(Date.parse(run.created_at) >= notBeforeMs)) return "run was created before the dispatch";
+  if (!Number.isInteger(run.check_suite_id) || run.check_suite_id < 1) return "run has no check suite id";
+  return null;
 }
 
 /** Tree equality for the union proof. Anything that is not a full sha never matches. */
