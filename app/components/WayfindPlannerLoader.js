@@ -25,6 +25,7 @@ import {
 } from "../../lib/plannerProactive.js";
 import { siteTodayStr } from "../../lib/siteTime.js";
 import { pickCharacter, santaOffPath } from "./companionCharacter.js";
+import { resolveOrganizeTrip } from "../../lib/organizeTrips.js";
 
 // Santa season: the offer is Santa's, popped up in place of his dock and
 // pointing at the button (owner 2026-11-13). Lazy, so his artwork stays out of
@@ -187,10 +188,17 @@ export default function WayfindPlannerLoader() {
     if (!offer) return;
     setProactiveOffer(null);
     const appCtx = (typeof window !== "undefined" && window.__wfPlannerContext) || {};
+    // "Organize these into days": hand the chat the actual trip holding those stops (the selected one when it
+    // qualifies, else the only one). Several trips: the chat asks which, it never merges them silently.
+    let tripKey = offer.activeTripKey || "";
+    if (offer.kind === "unassigned_saves") {
+      const pick = resolveOrganizeTrip(readStoredTripsSnapshot(), appCtx.activeTrip && appCtx.activeTrip.key);
+      tripKey = pick.kind === "one" ? pick.key : "";
+    }
     openWayfindPlanner({
       surface: `proactive_${offer.kind}`,
       city: offer.city || "",
-      activeTripKey: offer.activeTripKey || "",
+      activeTripKey: tripKey,
       seedPlace: offer.kind === "place" ? appCtx.activePlace || null : null,
       prompt: offer.seedPrompt,
       pathname,
