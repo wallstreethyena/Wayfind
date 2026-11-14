@@ -1,0 +1,2000 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 54. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJH5F-eWa22YgRZ8sgHaATJww",
+   "name": "Alice Wainwright Park",
+   "category": "attractions",
+   "metro": "miami-dade",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.miamiandbeaches.com/l/outdoor-experiences/alice-c-wainwright-park/2983",
+     "source_name": "Alice Wainwright Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Park is a rare protected upland plant community",
+      "Park is a closed canopy forest of evergreen and semi-deciduous trees known as Tropical Hardwood Hammock",
+      "Park is named for the first elected female to serve on the City of Miami Commission",
+      "Park is located on the Biscayne Bay waterfront, offering beautiful views and breezes",
+      "Park is dog-friendly, with a basketball court, resistance based outdoor gym and large playground",
+      "Restrooms are available at the park"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Biscayne Bay waterfront park built around a rare Tropical Hardwood Hammock",
+    "why_here": "Alice C. Wainwright Park is a closed canopy forest of evergreen and semi-deciduous trees known as Tropical Hardwood Hammock on the Biscayne Bay waterfront. The dog-friendly park offers bay views, picnic shelters, a basketball court, an outdoor gym and a large playground.",
+    "know_before": "There is no public access to the hammock wilderness area of the park.",
+    "local_tip": "Picnic shelters and pavilions are available on a first come, first serve basis.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.miamiandbeaches.com/l/outdoor-experiences/alice-c-wainwright-park/2983"
+     ],
+     "why_here": [
+      "https://www.miamiandbeaches.com/l/outdoor-experiences/alice-c-wainwright-park/2983"
+     ],
+     "know_before": [
+      "https://www.miamiandbeaches.com/l/outdoor-experiences/alice-c-wainwright-park/2983"
+     ],
+     "local_tip": [
+      "https://www.miamiandbeaches.com/l/outdoor-experiences/alice-c-wainwright-park/2983"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Park is a rare protected upland plant community",
+      "source": "https://www.miamiandbeaches.com/l/outdoor-experiences/alice-c-wainwright-park/2983"
+     },
+     {
+      "claim": "Park is a closed canopy forest of evergreen and semi-deciduous trees known as Tropical Hardwood Hammock",
+      "source": "https://www.miamiandbeaches.com/l/outdoor-experiences/alice-c-wainwright-park/2983"
+     },
+     {
+      "claim": "Park is named for the first elected female to serve on the City of Miami Commission",
+      "source": "https://www.miamiandbeaches.com/l/outdoor-experiences/alice-c-wainwright-park/2983"
+     },
+     {
+      "claim": "Park is located on the Biscayne Bay waterfront, offering beautiful views and breezes",
+      "source": "https://www.miamiandbeaches.com/l/outdoor-experiences/alice-c-wainwright-park/2983"
+     },
+     {
+      "claim": "Park is dog-friendly, with a basketball court, resistance based outdoor gym and large playground",
+      "source": "https://www.miamiandbeaches.com/l/outdoor-experiences/alice-c-wainwright-park/2983"
+     },
+     {
+      "claim": "Restrooms are available at the park",
+      "source": "https://www.miamiandbeaches.com/l/outdoor-experiences/alice-c-wainwright-park/2983"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ0USuYfYw24gRsMQjHPYIz7o",
+   "name": "Blue Giraffe Island Bar and Grill",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://bluegirafferestaurant.com/",
+     "source_name": "Blue Giraffe Island Bar and Grill \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Follow the giant giraffe and the smell of now legendary breakfast tacos straight to Blue Giraffe Island Bar & Grill",
+      "The restaurant is on Sanibel Island where tropical cocktails, funky blue floors, and island vibes collide",
+      "Trivia Night is held every Thursday at 6:30 p.m.",
+      "Music Bingo and Karaoke is held every Tuesday at 7:30 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Follow the giant giraffe to legendary breakfast tacos on Sanibel Island",
+    "why_here": "Blue Giraffe Island Bar and Grill on Sanibel Island invites guests to follow the giant giraffe to legendary breakfast tacos. The official site describes tropical cocktails, funky blue floors, and island vibes.",
+    "know_before": "Follow the giant giraffe and the smell of now legendary breakfast tacos straight to Blue Giraffe Island Bar & Grill",
+    "local_tip": "Trivia Night is held every Thursday at 6:30 p.m., per the events listing on the official site.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://bluegirafferestaurant.com/"
+     ],
+     "why_here": [
+      "https://bluegirafferestaurant.com/"
+     ],
+     "know_before": [
+      "https://bluegirafferestaurant.com/"
+     ],
+     "local_tip": [
+      "https://bluegirafferestaurant.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Follow the giant giraffe and the smell of now legendary breakfast tacos straight to Blue Giraffe Island Bar & Grill",
+      "source": "https://bluegirafferestaurant.com/"
+     },
+     {
+      "claim": "The restaurant is on Sanibel Island where tropical cocktails, funky blue floors, and island vibes collide",
+      "source": "https://bluegirafferestaurant.com/"
+     },
+     {
+      "claim": "Trivia Night is held every Thursday at 6:30 p.m.",
+      "source": "https://bluegirafferestaurant.com/"
+     },
+     {
+      "claim": "Music Bingo and Karaoke is held every Tuesday at 7:30 p.m.",
+      "source": "https://bluegirafferestaurant.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJkcgre_qx2YgRsZBdV7KLZM8",
+   "name": "Smash Bros Burgers and Shakes",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.smashbros.co/about-us",
+     "source_name": "Smash Bros Burgers and Shakes \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Smash Bros was born out of a 20-year friendship and a shared passion for smash burgers",
+      "It uses 100% grass-fed and American Wagyu beef",
+      "Every ingredient is cut fresh in-house and nothing is ever frozen",
+      "Instead of seed oils, it cooks with Wagyu beef tallow",
+      "Founders developed a signature Smash Sauce"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Miami smash burger spot born out of a 20-year friendship among four founders",
+    "why_here": "Smash Bros was born out of a 20-year friendship and a shared passion for great food, especially smash burgers. Its four founders came together to bring Miami a smash burger experience like no other.",
+    "know_before": "Smash Bros was born out of a 20-year friendship and a shared passion for smash burgers",
+    "local_tip": "The founders developed a signature Smash Sauce for the burgers.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.smashbros.co/about-us"
+     ],
+     "why_here": [
+      "https://www.smashbros.co/about-us"
+     ],
+     "know_before": [
+      "https://www.smashbros.co/about-us"
+     ],
+     "local_tip": [
+      "https://www.smashbros.co/about-us"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Smash Bros was born out of a 20-year friendship and a shared passion for smash burgers",
+      "source": "https://www.smashbros.co/about-us"
+     },
+     {
+      "claim": "It uses 100% grass-fed and American Wagyu beef",
+      "source": "https://www.smashbros.co/about-us"
+     },
+     {
+      "claim": "Every ingredient is cut fresh in-house and nothing is ever frozen",
+      "source": "https://www.smashbros.co/about-us"
+     },
+     {
+      "claim": "Instead of seed oils, it cooks with Wagyu beef tallow",
+      "source": "https://www.smashbros.co/about-us"
+     },
+     {
+      "claim": "Founders developed a signature Smash Sauce",
+      "source": "https://www.smashbros.co/about-us"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJHQFwpW235YgRZQ1jkwWmAD0",
+   "name": "Winston Family YMCA",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "fitness_center",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://fcymca.org/locations/winston-family-ymca/",
+     "source_name": "Winston Family YMCA \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Winston Family YMCA has a 12,000 square foot Florida Blue Fitness and Wellness Center with indoor running track",
+      "Newton Family Aquatic Center has two year-round pools including a heated 6-lane, 25-yard indoor lap pool",
+      "It has a 7,800 square foot indoor Jacksonville Jaguars Gymnasium featuring a full basketball court",
+      "Branch hours are Monday - Thursday 5:00 a.m. - 9:00 p.m., Friday 5:00 a.m. - 8:00 p.m., and Saturday and Sunday 7:00 a.m. - 5:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "12,000 square foot fitness center with indoor running track and two year-round pools",
+    "why_here": "The Winston Family YMCA lists a 12,000 square foot Florida Blue Fitness and Wellness Center with indoor running track. Its Newton Family Aquatic Center has two year-round pools, including a heated 6-lane, 25-yard indoor lap pool.",
+    "know_before": "Branch hours are Monday - Thursday 5:00 a.m. - 9:00 p.m., Friday 5:00 a.m. - 8:00 p.m., and Saturday and Sunday 7:00 a.m. - 5:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://fcymca.org/locations/winston-family-ymca/"
+     ],
+     "why_here": [
+      "https://fcymca.org/locations/winston-family-ymca/"
+     ],
+     "know_before": [
+      "https://fcymca.org/locations/winston-family-ymca/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Winston Family YMCA has a 12,000 square foot Florida Blue Fitness and Wellness Center with indoor running track",
+      "source": "https://fcymca.org/locations/winston-family-ymca/"
+     },
+     {
+      "claim": "Newton Family Aquatic Center has two year-round pools including a heated 6-lane, 25-yard indoor lap pool",
+      "source": "https://fcymca.org/locations/winston-family-ymca/"
+     },
+     {
+      "claim": "It has a 7,800 square foot indoor Jacksonville Jaguars Gymnasium featuring a full basketball court",
+      "source": "https://fcymca.org/locations/winston-family-ymca/"
+     },
+     {
+      "claim": "Branch hours are Monday - Thursday 5:00 a.m. - 9:00 p.m., Friday 5:00 a.m. - 8:00 p.m., and Saturday and Sunday 7:00 a.m. - 5:00 p.m.",
+      "source": "https://fcymca.org/locations/winston-family-ymca/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJvdW1EPjE54gRsChTdN4mIsw",
+   "name": "Glenview Country Club",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://glenviewcountryclub.com/",
+     "source_name": "Glenview Country Club \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Glenview Country Club serves hand-cut steaks including tender ribeye and luxurious chateaubriand",
+      "The Monday Night All-You-Can-Eat Steak Buffet starts at 3:00 p.m. on Mondays",
+      "The Sunday Brunch Buffet is served every Sunday from 9:00 a.m. to 2:00 p.m.",
+      "Hours are Monday to Saturday from 11:00 a.m. to 8:00 p.m. and Sunday from 9:00 a.m. to 8:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Hand-cut steaks from tender ribeye to luxurious chateaubriand, cooked to perfection",
+    "why_here": "Glenview Country Club takes pride in serving hand-cut steaks crafted with care and cooked to perfection. Every bite is described as delivering rich flavor, with chefs preparing each steak with attention to detail.",
+    "know_before": "Hours are Monday to Saturday from 11:00 a.m. to 8:00 p.m. and Sunday from 9:00 a.m. to 8:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://glenviewcountryclub.com/"
+     ],
+     "why_here": [
+      "https://glenviewcountryclub.com/"
+     ],
+     "know_before": [
+      "https://glenviewcountryclub.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Glenview Country Club serves hand-cut steaks including tender ribeye and luxurious chateaubriand",
+      "source": "https://glenviewcountryclub.com/"
+     },
+     {
+      "claim": "The Monday Night All-You-Can-Eat Steak Buffet starts at 3:00 p.m. on Mondays",
+      "source": "https://glenviewcountryclub.com/"
+     },
+     {
+      "claim": "The Sunday Brunch Buffet is served every Sunday from 9:00 a.m. to 2:00 p.m.",
+      "source": "https://glenviewcountryclub.com/"
+     },
+     {
+      "claim": "Hours are Monday to Saturday from 11:00 a.m. to 8:00 p.m. and Sunday from 9:00 a.m. to 8:00 p.m.",
+      "source": "https://glenviewcountryclub.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJf3vHJ1FDkYgRQ7TnPjFcgM0",
+   "name": "Smashburger",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "hamburger_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://smashburger.com/our-food",
+     "source_name": "Smashburger \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Every burger is freshly smashed onto a hot buttered, seasoned grill to caramelize the patty",
+      "Smashburger uses Certified Angus Beef",
+      "Certified Angus Beef is sourced from family-owned farms and ranches throughout the United States",
+      "Vegetarian option includes substituting a Black Bean patty on any burger build",
+      "Gluten-free option listed includes Udi's Gluten Free Bun"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Burgers freshly smashed on a hot buttered grill using Certified Angus Beef",
+    "why_here": "Smashburger says every burger is freshly smashed onto a hot buttered, seasoned grill with a customized metal smasher to caramelize the patty. It uses Certified Angus Beef sourced from family-owned farms and ranches in the United States.",
+    "know_before": "Every burger is freshly smashed onto a hot buttered, seasoned grill to caramelize the patty",
+    "local_tip": "Vegetarian diners can substitute a Black Bean patty on any burger build.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://smashburger.com/our-food"
+     ],
+     "why_here": [
+      "https://smashburger.com/our-food"
+     ],
+     "know_before": [
+      "https://smashburger.com/our-food"
+     ],
+     "local_tip": [
+      "https://smashburger.com/our-food"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Every burger is freshly smashed onto a hot buttered, seasoned grill to caramelize the patty",
+      "source": "https://smashburger.com/our-food"
+     },
+     {
+      "claim": "Smashburger uses Certified Angus Beef",
+      "source": "https://smashburger.com/our-food"
+     },
+     {
+      "claim": "Certified Angus Beef is sourced from family-owned farms and ranches throughout the United States",
+      "source": "https://smashburger.com/our-food"
+     },
+     {
+      "claim": "Vegetarian option includes substituting a Black Bean patty on any burger build",
+      "source": "https://smashburger.com/our-food"
+     },
+     {
+      "claim": "Gluten-free option listed includes Udi's Gluten Free Bun",
+      "source": "https://smashburger.com/our-food"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJge2YrtfH5YgRFHovPDrbhJ0",
+   "name": "No Manches Wey",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "mexican_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://nomanchesmexicanrestaurant.com/story",
+     "source_name": "No Manches Wey \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "No Manches Wey is a Mexican restaurant in Orange Park that serves fresh daily ingredients and locally sourced items",
+      "The menu features Lengua Taco, Burrito Mexicano, and Taco Salad",
+      "The restaurant provides dining in, takeout, and delivery options",
+      "Catering services are offered for special events"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Mexican restaurant in Orange Park serving Lengua Taco and Burrito Mexicano",
+    "why_here": "No Manches Wey is a Mexican restaurant in Orange Park that serves fresh daily ingredients and locally sourced items. Its menu features Lengua Taco, Burrito Mexicano, and Taco Salad, with each dish prepared with care.",
+    "know_before": "The restaurant provides dining in, takeout, and delivery options, and also offers catering services for special events.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://nomanchesmexicanrestaurant.com/story"
+     ],
+     "why_here": [
+      "https://nomanchesmexicanrestaurant.com/story"
+     ],
+     "know_before": [
+      "https://nomanchesmexicanrestaurant.com/story"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "No Manches Wey is a Mexican restaurant in Orange Park that serves fresh daily ingredients and locally sourced items",
+      "source": "https://nomanchesmexicanrestaurant.com/story"
+     },
+     {
+      "claim": "The menu features Lengua Taco, Burrito Mexicano, and Taco Salad",
+      "source": "https://nomanchesmexicanrestaurant.com/story"
+     },
+     {
+      "claim": "The restaurant provides dining in, takeout, and delivery options",
+      "source": "https://nomanchesmexicanrestaurant.com/story"
+     },
+     {
+      "claim": "Catering services are offered for special events",
+      "source": "https://nomanchesmexicanrestaurant.com/story"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJdxg2MFm32YgRO8MUhUT0nWI",
+   "name": "Meraki In The Grove",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "greek_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://merakicoconutgrove.com/",
+     "source_name": "Meraki In The Grove \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Meraki Greek Bistro opened in 2016",
+      "Its mission is to bring the vibrant flavors of Greece to the heart of the city",
+      "It uses locally sourced ingredients and recipes infused with Greek heritage",
+      "Reservations can be booked online or by phone"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Greek bistro opened in 2016 to bring the vibrant flavors of Greece to Miami",
+    "why_here": "In 2016, Meraki Greek Bistro opened its doors with a mission to bring the vibrant flavors of Greece to the heart of the city. It uses locally sourced ingredients and recipes infused with Greek heritage.",
+    "know_before": "Meraki Greek Bistro opened in 2016",
+    "local_tip": "Meraki gift cards can be chosen by amount and delivered straight to an inbox.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://merakicoconutgrove.com/"
+     ],
+     "why_here": [
+      "https://merakicoconutgrove.com/"
+     ],
+     "know_before": [
+      "https://merakicoconutgrove.com/"
+     ],
+     "local_tip": [
+      "https://merakicoconutgrove.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Meraki Greek Bistro opened in 2016",
+      "source": "https://merakicoconutgrove.com/"
+     },
+     {
+      "claim": "Its mission is to bring the vibrant flavors of Greece to the heart of the city",
+      "source": "https://merakicoconutgrove.com/"
+     },
+     {
+      "claim": "It uses locally sourced ingredients and recipes infused with Greek heritage",
+      "source": "https://merakicoconutgrove.com/"
+     },
+     {
+      "claim": "Reservations can be booked online or by phone",
+      "source": "https://merakicoconutgrove.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJwxuc_jOz2YgR2tQa4BlmGXc",
+   "name": "Sunny Side Cafe & Eatery",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "breakfast_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://sunnysidemiami.com/",
+     "source_name": "Sunny Side Cafe & Eatery \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Sunny Side is a pet-friendly brunch spot",
+      "Menu includes healthy bowls and classic American brunch delights like fluffy waffles and pancakes",
+      "Hours of operation are every day from 7am to 3:30pm"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Pet-friendly Miami brunch spot for waffles, pancakes and healthy bowls",
+    "why_here": "Sunny Side calls itself a cute but relaxed place for breakfast, brunch or lunch, with plates made for friends and family get-togethers. Its menu ranges from healthy bowls to classic American brunch dishes like fluffy waffles and pancakes, and it is pet-friendly.",
+    "know_before": "Sunny Side is pet-friendly, so dogs can join the meal.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://sunnysidemiami.com/"
+     ],
+     "why_here": [
+      "https://sunnysidemiami.com/"
+     ],
+     "know_before": [
+      "https://sunnysidemiami.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Sunny Side is a pet-friendly brunch spot",
+      "source": "https://sunnysidemiami.com/"
+     },
+     {
+      "claim": "Menu includes healthy bowls and classic American brunch delights like fluffy waffles and pancakes",
+      "source": "https://sunnysidemiami.com/"
+     },
+     {
+      "claim": "Hours of operation are every day from 7am to 3:30pm",
+      "source": "https://sunnysidemiami.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJwbaGyX8f2YgRutuQbSXkw5Q",
+   "name": "Pura Vida Miami",
+   "category": "food",
+   "metro": "palm-beach",
+   "primary_type": "coffee_shop",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.puravidamiami.com/our-mission",
+     "source_name": "Pura Vida Miami \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Pura Vida Miami was established in 2012 by founder Omer Horev in South Florida",
+      "Pura Vida Miami offers vegan and gluten-free menu options",
+      "Pura Vida Miami preps fresh fruits and vegetables in-house and composts leftovers via partners"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Wellness caf\u00e9 founded in South Florida in 2012 around the motto health is happiness",
+    "why_here": "Pura Vida Miami describes itself as a wellness and lifestyle brand founded in 2012 in South Florida by Omer Horev. Its mission is healthy, nutritious food for a fast-paced lifestyle, with vegan and gluten-free options on the menu.",
+    "know_before": "The menu includes vegan and gluten-free options for different dietary needs.",
+    "local_tip": "Leftovers go to composting partners and the resulting soil is donated to local farmers, per the official mission page.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.puravidamiami.com/our-mission"
+     ],
+     "why_here": [
+      "https://www.puravidamiami.com/our-mission"
+     ],
+     "know_before": [
+      "https://www.puravidamiami.com/our-mission"
+     ],
+     "local_tip": [
+      "https://www.puravidamiami.com/our-mission"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Pura Vida Miami was established in 2012 by founder Omer Horev in South Florida",
+      "source": "https://www.puravidamiami.com/our-mission"
+     },
+     {
+      "claim": "Pura Vida Miami offers vegan and gluten-free menu options",
+      "source": "https://www.puravidamiami.com/our-mission"
+     },
+     {
+      "claim": "Pura Vida Miami preps fresh fruits and vegetables in-house and composts leftovers via partners",
+      "source": "https://www.puravidamiami.com/our-mission"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJjUvSBtaIk4gREkIs5tjhRtU",
+   "name": "Coyote Ugly Saloon",
+   "category": "nightlife",
+   "metro": "florida",
+   "primary_type": "bar",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.coyoteuglysaloon.com/tampa/",
+     "source_name": "Coyote Ugly Saloon \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Coyote Ugly Tampa calls itself the most famous bar on the planet",
+      "Guests must be 21 or older for entry at Coyote Ugly Tampa",
+      "Coyote Ugly Tampa lists Girls Night Out on Wednesdays"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Tampa bar billing itself as the most famous bar on the planet",
+    "why_here": "Coyote Ugly Tampa calls itself the most famous bar on the planet and lists weekly specials including Girls Night Out Wednesdays. The Tampa page also lists themed nights and drink specials through the week.",
+    "know_before": "Must be 21 or older for entry.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.coyoteuglysaloon.com/tampa/"
+     ],
+     "why_here": [
+      "https://www.coyoteuglysaloon.com/tampa/"
+     ],
+     "know_before": [
+      "https://www.coyoteuglysaloon.com/tampa/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Coyote Ugly Tampa calls itself the most famous bar on the planet",
+      "source": "https://www.coyoteuglysaloon.com/tampa/"
+     },
+     {
+      "claim": "Guests must be 21 or older for entry at Coyote Ugly Tampa",
+      "source": "https://www.coyoteuglysaloon.com/tampa/"
+     },
+     {
+      "claim": "Coyote Ugly Tampa lists Girls Night Out on Wednesdays",
+      "source": "https://www.coyoteuglysaloon.com/tampa/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJqUBMsNcC3ogRkCnTig3ZLEA",
+   "name": "Banana River Aquatic Preserve",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "nature_preserve",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://floridadep.my.salesforce-sites.com/FCO/AquaticPreserveDetail?id=001G000001kxE8oIAE",
+     "source_name": "Banana River Aquatic Preserve \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Banana River Aquatic Preserve covers approximately 30,000 acres in Brevard County and was designated in 1970",
+      "The Banana River is important habitat for manatees almost year-round",
+      "Wildlife seen in the preserve includes pelicans, alligators and diamondback terrapin turtles",
+      "Visitors can paddle by kayak or canoe and picnic on a spoil island in the preserve"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "30,000-acre lagoonal preserve in Brevard County, designated in 1970",
+    "why_here": "Florida DEP describes Banana River Aquatic Preserve as about 30,000 acres of lagoonal ecosystem in Brevard County, designated in 1970. The Banana River is important manatee habitat almost year-round, with pelicans, alligators and diamondback terrapins also seen here.",
+    "know_before": "There is no visitor centre claim made here; DEP presents paddling and spoil-island picnics as day-trip options.",
+    "local_tip": "DEP suggests experiencing the preserve by kayak or canoe and picnicking on a spoil island.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://floridadep.my.salesforce-sites.com/FCO/AquaticPreserveDetail?id=001G000001kxE8oIAE"
+     ],
+     "why_here": [
+      "https://floridadep.my.salesforce-sites.com/FCO/AquaticPreserveDetail?id=001G000001kxE8oIAE"
+     ],
+     "know_before": [
+      "https://floridadep.my.salesforce-sites.com/FCO/AquaticPreserveDetail?id=001G000001kxE8oIAE"
+     ],
+     "local_tip": [
+      "https://floridadep.my.salesforce-sites.com/FCO/AquaticPreserveDetail?id=001G000001kxE8oIAE"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Banana River Aquatic Preserve covers approximately 30,000 acres in Brevard County and was designated in 1970",
+      "source": "https://floridadep.my.salesforce-sites.com/FCO/AquaticPreserveDetail?id=001G000001kxE8oIAE"
+     },
+     {
+      "claim": "The Banana River is important habitat for manatees almost year-round",
+      "source": "https://floridadep.my.salesforce-sites.com/FCO/AquaticPreserveDetail?id=001G000001kxE8oIAE"
+     },
+     {
+      "claim": "Wildlife seen in the preserve includes pelicans, alligators and diamondback terrapin turtles",
+      "source": "https://floridadep.my.salesforce-sites.com/FCO/AquaticPreserveDetail?id=001G000001kxE8oIAE"
+     },
+     {
+      "claim": "Visitors can paddle by kayak or canoe and picnic on a spoil island in the preserve",
+      "source": "https://floridadep.my.salesforce-sites.com/FCO/AquaticPreserveDetail?id=001G000001kxE8oIAE"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJIaeVX7Kt2YgRTzobI5lnCig",
+   "name": "Haulover Nude Beach",
+   "category": "beach",
+   "metro": "miami-dade",
+   "primary_type": "beach",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.miamidade.gov/parks/haulover.asp",
+     "source_name": "Haulover Nude Beach \u2014 official source",
+     "source_class": "government",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Haulover Beach Park contains the largest remaining stretch of undeveloped beachfront in Miami-Dade",
+      "The clothing-optional beach is located on the northern one-third of the beach between lifeguard towers #12 and #16",
+      "Swimming areas are lifeguarded year-round",
+      "Picnic shelters may be reserved in advance"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Clothing-optional section on the northern third of Haulover Beach Park",
+    "why_here": "Haulover Beach Park contains the largest remaining stretch of undeveloped beachfront in Miami-Dade. The beach park is 1.4 miles long and is noted for pristine white sand shores and open ocean surf.",
+    "know_before": "Haulover Beach Park contains the largest remaining stretch of undeveloped beachfront in Miami-Dade",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.miamidade.gov/parks/haulover.asp"
+     ],
+     "why_here": [
+      "https://www.miamidade.gov/parks/haulover.asp"
+     ],
+     "know_before": [
+      "https://www.miamidade.gov/parks/haulover.asp"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Haulover Beach Park contains the largest remaining stretch of undeveloped beachfront in Miami-Dade",
+      "source": "https://www.miamidade.gov/parks/haulover.asp"
+     },
+     {
+      "claim": "The clothing-optional beach is located on the northern one-third of the beach between lifeguard towers #12 and #16",
+      "source": "https://www.miamidade.gov/parks/haulover.asp"
+     },
+     {
+      "claim": "Swimming areas are lifeguarded year-round",
+      "source": "https://www.miamidade.gov/parks/haulover.asp"
+     },
+     {
+      "claim": "Picnic shelters may be reserved in advance",
+      "source": "https://www.miamidade.gov/parks/haulover.asp"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJwSgF9MPU54gRLS6d9SoEhCU",
+   "name": "Lucky Strike West Ocala",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "bowling_alley",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.luckystrikeent.com/location/lucky-strike-west-ocala",
+     "source_name": "Lucky Strike West Ocala \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Lucky Strike West Ocala has 32 bowling lanes",
+      "Amenities include arcade, on-site pro shop, sports bar, lounge area and free Wi-Fi",
+      "The venue is described as family-friendly and wheelchair-accessible",
+      "Online lane reservations make planning a visit hassle-free, per the official page"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "32-lane Ocala bowling destination with arcade, sports bar, lounge and on-site pro shop",
+    "why_here": "Lucky Strike West Ocala's official page describes it as an entertainment destination in Ocala with 32 bowling lanes and a family-friendly, wheelchair-accessible setting. It also lists arcade games, a lounge area, an on-site pro shop and a sports bar serving drinks and appetizers.",
+    "know_before": "The official page says online lane reservations are available to plan a visit.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.luckystrikeent.com/location/lucky-strike-west-ocala"
+     ],
+     "why_here": [
+      "https://www.luckystrikeent.com/location/lucky-strike-west-ocala"
+     ],
+     "know_before": [
+      "https://www.luckystrikeent.com/location/lucky-strike-west-ocala"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Lucky Strike West Ocala has 32 bowling lanes",
+      "source": "https://www.luckystrikeent.com/location/lucky-strike-west-ocala"
+     },
+     {
+      "claim": "Amenities include arcade, on-site pro shop, sports bar, lounge area and free Wi-Fi",
+      "source": "https://www.luckystrikeent.com/location/lucky-strike-west-ocala"
+     },
+     {
+      "claim": "The venue is described as family-friendly and wheelchair-accessible",
+      "source": "https://www.luckystrikeent.com/location/lucky-strike-west-ocala"
+     },
+     {
+      "claim": "Online lane reservations make planning a visit hassle-free, per the official page",
+      "source": "https://www.luckystrikeent.com/location/lucky-strike-west-ocala"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJW8lhKb2p2YgRgoQN_mjlelY",
+   "name": "Kuro (in Seminole Hard Rock Hollywood)",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "japanese_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://casino.hardrock.com/hollywood/dining/fine-dining/kuro",
+     "source_name": "Kuro (in Seminole Hard Rock Hollywood) \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Kuro is a luxe and socially vibrant new-style Japanese restaurant featuring handcrafted cuisine using locally sourced and imported ingredients",
+      "Designed with sharing in mind, the menu offers upscale seafood and sushi, rare cuts of Japanese Wagyu Beef and creative hot dishes",
+      "Kuro has views of the Hard Rock Hotel pool and a curated drink menu with expertly mixed cocktails",
+      "Kuro won Wine Spectator's 2025 Award of Excellence, per the official page",
+      "Hours are Sunday - Thursday 6PM - 10:30PM and Friday & Saturday 6PM - 11:30PM"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Luxe new-style Japanese dining with sharing plates, sushi and rare Japanese Wagyu beef",
+    "why_here": "Kuro at Seminole Hard Rock Hollywood is described on its official page as a luxe and socially vibrant new-style Japanese restaurant using locally sourced and imported ingredients. Designed for sharing, its menu offers upscale seafood and sushi, rare cuts of Japanese Wagyu Beef and creative hot dishes.",
+    "know_before": "Official hours list Sunday to Thursday 6PM to 10:30PM and Friday and Saturday 6PM to 11:30PM.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://casino.hardrock.com/hollywood/dining/fine-dining/kuro"
+     ],
+     "why_here": [
+      "https://casino.hardrock.com/hollywood/dining/fine-dining/kuro"
+     ],
+     "know_before": [
+      "https://casino.hardrock.com/hollywood/dining/fine-dining/kuro"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Kuro is a luxe and socially vibrant new-style Japanese restaurant featuring handcrafted cuisine using locally sourced and imported ingredients",
+      "source": "https://casino.hardrock.com/hollywood/dining/fine-dining/kuro"
+     },
+     {
+      "claim": "Designed with sharing in mind, the menu offers upscale seafood and sushi, rare cuts of Japanese Wagyu Beef and creative hot dishes",
+      "source": "https://casino.hardrock.com/hollywood/dining/fine-dining/kuro"
+     },
+     {
+      "claim": "Kuro has views of the Hard Rock Hotel pool and a curated drink menu with expertly mixed cocktails",
+      "source": "https://casino.hardrock.com/hollywood/dining/fine-dining/kuro"
+     },
+     {
+      "claim": "Kuro won Wine Spectator's 2025 Award of Excellence, per the official page",
+      "source": "https://casino.hardrock.com/hollywood/dining/fine-dining/kuro"
+     },
+     {
+      "claim": "Hours are Sunday - Thursday 6PM - 10:30PM and Friday & Saturday 6PM - 11:30PM",
+      "source": "https://casino.hardrock.com/hollywood/dining/fine-dining/kuro"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ91ijGdcB2YgRzzHCKF7DsGA",
+   "name": "Naked Farmer",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.eatnakedfarmer.com/locations",
+     "source_name": "Naked Farmer \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Naked Farmer serves chef-driven, farm-to-table plates made from seasonal ingredients sourced from farms close to home",
+      "Locations page says food is fresh and scratch-made",
+      "Seasonal farm-to-table plates are made from scratch with vegetables, grains, and responsibly raised proteins sourced from regional farms",
+      "All locations offer online ordering for pickup or delivery",
+      "Catering is provided for offices, meetings, and events"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Chef-driven farm-to-table plates from seasonal ingredients sourced from farms close to home",
+    "why_here": "Naked Farmer serves chef-driven, farm-to-table plates made from seasonal ingredients sourced from farms close to home Locations page says food is fresh and scratch-made",
+    "know_before": "All locations offer online ordering for pickup or delivery, according to the locations page.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.eatnakedfarmer.com/locations"
+     ],
+     "why_here": [
+      "https://www.eatnakedfarmer.com/locations"
+     ],
+     "know_before": [
+      "https://www.eatnakedfarmer.com/locations"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Naked Farmer serves chef-driven, farm-to-table plates made from seasonal ingredients sourced from farms close to home",
+      "source": "https://www.eatnakedfarmer.com/locations"
+     },
+     {
+      "claim": "Locations page says food is fresh and scratch-made",
+      "source": "https://www.eatnakedfarmer.com/locations"
+     },
+     {
+      "claim": "Seasonal farm-to-table plates are made from scratch with vegetables, grains, and responsibly raised proteins sourced from regional farms",
+      "source": "https://www.eatnakedfarmer.com/locations"
+     },
+     {
+      "claim": "All locations offer online ordering for pickup or delivery",
+      "source": "https://www.eatnakedfarmer.com/locations"
+     },
+     {
+      "claim": "Catering is provided for offices, meetings, and events",
+      "source": "https://www.eatnakedfarmer.com/locations"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ_R3H1WZ654gR4pxbRDOomyY",
+   "name": "Infusion Tea",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "tea_house",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.infusionorlando.com/",
+     "source_name": "Infusion Tea \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Infusion Tea is Orlando's organic tea cafe serving loose leaf tea and vegetarian food",
+      "Infusion Tea hosts baby and bridal shower tea parties in its store or at home",
+      "Infusion Tea is open 9:00 a.m. to 7:00 p.m. Monday to Saturday, and Sunday is for private parties"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Organic tea cafe pairing loose leaf tea with vegetarian food",
+    "why_here": "Infusion Tea calls itself Orlando's organic tea cafe, offering loose leaf tea and vegetarian food. It also hosts baby and bridal shower tea parties in the store or at home, with party planners handling the details.",
+    "know_before": "Infusion Tea is open 9:00 a.m. to 7:00 p.m. Monday to Saturday, and Sunday is for private parties.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.infusionorlando.com/"
+     ],
+     "why_here": [
+      "https://www.infusionorlando.com/"
+     ],
+     "know_before": [
+      "https://www.infusionorlando.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Infusion Tea is Orlando's organic tea cafe serving loose leaf tea and vegetarian food",
+      "source": "https://www.infusionorlando.com/"
+     },
+     {
+      "claim": "Infusion Tea hosts baby and bridal shower tea parties in its store or at home",
+      "source": "https://www.infusionorlando.com/"
+     },
+     {
+      "claim": "Infusion Tea is open 9:00 a.m. to 7:00 p.m. Monday to Saturday, and Sunday is for private parties",
+      "source": "https://www.infusionorlando.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJLZiNmga12YgRXIkJRMXyu2c",
+   "name": "Casa Amore - Best Italian restaurant South Beach",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "italian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://casaamoremiami.com/",
+     "source_name": "Casa Amore - Best Italian restaurant South Beach \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Casa Amore describes itself as a true Italian experience",
+      "Casa Amore is located in the heart of Miami Beach",
+      "Casa Amore lists Tuna Tartare among its favorites",
+      "Casa Amore lists Risotto Frutti di Mare among its favorites",
+      "Casa Amore is located at 419 Washington Ave, Miami Beach, FL 33139"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "A true Italian experience with a warm and friendly atmosphere in Miami Beach",
+    "why_here": "Casa Amore describes itself as more than just a restaurant, calling it a true Italian experience in Miami Beach. The restaurant says it welcomes guests with a warm and friendly atmosphere.",
+    "know_before": "Casa Amore is located at 419 Washington Ave, Miami Beach, FL 33139.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://casaamoremiami.com/"
+     ],
+     "why_here": [
+      "https://casaamoremiami.com/"
+     ],
+     "know_before": [
+      "https://casaamoremiami.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Casa Amore describes itself as a true Italian experience",
+      "source": "https://casaamoremiami.com/"
+     },
+     {
+      "claim": "Casa Amore is located in the heart of Miami Beach",
+      "source": "https://casaamoremiami.com/"
+     },
+     {
+      "claim": "Casa Amore lists Tuna Tartare among its favorites",
+      "source": "https://casaamoremiami.com/"
+     },
+     {
+      "claim": "Casa Amore lists Risotto Frutti di Mare among its favorites",
+      "source": "https://casaamoremiami.com/"
+     },
+     {
+      "claim": "Casa Amore is located at 419 Washington Ave, Miami Beach, FL 33139",
+      "source": "https://casaamoremiami.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ6zK0ku3A54gRQM6XP7uS6Ns",
+   "name": "Lake Griffin State Park",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "state_park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.floridastateparks.org/parks-and-trails/lake-griffin-state-park/experiences-amenities",
+     "source_name": "Lake Griffin State Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "A half-mile nature trail traverses a portion of the basin swamp and leads to the mammoth oak",
+      "The mammoth oak has been designated as the second largest live oak in the state",
+      "Canoe and kayak rentals are available",
+      "The park has 40 campsites, including seven pull-through sites",
+      "A playground and a boat launch are located in the park"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "A half-mile nature trail leads to the mammoth oak, the second largest live oak in the state",
+    "why_here": "Lake Griffin State Park's half-mile nature trail traverses part of the basin swamp to the mammoth oak near the park entrance, designated the second largest live oak in the state. The park also offers canoe and kayak rentals, a playground and a boat launch for visitors.",
+    "know_before": "Canoe and kayak rentals are available at the park.",
+    "local_tip": "An open-air picnic pavilion can be reserved for events or family reunions.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.floridastateparks.org/parks-and-trails/lake-griffin-state-park/experiences-amenities"
+     ],
+     "why_here": [
+      "https://www.floridastateparks.org/parks-and-trails/lake-griffin-state-park/experiences-amenities"
+     ],
+     "know_before": [
+      "https://www.floridastateparks.org/parks-and-trails/lake-griffin-state-park/experiences-amenities"
+     ],
+     "local_tip": [
+      "https://www.floridastateparks.org/parks-and-trails/lake-griffin-state-park/experiences-amenities"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "A half-mile nature trail traverses a portion of the basin swamp and leads to the mammoth oak",
+      "source": "https://www.floridastateparks.org/parks-and-trails/lake-griffin-state-park/experiences-amenities"
+     },
+     {
+      "claim": "The mammoth oak has been designated as the second largest live oak in the state",
+      "source": "https://www.floridastateparks.org/parks-and-trails/lake-griffin-state-park/experiences-amenities"
+     },
+     {
+      "claim": "Canoe and kayak rentals are available",
+      "source": "https://www.floridastateparks.org/parks-and-trails/lake-griffin-state-park/experiences-amenities"
+     },
+     {
+      "claim": "The park has 40 campsites, including seven pull-through sites",
+      "source": "https://www.floridastateparks.org/parks-and-trails/lake-griffin-state-park/experiences-amenities"
+     },
+     {
+      "claim": "A playground and a boat launch are located in the park",
+      "source": "https://www.floridastateparks.org/parks-and-trails/lake-griffin-state-park/experiences-amenities"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJL9Xd-JCP54gR0NCp9FBltVw",
+   "name": "Amore Italian Ristorante",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "italian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.amoreclermont.com/food-menu.html",
+     "source_name": "Amore Italian Ristorante \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Amore Italian Ristorante is family-owned in Clermont and run by Julian and Alda Serjani",
+      "All pizzas are 12 inch, hand stretched and baked in a brick oven"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Homemade pasta and brick-oven pizza from a family-run Clermont kitchen",
+    "why_here": "Amore Italian Ristorante is a family-owned restaurant in Clermont run by Julian and Alda Serjani. It serves homemade pastas and lasagna, chicken and veal classics, grilled steaks and lamb chops, and hand-stretched pizzas baked in a brick oven.",
+    "know_before": "All pizzas are 12 inch, hand stretched and baked in a brick oven, per the food menu page.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.amoreclermont.com/food-menu.html"
+     ],
+     "why_here": [
+      "https://www.amoreclermont.com/food-menu.html"
+     ],
+     "know_before": [
+      "https://www.amoreclermont.com/food-menu.html"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Amore Italian Ristorante is family-owned in Clermont and run by Julian and Alda Serjani",
+      "source": "https://www.amoreclermont.com/food-menu.html"
+     },
+     {
+      "claim": "All pizzas are 12 inch, hand stretched and baked in a brick oven",
+      "source": "https://www.amoreclermont.com/food-menu.html"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJEfuXNVcA2YgRtSS3Jo9Jsw0",
+   "name": "Riverwalk Fort Lauderdale",
+   "category": "attractions",
+   "metro": "broward",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.goriverwalk.com/",
+     "source_name": "Riverwalk Fort Lauderdale \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Riverwalk includes 10 parks and a lush tropical waterfront",
+      "The mission is to build and nurture Riverwalk as a vibrant community connected by the New River",
+      "Riverwalk Fort Lauderdale is a 501(c)(3) nonprofit"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Ten parks line a lush tropical waterfront along the New River",
+    "why_here": "Riverwalk Fort Lauderdale includes 10 parks as well as a lush tropical waterfront in the downtown center. Its mission is to build and nurture Riverwalk as a vibrant community connected by the New River.",
+    "know_before": "Riverwalk includes 10 parks and a lush tropical waterfront",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.goriverwalk.com/"
+     ],
+     "why_here": [
+      "https://www.goriverwalk.com/"
+     ],
+     "know_before": [
+      "https://www.goriverwalk.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Riverwalk includes 10 parks and a lush tropical waterfront",
+      "source": "https://www.goriverwalk.com/"
+     },
+     {
+      "claim": "The mission is to build and nurture Riverwalk as a vibrant community connected by the New River",
+      "source": "https://www.goriverwalk.com/"
+     },
+     {
+      "claim": "Riverwalk Fort Lauderdale is a 501(c)(3) nonprofit",
+      "source": "https://www.goriverwalk.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJo-bXKb7wwogRvUOrkxHNOAk",
+   "name": "Wildflower Cafe",
+   "category": "shopping",
+   "metro": "florida",
+   "primary_type": "brunch_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.wildflowercafe.net/",
+     "source_name": "Wildflower Cafe \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Wildflower Cafe serves breakfast, lunch and Sunday brunch under oak trees in Clearwater",
+      "Wildflower Cafe's market offers grab-and-go soups, salads and sandwiches",
+      "Cafe hours are Monday - Saturday 8:00 a.m. - 2:30 p.m. and Sundays 8:30 a.m. - 2:00 p.m.",
+      "Market hours are daily 9:00 a.m. - 3:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Breakfast, lunch and Sunday brunch tucked away under oak trees",
+    "why_here": "Wildflower Cafe is a neighborhood cafe in Clearwater serving breakfast, lunch and Sunday brunch in a casual, yet upscale atmosphere under oak trees. Its market offers grab-and-go soups, salads and sandwiches that are always at the ready.",
+    "know_before": "Do not leave orders on email or on phone messages; call the market and speak to a person directly when ordering.",
+    "local_tip": "All menu items are available for take out, and grab-and-go items in the market include sandwiches, salads, quiche and cold beverages.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.wildflowercafe.net/"
+     ],
+     "why_here": [
+      "https://www.wildflowercafe.net/"
+     ],
+     "know_before": [
+      "https://www.wildflowercafe.net/"
+     ],
+     "local_tip": [
+      "https://www.wildflowercafe.net/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Wildflower Cafe serves breakfast, lunch and Sunday brunch under oak trees in Clearwater",
+      "source": "https://www.wildflowercafe.net/"
+     },
+     {
+      "claim": "Wildflower Cafe's market offers grab-and-go soups, salads and sandwiches",
+      "source": "https://www.wildflowercafe.net/"
+     },
+     {
+      "claim": "Cafe hours are Monday - Saturday 8:00 a.m. - 2:30 p.m. and Sundays 8:30 a.m. - 2:00 p.m.",
+      "source": "https://www.wildflowercafe.net/"
+     },
+     {
+      "claim": "Market hours are daily 9:00 a.m. - 3:00 p.m.",
+      "source": "https://www.wildflowercafe.net/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJL3nD6p1a3YgR1etSPsim9Qc",
+   "name": "Colt Creek State Park",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "state_park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.floridastateparks.org/parks-and-trails/colt-creek-state-park",
+     "source_name": "Colt Creek State Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Colt Creek State Park includes more than 5,000 acres of native Central Florida habitat",
+      "Visitors can enjoy more than 15 miles of multiuse trails for hiking, bicycling and horseback riding",
+      "The park offers primitive campsites, an equestrian campground and a group campground",
+      "Admission is $4.00 per vehicle for 2 to 8 people"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "More than 5,000 acres of native Central Florida habitat to explore",
+    "why_here": "Colt Creek State Park includes more than 5,000 acres of native Central Florida habitat, with natural communities and wildlife to explore. Visitors can enjoy more than 15 miles of multiuse trails shared by hikers, bicyclists and horseback riders.",
+    "know_before": "Admission is $4.00 per vehicle for 2 to 8 people.",
+    "local_tip": "The park offers primitive campsites, an equestrian campground and a group campground.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.floridastateparks.org/parks-and-trails/colt-creek-state-park"
+     ],
+     "why_here": [
+      "https://www.floridastateparks.org/parks-and-trails/colt-creek-state-park"
+     ],
+     "know_before": [
+      "https://www.floridastateparks.org/parks-and-trails/colt-creek-state-park"
+     ],
+     "local_tip": [
+      "https://www.floridastateparks.org/parks-and-trails/colt-creek-state-park"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Colt Creek State Park includes more than 5,000 acres of native Central Florida habitat",
+      "source": "https://www.floridastateparks.org/parks-and-trails/colt-creek-state-park"
+     },
+     {
+      "claim": "Visitors can enjoy more than 15 miles of multiuse trails for hiking, bicycling and horseback riding",
+      "source": "https://www.floridastateparks.org/parks-and-trails/colt-creek-state-park"
+     },
+     {
+      "claim": "The park offers primitive campsites, an equestrian campground and a group campground",
+      "source": "https://www.floridastateparks.org/parks-and-trails/colt-creek-state-park"
+     },
+     {
+      "claim": "Admission is $4.00 per vehicle for 2 to 8 people",
+      "source": "https://www.floridastateparks.org/parks-and-trails/colt-creek-state-park"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJb1crAPX92IgRe_YNLkMqnSI",
+   "name": "El Prado Park",
+   "category": "attractions",
+   "metro": "broward",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.discoverlbts.com/beaches-parks/",
+     "source_name": "El Prado Park \u2014 official source",
+     "source_class": "tourism_dmo",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "El Prado Park is a passive park on the ocean equipped with a shower, benches, shade and Addy chairs",
+      "The El Prado beach portal is equipped with chairs, a shower, and a mobile mat for accessibility",
+      "The town has a sandy beach that stretches for 2.5 miles and a living coral reef within 100 yards of the beach"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Passive oceanfront park with shower, benches, shade and Addy chairs",
+    "why_here": "El Prado Park is described as a passive park on the ocean, equipped with a shower, benches, shade and Addy chairs. The El Prado beach portal is also listed with chairs, a shower, and a mobile mat for accessibility.",
+    "know_before": "The El Prado beach portal has a mobile mat for accessibility, per the beaches and parks page.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.discoverlbts.com/beaches-parks/"
+     ],
+     "why_here": [
+      "https://www.discoverlbts.com/beaches-parks/"
+     ],
+     "know_before": [
+      "https://www.discoverlbts.com/beaches-parks/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "El Prado Park is a passive park on the ocean equipped with a shower, benches, shade and Addy chairs",
+      "source": "https://www.discoverlbts.com/beaches-parks/"
+     },
+     {
+      "claim": "The El Prado beach portal is equipped with chairs, a shower, and a mobile mat for accessibility",
+      "source": "https://www.discoverlbts.com/beaches-parks/"
+     },
+     {
+      "claim": "The town has a sandy beach that stretches for 2.5 miles and a living coral reef within 100 yards of the beach",
+      "source": "https://www.discoverlbts.com/beaches-parks/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJK6a8CU5BkYgRLCHrqJ-Ks0A",
+   "name": "Sea Blaster Fort Walton Beach",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "tourist_attraction",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://seablasterfwb.com/dolphin-cruise-info-rates/",
+     "source_name": "Sea Blaster Fort Walton Beach \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Operating as a local family-fun favorite since 1995, offering dolphin and sunset excursions",
+      "Dolphin cruises begin with a scenic cruise through Choctawhatchee Bay and into Destin Harbor",
+      "Kids get a turn to captain the boat",
+      "Free-flowing beer, wine, soda, and bottled water are included for the duration of the trip"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Dolphin cruises operating since 1995 through Choctawhatchee Bay and Destin Harbor",
+    "why_here": "Operating as a local family-fun favorite since 1995, its dolphin and sunset excursions offer dolphin and marine life sightseeing and spectacular coastal views. Cruises begin with a scenic cruise through Choctawhatchee Bay and into Destin Harbor.",
+    "know_before": "Free on-site parking is offered for arrivals.",
+    "local_tip": "Kids get a turn to captain the boat.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://seablasterfwb.com/dolphin-cruise-info-rates/"
+     ],
+     "why_here": [
+      "https://seablasterfwb.com/dolphin-cruise-info-rates/"
+     ],
+     "know_before": [
+      "https://seablasterfwb.com/dolphin-cruise-info-rates/"
+     ],
+     "local_tip": [
+      "https://seablasterfwb.com/dolphin-cruise-info-rates/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Operating as a local family-fun favorite since 1995, offering dolphin and sunset excursions",
+      "source": "https://seablasterfwb.com/dolphin-cruise-info-rates/"
+     },
+     {
+      "claim": "Dolphin cruises begin with a scenic cruise through Choctawhatchee Bay and into Destin Harbor",
+      "source": "https://seablasterfwb.com/dolphin-cruise-info-rates/"
+     },
+     {
+      "claim": "Kids get a turn to captain the boat",
+      "source": "https://seablasterfwb.com/dolphin-cruise-info-rates/"
+     },
+     {
+      "claim": "Free-flowing beer, wine, soda, and bottled water are included for the duration of the trip",
+      "source": "https://seablasterfwb.com/dolphin-cruise-info-rates/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJV-JpYBvi2IgRQ66A6EomRD8",
+   "name": "Ramen Lab Eatery",
+   "category": "food",
+   "metro": "palm-beach",
+   "primary_type": "ramen_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://ramenlabeatery.com/menu/west-boca-raton",
+     "source_name": "Ramen Lab Eatery \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Tonkotsu Ramen features 12 hours pork broth, chashu pork belly, soft boiled egg, bamboo shoots, kikurage mushrooms, scallions and nori",
+      "The menu lists Shoyu Ramen and Miso Ramen",
+      "Lunch ramen is listed Monday to Friday from 11:30 a.m. to 3:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Tonkotsu ramen with 12-hour pork broth, chashu pork belly and soft boiled egg",
+    "why_here": "Ramen Lab Eatery lists Tonkotsu Ramen with 12 hours pork broth, chashu pork belly, soft boiled egg, bamboo shoots, kikurage mushrooms, scallions and nori. The menu also lists Shoyu Ramen and Miso Ramen.",
+    "know_before": "Lunch ramen is listed Monday to Friday from 11:30 a.m. to 3:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://ramenlabeatery.com/menu/west-boca-raton"
+     ],
+     "why_here": [
+      "https://ramenlabeatery.com/menu/west-boca-raton"
+     ],
+     "know_before": [
+      "https://ramenlabeatery.com/menu/west-boca-raton"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Tonkotsu Ramen features 12 hours pork broth, chashu pork belly, soft boiled egg, bamboo shoots, kikurage mushrooms, scallions and nori",
+      "source": "https://ramenlabeatery.com/menu/west-boca-raton"
+     },
+     {
+      "claim": "The menu lists Shoyu Ramen and Miso Ramen",
+      "source": "https://ramenlabeatery.com/menu/west-boca-raton"
+     },
+     {
+      "claim": "Lunch ramen is listed Monday to Friday from 11:30 a.m. to 3:00 p.m.",
+      "source": "https://ramenlabeatery.com/menu/west-boca-raton"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJz_DCTEx-54gR5Yg5W2YrlFE",
+   "name": "SpringHill Suites by Marriott Orlando Convention Center/International Drive Area",
+   "category": "hotels",
+   "metro": "orlando",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.marriott.com/en-us/hotels/mcosc-springhill-suites-orlando-convention-center-international-drive-area/overview/",
+     "source_name": "SpringHill Suites by Marriott Orlando Convention Center/International Drive Area \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The hotel is an all-suite SpringHill Suites by Marriott property",
+      "Free Buffet and Hot Breakfast is listed as a featured on-site amenity",
+      "Complimentary breakfast is available to guests staying at the hotel"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "All-suite Marriott hotel with free buffet and hot breakfast for guests",
+    "why_here": "Marriott's official hotel page describes SpringHill Suites Orlando Convention Center/International Drive Area as an all-suite hotel and lists free buffet and hot breakfast among its featured on-site amenities. Marriott confirms complimentary breakfast is available to guests staying at the hotel.",
+    "know_before": "Complimentary breakfast is available only to guests staying at the hotel, per Marriott.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.marriott.com/en-us/hotels/mcosc-springhill-suites-orlando-convention-center-international-drive-area/overview/"
+     ],
+     "why_here": [
+      "https://www.marriott.com/en-us/hotels/mcosc-springhill-suites-orlando-convention-center-international-drive-area/overview/"
+     ],
+     "know_before": [
+      "https://www.marriott.com/en-us/hotels/mcosc-springhill-suites-orlando-convention-center-international-drive-area/overview/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The hotel is an all-suite SpringHill Suites by Marriott property",
+      "source": "https://www.marriott.com/en-us/hotels/mcosc-springhill-suites-orlando-convention-center-international-drive-area/overview/"
+     },
+     {
+      "claim": "Free Buffet and Hot Breakfast is listed as a featured on-site amenity",
+      "source": "https://www.marriott.com/en-us/hotels/mcosc-springhill-suites-orlando-convention-center-international-drive-area/overview/"
+     },
+     {
+      "claim": "Complimentary breakfast is available to guests staying at the hotel",
+      "source": "https://www.marriott.com/en-us/hotels/mcosc-springhill-suites-orlando-convention-center-international-drive-area/overview/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJOywSPYIv2YgRZzVPBuvD9Ow",
+   "name": "Pura Vida Miami",
+   "category": "food",
+   "metro": "palm-beach",
+   "primary_type": "coffee_shop",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.puravidamiami.com/acai-bowls-menu",
+     "source_name": "Pura Vida Miami \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Signature bowl uses pure raw acai and sweet banana base topped with vegan gf granola, strawberry, pineapple, banana, chia seeds and shaved coconut",
+      "PB Lover uses pure raw acai and sweet banana base topped with strawberry, blueberry, pecans, goji berries, coconut and peanut butter drizzle",
+      "Signature bowl is listed with 14g fiber",
+      "PB Lover bowl is listed with 16g fiber"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Signature acai with pure raw acai, banana, granola, pineapple and coconut",
+    "why_here": "Pura Vida Miami's acai menu describes its Signature bowl as pure raw acai and sweet banana base topped with crunchy vegan gf granola, fresh strawberry, golden pineapple, banana, chia seeds and shaved coconut. Its PB Lover adds blueberry, pecans, goji berries and a peanut butter drizzle on the same base.",
+    "know_before": "The Signature and PB Lover bowls note they contain tree nuts: almond and walnut.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.puravidamiami.com/acai-bowls-menu"
+     ],
+     "why_here": [
+      "https://www.puravidamiami.com/acai-bowls-menu"
+     ],
+     "know_before": [
+      "https://www.puravidamiami.com/acai-bowls-menu"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Signature bowl uses pure raw acai and sweet banana base topped with vegan gf granola, strawberry, pineapple, banana, chia seeds and shaved coconut",
+      "source": "https://www.puravidamiami.com/acai-bowls-menu"
+     },
+     {
+      "claim": "PB Lover uses pure raw acai and sweet banana base topped with strawberry, blueberry, pecans, goji berries, coconut and peanut butter drizzle",
+      "source": "https://www.puravidamiami.com/acai-bowls-menu"
+     },
+     {
+      "claim": "Signature bowl is listed with 14g fiber",
+      "source": "https://www.puravidamiami.com/acai-bowls-menu"
+     },
+     {
+      "claim": "PB Lover bowl is listed with 16g fiber",
+      "source": "https://www.puravidamiami.com/acai-bowls-menu"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJab3C0_X92IgRJkWtwb1FZaU",
+   "name": "The Village Grille & Pump",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.villagegrille.com/",
+     "source_name": "The Village Grille & Pump \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Founded in 1949, The Village Pump has evolved into an enduring symbol of Lauderdale By the Sea",
+      "The Village Pump played a pivotal role in the creation of the Village Grille in 2000",
+      "The menu spans sushi, pasta dishes, chicken options and breakfast featuring eggs and brunch favorites",
+      "Live music and entertainment is presented from Wednesday to Saturday"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Founded in 1949, a bar and grille half a block from the beach",
+    "why_here": "The Village Grille & Pump says it was founded in 1949 and has evolved into an enduring symbol of Lauderdale By the Sea, situated just half a block from the beach. Its menu spans sushi, pasta, chicken and breakfast dishes, with live music and entertainment.",
+    "know_before": "Live music and entertainment is presented from Wednesday to Saturday, per the official site.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.villagegrille.com/"
+     ],
+     "why_here": [
+      "https://www.villagegrille.com/"
+     ],
+     "know_before": [
+      "https://www.villagegrille.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Founded in 1949, The Village Pump has evolved into an enduring symbol of Lauderdale By the Sea",
+      "source": "https://www.villagegrille.com/"
+     },
+     {
+      "claim": "The Village Pump played a pivotal role in the creation of the Village Grille in 2000",
+      "source": "https://www.villagegrille.com/"
+     },
+     {
+      "claim": "The menu spans sushi, pasta dishes, chicken options and breakfast featuring eggs and brunch favorites",
+      "source": "https://www.villagegrille.com/"
+     },
+     {
+      "claim": "Live music and entertainment is presented from Wednesday to Saturday",
+      "source": "https://www.villagegrille.com/"
+     }
+    ]
+   }
+  }
+ ]
+}

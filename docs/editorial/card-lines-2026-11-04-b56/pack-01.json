@@ -1,0 +1,1861 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 56. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJORnVJn3xwogR9Gp1XEOAtic",
+   "name": "Dunedin Brewery",
+   "category": "nightlife",
+   "metro": "spring-hill-fl",
+   "primary_type": "brewery",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://dunedinbrewery.com/",
+     "source_name": "Dunedin Brewery \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Founded in 1996 and described as FL's Oldest Microbrewery",
+      "Oldest distributing microbrewery still in operation",
+      "Beer is sold to-go in 4-packs or 32oz Crowlers",
+      "Music venue has two stages, the Pub Stage and the Moon Tower",
+      "Fresh ideas go on tap weekly"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Florida's oldest continually operated microbrewery, founded in 1996 in downtown Dunedin",
+    "why_here": "Dunedin Brewery has positioned itself as an originator in the Florida craft beer scene with award winning beer. It houses an intimate yet nationally renowned music venue featuring local bands and nationally-known artists.",
+    "know_before": "Dunedin Brewery sells beer to-go in 4-packs or 32oz Crowlers.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://dunedinbrewery.com/"
+     ],
+     "why_here": [
+      "https://dunedinbrewery.com/"
+     ],
+     "know_before": [
+      "https://dunedinbrewery.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Founded in 1996 and described as FL's Oldest Microbrewery",
+      "source": "https://dunedinbrewery.com/"
+     },
+     {
+      "claim": "Oldest distributing microbrewery still in operation",
+      "source": "https://dunedinbrewery.com/"
+     },
+     {
+      "claim": "Beer is sold to-go in 4-packs or 32oz Crowlers",
+      "source": "https://dunedinbrewery.com/"
+     },
+     {
+      "claim": "Music venue has two stages, the Pub Stage and the Moon Tower",
+      "source": "https://dunedinbrewery.com/"
+     },
+     {
+      "claim": "Fresh ideas go on tap weekly",
+      "source": "https://dunedinbrewery.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJTcQGrbZA3YgR58vz0mcB0bg",
+   "name": "Lake Parker Park",
+   "category": "attractions",
+   "metro": "orlando",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.lakelandgov.net/departments/parks-recreation-and-cultural-arts/lake-parker-park/",
+     "source_name": "Lake Parker Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "88-acre community park with Phase I opened in 1978",
+      "Four distinct path systems are color-coded",
+      "Forest Path is .66 miles and Water Path is .84 miles",
+      "Amenities include a boat ramp, picnic pavilions, fishing and disc golf",
+      "9-hole disc golf course is on the park's northern edge",
+      "Park hours are Sunday - Saturday 7:00 a.m. - 8:00 p.m. and change seasonally"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "88-acre park with four color-coded path systems, a boat ramp and a 9-hole disc golf course",
+    "why_here": "The park was developed in the mid-1970s as a free play/passive recreation area, and Phase I opened in 1978. Amenities include a boat ramp, picnic pavilions, fishing, disc golf, soccer fields, tennis courts and pickleball courts.",
+    "know_before": "Park hours are Sunday - Saturday 7:00 a.m. - 8:00 p.m., and hours change seasonally.",
+    "local_tip": "Corporate pavilions are available for rental, while all other picnic pavilions are first come, first served.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.lakelandgov.net/departments/parks-recreation-and-cultural-arts/lake-parker-park/"
+     ],
+     "why_here": [
+      "https://www.lakelandgov.net/departments/parks-recreation-and-cultural-arts/lake-parker-park/"
+     ],
+     "know_before": [
+      "https://www.lakelandgov.net/departments/parks-recreation-and-cultural-arts/lake-parker-park/"
+     ],
+     "local_tip": [
+      "https://www.lakelandgov.net/departments/parks-recreation-and-cultural-arts/lake-parker-park/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "88-acre community park with Phase I opened in 1978",
+      "source": "https://www.lakelandgov.net/departments/parks-recreation-and-cultural-arts/lake-parker-park/"
+     },
+     {
+      "claim": "Four distinct path systems are color-coded",
+      "source": "https://www.lakelandgov.net/departments/parks-recreation-and-cultural-arts/lake-parker-park/"
+     },
+     {
+      "claim": "Forest Path is .66 miles and Water Path is .84 miles",
+      "source": "https://www.lakelandgov.net/departments/parks-recreation-and-cultural-arts/lake-parker-park/"
+     },
+     {
+      "claim": "Amenities include a boat ramp, picnic pavilions, fishing and disc golf",
+      "source": "https://www.lakelandgov.net/departments/parks-recreation-and-cultural-arts/lake-parker-park/"
+     },
+     {
+      "claim": "9-hole disc golf course is on the park's northern edge",
+      "source": "https://www.lakelandgov.net/departments/parks-recreation-and-cultural-arts/lake-parker-park/"
+     },
+     {
+      "claim": "Park hours are Sunday - Saturday 7:00 a.m. - 8:00 p.m. and change seasonally",
+      "source": "https://www.lakelandgov.net/departments/parks-recreation-and-cultural-arts/lake-parker-park/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJuWyvJPJX24gRFBOBF_IKx4Y",
+   "name": "Elena's Restaurant",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.elenaspg.com/",
+     "source_name": "Elena's Restaurant \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Established in 1995, originally by Chef Elena",
+      "Every meal is made from scratch with locally sourced ingredients",
+      "Serves breakfast, lunch and dinner with daily chef specials and early bird specials",
+      "Family-run business in Punta Gorda, not a corporation",
+      "Hours of operation are Monday to Friday 7:00 a.m. to 3:00 p.m. and Saturday to Sunday 7:00 a.m. to 3:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Family-run Punta Gorda diner established in 1995 by Chef Elena",
+    "why_here": "Elena's Restaurant says it was established in 1995 and remains a family-run business in Punta Gorda, with every meal made from scratch using locally sourced ingredients for breakfast, lunch and dinner.",
+    "know_before": "Established in 1995, originally by Chef Elena",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.elenaspg.com/"
+     ],
+     "why_here": [
+      "https://www.elenaspg.com/"
+     ],
+     "know_before": [
+      "https://www.elenaspg.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Established in 1995, originally by Chef Elena",
+      "source": "https://www.elenaspg.com/"
+     },
+     {
+      "claim": "Every meal is made from scratch with locally sourced ingredients",
+      "source": "https://www.elenaspg.com/"
+     },
+     {
+      "claim": "Serves breakfast, lunch and dinner with daily chef specials and early bird specials",
+      "source": "https://www.elenaspg.com/"
+     },
+     {
+      "claim": "Family-run business in Punta Gorda, not a corporation",
+      "source": "https://www.elenaspg.com/"
+     },
+     {
+      "claim": "Hours of operation are Monday to Friday 7:00 a.m. to 3:00 p.m. and Saturday to Sunday 7:00 a.m. to 3:00 p.m.",
+      "source": "https://www.elenaspg.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ-48zJMp554gRgIlnJP8GQQI",
+   "name": "Mecatos Bakery & Caf\u00e9",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://mecatoscafe.com/",
+     "source_name": "Mecatos Bakery & Caf\u00e9 \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Proudly serves Colombian specialty coffee with over 25 beverages to choose from",
+      "Hot bites include stuffed arepas, empanadas, Colombian hot dogs and breakfast sandwiches",
+      "Over 50 varieties of breads, Pan De Bono and cakes, all made from scratch in house",
+      "Coffee is specialty coffee produced in Colombia, harvested, roasted and transported by air",
+      "Online ordering and same-day delivery are available"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Colombian specialty coffee with over 25 beverages to choose from",
+    "why_here": "Proudly serves Colombian specialty coffee with over 25 beverages to choose from Hot bites include stuffed arepas, empanadas, Colombian hot dogs and breakfast sandwiches",
+    "know_before": "Online ordering and same-day delivery are available at the locations listed on the official site.",
+    "local_tip": "Order via the mobile app and pick up in store to earn rewards, the site says.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://mecatoscafe.com/"
+     ],
+     "why_here": [
+      "https://mecatoscafe.com/"
+     ],
+     "know_before": [
+      "https://mecatoscafe.com/"
+     ],
+     "local_tip": [
+      "https://mecatoscafe.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Proudly serves Colombian specialty coffee with over 25 beverages to choose from",
+      "source": "https://mecatoscafe.com/"
+     },
+     {
+      "claim": "Hot bites include stuffed arepas, empanadas, Colombian hot dogs and breakfast sandwiches",
+      "source": "https://mecatoscafe.com/"
+     },
+     {
+      "claim": "Over 50 varieties of breads, Pan De Bono and cakes, all made from scratch in house",
+      "source": "https://mecatoscafe.com/"
+     },
+     {
+      "claim": "Coffee is specialty coffee produced in Colombia, harvested, roasted and transported by air",
+      "source": "https://mecatoscafe.com/"
+     },
+     {
+      "claim": "Online ordering and same-day delivery are available",
+      "source": "https://mecatoscafe.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ76m9OKlo54gRY28BHaxnw70",
+   "name": "Blanchard Park",
+   "category": "attractions",
+   "metro": "orlando",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.ocfl.net/CultureParks/Parks.aspx?m=dtlvw&d=8",
+     "source_name": "Blanchard Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Blanchard Park covers 84 acres",
+      "The paved 7.4-mile Little Econ Greenway Trail runs through Jay Blanchard Park",
+      "The Little Econ River runs through Jay Blanchard Park",
+      "Park hours are 8:00 a.m. to 8:00 p.m. in summer",
+      "Park hours are 8:00 a.m. to 6:00 p.m. in winter"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "84-acre park where the Little Econ Greenway Trail and river run through it",
+    "why_here": "The parks page says the paved 7.4-mile Little Econ Greenway Trail and the Little Econ River run through Jay Blanchard Park. It lists the park at 84 acres, with nature surrounding visitors and pavilion and room rentals available.",
+    "know_before": "Blanchard Park covers 84 acres",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.ocfl.net/CultureParks/Parks.aspx?m=dtlvw&d=8"
+     ],
+     "why_here": [
+      "https://www.ocfl.net/CultureParks/Parks.aspx?m=dtlvw&d=8"
+     ],
+     "know_before": [
+      "https://www.ocfl.net/CultureParks/Parks.aspx?m=dtlvw&d=8"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Blanchard Park covers 84 acres",
+      "source": "https://www.ocfl.net/CultureParks/Parks.aspx?m=dtlvw&d=8"
+     },
+     {
+      "claim": "The paved 7.4-mile Little Econ Greenway Trail runs through Jay Blanchard Park",
+      "source": "https://www.ocfl.net/CultureParks/Parks.aspx?m=dtlvw&d=8"
+     },
+     {
+      "claim": "The Little Econ River runs through Jay Blanchard Park",
+      "source": "https://www.ocfl.net/CultureParks/Parks.aspx?m=dtlvw&d=8"
+     },
+     {
+      "claim": "Park hours are 8:00 a.m. to 8:00 p.m. in summer",
+      "source": "https://www.ocfl.net/CultureParks/Parks.aspx?m=dtlvw&d=8"
+     },
+     {
+      "claim": "Park hours are 8:00 a.m. to 6:00 p.m. in winter",
+      "source": "https://www.ocfl.net/CultureParks/Parks.aspx?m=dtlvw&d=8"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJecuv-rW35YgRB_P1NrdqPl4",
+   "name": "Southern Grounds & Co.",
+   "category": "food",
+   "metro": "jacksonville-fl",
+   "primary_type": "cafe",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.southerngrounds.com/",
+     "source_name": "Southern Grounds & Co. \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Southern Grounds is a neighbourhood cafe and restaurant serving Intelligentsia coffee and a scratch kitchen",
+      "The kitchen serves breakfast, lunch and dinner from a scratch kitchen, including bowls, sandwiches and burgers made with grass-fed beef",
+      "Southern Grounds is walk-in only with no reservations, with every seat first-come, first-served"
+     ]
+    },
+    {
+     "source": "https://www.southerngrounds.com/locations",
+     "source_name": "Southern Grounds & Co. \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Southern Grounds has ten cafes and restaurants across Florida"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Neighbourhood caf\u00e9 pairing Intelligentsia coffee with a scratch kitchen open all day",
+    "why_here": "Southern Grounds & Co. describes itself as a neighbourhood cafe and restaurant serving Intelligentsia coffee and a scratch kitchen, with ten cafes and restaurants across Florida including Jacksonville-area locations.",
+    "know_before": "Southern Grounds is walk-in only with no reservations or waiting list; every seat is first-come, first-served.",
+    "local_tip": "The official FAQ says mornings and early lunch tend to be the easiest time to find space for a group.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.southerngrounds.com/"
+     ],
+     "why_here": [
+      "https://www.southerngrounds.com/"
+     ],
+     "know_before": [
+      "https://www.southerngrounds.com/"
+     ],
+     "local_tip": [
+      "https://www.southerngrounds.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Southern Grounds is a neighbourhood cafe and restaurant serving Intelligentsia coffee and a scratch kitchen",
+      "source": "https://www.southerngrounds.com/"
+     },
+     {
+      "claim": "Southern Grounds has ten cafes and restaurants across Florida",
+      "source": "https://www.southerngrounds.com/locations"
+     },
+     {
+      "claim": "The kitchen serves breakfast, lunch and dinner from a scratch kitchen, including bowls, sandwiches and burgers made with grass-fed beef",
+      "source": "https://www.southerngrounds.com/"
+     },
+     {
+      "claim": "Southern Grounds is walk-in only with no reservations, with every seat first-come, first-served",
+      "source": "https://www.southerngrounds.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJC3q9O4wE2YgRECOF3Ru-Yko",
+   "name": "Spanky's Cheesesteak & Wings Factory",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://spankysmargate.com/",
+     "source_name": "Spanky's Cheesesteak & Wings Factory \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Has been a staple in the community for over 20 years",
+      "Has been an area staple for cheesesteaks for over 20 years",
+      "Hours are Monday to Thursday 11:00 a.m. to 9:00 p.m.",
+      "Friday and Saturday hours are 11:00 a.m. to 10:00 p.m.",
+      "Sunday hours are noon to 9:00 p.m.",
+      "A branded app is available for online orders and reward points"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Cheesesteaks served at a community staple for over 20 years",
+    "why_here": "Spanky's Cheesesteak Factory says it has been a staple in the community for over 20 years and an area staple when it comes to cheesesteaks. It says it does food done right, at the right price, with great customer service.",
+    "know_before": "Hours are Monday to Thursday 11:00 a.m. to 9:00 p.m., Friday and Saturday 11:00 a.m. to 10:00 p.m., and Sunday noon to 9:00 p.m.",
+    "local_tip": "Download the branded app to place online orders and earn valuable reward points, the site says.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://spankysmargate.com/"
+     ],
+     "why_here": [
+      "https://spankysmargate.com/"
+     ],
+     "know_before": [
+      "https://spankysmargate.com/"
+     ],
+     "local_tip": [
+      "https://spankysmargate.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Has been a staple in the community for over 20 years",
+      "source": "https://spankysmargate.com/"
+     },
+     {
+      "claim": "Has been an area staple for cheesesteaks for over 20 years",
+      "source": "https://spankysmargate.com/"
+     },
+     {
+      "claim": "Hours are Monday to Thursday 11:00 a.m. to 9:00 p.m.",
+      "source": "https://spankysmargate.com/"
+     },
+     {
+      "claim": "Friday and Saturday hours are 11:00 a.m. to 10:00 p.m.",
+      "source": "https://spankysmargate.com/"
+     },
+     {
+      "claim": "Sunday hours are noon to 9:00 p.m.",
+      "source": "https://spankysmargate.com/"
+     },
+     {
+      "claim": "A branded app is available for online orders and reward points",
+      "source": "https://spankysmargate.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJQylzlliB54gRjeXpS6cINzo",
+   "name": "Bella Italia Ristorante",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "italian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://bellaitaliaristorantefl.biz/",
+     "source_name": "Bella Italia Ristorante \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Bella Italia serves cozy Italian cooking crafted by family, from slow simmered sauces to fresh comforting classics",
+      "Tartufata burrata pizza combines creamy burrata, truffle, prosciutto, arugula and cherry tomatoes",
+      "Saffron seafood risotto is simmered with fresh seafood",
+      "Live music is held every Wednesday from 5:00 p.m. to 8:30 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Family-run Italian cooking with tartufata burrata pizza and saffron seafood risotto",
+    "why_here": "Bella Italia serves cozy Italian cooking crafted by family, from slow simmered sauces to fresh, comforting classics. Every plate is crafted with family tradition and a love for bringing people together.",
+    "know_before": "Live music is held every Wednesday from 5:00 p.m. to 8:30 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://bellaitaliaristorantefl.biz/"
+     ],
+     "why_here": [
+      "https://bellaitaliaristorantefl.biz/"
+     ],
+     "know_before": [
+      "https://bellaitaliaristorantefl.biz/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Bella Italia serves cozy Italian cooking crafted by family, from slow simmered sauces to fresh comforting classics",
+      "source": "https://bellaitaliaristorantefl.biz/"
+     },
+     {
+      "claim": "Tartufata burrata pizza combines creamy burrata, truffle, prosciutto, arugula and cherry tomatoes",
+      "source": "https://bellaitaliaristorantefl.biz/"
+     },
+     {
+      "claim": "Saffron seafood risotto is simmered with fresh seafood",
+      "source": "https://bellaitaliaristorantefl.biz/"
+     },
+     {
+      "claim": "Live music is held every Wednesday from 5:00 p.m. to 8:30 p.m.",
+      "source": "https://bellaitaliaristorantefl.biz/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJdSSGZTLD54gRDiFfqnhVMKo",
+   "name": "Oakwood Express Smokehouse",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "barbecue_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.oakwoodsmokehouse.com/about",
+     "source_name": "Oakwood Express Smokehouse \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Oakwood Smokehouse is a restaurant company established in 1998 in Lake County, Florida",
+      "The menu offers fresh cut specialty salads and Oakwood smoked barbecue from an open kitchen design"
+     ]
+    },
+    {
+     "source": "https://www.oakwoodsmokehouse.com/",
+     "source_name": "Oakwood Express Smokehouse \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Oakwood is known for award-winning baby back ribs"
+     ]
+    },
+    {
+     "source": "https://www.oakwoodsmokehouse.com/menu",
+     "source_name": "Oakwood Express Smokehouse \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "All BBQ is slow roasted and may run out, served with two sidewinders and garlic toast"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Award-winning baby back ribs and slow-smoked barbecue from a Lake County company founded in 1998",
+    "why_here": "Oakwood Smokehouse was established in 1998 in Lake County, Florida, and its official menu centres on award-winning baby back ribs and slow-smoked barbecue served with two sidewinders and garlic toast.",
+    "know_before": "The official menu warns all BBQ is slow roasted and may run out.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.oakwoodsmokehouse.com/about"
+     ],
+     "why_here": [
+      "https://www.oakwoodsmokehouse.com/about"
+     ],
+     "know_before": [
+      "https://www.oakwoodsmokehouse.com/about"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Oakwood Smokehouse is a restaurant company established in 1998 in Lake County, Florida",
+      "source": "https://www.oakwoodsmokehouse.com/about"
+     },
+     {
+      "claim": "Oakwood is known for award-winning baby back ribs",
+      "source": "https://www.oakwoodsmokehouse.com/"
+     },
+     {
+      "claim": "All BBQ is slow roasted and may run out, served with two sidewinders and garlic toast",
+      "source": "https://www.oakwoodsmokehouse.com/menu"
+     },
+     {
+      "claim": "The menu offers fresh cut specialty salads and Oakwood smoked barbecue from an open kitchen design",
+      "source": "https://www.oakwoodsmokehouse.com/about"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJNSt_mNSB3YgRciHEvJOJ5Z0",
+   "name": "Jeff's Bagel Run",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "bagel_shop",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://jeffsbagelrun.com/",
+     "source_name": "Jeff's Bagel Run \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Bagels are boiled and baked fresh every single day",
+      "Bagels are made from scratch with no freezer in sight",
+      "The site features a Bagel of the Day",
+      "The site lists a weekly lineup",
+      "Jeff lost his job and Danielle asked him to learn to make a bagel"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Scratch-made bagels boiled and baked fresh every single day, with a Bagel of the Day",
+    "why_here": "Bagels are made from scratch, boiled and baked with no freezer in sight, and the site features a Bagel of the Day and a weekly lineup. Rewards let guests order ahead, skip the line, and earn points on every order.",
+    "know_before": "Rewards members earn points on every order, and a free bagel is offered just for joining.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://jeffsbagelrun.com/"
+     ],
+     "why_here": [
+      "https://jeffsbagelrun.com/"
+     ],
+     "know_before": [
+      "https://jeffsbagelrun.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Bagels are boiled and baked fresh every single day",
+      "source": "https://jeffsbagelrun.com/"
+     },
+     {
+      "claim": "Bagels are made from scratch with no freezer in sight",
+      "source": "https://jeffsbagelrun.com/"
+     },
+     {
+      "claim": "The site features a Bagel of the Day",
+      "source": "https://jeffsbagelrun.com/"
+     },
+     {
+      "claim": "The site lists a weekly lineup",
+      "source": "https://jeffsbagelrun.com/"
+     },
+     {
+      "claim": "Jeff lost his job and Danielle asked him to learn to make a bagel",
+      "source": "https://jeffsbagelrun.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJdTkA9eN654gRdN-c68yuTo8",
+   "name": "Anthony's Thornton Park",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "italian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.anthonyspizza.com/",
+     "source_name": "Anthony's Thornton Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Anthony's Thornton Park was established in 1998",
+      "Anthony's is an easygoing neighbourhood pizzeria and Italian restaurant featuring NY-style pies, Italian staples, drink specials and patio seating",
+      "Hours are Sunday to Thursday 11:00 a.m. to 9:00 p.m. and Friday to Saturday 11:00 a.m. to 10:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Neighbourhood pizzeria serving NY-style pies and Italian staples since 1998",
+    "why_here": "Established in 1998, Anthony's Thornton Park is described on its official site as an easygoing neighbourhood pizzeria and Italian restaurant featuring NY-style pies, Italian staples, drink specials and patio seating.",
+    "know_before": "Hours are 11:00 a.m. to 9:00 p.m. Sunday through Thursday and 11:00 a.m. to 10:00 p.m. Friday and Saturday.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.anthonyspizza.com/"
+     ],
+     "why_here": [
+      "https://www.anthonyspizza.com/"
+     ],
+     "know_before": [
+      "https://www.anthonyspizza.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Anthony's Thornton Park was established in 1998",
+      "source": "https://www.anthonyspizza.com/"
+     },
+     {
+      "claim": "Anthony's is an easygoing neighbourhood pizzeria and Italian restaurant featuring NY-style pies, Italian staples, drink specials and patio seating",
+      "source": "https://www.anthonyspizza.com/"
+     },
+     {
+      "claim": "Hours are Sunday to Thursday 11:00 a.m. to 9:00 p.m. and Friday to Saturday 11:00 a.m. to 10:00 p.m.",
+      "source": "https://www.anthonyspizza.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJY8x6JThX3IgR5LeDMuhDB3s",
+   "name": "Faded Bistro & Beer Garden",
+   "category": "food",
+   "metro": "avon-park-fl",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.fadedbistro.com/",
+     "source_name": "Faded Bistro & Beer Garden \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Open-air neighborhood hangout built on seasonal ingredients and warm hospitality",
+      "Located in Sebring, Florida",
+      "Pre-civil war mahogany bar with tables in the beer garden",
+      "Hours are Tuesday to Saturday 11:00 a.m. to 10:00 p.m.",
+      "Sunday brunch is 10:00 a.m. to 2:00 p.m. and Monday is closed"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Open-air Sebring bistro built on seasonal ingredients and warm hospitality",
+    "why_here": "Faded Bistro & Beer Garden describes itself as an open-air neighborhood hangout built on seasonal ingredients and warm hospitality in Sebring, Florida. It invites guests to enjoy a leisurely alfresco dining experience in the garden.",
+    "know_before": "Hours are Tuesday to Saturday 11:00 a.m. to 10:00 p.m., with Sunday brunch 10:00 a.m. to 2:00 p.m. and Monday closed.",
+    "local_tip": "Pull up a bar stool at the pre-civil war mahogany bar, or take a table in the beer garden.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.fadedbistro.com/"
+     ],
+     "why_here": [
+      "https://www.fadedbistro.com/"
+     ],
+     "know_before": [
+      "https://www.fadedbistro.com/"
+     ],
+     "local_tip": [
+      "https://www.fadedbistro.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Open-air neighborhood hangout built on seasonal ingredients and warm hospitality",
+      "source": "https://www.fadedbistro.com/"
+     },
+     {
+      "claim": "Located in Sebring, Florida",
+      "source": "https://www.fadedbistro.com/"
+     },
+     {
+      "claim": "Pre-civil war mahogany bar with tables in the beer garden",
+      "source": "https://www.fadedbistro.com/"
+     },
+     {
+      "claim": "Hours are Tuesday to Saturday 11:00 a.m. to 10:00 p.m.",
+      "source": "https://www.fadedbistro.com/"
+     },
+     {
+      "claim": "Sunday brunch is 10:00 a.m. to 2:00 p.m. and Monday is closed",
+      "source": "https://www.fadedbistro.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "wfadd_peppa_pig",
+   "name": "Peppa Pig Theme Park",
+   "category": "attractions",
+   "metro": "orlando",
+   "primary_type": "amusement_park",
+   "inventory_snapshot": {
+    "wf_editorial_present": true,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false,
+    "wf_editorial_prior": {
+     "place_id": "wfadd_peppa_pig",
+     "hook": null,
+     "why_here": null,
+     "know_before": null,
+     "best_time": null,
+     "local_tip": null,
+     "facts": [],
+     "verified": false,
+     "issues": [
+      "PENDING SOURCE"
+     ],
+     "standard_version": "atlas-590-v1",
+     "written_at": "2026-08-10T13:55:41.506131+00:00",
+     "attempt_count": 2,
+     "last_attempted_at": "2026-08-10T13:55:41.506131+00:00"
+    }
+   },
+   "evidence": [
+    {
+     "source": "https://www.peppapigthemepark.com/florida/things-to-do/",
+     "source_name": "Peppa Pig Theme Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Peppa Pig Theme Park Florida is designed as a perfect first theme park adventure for preschoolers",
+      "Rides include a first roller coaster with Daddy Pig, a hot air balloon ride with Peppa Pig and sailing to Pirate Island with Grandad Dog",
+      "Attractions include a Muddy Puddles Splash Pad, Mr. Potato's Showtime Arena and Miss Rabbit's Diner"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "First theme park adventure designed just for preschoolers, with Muddy Puddles splash pad",
+    "why_here": "Peppa Pig Theme Park Florida describes itself as the perfect first theme park adventure designed just for preschoolers, with rides including a first roller coaster with Daddy Pig, a hot air balloon ride and sailing to Pirate Island with Grandad Dog.",
+    "know_before": "Check opening hours on the official calendar before visiting, as the park lists opening times that vary by day.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.peppapigthemepark.com/florida/things-to-do/"
+     ],
+     "why_here": [
+      "https://www.peppapigthemepark.com/florida/things-to-do/"
+     ],
+     "know_before": [
+      "https://www.peppapigthemepark.com/florida/things-to-do/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Peppa Pig Theme Park Florida is designed as a perfect first theme park adventure for preschoolers",
+      "source": "https://www.peppapigthemepark.com/florida/things-to-do/"
+     },
+     {
+      "claim": "Rides include a first roller coaster with Daddy Pig, a hot air balloon ride with Peppa Pig and sailing to Pirate Island with Grandad Dog",
+      "source": "https://www.peppapigthemepark.com/florida/things-to-do/"
+     },
+     {
+      "claim": "Attractions include a Muddy Puddles Splash Pad, Mr. Potato's Showtime Arena and Miss Rabbit's Diner",
+      "source": "https://www.peppapigthemepark.com/florida/things-to-do/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJP_cYEHjD54gR0uL_P6A90rU",
+   "name": "Prima Italian Steakhouse",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "steak_house",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.primaitaliansteakhouse.com/",
+     "source_name": "Prima Italian Steakhouse \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Prima Italian Steakhouse is located in the heart of Brownwood Paddock Square in The Villages",
+      "The menu features hand-cut premium steaks, fresh seafood and handcrafted Italian favorites",
+      "Prima is open daily, Monday to Friday 11:00 a.m. to 9:00 p.m. and Saturday and Sunday 10:00 a.m. to 9:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Hand-cut steaks, fresh seafood and handcrafted Italian classics in Brownwood Paddock Square",
+    "why_here": "Prima Italian Steakhouse in The Villages says it is located in the heart of Brownwood Paddock Square and offers an elevated dining experience featuring hand-cut steaks, fresh seafood, handcrafted Italian cuisine and exceptional hospitality.",
+    "know_before": "Prima is open Monday to Friday from 11:00 a.m. to 9:00 p.m. and Saturday and Sunday from 10:00 a.m. to 9:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.primaitaliansteakhouse.com/"
+     ],
+     "why_here": [
+      "https://www.primaitaliansteakhouse.com/"
+     ],
+     "know_before": [
+      "https://www.primaitaliansteakhouse.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Prima Italian Steakhouse is located in the heart of Brownwood Paddock Square in The Villages",
+      "source": "https://www.primaitaliansteakhouse.com/"
+     },
+     {
+      "claim": "The menu features hand-cut premium steaks, fresh seafood and handcrafted Italian favorites",
+      "source": "https://www.primaitaliansteakhouse.com/"
+     },
+     {
+      "claim": "Prima is open daily, Monday to Friday 11:00 a.m. to 9:00 p.m. and Saturday and Sunday 10:00 a.m. to 9:00 p.m.",
+      "source": "https://www.primaitaliansteakhouse.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ3Q0YSY2p2YgRuxUSIcSNpuE",
+   "name": "Gold Marquess Pembroke Pines",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "chinese_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.goldmarquess.com/our-story",
+     "source_name": "Gold Marquess Pembroke Pines \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Story began in 2015 with founders from Hong Kong",
+      "Envisioned a Chinese banquet-style restaurant in South Florida",
+      "Family-operated restaurant with home-made recipes",
+      "Every sauce is made in-house",
+      "Each dish is wok-cooked daily",
+      "Brings authentic Cantonese cuisine to the local community"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Family-operated Cantonese dining with every sauce made in-house, wok-cooked daily",
+    "why_here": "Gold Marquess says it began in 2015 when founders from Hong Kong envisioned a Chinese banquet-style restaurant in South Florida. As a family-operated restaurant, it makes every sauce in-house and wok-cooks each dish daily to bring authentic Cantonese cuisine to the local community.",
+    "know_before": "Gold Marquess is family-operated, with home-made recipes and every sauce made in-house.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.goldmarquess.com/our-story"
+     ],
+     "why_here": [
+      "https://www.goldmarquess.com/our-story"
+     ],
+     "know_before": [
+      "https://www.goldmarquess.com/our-story"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Story began in 2015 with founders from Hong Kong",
+      "source": "https://www.goldmarquess.com/our-story"
+     },
+     {
+      "claim": "Envisioned a Chinese banquet-style restaurant in South Florida",
+      "source": "https://www.goldmarquess.com/our-story"
+     },
+     {
+      "claim": "Family-operated restaurant with home-made recipes",
+      "source": "https://www.goldmarquess.com/our-story"
+     },
+     {
+      "claim": "Every sauce is made in-house",
+      "source": "https://www.goldmarquess.com/our-story"
+     },
+     {
+      "claim": "Each dish is wok-cooked daily",
+      "source": "https://www.goldmarquess.com/our-story"
+     },
+     {
+      "claim": "Brings authentic Cantonese cuisine to the local community",
+      "source": "https://www.goldmarquess.com/our-story"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ33PAvuaO54gRiDvN5_RxubU",
+   "name": "Florida Citrus Tower",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "tourist_attraction",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://citrustower.com/",
+     "source_name": "Florida Citrus Tower \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The tower is 226 feet, the equivalent of 22 stories",
+      "The tower officially opened on July 14, 1956",
+      "The tower was built in 13 months",
+      "Rides to the Top reaches an Observation Deck with 35-mile panoramic views",
+      "In February 2024 the tower was voted Best Local Attraction in South Lake County"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "226-foot tower, the equivalent of 22 stories, opened on July 14, 1956",
+    "why_here": "The tower was built in 13 months and was once surrounded by thriving citrus groves, as one of the state's first attractions. Rides to the Top is an elevator journey to the Observation Deck with 35-mile panoramic views.",
+    "know_before": "The tower is 226 feet, the equivalent of 22 stories",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://citrustower.com/"
+     ],
+     "why_here": [
+      "https://citrustower.com/"
+     ],
+     "know_before": [
+      "https://citrustower.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The tower is 226 feet, the equivalent of 22 stories",
+      "source": "https://citrustower.com/"
+     },
+     {
+      "claim": "The tower officially opened on July 14, 1956",
+      "source": "https://citrustower.com/"
+     },
+     {
+      "claim": "The tower was built in 13 months",
+      "source": "https://citrustower.com/"
+     },
+     {
+      "claim": "Rides to the Top reaches an Observation Deck with 35-mile panoramic views",
+      "source": "https://citrustower.com/"
+     },
+     {
+      "claim": "In February 2024 the tower was voted Best Local Attraction in South Lake County",
+      "source": "https://citrustower.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJg2jnUiFCw4gRnSsqevlivNc",
+   "name": "Captain Curt's Sniki Tiki Bar & Live Entertainment - Siesta Key",
+   "category": "nightlife",
+   "metro": "manatee-sarasota",
+   "primary_type": "bar",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.captaincurts.com/captain-curts/faq/",
+     "source_name": "Captain Curt's Sniki Tiki Bar & Live Entertainment - Siesta Key \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Captain Curt's Sniki Tiki Bar is described by its official FAQ as a locals' favorite for ice-cold beer and live music",
+      "Captain Curt's is famous for fresh seafood, fresh raw oysters, clam chowder, crabs and crab cakes",
+      "Karaoke runs Tuesday and Thursday nights from 6:00 p.m. to 10:00 p.m. at the Sniki Tiki",
+      "Sniki Tiki hours are 7 days a week from 11:00 a.m. to 12:00 a.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Outdoor tiki bar with live music and karaoke on Siesta Key",
+    "why_here": "Captain Curt's official FAQ calls the Sniki Tiki a local favorite for ice-cold beer and live music in a tropical outdoor setting, with bands and solo performances at the outdoor bar 7 days a week.",
+    "know_before": "Captain Curt's does not accept reservations; the official FAQ says it is walk-in only, first come first served.",
+    "local_tip": "Karaoke is on Tuesday and Thursday nights from 6:00 p.m. to 10:00 p.m. at the Sniki Tiki.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.captaincurts.com/captain-curts/faq/"
+     ],
+     "why_here": [
+      "https://www.captaincurts.com/captain-curts/faq/"
+     ],
+     "know_before": [
+      "https://www.captaincurts.com/captain-curts/faq/"
+     ],
+     "local_tip": [
+      "https://www.captaincurts.com/captain-curts/faq/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Captain Curt's Sniki Tiki Bar is described by its official FAQ as a locals' favorite for ice-cold beer and live music",
+      "source": "https://www.captaincurts.com/captain-curts/faq/"
+     },
+     {
+      "claim": "Captain Curt's is famous for fresh seafood, fresh raw oysters, clam chowder, crabs and crab cakes",
+      "source": "https://www.captaincurts.com/captain-curts/faq/"
+     },
+     {
+      "claim": "Karaoke runs Tuesday and Thursday nights from 6:00 p.m. to 10:00 p.m. at the Sniki Tiki",
+      "source": "https://www.captaincurts.com/captain-curts/faq/"
+     },
+     {
+      "claim": "Sniki Tiki hours are 7 days a week from 11:00 a.m. to 12:00 a.m.",
+      "source": "https://www.captaincurts.com/captain-curts/faq/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJWzpIWpLBwogRnO_8jZ09vng",
+   "name": "Maple Street Biscuit Cafe",
+   "category": "food",
+   "metro": "tampa",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.maplestreetbiscuits.com/menu/",
+     "source_name": "Maple Street Biscuit Cafe \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Hand-crafted biscuit sandwiches are on the menu",
+      "The Squawking Goat has hand-breaded chicken, crispy goat cheese and pepper jelly",
+      "The menu lists bowls and waffles, biscuit plates and sidekicks",
+      "Kids meals and coffee drinks are on the menu"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Hand-crafted biscuit sandwiches are on the menu",
+    "why_here": "The official menu lists hand-crafted biscuit sandwiches including the Squawking Goat with hand-breaded chicken, crispy goat cheese and pepper jelly. It also lists bowls and waffles, biscuit plates, sidekicks, kids meals and coffee drinks.",
+    "know_before": "Hand-crafted biscuit sandwiches are on the menu",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.maplestreetbiscuits.com/menu/"
+     ],
+     "why_here": [
+      "https://www.maplestreetbiscuits.com/menu/"
+     ],
+     "know_before": [
+      "https://www.maplestreetbiscuits.com/menu/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Hand-crafted biscuit sandwiches are on the menu",
+      "source": "https://www.maplestreetbiscuits.com/menu/"
+     },
+     {
+      "claim": "The Squawking Goat has hand-breaded chicken, crispy goat cheese and pepper jelly",
+      "source": "https://www.maplestreetbiscuits.com/menu/"
+     },
+     {
+      "claim": "The menu lists bowls and waffles, biscuit plates and sidekicks",
+      "source": "https://www.maplestreetbiscuits.com/menu/"
+     },
+     {
+      "claim": "Kids meals and coffee drinks are on the menu",
+      "source": "https://www.maplestreetbiscuits.com/menu/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJVVVV4IK954gRFOMcfVLPpaw",
+   "name": "Kalua Beach Bar",
+   "category": "nightlife",
+   "metro": "florida",
+   "primary_type": "bar_and_grill",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://kaluabeachbar.net/",
+     "source_name": "Kalua Beach Bar \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "A laid back bar and restaurant in Downtown Tavares with a view of Lake Dora",
+      "Live music is listed every weekend",
+      "Happy hour is Monday through Thursday from 4:00 p.m. to 6:00 p.m.",
+      "Friday and Saturday hours are 11:00 a.m. to 2:00 a.m.",
+      "Contact phone listed is (352) 609-5910"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Laid-back bar and restaurant in downtown Tavares with a view of Lake Dora",
+    "why_here": "Kalua Beach Bar describes itself as a laid back bar and restaurant in Downtown Tavares with a beautiful view of Lake Dora, great food and refreshing drinks to enjoy. The site also lists live music every weekend and a beachside view.",
+    "know_before": "A laid back bar and restaurant in Downtown Tavares with a view of Lake Dora",
+    "local_tip": "Happy hour runs every Monday through Thursday from 4:00 p.m. to 6:00 p.m.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://kaluabeachbar.net/"
+     ],
+     "why_here": [
+      "https://kaluabeachbar.net/"
+     ],
+     "know_before": [
+      "https://kaluabeachbar.net/"
+     ],
+     "local_tip": [
+      "https://kaluabeachbar.net/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "A laid back bar and restaurant in Downtown Tavares with a view of Lake Dora",
+      "source": "https://kaluabeachbar.net/"
+     },
+     {
+      "claim": "Live music is listed every weekend",
+      "source": "https://kaluabeachbar.net/"
+     },
+     {
+      "claim": "Happy hour is Monday through Thursday from 4:00 p.m. to 6:00 p.m.",
+      "source": "https://kaluabeachbar.net/"
+     },
+     {
+      "claim": "Friday and Saturday hours are 11:00 a.m. to 2:00 a.m.",
+      "source": "https://kaluabeachbar.net/"
+     },
+     {
+      "claim": "Contact phone listed is (352) 609-5910",
+      "source": "https://kaluabeachbar.net/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJoeLb1c7OwogRK4v56BTwKWg",
+   "name": "Hilton Garden Inn Tampa East/Brandon",
+   "category": "hotels",
+   "metro": "tampa",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.visittampabay.com/listings/hilton-garden-inn-tampa-east-brandon/2858/",
+     "source_name": "Hilton Garden Inn Tampa East/Brandon \u2014 official source",
+     "source_class": "tourism_dmo",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Hilton Garden Inn Tampa East/Brandon is located off I-75 near the Florida State Fairgrounds",
+      "Visit Tampa Bay places the hotel about 10 miles from downtown Tampa",
+      "The hotel is near the MIDFLORIDA Credit Union Amphitheater and Westfield Brandon Mall",
+      "The hotel has 152 sleeping rooms"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "I-75 Tampa East base near the Fairgrounds, amphitheater and Brandon mall corridor",
+    "why_here": "Visit Tampa Bay's listing places this Hilton Garden Inn off I-75 near the Florida State Fairgrounds, MIDFLORIDA Credit Union Amphitheater and Westfield Brandon Mall, only about 10 miles from downtown Tampa and close to multiple sporting arenas.",
+    "know_before": "The Hilton Garden Inn Tampa East/Brandon is located off I-75 near the Florida State Fairgrounds",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.visittampabay.com/listings/hilton-garden-inn-tampa-east-brandon/2858/"
+     ],
+     "why_here": [
+      "https://www.visittampabay.com/listings/hilton-garden-inn-tampa-east-brandon/2858/"
+     ],
+     "know_before": [
+      "https://www.visittampabay.com/listings/hilton-garden-inn-tampa-east-brandon/2858/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Hilton Garden Inn Tampa East/Brandon is located off I-75 near the Florida State Fairgrounds",
+      "source": "https://www.visittampabay.com/listings/hilton-garden-inn-tampa-east-brandon/2858/"
+     },
+     {
+      "claim": "Visit Tampa Bay places the hotel about 10 miles from downtown Tampa",
+      "source": "https://www.visittampabay.com/listings/hilton-garden-inn-tampa-east-brandon/2858/"
+     },
+     {
+      "claim": "The hotel is near the MIDFLORIDA Credit Union Amphitheater and Westfield Brandon Mall",
+      "source": "https://www.visittampabay.com/listings/hilton-garden-inn-tampa-east-brandon/2858/"
+     },
+     {
+      "claim": "The hotel has 152 sleeping rooms",
+      "source": "https://www.visittampabay.com/listings/hilton-garden-inn-tampa-east-brandon/2858/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJtcnOWyd-54gRu51IktT0Oyc",
+   "name": "Ginther's Swirls Ice Cream",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "ice_cream_shop",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.ginthersswirls.com/about-us.html",
+     "source_name": "Ginther's Swirls Ice Cream \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Opened in mid-January 2014",
+      "A family-owned small business",
+      "Soft serve is made from real milk and cream",
+      "Hand-scooped ice cream is served in eight popular flavors",
+      "Products are served in waffle cones, sugar cones and cups",
+      "A fat-free, sugar-free vanilla soft-serve is offered"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Family-owned soft-serve shop opened in mid-January 2014, made from real milk and cream",
+    "why_here": "Ginther's Swirls says it is a family-owned small business serving soft serve ice cream made from real milk and cream. It also lists hand-scooped ice cream in eight popular flavors, plus milk shakes, sundaes, splits and floats.",
+    "know_before": "The shop lists outdoor patio seating, indoor seating and a drive-through for your convenience.",
+    "local_tip": "Orders can be customized to suit your taste, and the shop says to just ask.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.ginthersswirls.com/about-us.html"
+     ],
+     "why_here": [
+      "https://www.ginthersswirls.com/about-us.html"
+     ],
+     "know_before": [
+      "https://www.ginthersswirls.com/about-us.html"
+     ],
+     "local_tip": [
+      "https://www.ginthersswirls.com/about-us.html"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Opened in mid-January 2014",
+      "source": "https://www.ginthersswirls.com/about-us.html"
+     },
+     {
+      "claim": "A family-owned small business",
+      "source": "https://www.ginthersswirls.com/about-us.html"
+     },
+     {
+      "claim": "Soft serve is made from real milk and cream",
+      "source": "https://www.ginthersswirls.com/about-us.html"
+     },
+     {
+      "claim": "Hand-scooped ice cream is served in eight popular flavors",
+      "source": "https://www.ginthersswirls.com/about-us.html"
+     },
+     {
+      "claim": "Products are served in waffle cones, sugar cones and cups",
+      "source": "https://www.ginthersswirls.com/about-us.html"
+     },
+     {
+      "claim": "A fat-free, sugar-free vanilla soft-serve is offered",
+      "source": "https://www.ginthersswirls.com/about-us.html"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJgTqrM32t2YgRqeAMDXwrJmo",
+   "name": "Tidal Cove",
+   "category": "attractions",
+   "metro": "miami-dade",
+   "primary_type": "water_park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.tidalcovemiami.com/partay",
+     "source_name": "Tidal Cove \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "5-Acre location features 2 separate pools plus a VIP pool",
+      "The location features 7 separate water slides and a lazy river",
+      "The page describes the largest FlowRider Surf & Body Board machine in the US",
+      "The FlowRider is temporarily closed for maintenance",
+      "Waterpark & Pools hours are 9:00 a.m. - 5:30 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "5-Acre location with 2 separate pools plus a VIP pool, 7 water slides and a lazy river",
+    "why_here": "The 5-Acre location features 2 separate pools plus a VIP pool, 7 separate water slides and a lazy river. The page also describes the largest FlowRider Surf & Body Board machine in the US.",
+    "know_before": "5-Acre location features 2 separate pools plus a VIP pool",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.tidalcovemiami.com/partay"
+     ],
+     "why_here": [
+      "https://www.tidalcovemiami.com/partay"
+     ],
+     "know_before": [
+      "https://www.tidalcovemiami.com/partay"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "5-Acre location features 2 separate pools plus a VIP pool",
+      "source": "https://www.tidalcovemiami.com/partay"
+     },
+     {
+      "claim": "The location features 7 separate water slides and a lazy river",
+      "source": "https://www.tidalcovemiami.com/partay"
+     },
+     {
+      "claim": "The page describes the largest FlowRider Surf & Body Board machine in the US",
+      "source": "https://www.tidalcovemiami.com/partay"
+     },
+     {
+      "claim": "The FlowRider is temporarily closed for maintenance",
+      "source": "https://www.tidalcovemiami.com/partay"
+     },
+     {
+      "claim": "Waterpark & Pools hours are 9:00 a.m. - 5:30 p.m.",
+      "source": "https://www.tidalcovemiami.com/partay"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ92TBZGym2YgR2_bv9RrGwmQ",
+   "name": "Sosta Caff\u00e9",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "italian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://sostacaffe.com/pembroke-pines-sosta-caffe-about",
+     "source_name": "Sosta Caff\u00e9 \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Everything starts from scratch, with pasta rolled fresh and desserts baked in-house",
+      "Sosta Caff\u00e9 is a neighborhood trattoria",
+      "Pasta is rolled fresh",
+      "Desserts are baked in-house"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Neighborhood trattoria rolling pasta fresh and baking desserts in-house",
+    "why_here": "Sosta Caff\u00e9 calls itself a neighborhood trattoria where everything starts from scratch, with pasta rolled fresh and desserts baked in-house for a classic Italian meal made from scratch.",
+    "know_before": "Everything starts from scratch, with pasta rolled fresh and desserts baked in-house.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://sostacaffe.com/pembroke-pines-sosta-caffe-about"
+     ],
+     "why_here": [
+      "https://sostacaffe.com/pembroke-pines-sosta-caffe-about"
+     ],
+     "know_before": [
+      "https://sostacaffe.com/pembroke-pines-sosta-caffe-about"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Everything starts from scratch, with pasta rolled fresh and desserts baked in-house",
+      "source": "https://sostacaffe.com/pembroke-pines-sosta-caffe-about"
+     },
+     {
+      "claim": "Sosta Caff\u00e9 is a neighborhood trattoria",
+      "source": "https://sostacaffe.com/pembroke-pines-sosta-caffe-about"
+     },
+     {
+      "claim": "Pasta is rolled fresh",
+      "source": "https://sostacaffe.com/pembroke-pines-sosta-caffe-about"
+     },
+     {
+      "claim": "Desserts are baked in-house",
+      "source": "https://sostacaffe.com/pembroke-pines-sosta-caffe-about"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ6dNDBwZj54gRmdbMINsCCyo",
+   "name": "Cubans on wheels",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://cubansonwheels.org/",
+     "source_name": "Cubans on wheels \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Orlando Cuban food trailer serving sandwiches, bowls and quesadillas",
+      "Daily lunch special Monday to Friday 11:00 a.m. to 2:00 p.m.",
+      "Hours are 10:00 a.m. to 8:00 p.m.",
+      "Catering with party trays is available for events",
+      "Recognized by Orlando Sentinel Foodie Awards"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Orlando Cuban food trailer serving sandwiches, bowls and quesadillas",
+    "why_here": "Orlando Cuban food trailer serving sandwiches, bowls and quesadillas Daily lunch special Monday to Friday 11:00 a.m. to 2:00 p.m.",
+    "know_before": "Hours are 10:00 a.m. to 8:00 p.m., and the daily lunch special runs Monday to Friday 11:00 a.m. to 2:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://cubansonwheels.org/"
+     ],
+     "why_here": [
+      "https://cubansonwheels.org/"
+     ],
+     "know_before": [
+      "https://cubansonwheels.org/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Orlando Cuban food trailer serving sandwiches, bowls and quesadillas",
+      "source": "https://cubansonwheels.org/"
+     },
+     {
+      "claim": "Daily lunch special Monday to Friday 11:00 a.m. to 2:00 p.m.",
+      "source": "https://cubansonwheels.org/"
+     },
+     {
+      "claim": "Hours are 10:00 a.m. to 8:00 p.m.",
+      "source": "https://cubansonwheels.org/"
+     },
+     {
+      "claim": "Catering with party trays is available for events",
+      "source": "https://cubansonwheels.org/"
+     },
+     {
+      "claim": "Recognized by Orlando Sentinel Foodie Awards",
+      "source": "https://cubansonwheels.org/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJSegb0i232YgRFW464v7zJJY",
+   "name": "Pinecrest Bakery - Coral Gables",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "bakery",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://pinecrestbakery.com/pages/restaurant-menu",
+     "source_name": "Pinecrest Bakery - Coral Gables \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Pastelito Cuban Classics include Guava, Cream Cheese, Guava Cheese, Coconut, Beef, Chorizo and Chicken"
+     ]
+    },
+    {
+     "source": "https://pinecrestbakery.com/collections/party-platters",
+     "source_name": "Pinecrest Bakery - Coral Gables \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Party platters include 25 Pastelitos, 25 Croquetas, 25 Papa Rellena"
+     ]
+    },
+    {
+     "source": "https://pinecrestbakery.com/collections/all",
+     "source_name": "Pinecrest Bakery - Coral Gables \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "La Dozena assorted pastelitos includes pastelito de guayaba, de carne, and de queso"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Cuban bakery built on pastelitos, croquetas and party platters",
+    "why_here": "Pinecrest Bakery centers on Cuban pastelitos in flavors like guava, cream cheese, beef and coconut, plus croquetas and papa rellena. Its party platters bundle 25 pastelitos, 25 croquetas and 25 papa rellena for gatherings.",
+    "know_before": "Party and breakfast platters require 2 days' notice per official blog",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://pinecrestbakery.com/pages/restaurant-menu"
+     ],
+     "why_here": [
+      "https://pinecrestbakery.com/pages/restaurant-menu"
+     ],
+     "know_before": [
+      "https://pinecrestbakery.com/pages/restaurant-menu"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Pastelito Cuban Classics include Guava, Cream Cheese, Guava Cheese, Coconut, Beef, Chorizo and Chicken",
+      "source": "https://pinecrestbakery.com/pages/restaurant-menu"
+     },
+     {
+      "claim": "Party platters include 25 Pastelitos, 25 Croquetas, 25 Papa Rellena",
+      "source": "https://pinecrestbakery.com/collections/party-platters"
+     },
+     {
+      "claim": "La Dozena assorted pastelitos includes pastelito de guayaba, de carne, and de queso",
+      "source": "https://pinecrestbakery.com/collections/all"
+     }
+    ]
+   }
+  }
+ ]
+}

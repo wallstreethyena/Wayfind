@@ -1,0 +1,1882 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 55. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJ6e33wz4F5YgRe_jnT9kadtA",
+   "name": "Waffle House",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "breakfast_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.wafflehouse.com/beyond-the-menu/",
+     "source_name": "Waffle House \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Hashbrowns Scattered, Smothered & Covered are smothered in grilled onions and covered with a slice of melted American cheese",
+      "Waffle House serves 124 million waffles each year, according to its Beyond the Menu page"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Hashbrowns the Waffle House way: Scattered, Smothered & Covered\u00ae",
+    "why_here": "Waffle House calls its hashbrowns 'Scattered, Smothered & Covered\u00ae' \u2014 smothered in grilled onions and covered with melted American cheese. Its Beyond the Menu page also counts 124 million waffles served each year.",
+    "know_before": "The Beyond the Menu page counts 124 million waffles served each year.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.wafflehouse.com/beyond-the-menu/"
+     ],
+     "why_here": [
+      "https://www.wafflehouse.com/beyond-the-menu/"
+     ],
+     "know_before": [
+      "https://www.wafflehouse.com/beyond-the-menu/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Hashbrowns Scattered, Smothered & Covered are smothered in grilled onions and covered with a slice of melted American cheese",
+      "source": "https://www.wafflehouse.com/beyond-the-menu/"
+     },
+     {
+      "claim": "Waffle House serves 124 million waffles each year, according to its Beyond the Menu page",
+      "source": "https://www.wafflehouse.com/beyond-the-menu/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ0XENLHj17IgRhPjxTjFAuxg",
+   "name": "Hotel Duval, Autograph Collection",
+   "category": "hotels",
+   "metro": "florida",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.hotelduval.com/",
+     "source_name": "Hotel Duval, Autograph Collection \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Hotel Duval opened in 1951 for the biennial session of the Florida Legislature",
+      "Hotel Duval is one of the original Autograph Collection Hotels by Marriott",
+      "Level 8 Lounge offers a curated menu of cocktails and small plates",
+      "347 Grille by Coach Shula is named for famed football legend Don Shula"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Opened in 1951 for the biennial session of the Florida Legislature",
+    "why_here": "Hotel Duval opened in 1951 for the biennial session of the Florida Legislature Hotel Duval is one of the original Autograph Collection Hotels by Marriott",
+    "know_before": "Hotel Duval opened in 1951 for the biennial session of the Florida Legislature",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.hotelduval.com/"
+     ],
+     "why_here": [
+      "https://www.hotelduval.com/"
+     ],
+     "know_before": [
+      "https://www.hotelduval.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Hotel Duval opened in 1951 for the biennial session of the Florida Legislature",
+      "source": "https://www.hotelduval.com/"
+     },
+     {
+      "claim": "Hotel Duval is one of the original Autograph Collection Hotels by Marriott",
+      "source": "https://www.hotelduval.com/"
+     },
+     {
+      "claim": "Level 8 Lounge offers a curated menu of cocktails and small plates",
+      "source": "https://www.hotelduval.com/"
+     },
+     {
+      "claim": "347 Grille by Coach Shula is named for famed football legend Don Shula",
+      "source": "https://www.hotelduval.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJc_RN79uVkIgRwowxEYwPN8o",
+   "name": "Gud Vybz Jamaican Grill",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.gudvybzjagrill.com/",
+     "source_name": "Gud Vybz Jamaican Grill \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The site describes Jamaican food in Pensacola with jerk chicken and curry chicken",
+      "The site lists catering and a Caribbean grill among its offerings",
+      "The Order Online description lists jerk chicken, oxtail, curried goat and curried chicken",
+      "The Order Online description calls the food authentic Jamaica cuisine"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Pensacola Jamaican food with jerk chicken, curry chicken and catering",
+    "why_here": "Gud Vybz Jamaican Grill presents itself as Jamaican food in Pensacola, with jerk chicken and curry chicken named among its Jamaican dishes. Its site also describes a Caribbean grill offering catering.",
+    "know_before": "Online orders can be placed at any time, but the site says they are cut off automatically at the end of the day or outside business hours.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.gudvybzjagrill.com/"
+     ],
+     "why_here": [
+      "https://www.gudvybzjagrill.com/"
+     ],
+     "know_before": [
+      "https://www.gudvybzjagrill.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The site describes Jamaican food in Pensacola with jerk chicken and curry chicken",
+      "source": "https://www.gudvybzjagrill.com/"
+     },
+     {
+      "claim": "The site lists catering and a Caribbean grill among its offerings",
+      "source": "https://www.gudvybzjagrill.com/"
+     },
+     {
+      "claim": "The Order Online description lists jerk chicken, oxtail, curried goat and curried chicken",
+      "source": "https://www.gudvybzjagrill.com/"
+     },
+     {
+      "claim": "The Order Online description calls the food authentic Jamaica cuisine",
+      "source": "https://www.gudvybzjagrill.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJHZ7dfAt_3YgRwMXAncq14c4",
+   "name": "JW Marriott Orlando Bonnet Creek Resort & Spa",
+   "category": "hotels",
+   "metro": "orlando",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.marriott.com/en-us/hotels/mcojb-jw-marriott-orlando-bonnet-creek-resort-and-spa/overview/",
+     "source_name": "JW Marriott Orlando Bonnet Creek Resort & Spa \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Hotel features include Spa by JW",
+      "Hotel features include two resort pools",
+      "The resort has a rooftop terrace with nightly views of nearby Disney fireworks",
+      "The official page lists specialty restaurants among the hotel features",
+      "Property amenities listed on the page include a fitness center and an outdoor pool"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Rooftop terrace with nightly Disney fireworks views, plus Spa by JW and two resort pools",
+    "why_here": "The official Marriott page says hotel features include Spa by JW, two resort pools and specialty restaurants. It also describes a rooftop terrace with nightly views of the nearby Disney fireworks.",
+    "know_before": "Hotel features include Spa by JW",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.marriott.com/en-us/hotels/mcojb-jw-marriott-orlando-bonnet-creek-resort-and-spa/overview/"
+     ],
+     "why_here": [
+      "https://www.marriott.com/en-us/hotels/mcojb-jw-marriott-orlando-bonnet-creek-resort-and-spa/overview/"
+     ],
+     "know_before": [
+      "https://www.marriott.com/en-us/hotels/mcojb-jw-marriott-orlando-bonnet-creek-resort-and-spa/overview/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Hotel features include Spa by JW",
+      "source": "https://www.marriott.com/en-us/hotels/mcojb-jw-marriott-orlando-bonnet-creek-resort-and-spa/overview/"
+     },
+     {
+      "claim": "Hotel features include two resort pools",
+      "source": "https://www.marriott.com/en-us/hotels/mcojb-jw-marriott-orlando-bonnet-creek-resort-and-spa/overview/"
+     },
+     {
+      "claim": "The resort has a rooftop terrace with nightly views of nearby Disney fireworks",
+      "source": "https://www.marriott.com/en-us/hotels/mcojb-jw-marriott-orlando-bonnet-creek-resort-and-spa/overview/"
+     },
+     {
+      "claim": "The official page lists specialty restaurants among the hotel features",
+      "source": "https://www.marriott.com/en-us/hotels/mcojb-jw-marriott-orlando-bonnet-creek-resort-and-spa/overview/"
+     },
+     {
+      "claim": "Property amenities listed on the page include a fitness center and an outdoor pool",
+      "source": "https://www.marriott.com/en-us/hotels/mcojb-jw-marriott-orlando-bonnet-creek-resort-and-spa/overview/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ7ZF4sepu54gRdEUyoSpAOGU",
+   "name": "Gator's Dockside Winter Springs",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://gatorsdockside.com/",
+     "source_name": "Gator's Dockside Winter Springs \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Gator's Dockside bills itself as Wings, Ribs, Seafood & Sports",
+      "The homepage says Gator's Dockside has the biggest big screens to watch your favorite sports",
+      "The homepage lists 23 Locations And Growing"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Wings, Ribs, Seafood & Sports \u2014 with the biggest big screens for sports",
+    "why_here": "Gator's Dockside describes itself as 'Wings, Ribs, Seafood & Sports' on its homepage and says it has the biggest big screens to watch your favorite sports. The homepage also calls it your favorite local spot where family time starts here.",
+    "know_before": "Gator's Dockside bills itself as Wings, Ribs, Seafood & Sports",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://gatorsdockside.com/"
+     ],
+     "why_here": [
+      "https://gatorsdockside.com/"
+     ],
+     "know_before": [
+      "https://gatorsdockside.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Gator's Dockside bills itself as Wings, Ribs, Seafood & Sports",
+      "source": "https://gatorsdockside.com/"
+     },
+     {
+      "claim": "The homepage says Gator's Dockside has the biggest big screens to watch your favorite sports",
+      "source": "https://gatorsdockside.com/"
+     },
+     {
+      "claim": "The homepage lists 23 Locations And Growing",
+      "source": "https://gatorsdockside.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJnxEbcAC32YgR440jYbszDrU",
+   "name": "Cowy Burger",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "hamburger_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.cowyburger.com/",
+     "source_name": "Cowy Burger \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The official site calls Cowy Burger the best smash burger in Miami",
+      "The official homepage announces Now Open in Wynwood",
+      "Cowy Burger was awarded Very Best Burger, judges' unanimous pick, in 2024 at SOBEWFF",
+      "Cowy Burger says it also does catering and events"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Judges' unanimous Very Best Burger pick in 2024 at SOBEWFF",
+    "why_here": "The official site calls Cowy Burger the best smash burger in Miami The official homepage announces Now Open in Wynwood Cowy Burger was awarded Very Best Burger, judges' unanimous pick, in 2024 at SOBEWFF",
+    "know_before": "Cowy Burger says on its official site that it also does catering and events.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.cowyburger.com/"
+     ],
+     "why_here": [
+      "https://www.cowyburger.com/"
+     ],
+     "know_before": [
+      "https://www.cowyburger.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The official site calls Cowy Burger the best smash burger in Miami",
+      "source": "https://www.cowyburger.com/"
+     },
+     {
+      "claim": "The official homepage announces Now Open in Wynwood",
+      "source": "https://www.cowyburger.com/"
+     },
+     {
+      "claim": "Cowy Burger was awarded Very Best Burger, judges' unanimous pick, in 2024 at SOBEWFF",
+      "source": "https://www.cowyburger.com/"
+     },
+     {
+      "claim": "Cowy Burger says it also does catering and events",
+      "source": "https://www.cowyburger.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ7fOdSRu30YgRlrXGxljw7n8",
+   "name": "Seaside Cafe at the Mansion",
+   "category": "food",
+   "metro": "keys",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.theseasidecafekw.com/",
+     "source_name": "Seaside Cafe at the Mansion \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Family-owned and operated island eatery just steps from the Atlantic Ocean at The Southernmost House",
+      "Signature dish is Lobster Pizza, developed by founder and head chef Rafe with his father Michael",
+      "Known for Mansion Mojitos, fresh seafood, gourmet sandwiches and artisan wood-fired pizzas",
+      "Open daily 10:30 AM to 8 PM",
+      "Sky Bar is its upstairs rooftop bar serving cocktails with elevated Atlantic views"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Signature lobster pizza and Mansion Mojitos on the oceanfront at Southernmost House",
+    "why_here": "A family-owned island eatery on the grounds of the historic Southernmost House, steps from the Atlantic. Come for signature Lobster Pizza, fresh seafood and artisan wood-fired pizzas with coastal views.",
+    "know_before": "Open to the public; you do not need to be a Southernmost House hotel guest to dine here.",
+    "local_tip": "Try the upstairs Sky Bar rooftop bar for cocktails with elevated views of the Atlantic Ocean.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.theseasidecafekw.com/"
+     ],
+     "why_here": [
+      "https://www.theseasidecafekw.com/"
+     ],
+     "know_before": [
+      "https://www.theseasidecafekw.com/"
+     ],
+     "local_tip": [
+      "https://www.theseasidecafekw.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Family-owned and operated island eatery just steps from the Atlantic Ocean at The Southernmost House",
+      "source": "https://www.theseasidecafekw.com/"
+     },
+     {
+      "claim": "Signature dish is Lobster Pizza, developed by founder and head chef Rafe with his father Michael",
+      "source": "https://www.theseasidecafekw.com/"
+     },
+     {
+      "claim": "Known for Mansion Mojitos, fresh seafood, gourmet sandwiches and artisan wood-fired pizzas",
+      "source": "https://www.theseasidecafekw.com/"
+     },
+     {
+      "claim": "Open daily 10:30 AM to 8 PM",
+      "source": "https://www.theseasidecafekw.com/"
+     },
+     {
+      "claim": "Sky Bar is its upstairs rooftop bar serving cocktails with elevated Atlantic views",
+      "source": "https://www.theseasidecafekw.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJm_2i0XwR3ogRNjZudVRaDu8",
+   "name": "Longboards Oceanfront Grille",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.visitspacecoast.com/profile/melbourne-beach/restaurants/longboards-oceanfront-grille/",
+     "source_name": "Longboards Oceanfront Grille \u2014 official source",
+     "source_class": "tourism_dmo",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Longboards Oceanfront Grille uses the tagline Eat, Drink & Hang Loose",
+      "Celebrations on Melbourne Beach all start at the shoreline, alongside legendary sunrises and an eager lineup of surfers",
+      "Longboards is described as where the best of Brevard County's oldest beach town comes to play"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Eat, Drink & Hang Loose at the shoreline on Melbourne Beach",
+    "why_here": "Celebrations are a way of life on Melbourne Beach and they all start at the shoreline, alongside legendary sunrises and an eager lineup of surfers. Longboards Oceanfront Grille is described as where the best of Brevard County's oldest beach town comes to play.",
+    "know_before": "Longboards Oceanfront Grille uses the tagline Eat, Drink & Hang Loose",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.visitspacecoast.com/profile/melbourne-beach/restaurants/longboards-oceanfront-grille/"
+     ],
+     "why_here": [
+      "https://www.visitspacecoast.com/profile/melbourne-beach/restaurants/longboards-oceanfront-grille/"
+     ],
+     "know_before": [
+      "https://www.visitspacecoast.com/profile/melbourne-beach/restaurants/longboards-oceanfront-grille/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Longboards Oceanfront Grille uses the tagline Eat, Drink & Hang Loose",
+      "source": "https://www.visitspacecoast.com/profile/melbourne-beach/restaurants/longboards-oceanfront-grille/"
+     },
+     {
+      "claim": "Celebrations on Melbourne Beach all start at the shoreline, alongside legendary sunrises and an eager lineup of surfers",
+      "source": "https://www.visitspacecoast.com/profile/melbourne-beach/restaurants/longboards-oceanfront-grille/"
+     },
+     {
+      "claim": "Longboards is described as where the best of Brevard County's oldest beach town comes to play",
+      "source": "https://www.visitspacecoast.com/profile/melbourne-beach/restaurants/longboards-oceanfront-grille/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJIck3xsm72YgRM6DPa4uxJU4",
+   "name": "Smoothie Spot Restaurant | Hialeah | Healthy Breakfast",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://smoothiespotmiami.com/",
+     "source_name": "Smoothie Spot Restaurant | Hialeah | Healthy Breakfast \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Smoothie Spot describes its mantra as Healthy Honest Kitchen",
+      "It avoids frying oils and focuses on fresh, high-quality ingredients",
+      "We opened our first location in 2012",
+      "Free delivery up to 5 miles on orders above $30"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Healthy Honest Kitchen with fresh, high-quality ingredients and no frying oils",
+    "why_here": "Smoothie Spot describes its Healthy Honest Kitchen mantra as a dedication to true health, avoiding frying oils and focusing instead on fresh, high-quality ingredients. Each dish reflects a commitment to nourishing, honest food and a wholesome, satisfying experience.",
+    "know_before": "Free delivery is offered up to 5 miles on orders above $30.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://smoothiespotmiami.com/"
+     ],
+     "why_here": [
+      "https://smoothiespotmiami.com/"
+     ],
+     "know_before": [
+      "https://smoothiespotmiami.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Smoothie Spot describes its mantra as Healthy Honest Kitchen",
+      "source": "https://smoothiespotmiami.com/"
+     },
+     {
+      "claim": "It avoids frying oils and focuses on fresh, high-quality ingredients",
+      "source": "https://smoothiespotmiami.com/"
+     },
+     {
+      "claim": "We opened our first location in 2012",
+      "source": "https://smoothiespotmiami.com/"
+     },
+     {
+      "claim": "Free delivery up to 5 miles on orders above $30",
+      "source": "https://smoothiespotmiami.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJyeGFR-gB2YgRjQG1zbRCkJ0",
+   "name": "Casa Monarca Mexican Restaurant & Tequila Bar",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "mexican_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://casamonarcafl.com/",
+     "source_name": "Casa Monarca Mexican Restaurant & Tequila Bar \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Casa Monarca is a family owned business that opened in early 2022",
+      "Its concept is to replicate a trendy Mexican dining scene in Fort Lauderdale",
+      "It aims to provide world-class gracious hospitality so guests can enjoy authentic Mexican cuisine",
+      "Happy Hour specials are available daily"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Family-owned Mexican restaurant that opened in early 2022 in Fort Lauderdale",
+    "why_here": "Casa Monarca says its concept has been to replicate a trendy Mexican dining scene in Fort Lauderdale since opening in early 2022. It aims to provide gracious hospitality so guests can enjoy authentic Mexican cuisine, and its menu is described as inspired by generations of home cooking.",
+    "know_before": "Casa Monarca offers reservations through its official site and says it welcomes every type of private party or catering event.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://casamonarcafl.com/"
+     ],
+     "why_here": [
+      "https://casamonarcafl.com/"
+     ],
+     "know_before": [
+      "https://casamonarcafl.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Casa Monarca is a family owned business that opened in early 2022",
+      "source": "https://casamonarcafl.com/"
+     },
+     {
+      "claim": "Its concept is to replicate a trendy Mexican dining scene in Fort Lauderdale",
+      "source": "https://casamonarcafl.com/"
+     },
+     {
+      "claim": "It aims to provide world-class gracious hospitality so guests can enjoy authentic Mexican cuisine",
+      "source": "https://casamonarcafl.com/"
+     },
+     {
+      "claim": "Happy Hour specials are available daily",
+      "source": "https://casamonarcafl.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJM7i5IL7f2IgRXHzEwGc-gZA",
+   "name": "THR\u014dW Social Delray Beach",
+   "category": "food",
+   "metro": "palm-beach",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.throwsocial.com/",
+     "source_name": "THR\u014dW Social Delray Beach \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Social venue with a tropical vibe combining backyard-style games with live music, food and libations",
+      "Offers live music and entertainment, Social Darts, board games, VIP lounges and light-up ping pong",
+      "Furnished cabanas can be reserved online, with add-ons such as welcome bottle, open bar packages and beer buckets"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Tropical backyard-style games, live music, cabanas and light-up ping pong under one roof",
+    "why_here": "A social venue with a tropical vibe combining backyard-style games with live music, food and libations. Expect Social Darts, board games, VIP lounges, light-up ping pong and furnished cabana rentals for groups.",
+    "know_before": "Exterior tables are first-come, first-served; interior tables, cabanas and the VIP lounge can be reserved.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.throwsocial.com/"
+     ],
+     "why_here": [
+      "https://www.throwsocial.com/"
+     ],
+     "know_before": [
+      "https://www.throwsocial.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Social venue with a tropical vibe combining backyard-style games with live music, food and libations",
+      "source": "https://www.throwsocial.com/"
+     },
+     {
+      "claim": "Offers live music and entertainment, Social Darts, board games, VIP lounges and light-up ping pong",
+      "source": "https://www.throwsocial.com/"
+     },
+     {
+      "claim": "Furnished cabanas can be reserved online, with add-ons such as welcome bottle, open bar packages and beer buckets",
+      "source": "https://www.throwsocial.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJPYw-9qU23YgRhBZNW59P-mo",
+   "name": "Duke\u2019s Brewhouse",
+   "category": "nightlife",
+   "metro": "florida",
+   "primary_type": "sports_bar",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://dukesbrewhouse.com/",
+     "source_name": "Duke\u2019s Brewhouse \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Duke's Brewhouse is rated Top 3 Sports Bar from The Best of Bay",
+      "The page describes award winning wings",
+      "The page claims the largest craft beer selection in the area",
+      "The page says there are over 30 high definition televisions",
+      "Catering packages are offered for birthdays, weddings and corporate events"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Award-winning wings, the largest craft beer selection in the area and over 30 televisions",
+    "why_here": "Duke's Brewhouse describes itself as a local sports bar rated Top 3 Sports Bar from The Best of Bay, with award winning wings. The page also claims the largest craft beer selection in the area and over 30 high definition televisions.",
+    "know_before": "Duke's Brewhouse is rated Top 3 Sports Bar from The Best of Bay",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://dukesbrewhouse.com/"
+     ],
+     "why_here": [
+      "https://dukesbrewhouse.com/"
+     ],
+     "know_before": [
+      "https://dukesbrewhouse.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Duke's Brewhouse is rated Top 3 Sports Bar from The Best of Bay",
+      "source": "https://dukesbrewhouse.com/"
+     },
+     {
+      "claim": "The page describes award winning wings",
+      "source": "https://dukesbrewhouse.com/"
+     },
+     {
+      "claim": "The page claims the largest craft beer selection in the area",
+      "source": "https://dukesbrewhouse.com/"
+     },
+     {
+      "claim": "The page says there are over 30 high definition televisions",
+      "source": "https://dukesbrewhouse.com/"
+     },
+     {
+      "claim": "Catering packages are offered for birthdays, weddings and corporate events",
+      "source": "https://dukesbrewhouse.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ8V-eBxaP54gR8FZG3EOq5q8",
+   "name": "Root & Branch Bistro + Bar",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://rootandbranchbistroandbar.com/",
+     "source_name": "Root & Branch Bistro + Bar \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Scratch-made cuisine with every dish crafted from scratch using ingredients sourced locally and globally, from steaks to seafood",
+      "Proprietors Jason and Casey Baruch have deep farming roots that infuse the establishment",
+      "Hours list Wed, Thur, Sun 3:00 p.m. \u2013 9:00 p.m. and Fri \u2013 Sat 3:00 p.m. \u2013 10:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Scratch-made steaks and seafood from proprietors with deep farming roots",
+    "why_here": "A scratch-made bistro where every dish is crafted from scratch using ingredients sourced locally and globally, from steaks to seafood. Proprietors Jason and Casey Baruch bring deep farming roots that infuse every aspect of the establishment.",
+    "know_before": "Hours on the official site: Wed, Thur, Sun 3:00 p.m. \u2013 9:00 p.m.; Fri \u2013 Sat 3:00 p.m. \u2013 10:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://rootandbranchbistroandbar.com/"
+     ],
+     "why_here": [
+      "https://rootandbranchbistroandbar.com/"
+     ],
+     "know_before": [
+      "https://rootandbranchbistroandbar.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Scratch-made cuisine with every dish crafted from scratch using ingredients sourced locally and globally, from steaks to seafood",
+      "source": "https://rootandbranchbistroandbar.com/"
+     },
+     {
+      "claim": "Proprietors Jason and Casey Baruch have deep farming roots that infuse the establishment",
+      "source": "https://rootandbranchbistroandbar.com/"
+     },
+     {
+      "claim": "Hours list Wed, Thur, Sun 3:00 p.m. \u2013 9:00 p.m. and Fri \u2013 Sat 3:00 p.m. \u2013 10:00 p.m.",
+      "source": "https://rootandbranchbistroandbar.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ-wjeqU3F54gRwdq7Tss2Mqc",
+   "name": "Artman Country Smokehouse",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.ocalamarion.com/directory/artman-country-smokehouse/",
+     "source_name": "Artman Country Smokehouse \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Artman Country Smokehouse is located in Summerfield, Florida",
+      "It specializes in barbecue dishes including brisket, ribs, and chicken",
+      "It offers vegetarian options for meat-free alternatives",
+      "The restaurant is wheelchair accessible and has ADA-compliant facilities",
+      "Signature fried green tomatoes and pies are highly recommended by patrons"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Barbecue smokehouse in Summerfield with brisket, ribs and chicken",
+    "why_here": "This smokehouse in Summerfield specializes in barbecue dishes including brisket, ribs, and chicken, and also offers vegetarian options for meat-free alternatives. Its signature fried green tomatoes and pies are highly recommended, served in a cozy country atmosphere.",
+    "know_before": "The restaurant is wheelchair accessible, has ADA-compliant facilities, and offers outdoor seating.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.ocalamarion.com/directory/artman-country-smokehouse/"
+     ],
+     "why_here": [
+      "https://www.ocalamarion.com/directory/artman-country-smokehouse/"
+     ],
+     "know_before": [
+      "https://www.ocalamarion.com/directory/artman-country-smokehouse/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Artman Country Smokehouse is located in Summerfield, Florida",
+      "source": "https://www.ocalamarion.com/directory/artman-country-smokehouse/"
+     },
+     {
+      "claim": "It specializes in barbecue dishes including brisket, ribs, and chicken",
+      "source": "https://www.ocalamarion.com/directory/artman-country-smokehouse/"
+     },
+     {
+      "claim": "It offers vegetarian options for meat-free alternatives",
+      "source": "https://www.ocalamarion.com/directory/artman-country-smokehouse/"
+     },
+     {
+      "claim": "The restaurant is wheelchair accessible and has ADA-compliant facilities",
+      "source": "https://www.ocalamarion.com/directory/artman-country-smokehouse/"
+     },
+     {
+      "claim": "Signature fried green tomatoes and pies are highly recommended by patrons",
+      "source": "https://www.ocalamarion.com/directory/artman-country-smokehouse/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJXX30apIf2YgRkR3oluiSJSw",
+   "name": "Vale Healthy Kitchen - Boca Raton",
+   "category": "food",
+   "metro": "palm-beach",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.valehealthykitchen.com/",
+     "source_name": "Vale Healthy Kitchen - Boca Raton \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Vale Healthy Kitchen lists Boca Raton as one of its locations",
+      "Vale says it cooks with 100% extra virgin olive oil and all food is made fresh in house each day",
+      "Vale was born in Florida in 2014 and grew from a meal-delivery concept into a fast-casual chain",
+      "Menu highlights include Signature Bowls, salads, wraps and smoothie bowls, including the Mediterranean Chicken Wrap and Teriyaki Noodle Bowl"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Florida-born healthy fast-casual kitchen cooking with 100% extra virgin olive oil and food made fresh daily",
+    "why_here": "Vale Healthy Kitchen lists Boca Raton among its Florida locations and says all food is made fresh in house each day. Born in Florida in 2014 as a meal-delivery concept, it has grown into a fast-casual chain built around signature bowls, salads, wraps and smoothie bowls.",
+    "know_before": "The official site states Vale cooks with 100% extra virgin olive oil.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.valehealthykitchen.com/"
+     ],
+     "why_here": [
+      "https://www.valehealthykitchen.com/"
+     ],
+     "know_before": [
+      "https://www.valehealthykitchen.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Vale Healthy Kitchen lists Boca Raton as one of its locations",
+      "source": "https://www.valehealthykitchen.com/"
+     },
+     {
+      "claim": "Vale says it cooks with 100% extra virgin olive oil and all food is made fresh in house each day",
+      "source": "https://www.valehealthykitchen.com/"
+     },
+     {
+      "claim": "Vale was born in Florida in 2014 and grew from a meal-delivery concept into a fast-casual chain",
+      "source": "https://www.valehealthykitchen.com/"
+     },
+     {
+      "claim": "Menu highlights include Signature Bowls, salads, wraps and smoothie bowls, including the Mediterranean Chicken Wrap and Teriyaki Noodle Bowl",
+      "source": "https://www.valehealthykitchen.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJzcdhwwOy2YgRRCXuvm8GLHc",
+   "name": "Sapori Miami",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.saporimiami.com/",
+     "source_name": "Sapori Miami \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Sapori Miami describes itself as where tradition meets creativity",
+      "Sapori Miami presents Italian flavors with Miami energy",
+      "Live sets, curated playlists, and exclusive shows accompany dining at Sapori Miami",
+      "Sapori Miami calls itself the perfect place for any occasion"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Italian restaurant where live sets and curated playlists accompany your dining",
+    "why_here": "Sapori Miami says it is where tradition meets creativity, serving Italian flavors with Miami energy. The homepage says live sets, curated playlists and exclusive shows accompany dining, creating an atmosphere where taste and music blend.",
+    "know_before": "Reservations are offered through the official site's reservation link.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.saporimiami.com/"
+     ],
+     "why_here": [
+      "https://www.saporimiami.com/"
+     ],
+     "know_before": [
+      "https://www.saporimiami.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Sapori Miami describes itself as where tradition meets creativity",
+      "source": "https://www.saporimiami.com/"
+     },
+     {
+      "claim": "Sapori Miami presents Italian flavors with Miami energy",
+      "source": "https://www.saporimiami.com/"
+     },
+     {
+      "claim": "Live sets, curated playlists, and exclusive shows accompany dining at Sapori Miami",
+      "source": "https://www.saporimiami.com/"
+     },
+     {
+      "claim": "Sapori Miami calls itself the perfect place for any occasion",
+      "source": "https://www.saporimiami.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJJWmAN-W32YgR36ONCEj4VBU",
+   "name": "Koko",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "mexican_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://kokobybakan.com/",
+     "source_name": "Koko \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Koko makes tortillas from scratch daily using imported Criollo corn from Oaxaca",
+      "Koko toasts its chips over cherry wood fire and says it does not fry them",
+      "The page describes a large selection of mezcales and tequilas",
+      "The page describes Mexican food presented in a modern, uniquely designed environment",
+      "Hours listed include Monday - Wednesday 12:00 p.m. - 11:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Tortillas made from scratch daily using imported Criollo corn from Oaxaca",
+    "why_here": "Koko says it makes tortillas from scratch daily using imported Criollo corn from Oaxaca and toasts its chips over cherry wood fire instead of frying them. The page also describes a large selection of mezcales and tequilas to pair with the food.",
+    "know_before": "The page lists pickup, delivery, indoor dining and outdoor dining as options at Koko.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://kokobybakan.com/"
+     ],
+     "why_here": [
+      "https://kokobybakan.com/"
+     ],
+     "know_before": [
+      "https://kokobybakan.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Koko makes tortillas from scratch daily using imported Criollo corn from Oaxaca",
+      "source": "https://kokobybakan.com/"
+     },
+     {
+      "claim": "Koko toasts its chips over cherry wood fire and says it does not fry them",
+      "source": "https://kokobybakan.com/"
+     },
+     {
+      "claim": "The page describes a large selection of mezcales and tequilas",
+      "source": "https://kokobybakan.com/"
+     },
+     {
+      "claim": "The page describes Mexican food presented in a modern, uniquely designed environment",
+      "source": "https://kokobybakan.com/"
+     },
+     {
+      "claim": "Hours listed include Monday - Wednesday 12:00 p.m. - 11:00 p.m.",
+      "source": "https://kokobybakan.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJi_G7BE9Z7IgRBZiOWqAKueU",
+   "name": "Connors Steak & Seafood",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "steak_house",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.connorsrestaurant.com/",
+     "source_name": "Connors Steak & Seafood \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Prime and choice cuts of beef and USDC-inspected seafood are prepared over mesquite wood grills",
+      "Connors' mission is a superior dining experience through consistency, quality and customer service",
+      "The menu also includes gourmet salads, sandwiches, pastas and small plates",
+      "Connors Steak & Seafood Sarasota was named an OpenTable Top 100 Most Loved Restaurant in America"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Mesquite-grilled prime steaks and USDC-inspected seafood",
+    "why_here": "Connors Steak & Seafood says prime and choice cuts of beef and USDC-inspected seafood are prepared over mesquite wood grills to bring out its unique flavor. Its central mission is a superior dining experience through consistency, quality and customer service, with gourmet salads, pastas and small plates rounding out the menu.",
+    "know_before": "Lunch is served daily until four, according to the official site.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.connorsrestaurant.com/"
+     ],
+     "why_here": [
+      "https://www.connorsrestaurant.com/"
+     ],
+     "know_before": [
+      "https://www.connorsrestaurant.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Prime and choice cuts of beef and USDC-inspected seafood are prepared over mesquite wood grills",
+      "source": "https://www.connorsrestaurant.com/"
+     },
+     {
+      "claim": "Connors' mission is a superior dining experience through consistency, quality and customer service",
+      "source": "https://www.connorsrestaurant.com/"
+     },
+     {
+      "claim": "The menu also includes gourmet salads, sandwiches, pastas and small plates",
+      "source": "https://www.connorsrestaurant.com/"
+     },
+     {
+      "claim": "Connors Steak & Seafood Sarasota was named an OpenTable Top 100 Most Loved Restaurant in America",
+      "source": "https://www.connorsrestaurant.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJGb3YnPr-5IgR8hGC1s03gok",
+   "name": "Cafe Karibo",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.cafekaribo.com/",
+     "source_name": "Cafe Karibo \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Cafe Karibo describes itself as eclectic dining in Fernandina Beach",
+      "60% of available seating is outdoors",
+      "Cafe Karibo does not accept advance reservations",
+      "Your entire party must be present to request a table"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Eclectic dining in Fernandina Beach where most seating is outdoors",
+    "why_here": "Cafe Karibo describes itself as eclectic dining in Fernandina Beach and notes that with 60% of available seating outdoors, it is subject to the unpredictable nature of the weather. By policy, it does not accept advance reservations.",
+    "know_before": "Cafe Karibo does not accept advance reservations, and your entire party must be present to request a table.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.cafekaribo.com/"
+     ],
+     "why_here": [
+      "https://www.cafekaribo.com/"
+     ],
+     "know_before": [
+      "https://www.cafekaribo.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Cafe Karibo describes itself as eclectic dining in Fernandina Beach",
+      "source": "https://www.cafekaribo.com/"
+     },
+     {
+      "claim": "60% of available seating is outdoors",
+      "source": "https://www.cafekaribo.com/"
+     },
+     {
+      "claim": "Cafe Karibo does not accept advance reservations",
+      "source": "https://www.cafekaribo.com/"
+     },
+     {
+      "claim": "Your entire party must be present to request a table",
+      "source": "https://www.cafekaribo.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJFcNl8ZvhwogRebuKyGD6suE",
+   "name": "Pier Dolphin Cruises",
+   "category": "attractions",
+   "metro": "st-pete",
+   "primary_type": "tour_agency",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.pierdolphincruises.com/",
+     "source_name": "Pier Dolphin Cruises \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Pier Dolphin Cruises offers a Dolphin Tour Guarantee: see a dolphin or your next trip is FREE",
+      "Local dolphins often swim alongside the Dolphin Queen's bow and play beside the boat",
+      "Pier Dolphin Cruises is a single vessel owner/operator small business",
+      "Tours include Dolphin Tours, Sunset Tours and Eco Tours"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "See a dolphin or your next trip is free on the Dolphin Queen",
+    "why_here": "Pier Dolphin Cruises backs its dolphin tours with that guarantee and says local dolphins often swim alongside the Dolphin Queen's bow. It describes itself as a single vessel owner/operator small business focused on each cruise as its first priority.",
+    "know_before": "The Dolphin Queen features a shaded canopy, comfortable seating and an onboard restroom, according to the official site.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.pierdolphincruises.com/"
+     ],
+     "why_here": [
+      "https://www.pierdolphincruises.com/"
+     ],
+     "know_before": [
+      "https://www.pierdolphincruises.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Pier Dolphin Cruises offers a Dolphin Tour Guarantee: see a dolphin or your next trip is FREE",
+      "source": "https://www.pierdolphincruises.com/"
+     },
+     {
+      "claim": "Local dolphins often swim alongside the Dolphin Queen's bow and play beside the boat",
+      "source": "https://www.pierdolphincruises.com/"
+     },
+     {
+      "claim": "Pier Dolphin Cruises is a single vessel owner/operator small business",
+      "source": "https://www.pierdolphincruises.com/"
+     },
+     {
+      "claim": "Tours include Dolphin Tours, Sunset Tours and Eco Tours",
+      "source": "https://www.pierdolphincruises.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJZ5uQKkml5YgR2VF6cgIgnvQ",
+   "name": "Flamingo Lake",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "rv_park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.visitjacksonville.com/things-to-do/outdoors/camping/",
+     "source_name": "Flamingo Lake \u2014 official source",
+     "source_class": "tourism_dmo",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Flamingo Lake offers furnished cabins and 288 RV sites",
+      "The RV sites include water, electricity, cable, sewer and free wireless internet",
+      "Families can swim on the lakefront beach",
+      "There is a restaurant and general store on site",
+      "A mess hall and outdoor space are available for family reunions"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Jacksonville camping with furnished cabins, 288 RV sites and a lakefront beach",
+    "why_here": "Flamingo Lake offers furnished cabins and 288 RV sites The RV sites include water, electricity, cable, sewer and free wireless internet",
+    "know_before": "Flamingo Lake offers furnished cabins and 288 RV sites",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.visitjacksonville.com/things-to-do/outdoors/camping/"
+     ],
+     "why_here": [
+      "https://www.visitjacksonville.com/things-to-do/outdoors/camping/"
+     ],
+     "know_before": [
+      "https://www.visitjacksonville.com/things-to-do/outdoors/camping/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Flamingo Lake offers furnished cabins and 288 RV sites",
+      "source": "https://www.visitjacksonville.com/things-to-do/outdoors/camping/"
+     },
+     {
+      "claim": "The RV sites include water, electricity, cable, sewer and free wireless internet",
+      "source": "https://www.visitjacksonville.com/things-to-do/outdoors/camping/"
+     },
+     {
+      "claim": "Families can swim on the lakefront beach",
+      "source": "https://www.visitjacksonville.com/things-to-do/outdoors/camping/"
+     },
+     {
+      "claim": "There is a restaurant and general store on site",
+      "source": "https://www.visitjacksonville.com/things-to-do/outdoors/camping/"
+     },
+     {
+      "claim": "A mess hall and outdoor space are available for family reunions",
+      "source": "https://www.visitjacksonville.com/things-to-do/outdoors/camping/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ_R2MO1L8wogRz5a9p2-x2o0",
+   "name": "Barefoot Beach Club",
+   "category": "hotels",
+   "metro": "st-pete",
+   "primary_type": "resort_hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://barefootbeachclub.com/",
+     "source_name": "Barefoot Beach Club \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Barefoot Beach Club is at Madeira Beach, footsteps from the Gulf of Mexico",
+      "Rooms include Beach Front Studios, Tropical Poolside Studios and new 2 Bedroom 2 Bathroom Suites",
+      "Amenities include pools, cabanas, WiFi internet access, a heated spa and an outdoor grilling area",
+      "The club is located only 2 blocks to historic John's Pass Village, a 5 minute walk"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Beachfront studios footsteps from the Gulf of Mexico at Madeira Beach",
+    "why_here": "Barefoot Beach Club at Madeira Beach offers Beach Front Studios and Tropical Poolside Studios, plus new 2 Bedroom 2 Bathroom Suites described as enjoying the comforts of a condo. The site places it footsteps from the Gulf of Mexico and only 2 blocks to historic John's Pass Village.",
+    "know_before": "All amenities are ADA accessible at Barefoot Beach Club, per the official site.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://barefootbeachclub.com/"
+     ],
+     "why_here": [
+      "https://barefootbeachclub.com/"
+     ],
+     "know_before": [
+      "https://barefootbeachclub.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Barefoot Beach Club is at Madeira Beach, footsteps from the Gulf of Mexico",
+      "source": "https://barefootbeachclub.com/"
+     },
+     {
+      "claim": "Rooms include Beach Front Studios, Tropical Poolside Studios and new 2 Bedroom 2 Bathroom Suites",
+      "source": "https://barefootbeachclub.com/"
+     },
+     {
+      "claim": "Amenities include pools, cabanas, WiFi internet access, a heated spa and an outdoor grilling area",
+      "source": "https://barefootbeachclub.com/"
+     },
+     {
+      "claim": "The club is located only 2 blocks to historic John's Pass Village, a 5 minute walk",
+      "source": "https://barefootbeachclub.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJj395K6nHwogR3Ef1Lx37IXg",
+   "name": "North 30th Sports Pub & Grille USF",
+   "category": "nightlife",
+   "metro": "tampa",
+   "primary_type": "bar_and_grill",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://north30pub.com/",
+     "source_name": "North 30th Sports Pub & Grille USF \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "North 30th has 40+ big screens with a view from every seat",
+      "It is a laid-back Tampa sports bar in University Square",
+      "Catering includes jumbo wings tossed in any of 12 sauces, plus sandwiches and pizzas",
+      "The venue hosts groups up to 150 guests and has pool tables"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "40+ big screens and classic bar-and-grill favorites in Tampa",
+    "why_here": "North 30th Sports Pub & Grille describes itself as a laid-back Tampa sports bar in University Square with 40+ big screens and a great view from every seat. The menu centers on game-day bar-and-grill favorites including wings, burgers, pizza, nachos and quesadillas for dine-in, takeout and catering.",
+    "know_before": "North 30th has 40+ big screens with a view from every seat",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://north30pub.com/"
+     ],
+     "why_here": [
+      "https://north30pub.com/"
+     ],
+     "know_before": [
+      "https://north30pub.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "North 30th has 40+ big screens with a view from every seat",
+      "source": "https://north30pub.com/"
+     },
+     {
+      "claim": "It is a laid-back Tampa sports bar in University Square",
+      "source": "https://north30pub.com/"
+     },
+     {
+      "claim": "Catering includes jumbo wings tossed in any of 12 sauces, plus sandwiches and pizzas",
+      "source": "https://north30pub.com/"
+     },
+     {
+      "claim": "The venue hosts groups up to 150 guests and has pool tables",
+      "source": "https://north30pub.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJT-3ipqtZ7IgRq3F3gYTHAe8",
+   "name": "Coosh's | Bayou Rouge Restaurant",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "cajun_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.cooshs.com/",
+     "source_name": "Coosh's | Bayou Rouge Restaurant \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Coosh's was featured on Diners, Drive-Ins & Dives",
+      "Coosh's serves the flavors of Louisiana in Tallahassee",
+      "Coosh's offers signature Coosh's Cajun Spice crafted with a blend of spices",
+      "Coosh's lists Northside and Collegetown locations in Tallahassee"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Louisiana Cajun flavors in Tallahassee, featured on Diners, Drive-Ins & Dives",
+    "why_here": "Coosh's invites guests to come in and experience the flavors of Louisiana in Tallahassee, where every meal is a celebration. The official site notes a feature on Diners, Drive-Ins & Dives and offers signature Coosh's Cajun Spice for home cooking.",
+    "know_before": "Coosh's was featured on Diners, Drive-Ins & Dives",
+    "local_tip": "You can order signature Coosh's Cajun Spice to bring the flavor home to your own kitchen.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.cooshs.com/"
+     ],
+     "why_here": [
+      "https://www.cooshs.com/"
+     ],
+     "know_before": [
+      "https://www.cooshs.com/"
+     ],
+     "local_tip": [
+      "https://www.cooshs.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Coosh's was featured on Diners, Drive-Ins & Dives",
+      "source": "https://www.cooshs.com/"
+     },
+     {
+      "claim": "Coosh's serves the flavors of Louisiana in Tallahassee",
+      "source": "https://www.cooshs.com/"
+     },
+     {
+      "claim": "Coosh's offers signature Coosh's Cajun Spice crafted with a blend of spices",
+      "source": "https://www.cooshs.com/"
+     },
+     {
+      "claim": "Coosh's lists Northside and Collegetown locations in Tallahassee",
+      "source": "https://www.cooshs.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJnaG1XF-C54gR8-KzeLIGUtU",
+   "name": "RusTeak Ocoee",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.rusteakwinebar.com/",
+     "source_name": "RusTeak Ocoee \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "RusTeak was established in 2012 and is owned and operated by graduates of The Culinary Institute of America",
+      "RusTeak is a polished casual new American restaurant and wine bar",
+      "RusTeak focuses on quality meals paired with diverse wines, craft cocktails and hyper local beer",
+      "RusTeak says it uses the finest and freshest local ingredients"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "CIA-graduate new American cooking and wine bar in Ocoee since 2012",
+    "why_here": "RusTeak is a polished casual new American restaurant and wine bar founded in 2012 by graduates of The Culinary Institute of America. The official site says it focuses on quality meals paired with diverse wines, craft cocktails and hyper-local beer, using the finest and freshest local ingredients.",
+    "know_before": "Menus vary by location, according to the official site, so check the menu for the Ocoee location before you go.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.rusteakwinebar.com/"
+     ],
+     "why_here": [
+      "https://www.rusteakwinebar.com/"
+     ],
+     "know_before": [
+      "https://www.rusteakwinebar.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "RusTeak was established in 2012 and is owned and operated by graduates of The Culinary Institute of America",
+      "source": "https://www.rusteakwinebar.com/"
+     },
+     {
+      "claim": "RusTeak is a polished casual new American restaurant and wine bar",
+      "source": "https://www.rusteakwinebar.com/"
+     },
+     {
+      "claim": "RusTeak focuses on quality meals paired with diverse wines, craft cocktails and hyper local beer",
+      "source": "https://www.rusteakwinebar.com/"
+     },
+     {
+      "claim": "RusTeak says it uses the finest and freshest local ingredients",
+      "source": "https://www.rusteakwinebar.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJoWzLZdzU54gR3Ff06bTBEAE",
+   "name": "Twistee Treat Ocala",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "ice_cream_shop",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://twisteetreat.com/about-us/",
+     "source_name": "Twistee Treat Ocala \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The cone-shaped buildings and ice cream have been around since 1983",
+      "The cone buildings are 25-foot tall fiberglass buildings",
+      "Twistee Treat serves real fresh soft serve ice cream",
+      "The menu includes cones, cups, shakes and malts",
+      "Traditional classics include the banana split and the brownie boat"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Real fresh soft serve from 25-foot cone-shaped buildings, around since 1983",
+    "why_here": "Twistee Treat says its cone-shaped buildings and ice cream have been around since 1983 and that it serves real fresh soft serve ice cream. Its menu includes ice cream, cones, cups, shakes and malts.",
+    "know_before": "The cone-shaped buildings and ice cream have been around since 1983",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://twisteetreat.com/about-us/"
+     ],
+     "why_here": [
+      "https://twisteetreat.com/about-us/"
+     ],
+     "know_before": [
+      "https://twisteetreat.com/about-us/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The cone-shaped buildings and ice cream have been around since 1983",
+      "source": "https://twisteetreat.com/about-us/"
+     },
+     {
+      "claim": "The cone buildings are 25-foot tall fiberglass buildings",
+      "source": "https://twisteetreat.com/about-us/"
+     },
+     {
+      "claim": "Twistee Treat serves real fresh soft serve ice cream",
+      "source": "https://twisteetreat.com/about-us/"
+     },
+     {
+      "claim": "The menu includes cones, cups, shakes and malts",
+      "source": "https://twisteetreat.com/about-us/"
+     },
+     {
+      "claim": "Traditional classics include the banana split and the brownie boat",
+      "source": "https://twisteetreat.com/about-us/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJW8wz-yBBw4gRHjl20F9HcB0",
+   "name": "Sarasota Village",
+   "category": "shopping",
+   "metro": "manatee-sarasota",
+   "primary_type": "shopping_mall",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.brixmor.com/api/download/3007/Brochure/brochure-3007-1793596350695.pdf",
+     "source_name": "Sarasota Village \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Sarasota Village is a 173,654-square-foot shopping center in Sarasota County",
+      "The center is anchored by Publix, with a lineup including HomeGoods, Ross Dress for Less, Crunch Fitness and Fantastic Sams",
+      "Brixmor estimates the center draws 2.4 million annual visits (Placer.ai 2025)",
+      "Current tenants listed by Brixmor include Publix, Ross Dress for Less, HomeGoods, Crunch, Subway and AutoZone",
+      "More than 50% of the tenants have been in the center for 14 or more years"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Publix-anchored village center pairing everyday groceries with HomeGoods and Ross",
+    "why_here": "Sarasota Village is a 173,654-square-foot center anchored by Publix, with national retailers including HomeGoods, Ross Dress for Less, Crunch Fitness and Fantastic Sams. Brixmor estimates it draws about 2.4 million visits a year.",
+    "know_before": "More than half the tenants have been in the center for 14 years or more, according to owner Brixmor.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.brixmor.com/api/download/3007/Brochure/brochure-3007-1793596350695.pdf"
+     ],
+     "why_here": [
+      "https://www.brixmor.com/api/download/3007/Brochure/brochure-3007-1793596350695.pdf"
+     ],
+     "know_before": [
+      "https://www.brixmor.com/api/download/3007/Brochure/brochure-3007-1793596350695.pdf"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Sarasota Village is a 173,654-square-foot shopping center in Sarasota County",
+      "source": "https://www.brixmor.com/api/download/3007/Brochure/brochure-3007-1793596350695.pdf"
+     },
+     {
+      "claim": "The center is anchored by Publix, with a lineup including HomeGoods, Ross Dress for Less, Crunch Fitness and Fantastic Sams",
+      "source": "https://www.brixmor.com/api/download/3007/Brochure/brochure-3007-1793596350695.pdf"
+     },
+     {
+      "claim": "Brixmor estimates the center draws 2.4 million annual visits (Placer.ai 2025)",
+      "source": "https://www.brixmor.com/api/download/3007/Brochure/brochure-3007-1793596350695.pdf"
+     },
+     {
+      "claim": "Current tenants listed by Brixmor include Publix, Ross Dress for Less, HomeGoods, Crunch, Subway and AutoZone",
+      "source": "https://www.brixmor.com/api/download/3007/Brochure/brochure-3007-1793596350695.pdf"
+     },
+     {
+      "claim": "More than 50% of the tenants have been in the center for 14 or more years",
+      "source": "https://www.brixmor.com/api/download/3007/Brochure/brochure-3007-1793596350695.pdf"
+     }
+    ]
+   }
+  }
+ ]
+}

@@ -1,0 +1,216 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 57. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJcdhv_iKl2YgRCUlH5jM_CGM",
+   "name": "Vanilla Espresso French Caf\u00e9",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "french_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://vanillaespresso.com/",
+     "source_name": "Vanilla Espresso French Caf\u00e9 \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Vanilla Espresso French Caf\u00e9 operates in Miami Lakes and Miramar",
+      "The caf\u00e9 serves fresh espresso drinks and caf\u00e9 meals made daily with quality ingredients",
+      "Muffins, cookies and seasonal sweets are baked fresh daily at Vanilla Espresso",
+      "Vanilla Espresso offers a relaxed, friendly space for coffee, breakfast, or lunch"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "French caf\u00e9 in Miami Lakes with muffins and cookies baked fresh daily",
+    "why_here": "Vanilla Espresso French Caf\u00e9 welcomes guests in Miami Lakes and Miramar for coffee, breakfast or lunch in a relaxed, friendly space. It says its fresh espresso drinks and caf\u00e9 meals are made daily with quality ingredients, and its muffins, cookies and seasonal sweets are baked fresh daily.",
+    "know_before": "The caf\u00e9 is set up for coffee, breakfast or lunch, with fresh espresso drinks and caf\u00e9 meals made daily with quality ingredients.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://vanillaespresso.com/"
+     ],
+     "why_here": [
+      "https://vanillaespresso.com/"
+     ],
+     "know_before": [
+      "https://vanillaespresso.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Vanilla Espresso French Caf\u00e9 operates in Miami Lakes and Miramar",
+      "source": "https://vanillaespresso.com/"
+     },
+     {
+      "claim": "The caf\u00e9 serves fresh espresso drinks and caf\u00e9 meals made daily with quality ingredients",
+      "source": "https://vanillaespresso.com/"
+     },
+     {
+      "claim": "Muffins, cookies and seasonal sweets are baked fresh daily at Vanilla Espresso",
+      "source": "https://vanillaespresso.com/"
+     },
+     {
+      "claim": "Vanilla Espresso offers a relaxed, friendly space for coffee, breakfast, or lunch",
+      "source": "https://vanillaespresso.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJsQKYK5C02YgROGCkBY6cXBA",
+   "name": "Mac's Club Deuce \u2663\ufe0f",
+   "category": "nightlife",
+   "metro": "miami-dade",
+   "primary_type": "bar",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.macsclubdeuce.com/",
+     "source_name": "Mac's Club Deuce \u2663\ufe0f \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Mac's Club Deuce calls itself Miami's oldest bar",
+      "Mac's Club Deuce dates to 1926",
+      "The bar is open 8:00 a.m. to 5:00 a.m., seven days a week",
+      "Listed features include a pool table and a jukebox"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Miami's oldest bar, established in 1926",
+    "why_here": "Mac's Club Deuce calls itself Miami's oldest bar and dates to 1926. The homepage describes a laid-back ambiance with rustic decor, a pool table and a jukebox, making it a local hangout.",
+    "know_before": "The bar is open 8:00 a.m. to 5:00 a.m., seven days a week.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.macsclubdeuce.com/"
+     ],
+     "why_here": [
+      "https://www.macsclubdeuce.com/"
+     ],
+     "know_before": [
+      "https://www.macsclubdeuce.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Mac's Club Deuce calls itself Miami's oldest bar",
+      "source": "https://www.macsclubdeuce.com/"
+     },
+     {
+      "claim": "Mac's Club Deuce dates to 1926",
+      "source": "https://www.macsclubdeuce.com/"
+     },
+     {
+      "claim": "The bar is open 8:00 a.m. to 5:00 a.m., seven days a week",
+      "source": "https://www.macsclubdeuce.com/"
+     },
+     {
+      "claim": "Listed features include a pool table and a jukebox",
+      "source": "https://www.macsclubdeuce.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJpwF4ZJYn5IgRTDzwBWvlSIE",
+   "name": "Trade Winds Lounge",
+   "category": "nightlife",
+   "metro": "florida",
+   "primary_type": "cocktail_bar",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://tradewindslounge.com/",
+     "source_name": "Trade Winds Lounge \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Tradewinds Tropical Lounge is dedicated to having the very best live entertainment in North Florida",
+      "Its music evolved from a folk lounge to rock'n'roll, blues and a little country",
+      "The lounge uses the line Always Better Live",
+      "The official site has a Live Music Schedule for the lounge"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "St. Augustine tropical lounge dedicated to live entertainment in North Florida",
+    "why_here": "The Tradewinds Tropical Lounge says it is dedicated to having the very best live entertainment in North Florida. Its music evolved from its early days as a folk lounge to a current mix of rock'n'roll, blues, and a little country, under the line Always Better Live.",
+    "know_before": "Check the Live Music Schedule on the official site before you go, since live entertainment is the focus of the Tradewinds Tropical Lounge.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://tradewindslounge.com/"
+     ],
+     "why_here": [
+      "https://tradewindslounge.com/"
+     ],
+     "know_before": [
+      "https://tradewindslounge.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Tradewinds Tropical Lounge is dedicated to having the very best live entertainment in North Florida",
+      "source": "https://tradewindslounge.com/"
+     },
+     {
+      "claim": "Its music evolved from a folk lounge to rock'n'roll, blues and a little country",
+      "source": "https://tradewindslounge.com/"
+     },
+     {
+      "claim": "The lounge uses the line Always Better Live",
+      "source": "https://tradewindslounge.com/"
+     },
+     {
+      "claim": "The official site has a Live Music Schedule for the lounge",
+      "source": "https://tradewindslounge.com/"
+     }
+    ]
+   }
+  }
+ ]
+}

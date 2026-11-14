@@ -91,7 +91,9 @@ const DETAILS_MASK = CORE_DETAILS_MASK;
 // exactly the two names it needs, then import it. WAYFIND_GATE must be set
 // explicitly to free or open; an unset or mistyped value shuts spend down.
 for (const k of ["SUPABASE_URL", "SUPABASE_SERVICE_ROLE_KEY"]) if (!process.env[k]) process.env[k] = k === "SUPABASE_URL" ? SB_URL : SB_KEY;
-const { spendAllowCapped, effectiveCap, gateMode, refundToLedger, freeTierLine } = await import("../lib/spendGate.js");
+const { spendAllowCapped, effectiveCap, gateMode, refundToLedger, freeTierLine, declareProcessTraffic, TRAFFIC } = await import("../lib/spendGate.js");
+// One job per process: every grant below is BACKGROUND for the human traffic reserve (lib/spendGate.js).
+declareProcessTraffic(TRAFFIC.BACKGROUND);
 
 const H = { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}`, "Content-Type": "application/json" };
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));

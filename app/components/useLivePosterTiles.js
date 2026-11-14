@@ -16,7 +16,7 @@
 // stale-response protection: a response for a location the reader has left
 // can never replace the current one.
 import { useEffect, useState } from "react";
-import { usePosterEvents } from "./usePosterEvents.js";
+import { usePosterEvents } from "./usePosterEventsLazy.js";
 import { LIVE_POSTER_TYPE_CONFIG } from "../../lib/liveEventPosterTypes.js";
 
 // An event id alone does not identify the poster request. Providers can repair

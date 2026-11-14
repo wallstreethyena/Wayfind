@@ -40,6 +40,7 @@ import { LOAD_FAILED, LOAD_PENDING, canClaim, isFailed, settleLoad } from "../..
 import { couponForPlace } from "../../lib/coupons.js";
 import { existingTypeSignals } from "../../lib/placeCategory.js";
 import { shareCard as fallbackShareCard } from "../../lib/cardActions.js";
+import { styleHtml } from "../../lib/styleHtml.js";
 
 // THE CHIP HAS TO STATE THE OFFER (v7.41). Owner, 2026-08-12: "we dont offer
 // the coupon on the place card or tell the user there is a coupon or
@@ -991,7 +992,7 @@ export default function BestNearby({
 
   return (
     <section aria-label="Best nearby" style={{ position: "relative", overflow: "hidden", background: "linear-gradient(145deg, #101722 0%, #0A0E15 72%)", border: "1px solid #293442", borderRadius: 19, padding: "4px 14px", marginBottom: 12, boxShadow: "inset 0 1px 0 rgba(255,255,255,.045), 0 12px 30px rgba(0,0,0,.2)" }}>
-      <style dangerouslySetInnerHTML={{ __html: `.wf-bn-focus:focus-visible{outline:${FOCUS.outline};outline-offset:${FOCUS.outlineOffset}}` }} />
+      <style dangerouslySetInnerHTML={styleHtml(`.wf-bn-focus:focus-visible{outline:${FOCUS.outline};outline-offset:${FOCUS.outlineOffset}}`)} />
       {/* ── "Exploding Trends Near You" REMOVED (owner, 2026-08-16: "FIX IT
           OR REMOVE IT"). It could not be fixed from code. Measured the same
           day, on the live page and against the database:

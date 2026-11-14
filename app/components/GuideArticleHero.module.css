@@ -192,6 +192,34 @@
   grid-template-columns: minmax(0, 820px);
 }
 
+/* 2026-11-11: the optional children block (the guide's "Choose quickly").
+   Wide: title and photo keep row 1, the block spans row 2 under both.
+   Phone (below): single column in DOM order, so it sits between the title
+   block and the photo, inside the first screen. Scoped to .withBelow so a
+   header with no children is laid out exactly as before. */
+.below {
+  min-width: 0;
+}
+
+.withBelow {
+  row-gap: 24px;
+}
+
+.withBelow .copy {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.withBelow .figure {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.withBelow .below {
+  grid-column: 1 / -1;
+  grid-row: 2;
+}
+
 .withoutMedia .copy {
   padding-right: clamp(4px, 8vw, 84px);
 }
@@ -219,6 +247,13 @@
     grid-template-columns: minmax(0, 1fr);
     gap: 25px;
     padding: 26px 0 10px;
+  }
+
+  .withBelow .copy,
+  .withBelow .figure,
+  .withBelow .below {
+    grid-column: auto;
+    grid-row: auto;
   }
 
   .copy {

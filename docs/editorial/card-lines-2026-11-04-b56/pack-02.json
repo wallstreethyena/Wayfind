@@ -1,0 +1,83 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 56. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJrbs3_f7BwogRxgfmbL2PZfw",
+   "name": "Mandola's Italian Kitchen",
+   "category": "food",
+   "metro": "tampa",
+   "primary_type": "italian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://mandolas.com/florida-menu/",
+     "source_name": "Mandola's Italian Kitchen \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Florida Dining Menu features a pasta section including lasagne",
+      "Lasagne is pasta layered with Bolognese meat sauce, ricotta, mozzarella and Romano cheese",
+      "Spaghetti is served with meatballs or Italian sausage",
+      "Pizza is made with Caputo flour, hand-stretched on semolina flour",
+      "Gluten free pasta is available as a substitute"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Italian kitchen with lasagne, spaghetti and hand-stretched pizza",
+    "why_here": "Mandola's Italian Kitchen's Florida menu centers on pasta including lasagne and spaghetti with meatballs or Italian sausage, plus pizza made with Caputo flour and hand-stretched on semolina flour.",
+    "know_before": "Catering services such as pick-up and delivery are available, including party trays and box lunches.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://mandolas.com/florida-menu/"
+     ],
+     "why_here": [
+      "https://mandolas.com/florida-menu/"
+     ],
+     "know_before": [
+      "https://mandolas.com/florida-menu/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Florida Dining Menu features a pasta section including lasagne",
+      "source": "https://mandolas.com/florida-menu/"
+     },
+     {
+      "claim": "Lasagne is pasta layered with Bolognese meat sauce, ricotta, mozzarella and Romano cheese",
+      "source": "https://mandolas.com/florida-menu/"
+     },
+     {
+      "claim": "Spaghetti is served with meatballs or Italian sausage",
+      "source": "https://mandolas.com/florida-menu/"
+     },
+     {
+      "claim": "Pizza is made with Caputo flour, hand-stretched on semolina flour",
+      "source": "https://mandolas.com/florida-menu/"
+     },
+     {
+      "claim": "Gluten free pasta is available as a substitute",
+      "source": "https://mandolas.com/florida-menu/"
+     }
+    ]
+   }
+  }
+ ]
+}
