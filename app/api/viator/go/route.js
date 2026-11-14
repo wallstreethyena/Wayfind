@@ -13,6 +13,7 @@
 // fails closed to our own site.
 export const runtime = "nodejs";
 
+import { countryFromHeaders, gpcFromHeaders } from "../../../../lib/adConsentRegion.js";
 import { landingFromCookieHeader } from "../../../../lib/campaignAttribution.js";
 import { randomUUID } from "node:crypto";
 import { resolveVerified } from "../../../../lib/bookingResolver.js";
@@ -375,6 +376,8 @@ export async function GET(req) {
               contentId: contentId || placeId,
               clientClickId: clickId,
               cookieHeader: req.headers.get("cookie") || "",
+              visitorCountry: countryFromHeaders(req.headers),
+              gpc: gpcFromHeaders(req.headers),
               distinctId: cookieDistinctId || null,
               trafficClass,
             }, { headers: req.headers });
@@ -475,6 +478,8 @@ export async function GET(req) {
         contentId: contentId || placeId,
         clientClickId: clickId,
         cookieHeader: req.headers.get("cookie") || "",
+        visitorCountry: countryFromHeaders(req.headers),
+        gpc: gpcFromHeaders(req.headers),
         distinctId: cookieDistinctId || null,
         trafficClass,
       });
