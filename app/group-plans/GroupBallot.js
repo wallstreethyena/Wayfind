@@ -6,6 +6,7 @@ import { C } from "../components/kit.js";
 import { GroupPlaceOptions } from "./GroupPlaceOptions.js";
 import { GroupFinal } from "./GroupOrganizer.js";
 import { GroupVoteIntro } from "./GroupFrame.js";
+import { styleHtml } from "../../lib/styleHtml.js";
 
 // Component-scoped styles. Text and borders follow currentColor so the ballot
 // reads in dark and light frames; only the accent is fixed. Every animation is
@@ -120,7 +121,7 @@ export function GroupBallot({plan,onCommand,busy}) {
     setError("");
     onCommand({type:"respond",slotId:plan.invitee.id,placeId:selected,availableTimeIds:available,declined:false});
   };
-  return <div className="gb"><style dangerouslySetInnerHTML={{__html:GROUP_BALLOT_CSS}}/>
+  return <div className="gb"><style dangerouslySetInnerHTML={styleHtml(GROUP_BALLOT_CSS)}/>
     <GroupVoteIntro title={`${firstName(plan.organizerName)} started a group vote`}><p className="gp-lede">An invitation for {plan.invitee?.name}</p></GroupVoteIntro>
     {plan.status!=="open"?<>
       <section className="gp-panel"><h2>{plan.status==="finalized"?"The plan is ready":"Voting has closed"}</h2>{plan.status==="finalized"?<GroupFinal plan={plan}/>:<p>The organizer is choosing the final plan. Return to this link to see it.</p>}</section>

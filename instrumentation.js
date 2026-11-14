@@ -16,6 +16,12 @@ export async function register() {
     } catch (err) {
       console.error("[instrumentation] serverDispatcher import failed:", err && err.message);
     }
+    try {
+      const { installProductionWriteFetchGuard } = await import("./lib/productionWriteFirewall.js");
+      installProductionWriteFetchGuard();
+    } catch (err) {
+      console.error("[instrumentation] productionWriteFirewall import failed:", err && err.message);
+    }
   }
   if (process.env.NEXT_RUNTIME === "edge") {
     await import("./sentry.edge.config");

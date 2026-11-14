@@ -7,6 +7,7 @@ import EventStayCards from "./EventStayCards.js";
 import RailLoading from "./RailLoading.js";
 import RailHeading from "./RailHeading.js";
 import { WF_PLACE_CARD_CSS } from "./css.js";
+import { styleHtml } from "../../lib/styleHtml.js";
 
 const REQUEST_DEADLINE_MS = 9500;
 const MUTED = "#A99FA8";
@@ -27,7 +28,7 @@ export function DestinationStaysContent({ state, currentKey, destination, onRetr
   </section>;
   if (!state.places.length) return <section aria-label="Stay Near the Action" style={{ marginTop: 22 }}><RailHeading title="Stay Near the Action" description={description}>{selector}</RailHeading><p style={{ color: MUTED, fontSize: 13, margin: "8px 0" }}>No stays found within 12 miles of {destination.name}.</p></section>;
   return <section style={{ marginTop: 22 }} aria-label="Stay Near the Action">
-    <style dangerouslySetInnerHTML={{ __html: WF_PLACE_CARD_CSS }} />
+    <style dangerouslySetInnerHTML={styleHtml(WF_PLACE_CARD_CSS)} />
     <EventStayCards places={state.places} title="Stay Near the Action"
       description={description} label={`Hotels near ${destination.name}`} surface="fall_destination_stays"
       headingAction={selector} />
@@ -87,14 +88,14 @@ export default function DestinationStays({ destinations = [] }) {
         below the title/description (that is `.wf-rail-heading`'s own wrap,
         untouched) — but once it is on its own line, nothing inside it wraps
         again. */}
-    <style dangerouslySetInnerHTML={{ __html: `
+    <style dangerouslySetInnerHTML={styleHtml(`
       .wf-fall-destination-stays .wf-rail-heading{align-items:flex-start;flex-wrap:wrap}
       .wf-fall-destination-stays .wf-rail-heading-controls{display:flex;align-items:center;justify-content:space-between;flex-wrap:nowrap;gap:10px;flex:0 1 auto;max-width:100%;min-width:0}
       .wf-fall-destination-stays .wf-rail-heading-controls>label{flex:1 1 auto;min-width:0;max-width:100%;white-space:nowrap}
       .wf-fall-destination-stays .wf-rail-heading-controls select{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
       .wf-fall-destination-stays .wf-rail-heading-controls .wf-rail-nav{flex:0 0 auto}
       @media(max-width:520px){.wf-fall-destination-stays .wf-rail-heading-controls{width:100%;flex-basis:100%;margin-left:0}}
-    ` }} />
+    `)} />
     <DestinationStaysContent state={state} currentKey={key} destination={selected} selector={selector} onRetry={() => setRetry((value) => value + 1)} />
   </div>;
 }

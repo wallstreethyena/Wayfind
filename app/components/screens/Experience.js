@@ -12,6 +12,7 @@ import { CouponStrip, PerfectRightNow } from "../ExperienceBlocks";
 import { nowContext, siteHourFloat } from "../../../lib/nowContext.js";
 import { experienceHeader } from "../../../lib/collectionHeader.js";
 import { currentSeason } from "../../../lib/seasons.js";
+import { styleHtml } from "../../../lib/styleHtml.js";
 
 export default function ExperienceScreen({ ctx }) {
   const { activeBadge, setActiveBadge, EXPERIENCES, expPlaces, expMi, setExpMi, expSort, setExpSort, expTours, expLoading, momentPicks, setBrowseCat, setIntent, setScreen, shareLink, listShareUrl, locName, showToast, logEvent, giveawayMark, setMapListOverride, hookLikes, toggleHookLike, saveHookList, ViatorRail, Loader, SortControl, isSaved, liked, disliked, openDetail, quickSaveFavorite, toggleLike, toggleDislike, addShared, blurbs, openExperience, openCuisine, PlaceCard, cityFixM, intentScopeLabel, center, weather, clipCoupon, setWalletOpen } = ctx;
@@ -66,7 +67,7 @@ export default function ExperienceScreen({ ctx }) {
           const momentContext = nowContext({ city: headerCity, weather });
           return (
             <div>
-              <style dangerouslySetInnerHTML={{ __html: editorialHeroCss("wf-experience-editorial") }} />
+              <style dangerouslySetInnerHTML={styleHtml(editorialHeroCss("wf-experience-editorial"))} />
               <EditorialLandingHero
                 prefix="wf-experience-editorial"
                 heroImg={heroImg}

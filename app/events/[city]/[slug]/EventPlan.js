@@ -8,6 +8,7 @@ import { orderPlaceRecommendations, placeRecommendationDisplayScore } from "../.
 import { fetchJsonWithDeadline } from "../../../../lib/clientJson";
 import { useResolvedVenuePoint } from "../../../components/useResolvedVenuePoint.js";
 import { priceLabel } from "../../../../lib/price.js";
+import { styleHtml } from "../../../../lib/styleHtml.js";
 
 // How long a provider-venue plan waits for the map's Apple answer before it
 // requests its rails from the provider point anyway. The rails behind
@@ -137,7 +138,7 @@ export default function EventPlan({ lat, lng, city, venue, time, anchorName, awa
   if (!rails) return null;
   return (
     <section aria-label="Complete the plan" style={{ marginTop: 32 }}>
-      <style dangerouslySetInnerHTML={{ __html: WF_PLACE_CARD_CSS }} />
+      <style dangerouslySetInnerHTML={styleHtml(WF_PLACE_CARD_CSS)} />
       <div style={{ fontSize: 12, fontWeight: 900, letterSpacing: "1.4px", textTransform: "uppercase", color: "#FB923C" }}>Complete the plan</div>
       <h2 style={{ margin: "6px 0 0", color: "#F8FAFC", fontSize: 25, lineHeight: 1.1, letterSpacing: "-.35px" }}>Build the rest of your night.</h2>
       <div style={{ fontSize: 14, lineHeight: 1.5, color: "#94A3B8", marginTop: 7 }}>Ranked from the event location — not paid placement.</div>

@@ -25,6 +25,7 @@ import { stay22AreaSearchUrl } from "../../../lib/hotelRedirect.js";
 import Stay22LinkSwap from "../../components/Stay22LinkSwap";
 // One sentence for every affiliate CTA (same constant the guide offers use).
 import { GUIDE_OFFER_COMMISSION_LINE } from "../../../lib/affiliateDisclosure.js";
+import { styleHtml } from "../../../lib/styleHtml.js";
 
 export const revalidate = 3600;
 
@@ -201,7 +202,7 @@ export default async function BeachesPage({ params }) {
   return (
     <main style={{ background: C.bg, minHeight: "100vh", color: C.text, fontFamily: "var(--wf-sans)" }}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ld) }} />
-      <style dangerouslySetInnerHTML={{ __html: BEACH_PREMIUM_CSS + WF_PLACE_CARD_CSS }} />
+      <style dangerouslySetInnerHTML={styleHtml(BEACH_PREMIUM_CSS + WF_PLACE_CARD_CSS)} />
       <EditorialLandingHero
         backControl={<BackControl fallback="/" />}
         heroImg={heroImg}
