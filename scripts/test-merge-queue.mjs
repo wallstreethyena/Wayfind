@@ -616,7 +616,9 @@ for (const [what, hook] of [
   const gh = new FakeGitHub();
   const p = gh.addPr(220);
   p.afterMerge = (g) => g.externalPush();   // somebody else lands on main right after our merge
-  const r = await drain(gh);
+  let late = null; let r = { merged: [] };
+  try { r = await drain(gh); } catch (e) { late = e; }
+  ok(late === null, `tree proof: another merge landing after ours must not throw (${late && late.name})`);
   ok(r.merged.length === 1 && gh.logs.some((l) => /merged #220 .* tree-proof=PASS/.test(l)), "tree proof: another merge landing after ours is not a false mismatch");
   ok(gh.find("GET", /\/commits\/[0-9a-f]{40}$/).some((c) => c.path === `/commits/${r.merged[0].sha}`) && !gh.find("GET", /\/commits\/main$/).length, "tree proof: the merge commit is fetched by the sha the merge API returned");
 }
