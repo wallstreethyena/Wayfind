@@ -1,4 +1,4 @@
-import { gateShut, spendAllowCapped, effectiveCap, gateMode, refundToLedger, freeTierLine, runWithTraffic, TRAFFIC, backgroundReserveStatus } from "../../../../lib/spendGate";
+import { gateShut, spendAllowCapped, effectiveCap, gateMode, refundToLedger, freeTierLine, runWithTraffic, TRAFFIC, backgroundReserveStatus, backgroundDailyStatus, BACKGROUND_PRIORITY } from "../../../../lib/spendGate";
 // app/api/cron/promote-index/route.js — drains wf_promotion_queue: index places
 // (wf_place_ids) become owned cards (wf_inventory), a bounded batch at a time.
 //
@@ -68,7 +68,7 @@ import { gateShut, spendAllowCapped, effectiveCap, gateMode, refundToLedger, fre
 // rate climbs past 20% or Google returns a 429. The job idles at $0 the
 // moment the queue is empty either way.
 import { sbEnv } from "../../../../lib/serverCache";
-import { recordPulse, budgetLimitNote, budgetReserveNote, readLedgerUsage } from "../../../../lib/jobPulse";
+import { recordPulse, budgetLimitNote, budgetReserveNote, budgetDailyReserveNote, readLedgerUsage } from "../../../../lib/jobPulse";
 import { decidePromotion, dedupeById, partitionSplitVenues, PROMOTE_METROS, metrosFromRows } from "../../../../lib/promoteIndex";
 import { clampBatchLimit, nextBatchLimit } from "../../../../lib/promoteThrottle";
 import { CORE_DETAILS_MASK, RATING_DETAILS_MASK, PROMOTE_SKU, RATING_SKU, withIndexSignals, hasIndexRating, classifyDetailsFailure, minutesUntilQuotaReset, ratingBuyAllowed } from "../../../../lib/promoteDetails";
@@ -351,6 +351,16 @@ async function runPromoteIndex(req) {
   if (reserve.blocked) {
     await recordPulse("promote-index", { attempted: 0, succeeded: 0, failed: 0, note: budgetReserveNote(PROMOTE_SKU, reserve.used, reserve.line).slice(0, 200) });
     return Response.json({ ok: true, skipped: "budget-reserve", sku: PROMOTE_SKU, used: reserve.used, line: reserve.line, claimed: 0, promoted: 0 });
+  }
+
+  // GOOGLE DAILY LINE preflight (lib/spendGate.js BACKGROUND_DAILY_LINES). Promotion and enrichment are
+  // the LOWEST background priority (D): past their line of Google's per-day Place Details quota they
+  // pause before the claim, so refresh of new inventory (B) and live visitors (A) keep the rest of the
+  // day. Same expected-pause contract as the reserve above; an unreadable counter pauses too.
+  const dailyLine = await backgroundDailyStatus(BACKGROUND_PRIORITY.PROMOTION);
+  if (dailyLine.blocked) {
+    await recordPulse("promote-index", { attempted: 0, succeeded: 0, failed: 0, note: budgetDailyReserveNote(dailyLine.used, dailyLine.line).slice(0, 200) });
+    return Response.json({ ok: true, skipped: "daily-line", used: dailyLine.used, line: dailyLine.line, unreadable: dailyLine.unreadable, claimed: 0, promoted: 0 });
   }
 
   let claimed = [];

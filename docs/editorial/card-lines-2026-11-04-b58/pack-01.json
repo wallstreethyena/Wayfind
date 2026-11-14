@@ -1,0 +1,2415 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 58. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJl5GkIVEA2YgRV4nUT0PQTxk",
+   "name": "Caffe Europa",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "italian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://caffeeuropalasolas.com/",
+     "source_name": "Caffe Europa \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Serves Bufala Margherita with bufala mozzarella, san marzano tomato sauce and basil",
+      "Menu includes Prosciutto di Parma & Melon and Tuna Carpaccio with arugula and capers",
+      "Panini such as Caprese and Combo Italiano are served with homemade chips",
+      "Gluten Free Pizza and Pasta are available for an additional charge"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Serves Bufala Margherita with bufala mozzarella, san marzano tomato sauce and basil",
+    "why_here": "The menu lists Prosciutto di Parma & Melon, Tuna Carpaccio with arugula and capers, and Bufala Margherita with bufala mozzarella and basil. Panini such as Caprese and Combo Italiano are served with homemade chips.",
+    "know_before": "Gluten Free Pizza and Pasta are available for an additional charge, per the menu.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://caffeeuropalasolas.com/"
+     ],
+     "why_here": [
+      "https://caffeeuropalasolas.com/"
+     ],
+     "know_before": [
+      "https://caffeeuropalasolas.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Serves Bufala Margherita with bufala mozzarella, san marzano tomato sauce and basil",
+      "source": "https://caffeeuropalasolas.com/"
+     },
+     {
+      "claim": "Menu includes Prosciutto di Parma & Melon and Tuna Carpaccio with arugula and capers",
+      "source": "https://caffeeuropalasolas.com/"
+     },
+     {
+      "claim": "Panini such as Caprese and Combo Italiano are served with homemade chips",
+      "source": "https://caffeeuropalasolas.com/"
+     },
+     {
+      "claim": "Gluten Free Pizza and Pasta are available for an additional charge",
+      "source": "https://caffeeuropalasolas.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJQR-Ro50T54gRiGygXBRNP2A",
+   "name": "Celery City Craft Beer Garden",
+   "category": "nightlife",
+   "metro": "ocala-fl",
+   "primary_type": "beer_garden",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.celerycitycraft.com/",
+     "source_name": "Celery City Craft Beer Garden \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Over 50 beers on tap, many from local Florida brewers",
+      "On-site Sushi & Seoul serves creative sushi dishes and Korean-inspired street food",
+      "Name pays homage to Sanford's legacy as the Celery Capital of the world",
+      "Offers craft cocktails and a spacious beer garden with live music"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Over 50 beers on tap, many from local Florida brewers, plus Sushi & Seoul",
+    "why_here": "Celery City Craft pours over 50 beers on tap, many from local Florida brewers, alongside craft cocktails. Its on-site kitchen serves creative sushi dishes and Korean-inspired street food in a spacious beer garden.",
+    "know_before": "Weekly events include trivia, open mic and live music, and bottled beers, seltzers and non-alcoholic options are offered.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.celerycitycraft.com/"
+     ],
+     "why_here": [
+      "https://www.celerycitycraft.com/"
+     ],
+     "know_before": [
+      "https://www.celerycitycraft.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Over 50 beers on tap, many from local Florida brewers",
+      "source": "https://www.celerycitycraft.com/"
+     },
+     {
+      "claim": "On-site Sushi & Seoul serves creative sushi dishes and Korean-inspired street food",
+      "source": "https://www.celerycitycraft.com/"
+     },
+     {
+      "claim": "Name pays homage to Sanford's legacy as the Celery Capital of the world",
+      "source": "https://www.celerycitycraft.com/"
+     },
+     {
+      "claim": "Offers craft cocktails and a spacious beer garden with live music",
+      "source": "https://www.celerycitycraft.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJM7EA5MQd2YgR4kdF7VtPWMA",
+   "name": "Childrens Science Explorium",
+   "category": "attractions",
+   "metro": "palm-beach",
+   "primary_type": "museum",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.scienceexplorium.org/",
+     "source_name": "Childrens Science Explorium \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Free hands-on science center designed for children 5-12 years of age and their caregivers",
+      "Located in Sugar Sand Park",
+      "Offers interactive exhibits, programs and camps that bring the physical sciences to life",
+      "Hours are Mon - Fri: 9:00 a.m. - 6:00 p.m. and Sat - Sun & Holidays: 10:00 a.m. - 5:00 p.m.",
+      "Offers a variety of traveling exhibits each year"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Free hands-on science center for children 5-12 inside Sugar Sand Park",
+    "why_here": "The Children's Science Explorium, located in Sugar Sand Park, is a free hands-on science center designed for children 5-12 years of age and their caregivers. It offers fascinating and interactive exhibits, programs and camps that bring the physical sciences to life.",
+    "know_before": "Hours are Mon - Fri: 9:00 a.m. - 6:00 p.m. and Sat - Sun & Holidays: 10:00 a.m. - 5:00 p.m. per the official site.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.scienceexplorium.org/"
+     ],
+     "why_here": [
+      "https://www.scienceexplorium.org/"
+     ],
+     "know_before": [
+      "https://www.scienceexplorium.org/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Free hands-on science center designed for children 5-12 years of age and their caregivers",
+      "source": "https://www.scienceexplorium.org/"
+     },
+     {
+      "claim": "Located in Sugar Sand Park",
+      "source": "https://www.scienceexplorium.org/"
+     },
+     {
+      "claim": "Offers interactive exhibits, programs and camps that bring the physical sciences to life",
+      "source": "https://www.scienceexplorium.org/"
+     },
+     {
+      "claim": "Hours are Mon - Fri: 9:00 a.m. - 6:00 p.m. and Sat - Sun & Holidays: 10:00 a.m. - 5:00 p.m.",
+      "source": "https://www.scienceexplorium.org/"
+     },
+     {
+      "claim": "Offers a variety of traveling exhibits each year",
+      "source": "https://www.scienceexplorium.org/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJVU0kxEfYwogRIbDCihzjejk",
+   "name": "Latitudes Apollo",
+   "category": "food",
+   "metro": "tampa",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://latitudesapollo.com/",
+     "source_name": "Latitudes Apollo \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Latitudes Apollo is a restaurant, bar and entertainment venue in Apollo Beach, South Shore",
+      "The menu is constantly changing based on the freshest ingredients the venue can find",
+      "Happy Hour is 11:00 a.m. to 6:30 p.m. every day"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Apollo Beach restaurant, bar and entertainment venue called the coolest place in South Shore",
+    "why_here": "Latitudes Apollo is a restaurant, bar and entertainment venue in Apollo Beach in South Shore. The venue says it is constantly changing its menu based on the freshest ingredients it can find, with daily specials posted for guests to check.",
+    "know_before": "Happy Hour runs 11:00 a.m. to 6:30 p.m. every day.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://latitudesapollo.com/"
+     ],
+     "why_here": [
+      "https://latitudesapollo.com/"
+     ],
+     "know_before": [
+      "https://latitudesapollo.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Latitudes Apollo is a restaurant, bar and entertainment venue in Apollo Beach, South Shore",
+      "source": "https://latitudesapollo.com/"
+     },
+     {
+      "claim": "The menu is constantly changing based on the freshest ingredients the venue can find",
+      "source": "https://latitudesapollo.com/"
+     },
+     {
+      "claim": "Happy Hour is 11:00 a.m. to 6:30 p.m. every day",
+      "source": "https://latitudesapollo.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJZYlCNORN3YgR2j50fWlFD5k",
+   "name": "Mesa Latina Restaurant Zephyrhills",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://mesalatinacuisine0455.s4shops.com/",
+     "source_name": "Mesa Latina Restaurant Zephyrhills \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Serves authentic Puerto Rican cuisine crafted by Chef Albert Vega",
+      "Has served authentic Puerto Rican cuisine since 2021",
+      "Offers a warm and welcoming family ambiance",
+      "Uses traditional recipes passed down through generations and fresh ingredients sourced locally"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Authentic Puerto Rican cuisine crafted by Chef Albert Vega since 2021",
+    "why_here": "Mesa Latina Cuisine serves authentic Puerto Rican cuisine crafted by Chef Albert Vega, proudly operating since 2021 in a warm and welcoming family ambiance. Dishes use traditional recipes passed down through generations and fresh ingredients sourced locally.",
+    "know_before": "Serves authentic Puerto Rican cuisine crafted by Chef Albert Vega",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://mesalatinacuisine0455.s4shops.com/"
+     ],
+     "why_here": [
+      "https://mesalatinacuisine0455.s4shops.com/"
+     ],
+     "know_before": [
+      "https://mesalatinacuisine0455.s4shops.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Serves authentic Puerto Rican cuisine crafted by Chef Albert Vega",
+      "source": "https://mesalatinacuisine0455.s4shops.com/"
+     },
+     {
+      "claim": "Has served authentic Puerto Rican cuisine since 2021",
+      "source": "https://mesalatinacuisine0455.s4shops.com/"
+     },
+     {
+      "claim": "Offers a warm and welcoming family ambiance",
+      "source": "https://mesalatinacuisine0455.s4shops.com/"
+     },
+     {
+      "claim": "Uses traditional recipes passed down through generations and fresh ingredients sourced locally",
+      "source": "https://mesalatinacuisine0455.s4shops.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJNSRwL6u-2YgRjYmqwrsrtdQ",
+   "name": "Honest Roots",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://thehonestroots.com/",
+     "source_name": "Honest Roots \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Trendy neighborhood restaurant bringing honest food from its roots to your table in Doral",
+      "Aims to redefine dining with fresh, flavorful farm-to-table creations built over more than a decade",
+      "Menu uses a fresh and sustainable approach with high-quality, locally sourced products"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Trendy neighborhood restaurant bringing honest food from roots to table in Doral",
+    "why_here": "Honest Roots in Doral describes itself as a trendy neighborhood restaurant bringing honest food from its roots to your table, with fresh, flavorful dishes. Its menu stands out for a fresh and sustainable approach using high-quality, locally sourced products.",
+    "know_before": "Trendy neighborhood restaurant bringing honest food from its roots to your table in Doral",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://thehonestroots.com/"
+     ],
+     "why_here": [
+      "https://thehonestroots.com/"
+     ],
+     "know_before": [
+      "https://thehonestroots.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Trendy neighborhood restaurant bringing honest food from its roots to your table in Doral",
+      "source": "https://thehonestroots.com/"
+     },
+     {
+      "claim": "Aims to redefine dining with fresh, flavorful farm-to-table creations built over more than a decade",
+      "source": "https://thehonestroots.com/"
+     },
+     {
+      "claim": "Menu uses a fresh and sustainable approach with high-quality, locally sourced products",
+      "source": "https://thehonestroots.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJsWzqz3cT54gRsv17PLOS2ik",
+   "name": "Buster's Sanford",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://busterssanford.com/",
+     "source_name": "Buster's Sanford \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "European Beer Hall and Restaurant providing a European experience since 2013",
+      "Owned by Robbie Kennerney from Dublin, Ireland",
+      "Hosts weekly trivia, live music, karaoke and live DJ",
+      "Offers reservations, parties and catering"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "European beer hall and restaurant providing a European experience since 2013",
+    "why_here": "Buster's Sanford has provided a European experience since 2013, with an exotic mix of world beers, food and innovative cocktails. It is owned by Robbie Kennerney from Dublin and hosts weekly trivia, live music and karaoke.",
+    "know_before": "Reservations, parties and catering can be arranged through the official site.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://busterssanford.com/"
+     ],
+     "why_here": [
+      "https://busterssanford.com/"
+     ],
+     "know_before": [
+      "https://busterssanford.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "European Beer Hall and Restaurant providing a European experience since 2013",
+      "source": "https://busterssanford.com/"
+     },
+     {
+      "claim": "Owned by Robbie Kennerney from Dublin, Ireland",
+      "source": "https://busterssanford.com/"
+     },
+     {
+      "claim": "Hosts weekly trivia, live music, karaoke and live DJ",
+      "source": "https://busterssanford.com/"
+     },
+     {
+      "claim": "Offers reservations, parties and catering",
+      "source": "https://busterssanford.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ4TD2vxix2YgRihYyda5Hvbg",
+   "name": "Frudeco Bakery",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "bakery",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.frudeco.com/",
+     "source_name": "Frudeco Bakery \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Frudeco is a boutique for custom-made cakes, birthday cakes and desserts in Miami",
+      "Cakes are baked daily and upon request only, then delivered the same day",
+      "Frudeco offers number cakes, letter cakes and a vintage cake collection",
+      "Next-day orders are available until 11:59 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Miami custom-cake boutique for number, letter and vintage cakes made to order",
+    "why_here": "Frudeco in Miami describes itself as a unique boutique and creative studio for custom-made cakes, birthday cakes and desserts. Its cakes are baked daily and upon request only, then delivered the same day so taste and freshness stay at their peak.",
+    "know_before": "Next-day orders are available until 11:59 p.m., and at check out you can select pick up or delivery, date and time.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.frudeco.com/"
+     ],
+     "why_here": [
+      "https://www.frudeco.com/"
+     ],
+     "know_before": [
+      "https://www.frudeco.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Frudeco is a boutique for custom-made cakes, birthday cakes and desserts in Miami",
+      "source": "https://www.frudeco.com/"
+     },
+     {
+      "claim": "Cakes are baked daily and upon request only, then delivered the same day",
+      "source": "https://www.frudeco.com/"
+     },
+     {
+      "claim": "Frudeco offers number cakes, letter cakes and a vintage cake collection",
+      "source": "https://www.frudeco.com/"
+     },
+     {
+      "claim": "Next-day orders are available until 11:59 p.m.",
+      "source": "https://www.frudeco.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ1b4F01XwwogRqxF0blUKNM4",
+   "name": "Largo Central Park Nature Preserve",
+   "category": "attractions",
+   "metro": "st-pete",
+   "primary_type": "nature_preserve",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.largo.com/facilities_directory/index.php",
+     "source_name": "Largo Central Park Nature Preserve \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "City of Largo lists Largo Central Park Nature Preserve features as interpretive displays, a 2-story observation tower and boardwalks",
+      "City of Largo lists a 3/4 mile asphalt walk, bike, skate trail at the preserve",
+      "City of Largo lists native wildflower plantings and a butterfly garden at the preserve",
+      "City of Largo lists preserve hours as 6:30 am to 1 hour before sunset daily"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Boardwalks and a two-story observation tower in a Largo nature preserve",
+    "why_here": "The City of Largo lists this preserve with interpretive displays, boardwalks, a two-story observation tower, native wildflower plantings and a butterfly garden. A 3/4-mile asphalt trail is listed for walking, biking and skating.",
+    "know_before": "City listing gives hours as 6:30 am to 1 hour before sunset daily.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.largo.com/facilities_directory/index.php"
+     ],
+     "why_here": [
+      "https://www.largo.com/facilities_directory/index.php"
+     ],
+     "know_before": [
+      "https://www.largo.com/facilities_directory/index.php"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "City of Largo lists Largo Central Park Nature Preserve features as interpretive displays, a 2-story observation tower and boardwalks",
+      "source": "https://www.largo.com/facilities_directory/index.php"
+     },
+     {
+      "claim": "City of Largo lists a 3/4 mile asphalt walk, bike, skate trail at the preserve",
+      "source": "https://www.largo.com/facilities_directory/index.php"
+     },
+     {
+      "claim": "City of Largo lists native wildflower plantings and a butterfly garden at the preserve",
+      "source": "https://www.largo.com/facilities_directory/index.php"
+     },
+     {
+      "claim": "City of Largo lists preserve hours as 6:30 am to 1 hour before sunset daily",
+      "source": "https://www.largo.com/facilities_directory/index.php"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJvYYlebB754gRNsHWuKA8hzQ",
+   "name": "Cowboys Orlando",
+   "category": "nightlife",
+   "metro": "orlando",
+   "primary_type": "bar",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.cowboysorlando.com/about-cowboys/",
+     "source_name": "Cowboys Orlando \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Cowboys Orlando official About page says the Sullivan family purchased the original country bar in March of 1969",
+      "Cowboys Orlando official About page says it now features 20,000sq ft of bars, patio, billiard tables and Orlando's Largest Dance Floor"
+     ]
+    },
+    {
+     "source": "https://www.cowboysorlando.com/",
+     "source_name": "Cowboys Orlando \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Cowboys Orlando official site lists free line dance lessons Thursday, Friday and Saturday 8:30pm-9:30pm"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Orlando country bar built around what it calls Orlando's Largest Dance Floor",
+    "why_here": "Cowboys Orlando says it is family owned and operated since 1969 and now features 20,000 sq ft of bars, patio, billiard tables and Orlando's Largest Dance Floor. Its site also lists free line dance lessons on Thursday, Friday and Saturday nights.",
+    "know_before": "Official site lists free line dance lessons Thursday, Friday and Saturday at 8:30pm-9:30pm.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.cowboysorlando.com/about-cowboys/"
+     ],
+     "why_here": [
+      "https://www.cowboysorlando.com/about-cowboys/"
+     ],
+     "know_before": [
+      "https://www.cowboysorlando.com/about-cowboys/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Cowboys Orlando official About page says the Sullivan family purchased the original country bar in March of 1969",
+      "source": "https://www.cowboysorlando.com/about-cowboys/"
+     },
+     {
+      "claim": "Cowboys Orlando official About page says it now features 20,000sq ft of bars, patio, billiard tables and Orlando's Largest Dance Floor",
+      "source": "https://www.cowboysorlando.com/about-cowboys/"
+     },
+     {
+      "claim": "Cowboys Orlando official site lists free line dance lessons Thursday, Friday and Saturday 8:30pm-9:30pm",
+      "source": "https://www.cowboysorlando.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ0dm17kix2YgRoDAy8rxLOjU",
+   "name": "Sunny\u2019s Steakhouse",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "steak_house",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://sunnysmia.com/",
+     "source_name": "Sunny\u2019s Steakhouse \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Located in Little River and began as Jaguar Sun's response to the pandemic",
+      "Debuted in its permanent iteration in October 2024",
+      "Menu features raw bar selections, wood-fired proteins, steakhouse classics and handmade pastas",
+      "Cocktails include expertly crafted classics, no-ABV options and large-format cocktails"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Little River restaurant with raw bar selections and handmade pastas",
+    "why_here": "Sunny's began as Jaguar Sun's response to the pandemic in Little River and debuted in its permanent iteration in October 2024. The menu features raw bar selections, wood-fired proteins, steakhouse classics and handmade pastas.",
+    "know_before": "The menu features raw bar selections, wood-fired proteins, steakhouse classics and handmade pastas.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://sunnysmia.com/"
+     ],
+     "why_here": [
+      "https://sunnysmia.com/"
+     ],
+     "know_before": [
+      "https://sunnysmia.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Located in Little River and began as Jaguar Sun's response to the pandemic",
+      "source": "https://sunnysmia.com/"
+     },
+     {
+      "claim": "Debuted in its permanent iteration in October 2024",
+      "source": "https://sunnysmia.com/"
+     },
+     {
+      "claim": "Menu features raw bar selections, wood-fired proteins, steakhouse classics and handmade pastas",
+      "source": "https://sunnysmia.com/"
+     },
+     {
+      "claim": "Cocktails include expertly crafted classics, no-ABV options and large-format cocktails",
+      "source": "https://sunnysmia.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJhTVnyvjlwogRLyPZ7HYq45E",
+   "name": "Crumbl",
+   "category": "food",
+   "metro": "st-pete",
+   "primary_type": "bakery",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://crumblcookies.com/",
+     "source_name": "Crumbl \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Crumbl official site says new and returning flavors drop each week",
+      "Crumbl official site offers fresh-baked cookies for delivery, pickup and carryout",
+      "Crumbl official site describes catering with freshly baked cookies and desserts in signature Pink Boxes",
+      "Crumbl official site describes Crumbl Rewards earning Crumbs on every order"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Fresh-baked cookies built around a weekly rotating flavor lineup",
+    "why_here": "Crumbl's official site says new and returning flavors drop each week and lists fresh-baked cookies for delivery, pickup and carryout. It also describes catering in its signature Pink Boxes and a Crumbl Rewards program earning Crumbs on orders.",
+    "know_before": "Official site notes new and returning flavors drop each week, so the lineup changes weekly.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://crumblcookies.com/"
+     ],
+     "why_here": [
+      "https://crumblcookies.com/"
+     ],
+     "know_before": [
+      "https://crumblcookies.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Crumbl official site says new and returning flavors drop each week",
+      "source": "https://crumblcookies.com/"
+     },
+     {
+      "claim": "Crumbl official site offers fresh-baked cookies for delivery, pickup and carryout",
+      "source": "https://crumblcookies.com/"
+     },
+     {
+      "claim": "Crumbl official site describes catering with freshly baked cookies and desserts in signature Pink Boxes",
+      "source": "https://crumblcookies.com/"
+     },
+     {
+      "claim": "Crumbl official site describes Crumbl Rewards earning Crumbs on every order",
+      "source": "https://crumblcookies.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJmd2xKtTrwogRTVGwgnRMw1c",
+   "name": "La Creacion Bakery - Tampa",
+   "category": "food",
+   "metro": "tampa",
+   "primary_type": "bakery",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.lacreacionbakery.com/",
+     "source_name": "La Creacion Bakery - Tampa \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Authentic Puerto Rican bakery in Tampa",
+      "Sobao and Pan de Agua bread recipes are 100% Boricua",
+      "Tampa location is open daily from 7:00 a.m. to 4:00 p.m.",
+      "Site lists the Tampa phone as 813-749-0080"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Authentic Puerto Rican bakery in Tampa with fresh baked goods for families",
+    "why_here": "La Creaci\u00f3n Bakery describes itself as an authentic Puerto Rican bakery in Tampa offering fresh baked goods for your family. Its Sobao and Pan de Agua bread recipes are described on the site as 100% Boricua, showcasing traditional flavors.",
+    "know_before": "The Tampa bakery is open daily from 7:00 a.m. to 4:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.lacreacionbakery.com/"
+     ],
+     "why_here": [
+      "https://www.lacreacionbakery.com/"
+     ],
+     "know_before": [
+      "https://www.lacreacionbakery.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Authentic Puerto Rican bakery in Tampa",
+      "source": "https://www.lacreacionbakery.com/"
+     },
+     {
+      "claim": "Sobao and Pan de Agua bread recipes are 100% Boricua",
+      "source": "https://www.lacreacionbakery.com/"
+     },
+     {
+      "claim": "Tampa location is open daily from 7:00 a.m. to 4:00 p.m.",
+      "source": "https://www.lacreacionbakery.com/"
+     },
+     {
+      "claim": "Site lists the Tampa phone as 813-749-0080",
+      "source": "https://www.lacreacionbakery.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJT3XKMd1Bw4gRvTCc4a27p4I",
+   "name": "E\u014dS Fitness",
+   "category": "attractions",
+   "metro": "manatee-sarasota",
+   "primary_type": "gym",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.eosfitness.com/",
+     "source_name": "E\u014dS Fitness \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "E\u014dS Fitness official site describes premium health and fitness amenities, strength training equipment and expert Personal Training",
+      "E\u014dS Fitness official site lists free weights and Olympic weightlifting platforms among its offerings",
+      "E\u014dS Fitness official site states amenities vary per location",
+      "E\u014dS Fitness official site lists indoor Pools and Basketball Courts, to Saunas and post-workout recovery among amenities at locations offering them"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Full-service gym chain built around strength, cardio and recovery amenities",
+    "why_here": "E\u014dS Fitness official site describes premium health and fitness amenities, strength training equipment and expert Personal Training, plus free weights and Olympic weightlifting platforms. It notes amenities vary per location and lists options such as indoor pools, basketball courts and saunas at locations that offer them.",
+    "know_before": "Official site states amenities vary per location, so check the specific gym before visiting.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.eosfitness.com/"
+     ],
+     "why_here": [
+      "https://www.eosfitness.com/"
+     ],
+     "know_before": [
+      "https://www.eosfitness.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "E\u014dS Fitness official site describes premium health and fitness amenities, strength training equipment and expert Personal Training",
+      "source": "https://www.eosfitness.com/"
+     },
+     {
+      "claim": "E\u014dS Fitness official site lists free weights and Olympic weightlifting platforms among its offerings",
+      "source": "https://www.eosfitness.com/"
+     },
+     {
+      "claim": "E\u014dS Fitness official site states amenities vary per location",
+      "source": "https://www.eosfitness.com/"
+     },
+     {
+      "claim": "E\u014dS Fitness official site lists indoor Pools and Basketball Courts, to Saunas and post-workout recovery among amenities at locations offering them",
+      "source": "https://www.eosfitness.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJzfhztga52YgR0kK8tT5yEoo",
+   "name": "Sushi Cafe & Shilla Korean BBQ",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "korean_barbecue_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://sushicafemiami.com/",
+     "source_name": "Sushi Cafe & Shilla Korean BBQ \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Sushi Cafe opened in summer 2002 across from Mall of the Americas",
+      "Menu spans classic rolls like California and Spicy Tuna plus inventive fusion creations, made with fresh ingredients",
+      "Korean BBQ room lets guests grill their own premium meats at the table, from beef bulgogi to pork belly, with banchan",
+      "Offers dine-in, pick-up and delivery, plus catering services"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Tabletop Korean BBQ meets fresh sushi \u2014 grill bulgogi at your table or order classic rolls",
+    "why_here": "Opened in summer 2002 across from Mall of the Americas, Sushi Cafe pairs freshly prepared sushi \u2014 from California and Spicy Tuna rolls to fusion creations \u2014 with an interactive Korean BBQ room where guests grill premium meats at their table with traditional banchan.",
+    "know_before": "The Korean BBQ experience is interactive: guests grill their own selection of premium meats right at their table, per the official site.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://sushicafemiami.com/"
+     ],
+     "why_here": [
+      "https://sushicafemiami.com/"
+     ],
+     "know_before": [
+      "https://sushicafemiami.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Sushi Cafe opened in summer 2002 across from Mall of the Americas",
+      "source": "https://sushicafemiami.com/"
+     },
+     {
+      "claim": "Menu spans classic rolls like California and Spicy Tuna plus inventive fusion creations, made with fresh ingredients",
+      "source": "https://sushicafemiami.com/"
+     },
+     {
+      "claim": "Korean BBQ room lets guests grill their own premium meats at the table, from beef bulgogi to pork belly, with banchan",
+      "source": "https://sushicafemiami.com/"
+     },
+     {
+      "claim": "Offers dine-in, pick-up and delivery, plus catering services",
+      "source": "https://sushicafemiami.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJUXEvxMXWwogRhpduXbaJNv0",
+   "name": "Crunch Fitness - Riverview",
+   "category": "attractions",
+   "metro": "tampa",
+   "primary_type": "gym",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.crunch.com/locations/riverview",
+     "source_name": "Crunch Fitness - Riverview \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "HIITZone is a proprietary functional training space with high-intensity team-based classes",
+      "Offers group fitness classes, Ride classes and personal training",
+      "Relax & Recover amenities include HydroMassage, tanning, saunas and steam rooms",
+      "Operates on a No Judgments philosophy"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "HIITZone team training, Ride classes and HydroMassage recovery in one club",
+    "why_here": "Crunch Riverview combines strength and cardio equipment with group fitness classes, the HIITZone functional training space and personal training. Relax & Recover options include HydroMassage, sauna and steam rooms, under a No Judgments philosophy.",
+    "know_before": "A free trial and flexible membership options are listed on the official location page, with online class reservations available.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.crunch.com/locations/riverview"
+     ],
+     "why_here": [
+      "https://www.crunch.com/locations/riverview"
+     ],
+     "know_before": [
+      "https://www.crunch.com/locations/riverview"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "HIITZone is a proprietary functional training space with high-intensity team-based classes",
+      "source": "https://www.crunch.com/locations/riverview"
+     },
+     {
+      "claim": "Offers group fitness classes, Ride classes and personal training",
+      "source": "https://www.crunch.com/locations/riverview"
+     },
+     {
+      "claim": "Relax & Recover amenities include HydroMassage, tanning, saunas and steam rooms",
+      "source": "https://www.crunch.com/locations/riverview"
+     },
+     {
+      "claim": "Operates on a No Judgments philosophy",
+      "source": "https://www.crunch.com/locations/riverview"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJn2-vrp4H2YgRSFU-Ioba8Zw",
+   "name": "Smoothie Spot Restaurant | Davie | Healthy Breakfast",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://smoothiespotmiami.com/",
+     "source_name": "Smoothie Spot Restaurant | Davie | Healthy Breakfast \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Healthy Honest Kitchen avoids frying oils, focusing instead on fresh, high-quality ingredients",
+      "Breakfast, bowls, wraps & more - made fresh with ingredients you can trust",
+      "Davie location is listed on the official site",
+      "FREE DELIVERY up to 5 miles, on orders above $30",
+      "First location opened in 2012"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Healthy Honest Kitchen with breakfast, bowls and wraps made fresh",
+    "why_here": "At Smoothie Spot, the Healthy Honest Kitchen mantra reflects a dedication to true health, avoiding frying oils and focusing on fresh, high-quality ingredients. The Davie location is listed on the official site among its locations, with ordering available online.",
+    "know_before": "FREE DELIVERY is offered up to 5 miles on orders above $30 per the official site - check the site for current terms before ordering.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://smoothiespotmiami.com/"
+     ],
+     "why_here": [
+      "https://smoothiespotmiami.com/"
+     ],
+     "know_before": [
+      "https://smoothiespotmiami.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Healthy Honest Kitchen avoids frying oils, focusing instead on fresh, high-quality ingredients",
+      "source": "https://smoothiespotmiami.com/"
+     },
+     {
+      "claim": "Breakfast, bowls, wraps & more - made fresh with ingredients you can trust",
+      "source": "https://smoothiespotmiami.com/"
+     },
+     {
+      "claim": "Davie location is listed on the official site",
+      "source": "https://smoothiespotmiami.com/"
+     },
+     {
+      "claim": "FREE DELIVERY up to 5 miles, on orders above $30",
+      "source": "https://smoothiespotmiami.com/"
+     },
+     {
+      "claim": "First location opened in 2012",
+      "source": "https://smoothiespotmiami.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJvfGRma8B2YgRkPxJweV_G5Q",
+   "name": "ethos Greek Bistro",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.ethosbistro.com/",
+     "source_name": "ethos Greek Bistro \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Cooking style is based on the Greek Islands, specifically Crete, birthplace of the Mediterranean diet",
+      "Dishes derive from family recipes passed down through generations, served with a modern take",
+      "Meze-style plating features appetizer-like courses meant to be sampled and shared",
+      "Vegan, vegetarian and gluten-free options are available; serves brunch, lunch and dinner"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Cretan-rooted Greek cooking in meze style \u2014 family recipes modernized for sharing",
+    "why_here": "Ethos Greek Bistro serves a modern take on family recipes rooted in the Greek island of Crete, birthplace of the Mediterranean diet, with light, largely vegetarian and seafood-based dishes, meze-style plating meant for sharing, and vegan, vegetarian and gluten-free options across brunch, lunch and dinner.",
+    "know_before": "The official site says meze-style plating is best when sampled by all \u2014 dishes are designed to be shared across the table.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.ethosbistro.com/"
+     ],
+     "why_here": [
+      "https://www.ethosbistro.com/"
+     ],
+     "know_before": [
+      "https://www.ethosbistro.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Cooking style is based on the Greek Islands, specifically Crete, birthplace of the Mediterranean diet",
+      "source": "https://www.ethosbistro.com/"
+     },
+     {
+      "claim": "Dishes derive from family recipes passed down through generations, served with a modern take",
+      "source": "https://www.ethosbistro.com/"
+     },
+     {
+      "claim": "Meze-style plating features appetizer-like courses meant to be sampled and shared",
+      "source": "https://www.ethosbistro.com/"
+     },
+     {
+      "claim": "Vegan, vegetarian and gluten-free options are available; serves brunch, lunch and dinner",
+      "source": "https://www.ethosbistro.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJXzdzqUJ73YgRu8cNU9UzMCc",
+   "name": "Adlers",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "hamburger_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.adlersburgers.com/menu",
+     "source_name": "Adlers \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The menu lists burgers including the Classic, Twitty and Bad Hombre",
+      "Locations include Davenport and Winter Haven, plus a food truck",
+      "Davenport and Winter Haven hours are 11:00 a.m. \u2014 8:00 p.m.",
+      "All prices listed include tax"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Burgers including the Twitty and Bad Hombre in Davenport and Winter Haven",
+    "why_here": "Adlers serves burgers including the Classic, the Twitty and the Bad Hombre, alongside small bites and wings. The menu lists brick-and-mortar locations in Davenport and Winter Haven, plus a food truck, for guests in both communities.",
+    "know_before": "Davenport and Winter Haven hours are listed as 11:00 a.m. \u2014 8:00 p.m., and all prices listed include tax.",
+    "local_tip": "For the food truck, check the social media links on the official site for details.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.adlersburgers.com/menu"
+     ],
+     "why_here": [
+      "https://www.adlersburgers.com/menu"
+     ],
+     "know_before": [
+      "https://www.adlersburgers.com/menu"
+     ],
+     "local_tip": [
+      "https://www.adlersburgers.com/menu"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The menu lists burgers including the Classic, Twitty and Bad Hombre",
+      "source": "https://www.adlersburgers.com/menu"
+     },
+     {
+      "claim": "Locations include Davenport and Winter Haven, plus a food truck",
+      "source": "https://www.adlersburgers.com/menu"
+     },
+     {
+      "claim": "Davenport and Winter Haven hours are 11:00 a.m. \u2014 8:00 p.m.",
+      "source": "https://www.adlersburgers.com/menu"
+     },
+     {
+      "claim": "All prices listed include tax",
+      "source": "https://www.adlersburgers.com/menu"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJs7AuR4a52YgRT1m7ya5OUy8",
+   "name": "Tap 42 Craft Kitchen & Bar - Doral",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://tap42.com/locations/doral/",
+     "source_name": "Tap 42 Craft Kitchen & Bar - Doral \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Has been part of the neighborhood since September 2019",
+      "Weekday lunch starts at 11:30 a.m. with burgers like The Prohibition and The Big Smash, plus bowls and sushi",
+      "Runs Monday Night Burger Bash and Wine Wednesday weekly specials",
+      "Dishes that are gluten-free, vegetarian or vegan are marked with icons on the menu"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Has been part of the neighborhood since September 2019",
+    "why_here": "Has been part of the neighborhood since September 2019 Weekday lunch starts at 11:30 a.m. with burgers like The Prohibition and The Big Smash, plus bowls and sushi",
+    "know_before": "Weekday lunch starts at 11:30 a.m., with burgers like The Prohibition and The Big Smash, plus bowls and sushi.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://tap42.com/locations/doral/"
+     ],
+     "why_here": [
+      "https://tap42.com/locations/doral/"
+     ],
+     "know_before": [
+      "https://tap42.com/locations/doral/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Has been part of the neighborhood since September 2019",
+      "source": "https://tap42.com/locations/doral/"
+     },
+     {
+      "claim": "Weekday lunch starts at 11:30 a.m. with burgers like The Prohibition and The Big Smash, plus bowls and sushi",
+      "source": "https://tap42.com/locations/doral/"
+     },
+     {
+      "claim": "Runs Monday Night Burger Bash and Wine Wednesday weekly specials",
+      "source": "https://tap42.com/locations/doral/"
+     },
+     {
+      "claim": "Dishes that are gluten-free, vegetarian or vegan are marked with icons on the menu",
+      "source": "https://tap42.com/locations/doral/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJZ3UQHapJ5IgRFnjhPSuiuHU",
+   "name": "Four Points by Sheraton Jacksonville Beachfront",
+   "category": "hotels",
+   "metro": "florida",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.marriott.com/en-us/hotels/jaxbf-four-points-by-sheraton-jacksonville-beachfront/overview/",
+     "source_name": "Four Points by Sheraton Jacksonville Beachfront \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Located on the beach and Jacksonville Beach boardwalk",
+      "All-suite hotel on Jacksonville Beach",
+      "Amenities include an outdoor heated pool",
+      "For fitness and recreation, the property features Outdoor Pool, Hot Tub, and Fitness Center"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Located on the beach and Jacksonville Beach boardwalk",
+    "why_here": "This all-suite hotel is located on the beach and Jacksonville Beach boardwalk, with an outdoor heated pool for guests. For fitness and recreation, the property features an outdoor pool, hot tub and fitness center.",
+    "know_before": "For fitness and recreation, the property features an outdoor pool, hot tub and fitness center.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.marriott.com/en-us/hotels/jaxbf-four-points-by-sheraton-jacksonville-beachfront/overview/"
+     ],
+     "why_here": [
+      "https://www.marriott.com/en-us/hotels/jaxbf-four-points-by-sheraton-jacksonville-beachfront/overview/"
+     ],
+     "know_before": [
+      "https://www.marriott.com/en-us/hotels/jaxbf-four-points-by-sheraton-jacksonville-beachfront/overview/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Located on the beach and Jacksonville Beach boardwalk",
+      "source": "https://www.marriott.com/en-us/hotels/jaxbf-four-points-by-sheraton-jacksonville-beachfront/overview/"
+     },
+     {
+      "claim": "All-suite hotel on Jacksonville Beach",
+      "source": "https://www.marriott.com/en-us/hotels/jaxbf-four-points-by-sheraton-jacksonville-beachfront/overview/"
+     },
+     {
+      "claim": "Amenities include an outdoor heated pool",
+      "source": "https://www.marriott.com/en-us/hotels/jaxbf-four-points-by-sheraton-jacksonville-beachfront/overview/"
+     },
+     {
+      "claim": "For fitness and recreation, the property features Outdoor Pool, Hot Tub, and Fitness Center",
+      "source": "https://www.marriott.com/en-us/hotels/jaxbf-four-points-by-sheraton-jacksonville-beachfront/overview/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJNUPqTsen2YgRhWXIT7btLUg",
+   "name": "E41 - Embarcadero 41 Pembroke Pines",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "peruvian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.embarcadero41.us/",
+     "source_name": "E41 - Embarcadero 41 Pembroke Pines \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Embarcadero 41 is a Peruvian Nikkei Fusion restaurant",
+      "Combines the ingredients of traditional Peruvian cuisine with new flavors and techniques so you can enjoy unique dishes",
+      "Cuisine is based on the evolution of Peruvian gastronomy",
+      "Pembroke Pines is listed among its locations on the official site"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Peruvian Nikkei Fusion combining traditional Peruvian cuisine with new flavors and techniques",
+    "why_here": "Embarcadero 41 - USA is a Peruvian Nikkei Fusion restaurant that combines the ingredients of traditional Peruvian cuisine with new flavors and techniques so you can enjoy unique dishes. Its cuisine is based on the evolution of Peruvian gastronomy.",
+    "know_before": "Embarcadero 41 is a Peruvian Nikkei Fusion restaurant",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.embarcadero41.us/"
+     ],
+     "why_here": [
+      "https://www.embarcadero41.us/"
+     ],
+     "know_before": [
+      "https://www.embarcadero41.us/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Embarcadero 41 is a Peruvian Nikkei Fusion restaurant",
+      "source": "https://www.embarcadero41.us/"
+     },
+     {
+      "claim": "Combines the ingredients of traditional Peruvian cuisine with new flavors and techniques so you can enjoy unique dishes",
+      "source": "https://www.embarcadero41.us/"
+     },
+     {
+      "claim": "Cuisine is based on the evolution of Peruvian gastronomy",
+      "source": "https://www.embarcadero41.us/"
+     },
+     {
+      "claim": "Pembroke Pines is listed among its locations on the official site",
+      "source": "https://www.embarcadero41.us/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ65_JWdit2YgR_Jckch6ILto",
+   "name": "Abbal\u00e9 Modern Mediterranean Kitchen - Aventura",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "mediterranean_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://abbaletlv.com/",
+     "source_name": "Abbal\u00e9 Modern Mediterranean Kitchen - Aventura \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Abbal\u00e9 is a modern Mediterranean kitchen",
+      "Every dish is made from scratch in a seed oil-free kitchen",
+      "Dishes are finished with premium extra virgin olive oil",
+      "Locations are listed in Aventura and South Beach"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Modern Mediterranean kitchen where every dish is made from scratch, seed oil-free",
+    "why_here": "Abbal\u00e9 is a modern Mediterranean kitchen where every dish is made from scratch in a seed oil-free kitchen, with thoughtfully sourced ingredients. The kitchen says food brings people together and invites guests to gather, share and experience hospitality.",
+    "know_before": "The official site offers reservations and online ordering, and lists locations in Aventura and South Beach.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://abbaletlv.com/"
+     ],
+     "why_here": [
+      "https://abbaletlv.com/"
+     ],
+     "know_before": [
+      "https://abbaletlv.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Abbal\u00e9 is a modern Mediterranean kitchen",
+      "source": "https://abbaletlv.com/"
+     },
+     {
+      "claim": "Every dish is made from scratch in a seed oil-free kitchen",
+      "source": "https://abbaletlv.com/"
+     },
+     {
+      "claim": "Dishes are finished with premium extra virgin olive oil",
+      "source": "https://abbaletlv.com/"
+     },
+     {
+      "claim": "Locations are listed in Aventura and South Beach",
+      "source": "https://abbaletlv.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ2T8u5X1qw4gRWKGd_cSXX9Q",
+   "name": "South Lido County Park",
+   "category": "attractions",
+   "metro": "manatee-sarasota",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.sarasotacountyparks.com/Home/Components/FacilityDirectory/FacilityDirectory/788/6738?npage=7",
+     "source_name": "South Lido County Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The park is listed by Sarasota County for birding",
+      "Kayakers and paddle-boarders explore water trails through mangrove tunnels here",
+      "Motorized vessels are not allowed to launch from this site"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Birding and mangrove-tunnel paddling on water trails",
+    "why_here": "Sarasota County lists this park for birding and says its nature-park section is popular with kayakers and paddle-boarders exploring water trails through mangrove tunnels. Motorized vessels are not allowed to launch from this site.",
+    "know_before": "Motorized vessels are not allowed to launch from this site, per Sarasota County.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.sarasotacountyparks.com/Home/Components/FacilityDirectory/FacilityDirectory/788/6738?npage=7"
+     ],
+     "why_here": [
+      "https://www.sarasotacountyparks.com/Home/Components/FacilityDirectory/FacilityDirectory/788/6738?npage=7"
+     ],
+     "know_before": [
+      "https://www.sarasotacountyparks.com/Home/Components/FacilityDirectory/FacilityDirectory/788/6738?npage=7"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The park is listed by Sarasota County for birding",
+      "source": "https://www.sarasotacountyparks.com/Home/Components/FacilityDirectory/FacilityDirectory/788/6738?npage=7"
+     },
+     {
+      "claim": "Kayakers and paddle-boarders explore water trails through mangrove tunnels here",
+      "source": "https://www.sarasotacountyparks.com/Home/Components/FacilityDirectory/FacilityDirectory/788/6738?npage=7"
+     },
+     {
+      "claim": "Motorized vessels are not allowed to launch from this site",
+      "source": "https://www.sarasotacountyparks.com/Home/Components/FacilityDirectory/FacilityDirectory/788/6738?npage=7"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJq_iYx1W05YgReAtW0PMz7yY",
+   "name": "Bold Bean Coffee Roasters - Riverside",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "coffee_shop",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://boldbeancoffee.com/pages/visit-us",
+     "source_name": "Bold Bean Coffee Roasters - Riverside \u2014 official source",
+     "source_class": "tourism_dmo",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "First caf\u00e9 opened in December 2011 in Jacksonville's Riverside neighborhood",
+      "Riverside weekday hours are from 6:30 a.m. to 7:00 p.m.",
+      "Riverside weekend hours are from 7:00 a.m. to 7:00 p.m.",
+      "Jacksonville roastery houses QC and training labs alongside production and offices"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Bold Bean's first caf\u00e9, opened in Jacksonville's Riverside neighborhood in December 2011",
+    "why_here": "Bold Bean says it opened its first caf\u00e9 in December 2011 in Jacksonville's Riverside neighborhood, among breweries, restaurants, bars and galleries. It describes Riverside as a cohesive, community-focused atmosphere where the caf\u00e9 felt right at home.",
+    "know_before": "Riverside hours are weekdays from 6:30 a.m. to 7:00 p.m. and weekends from 7:00 a.m. to 7:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://boldbeancoffee.com/pages/visit-us"
+     ],
+     "why_here": [
+      "https://boldbeancoffee.com/pages/visit-us"
+     ],
+     "know_before": [
+      "https://boldbeancoffee.com/pages/visit-us"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "First caf\u00e9 opened in December 2011 in Jacksonville's Riverside neighborhood",
+      "source": "https://boldbeancoffee.com/pages/visit-us"
+     },
+     {
+      "claim": "Riverside weekday hours are from 6:30 a.m. to 7:00 p.m.",
+      "source": "https://boldbeancoffee.com/pages/visit-us"
+     },
+     {
+      "claim": "Riverside weekend hours are from 7:00 a.m. to 7:00 p.m.",
+      "source": "https://boldbeancoffee.com/pages/visit-us"
+     },
+     {
+      "claim": "Jacksonville roastery houses QC and training labs alongside production and offices",
+      "source": "https://boldbeancoffee.com/pages/visit-us"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJczgwqH615YgRx33ldbtjG1A",
+   "name": "Aloft by Marriott Jacksonville Tapestry Park",
+   "category": "hotels",
+   "metro": "florida",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.marriott.com/en-us/hotels/jaxtl-aloft-jacksonville-tapestry-park/overview/",
+     "source_name": "Aloft by Marriott Jacksonville Tapestry Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Near the St. Johns Town Center",
+      "Guests can relax in a heated outdoor saltwater pool",
+      "Property features a fitness center",
+      "On-site w xyz bar"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Modern hotel near St. Johns Town Center with a heated outdoor saltwater pool",
+    "why_here": "Aloft Jacksonville Tapestry Park offers a unique style and modern atmosphere near the St. Johns Town Center. Guests can relax in the heated outdoor saltwater pool, use the fitness center, or unwind at the w xyz bar.",
+    "know_before": "Guests can relax in the heated outdoor saltwater pool or work up a sweat in the fitness center.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.marriott.com/en-us/hotels/jaxtl-aloft-jacksonville-tapestry-park/overview/"
+     ],
+     "why_here": [
+      "https://www.marriott.com/en-us/hotels/jaxtl-aloft-jacksonville-tapestry-park/overview/"
+     ],
+     "know_before": [
+      "https://www.marriott.com/en-us/hotels/jaxtl-aloft-jacksonville-tapestry-park/overview/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Near the St. Johns Town Center",
+      "source": "https://www.marriott.com/en-us/hotels/jaxtl-aloft-jacksonville-tapestry-park/overview/"
+     },
+     {
+      "claim": "Guests can relax in a heated outdoor saltwater pool",
+      "source": "https://www.marriott.com/en-us/hotels/jaxtl-aloft-jacksonville-tapestry-park/overview/"
+     },
+     {
+      "claim": "Property features a fitness center",
+      "source": "https://www.marriott.com/en-us/hotels/jaxtl-aloft-jacksonville-tapestry-park/overview/"
+     },
+     {
+      "claim": "On-site w xyz bar",
+      "source": "https://www.marriott.com/en-us/hotels/jaxtl-aloft-jacksonville-tapestry-park/overview/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJXYDQm3rhwogRqfXTLg-UfjM",
+   "name": "Burger Monger",
+   "category": "food",
+   "metro": "st-pete",
+   "primary_type": "hamburger_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://burgermonger.com/",
+     "source_name": "Burger Monger \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Uses farm-fresh ingredients and handcrafted patties on artisan buns",
+      "Chicken Monger comes with lettuce, tomato, onion and honey mustard",
+      "Offers the Impossible Burger served on your choice of bun and toppings",
+      "Mission is to create the best burger you have ever had"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Uses farm-fresh ingredients and handcrafted patties on artisan buns",
+    "why_here": "At Burger Monger, burgers are made from farm-fresh ingredients to artisan buns and handcrafted patties, with a mission to create the best burger you have ever had. From farm-fresh ingredients to artisan buns and handcrafted patties, every bite tells a story of quality, flavor, and dedication.",
+    "know_before": "Uses farm-fresh ingredients and handcrafted patties on artisan buns",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://burgermonger.com/"
+     ],
+     "why_here": [
+      "https://burgermonger.com/"
+     ],
+     "know_before": [
+      "https://burgermonger.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Uses farm-fresh ingredients and handcrafted patties on artisan buns",
+      "source": "https://burgermonger.com/"
+     },
+     {
+      "claim": "Chicken Monger comes with lettuce, tomato, onion and honey mustard",
+      "source": "https://burgermonger.com/"
+     },
+     {
+      "claim": "Offers the Impossible Burger served on your choice of bun and toppings",
+      "source": "https://burgermonger.com/"
+     },
+     {
+      "claim": "Mission is to create the best burger you have ever had",
+      "source": "https://burgermonger.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJadaygN6x2YgRsCcueNDVNxI",
+   "name": "{petite} maman",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "coffee_shop",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://mamannyc.com/locations/design-district",
+     "source_name": "{petite} maman \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "This is the first {petite} maman in Florida",
+      "It is located in Palm Court in Miami's Design District",
+      "It offers an exclusive press\u00e9e sandwich menu",
+      "It offers pick up, delivery, and indoor and outdoor dining"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "First {petite} maman in Florida, in Palm Court in Miami's Design District",
+    "why_here": "This is the first {petite} maman in Florida, located in Palm Court in Miami's Design District. It offers an exclusive press\u00e9e sandwich menu and beverage favorites, giving guests a taste of the maman experience on the go.",
+    "know_before": "This is the first {petite} maman in Florida",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://mamannyc.com/locations/design-district"
+     ],
+     "why_here": [
+      "https://mamannyc.com/locations/design-district"
+     ],
+     "know_before": [
+      "https://mamannyc.com/locations/design-district"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "This is the first {petite} maman in Florida",
+      "source": "https://mamannyc.com/locations/design-district"
+     },
+     {
+      "claim": "It is located in Palm Court in Miami's Design District",
+      "source": "https://mamannyc.com/locations/design-district"
+     },
+     {
+      "claim": "It offers an exclusive press\u00e9e sandwich menu",
+      "source": "https://mamannyc.com/locations/design-district"
+     },
+     {
+      "claim": "It offers pick up, delivery, and indoor and outdoor dining",
+      "source": "https://mamannyc.com/locations/design-district"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJVae0nmqz2YgRLsvGCT_ykdo",
+   "name": "Mid Beach Park",
+   "category": "beach",
+   "metro": "miami-dade",
+   "primary_type": "beach",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.miamibeachfl.gov/city-hall/parks-and-recreation/parks-facilities-directory/mid-beach-park/",
+     "source_name": "Mid Beach Park \u2014 official source",
+     "source_class": "government",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Mid Beach Park provides beach access at 46 Street and Collins Avenue",
+      "Its playground for ages 5-12 has two nautically themed play areas shaded by triangular canopies",
+      "The playground features a lighthouse, rope activities and beach-themed climbers",
+      "Parking spaces are available on site"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Beach-access park with two nautically themed, shaded play areas and a lighthouse climber",
+    "why_here": "Miami Beach lists Mid Beach Park at 46 Street and Collins Avenue with beach access, on-site parking, and a fenced playground for ages 5-12 featuring two nautically themed play areas shaded by triangular canopies.",
+    "know_before": "Parking spaces are available on site, and accessible restrooms are located adjacent to the play area.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.miamibeachfl.gov/city-hall/parks-and-recreation/parks-facilities-directory/mid-beach-park/"
+     ],
+     "why_here": [
+      "https://www.miamibeachfl.gov/city-hall/parks-and-recreation/parks-facilities-directory/mid-beach-park/"
+     ],
+     "know_before": [
+      "https://www.miamibeachfl.gov/city-hall/parks-and-recreation/parks-facilities-directory/mid-beach-park/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Mid Beach Park provides beach access at 46 Street and Collins Avenue",
+      "source": "https://www.miamibeachfl.gov/city-hall/parks-and-recreation/parks-facilities-directory/mid-beach-park/"
+     },
+     {
+      "claim": "Its playground for ages 5-12 has two nautically themed play areas shaded by triangular canopies",
+      "source": "https://www.miamibeachfl.gov/city-hall/parks-and-recreation/parks-facilities-directory/mid-beach-park/"
+     },
+     {
+      "claim": "The playground features a lighthouse, rope activities and beach-themed climbers",
+      "source": "https://www.miamibeachfl.gov/city-hall/parks-and-recreation/parks-facilities-directory/mid-beach-park/"
+     },
+     {
+      "claim": "Parking spaces are available on site",
+      "source": "https://www.miamibeachfl.gov/city-hall/parks-and-recreation/parks-facilities-directory/mid-beach-park/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJvXPy785654gROKOU-I6_8jQ",
+   "name": "IL Pescatore",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "italian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://ilpescatoreonline.com/",
+     "source_name": "IL Pescatore \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Il Pescatore means The Fisherman",
+      "Orlando Italian restaurant serving generous portions with freshly baked bread",
+      "Rich sauces simmered all day",
+      "Closed on Sunday"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Orlando Italian restaurant whose name means The Fisherman, with freshly baked bread",
+    "why_here": "Il Pescatore in Orlando says its goal is a true Italian dining experience with generous portions, freshly baked bread and rich sauces simmered all day. The restaurant says it welcomes guests as part of its family over great food with excellent service.",
+    "know_before": "Il Pescatore means The Fisherman",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://ilpescatoreonline.com/"
+     ],
+     "why_here": [
+      "https://ilpescatoreonline.com/"
+     ],
+     "know_before": [
+      "https://ilpescatoreonline.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Il Pescatore means The Fisherman",
+      "source": "https://ilpescatoreonline.com/"
+     },
+     {
+      "claim": "Orlando Italian restaurant serving generous portions with freshly baked bread",
+      "source": "https://ilpescatoreonline.com/"
+     },
+     {
+      "claim": "Rich sauces simmered all day",
+      "source": "https://ilpescatoreonline.com/"
+     },
+     {
+      "claim": "Closed on Sunday",
+      "source": "https://ilpescatoreonline.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJU_ZJ4879wogRCwYV5UoLEbo",
+   "name": "82 Degrees Bar - Grill",
+   "category": "nightlife",
+   "metro": "st-pete",
+   "primary_type": "bar_and_grill",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.thesainthotelfl.com/82degrees",
+     "source_name": "82 Degrees Bar - Grill \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Provides fresh Southern coastal cuisine with locally sourced produce and seasonal specials",
+      "Name 82 Degrees stems from the average daily temperature in St Pete Beach",
+      "Offers craft cocktails, fine wine and local beer with alfresco dining options"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Fresh Southern coastal cuisine with locally sourced produce and seasonal specials",
+    "why_here": "82 Degrees provides fresh Southern coastal cuisine with locally sourced produce and seasonal specials. The name stems from the average daily temperature in St Pete Beach.",
+    "know_before": "Alfresco dining is available, with craft cocktails, fine wine and local beer offered.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.thesainthotelfl.com/82degrees"
+     ],
+     "why_here": [
+      "https://www.thesainthotelfl.com/82degrees"
+     ],
+     "know_before": [
+      "https://www.thesainthotelfl.com/82degrees"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Provides fresh Southern coastal cuisine with locally sourced produce and seasonal specials",
+      "source": "https://www.thesainthotelfl.com/82degrees"
+     },
+     {
+      "claim": "Name 82 Degrees stems from the average daily temperature in St Pete Beach",
+      "source": "https://www.thesainthotelfl.com/82degrees"
+     },
+     {
+      "claim": "Offers craft cocktails, fine wine and local beer with alfresco dining options",
+      "source": "https://www.thesainthotelfl.com/82degrees"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJR3pf5GYA2YgRbOBze5iWwI8",
+   "name": "KUBO Asian fusion and bar -Ft. lauderdale",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "asian_fusion_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.kuboasianstreetfood.com/",
+     "source_name": "KUBO Asian fusion and bar -Ft. lauderdale \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Kubo serves Japanese, Thai, and Filipino cuisine and other types of Asian fusion in Fort Lauderdale",
+      "Kubo is described as an Asian fusion cafe serving sushi, street food, ramen and more",
+      "Desserts include croffle, a popular item in south Korea, and BOBA tea is described as a must",
+      "Now available for carry out or delivery"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Japanese, Thai and Filipino street-food fusion with sushi and ramen",
+    "why_here": "KUBO describes itself as an Asian fusion cafe serving sushi, street food and ramen, with Japanese, Thai and Filipino cuisine in Fort Lauderdale. The site singles out croffle, a popular item in South Korea, and says BOBA tea is a must.",
+    "know_before": "KUBO is now available for carry out or delivery to your door, per its official site.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.kuboasianstreetfood.com/"
+     ],
+     "why_here": [
+      "https://www.kuboasianstreetfood.com/"
+     ],
+     "know_before": [
+      "https://www.kuboasianstreetfood.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Kubo serves Japanese, Thai, and Filipino cuisine and other types of Asian fusion in Fort Lauderdale",
+      "source": "https://www.kuboasianstreetfood.com/"
+     },
+     {
+      "claim": "Kubo is described as an Asian fusion cafe serving sushi, street food, ramen and more",
+      "source": "https://www.kuboasianstreetfood.com/"
+     },
+     {
+      "claim": "Desserts include croffle, a popular item in south Korea, and BOBA tea is described as a must",
+      "source": "https://www.kuboasianstreetfood.com/"
+     },
+     {
+      "claim": "Now available for carry out or delivery",
+      "source": "https://www.kuboasianstreetfood.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJP_TMP1ex2YgR4S9TDvJAO2M",
+   "name": "Institute of Contemporary Art, Miami",
+   "category": "attractions",
+   "metro": "miami-dade",
+   "primary_type": "art_museum",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://icamiami.org/about/",
+     "source_name": "Institute of Contemporary Art, Miami \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "ICA Miami is dedicated to promoting continuous experimentation in contemporary art, advancing new scholarship, and fostering exchange of art and ideas",
+      "The museum offers year-round free admission and is deeply committed to open, public access"
+     ]
+    },
+    {
+     "source": "https://icamiami.org/",
+     "source_name": "Institute of Contemporary Art, Miami \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Admission is free of charge Wed-Sun 11 AM-6 PM"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Free-admission contemporary art museum championing local, emerging and under-recognized artists",
+    "why_here": "ICA Miami says it is dedicated to promoting continuous experimentation in contemporary art and providing an international platform for local, emerging and under-recognized artists. The museum states it offers year-round free admission.",
+    "know_before": "Admission is free of charge Wed-Sun 11 AM-6 PM per the official site",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://icamiami.org/about/"
+     ],
+     "why_here": [
+      "https://icamiami.org/about/"
+     ],
+     "know_before": [
+      "https://icamiami.org/about/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "ICA Miami is dedicated to promoting continuous experimentation in contemporary art, advancing new scholarship, and fostering exchange of art and ideas",
+      "source": "https://icamiami.org/about/"
+     },
+     {
+      "claim": "The museum offers year-round free admission and is deeply committed to open, public access",
+      "source": "https://icamiami.org/about/"
+     },
+     {
+      "claim": "Admission is free of charge Wed-Sun 11 AM-6 PM",
+      "source": "https://icamiami.org/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ8Xq9kCfa5ogRuhd0PjPI8Qk",
+   "name": "McK's Tavern",
+   "category": "nightlife",
+   "metro": "florida",
+   "primary_type": "brewpub",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.mckstavernandbrewery.com/",
+     "source_name": "McK's Tavern \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "McK's has 42 beers on tap and about 175 in bottle",
+      "Official site lists phone (386) 238-3321",
+      "Site links to menus, daily specials and what's in the tank"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "McK's has 42 beers on tap and about 175 in bottle",
+    "why_here": "McK's has 42 beers on tap and about 175 in bottle Official site lists phone (386) 238-3321 Site links to menus, daily specials and what's in the tank",
+    "know_before": "McK's lists phone (386) 238-3321 and offers online ordering through its official site.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.mckstavernandbrewery.com/"
+     ],
+     "why_here": [
+      "https://www.mckstavernandbrewery.com/"
+     ],
+     "know_before": [
+      "https://www.mckstavernandbrewery.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "McK's has 42 beers on tap and about 175 in bottle",
+      "source": "https://www.mckstavernandbrewery.com/"
+     },
+     {
+      "claim": "Official site lists phone (386) 238-3321",
+      "source": "https://www.mckstavernandbrewery.com/"
+     },
+     {
+      "claim": "Site links to menus, daily specials and what's in the tank",
+      "source": "https://www.mckstavernandbrewery.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJpX2t2-AXw4gRsUxHGrnwBfM",
+   "name": "The Clam House Bar & Grill",
+   "category": "nightlife",
+   "metro": "manatee-sarasota",
+   "primary_type": "bar_and_grill",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://clamhousesushibar.com/",
+     "source_name": "The Clam House Bar & Grill \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "First opened in 2011 by a family of commercial fishermen",
+      "Menu is dedicated to sushi and sashimi, appetizers, fish dishes, seafood platters and seafood combos",
+      "Famous dish is a whole fish dusted with special seasoning and golden fried",
+      "Dinner hours are Monday to Saturday from 5:00 p.m. to 9:00 p.m., closed Sunday"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Seafood house first opened in 2011 by a family of commercial fishermen",
+    "why_here": "The Clam House was first opened in 2011 by a family of commercial fishermen who made fresh and local seafood a staple. Its famous dish is a whole fish dusted with special seasoning and golden fried, cut into bite-size pieces.",
+    "know_before": "Dinner is served Monday to Saturday from 5:00 p.m. to 9:00 p.m.; the restaurant is closed on Sunday.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://clamhousesushibar.com/"
+     ],
+     "why_here": [
+      "https://clamhousesushibar.com/"
+     ],
+     "know_before": [
+      "https://clamhousesushibar.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "First opened in 2011 by a family of commercial fishermen",
+      "source": "https://clamhousesushibar.com/"
+     },
+     {
+      "claim": "Menu is dedicated to sushi and sashimi, appetizers, fish dishes, seafood platters and seafood combos",
+      "source": "https://clamhousesushibar.com/"
+     },
+     {
+      "claim": "Famous dish is a whole fish dusted with special seasoning and golden fried",
+      "source": "https://clamhousesushibar.com/"
+     },
+     {
+      "claim": "Dinner hours are Monday to Saturday from 5:00 p.m. to 9:00 p.m., closed Sunday",
+      "source": "https://clamhousesushibar.com/"
+     }
+    ]
+   }
+  }
+ ]
+}

@@ -28,6 +28,7 @@ import {
   fallGuideRegion,
   findFallGuideEvent,
 } from "../../../lib/floridaFallGuide2026";
+import { styleHtml } from "../../../lib/styleHtml.js";
 
 // v2026-09-22 — moved onto the shared GuideMapExplorer (map + house-card
 // rail + category filters), the SAME component every guide with >=3 mappable
@@ -990,7 +991,7 @@ export default async function FloridaFallGuide() {
   }
   return (
     <main className={styles.page}>
-      <style dangerouslySetInnerHTML={{ __html: WF_PLACE_CARD_CSS }} />
+      <style dangerouslySetInnerHTML={styleHtml(WF_PLACE_CARD_CSS)} />
       <SeasonalSearchNav hubs={seasonalHubsForGuide("florida-fall-festivals-2026")} />
       <GuideArticleHero
         title="The Complete Florida Fall Guide 2026"

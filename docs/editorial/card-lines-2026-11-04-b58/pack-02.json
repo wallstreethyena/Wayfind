@@ -1,0 +1,354 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 58. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJ72IHIhBw54gRW087PwkXB_o",
+   "name": "Winter Park Farmers' Market",
+   "category": "shopping",
+   "metro": "orlando",
+   "primary_type": "farmers_market",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://cityofwinterpark.org/departments/parks-recreation/activities-events/saturday-farmers-market/",
+     "source_name": "Winter Park Farmers' Market \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Saturday Farmers' Market is the NUMBER ONE produce and plant market in central Florida",
+      "Takes place every Saturday morning from 8:00 a.m. to 1:00 p.m. in Central Park West Meadow",
+      "Popular community gathering place that provides fine produce, plants, baked goods and so much more",
+      "Vendor space is extremely limited"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "The NUMBER ONE produce and plant market in central Florida",
+    "why_here": "The Saturday Farmers' Market is the NUMBER ONE produce and plant market in central Florida and a popular community gathering place. It provides fine produce, plants, baked goods and so much more for visitors each week.",
+    "know_before": "The market takes place every Saturday morning from 8:00 a.m. to 1:00 p.m. in Central Park West Meadow.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://cityofwinterpark.org/departments/parks-recreation/activities-events/saturday-farmers-market/"
+     ],
+     "why_here": [
+      "https://cityofwinterpark.org/departments/parks-recreation/activities-events/saturday-farmers-market/"
+     ],
+     "know_before": [
+      "https://cityofwinterpark.org/departments/parks-recreation/activities-events/saturday-farmers-market/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Saturday Farmers' Market is the NUMBER ONE produce and plant market in central Florida",
+      "source": "https://cityofwinterpark.org/departments/parks-recreation/activities-events/saturday-farmers-market/"
+     },
+     {
+      "claim": "Takes place every Saturday morning from 8:00 a.m. to 1:00 p.m. in Central Park West Meadow",
+      "source": "https://cityofwinterpark.org/departments/parks-recreation/activities-events/saturday-farmers-market/"
+     },
+     {
+      "claim": "Popular community gathering place that provides fine produce, plants, baked goods and so much more",
+      "source": "https://cityofwinterpark.org/departments/parks-recreation/activities-events/saturday-farmers-market/"
+     },
+     {
+      "claim": "Vendor space is extremely limited",
+      "source": "https://cityofwinterpark.org/departments/parks-recreation/activities-events/saturday-farmers-market/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJxYAk6zN954gRB3-Ayf9dWX4",
+   "name": "House of Antojitos Restaurant",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://houseofantojitos.com/",
+     "source_name": "House of Antojitos Restaurant \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Serves Dominican bites including crispy empanadas and mofonguitos",
+      "Menu features chimis, yaroa with cheesy topping, and crispy tostones",
+      "Brand was born on the island, raised in the Bronx, and now represents Orlando",
+      "Hours are Mon-Thu 11am-10pm, Fri-Sat 11am-11pm, closed Sunday"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Dominican street bites \u2014 crispy empanadas, mofonguitos, chimis and cheesy yaroa.",
+    "why_here": "House of Antojitos serves Dominican street flavors including empanadas, mofonguitos, chimis, yaroa and tostones. The site traces the concept from the island and the Bronx to Orlando and stresses authentic preparation.",
+    "know_before": "Closed on Sundays, per the official site hours.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://houseofantojitos.com/"
+     ],
+     "why_here": [
+      "https://houseofantojitos.com/"
+     ],
+     "know_before": [
+      "https://houseofantojitos.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Serves Dominican bites including crispy empanadas and mofonguitos",
+      "source": "https://houseofantojitos.com/"
+     },
+     {
+      "claim": "Menu features chimis, yaroa with cheesy topping, and crispy tostones",
+      "source": "https://houseofantojitos.com/"
+     },
+     {
+      "claim": "Brand was born on the island, raised in the Bronx, and now represents Orlando",
+      "source": "https://houseofantojitos.com/"
+     },
+     {
+      "claim": "Hours are Mon-Thu 11am-10pm, Fri-Sat 11am-11pm, closed Sunday",
+      "source": "https://houseofantojitos.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJzb_46E0F2YgRwqrzz6SOEU4",
+   "name": "Melting Pot",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "fondue_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.meltingpot.com/the-experience.aspx",
+     "source_name": "Melting Pot \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Melting Pot is the original fondue restaurant with several fondue cooking styles",
+      "The 4-Course Experience lets guests choose cheese fondue, salad, entree and chocolate fondue",
+      "Dining is interactive and designed around guests cooking and dipping at the table",
+      "Gluten-free options are available at every restaurant"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "The original fondue restaurant \u2014 cook-it-yourself cheese, entr\u00e9e and chocolate courses.",
+    "why_here": "Melting Pot calls itself the original fondue restaurant, built around an interactive experience where guests dip and cook at the table. Courses span artisan cheese fondue, salads, entr\u00e9es and chocolate fondue, with up to four courses.",
+    "know_before": "Gluten-free options are available at every restaurant, per the official experience page.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.meltingpot.com/the-experience.aspx"
+     ],
+     "why_here": [
+      "https://www.meltingpot.com/the-experience.aspx"
+     ],
+     "know_before": [
+      "https://www.meltingpot.com/the-experience.aspx"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Melting Pot is the original fondue restaurant with several fondue cooking styles",
+      "source": "https://www.meltingpot.com/the-experience.aspx"
+     },
+     {
+      "claim": "The 4-Course Experience lets guests choose cheese fondue, salad, entree and chocolate fondue",
+      "source": "https://www.meltingpot.com/the-experience.aspx"
+     },
+     {
+      "claim": "Dining is interactive and designed around guests cooking and dipping at the table",
+      "source": "https://www.meltingpot.com/the-experience.aspx"
+     },
+     {
+      "claim": "Gluten-free options are available at every restaurant",
+      "source": "https://www.meltingpot.com/the-experience.aspx"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJzzY_lOHF54gRp_XdtoHd-GY",
+   "name": "The Legacy Restaurant at Nancy Lopez Country Club",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://legacyrestaurant.com/",
+     "source_name": "The Legacy Restaurant at Nancy Lopez Country Club \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Located at the Nancy Lopez Country Club in The Villages",
+      "Menu features chef-inspired cuisine, fresh seafood, premium steaks and timeless favorites",
+      "Private dining overlooks the Nancy Lopez Golf Course with customized catering menus",
+      "Open daily Sun-Thu 11am-8pm and Fri-Sat 11am-8:30pm"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Elevated country-club dining overlooking the Nancy Lopez Golf Course in The Villages.",
+    "why_here": "Located at the Nancy Lopez Country Club, Legacy describes itself as one of The Villages' most established dining destinations. The menu features chef-inspired cuisine, fresh seafood, premium steaks and timeless favorites.",
+    "know_before": "Open daily; Sun-Thu 11am-8pm and Fri-Sat 11am-8:30pm, per the official site.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://legacyrestaurant.com/"
+     ],
+     "why_here": [
+      "https://legacyrestaurant.com/"
+     ],
+     "know_before": [
+      "https://legacyrestaurant.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Located at the Nancy Lopez Country Club in The Villages",
+      "source": "https://legacyrestaurant.com/"
+     },
+     {
+      "claim": "Menu features chef-inspired cuisine, fresh seafood, premium steaks and timeless favorites",
+      "source": "https://legacyrestaurant.com/"
+     },
+     {
+      "claim": "Private dining overlooks the Nancy Lopez Golf Course with customized catering menus",
+      "source": "https://legacyrestaurant.com/"
+     },
+     {
+      "claim": "Open daily Sun-Thu 11am-8pm and Fri-Sat 11am-8:30pm",
+      "source": "https://legacyrestaurant.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ3agqBz2t2YgRA42zVBw00VM",
+   "name": "Carousel Club",
+   "category": "attractions",
+   "metro": "miami-dade",
+   "primary_type": "event_venue",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.carouselclub.com/",
+     "source_name": "Carousel Club \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Carousel Club is an open-air venue at Gulfstream Park in Hallandale Beach",
+      "Venue offers 14,000 sq ft of tented and open-air space",
+      "Lists 2,000 guest capacity and 24 LED screens",
+      "Hosts private events, corporate gatherings and social celebrations with full buyouts"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "A 14,000 sq ft open-air venue at Gulfstream Park built for big private events",
+    "why_here": "Carousel Club at Gulfstream Park in Hallandale Beach offers 14,000 square feet of tented and open-air space. It is presented as the perfect setting for private events, corporate gatherings, social celebrations, and unforgettable experiences.",
+    "know_before": "The venue lists 2,000-guest capacity and 24 LED screens for rentals.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.carouselclub.com/"
+     ],
+     "why_here": [
+      "https://www.carouselclub.com/"
+     ],
+     "know_before": [
+      "https://www.carouselclub.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Carousel Club is an open-air venue at Gulfstream Park in Hallandale Beach",
+      "source": "https://www.carouselclub.com/"
+     },
+     {
+      "claim": "Venue offers 14,000 sq ft of tented and open-air space",
+      "source": "https://www.carouselclub.com/"
+     },
+     {
+      "claim": "Lists 2,000 guest capacity and 24 LED screens",
+      "source": "https://www.carouselclub.com/"
+     },
+     {
+      "claim": "Hosts private events, corporate gatherings and social celebrations with full buyouts",
+      "source": "https://www.carouselclub.com/"
+     }
+    ]
+   }
+  }
+ ]
+}
