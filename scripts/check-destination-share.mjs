@@ -128,6 +128,8 @@ const EQUIVALENT = {
 const EXEMPT = {
   "app/group-plans/page.js": { kind: "internal", why: "private signed-in organizer dashboard; individual invite/final-plan capabilities are shared from inside the plan" },
   "app/group-plans/new/page.js": { kind: "internal", why: "private plan-creation form; no recipient link exists until a plan is created" },
+  "app/reserve/manage/[token]/page.js": { kind: "internal", why: "private restaurant dashboard opened from a bearer link; the link is a secret for one restaurant and must never be shared, so it carries no share button" },
+  "app/reserve/test/page.js": { kind: "internal", why: "preview only test page for the Reserve a table flow; it is a 404 in production and never indexed, so it carries no share button" },
   "app/page.js": { kind: "shell", why: "the app shell itself; every card and sheet in it carries its own share" },
   "app/p/[id]/page.js": { kind: "handoff", why: "opens the place inside the app shell, whose place sheet has Share" },
   "app/r/[rail]/page.js": { kind: "handoff", why: "shared rail card: redirects into the shell with the rail open" },

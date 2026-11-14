@@ -49,7 +49,7 @@ function tilePhoto(card) {
   if (t && t.src) return t.src;
   if (Array.isArray(card.photos) && card.photos[0] && card.photos[0].src) return card.photos[0].src;
   const src = card.image;
-  return src && !/\/cards-v8\//.test(src) ? src : "";
+  return src && !/\/cards-v8\//.test(src) && !/wfplacediscovery/.test(src) ? src : "";
 }
 function tileWhen(card) {
   return (card.ticketRow && card.ticketRow.when) || card.when || card.seasonalWhen || "";

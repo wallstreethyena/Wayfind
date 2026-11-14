@@ -26,6 +26,8 @@ import {
   santaModelFromListings,
   santaPrompt,
   santaReplyProblems,
+  santaReserveIntent,
+  santaReserveAnswer,
   santaSmallTalk,
   santaWrapReply,
 } from "../lib/santaChat.js";
@@ -163,6 +165,28 @@ delete process.env.ANTHROPIC_API_KEY; delete process.env.LLM_API_KEY; delete pro
   ok(turn3.wrap === false && turn3.source === "fallback", "turn 3 does not wrap");
   const junk = await call({});
   ok(junk.cards.length > 0, "an empty body still returns ticket cards");
+}
+
+// 8. Table requests (Reserve v2): the intent carries only query, cuisine, date, time and party. No name, no phone.
+{
+  const T = "2026-11-12"; // a Thursday
+  const a = santaReserveIntent("book Ulele Friday at 7 for 4", T);
+  ok(a && a.query === "Ulele" && a.date === "2026-11-13" && a.time === "19:00" && a.partySize === 4, "book Ulele Friday at 7 for 4 -> Ulele, Fri Nov 13, 19:00, 4");
+  const b = santaReserveIntent("Italian tonight around 7 for four", T);
+  ok(b && b.cuisine === "italian" && b.date === T && b.time === "19:00" && b.partySize === 4 && !b.query, "Italian tonight around 7 for four -> cuisine, today, 19:00, 4");
+  ok(santaReserveIntent("book tickets for the lights for 4", T) === null && santaReserveIntent("best christmas lights in tampa", T) === null, "ticket and plain questions are not table requests");
+  const withPhone = santaReserveIntent("reserve Ulele tomorrow at 8 for 2 call me 941 555 0199", T);
+  ok(withPhone && !/\d{5,}/.test(JSON.stringify(withPhone)) && Object.keys(withPhone).every((k) => ["query", "cuisine", "date", "time", "partySize"].includes(k)), "the intent holds only the five allowed fields and never a phone number");
+  const ans = santaReserveAnswer(a);
+  ok(ans.reserve === a && ans.cards.length === 0 && !DASH.test(ans.reply) && santaReplyProblems(ans.reply).length === 0 && !/booked|open/i.test(ans.reply), "Santa's reply for a table request is clean and never says booked or open");
+  const m = await santaModel({ today: T, load: async () => { throw new Error("x"); } });
+  const parsed = parseSantaReply(JSON.stringify({ reply: "Ho ho ho, let me look for tables.", recommendedIds: [], antic: "wave", reserve: { query: "Ulele", date: "2026-11-13", time: "19:00", partySize: 4, guestName: "Gabe", phone: "9415550199" } }), { ...m, today: T }, "book Ulele");
+  ok(parsed && parsed.reserve && parsed.reserve.query === "Ulele" && parsed.reserve.partySize === 4 && !("guestName" in parsed.reserve) && !("phone" in parsed.reserve), "a model reserve object is accepted with only the allowed fields");
+  ok(parseSantaReply(JSON.stringify({ reply: "Ho ho ho.", recommendedIds: [], reserve: { date: "1999-01-01" } }), { ...m, today: T }, "x") === null, "a reserve object with nothing usable does not rescue an empty pick list");
+  ok(/reserve/.test(santaPrompt({ ...m, today: T }, "book Ulele", {}).system) && /Fri 2026-11-13/.test(santaPrompt({ ...m, today: T }, "book Ulele", {}).user), "the prompt asks for reserve and carries the calendar (in the user message, so the system prompt stays dash free)");
+  const { POST: P2 } = await loadComponent(path.join(root, "app/api/santa-chat/route.js"), root);
+  const r2 = await (await P2(new Request("https://wayfind.test/api/santa-chat", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ message: "Italian tonight around 7 for four" }) }))).json();
+  ok(r2.source === "reserve" && r2.reserve && r2.reserve.cuisine === "italian" && r2.cards.length === 0 && r2.wrap === false, "the route answers a table request with a reserve intent, no cards and no model call");
 }
 
 console.log("santa chat ok: " + checks + " checks, catalog " + model.events.length + " items (cap " + SANTA_CATALOG_CAP + ")");

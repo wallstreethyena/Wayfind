@@ -23,7 +23,7 @@ export default function robots() {
     rules: {
       userAgent: "*",
       allow: "/",
-      disallow: ["/api/photo", "/api/commerce/go", "/api/hotels/go", "/api/stubhub/go", "/api/ticketmaster/go", "/api/viator/go"],
+      disallow: ["/api/photo", "/api/commerce/go", "/api/hotels/go", "/api/reserve/go", "/api/stubhub/go", "/api/ticketmaster/go", "/api/viator/go"],
     },
     sitemap: SITE_URL + "/sitemap.xml",
   };
