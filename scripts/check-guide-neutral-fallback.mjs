@@ -80,7 +80,7 @@ ok(exact + neutral === total && total >= 24 + 74, `all ${total} picks classified
 // rather than given a photo that does not match the pick), so the floor is 27.
 // Second pass the same day (batch 11y-b): nine more daytime or off topic photos
 // left the snow, Thanksgiving and free lights guides, so the floor is 18.
-ok(holidayExact >= 18, `the holiday guides keep their 18 exact, in season photos (found ${holidayExact})`);
+ok(holidayExact >= 21, `the holiday guides keep their 21 exact, in season photos (found ${holidayExact})`);
 ok(exact >= 9, "the nine photographed picks from the earlier pass are still photographed");
 
 // Controls: a guide that did not opt into the neutral tile still gets a
