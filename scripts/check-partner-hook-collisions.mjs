@@ -72,6 +72,11 @@ const VIATOR_PLACE_PRODUCT_CODES = {
   // RETIRED_VIATOR_PINS, which drops their rows from this table below).
   "169791P1": "Glass Bottom Kayak Eco Tour through Rainbow Springs",
   "242020P5": "Tiki Boat - St. Pete Pier - The Only Authentic Floating Tiki Bar",
+  // 2026-11-12 entity-resolution verified pins (live HTTP 302 confirmed via /api/commerce/go).
+  "108117P1": "Mangrove Tunnel Kayak Tour (Sea Life Kayak Adventures / Ted Sperling Park)",
+  "123164P1": "Clear Kayak Tours in Rock Springs (Get Up And Go Kayaking / Kings Landing)",
+  "123164P2": "Bioluminescent Clear Kayak Tours in Titusville (Get Up And Go Kayaking - Merritt Island)",
+  "5642110P1": "Historic Ybor City Food and Culture Walking Tour (Ybor City Museum State Park)",
 };
 
 

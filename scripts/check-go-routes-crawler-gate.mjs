@@ -101,6 +101,13 @@ const FIXTURES = {
     query: "url=" + encodeURIComponent("https://www.stubhub.com/event/123"),
     successHostSubstr: "stubhub.prf.hn",
   },
+  "app/api/reserve/go/route.js": {
+    // Reserve handoff to OpenTable. No hermetic platform-link row is available to this guard
+    // (the link lives in wf_reserve_platform_links), so the positive redirect is our own place page;
+    // the crawler refusal and its capture are still fully exercised.
+    query: "placeId=ChIJ3Vyq7WTEwogRA-WDC7Mze2E&date=2026-11-14&time=19:15&party=4",
+    successHostSubstr: null,
+  },
   "app/api/viator/go/route.js": {
     query: "product=" + encodeURIComponent("https://www.viator.com/tours/Orlando/Airboat/d827-1234P5"),
     successHostSubstr: "viator.com",

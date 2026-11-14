@@ -46,6 +46,7 @@ import { gateRedirectTraffic, headResponse, noStoreHeaders, clickProof } from ".
 import { viatorCampaign, viatorPageHint } from "../../../../lib/affiliates.js";
 import { attributedTravelpayoutsDestination } from "../../../../lib/travelpayoutsAttribution.js";
 import { attributedViatorDestination } from "../../../../lib/viatorAttribution.js";
+import { classifySyntheticTraffic } from "../../../../lib/productionWriteFirewall.js";
 
 const ATTRIBUTED_TP = new Set(["tiqets", "klook", "gocity"]);
 
@@ -85,8 +86,11 @@ export async function GET(req) {
   };
 
   // "human" until a gate below says otherwise; stamped on every redirect event.
-  // Our own verifier scripts (WayfindVerify UA, bare node fetch) still get the real redirect; only the class changes.
+  // Our own verifier scripts (WayfindVerify UA, bare node fetch) and synthetic
+  // monitors still get the real redirect; only the class changes so zero click rows write.
+  const synthTraffic = classifySyntheticTraffic(req);
   let trafficClass = isInternalVerifier(req.headers.get("user-agent")) ? "automation" : "human";
+  if (trafficClass === "human" && synthTraffic.synthetic) trafficClass = "synthetic";
   const emit = (event, extra) => {
     // commercePayload enforces the field whitelist, so nothing outside the
     // schema can leave here even if a caller passes it.
@@ -162,13 +166,13 @@ export async function GET(req) {
 
   let finalDest = dest;
   let resolverPath = null;
-  if (ATTRIBUTED_TP.has(provider)) {
+  if (ATTRIBUTED_TP.has(provider) && trafficClass === "human") {
     let attributed;
     try {
       attributed = await attributedTravelpayoutsDestination({
         provider, offerId, destinationUrl: sourceUrl, surface, contentId,
-        clientClickId: clickId,
-      });
+        clientClickId: clickId, trafficClass,
+      }, { headers: req.headers });
     } catch {
       attributed = { error: "attribution-exception" };
     }
@@ -198,7 +202,7 @@ export async function GET(req) {
         cookieHeader: req.headers.get("cookie") || "",
         distinctId: cookieDistinctId || null,
         trafficClass,
-      });
+      }, { headers: req.headers });
       if (attributed && attributed.url) {
         finalDest = attributed.url;
         resolverPath = "viator-attributed";

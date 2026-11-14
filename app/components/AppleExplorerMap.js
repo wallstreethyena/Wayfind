@@ -39,7 +39,7 @@ export default function AppleExplorerMap({
     loadAppleMapKit(process.env.NEXT_PUBLIC_APPLE_MAPS_TOKEN).then((mapkit) => {
       if (dead || !hostRef.current) return;
       const controller = createAppleExplorerController({
-        mapkit, container: hostRef.current, ...dataRef.current,
+        mapkit, container: hostRef.current, ...dataRef.current, compact,
         onSelect: (place) => callbacksRef.current.onSelect?.(place),
         onSelectEvent: (event) => callbacksRef.current.onSelectEvent?.(event),
         onAreaChange: (area) => callbacksRef.current.onAreaChange?.(area),
@@ -80,7 +80,6 @@ export default function AppleExplorerMap({
 
   // The main screen retains its explicit 3D control through MapView; flat
   // discovery uses MapKit. These compatibility props never imply Apple pitch.
-  void compact;
   void styleMode;
 
   if (failed) return <MapFallback count={(places || []).length} onRetry={onRetry} />;

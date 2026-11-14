@@ -1,24 +1,28 @@
 "use client";
 import { shareOut } from "../../lib/shareOut.js";
-import { concreteSharePlaceId } from "../../lib/shareContext.js";
-import { track } from "../../lib/track.js";
+import { concreteSharePlaceId, groupPlanHref } from "../../lib/shareContext.js";
+import { addStopToStoredTrips } from "../../lib/itineraryAdd.js";
+import { track, recordInviteRecipient } from "../../lib/track.js";
 import { useState, useMemo, useEffect, useRef } from "react";
 import { Cat, Heart, Portrait, Couple } from "./pixel.js";
 import { ASK_CSS } from "./style.js";
 import {
   ACTIVITIES, activityFor, activityHref, activityLinkLabel, askHeadline, yayLine,
-  pleaAt, moodAt, yesScale, noScale, yesText, noText, needsName, planFitsPlace, datedCardPath,
-  inviteKinds,
+  pleaAt, moodAt, yesText, noText, needsName, planFitsPlace, datedCardPath,
+  inviteKinds, inviteDirectionsHref, inviteCalendarEvent, inviteItineraryStop,
+  eventDateMismatch, eventVenueTimeZone, isEventDatePast,
 } from "../../lib/dateInvite.js";
+import { styleHtml } from "../../lib/styleHtml.js";
 
-// app/ask/AskClient.js — Wayfind Chibi Elf invitation flow.
+// app/ask/AskClient.js — Wayfind Chibi Elf invitation & Plan Together flow.
 //
-//   1 ASK       "Will you go out with me?" + proposed plan summary + YES / No
+//   1 ASK       "Will you go out with me?" + proposed plan + YES / No + respectful pivots
 //   2 YAY       warm celebration with the Elf couple
 //   3 ACTIVITY  what would you like to do
 //   4 WHEN      pick or confirm a date
-//   5 DONE      proposed plan summary, share your answer, save card, open venue
-//   6 DECLINED  kind acknowledgment when the visitor answers No
+//   5 DONE      agreed plan summary, share reply, add to itinerary, add to calendar, directions, open venue
+//   6 DECLINED  kind acknowledgment when the visitor declines
+
 
 const DAYS = ["S", "M", "T", "W", "T", "F", "S"];
 const MONTHS = ["January", "February", "March", "April", "May", "June", "July",
@@ -94,8 +98,27 @@ function Decor() {
   );
 }
 
-function Calendar({ value, onPick }) {
-  const today = useMemo(() => { const d = new Date(); d.setHours(0, 0, 0, 0); return d; }, []);
+function venueTodayDate(timeZone) {
+  const now = new Date();
+  try {
+    const parts = new Intl.DateTimeFormat("en-CA", {
+      timeZone: timeZone || "America/New_York",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    }).formatToParts(now);
+    const y = Number((parts.find((p) => p.type === "year") || {}).value);
+    const m = Number((parts.find((p) => p.type === "month") || {}).value);
+    const da = Number((parts.find((p) => p.type === "day") || {}).value);
+    if (y && m && da) return new Date(y, m - 1, da);
+  } catch (e) {}
+  const d = new Date(now);
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+
+function Calendar({ value, onPick, timeZone }) {
+  const today = useMemo(() => venueTodayDate(timeZone), [timeZone]);
   const [offset, setOffset] = useState(0);
   const view = new Date(today.getFullYear(), today.getMonth() + offset, 1);
   const first = view.getDay();
@@ -130,6 +153,7 @@ function Calendar({ value, onPick }) {
 }
 
 export default function AskClient({ inv, bad = false }) {
+  const venueTz = useMemo(() => eventVenueTimeZone(inv && inv.geo), [inv && inv.geo]);
   const proposedWhen = useMemo(() => parseInviteWhen(inv && inv.when), [inv && inv.when]);
   const suggested = useMemo(() => inviteKinds(inv), [inv]);
 
@@ -145,12 +169,25 @@ export default function AskClient({ inv, bad = false }) {
   const [look, setLook] = useState({ x: 0, y: 0 });
   const [eager, setEager] = useState(0);
 
+  const scheduledEventWhen = useMemo(
+    () => parseInviteWhen(inv && inv.eventDate ? String(inv.eventDate).split(",")[0].split("..")[0] : ""),
+    [inv && inv.eventDate]
+  );
+  const [detachedEvent, setDetachedEvent] = useState(false);
+  const inviteSurface = (inv && inv.surface) || "direct";
+
   const loadedRef = useRef(false);
   useEffect(() => {
     if (loadedRef.current) return;
     loadedRef.current = true;
-    track("ask_invite_loaded", { has_invite: Boolean(inv), bad_link: Boolean(bad) });
-  }, [inv, bad]);
+    if (inv) recordInviteRecipient(inv);
+    track("ask_invite_loaded", {
+      has_invite: Boolean(inv),
+      bad_link: Boolean(bad),
+      surface: inviteSurface,
+      has_event_date: Boolean(inv && inv.eventDate),
+    });
+  }, [inv, bad, inviteSurface]);
 
   useEffect(() => {
     if (typeof document === "undefined") return;
@@ -272,8 +309,138 @@ export default function AskClient({ inv, bad = false }) {
   })();
 
   const [saving, setSaving] = useState(false);
-  const cardUrl = () => datedCardPath(activity, dayLabel,
-    inv && inv.place && planFitsPlace(inv, activity) ? inv.place : "");
+  const [itinerarySaved, setItinerarySaved] = useState(false);
+  const eventIsPast = useMemo(
+    () => Boolean(!detachedEvent && inv && inv.eventDate && isEventDatePast(inv)),
+    [detachedEvent, inv]
+  );
+  const hasEventDateConflict = useMemo(
+    () => Boolean(!detachedEvent && !eventIsPast && inv && inv.place && planFitsPlace(inv, activity) && eventDateMismatch(inv, dayIso)),
+    [detachedEvent, eventIsPast, inv, activity, dayIso]
+  );
+  const effectiveInv = useMemo(() => {
+    if (!inv) return null;
+    if (detachedEvent || hasEventDateConflict || eventIsPast) {
+      return { ...inv, place: "", id: "", eventDate: "", when: "" };
+    }
+    return inv;
+  }, [inv, detachedEvent, hasEventDateConflict, eventIsPast]);
+
+  const cardWhere = (!detachedEvent && !hasEventDateConflict && !eventIsPast && inv && inv.place && (planFitsPlace(inv, activity) ? inv.place : "")) || "";
+  const cardUrl = () => datedCardPath(activity, dayLabel, cardWhere);
+
+  const proposedIsPast = useMemo(() => {
+    if (!proposedWhen.date) return false;
+    const today = venueTodayDate(venueTz);
+    return proposedWhen.date < today;
+  }, [proposedWhen.date, venueTz]);
+
+  const calendarEvent = useMemo(
+    () => inviteCalendarEvent(effectiveInv, activity, dayIso, dayLabel),
+    [effectiveInv, activity, dayIso, dayLabel]
+  );
+  const directionsHref = useMemo(
+    () => inviteDirectionsHref(effectiveInv, activity),
+    [effectiveInv, activity]
+  );
+  const itineraryStop = useMemo(
+    () => inviteItineraryStop(effectiveInv, activity, dayLabel, dayIso),
+    [effectiveInv, activity, dayLabel, dayIso]
+  );
+  const groupHref = useMemo(
+    () => groupPlanHref(placeId, inv && inv.place),
+    [placeId, inv]
+  );
+
+  const saveToItinerary = () => {
+    if (!itineraryStop) return false;
+    try {
+      if (typeof window !== "undefined" && window.localStorage) {
+        let current = {};
+        try {
+          const raw = window.localStorage.getItem("wf_trips_v1");
+          const parsed = raw ? JSON.parse(raw) : null;
+          if (parsed && typeof parsed === "object") current = parsed;
+        } catch (er) {}
+        const res = addStopToStoredTrips(current, itineraryStop, Date.now(), {
+          autoOrder: true,
+          addedVia: "ask_invite",
+        });
+        if (res && res.trips) {
+          const cleanDay = /^\d{4}-\d{2}-\d{2}$/.test(String(dayIso || "").trim()) ? String(dayIso).trim() : "";
+          const nextTrips = { ...res.trips };
+          for (const k of Object.keys(nextTrips)) {
+            const t = nextTrips[k];
+            if (!t || !Array.isArray(t.items)) continue;
+            if (t.items.some((it) => it && it.id === itineraryStop.id)) {
+              nextTrips[k] = {
+                ...t,
+                items: t.items.map((it) => {
+                  if (!it || it.id !== itineraryStop.id) return it;
+                  return {
+                    ...it,
+                    ...(cleanDay ? { day: it.day || cleanDay } : {}),
+                    note: it.note || itineraryStop.note || "",
+                  };
+                }),
+              };
+            }
+          }
+          window.localStorage.setItem("wf_trips_v1", JSON.stringify(nextTrips));
+        }
+        if (res && Array.isArray(res.events)) {
+          for (const ev of res.events) {
+            if (ev && ev.name) track(ev.name, ev.props);
+          }
+        }
+        setItinerarySaved(true);
+        track("ask_invite_itinerary_saved", {
+          surface: inviteSurface,
+          has_place: Boolean(effectiveInv && effectiveInv.place && planFitsPlace(effectiveInv, activity)),
+          activity,
+          city,
+          day_iso: dayIso || "",
+          already: Boolean(res && res.already),
+        });
+        return true;
+      }
+    } catch (e) {}
+    return false;
+  };
+
+  const buildRestOfDay = () => {
+    saveToItinerary();
+    track("ask_invite_planner_opened", {
+      surface: inviteSurface,
+      activity,
+      city,
+      day_iso: dayIso || "",
+      has_place: Boolean(effectiveInv && effectiveInv.place),
+    });
+    try {
+      const q = [];
+      if (city) q.push("city=" + encodeURIComponent(city));
+      if (dayIso && /^\d{4}-\d{2}-\d{2}$/.test(dayIso)) q.push("date=" + encodeURIComponent(dayIso));
+      window.location.href = "/itinerary" + (q.length ? "?" + q.join("&") : "");
+    } catch (e) {}
+  };
+
+  const downloadIcs = () => {
+    if (!calendarEvent || !calendarEvent.icsText) return;
+    track("ask_invite_calendar_added", { surface: inviteSurface, target: "ics", activity, has_place: Boolean(effectiveInv && effectiveInv.place) });
+    try {
+      const blob = new Blob([calendarEvent.icsText], { type: "text/calendar;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "wayfind-plan.ics";
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => {
+        try { a.remove(); URL.revokeObjectURL(url); } catch (er) {}
+      }, 400);
+    } catch (e) {}
+  };
 
   const saveCard = async () => {
     if (saving) return;
@@ -310,16 +477,16 @@ export default function AskClient({ inv, bad = false }) {
 
   const suggestedActivityLabel = suggested[0] && activityFor(suggested[0]) ? activityFor(suggested[0]).label : "";
   const BUBBLES = [
-    "Wait—your finger slipped, right?! 👀",
-    "Deploying emergency puppy eyes 🥺",
-    "EMOTIONAL DAMAGE: 999% 😭",
-    "Even my hat bell stopped jingling 💔",
-    "Plot twist: “No” is purely decorative ✨",
+    "Not feeling this exact plan? Pick what works for you! ✨",
+    "We can totally switch the day or the spot 🥺",
+    "Your call — another day, another vibe, or no thanks 💛",
+    "Even my hat bell is rooting for a good plan 🔔",
+    "Whatever you choose, thanks for checking it out! ✨",
   ];
 
   return (
     <div className={"wfx" + (paused ? " wfx-paused" : "")} data-hydrated={hydrated ? "1" : undefined}>
-      <style dangerouslySetInnerHTML={{ __html: ASK_CSS }} />
+      <style dangerouslySetInnerHTML={styleHtml(ASK_CSS)} />
       <Decor />
       <div className="wfx-stage">
 
@@ -359,20 +526,51 @@ export default function AskClient({ inv, bad = false }) {
               </div>
             ) : null}
             <div className="wfx-row">
-              <button className="wfx-yes" style={{ "--s": yesScale(nos) }}
+              <button className="wfx-yes" style={{ "--s": 1 }}
                 onClick={(e) => {
                   burst(e);
                   setSent("");
                   track("ask_invite_choice", { choice: "yes", has_place: Boolean(inv && inv.place) });
                   setStep("yay");
                 }}>YES</button>
-              <button className="wfx-no" style={{ "--n": noScale(nos) }}
+              <button className="wfx-no" style={{ "--n": 1 }}
                 onClick={() => {
                   setNos((n) => n + 1);
                   track("ask_invite_choice", { choice: "no", has_place: Boolean(inv && inv.place) });
                 }}>No</button>
             </div>
-            {nos > 0 ? <p className="wfx-plea" key={nos}>{pleaAt(nos)}</p> : null}
+            {nos > 0 ? (
+              <>
+                <p className="wfx-plea" key={nos}>{pleaAt(nos)}</p>
+                <div className="wfx-pivots" role="group" aria-label="Other ways to answer">
+                  <button className="wfx-pivot-btn" data-pivot="day"
+                    onClick={() => {
+                      setSent("");
+                      if (!activity) setActivity(suggested[0] || "dinner");
+                      track("ask_invite_choice", { choice: "maybe_another_day", has_place: Boolean(inv && inv.place) });
+                      setStep("when");
+                    }}>
+                    Maybe another day
+                  </button>
+                  <button className="wfx-pivot-btn" data-pivot="activity"
+                    onClick={() => {
+                      setSent("");
+                      track("ask_invite_choice", { choice: "suggest_something_else", has_place: Boolean(inv && inv.place) });
+                      setStep("activity");
+                    }}>
+                    Suggest something else
+                  </button>
+                  <button className="wfx-pivot-btn wfx-pivot-decline" data-pivot="decline"
+                    onClick={() => {
+                      setSent("");
+                      track("ask_invite_choice", { choice: "decline", has_place: Boolean(inv && inv.place) });
+                      setStep("declined");
+                    }}>
+                    No thanks
+                  </button>
+                </div>
+              </>
+            ) : null}
           </>
         )}
 
@@ -382,8 +580,8 @@ export default function AskClient({ inv, bad = false }) {
             <h1 className="wfx-h1" key={step}>No worries. Thanks for letting me know.</h1>
             <p className="wfx-sub">
               {from
-                ? "You can share a quick reply with " + from + " below, or head out whenever you’re ready."
-                : "You can share a quick reply below, or head out whenever you’re ready."}
+                ? "You can share a quick reply with " + from + " below, or suggest another plan whenever you’re ready."
+                : "You can share a quick reply below, or suggest another plan whenever you’re ready."}
             </p>
             {needsName(inv) ? (
               <input className="wfx-field" value={who} maxLength={24} enterKeyHint="done"
@@ -405,6 +603,21 @@ export default function AskClient({ inv, bad = false }) {
                  "Could not open share options — copy your reply above and text it to " + (from || "them") + "."}
               </p>
             ) : null}
+            <div className="wfx-pivots" role="group" aria-label="Change or pivot answer">
+              <button className="wfx-pivot-btn" onClick={() => {
+                setSent("");
+                if (!activity) setActivity(suggested[0] || "dinner");
+                setStep("when");
+              }}>
+                Maybe another day
+              </button>
+              <button className="wfx-pivot-btn" onClick={() => {
+                setSent("");
+                setStep("activity");
+              }}>
+                Suggest something else
+              </button>
+            </div>
             <button className="wfx-go wfx-go2" onClick={() => { setSent(""); setNos(0); setStep("yay"); }}>
               Changed my mind — say YES
             </button>
@@ -438,7 +651,14 @@ export default function AskClient({ inv, bad = false }) {
                 </button>
               ))}
             </div>
-            <button className="wfx-go" disabled={!activity} onClick={() => setStep("when")}>LOCK IT IN</button>
+            <button className="wfx-go" disabled={!activity} onClick={() => {
+              track("ask_invite_activity_selected", {
+                activity,
+                matches_suggested: suggested.indexOf(activity) === 0,
+                fits_place: Boolean(planFitsPlace(inv, activity)),
+              });
+              setStep("when");
+            }}>LOCK IT IN</button>
           </>
         )}
 
@@ -446,24 +666,91 @@ export default function AskClient({ inv, bad = false }) {
           <>
             <Portrait><Cat tone="panda" mood="happy" size={104} look={look} fidget={eager} /></Portrait>
             <h1 className="wfx-h1" key={step}>Pick a date</h1>
-            <p className="wfx-sub">Choose the day for our cute little plans</p>
-            {proposedWhen.label ? (
+            <p className="wfx-sub">Choose the day for our plans together</p>
+            {proposedWhen.label && !proposedIsPast ? (
               <button
                 className="wfx-chip"
                 style={{ width: "100%", marginTop: "14px", minHeight: "48px" }}
-                aria-pressed={dayIso === proposedWhen.iso && dayLabel === proposedWhen.label}
+                aria-pressed={!detachedEvent && dayIso === proposedWhen.iso && dayLabel === proposedWhen.label}
                 onClick={() => {
+                  setDetachedEvent(false);
                   setDayIso(proposedWhen.iso);
                   setDayLabel(proposedWhen.label);
                 }}>
                 <span>{from ? from + "’s proposed date: " : "Proposed date: "}{proposedWhen.label}</span>
               </button>
             ) : null}
-            <Calendar value={dayIso} onPick={(iso, d) => {
+            {proposedWhen.label && proposedIsPast ? (
+              <div className="wfx-alert" role="status">
+                The originally proposed date ({proposedWhen.label}) has passed — pick a fresh day below.
+              </div>
+            ) : null}
+            {eventIsPast && inv && inv.place ? (
+              <div className="wfx-alert" role="status" data-event-date-past="1">
+                <div>
+                  <b>Heads up:</b> The scheduled dates for {inv.place} have passed.
+                </div>
+                <div className="wfx-pivots" style={{ marginTop: "8px" }}>
+                  <button
+                    type="button"
+                    className="wfx-pivot-btn"
+                    onClick={() => {
+                      setDetachedEvent(true);
+                      track("ask_invite_action", { action: "detach_past_event", surface: inviteSurface });
+                    }}>
+                    {"Keep " + (dayLabel || "this date") + " & pick another spot"}
+                  </button>
+                </div>
+              </div>
+            ) : null}
+            {hasEventDateConflict ? (
+              <div className="wfx-alert" role="status" data-event-date-mismatch="1">
+                <div>
+                  <b>Heads up:</b> {inv.place} is scheduled for {scheduledEventWhen.label || inv.eventDate}, not {dayLabel || dayIso}.
+                </div>
+                <div className="wfx-pivots" style={{ marginTop: "8px" }}>
+                  <button
+                    type="button"
+                    className="wfx-pivot-btn"
+                    onClick={() => {
+                      setDetachedEvent(false);
+                      setDayIso(scheduledEventWhen.iso || proposedWhen.iso);
+                      setDayLabel(scheduledEventWhen.label || proposedWhen.label);
+                    }}>
+                    {"Use event date (" + (scheduledEventWhen.label || inv.eventDate) + ")"}
+                  </button>
+                  <button
+                    type="button"
+                    className="wfx-pivot-btn"
+                    onClick={() => {
+                      setDetachedEvent(true);
+                      track("ask_invite_action", { action: "detach_dated_event", surface: inviteSurface });
+                    }}>
+                    {"Keep " + (dayLabel || "this date") + " & pick another spot"}
+                  </button>
+                </div>
+              </div>
+            ) : null}
+            <Calendar value={dayIso} timeZone={venueTz} onPick={(iso, d) => {
               setDayIso(iso);
               setDayLabel(d.toLocaleDateString(undefined, { weekday: "short", month: "long", day: "numeric" }));
             }} />
-            <button className="wfx-go" disabled={!dayIso} onClick={() => setStep("done")}>IT'S A DATE</button>
+            <button className="wfx-go" disabled={!dayIso} onClick={() => {
+              track("ask_invite_date_selected", {
+                surface: inviteSurface,
+                day_iso: dayIso,
+                kept_proposed: Boolean(proposedWhen.iso && dayIso === proposedWhen.iso),
+                event_date_mismatch: hasEventDateConflict,
+              });
+              track("ask_invite_completed", {
+                surface: inviteSurface,
+                activity,
+                day_iso: dayIso,
+                has_place: Boolean(effectiveInv && effectiveInv.place && planFitsPlace(effectiveInv, activity)),
+                city,
+              });
+              setStep("done");
+            }}>IT'S A DATE</button>
           </>
         )}
 
@@ -471,15 +758,17 @@ export default function AskClient({ inv, bad = false }) {
           <>
             <Portrait size={138}><Couple size={64} /></Portrait>
             <h1 className="wfx-h1" key={step}>It's a date</h1>
-            <p className="wfx-sub">Proposed plan — no table or tickets are booked yet.</p>
+            <p className="wfx-sub">Plan agreed — share your answer and lock in the outing below.</p>
             <div className="wfx-card">
               <div><b>When</b> · {dayLabel}</div>
               <div><b>What</b> · {(activityFor(activity) || {}).label}</div>
-              {inv && inv.place && planFitsPlace(inv, activity)
+              {!detachedEvent && !hasEventDateConflict && !eventIsPast && inv && inv.place && planFitsPlace(inv, activity)
                 ? <div><b>{from ? from + "'s idea" : "Their idea"}</b> · {inv.place}{city ? " (" + city + ")" : ""}</div>
-                : (inv && inv.place
-                    ? <div><b>New plan</b> · not {inv.place} then — pick the spot below</div>
-                    : null)}
+                : ((detachedEvent || hasEventDateConflict || eventIsPast) && inv && inv.place
+                    ? <div><b>Date note</b> · {inv.place} runs on {scheduledEventWhen.label || inv.eventDate} — pick a spot for {dayLabel} below</div>
+                    : (inv && inv.place
+                        ? <div><b>New plan</b> · not {inv.place} then — pick the spot below</div>
+                        : null))}
               {inv && inv.note ? <div><b>Note</b> · “{inv.note}”</div> : null}
               {from ? <div><b>With</b> · {from}</div> : null}
               {(who || (inv && inv.to)) ? <div><b>From</b> · {who || inv.to}</div> : null}
@@ -509,19 +798,65 @@ export default function AskClient({ inv, bad = false }) {
                  "Could not open share options — copy the plan above and text it to " + (from || "them") + "."}
               </p>
             ) : null}
+
+            <div className="wfx-toolkit" role="group" aria-label="Complete your plan">
+              {itineraryStop ? (
+                <button
+                  type="button"
+                  className={"wfx-tool-btn wfx-tool-btn-full" + (itinerarySaved ? " wfx-tool-saved" : "")}
+                  onClick={saveToItinerary}>
+                  {itinerarySaved ? "SAVED TO ITINERARY ✓" : "+ ADD TO WAYFIND ITINERARY"}
+                </button>
+              ) : null}
+              {itineraryStop ? (
+                <button
+                  type="button"
+                  className="wfx-tool-btn wfx-tool-btn-full"
+                  data-wf-build-day="1"
+                  onClick={buildRestOfDay}>
+                  Build the rest of the day →
+                </button>
+              ) : null}
+              {calendarEvent ? (
+                <>
+                  <a className="wfx-tool-btn" href={calendarEvent.googleHref}
+                    target="_blank" rel="noopener noreferrer"
+                    onClick={() => track("ask_invite_calendar_added", { surface: inviteSurface, target: "google", activity })}>
+                    + Google Calendar
+                  </a>
+                  <button type="button" className="wfx-tool-btn" onClick={downloadIcs}>
+                    + Apple / iCal (.ics)
+                  </button>
+                </>
+              ) : null}
+              {placeId && !detachedEvent && !hasEventDateConflict && !eventIsPast && inv && inv.place && planFitsPlace(inv, activity) ? (
+                <a className="wfx-tool-btn" href={"/p/" + encodeURIComponent(placeId)}
+                  onClick={() => track("ask_invite_action", { action: "open_place", surface: inviteSurface })}>
+                  {"Open " + inv.place + " on Wayfind"}
+                </a>
+              ) : null}
+              {directionsHref ? (
+                <a className="wfx-tool-btn" href={directionsHref}
+                  target="_blank" rel="noopener noreferrer"
+                  onClick={() => track("ask_invite_directions", { surface: inviteSurface, has_place: Boolean(effectiveInv && effectiveInv.place), city })}>
+                  Directions →
+                </a>
+              ) : null}
+            </div>
+
             <button className="wfx-go wfx-go2" onClick={saveCard} disabled={saving}>
               {saving ? "MAKING IT…" : "SAVE THE CARD"}
             </button>
-            {placeId && inv && inv.place && planFitsPlace(inv, activity) ? (
-              <a className="wfx-quiet" href={"/p/" + encodeURIComponent(placeId)}
-                onClick={() => track("ask_invite_action", { action: "open_place" })}>
-                {"Open " + inv.place + " on Wayfind"}
-              </a>
-            ) : null}
             <a className="wfx-quiet" href={activityHref(activity, city, inv && inv.geo)}
               onClick={() => track("ask_invite_action", { action: "explore_activity" })}>
               {activityLinkLabel(activity, city)}
             </a>
+            {groupHref ? (
+              <a className="wfx-quiet" href={groupHref}
+                onClick={() => track("ask_invite_action", { action: "group_vote" })}>
+                Bringing friends too? Start a Group Vote →
+              </a>
+            ) : null}
             <div className="wfx-mark">
               <span>arranged with</span>
               <svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true">
@@ -537,4 +872,5 @@ export default function AskClient({ inv, bad = false }) {
     </div>
   );
 }
+
 
