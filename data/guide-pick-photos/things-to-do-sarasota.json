@@ -81,26 +81,6 @@
       "sameAsCardPhoto": false,
       "reviewedAt": "2026-09-23"
     },
-    "Mote Marine Laboratory": {
-      "src": "/guides/picks/things-to-do-sarasota/mote-marine-laboratory.webp",
-      "width": 1400,
-      "height": 1050,
-      "alt": "The modern curved-roof exterior of Mote Marine Laboratory in Sarasota with an entrance sign and flags out front",
-      "caption": "The Mote Marine Laboratory building in Sarasota, home to the aquarium and shark tank this guide recommends.",
-      "credit": "Ebyabe",
-      "creditHref": "https://commons.wikimedia.org/wiki/File:FL_Sarasota_Mote_Marine_Lab01.jpg",
-      "license": "CC BY-SA 4.0",
-      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
-      "sourceUrl": "https://commons.wikimedia.org/wiki/File:FL_Sarasota_Mote_Marine_Lab01.jpg",
-      "author": "Ebyabe",
-      "position": "50% 55%",
-      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
-      "sourceKind": "commons",
-      "placeId": null,
-      "verification": "File title 'FL Sarasota Mote Marine Lab' and Commons category 'Mote Marine Laboratory' both confirm the exact place named in the pick. Not geotagged.",
-      "sameAsCardPhoto": false,
-      "reviewedAt": "2026-09-23"
-    },
     "Myakka River State Park": {
       "src": "/guides/picks/things-to-do-sarasota/myakka-alligators.webp",
       "width": 1400,
@@ -187,7 +167,13 @@
       "reason": "no-verified-source",
       "placeId": null,
       "needsPermissionFrom": null,
-      "note": "No Commons search for the downtown Sarasota Saturday farmers market returned a usable photo of the market itself. Pass 2 (2026-09-23): Openverse searched \"Sarasota Farmers Market\", \"Sarasota Farmers Market Main Street\" and \"Sarasota Farmers Market produce stand\". Most hits (by Flickr's own photo descriptions) were actually the separate Siesta Key Farmers Market, not the downtown market this pick names. The one candidate specifically titled \"Downtown Sarasota Farmers Market Sign\" (and its largest available \"_z\" derivative) is only 375–480px wide, under this pipeline's 800px source-width minimum, so it was rejected."
+      "note": "No Commons search for the downtown Sarasota Saturday farmers market returned a usable photo of the market itself. Pass 2 (2026-09-23): Openverse searched \"Sarasota Farmers Market\", \"Sarasota Farmers Market Main Street\" and \"Sarasota Farmers Market produce stand\". Most hits (by Flickr's own photo descriptions) were actually the separate Siesta Key Farmers Market, not the downtown market this pick names. The one candidate specifically titled \"Downtown Sarasota Farmers Market Sign\" (and its largest available \"_z\" derivative) is only 375\u2013480px wide, under this pipeline's 800px source-width minimum, so it was rejected."
+    },
+    "Mote Science Education Aquarium (Mote SEA)": {
+      "reason": "no-verified-source",
+      "placeId": "ChIJRyOEfAo5w4gR664aD_YYBLU",
+      "needsPermissionFrom": null,
+      "note": "Pick corrected 2026-11-13 from the old City Island Mote Marine Laboratory to Mote Science Education Aquarium (Mote SEA) at Nathan Benderson Park/UTC (mote.org). The previous photo shows the old City Island site, not Mote SEA, so it was removed rather than mislabelled. No licensed photo of Mote SEA sourced yet; renders the neutral Photo unavailable tile."
     }
   }
 }
