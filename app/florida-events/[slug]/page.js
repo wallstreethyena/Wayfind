@@ -1,7 +1,7 @@
 import CommerceClickBeacon from "../../components/CommerceClickBeacon";
 import { eventCostSummary, eventRestrictions } from "../../../lib/eventVisitFacts.js";
 import { eventImageIsVenue } from "../../../lib/fallEventImage.js";
-import { christmasEventPageRow } from "../../../lib/christmasEventPage.js";
+import { christmasEventPageRow, retiredChristmasEventTarget } from "../../../lib/christmasEventPage.js";
 import { eventPlaceholder } from "../../../lib/eventPlaceholder.js";
 // v7.45 — The individual event page. Google is explicit that Event structured
 // data belongs on a single-event page with its own URL, not on a roundup, and
@@ -17,7 +17,7 @@ import { EventHeroPhotoProvider, EventHeroCredit } from "../../components/EventH
 import EventDetailShell from "../../components/EventDetailShell.js";
 import EventSectionNav from "../../components/EventSectionNav.js";
 import EventExperienceStyles from "../../components/EventExperienceStyles.js";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { safeUrl } from "../../../lib/links.js";
 import { SITE_URL } from "../../../lib/site";
 import { fetchCuratedEvents, fetchCuratedEventBySlug, eventJsonLd, dateRangeLabel, eventWebsiteUrl, eventDetailTicketAction } from "../../../lib/curatedEvents";
@@ -38,6 +38,7 @@ import CrownOutbound from "../../components/CrownOutbound.js";
 import { CROWN_EVENT_SLUGS } from "../../../lib/crownCampaign.js";
 import ReturnToWayfind from "../../components/ReturnToWayfind.js";
 import { pairingHref } from "../../../lib/eventPairings";
+import { seriesHubFor } from "../../../lib/eventSeriesHubs.js";
 import { cachedEventPairings } from "../../../lib/eventPairingsCache";
 import { clockLabel } from "../../../lib/fallPool.js";
 import { eventSocialPosts } from "../../../lib/eventSocial.js";
@@ -47,6 +48,8 @@ import CreatorPlaybackDetails from "../../components/CreatorPlaybackDetails.js";
 import CreatorVideoRail from "../../components/CreatorVideoRail.js";
 import { isEmbeddable } from "../../../lib/videoEmbed";
 import { loadEventDetailPhotos } from "../../../lib/placeDetailGallery.js";
+import { eventRailPhotoCredit } from "../../../lib/christmasPlacePhotos.js";
+import PhotoCreditLink from "../../components/PhotoCreditLink.js";
 import SnowcatTicketExplainer from "../../components/SnowcatTicketExplainer.js";
 import { isSnowcatTicketPage, SNOWCAT_PLACE_ID } from "../../../lib/snowcatTickets.js";
 
@@ -177,10 +180,22 @@ const S = {
   pmeta: { fontSize: 12.5, color: "#8B949E", fontWeight: 600 },
 };
 
+// Throws on a failed read like the page itself: an outage never becomes a
+// redirect or a 404. Returns normally when there is nowhere valid to go.
+async function redirectRetiredChristmasEvent(slug) {
+  const moved = retiredChristmasEventTarget(slug);
+  if (!moved) return;
+  const landing = await fetchCuratedEventBySlug(moved).then((row) => christmasEventPageRow(row, moved));
+  if (landing) permanentRedirect("/florida-events/" + moved);
+}
+
 export default async function CuratedEventPage({ params }) {
   // Throws on a failed read. notFound() is only the honest miss (row
   // absent or not displayable). An outage must not 404 a live event.
   const e = await fetchCuratedEventBySlug(params.slug).then((row) => christmasEventPageRow(row, params.slug)).then(withTampaPassFacts);
+  // A merged research id keeps a valid destination (lib/christmasEventPage.js):
+  // redirect after a successful miss, and only to a listing that resolves.
+  if (!e) await redirectRetiredChristmasEvent(params.slug);
   if (!e) notFound();
 
   const shots = eventPhotos(e.event_id);
@@ -377,6 +392,25 @@ export default async function CuratedEventPage({ params }) {
             tone="dark"
             event="event_share"
             meta={{ slug: params.slug, event_id: e.event_id || null, city: e.city || null, placement: "hero" }}
+            invite={{
+              name: e.event_name,
+              city: e.city || "",
+              placeId: e.place_id || "",
+              category: e.category || "",
+              when: (e.season_undated || e.christmas_watchlist)
+                ? ""
+                : (Array.isArray(occurrenceDatesFor(e)) && occurrenceDatesFor(e).length
+                    ? occurrenceDatesFor(e)[0]
+                    : (e.start_date ? String(e.start_date).slice(0, 10) : "")),
+              eventDate: (e.season_undated || e.christmas_watchlist)
+                ? ""
+                : (Array.isArray(occurrenceDatesFor(e)) && occurrenceDatesFor(e).length
+                    ? occurrenceDatesFor(e).join(",")
+                    : (e.start_date ? (e.end_date && e.end_date !== e.start_date ? `${String(e.start_date).slice(0, 10)}..${String(e.end_date).slice(0, 10)}` : String(e.start_date).slice(0, 10)) : "")),
+              geo: mapPoint && Number.isFinite(mapPoint.lat) && Number.isFinite(mapPoint.lng) ? `${mapPoint.lat},${mapPoint.lng}` : "",
+              surface: "event",
+              label: "Ask someone",
+            }}
           />
         </div>
       </div>
@@ -384,11 +418,13 @@ export default async function CuratedEventPage({ params }) {
         </>}
         note={e.is_free ? "Confirm dates and availability on the official listing." : "Confirm availability and booking terms with the ticket provider before paying."}
         media={<>
-      {detailPhotos.length ? detailPhotos.map((photo, i) => (
-        <div key={photo.src} className="wf-event-photo" data-detail-photo="">
+      {detailPhotos.length ? detailPhotos.map((photo, i) => {
+        const credit = eventRailPhotoCredit(photo);
+        return <div key={photo.src} className="wf-event-photo" data-detail-photo="">
           <EventPlacePhoto hero={i === 0} priority={i === 0} src={photo.src} name={photo.alt || e.event_name} />
-        </div>
-      )) : shots && shots.hero ? (
+          {credit ? <span className="wf-event-photo-credit" data-event-photo-credit="">{credit.href ? <PhotoCreditLink href={credit.href} rel="nofollow noopener noreferrer">{credit.text}</PhotoCreditLink> : credit.text}</span> : null}
+        </div>;
+      }) : shots && shots.hero ? (
         <div className="wf-event-photo"><EventPlacePhoto hero priority src={shots.hero.src} name={shots.hero.alt || e.event_name} /></div>
       ) : e.hero_image ? (
         <div className="wf-event-photo"><EventPlacePhoto hero priority src={e.hero_image} name={e.image_alt || `${e.event_name} at ${e.venue || e.city}`} /></div>
@@ -413,7 +449,7 @@ export default async function CuratedEventPage({ params }) {
         </div>
       ))}
         </>}
-        credit={<EventHeroCredit
+        credit={eventRailPhotoCredit(detailPhotos[0]) ? null : <EventHeroCredit
           eventName={e.event_name}
           isVenue={eventImageIsVenue(e, heroSrc)}
           registryCredit={shots && shots.credit ? shots.credit : null}
@@ -491,6 +527,12 @@ export default async function CuratedEventPage({ params }) {
           to match the map pins). The editorial pairing sentence stays here as
           the outing note it always was. */}
       {e.pairing ? (<><h2 style={S.h2}>Make it an outing</h2><p style={S.p}>{e.pairing}</p></>) : null}
+
+      {seriesHubFor(e) ? (
+        <p style={S.p}>
+          <a style={S.link} href={seriesHubFor(e).href} data-wf-series-hub="1">{seriesHubFor(e).label} &rsaquo;</a>
+        </p>
+      ) : null}
 
       {site ? (
         <p style={S.p}>

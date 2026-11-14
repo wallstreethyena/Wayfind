@@ -112,8 +112,10 @@ const isWordChar = (c) => /[A-Za-z0-9_$]/.test(c);
 
 // Locate GET's body as [bodyStart, bodyEnd) — bodyStart just after its
 // opening '{', bodyEnd at the matching closing '}'.
-function findGetBody(src, kind) {
-  const m = /export\s+async\s+function\s+GET\s*\(/.exec(src);
+function findGetBody(src, kind, fnName = null) {
+  const m = fnName
+    ? new RegExp("(?<![\\w$])async\\s+function\\s+" + fnName + "\\s*\\(").exec(src)
+    : /export\s+async\s+function\s+GET\s*\(/.exec(src);
   if (!m) return null;
   let i = m.index + m[0].length, depth = 1;
   while (i < src.length && depth > 0) {
@@ -206,8 +208,20 @@ function statementEnd(src, kind, start, bodyEnd) {
  */
 function analyzeRoute(src) {
   const kind = classify(src);
-  const body = findGetBody(src, kind);
+  let body = findGetBody(src, kind);
   if (!body) return { error: "no `export async function GET(` found" };
+  // TRAFFIC-CLASS DELEGATE (2026-11-11, lib/spendGate.js human traffic reserve).
+  // A cron may declare who it is with a GET that does nothing but
+  //   return runWithTraffic(TRAFFIC.X, () => runJob(req));
+  // The job's real terminal paths then live in `async function runJob(`. Follow the
+  // delegate and analyse THAT body with the very same rules; a GET that is anything
+  // other than exactly this one-line delegate is analysed as itself, as before.
+  const delegate = /^\s*return\s+runWithTraffic\(\s*TRAFFIC\.[A-Z]+\s*,\s*\(\)\s*=>\s*([A-Za-z_$][\w$]*)\(req\)\s*\)\s*;\s*$/.exec(src.slice(body.bodyStart, body.bodyEnd));
+  if (delegate) {
+    const inner = findGetBody(src, kind, delegate[1]);
+    if (!inner) return { error: "GET delegates to " + delegate[1] + "(req) but `async function " + delegate[1] + "(` was not found" };
+    body = inner;
+  }
   const { bodyStart, bodyEnd } = body;
   const { topReturns, topPulses } = scanBody(src, kind, bodyStart, bodyEnd);
   const violations = [];
@@ -308,6 +322,34 @@ const KNOWN_UNPULSED = {
   `;
   ok(analyzeRoute(NESTED_ONLY).violations.length === 0,
     "self-test: nested returns inside a filter callback must never be treated as unpulsed terminal paths");
+
+  // Traffic-class delegate (human traffic reserve): GET is one line, the job body
+  // is analysed with the same rules. POSITIVE and RED-PROOF on the delegate shape.
+  const DELEGATE_GOOD = `
+    export async function GET(req) {
+      return runWithTraffic(TRAFFIC.BACKGROUND, () => runJob(req));
+    }
+    async function runJob(req) {
+      if (!secret || auth !== "Bearer " + secret) return new Response("unauthorized", { status: 401 });
+      await recordPulse("z", { attempted: 1, succeeded: 1 });
+      return Response.json({ ok: true });
+    }
+  `;
+  const dGood = analyzeRoute(DELEGATE_GOOD);
+  ok(!dGood.error && dGood.violations.length === 0 && dGood.returnCount === 2,
+    `self-test POSITIVE CONTROL: a pulsed job behind the runWithTraffic delegate must be analysed as itself (2 returns, 0 violations), got ${JSON.stringify(dGood)}`);
+  const dBad = analyzeRoute(DELEGATE_GOOD.replace('await recordPulse("z", { attempted: 1, succeeded: 1 });\n      ', ""));
+  ok(dBad.violations && dBad.violations.length === 1 && /ok: true/.test(dBad.violations[0].stmt),
+    `self-test RED-PROOF: the delegate must NOT hide an unpulsed terminal return inside the job body, got ${JSON.stringify(dBad)}`);
+  const dOther = analyzeRoute(`
+    export async function GET(req) {
+      const x = 1;
+      return runWithTraffic(TRAFFIC.BACKGROUND, () => runJob(req));
+    }
+    async function runJob(req) { await recordPulse("z", {}); return Response.json({}); }
+  `);
+  ok(dOther.violations && dOther.violations.length === 1,
+    "self-test: a GET that does anything besides the one-line delegate is analysed as itself (its own return has no pulse before it)");
 }
 
 // ── prove the scanner still finds the real, currently-open gaps ───────────

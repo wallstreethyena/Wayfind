@@ -117,18 +117,16 @@ delete globalThis.__wfRecoveryProbe;
 
 // Every state a user can put the screen in. The crash lived in state 1.
 const STATES = [
-  // v7.16: the bottom slot renders the shared IconicPlaceCard (owner:
-  // "i want the results to be our iconic place card"). A real score renders
-  // the real WayfindScoreBadge; no score renders NO badge (the shared card
-  // derives only from wfScore/rating, and this fixture carries neither).
-  ["pin tapped: preview card with a real score", { mapPreview: P() }, (h) => h.includes("data-iconic-place-card") && h.includes("9.2") && h.includes("wayfind-score-badge")],
-  ["preview card, place with NO score (score law: badge absent, no fabrication)", { mapPreview: P({ wfScore: null, governed_score: null }) }, (h) => !h.includes("wayfind-score-badge") && h.includes("data-iconic-place-card")],
-  ["preview card, sparse place (no price/photo/distance)", { mapPreview: P({ price: null, distMi: null, cuisine: null }) }, (h) => h.includes("data-iconic-place-card")],
+  // The bottom preview slot renders MapCompactPreviewCard (data-wf-map-preview-card).
+  // A real score renders the real WayfindScoreBadge; no score renders NO badge.
+  ["pin tapped: preview card with a real score", { mapPreview: P() }, (h) => h.includes("data-wf-map-preview-card") && h.includes("9.2") && h.includes("wayfind-score-badge")],
+  ["preview card, place with NO score (score law: badge absent, no fabrication)", { mapPreview: P({ wfScore: null, governed_score: null }) }, (h) => !h.includes("wayfind-score-badge") && h.includes("data-wf-map-preview-card")],
+  ["preview card, sparse place (no price/photo/distance)", { mapPreview: P({ price: null, distMi: null, cuisine: null }) }, (h) => h.includes("data-wf-map-preview-card")],
   ["collapsed list strip", {}, (h) => h.includes("Wayfind Score 9.2+") && h.includes("Browse list")],
   ["open drawer renders the real PlaceCard seam", { mapDrawer: true }, (h) => h.includes("place-card")],
-  ["loaded empty area stays honest", { __mapSmokePlaces: [], mapDrawer: true }, (h) => h.includes("No 9.2+") && !h.includes("place-card")],
-  ["below-floor rows are filtered before the drawer", { __mapSmokePlaces: [P({ wfScore: 91, governed_score: 91 })], mapDrawer: true }, (h) => h.includes("No 9.2+") && !h.includes("place-card")],
-  ["partial area failure is explicitly labelled", { __mapSmokeStatus: "error", mapDrawer: true }, (h) => h.includes("could not finish loading") && h.includes("partial results") && h.includes("place-card")],
+  ["loaded empty area stays honest", { __mapSmokePlaces: [], mapDrawer: true }, (h) => h.includes("Nothing nearby matches this filter") && !h.includes("place-card")],
+  ["below-floor rows are filtered before the drawer", { __mapSmokePlaces: [P({ wfScore: 91, governed_score: 91 })], mapDrawer: true }, (h) => h.includes("Nothing nearby matches this filter") && !h.includes("place-card")],
+  ["partial area failure is explicitly labelled", { __mapSmokeStatus: "error", mapDrawer: true }, (h) => h.includes("Could not load this area") && h.includes("partial results") && h.includes("place-card")],
   ["events mode with an event preview", { mapMode: "events", eventPreview: EV, events: [EV] }, (h) => h.includes("Smoke Show")],
 ];
 
@@ -144,15 +142,15 @@ for (const [label, over, check] of STATES) {
 // inventory and the list remain available. Healthy 2D and 3D keep area errors.
 for (const [label, over, failedApple, check] of [
   ["Apple failure while area loads", { __mapSmokeMapFailed: true, __mapSmokeStatus: "loading", __mapSmokePlaces: [] }, true,
-    (h) => h.includes("Apple Maps could not load right now.") && h.includes("Try again") && !h.includes("Finding every 9.2+ place")],
+    (h) => h.includes("Apple Maps could not load right now.") && h.includes("Try again") && !h.includes("Loading nearby")],
   ["Apple failure with partial area results", { __mapSmokeMapFailed: true, __mapSmokeStatus: "error", mapDrawer: true }, true,
-    (h) => h.includes("Apple Maps could not load right now.") && !h.includes("This area could not finish loading.") && h.includes("partial results") && h.includes("place-card")],
+    (h) => h.includes("Apple Maps could not load right now.") && !h.includes("Could not load this area") && h.includes("partial results") && h.includes("place-card")],
   ["Apple failure with empty area", { __mapSmokeMapFailed: true, __mapSmokePlaces: [] }, true,
-    (h) => h.includes("Try again") && !h.includes("No 9.2+ places match these filters here.")],
+    (h) => h.includes("Try again") && !h.includes("Nothing nearby matches this filter")],
   ["healthy Apple map with area error", { __mapSmokeStatus: "error" }, false,
-    (h) => h.includes("This area could not finish loading.") && !h.includes("Apple Maps could not load right now.")],
+    (h) => h.includes("Could not load this area") && !h.includes("Apple Maps could not load right now.")],
   ["3D map with area error", { map3D: true, __mapSmokeMapFailed: true, __mapSmokeStatus: "error" }, false,
-    (h) => h.includes("This area could not finish loading.") && !h.includes("Apple Maps could not load right now.")],
+    (h) => h.includes("Could not load this area") && !h.includes("Apple Maps could not load right now.")],
 ]) {
   let html = null, err = null, rendererProps = null;
   globalThis.__wfMapSmokeMapFailed = failedApple;
@@ -215,8 +213,7 @@ function visitElement(root, predicate) {
   return visitElement(root.props.children, predicate);
 }
 function hasAreaBanner(tree) {
-  return !!visitElement(tree, (element) => element.props.role === "status" && element.props.children?.some?.((child) =>
-    typeof child === "string" && child.includes("This area could not finish loading.")));
+  return !!visitElement(tree, (element) => element.props.role === "status" && JSON.stringify(element.props.children).includes("Could not load this area"));
 }
 const deferred = () => {
   let reject;
@@ -338,7 +335,7 @@ const appleSwitch = renderToStaticMarkup(createElement(MapScreen, { ctx: ctxFor(
   MapView: (props) => { threeDProps = props; return null; },
 }) }));
 ok(threeDProps?.focus === null, "3D never receives the last Apple-only camera focus");
-ok(!appleSwitch.includes("data-iconic-place-card"), "Apple-only preview disappears synchronously on a 3D switch");
+ok(!appleSwitch.includes("data-wf-map-preview-card"), "Apple-only preview disappears synchronously on a 3D switch");
 const actions = [];
 const actionHooks = hookHost();
 const originalPlace = P({ lat: 27.5, lng: -82.5 });

@@ -1,0 +1,492 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 53. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJy2XxDJEB2YgRH3zAvxHf-bQ",
+   "name": "Stork's Bakery & Cafe",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "cafe",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://storksbakery.com/",
+     "source_name": "Stork's Bakery & Cafe \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Stork's Bakery & Cafe has been in business since 1997 serving foods, coffees and desserts",
+      "Stork's is a unique combination of upscale coffee house, bakery, and bistro cafe",
+      "Stork's offers online ordering for delivery and pick-up, as well as catering services"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Upscale coffee house, bakery and bistro cafe, all rolled into one, since 1997",
+    "why_here": "Stork's Bakery & Cafe describes itself as a unique combination of upscale coffee house, bakery, and bistro cafe, all rolled into one. It has been in business since 1997 serving foods, coffees and desserts, with dine-in inside or on a covered outdoor patio.",
+    "know_before": "STORK'S is open 7 days a week including national holidays, and offers online ordering for delivery and pick-up as well as catering services.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://storksbakery.com/"
+     ],
+     "why_here": [
+      "https://storksbakery.com/"
+     ],
+     "know_before": [
+      "https://storksbakery.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Stork's Bakery & Cafe has been in business since 1997 serving foods, coffees and desserts",
+      "source": "https://storksbakery.com/"
+     },
+     {
+      "claim": "Stork's is a unique combination of upscale coffee house, bakery, and bistro cafe",
+      "source": "https://storksbakery.com/"
+     },
+     {
+      "claim": "Stork's offers online ordering for delivery and pick-up, as well as catering services",
+      "source": "https://storksbakery.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJTZUpfgB_54gR3If31gSNFsQ",
+   "name": "Universal Helios Grand Hotel, a Loews Hotel",
+   "category": "hotels",
+   "metro": "orlando",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.loewshotels.com/helios-grand-hotel",
+     "source_name": "Universal Helios Grand Hotel, a Loews Hotel \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Universal Helios Grand Hotel is located at Epic Universe at the end of Celestial Park",
+      "The hotel has 500 rooms, including 35 suites, and its own dedicated entrance into the theme park",
+      "The hotel features celestial patterns and constellations with an elegant, Mediterranean-inspired feel, a rooftop bar and a resort-style pool"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Mediterranean-inspired hotel at Epic Universe with its own dedicated park entrance",
+    "why_here": "Located at Epic Universe at the end of Celestial Park, Universal Helios Grand Hotel is designed around celestial patterns and constellations with a Mediterranean-inspired feel, 500 rooms and one-of-a-kind views over the park.",
+    "know_before": "The hotel has its own dedicated and exclusive entrance into Universal Epic Universe, plus a rooftop bar and resort-style pool.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.loewshotels.com/helios-grand-hotel"
+     ],
+     "why_here": [
+      "https://www.loewshotels.com/helios-grand-hotel"
+     ],
+     "know_before": [
+      "https://www.loewshotels.com/helios-grand-hotel"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Universal Helios Grand Hotel is located at Epic Universe at the end of Celestial Park",
+      "source": "https://www.loewshotels.com/helios-grand-hotel"
+     },
+     {
+      "claim": "The hotel has 500 rooms, including 35 suites, and its own dedicated entrance into the theme park",
+      "source": "https://www.loewshotels.com/helios-grand-hotel"
+     },
+     {
+      "claim": "The hotel features celestial patterns and constellations with an elegant, Mediterranean-inspired feel, a rooftop bar and a resort-style pool",
+      "source": "https://www.loewshotels.com/helios-grand-hotel"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJJ6vY6SZCw4gRbHAxPDnQvso",
+   "name": "Fun Boat Tours",
+   "category": "attractions",
+   "metro": "manatee-sarasota",
+   "primary_type": "tour_agency",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://funboattours.com/siesta-key-tours/",
+     "source_name": "Fun Boat Tours \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Fun Boat Tours Siesta Key offers daily dolphin tours, sandbar trips, sunset cruises and private charters",
+      "Cruising Siesta Key waters, guests watch wildlife along Lido Key, Long Boat Key and the downtown Sarasota skyline",
+      "The Dolphins & Donuts tour features donuts and coffee from a locally owned and operated company",
+      "The sandbar trip includes a lily pad, beach games and kids toys"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Siesta Key dolphin tours, sandbar trips and private charters for groups",
+    "why_here": "Fun Boat Tours' Siesta Key location offers daily dolphin tours, sandbar trips, sunset cruises and private charters built to suit your group's needs. Cruising the waters of Siesta Key, guests watch wildlife along Lido Key, Long Boat Key and the downtown Sarasota skyline.",
+    "know_before": "For the sandbar trip, the operator suggests bringing a towel and sunscreen and says it only takes a small group, so book as soon as possible.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://funboattours.com/siesta-key-tours/"
+     ],
+     "why_here": [
+      "https://funboattours.com/siesta-key-tours/"
+     ],
+     "know_before": [
+      "https://funboattours.com/siesta-key-tours/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Fun Boat Tours Siesta Key offers daily dolphin tours, sandbar trips, sunset cruises and private charters",
+      "source": "https://funboattours.com/siesta-key-tours/"
+     },
+     {
+      "claim": "Cruising Siesta Key waters, guests watch wildlife along Lido Key, Long Boat Key and the downtown Sarasota skyline",
+      "source": "https://funboattours.com/siesta-key-tours/"
+     },
+     {
+      "claim": "The Dolphins & Donuts tour features donuts and coffee from a locally owned and operated company",
+      "source": "https://funboattours.com/siesta-key-tours/"
+     },
+     {
+      "claim": "The sandbar trip includes a lily pad, beach games and kids toys",
+      "source": "https://funboattours.com/siesta-key-tours/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJj8K2uQcx24gRA3fG52NmIGk",
+   "name": "Bailey-Matthews National Shell Museum & Aquarium",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "museum",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://shellmuseum.org/plan-your-visit/",
+     "source_name": "Bailey-Matthews National Shell Museum & Aquarium \u2014 official source",
+     "source_class": "tourism_dmo",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Museum is open 7 days a week, from 10:00 a.m. to 5:00 p.m.",
+      "Admission includes daily gallery talks including Keeper Chats and Great Hall of Shells Spotlight Tours",
+      "Parking at the Museum is free",
+      "The Museum Store is open 10:00 a.m. to 5:00 p.m. every day that the Museum is open"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Shell museum with aquariums, daily gallery talks and spotlight tours",
+    "why_here": "The Bailey-Matthews National Shell Museum & Aquarium lists daily gallery talks included in the price of admission. Those talks include Keeper Chats and Great Hall of Shells Spotlight Tours during which educators share stories about the Great Hall of Shells.",
+    "know_before": "Parking at the Museum is free, and the Museum Store does not require Museum admission to shop.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://shellmuseum.org/plan-your-visit/"
+     ],
+     "why_here": [
+      "https://shellmuseum.org/plan-your-visit/"
+     ],
+     "know_before": [
+      "https://shellmuseum.org/plan-your-visit/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Museum is open 7 days a week, from 10:00 a.m. to 5:00 p.m.",
+      "source": "https://shellmuseum.org/plan-your-visit/"
+     },
+     {
+      "claim": "Admission includes daily gallery talks including Keeper Chats and Great Hall of Shells Spotlight Tours",
+      "source": "https://shellmuseum.org/plan-your-visit/"
+     },
+     {
+      "claim": "Parking at the Museum is free",
+      "source": "https://shellmuseum.org/plan-your-visit/"
+     },
+     {
+      "claim": "The Museum Store is open 10:00 a.m. to 5:00 p.m. every day that the Museum is open",
+      "source": "https://shellmuseum.org/plan-your-visit/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJb-g09FOxwogRQ8i57L8DiMs",
+   "name": "Krate at the Grove",
+   "category": "shopping",
+   "metro": "florida",
+   "primary_type": "shopping_mall",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://krateatthegrove.com/",
+     "source_name": "Krate at the Grove \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "KRATE turns 94 shipping containers into restaurants and retail shops",
+      "KRATE is described as one of the largest container parks in the world",
+      "KRATE promotes locally-owned businesses and vendors",
+      "KRATE hosts performances on its KRATE stage",
+      "Individual tenant hours may vary; check with each tenant"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Container park built from 94 shipping containers turned into shops and restaurants",
+    "why_here": "KRATE turns 94 shipping containers into restaurants and retail shops, described on its official site as one of the largest and most exciting container parks in the world. The site says it promotes locally-owned businesses and vendors and hosts performances on the KRATE stage.",
+    "know_before": "KRATE turns 94 shipping containers into restaurants and retail shops",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://krateatthegrove.com/"
+     ],
+     "why_here": [
+      "https://krateatthegrove.com/"
+     ],
+     "know_before": [
+      "https://krateatthegrove.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "KRATE turns 94 shipping containers into restaurants and retail shops",
+      "source": "https://krateatthegrove.com/"
+     },
+     {
+      "claim": "KRATE is described as one of the largest container parks in the world",
+      "source": "https://krateatthegrove.com/"
+     },
+     {
+      "claim": "KRATE promotes locally-owned businesses and vendors",
+      "source": "https://krateatthegrove.com/"
+     },
+     {
+      "claim": "KRATE hosts performances on its KRATE stage",
+      "source": "https://krateatthegrove.com/"
+     },
+     {
+      "claim": "Individual tenant hours may vary; check with each tenant",
+      "source": "https://krateatthegrove.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJz-Lv9Ii22YgR-LoGAaGY0cE",
+   "name": "Tutto Pasta",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "pizza_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://tuttopizzapasta.com/tuttopasta",
+     "source_name": "Tutto Pasta \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Tutto Pasta specializes in traditional Italian dishes focusing on handmade pasta",
+      "Tutto Pasta focuses on rich, slow-cooked sauces",
+      "Fresh pasta is made daily",
+      "The menu includes handmade pasta and wood-fired pizza",
+      "Tutto Pasta is located in the Brickell / Coral Way area of Miami"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Traditional Italian spot focused on handmade pasta and slow-cooked sauces",
+    "why_here": "Tutto Pasta specializes in traditional Italian dishes focusing on handmade pasta and rich, slow-cooked sauces, per its official page. The page also says fresh pasta is made daily and brings together time-honored recipes and high-quality ingredients.",
+    "know_before": "The official page says the menu includes handmade pasta and wood-fired pizza, with fresh pasta made daily.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://tuttopizzapasta.com/tuttopasta"
+     ],
+     "why_here": [
+      "https://tuttopizzapasta.com/tuttopasta"
+     ],
+     "know_before": [
+      "https://tuttopizzapasta.com/tuttopasta"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Tutto Pasta specializes in traditional Italian dishes focusing on handmade pasta",
+      "source": "https://tuttopizzapasta.com/tuttopasta"
+     },
+     {
+      "claim": "Tutto Pasta focuses on rich, slow-cooked sauces",
+      "source": "https://tuttopizzapasta.com/tuttopasta"
+     },
+     {
+      "claim": "Fresh pasta is made daily",
+      "source": "https://tuttopizzapasta.com/tuttopasta"
+     },
+     {
+      "claim": "The menu includes handmade pasta and wood-fired pizza",
+      "source": "https://tuttopizzapasta.com/tuttopasta"
+     },
+     {
+      "claim": "Tutto Pasta is located in the Brickell / Coral Way area of Miami",
+      "source": "https://tuttopizzapasta.com/tuttopasta"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJq8iUCkId3ogRcQOJ4qzucKg",
+   "name": "Cocoa Beach",
+   "category": "beach",
+   "metro": "florida",
+   "primary_type": "beach",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.visitcocoabeach.com/cocoa-beach/",
+     "source_name": "Cocoa Beach \u2014 official source",
+     "source_class": "tourism_dmo",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Within Cocoa Beach city limits there are 6 miles of ocean beaches",
+      "Cocoa Beach has 3 oceanfront parks with restrooms, showers and picnic tables",
+      "Cocoa Beach has a 27-hole public golf course",
+      "The Kennedy Space Center Visitor Complex is less than 30 minutes away"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Six miles of ocean beaches with three oceanfront parks",
+    "why_here": "Visit Cocoa Beach lists 6 miles of ocean beaches within Cocoa Beach city limits, with excellent beach access from one end of the city to the other. It also lists 3 oceanfront parks and a 27-hole public golf course among the city's features.",
+    "know_before": "The Kennedy Space Center Visitor Complex is less than 30 minutes away, according to Visit Cocoa Beach.",
+    "local_tip": "Visit Cocoa Beach says visitors can watch a space launch from the beach.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.visitcocoabeach.com/cocoa-beach/"
+     ],
+     "why_here": [
+      "https://www.visitcocoabeach.com/cocoa-beach/"
+     ],
+     "know_before": [
+      "https://www.visitcocoabeach.com/cocoa-beach/"
+     ],
+     "local_tip": [
+      "https://www.visitcocoabeach.com/cocoa-beach/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Within Cocoa Beach city limits there are 6 miles of ocean beaches",
+      "source": "https://www.visitcocoabeach.com/cocoa-beach/"
+     },
+     {
+      "claim": "Cocoa Beach has 3 oceanfront parks with restrooms, showers and picnic tables",
+      "source": "https://www.visitcocoabeach.com/cocoa-beach/"
+     },
+     {
+      "claim": "Cocoa Beach has a 27-hole public golf course",
+      "source": "https://www.visitcocoabeach.com/cocoa-beach/"
+     },
+     {
+      "claim": "The Kennedy Space Center Visitor Complex is less than 30 minutes away",
+      "source": "https://www.visitcocoabeach.com/cocoa-beach/"
+     }
+    ]
+   }
+  }
+ ]
+}

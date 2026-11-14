@@ -36,6 +36,7 @@ import { getFanoutCount, getStaleLiveOffersStatus, persistOffer, suppressOffer }
 import { credential } from "../../../../lib/envPlaceholder.js";
 import { recordPulse } from "../../../../lib/jobPulse.js";
 import { jobCannotRun, jobFailed } from "../../../../lib/jobFail.js";
+import { evaluateOfferHealthTransition, EVIDENCE_STRENGTH, OFFER_HEALTH_STATUS } from "../../../../lib/commerceHealth.js";
 
 const JOB = "verify-offers";
 
@@ -93,7 +94,12 @@ export async function GET(req) {
     const search = await searchFreetext(term);
     if (!search.ok) {
       results.upstreamError++;
-      try { console.log(JSON.stringify({ tag: "booking_integrity_diag", route: "verify-offers", placeId: row.place_id, productCode: row.product_code, decision: "upstream_error" })); } catch (e) {}
+      const transition = evaluateOfferHealthTransition({
+        currentStatus: OFFER_HEALTH_STATUS.ACTIVE,
+        currentFailureCount: Number(row.failure_count || 0),
+        probeResult: { status: OFFER_HEALTH_STATUS.UNVERIFIED, evidence: EVIDENCE_STRENGTH.WEAK, reason: "upstream_error" },
+      });
+      try { console.log(JSON.stringify({ tag: "booking_integrity_diag", route: "verify-offers", placeId: row.place_id, productCode: row.product_code, decision: "upstream_error", healthStatus: transition.nextStatus, failureCount: transition.failureCount })); } catch (e) {}
       continue; // don't suppress on a transient upstream failure -- only an explicit re-score decides that
     }
     const candidate = search.results.find((r) => r && (r.productCode === row.product_code || r.productUrl === row.product_url));
@@ -106,13 +112,27 @@ export async function GET(req) {
       ? resolveVerified({ id: row.place_id, name: row.place_name }, [candidate], { region: row.region, kind: row.kind, fanoutByCode, placeId: row.place_id })
       : null;
     if (offer) {
+      const transition = evaluateOfferHealthTransition({
+        currentStatus: OFFER_HEALTH_STATUS.ACTIVE,
+        currentFailureCount: Number(row.failure_count || 0),
+        probeResult: { status: OFFER_HEALTH_STATUS.ACTIVE, evidence: EVIDENCE_STRENGTH.STRONG, reason: "reverified_live" },
+      });
       await persistOffer(offer);
       results.stillLive++;
-      try { console.log(JSON.stringify({ tag: "booking_integrity_diag", route: "verify-offers", placeId: row.place_id, productCode: row.product_code, confidence: offer.confidence, decision: "reverified_live" })); } catch (e) {}
+      try { console.log(JSON.stringify({ tag: "booking_integrity_diag", route: "verify-offers", placeId: row.place_id, productCode: row.product_code, confidence: offer.confidence, decision: "reverified_live", healthStatus: transition.nextStatus })); } catch (e) {}
     } else {
+      const transition = evaluateOfferHealthTransition({
+        currentStatus: OFFER_HEALTH_STATUS.ACTIVE,
+        currentFailureCount: Number(row.failure_count || 0),
+        probeResult: {
+          status: candidate ? OFFER_HEALTH_STATUS.WRONG_PRODUCT : OFFER_HEALTH_STATUS.EXPIRED,
+          evidence: EVIDENCE_STRENGTH.STRONG,
+          reason: candidate ? "reverify_failed_threshold" : "product_no_longer_found",
+        },
+      });
       await suppressOffer(row.place_id, row.product_provider, row.product_code);
       results.suppressed++;
-      try { console.log(JSON.stringify({ tag: "booking_integrity_diag", route: "verify-offers", placeId: row.place_id, productCode: row.product_code, decision: candidate ? "reverify_failed_threshold" : "product_no_longer_found" })); } catch (e) {}
+      try { console.log(JSON.stringify({ tag: "booking_integrity_diag", route: "verify-offers", placeId: row.place_id, productCode: row.product_code, decision: candidate ? "reverify_failed_threshold" : "product_no_longer_found", healthStatus: transition.nextStatus })); } catch (e) {}
     }
   }
 

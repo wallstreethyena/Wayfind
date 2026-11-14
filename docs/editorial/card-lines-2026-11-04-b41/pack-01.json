@@ -1,0 +1,2098 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 41. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJATtJR1yp2YgROlXaPTVuemo",
+   "name": "Minato Japanese Buffet & Seafood",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "buffet_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.minatobuffet.com/",
+     "source_name": "Minato Japanese Buffet & Seafood \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Minato Japanese Buffet serves all you can eat Sushi, Sashimi, and Seafood in Pembroke Pines, FL",
+      "Minato Japanese Buffet is located at 9045 Pines Blvd, Pembroke Pines, FL 33024",
+      "Minato Japanese Buffet insists on only using high quality fresh ingredients",
+      "Dinner Buffet is 5:00 p.m. - 10:00 p.m. Sunday - Thursday"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "all you can eat Sushi, Sashimi, and Seafood in Pembroke Pines",
+    "why_here": "Go for all you can eat Sushi, Sashimi, and Seafood at Minato Japanese Buffet in Pembroke Pines, FL, where the Dinner Buffet draws on Japanese dishes made with high quality fresh ingredients.",
+    "know_before": "Dinner Buffet is 5:00 p.m. - 10:00 p.m. Sunday - Thursday",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.minatobuffet.com/"
+     ],
+     "why_here": [
+      "https://www.minatobuffet.com/"
+     ],
+     "know_before": [
+      "https://www.minatobuffet.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Minato Japanese Buffet serves all you can eat Sushi, Sashimi, and Seafood in Pembroke Pines, FL",
+      "source": "https://www.minatobuffet.com/"
+     },
+     {
+      "claim": "Minato Japanese Buffet is located at 9045 Pines Blvd, Pembroke Pines, FL 33024",
+      "source": "https://www.minatobuffet.com/"
+     },
+     {
+      "claim": "Minato Japanese Buffet insists on only using high quality fresh ingredients",
+      "source": "https://www.minatobuffet.com/"
+     },
+     {
+      "claim": "Dinner Buffet is 5:00 p.m. - 10:00 p.m. Sunday - Thursday",
+      "source": "https://www.minatobuffet.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJY1Mic4202YgRrcRqrCtdi2U",
+   "name": "Limonada Bar + Brunch",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "brunch_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.limonadasouthbeach.com/",
+     "source_name": "Limonada Bar + Brunch \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Limonada serves classic cocktails and an all-day dining menu",
+      "Limonada is located next to the Clinton Hotel",
+      "Limonada is at 825 Washington Ave, Miami Beach, FL 33139",
+      "Limonada is open daily 8 a.m. - 7 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "classic cocktails and an all-day dining menu next to the Clinton Hotel",
+    "why_here": "Head to Limonada for classic cocktails and an all-day dining menu next to the Clinton Hotel, a brunch stop at 825 Washington Ave, Miami Beach, FL 33139 with daily hours for daytime dining.",
+    "know_before": "Limonada is open daily 8 a.m. - 7 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.limonadasouthbeach.com/"
+     ],
+     "why_here": [
+      "https://www.limonadasouthbeach.com/"
+     ],
+     "know_before": [
+      "https://www.limonadasouthbeach.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Limonada serves classic cocktails and an all-day dining menu",
+      "source": "https://www.limonadasouthbeach.com/"
+     },
+     {
+      "claim": "Limonada is located next to the Clinton Hotel",
+      "source": "https://www.limonadasouthbeach.com/"
+     },
+     {
+      "claim": "Limonada is at 825 Washington Ave, Miami Beach, FL 33139",
+      "source": "https://www.limonadasouthbeach.com/"
+     },
+     {
+      "claim": "Limonada is open daily 8 a.m. - 7 p.m.",
+      "source": "https://www.limonadasouthbeach.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJafamqvG62YgRpYtlEcuKHh0",
+   "name": "PINCHO",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "hamburger_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://pincho.com/menu/",
+     "source_name": "PINCHO \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "PINCHO Burger is made with a signature 100 percent fresh beef patty topped with lettuce, tomatoes, onions, American cheese, potato sticks and PINCHO sauce",
+      "Toston Burger is topped with 2 fried plantains as the buns",
+      "PINCHO offers Chicken Kebab and Shrimp Kebab"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "PINCHO Burger with potato sticks and PINCHO sauce",
+    "why_here": "PINCHO Burger is made with a signature 100 percent fresh beef patty topped with lettuce, tomatoes, onions, American cheese, potato sticks and PINCHO sauce, and PINCHO offers Chicken Kebab and Shrimp Kebab.",
+    "know_before": "Toston Burger is topped with 2 fried plantains as the buns",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://pincho.com/menu/"
+     ],
+     "why_here": [
+      "https://pincho.com/menu/"
+     ],
+     "know_before": [
+      "https://pincho.com/menu/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "PINCHO Burger is made with a signature 100 percent fresh beef patty topped with lettuce, tomatoes, onions, American cheese, potato sticks and PINCHO sauce",
+      "source": "https://pincho.com/menu/"
+     },
+     {
+      "claim": "Toston Burger is topped with 2 fried plantains as the buns",
+      "source": "https://pincho.com/menu/"
+     },
+     {
+      "claim": "PINCHO offers Chicken Kebab and Shrimp Kebab",
+      "source": "https://pincho.com/menu/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJo2zUkz6r2YgR7LvBhAFneBg",
+   "name": "Hollywood Beach Suites + Hotel",
+   "category": "hotels",
+   "metro": "broward",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://hollywoodbeachsuitehotel.com/",
+     "source_name": "Hollywood Beach Suites + Hotel \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Hollywood Beach Suites Hotel has comfortable beds and mini kitchens",
+      "Hollywood Beach Suites Hotel is a one-minute walk to Hollywood beach and Broadwalk",
+      "Taco Beach Shack features specialty burritos, quesadillas, and tacos",
+      "Hollywood Beach Suites Hotel offers Book directly. No Resort Fees"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "mini kitchens and a one-minute walk to Hollywood beach and Broadwalk",
+    "why_here": "Stay in rooms with comfortable beds and mini kitchens at Hollywood Beach Suites Hotel, a one-minute walk to Hollywood beach and Broadwalk, with Taco Beach Shack serving specialty burritos, quesadillas, and tacos on site.",
+    "know_before": "Book directly. No Resort Fees at Hollywood Beach Suites Hotel",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://hollywoodbeachsuitehotel.com/"
+     ],
+     "why_here": [
+      "https://hollywoodbeachsuitehotel.com/"
+     ],
+     "know_before": [
+      "https://hollywoodbeachsuitehotel.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Hollywood Beach Suites Hotel has comfortable beds and mini kitchens",
+      "source": "https://hollywoodbeachsuitehotel.com/"
+     },
+     {
+      "claim": "Hollywood Beach Suites Hotel is a one-minute walk to Hollywood beach and Broadwalk",
+      "source": "https://hollywoodbeachsuitehotel.com/"
+     },
+     {
+      "claim": "Taco Beach Shack features specialty burritos, quesadillas, and tacos",
+      "source": "https://hollywoodbeachsuitehotel.com/"
+     },
+     {
+      "claim": "Hollywood Beach Suites Hotel offers Book directly. No Resort Fees",
+      "source": "https://hollywoodbeachsuitehotel.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJNZU1rIo724gRtz28vI1Q09k",
+   "name": "Margaritaville Beach Resort Fort Myers Beach",
+   "category": "hotels",
+   "metro": "florida",
+   "primary_type": "resort_hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.margaritavilleresorts.com/margaritaville-beach-resort-fort-myers-beach/resort-amenities",
+     "source_name": "Margaritaville Beach Resort Fort Myers Beach \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Margaritaville Beach Resort Fort Myers Beach has a lagoon-style pool",
+      "St. Somewhere Spa is a full-service spa offering massages, facials, and scrubs",
+      "Margaritaville Beach Resort Fort Myers Beach offers a complimentary bike rental program",
+      "Valet parking is $35 for overnight guests",
+      "Overnight resort guests receive two complimentary chairs and an umbrella per day based on availability"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "lagoon-style pool, St. Somewhere Spa, and complimentary bikes",
+    "why_here": "Relax by the lagoon-style pool at Margaritaville Beach Resort Fort Myers Beach, visit St. Somewhere Spa for massages, facials, and scrubs, or explore on complimentary bikes from the complimentary bike rental program.",
+    "know_before": "Valet parking is $35 for overnight guests",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.margaritavilleresorts.com/margaritaville-beach-resort-fort-myers-beach/resort-amenities"
+     ],
+     "why_here": [
+      "https://www.margaritavilleresorts.com/margaritaville-beach-resort-fort-myers-beach/resort-amenities"
+     ],
+     "know_before": [
+      "https://www.margaritavilleresorts.com/margaritaville-beach-resort-fort-myers-beach/resort-amenities"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Margaritaville Beach Resort Fort Myers Beach has a lagoon-style pool",
+      "source": "https://www.margaritavilleresorts.com/margaritaville-beach-resort-fort-myers-beach/resort-amenities"
+     },
+     {
+      "claim": "St. Somewhere Spa is a full-service spa offering massages, facials, and scrubs",
+      "source": "https://www.margaritavilleresorts.com/margaritaville-beach-resort-fort-myers-beach/resort-amenities"
+     },
+     {
+      "claim": "Margaritaville Beach Resort Fort Myers Beach offers a complimentary bike rental program",
+      "source": "https://www.margaritavilleresorts.com/margaritaville-beach-resort-fort-myers-beach/resort-amenities"
+     },
+     {
+      "claim": "Valet parking is $35 for overnight guests",
+      "source": "https://www.margaritavilleresorts.com/margaritaville-beach-resort-fort-myers-beach/resort-amenities"
+     },
+     {
+      "claim": "Overnight resort guests receive two complimentary chairs and an umbrella per day based on availability",
+      "source": "https://www.margaritavilleresorts.com/margaritaville-beach-resort-fort-myers-beach/resort-amenities"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ3agCCCdB24gRYuCXY9r2Qu8",
+   "name": "Bowlero Midpoint",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "bowling_alley",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.bowlero.com/location/bowlero-midpoint",
+     "source_name": "Bowlero Midpoint \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Bowlero Midpoint has 18 bowling lanes with cosmic bowling",
+      "Bowlero Midpoint has an arcade with air hockey and billiards/pool",
+      "Bowlero Midpoint has a sports bar",
+      "Bowlero Midpoint is in South Cape Coral, Florida",
+      "Bowlero Midpoint is open Tue from 4 p.m. to 11 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Bowling on 18 bowling lanes with cosmic bowling",
+    "why_here": "Bowlero Midpoint has 18 bowling lanes with cosmic bowling, plus an arcade with air hockey and billiards/pool and a sports bar in South Cape Coral, Florida.",
+    "know_before": "Bowlero Midpoint is open Tue from 4 p.m. to 11 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.bowlero.com/location/bowlero-midpoint"
+     ],
+     "why_here": [
+      "https://www.bowlero.com/location/bowlero-midpoint"
+     ],
+     "know_before": [
+      "https://www.bowlero.com/location/bowlero-midpoint"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Bowlero Midpoint has 18 bowling lanes with cosmic bowling",
+      "source": "https://www.bowlero.com/location/bowlero-midpoint"
+     },
+     {
+      "claim": "Bowlero Midpoint has an arcade with air hockey and billiards/pool",
+      "source": "https://www.bowlero.com/location/bowlero-midpoint"
+     },
+     {
+      "claim": "Bowlero Midpoint has a sports bar",
+      "source": "https://www.bowlero.com/location/bowlero-midpoint"
+     },
+     {
+      "claim": "Bowlero Midpoint is in South Cape Coral, Florida",
+      "source": "https://www.bowlero.com/location/bowlero-midpoint"
+     },
+     {
+      "claim": "Bowlero Midpoint is open Tue from 4 p.m. to 11 p.m.",
+      "source": "https://www.bowlero.com/location/bowlero-midpoint"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJJ6g15iAf24gRfGZN43zzG8g",
+   "name": "BALEEN",
+   "category": "food",
+   "metro": "immokalee-fl",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.laplayaresort.com/dine/baleen-naples/",
+     "source_name": "BALEEN \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "BALEEN Naples pairs high-end dining with a modern, seafood-focused menu",
+      "Dinner Daily 5:30 p.m. \u2013 9:30 p.m.",
+      "Saturday & Sunday, 8:00 a.m. \u2013 2:00 p.m. brunch includes Lobster Eggs Benedict and Croissant Waffles",
+      "BALEEN Naples is at LaPlaya Beach & Golf Resort 9891 Gulf Shore Drive Naples, FL 34108"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Beachfront dining with a modern, seafood-focused menu",
+    "why_here": "Go for high-end dining with a modern, seafood-focused menu on the beachfront, including Lobster Eggs Benedict and Croissant Waffles at brunch and dinner overlooking sand and sea.",
+    "know_before": "Dinner Daily 5:30 p.m. \u2013 9:30 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.laplayaresort.com/dine/baleen-naples/"
+     ],
+     "why_here": [
+      "https://www.laplayaresort.com/dine/baleen-naples/"
+     ],
+     "know_before": [
+      "https://www.laplayaresort.com/dine/baleen-naples/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "BALEEN Naples pairs high-end dining with a modern, seafood-focused menu",
+      "source": "https://www.laplayaresort.com/dine/baleen-naples/"
+     },
+     {
+      "claim": "Dinner Daily 5:30 p.m. \u2013 9:30 p.m.",
+      "source": "https://www.laplayaresort.com/dine/baleen-naples/"
+     },
+     {
+      "claim": "Saturday & Sunday, 8:00 a.m. \u2013 2:00 p.m. brunch includes Lobster Eggs Benedict and Croissant Waffles",
+      "source": "https://www.laplayaresort.com/dine/baleen-naples/"
+     },
+     {
+      "claim": "BALEEN Naples is at LaPlaya Beach & Golf Resort 9891 Gulf Shore Drive Naples, FL 34108",
+      "source": "https://www.laplayaresort.com/dine/baleen-naples/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJUczTK5XC2YgRRt4Jp6N3B70",
+   "name": "Pinto's Farm",
+   "category": "attractions",
+   "metro": "miami-dade",
+   "primary_type": "farm",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://pintofarm.com/",
+     "source_name": "Pinto's Farm \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Pinto's Farm is at 14890 SW 216 ST Miami, FL 33170",
+      "Pinto's Farm has rides, a petting zoo, Goat Yoga, and birthday parties",
+      "Hours of Operation Fridays 2 p.m.-7 p.m. Saturdays & Sundays 9 a.m.-7 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Family farm with rides, a petting zoo, and Goat Yoga",
+    "why_here": "Go for rides, a petting zoo, Goat Yoga, and birthday parties at 14890 SW 216 ST Miami, FL 33170, with animal encounters and party packages for families.",
+    "know_before": "Hours of Operation Fridays 2 p.m.-7 p.m. Saturdays & Sundays 9 a.m.-7 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://pintofarm.com/"
+     ],
+     "why_here": [
+      "https://pintofarm.com/"
+     ],
+     "know_before": [
+      "https://pintofarm.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Pinto's Farm is at 14890 SW 216 ST Miami, FL 33170",
+      "source": "https://pintofarm.com/"
+     },
+     {
+      "claim": "Pinto's Farm has rides, a petting zoo, Goat Yoga, and birthday parties",
+      "source": "https://pintofarm.com/"
+     },
+     {
+      "claim": "Hours of Operation Fridays 2 p.m.-7 p.m. Saturdays & Sundays 9 a.m.-7 p.m.",
+      "source": "https://pintofarm.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJYeWej-Ar54gR-KcvEblfhao",
+   "name": "Flagler Avenue Beachfront Park",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.visitnsbfl.com/beach-district",
+     "source_name": "Flagler Avenue Beachfront Park \u2014 official source",
+     "source_class": "tourism_dmo",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Flagler Avenue Beachfront Park offers easy beach access and wide-open shoreline",
+      "The NSB Beach District is set along the shoreline from Flagler Avenue to Third Avenue",
+      "Flagler Avenue Beachfront Park is known for its drive-on beach and the iconic flag",
+      "Flagler Avenue Beachfront Park is a central part of the Beach District experience"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Easy beach access with wide-open shoreline and a drive-on beach",
+    "why_here": "Enjoy easy beach access and wide-open shoreline at Flagler Avenue Beachfront Park, a central part of the Beach District experience along the shoreline from Flagler Avenue to Third Avenue.",
+    "know_before": "Known for its drive-on beach and the iconic flag",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.visitnsbfl.com/beach-district"
+     ],
+     "why_here": [
+      "https://www.visitnsbfl.com/beach-district"
+     ],
+     "know_before": [
+      "https://www.visitnsbfl.com/beach-district"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Flagler Avenue Beachfront Park offers easy beach access and wide-open shoreline",
+      "source": "https://www.visitnsbfl.com/beach-district"
+     },
+     {
+      "claim": "The NSB Beach District is set along the shoreline from Flagler Avenue to Third Avenue",
+      "source": "https://www.visitnsbfl.com/beach-district"
+     },
+     {
+      "claim": "Flagler Avenue Beachfront Park is known for its drive-on beach and the iconic flag",
+      "source": "https://www.visitnsbfl.com/beach-district"
+     },
+     {
+      "claim": "Flagler Avenue Beachfront Park is a central part of the Beach District experience",
+      "source": "https://www.visitnsbfl.com/beach-district"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJx-nDQoK22YgRJYLsQ1PEaKY",
+   "name": "Flamingo Theater Bar",
+   "category": "nightlife",
+   "metro": "miami-dade",
+   "primary_type": "bar",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.flamingotheaterbar.com/",
+     "source_name": "Flamingo Theater Bar \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Flamingo Theater Bar is at 905 Brickell Bay Drive, Miami FL 33131",
+      "The Flamingo Theater Bar site lists events and tickets at Flamingo Theater Bar with Buy Ticket options"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "events with tickets at Flamingo Theater Bar",
+    "why_here": "Go for events with tickets at Flamingo Theater Bar, where the site lists events at Flamingo Theater Bar with Buy Ticket options and shows the venue at 905 Brickell Bay Drive, Miami FL 33131.",
+    "know_before": "Flamingo Theater Bar is at 905 Brickell Bay Drive, Miami FL 33131",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.flamingotheaterbar.com/"
+     ],
+     "why_here": [
+      "https://www.flamingotheaterbar.com/"
+     ],
+     "know_before": [
+      "https://www.flamingotheaterbar.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Flamingo Theater Bar is at 905 Brickell Bay Drive, Miami FL 33131",
+      "source": "https://www.flamingotheaterbar.com/"
+     },
+     {
+      "claim": "The Flamingo Theater Bar site lists events and tickets at Flamingo Theater Bar with Buy Ticket options",
+      "source": "https://www.flamingotheaterbar.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJW183nLIXw4gRcuHFpjCkCGc",
+   "name": "LECOM Park",
+   "category": "attractions",
+   "metro": "manatee-sarasota",
+   "primary_type": "stadium",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.milb.com/bradenton/ballpark/information",
+     "source_name": "LECOM Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "LECOM Park is at 1611 9th Street West, Bradenton, FL 34205",
+      "The Bradenton Marauders are the Single-A affiliate of the Pittsburgh Pirates",
+      "Since 1979, members of the Bradenton Boosters have volunteered as the Pirates Spring Training staff",
+      "LECOM Park is a cashless ballpark",
+      "Children two years old or younger can receive complimentary admission at LECOM Park"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Single-A affiliate of the Pittsburgh Pirates at 1611 9th Street West",
+    "why_here": "Come for Bradenton Marauders baseball, the Single-A affiliate of the Pittsburgh Pirates, at 1611 9th Street West, Bradenton, FL 34205. Since 1979, members of the Bradenton Boosters have volunteered as the Pirates Spring Training staff.",
+    "know_before": "LECOM Park is a cashless ballpark; children two years old or younger can receive complimentary admission.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.milb.com/bradenton/ballpark/information"
+     ],
+     "why_here": [
+      "https://www.milb.com/bradenton/ballpark/information"
+     ],
+     "know_before": [
+      "https://www.milb.com/bradenton/ballpark/information"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "LECOM Park is at 1611 9th Street West, Bradenton, FL 34205",
+      "source": "https://www.milb.com/bradenton/ballpark/information"
+     },
+     {
+      "claim": "The Bradenton Marauders are the Single-A affiliate of the Pittsburgh Pirates",
+      "source": "https://www.milb.com/bradenton/ballpark/information"
+     },
+     {
+      "claim": "Since 1979, members of the Bradenton Boosters have volunteered as the Pirates Spring Training staff",
+      "source": "https://www.milb.com/bradenton/ballpark/information"
+     },
+     {
+      "claim": "LECOM Park is a cashless ballpark",
+      "source": "https://www.milb.com/bradenton/ballpark/information"
+     },
+     {
+      "claim": "Children two years old or younger can receive complimentary admission at LECOM Park",
+      "source": "https://www.milb.com/bradenton/ballpark/information"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJjbdaAnUe2YgR6aGcqad2D3U",
+   "name": "Tap 42 Craft Kitchen & Bar - Boca Raton",
+   "category": "food",
+   "metro": "palm-beach",
+   "primary_type": "gastropub",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://tap42.com/locations/boca-raton/",
+     "source_name": "Tap 42 Craft Kitchen & Bar - Boca Raton \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Tap 42 Boca Raton is in the Shops at Boca Center at 5050 Town Center Circle",
+      "Weekday lunch starts at 11:30 a.m., with burgers like The Prohibition and The Big Smash",
+      "Happy hour runs Monday through Friday from 3 p.m. to 6 p.m. at the bar",
+      "Bottomless brunch runs Saturday and Sunday from 11 a.m. to 3 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Burgers like The Prohibition and The Big Smash at the Shops at Boca Center",
+    "why_here": "Visit Tap 42 Boca Raton in the Shops at Boca Center at 5050 Town Center Circle for weekday lunch starting at 11:30 a.m., with burgers like The Prohibition and The Big Smash, plus Saturday and Sunday bottomless brunch.",
+    "know_before": "Happy hour runs Monday through Friday from 3 p.m. to 6 p.m. at the bar.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://tap42.com/locations/boca-raton/"
+     ],
+     "why_here": [
+      "https://tap42.com/locations/boca-raton/"
+     ],
+     "know_before": [
+      "https://tap42.com/locations/boca-raton/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Tap 42 Boca Raton is in the Shops at Boca Center at 5050 Town Center Circle",
+      "source": "https://tap42.com/locations/boca-raton/"
+     },
+     {
+      "claim": "Weekday lunch starts at 11:30 a.m., with burgers like The Prohibition and The Big Smash",
+      "source": "https://tap42.com/locations/boca-raton/"
+     },
+     {
+      "claim": "Happy hour runs Monday through Friday from 3 p.m. to 6 p.m. at the bar",
+      "source": "https://tap42.com/locations/boca-raton/"
+     },
+     {
+      "claim": "Bottomless brunch runs Saturday and Sunday from 11 a.m. to 3 p.m.",
+      "source": "https://tap42.com/locations/boca-raton/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJOWLET9cH2YgRN1UihDafVSQ",
+   "name": "Plantation Central Park",
+   "category": "attractions",
+   "metro": "broward",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.plantation.org/Home/Components/FacilityDirectory/FacilityDirectory/92/285",
+     "source_name": "Plantation Central Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Central Park is at 9151 N.W. 2nd Street, Plantation, FL 33324",
+      "At Plantation's Central Park, residents can enjoy two Olympic size pools",
+      "Central Park has 26 lighted Har-Tru tennis courts & 2 lighted hard courts",
+      "Central Park has eight lighted baseball diamonds"
+     ]
+    },
+    {
+     "source": "https://www.plantation.org/government/departments/parks-recreation/about-us/hours-of-operation",
+     "source_name": "Plantation Central Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Central Park is open Monday - Friday 6:00 a.m. - 11:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Two Olympic size pools and 26 lighted Har-Tru tennis courts in Plantation",
+    "why_here": "Go to Central Park at 9151 N.W. 2nd Street, Plantation, FL 33324 for two Olympic size pools, 26 lighted Har-Tru tennis courts & 2 lighted hard courts, and eight lighted baseball diamonds.",
+    "know_before": "Central Park is open Monday - Friday 6:00 a.m. - 11:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.plantation.org/Home/Components/FacilityDirectory/FacilityDirectory/92/285"
+     ],
+     "why_here": [
+      "https://www.plantation.org/Home/Components/FacilityDirectory/FacilityDirectory/92/285"
+     ],
+     "know_before": [
+      "https://www.plantation.org/Home/Components/FacilityDirectory/FacilityDirectory/92/285"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Central Park is at 9151 N.W. 2nd Street, Plantation, FL 33324",
+      "source": "https://www.plantation.org/Home/Components/FacilityDirectory/FacilityDirectory/92/285"
+     },
+     {
+      "claim": "At Plantation's Central Park, residents can enjoy two Olympic size pools",
+      "source": "https://www.plantation.org/Home/Components/FacilityDirectory/FacilityDirectory/92/285"
+     },
+     {
+      "claim": "Central Park has 26 lighted Har-Tru tennis courts & 2 lighted hard courts",
+      "source": "https://www.plantation.org/Home/Components/FacilityDirectory/FacilityDirectory/92/285"
+     },
+     {
+      "claim": "Central Park has eight lighted baseball diamonds",
+      "source": "https://www.plantation.org/Home/Components/FacilityDirectory/FacilityDirectory/92/285"
+     },
+     {
+      "claim": "Central Park is open Monday - Friday 6:00 a.m. - 11:00 p.m.",
+      "source": "https://www.plantation.org/government/departments/parks-recreation/about-us/hours-of-operation"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJhdauuQJ63YgR-8GnQI7legY",
+   "name": "Solterra Resort",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "sports_activity_location",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://solterraresort.com/amenities/center-and-pool",
+     "source_name": "Solterra Resort \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Solterra Resort is at 5200 Solterra Circle, Davenport, FL 33837",
+      "Solterra Resort offers a year-round heated swimming pool, a Jacuzzi spa, and a lazy river",
+      "The Amenity Center at Solterra Resort includes a Fitness center and Caf\u00e9 Sol",
+      "Pool hours at Solterra Resort are 9 a.m. to 10 p.m.",
+      "Lazy River hours at Solterra Resort are 11 a.m. to 7 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "year-round heated swimming pool, Jacuzzi spa, and lazy river",
+    "why_here": "Stay for a year-round heated swimming pool, a Jacuzzi spa, and a lazy river at Solterra Resort, with a Fitness center and Caf\u00e9 Sol at the Amenity Center in Davenport.",
+    "know_before": "Pool hours are 9 a.m. to 10 p.m. and Lazy River hours are 11 a.m. to 7 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://solterraresort.com/amenities/center-and-pool"
+     ],
+     "why_here": [
+      "https://solterraresort.com/amenities/center-and-pool"
+     ],
+     "know_before": [
+      "https://solterraresort.com/amenities/center-and-pool"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Solterra Resort is at 5200 Solterra Circle, Davenport, FL 33837",
+      "source": "https://solterraresort.com/amenities/center-and-pool"
+     },
+     {
+      "claim": "Solterra Resort offers a year-round heated swimming pool, a Jacuzzi spa, and a lazy river",
+      "source": "https://solterraresort.com/amenities/center-and-pool"
+     },
+     {
+      "claim": "The Amenity Center at Solterra Resort includes a Fitness center and Caf\u00e9 Sol",
+      "source": "https://solterraresort.com/amenities/center-and-pool"
+     },
+     {
+      "claim": "Pool hours at Solterra Resort are 9 a.m. to 10 p.m.",
+      "source": "https://solterraresort.com/amenities/center-and-pool"
+     },
+     {
+      "claim": "Lazy River hours at Solterra Resort are 11 a.m. to 7 p.m.",
+      "source": "https://solterraresort.com/amenities/center-and-pool"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ53IjA3Wy2YgR5R48-Ig8X2Q",
+   "name": "Evio's Pizza & Grill",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://eviospizza.com/about-us",
+     "source_name": "Evio's Pizza & Grill \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Evio's Pizza & Grill is a family-owned and operated restaurant bar",
+      "Locations are in North Miami and Miami Beach",
+      "Pizza dough and sauce is made in-house daily",
+      "Chicken is All-Natural, never frozen",
+      "Hamburgers are made from 80/20 premium Black Angus and hand pressed",
+      "The menu includes pizza, gyros, burgers, wings, salads, burritos"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "family-owned and operated restaurant bar with pizza dough and sauce made in-house daily",
+    "why_here": "Come for pizza, gyros, burgers, wings, salads, and burritos at Evio's Pizza & Grill, a family-owned and operated restaurant bar with pizza dough and sauce made in-house daily and locations in North Miami and Miami Beach.",
+    "know_before": "Pizza dough and sauce is made in-house daily",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://eviospizza.com/about-us"
+     ],
+     "why_here": [
+      "https://eviospizza.com/about-us"
+     ],
+     "know_before": [
+      "https://eviospizza.com/about-us"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Evio's Pizza & Grill is a family-owned and operated restaurant bar",
+      "source": "https://eviospizza.com/about-us"
+     },
+     {
+      "claim": "Locations are in North Miami and Miami Beach",
+      "source": "https://eviospizza.com/about-us"
+     },
+     {
+      "claim": "Pizza dough and sauce is made in-house daily",
+      "source": "https://eviospizza.com/about-us"
+     },
+     {
+      "claim": "Chicken is All-Natural, never frozen",
+      "source": "https://eviospizza.com/about-us"
+     },
+     {
+      "claim": "Hamburgers are made from 80/20 premium Black Angus and hand pressed",
+      "source": "https://eviospizza.com/about-us"
+     },
+     {
+      "claim": "The menu includes pizza, gyros, burgers, wings, salads, burritos",
+      "source": "https://eviospizza.com/about-us"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJd9YyXYPJ5YgRwvgO0nvbeVU",
+   "name": "Wicked Barley Brewing Company",
+   "category": "nightlife",
+   "metro": "st-augustine-fl",
+   "primary_type": "brewpub",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://wickedbarley.com/jacksonville-florida-brewing-company/",
+     "source_name": "Wicked Barley Brewing Company \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Waterfront craft brewery Wicked Barley Brewing Company is on the banks of Goodby's Creek in Jacksonville",
+      "The taproom has 20 taps with house brewed beers, ciders and meads",
+      "The waterfront property features a large outdoor dog friendly Beer Garden, a Kayak Launch and a 100 foot boat dock",
+      "Wicked Barley offers Happy Hour every Monday through Friday from 3 p.m. to 6 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Waterfront craft brewery on the banks of Goodby's Creek",
+    "why_here": "Come for house brewed beers, ciders and meads from 20 taps in the taproom, then sit in the outdoor Beer Garden by the water or arrive via the boat dock for a relaxed drink by Goodby's Creek.",
+    "know_before": "Happy Hour runs Monday through Friday from 3 p.m. to 6 p.m.",
+    "local_tip": "Arrive via the 100 foot boat dock or use the Kayak Launch.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://wickedbarley.com/jacksonville-florida-brewing-company/"
+     ],
+     "why_here": [
+      "https://wickedbarley.com/jacksonville-florida-brewing-company/"
+     ],
+     "know_before": [
+      "https://wickedbarley.com/jacksonville-florida-brewing-company/"
+     ],
+     "local_tip": [
+      "https://wickedbarley.com/jacksonville-florida-brewing-company/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Waterfront craft brewery Wicked Barley Brewing Company is on the banks of Goodby's Creek in Jacksonville",
+      "source": "https://wickedbarley.com/jacksonville-florida-brewing-company/"
+     },
+     {
+      "claim": "The taproom has 20 taps with house brewed beers, ciders and meads",
+      "source": "https://wickedbarley.com/jacksonville-florida-brewing-company/"
+     },
+     {
+      "claim": "The waterfront property features a large outdoor dog friendly Beer Garden, a Kayak Launch and a 100 foot boat dock",
+      "source": "https://wickedbarley.com/jacksonville-florida-brewing-company/"
+     },
+     {
+      "claim": "Wicked Barley offers Happy Hour every Monday through Friday from 3 p.m. to 6 p.m.",
+      "source": "https://wickedbarley.com/jacksonville-florida-brewing-company/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJN_3uj_7Q0IgRcCNY1zU074A",
+   "name": "Dolphin Research Center",
+   "category": "attractions",
+   "metro": "keys",
+   "primary_type": "tourist_attraction",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://dolphins.org/web/general-admission/",
+     "source_name": "Dolphin Research Center \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Dolphin Research Center is in the Florida Keys",
+      "General Admission is open 7 days a week",
+      "General Admission hours are 9:00 a.m. to 3:30 p.m. with last admissions at 3:00 p.m.",
+      "Visitors can watch dolphin and sea lion, and bird training and research sessions",
+      "General Admission includes educational presentations in the Dolphin theater",
+      "Dolphin Research Center is pet friendly and welcomes animals that are leashed or harnessed"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Florida Keys facility where visitors watch dolphin and sea lion sessions",
+    "why_here": "Plan a self-paced day watching dolphin and sea lion, and bird training and research sessions, with educational presentations in the Dolphin theater. General Admission lets you explore the facility at your own pace.",
+    "know_before": "General Admission hours are 9:00 a.m. to 3:30 p.m. with last admissions at 3:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://dolphins.org/web/general-admission/"
+     ],
+     "why_here": [
+      "https://dolphins.org/web/general-admission/"
+     ],
+     "know_before": [
+      "https://dolphins.org/web/general-admission/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Dolphin Research Center is in the Florida Keys",
+      "source": "https://dolphins.org/web/general-admission/"
+     },
+     {
+      "claim": "General Admission is open 7 days a week",
+      "source": "https://dolphins.org/web/general-admission/"
+     },
+     {
+      "claim": "General Admission hours are 9:00 a.m. to 3:30 p.m. with last admissions at 3:00 p.m.",
+      "source": "https://dolphins.org/web/general-admission/"
+     },
+     {
+      "claim": "Visitors can watch dolphin and sea lion, and bird training and research sessions",
+      "source": "https://dolphins.org/web/general-admission/"
+     },
+     {
+      "claim": "General Admission includes educational presentations in the Dolphin theater",
+      "source": "https://dolphins.org/web/general-admission/"
+     },
+     {
+      "claim": "Dolphin Research Center is pet friendly and welcomes animals that are leashed or harnessed",
+      "source": "https://dolphins.org/web/general-admission/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ-dhmi5Un5IgR5b_-9UlJ2EE",
+   "name": "Barley Republic",
+   "category": "nightlife",
+   "metro": "florida",
+   "primary_type": "pub",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.barleyrepublic.com/weekly-specials",
+     "source_name": "Barley Republic \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Barley Republic is at 48 Spanish Street, St. Augustine, FL 32084",
+      "Happy Hour is Monday through Friday from 4 p.m. to 6 p.m.",
+      "Happy Hour offers $5 smash burgers and bone-in wings",
+      "Happy Hour offers $5 select draft beers, well cocktails, house wines and house-made sangria"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "St. Augustine pub at 48 Spanish Street with weekday Happy Hour",
+    "why_here": "Visit for the pub setting at 48 Spanish Street and time it for Happy Hour, when smash burgers and bone-in wings are offered alongside select draft beers, well cocktails, house wines and house-made sangria.",
+    "know_before": "Happy Hour is Monday through Friday from 4 p.m. to 6 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.barleyrepublic.com/weekly-specials"
+     ],
+     "why_here": [
+      "https://www.barleyrepublic.com/weekly-specials"
+     ],
+     "know_before": [
+      "https://www.barleyrepublic.com/weekly-specials"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Barley Republic is at 48 Spanish Street, St. Augustine, FL 32084",
+      "source": "https://www.barleyrepublic.com/weekly-specials"
+     },
+     {
+      "claim": "Happy Hour is Monday through Friday from 4 p.m. to 6 p.m.",
+      "source": "https://www.barleyrepublic.com/weekly-specials"
+     },
+     {
+      "claim": "Happy Hour offers $5 smash burgers and bone-in wings",
+      "source": "https://www.barleyrepublic.com/weekly-specials"
+     },
+     {
+      "claim": "Happy Hour offers $5 select draft beers, well cocktails, house wines and house-made sangria",
+      "source": "https://www.barleyrepublic.com/weekly-specials"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJNz72gJG12YgR54f21u0UQ24",
+   "name": "Tiki Fish n Burgers",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://tikifishnburgers.com/",
+     "source_name": "Tiki Fish n Burgers \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Tiki Fish n Burgers is an American restaurant in Miami Beach serving juicy smashed burgers and fresh seafood",
+      "Tiki Fish n Burgers has a poolside feel in Miami Beach",
+      "Tiki Fish n Burgers is at 3900 Collins Ave, Miami Beach, FL 33140",
+      "Visitors can choose dine-in, takeout, or delivery at 3900 Collins Ave or 444 Ocean Dr"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Miami Beach spot serving juicy smashed burgers and fresh seafood",
+    "why_here": "Go for juicy smashed burgers and fresh seafood at an American restaurant in Miami Beach with a poolside feel, where burgers and seafood anchor a relaxed meal by the pool with friends or family.",
+    "know_before": "Choose dine-in, takeout, or delivery at 3900 Collins Ave or 444 Ocean Dr.",
+    "local_tip": "Order juicy smashed burgers for dine-in by the pool.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://tikifishnburgers.com/"
+     ],
+     "why_here": [
+      "https://tikifishnburgers.com/"
+     ],
+     "know_before": [
+      "https://tikifishnburgers.com/"
+     ],
+     "local_tip": [
+      "https://tikifishnburgers.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Tiki Fish n Burgers is an American restaurant in Miami Beach serving juicy smashed burgers and fresh seafood",
+      "source": "https://tikifishnburgers.com/"
+     },
+     {
+      "claim": "Tiki Fish n Burgers has a poolside feel in Miami Beach",
+      "source": "https://tikifishnburgers.com/"
+     },
+     {
+      "claim": "Tiki Fish n Burgers is at 3900 Collins Ave, Miami Beach, FL 33140",
+      "source": "https://tikifishnburgers.com/"
+     },
+     {
+      "claim": "Visitors can choose dine-in, takeout, or delivery at 3900 Collins Ave or 444 Ocean Dr",
+      "source": "https://tikifishnburgers.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJU7BDY_t654gRFcekQCuujCg",
+   "name": "Relax Grill",
+   "category": "nightlife",
+   "metro": "orlando",
+   "primary_type": "bar_and_grill",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://relaxgrill.com/",
+     "source_name": "Relax Grill \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Relax Grill Restaurant & Bar is located in Lake Eola in Orlando",
+      "Relax Grill serves American Mediterranean cuisine",
+      "The menu includes home made Hummus and Frozen Specialty Drinks",
+      "Relax Grill is at 211 Eola Pkwy, Orlando, FL 32801",
+      "Happy Hour is Monday through Friday from 4:00 p.m. to 7:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Lake Eola restaurant in Orlando serving American Mediterranean cuisine",
+    "why_here": "Dine by Lake Eola in Orlando on American Mediterranean cuisine, from home made Hummus to Frozen Specialty Drinks. The lakeside setting pairs with lunch and dinner menus built around that American Mediterranean mix.",
+    "know_before": "Happy Hour is Monday through Friday from 4:00 p.m. to 7:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://relaxgrill.com/"
+     ],
+     "why_here": [
+      "https://relaxgrill.com/"
+     ],
+     "know_before": [
+      "https://relaxgrill.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Relax Grill Restaurant & Bar is located in Lake Eola in Orlando",
+      "source": "https://relaxgrill.com/"
+     },
+     {
+      "claim": "Relax Grill serves American Mediterranean cuisine",
+      "source": "https://relaxgrill.com/"
+     },
+     {
+      "claim": "The menu includes home made Hummus and Frozen Specialty Drinks",
+      "source": "https://relaxgrill.com/"
+     },
+     {
+      "claim": "Relax Grill is at 211 Eola Pkwy, Orlando, FL 32801",
+      "source": "https://relaxgrill.com/"
+     },
+     {
+      "claim": "Happy Hour is Monday through Friday from 4:00 p.m. to 7:00 p.m.",
+      "source": "https://relaxgrill.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJAQAAAJD674gRhnjP9GU6Zzs",
+   "name": "Okefenokee Swamp Park",
+   "category": "attractions",
+   "metro": "georgia-usa",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://okeswamp.org/",
+     "source_name": "Okefenokee Swamp Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Okefenokee Swamp Park is located at the northern entrance of the Okefenokee National Wildlife Refuge",
+      "Okefenokee Swamp Park is located just south of Waycross, Georgia, within the Dixon Memorial State Forest",
+      "Okefenokee Swamp Park offers a 45-minute guided boat tour",
+      "Okefenokee Swamp Park offers a train ride",
+      "Boardwalks give up-close views of resident alligators in their natural habitat"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Swamp park at the northern entrance of the Okefenokee National Wildlife Refuge",
+    "why_here": "Visit for a 45-minute guided boat tour, a train ride and boardwalks at Okefenokee Swamp Park. Boardwalks give up-close views of resident alligators in their natural habitat at the park.",
+    "know_before": "Okefenokee Swamp Park is located just south of Waycross, Georgia, within the Dixon Memorial State Forest.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://okeswamp.org/"
+     ],
+     "why_here": [
+      "https://okeswamp.org/"
+     ],
+     "know_before": [
+      "https://okeswamp.org/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Okefenokee Swamp Park is located at the northern entrance of the Okefenokee National Wildlife Refuge",
+      "source": "https://okeswamp.org/"
+     },
+     {
+      "claim": "Okefenokee Swamp Park is located just south of Waycross, Georgia, within the Dixon Memorial State Forest",
+      "source": "https://okeswamp.org/"
+     },
+     {
+      "claim": "Okefenokee Swamp Park offers a 45-minute guided boat tour",
+      "source": "https://okeswamp.org/"
+     },
+     {
+      "claim": "Okefenokee Swamp Park offers a train ride",
+      "source": "https://okeswamp.org/"
+     },
+     {
+      "claim": "Boardwalks give up-close views of resident alligators in their natural habitat",
+      "source": "https://okeswamp.org/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ_dY_SOwr3YgRZYY5A1Fuu-c",
+   "name": "Alafia River State Park",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "state_park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.floridastateparks.org/parks-and-trails/alafia-river-state-park",
+     "source_name": "Alafia River State Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Alafia River State Park is in Lithia",
+      "Alafia River State Park has mountain bike-only trails",
+      "The unique topography has some of the most radical elevation changes in the state",
+      "Alafia River State Park attracts mountain bikers from around the world to tackle the mountain bike-only trails",
+      "Hours are 8 a.m. until sunset, 365 days a year",
+      "Alafia River State Park is at 14326 S. County Road 39, Lithia, FL"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "State park with mountain bike-only trails in Lithia",
+    "why_here": "Go to tackle the mountain bike-only trails at Alafia River State Park in Lithia. The unique topography has some of the most radical elevation changes in the state, attracting mountain bikers from around the world.",
+    "know_before": "Hours are 8 a.m. until sunset, 365 days a year.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.floridastateparks.org/parks-and-trails/alafia-river-state-park"
+     ],
+     "why_here": [
+      "https://www.floridastateparks.org/parks-and-trails/alafia-river-state-park"
+     ],
+     "know_before": [
+      "https://www.floridastateparks.org/parks-and-trails/alafia-river-state-park"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Alafia River State Park is in Lithia",
+      "source": "https://www.floridastateparks.org/parks-and-trails/alafia-river-state-park"
+     },
+     {
+      "claim": "Alafia River State Park has mountain bike-only trails",
+      "source": "https://www.floridastateparks.org/parks-and-trails/alafia-river-state-park"
+     },
+     {
+      "claim": "The unique topography has some of the most radical elevation changes in the state",
+      "source": "https://www.floridastateparks.org/parks-and-trails/alafia-river-state-park"
+     },
+     {
+      "claim": "Alafia River State Park attracts mountain bikers from around the world to tackle the mountain bike-only trails",
+      "source": "https://www.floridastateparks.org/parks-and-trails/alafia-river-state-park"
+     },
+     {
+      "claim": "Hours are 8 a.m. until sunset, 365 days a year",
+      "source": "https://www.floridastateparks.org/parks-and-trails/alafia-river-state-park"
+     },
+     {
+      "claim": "Alafia River State Park is at 14326 S. County Road 39, Lithia, FL",
+      "source": "https://www.floridastateparks.org/parks-and-trails/alafia-river-state-park"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJvfxYKqdEkYgRRW1DN3Hy8qQ",
+   "name": "Henderson Beach Resort",
+   "category": "hotels",
+   "metro": "florida",
+   "primary_type": "resort_hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.hendersonbeachresort.com/about/",
+     "source_name": "Henderson Beach Resort \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Henderson Beach Resort is located on the Emerald Coast",
+      "Henderson Beach Resort is in Destin, Florida",
+      "Henderson Beach Resort sits next to the 200-acre nature preserve of Henderson Beach State Park",
+      "Henderson Beach Resort is on the sandy shoreline of the Gulf of Mexico",
+      "Henderson Beach Resort is at 200 Henderson Resort Way, Destin, FL 32541"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Resort next to Henderson Beach State Park on the Gulf of Mexico in Destin",
+    "why_here": "Stay next to the 200-acre nature preserve of Henderson Beach State Park on the sandy shoreline of the Gulf of Mexico. Henderson Beach Resort is located on the Emerald Coast in Destin, Florida.",
+    "know_before": "Henderson Beach Resort is at 200 Henderson Resort Way, Destin, FL 32541.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.hendersonbeachresort.com/about/"
+     ],
+     "why_here": [
+      "https://www.hendersonbeachresort.com/about/"
+     ],
+     "know_before": [
+      "https://www.hendersonbeachresort.com/about/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Henderson Beach Resort is located on the Emerald Coast",
+      "source": "https://www.hendersonbeachresort.com/about/"
+     },
+     {
+      "claim": "Henderson Beach Resort is in Destin, Florida",
+      "source": "https://www.hendersonbeachresort.com/about/"
+     },
+     {
+      "claim": "Henderson Beach Resort sits next to the 200-acre nature preserve of Henderson Beach State Park",
+      "source": "https://www.hendersonbeachresort.com/about/"
+     },
+     {
+      "claim": "Henderson Beach Resort is on the sandy shoreline of the Gulf of Mexico",
+      "source": "https://www.hendersonbeachresort.com/about/"
+     },
+     {
+      "claim": "Henderson Beach Resort is at 200 Henderson Resort Way, Destin, FL 32541",
+      "source": "https://www.hendersonbeachresort.com/about/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJu5KCkJYn5IgRVVjGR-aX2N4",
+   "name": "Forgotten Tonic",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.forgottentonic.com/home",
+     "source_name": "Forgotten Tonic \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Forgotten Tonic is a restaurant and cocktail bar",
+      "Forgotten Tonic is at 6 Aviles St, St. Augustine, FL 32084",
+      "Forgotten Tonic features modern twists on freshly prepared American comfort food",
+      "Forgotten Tonic has an extensive wine list and hand-crafted cocktails",
+      "Forgotten Tonic has ample outdoor seating",
+      "Hours on Monday are 11 a.m. - 11 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Restaurant and cocktail bar at 6 Aviles St in St. Augustine",
+    "why_here": "Go for modern twists on freshly prepared American comfort food, an extensive wine list and hand-crafted cocktails. Forgotten Tonic is a restaurant and cocktail bar in St. Augustine with ample outdoor seating.",
+    "know_before": "Hours on Monday are 11 a.m. - 11 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.forgottentonic.com/home"
+     ],
+     "why_here": [
+      "https://www.forgottentonic.com/home"
+     ],
+     "know_before": [
+      "https://www.forgottentonic.com/home"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Forgotten Tonic is a restaurant and cocktail bar",
+      "source": "https://www.forgottentonic.com/home"
+     },
+     {
+      "claim": "Forgotten Tonic is at 6 Aviles St, St. Augustine, FL 32084",
+      "source": "https://www.forgottentonic.com/home"
+     },
+     {
+      "claim": "Forgotten Tonic features modern twists on freshly prepared American comfort food",
+      "source": "https://www.forgottentonic.com/home"
+     },
+     {
+      "claim": "Forgotten Tonic has an extensive wine list and hand-crafted cocktails",
+      "source": "https://www.forgottentonic.com/home"
+     },
+     {
+      "claim": "Forgotten Tonic has ample outdoor seating",
+      "source": "https://www.forgottentonic.com/home"
+     },
+     {
+      "claim": "Hours on Monday are 11 a.m. - 11 p.m.",
+      "source": "https://www.forgottentonic.com/home"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJHWBuq9p654gR5Pz28aJykCc",
+   "name": "The Plaza Live",
+   "category": "attractions",
+   "metro": "orlando",
+   "primary_type": "concert_hall",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.plazaliveorlando.org/about",
+     "source_name": "The Plaza Live \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Plaza Live is located at 425 North Bumby Avenue in Orlando",
+      "The Plaza Live is a live entertainment venue",
+      "The Plaza Live hosts concerts, comedy shows and theatrical performances",
+      "The Main Hall accommodates up to 991 guests seated or 1,330 standing",
+      "The Palmer Room has a seating capacity of 250",
+      "The Plaza Live opened in 1963 as a two-screen movie theater"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Live entertainment venue at 425 North Bumby Avenue in Orlando",
+    "why_here": "Go for concerts, comedy shows and theatrical performances at The Plaza Live in Orlando. The Main Hall accommodates up to 991 guests seated or 1,330 standing, and The Palmer Room seats 250.",
+    "know_before": "The Plaza Live opened in 1963 as a two-screen movie theater.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.plazaliveorlando.org/about"
+     ],
+     "why_here": [
+      "https://www.plazaliveorlando.org/about"
+     ],
+     "know_before": [
+      "https://www.plazaliveorlando.org/about"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Plaza Live is located at 425 North Bumby Avenue in Orlando",
+      "source": "https://www.plazaliveorlando.org/about"
+     },
+     {
+      "claim": "The Plaza Live is a live entertainment venue",
+      "source": "https://www.plazaliveorlando.org/about"
+     },
+     {
+      "claim": "The Plaza Live hosts concerts, comedy shows and theatrical performances",
+      "source": "https://www.plazaliveorlando.org/about"
+     },
+     {
+      "claim": "The Main Hall accommodates up to 991 guests seated or 1,330 standing",
+      "source": "https://www.plazaliveorlando.org/about"
+     },
+     {
+      "claim": "The Palmer Room has a seating capacity of 250",
+      "source": "https://www.plazaliveorlando.org/about"
+     },
+     {
+      "claim": "The Plaza Live opened in 1963 as a two-screen movie theater",
+      "source": "https://www.plazaliveorlando.org/about"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ1QNJY1Z_54gR07SZ-YBzaIY",
+   "name": "Orlando Starflyer",
+   "category": "attractions",
+   "metro": "orlando",
+   "primary_type": "amusement_park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://starflyer.com/",
+     "source_name": "Orlando Starflyer \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Orlando StarFlyer is a stand-alone swing ride standing at 450 feet",
+      "The Orlando StarFlyer is in Orlando",
+      "The Orlando StarFlyer moves at speeds of up to 45 mph",
+      "Guests are seated in a double seat on the Orlando StarFlyer",
+      "Guests rotate around the giant tower on the Orlando StarFlyer",
+      "Hours of Operation on Mon are 10 a.m. - 2 a.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "450 feet stand-alone swing ride in Orlando",
+    "why_here": "Ride the Orlando StarFlyer, a 450 feet stand-alone swing ride moving at speeds of up to 45 mph. Guests are seated in a double seat and rotate around the giant tower on the Orlando StarFlyer.",
+    "know_before": "Hours of Operation on Mon are 10 a.m. - 2 a.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://starflyer.com/"
+     ],
+     "why_here": [
+      "https://starflyer.com/"
+     ],
+     "know_before": [
+      "https://starflyer.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Orlando StarFlyer is a stand-alone swing ride standing at 450 feet",
+      "source": "https://starflyer.com/"
+     },
+     {
+      "claim": "The Orlando StarFlyer is in Orlando",
+      "source": "https://starflyer.com/"
+     },
+     {
+      "claim": "The Orlando StarFlyer moves at speeds of up to 45 mph",
+      "source": "https://starflyer.com/"
+     },
+     {
+      "claim": "Guests are seated in a double seat on the Orlando StarFlyer",
+      "source": "https://starflyer.com/"
+     },
+     {
+      "claim": "Guests rotate around the giant tower on the Orlando StarFlyer",
+      "source": "https://starflyer.com/"
+     },
+     {
+      "claim": "Hours of Operation on Mon are 10 a.m. - 2 a.m.",
+      "source": "https://starflyer.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJfw27WbXh2IgRpZ6pOeEs8jo",
+   "name": "Le Sorelle Restaurants North Boca",
+   "category": "food",
+   "metro": "palm-beach",
+   "primary_type": "italian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://lesorellerestaurants.com/",
+     "source_name": "Le Sorelle Restaurants North Boca \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Le Sorelle serves handmade antipasti, traditional pastas and fresh seafood",
+      "The menu includes Branzino al Sale, Linguine Le Sorelle, Veal Chop Parm and Margherita Pizza",
+      "Le Sorelle offers catering services as well as private dining",
+      "Le Sorelle is open Monday through Thursday from 12:00 p.m. to 9:00 p.m.",
+      "Le Sorelle is located at 6020 N Federal Hwy, Boca Raton, FL 33487"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Handmade antipasti, traditional pastas and fresh seafood",
+    "why_here": "Come for handmade antipasti, traditional pastas and fresh seafood at Le Sorelle, with Branzino al Sale, Linguine Le Sorelle, Veal Chop Parm and Margherita Pizza on the menu.",
+    "know_before": "Open Monday through Thursday from 12:00 p.m. to 9:00 p.m.",
+    "local_tip": "Try Branzino al Sale or Linguine Le Sorelle",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://lesorellerestaurants.com/"
+     ],
+     "why_here": [
+      "https://lesorellerestaurants.com/"
+     ],
+     "know_before": [
+      "https://lesorellerestaurants.com/"
+     ],
+     "local_tip": [
+      "https://lesorellerestaurants.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Le Sorelle serves handmade antipasti, traditional pastas and fresh seafood",
+      "source": "https://lesorellerestaurants.com/"
+     },
+     {
+      "claim": "The menu includes Branzino al Sale, Linguine Le Sorelle, Veal Chop Parm and Margherita Pizza",
+      "source": "https://lesorellerestaurants.com/"
+     },
+     {
+      "claim": "Le Sorelle offers catering services as well as private dining",
+      "source": "https://lesorellerestaurants.com/"
+     },
+     {
+      "claim": "Le Sorelle is open Monday through Thursday from 12:00 p.m. to 9:00 p.m.",
+      "source": "https://lesorellerestaurants.com/"
+     },
+     {
+      "claim": "Le Sorelle is located at 6020 N Federal Hwy, Boca Raton, FL 33487",
+      "source": "https://lesorellerestaurants.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ-fb5tvLK6IgR5nFhJ6NuEmY",
+   "name": "O'Leno State Park",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "state_park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.floridastateparks.org/parks-and-trails/oleno-state-park",
+     "source_name": "O'Leno State Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "O'Leno State Park is one of Florida's first state parks",
+      "O'Leno State Park was developed by the Civilian Conservation Corps in the 1930s",
+      "The Santa Fe River goes underground in O'Leno State Park and reemerges over three miles away in River Rise Preserve State Park",
+      "O'Leno State Park is open 8 a.m. until sunset, 365 days a year"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "One of Florida's first state parks, developed in the 1930s",
+    "why_here": "See where the Santa Fe River goes underground in O'Leno State Park and reemerges over three miles away in River Rise Preserve State Park, in one of Florida's first state parks.",
+    "know_before": "Open 8 a.m. until sunset, 365 days a year",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.floridastateparks.org/parks-and-trails/oleno-state-park"
+     ],
+     "why_here": [
+      "https://www.floridastateparks.org/parks-and-trails/oleno-state-park"
+     ],
+     "know_before": [
+      "https://www.floridastateparks.org/parks-and-trails/oleno-state-park"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "O'Leno State Park is one of Florida's first state parks",
+      "source": "https://www.floridastateparks.org/parks-and-trails/oleno-state-park"
+     },
+     {
+      "claim": "O'Leno State Park was developed by the Civilian Conservation Corps in the 1930s",
+      "source": "https://www.floridastateparks.org/parks-and-trails/oleno-state-park"
+     },
+     {
+      "claim": "The Santa Fe River goes underground in O'Leno State Park and reemerges over three miles away in River Rise Preserve State Park",
+      "source": "https://www.floridastateparks.org/parks-and-trails/oleno-state-park"
+     },
+     {
+      "claim": "O'Leno State Park is open 8 a.m. until sunset, 365 days a year",
+      "source": "https://www.floridastateparks.org/parks-and-trails/oleno-state-park"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJq1bWXVEd24gRdYq1TUOg_qs",
+   "name": "Magic Lobster Roll Co - Naples, Vanderbilt Shoppes",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://themagiclobster.com/",
+     "source_name": "Magic Lobster Roll Co - Naples, Vanderbilt Shoppes \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Magic Lobster Roll Co - Naples, Vanderbilt Shoppes is located in Naples, FL at 2355 Vanderbilt Beach Rd Ste 148",
+      "Magic Lobster Roll Co is known for Lobster Roll, New England Clam Chowder, Lobster Bisque and Key Lime Pie",
+      "Magic Lobster Roll Co serves Lunch and Dinner"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Naples spot known for Lobster Roll and New England Clam Chowder",
+    "why_here": "Magic Lobster Roll Co is known for Lobster Roll, New England Clam Chowder, Lobster Bisque and Key Lime Pie in Naples, FL. Magic Lobster Roll Co serves Lunch and Dinner at 2355 Vanderbilt Beach Rd Ste 148.",
+    "know_before": "Magic Lobster Roll Co is located at 2355 Vanderbilt Beach Rd Ste 148",
+    "local_tip": "Try the Lobster Roll and Key Lime Pie",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://themagiclobster.com/"
+     ],
+     "why_here": [
+      "https://themagiclobster.com/"
+     ],
+     "know_before": [
+      "https://themagiclobster.com/"
+     ],
+     "local_tip": [
+      "https://themagiclobster.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Magic Lobster Roll Co - Naples, Vanderbilt Shoppes is located in Naples, FL at 2355 Vanderbilt Beach Rd Ste 148",
+      "source": "https://themagiclobster.com/"
+     },
+     {
+      "claim": "Magic Lobster Roll Co is known for Lobster Roll, New England Clam Chowder, Lobster Bisque and Key Lime Pie",
+      "source": "https://themagiclobster.com/"
+     },
+     {
+      "claim": "Magic Lobster Roll Co serves Lunch and Dinner",
+      "source": "https://themagiclobster.com/"
+     }
+    ]
+   }
+  }
+ ]
+}

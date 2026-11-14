@@ -1,0 +1,1388 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 36. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJC7VUMZkE2YgR3nLa2C-62DU",
+   "name": "Coconut Creek Plaza",
+   "category": "shopping",
+   "metro": "broward",
+   "primary_type": "shopping_mall",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://brixmor.com/leasing/retail-space/fl/coconut-creek/coconut-creek-plaza",
+     "source_name": "Coconut Creek Plaza \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Coconut Creek Plaza is at 4801-4967 Coconut Creek Parkway, Coconut Creek, FL 33063",
+      "Coconut Creek Plaza retailers include Publix, Pet Supplies Plus, Planet Fitness and Off the Wall Entertainment Center",
+      "Coconut Creek Plaza has a strong lineup of national and local retailers"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Retail lineup with Publix, Pet goods Plus and Planet Fitness",
+    "why_here": "Stop for everyday shopping in one place with Publix, Pet goods Plus and Planet Fitness, plus Off the Wall Entertainment Center among the national and local retailers in the lineup.",
+    "know_before": "Coconut Creek Plaza is at 4801-4967 Coconut Creek Parkway, Coconut Creek, FL 33063.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://brixmor.com/leasing/retail-space/fl/coconut-creek/coconut-creek-plaza"
+     ],
+     "why_here": [
+      "https://brixmor.com/leasing/retail-space/fl/coconut-creek/coconut-creek-plaza"
+     ],
+     "know_before": [
+      "https://brixmor.com/leasing/retail-space/fl/coconut-creek/coconut-creek-plaza"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Coconut Creek Plaza is at 4801-4967 Coconut Creek Parkway, Coconut Creek, FL 33063",
+      "source": "https://brixmor.com/leasing/retail-space/fl/coconut-creek/coconut-creek-plaza"
+     },
+     {
+      "claim": "Coconut Creek Plaza retailers include Publix, Pet Supplies Plus, Planet Fitness and Off the Wall Entertainment Center",
+      "source": "https://brixmor.com/leasing/retail-space/fl/coconut-creek/coconut-creek-plaza"
+     },
+     {
+      "claim": "Coconut Creek Plaza has a strong lineup of national and local retailers",
+      "source": "https://brixmor.com/leasing/retail-space/fl/coconut-creek/coconut-creek-plaza"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJNWHFsfu15YgR09oAjecu3iQ",
+   "name": "Soupa Noodle Bar",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "asian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://soupanoodlebar.com/",
+     "source_name": "Soupa Noodle Bar \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Soupa Noodle Bar in Jacksonville FL serves fresh ramen, pho, and build-your-own noodle bowls",
+      "Address is 4549 Southside Blvd, Ste 205 Jacksonville, Florida 32216"
+     ]
+    },
+    {
+     "source": "https://soupanoodlebar.com/menu/",
+     "source_name": "Soupa Noodle Bar \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Menu includes Miso-Soupa, Pho-Rieza and Curry Laksa",
+      "Listed bowls offer Choice of Steamed Rice, Egg Ramen, Udon Noodle"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Ramen, Pho & Noodle Bowls in Jacksonville",
+    "why_here": "Soupa Noodle Bar in Jacksonville FL serves fresh ramen, pho, and build-your-own noodle bowls. Menu bowls include Miso-Soupa, Pho-Rieza and Curry Laksa, with Choice of Steamed Rice, Egg Ramen, Udon Noodle on listed bowls.",
+    "know_before": "Address is 4549 Southside Blvd, Ste 205 Jacksonville, Florida 32216.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://soupanoodlebar.com/"
+     ],
+     "why_here": [
+      "https://soupanoodlebar.com/"
+     ],
+     "know_before": [
+      "https://soupanoodlebar.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Soupa Noodle Bar in Jacksonville FL serves fresh ramen, pho, and build-your-own noodle bowls",
+      "source": "https://soupanoodlebar.com/"
+     },
+     {
+      "claim": "Address is 4549 Southside Blvd, Ste 205 Jacksonville, Florida 32216",
+      "source": "https://soupanoodlebar.com/"
+     },
+     {
+      "claim": "Menu includes Miso-Soupa, Pho-Rieza and Curry Laksa",
+      "source": "https://soupanoodlebar.com/menu/"
+     },
+     {
+      "claim": "Listed bowls offer Choice of Steamed Rice, Egg Ramen, Udon Noodle",
+      "source": "https://soupanoodlebar.com/menu/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJbVBAnJ-r2YgRjm8pwtEx8gw",
+   "name": "The Tipsy Boar",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "gastropub",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.thetipsyboar.com/",
+     "source_name": "The Tipsy Boar \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Tipsy Boar is a classic American gastropub in Downtown Hollywood",
+      "The Tipsy Boar has 40 revolving taps pouring craft beer",
+      "The Tipsy Boar serves craft cocktails built to order",
+      "The Tipsy Boar menu includes a Tipsy Boar burger with boar patty, millionaire bacon, pork belly and onion rings",
+      "Doors open at 12 p.m. every day at The Tipsy Boar"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Classic American gastropub in Downtown Hollywood with 40 revolving taps",
+    "why_here": "Go for craft beer from 40 revolving taps and craft cocktails built to order, plus a Tipsy Boar burger with boar patty, millionaire bacon, pork belly and onion rings.",
+    "know_before": "Doors open at 12 p.m. every day.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.thetipsyboar.com/"
+     ],
+     "why_here": [
+      "https://www.thetipsyboar.com/"
+     ],
+     "know_before": [
+      "https://www.thetipsyboar.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Tipsy Boar is a classic American gastropub in Downtown Hollywood",
+      "source": "https://www.thetipsyboar.com/"
+     },
+     {
+      "claim": "The Tipsy Boar has 40 revolving taps pouring craft beer",
+      "source": "https://www.thetipsyboar.com/"
+     },
+     {
+      "claim": "The Tipsy Boar serves craft cocktails built to order",
+      "source": "https://www.thetipsyboar.com/"
+     },
+     {
+      "claim": "The Tipsy Boar menu includes a Tipsy Boar burger with boar patty, millionaire bacon, pork belly and onion rings",
+      "source": "https://www.thetipsyboar.com/"
+     },
+     {
+      "claim": "Doors open at 12 p.m. every day at The Tipsy Boar",
+      "source": "https://www.thetipsyboar.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJPdUCMw_V54gRQf5bJHGD-Qw",
+   "name": "Hilton Ocala",
+   "category": "hotels",
+   "metro": "florida",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.hilton.com/en/hotels/ocfohhf-hilton-ocala/hotel-info/",
+     "source_name": "Hilton Ocala \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Hilton Ocala has an outdoor pool",
+      "Hilton Ocala has a fitness center",
+      "Hilton Ocala has an on-site restaurant",
+      "Hilton Ocala has free parking",
+      "Hilton Ocala has non-smoking rooms"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Hotel with an outdoor pool, fitness center, and on-site restaurant",
+    "why_here": "Stay for an outdoor pool and fitness center on site, with an on-site restaurant, free parking, and non-smoking rooms available during a stay in Ocala.",
+    "know_before": "Free parking is listed among the amenities.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.hilton.com/en/hotels/ocfohhf-hilton-ocala/hotel-info/"
+     ],
+     "why_here": [
+      "https://www.hilton.com/en/hotels/ocfohhf-hilton-ocala/hotel-info/"
+     ],
+     "know_before": [
+      "https://www.hilton.com/en/hotels/ocfohhf-hilton-ocala/hotel-info/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Hilton Ocala has an outdoor pool",
+      "source": "https://www.hilton.com/en/hotels/ocfohhf-hilton-ocala/hotel-info/"
+     },
+     {
+      "claim": "Hilton Ocala has a fitness center",
+      "source": "https://www.hilton.com/en/hotels/ocfohhf-hilton-ocala/hotel-info/"
+     },
+     {
+      "claim": "Hilton Ocala has an on-site restaurant",
+      "source": "https://www.hilton.com/en/hotels/ocfohhf-hilton-ocala/hotel-info/"
+     },
+     {
+      "claim": "Hilton Ocala has free parking",
+      "source": "https://www.hilton.com/en/hotels/ocfohhf-hilton-ocala/hotel-info/"
+     },
+     {
+      "claim": "Hilton Ocala has non-smoking rooms",
+      "source": "https://www.hilton.com/en/hotels/ocfohhf-hilton-ocala/hotel-info/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJX5-_OEIV24gRPBaC9RcHr6Y",
+   "name": "Backyard Social",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://backyardsocial.com/",
+     "source_name": "Backyard Social \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Backyard Social is a Fort Myers food truck park and bar",
+      "Backyard Social is at 16371 Corporate Commerce Way, Fort Myers, FL 33913",
+      "Backyard Social offers a fusion of dining, live music, and gaming entertainment",
+      "Backyard Social is in an outdoor setting"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Fort Myers food truck park and bar with dining, live music, and gaming entertainment",
+    "why_here": "Go for a fusion of dining, live music, and gaming entertainment in an outdoor setting, at a Fort Myers food truck park and bar built for gathering outdoors.",
+    "know_before": "Find it at 16371 Corporate Commerce Way, Fort Myers.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://backyardsocial.com/"
+     ],
+     "why_here": [
+      "https://backyardsocial.com/"
+     ],
+     "know_before": [
+      "https://backyardsocial.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Backyard Social is a Fort Myers food truck park and bar",
+      "source": "https://backyardsocial.com/"
+     },
+     {
+      "claim": "Backyard Social is at 16371 Corporate Commerce Way, Fort Myers, FL 33913",
+      "source": "https://backyardsocial.com/"
+     },
+     {
+      "claim": "Backyard Social offers a fusion of dining, live music, and gaming entertainment",
+      "source": "https://backyardsocial.com/"
+     },
+     {
+      "claim": "Backyard Social is in an outdoor setting",
+      "source": "https://backyardsocial.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJXSKYE6622YgRB0uqybV5XiM",
+   "name": "FunDimension Game Center",
+   "category": "attractions",
+   "metro": "miami-dade",
+   "primary_type": "video_arcade",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://fundimensionusa.com/attractions/",
+     "source_name": "FunDimension Game Center \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "FunDimension offers Laser Tag, Bumper Cars, Duckpin Bowling, Rock Climbing, Virtual Reality, Arcade Games, and a Video Games Room",
+      "FunDimension is at 2129 NW 1st Court, Miami, FL 33127",
+      "FunDimension is open Saturday from 10:00 a.m. to 12:00 a.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Laser Tag, Bumper Cars, Duckpin Bowling, and Rock Climbing indoors",
+    "why_here": "Go to play Laser Tag, Bumper Cars, Duckpin Bowling, and Rock Climbing, try Virtual Reality, and spend time with Arcade Games and a Video Games Room indoors at FunDimension.",
+    "know_before": "FunDimension is open Saturday from 10:00 a.m. to 12:00 a.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://fundimensionusa.com/attractions/"
+     ],
+     "why_here": [
+      "https://fundimensionusa.com/attractions/"
+     ],
+     "know_before": [
+      "https://fundimensionusa.com/attractions/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "FunDimension offers Laser Tag, Bumper Cars, Duckpin Bowling, Rock Climbing, Virtual Reality, Arcade Games, and a Video Games Room",
+      "source": "https://fundimensionusa.com/attractions/"
+     },
+     {
+      "claim": "FunDimension is at 2129 NW 1st Court, Miami, FL 33127",
+      "source": "https://fundimensionusa.com/attractions/"
+     },
+     {
+      "claim": "FunDimension is open Saturday from 10:00 a.m. to 12:00 a.m.",
+      "source": "https://fundimensionusa.com/attractions/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ1WjNap1n54gRqNPBblOe5Pk",
+   "name": "PopStroke",
+   "category": "attractions",
+   "metro": "orlando",
+   "primary_type": "miniature_golf_course",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://popstroke.com/",
+     "source_name": "PopStroke \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "PopStroke offers mini golf with a day pass to putt from open to close",
+      "PopStroke has a scratch kitchen serving elevated bar bites, shareable plates, and craft drinks",
+      "Kids 12 & under get a free kids meal with a Kids Day Pass and an adult pass",
+      "PopStroke has yard games including Ping pong, cornhole, and foosball"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Mini golf venue with a scratch kitchen, shareable plates, and craft drinks",
+    "why_here": "Go for mini golf with a day pass to putt from open to close, then shareable plates and craft drinks from a scratch kitchen, plus yard games between rounds at PopStroke.",
+    "know_before": "Kids 12 & under get a free kids meal with a Kids Day Pass and an adult pass.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://popstroke.com/"
+     ],
+     "why_here": [
+      "https://popstroke.com/"
+     ],
+     "know_before": [
+      "https://popstroke.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "PopStroke offers mini golf with a day pass to putt from open to close",
+      "source": "https://popstroke.com/"
+     },
+     {
+      "claim": "PopStroke has a scratch kitchen serving elevated bar bites, shareable plates, and craft drinks",
+      "source": "https://popstroke.com/"
+     },
+     {
+      "claim": "Kids 12 & under get a free kids meal with a Kids Day Pass and an adult pass",
+      "source": "https://popstroke.com/"
+     },
+     {
+      "claim": "PopStroke has yard games including Ping pong, cornhole, and foosball",
+      "source": "https://popstroke.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJAyZp5H3G2YgR3ph0tZJHYKY",
+   "name": "Coral Reef Park",
+   "category": "attractions",
+   "metro": "miami-dade",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.palmettobay-fl.gov/1164/Protect-Our-Natural-Floodplains",
+     "source_name": "Coral Reef Park \u2014 official source",
+     "source_class": "government",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Coral Reef Park spans more than 50 acres",
+      "Coral Reef Park offers open green spaces, pinelands preserve areas, and a streaming canal",
+      "Coral Reef Park is a central location for playing, walking, reading, relaxing, and picnicking",
+      "Coral Reef Park has beach volleyball, tennis, baseball, a playground, and an exercise trail"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Park spanning more than 50 acres with open green spaces and pinelands preserve areas",
+    "why_here": "Go for open green spaces, pinelands preserve areas, and a streaming canal, with room for playing, walking, reading, relaxing, and picnicking across the park grounds.",
+    "know_before": "Activities listed include beach volleyball, tennis, baseball, a playground, and an exercise trail.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.palmettobay-fl.gov/1164/Protect-Our-Natural-Floodplains"
+     ],
+     "why_here": [
+      "https://www.palmettobay-fl.gov/1164/Protect-Our-Natural-Floodplains"
+     ],
+     "know_before": [
+      "https://www.palmettobay-fl.gov/1164/Protect-Our-Natural-Floodplains"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Coral Reef Park spans more than 50 acres",
+      "source": "https://www.palmettobay-fl.gov/1164/Protect-Our-Natural-Floodplains"
+     },
+     {
+      "claim": "Coral Reef Park offers open green spaces, pinelands preserve areas, and a streaming canal",
+      "source": "https://www.palmettobay-fl.gov/1164/Protect-Our-Natural-Floodplains"
+     },
+     {
+      "claim": "Coral Reef Park is a central location for playing, walking, reading, relaxing, and picnicking",
+      "source": "https://www.palmettobay-fl.gov/1164/Protect-Our-Natural-Floodplains"
+     },
+     {
+      "claim": "Coral Reef Park has beach volleyball, tennis, baseball, a playground, and an exercise trail",
+      "source": "https://www.palmettobay-fl.gov/1164/Protect-Our-Natural-Floodplains"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJrYoYyTik2YgR5pCdks1QR_4",
+   "name": "Blue Ginger Sushi & Hibachi",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "japanese_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://bluegingerseafoodsteakhouse.com/",
+     "source_name": "Blue Ginger Sushi & Hibachi \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Blue Ginger Seafood Steakhouse is a traditional Japanese Hibachi Steakhouse",
+      "Blue Ginger features expertly prepared sushi and Teppanyaki",
+      "Blue Ginger is a Japanese Hibachi Steakhouse & Sushi Bar with locations in Miramar, Pembroke Pines Florida and Southwest Ranches, Florida",
+      "Hours are 4:30 p.m. to 10:00 p.m. Monday through Thursday"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Traditional Japanese Hibachi Steakhouse with sushi and Teppanyaki",
+    "why_here": "Choose Blue Ginger Sushi & Hibachi for a traditional Japanese Hibachi Steakhouse meal with expertly prepared sushi and Teppanyaki, at locations in Miramar, Pembroke Pines Florida and Southwest Ranches, Florida.",
+    "know_before": "Hours are 4:30 p.m. to 10:00 p.m. Monday through Thursday",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://bluegingerseafoodsteakhouse.com/"
+     ],
+     "why_here": [
+      "https://bluegingerseafoodsteakhouse.com/"
+     ],
+     "know_before": [
+      "https://bluegingerseafoodsteakhouse.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Blue Ginger Seafood Steakhouse is a traditional Japanese Hibachi Steakhouse",
+      "source": "https://bluegingerseafoodsteakhouse.com/"
+     },
+     {
+      "claim": "Blue Ginger features expertly prepared sushi and Teppanyaki",
+      "source": "https://bluegingerseafoodsteakhouse.com/"
+     },
+     {
+      "claim": "Blue Ginger is a Japanese Hibachi Steakhouse & Sushi Bar with locations in Miramar, Pembroke Pines Florida and Southwest Ranches, Florida",
+      "source": "https://bluegingerseafoodsteakhouse.com/"
+     },
+     {
+      "claim": "Hours are 4:30 p.m. to 10:00 p.m. Monday through Thursday",
+      "source": "https://bluegingerseafoodsteakhouse.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJlb5TDjSj54gRpJ9aO8JkTyc",
+   "name": "Ferran Park",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.eustis.org/Parks/Ferran-Park",
+     "source_name": "Ferran Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Ferran Park is located at 250 Ferran Park Drive in Eustis",
+      "The historic Alice McClelland Memorial Bandshell is in Ferran Park",
+      "Performers take the bandshell stage in Ferran Park",
+      "The Mediterranean style bandshell in Ferran Park is listed on the national historic register and located at the northern end of the park"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Mediterranean style bandshell listed on the national historic register",
+    "why_here": "Come to Ferran Park in Eustis for the historic Alice McClelland Memorial Bandshell, where performers take the bandshell stage at the northern end of the park.",
+    "know_before": "Ferran Park is located at 250 Ferran Park Drive in Eustis.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.eustis.org/Parks/Ferran-Park"
+     ],
+     "why_here": [
+      "https://www.eustis.org/Parks/Ferran-Park"
+     ],
+     "know_before": [
+      "https://www.eustis.org/Parks/Ferran-Park"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Ferran Park is located at 250 Ferran Park Drive in Eustis",
+      "source": "https://www.eustis.org/Parks/Ferran-Park"
+     },
+     {
+      "claim": "The historic Alice McClelland Memorial Bandshell is in Ferran Park",
+      "source": "https://www.eustis.org/Parks/Ferran-Park"
+     },
+     {
+      "claim": "Performers take the bandshell stage in Ferran Park",
+      "source": "https://www.eustis.org/Parks/Ferran-Park"
+     },
+     {
+      "claim": "The Mediterranean style bandshell in Ferran Park is listed on the national historic register and located at the northern end of the park",
+      "source": "https://www.eustis.org/Parks/Ferran-Park"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJDZ-4fVll54gR1IEIMVyuxUA",
+   "name": "Lake Baldwin Dog Park",
+   "category": "attractions",
+   "metro": "orlando",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://cityofwinterpark.org/departments/parks-recreation/parks-playgrounds/parks/lake-baldwin-park/",
+     "source_name": "Lake Baldwin Dog Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Lake Baldwin Park covers 23.16 acres on Lake Baldwin",
+      "Lake Baldwin Park is the only park in the city known as dog-friendly",
+      "Dogs may be off-leash during park hours of 8 a.m. to sunset",
+      "Amenities include two pavilions, one boat ramp, one dock, 25 picnic tables, 15 benches, one restroom"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Dog-friendly park on Lake Baldwin where dogs may be off-leash",
+    "why_here": "Bring dogs to Lake Baldwin Dog Park, a 23.16-acre park on Lake Baldwin where dogs may be off-leash, with two pavilions, one boat ramp, one dock, 25 picnic tables and 15 benches.",
+    "know_before": "Dogs may be off-leash during park hours of 8 a.m. to sunset",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://cityofwinterpark.org/departments/parks-recreation/parks-playgrounds/parks/lake-baldwin-park/"
+     ],
+     "why_here": [
+      "https://cityofwinterpark.org/departments/parks-recreation/parks-playgrounds/parks/lake-baldwin-park/"
+     ],
+     "know_before": [
+      "https://cityofwinterpark.org/departments/parks-recreation/parks-playgrounds/parks/lake-baldwin-park/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Lake Baldwin Park covers 23.16 acres on Lake Baldwin",
+      "source": "https://cityofwinterpark.org/departments/parks-recreation/parks-playgrounds/parks/lake-baldwin-park/"
+     },
+     {
+      "claim": "Lake Baldwin Park is the only park in the city known as dog-friendly",
+      "source": "https://cityofwinterpark.org/departments/parks-recreation/parks-playgrounds/parks/lake-baldwin-park/"
+     },
+     {
+      "claim": "Dogs may be off-leash during park hours of 8 a.m. to sunset",
+      "source": "https://cityofwinterpark.org/departments/parks-recreation/parks-playgrounds/parks/lake-baldwin-park/"
+     },
+     {
+      "claim": "Amenities include two pavilions, one boat ramp, one dock, 25 picnic tables, 15 benches, one restroom",
+      "source": "https://cityofwinterpark.org/departments/parks-recreation/parks-playgrounds/parks/lake-baldwin-park/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJq6rYZ5C02YgRRQQFwe0BnCM",
+   "name": "The Betsy Hotel",
+   "category": "hotels",
+   "metro": "miami-dade",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.thebetsyhotel.com/",
+     "source_name": "The Betsy Hotel \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Betsy Hotel has Two Pools and Direct Beach Access",
+      "The Betsy Hotel offers LT Steak & Seafood",
+      "The Betsy Hotel has nightly live jazz at the Piano Bar",
+      "The Betsy Hotel is at 1440 Ocean Drive, Miami Beach, Florida 33139"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Hotel with Two Pools, Direct Beach Access and The Piano Bar",
+    "why_here": "Stay at The Betsy Hotel for Two Pools, Direct Beach Access, LT Steak & Seafood, and nightly live jazz at the Piano Bar at 1440 Ocean Drive, Miami Beach, Florida 33139.",
+    "know_before": "The Betsy Hotel is at 1440 Ocean Drive, Miami Beach, Florida 33139.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.thebetsyhotel.com/"
+     ],
+     "why_here": [
+      "https://www.thebetsyhotel.com/"
+     ],
+     "know_before": [
+      "https://www.thebetsyhotel.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Betsy Hotel has Two Pools and Direct Beach Access",
+      "source": "https://www.thebetsyhotel.com/"
+     },
+     {
+      "claim": "The Betsy Hotel offers LT Steak & Seafood",
+      "source": "https://www.thebetsyhotel.com/"
+     },
+     {
+      "claim": "The Betsy Hotel has nightly live jazz at the Piano Bar",
+      "source": "https://www.thebetsyhotel.com/"
+     },
+     {
+      "claim": "The Betsy Hotel is at 1440 Ocean Drive, Miami Beach, Florida 33139",
+      "source": "https://www.thebetsyhotel.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJI_yUb4202YgR66CijLeNmB0",
+   "name": "Hotel Chelsea",
+   "category": "hotels",
+   "metro": "miami-dade",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://thehotelchelsea.com/",
+     "source_name": "Hotel Chelsea \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Hotel Chelsea in Miami Beach is a 1936 Art Deco hotel on Washington Avenue",
+      "Hotel Chelsea is at 944 Washington Ave, Miami Beach",
+      "Hotel Chelsea has a patio, a bar and a restaurant"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "1936 Art Deco hotel on Washington Avenue in Miami Beach",
+    "why_here": "Stay at Hotel Chelsea, a 1936 Art Deco hotel on Washington Avenue in Miami Beach, with a patio, a bar and a restaurant at 944 Washington Ave.",
+    "know_before": "Hotel Chelsea is at 944 Washington Ave, Miami Beach.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://thehotelchelsea.com/"
+     ],
+     "why_here": [
+      "https://thehotelchelsea.com/"
+     ],
+     "know_before": [
+      "https://thehotelchelsea.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Hotel Chelsea in Miami Beach is a 1936 Art Deco hotel on Washington Avenue",
+      "source": "https://thehotelchelsea.com/"
+     },
+     {
+      "claim": "Hotel Chelsea is at 944 Washington Ave, Miami Beach",
+      "source": "https://thehotelchelsea.com/"
+     },
+     {
+      "claim": "Hotel Chelsea has a patio, a bar and a restaurant",
+      "source": "https://thehotelchelsea.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJsy-mslK32YgRo9_xcFoFWAI",
+   "name": "Miranda Cuisine and Bar",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://mirandamiami.com/",
+     "source_name": "Miranda Cuisine and Bar \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Miranda Cuisine & Bar offers World Cuisine with a Latin Twist",
+      "Miranda Cuisine & Bar has a bar area with specialty coffees, handcrafted cocktails and finest spirits",
+      "Miranda Cuisine & Bar is at 4299 NW 36th St, Miami Springs, Florida 33166",
+      "Miranda is open 7:00 a.m. to 11:30 p.m. everyday"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "World Cuisine with a Latin Twist and a bar area",
+    "why_here": "Try Miranda Cuisine & Bar for World Cuisine with a Latin Twist, plus specialty coffees, handcrafted cocktails and finest spirits in the bar area in Miami Springs.",
+    "know_before": "Miranda is open 7:00 a.m. to 11:30 p.m. everyday at 4299 NW 36th St, Miami Springs, Florida 33166.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://mirandamiami.com/"
+     ],
+     "why_here": [
+      "https://mirandamiami.com/"
+     ],
+     "know_before": [
+      "https://mirandamiami.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Miranda Cuisine & Bar offers World Cuisine with a Latin Twist",
+      "source": "https://mirandamiami.com/"
+     },
+     {
+      "claim": "Miranda Cuisine & Bar has a bar area with specialty coffees, handcrafted cocktails and finest spirits",
+      "source": "https://mirandamiami.com/"
+     },
+     {
+      "claim": "Miranda Cuisine & Bar is at 4299 NW 36th St, Miami Springs, Florida 33166",
+      "source": "https://mirandamiami.com/"
+     },
+     {
+      "claim": "Miranda is open 7:00 a.m. to 11:30 p.m. everyday",
+      "source": "https://mirandamiami.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJudYaNYyu2YgRYRoVecpNnZ4",
+   "name": "Jamaica House Restaurant",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://jamaicahouserestaurant.com/favorites",
+     "source_name": "Jamaica House Restaurant \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Jamaica House Favorites include Ackee & Saltfish, jerk chicken, ox tail, Brown Stew Chicken, Shrimp and Soups"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Favorites including Ackee & Saltfish, jerk chicken and ox tail",
+    "why_here": "Come for Jamaica House Favorites such as Ackee & Saltfish, jerk chicken, ox tail, Brown Stew Chicken, Shrimp and Soups, with Ackee & Saltfish and jerk chicken among the Favorites.",
+    "know_before": "Jamaica House Favorites include Ackee & Saltfish, jerk chicken and ox tail.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://jamaicahouserestaurant.com/favorites"
+     ],
+     "why_here": [
+      "https://jamaicahouserestaurant.com/favorites"
+     ],
+     "know_before": [
+      "https://jamaicahouserestaurant.com/favorites"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Jamaica House Favorites include Ackee & Saltfish, jerk chicken, ox tail, Brown Stew Chicken, Shrimp and Soups",
+      "source": "https://jamaicahouserestaurant.com/favorites"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ6Ys5B_as2YgRihEWr1CZ4po",
+   "name": "Serafina Aventura | Italian Restaurant in Miami",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "italian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://serafinamiami.com/aventura-mall/",
+     "source_name": "Serafina Aventura | Italian Restaurant in Miami \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Serafina brings the timeless flavors of Italy to Miami through handmade pasta, signature hand-tossed pizzas, premium imported ingredients",
+      "Signature dishes include Short Rib Ravioli filled with braised short rib, Penne Alla Vodka, and Truffle Fettuccine",
+      "Serafina Aventura Mall is located on the Upper Level of Aventura Mall"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Handmade pasta and signature hand-tossed pizzas at Aventura Mall",
+    "why_here": "Go for handmade pasta, signature hand-tossed pizzas and premium imported ingredients, and try signature dishes including Short Rib Ravioli filled with braised short rib, Penne Alla Vodka, and Truffle Fettuccine.",
+    "know_before": "Located on the Upper Level of Aventura Mall.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://serafinamiami.com/aventura-mall/"
+     ],
+     "why_here": [
+      "https://serafinamiami.com/aventura-mall/"
+     ],
+     "know_before": [
+      "https://serafinamiami.com/aventura-mall/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Serafina brings the timeless flavors of Italy to Miami through handmade pasta, signature hand-tossed pizzas, premium imported ingredients",
+      "source": "https://serafinamiami.com/aventura-mall/"
+     },
+     {
+      "claim": "Signature dishes include Short Rib Ravioli filled with braised short rib, Penne Alla Vodka, and Truffle Fettuccine",
+      "source": "https://serafinamiami.com/aventura-mall/"
+     },
+     {
+      "claim": "Serafina Aventura Mall is located on the Upper Level of Aventura Mall",
+      "source": "https://serafinamiami.com/aventura-mall/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ_YHso8el2YgRTbHiN4s5_uA",
+   "name": "Rosalia's Kitchen",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "fusion_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://rosaliaskitchen.com/main/",
+     "source_name": "Rosalia's Kitchen \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Rosalia's Kitchen started as a family-owned and operated special events catering company"
+     ]
+    },
+    {
+     "source": "https://rosaliaskitchen.com/reservations/",
+     "source_name": "Rosalia's Kitchen \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "We are a proud, family business with a single, open-concept dining room (50 seats)",
+      "New Maximum Group Size: 12 Guests"
+     ]
+    },
+    {
+     "source": "https://rosaliaskitchen.com/new_menu/menu/brunch/",
+     "source_name": "Rosalia's Kitchen \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Rosalia's Kitchen, 12130 Miramar Parkway, Miramar, FL 33025"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Family business with a single, open-concept dining room (50 seats)",
+    "why_here": "Visit a proud, family business that started as a family-owned and operated special events catering company, now with a single, open-concept dining room (50 seats) at 12130 Miramar Parkway, Miramar, FL 33025.",
+    "know_before": "New Maximum Group Size: 12 Guests.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://rosaliaskitchen.com/main/"
+     ],
+     "why_here": [
+      "https://rosaliaskitchen.com/main/"
+     ],
+     "know_before": [
+      "https://rosaliaskitchen.com/main/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Rosalia's Kitchen started as a family-owned and operated special events catering company",
+      "source": "https://rosaliaskitchen.com/main/"
+     },
+     {
+      "claim": "We are a proud, family business with a single, open-concept dining room (50 seats)",
+      "source": "https://rosaliaskitchen.com/reservations/"
+     },
+     {
+      "claim": "Rosalia's Kitchen, 12130 Miramar Parkway, Miramar, FL 33025",
+      "source": "https://rosaliaskitchen.com/new_menu/menu/brunch/"
+     },
+     {
+      "claim": "New Maximum Group Size: 12 Guests",
+      "source": "https://rosaliaskitchen.com/reservations/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJcZmTnOsn5IgRzk95hNbN3g0",
+   "name": "San Sebastian Winery",
+   "category": "shopping",
+   "metro": "florida",
+   "primary_type": "liquor_store",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.sansebastianwinery.com/",
+     "source_name": "San Sebastian Winery \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "San Sebastian Winery was founded in 1996 at 157 King Street, St. Augustine, Florida",
+      "San Sebastian Winery offers winery tours and wine tasting 7 days a week",
+      "Winery tours and wine tasting are offered Monday to Saturday from 10 a.m. to 5 p.m. and Sunday from 11:00 a.m. to 5 p.m.",
+      "San Sebastian Winery produces Vinifera wines including Chardonnay, Pinot Grigio, Petite Sirah, and Cabernet Sauvignon"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Winery founded in 1996 with tours and wine tasting",
+    "why_here": "Visit San Sebastian Winery for winery tours and wine tasting 7 days a week, with Vinifera wines including Chardonnay, Pinot Grigio, Petite Sirah, and Cabernet Sauvignon.",
+    "know_before": "Tours run Monday to Saturday from 10 a.m. to 5 p.m. and Sunday from 11:00 a.m. to 5 p.m.",
+    "local_tip": "Try Chardonnay, Pinot Grigio, Petite Sirah, or Cabernet Sauvignon.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.sansebastianwinery.com/"
+     ],
+     "why_here": [
+      "https://www.sansebastianwinery.com/"
+     ],
+     "know_before": [
+      "https://www.sansebastianwinery.com/"
+     ],
+     "local_tip": [
+      "https://www.sansebastianwinery.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "San Sebastian Winery was founded in 1996 at 157 King Street, St. Augustine, Florida",
+      "source": "https://www.sansebastianwinery.com/"
+     },
+     {
+      "claim": "San Sebastian Winery offers winery tours and wine tasting 7 days a week",
+      "source": "https://www.sansebastianwinery.com/"
+     },
+     {
+      "claim": "Winery tours and wine tasting are offered Monday to Saturday from 10 a.m. to 5 p.m. and Sunday from 11:00 a.m. to 5 p.m.",
+      "source": "https://www.sansebastianwinery.com/"
+     },
+     {
+      "claim": "San Sebastian Winery produces Vinifera wines including Chardonnay, Pinot Grigio, Petite Sirah, and Cabernet Sauvignon",
+      "source": "https://www.sansebastianwinery.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJLeDcmWbV54gR5hslwT0h0Tk",
+   "name": "Cantina Tex Mex Tequila Bar",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.cantinaocala.com/",
+     "source_name": "Cantina Tex Mex Tequila Bar \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Cantina located in Downtown Ocala is a Tulum Mexico themed Tex-Mex restaurant and tequila bar",
+      "Cantina opened in 2021",
+      "Weekend brunch is Saturday and Sunday from 11:00 a.m. to 3:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Tex-Mex restaurant and tequila bar in Downtown Ocala",
+    "why_here": "Cantina in Downtown Ocala is a Tulum Mexico themed Tex-Mex restaurant and tequila bar opened in 2021, with weekend brunch on Saturday and Sunday and a menu built around Tex-Mex dishes and tequila.",
+    "know_before": "Weekend brunch is Saturday and Sunday from 11:00 a.m. to 3:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.cantinaocala.com/"
+     ],
+     "why_here": [
+      "https://www.cantinaocala.com/"
+     ],
+     "know_before": [
+      "https://www.cantinaocala.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Cantina located in Downtown Ocala is a Tulum Mexico themed Tex-Mex restaurant and tequila bar",
+      "source": "https://www.cantinaocala.com/"
+     },
+     {
+      "claim": "Cantina opened in 2021",
+      "source": "https://www.cantinaocala.com/"
+     },
+     {
+      "claim": "Weekend brunch is Saturday and Sunday from 11:00 a.m. to 3:00 p.m.",
+      "source": "https://www.cantinaocala.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJkaB1x-l654gRzBwxrOupDBc",
+   "name": "Mamak Asian Street Food",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "malaysian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.mamakeats.com/",
+     "source_name": "Mamak Asian Street Food \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Mamak brings the food-stall culture of Southeast Asia to Orlando, with recipes inspired by Malaysia, Singapore, Thailand, and Indonesia",
+      "Roti Canai is flaky griddled flatbread with curry dipping sauce",
+      "Char Kway Teow is a signature street dish with rice noodles, shrimp, chicken, eggs, bean sprouts, and chives",
+      "Mamak serves Mamak Nasi Goreng",
+      "Mamak is at 1231 E Colonial Drive, Orlando, FL, 32803, US"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Roti Canai, Char Kway Teow and Mamak Nasi Goreng",
+    "why_here": "Mamak brings the food-stall culture of Southeast Asia to Orlando, with recipes inspired by Malaysia, Singapore, Thailand, and Indonesia, from Roti Canai with curry dipping sauce to Char Kway Teow with rice noodles.",
+    "know_before": "Mamak is at 1231 E Colonial Drive, Orlando, FL, 32803, US.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.mamakeats.com/"
+     ],
+     "why_here": [
+      "https://www.mamakeats.com/"
+     ],
+     "know_before": [
+      "https://www.mamakeats.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Mamak brings the food-stall culture of Southeast Asia to Orlando, with recipes inspired by Malaysia, Singapore, Thailand, and Indonesia",
+      "source": "https://www.mamakeats.com/"
+     },
+     {
+      "claim": "Roti Canai is flaky griddled flatbread with curry dipping sauce",
+      "source": "https://www.mamakeats.com/"
+     },
+     {
+      "claim": "Char Kway Teow is a signature street dish with rice noodles, shrimp, chicken, eggs, bean sprouts, and chives",
+      "source": "https://www.mamakeats.com/"
+     },
+     {
+      "claim": "Mamak serves Mamak Nasi Goreng",
+      "source": "https://www.mamakeats.com/"
+     },
+     {
+      "claim": "Mamak is at 1231 E Colonial Drive, Orlando, FL, 32803, US",
+      "source": "https://www.mamakeats.com/"
+     }
+    ]
+   }
+  }
+ ]
+}

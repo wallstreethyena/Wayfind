@@ -12,7 +12,7 @@ import { withClickId } from "../../lib/hubConversion";
 import { usePinQuarantine } from "../../lib/pinQuarantine";
 import { partnerTicketLabel } from "../../lib/partnerCopy";
 
-export default function PlacePageBookLink({ provider, offerId, contentId, merchant, style }) {
+export default function PlacePageBookLink({ provider, offerId, contentId, merchant, product, style }) {
   const clickId = useRef(null);
   if (clickId.current === null) clickId.current = mintClickId();
   const [hydrated, setHydrated] = useState(false);
@@ -53,7 +53,7 @@ export default function PlacePageBookLink({ provider, offerId, contentId, mercha
       }}
       style={style}
     >
-      {partnerTicketLabel(merchant)}
+      {partnerTicketLabel(merchant, product ? { product } : undefined)}
     </a>
   );
 }

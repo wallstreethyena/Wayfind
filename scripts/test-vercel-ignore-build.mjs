@@ -51,10 +51,15 @@ function commitOf(files) {
   return git(["rev-parse", "HEAD"]);
 }
 
-function run({ files, prev = BASE, cur, env = {} }) {
+function run({ files, prev = BASE, cur, env = {}, gitShim }) {
   const sha = cur || commitOf(files);
   const clean = { ...process.env };
   for (const k of Object.keys(clean)) if (k.startsWith("VERCEL")) delete clean[k];
+  delete clean.WAYFIND_IGNORE_REMOTE;
+  if (gitShim) {
+    clean.WF_TEST_REAL_PATH = clean.PATH;
+    clean.PATH = gitShim + path.delimiter + clean.PATH;
+  }
   const r = spawnSync("bash", [SCRIPT], {
     cwd: root,
     encoding: "utf8",
@@ -133,9 +138,53 @@ try {
   put("docs/later.md", "x\n"); git(["add", "-A"]); git(["commit", "-q", "-m", "docs"]);
   const stacked = git(["rev-parse", "HEAD"]);
   expectBuild("production, docs commit on top of an undeployed code commit (diff from last deploy)", run({ cur: stacked, prev: BASE, env: { VERCEL_ENV: "production" } }));
+
+  // Exercise failures in the actual git subprocesses, including partial output.
+  // Forward every other command to real git against the same fixture repository.
+  const shimDir = path.join(root, "git-shim");
+  mkdirSync(shimDir);
+  writeFileSync(path.join(shimDir, "git"), `#!/usr/bin/env bash
+if [ "$1" = "$WF_TEST_GIT_COMMAND" ]; then
+  if [ -n "$WF_TEST_GIT_OUTPUT" ]; then
+    case "$1" in
+      diff) printf '%s\\0' "$WF_TEST_GIT_OUTPUT" ;;
+      ls-remote) printf '%s\\trefs/heads/lane/x\\n' "$WF_TEST_GIT_OUTPUT" ;;
+      *) printf '%s\\n' "$WF_TEST_GIT_OUTPUT" ;;
+    esac
+  fi
+  exit "$WF_TEST_GIT_STATUS"
+fi
+PATH="$WF_TEST_REAL_PATH" exec git "$@"
+`, { mode: 0o755 });
+  const shimEnv = {
+    VERCEL_ENV: "production", WF_TEST_GIT_COMMAND: "",
+    WF_TEST_GIT_OUTPUT: "", WF_TEST_GIT_STATUS: "0",
+  };
+  const runWithGitShim = (options) => run({ ...options, gitShim: shimDir });
+  expectSkip("git shim positive control: ordinary docs still skip", runWithGitShim({ cur: docsOnly, env: shimEnv }));
+  expectBuild("git shim positive control: code still builds", runWithGitShim({ cur: older, env: shimEnv }));
+  expectBuild("git shim positive control: runtime docs still build", runWithGitShim({ cur: stdDoc, env: shimEnv }));
+  for (const output of ["", "docs/new-lesson.md"]) {
+    const failedDiff = runWithGitShim({ cur: docsOnly, env: {
+      ...shimEnv, WF_TEST_GIT_COMMAND: "diff", WF_TEST_GIT_STATUS: "128", WF_TEST_GIT_OUTPUT: output,
+    } });
+    expectBuild(`git diff failure with ${output ? "partial" : "no"} output`, failedDiff);
+    ok(/BUILD - git diff failed/.test(failedDiff.out), "a failed diff names the failed operation");
+    const failedGrep = runWithGitShim({ cur: stdDoc, env: {
+      ...shimEnv, WF_TEST_GIT_COMMAND: "grep", WF_TEST_GIT_STATUS: "2", WF_TEST_GIT_OUTPUT: output,
+    } });
+    expectBuild(`git grep failure with ${output ? "partial" : "no"} output`, failedGrep);
+    ok(/BUILD - runtime doc reference scan failed/.test(failedGrep.out), "a failed reference scan names the failed operation");
+  }
+  expectSkip("git grep exit 1 is a successful scan with no runtime references", runWithGitShim({ cur: docsOnly, env: {
+    ...shimEnv, WF_TEST_GIT_COMMAND: "grep", WF_TEST_GIT_STATUS: "1",
+  } }));
+  expectBuild("failed remote lookup with partial head output cannot suppress a code preview", runWithGitShim({ cur: older, env: {
+    ...shimEnv, ...R, WF_TEST_GIT_COMMAND: "ls-remote", WF_TEST_GIT_STATUS: "128", WF_TEST_GIT_OUTPUT: newer,
+  } }));
 } finally {
   rmSync(root, { recursive: true, force: true });
 }
 
 if (fails) { console.error(`test-vercel-ignore-build: ${fails} failure(s)`); process.exit(1); }
-console.log(`test-vercel-ignore-build: OK - ${asserts} assertions (6 skip cases, 10 code-change build cases, 5 fail-closed build cases, 6 superseded-preview cases, 5 production/runtime-doc cases) against a temp git fixture`);
+console.log(`test-vercel-ignore-build: OK - ${asserts} assertions (data/docs skips, code/runtime builds, superseded previews, and git failure controls) against a temp git fixture`);

@@ -23,7 +23,7 @@ export default function EventDetailShell({ title, status, facts, story, actions,
         {story ? <div className="wf-event-reason">{story}</div> : null}
         <div className="wf-event-actions" id="event-tickets" data-event-section="Tickets & sharing" tabIndex={-1} aria-label="Plan this event">
           {actions}
-          <p className="wf-event-booking-note">{note}</p>
+          {note ? <p className="wf-event-booking-note">{note}</p> : null}
         </div>
       </aside>
     </section>

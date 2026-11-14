@@ -1,0 +1,2005 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 57. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJv8ljt1W32YgR0xOJj2R-aJU",
+   "name": "Puttshack - Miami",
+   "category": "attractions",
+   "metro": "miami-dade",
+   "primary_type": "miniature_golf_course",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.puttshack.com/locations/miami",
+     "source_name": "Puttshack - Miami \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Puttshack Miami is indoor mini golf at Brickell City Centre",
+      "Trackaball technology follows the ball and keeps score automatically",
+      "Each mini golf game consists of 9 holes"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Tech-infused indoor mini golf at Brickell City Centre with automatic scoring",
+    "why_here": "Puttshack Miami brings high-tech indoor mini golf to Brickell City Centre, with Trackaball technology, cocktails and dining. Its fourth-floor terrace and indoor courses make it a social, weather-proof putting outing.",
+    "know_before": "Pre-booking is encouraged, especially on nights and weekends; walk-ins are first-come, first-served.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.puttshack.com/locations/miami"
+     ],
+     "why_here": [
+      "https://www.puttshack.com/locations/miami"
+     ],
+     "know_before": [
+      "https://www.puttshack.com/locations/miami"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Puttshack Miami is indoor mini golf at Brickell City Centre",
+      "source": "https://www.puttshack.com/locations/miami"
+     },
+     {
+      "claim": "Trackaball technology follows the ball and keeps score automatically",
+      "source": "https://www.puttshack.com/locations/miami"
+     },
+     {
+      "claim": "Each mini golf game consists of 9 holes",
+      "source": "https://www.puttshack.com/locations/miami"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ_UffvmS32YgR-9_BmbqrJYs",
+   "name": "Pastis Miami",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://pastismiami.com/",
+     "source_name": "Pastis Miami \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Pastis Miami is in the heart of Wynwood",
+      "Pastis Miami has white subway tiles, red leather banquettes and a bustling zinc bar",
+      "Pastis Miami has a lush outdoor garden",
+      "A 20% service charge will be included on all guest checks"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Parisian brasserie spirit in Wynwood with a lush outdoor garden",
+    "why_here": "Pastis Miami is in the heart of Wynwood Pastis Miami has white subway tiles, red leather banquettes and a bustling zinc bar",
+    "know_before": "A 20% service charge will be included on all guest checks.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://pastismiami.com/"
+     ],
+     "why_here": [
+      "https://pastismiami.com/"
+     ],
+     "know_before": [
+      "https://pastismiami.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Pastis Miami is in the heart of Wynwood",
+      "source": "https://pastismiami.com/"
+     },
+     {
+      "claim": "Pastis Miami has white subway tiles, red leather banquettes and a bustling zinc bar",
+      "source": "https://pastismiami.com/"
+     },
+     {
+      "claim": "Pastis Miami has a lush outdoor garden",
+      "source": "https://pastismiami.com/"
+     },
+     {
+      "claim": "A 20% service charge will be included on all guest checks",
+      "source": "https://pastismiami.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJxcDmfZu32YgRreM5jGXymA0",
+   "name": "Oasis Wynwood",
+   "category": "attractions",
+   "metro": "miami-dade",
+   "primary_type": "event_venue",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.oasiswynwood.com/",
+     "source_name": "Oasis Wynwood \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Oasis Wynwood is a 35,000 square foot outdoor space in the heart of Wynwood",
+      "Its food concepts each operate from a colorful, outfitted shipping container",
+      "Food concepts include Buya Dumplings + Buns, CHIKIN, Prince Street Pizza, and Los Buenos",
+      "The Tower Bar is constructed from shipping containers",
+      "Oasis Wynwood has an indoor lounge nestled in the back of the property"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "A 35,000-square-foot open-air hub with shipping-container kitchens and a Tower Bar",
+    "why_here": "Oasis Wynwood is a 35,000 square foot outdoor space in the heart of Wynwood with an outdoor food and beverage experience from colorful, outfitted shipping containers. Its focal point is the Tower Bar, constructed from shipping containers.",
+    "know_before": "Oasis Wynwood is a 35,000 square foot outdoor space in the heart of Wynwood",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.oasiswynwood.com/"
+     ],
+     "why_here": [
+      "https://www.oasiswynwood.com/"
+     ],
+     "know_before": [
+      "https://www.oasiswynwood.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Oasis Wynwood is a 35,000 square foot outdoor space in the heart of Wynwood",
+      "source": "https://www.oasiswynwood.com/"
+     },
+     {
+      "claim": "Its food concepts each operate from a colorful, outfitted shipping container",
+      "source": "https://www.oasiswynwood.com/"
+     },
+     {
+      "claim": "Food concepts include Buya Dumplings + Buns, CHIKIN, Prince Street Pizza, and Los Buenos",
+      "source": "https://www.oasiswynwood.com/"
+     },
+     {
+      "claim": "The Tower Bar is constructed from shipping containers",
+      "source": "https://www.oasiswynwood.com/"
+     },
+     {
+      "claim": "Oasis Wynwood has an indoor lounge nestled in the back of the property",
+      "source": "https://www.oasiswynwood.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJnQ0mQpAv2YgRpp7XpppYxNA",
+   "name": "La Cantinita",
+   "category": "food",
+   "metro": "palm-beach",
+   "primary_type": "mexican_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://lacantinitafl.com/",
+     "source_name": "La Cantinita \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "La Cantinita is Urban Mexican Cuisine blending traditional flavors with a contemporary twist",
+      "Born in New York, the restaurant combines festive ambiance with top-quality cuisine",
+      "Sunday opening hours are 11:00 a.m. to 10:00 p.m.",
+      "Catering services are available for small gatherings and large celebrations",
+      "Reservations can be made through the online reservation system"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Urban Mexican Cuisine blending traditional flavors with a contemporary twist",
+    "why_here": "La Cantinita is described as Urban Mexican Cuisine, a celebration of rich heritage blending traditional flavors with a contemporary twist. It offers an immersive experience that combines festive ambiance with top-quality cuisine.",
+    "know_before": "La Cantinita is Urban Mexican Cuisine blending traditional flavors with a contemporary twist",
+    "local_tip": "Reservations can be made with ease through the online reservation system on the official site.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://lacantinitafl.com/"
+     ],
+     "why_here": [
+      "https://lacantinitafl.com/"
+     ],
+     "know_before": [
+      "https://lacantinitafl.com/"
+     ],
+     "local_tip": [
+      "https://lacantinitafl.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "La Cantinita is Urban Mexican Cuisine blending traditional flavors with a contemporary twist",
+      "source": "https://lacantinitafl.com/"
+     },
+     {
+      "claim": "Born in New York, the restaurant combines festive ambiance with top-quality cuisine",
+      "source": "https://lacantinitafl.com/"
+     },
+     {
+      "claim": "Sunday opening hours are 11:00 a.m. to 10:00 p.m.",
+      "source": "https://lacantinitafl.com/"
+     },
+     {
+      "claim": "Catering services are available for small gatherings and large celebrations",
+      "source": "https://lacantinitafl.com/"
+     },
+     {
+      "claim": "Reservations can be made through the online reservation system",
+      "source": "https://lacantinitafl.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJK8SDh1SPk4gRU2rqpdfjwck",
+   "name": "Pirate\u2019s Island Adventure Golf",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "miniature_golf_course",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.piratesislandgolf.com/",
+     "source_name": "Pirate\u2019s Island Adventure Golf \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Pirate's Island Adventure Golf offers 18 or 36 hole adventure courses",
+      "The experience features legendary pirates like Blackbeard and Captain Kidd",
+      "Courses venture through hidden caves, across swaying bridges and past cascading waterfalls",
+      "The journey begins in a seaside village and unfolds along the shores of a tidal lagoon"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Adventure golf through hidden caves, swaying bridges and cascading waterfalls",
+    "why_here": "Pirate's Island Adventure Golf steps into the world of legendary pirates like Blackbeard and Captain Kidd, beginning in a seaside village along a tidal lagoon. Courses venture through hidden caves, across swaying bridges and past cascading waterfalls.",
+    "know_before": "Courses are offered as 18 or 36 hole adventure courses, so choose the course length before you play.",
+    "local_tip": "Look for pirate facts and tales around the course, featuring figures from history and local legends.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.piratesislandgolf.com/"
+     ],
+     "why_here": [
+      "https://www.piratesislandgolf.com/"
+     ],
+     "know_before": [
+      "https://www.piratesislandgolf.com/"
+     ],
+     "local_tip": [
+      "https://www.piratesislandgolf.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Pirate's Island Adventure Golf offers 18 or 36 hole adventure courses",
+      "source": "https://www.piratesislandgolf.com/"
+     },
+     {
+      "claim": "The experience features legendary pirates like Blackbeard and Captain Kidd",
+      "source": "https://www.piratesislandgolf.com/"
+     },
+     {
+      "claim": "Courses venture through hidden caves, across swaying bridges and past cascading waterfalls",
+      "source": "https://www.piratesislandgolf.com/"
+     },
+     {
+      "claim": "The journey begins in a seaside village and unfolds along the shores of a tidal lagoon",
+      "source": "https://www.piratesislandgolf.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJLd_uxonW2IgRCHBSV77RI9E",
+   "name": "Roxy's Pub",
+   "category": "nightlife",
+   "metro": "palm-beach",
+   "primary_type": "irish_pub",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://roxyspub.com/",
+     "source_name": "Roxy's Pub \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Roxy's Pub offers craft brews and award winning chicken wings",
+      "Roxy's Pub hosts sports games, private events, live concerts and street block parties",
+      "Full menu is served until 1:00 a.m.",
+      "Happy Hour is Monday to Friday from 3:00 p.m. to 6:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Roxy's Pub offers craft brews and award winning chicken wings",
+    "why_here": "Roxy's Pub offers craft brews and award winning chicken wings Roxy's Pub hosts sports games, private events, live concerts and street block parties",
+    "know_before": "Roxy's Pub offers craft brews and award winning chicken wings",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://roxyspub.com/"
+     ],
+     "why_here": [
+      "https://roxyspub.com/"
+     ],
+     "know_before": [
+      "https://roxyspub.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Roxy's Pub offers craft brews and award winning chicken wings",
+      "source": "https://roxyspub.com/"
+     },
+     {
+      "claim": "Roxy's Pub hosts sports games, private events, live concerts and street block parties",
+      "source": "https://roxyspub.com/"
+     },
+     {
+      "claim": "Full menu is served until 1:00 a.m.",
+      "source": "https://roxyspub.com/"
+     },
+     {
+      "claim": "Happy Hour is Monday to Friday from 3:00 p.m. to 6:00 p.m.",
+      "source": "https://roxyspub.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJg5b9YBIU24gRZb29VfOkisE",
+   "name": "GameTime Fort Myers",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "video_arcade",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.gametimeplayers.com/",
+     "source_name": "GameTime Fort Myers \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "GameTime offers arcade, bowling, food and parties in Florida",
+      "The official site lists Fort Myers as a GameTime venue",
+      "GameTime invites guests to choose a venue to see games, menus, hours and party options",
+      "Holiday hours are different at each GameTime venue"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Florida arcade and entertainment venue with bowling, food and parties",
+    "why_here": "GameTime describes itself as an arcade, bowling, food and parties venue in Florida, and its official site lists Fort Myers as one of its venues. Guests can choose a venue to see games, menus, hours and party options.",
+    "know_before": "Choose the Fort Myers venue on the official site to see its games, menus, hours and party options, because holiday hours are different at each venue.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.gametimeplayers.com/"
+     ],
+     "why_here": [
+      "https://www.gametimeplayers.com/"
+     ],
+     "know_before": [
+      "https://www.gametimeplayers.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "GameTime offers arcade, bowling, food and parties in Florida",
+      "source": "https://www.gametimeplayers.com/"
+     },
+     {
+      "claim": "The official site lists Fort Myers as a GameTime venue",
+      "source": "https://www.gametimeplayers.com/"
+     },
+     {
+      "claim": "GameTime invites guests to choose a venue to see games, menus, hours and party options",
+      "source": "https://www.gametimeplayers.com/"
+     },
+     {
+      "claim": "Holiday hours are different at each GameTime venue",
+      "source": "https://www.gametimeplayers.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJkwRTevG02YgRQqy7_cHUWGQ",
+   "name": "Stubborn Seed - Miami Beach",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "fine_dining_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.stubbornseed.com/home",
+     "source_name": "Stubborn Seed - Miami Beach \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Stubborn Seed is the creation of Chef Jeremy Ford",
+      "Chef Jeremy Ford is a 2022 James Beard Award Semi-Finalist and Top Chef Season 13 Winner",
+      "Stubborn Seed was awarded one Michelin star and honored with a Green Star in 2025",
+      "Stubborn Seed transforms honest ingredients into elegantly refined dishes"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Michelin-starred restaurant from Chef Jeremy Ford transforming honest ingredients",
+    "why_here": "Stubborn Seed is the creation of Chef Jeremy Ford, a 2022 James Beard Award Semi-Finalist and Top Chef Season 13 Winner. It transforms honest ingredients into elegantly refined dishes through passion, precision, and an unapologetically bold approach.",
+    "know_before": "Stubborn Seed is the creation of Chef Jeremy Ford",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.stubbornseed.com/home"
+     ],
+     "why_here": [
+      "https://www.stubbornseed.com/home"
+     ],
+     "know_before": [
+      "https://www.stubbornseed.com/home"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Stubborn Seed is the creation of Chef Jeremy Ford",
+      "source": "https://www.stubbornseed.com/home"
+     },
+     {
+      "claim": "Chef Jeremy Ford is a 2022 James Beard Award Semi-Finalist and Top Chef Season 13 Winner",
+      "source": "https://www.stubbornseed.com/home"
+     },
+     {
+      "claim": "Stubborn Seed was awarded one Michelin star and honored with a Green Star in 2025",
+      "source": "https://www.stubbornseed.com/home"
+     },
+     {
+      "claim": "Stubborn Seed transforms honest ingredients into elegantly refined dishes",
+      "source": "https://www.stubbornseed.com/home"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJeQSxywfG5YgRyvJA4RKYsTo",
+   "name": "Irie Diner Caribbean Restaurant",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://order.iriediner.com/",
+     "source_name": "Irie Diner Caribbean Restaurant \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Jamaican Style Oxtails are listed as a guest favourite, slow-cooked until fall-off-the-bone tender",
+      "The menu includes jerk chicken, curry chicken and brown stew chicken among Caribbean favourites"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Jamaican-style oxtails slow-cooked until fall-off-the-bone tender",
+    "why_here": "The official menu lists Jamaican Style Oxtails as a guest favourite, slow-cooked until fall-off-the-bone tender. Jerk chicken, curry chicken and brown stew chicken are also listed among the Caribbean favourites.",
+    "know_before": "The official menu lists Jamaican Style Oxtails as a guest favourite, slow-cooked until fall-off-the-bone tender.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://order.iriediner.com/"
+     ],
+     "why_here": [
+      "https://order.iriediner.com/"
+     ],
+     "know_before": [
+      "https://order.iriediner.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Jamaican Style Oxtails are listed as a guest favourite, slow-cooked until fall-off-the-bone tender",
+      "source": "https://order.iriediner.com/"
+     },
+     {
+      "claim": "The menu includes jerk chicken, curry chicken and brown stew chicken among Caribbean favourites",
+      "source": "https://order.iriediner.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJXVTMmQHx3ogRaqaeddn4m9w",
+   "name": "Manatee Center",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "tourist_attraction",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://manateecenter.org/plan-your-visit/",
+     "source_name": "Manatee Center \u2014 official source",
+     "source_class": "tourism_dmo",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Manatee Center is a volunteer-run environmental education and wildlife observation facility",
+      "Hours are Tuesday through Saturday 10:00 a.m. to 3:00 p.m., closed Sunday and Monday",
+      "Admission is $3.00 per person and children ages 5 and under enter free with an adult",
+      "The center offers an interactive exhibit center and hands-on learning"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Volunteer-run environmental education and wildlife observation facility",
+    "why_here": "Manatee Center is a volunteer-run environmental education and wildlife observation facility. It offers an interactive exhibit center and hands-on learning, with ecology talks and demonstrations.",
+    "know_before": "Admission is $3.00 per person, and children ages 5 and under enter free with an adult.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://manateecenter.org/plan-your-visit/"
+     ],
+     "why_here": [
+      "https://manateecenter.org/plan-your-visit/"
+     ],
+     "know_before": [
+      "https://manateecenter.org/plan-your-visit/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Manatee Center is a volunteer-run environmental education and wildlife observation facility",
+      "source": "https://manateecenter.org/plan-your-visit/"
+     },
+     {
+      "claim": "Hours are Tuesday through Saturday 10:00 a.m. to 3:00 p.m., closed Sunday and Monday",
+      "source": "https://manateecenter.org/plan-your-visit/"
+     },
+     {
+      "claim": "Admission is $3.00 per person and children ages 5 and under enter free with an adult",
+      "source": "https://manateecenter.org/plan-your-visit/"
+     },
+     {
+      "claim": "The center offers an interactive exhibit center and hands-on learning",
+      "source": "https://manateecenter.org/plan-your-visit/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJMYNpw7zb5YgRJDtq3ESrh1Y",
+   "name": "The Turmeric Kitchen",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://clayturmeric.com/",
+     "source_name": "The Turmeric Kitchen \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Turmeric Kitchen is open seven days a week for lunch and dinner",
+      "The Turmeric Kitchen offers dine in, takeout and online ordering",
+      "Monday hours are 10:30 a.m. to 9:00 p.m.",
+      "Friday hours are 11:30 a.m. to 10:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "The Turmeric Kitchen is open seven days a week for lunch and dinner",
+    "why_here": "The Turmeric Kitchen is open seven days a week for lunch and dinner The Turmeric Kitchen offers dine in, takeout and online ordering",
+    "know_before": "The restaurant is open seven days a week for lunch and dinner, with dine in, takeout and online ordering available.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://clayturmeric.com/"
+     ],
+     "why_here": [
+      "https://clayturmeric.com/"
+     ],
+     "know_before": [
+      "https://clayturmeric.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Turmeric Kitchen is open seven days a week for lunch and dinner",
+      "source": "https://clayturmeric.com/"
+     },
+     {
+      "claim": "The Turmeric Kitchen offers dine in, takeout and online ordering",
+      "source": "https://clayturmeric.com/"
+     },
+     {
+      "claim": "Monday hours are 10:30 a.m. to 9:00 p.m.",
+      "source": "https://clayturmeric.com/"
+     },
+     {
+      "claim": "Friday hours are 11:30 a.m. to 10:00 p.m.",
+      "source": "https://clayturmeric.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJFamGFtwd6IgRV4P4q6s3Grw",
+   "name": "Prime 88",
+   "category": "food",
+   "metro": "spring-hill-fl",
+   "primary_type": "steak_house",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.prime88steakhouse.com/",
+     "source_name": "Prime 88 \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Prime EightyEight was established in Brooksville, Florida",
+      "Business casual attire is required in the Main Dining Room",
+      "The private VIP Room holds up to 25 guests",
+      "The enclosed patio holds up to 65 guests",
+      "Hours on Sunday are 3:00 p.m. to 8:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Brooksville fine-dining steakhouse created to bring an elevated experience closer to home",
+    "why_here": "Prime EightyEight was established in Brooksville, Florida, to bring an elevated fine-dining experience closer to home. Its commitment begins with exceptional ingredients, hand-cut meats and fresh seafood for an elevated culinary experience.",
+    "know_before": "Prime EightyEight was established in Brooksville, Florida",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.prime88steakhouse.com/"
+     ],
+     "why_here": [
+      "https://www.prime88steakhouse.com/"
+     ],
+     "know_before": [
+      "https://www.prime88steakhouse.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Prime EightyEight was established in Brooksville, Florida",
+      "source": "https://www.prime88steakhouse.com/"
+     },
+     {
+      "claim": "Business casual attire is required in the Main Dining Room",
+      "source": "https://www.prime88steakhouse.com/"
+     },
+     {
+      "claim": "The private VIP Room holds up to 25 guests",
+      "source": "https://www.prime88steakhouse.com/"
+     },
+     {
+      "claim": "The enclosed patio holds up to 65 guests",
+      "source": "https://www.prime88steakhouse.com/"
+     },
+     {
+      "claim": "Hours on Sunday are 3:00 p.m. to 8:00 p.m.",
+      "source": "https://www.prime88steakhouse.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJy2pEUKXv2ogRJd3QDj9_-qg",
+   "name": "Sand Bar \ufe0f",
+   "category": "nightlife",
+   "metro": "florida",
+   "primary_type": "bar",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://sandbarmarco.com/",
+     "source_name": "Sand Bar \ufe0f \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Sand Bar has been serving Marco Island since 1973",
+      "The official site describes unique cocktails and an ever-changing list of entertainment",
+      "Happy hour is Mon-Fri 2:00 p.m.-6:00 p.m. with late night happy hour 11:00 p.m.-1:00 a.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Marco Island bar serving the island since 1973",
+    "why_here": "The official Sand Bar site calls itself the most iconic bar on Marco Island and says it has been serving Marco Island since 1973. It highlights unique cocktails, an ever-changing list of entertainment and a food and drinks menu.",
+    "know_before": "Sand Bar has been serving Marco Island since 1973",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://sandbarmarco.com/"
+     ],
+     "why_here": [
+      "https://sandbarmarco.com/"
+     ],
+     "know_before": [
+      "https://sandbarmarco.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Sand Bar has been serving Marco Island since 1973",
+      "source": "https://sandbarmarco.com/"
+     },
+     {
+      "claim": "The official site describes unique cocktails and an ever-changing list of entertainment",
+      "source": "https://sandbarmarco.com/"
+     },
+     {
+      "claim": "Happy hour is Mon-Fri 2:00 p.m.-6:00 p.m. with late night happy hour 11:00 p.m.-1:00 a.m.",
+      "source": "https://sandbarmarco.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJYW99HMTZ2IgRFxbm5gOkrow",
+   "name": "Tideline Palm Beach Ocean Resort and Spa",
+   "category": "hotels",
+   "metro": "palm-beach",
+   "primary_type": "resort_hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.tidelineresort.com/",
+     "source_name": "Tideline Palm Beach Ocean Resort and Spa \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Tideline is an oceanfront resort in Palm Beach with 134 rooms and suites",
+      "Rooms and suites look out to the Atlantic or the gardens",
+      "Amenities include an expansive outdoor pool, fitness studio and easy access to beach",
+      "Complimentary high-speed internet is offered in guest rooms and public areas"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Oceanfront resort in Palm Beach with 134 rooms and suites",
+    "why_here": "Tideline is an oceanfront resort in Palm Beach, with 134 rooms and suites looking out to the Atlantic or the gardens. Days are spent on the sand, by the pool or at the spa, with breakfast, lunch and drinks served by the water.",
+    "know_before": "Room rates include access to the private beach, outdoor pool, fitness center, and Wi-Fi; daily breakfast and resort fees are not included.",
+    "local_tip": "Dogs are welcome too, per the resort.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.tidelineresort.com/"
+     ],
+     "why_here": [
+      "https://www.tidelineresort.com/"
+     ],
+     "know_before": [
+      "https://www.tidelineresort.com/"
+     ],
+     "local_tip": [
+      "https://www.tidelineresort.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Tideline is an oceanfront resort in Palm Beach with 134 rooms and suites",
+      "source": "https://www.tidelineresort.com/"
+     },
+     {
+      "claim": "Rooms and suites look out to the Atlantic or the gardens",
+      "source": "https://www.tidelineresort.com/"
+     },
+     {
+      "claim": "Amenities include an expansive outdoor pool, fitness studio and easy access to beach",
+      "source": "https://www.tidelineresort.com/"
+     },
+     {
+      "claim": "Complimentary high-speed internet is offered in guest rooms and public areas",
+      "source": "https://www.tidelineresort.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJA06WI5No54gRk2WGnNrpT38",
+   "name": "Knight Library",
+   "category": "nightlife",
+   "metro": "orlando",
+   "primary_type": "bar",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://knightlibrary.com/",
+     "source_name": "Knight Library \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Pop! Orlando is a cocktail lounge with custom visual art in a shared building",
+      "Lib Beach Bar is located on an outdoor patio",
+      "Monday hours are 9:00 p.m. to 2:00 a.m.",
+      "Friday hours are 4:00 p.m. to 2:00 a.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "A cocktail lounge with custom visual art plus an outdoor patio beach bar",
+    "why_here": "Pop! Orlando is a cocktail lounge dripping with custom visual art, located in a shared building. Lib Beach Bar is located on an outdoor patio and is described as a way to find your beach without having to drive there.",
+    "know_before": "Friday hours are 4:00 p.m. to 2:00 a.m., while Monday hours are 9:00 p.m. to 2:00 a.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://knightlibrary.com/"
+     ],
+     "why_here": [
+      "https://knightlibrary.com/"
+     ],
+     "know_before": [
+      "https://knightlibrary.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Pop! Orlando is a cocktail lounge with custom visual art in a shared building",
+      "source": "https://knightlibrary.com/"
+     },
+     {
+      "claim": "Lib Beach Bar is located on an outdoor patio",
+      "source": "https://knightlibrary.com/"
+     },
+     {
+      "claim": "Monday hours are 9:00 p.m. to 2:00 a.m.",
+      "source": "https://knightlibrary.com/"
+     },
+     {
+      "claim": "Friday hours are 4:00 p.m. to 2:00 a.m.",
+      "source": "https://knightlibrary.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJXzA71YS02YgRLGfMT5taOzM",
+   "name": "Miami Double Decker",
+   "category": "attractions",
+   "metro": "miami-dade",
+   "primary_type": "tour_agency",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://miamidoubledecker.com/miami-double-decker-bus-tour/",
+     "source_name": "Miami Double Decker \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Miami Double Decker Bus Tour lasts 2.5 hours",
+      "The open-top tour explores Miami Beach, Downtown, Financial District, Wynwood and Little Havana",
+      "The tour includes free time at Bayside Marketplace for lunch or shopping",
+      "The tour is 100% wheelchair accessible per the official page"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Open-top double-decker tour linking Miami Beach to Little Havana",
+    "why_here": "The official tour page describes a 2.5-hour open-top double-decker bus tour exploring Miami Beach, Downtown, the Financial District, Wynwood and Little Havana. It includes free time at Bayside Marketplace and hop-on hop-off stops at different locations.",
+    "know_before": "The tour is described as 100% wheelchair accessible on the official page.",
+    "local_tip": "An optional boat tour can be added, per the official tour page.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://miamidoubledecker.com/miami-double-decker-bus-tour/"
+     ],
+     "why_here": [
+      "https://miamidoubledecker.com/miami-double-decker-bus-tour/"
+     ],
+     "know_before": [
+      "https://miamidoubledecker.com/miami-double-decker-bus-tour/"
+     ],
+     "local_tip": [
+      "https://miamidoubledecker.com/miami-double-decker-bus-tour/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Miami Double Decker Bus Tour lasts 2.5 hours",
+      "source": "https://miamidoubledecker.com/miami-double-decker-bus-tour/"
+     },
+     {
+      "claim": "The open-top tour explores Miami Beach, Downtown, Financial District, Wynwood and Little Havana",
+      "source": "https://miamidoubledecker.com/miami-double-decker-bus-tour/"
+     },
+     {
+      "claim": "The tour includes free time at Bayside Marketplace for lunch or shopping",
+      "source": "https://miamidoubledecker.com/miami-double-decker-bus-tour/"
+     },
+     {
+      "claim": "The tour is 100% wheelchair accessible per the official page",
+      "source": "https://miamidoubledecker.com/miami-double-decker-bus-tour/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJZVT_N4d754gR7R3THCamzNc",
+   "name": "Cucina Pizza & Bar",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://cucina-pizzabar.com/",
+     "source_name": "Cucina Pizza & Bar \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Cucina serves modern Italian cuisine crafted with fresh ingredients in downtown Orlando",
+      "Cucina serves fresh pasta and Italian wine just steps from Kia Center and Dr. Phillips Center",
+      "On high-demand event nights Cucina uses a chef-curated event menu of guest favorites",
+      "Cucina offers outdoor patio dining in downtown Orlando"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Modern Italian, fresh pasta and Italian wine steps from Kia Center in downtown Orlando",
+    "why_here": "In downtown Orlando, Cucina serves modern Italian cuisine crafted with fresh ingredients, from pizzas and pasta to handcrafted cocktails. The official site notes fresh pasta and Italian wine just steps from Kia Center and Dr. Phillips Center.",
+    "know_before": "On high-demand event nights, Cucina switches to a chef-curated event menu of guest favorites for speed and consistency.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://cucina-pizzabar.com/"
+     ],
+     "why_here": [
+      "https://cucina-pizzabar.com/"
+     ],
+     "know_before": [
+      "https://cucina-pizzabar.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Cucina serves modern Italian cuisine crafted with fresh ingredients in downtown Orlando",
+      "source": "https://cucina-pizzabar.com/"
+     },
+     {
+      "claim": "Cucina serves fresh pasta and Italian wine just steps from Kia Center and Dr. Phillips Center",
+      "source": "https://cucina-pizzabar.com/"
+     },
+     {
+      "claim": "On high-demand event nights Cucina uses a chef-curated event menu of guest favorites",
+      "source": "https://cucina-pizzabar.com/"
+     },
+     {
+      "claim": "Cucina offers outdoor patio dining in downtown Orlando",
+      "source": "https://cucina-pizzabar.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJxfCzy3LDwogRyzNtZY4Ecw0",
+   "name": "SoHo Sushi",
+   "category": "food",
+   "metro": "tampa",
+   "primary_type": "sushi_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.sohosushi.com/aboutus/",
+     "source_name": "SoHo Sushi \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "SoHo Sushi is a Japanese restaurant and bar in the heart of South Tampa",
+      "SoHo Sushi is known for creative, fresh, and award-winning sushi rolls and sashimi",
+      "SoHo Sushi began in March 2005 on South Howard Avenue in Tampa's SoHo District",
+      "SoHo Sushi also serves hot teriyaki, light tempura, and signature non-sushi entrees"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Creative, award-winning sushi rolls and sashimi in the heart of South Tampa",
+    "why_here": "SoHo Sushi describes itself as a vibrant Japanese restaurant and bar in the heart of South Tampa, known throughout the Tampa Bay area for creative, fresh, and award-winning sushi rolls and sashimi. It also serves hot teriyaki, light tempura, and signature non-sushi entrees.",
+    "know_before": "SoHo Sushi is a Japanese restaurant and bar in the heart of South Tampa",
+    "local_tip": "Do not let the name fool you \u2014 hot teriyaki, light tempura and signature non-sushi entrees are also served.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.sohosushi.com/aboutus/"
+     ],
+     "why_here": [
+      "https://www.sohosushi.com/aboutus/"
+     ],
+     "know_before": [
+      "https://www.sohosushi.com/aboutus/"
+     ],
+     "local_tip": [
+      "https://www.sohosushi.com/aboutus/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "SoHo Sushi is a Japanese restaurant and bar in the heart of South Tampa",
+      "source": "https://www.sohosushi.com/aboutus/"
+     },
+     {
+      "claim": "SoHo Sushi is known for creative, fresh, and award-winning sushi rolls and sashimi",
+      "source": "https://www.sohosushi.com/aboutus/"
+     },
+     {
+      "claim": "SoHo Sushi began in March 2005 on South Howard Avenue in Tampa's SoHo District",
+      "source": "https://www.sohosushi.com/aboutus/"
+     },
+     {
+      "claim": "SoHo Sushi also serves hot teriyaki, light tempura, and signature non-sushi entrees",
+      "source": "https://www.sohosushi.com/aboutus/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ-zFpa5En5IgRtQaDgb3tcfc",
+   "name": "St Francis Inn Bed and Breakfast",
+   "category": "hotels",
+   "metro": "florida",
+   "primary_type": "bed_and_breakfast",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://stfrancisinn.com/st-francis-inn/",
+     "source_name": "St Francis Inn Bed and Breakfast \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "St. Francis Inn is on the National Register of Historic Places",
+      "St. Francis Inn dates from 1791",
+      "St. Francis Inn calls itself St. Augustine's oldest inn"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "A historic bed and breakfast in St. Augustine dating from 1791",
+    "why_here": "St. Francis Inn is on the National Register of Historic Places and dates from 1791. It calls itself St. Augustine's oldest inn, and the building embodies the rich history and culture of the nation's oldest city.",
+    "know_before": "The site says to book direct for best rates, and you can plan your itinerary without worrying about parking or traffic.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://stfrancisinn.com/st-francis-inn/"
+     ],
+     "why_here": [
+      "https://stfrancisinn.com/st-francis-inn/"
+     ],
+     "know_before": [
+      "https://stfrancisinn.com/st-francis-inn/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "St. Francis Inn is on the National Register of Historic Places",
+      "source": "https://stfrancisinn.com/st-francis-inn/"
+     },
+     {
+      "claim": "St. Francis Inn dates from 1791",
+      "source": "https://stfrancisinn.com/st-francis-inn/"
+     },
+     {
+      "claim": "St. Francis Inn calls itself St. Augustine's oldest inn",
+      "source": "https://stfrancisinn.com/st-francis-inn/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJHeVxFFTD54gRPzBmmAqPaRY",
+   "name": "Napolinos",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "italian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://napolinos.com/",
+     "source_name": "Napolinos \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Napolinos has served The Villages since 2016",
+      "Napolinos is family owned and operated",
+      "Napolinos offers fine dining with an intimate ambiance",
+      "Delivery through Doordash is available",
+      "Hours are 11:00 a.m. to 9:00 p.m. daily"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Family owned and operated fine dining serving The Villages since 2016",
+    "why_here": "Napolinos has served The Villages since 2016 Napolinos is family owned and operated Napolinos offers fine dining with an intimate ambiance",
+    "know_before": "Napolinos has served The Villages since 2016",
+    "local_tip": "Monthly lunch and dinner specials are offered, per the official site.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://napolinos.com/"
+     ],
+     "why_here": [
+      "https://napolinos.com/"
+     ],
+     "know_before": [
+      "https://napolinos.com/"
+     ],
+     "local_tip": [
+      "https://napolinos.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Napolinos has served The Villages since 2016",
+      "source": "https://napolinos.com/"
+     },
+     {
+      "claim": "Napolinos is family owned and operated",
+      "source": "https://napolinos.com/"
+     },
+     {
+      "claim": "Napolinos offers fine dining with an intimate ambiance",
+      "source": "https://napolinos.com/"
+     },
+     {
+      "claim": "Delivery through Doordash is available",
+      "source": "https://napolinos.com/"
+     },
+     {
+      "claim": "Hours are 11:00 a.m. to 9:00 p.m. daily",
+      "source": "https://napolinos.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJQ70agTHDwogRZgJzIvOtMeI",
+   "name": "Hotel South Tampa & Suites",
+   "category": "hotels",
+   "metro": "tampa",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.hotelsouthtampa.com/",
+     "source_name": "Hotel South Tampa & Suites \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Hotel South Tampa & Suites is a completely renovated boutique-design hotel in South Tampa",
+      "Hotel South Tampa & Suites offers spacious kitchenettes suited for extended stays",
+      "Hotel South Tampa & Suites offers complimentary hot breakfast and free Wi-Fi",
+      "Hotel South Tampa & Suites has an outdoor heated pool and fitness room"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "A renovated boutique hotel in South Tampa with kitchenette suites for longer stays",
+    "why_here": "Hotel South Tampa & Suites calls itself a completely renovated, boutique-design hotel in the heart of South Tampa for leisure and business travelers. The official site highlights spacious kitchenettes suited to extended stays, plus complimentary hot breakfast and free Wi-Fi.",
+    "know_before": "The site says it accepts only credit card at reservation and check-in, with no cash accepted.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.hotelsouthtampa.com/"
+     ],
+     "why_here": [
+      "https://www.hotelsouthtampa.com/"
+     ],
+     "know_before": [
+      "https://www.hotelsouthtampa.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Hotel South Tampa & Suites is a completely renovated boutique-design hotel in South Tampa",
+      "source": "https://www.hotelsouthtampa.com/"
+     },
+     {
+      "claim": "Hotel South Tampa & Suites offers spacious kitchenettes suited for extended stays",
+      "source": "https://www.hotelsouthtampa.com/"
+     },
+     {
+      "claim": "Hotel South Tampa & Suites offers complimentary hot breakfast and free Wi-Fi",
+      "source": "https://www.hotelsouthtampa.com/"
+     },
+     {
+      "claim": "Hotel South Tampa & Suites has an outdoor heated pool and fitness room",
+      "source": "https://www.hotelsouthtampa.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJB9IoOaDzwogR_7ONZrp4P3A",
+   "name": "Fatty's Fish Shack",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://fattysfishshack.com/",
+     "source_name": "Fatty's Fish Shack \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Fatty's Fish Shack serves Boom Boom Shrimp and Fish & Chips in Palm Harbor",
+      "Fatty's Fish Shack also serves burgers, pasta, and hearty sides",
+      "Fatty's Fish Shack offers dine-in, takeout, and delivery"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Boom Boom Shrimp and Fish & Chips among Palm Harbor seafood plates",
+    "why_here": "Fatty's Fish Shack in Palm Harbor serves seafood and comfort food prepared with fresh ingredients, from Boom Boom Shrimp and Fish & Chips to burgers and pasta. The official site offers dine-in, takeout and delivery in a relaxed, welcoming setting.",
+    "know_before": "Fatty's Fish Shack offers dine-in, takeout, and delivery.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://fattysfishshack.com/"
+     ],
+     "why_here": [
+      "https://fattysfishshack.com/"
+     ],
+     "know_before": [
+      "https://fattysfishshack.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Fatty's Fish Shack serves Boom Boom Shrimp and Fish & Chips in Palm Harbor",
+      "source": "https://fattysfishshack.com/"
+     },
+     {
+      "claim": "Fatty's Fish Shack also serves burgers, pasta, and hearty sides",
+      "source": "https://fattysfishshack.com/"
+     },
+     {
+      "claim": "Fatty's Fish Shack offers dine-in, takeout, and delivery",
+      "source": "https://fattysfishshack.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJKeR098Od5ogR0LRXKGWIrdE",
+   "name": "The Kookaburra Beachside",
+   "category": "food",
+   "metro": "st-augustine-fl",
+   "primary_type": "coffee_shop",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://thekookaburracoffee.com/visit",
+     "source_name": "The Kookaburra Beachside \u2014 official source",
+     "source_class": "tourism_dmo",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Kookaburra is an Aussie-American espresso bar and pie shop based in Saint Augustine, Florida",
+      "The Kookaburra prides itself on products that are ethically sourced and expertly roasted",
+      "The original Kookaburra opened in 2012 at Cathedral Place in downtown St. Augustine",
+      "The Beachside location was the third location, following the downtown and US 1 shops"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Aussie-American espresso bar and pie shop steps from St. Augustine Beach",
+    "why_here": "The Kookaburra describes itself as an Aussie-American espresso bar and pie shop based in Saint Augustine, serving ethically sourced, expertly roasted coffee. Its Beachside shop was the third location after the original downtown shop opened in 2012.",
+    "know_before": "Beachside hours are listed as everyday 6:30a - 8:00p on the official visit page",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://thekookaburracoffee.com/visit"
+     ],
+     "why_here": [
+      "https://thekookaburracoffee.com/visit"
+     ],
+     "know_before": [
+      "https://thekookaburracoffee.com/visit"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Kookaburra is an Aussie-American espresso bar and pie shop based in Saint Augustine, Florida",
+      "source": "https://thekookaburracoffee.com/visit"
+     },
+     {
+      "claim": "The Kookaburra prides itself on products that are ethically sourced and expertly roasted",
+      "source": "https://thekookaburracoffee.com/visit"
+     },
+     {
+      "claim": "The original Kookaburra opened in 2012 at Cathedral Place in downtown St. Augustine",
+      "source": "https://thekookaburracoffee.com/visit"
+     },
+     {
+      "claim": "The Beachside location was the third location, following the downtown and US 1 shops",
+      "source": "https://thekookaburracoffee.com/visit"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJi4IKp_1D24gR7WEjajnZIZk",
+   "name": "Happy's Family Fun Center",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "amusement_center",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.happysfamilyfuncenter.com/",
+     "source_name": "Happy's Family Fun Center \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Happy's Family Fun Center offers games and activities for all ages",
+      "Admission guarantees unlimited play until closed",
+      "Happy's offers arcade games as an attraction",
+      "Socks are required inside the parks",
+      "A signed permission waiver is required for all children at all times"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Indoor family fun center with arcade games and unlimited-play admission",
+    "why_here": "Happy's Family Fun Center says the fun is non-stop, with games and activities for all ages, from the youngest participants to seasoned vets. General admission guarantees unlimited play until closed, and arcade games are among its attractions.",
+    "know_before": "Socks are required inside the parks, and a signed permission waiver is required for all children at all times, available at the front reception desk.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.happysfamilyfuncenter.com/"
+     ],
+     "why_here": [
+      "https://www.happysfamilyfuncenter.com/"
+     ],
+     "know_before": [
+      "https://www.happysfamilyfuncenter.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Happy's Family Fun Center offers games and activities for all ages",
+      "source": "https://www.happysfamilyfuncenter.com/"
+     },
+     {
+      "claim": "Admission guarantees unlimited play until closed",
+      "source": "https://www.happysfamilyfuncenter.com/"
+     },
+     {
+      "claim": "Happy's offers arcade games as an attraction",
+      "source": "https://www.happysfamilyfuncenter.com/"
+     },
+     {
+      "claim": "Socks are required inside the parks",
+      "source": "https://www.happysfamilyfuncenter.com/"
+     },
+     {
+      "claim": "A signed permission waiver is required for all children at all times",
+      "source": "https://www.happysfamilyfuncenter.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJfRxD3Alt3YgRnmuhmUJCl8A",
+   "name": "Gary's Oyster Bar & Seafood House",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.garysoysterbar.com/about-us",
+     "source_name": "Gary's Oyster Bar & Seafood House \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Gary's prides itself as a true Florida seafood experience that the entire family will enjoy",
+      "Gary's has a full service bar and a cozy atmosphere",
+      "Gary's describes itself as a hidden little secret to locals and winter residents",
+      "Gary's is centrally located between Orlando and Tampa off Hwy 27"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "A cozy, casual seafood house described as a hidden little secret",
+    "why_here": "Gary's Oyster Bar & Seafood House prides itself as a true Florida seafood experience that the entire family will enjoy, with a cozy atmosphere and a full service bar. It describes itself as a hidden little secret to locals and winter residents, centrally located between Orlando and Tampa off Hwy 27.",
+    "know_before": "Online ordering is now available, and Gary's has a full service bar.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.garysoysterbar.com/about-us"
+     ],
+     "why_here": [
+      "https://www.garysoysterbar.com/about-us"
+     ],
+     "know_before": [
+      "https://www.garysoysterbar.com/about-us"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Gary's prides itself as a true Florida seafood experience that the entire family will enjoy",
+      "source": "https://www.garysoysterbar.com/about-us"
+     },
+     {
+      "claim": "Gary's has a full service bar and a cozy atmosphere",
+      "source": "https://www.garysoysterbar.com/about-us"
+     },
+     {
+      "claim": "Gary's describes itself as a hidden little secret to locals and winter residents",
+      "source": "https://www.garysoysterbar.com/about-us"
+     },
+     {
+      "claim": "Gary's is centrally located between Orlando and Tampa off Hwy 27",
+      "source": "https://www.garysoysterbar.com/about-us"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJs-j0fpYn5IgRDCh5tKV1Obc",
+   "name": "The Kookaburra Downtown",
+   "category": "food",
+   "metro": "st-augustine-fl",
+   "primary_type": "coffee_shop",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://thekookaburracoffee.com/visit",
+     "source_name": "The Kookaburra Downtown \u2014 official source",
+     "source_class": "tourism_dmo",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The original Kookaburra opened its doors in 2012 at Cathedral Place in downtown St. Augustine",
+      "The original 420 square foot shop quickly became a community hub",
+      "The Kookaburra is an Aussie-American espresso bar and pie shop based in Saint Augustine, Florida"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Original 2012 Kookaburra \u2014 a tiny downtown espresso bar that became a community hub",
+    "why_here": "The original Kookaburra opened in 2012 at Cathedral Place in downtown St. Augustine as a 420 square foot shop that quickly became a community hub. The Aussie-American espresso bar and pie shop now roasts ethically sourced coffee for shops across Saint Augustine and beyond.",
+    "know_before": "Downtown hours are listed as everyday 6:30a - 9:00p on the official visit page",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://thekookaburracoffee.com/visit"
+     ],
+     "why_here": [
+      "https://thekookaburracoffee.com/visit"
+     ],
+     "know_before": [
+      "https://thekookaburracoffee.com/visit"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The original Kookaburra opened its doors in 2012 at Cathedral Place in downtown St. Augustine",
+      "source": "https://thekookaburracoffee.com/visit"
+     },
+     {
+      "claim": "The original 420 square foot shop quickly became a community hub",
+      "source": "https://thekookaburracoffee.com/visit"
+     },
+     {
+      "claim": "The Kookaburra is an Aussie-American espresso bar and pie shop based in Saint Augustine, Florida",
+      "source": "https://thekookaburracoffee.com/visit"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJY5VwE8ep2YgRNf_tSHXBmtU",
+   "name": "Baoshi Food Hall + Bar",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "asian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.baoshifoodhall.com/food-hall",
+     "source_name": "Baoshi Food Hall + Bar \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Baoshi is Pembroke Pines' only Asian food hall",
+      "Baoshi offers sushi, Chinese food, Korean fried chicken, ramen, bubble tea, craft cocktails, live music, and events",
+      "Gold Marquess specializes in Chinese cuisine, Peking Duck, and dumplings at Baoshi",
+      "Temple Street Eatery serves Asian American comfort food at Baoshi",
+      "Yip crafts boba milk teas at Baoshi"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Pembroke Pines' only Asian food hall, with sushi, ramen and cocktails under one roof",
+    "why_here": "Baoshi Food Hall + Bar calls itself Pembroke Pines' only Asian food hall, bringing sushi, Chinese food, Korean fried chicken, ramen, bubble tea and craft cocktails together under one roof. It also offers live music and events, making it a destination for food, drinks and nightlife.",
+    "know_before": "Baoshi is Pembroke Pines' only Asian food hall",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.baoshifoodhall.com/food-hall"
+     ],
+     "why_here": [
+      "https://www.baoshifoodhall.com/food-hall"
+     ],
+     "know_before": [
+      "https://www.baoshifoodhall.com/food-hall"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Baoshi is Pembroke Pines' only Asian food hall",
+      "source": "https://www.baoshifoodhall.com/food-hall"
+     },
+     {
+      "claim": "Baoshi offers sushi, Chinese food, Korean fried chicken, ramen, bubble tea, craft cocktails, live music, and events",
+      "source": "https://www.baoshifoodhall.com/food-hall"
+     },
+     {
+      "claim": "Gold Marquess specializes in Chinese cuisine, Peking Duck, and dumplings at Baoshi",
+      "source": "https://www.baoshifoodhall.com/food-hall"
+     },
+     {
+      "claim": "Temple Street Eatery serves Asian American comfort food at Baoshi",
+      "source": "https://www.baoshifoodhall.com/food-hall"
+     },
+     {
+      "claim": "Yip crafts boba milk teas at Baoshi",
+      "source": "https://www.baoshifoodhall.com/food-hall"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJMcrvJkWo2YgRhOnquXtAvJM",
+   "name": "Wolf Lake Park",
+   "category": "attractions",
+   "metro": "broward",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.davie-fl.gov/Facilities/Facility/Details/Wolf-Lake-Park-34",
+     "source_name": "Wolf Lake Park \u2014 official source",
+     "source_class": "government",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Wolf Lake Park is a neighborhood passive park with a total of 50 acres",
+      "Picnic tables in the shelter and meeting room seat 90 people",
+      "The park includes a charcoal grill and a small meeting room with kitchen and restrooms",
+      "The park is open from 9:00 a.m. to sunset daily"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "A 50-acre neighborhood passive park with a shelter and meeting room",
+    "why_here": "Wolf Lake Park is a neighborhood passive park with a total of 50 acres. It includes a shelter and meeting room with picnic tables seating 90 people, a charcoal grill, and a small meeting room with kitchen and restrooms.",
+    "know_before": "The park is open from 9:00 a.m. to sunset daily, and the shelter can be rented separately.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.davie-fl.gov/Facilities/Facility/Details/Wolf-Lake-Park-34"
+     ],
+     "why_here": [
+      "https://www.davie-fl.gov/Facilities/Facility/Details/Wolf-Lake-Park-34"
+     ],
+     "know_before": [
+      "https://www.davie-fl.gov/Facilities/Facility/Details/Wolf-Lake-Park-34"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Wolf Lake Park is a neighborhood passive park with a total of 50 acres",
+      "source": "https://www.davie-fl.gov/Facilities/Facility/Details/Wolf-Lake-Park-34"
+     },
+     {
+      "claim": "Picnic tables in the shelter and meeting room seat 90 people",
+      "source": "https://www.davie-fl.gov/Facilities/Facility/Details/Wolf-Lake-Park-34"
+     },
+     {
+      "claim": "The park includes a charcoal grill and a small meeting room with kitchen and restrooms",
+      "source": "https://www.davie-fl.gov/Facilities/Facility/Details/Wolf-Lake-Park-34"
+     },
+     {
+      "claim": "The park is open from 9:00 a.m. to sunset daily",
+      "source": "https://www.davie-fl.gov/Facilities/Facility/Details/Wolf-Lake-Park-34"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJlXhSTfLc5ogRDFtmjpi1pLI",
+   "name": "Peach Valley Caf\u00e9",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "breakfast_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.peachvalleycafe.com/menus/master-menu?location=peach-valley-cafe-gainesville",
+     "source_name": "Peach Valley Caf\u00e9 \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Sack of Orchard Fresh Apple Fritters uses fresh Granny Smith apples in homemade batter",
+      "The fritters are cooked to a golden brown and tossed tableside in a cinnamon sugar blend",
+      "The fritters are served with brown sugar scented strawberry yogurt",
+      "Peach Valley Cafe is a Florida breakfast, lunch and brunch cafe"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Sack of Orchard Fresh Apple Fritters tossed tableside in a cinnamon sugar blend",
+    "why_here": "Peach Valley Cafe presents itself as a Florida breakfast, lunch and brunch cafe. Its menu page highlights a Sack of Orchard Fresh Apple Fritters made with fresh Granny Smith apples in homemade batter, tossed tableside in a cinnamon sugar blend.",
+    "know_before": "Join for free through the menu page and receive a free 1/2 order of apple fritters with the purchase of two entrees.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.peachvalleycafe.com/menus/master-menu?location=peach-valley-cafe-gainesville"
+     ],
+     "why_here": [
+      "https://www.peachvalleycafe.com/menus/master-menu?location=peach-valley-cafe-gainesville"
+     ],
+     "know_before": [
+      "https://www.peachvalleycafe.com/menus/master-menu?location=peach-valley-cafe-gainesville"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Sack of Orchard Fresh Apple Fritters uses fresh Granny Smith apples in homemade batter",
+      "source": "https://www.peachvalleycafe.com/menus/master-menu?location=peach-valley-cafe-gainesville"
+     },
+     {
+      "claim": "The fritters are cooked to a golden brown and tossed tableside in a cinnamon sugar blend",
+      "source": "https://www.peachvalleycafe.com/menus/master-menu?location=peach-valley-cafe-gainesville"
+     },
+     {
+      "claim": "The fritters are served with brown sugar scented strawberry yogurt",
+      "source": "https://www.peachvalleycafe.com/menus/master-menu?location=peach-valley-cafe-gainesville"
+     },
+     {
+      "claim": "Peach Valley Cafe is a Florida breakfast, lunch and brunch cafe",
+      "source": "https://www.peachvalleycafe.com/menus/master-menu?location=peach-valley-cafe-gainesville"
+     }
+    ]
+   }
+  }
+ ]
+}

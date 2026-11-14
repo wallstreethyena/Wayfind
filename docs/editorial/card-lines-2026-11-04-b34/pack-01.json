@@ -1,0 +1,1669 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 34. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJc-8wFZq32YgRKvrhZknW_bY",
+   "name": "Tap 42 Craft Kitchen & Bar - Coral Gables",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "gastropub",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://tap42.com/locations/coral-gables/",
+     "source_name": "Tap 42 Craft Kitchen & Bar - Coral Gables \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Weekday lunch starts at 11:30 a.m., with burgers like The Prohibition and The Big Smash, plus bowls and sushi",
+      "Happy hour runs Monday through Friday from 3 p.m. to 6 p.m.",
+      "Bottomless brunch runs Saturday and Sunday from 11 a.m. to 3 p.m.",
+      "Monday Night Burger Bash offers $5 off The Prohibition, The Big Smash or The Drunken Goat with crispy fries when you order a beverage"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Burgers like The Prohibition and The Big Smash, plus bowls and sushi",
+    "why_here": "Go for burgers like The Prohibition and The Big Smash, plus bowls and sushi at lunch, or for happy hour Monday through Friday from 3 p.m. to 6 p.m.",
+    "know_before": "Weekday lunch starts at 11:30 a.m.",
+    "local_tip": "Bottomless brunch runs Saturday and Sunday from 11 a.m. to 3 p.m.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://tap42.com/locations/coral-gables/"
+     ],
+     "why_here": [
+      "https://tap42.com/locations/coral-gables/"
+     ],
+     "know_before": [
+      "https://tap42.com/locations/coral-gables/"
+     ],
+     "local_tip": [
+      "https://tap42.com/locations/coral-gables/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Weekday lunch starts at 11:30 a.m., with burgers like The Prohibition and The Big Smash, plus bowls and sushi",
+      "source": "https://tap42.com/locations/coral-gables/"
+     },
+     {
+      "claim": "Happy hour runs Monday through Friday from 3 p.m. to 6 p.m.",
+      "source": "https://tap42.com/locations/coral-gables/"
+     },
+     {
+      "claim": "Bottomless brunch runs Saturday and Sunday from 11 a.m. to 3 p.m.",
+      "source": "https://tap42.com/locations/coral-gables/"
+     },
+     {
+      "claim": "Monday Night Burger Bash offers $5 off The Prohibition, The Big Smash or The Drunken Goat with crispy fries when you order a beverage",
+      "source": "https://tap42.com/locations/coral-gables/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJud0nfI3G54gRRlgdn5cdU68",
+   "name": "Oakwood Smokehouse",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://oakwoodsmokehouse.com/about/",
+     "source_name": "Oakwood Smokehouse \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Oakwood Smokehouse is a growing restaurant company established 1998 in Lake County Florida",
+      "Fresh cut specialty salads and Oakwood smoked barbecue are only the beginning of a varied menu",
+      "Charbroiled burgers, center cut steaks, grilled chicken, fresh soups and baby back ribs are all served from our open kitchen design"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Oakwood smoked barbecue, charbroiled burgers and baby back ribs",
+    "why_here": "Go for Oakwood smoked barbecue, charbroiled burgers, center cut steaks, grilled chicken, fresh soups and baby back ribs served from our open kitchen design.",
+    "know_before": "Oakwood Smokehouse was established 1998 in Lake County Florida.",
+    "local_tip": "Try fresh cut specialty salads and Oakwood smoked barbecue.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://oakwoodsmokehouse.com/about/"
+     ],
+     "why_here": [
+      "https://oakwoodsmokehouse.com/about/"
+     ],
+     "know_before": [
+      "https://oakwoodsmokehouse.com/about/"
+     ],
+     "local_tip": [
+      "https://oakwoodsmokehouse.com/about/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Oakwood Smokehouse is a growing restaurant company established 1998 in Lake County Florida",
+      "source": "https://oakwoodsmokehouse.com/about/"
+     },
+     {
+      "claim": "Fresh cut specialty salads and Oakwood smoked barbecue are only the beginning of a varied menu",
+      "source": "https://oakwoodsmokehouse.com/about/"
+     },
+     {
+      "claim": "Charbroiled burgers, center cut steaks, grilled chicken, fresh soups and baby back ribs are all served from our open kitchen design",
+      "source": "https://oakwoodsmokehouse.com/about/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJx6OWGKrAkIgR0Nn86pp2eRI",
+   "name": "Ever'man Cooperative Grocery & Cafe Garden Street",
+   "category": "shopping",
+   "metro": "florida",
+   "primary_type": "grocery_store",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.everman.org/garden-street",
+     "source_name": "Ever'man Cooperative Grocery & Cafe Garden Street \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Ever\u2019man Cooperative Grocery & Caf\u00e9 on Garden Street in Pensacola is at 315 W. Garden Street Pensacola, FL 32502",
+      "Step inside and you\u2019ll find thoughtfully sourced organic produce, high-quality supplements, fresh local goods, and everyday essentials",
+      "Garden Street Location Monday - Saturday: 7 a.m. - 9 p.m. Sunday: 9 a.m. - 8 p.m.",
+      "Take a break in our caf\u00e9"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Thoughtfully sourced organic produce, fresh local goods and everyday essentials",
+    "why_here": "Shop for thoughtfully sourced organic produce, high-quality supplements, fresh local goods, and everyday essentials, or take a break in our caf\u00e9 in Pensacola.",
+    "know_before": "Garden Street hours Monday to Saturday 7 a.m. to 9 p.m., Sunday 9 a.m. to 8 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.everman.org/garden-street"
+     ],
+     "why_here": [
+      "https://www.everman.org/garden-street"
+     ],
+     "know_before": [
+      "https://www.everman.org/garden-street"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Ever\u2019man Cooperative Grocery & Caf\u00e9 on Garden Street in Pensacola is at 315 W. Garden Street Pensacola, FL 32502",
+      "source": "https://www.everman.org/garden-street"
+     },
+     {
+      "claim": "Step inside and you\u2019ll find thoughtfully sourced organic produce, high-quality supplements, fresh local goods, and everyday essentials",
+      "source": "https://www.everman.org/garden-street"
+     },
+     {
+      "claim": "Garden Street Location Monday - Saturday: 7 a.m. - 9 p.m. Sunday: 9 a.m. - 8 p.m.",
+      "source": "https://www.everman.org/garden-street"
+     },
+     {
+      "claim": "Take a break in our caf\u00e9",
+      "source": "https://www.everman.org/garden-street"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ1YQwOFjZ5ogRWTiUPYUDU_Q",
+   "name": "Daytona Aquarium & Rainforest Adventure",
+   "category": "attractions",
+   "metro": "boardman-or",
+   "primary_type": "aquarium",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.daytonaaquariumandrainforest.com/show-times/",
+     "source_name": "Daytona Aquarium & Rainforest Adventure \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Open 7 days a week from 11:00 a.m. to 6:00 p.m.",
+      "Last Admission is 5:15 p.m.",
+      "Animal feedings are weekends only, including 12:00 p.m. Shark Reef Feeding",
+      "Come feed the stingrays for $7 per cup"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Weekend animal feedings at Shark Reef",
+    "why_here": "Go to see animal feedings on weekends, including the Shark Reef Feeding at 12:00 p.m., and to feed the stingrays for $7 per cup during a visit.",
+    "know_before": "Last Admission is 5:15 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.daytonaaquariumandrainforest.com/show-times/"
+     ],
+     "why_here": [
+      "https://www.daytonaaquariumandrainforest.com/show-times/"
+     ],
+     "know_before": [
+      "https://www.daytonaaquariumandrainforest.com/show-times/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Open 7 days a week from 11:00 a.m. to 6:00 p.m.",
+      "source": "https://www.daytonaaquariumandrainforest.com/show-times/"
+     },
+     {
+      "claim": "Last Admission is 5:15 p.m.",
+      "source": "https://www.daytonaaquariumandrainforest.com/show-times/"
+     },
+     {
+      "claim": "Animal feedings are weekends only, including 12:00 p.m. Shark Reef Feeding",
+      "source": "https://www.daytonaaquariumandrainforest.com/show-times/"
+     },
+     {
+      "claim": "Come feed the stingrays for $7 per cup",
+      "source": "https://www.daytonaaquariumandrainforest.com/show-times/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJMY0nY0YB2YgRTNpU-mjlXzI",
+   "name": "Shake Shack Ft. Lauderdale",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "hamburger_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://shakeshack.com/node/33066",
+     "source_name": "Shake Shack Ft. Lauderdale \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Shake Shack is at 2400 N Federal Hwy Ft Lauderdale, 33305",
+      "Known for burgers, chicken, hot dogs, frozen custard, beer, wine, and more",
+      "Store hours Monday to Thursday and Sunday are 11 a.m. to 10 p.m.",
+      "Store hours Friday and Saturday are 11 a.m. to 10:30 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Burgers, chicken, hot dogs, frozen custard, beer and wine",
+    "why_here": "Go for burgers, chicken, hot dogs, frozen custard, beer, and wine at Shake Shack, open Monday to Thursday and Sunday from 11 a.m. to 10 p.m.",
+    "know_before": "Friday and Saturday store hours are 11 a.m. to 10:30 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://shakeshack.com/node/33066"
+     ],
+     "why_here": [
+      "https://shakeshack.com/node/33066"
+     ],
+     "know_before": [
+      "https://shakeshack.com/node/33066"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Shake Shack is at 2400 N Federal Hwy Ft Lauderdale, 33305",
+      "source": "https://shakeshack.com/node/33066"
+     },
+     {
+      "claim": "Known for burgers, chicken, hot dogs, frozen custard, beer, wine, and more",
+      "source": "https://shakeshack.com/node/33066"
+     },
+     {
+      "claim": "Store hours Monday to Thursday and Sunday are 11 a.m. to 10 p.m.",
+      "source": "https://shakeshack.com/node/33066"
+     },
+     {
+      "claim": "Store hours Friday and Saturday are 11 a.m. to 10:30 p.m.",
+      "source": "https://shakeshack.com/node/33066"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJn5WmAxer2YgRSIDrPHAUex8",
+   "name": "The Hen and Hog Breakfast & Brunch in Hollywood, Florida",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.thehenhog.com/faq",
+     "source_name": "The Hen and Hog Breakfast & Brunch in Hollywood, Florida \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Hollywood, FL: 380 N Park Road, Hollywood, FL 33021",
+      "We serve breakfast and brunch, rooted in Southern comfort food",
+      "Scratch Kitchen: Nearly all of our menu is made from scratch",
+      "Smoked meats (we smoke brisket, pulled pork, chicken, etc.)",
+      "Reservations can only be made by calling the store directly. We do not accept online reservations",
+      "Hollywood, FL: Monday\u2013Friday: 7:00 a.m. \u2013 3:00 p.m.; Saturday & Sunday: 7:00 a.m. \u2013 3:30 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Breakfast and brunch rooted in Southern comfort food in Hollywood",
+    "why_here": "Go for breakfast and brunch rooted in Southern comfort food, with smoked brisket, pulled pork, and chicken from the scratch kitchen at the Hollywood location.",
+    "know_before": "Reservations can only be made by calling the store directly; online reservations are not accepted.",
+    "local_tip": "Hollywood hours are Monday\u2013Friday 7:00 a.m. \u2013 3:00 p.m. and Saturday & Sunday 7:00 a.m. \u2013 3:30 p.m.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.thehenhog.com/faq"
+     ],
+     "why_here": [
+      "https://www.thehenhog.com/faq"
+     ],
+     "know_before": [
+      "https://www.thehenhog.com/faq"
+     ],
+     "local_tip": [
+      "https://www.thehenhog.com/faq"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Hollywood, FL: 380 N Park Road, Hollywood, FL 33021",
+      "source": "https://www.thehenhog.com/faq"
+     },
+     {
+      "claim": "We serve breakfast and brunch, rooted in Southern comfort food",
+      "source": "https://www.thehenhog.com/faq"
+     },
+     {
+      "claim": "Scratch Kitchen: Nearly all of our menu is made from scratch",
+      "source": "https://www.thehenhog.com/faq"
+     },
+     {
+      "claim": "Smoked meats (we smoke brisket, pulled pork, chicken, etc.)",
+      "source": "https://www.thehenhog.com/faq"
+     },
+     {
+      "claim": "Reservations can only be made by calling the store directly. We do not accept online reservations",
+      "source": "https://www.thehenhog.com/faq"
+     },
+     {
+      "claim": "Hollywood, FL: Monday\u2013Friday: 7:00 a.m. \u2013 3:00 p.m.; Saturday & Sunday: 7:00 a.m. \u2013 3:30 p.m.",
+      "source": "https://www.thehenhog.com/faq"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJuToq3Ny20YgRwkZy5BL_tyo",
+   "name": "La Grignote",
+   "category": "food",
+   "metro": "keys",
+   "primary_type": "cafe",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.lagrignotecafebakery.com/",
+     "source_name": "La Grignote \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "La Grignote is a predominantly French & International restaurant and bakery offering 40+ different types of pastries, quiches, breakfast and lunch items, coffees & teas, and mimosas",
+      "La Grignote provides TO-GO, DELIVERY and DINE-IN table service",
+      "La Grignote is open from 7 a.m. - 3 p.m. daily",
+      "La Grignote does not take reservations",
+      "La Grignote is at 1211 Duval St., Key West, FL 33040"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "French & International restaurant and bakery with pastries and quiches",
+    "why_here": "Go for a French & International restaurant and bakery offering 40+ different types of pastries, quiches, breakfast and lunch items, coffees & teas, and mimosas, with TO-GO, DELIVERY and DINE-IN table service.",
+    "know_before": "La Grignote does not take reservations and is open from 7 a.m. - 3 p.m. daily.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.lagrignotecafebakery.com/"
+     ],
+     "why_here": [
+      "https://www.lagrignotecafebakery.com/"
+     ],
+     "know_before": [
+      "https://www.lagrignotecafebakery.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "La Grignote is a predominantly French & International restaurant and bakery offering 40+ different types of pastries, quiches, breakfast and lunch items, coffees & teas, and mimosas",
+      "source": "https://www.lagrignotecafebakery.com/"
+     },
+     {
+      "claim": "La Grignote provides TO-GO, DELIVERY and DINE-IN table service",
+      "source": "https://www.lagrignotecafebakery.com/"
+     },
+     {
+      "claim": "La Grignote is open from 7 a.m. - 3 p.m. daily",
+      "source": "https://www.lagrignotecafebakery.com/"
+     },
+     {
+      "claim": "La Grignote does not take reservations",
+      "source": "https://www.lagrignotecafebakery.com/"
+     },
+     {
+      "claim": "La Grignote is at 1211 Duval St., Key West, FL 33040",
+      "source": "https://www.lagrignotecafebakery.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJpXVC1DWj54gRqaYolS0yQi8",
+   "name": "The Crazy Gator",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://thecrazygator.com/",
+     "source_name": "The Crazy Gator \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Crazy Gator is a relaxed lakeside tavern with patio seating dishing up signature wings, steaks & house-made desserts",
+      "The Crazy Gator serves Lakeside Entrees with a view of Lake Eustis",
+      "The Crazy Gator has a Banquet Room for parties, business meetings, and/or team events that can be reserved for FREE by calling",
+      "The Crazy Gator is at 402 N Bay St. Eustis, FL",
+      "The Crazy Gator hours are Sun - Thurs: 11 a.m. - 12 a.m. and Fri & Sat: 11 a.m. - 2 a.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Lakeside tavern with patio seating, signature wings and steaks",
+    "why_here": "Go for a relaxed lakeside tavern with patio seating dishing up signature wings, steaks & house-made desserts, with Lakeside Entrees and a view of Lake Eustis, plus a Banquet Room for parties and business meetings.",
+    "know_before": "The Banquet Room can be reserved for FREE by calling to reserve.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://thecrazygator.com/"
+     ],
+     "why_here": [
+      "https://thecrazygator.com/"
+     ],
+     "know_before": [
+      "https://thecrazygator.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Crazy Gator is a relaxed lakeside tavern with patio seating dishing up signature wings, steaks & house-made desserts",
+      "source": "https://thecrazygator.com/"
+     },
+     {
+      "claim": "The Crazy Gator serves Lakeside Entrees with a view of Lake Eustis",
+      "source": "https://thecrazygator.com/"
+     },
+     {
+      "claim": "The Crazy Gator has a Banquet Room for parties, business meetings, and/or team events that can be reserved for FREE by calling",
+      "source": "https://thecrazygator.com/"
+     },
+     {
+      "claim": "The Crazy Gator is at 402 N Bay St. Eustis, FL",
+      "source": "https://thecrazygator.com/"
+     },
+     {
+      "claim": "The Crazy Gator hours are Sun - Thurs: 11 a.m. - 12 a.m. and Fri & Sat: 11 a.m. - 2 a.m.",
+      "source": "https://thecrazygator.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJe-pHJ6wB2YgRreurDPALb2I",
+   "name": "Tinta",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "breakfast_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.marriott.com/en-us/hotels/flllw-the-westin-fort-lauderdale-beach-resort/dining/",
+     "source_name": "Tinta \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Tinta is a popular choice for beachfront dining in Fort Lauderdale, serving all your favorites with a Mexican twist",
+      "Tinta offers dining inside or out on the restaurant's oceanfront terrace",
+      "Tinta is at The Westin Fort Lauderdale Beach Resort and serves American cuisine",
+      "Tinta is open Everyday from 7:00 a.m. - 11:00 a.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Beachfront dining with a Mexican twist on an oceanfront terrace",
+    "why_here": "Go for beachfront dining in Fort Lauderdale serving favorites with a Mexican twist, where you can dine inside or out on the oceanfront terrace at The Westin Fort Lauderdale Beach Resort, with American cuisine at Tinta.",
+    "know_before": "Tinta is open Everyday from 7:00 a.m. - 11:00 a.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.marriott.com/en-us/hotels/flllw-the-westin-fort-lauderdale-beach-resort/dining/"
+     ],
+     "why_here": [
+      "https://www.marriott.com/en-us/hotels/flllw-the-westin-fort-lauderdale-beach-resort/dining/"
+     ],
+     "know_before": [
+      "https://www.marriott.com/en-us/hotels/flllw-the-westin-fort-lauderdale-beach-resort/dining/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Tinta is a popular choice for beachfront dining in Fort Lauderdale, serving all your favorites with a Mexican twist",
+      "source": "https://www.marriott.com/en-us/hotels/flllw-the-westin-fort-lauderdale-beach-resort/dining/"
+     },
+     {
+      "claim": "Tinta offers dining inside or out on the restaurant's oceanfront terrace",
+      "source": "https://www.marriott.com/en-us/hotels/flllw-the-westin-fort-lauderdale-beach-resort/dining/"
+     },
+     {
+      "claim": "Tinta is at The Westin Fort Lauderdale Beach Resort and serves American cuisine",
+      "source": "https://www.marriott.com/en-us/hotels/flllw-the-westin-fort-lauderdale-beach-resort/dining/"
+     },
+     {
+      "claim": "Tinta is open Everyday from 7:00 a.m. - 11:00 a.m.",
+      "source": "https://www.marriott.com/en-us/hotels/flllw-the-westin-fort-lauderdale-beach-resort/dining/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJQZjMxFAA2YgRvX4c3UsqZ1o",
+   "name": "Boathouse At The Riverside",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.boathouseriverside.com/",
+     "source_name": "Boathouse At The Riverside \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Boathouse at the Riverside serves Mediterranean-inspired small plates and cocktails with Fort Lauderdale waterfront views",
+      "Boathouse at the Riverside offers All Day Dining Daily from 11:00 a.m. to 10:00 p.m.",
+      "Boathouse at the Riverside offers Sunday Brunch from 11:00 a.m. to 3:00 p.m.",
+      "Boathouse at the Riverside offers Daily Happy Hour",
+      "Boathouse at the Riverside is on the New River"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Mediterranean-inspired small plates and cocktails with waterfront views",
+    "why_here": "Go for Mediterranean-inspired small plates and cocktails served with Fort Lauderdale waterfront views, with All Day Dining and Sunday Brunch, plus Daily Happy Hour at Boathouse at the Riverside on the New River.",
+    "know_before": "Boathouse at the Riverside offers All Day Dining Daily from 11:00 a.m. to 10:00 p.m. and Sunday Brunch from 11:00 a.m. to 3:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.boathouseriverside.com/"
+     ],
+     "why_here": [
+      "https://www.boathouseriverside.com/"
+     ],
+     "know_before": [
+      "https://www.boathouseriverside.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Boathouse at the Riverside serves Mediterranean-inspired small plates and cocktails with Fort Lauderdale waterfront views",
+      "source": "https://www.boathouseriverside.com/"
+     },
+     {
+      "claim": "Boathouse at the Riverside offers All Day Dining Daily from 11:00 a.m. to 10:00 p.m.",
+      "source": "https://www.boathouseriverside.com/"
+     },
+     {
+      "claim": "Boathouse at the Riverside offers Sunday Brunch from 11:00 a.m. to 3:00 p.m.",
+      "source": "https://www.boathouseriverside.com/"
+     },
+     {
+      "claim": "Boathouse at the Riverside offers Daily Happy Hour",
+      "source": "https://www.boathouseriverside.com/"
+     },
+     {
+      "claim": "Boathouse at the Riverside is on the New River",
+      "source": "https://www.boathouseriverside.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJv6wEHdTZwogRm6hapqbPL_k",
+   "name": "SALTY SHAMROCK IRISH PUB",
+   "category": "nightlife",
+   "metro": "tampa",
+   "primary_type": "bar_and_grill",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://saltyshamrock.net/",
+     "source_name": "SALTY SHAMROCK IRISH PUB \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Salty Shamrock Irish Pub is in Apollo Beach, FL",
+      "Fish and Chips is pub style, served with coleslaw, mushy peas, lemon",
+      "Salty Shamrock offers live entertainment with a variety of performances",
+      "Hours Monday are 11 a.m. to 10 p.m. and Friday and Saturday are 11 a.m. to 1 a.m.",
+      "Every pint of Guinness is poured to perfection"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Irish pub with Fish and Chips and live entertainment in Apollo Beach",
+    "why_here": "Go for pub style Fish and Chips served with coleslaw, mushy peas, lemon, plus live entertainment with a variety of performances in Apollo Beach.",
+    "know_before": "Hours Monday are 11 a.m. to 10 p.m.; Friday and Saturday are 11 a.m. to 1 a.m.",
+    "local_tip": "Try a pint of Guinness.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://saltyshamrock.net/"
+     ],
+     "why_here": [
+      "https://saltyshamrock.net/"
+     ],
+     "know_before": [
+      "https://saltyshamrock.net/"
+     ],
+     "local_tip": [
+      "https://saltyshamrock.net/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Salty Shamrock Irish Pub is in Apollo Beach, FL",
+      "source": "https://saltyshamrock.net/"
+     },
+     {
+      "claim": "Fish and Chips is pub style, served with coleslaw, mushy peas, lemon",
+      "source": "https://saltyshamrock.net/"
+     },
+     {
+      "claim": "Salty Shamrock offers live entertainment with a variety of performances",
+      "source": "https://saltyshamrock.net/"
+     },
+     {
+      "claim": "Hours Monday are 11 a.m. to 10 p.m. and Friday and Saturday are 11 a.m. to 1 a.m.",
+      "source": "https://saltyshamrock.net/"
+     },
+     {
+      "claim": "Every pint of Guinness is poured to perfection",
+      "source": "https://saltyshamrock.net/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJF6BWOS632YgRFYmvBwI0dkA",
+   "name": "Armstrong Jazz House",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://armstrongjazzhouse.com/",
+     "source_name": "Armstrong Jazz House \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Armstrong Jazz House is in Miracle Mile, Coral Gables and offers live jazz, dining, and handcrafted cocktails",
+      "Armstrong Jazz House offers live jazz nightly with three live jazz dinner shows nightly, seven nights a week",
+      "Armstrong Jazz House dinner shows are at 6 p.m., 8 p.m., and 10 p.m.",
+      "Armstrong Jazz House serves gourmet cuisine and handcrafted cocktails in an intimate lounge"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Live jazz nightly with three dinner shows and handcrafted cocktails",
+    "why_here": "Go for live jazz nightly in Miracle Mile, Coral Gables, with three live jazz dinner shows, gourmet cuisine and handcrafted cocktails in an intimate lounge, with jazz seven nights a week at Armstrong Jazz House.",
+    "know_before": "Armstrong Jazz House has three live jazz dinner shows nightly at 6 p.m., 8 p.m., and 10 p.m., seven nights a week.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://armstrongjazzhouse.com/"
+     ],
+     "why_here": [
+      "https://armstrongjazzhouse.com/"
+     ],
+     "know_before": [
+      "https://armstrongjazzhouse.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Armstrong Jazz House is in Miracle Mile, Coral Gables and offers live jazz, dining, and handcrafted cocktails",
+      "source": "https://armstrongjazzhouse.com/"
+     },
+     {
+      "claim": "Armstrong Jazz House offers live jazz nightly with three live jazz dinner shows nightly, seven nights a week",
+      "source": "https://armstrongjazzhouse.com/"
+     },
+     {
+      "claim": "Armstrong Jazz House dinner shows are at 6 p.m., 8 p.m., and 10 p.m.",
+      "source": "https://armstrongjazzhouse.com/"
+     },
+     {
+      "claim": "Armstrong Jazz House serves gourmet cuisine and handcrafted cocktails in an intimate lounge",
+      "source": "https://armstrongjazzhouse.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJeYeavUrXwogRjRyk5ZOdYnA",
+   "name": "Culver\u2019s",
+   "category": "food",
+   "metro": "tampa",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.culvers.com/restaurants/riverview-fl-boyette-rd",
+     "source_name": "Culver\u2019s \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Culver's of Riverview, FL - Boyette Rd is at 11620 Boyette Rd, Riverview, FL",
+      "Culver's of Riverview, FL - Boyette Rd serves ButterBurgers, Fresh Frozen Custard, Chicken, Seafood, Salads and Sandwiches",
+      "Hours are Sunday to Wednesday from 10:00 a.m. to 11:00 p.m.",
+      "Hours are Thursday to Saturday from 10:00 a.m. to 12:00 a.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "ButterBurgers and Fresh Frozen Custard at Culver's of Riverview, FL - Boyette Rd",
+    "why_here": "Go for ButterBurgers, Fresh Frozen Custard, Chicken, Seafood, Salads and Sandwiches at Culver's of Riverview, FL - Boyette Rd, open Sunday to Wednesday from 10:00 a.m. to 11:00 p.m.",
+    "know_before": "Hours are Thursday to Saturday from 10:00 a.m. to 12:00 a.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.culvers.com/restaurants/riverview-fl-boyette-rd"
+     ],
+     "why_here": [
+      "https://www.culvers.com/restaurants/riverview-fl-boyette-rd"
+     ],
+     "know_before": [
+      "https://www.culvers.com/restaurants/riverview-fl-boyette-rd"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Culver's of Riverview, FL - Boyette Rd is at 11620 Boyette Rd, Riverview, FL",
+      "source": "https://www.culvers.com/restaurants/riverview-fl-boyette-rd"
+     },
+     {
+      "claim": "Culver's of Riverview, FL - Boyette Rd serves ButterBurgers, Fresh Frozen Custard, Chicken, Seafood, Salads and Sandwiches",
+      "source": "https://www.culvers.com/restaurants/riverview-fl-boyette-rd"
+     },
+     {
+      "claim": "Hours are Sunday to Wednesday from 10:00 a.m. to 11:00 p.m.",
+      "source": "https://www.culvers.com/restaurants/riverview-fl-boyette-rd"
+     },
+     {
+      "claim": "Hours are Thursday to Saturday from 10:00 a.m. to 12:00 a.m.",
+      "source": "https://www.culvers.com/restaurants/riverview-fl-boyette-rd"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ-2A8KBt254gRUUGz6-NkMa4",
+   "name": "The Nauti Lobstah",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://thenautilobstah.com/",
+     "source_name": "The Nauti Lobstah \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Nauti Lobstah is at 311 S Forest Ave Apopka, FL 32703",
+      "The Nauti Lobstah serves fresh Maine lobster and New England seafood specialties",
+      "The menu includes New England and Connecticut lobster rolls with fresh Maine lobster",
+      "Hours are Tuesday to Thursday from 11:00 a.m. with last seating at 8:00 p.m.",
+      "Hours are Friday to Saturday from 11:00 a.m. with last seating at 8:30 p.m.",
+      "The restaurant is closed Sunday and Monday"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Fresh Maine lobster and New England seafood specialties in Apopka",
+    "why_here": "Go for fresh Maine lobster as New England and Connecticut lobster rolls, plus New England seafood specialties, at 311 S Forest Ave Apopka, FL 32703, from Tuesday to Thursday.",
+    "know_before": "Closed Sunday and Monday; Tuesday to Thursday last seating is at 8:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://thenautilobstah.com/"
+     ],
+     "why_here": [
+      "https://thenautilobstah.com/"
+     ],
+     "know_before": [
+      "https://thenautilobstah.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Nauti Lobstah is at 311 S Forest Ave Apopka, FL 32703",
+      "source": "https://thenautilobstah.com/"
+     },
+     {
+      "claim": "The Nauti Lobstah serves fresh Maine lobster and New England seafood specialties",
+      "source": "https://thenautilobstah.com/"
+     },
+     {
+      "claim": "The menu includes New England and Connecticut lobster rolls with fresh Maine lobster",
+      "source": "https://thenautilobstah.com/"
+     },
+     {
+      "claim": "Hours are Tuesday to Thursday from 11:00 a.m. with last seating at 8:00 p.m.",
+      "source": "https://thenautilobstah.com/"
+     },
+     {
+      "claim": "Hours are Friday to Saturday from 11:00 a.m. with last seating at 8:30 p.m.",
+      "source": "https://thenautilobstah.com/"
+     },
+     {
+      "claim": "The restaurant is closed Sunday and Monday",
+      "source": "https://thenautilobstah.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJDxLtdD2E3YgRajsz136JI_8",
+   "name": "Big John's Rockin' BBQ",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "barbecue_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://bigjohnsrockinbbq.com/about",
+     "source_name": "Big John's Rockin' BBQ \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Big John's Rockin' BBQ is in Downtown Kissimmee",
+      "Big John Glover brought his craft to Downtown Kissimmee on September 11, 2015",
+      "Big John's Rockin' BBQ serves slow-smoked brisket and homemade sides",
+      "The restaurant serves homemade sauces and slow-smoked brisket",
+      "Big John Glover is Owner and Chief BBQ Smoker"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Slow-smoked brisket and homemade sauces in Downtown Kissimmee",
+    "why_here": "Go for slow-smoked brisket, homemade sides and homemade sauces in Downtown Kissimmee, where Big John Glover brought his craft on September 11, 2015, as Owner and Chief BBQ Smoker.",
+    "know_before": "Big John Glover is Owner and Chief BBQ Smoker.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://bigjohnsrockinbbq.com/about"
+     ],
+     "why_here": [
+      "https://bigjohnsrockinbbq.com/about"
+     ],
+     "know_before": [
+      "https://bigjohnsrockinbbq.com/about"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Big John's Rockin' BBQ is in Downtown Kissimmee",
+      "source": "https://bigjohnsrockinbbq.com/about"
+     },
+     {
+      "claim": "Big John Glover brought his craft to Downtown Kissimmee on September 11, 2015",
+      "source": "https://bigjohnsrockinbbq.com/about"
+     },
+     {
+      "claim": "Big John's Rockin' BBQ serves slow-smoked brisket and homemade sides",
+      "source": "https://bigjohnsrockinbbq.com/about"
+     },
+     {
+      "claim": "The restaurant serves homemade sauces and slow-smoked brisket",
+      "source": "https://bigjohnsrockinbbq.com/about"
+     },
+     {
+      "claim": "Big John Glover is Owner and Chief BBQ Smoker",
+      "source": "https://bigjohnsrockinbbq.com/about"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJmQjpHhfa5ogRJL7JlN8q7Lc",
+   "name": "Worlds Most Famous Beach Daytona Beach",
+   "category": "beach",
+   "metro": "florida",
+   "primary_type": "beach",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.daytonabeach.com/things-to-do/beaches/",
+     "source_name": "Worlds Most Famous Beach Daytona Beach \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Daytona Beach has 23 miles of white-sand beaches",
+      "The 23 miles of white-sand beaches are open to pedestrians 24/7 with free access",
+      "Cars are permitted in designated areas of the beach from sunrise to sunset"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "23 miles of white-sand beaches open to pedestrians 24/7",
+    "why_here": "Go for 23 miles of white-sand beaches that are open to pedestrians 24/7 with free access, with cars permitted in designated areas of the beach from sunrise to sunset in the Daytona Beach area.",
+    "know_before": "Cars are permitted in designated areas only, from sunrise to sunset.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.daytonabeach.com/things-to-do/beaches/"
+     ],
+     "why_here": [
+      "https://www.daytonabeach.com/things-to-do/beaches/"
+     ],
+     "know_before": [
+      "https://www.daytonabeach.com/things-to-do/beaches/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Daytona Beach has 23 miles of white-sand beaches",
+      "source": "https://www.daytonabeach.com/things-to-do/beaches/"
+     },
+     {
+      "claim": "The 23 miles of white-sand beaches are open to pedestrians 24/7 with free access",
+      "source": "https://www.daytonabeach.com/things-to-do/beaches/"
+     },
+     {
+      "claim": "Cars are permitted in designated areas of the beach from sunrise to sunset",
+      "source": "https://www.daytonabeach.com/things-to-do/beaches/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJtQUfHTZ-3YgRv9J7_vqwuHY",
+   "name": "Kilimanjaro Safaris",
+   "category": "attractions",
+   "metro": "orlando",
+   "primary_type": "tourist_attraction",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.disneyworld.eu/attractions/animal-kingdom/kilimanjaro-safaris/",
+     "source_name": "Kilimanjaro Safaris \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Kilimanjaro Safaris is located in Africa at Disney's Animal Kingdom Theme Park",
+      "Kilimanjaro Safaris is an open-air vehicle guided tour of a lush African savanna",
+      "The Harambe Wildlife Reserve is home to over 30 species living in 110 acres",
+      "Kilimanjaro Safaris is an 18-minute expedition with an expert guide",
+      "Animals you may encounter include cheetahs, crocodiles, elephants and zebras",
+      "Operating hours are 8:00 a.m. to 4:45 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Open-air vehicle guided tour of a lush African savanna",
+    "why_here": "Ride an open-air vehicle on a guided tour of a lush African savanna in the Harambe Wildlife Reserve, home to over 30 species living in 110 acres, during an 18-minute expedition with an expert guide.",
+    "know_before": "Operating hours are 8:00 a.m. to 4:45 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.disneyworld.eu/attractions/animal-kingdom/kilimanjaro-safaris/"
+     ],
+     "why_here": [
+      "https://www.disneyworld.eu/attractions/animal-kingdom/kilimanjaro-safaris/"
+     ],
+     "know_before": [
+      "https://www.disneyworld.eu/attractions/animal-kingdom/kilimanjaro-safaris/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Kilimanjaro Safaris is located in Africa at Disney's Animal Kingdom Theme Park",
+      "source": "https://www.disneyworld.eu/attractions/animal-kingdom/kilimanjaro-safaris/"
+     },
+     {
+      "claim": "Kilimanjaro Safaris is an open-air vehicle guided tour of a lush African savanna",
+      "source": "https://www.disneyworld.eu/attractions/animal-kingdom/kilimanjaro-safaris/"
+     },
+     {
+      "claim": "The Harambe Wildlife Reserve is home to over 30 species living in 110 acres",
+      "source": "https://www.disneyworld.eu/attractions/animal-kingdom/kilimanjaro-safaris/"
+     },
+     {
+      "claim": "Kilimanjaro Safaris is an 18-minute expedition with an expert guide",
+      "source": "https://www.disneyworld.eu/attractions/animal-kingdom/kilimanjaro-safaris/"
+     },
+     {
+      "claim": "Animals you may encounter include cheetahs, crocodiles, elephants and zebras",
+      "source": "https://www.disneyworld.eu/attractions/animal-kingdom/kilimanjaro-safaris/"
+     },
+     {
+      "claim": "Operating hours are 8:00 a.m. to 4:45 p.m.",
+      "source": "https://www.disneyworld.eu/attractions/animal-kingdom/kilimanjaro-safaris/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ8_aCucXWwogRmvyjCyl6_eQ",
+   "name": "PDQ",
+   "category": "food",
+   "metro": "tampa",
+   "primary_type": "fast_food_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.eatpdq.com/locations/riverview",
+     "source_name": "PDQ \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "PDQ Riverview is at 10441 Big Bend Rd, Riverview, Florida 33579",
+      "Store hours are Monday to Sunday from 11:00 a.m. to 10:00 p.m.",
+      "PDQ favorites include hand-breaded buttermilk chicken tenders, crispy nuggets, chicken sandwiches, fresh salads, waffle fries, signature sauces, and hand-spun milkshakes"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Hand-breaded buttermilk chicken tenders and hand-spun milkshakes in Riverview",
+    "why_here": "Go for hand-breaded buttermilk chicken tenders, crispy nuggets, chicken sandwiches, fresh salads, waffle sides, signature sauces, and hand-spun milkshakes in Riverview.",
+    "know_before": "Store hours are Monday to Sunday from 11:00 a.m. to 10:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.eatpdq.com/locations/riverview"
+     ],
+     "why_here": [
+      "https://www.eatpdq.com/locations/riverview"
+     ],
+     "know_before": [
+      "https://www.eatpdq.com/locations/riverview"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "PDQ Riverview is at 10441 Big Bend Rd, Riverview, Florida 33579",
+      "source": "https://www.eatpdq.com/locations/riverview"
+     },
+     {
+      "claim": "Store hours are Monday to Sunday from 11:00 a.m. to 10:00 p.m.",
+      "source": "https://www.eatpdq.com/locations/riverview"
+     },
+     {
+      "claim": "PDQ favorites include hand-breaded buttermilk chicken tenders, crispy nuggets, chicken sandwiches, fresh salads, waffle fries, signature sauces, and hand-spun milkshakes",
+      "source": "https://www.eatpdq.com/locations/riverview"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ86nnumzvwogRALwd-BFXmuw",
+   "name": "Raising Cane's Chicken Fingers",
+   "category": "food",
+   "metro": "st-pete",
+   "primary_type": "fast_food_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.raisingcanes.com/menu",
+     "source_name": "Raising Cane's Chicken Fingers \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Box Combo includes 4 Chicken Fingers, Crinkle-Cut Fries, One Cane\u2019s Sauce, Texas Toast, Coleslaw, and a Regular Fountain Drink/Tea (22 oz.)",
+      "The Caniac Combo includes 6 Chicken Fingers, Crinkle-Cut Fries, 2 Cane\u2019s Sauce, Texas Toast, Coleslaw, and a Large Fountain Drink/Tea (32 oz.)"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "4 Chicken Fingers, Crinkle-Cut sides, Texas Toast, and Coleslaw in The Box Combo",
+    "why_here": "Try The Box Combo with 4 Chicken Fingers, Crinkle-Cut sides, One Cane\u2019s Sauce, Texas Toast, Coleslaw, and a Regular Fountain Drink/Tea (22 oz.) in a single order.",
+    "know_before": "The Caniac Combo includes 6 Chicken Fingers and a Large Fountain Drink/Tea (32 oz.).",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.raisingcanes.com/menu"
+     ],
+     "why_here": [
+      "https://www.raisingcanes.com/menu"
+     ],
+     "know_before": [
+      "https://www.raisingcanes.com/menu"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Box Combo includes 4 Chicken Fingers, Crinkle-Cut Fries, One Cane\u2019s Sauce, Texas Toast, Coleslaw, and a Regular Fountain Drink/Tea (22 oz.)",
+      "source": "https://www.raisingcanes.com/menu"
+     },
+     {
+      "claim": "The Caniac Combo includes 6 Chicken Fingers, Crinkle-Cut Fries, 2 Cane\u2019s Sauce, Texas Toast, Coleslaw, and a Large Fountain Drink/Tea (32 oz.)",
+      "source": "https://www.raisingcanes.com/menu"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJR9dDK1EA2YgRRNCfJ1NZIB8",
+   "name": "Big City Tavern",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.bigcitylasolas.com/",
+     "source_name": "Big City Tavern \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Big City Tavern is at 609 E Las Olas Blvd, Fort Lauderdale, FL 33301",
+      "The menu features fresh seafood, steaks, pasta, salads and more",
+      "Each day desserts, pastas, breads and gelato are all house made",
+      "Executive Chef is Ladanna Lawas",
+      "Menus include Brunch, Lunch, Dinner, and Dessert"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Fresh seafood, steaks, pasta, and salads with house made gelato",
+    "why_here": "Go for fresh seafood, steaks, pasta, salads and more, where desserts, pastas, breads and gelato are all house made each day, with Brunch, Lunch, Dinner, and Dessert menus.",
+    "know_before": "Menus include Brunch, Lunch, Dinner, and Dessert.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.bigcitylasolas.com/"
+     ],
+     "why_here": [
+      "https://www.bigcitylasolas.com/"
+     ],
+     "know_before": [
+      "https://www.bigcitylasolas.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Big City Tavern is at 609 E Las Olas Blvd, Fort Lauderdale, FL 33301",
+      "source": "https://www.bigcitylasolas.com/"
+     },
+     {
+      "claim": "The menu features fresh seafood, steaks, pasta, salads and more",
+      "source": "https://www.bigcitylasolas.com/"
+     },
+     {
+      "claim": "Each day desserts, pastas, breads and gelato are all house made",
+      "source": "https://www.bigcitylasolas.com/"
+     },
+     {
+      "claim": "Executive Chef is Ladanna Lawas",
+      "source": "https://www.bigcitylasolas.com/"
+     },
+     {
+      "claim": "Menus include Brunch, Lunch, Dinner, and Dessert",
+      "source": "https://www.bigcitylasolas.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJEw--B0HE5YgRqIsciVFB_qY",
+   "name": "Shrimp Shack Seafood Kitchen",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://myshrimpshack.com/",
+     "source_name": "Shrimp Shack Seafood Kitchen \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Shrimp Shack has locations in Orange Park and Jax Beach in Northeast Florida",
+      "Shrimp Shack has been frying shrimp, fish and more in Northeast Florida since 2010",
+      "Everything served is made to order and coated in signature SeaLight Breader",
+      "Seafood selection includes Shrimp, Mahi, Flounder, White Fish, Scallops, and Catfish"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Shrimp, Mahi, Flounder, White Fish, Scallops, and Catfish made to order",
+    "why_here": "Go for shrimp, fish and more made to order and coated in signature SeaLight Breader, with a seafood selection including Shrimp, Mahi, Flounder, White Fish, Scallops, and Catfish in Northeast Florida.",
+    "know_before": "Everything served is made to order.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://myshrimpshack.com/"
+     ],
+     "why_here": [
+      "https://myshrimpshack.com/"
+     ],
+     "know_before": [
+      "https://myshrimpshack.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Shrimp Shack has locations in Orange Park and Jax Beach in Northeast Florida",
+      "source": "https://myshrimpshack.com/"
+     },
+     {
+      "claim": "Shrimp Shack has been frying shrimp, fish and more in Northeast Florida since 2010",
+      "source": "https://myshrimpshack.com/"
+     },
+     {
+      "claim": "Everything served is made to order and coated in signature SeaLight Breader",
+      "source": "https://myshrimpshack.com/"
+     },
+     {
+      "claim": "Seafood selection includes Shrimp, Mahi, Flounder, White Fish, Scallops, and Catfish",
+      "source": "https://myshrimpshack.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJb1py_8vg54gRrjcCbMEjtFY",
+   "name": "Swamp Fever Airboat Adventures",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "tour_agency",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://swampfeverairboatadventures.com/rates/",
+     "source_name": "Swamp Fever Airboat Adventures \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Swamp Fever Airboat Adventures is at 4110 NW 42nd Pl Lot 1, Lake Panasoffkee, FL 33538",
+      "Hours are 9:00 a.m. to 4:00 p.m. everyday",
+      "Airboat tours run 7 Days a Week and visitors should arrive 30 minutes before the tour time",
+      "The Airboat Tour Adventure flies through the backwaters of the Withlacoochee River system on the airboat Swamp Thang",
+      "The experience includes seeing live alligators and holding a real LIVE ALLIGATOR"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Airboat tour through the backwaters of the Withlacoochee River system with live alligators",
+    "why_here": "Go to fly through the backwaters of the Withlacoochee River system on the airboat Swamp Thang, see live alligators, and hold a real LIVE ALLIGATOR, at 4110 NW 42nd Pl Lot 1, Lake Panasoffkee, FL 33538.",
+    "know_before": "Airboat tours run 7 Days a Week and visitors should arrive 30 minutes before the tour time.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://swampfeverairboatadventures.com/rates/"
+     ],
+     "why_here": [
+      "https://swampfeverairboatadventures.com/rates/"
+     ],
+     "know_before": [
+      "https://swampfeverairboatadventures.com/rates/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Swamp Fever Airboat Adventures is at 4110 NW 42nd Pl Lot 1, Lake Panasoffkee, FL 33538",
+      "source": "https://swampfeverairboatadventures.com/rates/"
+     },
+     {
+      "claim": "Hours are 9:00 a.m. to 4:00 p.m. everyday",
+      "source": "https://swampfeverairboatadventures.com/rates/"
+     },
+     {
+      "claim": "Airboat tours run 7 Days a Week and visitors should arrive 30 minutes before the tour time",
+      "source": "https://swampfeverairboatadventures.com/rates/"
+     },
+     {
+      "claim": "The Airboat Tour Adventure flies through the backwaters of the Withlacoochee River system on the airboat Swamp Thang",
+      "source": "https://swampfeverairboatadventures.com/rates/"
+     },
+     {
+      "claim": "The experience includes seeing live alligators and holding a real LIVE ALLIGATOR",
+      "source": "https://swampfeverairboatadventures.com/rates/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJrQPQ-1v9wogRzXWed5FF8lc",
+   "name": "Corey Avenue Shopping District",
+   "category": "shopping",
+   "metro": "st-pete",
+   "primary_type": "market",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://coreyave.com/about-corey-avenue-st-pete-beach/",
+     "source_name": "Corey Avenue Shopping District \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Corey Avenue is a shopping and dining district in St. Pete Beach",
+      "Every Sunday, Corey Avenue transforms into an open-air market featuring fresh produce, local artisans, gourmet foods, and live entertainment"
+     ]
+    },
+    {
+     "source": "https://coreyave.com/st-pete-life-magazines-best-of-readers-poll-2026/",
+     "source_name": "Corey Avenue Shopping District \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Corey Avenue Sunday Market runs 10 a.m. to 2 p.m.",
+      "The Corey Avenue Sunday Market hosts around 100 vendors"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Shopping and dining district in St. Pete Beach with a Sunday market",
+    "why_here": "Browse fresh produce, local artisans, gourmet foods, and live entertainment at the open-air market, then explore the shopping and dining district in St. Pete Beach.",
+    "know_before": "The Corey Avenue Sunday Market runs 10 a.m. to 2 p.m. on Sunday",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://coreyave.com/about-corey-avenue-st-pete-beach/",
+      "https://coreyave.com/st-pete-life-magazines-best-of-readers-poll-2026/"
+     ],
+     "why_here": [
+      "https://coreyave.com/about-corey-avenue-st-pete-beach/",
+      "https://coreyave.com/st-pete-life-magazines-best-of-readers-poll-2026/"
+     ],
+     "know_before": [
+      "https://coreyave.com/about-corey-avenue-st-pete-beach/",
+      "https://coreyave.com/st-pete-life-magazines-best-of-readers-poll-2026/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Corey Avenue is a shopping and dining district in St. Pete Beach",
+      "source": "https://coreyave.com/about-corey-avenue-st-pete-beach/"
+     },
+     {
+      "claim": "Every Sunday, Corey Avenue transforms into an open-air market featuring fresh produce, local artisans, gourmet foods, and live entertainment",
+      "source": "https://coreyave.com/about-corey-avenue-st-pete-beach/"
+     },
+     {
+      "claim": "The Corey Avenue Sunday Market runs 10 a.m. to 2 p.m.",
+      "source": "https://coreyave.com/st-pete-life-magazines-best-of-readers-poll-2026/"
+     },
+     {
+      "claim": "The Corey Avenue Sunday Market hosts around 100 vendors",
+      "source": "https://coreyave.com/st-pete-life-magazines-best-of-readers-poll-2026/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJN5jQTl_9wogRv2AMrQmlQiw",
+   "name": "Upham Beach Park",
+   "category": "beach",
+   "metro": "st-pete",
+   "primary_type": "beach",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.stpetebeach.org/DocumentCenter/View/1137/Beach-Wedding-Permit-Application-and-Ordinances-PDF",
+     "source_name": "Upham Beach Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Upham Beach is in St. Pete Beach from 71st Ave to 67th Ave",
+      "Parking is paid metered parking from 8 a.m. \u2013 8 p.m.",
+      "Parking must be in legal, designated parking spaces"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Beach stretch in St. Pete Beach from 71st Ave to 67th Ave",
+    "why_here": "Go to the beach stretch from 71st Ave to 67th Ave in St. Pete Beach, where parking must be in legal, designated parking spaces and paid metered parking applies.",
+    "know_before": "Parking is paid metered parking from 8 a.m. \u2013 8 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.stpetebeach.org/DocumentCenter/View/1137/Beach-Wedding-Permit-Application-and-Ordinances-PDF"
+     ],
+     "why_here": [
+      "https://www.stpetebeach.org/DocumentCenter/View/1137/Beach-Wedding-Permit-Application-and-Ordinances-PDF"
+     ],
+     "know_before": [
+      "https://www.stpetebeach.org/DocumentCenter/View/1137/Beach-Wedding-Permit-Application-and-Ordinances-PDF"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Upham Beach is in St. Pete Beach from 71st Ave to 67th Ave",
+      "source": "https://www.stpetebeach.org/DocumentCenter/View/1137/Beach-Wedding-Permit-Application-and-Ordinances-PDF"
+     },
+     {
+      "claim": "Parking is paid metered parking from 8 a.m. \u2013 8 p.m.",
+      "source": "https://www.stpetebeach.org/DocumentCenter/View/1137/Beach-Wedding-Permit-Application-and-Ordinances-PDF"
+     },
+     {
+      "claim": "Parking must be in legal, designated parking spaces",
+      "source": "https://www.stpetebeach.org/DocumentCenter/View/1137/Beach-Wedding-Permit-Application-and-Ordinances-PDF"
+     }
+    ]
+   }
+  }
+ ]
+}

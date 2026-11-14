@@ -1,0 +1,428 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 46. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJKUAno1QA2YgRXjBVFXDDlrA",
+   "name": "Rhythm & Vine",
+   "category": "nightlife",
+   "metro": "broward",
+   "primary_type": "bar",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.rhythm-vine.com/",
+     "source_name": "Rhythm & Vine \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Rhythm + Vine is a Bar & Outdoor Garden in Fort Lauderdale, FL",
+      "Rhythm + Vine is at 401 NE 5th Terrace, Fort Lauderdale, FL 33301",
+      "Rhythm + Vine has Rotating Food Trucks Wednesday to Sunday from open to close",
+      "Rhythm + Vine Private Events offer Two Full-Service Bars",
+      "The Garden accommodates 100 Guests and The Den accommodates 100 Guests at Rhythm + Vine"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Rotating Food Trucks at a Bar & Outdoor Garden in Fort Lauderdale",
+    "why_here": "Rotating Food Trucks Wednesday to Sunday from open to close at Rhythm + Vine, a Bar & Outdoor Garden in Fort Lauderdale, with Two Full-Service Bars for Private Events.",
+    "know_before": "Rhythm + Vine is at 401 NE 5th Terrace, Fort Lauderdale, FL 33301.",
+    "local_tip": "Private Events offer Two Full-Service Bars at Rhythm + Vine",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.rhythm-vine.com/"
+     ],
+     "why_here": [
+      "https://www.rhythm-vine.com/"
+     ],
+     "know_before": [
+      "https://www.rhythm-vine.com/"
+     ],
+     "local_tip": [
+      "https://www.rhythm-vine.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Rhythm + Vine is a Bar & Outdoor Garden in Fort Lauderdale, FL",
+      "source": "https://www.rhythm-vine.com/"
+     },
+     {
+      "claim": "Rhythm + Vine is at 401 NE 5th Terrace, Fort Lauderdale, FL 33301",
+      "source": "https://www.rhythm-vine.com/"
+     },
+     {
+      "claim": "Rhythm + Vine has Rotating Food Trucks Wednesday to Sunday from open to close",
+      "source": "https://www.rhythm-vine.com/"
+     },
+     {
+      "claim": "Rhythm + Vine Private Events offer Two Full-Service Bars",
+      "source": "https://www.rhythm-vine.com/"
+     },
+     {
+      "claim": "The Garden accommodates 100 Guests and The Den accommodates 100 Guests at Rhythm + Vine",
+      "source": "https://www.rhythm-vine.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJNzuJ8PRo54gR9n3jZN7ONzo",
+   "name": "DoubleTree by Hilton Hotel Orlando East-UCF Area",
+   "category": "hotels",
+   "metro": "orlando",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.hilton.com/en/hotels/orloedt-doubletree-orlando-east-ucf-area/",
+     "source_name": "DoubleTree by Hilton Hotel Orlando East-UCF Area \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "DoubleTree by Hilton Hotel Orlando East-UCF Area is the closest hotel to the University of Central Florida",
+      "DoubleTree by Hilton Hotel Orlando East-UCF Area has an outdoor pool and a fitness center",
+      "Guests receive a warm welcome cookie on arrival at DoubleTree by Hilton Hotel Orlando East-UCF Area",
+      "Check-in is at 3 p.m. and Check-out is at 11 a.m. at DoubleTree by Hilton Hotel Orlando East-UCF Area"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Hotel near the University of Central Florida with an outdoor pool and fitness center",
+    "why_here": "DoubleTree by Hilton Hotel Orlando East-UCF Area has an outdoor pool and a fitness center, and Guests receive a warm welcome cookie on arrival.",
+    "know_before": "Check-in is at 3 p.m. and Check-out is at 11 a.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.hilton.com/en/hotels/orloedt-doubletree-orlando-east-ucf-area/"
+     ],
+     "why_here": [
+      "https://www.hilton.com/en/hotels/orloedt-doubletree-orlando-east-ucf-area/"
+     ],
+     "know_before": [
+      "https://www.hilton.com/en/hotels/orloedt-doubletree-orlando-east-ucf-area/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "DoubleTree by Hilton Hotel Orlando East-UCF Area is the closest hotel to the University of Central Florida",
+      "source": "https://www.hilton.com/en/hotels/orloedt-doubletree-orlando-east-ucf-area/"
+     },
+     {
+      "claim": "DoubleTree by Hilton Hotel Orlando East-UCF Area has an outdoor pool and a fitness center",
+      "source": "https://www.hilton.com/en/hotels/orloedt-doubletree-orlando-east-ucf-area/"
+     },
+     {
+      "claim": "Guests receive a warm welcome cookie on arrival at DoubleTree by Hilton Hotel Orlando East-UCF Area",
+      "source": "https://www.hilton.com/en/hotels/orloedt-doubletree-orlando-east-ucf-area/"
+     },
+     {
+      "claim": "Check-in is at 3 p.m. and Check-out is at 11 a.m. at DoubleTree by Hilton Hotel Orlando East-UCF Area",
+      "source": "https://www.hilton.com/en/hotels/orloedt-doubletree-orlando-east-ucf-area/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJgbDCG4bHwogRhLIlnBH6nhk",
+   "name": "Tampa Mall",
+   "category": "shopping",
+   "metro": "tampa",
+   "primary_type": "flea_market",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://tampamall.com/home/",
+     "source_name": "Tampa Mall \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Tampa Mall is a Flea Market with 600 unique booths",
+      "Tampa Mall is located at 5400 E Busch Blvd, Tampa, FL 33617",
+      "Tampa Mall is a flea market and a hub of diverse shopping experiences",
+      "Tampa Mall is open Wednesday to Sunday"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Flea Market in Tampa with 600 unique booths on E Busch Blvd",
+    "why_here": "Tampa Mall is a flea market and a hub of diverse shopping experiences at 5400 E Busch Blvd in Tampa, with 600 unique booths to browse in one place.",
+    "know_before": "Tampa Mall is open Wednesday to Sunday.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://tampamall.com/home/"
+     ],
+     "why_here": [
+      "https://tampamall.com/home/"
+     ],
+     "know_before": [
+      "https://tampamall.com/home/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Tampa Mall is a Flea Market with 600 unique booths",
+      "source": "https://tampamall.com/home/"
+     },
+     {
+      "claim": "Tampa Mall is located at 5400 E Busch Blvd, Tampa, FL 33617",
+      "source": "https://tampamall.com/home/"
+     },
+     {
+      "claim": "Tampa Mall is a flea market and a hub of diverse shopping experiences",
+      "source": "https://tampamall.com/home/"
+     },
+     {
+      "claim": "Tampa Mall is open Wednesday to Sunday",
+      "source": "https://tampamall.com/home/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJqe1Vbm8T54gRqYQfvMI6988",
+   "name": "Mr. & Mrs. Crab Juicy Seafood & Bar - Sanford",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://mmcseafood.com/about-us/",
+     "source_name": "Mr. & Mrs. Crab Juicy Seafood & Bar - Sanford \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Mr. & Mrs. Crab seafood boil options are sold by weight, according to the market price",
+      "Mr. & Mrs. Crab offers blue crab, snow crab, king crab, crawfish, clams, shrimp and lobster",
+      "Diners can create a customized seafood boil tossed in sauce in specially designed seafood boil bags"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Seafood boil restaurant with blue crab, snow crab, shrimp and lobster by weight",
+    "why_here": "Mr. & Mrs. Crab centres on seafood boils sold by weight, with options including blue crab, snow crab, king crab, crawfish, clams, shrimp and lobster. Diners can create a customized seafood boil and have it tossed in sauce in specially designed seafood boil bags.",
+    "know_before": "Seafood boil options are sold by weight, according to the market price.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://mmcseafood.com/about-us/"
+     ],
+     "why_here": [
+      "https://mmcseafood.com/about-us/"
+     ],
+     "know_before": [
+      "https://mmcseafood.com/about-us/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Mr. & Mrs. Crab seafood boil options are sold by weight, according to the market price",
+      "source": "https://mmcseafood.com/about-us/"
+     },
+     {
+      "claim": "Mr. & Mrs. Crab offers blue crab, snow crab, king crab, crawfish, clams, shrimp and lobster",
+      "source": "https://mmcseafood.com/about-us/"
+     },
+     {
+      "claim": "Diners can create a customized seafood boil tossed in sauce in specially designed seafood boil bags",
+      "source": "https://mmcseafood.com/about-us/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJe0OAPwC_2YgRC60Fsxa-k0M",
+   "name": "Pat&Phil",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://patandphil.com/menu",
+     "source_name": "Pat&Phil \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Pat & Phil has an All Day Breakfast menu in Doral",
+      "Pat & Phil serves Avocado Toast, Breakfast Sandwich and Break-The-Fast Bone Broth",
+      "Pat & Phil is at 10777 Northwest 41st Street, Doral, FL 33178"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Doral spot with an All Day Breakfast menu including Avocado Toast",
+    "why_here": "Pat & Phil in Doral lists an All Day Breakfast menu with Avocado Toast, Breakfast Sandwich and Break-The-Fast Bone Broth at 10777 Northwest 41st Street.",
+    "know_before": "Pat & Phil is at 10777 Northwest 41st Street, Doral, FL 33178.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://patandphil.com/menu"
+     ],
+     "why_here": [
+      "https://patandphil.com/menu"
+     ],
+     "know_before": [
+      "https://patandphil.com/menu"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Pat & Phil has an All Day Breakfast menu in Doral",
+      "source": "https://patandphil.com/menu"
+     },
+     {
+      "claim": "Pat & Phil serves Avocado Toast, Breakfast Sandwich and Break-The-Fast Bone Broth",
+      "source": "https://patandphil.com/menu"
+     },
+     {
+      "claim": "Pat & Phil is at 10777 Northwest 41st Street, Doral, FL 33178",
+      "source": "https://patandphil.com/menu"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ2_gndb0A2YgRqzXeOFlWTSM",
+   "name": "YOT Bar & Kitchen",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.yotlmc.com/home",
+     "source_name": "YOT Bar & Kitchen \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "YOT Bar & Kitchen offers Waterfront Dining in Fort Lauderdale on the New River",
+      "YOT Bar & Kitchen serves lunch, sunset cocktails and an evening overlooking the marina",
+      "Fresh, vibrant seafood takes center stage at YOT Bar & Kitchen",
+      "YOT Bar & Kitchen is at 2015 SW 20th Street, Fort Lauderdale, FL 33315",
+      "YOT Bar & Kitchen hours Monday to Thursday are 11 a.m. to 10 p.m.",
+      "Happy Hour at YOT Bar & Kitchen is 3 p.m. to 6 p.m. on Weekdays"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Waterfront Dining on the New River in Fort Lauderdale overlooking the marina",
+    "why_here": "YOT Bar & Kitchen offers Waterfront Dining in Fort Lauderdale on the New River, serves lunch, sunset cocktails and an evening overlooking the marina, with Fresh, vibrant seafood.",
+    "know_before": "YOT Bar & Kitchen hours Monday to Thursday are 11 a.m. to 10 p.m.",
+    "local_tip": "Happy Hour at YOT Bar & Kitchen is 3 p.m. to 6 p.m. on Weekdays",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.yotlmc.com/home"
+     ],
+     "why_here": [
+      "https://www.yotlmc.com/home"
+     ],
+     "know_before": [
+      "https://www.yotlmc.com/home"
+     ],
+     "local_tip": [
+      "https://www.yotlmc.com/home"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "YOT Bar & Kitchen offers Waterfront Dining in Fort Lauderdale on the New River",
+      "source": "https://www.yotlmc.com/home"
+     },
+     {
+      "claim": "YOT Bar & Kitchen serves lunch, sunset cocktails and an evening overlooking the marina",
+      "source": "https://www.yotlmc.com/home"
+     },
+     {
+      "claim": "Fresh, vibrant seafood takes center stage at YOT Bar & Kitchen",
+      "source": "https://www.yotlmc.com/home"
+     },
+     {
+      "claim": "YOT Bar & Kitchen is at 2015 SW 20th Street, Fort Lauderdale, FL 33315",
+      "source": "https://www.yotlmc.com/home"
+     },
+     {
+      "claim": "YOT Bar & Kitchen hours Monday to Thursday are 11 a.m. to 10 p.m.",
+      "source": "https://www.yotlmc.com/home"
+     },
+     {
+      "claim": "Happy Hour at YOT Bar & Kitchen is 3 p.m. to 6 p.m. on Weekdays",
+      "source": "https://www.yotlmc.com/home"
+     }
+    ]
+   }
+  }
+ ]
+}

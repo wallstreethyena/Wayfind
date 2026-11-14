@@ -30,6 +30,39 @@ equal(analytics.analyticsSuppressionReason({ storage: new Storage(), userAgent: 
 // counted as a human page visit — see lib/browserAnalytics.js's BOT_RX comment.
 equal(analytics.analyticsSuppressionReason({ storage: new Storage(), userAgent: "WayfindSyntheticMonitor/1.0 (+https://www.gowayfind.com)" }), "bot", "our own synthetic monitor UA is suppressed as a bot, never counted as a human visit");
 equal(analytics.analyticsSuppressionReason({ storage: new Storage(), userAgent: "Mozilla/5.0" }), null, "ordinary anonymous browser is not falsely suppressed");
+// The "2023 rotation" scraper (2026-11-10, lib/crawler.js isStaleRotationUa):
+// ten exact desktop identities AND its 1280x720 viewport. Suppression here is
+// invisible to the visitor and cannot be undone, so it needs BOTH; either one
+// alone is a person. scripts/check-redirect-suspect-gate.mjs sweeps the UA list.
+{
+  const staleWinChrome = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
+  const staleMacFirefox = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:121.0) Gecko/20100101 Firefox/121.0";
+  const currentChrome = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36";
+  const android119 = "Mozilla/5.0 (Linux; Android 7.0; SM-G930V) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36";
+  const scraperViewport = { width: 1280, height: 720 };
+  const why = (userAgent, viewport) => analytics.analyticsSuppressionReason({ storage: new Storage(), userAgent, viewport });
+  equal(why(staleWinChrome, scraperViewport), "bot", "2023-rotation identity at the scraper's 1280x720 viewport is suppressed as a bot");
+  equal(why(staleMacFirefox, scraperViewport), "bot", "a second 2023-rotation identity at 1280x720 is suppressed as a bot");
+  equal(why(staleWinChrome, { width: 1440, height: 900 }), null, "a person on an old desktop build at any other viewport is NOT suppressed");
+  equal(why(staleWinChrome, { width: 1280, height: 721 }), null, "one pixel off the scraper's viewport is NOT suppressed (exact match only)");
+  equal(why(staleWinChrome, null), null, "an unknown viewport is never suppressed (fail open)");
+  equal(why(staleWinChrome), null, "with no viewport passed and no window (this test), nothing is suppressed (fail open)");
+  equal(why(currentChrome, scraperViewport), null, "a current desktop browser at 1280x720 is a person");
+  equal(why(android119, scraperViewport), null, "Android 7's Chrome 119 is a person, whatever its viewport");
+  equal(analytics.STALE_ROTATION_VIEWPORT, scraperViewport, "the scraper viewport constant is 1280x720");
+  // The six call sites pass no viewport: the live window size is read instead.
+  const had = ["innerWidth", "innerHeight"].map((k) => [k, Object.getOwnPropertyDescriptor(globalThis, k)]);
+  try {
+    globalThis.innerWidth = 1280; globalThis.innerHeight = 720;
+    equal(why(staleWinChrome), "bot", "with no viewport passed, the live window size (1280x720) is read");
+    equal(why(currentChrome), null, "a current browser in a 1280x720 window is still a person");
+    globalThis.innerWidth = 1512;
+    equal(why(staleWinChrome), null, "with no viewport passed, a live window of another size is a person");
+  } finally {
+    for (const [k, d] of had) { if (d) Object.defineProperty(globalThis, k, d); else delete globalThis[k]; }
+  }
+  ok(typeof globalThis.innerWidth === "undefined", "the fake window size is cleaned up");
+}
 equal(analytics.analyticsSuppressionReason({ storage: new Storage(), user: { user_metadata: { user_name: "gabrielpereira" } }, userAgent: "Mozilla/5.0" }), "internal", "owner auth handle is suppressed when the provider omits email");
 
 equal(analytics.safePagePath("https://gowayfind.com/explore?email=private@example.com#secret"), "/explore", "query and fragment are discarded");
@@ -146,6 +179,73 @@ intervalCallback();
 equal(innerEvents.filter((event) => event.name === "attention_sample").length, 1, "unknown modal scrollport never attributes attention to the covered feed");
 equal(innerEvents.filter((event) => event.name === "page_visit").at(-1).props.page_surface, "explore:place", "overlay transition starts a distinct visit surface without collecting place identity");
 innerTracker.stop();
+
+// 2026-11-11: Facebook's and Instagram's in-app browsers report
+// document.hasFocus() false for the whole visit. Active time must still count
+// there, while a normal unfocused window stays paused until a real tap.
+{
+  const makeEnv = (ua) => {
+    const l = { doc: {}, win: {} };
+    let tick = null;
+    const d = { ...doc, visibilityState: "visible", hasFocus: () => false, addEventListener: (name, fn) => { l.doc[name] = fn; } };
+    const w = { ...win, navigator: { userAgent: ua }, crypto: { randomUUID: () => "focus-visit" },
+      addEventListener: (name, fn) => { l.win[name] = fn; }, setInterval: (fn) => { tick = fn; return 1; } };
+    return { l, d, w, tick: () => tick() };
+  };
+  const IG_UA = "Mozilla/5.0 (iPhone; CPU iPhone OS 18_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 Instagram 360.0.0.0 (iPhone15,2; iOS 18_1; en_US)";
+  const FB_UA = "Mozilla/5.0 (iPhone; CPU iPhone OS 18_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/22B83 [FBAN/FBIOS;FBAV/490.0.0.0;FBBV/1;FBDV/iPhone15,2;FBMD/iPhone;FBSN/iOS;FBSV/18.1;FBSS/3;FBCR/;FBID/phone;FBLC/en_US;FBOP/5]";
+  const SAFARI_UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.1 Safari/605.1.15";
+  ok(analytics.inAppBrowser({ navigator: { userAgent: IG_UA } }) && analytics.inAppBrowser({ navigator: { userAgent: FB_UA } }), "Instagram and Facebook in-app browsers are recognised");
+  ok(!analytics.inAppBrowser({ navigator: { userAgent: SAFARI_UA } }) && !analytics.inAppBrowser({}) && !analytics.inAppBrowser(null), "a normal browser, or no navigator at all, is not an in-app browser");
+  for (const [label, ua] of [["Instagram", IG_UA], ["Facebook", FB_UA]]) {
+    const env = makeEnv(ua);
+    const got = [];
+    clock = 0;
+    const t = analytics.createPageVisitTracker({ win: env.w, doc: env.d, capture: (name, props) => got.push({ name, props }), now: () => clock });
+    clock = 12000;
+    env.tick();
+    clock = 31000;
+    env.l.win.pagehide();
+    equal(got.find((e) => e.name === "page_exit").props.active_ms, 31000, label + " in-app visit with hasFocus() false still measures its visible time");
+    t.stop();
+  }
+  {
+    const env = makeEnv(SAFARI_UA);
+    const got = [];
+    clock = 0;
+    const t = analytics.createPageVisitTracker({ win: env.w, doc: env.d, capture: (name, props) => got.push({ name, props }), now: () => clock });
+    clock = 5000;
+    env.tick();
+    env.l.doc.pointerdown();
+    clock = 9000;
+    env.l.win.blur();
+    clock = 20000;
+    env.tick();
+    env.l.doc.keydown();
+    clock = 23000;
+    env.l.win.pagehide();
+    equal(got.find((e) => e.name === "page_exit").props.active_ms, 7000, "an unfocused normal window counts nothing until a tap, pauses on blur and resumes on a key press");
+    t.stop();
+  }
+  {
+    const env = makeEnv(IG_UA);
+    const got = [];
+    clock = 0;
+    const t = analytics.createPageVisitTracker({ win: env.w, doc: env.d, capture: (name, props) => got.push({ name, props }), now: () => clock });
+    clock = 4000;
+    env.d.visibilityState = "hidden";
+    env.l.doc.visibilitychange();
+    clock = 50000;
+    env.l.doc.touchstart();
+    clock = 60000;
+    env.d.visibilityState = "visible";
+    env.l.doc.visibilitychange();
+    clock = 63000;
+    env.l.win.pagehide();
+    equal(got.find((e) => e.name === "page_exit").props.active_ms, 7000, "time while the app is in the background never counts, even after a stray touch event");
+    t.stop();
+  }
+}
 
 ok(/createPageVisitTracker\(\{[\s\S]{0,100}win: window,[\s\S]{0,100}doc: document,/.test(provider), "provider passes the helper's real win/doc integration keys");
 ok(provider.indexOf("createPageVisitTracker({") < provider.indexOf("window.requestIdleCallback(boot"), "lifecycle measurement starts before idle SDK loading so short visits are queued");

@@ -1,0 +1,1705 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 49. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJK4oN4yZA24gRotBHE3ET2y0",
+   "name": "The Ranch Concert Hall & Saloon",
+   "category": "nightlife",
+   "metro": "florida",
+   "primary_type": "bar",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://theranchfortmyers.com/",
+     "source_name": "The Ranch Concert Hall & Saloon \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Ranch is Fort Myers' newest and largest live concert venue.",
+      "The venue features a 25,000 sq/ft Western Style Saloon with over 400 ft of Bar Top.",
+      "The venue has 1800 sq/ft of custom staging and a 4500 sq/ft dance floor.",
+      "The Ranch is open on Wednesday, Friday, and Saturday from 7:00 p.m. to 2:00 a.m.",
+      "The Ranch is at 2158 Colonial Blvd. Fort Myers, FL 33907."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Fort Myers' 25,000 sq/ft Western-style saloon with a 4,500 sq/ft dance floor",
+    "why_here": "The Ranch is Fort Myers' newest and largest live concert venue. It features a 25,000 sq/ft Western Style Saloon with over 400 ft of Bar Top and 1800 sq/ft of custom staging.",
+    "know_before": "The Ranch is open on Wednesday, Friday, and Saturday from 7:00 p.m. to 2:00 a.m.",
+    "local_tip": "Visitors can dance on the 4500 sq/ft dance floor.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://theranchfortmyers.com/"
+     ],
+     "why_here": [
+      "https://theranchfortmyers.com/"
+     ],
+     "know_before": [
+      "https://theranchfortmyers.com/"
+     ],
+     "local_tip": [
+      "https://theranchfortmyers.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Ranch is Fort Myers' newest and largest live concert venue.",
+      "source": "https://theranchfortmyers.com/"
+     },
+     {
+      "claim": "The venue features a 25,000 sq/ft Western Style Saloon with over 400 ft of Bar Top.",
+      "source": "https://theranchfortmyers.com/"
+     },
+     {
+      "claim": "The venue has 1800 sq/ft of custom staging and a 4500 sq/ft dance floor.",
+      "source": "https://theranchfortmyers.com/"
+     },
+     {
+      "claim": "The Ranch is open on Wednesday, Friday, and Saturday from 7:00 p.m. to 2:00 a.m.",
+      "source": "https://theranchfortmyers.com/"
+     },
+     {
+      "claim": "The Ranch is at 2158 Colonial Blvd. Fort Myers, FL 33907.",
+      "source": "https://theranchfortmyers.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJY88HzZz17IgRPYTGLvYU1UY",
+   "name": "Masa | Asian \u2022 Sushi",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "asian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.masatallahassee.com/",
+     "source_name": "Masa | Asian \u2022 Sushi \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Masa is an Asian-inspired seafood and sushi restaurant in Tallahassee's Midtown area.",
+      "The restaurant was created by Tallahassee restaurateur Lucy Ho.",
+      "Masa's Asian-fusion menu offers a creative blend of Eastern and Western cuisines.",
+      "Masa closes lunch every day at 2:30pm."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Tallahassee's Midtown Asian-fusion spot blending Eastern and Western flavors with sushi and seafood.",
+    "why_here": "Located in Tallahassee's trendy Midtown area, Masa is an Asian-inspired seafood and sushi restaurant created by experienced restaurateur Lucy Ho. Its Asian-fusion menu blends Eastern and Western cuisines with a serene, Asian-influenced setting.",
+    "know_before": "Masa closes lunch daily at 2:30pm.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.masatallahassee.com/"
+     ],
+     "why_here": [
+      "https://www.masatallahassee.com/"
+     ],
+     "know_before": [
+      "https://www.masatallahassee.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Masa is an Asian-inspired seafood and sushi restaurant in Tallahassee's Midtown area.",
+      "source": "https://www.masatallahassee.com/"
+     },
+     {
+      "claim": "The restaurant was created by Tallahassee restaurateur Lucy Ho.",
+      "source": "https://www.masatallahassee.com/"
+     },
+     {
+      "claim": "Masa's Asian-fusion menu offers a creative blend of Eastern and Western cuisines.",
+      "source": "https://www.masatallahassee.com/"
+     },
+     {
+      "claim": "Masa closes lunch every day at 2:30pm.",
+      "source": "https://www.masatallahassee.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJSblQP6KS2YgRyKJ_ZRWScHg",
+   "name": "Shark Valley Tram Tours",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "tourist_attraction",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.sharkvalleytramtours.com/tram-tours/",
+     "source_name": "Shark Valley Tram Tours \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The two-hour Everglades Tram Tour goes through the Shark Valley section of Everglades National Park.",
+      "Shark Valley naturalists escort all tours and give insight into the ecosystem.",
+      "A 45-foot high observation deck at the halfway point offers vistas extending outward 20 miles in all directions.",
+      "Tram tours are accessible for persons with disabilities.",
+      "Shark Valley Tram Tours is an authorized concessioner of the National Park Service."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Two-hour naturalist-escorted tram tour through the Shark Valley section of Everglades National Park",
+    "why_here": "Shark Valley naturalists escort all tours and give insight into the ecosystem as a whole. At the halfway point, a 45-foot high observation deck offers vistas extending outward 20 miles in all directions.",
+    "know_before": "Shark Valley does not have any restaurant facilities available within the park.",
+    "local_tip": "A very gradually sloped ramp provides easy access to the observation tower deck.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.sharkvalleytramtours.com/tram-tours/"
+     ],
+     "why_here": [
+      "https://www.sharkvalleytramtours.com/tram-tours/"
+     ],
+     "know_before": [
+      "https://www.sharkvalleytramtours.com/tram-tours/"
+     ],
+     "local_tip": [
+      "https://www.sharkvalleytramtours.com/tram-tours/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The two-hour Everglades Tram Tour goes through the Shark Valley section of Everglades National Park.",
+      "source": "https://www.sharkvalleytramtours.com/tram-tours/"
+     },
+     {
+      "claim": "Shark Valley naturalists escort all tours and give insight into the ecosystem.",
+      "source": "https://www.sharkvalleytramtours.com/tram-tours/"
+     },
+     {
+      "claim": "A 45-foot high observation deck at the halfway point offers vistas extending outward 20 miles in all directions.",
+      "source": "https://www.sharkvalleytramtours.com/tram-tours/"
+     },
+     {
+      "claim": "Tram tours are accessible for persons with disabilities.",
+      "source": "https://www.sharkvalleytramtours.com/tram-tours/"
+     },
+     {
+      "claim": "Shark Valley Tram Tours is an authorized concessioner of the National Park Service.",
+      "source": "https://www.sharkvalleytramtours.com/tram-tours/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ5V4l-Y632YgR5aB1WgSTjIg",
+   "name": "Red Phone Booth",
+   "category": "nightlife",
+   "metro": "miami-dade",
+   "primary_type": "cocktail_bar",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.redphonebooth.com/",
+     "source_name": "Red Phone Booth \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Entry begins by dialing a secret code inside a restored red London phone booth.",
+      "Red Phone Booth is a 1920s-inspired speakeasy and craft-cocktail lounge.",
+      "A smoked Old Fashioned is offered at Red Phone Booth.",
+      "The food menu includes Italian-inspired starters and Neapolitan pizzas.",
+      "Membership offers benefits including priority seating and private tastings."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Enter by dialing a secret code inside a restored red London phone booth.",
+    "why_here": "Step into a 1920s-inspired speakeasy and craft-cocktail lounge with classic cocktails and warm hospitality. Membership is optional, but every guest needs the code to enter.",
+    "know_before": "Every guest needs the secret code to enter, and membership is not required to visit.",
+    "local_tip": "Ask the local team about the spirits currently available at your location.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.redphonebooth.com/"
+     ],
+     "why_here": [
+      "https://www.redphonebooth.com/"
+     ],
+     "know_before": [
+      "https://www.redphonebooth.com/"
+     ],
+     "local_tip": [
+      "https://www.redphonebooth.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Entry begins by dialing a secret code inside a restored red London phone booth.",
+      "source": "https://www.redphonebooth.com/"
+     },
+     {
+      "claim": "Red Phone Booth is a 1920s-inspired speakeasy and craft-cocktail lounge.",
+      "source": "https://www.redphonebooth.com/"
+     },
+     {
+      "claim": "A smoked Old Fashioned is offered at Red Phone Booth.",
+      "source": "https://www.redphonebooth.com/"
+     },
+     {
+      "claim": "The food menu includes Italian-inspired starters and Neapolitan pizzas.",
+      "source": "https://www.redphonebooth.com/"
+     },
+     {
+      "claim": "Membership offers benefits including priority seating and private tastings.",
+      "source": "https://www.redphonebooth.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJzQrOrTy12YgRWX2GhLGVA2E",
+   "name": "Swizzle Rum Bar & Drinkery",
+   "category": "nightlife",
+   "metro": "miami-dade",
+   "primary_type": "cocktail_bar",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.swizzlerumbardrinkery.com/",
+     "source_name": "Swizzle Rum Bar & Drinkery \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Swizzle offers a selection of more than 150 rums.",
+      "Swizzle was voted Best Cocktail Bar in Florida in 2025.",
+      "Swizzle is located at 1120 Collins Ave, Miami Beach.",
+      "The dress code at Swizzle is smart casual.",
+      "Swizzle is open Monday through Sunday from 7:00 p.m. to 3:00 a.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Voted Best Cocktail Bar in Florida, with more than 150 rums in an intimate speakeasy setting",
+    "why_here": "Swizzle evokes a speakeasy vibe in an intimate setting, offering sophisticated craft cocktails and a selection of more than 150 rums. Its versatile cocktail list focuses on classic and contemporary cocktails, with modern, traditional, and tropical influences.",
+    "know_before": "The dress code is smart casual.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.swizzlerumbardrinkery.com/"
+     ],
+     "why_here": [
+      "https://www.swizzlerumbardrinkery.com/"
+     ],
+     "know_before": [
+      "https://www.swizzlerumbardrinkery.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Swizzle offers a selection of more than 150 rums.",
+      "source": "https://www.swizzlerumbardrinkery.com/"
+     },
+     {
+      "claim": "Swizzle was voted Best Cocktail Bar in Florida in 2025.",
+      "source": "https://www.swizzlerumbardrinkery.com/"
+     },
+     {
+      "claim": "Swizzle is located at 1120 Collins Ave, Miami Beach.",
+      "source": "https://www.swizzlerumbardrinkery.com/"
+     },
+     {
+      "claim": "The dress code at Swizzle is smart casual.",
+      "source": "https://www.swizzlerumbardrinkery.com/"
+     },
+     {
+      "claim": "Swizzle is open Monday through Sunday from 7:00 p.m. to 3:00 a.m.",
+      "source": "https://www.swizzlerumbardrinkery.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJWzUco73B2YgRBexXXvcgOhE",
+   "name": "Spanish Marie Brewery",
+   "category": "nightlife",
+   "metro": "miami-dade",
+   "primary_type": "brewery",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.spanishmariebrewery.com/pages/about-us",
+     "source_name": "Spanish Marie Brewery \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Spanish Marie Brewery was born in 2013.",
+      "Spanish Marie debuted with a gold medal at a local homebrew competition for the Colada Porter.",
+      "Spanish Marie opened its doors in 2018.",
+      "Spanish Marie serves brews using a 1955 dairy tank as a mash tun.",
+      "Spanish Marie is 100% independently owned and operated by Alby & Jaime."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Brewery born in 2013 that now serves brews using a 1955 dairy tank as a mash tun",
+    "why_here": "Spanish Marie Brewery was born in 2013, debuting with a gold medal at a local homebrew competition for the Colada Porter. It opened its doors in 2018 and now serves brews using a 1955 dairy tank as a mash tun.",
+    "know_before": "Spanish Marie Brewery was born in 2013.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.spanishmariebrewery.com/pages/about-us"
+     ],
+     "why_here": [
+      "https://www.spanishmariebrewery.com/pages/about-us"
+     ],
+     "know_before": [
+      "https://www.spanishmariebrewery.com/pages/about-us"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Spanish Marie Brewery was born in 2013.",
+      "source": "https://www.spanishmariebrewery.com/pages/about-us"
+     },
+     {
+      "claim": "Spanish Marie debuted with a gold medal at a local homebrew competition for the Colada Porter.",
+      "source": "https://www.spanishmariebrewery.com/pages/about-us"
+     },
+     {
+      "claim": "Spanish Marie opened its doors in 2018.",
+      "source": "https://www.spanishmariebrewery.com/pages/about-us"
+     },
+     {
+      "claim": "Spanish Marie serves brews using a 1955 dairy tank as a mash tun.",
+      "source": "https://www.spanishmariebrewery.com/pages/about-us"
+     },
+     {
+      "claim": "Spanish Marie is 100% independently owned and operated by Alby & Jaime.",
+      "source": "https://www.spanishmariebrewery.com/pages/about-us"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJrb7lbJu72YgRT8U-O_MAwWU",
+   "name": "Negroni Doral",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.negronius.com/doral/",
+     "source_name": "Negroni Doral \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Negroni Doral is a Globally Inspired restaurant & Cocktail bar in Doral.",
+      "Negroni Doral is located in the CityPlace Doral area.",
+      "The address listed is 5241 NW 87th Ave Unit Ste D101, Miami, FL 33178.",
+      "Open Hours listed are Monday \u2013 Friday: 12:00 p.m. to 12:00 a.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Globally Inspired restaurant & Cocktail bar in Doral, in the CityPlace Doral area.",
+    "why_here": "Negroni Doral is located in the vibrant CityPlace Doral area. The page describes exceptional food, crafted cocktails, and a warm cosmopolitan vibe.",
+    "know_before": "Negroni Doral is at 5241 NW 87th Ave Unit Ste D101, Miami, FL 33178.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.negronius.com/doral/"
+     ],
+     "why_here": [
+      "https://www.negronius.com/doral/"
+     ],
+     "know_before": [
+      "https://www.negronius.com/doral/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Negroni Doral is a Globally Inspired restaurant & Cocktail bar in Doral.",
+      "source": "https://www.negronius.com/doral/"
+     },
+     {
+      "claim": "Negroni Doral is located in the CityPlace Doral area.",
+      "source": "https://www.negronius.com/doral/"
+     },
+     {
+      "claim": "The address listed is 5241 NW 87th Ave Unit Ste D101, Miami, FL 33178.",
+      "source": "https://www.negronius.com/doral/"
+     },
+     {
+      "claim": "Open Hours listed are Monday \u2013 Friday: 12:00 p.m. to 12:00 a.m.",
+      "source": "https://www.negronius.com/doral/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJhXX3mMb17IgRCfRRfMKEe1U",
+   "name": "Fun Station",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "amusement_center",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://thefunstation.net/",
+     "source_name": "Fun Station \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Fun Station began with a single mini-golf course at the Tallahassee Mall nearly 20 years ago.",
+      "Fun Station describes itself as Tallahassee's biggest and best arcade.",
+      "Fun Station calls its track the only go-kart track for miles.",
+      "Fun Station strives to keep the facility updated with the newest arcade games and attractions."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Tallahassee's biggest and best arcade, with the only go-kart track for miles",
+    "why_here": "Fun Station started nearly 20 years ago with a single mini-golf course at the Tallahassee Mall before expanding to its current location. It describes itself as Tallahassee's biggest and best arcade and strives to keep the facility updated with the newest arcade games and attractions.",
+    "know_before": "Hours may vary due to holidays and weather conditions.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://thefunstation.net/"
+     ],
+     "why_here": [
+      "https://thefunstation.net/"
+     ],
+     "know_before": [
+      "https://thefunstation.net/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Fun Station began with a single mini-golf course at the Tallahassee Mall nearly 20 years ago.",
+      "source": "https://thefunstation.net/"
+     },
+     {
+      "claim": "Fun Station describes itself as Tallahassee's biggest and best arcade.",
+      "source": "https://thefunstation.net/"
+     },
+     {
+      "claim": "Fun Station calls its track the only go-kart track for miles.",
+      "source": "https://thefunstation.net/"
+     },
+     {
+      "claim": "Fun Station strives to keep the facility updated with the newest arcade games and attractions.",
+      "source": "https://thefunstation.net/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJG0AI7Xb17IgRcQtbCxtXI2M",
+   "name": "BIRD\u2019s",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.birdsoystershack.com/",
+     "source_name": "BIRD\u2019s \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Bird's is located at 325 N Bronough St, Tallahassee, Florida, 32301, USA.",
+      "Bird's is closed on Sunday and Monday.",
+      "Bird's is open Tuesday, Wednesday, Friday, and Saturday from 11:30 a.m. to 10:00 p.m.",
+      "Bird's is open Thursday from 11:30 a.m. to 2:00 a.m.",
+      "Bird's can be reached by calling 850-222-1075."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Tallahassee spot open late on Thursday, closed Sunday and Monday",
+    "why_here": "Bird's is open Tuesday, Wednesday, Friday, and Saturday from 11:30 a.m. to 10:00 p.m., stays open Thursday from 11:30 a.m. to 2:00 a.m., and is closed on Sunday and Monday.",
+    "know_before": "Bird's is closed on Sunday and Monday.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.birdsoystershack.com/"
+     ],
+     "why_here": [
+      "https://www.birdsoystershack.com/"
+     ],
+     "know_before": [
+      "https://www.birdsoystershack.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Bird's is located at 325 N Bronough St, Tallahassee, Florida, 32301, USA.",
+      "source": "https://www.birdsoystershack.com/"
+     },
+     {
+      "claim": "Bird's is closed on Sunday and Monday.",
+      "source": "https://www.birdsoystershack.com/"
+     },
+     {
+      "claim": "Bird's is open Tuesday, Wednesday, Friday, and Saturday from 11:30 a.m. to 10:00 p.m.",
+      "source": "https://www.birdsoystershack.com/"
+     },
+     {
+      "claim": "Bird's is open Thursday from 11:30 a.m. to 2:00 a.m.",
+      "source": "https://www.birdsoystershack.com/"
+     },
+     {
+      "claim": "Bird's can be reached by calling 850-222-1075.",
+      "source": "https://www.birdsoystershack.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ45l98Ky22YgRP4ycv8twMFU",
+   "name": "Fireman Derek\u2019s Bake Shop",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "bakery",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.firemandereks.com/",
+     "source_name": "Fireman Derek\u2019s Bake Shop \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Fireman Derek\u2019s Bake Shop is a family owned South Florida based bakery specializing in pies, cakes, cheesecakes, cookies and one-of-a-kind desserts.",
+      "The bakery bakes everything in-house, using fresh, locally-sourced, high-quality ingredients.",
+      "Derek Kaplan is described as a former Miami firefighter and Division-1 football player.",
+      "The Wynwood address listed is 2545 N. Miami Ave Bay 1 Miami FL 33127."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Family owned South Florida bakery specializing in pies, cakes, cheesecakes and cookies.",
+    "why_here": "Fireman Derek\u2019s Bake Shop is a family owned South Florida based bakery. It bakes everything in-house, using fresh, locally-sourced, high-quality ingredients.",
+    "know_before": "The page lists a Wynwood location at 2545 N. Miami Ave Bay 1 Miami FL 33127.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.firemandereks.com/"
+     ],
+     "why_here": [
+      "https://www.firemandereks.com/"
+     ],
+     "know_before": [
+      "https://www.firemandereks.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Fireman Derek\u2019s Bake Shop is a family owned South Florida based bakery specializing in pies, cakes, cheesecakes, cookies and one-of-a-kind desserts.",
+      "source": "https://www.firemandereks.com/"
+     },
+     {
+      "claim": "The bakery bakes everything in-house, using fresh, locally-sourced, high-quality ingredients.",
+      "source": "https://www.firemandereks.com/"
+     },
+     {
+      "claim": "Derek Kaplan is described as a former Miami firefighter and Division-1 football player.",
+      "source": "https://www.firemandereks.com/"
+     },
+     {
+      "claim": "The Wynwood address listed is 2545 N. Miami Ave Bay 1 Miami FL 33127.",
+      "source": "https://www.firemandereks.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJhYE65va62YgRVkRAtepfxAs",
+   "name": "Morro Castle",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "cuban_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://morrocastlerestaurant.com/about-us/",
+     "source_name": "Morro Castle \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "El Morro Castle is a cafeteria-restaurant founded in 1966.",
+      "Morro Castle is open 7 days a week from 8:00 a.m. to 12:00 a.m.",
+      "Daily specials include traditional Cuban dishes and the most popular dishes from South Florida.",
+      "Morro Castle is located at 1201 West 44th Place, Hialeah, FL 33012."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Hialeah cafeteria-restaurant founded in 1966, serving traditional Cuban daily specials",
+    "why_here": "El Morro Castle is a cafeteria-restaurant founded in 1966, maintaining a culinary tradition that persists to this day. Its daily specials include traditional Cuban dishes and the most popular dishes from South Florida.",
+    "know_before": "Open 7 days a week from 8:00 a.m. to 12:00 a.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://morrocastlerestaurant.com/about-us/"
+     ],
+     "why_here": [
+      "https://morrocastlerestaurant.com/about-us/"
+     ],
+     "know_before": [
+      "https://morrocastlerestaurant.com/about-us/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "El Morro Castle is a cafeteria-restaurant founded in 1966.",
+      "source": "https://morrocastlerestaurant.com/about-us/"
+     },
+     {
+      "claim": "Morro Castle is open 7 days a week from 8:00 a.m. to 12:00 a.m.",
+      "source": "https://morrocastlerestaurant.com/about-us/"
+     },
+     {
+      "claim": "Daily specials include traditional Cuban dishes and the most popular dishes from South Florida.",
+      "source": "https://morrocastlerestaurant.com/about-us/"
+     },
+     {
+      "claim": "Morro Castle is located at 1201 West 44th Place, Hialeah, FL 33012.",
+      "source": "https://morrocastlerestaurant.com/about-us/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJS9-3ndG12YgRj8Q3DdqqaJw",
+   "name": "Miami On The Water",
+   "category": "attractions",
+   "metro": "miami-dade",
+   "primary_type": "tour_agency",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.miamionthewater.com/tours/miami-boat-tour/",
+     "source_name": "Miami On The Water \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Miami Boat Tour is a 90-minute sightseeing boat cruise through Biscayne Bay past celebrity homes, Star Island, Downtown Miami Skyline, Miami Beach, Port of Miami, Fisher Island, South Beach, Flagler Monument and the Venetian Islands",
+      "The tour offers live bilingual narration in English and Spanish",
+      "The tour departs from Bayside Marketplace at 401 Biscayne Blvd, Miami, FL 33132 and reservations are required with no walk-ins",
+      "The cruise uses double-decker boats with bathrooms on board and a cash bar"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "90-minute Biscayne Bay cruise past celebrity homes, Star Island and the Miami skyline",
+    "why_here": "The 90-minute Miami Boat Tour cruises Biscayne Bay past celebrity homes, Star Island, Fisher Island and the downtown skyline. Live bilingual narration in English and Spanish runs throughout.",
+    "know_before": "Reservations are required; no walk-in reservations",
+    "local_tip": "Departs from Bayside Marketplace at 401 Biscayne Blvd",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.miamionthewater.com/tours/miami-boat-tour/"
+     ],
+     "why_here": [
+      "https://www.miamionthewater.com/tours/miami-boat-tour/"
+     ],
+     "know_before": [
+      "https://www.miamionthewater.com/tours/miami-boat-tour/"
+     ],
+     "local_tip": [
+      "https://www.miamionthewater.com/tours/miami-boat-tour/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Miami Boat Tour is a 90-minute sightseeing boat cruise through Biscayne Bay past celebrity homes, Star Island, Downtown Miami Skyline, Miami Beach, Port of Miami, Fisher Island, South Beach, Flagler Monument and the Venetian Islands",
+      "source": "https://www.miamionthewater.com/tours/miami-boat-tour/"
+     },
+     {
+      "claim": "The tour offers live bilingual narration in English and Spanish",
+      "source": "https://www.miamionthewater.com/tours/miami-boat-tour/"
+     },
+     {
+      "claim": "The tour departs from Bayside Marketplace at 401 Biscayne Blvd, Miami, FL 33132 and reservations are required with no walk-ins",
+      "source": "https://www.miamionthewater.com/tours/miami-boat-tour/"
+     },
+     {
+      "claim": "The cruise uses double-decker boats with bathrooms on board and a cash bar",
+      "source": "https://www.miamionthewater.com/tours/miami-boat-tour/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJt30dCGHX5ogRl1AlPXl_opM",
+   "name": "Frank Rendon Park",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.volusia.org/services/public-works/coastal-division/coastal-parks/frank-rendon-park.stml",
+     "source_name": "Frank Rendon Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Frank Rendon Park is a handicapped accessible beachfront park in Daytona Beach Shores.",
+      "The park has over 130 parking spaces, restrooms, a playground, picnic pavilions, showers, and bike racks.",
+      "Frank Rendon Park is located at 2705 S. Atlantic Ave., Daytona Beach Shores.",
+      "All Coastal and Inlet Parks are open 365 days a year.",
+      "The park is in a driving beach area."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Handicapped accessible beachfront park in Daytona Beach Shores with panoramic Atlantic views",
+    "why_here": "Frank Rendon Park is a handicapped accessible beachfront park in Daytona Beach Shores. The park has over 130 parking spaces, restrooms, a playground, picnic pavilions, showers, and bike racks.",
+    "know_before": "Frank Rendon Park is a handicapped accessible beachfront park in Daytona Beach Shores.",
+    "local_tip": "Restroom facilities are available within one hour of sunrise to within one hour of sunset.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.volusia.org/services/public-works/coastal-division/coastal-parks/frank-rendon-park.stml"
+     ],
+     "why_here": [
+      "https://www.volusia.org/services/public-works/coastal-division/coastal-parks/frank-rendon-park.stml"
+     ],
+     "know_before": [
+      "https://www.volusia.org/services/public-works/coastal-division/coastal-parks/frank-rendon-park.stml"
+     ],
+     "local_tip": [
+      "https://www.volusia.org/services/public-works/coastal-division/coastal-parks/frank-rendon-park.stml"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Frank Rendon Park is a handicapped accessible beachfront park in Daytona Beach Shores.",
+      "source": "https://www.volusia.org/services/public-works/coastal-division/coastal-parks/frank-rendon-park.stml"
+     },
+     {
+      "claim": "The park has over 130 parking spaces, restrooms, a playground, picnic pavilions, showers, and bike racks.",
+      "source": "https://www.volusia.org/services/public-works/coastal-division/coastal-parks/frank-rendon-park.stml"
+     },
+     {
+      "claim": "Frank Rendon Park is located at 2705 S. Atlantic Ave., Daytona Beach Shores.",
+      "source": "https://www.volusia.org/services/public-works/coastal-division/coastal-parks/frank-rendon-park.stml"
+     },
+     {
+      "claim": "All Coastal and Inlet Parks are open 365 days a year.",
+      "source": "https://www.volusia.org/services/public-works/coastal-division/coastal-parks/frank-rendon-park.stml"
+     },
+     {
+      "claim": "The park is in a driving beach area.",
+      "source": "https://www.volusia.org/services/public-works/coastal-division/coastal-parks/frank-rendon-park.stml"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ5yJW35y02YgRIKSBV8NOoV8",
+   "name": "The Plymouth South Beach",
+   "category": "hotels",
+   "metro": "miami-dade",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.theplymouth.com/",
+     "source_name": "The Plymouth South Beach \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Plymouth South Beach is a four-storey luxury hotel and peach-and-cream Art Deco icon on the corner of Collins Park",
+      "The Plymouth is located at 336 21st Street in Miami Beach, within walking distance of the beach, dining, shopping and cultural attractions",
+      "The Plymouth is home to Blue Ribbon Sushi Bar & Grill, serving fresh sushi, sashimi and grilled yakitori",
+      "Guests enjoy access to a private beach experience, an Art Deco-style swimming pool, bikes, and pool and beach towels",
+      "The Plymouth welcomes up to two dogs per stay, with a maximum weight of 25 lbs. per dog"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Peach-and-cream Art Deco icon in Collins Park, home to Blue Ribbon Sushi Bar & Grill",
+    "why_here": "This four-storey luxury hotel blends historic Art Deco architecture with a boutique atmosphere in Collins Park. It is home to Blue Ribbon Sushi Bar & Grill and offers a private beach experience and Art Deco-style pool.",
+    "know_before": "Welcomes up to two dogs per stay, maximum 25 lbs. per dog",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.theplymouth.com/"
+     ],
+     "why_here": [
+      "https://www.theplymouth.com/"
+     ],
+     "know_before": [
+      "https://www.theplymouth.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Plymouth South Beach is a four-storey luxury hotel and peach-and-cream Art Deco icon on the corner of Collins Park",
+      "source": "https://www.theplymouth.com/"
+     },
+     {
+      "claim": "The Plymouth is located at 336 21st Street in Miami Beach, within walking distance of the beach, dining, shopping and cultural attractions",
+      "source": "https://www.theplymouth.com/"
+     },
+     {
+      "claim": "The Plymouth is home to Blue Ribbon Sushi Bar & Grill, serving fresh sushi, sashimi and grilled yakitori",
+      "source": "https://www.theplymouth.com/"
+     },
+     {
+      "claim": "Guests enjoy access to a private beach experience, an Art Deco-style swimming pool, bikes, and pool and beach towels",
+      "source": "https://www.theplymouth.com/"
+     },
+     {
+      "claim": "The Plymouth welcomes up to two dogs per stay, with a maximum weight of 25 lbs. per dog",
+      "source": "https://www.theplymouth.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ5dkYd1S35YgRzLA6F8P4zqI",
+   "name": "EZ Eatz by Yaya",
+   "category": "food",
+   "metro": "jacksonville-fl",
+   "primary_type": "mediterranean_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://ezeatzbyyaya.com/",
+     "source_name": "EZ Eatz by Yaya \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "EZ Eatz by Yaya serves Moroccan Mediterranean food in Jacksonville.",
+      "Every dish is grilled over real charcoal."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Moroccan Mediterranean food in Jacksonville, with dishes grilled over real charcoal",
+    "why_here": "EZ Eatz by Yaya serves Moroccan Mediterranean food in Jacksonville. Every dish is grilled over real charcoal, so the cooking centers on charcoal-grilled Moroccan Mediterranean dishes prepared over real charcoal.",
+    "know_before": "The official site lists Jacksonville among the areas EZ Eatz by Yaya serves.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://ezeatzbyyaya.com/"
+     ],
+     "why_here": [
+      "https://ezeatzbyyaya.com/"
+     ],
+     "know_before": [
+      "https://ezeatzbyyaya.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "EZ Eatz by Yaya serves Moroccan Mediterranean food in Jacksonville.",
+      "source": "https://ezeatzbyyaya.com/"
+     },
+     {
+      "claim": "Every dish is grilled over real charcoal.",
+      "source": "https://ezeatzbyyaya.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJM7IYziN_3YgRsB_vfQUPo58",
+   "name": "Walt Disney World Swan",
+   "category": "hotels",
+   "metro": "orlando",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://swandolphin.com/our-resorts/swan/",
+     "source_name": "Walt Disney World Swan \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Walt Disney World Swan is crowned by iconic 47-foot swan statues",
+      "The Swan is a 12-story design overlooking EPCOT and Disney's Hollywood Studios",
+      "The Swan has 756 luxurious guest rooms, including 55 suites",
+      "Guest rooms feature the renowned all-white, Heavenly Bed",
+      "The Swan has 8 restaurants and lounges, including Il Mulino New York Trattoria and Kimonos"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Crowned by 47-foot swan statues, a 12-story Disney-area resort by EPCOT",
+    "why_here": "The Walt Disney World Swan is crowned by iconic 47-foot swan statues and sits in the heart of Walt Disney World. EPCOT and Disney's Hollywood Studios are a short stroll away, per the official resort site.",
+    "know_before": "The Swan has 756 guest rooms, including 55 suites, per the official site.",
+    "local_tip": "Guest rooms feature the renowned all-white Heavenly Bed, per the official site.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://swandolphin.com/our-resorts/swan/"
+     ],
+     "why_here": [
+      "https://swandolphin.com/our-resorts/swan/"
+     ],
+     "know_before": [
+      "https://swandolphin.com/our-resorts/swan/"
+     ],
+     "local_tip": [
+      "https://swandolphin.com/our-resorts/swan/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Walt Disney World Swan is crowned by iconic 47-foot swan statues",
+      "source": "https://swandolphin.com/our-resorts/swan/"
+     },
+     {
+      "claim": "The Swan is a 12-story design overlooking EPCOT and Disney's Hollywood Studios",
+      "source": "https://swandolphin.com/our-resorts/swan/"
+     },
+     {
+      "claim": "The Swan has 756 luxurious guest rooms, including 55 suites",
+      "source": "https://swandolphin.com/our-resorts/swan/"
+     },
+     {
+      "claim": "Guest rooms feature the renowned all-white, Heavenly Bed",
+      "source": "https://swandolphin.com/our-resorts/swan/"
+     },
+     {
+      "claim": "The Swan has 8 restaurants and lounges, including Il Mulino New York Trattoria and Kimonos",
+      "source": "https://swandolphin.com/our-resorts/swan/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJh6exAYbhwogRd4RP1WCELps",
+   "name": "Mullet's Fish Camp",
+   "category": "food",
+   "metro": "st-pete",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.mulletsfishcamp.com/",
+     "source_name": "Mullet's Fish Camp \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Mullet\u2019s Fish Camp & Market pairs over 15 types of fish prepared with house-made sauces and slaws.",
+      "Mullet\u2019s describes its food as fresh twists to Florida classics.",
+      "Mullet\u2019s is located at 3901 6th St. S St. Pete, FL 33705.",
+      "Hours listed are Mon Closed and Sun, Tues-Thurs 12:00 p.m. \u2013 9:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Over 15 types of fish prepared with house-made sauces and slaws.",
+    "why_here": "Mullet\u2019s Fish Camp & Market pairs over 15 types of fish prepared with house-made sauces and slaws. Mullet\u2019s describes its food as fresh twists to Florida classics.",
+    "know_before": "Mullet\u2019s is at 3901 6th St. S St. Pete, FL 33705.",
+    "local_tip": "The page mentions a backyard tiki bar for unwinding.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.mulletsfishcamp.com/"
+     ],
+     "why_here": [
+      "https://www.mulletsfishcamp.com/"
+     ],
+     "know_before": [
+      "https://www.mulletsfishcamp.com/"
+     ],
+     "local_tip": [
+      "https://www.mulletsfishcamp.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Mullet\u2019s Fish Camp & Market pairs over 15 types of fish prepared with house-made sauces and slaws.",
+      "source": "https://www.mulletsfishcamp.com/"
+     },
+     {
+      "claim": "Mullet\u2019s describes its food as fresh twists to Florida classics.",
+      "source": "https://www.mulletsfishcamp.com/"
+     },
+     {
+      "claim": "Mullet\u2019s is located at 3901 6th St. S St. Pete, FL 33705.",
+      "source": "https://www.mulletsfishcamp.com/"
+     },
+     {
+      "claim": "Hours listed are Mon Closed and Sun, Tues-Thurs 12:00 p.m. \u2013 9:00 p.m.",
+      "source": "https://www.mulletsfishcamp.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJe8r-ms235YgRwQq785h0zLw",
+   "name": "The Local",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://thelocalnaples.com/about/",
+     "source_name": "The Local \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Local was founded by owner and Executive Chef Jeff Mitchell.",
+      "The Local is Naples, Florida's first farm-to-table restaurant.",
+      "The menu changes daily based on the day's delivery.",
+      "Ricotta cheese, bacon, cured meats, ice cream and sourdough for pizzas are made in the scratch kitchen."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Naples' first farm-to-table restaurant, with a menu that changes daily",
+    "why_here": "Founded by Executive Chef Jeff Mitchell, The Local was inspired by Florida's local bounty and works with local ranchers, farmers and sea mongers. The menu changes daily based on the day's delivery.",
+    "know_before": "Many items are made in-house in the scratch kitchen, including ricotta cheese and sourdough for pizzas.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://thelocalnaples.com/about/"
+     ],
+     "why_here": [
+      "https://thelocalnaples.com/about/"
+     ],
+     "know_before": [
+      "https://thelocalnaples.com/about/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Local was founded by owner and Executive Chef Jeff Mitchell.",
+      "source": "https://thelocalnaples.com/about/"
+     },
+     {
+      "claim": "The Local is Naples, Florida's first farm-to-table restaurant.",
+      "source": "https://thelocalnaples.com/about/"
+     },
+     {
+      "claim": "The menu changes daily based on the day's delivery.",
+      "source": "https://thelocalnaples.com/about/"
+     },
+     {
+      "claim": "Ricotta cheese, bacon, cured meats, ice cream and sourdough for pizzas are made in the scratch kitchen.",
+      "source": "https://thelocalnaples.com/about/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJa2X0A4ThwogRuaRMuXtTmxE",
+   "name": "Rococo Steak",
+   "category": "food",
+   "metro": "st-pete",
+   "primary_type": "steak_house",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.rococosteak.com/",
+     "source_name": "Rococo Steak \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Rococo Steak is a reimagined interpretation of the American steakhouse.",
+      "Rococo Steak is a perennial Wine Spectator Best of Award of Excellence winner, 9 years running.",
+      "Rococo Steak has more than 1280 labels and 4000 bottles of wine.",
+      "Rococo Steak is located at 655 2nd Avenue South, St. Petersburg, FL 33701.",
+      "Rococo Steak is open Sunday from 4:00 p.m. to 9:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "A reimagined American steakhouse where traditionally tasteful meets contemporary chic",
+    "why_here": "Rococo Steak describes itself as a reimagined interpretation of the American steakhouse in an upscale and contemporary setting. It says that, from appetizer to dessert, only the freshest ingredients and culinary expertise go into the items it features.",
+    "know_before": "Rococo Steak is a reimagined interpretation of the American steakhouse.",
+    "local_tip": "Rococo Steak lists more than 1280 labels and 4000 bottles of wine.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.rococosteak.com/"
+     ],
+     "why_here": [
+      "https://www.rococosteak.com/"
+     ],
+     "know_before": [
+      "https://www.rococosteak.com/"
+     ],
+     "local_tip": [
+      "https://www.rococosteak.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Rococo Steak is a reimagined interpretation of the American steakhouse.",
+      "source": "https://www.rococosteak.com/"
+     },
+     {
+      "claim": "Rococo Steak is a perennial Wine Spectator Best of Award of Excellence winner, 9 years running.",
+      "source": "https://www.rococosteak.com/"
+     },
+     {
+      "claim": "Rococo Steak has more than 1280 labels and 4000 bottles of wine.",
+      "source": "https://www.rococosteak.com/"
+     },
+     {
+      "claim": "Rococo Steak is located at 655 2nd Avenue South, St. Petersburg, FL 33701.",
+      "source": "https://www.rococosteak.com/"
+     },
+     {
+      "claim": "Rococo Steak is open Sunday from 4:00 p.m. to 9:00 p.m.",
+      "source": "https://www.rococosteak.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJmRhPha7AkIgRd9rULPdEb98",
+   "name": "Fosko Coffee Barre",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "coffee_shop",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.fosko.com/",
+     "source_name": "Fosko Coffee Barre \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Fosko is located in the heart of downtown Pensacola at 8 S Palafox St.",
+      "Fosko roasts all of its own beans in house at this location.",
+      "Fosko serves fresh brewed coffee from a Seraphim pour over system.",
+      "Fosko offers its own nitro cold brew on tap.",
+      "Fosko is open every day from 6:30 a.m. to 5:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "House-roasted coffee and nitro cold brew on tap in downtown Pensacola",
+    "why_here": "Fosko is located in the heart of downtown Pensacola and roasts all of its own beans in house at this location. It serves fresh brewed coffee from a Seraphim pour over system and offers its own nitro cold brew on tap.",
+    "know_before": "Fosko is open every day from 6:30 a.m. to 5:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.fosko.com/"
+     ],
+     "why_here": [
+      "https://www.fosko.com/"
+     ],
+     "know_before": [
+      "https://www.fosko.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Fosko is located in the heart of downtown Pensacola at 8 S Palafox St.",
+      "source": "https://www.fosko.com/"
+     },
+     {
+      "claim": "Fosko roasts all of its own beans in house at this location.",
+      "source": "https://www.fosko.com/"
+     },
+     {
+      "claim": "Fosko serves fresh brewed coffee from a Seraphim pour over system.",
+      "source": "https://www.fosko.com/"
+     },
+     {
+      "claim": "Fosko offers its own nitro cold brew on tap.",
+      "source": "https://www.fosko.com/"
+     },
+     {
+      "claim": "Fosko is open every day from 6:30 a.m. to 5:00 p.m.",
+      "source": "https://www.fosko.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJJwAuui_B2YgR6dLct8l6sXw",
+   "name": "Tap 42 Craft Kitchen & Bar - Kendall",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "gastropub",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://tap42.com/locations/kendall/",
+     "source_name": "Tap 42 Craft Kitchen & Bar - Kendall \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Tap 42 Kendall is at 11735 Sherry Lane, Kendall, Florida 33183.",
+      "The covered, string-lit patio overlooks the lake, fountain and footbridge.",
+      "Happy hour runs Monday through Friday from 3:00 p.m. to 6:00 p.m. at the bar.",
+      "Weekend brunch runs Saturday and Sunday from 11:00 a.m. to 3:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Covered, string-lit patio overlooking the lake, fountain and footbridge",
+    "why_here": "The covered, string-lit patio overlooks the lake, fountain and footbridge. Happy hour runs Monday through Friday from 3:00 p.m. to 6:00 p.m. at the bar, and weekend brunch runs Saturday and Sunday from 11:00 a.m. to 3:00 p.m.",
+    "know_before": "Tap 42 Kendall is at 11735 Sherry Lane, Kendall, Florida 33183.",
+    "local_tip": "Try happy hour at the bar Monday through Friday from 3:00 p.m. to 6:00 p.m.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://tap42.com/locations/kendall/"
+     ],
+     "why_here": [
+      "https://tap42.com/locations/kendall/"
+     ],
+     "know_before": [
+      "https://tap42.com/locations/kendall/"
+     ],
+     "local_tip": [
+      "https://tap42.com/locations/kendall/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Tap 42 Kendall is at 11735 Sherry Lane, Kendall, Florida 33183.",
+      "source": "https://tap42.com/locations/kendall/"
+     },
+     {
+      "claim": "The covered, string-lit patio overlooks the lake, fountain and footbridge.",
+      "source": "https://tap42.com/locations/kendall/"
+     },
+     {
+      "claim": "Happy hour runs Monday through Friday from 3:00 p.m. to 6:00 p.m. at the bar.",
+      "source": "https://tap42.com/locations/kendall/"
+     },
+     {
+      "claim": "Weekend brunch runs Saturday and Sunday from 11:00 a.m. to 3:00 p.m.",
+      "source": "https://tap42.com/locations/kendall/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJM_IFNqCs2YgR2ftyjZINm9g",
+   "name": "South City Beach Park",
+   "category": "beach",
+   "metro": "broward",
+   "primary_type": "beach",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.cohb.org/Facilities/Facility/Details/South-City-Beach-Park-2",
+     "source_name": "South City Beach Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "South City Beach Park is the third completed park of the City Wide Parks Master Plan.",
+      "The park features beach access, parking, restrooms, outdoor showers, an open air pavilion, two bocce courts, a playground and a sand volleyball court.",
+      "The park is open for general use Dawn to Dusk and the parking lot opens at 7:30 a.m.",
+      "The beach is open 365 days a year with summer protected hours from 9:00 a.m. to 6:00 p.m. April through August."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Beachfront park with bocce, volleyball and a full-service concession stand",
+    "why_here": "South City Beach Park is the third completed park of the City Wide Parks Master Plan. It offers beach access with an open air pavilion, two bocce courts, a playground, a sand volleyball court and a full service beachfront concession stand.",
+    "know_before": "The parking lot opens at 7:30 a.m. and the park is open for general use Dawn to Dusk.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.cohb.org/Facilities/Facility/Details/South-City-Beach-Park-2"
+     ],
+     "why_here": [
+      "https://www.cohb.org/Facilities/Facility/Details/South-City-Beach-Park-2"
+     ],
+     "know_before": [
+      "https://www.cohb.org/Facilities/Facility/Details/South-City-Beach-Park-2"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "South City Beach Park is the third completed park of the City Wide Parks Master Plan.",
+      "source": "https://www.cohb.org/Facilities/Facility/Details/South-City-Beach-Park-2"
+     },
+     {
+      "claim": "The park features beach access, parking, restrooms, outdoor showers, an open air pavilion, two bocce courts, a playground and a sand volleyball court.",
+      "source": "https://www.cohb.org/Facilities/Facility/Details/South-City-Beach-Park-2"
+     },
+     {
+      "claim": "The park is open for general use Dawn to Dusk and the parking lot opens at 7:30 a.m.",
+      "source": "https://www.cohb.org/Facilities/Facility/Details/South-City-Beach-Park-2"
+     },
+     {
+      "claim": "The beach is open 365 days a year with summer protected hours from 9:00 a.m. to 6:00 p.m. April through August.",
+      "source": "https://www.cohb.org/Facilities/Facility/Details/South-City-Beach-Park-2"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJm48YjoNp54gRHQKCArhs4Mg",
+   "name": "Oviedo on the Park",
+   "category": "attractions",
+   "metro": "orlando",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.cityofoviedo.net/511/Oviedo-on-the-Park",
+     "source_name": "Oviedo on the Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Center Lake Park is the crown jewel of the city's new Oviedo on the Park development area.",
+      "The Cultural Center includes a ballroom, a large Amphitheatre, an outdoor patio and beautiful views.",
+      "The Cultural Center provides the ideal location for weddings, parties, meetings, receptions, retreats, outdoor events and performances."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Center Lake Park, the crown jewel of Oviedo on the Park, with a Cultural Center and Amphitheatre",
+    "why_here": "The City of Oviedo calls Center Lake Park the crown jewel of its new Oviedo on the Park development area. Its Cultural Center adds a ballroom, large Amphitheatre and outdoor patio overlooking the park.",
+    "know_before": "The Cultural Center provides the ideal location for weddings, parties, meetings, receptions, retreats, outdoor events, and performances.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.cityofoviedo.net/511/Oviedo-on-the-Park"
+     ],
+     "why_here": [
+      "https://www.cityofoviedo.net/511/Oviedo-on-the-Park"
+     ],
+     "know_before": [
+      "https://www.cityofoviedo.net/511/Oviedo-on-the-Park"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Center Lake Park is the crown jewel of the city's new Oviedo on the Park development area.",
+      "source": "https://www.cityofoviedo.net/511/Oviedo-on-the-Park"
+     },
+     {
+      "claim": "The Cultural Center includes a ballroom, a large Amphitheatre, an outdoor patio and beautiful views.",
+      "source": "https://www.cityofoviedo.net/511/Oviedo-on-the-Park"
+     },
+     {
+      "claim": "The Cultural Center provides the ideal location for weddings, parties, meetings, receptions, retreats, outdoor events and performances.",
+      "source": "https://www.cityofoviedo.net/511/Oviedo-on-the-Park"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ83q2O3y35YgRzNAX3TJXb9w",
+   "name": "The District SPR",
+   "category": "food",
+   "metro": "jacksonville-fl",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.thedistrictspr.com/our-story",
+     "source_name": "The District SPR \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The District SPR was established in 2020 in Jacksonville's Historic Springfield neighborhood.",
+      "The District SPR serves New American cuisine with Southern and global influences.",
+      "Under Chef Marvin Barnes, the menu centers on fresh seafood and scratch-made dishes.",
+      "Dining options include the Peacock Garden, the Moroccan Tent and private domes."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Historic Springfield spot for New American dining, specialty cocktails and intimate dining",
+    "why_here": "Established in 2020 in Jacksonville's Historic Springfield, The District SPR serves New American cuisine with Southern and global influences. Under Chef Marvin Barnes, the menu centers on fresh seafood and scratch-made dishes.",
+    "know_before": "Guests can choose intimate indoor dining, the Peacock Garden, the Moroccan Tent or private domes.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.thedistrictspr.com/our-story"
+     ],
+     "why_here": [
+      "https://www.thedistrictspr.com/our-story"
+     ],
+     "know_before": [
+      "https://www.thedistrictspr.com/our-story"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The District SPR was established in 2020 in Jacksonville's Historic Springfield neighborhood.",
+      "source": "https://www.thedistrictspr.com/our-story"
+     },
+     {
+      "claim": "The District SPR serves New American cuisine with Southern and global influences.",
+      "source": "https://www.thedistrictspr.com/our-story"
+     },
+     {
+      "claim": "Under Chef Marvin Barnes, the menu centers on fresh seafood and scratch-made dishes.",
+      "source": "https://www.thedistrictspr.com/our-story"
+     },
+     {
+      "claim": "Dining options include the Peacock Garden, the Moroccan Tent and private domes.",
+      "source": "https://www.thedistrictspr.com/our-story"
+     }
+    ]
+   }
+  }
+ ]
+}

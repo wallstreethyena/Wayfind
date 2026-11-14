@@ -68,6 +68,8 @@ import { DATE_NIGHT_RAIL_DEFS, DATE_NIGHT_WIDEN_MI } from "../../lib/dateNightIn
 import { normalizePartnerCity } from "../../lib/intentPartnerPicks.js";
 import { METROS, nearestMetro } from "../../lib/orderInFeatured.js";
 import { milesBetween } from "../../lib/locationHonesty.js";
+import { openShareFlow } from "../../lib/shareFlow.js";
+import { placeKinds } from "../../lib/dateInvite.js";
 
 const C = { text: "#F1F5F9", muted: "#8b93a1" };
 
@@ -123,7 +125,25 @@ function DateNightRailSection({ rail, lat, lng, city, hour, eventCards = [], eve
             p.reviews ? compact(p.reviews) + " reviews" : null,
             priceLabel(p.priceLevel != null ? p.priceLevel : p.priceNum) || null,
           ].filter(Boolean);
-          const chips = [type ? { key: "type", icon: "📍", label: type, title: type } : null].filter(Boolean);
+          const chips = [
+            type ? { key: "type", icon: "📍", label: type, title: type } : null,
+            {
+              key: "ask",
+              icon: "♡",
+              label: "Ask someone",
+              title: "Ask someone to " + p.name,
+              onClick: () => openShareFlow({
+                title: p.name,
+                name: p.name,
+                city: p.city || city || "",
+                placeId: p.id,
+                kind: placeKinds(p),
+                surface: "date_night",
+                geo: p.lat != null && p.lng != null ? `${p.lat},${p.lng}` : (lat != null && lng != null ? `${lat},${lng}` : ""),
+                directInvite: true,
+              }),
+            },
+          ].filter(Boolean);
           const href = directionsUrl(p);
           return (
             <RailCard
@@ -187,6 +207,7 @@ export default function DateNightRails({
   hour = null,
   onOpenPlace = null,
   onTrack = null,
+  emptyLocation = null,
   isSaved = undefined,
   isOnTrip = undefined,
   liked = undefined,
@@ -260,7 +281,7 @@ export default function DateNightRails({
   }, [key]);
 
   if (!active) return null;
-  if (!key) return <p>Choose a location to build your date night.</p>;
+  if (!key) return emptyLocation || <p>Choose a location to build your date night.</p>;
 
   // The label alone cannot authorize a Florida offer: URL coordinates remain
   // authoritative, and the raw label retains an explicit state from the page.

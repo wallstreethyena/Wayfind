@@ -25,6 +25,7 @@ import { siteTodayStr } from "../../../lib/siteTime";
 import { couponForPlace, couponIsLive, couponEndsLabel } from "../../../lib/coupons";
 import { eventWhenLabel } from "../../../lib/eventTime";
 import { detailLocationLine, localityFromFormattedAddress, placeHeaderLabel } from "../../../lib/locationHonesty.js";
+import { placeCity } from "../../../lib/placeCity.js";
 import * as Dining from "../../../lib/dining";
 import * as Ranking from "../../../lib/ranking";
 import * as Tags from "../../../lib/tags";
@@ -42,6 +43,8 @@ import { funnelProps } from "../../../lib/funnel";
 import { useCommerceImpression } from "../useCommerceImpression";
 import { nearbyTourListAllowed, placePartnerPick } from "../../../lib/placePartnerPicks";
 import { usePinQuarantine } from "../../../lib/pinQuarantine";
+import { useReserveEntry } from "../../../lib/reserveClient.js";
+import { openReserveSheet } from "../../../lib/reserveOpen.js";
 import { pairsWellWith } from "../../../lib/pairsWellWith";
 import { chooseDetailNextStep, DETAIL_NEXT_STEP_OPEN, DETAIL_NEXT_STEP_SHOWN } from "../../../lib/detailNextStep.js";
 import { detailNearbyPool, detailDistanceMi, DETAIL_NEARBY_RADIUS_MI } from "../../../lib/detailNearby.js";
@@ -58,6 +61,8 @@ import { isOwnerPick } from "../../../lib/ownerBump";
 import { ATTRACTION_DISCOVERY_IDS } from "../../../lib/tripAttractions.js";
 import CommunityFooter from "../CommunityFooter";
 import PlacePhotoContribution from "../PlacePhotoContribution";
+import { buildGamePlan, hydrateDetailHours, isVerifiedFreePlace } from "../../../lib/gamePlan.js";
+import { isMunicipalSplashOrPublicPark } from "../../../lib/ownedPlaceTruth.js";
 
 // An internal redirect can still be an affiliate handoff; origin is not the
 // sponsorship signal. Free operator offers retain ordinary link semantics.
@@ -300,7 +305,7 @@ function PrimaryActionButton({ primaryCta, detail, kind, viaTours, locName, logE
         href={exactHref}
         rel="sponsored noreferrer"
         data-commerce-owner="PrimaryActionButton"
-        aria-label={`Tickets for ${detail.name} via ${primaryCta.merchant}`}
+        aria-label={`${primaryCta.product === "tour" ? "Tours" : primaryCta.product === "storage" ? "Luggage storage" : primaryCta.product === "transfer" ? "Transfers" : "Tickets"} for ${detail.name} via ${primaryCta.merchant}`}
         title="Partner link. Wayfind may earn a commission; rankings never change."
         style={style}
         onClick={() => {
@@ -314,21 +319,40 @@ function PrimaryActionButton({ primaryCta, detail, kind, viaTours, locName, logE
     );
   }
 
-  if (primaryCta.type === DETAIL_CTA_TYPES.tickets || primaryCta.type === DETAIL_CTA_TYPES.rates) {
+  // Wayfind table request: opens the lazy sheet when href is "#reserve"; verified external https:// reservation URLs fall through to the outbound <a> below.
+  if (primaryCta.type === DETAIL_CTA_TYPES.reserve && primaryCta.href === "#reserve") {
     return (
-      <BookingCTA
-        variant="primary"
-        detail={detail}
-        kind={kind}
-        viaTours={viaTours}
-        logEvent={logEvent}
-        addReservation={addReservation}
-        openExternal={openExternal}
-        locName={locName}
-        label={primaryCta.label}
-        placeId={detail.id}
-        city={locName ? locName.split(",")[0] : ""}
-      />
+      <button ref={ctaRef} type="button" data-reserve-cta="1" data-reserve-lane={primaryCta.reserveLane || ""} aria-label={`${primaryCta.label} at ${detail.name}`} onClick={() => { onClick(); openReserveSheet(detail, { surface: "detail", lane: primaryCta.reserveLane }); }} style={style}>
+        <span>{primaryCta.label}</span>
+      </button>
+    );
+  }
+
+  if (primaryCta.monetized && (primaryCta.type === DETAIL_CTA_TYPES.tickets || primaryCta.type === DETAIL_CTA_TYPES.rates)) {
+    if (hasBookingCTA(detail, kind, viaTours, locName)) {
+      return (
+        <BookingCTA
+          variant="primary"
+          detail={detail}
+          kind={kind}
+          viaTours={viaTours}
+          logEvent={logEvent}
+          addReservation={addReservation}
+          openExternal={openExternal}
+          locName={locName}
+          label={primaryCta.label}
+          placeId={detail.id}
+          city={locName ? locName.split(",")[0] : ""}
+          onPrimaryClick={onClick}
+        />
+      );
+    }
+    const fallbackHref = primaryCta.mapsUrl || directionsUrl(detail) || detail.mapsUrl || "#";
+    const openFallback = (url) => { try { (openExternal || window.open)(url, "_blank", "noopener"); } catch (e) {} };
+    return (
+      <a ref={ctaRef} href={fallbackHref} target="_blank" rel="noreferrer" data-commerce-owner="PrimaryActionButton" onClick={(e) => { e.preventDefault(); onClick(); openFallback(fallbackHref); }} style={style}>
+        <span>{detailCtaLabel(DETAIL_CTA_TYPES.directions)}</span><span aria-hidden="true">↗</span>
+      </a>
     );
   }
 
@@ -414,6 +438,168 @@ function VerdictPill({ verdict }) {
   );
 }
 
+// Compact, truth-gated decision brief rendered directly below the action dock.
+// Shows up to 3 high-value rows immediately, tucks rows 4+ behind one tap, and
+// disappears completely when no verified decision rows exist.
+export function YourGamePlan({ plan, expanded, onToggleExpand, onOpenPlace, openExternal, isEvent, onTrip, onAddToItinerary, onAskSomeone, suppressVerdict = false }) {
+  if (!plan || !Array.isArray(plan.rows) || plan.rows.length === 0) return null;
+  const visibleRows = expanded ? plan.rows : plan.rows.slice(0, plan.visibleCount);
+  const vTone = plan.verdict ? plan.verdict.tone : null;
+  const runRowAction = (action) => {
+    if (!action) return;
+    if (action.type === "place" && action.place && typeof onOpenPlace === "function") {
+      onOpenPlace(action.place);
+      return;
+    }
+    if (action.type === "scroll_parking") {
+      try { document.getElementById("wf-place-parking-map")?.scrollIntoView({ behavior: "smooth", block: "start", inline: "nearest" }); } catch (e) {}
+      return;
+    }
+    if (action.type === "url" && action.href) {
+      if (action.sameOrigin && typeof window !== "undefined") {
+        window.location.href = action.href;
+        return;
+      }
+      try { (openExternal || window.open)(action.href, "_blank", "noopener"); } catch (e) {}
+    }
+  };
+  return (
+    <section
+      data-game-plan
+      aria-label="Your Game Plan"
+      style={{
+        marginBottom: 16,
+        padding: "12px 14px 13px",
+        borderRadius: 15,
+        background: "linear-gradient(155deg, rgba(22,30,42,.96), rgba(11,16,24,.98))",
+        border: "1px solid rgba(255,255,255,.1)",
+        boxShadow: "0 10px 24px rgba(0,0,0,.18)",
+        minWidth: 0,
+        overflowWrap: "anywhere",
+      }}
+    >
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, flexWrap: "wrap", marginBottom: 9 }}>
+        <span style={{ fontSize: 10, fontWeight: 900, letterSpacing: "1.25px", textTransform: "uppercase", color: C.accent }}>Your Game Plan</span>
+        {plan.verdict && !suppressVerdict ? (
+          <span data-game-plan-verdict style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 11, fontWeight: 750, color: vTone === "go" ? "#4ADE80" : "#FBBF24", lineHeight: 1.2 }}>
+            <span aria-hidden="true">{vTone === "go" ? "●" : "◐"}</span>
+            <span>{plan.verdict.text}</span>
+          </span>
+        ) : null}
+      </div>
+      <div>
+        {visibleRows.map((row, idx) => (
+          <div
+            key={row.key}
+            data-game-plan-row={row.key}
+            style={{
+              paddingTop: idx === 0 ? 0 : 8,
+              marginTop: idx === 0 ? 0 : 8,
+              borderTop: idx === 0 ? "none" : "1px solid rgba(255,255,255,.07)",
+              minWidth: 0,
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 8, marginBottom: 2 }}>
+              <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: "0.7px", textTransform: "uppercase", color: C.muted }}>{row.label}</span>
+              {row.action ? (
+                <button
+                  type="button"
+                  data-game-plan-row-action={row.key}
+                  onClick={() => runRowAction(row.action)}
+                  style={{ background: "transparent", border: "none", padding: 0, color: C.accent, fontSize: 11.5, fontWeight: 800, cursor: "pointer", whiteSpace: "nowrap", flexShrink: 0 }}
+                >
+                  {row.action.label}
+                </button>
+              ) : null}
+            </div>
+            <div style={{ fontSize: 13.5, fontWeight: 550, color: "#E6EDF3", lineHeight: 1.42 }}>{row.text || row.value}</div>
+          </div>
+        ))}
+      </div>
+      {plan.hasMore ? (
+        <button
+          type="button"
+          data-game-plan-toggle
+          aria-expanded={expanded}
+          onClick={onToggleExpand}
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 5,
+            marginTop: 9,
+            padding: "4px 0",
+            background: "transparent",
+            border: "none",
+            color: C.light,
+            fontSize: 12,
+            fontWeight: 750,
+            cursor: "pointer",
+          }}
+        >
+          <span>{expanded ? "Fewer details ▴" : `More before you go (${plan.hiddenCount}) ▾`}</span>
+        </button>
+      ) : null}
+      {!isEvent ? (
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 11, paddingTop: 10, borderTop: "1px solid rgba(255,255,255,.07)" }}>
+          <button
+            type="button"
+            data-game-plan-itinerary
+            onClick={onAddToItinerary}
+            aria-label={onTrip ? "On your itinerary" : "Add to itinerary"}
+            style={{
+              flex: "1 1 148px",
+              minWidth: 0,
+              minHeight: 38,
+              padding: "0 11px",
+              borderRadius: 10,
+              background: onTrip ? C.adim : "rgba(255,255,255,.04)",
+              border: `1px solid ${onTrip ? C.light : C.border}`,
+              color: onTrip ? C.light : C.text,
+              fontSize: 12,
+              fontWeight: 800,
+              cursor: "pointer",
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 5,
+              whiteSpace: "nowrap",
+            }}
+          >
+            <span>{onTrip ? "✓ On itinerary" : "+ Add to itinerary"}</span>
+          </button>
+          <button
+            type="button"
+            data-game-plan-ask
+            onClick={onAskSomeone}
+            aria-label="Ask someone to go"
+            style={{
+              flex: "1 1 132px",
+              minWidth: 0,
+              minHeight: 38,
+              padding: "0 11px",
+              borderRadius: 10,
+              background: "rgba(255,255,255,.04)",
+              border: `1px solid ${C.border}`,
+              color: C.text,
+              fontSize: 12,
+              fontWeight: 750,
+              cursor: "pointer",
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 5,
+              whiteSpace: "nowrap",
+            }}
+          >
+            <span aria-hidden="true">✉</span>
+            <span>Ask someone</span>
+          </button>
+        </div>
+      ) : null}
+    </section>
+  );
+}
+
 // 2026-08-01 (owner: "recommend affiliate attractions nearby ... search the
 // card's location and see major attractions nearby that we offer"). One row
 // of "Where to go next" — a REAL nearby place (from the same suggested/places
@@ -449,7 +635,7 @@ function WhereToGoNextRow({ p, partner, reason, pairDistMi, openDetail, liveOpen
           target="_blank"
           rel="sponsored noopener"
           data-commerce-owner="WhereToGoNextRow"
-          aria-label={`Tickets for ${p.name} via ${partner.merchant}`}
+          aria-label={`${partner.product === "tour" ? "Tours" : partner.product === "storage" ? "Luggage storage" : partner.product === "transfer" ? "Transfers" : "Tickets"} for ${p.name} via ${partner.merchant}`}
           title="Partner link. Wayfind may earn a commission; rankings never change."
           onClick={(e) => {
             e.stopPropagation();
@@ -459,7 +645,7 @@ function WhereToGoNextRow({ p, partner, reason, pairDistMi, openDetail, liveOpen
             try { emitCommerce("commerce_cta_clicked", { ...commerceCtx, click_id: clickId }); } catch (er) {}
           }}
           style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 5, padding: "8px 12px", borderRadius: 10, background: C.adim, border: `1px solid ${C.border}`, color: "#FDBA74", textDecoration: "none", fontSize: 11.5, fontWeight: 800, whiteSpace: "nowrap" }}
-        >🎟️ Tickets ↗</a>
+        >{partner.product === "tour" ? "🛶 Tours ↗" : partner.product === "storage" ? "🧳 Storage ↗" : partner.product === "transfer" ? "🚐 Transfers ↗" : "🎟️ Tickets ↗"}</a>
       ) : (
         <span style={{ fontSize: 18, color: C.muted, flexShrink: 0 }}>›</span>
       )}
@@ -473,7 +659,7 @@ export function detailFeedbackPath(detail) {
 }
 
 export default function DetailSheet({ ctx }) {
-  const { detail, setDetail, detailExtra, setLightbox, reviewsOpen, setReviewsOpen, hoursOpen, setHoursOpen, venueEvents, venueEventsLoading, venueEventsOpen, setVenueEventsOpen, videos, videosLoading, beachCond, beachCondLoading, insight, insightLoading, insightFull, insightFullLoading, showMore, viaTours, debugOn, placeComments, setPlaceComments, commentType, setCommentType, placePosts, setPlacePosts, confirmDel, setConfirmDel, taInfo, insider, detailContext, myVotes, communityVotes, galleryRef, noteRef, scrollGallery, loadFullInsight, addReservation, handleVote, loadVenueEvents, placeShareUrl, FeaturedTag, curatedNote, curatedFor, wayfindNotes, betterAlternatives, similarPlaces, relatedPicks, detailGuides, placeKind, isBeach, suggested, places, offers, locName, blurbs, blurbLine, liked, disliked, user, authReady, sheetDragStart, sheetDragMove, sheetDragEnd, quickSaveFavorite, isSaved, toggleLike, toggleDislike, addShared, giveawayMark, logEvent, openExternal, openCuisine, openExperience, openDetail, setAuthOpen, ticketUrl, formatEventDate, shareLink, showToast, dedupePlaces, primaryCategory, experienceBadges, Critter, FallbackImg, liveOpen, weather, isSharedPlaceArrival, BUILD_ID } = ctx;
+  const { detail, setDetail, detailExtra, setLightbox, reviewsOpen, setReviewsOpen, hoursOpen, setHoursOpen, venueEvents, venueEventsLoading, venueEventsOpen, setVenueEventsOpen, videos, videosLoading, beachCond, beachCondLoading, insight, insightLoading, insightFull, insightFullLoading, showMore, viaTours, debugOn, placeComments, setPlaceComments, commentType, setCommentType, placePosts, setPlacePosts, confirmDel, setConfirmDel, taInfo, insider, detailContext, myVotes, communityVotes, galleryRef, noteRef, scrollGallery, loadFullInsight, addReservation, handleVote, loadVenueEvents, placeShareUrl, FeaturedTag, curatedNote, curatedFor, wayfindNotes, betterAlternatives, similarPlaces, relatedPicks, detailGuides, placeKind, isBeach, suggested, places, offers, locName, blurbs, blurbLine, liked, disliked, user, authReady, sheetDragStart, sheetDragMove, sheetDragEnd, quickSaveFavorite, isSaved, toggleLike, toggleDislike, addShared, giveawayMark, logEvent, openExternal, openCuisine, openExperience, openDetail, setAuthOpen, ticketUrl, formatEventDate, shareLink, showToast, dedupePlaces, primaryCategory, experienceBadges, Critter, FallbackImg, liveOpen, weather, isSharedPlaceArrival, isOnTrip, addToItinerary, BUILD_ID } = ctx;
   const userDistance = usePlaceDistance(detail);
   const venueNearby = useVenueNearby(detail, [...(suggested || []), ...(places || [])], !detail?._event);
   const [lunchChallengeView, setLunchChallengeView] = useState(false);
@@ -494,31 +680,6 @@ export default function DetailSheet({ ctx }) {
     } catch {}
   }, [detail && detail.id, noteRef, setCommentType]);
 
-  // 2026-09-02 (hijacked-domain incident): the venue website Google hands us
-  // is a third-party destination we have never read. It renders ONLY after
-  // /api/outbound/verdict has fetched and classified the page (cached 14d in
-  // wf_link_verdicts) and answered "alive". Quarantined / hijacked / parked /
-  // dead / unknown -> no button. safeUrl still runs first (the quarantine
-  // ledger short-circuits without a network call).
-  const websiteCandidate = detailExtra ? safeUrl(detailExtra.website) : null;
-  const [websiteOk, setWebsiteOk] = useState(null); // null = pending / none
-  useEffect(() => {
-    setWebsiteOk(null);
-    if (!websiteCandidate) return undefined;
-    let dead = false;
-    const ctrl = new AbortController();
-    fetch("/api/outbound/verdict", {
-      method: "POST", signal: ctrl.signal,
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ url: websiteCandidate, names: [detail && detail.name].filter(Boolean) }),
-    })
-      .then((r) => (r.ok ? r.json() : null))
-      .then((v) => { if (!dead) setWebsiteOk(!!(v && v.ok)); })
-      .catch(() => { if (!dead) setWebsiteOk(false); });
-    return () => { dead = true; ctrl.abort(); };
-  }, [websiteCandidate, detail && detail.id]);
-  const websiteHref = websiteOk === true ? websiteCandidate : null;
-
   // v6.37 — the owner's editorial voice (Vibe Check / Why Go / Best Move),
   // fetched per opened place from /api/editorial so the 288-place data module
   // stays server-side (zero client-bundle bytes; same pattern as insider).
@@ -527,28 +688,96 @@ export default function DetailSheet({ ctx }) {
   // exclusion. Event-shaped cards (detail._event from Events Near You /
   // openVenue) still fetch and still paint when the response has a sourced
   // field. Unsourced stays empty-slot. No filler, no LLM-on-render.
-  const [editorial, setEditorial] = useState(null);
+  const [editorial, setEditorial] = useState(() => (ctx.initialEditorial && hasSourcedEditorialFields(ctx.initialEditorial)) ? ctx.initialEditorial : carriedEditorial(detail));
+  const [curatedEvents, setCuratedEvents] = useState(() => Array.isArray(ctx.initialCuratedEvents) ? ctx.initialCuratedEvents : []);
+  const [firstPartyActions, setFirstPartyActions] = useState(() => ctx.initialFirstPartyActions || null);
+  const [ownedTruthMeta, setOwnedTruthMeta] = useState(() => ctx.initialOwnedTruthMeta || null);
+  const [editorialLoaded, setEditorialLoaded] = useState(false);
+  const [gamePlanExpanded, setGamePlanExpanded] = useState(false);
   useEffect(() => {
     let dead = false;
-    setEditorial(null);
+    setEditorial(carriedEditorial(detail));
+    setCuratedEvents([]);
+    setFirstPartyActions(null);
+    setOwnedTruthMeta(null);
+    setEditorialLoaded(false);
+    setGamePlanExpanded(false);
     if (!detail) return;
     const q = editorialRequestQuery(detail);
-    const apply = (ed) => {
+    const apply = (ed, evs, fpa = null, truthMeta = null) => {
       if (dead) return;
       if (ed && hasSourcedEditorialFields(ed)) setEditorial(ed);
       else setEditorial(carriedEditorial(detail));
+      setCuratedEvents(Array.isArray(evs) ? evs : []);
+      setFirstPartyActions(fpa && typeof fpa === "object" ? fpa : null);
+      setOwnedTruthMeta(truthMeta && (truthMeta.ownedHours || truthMeta.admissionTruth) ? truthMeta : null);
+      setEditorialLoaded(true);
     };
-    if (!q) { apply(null); return; }
+    if (!q) { apply(null, [], null, null); return; }
     fetch("/api/editorial?" + q) // v6.42: place_id so a richer Atlas card wins; event/venue aliases ride in `also`
       .then((r) => r.json())
-      .then((j) => apply(j && j.editorial))
-      .catch(() => apply(null));
+      .then((j) => apply(
+        j && j.editorial,
+        j && j.curatedEvents,
+        j && j.firstPartyActions,
+        j ? { ownedHours: j.ownedHours || null, admissionTruth: j.admissionTruth || null } : null
+      ))
+      .catch(() => apply(null, [], null, null));
     return () => { dead = true; };
   }, [detail && detail.id, detail && detail.name, detail && detail._event && detail._event.name]);
-  // v6.31: open/closed must match the list card exactly — compute live from the
-  // hours periods (never the stale cached openNow), so "Open" in the list can't
-  // become "Closed" in the sheet.
-  const openState = (typeof liveOpen === "function" ? liveOpen(detail) : (detail && detail.openNow != null ? detail.openNow : null));
+
+  // 2026-09-02 (hijacked-domain incident): the venue website Google hands us
+  // is a third-party destination we have never read. It renders ONLY after
+  // /api/outbound/verdict has fetched and classified the page (cached 14d in
+  // wf_link_verdicts) and answered "alive". Quarantined / hijacked / parked /
+  // dead / unknown -> no button. safeUrl still runs first (the quarantine
+  // ledger short-circuits without a network call).
+  const effectiveEditorial = editorial || (detail && detail.editorial && hasSourcedEditorialFields(detail.editorial) ? detail.editorial : (detail ? carriedEditorial(detail) : null));
+  const effectiveEditorialForTruth = effectiveEditorial
+    ? (ownedTruthMeta ? { ...ownedTruthMeta, ...effectiveEditorial } : effectiveEditorial)
+    : (ownedTruthMeta && (ownedTruthMeta.ownedHours || ownedTruthMeta.admissionTruth) ? ownedTruthMeta : null);
+  const websiteCandidate = detailExtra ? safeUrl(detailExtra.website) : null;
+  const fpaSiteCandidate = firstPartyActions && firstPartyActions.officialWebsite ? safeUrl(firstPartyActions.officialWebsite.url) : null;
+  const fpaPrimaryCandidate = firstPartyActions ? safeUrl(
+    (firstPartyActions.ticket_url && firstPartyActions.ticket_url.url)
+    || (firstPartyActions.admission_url && firstPartyActions.admission_url.url)
+    || (firstPartyActions.reservation_url && firstPartyActions.reservation_url.url)
+    || (firstPartyActions.menu_url && firstPartyActions.menu_url.url)
+    || fpaSiteCandidate
+  ) : null;
+  const verdictTargetUrl = websiteCandidate || fpaPrimaryCandidate || (effectiveEditorial ? safeUrl(effectiveEditorial.officialWebsite) : null);
+  const [websiteOk, setWebsiteOk] = useState(null); // null = pending / none
+  useEffect(() => {
+    setWebsiteOk(null);
+    if (!verdictTargetUrl) return undefined;
+    let dead = false;
+    const ctrl = new AbortController();
+    fetch("/api/outbound/verdict", {
+      method: "POST", signal: ctrl.signal,
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ url: verdictTargetUrl, names: [detail && detail.name].filter(Boolean) }),
+    })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((v) => { if (!dead) setWebsiteOk(!!(v && v.ok)); })
+      .catch(() => { if (!dead) setWebsiteOk(false); });
+    return () => { dead = true; ctrl.abort(); };
+  }, [verdictTargetUrl, detail && detail.id]);
+  const websiteHref = websiteOk === true ? websiteCandidate : null;
+  const verifiedOfficialUrl = websiteOk === true
+    ? (websiteCandidate || fpaSiteCandidate || (effectiveEditorial ? safeUrl(effectiveEditorial.officialWebsite) : null))
+    : (websiteOk !== false ? fpaSiteCandidate : null);
+  const verifiedFirstPartyActions = websiteOk !== false ? firstPartyActions : null;
+
+  // v6.31: open/closed must match the list card — compute live from the
+  // hours periods (hydrated with detailExtra.oh or owned editorial hours when
+  // the place arrived from wf_inventory without cached periods), never a stale cached openNow.
+  const hydratedDetail = hydrateDetailHours(detail, detailExtra, Date.now(), effectiveEditorialForTruth);
+  const rawOpenState = (typeof liveOpen === "function" ? (liveOpen(hydratedDetail) ?? liveOpen(detail)) : (detail && detail.openNow != null ? detail.openNow : null));
+  const curatedNotesList = detail && !detail._event && typeof wayfindNotes === "function" ? wayfindNotes(detail.name) : null;
+  const curatedObj = detail && typeof curatedNote === "function" ? curatedNote(detail) : null;
+  const curatedNoteText = curatedObj && Array.isArray(curatedObj.items)
+    ? curatedObj.items.map((it) => [it && it.head, it && it.body].filter(Boolean).join(": ")).filter(Boolean).join(" ")
+    : null;
 
   // v6.72 — detail-sheet CTA ladder (Kimi revenue lane). One primary action,
   // place-type-aware, with a live "go now / wait" verdict above it.
@@ -559,13 +788,57 @@ export default function DetailSheet({ ctx }) {
   // it is unconditionally safe. Declared with the other top-level hooks,
   // above every early return. See lib/pinQuarantine.js.
   const pinQ = usePinQuarantine();
-  const primaryCta = resolveDetailCta({ detail, kind: placeKind(detail), viaTours, locName, offers, openState, catalog: pinQ });
+  // "Reserve a table" parity with the place card: the same partner list decides both.
+  const reserveEntry = useReserveEntry(hydratedDetail);
+  const primaryCta = resolveDetailCta({
+    detail: hydratedDetail,
+    kind: placeKind(detail),
+    viaTours,
+    locName,
+    offers,
+    openState: rawOpenState,
+    catalog: pinQ,
+    websiteHref: verifiedOfficialUrl,
+    editorial: effectiveEditorialForTruth,
+    curatedNotes: curatedNotesList,
+    reserveLane: reserveEntry ? reserveEntry.lane : null,
+    firstPartyActions: verifiedFirstPartyActions,
+  });
+  const gamePlan = detail ? buildGamePlan({
+    detail: hydratedDetail,
+    detailExtra,
+    editorial: effectiveEditorialForTruth,
+    curatedEvents,
+    weather,
+    openState: rawOpenState,
+    insider,
+    primaryCta,
+    websiteHref: verifiedOfficialUrl,
+    curatedNotes: curatedNotesList,
+    curatedNoteText,
+    nearbyPlaces: venueNearby.places || [],
+    nearbyParking: venueNearby.parking || [],
+    viaTours,
+    offers,
+  }) : null;
+  const openState = (gamePlan && gamePlan.openState != null) ? gamePlan.openState : rawOpenState;
   // The one disclosure line under the primary action. When it renders, the
   // BookingCTA disclosure lower in the sheet stays off (one line per sheet).
   const ftcNearPrimary = !!(detail && !detail._event && primaryCta && primaryCta.monetized && (primaryCta.exact || (primaryCta.type !== DETAIL_CTA_TYPES.tickets && primaryCta.type !== DETAIL_CTA_TYPES.rates)));
-  const verdict = detailVerdict({ detail, weather, openState });
+  const verdict = (gamePlan && gamePlan.verdict) || detailVerdict({
+    detail: hydratedDetail,
+    weather,
+    openState,
+    business: gamePlan && gamePlan.business,
+    hasIndoorBackup: Boolean(gamePlan && gamePlan.indoorBackup),
+  });
   const ctaCategory = Dining.cuisineLabel(detail) || primaryCategory(detail) || placeKind(detail) || "";
-  const ctaCity = locName ? locName.split(",")[0] : "";
+  // The place's own city first. The Viator search term, the list lookup and
+  // the commerce city are about THIS place, not about where the visitor is: a
+  // Parrish visitor opening an Orlando museum sent Viator "The Charles Hosmer
+  // Morse Museum of American Art Parrish" (live, 2026-11-11). The visitor's
+  // city stays the fallback for a place with no trustworthy city.
+  const ctaCity = placeCity(detail) || (locName ? locName.split(",")[0] : "");
   const commerceCtx = primaryCta.monetized ? {
     ...funnelProps("commerce_impression", { metro: ctaCity, cuisine: ctaCategory, placeId: detail.id }),
     surface: "detail",
@@ -581,18 +854,59 @@ export default function DetailSheet({ ctx }) {
     }
   }, [detail && detail.id, primaryCta, ctaCity, ctaCategory, logEvent]);
 
+  const primaryActionShownRef = useRef({ id: null, type: null });
+  useEffect(() => {
+    if (!detail || !detail.id || !primaryCta || !primaryCta.type) return;
+    const prev = primaryActionShownRef.current;
+    if (prev.id === detail.id && !(prev.type === "directions" && primaryCta.type !== "directions")) return;
+    const upgraded = prev.id === detail.id;
+    primaryActionShownRef.current = { id: detail.id, type: primaryCta.type };
+    try {
+      logEvent("primary_action_shown", detail, {
+        cta_type: primaryCta.type,
+        label: primaryCta.label || "",
+        monetized: !!primaryCta.monetized,
+        exact: !!primaryCta.exact,
+        action_source: primaryCta.actionSource || null,
+        open_state: openState,
+        upgraded,
+      });
+    } catch (e) {}
+  }, [detail && detail.id, primaryCta && primaryCta.type, primaryCta && primaryCta.label, primaryCta && primaryCta.monetized, primaryCta && primaryCta.exact, primaryCta && primaryCta.actionSource, openState, logEvent]);
+
+  const gamePlanShownFor = useRef(null);
+  useEffect(() => {
+    if (!detail || !detail.id || !gamePlan || !Array.isArray(gamePlan.rows) || gamePlan.rows.length === 0) return undefined;
+    if (gamePlanShownFor.current === detail.id) return undefined;
+    const emit = () => {
+      if (gamePlanShownFor.current === detail.id) return;
+      gamePlanShownFor.current = detail.id;
+      try {
+        logEvent("game_plan_shown", detail, {
+          row_count: gamePlan.rows.length,
+          visible_count: gamePlan.visibleCount,
+          keys: gamePlan.rows.map((r) => r.key).join(","),
+          verdict_code: (gamePlan.verdict && gamePlan.verdict.code) || null,
+        });
+      } catch (e) {}
+    };
+    if (editorialLoaded) { emit(); return undefined; }
+    const timer = setTimeout(emit, 500);
+    return () => clearTimeout(timer);
+  }, [detail && detail.id, editorialLoaded, gamePlan, logEvent]);
+
   function handlePrimaryCtaClick() {
     // monetized/exact (2026-10-02): the Command Center partner-click count needs
     // to tell a partner CTA (an exact pin, a deal, a tracked delivery) from a
     // plan/directions/menu tap; both arrive here as primary_cta_clicked.
-    try { logEvent("primary_cta_clicked", detail, { cta_type: primaryCta.type, provider: primaryCta.provider, monetized: !!primaryCta.monetized, exact: !!primaryCta.exact }); } catch (e) {}
-    // One intentional click, one commerce_cta_clicked. The exact-pin button and
-    // the earning-go button already emit that event with a click_id, then call
-    // this handler. Emitting again here recorded a second event in the same
-    // millisecond with no click_id (place-page primary, measured 2026-10-18).
-    // Buttons that do not own the click (a monetized href that is not our go
-    // route) still emit once, here.
-    const buttonOwnsClick = !!((primaryCta.exact && primaryCta.href) || (primaryCta.monetized && isEarningGoHref(primaryCta.href) && primaryCta.type !== DETAIL_CTA_TYPES.tickets && primaryCta.type !== DETAIL_CTA_TYPES.rates));
+    try { logEvent("primary_cta_clicked", detail, { cta_type: primaryCta.type, provider: primaryCta.provider, monetized: !!primaryCta.monetized, exact: !!primaryCta.exact, action_source: primaryCta.actionSource || null }); } catch (e) {}
+    if (primaryCta.type === "directions") {
+      try { logEvent("directions", detail, { src: "primary" }); } catch (e) {}
+    }
+    // One intentional click, one commerce_cta_clicked. The exact-pin button,
+    // BookingCTA primary, and earning-go links already emit that event with a
+    // click_id, then call this handler.
+    const buttonOwnsClick = !!((primaryCta.exact && primaryCta.href) || (primaryCta.monetized && (primaryCta.type === "tickets" || primaryCta.type === "rates" || (typeof isEarningGoHref === "function" && isEarningGoHref(primaryCta.href)))));
     if (primaryCta.monetized && commerceCtx && !buttonOwnsClick) {
       try { emitCommerce("commerce_cta_clicked", commerceCtx); } catch (e) {}
     }
@@ -616,6 +930,51 @@ export default function DetailSheet({ ctx }) {
   function addToPlan() {
     try { logEvent("primary_cta_clicked", detail, { cta_type: "add_to_plan", monetized: false }); } catch (e) {}
     addToTripOnly();
+  }
+
+  function handleGamePlanToggle() {
+    setGamePlanExpanded((prev) => {
+      const next = !prev;
+      if (next && gamePlan) {
+        try { logEvent("game_plan_expanded", detail, { row_count: gamePlan.rows.length, hidden_count: gamePlan.hiddenCount }); } catch (e) {}
+      }
+      return next;
+    });
+  }
+
+  function handleGamePlanItinerary() {
+    if (typeof addToItinerary === "function") {
+      addToItinerary(detail, "game_plan");
+      return;
+    }
+    addToPlan();
+  }
+
+  function openDetailShare(startInInvite = false) {
+    if (!startInInvite && lunchChallengeView) {
+      const url = typeof window !== "undefined" ? window.location.origin + "/lunch-challenge" : "https://www.gowayfind.com/lunch-challenge";
+      shareLink("You’ve been challenged: Lunch in My City", url, () => showToast("Challenge link copied"), `Hey! I challenge you to Lunch in My City. I got ${detail.name}. Tap the question block and let Wayfind choose one standout lunch near you.`, () => { try { logEvent("lunch_challenge_share", detail, { kind: "place" }); } catch (e) {} });
+      return;
+    }
+    try { logEvent("share_intent_open", detail, { kind: "place", src: startInInvite ? "game_plan_ask" : "detail_dock" }); } catch (e) {}
+    const placeGeo = detail && Number.isFinite(Number(detail.lat)) && Number.isFinite(Number(detail.lng))
+      ? [Number(detail.lat), Number(detail.lng)]
+      : null;
+    const detailEventDate = (detail._event && detail._event.date) || "";
+    askShareIntent({
+      name: detail.name,
+      city: ctaCity || locName,
+      id: detail.id,
+      kind: placeKinds(detail),
+      when: detailEventDate,
+      eventDate: detailEventDate,
+      surface: "place_detail",
+      geo: placeGeo,
+      startInInvite: !!startInInvite,
+      directInvite: !!startInInvite,
+      onPlain: () => shareLink(detail.name, placeShareUrl(detail, locName, blurbLine(blurbs[detail.id])), () => showToast("Link copied"), fallShareLine(`Want to go to ${detail.name} together? Found it on Wayfind`, detail.id, siteTodayStr()), () => { try { logEvent("share", detail, { kind: "place" }); } catch (e) {} giveawayMark(detail.id); addShared(detail); }),
+      onInvite: (u, t) => shareLink("A question for you", u, null, t, () => { try { logEvent("share", detail, { kind: "invite", from: startInInvite ? "game_plan" : "place" }); } catch (e) {} giveawayMark(detail.id); addShared(detail); }),
+    });
   }
 
   // v6.44 (owner-reported, with a photo): the hero showed TWO identical
@@ -969,7 +1328,7 @@ export default function DetailSheet({ ctx }) {
                 })() : (<>
                   <span style={{ color: C.border }}>·</span>
                   {openState == null ? (
-                    <span onClick={() => setHoursOpen((o) => !o)} style={{ cursor: "pointer", fontWeight: 700, fontSize: 12, color: C.muted }}>Hours unavailable<span style={{ fontSize: 8.5, marginLeft: 3, display: "inline-block", transform: hoursOpen ? "rotate(180deg)" : "none", transition: "transform .2s" }}>▼</span></span>
+                    <span onClick={() => setHoursOpen((o) => !o)} style={{ cursor: "pointer", fontWeight: 700, fontSize: 12, color: C.muted }}>{(detailExtra && Array.isArray(detailExtra.hours) && detailExtra.hours.length > 0) || (hydratedDetail && hydratedDetail.oh && Array.isArray(hydratedDetail.oh.weekdayDescriptions) && hydratedDetail.oh.weekdayDescriptions.length > 0) || (effectiveEditorial && typeof effectiveEditorial.hoursText === "string" && effectiveEditorial.hoursText.trim()) ? "See hours" : "Hours unavailable"}<span style={{ fontSize: 8.5, marginLeft: 3, display: "inline-block", transform: hoursOpen ? "rotate(180deg)" : "none", transition: "transform .2s" }}>▼</span></span>
                   ) : (
                     <span onClick={() => setHoursOpen((o) => !o)} style={{ cursor: "pointer", fontWeight: 800, color: openState ? C.green : C.red }}>{openState ? "Open now" : "Closed"}<span style={{ fontSize: 8.5, marginLeft: 3, display: "inline-block", transform: hoursOpen ? "rotate(180deg)" : "none", transition: "transform .2s" }}>▼</span></span>
                   )}
@@ -979,23 +1338,30 @@ export default function DetailSheet({ ctx }) {
                 {(() => { if (detail._event) return null; const isD = ["Food", "Nightlife"].includes(Ranking.coarseCat(detail) || ""); const cost = isD ? Dining.costForTwo(detail) : null; /* PriceBadge reads the NUMBER, not the glyph string: detail.price was pre-rendered "$$" with no word, and a glyph without its label is exactly the half-signal that let "$$$$" and "Moderate" disagree. costForTwo stays ahead of it — a real dollar range for two is more specific than a band. */ const lvl = priceLevelOf(detail.priceNum != null ? detail.priceNum : (detail.price_level != null ? detail.price_level : detail.priceLevel)); if (cost && cost.listed) return (<><span style={{ color: C.border }}>·</span><span style={{ color: C.green, fontWeight: 800 }}>{cost.text}</span></>); if (lvl) return (<><span style={{ color: C.border }}>·</span><PriceBadge level={lvl} /></>); return null; })()}
               </div>
               <AwardsRail place={detail} colors={C} />
-              {!detail._event && Tags.requiresParkAdmission(detail.types) && (
+              {!detail._event && Tags.requiresParkAdmission(detail.types) && !isVerifiedFreePlace(hydratedDetail, effectiveEditorialForTruth) && !isMunicipalSplashOrPublicPark(hydratedDetail, effectiveEditorialForTruth) && (
                 <div style={{ fontSize: 11.5, fontWeight: 600, color: C.muted, marginTop: -4, marginBottom: 12 }}>May require park admission.</div>
               )}
               {hoursOpen && (
                 <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "10px 12px", marginBottom: 14 }}>
                   {(() => {
                     // v6.31: hours come from whichever source we already have — the
-                    // detail fetch (detailExtra.hours) or the weekday text captured
-                    // at search time (detail.oh.weekdayDescriptions). We only sit on
-                    // "Loading…" while the detail fetch is genuinely in flight AND we
-                    // have no cached weekday text; otherwise the sheet never gets
-                    // stuck spinning when that fetch fails or returns nothing.
+                    // detail fetch (detailExtra.hours), the weekday text captured
+                    // at search time (detail.oh.weekdayDescriptions), or Wayfind's
+                    // owned editorial hours (hydratedDetail.oh.weekdayDescriptions).
+                    const isOwnedHours = !(detailExtra && Array.isArray(detailExtra.hours) && detailExtra.hours.length > 0 && detailExtra.source !== "owned_snapshot")
+                      && (Boolean(detail && detail.oh && (detail.oh._source === "atlas_editorial" || detail.oh.source === "wayfind_editorial_hours" || detail.oh.source === "wayfind_owned_truth"))
+                        || (!(detail.oh && Array.isArray(detail.oh.weekdayDescriptions) && detail.oh.weekdayDescriptions.length > 0)
+                          && (Boolean(hydratedDetail && hydratedDetail.oh && (hydratedDetail.oh.source === "wayfind_editorial_hours" || hydratedDetail.oh.source === "wayfind_owned_truth" || hydratedDetail.oh._source === "atlas_editorial"))
+                            || Boolean(effectiveEditorial && typeof effectiveEditorial.hoursText === "string" && effectiveEditorial.hoursText.trim()))));
                     const lines = (detailExtra && Array.isArray(detailExtra.hours) && detailExtra.hours.length > 0)
                       ? detailExtra.hours
                       : (detail.oh && Array.isArray(detail.oh.weekdayDescriptions) && detail.oh.weekdayDescriptions.length > 0
                           ? detail.oh.weekdayDescriptions
-                          : null);
+                          : (hydratedDetail && hydratedDetail.oh && Array.isArray(hydratedDetail.oh.weekdayDescriptions) && hydratedDetail.oh.weekdayDescriptions.length > 0
+                              ? hydratedDetail.oh.weekdayDescriptions
+                              : (effectiveEditorial && typeof effectiveEditorial.hoursText === "string" && effectiveEditorial.hoursText.trim()
+                                  ? [effectiveEditorial.hoursText.trim()]
+                                  : null)));
                     if (lines) {
                       return (<>
                         {lines.map((line, i) => {
@@ -1010,7 +1376,7 @@ export default function DetailSheet({ ctx }) {
                         {/* v6.34: attribution renders only under real hours — it used
                             to sit beneath "Hours not listed" too, crediting Google
                             for hours we don't have. */}
-                        <div style={{ fontSize: 10.5, color: C.muted, opacity: 0.7, marginTop: 8 }}>Hours from Google.</div>
+                        <div style={{ fontSize: 10.5, color: C.muted, opacity: 0.7, marginTop: 8 }}>{isOwnedHours ? "Verified hours from Wayfind." : "Hours from Google."}</div>
                       </>);
                     }
                     return <div style={{ fontSize: 12.5, color: C.muted }}>{detailExtra === null ? "Loading hours…" : "Hours not listed for this place."}</div>;
@@ -1083,15 +1449,10 @@ export default function DetailSheet({ ctx }) {
                     <button onClick={(e) => toggleDislike(e, detail)} aria-label="Not for me" style={{ flexShrink: 0, width: 44, height: 44, background: "rgba(255,255,255,.035)", border: `1px solid ${disliked[detail.id] ? C.red : C.border}`, borderRadius: 12, color: disliked[detail.id] ? C.red : C.text, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ transform: "rotate(180deg)" }}><path d="M7 10v11" /><path d="M7 10l4-7c1.5 0 2.5 1 2.5 2.5V10h4.6a2 2 0 0 1 2 2.4l-1.2 6A2 2 0 0 1 17 20H7" /></svg></button>
                   </>)}
                   <button data-add-to-trip onClick={addToPlan} aria-label={isSaved(detail.id) ? "In your trip" : "Add to my trip"} style={{ flex: "1 1 46%", minWidth: 104, height: 44, padding: "0 10px", background: isSaved(detail.id) ? C.adim : "rgba(255,255,255,.035)", border: `1px solid ${isSaved(detail.id) ? C.light : C.border}`, borderRadius: 12, color: isSaved(detail.id) ? C.light : C.text, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6, fontSize: 12.5, fontWeight: 800, whiteSpace: "nowrap" }}>{isSaved(detail.id) ? "\u2713 In my trip" : "\u2661 Add to my trip"}</button>
-                  <button onClick={() => {
-                    if (lunchChallengeView) {
-                      const url = typeof window !== "undefined" ? window.location.origin + "/lunch-challenge" : "https://www.gowayfind.com/lunch-challenge";
-                      shareLink("You’ve been challenged: Lunch in My City", url, () => showToast("Challenge link copied"), `Hey! I challenge you to Lunch in My City. I got ${detail.name}. Tap the question block and let Wayfind choose one standout lunch near you.`, () => { try { logEvent("lunch_challenge_share", detail, { kind: "place" }); } catch (e) {} });
-                      return;
-                    }
-                    try { logEvent("share_intent_open", detail, { kind: "place" }); } catch (e) {}
-                    askShareIntent({ name: detail.name, city: locName, id: detail.id, kind: placeKinds(detail), onPlain: () => shareLink(detail.name, placeShareUrl(detail, locName, blurbLine(blurbs[detail.id])), () => showToast("Link copied"), fallShareLine(`Want to go to ${detail.name} together? Found it on Wayfind`, detail.id, siteTodayStr()), () => { try { logEvent("share", detail, { kind: "place" }); } catch (e) {} giveawayMark(detail.id); addShared(detail); }), onInvite: (u, t) => shareLink("A question for you", u, null, t, () => { try { logEvent("share", detail, { kind: "invite", from: "place" }); } catch (e) {} giveawayMark(detail.id); addShared(detail); }) });
-                  }} aria-label={lunchChallengeView ? "Challenge someone for Lunch in My City" : "Share"} style={{ flex: "1 1 46%", minWidth: 88, height: 44, padding: "0 10px", background: lunchChallengeView ? "linear-gradient(135deg,#F97316,#FBBF24)" : "rgba(255,255,255,.035)", border: `1px solid ${lunchChallengeView ? "#F8D447" : C.border}`, borderRadius: 12, color: lunchChallengeView ? "#10151B" : C.text, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6, fontSize: 12.5, fontWeight: lunchChallengeView ? 900 : 750, whiteSpace: "nowrap" }}><span aria-hidden="true">{lunchChallengeView ? "⚡" : "↗"}</span><span>{lunchChallengeView ? "Challenge" : "Share"}</span></button>
+                  <button onClick={() => openDetailShare(false)} aria-label={lunchChallengeView ? "Challenge someone for Lunch in My City" : "Share"} style={{ flex: "1 1 46%", minWidth: 88, height: 44, padding: "0 10px", background: lunchChallengeView ? "linear-gradient(135deg,#F97316,#FBBF24)" : "rgba(255,255,255,.035)", border: `1px solid ${lunchChallengeView ? "#F8D447" : C.border}`, borderRadius: 12, color: lunchChallengeView ? "#10151B" : C.text, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6, fontSize: 12.5, fontWeight: lunchChallengeView ? 900 : 750, whiteSpace: "nowrap" }}><span aria-hidden="true">{lunchChallengeView ? "⚡" : "↗"}</span><span>{lunchChallengeView ? "Challenge" : "Share"}</span></button>
+                  {!lunchChallengeView && (
+                    <button data-detail-ask-someone onClick={() => openDetailShare(true)} aria-label={`Ask someone to ${detail.name}`} style={{ flex: "1 1 100%", minWidth: 120, height: 44, padding: "0 12px", background: "rgba(249,115,22,.1)", border: `1px solid rgba(249,115,22,.38)`, borderRadius: 12, color: C.light, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6, fontSize: 12.5, fontWeight: 800, whiteSpace: "nowrap" }}><span aria-hidden="true">♡</span><span>{detail._event ? "Ask someone to go" : "Ask someone"}</span></button>
+                  )}
                 </div>
               </div>
               {(() => { /* Verified Florida vacation-rental browsing, through the tracked commerce route only. */
@@ -1105,7 +1466,20 @@ export default function DetailSheet({ ctx }) {
               {/* 2026-09-23 (owner): ONE disclosure line per detail sheet. When the
                   line already rendered under the primary action, this one stays off. */}
               {!ftcNearPrimary && <BookingCTA variant="disclosure" detail={detail} kind={placeKind(detail)} viaTours={viaTours} />}
-              <PlaceParkingMap place={detail} nearby={venueNearby} />
+
+              <YourGamePlan
+                plan={gamePlan}
+                expanded={gamePlanExpanded}
+                onToggleExpand={handleGamePlanToggle}
+                onOpenPlace={openDetail}
+                openExternal={openExternal}
+                isEvent={!!detail._event}
+                onTrip={typeof isOnTrip === "function" ? isOnTrip(detail) : isSaved(detail.id)}
+                onAddToItinerary={handleGamePlanItinerary}
+                onAskSomeone={() => openDetailShare(true)}
+                suppressVerdict={!detail._event && Boolean(verdict)}
+              />
+
               {Array.isArray(detail._children) && detail._children.length ? (
                 <section data-contained-venues style={{ margin: "10px 0 16px", padding: "13px 14px", background: "rgba(255,255,255,.025)", border: `1px solid ${C.border}`, borderRadius: 14 }}>
                   <div style={{ fontSize: 10.5, fontWeight: 800, color: C.light, letterSpacing: ".6px", textTransform: "uppercase" }}>Inside {detail.name}</div>
@@ -1120,64 +1494,7 @@ export default function DetailSheet({ ctx }) {
                   </div>
                 </section>
               ) : null}
-              {/* Featured creator video (Phase 1): curated UGC social proof, credited to the creator and linked out to their real video. Placed UNGATED here (below the action row, above "Why Wayfind picked this") on purpose so it's prominent — the auto-YouTube strip stays inside "show more" below. This sheet is noindex, so the creator's benefit here is traffic: we keep the referrer (rel="noopener", deliberately NOT "noreferrer") so the visit attributes to Wayfind in their analytics. No JSON-LD here; VideoObject lives only on /trending/[city]. */}
-              {!detail._event && (() => {
-                const cvs = creatorVideosFor(detail, locName);
-                if (!cvs.length) return null;
-                return (
-                  <div style={{ marginBottom: 16 }}>
-                    {cvs.map((v, i) => {
-                      const p = PLATFORM[v.platform] || PLATFORM.tiktok;
-                      const handle = v.creator ? "@" + v.creator : null;
-                      // Instagram's /p/ URLs may be stills or carousels, so a
-                      // video-only label can promise media the native post does
-                      // not contain. Keep every Instagram association accurate;
-                      // reel URLs still open the same native post.
-                      const instagramPost = v.platform === "instagram";
-                      const headline = instagramPost
-                        ? (handle ? `View ${handle}'s post about ${detail.name}` : `View ${detail.name} on Instagram`)
-                        : (handle ? `Watch ${handle}'s video about ${detail.name}` : `See ${detail.name} on ${p.label}`);
-                      const actionLabel = "Watch in Wayfind";
-                      // v6.91 (owner): "add a glowing light to the back of those
-                      // that matched the color of the box, make it a global
-                      // rule so we don't have to keep adjusting manually." The
-                      // glow reads p.color/PLATFORM_RGB[v.platform] — the SAME
-                      // PLATFORM source already driving the border/badge/CTA
-                      // above — so every platform (today: tiktok/instagram/
-                      // youtube/facebook) gets a correctly-matched glow
-                      // automatically; adding a 5th platform to
-                      // lib/creatorVideos.js lights it up here with zero
-                      // changes to this file. v6.93 (owner: "there is no
-                      // pulsing glow behind it"): upgraded from the v6.91
-                      // static glow to the real pulsing .wf-social-glow
-                      // treatment (css.js) — the owner has now explicitly
-                      // asked for the pulse kit.js's MOTION token otherwise
-                      // bans in chrome, same approved-exception category as
-                      // .wf-deal-glow.
-                      return (
-                        <CreatorVideoAction key={"cvid" + i} platform={v.platform} url={v.url} label={`${headline} in Wayfind`}
-                           onClick={() => { try { logEvent("creator_video", detail, { platform: v.platform, creator: v.creator || "" }); } catch (e) {} }}
-                           className="wf-social-glow"
-                           style={{ width: "100%", display: "flex", alignItems: "center", gap: 12, textDecoration: "none", background: `linear-gradient(160deg, ${p.color}1f 0%, ${C.card} 60%)`, border: `1.5px solid ${p.color}`, borderRadius: 14, padding: 12, marginBottom: i < cvs.length - 1 ? 10 : 0, minHeight: 44, "--glow-rgb": PLATFORM_RGB[v.platform] || PLATFORM_RGB.tiktok }}>
-                          <div style={{ position: "relative", flexShrink: 0, width: 88, height: 88, borderRadius: 11, overflow: "hidden", background: `linear-gradient(135deg, ${p.color} 0%, #0D1117 130%)`, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                            {v.thumbnail && <FallbackImg src={v.thumbnail} icon="▶️" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />}
-                            <span aria-hidden="true" style={{ position: "relative", width: 36, height: 36, borderRadius: "50%", background: "rgba(13,17,23,.66)", border: "1.5px solid rgba(255,255,255,.92)", color: "#fff", fontSize: 15, display: "flex", alignItems: "center", justifyContent: "center", paddingLeft: 3 }}>▶</span>
-                          </div>
-                          <div style={{ minWidth: 0, flex: 1 }}>
-                            <div style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: "0.6px", textTransform: "uppercase", color: p.color, marginBottom: 3 }}>Featured on {p.label}</div>
-                            <div style={{ fontSize: 14.5, fontWeight: 800, color: C.text, lineHeight: 1.25 }}>{headline}</div>
-                            {captionFor(v) && <div style={{ fontSize: 12, color: C.muted, marginTop: 4, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden", lineHeight: 1.35 }}>{captionFor(v)}</div>}
-                            <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 7 }}>
-                              <span style={{ fontSize: 12.5, fontWeight: 800, color: p.color }}>{actionLabel}</span>
-                              {handle && <span style={{ fontSize: 11.5, color: C.muted }}>· by {handle}</span>}
-                            </div>
-                          </div>
-                        </CreatorVideoAction>
-                      );
-                    })}
-                  </div>
-                );
-              })()}
+
               {/* Why Wayfind picked this: the soul of the page. One grounded paragraph, written and validated as a single unit — never stitched together from separate loose fields. */}
               {/* v6.60 (owner, brand integrity — the Ryan's Coffee House bug):
                   "Why Wayfind picked this" is a Wayfind OPINION. It renders ONLY
@@ -1226,6 +1543,48 @@ export default function DetailSheet({ ctx }) {
                   <div style={{ fontSize: 10.5, color: C.muted, opacity: 0.7, marginTop: 7 }}>The signature picks, not just what gets mentioned most.</div>
                 </div>
               )}
+
+              {/* 3. Insider tip */}
+              {/* v6.60 (owner) — the Wayfind take as a PEEK-CAROUSEL of labeled
+                  cards: the swipe-one-at-a-time feel, but the next card peeks in
+                  and every card wears its label, so nothing is hidden. Order:
+                  Why go -> Known for -> Insider move -> Why it stands out ->
+                  Good to know -> Heads up (remaining aspects appended so nothing
+                  is dropped). Body is near-white, 14px, REGULAR weight — larger
+                  and lighter than the label, the readability fix the owner asked
+                  for. */}
+              {editorial ? <WayfindTakeRail editorial={editorial} alreadyShown={whyWayfindPickedBody(insight) || whyWayfindPickedBody({ why_wayfind_picked_this: editorial?.why })} /> : null}
+
+              {(() => { const _wn = !detail._event ? wayfindNotes(detail.name) : null; if (!_wn) return null; return (
+                <div style={{ marginBottom: 16, background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "12px 14px" }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 7 }}>
+                    <span style={{ fontSize: 10.5, fontWeight: 800, color: C.light, letterSpacing: "0.6px", textTransform: "uppercase" }}>Insider notes</span>
+                    <span style={{ fontSize: 9.5, color: C.muted }}>Curated by Wayfind</span>
+                  </div>
+                  {_wn.map((n, i) => { const o = typeof n === "string" ? { text: n } : n; return (
+                    <div key={i} style={{ marginTop: i ? 8 : 0 }}>
+                      <div style={{ fontSize: 13, color: C.text, lineHeight: 1.55 }}>{o.text}</div>
+                      {o.url && (
+                        <a href={o.url} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("note_link", detail, { label: o.label || "" }); } catch (e) {} }} style={{ display: "inline-flex", alignItems: "center", gap: 7, marginTop: 7, padding: "9px 15px", borderRadius: 999, background: C.adim, border: `1.5px solid ${C.border}`, color: C.light, fontSize: 12.5, fontWeight: 800, textDecoration: "none" }}>🎟 {o.label || "Open link"} ↗</a>
+                      )}
+                    </div>
+                  ); })}
+                </div>
+              ); })()}
+
+              {(() => { const _ins = insider[detail.id]; if (!_ins || _ins.none) return null; const _cf = curatedFor && curatedFor(detail); const rows = [["🗝️", "Insider tip", _ins.tip], ["🕐", "Best time", _ins.bestTime], ["⭐", "Don't miss", _ins.dontMiss], ["💡", "Fun fact", (_cf && _cf.funFact) || _ins.funFact]].filter((r) => r[2]); if (!rows.length) return null; return (
+                <div style={{ marginBottom: 16, background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "12px 14px" }}>
+                  <div style={{ fontSize: 10.5, fontWeight: 800, color: C.gold, letterSpacing: "0.6px", textTransform: "uppercase", marginBottom: 8 }}>🔑 Insider intel</div>
+                  {_ins.special ? <div style={{ fontSize: 13.5, fontWeight: 700, color: C.text, marginBottom: 8, lineHeight: 1.4 }}>{_ins.special}</div> : null}
+                  {rows.map(([ic, lb, tx], i) => (
+                    <div key={lb} style={{ display: "flex", gap: 9, padding: "6px 0", borderTop: i ? `1px solid ${C.border}` : "none" }}>
+                      <span style={{ flexShrink: 0, fontSize: 14 }}>{ic}</span>
+                      <div style={{ fontSize: 12.5, color: C.light, lineHeight: 1.45 }}><b style={{ color: C.text }}>{lb}:</b> {tx}</div>
+                    </div>
+                  ))}
+                </div>
+              ); })()}
+
               {/* Place-specific discovery loop. Distance is measured from the
                   current venue, not from the reader, and role-fit changes with
                   the current place. Partner inventory decorates a good match;
@@ -1247,6 +1606,66 @@ export default function DetailSheet({ ctx }) {
                   </div>
                 );
               })()}
+
+              <div id="wf-place-parking-map">
+                <PlaceParkingMap place={detail} nearby={venueNearby} />
+              </div>
+
+              <div style={{ marginBottom: 16 }}>
+              {!detail._event && nearbyTourListAllowed(detail, pinQ) && ["museum", "wildlife", "entertainment", "scenic", "beach", "nature", "landmark", "waterfront"].includes(placeKind(detail)) && (() => {
+                const _hasNoteUrl = (() => { const _n = wayfindNotes(detail.name); return !!(_n && _n.some((x) => x && typeof x === "object" && x.url)); })();
+                // Affiliate leak closure (2026-10-22, The Ringling): a tickety
+                // place (museum/attraction) whose primary honestly cannot be
+                // a Book button — no verified product sells its admission —
+                // keeps its official-site/Directions links, but the tracked
+                // tickets CTA (BookingCTA's Search Viator fallback through
+                // /api/viator/go) must still render. The editorial-note
+                // suppression may not remove the only tracked outbound on a
+                // tickety sheet, so it applies only to non-tickety places.
+                return <BookingCTA variant="list" detail={detail} kind={placeKind(detail)} viaTours={viaTours} logEvent={logEvent} addReservation={addReservation} openExternal={openExternal} locName={locName} suppressFallback={_hasNoteUrl && !Aff.isTicketyPlace(detail)} placeId={detail.id} city={ctaCity} />;
+              })()}
+              {/* Travelpayouts "Book it" complement (ships dark; renders nothing until an owner sets program ids + NEXT_PUBLIC_BOOK_IT=on). Never duplicates the Viator CTA above. Scoped to non-events, which have their own ticket flow. */}
+              {!detail._event && <BookItLink detail={detail} city={locName ? locName.split(",")[0] : ""} logEvent={logEvent} addReservation={addReservation} />}
+
+              {/* Featured creator video: curated UGC social proof, credited to the creator and linked out to their real video, placed below core decision intelligence so visitor logistics answer first. */}
+              {!detail._event && (() => {
+                const cvs = creatorVideosFor(detail, locName);
+                if (!cvs.length) return null;
+                return (
+                  <div style={{ marginBottom: 16 }}>
+                    {cvs.map((v, i) => {
+                      const p = PLATFORM[v.platform] || PLATFORM.tiktok;
+                      const handle = v.creator ? "@" + v.creator : null;
+                      const instagramPost = v.platform === "instagram";
+                      const headline = instagramPost
+                        ? (handle ? `View ${handle}'s post about ${detail.name}` : `View ${detail.name} on Instagram`)
+                        : (handle ? `Watch ${handle}'s video about ${detail.name}` : `See ${detail.name} on ${p.label}`);
+                      const actionLabel = "Watch in Wayfind";
+                      return (
+                        <CreatorVideoAction key={"cvid" + i} platform={v.platform} url={v.url} label={`${headline} in Wayfind`}
+                           onClick={() => { try { logEvent("creator_video", detail, { platform: v.platform, creator: v.creator || "" }); } catch (e) {} }}
+                           className="wf-social-glow"
+                           style={{ width: "100%", display: "flex", alignItems: "center", gap: 12, textDecoration: "none", background: `linear-gradient(160deg, ${p.color}1f 0%, ${C.card} 60%)`, border: `1.5px solid ${p.color}`, borderRadius: 14, padding: 12, marginBottom: i < cvs.length - 1 ? 10 : 0, minHeight: 44, "--glow-rgb": PLATFORM_RGB[v.platform] || PLATFORM_RGB.tiktok }}>
+                          <div style={{ position: "relative", flexShrink: 0, width: 88, height: 88, borderRadius: 11, overflow: "hidden", background: `linear-gradient(135deg, ${p.color} 0%, #0D1117 130%)`, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                            {v.thumbnail && <FallbackImg src={v.thumbnail} icon="▶️" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />}
+                            <span aria-hidden="true" style={{ position: "relative", width: 36, height: 36, borderRadius: "50%", background: "rgba(13,17,23,.66)", border: "1.5px solid rgba(255,255,255,.92)", color: "#fff", fontSize: 15, display: "flex", alignItems: "center", justifyContent: "center", paddingLeft: 3 }}>▶</span>
+                          </div>
+                          <div style={{ minWidth: 0, flex: 1 }}>
+                            <div style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: "0.6px", textTransform: "uppercase", color: p.color, marginBottom: 3 }}>Featured on {p.label}</div>
+                            <div style={{ fontSize: 14.5, fontWeight: 800, color: C.text, lineHeight: 1.25 }}>{headline}</div>
+                            {captionFor(v) && <div style={{ fontSize: 12, color: C.muted, marginTop: 4, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden", lineHeight: 1.35 }}>{captionFor(v)}</div>}
+                            <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 7 }}>
+                              <span style={{ fontSize: 12.5, fontWeight: 800, color: p.color }}>{actionLabel}</span>
+                              {handle && <span style={{ fontSize: 11.5, color: C.muted }}>· by {handle}</span>}
+                            </div>
+                          </div>
+                        </CreatorVideoAction>
+                      );
+                    })}
+                  </div>
+                );
+              })()}
+
               {!detail._event && (
                 <PlacePhotoContribution
                   place={detail}
@@ -1285,60 +1704,6 @@ export default function DetailSheet({ ctx }) {
                   <span style={{ fontSize: 18, color: C.muted, flexShrink: 0 }}>›</span>
                 </button>
               )}
-              {(() => { const _wn = !detail._event ? wayfindNotes(detail.name) : null; if (!_wn) return null; return (
-                <div style={{ marginBottom: 16, background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "12px 14px" }}>
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 7 }}>
-                    <span style={{ fontSize: 10.5, fontWeight: 800, color: C.light, letterSpacing: "0.6px", textTransform: "uppercase" }}>Insider notes</span>
-                    <span style={{ fontSize: 9.5, color: C.muted }}>Curated by Wayfind</span>
-                  </div>
-                  {_wn.map((n, i) => { const o = typeof n === "string" ? { text: n } : n; return (
-                    <div key={i} style={{ marginTop: i ? 8 : 0 }}>
-                      <div style={{ fontSize: 13, color: C.text, lineHeight: 1.55 }}>{o.text}</div>
-                      {o.url && (
-                        <a href={o.url} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("note_link", detail, { label: o.label || "" }); } catch (e) {} }} style={{ display: "inline-flex", alignItems: "center", gap: 7, marginTop: 7, padding: "9px 15px", borderRadius: 999, background: C.adim, border: `1.5px solid ${C.border}`, color: C.light, fontSize: 12.5, fontWeight: 800, textDecoration: "none" }}>🎟 {o.label || "Open link"} ↗</a>
-                      )}
-                    </div>
-                  ); })}
-                </div>
-              ); })()}
-              {/* 3. Insider tip */}
-              {/* v6.60 (owner) — the Wayfind take as a PEEK-CAROUSEL of labeled
-                  cards: the swipe-one-at-a-time feel, but the next card peeks in
-                  and every card wears its label, so nothing is hidden. Order:
-                  Why go -> Known for -> Insider move -> Why it stands out ->
-                  Good to know -> Heads up (remaining aspects appended so nothing
-                  is dropped). Body is near-white, 14px, REGULAR weight — larger
-                  and lighter than the label, the readability fix the owner asked
-                  for. */}
-              {editorial ? <WayfindTakeRail editorial={editorial} alreadyShown={whyWayfindPickedBody(insight) || whyWayfindPickedBody({ why_wayfind_picked_this: editorial?.why })} /> : null}
-
-              {(() => { const _ins = insider[detail.id]; if (!_ins || _ins.none) return null; const _cf = curatedFor && curatedFor(detail); const rows = [["🗝️", "Insider tip", _ins.tip], ["🕐", "Best time", _ins.bestTime], ["⭐", "Don't miss", _ins.dontMiss], ["💡", "Fun fact", (_cf && _cf.funFact) || _ins.funFact]].filter((r) => r[2]); if (!rows.length) return null; return (
-                <div style={{ marginBottom: 16, background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "12px 14px" }}>
-                  <div style={{ fontSize: 10.5, fontWeight: 800, color: C.gold, letterSpacing: "0.6px", textTransform: "uppercase", marginBottom: 8 }}>🔑 Insider intel</div>
-                  {_ins.special ? <div style={{ fontSize: 13.5, fontWeight: 700, color: C.text, marginBottom: 8, lineHeight: 1.4 }}>{_ins.special}</div> : null}
-                  {rows.map(([ic, lb, tx], i) => (
-                    <div key={lb} style={{ display: "flex", gap: 9, padding: "6px 0", borderTop: i ? `1px solid ${C.border}` : "none" }}>
-                      <span style={{ flexShrink: 0, fontSize: 14 }}>{ic}</span>
-                      <div style={{ fontSize: 12.5, color: C.light, lineHeight: 1.45 }}><b style={{ color: C.text }}>{lb}:</b> {tx}</div>
-                    </div>
-                  ))}
-                </div>
-              ); })()}
-              <div style={{ marginBottom: 16 }}>
-              {!detail._event && nearbyTourListAllowed(detail, pinQ) && ["museum", "wildlife", "entertainment", "scenic", "beach", "nature", "landmark", "waterfront"].includes(placeKind(detail)) && (() => {
-                const _hasNoteUrl = (() => { const _n = wayfindNotes(detail.name); return !!(_n && _n.some((x) => x && typeof x === "object" && x.url)); })();
-                // Affiliate leak closure (2026-10-22, The Ringling): a tickety
-                // place (museum/attraction) whose primary honestly cannot be
-                // a Book button — no verified product sells its admission —
-                // keeps its official-site/Directions links, but the tracked
-                // tickets CTA (BookingCTA's Search Viator fallback through
-                // /api/viator/go) must still render. The editorial-note
-                // suppression may not remove the only tracked outbound on a
-                // tickety sheet, so it applies only to non-tickety places.
-                return <BookingCTA variant="list" detail={detail} kind={placeKind(detail)} viaTours={viaTours} logEvent={logEvent} addReservation={addReservation} openExternal={openExternal} locName={locName} suppressFallback={_hasNoteUrl && !Aff.isTicketyPlace(detail)} placeId={detail.id} city={ctaCity} />;
-              })()}
-              {/* Travelpayouts "Book it" complement (ships dark; renders nothing until an owner sets program ids + NEXT_PUBLIC_BOOK_IT=on). Never duplicates the Viator CTA above. Scoped to non-events, which have their own ticket flow. */}
-              {!detail._event && <BookItLink detail={detail} city={locName ? locName.split(",")[0] : ""} logEvent={logEvent} addReservation={addReservation} />}
 
               {!detail._event && (
                 <div id="wf-community-takes" style={{ marginBottom: 16, background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "12px 14px" }}>

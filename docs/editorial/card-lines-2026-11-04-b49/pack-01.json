@@ -1,0 +1,2049 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 49. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJb5-4ch73wogR6svidIlqV0c",
+   "name": "Fins Up Clearwater",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "tour_agency",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://finsupclearwater.com/boat-tours-and-cruises/",
+     "source_name": "Fins Up Clearwater \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Fins Up Clearwater's Dolphin Tour & Island Adventure is a 2-hour Clearwater dolphin cruise with an island/sandbar stop.",
+      "The tour departs from Clearwater Beach Marina.",
+      "The family-friendly tour includes dolphin watching, wildlife spotting, and time to relax or explore a private island.",
+      "The departure location is 25 Causeway Blvd, Clearwater, FL 33767 Slip C-17."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "2-hour dolphin cruise with an island/sandbar stop from Clearwater Beach Marina",
+    "why_here": "Take the 2-hour Dolphin Tour & Island Adventure for dolphin watching and wildlife spotting, with time to relax or explore a private island after departing from Clearwater Beach Marina.",
+    "know_before": "Departure location is 25 Causeway Blvd, Clearwater, FL 33767 Slip C-17.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://finsupclearwater.com/boat-tours-and-cruises/"
+     ],
+     "why_here": [
+      "https://finsupclearwater.com/boat-tours-and-cruises/"
+     ],
+     "know_before": [
+      "https://finsupclearwater.com/boat-tours-and-cruises/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Fins Up Clearwater's Dolphin Tour & Island Adventure is a 2-hour Clearwater dolphin cruise with an island/sandbar stop.",
+      "source": "https://finsupclearwater.com/boat-tours-and-cruises/"
+     },
+     {
+      "claim": "The tour departs from Clearwater Beach Marina.",
+      "source": "https://finsupclearwater.com/boat-tours-and-cruises/"
+     },
+     {
+      "claim": "The family-friendly tour includes dolphin watching, wildlife spotting, and time to relax or explore a private island.",
+      "source": "https://finsupclearwater.com/boat-tours-and-cruises/"
+     },
+     {
+      "claim": "The departure location is 25 Causeway Blvd, Clearwater, FL 33767 Slip C-17.",
+      "source": "https://finsupclearwater.com/boat-tours-and-cruises/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJh3g0Ea7kwogRKS-mh1IIhI4",
+   "name": "Da Sesto Italiano Ristorante e Vino",
+   "category": "food",
+   "metro": "st-pete",
+   "primary_type": "italian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://dasesto.com/about/",
+     "source_name": "Da Sesto Italiano Ristorante e Vino \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Da Sesto Italiano Ristorante e Vino opened its doors in January 2007.",
+      "The restaurant relocated to the larger present location on 66th St N., in Pinellas Park, Florida.",
+      "The restaurant serves authentic regional Italian cuisine with fresh pasta.",
+      "Chef-owner Sesto offers traditional Le Marche Region dishes.",
+      "Sesto built an extensive wine collection of Italian wines, especially those from the Marche Region of Italy.",
+      "Contact is by phone (727)-209-2695."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Authentic regional Italian cuisine with fresh pasta in Pinellas Park, Florida",
+    "why_here": "Dine here for authentic regional Italian cuisine with fresh pasta, traditional Le Marche Region dishes, and Italian wines, especially those from the Marche Region of Italy.",
+    "know_before": "Contact the restaurant by phone (727)-209-2695.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://dasesto.com/about/"
+     ],
+     "why_here": [
+      "https://dasesto.com/about/"
+     ],
+     "know_before": [
+      "https://dasesto.com/about/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Da Sesto Italiano Ristorante e Vino opened its doors in January 2007.",
+      "source": "https://dasesto.com/about/"
+     },
+     {
+      "claim": "The restaurant relocated to the larger present location on 66th St N., in Pinellas Park, Florida.",
+      "source": "https://dasesto.com/about/"
+     },
+     {
+      "claim": "The restaurant serves authentic regional Italian cuisine with fresh pasta.",
+      "source": "https://dasesto.com/about/"
+     },
+     {
+      "claim": "Chef-owner Sesto offers traditional Le Marche Region dishes.",
+      "source": "https://dasesto.com/about/"
+     },
+     {
+      "claim": "Sesto built an extensive wine collection of Italian wines, especially those from the Marche Region of Italy.",
+      "source": "https://dasesto.com/about/"
+     },
+     {
+      "claim": "Contact is by phone (727)-209-2695.",
+      "source": "https://dasesto.com/about/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJM6wbMhQd3ogRLps3g2Kspcg",
+   "name": "Cocoa Beach",
+   "category": "beach",
+   "metro": "florida",
+   "primary_type": "beach",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.cityofcocoabeach.com/193/Beach-Safety",
+     "source_name": "Cocoa Beach \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Visitors come to Cocoa Beach for the surf, the sand, and the sunshine.",
+      "Lifeguard towers operate daily from 10 a.m. to 5 p.m.",
+      "Full Time Towers are at Alan Shepard Park, Lori Wilson Park, Minutemen Causeway, and South of the Cocoa Beach Pier.",
+      "Cocoa Beach works in coordination with Brevard County Ocean Rescue.",
+      "Check the beach flag warning system before entering the water.",
+      "Swim near a lifeguard."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Beach with lifeguard towers operating daily from 10 a.m. to 5 p.m.",
+    "why_here": "Come for the surf, the sand, and the sunshine, and swim near a lifeguard at towers at Alan Shepard Park, Lori Wilson Park, Minutemen Causeway, and South of the Cocoa Beach Pier.",
+    "know_before": "Check the beach flag warning system before entering the water and swim near a lifeguard.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.cityofcocoabeach.com/193/Beach-Safety"
+     ],
+     "why_here": [
+      "https://www.cityofcocoabeach.com/193/Beach-Safety"
+     ],
+     "know_before": [
+      "https://www.cityofcocoabeach.com/193/Beach-Safety"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Visitors come to Cocoa Beach for the surf, the sand, and the sunshine.",
+      "source": "https://www.cityofcocoabeach.com/193/Beach-Safety"
+     },
+     {
+      "claim": "Lifeguard towers operate daily from 10 a.m. to 5 p.m.",
+      "source": "https://www.cityofcocoabeach.com/193/Beach-Safety"
+     },
+     {
+      "claim": "Full Time Towers are at Alan Shepard Park, Lori Wilson Park, Minutemen Causeway, and South of the Cocoa Beach Pier.",
+      "source": "https://www.cityofcocoabeach.com/193/Beach-Safety"
+     },
+     {
+      "claim": "Cocoa Beach works in coordination with Brevard County Ocean Rescue.",
+      "source": "https://www.cityofcocoabeach.com/193/Beach-Safety"
+     },
+     {
+      "claim": "Check the beach flag warning system before entering the water.",
+      "source": "https://www.cityofcocoabeach.com/193/Beach-Safety"
+     },
+     {
+      "claim": "Swim near a lifeguard.",
+      "source": "https://www.cityofcocoabeach.com/193/Beach-Safety"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJJ9VWp6e32YgRVABD8eBz9p0",
+   "name": "Sushi Garage Cocowalk",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "sushi_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://cocowalk.com/dining/",
+     "source_name": "Sushi Garage Cocowalk \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Sushi Garage serves Traditional Japanese cuisine with a touch of modern creativity",
+      "Sushi Garage is led by Chef-Partner Sunny Oh, Chef Kaoru Chang, and Pastry Chef Gregory Gourreau",
+      "Sushi Garage hours on Sunday - Thursday are 12 p.m. - 10 p.m.",
+      "Sushi Garage hours on Friday - Saturday are 12 p.m. - 11 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Traditional Japanese cuisine with a touch of modern creativity",
+    "why_here": "Go for Traditional Japanese cuisine with a touch of modern creativity at Sushi Garage. The restaurant is led by Chef-Partner Sunny Oh, Chef Kaoru Chang, and Pastry Chef Gregory Gourreau.",
+    "know_before": "On Sunday - Thursday, hours are 12 p.m. - 10 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://cocowalk.com/dining/"
+     ],
+     "why_here": [
+      "https://cocowalk.com/dining/"
+     ],
+     "know_before": [
+      "https://cocowalk.com/dining/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Sushi Garage serves Traditional Japanese cuisine with a touch of modern creativity",
+      "source": "https://cocowalk.com/dining/"
+     },
+     {
+      "claim": "Sushi Garage is led by Chef-Partner Sunny Oh, Chef Kaoru Chang, and Pastry Chef Gregory Gourreau",
+      "source": "https://cocowalk.com/dining/"
+     },
+     {
+      "claim": "Sushi Garage hours on Sunday - Thursday are 12 p.m. - 10 p.m.",
+      "source": "https://cocowalk.com/dining/"
+     },
+     {
+      "claim": "Sushi Garage hours on Friday - Saturday are 12 p.m. - 11 p.m.",
+      "source": "https://cocowalk.com/dining/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJQ_cmS1DhwogR_8IULfCV8LA",
+   "name": "PDQ",
+   "category": "food",
+   "metro": "st-pete",
+   "primary_type": "fast_food_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.eatpdq.com/menu",
+     "source_name": "PDQ \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "PDQ serves hand-breaded chicken",
+      "Classic Chicken Tenders are available as 3-Piece, 4-Piece, or 5-Piece",
+      "Classic Chicken Tenders are prepared Grilled, Crispy, or Spicy",
+      "Sauced Chicken Tenders come in Sweet Teriyaki, Hot Honey, Garlic Buffalo, or Garlic Parmesan",
+      "Waffle Fries are a side at PDQ"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Hand-breaded chicken tenders in 3-Piece, 4-Piece, or 5-Piece orders",
+    "why_here": "Go for hand-breaded chicken and Classic Chicken Tenders prepared Grilled, Crispy, or Spicy. Try Sauced Chicken Tenders in Sweet Teriyaki, Hot Honey, Garlic Buffalo, or Garlic Parmesan, with Waffle sides.",
+    "know_before": "Classic Chicken Tenders are available as 3-Piece, 4-Piece, or 5-Piece.",
+    "local_tip": "Try Sauced Chicken Tenders in Sweet Teriyaki",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.eatpdq.com/menu"
+     ],
+     "why_here": [
+      "https://www.eatpdq.com/menu"
+     ],
+     "know_before": [
+      "https://www.eatpdq.com/menu"
+     ],
+     "local_tip": [
+      "https://www.eatpdq.com/menu"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "PDQ serves hand-breaded chicken",
+      "source": "https://www.eatpdq.com/menu"
+     },
+     {
+      "claim": "Classic Chicken Tenders are available as 3-Piece, 4-Piece, or 5-Piece",
+      "source": "https://www.eatpdq.com/menu"
+     },
+     {
+      "claim": "Classic Chicken Tenders are prepared Grilled, Crispy, or Spicy",
+      "source": "https://www.eatpdq.com/menu"
+     },
+     {
+      "claim": "Sauced Chicken Tenders come in Sweet Teriyaki, Hot Honey, Garlic Buffalo, or Garlic Parmesan",
+      "source": "https://www.eatpdq.com/menu"
+     },
+     {
+      "claim": "Waffle Fries are a side at PDQ",
+      "source": "https://www.eatpdq.com/menu"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJhw7RYwYQ2YgRw4WJxG6ojCI",
+   "name": "DVASH",
+   "category": "food",
+   "metro": "palm-beach",
+   "primary_type": "mediterranean_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.dvashboca.com/",
+     "source_name": "DVASH \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "DVASH is a Restaurant & Bar Est. 2021",
+      "DVASH serves A Fresh and Seasonal Cuisine",
+      "Ilan Cohen is a self-taught chef who began his career in Jerusalem, Israel more than 20 years ago",
+      "DVASH is at 8208 Glades Rd, Boca Raton, FL 33434",
+      "DVASH hours on TUESDAY - SATURDAY are 4 p.m. - Close",
+      "On MONDAY, DVASH is Closed"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Fresh and Seasonal Cuisine at a Restaurant & Bar Est. 2021",
+    "why_here": "Go for A Fresh and Seasonal Cuisine at a Restaurant & Bar Est. 2021. Ilan Cohen is a self-taught chef who began his career in Jerusalem, Israel more than 20 years ago.",
+    "know_before": "On MONDAY, DVASH is Closed",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.dvashboca.com/"
+     ],
+     "why_here": [
+      "https://www.dvashboca.com/"
+     ],
+     "know_before": [
+      "https://www.dvashboca.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "DVASH is a Restaurant & Bar Est. 2021",
+      "source": "https://www.dvashboca.com/"
+     },
+     {
+      "claim": "DVASH serves A Fresh and Seasonal Cuisine",
+      "source": "https://www.dvashboca.com/"
+     },
+     {
+      "claim": "Ilan Cohen is a self-taught chef who began his career in Jerusalem, Israel more than 20 years ago",
+      "source": "https://www.dvashboca.com/"
+     },
+     {
+      "claim": "DVASH is at 8208 Glades Rd, Boca Raton, FL 33434",
+      "source": "https://www.dvashboca.com/"
+     },
+     {
+      "claim": "DVASH hours on TUESDAY - SATURDAY are 4 p.m. - Close",
+      "source": "https://www.dvashboca.com/"
+     },
+     {
+      "claim": "On MONDAY, DVASH is Closed",
+      "source": "https://www.dvashboca.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJmUY6h-sB2YgR1ExbXV2Viiw",
+   "name": "River Market",
+   "category": "shopping",
+   "metro": "broward",
+   "primary_type": "shopping_mall",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://edens.com/property/river-market/",
+     "source_name": "River Market \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "River Market is located on North Federal Highway in Fort Lauderdale",
+      "River Market is an open-air shopping center",
+      "River Market is anchored by the city's only Whole Foods Market",
+      "River Market features a mix of retail, dining, fitness, and lifestyle brands",
+      "River Market is positioned between downtown Fort Lauderdale and Las Olas",
+      "River Market includes lululemon, Pottery Barn, Sephora, Dick's Sporting Goods, and Orangetheory Fitness"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Open-air shopping center on North Federal Highway in Fort Lauderdale",
+    "why_here": "Visit River Market, an open-air shopping center on North Federal Highway in Fort Lauderdale, anchored by the city's only Whole Foods Market, with retail, dining, fitness, and lifestyle brands.",
+    "know_before": "River Market is positioned between downtown Fort Lauderdale and Las Olas",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://edens.com/property/river-market/"
+     ],
+     "why_here": [
+      "https://edens.com/property/river-market/"
+     ],
+     "know_before": [
+      "https://edens.com/property/river-market/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "River Market is located on North Federal Highway in Fort Lauderdale",
+      "source": "https://edens.com/property/river-market/"
+     },
+     {
+      "claim": "River Market is an open-air shopping center",
+      "source": "https://edens.com/property/river-market/"
+     },
+     {
+      "claim": "River Market is anchored by the city's only Whole Foods Market",
+      "source": "https://edens.com/property/river-market/"
+     },
+     {
+      "claim": "River Market features a mix of retail, dining, fitness, and lifestyle brands",
+      "source": "https://edens.com/property/river-market/"
+     },
+     {
+      "claim": "River Market is positioned between downtown Fort Lauderdale and Las Olas",
+      "source": "https://edens.com/property/river-market/"
+     },
+     {
+      "claim": "River Market includes lululemon, Pottery Barn, Sephora, Dick's Sporting Goods, and Orangetheory Fitness",
+      "source": "https://edens.com/property/river-market/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJzdby8iMb2YgRMZz-sPOOwXc",
+   "name": "El Balc\u00f3n de las Am\u00e9ricas - Boca Raton - Glades Rd",
+   "category": "food",
+   "metro": "palm-beach",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.elbalcondelasamericas.com/",
+     "source_name": "El Balc\u00f3n de las Am\u00e9ricas - Boca Raton - Glades Rd \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "El Balc\u00f3n de las Am\u00e9ricas serves Colombian food including bandeja paisa, ajiaco and churrasco",
+      "El Balc\u00f3n de las Am\u00e9ricas serves fresh juices and 100% Colombian coffee",
+      "The Boca Raton Glades Rd location is at 9834 Glades Rd, Unit C13, Boca Raton, FL 33434",
+      "On Sunday, the Boca Raton Glades Rd location is open from 8 a.m. to 8 p.m.",
+      "From Monday to Friday, a Lunch Special is offered until 4 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Colombian food with bandeja paisa, ajiaco and churrasco",
+    "why_here": "Come for Colombian food with bandeja paisa, ajiaco and churrasco, plus fresh juices and 100% Colombian coffee at the Boca Raton Glades Rd location.",
+    "know_before": "On Sunday, this location is open from 8 a.m. to 8 p.m.; from Monday to Friday, a Lunch Special is offered until 4 p.m.",
+    "local_tip": "From Monday to Friday, try the Lunch Special until 4 p.m.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.elbalcondelasamericas.com/"
+     ],
+     "why_here": [
+      "https://www.elbalcondelasamericas.com/"
+     ],
+     "know_before": [
+      "https://www.elbalcondelasamericas.com/"
+     ],
+     "local_tip": [
+      "https://www.elbalcondelasamericas.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "El Balc\u00f3n de las Am\u00e9ricas serves Colombian food including bandeja paisa, ajiaco and churrasco",
+      "source": "https://www.elbalcondelasamericas.com/"
+     },
+     {
+      "claim": "El Balc\u00f3n de las Am\u00e9ricas serves fresh juices and 100% Colombian coffee",
+      "source": "https://www.elbalcondelasamericas.com/"
+     },
+     {
+      "claim": "The Boca Raton Glades Rd location is at 9834 Glades Rd, Unit C13, Boca Raton, FL 33434",
+      "source": "https://www.elbalcondelasamericas.com/"
+     },
+     {
+      "claim": "On Sunday, the Boca Raton Glades Rd location is open from 8 a.m. to 8 p.m.",
+      "source": "https://www.elbalcondelasamericas.com/"
+     },
+     {
+      "claim": "From Monday to Friday, a Lunch Special is offered until 4 p.m.",
+      "source": "https://www.elbalcondelasamericas.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ0x4FRjLPwogRsbUk21iXT7I",
+   "name": "La Quinta Inn & Suites by Wyndham Tampa Fairgrounds - Casino",
+   "category": "hotels",
+   "metro": "tampa",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.wyndhamhotels.com/laquinta/tampa-florida/la-quinta-tampa-fairgrounds-casino",
+     "source_name": "La Quinta Inn & Suites by Wyndham Tampa Fairgrounds - Casino \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Begin each morning with a free Bright Side Breakfast of waffles, coffee, and more",
+      "La Quinta Inn & Suites by Wyndham Tampa Fairgrounds - Casino offers free WiFi",
+      "After a day of exploring the area, take a refreshing swim in our outdoor pool"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Free Bright Side Breakfast of waffles, coffee, and more",
+    "why_here": "Stay for a free Bright Side Breakfast of waffles, coffee, and more, use free WiFi, and take a refreshing swim in the outdoor pool after a day out.",
+    "know_before": "Free WiFi is offered, and a free Bright Side Breakfast of waffles, coffee, and more begins each morning.",
+    "local_tip": "Take a refreshing swim in the outdoor pool.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.wyndhamhotels.com/laquinta/tampa-florida/la-quinta-tampa-fairgrounds-casino"
+     ],
+     "why_here": [
+      "https://www.wyndhamhotels.com/laquinta/tampa-florida/la-quinta-tampa-fairgrounds-casino"
+     ],
+     "know_before": [
+      "https://www.wyndhamhotels.com/laquinta/tampa-florida/la-quinta-tampa-fairgrounds-casino"
+     ],
+     "local_tip": [
+      "https://www.wyndhamhotels.com/laquinta/tampa-florida/la-quinta-tampa-fairgrounds-casino"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Begin each morning with a free Bright Side Breakfast of waffles, coffee, and more",
+      "source": "https://www.wyndhamhotels.com/laquinta/tampa-florida/la-quinta-tampa-fairgrounds-casino"
+     },
+     {
+      "claim": "La Quinta Inn & Suites by Wyndham Tampa Fairgrounds - Casino offers free WiFi",
+      "source": "https://www.wyndhamhotels.com/laquinta/tampa-florida/la-quinta-tampa-fairgrounds-casino"
+     },
+     {
+      "claim": "After a day of exploring the area, take a refreshing swim in our outdoor pool",
+      "source": "https://www.wyndhamhotels.com/laquinta/tampa-florida/la-quinta-tampa-fairgrounds-casino"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJH5B-dVSs2YgRkmU7nVJnGyY",
+   "name": "Miami Squeeze",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://miamisqueeze.com/",
+     "source_name": "Miami Squeeze \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Miami Squeeze is known for Juice, Smoothies, Wraps, Coffee and Mediterranean Food",
+      "Miami Squeeze is located in North Miami Beach, FL at 18315 W Dixie Hwy",
+      "On Sunday, Miami Squeeze is open from 8 a.m. to 9 p.m.",
+      "Miami Squeeze serves Breakfast, Lunch, and Dinner"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Juice, drinks and Wraps with Mediterranean Food",
+    "why_here": "Go for Juice, drinks, Wraps, Coffee and Mediterranean Food at Miami Squeeze in North Miami Beach, where Breakfast, Lunch, and Dinner are served.",
+    "know_before": "On Sunday, Miami Squeeze is open from 8 a.m. to 9 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://miamisqueeze.com/"
+     ],
+     "why_here": [
+      "https://miamisqueeze.com/"
+     ],
+     "know_before": [
+      "https://miamisqueeze.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Miami Squeeze is known for Juice, Smoothies, Wraps, Coffee and Mediterranean Food",
+      "source": "https://miamisqueeze.com/"
+     },
+     {
+      "claim": "Miami Squeeze is located in North Miami Beach, FL at 18315 W Dixie Hwy",
+      "source": "https://miamisqueeze.com/"
+     },
+     {
+      "claim": "On Sunday, Miami Squeeze is open from 8 a.m. to 9 p.m.",
+      "source": "https://miamisqueeze.com/"
+     },
+     {
+      "claim": "Miami Squeeze serves Breakfast, Lunch, and Dinner",
+      "source": "https://miamisqueeze.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJy9wuG36B3YgRbwtgqXsDPFU",
+   "name": "Leading Edge Helicopters",
+   "category": "attractions",
+   "metro": "orlando",
+   "primary_type": "transportation_service",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://leadingedgehelicopter.com/orlando",
+     "source_name": "Leading Edge Helicopters \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Leading Edge Helicopters offers scenic helicopter tours in a Robinson R44 Helicopter",
+      "Routes feature Walt Disney World, Disney Springs, SeaWorld Orlando, Universal Orlando, and Old Town",
+      "Everyday 9:30 a.m. - Sunset",
+      "The Orlando location is walk-ins only",
+      "Groups of 2 or 3 passengers at a time"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Robinson R44 Helicopter tours over Walt Disney World and SeaWorld Orlando",
+    "why_here": "Take scenic helicopter tours in a Robinson R44 Helicopter, with routes featuring Walt Disney World, Disney Springs, SeaWorld Orlando, Universal Orlando, and Old Town in the Orlando area.",
+    "know_before": "Everyday 9:30 a.m. - Sunset; the Orlando location is walk-ins only",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://leadingedgehelicopter.com/orlando"
+     ],
+     "why_here": [
+      "https://leadingedgehelicopter.com/orlando"
+     ],
+     "know_before": [
+      "https://leadingedgehelicopter.com/orlando"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Leading Edge Helicopters offers scenic helicopter tours in a Robinson R44 Helicopter",
+      "source": "https://leadingedgehelicopter.com/orlando"
+     },
+     {
+      "claim": "Routes feature Walt Disney World, Disney Springs, SeaWorld Orlando, Universal Orlando, and Old Town",
+      "source": "https://leadingedgehelicopter.com/orlando"
+     },
+     {
+      "claim": "Everyday 9:30 a.m. - Sunset",
+      "source": "https://leadingedgehelicopter.com/orlando"
+     },
+     {
+      "claim": "The Orlando location is walk-ins only",
+      "source": "https://leadingedgehelicopter.com/orlando"
+     },
+     {
+      "claim": "Groups of 2 or 3 passengers at a time",
+      "source": "https://leadingedgehelicopter.com/orlando"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJMRXgdYmB3YgR6r-pmt4u9-c",
+   "name": "Pal Campo Restaurant Dr Phillips",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://palcamporestaurant.com/about-us/",
+     "source_name": "Pal Campo Restaurant Dr Phillips \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Pal Campo Restaurant serves authentic Puerto Rican cuisine in Central Florida",
+      "Dishes include Mofongo, Arroz mamposteao, Stuffed Churrasco, and Chuletas Kan Kan",
+      "Drinks include Sangr\u00eda, Pi\u00f1a Coladas, and tropical Mojitos",
+      "The Dr. Phillips location is at 7730 Palm Parkway Blvd Suite 120, Orlando, FL 32836",
+      "At the Dr. Phillips location, Sunday through Thursday hours are 11 a.m. to 10 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Authentic Puerto Rican cuisine with Mofongo and Arroz mamposteao",
+    "why_here": "Try authentic Puerto Rican cuisine in Central Florida, with Mofongo, Arroz mamposteao, Stuffed Churrasco, and Chuletas Kan Kan, plus Sangr\u00eda and Pi\u00f1a Coladas.",
+    "know_before": "At the Dr. Phillips location, Sunday through Thursday hours are 11 a.m. to 10 p.m.",
+    "local_tip": "Try Sangr\u00eda, Pi\u00f1a Coladas, and tropical Mojitos.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://palcamporestaurant.com/about-us/"
+     ],
+     "why_here": [
+      "https://palcamporestaurant.com/about-us/"
+     ],
+     "know_before": [
+      "https://palcamporestaurant.com/about-us/"
+     ],
+     "local_tip": [
+      "https://palcamporestaurant.com/about-us/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Pal Campo Restaurant serves authentic Puerto Rican cuisine in Central Florida",
+      "source": "https://palcamporestaurant.com/about-us/"
+     },
+     {
+      "claim": "Dishes include Mofongo, Arroz mamposteao, Stuffed Churrasco, and Chuletas Kan Kan",
+      "source": "https://palcamporestaurant.com/about-us/"
+     },
+     {
+      "claim": "Drinks include Sangr\u00eda, Pi\u00f1a Coladas, and tropical Mojitos",
+      "source": "https://palcamporestaurant.com/about-us/"
+     },
+     {
+      "claim": "The Dr. Phillips location is at 7730 Palm Parkway Blvd Suite 120, Orlando, FL 32836",
+      "source": "https://palcamporestaurant.com/about-us/"
+     },
+     {
+      "claim": "At the Dr. Phillips location, Sunday through Thursday hours are 11 a.m. to 10 p.m.",
+      "source": "https://palcamporestaurant.com/about-us/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJd7uTqvSw2YgRINnJ7d86Dc0",
+   "name": "Kings Dining & Entertainment",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.playatkings.com/location/orlando/",
+     "source_name": "Kings Dining & Entertainment \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Kings Orlando is at 8255 International Drive, Suite 120, Orlando, FL 32819",
+      "Kings offers bowling, billiards, arcades and countless big screens",
+      "Kings offers food, creative cocktails and extensive beer selection",
+      "Monday: 3 p.m. - 12 a.m.",
+      "Kings is now Cashless"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Bowling, billiards and arcades on International Drive in Orlando",
+    "why_here": "Go to 8255 International Drive, Suite 120, Orlando, FL 32819 for bowling, billiards, arcades and countless big screens, alongside food, creative cocktails and extensive beer selection.",
+    "know_before": "Monday: 3 p.m. - 12 a.m.; Kings is now Cashless",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.playatkings.com/location/orlando/"
+     ],
+     "why_here": [
+      "https://www.playatkings.com/location/orlando/"
+     ],
+     "know_before": [
+      "https://www.playatkings.com/location/orlando/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Kings Orlando is at 8255 International Drive, Suite 120, Orlando, FL 32819",
+      "source": "https://www.playatkings.com/location/orlando/"
+     },
+     {
+      "claim": "Kings offers bowling, billiards, arcades and countless big screens",
+      "source": "https://www.playatkings.com/location/orlando/"
+     },
+     {
+      "claim": "Kings offers food, creative cocktails and extensive beer selection",
+      "source": "https://www.playatkings.com/location/orlando/"
+     },
+     {
+      "claim": "Monday: 3 p.m. - 12 a.m.",
+      "source": "https://www.playatkings.com/location/orlando/"
+     },
+     {
+      "claim": "Kings is now Cashless",
+      "source": "https://www.playatkings.com/location/orlando/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJpegta8x654gRmUI2JGqYuus",
+   "name": "Kabooki Sushi - East Colonial",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "sushi_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.kabookisushi.com/about",
+     "source_name": "Kabooki Sushi - East Colonial \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Kabooki Sushi East Colonial is at 3122 E Colonial Dr, Orlando, FL 32803",
+      "Kabooki is led by experienced itamae Henry Moso",
+      "Henry Moso combines Mexican flavor, French preparation, and Japanese culinary integrity at Kabooki",
+      "Kabooki East Colonial offers an Omakase Experience"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Japanese dining led by experienced itamae Henry Moso in Orlando",
+    "why_here": "Go for Japanese dining led by experienced itamae Henry Moso in Orlando, where Mexican flavor, French preparation, and Japanese culinary integrity meet at Kabooki.",
+    "know_before": "Kabooki Sushi East Colonial is at 3122 E Colonial Dr, Orlando, FL 32803",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.kabookisushi.com/about"
+     ],
+     "why_here": [
+      "https://www.kabookisushi.com/about"
+     ],
+     "know_before": [
+      "https://www.kabookisushi.com/about"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Kabooki Sushi East Colonial is at 3122 E Colonial Dr, Orlando, FL 32803",
+      "source": "https://www.kabookisushi.com/about"
+     },
+     {
+      "claim": "Kabooki is led by experienced itamae Henry Moso",
+      "source": "https://www.kabookisushi.com/about"
+     },
+     {
+      "claim": "Henry Moso combines Mexican flavor, French preparation, and Japanese culinary integrity at Kabooki",
+      "source": "https://www.kabookisushi.com/about"
+     },
+     {
+      "claim": "Kabooki East Colonial offers an Omakase Experience",
+      "source": "https://www.kabookisushi.com/about"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ6xH9fdi3wogRWJWD7l6ZqYw",
+   "name": "Beef N' Buns - Wesley Chapel",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "hamburger_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://beefnbuns.com/",
+     "source_name": "Beef N' Buns - Wesley Chapel \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Every burger is a grass-fed halal smash patty, and the chicken is halal too",
+      "The Birria Bomb stacks slow-braised birria beef on a grass-fed halal smash patty with white onion, mozzarella and cilantro on a brioche bun",
+      "Beef N Buns has locations in Orlando, Wesley Chapel, and Plantation, Florida"
+     ]
+    },
+    {
+     "source": "https://tampa.beefnbuns.com/",
+     "source_name": "Beef N' Buns - Wesley Chapel \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Beef N Buns - Wesley Chapel is at 1211 Bruce B Downs Blvd, STE 2, Wesley Chapel, FL 33543"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Grass-fed halal smash patty burgers in Wesley Chapel, Florida",
+    "why_here": "Come for a grass-fed halal smash patty burger in Wesley Chapel, Florida, and try the Birria Bomb with slow-braised birria beef, white onion, mozzarella and cilantro on a brioche bun.",
+    "know_before": "Beef N Buns - Wesley Chapel is at 1211 Bruce B Downs Blvd, STE 2, Wesley Chapel, FL 33543",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://beefnbuns.com/"
+     ],
+     "why_here": [
+      "https://beefnbuns.com/"
+     ],
+     "know_before": [
+      "https://beefnbuns.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Every burger is a grass-fed halal smash patty, and the chicken is halal too",
+      "source": "https://beefnbuns.com/"
+     },
+     {
+      "claim": "The Birria Bomb stacks slow-braised birria beef on a grass-fed halal smash patty with white onion, mozzarella and cilantro on a brioche bun",
+      "source": "https://beefnbuns.com/"
+     },
+     {
+      "claim": "Beef N Buns has locations in Orlando, Wesley Chapel, and Plantation, Florida",
+      "source": "https://beefnbuns.com/"
+     },
+     {
+      "claim": "Beef N Buns - Wesley Chapel is at 1211 Bruce B Downs Blvd, STE 2, Wesley Chapel, FL 33543",
+      "source": "https://tampa.beefnbuns.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJw1L6tWso54gRR-WnIEe-FRA",
+   "name": "Lighthouse Point Park",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.ponce-inlet.org/facilities/facility/details/Lighthouse-Point-Park-Managed-by-Volusia-7",
+     "source_name": "Lighthouse Point Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Lighthouse Point Park is a 52-acre park run by the County of Volusia",
+      "Lighthouse Point Park is at 5000 South Atlantic Avenue, Ponce Inlet, FL 32127",
+      "Lighthouse Point Park hours are Sunrise to Sunset",
+      "Lighthouse Point Park facilities include nature trails, fishing, swimming, picnicking and bird watching from an observation tower",
+      "Lighthouse Point Park is surrounded by the Atlantic Ocean, Ponce deLeon Inlet and the Halifax River"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "52-acre park run by the County of Volusia",
+    "why_here": "Visit a 52-acre park run by the County of Volusia, surrounded by the Atlantic Ocean and the Halifax River, with nature trails, fishing, swimming and picnicking.",
+    "know_before": "Hours are Sunrise to Sunset at 5000 South Atlantic Avenue, Ponce Inlet, FL 32127",
+    "local_tip": "Try bird watching from an observation tower",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.ponce-inlet.org/facilities/facility/details/Lighthouse-Point-Park-Managed-by-Volusia-7"
+     ],
+     "why_here": [
+      "https://www.ponce-inlet.org/facilities/facility/details/Lighthouse-Point-Park-Managed-by-Volusia-7"
+     ],
+     "know_before": [
+      "https://www.ponce-inlet.org/facilities/facility/details/Lighthouse-Point-Park-Managed-by-Volusia-7"
+     ],
+     "local_tip": [
+      "https://www.ponce-inlet.org/facilities/facility/details/Lighthouse-Point-Park-Managed-by-Volusia-7"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Lighthouse Point Park is a 52-acre park run by the County of Volusia",
+      "source": "https://www.ponce-inlet.org/facilities/facility/details/Lighthouse-Point-Park-Managed-by-Volusia-7"
+     },
+     {
+      "claim": "Lighthouse Point Park is at 5000 South Atlantic Avenue, Ponce Inlet, FL 32127",
+      "source": "https://www.ponce-inlet.org/facilities/facility/details/Lighthouse-Point-Park-Managed-by-Volusia-7"
+     },
+     {
+      "claim": "Lighthouse Point Park hours are Sunrise to Sunset",
+      "source": "https://www.ponce-inlet.org/facilities/facility/details/Lighthouse-Point-Park-Managed-by-Volusia-7"
+     },
+     {
+      "claim": "Lighthouse Point Park facilities include nature trails, fishing, swimming, picnicking and bird watching from an observation tower",
+      "source": "https://www.ponce-inlet.org/facilities/facility/details/Lighthouse-Point-Park-Managed-by-Volusia-7"
+     },
+     {
+      "claim": "Lighthouse Point Park is surrounded by the Atlantic Ocean, Ponce deLeon Inlet and the Halifax River",
+      "source": "https://www.ponce-inlet.org/facilities/facility/details/Lighthouse-Point-Park-Managed-by-Volusia-7"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJiTIIBQ2m2YgRXHua0GYtgn4",
+   "name": "Kimchi Mart \uae40\uce58 \ub9c8\ud2b8",
+   "category": "shopping",
+   "metro": "broward",
+   "primary_type": "asian_grocery_store",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.miamikimchi.com/",
+     "source_name": "Kimchi Mart \uae40\uce58 \ub9c8\ud2b8 \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Kimchi Mart is an Asian grocery store in South Florida",
+      "Kimchi Mart is open every day from 8 a.m. to 10 p.m.",
+      "Kimchi Mart has 6 locations from Miami to West Palm Beach",
+      "Kimchi Mart is open every day, 365 days",
+      "Banchan, kimbap and sushi are made in-store daily at Kimchi Mart"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Asian grocery store in South Florida, open every day from 8 a.m. to 10 p.m.",
+    "why_here": "Shop an Asian grocery store in South Florida with 6 locations from Miami to West Palm Beach, where Banchan, kimbap and sushi are made in-store daily.",
+    "know_before": "Kimchi Mart is open every day from 8 a.m. to 10 p.m., 365 days",
+    "local_tip": "Try Banchan, kimbap and sushi made in-store daily",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.miamikimchi.com/"
+     ],
+     "why_here": [
+      "https://www.miamikimchi.com/"
+     ],
+     "know_before": [
+      "https://www.miamikimchi.com/"
+     ],
+     "local_tip": [
+      "https://www.miamikimchi.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Kimchi Mart is an Asian grocery store in South Florida",
+      "source": "https://www.miamikimchi.com/"
+     },
+     {
+      "claim": "Kimchi Mart is open every day from 8 a.m. to 10 p.m.",
+      "source": "https://www.miamikimchi.com/"
+     },
+     {
+      "claim": "Kimchi Mart has 6 locations from Miami to West Palm Beach",
+      "source": "https://www.miamikimchi.com/"
+     },
+     {
+      "claim": "Kimchi Mart is open every day, 365 days",
+      "source": "https://www.miamikimchi.com/"
+     },
+     {
+      "claim": "Banchan, kimbap and sushi are made in-store daily at Kimchi Mart",
+      "source": "https://www.miamikimchi.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ08Bs4VPH2YgRVCFvb70yF6k",
+   "name": "107 Taste Asian Restaurant South Miami",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "asian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://107taste.com/",
+     "source_name": "107 Taste Asian Restaurant South Miami \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "107 Taste South Miami is at 5966 S Dixie Hwy #103 A, South Miami, Florida 33143",
+      "107 Taste in South Miami serves homemade-style Asian cuisine",
+      "107 Taste serves Tonkotsu, Spicy Miso, and Lemongrass Ho Fun Ramen",
+      "107 Taste restaurants are open from 11:30 a.m. to 10 p.m. daily",
+      "107 Taste ramen broth is simmered for 8 hours"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Asian restaurant in South Miami with ramen broth simmered for 8 hours",
+    "why_here": "Try ramen with broth simmered for 8 hours at 107 Taste in South Miami, serving homemade-style Asian cuisine including Tonkotsu, Spicy Miso, and Lemongrass Ho Fun Ramen.",
+    "know_before": "Hours are 11:30 a.m. to 10 p.m. daily at 5966 S Dixie Hwy #103 A, South Miami, Florida 33143",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://107taste.com/"
+     ],
+     "why_here": [
+      "https://107taste.com/"
+     ],
+     "know_before": [
+      "https://107taste.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "107 Taste South Miami is at 5966 S Dixie Hwy #103 A, South Miami, Florida 33143",
+      "source": "https://107taste.com/"
+     },
+     {
+      "claim": "107 Taste in South Miami serves homemade-style Asian cuisine",
+      "source": "https://107taste.com/"
+     },
+     {
+      "claim": "107 Taste serves Tonkotsu, Spicy Miso, and Lemongrass Ho Fun Ramen",
+      "source": "https://107taste.com/"
+     },
+     {
+      "claim": "107 Taste restaurants are open from 11:30 a.m. to 10 p.m. daily",
+      "source": "https://107taste.com/"
+     },
+     {
+      "claim": "107 Taste ramen broth is simmered for 8 hours",
+      "source": "https://107taste.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJEd4EZW2x2YgREh_1sLn2Qu8",
+   "name": "Naomi's Garden Restaurant & Lounge",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://naomismiami.com/",
+     "source_name": "Naomi's Garden Restaurant & Lounge \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Naomi's Garden Little Haiti is open every day from 8 a.m. to 11 p.m.",
+      "Naomi's Garden is known for Soup Joumou, Curry Chicken, Curry Goat, Oxtails, and Jerk Chicken",
+      "Naomi's Garden is known for Haitian, Jamaican, and Caribbean food in Miami",
+      "Naomi's Garden is at 650 NW 71st St, Miami, FL 33150"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Haitian, Jamaican, and Caribbean cuisine in Miami, open every day from 8 a.m. to 11 p.m.",
+    "why_here": "Go for Haitian, Jamaican, and Caribbean cuisine including Soup Joumou, Curry Chicken, Curry Goat, Oxtails, and Jerk Chicken at 650 NW 71st St, Miami, FL 33150.",
+    "know_before": "Little Haiti is open every day from 8 a.m. to 11 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://naomismiami.com/"
+     ],
+     "why_here": [
+      "https://naomismiami.com/"
+     ],
+     "know_before": [
+      "https://naomismiami.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Naomi's Garden Little Haiti is open every day from 8 a.m. to 11 p.m.",
+      "source": "https://naomismiami.com/"
+     },
+     {
+      "claim": "Naomi's Garden is known for Soup Joumou, Curry Chicken, Curry Goat, Oxtails, and Jerk Chicken",
+      "source": "https://naomismiami.com/"
+     },
+     {
+      "claim": "Naomi's Garden is known for Haitian, Jamaican, and Caribbean food in Miami",
+      "source": "https://naomismiami.com/"
+     },
+     {
+      "claim": "Naomi's Garden is at 650 NW 71st St, Miami, FL 33150",
+      "source": "https://naomismiami.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ2fEBDj7a5ogRBEmb5gg0rQ8",
+   "name": "Dirty Harry's Pub & Package",
+   "category": "nightlife",
+   "metro": "florida",
+   "primary_type": "bar",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.daytonabeach.com/listings/dirty-harrys-pub-%26-package/708/",
+     "source_name": "Dirty Harry's Pub & Package \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Dirty Harry's Pub & Package is at 705 Main Street, Daytona Beach, FL 32118",
+      "Dirty Harry's is located in the 700 block of Main Street in Daytona Beach",
+      "Dirty Harry's inside is a cozy pub with a nightclub atmosphere",
+      "The 700 block of Main Street is the heart of Daytona Beach and home of Bike Week and Biketoberfest\u00ae"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Cozy pub with a nightclub atmosphere in the 700 block of Main Street",
+    "why_here": "Visit a cozy pub with a nightclub atmosphere in the 700 block of Main Street, in the heart of Daytona Beach and home of Bike Week and Biketoberfest\u00ae.",
+    "know_before": "Find it at 705 Main Street, Daytona Beach, FL 32118, in the 700 block of Main Street.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.daytonabeach.com/listings/dirty-harrys-pub-%26-package/708/"
+     ],
+     "why_here": [
+      "https://www.daytonabeach.com/listings/dirty-harrys-pub-%26-package/708/"
+     ],
+     "know_before": [
+      "https://www.daytonabeach.com/listings/dirty-harrys-pub-%26-package/708/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Dirty Harry's Pub & Package is at 705 Main Street, Daytona Beach, FL 32118",
+      "source": "https://www.daytonabeach.com/listings/dirty-harrys-pub-%26-package/708/"
+     },
+     {
+      "claim": "Dirty Harry's is located in the 700 block of Main Street in Daytona Beach",
+      "source": "https://www.daytonabeach.com/listings/dirty-harrys-pub-%26-package/708/"
+     },
+     {
+      "claim": "Dirty Harry's inside is a cozy pub with a nightclub atmosphere",
+      "source": "https://www.daytonabeach.com/listings/dirty-harrys-pub-%26-package/708/"
+     },
+     {
+      "claim": "The 700 block of Main Street is the heart of Daytona Beach and home of Bike Week and Biketoberfest\u00ae",
+      "source": "https://www.daytonabeach.com/listings/dirty-harrys-pub-%26-package/708/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJMybrb5O32YgR8wkpg5Sd3oA",
+   "name": "107 Taste Asian Restaurant Brickell",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "asian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://107taste.com/best-ramen-in-miami/",
+     "source_name": "107 Taste Asian Restaurant Brickell \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "107 Taste is a home for authentic ramen in South Florida",
+      "107 Taste ramen broth is simmered for 8 hours",
+      "107 Taste has locations in Brickell, FIU, Coral Gables, Miami Lakes, and South Miami",
+      "107 Taste serves Tonkotsu Ramen with braised pork belly, soft-boiled egg, bamboo shoots, and wood ear mushrooms",
+      "107 Taste serves Asian fusion favorites"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Asian restaurant in Brickell with ramen broth simmered for 8 hours",
+    "why_here": "Try authentic ramen in South Florida, where broth is simmered for 8 hours, plus Tonkotsu Ramen with braised pork belly, soft-boiled egg, bamboo shoots, and wood ear mushrooms.",
+    "know_before": "Locations in South Florida include Brickell, FIU, Coral Gables, Miami Lakes, and South Miami.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://107taste.com/best-ramen-in-miami/"
+     ],
+     "why_here": [
+      "https://107taste.com/best-ramen-in-miami/"
+     ],
+     "know_before": [
+      "https://107taste.com/best-ramen-in-miami/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "107 Taste is a home for authentic ramen in South Florida",
+      "source": "https://107taste.com/best-ramen-in-miami/"
+     },
+     {
+      "claim": "107 Taste ramen broth is simmered for 8 hours",
+      "source": "https://107taste.com/best-ramen-in-miami/"
+     },
+     {
+      "claim": "107 Taste has locations in Brickell, FIU, Coral Gables, Miami Lakes, and South Miami",
+      "source": "https://107taste.com/best-ramen-in-miami/"
+     },
+     {
+      "claim": "107 Taste serves Tonkotsu Ramen with braised pork belly, soft-boiled egg, bamboo shoots, and wood ear mushrooms",
+      "source": "https://107taste.com/best-ramen-in-miami/"
+     },
+     {
+      "claim": "107 Taste serves Asian fusion favorites",
+      "source": "https://107taste.com/best-ramen-in-miami/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJS7RACOvE54gRl7ETSgruy0s",
+   "name": "The Fresh Market",
+   "category": "shopping",
+   "metro": "florida",
+   "primary_type": "grocery_store",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.thefreshmarket.com/about-us",
+     "source_name": "The Fresh Market \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Fresh Market is a specialty grocery store",
+      "The Fresh Market offers exceptional quality meat and seafood, peak season produce, and decadent baked goods",
+      "The first The Fresh Market store opened in Greensboro on March 5, 1982",
+      "The Fresh Market has more than 170 locations in 22 states",
+      "The Fresh Market offers delicious prepared meals and fresh seasonal flowers"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Specialty grocery store with meat and seafood, produce, baked goods, and prepared meals",
+    "why_here": "Shop a specialty grocery store offering exceptional quality meat and seafood, peak season produce, and decadent baked goods, plus delicious prepared meals and fresh seasonal flowers.",
+    "know_before": "The first store opened in Greensboro on March 5, 1982; today there are more than 170 locations in 22 states.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.thefreshmarket.com/about-us"
+     ],
+     "why_here": [
+      "https://www.thefreshmarket.com/about-us"
+     ],
+     "know_before": [
+      "https://www.thefreshmarket.com/about-us"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Fresh Market is a specialty grocery store",
+      "source": "https://www.thefreshmarket.com/about-us"
+     },
+     {
+      "claim": "The Fresh Market offers exceptional quality meat and seafood, peak season produce, and decadent baked goods",
+      "source": "https://www.thefreshmarket.com/about-us"
+     },
+     {
+      "claim": "The first The Fresh Market store opened in Greensboro on March 5, 1982",
+      "source": "https://www.thefreshmarket.com/about-us"
+     },
+     {
+      "claim": "The Fresh Market has more than 170 locations in 22 states",
+      "source": "https://www.thefreshmarket.com/about-us"
+     },
+     {
+      "claim": "The Fresh Market offers delicious prepared meals and fresh seasonal flowers",
+      "source": "https://www.thefreshmarket.com/about-us"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJl4TcyqWv2YgR2urxbZp_orU",
+   "name": "Lorna's Caribbean & American Grill",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "caribbean_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://lornascaribbean.com/places/miami-gardens",
+     "source_name": "Lorna's Caribbean & American Grill \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Lorna's Caribbean & American Grill is in Miami Gardens, FL",
+      "Lorna's Caribbean & American Grill is at 19752 NW 27th Ave, Miami Gardens, FL 33056",
+      "The menu lists Jerk Chicken at Lorna's Caribbean & American Grill",
+      "The menu lists Oxtail Dinner at Lorna's Caribbean & American Grill"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Caribbean and American grill in Miami Gardens serving Jerk Chicken and Oxtail Dinner",
+    "why_here": "Try Jerk Chicken and Oxtail Dinner at Lorna's Caribbean & American Grill in Miami Gardens, a Caribbean and American grill where the menu lists Jerk Chicken and Oxtail Dinner.",
+    "know_before": "Find it at 19752 NW 27th Ave, Miami Gardens, FL 33056.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://lornascaribbean.com/places/miami-gardens"
+     ],
+     "why_here": [
+      "https://lornascaribbean.com/places/miami-gardens"
+     ],
+     "know_before": [
+      "https://lornascaribbean.com/places/miami-gardens"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Lorna's Caribbean & American Grill is in Miami Gardens, FL",
+      "source": "https://lornascaribbean.com/places/miami-gardens"
+     },
+     {
+      "claim": "Lorna's Caribbean & American Grill is at 19752 NW 27th Ave, Miami Gardens, FL 33056",
+      "source": "https://lornascaribbean.com/places/miami-gardens"
+     },
+     {
+      "claim": "The menu lists Jerk Chicken at Lorna's Caribbean & American Grill",
+      "source": "https://lornascaribbean.com/places/miami-gardens"
+     },
+     {
+      "claim": "The menu lists Oxtail Dinner at Lorna's Caribbean & American Grill",
+      "source": "https://lornascaribbean.com/places/miami-gardens"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJKaTCJF4p54gRJPNSnHZK0F8",
+   "name": "Third Wave Cafe & Wine Bar",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.thirdwavensb.com/",
+     "source_name": "Third Wave Cafe & Wine Bar \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Third Wave Cafe & Wine Bar is at 204 Flagler Avenue, New Smyrna Beach, FL 32169",
+      "Third Wave Cafe & Wine Bar blends globally inspired coastal cuisine with specialty coffee, curated wines, craft beers, and seasonal dishes",
+      "Third Wave Cafe & Wine Bar is a cafe and wine bar in New Smyrna Beach"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Globally inspired coastal cuisine with specialty coffee and curated wines",
+    "why_here": "Third Wave Cafe & Wine Bar in New Smyrna Beach blends globally inspired coastal cuisine with specialty coffee, curated wines, craft beers, and seasonal dishes for cafe and wine bar dining.",
+    "know_before": "Find it at 204 Flagler Avenue in New Smyrna Beach.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.thirdwavensb.com/"
+     ],
+     "why_here": [
+      "https://www.thirdwavensb.com/"
+     ],
+     "know_before": [
+      "https://www.thirdwavensb.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Third Wave Cafe & Wine Bar is at 204 Flagler Avenue, New Smyrna Beach, FL 32169",
+      "source": "https://www.thirdwavensb.com/"
+     },
+     {
+      "claim": "Third Wave Cafe & Wine Bar blends globally inspired coastal cuisine with specialty coffee, curated wines, craft beers, and seasonal dishes",
+      "source": "https://www.thirdwavensb.com/"
+     },
+     {
+      "claim": "Third Wave Cafe & Wine Bar is a cafe and wine bar in New Smyrna Beach",
+      "source": "https://www.thirdwavensb.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJn6Qu1Z4n5IgRUiSs_TsKclg",
+   "name": "Sarbez!",
+   "category": "nightlife",
+   "metro": "st-augustine-fl",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.theoriginalsarbez.net/",
+     "source_name": "Sarbez! \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Sarbez! specializes in craft beer and gourmet grilled cheese sandwiches",
+      "Sarbez! is located at 115 Anastasia Blvd, St Augustine, FL 32080, just over the Bridge of Lions",
+      "Sarbez! has over 35 arcade games from pinball machines to skeeball",
+      "Sarbez! hosts live musical events",
+      "Sarbez! is family friendly until 8 p.m.",
+      "Sarbez! is open 12 p.m. to 12 a.m. Sunday through Thursday"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Craft beer and gourmet grilled cheese sandwiches just over the Bridge of Lions",
+    "why_here": "Sarbez! specializes in craft beer and gourmet grilled cheese sandwiches just over the Bridge of Lions in St Augustine. It has over 35 arcade games from pinball machines to skeeball and hosts live musical events, mixing food, drinks, games and music in one stop.",
+    "know_before": "Sarbez! is family friendly until 8 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.theoriginalsarbez.net/"
+     ],
+     "why_here": [
+      "https://www.theoriginalsarbez.net/"
+     ],
+     "know_before": [
+      "https://www.theoriginalsarbez.net/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Sarbez! specializes in craft beer and gourmet grilled cheese sandwiches",
+      "source": "https://www.theoriginalsarbez.net/"
+     },
+     {
+      "claim": "Sarbez! is located at 115 Anastasia Blvd, St Augustine, FL 32080, just over the Bridge of Lions",
+      "source": "https://www.theoriginalsarbez.net/"
+     },
+     {
+      "claim": "Sarbez! has over 35 arcade games from pinball machines to skeeball",
+      "source": "https://www.theoriginalsarbez.net/"
+     },
+     {
+      "claim": "Sarbez! hosts live musical events",
+      "source": "https://www.theoriginalsarbez.net/"
+     },
+     {
+      "claim": "Sarbez! is family friendly until 8 p.m.",
+      "source": "https://www.theoriginalsarbez.net/"
+     },
+     {
+      "claim": "Sarbez! is open 12 p.m. to 12 a.m. Sunday through Thursday",
+      "source": "https://www.theoriginalsarbez.net/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJG8R_g1Ox2YgRpNM53ylsVNw",
+   "name": "Sunny Side Cafe & Eatery",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "breakfast_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://sunnysidemiami.com/",
+     "source_name": "Sunny Side Cafe & Eatery \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Sunny Side Cafe & Eatery is at 232 5th Street, Miami Beach",
+      "Sunny Side serves breakfast, brunch and lunch",
+      "The menu includes classic American brunch delights like fluffy waffles and pancakes",
+      "Sunny Side is pet-friendly",
+      "Sunny Side is open every day from 7 a.m. to 3:30 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Breakfast, brunch and lunch in Miami Beach with fluffy waffles and pancakes",
+    "why_here": "Sunny Side Cafe & Eatery in Miami Beach serves breakfast, brunch and lunch, with classic American brunch delights like fluffy waffles and pancakes on the menu. Sunny Side is pet-friendly, so the visit can include a pet alongside the meal.",
+    "know_before": "Sunny Side is open every day from 7 a.m. to 3:30 p.m.",
+    "local_tip": "Sunny Side is pet-friendly.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://sunnysidemiami.com/"
+     ],
+     "why_here": [
+      "https://sunnysidemiami.com/"
+     ],
+     "know_before": [
+      "https://sunnysidemiami.com/"
+     ],
+     "local_tip": [
+      "https://sunnysidemiami.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Sunny Side Cafe & Eatery is at 232 5th Street, Miami Beach",
+      "source": "https://sunnysidemiami.com/"
+     },
+     {
+      "claim": "Sunny Side serves breakfast, brunch and lunch",
+      "source": "https://sunnysidemiami.com/"
+     },
+     {
+      "claim": "The menu includes classic American brunch delights like fluffy waffles and pancakes",
+      "source": "https://sunnysidemiami.com/"
+     },
+     {
+      "claim": "Sunny Side is pet-friendly",
+      "source": "https://sunnysidemiami.com/"
+     },
+     {
+      "claim": "Sunny Side is open every day from 7 a.m. to 3:30 p.m.",
+      "source": "https://sunnysidemiami.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ-WLCqkdw54gR5FyZzXYSoV4",
+   "name": "Enzian Theater",
+   "category": "attractions",
+   "metro": "orlando",
+   "primary_type": "movie_theater",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://enzian.org/about/",
+     "source_name": "Enzian Theater \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Enzian is Central Florida's only full-time, not-for-profit independent cinema",
+      "Enzian is home of Eden Bar and the Florida Film Festival",
+      "Enzian is a single-screen cinema caf\u00e9 offering mostly independent & foreign films with two unique dining options",
+      "At Enzian, you will experience a fusion of food and film",
+      "Enzian is at 1300 South Orlando Ave, Maitland, FL 32751"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Single-screen cinema caf\u00e9 offering mostly independent and foreign films",
+    "why_here": "Enzian is Central Florida's only full-time, not-for-profit independent cinema, a single-screen cinema caf\u00e9 offering mostly independent & foreign films with two unique dining options and a fusion of food and film.",
+    "know_before": "Find it at 1300 South Orlando Ave in Maitland.",
+    "local_tip": "Enzian is home of Eden Bar and the Florida Film Festival.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://enzian.org/about/"
+     ],
+     "why_here": [
+      "https://enzian.org/about/"
+     ],
+     "know_before": [
+      "https://enzian.org/about/"
+     ],
+     "local_tip": [
+      "https://enzian.org/about/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Enzian is Central Florida's only full-time, not-for-profit independent cinema",
+      "source": "https://enzian.org/about/"
+     },
+     {
+      "claim": "Enzian is home of Eden Bar and the Florida Film Festival",
+      "source": "https://enzian.org/about/"
+     },
+     {
+      "claim": "Enzian is a single-screen cinema caf\u00e9 offering mostly independent & foreign films with two unique dining options",
+      "source": "https://enzian.org/about/"
+     },
+     {
+      "claim": "At Enzian, you will experience a fusion of food and film",
+      "source": "https://enzian.org/about/"
+     },
+     {
+      "claim": "Enzian is at 1300 South Orlando Ave, Maitland, FL 32751",
+      "source": "https://enzian.org/about/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ25LRFgCH3YgR8WrbDpf-K4A",
+   "name": "Francisca Charcoal Chicken & Meats | Orlando",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "latin_american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://franciscarestaurant.com/orlando/",
+     "source_name": "Francisca Charcoal Chicken & Meats | Orlando \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Francisca in Orlando is at 12325 S Orange Blossom Trl, Orlando, FL 32837",
+      "Francisca serves charcoal-grilled chicken and meats with familiar Latin flavors",
+      "Francisca in Orlando is open Monday \u2013 Sunday 11:30 a.m. \u2013 10:00 p.m.",
+      "Francisca recipes are meant to be shared with family and friends"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Charcoal-grilled chicken and meats with familiar Latin flavors in Orlando",
+    "why_here": "Francisca in Orlando serves charcoal-grilled chicken and meats with familiar Latin flavors, with recipes meant to be shared with family and friends around the table.",
+    "know_before": "Open Monday through Sunday from 11:30 a.m. to 10:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://franciscarestaurant.com/orlando/"
+     ],
+     "why_here": [
+      "https://franciscarestaurant.com/orlando/"
+     ],
+     "know_before": [
+      "https://franciscarestaurant.com/orlando/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Francisca in Orlando is at 12325 S Orange Blossom Trl, Orlando, FL 32837",
+      "source": "https://franciscarestaurant.com/orlando/"
+     },
+     {
+      "claim": "Francisca serves charcoal-grilled chicken and meats with familiar Latin flavors",
+      "source": "https://franciscarestaurant.com/orlando/"
+     },
+     {
+      "claim": "Francisca in Orlando is open Monday \u2013 Sunday 11:30 a.m. \u2013 10:00 p.m.",
+      "source": "https://franciscarestaurant.com/orlando/"
+     },
+     {
+      "claim": "Francisca recipes are meant to be shared with family and friends",
+      "source": "https://franciscarestaurant.com/orlando/"
+     }
+    ]
+   }
+  }
+ ]
+}

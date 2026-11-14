@@ -10,7 +10,7 @@
 import assert from "node:assert/strict";
 import { placePhotoServable, uncreditedPlacePhotoId } from "../lib/placePhotoServable.js";
 import { resolvePlacePhoto } from "../lib/placePhotoServe.js";
-import { christmasTicketsModel, withChristmasTicketPhotos, withBrowseTicketPhotos, attachBrowseTickets } from "../lib/christmasTickets.js";
+import { christmasTicketsModel, withChristmasTicketPhotos, withBrowseTicketPhotos, attachBrowseTickets, dropUnservableCardPhotos } from "../lib/christmasTickets.js";
 
 let n = 0;
 const ok = (c, m) => { assert.ok(c, m); n += 1; };
@@ -18,7 +18,11 @@ const GOODWOOD = "ChIJn2JUR3Bf7IgRDoeGio3YFuE";
 const URL_G = "/api/photo?place=" + GOODWOOD + "&g=2&w=640";
 
 // URL classifier
+const ROBERTS = "ChIJYybWKcrvwogRT8I06QALhdI";
+const URL_ROBERTS_REF = "/api/photo?ref=places%2F" + ROBERTS + "%2Fphotos%2Fwfplacediscovery&w=800";
 ok(uncreditedPlacePhotoId(URL_G) === GOODWOOD, "plain place url recognised");
+ok(uncreditedPlacePhotoId(URL_ROBERTS_REF) === ROBERTS, "wfplacediscovery pseudo-ref url without s= recognised");
+ok(uncreditedPlacePhotoId(URL_ROBERTS_REF + "&s=card") === "", "wfplacediscovery pseudo-ref url with s= is not judged here");
 ok(uncreditedPlacePhotoId("/api/photo?place=" + GOODWOOD + "&s=card&g=2") === "", "credited surface url is not judged here");
 ok(uncreditedPlacePhotoId("/api/photo?ref=places%2Fx%2Fphotos%2Fy&g=2") === "", "ref url ignored");
 ok(uncreditedPlacePhotoId("/events/christmas/x.webp") === "" && uncreditedPlacePhotoId(null) === "", "non api urls ignored");
@@ -34,13 +38,16 @@ ok((await placePhotoServable(GOODWOOD, { ...dead, findFree: async () => ({ src: 
 ok((await placePhotoServable(GOODWOOD, { noMemo: true, findFree: async () => null, resolve: async () => ({ type: "redirect", location: "https://img.example/x.jpg" }) })) === true, "an owned inventory photo makes it servable");
 ok((await placePhotoServable(GOODWOOD, { noMemo: true, resolve: async () => { throw new Error("db down"); } })) === true, "if the check itself fails, keep the image (client tile fallback still covers it)");
 
-const mk = (id, image, placeId = GOODWOOD) => ({
-  kind: "event", id, title: "T " + id, name: "T " + id, city: "Tallahassee", venue: "Goodwood Museum and Gardens",
-  start_date: "2026-12-01", end_date: "2026-12-20", season_undated: false, closing_unannounced: false,
-  christmasRail: "lights", browse_categories: ["lights"], audience: "family", price_kind: "paid", is_free: false,
-  price_label: "Ticketed", price_note: "$20", official_ticket_url: "https://tickets.example.org/buy",
-  image, placeholder: { icon: "✨", label: "Holiday lights" }, place_id: placeId, detailHref: null,
-});
+function holidayCard(id, image, placeId = GOODWOOD) {
+  return {
+    kind: "event", id, title: "T " + id, name: "T " + id, city: "Tallahassee", venue: "Goodwood Museum and Gardens",
+    start_date: "2026-12-01", end_date: "2026-12-20", season_undated: false, closing_unannounced: false,
+    christmasRail: "lights", browse_categories: ["lights"], audience: "family", price_kind: "paid", is_free: false,
+    price_label: "Ticketed", price_note: "$20", official_ticket_url: "https://tickets.example.org/buy",
+    image, placeholder: { icon: "✨", label: "Holiday lights" }, place_id: placeId, detailHref: null,
+  };
+}
+const mk = (id, image, placeId = GOODWOOD) => holidayCard(id, image, placeId);
 const TODAY = "2026-11-20";
 const base = { noMemo: true, readTagged: async () => [], readGoogle: async () => null, readVault: async () => [] };
 
@@ -80,6 +87,49 @@ const base = { noMemo: true, readTagged: async () => [], readGoogle: async () =>
   ok(onlyPlaces.cards[0].image === null, "a page of only place cards is processed too (no early return)");
   const keep = await withBrowseTicketPhotos(withTix, listings, TODAY, new Map(), { ...base, servable: { noMemo: true, findFree: async () => ({ src: "x" }), resolve: realResolve } });
   ok(keep.cards.find((c) => c.id === "ev").image === URL_G, "control: servable browse image kept");
+}
+
+// Place cards fall back to the venue's own stored photo (live 2026-11-12: 14 of
+// 15 "Photo unavailable" place cards on /christmas-in-florida had a ready,
+// credited stored photo the card never read).
+{
+  const STORED = { src: "/api/photo/stored/" + GOODWOOD + "?v=" + "b".repeat(64), width: 1280, height: 853, source: "google", credit: { authors: [{ name: "Venue Owner", uri: "https://maps.google.com/v" }] } };
+  const asked = [];
+  const readGoogle = async (id) => { asked.push(id); return STORED; };
+  const place = { kind: "place", id: "pl2", title: "Decorated Bar", name: "Decorated Bar", venue: "Decorated Bar", image: URL_G, place_id: GOODWOOD, christmasRail: "popup-bars", tags: [] };
+  const onlyPlace = await withBrowseTicketPhotos({ cards: [place], total: 1 }, [], TODAY, new Map(), { ...base, servable: dead, readGoogle });
+  const pc = onlyPlace.cards[0];
+  ok(pc.image === null, "the dead place URL is still dropped first");
+  ok(Array.isArray(pc.photos) && pc.photos.length === 1 && pc.photos[0].src === STORED.src && pc.photos[0].source === "google", "the place card now shows its stored venue photo instead of the tile");
+  ok(/Venue Owner/.test(pc.photos[0].credit) && /Google Maps/.test(pc.photos[0].credit), "the stored photo carries its visible credit");
+  ok(asked.length === 1 && asked[0] === GOODWOOD, "it asked the store once, for the card's own place id");
+  const mixed = [place, { ...mk("ev3", URL_G), imageIsVenue: true }];
+  const mixedOut = await withBrowseTicketPhotos(attachBrowseTickets({ cards: mixed, total: 2 }, [mixed[1]], TODAY, new Map()), [mixed[1]], TODAY, new Map(), { ...base, servable: dead, readGoogle });
+  ok(mixedOut.cards.find((c) => c.id === "pl2").photos?.[0]?.src === STORED.src, "the same fallback runs on a page that also has event cards");
+  // Controls: no stored photo keeps the designed tile; a card with a working photo is never touched.
+  const none = await withBrowseTicketPhotos({ cards: [place], total: 1 }, [], TODAY, new Map(), { ...base, servable: dead });
+  ok(none.cards[0].image === null && !(none.cards[0].photos || []).length && none.cards[0].placeholder, "control: no stored photo still paints the tile");
+  asked.length = 0;
+  const live = await withBrowseTicketPhotos({ cards: [{ ...place, id: "pl3", image: "/events/christmas/stetson-mansion-christmas-2026-2.webp" }], total: 1 }, [], TODAY, new Map(), { ...base, servable: dead, readGoogle });
+  ok(live.cards[0].image === "/events/christmas/stetson-mansion-christmas-2026-2.webp" && !live.cards[0].photos && asked.length === 0, "control: a place card with a working photo is untouched and the store is not asked");
+  const uncredited = await withBrowseTicketPhotos({ cards: [{ ...place, id: "pl4" }], total: 1 }, [], TODAY, new Map(), { ...base, servable: dead, readGoogle: async () => ({ ...STORED, credit: { authors: [] } }) });
+  ok(!(uncredited.cards[0].photos || []).length, "a stored photo with no author credit is never shown");
+}
+
+// Vercel prebuild has a service key. GitHub CI and a laptop do not.
+// The composition guard injects readers and uses fixture place ids. Those ids
+// are not in inventory, so a live lookup drops the photo the guard is counting.
+// A page render passes no readers and must still drop a place the store cannot serve.
+// These are fixture writes. The guard does not read the shell.
+{
+  process.env.SUPABASE_URL = "http://127.0.0.1:9";
+  process.env.SUPABASE_SERVICE_ROLE_KEY = "guard-dummy-not-a-secret";
+  delete process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const m = christmasTicketsModel([holidayCard("herm", URL_G)], TODAY);
+  const hermetic = await withChristmasTicketPhotos(m, { ...base });
+  ok(hermetic.rows[0].photos.length === 1 && hermetic.rows[0].photos[0].src === URL_G, "injected readers never ask the build machine's Supabase, so a fixture place photo stays");
+  const live = await dropUnservableCardPhotos({ ...holidayCard("live", URL_G), imageIsVenue: true }, {});
+  ok(live.image === null && live.placeholder, "a page render with a service key still drops a place the store cannot serve");
 }
 
 console.log(`test-christmas-unservable-photo: ${n} assertions OK (real resolvePlacePhoto run on the Goodwood inventory row)`);

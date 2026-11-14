@@ -567,6 +567,16 @@ const histDays = (n, devices = 40, extra = {}) => Array.from({ length: n }, (_, 
   ok(!JSON.stringify(visitorProbe).includes("private-session") && !JSON.stringify(visitorProbe).includes("private-visit"), "visitor source: visitorStory never returns correlation ids");
   const visitorQuery = visitorQueries.find((query) => /page_active_time/.test(query)) || "";
   const diagnosticQuery = visitorQueries.find((query) => /places_none/.test(query)) || "";
+  // 2026-11-10: the daily report counted crawler-refused partner redirects as
+  // "visitors hitting a failed partner link" (409 of 411 that day were crawlers).
+  // Assert on the ISSUED diagnostics query: failures from automated traffic
+  // classes are excluded, and the exclusion is scoped to provider_redirect_failed
+  // only (app errors, empty results etc. must still count every row).
+  ok(/provider_redirect_failed/.test(diagnosticQuery), "visitor diagnostics: the issued query still reads partner redirect failures");
+  ok(/NOT \(event = 'provider_redirect_failed' AND coalesce\(toString\(properties\.traffic_class\), ''\) IN \('crawler', 'qa', 'synthetic', 'prefetch'\)\)/.test(diagnosticQuery),
+    "visitor diagnostics: crawler/qa/synthetic/prefetch partner redirect failures are excluded from the report (missing class still counts)");
+  ok(!/traffic_class\) = 'human'/.test(diagnosticQuery.split("GROUP BY")[0].replace(/NOT \(event = 'provider_redirect_failed'[^)]*\)\)/, "")),
+    "visitor diagnostics: no blanket human-only filter that would hide non-redirect diagnostics");
   // The story classifies bots itself so it can show raw vs filtered: PostHog's
   // flag must arrive as a COLUMN, and must NOT be filtered away in SQL.
   ok(/LIMIT 50001/.test(visitorQuery) && /properties\.\$virt_is_bot AS ph_bot/.test(visitorQuery) && !/\$virt_is_bot\), 'false'\) NOT IN/.test(visitorQuery) && !/\{wayfind/.test(visitorQuery), "visitor source: report query is bounded, carries the bot flag as a column, and leaves no unresolved scope placeholder");

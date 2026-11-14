@@ -29,6 +29,9 @@ import NativeOfflineOverlay from "./components/NativeOfflineOverlay";
 // Boo, the Halloween companion (Oct 1 to Nov 1). The loader is a client component
 // holding the next/dynamic ssr:false boundary (scripts/check-boo-companion.mjs).
 import BooCompanionLoader from "./components/BooCompanionLoader";
+import { SANTA_DOCK_ROOT_CSS } from "./components/santaDockMetrics.js";
+import { styleHtml } from "../lib/styleHtml.js";
+import WayfindPlannerLoader from "./components/WayfindPlannerLoader";
 
 // Origin of the Supabase photo vault, for the preconnect hint below. Server-only
 // read (never a NEXT_PUBLIC_* template href); an invalid/missing URL renders no hint.
@@ -42,8 +45,8 @@ export const metadata = {
   // GSC (owner-approved #4): paste the Search Console token into the
   // GOOGLE_SITE_VERIFICATION env var on Vercel — no code change needed.
   ...(process.env.GOOGLE_SITE_VERIFICATION ? { verification: { google: process.env.GOOGLE_SITE_VERIFICATION } } : {}),
-  title: "Wayfind: Find the Best Things to Do Near You, Right Now",
-  description: "Wayfind decides what's actually worth your time — who you're with, when you go, your budget, and how far you'll drive. Payment never changes a score.",
+  title: "Wayfind | One place worth leaving home for",
+  description: "Wayfind decides what's actually worth your time. Places are ranked on merit. Rankings are never for sale.",
   manifest: "/manifest.webmanifest",
   icons: {
     icon: [
@@ -60,8 +63,8 @@ export const metadata = {
     title: "Wayfind",
   },
   openGraph: {
-    title: "Wayfind: Find the Best Things to Do Near You, Right Now",
-    description: "Wayfind decides what's actually worth your time — who you're with, when you go, your budget, and how far you'll drive. Payment never changes a score.",
+    title: "Wayfind | One place worth leaving home for",
+    description: "Wayfind decides what's actually worth your time. Places are ranked on merit. Rankings are never for sale.",
     url: SITE_URL,
     siteName: "Wayfind",
     type: "website",
@@ -70,14 +73,14 @@ export const metadata = {
         url: "/api/og",
         width: 1200,
         height: 630,
-        alt: "Wayfind — local recommendations for things to do, places to eat, and travel planning",
+        alt: "Wayfind. One place worth leaving home for.",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Wayfind: Find the Best Things to Do Near You, Right Now",
-    description: "Wayfind decides what's actually worth your time — who you're with, when you go, your budget, and how far you'll drive. Payment never changes a score.",
+    title: "Wayfind | One place worth leaving home for",
+    description: "Wayfind decides what's actually worth your time. Places are ranked on merit. Rankings are never for sale.",
     images: ["/api/og"],
   },
 };
@@ -249,7 +252,10 @@ export default function RootLayout({ children }) {
         >
           Skip to main content
         </a>
-        <style dangerouslySetInnerHTML={{ __html: ".wf-skip-link:focus{left:0 !important}"
+        <style dangerouslySetInnerHTML={styleHtml(".wf-skip-link:focus{left:0 !important}"
+          // Santa's dock height, on html with the document (santaDockMetrics.js): a root
+          // custom property that first appears when the dock mounts re-styles the whole page.
+          + SANTA_DOCK_ROOT_CSS
           // Premium redesign (v5.55): global accessibility floor for motion +
           // focus. prefers-reduced-motion collapses every animation/transition
           // to near-instant (the spec requires it "everywhere"); a consistent
@@ -274,8 +280,7 @@ export default function RootLayout({ children }) {
           // global 16px floor is the fix that KEEPS pinch-zoom working (we do NOT
           // re-add user-scalable=no). Inline field styles below 16 are bumped too,
           // since an inline font-size overrides this rule.
-          + "input,select,textarea{font-size:16px}"
-        }} />
+          + "input,select,textarea{font-size:16px}")} />
         <link rel="preconnect" href="https://lh3.googleusercontent.com" />
         {/* The photo vault. Most rail images 302 from /api/photo to the Supabase
             Storage render endpoint; without this the handshake to that host
@@ -350,10 +355,11 @@ export default function RootLayout({ children }) {
         <div id="wf-scroll">
         <main id="wf-main" style={{ minHeight: "100dvh" }}>{children}</main>
         <BooCompanionLoader />
+        <WayfindPlannerLoader />
         {/* v4.55 PROTECTED (check-seo.mjs): server-rendered SEO layer. A real
             H1, description, and crawlable links to guides, cities, and legal
             pages, rendered below the app so the visual design is untouched. */}
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@graph": [{ "@type": "WebSite", name: "Wayfind", url: SITE_URL, description: "Find great things to do near you, right now.", potentialAction: { "@type": "SearchAction", target: { "@type": "EntryPoint", urlTemplate: SITE_URL + "/?q={search_term_string}" }, "query-input": "required name=search_term_string" } }, { "@type": "Organization", name: "WAYFIND LLC", url: SITE_URL, email: "hello@gowayfind.com", logo: SITE_URL + "/icon-512.png", sameAs: ["https://www.instagram.com/gowayfind.app/"] }] }) }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@graph": [{ "@type": "WebSite", name: "Wayfind", url: SITE_URL, description: "Wayfind decides what's actually worth your time. Places are ranked on merit. Rankings are never for sale.", potentialAction: { "@type": "SearchAction", target: { "@type": "EntryPoint", urlTemplate: SITE_URL + "/?q={search_term_string}" }, "query-input": "required name=search_term_string" } }, { "@type": "Organization", name: "WAYFIND LLC", url: SITE_URL, email: "hello@gowayfind.com", logo: SITE_URL + "/icon-512.png", sameAs: ["https://www.instagram.com/gowayfind.app/"] }] }) }} />
         {/* v6.44: on "/" this footer is the last thing standing between the app
             and a document that is exactly as tall as the screen. FooterVeil
             keeps every link in the rendered DOM for crawlers and removes it

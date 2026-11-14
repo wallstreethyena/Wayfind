@@ -1,0 +1,1652 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 38. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJ6eijvSPH2YgRa8l50sdaCh0",
+   "name": "Off The Wall Kendall",
+   "category": "attractions",
+   "metro": "miami-dade",
+   "primary_type": "amusement_center",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.offthewallgamezone.com/attractions/kendall",
+     "source_name": "Off The Wall Kendall \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Off The Wall Gamezone in Kendall features massive trampoline courts and a fully-loaded arcade game room",
+      "Duckpin Bowling is available at Off The Wall Gamezone Kendall",
+      "Trampoline Open Jump is unlimited freestyle jumping across wall-to-wall trampolines",
+      "Official OTW Grip Socks are strictly required for all participants on trampoline courts",
+      "Kendall hours on Monday to Thursday are 3 p.m. to 9 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Park in Kendall with massive trampoline courts and a fully-loaded arcade game room",
+    "why_here": "Go for massive trampoline courts, a fully-loaded arcade game room, Duckpin Bowling, and Trampoline Open Jump across wall-to-wall trampolines in Kendall.",
+    "know_before": "Official OTW Grip Socks are strictly required for all participants on trampoline courts",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.offthewallgamezone.com/attractions/kendall"
+     ],
+     "why_here": [
+      "https://www.offthewallgamezone.com/attractions/kendall"
+     ],
+     "know_before": [
+      "https://www.offthewallgamezone.com/attractions/kendall"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Off The Wall Gamezone in Kendall features massive trampoline courts and a fully-loaded arcade game room",
+      "source": "https://www.offthewallgamezone.com/attractions/kendall"
+     },
+     {
+      "claim": "Duckpin Bowling is available at Off The Wall Gamezone Kendall",
+      "source": "https://www.offthewallgamezone.com/attractions/kendall"
+     },
+     {
+      "claim": "Trampoline Open Jump is unlimited freestyle jumping across wall-to-wall trampolines",
+      "source": "https://www.offthewallgamezone.com/attractions/kendall"
+     },
+     {
+      "claim": "Official OTW Grip Socks are strictly required for all participants on trampoline courts",
+      "source": "https://www.offthewallgamezone.com/attractions/kendall"
+     },
+     {
+      "claim": "Kendall hours on Monday to Thursday are 3 p.m. to 9 p.m.",
+      "source": "https://www.offthewallgamezone.com/attractions/kendall"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ6QXTcYS22YgR0ZMsL-hzFhM",
+   "name": "Panamericano Bar",
+   "category": "nightlife",
+   "metro": "miami-dade",
+   "primary_type": "bar",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.panamericanobar.com/",
+     "source_name": "Panamericano Bar \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Panamericano is a hidden speakeasy behind Novecento in Mary Brickell Village",
+      "Panamericano is at 900 S Miami Ave, 2nd floor, in Miami",
+      "Hours are Tuesday to Thursday from 5 p.m. to 12 a.m. and Friday to Saturday from 5 p.m. to 2 a.m.",
+      "Happy hour is Tuesday to Saturday from 5 p.m. to 8 p.m. with $12 cocktails",
+      "Walk-ins are welcome and reservations are recommended on Friday and Saturday",
+      "To find the entrance, find the door and press the buzzer"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Hidden speakeasy behind Novecento in Mary Brickell Village",
+    "why_here": "Go for a hidden speakeasy behind Novecento in Mary Brickell Village, with happy hour Tuesday to Saturday from 5 p.m. to 8 p.m. and $12 cocktails.",
+    "know_before": "To find the entrance, find the door and press the buzzer",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.panamericanobar.com/"
+     ],
+     "why_here": [
+      "https://www.panamericanobar.com/"
+     ],
+     "know_before": [
+      "https://www.panamericanobar.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Panamericano is a hidden speakeasy behind Novecento in Mary Brickell Village",
+      "source": "https://www.panamericanobar.com/"
+     },
+     {
+      "claim": "Panamericano is at 900 S Miami Ave, 2nd floor, in Miami",
+      "source": "https://www.panamericanobar.com/"
+     },
+     {
+      "claim": "Hours are Tuesday to Thursday from 5 p.m. to 12 a.m. and Friday to Saturday from 5 p.m. to 2 a.m.",
+      "source": "https://www.panamericanobar.com/"
+     },
+     {
+      "claim": "Happy hour is Tuesday to Saturday from 5 p.m. to 8 p.m. with $12 cocktails",
+      "source": "https://www.panamericanobar.com/"
+     },
+     {
+      "claim": "Walk-ins are welcome and reservations are recommended on Friday and Saturday",
+      "source": "https://www.panamericanobar.com/"
+     },
+     {
+      "claim": "To find the entrance, find the door and press the buzzer",
+      "source": "https://www.panamericanobar.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJaXsM-yLY2IgRxGrj1nZrF8k",
+   "name": "Fun Depot",
+   "category": "attractions",
+   "metro": "palm-beach",
+   "primary_type": "amusement_center",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://fundepot.com/",
+     "source_name": "Fun Depot \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Fun Depot is at 2003 10th Ave N, Lake Worth Beach, FL 33461",
+      "Cordial Alley Bowling at Fun Depot includes 20 bowling lanes",
+      "Go Karts at Fun Depot run on a 1/2 mile speedway and riders must be at least 54 inches tall",
+      "Family Fun Night is on Tuesdays and Thursdays from 5 p.m. to 11 p.m. with unlimited arcade games"
+     ]
+    },
+    {
+     "source": "https://fundepot.com/pricing-hours/",
+     "source_name": "Fun Depot \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Fun Depot hours on Saturday are 10:00 a.m. to 12:00 a.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Family entertainment center in Lake Worth Beach with bowling lanes, Go Karts, and arcade games",
+    "why_here": "Go for Cordial Alley Bowling, Go Karts on a 1/2 mile speedway, and arcade games at Fun Depot in Lake Worth Beach, with Family Fun Night on Tuesdays and Thursdays.",
+    "know_before": "Fun Depot hours on Saturday are 10:00 a.m. to 12:00 a.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://fundepot.com/"
+     ],
+     "why_here": [
+      "https://fundepot.com/"
+     ],
+     "know_before": [
+      "https://fundepot.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Fun Depot is at 2003 10th Ave N, Lake Worth Beach, FL 33461",
+      "source": "https://fundepot.com/"
+     },
+     {
+      "claim": "Cordial Alley Bowling at Fun Depot includes 20 bowling lanes",
+      "source": "https://fundepot.com/"
+     },
+     {
+      "claim": "Go Karts at Fun Depot run on a 1/2 mile speedway and riders must be at least 54 inches tall",
+      "source": "https://fundepot.com/"
+     },
+     {
+      "claim": "Fun Depot hours on Saturday are 10:00 a.m. to 12:00 a.m.",
+      "source": "https://fundepot.com/pricing-hours/"
+     },
+     {
+      "claim": "Family Fun Night is on Tuesdays and Thursdays from 5 p.m. to 11 p.m. with unlimited arcade games",
+      "source": "https://fundepot.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJwSLRdFy22YgRbVcRmEcIJrw",
+   "name": "Juanchi's Burgers",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "hamburger_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://juanchisburgers.com/",
+     "source_name": "Juanchi's Burgers \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Juanchi's Burgers is at 1247 Coral Way, Miami, FL 33145",
+      "Juanchi's Burgers hours on Monday are 12:00 p.m. to 9:30 p.m.",
+      "The meats, sauces and breads at Juanchi's Burgers are original recipes",
+      "Juanchi's Burgers food is handmade"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Handmade burgers with meats, sauces and breads from original recipes",
+    "why_here": "Go for handmade burgers with original recipes for the meats, sauces and breads at Juanchi's Burgers, open on Monday from 12:00 p.m. to 9:30 p.m. for handmade food.",
+    "know_before": "Hours on Monday are 12:00 p.m. to 9:30 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://juanchisburgers.com/"
+     ],
+     "why_here": [
+      "https://juanchisburgers.com/"
+     ],
+     "know_before": [
+      "https://juanchisburgers.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Juanchi's Burgers is at 1247 Coral Way, Miami, FL 33145",
+      "source": "https://juanchisburgers.com/"
+     },
+     {
+      "claim": "Juanchi's Burgers hours on Monday are 12:00 p.m. to 9:30 p.m.",
+      "source": "https://juanchisburgers.com/"
+     },
+     {
+      "claim": "The meats, sauces and breads at Juanchi's Burgers are original recipes",
+      "source": "https://juanchisburgers.com/"
+     },
+     {
+      "claim": "Juanchi's Burgers food is handmade",
+      "source": "https://juanchisburgers.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJdVwPLl3g2IgRcDiFqANTgKY",
+   "name": "Latitudes Delray Sands Resort",
+   "category": "food",
+   "metro": "palm-beach",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.opalcollection.com/delray-sands/restaurants/latitudes/",
+     "source_name": "Latitudes Delray Sands Resort \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Latitudes is Delray Sands Resort's oceanfront restaurant and lounge",
+      "Latitudes serves Atlantic-inspired cuisine with a seafood-centric menu that showcases what is fresh, alongside burgers and wraps",
+      "Latitudes has five dining spaces, including the Ocean Terrace, the Chef's Seafood Bar, and the Wave Pool Bar",
+      "Breakfast at Latitudes is daily from 7:00 a.m. to 11:00 a.m. and dinner is daily from 5:00 p.m. to 9:30 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Oceanfront restaurant and lounge at Delray Sands Resort with a seafood-centric menu",
+    "why_here": "Go for Atlantic-inspired, seafood-centric dining at Latitudes, the oceanfront restaurant and lounge at Delray Sands Resort, with the Ocean Terrace and the Chef's Seafood Bar among five dining spaces.",
+    "know_before": "Breakfast at Latitudes is daily from 7:00 a.m. to 11:00 a.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.opalcollection.com/delray-sands/restaurants/latitudes/"
+     ],
+     "why_here": [
+      "https://www.opalcollection.com/delray-sands/restaurants/latitudes/"
+     ],
+     "know_before": [
+      "https://www.opalcollection.com/delray-sands/restaurants/latitudes/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Latitudes is Delray Sands Resort's oceanfront restaurant and lounge",
+      "source": "https://www.opalcollection.com/delray-sands/restaurants/latitudes/"
+     },
+     {
+      "claim": "Latitudes serves Atlantic-inspired cuisine with a seafood-centric menu that showcases what is fresh, alongside burgers and wraps",
+      "source": "https://www.opalcollection.com/delray-sands/restaurants/latitudes/"
+     },
+     {
+      "claim": "Latitudes has five dining spaces, including the Ocean Terrace, the Chef's Seafood Bar, and the Wave Pool Bar",
+      "source": "https://www.opalcollection.com/delray-sands/restaurants/latitudes/"
+     },
+     {
+      "claim": "Breakfast at Latitudes is daily from 7:00 a.m. to 11:00 a.m. and dinner is daily from 5:00 p.m. to 9:30 p.m.",
+      "source": "https://www.opalcollection.com/delray-sands/restaurants/latitudes/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJsw4PJk0C5YgRwsWVcVAFhY0",
+   "name": "St Marys Seafood & More (Georgia)",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.stmarysseafoodandmore.com/georgia-menu",
+     "source_name": "St Marys Seafood & More (Georgia) \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "St Marys Seafood & More in Georgia is at 1837 Osborne Road, St. Marys, GA 31558",
+      "St Marys Seafood & More hours are Monday to Sunday from 11:00 a.m. to 9:00 p.m.",
+      "The menu at St Marys Seafood & More includes Calamari",
+      "The menu at St Marys Seafood & More includes Salads, Pasta, and Sandwiches"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Seafood in St. Marys, Georgia, open Monday to Sunday",
+    "why_here": "Go for seafood in St. Marys, Georgia, at 1837 Osborne Road, where the menu includes Calamari, Salads, Pasta, and Sandwiches and hours run Monday to Sunday.",
+    "know_before": "St Marys Seafood & More hours are Monday to Sunday from 11:00 a.m. to 9:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.stmarysseafoodandmore.com/georgia-menu"
+     ],
+     "why_here": [
+      "https://www.stmarysseafoodandmore.com/georgia-menu"
+     ],
+     "know_before": [
+      "https://www.stmarysseafoodandmore.com/georgia-menu"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "St Marys Seafood & More in Georgia is at 1837 Osborne Road, St. Marys, GA 31558",
+      "source": "https://www.stmarysseafoodandmore.com/georgia-menu"
+     },
+     {
+      "claim": "St Marys Seafood & More hours are Monday to Sunday from 11:00 a.m. to 9:00 p.m.",
+      "source": "https://www.stmarysseafoodandmore.com/georgia-menu"
+     },
+     {
+      "claim": "The menu at St Marys Seafood & More includes Calamari",
+      "source": "https://www.stmarysseafoodandmore.com/georgia-menu"
+     },
+     {
+      "claim": "The menu at St Marys Seafood & More includes Salads, Pasta, and Sandwiches",
+      "source": "https://www.stmarysseafoodandmore.com/georgia-menu"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJKTCmiYS22YgRNSGHpL57je4",
+   "name": "SANDWICH MIAMI BRICKELL",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "sandwich_shop",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.sandwhichmiami.com/",
+     "source_name": "SANDWICH MIAMI BRICKELL \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Sand'which Miami is at 34 SW 8th St, Miami, FL 33130 with free parking",
+      "The menu at Sand'which Miami includes Breakfast, Croques, Sandwiches, Soups and Salads, and Natural Juices",
+      "Sand'which Miami serves French-inspired sandwiches",
+      "Sand'which Miami serves classic French sandwiches, fresh salads, and hearty soups"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "French-inspired sandwiches in Miami with Sandwiches, Soups and Salads",
+    "why_here": "Go for French-inspired sandwiches and classic French sandwiches at Sand'which Miami, with fresh salads, hearty soups, Croques, and Natural Juices on the menu.",
+    "know_before": "Sand'which Miami is at 34 SW 8th St, Miami, FL 33130 with free parking",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.sandwhichmiami.com/"
+     ],
+     "why_here": [
+      "https://www.sandwhichmiami.com/"
+     ],
+     "know_before": [
+      "https://www.sandwhichmiami.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Sand'which Miami is at 34 SW 8th St, Miami, FL 33130 with free parking",
+      "source": "https://www.sandwhichmiami.com/"
+     },
+     {
+      "claim": "The menu at Sand'which Miami includes Breakfast, Croques, Sandwiches, Soups and Salads, and Natural Juices",
+      "source": "https://www.sandwhichmiami.com/"
+     },
+     {
+      "claim": "Sand'which Miami serves French-inspired sandwiches",
+      "source": "https://www.sandwhichmiami.com/"
+     },
+     {
+      "claim": "Sand'which Miami serves classic French sandwiches, fresh salads, and hearty soups",
+      "source": "https://www.sandwhichmiami.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ3WukEtXFwogRBVjhaWySiao",
+   "name": "Sanwa Farmer's Market",
+   "category": "shopping",
+   "metro": "tampa",
+   "primary_type": "grocery_store",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://sanwafoodgroup.com/retail/",
+     "source_name": "Sanwa Farmer's Market \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Sanwa Farmer's Market has a huge selection of multicultural foods and flavors as well as top quality national brands",
+      "Sanwa Farmer's Market is a warehouse club style market open to the public with no membership fees",
+      "At Sanwa Farmer's Market, shoppers can purchase by piece, case or pallet",
+      "Sanwa Farmer's Market has a multi-lingual staff and service seven days a week"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Warehouse club style market open to the public with no membership fees",
+    "why_here": "Go for a huge selection of multicultural foods and flavors at Sanwa Farmer's Market, a warehouse club style market open to the public where shoppers can purchase by piece, case or pallet.",
+    "know_before": "No membership fees apply at Sanwa Farmer's Market, with service seven days a week.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://sanwafoodgroup.com/retail/"
+     ],
+     "why_here": [
+      "https://sanwafoodgroup.com/retail/"
+     ],
+     "know_before": [
+      "https://sanwafoodgroup.com/retail/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Sanwa Farmer's Market has a huge selection of multicultural foods and flavors as well as top quality national brands",
+      "source": "https://sanwafoodgroup.com/retail/"
+     },
+     {
+      "claim": "Sanwa Farmer's Market is a warehouse club style market open to the public with no membership fees",
+      "source": "https://sanwafoodgroup.com/retail/"
+     },
+     {
+      "claim": "At Sanwa Farmer's Market, shoppers can purchase by piece, case or pallet",
+      "source": "https://sanwafoodgroup.com/retail/"
+     },
+     {
+      "claim": "Sanwa Farmer's Market has a multi-lingual staff and service seven days a week",
+      "source": "https://sanwafoodgroup.com/retail/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJHxcB0vPEwogR3fFnuF_MWmg",
+   "name": "Yacht StarShip Cruises & Events",
+   "category": "attractions",
+   "metro": "tampa",
+   "primary_type": "event_venue",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://yachtstarship.com/about-us",
+     "source_name": "Yacht StarShip Cruises & Events \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Yacht StarShip is a 180-foot luxury dining vessel built in 2000 in Biloxi, Mississippi",
+      "Yacht StarShip Downtown Tampa location is 603 Channelside Dr, Tampa, FL 33602",
+      "Yacht StarShip Clearwater Beach location is 25 Causeway Boulevard Slip #55, Clearwater, FL 33767",
+      "Yacht StarShip Dining Cruises, LLC now employs 250 people"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Dining cruises aboard a 180-foot luxury dining vessel",
+    "why_here": "Go for dining aboard a 180-foot luxury dining vessel from Downtown Tampa, with a location at Clearwater Beach for cruises aboard a vessel built in 2000 in Biloxi, Mississippi.",
+    "know_before": "Yacht StarShip Downtown Tampa location is 603 Channelside Dr, Tampa, FL 33602.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://yachtstarship.com/about-us"
+     ],
+     "why_here": [
+      "https://yachtstarship.com/about-us"
+     ],
+     "know_before": [
+      "https://yachtstarship.com/about-us"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Yacht StarShip is a 180-foot luxury dining vessel built in 2000 in Biloxi, Mississippi",
+      "source": "https://yachtstarship.com/about-us"
+     },
+     {
+      "claim": "Yacht StarShip Downtown Tampa location is 603 Channelside Dr, Tampa, FL 33602",
+      "source": "https://yachtstarship.com/about-us"
+     },
+     {
+      "claim": "Yacht StarShip Clearwater Beach location is 25 Causeway Boulevard Slip #55, Clearwater, FL 33767",
+      "source": "https://yachtstarship.com/about-us"
+     },
+     {
+      "claim": "Yacht StarShip Dining Cruises, LLC now employs 250 people",
+      "source": "https://yachtstarship.com/about-us"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJbZjmtIJF5ogR7YHsQYeZYg8",
+   "name": "Silver Glen Springs Recreation Area",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.fs.usda.gov/r08/florida/recreation/silver-glen-springs-recreation-area",
+     "source_name": "Silver Glen Springs Recreation Area \u2014 official source",
+     "source_class": "government",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Silver Glen Springs is a popular day-use recreation area and an important archaeological site",
+      "Silver Glen Springs has constant 73 \u00b0F crystal-clear water and is a popular swimming hole",
+      "Silver Glen Springs is a first magnitude spring that maintains a year round water temperature of 72 degrees Fahrenheit",
+      "Kayak and canoe rentals are available for a trip down Silver Glen Run",
+      "Silver Glen Springs has 58 picnic tables and 30 pedestal grills",
+      "Diving or SCUBA diving are not allowed at Silver Glen Springs"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "First magnitude spring with crystal-clear water for swimming",
+    "why_here": "Go to swim in constant 73 \u00b0F crystal-clear water at a first magnitude spring, rent a kayak or canoe for a trip down Silver Glen Run, and use 58 picnic tables and 30 pedestal grills.",
+    "know_before": "Diving or SCUBA diving are not allowed at Silver Glen Springs.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.fs.usda.gov/r08/florida/recreation/silver-glen-springs-recreation-area"
+     ],
+     "why_here": [
+      "https://www.fs.usda.gov/r08/florida/recreation/silver-glen-springs-recreation-area"
+     ],
+     "know_before": [
+      "https://www.fs.usda.gov/r08/florida/recreation/silver-glen-springs-recreation-area"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Silver Glen Springs is a popular day-use recreation area and an important archaeological site",
+      "source": "https://www.fs.usda.gov/r08/florida/recreation/silver-glen-springs-recreation-area"
+     },
+     {
+      "claim": "Silver Glen Springs has constant 73 \u00b0F crystal-clear water and is a popular swimming hole",
+      "source": "https://www.fs.usda.gov/r08/florida/recreation/silver-glen-springs-recreation-area"
+     },
+     {
+      "claim": "Silver Glen Springs is a first magnitude spring that maintains a year round water temperature of 72 degrees Fahrenheit",
+      "source": "https://www.fs.usda.gov/r08/florida/recreation/silver-glen-springs-recreation-area"
+     },
+     {
+      "claim": "Kayak and canoe rentals are available for a trip down Silver Glen Run",
+      "source": "https://www.fs.usda.gov/r08/florida/recreation/silver-glen-springs-recreation-area"
+     },
+     {
+      "claim": "Silver Glen Springs has 58 picnic tables and 30 pedestal grills",
+      "source": "https://www.fs.usda.gov/r08/florida/recreation/silver-glen-springs-recreation-area"
+     },
+     {
+      "claim": "Diving or SCUBA diving are not allowed at Silver Glen Springs",
+      "source": "https://www.fs.usda.gov/r08/florida/recreation/silver-glen-springs-recreation-area"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJw-GD2Epn54gRLvmpmOnqDBA",
+   "name": "Fat Rosie's Taco & Tequila Bar",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "mexican_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.fatrosies.com/location/waterford-lakes/",
+     "source_name": "Fat Rosie's Taco & Tequila Bar \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Fat Rosie's is a Taco & Tequila Bar at 749 N Alafaya Trail, Orlando, FL 32828",
+      "Fat Rosie's hours are Monday - Thursday 11:00 a.m. to 10:00 p.m.",
+      "Fat Rosie's hours are Friday 11:00 a.m. to 11:00 p.m.",
+      "Fat Rosie's hours are Saturday 10:00 a.m. to 11:00 p.m. and Sunday 10:00 a.m. to 10:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Taco & Tequila Bar on Alafaya Trail in Orlando",
+    "why_here": "Go for a Taco & Tequila Bar in Orlando at Fat Rosie's, open Monday to Thursday from 11:00 a.m. to 10:00 p.m. and Friday from 11:00 a.m. to 11:00 p.m.",
+    "know_before": "Saturday hours are 10:00 a.m. to 11:00 p.m. and Sunday hours are 10:00 a.m. to 10:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.fatrosies.com/location/waterford-lakes/"
+     ],
+     "why_here": [
+      "https://www.fatrosies.com/location/waterford-lakes/"
+     ],
+     "know_before": [
+      "https://www.fatrosies.com/location/waterford-lakes/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Fat Rosie's is a Taco & Tequila Bar at 749 N Alafaya Trail, Orlando, FL 32828",
+      "source": "https://www.fatrosies.com/location/waterford-lakes/"
+     },
+     {
+      "claim": "Fat Rosie's hours are Monday - Thursday 11:00 a.m. to 10:00 p.m.",
+      "source": "https://www.fatrosies.com/location/waterford-lakes/"
+     },
+     {
+      "claim": "Fat Rosie's hours are Friday 11:00 a.m. to 11:00 p.m.",
+      "source": "https://www.fatrosies.com/location/waterford-lakes/"
+     },
+     {
+      "claim": "Fat Rosie's hours are Saturday 10:00 a.m. to 11:00 p.m. and Sunday 10:00 a.m. to 10:00 p.m.",
+      "source": "https://www.fatrosies.com/location/waterford-lakes/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ__-vNx-t2YgRneTv-60dVDw",
+   "name": "La Cabrera Sunny Isles",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "steak_house",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://lacabreramiami.com/carta/menu",
+     "source_name": "La Cabrera Sunny Isles \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "La Cabrera Miami is a Parrilla Argentina",
+      "The menu lists Grilled Argentinian provolone among its appetizers",
+      "The appetizers are from our grill, a Charcoal and Wood Grill",
+      "La Cabrera is at 17100 Collins Ave Sunny Isles Beach FL 33160, Miami, USA"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Parrilla Argentina with Grilled Argentinian provolone from a Charcoal and Wood Grill",
+    "why_here": "Go for Parrilla Argentina cooking from a Charcoal and Wood Grill, starting with Grilled Argentinian provolone listed among the appetizers on the menu at La Cabrera Miami.",
+    "know_before": "La Cabrera is at 17100 Collins Ave Sunny Isles Beach FL 33160, Miami, USA.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://lacabreramiami.com/carta/menu"
+     ],
+     "why_here": [
+      "https://lacabreramiami.com/carta/menu"
+     ],
+     "know_before": [
+      "https://lacabreramiami.com/carta/menu"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "La Cabrera Miami is a Parrilla Argentina",
+      "source": "https://lacabreramiami.com/carta/menu"
+     },
+     {
+      "claim": "The menu lists Grilled Argentinian provolone among its appetizers",
+      "source": "https://lacabreramiami.com/carta/menu"
+     },
+     {
+      "claim": "The appetizers are from our grill, a Charcoal and Wood Grill",
+      "source": "https://lacabreramiami.com/carta/menu"
+     },
+     {
+      "claim": "La Cabrera is at 17100 Collins Ave Sunny Isles Beach FL 33160, Miami, USA",
+      "source": "https://lacabreramiami.com/carta/menu"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ78hQpYpDkYgRFbgEgw1JOUA",
+   "name": "Crackings. - Destin",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "breakfast_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.crackingsfl.com/items/classic-breakfast",
+     "source_name": "Crackings. - Destin \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Classic Breakfast is two eggs any style, served with country potatoes and English muffin.",
+      "The Classic Breakfast can add bacon, sausage patties, turkey sausage links, andouille sausage, ham, or corned beef hash."
+     ]
+    },
+    {
+     "source": "https://www.crackingsfl.com/items/coastal-omelet",
+     "source_name": "Crackings. - Destin \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Crackings. hours include Sunday from 7 a.m. to 2 p.m.",
+      "Crackings., 979 Highway 98 E, Destin, FL 32541."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Two eggs any style with country potatoes and English muffin",
+    "why_here": "Try the Classic Breakfast of two eggs any style served with country potatoes and English muffin, with a choice of bacon, sausage patties, turkey sausage links, andouille sausage, ham, or corned beef hash.",
+    "know_before": "Crackings. hours include Sunday from 7 a.m. to 2 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.crackingsfl.com/items/classic-breakfast"
+     ],
+     "why_here": [
+      "https://www.crackingsfl.com/items/classic-breakfast"
+     ],
+     "know_before": [
+      "https://www.crackingsfl.com/items/classic-breakfast"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Classic Breakfast is two eggs any style, served with country potatoes and English muffin.",
+      "source": "https://www.crackingsfl.com/items/classic-breakfast"
+     },
+     {
+      "claim": "The Classic Breakfast can add bacon, sausage patties, turkey sausage links, andouille sausage, ham, or corned beef hash.",
+      "source": "https://www.crackingsfl.com/items/classic-breakfast"
+     },
+     {
+      "claim": "Crackings. hours include Sunday from 7 a.m. to 2 p.m.",
+      "source": "https://www.crackingsfl.com/items/coastal-omelet"
+     },
+     {
+      "claim": "Crackings., 979 Highway 98 E, Destin, FL 32541.",
+      "source": "https://www.crackingsfl.com/items/coastal-omelet"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJSYbrqT_Y5ogRlTer6nne5fE",
+   "name": "Dunlawton Sugar Mill Gardens",
+   "category": "attractions",
+   "metro": "ocala-fl",
+   "primary_type": "botanical_garden",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://dunlawtonsugarmillgardens.org/index.html",
+     "source_name": "Dunlawton Sugar Mill Gardens \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Dunlawton Sugar Mill Gardens is the Botanical Gardens of Volusia and is open from 8 a.m. to 7 p.m. daily",
+      "There is no admission charge at Dunlawton Sugar Mill Gardens, but donations are greatly appreciated",
+      "Visitors will see a variety of plants blooming that are food for bees and butterflies",
+      "The dinosaurs are made of a thin and fragile coating of cement and are cracking and crumbling",
+      "Picnicking is not allowed and food snacks or drinks should not be brought into the gardens"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Cement dinosaurs among blooming plants that feed bees and butterflies",
+    "why_here": "Visit Dunlawton Sugar Mill Gardens, the Botanical Gardens of Volusia, to see cement dinosaurs and a variety of plants blooming that are food for bees and butterflies during a daily visit.",
+    "know_before": "Open from 8 a.m. to 7 p.m. daily with no admission charge, but donations are greatly appreciated.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://dunlawtonsugarmillgardens.org/index.html"
+     ],
+     "why_here": [
+      "https://dunlawtonsugarmillgardens.org/index.html"
+     ],
+     "know_before": [
+      "https://dunlawtonsugarmillgardens.org/index.html"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Dunlawton Sugar Mill Gardens is the Botanical Gardens of Volusia and is open from 8 a.m. to 7 p.m. daily",
+      "source": "https://dunlawtonsugarmillgardens.org/index.html"
+     },
+     {
+      "claim": "There is no admission charge at Dunlawton Sugar Mill Gardens, but donations are greatly appreciated",
+      "source": "https://dunlawtonsugarmillgardens.org/index.html"
+     },
+     {
+      "claim": "Visitors will see a variety of plants blooming that are food for bees and butterflies",
+      "source": "https://dunlawtonsugarmillgardens.org/index.html"
+     },
+     {
+      "claim": "The dinosaurs are made of a thin and fragile coating of cement and are cracking and crumbling",
+      "source": "https://dunlawtonsugarmillgardens.org/index.html"
+     },
+     {
+      "claim": "Picnicking is not allowed and food snacks or drinks should not be brought into the gardens",
+      "source": "https://dunlawtonsugarmillgardens.org/index.html"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJi8wqgKsB2YgRMfSaPCcmN78",
+   "name": "Shuck N Dive",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "cajun_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://shuck-n-dive.com/about-chef-staz/",
+     "source_name": "Shuck N Dive \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Favorites include fresh shucked Louisiana oysters, boudin, fried green tomatoes, gumbo, red beans and rice, shrimp n grits and po-boys",
+      "The chef's daily creations include seasonal crawfish boils, jambalaya, Sunday fried chicken supper and Cajun/Creole and Southern dishes",
+      "Shuck N Dive is open at 11 a.m. Tuesday through Sunday"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Louisiana oysters, gumbo, red beans and rice, and shrimp n grits",
+    "why_here": "Try fresh shucked Louisiana oysters, boudin, fried green tomatoes, gumbo, red beans and rice, shrimp n grits and po-boys, plus seasonal crawfish boils and jambalaya from the chef's daily creations.",
+    "know_before": "Open at 11 a.m. Tuesday through Sunday.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://shuck-n-dive.com/about-chef-staz/"
+     ],
+     "why_here": [
+      "https://shuck-n-dive.com/about-chef-staz/"
+     ],
+     "know_before": [
+      "https://shuck-n-dive.com/about-chef-staz/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Favorites include fresh shucked Louisiana oysters, boudin, fried green tomatoes, gumbo, red beans and rice, shrimp n grits and po-boys",
+      "source": "https://shuck-n-dive.com/about-chef-staz/"
+     },
+     {
+      "claim": "The chef's daily creations include seasonal crawfish boils, jambalaya, Sunday fried chicken supper and Cajun/Creole and Southern dishes",
+      "source": "https://shuck-n-dive.com/about-chef-staz/"
+     },
+     {
+      "claim": "Shuck N Dive is open at 11 a.m. Tuesday through Sunday",
+      "source": "https://shuck-n-dive.com/about-chef-staz/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJYcXSi463wogRWicwgEGE3Hg",
+   "name": "Stonewood Grill & Tavern",
+   "category": "nightlife",
+   "metro": "tampa",
+   "primary_type": "bar_and_grill",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.stonewoodgrill.com/menu/index",
+     "source_name": "Stonewood Grill & Tavern \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Stonewood Grill & Tavern dinner menu includes Signature Appetizers and Soups & Salads",
+      "The dinner menu includes From The Land and From The Sea",
+      "The dinner menu includes Hand Cut Steaks and Burgers & Sandwiches",
+      "All dressings and soups are made from scratch in house"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Dinner menu with Signature Appetizers, Soups & Salads, and Hand Cut Steaks",
+    "why_here": "Go for dinner from a menu that includes Signature Appetizers and Soups & Salads, plus From The Land, From The Sea, Hand Cut Steaks, and Burgers & Sandwiches at Stonewood Grill & Tavern.",
+    "know_before": "All dressings and soups are made from scratch in house.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.stonewoodgrill.com/menu/index"
+     ],
+     "why_here": [
+      "https://www.stonewoodgrill.com/menu/index"
+     ],
+     "know_before": [
+      "https://www.stonewoodgrill.com/menu/index"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Stonewood Grill & Tavern dinner menu includes Signature Appetizers and Soups & Salads",
+      "source": "https://www.stonewoodgrill.com/menu/index"
+     },
+     {
+      "claim": "The dinner menu includes From The Land and From The Sea",
+      "source": "https://www.stonewoodgrill.com/menu/index"
+     },
+     {
+      "claim": "The dinner menu includes Hand Cut Steaks and Burgers & Sandwiches",
+      "source": "https://www.stonewoodgrill.com/menu/index"
+     },
+     {
+      "claim": "All dressings and soups are made from scratch in house",
+      "source": "https://www.stonewoodgrill.com/menu/index"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ3Vs67Tm7wogRH23xo-2MuuE",
+   "name": "Rodizio Grill Brazilian Steakhouse Wesley Chapel",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "brazilian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.rodiziogrill.com/wesley-chapel/",
+     "source_name": "Rodizio Grill Brazilian Steakhouse Wesley Chapel \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Rodizio Grill Wesley Chapel delivers rotisserie-grilled meats served tableside by servers dressed in traditional Gaucho garb",
+      "Lunch Menu: $39.99",
+      "Dinner Menu: $54.99",
+      "FULL RODIZIO includes rotisserie-grilled meats served tableside"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "rotisserie-grilled meats served tableside by servers dressed in traditional Gaucho garb",
+    "why_here": "Come for rotisserie-grilled meats served tableside by servers dressed in traditional Gaucho garb, with the FULL RODIZIO built around that tableside service at Rodizio Grill Wesley Chapel.",
+    "know_before": "Lunch Menu: $39.99 and Dinner Menu: $54.99.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.rodiziogrill.com/wesley-chapel/"
+     ],
+     "why_here": [
+      "https://www.rodiziogrill.com/wesley-chapel/"
+     ],
+     "know_before": [
+      "https://www.rodiziogrill.com/wesley-chapel/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Rodizio Grill Wesley Chapel delivers rotisserie-grilled meats served tableside by servers dressed in traditional Gaucho garb",
+      "source": "https://www.rodiziogrill.com/wesley-chapel/"
+     },
+     {
+      "claim": "Lunch Menu: $39.99",
+      "source": "https://www.rodiziogrill.com/wesley-chapel/"
+     },
+     {
+      "claim": "Dinner Menu: $54.99",
+      "source": "https://www.rodiziogrill.com/wesley-chapel/"
+     },
+     {
+      "claim": "FULL RODIZIO includes rotisserie-grilled meats served tableside",
+      "source": "https://www.rodiziogrill.com/wesley-chapel/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJuaxMK3_E5YgRNOXC4l7Kews",
+   "name": "Crafty Crab",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.craftycrabrestaurant.com/menus/",
+     "source_name": "Crafty Crab \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Crafty Crab menus list Seafood Boils with Blue Crab (Seasonal), King Crab Legs, Snow Crab Legs and Whole Shrimp",
+      "Seafood Boils can combine any items by half or full pound",
+      "Seasonings for Seafood Boils include Crafty Cajun, Buttery Garlic, Lemon Pepper and The Boom",
+      "Prices vary at each location"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Seafood Boils with King Crab Legs, Snow Crab Legs and Whole Shrimp",
+    "why_here": "Build a meal around Seafood Boils with Blue Crab (Seasonal), King Crab Legs, Snow Crab Legs and Whole Shrimp, choosing seasonings including Crafty Cajun, Buttery Garlic, and Lemon Pepper.",
+    "know_before": "Prices vary at each location for Seafood Boils.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.craftycrabrestaurant.com/menus/"
+     ],
+     "why_here": [
+      "https://www.craftycrabrestaurant.com/menus/"
+     ],
+     "know_before": [
+      "https://www.craftycrabrestaurant.com/menus/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Crafty Crab menus list Seafood Boils with Blue Crab (Seasonal), King Crab Legs, Snow Crab Legs and Whole Shrimp",
+      "source": "https://www.craftycrabrestaurant.com/menus/"
+     },
+     {
+      "claim": "Seafood Boils can combine any items by half or full pound",
+      "source": "https://www.craftycrabrestaurant.com/menus/"
+     },
+     {
+      "claim": "Seasonings for Seafood Boils include Crafty Cajun, Buttery Garlic, Lemon Pepper and The Boom",
+      "source": "https://www.craftycrabrestaurant.com/menus/"
+     },
+     {
+      "claim": "Prices vary at each location",
+      "source": "https://www.craftycrabrestaurant.com/menus/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJORDL_LJ754gRHnyXy6nlGCY",
+   "name": "Texas\u2019s Chicken & Grill",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "fast_food_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://texaschickenandgrill.com/",
+     "source_name": "Texas\u2019s Chicken & Grill \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Texas's Chicken & Grill is at 400 S Orange Blossom Trl, Orlando, FL 32805",
+      "The menu includes Chicken Sandwich and Monster Burger",
+      "The Spicy Chicken Sandwich has a crispy, golden-fried chicken fillet coated in signature spicy seasoning, topped with fresh lettuce, pickles, and creamy mayo, in a soft, toasted brioche bun",
+      "The Monster Burger has Double Beef Patty, Crispy Chicken, Cheese, Lettuce, Onion, Special Sauce, Loaded Bun"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Spicy Chicken Sandwich with crispy, golden-fried chicken fillet",
+    "why_here": "Try the Spicy Chicken Sandwich with a crispy, golden-fried chicken fillet, signature spicy seasoning, fresh lettuce, pickles, and creamy mayo in a soft, toasted brioche bun, or the Monster Burger.",
+    "know_before": "Located at 400 S Orange Blossom Trl, Orlando, FL 32805.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://texaschickenandgrill.com/"
+     ],
+     "why_here": [
+      "https://texaschickenandgrill.com/"
+     ],
+     "know_before": [
+      "https://texaschickenandgrill.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Texas's Chicken & Grill is at 400 S Orange Blossom Trl, Orlando, FL 32805",
+      "source": "https://texaschickenandgrill.com/"
+     },
+     {
+      "claim": "The menu includes Chicken Sandwich and Monster Burger",
+      "source": "https://texaschickenandgrill.com/"
+     },
+     {
+      "claim": "The Spicy Chicken Sandwich has a crispy, golden-fried chicken fillet coated in signature spicy seasoning, topped with fresh lettuce, pickles, and creamy mayo, in a soft, toasted brioche bun",
+      "source": "https://texaschickenandgrill.com/"
+     },
+     {
+      "claim": "The Monster Burger has Double Beef Patty, Crispy Chicken, Cheese, Lettuce, Onion, Special Sauce, Loaded Bun",
+      "source": "https://texaschickenandgrill.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJz4yvsVPGwogRnrM2DeWotBQ",
+   "name": "Congo River Rapids",
+   "category": "attractions",
+   "metro": "tampa",
+   "primary_type": "tourist_attraction",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://buschgardens.com/tampa/rides/congo-river-rapids/",
+     "source_name": "Congo River Rapids \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Congo River Rapids is a Water Ride at Busch Gardens Tampa Bay",
+      "This expedition will send you twirling down a racing river through Congo",
+      "Spouting jets, waterfalls and water cave enhances this drenching experience",
+      "Bystanders contribute by firing water spray jets at adventurers on the ride"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Water Ride twirling down a racing river through Congo",
+    "why_here": "Ride this Water Ride at Busch Gardens Tampa Bay for twirling down a racing river through Congo, with spouting jets, waterfalls and water cave adding to the soaking run.",
+    "know_before": "Bystanders contribute by firing water spray jets at adventurers on the ride",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://buschgardens.com/tampa/rides/congo-river-rapids/"
+     ],
+     "why_here": [
+      "https://buschgardens.com/tampa/rides/congo-river-rapids/"
+     ],
+     "know_before": [
+      "https://buschgardens.com/tampa/rides/congo-river-rapids/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Congo River Rapids is a Water Ride at Busch Gardens Tampa Bay",
+      "source": "https://buschgardens.com/tampa/rides/congo-river-rapids/"
+     },
+     {
+      "claim": "This expedition will send you twirling down a racing river through Congo",
+      "source": "https://buschgardens.com/tampa/rides/congo-river-rapids/"
+     },
+     {
+      "claim": "Spouting jets, waterfalls and water cave enhances this drenching experience",
+      "source": "https://buschgardens.com/tampa/rides/congo-river-rapids/"
+     },
+     {
+      "claim": "Bystanders contribute by firing water spray jets at adventurers on the ride",
+      "source": "https://buschgardens.com/tampa/rides/congo-river-rapids/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ5c4GVzem4IgRzeHOj2KIPE4",
+   "name": "Rising Tide Tap & Table",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.risingtidetap.com/",
+     "source_name": "Rising Tide Tap & Table \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Rising Tide Tap & Table is at 523 Glen Cheek Dr, Port Canaveral, FL 32920",
+      "Florida craft beers are featured on most of our 60 taps",
+      "Rising Tide Tap & Table burgers are hand-formed double patties",
+      "Stone-baked pizzas start with house made, artisan dough",
+      "Fresh fish, beef, and poultry are hand-cut daily"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Florida craft beers on most of our 60 taps",
+    "why_here": "Visit Rising Tide Tap & Table in Port Canaveral for Florida craft beers on most of our 60 taps, plus hand-formed double patties and stone-baked pizzas made with house made, artisan dough.",
+    "know_before": "Located at 523 Glen Cheek Dr, Port Canaveral, FL 32920.",
+    "local_tip": "Fresh fish, beef, and poultry are hand-cut daily",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.risingtidetap.com/"
+     ],
+     "why_here": [
+      "https://www.risingtidetap.com/"
+     ],
+     "know_before": [
+      "https://www.risingtidetap.com/"
+     ],
+     "local_tip": [
+      "https://www.risingtidetap.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Rising Tide Tap & Table is at 523 Glen Cheek Dr, Port Canaveral, FL 32920",
+      "source": "https://www.risingtidetap.com/"
+     },
+     {
+      "claim": "Florida craft beers are featured on most of our 60 taps",
+      "source": "https://www.risingtidetap.com/"
+     },
+     {
+      "claim": "Rising Tide Tap & Table burgers are hand-formed double patties",
+      "source": "https://www.risingtidetap.com/"
+     },
+     {
+      "claim": "Stone-baked pizzas start with house made, artisan dough",
+      "source": "https://www.risingtidetap.com/"
+     },
+     {
+      "claim": "Fresh fish, beef, and poultry are hand-cut daily",
+      "source": "https://www.risingtidetap.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJOwAbuJm32YgRGva9L0BUd0w",
+   "name": "Costazul Peruvian Cuisine",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "peruvian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://costazulmiami.com/menu/",
+     "source_name": "Costazul Peruvian Cuisine \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Costazul is at 160 Giralda Ave, Coral Gables, FL 33134",
+      "Ceviche de Corvina is Corvina marinated in fresh lime juice",
+      "Causa de Pollo is mashed yellow potatoes seasoned with lime juice and Aj\u00ed Amarillo",
+      "Costazul offers ceviches and tiraditos with traditional Peruvian ingredients"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Ceviche de Corvina and Causa de Pollo",
+    "why_here": "Go to Costazul in Coral Gables for Ceviche de Corvina and Causa de Pollo, with ceviches and tiraditos built around fresh lime juice and Peruvian flavours throughout the menu.",
+    "know_before": "Located at 160 Giralda Ave, Coral Gables, FL 33134.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://costazulmiami.com/menu/"
+     ],
+     "why_here": [
+      "https://costazulmiami.com/menu/"
+     ],
+     "know_before": [
+      "https://costazulmiami.com/menu/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Costazul is at 160 Giralda Ave, Coral Gables, FL 33134",
+      "source": "https://costazulmiami.com/menu/"
+     },
+     {
+      "claim": "Ceviche de Corvina is Corvina marinated in fresh lime juice",
+      "source": "https://costazulmiami.com/menu/"
+     },
+     {
+      "claim": "Causa de Pollo is mashed yellow potatoes seasoned with lime juice and Aj\u00ed Amarillo",
+      "source": "https://costazulmiami.com/menu/"
+     },
+     {
+      "claim": "Costazul offers ceviches and tiraditos with traditional Peruvian ingredients",
+      "source": "https://costazulmiami.com/menu/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJXUatzKYe2YgR8rzYUmjFHpE",
+   "name": "City Fish Market",
+   "category": "food",
+   "metro": "palm-beach",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://cityfishmarketboca.com/",
+     "source_name": "City Fish Market \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "City Fish Market is in Boca Raton, Florida",
+      "City Fish Market offers fresh fish and seafood",
+      "Menu includes Fish & Chips and Jumbo Lump Crab Cakes",
+      "Happy Hour is seven days a week from 4:30 p.m. to 6:30 p.m.",
+      "City Fish Market is attached to a seafood market"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Fresh fish and seafood with Fish & Chips in Boca Raton",
+    "why_here": "Come to City Fish Market in Boca Raton, Florida for fresh fish and seafood, including Fish & Chips and Jumbo Lump Crab Cakes, with a seafood market attached to the restaurant.",
+    "know_before": "Happy Hour is seven days a week from 4:30 p.m. to 6:30 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://cityfishmarketboca.com/"
+     ],
+     "why_here": [
+      "https://cityfishmarketboca.com/"
+     ],
+     "know_before": [
+      "https://cityfishmarketboca.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "City Fish Market is in Boca Raton, Florida",
+      "source": "https://cityfishmarketboca.com/"
+     },
+     {
+      "claim": "City Fish Market offers fresh fish and seafood",
+      "source": "https://cityfishmarketboca.com/"
+     },
+     {
+      "claim": "Menu includes Fish & Chips and Jumbo Lump Crab Cakes",
+      "source": "https://cityfishmarketboca.com/"
+     },
+     {
+      "claim": "Happy Hour is seven days a week from 4:30 p.m. to 6:30 p.m.",
+      "source": "https://cityfishmarketboca.com/"
+     },
+     {
+      "claim": "City Fish Market is attached to a seafood market",
+      "source": "https://cityfishmarketboca.com/"
+     }
+    ]
+   }
+  }
+ ]
+}

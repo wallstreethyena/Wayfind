@@ -199,7 +199,8 @@ let santaPoseCount = 0;
   ok((comp.match(/captureOrQueue\(/g) || []).length === 1 && /captureOrQueue\(window, event, \{ surface: "boo_companion", character: ACTIVE, \.\.\.props \}\)/.test(comp), "every track() call carries character (boo or santa)");
   ok(/ACTIVE = character;/.test(comp) && /let ACTIVE = "boo"/.test(comp), "ACTIVE follows the picked character");
   const events = [...comp.matchAll(/track\("([a-z_]+)"/g)].map((m) => m[1]);
-  ok(events.length >= 8 && events.every((e) => /^boo_(companion|coverage)_/.test(e)), "event names are the existing boo_* names (" + events.length + " track calls)");
+  // boo_line_skipped_no_room is the unprompted-bubble skip (#2050). It stays a boo_* event so Santa and Boo share one stream.
+  ok(events.length >= 8 && events.every((e) => /^boo_(companion|coverage)_/.test(e) || e === "boo_line_skipped_no_room"), "event names are the existing boo_* names (" + events.length + " track calls)");
   // Prefetch.
   ok(/function prefetch\(k, small\) \{\s*if \(ACTIVE === "santa"\) return;/.test(comp), "Santa skips the Boo pose PNG prefetch");
   // Art + reduced motion.

@@ -3,8 +3,8 @@ import { SITE_URL } from "../../lib/site";
 
 export const revalidate = 86400;
 
-const TITLE = "Best Restaurants in Florida by City";
-const DESC = "Pick a Florida city and see its best restaurants, ranked by the Wayfind Score. Every list is built from real local data.";
+const TITLE = "Florida Restaurants by City";
+const DESC = "Pick a Florida city and see its restaurants, ranked on merit by the Wayfind Score. Rankings are never for sale.";
 const _og = SITE_URL + "/api/og?t=" + encodeURIComponent(TITLE);
 
 export const metadata = {
@@ -22,7 +22,7 @@ export default function Page() {
       path="/restaurants"
       cat="restaurants"
       h1={TITLE}
-      intro="Pick a city to see where locals actually eat. Every list is ranked by the Wayfind Score, and payment never changes a score."
+      intro="Pick a city to see where locals actually eat. Every list is ranked on merit by the Wayfind Score. Rankings are never for sale."
       extras={[{ title: "Eat by cuisine", links: [
         { href: "/eat/orlando", label: "Orlando" },
         { href: "/eat/tampa", label: "Tampa Bay" },
