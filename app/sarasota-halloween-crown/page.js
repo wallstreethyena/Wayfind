@@ -4,6 +4,7 @@ import { CROWN_PATH, CROWN_PUBLISHED } from "../../lib/crownCampaign.js";
 import { WF_PLACE_CARD_CSS } from "../components/css";
 import ShareButton from "../components/ShareButton";
 import CrownCards from "./CrownCards";
+import { styleHtml } from "../../lib/styleHtml.js";
 
 export const metadata = {
   title: "Sarasota Halloween Crown",
@@ -15,7 +16,7 @@ export const metadata = {
 export default function SarasotaHalloweenCrownPage() {
   return (
     <main style={{ maxWidth: 720, margin: "0 auto", padding: "28px 16px 64px", color: "#F8FAFC" }}>
-      <style dangerouslySetInnerHTML={{ __html: WF_PLACE_CARD_CSS }} />
+      <style dangerouslySetInnerHTML={styleHtml(WF_PLACE_CARD_CSS)} />
       <p style={{ margin: "0 0 8px", fontSize: 12, fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "#F97316" }}>Sarasota</p>
       <h1 style={{ margin: "0 0 10px", fontSize: "clamp(28px, 6vw, 40px)", lineHeight: 1.15, letterSpacing: "-0.03em" }}>
         Sarasota Halloween Crown: three date nights, you pick the winner.

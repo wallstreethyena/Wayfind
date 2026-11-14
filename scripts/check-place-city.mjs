@@ -14,7 +14,7 @@
 import { readFileSync } from "node:fs";
 import {
   placeCity, placeCityPick, cityOf, cityValue, structuredAddressCity,
-  placePageTitle, placeShareText, nameCarriesCity,
+  placePageTitle, placeShareText, nameCarriesCity, placeCountyLabel,
 } from "../lib/placeCity.js";
 import { placePostalAddress, placeLocalBusinessLd } from "../lib/placeSchema.js";
 import { storedPlaceHeader, detailLocationLine } from "../lib/locationHonesty.js";
@@ -133,6 +133,40 @@ eq(placePostalAddress({ name: "Holmes Beach", locality: "Holmes Beach" })?.addre
   ok(/if \(page && !page\.postalCity && !page\.inventoryCity\) \{[\s\S]{0,200}const row = inv \|\| await getInventoryIdentity\(id\);[\s\S]{0,200}page\.postalCity = row\.postal_city;[\s\S]{0,120}page\.inventoryCity = row\.locality;/.test(src), "loadPlace fills postalCity/inventoryCity from wf_inventory when the skeleton lacks them (STRUCTURAL: loadPlace needs a live database)");
 }
 
+// ── County fallback (2026-11-12): an unincorporated place says its COUNTY, as a county ──
+// ~3,066 Florida rows sit in no city per the Census (county set, locality empty).
+// Their title said nothing ("The Grove at Wesley Chapel | Wayfind"). The title and
+// share text now say "in Pasco County, FL"; the PostalAddress locality never does.
+const uninc = { name: "The Grove at Wesley Chapel", locality: null, postal_city: null, county: "Pasco" };
+eq(placeCity(uninc), null, "county fallback: a county is still never a city");
+eq(placeCountyLabel(uninc), "Pasco County, FL", "county fallback: the county is named as a county");
+eq(placePageTitle(uninc), "The Grove at Wesley Chapel in Pasco County, FL | Wayfind", "county fallback: title names the county when no city is held");
+eq(placeShareText(uninc), "The Grove at Wesley Chapel in Pasco County, FL. Found on Wayfind.", "county fallback: share text names the county");
+eq(placePageTitle({ name: "Gatcha", inventoryCounty: "Orange" }), "Gatcha in Orange County, FL | Wayfind", "county fallback: the page's inventoryCounty field is read");
+eq(placePageTitle({ name: "X", county: "Miami-Dade County" }), "X in Miami-Dade County, FL | Wayfind", "county fallback: a stored ' County' suffix is not doubled");
+eq(placePageTitle({ name: "Y", county: "St. Lucie" }), "Y in St. Lucie County, FL | Wayfind", "county fallback: punctuation in a real county survives");
+eq(placePageTitle({ name: "Scream-A-Geddon", county: "Pasco", postal_city: "Dade City" }), "Scream-A-Geddon in Dade City | Wayfind", "county fallback: a real city always wins over the county");
+eq(placePageTitle({ name: "Z", county: "Kings" }), "Z | Wayfind", "county fallback: a county outside Florida's 67 is never shown");
+eq(placePageTitle({ name: "Z", county: "orlando" }), "Z | Wayfind", "county fallback: a metro slug is never shown as a county");
+eq(placeCountyLabel(null), null, "county fallback: no place, no label");
+{
+  // The WIRING, not just the function: the place page reads its stored row
+  // through getInventoryIdentity -> inventoryToSkeleton, and lib/placeData.js
+  // copies row.county to page.inventoryCounty. #2455 shipped the title rule but
+  // the skeleton dropped county, so live titles did not change (2026-11-13).
+  const { inventoryToSkeleton } = await import("../lib/atlasPlaceAllowlist.js");
+  const sk = inventoryToSkeleton({ place_id: "ChIJx", name: "The Grove at Wesley Chapel", locality: null, postal_city: null, county: "Pasco" });
+  eq(sk && sk.county, "Pasco", "county wiring: the stored-row skeleton keeps county");
+  const dataSrc = readFileSync(new URL("../lib/placeData.js", import.meta.url), "utf8").replace(/^\s*\/\/.*$/gm, "");
+  ok(/page\.inventoryCounty\s*=\s*row\.county/.test(dataSrc), "county wiring: lib/placeData.js copies the row's county onto the page");
+  const idSrc = readFileSync(new URL("../lib/inventoryIdentity.js", import.meta.url), "utf8");
+  ok(/select=[^`"&]*\bcounty\b/.test(idSrc), "county wiring: getInventoryIdentity selects county");
+  eq(placePageTitle({ name: sk.name, inventoryCounty: sk.county }), "The Grove at Wesley Chapel in Pasco County, FL | Wayfind", "county wiring: the page-shaped object gets the county title");
+}
+{
+  const pa = placePostalAddress(uninc);
+  ok(!pa || !/county/i.test(JSON.stringify(pa)), "county fallback: PostalAddress never carries the county as a locality");
+}
 if (fail.length) {
   console.error(`check-place-city: ${pass} passed, ${fail.length} FAILED`);
   for (const f of fail) console.error("  ✗ " + f);

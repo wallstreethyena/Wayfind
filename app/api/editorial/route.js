@@ -16,11 +16,30 @@
 import { NextResponse } from "next/server";
 import { editorialFor, EDITORIAL_COUNT } from "../../../lib/editorial";
 import atlasCards from "../../../data/atlas/editorial-cards.json";
+import firstPartyLedger from "../../../data/first-party-actions.json";
+import firstPartyOverrides from "../../../data/first-party-action-overrides.json";
+import ownedTruthLedger from "../../../data/owned-place-truth.json";
 import { mapWfEditorial } from "../../../lib/editorialRule";
 import { cardToEditorial, resolveAtlasId, atlasCardForName } from "../../../lib/atlasCards";
 import { editorialNameCandidates } from "../../../lib/editorialLookup";
 import { approveCandidate } from "../../../lib/placeServable";
 import { guideDescriptionFor } from "../../../lib/guideDescriptionFills";
+import { siteTodayStr } from "../../../lib/siteTime";
+import { filterEligibleVenueEvents } from "../../../lib/gamePlan";
+import { firstPartyActionsForPlace } from "../../../lib/firstPartyActionStore";
+import { parseEditorialHours } from "../../../lib/editorialHoursParser";
+import { resolveAdmissionTruth, resolveOwnedTruthFallback as resolveOwnedTruthFromStore } from "../../../lib/ownedPlaceTruth";
+
+const FPA_STORES = {
+  places: (firstPartyLedger && firstPartyLedger.places) || {},
+  overrides: (firstPartyOverrides && firstPartyOverrides.places) || {},
+};
+
+const OWNED_TRUTH_PLACES = (ownedTruthLedger && ownedTruthLedger.places) || {};
+
+export function resolveOwnedTruthFallback(placeId, name, fpa = null) {
+  return resolveOwnedTruthFromStore(placeId, name, fpa, OWNED_TRUTH_PLACES);
+}
 
 export const dynamic = "force-dynamic";
 
@@ -45,6 +64,13 @@ for (const c of atlasCards) if (c && c.placeId) CARD_BY_ID.set(c.placeId, c);
 // day), long SWR, so new verified rows surface without a deploy.
 const HEADERS_LIVE = { "Cache-Control": "public, s-maxage=300, stale-while-revalidate=300" };
 
+const EVENT_SELECT =
+  "event_id,event_name,short_title,slug,start_date,end_date,start_time,end_time," +
+  "schedule_note,event_status,venue,city,place_id,is_free,price_min,price_max," +
+  "price_band,admission_offer,ticket_status,official_ticket_url,official_event_url," +
+  "card_hook,insider_tip,parking_tip,duration_recommendation,pairing,wayfind_verdict," +
+  "source_tier,verification_confidence,link_ok";
+
 async function wfEditorialFor(id) {
   const base = (process.env.NEXT_PUBLIC_SUPABASE_URL || "").trim().replace(/\/+$/, "");
   const anon = (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "").trim();
@@ -60,6 +86,59 @@ async function wfEditorialFor(id) {
     const rows = await r.json();
     return mapWfEditorial(Array.isArray(rows) ? rows[0] : null);
   } catch { return null; }
+}
+
+async function wfInventoryCardFor(id) {
+  const base = (process.env.NEXT_PUBLIC_SUPABASE_URL || "").trim().replace(/\/+$/, "");
+  const anon = (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "").trim();
+  if (!base || !anon || !id) return null;
+  try {
+    const r = await fetch(base + "/rest/v1/wf_inventory?select=place_id,name,editorial_card&place_id=eq." + encodeURIComponent(id) + "&limit=1", {
+      headers: { apikey: anon, Authorization: "Bearer " + anon },
+      cache: "no-store",
+    });
+    if (!r.ok) return null;
+    const rows = await r.json();
+    const row = Array.isArray(rows) ? rows[0] : null;
+    if (!row || !row.editorial_card || typeof row.editorial_card !== "object") return null;
+    const mapped = cardToEditorial(row.editorial_card);
+    return mapped && (mapped.why || mapped.vibe || mapped.knownFor || mapped.insiderMove) ? { editorial: mapped, name: row.name } : null;
+  } catch { return null; }
+}
+
+async function wfCuratedEventsForPlace(placeId, placeName) {
+  const base = (process.env.NEXT_PUBLIC_SUPABASE_URL || "").trim().replace(/\/+$/, "");
+  const anon = (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "").trim();
+  if (!base || !anon || (!placeId && !placeName)) return [];
+  const today = siteTodayStr();
+  const dateOr = `or=(end_date.gte.${today},and(end_date.is.null,start_date.gte.${today}))`;
+  const headers = { apikey: anon, Authorization: "Bearer " + anon };
+  const detailStub = { id: placeId || "", name: placeName || "" };
+  try {
+    if (placeId) {
+      const r = await fetch(
+        `${base}/rest/v1/wf_events?select=${EVENT_SELECT}&place_id=eq.${encodeURIComponent(placeId)}&event_status=in.(scheduled,sold_out)&${dateOr}&limit=8`,
+        { headers, cache: "no-store" }
+      );
+      if (r.ok) {
+        const rows = await r.json();
+        const hit = filterEligibleVenueEvents(Array.isArray(rows) ? rows : [], detailStub);
+        if (hit.length > 0) return hit;
+      }
+    }
+    const cleanName = String(placeName || "").replace(/[,%()*]/g, " ").replace(/\s+/g, " ").trim();
+    if (cleanName.length >= 5) {
+      const r2 = await fetch(
+        `${base}/rest/v1/wf_events?select=${EVENT_SELECT}&venue=ilike.${encodeURIComponent("*" + cleanName + "*")}&event_status=in.(scheduled,sold_out)&${dateOr}&limit=8`,
+        { headers, cache: "no-store" }
+      );
+      if (r2.ok) {
+        const rows2 = await r2.json();
+        return filterEligibleVenueEvents(Array.isArray(rows2) ? rows2 : [], detailStub);
+      }
+    }
+    return [];
+  } catch { return []; }
 }
 
 export async function GET(req) {
@@ -79,9 +158,83 @@ export async function GET(req) {
   // place and approves THAT place. `serve` is the only way a body leaves this
   // route, so a tier cannot forget: the approval and the payload are one call.
   const refuse = (reason) => NextResponse.json({ none: true, refused: reason }, { headers: HEADERS_REFUSED });
+  const todayIso = siteTodayStr();
+  const resolveApprovedFpa = async (candidate) => {
+    if (candidate.placeId) {
+      const byCand = firstPartyActionsForPlace(candidate.placeId, todayIso, FPA_STORES);
+      if (byCand) return byCand;
+    }
+    if (!id || id === candidate.placeId) return null;
+    const fpa = firstPartyActionsForPlace(id, todayIso, FPA_STORES);
+    if (!fpa) return null;
+    const idVerdict = await approveCandidate({ placeId: id });
+    return idVerdict.ok ? fpa : null;
+  };
   const serve = async (candidate, payload, headers) => {
     const verdict = await approveCandidate(candidate);
-    return verdict.ok ? NextResponse.json(payload, { headers }) : refuse(verdict.reason);
+    if (!verdict.ok) return refuse(verdict.reason);
+    const [curatedEvents, fpa] = await Promise.all([
+      wfCuratedEventsForPlace(candidate.placeId || id, candidate.name || rawName),
+      resolveApprovedFpa(candidate),
+    ]);
+    let out = curatedEvents.length > 0 ? { ...payload, curatedEvents } : payload;
+    let enrichedEditorial = out.editorial || null;
+    if (fpa) {
+      if (enrichedEditorial && !enrichedEditorial.officialWebsite && fpa.officialWebsite && fpa.officialWebsite.url) {
+        enrichedEditorial = { ...enrichedEditorial, officialWebsite: fpa.officialWebsite.url };
+      }
+      out = { ...out, firstPartyActions: fpa };
+    }
+    if (enrichedEditorial) {
+      const targetPlaceId = candidate.placeId || id;
+      const targetVenueName = candidate.name || rawName;
+      const parsedHours = parseEditorialHours(enrichedEditorial, { venueName: targetVenueName });
+      const fallbackTruth = resolveOwnedTruthFallback(targetPlaceId, targetVenueName, fpa);
+      const ownedHours = parsedHours && parsedHours.ok && parsedHours.periods.length > 0
+        ? parsedHours
+        : fallbackTruth.ownedHours;
+      const rawAdmissionTruth = resolveAdmissionTruth(
+        { id: targetPlaceId, name: targetVenueName },
+        enrichedEditorial,
+        fpa || null
+      );
+      const admissionTruth = rawAdmissionTruth.status !== "UNKNOWN"
+        ? rawAdmissionTruth
+        : (fallbackTruth.admissionTruth || rawAdmissionTruth);
+      enrichedEditorial = {
+        ...enrichedEditorial,
+        ...(ownedHours ? { ownedHours } : {}),
+        ...(admissionTruth ? { admissionTruth } : {}),
+      };
+      out = {
+        ...out,
+        editorial: enrichedEditorial,
+        ...(ownedHours ? { ownedHours } : {}),
+        ...(admissionTruth ? { admissionTruth } : {}),
+      };
+    }
+    return NextResponse.json(out, { headers });
+  };
+  const serveActionsOnlyOrNone = async (extra = null) => {
+    const fpaOnly = id ? firstPartyActionsForPlace(id, todayIso, FPA_STORES) : null;
+    const { ownedHours, admissionTruth } = resolveOwnedTruthFallback(id, rawName, fpaOnly);
+    if (!fpaOnly && !ownedHours && !admissionTruth) {
+      return NextResponse.json({ none: true, ...(extra || {}) }, { headers: HEADERS });
+    }
+    const verdict = await approveCandidate({ placeId: id, name: rawName });
+    if (!verdict.ok) return refuse(verdict.reason);
+    const curatedEvents = await wfCuratedEventsForPlace(id, rawName);
+    return NextResponse.json(
+      {
+        none: true,
+        ...(extra || {}),
+        ...(fpaOnly ? { firstPartyActions: fpaOnly } : {}),
+        ...(ownedHours ? { ownedHours } : {}),
+        ...(admissionTruth ? { admissionTruth } : {}),
+        ...(curatedEvents.length > 0 ? { curatedEvents } : {}),
+      },
+      { headers: HEADERS }
+    );
   };
 
   // Tier 1: the owner's Atlas card always wins — hand curation beats machine.
@@ -102,6 +255,13 @@ export async function GET(req) {
     if (fleet) {
       return serve({ placeId: id, name: fleet.name || rawName },
         { editorial: fleet, sources: fleet.sources || [] }, HEADERS_LIVE);
+    }
+    // Tier 2.5: researched Atlas card stored directly on wf_inventory.editorial_card
+    // (e.g. Mote SEA, which holds a full 20-field card in wf_inventory).
+    const invCard = await wfInventoryCardFor(id);
+    if (invCard) {
+      return serve({ placeId: id, name: invCard.name || rawName },
+        { editorial: invCard.editorial }, HEADERS_LIVE);
     }
   }
 
@@ -124,7 +284,7 @@ export async function GET(req) {
 
   if (!names.length) {
     if (guideFill) return serve({ placeId: id, name: guideFill.name || rawName }, { editorial: guideFill, sources: guideFill.sources }, HEADERS);
-    return NextResponse.json({ none: true, count: EDITORIAL_COUNT }, { headers: HEADERS });
+    return serveActionsOnlyOrNone({ count: EDITORIAL_COUNT });
   }
 
   // Tier 4: the 295 handwritten entries, keyed by name. The content is KEPT and
@@ -136,5 +296,5 @@ export async function GET(req) {
     if (e) return serve({ placeId: null, name: e.name || n }, { editorial: e }, HEADERS);
   }
   if (guideFill) return serve({ placeId: id, name: guideFill.name || rawName }, { editorial: guideFill, sources: guideFill.sources }, HEADERS);
-  return NextResponse.json({ none: true }, { headers: HEADERS });
+  return serveActionsOnlyOrNone();
 }

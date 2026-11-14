@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { CHRISTMAS_LICENSED_PHOTOS } from "../lib/christmasPhotos.js";
 import { CHRISTMAS_RESEARCH_ROWS } from "../lib/christmasResearch.js";
 // scripts/check-christmas-venue-matches.mjs: every Christmas venue matched to a
 // wf_inventory place (data/christmas-venue-matches.json) is that venue, in the
@@ -58,6 +59,9 @@ function cardPhotoIsThisPlace(card, placeId, eventIds) {
   // still fails, and a card that is not held still needs its place photo.
   if (!image && ids.some((id) => CHRISTMAS_INTENT_IMAGE_HOLDS.has(id))) return true;
   if (image.startsWith("/api/photo?place=" + placeId + "&")) return true;
+  // A licensed photo of this event itself (lib/christmasPhotos.js, provenance
+  // checked by check-christmas-photo-provenance) beats the venue photo.
+  if (ids.some((id) => CHRISTMAS_LICENSED_PHOTOS[id] && image === "/events/christmas/" + CHRISTMAS_LICENSED_PHOTOS[id].file)) return true;
   return ids.some((id) => {
     const cover = christmasStaticPhotos(id)[0]?.src;
     return !!cover && image === cover;
@@ -66,6 +70,8 @@ function cardPhotoIsThisPlace(card, placeId, eventIds) {
 ok(cardPhotoIsThisPlace({ image: "" }, "ChIJxx", ["nightgarden-fairchild-2026"]), "positive control: a held card with no photo is the designed tile");
 ok(!cardPhotoIsThisPlace({ image: "/place-photos/other-event/x.jpg" }, "ChIJxx", ["nightgarden-fairchild-2026"]), "red-proof: a held card that shows another event's photo fails");
 ok(!cardPhotoIsThisPlace({ image: "" }, "ChIJxx", ["not-a-held-event"]), "red-proof: a card that is not held still needs its place photo");
+ok(cardPhotoIsThisPlace({ image: "/events/christmas/wiregrass-symphony-in-lights-2026.webp" }, "ChIJxx", ["wiregrass-symphony-in-lights-2026"]), "positive control: the event's own licensed photo counts");
+ok(!cardPhotoIsThisPlace({ image: "/events/christmas/selby-lights-in-bloom-2026.jpg" }, "ChIJxx", ["wiregrass-symphony-in-lights-2026"]), "red-proof: another event's licensed photo still fails");
 
 // The rule, as one function the controls also run.
 export function venueMatchProblems(m) {

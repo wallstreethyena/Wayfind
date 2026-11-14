@@ -20,6 +20,7 @@ width from HIS pixels rather than from someone's memory of them.
 | `cindy.png` | `cindy` — "Your Next Coffee Spot" | 2026-08-22 |
 | `datenight.png` | `datenight` — DATE NIGHT / Impress. Every time. (1086×1448) | 2026-08-30 |
 | `birthday.png` | `birthday` — YOUR BEST DAY EVER / happy birthday (941×1672) | 2026-08-31 |
+| `trending.png` | `trending` — TRENDING NOW / Near You. (Santa, 941×1672) | 2026-11-13 |
 
 Regenerate with:
 
