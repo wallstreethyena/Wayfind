@@ -81,6 +81,14 @@ function harness({ env = PROD, ...repoOpts } = {}, extra = {}) {
   ok(r.body.placeIds.includes(PARTNER_PLACE), "a live Wayfind partner still gets the Reserve button");
   ok(!r.body.placeIds.includes("ChIJinactivelink00000009"), "an inactive OpenTable link does not");
   ok(new Set(r.body.placeIds).size === r.body.placeIds.length, "no place listed twice");
+  // lanes: how each id books, so cards label it honestly (placeIds stays for older clients)
+  const L = r.body.lanes || {};
+  ok(L[PARTNER_PLACE] === "instant" && L[ULELE] === "handoff", "lanes: a partner defaults to instant, a link only restaurant is handoff");
+  ok(r.body.placeIds.every((id) => ["instant", "request", "handoff"].includes(L[id])) && Object.keys(L).every((id) => r.body.placeIds.includes(id)), "lanes covers exactly the listed ids with known values");
+  const req = harness({ env: PROD, partners: [partner(PARTNER_PLACE, "Test Bistro", { booking_mode: "request" })] });
+  const rq = await json(await req.handlers.partners(new Request(ORIGIN + "/api/reserve/partners")));
+  ok(rq.body.lanes[PARTNER_PLACE] === "request", "lanes: booking_mode request reads as request, and a partner that is also linked stays a partner lane (not handoff)");
+  ok(!JSON.stringify(rq.body).includes("contact_email") && rq.headers.get("cache-control") === "public, s-maxage=120, stale-while-revalidate=600", "lanes payload stays public and cacheable, no contact fields");
 }
 
 // ---- 1. handoff URL ------------------------------------------------------------------

@@ -136,7 +136,7 @@ async function fromTicketmaster(lat, lng, radius, keyword, opts = {}) {
         if (pr.min != null && pr.max != null) price = pr.min === pr.max ? `${cur}${Math.round(pr.min)}` : `${cur}${Math.round(pr.min)} to ${cur}${Math.round(pr.max)}`;
       }
       return applyStoredStartCorrection({
-        id: "tm_" + e.id, name: e.name || "", date: dates.localDate || "", time: dates.localTime || "",
+        id: "tm_" + e.id, name: e.name || "", date: (dates.dateTBA === true || dates.dateTBD === true) ? "" : (dates.localDate || ""), time: dates.localTime || "",
         subGenre,
         venue: venue ? venue.name || "" : "", city: venue && venue.city ? venue.city.name || "" : "",
         state: venue && venue.state && venue.state.stateCode ? venue.state.stateCode : "",
