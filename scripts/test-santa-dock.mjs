@@ -137,7 +137,8 @@ function fsExists(rel) { try { readFileSync(path.join(root, rel)); return true; 
   const boo = strip(read("app/components/BooCompanion.js"));
   ok(/const roam = eligible && !santa;/.test(boo), "BooCompanion's roaming machinery is Boo only");
   ok(/const drifting = roam && !reduced/.test(boo) && !/const drifting = eligible/.test(boo), "the roaming animation loop never runs for Santa");
-  ok(/\{santa \? \(\s*<SantaDock/.test(boo) && /onAsk=\{\(prompt, src\) => \{ if \(!openRef\.current\) openSheet/.test(boo), "for Santa BooCompanion renders the dock, which opens the shared chat");
+  // 2026-11-14: the shared chat is the one iMessage Santa thread (planning + tables); the dock's button carries its prompt into it.
+  ok(/\{santa \? \(\s*<SantaDock/.test(boo) && /onAsk=\{\(prompt, src\) => \{ openSheet\(src \|\| "dock-cta", prompt\); \}\}/.test(boo) && /if \(santaNow\(\)\) \{[\s\S]{0,260}openWayfindPlanner\(/.test(boo), "for Santa BooCompanion renders the dock, which opens the shared chat");
 }
 
 // Santa stays off Hanukkah content (owner approved 2026-11-05). By CALL: the
