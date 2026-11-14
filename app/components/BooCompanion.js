@@ -21,7 +21,7 @@ import { coverageState, coverageLines, coverageSheetLine, unknownSheetLine, cove
 import { pickLine, routeLine, timeLines } from "./booReactions.js";
 import { MAX_COVER, rectOf, isClear, touchesAny, besideSpot, perchSpot, pickClearSpot, estimateBubble, bubbleSideIfClear, chooseBubbleSide, TUCK_MAX } from "./booClear.js";
 import { styleHtml } from "../../lib/styleHtml.js";
-import { maybeHandoffCompanionToPlanner } from "../../lib/plannerCompanionBridge.js";
+import { maybeHandoffCompanionToPlanner, openWayfindPlanner } from "../../lib/plannerCompanionBridge.js";
 
 // Table picks for "book Ulele Friday at 7 for 4": a lazy chunk, fetched only when a reservation request is typed.
 const ReservePicks = lazy(() => import("./ReservePicks.js"));
@@ -1633,8 +1633,16 @@ export default function BooCompanion() {
     };
   }, [roam]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const openSheet = useCallback((src) => {
+  const openSheet = useCallback((src, prompt) => {
     tappedRef.current = true;
+    // One Santa conversation (owner 2026-11-14): every Santa door (dock avatar, dock button, Ask Santa, the
+    // proactive offer, a tap on Santa himself) opens the iMessage chat, where he plans trips AND books tables.
+    // The legacy Santa sheet is never shown again; Boo (October) keeps his own sheet.
+    if (santaNow()) {
+      track("boo_companion_open", { source: src || "tap", path: pathRef.current, to: "santa_thread" });
+      openWayfindPlanner({ surface: "santa_" + String(src || "tap").replace(/[^a-z0-9_-]/gi, "").slice(0, 24), voice: "santa", pathname: pathRef.current, ...(prompt ? { prompt: String(prompt).slice(0, 300) } : {}) });
+      return;
+    }
     if (zapT.current.length) { stopZap(); setZap(null); setAntic(null); }
     clearTimeout(lookT.current); lookT.current = 0; setLook(null);
     setBubble(null);
@@ -1735,6 +1743,7 @@ export default function BooCompanion() {
       setElig({ ok: true, ch });
       eligibleRef.current = true;
       const prompt = e && e.detail && typeof e.detail.prompt === "string" ? e.detail.prompt : "";
+      if (ch === "santa") { openSheet("event", prompt); return; }
       if (!openRef.current) openSheet("event");
       if (prompt) send(prompt, "prompt");
     };
@@ -1820,8 +1829,8 @@ export default function BooCompanion() {
         <SantaDock
           path={pathname}
           reduced={reduced}
-          onOpen={(src) => { if (!openRef.current) openSheet(src || "dock"); }}
-          onAsk={(prompt, src) => { if (!openRef.current) openSheet(src || "dock-cta"); if (prompt) send(prompt, src || "dock-cta"); }}
+          onOpen={(src) => { openSheet(src || "dock"); }}
+          onAsk={(prompt, src) => { openSheet(src || "dock-cta", prompt); }}
         />
       ) : (
       <div className="boo-c" ref={elRef} style={{ transform: "translate3d(" + SIDE + "px,-200px,0)" }}>
