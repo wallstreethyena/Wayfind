@@ -1889,6 +1889,74 @@ const workingKey = seededCommit.tripKey;
     "Scenario 12.2: pure helpers parseDraftRevisionIntent and applyDeterministicDraftRevision swap only Friday afternoon for coffee"
   );
 
+  // When candidates has 35 non-coffee items ahead of a coffee candidate,
+  // buildDraftRevisionClaudePrompt still includes the coffee candidate inside the 28-item payload
+  const thirtyFiveNonCoffee = Array.from({ length: 35 }, (_, i) => ({
+    id: `cand_non_coffee_${i}`,
+    name: `Non Coffee Venue ${i}`,
+    type: "Sightseeing",
+    city: "Orlando",
+    lat: 28.5 + i * 0.001,
+    lng: -81.3,
+    wfScore: 80,
+  }));
+  const promptWith35 = buildDraftRevisionClaudePrompt(
+    intent2,
+    initial4DayDraft,
+    [...thirtyFiveNonCoffee, coffeeVenue]
+  );
+  const promptPayload2 = JSON.parse(promptWith35.user);
+  ok(
+    Array.isArray(promptPayload2.CANDIDATES) &&
+      promptPayload2.CANDIDATES.length <= 28 &&
+      promptPayload2.CANDIDATES.some((c) => c.id === coffeeVenue.id),
+    "Scenario 12.2: buildDraftRevisionClaudePrompt prioritizes matching category candidates within 28-item budget"
+  );
+
+  // parseAndValidateClaudeDraftRevision rejects a 0-diff {"status":"revised", ...} response on swap_stop
+  const noOpClaudeResponse = JSON.stringify({
+    status: "revised",
+    reply: "Kept everything the same",
+    days: initial4DayDraft.days,
+  });
+  const noOpResult = parseAndValidateClaudeDraftRevision(
+    noOpClaudeResponse,
+    intent2,
+    initial4DayDraft,
+    candidatesWithCoffee
+  );
+  ok(
+    noOpResult.ok === false && noOpResult.code === "NO_OP_REVISION",
+    "Scenario 12.2: parseAndValidateClaudeDraftRevision rejects 0-diff revised response on swap_stop with NO_OP_REVISION"
+  );
+
+  // parseAndValidateClaudeDraftRevision rejects swapping in a non-coffee venue when requestedCategory === "coffee"
+  const nonCoffeeSteakhouse = {
+    id: "ChIJ_wf_prime_steakhouse",
+    name: "Prime Steakhouse",
+    type: "Steakhouse",
+    category: "food",
+    city: "Orlando",
+    wfScore: 92,
+  };
+  const targetDayIdx = initial4DayDraft.days.findIndex((d) => d.date === intent2.targetDate);
+  const targetStopIdx = initial4DayDraft.days[targetDayIdx].stops.findIndex((s) => s.id === intent2.targetStopId);
+  const mismatchDays = JSON.parse(JSON.stringify(initial4DayDraft.days));
+  mismatchDays[targetDayIdx].stops[targetStopIdx] = {
+    id: nonCoffeeSteakhouse.id,
+    slotLabel: "2:00 PM",
+  };
+  const mismatchResult = parseAndValidateClaudeDraftRevision(
+    JSON.stringify({ status: "revised", reply: "Swapped for steakhouse", days: mismatchDays }),
+    intent2,
+    initial4DayDraft,
+    [...candidatesWithCoffee, nonCoffeeSteakhouse]
+  );
+  ok(
+    mismatchResult.ok === false && mismatchResult.code === "CATEGORY_MISMATCH",
+    "Scenario 12.2: parseAndValidateClaudeDraftRevision rejects swapping in non-coffee venue with CATEGORY_MISMATCH"
+  );
+
   // 3. Unchanged stops preserve canonical IDs and dates
   const fridayUnchangedBefore = fridayStopsBefore.filter((id) => fridayStopsAfter.includes(id));
   const fridayUnchangedAfter = fridayStopsAfter.filter((id) => id !== coffeeVenue.id);
@@ -1927,6 +1995,18 @@ const workingKey = seededCommit.tripKey;
       detKeep.proposedPlan.days[0].stops[0].id === initial4DayDraft.days[0].stops[0].id &&
       detKeep.proposedPlan.days[0].stops[1].id === initial4DayDraft.days[0].stops[1].id,
     "Scenario 12.3: Keep first two stops on Friday preserves Friday stops while targeting Monday"
+  );
+
+  const romanticVibeIntent = parseDraftRevisionIntent(
+    "Keep the first two stops on Friday and make Monday romantic.",
+    initial4DayDraft
+  );
+  ok(
+    romanticVibeIntent.kind === "revise_day_vibe" &&
+      romanticVibeIntent.targetDate === "2026-11-23" &&
+      romanticVibeIntent.vibe === "romantic" &&
+      romanticVibeIntent.lockedStopIds.size === 2,
+    "Scenario 12.3: parseDraftRevisionIntent resolves make Monday romantic to revise_day_vibe with 2 locked stops"
   );
 
   // Adversarial: Claude mutates an untargeted/locked day or locked first two stops -> REVISION_SCOPE_VIOLATION
@@ -2065,6 +2145,18 @@ const workingKey = seededCommit.tripKey;
       clarHttpJson6.clarificationQuestion.length > 10 &&
       clarHttpStopsMatch,
     "Scenario 12.6: POST /api/planner returns clarify status and names candidate days while leaving proposedPlan unchanged"
+  );
+
+  // When intent.targetDate is already resolved, a Claude response of status === "clarify" is rejected with SPURIOUS_CLARIFY
+  const spuriousClarifyResult = parseAndValidateClaudeDraftRevision(
+    JSON.stringify({ status: "clarify", reply: "Which day?" }),
+    intent2,
+    initial4DayDraft,
+    candidatesWithCoffee
+  );
+  ok(
+    spuriousClarifyResult.ok === false && spuriousClarifyResult.code === "SPURIOUS_CLARIFY",
+    "Scenario 12.6: parseAndValidateClaudeDraftRevision returns SPURIOUS_CLARIFY when intent.targetDate is already resolved"
   );
 
   // 7. Nonexistent candidate is rejected (even with smuggled candidateCatalog)

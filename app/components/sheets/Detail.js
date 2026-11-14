@@ -305,7 +305,7 @@ function PrimaryActionButton({ primaryCta, detail, kind, viaTours, locName, logE
         href={exactHref}
         rel="sponsored noreferrer"
         data-commerce-owner="PrimaryActionButton"
-        aria-label={`Tickets for ${detail.name} via ${primaryCta.merchant}`}
+        aria-label={`${primaryCta.product === "tour" ? "Tours" : primaryCta.product === "storage" ? "Luggage storage" : primaryCta.product === "transfer" ? "Transfers" : "Tickets"} for ${detail.name} via ${primaryCta.merchant}`}
         title="Partner link. Wayfind may earn a commission; rankings never change."
         style={style}
         onClick={() => {
@@ -328,7 +328,7 @@ function PrimaryActionButton({ primaryCta, detail, kind, viaTours, locName, logE
     );
   }
 
-  if (primaryCta.type === DETAIL_CTA_TYPES.tickets || primaryCta.type === DETAIL_CTA_TYPES.rates) {
+  if (primaryCta.monetized && (primaryCta.type === DETAIL_CTA_TYPES.tickets || primaryCta.type === DETAIL_CTA_TYPES.rates)) {
     if (hasBookingCTA(detail, kind, viaTours, locName)) {
       return (
         <BookingCTA
@@ -635,7 +635,7 @@ function WhereToGoNextRow({ p, partner, reason, pairDistMi, openDetail, liveOpen
           target="_blank"
           rel="sponsored noopener"
           data-commerce-owner="WhereToGoNextRow"
-          aria-label={`Tickets for ${p.name} via ${partner.merchant}`}
+          aria-label={`${partner.product === "tour" ? "Tours" : partner.product === "storage" ? "Luggage storage" : partner.product === "transfer" ? "Transfers" : "Tickets"} for ${p.name} via ${partner.merchant}`}
           title="Partner link. Wayfind may earn a commission; rankings never change."
           onClick={(e) => {
             e.stopPropagation();
@@ -645,7 +645,7 @@ function WhereToGoNextRow({ p, partner, reason, pairDistMi, openDetail, liveOpen
             try { emitCommerce("commerce_cta_clicked", { ...commerceCtx, click_id: clickId }); } catch (er) {}
           }}
           style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 5, padding: "8px 12px", borderRadius: 10, background: C.adim, border: `1px solid ${C.border}`, color: "#FDBA74", textDecoration: "none", fontSize: 11.5, fontWeight: 800, whiteSpace: "nowrap" }}
-        >🎟️ Tickets ↗</a>
+        >{partner.product === "tour" ? "🛶 Tours ↗" : partner.product === "storage" ? "🧳 Storage ↗" : partner.product === "transfer" ? "🚐 Transfers ↗" : "🎟️ Tickets ↗"}</a>
       ) : (
         <span style={{ fontSize: 18, color: C.muted, flexShrink: 0 }}>›</span>
       )}
@@ -960,13 +960,18 @@ export default function DetailSheet({ ctx }) {
     const placeGeo = detail && Number.isFinite(Number(detail.lat)) && Number.isFinite(Number(detail.lng))
       ? [Number(detail.lat), Number(detail.lng)]
       : null;
+    const detailEventDate = (detail._event && detail._event.date) || "";
     askShareIntent({
       name: detail.name,
       city: ctaCity || locName,
       id: detail.id,
       kind: placeKinds(detail),
+      when: detailEventDate,
+      eventDate: detailEventDate,
+      surface: "place_detail",
       geo: placeGeo,
       startInInvite: !!startInInvite,
+      directInvite: !!startInInvite,
       onPlain: () => shareLink(detail.name, placeShareUrl(detail, locName, blurbLine(blurbs[detail.id])), () => showToast("Link copied"), fallShareLine(`Want to go to ${detail.name} together? Found it on Wayfind`, detail.id, siteTodayStr()), () => { try { logEvent("share", detail, { kind: "place" }); } catch (e) {} giveawayMark(detail.id); addShared(detail); }),
       onInvite: (u, t) => shareLink("A question for you", u, null, t, () => { try { logEvent("share", detail, { kind: "invite", from: startInInvite ? "game_plan" : "place" }); } catch (e) {} giveawayMark(detail.id); addShared(detail); }),
     });
@@ -1323,7 +1328,7 @@ export default function DetailSheet({ ctx }) {
                 })() : (<>
                   <span style={{ color: C.border }}>·</span>
                   {openState == null ? (
-                    <span onClick={() => setHoursOpen((o) => !o)} style={{ cursor: "pointer", fontWeight: 700, fontSize: 12, color: C.muted }}>Hours unavailable<span style={{ fontSize: 8.5, marginLeft: 3, display: "inline-block", transform: hoursOpen ? "rotate(180deg)" : "none", transition: "transform .2s" }}>▼</span></span>
+                    <span onClick={() => setHoursOpen((o) => !o)} style={{ cursor: "pointer", fontWeight: 700, fontSize: 12, color: C.muted }}>{(detailExtra && Array.isArray(detailExtra.hours) && detailExtra.hours.length > 0) || (hydratedDetail && hydratedDetail.oh && Array.isArray(hydratedDetail.oh.weekdayDescriptions) && hydratedDetail.oh.weekdayDescriptions.length > 0) || (effectiveEditorial && typeof effectiveEditorial.hoursText === "string" && effectiveEditorial.hoursText.trim()) ? "See hours" : "Hours unavailable"}<span style={{ fontSize: 8.5, marginLeft: 3, display: "inline-block", transform: hoursOpen ? "rotate(180deg)" : "none", transition: "transform .2s" }}>▼</span></span>
                   ) : (
                     <span onClick={() => setHoursOpen((o) => !o)} style={{ cursor: "pointer", fontWeight: 800, color: openState ? C.green : C.red }}>{openState ? "Open now" : "Closed"}<span style={{ fontSize: 8.5, marginLeft: 3, display: "inline-block", transform: hoursOpen ? "rotate(180deg)" : "none", transition: "transform .2s" }}>▼</span></span>
                   )}
@@ -1343,16 +1348,20 @@ export default function DetailSheet({ ctx }) {
                     // detail fetch (detailExtra.hours), the weekday text captured
                     // at search time (detail.oh.weekdayDescriptions), or Wayfind's
                     // owned editorial hours (hydratedDetail.oh.weekdayDescriptions).
-                    const isOwnedHours = !(detailExtra && Array.isArray(detailExtra.hours) && detailExtra.hours.length > 0)
-                      && !(detail.oh && Array.isArray(detail.oh.weekdayDescriptions) && detail.oh.weekdayDescriptions.length > 0)
-                      && Boolean(hydratedDetail && hydratedDetail.oh && (hydratedDetail.oh.source === "wayfind_editorial_hours" || hydratedDetail.oh.source === "wayfind_owned_truth"));
+                    const isOwnedHours = !(detailExtra && Array.isArray(detailExtra.hours) && detailExtra.hours.length > 0 && detailExtra.source !== "owned_snapshot")
+                      && (Boolean(detail && detail.oh && (detail.oh._source === "atlas_editorial" || detail.oh.source === "wayfind_editorial_hours" || detail.oh.source === "wayfind_owned_truth"))
+                        || (!(detail.oh && Array.isArray(detail.oh.weekdayDescriptions) && detail.oh.weekdayDescriptions.length > 0)
+                          && (Boolean(hydratedDetail && hydratedDetail.oh && (hydratedDetail.oh.source === "wayfind_editorial_hours" || hydratedDetail.oh.source === "wayfind_owned_truth" || hydratedDetail.oh._source === "atlas_editorial"))
+                            || Boolean(effectiveEditorial && typeof effectiveEditorial.hoursText === "string" && effectiveEditorial.hoursText.trim()))));
                     const lines = (detailExtra && Array.isArray(detailExtra.hours) && detailExtra.hours.length > 0)
                       ? detailExtra.hours
                       : (detail.oh && Array.isArray(detail.oh.weekdayDescriptions) && detail.oh.weekdayDescriptions.length > 0
                           ? detail.oh.weekdayDescriptions
                           : (hydratedDetail && hydratedDetail.oh && Array.isArray(hydratedDetail.oh.weekdayDescriptions) && hydratedDetail.oh.weekdayDescriptions.length > 0
                               ? hydratedDetail.oh.weekdayDescriptions
-                              : null));
+                              : (effectiveEditorial && typeof effectiveEditorial.hoursText === "string" && effectiveEditorial.hoursText.trim()
+                                  ? [effectiveEditorial.hoursText.trim()]
+                                  : null)));
                     if (lines) {
                       return (<>
                         {lines.map((line, i) => {
@@ -1441,6 +1450,9 @@ export default function DetailSheet({ ctx }) {
                   </>)}
                   <button data-add-to-trip onClick={addToPlan} aria-label={isSaved(detail.id) ? "In your trip" : "Add to my trip"} style={{ flex: "1 1 46%", minWidth: 104, height: 44, padding: "0 10px", background: isSaved(detail.id) ? C.adim : "rgba(255,255,255,.035)", border: `1px solid ${isSaved(detail.id) ? C.light : C.border}`, borderRadius: 12, color: isSaved(detail.id) ? C.light : C.text, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6, fontSize: 12.5, fontWeight: 800, whiteSpace: "nowrap" }}>{isSaved(detail.id) ? "\u2713 In my trip" : "\u2661 Add to my trip"}</button>
                   <button onClick={() => openDetailShare(false)} aria-label={lunchChallengeView ? "Challenge someone for Lunch in My City" : "Share"} style={{ flex: "1 1 46%", minWidth: 88, height: 44, padding: "0 10px", background: lunchChallengeView ? "linear-gradient(135deg,#F97316,#FBBF24)" : "rgba(255,255,255,.035)", border: `1px solid ${lunchChallengeView ? "#F8D447" : C.border}`, borderRadius: 12, color: lunchChallengeView ? "#10151B" : C.text, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6, fontSize: 12.5, fontWeight: lunchChallengeView ? 900 : 750, whiteSpace: "nowrap" }}><span aria-hidden="true">{lunchChallengeView ? "⚡" : "↗"}</span><span>{lunchChallengeView ? "Challenge" : "Share"}</span></button>
+                  {!lunchChallengeView && (
+                    <button data-detail-ask-someone onClick={() => openDetailShare(true)} aria-label={`Ask someone to ${detail.name}`} style={{ flex: "1 1 100%", minWidth: 120, height: 44, padding: "0 12px", background: "rgba(249,115,22,.1)", border: `1px solid rgba(249,115,22,.38)`, borderRadius: 12, color: C.light, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6, fontSize: 12.5, fontWeight: 800, whiteSpace: "nowrap" }}><span aria-hidden="true">♡</span><span>{detail._event ? "Ask someone to go" : "Ask someone"}</span></button>
+                  )}
                 </div>
               </div>
               {(() => { /* Verified Florida vacation-rental browsing, through the tracked commerce route only. */
