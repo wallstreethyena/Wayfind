@@ -1,0 +1,646 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 60. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJK0IOZInEwogRf7IZ5FOGCy0",
+   "name": "Bamboozle Heights",
+   "category": "food",
+   "metro": "tampa",
+   "primary_type": "vietnamese_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://eatbamboozle.com/",
+     "source_name": "Bamboozle Heights \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Eat Bamboozle has served fresh, healthy Vietnamese and Southeast Asian-inspired dishes for over 14 years",
+      "Bamboozle Heights in Seminole Heights offers an extended drink menu and a gorgeous outdoor patio area"
+     ]
+    },
+    {
+     "source": "https://eatbamboozle.com/about-us/",
+     "source_name": "Bamboozle Heights \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Fresh rolls are the best seller at Bamboozle, per founder Lynn Pham"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Fresh Vietnamese and Southeast Asian dishes in Seminole Heights, with outdoor patio",
+    "why_here": "Bamboozle Heights in Seminole Heights is the newest Eat Bamboozle location, offering fresh, healthy Vietnamese and Southeast Asian-inspired dishes for over 14 years across its locations. The Heights site adds an extended drink menu and a gorgeous outdoor patio area.",
+    "know_before": "Founder Lynn Pham says fresh rolls, a childhood favorite, are the best seller at Bamboozle.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://eatbamboozle.com/"
+     ],
+     "why_here": [
+      "https://eatbamboozle.com/"
+     ],
+     "know_before": [
+      "https://eatbamboozle.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Eat Bamboozle has served fresh, healthy Vietnamese and Southeast Asian-inspired dishes for over 14 years",
+      "source": "https://eatbamboozle.com/"
+     },
+     {
+      "claim": "Bamboozle Heights in Seminole Heights offers an extended drink menu and a gorgeous outdoor patio area",
+      "source": "https://eatbamboozle.com/"
+     },
+     {
+      "claim": "Fresh rolls are the best seller at Bamboozle, per founder Lynn Pham",
+      "source": "https://eatbamboozle.com/about-us/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJMRRBNWkF2YgRaSYj9mIYe_g",
+   "name": "THE NAMU Korean Japanese kitchen & izakaya",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "korean_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.the-namuorder.com/",
+     "source_name": "THE NAMU Korean Japanese kitchen & izakaya \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Cuisines listed include BBQ, Chicken, Curry, Grill, Japanese, Korean, Noodles and Soup",
+      "The site lists Korean BBQ with Casual Dining and Good For Group",
+      "Food types listed include Vegetarian Options and Gluten Free Options",
+      "Service options listed include Free Parking and a Full Bar"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Cuisines listed as BBQ, Chicken, Curry, Grill, Japanese, Korean, Noodles and Soup",
+    "why_here": "The site lists Korean BBQ with a Casual Dining atmosphere that is Good For Group. It also lists Vegetarian Options and Gluten Free Options among its food types for diners choosing a meal.",
+    "know_before": "Cuisines listed include BBQ, Chicken, Curry, Grill, Japanese, Korean, Noodles and Soup",
+    "local_tip": "Free Parking is listed among the service options, along with a Full Bar.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.the-namuorder.com/"
+     ],
+     "why_here": [
+      "https://www.the-namuorder.com/"
+     ],
+     "know_before": [
+      "https://www.the-namuorder.com/"
+     ],
+     "local_tip": [
+      "https://www.the-namuorder.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Cuisines listed include BBQ, Chicken, Curry, Grill, Japanese, Korean, Noodles and Soup",
+      "source": "https://www.the-namuorder.com/"
+     },
+     {
+      "claim": "The site lists Korean BBQ with Casual Dining and Good For Group",
+      "source": "https://www.the-namuorder.com/"
+     },
+     {
+      "claim": "Food types listed include Vegetarian Options and Gluten Free Options",
+      "source": "https://www.the-namuorder.com/"
+     },
+     {
+      "claim": "Service options listed include Free Parking and a Full Bar",
+      "source": "https://www.the-namuorder.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJKxDO8JzhwogRA82vw8a8TS8",
+   "name": "Hyatt Place St. Petersburg / Downtown",
+   "category": "hotels",
+   "metro": "st-pete",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.hyatt.com/hyatt-place/en-US/piezd-hyatt-place-st-petersburg-downtown",
+     "source_name": "Hyatt Place St. Petersburg / Downtown \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Hyatt Place St. Petersburg / Downtown is within an arm's reach of The Dal\u00ed Museum, Jannus Live and the Mahaffey Theatre",
+      "Free breakfast is served every day at The Breakfast Bar with fresh fruit, yogurt, eggs, hash browns and waffles",
+      "Hotel amenities include a pool and free breakfast"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Downtown stay within arm's reach of the Dal\u00ed Museum, Jannus Live and Mahaffey Theatre",
+    "why_here": "Hyatt Place St. Petersburg / Downtown sits in the heart of downtown within an arm's reach of the city's best museums and entertainment, including The Dal\u00ed Museum, Jannus Live and the Mahaffey Theatre. Guests get free breakfast daily plus a rooftop pool, making it a practical base for exploring St. Pete on foot.",
+    "know_before": "Free breakfast is served every day at The Breakfast Bar, with choices from fresh fruit and yogurt to eggs, hash browns and waffles.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.hyatt.com/hyatt-place/en-US/piezd-hyatt-place-st-petersburg-downtown"
+     ],
+     "why_here": [
+      "https://www.hyatt.com/hyatt-place/en-US/piezd-hyatt-place-st-petersburg-downtown"
+     ],
+     "know_before": [
+      "https://www.hyatt.com/hyatt-place/en-US/piezd-hyatt-place-st-petersburg-downtown"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Hyatt Place St. Petersburg / Downtown is within an arm's reach of The Dal\u00ed Museum, Jannus Live and the Mahaffey Theatre",
+      "source": "https://www.hyatt.com/hyatt-place/en-US/piezd-hyatt-place-st-petersburg-downtown"
+     },
+     {
+      "claim": "Free breakfast is served every day at The Breakfast Bar with fresh fruit, yogurt, eggs, hash browns and waffles",
+      "source": "https://www.hyatt.com/hyatt-place/en-US/piezd-hyatt-place-st-petersburg-downtown"
+     },
+     {
+      "claim": "Hotel amenities include a pool and free breakfast",
+      "source": "https://www.hyatt.com/hyatt-place/en-US/piezd-hyatt-place-st-petersburg-downtown"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJRYEgh-mJk4gRbqOwvqQNBCE",
+   "name": "The Alibi Beach Lounge & Grill",
+   "category": "nightlife",
+   "metro": "florida",
+   "primary_type": "bar_and_grill",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://alibibeachpcb.com/",
+     "source_name": "The Alibi Beach Lounge & Grill \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Live music every day showcasing local talent",
+      "Full bar with craft and domestic beer options",
+      "Daily menu includes wings, burgers, pizza, tacos and sandwiches",
+      "Saturday and Sunday breakfast is offered"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Live music every day, a full bar, and wings, burgers, pizza and tacos by the beach",
+    "why_here": "The Alibi Beach Lounge & Grill pairs a full bar with craft and domestic beer and live music every day in a fun, laid back atmosphere. It serves wings, burgers, pizza, tacos and sandwiches daily.",
+    "know_before": "Live music every day showcasing local talent",
+    "local_tip": "Catch the live music every day showcasing local talent.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://alibibeachpcb.com/"
+     ],
+     "why_here": [
+      "https://alibibeachpcb.com/"
+     ],
+     "know_before": [
+      "https://alibibeachpcb.com/"
+     ],
+     "local_tip": [
+      "https://alibibeachpcb.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Live music every day showcasing local talent",
+      "source": "https://alibibeachpcb.com/"
+     },
+     {
+      "claim": "Full bar with craft and domestic beer options",
+      "source": "https://alibibeachpcb.com/"
+     },
+     {
+      "claim": "Daily menu includes wings, burgers, pizza, tacos and sandwiches",
+      "source": "https://alibibeachpcb.com/"
+     },
+     {
+      "claim": "Saturday and Sunday breakfast is offered",
+      "source": "https://alibibeachpcb.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJwYxPGfu30YgRBuPGwZRZp-g",
+   "name": "Mallory Square",
+   "category": "attractions",
+   "metro": "keys",
+   "primary_type": "tourist_attraction",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.mallorysquare.com/",
+     "source_name": "Mallory Square \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Key West Sunset Celebration is a nightly festival watching the sun sink into the Gulf of Mexico horizon",
+      "The celebration features magicians, jugglers, clowns, psychics, local musicians, artists and food vendors",
+      "The Shops at Mallory Square offer handcrafted goods, gifts and souvenirs in an air-conditioned building"
+     ]
+    },
+    {
+     "source": "https://www.mallorysquare.com/key-west-things-to-do/",
+     "source_name": "Mallory Square \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Festivities at Mallory Square begin approximately two hours before sunset every evening, 365 days a year"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "World-famous nightly Sunset Celebration over the Gulf of Mexico",
+    "why_here": "Mallory Square hosts Key West's world-famous Sunset Celebration, a nightly festival where visitors watch the sun sink into the Gulf of Mexico alongside magicians, jugglers, musicians, artists and food vendors. Festivities begin approximately two hours before sunset every evening, 365 days a year, and the Shops at Mallory Square add browsing before the show.",
+    "know_before": "Festivities begin approximately two hours before sunset every evening, 365 days a year \u2014 arrive early for a spot along the waterfront.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.mallorysquare.com/"
+     ],
+     "why_here": [
+      "https://www.mallorysquare.com/"
+     ],
+     "know_before": [
+      "https://www.mallorysquare.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Key West Sunset Celebration is a nightly festival watching the sun sink into the Gulf of Mexico horizon",
+      "source": "https://www.mallorysquare.com/"
+     },
+     {
+      "claim": "Festivities at Mallory Square begin approximately two hours before sunset every evening, 365 days a year",
+      "source": "https://www.mallorysquare.com/key-west-things-to-do/"
+     },
+     {
+      "claim": "The celebration features magicians, jugglers, clowns, psychics, local musicians, artists and food vendors",
+      "source": "https://www.mallorysquare.com/"
+     },
+     {
+      "claim": "The Shops at Mallory Square offer handcrafted goods, gifts and souvenirs in an air-conditioned building",
+      "source": "https://www.mallorysquare.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJlSDzCQHFwogR69Jp3Uju8mY",
+   "name": "Desoto Park",
+   "category": "attractions",
+   "metro": "tampa",
+   "primary_type": "city_park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.tampa.gov/parks-and-recreation/activities-recreation/recreation-centers",
+     "source_name": "Desoto Park \u2014 official source",
+     "source_class": "government",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "DeSoto Park Center features a Computer Lab and Pool Facility",
+      "DeSoto Park Center offers After School, Summer Camp and Stay & Play programs",
+      "Recreation Centers are described as a natural gathering place for the community",
+      "DeSoto Park Center phone is listed as 813-242-5307"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "City of Tampa recreation center with a Computer Lab and Pool Facility",
+    "why_here": "DeSoto Park Center is listed by the City of Tampa among its Recreation Centers, which the city describes as a natural gathering place for the community. The center lists a Computer Lab and Pool Facility alongside After School, Summer Camp and Stay & Play programs.",
+    "know_before": "DeSoto Park Center lists phone 813-242-5307 and offers After School, Summer Camp and Stay & Play programs.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.tampa.gov/parks-and-recreation/activities-recreation/recreation-centers"
+     ],
+     "why_here": [
+      "https://www.tampa.gov/parks-and-recreation/activities-recreation/recreation-centers"
+     ],
+     "know_before": [
+      "https://www.tampa.gov/parks-and-recreation/activities-recreation/recreation-centers"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "DeSoto Park Center features a Computer Lab and Pool Facility",
+      "source": "https://www.tampa.gov/parks-and-recreation/activities-recreation/recreation-centers"
+     },
+     {
+      "claim": "DeSoto Park Center offers After School, Summer Camp and Stay & Play programs",
+      "source": "https://www.tampa.gov/parks-and-recreation/activities-recreation/recreation-centers"
+     },
+     {
+      "claim": "Recreation Centers are described as a natural gathering place for the community",
+      "source": "https://www.tampa.gov/parks-and-recreation/activities-recreation/recreation-centers"
+     },
+     {
+      "claim": "DeSoto Park Center phone is listed as 813-242-5307",
+      "source": "https://www.tampa.gov/parks-and-recreation/activities-recreation/recreation-centers"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJg_kBrlUY24gRVblU2V-Y_CE",
+   "name": "Sweet Melissa's Ice Cream Shoppe",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "ice_cream_shop",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://bonitabeachsweets.com/",
+     "source_name": "Sweet Melissa's Ice Cream Shoppe \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Over 30 flavors of homemade ice cream are served",
+      "Homemade Classic Key Lime Pie, Mixed Berry Key Lime Pie and \"Crazy for Coconut\" Cream Pies are offered",
+      "The shop is located only 1.2 miles from Barefoot Beach",
+      "Sugar Free, Low Fat and Vegan selections and sorbets are listed"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Over 30 flavors of homemade ice cream plus homemade Classic Key Lime Pie and cream pies",
+    "why_here": "Over 30 flavors of homemade ice cream are served Homemade Classic Key Lime Pie, Mixed Berry Key Lime Pie and \"Crazy for Coconut\" cream pies are offered",
+    "know_before": "Gift cards can be used at both locations.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://bonitabeachsweets.com/"
+     ],
+     "why_here": [
+      "https://bonitabeachsweets.com/"
+     ],
+     "know_before": [
+      "https://bonitabeachsweets.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Over 30 flavors of homemade ice cream are served",
+      "source": "https://bonitabeachsweets.com/"
+     },
+     {
+      "claim": "Homemade Classic Key Lime Pie, Mixed Berry Key Lime Pie and \"Crazy for Coconut\" Cream Pies are offered",
+      "source": "https://bonitabeachsweets.com/"
+     },
+     {
+      "claim": "The shop is located only 1.2 miles from Barefoot Beach",
+      "source": "https://bonitabeachsweets.com/"
+     },
+     {
+      "claim": "Sugar Free, Low Fat and Vegan selections and sorbets are listed",
+      "source": "https://bonitabeachsweets.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJZ-aWEJTE5ogRtSeUk7qjZGo",
+   "name": "Tom Renick Park",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.volusia.org/services/public-works/coastal-division/coastal-parks/tom-renick-park.stml",
+     "source_name": "Tom Renick Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Tom Renick Park is handicapped accessible and set into the natural coastal landscape",
+      "Dune vegetation includes Sea Grapes, Sea Oats and Cabbage Palms",
+      "The park has picnic pavilions, a playground, restrooms, showers and bike racks",
+      "All Coastal and Inlet Parks are open 365 days a year",
+      "County-owned off-beach parking lots require a $20 daily parking fee"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Beachfront park with dune vegetation, picnic pavilions and a playground",
+    "why_here": "Tom Renick Park is handicapped accessible and beautifully set into the natural coastal landscape with dune vegetation including Sea Grapes, Sea Oats and Cabbage Palms. It has picnic pavilions, a playground, restrooms, showers and bike racks.",
+    "know_before": "Tom Renick Park is handicapped accessible and set into the natural coastal landscape",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.volusia.org/services/public-works/coastal-division/coastal-parks/tom-renick-park.stml"
+     ],
+     "why_here": [
+      "https://www.volusia.org/services/public-works/coastal-division/coastal-parks/tom-renick-park.stml"
+     ],
+     "know_before": [
+      "https://www.volusia.org/services/public-works/coastal-division/coastal-parks/tom-renick-park.stml"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Tom Renick Park is handicapped accessible and set into the natural coastal landscape",
+      "source": "https://www.volusia.org/services/public-works/coastal-division/coastal-parks/tom-renick-park.stml"
+     },
+     {
+      "claim": "Dune vegetation includes Sea Grapes, Sea Oats and Cabbage Palms",
+      "source": "https://www.volusia.org/services/public-works/coastal-division/coastal-parks/tom-renick-park.stml"
+     },
+     {
+      "claim": "The park has picnic pavilions, a playground, restrooms, showers and bike racks",
+      "source": "https://www.volusia.org/services/public-works/coastal-division/coastal-parks/tom-renick-park.stml"
+     },
+     {
+      "claim": "All Coastal and Inlet Parks are open 365 days a year",
+      "source": "https://www.volusia.org/services/public-works/coastal-division/coastal-parks/tom-renick-park.stml"
+     },
+     {
+      "claim": "County-owned off-beach parking lots require a $20 daily parking fee",
+      "source": "https://www.volusia.org/services/public-works/coastal-division/coastal-parks/tom-renick-park.stml"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJvYTS7t8Xw4gRRGmk1I33Sss",
+   "name": "Bradenton Area Convention Center",
+   "category": "attractions",
+   "metro": "manatee-sarasota",
+   "primary_type": "convention_center",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.bradentongulfislands.com/venues/convention-center/",
+     "source_name": "Bradenton Area Convention Center \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Bradenton Area Convention Center is the largest indoor event venue between St. Petersburg and Naples with 95,000 square feet for up to 3,800 attendees",
+      "The Grand Ballroom offers 14,000 square feet and accommodates up to 800 guests",
+      "The venue has 7 versatile meeting rooms and a 4,000-square-foot outdoor plaza",
+      "The 252-room Palmetto Marriott Resort & Spa connects via a climate-controlled corridor",
+      "The venue is located near the Manatee River, 14 miles from Anna Maria Island beaches and 12 miles from Sarasota-Bradenton International Airport"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Largest indoor event venue between St. Petersburg and Naples with 95,000 square feet",
+    "why_here": "The newly renovated Bradenton Area Convention Center is the largest indoor event venue between St. Petersburg and Naples, offering 95,000 square feet of meeting space for events up to 3,800 attendees near the Manatee River. Its Grand Ballroom holds up to 800 guests, with 7 versatile meeting rooms and a 4,000-square-foot outdoor plaza.",
+    "know_before": "Sarasota-Bradenton International Airport is just 12 miles from the Convention Center.",
+    "local_tip": "Stay steps away - the 252-room Palmetto Marriott Resort & Spa connects via a climate-controlled corridor.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.bradentongulfislands.com/venues/convention-center/"
+     ],
+     "why_here": [
+      "https://www.bradentongulfislands.com/venues/convention-center/"
+     ],
+     "know_before": [
+      "https://www.bradentongulfislands.com/venues/convention-center/"
+     ],
+     "local_tip": [
+      "https://www.bradentongulfislands.com/venues/convention-center/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Bradenton Area Convention Center is the largest indoor event venue between St. Petersburg and Naples with 95,000 square feet for up to 3,800 attendees",
+      "source": "https://www.bradentongulfislands.com/venues/convention-center/"
+     },
+     {
+      "claim": "The Grand Ballroom offers 14,000 square feet and accommodates up to 800 guests",
+      "source": "https://www.bradentongulfislands.com/venues/convention-center/"
+     },
+     {
+      "claim": "The venue has 7 versatile meeting rooms and a 4,000-square-foot outdoor plaza",
+      "source": "https://www.bradentongulfislands.com/venues/convention-center/"
+     },
+     {
+      "claim": "The 252-room Palmetto Marriott Resort & Spa connects via a climate-controlled corridor",
+      "source": "https://www.bradentongulfislands.com/venues/convention-center/"
+     },
+     {
+      "claim": "The venue is located near the Manatee River, 14 miles from Anna Maria Island beaches and 12 miles from Sarasota-Bradenton International Airport",
+      "source": "https://www.bradentongulfislands.com/venues/convention-center/"
+     }
+    ]
+   }
+  }
+ ]
+}
