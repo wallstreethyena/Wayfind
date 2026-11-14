@@ -651,6 +651,28 @@ the guard green, the assertion is decoration.
 
 ---
 
+## 🔕 Expected-State Notification Rule (2026-11-13)
+
+**Incident.** The twice-daily Instagram → Trending reconciliation (a scheduled task
+written while PR #2447 was open) pushed Gabriel at 22:46 ET on 2026-11-12: "audit page
+returns 404". The page belonged to #2447, which was not merged, so the 404 was the
+*expected* state of undeployed code, and the run had also found nothing new. Root cause
+was the task prompt ("notify when … the endpoint is down") plus the agent following it
+without classifying the condition. Production monitoring (`app/api/cron/job-watch`,
+`lib/jobWatchAlert.js`) was not involved: it already pages only on new or materially
+changed incidents.
+
+**Fix.** CLAUDE.md "Notifications — Expected-State Rule" (EXPECTED / INFORMATIONAL /
+ACTIONABLE / INCIDENT). The reconciliation task that pointed at #2447 was disabled once
+#2437 shipped the shelf, its twice-daily reconcile cron and job-watch paging; #2447 was
+closed as superseded.
+
+**Also learned.** "172 rows, 0 duplicates" proved the table, not the shelf. The shelf was
+verified separately (live API set == set recomputed from the table; desktop 1440 and
+mobile 390 renders; reel playback; links; pagination; analytics events).
+
+---
+
 ## Recent state (for context, not instructions)
 
 - Two audits complete (recent-release surfaces + full-site sweep). 14 fixes shipped
