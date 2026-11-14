@@ -75,5 +75,12 @@
     "decision_owner": "wallstreethyena",
     "tracking": "#2245 follow-up: owner-authorized held-event recurrence hardening 2026-11-05",
     "reason": "NOT APPLIED. Forward function-only repair for the reproduced due-held-row update recheck_on=today -> today+30: if the old deadline is absent/due, cap an explicitly supplied later renewal at ET today+2. NULL renewal still gets ET+2; preserve existing future deadlines and metadata, permit earlier proposals, and leave past/undated/displayable rows unchanged. Requires the enabled trigger from 20261105120030_event_truth_held_recheck_guard.sql; changes no rows, triggers, grants or RLS at apply time. Complete SQL payload executed twice in PGlite with a missing-prerequisite control, original-failure proof and healthy controls. Pending canonical scripts/apply-migration.mjs application; this session has no Management API/PostgREST credentials and performed no production writes."
+  },
+  {
+    "file": "supabase/migrations/20261112200000_photo_batch_audit.sql",
+    "sha256": "ed62ba1c7e9cb96731aea9fd37dcc71d8e18ce96947e53a90c959c3840f2babf",
+    "decision_owner": "wallstreethyena",
+    "tracking": "#2454 photo batch audit 2026-11-12",
+    "reason": "NOT APPLIED. Additive only: new table wf_photo_change_audit (RLS on, no anon/authenticated policies) plus statement-level audit triggers on wf_google_photo_store and wf_place_photo that only ever raise a WARNING. The SQL was NOT test-run on production: the transaction test through execute_sql timed out waiting for a confirmation prompt, so it is unproven until applied or tested in a transaction that is rolled back. Pending canonical scripts/apply-migration.mjs application by the owner."
   }
 ]

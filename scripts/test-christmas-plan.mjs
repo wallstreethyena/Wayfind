@@ -107,6 +107,15 @@ console.log("test-christmas-plan: OK (" + n + " assertions)");
   const g = await import("../lib/apiGuard.js");
   if (!(g.PLAN_VOTES_RL && g.PLAN_VOTES_RL.limit === 20 && /path === "\/api\/christmas\/plan-votes" \? PLAN_VOTES_RL/.test(mw))) throw new Error("plan votes must have their own 20/min per-IP limit in middleware");
   const br = strip(readFileSync(new URL("../app/components/ChristmasBrowse.js", import.meta.url), "utf8"));
-  if (!/get\("plan"\); if \(plan\) shown\.set\("plan", plan\)/.test(br)) throw new Error("the URL rewrite must keep a shared ?plan= link");
+  // 2026-11-13: the rewrite keeps every non filter key (the plan, ad tags,
+  // click ids) through christmasAddressSearch, so the plan is kept by rule,
+  // not by a special case. Called, not pattern matched.
+  const fnSrc = br.slice(br.indexOf("export function christmasAddressSearch"), br.indexOf("return next.toString();") + "return next.toString();\n}".length);
+  const keys = (br.match(/const FILTER_KEYS = (\[[^\]]*\]);/) || [])[1];
+  if (!fnSrc.startsWith("export function christmasAddressSearch") || !keys) throw new Error("the URL rewrite helper is missing");
+  const addressSearch = new Function("FILTER_KEYS", fnSrc.replace("export function christmasAddressSearch", "return function"))(JSON.parse(keys));
+  const after = new URLSearchParams(addressSearch("?plan=abc&region=old&utm_source=meta", new URLSearchParams("region=tampa-bay")));
+  if (after.get("plan") !== "abc" || after.get("region") !== "tampa-bay" || after.get("utm_source") !== "meta") throw new Error("the URL rewrite must keep a shared ?plan= link");
+  if (!/location\.pathname \+ \(next \? "\?" \+ next : ""\) \+ "#browse"/.test(br)) throw new Error("the URL rewrite must write the kept query");
   console.log("test-christmas-plan: vote rate limit and ?plan= persistence locked");
 }

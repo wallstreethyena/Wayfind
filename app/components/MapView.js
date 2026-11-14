@@ -151,13 +151,20 @@ function ensurePinImage(map, key, color, opts) {
 function markerNode({ label, color, kind, selected }) {
   ensureOriginPinCss();
   const el = document.createElement("div");
+  el.setAttribute("aria-label", label);
+  if (kind === "origin") {
+    el.setAttribute("role", "img");
+    el.style.cssText = "width:34px;height:46px;pointer-events:none;position:relative;";
+    el.className = "wf-origin-pin";
+    el.innerHTML = mapPinSvg(label === "Your location" ? "location" : "other");
+    return el;
+  }
   el.setAttribute("role", "button");
   el.tabIndex = 0;
-  el.setAttribute("aria-label", label);
-  if (kind === "origin" || kind === "event") {
+  if (kind === "event") {
     el.style.cssText = "width:34px;height:46px;cursor:pointer;position:relative;";
-    el.className = kind === "origin" ? "wf-origin-pin" : "wf-event-pin";
-    el.innerHTML = mapPinSvg(kind === "origin" ? (label === "Your location" ? "location" : "other") : "shows");
+    el.className = "wf-event-pin";
+    el.innerHTML = mapPinSvg("shows");
     return el;
   }
 
@@ -186,7 +193,7 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
     markersRef.current = [];
   };
 
-  searchOriginRef.current = deviceLoc || center || null;
+  searchOriginRef.current = center || deviceLoc || null;
   onAreaChangeRef.current = onAreaChange;
   onViewportChangeRef.current = onViewportChange;
 
@@ -245,6 +252,11 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
     }
     const placeSource = map.getSource("wf-places");
     if (placeSource) placeSource.setData({ type: "FeatureCollection", features: placeFeatures });
+    const selectedSource = map.getSource("wf-selected-pin");
+    if (selectedSource) {
+      const selFeatures = placeFeatures.filter((f) => f.properties.sel === 1);
+      selectedSource.setData({ type: "FeatureCollection", features: selFeatures });
+    }
     // Diagnostic only, never a UI change — 2026-09-23. Lets a live check (or a
     // person with devtools open) confirm the map's pin membership matches the
     // list it sits beside for the same query/origin, without adding anything
@@ -263,6 +275,13 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
     eventList.forEach((event) => {
       const node = markerNode({ label: event.venue || event.name || "Event", color: "#8B5CF6", kind: "event" });
       node.addEventListener("click", (e) => { e.stopPropagation(); onSelectEvent && onSelectEvent(event); });
+      node.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          e.stopPropagation();
+          onSelectEvent && onSelectEvent(event);
+        }
+      });
       markersRef.current.push(new Marker({ element: node, anchor: "bottom" }).setLngLat([event.lng, event.lat]).addTo(map));
       bounds.extend([event.lng, event.lat]);
     });
@@ -434,6 +453,14 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
         // rest sit back. 0.86 was tuned for a pin with a 4px dot in it.
         "icon-size": ["case", ["==", ["get", "sel"], 1], 1.1, ["<=", ["get", "rank"], 5], 1.0, 0.88],
       }, paint: { "icon-opacity": OPACITY } });
+      map.addSource("wf-selected-pin", { type: "geojson", data: { type: "FeatureCollection", features: [] } });
+      map.addLayer({ id: "wf-selected-pin-layer", type: "symbol", source: "wf-selected-pin", maxzoom: 14.01, layout: {
+        "icon-image": ["get", "img"],
+        "icon-anchor": "bottom",
+        "icon-allow-overlap": true,
+        "icon-ignore-placement": true,
+        "icon-size": 1.1,
+      }, paint: { "icon-opacity": 1 } });
       map.addSource("wf-rings", { type: "geojson", data: { type: "FeatureCollection", features: [] } });
       map.addLayer({ id: "wf-rings-glow", type: "line", source: "wf-rings", filter: ["==", ["get", "kind"], "ring"], paint: { "line-color": "#F97316", "line-width": 6, "line-opacity": .18 } });
       map.addLayer({ id: "wf-rings-line", type: "line", source: "wf-rings", filter: ["==", ["get", "kind"], "ring"], paint: { "line-color": "#FDBA74", "line-width": 1.6, "line-opacity": .82 } });
@@ -465,14 +492,34 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
       const clusterId = feature && feature.properties && feature.properties.cluster_id;
       const source = map.getSource("wf-places");
       if (clusterId == null || !source || typeof source.getClusterExpansionZoom !== "function") return;
-      source.getClusterExpansionZoom(clusterId).then((zoom) => map.easeTo({ center: feature.geometry.coordinates, zoom, duration: 420 })).catch(() => {});
+      const expandCluster = () => source.getClusterExpansionZoom(clusterId).then((zoom) => map.easeTo({ center: feature.geometry.coordinates, zoom, duration: 420 })).catch(() => {});
+      if (typeof source.getClusterLeaves === "function") {
+        source.getClusterLeaves(clusterId, 25, 0).then((leaves) => {
+          if (Array.isArray(leaves) && leaves.length > 0) {
+            const coords = new Set(leaves.map((lf) => {
+              const c = lf && lf.geometry && lf.geometry.coordinates;
+              return Array.isArray(c) ? `${Number(c[1]).toFixed(6)}|${Number(c[0]).toFixed(6)}` : "";
+            }));
+            if (coords.size <= 1) {
+              const firstId = leaves[0]?.properties?.id;
+              const topPlace = firstId != null ? placesByIdRef.current.get(String(firstId)) : null;
+              if (topPlace && onSelect) { onSelect(topPlace); return; }
+            }
+          }
+          expandCluster();
+        }).catch(expandCluster);
+      } else {
+        expandCluster();
+      }
     });
-    map.on("click", "wf-place-pins", (event) => {
-      const feature = event.features && event.features[0];
-      const place = feature && placesByIdRef.current.get(String(feature.properties && feature.properties.id));
-      if (place && onSelect) onSelect(place);
-    });
-    for (const layer of ["wf-place-clusters", "wf-place-pins"]) {
+    for (const pinLayer of ["wf-place-pins", "wf-selected-pin-layer"]) {
+      map.on("click", pinLayer, (event) => {
+        const feature = event.features && event.features[0];
+        const place = feature && placesByIdRef.current.get(String(feature.properties && feature.properties.id));
+        if (place && onSelect) onSelect(place);
+      });
+    }
+    for (const layer of ["wf-place-clusters", "wf-place-pins", "wf-selected-pin-layer"]) {
       map.on("mouseenter", layer, () => { map.getCanvas().style.cursor = "pointer"; });
       map.on("mouseleave", layer, () => { map.getCanvas().style.cursor = ""; });
     }
@@ -501,7 +548,7 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !focus || focus.lat == null || focus.lng == null) return;
-    map.flyTo({ center: [focus.lng, focus.lat], zoom: Math.max(map.getZoom(), 14), duration: 650, essential: true });
+    map.flyTo({ center: [focus.lng, focus.lat], zoom: Math.max(map.getZoom(), 15), duration: 650, essential: true });
   }, [focus && focus.ts]);
 
   // v6.99 — 3D toggle: live-swap the style instead of remounting the whole
@@ -544,7 +591,7 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
       {[...new Set((places || []).filter(p => p && p.lat != null && p.lng != null).slice(0, 60).map(p => eventMapFamily(p, category)))].map(family => <span key={family} style={{ display: "inline-flex", alignItems: "center", gap: 5, whiteSpace: "nowrap" }}><MapCategoryPin family={family} height={28} />{pinCategory(family).label}</span>)}
       {(events || []).length > 0 && <span style={{ display: "inline-flex", alignItems: "center", gap: 5, whiteSpace: "nowrap" }}><MapCategoryPin family="shows" height={28} />Events</span>}
     </div>}
-    <div ref={containerRef} style={{ position: "absolute", inset: 0 }} />
+    <div ref={containerRef} role="region" aria-label="Interactive 3D map" style={{ position: "absolute", inset: 0 }} />
     <div aria-hidden="true" style={{ position: "absolute", inset: 0, pointerEvents: "none", border: "1px solid rgba(15,23,42,.08)", boxShadow: "inset 0 1px 0 rgba(255,255,255,.4)" }} />
   </div>;
 }

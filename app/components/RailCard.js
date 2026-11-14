@@ -44,6 +44,7 @@ import ExperienceVideoAction from "./ExperienceVideoAction";
 import useEventClock from "./useEventClock.js";
 import { usePlaceDistance } from "./PlaceDistance.js";
 import { formatDistanceMiles } from "../../lib/deviceDistance.js";
+import { useReserveEntry } from "../../lib/reserveClient.js";
 import { eventVisitStatus } from "../../lib/eventVisitFacts.js";
 import { compactWhen } from "../../lib/whenCompact.js";
 import { useEffect, useState } from "react";
@@ -378,6 +379,10 @@ export default function RailCard({
   domRef = null,
 }) {
   const distanceLabel = formatDistanceMiles(usePlaceDistance(place));
+  // Reservation entry (lib/reserveCapability.js): fills the money-action slot ONLY when the caller left it empty
+  // (no cta, no ctaNode; a Directions cta is dropped below, so it counts as empty). One primary action per card.
+  const reserveEntry = useReserveEntry(ctaNode || (cta && !isDirectionsCta(cta)) ? null : place);
+  const ReserveSlot = reserveEntry && reserveEntry.Slot;
   const siteDay = useSiteToday(); // re-renders at midnight Eastern so the season skin flips without a reload
   // Interactive place cards always open the full /p/{id} detail experience.
   // /places/{id} remains the durable SEO document. Normalizing at this shared
@@ -655,7 +660,7 @@ export default function RailCard({
               {...(cta.external ? { target: "_blank", rel: cta.sponsored ? "sponsored nofollow noopener" : "noreferrer" } : {})}
               onClick={(e) => { e.stopPropagation(); if (cta.onClick) cta.onClick(e); }}
             >{spooky ? <span className="wf-spooky-ghost" aria-hidden="true">{"\u{1F47B}"}</span> : null}{cta.label}</a>
-          ) : null)}
+          ) : (ReserveSlot ? <ReserveSlot place={place} surface="rail_card" lane={reserveEntry.lane} /> : null))}
 
           {/* Every card exposes the same four controls. Non-place cards use
               contentCardActions; place cards keep the ranking-aware store. */}
