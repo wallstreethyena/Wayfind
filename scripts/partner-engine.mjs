@@ -138,29 +138,30 @@ if (cmd === "status") {
     console.error(`Unknown prospect: ${args[1] || "(missing id)"}`);
     process.exit(1);
   }
+  const cityStr = String(target.city || "").trim();
   const campaign = buildCampaignObject(
     {
       slug: target.id,
       advertiser: target.name,
       businessName: target.name,
-      city: target.city,
-      packageId: target.recommendedPackage,
+      city: cityStr,
+      packageId: (target.recommendedPackage && target.recommendedPackage.packageId) || target.recommendedPackage,
       placeId: target.placeId,
       eventId: target.eventId || null,
-      address: `${target.city}, FL`,
+      address: /,\s*(?:FL|Florida)\b/i.test(cityStr) ? cityStr : `${cityStr}, FL`,
       lat: target.lat || 27.3264,
       lng: target.lng || -82.5406,
       rating: target.rating,
       reviews: target.reviews,
-      scoreSnapshotOn: today,
-      headline: `${target.name} — direct local discovery in ${target.city}`,
-      body: target.whyYouBrief,
+      scoreSnapshotOn: target.scoreSnapshotOn || null,
+      headline: `${target.name} — direct local discovery in ${cityStr}`,
+      body: target.approvedVisitorBody || "",
       claim: "0% Wayfind commission on direct bookings.",
       cta: target.publicContact && target.publicContact.onlineBookingAvailable === false ? "Visitor info & hours" : "Book direct",
       href: (target.publicContact && (target.publicContact.bookingUrl || target.publicContact.officialWebsite)) || "",
       copyFactCheckedAgainstSource: (target.publicContact && target.publicContact.officialWebsite) || "",
-      staticPhoto: "/brand/wayfind-mark.png",
-      photoOwnerApproved: true,
+      staticPhoto: null,
+      photoOwnerApproved: false,
     },
     today
   );
@@ -194,28 +195,30 @@ if (cmd === "status") {
     const destHref =
       (matched && matched.publicContact && (matched.publicContact.bookingUrl || matched.publicContact.officialWebsite)) ||
       (String(pl.exactCta || "").match(/https:\/\/[^\s?]+/) || ["https://www.gowayfind.com/partners"])[0];
+    const plCity = String(pl.city || "").trim();
     const c = buildCampaignObject(
       {
         slug: pl.prospectId,
         advertiser: pl.targetBusiness,
         businessName: pl.targetBusiness,
-        city: pl.city,
-        packageId: pl.recommendedPackage,
+        city: plCity,
+        address: /,\s*(?:FL|Florida)\b/i.test(plCity) ? plCity : `${plCity}, FL`,
+        packageId: (pl.recommendedPackage && pl.recommendedPackage.packageId) || pl.recommendedPackage,
         placeId: pl.placeId || null,
         lat: (matched && matched.lat) || 27.3264,
         lng: (matched && matched.lng) || -82.5406,
         radiusMi: 15,
         rating: matched ? matched.rating : 4.8,
         reviews: matched ? matched.reviews : 500,
-        scoreSnapshotOn: today,
+        scoreSnapshotOn: pl.scoreSnapshotOn || (matched && matched.scoreSnapshotOn) || null,
         headline: `${pl.targetBusiness} — ${pl.archetype}`,
-        body: pl.whyTheyCareNow,
+        body: pl.approvedVisitorBody || "",
         claim: "0% Wayfind commission on direct bookings.",
         cta: "Book direct",
         href: destHref,
         copyFactCheckedAgainstSource: destHref,
-        staticPhoto: "/brand/wayfind-mark.png",
-        photoOwnerApproved: true,
+        staticPhoto: null,
+        photoOwnerApproved: false,
         startsOn: today,
       },
       today
@@ -224,7 +227,8 @@ if (cmd === "status") {
       pilotNumber: idx + 1,
       pilotId: pl.pilotId,
       businessName: pl.targetBusiness,
-      qa: validatePartnerCampaignForLaunch(c, today),
+      proposalStatus: "internal_proposal_uncontacted_requires_creative_signoff",
+      uncontactedProposalQa: validatePartnerCampaignForLaunch(c, today),
     };
   });
   printJson({ asOf: today, registryChecks, pilotChecks });
@@ -246,15 +250,15 @@ if (cmd === "status") {
           radiusMi: 15,
           rating: selby.rating,
           reviews: selby.reviews,
-          scoreSnapshotOn: today,
+          scoreSnapshotOn: selby.scoreSnapshotOn || "2026-11-13",
           headline: "Lights in Bloom® Open-Air Holiday Light Show (Dec 5 – Jan 2)",
           body: "Over two million tropical garden lights on Sarasota Bay. Direct online timed-entry tickets — 0% Wayfind commission.",
           claim: "Direct timed-entry tickets on selby.org",
           cta: "Reserve Lights in Bloom tickets",
           href: selby.publicContact.bookingUrl,
           copyFactCheckedAgainstSource: selby.publicContact.officialWebsite,
-          staticPhoto: "/brand/wayfind-mark.png",
-          photoOwnerApproved: true,
+          staticPhoto: null,
+          photoOwnerApproved: false,
           startsOn: "2026-12-03",
           endsOn: "2027-01-01",
         },
@@ -262,6 +266,7 @@ if (cmd === "status") {
       )
     : null;
   printJson({
+    illustrativeMockOnly: true,
     hardTestPackage: hardTest,
     generatedOutreach: selby ? generateSalesMessages(selby, today) : null,
     cardPreview: livePreview,

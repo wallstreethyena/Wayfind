@@ -940,16 +940,16 @@ function PartnersRevenueSection({ auth, range }) {
           </Frame>
         </Card>
         <Card>
-          <Frame title="Florida regional demand vs sponsor supply" def="30-day observed detail opens and unmonetized detail opens across all 8 Florida regions. Note: primary_cta_null fires passively on mount in Detail.js whenever !primaryCta.monetized — visitors still have working Directions, Website, Menu, Reserve, or direct non-affiliate Tickets buttons."
+          <Frame title="Florida regional demand vs sponsor supply" def="30-day observed detail opens and non-monetized outbound action clicks (Directions, Website, Call, or direct organizer links) across all 8 Florida regions. Statewide, 70.4% of detail opens (4,473 / 6,351) also fire passive primary_cta_null on mount in Detail.js whenever !primaryCta.monetized — visitors still have working Directions, Website, Menu, Reserve, or direct non-affiliate Tickets buttons."
             source={dget(d, "staticSource")}>
             <DataTable caption="Florida regional gap matrix"
-              columns={["Region", "Places", "Guides", "Opens (30d)", "Unmonetized opens", "Paid"]}
+              columns={["Region", "Places", "Guides", "Opens (30d)", "Non-monetized clicks", "Paid"]}
               rows={regions.map((r) => [
                 r.name,
                 fmtNum(r.servablePlaces),
                 fmtNum(r.liveGuides),
                 fmtNum(r.detailOpens30d),
-                fmtNum(r.primaryCtaNulls30d),
+                fmtNum(r.nonMonetizedActionClicks30d),
                 fmtNum(r.activePaidSponsors),
               ])} />
           </Frame>
@@ -968,7 +968,11 @@ function PartnersRevenueSection({ auth, range }) {
               pr.category,
               pr.wayfindScore != null ? (pr.wayfindScore / 10).toFixed(1) : "Event",
               `${pr.fitBand} (${pr.fitScoreInternal})`,
-              pr.recommendedPackage,
+              typeof pr.recommendedPackage === "string"
+                ? pr.recommendedPackage
+                : pr.recommendedPackage && pr.recommendedPackage.packageId
+                ? `${pr.recommendedPackage.packageId} ($${pr.recommendedPackage.priceUsd})`
+                : "—",
               pr.onlineBookingAvailable ? (pr.bookingPlatform || "Online") : "Walk-up only",
             ])} />
         </Frame>

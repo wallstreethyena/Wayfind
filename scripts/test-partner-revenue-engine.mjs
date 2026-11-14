@@ -102,6 +102,7 @@ globalThis.fetch = async (url, init = {}) => {
   });
 };
 
+import { execFileSync } from "node:child_process";
 import { readFileSync, readdirSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -265,29 +266,35 @@ function walkJsFiles(dir, out = []) {
     );
   }
 
-  // Area 6 static commercial audit scan across partner files + PartnersRevenueSection in ui.js
+  // Area 6 static commercial audit scan across partner files + sponsorPage + PartnersRevenueSection in ui.js
   const auditFiles = [
     "lib/partnerRevenueEngine.js",
+    "lib/sponsorPage.js",
     "lib/commandCenter/sources/partners.js",
     "data/partners/market-gap-matrix.json",
     "data/partners/flagship-pilots.json",
     "data/partners/florida-prospect-queue.json",
   ];
   const prohibitedAuditRx =
-    /null-CTA|dead-end|primaryCtaNullDeadEnds|unique visitors|Sarasota visitors|Siesta Key visitors|Central Florida visitors|visitors opened|CTA gap|no ticket button|unserved ticket-intent|without a direct ticket CTA|no speakeasy or reservation CTA|zero ticket button|want an action button|20[–-]30%|confirmedAffiliateRevenueUsd|confirmedAffiliateCommissionRevenueUsd|Tonight rail|Eligible Activity & Tonight/i;
+    /null-CTA|dead-end|primaryCtaNullDeadEnds|unique visitors|Sarasota visitors|Siesta Key visitors|Central Florida visitors|visitors opened|CTA gap|no ticket button|unserved ticket-intent|without a direct ticket CTA|no speakeasy or reservation CTA|zero ticket button|want an action button|20[–-]30%|confirmedAffiliateRevenueUsd|confirmedAffiliateCommissionRevenueUsd|Tonight rail|Eligible Activity & Tonight|Eligible for active local event rails|such as Tonight/i;
   for (const rel of auditFiles) {
     const content = readFileSync(join(ROOT, rel), "utf8");
     ok(!prohibitedAuditRx.test(content), `Area 6 audit scan: ${rel} contains zero prohibited CTA/visitor/20-30%/rail conflations`);
   }
+  ok(
+    APPROVED_PACKAGES.weekly.includedDeliverables.some((d) => d.includes("/partners/<slug>")),
+    "Area 4.1: APPROVED_PACKAGES.weekly aligns with PARTNER_PACKAGES Weekly on /partners/<slug> showcase page deliverable"
+  );
   const ccUiSrc = readFileSync(join(ROOT, "app/command-center/ui.js"), "utf8");
   const partnersUiSlice = ccUiSrc.slice(ccUiSrc.indexOf("function PartnersRevenueSection"));
   ok(
-    partnersUiSlice.includes("Unmonetized opens") &&
+    partnersUiSlice.includes("Non-monetized clicks") &&
       partnersUiSlice.includes("!primaryCta.monetized") &&
       partnersUiSlice.includes("leads in window · redirect hops (not bookings)") &&
+      !partnersUiSlice.includes("Unmonetized opens") &&
       !partnersUiSlice.includes("CTA gaps") &&
       !partnersUiSlice.includes("form clicks"),
-    "Area 5.2 & 6.1: PartnersRevenueSection in command-center/ui.js uses accurate Unmonetized opens & redirect-hop copy"
+    "Area 5.2 & 6.1: PartnersRevenueSection in command-center/ui.js uses accurate Non-monetized clicks & redirect-hop copy"
   );
 
   // Area 1.3 static import boundary: zero "use client" or public page imports partnerRevenueEngine or data/partners/*.json
@@ -942,6 +949,26 @@ function walkJsFiles(dir, out = []) {
     Array.isArray(getBody1.data.architectureLayers) && getBody1.data.architectureLayers.length === 3,
     "Area 3.3: partnersPanelData explicitly documents 3-layer separation (CRM vs static proposals vs on-demand evaluators)"
   );
+  ok(
+    Array.isArray(getBody1.data.topProspects) &&
+      getBody1.data.topProspects.length > 0 &&
+      getBody1.data.topProspects.every(
+        (pr) =>
+          typeof pr.recommendedPackage === "string" &&
+          pr.recommendedPackage.length > 0 &&
+          !pr.recommendedPackage.includes("[object Object]") &&
+          !String(pr.recommendedPackage).toLowerCase().includes("[object object]")
+      ),
+    "Blocker 1: topProspects.recommendedPackage is always a formatted string and never renders [object Object]"
+  );
+  ok(
+    Array.isArray(getBody1.data.regions) &&
+      getBody1.data.regions.length === 8 &&
+      getBody1.data.regions.every(
+        (r) => typeof r.nonMonetizedActionClicks30d === "number" && r.primaryCtaNulls30d === undefined
+      ),
+    "Blocker 4: regions expose nonMonetizedActionClicks30d and never conflate action clicks into primaryCtaNulls30d"
+  );
 
   // Request 3 & 4: Advance leadId1 through PROPOSAL -> AGREED across separate HTTP POSTs
   const propRes = await ccPost(
@@ -1144,6 +1171,83 @@ function walkJsFiles(dir, out = []) {
   const truthPack = buildPartnerTruthPack(campaign);
   const qa = validatePartnerCampaignForLaunch(campaign, "2026-11-13");
   ok(qa.ready === true && qa.passedCount === 12 && Boolean(truthPack), "Check 7: campaign object + truth pack pass all 12 pre-launch QA checks");
+
+  // Blocker 2: buildCampaignObject unwraps object packageId, never stamps today onto missing scoreSnapshotOn, and defaults photoOwnerApproved=false
+  const rawDraftFromObjectPkg = buildCampaignObject(
+    {
+      businessName: "The Ringling",
+      city: "Sarasota, FL",
+      packageId: { packageId: "quarterly", priceUsd: 299, measurementPeriodDays: 90 },
+      lat: 27.3815,
+      lng: -82.5633,
+      rating: 4.8,
+      reviews: 9874,
+      href: "https://my.ringling.org/",
+    },
+    "2026-11-13"
+  );
+  ok(
+    rawDraftFromObjectPkg.packageId === "quarterly" &&
+      rawDraftFromObjectPkg.priceUsd === 299 &&
+      rawDraftFromObjectPkg.scoreSnapshotOn === null &&
+      rawDraftFromObjectPkg.photoOwnerApproved === false &&
+      validatePartnerCampaignForLaunch(rawDraftFromObjectPkg, "2026-11-13").ready === false,
+    "Blocker 2: buildCampaignObject unwraps object packageId to quarterly ($299), leaves missing scoreSnapshotOn null, and fails preLaunchQa until approved"
+  );
+
+  // Blocker 2: Execute real CLI scripts/partner-engine.mjs campaign the-ringling-sarasota + qa + hard-test
+  const cliEnv = {
+    ...process.env,
+    WF_SUPPRESS_ANALYTICS: "1",
+    WF_GUARD_SUITE: "1",
+    WF_VIATOR_TOKEN_CAPTURE: "0",
+  };
+  const ringlingCliJson = JSON.parse(
+    execFileSync(process.execPath, [join(ROOT, "scripts/partner-engine.mjs"), "campaign", "the-ringling-sarasota"], {
+      cwd: ROOT,
+      env: cliEnv,
+      encoding: "utf8",
+    })
+  );
+  ok(
+    ringlingCliJson.campaign.packageId === "quarterly" &&
+      ringlingCliJson.campaign.priceUsd === 299 &&
+      ringlingCliJson.campaign.address === "Sarasota, FL" &&
+      !ringlingCliJson.campaign.address.includes(", FL, FL") &&
+      ringlingCliJson.campaign.scoreSnapshotOn === "2026-11-13" &&
+      ringlingCliJson.campaign.body === "" &&
+      !ringlingCliJson.campaign.body.includes("anonymous browser device") &&
+      ringlingCliJson.campaign.photoOwnerApproved === false &&
+      ringlingCliJson.preLaunchQa.ready === false,
+    "Blocker 2 CLI: partner-engine.mjs campaign the-ringling-sarasota resolves quarterly/$299, clean Sarasota, FL address, 2026-11-13 snapshot, empty unapproved body, photoOwnerApproved=false, and preLaunchQa.ready=false"
+  );
+
+  const qaCliJson = JSON.parse(
+    execFileSync(process.execPath, [join(ROOT, "scripts/partner-engine.mjs"), "qa"], {
+      cwd: ROOT,
+      env: cliEnv,
+      encoding: "utf8",
+    })
+  );
+  const hardTestCliJson = JSON.parse(
+    execFileSync(process.execPath, [join(ROOT, "scripts/partner-engine.mjs"), "hard-test"], {
+      cwd: ROOT,
+      env: cliEnv,
+      encoding: "utf8",
+    })
+  );
+  ok(
+    Array.isArray(qaCliJson.pilotChecks) &&
+      qaCliJson.pilotChecks.length === 5 &&
+      qaCliJson.pilotChecks.every(
+        (p) =>
+          p.proposalStatus === "internal_proposal_uncontacted_requires_creative_signoff" &&
+          p.uncontactedProposalQa &&
+          p.uncontactedProposalQa.ready === false
+      ) &&
+      hardTestCliJson.illustrativeMockOnly === true,
+    "Blocker 2 CLI: partner-engine.mjs qa marks uncontacted proposals not launch-ready and hard-test marks illustrativeMockOnly=true"
+  );
 
   // Area 4.1: rail: "tonight" and radiusMi: 30 MUST be refused
   const tonightFirewall = evaluateEditorialFirewall({ rail: "tonight", label: "Sponsored · Paid partner" });
