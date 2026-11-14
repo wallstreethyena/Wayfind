@@ -176,6 +176,11 @@ try {
     `S3: a PR that adds a workflow gets a FAILING gate check without the owner's approval (${r.posted[0] && r.posted[0].body.output.summary.slice(0, 120)})`);
   r = gate({ files: [file(".github/workflows/owner-approval-gate.yml"), file("scripts/owner-approval-gate.mjs"), file("scripts/lib/ownerApproval.mjs")] });
   ok(r.posted.length === 1 && r.posted[0].body.conclusion === "failure", "S3: a PR that edits the gate itself is judged by main's gate and fails without approval");
+  r = gate({ files: [file("scripts/run-guards.mjs")] });
+  const runner = r.posted.length === 1 && r.posted[0].body.conclusion === "failure" && /scripts\/run-guards\.mjs/.test(r.posted[0].body.output.summary);
+  r = gate({ files: [file("package.json")] }); // this fake serves no blob content: the aspect cannot be judged
+  ok(runner && r.posted.length === 1 && r.posted[0].body.conclusion === "failure",
+    "S3: editing the guard runner needs the owner, and a build-script source whose content cannot be read fails closed (2026-11-14)");
   ok(isOwnerOnly(".github/workflows/anything.yml") && isOwnerOnly(".github/dependabot.yml") && isOwnerOnly(".GitHub/workflows/x.yml") && isOwnerOnly("scripts/owner-approval-gate.mjs") && isOwnerOnly("scripts/lib/githubAppAuth.mjs"),
     "S3: everything under .github/ and the gate's own code is owner-only");
 
@@ -250,7 +255,7 @@ const code = (f) => readFileSync(join(WF_DIR, f), "utf8").split("\n").filter((l)
   ok(clashes.length === 0, `S7: "guards" and "owner-approval" come from exactly one workflow each, and no workflow job is named "owner-approval-gate" (${clashes.join(", ") || "none"})`);
 }
 
-const EXPECTED = 38;
+const EXPECTED = 39;
 if (checks !== EXPECTED) {
   console.error(`test-owner-approval-gate: FAIL — ran ${checks} assertions, expected exactly ${EXPECTED}; a proof was skipped or added without review.`);
   process.exit(1);

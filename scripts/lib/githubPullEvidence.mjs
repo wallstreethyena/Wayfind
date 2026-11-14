@@ -16,6 +16,7 @@
 // any problem into a refusal. There is no default that could make a missing
 // piece of context look like evidence.
 import { readFileSync } from "node:fs";
+import { semanticAspect, semanticSourcesIn } from "./ownerApproval.mjs";
 
 export const MAX_COMMENT_PAGES = 20; // 2,000 comments
 export const MAX_FILE_PAGES = 30;    // 3,000 files: the most GitHub lists for one pull request
@@ -55,11 +56,18 @@ export function readPullContext(env, allowedEvents) {
 
 /**
  * Live evidence for ctx.number: the head commit, every PR comment, and (withFiles)
- * every changed file. The head is read again after everything else; if it moved
- * mid-read this throws, rather than judging comments or files from one commit
- * against another. Throws on any API problem or incomplete answer.
+ * every changed file. The head AND the base ref are read again after everything
+ * else; if either moved mid-read this throws, rather than judging comments or
+ * files from one commit (or one base) against another. Throws on any API problem
+ * or incomplete answer.
+ *
+ * protectedEntries (scripts/lib/ownerApproval.mjs) carries, for every changed
+ * owner-only path, its blob+mode at the merge base and the head, and for every
+ * changed semantic source (scripts/guards.txt, package.json, vercel.json; taken
+ * from `semanticSources` when given, else from the API file list) one aspect entry
+ * computed from both sides' content. Every entry carries the PR's baseRef.
  */
-export async function fetchPullEvidence(ctx, { withFiles = false, protectedFilter = null, protectedPaths = null, fetchImpl = globalThis.fetch } = {}) {
+export async function fetchPullEvidence(ctx, { withFiles = false, protectedFilter = null, protectedPaths = null, semanticSources = null, fetchImpl = globalThis.fetch } = {}) {
   const call = async (path) => {
     const response = await fetchImpl(`${ctx.api}/repos/${ctx.repo}${path}`, {
       headers: { Authorization: `Bearer ${ctx.token}`, Accept: "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28" },
@@ -103,8 +111,9 @@ export async function fetchPullEvidence(ctx, { withFiles = false, protectedFilte
   // protectedFilter. Any doubt is an error, never a partial list.
   let protectedEntries = null;
   const wanted = Array.isArray(protectedPaths) ? [...new Set(protectedPaths)]
-    : (files && typeof protectedFilter === "function" ? files.filter(protectedFilter) : null);
-  if (wanted && wanted.length) {
+    : (files && typeof protectedFilter === "function" ? files.filter(protectedFilter) : []);
+  const semantic = Array.isArray(semanticSources) ? semanticSourcesIn(semanticSources) : semanticSourcesIn(files);
+  if (wanted.length || semantic.length) {
     const head = headOf(first);
     const baseRef = String((first && first.base && first.base.ref) || "");
     if (!/^[0-9a-f]{40}$/.test(head) || !baseRef) throw new Error("the pull request has no readable head or base");
@@ -149,17 +158,34 @@ export async function fetchPullEvidence(ctx, { withFiles = false, protectedFilte
       }
       return { sha: null, mode: null };
     };
+    // Blob CONTENT for the semantic aspects (blobAt already refused symlinks).
+    const textOf = async (sha) => {
+      if (sha === null) return null;
+      const b = await call(`/git/blobs/${sha}`);
+      if (!b || b.encoding !== "base64" || typeof b.content !== "string") throw new Error(`GitHub returned blob ${sha.slice(0, 12)} without base64 content; refusing to judge`);
+      return Buffer.from(b.content.replace(/\s+/g, ""), "base64").toString("utf8");
+    };
     protectedEntries = [];
     for (const path of wanted) {
       const base = await blobAt(path, mergeBase);
       const tip = await blobAt(path, head);
-      protectedEntries.push({ path, base: base.sha, head: tip.sha, baseMode: base.mode, headMode: tip.mode });
+      protectedEntries.push({ path, base: base.sha, head: tip.sha, baseMode: base.mode, headMode: tip.mode, baseRef });
+    }
+    for (const source of semantic) {
+      const base = await blobAt(source, mergeBase);
+      const tip = await blobAt(source, head);
+      const { path, aspect } = semanticAspect(source, await textOf(base.sha), await textOf(tip.sha));
+      protectedEntries.push({ path, aspect, baseRef });
     }
   }
   const comments = await paged(`/issues/${ctx.number}/comments`, MAX_COMMENT_PAGES, "comments");
   const second = await call(`/pulls/${ctx.number}`);
   if (headOf(first) !== headOf(second)) {
     throw new Error(`the pull request head moved from ${headOf(first).slice(0, 12) || "nothing"} to ${headOf(second).slice(0, 12) || "nothing"} while its evidence was being read; the run for the new head decides`);
+  }
+  const baseOf = (pull) => String((pull && pull.base && pull.base.ref) || "");
+  if (baseOf(first) !== baseOf(second)) {
+    throw new Error(`the pull request was retargeted from "${baseOf(first)}" to "${baseOf(second)}" while its evidence was being read; the run for the new base decides`);
   }
   return { liveHeadSha: headOf(second), baseRef: String((second && second.base && second.base.ref) || ""), comments, files, protectedEntries };
 }

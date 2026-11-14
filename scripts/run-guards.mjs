@@ -90,6 +90,22 @@
  *                    + 1 credentialed re-run(s) green in 140.2s". CI must run ALL
  *                    n shards; one green shard says nothing about the others.
  *
+ * ── SHARD REPORT + VERIFICATION (added 2026-11-14) ───────────────────────────
+ *   A sharded run that succeeds appends executed_<i>, digest_<i> and shards_<i>
+ *   to $GITHUB_OUTPUT (scripts/lib/guardShards.mjs, shardOutputLines). Guards are
+ *   spawned with GITHUB_OUTPUT/GITHUB_ENV/GITHUB_PATH blanked, so no guard can
+ *   forge the report or inject env into a later step.
+ *
+ *   --verify-shards  the final "guards" job: reads GUARD_SHARD_COUNT and
+ *                    GUARD_SHARD_REPORT (JSON of needs.shard.outputs), re-derives
+ *                    the partition from this checkout's manifest and exits 1 unless
+ *                    every shard 1..n reported exactly its assigned guards (count
+ *                    and digest) and the counts sum to the manifest. Runs nothing.
+ *
+ *   This file and every local module it imports are OWNER-ONLY
+ *   (scripts/lib/ownerApproval.mjs): a PR that edited the runner to exit 0 used to
+ *   turn "guards" and Vercel's prebuild green with a failing guard (2026-11-14).
+ *
  * TEST OVERRIDES (used only by scripts/test-run-guards.mjs):
  *   GUARD_MANIFEST=<file>  run that manifest instead of scripts/guards.txt and
  *                          bypass FLOOR (a 10 line fake manifest is the point).
@@ -111,12 +127,12 @@
  * anything else that goes through npm's script lifecycle) — never point it
  * at `next build` / `npx next build` directly.
  */
-import { readFileSync } from "node:fs";
+import { appendFileSync, readFileSync } from "node:fs";
 import { spawn, spawnSync } from "node:child_process";
 import os from "node:os";
 import path from "node:path";
 import { CREDENTIALED_GUARDS, credentialedEnv } from "./lib/guardEnv.mjs";
-import { parseShardSpec, selectShard } from "./lib/guardShards.mjs";
+import { parseShardSpec, selectShard, shardOutputLines, verifyShardReport } from "./lib/guardShards.mjs";
 
 const OVERRIDE = process.env.GUARD_MANIFEST || "";
 const MANIFEST = OVERRIDE ? path.resolve(OVERRIDE) : path.resolve("scripts/guards.txt");
@@ -220,6 +236,27 @@ if (SERIAL_LIST) {
 // (Spelled out inline at each spawn below: scripts/check-guards-emit-no-analytics.mjs
 // reads this file and wants the literal env object next to the spawn call.)
 
+// ── SHARD VERIFICATION (the final "guards" job) ─────────────────────────────
+if (process.argv.includes("--verify-shards")) {
+  const rawCount = String(process.env.GUARD_SHARD_COUNT || "");
+  const count = /^[1-9][0-9]*$/.test(rawCount) ? Number(rawCount) : NaN;
+  let report;
+  try {
+    report = JSON.parse(String(process.env.GUARD_SHARD_REPORT || ""));
+  } catch (e) {
+    console.error(`run-guards: FAIL — GUARD_SHARD_REPORT is not JSON (${e.message}); the shard jobs' outputs are missing.`);
+    process.exit(1);
+  }
+  const v = verifyShardReport(guards, serialSet, count, report);
+  if (!v.ok) {
+    console.error(`run-guards: FAIL — shard report does not cover the manifest exactly once:`);
+    for (const e of v.errors) console.error(`  ${e}`);
+    process.exit(1);
+  }
+  console.log(`run-guards: OK — ${count} shard report(s) cover all ${v.expected} guards of the manifest exactly once (counts sum to ${v.total}, every shard's guard digest matches)`);
+  process.exit(0);
+}
+
 // ── SHARDING ─────────────────────────────────────────────────────────────────
 // Everything above (FLOOR, the serial-list check) judged the FULL manifest. From
 // here on `guards` is just this shard's slice, still in manifest order, so the
@@ -256,7 +293,7 @@ if (jobs === 1) {
   for (let i = 0; i < N; i++) {
     const cmd = guards[i];
     const gs = Date.now();
-    const r = spawnSync(cmd, { shell: true, stdio: "inherit", env: { ...process.env, GUARD_SHARD: "", WF_SUPPRESS_ANALYTICS: "1", WF_GUARD_SUITE: "1", WF_VIATOR_TOKEN_CAPTURE: "0" } });
+    const r = spawnSync(cmd, { shell: true, stdio: "inherit", env: { ...process.env, GUARD_SHARD: "", WF_SUPPRESS_ANALYTICS: "1", WF_GUARD_SUITE: "1", WF_VIATOR_TOKEN_CAPTURE: "0", GITHUB_OUTPUT: "", GITHUB_ENV: "", GITHUB_PATH: "" } });
     durations[i] = (Date.now() - gs) / 1000;
     if (r.error) failUnrunnable(i, r.error.message);
     if (r.status !== 0) {
@@ -276,7 +313,7 @@ if (jobs === 1) {
     const done = (r) => { if (!settled) { settled = true; resolve({ ...r, secs: (Date.now() - started) / 1000, out: Buffer.concat(chunks) }); } };
     let child;
     try {
-      child = spawn(cmd, { shell: true, stdio: ["ignore", "pipe", "pipe"], env: { ...process.env, GUARD_SHARD: "", WF_SUPPRESS_ANALYTICS: "1", WF_GUARD_SUITE: "1", WF_VIATOR_TOKEN_CAPTURE: "0" } });
+      child = spawn(cmd, { shell: true, stdio: ["ignore", "pipe", "pipe"], env: { ...process.env, GUARD_SHARD: "", WF_SUPPRESS_ANALYTICS: "1", WF_GUARD_SUITE: "1", WF_VIATOR_TOKEN_CAPTURE: "0", GITHUB_OUTPUT: "", GITHUB_ENV: "", GITHUB_PATH: "" } });
     } catch (e) {
       done({ error: e, status: null, signal: null });
       return;
@@ -352,7 +389,7 @@ for (const g of CREDENTIALED_GUARDS) {
   const r = spawnSync(g.cmd, {
     shell: true,
     stdio: "inherit",
-    env: { ...credentialedEnv(), GUARD_SHARD: "", WF_SUPPRESS_ANALYTICS: "1", WF_GUARD_SUITE: "1", WF_VIATOR_TOKEN_CAPTURE: "0" },
+    env: { ...credentialedEnv(), GUARD_SHARD: "", WF_SUPPRESS_ANALYTICS: "1", WF_GUARD_SUITE: "1", WF_VIATOR_TOKEN_CAPTURE: "0", GITHUB_OUTPUT: "", GITHUB_ENV: "", GITHUB_PATH: "" },
   });
   if (r.error) {
     console.error(`\nrun-guards: FAIL — credentialed pass could not run: ${g.cmd}`);
@@ -378,6 +415,16 @@ for (const g of CREDENTIALED_GUARDS) {
   }
   const speedup = guardsWallSecs > 0 ? sum / guardsWallSecs : 1;
   console.log(`run-guards: guard wall time ${fmt(guardsWallSecs)} vs ${fmt(sum)} summed guard time = ${speedup.toFixed(2)}x effective speedup (jobs=${jobs}${jobs > 1 ? `, ${N - shardSerial} pooled + ${shardSerial} serial` : ", all serial"})`);
+}
+
+// Shard report for the final "guards" job (see header). Only after success.
+if (shard && process.env.GITHUB_OUTPUT) {
+  try {
+    appendFileSync(process.env.GITHUB_OUTPUT, shardOutputLines(shard.index, shard.count, guards).join("\n") + "\n");
+  } catch (e) {
+    console.error(`run-guards: FAIL — could not write the shard report to GITHUB_OUTPUT (${e.message}).`);
+    process.exit(1);
+  }
 }
 
 console.log(`\nrun-guards: OK — ${shardTag}${N}/${N} guards + ${credOk} credentialed re-run(s) green in ${((Date.now() - t0) / 1000).toFixed(1)}s`);

@@ -16,7 +16,8 @@
  * A pull request therefore cannot change the rule that judges it.
  *
  * Fails closed: outside GitHub Actions, on any other event, without a token, on any
- * API error, on an incomplete file list, or when the head moves mid-read.
+ * API error, on an incomplete file list, when the head or base moves mid-read, or
+ * on a re-run once main has moved past the commit the run started on.
  */
 import { decideOwnerApproval, isOwnerOnly } from "./lib/ownerApproval.mjs";
 import { fetchPullEvidence, readPullContext } from "./lib/githubPullEvidence.mjs";
@@ -32,6 +33,28 @@ if (process.env.GITHUB_ACTIONS !== "true") {
 }
 const ctx = readPullContext(process.env, ["pull_request_target"]);
 if (ctx.error) refuse(`owner approval cannot be evaluated: ${ctx.error}`);
+
+// A re-run (scripts/owner-approval-recheck.mjs re-runs this after an owner
+// comment) keeps the original run's GITHUB_SHA, i.e. main's rule as it was when
+// the run first started. It may re-judge only while main still is that commit; an
+// older rule never decides (ported from #2494, 2026-11-14). GitHub always sets
+// GITHUB_RUN_ATTEMPT; anything but "1" (missing included) is treated as a re-run.
+if ((process.env.GITHUB_RUN_ATTEMPT || "") !== "1") {
+  let tip = "";
+  try {
+    const r = await fetch(`${ctx.api}/repos/${ctx.repo}/git/ref/heads/main`, {
+      headers: { Authorization: `Bearer ${ctx.token}`, Accept: "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28" },
+      signal: AbortSignal.timeout(15000),
+    });
+    if (!r || !r.ok) throw new Error(`GitHub API /git/ref/heads/main answered HTTP ${r ? r.status : "nothing"}`);
+    tip = String((((await r.json()) || {}).object || {}).sha || "");
+  } catch (e) {
+    refuse(`owner approval cannot be evaluated: ${(e && e.message) || e}`);
+  }
+  if (!/^[0-9a-f]{40}$/.test(tip) || tip !== String(process.env.GITHUB_SHA || "")) {
+    refuse(`this is a re-run of a run that started on main ${String(process.env.GITHUB_SHA || "").slice(0, 12) || "?"}, but main is now ${tip.slice(0, 12) || "unknown"}; an older rule never re-judges. A push (or the merge queue's branch update) starts a run with main's current rule`);
+  }
+}
 
 let live;
 try {
