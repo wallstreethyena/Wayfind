@@ -667,6 +667,12 @@ ACTIONABLE / INCIDENT). The reconciliation task that pointed at #2447 was disabl
 #2437 shipped the shelf, its twice-daily reconcile cron and job-watch paging; #2447 was
 closed as superseded.
 
+**Follow-up (2026-11-14).** The approval comment is bound to one commit SHA, so a PR that
+only caught up with `main` needed a second comment. The owner chose to take `CLAUDE.md`
+off the owner-only list entirely (`scripts/lib/ownerApproval.mjs`); `AGENTS.md`,
+`.github/**` and the gate scripts stay locked. Do not ask him for `/owner-approve` on
+CLAUDE.md edits.
+
 **Also learned.** "172 rows, 0 duplicates" proved the table, not the shelf. The shelf was
 verified separately (live API set == set recomputed from the table; desktop 1440 and
 mobile 390 renders; reel playback; links; pagination; analytics events).

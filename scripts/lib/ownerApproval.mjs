@@ -36,7 +36,8 @@ export const OWNER_LOGINS = Object.freeze(OWNERS.map((o) => o.login));
 // on a case-insensitive checkout (macOS) "claude.md" IS CLAUDE.md.
 export const OWNER_ONLY = Object.freeze([
   /^AGENTS\.md$/i,
-  /^CLAUDE\.md$/i,
+  // CLAUDE.md left this list on 2026-11-14 (owner decision, PR #2491): rule
+  // changes ship through normal PRs + guards, no /owner-approve comment.
   /^LOCKS\.md$/i,
   /^QUEUE\.md$/i,
   /^docs\/[^/]*-standard\.md$/i,
