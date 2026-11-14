@@ -1,0 +1,2147 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 64. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJGUdxNyIg2YgRIrj2xgxfrFQ",
+   "name": "Lindburgers Delray Beach",
+   "category": "food",
+   "metro": "palm-beach",
+   "primary_type": "hamburger_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.lindburgers.com/",
+     "source_name": "Lindburgers Delray Beach \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Founded in 1983 in Delray Beach Florida, Lindburgers is an award winning restaurant",
+      "Family owned and operated since day one, we specialize in making the best gourmet hamburgers",
+      "Home Of the 50 Burgers",
+      "Lindburgers Delray Beach serves gourmet burgers, wings, cold drinks, and happy hour specials in a casual, family-friendly atmosphere just minutes from downtown Delray Beach",
+      "plus a great selection of vegetarian items, salads, chicken entrees, steaks and ribs"
+     ]
+    },
+    {
+     "source": "https://www.lindburgers.com/locations/delray-beach/",
+     "source_name": "Lindburgers Delray Beach \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Lindburgers Delray Beach serves gourmet burgers, wings, cold drinks, and happy hour specials in a casual, family-friendly atmosphere just minutes from downtown Delray Beach"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Home Of the 50 Burgers, founded in 1983 in Delray Beach",
+    "why_here": "Founded in 1983 in Delray Beach, this family owned spot specializes in gourmet hamburgers. It serves gourmet burgers, wings, cold drinks and happy hour specials in a casual, family-friendly atmosphere just minutes from downtown.",
+    "know_before": "The menu also includes vegetarian items, salads, chicken entrees, steaks and ribs alongside the burgers.",
+    "local_tip": "Try the happy hour specials in the casual, family-friendly room.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.lindburgers.com/"
+     ],
+     "why_here": [
+      "https://www.lindburgers.com/"
+     ],
+     "know_before": [
+      "https://www.lindburgers.com/"
+     ],
+     "local_tip": [
+      "https://www.lindburgers.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Founded in 1983 in Delray Beach Florida, Lindburgers is an award winning restaurant",
+      "source": "https://www.lindburgers.com/"
+     },
+     {
+      "claim": "Family owned and operated since day one, we specialize in making the best gourmet hamburgers",
+      "source": "https://www.lindburgers.com/"
+     },
+     {
+      "claim": "Home Of the 50 Burgers",
+      "source": "https://www.lindburgers.com/"
+     },
+     {
+      "claim": "Lindburgers Delray Beach serves gourmet burgers, wings, cold drinks, and happy hour specials in a casual, family-friendly atmosphere just minutes from downtown Delray Beach",
+      "source": "https://www.lindburgers.com/"
+     },
+     {
+      "claim": "plus a great selection of vegetarian items, salads, chicken entrees, steaks and ribs",
+      "source": "https://www.lindburgers.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJgyDkWvoA2YgRFaUgnq2GIKI",
+   "name": "The Chimney House - Grill & Cafe",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "latin_american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.chimneyhousefl.com/",
+     "source_name": "The Chimney House - Grill & Cafe \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "We are a Latin American Fusion Restaurant in the heart of downtown Fort Lauderdale, just west of the Broward Center for the Performing Arts",
+      "Nestled in the vibrant neighborhood of Sailboat Bend, our restaurant sits inside a remodeled, historic home, first built in 1924",
+      "the original chimney, which still sits in the middle of the restaurant",
+      "We strive to bring you the best flavors of Peru, Colombia, Argentina, Spain and Guatemala",
+      "Enjoy a Glass of our popular House Sangrias \u2013 a long-standing family and customer favorite",
+      "join us for lunch or dinner Monday through Sunday, or for a delicious and fun weekend brunch"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Latin American fusion inside a remodeled 1924 historic home in Sailboat Bend",
+    "why_here": "This Latin American fusion spot sits inside a remodeled historic home first built in 1924, with the original chimney still in the middle of the restaurant. Its flavors span Peru, Colombia, Argentina, Spain and Guatemala, just west of the Broward Center for the Performing Arts in downtown Fort Lauderdale.",
+    "know_before": "Lunch and dinner are served Monday through Sunday, with weekend brunch also offered.",
+    "local_tip": "Try the popular House Sangrias, described as a long-standing family and customer favorite.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.chimneyhousefl.com/"
+     ],
+     "why_here": [
+      "https://www.chimneyhousefl.com/"
+     ],
+     "know_before": [
+      "https://www.chimneyhousefl.com/"
+     ],
+     "local_tip": [
+      "https://www.chimneyhousefl.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "We are a Latin American Fusion Restaurant in the heart of downtown Fort Lauderdale, just west of the Broward Center for the Performing Arts",
+      "source": "https://www.chimneyhousefl.com/"
+     },
+     {
+      "claim": "Nestled in the vibrant neighborhood of Sailboat Bend, our restaurant sits inside a remodeled, historic home, first built in 1924",
+      "source": "https://www.chimneyhousefl.com/"
+     },
+     {
+      "claim": "the original chimney, which still sits in the middle of the restaurant",
+      "source": "https://www.chimneyhousefl.com/"
+     },
+     {
+      "claim": "We strive to bring you the best flavors of Peru, Colombia, Argentina, Spain and Guatemala",
+      "source": "https://www.chimneyhousefl.com/"
+     },
+     {
+      "claim": "Enjoy a Glass of our popular House Sangrias \u2013 a long-standing family and customer favorite",
+      "source": "https://www.chimneyhousefl.com/"
+     },
+     {
+      "claim": "join us for lunch or dinner Monday through Sunday, or for a delicious and fun weekend brunch",
+      "source": "https://www.chimneyhousefl.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJgV1P91k524gRliXv8mmMF_w",
+   "name": "San Carlos Bay - Bunche Beach Preserve",
+   "category": "beach",
+   "metro": "florida",
+   "primary_type": "nature_preserve",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.visitfortmyers.com/beaches/bunche-beach",
+     "source_name": "San Carlos Bay - Bunche Beach Preserve \u2014 official source",
+     "source_class": "tourism_dmo",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "This natural beach located in Fort Myers near the Sanibel Causeway is popular for swimming, fishing and birdwatching",
+      "Kayak rentals and a paddlecraft launch are also available here",
+      "This beach is also excellent to watch the sunset over San Carlos Bay and Sanibel Island",
+      "Parking is available through a mobile pay system"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Natural beach near the Sanibel Causeway popular for swimming, fishing and birdwatching",
+    "why_here": "Visit Fort Myers describes San Carlos Bay - Bunche Beach Preserve as a natural beach located in Fort Myers near the Sanibel Causeway that is popular for swimming, fishing and birdwatching. The same official tourism page says kayak rentals and a paddlecraft launch are also available here, and that this beach is also excellent to watch the sunset over San Carlos Bay and Sanibel Island.",
+    "know_before": "Parking is available through a mobile pay system.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.visitfortmyers.com/beaches/bunche-beach"
+     ],
+     "why_here": [
+      "https://www.visitfortmyers.com/beaches/bunche-beach"
+     ],
+     "know_before": [
+      "https://www.visitfortmyers.com/beaches/bunche-beach"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "This natural beach located in Fort Myers near the Sanibel Causeway is popular for swimming, fishing and birdwatching",
+      "source": "https://www.visitfortmyers.com/beaches/bunche-beach"
+     },
+     {
+      "claim": "Kayak rentals and a paddlecraft launch are also available here",
+      "source": "https://www.visitfortmyers.com/beaches/bunche-beach"
+     },
+     {
+      "claim": "This beach is also excellent to watch the sunset over San Carlos Bay and Sanibel Island",
+      "source": "https://www.visitfortmyers.com/beaches/bunche-beach"
+     },
+     {
+      "claim": "Parking is available through a mobile pay system",
+      "source": "https://www.visitfortmyers.com/beaches/bunche-beach"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJQ7f4_rFH24gRvRDp00f5pmM",
+   "name": "Fellowship Park",
+   "category": "attractions",
+   "metro": "immokalee-fl",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.capechristian.com/fellowship-park",
+     "source_name": "Fellowship Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Welcome to Fellowship Park , a free, family-friendly community space designed for all ages to enjoy",
+      "Cool off and let the kids play at our fun, interactive splash pad, our most popular features at Fellowship Park, especially during Summer months",
+      "Take a break and recharge at Parkside Caf\u00e9, conveniently located right inside the park",
+      "Splash Pad Hours: Sunrise to 9:00 PM",
+      "All equipment is designed for children 12 and under",
+      "Fellowship Park at Cape Christian A Place for Family, Fun, and Community in Cape Coral"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Free, family-friendly community park on the Cape Christian campus in Cape Coral",
+    "why_here": "Fellowship Park is described as a free, family-friendly community space designed for all ages to enjoy, located right on the campus of Cape Christian in Cape Coral. Families can reserve a private cabana, cool off at the interactive splash pad, or take a break at Parkside Caf\u00e9 inside the park.",
+    "know_before": "Splash pad hours are Sunrise to 9:00 PM, and all equipment is designed for children 12 and under.",
+    "local_tip": "Cool off at the interactive splash pad, described as a most popular feature, especially during Summer months.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.capechristian.com/fellowship-park"
+     ],
+     "why_here": [
+      "https://www.capechristian.com/fellowship-park"
+     ],
+     "know_before": [
+      "https://www.capechristian.com/fellowship-park"
+     ],
+     "local_tip": [
+      "https://www.capechristian.com/fellowship-park"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Welcome to Fellowship Park , a free, family-friendly community space designed for all ages to enjoy",
+      "source": "https://www.capechristian.com/fellowship-park"
+     },
+     {
+      "claim": "Fellowship Park at Cape Christian A Place for Family, Fun, and Community in Cape Coral",
+      "source": "https://www.capechristian.com/fellowship-park"
+     },
+     {
+      "claim": "Cool off and let the kids play at our fun, interactive splash pad, our most popular features at Fellowship Park, especially during Summer months",
+      "source": "https://www.capechristian.com/fellowship-park"
+     },
+     {
+      "claim": "Take a break and recharge at Parkside Caf\u00e9, conveniently located right inside the park",
+      "source": "https://www.capechristian.com/fellowship-park"
+     },
+     {
+      "claim": "Splash Pad Hours: Sunrise to 9:00 PM",
+      "source": "https://www.capechristian.com/fellowship-park"
+     },
+     {
+      "claim": "All equipment is designed for children 12 and under",
+      "source": "https://www.capechristian.com/fellowship-park"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJP2YI03i32YgRyaGxpk3iyo4",
+   "name": "OMAKAI hand roll bar",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "sushi_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://omakaihandrollbar.com/",
+     "source_name": "OMAKAI hand roll bar \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "welcome to miami's first proper hand roll bar",
+      "The Omakai Experience is The ultimate representation of our concept, where you trust the chef to take you on a culinary journey",
+      "HAND ROLLS include Avocado (vegan), Cucumber (vegan), Albacore, Salmon, Yellowtail, Blue Crab and Negi-Toro - Fatty Tuna"
+     ]
+    },
+    {
+     "source": "https://omakaihandrollbar.com/menu/",
+     "source_name": "OMAKAI hand roll bar \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The ultimate representation of our concept, where you trust the chef to take you on a culinary journey",
+      "HAND ROLLS Avocado (vegan) Cucumber (vegan) Albacore Salmon Yellowtail Blue Crab Negi-Toro \u2013 Fatty Tuna"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "miami's first proper hand roll bar for chef-led hand rolls",
+    "why_here": "Come for hand rolls including Salmon, Yellowtail, Blue Crab and Negi-Toro, in a format built around trusting the chef to take you on a culinary journey.",
+    "know_before": "The menu lists HAND ROLLS including Avocado and Cucumber, with both listed as vegan on the menu.",
+    "local_tip": "Trust the chef to take you on a culinary journey rather than ordering roll by roll.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://omakaihandrollbar.com/"
+     ],
+     "why_here": [
+      "https://omakaihandrollbar.com/"
+     ],
+     "know_before": [
+      "https://omakaihandrollbar.com/"
+     ],
+     "local_tip": [
+      "https://omakaihandrollbar.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "welcome to miami's first proper hand roll bar",
+      "source": "https://omakaihandrollbar.com/"
+     },
+     {
+      "claim": "The Omakai Experience is The ultimate representation of our concept, where you trust the chef to take you on a culinary journey",
+      "source": "https://omakaihandrollbar.com/"
+     },
+     {
+      "claim": "HAND ROLLS include Avocado (vegan), Cucumber (vegan), Albacore, Salmon, Yellowtail, Blue Crab and Negi-Toro - Fatty Tuna",
+      "source": "https://omakaihandrollbar.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJeRTyRCGp2YgR6SxDwpmrbWY",
+   "name": "Bae Korean Grill",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "korean_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://baegrill.com/",
+     "source_name": "Bae Korean Grill \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Bae Korean Grill in Hollywood, FL",
+      "Bae is an upscale Korean barbecue dining experience featuring state of the art Shinpo grill tables",
+      "Our authentic culinary experience offers a variety of beef, poultry, pork, seafood as well as vegetarian options",
+      "Bae Grilling Experience A selection of Bae's best and most savory cuts of USDA Prime and Wagyu Beef",
+      "HOURS: Monday - Wednesday 5:00PM - 10:00PM Thursday & Sunday 5:00PM - 11:00PM Friday - Saturday 5:00PM - 12:00AM"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Upscale Korean barbecue with state-of-the-art Shinpo grill tables in Hollywood",
+    "why_here": "Bae Korean Grill describes itself as an upscale Korean barbecue dining experience featuring state of the art Shinpo grill tables. It offers beef, poultry, pork, seafood and vegetarian options, and its Bae Grilling Experience uses USDA Prime and Wagyu Beef selections.",
+    "know_before": "The official site lists opening at 5:00PM, with closing at 10:00PM, 11:00PM or 12:00AM depending on the day.",
+    "local_tip": "Choose the Bae Grilling Experience for USDA Prime and Wagyu Beef cuts.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://baegrill.com/"
+     ],
+     "why_here": [
+      "https://baegrill.com/"
+     ],
+     "know_before": [
+      "https://baegrill.com/"
+     ],
+     "local_tip": [
+      "https://baegrill.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Bae Korean Grill in Hollywood, FL",
+      "source": "https://baegrill.com/"
+     },
+     {
+      "claim": "Bae is an upscale Korean barbecue dining experience featuring state of the art Shinpo grill tables",
+      "source": "https://baegrill.com/"
+     },
+     {
+      "claim": "Our authentic culinary experience offers a variety of beef, poultry, pork, seafood as well as vegetarian options",
+      "source": "https://baegrill.com/"
+     },
+     {
+      "claim": "Bae Grilling Experience A selection of Bae's best and most savory cuts of USDA Prime and Wagyu Beef",
+      "source": "https://baegrill.com/"
+     },
+     {
+      "claim": "HOURS: Monday - Wednesday 5:00PM - 10:00PM Thursday & Sunday 5:00PM - 11:00PM Friday - Saturday 5:00PM - 12:00AM",
+      "source": "https://baegrill.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJV85MA53X2IgR2ZxExp2nZY0",
+   "name": "aioli",
+   "category": "food",
+   "metro": "palm-beach",
+   "primary_type": "cafe",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://aioliwpb.com/",
+     "source_name": "aioli \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Aioli West Palm Beach | Sour Dough Bakery & Cafe",
+      "aioli specializes in casual, locavore foods and gourmet to-go with savory and flavorful sandwiches, soups, salads and sides",
+      "All meats contain no nitrates and are gluten free",
+      "Hang Out or Take Out"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Sour Dough Bakery & Cafe specialising in locavore foods",
+    "why_here": "This bakery and cafe specializes in casual, locavore foods and gourmet to-go. The menu centres on savory and flavorful sandwiches, soups, salads and sides, giving it a clear bakery-and-lunch focus rather than a generic coffee stop.",
+    "know_before": "All meats contain no nitrates and are gluten free, according to the official menu.",
+    "local_tip": "You can hang out or take out, as the official site puts it.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://aioliwpb.com/"
+     ],
+     "why_here": [
+      "https://aioliwpb.com/"
+     ],
+     "know_before": [
+      "https://aioliwpb.com/"
+     ],
+     "local_tip": [
+      "https://aioliwpb.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Aioli West Palm Beach | Sour Dough Bakery & Cafe",
+      "source": "https://aioliwpb.com/"
+     },
+     {
+      "claim": "aioli specializes in casual, locavore foods and gourmet to-go with savory and flavorful sandwiches, soups, salads and sides",
+      "source": "https://aioliwpb.com/"
+     },
+     {
+      "claim": "All meats contain no nitrates and are gluten free",
+      "source": "https://aioliwpb.com/"
+     },
+     {
+      "claim": "Hang Out or Take Out",
+      "source": "https://aioliwpb.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJx8MLmDvV2IgR8OUoTAbqkoE",
+   "name": "The Catch Seafood & Sushi",
+   "category": "food",
+   "metro": "palm-beach",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://thecatchseafoodsushi.com/",
+     "source_name": "The Catch Seafood & Sushi \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Fresh seafood with a bold Peruvian-Japanese twist",
+      "we bring together the best of both worlds: the delicate art of Japanese sushi and the bold, vibrant flavors of Peruvian seafood traditions",
+      "From our Chaufa Peruvian Fried Rice to our signature Ceviche, every dish tells a story of cultural fusion",
+      "Seafood delivered fresh every morning from local suppliers",
+      "Located in the heart of West Palm Beach, we offer an intimate dining experience"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Fresh seafood with a Peruvian-Japanese twist in West Palm Beach",
+    "why_here": "This spot brings together the delicate art of Japanese sushi and the bold, vibrant flavors of Peruvian seafood traditions. Dishes range from Chaufa Peruvian Fried Rice to its signature Ceviche, with seafood delivered fresh every morning from local suppliers in West Palm Beach.",
+    "know_before": "Seafood is delivered fresh every morning from local suppliers.",
+    "local_tip": "Try the signature Ceviche, named on the official site.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://thecatchseafoodsushi.com/"
+     ],
+     "why_here": [
+      "https://thecatchseafoodsushi.com/"
+     ],
+     "know_before": [
+      "https://thecatchseafoodsushi.com/"
+     ],
+     "local_tip": [
+      "https://thecatchseafoodsushi.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Fresh seafood with a bold Peruvian-Japanese twist",
+      "source": "https://thecatchseafoodsushi.com/"
+     },
+     {
+      "claim": "we bring together the best of both worlds: the delicate art of Japanese sushi and the bold, vibrant flavors of Peruvian seafood traditions",
+      "source": "https://thecatchseafoodsushi.com/"
+     },
+     {
+      "claim": "From our Chaufa Peruvian Fried Rice to our signature Ceviche, every dish tells a story of cultural fusion",
+      "source": "https://thecatchseafoodsushi.com/"
+     },
+     {
+      "claim": "Seafood delivered fresh every morning from local suppliers",
+      "source": "https://thecatchseafoodsushi.com/"
+     },
+     {
+      "claim": "Located in the heart of West Palm Beach, we offer an intimate dining experience",
+      "source": "https://thecatchseafoodsushi.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJa0ghn4yt2YgRKJfmfqsj4ro",
+   "name": "Enchanted Forest Elaine Gordon Park",
+   "category": "attractions",
+   "metro": "miami-dade",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.northmiamifl.gov/Facilities/Facility/Details/Enchanted-Forest-Elaine-Gordon-Park-12",
+     "source_name": "Enchanted Forest Elaine Gordon Park \u2014 official source",
+     "source_class": "government",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Enchanted Forest Elaine Gordon Park is a 22-acre oasis of subtropical plants, trees and animals which borders Arch Creek in the heart of North Miami",
+      "It offers scenic beauty, paved trails and 2 picnic facilities that can be rented for special events and parties",
+      "There is a petting zoo with goats, chickens, pigs, horses, ducks, donkey, ponies and, miniature horses",
+      "Reservations must be made at least ten days prior to the date of your event"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "A 22-acre oasis of subtropical plants, trees and animals bordering Arch Creek",
+    "why_here": "This park is described as a 22-acre oasis of subtropical plants, trees and animals which borders Arch Creek in the heart of North Miami. It offers scenic beauty and paved trails, plus a petting zoo with goats, chickens, pigs, horses, ducks, donkeys, ponies and miniature horses.",
+    "know_before": "Reservations for picnic facility rentals must be made at least ten days prior to the date of your event.",
+    "local_tip": "Walk the paved trails and visit the petting zoo with goats, chickens, pigs, horses, ducks, donkeys, ponies and miniature horses.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.northmiamifl.gov/Facilities/Facility/Details/Enchanted-Forest-Elaine-Gordon-Park-12"
+     ],
+     "why_here": [
+      "https://www.northmiamifl.gov/Facilities/Facility/Details/Enchanted-Forest-Elaine-Gordon-Park-12"
+     ],
+     "know_before": [
+      "https://www.northmiamifl.gov/Facilities/Facility/Details/Enchanted-Forest-Elaine-Gordon-Park-12"
+     ],
+     "local_tip": [
+      "https://www.northmiamifl.gov/Facilities/Facility/Details/Enchanted-Forest-Elaine-Gordon-Park-12"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Enchanted Forest Elaine Gordon Park is a 22-acre oasis of subtropical plants, trees and animals which borders Arch Creek in the heart of North Miami",
+      "source": "https://www.northmiamifl.gov/Facilities/Facility/Details/Enchanted-Forest-Elaine-Gordon-Park-12"
+     },
+     {
+      "claim": "It offers scenic beauty, paved trails and 2 picnic facilities that can be rented for special events and parties",
+      "source": "https://www.northmiamifl.gov/Facilities/Facility/Details/Enchanted-Forest-Elaine-Gordon-Park-12"
+     },
+     {
+      "claim": "There is a petting zoo with goats, chickens, pigs, horses, ducks, donkey, ponies and, miniature horses",
+      "source": "https://www.northmiamifl.gov/Facilities/Facility/Details/Enchanted-Forest-Elaine-Gordon-Park-12"
+     },
+     {
+      "claim": "Reservations must be made at least ten days prior to the date of your event",
+      "source": "https://www.northmiamifl.gov/Facilities/Facility/Details/Enchanted-Forest-Elaine-Gordon-Park-12"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJWYuw2KWw2YgRibzkZLxafv4",
+   "name": "Charlie's Ice Cream",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "ice_cream_shop",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.miamiandbeaches.com/restaurants/ice-cream-shops",
+     "source_name": "Charlie's Ice Cream \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Charlie's Ice Cream is a beloved soft-serve shop that was once a Dairy Queen and still has a drive-through window and outdoor tables in the back",
+      "With locations in Westchester and Hialeah, Charlie's is known for its classic soft-serve, with vanilla, chocolate or vanilla and chocolate twist on tap",
+      "Choose from close to 30 different toppings, such as Oreos, nuts and sprinkles"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Classic soft-serve with vanilla, chocolate or vanilla and chocolate twist on tap",
+    "why_here": "A beloved soft-serve shop that was once a Dairy Queen, still with a drive-through window and outdoor tables in the back, known for classic soft-serve in vanilla, chocolate or a vanilla and chocolate twist.",
+    "know_before": "Choose from close to 30 different toppings, such as Oreos, nuts and sprinkles.",
+    "local_tip": "Use the drive-through window or the outdoor tables in the back.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.miamiandbeaches.com/restaurants/ice-cream-shops"
+     ],
+     "why_here": [
+      "https://www.miamiandbeaches.com/restaurants/ice-cream-shops"
+     ],
+     "know_before": [
+      "https://www.miamiandbeaches.com/restaurants/ice-cream-shops"
+     ],
+     "local_tip": [
+      "https://www.miamiandbeaches.com/restaurants/ice-cream-shops"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Charlie's Ice Cream is a beloved soft-serve shop that was once a Dairy Queen and still has a drive-through window and outdoor tables in the back",
+      "source": "https://www.miamiandbeaches.com/restaurants/ice-cream-shops"
+     },
+     {
+      "claim": "With locations in Westchester and Hialeah, Charlie's is known for its classic soft-serve, with vanilla, chocolate or vanilla and chocolate twist on tap",
+      "source": "https://www.miamiandbeaches.com/restaurants/ice-cream-shops"
+     },
+     {
+      "claim": "Choose from close to 30 different toppings, such as Oreos, nuts and sprinkles",
+      "source": "https://www.miamiandbeaches.com/restaurants/ice-cream-shops"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJOX_SZU7Z0IgRdmc5V4vctn8",
+   "name": "Herbie's Bar & Chowder House",
+   "category": "food",
+   "metro": "keys",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://herbiesbar.com/about",
+     "source_name": "Herbie's Bar & Chowder House \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Herbie's has been a part of the Keys dining scene since the 1940's making it the oldest continually operated restaurant in Marathon",
+      "Originally named Maggie's Chowder House, it operated until the Konrath family purchased it in the 1950s, and was renamed Fishnet's Bar and Chowder House. In 1963 the small but mighty restaurant began it's life as Herbie's",
+      "In 2014, the Demaras family brought their passion for scratch cooking, craft beer, smoked meats, and seafood to Herbie's",
+      "In 2023, Herbie's began a new chapter and the team carries on the tradition of scratch-made cooking, craft beer, seafood, smoked meats, and something for everyone"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Keys dining since the 1940s, billed as the oldest continually operated restaurant in Marathon",
+    "why_here": "Herbie's began as Maggie's Chowder House and later became Fishnet's before beginning its life as Herbie's in 1963. The venue says it has been part of the Keys dining scene since the 1940s, with scratch cooking, craft beer, smoked meats and seafood carried on by later owners.",
+    "know_before": "The venue says a new chapter began in 2023, with the team carrying on scratch-made cooking, craft beer, seafood and smoked meats.",
+    "local_tip": "Order the smoked meats or seafood, both part of the scratch-made cooking tradition.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://herbiesbar.com/about"
+     ],
+     "why_here": [
+      "https://herbiesbar.com/about"
+     ],
+     "know_before": [
+      "https://herbiesbar.com/about"
+     ],
+     "local_tip": [
+      "https://herbiesbar.com/about"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Herbie's has been a part of the Keys dining scene since the 1940's making it the oldest continually operated restaurant in Marathon",
+      "source": "https://herbiesbar.com/about"
+     },
+     {
+      "claim": "Originally named Maggie's Chowder House, it operated until the Konrath family purchased it in the 1950s, and was renamed Fishnet's Bar and Chowder House. In 1963 the small but mighty restaurant began it's life as Herbie's",
+      "source": "https://herbiesbar.com/about"
+     },
+     {
+      "claim": "In 2014, the Demaras family brought their passion for scratch cooking, craft beer, smoked meats, and seafood to Herbie's",
+      "source": "https://herbiesbar.com/about"
+     },
+     {
+      "claim": "In 2023, Herbie's began a new chapter and the team carries on the tradition of scratch-made cooking, craft beer, seafood, smoked meats, and something for everyone",
+      "source": "https://herbiesbar.com/about"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJGSdHWh8e24gRcAJlW16RQ6s",
+   "name": "USS Nemo Restaurant",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://ussnemorestaurant.com/naples-uss-nemo-restaurant-our-story",
+     "source_name": "USS Nemo Restaurant \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Welcome aboard the USS Nemo, an exquisite fine dining experience in Naples, FL",
+      "We are a family-owned business that was established in 2000",
+      "Our specialty is seafood \u2014 don't miss our miso-broiled sea bass, our signature dish \u2014 but you'll also discover diverse land-based dishes",
+      "Explore our vegetarian specialties, such as miso-glazed tofu or Admiral Tso's cauliflower tempura, served alongside a fragrant sweet and sour sauce and jasmine rice",
+      "Call USS Nemo at (239)-261-6366 to make a reservation, or you can book online a table"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Miso-broiled sea bass, described by the restaurant as its signature dish",
+    "why_here": "This family-owned Naples restaurant was established in 2000 and says its specialty is seafood. It urges guests not to miss its miso-broiled sea bass, its signature dish, while also offering diverse land-based dishes and vegetarian specialties.",
+    "know_before": "Call USS Nemo at (239)-261-6366 to make a reservation, or you can book a table online.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://ussnemorestaurant.com/naples-uss-nemo-restaurant-our-story"
+     ],
+     "why_here": [
+      "https://ussnemorestaurant.com/naples-uss-nemo-restaurant-our-story"
+     ],
+     "know_before": [
+      "https://ussnemorestaurant.com/naples-uss-nemo-restaurant-our-story"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Welcome aboard the USS Nemo, an exquisite fine dining experience in Naples, FL",
+      "source": "https://ussnemorestaurant.com/naples-uss-nemo-restaurant-our-story"
+     },
+     {
+      "claim": "We are a family-owned business that was established in 2000",
+      "source": "https://ussnemorestaurant.com/naples-uss-nemo-restaurant-our-story"
+     },
+     {
+      "claim": "Our specialty is seafood \u2014 don't miss our miso-broiled sea bass, our signature dish \u2014 but you'll also discover diverse land-based dishes",
+      "source": "https://ussnemorestaurant.com/naples-uss-nemo-restaurant-our-story"
+     },
+     {
+      "claim": "Explore our vegetarian specialties, such as miso-glazed tofu or Admiral Tso's cauliflower tempura, served alongside a fragrant sweet and sour sauce and jasmine rice",
+      "source": "https://ussnemorestaurant.com/naples-uss-nemo-restaurant-our-story"
+     },
+     {
+      "claim": "Call USS Nemo at (239)-261-6366 to make a reservation, or you can book online a table",
+      "source": "https://ussnemorestaurant.com/naples-uss-nemo-restaurant-our-story"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJnxuawLkB2YgRHQPx1rPxwxw",
+   "name": "TIMBR Restaurant",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.timbr-restaurant.com/",
+     "source_name": "TIMBR Restaurant \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "experience the next evolution of its heartwarming and stunningly beautiful Vineyard Cuisine",
+      "The menu blends refined American staples with European classics, featuring premium steaks, fresh seafood, daily house-made pastas, and inspired vegetarian dishes",
+      "Located on Las Olas Boulevard in downtown Fort Lauderdale, TIMBR is a modern American dining destination",
+      "The Parc, set among trees and softly glowing fireflies, and The Atrium, filled with over 50,000 flowers beneath a dramatic 33-foot glass pyramid",
+      "Upstairs, The Lounge at TIMBR offers a sensuous, late-night atmosphere with signature cocktails and live DJs, open Friday through Sunday nights",
+      "Limited seating is available and is offered on a first come first serve basis. There is a dress code; so please no shorts, casual caps, or flip-flops"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Vineyard Cuisine with an Atrium filled with over 50,000 flowers beneath a 33-foot glass pyramid",
+    "why_here": "Located on Las Olas Boulevard in downtown Fort Lauderdale, this modern American dining destination blends refined American staples with European classics. Premium steaks, fresh seafood, daily house-made pastas and inspired vegetarian dishes sit alongside spaces including The Parc and The Atrium beneath a dramatic 33-foot glass pyramid.",
+    "know_before": "The Lounge at TIMBR has limited seating on a first come first serve basis and a dress code: no shorts, casual caps, or flip-flops.",
+    "local_tip": "Explore The Parc, set among trees and softly glowing fireflies.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.timbr-restaurant.com/"
+     ],
+     "why_here": [
+      "https://www.timbr-restaurant.com/"
+     ],
+     "know_before": [
+      "https://www.timbr-restaurant.com/"
+     ],
+     "local_tip": [
+      "https://www.timbr-restaurant.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "experience the next evolution of its heartwarming and stunningly beautiful Vineyard Cuisine",
+      "source": "https://www.timbr-restaurant.com/"
+     },
+     {
+      "claim": "The menu blends refined American staples with European classics, featuring premium steaks, fresh seafood, daily house-made pastas, and inspired vegetarian dishes",
+      "source": "https://www.timbr-restaurant.com/"
+     },
+     {
+      "claim": "Located on Las Olas Boulevard in downtown Fort Lauderdale, TIMBR is a modern American dining destination",
+      "source": "https://www.timbr-restaurant.com/"
+     },
+     {
+      "claim": "The Parc, set among trees and softly glowing fireflies, and The Atrium, filled with over 50,000 flowers beneath a dramatic 33-foot glass pyramid",
+      "source": "https://www.timbr-restaurant.com/"
+     },
+     {
+      "claim": "Upstairs, The Lounge at TIMBR offers a sensuous, late-night atmosphere with signature cocktails and live DJs, open Friday through Sunday nights",
+      "source": "https://www.timbr-restaurant.com/"
+     },
+     {
+      "claim": "Limited seating is available and is offered on a first come first serve basis. There is a dress code; so please no shorts, casual caps, or flip-flops",
+      "source": "https://www.timbr-restaurant.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ772bDGhs54gRMhdOFKf6f_I",
+   "name": "Central Winds Park",
+   "category": "attractions",
+   "metro": "orlando",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://greaterorlandosports.com/venues-by-county-4/",
+     "source_name": "Central Winds Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Central Winds Park 2 baseball fields, 2 softball fields, 3 soccer/multipurpose fields, one outdoor basketball court, 2 beach volleyball courts, 1 pavilion, an amphitheatre, a nature trail and playground area"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "A multi-field sports park with a nature trail, playground and amphitheatre",
+    "why_here": "This park brings together 2 baseball fields and 2 softball fields with 3 soccer and multipurpose fields in one place. It also adds one outdoor basketball court and 2 beach volleyball courts, so a visit can mix organized games with casual play. A pavilion, an amphitheatre, a nature trail and a playground area round out the grounds.",
+    "know_before": "The grounds list 2 baseball fields, 2 softball fields and 3 soccer and multipurpose fields, plus one outdoor basketball court.",
+    "local_tip": "Try the nature trail and playground area beyond the playing fields for a quieter break between games.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://greaterorlandosports.com/venues-by-county-4/"
+     ],
+     "why_here": [
+      "https://greaterorlandosports.com/venues-by-county-4/"
+     ],
+     "know_before": [
+      "https://greaterorlandosports.com/venues-by-county-4/"
+     ],
+     "local_tip": [
+      "https://greaterorlandosports.com/venues-by-county-4/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Central Winds Park 2 baseball fields, 2 softball fields, 3 soccer/multipurpose fields, one outdoor basketball court, 2 beach volleyball courts, 1 pavilion, an amphitheatre, a nature trail and playground area",
+      "source": "https://greaterorlandosports.com/venues-by-county-4/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJJ5ppSB-Nk4gRY6XccvtHmZ8",
+   "name": "Axe Throwing PCB",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "tourist_attraction",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://pcbattractions.com/axe-throwing/",
+     "source_name": "Axe Throwing PCB \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Axe throwing 60 minutes Throw an axe for a fun, it's safe",
+      "Axe throwing 30 minutes Throw an axe for a fun, it's safe",
+      "Our Panama City Beach axe throwing room is specially equipped for safe throws, in addition, you can get safety advice from our experts and see how real pros do it",
+      "Our room for axe throwing in Panama City Beach is an ideal place for family leisure as well as birthdays and corporate parties",
+      "In our room, you can watch how professionals throw an axe and train your own skills in practice"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Axe throwing in 30- or 60-minute sessions in a specially equipped room",
+    "why_here": "Throw an axe for fun in a room specially equipped for safe throws, with safety advice from experts, for family leisure as well as birthdays and corporate parties.",
+    "know_before": "You can get safety advice from experts and see how real pros do it.",
+    "local_tip": "Watch how professionals throw an axe and train your own skills in practice.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://pcbattractions.com/axe-throwing/"
+     ],
+     "why_here": [
+      "https://pcbattractions.com/axe-throwing/"
+     ],
+     "know_before": [
+      "https://pcbattractions.com/axe-throwing/"
+     ],
+     "local_tip": [
+      "https://pcbattractions.com/axe-throwing/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Axe throwing 60 minutes Throw an axe for a fun, it's safe",
+      "source": "https://pcbattractions.com/axe-throwing/"
+     },
+     {
+      "claim": "Axe throwing 30 minutes Throw an axe for a fun, it's safe",
+      "source": "https://pcbattractions.com/axe-throwing/"
+     },
+     {
+      "claim": "Our Panama City Beach axe throwing room is specially equipped for safe throws, in addition, you can get safety advice from our experts and see how real pros do it",
+      "source": "https://pcbattractions.com/axe-throwing/"
+     },
+     {
+      "claim": "Our room for axe throwing in Panama City Beach is an ideal place for family leisure as well as birthdays and corporate parties",
+      "source": "https://pcbattractions.com/axe-throwing/"
+     },
+     {
+      "claim": "In our room, you can watch how professionals throw an axe and train your own skills in practice",
+      "source": "https://pcbattractions.com/axe-throwing/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJAfZJ-iLT54gRlnnvZ_7_qNY",
+   "name": "Lucky Strike East Ocala",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "bowling_alley",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.luckystrikeent.com/location/lucky-strike-east-ocala",
+     "source_name": "Lucky Strike East Ocala \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Featuring 40 high-quality bowling lanes, we deliver an unparalleled bowling experience for guests of all ages and skill levels.",
+      "Beyond bowling, immerse yourself in our action-packed arcade or find essentials at the on-site pro shop.",
+      "Our center also features a cozy lounge area for relaxation, full wheelchair accessibility, and an ATM for convenience."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "40 high-quality bowling lanes with an arcade and on-site pro shop",
+    "why_here": "Lucky Strike East Ocala features 40 high-quality bowling lanes and says it delivers a bowling experience for guests of all ages and skill levels. Beyond bowling, its official location page points visitors to an action-packed arcade and essentials at the on-site pro shop. The center also features a cozy lounge area for relaxation, full wheelchair accessibility, and an ATM for convenience.",
+    "know_before": "full wheelchair accessibility",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.luckystrikeent.com/location/lucky-strike-east-ocala"
+     ],
+     "why_here": [
+      "https://www.luckystrikeent.com/location/lucky-strike-east-ocala"
+     ],
+     "know_before": [
+      "https://www.luckystrikeent.com/location/lucky-strike-east-ocala"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Featuring 40 high-quality bowling lanes, we deliver an unparalleled bowling experience for guests of all ages and skill levels.",
+      "source": "https://www.luckystrikeent.com/location/lucky-strike-east-ocala"
+     },
+     {
+      "claim": "Beyond bowling, immerse yourself in our action-packed arcade or find essentials at the on-site pro shop.",
+      "source": "https://www.luckystrikeent.com/location/lucky-strike-east-ocala"
+     },
+     {
+      "claim": "Our center also features a cozy lounge area for relaxation, full wheelchair accessibility, and an ATM for convenience.",
+      "source": "https://www.luckystrikeent.com/location/lucky-strike-east-ocala"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJs6qAjWwO3ogRpCfZy6xRAwY",
+   "name": "Erna Nixon Park",
+   "category": "attractions",
+   "metro": "avon-park-fl",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.visitspacecoast.com/profile/melbourne/birding-wildlife-viewing/erna-nixon-park/",
+     "source_name": "Erna Nixon Park \u2014 official source",
+     "source_class": "tourism_dmo",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Erna Nixon Park preserves a lush, beautiful 54-acre natural hammock and nature preserve in Florida",
+      "the wilds of Florida's past are preserved in this lush, beautiful 54-acre natural hammock and nature preserve. It's a popular site for nature walks",
+      "Stroll along the 3,000 foot (910 m) elevated boardwalk that gently winds up and through a natural Florida hammock, containing native plant species and small animals",
+      "It's an easy walk that's fully wheelchair accessible",
+      "Be sure to stop by the onsite nature center to learn more about the native wildlife"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "A 3,000-foot elevated boardwalk through a natural Florida hammock",
+    "why_here": "The park preserves a lush, beautiful 54-acre natural hammock and nature preserve, described as a popular site for nature walks. An elevated boardwalk winds through the hammock past native plant species and small animals, with an onsite nature center focused on native wildlife.",
+    "know_before": "It's an easy walk that's fully wheelchair accessible.",
+    "local_tip": "Stop by the onsite nature center to learn more about the native wildlife.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.visitspacecoast.com/profile/melbourne/birding-wildlife-viewing/erna-nixon-park/"
+     ],
+     "why_here": [
+      "https://www.visitspacecoast.com/profile/melbourne/birding-wildlife-viewing/erna-nixon-park/"
+     ],
+     "know_before": [
+      "https://www.visitspacecoast.com/profile/melbourne/birding-wildlife-viewing/erna-nixon-park/"
+     ],
+     "local_tip": [
+      "https://www.visitspacecoast.com/profile/melbourne/birding-wildlife-viewing/erna-nixon-park/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Erna Nixon Park preserves a lush, beautiful 54-acre natural hammock and nature preserve in Florida",
+      "source": "https://www.visitspacecoast.com/profile/melbourne/birding-wildlife-viewing/erna-nixon-park/"
+     },
+     {
+      "claim": "the wilds of Florida's past are preserved in this lush, beautiful 54-acre natural hammock and nature preserve. It's a popular site for nature walks",
+      "source": "https://www.visitspacecoast.com/profile/melbourne/birding-wildlife-viewing/erna-nixon-park/"
+     },
+     {
+      "claim": "Stroll along the 3,000 foot (910 m) elevated boardwalk that gently winds up and through a natural Florida hammock, containing native plant species and small animals",
+      "source": "https://www.visitspacecoast.com/profile/melbourne/birding-wildlife-viewing/erna-nixon-park/"
+     },
+     {
+      "claim": "It's an easy walk that's fully wheelchair accessible",
+      "source": "https://www.visitspacecoast.com/profile/melbourne/birding-wildlife-viewing/erna-nixon-park/"
+     },
+     {
+      "claim": "Be sure to stop by the onsite nature center to learn more about the native wildlife",
+      "source": "https://www.visitspacecoast.com/profile/melbourne/birding-wildlife-viewing/erna-nixon-park/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJwTMP2fzf2IgRmjXSvsQ9Sjw",
+   "name": "Bounce Delray Beach",
+   "category": "nightlife",
+   "metro": "palm-beach",
+   "primary_type": "sports_bar",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://bouncesportingclub.com/delray/",
+     "source_name": "Bounce Delray Beach \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Your Beachside Sports Bar",
+      "Audio Visual Custom 2 Sided Chandelier 20 LED TV\u2019s LED Wall",
+      "Square Footage Interior: 5200 Square Feet",
+      "Host Your Event at Bounce",
+      "Table & Seating Plan Interior: 21 Tables + 96 Seats Bar Stools: 37 Exterior: 7 Tables + 28 Seats"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "A beachside sports bar with 20 LED TVs and an LED wall",
+    "why_here": "This beachside sports bar lists 20 LED TVs and an LED Wall among its audio visual features. The interior is listed as 5200 Square Feet, and the venue invites guests to host events there.",
+    "know_before": "The interior is listed as 5200 Square Feet, with table and seating details given for private events.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://bouncesportingclub.com/delray/"
+     ],
+     "why_here": [
+      "https://bouncesportingclub.com/delray/"
+     ],
+     "know_before": [
+      "https://bouncesportingclub.com/delray/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Your Beachside Sports Bar",
+      "source": "https://bouncesportingclub.com/delray/"
+     },
+     {
+      "claim": "Audio Visual Custom 2 Sided Chandelier 20 LED TV\u2019s LED Wall",
+      "source": "https://bouncesportingclub.com/delray/"
+     },
+     {
+      "claim": "Square Footage Interior: 5200 Square Feet",
+      "source": "https://bouncesportingclub.com/delray/"
+     },
+     {
+      "claim": "Host Your Event at Bounce",
+      "source": "https://bouncesportingclub.com/delray/"
+     },
+     {
+      "claim": "Table & Seating Plan Interior: 21 Tables + 96 Seats Bar Stools: 37 Exterior: 7 Tables + 28 Seats",
+      "source": "https://bouncesportingclub.com/delray/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJsbe6_wxBw4gRI724BWTOzcM",
+   "name": "Food + Beer - Florida Sports Bar",
+   "category": "nightlife",
+   "metro": "manatee-sarasota",
+   "primary_type": "sports_bar",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.eatfooddrinkbeer.com/",
+     "source_name": "Food + Beer - Florida Sports Bar \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Food + Beer is a locally owned sports bar with scratch-made food, craft beer, cocktails, weekend brunch, happy hour and late night dining",
+      "Food + Beer offers scratch-made recipes and creative twists on classic dishes, with kitchens open until 1 AM or later",
+      "Food + Beer has wall-to-wall TVs and a menu full of burgers, wings and creative twists on classic dishes"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Scratch-made sports-bar food with kitchens open until 1 AM or later",
+    "why_here": "Food + Beer describes itself as redefining the neighborhood sports bar with scratch-made recipes and creative twists on classic dishes. Its official site also promises wall-to-wall TVs for games, a weekend brunch, and kitchens open until 1 AM or later, making it a late game-day hangout rather than a standard bar stop.",
+    "know_before": "Kitchens are open until 1 AM or later according to the official site; check your specific location for its game package and hours.",
+    "local_tip": "Go for weekend brunch or a late game, when the scratch-made menu and late kitchen are the draw.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.eatfooddrinkbeer.com/"
+     ],
+     "why_here": [
+      "https://www.eatfooddrinkbeer.com/"
+     ],
+     "know_before": [
+      "https://www.eatfooddrinkbeer.com/"
+     ],
+     "local_tip": [
+      "https://www.eatfooddrinkbeer.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Food + Beer is a locally owned sports bar with scratch-made food, craft beer, cocktails, weekend brunch, happy hour and late night dining",
+      "source": "https://www.eatfooddrinkbeer.com/"
+     },
+     {
+      "claim": "Food + Beer offers scratch-made recipes and creative twists on classic dishes, with kitchens open until 1 AM or later",
+      "source": "https://www.eatfooddrinkbeer.com/"
+     },
+     {
+      "claim": "Food + Beer has wall-to-wall TVs and a menu full of burgers, wings and creative twists on classic dishes",
+      "source": "https://www.eatfooddrinkbeer.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJc1M227jtwogRn4aj77d8QDE",
+   "name": "Mandola\u2019s Italian Kitchen",
+   "category": "food",
+   "metro": "tampa",
+   "primary_type": "italian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://mandolas.com/florida-menu/",
+     "source_name": "Mandola\u2019s Italian Kitchen \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Mandola's pizza is made with Caputo \u201800\u2019 flour, hand-stretched on semolina flour",
+      "Mandola's lasagne is pasta layered with Bolognese meat sauce, ricotta, mozzarella, Romano cheese and parsley",
+      "Sub gluten free crust 4 and Sub gluten free pasta 3 are listed on the menu",
+      "The menu lists antipasti, panini and pasta sections"
+     ]
+    },
+    {
+     "source": "https://mandolas.com/locations/jacksonville-fl/",
+     "source_name": "Mandola\u2019s Italian Kitchen \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Jacksonville guests can enjoy freshly baked pizza and hearty pasta dishes to gelato and Italian sweets, prepared in an open kitchen"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Hand-stretched pizza made with Caputo \u201800\u2019 flour, plus classic lasagne",
+    "why_here": "This menu builds its pizzas on Caputo \u201800\u2019 flour, hand-stretched on semolina flour, and lists a lasagne layered with Bolognese meat sauce, ricotta, mozzarella and Romano cheese. The menu also covers antipasti, panini and pasta sections, giving guests a broad choice well beyond pizza alone on a single visit.",
+    "know_before": "Gluten free crust and gluten free pasta substitutions are listed on the menu for an added charge.",
+    "local_tip": "Start with the hand-stretched pizza made with Caputo \u201800\u2019 flour, then share the lasagne.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://mandolas.com/florida-menu/"
+     ],
+     "why_here": [
+      "https://mandolas.com/florida-menu/"
+     ],
+     "know_before": [
+      "https://mandolas.com/florida-menu/"
+     ],
+     "local_tip": [
+      "https://mandolas.com/florida-menu/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Mandola's pizza is made with Caputo \u201800\u2019 flour, hand-stretched on semolina flour",
+      "source": "https://mandolas.com/florida-menu/"
+     },
+     {
+      "claim": "Mandola's lasagne is pasta layered with Bolognese meat sauce, ricotta, mozzarella, Romano cheese and parsley",
+      "source": "https://mandolas.com/florida-menu/"
+     },
+     {
+      "claim": "Sub gluten free crust 4 and Sub gluten free pasta 3 are listed on the menu",
+      "source": "https://mandolas.com/florida-menu/"
+     },
+     {
+      "claim": "The menu lists antipasti, panini and pasta sections",
+      "source": "https://mandolas.com/florida-menu/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ_XCh1J-x2YgR5gDYmo0Ol-s",
+   "name": "Pura Vida - Miami Shores",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "coffee_shop",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.puravidamiami.com/locations/florida/miamishores",
+     "source_name": "Pura Vida - Miami Shores \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "On NE 2nd Avenue in the heart of Miami Shores, Pura Vida Miami's menu includes all day breakfast favorites like the Avocado Smash or Perfect Egg Sandwich, fresh salads, protein packed plates and bowls, Specialty Coffee, Ceremonial Grade Matcha, Cold Pressed Juices, and Freshly Baked Goods",
+      "Regulars at Pura Vida Miami Shores keep coming back to the Salmon Bowl, the Avocado Toast, and the Spicy Tuna Bowl",
+      "The Pura Vida Miami app lets you order ahead at the Miami Shores location for pickup"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "All-day breakfast, salmon bowls and ceremonial-grade matcha in Miami Shores",
+    "why_here": "Pura Vida's official Miami Shores page describes a neighborhood caf\u00e9 on NE 2nd Avenue where the menu is built for everyday balance, from Avocado Smash and Perfect Egg Sandwich to fresh salads, protein-packed plates and bowls. It also lists specialty coffee, ceremonial grade matcha, cold pressed juices and freshly baked goods made for daily routines.",
+    "know_before": "The official page says you can order ahead on the Pura Vida Miami app for pickup at Miami Shores, and that vegan and gluten-friendly options are flagged on the menu.",
+    "local_tip": "Regulars keep coming back to the Salmon Bowl, Avocado Toast and Spicy Tuna Bowl, according to the official location page.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.puravidamiami.com/locations/florida/miamishores"
+     ],
+     "why_here": [
+      "https://www.puravidamiami.com/locations/florida/miamishores"
+     ],
+     "know_before": [
+      "https://www.puravidamiami.com/locations/florida/miamishores"
+     ],
+     "local_tip": [
+      "https://www.puravidamiami.com/locations/florida/miamishores"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "On NE 2nd Avenue in the heart of Miami Shores, Pura Vida Miami's menu includes all day breakfast favorites like the Avocado Smash or Perfect Egg Sandwich, fresh salads, protein packed plates and bowls, Specialty Coffee, Ceremonial Grade Matcha, Cold Pressed Juices, and Freshly Baked Goods",
+      "source": "https://www.puravidamiami.com/locations/florida/miamishores"
+     },
+     {
+      "claim": "Regulars at Pura Vida Miami Shores keep coming back to the Salmon Bowl, the Avocado Toast, and the Spicy Tuna Bowl",
+      "source": "https://www.puravidamiami.com/locations/florida/miamishores"
+     },
+     {
+      "claim": "The Pura Vida Miami app lets you order ahead at the Miami Shores location for pickup",
+      "source": "https://www.puravidamiami.com/locations/florida/miamishores"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJzZJvCijjwogRW1m66UwUJbk",
+   "name": "Shiso Crispy - Central Ave",
+   "category": "food",
+   "metro": "st-pete",
+   "primary_type": "asian_fusion_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://shisocrispy.com/locations",
+     "source_name": "Shiso Crispy - Central Ave \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Central Ave flagship in the EDGE District is the original storefront; Our flagship storefront sits on Central Ave in St. Petersburg's EDGE District, the brick-and-mortar home of the food truck that started it all",
+      "Hand-folded gyoza, dirty rice bowls & bao; Order these: Bang Bang Chicken Dirty Rice, Lobster Rangoon, Pork Gyoza for Central Ave"
+     ]
+    },
+    {
+     "source": "https://shisocrispy.com/menu",
+     "source_name": "Shiso Crispy - Central Ave \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Bang Bang Chicken Dirty Rice: Our #1 dish across every kitchen. Rice-flour-breaded chicken breast fried in beef tallow and tossed in sweet-and-savory bang bang sauce over dirty rice"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Bang Bang Chicken Dirty Rice, described by Shiso Crispy as its #1 dish across every kitchen",
+    "why_here": "Shiso Crispy's Central Ave site is its flagship storefront in St. Petersburg's EDGE District, and the menu centres on hand-folded gyoza and dirty rice bowls. The Bang Bang Chicken Dirty Rice is rice-flour-breaded chicken breast fried in beef tallow and tossed in sweet-and-savoury bang bang sauce over dirty rice.",
+    "know_before": "The official locations page describes Central Ave as the brick-and-mortar home of the food truck that started it all, with dine-in, takeout, delivery and outdoor seating listed for this kitchen.",
+    "local_tip": "The locations page's 'Order these' list for Central Ave is Bang Bang Chicken Dirty Rice, Lobster Rangoon and Pork Gyoza.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://shisocrispy.com/locations"
+     ],
+     "why_here": [
+      "https://shisocrispy.com/locations"
+     ],
+     "know_before": [
+      "https://shisocrispy.com/locations"
+     ],
+     "local_tip": [
+      "https://shisocrispy.com/locations"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Central Ave flagship in the EDGE District is the original storefront; Our flagship storefront sits on Central Ave in St. Petersburg's EDGE District, the brick-and-mortar home of the food truck that started it all",
+      "source": "https://shisocrispy.com/locations"
+     },
+     {
+      "claim": "Bang Bang Chicken Dirty Rice: Our #1 dish across every kitchen. Rice-flour-breaded chicken breast fried in beef tallow and tossed in sweet-and-savory bang bang sauce over dirty rice",
+      "source": "https://shisocrispy.com/menu"
+     },
+     {
+      "claim": "Hand-folded gyoza, dirty rice bowls & bao; Order these: Bang Bang Chicken Dirty Rice, Lobster Rangoon, Pork Gyoza for Central Ave",
+      "source": "https://shisocrispy.com/locations"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJwz3bnboG2YgRi88mxCBshxg",
+   "name": "World Famous",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "soul_food_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://eatwf.com/menu?item=all-buffalo-chicken-eggrolls-mild-ppCP",
+     "source_name": "World Famous \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Official website of World Famous Eggroll Truck",
+      "World Famous Championship Eggroll Food Truck Tour",
+      "Find the World Famous Championship Eggroll Food Truck Tour, upcoming cities, dates, locations, menu and Live Rewards"
+     ]
+    },
+    {
+     "source": "https://eatwf.com/tags/asian-food",
+     "source_name": "World Famous \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "ALL Soul Food Eggroll: Grilled chicken, collard greens, and three cheeses",
+      "World Famous Lauderdale Lakes, FL"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "World Famous Championship Eggroll Food Truck Tour",
+    "why_here": "The official site presents this as an eggroll food truck concept built around a touring schedule. It points visitors to upcoming cities, dates, locations and menu details, so the draw is checking where the truck stops next.",
+    "know_before": "Check the official site for upcoming cities, dates and locations before you go, since stops change.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://eatwf.com/menu?item=all-buffalo-chicken-eggrolls-mild-ppCP"
+     ],
+     "why_here": [
+      "https://eatwf.com/menu?item=all-buffalo-chicken-eggrolls-mild-ppCP"
+     ],
+     "know_before": [
+      "https://eatwf.com/menu?item=all-buffalo-chicken-eggrolls-mild-ppCP"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Official website of World Famous Eggroll Truck",
+      "source": "https://eatwf.com/menu?item=all-buffalo-chicken-eggrolls-mild-ppCP"
+     },
+     {
+      "claim": "World Famous Championship Eggroll Food Truck Tour",
+      "source": "https://eatwf.com/menu?item=all-buffalo-chicken-eggrolls-mild-ppCP"
+     },
+     {
+      "claim": "Find the World Famous Championship Eggroll Food Truck Tour, upcoming cities, dates, locations, menu and Live Rewards",
+      "source": "https://eatwf.com/menu?item=all-buffalo-chicken-eggrolls-mild-ppCP"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJJWzJr9232YgR6jjHElv8mjc",
+   "name": "Pura Vida Miami",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "coffee_shop",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.puravidamiami.com/acai-bowls",
+     "source_name": "Pura Vida Miami \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "SIGNATURE grab a spoon and dig into this thick, frosty acai perfection: a purely refreshing treat featuring our pure raw acai and sweet banana base, topped with crunchy vegan gf granola, fresh strawberry, golden pineapple, banana, chia seeds, and shaved coconut *contains tree nuts: almond, walnut",
+      "PB LOVER a creamy, crunchy delight with a thick, frosty base of pure raw acai and sweet banana, topped with vegan gf granola, fresh strawberry, juicy blueberry, buttery pecans, tart goji berries, crisp coconut, and a peanut butter drizzle *contains tree nuts: almond, walnut"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Signature acai bowl with pure raw acai and sweet banana base",
+    "why_here": "Pura Vida Miami's official acai bowls menu describes its Signature bowl as pure raw acai and sweet banana topped with crunchy vegan gf granola, fresh strawberry, golden pineapple, banana, chia seeds, and shaved coconut. That named Signature bowl gives this health-cafe concept a specific, verifiable item to order rather than a generic coffee stop.",
+    "know_before": "The official menu notes the Signature bowl contains tree nuts: almond, walnut, in the vegan gf granola.",
+    "local_tip": "Try another bowl topped with strawberry, blueberry, coconut, pecans, goji berries and a peanut butter drizzle.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.puravidamiami.com/acai-bowls"
+     ],
+     "why_here": [
+      "https://www.puravidamiami.com/acai-bowls"
+     ],
+     "know_before": [
+      "https://www.puravidamiami.com/acai-bowls"
+     ],
+     "local_tip": [
+      "https://www.puravidamiami.com/acai-bowls"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "SIGNATURE grab a spoon and dig into this thick, frosty acai perfection: a purely refreshing treat featuring our pure raw acai and sweet banana base, topped with crunchy vegan gf granola, fresh strawberry, golden pineapple, banana, chia seeds, and shaved coconut *contains tree nuts: almond, walnut",
+      "source": "https://www.puravidamiami.com/acai-bowls"
+     },
+     {
+      "claim": "PB LOVER a creamy, crunchy delight with a thick, frosty base of pure raw acai and sweet banana, topped with vegan gf granola, fresh strawberry, juicy blueberry, buttery pecans, tart goji berries, crisp coconut, and a peanut butter drizzle *contains tree nuts: almond, walnut",
+      "source": "https://www.puravidamiami.com/acai-bowls"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJu2w9w-8-6IgRJAL72lpzbCc",
+   "name": "Paddletail Waterfront Adventures: Swimming With the Manatees",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "tour_agency",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.swimmingwiththemanatees.com/manatee-swim-tour",
+     "source_name": "Paddletail Waterfront Adventures: Swimming With the Manatees \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Manatee Tour - Swim With The Manatee In Crystal River, Florida; Captain and In-Water Dive professional will teach you everything you need to know about passive observation with these gentle manatees",
+      "our captains are extremely knowledgeable about Crystal River and Florida's manatees, so they'll be able to answer any questions you may have",
+      "all the gear you need, from snorkels to wetsuits, is included"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Manatee Swim Tour swimming alongside manatees in Crystal River, Florida",
+    "why_here": "Paddletail Waterfront Adventures calls this The Manatee Tour - Swim With The Manatee In Crystal River, Florida, with a Captain and In-Water Dive professional teaching passive observation with these gentle manatees. The official page says captains are knowledgeable about Crystal River and Florida's manatees and can answer questions during the encounter in their natural habitat.",
+    "know_before": "The official tour page says all the gear you need, from snorkels to wetsuits, is included, and the experience uses passive observation with the manatees.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.swimmingwiththemanatees.com/manatee-swim-tour"
+     ],
+     "why_here": [
+      "https://www.swimmingwiththemanatees.com/manatee-swim-tour"
+     ],
+     "know_before": [
+      "https://www.swimmingwiththemanatees.com/manatee-swim-tour"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Manatee Tour - Swim With The Manatee In Crystal River, Florida; Captain and In-Water Dive professional will teach you everything you need to know about passive observation with these gentle manatees",
+      "source": "https://www.swimmingwiththemanatees.com/manatee-swim-tour"
+     },
+     {
+      "claim": "our captains are extremely knowledgeable about Crystal River and Florida's manatees, so they'll be able to answer any questions you may have",
+      "source": "https://www.swimmingwiththemanatees.com/manatee-swim-tour"
+     },
+     {
+      "claim": "all the gear you need, from snorkels to wetsuits, is included",
+      "source": "https://www.swimmingwiththemanatees.com/manatee-swim-tour"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJlWxUs9-C5ogREx6Lt_idytg",
+   "name": "Treaty Park",
+   "category": "attractions",
+   "metro": "st-augustine-fl",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.sjcfl.us/parks_trails/treaty-park/",
+     "source_name": "Treaty Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Treaty Park is a 47-acre recreational complex offering a diverse range of amenities suitable for all ages",
+      "Amenities include ADA playground, basketball court, dog park, pickleball courts, skatepark, tennis courts and trail",
+      "Hours: Dawn to dusk",
+      "Paws Dog Park has completely fenced small dog and large dog parks where dogs can run, play, jump and socialize leash free"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "47-acre recreational complex with a skate park and dog park",
+    "why_here": "Treaty Park is a 47-acre recreational complex offering a diverse range of amenities suitable for all ages. Its amenities include a dog park, a skatepark, pickleball courts, tennis courts and a trail, so one visit can combine active play with time outdoors for different interests and ages.",
+    "know_before": "Park hours are listed as dawn to dusk, and the dog park describes separate completely fenced small-dog and large-dog areas.",
+    "local_tip": "Bring your dog to Paws Dog Park, where dogs can run, play and socialize leash free inside the fenced park.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.sjcfl.us/parks_trails/treaty-park/"
+     ],
+     "why_here": [
+      "https://www.sjcfl.us/parks_trails/treaty-park/"
+     ],
+     "know_before": [
+      "https://www.sjcfl.us/parks_trails/treaty-park/"
+     ],
+     "local_tip": [
+      "https://www.sjcfl.us/parks_trails/treaty-park/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Treaty Park is a 47-acre recreational complex offering a diverse range of amenities suitable for all ages",
+      "source": "https://www.sjcfl.us/parks_trails/treaty-park/"
+     },
+     {
+      "claim": "Amenities include ADA playground, basketball court, dog park, pickleball courts, skatepark, tennis courts and trail",
+      "source": "https://www.sjcfl.us/parks_trails/treaty-park/"
+     },
+     {
+      "claim": "Hours: Dawn to dusk",
+      "source": "https://www.sjcfl.us/parks_trails/treaty-park/"
+     },
+     {
+      "claim": "Paws Dog Park has completely fenced small dog and large dog parks where dogs can run, play, jump and socialize leash free",
+      "source": "https://www.sjcfl.us/parks_trails/treaty-park/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJBb1TwJ0B2YgRxV8HUR7lg9k",
+   "name": "Lynora's Italian Restaurant",
+   "category": "food",
+   "metro": "palm-beach",
+   "primary_type": "italian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.lynoras.com/our-story/",
+     "source_name": "Lynora's Italian Restaurant \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Our story began in 1976, when Raffaele and Maria Abbenante brought a little piece of their home on the Italian island of Ponza to Lake Worth, Florida",
+      "With family recipes passed down through generations and a whole lot of love, they began selling pizza by the slice",
+      "Polpette Della Casa: Housemade meatballs, beef and pork with tomato sauce and ricotta",
+      "A FAMILY TRADITION SINCE 1976"
+     ]
+    },
+    {
+     "source": "https://www.lynoras.com/menu/dinner-copy-1/",
+     "source_name": "Lynora's Italian Restaurant \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Polpette Della Casa: Housemade meatballs, beef and pork with tomato sauce and ricotta"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Family tradition from Ponza since 1976, with housemade meatballs",
+    "why_here": "Lynora's says its story began in 1976 when Raffaele and Maria Abbenante brought a piece of their home on the Italian island of Ponza to Lake Worth, Florida, with family recipes passed down through generations. Its dinner menu lists Polpette Della Casa, housemade meatballs of beef and pork with tomato sauce and ricotta.",
+    "know_before": "The dinner menu lists Polpette Della Casa as housemade meatballs, beef and pork with tomato sauce and ricotta.",
+    "local_tip": "Start with Polpette Della Casa to taste the housemade meatballs with tomato sauce and ricotta.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.lynoras.com/our-story/"
+     ],
+     "why_here": [
+      "https://www.lynoras.com/our-story/"
+     ],
+     "know_before": [
+      "https://www.lynoras.com/our-story/"
+     ],
+     "local_tip": [
+      "https://www.lynoras.com/our-story/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Our story began in 1976, when Raffaele and Maria Abbenante brought a little piece of their home on the Italian island of Ponza to Lake Worth, Florida",
+      "source": "https://www.lynoras.com/our-story/"
+     },
+     {
+      "claim": "With family recipes passed down through generations and a whole lot of love, they began selling pizza by the slice",
+      "source": "https://www.lynoras.com/our-story/"
+     },
+     {
+      "claim": "Polpette Della Casa: Housemade meatballs, beef and pork with tomato sauce and ricotta",
+      "source": "https://www.lynoras.com/our-story/"
+     },
+     {
+      "claim": "A FAMILY TRADITION SINCE 1976",
+      "source": "https://www.lynoras.com/our-story/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ6Y-aoiu32YgR2tD6b9uxkRk",
+   "name": "Night Owl Cookies (Wynwood)",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "bakery",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://nightowlcookieco.com/pages/locations",
+     "source_name": "Night Owl Cookies (Wynwood) \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The official locations page lists Wynwood among Night Owl Cookies locations",
+      "Ave Maria Our signature dough mixed with white chocolate chips, stuffed with guava, topped with Maria cookies, and finished with guava marmalade and a cream cheese drizzle",
+      "Brookie Homemade brownie baked over a thin layer of signature chocolate chip cookie dough",
+      "WYNWOOD is listed on the official Night Owl Cookies locations page"
+     ]
+    },
+    {
+     "source": "https://nightowlcookieco.com/pages/current-flavors",
+     "source_name": "Night Owl Cookies (Wynwood) \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Ave Maria: signature dough mixed with white chocolate chips, stuffed with guava, topped with Maria cookies, and finished with guava marmalade and a cream cheese drizzle",
+      "Brookie: Homemade brownie baked over a thin layer of signature chocolate chip cookie dough"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Ave Maria cookie stuffed with guava and topped with Maria cookies",
+    "why_here": "The official site lists Wynwood among its locations, and its flavors include the Ave Maria, made with signature dough mixed with white chocolate chips, stuffed with guava and topped with Maria cookies. It also lists the Brookie, a homemade brownie baked over signature chocolate chip cookie dough.",
+    "know_before": "The official locations page lists Wynwood among its locations.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://nightowlcookieco.com/pages/locations"
+     ],
+     "why_here": [
+      "https://nightowlcookieco.com/pages/locations"
+     ],
+     "know_before": [
+      "https://nightowlcookieco.com/pages/locations"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The official locations page lists Wynwood among Night Owl Cookies locations",
+      "source": "https://nightowlcookieco.com/pages/locations"
+     },
+     {
+      "claim": "Ave Maria Our signature dough mixed with white chocolate chips, stuffed with guava, topped with Maria cookies, and finished with guava marmalade and a cream cheese drizzle",
+      "source": "https://nightowlcookieco.com/pages/locations"
+     },
+     {
+      "claim": "Brookie Homemade brownie baked over a thin layer of signature chocolate chip cookie dough",
+      "source": "https://nightowlcookieco.com/pages/locations"
+     },
+     {
+      "claim": "WYNWOOD is listed on the official Night Owl Cookies locations page",
+      "source": "https://nightowlcookieco.com/pages/locations"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJKexz_OBGw4gRkCyc9rZZq5M",
+   "name": "Madfish Grill",
+   "category": "nightlife",
+   "metro": "manatee-sarasota",
+   "primary_type": "bar_and_grill",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.madfishgrill.com/",
+     "source_name": "Madfish Grill \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "We opened our doors in 1999 as the neighborhood's first locally-owned mom-and-pop restaurant. Madfish Grill continues its heritage of being a continuously family-owned and operated bar & grill",
+      "We feature burgers, steaks, bone-in chops, and pasta dishes and are known for being THE spot to dine for Taco Tuesday",
+      "Taco Tuesday Available all day, every Tuesday",
+      "Early Bird Available daily from 2-4:30pm"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Family-owned since 1999 and known as the spot for Taco Tuesday",
+    "why_here": "This bar and grill opened in 1999 as the neighborhood's first locally-owned mom-and-pop restaurant and remains continuously family-owned and operated. While fish is in its name, the menu also features burgers, steaks, bone-in chops and pasta dishes, and it is known as the spot for Taco Tuesday.",
+    "know_before": "Early Bird is available daily from 2-4:30pm.",
+    "local_tip": "Taco Tuesday is available all day, every Tuesday.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.madfishgrill.com/"
+     ],
+     "why_here": [
+      "https://www.madfishgrill.com/"
+     ],
+     "know_before": [
+      "https://www.madfishgrill.com/"
+     ],
+     "local_tip": [
+      "https://www.madfishgrill.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "We opened our doors in 1999 as the neighborhood's first locally-owned mom-and-pop restaurant. Madfish Grill continues its heritage of being a continuously family-owned and operated bar & grill",
+      "source": "https://www.madfishgrill.com/"
+     },
+     {
+      "claim": "We feature burgers, steaks, bone-in chops, and pasta dishes and are known for being THE spot to dine for Taco Tuesday",
+      "source": "https://www.madfishgrill.com/"
+     },
+     {
+      "claim": "Taco Tuesday Available all day, every Tuesday",
+      "source": "https://www.madfishgrill.com/"
+     },
+     {
+      "claim": "Early Bird Available daily from 2-4:30pm",
+      "source": "https://www.madfishgrill.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJHwKEJACt2YgRPPe3tMry3FE",
+   "name": "OMAKAI sushi",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "sushi_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://omakai.com/about",
+     "source_name": "OMAKAI sushi \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "OMAKAI is redefining the standard of sushi by making an authentic omakase experience accessible for everyone; founded in 2019 by brothers Diego and Pedro Quijada, along with Nicolas Sayavedra and Chef Aaron Pate"
+     ]
+    },
+    {
+     "source": "https://omakai.com/menu",
+     "source_name": "OMAKAI sushi \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The OMAKAI Experience is an elevated take where you trust the chef to take you on a culinary journey, with premium, seasonal ingredients and specialty cuts through a 9-course tasting",
+      "Due to limited fresh fish received daily, substitutions aren't available except for shellfish allergies"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "The OMAKAI Experience, a 9-course chef-led tasting",
+    "why_here": "OMAKAI says it is redefining the standard of sushi by making an authentic omakase experience accessible for everyone, founded in 2019 by brothers Diego and Pedro Quijada with Nicolas Sayavedra and Chef Aaron Pate. Its menu describes The OMAKAI Experience as an elevated take where you trust the chef, with premium seasonal ingredients through a 9-course tasting.",
+    "know_before": "OMAKAI's menu notes that due to limited fresh fish received daily, substitutions aren't available except for shellfish allergies.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://omakai.com/about"
+     ],
+     "why_here": [
+      "https://omakai.com/about"
+     ],
+     "know_before": [
+      "https://omakai.com/about"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "OMAKAI is redefining the standard of sushi by making an authentic omakase experience accessible for everyone; founded in 2019 by brothers Diego and Pedro Quijada, along with Nicolas Sayavedra and Chef Aaron Pate",
+      "source": "https://omakai.com/about"
+     },
+     {
+      "claim": "The OMAKAI Experience is an elevated take where you trust the chef to take you on a culinary journey, with premium, seasonal ingredients and specialty cuts through a 9-course tasting",
+      "source": "https://omakai.com/menu"
+     },
+     {
+      "claim": "Due to limited fresh fish received daily, substitutions aren't available except for shellfish allergies",
+      "source": "https://omakai.com/menu"
+     }
+    ]
+   }
+  }
+ ]
+}
