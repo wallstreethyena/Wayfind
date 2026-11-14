@@ -25,7 +25,7 @@ import { formatDistanceMiles } from "../../../lib/deviceDistance.js";
 import { businessStatus } from "../../../lib/businessStatus.js";
 import { directionsHref } from "../../../lib/directions.js";
 import { toHookLine } from "../../../lib/editorialHook.js";
-import { coarseCat } from "../../../lib/ranking.js";
+import { coarseCat, humanTypeFallback } from "../../../lib/ranking.js";
 import { toDisplayScore } from "../../../lib/score.js";
 import { wayfindScore } from "../../../lib/google.js";
 import {
@@ -107,7 +107,7 @@ function MapCompactPreviewCard({
         : null;
   const take = toHookLine(editorial, place.name);
   const aiLine = !take && aiSummary && typeof aiSummary === "object" && aiSummary.card_line_1 ? aiSummary.card_line_1 : null;
-  const catLabel = place.cuisine || place.cardCategory || coarseCat(place) || place.primaryType || "Local pick";
+  const catLabel = place.cuisine || place.cardCategory || coarseCat(place) || humanTypeFallback(place.primaryType || place.primary_type) || "Local pick";
   const reasonLine = place.trending && place.trend_reason ? "🔥 " + place.trend_reason
     : (decisionReason || take || aiLine || (place._members && place._members.ownerPick ? "Curator pick \u00b7 Top local standout" : `${catLabel}${place.reviews ? ` \u00b7 ${Number(place.reviews).toLocaleString()} reviews` : ""}`));
   const dirHref = directionsHref(place);
