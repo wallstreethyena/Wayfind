@@ -18,6 +18,7 @@ import { editorialFor, EDITORIAL_COUNT } from "../../../lib/editorial";
 import atlasCards from "../../../data/atlas/editorial-cards.json";
 import firstPartyLedger from "../../../data/first-party-actions.json";
 import firstPartyOverrides from "../../../data/first-party-action-overrides.json";
+import ownedTruthLedger from "../../../data/owned-place-truth.json";
 import { mapWfEditorial } from "../../../lib/editorialRule";
 import { cardToEditorial, resolveAtlasId, atlasCardForName } from "../../../lib/atlasCards";
 import { editorialNameCandidates } from "../../../lib/editorialLookup";
@@ -27,12 +28,18 @@ import { siteTodayStr } from "../../../lib/siteTime";
 import { filterEligibleVenueEvents } from "../../../lib/gamePlan";
 import { firstPartyActionsForPlace } from "../../../lib/firstPartyActionStore";
 import { parseEditorialHours } from "../../../lib/editorialHoursParser";
-import { resolveAdmissionTruth } from "../../../lib/ownedPlaceTruth";
+import { resolveAdmissionTruth, resolveOwnedTruthFallback as resolveOwnedTruthFromStore } from "../../../lib/ownedPlaceTruth";
 
 const FPA_STORES = {
   places: (firstPartyLedger && firstPartyLedger.places) || {},
   overrides: (firstPartyOverrides && firstPartyOverrides.places) || {},
 };
+
+const OWNED_TRUTH_PLACES = (ownedTruthLedger && ownedTruthLedger.places) || {};
+
+export function resolveOwnedTruthFallback(placeId, name, fpa = null) {
+  return resolveOwnedTruthFromStore(placeId, name, fpa, OWNED_TRUTH_PLACES);
+}
 
 export const dynamic = "force-dynamic";
 
@@ -179,13 +186,21 @@ export async function GET(req) {
       out = { ...out, firstPartyActions: fpa };
     }
     if (enrichedEditorial) {
-      const parsedHours = parseEditorialHours(enrichedEditorial);
-      const ownedHours = parsedHours && parsedHours.ok && parsedHours.periods.length > 0 ? parsedHours : null;
-      const admissionTruth = resolveAdmissionTruth(
-        { id: candidate.placeId || id, name: candidate.name || rawName },
+      const targetPlaceId = candidate.placeId || id;
+      const targetVenueName = candidate.name || rawName;
+      const parsedHours = parseEditorialHours(enrichedEditorial, { venueName: targetVenueName });
+      const fallbackTruth = resolveOwnedTruthFallback(targetPlaceId, targetVenueName, fpa);
+      const ownedHours = parsedHours && parsedHours.ok && parsedHours.periods.length > 0
+        ? parsedHours
+        : fallbackTruth.ownedHours;
+      const rawAdmissionTruth = resolveAdmissionTruth(
+        { id: targetPlaceId, name: targetVenueName },
         enrichedEditorial,
         fpa || null
       );
+      const admissionTruth = rawAdmissionTruth.status !== "UNKNOWN"
+        ? rawAdmissionTruth
+        : (fallbackTruth.admissionTruth || rawAdmissionTruth);
       enrichedEditorial = {
         ...enrichedEditorial,
         ...(ownedHours ? { ownedHours } : {}),
@@ -202,14 +217,22 @@ export async function GET(req) {
   };
   const serveActionsOnlyOrNone = async (extra = null) => {
     const fpaOnly = id ? firstPartyActionsForPlace(id, todayIso, FPA_STORES) : null;
-    if (!fpaOnly) {
+    const { ownedHours, admissionTruth } = resolveOwnedTruthFallback(id, rawName, fpaOnly);
+    if (!fpaOnly && !ownedHours && !admissionTruth) {
       return NextResponse.json({ none: true, ...(extra || {}) }, { headers: HEADERS });
     }
     const verdict = await approveCandidate({ placeId: id, name: rawName });
     if (!verdict.ok) return refuse(verdict.reason);
     const curatedEvents = await wfCuratedEventsForPlace(id, rawName);
     return NextResponse.json(
-      { none: true, ...(extra || {}), firstPartyActions: fpaOnly, ...(curatedEvents.length > 0 ? { curatedEvents } : {}) },
+      {
+        none: true,
+        ...(extra || {}),
+        ...(fpaOnly ? { firstPartyActions: fpaOnly } : {}),
+        ...(ownedHours ? { ownedHours } : {}),
+        ...(admissionTruth ? { admissionTruth } : {}),
+        ...(curatedEvents.length > 0 ? { curatedEvents } : {}),
+      },
       { headers: HEADERS }
     );
   };

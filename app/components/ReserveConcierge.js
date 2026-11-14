@@ -14,7 +14,7 @@ import {
   RESERVE_LIMITS, conciergeTurn, bookTable, cancelBooking, saveProfile, profileBody, cleanPhoneInput, newIdempotencyKey,
   addToItinerary, directionsUrl, addHandoff, downloadIcs, timeLabel, dateLabel, weekdayLabel,
 } from "../../lib/reserveClientApi.js";
-import { trackReserve } from "../../lib/reserveOpen.js";
+import { trackReserve, savePendingReserve, clearPendingReserve } from "../../lib/reserveOpen.js";
 
 const NAME_NEEDED = ["INVALID_NAME", "NAME_REQUIRED", "NEEDS_NAME", "PROFILE_REQUIRED", "NEEDS_PROFILE", "GUEST_NAME_REQUIRED"];
 const KEEP = ["booked", "requested", "cancelled"]; // cards that stay in the thread after later messages
@@ -44,6 +44,21 @@ function TimesCard({ card, busy, onPick }) {
       <div style={{ fontSize: 13, color: C.light, marginBottom: 8 }}>{[weekdayLabel(card.date), card.partySize ? partyWord(card.partySize) : ""].filter(Boolean).join(" · ")}</div>
       <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
         {opts.map((o) => <button key={o.time} type="button" data-reserve-time={o.time} style={chip} disabled={busy} onClick={() => onPick(o.time)}>{o.label || timeLabel(o.time)}</button>)}
+      </div>
+    </div>
+  );
+}
+
+// Tapping a time never books. It shows this card first; only "Confirm booking" posts /api/reserve/book.
+function ConfirmCard({ card, name, who, busy, onConfirm, onBack }) {
+  const when = [weekdayLabel(card.date), timeLabel(card.time)].filter(Boolean).join(" at ");
+  const line = (name || "the restaurant") + ", " + when + (card.partySize ? " for " + card.partySize : "") + "." + (who ? " Booking as " + who + "." : "");
+  return (
+    <div data-reserve-card="confirm" style={box}>
+      <div style={{ fontSize: 16, fontWeight: 800, color: C.text, lineHeight: 1.35, overflowWrap: "anywhere" }}>{line}</div>
+      <div style={{ display: "grid", gap: 8, marginTop: 10 }}>
+        <button type="button" data-reserve-confirm="1" style={{ ...mainBtn, opacity: busy ? 0.7 : 1 }} disabled={busy} onClick={onConfirm}>Confirm booking</button>
+        <button type="button" data-reserve-back="1" style={quietBtn} disabled={busy} onClick={onBack}>Pick another time</button>
       </div>
     </div>
   );
@@ -100,7 +115,7 @@ function ProfileCard({ busy, error, onSubmit }) {
   );
 }
 
-function SigninCard({ onSignedIn }) {
+function SigninCard({ onSignedIn, place }) {
   const [state, setState] = useState("idle"); // idle | waiting | nodoor
   useEffect(() => {
     if (state !== "waiting") return undefined;
@@ -114,7 +129,7 @@ function SigninCard({ onSignedIn }) {
   }, [state]); // eslint-disable-line react-hooks/exhaustive-deps
   return (
     <div data-reserve-card="signin" style={{ margin: "0 0 10px" }}>
-      <button type="button" style={mainBtn} onClick={() => setState(openSignIn() ? "waiting" : "nodoor")}>Sign in to book</button>
+      <button type="button" style={mainBtn} onClick={() => { savePendingReserve(place); setState(openSignIn() ? "waiting" : "nodoor"); }}>Sign in to book</button>
       {state === "nodoor" ? <a href="/" style={{ ...linkBtn, marginTop: 8 }}>Open Wayfind to sign in</a> : null}
       {state === "waiting" ? <Note>I'll pick up right where we left off.</Note> : null}
     </div>
@@ -344,13 +359,19 @@ export default function ReserveConcierge({ initialPlace, initialMessage, embedde
     if (!isLast && !KEEP.includes(c.type)) return null;
     const pl = place.current;
     switch (c.type) {
-      case "times": return <TimesCard card={c} busy={busy} onPick={(t) => book({ date: c.date, time: t, partySize: c.partySize })} />;
+      case "times": return <TimesCard card={c} busy={busy} onPick={(t) => { if (!busyRef.current) push({ card: { type: "confirm", date: c.date, time: t, partySize: c.partySize, back: c } }); }} />;
+      case "confirm": return <ConfirmCard card={c} name={srv.current.restaurantName || (pl && pl.name)} who={who} busy={busy} onConfirm={() => book({ date: c.date, time: c.time, partySize: c.partySize })} onBack={() => { if (!busyRef.current && c.back) push({ card: c.back }); }} />;
       case "request": return <RequestCard card={c} name={srv.current.restaurantName || (pl && pl.name)} busy={busy} onSend={() => book({ date: c.date, time: c.time, partySize: c.partySize })} />;
       case "handoff": return <HandoffCard card={c} state={srv.current} place={pl} />;
       case "profile": return <ProfileCard busy={busy} error={cardError} onSubmit={submitProfile} />;
-      case "signin": return <SigninCard onSignedIn={afterSignIn} />;
+      case "signin": return <SigninCard onSignedIn={() => { clearPendingReserve(); afterSignIn(); }} place={pl} />;
       case "choose": return <ChooseCard card={c} busy={busy} onChoose={choose} />;
-      case "alternatives": return <ReservePicks picks={c.picks} title="Places you can book" exclude={pid.current} onPick={pickAlt} />;
+      case "alternatives": return (
+        <div data-reserve-card="alternatives">
+          {c.contact && c.contact.url ? <a data-reserve-contact="1" href={c.contact.url} style={{ ...linkBtn, margin: "0 0 10px" }}>{c.contact.label}</a> : null}
+          {Array.isArray(c.picks) && c.picks.length ? <ReservePicks picks={c.picks} title="Similar places nearby" exclude={pid.current} onPick={pickAlt} /> : null}
+        </div>
+      );
       case "booked": return <BookedCard card={c} place={pl} />;
       case "requested": return <RequestedCard card={c} place={pl} />;
       case "retry": return <div style={{ margin: "0 0 10px" }}><button type="button" style={quietBtn} disabled={busy} onClick={retry}>Try again</button></div>;

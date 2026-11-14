@@ -27,6 +27,7 @@ import { getInventoryIdentity } from "../../../../lib/inventoryIdentity.js";
 import { getCachedPlaceIdentity } from "../../../../lib/cachedPlaceIdentity.js";
 import { loadPlaceDetailPhotos } from "../../../../lib/placeDetailGallery.js";
 import { resolveOwnedDetailBeforeSpend, persistLiveDetailEnrichment, resolveGracefulDetailFallback } from "../../../../lib/placeDetailSpine.js";
+import { floridaTimezoneForCoords, utcOffsetMinutesForTimezone } from "../../../../lib/ownedHours.js";
 import { recordDetailMetric } from "../../../../lib/detailTelemetry.js";
 import { isSyntheticRequest } from "../../../../lib/productionWriteFirewall.js";
 
@@ -75,6 +76,12 @@ async function inventoryPlace(placeId) {
     // Verified mailing/public city (wf_inventory.postal_city); shown ahead of locality.
     ...(typeof row.postal_city === "string" && row.postal_city.trim() ? { postalCity: row.postal_city.trim() } : {}),
     ...(typeof signals.state === "string" && /^[A-Za-z]{2}$/.test(signals.state.trim()) ? { state: signals.state.trim().toUpperCase() } : {}),
+    ...(signals.regularOpeningHours && typeof signals.regularOpeningHours === "object" ? { regularOpeningHours: signals.regularOpeningHours } : {}),
+    ...(signals.regularOpeningHours && typeof signals.regularOpeningHours === "object"
+      ? { utcOffsetMinutes: typeof signals.utcOffsetMinutes === "number" ? signals.utcOffsetMinutes : utcOffsetMinutesForTimezone(floridaTimezoneForCoords(row.lat, row.lng)) }
+      : {}),
+    ...(typeof signals.website === "string" && signals.website.trim() ? { websiteUri: signals.website.trim() } : {}),
+    ...(typeof signals.phone === "string" && signals.phone.trim() ? { nationalPhoneNumber: signals.phone.trim() } : {}),
     photos,
   };
 }
