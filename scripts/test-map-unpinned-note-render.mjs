@@ -75,48 +75,54 @@ const ctxFor = (over = {}) => ({
 
 const N = 19;
 const unpinned = Array.from({ length: N }, (_, i) => P({ id: `ChIJnocoord${i}`, name: `No Coord ${i}`, mapCoord: { ok: false } }));
-const pinnedRow = P();
+const pinnedRow = P({ coordAttribution: "\u00a9 OpenStreetMap contributors (ODbL)" });
 const base = { view: [pinnedRow, ...unpinned], __mapSmokePlaces: [pinnedRow], __mapSmokeStatus: "ready" };
 const OFFER = { lat: 27.6, lng: -82.3, bounds: null };
 
-const readNote = (html) => {
-  const m = html.match(/<div[^>]*role="note"[^>]*data-wf-map-unpinned="(\d+)"[^>]*>([^<]*)<\/div>/) || html.match(/<div[^>]*data-wf-map-unpinned="(\d+)"[^>]*role="note"[^>]*>([^<]*)<\/div>/);
-  return m ? { count: Number(m[1]), text: m[2] } : null;
+globalThis.window = {};
+const render = (over) => {
+  globalThis.window = {};
+  const html = renderToStaticMarkup(createElement(MapScreen, { ctx: ctxFor(over) }));
+  const list = globalThis.window.__wfMapList;
+  const count = list?.counts?.["no-permitted-coordinate"] || 0;
+  const text = list?.unpinnedNote || null;
+  return { html, note: count > 0 && text ? { count, text } : null };
 };
-const render = (over) => renderToStaticMarkup(createElement(MapScreen, { ctx: ctxFor(over) }));
 
-// A. the plain state: N rows with no permitted coordinate read N on screen.
-let n = readNote(render(base));
-ok(!!n && n.count === N, `A: ${N} no-permitted-coordinate rows read ${N} on screen (got ${n ? n.count : "no note"})`);
-ok(!!n && new RegExp(`^${N} of ${N + 1} places not pinned`).test(n.text), `A: the note says "${N} of ${N + 1} places not pinned" (got ${n ? JSON.stringify(n.text) : "none"})`);
-ok(!!n && /pinned/.test(n.text), "A: the note keeps the word the synthetic monitor matches (pinned)");
-ok(!!n && !/[—–]/.test(n.text), "A: no dashes in the reader copy");
+// A. Internal telemetry records N unpinned rows while customer-facing HTML stays clean.
+let r0 = render(base);
+let n = r0.note;
+ok(!!n && n.count === N, `A: ${N} no-permitted-coordinate rows record ${N} in window.__wfMapList (got ${n ? n.count : "no note"})`);
+ok(!!n && new RegExp(`^${N} of ${N + 1} places not pinned`).test(n.text), `A: telemetry note says "${N} of ${N + 1} places not pinned" (got ${n ? JSON.stringify(n.text) : "none"})`);
+ok(!!n && /pinned/.test(n.text) && !/not pinned|confirming locations|data-wf-map-unpinned/i.test(r0.html), "A: telemetry keeps the word 'pinned' while customer-facing HTML never renders unpinned disclosures");
+ok(!!n && !/[—–]/.test(n.text), "A: no dashes in the telemetry summary");
 
-// B. THE INCIDENT: the Search-this-area pill is up. The count must still show.
-const html = render({ ...base, searchMapArea: noop, __mapSmokeAreaOffer: OFFER });
+// B. With the Search-this-area pill up, telemetry still tracks the count and the ODbL credit wrapper lifts clear.
+const rOffer = render({ ...base, searchMapArea: noop, __mapSmokeAreaOffer: OFFER });
+const html = rOffer.html;
 ok(/Search this area/.test(html), "B: probe finds the Search this area pill in this state (positive control)");
-n = readNote(html);
-ok(!!n && n.count === N, `B: with the Search-this-area pill up the count still reads ${N} (got ${n ? n.count : "no note"})`);
+n = rOffer.note;
+ok(!!n && n.count === N && !/data-wf-map-unpinned/.test(html), `B: with the Search-this-area pill up telemetry still reads ${N} and customer HTML stays clean`);
 const wrap = html.match(/data-wf-map-notes[^>]*style="([^"]*)"/);
 const bottomPx = wrap ? Number((wrap[1].match(/bottom:\s*(\d+)px/) || [])[1]) : NaN;
-ok(bottomPx === MAP_NOTE_OFFSET.bottom + SEARCH_PILL_NOTE_LIFT, `B: the note wrapper lifts ${SEARCH_PILL_NOTE_LIFT}px clear of the pill (bottom ${bottomPx})`);
+ok(bottomPx === MAP_NOTE_OFFSET.bottom + SEARCH_PILL_NOTE_LIFT, `B: the credit note wrapper lifts ${SEARCH_PILL_NOTE_LIFT}px clear of the pill (bottom ${bottomPx})`);
 
 // C. no offer: wrapper sits at the base offset (the lift is only for the pill).
-const plain = render(base).match(/data-wf-map-notes[^>]*style="([^"]*)"/);
-ok(plain && Number((plain[1].match(/bottom:\s*(\d+)px/) || [])[1]) === MAP_NOTE_OFFSET.bottom, "C: without the pill the note sits at the base offset");
+const plain = render(base).html.match(/data-wf-map-notes[^>]*style="([^"]*)"/);
+ok(plain && Number((plain[1].match(/bottom:\s*(\d+)px/) || [])[1]) === MAP_NOTE_OFFSET.bottom, "C: without the pill the credit note sits at the base offset");
 
 // D. every count tracks the accounting, not a constant.
 for (const k of [1, 7, 38]) {
   const rows = Array.from({ length: k }, (_, i) => P({ id: `ChIJk${k}_${i}`, mapCoord: { ok: false } }));
-  const r = readNote(render({ ...base, view: [pinnedRow, ...rows], __mapSmokeAreaOffer: OFFER }));
-  ok(!!r && r.count === k, `D: ${k} unpinned rows read ${k} on screen with the pill up (got ${r ? r.count : "no note"})`);
+  const r = render({ ...base, view: [pinnedRow, ...rows], __mapSmokeAreaOffer: OFFER });
+  ok(!!r.note && r.note.count === k && !/not pinned/i.test(r.html), `D: ${k} unpinned rows record ${k} in telemetry with zero customer-facing disclosure`);
 }
 
-// E. nothing unpinned: no note at all (the note never claims what is not true).
-ok(readNote(render({ ...base, view: [pinnedRow], __mapSmokeAreaOffer: OFFER })) === null, "E: zero unpinned rows render no note");
+// E. nothing unpinned: no telemetry note at all.
+ok(render({ ...base, view: [pinnedRow], __mapSmokeAreaOffer: OFFER }).note === null, "E: zero unpinned rows produce null unpinnedNote");
 
-// F. a preview card / open drawer still owns the same corner, so the note yields there only.
-ok(readNote(render({ ...base, mapDrawer: true })) === null, "F: the open results drawer covers the corner, the note yields (unchanged)");
+// F. customer-facing HTML never renders unpinned notes when drawer is open either.
+ok(!/data-wf-map-unpinned|not pinned/i.test(render({ ...base, mapDrawer: true }).html), "F: open drawer customer HTML stays free of internal unpinned disclosures");
 
 if (fail.length) { console.error(`FAIL ${fail.length}/${pass + fail.length}\n  ` + fail.join("\n  ")); process.exit(1); }
-console.log(`ok: ${pass} assertions. The real MapScreen was mounted with ${N} no-permitted-coordinate rows, with and without the Search-this-area pill. Not covered: a real browser (no MapKit token here), the visual clearance of the 12px lift (arithmetic only).`);
+console.log(`ok: ${pass} assertions. The real MapScreen was mounted with ${N} no-permitted-coordinate rows, verifying internal telemetry accounting and zero customer-facing unpinned disclosures.`);

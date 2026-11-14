@@ -95,7 +95,8 @@ name_map(cuisine, rx) as (values
   ('barbecue','\y(bbq|barbecue|barbeque|smokehouse|brisket)\y')
 ),
 scoped_veto(cuisine, rx, unless_rx) as (values
-  ('japanese','\ykobe\y','japanese|sushi|hibachi|teppan|izakaya')
+  ('japanese','\ykobe\y','japanese|sushi|hibachi|teppan|izakaya'),
+  ('brazilian','\y(3\s*natives|acai|açaí|playa bowls|vitality bowls|oakberry|sobol|juice bar|smoothie)\y','\y(brazil|brasil|churrasc|rodizio|feijoada|picanha|mineir|gauch)\w*')
 ),
 hits as (
   select s.place_id, tm.cuisine, 0.90::numeric as conf, 'google-types'::text as src

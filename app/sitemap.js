@@ -1,3 +1,4 @@
+import { EVENT_SERIES_HUBS } from "../lib/eventSeriesHubs.js";
 // v4.16 — sitemap for the indexable SEO layer.
 // lastmod is factual (guide `updated`) or omitted. Request-time `new Date()`
 // made 678 URLs share one churning lastmod and taught crawlers nothing.
@@ -116,5 +117,7 @@ export default async function sitemap() {
   const movies = movieSitemapRows(SITE_URL, siteTodayStr());
   const seasonal = SEASONAL_SEARCH_HUBS.map(({ slug }) => ({ url: `${SITE_URL}/${slug}` }));
   const crown = CROWN_PUBLISHED ? [{ url: `${SITE_URL}${CROWN_PATH}` }] : [];
-  return [...core, ...seasonal, ...guides, ...culture, ...landing, ...hubs, ...trending, ...creators, ...partners, ...bestBeaches, ...eventWindows, ...floridaEvents, ...dedicatedGuides, ...movies, ...crown, ...places];
+  // Tour hubs (lib/eventSeriesHubs.js): one page compares every Florida date of a tour.
+  const seriesHubs = EVENT_SERIES_HUBS.map((h) => ({ url: `${SITE_URL}${h.href}` }));
+  return [...core, ...seasonal, ...guides, ...culture, ...landing, ...hubs, ...trending, ...creators, ...partners, ...bestBeaches, ...eventWindows, ...floridaEvents, ...seriesHubs, ...dedicatedGuides, ...movies, ...crown, ...places];
 }

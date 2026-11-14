@@ -14,10 +14,10 @@ export const IMAGE_RECOVERY_DELAYS_MS = [1500, 5000];
 const placeOf = (request) => { try { return new URL(request, "https://www.gowayfind.com").searchParams.get("place"); } catch { return null; } };
 const withRetryMark = (src, n) => typeof src === "string" && src.startsWith("/") && !src.startsWith("//") ? src + (src.includes("?") ? "&" : "?") + "retry=" + n : src;
 
-export function recoverCardImage({ request, photo, inLink, recovery, setAnswer, setFailed }) {
+export function recoverCardImage({ request, photo, inLink, recovery, setAnswer, setFailed, onTerminalFail }) {
   const r = recovery.current.request === request ? recovery.current : { request, tries: 0, timer: null };
   const id = placeOf(request);
-  if (!id || r.tries >= IMAGE_RECOVERY_DELAYS_MS.length) { setFailed(request); return; }
+  if (!id || r.tries >= IMAGE_RECOVERY_DELAYS_MS.length) { setFailed(request); onTerminalFail?.(); return; }
   const tries = r.tries + 1, failedSrc = photo?.src;
   setAnswer({ request, photo: null });
   recovery.current = { request, tries, timer: setTimeout(() => {
@@ -25,7 +25,7 @@ export function recoverCardImage({ request, photo, inLink, recovery, setAnswer, 
     getPlacePhoto(id, { surface: "card", nospend: true }).then((next) => {
       if (recovery.current.request !== request) return;
       const usable = next && !(inLink && next.source === "google" && !next.src?.startsWith("/api/photo/stored/")) ? next : null;
-      if (!usable) { setFailed(request); return; }
+      if (!usable) { setFailed(request); onTerminalFail?.(); return; }
       const base = (s) => String(s || "").split(/[?&]retry=/)[0];
       const retried = base(usable.src) === base(failedSrc) ? { ...usable, src: withRetryMark(base(usable.src), tries) } : usable;
       setFailed(null);

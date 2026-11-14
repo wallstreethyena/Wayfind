@@ -36,6 +36,12 @@ globalThis.fetch = async (url, init) => {
 process.env.NEXT_PUBLIC_POSTHOG_KEY = "phc_guardtest_not_a_real_key";
 delete process.env.WF_SUPPRESS_ANALYTICS;
 delete process.env.REDIRECT_BURST_GATE;
+// The zero-proof desktop rule has an operator off switch read from the live
+// environment (REDIRECT_ZERO_PROOF_GATE=off). This test asserts the rule's default
+// behaviour, so it must not inherit the switch: 2026-11-13 the switch was set in
+// Vercel production and every production build failed here. The switch itself is
+// asserted through explicit env arguments in check-redirect-suspect-gate.mjs.
+delete process.env.REDIRECT_ZERO_PROOF_GATE;
 delete process.env.SUPABASE_URL; delete process.env.NEXT_PUBLIC_SUPABASE_URL; delete process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 const CHROME = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36";
@@ -63,6 +69,8 @@ const ROUTES = {
   stubhub: { rel: "app/api/stubhub/go/route.js", host: "stubhub.prf.hn",
     q: (i = 1) => "url=" + encodeURIComponent("https://www.stubhub.com/event/" + (100 + i)) },
   commerce: { rel: "app/api/commerce/go/route.js", host: null, q: (i = 1) => "provider=unknown&offer=xyz" + i },
+  // Reserve handoff: no hermetic DB here, so the human redirect lands on our own place page (host null).
+  reserve: { rel: "app/api/reserve/go/route.js", host: null, fallbackPath: "place_page_fallback", q: () => "placeId=ChIJ3Vyq7WTEwogRA-WDC7Mze2E&date=2026-11-14&time=19:15&party=4" },
 };
 async function hit(name, headers, i = 1) {
   const r = ROUTES[name];
@@ -105,6 +113,9 @@ for (const name of Object.keys(ROUTES)) {
   ]) {
     const x = await hit(name, h);
     if (r.host) ok(x.loc && x.loc.includes(r.host), `${name} human [${label}] reaches the real partner ${r.host} (Location: ${x.loc})`);
+    // A route whose hermetic landing is a working, attributed fallback (reserve: our own place page) records
+    // provider_redirect_started with that resolver_path; "failed" stays reserved for unattributable (CLAUDE.md rule 3).
+    else if (r.fallbackPath) ok(x.res.status === 302 && x.events.some((e) => e.event === "provider_redirect_started" && e.p.resolver_path === r.fallbackPath) && !x.events.some((e) => e.event === "provider_redirect_failed"), `${name} human [${label}] takes the normal path, started with resolver_path=${r.fallbackPath} (${names(x)})`);
     else ok(x.res.status === 302 && x.events.some((e) => e.event === "provider_redirect_failed"), `${name} human [${label}] takes the normal path (${names(x)})`);
     ok(x.events.length >= 1 && x.events.every((e) => e.p.traffic_class === "human"), `${name} human [${label}] events carry traffic_class=human (${JSON.stringify(x.events.map((e) => e.p.traffic_class))})`);
     ok(!x.events.some((e) => e.event === "provider_redirect_refused"), `${name} human [${label}] is never refused`);

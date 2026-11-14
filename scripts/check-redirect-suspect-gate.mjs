@@ -63,6 +63,12 @@ delete process.env.NEXT_PUBLIC_TM_IMPACT_AD;
 delete process.env.NEXT_PUBLIC_TM_IMPACT_DESTPARAM;
 delete process.env.WAYFIND_PREVIEW_PUBLIC_EVENTS;
 delete process.env.REDIRECT_BURST_GATE;
+// The zero-proof desktop rule has an operator off switch read from the live
+// environment (REDIRECT_ZERO_PROOF_GATE=off). This test asserts the rule's default
+// behaviour, so it must not inherit the switch: 2026-11-13 the switch was set in
+// Vercel production and every production build failed here. The switch itself is
+// asserted below through explicit env arguments (classifyRedirectRequest ctx.env).
+delete process.env.REDIRECT_ZERO_PROOF_GATE;
 
 const captured = [];
 const realFetch = globalThis.fetch;
@@ -328,6 +334,7 @@ const FIX = {
   },
   "app/api/ticketmaster/go/route.js": { q: "url=" + encodeURIComponent("https://www.ticketmaster.com/event/123"), partner: "ticketmaster" },
   "app/api/stubhub/go/route.js": { q: "url=" + encodeURIComponent("https://www.stubhub.com/event/123"), partner: "stubhub.prf.hn" },
+  "app/api/reserve/go/route.js": { q: "placeId=ChIJ3Vyq7WTEwogRA-WDC7Mze2E&date=2026-11-14&time=19:15&party=4", partner: null },
   "app/api/viator/go/route.js": { q: "product=" + encodeURIComponent("https://www.viator.com/tours/Orlando/Airboat/d827-1234P5"), partner: "viator.com" },
 };
 const missing = ROUTES.filter((r) => !(r in FIX));

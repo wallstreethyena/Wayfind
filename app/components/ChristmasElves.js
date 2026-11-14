@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { styleHtml } from "../../lib/styleHtml.js";
 
 // Little elves that show up now and then on /christmas-in-florida (owner
 // 2026-11-11: "add elves at the page randomly being cute"). One elf at a time,
@@ -164,7 +165,7 @@ export default function ChristmasElves() {
     return () => window.clearTimeout(timer);
   }, []);
   return <>
-    <style dangerouslySetInnerHTML={{ __html: CSS }} />
+    <style dangerouslySetInnerHTML={styleHtml(CSS)} />
     {elf && elf.kind === "hang" ? <div className="xm-elf-wire" aria-hidden="true" data-xm-elf="hang">
       <span key={elf.key} className="xm-elf-hang" style={{ left: elf.left.toFixed(2) + "%" }}><HangingElf look={elf.look} /></span>
     </div> : null}

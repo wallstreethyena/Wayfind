@@ -131,7 +131,10 @@ ok(SG.creditedPhotoWarmCap() === 800, "cap 800 parses to 800");
   ok(/recordPulse\("credited-photos"/.test(code), "route records a pulse");
   const vj = JSON.parse(rd("vercel.json"));
   const crons = vj.crons.filter((c) => /credited-photos/.test(c.path));
-  ok(crons.length === 1 && /\?run=1/.test(crons[0].path) && /^\d+ (?:\d+|\*\/[1-9]\d?) \* \* \*$/.test(crons[0].schedule), "vercel.json schedules the warm exactly once (daily or every N hours; idempotent, so extra runs only cover more venues sooner), with run=1: " + JSON.stringify(crons));
+  // 2026-11-11: the route skips unconditionally (Maps Platform Terms 3.2.3), so a
+  // schedule only burned invocations (42 runs / 0 attempts in 7 days). Unscheduled.
+  ok(crons.length === 0, "vercel.json no longer schedules the prohibited credited-photo warm: " + JSON.stringify(crons));
+  ok(vj.crons.some((c) => c.path === "/api/cron/photo-warm"), "control: the crons list was read (photo-warm, which still runs its liveness sweep, stays scheduled)");
 }
 
 // ── 7. targets ────────────────────────────────────────────────────────────

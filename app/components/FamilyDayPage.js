@@ -23,6 +23,7 @@ import { readStoredCenter, fetchIpCenter } from "../../lib/intentLocationFallbac
 import IntentLocationChooser from "./IntentLocationChooser";
 import { useCuratedRows } from "../../lib/curatorPicks.js";
 import { normalizePartnerCity } from "../../lib/intentPartnerPicks.js";
+import { styleHtml } from "../../lib/styleHtml.js";
 
 const COLORS = { text: "#F1F5F9", muted: "#9AA6B6", border: "rgba(255,255,255,.11)", panel: "#0B111B", accent: "#22C55E" };
 const DISTANCES = [10, 25, 50];
@@ -391,7 +392,7 @@ export default function FamilyDayPage({ embedded = false, center = null, city = 
     && milesBetween(loc, IFLY_ORLANDO) <= radiusMi;
   const content = (
     <>
-      <style dangerouslySetInnerHTML={{ __html: `
+      <style dangerouslySetInnerHTML={styleHtml(`
         .wf-family-embedded{padding:4px 0 18px}
         .wf-family-embedded-title{margin:2px 0 14px;color:${COLORS.text};font:500 27px/1.1 Georgia,'Times New Roman',serif;letter-spacing:-.025em}
         .wf-family-embedded-title span{display:block;margin-top:6px;color:${COLORS.muted};font:500 12.5px/1.45 system-ui,sans-serif;letter-spacing:0}
@@ -405,7 +406,7 @@ export default function FamilyDayPage({ embedded = false, center = null, city = 
         .wf-family-fact{display:inline-flex!important;align-items:center;gap:7px;max-width:100%;overflow:hidden;color:#D1FAE5!important;background:rgba(34,197,94,.1)!important;border:1px solid rgba(74,222,128,.25)!important}.wf-family-fact>a{flex:none;color:#86EFAC;text-decoration:none;font-weight:850}.wf-family-message,.wf-family-empty{margin:0;padding:16px;border:1px solid rgba(255,255,255,.08);border-radius:14px;background:#0A0F18;color:${COLORS.muted};font-size:13px;line-height:1.55}.wf-family-message p{margin:0 0 11px}
         @media(max-width:720px){.wf-family-filter-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.wf-family-distance{align-items:flex-start;flex-direction:column}.wf-family-section{margin-top:26px}}
 
-      ` }} />
+      `)} />
       {!embedded ? <FamilyFilters filters={filters} onChange={changeFilter} radiusMi={radiusMi} onRadius={setRadiusMi} /> : null}
       {outdoorGateClosed ? <p className="wf-family-weather">Outdoor picks are paused because {moment.gateWhy || "current weather is not a safe fit"}. {weatherPaused ? "Your weather choice is preserved; choose Indoors or clear it to continue." : "The rails are using verified indoor evidence."}</p> : null}
       <ThemeParkRail mode="family" familyContext={{ lat: loc.lat, lng: loc.lng, radiusMi, filters, indoorOnly, ready: weatherSettled && !!moment, paused: weatherPaused }} onOpenPlace={onOpenPlace} {...cardActions} />

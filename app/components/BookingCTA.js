@@ -43,7 +43,7 @@ export { hasBookingCTA };
 // these by truthiness, so a frozen empty shape is the whole contract.
 const NO_TARGETS = Object.freeze({ verifiedUrl: null, goFallback: false, tk: null, tu: null, fallbackSuppressed: null });
 
-export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, addReservation, openExternal, locName, suppressFallback, label: labelOverride, placeId: placeIdProp, city: cityProp, commerceSurface }) {
+export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, addReservation, openExternal, locName, suppressFallback, label: labelOverride, placeId: placeIdProp, city: cityProp, commerceSurface, onPrimaryClick }) {
   // Hooks for the list-variant impression observer. Must be declared before any
   // conditional return so React's hook order stays stable across renders.
   const listRootRef = useRef(null);
@@ -187,6 +187,7 @@ export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, 
                 });
               } catch (er) {}
               try { logEvent && logEvent("tickets_out", detail, { click_id: clickId }); } catch (er) {}
+              try { onPrimaryClick && onPrimaryClick(); } catch (er) {}
             }}
             style={{ flex: 1, minWidth: 0, minHeight: 48, padding: "0 14px", background: "linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.018))", border: `1px solid ${C.border}`, borderRadius: 14, color: C.light, fontSize: 13.5, fontWeight: 800, textDecoration: "none", lineHeight: 1.15, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, whiteSpace: "nowrap", boxSizing: "border-box" }}
           >
@@ -232,6 +233,7 @@ export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, 
           } catch (er) {}
           try { logEvent("tickets_out", detail, { click_id: clickId }); } catch (er) {}
           try { if (verifiedUrl) addReservation("tickets", detail, "Viator", primaryHref); } catch (er) {}
+          try { onPrimaryClick && onPrimaryClick(); } catch (er) {}
         }}
         onMouseEnter={(e) => { e.currentTarget.style.background = C.accent; e.currentTarget.style.color = "#0D1117"; }}
         onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = C.accent; }}
