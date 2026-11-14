@@ -16,7 +16,7 @@
 //   5. Unsaved draft revisions with bounded conversation history, pre-save
 //      Undo stack (`draftHistory`), 4 visual plan states, and visitor session isolation.
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { Suspense, lazy, useCallback, useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { siteTodayStr } from "../../lib/siteTime.js";
 import { setLocal } from "../../lib/localStore.js";
@@ -39,6 +39,17 @@ import {
   trackPlannerEvent,
 } from "../../lib/plannerAnalytics.js";
 import { extractCityFromPath } from "../../lib/plannerProactive.js";
+import { classifySantaMessage } from "../../lib/santaIntent.js";
+import { resolveOrganizeTrip, organizePreview } from "../../lib/organizeTrips.js";
+
+// Reserve lives inside this one Santa thread (owner 2026-11-14). The existing, proven concierge and picks are
+// loaded on demand and drawn as bubbles and tool cards here; none of it ships until a table is asked for.
+const ReserveConcierge = lazy(() => import("./ReserveConcierge.js"));
+const ReservePicks = lazy(() => import("./ReservePicks.js"));
+
+// "Organize my saved stops" (typed or from the offer) needs a real trip: which one, or why there is none.
+const ORGANIZE_SAVED_RX = /\borgani[sz]e\s+(?:my|these|our)\b[\s\S]{0,40}\b(?:saved|stops|days|places|trip)\b/i;
+
 
 const CENTER_KEY = "wf_center";
 const UNDO_CMD_REGEX = /^\s*(?:actually\s+)?undo(?:\s+(?:that|it|(?:the\s+)?last\s+(?:change|edit|revision)))?[.!?\s]*$/i;
@@ -131,9 +142,11 @@ export function shouldResetPlannerSession(prevMeta, nextOpenDetail) {
 
   const prevAuth = prevMeta.authUserId ?? null;
   const nextAuth = nextOpenDetail?.authUserId ?? null;
-  if (prevAuth !== nextAuth) return true;
+  // Signing IN mid-conversation (guest -> account, e.g. to finish a booking) keeps the thread; signing out or
+  // switching accounts never carries one visitor's thread to another.
+  if (prevAuth !== nextAuth && prevAuth !== null) return true;
 
-  if (nextOpenDetail?.activeTripKey && nextOpenDetail.activeTripKey !== prevMeta.activeTripKey) {
+  if (nextOpenDetail?.activeTripKey && prevMeta.activeTripKey && nextOpenDetail.activeTripKey !== prevMeta.activeTripKey) {
     return true;
   }
 
@@ -212,6 +225,16 @@ const PLANNER_CSS = `
 .wfp-day{display:flex;flex-direction:column;gap:6px}
 .wfp-day-hdr{font-weight:700;padding-top:4px}
 .wfp-save-bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding-top:6px}
+.wfp-tool{margin:4px 0 6px 53px;max-width:calc(100% - 53px);color:#fff;animation:wfp-pop .22s ease-out both}
+.wfp-tool [data-reserve-card],.wfp-tool [data-reserve-picks]{margin-top:2px}
+.wfp-choices{display:flex;flex-direction:column;gap:6px}
+.wfp-choice{all:unset;box-sizing:border-box;cursor:pointer;display:flex;flex-direction:column;gap:2px;padding:10px 14px;border-radius:16px;background:#1C1C1E;border:1px solid #0A84FF;color:#fff;font-size:15px}
+.wfp-choice small{color:#AEAEB2;font-size:12.5px}
+.wfp-choice[aria-pressed="true"]{background:#0A84FF}
+.wfp-choice:disabled{cursor:default;opacity:.7}
+.wfp-choice[aria-pressed="true"]:disabled{opacity:1}
+.wfp-choice-link{all:unset;cursor:pointer;color:#0A84FF;font-size:15px;font-weight:600;padding:10px 6px;min-height:24px}
+.wfp-choice:focus-visible,.wfp-choice-link:focus-visible{outline:2px solid #0A84FF;outline-offset:2px}
 .wfp-save-btn{all:unset;box-sizing:border-box;cursor:pointer;min-height:44px;padding:0 20px;border-radius:999px;background:#0A84FF;color:#fff;font-size:15px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:6px}
 .wfp-foot{flex:none;display:flex;align-items:flex-end;gap:8px;padding:8px 10px calc(8px + env(safe-area-inset-bottom));background:rgba(28,28,30,.94);border-top:.5px solid rgba(84,84,88,.65)}
 .wfp-field{flex:1;min-width:0;display:flex;align-items:center;min-height:36px;border:1px solid #3A3A3C;border-radius:18px;padding:0 3px 0 13px;background:#000}
@@ -305,6 +328,19 @@ export default function WayfindPlannerSheet() {
   const [undoSnapshot, setUndoSnapshot] = useState(null);
   const [lastEditSummary, setLastEditSummary] = useState(null);
   const [openedAt, setOpenedAt] = useState("");
+  // One booking state for the whole thread: the concierge mounts once and stays mounted (even while the sheet
+  // is closed, e.g. during sign in), so the place, day, time, party and idempotency keys survive.
+  const [reserveSeed, setReserveSeed] = useState(null); // { initialMessage, initialPlace } once a table is asked for
+  const [reserveTick, setReserveTick] = useState(0);
+  const conciergeRef = useRef(null);
+  const reserveSnapRef = useRef({ items: [], busy: false, renderCard: null });
+  const reserveSeenRef = useRef(new Set());
+  const reserveActiveRef = useRef(false);
+  const lastReserveTextRef = useRef("");
+  const resumeAfterSignInRef = useRef(false);
+  const pendingEditRef = useRef(null);
+  const pendingPickRef = useRef(null);
+  const pendingPicksRef = useRef(null);
 
   const bodyRef = useRef(null);
   const inputRef = useRef(null);
@@ -350,6 +386,14 @@ export default function WayfindPlannerSheet() {
     setMessages([]);
     setDraft("");
     setLoading(false);
+    setReserveSeed(null);
+    pendingPickRef.current = null;
+    pendingPicksRef.current = null;
+    reserveSnapRef.current = { items: [], busy: false, renderCard: null };
+    reserveSeenRef.current = new Set();
+    reserveActiveRef.current = false;
+    lastReserveTextRef.current = "";
+    pendingEditRef.current = null;
     setProposedPlan(null);
     setCandidateCatalog({});
     setSavedTripKey(null);
@@ -360,10 +404,162 @@ export default function WayfindPlannerSheet() {
     setRevisionNotice(null);
   }, []);
 
+  // ---- Reserve inside the thread -------------------------------------------------------------------------
+  const voiceRef = useRef(voice);
+  voiceRef.current = voice;
+  const seedPlaceRef = useRef(seedPlace);
+  seedPlaceRef.current = seedPlace;
+
+  /** Hand a table request (or a "find me a restaurant") to the one concierge, in this thread. */
+  const routeToReserve = useCallback((text, routed, { showUser }) => {
+    const v = voiceRef.current || "wayfind";
+    const p = plannerPersona(v);
+    const details = (routed && routed.details) || {};
+    const clean = (routed && routed.text) || text;
+    const entries = [];
+    if (showUser) entries.push({ role: "user", text });
+    reserveActiveRef.current = true;
+    if (routed.kind === "find_food") {
+      // Discovery is not permission to book: picks first, a tap starts the booking, Confirm books.
+      entries.push({ role: "assistant", text: p.findFood });
+      entries.push({ role: "picks", k: Date.now(), intent: { cuisine: undefined, date: details.date || undefined, time: details.time || undefined, partySize: details.partySize || undefined } });
+      setMessages((prev) => [...prev, ...entries]);
+      trackPlannerEvent(PLANNER_EVENTS.REQUEST, { surface: "reserve_find", voice: v, has_active_trip: false });
+      return;
+    }
+    lastReserveTextRef.current = clean;
+    const seedPl = seedPlaceRef.current && seedPlaceRef.current.id && seedPlaceRef.current.name ? { id: String(seedPlaceRef.current.id), name: String(seedPlaceRef.current.name) } : null;
+    const named = Boolean(details.venue) || Boolean(details.again);
+    if (!conciergeRef.current) {
+      entries.push({ role: "assistant", text: p.reserveIntro });
+      setMessages((prev) => [...prev, ...entries]);
+      // The newest words win: a named restaurant beats the page the visitor happens to be on.
+      setReserveSeed({ initialMessage: clean, initialPlace: named ? null : seedPl, k: Date.now() });
+    } else {
+      setMessages((prev) => [...prev, ...entries]);
+      conciergeRef.current.send(clean);
+    }
+    // No restaurant named and none on screen: offer grounded picks alongside the one question the concierge asks.
+    // They land right under Santa's answer (the concierge's reply), not above it.
+    if (!named && !seedPl && !(reserveSnapRef.current && reserveSnapRef.current.placeKnown)) {
+      pendingPicksRef.current = { role: "picks", k: Date.now() + 1, intent: { date: details.date || undefined, time: details.time || undefined, partySize: details.partySize || undefined } };
+    }
+    trackPlannerEvent(PLANNER_EVENTS.REQUEST, { surface: "reserve", voice: v, has_active_trip: false });
+  }, []);
+
+  /** A restaurant tapped in the thread: start or continue the one booking with it. Not a booking yet. */
+  const pickRestaurant = useCallback((pick) => {
+    if (!pick || !pick.placeId) return;
+    // Tapped while Santa is still answering: hold the tap and apply it the moment he is done (never dropped,
+    // never a second request in flight).
+    if (reserveSnapRef.current.busy) { pendingPickRef.current = pick; return; }
+    reserveActiveRef.current = true;
+    setMessages((prev) => [...prev, { role: "user", text: pick.name }]);
+    if (conciergeRef.current) conciergeRef.current.choose(pick);
+    else setReserveSeed({ initialMessage: lastReserveTextRef.current || ("A table at " + pick.name), initialPlace: { id: pick.placeId, name: pick.name }, k: Date.now() });
+  }, []);
+
+  const pickRef = useRef(null);
+  pickRef.current = pickRestaurant;
+
+  /** Concierge items become thread entries, in the order they happen. */
+  const onReserveSnapshot = useCallback((snap) => {
+    const prev = reserveSnapRef.current || {};
+    const items = Array.isArray(snap.items) ? snap.items : [];
+    reserveSnapRef.current = { ...snap, placeKnown: items.some((it) => it && it.card && ["times", "confirm", "request", "handoff", "booked", "requested"].includes(it.card.type)) || prev.placeKnown };
+    const fresh = items.filter((it) => it && !reserveSeenRef.current.has(it.id));
+    if (fresh.length) {
+      for (const it of fresh) reserveSeenRef.current.add(it.id);
+      const picks = !snap.busy && pendingPicksRef.current ? pendingPicksRef.current : null;
+      if (picks) pendingPicksRef.current = null;
+      setMessages((m) => [...m, ...fresh.map((it) => ({ role: "reserve", rid: it.id })), ...(picks ? [picks] : [])]);
+    }
+    if (fresh.length || prev.items !== snap.items || prev.busy !== snap.busy || prev.who !== snap.who) setReserveTick((n) => n + 1);
+    if (!snap.busy && pendingPickRef.current) {
+      const held = pendingPickRef.current;
+      pendingPickRef.current = null;
+      window.setTimeout(() => pickRef.current && pickRef.current(held), 0);
+    }
+  }, []);
+
+  // Sign in from inside the thread: the sheet steps aside for the site's sign in, then comes back to the same thread.
+  useEffect(() => {
+    const onSignin = () => { resumeAfterSignInRef.current = true; setOpen(false); };
+    window.addEventListener("wf:reserve-signin", onSignin);
+    return () => window.removeEventListener("wf:reserve-signin", onSignin);
+  }, []);
+
+  const chooseTrip = useCallback((entryIdx, trip, prompt) => {
+    setMessages((prev) => prev.map((m, i) => (i === entryIdx ? { ...m, chosen: trip.key } : m)));
+    activeTripKeyRef.current = trip.key;
+    setActiveTripKey(trip.key);
+    window.setTimeout(() => submitRef.current && submitRef.current(prompt, { activeTripKey: trip.key, tripResolved: true }), 0);
+  }, []);
+
+  const applyOrganize = useCallback((entryIdx, apply) => {
+    const pend = pendingEditRef.current;
+    pendingEditRef.current = null;
+    setMessages((prev) => prev.map((m, i) => (i === entryIdx ? { ...m, state: apply ? "applied" : "dismissed" } : m)));
+    if (!apply || !pend) return;
+    const batchRes = executePlannerActionBatch(readStoredTripsSnapshot(), pend.actions, { verifiedCatalog: pend.catalog });
+    if (!batchRes.ok) {
+      setMessages((prev) => [...prev, { role: "assistant", text: plannerPersona(pend.voice).noChange }]);
+      return;
+    }
+    setUndoSnapshot(batchRes.undoSnapshot);
+    setLastEditSummary(batchRes.summary || pend.reply);
+    setLocal("wayfind_trips", JSON.stringify(batchRes.nextTrips));
+    broadcastPlannerTripCommit({ nextTrips: batchRes.nextTrips, tripKey: batchRes.tripKey || pend.tripKey, openItinerary: false, toast: pend.reply });
+    trackPlannerEvent(PLANNER_EVENTS.DAY_OPTIMIZED, { trip_key: pend.tripKey, voice: pend.voice });
+    setMessages((prev) => [...prev, { role: "assistant", text: pend.reply || "Done." }]);
+  }, []);
+  const submitRef = useRef(null);
+
   const submitPlannerPrompt = useCallback(async (rawPrompt, overrideOpts = {}) => {
     const text = String(rawPrompt || "").trim().slice(0, 500);
     if (!text || loading) return;
     if (submittingRef.current) return;
+    if (reserveSnapRef.current.busy) return; // one request chain at a time
+
+    // ---- one dispatcher for every Santa turn: a table goes to Reserve, a trip goes to the planner
+    const routed = classifySantaMessage(text, {
+      today: siteTodayStr(),
+      reserveActive: reserveActiveRef.current,
+      hasActiveTrip: Boolean(activeTripKeyRef.current),
+    });
+    if (routed.kind === "reserve" || routed.kind === "find_food") {
+      setDraft("");
+      routeToReserve(text, routed, { showUser: true });
+      return;
+    }
+    if (routed.kind === "plan") reserveActiveRef.current = false;
+
+    // ---- "organize my saved stops": find the real trip first, never answer from an empty context
+    const tripKeyGiven = overrideOpts.activeTripKey !== undefined ? overrideOpts.activeTripKey : (savedRef.current || activeTripKeyRef.current);
+    if (ORGANIZE_SAVED_RX.test(text) && !overrideOpts.tripResolved) {
+      let snap = readStoredTripsSnapshot();
+      if (!Object.keys(snap).length && readCurrentAuthUserId()) {
+        // Signed in but the synced trips may still be landing: wait once before calling it empty.
+        await new Promise((r) => window.setTimeout(r, 1200));
+        snap = readStoredTripsSnapshot();
+      }
+      const pick = resolveOrganizeTrip(snap, tripKeyGiven && snap[tripKeyGiven] ? tripKeyGiven : null);
+      if (pick.kind === "choose") {
+        setDraft("");
+        setMessages((prev) => [...prev, { role: "user", text }, { role: "assistant", text: plannerPersona(overrideOpts.voice || voice).whichTrip }, { role: "tripchoice", trips: pick.trips, prompt: text }]);
+        return;
+      }
+      if (pick.kind === "empty") {
+        setDraft("");
+        setMessages((prev) => [...prev, { role: "user", text }, { role: "assistant", text: plannerPersona(overrideOpts.voice || voice).noSavedStops }]);
+        return;
+      }
+      if (pick.key !== tripKeyGiven) {
+        activeTripKeyRef.current = pick.key;
+        setActiveTripKey(pick.key);
+      }
+      overrideOpts = { ...overrideOpts, activeTripKey: pick.key, tripResolved: true };
+    }
     submittingRef.current = true;
 
     // Client-side pre-save Undo: if user types "undo" / "actually undo that"
@@ -446,7 +642,14 @@ export default function WayfindPlannerSheet() {
         return;
       }
 
-      setMessages((prev) => [...prev, { role: "assistant", text: data.reply || "Here is what I found." }]);
+      if (data.mode === "reserve") {
+        // The server's reader says this is a table: same dispatcher, the visitor's bubble is already shown.
+        routeToReserve(text, { kind: data.kind === "find_food" ? "find_food" : "reserve", text: data.text || text, details: data.reserve || {} }, { showUser: false });
+        return;
+      }
+
+      const organizing = data.mode === "edit_trip" && Array.isArray(data.actions) && data.actions.some((a) => a && a.type === "OPTIMIZE_DAY" && a.organizeIntoDays);
+      if (!organizing) setMessages((prev) => [...prev, { role: "assistant", text: data.reply || "Here is what I found." }]);
 
       if (data.mode === "propose_trip" && data.proposedPlan) {
         savingRef.current = false;
@@ -481,6 +684,23 @@ export default function WayfindPlannerSheet() {
         setRevisionNotice(data.reply || "Could not make that change.");
       } else if (data.mode === "clarify") {
         setRevisionNotice(null);
+      } else if (organizing && currentActiveTrip) {
+        // Show the organized days first; nothing is written until "Apply to my trip" (owner 2026-11-14).
+        const preview = executePlannerActionBatch(readStoredTripsSnapshot(), data.actions, { verifiedCatalog: data.candidateCatalog || {} });
+        const tripKey = preview.ok ? (preview.tripKey || currentActiveTrip.key) : null;
+        const nothingPlaced = preview.ok && preview.nextTrips && preview.nextTrips[tripKey] && !(preview.nextTrips[tripKey].items || []).some((it) => it && it.day && !(currentActiveTrip.items || []).some((o) => String(o.id) === String(it.id) && o.day === it.day));
+        if (nothingPlaced) {
+          // Nothing would move (no dates to place them on): say so instead of offering an empty change.
+          setMessages((prev) => [...prev, { role: "assistant", text: plannerPersona(effVoice).organizeNeedsDates }]);
+        } else if (preview.ok && preview.nextTrips && preview.nextTrips[tripKey]) {
+          pendingEditRef.current = { actions: data.actions, catalog: data.candidateCatalog || {}, tripKey, reply: data.reply, voice: effVoice };
+          setMessages((prev) => [...prev,
+            { role: "assistant", text: plannerPersona(effVoice).organizeReady },
+            { role: "editproposal", tripKey, title: String(preview.nextTrips[tripKey].title || currentActiveTrip.title || "Your trip"), days: organizePreview(preview.nextTrips[tripKey]), state: "pending" },
+          ]);
+        } else {
+          setMessages((prev) => [...prev, { role: "assistant", text: plannerPersona(effVoice).noChange }]);
+        }
       } else if (data.mode === "edit_trip" && Array.isArray(data.actions) && currentActiveTrip) {
         const currentTrips = readStoredTripsSnapshot();
         const batchRes = executePlannerActionBatch(currentTrips, data.actions, {
@@ -523,15 +743,23 @@ export default function WayfindPlannerSheet() {
       if (timeoutId != null) window.clearTimeout(timeoutId);
       setLoading(false);
     }
-  }, [activeTripKey, contextCity, loading, pathname, seedPlace, surface, voice]);
+  }, [activeTripKey, contextCity, loading, pathname, seedPlace, surface, voice, routeToReserve]);
+  submitRef.current = submitPlannerPrompt;
 
   // Handle visitor session isolation / auth reset
   useEffect(() => {
     const onAuthChanged = (e) => {
       const nextAuth = (e && e.detail && e.detail.userId) !== undefined ? e.detail.userId : readCurrentAuthUserId();
-      if ((sessionMetaRef.current.authUserId ?? null) !== (nextAuth ?? null)) {
+      const prevAuth = sessionMetaRef.current.authUserId ?? null;
+      if (prevAuth !== (nextAuth ?? null)) {
         sessionMetaRef.current.authUserId = nextAuth;
-        resetSession();
+        if (prevAuth !== null) resetSession();
+        else if (nextAuth && resumeAfterSignInRef.current) {
+          // Back from sign in: the same thread, and the booking picks up where it stopped.
+          resumeAfterSignInRef.current = false;
+          setOpen(true);
+          try { if (conciergeRef.current && conciergeRef.current.resume) conciergeRef.current.resume(); } catch { /* ignore */ }
+        }
       }
     };
     const onStorage = (e) => {
@@ -558,13 +786,17 @@ export default function WayfindPlannerSheet() {
       const nextCity = detail.city || (pathCity && pathCity.name) || null;
       const currentAuthId = readCurrentAuthUserId();
 
-      if (shouldResetPlannerSession(sessionMetaRef.current, { ...detail, authUserId: currentAuthId, city: nextCity })) {
+      const reset = shouldResetPlannerSession(sessionMetaRef.current, { ...detail, authUserId: currentAuthId, city: nextCity });
+      if (reset) {
         resetSession();
       }
+      // Reopening from the dock keeps the selected trip; a new trip key (or a reset) replaces it.
+      const keepTrip = reset ? null : activeTripKeyRef.current;
+      const nextTripKey = detail.activeTripKey || keepTrip || null;
 
       sessionMetaRef.current = {
         authUserId: currentAuthId,
-        activeTripKey: detail.activeTripKey || null,
+        activeTripKey: nextTripKey,
         city: nextCity,
       };
 
@@ -572,7 +804,8 @@ export default function WayfindPlannerSheet() {
       setSurface(nextSurface);
       setContextCity(nextCity);
       setSeedPlace(detail.seedPlace || null);
-      setActiveTripKey(detail.activeTripKey || null);
+      setActiveTripKey(nextTripKey);
+      activeTripKeyRef.current = nextTripKey;
       setOpenedAt((t) => t || stampTime());
       setOpen(true);
 
@@ -582,7 +815,10 @@ export default function WayfindPlannerSheet() {
         city_slug: pathCity ? pathCity.slug : undefined,
       });
 
-      if (!detail.prompt) {
+      if (Array.isArray(detail.chooseTrips) && detail.chooseTrips.length > 1 && detail.choosePrompt) {
+        const v = plannerPersona(nextVoice);
+        setMessages((prev) => [...prev, { role: "user", text: String(detail.choosePrompt) }, { role: "assistant", text: v.whichTrip }, { role: "tripchoice", trips: detail.chooseTrips.slice(0, 6), prompt: String(detail.choosePrompt) }]);
+      } else if (!detail.prompt) {
         setMessages((prev) =>
           prev.length
             ? prev
@@ -601,7 +837,7 @@ export default function WayfindPlannerSheet() {
             surface: nextSurface,
             contextCity: nextCity,
             seedPlace: detail.seedPlace || null,
-            activeTripKey: detail.activeTripKey || null,
+            activeTripKey: nextTripKey,
           });
         }, 20);
       }
@@ -756,10 +992,91 @@ export default function WayfindPlannerSheet() {
   messages.forEach((m, i) => { if (m.role === "user") lastUserIdx = i; });
 
   const effPlanState = savedTripKey ? "saved" : (planState || "draft");
+  void reserveTick; // re-render when the concierge's items, busy state or review card change
+  const rsnap = reserveSnapRef.current || { items: [] };
+  const busyNow = loading || Boolean(rsnap.busy);
+  const reserveItem = (rid) => (Array.isArray(rsnap.items) ? rsnap.items.find((it) => it && it.id === rid) : null);
+  // Every entry is a visitor bubble, a host bubble, a tool card (picks, review, trip choice) or nothing.
+  const threadRole = (m) => {
+    if (!m) return "skip";
+    if (m.role === "user" || m.role === "assistant") return m.role;
+    if (m.role === "reserve") {
+      const it = reserveItem(m.rid);
+      if (!it) return "skip";
+      if (it.role === "user") return "user";
+      if (it.text) return "assistant";
+      return it.card && rsnap.renderCard ? "tool" : "skip";
+    }
+    return "tool";
+  };
+  const entryText = (m) => {
+    if (m.role === "reserve") { const it = reserveItem(m.rid); return it ? it.text : ""; }
+    return m.text;
+  };
+  const renderToolEntry = (m, idx) => {
+    if (m.role === "reserve") {
+      const it = reserveItem(m.rid);
+      const i = rsnap.items.indexOf(it);
+      return it && rsnap.renderCard ? <div data-wf-thread-reserve="1">{rsnap.renderCard(it, i)}</div> : null;
+    }
+    if (m.role === "picks") {
+      return (
+        <Suspense fallback={null}>
+          <ReservePicks key={m.k} intent={m.intent} point={readStoredPoint()} title="Tables to look at" onPick={pickRestaurant} />
+        </Suspense>
+      );
+    }
+    if (m.role === "tripchoice") {
+      return (
+        <div className="wfp-choices" data-wf-trip-choice="1" role="group" aria-label="Which trip">
+          {m.trips.map((t) => (
+            <button key={t.key} type="button" className="wfp-choice" data-wf-trip-choice-key={t.key} disabled={Boolean(m.chosen) || busyNow} aria-pressed={m.chosen === t.key} onClick={() => chooseTrip(idx, t, m.prompt)}>
+              <b>{t.title}</b>
+              <small>{t.count} {t.count === 1 ? "stop" : "stops"} without a day</small>
+            </button>
+          ))}
+        </div>
+      );
+    }
+    if (m.role === "editproposal") {
+      return (
+        <div className="wfp-plan" data-wf-organize-proposal={m.state}>
+          <div style={{ fontWeight: 700 }}>{m.title}</div>
+          {m.days.map((d) => (
+            <div key={d.day} className="wfp-day">
+              <div className="wfp-day-hdr">{d.day}</div>
+              {d.names.map((n, j) => <div key={j} className="wfp-li"><span className="wfp-li-e" aria-hidden="true">📍</span><span>{n}</span></div>)}
+            </div>
+          ))}
+          {m.state === "pending" ? (
+            <div className="wfp-save-bar">
+              <button type="button" className="wfp-save-btn" data-wf-organize-apply="1" onClick={() => applyOrganize(idx, true)}>Apply to my trip</button>
+              <button type="button" className="wfp-choice-link" data-wf-organize-dismiss="1" onClick={() => applyOrganize(idx, false)}>Not now</button>
+            </div>
+          ) : (
+            <div style={{ fontSize: 13, color: m.state === "applied" ? "#30D158" : "#8E8E93", fontWeight: 600 }}>{m.state === "applied" ? "✓ Applied to your trip" : "Kept your trip as it was"}</div>
+          )}
+        </div>
+      );
+    }
+    return null;
+  };
 
   return (
     <>
       <style dangerouslySetInnerHTML={styleHtml(PLANNER_CSS)} />
+      {reserveSeed && (
+        <Suspense fallback={null}>
+          <ReserveConcierge
+            key={reserveSeed.k}
+            thread
+            controlRef={conciergeRef}
+            onSnapshot={onReserveSnapshot}
+            initialMessage={reserveSeed.initialMessage}
+            initialPlace={reserveSeed.initialPlace}
+          />
+        </Suspense>
+      )}
       {open && (
         <div
           className="wfp-back"
@@ -789,30 +1106,44 @@ export default function WayfindPlannerSheet() {
               </div>
 
               {messages.map((m, idx) => {
-                const isUser = m.role === "user";
+                const role = threadRole(m);
+                if (role === "skip") return null;
                 const prev = messages[idx - 1];
                 const next = messages[idx + 1];
-                const firstOfGroup = !prev || prev.role !== m.role;
+                const prevRole = prev ? threadRole(prev) : null;
+                const nextRole = next ? threadRole(next) : null;
+                if (role === "tool") {
+                  return <div key={idx} className="wfp-tool">{renderToolEntry(m, idx)}</div>;
+                }
+                // A concierge answer can carry words AND a card (times, review, result): bubble, then the card.
+                const withCard = m.role === "reserve" && role === "assistant" && (() => { const it = reserveItem(m.rid); return Boolean(it && it.card && rsnap.renderCard); })();
+                const isUser = role === "user";
+                const text = entryText(m);
+                if (!text) return null;
+                const firstOfGroup = !prev || prevRole !== role;
                 // The typing dots continue Santa's group, so his last bubble keeps no tail then.
-                const lastOfGroup = next ? next.role !== m.role : !(loading && !isUser);
+                const lastOfGroup = next ? nextRole !== role : !(busyNow && !isUser);
                 const cls = `wfp-row ${isUser ? "user" : "assistant"}${firstOfGroup && idx ? " gap" : ""}${lastOfGroup ? " last" : ""}`;
-                return (
+                const bubble = (
                   <div key={idx} className={cls}>
                     {!isUser && <HostFigure voice={host} />}
                     <div className={`wfp-msg ${isUser ? "user" : "assistant"}`}>
                       <BubbleTail fill={isUser ? "#0A84FF" : "#26252A"} />
-                      {m.text}
+                      {text}
                     </div>
                   </div>
                 );
+                if (!withCard) return bubble;
+                const card = renderToolEntry(m, idx);
+                return card ? [bubble, <div key={idx + "c"} className="wfp-tool">{card}</div>] : bubble;
               })}
 
-              {lastUserIdx === messages.length - 1 && lastUserIdx >= 0 && !loading && (
+              {lastUserIdx === messages.length - 1 && lastUserIdx >= 0 && !busyNow && (
                 <div className="wfp-read">Delivered</div>
               )}
 
-              {loading && (
-                <div className={`wfp-row assistant last${messages.length && messages[messages.length - 1].role === "assistant" ? "" : " gap"}`} data-wf-planner-typing="1">
+              {busyNow && (
+                <div className={`wfp-row assistant last${messages.length && threadRole(messages[messages.length - 1]) === "assistant" ? "" : " gap"}`} data-wf-planner-typing="1">
                   <HostFigure voice={host} />
                   <div className="wfp-msg assistant wfp-typing" role="status">
                     <BubbleTail fill="#26252A" />
@@ -969,11 +1300,11 @@ export default function WayfindPlannerSheet() {
                   maxLength={500}
                   onChange={(e) => setDraft(e.target.value)}
                   placeholder="iMessage"
-                  aria-label="Tell Wayfind what trip to build or edit"
+                  aria-label={`Message ${persona.name}: plan a trip or book a table`}
                   enterKeyHint="send"
                 />
                 {draft.trim() ? (
-                <button type="submit" className="wfp-send" aria-label="Send" disabled={loading}>
+                <button type="submit" className="wfp-send" aria-label="Send" disabled={busyNow}>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                     <path d="M12 19V5M5 12l7-7 7 7" />
                   </svg>
