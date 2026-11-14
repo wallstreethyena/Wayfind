@@ -15,6 +15,7 @@ import CollectionHero from "../CollectionHero";
 import { CATEGORIES } from "../../../lib/google";
 import { useContentCardActions } from "../../../lib/contentCardActions";
 import { useEffect, useState } from "react";
+import { styleHtml } from "../../../lib/styleHtml.js";
 
 function playLunchCoin() {
   // Synthesized in the click gesture: no plug-in, downloaded audio, or
@@ -80,7 +81,7 @@ export default function MenuSheet({ ctx }) {
             <div style={{ width: 36, height: 4, background: C.border, borderRadius: 2, margin: "0 auto 16px" }} />
             {menuSheet === "pick" && (
               <>
-                <style dangerouslySetInnerHTML={{ __html: `
+                <style dangerouslySetInnerHTML={styleHtml(`
                   @keyframes wfLunchGlow{0%,100%{box-shadow:0 0 0 4px rgba(255,255,255,.72),0 0 18px 7px rgba(249,115,22,.74),0 0 42px 15px rgba(251,191,36,.35);transform:scale(1)}50%{box-shadow:0 0 0 6px #fff,0 0 28px 12px rgba(249,115,22,.98),0 0 58px 24px rgba(251,191,36,.5);transform:scale(1.055)}}
                   @keyframes wfLunchPress{0%,100%{transform:scale(1)}25%{transform:scale(.9) rotate(-3deg)}58%{transform:scale(1.12) rotate(3deg)}}
                   @keyframes wfLunchRise{0%{opacity:.15;transform:translateY(390px) rotate(-2deg) scale(.78)}68%{opacity:1;transform:translateY(-12px) rotate(.5deg) scale(1.02)}100%{opacity:1;transform:translateY(0) rotate(0) scale(1)}}
@@ -88,7 +89,7 @@ export default function MenuSheet({ ctx }) {
                   @keyframes wfLunchDisclosure{0%{opacity:0;transform:translateY(8px)}100%{opacity:1;transform:translateY(0)}}
                   .wf-lunch-question:focus-visible{outline:3px solid #fff;outline-offset:7px}
                   @media(prefers-reduced-motion:reduce){.wf-lunch-question,.wf-lunch-result,.wf-lunch-spark,.wf-lunch-disclosure{animation:none!important}}
-                ` }} />
+                `)} />
                 <section aria-label="Lunch in My City" style={{ position: "relative", height: "clamp(520px, 72dvh, 650px)", overflow: "hidden", borderRadius: 24, marginBottom: lunchPick ? 10 : 16, background: "#10151B", border: "1px solid rgba(251,146,60,.62)", boxShadow: "0 20px 52px rgba(0,0,0,.5), 0 0 30px rgba(249,115,22,.14)" }}>
                   <img className="wf-lunch-scene" src="/cards/lunch-in-my-city.webp" alt="Pixel art question block and Mario above a green pipe on a city wall" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 38%", filter: homeRolling ? "brightness(.72)" : "none", transition: "filter 180ms ease" }} />
                   <div aria-hidden="true" style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg,rgba(3,7,12,.74) 0%,rgba(3,7,12,.18) 28%,rgba(3,7,12,.04) 52%,rgba(3,7,12,.78) 100%)" }} />

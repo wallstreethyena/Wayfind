@@ -8,6 +8,7 @@ import IconicPlaceCard from "../components/IconicPlaceCard.js";
 import { PhotoSrcFilterContext } from "../components/photoPolicyContext.js";
 import { GroupPlaceOptions, PlaceCard, staleFactsNote, groupPhotoFilter } from "./GroupPlaceOptions.js";
 import { GroupVoteIntro } from "./GroupFrame.js";
+import { styleHtml } from "../../lib/styleHtml.js";
 
 // Group Vote organizer dashboard. Motion budget: everything <= 0.6s, confetti <= 1s,
 // and every animation is switched off under prefers-reduced-motion.
@@ -150,7 +151,7 @@ export function GroupOrganizer({plan,onCommand,busy,nowMs:nowOverride}) {
   const finalPlace=plan.finalPlan&&plan.places.find((p)=>p.id===plan.finalPlan.placeId),finalTime=plan.finalPlan&&plan.times.find((t)=>t.id===plan.finalPlan.timeId);
   const ackBox=(checked,set,text)=><label className="gp-choice"><input type="checkbox" checked={checked} onChange={(e)=>set(e.target.checked)}/><span>{text}</span></label>;
   return <div className="gpo">
-    <style dangerouslySetInnerHTML={{__html:GROUP_ORGANIZER_CSS}}/>
+    <style dangerouslySetInnerHTML={styleHtml(GROUP_ORGANIZER_CSS)}/>
     <div className="gpo-head"><GroupVoteIntro><p className="gp-lede">{plan.status==="draft"?"Your next good day starts here. Review your group, then open the vote.":"Your people. A few great options. One plan together."}</p></GroupVoteIntro>{plan.status==="open"&&<CountdownRing plan={plan} nowMs={nowMs}/>}</div>
     <div className="gpo-layout"><div className="gpo-ballot">
     <section className={`gp-panel gpo-overview${plan.status==="draft"?" is-draft":""}`} aria-label="Your group vote at a glance">
@@ -200,7 +201,7 @@ export function GroupOrganizer({plan,onCommand,busy,nowMs:nowOverride}) {
 export function GroupFinal({plan,headline=true,withStyle=true}) {
   const final=plan.finalPlan;if(!final)return null;
   const place=plan.places.find((p)=>p.id===final.placeId),time=plan.times.find((t)=>t.id===final.timeId);
-  return <div className="gpo">{withStyle&&<style dangerouslySetInnerHTML={{__html:GROUP_ORGANIZER_CSS}}/>}
+  return <div className="gpo">{withStyle&&<style dangerouslySetInnerHTML={styleHtml(GROUP_ORGANIZER_CSS)}/>}
     {headline&&<><p className="gpo-locked">Plan locked</p><h2>{place?.name||"The final plan"}</h2>{time&&<p>{formatGroupTimeShort(time,plan.timeZone)}</p>}</>}
     {plan.organizerName&&<p className="gp-note">Organized by {plan.organizerName}</p>}
     <FinalPlaceCard place={place} plan={plan}/>

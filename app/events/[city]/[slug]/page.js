@@ -34,6 +34,7 @@ import { pageShareUrl } from "../../../../lib/pageShareUrl.js";
 import { eventPlaceholder } from "../../../../lib/eventPlaceholder.js";
 import { eventJsonLdDates } from "../../../../lib/eventTime.js";
 import { applyStoredStartCorrection } from "../../../../lib/eventStartRefresh.js";
+import { styleHtml } from "../../../../lib/styleHtml.js";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -184,7 +185,7 @@ async function EventListPage({ params }) {
   };
   return (
     <div style={{ background: "#0D1117", minHeight: "100dvh", color: "#CBD5E1", fontFamily: "var(--wf-sans)" }}>
-      <style dangerouslySetInnerHTML={{ __html: WF_PLACE_CARD_CSS }} />
+      <style dangerouslySetInnerHTML={styleHtml(WF_PLACE_CARD_CSS)} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <div style={{ maxWidth: 720, margin: "0 auto", padding: "20px 20px 48px" }}>
         <a href="/events" style={{ color: A, fontWeight: 800, textDecoration: "none", fontSize: 13.5 }}>‹ All events</a>

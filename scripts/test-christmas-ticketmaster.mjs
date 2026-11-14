@@ -7,7 +7,7 @@
 // has not passed, and a registry partner still comes first.
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { christmasBrowseListings } from "../lib/christmasBrowse.js";
+import { christmasBrowseListings, christmasShowPinDate } from "../lib/christmasBrowse.js";
 import { ticketAction, browseTicketFields } from "../lib/christmasTickets.js";
 import { CHRISTMAS_TICKETMASTER, christmasTicketmasterUrl, christmasTicketmasterAction } from "../lib/christmasTicketmaster.js";
 import { isTicketmasterFamily } from "../lib/affiliates.js";
@@ -78,4 +78,54 @@ const src = strip(readFileSync(new URL("../lib/christmasTicketmaster.js", import
 ok(!/commission|payout|\bcpa\b|\brate\b/i.test(src), "the match module reads no commission or payout");
 ok(/christmasTicketmasterAction\(card, today, CHRISTMAS_TICKETS_SURFACE\)/.test(strip(readFileSync(new URL("../lib/christmasTickets.js", import.meta.url), "utf8"))), "ticketAction calls the Ticketmaster match");
 
+// Pinned show options (a week before the next night): Ticketmaster appears as a
+// secondary choice ONLY from the exact match above, only when the main button is
+// not already Ticketmaster, and always through /api/ticketmaster/go.
+let optShows = 0;
+for (const day of ["2026-11-12", "2026-11-29", "2026-12-03", "2026-12-11", "2026-12-17", "2026-12-21"]) {
+  const dayCards = christmasBrowseListings([], day, [], []);
+  for (const card of dayCards) {
+    const a = ticketAction(card, new Map(), day);
+    if (!a || !a.options) continue;
+    ok(christmasShowPinDate(card, day) !== null, card.id + " " + day + ": options only on a pinned show");
+    for (const o of a.options) {
+      ok(o.provider === "ticketmaster" && o.label === "Ticketmaster", card.id + ": only Ticketmaster here (StubHub is dark)");
+      ok(!!CHRISTMAS_TICKETMASTER[card.id] && christmasTicketmasterUrl(card.id, day) !== null, card.id + ": option comes from an exact table match");
+      ok(/^\/api\/ticketmaster\/go\?/.test(o.href) && new URL(o.href, "https://x.test").searchParams.get("url") === christmasTicketmasterUrl(card.id, day), card.id + ": option goes through our redirect to the matched page");
+      ok(a.provider !== "ticketmaster", card.id + ": never a duplicate of the main Ticketmaster button");
+    }
+    optShows++;
+  }
+}
+ok(optShows >= 2, "at least two pinned shows carry a Ticketmaster option (" + optShows + ")");
+// Unmatched pinned shows (no table row) get nothing, even with an organizer button.
+const noMatch = ["mannheim-steamroller-peabody-2026", "charlie-brown-christmas-ruth-eckerd-2026", "seminolegulf-northpolenoir-fortmyers-2026", "alhambra-christmas-carole-2026"];
+for (const id of noMatch) {
+  ok(!CHRISTMAS_TICKETMASTER[id], id + " has no Ticketmaster row (not verified on Ticketmaster)");
+  const card = listings.find((c) => c.id === id);
+  ok(!card || !(ticketAction(card, new Map(), "2026-11-12") || {}).options, id + " gets no options");
+}
+// Not pinned (more than a week out) means no options even for a matched show.
+const farCard = byId.get("orlando-ballet-nutcracker-2026");
+ok(christmasShowPinDate(farCard, "2026-11-12") === null && !(ticketAction(farCard, new Map(), "2026-11-12") || {}).options, "a matched show outside its pin week has no options");
+
 console.log("test-christmas-ticketmaster: " + n + " assertions OK (" + ids.length + " matched shows, " + wired + " Ticketmaster buttons, " + keptResale + " kept official + TicketSmarter night on " + TODAY + ")");
+
+{
+  // 2026-11-13 review: an option opens the SAME night the card shows, and the
+  // pill is a full 44px tap target.
+  const { readFileSync } = await import("node:fs");
+  const strip = (s) => s.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "$1");
+  const lib = strip(readFileSync(new URL("../lib/christmasTickets.js", import.meta.url), "utf8"));
+  if (!/if \(o && o\.provider === "ticketmaster" && tmDate !== pinned\) continue;/.test(lib)) throw new Error("a Ticketmaster option must match the pinned night");
+  const card = strip(readFileSync(new URL("../app/components/ChristmasTicketCard.js", import.meta.url), "utf8"));
+  if (!/\.xm-opt\{[^}]*min-height:44px/.test(card)) throw new Error("ticket option pills must be 44px tap targets");
+  const tm = await import("../lib/christmasTicketmaster.js");
+  for (const [id, rows] of Object.entries(tm.CHRISTMAS_TICKETMASTER || {})) {
+    if (!Array.isArray(rows) || !rows.length) continue;
+    const d = rows.map((r) => r.date).filter(Boolean).sort()[0];
+    if (tm.christmasTicketmasterNextDate(id, d) !== d) throw new Error("next Ticketmaster night for " + id + " on " + d);
+    break;
+  }
+  console.log("test-christmas-ticketmaster: same night + 44px pill locked");
+}

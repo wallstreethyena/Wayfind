@@ -240,6 +240,19 @@
    ],
    "why": "Tavares church frame cropped through traffic lights; fails as a card cover.",
    "removed_in": "7c6303fa1d28e790acd9488cf227e62bfcd0131f"
+  },
+  {
+   "sha256": "6b95c9a23a262f4ff7190a2ab073bb2849e2ef6b214dd4e08f3f8c67d94dff1d",
+   "bytes": 209830,
+   "files": [
+    "/place-photos/batch-2026-12a/mvmcp-2026/ev_6b95c9a23a262f4f.jpg"
+   ],
+   "source_href": "https://cdn1.parksmedia.wdprapps.disney.com/resize/mwImage/1/1349/464/75/vision-dam/digital/parks-platform/parks-global-assets/disney-world/campaign/mvmcp/2024/MVMCP_30_Thumbnail_Mickey.jpg",
+   "scope": "christmas",
+   "events": [
+    "mvmcp-2026"
+   ],
+   "why": "copied from Disney website, no license"
   }
  ]
 }

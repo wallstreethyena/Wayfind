@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { styleHtml } from "../../lib/styleHtml.js";
 
 // One Christmas control, using the page's burgundy, cream and gold palette.
 // The default order is the best rated, trending choices near the visitor
@@ -95,7 +96,7 @@ export default function ChristmasFilter({ query, facets, onSet, onNear, onReset 
   }, [open]);
 
   return <div data-christmas-filter="" data-collection-filter="">
-    <style dangerouslySetInnerHTML={{ __html: CSS }} />
+    <style dangerouslySetInnerHTML={styleHtml(CSS)} />
     <button ref={trigger} type="button" className="xm-filter-trigger" aria-expanded={open} aria-haspopup="dialog" aria-controls={open ? id : undefined} onClick={() => setOpen(true)}>
       <svg aria-hidden="true" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M4 5h16v5a2 2 0 0 0 0 4v5H4v-5a2 2 0 0 0 0-4V5Z"/><path d="M15 5v3m0 3v2m0 3v3"/></svg>
       {label}{active ? <span className="xm-filter-badge" aria-label={active + " filters on"}>{active}</span> : null}

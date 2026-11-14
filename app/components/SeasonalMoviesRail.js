@@ -7,7 +7,7 @@
 // a partner URL. The button sells the live Undercover Tourist movie ticket deal (offer comes
 // from the API payload, so the registry stays out of the client). If ctaLive were ever false
 // production renders nothing: an affiliate card without its buy button is not allowed.
-import { useEffect, useMemo, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import RailCard, { RailDots, RailNav } from "./RailCard";
 import RailHeading from "./RailHeading";
 import RailLoading from "./RailLoading";
@@ -77,10 +77,36 @@ function movieCta(movie, collection, onTrack) {
   };
 }
 
+// One movie card. A memo of primitives plus the stable `movie` row, so a parent render (the home page
+// re-renders this rail on every commit) skips every card; the tracking callback arrives as a stable
+// wrapper that reads the newest handler at CALL time.
+const MovieRailCard = memo(function MovieRailCard({ movie, index, collection, eyebrow, spooky, track }) {
+  const baseChips = (Array.isArray(movie.vibes) ? movie.vibes : []).slice(0, 3).map((label) => ({ key: "vibe-" + label, icon: "\u{1F3AC}", label }));
+  const art = movie.art && movie.art.src ? movie.art : null;
+  return <RailCard key={movie.id} className="wf-exploding-primary wf-movie-card"
+    photo={art ? art.src : null}
+    placeholder={art ? null : placeholderFor(collection, movie.status)}
+    eagerMedia={index < 3}
+    place={null}
+    href={"/movies/" + movie.id}
+    actionItem={{ id: "movie:" + movie.id, type: "event", title: movie.title, image: art ? art.src : null, url: SITE_URL + "/movies/" + movie.id }}
+    title={movie.title} eyebrow={eyebrow} rank={index + 1} spooky={spooky}
+    score={null} when={movieWhen(movie)}
+    facts={[movie.rating || null, runtimeLabel(movie.runtimeMin)].filter(Boolean)}
+    photoAttr={art && art.credit ? art.credit : null}
+    photoAttrHref={art && (art.licenseUrl || art.source) ? (art.licenseUrl || art.source) : null}
+    chips={spooky ? withSpookyChip(baseChips) : baseChips}
+    take={movie.why || null} cta={movieCta(movie, collection, track)}
+    ariaLabel={movie.title} />;
+});
+
 export default function SeasonalMoviesRail({ collection = "fall", active = true, onTrack = null }) {
   const [payload, setPayload] = useState(null);
   const [failed, setFailed] = useState(false);
   const hiddenTracked = useRef("");
+  const trackRef = useRef(onTrack);
+  trackRef.current = onTrack;
+  const track = useCallback((...args) => (trackRef.current ? trackRef.current(...args) : undefined), []);
   const siteDay = useSiteToday();
   const skinLive = fallSkinLive(siteDay);
   const today = siteTodayStr();
@@ -135,25 +161,7 @@ export default function SeasonalMoviesRail({ collection = "fall", active = true,
     </RailHeading>
     <>
       <div className={"wf-rail wf-rail-exploding" + skin} data-rail={railId} tabIndex={0} role="region" aria-label={title} style={{ color: COLORS.text }}>
-        {movies.map((movie, index) => {
-          const baseChips = (Array.isArray(movie.vibes) ? movie.vibes : []).slice(0, 3).map((label) => ({ key: "vibe-" + label, icon: "\u{1F3AC}", label }));
-          const art = movie.art && movie.art.src ? movie.art : null;
-          return <RailCard key={movie.id} className="wf-exploding-primary wf-movie-card"
-            photo={art ? art.src : null}
-            placeholder={art ? null : placeholderFor(collection, movie.status)}
-            eagerMedia={index < 3}
-            place={null}
-            href={"/movies/" + movie.id}
-            actionItem={{ id: "movie:" + movie.id, type: "event", title: movie.title, image: art ? art.src : null, url: SITE_URL + "/movies/" + movie.id }}
-            title={movie.title} eyebrow={spooky ? spookyEyebrow(title) : title} rank={index + 1} spooky={spooky}
-            score={null} when={movieWhen(movie)}
-            facts={[movie.rating || null, runtimeLabel(movie.runtimeMin)].filter(Boolean)}
-            photoAttr={art && art.credit ? art.credit : null}
-            photoAttrHref={art && (art.licenseUrl || art.source) ? (art.licenseUrl || art.source) : null}
-            chips={spooky ? withSpookyChip(baseChips) : baseChips}
-            take={movie.why || null} cta={movieCta(movie, collection, onTrack)}
-            ariaLabel={movie.title} />;
-        })}
+        {movies.map((movie, index) => <MovieRailCard key={movie.id} movie={movie} index={index} collection={collection} eyebrow={spooky ? spookyEyebrow(title) : title} spooky={spooky} track={track} />)}
       </div>
       {movies.length > 1 ? <RailDots railId={railId} count={movies.length} /> : null}
     </>

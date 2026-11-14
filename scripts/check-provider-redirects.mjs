@@ -178,7 +178,12 @@ for (const [name, importPath, url] of UA_FIXTURES) {
   // 2026-10-28: a real Chrome sends Fetch Metadata on every navigation; a
   // Chrome UA WITHOUT it is the spoofed-crawler shape lib/redirectTrafficClass.js
   // holds at an interstitial. The human fixture models the real browser.
-  const res = await GET({ url, headers: headersFrom({ "user-agent": CHROME_UA, "sec-fetch-mode": "navigate", "sec-fetch-dest": "document" }) });
+  // 2026-11-11 owner rule: a desktop browser with ZERO click proof now gets the
+  // Continue page. The human fixture therefore carries one proof (a same-site
+  // Referer). Real taps usually prove themselves with the page-minted click_id or
+  // a cookie of ours, since most partner links are rel="noreferrer"; those shapes
+  // and the zero-proof case are asserted in scripts/check-redirect-suspect-gate.mjs.
+  const res = await GET({ url, headers: headersFrom({ "user-agent": CHROME_UA, "sec-fetch-mode": "navigate", "sec-fetch-dest": "document", referer: "https://www.gowayfind.com/guides/things-to-do-sarasota" }) });
   ok(res.status >= 300 && res.status < 400, `${name} (chrome UA) returns a redirect`);
   const ev = captured.slice(before).find((b) =>
     b.event === "provider_redirect_started" || b.event === "provider_redirect_failed"

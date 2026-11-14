@@ -12,6 +12,7 @@
 import EditorialLandingHero, { editorialHeroCss } from "./EditorialLandingHero";
 import SafeImg from "./SafeImg";
 import { WF_PLACE_CARD_CSS } from "./css";
+import { styleHtml } from "../../lib/styleHtml.js";
 
 const C = { bg: "#040810", card: "#0B0E15", border: "rgba(255,255,255,.08)", text: "#F1F5F9", muted: "#8b93a1", accent: "#F97316", gold: "#E8C97A", green: "#3ee08a" };
 const MEDAL = ["#E8C97A", "#C7CCD6", "#B8804A"];
@@ -96,7 +97,7 @@ export default function RankedExperiencePage({
   const title = titleBottom ? <>{titleTop}<br />{titleBottom}</> : titleTop;
   return (
     <article style={{ background: C.bg, minHeight: "100vh", color: C.text, fontFamily: "var(--wf-sans)" }}>
-      <style dangerouslySetInnerHTML={{ __html: editorialHeroCss("wf-intent-editorial") + WF_PLACE_CARD_CSS }} />
+      <style dangerouslySetInnerHTML={styleHtml(editorialHeroCss("wf-intent-editorial") + WF_PLACE_CARD_CSS)} />
       <EditorialLandingHero
         prefix="wf-intent-editorial"
         backControl={topLeft}

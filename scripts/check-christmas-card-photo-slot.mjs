@@ -186,5 +186,30 @@ if (!browser) {
   } finally { await browser.close(); }
 }
 
+// ── C. Ticket card polish (owner 2026-11-12): titles never cut with "…", no
+// "Photo unavailable" text on the tile, a "note" price sits UNDER the button.
+{
+  const raw = read("app/components/ChristmasTicketCard.js");
+  const src = strip(raw);
+  const css = /XM_CARD_CSS = `([\s\S]*?)`;/.exec(raw)?.[1] || "";
+  const titleRule = css.split("\n").find((l) => /^\.xm-card :is\(h2,h3\)\{/.test(l)) || "";
+  ok(titleRule.length > 0, "found the .xm-card h2/h3 title rule");
+  ok(!/line-clamp/.test(titleRule) && !/overflow:\s*hidden/.test(titleRule) && !/text-overflow/.test(titleRule), "ticket card title rule has no line-clamp, overflow:hidden or text-overflow");
+  ok(/min-height:/.test(titleRule), "title rule keeps its min-height");
+  ok(!/<small>\s*Photo unavailable\s*<\/small>/.test(src) && !/>\s*Photo unavailable\s*</.test(src), "no visible 'Photo unavailable' text in the ticket card");
+  ok(/aria-label=\{tile\.label \+ ": photo unavailable"\}/.test(src) && /data-event-tile/.test(src), "no-photo tile keeps its designed tile and aria label");
+  const { TicketCard } = await loadComponent(path.join(ROOT, "app/components/ChristmasTicketCard.js"), ROOT);
+  const chrome = { eventPage: "Event page" };
+  const base = { id: "t1", name: "A very long Christmas event title that would previously have been clipped by a two line clamp and shown with an ellipsis", chip: "Event", photos: [], placeholder: { icon: "🎄", label: "Christmas event" }, eventHref: "/christmas-in-florida/x", cta: { kind: "organizer", href: "https://example.com/t", label: "Get tickets", via: "via Example" } };
+  const html = renderToStaticMarkup(React.createElement(TicketCard, { row: { ...base, price: { kind: "note", text: "Price not announced" } }, chrome }));
+  ok(!/Photo unavailable<\/small>/.test(html) && /data-event-tile/.test(html), "rendered no-photo card: tile present, no visible Photo unavailable text");
+  const iBuy = html.indexOf('class="xm-buy"'), iNote = html.indexOf('data-price-note');
+  ok(iBuy > 0 && iNote > iBuy && /Price not announced/.test(html), "rendered note price: the ticket button comes first, the note beneath it");
+  const noCta = renderToStaticMarkup(React.createElement(TicketCard, { row: { ...base, cta: null, price: { kind: "note", text: "Price not announced" } }, chrome }));
+  ok(noCta.indexOf('class="xm-buy"') > 0 && noCta.indexOf('data-price-note') > noCta.indexOf('class="xm-buy"'), "rendered note price with no ticket link: the page button still comes first");
+  const fromHtml = renderToStaticMarkup(React.createElement(TicketCard, { row: { ...base, price: { kind: "from", text: "$20" } }, chrome }));
+  ok(/xm-pricerow/.test(fromHtml) && !/data-price-note/.test(fromHtml), "control: a 'from' price still renders the price row, no note");
+}
+
 console.log(`\ncheck-christmas-card-photo-slot: ${fail ? "FAIL" : "OK"}: ${pass} assertions (${rendered} server renders of ${CHRISTMAS_INTENT_RAIL_DEFS.length} rails x ${VARIANTS.length} photo states x 2 surfaces${browser ? "; Chromium: miss, 500, network failure, undecodable image, good photo" : ""})`);
 process.exit(fail ? 1 : 0);

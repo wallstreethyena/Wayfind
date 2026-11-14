@@ -10,6 +10,7 @@ import { fetchSavedItems, removeSavedItem } from "../../../lib/savedItems";
 // v6.56: the SAME read model the taste sheet renders its chips from, so the
 // "N things learned" count can never disagree with the list it counts.
 import { tasteChips } from "../../../lib/taste";
+import { styleHtml } from "../../../lib/styleHtml.js";
 
 const SAVED_CSS = `
 .wf-saved-shell{padding:4px 0 28px}
@@ -326,7 +327,7 @@ export default function SavedScreen({ ctx }) {
   const activityTotal = activityFolders.reduce((sum, folder) => sum + Object.keys(folder.items || {}).length, 0);
   return (
     <>
-        <style dangerouslySetInnerHTML={{ __html: SAVED_CSS }} />
+        <style dangerouslySetInnerHTML={styleHtml(SAVED_CSS)} />
         {!activeList && !sysFolder && (
           <div className="wf-saved-shell">
             <section className="wf-saved-hero">
