@@ -3,6 +3,7 @@
 // like a modal: destination photography on the left, a warm editorial panel on
 // the right, an immediate product promise, and a single route into Wayfind.
 import { activeSeasonalMark, NORMAL_MARK } from "../../lib/seasonalBrand";
+import { styleHtml } from "../../lib/styleHtml.js";
 export default function PremiumIntentHero({ eyebrow, location, title, description, image, imageWebp = "", primaryHref = null, primaryLabel = "Build my shortlist", secondaryHref = "#shortlist", secondaryLabel = "See the expert picks",
   // A page that cannot be left is a dead end; default out to the app root.
   backHref = null, backLabel = "Wayfind",
@@ -19,7 +20,7 @@ export default function PremiumIntentHero({ eyebrow, location, title, descriptio
   const seasonalWordmark = activeSeasonalMark() || NORMAL_MARK;
   return (
     <>
-      <style dangerouslySetInnerHTML={{ __html: `
+      <style dangerouslySetInnerHTML={styleHtml(`
         .wf-intent-hero{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);min-height:560px;overflow:hidden;border:1px solid rgba(255,255,255,.2);border-radius:30px;background:#f6efe5;box-shadow:0 28px 90px rgba(0,0,0,.42)}
         .wf-intent-photo{position:relative;min-height:560px;overflow:hidden;background:#132235}
         .wf-intent-photo>img:first-child,.wf-intent-photo>picture,.wf-intent-photo>picture>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
@@ -60,7 +61,7 @@ export default function PremiumIntentHero({ eyebrow, location, title, descriptio
           .wf-intent-primary{width:100%;min-height:49px}.wf-intent-secondary{width:auto;min-height:40px;padding:7px 4px;border:0;text-decoration:underline;text-underline-offset:4px}
           .wf-intent-actions{justify-content:center}.wf-intent-trust{text-align:center;margin-top:15px}
         }
-      ` }} />
+      `)} />
       {/* Chrome bar ABOVE the hero: back affordance left, wordmark right. Nothing
           overlays the photo, and a visitor from Google now has a path into the app
           from the top of the page as well as the bottom. */}

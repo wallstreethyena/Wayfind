@@ -2,6 +2,7 @@
 import { WF_PLACE_CARD_CSS } from "../components/css.js";
 import { C } from "../components/kit.js";
 import { activeSeasonalMark, NORMAL_MARK } from "../../lib/seasonalBrand.js";
+import { styleHtml } from "../../lib/styleHtml.js";
 
 // The group-vote treatment is scoped to this frame. Canonical place cards
 // continue to use WF_PLACE_CARD_CSS without local geometry overrides.
@@ -43,5 +44,5 @@ export function GroupVoteIntro({title="Who’s in & when?",children}) {
 
 export function GroupFrame({children}) {
   const mark=activeSeasonalMark()||NORMAL_MARK;
-  return <div className="gp-shell"><style dangerouslySetInnerHTML={{__html:WF_PLACE_CARD_CSS+GROUP_PLAN_CSS}}/><div className="gp-main"><nav className="gp-nav" aria-label="Group planning"><a className="gp-mark" href="/" aria-label="Wayfind home"><picture>{mark.avif?<source srcSet={mark.avif} type="image/avif"/>:null}{mark.webp?<source srcSet={mark.webp} type="image/webp"/>:null}<img src={mark.png} alt="Wayfind" width="118" height="47"/></picture></a><a href="/group-plans">My group votes</a></nav>{children}</div></div>;
+  return <div className="gp-shell"><style dangerouslySetInnerHTML={styleHtml(WF_PLACE_CARD_CSS+GROUP_PLAN_CSS)}/><div className="gp-main"><nav className="gp-nav" aria-label="Group planning"><a className="gp-mark" href="/" aria-label="Wayfind home"><picture>{mark.avif?<source srcSet={mark.avif} type="image/avif"/>:null}{mark.webp?<source srcSet={mark.webp} type="image/webp"/>:null}<img src={mark.png} alt="Wayfind" width="118" height="47"/></picture></a><a href="/group-plans">My group votes</a></nav>{children}</div></div>;
 }

@@ -309,8 +309,8 @@ function checkParity(acc, prov) {
   // opened from (with the server's fresh verdict), the area map the on-screen list.
   assert.match(screen, /accountListOnMap\(\{\s*listPlaces:\s*\(explicitList \? listTruth : contextualView\)/, "C: the map accounts for the on-screen list");
   assert.match(screen, /window\.__wfMapList\s*=/, "C: the accounting is published for the synthetic monitor");
-  assert.match(screen, /data-wf-map-unpinned=\{unpinnedForCoord\}/, "C: the unpinned count is rendered on screen");
-  assert.doesNotMatch(screen, /areaOffer && searchMapArea\) && <div role="note"/, "C: the unpinned note does NOT hide while the Search-this-area pill stands (it lifts clear instead; scripts/test-map-unpinned-note-render.mjs renders it)");
+  assert.match(screen, /note:\s*unpinnedNote/, "C: unpinnedNote is published in window.__wfMapList telemetry");
+  assert.doesNotMatch(screen, /data-wf-map-unpinned|<div role="note"/, "C: internal unpinned-place counts are never rendered into customer-facing DOM");
   // TRANSITION: every client inv=1 request carries the list schema, so a
   // pre-verdict edge-cached payload is never read; the route echoes it.
   const strip = (src) => src.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/[^\n]*/g, "$1");

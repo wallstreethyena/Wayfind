@@ -6,7 +6,7 @@
 // never renders anywhere else (companionCharacter.js picks from the path). He drifts, drops one liners, and opens a small chat sheet backed by
 // POST /api/bo-haunt. One element, transform only, rAF loop stops whenever he
 // is not drifting (sheet open, bubble up, tab hidden, reduced motion).
-import { useCallback, useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { siteTodayStr } from "../../lib/siteTime.js";
 import { siteHourFloat } from "../../lib/nowContext.js";
@@ -20,6 +20,14 @@ import { openerFor } from "./booOpeners.js";
 import { coverageState, coverageLines, coverageSheetLine, unknownSheetLine, coverageButtonText, roundMiles } from "./booCoverage.js";
 import { pickLine, routeLine, timeLines } from "./booReactions.js";
 import { MAX_COVER, rectOf, isClear, touchesAny, besideSpot, perchSpot, pickClearSpot, estimateBubble, bubbleSideIfClear, chooseBubbleSide, TUCK_MAX } from "./booClear.js";
+import { styleHtml } from "../../lib/styleHtml.js";
+import { maybeHandoffCompanionToPlanner } from "../../lib/plannerCompanionBridge.js";
+
+// Table picks for "book Ulele Friday at 7 for 4": a lazy chunk, fetched only when a reservation request is typed.
+const ReservePicks = lazy(() => import("./ReservePicks.js"));
+// The concierge chat, inline in this same thread. Lazy so the main bundle does not grow.
+const ReserveConcierge = lazy(() => import("./ReserveConcierge.js"));
+const RESERVE_ASK_RX = /\b(?:book|reserve|reservations?|table)\b|\bfor\s+(?:\d{1,2}|two|three|four|five|six)\b/i;
 
 const HIDE_KEY = "wf_boo_hidden";
 // /group-plans: owner 2026-10-30, "get him out of the group pages". Friends
@@ -311,6 +319,11 @@ function readMs(text) {
   return Math.min(7000, Math.max(4200, 2400 + n * (TYPE_MS + 45)));
 }
 
+// No html:has() / body:has() in this sheet (scripts/test-root-has-selectors.mjs). It used to end with
+// body:has(.wf-map-explorer) .wf-boo-layer{display:none}, a rule for a class no element has ever
+// carried, which still made the browser re-style every link and button on the page after every
+// DOM change (85 ms per insertion on a throttled phone, 2026-11-13). To ask "is X on the page?"
+// use lib/rootPresence.js and an html.wf-has-* class.
 const CSS = `
 .boo-c{position:fixed;left:0;top:0;width:${SIZE}px;height:${SIZE}px;z-index:940;will-change:transform;touch-action:manipulation}
 .boo-c,.boo-c *{pointer-events:none !important}
@@ -467,7 +480,6 @@ input[data-boo-touch]{animation:boo-t-glow 1.2s ease-out both}
 .boo-ring{position:fixed;z-index:939;pointer-events:none;box-sizing:border-box;animation:boo-t-ring 1.2s ease-out both}
 @keyframes boo-t-ring{0%{box-shadow:0 0 0 0 rgba(249,115,22,0)}30%{box-shadow:0 0 0 3px rgba(249,115,22,.9),0 0 26px 6px rgba(249,115,22,.5)}100%{box-shadow:0 0 0 0 rgba(249,115,22,0)}}
 .boo-ty{color:transparent}
-body:has(.wf-map-explorer) .wf-boo-layer,body:has([data-analytics-page="map"]) .wf-boo-layer{display:none !important}
 @media (prefers-reduced-motion:reduce){.boo-ring{display:none !important}.boo-pi{animation:none !important}.boo-eye,.boo-lid,.boo-tr,.boo-sa *{animation:none !important}.boo-c-act,.boo-z,.boo-pk{animation:none !important}.boo-c-look,.boo-c-sway{animation:none !important;transform:none !important}.boo-zb,.boo-sm,.boo-sp{display:none !important}.boo-c-bob,.boo-c-bubble,.boo-s,.boo-s-back{animation:none}.boo-c-flip{transition:none}}
 `;
 
@@ -497,6 +509,8 @@ export default function BooCompanion() {
   const [antic, setAntic] = useState(null); // { name, key }
   const [msgs, setMsgs] = useState([]);
   const [cards, setCards] = useState([]);
+  const [reserve, setReserve] = useState(null); // a table request: { intent, point } -> up to 3 pick chips
+
   const [pending, setPending] = useState(false);
   const [wrapped, setWrapped] = useState(false);
   const [draft, setDraft] = useState("");
@@ -642,7 +656,7 @@ export default function BooCompanion() {
     openerSpoken.current = false;
     wrapRef.current = false;
     turnRef.current = 0;
-    setMsgs([]); setCards([]); setWrapped(false); setDraft(""); setPose("idle");
+    setMsgs([]); setCards([]); setReserve(null); setWrapped(false); setDraft(""); setPose("idle");
   }, [character]);
 
   useEffect(() => {
@@ -1651,9 +1665,15 @@ export default function BooCompanion() {
   const send = useCallback(async (raw, source) => {
     const message = String(raw || "").trim().slice(0, 300);
     if (!message || pendingRef.current || wrapRef.current) return;
+    if (maybeHandoffCompanionToPlanner(message, { santa: santaNow(), pathname: pathRef.current })) {
+      setDraft("");
+      closeSheet();
+      return;
+    }
     pendingRef.current = true;
     setPending(true);
     setDraft("");
+    setReserve(null);
     setMsgs((m) => m.concat([{ role: "user", text: message }]));
     turnRef.current += 1;
     const turn = turnRef.current;
@@ -1680,6 +1700,12 @@ export default function BooCompanion() {
       setMsgs((m) => m.concat([{ role: "boo", text: clean(data.reply), fresh: true }]));
       playAntic(data.antic);
       setCards(Array.isArray(data.cards) ? data.cards.filter((c) => c && c.cta && c.cta.href).slice(0, 4) : []);
+      // A table request: the brain may send reserve, or (any brain) the shared reader finds it. Only dates and a party, never a name.
+      let intent = data.reserve && typeof data.reserve === "object" ? data.reserve : null;
+      if (!intent && RESERVE_ASK_RX.test(message)) {
+        try { const { parseReserveIntent } = await import("../../lib/guestReserveIntent.js"); intent = parseReserveIntent(message, siteTodayStr()); } catch { intent = null; }
+      }
+      if (intent) setReserve({ intent, point, k: Date.now(), message, place: data.reservePlace && data.reservePlace.id ? data.reservePlace : (intent.placeId ? { id: intent.placeId, name: intent.name || intent.restaurant || "" } : null) });
       if (wrap) { wrapRef.current = true; setWrapped(true); }
       const nCards = Array.isArray(data.cards) ? data.cards.length : 0;
       const rp = wrap ? "bye" : data.smallTalk ? "talk" : !nCards ? "greet" : KID_RX.test(message) ? "kids" : PRICE_RX.test(message) ? "price" : "sales";
@@ -1789,7 +1815,7 @@ export default function BooCompanion() {
 
   return (
     <>
-      <style dangerouslySetInnerHTML={{ __html: CSS }} />
+      <style dangerouslySetInnerHTML={styleHtml(CSS)} />
       {santa ? (
         <SantaDock
           path={pathname}
@@ -1875,6 +1901,12 @@ export default function BooCompanion() {
                     </div>
                   ))}
                 </div>
+              ) : null}
+              {reserve ? (
+                <Suspense fallback={null}>
+                  <ReserveConcierge key={"c" + reserve.k} embedded initialPlace={reserve.place} initialMessage={reserve.message} />
+                  {reserve.place ? null : <ReservePicks key={reserve.k} intent={reserve.intent} point={reserve.point} title="Tables to look at" />}
+                </Suspense>
               ) : null}
               {wrapped ? <a className="boo-wrap" href={listPath}>{santa ? SANTA.wrapLink : "Open the full haunt list"}</a> : null}
               {!wrapped && !hasUser && !pending && gap ? (

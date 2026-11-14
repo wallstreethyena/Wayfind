@@ -5,7 +5,9 @@
 export const runtime = "nodejs";
 
 import { buildCapiPayload, sendCapi } from "../../../../lib/metaCapi.js";
-import { isCrawler, isInternalVerifier } from "../../../../lib/crawler.js";
+import { isCrawler, isInternalVerifier, isSyntheticMonitor } from "../../../../lib/crawler.js";
+import { analyticsSuppressed } from "../../../../lib/serverEvents.js";
+import { isSyntheticRequest, evaluateProductionWrite } from "../../../../lib/productionWriteFirewall.js";
 
 const cookie = (h, name) => {
   for (const part of String(h || "").split(";")) {
@@ -18,7 +20,28 @@ const cookie = (h, name) => {
 export async function POST(req) {
   const ua = req.headers.get("user-agent") || "";
   const token = process.env.META_CAPI_ACCESS_TOKEN || "";
-  if (!token || isCrawler(ua) || isInternalVerifier(ua)) return new Response(null, { status: 204 });
+  if (
+    !token ||
+    isCrawler(ua) ||
+    isInternalVerifier(ua) ||
+    isSyntheticMonitor(ua) ||
+    isSyntheticRequest(req)
+  ) {
+    return new Response(null, { status: 204 });
+  }
+  if (globalThis.fetch && globalThis.fetch.__wfFirewallWrapped === true) {
+    if (analyticsSuppressed()) {
+      return new Response(null, { status: 204 });
+    }
+    const fw = evaluateProductionWrite({
+      surface: "meta_capi",
+      table: "meta_capi",
+      method: "POST",
+      targetUrl: "https://graph.facebook.com/v21.0/pixel/events",
+      req,
+    });
+    if (!fw.allowed) return new Response(null, { status: 204 });
+  }
   let body = null;
   try { body = await req.json(); } catch (e) { return new Response(null, { status: 400 }); }
   const ck = req.headers.get("cookie");
