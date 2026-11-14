@@ -1,0 +1,1266 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 63. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJiQYx6JiD3YgRGKwhW35QY0E",
+   "name": "Krush Brau Park",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.krushbrau.com/",
+     "source_name": "Krush Brau Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Krush Brau Park is the largest German beer garden in the U.S.",
+      "The park covers 10+ acres in Kissimmee, Florida",
+      "Krush Brau Park is veteran owned",
+      "The park hosts 15+ signature festivals a year"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Krush Brau Park is the largest German beer garden in the U.S.",
+    "why_here": "Krush Brau Park is the largest German beer garden in the U.S. The park covers 10+ acres in Kissimmee, Florida Krush Brau Park is veteran owned",
+    "know_before": "Open to the public only during scheduled events. Private events are available 7 days a week.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.krushbrau.com/"
+     ],
+     "why_here": [
+      "https://www.krushbrau.com/"
+     ],
+     "know_before": [
+      "https://www.krushbrau.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Krush Brau Park is the largest German beer garden in the U.S.",
+      "source": "https://www.krushbrau.com/"
+     },
+     {
+      "claim": "The park covers 10+ acres in Kissimmee, Florida",
+      "source": "https://www.krushbrau.com/"
+     },
+     {
+      "claim": "Krush Brau Park is veteran owned",
+      "source": "https://www.krushbrau.com/"
+     },
+     {
+      "claim": "The park hosts 15+ signature festivals a year",
+      "source": "https://www.krushbrau.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJxarXNwCr2YgRZvrLZ_ZW9dQ",
+   "name": "The FORT Pickleball",
+   "category": "attractions",
+   "metro": "broward",
+   "primary_type": "sports_activity_location",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://playthefort.com/pages/courts",
+     "source_name": "The FORT Pickleball \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The FORT has 43 pro-regulation pickleball courts",
+      "Play ranges from open play and skill-based matches to leagues and tournaments",
+      "The courts include 4 private cabana courts and 4 oversized grandstand champion courts (40x70)",
+      "Members can book court time with windows up to 14 days"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "43 pro-regulation pickleball courts, with lakeside private cabana courts for groups.",
+    "why_here": "The FORT describes 43 pro-regulation courts spanning open play, skill-based matches, leagues and tournaments. Its court mix includes weatherproof courts, private cabana courts and oversized grandstand champion courts.",
+    "know_before": "Members can book courts up to 14 days ahead, per the official courts page.",
+    "local_tip": "PlaySight instant replay is available on all courts, per the official site, so disputed calls can be replayed.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://playthefort.com/pages/courts"
+     ],
+     "why_here": [
+      "https://playthefort.com/pages/courts"
+     ],
+     "know_before": [
+      "https://playthefort.com/pages/courts"
+     ],
+     "local_tip": [
+      "https://playthefort.com/pages/courts"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The FORT has 43 pro-regulation pickleball courts",
+      "source": "https://playthefort.com/pages/courts"
+     },
+     {
+      "claim": "Play ranges from open play and skill-based matches to leagues and tournaments",
+      "source": "https://playthefort.com/pages/courts"
+     },
+     {
+      "claim": "The courts include 4 private cabana courts and 4 oversized grandstand champion courts (40x70)",
+      "source": "https://playthefort.com/pages/courts"
+     },
+     {
+      "claim": "Members can book court time with windows up to 14 days",
+      "source": "https://playthefort.com/pages/courts"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJVcT9hOc4w4gREnfUoBV42RA",
+   "name": "SEPHORA",
+   "category": "shopping",
+   "metro": "manatee-sarasota",
+   "primary_type": "cosmetics_store",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://newsroom.sephora.com/sephora-unwraps-another-year-of-beauty-with-its-2026-beauty-insider-birthday-gift-offerings/",
+     "source_name": "SEPHORA \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Beauty Insider is Sephora's free loyalty program",
+      "All three tiers of Beauty Insider members, Insider, VIB, and Rouge, can take their pick of birthday gift offerings",
+      "Beauty Insiders can opt for 250 Beauty Insider points instead of a physical gift, available exclusively in-store",
+      "The gifts can be redeemed for free at Sephora locations, or online with a $25 minimum purchase"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Beauty Insiders can opt for 250 Beauty Insider points instead of a physical gift",
+    "why_here": "Sephora describes Beauty Insider as its free loyalty program, and says the annual Birthday Gifts are one way it celebrates members. All three tiers, Insider, VIB, and Rouge, can take their pick of birthday gift offerings.",
+    "know_before": "Beauty Insider is Sephora's free loyalty program",
+    "local_tip": "VIB and Rouge clients unlock access to limited-edition, online-exclusive gifts that rotate throughout the year.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://newsroom.sephora.com/sephora-unwraps-another-year-of-beauty-with-its-2026-beauty-insider-birthday-gift-offerings/"
+     ],
+     "why_here": [
+      "https://newsroom.sephora.com/sephora-unwraps-another-year-of-beauty-with-its-2026-beauty-insider-birthday-gift-offerings/"
+     ],
+     "know_before": [
+      "https://newsroom.sephora.com/sephora-unwraps-another-year-of-beauty-with-its-2026-beauty-insider-birthday-gift-offerings/"
+     ],
+     "local_tip": [
+      "https://newsroom.sephora.com/sephora-unwraps-another-year-of-beauty-with-its-2026-beauty-insider-birthday-gift-offerings/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Beauty Insider is Sephora's free loyalty program",
+      "source": "https://newsroom.sephora.com/sephora-unwraps-another-year-of-beauty-with-its-2026-beauty-insider-birthday-gift-offerings/"
+     },
+     {
+      "claim": "All three tiers of Beauty Insider members, Insider, VIB, and Rouge, can take their pick of birthday gift offerings",
+      "source": "https://newsroom.sephora.com/sephora-unwraps-another-year-of-beauty-with-its-2026-beauty-insider-birthday-gift-offerings/"
+     },
+     {
+      "claim": "Beauty Insiders can opt for 250 Beauty Insider points instead of a physical gift, available exclusively in-store",
+      "source": "https://newsroom.sephora.com/sephora-unwraps-another-year-of-beauty-with-its-2026-beauty-insider-birthday-gift-offerings/"
+     },
+     {
+      "claim": "The gifts can be redeemed for free at Sephora locations, or online with a $25 minimum purchase",
+      "source": "https://newsroom.sephora.com/sephora-unwraps-another-year-of-beauty-with-its-2026-beauty-insider-birthday-gift-offerings/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJr8ttJtR754gRK0m2p7YmVN4",
+   "name": "Osteria Ester",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.osteriaester.com/",
+     "source_name": "Osteria Ester \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Osteria Ester describes itself as a love letter to Italian-American dining",
+      "Dinner is listed Tuesday to Saturday from 5:00 p.m. to 10:00 p.m.",
+      "Brunch is listed Sunday from 11:00 a.m. to 4:00 p.m.",
+      "Free and metered street parking is available"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "A love letter to Italian-American dining",
+    "why_here": "Osteria Ester describes itself as a love letter to Italian-American dining. The official site presents its offering as a menu of classics, with dinner service and brunch service listed in its business hours.",
+    "know_before": "Free and metered street parking is available, per the official site.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.osteriaester.com/"
+     ],
+     "why_here": [
+      "https://www.osteriaester.com/"
+     ],
+     "know_before": [
+      "https://www.osteriaester.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Osteria Ester describes itself as a love letter to Italian-American dining",
+      "source": "https://www.osteriaester.com/"
+     },
+     {
+      "claim": "Dinner is listed Tuesday to Saturday from 5:00 p.m. to 10:00 p.m.",
+      "source": "https://www.osteriaester.com/"
+     },
+     {
+      "claim": "Brunch is listed Sunday from 11:00 a.m. to 4:00 p.m.",
+      "source": "https://www.osteriaester.com/"
+     },
+     {
+      "claim": "Free and metered street parking is available",
+      "source": "https://www.osteriaester.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJGSMzu2Oi54gR-rlDDL6V3Qs",
+   "name": "Mount Dora Historic District",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "historical_landmark",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://mountdora.gov/282/Historic-Preservation",
+     "source_name": "Mount Dora Historic District \u2014 official source",
+     "source_class": "government",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Mount Dora's buildings provide a tangible record of the history and development of the community, per the City of Mount Dora",
+      "The city lists Donnelly Street south of 11th Avenue among Historic District streets",
+      "The city lists Helen Street among Historic District streets",
+      "The city describes historic buildings and neighborhoods as a nonrenewable resource"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "A preserved historic district where the city says old buildings record daily life in earlier Mount Dora.",
+    "why_here": "The City of Mount Dora says its historic buildings provide a tangible record of the community's history, from modest vernacular dwellings to large hotels for winter visitors and downtown commercial buildings. The city lists district streets including Donnelly Street and Helen Street.",
+    "know_before": "Historic buildings are described by the city as a nonrenewable resource whose care and preservation is critical.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://mountdora.gov/282/Historic-Preservation"
+     ],
+     "why_here": [
+      "https://mountdora.gov/282/Historic-Preservation"
+     ],
+     "know_before": [
+      "https://mountdora.gov/282/Historic-Preservation"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Mount Dora's buildings provide a tangible record of the history and development of the community, per the City of Mount Dora",
+      "source": "https://mountdora.gov/282/Historic-Preservation"
+     },
+     {
+      "claim": "The city lists Donnelly Street south of 11th Avenue among Historic District streets",
+      "source": "https://mountdora.gov/282/Historic-Preservation"
+     },
+     {
+      "claim": "The city lists Helen Street among Historic District streets",
+      "source": "https://mountdora.gov/282/Historic-Preservation"
+     },
+     {
+      "claim": "The city describes historic buildings and neighborhoods as a nonrenewable resource",
+      "source": "https://mountdora.gov/282/Historic-Preservation"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJdZyA4pl654gRe829ktxXMOo",
+   "name": "Orlando Shakes",
+   "category": "attractions",
+   "metro": "orlando",
+   "primary_type": "performing_arts_theater",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://orlandoshakes.org/about-us/",
+     "source_name": "Orlando Shakes \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Orlando Shakes was founded by UCF professor Stuart Omans in 1989",
+      "Orlando Shakes produces classic, contemporary, and children's plays in partnership with UCF",
+      "The mission is to enrich the community with engaging professional theater, inspiring educational experiences, and thought-provoking new plays",
+      "Orlando Shakes offers immersive educational programming"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Theater in partnership with UCF producing classic, contemporary, and children's plays",
+    "why_here": "Founded by UCF professor Stuart Omans in 1989, Orlando Shakes produces classic, contemporary, and children's plays in partnership with UCF. Its mission is to enrich the community with engaging professional theater and thought-provoking new plays.",
+    "know_before": "Orlando Shakes also offers immersive educational programming that serves schools and the local community at large.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://orlandoshakes.org/about-us/"
+     ],
+     "why_here": [
+      "https://orlandoshakes.org/about-us/"
+     ],
+     "know_before": [
+      "https://orlandoshakes.org/about-us/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Orlando Shakes was founded by UCF professor Stuart Omans in 1989",
+      "source": "https://orlandoshakes.org/about-us/"
+     },
+     {
+      "claim": "Orlando Shakes produces classic, contemporary, and children's plays in partnership with UCF",
+      "source": "https://orlandoshakes.org/about-us/"
+     },
+     {
+      "claim": "The mission is to enrich the community with engaging professional theater, inspiring educational experiences, and thought-provoking new plays",
+      "source": "https://orlandoshakes.org/about-us/"
+     },
+     {
+      "claim": "Orlando Shakes offers immersive educational programming",
+      "source": "https://orlandoshakes.org/about-us/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJHaxvqjIjw4gRAr21gNtVWBw",
+   "name": "Auntie Anne's",
+   "category": "food",
+   "metro": "manatee-sarasota",
+   "primary_type": "bakery",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.auntieannes.com/",
+     "source_name": "Auntie Anne's \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Auntie Anne's is known for freshly baked soft pretzels",
+      "Mozzarella stuffed pretzel nuggets are wrapped in pretzel dough and baked with Italian breadcrumbs",
+      "Mozzarella stuffed pretzel nuggets come with a free marinara dip",
+      "Frozen peach lemonade is blended smooth with peach puree"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Freshly baked soft pretzels, from classic twists to mozzarella-stuffed nuggets",
+    "why_here": "Auntie Anne's leads with freshly baked soft pretzels on its official site. Featured items include mozzarella stuffed pretzel nuggets and a frozen peach lemonade blended smooth with peach puree.",
+    "know_before": "Mozzarella stuffed pretzel nuggets come with a free marinara dip, per the official site.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.auntieannes.com/"
+     ],
+     "why_here": [
+      "https://www.auntieannes.com/"
+     ],
+     "know_before": [
+      "https://www.auntieannes.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Auntie Anne's is known for freshly baked soft pretzels",
+      "source": "https://www.auntieannes.com/"
+     },
+     {
+      "claim": "Mozzarella stuffed pretzel nuggets are wrapped in pretzel dough and baked with Italian breadcrumbs",
+      "source": "https://www.auntieannes.com/"
+     },
+     {
+      "claim": "Mozzarella stuffed pretzel nuggets come with a free marinara dip",
+      "source": "https://www.auntieannes.com/"
+     },
+     {
+      "claim": "Frozen peach lemonade is blended smooth with peach puree",
+      "source": "https://www.auntieannes.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ2RTKm1tHw4gRK4xtJw-jqWI",
+   "name": "Nothing Bundt Cakes",
+   "category": "shopping",
+   "metro": "manatee-sarasota",
+   "primary_type": "cake_shop",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.nothingbundtcakes.com/",
+     "source_name": "Nothing Bundt Cakes \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Nothing Bundt Cakes offers Bundt cakes, personal Bundtlets and Bundtinis mini bundt cakes sold by the dozen",
+      "Official flavors include Red Velvet, White Chocolate Raspberry, Confetti, Lemon and Strawberries & Cream",
+      "Cakes are crowned with signature cream cheese frosting",
+      "The official site offers same-day pickup and delivery and pre-ordering up to 30 days in advance"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Bundt cakes in three sizes, crowned with signature cream cheese frosting",
+    "why_here": "Nothing Bundt Cakes' official site organizes its cakes as full Bundts, personal Bundtlets and Bundtinis sold by the dozen, with flavors from Red Velvet and White Chocolate Raspberry to Lemon and Confetti. The brand positions its cakes for birthdays, weddings and holidays, with same-day pickup and delivery.",
+    "know_before": "The official site offers pre-ordering up to 30 days in advance",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.nothingbundtcakes.com/"
+     ],
+     "why_here": [
+      "https://www.nothingbundtcakes.com/"
+     ],
+     "know_before": [
+      "https://www.nothingbundtcakes.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Nothing Bundt Cakes offers Bundt cakes, personal Bundtlets and Bundtinis mini bundt cakes sold by the dozen",
+      "source": "https://www.nothingbundtcakes.com/"
+     },
+     {
+      "claim": "Official flavors include Red Velvet, White Chocolate Raspberry, Confetti, Lemon and Strawberries & Cream",
+      "source": "https://www.nothingbundtcakes.com/"
+     },
+     {
+      "claim": "Cakes are crowned with signature cream cheese frosting",
+      "source": "https://www.nothingbundtcakes.com/"
+     },
+     {
+      "claim": "The official site offers same-day pickup and delivery and pre-ordering up to 30 days in advance",
+      "source": "https://www.nothingbundtcakes.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJUTI3PKk5w4gRtaS2weXk70A",
+   "name": "Blu Kouzina UTC",
+   "category": "food",
+   "metro": "manatee-sarasota",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://blukouzina.com/",
+     "source_name": "Blu Kouzina UTC \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Blu Kouzina is described as Sarasota's authentic Greek restaurant rooted in tradition and pure olive oil",
+      "The guiding philosophy is philotimo: respect, generosity and treating guests as family",
+      "The UTC location is open Monday to Sunday, 11:00 a.m. to 9:00 p.m.",
+      "Happy hour is bar only, Monday to Friday, 4:00 p.m. to 6:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Authentic Greek flavors rooted in tradition, pure olive oil and time-honored recipes",
+    "why_here": "Blu Kouzina describes itself as Sarasota's authentic Greek restaurant, where Greek cooking comes alive through honest ingredients, pure olive oil and time-honored recipes. Its guiding philosophy is philotimo, treating guests as family.",
+    "know_before": "The UTC location is open Monday to Sunday, 11:00 a.m. to 9:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://blukouzina.com/"
+     ],
+     "why_here": [
+      "https://blukouzina.com/"
+     ],
+     "know_before": [
+      "https://blukouzina.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Blu Kouzina is described as Sarasota's authentic Greek restaurant rooted in tradition and pure olive oil",
+      "source": "https://blukouzina.com/"
+     },
+     {
+      "claim": "The guiding philosophy is philotimo: respect, generosity and treating guests as family",
+      "source": "https://blukouzina.com/"
+     },
+     {
+      "claim": "The UTC location is open Monday to Sunday, 11:00 a.m. to 9:00 p.m.",
+      "source": "https://blukouzina.com/"
+     },
+     {
+      "claim": "Happy hour is bar only, Monday to Friday, 4:00 p.m. to 6:00 p.m.",
+      "source": "https://blukouzina.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ16W70NY9w4gRG9cBamnCpn0",
+   "name": "Baskin-Robbins",
+   "category": "food",
+   "metro": "manatee-sarasota",
+   "primary_type": "ice_cream_shop",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.baskinrobbins.com/en/faqs",
+     "source_name": "Baskin-Robbins \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Baskin-Robbins was founded in 1945 by Burton \"Burt\" Baskin and Irvine \"Irv\" Robbins",
+      "Baskin-Robbins \"31\" represents a different ice cream flavor for each day of the month",
+      "Since 1945, Baskin-Robbins has created more than 1,400 unique ice cream flavors",
+      "Online pickup orders can be ready in as little as 15 minutes",
+      "Flavors may vary by location"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "The original '31 flavors' \u2014 a different ice cream for every day of the month",
+    "why_here": "Baskin-Robbins was founded in 1945 by brothers-in-law Burton \"Burt\" Baskin and Irvine \"Irv\" Robbins to create an ice cream shop that would be a neighborhood gathering place for families. Its \"31\" represents a different ice cream flavor for each day of the month.",
+    "know_before": "Flavors may vary by location, and each shop carries a different selection of flavors.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.baskinrobbins.com/en/faqs"
+     ],
+     "why_here": [
+      "https://www.baskinrobbins.com/en/faqs"
+     ],
+     "know_before": [
+      "https://www.baskinrobbins.com/en/faqs"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Baskin-Robbins was founded in 1945 by Burton \"Burt\" Baskin and Irvine \"Irv\" Robbins",
+      "source": "https://www.baskinrobbins.com/en/faqs"
+     },
+     {
+      "claim": "Baskin-Robbins \"31\" represents a different ice cream flavor for each day of the month",
+      "source": "https://www.baskinrobbins.com/en/faqs"
+     },
+     {
+      "claim": "Since 1945, Baskin-Robbins has created more than 1,400 unique ice cream flavors",
+      "source": "https://www.baskinrobbins.com/en/faqs"
+     },
+     {
+      "claim": "Online pickup orders can be ready in as little as 15 minutes",
+      "source": "https://www.baskinrobbins.com/en/faqs"
+     },
+     {
+      "claim": "Flavors may vary by location",
+      "source": "https://www.baskinrobbins.com/en/faqs"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJj5mZXMUVw4gRxUsGj0ccPvc",
+   "name": "Bayfront Park",
+   "category": "attractions",
+   "metro": "manatee-sarasota",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.longboatkey.org/facilities/facility/details/Bayfront-Park-1",
+     "source_name": "Bayfront Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Bayfront Park has beautiful views of Sarasota Bay",
+      "The park is open from 5:00 a.m. to 11:00 p.m.",
+      "Amenities include 3 dedicated pickleball courts and a tennis court",
+      "Amenities include a 1,350 square foot indoor Recreation Center",
+      "Courts are available on a first-come, first-served basis"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Park with beautiful views of Sarasota Bay and amenities for all ages and activity levels",
+    "why_here": "Bayfront Park has beautiful views of Sarasota Bay and many amenities for those of all ages and activity levels. Amenities include a playground, a basketball court, shuffleboard courts, a multi-purpose open field, a tennis court, and picnic tables.",
+    "know_before": "Courts are available on a first-come, first-served basis, and the park is open from 5:00 a.m. to 11:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.longboatkey.org/facilities/facility/details/Bayfront-Park-1"
+     ],
+     "why_here": [
+      "https://www.longboatkey.org/facilities/facility/details/Bayfront-Park-1"
+     ],
+     "know_before": [
+      "https://www.longboatkey.org/facilities/facility/details/Bayfront-Park-1"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Bayfront Park has beautiful views of Sarasota Bay",
+      "source": "https://www.longboatkey.org/facilities/facility/details/Bayfront-Park-1"
+     },
+     {
+      "claim": "The park is open from 5:00 a.m. to 11:00 p.m.",
+      "source": "https://www.longboatkey.org/facilities/facility/details/Bayfront-Park-1"
+     },
+     {
+      "claim": "Amenities include 3 dedicated pickleball courts and a tennis court",
+      "source": "https://www.longboatkey.org/facilities/facility/details/Bayfront-Park-1"
+     },
+     {
+      "claim": "Amenities include a 1,350 square foot indoor Recreation Center",
+      "source": "https://www.longboatkey.org/facilities/facility/details/Bayfront-Park-1"
+     },
+     {
+      "claim": "Courts are available on a first-come, first-served basis",
+      "source": "https://www.longboatkey.org/facilities/facility/details/Bayfront-Park-1"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJEyrKF49q24gRi1npcziO2eE",
+   "name": "Seminole Gulf Railway",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "transportation_service",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.semgulf.com/",
+     "source_name": "Seminole Gulf Railway \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "A five-course dinner is prepared fresh onboard while a live murder mystery is played out in the dining cars",
+      "The round trip lasts 3.5 hours from Fort Myers across the Caloosahatchee River",
+      "The five-course dinner consists of an appetizer, soup, salad, a main entree and dessert",
+      "New murder mystery shows open throughout the year, running Wednesday through Sunday"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Five-course dinner and a live murder mystery during a 3.5-hour round trip",
+    "why_here": "A five-course dinner is prepared fresh onboard while a live murder mystery is played out in the dining cars The round trip lasts 3.5 hours from Fort Myers across the Caloosahatchee River",
+    "know_before": "New murder mystery shows open throughout the year, running Wednesday through Sunday.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.semgulf.com/"
+     ],
+     "why_here": [
+      "https://www.semgulf.com/"
+     ],
+     "know_before": [
+      "https://www.semgulf.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "A five-course dinner is prepared fresh onboard while a live murder mystery is played out in the dining cars",
+      "source": "https://www.semgulf.com/"
+     },
+     {
+      "claim": "The round trip lasts 3.5 hours from Fort Myers across the Caloosahatchee River",
+      "source": "https://www.semgulf.com/"
+     },
+     {
+      "claim": "The five-course dinner consists of an appetizer, soup, salad, a main entree and dessert",
+      "source": "https://www.semgulf.com/"
+     },
+     {
+      "claim": "New murder mystery shows open throughout the year, running Wednesday through Sunday",
+      "source": "https://www.semgulf.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJz5Lpb5c_w4gRivPISVkQG3A",
+   "name": "Wahlburgers",
+   "category": "food",
+   "metro": "manatee-sarasota",
+   "primary_type": "hamburger_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://wahlburgers.com/menu",
+     "source_name": "Wahlburgers \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Our Burger uses a Certified Angus Beef patty, government cheese, lettuce, tomato, onion, pickles and Paul's signature Wahl Sauce",
+      "The Our Burger Smash uses two Certified Angus Beef patties and Paul's signature Wahl Sauce",
+      "The Impossible Burger is a plant-based patty with Paul's signature Wahl Sauce",
+      "All burgers are cooked to medium or medium well unless otherwise specified",
+      "Menu items may vary by location"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "The Our Burger with a Certified Angus Beef patty and Paul's signature Wahl Sauce",
+    "why_here": "The menu's Our Burger pairs a Certified Angus Beef patty with government cheese, lettuce, tomato, onion, pickles and Paul's signature Wahl Sauce. The menu also lists The Impossible Burger, a plant-based patty served with Paul's signature Wahl Sauce.",
+    "know_before": "Check your local menu as items may vary by location, per the menu page.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://wahlburgers.com/menu"
+     ],
+     "why_here": [
+      "https://wahlburgers.com/menu"
+     ],
+     "know_before": [
+      "https://wahlburgers.com/menu"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Our Burger uses a Certified Angus Beef patty, government cheese, lettuce, tomato, onion, pickles and Paul's signature Wahl Sauce",
+      "source": "https://wahlburgers.com/menu"
+     },
+     {
+      "claim": "The Our Burger Smash uses two Certified Angus Beef patties and Paul's signature Wahl Sauce",
+      "source": "https://wahlburgers.com/menu"
+     },
+     {
+      "claim": "The Impossible Burger is a plant-based patty with Paul's signature Wahl Sauce",
+      "source": "https://wahlburgers.com/menu"
+     },
+     {
+      "claim": "All burgers are cooked to medium or medium well unless otherwise specified",
+      "source": "https://wahlburgers.com/menu"
+     },
+     {
+      "claim": "Menu items may vary by location",
+      "source": "https://wahlburgers.com/menu"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJk4XLpEnZ5ogRl8zItcDGhxM",
+   "name": "Daytona International Speedway",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "race_course",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.daytonainternationalspeedway.com/events/daytona-500/",
+     "source_name": "Daytona International Speedway \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The DAYTONA 500 is described as The Great American Race",
+      "The DAYTONA 500 delivers 200 laps",
+      "The official event page describes the race as defining the biggest stage in motorsports"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Home of The Great American Race, the DAYTONA 500",
+    "why_here": "Daytona International Speedway hosts the DAYTONA 500, described on the official event page as The Great American Race. The page says the race delivers 200 laps of speed and iconic moments on the biggest stage in motorsports.",
+    "know_before": "The DAYTONA 500 delivers 200 laps, per the official event page.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.daytonainternationalspeedway.com/events/daytona-500/"
+     ],
+     "why_here": [
+      "https://www.daytonainternationalspeedway.com/events/daytona-500/"
+     ],
+     "know_before": [
+      "https://www.daytonainternationalspeedway.com/events/daytona-500/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The DAYTONA 500 is described as The Great American Race",
+      "source": "https://www.daytonainternationalspeedway.com/events/daytona-500/"
+     },
+     {
+      "claim": "The DAYTONA 500 delivers 200 laps",
+      "source": "https://www.daytonainternationalspeedway.com/events/daytona-500/"
+     },
+     {
+      "claim": "The official event page describes the race as defining the biggest stage in motorsports",
+      "source": "https://www.daytonainternationalspeedway.com/events/daytona-500/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJFfcS4GT17IgRqFA1iDnCdzs",
+   "name": "Cascades Park",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://blueprintia.org/projects/cascades-park/",
+     "source_name": "Cascades Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Cascades Park offers a state-of-the-art amphitheater, interactive water fountain and children's play area",
+      "Cascades Park is a stormwater facility that doubles as a unique urban park and was designed to flood",
+      "The park offers the Smokey Hollow Commemoration and miles of multi-use trails",
+      "The park brings together arts, entertainment, education, history and wellness in one venue"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Downtown park with an amphitheater, interactive water fountain and multi-use trails",
+    "why_here": "Located in the heart of downtown, Cascades Park offers a state-of-the-art amphitheater, interactive water fountain, children's play area, Smokey Hollow Commemoration and miles of multi-use trails. It is also a stormwater facility that doubles as a unique urban park.",
+    "know_before": "The park was designed to flood and will offer relief to nearby areas during major storm events.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://blueprintia.org/projects/cascades-park/"
+     ],
+     "why_here": [
+      "https://blueprintia.org/projects/cascades-park/"
+     ],
+     "know_before": [
+      "https://blueprintia.org/projects/cascades-park/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Cascades Park offers a state-of-the-art amphitheater, interactive water fountain and children's play area",
+      "source": "https://blueprintia.org/projects/cascades-park/"
+     },
+     {
+      "claim": "Cascades Park is a stormwater facility that doubles as a unique urban park and was designed to flood",
+      "source": "https://blueprintia.org/projects/cascades-park/"
+     },
+     {
+      "claim": "The park offers the Smokey Hollow Commemoration and miles of multi-use trails",
+      "source": "https://blueprintia.org/projects/cascades-park/"
+     },
+     {
+      "claim": "The park brings together arts, entertainment, education, history and wellness in one venue",
+      "source": "https://blueprintia.org/projects/cascades-park/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "wfadd_snowcat_ridge_dade_city",
+   "name": "Snowcat Ridge Alpine Snow Park",
+   "category": "attractions",
+   "metro": "tampa",
+   "primary_type": "amusement_park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://snowcatridge.com/contact-us/faq/",
+     "source_name": "Snowcat Ridge Alpine Snow Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Snowcat Ridge is Florida's only alpine snow park, located minutes north of Tampa",
+      "General Admission includes a 2-hour snow tubing session on Snowy Slopes",
+      "General Admission includes all-day access to the Arctic Igloo, Alpine Village, and Crystal Ribbon until park closing",
+      "Children under 2 are free",
+      "Ice skate rental is not included"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Florida's only alpine snow park, located minutes north of Tampa",
+    "why_here": "Snowcat Ridge is Florida's only alpine snow park, located minutes north of Tampa. General Admission includes a 2-hour snow tubing session on Snowy Slopes, plus all-day access to the Arctic Igloo, Alpine Village, and Crystal Ribbon until park closing.",
+    "know_before": "Both cards and cash are accepted at the parking booth, box office, and customer service desk at the Alpine Village, while all other locations are cashless.",
+    "local_tip": "Guests can convert cash into a gift card at the customer service desk in the Alpine Village for use throughout the park.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://snowcatridge.com/contact-us/faq/"
+     ],
+     "why_here": [
+      "https://snowcatridge.com/contact-us/faq/"
+     ],
+     "know_before": [
+      "https://snowcatridge.com/contact-us/faq/"
+     ],
+     "local_tip": [
+      "https://snowcatridge.com/contact-us/faq/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Snowcat Ridge is Florida's only alpine snow park, located minutes north of Tampa",
+      "source": "https://snowcatridge.com/contact-us/faq/"
+     },
+     {
+      "claim": "General Admission includes a 2-hour snow tubing session on Snowy Slopes",
+      "source": "https://snowcatridge.com/contact-us/faq/"
+     },
+     {
+      "claim": "General Admission includes all-day access to the Arctic Igloo, Alpine Village, and Crystal Ribbon until park closing",
+      "source": "https://snowcatridge.com/contact-us/faq/"
+     },
+     {
+      "claim": "Children under 2 are free",
+      "source": "https://snowcatridge.com/contact-us/faq/"
+     },
+     {
+      "claim": "Ice skate rental is not included",
+      "source": "https://snowcatridge.com/contact-us/faq/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ-X6wLJQn5IgRvYMgcGVzY80",
+   "name": "Plaza de la Constituci\u00f3n",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.citystaug.com/Calendar.aspx?EID=1995",
+     "source_name": "Plaza de la Constituci\u00f3n \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Gazebo at Plaza de la Constituci\u00f3n hosts the 34th Annual Concerts in the Plaza",
+      "Concerts in the Plaza are free and open to the public",
+      "The listed concert time is 6:00 p.m. to 8:00 p.m.",
+      "The listed performer is ZaZa Flamenca"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Gazebo plaza hosting the 34th Annual Concerts in the Plaza, free and open to the public",
+    "why_here": "The Gazebo at Plaza de la Constituci\u00f3n hosts the 34th Annual Concerts in the Plaza, listed as free and open to the public. The listing gives the concert time as 6:00 p.m. to 8:00 p.m. and names ZaZa Flamenca as the performer.",
+    "know_before": "Admission is listed as free and open to the public, with the concert listed from 6:00 p.m. to 8:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.citystaug.com/Calendar.aspx?EID=1995"
+     ],
+     "why_here": [
+      "https://www.citystaug.com/Calendar.aspx?EID=1995"
+     ],
+     "know_before": [
+      "https://www.citystaug.com/Calendar.aspx?EID=1995"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Gazebo at Plaza de la Constituci\u00f3n hosts the 34th Annual Concerts in the Plaza",
+      "source": "https://www.citystaug.com/Calendar.aspx?EID=1995"
+     },
+     {
+      "claim": "Concerts in the Plaza are free and open to the public",
+      "source": "https://www.citystaug.com/Calendar.aspx?EID=1995"
+     },
+     {
+      "claim": "The listed concert time is 6:00 p.m. to 8:00 p.m.",
+      "source": "https://www.citystaug.com/Calendar.aspx?EID=1995"
+     },
+     {
+      "claim": "The listed performer is ZaZa Flamenca",
+      "source": "https://www.citystaug.com/Calendar.aspx?EID=1995"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJhS6CJtf2wogRF3KX4LwQviY",
+   "name": "Pier 60 Clearwater",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "fishing_pier",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.sunsetsatpier60.com/p/about",
+     "source_name": "Pier 60 Clearwater \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Sunsets at Pier 60 is a nightly festival in Pier 60 Park on Clearwater Beach",
+      "The festival showcases local artisans and street performers",
+      "The festival operates from 2 hours before until 2 hours after sunset, weather permitting",
+      "Current summer hours are 6:00 p.m. to 10:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Free nightly festival with local artisans and street performers",
+    "why_here": "Sunsets at Pier 60 is a nightly festival in Pier 60 Park on Clearwater Beach The festival showcases local artisans and street performers",
+    "know_before": "The festival operates year-round, weather permitting, from 2 hours before until 2 hours after sunset.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.sunsetsatpier60.com/p/about"
+     ],
+     "why_here": [
+      "https://www.sunsetsatpier60.com/p/about"
+     ],
+     "know_before": [
+      "https://www.sunsetsatpier60.com/p/about"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Sunsets at Pier 60 is a nightly festival in Pier 60 Park on Clearwater Beach",
+      "source": "https://www.sunsetsatpier60.com/p/about"
+     },
+     {
+      "claim": "The festival showcases local artisans and street performers",
+      "source": "https://www.sunsetsatpier60.com/p/about"
+     },
+     {
+      "claim": "The festival operates from 2 hours before until 2 hours after sunset, weather permitting",
+      "source": "https://www.sunsetsatpier60.com/p/about"
+     },
+     {
+      "claim": "Current summer hours are 6:00 p.m. to 10:00 p.m.",
+      "source": "https://www.sunsetsatpier60.com/p/about"
+     }
+    ]
+   }
+  }
+ ]
+}
