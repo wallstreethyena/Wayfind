@@ -10,6 +10,104 @@ Revenue-audit detail: `docs/POSTMORTEM_2026-08-25_REVENUE_PATH.md`.
 
 ---
 
+## GABRIEL EXECUTION AUTONOMY (owner directive, 2026-11-12)
+
+Once Gabriel approves a mission, that approval covers every normal, safe, reversible,
+deterministic and reasonably necessary engineering step needed to finish it. That includes:
+tests; database reads; transaction tests that roll back; reviewed additive migrations and
+approved cleanup migrations, plus their receipts; guard runs, builds and previews; rebases,
+conflict resolution that keeps approved behavior, branch updates and pushes; opening PRs;
+landing them through the merge queue when required checks are green; production smoke tests;
+cache and stale-data cleanup; deterministic bug fixes found inside the approved scope;
+read-only production inspection; safe retries; routine cron/job verification; and applying
+an already-reviewed migration the mission requires.
+
+**A tool confirmation dialog is not a new decision.** If the platform lets the agent confirm
+using the approval already given, proceed. If the platform physically requires Gabriel's
+click, surface ONLY that action, in this form, then continue the mission the moment it is done:
+
+> MANUAL ACTION REQUIRED: Click Allow on the Supabase confirmation. No new decision is required.
+
+Never re-explain the mission, ask "should I continue?", or ask him to type "go".
+Never bypass, imitate or work around a denied action or a platform safety gate: a refusal is
+surfaced as the exact manual action needed, never routed around.
+
+**Hard stops.** Ask Gabriel for a NEW decision only when the next action would:
+1. spend money or materially increase recurring cost;
+2. permanently delete valuable production data outside an approved cleanup;
+3. weaken auth, privacy, security, legal, compliance or safety controls;
+4. need credentials, MFA, CAPTCHA or a login only Gabriel can provide;
+5. materially change user-facing behavior beyond the approved mission;
+6. choose between genuinely different product directions where his preference can't be inferred;
+7. materially expand the mission;
+8. create significant irreversible risk.
+Everything else is execution. This section never relaxes any other rule in this file
+(owner-only files still need the owner's `/owner-approve` comment, see "Owner approval" below;
+full prebuild green before merge).
+
+**Manual Action Minimization.** Never tell Gabriel that work is "waiting on him" without
+first proving the remaining action needs the owner's identity, credentials, MFA, CAPTCHA,
+account-level permission or another capability the agent does not have. Before asking:
+(1) does the mission's authorization already cover it? (2) can the agent or a tool do it?
+(3) does approval persistence remove the need (a new head sha or a moved main is not a new
+scope, and an owner fingerprint survives both)? (4) is there a safe alternative? (5) ask only
+if it is still impossible without him.
+Classify every leftover: A agent can do it → do it; B only his account can → exact action;
+C re-approval of approved scope → never ask again; D optional → never blocks completion.
+When he is genuinely needed, ask for the smallest action, in this form:
+
+> MANUAL ACTION REQUIRED
+> Action 1: `<exact thing to click or paste>` · Link: `<direct link>` · Reason: `<why only Gabriel can>`
+
+Banned unless the platform truly requires it: "waiting on you", "say go", "approve when
+ready", "tell me to continue", "paste this again", and vague leftovers such as "the clicks
+from my last message". Every report ends with `GABRIEL ACTION REQUIRED: NONE` or that exact
+block.
+
+**Blocked does not mean stop.** Document the blocker, continue every independent part,
+try safe lawful alternatives, leave the blocked step ready, and ask only for the minimum
+action genuinely required. One confirmation prompt never halts a whole project.
+
+**No implementation diary.** Do not narrate ("now reading…", "waiting on guards…", "say go
+and I'll…"). Report material findings, failures that change the plan, true owner decisions,
+and the final outcome.
+
+**Completion standard.** A mission is done when its acceptance criteria are met or a genuine
+hard stop remains: code → tests → guards → build → migration → PR → merge → deploy →
+production verification, as far as authorization and tooling allow.
+
+BAD: "The migration is additive, reviewed, idempotent and required. Say 'go' and I'll apply it."
+GOOD: "The reviewed migration is required for the approved mission. Applying it now."
+
+Locked by `scripts/check-claude-md-owner-sections.mjs` (this section, the owner approval
+section and every top-level safety section must stay present).
+
+---
+
+## Owner approval (comment fingerprint, 2026-11-14)
+
+- **Why a comment, not a GitHub review.** Every PR here, the agents' included, is opened by
+  the owner account `wallstreethyena`, and GitHub forbids an account approving its own PR.
+  A native "Approve" review therefore cannot be the gate; it is not used.
+- Owner-only files (`scripts/lib/ownerApproval.mjs`: CLAUDE.md, AGENTS.md, `.github/**`, the
+  approval code, the merge queue, the guard runner and its imports, …) and **protected
+  aspects** (removing a line from `scripts/guards.txt`; changing the install/build scripts in
+  `package.json` or `vercel.json`) need ONE owner comment on the PR:
+  `/owner-approve <fingerprint>`, the 64-hex value the `owner-approval` check prints. The
+  legacy `/owner-approve <full head sha>` still works.
+- The fingerprint binds the PR number, its base branch and the protected content. Rebases,
+  main moving and unrelated changes never invalidate it; a change to protected content or a
+  retarget does. It is judged by main's code (`owner-approval`, pull_request_target) and the
+  merge queue, never by the PR's own copy.
+- After the comment, `owner-approval-recheck` re-runs the red checks for the current head.
+  **Never create scheduled reminders or check-ins to nag for approval.**
+- **Shared-identity limit (honest).** Agents act through the same GitHub account, so the
+  gate cannot tell a comment Gabriel typed from one an agent posted under his login. That
+  boundary is a rule, not a technical control: **agents never post `/owner-approve`
+  comments**, never edit one, and never paste one on his behalf.
+- When approval is genuinely required, ask once in the MANUAL ACTION REQUIRED format with
+  the exact comment text and the PR link, then stay silent until it happens.
+
 ## Booking integrity (no frozen lanes — these files are normal code)
 
 - **Never weaken `geoConfirms()`** in `lib/bookingResolver.js` — it stops wrong-place
@@ -81,11 +179,14 @@ Revenue-audit detail: `docs/POSTMORTEM_2026-08-25_REVENUE_PATH.md`.
    squash-merge pinned to the tested head → main-tree == tested-tree proof. Do not rebase,
    click Update branch, poll, or report main movement; a dropped PR gets one comment with
    the reason (conflict → restack, red → fix). No local merge/rebase bots.
-   Owner-only files (CLAUDE.md, AGENTS.md, `.github/**`, … see `scripts/lib/ownerApproval.mjs`)
-   need ONE owner comment `/owner-approve <fingerprint>` (the fingerprint is printed by the
-   `owner-approval` check). It binds to the protected CONTENT: it survives rebases and
-   unrelated changes and dies only when protected content changes. The legacy
-   `/owner-approve <head sha>` still works. Agents never post approvals.
+   The halt label `merge-queue-halt` stops the queue before its next step; removing it
+   lets the queue continue.
+   Owner-only files and protected aspects need ONE owner comment
+   `/owner-approve <fingerprint>` (printed by the `owner-approval` check; see "Owner
+   approval" above). It binds to the PR, its base branch and the protected CONTENT: it
+   survives rebases and unrelated changes and dies when protected content changes or the
+   PR is retargeted. The legacy `/owner-approve <head sha>` still works.
+   **Agents never post approvals.**
 5. After merge: confirm the Vercel production deploy for the merged commit is READY and the
    changed surface works live. Main's post-merge `guards` run is the union signal.
 

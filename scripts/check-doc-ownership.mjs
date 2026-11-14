@@ -27,7 +27,7 @@
  * owner approves. How to approve: docs/OWNER_APPROVAL.md.
  */
 import { execFileSync } from "node:child_process";
-import { decideOwnerApproval, ownerOnlyChanges } from "./lib/ownerApproval.mjs";
+import { decideOwnerApproval, ownerOnlyChanges, semanticAspect, semanticSourcesIn } from "./lib/ownerApproval.mjs";
 import { fetchPullEvidence, readPullContext } from "./lib/githubPullEvidence.mjs";
 const git = (...args) => {
   try {
@@ -100,8 +100,26 @@ const diffResult = git("diff", "--name-only", "--no-renames", base, "HEAD");
 if (!diffResult.ok) fail(`cannot list changed files against ${base.slice(0, 8)} (${diffResult.error})`);
 const changedPaths = diffResult.out.split("\n").filter(Boolean);
 
-if (!ownerOnlyChanges(changedPaths).length) {
-  console.log(`check-doc-ownership: OK — ${changedPaths.length} changed file(s), no owner-only files touched`);
+// Semantic protected aspects (2026-11-14): removing a guard line from
+// scripts/guards.txt, or changing the build/install scripts npm and Vercel run,
+// is protected like an owner-only file. Screened here from git; on the merge gate
+// the same aspects are re-read from the GitHub API so the fingerprint matches the
+// base-trusted owner-approval check exactly.
+const semanticChanged = semanticSourcesIn(changedPaths);
+const showAt = (rev, file) => {
+  if (!git("cat-file", "-e", `${rev}:${file}`).ok) return null; // absent on that side
+  try {
+    return execFileSync("git", ["show", `${rev}:${file}`], { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"], maxBuffer: 64 * 1024 * 1024 });
+  } catch (e) {
+    return fail(`cannot read ${file} at ${rev.slice(0, 8)} (${String((e && e.message) || e).trim()})`);
+  }
+};
+const localAspects = semanticChanged.map((source) => ({ ...semanticAspect(source, showAt(base, source), showAt("HEAD", source)), baseRef: "main" }));
+const protectedAspects = localAspects.filter((a) => a.aspect);
+
+if (!ownerOnlyChanges(changedPaths).length && !protectedAspects.length) {
+  const free = semanticChanged.length ? `; ${semanticChanged.join(", ")} changed without removing a guard or altering a build/install script` : "";
+  console.log(`check-doc-ownership: OK — ${changedPaths.length} changed file(s), no owner-only files touched${free}`);
   process.exit(0);
 }
 
@@ -111,7 +129,7 @@ async function gatherPullRequestEvidence() {
   const ctx = readPullContext(process.env, ["pull_request", "pull_request_target", "workflow_dispatch"]);
   if (ctx.error) return { pr: null, comments: null, protectedEntries: null, error: ctx.error };
   try {
-    const live = await fetchPullEvidence(ctx, { protectedPaths: ownerOnlyChanges(changedPaths) });
+    const live = await fetchPullEvidence(ctx, { protectedPaths: ownerOnlyChanges(changedPaths), semanticSources: semanticChanged });
     return { pr: { number: ctx.number, eventHeadSha: ctx.eventHeadSha, liveHeadSha: live.liveHeadSha }, comments: live.comments, protectedEntries: live.protectedEntries, error: null };
   } catch (e) {
     return { pr: null, comments: null, protectedEntries: null, error: String((e && e.message) || e) };
@@ -120,7 +138,7 @@ async function gatherPullRequestEvidence() {
 
 const evidence = IS_MERGE_GATE
   ? { changedPaths, mergeGate: true, ...(await gatherPullRequestEvidence()) }
-  : { changedPaths, mergeGate: false, pr: null, comments: null, error: null };
+  : { changedPaths, mergeGate: false, pr: null, comments: null, protectedEntries: localAspects, error: null };
 const verdict = decideOwnerApproval(evidence);
 if (!verdict.ok) {
   console.error(`check-doc-ownership: FAIL — ${verdict.reason}.`);

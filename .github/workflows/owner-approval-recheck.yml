@@ -1,0 +1,47 @@
+# .github/workflows/owner-approval-recheck.yml — RE-RUN THE APPROVAL CHECKS AFTER
+# THE OWNER COMMENTS (2026-11-14).
+#
+# "owner-approval" (pull_request_target) and "guards" (pull_request) do not fire on
+# a comment, so the owner's "/owner-approve <fingerprint>" comment left both red
+# until someone re-ran them. This workflow re-runs the failed jobs of their latest
+# runs for the pull request's CURRENT head. It decides nothing: the re-run checks
+# judge the comment with their own rules (scripts/lib/ownerApproval.mjs).
+#
+# SECURITY: issue_comment workflows always run from the default branch (main), so
+# this file and scripts/owner-approval-recheck.mjs are main's copies. The job runs
+# only for a comment on a pull request by the owner login (user.type User) that
+# mentions /owner-approve; the script re-checks login, numeric account id and an
+# exact approval line. It never checks out, installs or runs pull request code,
+# never puts event text into a shell command, pins every action to a full sha and
+# holds only actions: write (re-run), contents: read, pull-requests: read.
+# scripts/test-owner-approval-recheck.mjs fails if any of that changes.
+name: owner-approval-recheck
+on:
+  issue_comment:
+    types: [created]
+permissions:
+  actions: write
+  contents: read
+  pull-requests: read
+jobs:
+  recheck:
+    name: owner-approval-recheck
+    if: github.event.issue.pull_request && github.event.comment.user.login == 'wallstreethyena' && github.event.comment.user.type == 'User' && contains(github.event.comment.body, '/owner-approve')
+    concurrency:
+      group: owner-approval-recheck-${{ github.event.issue.number }}
+      cancel-in-progress: false
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out main (never the pull request)
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+          sparse-checkout: scripts
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+      - name: Re-run the owner-approval and guards runs for the current head
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node scripts/owner-approval-recheck.mjs

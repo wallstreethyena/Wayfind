@@ -19,6 +19,14 @@
 # scripts/guards.txt exactly once) next to the rendered/audit and build jobs. The
 # final job is still named "guards" and fails unless every part succeeded, so
 # branch protection is unchanged and nothing is skipped.
+# SHARD MULTIPLICITY 2026-11-14. "Every shard succeeded" is not "every guard ran":
+# each shard now reports executed_<i>/digest_<i>/shards_<i> through GITHUB_OUTPUT
+# (scripts/run-guards.mjs; guards cannot write it), and the "guards" job re-derives
+# the partition from the same checkout (run-guards --verify-shards) and fails unless
+# every shard 1..4 ran exactly its assigned guards and the counts sum to
+# scripts/guards.txt. A missing, cancelled, skipped or duplicated shard is red.
+# The runner and its imports are owner-only (scripts/lib/ownerApproval.mjs), and
+# install must not touch a tracked file, so a PR cannot swap the verifier.
 name: guards
 on:
   # The merge queue (.github/workflows/merge-queue.yml) re-runs this on a branch
@@ -47,6 +55,21 @@ jobs:
     name: guards-shard-${{ matrix.shard }}
     runs-on: ubuntu-latest
     timeout-minutes: 25
+    # One output name per shard: a matrix job's legs merge their outputs and an
+    # empty value never overwrites another leg's.
+    outputs:
+      executed_1: ${{ steps.run.outputs.executed_1 }}
+      executed_2: ${{ steps.run.outputs.executed_2 }}
+      executed_3: ${{ steps.run.outputs.executed_3 }}
+      executed_4: ${{ steps.run.outputs.executed_4 }}
+      digest_1: ${{ steps.run.outputs.digest_1 }}
+      digest_2: ${{ steps.run.outputs.digest_2 }}
+      digest_3: ${{ steps.run.outputs.digest_3 }}
+      digest_4: ${{ steps.run.outputs.digest_4 }}
+      shards_1: ${{ steps.run.outputs.shards_1 }}
+      shards_2: ${{ steps.run.outputs.shards_2 }}
+      shards_3: ${{ steps.run.outputs.shards_3 }}
+      shards_4: ${{ steps.run.outputs.shards_4 }}
     strategy:
       fail-fast: false
       matrix:
@@ -62,6 +85,9 @@ jobs:
           cache: npm
       - name: Install
         run: npm ci --no-audit --no-fund
+      # An install hook must not rewrite the verifier (or any tracked file).
+      - name: Install left every tracked file untouched
+        run: git diff --exit-code --stat HEAD --
       - name: Cache Playwright Chromium
         uses: actions/cache@v4
         id: playwright-cache
@@ -84,11 +110,14 @@ jobs:
             npx playwright install --with-deps chromium
           fi
       - name: Guard suite shard ${{ matrix.shard }}/4 (scripts/guards.txt)
+        id: run
         env:
           GUARD_SHARD: ${{ matrix.shard }}/4
           # Evidence for check-doc-ownership's owner approval; read-only (see permissions above).
           GITHUB_TOKEN: ${{ github.token }}
-        run: node scripts/run-guards.mjs
+        run: |
+          test -z "${NODE_OPTIONS:-}"
+          node scripts/run-guards.mjs
 
   rendered:
     name: guards-rendered-audit
@@ -166,7 +195,8 @@ jobs:
         run: node scripts/check-bundle.mjs
 
   # The ONE check branch protection requires. Green only when every shard, the
-  # rendered/audit job and the build succeeded; a skipped or cancelled part is red.
+  # rendered/audit job and the build succeeded AND the shards' reports prove every
+  # guard of the manifest ran exactly once; a skipped or cancelled part is red.
   guards:
     name: guards
     if: always()
@@ -182,3 +212,14 @@ jobs:
         run: |
           echo "shards=$SHARD rendered=$RENDERED build=$BUILD"
           test "$SHARD" = "success" && test "$RENDERED" = "success" && test "$BUILD" = "success"
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Every guard of the manifest ran exactly once across the shards
+        env:
+          GUARD_SHARD_COUNT: "4"
+          GUARD_SHARD_REPORT: ${{ toJSON(needs.shard.outputs) }}
+        run: node scripts/run-guards.mjs --verify-shards

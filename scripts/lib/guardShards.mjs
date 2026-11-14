@@ -1,6 +1,6 @@
 // scripts/lib/guardShards.mjs — deterministic sharding of the guard manifest.
 //
-// PURE: no fs, no env, no clock, no network. scripts/run-guards.mjs feeds it the
+// PURE: no fs, no env, no clock, no network (node:crypto only, for the digest). scripts/run-guards.mjs feeds it the
 // already-parsed manifest and the serial set; scripts/test-guard-shards.mjs
 // feeds it the real manifest and locks the contract below.
 //
@@ -18,6 +18,8 @@
 //
 // Adding or removing one guard shifts the guards after it by one shard. That is
 // accepted: shards are balanced by count, not pinned, and nothing keys on them.
+
+import { createHash } from "node:crypto";
 
 export const MAX_SHARDS = 16;
 
@@ -65,4 +67,57 @@ export function selectShard(guards, serialSet, index, count) {
   const out = [];
   for (let i = 0; i < guards.length; i++) if (a[i] === index) out.push(i);
   return out;
+}
+
+// ── SHARD MULTIPLICITY (added 2026-11-14) ────────────────────────────────────
+// Every shard job reports, through GITHUB_OUTPUT, how many guards it executed and
+// a digest of exactly which ones (executed_<i>, digest_<i>, shards_<i>). The final
+// "guards" job re-derives the partition from the checked-out manifest and accepts
+// only a report in which every shard 1..n is present once, with exactly the count
+// and the guard lines this function assigns it, so the counts sum to the manifest.
+// A missing shard (cancelled, skipped, never scheduled), a duplicated one, a shard
+// that ran another slice, or an extra shard index is red.
+
+
+/** sha256 of the exact guard lines a shard executed, in execution order. */
+export function shardDigest(lines) {
+  return createHash("sha256").update(`wayfind-guard-shard/v1\n${lines.join("\n")}\n`).digest("hex");
+}
+
+/** The GITHUB_OUTPUT lines a successful shard run emits. */
+export function shardOutputLines(index, count, lines) {
+  return [`executed_${index}=${lines.length}`, `digest_${index}=${shardDigest(lines)}`, `shards_${index}=${count}`];
+}
+
+/**
+ * Judge the merged job outputs of all shard jobs (`needs.shard.outputs`, a flat
+ * object) against the manifest. Returns { ok, errors, total, expected }.
+ */
+export function verifyShardReport(guards, serialSet, count, report) {
+  const errors = [];
+  if (!Number.isSafeInteger(count) || count < 1 || count > MAX_SHARDS) {
+    return { ok: false, errors: [`shard count must be 1..${MAX_SHARDS}, got ${JSON.stringify(count)}`], total: 0, expected: guards.length };
+  }
+  if (!report || typeof report !== "object" || Array.isArray(report)) {
+    return { ok: false, errors: ["no shard report (the shard jobs emitted no outputs)"], total: 0, expected: guards.length };
+  }
+  const allowed = new Set();
+  let total = 0;
+  for (let i = 1; i <= count; i++) {
+    for (const k of ["executed", "digest", "shards"]) allowed.add(`${k}_${i}`);
+    const lines = selectShard(guards, serialSet, i, count).map((j) => guards[j]);
+    const raw = report[`executed_${i}`];
+    if (raw === undefined || raw === null || raw === "") { errors.push(`shard ${i}/${count} reported no executed count (missing, cancelled or skipped)`); continue; }
+    if (!/^(0|[1-9][0-9]*)$/.test(String(raw))) { errors.push(`shard ${i}/${count} reported a malformed count ${JSON.stringify(raw)}`); continue; }
+    const executed = Number(raw);
+    total += executed;
+    if (executed !== lines.length) errors.push(`shard ${i}/${count} executed ${executed} guards, the manifest assigns it ${lines.length}`);
+    if (String(report[`shards_${i}`]) !== String(count)) errors.push(`shard ${i} ran as part of ${JSON.stringify(report[`shards_${i}`])} shards, expected ${count}`);
+    if (report[`digest_${i}`] !== shardDigest(lines)) errors.push(`shard ${i}/${count} executed a different set of guards than the manifest assigns it (digest mismatch)`);
+  }
+  for (const k of Object.keys(report)) {
+    if (!allowed.has(k) && /^(executed|digest|shards)_/.test(k)) errors.push(`unexpected shard output "${k}" (a shard outside 1..${count} ran)`);
+  }
+  if (total !== guards.length) errors.push(`shards executed ${total} guards in total, the manifest has ${guards.length}`);
+  return { ok: errors.length === 0, errors, total, expected: guards.length };
 }

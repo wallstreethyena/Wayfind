@@ -12,6 +12,30 @@ change only with the owner's approval:
 - **everything under `.github/`**: every workflow and `CODEOWNERS`. A workflow
   can report a check under any name and can read repository secrets, so adding
   or changing one is an owner decision.
+- the merge queue (`scripts/merge-queue.mjs`, `scripts/lib/mergeQueue.mjs`,
+  `scripts/test-merge-queue.mjs`) and the approval recheck
+  (`scripts/owner-approval-recheck.mjs` and its test): they run from main with a
+  write token.
+- **the guard runner's control path (2026-11-14)**: `scripts/run-guards.mjs`, every
+  local module it imports (`scripts/lib/guardShards.mjs`, `scripts/lib/guardEnv.mjs`;
+  `scripts/test-owner-approval.mjs` resolves the imports and fails if one is not
+  owner-only), `scripts/guards-serial.txt`, and `.npmrc` (`ignore-scripts=true`
+  would make `npm run build` skip `prebuild`). Before this, a pull request could
+  edit the runner to exit 0 and both the `guards` check and Vercel's `prebuild`
+  went green with a failing guard (reproduced 2026-11-14).
+
+**Protected aspects of shared files (2026-11-14).** Three files every lane edits
+cannot be owner-only, so the base-trusted gate judges what a change *does*:
+
+| file | free | protected (pseudo-path in the fingerprint) |
+|---|---|---|
+| `scripts/guards.txt` | adding guards, comments, order | removing or rewriting any command line present at the merge base (`scripts/guards.txt#removed`, hash of the removed lines) |
+| `package.json` | every other field and script | `preinstall`, `install`, `postinstall`, `prepare`, `prebuild`, `build`, `postbuild`, `vercel-build` (`package.json#build-scripts`, hash of both sides) |
+| `vercel.json` | crons, headers, … | `buildCommand`, `installCommand` (`vercel.json#build-command`) |
+
+A protected aspect needs owner approval exactly like an owner-only file. If the
+evidence for a changed source is missing (unreadable blob, API error), the merge
+gate fails closed.
 
 The list lives in `scripts/lib/ownerApproval.mjs` (`OWNER_ONLY`). Paths match
 case-insensitively, because on a Mac `claude.md` is the same file as `CLAUDE.md`.
@@ -27,15 +51,24 @@ or re-registered login does not count), with its own line:
 ```
 
 The failing `owner-approval` check prints the exact line to paste. **Approve once
-per protected content (2026-11-13).** The fingerprint (`protectedFingerprint` in
-`scripts/lib/ownerApproval.mjs`) hashes the PR number and, for every changed
-owner-only path, its git blob at the merge base and at the head. So the approval:
+per protected content (2026-11-13; v2 2026-11-14).** The fingerprint
+(`protectedFingerprint` in `scripts/lib/ownerApproval.mjs`) hashes the PR number,
+the **name of the base branch** the PR targets, and, for every changed owner-only
+path, its git blob and file mode at the merge base and at the head (read from git
+trees; symlinks and submodules are refused), plus the hash of every protected
+aspect. So the approval:
 
 - **survives** a rebase, the merge queue updating the branch with main, and any
-  change outside the protected files;
+  change outside the protected content;
 - **stops matching** when protected content changes, a protected file is added,
-  removed or renamed, main edits the same protected file, or it is pasted on a
-  different pull request.
+  removed or renamed (either name counts), its executable bit changes, main edits
+  the same protected file, the PR is retargeted to another base, or it is pasted
+  on a different pull request.
+
+**Why a comment and not a GitHub review.** Every pull request in this repository,
+the agents' included, is opened by the owner account `wallstreethyena`, and GitHub
+does not let an account approve its own pull request. A native "Approve" review
+(the design of PR #2494) can therefore never be given, and is not used.
 
 The legacy form `/owner-approve <the PR's current head commit, all 40 characters>`
 still counts for exactly that head.
@@ -77,8 +110,18 @@ while it was being read).
 A local run fails whenever an owner-only file changed, because it can't see
 approvals. That is on purpose: a local pass must never look like approval.
 
-After the owner comments, re-run both checks on the pull request (the
-"Re-run jobs" button on each), or push again and approve the new head.
+Both also fail closed when the PR is retargeted while the evidence is read, when a
+git tree comes back truncated, or (owner-approval) on a re-run once main has moved
+past the commit the run started on: an older rule never re-judges.
+
+**Nobody has to click "Re-run" (2026-11-14).**
+`.github/workflows/owner-approval-recheck.yml` runs on `issue_comment` (created),
+from main. For a comment on a pull request by the owner login (a `User`, account
+id checked by the script) with an `/owner-approve` line, it re-runs the failed
+jobs of the latest `owner-approval.yml` and `guards.yml` runs for the PR's
+**current** head. It decides nothing: the re-run checks judge the comment with
+their own rules. Permissions: `actions: write`, `contents: read`,
+`pull-requests: read`; pinned actions; nothing from the PR is checked out.
 
 ## The Owner Gate App (the check a pull request cannot fake)
 

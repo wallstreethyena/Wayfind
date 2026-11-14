@@ -25,7 +25,7 @@
  */
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { parseShardSpec, shardAssignments, selectShard, MAX_SHARDS } from "./lib/guardShards.mjs";
+import { parseShardSpec, shardAssignments, selectShard, shardDigest, shardOutputLines, verifyShardReport, MAX_SHARDS } from "./lib/guardShards.mjs";
 
 const here = (rel) => fileURLToPath(new URL(rel, import.meta.url));
 let failed = 0;
@@ -128,6 +128,36 @@ for (const raw of bad) {
 }
 ok(MAX_SHARDS === 16, "MAX_SHARDS changed; update run-guards header docs and this test together");
 
+// Shard report verification (2026-11-14): the final "guards" job accepts only a
+// report in which every shard 1..n ran exactly its assigned guards.
+{
+  const reportFor = (n) => {
+    const out = {};
+    for (let i = 1; i <= n; i++) {
+      for (const l of shardOutputLines(i, n, selectShard(guards, serialSet, i, n).map((j) => guards[j]))) out[l.slice(0, l.indexOf("="))] = l.slice(l.indexOf("=") + 1);
+    }
+    return out;
+  };
+  const good = reportFor(4);
+  const v = verifyShardReport(guards, serialSet, 4, good);
+  ok(v.ok && v.total === N, `verifyShardReport: the complete 4-shard report of the real manifest must pass (${v.errors.join("; ")})`);
+  const sum = [1, 2, 3, 4].reduce((a, i) => a + Number(good[`executed_${i}`]), 0);
+  ok(sum === N, `shard counts must sum to the manifest (${sum} vs ${N})`);
+  const { executed_3, digest_3, shards_3, ...missing } = good;
+  const bad = {
+    "missing shard 3": missing,
+    "shard 3 cancelled (empty output)": { ...good, executed_3: "", digest_3: "" },
+    "shard 1's work duplicated as shard 2": { ...good, executed_2: good.executed_1, digest_2: good.digest_1 },
+    "one guard dropped from shard 4": { ...good, executed_4: String(Number(good.executed_4) - 1), digest_4: shardDigest(selectShard(guards, serialSet, 4, 4).slice(1).map((j) => guards[j])) },
+    "extra shard 5": { ...good, executed_5: "0", digest_5: shardDigest([]), shards_5: "4" },
+    "ran as 3 shards": { ...good, shards_1: "3" },
+    "no report": null,
+  };
+  for (const [label, report] of Object.entries(bad)) ok(!verifyShardReport(guards, serialSet, 4, report).ok, `verifyShardReport must reject: ${label}`);
+  ok(!verifyShardReport(guards, serialSet, 0, good).ok && !verifyShardReport(guards, serialSet, 17, good).ok, "verifyShardReport must reject a shard count outside 1..16");
+  ok(verifyShardReport(guards, serialSet, 1, reportFor(1)).ok && verifyShardReport(guards, serialSet, 8, reportFor(8)).ok, "verifyShardReport accepts complete reports for n=1 and n=8");
+}
+
 // The runner must actually call the partition (static; comments stripped).
 {
   const src = readFileSync(here("./run-guards.mjs"), "utf8").replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
@@ -140,5 +170,5 @@ if (failed) {
   console.error(`\ntest-guard-shards: FAIL — ${failed} assertion(s) failed`);
   process.exit(1);
 }
-console.log(`test-guard-shards: OK — real manifest ${N} guards (${serialSet.size} serial), n=1..8 partitions disjoint + complete + kind-preserving + balanced; ${bad.length} malformed specs rejected`);
+console.log(`test-guard-shards: OK — real manifest ${N} guards (${serialSet.size} serial), n=1..8 partitions disjoint + complete + kind-preserving + balanced; ${bad.length} malformed specs rejected; shard reports verified (complete passes, missing/cancelled/duplicated/short/extra/miscounted rejected)`);
 console.log("  shard sizes: " + sizeLog.join(" | "));

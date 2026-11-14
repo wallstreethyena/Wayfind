@@ -19,6 +19,14 @@
  *   E  ordinary changes are unaffected (even with a forged author, even with no token)
  *   F  merge gate without the GitHub context it needs -> fail closed
  *   G  every refusal exits non-zero
+ *   H  hardening (2026-11-14): the base ref is bound into the fingerprint (retarget
+ *      voids it), rename-in/rename-out/addition/deletion/exec-bit change the row,
+ *      truncated trees, unreadable blobs, mid-read retargets and stale re-runs fail
+ *      closed; removing a guard line from scripts/guards.txt or changing the
+ *      build/install scripts in package.json / vercel.json is a protected aspect
+ *      (guards check and owner-approval agree on its fingerprint); the guard
+ *      runner and every local module it imports are owner-only; guards.yml makes
+ *      every shard report what it ran and the "guards" job verifies the reports
  *
  * The same rule is applied a second time by scripts/check-owner-approval-pr.mjs,
  * the "owner-approval" check, which GitHub runs from the BASE branch on
@@ -40,7 +48,8 @@ import { createHash } from "node:crypto";
 import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync, existsSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { findOwnerApproval, decideOwnerApproval, isOwnerOnly, protectedFingerprint, OWNERS, OWNER_LOGINS } from "./lib/ownerApproval.mjs";
+import { findOwnerApproval, decideOwnerApproval, isOwnerOnly, protectedFingerprint, semanticAspect, OWNERS, OWNER_LOGINS } from "./lib/ownerApproval.mjs";
+const SHA256_RX = /^[0-9a-f]{64}$/;
 
 const REPO = process.cwd();
 const GUARD = join(REPO, "scripts", "check-doc-ownership.mjs");
@@ -94,9 +103,68 @@ const git = (cwd, args, env = {}) => execFileSync("git", args, { cwd, encoding: 
   ok(!decideOwnerApproval({ ...base, pr: { number: 7, eventHeadSha: head, liveHeadSha: "c".repeat(40) }, comments: [{ id: 1, ...T, user: owner, body: `/owner-approve ${"c".repeat(40)}` }] }).ok, "decision: a head that moved after the run started fails");
   ok(decideOwnerApproval({ ...base, comments: [{ id: 1, ...T, user: owner, body: `/owner-approve ${head}` }] }).ok, "decision: owner approval of the exact head passes");
   ok(decideOwnerApproval({ ...base, comments: [] }).reason.includes(`/owner-approve ${head}"`), "decision: the refusal prints the full sha to paste");
+
+  // ── Hardening (2026-11-14): base ref binding, semantic protected aspects ──
+  const B1 = "1".repeat(40), B2 = "2".repeat(40);
+  const e1 = [{ path: "CLAUDE.md", base: B1, head: B2 }];
+  ok(SHA256_RX.test(protectedFingerprint(7, e1, "main")) && protectedFingerprint(7, e1, "main") !== protectedFingerprint(7, e1, "release")
+    && protectedFingerprint(7, e1) === protectedFingerprint(7, e1, "main"),
+    "H base: the base ref name is part of the fingerprint (retargeting the PR voids it)");
+  ok(protectedFingerprint(7, [{ ...e1[0], baseRef: "release" }], "main") === null && protectedFingerprint(7, e1, "") === null && protectedFingerprint(7, e1, "a b") === null,
+    "H base: an entry naming another base, or a missing/malformed base ref, yields no fingerprint");
+  const fpOf = (entries) => protectedFingerprint(7, entries, "main");
+  ok(new Set([fpOf(e1), fpOf([{ path: "CLAUDE.md", base: B1, head: null }]), fpOf([{ path: "CLAUDE.md", base: null, head: B2 }]),
+    fpOf([{ path: "CLAUDE.md", base: B1, head: B1, baseMode: "100644", headMode: "100755" }]),
+    fpOf([{ path: "CLAUDE.md", base: B1, head: null }, { path: "docs/CLAUDE-old.md", base: null, head: B1 }])]).size === 5
+    && fpOf([{ path: "CLAUDE.md", base: B1, head: B1 }]) === null,
+    "H rows: edit, deletion, addition, executable-bit change and rename each give a distinct fingerprint; an unchanged entry gives none");
+  const G0 = "# manifest\nnode scripts/a.mjs\nnode scripts/b.mjs\n";
+  ok(semanticAspect("scripts/guards.txt", G0, G0 + "node scripts/c.mjs\n").aspect === null
+    && semanticAspect("scripts/guards.txt", G0, "node scripts/b.mjs\n# moved\nnode scripts/a.mjs\n").aspect === null
+    && semanticAspect("scripts/guards.txt", null, G0).aspect === null,
+    "H guards.txt: adding a guard, reordering or editing comments is free");
+  const rmB = semanticAspect("scripts/guards.txt", G0, "node scripts/a.mjs\n");
+  ok(rmB.path === "scripts/guards.txt#removed" && SHA256_RX.test(rmB.aspect)
+    && SHA256_RX.test(semanticAspect("scripts/guards.txt", G0, G0.replace("node scripts/b.mjs", "node scripts/b.mjs || true")).aspect)
+    && SHA256_RX.test(semanticAspect("scripts/guards.txt", G0, null).aspect)
+    && rmB.aspect !== semanticAspect("scripts/guards.txt", G0, "node scripts/b.mjs\n").aspect,
+    "H guards.txt: removing, rewriting (|| true) or deleting a merge-base guard line is protected, and which line was removed is in the hash");
+  const P0 = JSON.stringify({ name: "w", version: "1.0.0", scripts: { prebuild: "node scripts/run-guards.mjs", build: "next build", postbuild: "node scripts/check-bundle.mjs", dev: "next dev" } });
+  const withScripts = (patch) => { const d = JSON.parse(P0); Object.assign(d.scripts, patch); return JSON.stringify(d); };
+  ok(semanticAspect("package.json", P0, P0.replace("1.0.0", "1.0.1")).aspect === null && semanticAspect("package.json", P0, withScripts({ dev: "next dev -p 4000", lint: "x" })).aspect === null,
+    "H package.json: version bumps and non-build scripts are free");
+  ok(["prebuild", "build", "postbuild", "vercel-build", "postinstall", "preinstall", "install", "prepare"].every((k) => SHA256_RX.test(semanticAspect("package.json", P0, withScripts({ [k]: "true" })).aspect))
+    && SHA256_RX.test(semanticAspect("package.json", P0, "{ not json").aspect) && SHA256_RX.test(semanticAspect("package.json", P0, null).aspect),
+    "H package.json: changing or adding any build/install lifecycle script, an unparsable file, or deleting package.json is protected");
+  const V0 = JSON.stringify({ buildCommand: "npm run build", crons: [] });
+  ok(semanticAspect("vercel.json", V0, JSON.stringify({ buildCommand: "npm run build", crons: [{ path: "/x" }] })).aspect === null
+    && SHA256_RX.test(semanticAspect("vercel.json", V0, JSON.stringify({ buildCommand: "next build", crons: [] })).aspect)
+    && SHA256_RX.test(semanticAspect("vercel.json", V0, JSON.stringify({ buildCommand: "npm run build", installCommand: "npm i && rm scripts/run-guards.mjs", crons: [] })).aspect),
+    "H vercel.json: crons are free; buildCommand/installCommand changes are protected");
+  const pkgEv = (aspect, comments = []) => ({ changedPaths: ["package.json", "lib/x.js"], mergeGate: true, pr: { number: 7, eventHeadSha: head, liveHeadSha: head }, comments, protectedEntries: aspect === undefined ? null : [{ path: "package.json#build-scripts", aspect, baseRef: "main" }], error: null });
+  const A1 = "a1".repeat(32);
+  const fpPkg = protectedFingerprint(7, [{ path: "package.json#build-scripts", aspect: A1 }], "main");
+  ok(!decideOwnerApproval(pkgEv(undefined)).ok && /refusing to guess/.test(decideOwnerApproval(pkgEv(undefined)).reason),
+    "H decide: a changed package.json without aspect evidence fails closed on the merge gate");
+  ok(decideOwnerApproval(pkgEv(null)).ok, "H decide: a judged, free package.json change passes without approval");
+  const pkgNo = decideOwnerApproval(pkgEv(A1));
+  ok(!pkgNo.ok && pkgNo.protectedPaths.includes("package.json#build-scripts") && pkgNo.reason.includes(`/owner-approve ${fpPkg}`)
+    && decideOwnerApproval(pkgEv(A1, [{ id: 1, ...T, user: owner, body: `/owner-approve ${fpPkg}` }])).ok
+    && decideOwnerApproval(pkgEv(A1, [{ id: 1, ...T, user: owner, body: `/owner-approve ${head}` }])).ok,
+    "H decide: a protected build-script change needs approval, named by its fingerprint; fingerprint or legacy head approval passes");
+  const mixed = { ...base, comments: [{ id: 1, ...T, user: owner, body: `/owner-approve ${protectedFingerprint(7, e1, "main")}` }],
+    protectedEntries: [{ ...e1[0], baseRef: "main" }] };
+  ok(decideOwnerApproval(mixed).ok && !decideOwnerApproval({ ...mixed, protectedEntries: [{ ...e1[0], baseRef: "release" }] }).ok
+    && !decideOwnerApproval({ ...mixed, protectedEntries: [{ ...e1[0] }] }).ok,
+    "H decide: a fingerprint approval binds the base ref carried by the evidence; another ref or no ref never matches it");
+  ok(["scripts/run-guards.mjs", "scripts/lib/guardShards.mjs", "scripts/lib/guardEnv.mjs", "scripts/guards-serial.txt", ".npmrc", "scripts/owner-approval-recheck.mjs", "scripts/test-owner-approval-recheck.mjs"].every(isOwnerOnly)
+    && !isOwnerOnly("scripts/guards.txt") && !isOwnerOnly("package.json") && !isOwnerOnly("scripts/test-run-guards.mjs"),
+    "H owner-only: the guard runner's control path is owner-only; guards.txt and package.json stay shared (judged by aspect)");
 }
 
 // ── 2. The real guard, in real git repositories, with a stub GitHub API ────
+const SEED_GUARDS = "# manifest\nnode scripts/check-a.mjs\nnode scripts/check-b.mjs\n";
+const SEED_PKG = JSON.stringify({ name: "w", version: "1.0.0", scripts: { prebuild: "node scripts/run-guards.mjs", build: "next build", dev: "next dev" } }, null, 2) + "\n";
 const root = mkdtempSync(join(tmpdir(), "wf-owner-approval-"));
 try {
   const origin = join(root, "origin");
@@ -104,6 +172,9 @@ try {
   git(origin, ["init", "-q", "-b", "main"]);
   writeFileSync(join(origin, "CLAUDE.md"), "# rules\n\nkeep this\n");
   writeFileSync(join(origin, "README.md"), "hello\n");
+  mkdirSync(join(origin, "scripts"));
+  writeFileSync(join(origin, "scripts", "guards.txt"), SEED_GUARDS);
+  writeFileSync(join(origin, "package.json"), SEED_PKG);
   git(origin, ["add", "-A"]);
   git(origin, ["commit", "-q", "-m", "seed"], LANE);
 
@@ -135,8 +206,18 @@ globalThis.fetch = async (url, init = {}) => {
   if (cfg.status && cfg.status !== 200) return { ok: false, status: cfg.status, json: async () => ({}) };
   const path = new URL(url).pathname;
   if (/\\/pulls\\/\\d+$/.test(path)) {
-    const sha = ++pullReads > 1 && cfg.liveHeadLater ? cfg.liveHeadLater : cfg.liveHead;
-    return { ok: true, status: 200, json: async () => ({ head: { sha }, base: { ref: "main" }, changed_files: cfg.changedFiles ?? (cfg.files || []).length }) };
+    const later = ++pullReads > 1;
+    const sha = later && cfg.liveHeadLater ? cfg.liveHeadLater : cfg.liveHead;
+    const ref = later && cfg.baseRefLater ? cfg.baseRefLater : (cfg.baseRef || "main");
+    return { ok: true, status: 200, json: async () => ({ head: { sha }, base: { ref }, changed_files: cfg.changedFiles ?? (cfg.files || []).length }) };
+  }
+  if (/\\/git\\/ref\\/heads\\/main$/.test(path)) return { ok: true, status: 200, json: async () => ({ object: { sha: cfg.mainTip || "" } }) };
+  // Blob content for the semantic aspects: cfg.texts maps blob sha -> text.
+  const gb = path.match(/\\/git\\/blobs\\/([0-9a-f]{40})$/);
+  if (gb) {
+    const text = (cfg.texts || {})[gb[1]];
+    if (typeof text !== "string") return { ok: false, status: 404, json: async () => ({}) };
+    return { ok: true, status: 200, json: async () => ({ encoding: "base64", content: Buffer.from(text).toString("base64") }) };
   }
   // Protected-content evidence via git trees (2026-11-13): merge base is c…c.
   // Tree sha = "<ref>~<dir as base64url>"; each listing shows every known path's
@@ -162,7 +243,7 @@ globalThis.fetch = async (url, init = {}) => {
       if (sha === null) continue;
       entries.set(first, { path: first, type: (isBase ? b.baseType : b.headType) || "blob", mode: (isBase ? b.baseMode : b.headMode) || "100644", sha });
     }
-    return { ok: true, status: 200, json: async () => ({ tree: [...entries.values()], truncated: false }) };
+    return { ok: true, status: 200, json: async () => ({ tree: [...entries.values()], truncated: !!cfg.truncated }) };
   }
   if (/\\/pulls\\/\\d+\\/files$/.test(path)) return { ok: true, status: 200, json: async () => cfg.files || [] };
   if (/\\/issues\\/\\d+\\/comments$/.test(path)) {
@@ -176,17 +257,17 @@ globalThis.fetch = async (url, init = {}) => {
 };`);
 
   let runN = 0;
-  const run = ({ dir, script = GUARD, gate = false, event = "pull_request", eventHead, liveHead, liveHeadLater, comments = [], status = 200, token = "fixture-token", eventFile = true, files, changedFiles, pageSize, blobs }) => {
+  const run = ({ dir, script = GUARD, gate = false, event = "pull_request", eventHead, liveHead, liveHeadLater, comments = [], status = 200, token = "fixture-token", eventFile = true, files, changedFiles, pageSize, blobs, texts, baseRef, baseRefLater, truncated, attempt = "1", mainTip, runSha }) => {
     const tag = ++runN;
     const log = join(root, `calls-${tag}.log`);
     writeFileSync(log, "");
     const cfgPath = join(root, `stub-${tag}.json`);
-    writeFileSync(cfgPath, JSON.stringify({ liveHead, liveHeadLater, comments, status, files, changedFiles, pageSize, blobs }));
+    writeFileSync(cfgPath, JSON.stringify({ liveHead, liveHeadLater, comments, status, files, changedFiles, pageSize, blobs, texts, baseRef, baseRefLater, truncated, mainTip }));
     const eventPath = join(root, `event-${tag}.json`);
     if (eventFile) writeFileSync(eventPath, JSON.stringify({ pull_request: { number: 1478, head: { sha: eventHead } } }));
     const env = { ...process.env, GITHUB_ACTIONS: gate ? "true" : "", STUB_CONFIG: cfgPath, STUB_LOG: log };
-    for (const k of ["GITHUB_TOKEN", "GITHUB_EVENT_NAME", "GITHUB_EVENT_PATH", "GITHUB_REPOSITORY", "GITHUB_API_URL"]) delete env[k];
-    if (gate) Object.assign(env, { GITHUB_EVENT_NAME: event, GITHUB_EVENT_PATH: eventPath, GITHUB_REPOSITORY: "wallstreethyena/Wayfind", GITHUB_API_URL: "https://api.github.fixture.invalid" });
+    for (const k of ["GITHUB_TOKEN", "GITHUB_EVENT_NAME", "GITHUB_EVENT_PATH", "GITHUB_REPOSITORY", "GITHUB_API_URL", "GITHUB_RUN_ATTEMPT", "GITHUB_SHA"]) delete env[k];
+    if (gate) Object.assign(env, { GITHUB_EVENT_NAME: event, GITHUB_EVENT_PATH: eventPath, GITHUB_REPOSITORY: "wallstreethyena/Wayfind", GITHUB_API_URL: "https://api.github.fixture.invalid", GITHUB_RUN_ATTEMPT: attempt, GITHUB_SHA: runSha || "a".repeat(40) });
     if (gate && token) env.GITHUB_TOKEN = token;
     let code = 0, out = "";
     try { out = execFileSync(process.execPath, ["--import", preload, script], { cwd: dir, encoding: "utf8", env, stdio: ["ignore", "pipe", "pipe"] }); }
@@ -327,6 +408,59 @@ globalThis.fetch = async (url, init = {}) => {
   ok(protectedFingerprint(1478, [{ path: "A", base: null, head: "2".repeat(40) }, { path: "B", base: "1".repeat(40), head: null }])
     === protectedFingerprint(1478, [{ path: "B", base: "1".repeat(40), head: null }, { path: "A", base: null, head: "2".repeat(40) }]), "FP pure: order of evidence does not matter");
 
+  // H. Hardening (2026-11-14): semantic aspects, retarget, rename-in, add, truncation, re-runs.
+  const ONE = "1".repeat(40), TWO = "2".repeat(40);
+  const aspectFp = (path, aspect, number = 1478) => protectedFingerprint(number, [{ path, aspect }], "main");
+  const GUARDS_RM = "# manifest\nnode scripts/check-a.mjs\n";
+  const rmFp = aspectFp("scripts/guards.txt#removed", semanticAspect("scripts/guards.txt", SEED_GUARDS, GUARDS_RM).aspect);
+  r = pr({ files: [file("scripts/guards.txt")], texts: { [ONE]: SEED_GUARDS, [TWO]: SEED_GUARDS + "node scripts/check-c.mjs\n" } });
+  ok(r.code === 0 && /no owner-only files changed/.test(r.out) && r.calls.some((c) => /\/git\/blobs\//.test(c)), `H P guards.txt: adding a guard is free, judged from both blobs (${r.code}: ${r.out.trim()})`);
+  r = pr({ files: [file("scripts/guards.txt")], texts: { [ONE]: SEED_GUARDS, [TWO]: GUARDS_RM } });
+  ok(r.code === 1 && /scripts\/guards\.txt#removed/.test(r.out) && r.out.includes(`/owner-approve ${rmFp}`), `H P guards.txt: removing a guard line needs owner approval, named by its fingerprint (${r.code}: ${r.out.trim()})`);
+  r = pr({ files: [file("scripts/guards.txt")], texts: { [ONE]: SEED_GUARDS, [TWO]: GUARDS_RM }, comments: [approve(rmFp)] });
+  ok(r.code === 0, `H P guards.txt: the owner's fingerprint approval of that removal passes (${r.code}: ${r.out.trim()})`);
+  const PKG_BYPASS = SEED_PKG.replace('"node scripts/run-guards.mjs"', '"true"');
+  r = pr({ files: [file("package.json")], texts: { [ONE]: SEED_PKG, [TWO]: PKG_BYPASS } });
+  ok(r.code === 1 && /package\.json#build-scripts/.test(r.out), `H P package.json: prebuild -> "true" needs owner approval (${r.code}: ${r.out.trim()})`);
+  r = pr({ files: [file("package.json")], texts: { [ONE]: SEED_PKG, [TWO]: SEED_PKG.replace("1.0.0", "1.0.1") } });
+  ok(r.code === 0, `H P package.json: a version bump is free (${r.code}: ${r.out.trim()})`);
+  r = pr({ files: [file("package.json")], texts: { [ONE]: SEED_PKG } });
+  ok(r.code === 1 && /HTTP 404/.test(r.out), `H P package.json: an unreadable blob fails closed (${r.code}: ${r.out.trim()})`);
+  r = pr({ files: [file("scripts/run-guards.mjs")] });
+  ok(r.code === 1 && /scripts\/run-guards\.mjs/.test(r.out), `H P runner: editing the guard runner needs owner approval (${r.code})`);
+  r = pr({ files: [file("CLAUDE.md")], comments: [approve(FP())], baseRef: "release" });
+  ok(r.code === 1, `H P retarget: an approval given while the PR targeted main does not survive a retarget (${r.code}: ${r.out.trim()})`);
+  r = pr({ files: [file("CLAUDE.md")], comments: [approve(FP())], baseRefLater: "release" });
+  ok(r.code === 1 && /retargeted/.test(r.out), `H P retarget: a retarget landing mid-read fails closed (${r.code}: ${r.out.trim()})`);
+  r = pr({ files: [file("CLAUDE.md", "docs/old-notes.md")] });
+  ok(r.code === 1 && /CLAUDE\.md/.test(r.out), `H P rename-in: renaming a file TO CLAUDE.md is an owner-only change (${r.code})`);
+  r = pr({ files: [file("CLAUDE.md")], comments: [approve(FP())], blobs: { "CLAUDE.md": { base: null, head: TWO } } });
+  ok(r.code === 1, `H P add: an approval for an edit does not cover adding the file fresh (${r.code})`);
+  r = pr({ files: [file("CLAUDE.md")], comments: [approve(FP())], truncated: true });
+  ok(r.code === 1 && /incomplete git tree/.test(r.out), `H P truncated: a truncated git tree fails closed (${r.code}: ${r.out.trim()})`);
+  const RUN = "5".repeat(40);
+  r = pr({ files: [file("CLAUDE.md")], comments: [approve(FP())], attempt: "2", runSha: RUN, mainTip: RUN });
+  ok(r.code === 0, `H P re-run: a re-run while main is still the run's commit re-judges (${r.code}: ${r.out.trim()})`);
+  r = pr({ files: [file("CLAUDE.md")], comments: [approve(FP())], attempt: "2", runSha: RUN, mainTip: "6".repeat(40) });
+  ok(r.code === 1 && /an older rule never re-judges/.test(r.out), `H P re-run: a stale re-run (main moved) refuses (${r.code}: ${r.out.trim()})`);
+  // The guards check (check-doc-ownership) in real repositories.
+  const addG = branch([["scripts/guards.txt", SEED_GUARDS + "node scripts/check-c.mjs\n"]]);
+  r = run({ dir: addG.dir, gate: true, eventHead: addG.head, liveHead: addG.head, token: null });
+  ok(r.code === 0 && r.calls.length === 0 && /without removing a guard/.test(r.out), `H G: adding a guard passes the guards check with no API call (${r.code}: ${r.out.trim()})`);
+  const rmG = branch([["scripts/guards.txt", GUARDS_RM]]);
+  r = run({ dir: rmG.dir });
+  ok(r.code === 1 && /scripts\/guards\.txt#removed/.test(r.out) && /local run cannot grant it/.test(r.out), `H G local: removing a guard line fails locally (${r.code}: ${r.out.trim()})`);
+  r = run({ dir: rmG.dir, gate: true, eventHead: rmG.head, liveHead: rmG.head, blobs: { "scripts/guards.txt": {} }, texts: { [ONE]: SEED_GUARDS, [TWO]: GUARDS_RM } });
+  ok(r.code === 1 && r.out.includes(`/owner-approve ${rmFp}`), `H G gate: removing a guard line needs approval; the guards check names the same fingerprint as owner-approval (${r.code}: ${r.out.trim()})`);
+  r = run({ dir: rmG.dir, gate: true, eventHead: rmG.head, liveHead: rmG.head, blobs: { "scripts/guards.txt": {} }, texts: { [ONE]: SEED_GUARDS, [TWO]: GUARDS_RM }, comments: [approve(rmFp)] });
+  ok(r.code === 0, `H G gate: the owner's fingerprint approval passes the guards check (${r.code}: ${r.out.trim()})`);
+  const pkgG = branch([["package.json", PKG_BYPASS]]);
+  r = run({ dir: pkgG.dir, gate: true, eventHead: pkgG.head, liveHead: pkgG.head, blobs: { "package.json": {} }, texts: { [ONE]: SEED_PKG, [TWO]: PKG_BYPASS } });
+  ok(r.code === 1 && /package\.json#build-scripts/.test(r.out), `H G gate: prebuild -> "true" fails the guards check without approval (${r.code}: ${r.out.trim()})`);
+  const pkgFree = branch([["package.json", SEED_PKG.replace("1.0.0", "1.0.1")]]);
+  r = run({ dir: pkgFree.dir, gate: true, eventHead: pkgFree.head, liveHead: pkgFree.head, token: null });
+  ok(r.code === 0 && r.calls.length === 0, `H G: a version bump passes with no API call (${r.code}: ${r.out.trim()})`);
+
   // RED proof: the pre-fix guard accepted the forged author. Pinned by blob SHA-1.
   const preFix = readFileSync(PRE_FIX);
   ok(gitBlobSha1(preFix) === PRE_FIX_BLOB, `pre-fix fixture is byte-identical to the shipped guard at a55ae1fb (blob ${gitBlobSha1(preFix)})`);
@@ -353,6 +487,32 @@ globalThis.fetch = async (url, init = {}) => {
     && /^  guards:\n    name: guards\n    if: always\(\)\n    needs: \[shard, rendered, build\]/m.test(wfCode)
     && /test "\$SHARD" = "success" && test "\$RENDERED" = "success" && test "\$BUILD" = "success"/.test(wfCode),
     "guards: four GUARD_SHARD jobs + rendered + build, and the required 'guards' job fails unless every part succeeded");
+  // Shard multiplicity (2026-11-14): every shard reports what it ran; the "guards"
+  // job verifies the reports cover the manifest exactly once.
+  const outKeys = [...wfCode.matchAll(/^      ((?:executed|digest|shards)_[1-4]): \$\{\{ steps\.run\.outputs\.\1 \}\}$/gm)].map((m) => m[1]);
+  const aggregator = wfCode.slice(wfCode.indexOf("\n  guards:\n"));
+  ok(outKeys.length === 12 && new Set(outKeys).size === 12 && /- name: Guard suite shard \$\{\{ matrix\.shard \}\}\/4 \(scripts\/guards\.txt\)\n        id: run\n/.test(wfCode)
+    && /GUARD_SHARD_COUNT: "4"\n          GUARD_SHARD_REPORT: \$\{\{ toJSON\(needs\.shard\.outputs\) \}\}\n        run: node scripts\/run-guards\.mjs --verify-shards/.test(aggregator)
+    && /actions\/checkout@/.test(aggregator) && /persist-credentials: false/.test(aggregator),
+    "guards: each shard exports executed/digest/shards for 1..4 and the 'guards' job runs run-guards --verify-shards on the same checkout");
+  ok(/- name: Install left every tracked file untouched\n        run: git diff --exit-code --stat HEAD --\n/.test(wfCode) && /test -z "\$\{NODE_OPTIONS:-\}"\n          node scripts\/run-guards\.mjs\n/.test(wfCode),
+    "guards: an install hook cannot rewrite a tracked file (the runner) or preload code into the runner through NODE_OPTIONS");
+  // The guard runner's control path: run-guards.mjs and every LOCAL module it
+  // imports, transitively, plus its serial list, are owner-only (2026-11-14).
+  const runnerFiles = [];
+  const visit = (rel) => {
+    if (runnerFiles.includes(rel)) return;
+    runnerFiles.push(rel);
+    const src = readFileSync(join(REPO, rel), "utf8");
+    for (const m of src.matchAll(/^\s*import\s(?:[^;]*?\sfrom\s)?["'](\.{1,2}\/[^"']+)["']/gm)) visit(join(rel, "..", m[1]).replace(/\\/g, "/"));
+    for (const m of src.matchAll(/\bimport\(\s*["'](\.{1,2}\/[^"']+)["']/g)) visit(join(rel, "..", m[1]).replace(/\\/g, "/"));
+  };
+  visit("scripts/run-guards.mjs");
+  ok(runnerFiles.length >= 3 && runnerFiles.includes("scripts/lib/guardShards.mjs") && runnerFiles.includes("scripts/lib/guardEnv.mjs")
+    && [...runnerFiles, "scripts/guards-serial.txt"].every(isOwnerOnly),
+    `the guard runner and its ${runnerFiles.length - 1} local import(s) are owner-only (${runnerFiles.join(", ")}) plus scripts/guards-serial.txt; unprotected: ${[...runnerFiles, "scripts/guards-serial.txt"].filter((f) => !isOwnerOnly(f)).join(", ") || "none"}`);
+  ok(/"prebuild":\s*"node scripts\/run-guards\.mjs"/.test(readFileSync(join(REPO, "package.json"), "utf8")) && /"buildCommand":\s*"npm run build"/.test(readFileSync(join(REPO, "vercel.json"), "utf8")),
+    "Vercel runs the guard suite: vercel.json builds through npm run build and package.json prebuild runs the runner (both protected aspects)");
   // Merge queue code runs from main with a write token: it and everything it
   // imports from this repository must be owner-only (2026-11-13 review, C1).
   const queueFiles = ["scripts/merge-queue.mjs", "scripts/lib/mergeQueue.mjs", "scripts/test-merge-queue.mjs"];
@@ -388,9 +548,9 @@ globalThis.fetch = async (url, init = {}) => {
   ok(uses.length === 2 && uses.every((u) => /@[0-9a-f]{40}$/.test(u)), `owner-approval pins every action to a full commit sha (${uses.join(", ")})`);
 }
 
-const EXPECTED = 84;
+const EXPECTED = 121;
 if (checks !== EXPECTED) {
   console.error(`test-owner-approval: FAIL — ran ${checks} assertions, expected exactly ${EXPECTED}; a proof was skipped or added without review.`);
   process.exit(1);
 }
-console.log(`test-owner-approval: OK — ${checks} assertions: forged owner author refused locally and on the merge gate, authenticated head-bound owner approval accepted, fail-closed without GitHub context, ordinary changes unaffected, pre-fix guard red-proved (blob ${PRE_FIX_BLOB.slice(0, 12)}), the owner-approval check applies the base branch's rule and is pull_request_target-safe, wired into guards.txt and both workflows`);
+console.log(`test-owner-approval: OK — ${checks} assertions: forged owner author refused locally and on the merge gate, authenticated head-bound owner approval accepted, fail-closed without GitHub context, ordinary changes unaffected, pre-fix guard red-proved (blob ${PRE_FIX_BLOB.slice(0, 12)}), the owner-approval check applies the base branch's rule and is pull_request_target-safe, wired into guards.txt and both workflows; hardening: base ref bound into the fingerprint, renames/deletions/additions/exec-bit/truncated trees/retargets/stale re-runs fail closed, guard-line removals and build/install script changes are protected aspects, the runner's control path is owner-only and the sharded gate verifies every guard ran once`);
