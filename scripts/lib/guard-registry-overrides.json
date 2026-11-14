@@ -744,6 +744,14 @@
   },
   "owner": "Revenue QA"
  },
+ "scripts/test-redirect-failure-quality.mjs": {
+  "protects": "The failed-partner-link signal (Command Center diagnostics, revenue-heartbeat report) counts only qualified provider_redirect_failed rows: never crawler-refused, only traffic_class human, and only with an on-page tap or first-party click proof. Raw counts stay reported, and no /go route consults the rule.",
+  "blastRadius": {
+   "category": "revenue",
+   "detail": "Counting crawler refusals pages the owner on every crawler wave (2026-11-10: 288 of 290 failures were crawlers). Dropping real failures hides broken links; filtering inside a /go route would block or slow a real buyer."
+  },
+  "owner": "Revenue QA"
+ },
  "scripts/test-qualified-click.mjs": {
   "protects": "A qualified click counts only a partner redirect whose click_id also exists on an on-page commerce_cta_clicked, and that count never feeds the revenue heartbeat incident.",
   "blastRadius": {
@@ -1053,6 +1061,14 @@
   "blastRadius": {
    "category": "revenue",
    "detail": "A movie ticket click that reaches the partner without our CJ attribution earns nothing, and a card whose button sells something other than what it delivers breaks the product integrity law. The label says a discounted theater ticket, never a specific showtime seat."
+  },
+  "owner": "Revenue QA"
+ },
+ "scripts/test-meta-partner-handoff.mjs": {
+  "protects": "Meta receives exactly one conversion, PartnerHandoff, only for a human non-test partner redirect from a browser Meta already knows, with a closed key set (fbp, fbc, IP, user agent; provider, surface, content id) and no personal data, campaign labels or click id values; every partner redirect route reaches it; ad and ad set ids survive landing to the redirect event.",
+  "blastRadius": {
+   "category": "revenue",
+   "detail": "If it regresses, Meta optimizes toward unverified taps or receives personal data, and partner clicks can no longer be tied to the Meta campaign, ad set and ad that produced them, so ad spend decisions run on wrong numbers."
   },
   "owner": "Revenue QA"
  },
