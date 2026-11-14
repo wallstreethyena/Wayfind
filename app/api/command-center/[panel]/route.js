@@ -34,6 +34,7 @@ import { selfCheck, integrationsStatus, labCWV } from "../../../../lib/commandCe
 import { dailyTrendIntelligence } from "../../../../lib/dailyTrendReport.js";
 import dailyTrendReport from "../../../../data/trend-reports/latest.json";
 import { gatherOwnerBriefing } from "../../../../lib/commandCenter/briefing.js";
+import { partnersPanelData, mutatePartnerCrmRecord } from "../../../../lib/commandCenter/sources/partners.js";
 
 function parseRange(searchParams, now) {
   const key = String(searchParams.get("range") || "today");
@@ -306,8 +307,9 @@ async function feedbackPanel() {
 }
 
 export async function GET(req, ctx) {
-  const auth = await requireOwner(req);
-  if (!auth.ok) return jsonNoStore(auth.body, auth.status);
+  const panelOpts = ctx && ctx.opts && typeof ctx.opts === "object" ? ctx.opts : {};
+  const gate = await requireOwner(req, panelOpts.authOpts);
+  if (!gate.ok) return jsonNoStore(gate.body, gate.status);
 
   const params = ctx && ctx.params ? await ctx.params : {};
   const panel = String(params.panel || "");
@@ -324,6 +326,7 @@ export async function GET(req, ctx) {
       case "visitor-story": data = await ph.visitorStory(range.from, range.to); break;
       case "journey": data = await journey(range); break;
       case "places": data = await places(range); break;
+      case "partners": data = await partnersPanelData(range, now, panelOpts); break;
       case "retention": data = await retention(range, now); break;
       case "health": data = await health(range); break;
       case "ops": data = await ops(); break;
@@ -331,7 +334,7 @@ export async function GET(req, ctx) {
       case "intelligence": data = intelligence(now); break;
       case "briefing": data = await briefing(now); break;
       case "feedback": data = await feedbackPanel(); break;
-      case "meta": data = { eventMap: EVENT_MAP, definitions: KPI_DEFS, authMode: auth.mode }; break;
+      case "meta": data = { eventMap: EVENT_MAP, definitions: KPI_DEFS, authMode: gate.mode }; break;
       default: return jsonNoStore({ ok: false, reason: "unknown_panel" }, 404);
     }
     return jsonNoStore({
@@ -343,5 +346,34 @@ export async function GET(req, ctx) {
   } catch (e) {
     // A panel-level failure must never leak internals — short reason only.
     return jsonNoStore({ ok: false, panel, reason: "panel_failed", note: String((e && e.message) || "error").slice(0, 200) }, 500);
+  }
+}
+
+export async function POST(req, ctx) {
+  const panelOpts = ctx && ctx.opts && typeof ctx.opts === "object" ? ctx.opts : {};
+  const gate = await requireOwner(req, panelOpts.authOpts);
+  if (!gate.ok) return jsonNoStore(gate.body, gate.status);
+
+  const params = ctx && ctx.params ? await ctx.params : {};
+  const panel = String(params.panel || "");
+  if (panel !== "partners") {
+    return jsonNoStore({ ok: false, reason: "method_not_allowed" }, 405);
+  }
+
+  let body;
+  try {
+    body = await req.json();
+  } catch {
+    return jsonNoStore({ ok: false, reason: "invalid_json" }, 400);
+  }
+
+  try {
+    const result = await mutatePartnerCrmRecord(req, body, panelOpts);
+    return jsonNoStore(result.body, result.status);
+  } catch (e) {
+    return jsonNoStore(
+      { ok: false, panel, reason: "mutation_failed", note: String((e && e.message) || "error").slice(0, 200) },
+      500
+    );
   }
 }
