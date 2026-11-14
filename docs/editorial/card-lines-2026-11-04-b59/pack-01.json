@@ -1,0 +1,2413 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 59. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJv_xCPBDDwogRSjcjJO-o5eI",
+   "name": "CALI",
+   "category": "food",
+   "metro": "tampa",
+   "primary_type": "californian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.eatatcali.com/about",
+     "source_name": "CALI \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The first Cali opened in Florida in 2005",
+      "The menu is made from fresh, whole and sustainable ingredients",
+      "Pretty much everything on the menu can be customized to taste",
+      "Sauces are all made in house",
+      "Cooking oils are 100% olive oil and 100% sunflower oil",
+      "Meats are antibiotic-free"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Fresh, whole and sustainable ingredients, with sauces made in house",
+    "why_here": "CALI recreates favorite California flavors with its own twist, using fresh, whole and sustainable ingredients. Pretty much everything on the menu can be customized to your taste.",
+    "know_before": "Meats are antibiotic-free, sauces are made in house, and cooking oils are olive oil and sunflower oil.",
+    "local_tip": "Agua frescas are refined sugar-free and sweetened by agave, and loose-leaf teas are locally sourced.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.eatatcali.com/about"
+     ],
+     "why_here": [
+      "https://www.eatatcali.com/about"
+     ],
+     "know_before": [
+      "https://www.eatatcali.com/about"
+     ],
+     "local_tip": [
+      "https://www.eatatcali.com/about"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The first Cali opened in Florida in 2005",
+      "source": "https://www.eatatcali.com/about"
+     },
+     {
+      "claim": "The menu is made from fresh, whole and sustainable ingredients",
+      "source": "https://www.eatatcali.com/about"
+     },
+     {
+      "claim": "Pretty much everything on the menu can be customized to taste",
+      "source": "https://www.eatatcali.com/about"
+     },
+     {
+      "claim": "Sauces are all made in house",
+      "source": "https://www.eatatcali.com/about"
+     },
+     {
+      "claim": "Cooking oils are 100% olive oil and 100% sunflower oil",
+      "source": "https://www.eatatcali.com/about"
+     },
+     {
+      "claim": "Meats are antibiotic-free",
+      "source": "https://www.eatatcali.com/about"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ0eO0nZS32YgRyomFcXMdVBw",
+   "name": "KITSUNE HOUSE",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "asian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://kitsunehouse.com/story",
+     "source_name": "KITSUNE HOUSE \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Inspired by the Japanese spirit of kitsune, a symbol of intelligence, curiosity, and hospitality",
+      "Anime-inspired decor reflects a passion for Japanese pop culture",
+      "The menu brings together Asian-inspired favorites prepared with quality ingredients, generous portions, and bold flavors",
+      "What started as a small hidden spot has grown through word of mouth, one satisfied guest at a time"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Anime-inspired dining inspired by the Japanese spirit of kitsune",
+    "why_here": "Inspired by the Japanese spirit of kitsune, a symbol of intelligence, curiosity, and hospitality, the space pairs anime-inspired decor with Asian-inspired favorites prepared with generous portions and bold flavors.",
+    "know_before": "Inspired by the Japanese spirit of kitsune, a symbol of intelligence, curiosity, and hospitality",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://kitsunehouse.com/story"
+     ],
+     "why_here": [
+      "https://kitsunehouse.com/story"
+     ],
+     "know_before": [
+      "https://kitsunehouse.com/story"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Inspired by the Japanese spirit of kitsune, a symbol of intelligence, curiosity, and hospitality",
+      "source": "https://kitsunehouse.com/story"
+     },
+     {
+      "claim": "Anime-inspired decor reflects a passion for Japanese pop culture",
+      "source": "https://kitsunehouse.com/story"
+     },
+     {
+      "claim": "The menu brings together Asian-inspired favorites prepared with quality ingredients, generous portions, and bold flavors",
+      "source": "https://kitsunehouse.com/story"
+     },
+     {
+      "claim": "What started as a small hidden spot has grown through word of mouth, one satisfied guest at a time",
+      "source": "https://kitsunehouse.com/story"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJv4T7LCq12YgR1-Pf-6by7s0",
+   "name": "CIAO AMORE Italian Gelato & Coffee",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "ice_cream_shop",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://ciaoamoreusa.com/",
+     "source_name": "CIAO AMORE Italian Gelato & Coffee \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Stefano and Claudia left Sardinia in 2023 to bring real Italian gelato to Miami",
+      "Gelato is handcrafted daily with fresh ingredients and no artificial flavors",
+      "A big part of the ingredients are imported directly from Italy",
+      "Pistacchio is made with Sicilian pistachios and pure cream",
+      "Stracciatella combines vanilla cream with dark chocolate shards",
+      "The shop serves Illy espresso, crafted in Trieste since 1933"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Stefano and Claudia left Sardinia in 2023 to bring real Italian gelato to Miami",
+    "why_here": "Stefano and Claudia left Sardinia in 2023 to bring real Italian gelato to Miami, made the way it is supposed to be made. A big part of the ingredients are imported directly from Italy.",
+    "know_before": "Not all flavors are in the case every day, so ask what is on today before ordering.",
+    "local_tip": "Some flavors are always in the case, while others change with the seasons and what is fresh that day.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://ciaoamoreusa.com/"
+     ],
+     "why_here": [
+      "https://ciaoamoreusa.com/"
+     ],
+     "know_before": [
+      "https://ciaoamoreusa.com/"
+     ],
+     "local_tip": [
+      "https://ciaoamoreusa.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Stefano and Claudia left Sardinia in 2023 to bring real Italian gelato to Miami",
+      "source": "https://ciaoamoreusa.com/"
+     },
+     {
+      "claim": "Gelato is handcrafted daily with fresh ingredients and no artificial flavors",
+      "source": "https://ciaoamoreusa.com/"
+     },
+     {
+      "claim": "A big part of the ingredients are imported directly from Italy",
+      "source": "https://ciaoamoreusa.com/"
+     },
+     {
+      "claim": "Pistacchio is made with Sicilian pistachios and pure cream",
+      "source": "https://ciaoamoreusa.com/"
+     },
+     {
+      "claim": "Stracciatella combines vanilla cream with dark chocolate shards",
+      "source": "https://ciaoamoreusa.com/"
+     },
+     {
+      "claim": "The shop serves Illy espresso, crafted in Trieste since 1933",
+      "source": "https://ciaoamoreusa.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJh8DIpex73YgR-gW1ilqITHk",
+   "name": "Best of British Pub",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "british_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.bestofbritishpub.com/",
+     "source_name": "Best of British Pub \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The pub serves a hearty Full English Breakfast, traditional Afternoon Tea, homemade Scotch eggs, sausage rolls and savoury pies",
+      "The pub offers a famous Sunday Lunch and British beer on tap",
+      "All Premier League, EFL, SPL and international games are shown live on 14 screens",
+      "Weekly events include Balloon Bingo, karaoke, Quiz Night and live music",
+      "The pub is open daily from 9:00 a.m. to 11:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "The pub serves a hearty Full English Breakfast, traditional Afternoon Tea, homemade Scotch eggs, sausage",
+    "why_here": "The pub serves a hearty Full English Breakfast, traditional Afternoon Tea, homemade Scotch eggs, sausage rolls and savoury pies The pub offers a famous Sunday Lunch and British beer on tap",
+    "know_before": "The pub is open daily from 9:00 a.m. to 11:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.bestofbritishpub.com/"
+     ],
+     "why_here": [
+      "https://www.bestofbritishpub.com/"
+     ],
+     "know_before": [
+      "https://www.bestofbritishpub.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The pub serves a hearty Full English Breakfast, traditional Afternoon Tea, homemade Scotch eggs, sausage rolls and savoury pies",
+      "source": "https://www.bestofbritishpub.com/"
+     },
+     {
+      "claim": "The pub offers a famous Sunday Lunch and British beer on tap",
+      "source": "https://www.bestofbritishpub.com/"
+     },
+     {
+      "claim": "All Premier League, EFL, SPL and international games are shown live on 14 screens",
+      "source": "https://www.bestofbritishpub.com/"
+     },
+     {
+      "claim": "Weekly events include Balloon Bingo, karaoke, Quiz Night and live music",
+      "source": "https://www.bestofbritishpub.com/"
+     },
+     {
+      "claim": "The pub is open daily from 9:00 a.m. to 11:00 p.m.",
+      "source": "https://www.bestofbritishpub.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ45xJiF3PwogRwzV7OwRhpAE",
+   "name": "Bolay Fresh Bold Kitchen - Brandon",
+   "category": "food",
+   "metro": "tampa",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.bolay.com/",
+     "source_name": "Bolay Fresh Bold Kitchen - Brandon \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The entire Bolay menu is 100% gluten-free, 100% of the time",
+      "Guests build bowls starting with rice, sweet potato noodles or greens, then add veggies, protein, toppings and sauce"
+     ]
+    },
+    {
+     "source": "https://www.bolay.com/our-story/",
+     "source_name": "Bolay Fresh Bold Kitchen - Brandon \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Bolay was founded in 2016 in Wellington, Florida, by Chris Gannon and his father Tim Gannon"
+     ]
+    },
+    {
+     "source": "https://www.bolay.com/menu/",
+     "source_name": "Bolay Fresh Bold Kitchen - Brandon \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Chef-inspired bowls include the Avocado Citrus Bol and Mediterranean Falafel Bol"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Build-your-own bowls and salads on a menu that is entirely gluten-free",
+    "why_here": "Bolay is a Florida fast-casual kitchen where guests build bowls and salads from rice, sweet potato noodles or greens, then add veggies, protein, toppings and a bold sauce. The entire menu is 100% gluten-free, with every base, veggie and sauce vegan.",
+    "know_before": "Every base, veggie and sauce is vegan, so a fully vegan bowl is easy to build.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.bolay.com/"
+     ],
+     "why_here": [
+      "https://www.bolay.com/"
+     ],
+     "know_before": [
+      "https://www.bolay.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The entire Bolay menu is 100% gluten-free, 100% of the time",
+      "source": "https://www.bolay.com/"
+     },
+     {
+      "claim": "Guests build bowls starting with rice, sweet potato noodles or greens, then add veggies, protein, toppings and sauce",
+      "source": "https://www.bolay.com/"
+     },
+     {
+      "claim": "Bolay was founded in 2016 in Wellington, Florida, by Chris Gannon and his father Tim Gannon",
+      "source": "https://www.bolay.com/our-story/"
+     },
+     {
+      "claim": "Chef-inspired bowls include the Avocado Citrus Bol and Mediterranean Falafel Bol",
+      "source": "https://www.bolay.com/menu/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJB39-pDUZ24gR765RA35BqZM",
+   "name": "All Water Excursions Marina",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "service",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://allwaterexcursionsmarina.com/about/",
+     "source_name": "All Water Excursions Marina \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "AWE Marina is located directly on the Cocohatchee River",
+      "The marina provides direct access to the Gulf of Mexico",
+      "Offerings include kayak and paddle board rentals and guided tours",
+      "Offerings include backwater and offshore fishing",
+      "Offerings include Dolphin Eco Sunset Cruise and private charters",
+      "The marina is open every day from 8:00 a.m.-5:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Directly on the Cocohatchee River, with direct access to the Gulf of Mexico",
+    "why_here": "All Water Excursions Marina is located directly on the Cocohatchee River and provides direct access to the Gulf of Mexico. It offers kayak and paddle board rentals and guided tours, fishing, cruises and private charters.",
+    "know_before": "The marina is open every day from 8:00 a.m.-5:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://allwaterexcursionsmarina.com/about/"
+     ],
+     "why_here": [
+      "https://allwaterexcursionsmarina.com/about/"
+     ],
+     "know_before": [
+      "https://allwaterexcursionsmarina.com/about/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "AWE Marina is located directly on the Cocohatchee River",
+      "source": "https://allwaterexcursionsmarina.com/about/"
+     },
+     {
+      "claim": "The marina provides direct access to the Gulf of Mexico",
+      "source": "https://allwaterexcursionsmarina.com/about/"
+     },
+     {
+      "claim": "Offerings include kayak and paddle board rentals and guided tours",
+      "source": "https://allwaterexcursionsmarina.com/about/"
+     },
+     {
+      "claim": "Offerings include backwater and offshore fishing",
+      "source": "https://allwaterexcursionsmarina.com/about/"
+     },
+     {
+      "claim": "Offerings include Dolphin Eco Sunset Cruise and private charters",
+      "source": "https://allwaterexcursionsmarina.com/about/"
+     },
+     {
+      "claim": "The marina is open every day from 8:00 a.m.-5:00 p.m.",
+      "source": "https://allwaterexcursionsmarina.com/about/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJg3WGNQ-32YgR8XQkbi9uYHk",
+   "name": "Belly Fish",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "sushi_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.eatbellyfish.com/",
+     "source_name": "Belly Fish \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Belly Fish focuses on memorable yet straightforward preparations that let the fish be the star of the dish",
+      "The menu highlights tostadas, sushi and hand rolls",
+      "Belly Fish was created making sure all menu items are perfect when they reach your table",
+      "All employees are ServeSafe certified and food safety regulations are taken very seriously"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Straightforward sushi and hand rolls built so delivery reaches your table perfectly",
+    "why_here": "Belly Fish focuses on memorable yet straightforward preparations that let the fish be the star of the dish, across tostadas, sushi and hand rolls. It was created so all menu items are perfect when they reach your table, even for delivery and take-out.",
+    "know_before": "Belly Fish says it follows CDC protocols from when it receives ingredients to when food is out the door, per its commitment on the homepage.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.eatbellyfish.com/"
+     ],
+     "why_here": [
+      "https://www.eatbellyfish.com/"
+     ],
+     "know_before": [
+      "https://www.eatbellyfish.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Belly Fish focuses on memorable yet straightforward preparations that let the fish be the star of the dish",
+      "source": "https://www.eatbellyfish.com/"
+     },
+     {
+      "claim": "The menu highlights tostadas, sushi and hand rolls",
+      "source": "https://www.eatbellyfish.com/"
+     },
+     {
+      "claim": "Belly Fish was created making sure all menu items are perfect when they reach your table",
+      "source": "https://www.eatbellyfish.com/"
+     },
+     {
+      "claim": "All employees are ServeSafe certified and food safety regulations are taken very seriously",
+      "source": "https://www.eatbellyfish.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJD5MHVxHHwogRNUUmJmfxpHc",
+   "name": "MOCHINUT Tampa",
+   "category": "food",
+   "metro": "tampa",
+   "primary_type": "donut_shop",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.mochinut.com/about",
+     "source_name": "MOCHINUT Tampa \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Mochinut was born in Hawaii from the fusion of American doughnuts and Japanese mochi"
+     ]
+    },
+    {
+     "source": "https://www.mochinut.com/",
+     "source_name": "MOCHINUT Tampa \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Signature bubble-ring mochi donuts are crispy, chewy and made fresh every day",
+      "Korean rice corn dogs are light, crispy and chewy, made to order with a choice of fillings and toppings",
+      "Drinks include premium boba, smoothies, specialty coffee and a curated matcha series"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Chewy bubble-ring mochi donuts with crispy Korean-style corndogs",
+    "why_here": "Mochinut's signature bubble-ring mochi donuts are crispy and chewy, made fresh every day in bold, modern flavors. The Tampa shop pairs them with made-to-order Korean rice corndogs and hand-crafted boba, smoothie and matcha drinks.",
+    "know_before": "The menu can vary from store to store, so check the local shop for current flavors.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.mochinut.com/about"
+     ],
+     "why_here": [
+      "https://www.mochinut.com/about"
+     ],
+     "know_before": [
+      "https://www.mochinut.com/about"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Mochinut was born in Hawaii from the fusion of American doughnuts and Japanese mochi",
+      "source": "https://www.mochinut.com/about"
+     },
+     {
+      "claim": "Signature bubble-ring mochi donuts are crispy, chewy and made fresh every day",
+      "source": "https://www.mochinut.com/"
+     },
+     {
+      "claim": "Korean rice corn dogs are light, crispy and chewy, made to order with a choice of fillings and toppings",
+      "source": "https://www.mochinut.com/"
+     },
+     {
+      "claim": "Drinks include premium boba, smoothies, specialty coffee and a curated matcha series",
+      "source": "https://www.mochinut.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJWy3cImBDkYgRtpk_J6WNm9E",
+   "name": "The Craft Bar - Destin",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "gastropub",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.thecraftbarfl.com/",
+     "source_name": "The Craft Bar - Destin \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The venue serves 30 beers on tap",
+      "Its tap selections include some of the rarest and most sought after beers in the nation",
+      "Draft beer is sold to-go in 32oz Crowlers spun from keg to can",
+      "The venue serves chef-inspired tavern fare using local ingredients whenever possible",
+      "Gift cards work in every location"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Gastropub pouring 30 beers on tap, including rare and sought-after brews",
+    "why_here": "The venue pours 30 beers on tap described as including some of the rarest and most sought after beers in the nation, alongside chef-inspired tavern fare made with local ingredients whenever possible.",
+    "know_before": "Draft beer is sold to-go in 32oz Crowlers, spun fresh from keg to can for freshness and portability.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.thecraftbarfl.com/"
+     ],
+     "why_here": [
+      "https://www.thecraftbarfl.com/"
+     ],
+     "know_before": [
+      "https://www.thecraftbarfl.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The venue serves 30 beers on tap",
+      "source": "https://www.thecraftbarfl.com/"
+     },
+     {
+      "claim": "Its tap selections include some of the rarest and most sought after beers in the nation",
+      "source": "https://www.thecraftbarfl.com/"
+     },
+     {
+      "claim": "Draft beer is sold to-go in 32oz Crowlers spun from keg to can",
+      "source": "https://www.thecraftbarfl.com/"
+     },
+     {
+      "claim": "The venue serves chef-inspired tavern fare using local ingredients whenever possible",
+      "source": "https://www.thecraftbarfl.com/"
+     },
+     {
+      "claim": "Gift cards work in every location",
+      "source": "https://www.thecraftbarfl.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJnwlx2uut2YgRFSzFFn_1GT8",
+   "name": "Grand Cafe Aventura",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://grandcafe.us/kosher-restaurant-aventura/",
+     "source_name": "Grand Cafe Aventura \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Grand Cafe Aventura is fully kosher under ORB kosher supervision",
+      "The menu is dairy and pareve, with no meat in the kitchen",
+      "All sushi is prepared in the kosher kitchen",
+      "The restaurant has outdoor seating",
+      "Delivery and catering are offered"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Fully kosher cafe and sushi restaurant serving dairy and pareve food",
+    "why_here": "Grand Cafe Aventura is a fully kosher restaurant serving dairy and pareve food under ORB kosher supervision, with no meat in the kitchen. It serves coffee and breakfast, sushi, salads and pastas, with outdoor seating.",
+    "know_before": "Grand Cafe Aventura is fully kosher under ORB kosher supervision",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://grandcafe.us/kosher-restaurant-aventura/"
+     ],
+     "why_here": [
+      "https://grandcafe.us/kosher-restaurant-aventura/"
+     ],
+     "know_before": [
+      "https://grandcafe.us/kosher-restaurant-aventura/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Grand Cafe Aventura is fully kosher under ORB kosher supervision",
+      "source": "https://grandcafe.us/kosher-restaurant-aventura/"
+     },
+     {
+      "claim": "The menu is dairy and pareve, with no meat in the kitchen",
+      "source": "https://grandcafe.us/kosher-restaurant-aventura/"
+     },
+     {
+      "claim": "All sushi is prepared in the kosher kitchen",
+      "source": "https://grandcafe.us/kosher-restaurant-aventura/"
+     },
+     {
+      "claim": "The restaurant has outdoor seating",
+      "source": "https://grandcafe.us/kosher-restaurant-aventura/"
+     },
+     {
+      "claim": "Delivery and catering are offered",
+      "source": "https://grandcafe.us/kosher-restaurant-aventura/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJNdiRfrvZ5ogRvhQNXhGpZfI",
+   "name": "Daytona Escape Room Experience",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "amusement_center",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://daytonaescaperoom.com/index.php/escape-rooms-2/",
+     "source_name": "Daytona Escape Room Experience \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "All escape rooms are now $35 per person",
+      "The Bayou Bait and Tackle & the Quest for the Golden Worm is for 2-6 players, runs 60 mins and is listed as Hard",
+      "The Crying Cactus is for 3-7 players, runs 75 mins and is listed as Hard",
+      "Countdown Crisis in Unit 7 is for 2-5 players, runs 60 mins and is listed as Easy"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Escape rooms at $35 per person, from a bayou bait shop hunt to a desert cantina",
+    "why_here": "Choose from themed rooms including The Bayou Bait and Tackle & the Quest for the Golden Worm, a 60 mins Hard room for 2-6 players, and The Crying Cactus, a 75 mins Hard room for 3-7 players, each listed with players, time and difficulty.",
+    "know_before": "All escape rooms are now $35 per person, per the escape rooms page.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://daytonaescaperoom.com/index.php/escape-rooms-2/"
+     ],
+     "why_here": [
+      "https://daytonaescaperoom.com/index.php/escape-rooms-2/"
+     ],
+     "know_before": [
+      "https://daytonaescaperoom.com/index.php/escape-rooms-2/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "All escape rooms are now $35 per person",
+      "source": "https://daytonaescaperoom.com/index.php/escape-rooms-2/"
+     },
+     {
+      "claim": "The Bayou Bait and Tackle & the Quest for the Golden Worm is for 2-6 players, runs 60 mins and is listed as Hard",
+      "source": "https://daytonaescaperoom.com/index.php/escape-rooms-2/"
+     },
+     {
+      "claim": "The Crying Cactus is for 3-7 players, runs 75 mins and is listed as Hard",
+      "source": "https://daytonaescaperoom.com/index.php/escape-rooms-2/"
+     },
+     {
+      "claim": "Countdown Crisis in Unit 7 is for 2-5 players, runs 60 mins and is listed as Easy",
+      "source": "https://daytonaescaperoom.com/index.php/escape-rooms-2/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJKVpFolW32YgRsT9pjMSSwmM",
+   "name": "Paperfish Sushi",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "japanese_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://paperfishsushi.com/",
+     "source_name": "Paperfish Sushi \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Paperfish Sushi serves Nikkei sushi in Brickell and South Beach",
+      "Nigiri and signature rolls come from the sushi bar",
+      "Ceviche, tiraditos and robata come from the kitchen",
+      "Plates go in the middle of the table to share",
+      "Group and private dining is available at both locations",
+      "Catering offers sushi and Nikkei plates for offices, parties and events"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Nikkei sushi in Brickell and South Beach, made to be shared",
+    "why_here": "Paperfish Sushi describes Nikkei sushi in Brickell and South Beach with Japanese precision and bold modern flavor, made to be shared. Nigiri and signature rolls come from the sushi bar, while ceviche, tiraditos and robata come from the kitchen.",
+    "know_before": "Pickup and delivery are available from both kitchens, with Brickell and South Beach ordering offered online.",
+    "local_tip": "Brickell sits under a ceiling of paper umbrellas, while South Beach has tables outside.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://paperfishsushi.com/"
+     ],
+     "why_here": [
+      "https://paperfishsushi.com/"
+     ],
+     "know_before": [
+      "https://paperfishsushi.com/"
+     ],
+     "local_tip": [
+      "https://paperfishsushi.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Paperfish Sushi serves Nikkei sushi in Brickell and South Beach",
+      "source": "https://paperfishsushi.com/"
+     },
+     {
+      "claim": "Nigiri and signature rolls come from the sushi bar",
+      "source": "https://paperfishsushi.com/"
+     },
+     {
+      "claim": "Ceviche, tiraditos and robata come from the kitchen",
+      "source": "https://paperfishsushi.com/"
+     },
+     {
+      "claim": "Plates go in the middle of the table to share",
+      "source": "https://paperfishsushi.com/"
+     },
+     {
+      "claim": "Group and private dining is available at both locations",
+      "source": "https://paperfishsushi.com/"
+     },
+     {
+      "claim": "Catering offers sushi and Nikkei plates for offices, parties and events",
+      "source": "https://paperfishsushi.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ7zs-Bwu12YgRsANsU6aGqCY",
+   "name": "Klaw Miami",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "steak_house",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://klawrestaurant.com/",
+     "source_name": "Klaw Miami \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Klaw Miami is the only restaurant that serves live Norwegian king crab on the East Coast",
+      "Klaw ranked No. 42 in 2023 and No. 35 in 2024 among the World's 101 Best Steak Restaurants",
+      "The restaurant is in a building of great historical importance overlooking Biscayne Bay",
+      "Its king crab and beef programs are described as crown jewels",
+      "Dinner on Tuesday through Thursday runs from 6:00 p.m. to 10:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Only restaurant serving live Norwegian king crab on the East Coast",
+    "why_here": "In a building of great historical importance overlooking Biscayne Bay, the restaurant presents its king crab and beef programs as crown jewels producing sustainably sourced cuts and crustaceans, described as the ultimate surf and turf.",
+    "know_before": "Reservations can be contacted by email at reservations@klawrestaurant.com.",
+    "local_tip": "Try the ultimate surf and turf built around the king crab and beef programs.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://klawrestaurant.com/"
+     ],
+     "why_here": [
+      "https://klawrestaurant.com/"
+     ],
+     "know_before": [
+      "https://klawrestaurant.com/"
+     ],
+     "local_tip": [
+      "https://klawrestaurant.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Klaw Miami is the only restaurant that serves live Norwegian king crab on the East Coast",
+      "source": "https://klawrestaurant.com/"
+     },
+     {
+      "claim": "Klaw ranked No. 42 in 2023 and No. 35 in 2024 among the World's 101 Best Steak Restaurants",
+      "source": "https://klawrestaurant.com/"
+     },
+     {
+      "claim": "The restaurant is in a building of great historical importance overlooking Biscayne Bay",
+      "source": "https://klawrestaurant.com/"
+     },
+     {
+      "claim": "Its king crab and beef programs are described as crown jewels",
+      "source": "https://klawrestaurant.com/"
+     },
+     {
+      "claim": "Dinner on Tuesday through Thursday runs from 6:00 p.m. to 10:00 p.m.",
+      "source": "https://klawrestaurant.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJQ4m15tMB2YgRu6XpvnXrYoY",
+   "name": "Village Cafe",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.village-cafe.com/",
+     "source_name": "Village Cafe \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Village Cafe serves fresh natural comfort food in a casual and welcoming environment",
+      "The cafe is just steps away from the beach in Fort Lauderdale",
+      "The cafe uses only the freshest ingredients and sources locally whenever possible",
+      "Guests are asked not to wear swimsuits or see-through pareos"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Fresh natural comfort food in a casual and welcoming room steps from the beach",
+    "why_here": "Village Cafe in Fort Lauderdale serves fresh, natural comfort food in a casual and welcoming environment just steps away from the beach. Dishes balance sweet, savory, and a hint of indulgence all day long, from brunch classics to creative twists.",
+    "know_before": "Guests are asked to follow the dress code: swimsuits and see-through pareos are not permitted.",
+    "local_tip": "Every dish is crafted in the kitchen with care, from breakfast classics to hearty brunch favorites.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.village-cafe.com/"
+     ],
+     "why_here": [
+      "https://www.village-cafe.com/"
+     ],
+     "know_before": [
+      "https://www.village-cafe.com/"
+     ],
+     "local_tip": [
+      "https://www.village-cafe.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Village Cafe serves fresh natural comfort food in a casual and welcoming environment",
+      "source": "https://www.village-cafe.com/"
+     },
+     {
+      "claim": "The cafe is just steps away from the beach in Fort Lauderdale",
+      "source": "https://www.village-cafe.com/"
+     },
+     {
+      "claim": "The cafe uses only the freshest ingredients and sources locally whenever possible",
+      "source": "https://www.village-cafe.com/"
+     },
+     {
+      "claim": "Guests are asked not to wear swimsuits or see-through pareos",
+      "source": "https://www.village-cafe.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJe-WGpz212YgR9ajVnuVa4FY",
+   "name": "Cortadito Coffee House | Washington Ave",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "coffee_shop",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://cortaditocoffeehouse.com/news/coffee-shop-near-lincoln-road/",
+     "source_name": "Cortadito Coffee House | Washington Ave \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The cortadito is a shot of Cuban espresso cut with milk",
+      "Colada is a multi-shot Cuban espresso served with tiny cups to share",
+      "Cafe con Leche is espresso with steamed milk",
+      "The Washington Ave shop is open daily from 7:00 a.m.-8:00 p.m.",
+      "Indoor seating is offered as well as quick counter service"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Cuban espresso cut with milk in the namesake cortadito, plus colada to share",
+    "why_here": "Cortadito Coffee House brings the spirit of walk-up coffee windows into modern cafes, built around Cuban espresso drinks. The namesake cortadito is a tight shot of Cuban espresso cut with milk, while colada is served with tiny cups to share.",
+    "know_before": "The cortadito is a shot of Cuban espresso cut with milk",
+    "local_tip": "Order a colada to share, served with tiny cups for the group.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://cortaditocoffeehouse.com/news/coffee-shop-near-lincoln-road/"
+     ],
+     "why_here": [
+      "https://cortaditocoffeehouse.com/news/coffee-shop-near-lincoln-road/"
+     ],
+     "know_before": [
+      "https://cortaditocoffeehouse.com/news/coffee-shop-near-lincoln-road/"
+     ],
+     "local_tip": [
+      "https://cortaditocoffeehouse.com/news/coffee-shop-near-lincoln-road/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The cortadito is a shot of Cuban espresso cut with milk",
+      "source": "https://cortaditocoffeehouse.com/news/coffee-shop-near-lincoln-road/"
+     },
+     {
+      "claim": "Colada is a multi-shot Cuban espresso served with tiny cups to share",
+      "source": "https://cortaditocoffeehouse.com/news/coffee-shop-near-lincoln-road/"
+     },
+     {
+      "claim": "Cafe con Leche is espresso with steamed milk",
+      "source": "https://cortaditocoffeehouse.com/news/coffee-shop-near-lincoln-road/"
+     },
+     {
+      "claim": "The Washington Ave shop is open daily from 7:00 a.m.-8:00 p.m.",
+      "source": "https://cortaditocoffeehouse.com/news/coffee-shop-near-lincoln-road/"
+     },
+     {
+      "claim": "Indoor seating is offered as well as quick counter service",
+      "source": "https://cortaditocoffeehouse.com/news/coffee-shop-near-lincoln-road/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJVcVwp-T52ogRBFH39b6d6Ak",
+   "name": "Collier-Seminole State Park",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "state_park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.floridastateparks.org/parks-and-trails/collier-seminole-state-park",
+     "source_name": "Collier-Seminole State Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Collier-Seminole State Park covers 7,271 acres and lies partly within the great mangrove swamp of South Florida, one of the largest mangrove swamps in the world",
+      "The park is the site of a National Historic Mechanical Engineering Landmark, the last existing Bay City Walking Dredge",
+      "The park protects a blend of temperate and tropical native plant communities inhabited by a wide variety of wildlife, including several imperiled species",
+      "The Blackwater River originates in the park and meanders through the mangroves to Blackwater Bay"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "7,271 acres partly within a great mangrove swamp, with a landmark walking dredge",
+    "why_here": "The 7,271-acre park lies partly within the great mangrove swamp of South Florida, one of the largest mangrove swamps in the world. Its blend of temperate and tropical native plant communities is inhabited by a wide variety of wildlife, including several imperiled species.",
+    "know_before": "The park has canoe rentals along with a boat ramp that provides access to the Blackwater River, per the official park page.",
+    "local_tip": "Seek out the last existing Bay City Walking Dredge, the park's National Historic Mechanical Engineering Landmark.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.floridastateparks.org/parks-and-trails/collier-seminole-state-park"
+     ],
+     "why_here": [
+      "https://www.floridastateparks.org/parks-and-trails/collier-seminole-state-park"
+     ],
+     "know_before": [
+      "https://www.floridastateparks.org/parks-and-trails/collier-seminole-state-park"
+     ],
+     "local_tip": [
+      "https://www.floridastateparks.org/parks-and-trails/collier-seminole-state-park"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Collier-Seminole State Park covers 7,271 acres and lies partly within the great mangrove swamp of South Florida, one of the largest mangrove swamps in the world",
+      "source": "https://www.floridastateparks.org/parks-and-trails/collier-seminole-state-park"
+     },
+     {
+      "claim": "The park is the site of a National Historic Mechanical Engineering Landmark, the last existing Bay City Walking Dredge",
+      "source": "https://www.floridastateparks.org/parks-and-trails/collier-seminole-state-park"
+     },
+     {
+      "claim": "The park protects a blend of temperate and tropical native plant communities inhabited by a wide variety of wildlife, including several imperiled species",
+      "source": "https://www.floridastateparks.org/parks-and-trails/collier-seminole-state-park"
+     },
+     {
+      "claim": "The Blackwater River originates in the park and meanders through the mangroves to Blackwater Bay",
+      "source": "https://www.floridastateparks.org/parks-and-trails/collier-seminole-state-park"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ4RiMcf5654gRAQN_eddSjzk",
+   "name": "BENTO Downtown Orlando",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "asian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.eatatbento.com/locations",
+     "source_name": "BENTO Downtown Orlando \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Orlando \u2014 Downtown is listed under Central Florida locations",
+      "BENTO describes itself as born and raised in the Sunshine State",
+      "The locations page lists Central Florida, North Florida, and South Florida locations",
+      "The official site offers an app to download and order ahead"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Downtown Orlando location of a Sunshine State-born Asian kitchen and sushi spot",
+    "why_here": "BENTO lists Orlando \u2014 Downtown among its Central Florida locations on its official locations page, alongside other Orlando-area stores. The brand describes itself as born and raised in the Sunshine State, with locations across Central, North, and South Florida.",
+    "know_before": "You can order ahead: the official site offers Order Now for the Downtown location and an app to download and order ahead.",
+    "local_tip": "Use the Order Now link for the Orlando \u2014 Downtown location listed on the locations page.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.eatatbento.com/locations"
+     ],
+     "why_here": [
+      "https://www.eatatbento.com/locations"
+     ],
+     "know_before": [
+      "https://www.eatatbento.com/locations"
+     ],
+     "local_tip": [
+      "https://www.eatatbento.com/locations"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Orlando \u2014 Downtown is listed under Central Florida locations",
+      "source": "https://www.eatatbento.com/locations"
+     },
+     {
+      "claim": "BENTO describes itself as born and raised in the Sunshine State",
+      "source": "https://www.eatatbento.com/locations"
+     },
+     {
+      "claim": "The locations page lists Central Florida, North Florida, and South Florida locations",
+      "source": "https://www.eatatbento.com/locations"
+     },
+     {
+      "claim": "The official site offers an app to download and order ahead",
+      "source": "https://www.eatatbento.com/locations"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJO6-urVE924gRuNJomQAxwXc",
+   "name": "Lovers Key Beach",
+   "category": "beach",
+   "metro": "florida",
+   "primary_type": "beach",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.floridastateparks.org/parks-and-trails/lovers-key-state-park/experiences-amenities",
+     "source_name": "Lovers Key Beach \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Lovers Key is a 2.5-mile stretch of beach along the shore of the Gulf of America",
+      "Beach access is available from 8 a.m. to sunset via two pedestrian entry points",
+      "Lovers Key was once a collection of secluded barrier islands reachable only by boat"
+     ]
+    },
+    {
+     "source": "https://www.floridastateparks.org/parks-and-trails/lovers-key-state-park",
+     "source_name": "Lovers Key Beach \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Florida State Parks describes Lovers Key as a romantic destination for beachside weddings"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "A 2.5-mile Gulf beach in a Florida state park, once reachable only by boat",
+    "why_here": "Florida State Parks describes Lovers Key as a 2.5-mile stretch of beach on the Gulf of America, once a collection of secluded barrier islands reachable only by boat. The park now frames it as a romantic destination known for beachside weddings.",
+    "know_before": "Beach access is stated as 8 a.m. to sunset via two pedestrian entry points, per Florida State Parks.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.floridastateparks.org/parks-and-trails/lovers-key-state-park/experiences-amenities"
+     ],
+     "why_here": [
+      "https://www.floridastateparks.org/parks-and-trails/lovers-key-state-park/experiences-amenities"
+     ],
+     "know_before": [
+      "https://www.floridastateparks.org/parks-and-trails/lovers-key-state-park/experiences-amenities"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Lovers Key is a 2.5-mile stretch of beach along the shore of the Gulf of America",
+      "source": "https://www.floridastateparks.org/parks-and-trails/lovers-key-state-park/experiences-amenities"
+     },
+     {
+      "claim": "Beach access is available from 8 a.m. to sunset via two pedestrian entry points",
+      "source": "https://www.floridastateparks.org/parks-and-trails/lovers-key-state-park/experiences-amenities"
+     },
+     {
+      "claim": "Lovers Key was once a collection of secluded barrier islands reachable only by boat",
+      "source": "https://www.floridastateparks.org/parks-and-trails/lovers-key-state-park/experiences-amenities"
+     },
+     {
+      "claim": "Florida State Parks describes Lovers Key as a romantic destination for beachside weddings",
+      "source": "https://www.floridastateparks.org/parks-and-trails/lovers-key-state-park"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJI7xybyd754gR07Edy17GBhg",
+   "name": "Kai Kai BBQ & Dumplings",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "cantonese_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.kaikai-bbq.com/",
+     "source_name": "Kai Kai BBQ & Dumplings \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Kai Kai is inside Mills Market",
+      "Dim sum is handcrafted from scratch and made fresh throughout the day",
+      "The menu includes Wok Entrees, Rice Boxes, Dim Sum, Drinks and BBQ Meat",
+      "Kai Kai is inspired by the energy of New York's Chinatown",
+      "Roast meats are sold by the pound or as a meal with steamed rice"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Handcrafted dumplings, siu mai and steamed bao made fresh throughout the day",
+    "why_here": "Kai Kai is inside Mills Market Dim sum is handcrafted from scratch and made fresh throughout the day The menu includes Wok Entrees, Rice Boxes, Dim Sum, Drinks and BBQ Meat",
+    "know_before": "Kai Kai is inside Mills Market",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.kaikai-bbq.com/"
+     ],
+     "why_here": [
+      "https://www.kaikai-bbq.com/"
+     ],
+     "know_before": [
+      "https://www.kaikai-bbq.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Kai Kai is inside Mills Market",
+      "source": "https://www.kaikai-bbq.com/"
+     },
+     {
+      "claim": "Dim sum is handcrafted from scratch and made fresh throughout the day",
+      "source": "https://www.kaikai-bbq.com/"
+     },
+     {
+      "claim": "The menu includes Wok Entrees, Rice Boxes, Dim Sum, Drinks and BBQ Meat",
+      "source": "https://www.kaikai-bbq.com/"
+     },
+     {
+      "claim": "Kai Kai is inspired by the energy of New York's Chinatown",
+      "source": "https://www.kaikai-bbq.com/"
+     },
+     {
+      "claim": "Roast meats are sold by the pound or as a meal with steamed rice",
+      "source": "https://www.kaikai-bbq.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJl0fXR0CDk4gRFgJj3ZJz5yQ",
+   "name": "Crafty Crab Panama City LLC",
+   "category": "food",
+   "metro": "panama-city-florida",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.craftycrabrestaurant.com/location/crafty-crab-fl-panama-city/",
+     "source_name": "Crafty Crab Panama City LLC \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Sunday-Thursday hours are 11:30 a.m. to 10:00 p.m.",
+      "Friday-Saturday hours are 11:30 a.m. to 11:00 p.m.",
+      "The location page lists Pickup, Delivery and Order Online options"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Seafood restaurant in Panama City with pickup, delivery and online ordering",
+    "why_here": "This Panama City, FL page for Crafty Crab Restaurant centers on ordering options for the location, with pickup, delivery, get directions and order online listed on the page. Email signup is also offered on the location page for updates.",
+    "know_before": "Hours are Sunday-Thursday 11:30 a.m. to 10:00 p.m. and Friday-Saturday 11:30 a.m. to 11:00 p.m., per the location page.",
+    "local_tip": "Use the order online option listed on the location page, or choose pickup or delivery.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.craftycrabrestaurant.com/location/crafty-crab-fl-panama-city/"
+     ],
+     "why_here": [
+      "https://www.craftycrabrestaurant.com/location/crafty-crab-fl-panama-city/"
+     ],
+     "know_before": [
+      "https://www.craftycrabrestaurant.com/location/crafty-crab-fl-panama-city/"
+     ],
+     "local_tip": [
+      "https://www.craftycrabrestaurant.com/location/crafty-crab-fl-panama-city/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Sunday-Thursday hours are 11:30 a.m. to 10:00 p.m.",
+      "source": "https://www.craftycrabrestaurant.com/location/crafty-crab-fl-panama-city/"
+     },
+     {
+      "claim": "Friday-Saturday hours are 11:30 a.m. to 11:00 p.m.",
+      "source": "https://www.craftycrabrestaurant.com/location/crafty-crab-fl-panama-city/"
+     },
+     {
+      "claim": "The location page lists Pickup, Delivery and Order Online options",
+      "source": "https://www.craftycrabrestaurant.com/location/crafty-crab-fl-panama-city/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJk2KzY8UB2YgRCIB9I5A9ZGI",
+   "name": "Truluck's Ocean's Finest Seafood and Crab",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://trulucks.com/",
+     "source_name": "Truluck's Ocean's Finest Seafood and Crab \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Fresh Florida Stone Crab is sustainably harvested and delivered from traps to table in less than 24 hours",
+      "Truluck's commits to serving the highest quality, sustainable seafood",
+      "Three courses for $59 feature Slow-Roasted Prime Rib on Sundays",
+      "Truluck's lists Florida locations including Fort Lauderdale, Miami and Naples",
+      "The TRU PEARLE Oyster is fresh, sustainable and hand-selected"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Sustainable Florida Stone Crab delivered from trap to table in under 24 hours",
+    "why_here": "Truluck's says its signature fresh Florida Stone Crab is sustainably harvested and delivered from the traps to your table in less than 24 hours. The site commits to serving the highest quality, sustainable seafood alongside prime hand-cut steaks.",
+    "know_before": "Truluck's offers private and group dining spaces for occasions including rehearsal dinners, corporate events, board meetings, birthdays and anniversaries.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://trulucks.com/"
+     ],
+     "why_here": [
+      "https://trulucks.com/"
+     ],
+     "know_before": [
+      "https://trulucks.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Fresh Florida Stone Crab is sustainably harvested and delivered from traps to table in less than 24 hours",
+      "source": "https://trulucks.com/"
+     },
+     {
+      "claim": "Truluck's commits to serving the highest quality, sustainable seafood",
+      "source": "https://trulucks.com/"
+     },
+     {
+      "claim": "Three courses for $59 feature Slow-Roasted Prime Rib on Sundays",
+      "source": "https://trulucks.com/"
+     },
+     {
+      "claim": "Truluck's lists Florida locations including Fort Lauderdale, Miami and Naples",
+      "source": "https://trulucks.com/"
+     },
+     {
+      "claim": "The TRU PEARLE Oyster is fresh, sustainable and hand-selected",
+      "source": "https://trulucks.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJacFCsRbEwogRyZdZXE89Qi8",
+   "name": "Florida Avenue Brewing Co.",
+   "category": "nightlife",
+   "metro": "spring-hill-fl",
+   "primary_type": "brewery",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://floridaavebrewing.com/location/wesley-chapel/",
+     "source_name": "Florida Avenue Brewing Co. \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Taproom pours include taproom exclusives alongside ciders and hard seltzers",
+      "Cicerone Certified Beer Servers make recommendations based on your preferences",
+      "Tours cover the state of the art production facility and grain to glass brewing",
+      "Drinks can be enjoyed in the taproom or the family friendly beer garden",
+      "The patio and beer garden are always first come first serve"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Taproom-exclusive beers poured alongside ciders and hard seltzers",
+    "why_here": "You will find the freshest Florida Ave beers along with ciders, hard seltzers and taproom exclusives that you will not find anywhere else, with recommendations from Cicerone Certified Beer Servers based on your preferences.",
+    "know_before": "The patio and beer garden are not reserved and are always first come first serve.",
+    "local_tip": "Take a tour of the production facility to learn about how grain to glass beers are made.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://floridaavebrewing.com/location/wesley-chapel/"
+     ],
+     "why_here": [
+      "https://floridaavebrewing.com/location/wesley-chapel/"
+     ],
+     "know_before": [
+      "https://floridaavebrewing.com/location/wesley-chapel/"
+     ],
+     "local_tip": [
+      "https://floridaavebrewing.com/location/wesley-chapel/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Taproom pours include taproom exclusives alongside ciders and hard seltzers",
+      "source": "https://floridaavebrewing.com/location/wesley-chapel/"
+     },
+     {
+      "claim": "Cicerone Certified Beer Servers make recommendations based on your preferences",
+      "source": "https://floridaavebrewing.com/location/wesley-chapel/"
+     },
+     {
+      "claim": "Tours cover the state of the art production facility and grain to glass brewing",
+      "source": "https://floridaavebrewing.com/location/wesley-chapel/"
+     },
+     {
+      "claim": "Drinks can be enjoyed in the taproom or the family friendly beer garden",
+      "source": "https://floridaavebrewing.com/location/wesley-chapel/"
+     },
+     {
+      "claim": "The patio and beer garden are always first come first serve",
+      "source": "https://floridaavebrewing.com/location/wesley-chapel/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJr9ahs5ey2YgRdtqjj6J7NmI",
+   "name": "Four Seasons Hotel at The Surf Club, Surfside, Florida",
+   "category": "hotels",
+   "metro": "miami-dade",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.fourseasons.com/surfside/",
+     "source_name": "Four Seasons Hotel at The Surf Club, Surfside, Florida \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Surf Club first opened on New Year's Eve in 1930",
+      "The hotel is an oceanfront retreat in Surfside, just minutes from Miami Beach",
+      "The hotel is recognized with two Michelin Keys",
+      "The hotel holds a World's 50 Best Hotels distinction"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Oceanfront retreat inside The Surf Club, first opened on New Year's Eve in 1930",
+    "why_here": "Four Seasons Hotel at The Surf Club is an oceanfront retreat in Surfside, just minutes from Miami Beach, inside The Surf Club. The Surf Club first opened on New Year's Eve in 1930 and has stood as a landmark since then.",
+    "know_before": "The Surf Club first opened on New Year's Eve in 1930, so the setting is a historic club rather than a new-build hotel.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.fourseasons.com/surfside/"
+     ],
+     "why_here": [
+      "https://www.fourseasons.com/surfside/"
+     ],
+     "know_before": [
+      "https://www.fourseasons.com/surfside/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Surf Club first opened on New Year's Eve in 1930",
+      "source": "https://www.fourseasons.com/surfside/"
+     },
+     {
+      "claim": "The hotel is an oceanfront retreat in Surfside, just minutes from Miami Beach",
+      "source": "https://www.fourseasons.com/surfside/"
+     },
+     {
+      "claim": "The hotel is recognized with two Michelin Keys",
+      "source": "https://www.fourseasons.com/surfside/"
+     },
+     {
+      "claim": "The hotel holds a World's 50 Best Hotels distinction",
+      "source": "https://www.fourseasons.com/surfside/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJSdTVl9b2wogRflAfEw7OZEY",
+   "name": "Encounters With Dolphins",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "tour_agency",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://encounterswithdolphins.com/pricing/",
+     "source_name": "Encounters With Dolphins \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The tour is professionally narrated and highlights celebrity homes, natural wildlife and Clearwater history",
+      "The trip lasts 1 1/2 to 1 3/4 hours",
+      "The tour stops at Compass Island for 20 to 30 minutes",
+      "Captains are USCG Licensed Master Captains",
+      "Staff includes Florida Master Naturalists and Marine Biologists",
+      "Pricing is $27.50 for ages 12 and above and $19.50 for kids ages 3-11"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Professionally narrated tour highlighting celebrity homes and natural wildlife",
+    "why_here": "Encounters With Dolphins offers a professionally narrated tour highlighting celebrity homes, natural wildlife and historical information about the Clearwater area. The trip includes a stop at Compass Island for shelling and swimming.",
+    "know_before": "The tour is professionally narrated and highlights celebrity homes, natural wildlife and Clearwater history",
+    "local_tip": "At Compass Island, boats pull directly onto the beach and guests may debark without getting wet.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://encounterswithdolphins.com/pricing/"
+     ],
+     "why_here": [
+      "https://encounterswithdolphins.com/pricing/"
+     ],
+     "know_before": [
+      "https://encounterswithdolphins.com/pricing/"
+     ],
+     "local_tip": [
+      "https://encounterswithdolphins.com/pricing/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The tour is professionally narrated and highlights celebrity homes, natural wildlife and Clearwater history",
+      "source": "https://encounterswithdolphins.com/pricing/"
+     },
+     {
+      "claim": "The trip lasts 1 1/2 to 1 3/4 hours",
+      "source": "https://encounterswithdolphins.com/pricing/"
+     },
+     {
+      "claim": "The tour stops at Compass Island for 20 to 30 minutes",
+      "source": "https://encounterswithdolphins.com/pricing/"
+     },
+     {
+      "claim": "Captains are USCG Licensed Master Captains",
+      "source": "https://encounterswithdolphins.com/pricing/"
+     },
+     {
+      "claim": "Staff includes Florida Master Naturalists and Marine Biologists",
+      "source": "https://encounterswithdolphins.com/pricing/"
+     },
+     {
+      "claim": "Pricing is $27.50 for ages 12 and above and $19.50 for kids ages 3-11",
+      "source": "https://encounterswithdolphins.com/pricing/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJpVUViBeXwogRzZQQbcSqiK0",
+   "name": "Starkey Market",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "coffee_shop",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://starkeymarket.com/",
+     "source_name": "Starkey Market \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The market began as a boutique produce market featuring fresh-picked berries from Starkey Farms",
+      "It offers raw milk, fresh eggs and local honey straight from its own bee boxes",
+      "The Barn is a full liquor bar featuring only locally crafted Florida beers",
+      "The Trough food truck offers a 1/2 lb. gourmet burger",
+      "The market features a coffee shop with locally made ice cream"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Market that began with fresh-picked berries straight from Starkey Farms",
+    "why_here": "What began as a small boutique produce market featuring fresh-picked, locally grown berries straight from Starkey Farms is now a family-friendly destination with a coffee shop, a full craft liquor bar, local sourced food offerings and live music.",
+    "know_before": "Digital gift cards are now offered, according to the official site.",
+    "local_tip": "Seasonal blackberry picking and live music on the weekends are among its draws.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://starkeymarket.com/"
+     ],
+     "why_here": [
+      "https://starkeymarket.com/"
+     ],
+     "know_before": [
+      "https://starkeymarket.com/"
+     ],
+     "local_tip": [
+      "https://starkeymarket.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The market began as a boutique produce market featuring fresh-picked berries from Starkey Farms",
+      "source": "https://starkeymarket.com/"
+     },
+     {
+      "claim": "It offers raw milk, fresh eggs and local honey straight from its own bee boxes",
+      "source": "https://starkeymarket.com/"
+     },
+     {
+      "claim": "The Barn is a full liquor bar featuring only locally crafted Florida beers",
+      "source": "https://starkeymarket.com/"
+     },
+     {
+      "claim": "The Trough food truck offers a 1/2 lb. gourmet burger",
+      "source": "https://starkeymarket.com/"
+     },
+     {
+      "claim": "The market features a coffee shop with locally made ice cream",
+      "source": "https://starkeymarket.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJDd4mIuAPw4gRHt7XU-e-hI4",
+   "name": "Mademoiselle Paris French Restaurant & Bakery",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "french_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.mademoiselleparis.com/about",
+     "source_name": "Mademoiselle Paris French Restaurant & Bakery \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Family owned authentic French restaurant and bakery established in 2016",
+      "Breads and viennoiseries are freshly baked every morning",
+      "Fish are wild-caught, never farm-raised",
+      "Locations include UTC Sarasota, Anna Maria Island, and Downtown Sarasota",
+      "On-site catering and private event services are offered"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Family-owned French restaurant and bakery established in 2016",
+    "why_here": "Mademoiselle Paris is a family owned, authentic French restaurant and bakery established in 2016, open daily for breakfast, lunch, and dinner. Breads and viennoiseries are freshly baked every morning, and meals can be enjoyed indoors or outdoors.",
+    "know_before": "It lists locations in UTC Sarasota, Anna Maria Island, and Downtown Sarasota, so confirm your location before booking a table.",
+    "local_tip": "Fish are wild-caught, never farm-raised, per the official about page.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.mademoiselleparis.com/about"
+     ],
+     "why_here": [
+      "https://www.mademoiselleparis.com/about"
+     ],
+     "know_before": [
+      "https://www.mademoiselleparis.com/about"
+     ],
+     "local_tip": [
+      "https://www.mademoiselleparis.com/about"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Family owned authentic French restaurant and bakery established in 2016",
+      "source": "https://www.mademoiselleparis.com/about"
+     },
+     {
+      "claim": "Breads and viennoiseries are freshly baked every morning",
+      "source": "https://www.mademoiselleparis.com/about"
+     },
+     {
+      "claim": "Fish are wild-caught, never farm-raised",
+      "source": "https://www.mademoiselleparis.com/about"
+     },
+     {
+      "claim": "Locations include UTC Sarasota, Anna Maria Island, and Downtown Sarasota",
+      "source": "https://www.mademoiselleparis.com/about"
+     },
+     {
+      "claim": "On-site catering and private event services are offered",
+      "source": "https://www.mademoiselleparis.com/about"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJKWOy6QvPwogRJMA-r_anj68",
+   "name": "Azteca D'Oro Mexican Restaurant",
+   "category": "food",
+   "metro": "tampa",
+   "primary_type": "mexican_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://aztecadoro.com/wesley-chapel",
+     "source_name": "Azteca D'Oro Mexican Restaurant \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Azteca D'Oro brings classic Mexican food to communities across Florida",
+      "The menu features tacos, burritos, enchiladas and fajitas",
+      "Classic Mexican favorites are prepared fresh each day",
+      "Refreshing drinks are served alongside the food"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Tacos, burritos, enchiladas and fajitas prepared fresh each day",
+    "why_here": "Azteca D'Oro serves classic Mexican favorites prepared fresh each day, including tacos, burritos, enchiladas and fajitas, plus refreshing drinks. It brings classic Mexican food to communities across Florida.",
+    "know_before": "Azteca D'Oro brings classic Mexican food to communities across Florida",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://aztecadoro.com/wesley-chapel"
+     ],
+     "why_here": [
+      "https://aztecadoro.com/wesley-chapel"
+     ],
+     "know_before": [
+      "https://aztecadoro.com/wesley-chapel"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Azteca D'Oro brings classic Mexican food to communities across Florida",
+      "source": "https://aztecadoro.com/wesley-chapel"
+     },
+     {
+      "claim": "The menu features tacos, burritos, enchiladas and fajitas",
+      "source": "https://aztecadoro.com/wesley-chapel"
+     },
+     {
+      "claim": "Classic Mexican favorites are prepared fresh each day",
+      "source": "https://aztecadoro.com/wesley-chapel"
+     },
+     {
+      "claim": "Refreshing drinks are served alongside the food",
+      "source": "https://aztecadoro.com/wesley-chapel"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJcVLs-Gm52YgRYcO7qbRw2mY",
+   "name": "Kokai Sushi",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "sushi_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.kokaisushi.com/",
+     "source_name": "Kokai Sushi \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Kokai fuses traditional sushi making with the bold flavors of Latin cuisine",
+      "An entrepreneur family group passionate about Japanese food opened its first Kokai restaurant in 1998",
+      "Kokai offers free delivery up to 5 miles on orders above $30"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Traditional sushi fused with the bold flavors of Latin cuisine",
+    "why_here": "Kokai fuses traditional sushi making with the bold flavors of Latin cuisine An entrepreneur family group passionate about Japanese food opened its first Kokai restaurant in 1998",
+    "know_before": "Free delivery is offered up to 5 miles on orders above $30, according to the official site.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.kokaisushi.com/"
+     ],
+     "why_here": [
+      "https://www.kokaisushi.com/"
+     ],
+     "know_before": [
+      "https://www.kokaisushi.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Kokai fuses traditional sushi making with the bold flavors of Latin cuisine",
+      "source": "https://www.kokaisushi.com/"
+     },
+     {
+      "claim": "An entrepreneur family group passionate about Japanese food opened its first Kokai restaurant in 1998",
+      "source": "https://www.kokaisushi.com/"
+     },
+     {
+      "claim": "Kokai offers free delivery up to 5 miles on orders above $30",
+      "source": "https://www.kokaisushi.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJG9spU2i32YgRdLlhn1Dou-c",
+   "name": "Margaritaville - Miami Bayside",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.margaritavillemiamibayside.com/",
+     "source_name": "Margaritaville - Miami Bayside \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Guests can bring their fresh catch and the restaurant will cook it for them",
+      "Margaritaville Miami Bayside promotes Paradise Points and dining rewards",
+      "Restaurant hours on Sunday - Thursday are 11:00 a.m. - 9:00 p.m.",
+      "Groups and events can be booked for a holiday party or other event"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Bring your fresh catch and we'll cook it for you",
+    "why_here": "Margaritaville Miami Bayside says guests can bring a fresh catch and the restaurant will cook it for them. The site also promotes Paradise Points and dining rewards for guests who join today.",
+    "know_before": "Restaurant hours on Sunday - Thursday are 11:00 a.m. - 9:00 p.m., per the official site.",
+    "local_tip": "Join Paradise Points to get dining rewards, per the official site.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.margaritavillemiamibayside.com/"
+     ],
+     "why_here": [
+      "https://www.margaritavillemiamibayside.com/"
+     ],
+     "know_before": [
+      "https://www.margaritavillemiamibayside.com/"
+     ],
+     "local_tip": [
+      "https://www.margaritavillemiamibayside.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Guests can bring their fresh catch and the restaurant will cook it for them",
+      "source": "https://www.margaritavillemiamibayside.com/"
+     },
+     {
+      "claim": "Margaritaville Miami Bayside promotes Paradise Points and dining rewards",
+      "source": "https://www.margaritavillemiamibayside.com/"
+     },
+     {
+      "claim": "Restaurant hours on Sunday - Thursday are 11:00 a.m. - 9:00 p.m.",
+      "source": "https://www.margaritavillemiamibayside.com/"
+     },
+     {
+      "claim": "Groups and events can be booked for a holiday party or other event",
+      "source": "https://www.margaritavillemiamibayside.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ6184m8uIk4gRB6hxf0osGNA",
+   "name": "Cobra Adventure Park",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "amusement_center",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://cobraadventurepark.com/",
+     "source_name": "Cobra Adventure Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Cobra Adventure Park offers 18 holes of miniature golf",
+      "The park is located a short walk from the beach in Panama City Beach",
+      "Operating hours may vary seasonally and are based on weather conditions",
+      "Special group rates are available with advanced reservations"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Go-karts, 18 holes of miniature golf and an arcade near the beach",
+    "why_here": "Cobra Adventure Park in Panama City Beach asks if you have a need for speed or want 18 holes of miniature golf, and says it is a short walk from the beach. It also offers an arcade and special group rates with advanced reservations.",
+    "know_before": "Operating hours may vary seasonally and are based on weather conditions.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://cobraadventurepark.com/"
+     ],
+     "why_here": [
+      "https://cobraadventurepark.com/"
+     ],
+     "know_before": [
+      "https://cobraadventurepark.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Cobra Adventure Park offers 18 holes of miniature golf",
+      "source": "https://cobraadventurepark.com/"
+     },
+     {
+      "claim": "The park is located a short walk from the beach in Panama City Beach",
+      "source": "https://cobraadventurepark.com/"
+     },
+     {
+      "claim": "Operating hours may vary seasonally and are based on weather conditions",
+      "source": "https://cobraadventurepark.com/"
+     },
+     {
+      "claim": "Special group rates are available with advanced reservations",
+      "source": "https://cobraadventurepark.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJH_khEQC15YgRc4UOzHmEniU",
+   "name": "Dolce Vita Modern Italian",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "italian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.dolcevitajaxfl.com/",
+     "source_name": "Dolce Vita Modern Italian \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Dolce Vita offers authentic Italian flavors reimagined with a modern twist and local ingredients",
+      "Dolce Vita is located in the heart of Tapestry Park, Jacksonville",
+      "The restaurant fuses classic Italian recipes with locally inspired ingredients",
+      "Its patio seats up to 50 guests",
+      "The restaurant offers live music"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Authentic Italian flavors reimagined with a modern twist and local ingredients",
+    "why_here": "Described as a modern Italian restaurant, it fuses classic Italian recipes with locally inspired ingredients to create flavor experiences in every dish, in a warm, elegant atmosphere with live music for gathering and sharing.",
+    "know_before": "Dolce Vita offers authentic Italian flavors reimagined with a modern twist and local ingredients",
+    "local_tip": "The patio seats up to 50 guests and is presented as ideal for birthdays and bridal showers.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.dolcevitajaxfl.com/"
+     ],
+     "why_here": [
+      "https://www.dolcevitajaxfl.com/"
+     ],
+     "know_before": [
+      "https://www.dolcevitajaxfl.com/"
+     ],
+     "local_tip": [
+      "https://www.dolcevitajaxfl.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Dolce Vita offers authentic Italian flavors reimagined with a modern twist and local ingredients",
+      "source": "https://www.dolcevitajaxfl.com/"
+     },
+     {
+      "claim": "Dolce Vita is located in the heart of Tapestry Park, Jacksonville",
+      "source": "https://www.dolcevitajaxfl.com/"
+     },
+     {
+      "claim": "The restaurant fuses classic Italian recipes with locally inspired ingredients",
+      "source": "https://www.dolcevitajaxfl.com/"
+     },
+     {
+      "claim": "Its patio seats up to 50 guests",
+      "source": "https://www.dolcevitajaxfl.com/"
+     },
+     {
+      "claim": "The restaurant offers live music",
+      "source": "https://www.dolcevitajaxfl.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJxYlci_zwwogRReIbZmzPcw8",
+   "name": "Nature's Food Patch Market & Caf\u00e9",
+   "category": "shopping",
+   "metro": "st-pete",
+   "primary_type": "supermarket",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://naturesfoodpatch.com/deli-cafe/",
+     "source_name": "Nature's Food Patch Market & Caf\u00e9 \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Nature's Food Patch has served Clearwater and Dunedin since 1987",
+      "Meats are always antibiotic, hormone, and nitrate-free",
+      "Each location features a cafe and a Grab & Go section, plus a fresh salad bar",
+      "The menu fits diets including organic, paleo, keto, vegan, and raw"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Market and cafe serving Clearwater and Dunedin since 1987",
+    "why_here": "Nature's Food Patch has proudly served the Clearwater and Dunedin communities since 1987 with tasty natural food made fresh in its kitchen. The deli and cafe use organically-grown and non-GMO beans, grains, and vegetables whenever possible.",
+    "know_before": "Options change daily and the menu fits diets including organic, paleo, keto, vegan, and raw, so check daily specials before ordering.",
+    "local_tip": "Each location features a cafe and a Grab & Go section, plus a fresh salad bar where you can build your own salad.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://naturesfoodpatch.com/deli-cafe/"
+     ],
+     "why_here": [
+      "https://naturesfoodpatch.com/deli-cafe/"
+     ],
+     "know_before": [
+      "https://naturesfoodpatch.com/deli-cafe/"
+     ],
+     "local_tip": [
+      "https://naturesfoodpatch.com/deli-cafe/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Nature's Food Patch has served Clearwater and Dunedin since 1987",
+      "source": "https://naturesfoodpatch.com/deli-cafe/"
+     },
+     {
+      "claim": "Meats are always antibiotic, hormone, and nitrate-free",
+      "source": "https://naturesfoodpatch.com/deli-cafe/"
+     },
+     {
+      "claim": "Each location features a cafe and a Grab & Go section, plus a fresh salad bar",
+      "source": "https://naturesfoodpatch.com/deli-cafe/"
+     },
+     {
+      "claim": "The menu fits diets including organic, paleo, keto, vegan, and raw",
+      "source": "https://naturesfoodpatch.com/deli-cafe/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJlaMin8qxwogROB8gRSmSnzk",
+   "name": "Crazy Sushi Wiregrass",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "sushi_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.crazysushiwesleychapel.com/",
+     "source_name": "Crazy Sushi Wiregrass \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Crazy Sushi specializes in fresh, creative and expertly crafted sushi",
+      "The menu includes classic rolls, sashimi and signature Crazy Rolls",
+      "Crazy Sushi brings a modern twist to traditional flavors",
+      "Hours on Sunday-Thursday are from 11:00 a.m.-10:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Fresh, creative and expertly crafted sushi with a modern twist",
+    "why_here": "Crazy Sushi specializes in fresh, creative and expertly crafted sushi, bringing a modern twist to traditional flavors. The menu is designed for classic rolls, sashimi and signature Crazy Rolls, using the finest ingredients.",
+    "know_before": "Crazy Sushi specializes in fresh, creative and expertly crafted sushi",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.crazysushiwesleychapel.com/"
+     ],
+     "why_here": [
+      "https://www.crazysushiwesleychapel.com/"
+     ],
+     "know_before": [
+      "https://www.crazysushiwesleychapel.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Crazy Sushi specializes in fresh, creative and expertly crafted sushi",
+      "source": "https://www.crazysushiwesleychapel.com/"
+     },
+     {
+      "claim": "The menu includes classic rolls, sashimi and signature Crazy Rolls",
+      "source": "https://www.crazysushiwesleychapel.com/"
+     },
+     {
+      "claim": "Crazy Sushi brings a modern twist to traditional flavors",
+      "source": "https://www.crazysushiwesleychapel.com/"
+     },
+     {
+      "claim": "Hours on Sunday-Thursday are from 11:00 a.m.-10:00 p.m.",
+      "source": "https://www.crazysushiwesleychapel.com/"
+     }
+    ]
+   }
+  }
+ ]
+}
