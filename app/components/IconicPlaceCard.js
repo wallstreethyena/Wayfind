@@ -8,7 +8,7 @@ import { formatDistanceMiles } from "../../lib/deviceDistance.js";
 import { WayfindScoreBadge } from "./kit";
 import CardPhoto from "./CardPhoto";
 import { businessStatus } from "../../lib/businessStatus";
-import { coarseCat } from "../../lib/ranking";
+import { coarseCat, humanTypeFallback } from "../../lib/ranking";
 import { toDisplayScore } from "../../lib/score";
 import { wayfindScore } from "../../lib/google";
 import { priceLabel } from "../../lib/price";
@@ -65,7 +65,7 @@ import { normalizePlaceCardHref } from "../../lib/placeCardRoute.js";
 import { useCardTapIntent } from "./useCardTapIntent.js";
 import { trendPulseClass } from "../../lib/trendPulse.js";
 import { storedPlaceHeader } from "../../lib/locationHonesty.js";
-import { useReservePartner } from "../../lib/reserveClient.js";
+import { useReserveEntry } from "../../lib/reserveClient.js";
 // The button itself rides inside the lazy partners chunk (see lib/reserveClient.js); the hook hands the card that component.
 
 // ---------------------------------------------------------------------------
@@ -340,7 +340,8 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
   // reservation partner. A hook, so it sits above the early return; a caller
   // cta passes null, which opts out of the subscription entirely. False on the
   // server and the hydrating render, so server HTML never differs.
-  const ReserveSlot = useReservePartner(cta ? null : (place && place.id));
+  const reserveEntry = useReserveEntry(cta ? null : place);
+  const ReserveSlot = reserveEntry && reserveEntry.Slot;
   const needsFallback = !cardActionsReadOnly && !(onSave && onLike && onDislike && onShare);
   const fb = useCardActions(needsFallback);
   // LIVE QUARANTINE (2026-09-10). A pinned product that dies in the
@@ -382,7 +383,7 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
   // Guide inventory rows carry the stored Wayfind category as cardCategory.
   // It is the adjudicated display bucket; unordered Google secondary types
   // must not relabel an airboat as Shopping or a spring park as Hotels.
-  const category = place ? (place.cardCategory || coarseCat(place) || place.primaryType || place.type || "Local pick") : "";
+  const category = place ? (place.cardCategory || coarseCat(place) || humanTypeFallback(place.primaryType || place.primary_type || place.type) || "Local pick") : "";
   // v8.49.1 — house cards do not share a category+city stock scene. A
   // photoless indoor playground and a photoless escape room in the same
   // town used to paint the same beach sunset. Own photo, or the monogram.
@@ -807,7 +808,7 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
               card's detail sheet (the <li> opens on any click that is not
               inside an a/button/etc — this wrapper is neither, so it needs
               its own guard). */}
-          {cta ? <div className="wf-place-card-cta" onClick={(e) => e.stopPropagation()}>{cta}</div> : (ReserveSlot ? <ReserveSlot place={place} surface={surface} /> : null)}
+          {cta ? <div className="wf-place-card-cta" onClick={(e) => e.stopPropagation()}>{cta}</div> : (ReserveSlot ? <ReserveSlot place={place} surface={surface} lane={reserveEntry.lane} /> : null)}
 
           {/* v8.34 — the creator credit sits in the bottom band, directly above
               the actions (see css.js .wf-place-card-credit). It carries the
