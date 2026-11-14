@@ -48,9 +48,19 @@ const ROUTE_CHUNK_BUDGET_KB = 175; // static/chunks/app/page-*.js, gzipped. RATC
 // the homepage measured 501.1KB on Vercel; later code splits brought it to
 // 488.1KB on Vercel (488.0 here), so the raise is no longer needed and the
 // ratchet comes back down to measured + 4KB.
-const TOTAL_BUDGET_KB = 494;       // every JS asset for route "/", gzipped.  RATCHET: lower only.
+const TOTAL_BUDGET_KB = 489;       // every JS asset for route "/", gzipped.  RATCHET: lower only.
 // 2026-11-12 owner decision (Gabe, in chat): raised 492 -> 494 so the eight
 // Christmas creator reels (PR #2418) ship; main sat at 490.9KB with 1.1KB headroom.
+// 2026-11-12, same day: 494 -> 489 after the browser Buffer polyfill left
+// every client bundle (next.config.js webpack hook; 484.4KB here), measured + ~4.6KB.
+//
+// FIRST LOAD (2026-11-12). The "/page" list above is NOT everything a visitor
+// downloads: the root layout's chunks load on every page too, and ~70KB of
+// them (the Supabase client among them) never appeared in "/page", so this
+// gate could not see them. FIRST_LOAD is the de-duplicated union of "/page"
+// and "/layout", which is what the browser actually fetches for "/". Measured
+// 553.5KB here after the polyfill removal; budget = measured + ~4.5KB.
+const FIRST_LOAD_BUDGET_KB = 558;  // union of "/page" + "/layout" JS, gzipped. RATCHET: lower only.
 const WARN_HEADROOM_KB = 2;        // print a loud warning below this. See below.
 // Vercel's gzip has measured up to ~0.6KB more than this machine for the same
 // tree (500.9 here vs 501.1 on Vercel for #2190, 2026-11-04, which failed six
@@ -140,6 +150,8 @@ try {
 }
 const assets = (manifest.pages && manifest.pages["/page"]) || [];
 if (!assets.length) fail('route "/" ("/page") missing from app-build-manifest.json');
+const layoutAssets = (manifest.pages && manifest.pages["/layout"]) || [];
+if (!layoutAssets.length) fail('root layout ("/layout") missing from app-build-manifest.json');
 
 let total = 0, routeChunk = 0, routeChunkName = null;
 for (const f of assets) {
@@ -151,11 +163,18 @@ for (const f of assets) {
   if (/^static\/chunks\/app\/page-/.test(f)) { routeChunk = gz; routeChunkName = f; }
 }
 if (!routeChunkName) fail("no static/chunks/app/page-*.js in the route's assets");
+const pageFiles = new Set(assets.filter((f) => f.endsWith(".js")));
+let firstLoad = total;
+for (const f of new Set(layoutAssets)) {
+  if (!f.endsWith(".js") || pageFiles.has(f)) continue;
+  firstLoad += gzipSync(readFileSync(new URL("../.next/" + f, import.meta.url)), { level: 6 }).length;
+}
 
 const kb = (n) => (n / 1024).toFixed(1);
 const over = [];
 if (routeChunk > ROUTE_CHUNK_BUDGET_KB * 1024) over.push(`route chunk ${kb(routeChunk)}KB gz > budget ${ROUTE_CHUNK_BUDGET_KB}KB (${routeChunkName})`);
 if (total > TOTAL_BUDGET_KB * 1024) over.push(`total route JS ${kb(total)}KB gz > budget ${TOTAL_BUDGET_KB}KB`);
+if (firstLoad > FIRST_LOAD_BUDGET_KB * 1024) over.push(`first load JS (page + layout) ${kb(firstLoad)}KB gz > budget ${FIRST_LOAD_BUDGET_KB}KB`);
 if (over.length) fail(over.join("; "));
 const headroomKb = (TOTAL_BUDGET_KB * 1024 - total) / 1024;
 if (process.env.GITHUB_ACTIONS === "true" && headroomKb < CI_GAP_KB) {
@@ -163,7 +182,11 @@ if (process.env.GITHUB_ACTIONS === "true" && headroomKb < CI_GAP_KB) {
     "Vercel's gzip measures up to ~0.6KB more than CI, so this would pass here and fail the production build after merge. " +
     "Split or lazy-load live homepage code (next/dynamic, a route-only import) instead of raising the budget; raising it is a product decision.");
 }
-console.log(`check-bundle: OK — route chunk ${kb(routeChunk)}KB gz (budget ${ROUTE_CHUNK_BUDGET_KB}), total ${kb(total)}KB gz (budget ${TOTAL_BUDGET_KB}), headroom ${headroomKb.toFixed(1)}KB`);
+const firstLoadHeadroomKb = (FIRST_LOAD_BUDGET_KB * 1024 - firstLoad) / 1024;
+if (process.env.GITHUB_ACTIONS === "true" && firstLoadHeadroomKb < CI_GAP_KB) {
+  fail(`first load JS ${kb(firstLoad)}KB gz leaves ${firstLoadHeadroomKb.toFixed(1)}KB under the ${FIRST_LOAD_BUDGET_KB}KB budget, inside the ${CI_GAP_KB}KB CI margin. Split or lazy-load instead of raising it.`);
+}
+console.log(`check-bundle: OK — route chunk ${kb(routeChunk)}KB gz (budget ${ROUTE_CHUNK_BUDGET_KB}), total ${kb(total)}KB gz (budget ${TOTAL_BUDGET_KB}), headroom ${headroomKb.toFixed(1)}KB; first load (page + layout) ${kb(firstLoad)}KB gz (budget ${FIRST_LOAD_BUDGET_KB}), headroom ${firstLoadHeadroomKb.toFixed(1)}KB`);
 // The margin is PRINTED on every build, and shouts before it becomes fatal.
 // The 2026-08-26 failure mode was that this gate went from "fine" to "blocks an
 // outage fix" with no warning in between, because nobody could see the trend.
@@ -175,6 +198,19 @@ if (headroomKb < WARN_HEADROOM_KB) {
 
 // Check all shipped chunks, including lazy and third-party modules. SWC can
 // turn a regex literal into RegExp("..."); both forms must remain Safari-safe.
+// No Buffer polyfill in the browser (2026-11-12, next.config.js webpack hook).
+// Positive control first: the probe is a string from Next's own compiled
+// polyfill, so it must be found there, or the scan below proves nothing.
+const { bufferPolyfillChunks, unguardedBufferUses, BUFFER_POLYFILL_PROBE } = await import("./lib/clientBufferScan.mjs");
+const nextBuffer = readFileSync(fileURLToPath(new URL("../node_modules/next/dist/compiled/buffer/index.js", import.meta.url)), "utf8");
+if (!nextBuffer.includes(BUFFER_POLYFILL_PROBE)) fail("buffer polyfill probe no longer matches next/dist/compiled/buffer; update BUFFER_POLYFILL_PROBE");
+const chunksDir = fileURLToPath(new URL("../.next/static/chunks", import.meta.url));
+const polyfilled = bufferPolyfillChunks(chunksDir);
+if (polyfilled.length) fail(`the Buffer polyfill is back in ${polyfilled.length} browser chunk(s): ${polyfilled.slice(0, 3).join(", ")}. Some client code names \`Buffer\`; guard it (typeof Buffer / TextEncoder / atob) or keep it server only`);
+const unguarded = unguardedBufferUses(chunksDir);
+if (unguarded.length) fail(`browser code uses \`Buffer\` with no guard, which throws in the browser now that the polyfill is gone: ${unguarded.slice(0, 3).map((u) => u.file + " … " + u.snippet).join(" | ")}`);
+console.log("check-bundle: no Buffer polyfill in any browser chunk, and every browser use of Buffer is guarded");
+
 const compatibility = scanBuiltRegexes(fileURLToPath(new URL("../.next/static/chunks", import.meta.url)));
 if (compatibility.issues.length) fail("Safari-incompatible lookbehind in browser chunks: " + JSON.stringify(compatibility.issues));
 console.log(`check-bundle: browser regex compatibility OK — ${compatibility.files} built chunks checked`);
