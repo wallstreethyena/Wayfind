@@ -323,7 +323,18 @@ export async function runQueue({ env, fetchImpl = globalThis.fetch, sleep = REAL
 
     // 5. squash-merge exactly the tested head; no commit_message so GitHub keeps every commit body (Lane: trailers)
     await gate();
-    const m = await call("PUT", `/pulls/${n}/merge`, { merge_method: "squash", sha: head });
+    let m = await call("PUT", `/pulls/${n}/merge`, { merge_method: "squash", sha: head });
+    if (m.status !== 200 || !m.data || m.data.merged !== true) {
+      // A timeout or 5xx can hide a merge that DID happen. Re-read the pull
+      // request: if GitHub merged exactly the tested head, take its merge commit
+      // and still run the tree proof below, never skip it.
+      const after = await call("GET", `/pulls/${n}`);
+      const pr = after && after.data;
+      if (after.status === 200 && pr && pr.merged === true && pr.head && pr.head.sha === head && /^[0-9a-f]{40}$/.test(String(pr.merge_commit_sha || ""))) {
+        say(`#${n}: merge answered HTTP ${m.status} but the pull request is merged at the tested head; proving its merge commit`);
+        m = { status: 200, data: { merged: true, sha: pr.merge_commit_sha } };
+      }
+    }
     if (m.status !== 200 || !m.data || m.data.merged !== true) {
       const c = counter(n);
       c.merge++;

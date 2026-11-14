@@ -68,6 +68,7 @@ class FakeGitHub {
       head: { sha: pr.headSha, ref: pr.headRef, repo: { full_name: REPO } },
       labels: pr.labels.map((name) => ({ name })), changed_files: pr.files.length,
       mergeable: pr.conflict ? false : true, mergeable_state: pr.conflict ? "dirty" : this.behind(pr) ? "behind" : "clean",
+      merged: pr.merged === true, merge_commit_sha: pr.mergeCommitSha || null,
     };
   }
   byHead(sha) { return [...this.prs.values()].find((p) => p.headSha === sha); }
@@ -173,7 +174,9 @@ class FakeGitHub {
       this.main = this.sha(); this.commits.set(this.main, { tree });
       pr.state = "closed"; pr.merged = true;
       const mergedAt = this.main;
+      pr.mergeCommitSha = mergedAt;
       if (pr.afterMerge) pr.afterMerge(this, pr);
+      if (pr.mergeLostReply) return reply(pr.mergeLostReply, { message: "gateway timeout" });
       return reply(200, { merged: true, sha: mergedAt });
     }
     if (method === "GET" && p === "/commits/main") return reply(200, { sha: this.main, commit: { tree: { sha: this.commits.get(this.main).tree } } });
@@ -449,6 +452,17 @@ const botComments = (pr) => pr.comments.filter((c) => c.user.type === "Bot").map
   const p = gh.addPr(81, { mergeFailures: 1 });
   const r = await drain(gh);
   ok(r.merged.length === 1 && p.merged && gh.find("PUT", /pulls\/81\/merge/).length === 2, "merge 405 once: the retry merges it");
+}
+
+{
+  // A merge that happened but whose reply was lost (504) is still tree-proved,
+  // never dropped as "merge refused" and never skipped (lead review, 2026-11-14).
+  const gh = new FakeGitHub();
+  const p = gh.addPr(82, { mergeLostReply: 504 });
+  const r = await drain(gh);
+  ok(p.merged && r.merged.length === 1 && r.merged[0].sha === p.mergeCommitSha && r.dropped.length === 0 && gh.find("PUT", /pulls\/82\/merge/).length === 1,
+    `lost merge reply: a merge that happened is recognised from the re-read PR and tree-proved (${JSON.stringify(r.merged)} dropped=${r.dropped.length})`);
+  ok(gh.find("GET", new RegExp(`/commits/${p.mergeCommitSha}$`)).length >= 1, "lost merge reply: the tree proof fetches the real merge commit");
 }
 
 // ---- tree mismatch: loud failure, no revert ------------------------------------------------
