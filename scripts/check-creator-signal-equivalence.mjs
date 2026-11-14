@@ -68,6 +68,7 @@ import {
   reachOf, creatorBoostFor, hasCreatorVideoAt, meetsCreatorFloor, evidenceBoost,
 } from "../lib/creatorBoost.js";
 import { computeTrendSignal, corroborationTrend, CORROBORATION_MIN_CREATORS } from "../lib/trendSignal.js";
+import { scoringCreatorVideos } from "../lib/creatorIndependence.js";
 import { governedScoreOf } from "../lib/lawfulOrder.js";
 import { wayfindScore, governedWayfindScore } from "../lib/wayfindScore.js";
 import { loadComponent } from "./lib/jsxLoad.mjs";
@@ -176,12 +177,13 @@ function oldGovernedScoreOf(index, p, locName) {
     // 2026-10-29: the featured creator's own term, resolved from the FULL
     // registry's handles — the same question the lean path answers.
     const featured = vids.some(oldIsFeatured);
-    return governedWayfindScore(p.wfScore, { hasCreatorVideo: vids.length > 0, hasFeaturedCreatorVideo: featured, distanceMi: dist, trending: !!p.trending });
+    // Score-eligible creators only (2026-11-12): same rule as the lean path.
+    return governedWayfindScore(p.wfScore, { hasCreatorVideo: scoringCreatorVideos(vids).length > 0, hasFeaturedCreatorVideo: featured, distanceMi: dist, trending: !!p.trending });
   }
   const base = wayfindScore(p.rating, p.reviews);
   if (base == null) return null;
   const vids = oldVideosFor(index, p, locName);
-  const video = p.creator_video === true || vids.length > 0;
+  const video = p.creator_video === true || scoringCreatorVideos(vids).length > 0;
   const featured = p.featured_creator_video === true || vids.some(oldIsFeatured);
   return governedWayfindScore(base, { hasCreatorVideo: video, hasFeaturedCreatorVideo: featured, distanceMi: dist, trending: !!p.trending });
 }
@@ -227,8 +229,11 @@ for (const e of CURATED) {
     ok((oldV.length > 0) === hasCreatorVideoAt(probe), `placeId probe "${e.key}": hasCreatorVideoAt matches`);
     ok(reachOf(oldV) === reachOf(newV), `placeId probe "${e.key}": reachOf matches (${reachOf(oldV)} vs ${reachOf(newV)})`);
     ok(oldCreatorCountFor(OLD_INDEX, probe) === newCreatorCountFor(probe), `placeId probe "${e.key}": creatorCountFor matches`);
-    const oldBoost = oldV.length > 0 && meetsCreatorFloor(probe)
-      ? evidenceBoost(wayfindScore(probe.rating, probe.reviews), reachOf(oldV)) : 0;
+    // Score evidence counts only score-eligible creators (2026-11-12,
+    // lib/creatorIndependence.js scoringCreatorVideos), on both sides.
+    const oldScoring = scoringCreatorVideos(oldV);
+    const oldBoost = oldScoring.length > 0 && meetsCreatorFloor(probe)
+      ? evidenceBoost(wayfindScore(probe.rating, probe.reviews), reachOf(oldScoring)) : 0;
     ok(oldBoost === creatorBoostFor(probe), `placeId probe "${e.key}": creatorBoostFor matches (${oldBoost} vs ${creatorBoostFor(probe)})`);
   }
   if (e.match && e.match.name) {
