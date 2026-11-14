@@ -129,7 +129,7 @@ function SigninCard({ onSignedIn, place }) {
   }, [state]); // eslint-disable-line react-hooks/exhaustive-deps
   return (
     <div data-reserve-card="signin" style={{ margin: "0 0 10px" }}>
-      <button type="button" style={mainBtn} onClick={() => { savePendingReserve(place); setState(openSignIn() ? "waiting" : "nodoor"); }}>Sign in to book</button>
+      <button type="button" style={mainBtn} onClick={() => { savePendingReserve(place); safe(() => window.dispatchEvent(new CustomEvent("wf:reserve-signin"))); setState(openSignIn() ? "waiting" : "nodoor"); }}>Sign in to book</button>
       {state === "nodoor" ? <a href="/" style={{ ...linkBtn, marginTop: 8 }}>Open Wayfind to sign in</a> : null}
       {state === "waiting" ? <Note>I'll pick up right where we left off.</Note> : null}
     </div>
@@ -206,10 +206,15 @@ function RequestedCard({ card, place }) {
   );
 }
 
-export default function ReserveConcierge({ initialPlace, initialMessage, embedded, onClose }) {
+// `thread` (2026-11-14, one Santa conversation): the concierge renders NOTHING itself. The Santa iMessage chat
+// (WayfindPlannerSheet) owns the one thread and the one composer; it drives this concierge through `controlRef`
+// ({ send(text), choose(pick) }) and draws each item from `onSnapshot({ items, busy, who, renderCard })`, so
+// picks, questions, the review card and the result all land in the same bubbles. The booking state (place, date,
+// time, party, idempotency keys) still lives here, once, and a table is still only ever created by the Confirm tap.
+export default function ReserveConcierge({ initialPlace, initialMessage, embedded, onClose, thread, controlRef, onSnapshot }) {
   const startPlace = initialPlace && initialPlace.id ? initialPlace : null;
   const idRef = useRef(1);
-  const [items, setItems] = useState(() => [{ id: 0, role: "assistant", text: greeting(startPlace && startPlace.name), card: null }]);
+  const [items, setItems] = useState(() => (thread ? [] : [{ id: 0, role: "assistant", text: greeting(startPlace && startPlace.name), card: null }]));
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
   const [cardError, setCardError] = useState("");
@@ -265,9 +270,9 @@ export default function ReserveConcierge({ initialPlace, initialMessage, embedde
     const text = String(raw || "").trim().slice(0, 500);
     if (!text || busyRef.current) return;
     convo.current.push({ role: "user", content: text });
-    push({ role: "user", text });
+    if (!thread) push({ role: "user", text }); // in a thread the chat already shows the visitor's bubble
     runTurn();
-  }, [push, runTurn]);
+  }, [push, runTurn, thread]);
 
   useEffect(() => {
     if (started.current) return;
@@ -352,6 +357,18 @@ export default function ReserveConcierge({ initialPlace, initialMessage, embedde
     runTurn();
   };
 
+  // A pick tapped in the chat (or offered by the chat): the same path as a tapped alternative.
+  const choosePick = (p) => {
+    if (!p || !p.placeId || busyRef.current) return;
+    convo.current.push({ role: "user", content: p.name || "" });
+    pid.current = p.placeId;
+    srv.current = Object.assign({}, srv.current, { placeId: p.placeId, restaurantName: p.name, lane: undefined, time: srv.current.time || null });
+    place.current = { id: p.placeId, name: p.name };
+    if (!thread) push({ role: "user", text: p.name });
+    runTurn();
+  };
+  if (controlRef) controlRef.current = { send, choose: choosePick, busy: () => busyRef.current, resume: () => { clearPendingReserve(); retry(); } };
+
   const renderCard = (it, i) => {
     const c = it.card;
     if (!c) return null;
@@ -378,6 +395,9 @@ export default function ReserveConcierge({ initialPlace, initialMessage, embedde
       default: return null;
     }
   };
+
+  useEffect(() => { if (thread && onSnapshot) onSnapshot({ items, busy, who, renderCard }); });
+  if (thread) return null;
 
   return (
     <div data-reserve-concierge="1" style={embedded ? { margin: "8px 0 0" } : undefined}>
