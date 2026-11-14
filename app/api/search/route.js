@@ -6,6 +6,7 @@ import { resolveSearchIntent } from "../../../lib/searchIntent.js";
 import { searchLibrary } from "../../../lib/unifiedSearch.js";
 import { searchResultCards, isFreeOwnedPlace } from "../../../lib/searchCards.js";
 import { pluralFallbackQuery } from "../../../lib/searchRank.js";
+import { evaluateMomentSemanticEligibility } from "../../../lib/searchSemantics.js";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -14,6 +15,7 @@ const NO_STORE = { "Cache-Control": "private, no-store, max-age=0" };
 
 export async function GET(request) {
   const params = new URL(request.url).searchParams;
+  const includeTrace = params.get("trace") === "1";
   let result;
   try {
     result = await searchOwnedPlaces({
@@ -46,11 +48,35 @@ export async function GET(request) {
       // The first answer stands.
     }
   }
+  const parsedIntent = resolveSearchIntent(params.get("q"), { lat: params.get("lat"), lng: params.get("lng") });
   // A "free" search returns only places the free rule admits. The place
   // matcher reads the raw query, and the client lists `places` as choices
   // when there are no cards, so a paid name match must not ride along.
-  if (result && Array.isArray(result.places) && result.places.length && resolveSearchIntent(params.get("q"), { lat: params.get("lat"), lng: params.get("lng") }).free) {
-    result = { ...result, places: result.places.filter(isFreeOwnedPlace) };
+  if (result && Array.isArray(result.places) && result.places.length) {
+    let places = result.places;
+    if (parsedIntent.free) {
+      places = places.filter(isFreeOwnedPlace);
+    }
+    if (parsedIntent.recognized) {
+      places = places.filter((p) => {
+        const name = typeof p.displayName === "string" ? p.displayName : p.displayName && p.displayName.text;
+        return evaluateMomentSemanticEligibility(
+          {
+            kind: "place",
+            id: p.id,
+            title: name || p.name,
+            primaryType: p.primaryType,
+            types: p.types,
+            tags: p.tags,
+            ownedHours: p.ownedHours,
+          },
+          { intentId: parsedIntent.id, constraints: parsedIntent.constraints },
+        ).eligible;
+      });
+    }
+    if (places.length !== result.places.length) {
+      result = { ...result, places };
+    }
   }
   // An out-of-coverage point, or a named city we do not cover, stays a place
   // miss. Gastonia must keep that exact JSON. A known phrase with no point
@@ -61,7 +87,7 @@ export async function GET(request) {
   const lng = params.get("lng");
   const finiteParam = (value) => value != null && String(value).trim() !== "" && Number.isFinite(Number(value));
   const hasPoint = finiteParam(lat) && finiteParam(lng);
-  const phraseWithoutPoint = !hasPoint && resolveSearchIntent(params.get("q"), {}).recognized === true;
+  const phraseWithoutPoint = !hasPoint && parsedIntent.recognized === true;
   if (result && (result.reason !== "unsupported_location" || phraseWithoutPoint)) {
     let filters = null;
     try {
@@ -87,11 +113,15 @@ export async function GET(request) {
         ownedPlaces: result.places,
         filters,
         env: process.env,
+        includeTrace,
       });
       if (cards.cards && cards.cards.length) {
         const next = { ...result, status: "ok", cards: cards.cards };
         delete next.reason;
         result = next;
+      }
+      if (includeTrace && cards._trace) {
+        result = { ...result, _trace: cards._trace };
       }
     } catch {
       // A card-feed failure leaves the place and library answer in place.

@@ -21,6 +21,7 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { C } from "./kit";
 import { bindFeedbackDialog, FEEDBACK_DIALOG_CSS } from "./feedbackDialog";
+import { styleHtml } from "../../lib/styleHtml.js";
 
 export const WAYFIND_INSTAGRAM = "https://www.instagram.com/gowayfind.app/";
 export const CREATOR_EMAIL = "hello@gowayfind.com";
@@ -173,7 +174,7 @@ export default function CommunityFooter({ path = "/", loc = "", build = "", user
         <Panel ref={panelRef} id={id + "-panel"} className={dialogMode ? "wf-feedback-dialog" : undefined}
           tabIndex={dialogMode ? undefined : -1} aria-label={dialogMode ? "Send feedback" : undefined}
           style={{ marginTop: dialogMode ? undefined : 4, minWidth: 0, boxSizing: "border-box", background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: 14, textAlign: "left" }}>
-          {dialogMode && <style dangerouslySetInnerHTML={{ __html: FEEDBACK_DIALOG_CSS }} />}
+          {dialogMode && <style dangerouslySetInnerHTML={styleHtml(FEEDBACK_DIALOG_CSS)} />}
           {state === "done" ? (
             <div ref={doneRef} tabIndex={-1} role="status" style={{ textAlign: "center", padding: "8px 4px" }}>
               <div style={{ fontSize: 13, fontWeight: 800, color: C.text }}>{recommendation ? "Thank you — your recommendation was saved for review." : "Thank you — your feedback was saved."}</div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { styleHtml } from "../../lib/styleHtml.js";
 
 const FILTER_OPTIONS = [
   ["rated", "Top rated"],
@@ -38,7 +39,7 @@ export default function CollectionFilter({ sortBy, onSort, radius, onRadius, cit
             <div style={{ height: 1, background: "rgba(255,255,255,.14)", margin: "10px 2px 11px" }} />
             <div style={{ color: "#9AA7BB", fontSize: 10.5, fontWeight: 900, letterSpacing: "1.25px", textTransform: "uppercase", margin: "0 4px 8px" }}>Search distance</div>
             <div style={{ padding: "12px 14px", borderRadius: 14, border: "1px solid rgba(255,255,255,.14)", background: "#1A2231" }}>
-              <style dangerouslySetInnerHTML={{ __html: `.wf-collection-radius{-webkit-appearance:none;appearance:none;width:100%;height:26px;background:transparent;outline:none;margin:5px 0 2px;cursor:pointer}.wf-collection-radius::-webkit-slider-runnable-track{height:7px;border-radius:999px;background:linear-gradient(90deg,#FB923C 0%,#F97316 var(--wf-radius-pct),#334155 var(--wf-radius-pct))}.wf-collection-radius::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:26px;height:26px;border-radius:50%;background:radial-gradient(circle at 32% 30%,#FFD9B3,#F97316 68%);border:2.5px solid #fff;box-shadow:0 0 0 5px rgba(249,115,22,.22),0 3px 10px rgba(0,0,0,.5);margin-top:-10px}.wf-collection-radius::-moz-range-track{height:7px;border-radius:999px;background:linear-gradient(90deg,#FB923C 0%,#F97316 var(--wf-radius-pct),#334155 var(--wf-radius-pct))}.wf-collection-radius::-moz-range-thumb{width:26px;height:26px;border-radius:50%;background:radial-gradient(circle at 32% 30%,#FFD9B3,#F97316 68%);border:2.5px solid #fff;box-shadow:0 0 0 5px rgba(249,115,22,.22),0 3px 10px rgba(0,0,0,.5)}` }} />
+              <style dangerouslySetInnerHTML={styleHtml(`.wf-collection-radius{-webkit-appearance:none;appearance:none;width:100%;height:26px;background:transparent;outline:none;margin:5px 0 2px;cursor:pointer}.wf-collection-radius::-webkit-slider-runnable-track{height:7px;border-radius:999px;background:linear-gradient(90deg,#FB923C 0%,#F97316 var(--wf-radius-pct),#334155 var(--wf-radius-pct))}.wf-collection-radius::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:26px;height:26px;border-radius:50%;background:radial-gradient(circle at 32% 30%,#FFD9B3,#F97316 68%);border:2.5px solid #fff;box-shadow:0 0 0 5px rgba(249,115,22,.22),0 3px 10px rgba(0,0,0,.5);margin-top:-10px}.wf-collection-radius::-moz-range-track{height:7px;border-radius:999px;background:linear-gradient(90deg,#FB923C 0%,#F97316 var(--wf-radius-pct),#334155 var(--wf-radius-pct))}.wf-collection-radius::-moz-range-thumb{width:26px;height:26px;border-radius:50%;background:radial-gradient(circle at 32% 30%,#FFD9B3,#F97316 68%);border:2.5px solid #fff;box-shadow:0 0 0 5px rgba(249,115,22,.22),0 3px 10px rgba(0,0,0,.5)}`)} />
               <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 10 }}>
                 <strong style={{ color: "#F8F5EE", fontSize: 14 }}>Within <span style={{ color: "#F97316", fontSize: 17 }}>{safeRadius} mi</span></strong>
                 <span style={{ color: "#9AA7BB", fontSize: 11.5, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>of {city}</span>

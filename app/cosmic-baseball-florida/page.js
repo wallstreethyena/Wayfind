@@ -23,6 +23,7 @@ import {
   COSMIC_LOTTERY_URL, COSMIC_SCHEDULE_URL, COSMIC_FACTS_CHECKED,
   COSMIC_WHAT_IS, COSMIC_LOTTERY_WINDOW, COSMIC_DO_NOW,
 } from "../../lib/cosmicBaseballFlorida.js";
+import { styleHtml } from "../../lib/styleHtml.js";
 
 export const revalidate = 3600;
 
@@ -116,7 +117,7 @@ export default async function CosmicBaseballFlorida() {
 
   return (
     <main style={S.page}>
-      <style dangerouslySetInnerHTML={{ __html: WF_PLACE_CARD_CSS + ".wf-cosmic-stays{margin:12px -4px 0;min-width:0}.wf-cosmic-stays:not(:has(.wf-event-place-rail)){display:none}" }} />
+      <style dangerouslySetInnerHTML={styleHtml(WF_PLACE_CARD_CSS + ".wf-cosmic-stays{margin:12px -4px 0;min-width:0}.wf-cosmic-stays:not(:has(.wf-event-place-rail)){display:none}")} />
       {jsonLd ? <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} /> : null}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(crumbs) }} />
       <ReturnToWayfind style={S.back} />{" "}

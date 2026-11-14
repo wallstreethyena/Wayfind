@@ -16,6 +16,9 @@
 import { NextResponse } from "next/server";
 import { editorialFor, EDITORIAL_COUNT } from "../../../lib/editorial";
 import atlasCards from "../../../data/atlas/editorial-cards.json";
+import firstPartyLedger from "../../../data/first-party-actions.json";
+import firstPartyOverrides from "../../../data/first-party-action-overrides.json";
+import ownedTruthLedger from "../../../data/owned-place-truth.json";
 import { mapWfEditorial } from "../../../lib/editorialRule";
 import { cardToEditorial, resolveAtlasId, atlasCardForName } from "../../../lib/atlasCards";
 import { editorialNameCandidates } from "../../../lib/editorialLookup";
@@ -23,6 +26,20 @@ import { approveCandidate } from "../../../lib/placeServable";
 import { guideDescriptionFor } from "../../../lib/guideDescriptionFills";
 import { siteTodayStr } from "../../../lib/siteTime";
 import { filterEligibleVenueEvents } from "../../../lib/gamePlan";
+import { firstPartyActionsForPlace } from "../../../lib/firstPartyActionStore";
+import { parseEditorialHours } from "../../../lib/editorialHoursParser";
+import { resolveAdmissionTruth, resolveOwnedTruthFallback as resolveOwnedTruthFromStore } from "../../../lib/ownedPlaceTruth";
+
+const FPA_STORES = {
+  places: (firstPartyLedger && firstPartyLedger.places) || {},
+  overrides: (firstPartyOverrides && firstPartyOverrides.places) || {},
+};
+
+const OWNED_TRUTH_PLACES = (ownedTruthLedger && ownedTruthLedger.places) || {};
+
+export function resolveOwnedTruthFallback(placeId, name, fpa = null) {
+  return resolveOwnedTruthFromStore(placeId, name, fpa, OWNED_TRUTH_PLACES);
+}
 
 export const dynamic = "force-dynamic";
 
@@ -141,12 +158,83 @@ export async function GET(req) {
   // place and approves THAT place. `serve` is the only way a body leaves this
   // route, so a tier cannot forget: the approval and the payload are one call.
   const refuse = (reason) => NextResponse.json({ none: true, refused: reason }, { headers: HEADERS_REFUSED });
+  const todayIso = siteTodayStr();
+  const resolveApprovedFpa = async (candidate) => {
+    if (candidate.placeId) {
+      const byCand = firstPartyActionsForPlace(candidate.placeId, todayIso, FPA_STORES);
+      if (byCand) return byCand;
+    }
+    if (!id || id === candidate.placeId) return null;
+    const fpa = firstPartyActionsForPlace(id, todayIso, FPA_STORES);
+    if (!fpa) return null;
+    const idVerdict = await approveCandidate({ placeId: id });
+    return idVerdict.ok ? fpa : null;
+  };
   const serve = async (candidate, payload, headers) => {
     const verdict = await approveCandidate(candidate);
     if (!verdict.ok) return refuse(verdict.reason);
-    const curatedEvents = await wfCuratedEventsForPlace(candidate.placeId || id, candidate.name || rawName);
-    const out = curatedEvents.length > 0 ? { ...payload, curatedEvents } : payload;
+    const [curatedEvents, fpa] = await Promise.all([
+      wfCuratedEventsForPlace(candidate.placeId || id, candidate.name || rawName),
+      resolveApprovedFpa(candidate),
+    ]);
+    let out = curatedEvents.length > 0 ? { ...payload, curatedEvents } : payload;
+    let enrichedEditorial = out.editorial || null;
+    if (fpa) {
+      if (enrichedEditorial && !enrichedEditorial.officialWebsite && fpa.officialWebsite && fpa.officialWebsite.url) {
+        enrichedEditorial = { ...enrichedEditorial, officialWebsite: fpa.officialWebsite.url };
+      }
+      out = { ...out, firstPartyActions: fpa };
+    }
+    if (enrichedEditorial) {
+      const targetPlaceId = candidate.placeId || id;
+      const targetVenueName = candidate.name || rawName;
+      const parsedHours = parseEditorialHours(enrichedEditorial, { venueName: targetVenueName });
+      const fallbackTruth = resolveOwnedTruthFallback(targetPlaceId, targetVenueName, fpa);
+      const ownedHours = parsedHours && parsedHours.ok && parsedHours.periods.length > 0
+        ? parsedHours
+        : fallbackTruth.ownedHours;
+      const rawAdmissionTruth = resolveAdmissionTruth(
+        { id: targetPlaceId, name: targetVenueName },
+        enrichedEditorial,
+        fpa || null
+      );
+      const admissionTruth = rawAdmissionTruth.status !== "UNKNOWN"
+        ? rawAdmissionTruth
+        : (fallbackTruth.admissionTruth || rawAdmissionTruth);
+      enrichedEditorial = {
+        ...enrichedEditorial,
+        ...(ownedHours ? { ownedHours } : {}),
+        ...(admissionTruth ? { admissionTruth } : {}),
+      };
+      out = {
+        ...out,
+        editorial: enrichedEditorial,
+        ...(ownedHours ? { ownedHours } : {}),
+        ...(admissionTruth ? { admissionTruth } : {}),
+      };
+    }
     return NextResponse.json(out, { headers });
+  };
+  const serveActionsOnlyOrNone = async (extra = null) => {
+    const fpaOnly = id ? firstPartyActionsForPlace(id, todayIso, FPA_STORES) : null;
+    const { ownedHours, admissionTruth } = resolveOwnedTruthFallback(id, rawName, fpaOnly);
+    if (!fpaOnly && !ownedHours && !admissionTruth) {
+      return NextResponse.json({ none: true, ...(extra || {}) }, { headers: HEADERS });
+    }
+    const verdict = await approveCandidate({ placeId: id, name: rawName });
+    if (!verdict.ok) return refuse(verdict.reason);
+    const curatedEvents = await wfCuratedEventsForPlace(id, rawName);
+    return NextResponse.json(
+      {
+        none: true,
+        ...(extra || {}),
+        ...(fpaOnly ? { firstPartyActions: fpaOnly } : {}),
+        ...(ownedHours ? { ownedHours } : {}),
+        ...(admissionTruth ? { admissionTruth } : {}),
+        ...(curatedEvents.length > 0 ? { curatedEvents } : {}),
+      },
+      { headers: HEADERS }
+    );
   };
 
   // Tier 1: the owner's Atlas card always wins — hand curation beats machine.
@@ -196,7 +284,7 @@ export async function GET(req) {
 
   if (!names.length) {
     if (guideFill) return serve({ placeId: id, name: guideFill.name || rawName }, { editorial: guideFill, sources: guideFill.sources }, HEADERS);
-    return NextResponse.json({ none: true, count: EDITORIAL_COUNT }, { headers: HEADERS });
+    return serveActionsOnlyOrNone({ count: EDITORIAL_COUNT });
   }
 
   // Tier 4: the 295 handwritten entries, keyed by name. The content is KEPT and
@@ -208,5 +296,5 @@ export async function GET(req) {
     if (e) return serve({ placeId: null, name: e.name || n }, { editorial: e }, HEADERS);
   }
   if (guideFill) return serve({ placeId: id, name: guideFill.name || rawName }, { editorial: guideFill, sources: guideFill.sources }, HEADERS);
-  return NextResponse.json({ none: true }, { headers: HEADERS });
+  return serveActionsOnlyOrNone();
 }

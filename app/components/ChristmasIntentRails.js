@@ -19,6 +19,7 @@ import { siteTodayStr } from "../../lib/siteTime.js";
 import { emitRailDegraded, isRailCancelled, railDeveloperFailure } from "../../lib/railFailure.js";
 import { fetchClassifiedPosterJson as fetchRailJson } from "../../lib/posterJson.js";
 import { usePagedRail } from "./usePagedRail.js";
+import { enqueueMount, mountCommitted, useStagedCards } from "../../lib/stagedMount.js";
 import { railRenderState, RAIL_RENDER_STATE } from "../../lib/railVisibility.js";
 import useEventClock from "./useEventClock.js";
 import { eventVisitStatus, eventRestrictionChips } from "../../lib/eventVisitFacts.js";
@@ -40,14 +41,18 @@ const RAIL_COUNT = 9;
 // STAGE_MS, so no task is longer than one rail and a tap or scroll never waits behind all nine.
 // Until its turn a rail shows the same heading and loading line it already shows while its data
 // loads, and every rail is on the page within about a second.
-export const STAGE_FIRST = 2;
+export const STAGE_FIRST = 1;
 export const STAGE_MS = 140;
 function useStagedMount(order) {
   const [ready, setReady] = useState(order < STAGE_FIRST);
   useEffect(() => {
-    if (ready) return undefined;
-    const timer = setTimeout(() => setReady(true), (order - STAGE_FIRST + 1) * STAGE_MS);
-    return () => clearTimeout(timer);
+    // Ready is in the DOM now (effects run after the commit): the shared queue may start its next job.
+    if (ready) { mountCommitted(); return undefined; }
+    // The timer says when a rail MAY mount; the shared queue (lib/stagedMount.js) makes sure only one
+    // rail or card slice commits per task, so a backlog of expired timers never lands as one freeze.
+    let cancel = null;
+    const timer = setTimeout(() => { cancel = enqueueMount(() => setReady(true)); }, (order - STAGE_FIRST + 1) * STAGE_MS);
+    return () => { clearTimeout(timer); if (cancel) cancel(); };
   }, [ready, order]);
   return ready;
 }
@@ -173,6 +178,9 @@ function ChristmasRailSection({ rail, order = 0, lat, lng, onOpenPlace, onTrack,
   const cardCount = Number.isFinite(total) ? Math.max(items.length, total - (pagedItems.length - items.length)) : items.length;
   const railId = "christmas-intent-" + rail.id;
   const renderState = railRenderState(items, { loading, error });
+  // Card slices (lib/stagedMount.js): a rail draws its first cards at once and the rest one slice
+  // per task, only while it is really drawing cards (never behind its skeleton).
+  const shown = useStagedCards(items.length, staged && renderState === RAIL_RENDER_STATE.CONTENT);
   if (renderState === RAIL_RENDER_STATE.HIDDEN) return null;
   if (renderState === RAIL_RENDER_STATE.LOADING || !staged) return <section aria-label={rail.title} style={{ marginTop: 22 }}>
     <RailHeading title={rail.title} description={rail.deck} />
@@ -189,7 +197,7 @@ function ChristmasRailSection({ rail, order = 0, lat, lng, onOpenPlace, onTrack,
     </RailHeading>
     <>
       <div className="wf-rail wf-rail-exploding wf-christmas" data-rail={railId} tabIndex={0} role="region" aria-label={rail.title}><RailGuideSlot railId={rail.id} guide={rail.guide ?? null} onTrack={onTrack}>
-        {items.map((card, index) => {
+        {items.slice(0, shown).map((card, index) => {
           const isEvent = card.kind === "event";
           return <ChristmasRailCard key={card.id} card={card} index={index} eyebrow={CHRISTMAS_CARD_LABELS[rail.id] || rail.title} today={today}
             isSentinel={index === Math.min(sentinelIndex, items.length - 1)} sentinelRef={sentinelRef}
@@ -198,10 +206,10 @@ function ChristmasRailSection({ rail, order = 0, lat, lng, onOpenPlace, onTrack,
             disliked={isEvent ? null : (isDisliked ? !!isDisliked(card.id) : disliked ? !!disliked[card.id] : undefined)}
             hasOpen={!!onOpenPlace} hasSave={!!onSave} hasLike={!!onLike} hasDislike={!!onDislike} hasShare={!!onShare} handlers={handlers} city={city} />;
         })}
-        {loadingMore ? <div className="wf-rail-card wf-exploding-primary wf-sk" role="status" aria-busy="true" aria-label={`Loading more ${rail.title}`}
+        {loadingMore && shown >= items.length ? <div className="wf-rail-card wf-exploding-primary wf-sk" role="status" aria-busy="true" aria-label={`Loading more ${rail.title}`}
           style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: 88, color: COLORS.muted, fontSize: 12.5 }}>Loading more…</div> : null}
       </RailGuideSlot></div>
-      {items.length > 1 ? <RailDots railId={railId} count={items.length} /> : null}
+      {items.length > 1 ? <RailDots railId={railId} count={items.length} layoutKey={shown >= items.length ? 1 : 0} /> : null}
     </>
   </section>;
 }
@@ -239,21 +247,25 @@ const TourRailCard = memo(function TourRailCard({ card, index, track }) {
     actionItem={{ id: card.id, type: "experience", title: card.title, image: card.image || null, url: card.href, provider: "viator" }} />;
 });
 
-export function ChristmasTourRail({ tours, onTrack }) {
+export function ChristmasTourRail({ tours, onTrack, order = 0 }) {
   const trackRef = useRef(onTrack);
   trackRef.current = onTrack;
   const track = useCallback((...args) => (trackRef.current ? trackRef.current(...args) : undefined), []);
+  const staged = useStagedMount(order);
   const cards = Array.isArray(tours) ? tours.filter((t) => t && t.id && t.href && t.title) : [];
   if (!cards.length) return null;
   return <section aria-label={CHRISTMAS_TOUR_RAIL_TITLE} style={{ marginTop: 22 }}>
     <RailHeading title={CHRISTMAS_TOUR_RAIL_TITLE} description={CHRISTMAS_TOUR_RAIL_DECK}>
-      <RailNav railId={CHRISTMAS_TOUR_RAIL_ID} count={cards.length} total={cards.length} unit={cards.length === 1 ? "tour" : "tours"} />
+      {staged ? <RailNav railId={CHRISTMAS_TOUR_RAIL_ID} count={cards.length} total={cards.length} unit={cards.length === 1 ? "tour" : "tours"} /> : null}
     </RailHeading>
     <p style={{ margin: "0 0 8px", fontSize: 13, lineHeight: 1.45, color: COLORS.muted }}>{AFFILIATE_DISCLOSURE_TEXT}</p>
+    {!staged ? <RailLoading label={`Loading ${CHRISTMAS_TOUR_RAIL_TITLE}`} /> : null}
+    {!staged ? null : <>
     <div className="wf-rail wf-rail-exploding wf-christmas" data-rail={CHRISTMAS_TOUR_RAIL_ID} tabIndex={0} role="region" aria-label={CHRISTMAS_TOUR_RAIL_TITLE}>
       {cards.map((card, index) => <TourRailCard key={card.id} card={card} index={index} track={track} />)}
     </div>
     {cards.length > 1 ? <RailDots railId={CHRISTMAS_TOUR_RAIL_ID} count={cards.length} /> : null}
+    </>}
   </section>;
 }
 
@@ -323,6 +335,6 @@ export default function ChristmasIntentRails({
   return <>{withChristmasTourRail(withMoviesRail(payload.rails.map((rail, order) => <ChristmasRailSection key={`${today}:${rail.id}`} rail={rail} order={order} lat={lat} lng={lng} onOpenPlace={onOpenPlace} onTrack={onTrack} city={city}
     isSaved={isSaved} liked={liked} disliked={disliked} isLiked={isLiked} isDisliked={isDisliked}
     onSave={onSave} onLike={onLike} onDislike={onDislike} onShare={onShare} />), <SeasonalMoviesRail key="seasonal-movies" collection="christmas" active={active} onTrack={onTrack} />),
-    payload.rails, Array.isArray(payload.tours) && payload.tours.length ? <ChristmasTourRail key="christmas-tours" tours={payload.tours} onTrack={onTrack} /> : null)}
+    payload.rails, Array.isArray(payload.tours) && payload.tours.length ? <ChristmasTourRail key="christmas-tours" tours={payload.tours} onTrack={onTrack} order={STAGE_FIRST} /> : null)}
   </>;
 }

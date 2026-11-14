@@ -39,6 +39,7 @@ import { siteHourFloat, bucketForHour } from "../../../lib/nowContext.js";
 //   · the momentPicks `why` becomes the reason THIS place was picked.
 //   · no ranked list, and no tour rail unless this one result has tours.
 import { couponForPlace, couponEndsLabel } from "../../../lib/coupons";
+import { styleHtml } from "../../../lib/styleHtml.js";
 
 export default function SurpriseScreen({ ctx }) {
   const { surprisePick, surprisePool, surpriseLoading, setSurprisePick, rerollSurprise, setScreen, openDetail, openExperience, quickSaveFavorite, isSaved, blurbs, blurbLine, experienceBadges, cityFixM, liveOpen, iconForPlace, Loader, FallbackImg, surpriseWhy, logEvent, clipCoupon, setWalletOpen } = ctx;
@@ -99,7 +100,7 @@ export default function SurpriseScreen({ ctx }) {
           );
           return (
             <div>
-              <style dangerouslySetInnerHTML={{ __html: editorialHeroCss("wf-surprise-editorial") }} />
+              <style dangerouslySetInnerHTML={styleHtml(editorialHeroCss("wf-surprise-editorial"))} />
               <EditorialLandingHero
                 prefix="wf-surprise-editorial"
                 backControl={(

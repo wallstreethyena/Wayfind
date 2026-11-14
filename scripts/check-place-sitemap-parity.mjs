@@ -49,6 +49,7 @@ const {
 const { isIndexable, cityOf } = await import("../lib/placeData.js");
 const { listIndexedIds } = await import("../lib/placeIndex.js");
 const { placeDurableEligibility, hasStatableIdentity, hasSubstantiveWayfindText } = await import("../lib/placeEligibility.js");
+const { isNotPublicPlace } = await import("../lib/notPublicPlaces.js");
 
 let pass = 0;
 const fail = [];
@@ -69,7 +70,7 @@ const guideIdentity = (id) => {
 
 // ── 1. Every publish-ready Atlas card renders through the REAL merge with
 // details:null (no Google), and is durably eligible UNLESS it is missing an
-// address — the one identity field Atlas-590 can ever carry. ─────────────
+// address (or explicitly suppressed in lib/notPublicPlaces.js). ───────────
 const atlasIds = listPublishReadyAtlasIds();
 ok(atlasIds.length > 0, "POSITIVE CONTROL: the Atlas publish-ready allowlist is non-empty — an empty list would make every assertion below vacuous");
 let atlasEligible = 0, atlasHeldBackByAddress = 0;
@@ -83,16 +84,17 @@ for (const id of atlasIds) {
     atlasEligible++;
   } else {
     atlasHeldBackByAddress++;
-    ok(!address, `${id}: not durably eligible for a reason OTHER than a missing address (address=${JSON.stringify(address)}, description=${JSON.stringify(merged.description)}) — every publish-ready card carries sourced copy (test-atlas-place-pages.mjs), so a missing address is the only legitimate reason left`);
+    ok(!address || isNotPublicPlace(id), `${id}: not durably eligible for a reason OTHER than a missing address or notPublicPlaces (address=${JSON.stringify(address)}, description=${JSON.stringify(merged.description)}) — every publish-ready card carries sourced copy (test-atlas-place-pages.mjs), so a missing address or explicit suppression is the only legitimate reason left`);
   }
 }
 ok(atlasEligible + atlasHeldBackByAddress === atlasIds.length, "sanity: every publish-ready Atlas id was classified one way or the other");
 ok(atlasEligible > atlasIds.length / 2, `a MAJORITY of publish-ready Atlas cards must be durably eligible (got ${atlasEligible}/${atlasIds.length}) — if this drops near zero, the identity or content gate itself broke, not a data gap`);
-console.log(`check-place-sitemap-parity: ${atlasEligible}/${atlasIds.length} publish-ready Atlas ids eligible via mergePlacePage(details:null); ${atlasHeldBackByAddress} held back only by a missing address (real Atlas-590 data gap, not a code defect)`);
+console.log(`check-place-sitemap-parity: ${atlasEligible}/${atlasIds.length} publish-ready Atlas ids eligible via mergePlacePage(details:null); ${atlasHeldBackByAddress} held back only by a missing address/suppression (real Atlas-590 data gap, not a code defect)`);
 
 // ── 2. Every GUIDES pick whose OWN blurb clears the substantive-detail bar
 // renders through the real merge (guide-only, no skel/atlas/details), and is
-// durably eligible UNLESS its guide record carries no coordinates. ────────
+// durably eligible UNLESS its guide record carries no coordinates (or is
+// explicitly suppressed in lib/notPublicPlaces.js). ───────────────────────
 const guideIds = listGuidePlaceIds();
 ok(guideIds.length > 0, "POSITIVE CONTROL: the real GUIDES place index is non-empty");
 const substantiveGuideIds = guideIds.filter((id) => guidePlaceHasSubstantiveDetail(guidePlaceFor(id)));
@@ -107,12 +109,12 @@ for (const id of substantiveGuideIds) {
     guideEligible++;
   } else {
     guideHeldBackByCoords++;
-    ok(lat == null || lng == null, `${id}: not durably eligible for a reason OTHER than missing coordinates (lat=${lat}, lng=${lng}) — its blurb already cleared the substantive-detail bar, so missing lat/lng is the only legitimate reason left`);
+    ok(lat == null || lng == null || isNotPublicPlace(id), `${id}: not durably eligible for a reason OTHER than missing coordinates or notPublicPlaces (lat=${lat}, lng=${lng}) — its blurb already cleared the substantive-detail bar, so missing lat/lng or explicit suppression is the only legitimate reason left`);
   }
 }
 ok(guideEligible + guideHeldBackByCoords === substantiveGuideIds.length, "sanity: every substantive GUIDES id was classified one way or the other");
 ok(guideEligible > 0, `at least one substantive GUIDES pick must be durably eligible (got ${guideEligible}/${substantiveGuideIds.length}) — zero would mean the guide rung of the eligibility gate is broken, not just a data gap`);
-console.log(`check-place-sitemap-parity: ${guideEligible}/${substantiveGuideIds.length} substantive GUIDES-linked ids eligible via mergePlacePage(details:null); ${guideHeldBackByCoords} held back only by missing coordinates (real GUIDES data gap, not a code defect)`);
+console.log(`check-place-sitemap-parity: ${guideEligible}/${substantiveGuideIds.length} substantive GUIDES-linked ids eligible via mergePlacePage(details:null); ${guideHeldBackByCoords} held back only by missing coordinates/suppression (real GUIDES data gap, not a code defect)`);
 
 // Negative control on the SAME shape: a GUIDES pick whose blurb does NOT
 // clear the bar must not be eligible on guide content alone, even WITH
@@ -179,8 +181,8 @@ ok(Array.isArray(indexedIds) && indexedIds.length > 0, "listIndexedIds() returne
 const sorted = [...indexedIds].sort();
 ok(JSON.stringify(indexedIds) === JSON.stringify(sorted), "listIndexedIds() must return a STABLE SORTED list, not database row order");
 
-const expectedAtlas = atlasIds.filter((id) => placeDurableEligibility({ ...atlasIdentity(id) }));
-const expectedGuide = substantiveGuideIds.filter((id) => placeDurableEligibility({ ...guideIdentity(id) }));
+const expectedAtlas = atlasIds.filter((id) => !isNotPublicPlace(id) && placeDurableEligibility({ ...atlasIdentity(id) }));
+const expectedGuide = substantiveGuideIds.filter((id) => !isNotPublicPlace(id) && placeDurableEligibility({ ...guideIdentity(id) }));
 ok(expectedAtlas.length === atlasEligible, "sanity: the independently-recomputed eligible-Atlas count matches step 1's count");
 ok(expectedGuide.length === guideEligible, "sanity: the independently-recomputed eligible-GUIDES count matches step 2's count");
 const expected = new Set([...expectedAtlas, ...expectedGuide]);
@@ -193,7 +195,7 @@ ok(unexpected === 0, `listIndexedIds() included ${unexpected} id(s) that are NOT
 // A GUIDES id that clears the substantive-detail bar but lacks coordinates
 // must be ABSENT from the sitemap set — the parity guarantee this whole file
 // exists for, proven on a real production example when one exists.
-const heldBackGuideId = substantiveGuideIds.find((id) => !expectedGuide.includes(id));
+const heldBackGuideId = substantiveGuideIds.find((id) => !isNotPublicPlace(id) && !expectedGuide.includes(id));
 const eligibleGuideId = expectedGuide[0];
 ok(!!eligibleGuideId && indexedIds.includes(eligibleGuideId), `POSITIVE CONTROL: an eligible GUIDES id (${eligibleGuideId}) IS in listIndexedIds(), so the exclusion below is about coordinates, not about guide ids never reaching the set`);
 if (heldBackGuideId) {

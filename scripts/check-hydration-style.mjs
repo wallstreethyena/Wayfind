@@ -29,7 +29,7 @@ for (const f of walk(join(ROOT, "app"))) {
   while (idx !== -1) {
     fail++;
     const line = src.slice(0, idx).split("\n").length;
-    console.error(`check-hydration-style: FAIL — ${f.slice(ROOT.length + 1)}:${line} renders <style> CSS as a JSX text child. Use <style dangerouslySetInnerHTML={{ __html: css }} /> — a quote in the text child breaks hydration and kills ALL interactivity.`);
+    console.error(`check-hydration-style: FAIL — ${f.slice(ROOT.length + 1)}:${line} renders <style> CSS as a JSX text child. Use <style dangerouslySetInnerHTML={styleHtml(css)} /> (lib/styleHtml.js) — a quote in the text child breaks hydration and kills ALL interactivity.`);
     idx = src.indexOf("<style>{", idx + 1);
   }
 }

@@ -33,7 +33,9 @@ const TIME_BOUND = /\b(new|newest|newly|this (spring|summer|fall|winter|season|y
 const DASH = /[–—]|\s--\s/;
 
 // ── 1. THE ENTRIES ──────────────────────────────────────────────────────────
-ok(GUIDE_DESCRIPTION_FILLS.length >= 8, `at least the 8 reviewed fills are present (${GUIDE_DESCRIPTION_FILLS.length})`);
+// 2026-11-13: Blue Spring State Park graduated to a full Atlas card (Best
+// State Park 2026 winner), so the floor is 8 - 1 = 7.
+ok(GUIDE_DESCRIPTION_FILLS.length >= 7, `at least the 7 reviewed fills are present (${GUIDE_DESCRIPTION_FILLS.length})`);
 const seenIds = new Set();
 for (const e of GUIDE_DESCRIPTION_FILLS) {
   const tag = `${e.name} (${e.placeId})`;
@@ -82,7 +84,9 @@ const shingles = (t, n = 5) => {
   for (let i = 0; i + n <= w.length; i++) out.add(w.slice(i, i + n).join(" "));
   return out;
 };
-ok(OFFICIAL_DESCRIPTION_FILLS.length >= 8, `at least the 8 official-site fills are present (${OFFICIAL_DESCRIPTION_FILLS.length})`);
+// 2026-10-20: Hashtag Café graduated from an official-site fill to a full Atlas
+// card (Best Cafés 2026 winner), so the floor is 8 - 1 = 7.
+ok(OFFICIAL_DESCRIPTION_FILLS.length >= 7, `at least the 7 official-site fills are present (${OFFICIAL_DESCRIPTION_FILLS.length})`);
 // One uniform view of every fill (guide-derived and official) so the same rules bind both.
 const ALL = [
   ...GUIDE_DESCRIPTION_FILLS.map((e) => ({ id: e.placeId, name: e.name, text: e.expected, kind: "guide", verifiedOn: e.verifiedOn, sourceUrl: e.sourceUrl })),
