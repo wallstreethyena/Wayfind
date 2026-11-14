@@ -34,6 +34,44 @@ Revenue-audit detail: `docs/POSTMORTEM_2026-08-25_REVENUE_PATH.md`.
 5. **New public content ships WITH sitemap + schema; new tables ship WITH RLS.** Read the
    Supabase advisor output on a schedule.
 
+## Owner Approval Persistence
+
+Gabriel approves a defined scope, behavior and risk envelope, not merely a transient commit hash.
+
+- Routine rebases, synchronization with main, mechanical conflict resolution, generated
+  metadata, migration receipts, guard-registry updates and other non-material changes must
+  not cause repeated owner approval requests. The agent verifies that the approved
+  semantics are unchanged and carries the approval forward wherever the platform permits.
+- **Never ask Gabriel to repeat an approval solely because main advanced or a branch SHA changed.**
+- Fresh approval is required only for a material change to behavior, scope, risk, spend,
+  privacy, security or production data mutation.
+- If a platform physically requires Gabriel's account to perform an action, request ONLY
+  that action.
+- How it is enforced: `scripts/lib/ownerApproval.mjs` ("APPROVAL CARRY-FORWARD") carries an
+  `/owner-approve <sha>` forward when the pull request's own change (GitHub's three-dot diff
+  from the merge base) is the same change; anything it cannot prove identical, apart from
+  moved guard-registry rows and receipts for approved migrations, needs a fresh approval,
+  and the check names what changed. Every compared approval is logged as an
+  `approval-audit` record (PR, approved and current head and base, fingerprints, files,
+  actor, time, why). Tests: `scripts/test-owner-approval-carry-forward.mjs`.
+
+## Wayfind Brand Assets
+
+**Before creating any Wayfind-branded visual, inspect the Wayfind Brand Asset Vault
+(`public/brand/wayfind/`) and `public/brand/wayfind/manifest.json`.** Guide: `docs/brand-assets.md`.
+
+- Official Wayfind logos, marks and brand assets supplied by Gabriel are stored in and
+  reused from that library.
+- Before generating, recreating or searching for a Wayfind logo, check the library and
+  manifest first. Never redraw, approximate, substitute, recolor or regenerate the Wayfind
+  logo when an approved canonical asset exists; use the actual asset.
+- Temporary worktrees, /tmp, chat attachments and generated-output folders are not
+  canonical storage.
+- When Gabriel supplies a new official brand asset, preserve the original, add it to the
+  library, update the manifest, and make it available for future Wayfind work.
+- Do not create duplicate copies throughout the repository when the canonical asset can be
+  referenced directly. `scripts/check-brand-vault.mjs` enforces the core masters.
+
 ## Concurrency & git
 
 > **🔒 The shared clone is infrastructure, not a workspace (owner directive, 2026-09-29).**

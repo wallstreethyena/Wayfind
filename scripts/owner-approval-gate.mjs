@@ -30,8 +30,8 @@
  * rule that requires it. Half a configuration is an error.
  */
 import { readFileSync } from "node:fs";
-import { decideOwnerApproval } from "./lib/ownerApproval.mjs";
-import { fetchPullEvidence } from "./lib/githubPullEvidence.mjs";
+import { decideOwnerApproval, findOwnerApproval, ownerOnlyChanges } from "./lib/ownerApproval.mjs";
+import { fetchCarryForward, fetchPullEvidence } from "./lib/githubPullEvidence.mjs";
 import { mintInstallationToken } from "./lib/githubAppAuth.mjs";
 
 const CHECK_NAME = "owner-approval-gate";
@@ -98,6 +98,17 @@ if (live && eventHeadSha && eventHeadSha !== live.liveHeadSha) {
   say(`PR #${number} moved from ${eventHeadSha.slice(0, 12)} to ${live.liveHeadSha.slice(0, 12)} after this run started; the run for the new head decides`);
   process.exit(0);
 }
+// Approval carry-forward (ownerApproval.mjs): read the approved and current
+// diffs only when an owner-only file changed and the head itself is unapproved.
+let carryForward = [];
+if (live && !evidenceError && ownerOnlyChanges(live.files).length && !findOwnerApproval(live.comments, live.liveHeadSha)) {
+  try {
+    carryForward = await fetchCarryForward({ api, repo, token, number }, live);
+  } catch (e) {
+    evidenceError = String((e && e.message) || e);
+  }
+}
+
 const headSha = live ? live.liveHeadSha : eventHeadSha;
 if (!/^[0-9a-f]{40}$/.test(String(headSha || ""))) refuse(`no head commit to post the gate check on (${evidenceError || "unknown head"})`);
 
@@ -109,6 +120,7 @@ const verdict = evidenceError
     pr: { number, eventHeadSha: live.liveHeadSha, liveHeadSha: live.liveHeadSha },
     comments: live.comments,
     error: null,
+    carryForward,
   });
 
 let appToken;
@@ -129,7 +141,7 @@ const response = await fetch(`${api}/repos/${repo}/check-runs`, {
     head_sha: headSha,
     status: "completed",
     conclusion: verdict.ok ? "success" : "failure",
-    output: { title, summary: String(verdict.reason).slice(0, 60000) },
+    output: { title, summary: String(verdict.reason).slice(0, 30000), text: (verdict.audit || []).length ? `Approval audit trail\n\n${verdict.audit.map((r) => "```json\n" + JSON.stringify(r, null, 2) + "\n```").join("\n\n")}`.slice(0, 60000) : undefined },
   }),
   signal: AbortSignal.timeout(15000),
 }).catch((e) => ({ ok: false, status: String(e && e.message) }));
