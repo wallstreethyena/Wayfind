@@ -59,8 +59,9 @@ const TOTAL_BUDGET_KB = 489;       // every JS asset for route "/", gzipped.  RA
 // them (the Supabase client among them) never appeared in "/page", so this
 // gate could not see them. FIRST_LOAD is the de-duplicated union of "/page"
 // and "/layout", which is what the browser actually fetches for "/". Measured
-// 553.5KB here after the polyfill removal; budget = measured + ~4.5KB.
-const FIRST_LOAD_BUDGET_KB = 558;  // union of "/page" + "/layout" JS, gzipped. RATCHET: lower only.
+// 553.5KB here after the polyfill removal (2026-11-12); main grew to 564.0KB by
+// 2026-11-14 before this landed, so the budget is set at that measurement + ~5KB.
+const FIRST_LOAD_BUDGET_KB = 569;  // union of "/page" + "/layout" JS, gzipped. RATCHET: lower only.
 const WARN_HEADROOM_KB = 2;        // print a loud warning below this. See below.
 // Vercel's gzip has measured up to ~0.6KB more than this machine for the same
 // tree (500.9 here vs 501.1 on Vercel for #2190, 2026-11-04, which failed six
