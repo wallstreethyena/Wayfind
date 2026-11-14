@@ -1,0 +1,426 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 62. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJaXSQbL4n5IgR41hDG9udv2o",
+   "name": "Colonial Quarter",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "history_museum",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.colonialquarter.com/",
+     "source_name": "Colonial Quarter \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Colonial Quarter features a distinctive 35-foot watchtower and colonial buildings with shops and dining",
+      "The Colonial Quarter is open daily from 10am to 5pm",
+      "Free concerts and shows are offered weekly at the outdoor venue beneath a sweeping live oak",
+      "The Colonial Quarter is a partnership between Pat Croce & Company and the University of Florida Historic St. Augustine"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "35-foot watchtower and colonial streets in historic St. Augustine",
+    "why_here": "The Colonial Quarter recreates centuries of St. Augustine history with colonial buildings and a distinctive 35-foot watchtower, plus shops and dining. It also hosts free weekly concerts at its outdoor amphitheater beneath a sweeping live oak in historic downtown.",
+    "know_before": "The Colonial Quarter is open daily from 10am to 5pm.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.colonialquarter.com/"
+     ],
+     "why_here": [
+      "https://www.colonialquarter.com/"
+     ],
+     "know_before": [
+      "https://www.colonialquarter.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Colonial Quarter features a distinctive 35-foot watchtower and colonial buildings with shops and dining",
+      "source": "https://www.colonialquarter.com/"
+     },
+     {
+      "claim": "The Colonial Quarter is open daily from 10am to 5pm",
+      "source": "https://www.colonialquarter.com/"
+     },
+     {
+      "claim": "Free concerts and shows are offered weekly at the outdoor venue beneath a sweeping live oak",
+      "source": "https://www.colonialquarter.com/"
+     },
+     {
+      "claim": "The Colonial Quarter is a partnership between Pat Croce & Company and the University of Florida Historic St. Augustine",
+      "source": "https://www.colonialquarter.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJsSLy8Nex2YgRgbI_3id8b_E",
+   "name": "Walrus Rodeo",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.walrusrodeo.com",
+     "source_name": "Walrus Rodeo \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Walrus Rodeo offers unique contemporary wood-fired cuisine, old world wine, unique cocktails and relaxed hospitality"
+     ]
+    },
+    {
+     "source": "https://www.walrusrodeo.com/menu",
+     "source_name": "Walrus Rodeo \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The menu lists mustard green LASAGNA with lamb ragout, parmesean and stracchino",
+      "The RODEO ZA is topped with anchovies, spicy tomatoes and maple-brown butter",
+      "The menu is subject to change, as offerings are proudly based on seasonal ingredients and product availability"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Contemporary wood-fired cooking in Miami \u2014 mustard green lasagna, Rodeo Za, and not just a pizzeria",
+    "why_here": "Walrus Rodeo describes itself as unique contemporary wood-fired cuisine with old world wine and unique cocktails, adding 'not just a pizzeria.' Its menu lists mustard green lasagna with lamb ragout and a Rodeo Za with anchovies, spicy tomatoes and maple-brown butter.",
+    "know_before": "The menu is subject to change, as offerings are based on seasonal ingredients and product availability.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.walrusrodeo.com"
+     ],
+     "why_here": [
+      "https://www.walrusrodeo.com"
+     ],
+     "know_before": [
+      "https://www.walrusrodeo.com"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Walrus Rodeo offers unique contemporary wood-fired cuisine, old world wine, unique cocktails and relaxed hospitality",
+      "source": "https://www.walrusrodeo.com"
+     },
+     {
+      "claim": "The menu lists mustard green LASAGNA with lamb ragout, parmesean and stracchino",
+      "source": "https://www.walrusrodeo.com/menu"
+     },
+     {
+      "claim": "The RODEO ZA is topped with anchovies, spicy tomatoes and maple-brown butter",
+      "source": "https://www.walrusrodeo.com/menu"
+     },
+     {
+      "claim": "The menu is subject to change, as offerings are proudly based on seasonal ingredients and product availability",
+      "source": "https://www.walrusrodeo.com/menu"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ3TqagqwXw4gRSzSibPN094s",
+   "name": "Smoothie King",
+   "category": "food",
+   "metro": "manatee-sarasota",
+   "primary_type": "food",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.smoothieking.com",
+     "source_name": "Smoothie King \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Smoothie King designs recipes from the ground up",
+      "It works with nutritional experts to balance nutrients and flavor",
+      "From classic to performance-driven favorites, the menu is made with nutritional needs in mind"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Recipes designed from the ground up with nutritional experts to balance flavor",
+    "why_here": "Smoothie King says it designs recipes from the ground up, working with nutritional experts to balance nutrients and flavor. From classic to performance-driven favorites, its menu is made with nutritional needs in mind.",
+    "know_before": "You can search for a location by ZIP code on the official site.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.smoothieking.com"
+     ],
+     "why_here": [
+      "https://www.smoothieking.com"
+     ],
+     "know_before": [
+      "https://www.smoothieking.com"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Smoothie King designs recipes from the ground up",
+      "source": "https://www.smoothieking.com"
+     },
+     {
+      "claim": "It works with nutritional experts to balance nutrients and flavor",
+      "source": "https://www.smoothieking.com"
+     },
+     {
+      "claim": "From classic to performance-driven favorites, the menu is made with nutritional needs in mind",
+      "source": "https://www.smoothieking.com"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJK0m8N2eNk4gR3Q6Fe6gYs_w",
+   "name": "Topgolf Panama City Beach",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://topgolf.com/us/panama-city-beach/",
+     "source_name": "Topgolf Panama City Beach \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Topgolf Panama City Beach has 2 floors and 70+ all-weather bays",
+      "Topgolf Panama City Beach has a 22-foot video wall and 100+ HDTVs",
+      "Guests can use complimentary clubs or their own",
+      "High-tech balls score themselves",
+      "Monday through Thursday hours are 10:00 a.m. to 11:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Venue with 70+ all-weather bays across 2 floors and a 22-foot video wall",
+    "why_here": "Topgolf Panama City Beach has 2 floors and 70+ all-weather bays Topgolf Panama City Beach has a 22-foot video wall and 100+ HDTVs",
+    "know_before": "Topgolf Panama City Beach has 2 floors and 70+ all-weather bays",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://topgolf.com/us/panama-city-beach/"
+     ],
+     "why_here": [
+      "https://topgolf.com/us/panama-city-beach/"
+     ],
+     "know_before": [
+      "https://topgolf.com/us/panama-city-beach/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Topgolf Panama City Beach has 2 floors and 70+ all-weather bays",
+      "source": "https://topgolf.com/us/panama-city-beach/"
+     },
+     {
+      "claim": "Topgolf Panama City Beach has a 22-foot video wall and 100+ HDTVs",
+      "source": "https://topgolf.com/us/panama-city-beach/"
+     },
+     {
+      "claim": "Guests can use complimentary clubs or their own",
+      "source": "https://topgolf.com/us/panama-city-beach/"
+     },
+     {
+      "claim": "High-tech balls score themselves",
+      "source": "https://topgolf.com/us/panama-city-beach/"
+     },
+     {
+      "claim": "Monday through Thursday hours are 10:00 a.m. to 11:00 p.m.",
+      "source": "https://topgolf.com/us/panama-city-beach/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJZwpmWwVw54gRK5HD5FqlBfU",
+   "name": "The Chapman",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://thechapman.com/",
+     "source_name": "The Chapman \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Chapman is an upscale restaurant on Park Avenue in Winter Park",
+      "It celebrates the best Florida has to offer",
+      "The menu features prime steaks, Florida fresh fish, fresh pasta, artisan cheeses, and local produce",
+      "The Chapman is Winter Park's destination for fine dining and craft cocktails"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Winter Park's destination for fine dining and craft cocktails",
+    "why_here": "The Chapman is an upscale restaurant on Park Avenue in Winter Park, inviting guests to savor the best of Florida\u2019s cuisine and cocktails. Its menu is a trip around the peninsula featuring prime steaks, Florida fresh fish, fresh pasta, artisan cheeses, and local produce.",
+    "know_before": "The Chapman is an upscale restaurant on Park Avenue in Winter Park",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://thechapman.com/"
+     ],
+     "why_here": [
+      "https://thechapman.com/"
+     ],
+     "know_before": [
+      "https://thechapman.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Chapman is an upscale restaurant on Park Avenue in Winter Park",
+      "source": "https://thechapman.com/"
+     },
+     {
+      "claim": "It celebrates the best Florida has to offer",
+      "source": "https://thechapman.com/"
+     },
+     {
+      "claim": "The menu features prime steaks, Florida fresh fish, fresh pasta, artisan cheeses, and local produce",
+      "source": "https://thechapman.com/"
+     },
+     {
+      "claim": "The Chapman is Winter Park's destination for fine dining and craft cocktails",
+      "source": "https://thechapman.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJJQVMQuJXw4gRhD0CpEOETGo",
+   "name": "Downtown Wellen Park",
+   "category": "shopping",
+   "metro": "manatee-sarasota",
+   "primary_type": "shopping_mall",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://wellenpark.com/downtown-wellen/",
+     "source_name": "Downtown Wellen Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Downtown Wellen is the center-point for community gatherings",
+      "Trails lead to the lake with 2.8 miles of pedestrian paths along the water",
+      "Wellen Park Outfitter offers kayak, paddleboard, and pedal boat rentals"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Downtown Wellen is the center-point for community gatherings",
+    "why_here": "Downtown Wellen is the center-point for community gatherings Trails lead to the lake with 2.8 miles of pedestrian paths along the water",
+    "know_before": "Wellen Park Outfitter offers kayak, paddleboard, and pedal boat rentals in Downtown Wellen, per the site.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://wellenpark.com/downtown-wellen/"
+     ],
+     "why_here": [
+      "https://wellenpark.com/downtown-wellen/"
+     ],
+     "know_before": [
+      "https://wellenpark.com/downtown-wellen/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Downtown Wellen is the center-point for community gatherings",
+      "source": "https://wellenpark.com/downtown-wellen/"
+     },
+     {
+      "claim": "Trails lead to the lake with 2.8 miles of pedestrian paths along the water",
+      "source": "https://wellenpark.com/downtown-wellen/"
+     },
+     {
+      "claim": "Wellen Park Outfitter offers kayak, paddleboard, and pedal boat rentals",
+      "source": "https://wellenpark.com/downtown-wellen/"
+     }
+    ]
+   }
+  }
+ ]
+}
