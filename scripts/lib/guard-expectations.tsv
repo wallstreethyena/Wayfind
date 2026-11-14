@@ -279,7 +279,7 @@ scripts/check-job-pulse-contract.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	7	1	0
 scripts/check-job-watch-delivery.mjs	0	CALL	scheduled-monitoring-only	0	-	0	1	0	0a6cef8913ad176b4d0d917ee1658dd9b5baaffefb2bda61ef801aba2d52e659
 scripts/check-kit-focus.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	13	1	0	6ad909590ec6e6824d1d3017283b09d429a6ab0735bb6677cab2366f0561430e
 scripts/check-known-for-tiers.mjs	0	RENDER	blocks-ci-and-deploy	1	-	18	0	0	8d57cfb53020ee5e90ca56ced905458dc353b5af404fbe370a0844b8983d846f
-scripts/check-known-for.mjs	0	RENDER	blocks-ci-and-deploy	1	-	39	0	0	0ada7bcc2ae45301d9fba93d3d9042a4fc904dece57ab6c5d15dc698e5aaed52
+scripts/check-known-for.mjs	0	RENDER	blocks-ci-and-deploy	1	-	42	0	0	0334d9da20580c4325e95a18ea76333cd663ad19850b6823ab5278a80903f245
 scripts/check-landing-data-client-free.mjs	0	RENDER	blocks-ci-and-deploy	1	-	13	0	0	79513aef97d0555623778b9a6acc054f8525e7ab3d66649446a1e8ea854c1219
 scripts/check-landing-photos.mjs	0	CALL	blocks-ci-and-deploy	1	-	15	0	0	e8a45c8a6ba2834c71b57ba40d753437263b174955d84f500aae484f8cdf2a4f
 scripts/check-lands-on-results.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	37	1	0	72acde08ec2136bd9f4645b33b07362231c5b0885c4e0cf05ccc031fad27e332
