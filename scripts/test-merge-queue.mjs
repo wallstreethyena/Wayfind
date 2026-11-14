@@ -86,6 +86,7 @@ class FakeGitHub {
     const p = full.slice(prefix.length);
     const body = init.body ? JSON.parse(init.body) : undefined;
     this.calls.push({ method, path: p, body });
+    if (this.haltAtCallLen && this.calls.length >= this.haltAtCallLen) this.haltRaised = true;
     const reply = (status, data = null) => ({ status, ok: status >= 200 && status < 300, json: async () => data });
     let m;
     if (method === "GET" && (m = p.match(/^\/issues\?labels=([^&]+)/))) {
@@ -93,7 +94,7 @@ class FakeGitHub {
       if (label === "merge-queue-halt") {
         this.haltChecks++;
         if (this.haltUnreadable) return reply(503, { message: "unavailable" });
-        const raised = this.haltAtCheck > 0 && this.haltChecks >= this.haltAtCheck;
+        const raised = this.haltRaised || (this.haltAtCheck > 0 && this.haltChecks >= this.haltAtCheck);
         return reply(200, [...this.haltIssues, ...(raised ? [{ number: 9999 }] : [])]);
       }
       return reply(200, [...this.prs.values()].filter((x) => x.state === "open" && x.labels.includes(label)).map((x) => ({ number: x.number, pull_request: {} })));
@@ -530,6 +531,7 @@ const botComments = (pr) => pr.comments.filter((c) => c.user.type === "Bot").map
 // =====================================================================================
 const mutCalls = (gh) => gh.calls.map((c, i) => ({ ...c, i })).filter((c) => c.method !== "GET" && !/\/comments$/.test(c.path) && !(c.method === "DELETE" && /\/labels\//.test(c.path)));
 const isHaltCheck = (c) => c.method === "GET" && /labels=merge-queue-halt/.test(c.path);
+const tryDrain = async (gh, ...rest) => { try { return await drain(gh, ...rest); } catch (e) { return { merged: [], dropped: [], crashed: e }; } };
 const newHead = (gh, pr) => { pr.headSha = gh.sha(); gh.commits.set(pr.headSha, { tree: gh.sha() }); };
 
 // ---- 1. identity of the guards result ---------------------------------------------------
@@ -620,7 +622,7 @@ for (const [what, hook] of [
   try { r = await drain(gh); } catch (e) { late = e; }
   ok(late === null, `tree proof: another merge landing after ours must not throw (${late && late.name})`);
   ok(r.merged.length === 1 && gh.logs.some((l) => /merged #220 .* tree-proof=PASS/.test(l)), "tree proof: another merge landing after ours is not a false mismatch");
-  ok(gh.find("GET", /\/commits\/[0-9a-f]{40}$/).some((c) => c.path === `/commits/${r.merged[0].sha}`) && !gh.find("GET", /\/commits\/main$/).length, "tree proof: the merge commit is fetched by the sha the merge API returned");
+  ok(r.merged.length === 1 && gh.find("GET", /\/commits\/[0-9a-f]{40}$/).some((c) => c.path === `/commits/${r.merged[0].sha}`) && !gh.find("GET", /\/commits\/main$/).length, "tree proof: the merge commit is fetched by the sha the merge API returned");
 }
 {
   const gh = new FakeGitHub();
@@ -641,7 +643,9 @@ for (const [what, opts] of [["GET answers 503", { getFail: 503 }], ["GET times o
   const gh = new FakeGitHub();
   const bad = gh.addPr(230, opts);
   const good = gh.addPr(231);
-  const r = await drain(gh);
+  const r = await tryDrain(gh);
+  ok(!r.crashed, `isolation: an unavailable PR (${what}) must not crash the drain (${r.crashed && r.crashed.message})`);
+  if (opts.getFail) ok(gh.find("GET", /pulls\/230$/).length >= 3, `isolation: a failed GET (${what}) is retried before the PR is given up on`);
   ok(good.merged && !bad.merged && r.dropped.map((d) => d.number).join() === "230" && !r.halted, `isolation: #230 unavailable (${what}) does not stop #231 merging`);
   ok(botComments(bad).length === 1 && /unexpected problem/.test(botComments(bad)[0]) && bad.labels.length === 0, `isolation: #230 (${what}) gets exactly one comment and loses the label`);
 }
@@ -669,15 +673,17 @@ for (const [what, opts] of [["GET answers 503", { getFail: 503 }], ["GET times o
     const gh = new FakeGitHub();
     gh.addPr(250);                                   // needs update-branch (main moves below)
     gh.addPr(251, { files: ["CLAUDE.md"] });        // fails approval -> approval check + drop
+    gh.addPr(252, { conflict: true });              // conflict drop at the start of its step
     gh.externalPush();
     gh.haltAtCheck = haltAt;
     return gh;
   };
   const base = scenario(0);
   const br = await drain(base);
-  const muts = mutCalls(base);
-  const kinds = new Set(muts.map((c) => (/update-branch/.test(c.path) ? "update-branch" : /dispatches/.test(c.path) ? "dispatch" : /check-runs/.test(c.path) ? "check" : /merge$/.test(c.path) ? "merge" : "other")));
-  ok(["update-branch", "dispatch", "check", "merge"].every((k) => kinds.has(k)) && !kinds.has("other") && br.merged.length === 1, `halt: the scenario exercises update-branch, dispatch, check post and merge (${[...kinds]})`);
+  const allMut = (g) => g.calls.map((c, i) => ({ ...c, i })).filter((c) => c.method !== "GET" && !(c.method === "DELETE" && /\/labels\//.test(c.path)));
+  const muts = allMut(base);
+  const kinds = new Set(muts.map((c) => (/update-branch/.test(c.path) ? "update-branch" : /dispatches/.test(c.path) ? "dispatch" : /check-runs/.test(c.path) ? "check" : /merge$/.test(c.path) ? "merge" : /comments$/.test(c.path) ? "comment" : "other")));
+  ok(["update-branch", "dispatch", "check", "merge", "comment"].every((k) => kinds.has(k)) && !kinds.has("other") && br.merged.length === 1, `halt: the scenario exercises update-branch, dispatch, check post, merge and a drop comment (${[...kinds]})`);
   let prev = -1; let unguarded = 0;
   for (const c of muts) { if (!base.calls.slice(prev + 1, c.i).some(isHaltCheck)) unguarded++; prev = c.i; }
   ok(unguarded === 0, `halt: every mutation is immediately preceded by a halt check (${unguarded} unguarded of ${muts.length})`);
@@ -688,10 +694,20 @@ for (const [what, opts] of [["GET answers 503", { getFail: 503 }], ["GET times o
     const rr = await drain(gh);
     let seen = 0; let idx = -1;
     gh.calls.forEach((c, i) => { if (isHaltCheck(c) && ++seen === k) idx = i; });
-    const after = mutCalls(gh).filter((c) => c.i > idx);
+    const after = allMut(gh).filter((c) => c.i > idx);
     if (!rr.halted || after.length) leaks++;
   }
   ok(total >= 8 && leaks === 0, `halt: raising the halt label at each of the ${total} checks stops every later mutation (${leaks} leaks)`);
+  // the sharper form: the label appears right after the read that precedes each mutation
+  // (between the last look and the write), so only a check IMMEDIATELY before it can see it
+  const missed = [];
+  for (const mu of muts) {
+    const gh = scenario(0);
+    gh.haltAtCallLen = mu.i;   // raised once the call at index mu.i - 1 has been made
+    await tryDrain(gh);
+    if (allMut(gh).some((c) => c.i >= mu.i)) missed.push(`${mu.method} ${mu.path.split("?")[0]}`);
+  }
+  ok(missed.length === 0, `halt: a halt label raised right before any single mutation prevents it (${missed.length} of ${muts.length} slipped: ${missed.slice(0, 3).join("; ")})`);
 }
 {
   // halt raised right after our merge: the merge stands, nothing else is dispatched, the next PR is untouched
