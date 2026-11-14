@@ -1,0 +1,776 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 62. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJnW4wY-TxwogRQku5XIBxGao",
+   "name": "The BayCare Sound",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "event_venue",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.rutheckerdhall.com/planyourvisit",
+     "source_name": "The BayCare Sound \u2014 official source",
+     "source_class": "tourism_dmo",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The BayCare Sound is Clearwater's newest outdoor, waterfront boutique concert venue",
+      "Covered seating is for 4,000 with room for 5,000 more in the lawn",
+      "Ruth Eckerd Hall is at 1111 McMullen Booth Road in Clearwater"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Clearwater's newest outdoor, waterfront boutique concert venue",
+    "why_here": "The Ruth Eckerd Hall site describes The BayCare Sound as Clearwater's newest outdoor, waterfront boutique concert venue. It features covered seating for 4,000 with room for 5,000 more in the lawn.",
+    "know_before": "The BayCare Sound is Clearwater's newest outdoor, waterfront boutique concert venue",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.rutheckerdhall.com/planyourvisit"
+     ],
+     "why_here": [
+      "https://www.rutheckerdhall.com/planyourvisit"
+     ],
+     "know_before": [
+      "https://www.rutheckerdhall.com/planyourvisit"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The BayCare Sound is Clearwater's newest outdoor, waterfront boutique concert venue",
+      "source": "https://www.rutheckerdhall.com/planyourvisit"
+     },
+     {
+      "claim": "Covered seating is for 4,000 with room for 5,000 more in the lawn",
+      "source": "https://www.rutheckerdhall.com/planyourvisit"
+     },
+     {
+      "claim": "Ruth Eckerd Hall is at 1111 McMullen Booth Road in Clearwater",
+      "source": "https://www.rutheckerdhall.com/planyourvisit"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJjZq3rbFB6IgRb6e1zyAKbg4",
+   "name": "Three Sisters Springs Visitors Center for Swimming with Manatees",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "visitor_center",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.crystalriverfl.org/sisters",
+     "source_name": "Three Sisters Springs Visitors Center for Swimming with Manatees \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Three Sisters Springs Center manages land access to Three Sisters Springs, a unit of the Crystal River National Wildlife Refuge",
+      "Access to the refuge is offered by shuttle, walk-in and bicycle-in",
+      "The boardwalk has viewing platforms to observe the springs and native wildlife",
+      "There is no water access to the spring from the refuge"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Boardwalk viewing platforms overlook the springs and native wildlife at this refuge",
+    "why_here": "The center manages land access to Three Sisters Springs, a unit of the Crystal River National Wildlife Refuge, with shuttle, walk-in and bicycle-in access. A boardwalk has viewing platforms to observe the springs and native wildlife.",
+    "know_before": "There is no water access to the spring from the refuge, and swimming is permitted only by arriving through the waterways.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.crystalriverfl.org/sisters"
+     ],
+     "why_here": [
+      "https://www.crystalriverfl.org/sisters"
+     ],
+     "know_before": [
+      "https://www.crystalriverfl.org/sisters"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Three Sisters Springs Center manages land access to Three Sisters Springs, a unit of the Crystal River National Wildlife Refuge",
+      "source": "https://www.crystalriverfl.org/sisters"
+     },
+     {
+      "claim": "Access to the refuge is offered by shuttle, walk-in and bicycle-in",
+      "source": "https://www.crystalriverfl.org/sisters"
+     },
+     {
+      "claim": "The boardwalk has viewing platforms to observe the springs and native wildlife",
+      "source": "https://www.crystalriverfl.org/sisters"
+     },
+     {
+      "claim": "There is no water access to the spring from the refuge",
+      "source": "https://www.crystalriverfl.org/sisters"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJLzMH2FcA2YgRyz8FN7F7OOY",
+   "name": "Huizenga Park",
+   "category": "attractions",
+   "metro": "broward",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.huizengapark.org/",
+     "source_name": "Huizenga Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Huizenga Park is Downtown Fort Lauderdale's signature gathering place",
+      "The park was originally built in the late 1990s and a full renovation was completed in 2026",
+      "Outdoor rooms offer opportunities for leisure, dining, physical activity, events and meet-ups",
+      "The park is described as welcoming and for everyone"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Downtown Fort Lauderdale's signature gathering place, reimagined and reopened for you",
+    "why_here": "The park calls itself Downtown Fort Lauderdale's signature gathering place, with a series of outdoor rooms for leisure, dining, physical activity, events and meet-ups. Originally built in the late 1990s, it completed a full renovation in 2026.",
+    "know_before": "The park is described as a space for everyone, to be used every day of the year.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.huizengapark.org/"
+     ],
+     "why_here": [
+      "https://www.huizengapark.org/"
+     ],
+     "know_before": [
+      "https://www.huizengapark.org/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Huizenga Park is Downtown Fort Lauderdale's signature gathering place",
+      "source": "https://www.huizengapark.org/"
+     },
+     {
+      "claim": "The park was originally built in the late 1990s and a full renovation was completed in 2026",
+      "source": "https://www.huizengapark.org/"
+     },
+     {
+      "claim": "Outdoor rooms offer opportunities for leisure, dining, physical activity, events and meet-ups",
+      "source": "https://www.huizengapark.org/"
+     },
+     {
+      "claim": "The park is described as welcoming and for everyone",
+      "source": "https://www.huizengapark.org/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJsR0yJpiNk4gRzx0d79JwKns",
+   "name": "Pirates Voyage Dinner & Show",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "performing_arts_theater",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://piratesvoyage.com/panama-city-beach/the-show",
+     "source_name": "Pirates Voyage Dinner & Show \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Pirates Voyage in Panama City Beach is a family-friendly pirate dinner show",
+      "The show features live performers and thrilling animal acts",
+      "The show features an immersive indoor arena",
+      "The show includes pirate battles and acrobatics"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Family-friendly pirate dinner show with live performers and animal acts",
+    "why_here": "Pirates Voyage describes its Panama City Beach show as a family-friendly pirate dinner show featuring live performers and thrilling animal acts. It says the show includes pirate battles, stunts, and acrobatics in an immersive indoor arena.",
+    "know_before": "All guests will pass through a scanner upon entry, and all bags are subject to search if deemed necessary, per the show site.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://piratesvoyage.com/panama-city-beach/the-show"
+     ],
+     "why_here": [
+      "https://piratesvoyage.com/panama-city-beach/the-show"
+     ],
+     "know_before": [
+      "https://piratesvoyage.com/panama-city-beach/the-show"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Pirates Voyage in Panama City Beach is a family-friendly pirate dinner show",
+      "source": "https://piratesvoyage.com/panama-city-beach/the-show"
+     },
+     {
+      "claim": "The show features live performers and thrilling animal acts",
+      "source": "https://piratesvoyage.com/panama-city-beach/the-show"
+     },
+     {
+      "claim": "The show features an immersive indoor arena",
+      "source": "https://piratesvoyage.com/panama-city-beach/the-show"
+     },
+     {
+      "claim": "The show includes pirate battles and acrobatics",
+      "source": "https://piratesvoyage.com/panama-city-beach/the-show"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJT1fY8CWr2YgRPfvi-_9cSiU",
+   "name": "Puttshack - Dania Beach",
+   "category": "beach",
+   "metro": "broward",
+   "primary_type": "miniature_golf_course",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.puttshack.com/locations/dania-beach/",
+     "source_name": "Puttshack - Dania Beach \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Puttshack Dania Beach offers tech-infused indoor mini golf, cocktails and a menu at Dania Pointe",
+      "Each mini golf game consists of 9 holes and lasts around 30-45 minutes",
+      "The venue encourages pre-booking especially on nights and weekends and walk-ins are not guaranteed"
+     ]
+    },
+    {
+     "source": "https://www.puttshack.com/the-game",
+     "source_name": "Puttshack - Dania Beach \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Puttshack uses Trackaball Technology that follows your ball and keeps score automatically"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Tech-infused indoor mini golf with automatic scoring at Dania Pointe",
+    "why_here": "Puttshack Dania Beach pairs tech-infused indoor mini golf with cocktails and a chef-driven menu at Dania Pointe. Its Trackaball technology embeds a mini-computer in each ball to keep score automatically over a 9-hole game lasting about 30-45 minutes.",
+    "know_before": "Pre-booking is encouraged especially on nights and weekends; walk-ins are not guaranteed",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.puttshack.com/locations/dania-beach/"
+     ],
+     "why_here": [
+      "https://www.puttshack.com/locations/dania-beach/"
+     ],
+     "know_before": [
+      "https://www.puttshack.com/locations/dania-beach/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Puttshack Dania Beach offers tech-infused indoor mini golf, cocktails and a menu at Dania Pointe",
+      "source": "https://www.puttshack.com/locations/dania-beach/"
+     },
+     {
+      "claim": "Each mini golf game consists of 9 holes and lasts around 30-45 minutes",
+      "source": "https://www.puttshack.com/locations/dania-beach/"
+     },
+     {
+      "claim": "Puttshack uses Trackaball Technology that follows your ball and keeps score automatically",
+      "source": "https://www.puttshack.com/the-game"
+     },
+     {
+      "claim": "The venue encourages pre-booking especially on nights and weekends and walk-ins are not guaranteed",
+      "source": "https://www.puttshack.com/locations/dania-beach/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJD8rK2Y0n5IgRnagsN_AKOXQ",
+   "name": "The Drunken Horse St. Augustine",
+   "category": "food",
+   "metro": "st-augustine-fl",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://drunkenhorsewinebars.com/",
+     "source_name": "The Drunken Horse St. Augustine \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Drunken Horse brings a taste of France to Florida\u2019s oldest city",
+      "It offers a curated selection of fine French and international wines",
+      "Wines can be paired with artisanal cheese or charcuterie boards",
+      "Hours are from 4:00 p.m. to 10:00 p.m. Monday through Sunday"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "A taste of France in the heart of St. Augustine",
+    "why_here": "The Drunken Horse brings a taste of France to Florida\u2019s oldest city in historic downtown St. Augustine. Its wine bar and restaurant offer a fresh, modern approach to wine and dining, blending French elegance with historic surroundings and curated wines.",
+    "know_before": "Hours are from 4:00 p.m. to 10:00 p.m. Monday through Sunday.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://drunkenhorsewinebars.com/"
+     ],
+     "why_here": [
+      "https://drunkenhorsewinebars.com/"
+     ],
+     "know_before": [
+      "https://drunkenhorsewinebars.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Drunken Horse brings a taste of France to Florida\u2019s oldest city",
+      "source": "https://drunkenhorsewinebars.com/"
+     },
+     {
+      "claim": "It offers a curated selection of fine French and international wines",
+      "source": "https://drunkenhorsewinebars.com/"
+     },
+     {
+      "claim": "Wines can be paired with artisanal cheese or charcuterie boards",
+      "source": "https://drunkenhorsewinebars.com/"
+     },
+     {
+      "claim": "Hours are from 4:00 p.m. to 10:00 p.m. Monday through Sunday",
+      "source": "https://drunkenhorsewinebars.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ001Ra3p754gRq1bFeHUUxXY",
+   "name": "Steinmetz Hall",
+   "category": "attractions",
+   "metro": "orlando",
+   "primary_type": "performing_arts_theater",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://orlandophil.org/steinmetz/",
+     "source_name": "Steinmetz Hall \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Steinmetz Hall is designed to achieve an N1 sound rating, the lowest level at which humans can detect sound",
+      "Steinmetz Hall officially opened in January 2022",
+      "The hall is named after Chuck and Margery Pabst Steinmetz",
+      "Depending on configuration, maximum capacity ranges from 1,597 to 1,741 people",
+      "There are 4 main levels of seating"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "A multiform theater designed for an N1 rating, the lowest level humans can detect sound",
+    "why_here": "The hall is described as one of the world's most acoustically perfect spaces, designed to achieve an N1 sound rating. The multiform theater transforms in shape, seating and sound to accommodate a variety of art forms and events.",
+    "know_before": "Steinmetz Hall is designed to achieve an N1 sound rating, the lowest level at which humans can detect sound",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://orlandophil.org/steinmetz/"
+     ],
+     "why_here": [
+      "https://orlandophil.org/steinmetz/"
+     ],
+     "know_before": [
+      "https://orlandophil.org/steinmetz/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Steinmetz Hall is designed to achieve an N1 sound rating, the lowest level at which humans can detect sound",
+      "source": "https://orlandophil.org/steinmetz/"
+     },
+     {
+      "claim": "Steinmetz Hall officially opened in January 2022",
+      "source": "https://orlandophil.org/steinmetz/"
+     },
+     {
+      "claim": "The hall is named after Chuck and Margery Pabst Steinmetz",
+      "source": "https://orlandophil.org/steinmetz/"
+     },
+     {
+      "claim": "Depending on configuration, maximum capacity ranges from 1,597 to 1,741 people",
+      "source": "https://orlandophil.org/steinmetz/"
+     },
+     {
+      "claim": "There are 4 main levels of seating",
+      "source": "https://orlandophil.org/steinmetz/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJaeBbjZmx2YgRI0Yb0-WQtPU",
+   "name": "La Natural",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.lanaturalmiami.com/about",
+     "source_name": "La Natural \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Javier Ramirez created La Natural in his backyard in Miami, Florida",
+      "He hosted friends and family for sourdough pizzas and natural wines al fresco",
+      "Little River was chosen for the location with landlords MVW Partners",
+      "The space is described as a Mediterranean house with a roll up door"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Born in a backyard over sourdough pizzas and natural wines served al fresco",
+    "why_here": "Javier Ramirez created La Natural in his backyard while hosting friends and family for sourdough pizzas and natural wines al fresco. That backyard gathering became the seed for the restaurant in Little River.",
+    "know_before": "The space is described as a Mediterranean house with a roll up door helping make the entire restaurant one big outdoor space.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.lanaturalmiami.com/about"
+     ],
+     "why_here": [
+      "https://www.lanaturalmiami.com/about"
+     ],
+     "know_before": [
+      "https://www.lanaturalmiami.com/about"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Javier Ramirez created La Natural in his backyard in Miami, Florida",
+      "source": "https://www.lanaturalmiami.com/about"
+     },
+     {
+      "claim": "He hosted friends and family for sourdough pizzas and natural wines al fresco",
+      "source": "https://www.lanaturalmiami.com/about"
+     },
+     {
+      "claim": "Little River was chosen for the location with landlords MVW Partners",
+      "source": "https://www.lanaturalmiami.com/about"
+     },
+     {
+      "claim": "The space is described as a Mediterranean house with a roll up door",
+      "source": "https://www.lanaturalmiami.com/about"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJsxtTEU_EwogREc-soNYgMu0",
+   "name": "J.C. Newman Cigar Company",
+   "category": "attractions",
+   "metro": "tampa",
+   "primary_type": "manufacturer",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.jcnewman.com/",
+     "source_name": "J.C. Newman Cigar Company \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "J.C. Newman was founded in 1895",
+      "J.C. Newman is America's oldest family-owned premium cigar company",
+      "Headquarters remains the iconic El Reloj cigar factory in Tampa, Florida",
+      "Cigars are handcrafted in the United States, the Dominican Republic, and Nicaragua"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "America's oldest family-owned premium cigar maker, founded in 1895",
+    "why_here": "J.C. Newman says it is America's oldest family-owned premium cigar company, founded in 1895 and committed for four generations to making premium cigars. Its headquarters remains the iconic El Reloj cigar factory in Tampa, Florida.",
+    "know_before": "At El Reloj, guests can visit the museum, tour the factory, and learn to roll cigars, per the company site.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.jcnewman.com/"
+     ],
+     "why_here": [
+      "https://www.jcnewman.com/"
+     ],
+     "know_before": [
+      "https://www.jcnewman.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "J.C. Newman was founded in 1895",
+      "source": "https://www.jcnewman.com/"
+     },
+     {
+      "claim": "J.C. Newman is America's oldest family-owned premium cigar company",
+      "source": "https://www.jcnewman.com/"
+     },
+     {
+      "claim": "Headquarters remains the iconic El Reloj cigar factory in Tampa, Florida",
+      "source": "https://www.jcnewman.com/"
+     },
+     {
+      "claim": "Cigars are handcrafted in the United States, the Dominican Republic, and Nicaragua",
+      "source": "https://www.jcnewman.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJMRKPC1mC3YgRTs5evGTqF4k",
+   "name": "Green Meadows Petting Farm",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "farm",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://greenmeadowsfarm.com/visit/",
+     "source_name": "Green Meadows Petting Farm \u2014 official source",
+     "source_class": "tourism_dmo",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Coni and Bob Keyes opened the petting farm in Kissimmee in 1988",
+      "Children feed cattle, alpacas, donkeys, pigs, goats, chickens and rabbits by hand",
+      "One ticket covers the animals, the tractor-drawn wagon ride and the playground",
+      "The farm opens at 10 AM Wednesday through Sunday and is closed Monday and Tuesday, with last admission at 1 PM on weekdays and 2 PM on weekends",
+      "There is no cafe on site, only vending machines, and the farm is entirely cashless"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Kids hand-feed farm animals, then ride the tractor wagon",
+    "why_here": "Coni and Bob Keyes opened this Kissimmee petting farm in 1988, and families now return across generations. Children feed cattle, alpacas, donkeys, pigs, goats, chickens and rabbits by hand, with a tractor-drawn wagon ride and playground included.",
+    "know_before": "There is no cafe on site, only vending machines; bring a picnic to eat at the shaded tables.",
+    "local_tip": "Arrive at opening, when the animals are at their most active and the paddocks are quiet.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://greenmeadowsfarm.com/visit/"
+     ],
+     "why_here": [
+      "https://greenmeadowsfarm.com/visit/"
+     ],
+     "know_before": [
+      "https://greenmeadowsfarm.com/visit/"
+     ],
+     "local_tip": [
+      "https://greenmeadowsfarm.com/visit/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Coni and Bob Keyes opened the petting farm in Kissimmee in 1988",
+      "source": "https://greenmeadowsfarm.com/visit/"
+     },
+     {
+      "claim": "Children feed cattle, alpacas, donkeys, pigs, goats, chickens and rabbits by hand",
+      "source": "https://greenmeadowsfarm.com/visit/"
+     },
+     {
+      "claim": "One ticket covers the animals, the tractor-drawn wagon ride and the playground",
+      "source": "https://greenmeadowsfarm.com/visit/"
+     },
+     {
+      "claim": "The farm opens at 10 AM Wednesday through Sunday and is closed Monday and Tuesday, with last admission at 1 PM on weekdays and 2 PM on weekends",
+      "source": "https://greenmeadowsfarm.com/visit/"
+     },
+     {
+      "claim": "There is no cafe on site, only vending machines, and the farm is entirely cashless",
+      "source": "https://greenmeadowsfarm.com/visit/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJMZ2NFvQB2YgRCwcJecybdGY",
+   "name": "Las Olas Oceanside Park",
+   "category": "attractions",
+   "metro": "broward",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://theloopflb.com/visit/",
+     "source_name": "Las Olas Oceanside Park \u2014 official source",
+     "source_class": "tourism_dmo",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Las Olas Oceanside Parks System is comprised of four unique greenspaces on Fort Lauderdale Beach",
+      "The system was completed in late October 2019",
+      "Parking includes the Las Olas Beach Garage one block west"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Beachfront greenspace in the Las Olas Oceanside Parks System",
+    "why_here": "The Las Olas Oceanside Parks System is comprised of four unique greenspaces on Fort Lauderdale Beach The system was completed in late October 2019",
+    "know_before": "The Las Olas Oceanside Parks System is comprised of four unique greenspaces on Fort Lauderdale Beach",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://theloopflb.com/visit/"
+     ],
+     "why_here": [
+      "https://theloopflb.com/visit/"
+     ],
+     "know_before": [
+      "https://theloopflb.com/visit/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Las Olas Oceanside Parks System is comprised of four unique greenspaces on Fort Lauderdale Beach",
+      "source": "https://theloopflb.com/visit/"
+     },
+     {
+      "claim": "The system was completed in late October 2019",
+      "source": "https://theloopflb.com/visit/"
+     },
+     {
+      "claim": "Parking includes the Las Olas Beach Garage one block west",
+      "source": "https://theloopflb.com/visit/"
+     }
+    ]
+   }
+  }
+ ]
+}
