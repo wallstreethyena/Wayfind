@@ -355,8 +355,13 @@ function ok(cond, msg) {
   );
   const synOutRes = await outboundGet(synOutReq);
   ok(
-    synOutRes.status === 302 && synOutRes.headers.get("x-wayfind-partner-counted") === "0" && fetchCalls.length === 0,
-    "Check 12 & 13: synthetic outbound probe redirects for QA verification with zero analytics writes"
+    // Main's shared redirect gate (lib/redirectTrafficClass.js, #2504) now refuses wf_synthetic traffic
+    // before the route's own synthetic branch: the probe 302s back to Wayfind (never the sponsor), is never counted, writes nothing.
+    synOutRes.status === 302 &&
+      (synOutRes.headers.get("location") || "").startsWith("https://www.gowayfind.com/") &&
+      synOutRes.headers.get("x-wayfind-partner-counted") !== "1" &&
+      fetchCalls.length === 0,
+    "Check 12 & 13: synthetic outbound probe is refused to Wayfind (not the sponsor), uncounted, with zero analytics writes"
   );
 
   // HEAD preflight returns 204 with zero writes
