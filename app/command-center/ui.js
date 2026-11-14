@@ -858,6 +858,7 @@ function PartnersRevenueSection({ auth, range }) {
   const d = dget(p.data, "data", null);
   if (p.error) return <Section id="partners" title="Direct sponsors & Florida sales engine"><PanelError {...p} reload={p.reload} /></Section>;
   const truth = dget(d, "commercialTruth", {}) || {};
+  const layers = dget(d, "architectureLayers", null) || [];
   const leadsBlock = dget(d, "inboundLeads", null);
   const leads = dget(leadsBlock, "data", null);
   const evBlock = dget(d, "funnelEvents", null);
@@ -870,27 +871,33 @@ function PartnersRevenueSection({ auth, range }) {
     <Section id="partners" title="Direct sponsors & Florida sales engine" loading={p.loading && !p.data}
       sub={dget(d, "integrityNote", "")}>
       <Grid min={175}>
-        <StatTile label="Collected sponsor revenue" value={truth.confirmedCollectedPartnerRevenueUsd != null ? fmtUsd(truth.confirmedCollectedPartnerRevenueUsd) : "–"} sub="0% commission on direct bookings" def="Confirmed collected direct-sponsorship revenue. Inquiries and proposals never count as revenue." source={dget(d, "staticSource")} />
-        <StatTile label="Real inbound leads" value={leads ? fmtNum(leads.realLeadCount) : "–"} sub={leads ? `${fmtNum(leads.syntheticExcludedCount)} synthetic/QA excluded` : "source unavailable"} def="Validated non-synthetic B2B inquiries saved from /partners. Automated QA probes are isolated and excluded." source={dget(leadsBlock, "source")} />
-        <StatTile label="Sponsor outbound clicks" value={ev ? fmtNum(ev.sponsorOutboundClicks) : "–"} sub={ev ? `${fmtNum(ev.inquiryClicks)} form clicks · ${fmtNum(ev.leadsCreated)} leads` : "in selected window"} def="Server-witnessed human sponsor_out redirects in the selected ET window (bots and synthetic probes excluded)." source={dget(evBlock, "source")} />
+        <StatTile label="Collected sponsor revenue (CRM DB)" value={truth.confirmedCollectedPartnerRevenueInInspectedDbUsd != null ? fmtUsd(truth.confirmedCollectedPartnerRevenueInInspectedDbUsd) : "–"} sub="Inspected CRM DB · affiliate: unknown" def={truth.revenueScopeNote || "Confirmed collected direct-sponsorship revenue from verified CLOSED_WON records in inspected CRM storage (wf_feedback). External affiliate dashboards are unreconciled ('unknown', never $0); pre-CRM agreements such as Rio Gastonia were outside CRM billing tables."} source={dget(leadsBlock, "source") || dget(d, "staticSource")} />
+        <StatTile label="Real inbound leads" value={leads ? fmtNum(leads.realLeadCount) : "–"} sub={leads ? `${fmtNum(leads.syntheticExcludedCount)} synthetic/QA excluded` : "source unavailable"} def="Validated non-synthetic B2B inquiries and owner CRM records saved in wf_feedback (deduplicated by leadId + highest revision)." source={dget(leadsBlock, "source")} />
+        <StatTile label="Sponsor outbound clicks" value={ev ? fmtNum(ev.sponsorOutboundClicks) : "–"} sub={ev ? `${fmtNum(ev.leadsCreated)} leads in window · redirect hops (not bookings)` : "in selected window"} def="Server-witnessed non-bot sponsor_out redirect hops (/api/partner/outbound) in the selected ET window — counts redirect hops, not unique people or confirmed bookings." source={dget(evBlock, "source")} />
         <StatTile label="Active FL paid sponsors" value={truth.activeFloridaPaidSponsorsCount != null ? fmtNum(truth.activeFloridaPaidSponsorsCount) : "–"} sub={`${fmtNum(truth.activeNonFloridaPaidSponsorsCount || 0)} out-of-state showcase live`} def={truth.proofGapDisclosure || "Active geo-gated paid placements in Florida vs out-of-state showcase."} />
       </Grid>
+      {layers.length ? (
+        <p style={{ fontSize: 11, color: C.muted, margin: "10px 0 0", lineHeight: 1.5 }}>
+          <strong>3-layer separation:</strong> (1) <strong>Persisted CRM</strong> (<code>wf_feedback</code>): live inbound inquiries &amp; owner stage transitions · (2) <strong>Static internal proposals</strong> (<code>{"data/partners/*.json"}</code>): 25 prospects &amp; 5 pilots (uncontacted proposals, snapshot <code>2026-11-13</code>, not active deals) · (3) <strong>On-demand evaluators</strong> (<code>partnerRevenueEngine.js</code> / CLI): proposal, campaign-spec, truth-pack, report &amp; renewal builders.
+        </p>
+      ) : null}
       <div style={{ height: 12 }} />
       <Two min={300}>
         <Card>
-          <Frame title="Inbound B2B lead pipeline (/partners)" def="Saved inquiries from /partners parsed into the 12-stage evidence-gated CRM model. Synthetic tests are excluded from realLeadCount."
+          <Frame title="Persisted B2B CRM pipeline (wf_feedback)" def="Saved inquiries from /partners and owner stage transitions deduplicated by leadId + revision across the 12-stage evidence-gated CRM model. Synthetic tests are excluded."
             source={dget(leadsBlock, "source")}>
             {leads ? (
               leads.leads && leads.leads.length ? (
-                <DataTable caption="Inbound sponsor leads"
-                  columns={["When", "Business", "Market", "Stage", "Fit", "Offer", "Contact"]}
+                <DataTable caption="Persisted sponsor CRM leads"
+                  columns={["When", "Business", "Market", "Stage", "Fit", "Offer", "Collected", "Contact"]}
                   rows={leads.leads.map((l) => [
-                    String(l.createdAt || "").slice(0, 16).replace("T", " "),
+                    String(l.updatedAt || l.createdAt || "").slice(0, 16).replace("T", " "),
                     l.businessName,
                     l.cityMarket,
                     l.stage,
                     l.fitScoreInternal != null ? `${l.fitBand} (${l.fitScoreInternal})` : l.fitBand,
                     l.priceUsd != null ? `$${l.priceUsd}` : "—",
+                    l.collectedRevenueUsd > 0 ? fmtUsd(l.collectedRevenueUsd) : "—",
                     l.contactChannel || "—",
                   ])} />
               ) : (
@@ -900,7 +907,7 @@ function PartnersRevenueSection({ auth, range }) {
           </Frame>
         </Card>
         <Card>
-          <Frame title="Sponsored campaign registry & health" def="Every entry in SPONSORED_PLACES evaluated against flight dates, 30-day score snapshot freshness, server-witnessed clicks, and renewal gates. Unreconciled external bookings remain 'unknown', never 0."
+          <Frame title="Sponsored campaign registry & health" def="Every entry in SPONSORED_PLACES evaluated against flight dates, 30-day score snapshot freshness, server-witnessed redirect hops, and renewal gates. Unreconciled external bookings remain 'unknown', never 0."
             source={dget(evBlock, "source") || dget(d, "staticSource")}>
             <DataTable caption="Sponsored campaigns"
               columns={["Venue", "Health", "Flight", "Clicks", "Bookings", "Renewal"]}
@@ -918,25 +925,25 @@ function PartnersRevenueSection({ auth, range }) {
       <div style={{ height: 12 }} />
       <Two min={300}>
         <Card>
-          <Frame title="5 Flagship Florida pilot offers" def="Ready-to-pitch measurable pilots grounded in first-party Florida demand and verified direct booking flows."
+          <Frame title="5 Flagship Florida pilot proposals (uncontacted)" def="Static internal pilot proposals (relationshipStatus: internal_proposal_uncontacted, scoreSnapshotOn: 2026-11-13) grounded in first-party Florida demand — never counted as active deals until owner outreach and written agreement."
             source={dget(d, "staticSource")}>
-            <DataTable caption="Flagship Florida pilots"
-              columns={["#", "Venue", "City", "Package", "Price", "Window"]}
+            <DataTable caption="Flagship Florida pilot proposals"
+              columns={["#", "Venue", "City", "Package", "Price", "Status"]}
               rows={pilots.map((pl) => [
                 pl.pilotNumber,
                 pl.businessName,
                 pl.city,
                 pl.packageName,
                 `$${pl.priceUsd}`,
-                `${pl.flightStartsOn || "—"} → ${pl.flightEndsOn || "—"}`,
+                `${pl.relationshipStatus || "internal_proposal_uncontacted"} (${pl.scoreSnapshotOn || "2026-11-13"})`,
               ])} />
           </Frame>
         </Card>
         <Card>
-          <Frame title="Florida regional demand vs sponsor supply" def="30-day observed detail opens and unmonetized primary-CTA gaps across all 8 Florida regions."
+          <Frame title="Florida regional demand vs sponsor supply" def="30-day observed detail opens and unmonetized detail opens across all 8 Florida regions. Note: primary_cta_null fires passively on mount in Detail.js whenever !primaryCta.monetized — visitors still have working Directions, Website, Menu, Reserve, or direct non-affiliate Tickets buttons."
             source={dget(d, "staticSource")}>
             <DataTable caption="Florida regional gap matrix"
-              columns={["Region", "Places", "Guides", "Opens (30d)", "CTA gaps", "Paid"]}
+              columns={["Region", "Places", "Guides", "Opens (30d)", "Unmonetized opens", "Paid"]}
               rows={regions.map((r) => [
                 r.name,
                 fmtNum(r.servablePlaces),
@@ -950,7 +957,7 @@ function PartnersRevenueSection({ auth, range }) {
       </Two>
       <div style={{ height: 12 }} />
       <Card>
-        <Frame title="Top 15 Florida prospect queue (editorial score vs internal fit)" def="Organic WF Score comes strictly from public Google reviews (wayfindScore.js). Internal Fit Score guides B2B outreach only and never touches rankings."
+        <Frame title="Top 15 Florida prospect queue (uncontacted proposals · snapshot 2026-11-13)" def="Static internal prospect proposals (internal_proposal_uncontacted). Matching wayfindScore(rating, reviews) establishes calculation consistency on the 2026-11-13 snapshot only, not live fresh ratings or verified commercial interest."
           source={dget(d, "staticSource")}>
           <DataTable caption="Top 15 Florida non-sponsor prospects"
             columns={["#", "Business", "City", "Category", "WF Score", "Internal Fit", "Recommended", "Checkout"]}

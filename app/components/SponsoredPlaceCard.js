@@ -119,7 +119,11 @@ export default function SponsoredPlaceCard({ pick, onLog, saved: savedProp, like
   };
   const onBook = () => {
     try { emitCommerce("commerce_cta_clicked", ctx); } catch (error) {}
-    log("sponsor_out", { to: "booking" });
+    if (hydrated && pick.outboundTrackHref) {
+      log("sponsor_card_cta_tap", { to: "booking" });
+    } else {
+      log("sponsor_out", { to: "booking" });
+    }
   };
   const quiet = [
     pick.phone ? { key: "call", label: "Call", href: "tel:" + pick.phone } : null,

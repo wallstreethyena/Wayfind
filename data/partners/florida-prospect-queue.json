@@ -1,6 +1,20 @@
 {
   "schemaVersion": "1.0.0",
   "asOf": "2026-11-13",
+  "relationshipStatus": "internal_proposal_uncontacted",
+  "scoreSnapshotOn": "2026-11-13",
+  "scoreSnapshotConsistencyNote": "Matching wayfindScore(rating, reviews) establishes formula calculation consistency on the dated snapshot (2026-11-13) only, not live fresh source ratings or verified commercial interest.",
+  "primaryCtaNullDefinition": "Passive mount event in app/components/sheets/Detail.js:1128-1140 fired whenever !primaryCta.monetized (no paid/affiliate partner link attached on mount — visitors still see working Directions, Website, Menu, Reserve, or direct non-affiliate Tickets buttons where available).",
+  "uniqueDevicesDefinition": "Counts distinct anonymous browser device_id tokens, never verified unique human visitors.",
+  "scoreStandingPolicy": {
+    "scoreBasis": "formula_consistency_on_stored_snapshot",
+    "ratingSnapshotRecordedOn": "2026-11-13",
+    "standingNote": "wayfindScore values reflect formula calculation consistency on stored snapshot inputs recorded 2026-11-13 (wayfindScore(rating, reviews)), not fresh live source ratings or verified commercial interest."
+  },
+  "telemetryDefinitions": {
+    "distinctDevices": "Counts distinct anonymous browser device_id tokens, never verified unique human visitors.",
+    "primaryCtaNulls": "Passive mount event in app/components/sheets/Detail.js:1128-1140 fired whenever !primaryCta.monetized (no paid/affiliate partner link attached on mount — visitors still see working Directions, Website, Menu, Reserve, or direct non-affiliate Tickets buttons where available)."
+  },
   "prospectingEthicsPolicy": {
     "publicChannelsOnly": true,
     "privatePersonalScrapingForbidden": true,
@@ -25,7 +39,7 @@
       "fitScoreInternal": 96,
       "wayfindEvidence": {
         "detailOpens": 88,
-        "uniqueDevices": 56,
+        "distinctDevices": 56,
         "primaryCtaNulls": 69,
         "freeOrganizerClicks": 7,
         "directionsClicks": 8,
@@ -38,7 +52,7 @@
         ]
       },
       "buyerJob": "Fill perishable Sunday–Thursday Lights in Bloom timed-entry slots (Dec 5 – Jan 2) where advance online tickets are mandatory and walk-up gate admission is closed.",
-      "whyYouBrief": "56 Sarasota visitors opened Selby Gardens 88 times on Wayfind with 69 hitting a null-CTA screen and 7 clicking straight to your Lights in Bloom event — all with $0 commission.",
+      "whyYouBrief": "56 anonymous browser device IDs opened Selby Gardens 88 times on Wayfind — including 69 unmonetized detail opens (primary_cta_null passive mount when !primaryCta.monetized — no paid/affiliate link attached; working Directions, Website, Menu, Reserve, or direct Tickets buttons still appear) and 7 outbound taps straight to your Lights in Bloom event — all with $0 commission.",
       "recommendedPackage": {
         "packageId": "monthly",
         "priceUsd": 199,
@@ -57,8 +71,10 @@
         "verifiedFact": "Lights in Bloom runs select nights Dec 5, 2026 – Jan 2, 2027 ($30 GA non-member / $40 Early Entry; online advance purchase required).",
         "flags": []
       },
-      "outreachAngle": "Convert 69 existing Sarasota null-CTA opens into direct $30 weeknight TicketApp orders at 0% Wayfind fee.",
-      "measurementPlan": "Server-witnessed /api/partner/outbound clicks + selby.ticketapp.org UTM campaign tracking."
+      "outreachAngle": "Route Sarasota detail-sheet traffic (69 unmonetized detail opens where primary_cta_null — no affiliate/partner booking CTA resolved; visitors still see Directions, website, or call actions where available) into direct $30 weeknight TicketApp orders at 0% Wayfind fee.",
+      "measurementPlan": "Server-witnessed /api/partner/outbound clicks + selby.ticketapp.org UTM campaign tracking.",
+      "relationshipStatus": "internal_proposal_uncontacted",
+      "scoreSnapshotOn": "2026-11-13"
     },
     {
       "id": "sarasota-jungle-gardens",
@@ -76,7 +92,7 @@
       "fitScoreInternal": 94,
       "wayfindEvidence": {
         "detailOpens": 124,
-        "uniqueDevices": 72,
+        "distinctDevices": 72,
         "primaryCtaNulls": 103,
         "freeOrganizerClicks": 0,
         "directionsClicks": 5,
@@ -88,7 +104,7 @@
         ]
       },
       "buyerJob": "Capture direct $24.99 adult / $14.99 child family admissions in a market where Tiqets has zero Sarasota coverage.",
-      "whyYouBrief": "Sarasota Jungle Gardens has the #1 highest null-CTA count on all of Wayfind: 72 unique visitors opened your detail card 124 times and 103 had no ticket button to tap.",
+      "whyYouBrief": "Sarasota Jungle Gardens has the #1 highest volume of unmonetized detail opens (primary_cta_null passive mount when !primaryCta.monetized — no paid/affiliate link attached; working Directions, Website, Menu, Reserve, or direct Tickets buttons still appear) on Wayfind: 72 anonymous browser device IDs opened your detail card 124 times (103 primary_cta_null).",
       "recommendedPackage": {
         "packageId": "quarterly",
         "priceUsd": 299,
@@ -109,8 +125,10 @@
           "FORM_PREFERRED_OVER_ON_PAGE_EMAIL"
         ]
       },
-      "outreachAngle": "Unlock 103 unserved ticket-intent views in Sarasota at ~$3.32/day flat with 0% ticket commission.",
-      "measurementPlan": "Server-witnessed /api/partner/outbound clicks to native ticket cart + UTM referral sessions."
+      "outreachAngle": "Route 103 unmonetized detail opens in Sarasota directly to sarasotajunglegardens.com at ~$3.32/day flat with 0% ticket commission.",
+      "measurementPlan": "Server-witnessed /api/partner/outbound clicks to native ticket cart + UTM referral sessions.",
+      "relationshipStatus": "internal_proposal_uncontacted",
+      "scoreSnapshotOn": "2026-11-13"
     },
     {
       "id": "the-ringling-sarasota",
@@ -128,7 +146,7 @@
       "fitScoreInternal": 95,
       "wayfindEvidence": {
         "detailOpens": 126,
-        "uniqueDevices": 89,
+        "distinctDevices": 89,
         "primaryCtaNulls": 16,
         "freeOrganizerClicks": 0,
         "directionsClicks": 7,
@@ -141,8 +159,8 @@
           "things-to-do-in-sarasota-florida"
         ]
       },
-      "buyerJob": "Convert winter snowbirds and rainy-day Sarasota visitors into full-price $25–$35 Tue–Sun Tessitura admissions and Ca' d'Zan mansion walkthroughs.",
-      "whyYouBrief": "89 visitors opened The Ringling and Ca' d'Zan 126 times on Wayfind, saved it 5 times, and added it to 3 multi-stop Sarasota itineraries — with zero OTA middlemen.",
+      "buyerJob": "Convert winter snowbirds and rainy-day Sarasota museum browsers into full-price $25–$35 Tue–Sun Tessitura admissions and Ca' d'Zan mansion walkthroughs.",
+      "whyYouBrief": "89 anonymous browser device IDs opened The Ringling and Ca' d'Zan 126 times on Wayfind, saved it 5 times, and added it to 3 multi-stop Sarasota itineraries — with zero OTA middlemen.",
       "recommendedPackage": {
         "packageId": "quarterly",
         "priceUsd": 299,
@@ -164,7 +182,9 @@
         ]
       },
       "outreachAngle": "Direct Tessitura ticket handoffs on Tue–Sun peak cultural days at 0% fee.",
-      "measurementPlan": "Server-witnessed /api/partner/outbound clicks to my.ringling.org + Tessitura UTM tracking."
+      "measurementPlan": "Server-witnessed /api/partner/outbound clicks to my.ringling.org + Tessitura UTM tracking.",
+      "relationshipStatus": "internal_proposal_uncontacted",
+      "scoreSnapshotOn": "2026-11-13"
     },
     {
       "id": "mote-sea-sarasota",
@@ -182,7 +202,7 @@
       "fitScoreInternal": 93,
       "wayfindEvidence": {
         "detailOpens": 16,
-        "uniqueDevices": 14,
+        "distinctDevices": 14,
         "primaryCtaNulls": 16,
         "directSearches": 13,
         "directionsClicks": 3,
@@ -193,7 +213,7 @@
         ]
       },
       "buyerJob": "Educate I-75 / UTC visitors on Plan-Ahead date-based timed ticketing (~$33+ adult) at the new University Town Center aquarium campus.",
-      "whyYouBrief": "'mote sea' is already the #5 most-searched query across all of Wayfind (13 direct searches) and 100% of your 16 detail opens hit a screen without a direct ticket CTA.",
+      "whyYouBrief": "'mote sea' is already the #5 most-searched query across all of Wayfind (13 direct searches across 14 anonymous browser device IDs on detail sheets) and all 16 detail opens were unmonetized detail opens (primary_cta_null passive mount when !primaryCta.monetized — no paid/affiliate link attached; working Directions, Website, Menu, Reserve, or direct Tickets buttons still appear).",
       "recommendedPackage": {
         "packageId": "quarterly",
         "priceUsd": 299,
@@ -213,7 +233,9 @@
         "flags": []
       },
       "outreachAngle": "Route high-intent 'mote sea' searchers straight to ticketing.mote.org Plan-Ahead slots.",
-      "measurementPlan": "Server-witnessed /api/partner/outbound clicks + ticketing.mote.org UTM sessions."
+      "measurementPlan": "Server-witnessed /api/partner/outbound clicks + ticketing.mote.org UTM sessions.",
+      "relationshipStatus": "internal_proposal_uncontacted",
+      "scoreSnapshotOn": "2026-11-13"
     },
     {
       "id": "florida-railroad-museum",
@@ -259,7 +281,9 @@
         "flags": []
       },
       "outreachAngle": "Direct FareHarbor ticket handoffs during your 26-day North Pole Express window at 0% Wayfind fee.",
-      "measurementPlan": "Server-witnessed /api/partner/outbound clicks + FareHarbor UTM source=wayfind attribution."
+      "measurementPlan": "Server-witnessed /api/partner/outbound clicks + FareHarbor UTM source=wayfind attribution.",
+      "relationshipStatus": "internal_proposal_uncontacted",
+      "scoreSnapshotOn": "2026-11-13"
     },
     {
       "id": "manatee-performing-arts-center",
@@ -306,7 +330,9 @@
         ]
       },
       "outreachAngle": "Turn Bradenton date-night itinerary builders into direct box-office single-ticket buyers across Dec–Feb runs.",
-      "measurementPlan": "Server-witnessed /api/partner/outbound clicks to tickets.manateeperformingartscenter.com."
+      "measurementPlan": "Server-witnessed /api/partner/outbound clicks to tickets.manateeperformingartscenter.com.",
+      "relationshipStatus": "internal_proposal_uncontacted",
+      "scoreSnapshotOn": "2026-11-13"
     },
     {
       "id": "agave-bandido-lakewood-ranch",
@@ -324,7 +350,8 @@
       "fitScoreInternal": 89,
       "wayfindEvidence": {
         "detailOpens": 12,
-        "uniqueDevices": 15,
+        "uniqueDevicesAcrossPlaceEvents": 15,
+        "distinctDevicesNote": "15 anonymous browser device IDs across all place events including saves, add_to_plan, and itinerary stop_adds (12 detail opens)",
         "primaryCtaNulls": 12,
         "addToPlanClicks": 4,
         "saves": 3,
@@ -335,7 +362,7 @@
         ]
       },
       "buyerJob": "Drive Taco Tuesday traffic, pre-5 PM / post-9 PM shoulder reservations, and upstairs Maya SpeakTiki hidden tiki bar bookings.",
-      "whyYouBrief": "15 Waterside/Sarasota devices opened Agave Bandido on Wayfind, with 4 add-to-plan clicks, 3 saves, and 3 itinerary adds — all hitting a card with no speakeasy or reservation CTA.",
+      "whyYouBrief": "15 anonymous browser device IDs interacted with Agave Bandido across Wayfind place events (12 detail opens, 4 add-to-plan clicks, 3 saves, and 3 itinerary adds) — with all 12 detail opens recorded as unmonetized detail opens (primary_cta_null passive mount when !primaryCta.monetized — no paid/affiliate link attached; working Directions, Website, Menu, Reserve, or direct Tickets buttons still appear).",
       "recommendedPackage": {
         "packageId": "quarterly",
         "priceUsd": 299,
@@ -357,7 +384,9 @@
         ]
       },
       "outreachAngle": "Promote Maya SpeakTiki reservations and Taco Tuesday / shoulder seatings without per-cover diner-network fees.",
-      "measurementPlan": "Server-witnessed /api/partner/outbound clicks + phone waitlist taps."
+      "measurementPlan": "Server-witnessed /api/partner/outbound clicks + phone waitlist taps.",
+      "relationshipStatus": "internal_proposal_uncontacted",
+      "scoreSnapshotOn": "2026-11-13"
     },
     {
       "id": "ultimate-kayak-srq",
@@ -375,14 +404,14 @@
       "fitScoreInternal": 91,
       "wayfindEvidence": {
         "detailOpens": 8,
-        "uniqueDevices": 8,
+        "distinctDevices": 8,
         "saves": 2,
         "guides": [
           "things-to-do-sarasota"
         ]
       },
-      "buyerJob": "Book $65/person Siesta Key clear-kayak mangrove & wildlife tours directly in Peek Pro instead of surrendering 20–30% margin to third-party tour marketplaces.",
-      "whyYouBrief": "8 Siesta Key visitors opened Ultimate Kayak SRQ and 2 saved it on Wayfind, while Sarasota mangrove tunnel tours generated 8 external commerce clicks.",
+      "buyerJob": "Book $65/person Siesta Key clear-kayak mangrove & wildlife tours directly in Peek Pro instead of paying third-party tour marketplace reseller commissions (0% Wayfind commission).",
+      "whyYouBrief": "8 anonymous browser device IDs opened Ultimate Kayak SRQ and 2 saved it on Wayfind, while Sarasota mangrove tunnel tours generated 8 external commerce clicks.",
       "recommendedPackage": {
         "packageId": "quarterly",
         "priceUsd": 299,
@@ -402,7 +431,9 @@
         "flags": []
       },
       "outreachAngle": "Three 2-person clear kayak bookings ($390 gross) on Peek Pro pay for a full 90-day winter flight at 0% Wayfind commission.",
-      "measurementPlan": "Server-witnessed /api/partner/outbound clicks + Peek Pro UTM referral attribution."
+      "measurementPlan": "Server-witnessed /api/partner/outbound clicks + Peek Pro UTM referral attribution.",
+      "relationshipStatus": "internal_proposal_uncontacted",
+      "scoreSnapshotOn": "2026-11-13"
     },
     {
       "id": "harry-p-leu-gardens-dazzling-nights",
@@ -421,7 +452,7 @@
       "fitScoreInternal": 93,
       "wayfindEvidence": {
         "detailOpens": 43,
-        "uniqueDevices": 28,
+        "distinctDevices": 28,
         "primaryCtaNulls": 30,
         "freeOrganizerClicks": 10,
         "directionsClicks": 3,
@@ -431,7 +462,7 @@
         ]
       },
       "buyerJob": "Sell weeknight timed-entry blocks ($35–$56 adult) for Dazzling Nights (Nov 20 – Jan 3) to Orlando locals and non-theme-park visitors.",
-      "whyYouBrief": "Wayfind's Orlando non-theme-park and Christmas surfaces already logged 43 detail opens on Leu Gardens and sent 10 free ticket clicks straight to Dazzling Nights.",
+      "whyYouBrief": "Wayfind's Orlando non-theme-park and Christmas surfaces already logged 43 detail opens across 28 anonymous browser device IDs on Leu Gardens and sent 10 free ticket clicks straight to Dazzling Nights.",
       "recommendedPackage": {
         "packageId": "monthly",
         "priceUsd": 199,
@@ -453,7 +484,9 @@
         ]
       },
       "outreachAngle": "Pitch Creative City Project (info@dazzlingorlando.com) on a $199 30-day Orlando geo-gated flight targeting weeknight timed-entry inventory.",
-      "measurementPlan": "Server-witnessed /api/partner/outbound clicks + Universe/Eventbrite UTM tracking."
+      "measurementPlan": "Server-witnessed /api/partner/outbound clicks + Universe/Eventbrite UTM tracking.",
+      "relationshipStatus": "internal_proposal_uncontacted",
+      "scoreSnapshotOn": "2026-11-13"
     },
     {
       "id": "scenic-boat-tour-winter-park",
@@ -471,7 +504,7 @@
       "fitScoreInternal": 76,
       "wayfindEvidence": {
         "detailOpens": 87,
-        "uniqueDevices": 44,
+        "distinctDevices": 44,
         "primaryCtaNulls": 58,
         "directionsClicks": 3,
         "saves": 2,
@@ -482,7 +515,7 @@
         ]
       },
       "buyerJob": "Drive weekday morning dock arrivals (10 AM–12 PM) and phone-booked 18+ private group charters without misleading guests into expecting online e-tickets.",
-      "whyYouBrief": "Wayfind publishes a dedicated Winter Park Scenic Boat Tour guide and logged 87 detail opens (58 null-CTA). Because your regular hourly boats are walk-up only at 312 E Morse Blvd, a placement must honestly feature 'Get dock directions / Call for 18+ group charters' rather than fake online checkout.",
+      "whyYouBrief": "Wayfind publishes a dedicated Winter Park Scenic Boat Tour guide and logged 87 detail opens across 44 anonymous browser device IDs — including 58 unmonetized detail opens (primary_cta_null passive mount when !primaryCta.monetized — no paid/affiliate link attached; working Directions, Website, Menu, Reserve, or direct Tickets buttons still appear). Because regular hourly boats are walk-up only at 312 E Morse Blvd, a placement must honestly feature 'Get dock directions / Call for 18+ group charters' rather than fake online checkout.",
       "recommendedPackage": {
         "packageId": "quarterly",
         "priceUsd": 299,
@@ -505,7 +538,9 @@
         ]
       },
       "outreachAngle": "Honest awareness + weekday morning dock-directions & private group phone-charter placement (measured via outbound + directions + phone taps, never claiming online cart attribution).",
-      "measurementPlan": "Server-witnessed /api/partner/outbound website visits + dock directions taps + charter phone clicks."
+      "measurementPlan": "Server-witnessed /api/partner/outbound website visits + dock directions taps + charter phone clicks.",
+      "relationshipStatus": "internal_proposal_uncontacted",
+      "scoreSnapshotOn": "2026-11-13"
     },
     {
       "id": "kissimmee-swamp-tours",
@@ -523,7 +558,7 @@
       "fitScoreInternal": 81,
       "wayfindEvidence": {
         "detailOpens": 17,
-        "uniqueDevices": 15,
+        "distinctDevices": 15,
         "primaryCtaNulls": 17,
         "saves": 1,
         "stopAdds": 1,
@@ -532,7 +567,7 @@
         ]
       },
       "buyerJob": "Capture high-AOV 60-min ($48/adult) and 90-min ($74/adult) Lake Kissimmee headwaters airboat requests directly without OTA commissions.",
-      "whyYouBrief": "15 Central Florida visitors opened Kissimmee Swamp Tours 17 times on Wayfind (100% hitting primary_cta_null), while Orlando headwaters airboat content drove 7 commerce clicks.",
+      "whyYouBrief": "15 anonymous browser device IDs opened Kissimmee Swamp Tours 17 times on Wayfind — all 17 recorded as unmonetized detail opens (primary_cta_null passive mount when !primaryCta.monetized — no paid/affiliate link attached; working Directions, Website, Menu, Reserve, or direct Tickets buttons still appear) — while Orlando headwaters airboat content drove 7 commerce clicks.",
       "recommendedPackage": {
         "packageId": "quarterly",
         "priceUsd": 299,
@@ -554,7 +589,9 @@
         ]
       },
       "outreachAngle": "Two 90-min family airboat bookings cover an entire 90-day Central Florida pilot; note on-site reservation form + phone confirmation workflow.",
-      "measurementPlan": "Server-witnessed /api/partner/outbound clicks + UTM-tagged reservation form submissions."
+      "measurementPlan": "Server-witnessed /api/partner/outbound clicks + UTM-tagged reservation form submissions.",
+      "relationshipStatus": "internal_proposal_uncontacted",
+      "scoreSnapshotOn": "2026-11-13"
     },
     {
       "id": "the-salt-room-orlando",
@@ -596,7 +633,9 @@
         "flags": []
       },
       "outreachAngle": "One couples salt-cave package covers the $199 30-day holiday wellness & gift-card pilot.",
-      "measurementPlan": "Server-witnessed /api/partner/outbound clicks + UTM spa booking & gift-card clicks."
+      "measurementPlan": "Server-witnessed /api/partner/outbound clicks + UTM spa booking & gift-card clicks.",
+      "relationshipStatus": "internal_proposal_uncontacted",
+      "scoreSnapshotOn": "2026-11-13"
     },
     {
       "id": "snowcat-ridge-dade-city",
@@ -621,7 +660,7 @@
         ]
       },
       "buyerJob": "Drive advance online Leap Events tubing tickets ($26.95+, $6 cheaper than box office) for weekday/Sunday sessions starting Nov 14, 2026.",
-      "whyYouBrief": "Before your Nov 14 opening day, Wayfind visitors already clicked through to Snowcat Ridge 10 times from our Christmas surfaces — and we maintain a dedicated ticket-tier breakdown for your guests.",
+      "whyYouBrief": "Before your Nov 14 opening day, Wayfind sessions already clicked through to Snowcat Ridge 10 times from our Christmas surfaces — and we maintain a dedicated ticket-tier breakdown for your guests.",
       "recommendedPackage": {
         "packageId": "monthly",
         "priceUsd": 199,
@@ -643,8 +682,10 @@
           "SEASONAL_EVENT_NO_PLACE_SCORE_BADGE"
         ]
       },
-      "outreachAngle": "Submit concise partnership note via snowcatridge.com/contact: 10 pre-opening Wayfind ticket clicks already observed; $199/30d dated seasonal rail sponsorship.",
-      "measurementPlan": "Server-witnessed /api/partner/outbound clicks to snowcatridge.com/buy-tickets + Leap Events UTM tracking."
+      "outreachAngle": "Submit concise partnership note via snowcatridge.com/contact: 10 pre-opening Wayfind ticket clicks already observed; $199/30d geo-gated home Sponsored Place Card + /partners/snowcat-ridge-dade-city showcase (outside ranked lists).",
+      "measurementPlan": "Server-witnessed /api/partner/outbound clicks to snowcatridge.com/buy-tickets + Leap Events UTM tracking.",
+      "relationshipStatus": "internal_proposal_uncontacted",
+      "scoreSnapshotOn": "2026-11-13"
     },
     {
       "id": "yacht-starship-tampa",
@@ -688,7 +729,9 @@
         "flags": []
       },
       "outreachAngle": "Two couple dinner-cruise bookings ($280–$360) pay back an entire 90-day Tampa Bay sponsorship at 0% Wayfind commission.",
-      "measurementPlan": "Server-witnessed /api/partner/outbound clicks + RocketRez UTM campaign tracking."
+      "measurementPlan": "Server-witnessed /api/partner/outbound clicks + RocketRez UTM campaign tracking.",
+      "relationshipStatus": "internal_proposal_uncontacted",
+      "scoreSnapshotOn": "2026-11-13"
     },
     {
       "id": "clear-kayaking-tours-crystal-river",
@@ -711,7 +754,7 @@
           "florida-manatee-season-2026"
         ]
       },
-      "buyerJob": "Route winter manatee-season paddlers (Nov 15 – Mar 31) directly to Peek Pro ($59.99–$69+/person) instead of paying 20–30% OTA fees.",
+      "buyerJob": "Route winter manatee-season paddlers (Nov 15 – Mar 31) directly to Peek Pro ($59.99–$69+/person) instead of paying third-party OTA reseller commissions (0% Wayfind commission).",
       "whyYouBrief": "Wayfind's Crystal River manatee guides already generated 148 outbound commerce clicks, and your 5.0-star / 2,573-review operation earns a 9.9 organic Wayfind Score.",
       "recommendedPackage": {
         "packageId": "quarterly",
@@ -732,7 +775,9 @@
         "flags": []
       },
       "outreachAngle": "Capture peak Nov 15 – Mar 31 manatee-season bookings direct in Peek Pro for ~$3.32/day flat.",
-      "measurementPlan": "Server-witnessed /api/partner/outbound clicks + Peek Pro UTM referral attribution."
+      "measurementPlan": "Server-witnessed /api/partner/outbound clicks + Peek Pro UTM referral attribution.",
+      "relationshipStatus": "internal_proposal_uncontacted",
+      "scoreSnapshotOn": "2026-11-13"
     },
     {
       "id": "jc-newman-cigar-company",
@@ -774,7 +819,9 @@
         "flags": []
       },
       "outreachAngle": "Drive weekday Ybor rainy-day & culture visitors directly into paid factory tours and rolling classes.",
-      "measurementPlan": "Server-witnessed /api/partner/outbound clicks to jcnewman.com/tours + UTM tracking."
+      "measurementPlan": "Server-witnessed /api/partner/outbound clicks to jcnewman.com/tours + UTM tracking.",
+      "relationshipStatus": "internal_proposal_uncontacted",
+      "scoreSnapshotOn": "2026-11-13"
     },
     {
       "id": "dolphin-quest-johns-pass",
@@ -818,7 +865,9 @@
         "flags": []
       },
       "outreachAngle": "Bypass boardwalk reseller fees with direct FareHarbor handoffs across Pinellas barrier islands.",
-      "measurementPlan": "Server-witnessed /api/partner/outbound clicks + FareHarbor UTM source=wayfind orders."
+      "measurementPlan": "Server-witnessed /api/partner/outbound clicks + FareHarbor UTM source=wayfind orders.",
+      "relationshipStatus": "internal_proposal_uncontacted",
+      "scoreSnapshotOn": "2026-11-13"
     },
     {
       "id": "hollander-hotel-st-pete",
@@ -836,14 +885,14 @@
       "fitScoreInternal": 90,
       "wayfindEvidence": {
         "detailOpens": 8,
-        "uniqueDevices": 7,
+        "distinctDevices": 7,
         "primaryCtaNulls": 6,
         "saves": 2,
         "stopAdds": 2,
         "guides": []
       },
       "buyerJob": "Drive direct room bookings (0% OTA commission, free parking, zero resort fees) and Tap Room / poolside dining in Downtown St. Pete.",
-      "whyYouBrief": "7 visitors opened Hollander Hotel 8 times on Wayfind (6 hitting primary_cta_null), saved it twice, and added it to 2 St. Pete weekend trips — with zero Expedia/Stay22 middleman.",
+      "whyYouBrief": "7 anonymous browser device IDs opened Hollander Hotel 8 times on Wayfind — including 6 unmonetized detail opens (primary_cta_null passive mount when !primaryCta.monetized — no paid/affiliate link attached; working Directions, Website, Menu, Reserve, or direct Tickets buttons still appear) — saved it twice, and added it to 2 St. Pete weekend trips with zero Expedia/Stay22 middleman.",
       "recommendedPackage": {
         "packageId": "quarterly",
         "priceUsd": 299,
@@ -865,7 +914,9 @@
         ]
       },
       "outreachAngle": "A single 2-night direct weekend stay pays back the entire $299 90-day placement.",
-      "measurementPlan": "Server-witnessed /api/partner/outbound clicks to hollanderhotel.com booking engine."
+      "measurementPlan": "Server-witnessed /api/partner/outbound clicks to hollanderhotel.com booking engine.",
+      "relationshipStatus": "internal_proposal_uncontacted",
+      "scoreSnapshotOn": "2026-11-13"
     },
     {
       "id": "st-pete-comedy-club",
@@ -883,14 +934,15 @@
       "fitScoreInternal": 86,
       "wayfindEvidence": {
         "detailOpens": 5,
-        "uniqueDevices": 7,
+        "uniqueDevicesAcrossPlaceEvents": 7,
+        "distinctDevicesNote": "7 anonymous browser device IDs across all place events including saves, add_to_plan, and itinerary stop_adds (5 detail opens)",
         "saves": 5,
         "stopAdds": 3,
         "addToPlanClicks": 1,
         "guides": []
       },
       "buyerJob": "Fill Friday/Saturday showcase rooms and 2-drink-minimum bar tabs at 1745 1st Ave S via Eventbrite.",
-      "whyYouBrief": "St. Pete Comedy Club has a 100% save-to-open ratio on Wayfind (5 opens, 5 saves, 3 itinerary stop_adds) from Grand Central date-night planners.",
+      "whyYouBrief": "St. Pete Comedy Club logged 5 detail opens, 5 saves, 3 itinerary stop_adds, and 1 add-to-plan click across 7 anonymous browser device IDs on Wayfind from Grand Central date-night planners.",
       "recommendedPackage": {
         "packageId": "monthly",
         "priceUsd": 199,
@@ -911,8 +963,10 @@
           "OPERATES_ON_STPETESTANDUP_DOMAIN_DISTINCT_FROM_SUNSHINE_CITY_COMEDY_CLUB"
         ]
       },
-      "outreachAngle": "Promote weekend comedy showcases on St. Pete Tonight/Weekend surfaces.",
-      "measurementPlan": "Server-witnessed /api/partner/outbound clicks + Eventbrite UTM tracking."
+      "outreachAngle": "Promote weekend comedy showcases via geo-gated St. Pete home Sponsored Place Card + /partners/st-pete-comedy-club showcase (outside ranked lists).",
+      "measurementPlan": "Server-witnessed /api/partner/outbound clicks + Eventbrite UTM tracking.",
+      "relationshipStatus": "internal_proposal_uncontacted",
+      "scoreSnapshotOn": "2026-11-13"
     },
     {
       "id": "fairchild-tropical-botanic-garden",
@@ -957,7 +1011,9 @@
         ]
       },
       "outreachAngle": "Coral Gables / Miami geo-gated holiday & daytime botanical showcase at 0% Wayfind commission.",
-      "measurementPlan": "Server-witnessed /api/partner/outbound clicks + UTM tracking."
+      "measurementPlan": "Server-witnessed /api/partner/outbound clicks + UTM tracking.",
+      "relationshipStatus": "internal_proposal_uncontacted",
+      "scoreSnapshotOn": "2026-11-13"
     },
     {
       "id": "naples-botanical-garden",
@@ -1001,7 +1057,9 @@
         "flags": []
       },
       "outreachAngle": "Six early-season $36 adult tickets on ticketing.naplesgarden.org cover the entire $199 30-day SWFL flight.",
-      "measurementPlan": "Server-witnessed /api/partner/outbound clicks + ACME Ticketing UTM tracking."
+      "measurementPlan": "Server-witnessed /api/partner/outbound clicks + ACME Ticketing UTM tracking.",
+      "relationshipStatus": "internal_proposal_uncontacted",
+      "scoreSnapshotOn": "2026-11-13"
     },
     {
       "id": "edison-ford-winter-estates",
@@ -1019,7 +1077,7 @@
       "fitScoreInternal": 91,
       "wayfindEvidence": {
         "detailOpens": 16,
-        "uniqueDevices": 15,
+        "distinctDevices": 15,
         "primaryCtaNulls": 14,
         "directionsClicks": 3,
         "guides": [
@@ -1027,7 +1085,7 @@
         ]
       },
       "buyerJob": "Convert SWFL winter visitors into online $23 Holiday Nights admissions (Nov 27 – Jan 3) and daytime riverfront estate tours.",
-      "whyYouBrief": "15 visitors opened Edison & Ford Winter Estates 16 times on Wayfind (14 hitting primary_cta_null) with 3 directions taps — zero ticket button currently wired.",
+      "whyYouBrief": "15 anonymous browser device IDs opened Edison & Ford Winter Estates 16 times on Wayfind — including 14 unmonetized detail opens (primary_cta_null passive mount when !primaryCta.monetized — no paid/affiliate link attached; working Directions, Website, Menu, Reserve, or direct Tickets buttons still appear) — alongside 3 directions taps.",
       "recommendedPackage": {
         "packageId": "quarterly",
         "priceUsd": 299,
@@ -1047,7 +1105,9 @@
         "flags": []
       },
       "outreachAngle": "Own Fort Myers winter cultural discovery for ~$3.32/day across Holiday Nights + Jan–Feb snowbird season.",
-      "measurementPlan": "Server-witnessed /api/partner/outbound clicks to ecommerce.edisonfordwinterestates.org."
+      "measurementPlan": "Server-witnessed /api/partner/outbound clicks to ecommerce.edisonfordwinterestates.org.",
+      "relationshipStatus": "internal_proposal_uncontacted",
+      "scoreSnapshotOn": "2026-11-13"
     },
     {
       "id": "florida-water-tours-st-augustine",
@@ -1094,7 +1154,9 @@
         ]
       },
       "outreachAngle": "Direct FareHarbor handoffs for St. Augustine Nights of Lights & winter dolphin eco-cruises at 0% fee.",
-      "measurementPlan": "Server-witnessed /api/partner/outbound clicks + FareHarbor UTM source=wayfind tracking."
+      "measurementPlan": "Server-witnessed /api/partner/outbound clicks + FareHarbor UTM source=wayfind tracking.",
+      "relationshipStatus": "internal_proposal_uncontacted",
+      "scoreSnapshotOn": "2026-11-13"
     },
     {
       "id": "coastal-wildlife-adventures-pcb",
@@ -1137,7 +1199,9 @@
         ]
       },
       "outreachAngle": "One private Shell Island charter ($345) pays back an entire 90-day Panama City Beach category-anchor placement.",
-      "measurementPlan": "Server-witnessed /api/partner/outbound clicks to dolphinandsnorkeltours.com cart."
+      "measurementPlan": "Server-witnessed /api/partner/outbound clicks to dolphinandsnorkeltours.com cart.",
+      "relationshipStatus": "internal_proposal_uncontacted",
+      "scoreSnapshotOn": "2026-11-13"
     },
     {
       "id": "sunset-watersports-key-west",
@@ -1181,7 +1245,9 @@
         ]
       },
       "outreachAngle": "Stage behind Wave 1 Sarasota/Orlando/Tampa Bay; two 'Do It All' tickets ($280) cover 90 days once Key West unlocks.",
-      "measurementPlan": "Server-witnessed /api/partner/outbound clicks + FareHarbor UTM source=wayfind tracking."
+      "measurementPlan": "Server-witnessed /api/partner/outbound clicks + FareHarbor UTM source=wayfind tracking.",
+      "relationshipStatus": "internal_proposal_uncontacted",
+      "scoreSnapshotOn": "2026-11-13"
     }
   ]
 }

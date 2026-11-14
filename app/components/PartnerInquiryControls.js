@@ -378,13 +378,18 @@ export function PartnerEmailFallback({
         }),
       });
       const j = await r.json().catch(() => ({}));
-      if (r.ok && j.ok === true && (j.stored === true || j.synthetic === true)) {
+      const acceptedReceipt =
+        r.ok &&
+        j.ok === true &&
+        (j.stored === true || j.synthetic === true || j.duplicate === true || j.filtered === true);
+      if (acceptedReceipt) {
         setLeadReceipt({
           leadId: j.lead && j.lead.leadId ? j.lead.leadId : null,
           synthetic: Boolean(j.synthetic),
+          duplicate: Boolean(j.duplicate),
         });
         setStatus("done");
-        if (!j.synthetic) {
+        if (j.stored === true && !j.synthetic && !j.duplicate && !j.filtered) {
           try {
             track("partner_inquiry_completed", {
               surface: "partners_index",
@@ -398,7 +403,9 @@ export function PartnerEmailFallback({
         setErrorMsg(
           r.status === 429 || j.error === "rate_limited"
             ? "Too many submissions right now. Your details are still filled below — please try again in a few minutes or use the direct email link."
-            : j.detail || "We couldn't save your inquiry automatically right now. Your details are preserved below — please retry or open a pre-filled email to hello@gowayfind.com."
+            : j.detail ||
+                j.message ||
+                "We couldn't save your inquiry automatically right now. Your details are preserved below — please retry or open a pre-filled email to hello@gowayfind.com."
         );
         setStatus("error");
       }

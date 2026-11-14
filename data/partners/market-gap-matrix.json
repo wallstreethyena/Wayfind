@@ -6,7 +6,11 @@
     "coveredCitiesLive": 35,
     "landingCities": 14,
     "marketCities": 21,
-    "heldCities": ["gainesville", "port-st-lucie", "key-west"],
+    "heldCities": [
+      "gainesville",
+      "port-st-lucie",
+      "key-west"
+    ],
     "activeGuidesLive": 59,
     "archivedGuides": 19,
     "totalGuidesInRepo": 78,
@@ -15,11 +19,13 @@
     "upcomingFlEvents": 571,
     "holidayChristmasListings2026": 608,
     "externalDevices30d": 10139,
+    "externalDevices30dDefinition": "Counts distinct anonymous browser device_id tokens in public.events over 30 days (never verified unique human visitors).",
     "externalSessions30d": 10297,
     "externalDetailOpens30d": 6351,
     "externalPrimaryCtaNullsAllTime": 5116,
     "externalPrimaryCtaNulls30d": 4473,
     "primaryCtaNullRate30dPct": 70.4,
+    "primaryCtaNullDefinition": "Passive mount event in app/components/sheets/Detail.js:1128-1140 fired whenever !primaryCta.monetized (no paid/affiliate partner link attached on mount — visitors still see working Directions, Website, Menu, Reserve, or direct non-affiliate Tickets buttons where available).",
     "externalSavesAllTime": 660,
     "externalTripCreatesAllTime": 624,
     "externalStopAddsAllTime": 557,
@@ -30,8 +36,9 @@
     "activePaidSponsorsOutsideFlorida": 1,
     "historicalExpiredSponsorsFlorida": 1,
     "inboundPartnerLeadsRecordedToDate": 0,
-    "confirmedCollectedPartnerRevenueUsd": 0,
-    "confirmedAffiliateCommissionRevenueUsd": 0,
+    "confirmedCollectedPartnerRevenueInInspectedDbUsd": 0,
+    "affiliateRevenueSettlementStatus": "unknown_external_dashboards",
+    "revenueScopeNote": "$0 recorded in inspected Supabase CRM tables (external affiliate dashboards unreconciled; pre-CRM direct agreements such as rio-body-wax-gastonia were not stored in a Supabase billing table)",
     "affiliateReachableCatalogCards": 76,
     "affiliateReachableCatalogPct": 0.31
   },
@@ -46,7 +53,17 @@
     {
       "id": "sarasota-bradenton",
       "name": "Sarasota / Bradenton",
-      "submarkets": ["Sarasota", "Bradenton", "Anna Maria Island", "Siesta Key", "Lakewood Ranch", "Venice", "Parrish", "Cortez", "Longboat Key"],
+      "submarkets": [
+        "Sarasota",
+        "Bradenton",
+        "Anna Maria Island",
+        "Siesta Key",
+        "Lakewood Ranch",
+        "Venice",
+        "Parrish",
+        "Cortez",
+        "Longboat Key"
+      ],
       "coveredCities": 11,
       "directGuides": 23,
       "statewideGuidesWithPicks": 7,
@@ -66,7 +83,14 @@
     {
       "id": "orlando-central-fl",
       "name": "Orlando / Central Florida",
-      "submarkets": ["Orlando", "Winter Park", "Kissimmee", "Melbourne / Space Coast", "Daytona Beach", "Ocala"],
+      "submarkets": [
+        "Orlando",
+        "Winter Park",
+        "Kissimmee",
+        "Melbourne / Space Coast",
+        "Daytona Beach",
+        "Ocala"
+      ],
       "coveredCities": 5,
       "directGuides": 9,
       "statewideGuidesWithPicks": 10,
@@ -79,14 +103,21 @@
       "nonMonetizedActionClicks": 56,
       "affiliatePlacePicks": 42,
       "activePaidSponsors": 0,
-      "unmonetizedPct": 99.0,
+      "unmonetizedPct": 99,
       "priorityRank": 2,
       "salesThesis": "Highest raw detail-open volume in Florida (2,464 opens; 373 commerce clicks on things-to-do-orlando-not-theme-parks alone); independent non-theme-park attractions, holiday trails, eco-tours, and Milk District/Winter Park venues are 99% unmonetized."
     },
     {
       "id": "tampa-bay",
       "name": "Tampa Bay",
-      "submarkets": ["Tampa", "Ybor City", "Lakeland", "Dade City", "Crystal River", "Lake Wales"],
+      "submarkets": [
+        "Tampa",
+        "Ybor City",
+        "Lakeland",
+        "Dade City",
+        "Crystal River",
+        "Lake Wales"
+      ],
       "coveredCities": 2,
       "directGuides": 10,
       "statewideGuidesWithPicks": 9,
@@ -106,7 +137,14 @@
     {
       "id": "st-pete-clearwater",
       "name": "St. Pete / Clearwater",
-      "submarkets": ["St. Petersburg", "Clearwater", "Dunedin", "Madeira Beach / John's Pass", "Gulfport", "Tarpon Springs"],
+      "submarkets": [
+        "St. Petersburg",
+        "Clearwater",
+        "Dunedin",
+        "Madeira Beach / John's Pass",
+        "Gulfport",
+        "Tarpon Springs"
+      ],
       "coveredCities": 2,
       "directGuides": 1,
       "statewideGuidesWithPicks": 6,
@@ -126,7 +164,16 @@
     {
       "id": "miami-south-fl",
       "name": "Miami / South Florida",
-      "submarkets": ["Miami", "Miami Beach", "Coral Gables", "Fort Lauderdale", "Boca Raton", "West Palm Beach", "Fort Myers", "Naples"],
+      "submarkets": [
+        "Miami",
+        "Miami Beach",
+        "Coral Gables",
+        "Fort Lauderdale",
+        "Boca Raton",
+        "West Palm Beach",
+        "Fort Myers",
+        "Naples"
+      ],
       "coveredCities": 9,
       "directGuides": 2,
       "statewideGuidesWithPicks": 11,
@@ -146,7 +193,13 @@
     {
       "id": "north-florida",
       "name": "North Florida",
-      "submarkets": ["St. Augustine", "Jacksonville", "Amelia Island", "Tallahassee", "Gainesville (held)"],
+      "submarkets": [
+        "St. Augustine",
+        "Jacksonville",
+        "Amelia Island",
+        "Tallahassee",
+        "Gainesville (held)"
+      ],
       "coveredCities": 3,
       "directGuides": 0,
       "statewideGuidesWithPicks": 8,
@@ -166,7 +219,13 @@
     {
       "id": "panhandle",
       "name": "Panhandle",
-      "submarkets": ["Panama City Beach", "Destin", "Fort Walton Beach", "30A", "Pensacola"],
+      "submarkets": [
+        "Panama City Beach",
+        "Destin",
+        "Fort Walton Beach",
+        "30A",
+        "Pensacola"
+      ],
       "coveredCities": 3,
       "directGuides": 0,
       "statewideGuidesWithPicks": 5,
@@ -186,7 +245,12 @@
     {
       "id": "keys",
       "name": "Keys",
-      "submarkets": ["Key West (held pending feed fill)", "Islamorada", "Marathon", "Key Largo"],
+      "submarkets": [
+        "Key West (held pending feed fill)",
+        "Islamorada",
+        "Marathon",
+        "Key Largo"
+      ],
       "coveredCities": 0,
       "directGuides": 0,
       "statewideGuidesWithPicks": 5,
@@ -199,7 +263,7 @@
       "nonMonetizedActionClicks": 1,
       "affiliatePlacePicks": 0,
       "activePaidSponsors": 0,
-      "unmonetizedPct": 100.0,
+      "unmonetizedPct": 100,
       "priorityRank": 8,
       "salesThesis": "100% unmonetized place inventory in a high-basket ($70–$190/person) watersports and nature-conservatory market dominated by high-fee street concierge booths. Pitch only once Key West feed gate unlocks or via statewide guides."
     }
@@ -214,7 +278,10 @@
       "detailOpens": 13,
       "seasonalCommerceClicks": 156,
       "freeOrganizerClicks": 71,
-      "typicalBasketUsd": [30, 140],
+      "typicalBasketUsd": [
+        30,
+        140
+      ],
       "bestPackage": "monthly",
       "pitchReadiness": "IMMEDIATE_NOV_DEC_2026"
     },
@@ -226,7 +293,10 @@
       "detailOpens": 1057,
       "saves": 77,
       "nonMonetizedActionClicks": 41,
-      "typicalBasketUsd": [50, 180],
+      "typicalBasketUsd": [
+        50,
+        180
+      ],
       "bestPackage": "quarterly",
       "pitchReadiness": "HIGH"
     },
@@ -238,7 +308,10 @@
       "detailOpens": 550,
       "saves": 29,
       "nonMonetizedActionClicks": 27,
-      "typicalBasketUsd": [50, 140],
+      "typicalBasketUsd": [
+        50,
+        140
+      ],
       "bestPackage": "quarterly",
       "pitchReadiness": "HIGH"
     },
@@ -250,7 +323,10 @@
       "detailOpens": 128,
       "saves": 10,
       "nonMonetizedActionClicks": 4,
-      "typicalBasketUsd": [120, 450],
+      "typicalBasketUsd": [
+        120,
+        450
+      ],
       "bestPackage": "quarterly",
       "pitchReadiness": "HIGH"
     },
@@ -262,7 +338,10 @@
       "detailOpens": 109,
       "saves": 18,
       "nonMonetizedActionClicks": 3,
-      "typicalBasketUsd": [110, 280],
+      "typicalBasketUsd": [
+        110,
+        280
+      ],
       "bestPackage": "quarterly",
       "pitchReadiness": "HIGH"
     },
@@ -274,7 +353,10 @@
       "detailOpens": 647,
       "saves": 63,
       "nonMonetizedActionClicks": 11,
-      "typicalBasketUsd": [95, 220],
+      "typicalBasketUsd": [
+        95,
+        220
+      ],
       "bestPackage": "quarterly",
       "pitchReadiness": "MEDIUM_HIGH"
     },
@@ -287,7 +369,10 @@
       "primaryCtaNulls": 372,
       "saves": 41,
       "stopAdds": 34,
-      "typicalBasketUsd": [220, 750],
+      "typicalBasketUsd": [
+        220,
+        750
+      ],
       "bestPackage": "quarterly",
       "pitchReadiness": "MEDIUM_HIGH"
     },
@@ -299,7 +384,10 @@
       "detailOpens": 18,
       "saves": 8,
       "stopAdds": 8,
-      "typicalBasketUsd": [110, 320],
+      "typicalBasketUsd": [
+        110,
+        320
+      ],
       "bestPackage": "quarterly",
       "pitchReadiness": "MEDIUM"
     },
@@ -311,13 +399,16 @@
       "detailOpens": 1146,
       "saves": 81,
       "nonMonetizedActionClicks": 17,
-      "typicalBasketUsd": [18, 45],
+      "typicalBasketUsd": [
+        18,
+        45
+      ],
       "bestPackage": "monthly",
       "pitchReadiness": "SELECTIVE_MULTI_UNIT_OR_EVENT_ONLY"
     }
   ],
   "dataMoatLoops": [
-    "Every detail_open + primary_cta_null pair identifies exact high-intent Florida venues where visitors want an action button that does not yet exist.",
+    "Every detail_open + primary_cta_null pair (passive mount event in app/components/sheets/Detail.js:1128-1140 when !primaryCta.monetized) surfaces high-intent Florida venues with unmonetized detail opens — while visitors still see working Directions, Website, Menu, Reserve, or direct non-affiliate Tickets buttons where available.",
     "Every stop_add and Ask Someone share reveals group-decision anchors (e.g., Manatee Performing Arts Center, Agave Bandido, The Ringling) before a single dollar of ad spend.",
     "Every server-witnessed /api/partner/outbound redirect + optional partner booking reconciliation calibrates vertical CTR benchmarks without exposing other partners' private numbers.",
     "Every lost-reason and renewal decision refines scorePartnerFit() weights by Florida metro and season."

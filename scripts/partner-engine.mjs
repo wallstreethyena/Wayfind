@@ -66,7 +66,10 @@ if (cmd === "status") {
   printJson({
     asOf: today,
     primaryConversion: COMMERCIAL_TRUTH.primaryConversion,
-    confirmedCollectedRevenueUsd: COMMERCIAL_TRUTH.confirmedCollectedPartnerRevenueUsd,
+    confirmedCollectedPartnerRevenueInInspectedDbUsd:
+      COMMERCIAL_TRUTH.confirmedCollectedPartnerRevenueInInspectedDbUsd,
+    affiliateRevenueSettlementStatus: COMMERCIAL_TRUTH.affiliateRevenueSettlementStatus,
+    revenueScopeNote: COMMERCIAL_TRUTH.revenueScopeNote,
     commissionPctOnDirectBookings: COMMERCIAL_TRUTH.commissionPctOnDirectBookings,
     packages: COMMERCIAL_TRUTH.pricingAudit.packages,
     postProofRateCardRecommendation: COMMERCIAL_TRUTH.pricingAudit.postProofRateCardRecommendation,
@@ -119,8 +122,8 @@ if (cmd === "status") {
     console.error("Invalid JSON payload for qualify:", err.message);
     process.exit(1);
   }
-  const qualification = qualifyInboundLead(payload, today);
-  const leadRecord = createPartnerLeadRecord(payload, { source: "cli_qualify" });
+  const qualification = qualifyInboundLead(payload, today, { allowProspectLookup: true });
+  const leadRecord = createPartnerLeadRecord(payload, { source: "cli_qualify", allowProspectLookup: true });
   printJson({ qualification, leadRecord });
 } else if (cmd === "proposal") {
   const target = getProspectById(args[1]);

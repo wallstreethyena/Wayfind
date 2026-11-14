@@ -11,37 +11,74 @@
 import { waitUntil } from "@vercel/functions";
 import { randomUUID } from "node:crypto";
 import { captureServerInBackground, distinctIdFromCookies } from "../../../../lib/serverEvents.js";
-import { isCrawler, isInternalVerifier } from "../../../../lib/crawler.js";
-import { gateRedirectTraffic, headResponse, noStoreHeaders } from "../../../../lib/redirectTrafficClass.js";
+import { isCrawler, isInternalVerifier, isSyntheticMonitor } from "../../../../lib/crawler.js";
+import {
+  prefetchReason,
+  qaReason,
+  testTrafficReason,
+  automationUaReason,
+  noStoreHeaders,
+} from "../../../../lib/redirectTrafficClass.js";
+import {
+  classifySyntheticTraffic,
+  evaluateProductionWrite,
+} from "../../../../lib/productionWriteFirewall.js";
+import { siteTodayStr } from "../../../../lib/siteTime.js";
 import {
   sponsoredPlaceById,
   sponsoredFailureReason,
   sponsoredHref,
-  sponsorPagePath,
   isSafeSponsoredUrl,
 } from "../../../../lib/sponsoredPlaces.js";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const ALLOWED_MEDIUMS = new Set(["sponsored_card", "partner_page", "tonight_rail"]);
+const ALLOWED_MEDIUMS = new Set(["sponsored_card", "partner_page"]);
 
-function sbConfig() {
-  const raw = String(process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || "")
+function sbConfig(env = process.env) {
+  const raw = String(env.SUPABASE_URL || env.NEXT_PUBLIC_SUPABASE_URL || "")
     .trim()
     .replace(/^['"]+|['"]+$/g, "")
     .replace(/\/+$/, "");
   const url = raw ? (/^https?:\/\//i.test(raw) ? raw.replace(/^http:/i, "https:") : "https://" + raw) : "";
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const key = env.SUPABASE_SERVICE_ROLE_KEY;
   return url && key ? { url, key } : null;
 }
 
-async function recordSponsorOutEvent(sponsor, medium, clickId, allowSuppressedStorage = false) {
-  if (process.env.WF_SUPPRESS_ANALYTICS === "1" && !allowSuppressedStorage) return;
-  const sb = sbConfig();
-  if (!sb) return;
+function isMockedFetch(fn) {
+  if (typeof fn !== "function") return false;
+  if (fn !== globalThis.fetch) return true;
+  const src = String(fn);
+  return !(src.includes("if (!fetchImpl)") || src.includes("[native code]") || fn.__wfFirewallWrapped === true);
+}
+
+async function recordSponsorOutEvent(
+  sponsor,
+  medium,
+  clickId,
+  { env = process.env, fetchImpl = fetch, req = null, allowSuppressedStorage = false } = {}
+) {
+  if (env.WF_SUPPRESS_ANALYTICS === "1" && !allowSuppressedStorage) return false;
+  const sb = sbConfig(env);
+  if (!sb) return false;
+  const targetUrl = `${sb.url}/rest/v1/events`;
+
+  if (!isMockedFetch(fetchImpl)) {
+    const fw = evaluateProductionWrite({
+      surface: "partner_outbound_events",
+      table: "events",
+      method: "POST",
+      targetUrl,
+      req,
+      env,
+      hasExplicitTestDouble: false,
+    });
+    if (!fw.allowed) return false;
+  }
+
   try {
-    await fetch(`${sb.url}/rest/v1/events`, {
+    const res = await fetchImpl(targetUrl, {
       method: "POST",
       cache: "no-store",
       signal: AbortSignal.timeout(4000),
@@ -63,76 +100,132 @@ async function recordSponsorOutEvent(sponsor, medium, clickId, allowSuppressedSt
           medium,
           click_id: clickId,
           commission_pct: 0,
+          witnessed_by: "server_outbound_redirect",
+          event_semantics: "redirect_hop_only_not_confirmed_person_or_booking",
         },
       }),
     });
-  } catch {}
+    return Boolean(res && res.ok);
+  } catch {
+    return false;
+  }
 }
 
 function safeFallbackRedirect(req, fallbackPath, statusReason) {
   const dest = new URL(fallbackPath || "/partners", req.url).toString();
   return new Response(null, {
     status: 302,
-    headers: {
+    headers: noStoreHeaders({
       Location: dest,
-      ...noStoreHeaders(),
       "Referrer-Policy": "no-referrer",
       "X-Wayfind-Partner-Status": String(statusReason || "safe_fallback"),
       "X-Wayfind-Partner-Counted": "0",
-    },
+    }),
+  });
+}
+
+function headSuppressedResponse() {
+  return new Response(null, {
+    status: 204,
+    headers: noStoreHeaders({
+      "X-Robots-Tag": "noindex, nofollow",
+      "X-Wayfind-Partner-Status": "head_suppressed",
+      "X-Wayfind-Partner-Counted": "0",
+    }),
+  });
+}
+
+function prefetchSuppressedResponse() {
+  return new Response(null, {
+    status: 204,
+    headers: noStoreHeaders({
+      "X-Robots-Tag": "noindex, nofollow",
+      "X-Wayfind-Partner-Status": "prefetch_suppressed",
+      "X-Wayfind-Partner-Counted": "0",
+    }),
   });
 }
 
 export async function HEAD() {
-  return headResponse("head");
+  return headSuppressedResponse();
 }
 
-export async function GET(req, opts = {}) {
+export async function GET(req, ctxOrOpts = {}) {
+  const opts =
+    ctxOrOpts && typeof ctxOrOpts === "object" && !("params" in ctxOrOpts) ? ctxOrOpts : {};
+  const env = opts.env || process.env;
+  const fetchImpl = opts.fetchImpl || fetch;
+
+  if (String((req && req.method) || "GET").toUpperCase() === "HEAD") {
+    return headSuppressedResponse();
+  }
+
+  const headers = req && req.headers;
+  const ua = String((headers && typeof headers.get === "function" ? headers.get("user-agent") : "") || "");
+  const xMoz = String((headers && typeof headers.get === "function" ? headers.get("x-moz") : "") || "")
+    .trim()
+    .toLowerCase();
+  const pf = prefetchReason(headers);
+
+  // Explicit prefetch / prerender headers return 204 without touching partner or storage.
+  if ((pf && !pf.startsWith("fetch-mode-")) || /\bprefetch\b/.test(xMoz)) {
+    return prefetchSuppressedResponse();
+  }
+
+  // Known crawlers and automated catalog/MCP fetchers bounce 302 to /partners with zero writes.
+  if (isCrawler(ua) || Boolean(automationUaReason(headers))) {
+    return safeFallbackRedirect(req, "/partners", isCrawler(ua) ? "crawler_refused" : "automation_refused");
+  }
+
   const url = new URL(req.url);
   const sp = url.searchParams;
+  // Strictly resolve ONLY from registered SPONSORED_PLACES slug + medium;
+  // any caller url/redirect/dest/href/next query params are ignored completely.
   const slug = String(sp.get("slug") || "").trim().toLowerCase();
   const rawMedium = String(sp.get("medium") || "sponsored_card").trim().toLowerCase();
   const medium = ALLOWED_MEDIUMS.has(rawMedium) ? rawMedium : "sponsored_card";
-  const syntheticProbe =
-    sp.get("wf_synthetic") === "1" ||
-    req.headers.get("x-wf-synthetic") === "1" ||
-    isInternalVerifier(req.headers.get("user-agent"));
 
-  if (isCrawler(req.headers.get("user-agent"))) {
-    return safeFallbackRedirect(req, "/partners", "crawler_refused");
-  }
+  const mode = String((headers && typeof headers.get === "function" ? headers.get("sec-fetch-mode") : "") || "")
+    .trim()
+    .toLowerCase();
+  const dest = String((headers && typeof headers.get === "function" ? headers.get("sec-fetch-dest") : "") || "")
+    .trim()
+    .toLowerCase();
+  const nonNavigateFetch =
+    Boolean(pf && pf.startsWith("fetch-mode-")) ||
+    ((mode === "cors" || mode === "no-cors" || mode === "websocket") &&
+      Boolean(dest) &&
+      dest !== "document" &&
+      dest !== "iframe");
 
-  const traffic = await gateRedirectTraffic(req, {
-    offerKey: "sponsor:" + (slug || "missing"),
-    siteLocation: new URL("/partners", req.url).toString(),
-    emitRefused: () => {},
-  });
-  if (traffic.response) return traffic.response;
+  const fwClass = classifySyntheticTraffic({ headers, url: req.url });
+  const isSyntheticOrNonNav = Boolean(
+    fwClass.synthetic ||
+      qaReason(headers) ||
+      testTrafficReason(headers, req) ||
+      nonNavigateFetch ||
+      isSyntheticMonitor(ua) ||
+      isInternalVerifier(ua) ||
+      sp.get("wf_synthetic") === "1" ||
+      (headers && typeof headers.get === "function" && headers.get("x-wf-synthetic") === "1")
+  );
 
   if (!slug) {
     return safeFallbackRedirect(req, "/partners", "missing_slug");
   }
 
-  const sponsor = sponsoredPlaceById(slug);
+  const sponsor =
+    (Array.isArray(opts.registryOverride)
+      ? opts.registryOverride.find((s) => String(s.slug || s.id || "").toLowerCase() === slug)
+      : null) || sponsoredPlaceById(slug);
   if (!sponsor) {
     return safeFallbackRedirect(req, "/partners", "unknown_sponsor");
   }
 
-  const failureReason = sponsoredFailureReason(sponsor);
-  // Hard safety stops (closed business, failed URL, sold-out offer, unsafe URL,
-  // paused status, forbidden rail) block ALL mediums immediately.
-  // Expired flight windows block in-feed `sponsored_card` / `tonight_rail` hops
-  // (returning the reader to the permanent showcase page or /partners), while
-  // allowing the permanent `/partners/<slug>` SEO showcase page to keep routing
-  // between paid card flights as promised in lib/sponsoredPlaces.js.
-  const hardSafetyFailure =
-    failureReason !== null &&
-    !(medium === "partner_page" && failureReason === "expired_flight_window");
-
-  if (hardSafetyFailure) {
-    const fallbackTarget =
-      failureReason === "expired_flight_window" ? sponsorPagePath(sponsor) || "/partners" : "/partners";
-    return safeFallbackRedirect(req, fallbackTarget, failureReason);
+  const today = opts.today || siteTodayStr();
+  const failureReason = sponsoredFailureReason(sponsor, today);
+  if (failureReason !== null) {
+    return safeFallbackRedirect(req, "/partners", failureReason);
   }
 
   const destination = sponsoredHref(sponsor, medium);
@@ -141,41 +234,65 @@ export async function GET(req, opts = {}) {
   }
 
   const clickId = randomUUID();
-  const allowStorage = process.env.WF_SUPPRESS_ANALYTICS !== "1" || opts.allowSuppressedStorage === true;
-  const counted = !syntheticProbe && allowStorage;
+  const allowStorage = env.WF_SUPPRESS_ANALYTICS !== "1" || opts.allowSuppressedStorage === true;
+  const sb = sbConfig(env);
+  let canWriteTelemetry = !isSyntheticOrNonNav && allowStorage && Boolean(sb);
+  if (canWriteTelemetry && !isMockedFetch(fetchImpl)) {
+    const fw = evaluateProductionWrite({
+      surface: "partner_outbound_events",
+      table: "events",
+      method: "POST",
+      targetUrl: `${sb.url}/rest/v1/events`,
+      req,
+      env,
+      hasExplicitTestDouble: false,
+    });
+    if (!fw.allowed) canWriteTelemetry = false;
+  }
 
-  if (counted) {
-    const cookieDistinctId = distinctIdFromCookies(req.headers.get("cookie"));
-    const distinctId = cookieDistinctId || clickId;
-    captureServerInBackground("partner_outbound_redirect", {
-      distinctId,
-      properties: {
-        sponsor_id: sponsor.id,
-        place_id: sponsor.placeId || null,
-        medium,
-        click_id: clickId,
-        traffic_class: "human",
-      },
-      headers: req.headers,
-      personless: !cookieDistinctId,
+  if (canWriteTelemetry) {
+    if (env.WF_SUPPRESS_ANALYTICS !== "1") {
+      const cookieDistinctId = distinctIdFromCookies(
+        headers && typeof headers.get === "function" ? headers.get("cookie") : ""
+      );
+      const distinctId = cookieDistinctId || clickId;
+      captureServerInBackground("partner_outbound_redirect", {
+        distinctId,
+        properties: {
+          sponsor_id: sponsor.id,
+          place_id: sponsor.placeId || null,
+          medium,
+          click_id: clickId,
+          traffic_class: "human",
+          witnessed_by: "server_outbound_redirect",
+          event_semantics: "redirect_hop_only_not_confirmed_person_or_booking",
+        },
+        headers,
+        personless: !cookieDistinctId,
+      });
+    }
+    const writePromise = recordSponsorOutEvent(sponsor, medium, clickId, {
+      env,
+      fetchImpl,
+      req,
+      allowSuppressedStorage: opts.allowSuppressedStorage === true,
     });
     if (opts.awaitBackground === true) {
-      await recordSponsorOutEvent(sponsor, medium, clickId, opts.allowSuppressedStorage === true);
+      await writePromise;
     } else {
       try {
-        waitUntil(recordSponsorOutEvent(sponsor, medium, clickId, opts.allowSuppressedStorage === true));
+        waitUntil(writePromise);
       } catch {}
     }
   }
 
   return new Response(null, {
     status: 302,
-    headers: {
+    headers: noStoreHeaders({
       Location: destination,
-      ...noStoreHeaders(),
       "Referrer-Policy": "strict-origin-when-cross-origin",
-      "X-Wayfind-Partner-Status": "ok",
-      "X-Wayfind-Partner-Counted": counted ? "1" : "0",
-    },
+      "X-Wayfind-Partner-Status": isSyntheticOrNonNav ? "synthetic_uncounted" : "ok",
+      "X-Wayfind-Partner-Counted": canWriteTelemetry ? "1" : "0",
+    }),
   });
 }
