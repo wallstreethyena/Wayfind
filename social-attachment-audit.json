@@ -1,23 +1,23 @@
 {
   "schema_version": 1,
-  "observed_at": "2026-11-12",
-  "scope": "Prepared owner-submitted Instagram associations, including the verified 2026-10-10 Florida intake and 2026-10-13 follow-up; contains no source captions. Historical records cover links retrievable from the repository, reachable Git history, and four recalled links. This does not claim completeness against all prior chat history or all research backlogs. Production attachment is verified only after deployment. Owner-submitted Rreal Tacos Tampa reel reviewed and added 2026-10-22. Owner-submitted Myakka Canopy Walkway and Henry B. Plant Museum Stroll Reels reviewed 2026-11-08.",
+  "observed_at": "2026-11-14",
+  "scope": "Prepared owner-submitted Instagram associations, including the verified 2026-10-10 Florida intake and 2026-10-13 follow-up; contains no source captions. Historical records cover links retrievable from the repository, reachable Git history, and four recalled links. This does not claim completeness against all prior chat history or all research backlogs. Production attachment is verified only after deployment. Owner-submitted Rreal Tacos Tampa reel reviewed and added 2026-10-22. Owner-submitted Myakka Canopy Walkway and Henry B. Plant Museum Stroll Reels reviewed 2026-11-08. Wayfind's own @gowayfind.app posts that feature one business were added 2026-11-14 (docs/curation/owned-reels-on-cards-2026-11-14.md).",
   "association_policy": "event_associations are dedicated event or organiser posts eligible for exact event surfaces. roundup_event_mentions preserve reviewed calendar/venue mentions as audit evidence only. venue_context_associations identify the event venue without proving the named event. Neither audit-only class is published as exact event media.",
   "public_entrypoint": "Home \u2192 select Creators Pick \u2192 Browse all creator finds. Place-linked posts open a Wayfind venue card; exact-ID venues can continue to full place details. Event-only posts render on the listed Florida event route.",
   "summary": {
-    "source_total": 90,
-    "retrievable_reported_source_total": 90,
-    "retrievable_reported_sources_mapped": 90,
-    "sources_with_place_association": 76,
-    "sources_with_event_association": 26,
-    "sources_with_any_association": 90,
-    "event_only_sources": 14,
+    "source_total": 99,
+    "retrievable_reported_source_total": 99,
+    "retrievable_reported_sources_mapped": 99,
+    "sources_with_place_association": 84,
+    "sources_with_event_association": 31,
+    "sources_with_any_association": 99,
+    "event_only_sources": 15,
     "remaining_unmapped_sources": 0,
-    "place_association_count": 97,
-    "unique_place_association_count": 86,
+    "place_association_count": 105,
+    "unique_place_association_count": 91,
     "sources_with_roundup_event_mentions": 2,
     "roundup_event_mention_count": 11,
-    "exact_event_association_count": 27,
+    "exact_event_association_count": 32,
     "sources_with_venue_context_association": 2,
     "venue_context_association_count": 2
   },
@@ -2682,6 +2682,256 @@
       "public_navigation": "/florida-events/disney-springs-christmas-tree-stroll-2026",
       "native_link_renderable": true,
       "evidence": "Owner submitted link read 2026-11-12 from public share metadata. Snowfall at Town Center, Disney Springs, Nov 11 to Jan 3 per caption."
+    },
+    {
+      "shortcode": "DfpQw4pB6Bq",
+      "creator_handle": "gowayfind.app",
+      "native_url": "https://www.instagram.com/reel/DfpQw4pB6Bq/",
+      "native_path_kind": "reel",
+      "true_city": [
+        "Clearwater"
+      ],
+      "place_associations": [
+        {
+          "curated_key": "spirit-christmas-clearwater",
+          "place_id": "wfadd_spirit_christmas_clearwater",
+          "name": "Spirit Christmas",
+          "city": "Clearwater",
+          "address": null,
+          "native_wayfind_surface": "/p/wfadd_spirit_christmas_clearwater",
+          "renderability": "hydrated_place_detail_and_creator_card"
+        }
+      ],
+      "event_associations": [],
+      "association_status": "prepared",
+      "public_navigation": "/p/wfadd_spirit_christmas_clearwater",
+      "native_link_renderable": true,
+      "evidence": "Wayfind's own Reel (@gowayfind.app, published 2026-11-12, wf_owned_social). Caption names the new Spirit Christmas store in Clearwater; wfadd_spirit_christmas_clearwater is the live Wayfind place for it."
+    },
+    {
+      "shortcode": "DfiitL9p2Uc",
+      "creator_handle": "gowayfind.app",
+      "native_url": "https://www.instagram.com/reel/DfiitL9p2Uc/",
+      "native_path_kind": "reel",
+      "true_city": [
+        "Clearwater"
+      ],
+      "place_associations": [
+        {
+          "curated_key": "roberts-christmas-wonderland-clearwater",
+          "place_id": "ChIJYybWKcrvwogRT8I06QALhdI",
+          "name": "Robert's Christmas Wonderland",
+          "city": "Clearwater",
+          "address": "2951 Gulf to Bay Blvd, Clearwater, FL 33759",
+          "native_wayfind_surface": "/p/ChIJYybWKcrvwogRT8I06QALhdI",
+          "renderability": "hydrated_place_detail_and_creator_card"
+        }
+      ],
+      "event_associations": [
+        {
+          "event_id": "roberts-christmas-wonderland-2026",
+          "native_wayfind_surface": "/florida-events/roberts-christmas-wonderland-2026",
+          "renderability": "server_rendered_creator_credit_and_native_link",
+          "association_kind": "exact_event"
+        }
+      ],
+      "association_status": "prepared",
+      "public_navigation": "/florida-events/roberts-christmas-wonderland-2026",
+      "native_link_renderable": true,
+      "evidence": "Wayfind's own Reel (@gowayfind.app, 2026-11-09). Classified a single place feature of Robert's Christmas Wonderland, Clearwater."
+    },
+    {
+      "shortcode": "DfOGiw9jFdZ",
+      "creator_handle": "gowayfind.app",
+      "native_url": "https://www.instagram.com/p/DfOGiw9jFdZ/",
+      "native_path_kind": "p",
+      "true_city": [
+        "Dade City"
+      ],
+      "place_associations": [
+        {
+          "curated_key": "snowcat-ridge-dade-city",
+          "place_id": "ChIJF05ORfWpwogRI74PwJotNf4",
+          "name": "Snowcat Ridge",
+          "city": "Dade City",
+          "address": "27839 Saint Joe Rd, Dade City, FL 33525",
+          "native_wayfind_surface": "/p/ChIJF05ORfWpwogRI74PwJotNf4",
+          "renderability": "hydrated_place_detail_and_creator_card"
+        }
+      ],
+      "event_associations": [
+        {
+          "event_id": "snowcat-ridge-2026",
+          "native_wayfind_surface": "/florida-events/snowcat-ridge-alpine-snow-park-2026",
+          "renderability": "server_rendered_creator_credit_and_native_link",
+          "association_kind": "exact_event"
+        }
+      ],
+      "association_status": "prepared",
+      "public_navigation": "/florida-events/snowcat-ridge-alpine-snow-park-2026",
+      "native_link_renderable": true,
+      "evidence": "Wayfind's own carousel (@gowayfind.app, 2026-11-02). Single venue guide to Snowcat Ridge; linked to /florida-events/snowcat-ridge-alpine-snow-park-2026 (event_id snowcat-ridge-2026)."
+    },
+    {
+      "shortcode": "DfdbJ10Jzgy",
+      "creator_handle": "gowayfind.app",
+      "native_url": "https://www.instagram.com/reel/DfdbJ10Jzgy/",
+      "native_path_kind": "reel",
+      "true_city": [
+        "Myakka City"
+      ],
+      "place_associations": [
+        {
+          "curated_key": "sarasota-medieval-fair-myakka",
+          "place_id": "ChIJS2qQ6sw1w4gRUJfWmSdAvXE",
+          "name": "Sarasota Medieval Fair",
+          "city": "Myakka City",
+          "address": null,
+          "native_wayfind_surface": "/p/ChIJS2qQ6sw1w4gRUJfWmSdAvXE",
+          "renderability": "hydrated_place_detail_and_creator_card"
+        }
+      ],
+      "event_associations": [
+        {
+          "event_id": "sarasota-medieval-fair-2026",
+          "native_wayfind_surface": "/florida-events/sarasota-medieval-fair-2026",
+          "renderability": "server_rendered_creator_credit_and_native_link",
+          "association_kind": "exact_event"
+        }
+      ],
+      "association_status": "prepared",
+      "public_navigation": "/florida-events/sarasota-medieval-fair-2026",
+      "native_link_renderable": true,
+      "evidence": "Wayfind's own Reel (@gowayfind.app, 2026-11-08). Event guide to the Sarasota Medieval Fair, Nov 7 to Dec 6 (wf_events)."
+    },
+    {
+      "shortcode": "DfbH0CYMCLl",
+      "creator_handle": "gowayfind.app",
+      "native_url": "https://www.instagram.com/reel/DfbH0CYMCLl/",
+      "native_path_kind": "reel",
+      "true_city": [
+        "Myakka City"
+      ],
+      "place_associations": [
+        {
+          "curated_key": "sarasota-medieval-fair-myakka",
+          "place_id": "ChIJS2qQ6sw1w4gRUJfWmSdAvXE",
+          "name": "Sarasota Medieval Fair",
+          "city": "Myakka City",
+          "address": null,
+          "native_wayfind_surface": "/p/ChIJS2qQ6sw1w4gRUJfWmSdAvXE",
+          "renderability": "hydrated_place_detail_and_creator_card"
+        }
+      ],
+      "event_associations": [
+        {
+          "event_id": "sarasota-medieval-fair-2026",
+          "native_wayfind_surface": "/florida-events/sarasota-medieval-fair-2026",
+          "renderability": "server_rendered_creator_credit_and_native_link",
+          "association_kind": "exact_event"
+        }
+      ],
+      "association_status": "prepared",
+      "public_navigation": "/florida-events/sarasota-medieval-fair-2026",
+      "native_link_renderable": true,
+      "evidence": "Wayfind's own Reel (@gowayfind.app, 2026-11-07). A different cut of the Sarasota Medieval Fair guide."
+    },
+    {
+      "shortcode": "DflkQYilr5t",
+      "creator_handle": "gowayfind.app",
+      "native_url": "https://www.instagram.com/p/DflkQYilr5t/",
+      "native_path_kind": "p",
+      "true_city": [
+        "Siesta Key"
+      ],
+      "place_associations": [],
+      "event_associations": [
+        {
+          "event_id": "crystal-classic-2026",
+          "native_wayfind_surface": "/florida-events/siesta-key-crystal-classic-2026",
+          "renderability": "server_rendered_creator_credit_and_native_link",
+          "association_kind": "exact_event"
+        }
+      ],
+      "association_status": "prepared",
+      "public_navigation": "/florida-events/siesta-key-crystal-classic-2026",
+      "native_link_renderable": true,
+      "evidence": "Wayfind's own carousel (@gowayfind.app, 2026-11-11). Siesta Key Crystal Classic guide; /florida-events/siesta-key-crystal-classic-2026 resolves event_id crystal-classic-2026. Its Reel twin DflialZhmf3 blocks embedding, so the carousel carries it."
+    },
+    {
+      "shortcode": "DdxDxKeD-UN",
+      "creator_handle": "gowayfind.app",
+      "native_url": "https://www.instagram.com/reel/DdxDxKeD-UN/",
+      "native_path_kind": "reel",
+      "true_city": [
+        "Parrish"
+      ],
+      "place_associations": [
+        {
+          "curated_key": "ryans-coffee-house-parrish",
+          "place_id": "ChIJo_IdHf0lw4gRHDbQNKBRE84",
+          "name": "Ryan's Coffee House",
+          "city": "Parrish",
+          "address": null,
+          "native_wayfind_surface": "/p/ChIJo_IdHf0lw4gRHDbQNKBRE84",
+          "renderability": "hydrated_place_detail_and_creator_card"
+        }
+      ],
+      "event_associations": [],
+      "association_status": "prepared",
+      "public_navigation": "/p/ChIJo_IdHf0lw4gRHDbQNKBRE84",
+      "native_link_renderable": true,
+      "evidence": "Wayfind's own Reel (@gowayfind.app, 2026-09-26). Local business showcase of Ryan's Coffee House, Parrish."
+    },
+    {
+      "shortcode": "DdUinjYJEYr",
+      "creator_handle": "gowayfind.app",
+      "native_url": "https://www.instagram.com/reel/DdUinjYJEYr/",
+      "native_path_kind": "reel",
+      "true_city": [
+        "Tampa"
+      ],
+      "place_associations": [
+        {
+          "curated_key": "tampa-golf-cart-tours",
+          "place_id": "ChIJmTBndrPFwogRQgwCuMP3myY",
+          "name": "Tampa Golf Cart Tours",
+          "city": "Tampa",
+          "address": null,
+          "native_wayfind_surface": "/p/ChIJmTBndrPFwogRQgwCuMP3myY",
+          "renderability": "hydrated_place_detail_and_creator_card"
+        }
+      ],
+      "event_associations": [],
+      "association_status": "prepared",
+      "public_navigation": "/p/ChIJmTBndrPFwogRQgwCuMP3myY",
+      "native_link_renderable": true,
+      "evidence": "Wayfind's own Reel (@gowayfind.app, 2026-09-15). Bookable Tampa Golf Cart Tour; live wf_inventory place Tampa Golf Cart Tours."
+    },
+    {
+      "shortcode": "DdEkeo9Bkhk",
+      "creator_handle": "gowayfind.app",
+      "native_url": "https://www.instagram.com/reel/DdEkeo9Bkhk/",
+      "native_path_kind": "reel",
+      "true_city": [
+        "Tierra Verde"
+      ],
+      "place_associations": [
+        {
+          "curated_key": "get-up-and-go-kayaking-shell-key",
+          "place_id": "ChIJk04qcKEdw4gRHykY4WhCYBI",
+          "name": "Get Up and Go Kayaking Shell Key",
+          "city": "Tierra Verde",
+          "address": null,
+          "native_wayfind_surface": "/p/ChIJk04qcKEdw4gRHykY4WhCYBI",
+          "renderability": "hydrated_place_detail_and_creator_card"
+        }
+      ],
+      "event_associations": [],
+      "association_status": "prepared",
+      "public_navigation": "/p/ChIJk04qcKEdw4gRHykY4WhCYBI",
+      "native_link_renderable": true,
+      "evidence": "Wayfind's own Reel (@gowayfind.app, 2026-09-09). Clear kayak tour over Shell Key Preserve run by Get Up and Go Kayaking; live wf_inventory place Get Up and Go Kayaking - Shell Key Preserve."
     }
   ]
 }

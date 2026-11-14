@@ -2564,6 +2564,10 @@ node scripts/check-this-week-events.mjs
 node scripts/test-viator-booking-attribution.mjs
 # 2026-11-12: a built Viator click row is ACCEPTED by the real wf_viator_clicks constraints and keeps its gclid (campaign names never go into observed_utm_campaign).
 node scripts/test-viator-click-row-db-contract.mjs
+# 2026-11-13: owner consent rule for Google offline booking uploads (GRANTED, or outside EEA/UK/CH without GPC; fail closed), end to end in PGlite with both migrations.
+node scripts/test-viator-consent-basis.mjs
+# 2026-11-06: Google Data Manager events:ingest body matches the official ConsentStatus/EventSource contract (no bare GRANTED, eventSource required).
+node scripts/test-data-manager-ingest-contract.mjs
 node scripts/test-viator-visitor-hash.mjs
 node scripts/check-schedule-note-days.mjs
 node scripts/check-event-assessment-policy.mjs
@@ -2648,6 +2652,8 @@ node scripts/test-christmas-plan.mjs
 node scripts/test-frontier-moment-decisions.mjs
 # 2026-11-12: Grounded Wayfind AI Itinerary Builder end-to-end verification (all 7 acceptance scenarios, ungrounded ID refusal, closed-day check, local->Supabase sync, and fallback resilience).
 node scripts/test-ai-itinerary-planner.mjs
+# 2026-11-13: Florida Partner Revenue Engine end-to-end lock (all 18 acceptance checks, editorial firewall red-team cases, synthetic QA isolation, outbound tracking, Command Center panel, and 25 verified Florida prospects).
+node scripts/test-partner-revenue-engine.mjs
 node scripts/test-planner-imessage.mjs
 node scripts/test-planner-host-voice.mjs
 # 2026-11-13: Wayfind Map Real-Time Spatial Decision Engine (7-way location truth, Near Me vs Explore Here, Hard Test Sarasota->Tampa Christmas tonight SSR, Florida water-barrier effort, hours closing feasibility, weather fit, score law, pairings/parking/backtracking, privacy, and cluster immunity).
