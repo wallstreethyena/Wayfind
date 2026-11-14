@@ -211,6 +211,7 @@ function harnessSource(overrides = {}) {
     `import { wayfindScore } from ${u("lib/wayfindScore.js")};`,
     `import { regionCoords } from ${u("lib/guideNow.js")};`,
     `import { guidePickMayResolvePlaceCard } from ${u("lib/guidePlaceIdentity.js")};`,
+    `import { isNotPublicPlace } from ${u("lib/notPublicPlaces.js")};`,
     "",
     overrides.inventorySocial || FN.inventorySocial,
     overrides.inventoryPlaceByStem || FN.inventoryPlaceByStem,
