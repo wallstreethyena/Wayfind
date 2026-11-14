@@ -3,6 +3,8 @@
 // rows (lib/redirectFailureQuality.js). Crawler refusals and cold hits with no
 // on-page tap stay in the raw count but never read as broken links. Report-only:
 // no redirect route is touched, and the revenue heartbeat incident is unchanged.
+// Report-only test: never let a code path under test write to the production PostHog project.
+process.env.WF_SUPPRESS_ANALYTICS = "1";
 import { readFileSync } from "node:fs";
 import { isQualifiedRedirectFailure, qualifiedRedirectFailureSql, UNQUALIFIED_FAILURE_REASONS } from "../lib/redirectFailureQuality.js";
 import { buildVisitorReport, redirectFailureNote } from "../lib/commandCenter/visitorReport.js";
