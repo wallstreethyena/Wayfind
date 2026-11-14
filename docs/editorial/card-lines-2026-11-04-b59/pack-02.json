@@ -1,0 +1,344 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 59. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJGeq3Xcyr2YgRjJ16xFGdazA",
+   "name": "In Ramen",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "ramen_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://inramen.com/",
+     "source_name": "In Ramen \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "In Ramen is an Asian street eatery with handcrafted ramen, fluffy bao, Japanese curry and Asian street food favorites",
+      "Favorites listed include Beef Short Rib Ramen, Chashu Ramen and Spicy Chicken Ramen",
+      "The space has an open kitchen, bold murals and a modern industrial feel"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Handcrafted ramen, fluffy bao and Japanese curry as an Asian street eatery",
+    "why_here": "In Ramen presents handcrafted ramen, fluffy bao, Japanese curry and Asian street food favorites in a casual setting with an open kitchen. It lists Beef Short Rib Ramen, Chashu Ramen and Spicy Chicken Ramen among the favorites shown on its homepage.",
+    "know_before": "Order pickup is offered, and the full menu and current availability are on the ordering page, per the homepage.",
+    "local_tip": "Come for a quick lunch, a relaxed dinner or a food stop before a movie, as the site suggests.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://inramen.com/"
+     ],
+     "why_here": [
+      "https://inramen.com/"
+     ],
+     "know_before": [
+      "https://inramen.com/"
+     ],
+     "local_tip": [
+      "https://inramen.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "In Ramen is an Asian street eatery with handcrafted ramen, fluffy bao, Japanese curry and Asian street food favorites",
+      "source": "https://inramen.com/"
+     },
+     {
+      "claim": "Favorites listed include Beef Short Rib Ramen, Chashu Ramen and Spicy Chicken Ramen",
+      "source": "https://inramen.com/"
+     },
+     {
+      "claim": "The space has an open kitchen, bold murals and a modern industrial feel",
+      "source": "https://inramen.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ6chCbhpE2ogRSE_xyRZDSCs",
+   "name": "H.P. Williams Wayside Park",
+   "category": "attractions",
+   "metro": "immokalee-fl",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.nps.gov/places/h-p-williams-wayside-park.htm",
+     "source_name": "H.P. Williams Wayside Park \u2014 official source",
+     "source_class": "government",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "A short boardwalk overlooks a human made drainage canal inhabited by fish, birds, turtles, snakes and alligators",
+      "The area has several shaded picnic tables and restrooms",
+      "The park is right off of Highway 41",
+      "Amenities listed include Benches/Seating, Parking - Auto, Picnic Table and Restroom"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Short boardwalk over a canal where alligators, birds and turtles gather",
+    "why_here": "A short boardwalk gives a unique perspective of a human made drainage canal now inhabited by a wide range of wildlife. Fish, birds, turtles, snakes and alligators frequent these waters, and the area also has several shaded picnic tables and restrooms.",
+    "know_before": "A short boardwalk overlooks a human made drainage canal inhabited by fish, birds, turtles, snakes and alligators",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.nps.gov/places/h-p-williams-wayside-park.htm"
+     ],
+     "why_here": [
+      "https://www.nps.gov/places/h-p-williams-wayside-park.htm"
+     ],
+     "know_before": [
+      "https://www.nps.gov/places/h-p-williams-wayside-park.htm"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "A short boardwalk overlooks a human made drainage canal inhabited by fish, birds, turtles, snakes and alligators",
+      "source": "https://www.nps.gov/places/h-p-williams-wayside-park.htm"
+     },
+     {
+      "claim": "The area has several shaded picnic tables and restrooms",
+      "source": "https://www.nps.gov/places/h-p-williams-wayside-park.htm"
+     },
+     {
+      "claim": "The park is right off of Highway 41",
+      "source": "https://www.nps.gov/places/h-p-williams-wayside-park.htm"
+     },
+     {
+      "claim": "Amenities listed include Benches/Seating, Parking - Auto, Picnic Table and Restroom",
+      "source": "https://www.nps.gov/places/h-p-williams-wayside-park.htm"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ3YRi7Mpj24gROX_JWbPix3A",
+   "name": "Babcock Ranch Eco Tours",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "tourist_attraction",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://babcockranchecotours.com/",
+     "source_name": "Babcock Ranch Eco Tours \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Offers a narrated 90-minute eco-tour through Babcock Ranch",
+      "Travels through four different ecosystems including Telegraph Cypress Swamp",
+      "Wildlife can include alligators, birds, deer, wild hogs, wild turkeys, and Sandhill cranes",
+      "Return Uber availability may be limited, so arrange alternative transportation in advance"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "90-minute swamp buggy eco-tour through four Florida ecosystems",
+    "why_here": "A narrated 90-minute eco-tour travels through historic Babcock Ranch and four different ecosystems, including Telegraph Cypress Swamp. Expert guides share commentary on history, wildlife, and ecosystems as animals appear within a few yards.",
+    "know_before": "Finding an Uber for your return trip may be challenging due to limited availability; arrange alternative transportation in advance.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://babcockranchecotours.com/"
+     ],
+     "why_here": [
+      "https://babcockranchecotours.com/"
+     ],
+     "know_before": [
+      "https://babcockranchecotours.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Offers a narrated 90-minute eco-tour through Babcock Ranch",
+      "source": "https://babcockranchecotours.com/"
+     },
+     {
+      "claim": "Travels through four different ecosystems including Telegraph Cypress Swamp",
+      "source": "https://babcockranchecotours.com/"
+     },
+     {
+      "claim": "Wildlife can include alligators, birds, deer, wild hogs, wild turkeys, and Sandhill cranes",
+      "source": "https://babcockranchecotours.com/"
+     },
+     {
+      "claim": "Return Uber availability may be limited, so arrange alternative transportation in advance",
+      "source": "https://babcockranchecotours.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJrcLDM8t43YgRvNAH3fCSNzo",
+   "name": "The Inn at Celebration, Autograph Collection",
+   "category": "hotels",
+   "metro": "orlando",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.theinnatcelebration.com/",
+     "source_name": "The Inn at Celebration, Autograph Collection \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Inn at Celebration is a 115-room hotel overlooking Lake Rianhard",
+      "Lakeside Kitchen & Bar invites guests to savor dishes with a waterfront view overlooking Lake Rianhard",
+      "Scenic walking and biking trails are right outside the doors",
+      "Room options listed include King Guest Room Lake View and Two Queen Guest Room"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "115-room lakeside retreat overlooking Lake Rianhard with waterfront dining",
+    "why_here": "A curated lakeside retreat overlooking the peaceful waters of Lake Rianhard, the 115-room hotel offers breezy interiors and a welcoming escape. Guests can sip and savor creative cuisine with a waterfront view at Lakeside Kitchen & Bar, then explore scenic walking and biking trails right outside the doors.",
+    "know_before": "The Inn at Celebration is a 115-room hotel overlooking Lake Rianhard",
+    "local_tip": "Explore the scenic walking and biking trails right outside the doors, as the homepage suggests.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.theinnatcelebration.com/"
+     ],
+     "why_here": [
+      "https://www.theinnatcelebration.com/"
+     ],
+     "know_before": [
+      "https://www.theinnatcelebration.com/"
+     ],
+     "local_tip": [
+      "https://www.theinnatcelebration.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Inn at Celebration is a 115-room hotel overlooking Lake Rianhard",
+      "source": "https://www.theinnatcelebration.com/"
+     },
+     {
+      "claim": "Lakeside Kitchen & Bar invites guests to savor dishes with a waterfront view overlooking Lake Rianhard",
+      "source": "https://www.theinnatcelebration.com/"
+     },
+     {
+      "claim": "Scenic walking and biking trails are right outside the doors",
+      "source": "https://www.theinnatcelebration.com/"
+     },
+     {
+      "claim": "Room options listed include King Guest Room Lake View and Two Queen Guest Room",
+      "source": "https://www.theinnatcelebration.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJGSdib3Fl54gRd6A8ohLaKNM",
+   "name": "Escape Artists",
+   "category": "attractions",
+   "metro": "orlando",
+   "primary_type": "amusement_center",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://escapeartistssanford.com/",
+     "source_name": "Escape Artists \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Teams of 2 to 6 players are given 60 minutes to solve puzzles and escape",
+      "Players solve puzzles, decode cyphers, and uncover secret passages",
+      "Rooms suit all ages and groups including family activities, team-building, and date nights"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Escape rooms where teams solve puzzles and uncover secret passages",
+    "why_here": "Escape Artists offers an escape room experience where teams work together to solve puzzles, decode cyphers, and uncover secret passages to escape. Rooms are designed for all ages and groups, from family activities and team-building to date nights.",
+    "know_before": "Teams of 2 to 6 players are given 60 minutes to escape, so book ahead through the official site and arrive as a team.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://escapeartistssanford.com/"
+     ],
+     "why_here": [
+      "https://escapeartistssanford.com/"
+     ],
+     "know_before": [
+      "https://escapeartistssanford.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Teams of 2 to 6 players are given 60 minutes to solve puzzles and escape",
+      "source": "https://escapeartistssanford.com/"
+     },
+     {
+      "claim": "Players solve puzzles, decode cyphers, and uncover secret passages",
+      "source": "https://escapeartistssanford.com/"
+     },
+     {
+      "claim": "Rooms suit all ages and groups including family activities, team-building, and date nights",
+      "source": "https://escapeartistssanford.com/"
+     }
+    ]
+   }
+  }
+ ]
+}
