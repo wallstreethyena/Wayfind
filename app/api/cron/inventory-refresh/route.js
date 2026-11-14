@@ -38,6 +38,7 @@ import { planCheck, planEnterprise, tierOrder, tiersToTry, neverChecked, refresh
 import { classifyProviderFailure, breakerOpen, tripBreaker, breakerCooldownMs, GOOGLE_DETAILS_DAILY_BREAKER } from "../../../../lib/providerHealth.js";
 import { recordPulse, budgetGateNote, budgetLimitNote, budgetDailyReserveNote } from "../../../../lib/jobPulse";
 import { jobCannotRun, jobFailed } from "../../../../lib/jobFail";
+import { rankHoursRefreshQueue } from "../../../../lib/hoursFreshnessQueue.js";
 
 // Check anything not checked in this many days. Below the 30-day ceiling on
 // purpose: rows are renewed BEFORE they expire.
@@ -131,7 +132,7 @@ async function runInventoryRefresh(req) {
   // Within the window never-checked rows (new inventory) are ordered ahead of re-checks.
   let windowQuery = db
     .from("wf_inventory")
-    .select("place_id, metro, refreshed_at, locked, status, lat, lng, anchor, signals, independent_coords")
+    .select("place_id, metro, category, primary_type, refreshed_at, locked, status, lat, lng, anchor, signals, independent_coords")
     .lt("refreshed_at", cutoff)
     .or("excluded.is.null,excluded.eq.false")
     .or("status.is.null,status.neq.CLOSED_PERMANENTLY")
@@ -151,11 +152,21 @@ async function runInventoryRefresh(req) {
   // The same predicate again in code (defence in depth, and what the lock test executes), plus the
   // new-inventory-only rule between the scheduled and the new-or-changed daily lines.
   const eligibleRows = (windowRows || []).filter((r) => refreshEligible(r, cutoffMs, richNow) && (!newOnly || neverChecked(r)));
+  // Prioritize within each bucket using rankHoursRefreshQueue (missing owned_hours, anchors, high reviews,
+  // core metros, commercial readiness) before rotating via refreshSlice.
+  const neverCheckedRows = eligibleRows.filter((r) => neverChecked(r));
+  const scheduledRows = eligibleRows.filter((r) => !neverChecked(r));
+  const rankedNeverChecked = typeof rankHoursRefreshQueue === "function"
+    ? rankHoursRefreshQueue(neverCheckedRows, { nowMs: nowD.getTime() }).map((x) => x.row)
+    : neverCheckedRows;
+  const rankedScheduled = typeof rankHoursRefreshQueue === "function"
+    ? rankHoursRefreshQueue(scheduledRows, { nowMs: nowD.getTime() }).map((x) => x.row)
+    : scheduledRows;
   // New inventory (never checked, priority B) is taken before scheduled re-checks (C); each group still rotates
   // through its own window (refreshSlice) so a row that cannot be written does not wedge the head of its queue.
   const slot = Math.floor(Date.now() / 3600000);
-  const newRows = refreshSlice(eligibleRows.filter((r) => neverChecked(r)), limit, slot);
-  const rows = newRows.concat(newRows.length < limit ? refreshSlice(eligibleRows.filter((r) => !neverChecked(r)), limit - newRows.length, slot) : []);
+  const newRows = refreshSlice(rankedNeverChecked, limit, slot);
+  const rows = newRows.concat(newRows.length < limit ? refreshSlice(rankedScheduled, limit - newRows.length, slot) : []);
   if (!rows || !rows.length) {
     await recordPulse("inventory-refresh", { attempted: 0, succeeded: 0, note: "nothing unchecked for " + REFRESH_AFTER_DAYS + "d" });
     return Response.json({ ok: true, checked: 0, note: "nothing unchecked for " + REFRESH_AFTER_DAYS + "d" });

@@ -334,6 +334,7 @@ const FIX = {
   },
   "app/api/ticketmaster/go/route.js": { q: "url=" + encodeURIComponent("https://www.ticketmaster.com/event/123"), partner: "ticketmaster" },
   "app/api/stubhub/go/route.js": { q: "url=" + encodeURIComponent("https://www.stubhub.com/event/123"), partner: "stubhub.prf.hn" },
+  "app/api/reserve/go/route.js": { q: "placeId=ChIJ3Vyq7WTEwogRA-WDC7Mze2E&date=2026-11-14&time=19:15&party=4", partner: null },
   "app/api/viator/go/route.js": { q: "product=" + encodeURIComponent("https://www.viator.com/tours/Orlando/Airboat/d827-1234P5"), partner: "viator.com" },
 };
 const missing = ROUTES.filter((r) => !(r in FIX));

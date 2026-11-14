@@ -29,10 +29,11 @@ import {
   sanitizeAnalyticsProperties,
 } from "../../lib/browserAnalytics";
 import { readCrownCampaign } from "../../lib/crownCampaign.js";
-import { attributionProps, captureLanding, installBridge, readState, writeLandingCookie } from "../../lib/campaignAttribution.js";
+import { attributionProps, captureLanding, installBridge, readState, sessionCampaignProps, writeLandingCookie } from "../../lib/campaignAttribution.js";
 import { syncAdClickCookieFromWindow } from "../../lib/adClickCookie.js";
 import { isNative } from "../../lib/native";
 import { safeLocalStorage, safeSessionStorage } from "../../lib/safeStorage.js";
+import { captureSharedLinkVisit, installSharedConversionHook } from "../../lib/shareAttribution.js";
 
 export default function PostHogProvider({ children }) {
   const pathname = usePathname();
@@ -41,6 +42,10 @@ export default function PostHogProvider({ children }) {
     const key = process.env.NEXT_PUBLIC_POSTHOG_KEY;
     if (typeof window === "undefined" || window._phInit) return;
     if (isGroupPlanPath(window.location.pathname)) { window.__WF_ANALYTICS_SUPPRESSED="private_group_plan"; clearPreReadyQueue(window); return; }
+    // SHARE ATTRIBUTION v2 (2026-11-13, lib/shareAttribution.js). First, so
+    // wf_st leaves the address bar before landing capture or any app effect
+    // reads the URL, and so refresh/back cannot recount the visit. Fail-open.
+    try { installSharedConversionHook(window); captureSharedLinkVisit(window); } catch (e) {}
     // CAMPAIGN LANDING CAPTURE (2026-10-29). Synchronous, on the first client
     // effect, BEFORE the 4 s idle PostHog boot and before any client navigation
     // can rewrite the URL. Stores first touch (90 d, localStorage) + session
@@ -119,6 +124,10 @@ export default function PostHogProvider({ children }) {
           const sess = attributionProps(st, "sess");
           if (Object.keys(ft).length) ph.register(ft);
           if (Object.keys(sess).length && typeof ph.register_for_session === "function") ph.register_for_session(sess);
+          // The landing's own utm_* and click ids, so the session keeps its
+          // source even when the page rewrote the address before this boot.
+          const landing = sessionCampaignProps(st);
+          if (Object.keys(landing).length && typeof ph.register_for_session === "function") ph.register_for_session(landing);
         } catch (e) {}
         try {
           const crown = readCrownCampaign(safeSessionStorage());

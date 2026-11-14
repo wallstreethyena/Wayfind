@@ -11,6 +11,7 @@
 // does not fail the request: the visitor's signup was accepted the moment we
 // logged it, and the log line remains the fallback record.
 import { sendGuideEmail } from "../../../lib/guideEmail.js";
+import { evaluateProductionWrite, isSyntheticRequest } from "../../../lib/productionWriteFirewall.js";
 
 // Mailing is stricter than saving. (1) The browser-set Sec-Fetch-Site header
 // must say same-origin: a cross-site page can never send it and a naive
@@ -52,7 +53,8 @@ function emailableRequest(headers) {
 
 function cleanEnv(v) { return String(v || "").trim().replace(/^['"]+|['"]+$/g, ""); }
 
-async function persistSignup(entry) {
+async function persistSignup(entry, req) {
+  if (req && isSyntheticRequest(req)) return { ok: false, isNew: false, blocked: true };
   const raw = cleanEnv(process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL).replace(/\/+$/, "");
   const url = raw ? (/^https?:\/\//i.test(raw) ? raw.replace(/^http:\/\//i, "https://") : "https://" + raw) : "";
   const key = cleanEnv(process.env.SUPABASE_SERVICE_ROLE_KEY);
@@ -67,6 +69,17 @@ async function persistSignup(entry) {
     likes: entry.likes || 0,
     signals: entry.signals || 0,
   };
+  if (globalThis.fetch && globalThis.fetch.__wfFirewallWrapped === true) {
+    const fw = evaluateProductionWrite({
+      surface: "email_signup",
+      table: "wf_email_signups",
+      method: "POST",
+      targetUrl: url + "/rest/v1/wf_email_signups",
+      payload: row,
+      req,
+    });
+    if (!fw.allowed) return { ok: false, isNew: false, blocked: true };
+  }
   const post = (prefer) => fetch(url + "/rest/v1/wf_email_signups?on_conflict=email,slug", {
     method: "POST",
     headers: { apikey: key, Authorization: "Bearer " + key, "Content-Type": "application/json", Prefer: prefer },
@@ -100,7 +113,7 @@ export async function POST(req) {
     // Durable row (service-role; RLS keeps clients out). Best-effort by design.
     let saved = { ok: false, isNew: false };
     try {
-      saved = await persistSignup(entry);
+      saved = await persistSignup(entry, req);
       if (!saved.ok) console.error("[wayfind signup persist] not configured or refused");
     } catch (e) {
       console.error("[wayfind signup persist error]", e?.message);
@@ -118,7 +131,7 @@ export async function POST(req) {
     }
     // Forward to webhook if configured
     const webhook = process.env.SIGNUP_WEBHOOK_URL;
-    if (webhook) {
+    if (webhook && !saved.blocked && evaluateProductionWrite({ surface: "signup_webhook", table: "signup_webhook", method: "POST", payload: entry, req }).allowed) {
       try {
         await fetch(webhook, {
           method: "POST",
