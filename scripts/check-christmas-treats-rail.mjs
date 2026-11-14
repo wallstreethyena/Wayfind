@@ -7,7 +7,8 @@
 // (lib/seasonalHospitality.js) honors that pin. Asserted on the CALL.
 import assert from "node:assert/strict";
 import { SEASONAL_HOSPITALITY_2026 } from "../lib/seasonalHospitalityCatalog2026.js";
-import { seasonalHospitalityPlaces } from "../lib/seasonalHospitality.js";
+import { seasonalHospitalityPlaces, seasonalHospitalityEligible } from "../lib/seasonalHospitality.js";
+import { CHRISTMAS_EVENT_RAIL } from "../lib/christmasDiscoveries2026.js";
 import { CHRISTMAS_RAIL_IDS, composeChristmasIntentRails } from "../lib/christmasIntentRails.js";
 
 let checks = 0;
@@ -46,4 +47,25 @@ ok(on("seasonal-food").includes(treat.place_id), "composer files the treat under
 // Negative control: an unknown pin is ignored and the default rail applies.
 const stray = seasonalHospitalityPlaces([inv(treat)], "christmas", today, [{ ...treat, christmas_rail: "not-a-rail" }]);
 ok(stray[0]?.christmasRail === "seasonal-food", "an unknown christmas_rail pin falls back to the default (control)");
+// Owner screenshot scout (Nov 14): two undated holiday displays and two
+// separately verified scheduled event rows must land in the correct Christmas rail.
+const scout = [
+  ["hospitality-2026-3-daughters-christmas-village", "towns-markets", "ChIJ28aBEDHiwogRzv5VMM80mE0"],
+  ["hospitality-2026-helena-snow-angel", "popup-bars", "ChIJP1om-VJ-54gRAF-_k_y5cig"],
+];
+for (const [id, rail, placeId] of scout) {
+  const match = SEASONAL_HOSPITALITY_2026.find((e) => e.id === id);
+  ok(match?.place_id === placeId && match?.christmas_rail === rail,
+    id + " has the verified venue identity and intended Christmas rail");
+  ok(match && match.start_date === null && match.end_date === null,
+    id + " does not invent display closing/opening dates");
+  ok(seasonalHospitalityEligible(match, "christmas", "2026-11-14"), id + " eligible after screenshot date");
+  ok(!seasonalHospitalityEligible(match, "christmas", "2026-11-13"), id + " cannot publish before evidence");
+  const card = seasonalHospitalityPlaces([inv(match)], "christmas", "2026-11-14", [match])[0];
+  ok(card?.christmasRail === rail && card?.seasonalWhen?.includes("dates pending"),
+    id + " displays verified 2026 season without claiming schedule");
+}
+ok(CHRISTMAS_EVENT_RAIL["misfit-bar-wink-wink-holiday-2026"] === "popup-bars", "Misfit Bar routed as Christmas pop-up bar");
+ok(CHRISTMAS_EVENT_RAIL["christmas-at-hobe-sound-farms-2026"] === "towns-markets", "Hobe Sound farm routed as Christmas market");
+
 console.log("check-christmas-treats-rail: OK, " + checks + " assertions (" + food.length + " Christmas food rows)");
