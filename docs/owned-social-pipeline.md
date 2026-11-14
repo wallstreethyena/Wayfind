@@ -40,6 +40,8 @@ Default: **eligible**. A post is excluded only with a stored reason (CHECK const
 - everything else: published within 45 days.
 
 Expired posts stay in the table and are counted as excluded with reason `expired`.
+The cron still stores their covers (after live posts, same per-run budget), because the
+Instagram source link expires within days and a dated guide past its date stays accounted for.
 The shelf is its own row at the top of Trending and never takes a slot from the five
 earned shelves, so owned posts cannot starve or be starved.
 

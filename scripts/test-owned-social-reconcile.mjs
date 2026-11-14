@@ -15,7 +15,7 @@ import { loadComponent } from "./lib/jsxLoad.mjs";
 import {
   selectShelf, toShelfItem, reconcile, ingestionFreshness, shelfBlocker, normalizeAsset,
   canonicalPermalink, parsePermalink, deriveTitle, LIVE_WINDOW_DAYS, EXCLUSION_REASONS,
-  shelfPage, cleanDisplayTitle, safeWayfindLinks, rowDefect, SHELF_PAGE_SIZE,
+  shelfPage, cleanDisplayTitle, safeWayfindLinks, rowDefect, SHELF_PAGE_SIZE, coverCandidates,
 } from "../lib/ownedSocial.js";
 import { upsertSourceRows } from "../lib/ownedSocialStore.js";
 
@@ -208,6 +208,24 @@ globalThis.fetch = async (url, init) => {
 await cronGET(cronReq());
 const pp = lastPulse("owned-social-reconcile");
 ok(pp && pp.succeeded === 1 && pageCalls.join(",") === "0,24", `the monitor reads every page before judging (pages ${pageCalls}, note ${pp && pp.note})`);
+// Covers: live posts first, then eligible EXPIRED guides (their Instagram link dies within days and
+// could never be stored later). Excluded and unpublished rows are never fetched (2026-11-14 regression).
+const SRC = (c) => `https://scontent-x.cdninstagram.com/v/${c}.jpg`;
+const coverRows = [
+  row("CovLive001", { published_at: iso(1), cover_source_url: SRC("CovLive001") }),
+  row("CovExpd001", { published_at: iso(3), relevant_until: iso(3).slice(0, 10), cover_source_url: SRC("CovExpd001") }),
+  row("CovExcl001", { published_at: iso(3), relevant_until: iso(3).slice(0, 10), eligibility: "excluded", exclusion_reason: "companion_duplicate", companion_of: "CovExpd001", cover_source_url: SRC("CovExcl001") }),
+  row("CovSched01", { published_at: iso(0), lifecycle: "scheduled", cover_source_url: SRC("CovSched01") }),
+  row("CovHave001", { published_at: iso(1), cover_url: "https://stub.supabase.co/x.jpg", cover_source_url: SRC("CovHave001") }),
+];
+ok(coverCandidates(coverRows, today).map((r) => r.shortcode).join(",") === "CovLive001,CovExpd001", `cover candidates: live first, then eligible expired; never excluded, scheduled or already stored (got ${coverCandidates(coverRows, today).map((r) => r.shortcode)})`);
+ok(coverCandidates(coverRows, today, 1).map((r) => r.shortcode).join(",") === "CovLive001", "the per-run cover budget is spent on live posts first");
+stub({ tableRows: coverRows, servedBody: { ok: true, items: selectShelf(coverRows, today).map(toShelfItem) } });
+const coverFetched = [];
+const coverBase = globalThis.fetch;
+globalThis.fetch = async (url, init) => { if (String(url).includes("cdninstagram.com")) coverFetched.push(String(url)); return coverBase(url, init); };
+const coverRes = await (await cronGET(cronReq())).json();
+ok(coverFetched.join(",") === [SRC("CovLive001"), SRC("CovExpd001")].join(",") && coverRes.covers.tried === 2, `the monitor tries to store the expired eligible guide's cover and never the excluded twin's (fetched ${coverFetched.map((u) => u.split("/").pop())})`);
 const unauth = await cronGET(new Request("https://www.gowayfind.com/api/cron/owned-social"));
 ok(unauth.status === 401, "the monitor refuses unauthenticated calls");
 globalThis.fetch = realFetch;

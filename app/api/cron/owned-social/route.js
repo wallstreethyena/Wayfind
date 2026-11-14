@@ -5,7 +5,8 @@
 //      Wayfind's own media straight from the Instagram Graph API and upsert it.
 //      Until then the daily Metricool ingestion task writes the rows and pulses
 //      `owned-social-ingest`; this route checks that pulse is fresh.
-//   2. COVERS. Copy each live post's cover off Instagram's expiring CDN link.
+//   2. COVERS. Copy each live post's cover off Instagram's expiring CDN link,
+//      then each eligible expired guide's (lib/ownedSocial.js coverCandidates).
 //   3. RECONCILE. Fetch the shelf the PUBLIC endpoint actually serves (through
 //      the CDN, the way a visitor gets it) and compare it to the table. Every
 //      post lands in exactly one bucket; missing = ingested-but-not-shown +
@@ -13,7 +14,7 @@
 //   4. PULSE `owned-social-reconcile`: one unit per run, succeeded only when
 //      missing = 0, broken = 0 and ingestion is fresh. Two failed runs in a row
 //      is a job-watch incident with the first offending shortcodes in the note.
-import { reconcile, ingestionFreshness, reconcileNote, shelfBlocker } from "../../../../lib/ownedSocial.js";
+import { reconcile, ingestionFreshness, reconcileNote, coverCandidates } from "../../../../lib/ownedSocial.js";
 import { readOwnedRows, upsertSourceRows, storeCover, markTrendingVerified, fetchOwnGraphMedia } from "../../../../lib/ownedSocialStore.js";
 import { igToken, igUserId, IG_API_VERSION } from "../../../../lib/instagramGraph.js";
 import { recordPulse } from "../../../../lib/jobPulse.js";
@@ -77,9 +78,8 @@ export async function GET(request) {
     return json({ ...report, ok: false, error: note }, 500);
   }
 
-  for (const row of rows) {
-    if (report.covers.tried >= COVERS_PER_RUN) break;
-    if (row.cover_url || !row.cover_source_url || shelfBlocker(row, today) !== null) continue;
+  // Live posts first, then eligible expired guides (their source link dies within days).
+  for (const row of coverCandidates(rows, today, COVERS_PER_RUN)) {
     report.covers.tried++;
     const r = await storeCover(row);
     if (r.ok) report.covers.stored++;
