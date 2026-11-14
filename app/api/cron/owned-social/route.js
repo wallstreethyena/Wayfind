@@ -1,4 +1,5 @@
-// /api/cron/owned-social — keeps "Seen on Wayfind" honest (lib/ownedSocial.js).
+// /api/cron/owned-social — keeps Wayfind's own posts on their business cards
+// honest (lib/ownedSocial.js reconcile, lib/ownedSocialCards.js).
 //
 // SUCCESS MEANS "every expected eligible post was reconciled", not "it ran":
 //   1. INGEST. When IG_GRAPH_TOKEN + IG_BUSINESS_ACCOUNT_ID exist, read
@@ -6,14 +7,17 @@
 //      Until then the daily Metricool ingestion task writes the rows and pulses
 //      `owned-social-ingest`; this route checks that pulse is fresh.
 //   2. COVERS. Copy each live post's cover off Instagram's expiring CDN link.
-//   3. RECONCILE. Fetch the shelf the PUBLIC endpoint actually serves (through
-//      the CDN, the way a visitor gets it) and compare it to the table. Every
-//      post lands in exactly one bucket; missing = ingested-but-not-shown +
-//      not-ingested; broken = defects, duplicates, stray cards.
+//   3. RECONCILE (owner, 2026-11-14: no standalone video cards). Compare the
+//      table to where each post is ATTACHED on a business card, read from the
+//      same registries the place and event cards render from. Every post lands
+//      in exactly one bucket; missing = a live one business post that is on
+//      no card and has no recorded decision + not ingested; broken = defects
+//      and attachments with no row.
 //   4. PULSE `owned-social-reconcile`: one unit per run, succeeded only when
 //      missing = 0, broken = 0 and ingestion is fresh. Two failed runs in a row
 //      is a job-watch incident with the first offending shortcodes in the note.
 import { reconcile, ingestionFreshness, reconcileNote, shelfBlocker } from "../../../../lib/ownedSocial.js";
+import { ownedAttachments, OWNED_CARD_DECISIONS } from "../../../../lib/ownedSocialCards.js";
 import { readOwnedRows, upsertSourceRows, storeCover, markTrendingVerified, fetchOwnGraphMedia } from "../../../../lib/ownedSocialStore.js";
 import { igToken, igUserId, IG_API_VERSION } from "../../../../lib/instagramGraph.js";
 import { recordPulse } from "../../../../lib/jobPulse.js";
@@ -86,27 +90,8 @@ export async function GET(request) {
     else report.covers.failed.push(`${row.shortcode}: ${r.why}`);
   }
 
-  // What a visitor actually gets, through the CDN.
-  let served = [];
-  let servedOk = false;
-  // Walk every page a visitor can reach by swiping (the shelf pages 12 at a time).
-  try {
-    const origin = new URL(request.url).origin;
-    let offset = 0;
-    for (let page = 0; page < 200; page++) {
-      const r = await fetch(`${origin}/api/owned-social?offset=${offset}&limit=24`, { cache: "no-store" });
-      const body = await r.json();
-      if (!(r.ok && body && body.ok === true && Array.isArray(body.items))) {
-        report.servedError = `HTTP ${r.status}${body && body.error ? ": " + body.error : ""}`;
-        break;
-      }
-      served.push(...body.items);
-      if (body.next_offset == null) { servedOk = true; break; }
-      offset = body.next_offset;
-    }
-  } catch (e) { report.servedError = String(e.message || e).slice(0, 160); }
-
-  const rec = reconcile({ sourceAssets, rows, served, todayStr: today });
+  const attached = ownedAttachments();
+  const rec = reconcile({ sourceAssets, rows, attached, decisions: OWNED_CARD_DECISIONS, todayStr: today });
   const fresh = graphIngestOk
     ? { ok: true, why: null }
     : ingestionFreshness({ lastIngestAt: await lastIngestAt() });
@@ -114,12 +99,12 @@ export async function GET(request) {
   report.reconcile = { counts: rec.counts, inspected: rec.inspected, reels: rec.reels, carousels: rec.carousels, eligibleLive: rec.eligibleLive, missing: rec.missing, broken: rec.broken,
     defects: rec.results.filter((r) => ["C", "D", "F"].includes(r.bucket)).slice(0, 50) };
 
+  // trending_verified_at now records "verified on its business card".
   const verified = rec.results.filter((r) => r.bucket === "A").map((r) => r.shortcode);
-  if (servedOk && verified.length) await markTrendingVerified(verified);
+  if (verified.length) await markTrendingVerified(verified);
 
-  const ok = servedOk && rec.ok && fresh.ok;
-  let note = reconcileNote(rec, fresh);
-  if (!servedOk) note = "unavailable: shelf endpoint failed (" + (report.servedError || "unknown") + ") · " + note;
-  await recordPulse("owned-social-reconcile", { attempted: 1, succeeded: ok ? 1 : 0, failed: ok ? 0 : rec.missing + rec.broken + (servedOk ? 0 : 1) + (fresh.ok ? 0 : 1), note });
+  const ok = rec.ok && fresh.ok;
+  const note = reconcileNote(rec, fresh);
+  await recordPulse("owned-social-reconcile", { attempted: 1, succeeded: ok ? 1 : 0, failed: ok ? 0 : rec.missing + rec.broken + (fresh.ok ? 0 : 1), note });
   return json({ ...report, ok }, ok ? 200 : 500);
 }

@@ -59,6 +59,8 @@ import { mayHostPhoto } from "../../lib/creatorRights";
 // so these are captured by hand and committed. That is the trade: a manual step
 // that is checked, rather than an automated one that silently 404s.
 const INSTAGRAM_AVATARS = {
+  // Wayfind's own account (owner, 2026-11-14): the app icon, our own brand asset.
+  "gowayfind.app": "/icon-192.png",
   katelynintampa: "/creators/katelynintampa.jpg",
   "fashion.eat.travel": "/creators/fashion.eat.travel.jpg",
   neverboredinorlando: "/creators/neverboredinorlando.jpg",
