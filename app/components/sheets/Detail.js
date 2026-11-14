@@ -1323,7 +1323,7 @@ export default function DetailSheet({ ctx }) {
                 })() : (<>
                   <span style={{ color: C.border }}>·</span>
                   {openState == null ? (
-                    <span onClick={() => setHoursOpen((o) => !o)} style={{ cursor: "pointer", fontWeight: 700, fontSize: 12, color: C.muted }}>Hours unavailable<span style={{ fontSize: 8.5, marginLeft: 3, display: "inline-block", transform: hoursOpen ? "rotate(180deg)" : "none", transition: "transform .2s" }}>▼</span></span>
+                    <span onClick={() => setHoursOpen((o) => !o)} style={{ cursor: "pointer", fontWeight: 700, fontSize: 12, color: C.muted }}>{(detailExtra && Array.isArray(detailExtra.hours) && detailExtra.hours.length > 0) || (hydratedDetail && hydratedDetail.oh && Array.isArray(hydratedDetail.oh.weekdayDescriptions) && hydratedDetail.oh.weekdayDescriptions.length > 0) || (effectiveEditorial && typeof effectiveEditorial.hoursText === "string" && effectiveEditorial.hoursText.trim()) ? "See hours" : "Hours unavailable"}<span style={{ fontSize: 8.5, marginLeft: 3, display: "inline-block", transform: hoursOpen ? "rotate(180deg)" : "none", transition: "transform .2s" }}>▼</span></span>
                   ) : (
                     <span onClick={() => setHoursOpen((o) => !o)} style={{ cursor: "pointer", fontWeight: 800, color: openState ? C.green : C.red }}>{openState ? "Open now" : "Closed"}<span style={{ fontSize: 8.5, marginLeft: 3, display: "inline-block", transform: hoursOpen ? "rotate(180deg)" : "none", transition: "transform .2s" }}>▼</span></span>
                   )}
@@ -1343,16 +1343,20 @@ export default function DetailSheet({ ctx }) {
                     // detail fetch (detailExtra.hours), the weekday text captured
                     // at search time (detail.oh.weekdayDescriptions), or Wayfind's
                     // owned editorial hours (hydratedDetail.oh.weekdayDescriptions).
-                    const isOwnedHours = !(detailExtra && Array.isArray(detailExtra.hours) && detailExtra.hours.length > 0)
-                      && !(detail.oh && Array.isArray(detail.oh.weekdayDescriptions) && detail.oh.weekdayDescriptions.length > 0)
-                      && Boolean(hydratedDetail && hydratedDetail.oh && (hydratedDetail.oh.source === "wayfind_editorial_hours" || hydratedDetail.oh.source === "wayfind_owned_truth"));
+                    const isOwnedHours = !(detailExtra && Array.isArray(detailExtra.hours) && detailExtra.hours.length > 0 && detailExtra.source !== "owned_snapshot")
+                      && (Boolean(detail && detail.oh && (detail.oh._source === "atlas_editorial" || detail.oh.source === "wayfind_editorial_hours" || detail.oh.source === "wayfind_owned_truth"))
+                        || (!(detail.oh && Array.isArray(detail.oh.weekdayDescriptions) && detail.oh.weekdayDescriptions.length > 0)
+                          && (Boolean(hydratedDetail && hydratedDetail.oh && (hydratedDetail.oh.source === "wayfind_editorial_hours" || hydratedDetail.oh.source === "wayfind_owned_truth" || hydratedDetail.oh._source === "atlas_editorial"))
+                            || Boolean(effectiveEditorial && typeof effectiveEditorial.hoursText === "string" && effectiveEditorial.hoursText.trim()))));
                     const lines = (detailExtra && Array.isArray(detailExtra.hours) && detailExtra.hours.length > 0)
                       ? detailExtra.hours
                       : (detail.oh && Array.isArray(detail.oh.weekdayDescriptions) && detail.oh.weekdayDescriptions.length > 0
                           ? detail.oh.weekdayDescriptions
                           : (hydratedDetail && hydratedDetail.oh && Array.isArray(hydratedDetail.oh.weekdayDescriptions) && hydratedDetail.oh.weekdayDescriptions.length > 0
                               ? hydratedDetail.oh.weekdayDescriptions
-                              : null));
+                              : (effectiveEditorial && typeof effectiveEditorial.hoursText === "string" && effectiveEditorial.hoursText.trim()
+                                  ? [effectiveEditorial.hoursText.trim()]
+                                  : null)));
                     if (lines) {
                       return (<>
                         {lines.map((line, i) => {
