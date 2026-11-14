@@ -41,8 +41,11 @@ on:
   pull_request:
   push:
     branches: [main]
+# A newer push to the same PR branch cancels the stale run, but every commit on
+# main keeps its own run: the merge queue lands PRs back to back and each merged
+# union must be proven on main, not only the last one (verifier finding 2026-11-14).
 concurrency:
-  group: guards-${{ github.ref }}
+  group: guards-${{ github.ref }}-${{ github.ref == 'refs/heads/main' && github.sha || 'latest' }}
   cancel-in-progress: true
 # Read-only token. check-doc-ownership reads the pull request and its comments to
 # verify owner approval (see docs/OWNER_APPROVAL.md).

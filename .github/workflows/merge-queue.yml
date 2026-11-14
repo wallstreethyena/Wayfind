@@ -30,9 +30,12 @@
 # Remove the halt label, then re-label or wait for the hourly sweep, to resume.
 #
 # SECURITY: the job holds a write token, so it never checks out, installs or runs
-# anything from a pull request. It checks out main's scripts only (pull_request_target
-# and push and workflow_dispatch all run from main), reads pull requests as API data,
-# and no event text reaches a shell. Every action is pinned to a full commit sha.
+# anything from a pull request. It checks out main's scripts only: every step uses
+# `ref: main` explicitly. (pull_request_target runs the workflow file from the PR's
+# BASE branch, and a manual dispatch runs it from the chosen ref; merge-queue.mjs
+# refuses to act unless GITHUB_REF is refs/heads/main, so only main's copy of this
+# workflow can drive it.) It reads pull requests as API data, no event text reaches
+# a shell, and every action is pinned to a full commit sha.
 name: merge-queue
 on:
   pull_request_target:

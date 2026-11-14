@@ -30,8 +30,8 @@ cannot be owner-only, so the base-trusted gate judges what a change *does*:
 | file | free | protected (pseudo-path in the fingerprint) |
 |---|---|---|
 | `scripts/guards.txt` | adding guards, comments, order | removing or rewriting any command line present at the merge base (`scripts/guards.txt#removed`, hash of the removed lines) |
-| `package.json` | every other field and script | `preinstall`, `install`, `postinstall`, `prepare`, `prebuild`, `build`, `postbuild`, `vercel-build` (`package.json#build-scripts`, hash of both sides) |
-| `vercel.json` | crons, headers, … | `buildCommand`, `installCommand` (`vercel.json#build-command`) |
+| `package.json` | every other field and script | `preinstall`, `install`, `postinstall`, `prepublish`, `preprepare`, `prepare`, `postprepare`, `prebuild`, `build`, `postbuild`, `vercel-build` (`package.json#build-scripts`, hash of both sides) |
+| `vercel.json` | crons, headers, … | `buildCommand`, `installCommand`, `ignoreCommand`, `builds`, `framework`, `outputDirectory` (`vercel.json#build-command`) |
 
 A protected aspect needs owner approval exactly like an owner-only file. If the
 evidence for a changed source is missing (unreadable blob, API error), the merge
@@ -91,7 +91,7 @@ commit.
 
 ## Where it is checked
 
-Only by GitHub Actions, twice:
+Only by GitHub Actions, in three places:
 
 1. **`guards`** runs `scripts/check-doc-ownership.mjs` inside the full guard
    suite. It runs on `pull_request`, so it uses the pull request's own copy of
@@ -101,6 +101,12 @@ Only by GitHub Actions, twice:
    branch (`main`), never from the pull request, and the script reads the pull
    request only as data from the API. A pull request that edits the guard is
    still judged by the unedited rule.
+3. **The merge queue** (`.github/workflows/merge-queue.yml`) re-decides owner
+   approval with main's `scripts/lib/ownerApproval.mjs` on live evidence right
+   before every merge, and posts the `owner-approval` check on the head it tested
+   (its own branch updates fire no `pull_request_target` event).
+   `owner-approval-recheck.yml` only re-runs the existing checks after an owner
+   comment; it decides nothing.
 
 Branch protection on `main` requires both checks, from the GitHub Actions app.
 Both use a read-only token and fail when they can't read the evidence (no pull
@@ -151,7 +157,12 @@ GitHub App the owner owns (the "Owner Gate App"):
 `scripts/test-owner-approval-gate.mjs` proves all of this without network access,
 and `scripts/owner-gate-setup-check.mjs` checks the live settings.
 
-## Agents get their own GitHub identity
+## Agents get their own GitHub identity (planned, NOT live)
+
+**Status 2026-11-14: not in effect.** Agents still act as the owner's account
+(`wallstreethyena`), so everything below describes the intended future setup,
+not today's. Until it is live, keeping agents from posting approvals is a policy
+rule, not something GitHub enforces.
 
 GitHub cannot tell the owner apart from a tool that is signed in as the owner. So
 the approval only means "the owner" once agents stop using the owner's account.

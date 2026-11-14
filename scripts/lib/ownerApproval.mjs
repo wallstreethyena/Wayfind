@@ -51,7 +51,7 @@
 //                           vercel-build and the install hooks npm ci runs before
 //                           the guard runner) are protected, pseudo-path
 //                           "package.json#build-scripts"; other fields stay free;
-//       vercel.json         buildCommand/installCommand, "vercel.json#build-command".
+//       vercel.json         buildCommand/installCommand/ignoreCommand/builds/framework/outputDirectory, "vercel.json#build-command".
 //     The base-trusted gate (owner-approval, the merge queue) reads both sides from
 //     git and asks semanticAspect() what changed. A protected aspect is a protected
 //     change like an owner-only file: it needs approval and its hash is a
@@ -121,8 +121,12 @@ const SHA256 = /^[0-9a-f]{64}$/;
 export const FINGERPRINT_VERSION = "wayfind-owner-approval-fingerprint/v2";
 
 // ── Semantic protected aspects (see header) ────────────────────────────────
-export const BUILD_LIFECYCLE_SCRIPTS = Object.freeze(["preinstall", "install", "postinstall", "prepare", "prebuild", "build", "postbuild", "vercel-build"]);
-export const VERCEL_BUILD_KEYS = Object.freeze(["buildCommand", "installCommand"]);
+// Every root lifecycle script `npm ci` / `npm run build` executes (npm 10: preinstall, install,
+// postinstall, prepublish, preprepare, prepare, postprepare; verifier finding 2026-11-14).
+export const BUILD_LIFECYCLE_SCRIPTS = Object.freeze(["preinstall", "install", "postinstall", "prepublish", "preprepare", "prepare", "postprepare", "prebuild", "build", "postbuild", "vercel-build"]);
+// Anything that changes what Vercel builds or whether it builds at all (ignoreCommand can
+// skip a build; builds/framework can bypass `npm run build`).
+export const VERCEL_BUILD_KEYS = Object.freeze(["buildCommand", "installCommand", "ignoreCommand", "builds", "framework", "outputDirectory"]);
 export const SEMANTIC_ASPECTS = Object.freeze({
   "scripts/guards.txt": "scripts/guards.txt#removed",
   "package.json": "package.json#build-scripts",

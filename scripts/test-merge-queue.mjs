@@ -90,6 +90,11 @@ class FakeGitHub {
     if (this.haltAtCallLen && this.calls.length >= this.haltAtCallLen) this.haltRaised = true;
     const reply = (status, data = null) => ({ status, ok: status >= 200 && status < 300, json: async () => data });
     let m;
+    if (method === "POST" && p === "/issues") {
+      const issue = { number: 9000 + this.haltIssues.length, title: body.title, body: body.body, labels: body.labels };
+      if ((body.labels || []).includes("merge-queue-halt")) this.haltIssues.push(issue);
+      return reply(201, issue);
+    }
     if (method === "GET" && (m = p.match(/^\/issues\?labels=([^&]+)/))) {
       const label = decodeURIComponent(m[1]);
       if (label === "merge-queue-halt") {
@@ -128,6 +133,7 @@ class FakeGitHub {
       const pr = this.prs.get(Number(m[1]));
       if (body.expected_head_sha !== pr.headSha) return reply(422, { message: "expected head sha didn't match" });
       if (pr.updateConflict) return reply(422, { message: "merge conflict between base and head" });
+      if (pr.updateWorkflowRefused) return reply(422, { message: "refusing to allow a GitHub App to create or update workflow `.github/workflows/guards.yml` without `workflows` permission" });
       if (pr.updateError) return reply(pr.updateError, { message: "boom" });
       pr.headSha = this.sha(); this.commits.set(pr.headSha, { tree: this.sha() }); pr.baseSha = this.main;
       return reply(202, { message: "Updating pull request branch." });
@@ -167,6 +173,7 @@ class FakeGitHub {
     }
     if (method === "PUT" && (m = p.match(/^\/pulls\/(\d+)\/merge$/))) {
       const pr = this.prs.get(Number(m[1]));
+      if (pr.mergeWorkflowRefused) return reply(405, { message: "refusing to allow a GitHub App to create or update workflow `.github/workflows/x.yml` without `workflows` permission" });
       if (pr.mergeFailures > 0) { pr.mergeFailures--; return reply(405, { message: "Base branch was modified. Review and try the merge again." }); }
       if (body.sha !== pr.headSha) return reply(409, { message: "Head branch was modified." });
       if (this.behind(pr)) return reply(405, { message: "Head branch is out of date." });
@@ -478,6 +485,23 @@ const botComments = (pr) => pr.comments.filter((c) => c.user.type === "Bot").map
   ok(p.merged && !gh.calls.some((c) => c.method !== "GET" && /revert|git\/refs|branches/.test(c.path)), "tree mismatch: nothing is reverted or reset");
   ok(p.labels.length === 0 && botComments(p).some((b) => /UNION PROOF FAILED/.test(b)), "tree mismatch: label removed (it did merge) and a loud comment left");
   ok(!gh.logs.some((l) => /tree-proof=PASS/.test(l)), "tree mismatch: never logs tree-proof=PASS");
+  ok(gh.haltIssues.length === 1 && /union proof failed for #90/i.test(gh.haltIssues[0].title), "tree mismatch: opens one issue carrying merge-queue-halt (durable stop)");
+  const again = await drain(gh);
+  ok(again.halted === true && !later.merged && gh.find("PUT", /pulls\/91\/merge/).length === 0, "tree mismatch: the NEXT drain (sweep or label) stays halted while that issue is open");
+}
+{
+  // GITHUB_TOKEN has no workflows permission: GitHub refuses update-branch/merge when the
+  // result touches .github/workflows. That is not a conflict and must say what to do.
+  const gh = new FakeGitHub();
+  const a = gh.addPr(92, { updateWorkflowRefused: true });
+  const b = gh.addPr(93, { mergeWorkflowRefused: true });
+  const c = gh.addPr(94);
+  gh.externalPush();
+  const r = await drain(gh);
+  const ca = botComments(a).join("\n"); const cb = botComments(b).join("\n");
+  ok(!a.merged && /workflows permission/.test(ca) && /update the branch/.test(ca) && !/conflicts with main/.test(ca), `workflow permission: an update-branch refusal is reported as such, not as a conflict (${ca.slice(0, 120)})`);
+  ok(!b.merged && /workflows permission/.test(cb) && /merge it/.test(cb) && gh.find("PUT", /pulls\/93\/merge/).length === 1, "workflow permission: a merge refusal drops at once with the manual step (no futile retries)");
+  ok(c.merged && r.merged.some((x) => x.number === 94), "workflow permission: the PRs behind still land");
 }
 
 // ---- CI timeout ----------------------------------------------------------------------------

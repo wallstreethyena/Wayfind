@@ -133,14 +133,15 @@ const git = (cwd, args, env = {}) => execFileSync("git", args, { cwd, encoding: 
   const withScripts = (patch) => { const d = JSON.parse(P0); Object.assign(d.scripts, patch); return JSON.stringify(d); };
   ok(semanticAspect("package.json", P0, P0.replace("1.0.0", "1.0.1")).aspect === null && semanticAspect("package.json", P0, withScripts({ dev: "next dev -p 4000", lint: "x" })).aspect === null,
     "H package.json: version bumps and non-build scripts are free");
-  ok(["prebuild", "build", "postbuild", "vercel-build", "postinstall", "preinstall", "install", "prepare"].every((k) => SHA256_RX.test(semanticAspect("package.json", P0, withScripts({ [k]: "true" })).aspect))
+  ok(["prebuild", "build", "postbuild", "vercel-build", "postinstall", "preinstall", "install", "prepare", "preprepare", "postprepare", "prepublish"].every((k) => SHA256_RX.test(semanticAspect("package.json", P0, withScripts({ [k]: "true" })).aspect))
     && SHA256_RX.test(semanticAspect("package.json", P0, "{ not json").aspect) && SHA256_RX.test(semanticAspect("package.json", P0, null).aspect),
     "H package.json: changing or adding any build/install lifecycle script, an unparsable file, or deleting package.json is protected");
   const V0 = JSON.stringify({ buildCommand: "npm run build", crons: [] });
   ok(semanticAspect("vercel.json", V0, JSON.stringify({ buildCommand: "npm run build", crons: [{ path: "/x" }] })).aspect === null
     && SHA256_RX.test(semanticAspect("vercel.json", V0, JSON.stringify({ buildCommand: "next build", crons: [] })).aspect)
-    && SHA256_RX.test(semanticAspect("vercel.json", V0, JSON.stringify({ buildCommand: "npm run build", installCommand: "npm i && rm scripts/run-guards.mjs", crons: [] })).aspect),
-    "H vercel.json: crons are free; buildCommand/installCommand changes are protected");
+    && SHA256_RX.test(semanticAspect("vercel.json", V0, JSON.stringify({ buildCommand: "npm run build", installCommand: "npm i && rm scripts/run-guards.mjs", crons: [] })).aspect)
+    && ["ignoreCommand", "builds", "framework", "outputDirectory"].every((k) => SHA256_RX.test(semanticAspect("vercel.json", V0, JSON.stringify({ buildCommand: "npm run build", crons: [], [k]: k === "builds" ? [{ src: "package.json", use: "@vercel/static" }] : "x" })).aspect)),
+    "H vercel.json: crons are free; buildCommand/installCommand/ignoreCommand/builds/framework/outputDirectory changes are protected");
   const pkgEv = (aspect, comments = []) => ({ changedPaths: ["package.json", "lib/x.js"], mergeGate: true, pr: { number: 7, eventHeadSha: head, liveHeadSha: head }, comments, protectedEntries: aspect === undefined ? null : [{ path: "package.json#build-scripts", aspect, baseRef: "main" }], error: null });
   const A1 = "a1".repeat(32);
   const fpPkg = protectedFingerprint(7, [{ path: "package.json#build-scripts", aspect: A1 }], "main");
@@ -483,6 +484,8 @@ globalThis.fetch = async (url, init = {}) => {
   // Sharded gate (2026-11-13): the required "guards" job is an aggregator that is
   // green only when all four shards, rendered/audit and build succeeded.
   const wfCode = wf.split("\n").filter((l) => !/^\s*#/.test(l)).join("\n");
+  ok(/group: guards-\$\{\{ github\.ref \}\}-\$\{\{ github\.ref == 'refs\/heads\/main' && github\.sha \|\| 'latest' \}\}/.test(wfCode),
+    "guards: every commit on main keeps its own run (back-to-back queue merges cannot cancel each other's union proof)");
   ok(/shard:\s*\[1, 2, 3, 4\]/.test(wfCode) && /GUARD_SHARD:\s*\$\{\{\s*matrix\.shard\s*\}\}\/4/.test(wfCode)
     && /^  guards:\n    name: guards\n    if: always\(\)\n    needs: \[shard, rendered, build\]/m.test(wfCode)
     && /test "\$SHARD" = "success" && test "\$RENDERED" = "success" && test "\$BUILD" = "success"/.test(wfCode),
@@ -548,7 +551,7 @@ globalThis.fetch = async (url, init = {}) => {
   ok(uses.length === 2 && uses.every((u) => /@[0-9a-f]{40}$/.test(u)), `owner-approval pins every action to a full commit sha (${uses.join(", ")})`);
 }
 
-const EXPECTED = 121;
+const EXPECTED = 122;
 if (checks !== EXPECTED) {
   console.error(`test-owner-approval: FAIL — ran ${checks} assertions, expected exactly ${EXPECTED}; a proof was skipped or added without review.`);
   process.exit(1);

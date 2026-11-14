@@ -136,7 +136,7 @@ const short = (sha) => String(sha || "").slice(0, 12);
 
 /**
  * Text of the one comment a dropped PR gets. kind is one of:
- *   conflict | ci-failed | ci-timeout | approval-missing | merge-failed | main-moving | unexpected
+ *   conflict | ci-failed | ci-timeout | approval-missing | merge-failed | main-moving | workflow-permission | unexpected
  */
 export function buildComment(kind, d = {}) {
   switch (kind) {
@@ -150,11 +150,18 @@ export function buildComment(kind, d = {}) {
       return `Merge queue: owner approval failed for ${short(d.head)}: ${d.reason}\n\nRemoved from the queue; re-label once resolved.`;
     case "merge-failed":
       return `Merge queue: GitHub refused the squash merge of ${short(d.head)} ${d.attempts} time(s) (last HTTP ${d.status}: ${d.detail || "no detail"}). Removed from the queue; re-label to try again.`;
+    case "workflow-permission":
+      return `Merge queue: GitHub would not let the queue's built-in token ${d.step || "update or merge"} ${short(d.head)}, because the result touches \`.github/workflows\` (that token has no workflows permission). An agent with its own credentials must ${d.step === "merge" ? "merge it" : "update the branch"} once; then re-label. (${d.detail || "no detail"})`;
     case "main-moving":
       return `Merge queue: main moved ${d.attempts} times while ${short(d.head)} was being tested, so it could not be proven against the main it would land on. Removed from the queue; re-label to try again.`;
     default:
       return `Merge queue: unexpected problem with ${short(d.head)}: ${d.detail || "unknown"}. Removed from the queue; re-label to try again.`;
   }
+}
+
+/** GitHub's refusal when a token without the workflows permission would create or update a workflow file. */
+export function isWorkflowPermissionRefusal(status, message) {
+  return [403, 404, 405, 409, 422].includes(Number(status)) && /workflow/i.test(String(message || "")) && /permission|scope|refus/i.test(String(message || ""));
 }
 
 /** Alarm text for a merged commit whose tree is not the tree that was tested. */

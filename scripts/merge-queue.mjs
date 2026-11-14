@@ -34,7 +34,7 @@ export const POST_MERGE_PATH_WORKFLOWS = Object.freeze([
 import {
   STATES, GUARDS_CHECK_NAME, OWNER_APPROVAL_CHECK_NAME,
   refuseUnlessMainOnActions, readConfig, pickNext, isQueueable, classify,
-  pickGuardsCheck, pickDispatchedRun, guardsRunMismatch, treesEqual, HALT_LABEL,
+  pickGuardsCheck, pickDispatchedRun, guardsRunMismatch, treesEqual, HALT_LABEL, isWorkflowPermissionRefusal,
   buildComment, buildTreeMismatchMessage,
 } from "./lib/mergeQueue.mjs";
 
@@ -218,6 +218,7 @@ export async function runQueue({ env, fetchImpl = globalThis.fetch, sleep = REAL
       if (!mutate(`update-branch #${n} (head ${pr.head.sha.slice(0, 12)}, behind main)`)) return "dropped";
       await gate();
       const u = await call("PUT", `/pulls/${n}/update-branch`, { expected_head_sha: pr.head.sha });
+      if (isWorkflowPermissionRefusal(u.status, u.data && u.data.message)) return drop(n, "workflow-permission", { head: pr.head.sha, step: "update", detail: u.data.message }, "update-branch refused: workflows permission");
       if (u.status === 422) return drop(n, "conflict", {}, "update-branch hit a merge conflict");
       if (u.status === 409) return moved(n, pr.head.sha, "head moved while updating");
       if (u.status !== 202) throw new Error(`update-branch #${n} answered HTTP ${u.status}${u.data && u.data.message ? `: ${u.data.message}` : ""}`);
@@ -328,7 +329,11 @@ export async function runQueue({ env, fetchImpl = globalThis.fetch, sleep = REAL
       // A timeout or 5xx can hide a merge that DID happen. Re-read the pull
       // request: if GitHub merged exactly the tested head, take its merge commit
       // and still run the tree proof below, never skip it.
-      const after = await call("GET", `/pulls/${n}`);
+      let after = await call("GET", `/pulls/${n}`);
+      for (let i = 0; i < 3 && after.status === 200 && after.data && after.data.merged !== true && after.data.state === "open" && m.status >= 500; i++) {
+        await sleep(T.updatePollMs);   // a merge reply lost to a 5xx/timeout can take a moment to show
+        after = await call("GET", `/pulls/${n}`);
+      }
       const pr = after && after.data;
       if (after.status === 200 && pr && pr.merged === true && pr.head && pr.head.sha === head && /^[0-9a-f]{40}$/.test(String(pr.merge_commit_sha || ""))) {
         say(`#${n}: merge answered HTTP ${m.status} but the pull request is merged at the tested head; proving its merge commit`);
@@ -340,6 +345,7 @@ export async function runQueue({ env, fetchImpl = globalThis.fetch, sleep = REAL
       c.merge++;
       const detail = (m.data && m.data.message) || "";
       say(`#${n}: merge refused (HTTP ${m.status}) attempt ${c.merge}/${MAX_MERGE_ATTEMPTS}`);
+      if (isWorkflowPermissionRefusal(m.status, detail)) return drop(n, "workflow-permission", { head, step: "merge", detail }, "merge refused: workflows permission");
       if ([405, 409].includes(m.status) && c.merge < MAX_MERGE_ATTEMPTS) return "retry";
       return drop(n, "merge-failed", { head, attempts: c.merge, status: m.status, detail }, `merge refused HTTP ${m.status}`);
     }
@@ -352,6 +358,11 @@ export async function runQueue({ env, fetchImpl = globalThis.fetch, sleep = REAL
       const message = buildTreeMismatchMessage({ number: n, mergeSha, mergedTree, testedHead: head, testedTree });
       await comment(n, `Merge queue: ${message}`);
       await removeLabel(n);
+      // Durable stop: the next drain (label, push, hourly sweep) must not resume
+      // merging on top of an unproven main. An open issue carrying the halt label
+      // stops every later drain until a person inspects main and closes it.
+      const alarm = await call("POST", "/issues", { title: `Merge queue halted: union proof failed for #${n}`, body: `${message}\n\nThe queue stays halted while this issue is open with the \`${HALT_LABEL}\` label. Close it (or remove the label) after inspecting main.`, labels: [HALT_LABEL] });
+      if (alarm.status !== 201) say(`WARNING could not open the halt issue (HTTP ${alarm.status}); add the ${HALT_LABEL} label to any open issue to keep the queue stopped`);
       throw new TreeMismatchError(message);
     }
 
