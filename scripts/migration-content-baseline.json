@@ -488,5 +488,15 @@
     "kind": "comments-or-whitespace-only",
     "reason": "Applied without the trailing newline, nothing else. Verified 2026-11-11: the production statement was read in full and compared with the committed file, and removing exactly the final newline from the committed file hashes byte-identical to the production ledger row.",
     "reviewed_by": "claude.exe (Wayfind lane), canary red 2026-11-11 (run 42970549034); production SQL read via supabase_migrations.schema_migrations, read-only"
+  },
+  {
+    "version": "20261113105510",
+    "name": "wf_viator_upload_consent_basis",
+    "file": "20261113105510_wf_viator_upload_consent_basis.sql",
+    "ledger_sha256": "7b9a23b629076ff6707f3df79729fc1303a6064cb686046ae679efa80bae5537",
+    "file_sha256": "dd6b7d6088b0294a9a618d76ef30bff82e3432735e99311731ddb26f1ab08da0",
+    "kind": "comments-or-whitespace-only",
+    "reason": "Production ran this statement on 2026-11-13T10:55:10Z without its 28-line header comment and without a final newline. Verified 2026-11-14: the production text (read back from supabase_migrations.schema_migrations, hash 7b9a23b6) equals this file with the header comment removed and the trailing newline dropped, byte for byte.",
+    "reviewed_by": "claude.exe (Wayfind lane), 2026-11-14 canary repair for PR #2490"
   }
 ]
