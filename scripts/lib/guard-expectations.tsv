@@ -1067,6 +1067,7 @@ scripts/test-safe-force-push.mjs	0	CALL	blocks-ci-and-deploy	1	-	52	0	0	09804c6a
 scripts/test-santa-chat.mjs	0	RENDER	blocks-ci-and-deploy	1	-	75	0	0	37ee8c7cddeb7517f81ae4694a0b81dba291212fd6f59a3c6605e1fd8ae90d23
 scripts/test-santa-companion.mjs	0	RENDER	blocks-ci-and-deploy	1	-	87	0	0	a870c90f363c9aac1cae5488ef8da3ff5cf33bc8ea212ffaeaabdd7cfebd37c6
 scripts/test-santa-dock.mjs	0	RENDER	blocks-ci-and-deploy	1	-	66	0	0	ba50b6a8db5b11c7e18d24d24e00ed18bb49f57875b41df177721c6fc8b330da
+scripts/test-santa-one-thread.mjs	0	RENDER	blocks-ci-and-deploy	1	-	59	0	0	0bf576d9ea809782d367fca687ac39fa393b1bdedfea82c85567f22506f6fd18
 scripts/test-save-single-emitter.mjs	0	CALL	blocks-ci-and-deploy	1	-	49	0	0	1ab6e3d6acd7791070c30b79f5763811b231c7abf1eafb3b63aa88c9fd5b1909
 scripts/test-saved-items.mjs	0	CALL	blocks-ci-and-deploy	1	-	27	0	0	80b413bed0d1ff93e69541e5e1d91d0e6590745d2f0565967b09ef392b885010
 scripts/test-score-band.mjs	0	CALL	blocks-ci-and-deploy	1	-	44	0	0	66ce6bb8d963c3794ed7e0a60023cae63e93fc48bec98c83697c4743d4415f40
