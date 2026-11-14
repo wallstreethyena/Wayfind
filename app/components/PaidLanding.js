@@ -340,7 +340,7 @@ export default function PaidLanding({ city, places }) {
   function seedCity() {
     try {
       if (!city || !isFinite(city.lat) || !isFinite(city.lng)) return;
-      localStorage.setItem("wf_center", JSON.stringify({ lat: city.lat, lng: city.lng, loc: `${city.name}, ${city.state}` }));
+      localStorage.setItem("wf_center", JSON.stringify({ lat: city.lat, lng: city.lng, loc: `${city.name}, ${city.state}`, manual: true, ts: Date.now() }));
     } catch (e) {}
   }
 

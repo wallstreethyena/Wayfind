@@ -211,9 +211,25 @@ const noOffers = {};
   ok(run(rest, { reservePartner: true, openState: closed }).type === DETAIL_CTA_TYPES.reserve, "closed right now + partner → still reserve");
   ok(run(rest, { openState: closed }).type === DETAIL_CTA_TYPES.plan, "closed right now + NOT a partner → Add to my trip, exactly as before");
   ok(run(rest, { reservePartner: true, openState: null }).type === DETAIL_CTA_TYPES.reserve, "unknown hours + partner → reserve");
+  // capability lanes (lib/reserveCapability.js): one label per lane, "ask" only as the fallback, never above a verified route
+  { const lab = (l, d = rest, extra) => run(d, { reserveLane: l, ...extra });
+    ok(lab("instant").label === "Reserve a table" && lab("request").label === "Request a table" && lab("handoff").label === "Reserve on OpenTable" && lab("ask").label === "Ask about a table", "detail: every lane gets its own label");
+    ok(["instant", "request", "handoff", "ask"].every((l) => lab(l).type === DETAIL_CTA_TYPES.reserve && lab(l).href === "#reserve" && lab(l).reserveLane === l && lab(l).monetized === false), "detail: every lane opens the in-app concierge (#reserve) and is not monetized");
+    ok(lab("instant").actionSource === "wayfind_reserve" && lab("ask").actionSource === "wayfind_reserve_ask", "detail: analytics action source tells a verified lane from the ask fallback");
+    const fpaReserve = { reservation_url: { href: "https://mariostrattoria.example/reservations", manual: true, verifiedAt: "2026-11-01", expiresAt: "2099-01-01" } };
+    const ext = run(rest, { reserveLane: "ask", websiteHref: "https://mariostrattoria.example/reservations" });
+    ok(ext.type === DETAIL_CTA_TYPES.reserve && ext.href === "https://mariostrattoria.example/reservations" && ext.actionSource === "first_party_reserve", "ask NEVER displaces a verified external https reservation link (#2505 stays) — got " + JSON.stringify(ext));
+    ok(run(rest, { reserveLane: "instant", websiteHref: "https://mariostrattoria.example/reservations" }).href === "#reserve", "a verified Wayfind lane still beats a website reservation link");
+    ok(lab("ask", rest, { offers: dealOffers }).type === DETAIL_CTA_TYPES.deal && lab("ask", bar, { offers: { [bar.id]: { url: "https://example.com/deal", source: "offer", id: "o2" } } }).type === DETAIL_CTA_TYPES.deal, "ask never displaces a live deal");
+    ok(lab("ask", rest, { websiteHref: "https://mariostrattoria.example/menu" }).label === "Ask about a table" && lab("ask", bar).type === DETAIL_CTA_TYPES.reserve, "ask fills the slot that See menu or Directions would have had (restaurant and bar)");
+    ok(lab("ask", rest, { openState: closed }).type === DETAIL_CTA_TYPES.plan && lab("instant", rest, { openState: closed }).label === "Reserve a table", "closed now: ask stays out of the way (Add to my trip), a verified lane still shows");
+    ok(run(rest, { reserveLane: null }).type === DETAIL_CTA_TYPES.directions && run(rest, { reserveLane: "bogus" }).type === DETAIL_CTA_TYPES.directions, "no lane (or an unknown one) changes nothing");
+    const cafeD = place({ types: ["cafe", "coffee_shop"], id: "cafe_lane_1" });
+    ok(lab("ask", cafeD, { kind: "cafe" }).type !== DETAIL_CTA_TYPES.reserve, "a cafe never gets the reserve rung, even if a lane were passed");
+  }
   // the sheet routes #reserve to the opener, never a navigation
   const detailSrc2 = readFileSync(new URL("../app/components/sheets/Detail.js", import.meta.url), "utf8");
-  ok(/primaryCta\.type === DETAIL_CTA_TYPES\.reserve[\s\S]{0,400}openReserveSheet\(detail/.test(detailSrc2) && /resolveDetailCta\(\{[^}]*reservePartner[^}]*\}\)/.test(detailSrc2),
+  ok(/primaryCta\.type === DETAIL_CTA_TYPES\.reserve[\s\S]{0,400}openReserveSheet\(detail/.test(detailSrc2) && /resolveDetailCta\(\{[^}]*reserveLane[^}]*\}\)/.test(detailSrc2),
     "Detail.js passes the partner flag and calls openReserveSheet(detail) for the reserve CTA");
 }
 
