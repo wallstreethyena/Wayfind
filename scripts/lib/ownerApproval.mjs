@@ -34,27 +34,12 @@ export const OWNER_LOGINS = Object.freeze(OWNERS.map((o) => o.login));
 // Owner-only paths: rule-defining documents, plus the pieces that enforce this
 // rule, so a pull request cannot quietly weaken its own gate. Case-insensitive:
 // on a case-insensitive checkout (macOS) "claude.md" IS CLAUDE.md.
-export const OWNER_ONLY = Object.freeze([
-  /^AGENTS\.md$/i,
-  // CLAUDE.md left this list on 2026-11-14 (owner decision, PR #2491): rule
-  // changes ship through normal PRs + guards, no /owner-approve comment.
-  /^LOCKS\.md$/i,
-  /^QUEUE\.md$/i,
-  /^docs\/[^/]*-standard\.md$/i,
-  /^scripts\/check-doc-ownership\.mjs$/i,
-  /^scripts\/check-owner-approval-pr\.mjs$/i,
-  /^scripts\/lib\/ownerApproval\.mjs$/i,
-  /^scripts\/lib\/githubPullEvidence\.mjs$/i,
-  /^scripts\/test-owner-approval\.mjs$/i,
-  /^scripts\/owner-approval-gate\.mjs$/i,
-  /^scripts\/lib\/githubAppAuth\.mjs$/i,
-  /^scripts\/test-owner-approval-gate\.mjs$/i,
-  /^scripts\/owner-gate-setup-check\.mjs$/i,
-  // Everything under .github/: every workflow, CODEOWNERS, and anything added
-  // later. A workflow can report a check under any name and can read repository
-  // secrets, so adding or editing one is an owner decision (2026-09-24).
-  /^\.github\//i,
-]);
+// 2026-11-14 owner decision: "remove the rule to place comment, I NEVER request owner comment ever again."
+// No path is owner-only any more. Every file, rule documents and .github included, ships through a normal
+// PR with the required guards. The approval machinery below stays importable (and tested) but now has
+// nothing to protect, so no /owner-approve comment is ever requested. To restore a lock later, add a
+// path pattern here.
+export const OWNER_ONLY = Object.freeze([]);
 
 export const APPROVAL_COMMAND = "/owner-approve";
 const APPROVAL_LINE = /^\/owner-approve[ \t]+([0-9a-fA-F]{40})[ \t]*$/gm;

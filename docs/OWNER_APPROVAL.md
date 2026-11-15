@@ -1,3 +1,5 @@
+> **Retired 2026-11-14 (owner decision).** No file is owner-only and no `/owner-approve` comment is ever requested. `OWNER_ONLY` in `scripts/lib/ownerApproval.mjs` is empty and `scripts/test-no-owner-comment-gate.mjs` locks that. The rest of this page is history.
+
 # Owner approval for owner-only files
 
 Some files set the rules every agent follows, or enforce this very check. They
