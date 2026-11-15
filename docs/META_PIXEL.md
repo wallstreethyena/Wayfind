@@ -31,8 +31,10 @@
 - **CAPI relay (audited 2026-11-15, dormant):** `lib/metaCapi.js buildCapiPayload` + `POST /api/meta/capi` can mirror the event with
   the SAME `event_name` + `event_id`. It needs BOTH the server env `META_CAPI_ACCESS_TOKEN` AND the build-time flag
   `NEXT_PUBLIC_META_CAPI_RELAY=1`; the browser relays only when that flag is `"1"` (`app/components/PostHogProvider.js`). The flag is NOT set in
-  production, so delivery is browser-only. **This path is not behind the consent gate** that guards PartnerHandoff: do not set
-  `NEXT_PUBLIC_META_CAPI_RELAY=1` until it is routed through `decideConsent()` in `lib/metaConsent.js`.
+  production, so delivery is browser-only. The route itself is reachable whatever the flag says, so since 2026-11-15 it goes
+  through the same consent gate as PartnerHandoff (`decideConsent()` / `decideQaLane()` in `lib/metaConsent.js`): default blocked even with a
+  token, Limited Data Use on any allowed live send, a client-supplied `test_event_code` is always stripped and only the server QA lane can add one.
+  Locked in `scripts/test-campaign-attribution.mjs`.
 - **What it is NOT:** a browser custom event. It is not deduped with `PartnerHandoff` (different event name, different id), it fires on an
   unverified tap, and it must NEVER be chosen as an optimization event or a custom conversion. Meta's one conversion is `PartnerHandoff`.
   The code is kept (not deleted) as a browser-only diagnostic.
@@ -93,7 +95,7 @@ labels, value or currency. A visitor without `_fbp`/`_fbc` is not sent.
 **QA lane.** For checking delivery in Events Manager > Test Events with a real browser. Allowed only when ALL of: the session is marked test
 (`is_test` true or a non-empty `wf_test`), env `META_CAPI_TEST_EVENT_CODE` matches `/^TEST\w{1,40}$/`, and the cookie `wf_meta_qa` equals env
 `META_CAPI_QA_SECRET` (at least 24 characters, constant-time compare). It still needs a human, valid ids, `_fbp`/`_fbc`, IP and UA. A QA event
-always carries `test_event_code`; a live event never does; test traffic outside the QA lane is skipped (`test_traffic`).
+always carries `test_event_code`; a live event never does. Meta does NOT drop test-coded events: per its Conversions API docs they also flow into Events Manager and are used for targeting and ads measurement, so the QA lane is only for a maintainer's own browser, never a visitor, and the test code is removed (env unset) after verification; test traffic outside the QA lane is skipped (`test_traffic`).
 *Two different QA markers:* the browser `wf_meta_test=<code>` URL param (sessionStorage `wf_meta_test_v1`) only steers the browser-side
 `OutboundTicketClick` relay. The server lane ignores any client-supplied code: its code and its secret come only from server env.
 
