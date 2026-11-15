@@ -168,6 +168,16 @@ function mutatingSocketLeaks() {
   });
   ok(scheduled.allowLiveWrites === true && scheduled.mode === "AUTHORIZED_SCHEDULED_JOB", "scheduled maintenance pulse on main is permitted");
 
+  // photo-monitor.yml runs scripts/photo-monitor.mjs on a schedule and its only
+  // job-watch heartbeat is the wf_job_pulse row it writes itself. Missing from the
+  // allowlist, every pulse got a silent 403 from 2026-11-13 11:34Z (#2504) and
+  // job-watch paged "OVERDUE photo-monitor" while the workflow stayed green.
+  const photoMonitor = classifyExecutionIdentity({
+    env: { GITHUB_ACTIONS: "true", GITHUB_EVENT_NAME: "schedule", GITHUB_REF: "refs/heads/main" },
+    argv: ["node", "scripts/photo-monitor.mjs"],
+  });
+  ok(photoMonitor.allowLiveWrites === true && photoMonitor.mode === "AUTHORIZED_SCHEDULED_JOB", "scheduled photo-monitor may write its own heartbeat");
+
   // Explicit operator capability -> ALLOWED (unless WF_GUARD_SUITE=1!)
   const opAllowed = classifyExecutionIdentity({
     env: { WF_PRODUCTION_WRITE_CAPABILITY: OPERATOR_WRITE_CAPABILITY_TOKEN },
