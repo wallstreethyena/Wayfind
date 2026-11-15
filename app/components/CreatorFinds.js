@@ -32,7 +32,7 @@
 // This is that rule, applied to the one surface that never got it.
 import { useEffect, useState } from "react";
 import { PLATFORM, FEATURED_CREATOR } from "../../lib/creatorVideos";
-import { hasFeaturedCreatorVideoAt } from "../../lib/creatorBoost";
+import { hasFeaturedCreatorVideoAt, hasScoringCreatorVideoAt } from "../../lib/creatorBoost";
 import { CREATOR_FINDS_MAX, CREATOR_FINDS_MIN, CREATOR_BRIDGE_MAX_MI, CREATOR_FINDS_RADIUS_MI, orderFinds, bridgeCity, scoutedSpots, mergeCreatorInventory } from "../../lib/creatorFinds";
 import { C, TYPE } from "./kit";
 // v7.02: the row renders the canonical place card (see RailCard.js). The chip
@@ -228,7 +228,7 @@ export default function CreatorFinds({ items, byCity, center, excludePlaceIds, o
       if (!p) return -Infinity;
       if (Number.isFinite(p.governed_score)) return p.governed_score;
       const base = p.wfScore != null ? p.wfScore : wayfindScore(p.rating, p.reviews);
-      const governed = governedWayfindScore(base, { hasCreatorVideo: true, hasFeaturedCreatorVideo: p.featured_creator_video === true || hasFeaturedCreatorVideoAt(p), distanceMi: p.distMi, trending: !!p.trending });
+      const governed = governedWayfindScore(base, { hasCreatorVideo: p.creator_video === true || hasScoringCreatorVideoAt(p, p.city), hasFeaturedCreatorVideo: p.featured_creator_video === true || hasFeaturedCreatorVideoAt(p), distanceMi: p.distMi, trending: !!p.trending });
       // Stamp the exact sort key onto the rendered place so the badge and rank
       // cannot disagree on the creator shelf.
       if (governed != null) p.governed_score = governed;
