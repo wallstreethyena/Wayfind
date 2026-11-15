@@ -454,4 +454,283 @@ const eq = (a, b, msg) => {
   eq(queue[0].recommendedAction, "QUARANTINE_OR_REVERIFY_OFFER", "queue recommends QUARANTINE_OR_REVERIFY_OFFER on failing clicks");
 }
 
+// ── 7. Frontier Acceptance Ledger Polish (H1–H3, C1–C2, J1–J2) ─────────────
+{
+  // H1 (The Banyan House Restaurant bare "Lunch" + additive meal shifts)
+  const banyanProse1 = toRegularOpeningHours(
+    "Lunch 11:30am–2:30pm; dinner Sun–Thu 4pm–9pm, Fri–Sat 4pm–10pm"
+  );
+  ok(banyanProse1 && banyanProse1.periods.length === 14, "bare Lunch + split dinner parses to 14 periods");
+  eq(
+    banyanProse1.weekdayDescriptions[0],
+    "Monday: 11:30 AM – 2:30 PM, 4:00 PM – 9:00 PM",
+    "Monday includes additive Lunch + Dinner shift"
+  );
+  eq(
+    banyanProse1.weekdayDescriptions[4],
+    "Friday: 11:30 AM – 2:30 PM, 4:00 PM – 10:00 PM",
+    "Friday includes additive Lunch + late Dinner shift"
+  );
+
+  const banyanProse2 = toRegularOpeningHours(
+    "Lunch Tue–Sat 11am–2:30pm; Dinner Tue–Thu 4–9pm, Fri–Sat 4–10pm; Sun 11am–9pm; Mon closed"
+  );
+  ok(banyanProse2 && banyanProse2.periods.length === 11, "Tue-Sat lunch + meal splits parses to 11 periods");
+  eq(banyanProse2.weekdayDescriptions[0], "Monday: Closed", "Monday is closed");
+  eq(
+    banyanProse2.weekdayDescriptions[1],
+    "Tuesday: 11:00 AM – 2:30 PM, 4:00 PM – 9:00 PM",
+    "Tuesday merges lunch + dinner periods"
+  );
+
+  const banyanPlace = atlasPlaceFor("ChIJy1RR0IpXw4gRCIehpFRKxbg");
+  ok(
+    banyanPlace && banyanPlace.oh && banyanPlace.oh.periods.length === 14,
+    "The Banyan House Restaurant place in atlas allowlist parses to 14 periods"
+  );
+
+  // H2 (Sarasota Art Museum "p.m." sentence-boundary period before Closed Memorial Day...)
+  const sarasotaArtMuseum = toRegularOpeningHours(
+    "Mon–Sat 10 a.m.–5 p.m., Sun. 11 a.m.–5 p.m. Closed Memorial Day, Independence Day, Thanksgiving, Christmas Day, New Year's Day"
+  );
+  ok(sarasotaArtMuseum && sarasotaArtMuseum.periods.length === 7, "Sarasota Art Museum parses 7 daily periods");
+  eq(
+    sarasotaArtMuseum.weekdayDescriptions[6],
+    "Sunday: 11:00 AM – 5:00 PM",
+    "Sunday hours parse correctly despite sentence boundary period in p.m."
+  );
+  ok(
+    sarasotaArtMuseum.specialHours && sarasotaArtMuseum.specialHours.length >= 5,
+    "specialHours retains at least 5 holiday closures"
+  );
+
+  // H3 (Serving-level hours freshness, 30-day Google ToS eviction, & 90-day owned staleness + refresh queue)
+  const { evaluateHoursFreshness } = await import("../lib/ownedHours.js");
+  const { scoreHoursRefreshPriority } = await import("../lib/hoursFreshnessQueue.js");
+
+  const google35d = {
+    periods: [{ open: { day: 1, hour: 9, minute: 0 }, close: { day: 1, hour: 17, minute: 0 } }],
+  };
+  const expParsed = parseOwnedHours(google35d, {
+    source: "google_places",
+    verifiedAt: "2026-10-10T12:00:00Z",
+    nowMs: Date.parse("2026-11-14T12:00:00Z"),
+  });
+  ok(
+    expParsed && expParsed.expired === true && expParsed.parseable === false && expParsed.periods === undefined,
+    "parseOwnedHours sets expired: true, parseable: false, periods: undefined for >30d Google hours"
+  );
+  const expToReg = toRegularOpeningHours(google35d, {
+    source: "google_places",
+    verifiedAt: "2026-10-10T12:00:00Z",
+    nowMs: Date.parse("2026-11-14T12:00:00Z"),
+  });
+  eq(expToReg, null, "toRegularOpeningHours returns null for >30d Google hours");
+
+  const ownedStale = toRegularOpeningHours("Daily 9am–5pm", {
+    source: "wayfind_editorial_hours",
+    asOf: "2026-03",
+    nowMs: Date.parse("2026-11-14T12:00:00Z"),
+  });
+  ok(
+    ownedStale && ownedStale.stale === true && ownedStale.freshness === "stale" && ownedStale.needsRefresh === true,
+    "toRegularOpeningHours sets stale: true, freshness: 'stale', needsRefresh: true for >90d owned hours"
+  );
+
+  const staleRefreshScore = scoreHoursRefreshPriority(
+    {
+      place_id: "test-place-90d",
+      signals: {
+        owned_hours: {
+          periods: [{ open: { day: 1, hour: 9, minute: 0 }, close: { day: 1, hour: 17, minute: 0 } }],
+          verifiedAt: "2026-05-01T00:00:00Z",
+        },
+      },
+      verifiedAt: "2026-05-01T00:00:00Z",
+    },
+    { nowMs: Date.parse("2026-11-14T12:00:00Z") }
+  );
+  eq(
+    staleRefreshScore.needsRefresh,
+    true,
+    "scoreHoursRefreshPriority sets needsRefresh: true when owned hours record is >90 days old"
+  );
+
+  // C1 (Clipp offer freshness, hard audit expiry, & 24h/48h scarcity/promo decay)
+  const { evaluateClippOfferFreshness } = await import("../lib/commerceHealth.js");
+  const {
+    ingestClippOfferEvidence,
+    resetClippRuntimeEvidence,
+  } = await import("../lib/clippOffers.js");
+
+  const fourthFresh = clippOfferById("clipp-m-4th-street-pizza", { now: "2026-11-12T12:00:00Z" });
+  ok(
+    fourthFresh && fourthFresh.status === "ALMOST_GONE" && fourthFresh.health?.scarcityFresh === true,
+    "4th Street Pizza has status ALMOST_GONE and scarcityFresh: true at audit baseline"
+  );
+  const fourthDecayed = clippOfferById("clipp-m-4th-street-pizza", { now: "2026-11-15T12:00:00Z" });
+  ok(
+    fourthDecayed &&
+      fourthDecayed.status === "ACTIVE" &&
+      fourthDecayed.scarcityExpired === true &&
+      fourthDecayed.health?.scarcityFresh === false &&
+      fourthDecayed.health?.serveable === true,
+    "4th Street Pizza decays to ACTIVE with scarcityExpired: true after 24h while remaining serveable"
+  );
+
+  const ismashFresh = clippOfferById("clipp-m-ismash-brandon", { now: "2026-11-13T12:00:00Z" });
+  ok(
+    ismashFresh &&
+      ismashFresh.status === "PRICE_CHANGED" &&
+      (ismashFresh.livePrice === 28 || ismashFresh.livePrice === 17.5),
+    "iSmash Brandon carries PRICE_CHANGED and live price within 48h"
+  );
+  const ismashDecayed = clippOfferById("clipp-m-ismash-brandon", { now: "2026-11-16T12:00:00Z" });
+  ok(
+    ismashDecayed &&
+      ismashDecayed.status === "ACTIVE" &&
+      ismashDecayed.livePrice === null &&
+      ismashDecayed.promoExpired === true &&
+      ismashDecayed.health?.serveable === true,
+    "iSmash Brandon decays to ACTIVE with livePrice null and promoExpired: true after 48h while remaining serveable"
+  );
+
+  const pastExpiry = "2026-11-25T12:00:00Z";
+  eq(
+    clippOfferById("clipp-m-chez-leon", { now: pastExpiry }),
+    null,
+    "clippOfferById returns null for chez leon past CLIPP_AUDIT_EXPIRY (2026-11-23)"
+  );
+  eq(
+    clippOfferById("clipp-m-pizza-kitchen", { now: pastExpiry }),
+    null,
+    "clippOfferById continues returning null for sold-out pizza kitchen past audit expiry"
+  );
+  const soldOutFreshness = evaluateClippOfferFreshness({ status: "SOLD_OUT" }, { now: pastExpiry });
+  ok(
+    soldOutFreshness && soldOutFreshness.serveable === false && soldOutFreshness.reason === "protective_hold_retained",
+    "evaluateClippOfferFreshness retains protective hold on SOLD_OUT past audit expiry"
+  );
+
+  // C2 (PRICE_CHANGED + 403 WAF firewall, runtime quarantine & evidence-backed recovery)
+  const probe403PromoDrop = evaluateOfferHealthTransition({
+    currentStatus: "PRICE_CHANGED",
+    currentPriceChangeKind: "promo_drop",
+    currentFailureCount: 0,
+    probeResult: classifyClippLandingPage({ httpStatus: 403 }),
+  });
+  ok(
+    probe403PromoDrop.serveable === true &&
+      probe403PromoDrop.quarantined === false &&
+      probe403PromoDrop.nextStatus === "PRICE_CHANGED" &&
+      probe403PromoDrop.reverifyAt === null,
+    "403 WAF response keeps promo_drop offer serveable, unquarantined, with reverifyAt null"
+  );
+
+  const probe403SoldOut = evaluateOfferHealthTransition({
+    currentStatus: "SOLD_OUT",
+    currentFailureCount: 1,
+    probeResult: classifyClippLandingPage({ httpStatus: 403 }),
+  });
+  ok(
+    probe403SoldOut.serveable === false &&
+      probe403SoldOut.quarantined === true &&
+      probe403SoldOut.nextStatus === "SOLD_OUT" &&
+      probe403SoldOut.reverifyAt === null,
+    "403 WAF response retains protective hold on SOLD_OUT offer with reverifyAt null"
+  );
+
+  try {
+    // 1. Ingesting 403 on ismash keeps offer non-null and does not set runtimeVerifiedAt
+    ingestClippOfferEvidence("clipp-m-ismash-brandon", { httpStatus: 403 });
+    const ismashAfter403 = clippOfferById("clipp-m-ismash-brandon");
+    ok(ismashAfter403 !== null, "clippOfferById keeps ismash non-null after 403");
+    ok(!ismashAfter403.runtimeVerifiedAt, "403 evidence does not set runtimeVerifiedAt");
+
+    // 2. Ingesting strong SOLD_OUT HTML on chez-leon immediately quarantines it
+    ingestClippOfferEvidence("clipp-m-chez-leon", {
+      httpStatus: 200,
+      html: "<div>Chez Leon THIS DEAL IS SOLD OUT</div>",
+    });
+    eq(clippOfferById("clipp-m-chez-leon"), null, "strong SOLD_OUT HTML quarantines chez-leon from clippOfferById");
+    ok(
+      quarantinedClippOfferById("clipp-m-chez-leon") !== null,
+      "quarantinedClippOfferById returns chez-leon record after quarantine"
+    );
+
+    // 3. Ingesting 403 on quarantined chez-leon does NOT release quarantine
+    ingestClippOfferEvidence("clipp-m-chez-leon", { httpStatus: 403 });
+    eq(
+      clippOfferById("clipp-m-chez-leon"),
+      null,
+      "subsequent 403 does not release chez-leon from quarantine"
+    );
+
+    // 4. Ingesting strong ACTIVE HTML recovers chez-leon
+    ingestClippOfferEvidence("clipp-m-chez-leon", {
+      httpStatus: 200,
+      html: "<title>Chez Leon Tampa, FL</title><div>Add to Cart Buy Now $15 for $30</div>",
+    });
+    ok(
+      clippOfferById("clipp-m-chez-leon") !== null,
+      "strong ACTIVE HTML restores chez-leon to clippOfferById"
+    );
+    eq(
+      quarantinedClippOfferById("clipp-m-chez-leon"),
+      null,
+      "quarantinedClippOfferById returns null for recovered chez-leon"
+    );
+  } finally {
+    resetClippRuntimeEvidence();
+  }
+
+  // J1 & J2 (End-to-end resolveOwnedHours & hydrateDetailHours Google >30d eviction and >90d staleness)
+  const { resolveOwnedHours } = await import("../lib/ownedPlaceTruth.js");
+
+  const resolvedExpiredGoogle = resolveOwnedHours({
+    detail: {
+      name: "Test",
+      lat: 27.95,
+      lng: -82.45,
+      oh: {
+        periods: [{ open: { day: 1, hour: 9, minute: 0 }, close: { day: 1, hour: 17, minute: 0 } }],
+        source: "google_places",
+        verifiedAt: "2026-09-01T00:00:00Z",
+      },
+    },
+    nowMs: Date.parse("2026-11-14T12:00:00Z"),
+  });
+  ok(
+    resolvedExpiredGoogle.ok === false &&
+      resolvedExpiredGoogle.expired === true &&
+      resolvedExpiredGoogle.freshness === "expired",
+    "resolveOwnedHours evicts >30d Google hours with ok: false, expired: true, freshness: 'expired'"
+  );
+
+  const resolvedStaleEditorial = resolveOwnedHours({
+    detail: { name: "Test", lat: 27.95, lng: -82.45 },
+    editorial: { hoursText: "Daily 9am–5pm", asOf: "2026-03" },
+    nowMs: Date.parse("2026-11-14T12:00:00Z"),
+  });
+  ok(
+    resolvedStaleEditorial.ok === true &&
+      resolvedStaleEditorial.stale === true &&
+      resolvedStaleEditorial.freshness === "stale" &&
+      resolvedStaleEditorial.needsRefresh === true,
+    "resolveOwnedHours returns ok: true, stale: true, freshness: 'stale', needsRefresh: true for >90d owned hours"
+  );
+
+  const hydratedStale = hydrateDetailHours(
+    { name: "Test", lat: 27.95, lng: -82.45 },
+    null,
+    Date.parse("2026-11-14T12:00:00Z"),
+    { hoursText: "Daily 9am–5pm", asOf: "2026-03" }
+  );
+  eq(
+    hydratedStale?.oh?._stale,
+    true,
+    "hydrateDetailHours marks oh._stale === true for >90d owned hours"
+  );
+}
+
 console.log(`test-self-healing-truth-engine: OK — ${assertions} assertions passed`);

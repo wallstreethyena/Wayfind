@@ -1376,7 +1376,33 @@ export default function DetailSheet({ ctx }) {
                         {/* v6.34: attribution renders only under real hours — it used
                             to sit beneath "Hours not listed" too, crediting Google
                             for hours we don't have. */}
-                        <div style={{ fontSize: 10.5, color: C.muted, opacity: 0.7, marginTop: 8 }}>{isOwnedHours ? "Verified hours from Wayfind." : "Hours from Google."}</div>
+                        {(() => {
+                          const asOfMs = typeof hydratedDetail?.hoursAsOf === "number"
+                            ? hydratedDetail.hoursAsOf
+                            : typeof hydratedDetail?.hoursAsOf === "string"
+                              ? Date.parse(hydratedDetail.hoursAsOf)
+                              : (typeof detail?.hoursAsOf === "number"
+                                  ? detail.hoursAsOf
+                                  : typeof detail?.hoursAsOf === "string"
+                                    ? Date.parse(detail.hoursAsOf)
+                                    : null);
+                          const isHoursStale = Boolean(isOwnedHours && asOfMs && Number.isFinite(asOfMs) && (Date.now() - asOfMs > 90 * 86400000));
+                          return (
+                            <>
+                              <div
+                                {...(isHoursStale ? { "data-hours-stale": "true" } : {})}
+                                style={{ fontSize: 10.5, color: C.muted, opacity: 0.7, marginTop: 8 }}
+                              >
+                                {isOwnedHours ? "Verified hours from Wayfind." : "Hours from Google."}
+                              </div>
+                              {isHoursStale && (
+                                <div style={{ fontSize: 10, color: C.muted, opacity: 0.6, marginTop: 2 }}>
+                                  Hours confirmed over 90 days ago · seasonal hours may vary.
+                                </div>
+                              )}
+                            </>
+                          );
+                        })()}
                       </>);
                     }
                     return <div style={{ fontSize: 12.5, color: C.muted }}>{detailExtra === null ? "Loading hours…" : "Hours not listed for this place."}</div>;
