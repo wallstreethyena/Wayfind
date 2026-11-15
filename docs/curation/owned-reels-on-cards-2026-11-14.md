@@ -17,6 +17,7 @@ Rows come from `wf_owned_social` (read 2026-11-14). Place IDs are live `wf_inven
 | reel/DdxDxKeD-UN | Ryan's Coffee House, Parrish | ChIJo_IdHf0lw4gRHDbQNKBRE84 | none |
 | reel/DdUinjYJEYr | Tampa Golf Cart Tour | ChIJmTBndrPFwogRQgwCuMP3myY | none |
 | reel/DdEkeo9Bkhk | Clear kayak, Shell Key Preserve | ChIJk04qcKEdw4gRHykY4WhCYBI (Get Up and Go Kayaking, Shell Key) | none |
+| reel/DfsjmNMycZd | Rreal Tacos Christmas decor, Downtown Tampa (ingested 2026-11-14) | rreal-tacos-downtown-tampa (existing entry, name + city) | none |
 
 Live posts that feature one business but sit on no card, with the reason (lib/ownedSocialCards.js):
 
