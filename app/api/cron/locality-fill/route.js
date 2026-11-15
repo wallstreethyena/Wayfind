@@ -51,7 +51,7 @@ export async function GET(req) {
   }
   const rows = await read.json();
 
-  const out = { candidates: rows.length, written: 0, with_city: 0, county_only: 0, held: 0, lookup_failed: 0, raced: 0, write_errors: 0 };
+  const out = { candidates: rows.length, written: 0, with_city: 0, county_only: 0, held: 0, lookup_failed: 0, raced: 0, write_errors: 0, relabeled_st_pete: 0 };
   const holds = {};
   let i = 0;
   await Promise.all(Array.from({ length: 4 }, async () => {
@@ -65,7 +65,7 @@ export async function GET(req) {
         holds[plan.why] = (holds[plan.why] || 0) + 1;
         continue;
       }
-      const w = await fetch(`${s.url}/rest/v1/${writeQuery(row.place_id)}`, {
+      const w = await fetch(`${s.url}/rest/v1/${writeQuery(row.place_id, plan)}`, {
         method: "PATCH",
         headers: { ...headers, Prefer: "return=representation" },
         cache: "no-store",
@@ -76,11 +76,13 @@ export async function GET(req) {
       if (!Array.isArray(got) || got.length !== 1) { out.raced++; continue; }
       out.written++;
       if (plan.locality) out.with_city++; else out.county_only++;
+      if (plan.metro) out.relabeled_st_pete++;
     }
   }));
 
   const note = `wrote ${out.written} (city ${out.with_city}, county only ${out.county_only}); held ${out.held}`
     + (Object.keys(holds).length ? ` [${Object.entries(holds).map(([k, v]) => `${k}: ${v}`).join("; ")}]` : "")
+    + (out.relabeled_st_pete ? `; tampa->st-pete ${out.relabeled_st_pete}` : "")
     + (out.write_errors ? `; ${out.write_errors} write errors` : "");
   await recordPulse("locality-fill", {
     attempted: rows.length,
