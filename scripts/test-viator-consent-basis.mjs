@@ -49,6 +49,15 @@ const matrix = [
   [{ country: null }, "unknown_region"],
   [{ country: "" }, "unknown_region"],
   [{ country: "XYZ" }, "unknown_region"],
+  // Private-use / placeholder codes are not a real country: never "outside".
+  [{ country: "ZZ" }, "unknown_region"],
+  [{ country: "XX" }, "unknown_region"],
+  [{ country: "EU" }, "unknown_region"],
+  [{ country: "UK" }, "unknown_region"],
+  [{ country: "QZ" }, "unknown_region"],
+  [{ country: "A1" }, "unknown_region"],
+  [{ country: "XK" }, "not_required_region"],
+  [{ country: "QA" }, "not_required_region"],
   [{}, "unknown_region"],
 ];
 for (const [input, want] of matrix) {
@@ -63,6 +72,7 @@ ok(gpcFromHeaders(new Headers({ "sec-gpc": "1" })) === true, "Sec-GPC: 1 is read
 ok(gpcFromHeaders(new Headers({})) === false && gpcFromHeaders(new Headers({ "sec-gpc": "0" })) === false, "no/0 Sec-GPC is not opt-out");
 ok(countryFromHeaders(new Headers({ "x-vercel-ip-country": "us" })) === "US", "Vercel country header is read and upper-cased");
 ok(countryFromHeaders(new Headers({ "x-vercel-ip-country": "nowhere" })) === null && countryFromHeaders(new Headers({})) === null, "missing or malformed country is null");
+ok(["ZZ", "XX", "EU", "A1"].every((c) => countryFromHeaders(new Headers({ "x-vercel-ip-country": c })) === null), "placeholder geo codes (ZZ/XX/EU/A1) are not a country");
 
 // ---- 2. Database: migration, click rows, reconcile ledger -----------------
 async function freshDb() {

@@ -1223,6 +1223,14 @@
    "detail": "A regression drops or duplicates the commission disclosure on a monetized place detail sheet, names the wrong partner, or loses the Google Maps photo attribution link."
   },
   "owner": "Revenue QA"
+ },
+ "scripts/test-datamanager-validation-probe.mjs": {
+  "protects": "The Data Manager auth health probe in the viator-bookings cron: it never sends a live conversion (validateOnly is a literal and re-checked after the body is built), makes no call without credentials, proves the refresh token and the datamanager scope, classifies Google's response by body, and never puts a token, secret or click ID in its receipt.",
+  "blastRadius": {
+   "category": "revenue",
+   "detail": "Regressing it could send a fixture as a live conversion into Google Ads, leak OAuth secrets into logs or the job pulse, or report a broken credential as healthy so the first real booking upload fails silently."
+  },
+  "owner": "Revenue QA"
  }
 }
 
