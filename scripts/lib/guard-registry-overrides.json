@@ -1065,10 +1065,10 @@
   "owner": "Revenue QA"
  },
  "scripts/test-meta-partner-handoff.mjs": {
-  "protects": "Meta receives exactly one conversion, PartnerHandoff, only for a human non-test partner redirect from a browser Meta already knows, with a closed key set (fbp, fbc, IP, user agent; provider, surface, content id) and no personal data, campaign labels or click id values; every partner redirect route reaches it; ad and ad set ids survive landing to the redirect event.",
+  "protects": "Meta receives exactly one conversion, PartnerHandoff, and never for a real visitor unless a consent policy is explicitly enabled (default blocked; us_no_gpc sends only US visitors without GPC or a stored denial, with Limited Data Use); only for a human non-test partner redirect from a browser Meta already knows, with a closed key set (fbp, fbc, IP, user agent; provider, surface, content id); test_event_code only in the secret-gated QA lane; same suppression as PostHog; delivery counts only when Meta reports events_received of 1 or more, retries once with an identical payload, and never logs the token or identifiers; every partner redirect route reaches it; ad and ad set ids survive landing to the redirect event.",
   "blastRadius": {
    "category": "revenue",
-   "detail": "If it regresses, Meta optimizes toward unverified taps or receives personal data, and partner clicks can no longer be tied to the Meta campaign, ad set and ad that produced them, so ad spend decisions run on wrong numbers."
+   "detail": "If it regresses, Meta can receive a visitor's IP, user agent and Facebook cookies without a consent decision, optimizes toward unverified taps, or counts failed deliveries as received, and partner clicks can no longer be tied to the Meta campaign, ad set and ad that produced them, so ad spend decisions run on wrong numbers."
   },
   "owner": "Revenue QA"
  },

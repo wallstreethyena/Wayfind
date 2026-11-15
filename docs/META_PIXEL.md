@@ -28,9 +28,14 @@
   changes no campaign optimization. Build it as a custom conversion in Ads Manager if you want to optimize for it.
 - **Not sent:** suppressed sessions (owner, verifier UAs, bots, native shell, group plans) and any session carrying
   `wf_test=<label>` unless `wf_meta_test=<code>` is also present.
-- **CAPI:** no Conversions API sender existed in this repo. `lib/metaCapi.js` + `POST /api/meta/capi` can mirror the same
-  event with the SAME `event_name` + `event_id` (Meta dedupes on that pair). It is dormant: it needs the server env
-  `META_CAPI_ACCESS_TOKEN` AND the build flag `NEXT_PUBLIC_META_CAPI_RELAY=1`. Until both are set, delivery is browser only.
+- **CAPI relay (audited 2026-11-15, dormant):** `lib/metaCapi.js buildCapiPayload` + `POST /api/meta/capi` can mirror the event with
+  the SAME `event_name` + `event_id`. It needs BOTH the server env `META_CAPI_ACCESS_TOKEN` AND the build-time flag
+  `NEXT_PUBLIC_META_CAPI_RELAY=1`; the browser relays only when that flag is `"1"` (`app/components/PostHogProvider.js`). The flag is NOT set in
+  production, so delivery is browser-only. **This path is not behind the consent gate** that guards PartnerHandoff: do not set
+  `NEXT_PUBLIC_META_CAPI_RELAY=1` until it is routed through `decideConsent()` in `lib/metaConsent.js`.
+- **What it is NOT:** a browser custom event. It is not deduped with `PartnerHandoff` (different event name, different id), it fires on an
+  unverified tap, and it must NEVER be chosen as an optimization event or a custom conversion. Meta's one conversion is `PartnerHandoff`.
+  The code is kept (not deleted) as a browser-only diagnostic.
 - **Testing:** open `/halloween-in-florida?wf_test=<label>&wf_meta_test=<Events Manager test code>` in a fresh private window,
   tap a ticket button, watch Events Manager > Test Events. `wf_test` tags every PostHog event `is_test=true`.
 
@@ -43,35 +48,77 @@
 - **Click-id values** (fbclid/gclid/ttclid) live only in the tab-session record; the 90-day first-touch record and the
   `wf_ft_*` super-properties keep only the click TYPE. `landing_*` = this session's landing; first touch only as `first_touch_*`.
 
-## PartnerHandoff: the one Meta conversion (2026-11-12)
+## PartnerHandoff: the one Meta conversion (2026-11-12, consent-gated 2026-11-15)
 
-**Definition.** A human, non-test visitor was actually handed to a revenue partner: one of
-`/api/{commerce,viator,ticketmaster,stubhub,hotels}/go` resolved a partner destination and emitted
-`provider_redirect_started` with `traffic_class = human`. Failed, refused, crawler, prefetch, verifier
-and `wf_test` traffic never qualify. Sent by the server (`lib/metaCapi.js` `relayPartnerHandoff`, hooked
-in `lib/serverEvents.js` `captureServerInBackground`, the choke point all five routes already use), so a
-same-tab navigation cannot lose it. Lock test: `scripts/test-meta-partner-handoff.mjs`.
+**What it proves.** Wayfind resolved a valid partner destination for a human, non-test visitor and issued a redirect: one of
+`/api/{commerce,viator,ticketmaster,stubhub,hotels}/go` emitted `provider_redirect_started` with `traffic_class = human`. It does **not**
+prove the partner page loaded, that anything was booked, or that any commission will be paid. Sent by the server
+(`lib/metaCapi.js` `relayPartnerHandoff`, hooked in `lib/serverEvents.js` `captureServerInBackground`), so a same-tab navigation cannot lose
+it. Lock tests: `scripts/test-meta-partner-handoff.mjs`.
+
+**It is identifying tracking data.** `client_ip_address`, `client_user_agent`, `_fbp` and `_fbc` identify a browser to Meta. `_fbc` can contain
+the Facebook click id. `event_id` (`wf_ph_<click_id>`) contains Wayfind's own internal click id. Do not describe this event as
+anonymous, as free of click ids, or as something Meta "already knows". Hence the consent gate below.
+
+**Consent gate (default BLOCKED).** There is no approved Meta consent policy. `META_CAPI_CONSENT_POLICY` is read on every send:
+
+| value | behaviour |
+|---|---|
+| unset, empty, or ANY unrecognized value | `blocked`: nothing is sent, even with a token and Meta cookies |
+| `us_no_gpc` | send only when `x-vercel-ip-country` is exactly `US`, the request has no `Sec-GPC: 1`, and the `wf_ad_ctx` cookie holds no ad consent denial. Every event carries Limited Data Use |
+
+Basis labels (also in `meta_capi_result.consent_basis`): `policy_blocked`, `gpc_opt_out`, `consent_denied`, `unknown_region`, `non_us`,
+`eligible_us_no_gpc`, `qa_test_lane`. The Google upload basis (`uploadConsentBasis`) is deliberately not reused: it allows any non-EEA country.
+Under `us_no_gpc` each event also carries `data_processing_options: ["LDU"]`, `data_processing_options_country: 0`,
+`data_processing_options_state: 0` (Meta decides the location). Enabling `us_no_gpc` is a policy decision for the owner, not a code default.
 
 **Exactly what Meta receives**
 
-| field | value |
-|---|---|
-| `event_name` | `PartnerHandoff` |
-| `event_id` | `wf_ph_<click_id>` (one per click; Meta dedupes a retry) |
-| `event_time`, `action_source` | seconds, `website` |
-| `event_source_url` | `https://www.gowayfind.com` + landing path (never a query string) |
-| `user_data` | `client_ip_address`, `client_user_agent`, and Meta's own `_fbp` / `_fbc` cookies |
-| `custom_data` | `content_type: product`, `provider`, `content_ids: [our place/offer id]`, `surface` |
+| field | live lane (`us_no_gpc`) | QA lane |
+|---|---|---|
+| `event_name` | `PartnerHandoff` | same |
+| `event_id` | `wf_ph_<click_id>` (one per click; Meta dedupes a retry) | same |
+| `event_time`, `action_source` | seconds, `website` | same |
+| `event_source_url` | `https://www.gowayfind.com` + landing path only (no query; `@` or a 7+ digit run falls back to `/`) | same |
+| `user_data` | `client_ip_address`, `client_user_agent`, `fbp` and/or `fbc` | same |
+| `custom_data` | `content_type: product`, `provider`, `content_ids: [id]`, `surface` | same |
+| LDU keys on the event | `data_processing_options ["LDU"]`, `..._country 0`, `..._state 0` | only when the policy is `us_no_gpc` |
+| top-level `test_event_code` | **never** | the server env code, always |
 
-Never sent: email, phone, name, user or person id, `external_id`, any hash, any query string, the
-fbclid/gclid VALUE, utm labels, value or currency. Only sent when the browser already carries `_fbp` or
-`_fbc` (Meta already knows it); a visitor Meta has never seen is not introduced to Meta by this event.
+`provider`, `surface` and `content_ids` pass a strict token filter: no `@ ? = %`, spaces or slashes; no 7+ digit run in `provider`/`surface`; a
+content id is dropped when it is phone-shaped (10+ digits, or purely numeric and 7+ long). Viator codes (`12345P1`), slugs, compound slugs and
+Google place ids pass. Never sent: email, phone, name, user or person id, `external_id`, hashes, query strings, the fbclid/gclid VALUE, utm
+labels, value or currency. A visitor without `_fbp`/`_fbc` is not sent.
 
-**Switches.** Dormant until `META_CAPI_ACCESS_TOKEN` is set in Vercel Production (Events Manager >
-dataset "Wayfind Website" > Settings > Conversions API > generate access token). `META_CAPI_PARTNER_HANDOFF=off`
-turns only this event off. `META_CAPI_TEST_EVENT_CODE=<code>` sends every event to Events Manager > Test
-Events while verifying; remove it afterwards. Optimizing a campaign toward it: create a custom conversion
-on the custom event `PartnerHandoff` in Events Manager, then pick it as the ad set's conversion event.
+**QA lane.** For checking delivery in Events Manager > Test Events with a real browser. Allowed only when ALL of: the session is marked test
+(`is_test` true or a non-empty `wf_test`), env `META_CAPI_TEST_EVENT_CODE` matches `/^TEST\w{1,40}$/`, and the cookie `wf_meta_qa` equals env
+`META_CAPI_QA_SECRET` (at least 24 characters, constant-time compare). It still needs a human, valid ids, `_fbp`/`_fbc`, IP and UA. A QA event
+always carries `test_event_code`; a live event never does; test traffic outside the QA lane is skipped (`test_traffic`).
+*Two different QA markers:* the browser `wf_meta_test=<code>` URL param (sessionStorage `wf_meta_test_v1`) only steers the browser-side
+`OutboundTicketClick` relay. The server lane ignores any client-supplied code: its code and its secret come only from server env.
+
+**Delivery.** One Graph POST with a 2.5 s bound; never awaited by the redirect (`waitUntil`). Success means the JSON body has
+`events_received >= 1`; HTTP 200 alone is not success. Failure classes: `timeout`, `network`, `http_<status>`, `graph_error_<code>`,
+`zero_received`, `bad_json`. Auth errors (code 190, HTTP 401/403) never retry. Timeout, network and 5xx get ONE retry with the identical
+payload (same `event_id`, same `event_time`). The access token travels only in the POST body and never appears in logs, errors or results.
+Each attempt logs one `[meta-capi]` line (outcome, reason, lane, provider, surface, http, received, fbtrace, attempt) with no IP, UA, `_fbp`,
+`_fbc`, click id, event id or token, and records a PII-free PostHog `meta_capi_result` event (personless) with the same safe fields plus
+`consent_basis`, `ldu`, `attempts`; consent skips are recorded as `outcome = skipped`. The Graph version is `CAPI_VERSION` in
+`lib/metaCapi.js`, overridable with `META_GRAPH_VERSION` (`/^v\d{2}\.\d$/`).
+
+**Never sends** (shared suppression, same predicate as PostHog `captureServer` plus stricter checks): `WF_SUPPRESS_ANALYTICS=1`, synthetic monitor
+UA, `x-wf-synthetic`, `x-wayfind-qa`, verifier / QA UAs, synthetic cookies, preview, development, build, guard and test processes (only a
+`VERCEL_ENV=production` runtime sends).
+
+**Env names.** `META_CAPI_ACCESS_TOKEN` (dormant without it), `META_CAPI_CONSENT_POLICY` (default blocked), `META_CAPI_PARTNER_HANDOFF=off`
+(kill switch), `META_CAPI_TEST_EVENT_CODE`, `META_CAPI_QA_SECRET`, `META_GRAPH_VERSION`.
+
+**Rollback / kill.** Fastest: set `META_CAPI_PARTNER_HANDOFF=off` (or remove `META_CAPI_ACCESS_TOKEN`, or set `META_CAPI_CONSENT_POLICY=blocked`) in
+Vercel Production and redeploy; the redirect is unaffected. Events already received by Meta are not recalled by this; use Events Manager.
+Optimizing a campaign toward the event (only after the policy is approved and delivery verified): create a custom conversion on the custom
+event `PartnerHandoff`. Never pick `OutboundTicketClick`.
+
+Funnel and revenue queries: `docs/META_ATTRIBUTION_REPORTING.md`.
 
 **What stays internal (PostHog + Supabase, never Meta)**
 
@@ -90,36 +137,5 @@ on the custom event `PartnerHandoff` in Events Manager, then pick it as the ad s
 `landing_campaign` / `landing_term` / `landing_content` to the server redirect event. An ad without them
 is still identified as Meta paid (`landing_click_type = fbclid`) but not WHICH ad.
 
-**Report: which Meta campaign / ad set / ad produced partner handoffs (PostHog SQL)**
-
-```sql
-SELECT properties.landing_campaign AS campaign_id,
-       properties.landing_term     AS adset_id,
-       properties.landing_content  AS ad_id,
-       properties.provider         AS provider,
-       count()                     AS handoffs,
-       uniq(properties.click_id)   AS unique_clicks
-FROM events
-WHERE event = 'provider_redirect_started'
-  AND timestamp >= now() - INTERVAL 30 DAY
-  AND properties.traffic_class = 'human'
-  AND coalesce(toString(properties.is_test), '') != 'true'
-  AND (properties.landing_click_type = 'fbclid' OR properties.landing_source IN ('meta','facebook','fb','instagram','ig'))
-GROUP BY campaign_id, adset_id, ad_id, provider
-ORDER BY handoffs DESC
-```
-
-**Revenue by Meta ad (Supabase, Viator today; read only)**
-
-```sql
-SELECT c.session_attribution->>'utm_campaign' AS campaign_id,
-       c.session_attribution->>'utm_term'     AS adset_id,
-       c.session_attribution->>'utm_content'  AS ad_id,
-       count(DISTINCT b.booking_ref)          AS bookings,
-       sum(coalesce(b.confirmed_commission, b.estimated_commission)) AS commission
-FROM wf_viator_booking_events b
-JOIN wf_viator_clicks c ON c.click_token = b.click_token
-WHERE c.session_attribution->>'utm_source' IN ('meta','facebook','fb','instagram','ig')
-GROUP BY 1, 2, 3
-ORDER BY commission DESC NULLS LAST;
-```
+**Reports.** Dated cohort funnel and revenue-by-ad SQL (PostHog HogQL and Supabase) live in `docs/META_ATTRIBUTION_REPORTING.md`. Only Viator
+has per-ad revenue attribution; other providers do not.
