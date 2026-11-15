@@ -31,7 +31,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { GUIDES } from "../lib/guides.js";
 import { recordPulse } from "../lib/jobPulse.js";
-import { parseGuidePicks, parseDedicatedGuide, parseBlogItems, classify } from "../lib/guideVisualMonitor.js";
+import { parseGuidePicks, parseDedicatedGuide, parseBlogItems, classify, picksExpectPhoto, makeGuideContextFor } from "../lib/guideVisualMonitor.js";
 import { guideUsesNeutralFallback } from "../lib/guideNeutralFallback.js";
 export { parseGuidePicks, parseBlogItems, classify };
 
@@ -79,7 +79,6 @@ async function main() {
   const { GUIDE_PICK_PHOTOS } = await import("../lib/guidePickPhotoManifest.js");
   const { buildPlacePhotoIndex } = await import("../lib/guidePickPhotos.js");
   const { guideContextPhoto } = await import("../lib/guideContextPhotos.js");
-  const contextFor = (slug, pick, guide) => guideContextPhoto(slug, pick, guide, { usedSrc: new Set() });
   const placeIndex = buildPlacePhotoIndex(GUIDE_PICK_PHOTOS);
   const guides = Array.isArray(GUIDES) ? GUIDES : Object.entries(GUIDES).map(([slug, g]) => ({ slug, ...g }));
   const gapsFor = (slug) => { const f = path.join(ROOT, "data/guide-pick-photos", slug + ".json"); return existsSync(f) ? JSON.parse(readFileSync(f, "utf8")).gaps || {} : {}; };
@@ -110,13 +109,14 @@ async function main() {
     if (dedicated) { guideRows.push({ surface: "guide", page: g.slug, placeId: null, ...dedicated, expectPhoto: true, documented: false }); continue; }
     const parsed = parseGuidePicks(html);
     const gaps = gapsFor(g.slug);
+    const contextFor = makeGuideContextFor(guideContextPhoto);
     (g.picks || []).forEach((pick, i) => {
       const p = parsed.find((x) => x.n === i + 1) || { imgs: [], credited: false, live: false };
       const { cls } = classifyPick(g.slug, pick, { manifest: GUIDE_PICK_PHOTOS, placeIndex, contextFor, guide: g });
       const expectNeutral = guideUsesNeutralFallback(g) && cls !== "curated" && cls !== "reuse";
       // curated, reused and labelled context photos are all server rendered,
       // so a pick that shows none of them is an engineering failure (B).
-      guideRows.push({ surface: "guide", page: g.slug, name: pick.name, placeId: pick.placeId || null, ...p, expectPhoto: !expectNeutral && cls !== "missing", expectNeutral, documented: !!gaps[pick.name] });
+      guideRows.push({ surface: "guide", page: g.slug, name: pick.name, placeId: pick.placeId || null, ...p, expectPhoto: picksExpectPhoto(cls, expectNeutral), expectNeutral, documented: !!gaps[pick.name] });
     });
   }
   const blogRows = [];
