@@ -30,6 +30,7 @@ import { credential } from "../../../../lib/envPlaceholder.js";
 import { jobCannotRun, jobFailed } from "../../../../lib/jobFail.js";
 import { recordPulse } from "../../../../lib/jobPulse.js";
 import { syncViatorBookings } from "../../../../lib/viatorBookings.js";
+import { runDataManagerValidationProbe, probePulseNote } from "../../../../lib/dataManagerValidationProbe.js";
 import {
   processGoogleConversionUploadQueue,
   WAYFIND_GOOGLE_ADS_ACCOUNT_ID,
@@ -162,6 +163,29 @@ export async function GET(req) {
           ),
         });
 
+    // Phase 4: Data Manager auth + validateOnly health probe (never a live
+    // upload; see lib/dataManagerValidationProbe.js). Runs while uploads are
+    // not live, so the credentials are proven from this runtime before
+    // anyone turns them on and a revoked/expired grant shows up within one
+    // run. Missing credentials make no network call. Never fails the job.
+    let dmProbe = null;
+    if (!result.skipped_locked && uploadMode !== "live") {
+      try {
+        dmProbe = await runDataManagerValidationProbe({
+          clientId: credential(process.env["GOOGLE_ADS_OAUTH_CLIENT_ID"]),
+          clientSecret: credential(process.env["GOOGLE_ADS_OAUTH_CLIENT_SECRET"]),
+          refreshToken: credential(process.env["GOOGLE_ADS_OAUTH_REFRESH_TOKEN"]),
+          operatingAccountId: credential(process.env["GOOGLE_ADS_OPERATING_ACCOUNT_ID"]),
+          conversionActionId: credential(process.env["GOOGLE_ADS_VIATOR_CONVERSION_ACTION_ID"]),
+        });
+        try {
+          console.log(JSON.stringify({ tag: "datamanager_validate_probe", ...dmProbe }));
+        } catch {}
+      } catch (e) {
+        dmProbe = { outcome: "probe_error", reason: String(e?.message || "err").slice(0, 120) };
+      }
+    }
+
     const unrecognizedCount = Number(result.unrecognized_events || 0);
     const uploadFailures = Number(uploadQueueResult.failed || 0);
     const totalFailures =
@@ -195,7 +219,7 @@ export async function GET(req) {
     const succeededCount = attemptedCount;
     const pulseNote = result.skipped_locked
       ? `skipped_locked owner=${result.active_lease_owner || "other"}`
-      : `pages=${result.pages_processed} raw=${result.raw_events_received ?? 0} events=${result.events_inserted} matched=${result.matched} redacted=${redactedClicks} uploads=${uploadQueueResult.succeeded}/${uploadQueueResult.attempted} (${uploadQueueResult.mode})`;
+      : `${probePulseNote(dmProbe)} pages=${result.pages_processed} raw=${result.raw_events_received ?? 0} events=${result.events_inserted} matched=${result.matched} redacted=${redactedClicks} uploads=${uploadQueueResult.succeeded}/${uploadQueueResult.attempted} (${uploadQueueResult.mode})`;
 
     const summary = {
       status: "ok",
@@ -218,6 +242,7 @@ export async function GET(req) {
       unrecognized_events: unrecognizedCount,
       redacted_clicks: redactedClicks,
       upload_queue: uploadQueueResult,
+      datamanager_probe: dmProbe,
       next_cursor: result.next_cursor ?? null,
       watermark: result.watermark ?? null,
     };

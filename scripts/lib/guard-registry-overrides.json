@@ -1215,6 +1215,13 @@
    "detail": "If any layer regresses, sold-out or redirected partner offers leak onto cards and redirects, 415 Atlas place pages revert to 'Hours unavailable', cold visitors see 'Wimauma' or 'Parrish' in the location pill and affiliate rails, or ended/past events surface with dead ticket CTAs."
   },
   "owner": "Revenue QA"
+ },
+ "scripts/test-datamanager-validation-probe.mjs": {
+  "protects": "The Data Manager auth health probe in the viator-bookings cron: it never sends a live conversion (validateOnly is a literal and re-checked after the body is built), makes no call without credentials, proves the refresh token and the datamanager scope, classifies Google's response by body, and never puts a token, secret or click ID in its receipt.",
+  "blastRadius": {
+   "category": "revenue",
+   "detail": "Regressing it could send a fixture as a live conversion into Google Ads, leak OAuth secrets into logs or the job pulse, or report a broken credential as healthy so the first real booking upload fails silently."
+  },
+  "owner": "Revenue QA"
  }
 }
-
