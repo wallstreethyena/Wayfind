@@ -11,6 +11,7 @@ import assert from "node:assert/strict";
 import {
   isEligible, rankEvents, composeRail, buildRail, eventJsonLd, scoreEvent,
   daysUntil, needsRecheck, recheckIntervalDays, dateRangeLabel, DISPLAYABLE_STATUS,
+  eventDetailTicketAction, ticketIsLottery, LOTTERY_CTA_LABEL,
 } from "../lib/curatedEvents.js";
 
 const NOW = new Date("2026-08-13T12:00:00-04:00");
@@ -132,6 +133,21 @@ ok("date labels read like a human wrote them", () => {
   assert.equal(dateRangeLabel({ start_date: "2026-10-16", end_date: "2026-10-25" }), "Oct 16–25");
   assert.equal(dateRangeLabel({ start_date: "2027-01-30" }), "Jan 30");
   assert.equal(dateRangeLabel({ start_date: "2026-08-07", end_date: "2026-10-31" }), "Aug 7 – Oct 31");
+});
+
+/* lottery + ticket-status honesty (2026-11-12, Cosmic Baseball) */
+ok("a lottery event publishes no Offer and its button says lottery", () => {
+  const row = ev({ slug: "cb", event_id: "cb", event_name: "Cosmic", start_date: "2027-08-21", ticket_status: "lottery", official_ticket_url: "https://chilipeppersbaseball.com/cosmic-lottery/", link_ok: true });
+  assert.equal(eventJsonLd(row).offers, undefined);
+  const act = eventDetailTicketAction({ ...row, category: "sports" });
+  assert.ok(act && act.label === LOTTERY_CTA_LABEL, "lottery button label: " + (act && act.label));
+  assert.equal(ticketIsLottery(row), true);
+});
+ok("not_yet_on_sale never claims InStock; sold_out ticket status is SoldOut; on_sale stays InStock", () => {
+  const u = "https://example.com/t";
+  assert.equal(eventJsonLd(ev({ slug: "a", start_date: "2027-01-30", ticket_status: "not_yet_on_sale", official_ticket_url: u })).offers.availability, undefined);
+  assert.equal(eventJsonLd(ev({ slug: "b", start_date: "2027-01-30", ticket_status: "sold_out", official_ticket_url: u })).offers.availability, "https://schema.org/SoldOut");
+  assert.equal(eventJsonLd(ev({ slug: "c", start_date: "2027-01-30", ticket_status: "on_sale", official_ticket_url: u })).offers.availability, "https://schema.org/InStock");
 });
 
 console.log(`check-curated-events: OK — ${n} assertions`);

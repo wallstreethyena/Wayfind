@@ -12,7 +12,6 @@ import { normName, betterPlace, dedupePlaces } from "../lib/placeDedupe";
 import { comparatorFor, sortPlacesBy, nearestBranch } from "../lib/sortModes";
 import { openBrowseHistory } from "../lib/browseHistory";
 import { localCitySuggestions, createSearchAttempt } from "../lib/searchExperience.js";
-import { resolveSearchIntent } from "../lib/searchIntent.js";
 import { mergeHealedPlacePhotos } from "../lib/detailHero";
 import { RON_DUPRAT_TOP7, chefHookCard, chefPickPlaces } from "../lib/chefPicks";
 import { fallCardClass, fallShareLine } from "../lib/fallSkin.js";
@@ -25,6 +24,7 @@ import { intentRadiusMi, intentScopeLabel } from "../lib/momentIntents";
 import { MAP_DEFAULT_CATEGORY } from "../lib/mapExplorer";
 import { nextPageOffset } from "../lib/inventoryPaging";
 import { nearMeQuery, hasSearchCenter } from "../lib/nearMeQuery";
+import { COVERED_CITIES } from "../lib/landingCities.js";
 // v8.41 — the ONE landing. Every control that swaps the feed under the reader
 // takes them to the results through this, not through its own hand-rolled
 // scroll. See lib/landOnResults.js for the three things a landing has to get
@@ -78,6 +78,7 @@ import { attributionParams } from "../lib/attribution";
 // map interactions never mint a second $pageview).
 import { noteSessionProgress } from "../lib/activation";
 import { noteExplodingSignup } from "../lib/explodingExperiment";
+import { styleHtml } from "../lib/styleHtml.js";
 // lib/authJourney is loaded on demand (a sign-in moment, never first paint): the
 // homepage bundle sits 0.4KB under its 501KB ratchet and this code is not needed
 // until someone signs in. See check-bundle.mjs.
@@ -204,9 +205,13 @@ const TripConnections = nextDynamic(() => import("./components/TripConnections")
 // on a lazy chunk + then its own /api/theme-parks fetch: first card 4.2s vs
 // 2.7s (median of 5, same Vercel preview infra, 390px).
 import ThemeParkRail from "./components/ThemeParkRail";
+import { nextCenter } from "../lib/centerIdentity";
+import { warmChunksInSequence } from "../lib/chunkWarmup";
 const loadTrips = () => import("../lib/trips");
-const SHEET_LOADERS = [loadHookDetail, loadAccount, loadMenu, loadAuth, loadDetail, loadIntro, loadSocialFind];
-const SCREEN_LOADERS = [loadSurprise, loadCoupons, loadSaved, loadItinerary, loadShared, loadEventsScreen, loadMap, loadExperience, loadThingsToDo, loadTrips, ...SHEET_LOADERS];
+// Warm-up ORDER matters now that chunks are fetched one at a time
+// (lib/chunkWarmup.js): the place-detail sheet is the most common first tap
+// (any place card), so it goes first; then the bottom-nav screens.
+const SCREEN_LOADERS = [loadDetail, loadEventsScreen, loadMap, loadSaved, loadMenu, loadSurprise, loadItinerary, loadCoupons, loadHookDetail, loadThingsToDo, loadExperience, loadShared, loadTrips, loadAccount, loadAuth, loadIntro, loadSocialFind];
 const SurpriseScreen = nextDynamic(loadSurprise, { ssr: false, loading: () => <Loader label="Loading" pad="16px 2px" /> });
 const CouponsScreen = nextDynamic(loadCoupons, { ssr: false, loading: () => <Loader label="Loading" pad="16px 2px" /> });
 const SavedScreen = nextDynamic(loadSaved, { ssr: false, loading: () => <Loader label="Loading" pad="16px 2px" /> });
@@ -314,6 +319,7 @@ import { BEST_OF_NAMES, LOCAL_FAVE_EXTRA, WAYFIND_PHOTOS, WAYFIND_NOTES, WAYFIND
 // v7.02 (owner, 2026-08-08): the ONE card every homepage rail renders — the
 // /best-of place card at rail width, not a second card shape. See RailCard.js.
 import RailCard, { RailNav, RailDots } from "./components/RailCard";
+import { useReserveEntry } from "../lib/reserveClient.js";
 import LocalEdit from "./components/LocalEdit";
 import ThisWeekEvents from "./components/ThisWeekEvents";
 import { MARKETS, marketForLocation } from "../lib/destinations";
@@ -563,7 +569,7 @@ const WF_DESTINATIONS = [
   { id: "map", icon: "map", label: "Map", href: "/map" },
 ];
 
-function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, tight, showSubs = true, compact, nav, navRegion, navCitySlug, navOpenCat, onNavOpen, onNavSub }) {
+function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, tight, showSubs = true, subsExpanded = true, compact, nav, navRegion, navCitySlug, navOpenCat, onNavOpen, onNavSub }) {
   const subs = showSubs && activeCat ? (SUBFILTERS[activeCat] || []) : [];
   // Hooks run BEFORE the compact early-return below — a conditional hook here
   // would break the map screen the moment a sub-filter opened.
@@ -598,37 +604,39 @@ function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, tight, 
   if (compact) {
     const open = !!(activeCat && subs.length > 1);
     return (
-      <div className="wf-mapfp">
-        <style dangerouslySetInnerHTML={{ __html: `
-          .wf-mapfp{background:rgba(10,14,20,.86);-webkit-backdrop-filter:blur(18px) saturate(140%);backdrop-filter:blur(18px) saturate(140%);border:1px solid rgba(255,255,255,.13);border-radius:19px;overflow:hidden}
+      <div className={`wf-mapfp${subsExpanded === false ? " is-subs-collapsed" : ""}`}>
+        <style dangerouslySetInnerHTML={styleHtml(`
+          .wf-mapfp{background:rgba(10,14,20,.82);-webkit-backdrop-filter:blur(18px) saturate(140%);backdrop-filter:blur(18px) saturate(140%);border:1px solid rgba(255,255,255,.12);border-radius:15px;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,.28)}
           .wf-mapfp-row{position:relative}
-          .wf-mapfp-scroll{display:flex;gap:7px;overflow-x:auto;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:9px 11px}
+          .wf-mapfp-scroll{display:flex;gap:6px;overflow-x:auto;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:5px 8px}
           .wf-mapfp-scroll::-webkit-scrollbar{display:none}
           /* Scroll affordance. pointer-events:none so it can never eat a tap on
              the pill underneath, and it is only rendered when the row actually
              overflows — a permanent fade would imply movement that is not there. */
-          .wf-mapfp-fade{position:absolute;top:0;right:0;bottom:0;width:44px;pointer-events:none;background:linear-gradient(to right,rgba(10,14,20,0),rgba(10,14,20,.92))}
+          .wf-mapfp-fade{position:absolute;top:0;right:0;bottom:0;width:36px;pointer-events:none;background:linear-gradient(to right,rgba(10,14,20,0),rgba(10,14,20,.88))}
           /* 32px visual pill, 44px touch target — the extra comes from padding on
              a transparent wrapper, never from height, or the row grows again. */
           .wf-mapfp-tap{flex:none;scroll-snap-align:start;background:none;border:0;padding:6px 0;cursor:pointer;display:block}
-          .wf-mapfp-pill{display:flex;align-items:center;gap:6px;height:32px;padding:0 12px;border-radius:16px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.09);white-space:nowrap}
+          .wf-mapfp-pill{display:flex;align-items:center;gap:5px;height:32px;padding:0 11px;border-radius:16px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.09);white-space:nowrap}
           .wf-mapfp-pill span{font-size:12.5px;font-weight:600;color:#FFFFFF;line-height:1}
-          .wf-mapfp-tap[aria-selected="true"] .wf-mapfp-pill{background:${C.accent};border-color:${C.accent};box-shadow:0 0 0 4px rgba(249,115,22,.16),0 4px 14px rgba(249,115,22,.3)}
+          .wf-mapfp-tap[aria-selected="true"] .wf-mapfp-pill{background:${C.accent};border-color:${C.accent};box-shadow:0 0 0 3px rgba(249,115,22,.16),0 3px 10px rgba(249,115,22,.28)}
           .wf-mapfp-tap[aria-selected="true"] .wf-mapfp-pill span{color:#0B0F14;font-weight:800}
           .wf-mapfp-tap:focus-visible .wf-mapfp-pill{outline:2px solid ${C.accent};outline-offset:2px}
           /* 26px sub pill + 9px top/bottom = 44px touch target. Measured 40px at 390px
              with the shared 6px padding, which is under the floor. */
           .wf-mapfp-subs .wf-mapfp-tap{padding:9px 0}
-          .wf-mapfp-divider{height:1px;background:rgba(255,255,255,.09);margin:0 11px}
+          .wf-mapfp-divider{height:1px;background:rgba(255,255,255,.08);margin:0 9px}
           /* Height/opacity transition so the row slides rather than snaps. */
           .wf-mapfp-subs{overflow:hidden;max-height:0;opacity:0;transition:max-height .18s ease-out,opacity .18s ease-out}
-          .wf-mapfp-subs.is-open{max-height:64px;opacity:1}
+          .wf-mapfp-subs.is-open{max-height:54px;opacity:1}
+          .wf-mapfp.is-subs-collapsed .wf-mapfp-divider{display:none}
+          .wf-mapfp.is-subs-collapsed .wf-mapfp-subs.is-open{max-height:0;opacity:0;pointer-events:none}
           .wf-mapfp-sub{display:flex;align-items:center;height:26px;padding:0 10px;border-radius:13px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);font-size:12px;font-weight:600;color:#FFFFFF;white-space:nowrap;line-height:1}
           /* Subfilters are SECONDARY: a tint, never a solid fill, so they cannot
              compete with the active category pill directly above them. */
           .wf-mapfp-tap[aria-selected="true"] .wf-mapfp-sub{background:rgba(249,115,22,.16);border-color:rgba(249,115,22,.42);color:${C.accent};font-weight:800}
           @media (prefers-reduced-motion: reduce){ .wf-mapfp-subs{transition:none} }
-        ` }} />
+        `)} />
         <div className="wf-mapfp-row">
           <div className="wf-mapfp-scroll" role="tablist" aria-label="Map categories" ref={mapfpArrowKeys}>
             {Cats.CATEGORY_TILES.map((m) => { const on = activeCat === m.id; return (
@@ -2118,11 +2126,11 @@ function RadiusSlider({ mi, onChange, where, max = 30 }) {
   const pct = Math.round(((mi - 1) / (max - 1)) * 100);
   return (
     <div style={{ padding: "11px 14px 12px", background: C.card, border: `1px solid ${C.border}`, borderRadius: 14 }}>
-      <style dangerouslySetInnerHTML={{ __html: `.wf-radius{-webkit-appearance:none;appearance:none;width:100%;height:26px;background:transparent;outline:none;margin:4px 0 2px;cursor:pointer}
+      <style dangerouslySetInnerHTML={styleHtml(`.wf-radius{-webkit-appearance:none;appearance:none;width:100%;height:26px;background:transparent;outline:none;margin:4px 0 2px;cursor:pointer}
 .wf-radius::-webkit-slider-runnable-track{height:7px;border-radius:999px;background:linear-gradient(90deg,#FB923C 0%,#F97316 var(--wfp),#2D3748 var(--wfp))}
 .wf-radius::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:26px;height:26px;border-radius:50%;background:radial-gradient(circle at 32% 30%,#FFD9B3,#F97316 68%);border:2.5px solid #fff;box-shadow:0 0 0 5px rgba(249,115,22,.22),0 3px 10px rgba(0,0,0,.5);cursor:pointer;margin-top:-10px}
 .wf-radius::-moz-range-track{height:7px;border-radius:999px;background:linear-gradient(90deg,#FB923C 0%,#F97316 var(--wfp),#2D3748 var(--wfp))}
-.wf-radius::-moz-range-thumb{width:26px;height:26px;border-radius:50%;background:radial-gradient(circle at 32% 30%,#FFD9B3,#F97316 68%);border:2.5px solid #fff;box-shadow:0 0 0 5px rgba(249,115,22,.22),0 3px 10px rgba(0,0,0,.5);cursor:pointer}` }} />
+.wf-radius::-moz-range-thumb{width:26px;height:26px;border-radius:50%;background:radial-gradient(circle at 32% 30%,#FFD9B3,#F97316 68%);border:2.5px solid #fff;box-shadow:0 0 0 5px rgba(249,115,22,.22),0 3px 10px rgba(0,0,0,.5);cursor:pointer}`)} />
       <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between" }}>
         <div style={{ fontSize: 14, fontWeight: 800, color: C.text }}>Within <span style={{ color: C.accent, fontSize: 17 }}>{mi} mi</span></div>
         <div style={{ fontSize: 11.5, color: C.muted }}>of {where}</div>
@@ -2326,13 +2334,20 @@ function SortControl({ sortBy, onSort, mi, onMi, where, dealsAvailable, dealsOnl
 // behind it; the auth dialog auto-opens. Reuses the one auth source of truth
 // (setAuthOpen) — no second auth system.
 const AUTH_SCREENS = new Set(["saved", "itinerary"]);
-function AuthWall({ label, onSignIn, detail }) {
+function AuthWall({ label, onSignIn, detail, onBuildTrip }) {
   return (
     <div style={{ textAlign: "center", padding: "56px 24px", color: C.muted }}>
       <div style={{ display: "flex", justifyContent: "center", marginBottom: 14 }}><NavIcon name="saved" color={C.accent} size={40} /></div>
       <strong style={{ display: "block", color: C.text, fontSize: 17 }}>Sign in to view {label}</strong>
       <p style={{ fontSize: 13.5, color: C.muted, maxWidth: 320, margin: "8px auto 18px", lineHeight: 1.55 }}>{detail || "Sign in to save places, create lists, and plan trips. Your saves sync across all your devices."}</p>
-      <button onClick={onSignIn} style={{ minHeight: 44, padding: "11px 22px", borderRadius: 12, background: C.accent, border: "none", color: "#0D1117", fontSize: 14.5, fontWeight: 800, cursor: "pointer" }}>Sign in</button>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 10, justifyContent: "center" }}>
+        <button onClick={onSignIn} style={{ minHeight: 44, padding: "11px 22px", borderRadius: 12, background: C.accent, border: "none", color: "#0D1117", fontSize: 14.5, fontWeight: 800, cursor: "pointer" }}>Sign in</button>
+        {onBuildTrip && (
+          <button type="button" data-wf-authwall-build-trip="1" onClick={onBuildTrip} style={{ minHeight: 44, padding: "11px 18px", borderRadius: 12, background: "rgba(249,115,22,0.12)", border: "1px solid rgba(249,115,22,0.45)", color: C.accent, fontSize: 14, fontWeight: 800, cursor: "pointer" }}>
+            ✨ Build a trip with Wayfind
+          </button>
+        )}
+      </div>
     </div>
   );
 }
@@ -4126,6 +4141,12 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
   const giveawayMark = (itemId) => { try { if (!giveawayLive() || !itemId) return; const g = JSON.parse(localStorage.getItem("wf_gw26") || "[]"); if (g.indexOf(itemId) === -1 && g.length < 10) { g.push(itemId); setLocal("wf_gw26", JSON.stringify(g)); setGwCount(g.length); if (g.length >= 3) { try { const st = JSON.parse(localStorage.getItem("wf_gw_pop") || "{}"); st.entered = true; localStorage.setItem("wf_gw_pop", JSON.stringify(st)); } catch (er) {} } } } catch (e) {} };
   const [mapFocus, setMapFocus] = useState(null); // drawer row -> fly the map to this pin
   const [mapSearchOpen, setMapSearchOpen] = useState(false); // map keeps a magnifier; tap slides the field down
+  const mapCameraRef = useRef(null);
+  const [mapSearch, setMapSearch] = useState(null);
+  const [mapUrlLens, setMapUrlLens] = useState(null);
+  const [mapUrlPlaceId, setMapUrlPlaceId] = useState(null);
+  const pendingColdMapUrlRef = useRef(null);
+  useEffect(() => { if (mapSearchOpen) setTimeout(() => { try { searchInputRef.current?.focus({ preventScroll: true }); } catch (e) {} }, 20); }, [mapSearchOpen]);
   const [a2hs, setA2hs] = useState(false); // add-to-home-screen nudge (2nd visit, dismissible, never in standalone)
   const [isStandalone, setIsStandalone] = useState(false); // home-screen (PWA) mode: Google OAuth redirect cannot return here, so lead with email
   const [deferredPrompt, setDeferredPrompt] = useState(null);
@@ -4271,10 +4292,10 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
       // so an incoherent row here is a corrupt pin one tap away, forever. The
       // owner's list held `{"lat":35.2619678,"lng":-81.126481,"loc":"Parrish, FL"}`
       // for exactly this reason.
-      if (center && isFinite(center.lat) && isFinite(center.lng) && locName && centerAgreesWithLabel(center, locName)) {
+      if (manualRef.current && center && isFinite(center.lat) && isFinite(center.lng) && locName && centerAgreesWithLabel(center, locName)) {
         const raw = localStorage.getItem("wf_recent_locs");
         const prev = raw ? JSON.parse(raw) : [];
-        const next = [{ lat: center.lat, lng: center.lng, loc: locName, ts: Date.now() },
+        const next = [{ lat: +center.lat.toFixed(3), lng: +center.lng.toFixed(3), loc: locName, ts: Date.now() },
           ...(Array.isArray(prev) ? prev : []).filter((r) => r && r.loc && r.loc.split(",")[0] !== locName.split(",")[0])].slice(0, 6);
         localStorage.setItem("wf_recent_locs", JSON.stringify(next));
         setRecentLocs(next);
@@ -4488,14 +4509,15 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
     (async () => {
       try {
         const mod = await import("../lib/sponsoredPlaces");
-        const s = mod.sponsoredPlaceNear(center.lat, center.lng);
-        if (!dead) setSponsoredPick(s ? mod.hydrateSponsoredPlace(s, center) : null);
+        const today = siteTodayStr();
+        const s = mod.sponsoredPlaceNear(center.lat, center.lng, today);
+        if (!dead) setSponsoredPick(s ? mod.hydrateSponsoredPlace(s, center, today) : null);
         // ONE dynamic import serves both surfaces. The rail card resolves off
         // the SAME reader point, and its when-label is computed from the site
         // clock (venue-local, DST-aware) rather than the browser's — a market
         // that runs 7pm–1am must not read "Tonight" to a reader whose device
         // has already rolled past midnight in another zone.
-        const rc = mod.sponsoredRailCardForReader(center.lat, center.lng, center, siteTodayStr());
+        const rc = mod.sponsoredRailCardForReader(center.lat, center.lng, center, today, today);
         if (!dead) setRailSponsorCard(rc);
       } catch (e) { if (!dead) { setSponsoredPick(null); setRailSponsorCard(null); } }
     })();
@@ -5255,6 +5277,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
   // so the box stayed empty and the Christmas poster stayed open.
   // "?intent=place" is the old MODE flag. Any other intent value is the search.
   useEffect(() => {
+    try { if (window.location.pathname === "/map") return; } catch (e) {}
     let pending = null;
     try { pending = landingSearchFromSearch(window.location.search); } catch (e) { pending = null; }
     if (!pending) return;
@@ -5444,6 +5467,8 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
       else if (_event === "SIGNED_OUT") setUser(null);
       // Group Vote sign-in resume: go back to the stored /group-plans path (same tab, validated).
       try { if (session && session.user && (_event === "SIGNED_IN" || _event === "INITIAL_SESSION")) { const _ret = consumeAuthReturn(window.sessionStorage); if (_ret) window.location.assign(_ret); } } catch (e) {}
+      // Reserve concierge sign-in resume: a full page OAuth redirect forgets the restaurant, so reopen it (sessionStorage intent, 30 min).
+      try { if (session && session.user && (_event === "SIGNED_IN" || _event === "INITIAL_SESSION") && window.sessionStorage.getItem("wf_reserve_pending_v1")) import("../lib/reserveOpen.js").then((m) => m.resumeReserveIntent()).catch(() => {}); } catch (e) {}
       try { if (session && session.user && typeof window !== "undefined" && window.__WF_NOTE_AUTH_USER) window.__WF_NOTE_AUTH_USER(session.user); } catch (e) {}
       try { if (typeof window !== "undefined") captureOrQueue(window, "auth_event", { event: _event, hasSession: !!(session && session.user) }); } catch (e) {}
       // THE ONLY place signup_completed / login_completed are emitted (lib/authJourney.js).
@@ -6392,7 +6417,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
     if (!locationPromoAllowed({ coverage: railsCoverage })) return null; if (Hol.worldCupDaysToNext(new Date()) > 2) return null; if (!!topSlot !== Hol.worldCupMatchToday(new Date())) return null; const _wc = Hol.themeFor(_w.key); const _wct = Hol.contentFor(_w.key, _w.name); return (
                       <div style={{ borderRadius: 18, padding: "18px 16px 16px", marginBottom: 12, background: _wc.grad, border: `1px solid ${_wc.border}`, boxShadow: "0 10px 28px rgba(0,0,0,.42)", position: "relative", overflow: "hidden" }}>
                       <button type="button" className="wf-holiday-open" onClick={() => openHoliday(_w)} aria-label={_wct.headline(locName)} style={{ position: "absolute", inset: 0, zIndex: 1, opacity: 0, border: 0, padding: 0, cursor: "pointer", background: "transparent" }} />
-                      <style dangerouslySetInnerHTML={{ __html: "@keyframes wcJuggle{0%{transform:translateY(0) rotate(0deg);animation-timing-function:cubic-bezier(.17,.84,.44,1)}45%{transform:translateY(-26px) rotate(180deg);animation-timing-function:cubic-bezier(.55,0,.85,.36)}90%{transform:translateY(0) rotate(360deg)}100%{transform:translateY(0) rotate(360deg)}}@keyframes wcBob{0%,86%,100%{transform:translateY(0)}93%{transform:translateY(2px)}}@keyframes wcGlow{0%,100%{opacity:.5}50%{opacity:1}}" }} />
+                      <style dangerouslySetInnerHTML={styleHtml("@keyframes wcJuggle{0%{transform:translateY(0) rotate(0deg);animation-timing-function:cubic-bezier(.17,.84,.44,1)}45%{transform:translateY(-26px) rotate(180deg);animation-timing-function:cubic-bezier(.55,0,.85,.36)}90%{transform:translateY(0) rotate(360deg)}100%{transform:translateY(0) rotate(360deg)}}@keyframes wcBob{0%,86%,100%{transform:translateY(0)}93%{transform:translateY(2px)}}@keyframes wcGlow{0%,100%{opacity:.5}50%{opacity:1}}")} />
                       <span style={{ position: "absolute", inset: 0, background: "repeating-linear-gradient(90deg, rgba(255,255,255,.03) 0px, rgba(255,255,255,.03) 26px, transparent 26px, transparent 52px)", pointerEvents: "none" }} />
                       <span aria-hidden="true" style={{ position: "absolute", right: 12, bottom: 6, width: 64, height: 116, pointerEvents: "none", opacity: .97 }}><span style={{ position: "absolute", left: 35, bottom: 72, fontSize: 15, animation: "wcJuggle 1.5s infinite" }}>⚽</span><picture><source type="image/avif" srcSet="/opt/wf-player-142.avif" /><source type="image/webp" srcSet="/opt/wf-player-142.webp" /><img src="/wf-player.png" alt="" draggable={false} loading="lazy" decoding="async" style={{ position: "absolute", left: 32, bottom: 0, height: 74, width: "auto", animation: "wcBob 1.5s infinite", filter: "drop-shadow(0 3px 8px rgba(0,0,0,.5))" }} /></picture></span>
                       
@@ -7424,7 +7449,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
     // page — leaving action=like in the address bar re-opens the sheet as
     // the only UI on refresh. Never collapse /p/{id} to "/" here; Back does
     // that via placeRouteBackPlan when it should.
-    if (params.get("place") || backPlan.stripAction || placeAction) {
+    if (((params.get("place") && params.get("go") !== "map" && window.location.pathname !== "/map")) || backPlan.stripAction || placeAction) {
       try {
         const _sp = new URLSearchParams(window.location.search);
         _sp.delete("place");
@@ -7558,6 +7583,28 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
     try { setLocal("wayfind_trips", JSON.stringify(trips)); } catch {}
   }, [trips]);
   useEffect(() => {
+    const onPlannerCommit = (e) => {
+      const d = (e && e.detail) || {};
+      if (d.nextTrips && typeof d.nextTrips === "object") setTrips(d.nextTrips);
+      if (d.tripKey !== undefined) setActiveTrip(d.tripKey);
+      if (d.openItinerary) setScreen("itinerary");
+      if (d.toast) showToast(d.toast);
+    };
+    window.addEventListener("wf:planner-commit", onPlannerCommit);
+    return () => window.removeEventListener("wf:planner-commit", onPlannerCommit);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  useEffect(() => {
+    try {
+      window.__wfPlannerContext = {
+        screen,
+        activePlace: detail || null,
+        activeTrip: activeTrip && trips && trips[activeTrip] ? trips[activeTrip] : null,
+      };
+      window.dispatchEvent(new Event("wf:planner-context"));
+    } catch {}
+  }, [screen, detail, activeTrip, trips]);
+  useEffect(() => {
     let stop = false;
     const read = () => { if (!stop) { try { const next = readItineraryFlags(window.posthog); setItineraryFlags((prev) => nextItineraryFlags(prev, next)); } catch (e) {} } };
     read();
@@ -7634,8 +7681,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
         if (adopted) {
           if (adopted.device) setDeviceLoc((prev) => prev || adopted.center);
           setLocResolved(true);
-          setCenter(adopted.center);
-          if (adopted.name) setLocName(adopted.name);
+          setCenter((prev) => nextCenter(prev, adopted.center));
         }
       } catch (e) {}
     };
@@ -7681,7 +7727,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
               const dLng = (saved.lng - c.lng) * 69 * Math.cos((c.lat * Math.PI) / 180);
               const movedMi = Math.sqrt(dLat * dLat + dLng * dLng);
               if (movedMi <= 2) {
-                setCenter({ lat: saved.lat, lng: saved.lng });
+                setCenter((prev) => nextCenter(prev, { lat: saved.lat, lng: saved.lng }));
                 setLocResolved(true);
                 if (saved.loc) setLocName((prev) => prev || saved.loc);
                 return;
@@ -7695,7 +7741,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
           // BEFORE the await, so re-check it after (a late GPS answer used to
           // load Tampa's feed over a just-picked St. Petersburg).
           if (manualRef.current) return;
-          setCenter(c);
+          setCenter((prev) => nextCenter(prev, c));
           setLocResolved(true);
           setLocName(name);
         },
@@ -8249,12 +8295,19 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
   useEffect(() => {
     try {
       const sp = new URLSearchParams(window.location.search);
-      const go = sp.get("go");
+      const go = sp.get("go") || (window.location.pathname === "/map" ? "map" : null);
       if (!go) return;
       // Group Vote sign-in resume: /favorites?return=/group-plans/... (validated in lib/authReturn.js).
       if (go === "saved") rememberAuthReturn(window.sessionStorage, sp.get("return"));
       const valid = { events: "events", map: "map", saved: "saved", favorites: "saved", itinerary: "itinerary", coupons: "coupons" };
       if (go === "lunch") setMenuSheet("pick");
+      if (go === "map") {
+        const mcity = (sp.get("city") || "").trim().slice(0, 64);
+        const mq = (sp.get("q") || "").trim().slice(0, 120);
+        if ((mcity || mq) && typeof pendingColdMapUrlRef !== "undefined" && pendingColdMapUrlRef) {
+          pendingColdMapUrlRef.current = { city: mcity || "", q: mq || "" };
+        }
+      }
       if (valid[go]) setScreen(valid[go]);
       // Coupon strips clip the exact deal before navigating here. Open the
       // wallet immediately so the user lands on what they just saved instead
@@ -8278,6 +8331,62 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
         if (/^\d{4}-\d{2}-\d{2}$/.test(d)) keep.set("date", d);
         if (c) keep.set("cat", c);
         window.history.replaceState({ wf: "screen" }, "", "/events" + (keep.toString() ? "?" + keep.toString() : ""));
+        return;
+      }
+      if (go === "map") {
+        const mcity = (sp.get("city") || "").trim().slice(0, 64);
+        const mc = (sp.get("cat") || "").trim().slice(0, 24);
+        const ms = (sp.get("sub") || "").trim().slice(0, 32);
+        const ml = (sp.get("lens") || "").trim().slice(0, 24);
+        const mp = (sp.get("place") || "").trim().slice(0, 120);
+        const mq = (sp.get("q") || "").trim().slice(0, 120);
+        if (["food", "nightlife", "attractions", "beach", "hotels", "shopping"].includes(mc)) {
+          categoryChosenRef.current = true;
+          mapDefaultAppliedRef.current = true;
+          setCat(mc);
+        }
+        if (ms) setSub(ms);
+        if (ml) setMapUrlLens(ml);
+        if (mp) setMapUrlPlaceId(mp);
+        const keep = new URLSearchParams();
+        if (mcity) keep.set("city", mcity);
+        if (mc) keep.set("cat", mc);
+        if (ms) keep.set("sub", ms);
+        if (ml) keep.set("lens", ml);
+        if (mp) keep.set("place", mp);
+        if (mq) keep.set("q", mq);
+        window.history.replaceState({ wf: "screen" }, "", "/map" + (keep.toString() ? "?" + keep.toString() : ""));
+        if (mcity || mq) {
+          (async () => {
+            let g = null;
+            try {
+              if (mcity) {
+                g = await geocodeCity(mcity).catch(() => null);
+                if (!g) {
+                  const slug = mcity.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+                  const cov = COVERED_CITIES[slug] || COVERED_CITIES[mcity.toLowerCase().trim()];
+                  if (cov) {
+                    g = { name: `${cov.name}, ${cov.state}, USA`, lat: cov.lat, lng: cov.lng, isArea: true };
+                  }
+                }
+                if (g) {
+                  manualRef.current = true;
+                  setCenter(g);
+                  setLocResolved(true);
+                  setLocName(g.name.split(",").slice(0, 2).join(",").trim());
+                  setMapFocus({ lat: g.lat, lng: g.lng, ts: Date.now() });
+                }
+              }
+              if (mq) {
+                await submitSearch(mq, { keepMapScreen: true, mapSearchCenter: g });
+              }
+            } finally {
+              if (typeof pendingColdMapUrlRef !== "undefined" && pendingColdMapUrlRef) {
+                pendingColdMapUrlRef.current = null;
+              }
+            }
+          })();
+        }
         return;
       }
       // v5.78 (B1): the other standalone screens restore their OWN path (was:
@@ -8312,6 +8421,28 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
           if (eventDate !== "all") sp.set("date", eventDate);
           if (eventCat !== "auto") sp.set("cat", eventCat);
           if (sp.toString()) target += "?" + sp.toString();
+        } else if (screen === "map") {
+          const curSp = new URLSearchParams(window.location.search);
+          const safeSp = new URLSearchParams();
+          const coldCity = pendingColdMapUrlRef.current?.city;
+          const cleanCity = (coldCity && !/^this map area$/i.test(coldCity))
+            ? coldCity
+            : ((locName && !/^this map area$/i.test(locName)) ? locName.split(",")[0].trim() : (curSp.get("city") || ""));
+          if (cleanCity && /^[A-Za-z0-9 .,\x27-]{2,64}$/.test(cleanCity)) safeSp.set("city", cleanCity);
+          const c = cat && cat !== "all" && cat !== "attractions" ? cat : curSp.get("cat");
+          if (c && ["food", "nightlife", "attractions", "beach", "hotels", "shopping"].includes(c)) safeSp.set("cat", c);
+          const s = sub && sub !== "all" ? sub : curSp.get("sub");
+          if (s && /^[a-z0-9_-]{2,32}$/.test(s)) safeSp.set("sub", s);
+          const l = mapUrlLens || curSp.get("lens");
+          if (l) safeSp.set("lens", l);
+          const p = mapUrlPlaceId || curSp.get("place");
+          if (p && /^[A-Za-z0-9_:-]{6,180}$/.test(p)) safeSp.set("place", p);
+          if (mapSearch && mapSearch.query) {
+            safeSp.set("q", String(mapSearch.query).trim().slice(0, 120));
+          } else if (pendingColdMapUrlRef.current?.q) {
+            safeSp.set("q", String(pendingColdMapUrlRef.current.q).trim().slice(0, 120));
+          }
+          if (safeSp.toString()) target += "?" + safeSp.toString();
         }
         const cur = window.location.pathname + window.location.search;
         if (cur === target) return;
@@ -8333,7 +8464,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
       document.title = titles[screen] || "Wayfind | One place worth leaving home for";
     } catch (e) {}
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [screen, eventDate, eventCat]);
+  }, [screen, eventDate, eventCat, mapSearch, locName, cat, sub, mapUrlLens, mapUrlPlaceId]);
 
   // Back/Forward traverse the entries the effect above creates. The detail
   // sheet has its own popstate contract ({wf:"detail"} entries) — this
@@ -8945,6 +9076,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
     onQueryChange("");
     setSugIdx(-1);
     setScopeOpen(false);
+    setMapSearch(null);
     searchInputRef.current?.focus({ preventScroll: true });
   }
 
@@ -9080,6 +9212,8 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
     const name = g.name.split(",").slice(0, 2).join(",").trim();
     setLocName(name);
     setMapFocus({ lat: g.lat, lng: g.lng, ts: Date.now() });
+    setMapSearch(null);
+    setMapSearchOpen(false);
     setSearchMode(false);
     setSearchLabel("");
     setSearchFeed(null);
@@ -9098,13 +9232,20 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
 
   function openSearchPlace(place, attempt, context = "search", nearGeo = null) {
     if (!place || !place.id || !Number.isFinite(place.lat) || !Number.isFinite(place.lng)) throw new Error("invalid_search_place");
-    manualRef.current = true;
-    setCenter({ lat: place.lat, lng: place.lng });
-    setLocResolved(true);
-    const placeCity = localityFromFormattedAddress(place.address);
-    if (placeCity) setLocName(placeCity);
-    else if (nearGeo && centerAgreesWithLabel(place, nearGeo.name)) setLocName(nearGeo.name.split(",").slice(0, 2).join(",").trim());
-    else if (!centerAgreesWithLabel(place, locName)) setLocName("");
+    if (screen !== "map") {
+      manualRef.current = true;
+      setCenter({ lat: place.lat, lng: place.lng });
+      setLocResolved(true);
+      const placeCity = localityFromFormattedAddress(place.address);
+      if (placeCity) setLocName(placeCity);
+      else if (nearGeo && centerAgreesWithLabel(place, nearGeo.name)) setLocName(nearGeo.name.split(",").slice(0, 2).join(",").trim());
+      else if (!centerAgreesWithLabel(place, locName)) setLocName("");
+      setSearchMode(true);
+    } else {
+      setMapFocus({ lat: place.lat, lng: place.lng, ts: Date.now() });
+      setMapPreview(place);
+      setMapSearchOpen(false);
+    }
     setQuery("");
     setSuggestions([]);
     setSearchFeedback("");
@@ -9112,7 +9253,6 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
     setSearchMissing(false);
     setCityTransition(null);
     setHookDetail(null);
-    setSearchMode(true);
     openDetail({ ...place, _searchId: attempt.id, _ownedSearchOnly: true }, context);
     attempt.finish("place_opened", { status: "ok", count: 1, place_id: place.id, result_source: context === "theme_park_search" ? "owned-theme-parks" : "owned-inventory" });
   }
@@ -9154,10 +9294,11 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
   function searchMapArea(c) {
     if (!c || !isFinite(c.lat) || !isFinite(c.lng)) return;
     manualRef.current = true;
+    setMapSearch(null);
     setCenter({ lat: c.lat, lng: c.lng });
     setLocResolved(true);
     setLocName("this map area");
-    try { logEvent("map_search_area", null, { lat: +Number(c.lat).toFixed(3), lng: +Number(c.lng).toFixed(3) }); } catch (e) {}
+    try { logEvent("map_search_area", null, {}); } catch (e) {}
   }
 
   // Coupons screen manual area pick (a covered metro's own center). Same contract
@@ -9297,7 +9438,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
       // recenterToMe cleared manualRef on entry; set again means the reader
       // picked a city during the geocode, and that pick wins.
       if (manualRef.current) return;
-      setCenter({ lat: deviceLoc.lat, lng: deviceLoc.lng });
+      setCenter({ lat: +deviceLoc.lat.toFixed(3), lng: +deviceLoc.lng.toFixed(3) });
       setLocResolved(true);
       setMapFocus({ lat: deviceLoc.lat, lng: deviceLoc.lng, ts: Date.now() });
       // No name is honest (locationHonesty prints no city rather than "you");
@@ -9306,7 +9447,10 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
       try { logEvent("recenter_to_me", null, { hadFix: true }); } catch (e) {}
       return;
     }
-    if (typeof navigator === "undefined" || !navigator.geolocation) return;
+    if (typeof navigator === "undefined" || !navigator.geolocation) {
+      if (screen === "map") try { showToast("Location unavailable — exploring map area"); } catch (e) {}
+      return;
+    }
     navigator.geolocation.getCurrentPosition(
       async (pos) => {
         const c = { lat: pos.coords.latitude, lng: pos.coords.longitude };
@@ -9325,7 +9469,10 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
         setLocName(name || "");
         try { logEvent("recenter_to_me", null, { hadFix: false }); } catch (e) {}
       },
-      () => { try { logEvent("recenter_to_me_denied", null, {}); } catch (e) {} },
+      () => {
+        if (screen === "map") try { showToast("Location is off — exploring map area"); } catch (e) {}
+        try { logEvent("recenter_to_me_denied", null, {}); } catch (e) {}
+      },
       // v8.14 — map-grade precision (see the note above): a fresh
       // high-accuracy fix, never a cached coarse one.
       { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
@@ -9390,9 +9537,14 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
     setSugIdx(-1);
     setSearchBusy(true);
     const current = () => submittedRequest === suggestionRequestRef.current;
+    const onMapScreen = Boolean(options && (options.keepMapScreen === true || screen === "map"));
     const userPickedLocation = manualRef.current;
+    const mapCamCenter = onMapScreen && typeof mapCameraRef === "object" && mapCameraRef && mapCameraRef.current && mapCameraRef.current.center;
     const searchCenter = (userPickedLocation && center)
-      ? { lat: center.lat, lng: center.lng }
+      ? ((options && options.mapSearchCenter) || mapCamCenter || { lat: center.lat, lng: center.lng })
+      : (options && options.mapSearchCenter)
+      ? options.mapSearchCenter
+      : mapCamCenter ? { lat: mapCamCenter.lat, lng: mapCamCenter.lng }
       : deviceLoc ? { lat: deviceLoc.lat, lng: deviceLoc.lng }
       : center ? { lat: center.lat, lng: center.lng } : null;
     const collapse = (x) => [x, x.replace(/(.)\1{2,}/g, "$1$1"), x.replace(/(.)\1{1,}/g, "$1")];
@@ -9423,12 +9575,20 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
         if (category) {
           closeSearchLayers();
           setQuery("");
-          pickCat(category);
+          if (onMapScreen) {
+            setMapSearch(null);
+            setMapSearchOpen(false);
+            setCat(category);
+          } else {
+            pickCat(category);
+          }
           attempt.finish("category_opened", { status: "opened", category });
           return;
         }
         // A recognized search phrase ("date night", "brunch") renders cards.
         // The experience poster and the mood shortcut stay for everything else.
+        const { resolveSearchIntent } = await import("../lib/searchIntent.js");
+        if (!current()) return;
         const recognizedSearch = resolveSearchIntent(q, {}).recognized === true;
         const expHit = Object.keys(EXPERIENCES).find((k) => {
           const e = EXPERIENCES[k];
@@ -9508,19 +9668,47 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
         setSearchFeedback("");
         setSearchRecovery(false);
         setSearchMissing(false);
-        setScreen("suggested");
+        if (onMapScreen) {
+          setScreen("map");
+          setMapSearch({ query: q, center: nearGeo || searchCenter, cards: result.cards, constraints: result.constraints || null, ts: Date.now() });
+          setMapSearchOpen(false);
+        } else {
+          setScreen("suggested");
+        }
         attempt.finish("results_shown", { status: "ok", count: result.cards.length, result_source: "owned-library" });
         return;
       }
       // Exact identity, not merely one fuzzy result, grants automatic opening.
       const exact = result.matches.filter((item) => item.exactMatch);
       if (result.status === "ok" && result.matches.length === 1 && exact.length === 1) {
+        if (onMapScreen && exact[0].place && Number.isFinite(exact[0].place.lat) && Number.isFinite(exact[0].place.lng)) {
+          closeSearchLayers();
+          setScreen("map");
+          setMapSearch({
+            query: q,
+            center: nearGeo || searchCenter,
+            cards: result.cards && result.cards.length ? result.cards : [exact[0].place],
+            constraints: result.constraints || null,
+            ts: Date.now(),
+          });
+          setMapPreview(exact[0].place);
+          setMapSearchOpen(false);
+          attempt.finish("results_shown", { status: "ok", count: 1, result_source: "owned-library" });
+          return;
+        }
         openSearchPlace(exact[0].place, attempt, options.placeIntent ? "guide_place_search" : "search", nearGeo);
         if (options.placeIntent) logEvent("guide_place_open", exact[0].place, { q: attempt.meta.q, search_id: attempt.id });
         return;
       }
-      const choices = [...localCitySuggestions(q), ...result.matches.filter((item) => item.kind === "place")].slice(0, 8);
+      const choices = [...localCitySuggestions(q), ...result.matches.filter((item) => item.kind === "place" || (!options.placeIntent && isSafeSearchHref(item.href)))].slice(0, 8);
       if (choices.length) {
+        if (onMapScreen && !(typeof mapSearchOpen !== "undefined" && mapSearchOpen)) {
+          setScreen("map");
+          setMapSearch({ query: q, center: nearGeo || searchCenter, cards: [], constraints: result.constraints || null, ts: Date.now() });
+          setMapSearchOpen(false);
+          attempt.finish("empty", { status: "empty", count: 0, reason: result.reason || "not_in_library", result_source: "owned-inventory" });
+          return;
+        }
         setSuggestions(choices.map((item) => ({ ...item, _searchAttempt: attempt })));
         setSearchFeedback("Choose the place or city you meant below.");
         attempt.finish("choices_shown", { status: "ok", count: choices.length, result_source: "owned-library" });
@@ -9530,6 +9718,11 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
       setSearchMissing(outcome === "empty");
       setSearchFeedback(searchFailureMessage(outcome === "unavailable" ? { ...result, status: "unavailable" } : result));
       setSearchRecovery(true);
+      if (onMapScreen) {
+        setScreen("map");
+        setMapSearch({ query: q, center: nearGeo || searchCenter, cards: [], constraints: result.constraints || null, ts: Date.now() });
+        setMapSearchOpen(false);
+      }
       attempt.finish(outcome, { status: outcome, count: 0, reason: parkUnavailable ? "source_unavailable" : (result.reason || "not_in_library"), result_source: "owned-inventory" });
     } catch {
       if (!current()) return;
@@ -9574,10 +9767,10 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
     }
     return false;
   }
-  function addToItinerary(p) {
+  function addToItinerary(p, src = "card_itinerary") {
     if (!p || !p.id) return;
     if (isOnTrip(p)) { showToast("Already on your itinerary"); return; }
-    loadTrips().then((m) => m.filePlaceIntoTrips({ p, trips, setTrips, autoOrder: itineraryFlags.autoOrder, src: "card_itinerary", isCardItinerary: true, logEvent, showToast })).catch(() => {});
+    loadTrips().then((m) => m.filePlaceIntoTrips({ p, trips, setTrips, autoOrder: itineraryFlags.autoOrder, src, isCardItinerary: true, logEvent, showToast })).catch(() => {});
   }
 
   // One-tap save straight to Favorites from a card heart.
@@ -10167,7 +10360,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
       {renderUniqueFinds()}
       {homeRolling && (
         <>
-          <style dangerouslySetInnerHTML={{ __html: "@keyframes wfDiceSpin{0%{transform:rotate(0deg) scale(1)}50%{transform:rotate(180deg) scale(1.14)}100%{transform:rotate(360deg) scale(1)}}" }} />
+          <style dangerouslySetInnerHTML={styleHtml("@keyframes wfDiceSpin{0%{transform:rotate(0deg) scale(1)}50%{transform:rotate(180deg) scale(1.14)}100%{transform:rotate(360deg) scale(1)}}")} />
           <div style={{ position: "fixed", bottom: "calc(84px + env(safe-area-inset-bottom))", right: 16, zIndex: 60, pointerEvents: "none", width: 62, height: 62, borderRadius: 16, background: "linear-gradient(135deg, #7C3AED, #4C1D95)", boxShadow: "0 10px 30px rgba(124,58,237,.55)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 32, animation: "wfDiceSpin .7s linear infinite" }}>{homeDiceFace}</div>
         </>
       )}
@@ -10182,13 +10375,12 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
     </>
   );
 
-  // G1: fetch every extracted screen chunk at first idle, so the first tap on
-  // the dice, Saved, Itinerary, Coupons, or Events never waits on the network.
-  useEffect(() => {
-    const idle = window.requestIdleCallback || ((f) => setTimeout(f, 2500));
-    const h = idle(() => SCREEN_LOADERS.forEach((load) => { try { load().catch(() => {}); } catch (e) {} }));
-    return () => { try { (window.cancelIdleCallback || clearTimeout)(h); } catch (e) {} };
-  }, []);
+  // G1: warm every extracted screen chunk so the first tap on the dice, Saved,
+  // Itinerary, Coupons, or Events rarely waits on the network. 2026-11-13: one
+  // chunk at a time, after the first screen's data burst, never all 17 in the
+  // same idle slice as the feed's own fetches (lib/chunkWarmup.js has the
+  // measurement; scripts/test-chunk-warmup.mjs locks it).
+  useEffect(() => warmChunksInSequence(SCREEN_LOADERS), []);
 
   // G1: the one ctx bag handed to the extracted screens. Every hook stays in
   // PageInner — screens are render-only and read state/callbacks/module
@@ -10230,7 +10422,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
     // auth + password-recovery sheets
     authOpen, authMode, setAuthMode, isStandalone, signInWithProvider, authEmail, setAuthEmail, authPassword, setAuthPassword, passwordAuth, authSending, resetSending, sendPasswordReset, recoveryOpen, setRecoveryOpen, newPw, setNewPw, newPw2, setNewPw2, pwSaving, saveNewPassword, authReady,
     // detail sheet (G3)
-    detail, setDetail, detailExtra, setLightbox, reviewsOpen, setReviewsOpen, hoursOpen, setHoursOpen, venueEvents, venueEventsLoading, venueEventsOpen, setVenueEventsOpen, videos, videosLoading, beachCond, beachCondLoading, insight, insightLoading, insightFull, insightFullLoading, showMore, viaTours, debugOn, placeComments, setPlaceComments, commentType, setCommentType, placePosts, setPlacePosts, confirmDel, setConfirmDel, taInfo, insider, detailContext, myVotes, communityVotes, galleryRef, noteRef, scrollGallery, loadFullInsight, addReservation, handleVote, loadVenueEvents, placeShareUrl, FeaturedTag, curatedNote, curatedFor, wayfindNotes, betterAlternatives, similarPlaces, relatedPicks, detailGuides: railMenu && Array.isArray(railMenu.guides) ? railMenu.guides : null, placeKind, isBeach, beachSignals, weather, isSharedPlaceArrival: !!initialPlaceId,
+    detail, setDetail, detailExtra, setLightbox, reviewsOpen, setReviewsOpen, hoursOpen, setHoursOpen, venueEvents, venueEventsLoading, venueEventsOpen, setVenueEventsOpen, videos, videosLoading, beachCond, beachCondLoading, insight, insightLoading, insightFull, insightFullLoading, showMore, viaTours, debugOn, placeComments, setPlaceComments, commentType, setCommentType, placePosts, setPlacePosts, confirmDel, setConfirmDel, taInfo, insider, detailContext, myVotes, communityVotes, galleryRef, noteRef, scrollGallery, loadFullInsight, addReservation, handleVote, loadVenueEvents, placeShareUrl, FeaturedTag, curatedNote, curatedFor, wayfindNotes, betterAlternatives, similarPlaces, relatedPicks, detailGuides: railMenu && Array.isArray(railMenu.guides) ? railMenu.guides : null, placeKind, isBeach, beachSignals, isSharedPlaceArrival: !!initialPlaceId, isOnTrip, addToItinerary,
     // social find sheet (v6.93) — the "bookshelf" of curated creator-video
     // places: the place+video the user tapped in from, every other nearby
     // find (for the "more near you" strip), and the region-availability list
@@ -10242,7 +10434,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
     // places/locName/dedupePlaces, all already passed through ctx elsewhere.
     socialFind, setSocialFind, screen,
     // map screen (G4)
-    mapMode, setMapMode, mapBrowse, setMapBrowse, mapPool, mapListOverride, searchMode, map3D, setMap3D, mapRetryKey, setMapRetryKey, mapDefaultAppliedRef, categoryChosenRef, cat, setCat, setSub, setVibe, sortBy, deviceLoc, searchMapArea, mapFocus, setMapFocus, setMapSearchOpen, mapDate, setMapDate, mapPreview, setMapPreview, mapDrawer, setMapDrawer, eventPreview, setEventPreview, view, featuredBoost, MapView, Hol, recenterToMe,
+    mapMode, setMapMode, mapBrowse, setMapBrowse, mapPool, mapListOverride, searchMode, map3D, setMap3D, mapRetryKey, setMapRetryKey, mapDefaultAppliedRef, categoryChosenRef, cat, setCat, setSub, setVibe, sortBy, deviceLoc, locApprox, mapCameraRef, mapSearch, setMapSearch, mapUrlLens, setMapUrlLens, mapUrlPlaceId, setMapUrlPlaceId, searchMapArea, mapFocus, setMapFocus, setMapSearchOpen, mapDate, setMapDate, mapPreview, setMapPreview, mapDrawer, setMapDrawer, eventPreview, setEventPreview, view, featuredBoost, MapView, Hol,
     // experience badge screen (G4)
     activeBadge, setActiveBadge, EXPERIENCES, expPlaces, expMi, setExpMi, expSort, setExpSort, expTours, expLoading, momentPicks, setBrowseCat, ViatorRail, intentScopeLabel,
     // intro overlay (G4) — the 3.2s auto-show timer stays in PageInner, flips introOpen
@@ -10383,7 +10575,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
       />
     );
     if (["night-out", "date-night", "summer-sports", "today-entertainment", "trending"].includes(mode)) {
-      const rows = selectPosterEvents(fp.usable.filter((event) => eventSignals.disliked[event.id] !== true), { mode, center, bucketOf: eventBucket });
+      const rows = typeof selectPosterEvents === "function" ? selectPosterEvents(fp.usable.filter((event) => eventSignals.disliked[event.id] !== true), { mode, center, bucketOf: eventBucket }) : {};
       return {
         pending: false,
         failed: foryouEventsFailed,
@@ -10603,7 +10795,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
   return (
     <div style={shell}>
     <div className="wf-shell" style={{ ...wrap, maxWidth: undefined }}>
-      <style dangerouslySetInnerHTML={{ __html: `@keyframes wfpulse{0%,100%{transform:scale(.8);opacity:.45}50%{transform:scale(1.08);opacity:1}}@keyframes wfdot{0%,80%,100%{opacity:.25}40%{opacity:1}}@keyframes wfbob{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-3px) scale(1.06)}}${WF_LAYOUT_CSS}${WF_SEARCH_CSS}${WF_PLACE_CARD_CSS}${WF_TASTE_CSS}${WF_RAIL_SECTION_CSS}${WF_RAIL_COLLAPSED_CSS}${WF_ASIDE_CSS}${WF_RAIL_MENU_CSS}` }} />
+      <style dangerouslySetInnerHTML={styleHtml(`@keyframes wfpulse{0%,100%{transform:scale(.8);opacity:.45}50%{transform:scale(1.08);opacity:1}}@keyframes wfdot{0%,80%,100%{opacity:.25}40%{opacity:1}}@keyframes wfbob{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-3px) scale(1.06)}}${WF_LAYOUT_CSS}${WF_SEARCH_CSS}${WF_PLACE_CARD_CSS}${WF_TASTE_CSS}${WF_RAIL_SECTION_CSS}${WF_RAIL_COLLAPSED_CSS}${WF_ASIDE_CSS}${WF_RAIL_MENU_CSS}`)} />
       {/* Header */}
       <div className="wf-topbar" style={{ background: "#040810", borderBottom: `1px solid ${C.border}`, padding: screen === "map" ? "8px 12px" : "12px 14px", paddingTop: screen === "map" ? "max(8px, env(safe-area-inset-top))" : "max(12px, env(safe-area-inset-top))", flexShrink: 0, position: "relative", zIndex: 20 }}>
         {screen !== "map" && (
@@ -11433,11 +11625,13 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
                   dashboard flatlines at cutover. */}
                       {!browseCat && <HomeAffiliateActivityRail
                         items={homeAffiliateItems}
+                        stagedCards
                         contentId={cityNow}
                         onLog={(action, place, extra) => { try { logEvent(action, place, extra); } catch (e) {} }}
                       />}
                       {!browseCat && <ThemeParkRail
                         mode="flagship"
+                        stagedCards
                         onOpenPlace={(place) => openDetail(place, "theme_park_rail")}
                         isSaved={isSaved}
                         isOnTrip={isOnTrip}
@@ -11689,7 +11883,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
                         const _c = Hol.themeFor(_h.key); const _ct = Hol.contentFor(_h.key, _h.name); return (
                         <div style={{ borderRadius: 18, padding: "18px 16px 16px", marginBottom: 12, background: _c.grad, border: `1px solid ${_c.border}`, boxShadow: "0 10px 28px rgba(0,0,0,.42)", position: "relative", overflow: "hidden" }}>
                           <button type="button" className="wf-holiday-open" onClick={() => openHoliday(_h)} aria-label={_ct.headline(locName)} style={{ position: "absolute", inset: 0, zIndex: 1, opacity: 0, border: 0, padding: 0, cursor: "pointer", background: "transparent" }} />
-                          <style dangerouslySetInnerHTML={{ __html: "@keyframes wfBurst{0%{transform:scale(.15);opacity:.95}70%{opacity:.4}100%{transform:scale(1);opacity:0}}@keyframes wfGlow{0%,100%{opacity:.55}50%{opacity:1}}@keyframes wfTwinkle{0%,100%{opacity:.15;transform:scale(.7)}50%{opacity:1;transform:scale(1.2)}}@keyframes wfSweep{0%{transform:translateX(-140%) skewX(-18deg)}100%{transform:translateX(240%) skewX(-18deg)}}" }} />
+                          <style dangerouslySetInnerHTML={styleHtml("@keyframes wfBurst{0%{transform:scale(.15);opacity:.95}70%{opacity:.4}100%{transform:scale(1);opacity:0}}@keyframes wfGlow{0%,100%{opacity:.55}50%{opacity:1}}@keyframes wfTwinkle{0%,100%{opacity:.15;transform:scale(.7)}50%{opacity:1;transform:scale(1.2)}}@keyframes wfSweep{0%{transform:translateX(-140%) skewX(-18deg)}100%{transform:translateX(240%) skewX(-18deg)}}")} />
                           <span style={{ position: "absolute", top: -18, right: 26, width: 120, height: 120, borderRadius: "50%", border: "2px solid #FFD166", opacity: 0, animation: "wfBurst 2.4s ease-out infinite", pointerEvents: "none" }} />
                           <span style={{ position: "absolute", top: 14, right: 96, width: 76, height: 76, borderRadius: "50%", border: "2px solid #FF6B6B", opacity: 0, animation: "wfBurst 2.4s ease-out .8s infinite", pointerEvents: "none" }} />
                           <span style={{ position: "absolute", top: -6, right: 150, width: 54, height: 54, borderRadius: "50%", border: "1.5px solid #7EA6FF", opacity: 0, animation: "wfBurst 2.4s ease-out 1.5s infinite", pointerEvents: "none" }} />
@@ -11755,7 +11949,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
             It stays usable before sign-in; the screen offers sign-in only as
             optional cloud sync. Itinerary remains account-backed. */}
         {screen === "saved" && <SavedScreen ctx={ctx} />}
-        {screen === "itinerary" && (authReady && !user && !hasLocalGuestTrip ? <AuthWall label="your Itinerary" onSignIn={() => setAuthOpen(true, "auth_wall")} detail={itineraryFlags.sync ? "Sign in to plan trips. Your trips sync across your devices." : "Sign in to plan trips and build itineraries."} /> : <ItineraryScreen ctx={ctx} />)}
+        {screen === "itinerary" && (authReady && !user && !hasLocalGuestTrip ? <AuthWall label="your Itinerary" onSignIn={() => setAuthOpen(true, "auth_wall")} onBuildTrip={() => { setAuthOpen(false); try { const detail = { surface: "itinerary_auth_wall" }; window.__wfPendingPlannerOpen = detail; window.dispatchEvent(new CustomEvent("wf:planner-open", { detail })); } catch {} }} detail={itineraryFlags.sync ? "Sign in to plan trips. Your trips sync across your devices." : "Sign in to plan trips and build itineraries."} /> : <ItineraryScreen ctx={ctx} />)}
 
         {screen === "shared" && sharedList && <SharedScreen ctx={ctx} />}
         {screen === "shared" && sharedItinerary && !sharedList && <SharedItineraryScreen ctx={ctx} />}
@@ -11763,7 +11957,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
       </div>
 
       {/* Roll the dice */}
-      <style dangerouslySetInnerHTML={{ __html: "@keyframes wfroll{0%{transform:rotate(0deg) scale(1)}50%{transform:rotate(180deg) scale(1.25)}100%{transform:rotate(360deg) scale(1)}}" }} />
+      <style dangerouslySetInnerHTML={styleHtml("@keyframes wfroll{0%{transform:rotate(0deg) scale(1)}50%{transform:rotate(180deg) scale(1.25)}100%{transform:rotate(360deg) scale(1)}}")} />
       {rolling && (
         <div style={{ position: "fixed", inset: 0, zIndex: 1100, background: "rgba(13,17,23,.88)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 18 }}>
           <div style={{ fontSize: 92, lineHeight: 1, animation: "wfroll 0.5s linear infinite" }}>{diceFace}</div>
@@ -12461,6 +12655,9 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [p && p.id, p && p.lat, p && p.lng]);
   const cardProduct = usePlaceProduct(p && p.id);
+  // Reservation entry (lib/reserveCapability.js): restaurants and bars only; a verified Viator product keeps the card's one money action.
+  const reserveEntry = useReserveEntry(p);
+  const ReserveSlot = reserveEntry && !(cardProduct && cardProduct.url) ? reserveEntry.Slot : null;
   const tapIntent = useCardTapIntent();
   // THE GATE COMES LAST. Every hook above runs on every render; `cardComplete`
   // reads p.photo, which the heal effect above writes, so this gate genuinely
@@ -12734,6 +12931,7 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
               why the credit's own margin-top:auto is what bottom-anchors the
               pair. */}
           <CreatorCardMark videos={cardCreatorVideos} />
+          {ReserveSlot ? <ReserveSlot place={p} surface="browse_card" lane={reserveEntry.lane} /> : null}
           <div className="wf-place-card-actions wf-sheet-card-actions" style={{ marginTop: 9, pointerEvents: "auto" }}>
             {cardProduct && cardProduct.url && (
               <ViatorCommerceLink

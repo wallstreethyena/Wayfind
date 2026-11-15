@@ -8,8 +8,9 @@
  *     provider_redirect_refused (refusal_class suspect), never a started event;
  *     one tap (wf_confirm=1) proceeds as human.
  *   - OWNER RULE (2026-10-29): missing Fetch Metadata ALONE never makes a
- *     visitor suspect. A same-site Referer (gowayfind.com / www) or any
- *     first-party cookie (ph_<key>_posthog, wf_*) keeps the real redirect.
+ *     visitor suspect. A first-party cookie (ph_<key>_posthog, wf_*) keeps
+ *     the real redirect. Since 2026-11-11 a same-site Referer ALONE does not
+ *     (forgeable; the Nov 4-11 Viator sweep forged it); it gets Continue.
  *   - Every /go response is private, no-store with CDN-Cache-Control /
  *     Vercel-CDN-Cache-Control: no-store (a CDN-cached partner 302 is replayed
  *     without running the classifier), and /api/viator/go's ?q= Book keeps its
@@ -35,6 +36,12 @@
  *     identities match in a version sweep (a phone on the same Chrome never
  *     does), lib/browserAnalytics.js's inlined mirror agrees on every one, and
  *     every discovered go route is disallowed in app/robots.js.
+ *   - DESKTOP ZERO PROOF (2026-11-11 owner rule): a computer browser that opens
+ *     a go URL with none of the four click proofs (click_id, a cookie this site
+ *     sets, a same-site Referer, an off-site direct-link surface) gets the same
+ *     Continue page. Any ONE proof is a person and goes straight through, as do
+ *     phones, tablets, in-app browsers, the synthetic monitor, and anyone who
+ *     taps Continue. REDIRECT_ZERO_PROOF_GATE=off turns the rule off.
  * Everything is CALLED. Each negative has a positive control in the same harness.
  */
 import { readdirSync, readFileSync } from "node:fs";
@@ -57,6 +64,12 @@ delete process.env.NEXT_PUBLIC_TM_IMPACT_AD;
 delete process.env.NEXT_PUBLIC_TM_IMPACT_DESTPARAM;
 delete process.env.WAYFIND_PREVIEW_PUBLIC_EVENTS;
 delete process.env.REDIRECT_BURST_GATE;
+// The zero-proof desktop rule has an operator off switch read from the live
+// environment (REDIRECT_ZERO_PROOF_GATE=off). This test asserts the rule's default
+// behaviour, so it must not inherit the switch: 2026-11-13 the switch was set in
+// Vercel production and every production build failed here. The switch itself is
+// asserted below through explicit env arguments (classifyRedirectRequest ctx.env).
+delete process.env.REDIRECT_ZERO_PROOF_GATE;
 
 const captured = [];
 const realFetch = globalThis.fetch;
@@ -118,7 +131,25 @@ const req = (url, { ua, meta = false, method = "GET", extra = {} } = {}) => {
 const U = "https://www.gowayfind.com/api/viator/go?product=x";
 const cls = async (o, url = U) => (await classifyRedirectRequest(req(url, o), { env: {} })).klass;
 const A = [
-  ["desktop Chrome + Fetch Metadata", { ua: UA.desktopChrome, meta: true }, "human"],
+  // 2026-11-11 owner rule: desktop + ZERO click proof = the Continue page. One proof = a person.
+  ["desktop Chrome + Fetch Metadata, ZERO click proof (2026-11-11 owner rule)", { ua: UA.desktopChrome, meta: true }, "suspect"],
+  ["desktop Chrome + same-site Referer (a tap on a Wayfind page)", { ua: UA.desktopChrome, meta: true, extra: { referer: "https://www.gowayfind.com/guides/things-to-do-sarasota" } }, "human"],
+  ["desktop Chrome + wf_device cookie, no Referer", { ua: UA.desktopChrome, meta: true, extra: { cookie: "wf_device=d_abc123" } }, "human"],
+  ["desktop Chrome + PostHog cookie, no Referer", { ua: UA.desktopChrome, meta: true, extra: { cookie: GUARD_PH_COOKIE } }, "human"],
+  ["desktop Chrome + third-party cookie only (not a proof)", { ua: UA.desktopChrome, meta: true, extra: { cookie: "_ga=GA1.2.3; session=abc" } }, "suspect"],
+  ["desktop Chrome + another site's Referer (not a proof)", { ua: UA.desktopChrome, meta: true, extra: { referer: "https://example.com/list" } }, "suspect"],
+  ["desktop Firefox on Linux, zero click proof", { ua: "Mozilla/5.0 (X11; Linux x86_64; rv:140.0) Gecko/20100101 Firefox/140.0", meta: true }, "suspect"],
+  ["desktop Chrome on Windows 149, zero click proof", { ua: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36", meta: true }, "suspect"],
+  // Phones, tablets and in-app browsers keep the 10-31 rule: labelled, never stopped.
+  ["Android Chrome, zero click proof (phones are never touched)", { ua: "Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Mobile Safari/537.36", meta: true }, "human"],
+  ["Android tablet Chrome, zero click proof", { ua: "Mozilla/5.0 (Linux; Android 14; SM-X710) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36", meta: true }, "human"],
+  ["iPad Safari (Mobile token), zero click proof", { ua: "Mozilla/5.0 (iPad; CPU OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.7 Mobile/15E148 Safari/604.1", meta: true }, "human"],
+  ["Facebook in-app on Android, zero click proof", { ua: "Mozilla/5.0 (Linux; Android 14; Pixel 8 Build/UQ1A; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/149.0.0.0 Mobile Safari/537.36 [FB_IAB/FB4A;FBAV/480.0.0.0;]", meta: true }, "human"],
+  // An in-app browser can send a desktop-class OS string (iPad apps do). Still in-app: never touched.
+  ["Facebook in-app with a Mac-class UA, zero click proof", { ua: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) [FBAN/FBIOS;FBAV/480.0.0.0;FBSV/18.7]", meta: true }, "human"],
+  ["Instagram in-app with a Mac-class UA, zero click proof", { ua: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Instagram 350.0.0.0", meta: true }, "human"],
+  ["TikTok in-app with a Mac-class UA, zero click proof", { ua: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) musical_ly_40.0.0 BytedanceWebview/d8a21c6", meta: true }, "human"],
+  ["TikTok in-app on iPhone, zero click proof", { ua: "Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 musical_ly_40.0.0 JsSdk/2.0 BytedanceWebview/d8a21c6", meta: true }, "human"],
   ["mobile Safari, no Fetch Metadata", { ua: UA.mobileSafari }, "human"],
   ["Instagram iOS in-app, no Fetch Metadata", { ua: UA.instagramIos }, "human"],
   ["Instagram Android WebView, no Fetch Metadata", { ua: UA.instagramAndroid }, "human"],
@@ -138,9 +169,13 @@ const A = [
   ["x-middleware-prefetch", { ua: UA.desktopChrome, meta: true, extra: { "x-middleware-prefetch": "1" } }, "prefetch"],
   ["2026-10-21 incident UA, no Fetch Metadata", { ua: UA.incident }, "suspect"],
   ["10-21 Windows Chrome/129.0, no Fetch Metadata, no cookie, no Referer", { ua: UA.incidentWin }, "suspect"],
-  // OWNER RULE: missing Fetch Metadata alone is never enough.
-  ["10-21 UA, no Fetch Metadata + Referer www.gowayfind.com", { ua: UA.incidentWin, extra: { referer: "https://www.gowayfind.com/guides/halloween" } }, "human"],
-  ["10-21 UA, no Fetch Metadata + Referer gowayfind.com (apex)", { ua: UA.incidentWin, extra: { referer: "https://gowayfind.com/" } }, "human"],
+  // OWNER RULE: missing Fetch Metadata alone is never enough; a cookie we set vouches.
+  // OWNER RULE UPDATE 2026-11-11: a same-site Referer alone no longer vouches
+  // (forged by the Nov 4-11 one-click-per-IP Viator sweep); it gets Continue.
+  ["10-21 UA, no Fetch Metadata + Referer www.gowayfind.com (forgeable)", { ua: UA.incidentWin, extra: { referer: "https://www.gowayfind.com/guides/halloween" } }, "suspect"],
+  ["10-21 UA, no Fetch Metadata + Referer gowayfind.com apex (forgeable)", { ua: UA.incidentWin, extra: { referer: "https://gowayfind.com/" } }, "suspect"],
+  ["10-21 UA, no Fetch Metadata + Referer + wf_device cookie", { ua: UA.incidentWin, extra: { referer: "https://www.gowayfind.com/", cookie: "wf_device=d_abc123" } }, "human"],
+  ["desktop Chrome WITH Fetch Metadata + Referer, no cookie (a real tap)", { ua: UA.desktopChrome, meta: true, extra: { referer: "https://www.gowayfind.com/guides/x" } }, "human"],
   ["10-21 UA, no Fetch Metadata + PostHog ph_<key>_posthog cookie", { ua: UA.incidentWin, extra: { cookie: "ph_phc_abc123_posthog=%7B%22distinct_id%22%3A%22x%22%7D" } }, "human"],
   ["10-21 UA, no Fetch Metadata + wf_device cookie", { ua: UA.incidentWin, extra: { cookie: "foo=1; wf_device=d_abc123" } }, "human"],
   ["10-21 UA, no Fetch Metadata + wf_rails_collapsed cookie", { ua: UA.incidentWin, extra: { cookie: "wf_rails_collapsed=x" } }, "human"],
@@ -149,7 +184,9 @@ const A = [
   ["10-21 UA, no Fetch Metadata + Referer google.com", { ua: UA.incidentWin, extra: { referer: "https://www.google.com/" } }, "suspect"],
   ["10-21 UA, no Fetch Metadata + third-party cookie only", { ua: UA.incidentWin, extra: { cookie: "_ga=GA1.2.3; session=abc" } }, "suspect"],
   ["10-21 UA, no Fetch Metadata + empty wf_ cookie", { ua: UA.incidentWin, extra: { cookie: "wf_device=" } }, "suspect"],
-  ["2026-10-21 incident UA WITH Fetch Metadata (a real headful browser)", { ua: UA.incident, meta: true }, "human"],
+  // Until 2026-11-11 Fetch Metadata alone made this human. It is a desktop claim, so it now also needs one click proof.
+  ["2026-10-21 incident UA WITH Fetch Metadata and a same-site Referer (a real headful browser on a Wayfind page)", { ua: UA.incident, meta: true, extra: { referer: "https://www.gowayfind.com/guides/things-to-do-sarasota" } }, "human"],
+  ["2026-10-21 incident UA WITH Fetch Metadata but zero click proof (2026-11-11 owner rule)", { ua: UA.incident, meta: true }, "suspect"],
   ["our synthetic monitor / watchdog (exempt: real redirect; captureServer drops it)", { ua: UA.synthetic }, "human"],
   // 2026-11-10: the 2023-rotation scraper drives a real browser, so it HAS Fetch Metadata.
   ["2023 rotation: Windows Chrome/120 WITH Fetch Metadata, no cookie", { ua: UA.staleWinChrome, meta: true }, "suspect"],
@@ -166,9 +203,10 @@ const A = [
   ["2023 rotation UA + wf_device cookie AND same-site Referer", { ua: UA.staleWinEdge, meta: true, extra: { cookie: "wf_device=d_abc123", referer: "https://www.gowayfind.com/" } }, "human"],
   // Controls: the same Chrome on a phone, and the nearest desktop builds the scraper never used.
   ["Android 7 Chrome/119 Mobile (stuck there for good), no cookie", { ua: UA.androidChrome119, meta: true }, "human"],
-  ["Windows Chrome/117 (one below the range) WITH Fetch Metadata", { ua: UA.winChrome117, meta: true }, "human"],
-  ["Windows Chrome/121 (one above the range) WITH Fetch Metadata", { ua: UA.winChrome121, meta: true }, "human"],
-  ["Mac Chrome/118 (a Windows-only identity) WITH Fetch Metadata", { ua: UA.macChrome118, meta: true }, "human"],
+  // A same-site Referer with no cookie is a pass for every other desktop build; only the ten identities need the cookie.
+  ["Windows Chrome/117 (one below the range) + same-site Referer, no cookie", { ua: UA.winChrome117, meta: true, extra: { referer: "https://www.gowayfind.com/guides/things-to-do-sarasota" } }, "human"],
+  ["Windows Chrome/121 (one above the range) + same-site Referer, no cookie", { ua: UA.winChrome121, meta: true, extra: { referer: "https://www.gowayfind.com/guides/things-to-do-sarasota" } }, "human"],
+  ["Mac Chrome/118 (a Windows-only identity) + same-site Referer, no cookie", { ua: UA.macChrome118, meta: true, extra: { referer: "https://www.gowayfind.com/guides/things-to-do-sarasota" } }, "human"],
 ];
 for (const [label, o, want] of A) {
   const got = await cls(o);
@@ -179,6 +217,53 @@ ok((await cls({ ua: UA.staleWinChrome, meta: true }, U + "&wf_confirm=1")) === "
 {
   const r = await classifyRedirectRequest(req(U, { ua: UA.staleWinChrome, meta: true }), { env: {} });
   ok(r.reason === "stale-rotation-ua", `classifier: the 2023-rotation suspect carries its own reason (got ${r.reason})`);
+}
+
+// 2026-11-11 desktop zero proof: the proofs that ride in the URL, the reason, and the off switch.
+{
+  const zero = { ua: UA.desktopChrome, meta: true };
+  const r = await classifyRedirectRequest(req(U, zero), { env: {} });
+  ok(r.klass === "suspect" && r.reason === "desktop-zero-proof:same-origin", `classifier: desktop zero proof carries its own reason plus what the browser said about the navigation (got ${r.klass}/${r.reason})`);
+  // The reason suffix is the measurement: where did the browser say this navigation came from?
+  const SAFARI_MAC = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.3.1 Safari/605.1.15";
+  for (const [site, want] of [["none", "none"], ["cross-site", "cross-site"], ["same-site", "same-site"], ["SAME-ORIGIN", "same-origin"], ["weird value", "absent"]]) {
+    const k = await classifyRedirectRequest(req(U, { ua: SAFARI_MAC, extra: { "sec-fetch-mode": "navigate", "sec-fetch-dest": "document", "sec-fetch-site": site } }), { env: {} });
+    ok(k.klass === "suspect" && k.reason === "desktop-zero-proof:" + want, `classifier: Sec-Fetch-Site ${JSON.stringify(site)} is recorded as desktop-zero-proof:${want} (got ${k.klass}/${k.reason})`);
+  }
+  {
+    const k = await classifyRedirectRequest(req(U, { ua: SAFARI_MAC }), { env: {} });
+    ok(k.klass === "suspect" && k.reason === "desktop-zero-proof:absent", `classifier: a desktop Safari that sends no Fetch Metadata at all is desktop-zero-proof:absent (got ${k.klass}/${k.reason})`);
+  }
+  // Our own off-site shortlink is a direct link; the on-site social_* surfaces are not.
+  ok((await cls(zero, U + "&surface=social_shortlink")) === "human", "classifier: desktop + our own /go shortlink surface (social_shortlink) is human");
+  ok((await cls(zero, U + "&surface=social_find_browse")) === "suspect", "classifier: an ON-site social_* surface is not a direct link");
+  ok((await cls({ ua: UA.desktopChrome, meta: true, extra: { referer: "https://blog.gowayfind.com/sarasota-weekend" } }, U)) === "human", "classifier: desktop + a Referer from our own blog host is human");
+  ok((await cls({ ua: UA.desktopChrome, meta: true, extra: { referer: "https://blog.gowayfind.com.evil.example/" } }, U)) === "suspect", "classifier: a look-alike blog host is not first-party");
+  // KNOWN LIMIT, pinned on purpose: a tablet or phone that asks for the desktop site is
+  // identical to a computer on the wire. It gets one Continue tap with zero proof, and
+  // goes straight through with any proof.
+  const IPAD_AS_MAC = SAFARI_MAC;
+  ok((await cls({ ua: IPAD_AS_MAC, meta: true }, U)) === "suspect", "known limit: iPadOS Safari (it sends a Mac UA) with zero proof gets the Continue page, like a Mac");
+  ok((await cls({ ua: IPAD_AS_MAC, meta: true, extra: { cookie: "wf_device=d_abc123" } }, U)) === "human", "known limit control: the same iPad with a cookie of ours is human");
+  ok((await cls({ ua: IPAD_AS_MAC, meta: true }, U + "&click_id=clk_guard12345678")) === "human", "known limit control: the same iPad with a page-minted click_id is human");
+  ok((await cls({ ua: "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Silk/120.4.1 like Chrome/120.0.0.0 Safari/537.36", meta: true }, U)) === "human", "an Amazon Silk tablet in desktop mode is still a tablet (never touched)");
+  ok((await cls(zero, U + "&click_id=clk_guard12345678")) === "human", "classifier: desktop + a click_id the page minted is a tap (human)");
+  ok((await cls(zero, U + "&click_id=x")) === "suspect", "classifier: desktop + a malformed click_id is not a proof");
+  ok((await cls(zero, U + "&surface=instagram_bio")) === "human", "classifier: desktop + an off-site direct-link surface (bio link) is human");
+  ok((await cls(zero, U + "&surface=email_weekly")) === "human", "classifier: desktop + an email surface is human");
+  ok((await cls(zero, U + "&surface=guide_pick")) === "suspect", "classifier: desktop + an ON-site surface with no other proof is not a direct link");
+  ok((await cls(zero, U + "&wf_confirm=1")) === "human", "classifier: desktop zero proof that tapped Continue (wf_confirm=1) is human");
+  for (const off of ["off", "0", "false", "OFF"]) {
+    const k = await classifyRedirectRequest(req(U, zero), { env: { REDIRECT_ZERO_PROOF_GATE: off } });
+    ok(k.klass === "human", `classifier: REDIRECT_ZERO_PROOF_GATE=${off} turns the desktop zero-proof rule off (got ${k.klass}/${k.reason})`);
+  }
+  for (const on of ["", "1", "on", "anything-else"]) {
+    const k = await classifyRedirectRequest(req(U, zero), { env: { REDIRECT_ZERO_PROOF_GATE: on } });
+    ok(k.klass === "suspect", `classifier: REDIRECT_ZERO_PROOF_GATE=${JSON.stringify(on)} leaves the rule ON (only an explicit off value disables it; got ${k.klass})`);
+  }
+  // The off switch does not reach the older gates.
+  const stale = await classifyRedirectRequest(req(U, { ua: UA.staleWinChrome, meta: true, extra: { referer: "https://www.gowayfind.com/" } }), { env: { REDIRECT_ZERO_PROOF_GATE: "off" } });
+  ok(stale.klass === "suspect" && stale.reason === "stale-rotation-ua", `classifier: the off switch leaves the 2023-rotation gate in place (got ${stale.klass}/${stale.reason})`);
 }
 
 /* ── A2. the ten identities, SWEPT, and the browser-side mirror ───────────── */
@@ -214,6 +299,12 @@ ok((await cls({ ua: UA.staleWinChrome, meta: true }, U + "&wf_confirm=1")) === "
   }
   ok(swept === Object.keys(SHAPES).length * 61, `PROBE BROKEN: the sweep must cover every shape x 61 majors (covered ${swept})`);
   ok(JSON.stringify(hit.sort()) === JSON.stringify(WANT), `isStaleRotationUa() matches EXACTLY the ten measured identities in a ${swept}-UA sweep, nothing wider (matched: ${hit.join(", ") || "none"})`);
+  {
+    const decl = (file) => { const src = readFileSync(REPO + file, "utf8"); const a = src.match(/const STALE_ROTATION_OS = \[[\s\S]*?\n\];/); const b = src.match(/const NOT_PLAIN_DESKTOP_UA = .*;/); return a && b ? a[0] + "\n" + b[0] : null; };
+    const server = decl("lib/crawler.js"), browser = decl("lib/browserAnalytics.js");
+    ok(!!server && !!browser, "PROBE BROKEN: both files must declare STALE_ROTATION_OS and NOT_PLAIN_DESKTOP_UA");
+    ok(server === browser, "the identity table and the exclusion pattern are character-for-character identical in lib/crawler.js and lib/browserAnalytics.js");
+  }
   ok(drift.length === 0, `lib/browserAnalytics.js isStaleRotationUa() (the inlined mirror) agrees with lib/crawler.js on every swept UA (drift: ${drift.slice(0, 6).join(", ") || "none"})`);
   for (const [label, ua] of [["empty", ""], ["null", null], ["Safari 18", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.3.1 Safari/605.1.15"], ["iPhone Safari", UA.mobileSafari], ["Instagram in-app", UA.instagramAndroid], ["Pinterest in-app", UA.pinterestIos], ["Googlebot", UA.googlebot]]) {
     ok(isStaleRotationUa(ua) === false && browserAnalytics.isStaleRotationUa(ua) === false, `isStaleRotationUa(): ${label} is never the scraper, in either copy`);
@@ -248,6 +339,7 @@ const FIX = {
   },
   "app/api/ticketmaster/go/route.js": { q: "url=" + encodeURIComponent("https://www.ticketmaster.com/event/123"), partner: "ticketmaster" },
   "app/api/stubhub/go/route.js": { q: "url=" + encodeURIComponent("https://www.stubhub.com/event/123"), partner: "stubhub.prf.hn" },
+  "app/api/reserve/go/route.js": { q: "placeId=ChIJ3Vyq7WTEwogRA-WDC7Mze2E&date=2026-11-14&time=19:15&party=4", partner: null },
   "app/api/viator/go/route.js": { q: "product=" + encodeURIComponent("https://www.viator.com/tours/Orlando/Airboat/d827-1234P5"), partner: "viator.com" },
 };
 const missing = ROUTES.filter((r) => !(r in FIX));
@@ -270,7 +362,7 @@ for (const rel of ROUTES.filter((r) => r in FIX)) {
   const reachesPartner = (r) => !!fx.partner && r.loc.includes(fx.partner);
 
   // Humans: the real redirect, one human event.
-  for (const [label, o] of [["desktop Chrome", { ua: UA.desktopChrome, meta: true }], ["mobile Safari", { ua: UA.mobileSafari }], ["Instagram in-app", { ua: UA.instagramIos }], ["Pinterest in-app", { ua: UA.pinterestIos }]]) {
+  for (const [label, o] of [["desktop Chrome", { ua: UA.desktopChrome, meta: true, extra: { referer: "https://www.gowayfind.com/guides/things-to-do-sarasota" } }], ["mobile Safari", { ua: UA.mobileSafari }], ["Instagram in-app", { ua: UA.instagramIos }], ["Pinterest in-app", { ua: UA.pinterestIos }]]) {
     const r = await run(o);
     if (fx.partner) {
       ok(r.res.status === 302 && reachesPartner(r), `${rel} (${label}) gets the real partner redirect to ${fx.partner} (status ${r.res.status}, Location ${r.loc.slice(0, 80)})`);
@@ -324,10 +416,10 @@ for (const rel of ROUTES.filter((r) => r in FIX)) {
     }
   }
 
-  // OWNER RULE, through the real handler: the 10-21 UA with a first-party
-  // signal is a human (real redirect, one human started event, no refusal).
+  // OWNER RULE, through the real handler: the 10-21 UA with a cookie this
+  // site set is a human (real redirect, one human started event, no refusal).
+  // A same-site Referer alone is not enough since 2026-11-11 (asserted below).
   for (const [label, extra] of [
-    ["same-site Referer", { referer: "https://www.gowayfind.com/guides/halloween" }],
     ["PostHog cookie", { cookie: "ph_phc_guardtest_not_a_real_key_posthog=" + encodeURIComponent(JSON.stringify({ distinct_id: "guard-person" })) }],
     ["wf_device cookie", { cookie: "wf_device=d_guard123" }],
   ]) {
@@ -338,6 +430,20 @@ for (const rel of ROUTES.filter((r) => r in FIX)) {
   {
     const r = await run({ ua: UA.incidentWin });
     ok(r.res.status === 200 && !r.loc && r.refused.length === 1 && r.refused[0].properties.refusal_class === "suspect", `${rel} (10-21 Windows UA, no cookie, no Referer) gets the Continue page (status ${r.res.status})`);
+  }
+  {
+    // 2026-11-11: a forged same-site Referer with no Fetch Metadata and no cookie
+    // never reaches the partner and never counts as a human started event...
+    const r = await run({ ua: UA.incidentWin, extra: { referer: "https://www.gowayfind.com/guides/halloween" } });
+    ok(r.res.status === 200 && !r.loc && r.started.length === 0 && r.refused.length === 1 && r.refused[0].properties.refusal_reason === "referer-only-no-fetch-metadata", `${rel} (forged Referer, no Fetch Metadata, no cookie) gets the Continue page, refusal_reason referer-only-no-fetch-metadata (status ${r.res.status}, started ${r.started.length})`);
+    // ...and the same request after one Continue tap goes through as a human.
+    const c = await run({ ua: UA.incidentWin, extra: { referer: "https://www.gowayfind.com/guides/halloween" } }, "&wf_confirm=1");
+    ok(c.res.status === 302 && c.refused.length === 0 && (!fx.partner || reachesPartner(c)), `${rel} (forged-Referer shape after tapping Continue) gets the real redirect (status ${c.res.status})`);
+  }
+  {
+    // A real modern browser tap: Fetch Metadata + same-site Referer, no cookie yet.
+    const r = await run({ ua: UA.desktopChrome, meta: true, extra: { referer: "https://www.gowayfind.com/guides/x" } });
+    ok(r.res.status === 302 && r.refused.length === 0, `${rel} (real Chrome tap: Fetch Metadata + Referer, no cookie) is redirected with no friction (status ${r.res.status})`);
   }
 
   // THE 2023-ROTATION SCRAPER, through the real handler: full Fetch Metadata
@@ -360,16 +466,47 @@ for (const rel of ROUTES.filter((r) => r in FIX)) {
     ["wf_device cookie", { ua: UA.staleWinChrome, meta: true, extra: { cookie: "wf_device=d_guard123" } }, ""],
     ["PostHog cookie", { ua: UA.staleMacFirefox, meta: true, extra: { cookie: GUARD_PH_COOKIE } }, ""],
     ["Android 7 Chrome/119 Mobile, no cookie", { ua: UA.androidChrome119, meta: true }, ""],
-    ["Windows Chrome/121, no cookie", { ua: UA.winChrome121, meta: true }, ""],
+    ["Windows Chrome/121 + same-site Referer, no cookie", { ua: UA.winChrome121, meta: true, extra: { referer: "https://www.gowayfind.com/guides/things-to-do-sarasota" } }, ""],
   ]) {
     const r = await run(o, extra);
     ok(r.refused.length === 0 && r.res.status === 302, `${rel} (2023 rotation control: ${label}) is NOT held at the Continue page (status ${r.res.status}, refused ${r.refused.length})`);
     if (fx.partner) ok(reachesPartner(r) && r.started.length === 1 && r.started[0].properties.traffic_class === "human", `${rel} (2023 rotation control: ${label}) gets the real partner redirect + one human started event (Location ${r.loc.slice(0, 60)}, started ${r.started.length})`);
   }
 
+  // DESKTOP ZERO PROOF (2026-11-11), through the real handler.
+  for (const [label, o] of [
+    ["Mac Chrome 129", { ua: UA.desktopChrome, meta: true }],
+    ["Windows Chrome 149", { ua: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36", meta: true }],
+    ["Linux Firefox 140 + another site's Referer", { ua: "Mozilla/5.0 (X11; Linux x86_64; rv:140.0) Gecko/20100101 Firefox/140.0", meta: true, extra: { referer: "https://example.com/list" } }],
+  ]) {
+    const r = await run(o);
+    ok(r.res.status === 200 && !r.loc, `${rel} (desktop zero proof, ${label}) gets a 200 Continue page, not a redirect (got ${r.res.status}, Location ${r.loc.slice(0, 60)})`);
+    ok(/noindex/.test(r.res.headers.get("x-robots-tag") || "") && /no-store/.test(r.res.headers.get("cache-control") || ""), `${rel} (desktop zero proof, ${label}) Continue page is noindex + no-store`);
+    ok(!/https?:\/\/[^\s"'<>]*(?:viator|ticketmaster|stay22|evyy|booking|stubhub|prf)\./i.test(r.body.replace(/value="[^"]*"/g, "")), `${rel} (desktop zero proof, ${label}) Continue page carries no partner URL outside the echoed form values`);
+    ok(/name="wf_confirm" value="1"/.test(r.body), `${rel} (desktop zero proof, ${label}) Continue page offers the one-tap continue (wf_confirm=1)`);
+    ok(r.started.length === 0 && r.events.length === 1 && r.refused.length === 1 && r.refused[0].properties.refusal_class === "suspect" && /^desktop-zero-proof:(?:same-origin|same-site|cross-site|none|absent)$/.test(r.refused[0].properties.refusal_reason), `${rel} (desktop zero proof, ${label}) emits one provider_redirect_refused (suspect / desktop-zero-proof:<Sec-Fetch-Site>) and no started (got ${r.events.map((e) => e.event + "/" + (e.properties.refusal_reason || "")).join(",")})`);
+  }
+  // Every proof, and every surface the rule must never touch, still gets the real redirect.
+  for (const [label, o, extra] of [
+    ["desktop, tapped Continue", { ua: UA.desktopChrome, meta: true }, "&wf_confirm=1"],
+    ["desktop + click_id from the page", { ua: UA.desktopChrome, meta: true }, "&click_id=clk_guard12345678"],
+    ["desktop + same-site Referer", { ua: UA.desktopChrome, meta: true, extra: { referer: "https://www.gowayfind.com/guides/things-to-do-sarasota" } }, ""],
+    ["desktop + wf_device cookie", { ua: UA.desktopChrome, meta: true, extra: { cookie: "wf_device=d_guard123" } }, ""],
+    ["Android Chrome, zero proof", { ua: "Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Mobile Safari/537.36", meta: true }, ""],
+    ["iPhone Safari, zero proof", { ua: UA.mobileSafari }, ""],
+    ["Instagram in-app, zero proof", { ua: UA.instagramIos }, ""],
+  ]) {
+    const r = await run(o, extra);
+    ok(r.refused.length === 0 && r.res.status === 302, `${rel} (zero-proof control: ${label}) is NOT held at the Continue page (status ${r.res.status}, refused ${r.refused.length})`);
+    if (fx.partner) ok(reachesPartner(r) && r.started.length === 1 && r.started[0].properties.traffic_class === "human", `${rel} (zero-proof control: ${label}) gets the real partner redirect + one human started event (Location ${r.loc.slice(0, 60)}, started ${r.started.length})`);
+    if (fx.partner && label === "desktop, tapped Continue") ok(r.started[0] && r.started[0].properties.click_proof === "continue_tap", `${rel}: a person who tapped Continue is counted with click_proof continue_tap (got ${r.started[0] && r.started[0].properties.click_proof})`);
+    if (fx.partner && label === "iPhone Safari, zero proof") ok(r.started[0] && r.started[0].properties.click_proof === "none", `${rel}: a phone with zero proof keeps the 10-31 label none, and is still redirected (got ${r.started[0] && r.started[0].properties.click_proof})`);
+  }
+
   // CACHE POLICY: every response shape from every go route is per-request.
   for (const [label, o, extra, handler] of [
-    ["human redirect", { ua: UA.desktopChrome, meta: true }, "", "GET"],
+    ["human redirect", { ua: UA.desktopChrome, meta: true, extra: { referer: "https://www.gowayfind.com/guides/things-to-do-sarasota" } }, "", "GET"],
+    ["desktop zero-proof interstitial", { ua: UA.desktopChrome, meta: true }, "", "GET"],
     ["crawler refusal", { ua: UA.googlebot }, "", "GET"],
     ["suspect interstitial", { ua: UA.incidentWin }, "", "GET"],
     ["prefetch 204", { ua: UA.desktopChrome, meta: true, extra: { "next-router-prefetch": "1" } }, "", "GET"],
@@ -491,7 +628,7 @@ for (const rel of ROUTES.filter((r) => r in FIX)) {
   process.env.SUPABASE_URL = "https://guardtest-fake-project.supabase.co";
   process.env.SUPABASE_SERVICE_ROLE_KEY = "guardtest-fake-service-role-key-not-real";
 
-  const human = { ua: UA.desktopChrome, meta: true };
+  const human = { ua: UA.desktopChrome, meta: true, extra: { referer: "https://www.gowayfind.com/guides/things-to-do-sarasota" } };
   const coldRoute = async (tag) => import(REPO + "app/api/viator/go/route.js?cold=" + tag);
   const book = async (mod, qs) => {
     const before = freetext;
@@ -556,4 +693,4 @@ if (fail.length) {
   fail.forEach((f) => console.error("  - " + f));
   process.exit(1);
 }
-console.log(`check-redirect-suspect-gate: OK — ${pass} assertions; ${A.length + 1} classifier fixtures, ${ROUTES.length} go routes called (humans incl. Instagram/Pinterest in-app redirected + counted; crawlers/unfurlers/meta-ads/HEAD/Next-prefetch/10-21-incident-UA never reach a partner nor count as human; synthetic monitor captures nothing; first-party Referer/cookie keeps a header-less visitor human; every /go response private no-store); watchdog run end-to-end with 0 off-origin fetches; Viator ?q= resolved-URL cache holds spend with no CDN-cached redirect`);
+console.log(`check-redirect-suspect-gate: OK — ${pass} assertions; ${A.length + 1} classifier fixtures, ${ROUTES.length} go routes called (humans incl. Instagram/Pinterest in-app redirected + counted; crawlers/unfurlers/meta-ads/HEAD/Next-prefetch/10-21-incident-UA never reach a partner nor count as human; synthetic monitor captures nothing; a first-party cookie keeps a header-less visitor human; a forged same-site Referer alone gets Continue; every /go response private no-store); watchdog run end-to-end with 0 off-origin fetches; Viator ?q= resolved-URL cache holds spend with no CDN-cached redirect`);

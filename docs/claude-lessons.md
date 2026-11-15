@@ -129,7 +129,13 @@ that must read the real partner Location uses the synthetic monitor UA with redi
 of 52 had no page click_id, no first-party cookie and no same-site Referer. They are not
 refused (an ad-blocked person looks the same) but every redirect event now carries
 `click_proof` (client_click_id | first_party_cookie | first_party_referer | direct_link |
-none). Count real taps with `traffic_class = 'human' AND click_proof != 'none'`.
+continue_tap | none). Count real taps with `traffic_class = 'human' AND click_proof != 'none'`.
+2026-11-11 owner rule, DESKTOP only: a computer browser with click_proof none now gets
+the one-tap Continue page (`provider_redirect_refused`, `refusal_reason`
+`desktop-zero-proof:<Sec-Fetch-Site>`); a person who taps Continue is counted as human
+with `click_proof = continue_tap`. Phones and in-app browsers keep the 10-31 rule. Most
+partner links are `rel="noreferrer"`, so a real tap proves itself with the page-minted
+click_id or a cookie, not a Referer. Off switch: `REDIRECT_ZERO_PROOF_GATE=off`.
 
 ## ⚠️ Concurrency rules
 
@@ -642,6 +648,34 @@ break-tests this session "passed" while testing nothing —
 `rpc/wf_cuisine_chips` matched inside a defined-but-uncalled function;
 `thin.length` matched in an unrelated ternary. If breaking the behaviour leaves
 the guard green, the assertion is decoration.
+
+---
+
+## 🔕 Expected-State Notification Rule (2026-11-13)
+
+**Incident.** The twice-daily Instagram → Trending reconciliation (a scheduled task
+written while PR #2447 was open) pushed Gabriel at 22:46 ET on 2026-11-12: "audit page
+returns 404". The page belonged to #2447, which was not merged, so the 404 was the
+*expected* state of undeployed code, and the run had also found nothing new. Root cause
+was the task prompt ("notify when … the endpoint is down") plus the agent following it
+without classifying the condition. Production monitoring (`app/api/cron/job-watch`,
+`lib/jobWatchAlert.js`) was not involved: it already pages only on new or materially
+changed incidents.
+
+**Fix.** CLAUDE.md "Notifications — Expected-State Rule" (EXPECTED / INFORMATIONAL /
+ACTIONABLE / INCIDENT). The reconciliation task that pointed at #2447 was disabled once
+#2437 shipped the shelf, its twice-daily reconcile cron and job-watch paging; #2447 was
+closed as superseded.
+
+**Follow-up (2026-11-14).** The approval comment is bound to one commit SHA, so a PR that
+only caught up with `main` needed a second comment. The owner chose to take `CLAUDE.md`
+off the owner-only list entirely (`scripts/lib/ownerApproval.mjs`); `AGENTS.md`,
+`.github/**` and the gate scripts stay locked. Do not ask him for `/owner-approve` on
+CLAUDE.md edits.
+
+**Also learned.** "172 rows, 0 duplicates" proved the table, not the shelf. The shelf was
+verified separately (live API set == set recomputed from the table; desktop 1440 and
+mobile 390 renders; reel playback; links; pagination; analytics events).
 
 ---
 

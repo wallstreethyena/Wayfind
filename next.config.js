@@ -138,6 +138,7 @@ const nextConfig = {
     "/api/events": ["./data/christmas-2026-research.json"],
     "/api/events/christmas": ["./data/christmas-2026-research.json"],
     "/api/christmas/browse": ["./data/christmas-2026-research.json"],
+    "/api/christmas/plan-votes": ["./data/christmas-2026-research.json"],
     "/api/cron/affiliate-coverage": ["./data/christmas-2026-research.json"],
     "/christmas-in-florida": ["./data/christmas-2026-research.json"],
     "/florida-events/[slug]": ["./data/christmas-2026-research.json"],
@@ -157,6 +158,8 @@ const nextConfig = {
     "/api/og/movie": ["./app/api/og/fonts/*.ttf", "./public/movies/*.webp"],
     // Atlas paid lane priority list is read with fs at runtime (lib/atlasPaidLane.js).
     "/api/cron/atlas-build": ["./data/atlas/priority-place-ids.json"],
+    // Wayfind Planner reads seasonal research & first-party Atlas cards on the server via fs.
+    "/api/planner": ["./data/christmas-2026-research.json", "./data/atlas/editorial-cards.json"],
   },
   // 2026-11-11: /api/og/movie once traced ALL of public/ (1.1 GB) and Vercel refused every
   // production deploy. It needs only public/movies, listed above. These excludes keep the big
@@ -303,6 +306,25 @@ const nextConfig = {
         permanent: true,
       },
     ];
+  },
+  // 2026-11-12 — no Buffer polyfill in BROWSER bundles. Next's client
+  // ProvidePlugin injects its ~7KB gz `buffer` polyfill into any client module
+  // that names the `Buffer` global. Every browser path in this app already
+  // guards that name (typeof Buffer / typeof atob / TextEncoder), so the
+  // polyfill only ever shipped dead weight to every page, through the root
+  // layout (@supabase/storage-js, lib/adClickCookie.js) and the homepage.
+  // Server and edge keep Next's default. Locked by scripts/check-bundle.mjs:
+  // no client chunk may carry the polyfill, and no client chunk may use
+  // `Buffer` without a guard.
+  webpack(config, { isServer, nextRuntime }) {
+    if (!isServer && nextRuntime !== "edge") {
+      for (const plugin of config.plugins || []) {
+        if (plugin && plugin.constructor && plugin.constructor.name === "ProvidePlugin" && plugin.definitions && plugin.definitions.Buffer) {
+          delete plugin.definitions.Buffer;
+        }
+      }
+    }
+    return config;
   },
 };
 // withSentryConfig auto-instruments the SERVER + EDGE runtimes for error

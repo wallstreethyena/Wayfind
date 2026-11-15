@@ -38,6 +38,7 @@ import * as Aff from "../../../../lib/affiliates";
 import { siteTodayStr } from "../../../../lib/siteTime";
 import { reviewDepthDeduction } from "../../../../lib/wayfindScore";
 import { isSsgBuild, eatFetch, eatCuisineStaticParams } from "../../../../lib/eatInventory";
+import { styleHtml } from "../../../../lib/styleHtml.js";
 
 export const revalidate = 3600;
 
@@ -187,7 +188,7 @@ export default async function CuisineListPage({ params }) {
       const name = pretty(params.cuisine);
       return (
         <main style={{ background: "#141a24", minHeight: "100vh", color: "#1e2430", fontFamily: "var(--wf-sans)" }}>
-          <style dangerouslySetInnerHTML={{ __html: CSS }} />
+          <style dangerouslySetInnerHTML={styleHtml(CSS)} />
           <div className="wf-sl-sheet">
             <div className="wf-sl-head">
               <div className="wf-sl-crumb">
@@ -298,7 +299,7 @@ export default async function CuisineListPage({ params }) {
   return (
     <main style={{ background: "#141a24", minHeight: "100vh", color: "#1e2430", fontFamily: "var(--wf-sans)" }}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ld) }} />
-      <style dangerouslySetInnerHTML={{ __html: CSS + WF_PLACE_CARD_CSS }} />
+      <style dangerouslySetInnerHTML={styleHtml(CSS + WF_PLACE_CARD_CSS)} />
 
       <div className="wf-sl-sheet">
         <div className="wf-sl-head">

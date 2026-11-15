@@ -13,6 +13,7 @@
 // fails closed to our own site.
 export const runtime = "nodejs";
 
+import { countryFromHeaders, gpcFromHeaders } from "../../../../lib/adConsentRegion.js";
 import { landingFromCookieHeader } from "../../../../lib/campaignAttribution.js";
 import { randomUUID } from "node:crypto";
 import { resolveVerified } from "../../../../lib/bookingResolver.js";
@@ -34,6 +35,7 @@ export { sanitizeClientClickId };
 import { credential } from "../../../../lib/envPlaceholder.js";
 import { providerSpendAllow } from "../../../../lib/providerSpend.js";
 import { cget, cset } from "../../../../lib/serverCache.js";
+import { classifySyntheticTraffic } from "../../../../lib/productionWriteFirewall.js";
 
 // v4.29: bracket-notation env reads inside call time. Next inlines dot-access
 // process.env.NEXT_PUBLIC_* at build; bracket access forces a true runtime
@@ -294,8 +296,11 @@ export async function GET(req) {
     click_id: clickId,
   };
 
-  // Our own verifier scripts (WayfindVerify UA, bare node fetch) still get the real redirect; only the class changes.
+  // Our own verifier scripts (WayfindVerify UA, bare node fetch) and synthetic
+  // monitors still get the real redirect; only the class changes so zero click rows write.
+  const synthTraffic = classifySyntheticTraffic(req);
   let trafficClass = isInternalVerifier(req.headers.get("user-agent")) ? "automation" : "human";
+  if (trafficClass === "human" && synthTraffic.synthetic) trafficClass = "synthetic";
   const emit = (event, extra) => {
     try {
       const props = commercePayload(event, { ...baseProps, ...landingFromCookieHeader(req.headers.get("cookie")), traffic_class: trafficClass, click_proof: clickProof(req, surface), ...(extra || {}) });
@@ -371,9 +376,11 @@ export async function GET(req) {
               contentId: contentId || placeId,
               clientClickId: clickId,
               cookieHeader: req.headers.get("cookie") || "",
+              visitorCountry: countryFromHeaders(req.headers),
+              gpc: gpcFromHeaders(req.headers),
               distinctId: cookieDistinctId || null,
               trafficClass,
-            });
+            }, { headers: req.headers });
             if (attributed && attributed.url) finalLocation = attributed.url;
           } catch {}
         }
@@ -471,6 +478,8 @@ export async function GET(req) {
         contentId: contentId || placeId,
         clientClickId: clickId,
         cookieHeader: req.headers.get("cookie") || "",
+        visitorCountry: countryFromHeaders(req.headers),
+        gpc: gpcFromHeaders(req.headers),
         distinctId: cookieDistinctId || null,
         trafficClass,
       });

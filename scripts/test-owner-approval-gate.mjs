@@ -141,7 +141,7 @@ try {
   ok(r.code === 1 && r.posted.length === 0 && r.calls.length === 0, `S2: a run on a pull request ref is refused before any call (${r.out.trim()})`);
   r = gate({ event: "push" });
   ok(r.code === 1 && r.posted.length === 0, "S2: any other event is refused");
-  r = gate({ attempt: 2, files: [file("CLAUDE.md")], comments: [approve()] });
+  r = gate({ attempt: 2, files: [file("AGENTS.md")], comments: [approve()] });
   ok(r.code === 1 && r.posted.length === 0 && !r.calls.some((c) => c.path.includes("access_tokens")), "S2: a re-run (which would check out an OLD main and its older rule) is refused before any token is minted");
 
   // S3: the spoof itself — a PR adding a workflow with a job named like a required check.
@@ -154,15 +154,15 @@ try {
     "S3: everything under .github/ and the gate's own code is owner-only");
 
   // S4: the verdict is the owner rule.
-  r = gate({ files: [file("CLAUDE.md")] });
+  r = gate({ files: [file("AGENTS.md")] });
   ok(r.posted.length === 1 && r.posted[0].body.conclusion === "failure" && r.posted[0].body.output.title === "Owner approval required", "S4: owner-only change without approval: failing gate check");
-  r = gate({ files: [file("CLAUDE.md")], comments: [approve()] });
+  r = gate({ files: [file("AGENTS.md")], comments: [approve()] });
   ok(r.posted.length === 1 && r.posted[0].body.conclusion === "success" && r.posted[0].body.output.title === "Approved by the owner", "S4: the owner's full-sha comment passes");
-  r = gate({ files: [file("CLAUDE.md")], comments: [approve(HEAD.slice(0, 12)), approve(HEAD, { login: OWNER.login, id: OWNER.id, type: "Bot" }), approve(HEAD, { login: "wayfind-agents[bot]", id: 5, type: "Bot" }), approve(HEAD, { login: OWNER.login, id: OWNER.id + 1, type: "User" })] });
+  r = gate({ files: [file("AGENTS.md")], comments: [approve(HEAD.slice(0, 12)), approve(HEAD, { login: OWNER.login, id: OWNER.id, type: "Bot" }), approve(HEAD, { login: "wayfind-agents[bot]", id: 5, type: "Bot" }), approve(HEAD, { login: OWNER.login, id: OWNER.id + 1, type: "User" })] });
   ok(r.posted.length === 1 && r.posted[0].body.conclusion === "failure", "S4: a shortened sha, a bot, the agents' App, and a look-alike account all fail");
-  r = gate({ event: "issue_comment", files: [file("CLAUDE.md")], comments: [approve(HEAD, undefined, true)] });
+  r = gate({ event: "issue_comment", files: [file("AGENTS.md")], comments: [approve(HEAD, undefined, true)] });
   ok(r.posted.length === 1 && r.posted[0].body.conclusion === "failure", "S4: an owner comment EDITED to name the head (anyone with write access can edit it) does not approve");
-  r = gate({ event: "issue_comment", files: [file("CLAUDE.md")], comments: [approve()] });
+  r = gate({ event: "issue_comment", files: [file("AGENTS.md")], comments: [approve()] });
   ok(r.code === 0 && r.posted.length === 1 && r.posted[0].body.conclusion === "success" && r.posted[0].body.head_sha === HEAD, "S4: an approval comment re-evaluates the live head and posts success");
   r = gate({ event: "issue_comment", onIssue: true });
   ok(r.code === 0 && r.posted.length === 0 && r.calls.length === 0, "S4: a comment on a plain issue does nothing");
@@ -172,7 +172,7 @@ try {
   ok(r.code === 0 && r.posted.length === 0, "S4: a PR into another branch is not gated (branch protection is on main)");
 
   // S5: fail closed.
-  r = gate({ apiStatus: 502, files: [file("CLAUDE.md")] });
+  r = gate({ apiStatus: 502, files: [file("AGENTS.md")] });
   ok(r.code === 1 && r.posted.length === 1 && r.posted[0].body.conclusion === "failure" && /could not be verified/.test(r.posted[0].body.output.title),
     `S5: an API error posts a FAILING gate check and exits 1 (${r.out.trim().slice(0, 140)})`);
   r = gate({ mintFails: true });

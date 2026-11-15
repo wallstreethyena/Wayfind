@@ -14,7 +14,7 @@
 
 import { readFileSync } from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { createRequire } from "node:module";
 import vm from "node:vm";
 import ts from "typescript";
@@ -55,16 +55,42 @@ ok(onPhoto.includes("font-size:9.5px") && onPhoto.includes("rgba(255,255,255,.6)
 ok(onPhoto.includes("background:transparent") && !/#000|rgba\(13,17,23/.test(onPhoto), "onPhoto drops a caller background or pill");
 ok(!/border-radius/.test(onPhoto), "onPhoto has no rounded chip");
 
-const detail = readFileSync(abs("app/components/sheets/Detail.js"), "utf8");
+// Owner (Gabe, 2026-11-10): on the place detail sheet the photo credit and the
+// commission line are ONE in-flow line directly under the photos. Cards and
+// other heroes keep the on-photo line above.
+const inline = renderToStaticMarkup(React.createElement(PhotoCredit, { credit, inline: true, style: pinned }));
+ok(inline.startsWith("<span data-photo-credit") && inline.includes("Photo: ") && /href="https:\/\/maps\.google\.com\/\?cid=1"/.test(inline), "inline credit is the bare words with the Google Maps link kept");
+ok(!/position|background|border-radius|nowrap/.test(inline), "inline credit carries no pin, box, or truncation");
+
+const disclosure = await import(pathToFileURL(abs("lib/affiliateDisclosure.js")).href);
+const fh = disclosure.detailCreditCommissionLine("fareharbor");
+ok(fh === "Wayfind may earn a commission when you book through FareHarbor, and that never changes our rankings.", "FareHarbor commission line is the exact approved sentence (got: " + fh + ")");
+ok(disclosure.detailCreditCommissionLine("VIATOR").includes("through Viator,"), "a known provider is named, case-insensitively");
+for (const odd of ["", null, "booking", "constructor", "__proto__", "not-a-partner"]) {
+  ok(disclosure.detailCreditCommissionLine(odd).includes("through a partner link,"), "an unknown provider (" + String(odd) + ") gets the generic wording, never a guessed name");
+}
+ok(!/[\u2013\u2014]/.test(fh) && (fh.match(/[.!?](\s|$)/g) || []).length === 1, "the commission line is one sentence with no dashes");
+
+const detailRaw = readFileSync(abs("app/components/sheets/Detail.js"), "utf8");
+// Comments stripped so the position checks cannot match their own explanations.
+const detail = detailRaw.replace(/\{\/\*[\s\S]*?\*\/\}/g, "").replace(/^\s*\/\/.*$/gm, "");
 const uses = detail.split("<PhotoCredit").length - 1;
 ok(uses === 1, "the place detail sheet renders exactly one photo credit (found " + uses + ")");
 ok(!/creditStyle/.test(detail), "the old over-the-photo creditStyle is gone");
-ok(/<PhotoCredit onPhoto /.test(detail), "the detail credit uses the on-photo line");
+ok(/<PhotoCredit inline credit=\{heroCredit\}/.test(detail), "the detail credit is the inline credit inside the combined line");
 const media = detail.indexOf("data-detail-photo-media");
+const lineAt = detail.indexOf("data-detail-credit-line");
+const headline = detail.indexOf("data-detail-headline");
 const body = detail.indexOf("data-detail-body");
 const at = detail.indexOf("<PhotoCredit");
-ok(media > 0 && body > media, "detail sheet still has its hero photo before the text column");
-ok(at > media && at < body, "the credit renders inside the hero photo, not in the text column");
+ok(media > 0 && headline > media && body > headline, "detail sheet still has its hero photo, then the headline, then the text column");
+ok(detail.split("data-detail-credit-line").length - 1 === 1, "the detail sheet has exactly one combined credit line");
+ok(lineAt > media && lineAt < headline, "the combined credit line sits right under the photos, above the headline");
+ok(at > lineAt && at < headline && detail.indexOf("{creditCommission}", lineAt) > at && detail.indexOf("{creditCommission}", lineAt) < headline, "photo credit and commission sentence render inside that one line");
 ok(!detail.slice(body).includes("<PhotoCredit"), "the text column under the headline has no photo credit");
+ok(/const creditCommission = ftcNearPrimary \? detailCreditCommissionLine\(primaryCta\.provider\) : null;/.test(detail), "the commission sentence reads the same predicate as the near-button disclosure and this sheet's own provider");
+ok(/\{ftcNearPrimary && !\(expandedHero && creditCommission\) && <FTCDisclosure \/>\}/.test(detail), "one disclosure per sheet: the near-button line shows only when the credit line is not carrying it (no photo)");
+const lineTag = detail.slice(detail.lastIndexOf("<div", lineAt), detail.indexOf(">", lineAt));
+ok(!/position|background|borderRadius|nowrap|ellipsis/.test(lineTag) && /fontSize: 12\b/.test(lineTag), "the combined line is plain readable in-flow text: no pin, pill, or truncation");
 
-console.log(`check-photo-credit-under-headline: OK — ${pass} assertions; viewer credit stays plain text, onPhoto credit is the tiny bottom-left line`);
+console.log(`check-photo-credit-under-headline: OK — ${pass} assertions; viewer credit stays plain text, onPhoto credit is the tiny bottom-left line, detail sheet has one credit + commission line under the photos`);

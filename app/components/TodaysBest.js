@@ -15,6 +15,7 @@ import { TB_SECTIONS, fetchTodaysBest, tbPhotoUrl } from "../../lib/todaysBest.j
 // call new Date().getHours() and bucket the day by itself.
 import { nowContext } from "../../lib/nowContext.js";
 import { gateOutdoor } from "../../lib/ranking.js";
+import { styleHtml } from "../../lib/styleHtml.js";
 
 function PickRow({ p, onGo }) {
   const img = tbPhotoUrl(p.photo_ref, 240);
@@ -100,7 +101,7 @@ export default function TodaysBest({ center, weather, onLog }) {
 
   return (
     <section aria-label="Today's Best" style={{ marginBottom: 16, background: "transparent", borderTop: "1px solid rgba(255,255,255,.08)" }}>
-      <style dangerouslySetInnerHTML={{ __html: `.wf-tb-focus:focus-visible{outline:${FOCUS.outline};outline-offset:${FOCUS.outlineOffset}}` }} />
+      <style dangerouslySetInnerHTML={styleHtml(`.wf-tb-focus:focus-visible{outline:${FOCUS.outline};outline-offset:${FOCUS.outlineOffset}}`)} />
       <div style={{ padding: "16px 2px 6px" }}>
         <div style={{ ...TYPE.eyebrow, color: C.light }}>Today's Best</div>
         <div style={{ fontSize: 12.5, color: C.muted, marginTop: 3 }}>The best of the best near you, ranked live for right now.</div>

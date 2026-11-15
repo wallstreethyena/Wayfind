@@ -230,12 +230,15 @@ async function checkNoBump({ patchMod, placeDetailsMutate = (s) => s, cronMutate
   globalThis.__cron = { updates: [], google: {}, filters: [], orders: [], limit: null };
   const cron = await sourceModule("app/api/cron/inventory-refresh/route.js", `
     import { inventoryRefreshPatch, refreshSlice, REFRESH_WINDOW_SLOTS } from "${fileUrl("lib/inventoryRefreshPatch.js")}";
-    import { planCheck, planEnterprise, tierOrder, ESSENTIALS_MASK, PRO_MASK, TIER_SKU } from "${fileUrl("lib/inventoryGoogleCheck.js")}";
+    import { planCheck, planEnterprise, tierOrder, tiersToTry, neverChecked, refreshEligible, ESSENTIALS_MASK, PRO_MASK, TIER_SKU } from "${fileUrl("lib/inventoryGoogleCheck.js")}";
     import { breakerCooldownMs, GOOGLE_DETAILS_DAILY_BREAKER } from "${fileUrl("lib/providerHealth.js")}";
     const gateShut = () => false;
     const runWithTraffic = (_class, run) => run(); const TRAFFIC = { REFRESH: "refresh" }; // the route now declares its traffic class; the stub just runs it
     const spendAllowRefresh = async () => true; const refundToLedger = async () => true; const refreshCounterSku = (s) => "refresh_" + s;
-    const recordPulse = async () => {}; const budgetGateNote = () => "gate"; const budgetLimitNote = () => "limit";
+    const recordPulse = async () => {}; const budgetGateNote = () => "gate"; const budgetLimitNote = () => "limit"; const budgetDailyReserveNote = () => "daily";
+    // 2026-11-12: the route now also asks the Google daily counter and the refresh tier budget; this fixture answers "open, everything affordable" so the executed assertions below are unchanged.
+    const runWithBackgroundPriority = (_p, run) => run(); const BACKGROUND_PRIORITY = { NEW_OR_CHANGED: "new-or-changed", SCHEDULED: "scheduled-refresh" };
+    const backgroundDailyStatus = async () => ({ blocked: false, used: 0, line: 400, unreadable: false }); const refreshRichAffordable = async () => ({ enterprise: true, pro: true });
     const jobCannotRun = (j, m) => Response.json({ cannot: m }, { status: 503 });
     const jobFailed = (j, m) => Response.json({ failed: m }, { status: 500 });
     const normalizeDetails = (p) => ({ id: p.id, name: "x", lat: p.location.latitude, lng: p.location.longitude, types: ["cafe"], businessStatus: p.businessStatus || null, photoRef: null });
@@ -306,8 +309,8 @@ function checkParity(acc, prov) {
   // opened from (with the server's fresh verdict), the area map the on-screen list.
   assert.match(screen, /accountListOnMap\(\{\s*listPlaces:\s*\(explicitList \? listTruth : contextualView\)/, "C: the map accounts for the on-screen list");
   assert.match(screen, /window\.__wfMapList\s*=/, "C: the accounting is published for the synthetic monitor");
-  assert.match(screen, /data-wf-map-unpinned=\{unpinnedForCoord\}/, "C: the unpinned count is rendered on screen");
-  assert.doesNotMatch(screen, /areaOffer && searchMapArea\) && <div role="note"/, "C: the unpinned note does NOT hide while the Search-this-area pill stands (it lifts clear instead; scripts/test-map-unpinned-note-render.mjs renders it)");
+  assert.match(screen, /note:\s*unpinnedNote/, "C: unpinnedNote is published in window.__wfMapList telemetry");
+  assert.doesNotMatch(screen, /data-wf-map-unpinned|<div role="note"/, "C: internal unpinned-place counts are never rendered into customer-facing DOM");
   // TRANSITION: every client inv=1 request carries the list schema, so a
   // pre-verdict edge-cached payload is never read; the route echoes it.
   const strip = (src) => src.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/[^\n]*/g, "$1");

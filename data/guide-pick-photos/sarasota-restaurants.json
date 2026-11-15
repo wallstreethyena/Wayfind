@@ -1,6 +1,27 @@
 {
   "slug": "sarasota-restaurants",
-  "picks": {},
+  "picks": {
+    "Owen's Fish Camp": {
+      "src": "/guides/picks/things-to-do-in-sarasota-florida/owen-s-fish-camp.webp",
+      "width": 1024,
+      "height": 576,
+      "alt": "String lights over the shaded backyard seating and wooden porch at Owen's Fish Camp in Sarasota at dusk",
+      "caption": "The string lit backyard at Owen's Fish Camp in Burns Court, Sarasota, in the evening.",
+      "credit": "Carol VanHook",
+      "creditHref": "https://www.flickr.com/photos/97651299@N00/35463538942",
+      "license": "CC BY-SA 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0/",
+      "sourceUrl": "https://www.flickr.com/photos/97651299@N00/35463538942",
+      "author": "Carol VanHook",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "flickr",
+      "placeId": "ChIJ5ab4TmtAw4gROiDA30SjNWY",
+      "verification": "Flickr photo titled Owen's Fish Camp in the heart of Sarasota, Florida Series by Carol (vanhookc), CC BY-SA 2.0, tagged owensfishcamp and sarasotaflorida; shows the restaurant's lit yard with only tiny distant diners Live Flickr licence checked: CC BY-SA 2.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-10-07"
+    }
+  },
   "gaps": {
     "Lucky 8": {
       "reason": "google-only",
@@ -13,12 +34,6 @@
       "placeId": "ChIJk-o9uSlBw4gR6tDfhvqtdRk",
       "needsPermissionFrom": "Focaccia Sandwich + Bakery",
       "note": "Restaurant pass (2026-09-23): No Commons candidates were returned for this pick. Openverse search for 'Focaccia Sarasota bakery' returned 0 results. This is a newer MICHELIN Guide lunch pick with no apparent Creative Commons photo coverage."
-    },
-    "Indigenous Restaurant": {
-      "reason": "google-only",
-      "placeId": "ChIJZUZzwm5Aw4gR1qnftvzg0lg",
-      "needsPermissionFrom": "Indigenous Restaurant",
-      "note": "Restaurant pass (2026-09-23): No Commons candidates were returned for this pick. Openverse search for 'Indigenous Restaurant Sarasota' returned 0 results. No verified photo found."
     },
     "Sage Restaurant": {
       "reason": "google-only",

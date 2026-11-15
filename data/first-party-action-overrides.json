@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "description": "Founder / operator manual-verified first-party action overrides. Manual verified entries always outrank automated discovery and are never overwritten or downgraded by scripts/resolve-first-party-actions.mjs.",
+  "places": {
+    "ChIJpXGK53VC24gRWMneFVtK6hY": {
+      "place_id": "ChIJpXGK53VC24gRWMneFVtK6hY",
+      "name": "Ca' d'Zan",
+      "locality": "Sarasota",
+      "actions": {
+        "officialWebsite": {
+          "url": "https://www.ringling.org/visit/venues/ca-dzan/",
+          "source": "manual_verified",
+          "retrieved_at": "2026-11-12T23:20:00.000Z",
+          "confidence": "EXACT",
+          "verification_status": "manual_verified"
+        },
+        "ticket_url": {
+          "url": "https://www.ringling.org/tickets-admission/",
+          "source": "manual_verified",
+          "retrieved_at": "2026-11-12T23:20:00.000Z",
+          "confidence": "EXACT",
+          "verification_status": "manual_verified"
+        }
+      }
+    },
+    "ChIJx4O9VBdw54gRcQ8akxK7nkc": {
+      "place_id": "ChIJx4O9VBdw54gRcQ8akxK7nkc",
+      "name": "The Charles Hosmer Morse Museum of American Art",
+      "locality": "Winter Park",
+      "actions": {
+        "officialWebsite": {
+          "url": "https://morsemuseum.org/",
+          "source": "manual_verified",
+          "retrieved_at": "2026-11-12T23:25:00.000Z",
+          "confidence": "EXACT",
+          "verification_status": "manual_verified"
+        },
+        "admission_url": {
+          "url": "https://morsemuseum.org/plan-your-visit/",
+          "source": "manual_verified",
+          "retrieved_at": "2026-11-12T23:25:00.000Z",
+          "confidence": "EXACT",
+          "verification_status": "manual_verified"
+        }
+      }
+    }
+  }
+}

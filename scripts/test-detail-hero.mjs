@@ -180,7 +180,7 @@ for (const [label, expandedHero, showHero, liveId, photos, galleryIdx = 0] of [
 ]) {
   let openedPhoto, galleryDirection;
   const ctx = { expandedHero, showHero, liveId, galleryPhotos: photos, heroSrc: photos[0], galleryIdx,
-    detail: { name: 'Fixture place' }, heroCredit: null, PhotoCredit: 'fixture-credit', PLACE_DETAIL_PHOTO_STANDARD, C: {}, FallbackImg: 'fixture-image', galleryRef: null,
+    detail: { name: 'Fixture place' }, heroCredit: null, creditCommission: null, PhotoCredit: 'fixture-credit', PLACE_DETAIL_PHOTO_STANDARD, C: {}, FallbackImg: 'fixture-image', galleryRef: null,
     onGalleryScroll() {}, scrollGallery(direction) { galleryDirection = direction; }, galleryBtn: () => ({}), setLightbox(src) { openedPhoto = src; },
     primaryCategory: () => 'Food', isLivePlaceId: id => !!id };
   const render = new Function('React', ...Object.keys(ctx), heroJs + ';return render;')({ createElement, Fragment: 'fragment' }, ...Object.values(ctx));
@@ -214,7 +214,7 @@ for (const [label, expandedHero, showHero, liveId, photos, galleryIdx = 0] of [
 
 {
   const ctx = { expandedHero: true, showHero: true, liveId: 'ChIJfixture', galleryPhotos: ['portrait.jpg'], heroSrc: 'portrait.jpg', galleryIdx: 0,
-    detail: { name: 'Fixture place' }, heroCredit: { name: 'Fixture photographer', source: 'google', mapsUri: 'https://maps.google.com/?cid=1' }, PhotoCredit: 'fixture-credit',
+    detail: { name: 'Fixture place' }, heroCredit: { name: 'Fixture photographer', source: 'google', mapsUri: 'https://maps.google.com/?cid=1' }, creditCommission: 'Fixture commission sentence.', PhotoCredit: 'fixture-credit',
     PLACE_DETAIL_PHOTO_STANDARD, C: {}, FallbackImg: 'fixture-image', galleryRef: null,
     onGalleryScroll() {}, scrollGallery() {}, galleryBtn: () => ({}), setLightbox() {},
     primaryCategory: () => 'Food', isLivePlaceId: id => !!id };
@@ -223,8 +223,13 @@ for (const [label, expandedHero, showHero, liveId, photos, galleryIdx = 0] of [
   const media = nodes.find(n => 'data-detail-photo-media' in n.props);
   const credit = nodes.find(n => n.type === 'fixture-credit');
   const title = nodes.find(n => n.children.includes('Fixture place'));
-  ok(!!credit && credit.props.onPhoto === true && walk(media).includes(credit), 'a credited photo pins its credit inside the photo');
-  ok(nodes.indexOf(credit) < nodes.indexOf(title), 'the credit is not a line under the headline');
+  // Owner (2026-11-10): the credit and the commission sentence are one in-flow
+  // line directly under the photos, above the headline.
+  const creditLine = nodes.find(n => 'data-detail-credit-line' in n.props);
+  ok(!!credit && credit.props.inline === true && !!creditLine && walk(creditLine).includes(credit) && !walk(media).includes(credit), 'a credited photo shows its credit in the line under the photo, not on it');
+  ok(creditLine.children.flat().includes('Fixture commission sentence.') && creditLine.children.flat().includes('. '), 'the commission sentence joins the credit in that same line');
+  ok(nodes.indexOf(media) < nodes.indexOf(creditLine) && nodes.indexOf(creditLine) < nodes.indexOf(title), 'the combined line sits between the photos and the headline');
+  ok(!creditLine.props.style.position && !creditLine.props.style.background, 'the combined line is plain in-flow text');
 }
 
 if (failures) process.exit(1);
