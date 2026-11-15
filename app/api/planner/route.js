@@ -43,6 +43,7 @@ import {
 } from "../../../lib/plannerLocalInventory.js";
 import { GET as siteSearch } from "../search/route.js";
 import { GET as christmasBrowseGet } from "../christmas/browse/route.js";
+import { classifySantaMessage } from "../../../lib/santaIntent.js";
 import {
   normalizePlannerVoice,
   plannerPersona,
@@ -441,6 +442,25 @@ export async function POST(req) {
     ? body.recent.filter((t) => typeof t === "string").map((t) => t.trim().slice(0, 300)).filter(Boolean).slice(-3)
     : [];
   const conversationHistory = sanitizeConversationHistory(body && body.conversationHistory);
+
+  // One Santa thread for planning AND tables (owner 2026-11-14). A table request is never answered by the
+  // planner model ("I can't book a table from here" was the bug): it goes back to the chat as mode "reserve",
+  // and the chat runs it through the existing Reserve concierge (/api/reserve/concierge), where server code
+  // picks the provider and a table only ever comes from an explicit tap. No model call, no ledger grant here.
+  const routed = classifySantaMessage(message, { today, hasActiveTrip: Boolean(activeTrip) });
+  if (routed.kind === "reserve" || routed.kind === "find_food") {
+    return okJson({
+      mode: "reserve",
+      voice,
+      kind: routed.kind,
+      reply: routed.kind === "find_food" ? persona.findFood : persona.reserveIntro,
+      reserve: routed.details,
+      text: routed.text,
+      source: "deterministic",
+      fallbackReason: "routed_to_reserve",
+    });
+  }
+
   const hasRawDraft = body && body.proposedPlan !== undefined && body.proposedPlan !== null;
 
   if (hasRawDraft) {

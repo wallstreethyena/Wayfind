@@ -184,6 +184,7 @@ node scripts/test-owner-places-2026-08-29d.mjs
 node scripts/test-owner-places-2026-08-29e.mjs
 node scripts/test-command-center.mjs
 node scripts/test-qualified-click.mjs
+node scripts/test-redirect-failure-quality.mjs
 node scripts/test-browse-interaction-reuse.mjs
 # Command Center partner-click predicate + #1603 exclude_devices: the migration
 # must stay byte-identical to command-center.sql (2026-10-02).
@@ -300,6 +301,7 @@ node scripts/test-city-viator.mjs
 node scripts/test-analytics.mjs
 node scripts/test-meta-pixel.mjs
 node scripts/test-campaign-attribution.mjs
+node scripts/test-meta-partner-handoff.mjs
 node scripts/test-paid-landing.mjs
 node scripts/test-landing-inventory-ssg.mjs
 # 2026-09-29 owner decision: exact-place_id not-public registry (Le Mans Kitchen) - excluded from landing pool + inventory, /places stays noindex
@@ -709,6 +711,7 @@ node scripts/audit-starvation-controls.mjs
 node scripts/test-creator-corroboration.mjs
 node scripts/check-brand-pin.mjs
 node scripts/check-score-law.mjs
+node scripts/test-creator-score-eligibility.mjs
 node scripts/check-featured-creator-score.mjs
 node scripts/check-trend-signal.mjs
 # check-version-watch pins the WIRING of the auto-update path; test-stale-tab
@@ -810,6 +813,7 @@ node scripts/check-event-series-hubs.mjs
 node scripts/check-curated-events-read.mjs
 # A merged Christmas research id redirects to the listing it became, never into a 404.
 node scripts/check-christmas-retired-redirects.mjs
+node scripts/test-christmas-twins.mjs
 # 2026-10-09: /florida-events served a pinned >2 MB-refused cache entry with legacy Google photo names
 node scripts/test-curated-events-cache.mjs
 # The Events tab feed reads every curated row still running today, paged;
@@ -2564,6 +2568,10 @@ node scripts/check-this-week-events.mjs
 node scripts/test-viator-booking-attribution.mjs
 # 2026-11-12: a built Viator click row is ACCEPTED by the real wf_viator_clicks constraints and keeps its gclid (campaign names never go into observed_utm_campaign).
 node scripts/test-viator-click-row-db-contract.mjs
+# 2026-11-13: owner consent rule for Google offline booking uploads (GRANTED, or outside EEA/UK/CH without GPC; fail closed), end to end in PGlite with both migrations.
+node scripts/test-viator-consent-basis.mjs
+# 2026-11-06: Google Data Manager events:ingest body matches the official ConsentStatus/EventSource contract (no bare GRANTED, eventSource required).
+node scripts/test-data-manager-ingest-contract.mjs
 node scripts/test-viator-visitor-hash.mjs
 node scripts/check-schedule-note-days.mjs
 node scripts/check-event-assessment-policy.mjs
@@ -2648,8 +2656,11 @@ node scripts/test-christmas-plan.mjs
 node scripts/test-frontier-moment-decisions.mjs
 # 2026-11-12: Grounded Wayfind AI Itinerary Builder end-to-end verification (all 7 acceptance scenarios, ungrounded ID refusal, closed-day check, local->Supabase sync, and fallback resilience).
 node scripts/test-ai-itinerary-planner.mjs
+# 2026-11-13: Florida Partner Revenue Engine end-to-end lock (all 18 acceptance checks, editorial firewall red-team cases, synthetic QA isolation, outbound tracking, Command Center panel, and 25 verified Florida prospects).
+node scripts/test-partner-revenue-engine.mjs
 node scripts/test-planner-imessage.mjs
 node scripts/test-planner-host-voice.mjs
+node scripts/test-santa-one-thread.mjs
 # 2026-11-13: Wayfind Map Real-Time Spatial Decision Engine (7-way location truth, Near Me vs Explore Here, Hard Test Sarasota->Tampa Christmas tonight SSR, Florida water-barrier effort, hours closing feasibility, weather fit, score law, pairings/parking/backtracking, privacy, and cluster immunity).
 node scripts/test-map-spatial-decision-engine.mjs
 # 2026-11-12: First-Party Action Resolver & Detail CTA coverage gap guardrails (8 invariants + idempotency + production batch).

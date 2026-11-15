@@ -86,6 +86,7 @@ Each photo uses the license named below; images may be resized, cropped and conv
 ## florida-new-years-eve-2026
 
 - `/guides/picks/florida-new-years-eve-2026/jacksonville-fireworks-main-street-bridge.jpg` — florida-new-years-eve-2026: Jacksonville New Year's Eve Fireworks. [Ronan O'Donohoe](https://www.flickr.com/photos/7917899@N03/2410871066); [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/).
+- `/guides/picks/florida-new-years-eve-2026/light-up-the-night-new-years-eve-firework-show.webp` — florida-new-years-eve-2026: Light Up the NIGHT! New Year's Eve Firework Show. [Doug Anderson (dougandme)](https://www.flickr.com/photos/dougandme/16192451816); [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/).
 
 ## florida-nutcracker-and-holiday-shows-2026
 
@@ -97,8 +98,10 @@ Each photo uses the license named below; images may be resized, cropped and conv
 
 ## florida-santa-and-christmas-trains-2026
 
+- `/guides/picks/florida-santa-and-christmas-trains-2026/conch-tour-train-holiday-sights-and-festive-nights-tour.webp` — florida-santa-and-christmas-trains-2026: Conch Tour Train Holiday Sights and Festive Nights Tour. [Elizabeth Nicodemus](https://commons.wikimedia.org/wiki/File:Key_West_Christmas_Light_Tour_2008_-_01.jpg); [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 - `/guides/picks/florida-santa-and-christmas-trains-2026/florida-railroad-museum.webp` — florida-santa-and-christmas-trains-2026: North Pole Express. [Ebyabe](https://commons.wikimedia.org/wiki/File:Parrish_FL_Florida_Railroad_Museum01.jpg); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 - `/guides/picks/florida-santa-and-christmas-trains-2026/north-pole-noir-christmas-murder-mystery-dinner-train.webp` — florida-santa-and-christmas-trains-2026: North Pole Noir Christmas Murder Mystery Dinner Train. [Sanibel sun](https://commons.wikimedia.org/wiki/File:SGLR_Dinner_Train.jpg); [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Adaptation (resized, cropped, WebP) released under the same licence.
+- `/guides/picks/florida-santa-and-christmas-trains-2026/santa-express-from-clewiston-and-sebring.webp` — florida-santa-and-christmas-trains-2026: Santa Express from Clewiston and Sebring. [Jackdude101](https://commons.wikimedia.org/wiki/File:Sugar_Express_inaugural_passenger_excursion_4.jpg); [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 
 ## florida-scalloping-crystal-river-homosassa
 
@@ -238,11 +241,14 @@ Each photo uses the license named below; images may be resized, cropped and conv
 
 - `/guides/picks/things-to-do-in-parrish-florida/florida-railroad-museum.webp` — sarasota-rainy-day: Florida Railroad Museum. [Ebyabe](https://commons.wikimedia.org/wiki/File:Parrish_FL_Florida_Railroad_Museum01.jpg); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 - `/guides/picks/sarasota-rainy-day/florida-studio-theatre.webp` — sarasota-rainy-day: Florida Studio Theatre. [Kander Hopkins (FST)](https://commons.wikimedia.org/wiki/File:FST%27s_Hegner_Theatre_Wing_Greg_Wilson.jpg); [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Adaptation (resized, cropped, WebP) released under the same licence.
-- `/guides/picks/things-to-do-sarasota/mote-marine-laboratory.webp` — sarasota-rainy-day: Mote Marine Laboratory. [Ebyabe](https://commons.wikimedia.org/wiki/File:FL_Sarasota_Mote_Marine_Lab01.jpg); [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 - `/guides/picks/sarasota-rainy-day/sarasota-art-museum.webp` — sarasota-rainy-day: Sarasota Art Museum. [Brycesrq](https://commons.wikimedia.org/wiki/File:Sarasota_Art_Museum.jpg); [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 - `/guides/picks/things-to-do-in-bradenton-florida/bishop-museum-entrance.webp` — sarasota-rainy-day: The Bishop Museum of Science and Nature. [Ebyabe](https://commons.wikimedia.org/wiki/File:Bradenton_FL_South_Florida_Museum01.jpg); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 - `/guides/picks/things-to-do-in-sarasota-florida/the-ringling-entrance.webp` — sarasota-rainy-day: The John and Mable Ringling Museum of Art. [Wolfgang Moroder](https://commons.wikimedia.org/wiki/File:Ringling_Museum_main_entrance_Sarasota_Florida.jpg); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 - `/guides/picks/sarasota-rainy-day/van-wezel-performing-arts-hall.webp` — sarasota-rainy-day: Van Wezel Performing Arts Hall. [Ebyabe](https://commons.wikimedia.org/wiki/File:Sarasota_FL_Van_Wezel_Arts_Center01.jpg); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
+
+## sarasota-restaurants
+
+- `/guides/picks/things-to-do-in-sarasota-florida/owen-s-fish-camp.webp` — sarasota-restaurants: Owen's Fish Camp. [Carol VanHook](https://www.flickr.com/photos/97651299@N00/35463538942); [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 
 ## siesta-key-drum-circle
 

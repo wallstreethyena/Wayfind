@@ -20,6 +20,7 @@ const PUBLIC_ROUTES = new Set([
 export function feedbackPathname(value) {
   if (typeof value !== "string" || !value.startsWith("/") || value.startsWith("//")) return null;
   const path = value.split(/[?#]/, 1)[0].replace(/\/+$/, "") || "/";
+  if (path === "/partners") return null;
   return PUBLIC_ROUTES.has(path.split("/")[1]) ? path : null;
 }
 
