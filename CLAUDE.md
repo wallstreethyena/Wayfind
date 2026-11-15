@@ -34,6 +34,23 @@ Revenue-audit detail: `docs/POSTMORTEM_2026-08-25_REVENUE_PATH.md`.
 5. **New public content ships WITH sitemap + schema; new tables ship WITH RLS.** Read the
    Supabase advisor output on a schedule.
 
+## Wayfind Brand Assets
+
+**Before creating any Wayfind-branded visual, inspect the Wayfind Brand Asset Vault
+(`public/brand/wayfind/`) and `public/brand/wayfind/manifest.json`.** Guide: `docs/brand-assets.md`.
+
+- Official Wayfind logos, marks and brand assets supplied by Gabriel are stored in and
+  reused from that library.
+- Before generating, recreating or searching for a Wayfind logo, check the library and
+  manifest first. Never redraw, approximate, substitute, recolor or regenerate the Wayfind
+  logo when an approved canonical asset exists; use the actual asset.
+- Temporary worktrees, /tmp, chat attachments and generated-output folders are not
+  canonical storage.
+- When Gabriel supplies a new official brand asset, preserve the original, add it to the
+  library, update the manifest, and make it available for future Wayfind work.
+- Do not create duplicate copies throughout the repository when the canonical asset can be
+  referenced directly. `scripts/check-brand-vault.mjs` enforces the core masters.
+
 ## Concurrency & git
 
 > **🔒 The shared clone is infrastructure, not a workspace (owner directive, 2026-09-29).**
