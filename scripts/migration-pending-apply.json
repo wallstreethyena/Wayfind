@@ -82,5 +82,12 @@
     "decision_owner": "wallstreethyena",
     "tracking": "#2454 photo batch audit 2026-11-12",
     "reason": "NOT APPLIED. Additive only: new table wf_photo_change_audit (RLS on, no anon/authenticated policies) plus statement-level audit triggers on wf_google_photo_store and wf_place_photo that only ever raise a WARNING. The SQL was NOT test-run on production: the transaction test through execute_sql timed out waiting for a confirmation prompt, so it is unproven until applied or tested in a transaction that is rolled back. Pending canonical scripts/apply-migration.mjs application by the owner."
+  },
+  {
+    "file": "supabase/migrations/20261115130000_wf_reserve_replay_flag.sql",
+    "sha256": "d0d640840f47d2d4768fe65cdac4b87bcd021bece6e4c3bebd6a5675aa163816",
+    "decision_owner": "wallstreethyena",
+    "tracking": "#2539 follow up (Santa reservations mission)",
+    "reason": "Notification integrity. Adds 'replayed': true to the three saved-booking returns of wf_reserve_book and wf_reserve_request (assertion guarded: exactly 3 each, rebuilt from the live definition, no-op when already applied), so a retried booking never re-sends its confirmation. Additive JSON key; the app already ignores it when absent and falls back to the booking's created_at. Not applied: the connector apply was refused by the session's safety gate, owner applies."
   }
 ]
