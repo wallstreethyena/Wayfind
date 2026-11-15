@@ -171,7 +171,13 @@ function stub({ tableRows, tableOk = true, servedBody }) {
       const shelfOnly = u.includes("eligibility=eq.eligible");
       const from = Number(String((init.headers || {}).range || "0-").split("-")[0]);
       const rows = shelfOnly ? tableRows.filter((r) => r.lifecycle === "published" && r.eligibility === "eligible" && ["reel", "carousel"].includes(r.format)) : tableRows;
-      return resp(200, from === 0 ? rows : []);
+      // Project the select= list the way PostgREST does: a column the reader
+      // forgets to request must arrive missing here too (2026-11-14: `places`
+      // was never read, so every one link roundup looked like one business).
+      const sel = new URL(u).searchParams.get("select");
+      const cols = sel ? sel.split(",") : null;
+      const projected = cols ? rows.map((r) => Object.fromEntries(cols.filter((c) => c in r).map((c) => [c, r[c]]))) : rows;
+      return resp(200, from === 0 ? projected : []);
     }
     if (u.includes("/rest/v1/wf_owned_social")) return resp(204, null);
     if (u.includes("/rest/v1/wf_job_pulse?select=ran_at")) return resp(200, [{ ran_at: new Date().toISOString() }]);
@@ -214,7 +220,9 @@ const { GET: cronGET } = await import("../app/api/cron/owned-social/route.js");
 const cronReq = () => new Request("https://www.gowayfind.com/api/cron/owned-social", { headers: { authorization: "Bearer s3cret" } });
 const lastPulse = (job) => pulses.filter((p) => p.job === job).slice(-1)[0];
 // The monitor reads the REAL registries: a live one business post that IS on its card is green,
-const cardRows = [...[...att.keys()].map((code) => row(code, { published_at: iso(1), places: ["One business"], wayfind_links: [] })), row("RoundUp001", { published_at: iso(1), places: ["A", "B", "C"] })];
+const cardRows = [...[...att.keys()].map((code) => row(code, { published_at: iso(1), places: ["One business"], wayfind_links: [] })), row("RoundUp001", { published_at: iso(1), places: ["A", "B", "C"] }),
+  // A roundup that links ONE event (the real shape of a weekend guide) is still a roundup.
+  row("RoundUp002", { published_at: iso(1), places: ["A", "B", "C"], wayfind_links: [{ label: "One event", href: "/florida-events/one-event" }] })];
 stub({ tableRows: cardRows });
 const cronGreen = await cronGET(cronReq());
 const pg = lastPulse("owned-social-reconcile");
