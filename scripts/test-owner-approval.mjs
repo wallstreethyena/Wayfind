@@ -71,6 +71,9 @@ const git = (cwd, args, env = {}) => execFileSync("git", args, { cwd, encoding: 
   ok(findOwnerApproval([{ id: 5, ...T, user: owner, body: `/owner-approve ${"b".repeat(12)}` }], head) === null, "a different commit never approves");
   ok(findOwnerApproval([{ id: 6, ...T, user: owner, body: `please /owner-approve ${head.slice(0, 12)}` }], head) === null, "a mid-line mention is not the command");
   ok(findOwnerApproval([{ id: 7, ...T, user: { type: "User", login: "someone-else", id: 1 }, body: `/owner-approve ${head}` }], head) === null, "a non-owner login never approves");
+  ok(findOwnerApproval([{ id: 81, ...T, user: owner, performed_via_github_app: { slug: "claude", id: 1 }, body: `/owner-approve ${head}` }], head) === null, "an approval an App posted with the owner's token never approves (performed_via_github_app set)");
+  ok(findOwnerApproval([{ id: 82, ...T, user: owner, performed_via_github_app: null, body: `/owner-approve ${head}` }], head)?.id === 82, "the owner's own comment (performed_via_github_app null, as GitHub returns it) still approves");
+  ok(findOwnerApproval([{ id: 83, ...T, user: owner, performed_via_github_app: { slug: "claude" }, body: `/owner-approve ${head}` }, { id: 84, ...T, user: owner, body: `/owner-approve ${head}` }], head)?.id === 84, "an App-posted approval is skipped, a person-posted one on the same head still counts");
   ok(findOwnerApproval([{ id: 8, ...T, user: { type: "Bot", login: OWNER_LOGIN, id: OWNER_ID }, body: `/owner-approve ${head}` }], head) === null, "a bot account never approves");
   ok(findOwnerApproval([{ id: 9, ...T, user: { type: "User", login: OWNER_LOGIN, id: OWNER_ID + 1 } , body: `/owner-approve ${head}` }], head) === null
     && findOwnerApproval([{ id: 9, ...T, user: { type: "User", login: OWNER_LOGIN }, body: `/owner-approve ${head}` }], head) === null,
@@ -300,7 +303,7 @@ globalThis.fetch = async (url, init = {}) => {
   ok(uses.length === 2 && uses.every((u) => /@[0-9a-f]{40}$/.test(u)), `owner-approval pins every action to a full commit sha (${uses.join(", ")})`);
 }
 
-const EXPECTED = 65;
+const EXPECTED = 68;
 if (checks !== EXPECTED) {
   console.error(`test-owner-approval: FAIL — ran ${checks} assertions, expected exactly ${EXPECTED}; a proof was skipped or added without review.`);
   process.exit(1);

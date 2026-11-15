@@ -83,6 +83,18 @@ function unedited(comment) {
     && comment.updated_at === comment.created_at;
 }
 
+// POSTED BY A PERSON, NOT AN APP (2026-11-15). A comment an App posts with the
+// owner's user token still carries the owner's login, id and type "User"; GitHub
+// marks it only with performed_via_github_app. Eight approvals on this repository
+// (2026-11-13..15, including the one that merged #2491) were posted that way by
+// the "claude" App, so an agent holding the owner's token could satisfy this
+// gate. The owner's rule is that /owner-approve is his own sign-off and is never
+// posted by an agent: any comment with performed_via_github_app set is not
+// evidence, whatever its author fields say.
+function postedByPerson(comment) {
+  return comment.performed_via_github_app == null;
+}
+
 /**
  * Find an owner approval for exactly `headSha` among GitHub issue comments
  * (REST shape: { id, body, user: { login, id, type }, created_at, updated_at }).
@@ -95,6 +107,7 @@ export function findOwnerApproval(comments, headSha, owners = OWNERS) {
     const user = comment && comment.user;
     if (!user || user.type !== "User" || !isOwner(user, owners)) continue;
     if (!unedited(comment)) continue;
+    if (!postedByPerson(comment)) continue;
     const body = typeof comment.body === "string" ? comment.body : "";
     for (const match of body.matchAll(APPROVAL_LINE)) {
       if (match[1].toLowerCase() === head) return comment;
