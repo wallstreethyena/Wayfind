@@ -61,6 +61,23 @@ import { floridaVenueVerdict } from "../../../lib/floridaVenue.js";
  */
 export const HOMEPAGE_CARD_BUDGET_MS = 8000;
 
+/**
+ * Is this google.com/maps anchor a NAVIGATION link (a defect on an Apple Maps
+ * page) rather than a Google photo attribution? Google requires its credit
+ * ("Google Maps") beside every Google photo. The event page shows such photos
+ * on its nearby place cards (.wf-place-card-media), each credited through
+ * PhotoCreditLink, and on the hero ([data-event-hero-credit]). Both are credits.
+ * 2026-11-14/15: the probe only knew the hero and so failed 3 runs in a row on
+ * 8 card credits while the page was correct. Anything else (a "Directions"
+ * link, a card-media link that is not the credit) still counts.
+ */
+export function isGoogleNavigationLink({ inHeroCredit = false, inCardMedia = false, text = "" } = {}) {
+  if (inHeroCredit) return false;
+  const visible = String(text).replace(/\(opens in a new tab\)/i, "").trim();
+  if (inCardMedia && /^Google Maps$/i.test(visible)) return false;
+  return true;
+}
+
 /** Bounded wait for a visible card's media to settle (see place-card-controls). */
 export const CARD_MEDIA_WAIT_MS = 8000;
 export const CARD_MEDIA_TERMINAL = Object.freeze(new Set(["image", "monogram", "unavailable"]));
@@ -1081,8 +1098,13 @@ export const SCENARIOS = [
       const appleLink = await page.locator('a[href^="https://maps.apple.com/?daddr="]').count().catch(() => 0);
       ctx.ok("the page's outbound navigation link opens Apple Maps directions", appleLink > 0, "> 0", appleLink);
       // The Google photo credit (author + "Google Maps", required beside a Google photo) lives in [data-event-hero-credit]; it is not navigation.
-      const googleLink = await page.evaluate(() => [...document.querySelectorAll('a[href*="google.com/maps"]')].filter((a) => !a.closest("[data-event-hero-credit]")).length).catch(() => 0);
-      ctx.ok("no Google Maps navigation link remains on the event page (the Google photo credit is the only allowed one)", googleLink === 0, 0, googleLink);
+      const googleAnchors = await page.evaluate(() => [...document.querySelectorAll('a[href*="google.com/maps"]')].map((a) => ({
+        inHeroCredit: !!a.closest("[data-event-hero-credit]"),
+        inCardMedia: !!a.closest(".wf-place-card-media"),
+        text: a.textContent || "",
+      }))).catch(() => []);
+      const googleLink = googleAnchors.filter(isGoogleNavigationLink).length;
+      ctx.ok("no Google Maps navigation link remains on the event page (Google photo credits on the hero and place cards are the only allowed ones)", googleLink === 0, 0, googleLink);
     },
   },
 
