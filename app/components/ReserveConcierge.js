@@ -41,7 +41,7 @@ function TimesCard({ card, busy, onPick }) {
   const opts = Array.isArray(card.options) ? card.options : [];
   return (
     <div data-reserve-card="times" style={{ margin: "0 0 10px" }}>
-      <div style={{ fontSize: 13, color: C.light, marginBottom: 8 }}>{[weekdayLabel(card.date), card.partySize ? partyWord(card.partySize) : ""].filter(Boolean).join(" · ")}</div>
+      <div style={{ fontSize: 13, color: C.light, marginBottom: 8 }}>{[exactDay(card.date), card.partySize ? partyWord(card.partySize) : ""].filter(Boolean).join(" · ")}</div>
       <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
         {opts.map((o) => <button key={o.time} type="button" data-reserve-time={o.time} style={chip} disabled={busy} onClick={() => onPick(o.time)}>{o.label || timeLabel(o.time)}</button>)}
       </div>
@@ -51,7 +51,7 @@ function TimesCard({ card, busy, onPick }) {
 
 // Tapping a time never books. It shows this card first; only "Confirm booking" posts /api/reserve/book.
 function ConfirmCard({ card, name, who, busy, onConfirm, onBack }) {
-  const when = [weekdayLabel(card.date), timeLabel(card.time)].filter(Boolean).join(" at ");
+  const when = [exactDay(card.date), timeLabel(card.time)].filter(Boolean).join(" at ");
   const line = (name || "the restaurant") + ", " + when + (card.partySize ? " for " + card.partySize : "") + "." + (who ? " Booking as " + who + "." : "");
   return (
     <div data-reserve-card="confirm" style={box}>
@@ -67,7 +67,7 @@ function ConfirmCard({ card, name, who, busy, onConfirm, onBack }) {
 function RequestCard({ card, name, busy, onSend }) {
   return (
     <div data-reserve-card="request" style={box}>
-      <div style={{ fontSize: 15, fontWeight: 800, color: C.text, lineHeight: 1.4 }}>{[weekdayLabel(card.date), timeLabel(card.time), card.partySize ? partyWord(card.partySize) : ""].filter(Boolean).join(" · ")}</div>
+      <div style={{ fontSize: 15, fontWeight: 800, color: C.text, lineHeight: 1.4 }}>{[exactDay(card.date), timeLabel(card.time), card.partySize ? partyWord(card.partySize) : ""].filter(Boolean).join(" · ")}</div>
       <Note>{name || "The restaurant"} answers requests on its own time. Nothing is confirmed until they say yes.</Note>
       <div style={{ marginTop: 10 }}><button type="button" style={{ ...mainBtn, opacity: busy ? 0.7 : 1 }} disabled={busy} onClick={onSend}>Send request</button></div>
     </div>
@@ -136,6 +136,26 @@ function SigninCard({ onSignedIn, place }) {
   );
 }
 
+// "Friday, Nov 20": the weekday AND the calendar date, so a review never leaves the day in doubt (2026-11-14).
+function exactDay(iso) {
+  return dateLabel(iso) || weekdayLabel(iso);
+}
+
+// "Which Friday?": the two real calendar dates, one tap each (the server asked; nothing is assumed).
+function DatesCard({ card, busy, onPick }) {
+  const opts = Array.isArray(card.options) ? card.options : [];
+  return (
+    <div data-reserve-card="dates" style={{ display: "flex", flexWrap: "wrap", gap: 8, margin: "0 0 10px" }}>
+      {opts.map((o) => (
+        <button key={o.date} type="button" data-reserve-date={o.date} disabled={busy} onClick={() => onPick(o)}
+          style={{ minHeight: 44, padding: "8px 14px", background: C.card, border: `1px solid ${C.accent}`, borderRadius: 999, color: C.text, fontSize: 14.5, fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}>
+          {o.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 function ChooseCard({ card, busy, onChoose }) {
   const list = Array.isArray(card.restaurants) ? card.restaurants : [];
   return (
@@ -160,7 +180,7 @@ function BookedCard({ card, place }) {
   const [gone, setGone] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
-  const when = [weekdayLabel(b.date), timeLabel(b.time)].filter(Boolean).join(" at ");
+  const when = [exactDay(b.date), timeLabel(b.time)].filter(Boolean).join(" at ");
   const target = place && place.id ? place : { id: b.placeId, name };
   const doCancel = async () => {
     if (busy) return;
@@ -197,7 +217,7 @@ function BookedCard({ card, place }) {
 function RequestedCard({ card, place }) {
   const b = card.booking || {};
   const name = b.restaurantName || (place && place.name) || "the restaurant";
-  const when = [weekdayLabel(b.date), timeLabel(b.time)].filter(Boolean).join(" at ");
+  const when = [exactDay(b.date), timeLabel(b.time)].filter(Boolean).join(" at ");
   return (
     <div data-reserve-card="requested" data-reserve-status="requested" style={box}>
       <div style={{ fontSize: 16, fontWeight: 800, color: C.text, lineHeight: 1.35, overflowWrap: "anywhere" }}>{"Request sent to " + name + " for " + when + " for " + b.partySize + ". We'll show their answer in My reservations."}</div>
@@ -383,6 +403,7 @@ export default function ReserveConcierge({ initialPlace, initialMessage, embedde
       case "profile": return <ProfileCard busy={busy} error={cardError} onSubmit={submitProfile} />;
       case "signin": return <SigninCard onSignedIn={() => { clearPendingReserve(); afterSignIn(); }} place={pl} />;
       case "choose": return <ChooseCard card={c} busy={busy} onChoose={choose} />;
+      case "dates": return <DatesCard card={c} busy={busy} onPick={(o) => { if (!busyRef.current) { push({ role: "user", text: o.label }); convo.current.push({ role: "user", content: o.label }); runTurn(); } }} />;
       case "alternatives": return (
         <div data-reserve-card="alternatives">
           {c.contact && c.contact.url ? <a data-reserve-contact="1" href={c.contact.url} style={{ ...linkBtn, margin: "0 0 10px" }}>{c.contact.label}</a> : null}

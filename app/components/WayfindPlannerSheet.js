@@ -39,7 +39,9 @@ import {
   trackPlannerEvent,
 } from "../../lib/plannerAnalytics.js";
 import { extractCityFromPath } from "../../lib/plannerProactive.js";
-import { classifySantaMessage } from "../../lib/santaIntent.js";
+import { classifySantaMessage, TRIP_WORDS } from "../../lib/santaIntent.js";
+import { resolveSearchArea } from "../../lib/santaArea.js";
+import { parsePlannerCity } from "../../lib/plannerParse.js";
 import { resolveOrganizeTrip, organizePreview } from "../../lib/organizeTrips.js";
 
 // Reserve lives inside this one Santa thread (owner 2026-11-14). The existing, proven concierge and picks are
@@ -75,6 +77,25 @@ function readStoredPoint() {
     }
   } catch { /* ignore */ }
   return null;
+}
+
+// wf_center as stored (lat, lng, loc, ts): santaArea decides whether it is fresh and consistent enough to use.
+function readStoredCenter() {
+  const store = safeLocalStorage();
+  if (!store) return null;
+  try {
+    const c = JSON.parse(store.getItem(CENTER_KEY) || "null");
+    if (c && Number.isFinite(Number(c.lat)) && Number.isFinite(Number(c.lng))) {
+      return { lat: Number(c.lat), lng: Number(c.lng), loc: typeof c.loc === "string" ? c.loc : null, ts: Number(c.ts) };
+    }
+  } catch { /* ignore */ }
+  return null;
+}
+
+/** "Tables in Tampa" / "Tables near you": the label always names the area the server was asked to search. */
+function picksTitle(area) {
+  if (!area || !area.label) return "Tables to look at";
+  return /^near /.test(area.label) ? "Tables " + area.label : "Tables in " + area.label;
 }
 
 function readCurrentAuthUserId() {
@@ -409,6 +430,16 @@ export default function WayfindPlannerSheet() {
   voiceRef.current = voice;
   const seedPlaceRef = useRef(seedPlace);
   seedPlaceRef.current = seedPlace;
+  const areaCtxRef = useRef({ pathname, contextCity });
+  areaCtxRef.current = { pathname, contextCity };
+  const awaitingAreaRef = useRef(null); // a "find me a table" waiting for the city Santa asked for
+
+  /** Where to look, from the newest, strongest signal (lib/santaArea.js). Unknown means ask, never "nearby". */
+  const areaFor = useCallback((text) => {
+    const { pathname: path, contextCity: cityName } = areaCtxRef.current;
+    const pageCity = extractCityFromPath(path) || (cityName ? parsePlannerCity(String(cityName)) : null);
+    return resolveSearchArea({ text, selectedPlace: seedPlaceRef.current, storedPoint: readStoredCenter(), pageCity, nowMs: Date.now() });
+  }, []);
 
   /** Hand a table request (or a "find me a restaurant") to the one concierge, in this thread. */
   const routeToReserve = useCallback((text, routed, { showUser }) => {
@@ -421,8 +452,16 @@ export default function WayfindPlannerSheet() {
     reserveActiveRef.current = true;
     if (routed.kind === "find_food") {
       // Discovery is not permission to book: picks first, a tap starts the booking, Confirm books.
-      entries.push({ role: "assistant", text: p.findFood });
-      entries.push({ role: "picks", k: Date.now(), intent: { cuisine: undefined, date: details.date || undefined, time: details.time || undefined, partySize: details.partySize || undefined } });
+      const intent = { cuisine: undefined, date: details.date || undefined, time: details.time || undefined, partySize: details.partySize || undefined };
+      const area = areaFor(clean);
+      if (area.source === "unknown") {
+        // No reliable area: ask for the city first, never a statewide list dressed up as "nearby".
+        awaitingAreaRef.current = intent;
+        entries.push({ role: "assistant", text: p.askCity });
+      } else {
+        entries.push({ role: "assistant", text: p.findFood });
+        entries.push({ role: "picks", k: Date.now(), intent, area });
+      }
       setMessages((prev) => [...prev, ...entries]);
       trackPlannerEvent(PLANNER_EVENTS.REQUEST, { surface: "reserve_find", voice: v, has_active_trip: false });
       return;
@@ -441,11 +480,13 @@ export default function WayfindPlannerSheet() {
     }
     // No restaurant named and none on screen: offer grounded picks alongside the one question the concierge asks.
     // They land right under Santa's answer (the concierge's reply), not above it.
-    if (!named && !seedPl && !(reserveSnapRef.current && reserveSnapRef.current.placeKnown)) {
-      pendingPicksRef.current = { role: "picks", k: Date.now() + 1, intent: { date: details.date || undefined, time: details.time || undefined, partySize: details.partySize || undefined } };
+    // Only with a known area: unknown means the concierge's own question stands alone.
+    const area = !named && !seedPl && !(reserveSnapRef.current && reserveSnapRef.current.placeKnown) ? areaFor(clean) : null;
+    if (area && area.source !== "unknown") {
+      pendingPicksRef.current = { role: "picks", k: Date.now() + 1, intent: { date: details.date || undefined, time: details.time || undefined, partySize: details.partySize || undefined }, area };
     }
     trackPlannerEvent(PLANNER_EVENTS.REQUEST, { surface: "reserve", voice: v, has_active_trip: false });
-  }, []);
+  }, [areaFor]);
 
   /** A restaurant tapped in the thread: start or continue the one booking with it. Not a booking yet. */
   const pickRestaurant = useCallback((pick) => {
@@ -520,6 +561,22 @@ export default function WayfindPlannerSheet() {
     if (!text || loading) return;
     if (submittingRef.current) return;
     if (reserveSnapRef.current.busy) return; // one request chain at a time
+
+    // ---- the city Santa asked for: "Tampa" answers the open question, it is not a new trip
+    if (awaitingAreaRef.current) {
+      const held = awaitingAreaRef.current;
+      awaitingAreaRef.current = null;
+      // Only a short city answer ("Tampa", "in St. Pete please"). "Plan my Tampa weekend" is a new request.
+      const answer = classifySantaMessage(text, { today: siteTodayStr(), reserveActive: false, hasActiveTrip: false });
+      const city = answer.kind === "none" && !TRIP_WORDS.test(text) && text.split(/\s+/).length <= 5 ? parsePlannerCity(text) : null;
+      const area = city ? resolveSearchArea({ text, nowMs: Date.now() }) : null;
+      if (area && area.source === "message_city") {
+        setDraft("");
+        const pv = plannerPersona(voiceRef.current || "wayfind");
+        setMessages((prev) => [...prev, { role: "user", text }, { role: "assistant", text: pv.findFood }, { role: "picks", k: Date.now(), intent: held, area }]);
+        return;
+      }
+    }
 
     // ---- one dispatcher for every Santa turn: a table goes to Reserve, a trip goes to the planner
     const routed = classifySantaMessage(text, {
@@ -1022,7 +1079,7 @@ export default function WayfindPlannerSheet() {
     if (m.role === "picks") {
       return (
         <Suspense fallback={null}>
-          <ReservePicks key={m.k} intent={m.intent} point={readStoredPoint()} title="Tables to look at" onPick={pickRestaurant} />
+          <ReservePicks key={m.k} intent={m.intent} area={m.area || null} title={picksTitle(m.area)} onPick={pickRestaurant} />
         </Suspense>
       );
     }
