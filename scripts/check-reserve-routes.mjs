@@ -55,7 +55,7 @@ function fakeRepo({ partners = PARTNERS, open = OPEN, bookings = [], failBook = 
       if (bookReturns) return bookReturns;
       if (!open.includes(a.time)) return { ok: false, code: "SLOT_FULL" };
       const dup = rows.find((r) => r.user_id === a.userId && r.idempotency_key === a.idempotencyKey);
-      if (dup) return { ok: true, booking: { ...dup, ...name(dup) } };
+      if (dup) return { ok: true, replayed: true, booking: { ...dup, ...name(dup) } }; // as wf_reserve_book returns it since 20261115130000
       const r = { id: "22222222-2222-4222-8222-" + String(rows.length).padStart(12, "0"), confirmation_code: "K7M2QX", status: "confirmed", place_id: a.placeId, user_id: a.userId, guest_name: a.guestName, party_size: a.partySize, reserve_date: a.date, reserve_time: a.time + ":00", note: a.note, guest_phone: a.phone, phone_consent_at: a.phone ? new Date(NOW).toISOString() : null, idempotency_key: a.idempotencyKey, created_at: new Date(NOW).toISOString() };
       rows.push(r);
       return { ok: true, booking: { ...r, ...name(r) } };
@@ -208,6 +208,18 @@ const bookBody = { placeId: PLACE, partySize: 4, date: "2026-11-14", time: "19:3
   await live.handlers.book(post("/api/reserve/book", bookBody)); await live.settle();
   ok(live.mail.guest.length === 1 && live.mail.partner.length === 1 && live.mail.guest[0].kind === "confirmation" && live.mail.partner[0].partner.place_id === PLACE, "production + live partner + email ready: one guest confirmation and one restaurant notice");
   ok(live.mail.guest[0].booking.confirmation_code === "K7M2QX" && live.mail.partner[0].booking.guest_name === "Gabe", "the emails carry the saved booking");
+  // A retry with the same idempotency key returns the saved booking and sends NOTHING again (one notice per booking).
+  const again = await live.handlers.book(post("/api/reserve/book", bookBody)); await live.settle();
+  const againBody = await again.json();
+  ok(again.status === 201 && againBody.booking.confirmationCode === "K7M2QX" && live.repository.rows.length === 1 && live.mail.guest.length === 1 && live.mail.partner.length === 1, "a replayed booking is returned but not re-notified: guest " + live.mail.guest.length + ", partner " + live.mail.partner.length);
+  // Before the replay flag migration is live: an old saved row returned for this key is a replay too.
+  const oldRow = { id: "22222222-2222-4222-8222-000000000099", confirmation_code: "OLD123", status: "confirmed", place_id: PLACE, user_id: USER, guest_name: "Gabe", party_size: 2, reserve_date: bookBody.date, reserve_time: bookBody.time + ":00", idempotency_key: bookBody.idempotencyKey, created_at: new Date(NOW).toISOString(), restaurant_name: "Test Bistro" };
+  const old = harness({ env: PROD, extra: { now: () => NOW + 60_000 }, repo: { bookReturns: { ok: true, booking: oldRow } } }); // no replayed flag
+  const ob = await old.handlers.book(post("/api/reserve/book", bookBody)); await old.settle();
+  ok(ob.status === 201 && old.mail.guest.length === 0 && old.mail.partner.length === 0, "a saved row older than the request is not re-notified even without the flag: guest " + old.mail.guest.length);
+  const fresh = harness({ env: PROD, repo: { bookReturns: { ok: true, booking: { ...oldRow, confirmation_code: "NEW123" } } } });
+  await fresh.handlers.book(post("/api/reserve/book", bookBody)); await fresh.settle();
+  ok(fresh.mail.guest.length === 1, "positive control: a row stamped as this request starts IS notified: " + fresh.mail.guest.length);
   const demo = harness({ env: { ...PROD } });
   const dr = await json(await demo.handlers.book(post("/api/reserve/book", { ...bookBody, placeId: DEMO })));
   await demo.settle();

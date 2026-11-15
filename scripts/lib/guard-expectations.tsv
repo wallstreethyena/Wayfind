@@ -426,7 +426,7 @@ scripts/check-redirect-host-classification.mjs	1	CALL	blocks-ci-and-deploy	1	Rev
 scripts/check-redirect-suspect-gate.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	107	0	0	d89a8956a0043f8d6fe3511c8582cdae778eb3a7bf0a763342ed8cace7693415
 scripts/check-redirect-traffic-class.mjs	0	CALL	blocks-ci-and-deploy	1	-	69	0	0	46aefdea49373e6beff72362559440e5a13b0963d2f854d6a07392e7a702d4f3
 scripts/check-release-contamination.mjs	0	CALL	blocks-ci-and-deploy	1	-	7	0	0	e1de05ca3d31afc66d316641720f42ab41ad784a47881a66e2aa62d86823778d
-scripts/check-reserve-routes.mjs	0	CALL	blocks-ci-and-deploy	1	-	236	0	0	8466c1f650aab6dceaf1ee5608604c20bfa86f6c3ac89635f77d0c8ce166d1da
+scripts/check-reserve-routes.mjs	0	CALL	blocks-ci-and-deploy	1	-	242	0	0	00b79c462cb13fbf4e5f5d2420d5a72d0f2fe87dc28c37e5ffc0437353ea7518
 scripts/check-response-imports.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	0	1	0	cef5e7b06943a1d81b650f617738518f8c62940e24314fec252d445da9115485
 scripts/check-reverse-migration-reconciliation.mjs	0	CALL	blocks-ci-and-deploy	1	-	12	0	0	67b3d315407af74ea68fdb83d46a2f5f4ace4ae8f99497431767ad21434598bc
 scripts/check-rpc-schema-contract.mjs	0	CALL	scheduled-monitoring-only	0	-	1	0	0	999e384ea587c72237ef9fbaea68d51505bc9e41f195be227f0506f5d7a16198
