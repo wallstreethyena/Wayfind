@@ -340,7 +340,9 @@ const wide = (host) => [...host.querySelectorAll(".wf-place-card-cta > *")];
   const Sheet = await loadComponent(path.join(ROOT, "app/components/ReserveSheet.js"), ROOT);
   const History = await loadComponent(path.join(ROOT, "app/components/ReserveHistory.js"), ROOT);
   const DAY = rc.addDaysIso(siteTodayStr(), 3);
-  const WD = rc.weekdayLabel(DAY);
+  // Exact calendar day on every review and status card (owner 2026-11-14): "Tue, Nov 17", never a bare weekday.
+  const WD = rc.dateLabel(DAY);
+  ok(/^[A-Z][a-z]{2}, [A-Z][a-z]{2} \d{1,2}$/.test(WD), "the review day label carries the calendar date: " + WD);
   localStorage.setItem("sb-e2eplaceholder-auth-token", JSON.stringify({ access_token: "tok", refresh_token: "ref", token_type: "bearer", expires_in: 3600, expires_at: Math.floor(Date.now() / 1000) + 3600, user: { id: "11111111-1111-4111-8111-111111111111", aud: "authenticated", role: "authenticated", email: "t@example.com", user_metadata: {}, app_metadata: {} } }));
   const settle = (ms = 80) => act(async () => { await new Promise((r) => setTimeout(r, ms)); });
   const click = async (el) => { await act(async () => { el.dispatchEvent(new w.MouseEvent("click", { bubbles: true, cancelable: true })); }); await settle(); };
@@ -374,7 +376,7 @@ const wide = (host) => [...host.querySelectorAll(".wf-place-card-cta > *")];
   await click(chips[1]);
   ok(callsTo("POST", "/api/reserve/book").length === 0, "tapping a time chip makes ZERO /book calls (it only shows the confirm step)");
   const cf = m.host.querySelector('[data-reserve-card="confirm"]');
-  ok(!!cf && cf.textContent.includes(`Mario's Trattoria, ${WD} at 7:00 PM for 4.`) && /Booking as Gabriel P\./.test(cf.textContent), "confirm card: '<Restaurant>, <Weekday> at <time> for <N>. Booking as <profile.display>.' (got " + (cf && cf.textContent.slice(0, 120)) + ")");
+  ok(!!cf && cf.textContent.includes(`Mario's Trattoria, ${WD} at 7:00 PM for 4.`) && /Booking as Gabriel P\./.test(cf.textContent), "confirm card: '<Restaurant>, <Day, Mon D> at <time> for <N>. Booking as <profile.display>.' (got " + (cf && cf.textContent.slice(0, 120)) + ")");
   ok(!!cf.querySelector('[data-reserve-confirm="1"]') && cf.querySelector('[data-reserve-confirm="1"]').textContent === "Confirm booking" && !!bt(m, "Pick another time"), "confirm card has a primary 'Confirm booking' (data-reserve-confirm) and a quiet 'Pick another time'");
   await click(bt(m, "Pick another time"));
   ok(callsTo("POST", "/api/reserve/book").length === 0 && m.host.querySelectorAll("[data-reserve-time]").length === 2 && !m.host.querySelector('[data-reserve-card="confirm"]'), "'Pick another time' brings the times back and still books nothing");
@@ -388,7 +390,7 @@ const wide = (host) => [...host.querySelectorAll(".wf-place-card-cta > *")];
   const bk = callsTo("POST", "/api/reserve/book")[0];
   ok(!!bk && bk.body.placeId === "partner-1" && bk.body.date === DAY && bk.body.time === "19:00" && bk.body.partySize === 4 && /^[0-9a-f-]{36}$/.test(bk.body.idempotencyKey), "tapping a time posts /api/reserve/book with placeId, date, time, party and an idempotency key");
   const bookedEl = m.host.querySelector('[data-reserve-card="booked"]');
-  ok(!!bookedEl && bookedEl.textContent.includes(`Booked. Mario's Trattoria, ${WD} at 7:00 PM for 4.`), "booked card reads exactly 'Booked. <Restaurant>, <Weekday> at <h:mm PM> for <N>.' (got " + (bookedEl && bookedEl.textContent.slice(0, 90)) + ")");
+  ok(!!bookedEl && bookedEl.textContent.includes(`Booked. Mario's Trattoria, ${WD} at 7:00 PM for 4.`), "booked card reads exactly 'Booked. <Restaurant>, <Day, Mon D> at <h:mm PM> for <N>.' (got " + (bookedEl && bookedEl.textContent.slice(0, 90)) + ")");
   ok(/K7M2QX/.test(bookedEl.textContent) && !!bt(m, "Add to itinerary") && !!bt(m, "Add to calendar") && !!bt(m, "Cancel") && /^https:\/\/www\.google\.com\/maps\/dir\//.test(bookedEl.querySelector("[data-reserve-directions]").getAttribute("href")), "booked card: confirmation code, Add to itinerary, Directions, Add to calendar, Cancel");
   ok(/Booking as Gabriel P\./.test(m.host.textContent) && !!bt(m, "Change"), "'Booking as Gabriel P. · Change' comes from response.profile.display");
   await click(bt(m, "Add to itinerary"));
@@ -413,7 +415,7 @@ const wide = (host) => [...host.querySelectorAll(".wf-place-card-cta > *")];
   const keysSeen = callsTo("POST", "/api/reserve/book").map((c) => c.body.idempotencyKey);
   ok(keysSeen.length === 2 && keysSeen[0] === keysSeen[1], "a retry reuses the same idempotency key");
   const reqEl = m.host.querySelector('[data-reserve-card="requested"]');
-  ok(!!reqEl && reqEl.textContent.includes(`Request sent to Mario's Trattoria for ${WD} at 7:15 PM for 4. We'll show their answer in My reservations.`) && !/Booked/.test(m.host.textContent), "requested status shows 'Request sent to <name> for <Weekday> at <time> for <N>. We'll show their answer in My reservations.' and never 'Booked'");
+  ok(!!reqEl && reqEl.textContent.includes(`Request sent to Mario's Trattoria for ${WD} at 7:15 PM for 4. We'll show their answer in My reservations.`) && !/Booked/.test(m.host.textContent), "requested status shows 'Request sent to <name> for <Day, Mon D> at <time> for <N>. We'll show their answer in My reservations.' and never 'Booked'");
   await m.unmount();
 
   // (c) SLOT_FULL shows the alternatives from the error as chips
