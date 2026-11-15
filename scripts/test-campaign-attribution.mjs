@@ -157,15 +157,26 @@ ok((await K.sendCapi({ built, token: "", fetchImpl: mockFetch })).reason === "ca
 // env-gated branches exercised with the flag ON and OFF (CLAUDE.md revenue rule 1)
 {
   const route = await import("../app/api/meta/capi/route.js");
-  const mkReq = (ua) => new Request("https://www.gowayfind.com/api/meta/capi", { method: "POST", headers: { "user-agent": ua, "content-type": "application/json", cookie: "_fbp=fb.1.1700000000.123", "x-forwarded-for": "203.0.113.9" }, body: JSON.stringify({ ...rel[0], source_path: "/halloween-in-florida" }) });
+  const mkReq = (ua, extra = {}, cookieExtra = "") => new Request("https://www.gowayfind.com/api/meta/capi", { method: "POST", headers: { "user-agent": ua, "content-type": "application/json", cookie: "_fbp=fb.1.1700000000.123" + cookieExtra, "x-forwarded-for": "203.0.113.9", ...extra }, body: JSON.stringify({ ...rel[0], source_path: "/halloween-in-florida" }) });
   const realFetch = globalThis.fetch; const hits = [];
   globalThis.fetch = async (u, i) => { hits.push({ u, body: JSON.parse(i.body) }); return { ok: true, status: 200 }; };
   delete process.env.META_CAPI_ACCESS_TOKEN;
   ok((await route.POST(mkReq(desk))).status === 204 && hits.length === 0, "route: no token => 204, nothing sent");
   process.env.META_CAPI_ACCESS_TOKEN = "T";
-  const r1 = await route.POST(mkReq(desk));
-  ok(r1.status === 200 && hits.length === 1 && hits[0].body.data[0].event_id === rel[0].event_id && hits[0].body.test_event_code === "TEST12345" && hits[0].body.data[0].user_data.fbp === "fb.1.1700000000.123", "route: token ON => one Graph call, same event_id, test_event_code, fbp from cookie");
-  ok((await route.POST(mkReq("node"))).status === 204 && (await route.POST(mkReq("Mozilla/5.0 WayfindVerify"))).status === 204 && hits.length === 1, "route: verifier UAs never relayed");
+  delete process.env.META_CAPI_CONSENT_POLICY;
+  ok((await route.POST(mkReq(desk, { "x-vercel-ip-country": "US" }))).status === 204 && hits.length === 0, "route: token ON but no consent policy => 204, nothing sent (consent gate, default blocked)");
+  process.env.META_CAPI_CONSENT_POLICY = "us_no_gpc";
+  ok((await route.POST(mkReq(desk, { "x-vercel-ip-country": "US", "sec-gpc": "1" }))).status === 204 && hits.length === 0, "route: GPC => 204, nothing sent");
+  ok((await route.POST(mkReq(desk, { "x-vercel-ip-country": "DE" }))).status === 204 && hits.length === 0, "route: non-US => 204, nothing sent");
+  const r1 = await route.POST(mkReq(desk, { "x-vercel-ip-country": "US" }));
+  ok(r1.status === 200 && hits.length === 1 && hits[0].body.data[0].event_id === rel[0].event_id && !("test_event_code" in hits[0].body) && hits[0].body.data[0].data_processing_options?.[0] === "LDU" && hits[0].body.data[0].user_data.fbp === "fb.1.1700000000.123", "route: approved policy + US + no GPC => one Graph call, same event_id, LDU on, client test code STRIPPED, fbp from cookie");
+  ok((await route.POST(mkReq("node", { "x-vercel-ip-country": "US" }))).status === 204 && (await route.POST(mkReq("Mozilla/5.0 WayfindVerify", { "x-vercel-ip-country": "US" }))).status === 204 && hits.length === 1, "route: verifier UAs never relayed");
+  delete process.env.META_CAPI_CONSENT_POLICY;
+  process.env.META_CAPI_TEST_EVENT_CODE = "TEST98765"; process.env.META_CAPI_QA_SECRET = "qa-secret-qa-secret-qa-secret-01";
+  ok((await route.POST(mkReq(desk, {}, "; wf_meta_qa=wrong-secret-wrong-secret-0000"))).status === 204 && hits.length === 1, "route: QA lane with the wrong secret cookie => nothing sent");
+  const r2 = await route.POST(mkReq(desk, {}, "; wf_meta_qa=qa-secret-qa-secret-qa-secret-01"));
+  ok(r2.status === 200 && hits.length === 2 && hits[1].body.test_event_code === "TEST98765", "route: QA lane (secret cookie + server test code) sends with the SERVER test code, never the client's");
+  delete process.env.META_CAPI_TEST_EVENT_CODE; delete process.env.META_CAPI_QA_SECRET;
   delete process.env.META_CAPI_ACCESS_TOKEN; globalThis.fetch = realFetch;
   const posted = [];
   const wR = mkWin(); wR.fetch = (u, i) => { posted.push({ u, body: JSON.parse(i.body) }); return Promise.resolve({}); };

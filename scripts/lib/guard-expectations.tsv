@@ -580,7 +580,7 @@ scripts/test-buzz.mjs	0	CALL	blocks-ci-and-deploy	1	-	31	0	0	c74f2e07a5f1cfdffa8
 scripts/test-cache-refresh.mjs	0	CALL	blocks-ci-and-deploy	1	-	11	0	0	1bea1ba9eb8a83cd7565d87a6dd65720c9dfa2d7a9c861ac3a65dc7cc4c90515
 scripts/test-cached-place-identity.mjs	0	CALL	blocks-ci-and-deploy	1	-	33	0	0	fd15306989de31ee5547b1a22d2dcf4b7a809704a131d1c6047d9ce6c592b668
 scripts/test-cafe-identity.mjs	0	CALL	blocks-ci-and-deploy	1	-	59	0	0	fd8c10f231431c8302c9202e716f88ed547138f950cc676d1da17d8fff5b65f2
-scripts/test-campaign-attribution.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	78	0	0	c1ea5afa028251b567705296fe6fa54eadb4e99bca9ed02a7d8b6d6748d3928f
+scripts/test-campaign-attribution.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	92	0	0	a3ebaed8e5c5c0934b2cba8673d3f8bd2fc09cadb9d3b1861af1f9911ae41736
 scripts/test-card-a11y.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	22	1	0	a77d7f5222a07735f8ee301caeb98796016fb15bdf5134ace7698da221302aae
 scripts/test-card-action-row.mjs	0	RENDER	blocks-ci-and-deploy	1	-	8	0	0	90695f2bcb19a8ff34c031999d31df2109a08fa68a65e20b3902f2feaea23ed5
 scripts/test-card-analytics.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	31	0	0	dca1e6742fbca17e4ed8c6fbc7c89a9406adf02a01d8b2982d66f6164020c30b
@@ -918,7 +918,7 @@ scripts/test-marine.mjs	0	CALL	blocks-ci-and-deploy	1	-	9	0	0	58a610338d99cabb36
 scripts/test-marquee-day-trips.mjs	0	CALL	blocks-ci-and-deploy	1	-	45	0	0	4b8b84548e3af3fce167699208da10c9162f063856c921564e5af54948c7d7b5
 scripts/test-member-score.mjs	0	CALL	blocks-ci-and-deploy	1	-	11	0	0	87a08378129ec717bdb7db9307a96c9ba4a45d38faa19551a73078fdc5438618
 scripts/test-menu-taxonomy-audit.mjs	0	CALL	blocks-ci-and-deploy	1	-	43	0	0	7597e7ad014618a7b950ffea09db0ab6d1f76e431cd484b9be2f6f2bf9940c86
-scripts/test-meta-partner-handoff.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	60	0	0	7a7d5fb98a6614f736fd52e7215245c05d2c20ff88afc1bece3d1cd976a1cbe6
+scripts/test-meta-partner-handoff.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	211	0	0	51b56aa07439d11ac49ad0588c194590eb79750ec42d4420ae4b782d97713a05
 scripts/test-meta-pixel.mjs	0	CALL	blocks-ci-and-deploy	1	-	35	0	0	7a09235fd33aef9b6d46601b7ccfda8063aeeaf4171d63c54953c87109eb9845
 scripts/test-migration-state-reconciler.mjs	0	CALL	blocks-ci-and-deploy	1	-	16	0	0	211c37dcc788ff7c9ce8a716d6e567fafd3a90822c9fa48bae1fbbd43b8e4c37
 scripts/test-mobile-header-fit.mjs	0	RENDER	blocks-ci-and-deploy	1	-	29	0	0	8dcc6396be0995a014fbade77694509d5ddf93f80dcf0175168a132c378d1b17
