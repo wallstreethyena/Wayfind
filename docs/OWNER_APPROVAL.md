@@ -39,7 +39,12 @@ commit. The command names one exact commit. Pushing anything new changes the
 head, so the old approval stops matching and the owner has to approve again.
 
 **What does not count:** commit author or committer names (anyone can type
-"Gabriel Pereira" into a commit), labels, and a green local run.
+"Gabriel Pereira" into a commit), labels, a green local run, and a comment an
+App posted with the owner's token. GitHub marks that comment with
+`performed_via_github_app` (the "claude" App posted eight such approvals on
+this repository in November 2026, including the one that merged #2491). A
+comment the owner posts himself comes back with that field null and still
+counts. The same rejection applies when an earlier approval is carried forward.
 
 ## Catching up with main does not void an approval (2026-11-12)
 
@@ -65,7 +70,8 @@ head, and `scripts/lib/ownerApproval.mjs` compares them file by file:
   what changed.
 
 Only the owner's own unedited approval comments are compared (the same evidence as
-an exact-head approval), at most the three newest. Each comparison is logged as an
+an exact-head approval, including the refusal of any comment an App posted), at
+most the three newest. Each comparison is logged as an
 `approval-audit` JSON record (PR, approved and current head and base commits, a
 fingerprint of each change, the files, the approver, the approval time, the
 decision and why), and the Owner Gate App puts the records on its check run.

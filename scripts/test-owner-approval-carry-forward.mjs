@@ -278,6 +278,8 @@ v = decideOwnerApproval(ev([approve(s1.approvedSha, { login: OWNER.login, id: OW
 ok(!v.ok, "decide: a bot account with the owner's login is never carried forward");
 v = decideOwnerApproval(ev([approve(s1.approvedSha, undefined, { updated_at: "2026-11-12T23:00:00Z" })], cf));
 ok(!v.ok, "decide: an edited approval comment is never carried forward");
+v = decideOwnerApproval(ev([approve(s1.approvedSha, undefined, { performed_via_github_app: { slug: "claude", id: 1 } })], cf));
+ok(!v.ok, "decide: an approval an App posted with the owner's token is never carried forward");
 v = decideOwnerApproval(ev([approve("e".repeat(40))], cf));
 ok(!v.ok, "decide: diffs supplied for a sha the owner never approved are ignored");
 v = decideOwnerApproval(ev([approve(s1.approvedSha)], [{ sha: s1.approvedSha, error: "GitHub API /compare answered HTTP 404" }]));

@@ -51,7 +51,9 @@ Gabriel approves a defined scope, behavior and risk envelope, not merely a trans
   `/owner-approve <sha>` forward when the pull request's own change (GitHub's three-dot diff
   from the merge base) is the same change; anything it cannot prove identical, apart from
   moved guard-registry rows and receipts for approved migrations, needs a fresh approval,
-  and the check names what changed. Every compared approval is logged as an
+  and the check names what changed. A comment an App posted with the owner's token
+  (`performed_via_github_app` set) is never an approval, including for carry-forward.
+  Every compared approval is logged as an
   `approval-audit` record (PR, approved and current head and base, fingerprints, files,
   actor, time, why). Tests: `scripts/test-owner-approval-carry-forward.mjs`.
 

@@ -89,6 +89,22 @@ function unedited(comment) {
     && comment.updated_at === comment.created_at;
 }
 
+// POSTED BY A PERSON, NOT AN APP (2026-11-15, from PR #2542). A comment an App
+// posts with the owner's user token still carries the owner's login, id and type
+// "User"; GitHub marks it only with performed_via_github_app. Eight approvals on
+// this repository (2026-11-13..15, including the one that merged #2491) were
+// posted that way by the "claude" App, so an agent holding the owner's token
+// could satisfy this gate. The owner's rule is that /owner-approve is his own
+// sign-off and is never posted by an agent: any comment with
+// performed_via_github_app set is not evidence, whatever its author fields say.
+// The same rejection applies to carry-forward. A missing field is treated as a
+// person (GitHub returns null for a comment posted on github.com, and the
+// hermetic fixtures omit the key); the gate reads the GitHub REST comment, which
+// includes the key.
+function postedByPerson(comment) {
+  return comment.performed_via_github_app == null;
+}
+
 /**
  * Find an owner approval for exactly `headSha` among GitHub issue comments
  * (REST shape: { id, body, user: { login, id, type }, created_at, updated_at }).
@@ -101,6 +117,7 @@ export function findOwnerApproval(comments, headSha, owners = OWNERS) {
     const user = comment && comment.user;
     if (!user || user.type !== "User" || !isOwner(user, owners)) continue;
     if (!unedited(comment)) continue;
+    if (!postedByPerson(comment)) continue;
     const body = typeof comment.body === "string" ? comment.body : "";
     for (const match of body.matchAll(APPROVAL_LINE)) {
       if (match[1].toLowerCase() === head) return comment;
@@ -163,7 +180,8 @@ export const MAX_CARRY_FORWARD_CANDIDATES = 3;
 /**
  * Commits the owner approved on this pull request, newest comment first, from the
  * same evidence findOwnerApproval trusts (owner account, User type, unedited
- * comment, full sha on its own line). Excludes `headSha`. Returns
+ * comment posted by the person and not an App, full sha on its own line).
+ * Excludes `headSha`. Returns
  * [{ sha, comment }], at most MAX_CARRY_FORWARD_CANDIDATES.
  */
 export function approvedCommitCandidates(comments, headSha, owners = OWNERS) {
@@ -176,6 +194,7 @@ export function approvedCommitCandidates(comments, headSha, owners = OWNERS) {
     const user = comment && comment.user;
     if (!user || user.type !== "User" || !Array.isArray(owners) || !isOwner(user, owners)) continue;
     if (!unedited(comment)) continue;
+    if (!postedByPerson(comment)) continue;
     const body = typeof comment.body === "string" ? comment.body : "";
     for (const match of body.matchAll(APPROVAL_LINE)) {
       const sha = match[1].toLowerCase();
