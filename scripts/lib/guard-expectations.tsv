@@ -1045,6 +1045,7 @@ scripts/test-rail-daylight.mjs	0	CALL	blocks-ci-and-deploy	1	-	27	0	0	bc7aaa4909
 scripts/test-rail-device-distance.mjs	0	RENDER	blocks-ci-and-deploy	1	-	34	0	0	39a10c1d474cc39794a9ba068b0e0ad4380c4cef716ae2886ea642fb89aa1d3c
 scripts/test-rail-failure.mjs	0	CALL	blocks-ci-and-deploy	1	-	40	0	0	d594470349950484cd878f6b483a48f7913ca5d556b68b57a1243f2292836d3c
 scripts/test-rail-like-stays.mjs	0	RENDER	blocks-ci-and-deploy	1	-	49	0	0	b224df52a9248bab7f929a7c552ed16420c8f641dc1ce0292af05a8b73e30adc
+scripts/test-rail-menu-reserve.mjs	0	CALL	blocks-ci-and-deploy	1	-	7	0	0	0a76e99dde6e13ba16920d3698d776e68d6b28528e260cdb4abd2ea5bfc2f205
 scripts/test-rail-paging.mjs	0	CALL	blocks-ci-and-deploy	1	-	83	0	0	819aa5397dce75ce7a420ce9f62788f59867adb00ce15843b0e5d82df55315f2
 scripts/test-rail-score-order.mjs	0	CALL	blocks-ci-and-deploy	1	-	7	0	0	b1a279c5cba898bd8bde31cd198ae2ae34547812a4dd6578a9c9a9ec22e677fc
 scripts/test-rail-select.mjs	0	CALL	blocks-ci-and-deploy	1	-	252	0	0	7548d56ccde5ccffb0eadf0e3f14bcf2d4ae6a51da1868393783ad8ac4fc0cf2

@@ -1917,7 +1917,7 @@ export default function DaypartRail({
         </div>
       </section>
 
-      <section className="wf8-menusec" ref={menuRef} aria-label={selRail ? `${selRail.title} — picks` : "Picks"} aria-hidden={!selRail}>
+      <section className={"wf8-menusec" + (railOwnsItsOwnAnswer ? " is-composed" : "")} ref={menuRef} aria-label={selRail ? `${selRail.title} — picks` : "Picks"} aria-hidden={!selRail}>
         <div className="wf8-in">
           <div className="wf8-mbar">
             <p className="wf8-mhd">{selThumb ? <img className="wf8-mthumb" src={selThumb} alt="" width="24" height="24" decoding="async" aria-hidden="true" /> : null}<span>Showing <b>{selRail ? selRail.title : ""}</b>{selRail && !selRail.guides && selRail.id !== "chef" && selRail.id !== "augtober" && selRail.id !== "halloween" && selRail.id !== "christmas" ? near : ""}{selRail && !railOwnsItsOwnAnswer && selectedTotal ? ` · ${selectedTotal} options` : ""}</span></p>
