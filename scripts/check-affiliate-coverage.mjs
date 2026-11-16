@@ -261,6 +261,10 @@ ok(statuses[7] === COVERAGE.MAPPED, "ZooTampa Christmas maps to its verified boo
 ok(statuses[8] === COVERAGE.UNMAPPED, "a new event at an affiliate merchant with no mapping or current decision is a revenue leak");
 ok(statuses[9] === COVERAGE.NO_PARTNER && statuses[10] === COVERAGE.NO_URL, "a merchant nobody sells → no-partner; no URL → no-url");
 ok(statuses[11] === COVERAGE.MAPPED, "Zoo Boo, mapped to Tiqets' Zoo Miami admission offer → mapped");
+// Review-by boundaries come from the registry itself, so recording a dated
+// re-check (which moves reviewBy) never breaks these executions.
+const reviewByOf = (id) => NO_EXACT_AFFILIATE_PRODUCT[id].reviewBy;
+const dayAfterReviewBy = (id) => new Date(Date.parse(reviewByOf(id) + "T00:00:00Z") + 86400000).toISOString().slice(0, 10);
 const zooLights = { ...fx[12], slug: "zoo-lights-miami-2026" };
 ok(SEPARATELY_TICKETED.includes(zooLights.event_id) && eventTicketDeal(zooLights.event_id) === null && eventTicketCta(zooLights.event_id) === null,
   "Zoo Lights is separately ticketed and never borrows Zoo Miami daytime admission");
@@ -271,12 +275,12 @@ ok(zooLightsFeed.url === zooLights.official_ticket_url && !zooLightsFeed.ticketV
   "Zoo Lights feed preserves the organizer ticket URL without a false affiliate claim");
 ok(zooLightsTicket?.kind === "organizer" && zooLightsTicket.href === zooLights.official_ticket_url,
   "Zoo Lights detail keeps the official ticket CTA while its affiliate product is unavailable");
-ok(eventAffiliateCoverage(zooLights, { today: "2026-11-17" }).status === COVERAGE.DECIDED_NO_EXACT_PRODUCT,
+ok(eventAffiliateCoverage(zooLights, { today: reviewByOf("zoo-lights-miami-2026") }).status === COVERAGE.DECIDED_NO_EXACT_PRODUCT,
   "Zoo Lights decision remains current on its review-by boundary");
-const zooLightsExpired = tallyCoverage([zooLights], { today: "2026-11-18" });
+const zooLightsExpired = tallyCoverage([zooLights], { today: dayAfterReviewBy("zoo-lights-miami-2026") });
 ok(zooLightsExpired.unmapped.length === 1 && zooLightsExpired.decidedNoExactProduct === 0 && coveragePulseRow(zooLightsExpired).succeeded === 0,
   "the day after review-by, Zoo Lights returns to the leak alert and fails its coverage pulse");
-ok(staleNoProductDecisions("2026-11-18").some((r) => r.eventId === zooLights.event_id),
+ok(staleNoProductDecisions(dayAfterReviewBy("zoo-lights-miami-2026")).some((r) => r.eventId === zooLights.event_id),
   "the existing no-product review guard also detects an overdue Zoo Lights decision");
 const howlBare = eventAffiliateCoverage({ event_id: "howl-o-scream-tampa-2026", official_event_url: "https://buschgardens.com/tampa/" }, { today: FIXTURE_TODAY });
 const howlPrefixed = eventAffiliateCoverage({ event_id: "wfc:howl-o-scream-tampa-2026", official_event_url: "https://buschgardens.com/tampa/" }, { today: FIXTURE_TODAY });
@@ -291,15 +295,15 @@ for (const [eventId, row] of Object.entries(NO_EXACT_AFFILIATE_PRODUCT)) {
   ok(typeof row.reason === "string" && row.reason.length >= 20, `${eventId}: no-product decision carries an auditable reason`);
 }
 ok(
-  eventAffiliateCoverage(fx[6], { today: "2026-11-11" }).status === COVERAGE.UNMAPPED,
+  eventAffiliateCoverage(fx[6], { today: dayAfterReviewBy(fx[6].event_id) }).status === COVERAGE.UNMAPPED,
   "an expired no-product decision automatically becomes a revenue leak again",
 );
 const leaks = unmappedSellableEvents(fx, { today: FIXTURE_TODAY });
 ok(leaks.length === 1 && leaks[0].eventId === "new-central-florida-zoo-special-2026", "current decisions suppress only reviewed cases; a new affiliate-merchant event still pages");
 const rtu = { event_id: "rock-the-universe-2027", official_event_url: "https://www.universalorlando.com/web/en/us/things-to-do/events/rock-the-universe" };
 ok(eventAffiliateCoverage(rtu, { today: "2026-09-23" }).status === COVERAGE.DECIDED_NO_EXACT_PRODUCT, "Rock the Universe 2027 is an owner no-resale decision, not a silent leak");
-ok(eventAffiliateCoverage(rtu, { today: "2026-11-11" }).status === COVERAGE.UNMAPPED, "the Rock the Universe decision expires and pages again for a re-check");
-const expiredLeaks = unmappedSellableEvents([fx[6]], { today: "2026-11-11" });
+ok(eventAffiliateCoverage(rtu, { today: dayAfterReviewBy("rock-the-universe-2027") }).status === COVERAGE.UNMAPPED, "the Rock the Universe decision expires and pages again for a re-check");
+const expiredLeaks = unmappedSellableEvents([fx[6]], { today: dayAfterReviewBy(fx[6].event_id) });
 ok(expiredLeaks.length === 1 && expiredLeaks[0].eventId === "asian-lantern-festival-central-florida-zoo-2026", "expired reviewed decisions return to the leak queue automatically");
 
 // ── 7. the watch is wired, executed ────────────────────────────────────────
