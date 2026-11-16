@@ -11,6 +11,12 @@ change only with the owner's approval:
   `scripts/lib/ownerApproval.mjs`, `scripts/lib/githubPullEvidence.mjs`,
   `scripts/lib/githubAppAuth.mjs`, `scripts/test-owner-approval.mjs`,
   `scripts/test-owner-approval-gate.mjs`
+- the guard runner's control path: `scripts/run-guards.mjs`, every local module
+  it imports (`scripts/lib/guardShards.mjs`, `scripts/lib/guardEnv.mjs`),
+  `scripts/guards-serial.txt`, and `.npmrc`. A pull request that made the runner
+  exit 0, or set `ignore-scripts=true`, used to turn the required guards check
+  and Vercel's prebuild green with a failing guard. Adding a guard to
+  `scripts/guards.txt` stays a normal change.
 - **everything under `.github/`**: every workflow and `CODEOWNERS`. A workflow
   can report a check under any name and can read repository secrets, so adding
   or changing one is an owner decision.
