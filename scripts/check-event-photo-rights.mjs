@@ -56,6 +56,25 @@ for (const p of paths) {
   ok(!/^(photo|image|picture)\b/i.test(p.alt.trim()), `${p.src} alt text must describe the scene, not restate that it is a photo`);
 }
 
+// Owner-supplied Crystal Classic image: exact bytes, exact event, canonical
+// feed mapping after the separately verified wf_events hero update.
+{
+  const { createHash } = await import("node:crypto");
+  const { curatedToFeedEvent, eventJsonLd } = await import("../lib/curatedEvents.js");
+  const id = "crystal-classic-2026";
+  const src = "/events/siesta-key-crystal-classic-2026-sand-sculpture.webp";
+  const shots = eventPhotos(id);
+  ok(shots?.hero?.src === src, "Crystal Classic resolves the exact supplied hero");
+  ok(shots?.hero?.w === 870 && shots?.hero?.h === 978, "supplied portrait dimensions are preserved");
+  const bytes = readFileSync(path.join(REPO, "public", src));
+  ok(bytes.length === 184400 && createHash("sha256").update(bytes).digest("hex") === "79775dc8f75485170c73c81346027d9ec596fc9f4ae00bccf40040f53b2b2561", "Crystal Classic asset is byte-identical to the supplied WebP");
+  const row = { event_id: id, event_status: "scheduled", year: 2026, slug: "siesta-key-crystal-classic-2026", event_name: "Siesta Key Crystal Classic", start_date: "2026-11-13", end_date: "2026-11-16", venue: "Siesta Beach", city: "Siesta Key", state: "FL", hero_image: src, hero_image_kind: "event" };
+  const feed = curatedToFeedEvent(row);
+  ok(feed.image === src && feed.imageIsVenue === false, "canonical feed uses supplied event image, not venue photo");
+  ok(eventJsonLd(row, { siteUrl: "https://www.gowayfind.com" }).image[0] === "https://www.gowayfind.com" + src, "event structured data leads with exact supplied image");
+  ok(eventPhotos("another-event-at-siesta-beach") === null, "shared venue cannot borrow the supplied photo");
+}
+
 /* ── 4. No affiliation claim in a credit line ────────────────────────────── */
 // creatorRights.BANNED_AFFILIATION_PHRASES includes "wayfind partner" for a
 // Lanham Act s.43(a) reason. A business CAN agree to be called a partner, but
