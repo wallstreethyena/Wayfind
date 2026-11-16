@@ -38,7 +38,7 @@ const OPEN = ["17:00", "17:30", "18:00", "18:30", "19:30", "20:00", "20:30", "21
 
 // An in-memory repository. The RPC fakes enforce the rules the database enforces (ownership, place) so
 // authorization is proven by what the handler PASSES, and every method called is recorded.
-function fakeRepo({ partners = PARTNERS, open = OPEN, bookings = [], failBook = false, bookReturns = null, failSlots = false } = {}) {
+function fakeRepo({ partners = PARTNERS, open = OPEN, bookings = [], failBook = false, bookReturns = null, failSlots = false, profile = null } = {}) {
   const calls = [];
   const rows = bookings.map((r) => ({ ...r }));
   const log = (n, a) => calls.push(a === undefined ? n : { n, a });
@@ -55,7 +55,7 @@ function fakeRepo({ partners = PARTNERS, open = OPEN, bookings = [], failBook = 
       if (bookReturns) return bookReturns;
       if (!open.includes(a.time)) return { ok: false, code: "SLOT_FULL" };
       const dup = rows.find((r) => r.user_id === a.userId && r.idempotency_key === a.idempotencyKey);
-      if (dup) return { ok: true, booking: { ...dup, ...name(dup) } };
+      if (dup) return { ok: true, replayed: true, booking: { ...dup, ...name(dup) } }; // as wf_reserve_book returns it since 20261115130000
       const r = { id: "22222222-2222-4222-8222-" + String(rows.length).padStart(12, "0"), confirmation_code: "K7M2QX", status: "confirmed", place_id: a.placeId, user_id: a.userId, guest_name: a.guestName, party_size: a.partySize, reserve_date: a.date, reserve_time: a.time + ":00", note: a.note, guest_phone: a.phone, phone_consent_at: a.phone ? new Date(NOW).toISOString() : null, idempotency_key: a.idempotencyKey, created_at: new Date(NOW).toISOString() };
       rows.push(r);
       return { ok: true, booking: { ...r, ...name(r) } };
@@ -85,6 +85,7 @@ function fakeRepo({ partners = PARTNERS, open = OPEN, bookings = [], failBook = 
       return { ok: true, booking: { ...b, ...name(b) } };
     },
     async listUserBookings(u, p) { log("listUserBookings"); return rows.filter((r) => r.user_id === u && r.place_id === p).map((r) => ({ ...r, wf_reserve_partners: { name: name(r).restaurant_name, phone: name(r).restaurant_phone } })); },
+    async readBookingProfile(u) { log("readBookingProfile"); return profile && u === USER ? { ...profile } : null; },
     async listPartnerBookings(p) { log("listPartnerBookings"); return rows.filter((r) => r.place_id === p && (r.status === "confirmed" || r.status === "proposed")); },
   };
 }
@@ -202,12 +203,54 @@ const bookBody = { placeId: PLACE, partySize: 4, date: "2026-11-14", time: "19:3
   ok(!p3.text.includes("555-0199"), "the guest response never echoes the phone number");
 }
 
+// ---- the guest's confirmation text: confirmed + ticked + a known number, once per booking ----
+{
+  const SMS_ENV = { ...PROD, RESERVE_SMS_ENABLED: "1", TWILIO_ACCOUNT_SID: "AC" + "0".repeat(32), TWILIO_AUTH_TOKEN: "t".repeat(32), TWILIO_MESSAGING_SERVICE_SID: "MG" + "1".repeat(32) };
+  const PROFILE = { first_name: "Gabe", last_name: "P", mobile_phone: "+19415550142", consent_at: new Date(NOW).toISOString() };
+  const textsFor = (opts) => { const texts = []; const h = harness({ ...opts, extra: { ...(opts.extra || {}), sendBookingConfirmationSms: async (a) => { texts.push(a); return { sent: true }; } } }); return { h, texts }; };
+  const { h, texts } = textsFor({ env: SMS_ENV, repo: { profile: PROFILE } });
+  const r1 = await h.handlers.book(post("/api/reserve/book", { ...bookBody, smsConsent: true })); await h.settle();
+  const t1 = await r1.text();
+  ok(r1.status === 201 && texts.length === 1 && texts[0].booking.status === "confirmed" && texts[0].consent.sms === true && texts[0].consent.phone === "+19415550142" && texts[0].partner.place_id === PLACE, "a confirmed booking with the tick texts once, to the profile number, linked to that booking: " + texts.length);
+  ok(t1.includes("555-0100") && !t1.includes("0142") && !t1.includes("5550142"), "the booking response never echoes the text number (positive control: the restaurant's own phone IS there)");
+  await h.handlers.book(post("/api/reserve/book", { ...bookBody, smsConsent: true })); await h.settle();
+  ok(texts.length === 1, "a retried booking (same key) sends no second text: " + texts.length);
+  const none = textsFor({ env: SMS_ENV, repo: { profile: PROFILE } });
+  await none.h.handlers.book(post("/api/reserve/book", bookBody)); await none.h.settle();
+  ok(none.texts.length === 0, "no tick, no text");
+  const off = textsFor({ env: PROD, repo: { profile: PROFILE } });
+  await off.h.handlers.book(post("/api/reserve/book", { ...bookBody, smsConsent: true })); await off.h.settle();
+  ok(off.texts.length === 0, "texts switched off: no text even with the tick");
+  const reqRow = { id: "22222222-2222-4222-8222-000000000077", confirmation_code: "REQ123", status: "requested", place_id: PLACE, user_id: USER, guest_name: "Gabe", party_size: 2, reserve_date: bookBody.date, reserve_time: bookBody.time + ":00", idempotency_key: bookBody.idempotencyKey, created_at: new Date(NOW).toISOString(), restaurant_name: "Test Bistro" };
+  const rq = textsFor({ env: SMS_ENV, repo: { profile: PROFILE, bookReturns: { ok: true, booking: reqRow } } });
+  await rq.h.handlers.book(post("/api/reserve/book", { ...bookBody, smsConsent: true })); await rq.h.settle();
+  ok(rq.texts.length === 0, "a request (not confirmed) never gets a confirmation text");
+  const nophone = textsFor({ env: SMS_ENV, repo: { profile: { ...PROFILE, mobile_phone: null } } });
+  await nophone.h.handlers.book(post("/api/reserve/book", { ...bookBody, smsConsent: true })); await nophone.h.settle();
+  ok(nophone.texts.length === 0, "no number on the booking or profile: no text");
+  const fail = harness({ env: SMS_ENV, repo: { profile: PROFILE }, extra: { sendBookingConfirmationSms: async () => { throw new Error("provider down"); } } });
+  const fr = await fail.handlers.book(post("/api/reserve/book", { ...bookBody, smsConsent: true })); await fail.settle();
+  ok(fr.status === 201 && fail.repository.rows.length === 1 && fail.repository.rows[0].status === "confirmed", "a text failure never fails or changes the confirmed booking");
+}
+
 // ---- emails: only live partners, only production, only when ready, never fail the booking ----
 {
   const live = harness({ env: PROD });
   await live.handlers.book(post("/api/reserve/book", bookBody)); await live.settle();
   ok(live.mail.guest.length === 1 && live.mail.partner.length === 1 && live.mail.guest[0].kind === "confirmation" && live.mail.partner[0].partner.place_id === PLACE, "production + live partner + email ready: one guest confirmation and one restaurant notice");
   ok(live.mail.guest[0].booking.confirmation_code === "K7M2QX" && live.mail.partner[0].booking.guest_name === "Gabe", "the emails carry the saved booking");
+  // A retry with the same idempotency key returns the saved booking and sends NOTHING again (one notice per booking).
+  const again = await live.handlers.book(post("/api/reserve/book", bookBody)); await live.settle();
+  const againBody = await again.json();
+  ok(again.status === 201 && againBody.booking.confirmationCode === "K7M2QX" && live.repository.rows.length === 1 && live.mail.guest.length === 1 && live.mail.partner.length === 1, "a replayed booking is returned but not re-notified: guest " + live.mail.guest.length + ", partner " + live.mail.partner.length);
+  // Before the replay flag migration is live: an old saved row returned for this key is a replay too.
+  const oldRow = { id: "22222222-2222-4222-8222-000000000099", confirmation_code: "OLD123", status: "confirmed", place_id: PLACE, user_id: USER, guest_name: "Gabe", party_size: 2, reserve_date: bookBody.date, reserve_time: bookBody.time + ":00", idempotency_key: bookBody.idempotencyKey, created_at: new Date(NOW).toISOString(), restaurant_name: "Test Bistro" };
+  const old = harness({ env: PROD, extra: { now: () => NOW + 60_000 }, repo: { bookReturns: { ok: true, booking: oldRow } } }); // no replayed flag
+  const ob = await old.handlers.book(post("/api/reserve/book", bookBody)); await old.settle();
+  ok(ob.status === 201 && old.mail.guest.length === 0 && old.mail.partner.length === 0, "a saved row older than the request is not re-notified even without the flag: guest " + old.mail.guest.length);
+  const fresh = harness({ env: PROD, repo: { bookReturns: { ok: true, booking: { ...oldRow, confirmation_code: "NEW123" } } } });
+  await fresh.handlers.book(post("/api/reserve/book", bookBody)); await fresh.settle();
+  ok(fresh.mail.guest.length === 1, "positive control: a row stamped as this request starts IS notified: " + fresh.mail.guest.length);
   const demo = harness({ env: { ...PROD } });
   const dr = await json(await demo.handlers.book(post("/api/reserve/book", { ...bookBody, placeId: DEMO })));
   await demo.settle();

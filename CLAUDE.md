@@ -10,6 +10,154 @@ Revenue-audit detail: `docs/POSTMORTEM_2026-08-25_REVENUE_PATH.md`.
 
 ---
 
+## GABRIEL EXECUTION AUTONOMY (owner operating mode, 2026-11-12, extended 2026-11-13)
+
+The loop for every mission: investigate, fix the root cause, search for siblings, protect,
+test, ship, verify, clean up, short report. Keep all the rigor. Drop the narration, the
+babysitting and the repeated approvals. The standard is quiet competence.
+
+### Missions, not screwdriver turns
+
+Once Gabriel approves a mission, that approval covers every normal, safe, reversible,
+deterministic and reasonably necessary engineering step needed to finish it. That includes:
+repository inspection; tests; database reads; transaction tests that roll back; reversible
+test data; reviewed additive migrations and approved cleanup migrations, plus their receipts;
+guard runs, builds and previews; rebases, conflict resolution that keeps approved behavior,
+branch updates and pushes; opening and updating PRs; merging when already authorized and
+required checks are green; preview and production smoke tests; telemetry and read-only
+production inspection; cache and stale-data cleanup; regression and bug fixes found inside
+the approved scope; safe retries; routine cron/job verification; documentation the change
+needs; removing temporary infrastructure; and applying an already-reviewed migration the
+mission requires. If the mission covers it, do it: never ask "should I continue?", "should I
+run the tests / merge / verify production?", or ask him to type "go" or paste an approval again.
+
+**Approval follows meaning, not the commit hash.** Gabriel approves a scope, behavior and risk
+envelope. Rebasing, main advancing, a new merge SHA, mechanical conflict resolution that keeps
+behavior, generated guard metadata, migration receipts, formatting and CI metadata carry the
+approval forward. Fresh approval only for a material change: new product behavior, expanded
+scope, more production mutation, destructive behavior, more spend, a new vendor or
+integration, auth/privacy/security changes, a weakened safety control, new sensitive data
+use, or materially different risk. Never weaken owner protection to avoid an approval, and
+keep an auditable trail. (For owner-only files the live gate is still an
+`/owner-approve <full head sha>` comment on the current head, in
+`scripts/lib/ownerApproval.mjs`. That comment does not carry to a new head until a
+merged persistence mechanism says it does.)
+
+**A tool confirmation dialog is not a new decision.** If the platform lets the agent confirm
+using the approval already given, proceed. Before asking Gabriel to do anything, check in
+order: can I do it; does the mission already cover it; does approval persistence cover it; is
+there a safe alternative. Only when all four fail and the platform literally requires his
+account, ask for that one action, in this form, then keep working on everything else:
+
+> MANUAL ACTION REQUIRED
+> Action: <exact click or step> · Link: <direct link, if any>
+> Reason: <one sentence: why only Gabriel can do it> · Previously approved scope changed: YES / NO
+
+Never send vague asks ("two clicks are waiting on you") or re-explain the mission.
+Never bypass, imitate or work around a denied action or a platform safety gate: a refusal is
+surfaced as the exact manual action needed, never routed around.
+
+**Hard stops.** Ask Gabriel for a NEW decision only when the next action would:
+1. spend money or materially increase recurring cost;
+2. permanently delete valuable production data outside an approved cleanup;
+3. weaken auth, privacy, security, legal, compliance or safety controls;
+4. need credentials, MFA, CAPTCHA or a login only Gabriel can provide;
+5. materially change user-facing behavior beyond the approved mission;
+6. choose between genuinely different product directions where his preference can't be inferred;
+7. materially expand the mission;
+8. create significant irreversible risk;
+9. send external communication he has not authorized;
+10. technically require his own identity or account (ask for only that action, as above).
+Everything else is execution. This section never relaxes any other rule in this file
+(owner-only files still need `/owner-approve <head sha>`; full prebuild green before merge).
+
+**Blocked does not mean stop.** Name the blocker and decide whether it really blocks the
+mission. Continue every independent part, try safe lawful alternatives, leave the blocked step
+ready, and ask only for the minimum action genuinely required. One provider saying no or one
+confirmation prompt never halts a whole project.
+
+### Talking to Gabriel
+
+**No implementation diary.** Do not narrate ("now reading…", "main moved again", "checks are
+running", "trying another window", "say go and I'll…"). Speak during a mission only for a
+material discovery, a material change to the mission, a genuine Gabriel-only action, a real
+incident, or completion. Do not repeat an unresolved condition unless its severity changed.
+Plain English, calm and decisive; no timestamps unless timing matters.
+
+**Classify before notifying.** EXPECTED (known result of undeployed, disabled, expired, queued
+or intentionally pending work: an undeployed route 404s, a preview is queued, CI is waiting, a
+PR is open, a cron ran healthy, no new Instagram posts, an intended exclusion fired, a
+migration is intentionally pending, a known blocker is unchanged): say nothing. INFORMATIONAL:
+final report only. ACTIONABLE: the manual action request above. INCIDENT (unexpected
+production failure in availability, revenue, security, privacy, data integrity or major
+product behavior): notify now. An error code alone is not an incident; context sets severity.
+
+**Completion report.** Default shape, readable in 30 seconds:
+```
+DONE
+What changed: <1–3 short bullets>
+Verification: <key evidence>
+Production: LIVE + VERIFIED | NOT YET VERIFIED: <reason>
+Remaining risk: NONE | <one meaningful risk>
+Gabriel action: NONE | <exact unavoidable action>
+```
+Go deeper only for high-risk incidents, migrations, revenue failures or security work.
+Concise never means hiding failed tests, an incomplete deploy, an unresolved regression,
+material uncertainty, a security or privacy concern, destructive risk or a real blocker.
+
+### Async infrastructure and temporary automation
+
+Vercel and CI queues, GitHub checks and provider processing are not babysat. When something is
+queued, record its ID, continue independent work, and check it when the mission reaches
+verification; no repeated polling, no "still queued" messages, and no timers or check-in jobs
+unless monitoring is itself the mission. If it is still unavailable then, use the strongest
+safe alternative verification and never call preview-dependent behavior passed until it was
+seen. A queued preview alone does not freeze a release: when required CI is green, guards
+pass, the diff is understood and in scope, and rollback is available, decide whether to ship
+with production verification right after deploy; if yes, ship and verify at once; if no, leave
+it ready and report one real blocker.
+
+**Temporary automation must die.** Watchers, polling scripts, keep-awake processes, temporary
+crons and debugging automation each need an explicit cleanup condition and are removed when
+the mission ends or the durable fix exists. Gabriel's Mac is not production infrastructure.
+If repeated rebases or watchers are needed because of how the repo is set up, fix that class
+of problem (merge queue, approval carry-forward) instead of babysitting it.
+
+### Rigor that matches the risk
+
+**TESTED, DEPLOYED, VERIFIED are different words.** TESTED: tests passed. DEPLOYED: the target
+version is live. VERIFIED: the required behavior was observed in the right environment. "The
+database looks correct" is not "the feature works"; "CI green" is not "production works";
+"deploy READY" is not "the user flow is verified". Verify in this order of preference:
+deterministic test, integration/browser test, preview, isolated canary, production observation
+without behavior change, and only when genuinely necessary and authorized a temporary
+production behavior change. Never disable a live safeguard just to prove its off switch works.
+
+**Fix systems, not symptoms.** Trace symptom, failing invariant, root cause, enabling
+condition, missing protection; search for the same failure class elsewhere; add regression
+protection that is wired into CI/build/deploy and red-proved where practical. Match rigor to
+risk: revenue, auth, privacy, destructive data and core infrastructure get heavy protection; a
+copy change does not. Choose the smallest robust solution, not the smallest hack and not the
+biggest project. Sort discoveries: REQUIRED and REGRESSION are fixed now; a small, safe,
+directly related fix is made if sensible; a future opportunity gets one line and you move on.
+
+**Brand assets.** Before making any Wayfind-branded visual, check the canonical vault
+(`public/brand/wayfind/` and its `manifest.json`, shipped in PR #2547). Never redraw, recolor or
+regenerate the Wayfind logo when an approved asset exists, and never leave the only copy of a
+supplied asset in chat, /tmp, a worktree or an output folder.
+
+**Completion standard.** A mission is done when its acceptance criteria are met or a genuine
+hard stop remains: code → tests → guards → build → migration → PR → merge → deploy →
+production verification, as far as authorization and tooling allow.
+
+BAD: "The migration is additive, reviewed, idempotent and required. Say 'go' and I'll apply it."
+GOOD: "The reviewed migration is required for the approved mission. Applying it now."
+
+Locked by `scripts/check-claude-md-owner-sections.mjs` (this section and every top-level
+safety section must stay present).
+
+---
+
 ## Booking integrity (no frozen lanes — these files are normal code)
 
 - **Never weaken `geoConfirms()`** in `lib/bookingResolver.js` — it stops wrong-place
@@ -33,6 +181,46 @@ Revenue-audit detail: `docs/POSTMORTEM_2026-08-25_REVENUE_PATH.md`.
    Fixing a bake-time-env bug → grep for its siblings.
 5. **New public content ships WITH sitemap + schema; new tables ship WITH RLS.** Read the
    Supabase advisor output on a schedule.
+
+## Owner Approval Persistence
+
+Gabriel approves a defined scope, behavior and risk envelope, not merely a transient commit hash.
+
+- Routine rebases, synchronization with main, mechanical conflict resolution, generated
+  metadata, migration receipts, guard-registry updates and other non-material changes must
+  not cause repeated owner approval requests. The agent verifies that the approved
+  semantics are unchanged and carries the approval forward wherever the platform permits.
+- **Never ask Gabriel to repeat an approval solely because main advanced or a branch SHA changed.**
+- Fresh approval is required only for a material change to behavior, scope, risk, spend,
+  privacy, security or production data mutation.
+- If a platform physically requires Gabriel's account to perform an action, request ONLY
+  that action.
+- How it is enforced: `scripts/lib/ownerApproval.mjs` ("APPROVAL CARRY-FORWARD") carries an
+  `/owner-approve <sha>` forward when the pull request's own change (GitHub's three-dot diff
+  from the merge base) is the same change; anything it cannot prove identical, apart from
+  moved guard-registry rows and receipts for approved migrations, needs a fresh approval,
+  and the check names what changed. A comment an App posted with the owner's token
+  (`performed_via_github_app` set) is never an approval, including for carry-forward.
+  Every compared approval is logged as an
+  `approval-audit` record (PR, approved and current head and base, fingerprints, files,
+  actor, time, why). Tests: `scripts/test-owner-approval-carry-forward.mjs`.
+
+## Wayfind Brand Assets
+
+**Before creating any Wayfind-branded visual, inspect the Wayfind Brand Asset Vault
+(`public/brand/wayfind/`) and `public/brand/wayfind/manifest.json`.** Guide: `docs/brand-assets.md`.
+
+- Official Wayfind logos, marks and brand assets supplied by Gabriel are stored in and
+  reused from that library.
+- Before generating, recreating or searching for a Wayfind logo, check the library and
+  manifest first. Never redraw, approximate, substitute, recolor or regenerate the Wayfind
+  logo when an approved canonical asset exists; use the actual asset.
+- Temporary worktrees, /tmp, chat attachments and generated-output folders are not
+  canonical storage.
+- When Gabriel supplies a new official brand asset, preserve the original, add it to the
+  library, update the manifest, and make it available for future Wayfind work.
+- Do not create duplicate copies throughout the repository when the canonical asset can be
+  referenced directly. `scripts/check-brand-vault.mjs` enforces the core masters.
 
 ## Concurrency & git
 
@@ -75,9 +263,10 @@ Revenue-audit detail: `docs/POSTMORTEM_2026-08-25_REVENUE_PATH.md`.
    touch the same anchor (rebuild the 2nd on the merged 1st).
 2. Assertion-guarded splice + a lock test wired into `npm run prebuild`.
 3. Full `npm run prebuild` green before commit. Anything red → report-only, do not merge.
-4. Squash-merge + delete branch. **Merges are owner-gated.** Owner-only files (CLAUDE.md,
-   AGENTS.md, `.github/**`, … see `scripts/lib/ownerApproval.mjs`) need an
-   `/owner-approve <head sha>` comment by the owner.
+4. Squash-merge + delete branch. **Merges are owner-gated.** Owner-only files (AGENTS.md,
+   `.github/**`, the gate scripts, … see `scripts/lib/ownerApproval.mjs`) need an
+   `/owner-approve <head sha>` comment by the owner. CLAUDE.md is NOT owner-only
+   (owner decision 2026-11-14): rule edits ship as normal PRs, green guards, squash-merge.
 5. After merge: confirm the merged union is prebuild-green and the Vercel deploy is green.
 
 `gh`/merge traps:
@@ -93,6 +282,19 @@ Revenue-audit detail: `docs/POSTMORTEM_2026-08-25_REVENUE_PATH.md`.
   verified on the actual exit code.
 - **A red guard is not a red repo.** Reproduce on a clean tree (`rm -rf .next && npx next
   build`) before reporting a broken `main`.
+
+## Production database changes — a repo file first, then the canonical apply
+
+- **No schema or data change reaches production without a committed
+  `supabase/migrations/<ts>_<name>.sql` on a PR.** The Supabase connector
+  (`apply_migration`, a writing `execute_sql`) and the Management API migrations
+  endpoint are an apply PATH, not a review: use them only to apply a merged file's
+  exact bytes, then commit the receipt (`scripts/migration-apply-log.jsonl`) or the
+  pending declaration (`scripts/migration-pending-apply.json`).
+- Scheduled and automation sessions follow the same rule. A production-only ledger
+  row turns the canary's `check-migration-reconciliation` red and can only be
+  accepted afterwards as a reviewed hash pin in `scripts/migration-historical-exceptions.json`
+  (2026-10-29/30: 14 rows, #2122; 2026-11-03 19:33Z: 3 `event_truth_integrity_*` rows, #2165).
 
 ## Writing guards & assertions — the check must answer the question you asked
 
@@ -163,6 +365,28 @@ one production chunk was swept.
   uses haversine miles (~75mi).
 - **Paid API proxies** are guarded in `middleware.js` (`lib/apiGuard.js`); add any new
   metered/scrape proxy to the matcher. `/api/eats/go` is GET-302 → `rateLimitOnly`.
+
+## Notifications — Expected-State Rule (owner directive, 2026-11-13)
+
+Before ANY push notification, email or alert to Gabriel (agent run, scheduled task or
+monitoring code), classify the condition first. An error code alone never decides it;
+context does.
+
+| class | meaning | action |
+|---|---|---|
+| **EXPECTED** | known consequence of undeployed, intentionally disabled, scheduled, expired, unavailable or explicitly pending work (an unmerged PR's route 404s, a migration not applied yet, preview queued, CI waiting) | **do not notify** |
+| **INFORMATIONAL** | useful, needs no decision (no new posts, healthy reconciliation, routine cron done, expected exclusion) | final report / logs only, **no push** |
+| **ACTIONABLE** | something only Gabriel can do (owner-account action the agent literally cannot perform) | ask for the ONE smallest exact manual action |
+| **INCIDENT** | unexpected production failure, material regression, security/privacy issue, revenue or booking path broken, data corruption, major unexpected inventory loss, critical job repeatedly failing, an owner-only action blocking a time-sensitive release | **notify** |
+
+- **Never notify because unfinished work is unfinished.** An open PR or its undeployed
+  surface is a task to finish (fix, merge-ready, or retire), not an alert.
+- **Never re-notify the same unresolved condition** unless its severity materially changes.
+  An already-known blocker with no change stays silent.
+- **Data health ≠ UI health.** "Table/DB counts are right" never becomes "the feature
+  works"; verify the user-facing surface separately and report the two separately.
+- Scheduled-task prompts must encode this rule; never write a "notify when the endpoint is
+  down" step for an endpoint that is not deployed yet.
 
 ## Housekeeping
 

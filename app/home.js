@@ -4509,14 +4509,15 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
     (async () => {
       try {
         const mod = await import("../lib/sponsoredPlaces");
-        const s = mod.sponsoredPlaceNear(center.lat, center.lng);
-        if (!dead) setSponsoredPick(s ? mod.hydrateSponsoredPlace(s, center) : null);
+        const today = siteTodayStr();
+        const s = mod.sponsoredPlaceNear(center.lat, center.lng, today);
+        if (!dead) setSponsoredPick(s ? mod.hydrateSponsoredPlace(s, center, today) : null);
         // ONE dynamic import serves both surfaces. The rail card resolves off
         // the SAME reader point, and its when-label is computed from the site
         // clock (venue-local, DST-aware) rather than the browser's — a market
         // that runs 7pm–1am must not read "Tonight" to a reader whose device
         // has already rolled past midnight in another zone.
-        const rc = mod.sponsoredRailCardForReader(center.lat, center.lng, center, siteTodayStr());
+        const rc = mod.sponsoredRailCardForReader(center.lat, center.lng, center, today, today);
         if (!dead) setRailSponsorCard(rc);
       } catch (e) { if (!dead) { setSponsoredPick(null); setRailSponsorCard(null); } }
     })();

@@ -4,7 +4,7 @@
 // photo as "backlog" never pages, which is the exact silence it exists to end.
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { parseGuidePicks, parseDedicatedGuide, parseBlogItems, classify } from "../lib/guideVisualMonitor.js";
+import { parseGuidePicks, parseDedicatedGuide, parseBlogItems, classify, picksExpectPhoto, makeGuideContextFor } from "../lib/guideVisualMonitor.js";
 
 let n = 0;
 const ok = (c, m) => { assert.ok(c, m); n++; };
@@ -39,6 +39,18 @@ ok(classify({ imgs: [], live: false, expectPhoto: true })[0] === "B", "code has 
 ok(classify({ imgs: [], live: true, hasGoogleRef: true })[0] === "A-live", "live credited rung = A-live");
 ok(classify({ imgs: [], live: true, hasGoogleRef: false })[0] === "C", "Google has no photo = C backlog, never a page");
 ok(classify({ imgs: [], live: false, expectPhoto: false, documented: true })[0] === "C", "documented exception = C");
+
+// 2026-11-15: ~150 B findings were the monitor's own false positives.
+ok(picksExpectPhoto("held", false) === false, "a held pick (deliberate null, Picture Scrapper backlog) is not expected to show a photo");
+ok(picksExpectPhoto("context", false) && picksExpectPhoto("curated", false) && picksExpectPhoto("reuse", false), "context, curated and reused picks must show a photo");
+ok(!picksExpectPhoto("missing", false) && !picksExpectPhoto("context", true), "missing and neutral picks keep their own handling");
+{
+  // Stand-in for guideContextPhoto: one asset, refused once consumed (the page's repeat rule).
+  const fake = (slug, pick, guide, { usedSrc }) => { if (usedSrc.has("/c.webp")) return null; usedSrc.add("/c.webp"); return { src: "/c.webp" }; };
+  const cf = makeGuideContextFor(fake);
+  ok(cf("s", {}, {}) && cf("s", {}, {}) === null, "the second pick of a guide cannot reuse a context photo the first consumed");
+  ok(makeGuideContextFor(fake)("s", {}, {}), "each guide starts with a clean slate");
+}
 
 const neutralHtml = '<section id="pick-1"><h2>No exact photo</h2><figure data-guide-figure="pick-neutral"><div data-photo-fallback="unavailable">Photo unavailable</div></figure></section>';
 const neutralPick = parseGuidePicks(neutralHtml)[0];

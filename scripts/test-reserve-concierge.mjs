@@ -32,11 +32,11 @@ const json = async (res) => { const t = await res.text(); return { status: res.s
 const partner = (id, name, over = {}) => ({ place_id: id, name, phone: "(941) 555-0100", stage: "live", active: true, max_party: 12, timezone: "America/New_York", lead_minutes: 60, window_days: 60, booking_mode: "instant", contact_email: "owner@example.com", ...over });
 const PARTNERS = [partner(KITCHEN, "Wayfind Test Kitchen"), partner(BISTRO, "Request Bistro", { booking_mode: "request", manage_token_hash: hashManageToken(TOKEN) })];
 const INVENTORY = [
-  { place_id: KITCHEN, name: "Wayfind Test Kitchen", locality: "Tampa", cuisines: ["american"], status: "OPERATIONAL", signals: { rating: 4.6, reviews: 300 } },
-  { place_id: GRILL, name: "Plain Grill", locality: "Tampa", cuisines: ["american"], status: "OPERATIONAL", signals: { rating: 4.2, reviews: 100 } },
-  { place_id: ULELE, name: "Ulele", locality: "Tampa", cuisines: ["native"], status: "OPERATIONAL" },
-  { place_id: "ChIJtacoloco00000001", name: "Taco Loco", locality: "Tampa", cuisines: ["mexican"], status: "OPERATIONAL" },
-  { place_id: "ChIJtacoshack0000001", name: "Taco Shack", locality: "St. Pete", cuisines: ["mexican"], status: "OPERATIONAL" },
+  { place_id: KITCHEN, name: "Wayfind Test Kitchen", locality: "Tampa", metro: "tampa", cuisines: ["american"], status: "OPERATIONAL", signals: { rating: 4.6, reviews: 300 } },
+  { place_id: GRILL, name: "Plain Grill", locality: "Tampa", metro: "tampa", cuisines: ["american"], status: "OPERATIONAL", signals: { rating: 4.2, reviews: 100 } },
+  { place_id: ULELE, name: "Ulele", locality: "Tampa", metro: "tampa", cuisines: ["native"], status: "OPERATIONAL" },
+  { place_id: "ChIJtacoloco00000001", name: "Taco Loco", locality: "Tampa", metro: "tampa", cuisines: ["mexican"], status: "OPERATIONAL" },
+  { place_id: "ChIJtacoshack0000001", name: "Taco Shack", locality: "St. Pete", metro: "st-pete", cuisines: ["mexican"], status: "OPERATIONAL" },
 ];
 const LINKS = [{ place_id: ULELE, external_id: "139954", external_slug: "ulele", active: true }];
 const SLOTS = ["17:30", "18:30", "18:45", "19:00", "19:15", "19:30", "20:00", "20:30", "21:30"];
@@ -98,7 +98,7 @@ const bookBody = (o) => ({ placeId: KITCHEN, partySize: 4, date: "2026-11-12", t
   ok(opts.length >= 1 && opts.length <= 3 && opts.every((o) => SLOTS.includes(o.time)), "A: at most 3 options and every one is a real slot");
   ok(JSON.stringify(opts.map((o) => o.time)) === JSON.stringify(["18:45", "19:00", "19:15"]), "A: the 3 nearest 7:00 PM in clock order: " + JSON.stringify(opts));
   ok(opts.every((o) => Math.abs((Number(o.time.slice(0, 2)) * 60 + Number(o.time.slice(3))) - 1140) <= 90), "A: every option is within 90 minutes of the asked time");
-  ok(r.body.say === "I found 6:45 PM, 7:00 PM or 7:15 PM for 4 tomorrow at Wayfind Test Kitchen. Which one?", "A: server written sentence: " + r.body.say);
+  ok(r.body.say === "I found 6:45 PM, 7:00 PM or 7:15 PM for 4 tomorrow, Thursday, November 12 at Wayfind Test Kitchen. Which one?", "A: server written sentence: " + r.body.say);
   ok(r.body.state.placeId === KITCHEN && r.body.state.lane === "instant" && r.body.state.date === "2026-11-12" && r.body.state.time === "19:00" && r.body.state.partySize === 4 && r.body.missing.length === 0, "A: state and missing: " + JSON.stringify(r.body.state));
   ok(r.body.profile.hasName === true && r.body.profile.hasPhone === true && r.body.profile.display === "Zebediah Q.", "A: profile booleans and display come back to the client");
   ok(!h.repository.calls.some((c) => c.n === "book" || c.n === "request"), "A: the concierge never books");
@@ -120,9 +120,12 @@ const bookBody = (o) => ({ placeId: KITCHEN, partySize: 4, date: "2026-11-12", t
   const h = harness({ extra: noAi, bookings: [prior] });
   const r = await say(h, "Book it again next Friday");
   ok(r.body.state.placeId === KITCHEN && r.body.state.restaurantName === "Wayfind Test Kitchen", "B: resolves the last booking's restaurant: " + JSON.stringify(r.body.state));
-  ok(r.body.state.partySize === 4 && r.body.state.time === "19:15" && r.body.state.date === "2026-11-20", "B: reuses the party and time, next Friday is 2026-11-20: " + JSON.stringify(r.body.state));
-  ok(r.body.card && r.body.card.type === "times" && r.body.card.options.some((o) => o.time === "19:15"), "B: shows real times for it");
-  ok(r.body.card.type !== "profile" && !/name|phone|email/i.test(r.body.say) && r.body.missing.length === 0, "B: never asks name, phone or email");
+  // "next Friday" said on a Wednesday could be Nov 13 or Nov 20: Santa asks, with both exact dates (owner 2026-11-14).
+  ok(r.body.state.partySize === 4 && r.body.state.time === "19:15" && r.body.state.date === null && r.body.missing.includes("date"), "B: reuses the party and time, and does not guess which Friday: " + JSON.stringify(r.body.state));
+  ok(r.body.card && r.body.card.type === "dates" && JSON.stringify(r.body.card.options.map((o) => o.date)) === '["2026-11-13","2026-11-20"]' && /Friday, November 13 or Friday, November 20/.test(r.body.say), "B: offers both Fridays as exact dates: " + r.body.say);
+  const r2 = await say(h, "Friday, November 20", { state: r.body.state });
+  ok(r2.body.state.date === "2026-11-20" && r2.body.card && r2.body.card.type === "times" && r2.body.card.options.some((o) => o.time === "19:15"), "B: the chosen Friday shows real times for it: " + JSON.stringify(r2.body.state));
+  ok(r2.body.card.type !== "profile" && !/name|phone|email/i.test(r2.body.say) && r2.body.missing.length === 0, "B: never asks name, phone or email");
   ok(h.repository.calls.some((c) => c.n === "listAllUserBookings"), "B: looked the last booking up through listAllUserBookings");
   const anon = await say(harness({ extra: noAi, bookings: [prior] }), "Book it again next Friday", { anon: true });
   ok(anon.body.card && anon.body.card.type === "signin" && anon.body.state.placeId === null, "B: signed out, 'again' asks to sign in and reveals no restaurant");
@@ -138,7 +141,7 @@ const bookBody = (o) => ({ placeId: KITCHEN, partySize: 4, date: "2026-11-12", t
   ok(card.type === "handoff" && r.body.state.lane === "handoff", "C: handoff card (no sign in needed): " + JSON.stringify(r.body));
   ok(card.url === `/api/reserve/go?placeId=${ULELE}&date=2026-11-13&time=19%3A15&party=4` || card.url === `/api/reserve/go?placeId=${ULELE}&date=2026-11-13&time=19:15&party=4`, "C: go URL carries placeId, date, time and party: " + card.url);
   ok(card.label === "Open Ulele on OpenTable" && card.sentTime === "19:30", "C: label and the half hour actually sent");
-  ok(r.body.say === "I can take you straight to Ulele's OpenTable booking for Friday around 7:30 PM for 4.", "C: handoff sentence: " + r.body.say);
+  ok(r.body.say === "I can take you straight to Ulele's OpenTable booking for Friday, November 13 around 7:30 PM for 4.", "C: handoff sentence: " + r.body.say);
   ok(!/booked|available|confirmed|open table/i.test(r.body.say), "C: the handoff sentence never says booked or available");
   ok(!h.repository.calls.some((c) => c.n === "slots" || c.n === "book" || c.n === "request"), "C: no openings read, nothing booked");
   const go = await h.handlers.go(new Request(ORIGIN + card.url, { headers: { "user-agent": "Mozilla/5.0 (iPhone)" } }));
@@ -174,7 +177,7 @@ const bookBody = (o) => ({ placeId: KITCHEN, partySize: 4, date: "2026-11-12", t
   const g = harness({ env: emailEnv, extra: { ...noAi, afterResponse: (p) => pending.push(p), sendPartnerNotice: async (a) => { sent.push(["partner", a.booking.status]); }, sendGuestEmail: async (a) => { sent.push(["guest", a.kind, a.booking.status]); } } });
   const q = await say(g, "Book Request Bistro Friday around 7 for 4");
   ok(q.body.card && q.body.card.type === "request" && q.body.card.date === "2026-11-13" && q.body.card.time === "19:00" && q.body.card.partySize === 4 && q.body.state.lane === "request", "D: a request card: " + JSON.stringify(q.body));
-  ok(q.body.say === "They don't offer instant booking through Wayfind yet. I can send the restaurant a request for Friday at 7:00 PM for 4.", "D: request sentence: " + q.body.say);
+  ok(q.body.say === "They don't offer instant booking through Wayfind yet. I can send the restaurant a request for Friday, November 13 at 7:00 PM for 4.", "D: request sentence: " + q.body.say);
   ok(!g.repository.calls.some((c) => c.n === "slots"), "D: a request partner never has openings read or claimed");
   const sl = await json(await g.handlers.slots(new Request(ORIGIN + `/api/reserve/slots?placeId=${BISTRO}&date=2026-11-13&party=4`)));
   ok(sl.body.slots.length === 0 && sl.body.lane === "request", "D: slots for a request partner is empty and says lane request");
@@ -271,7 +274,7 @@ const bookBody = (o) => ({ placeId: KITCHEN, partySize: 4, date: "2026-11-12", t
   ok(p("Book Wayfind Test Kitchen tomorrow around 7 for four").restaurant === "Wayfind Test Kitchen" && p("Can you reserve a table at Ulele on Friday at 7:30 for 4 please").restaurant === "Ulele" && p("book it again next Friday").again === true && p("book it again").restaurant === null, "F: parser restaurant and 'again'");
   ok(p("yes").restaurant === null && p("around 7").restaurant === null && p("for 4").restaurant === null, "F: filler never becomes a restaurant");
   ok(parseConciergeOutput('noise {"restaurant":"A B","again":true,"date":"2026-11-12","time":"19:00","partySize":4,"ask":null} tail').again === true && parseConciergeOutput("nope") === null && parseConciergeOutput("[1]") === null, "F: model JSON parse");
-  ok(dayWords("2026-11-12", TODAY) === "tomorrow" && dayWords("2026-11-13", TODAY) === "Friday" && dayWords("2026-11-20", TODAY) === "Friday, November 20" && dayWords(TODAY, TODAY) === "today", "F: day words");
+  ok(dayWords("2026-11-12", TODAY) === "tomorrow, Thursday, November 12" && dayWords("2026-11-13", TODAY) === "Friday, November 13" && dayWords("2026-11-20", TODAY) === "Friday, November 20" && dayWords(TODAY, TODAY) === "today, Wednesday, November 11", "F: day words");
 
   // registry
   const flagOn = { ...PROD, RESERVE_OPENTABLE_API: "on" };
@@ -310,6 +313,39 @@ const bookBody = (o) => ({ placeId: KITCHEN, partySize: 4, date: "2026-11-12", t
   ok(!/anthropic\.com|\bfetch\s*\(/.test(concierge + strip(src("lib/reserveProviders/index.js"))), "F: no direct network call in the concierge or the registry");
   const walk = (d) => readdirSync(d).flatMap((f) => { const q = d + "/" + f; return statSync(q).isDirectory() ? walk(q) : /\.(js|mjs)$/.test(q) ? [q] : []; });
   ok(walk("lib/reserveProviders").length === 7, "F: all provider files exist (index, shared, direct, request, handoff, api, none)");
+}
+
+// ---- G. dates are exact and never guessed (America/New_York) ------------------------------------------------
+{
+  const at = (iso) => harness({ extra: { ...noAi, now: () => Date.parse(iso) } });
+  const ctx = { context: { placeId: KITCHEN } };
+  // A time already gone today is asked about, never silently moved to tomorrow. 23:30Z is 6:30 PM Eastern.
+  const past = await say(at("2026-11-11T23:30:00Z"), "tonight at 6 for 4", ctx);
+  ok(past.body.state.date === "2026-11-11" && past.body.state.time === null && past.body.missing.includes("time") && /6:00 PM today \(Wednesday, November 11\) has already passed/.test(past.body.say), "G: a passed 'tonight at 6' asks, keeps today, never tomorrow: " + past.body.say);
+  const later = await say(at("2026-11-11T23:30:00Z"), "tonight at 7 for 4", ctx);
+  ok(later.body.state.date === "2026-11-11" && later.body.state.time === "19:00" && later.body.card && later.body.card.type === "times", "G: a later time tonight stays tonight: " + JSON.stringify(later.body.state));
+  // Midnight: 04:30Z on Nov 12 is still 11:30 PM Nov 11 Eastern, so "tomorrow" is Nov 12, not Nov 13.
+  const mid = await say(at("2026-11-12T04:30:00Z"), "tomorrow at 7 for 4", ctx);
+  ok(mid.body.state.date === "2026-11-12", "G: just before Eastern midnight, tomorrow is the next Eastern day: " + mid.body.state.date);
+  // DST: Nov 1 2026 22:30 EST is 03:30Z Nov 2. Today is still Nov 1; Mar 8 2026 23:30 EDT is 03:30Z Mar 9.
+  const dst = await say(at("2026-11-02T03:30:00Z"), "tomorrow at 7 for 4", ctx);
+  ok(dst.body.state.date === "2026-11-02", "G: after the fall DST change, tomorrow follows the Eastern calendar: " + dst.body.state.date);
+  const spring = await say(at("2026-03-09T03:30:00Z"), "tomorrow at 7 for 4", ctx);
+  ok(spring.body.state.date === "2026-03-09", "G: after the spring DST change, tomorrow follows the Eastern calendar: " + spring.body.state.date);
+  // "this Friday" and a bare "Friday" are the coming one; an explicit date beats a weekday phrase.
+  const thisFri = await say(harness({ extra: noAi }), "this Friday at 7 for 4", ctx);
+  ok(thisFri.body.state.date === "2026-11-13" && !(thisFri.body.card && thisFri.body.card.type === "dates"), "G: 'this Friday' is the coming Friday, no question: " + thisFri.body.state.date);
+  const explicit = await say(harness({ extra: noAi }), "next Friday, Nov 20 at 7 for 4", ctx);
+  ok(explicit.body.state.date === "2026-11-20" && !(explicit.body.card && explicit.body.card.type === "dates"), "G: an explicit calendar date settles 'next Friday': " + explicit.body.state.date);
+  // The newest explicit date wins over the saved one.
+  const first = await say(harness({ extra: noAi }), "Nov 13 at 7 for 4", ctx);
+  const moved = await say(harness({ extra: noAi }), "actually make it Nov 20", { ...ctx, state: first.body.state });
+  ok(first.body.state.date === "2026-11-13" && moved.body.state.date === "2026-11-20" && moved.body.state.time === "19:00", "G: the newest explicit date wins: " + JSON.stringify(moved.body.state));
+  // "next Friday" said ON a Friday has one meaning: a week out.
+  const onFri = await say(at("2026-11-13T15:00:00Z"), "next Friday at 7 for 4", ctx);
+  ok(onFri.body.state.date === "2026-11-20" && !(onFri.body.card && onFri.body.card.type === "dates"), "G: next Friday said on a Friday is a week out: " + onFri.body.state.date);
+  // Every review sentence names the exact calendar date.
+  ok(/today, Wednesday, November 11/.test(later.body.say) && /Thursday, November 12/.test(mid.body.say), "G: every times sentence names the exact calendar date: " + later.body.say + " | " + mid.body.say);
 }
 
 if (failed) { console.error(`test-reserve-concierge: ${failed} of ${count} assertions failed`); process.exit(1); }

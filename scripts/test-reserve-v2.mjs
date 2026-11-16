@@ -271,8 +271,19 @@ function harness({ env = PROD, ...repoOpts } = {}, extra = {}) {
   const partners = [partner("ChIJwayfindpartner01", "Partner Cubano")];
   const links = [{ place_id: "ChIJopentablelink001", external_id: "555", external_slug: null, active: true }];
   const score = (r) => toDisplayScore(wayfindScore(r.signals.rating, r.signals.reviews));
-  const run = async (req, opts = {}) => findTables({ repository: fakeRepo({ inventory, partners, links, slotsByPlace: { "ChIJwayfindpartner01": ["17:00", "19:30", "20:15"] }, ...opts }), env: PROD, request: cleanFindRequest(req, "2026-11-11") });
+  const run = async (req, opts = {}) => findTables({ repository: fakeRepo({ inventory, partners, links, slotsByPlace: { "ChIJwayfindpartner01": ["17:00", "19:30", "20:15"] }, ...opts }), env: PROD, request: cleanFindRequest({ metro: "tampa", ...req }, "2026-11-11") });
 
+  // No area at all (no metro, no point, no name): never a statewide "nearby" list (owner 2026-11-14).
+  const noArea = await findTables({ repository: fakeRepo({ inventory, partners, links }), env: PROD, request: cleanFindRequest({ cuisine: "cuban" }, "2026-11-11") });
+  ok(noArea.ok && noArea.needsArea === true && noArea.picks.length === 0, "no area: needsArea, zero picks");
+  const named = await findTables({ repository: fakeRepo({ inventory, partners, links }), env: PROD, request: cleanFindRequest({ query: "Walkup Cubano" }, "2026-11-11") });
+  ok(!named.needsArea, "a named restaurant can still be looked up without an area");
+  const farPoint = await findTables({ repository: fakeRepo({ inventory, partners, links }), env: PROD, request: cleanFindRequest({ cuisine: "cuban", lat: 25.79, lng: -80.13 }, "2026-11-11") });
+  ok(farPoint.picks.length === 0, "with a point, rows beyond 25 miles are dropped server side even if the store returns them: " + farPoint.picks.length);
+  const wideFar = await findTables({ repository: fakeRepo({ inventory, partners, links }), env: PROD, request: cleanFindRequest({ cuisine: "cuban", lat: 28.54, lng: -81.38, wide: true }, "2026-11-11") });
+  ok(wideFar.picks.length === 0, "the wider choice is 60 miles around the point, not statewide (Orlando to Tampa is ~78 mi)");
+  const wideNear = await findTables({ repository: fakeRepo({ inventory, partners, links }), env: PROD, request: cleanFindRequest({ cuisine: "cuban", lat: 28.34, lng: -82.46, wide: true }, "2026-11-11") });
+  ok(wideNear.picks.length === 3, "the wider choice reaches 27 miles out: " + wideNear.picks.length);
   const all = await run({ cuisine: "cuban" });
   ok(all.ok && all.picks.length === 3, "at most 3 picks");
   ok(JSON.stringify(all.picks.map((p) => [p.placeId, p.path])) === JSON.stringify([["ChIJopentablelink001", "opentable"], ["ChIJwayfindpartner01", "wayfind"], ["ChIJnolinkhighest001", "none"]].map(([i, p]) => [i, p])), "bookable paths first (by score), then the best unbookable: " + JSON.stringify(all.picks.map((p) => [p.placeId, p.path])));
@@ -309,7 +320,9 @@ function harness({ env = PROD, ...repoOpts } = {}, extra = {}) {
   const clean = cleanFindRequest({ query: "<script>", cuisine: "Bad;DROP", lat: 999, lng: "x", date: "2020-01-01", time: "19:10", party: 99, metro: "NOT OK!" }, "2026-11-11");
   ok(clean.query === null && clean.cuisine === null && clean.lat === null && clean.lng === null && clean.date === null && clean.time === null && clean.party === null && clean.metro === null, "every invalid filter is dropped, not guessed");
   const hf = harness({ inventory, partners, links });
-  const rf = await json(await hf.handlers.find(post("/api/reserve/find", { cuisine: "cuban" })));
+  const rf = await json(await hf.handlers.find(post("/api/reserve/find", { cuisine: "cuban", metro: "tampa" })));
+  const rn = await json(await hf.handlers.find(post("/api/reserve/find", { cuisine: "cuban" })));
+  ok(rn.status === 200 && rn.body.needsArea === true && rn.body.picks.length === 0, "find route with no area: needsArea, no picks");
   ok(rf.status === 200 && rf.body.ok && Array.isArray(rf.body.picks) && rf.body.picks.length === 3 && rf.headers.get("cache-control") === "no-store", "find route: {ok,picks}, uncached");
   ok((await json(await hf.handlers.find(post("/api/reserve/find", { cuisine: "cuban" }, { origin: "https://evil.example" })))).status === 403, "find route needs the exact origin");
 }

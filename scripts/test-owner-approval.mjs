@@ -71,6 +71,9 @@ const git = (cwd, args, env = {}) => execFileSync("git", args, { cwd, encoding: 
   ok(findOwnerApproval([{ id: 5, ...T, user: owner, body: `/owner-approve ${"b".repeat(12)}` }], head) === null, "a different commit never approves");
   ok(findOwnerApproval([{ id: 6, ...T, user: owner, body: `please /owner-approve ${head.slice(0, 12)}` }], head) === null, "a mid-line mention is not the command");
   ok(findOwnerApproval([{ id: 7, ...T, user: { type: "User", login: "someone-else", id: 1 }, body: `/owner-approve ${head}` }], head) === null, "a non-owner login never approves");
+  ok(findOwnerApproval([{ id: 81, ...T, user: owner, performed_via_github_app: { slug: "claude", id: 1 }, body: `/owner-approve ${head}` }], head) === null, "an approval an App posted with the owner's token never approves (performed_via_github_app set)");
+  ok(findOwnerApproval([{ id: 82, ...T, user: owner, performed_via_github_app: null, body: `/owner-approve ${head}` }], head)?.id === 82, "the owner's own comment (performed_via_github_app null, as GitHub returns it) still approves");
+  ok(findOwnerApproval([{ id: 83, ...T, user: owner, performed_via_github_app: { slug: "claude" }, body: `/owner-approve ${head}` }, { id: 84, ...T, user: owner, body: `/owner-approve ${head}` }], head)?.id === 84, "an App-posted approval is skipped, a person-posted one on the same head still counts");
   ok(findOwnerApproval([{ id: 8, ...T, user: { type: "Bot", login: OWNER_LOGIN, id: OWNER_ID }, body: `/owner-approve ${head}` }], head) === null, "a bot account never approves");
   ok(findOwnerApproval([{ id: 9, ...T, user: { type: "User", login: OWNER_LOGIN, id: OWNER_ID + 1 } , body: `/owner-approve ${head}` }], head) === null
     && findOwnerApproval([{ id: 9, ...T, user: { type: "User", login: OWNER_LOGIN }, body: `/owner-approve ${head}` }], head) === null,
@@ -80,14 +83,14 @@ const git = (cwd, args, env = {}) => execFileSync("git", args, { cwd, encoding: 
     && findOwnerApproval([{ id: 11, user: owner, body: `/owner-approve ${head}` }], head) === null,
     "an EDITED comment never approves (anyone with write access can edit it), nor one without timestamps");
   ok(findOwnerApproval(null, head) === null && findOwnerApproval([null, { body: 1 }], head) === null, "malformed comment lists never approve or throw");
-  ok(isOwnerOnly("CLAUDE.md") && isOwnerOnly("AGENTS.md") && isOwnerOnly("docs/card-standard.md") && isOwnerOnly("scripts/check-doc-ownership.mjs")
+  ok(!isOwnerOnly("CLAUDE.md") && !isOwnerOnly("claude.md") && isOwnerOnly("AGENTS.md") && isOwnerOnly("docs/card-standard.md") && isOwnerOnly("scripts/check-doc-ownership.mjs")
     && isOwnerOnly("scripts/lib/ownerApproval.mjs") && isOwnerOnly(".github/workflows/guards.yml") && isOwnerOnly(".github/workflows/owner-approval.yml")
     && isOwnerOnly("scripts/check-owner-approval-pr.mjs") && isOwnerOnly("scripts/lib/githubPullEvidence.mjs") && isOwnerOnly("scripts/test-owner-approval.mjs")
-    && isOwnerOnly("claude.md") && isOwnerOnly("Agents.MD") && isOwnerOnly("docs/x-Standard.md")
+    && isOwnerOnly("agents.md") && isOwnerOnly("Agents.MD") && isOwnerOnly("docs/x-Standard.md")
     && isOwnerOnly(".github/workflows/canary.yml") && isOwnerOnly(".github/workflows/new-workflow.yml")
     && !isOwnerOnly("docs/history/x.md") && !isOwnerOnly("lib/x.js") && !isOwnerOnly("docs/github/x.md"),
-  "owner-only set covers the rule files, the gates' own code and everything under .github/, case-insensitively, nothing else");
-  const base = { changedPaths: ["CLAUDE.md"], mergeGate: true, pr: { number: 7, eventHeadSha: head, liveHeadSha: head }, comments: [], error: null };
+  "owner-only set covers the rule files (CLAUDE.md excluded since 2026-11-14 by owner decision), the gates' own code and everything under .github/, case-insensitively, nothing else");
+  const base = { changedPaths: ["AGENTS.md"], mergeGate: true, pr: { number: 7, eventHeadSha: head, liveHeadSha: head }, comments: [], error: null };
   ok(decideOwnerApproval({ ...base, changedPaths: ["lib/x.js"] }).ok, "decision: ordinary change passes");
   ok(!decideOwnerApproval({ ...base, mergeGate: false, comments: [{ id: 1, ...T, user: owner, body: `/owner-approve ${head}` }] }).ok, "decision: off the merge gate even a real approval is not accepted");
   ok(!decideOwnerApproval({ ...base, error: "boom" }).ok && !decideOwnerApproval({ ...base, pr: null }).ok, "decision: missing evidence fails closed");
@@ -102,7 +105,7 @@ try {
   const origin = join(root, "origin");
   mkdirSync(origin);
   git(origin, ["init", "-q", "-b", "main"]);
-  writeFileSync(join(origin, "CLAUDE.md"), "# rules\n\nkeep this\n");
+  writeFileSync(join(origin, "AGENTS.md"), "# rules\n\nkeep this\n");
   writeFileSync(join(origin, "README.md"), "hello\n");
   git(origin, ["add", "-A"]);
   git(origin, ["commit", "-q", "-m", "seed"], LANE);
@@ -177,12 +180,12 @@ globalThis.fetch = async (url, init = {}) => {
   ok(r.code === 0 && r.calls.length === 0, `A gate: ordinary change passes without touching the API (${r.code}, ${r.calls.length} calls)`);
 
   // B. owner-only change, no approval -> fail.
-  const edit = branch([["CLAUDE.md", "# rules\n\nkeep this\nnew rule\n"]]);
+  const edit = branch([["AGENTS.md", "# rules\n\nkeep this\nnew rule\n"]]);
   r = run({ dir: edit.dir, gate: true, eventHead: edit.head, liveHead: edit.head, comments: [] });
-  ok(r.code === 1 && /no owner approval for head/.test(r.out) && r.out.includes(`/owner-approve ${edit.head}`), `B: unapproved CLAUDE.md change fails and names the exact command (${r.code}: ${r.out.trim()})`);
+  ok(r.code === 1 && /no owner approval for head/.test(r.out) && r.out.includes(`/owner-approve ${edit.head}`), `B: unapproved AGENTS.md change fails and names the exact command (${r.code}: ${r.out.trim()})`);
 
   // C. forged owner author/committer -> still fail, every way.
-  const forged = branch([["CLAUDE.md", "# rules\n\nkeep this\nforged rule\n"]], FORGED_OWNER);
+  const forged = branch([["AGENTS.md", "# rules\n\nkeep this\nforged rule\n"]], FORGED_OWNER);
   ok(git(forged.dir, ["log", "-1", "--format=%an|%cn"]) === "Gabriel Pereira|Gabriel Pereira", "C setup: the commit really claims the owner as author and committer");
   r = run({ dir: forged.dir });
   ok(r.code === 1 && /local run cannot grant it/.test(r.out), `C local: forged owner author is refused (${r.code}: ${r.out.trim()})`);
@@ -206,13 +209,13 @@ globalThis.fetch = async (url, init = {}) => {
   r = run({ dir: forged.dir, gate: true, eventHead: forged.head, liveHead: forged.head, comments: [approve(forged.head)] });
   ok(r.code === 0, `D: the forged-author commit passes ONLY once the owner approves it on GitHub (${r.code})`);
 
-  // Self-protection and renames: the gate's own files are owner-only; moving CLAUDE.md is a change.
+  // Self-protection and renames: the gate's own files are owner-only; moving AGENTS.md is a change.
   const self = branch([["scripts/check-doc-ownership.mjs", "console.log('check-doc-ownership: OK');\n"]]);
   r = run({ dir: self.dir, gate: true, eventHead: self.head, liveHead: self.head, comments: [] });
   ok(r.code === 1 && /scripts\/check-doc-ownership\.mjs/.test(r.out), `self-protection: editing the guard itself needs owner approval (${r.code})`);
-  const moved = branch([["CLAUDE.md", null], ["docs/CLAUDE-old.md", "# rules\n\nkeep this\n"]]);
+  const moved = branch([["AGENTS.md", null], ["docs/AGENTS-old.md", "# rules\n\nkeep this\n"]]);
   r = run({ dir: moved.dir, gate: true, eventHead: moved.head, liveHead: moved.head, comments: [] });
-  ok(r.code === 1 && /CLAUDE\.md/.test(r.out), `a rename away from CLAUDE.md is still an owner-only change (${r.code})`);
+  ok(r.code === 1 && /AGENTS\.md/.test(r.out), `a rename away from AGENTS.md is still an owner-only change (${r.code})`);
 
   // E. ordinary changes unaffected, even with a forged author and even with no token at all.
   const forgedPlain = branch([["docs/history/note.md", "history\n"]], FORGED_OWNER);
@@ -238,19 +241,19 @@ globalThis.fetch = async (url, init = {}) => {
   const pr = (o) => run({ dir: root, script: PR_CHECK, gate: true, event: "pull_request_target", eventHead: H, liveHead: H, ...o });
   r = pr({ files: [file("lib/thing.js"), file("docs/history/a.md")] });
   ok(r.code === 0 && /no owner-only files changed/.test(r.out) && r.calls.some((c) => /\/pulls\/1478\/files/.test(c)), `P ordinary: judged from the API file list and passes (${r.code}: ${r.out.trim()})`);
-  r = pr({ files: [file("CLAUDE.md")] });
-  ok(r.code === 1 && r.out.includes(`/owner-approve ${H}`), `P B: unapproved CLAUDE.md change fails and names the command (${r.code}: ${r.out.trim()})`);
-  r = pr({ files: [file("CLAUDE.md")], comments: [approve(H)] });
+  r = pr({ files: [file("AGENTS.md")] });
+  ok(r.code === 1 && r.out.includes(`/owner-approve ${H}`), `P B: unapproved AGENTS.md change fails and names the command (${r.code}: ${r.out.trim()})`);
+  r = pr({ files: [file("AGENTS.md")], comments: [approve(H)] });
   ok(r.code === 0 && new RegExp(`approved by @${OWNER_LOGIN}`).test(r.out), `P D: owner approval of the exact head passes (${r.code}: ${r.out.trim()})`);
   const filler = Array.from({ length: 100 }, (_, i) => ({ id: i + 1, ...T, user: { login: "someone", type: "User", id: 7 }, body: "noise" }));
-  r = pr({ files: [file("CLAUDE.md")], comments: [...filler, approve(H)], pageSize: 100 });
+  r = pr({ files: [file("AGENTS.md")], comments: [...filler, approve(H)], pageSize: 100 });
   ok(r.code === 0 && r.calls.some((c) => /\/issues\/1478\/comments\?per_page=100&page=2/.test(c)), `P D: an approval on the second page of comments is found (pagination read) (${r.code})`);
-  r = pr({ files: [file("CLAUDE.md")], comments: [approve(H, "wayfind-agent"), approve(H, OWNER_LOGIN, "Bot")] });
+  r = pr({ files: [file("AGENTS.md")], comments: [approve(H, "wayfind-agent"), approve(H, OWNER_LOGIN, "Bot")] });
   ok(r.code === 1, `P C: non-owner and bot approvals are refused (${r.code})`);
-  r = pr({ files: [file("scripts/lib/ownerApproval.mjs"), file("scripts/check-doc-ownership.mjs"), file("CLAUDE.md")] });
+  r = pr({ files: [file("scripts/lib/ownerApproval.mjs"), file("scripts/check-doc-ownership.mjs"), file("AGENTS.md")] });
   ok(r.code === 1 && /scripts\/lib\/ownerApproval\.mjs/.test(r.out) && /scripts\/check-doc-ownership\.mjs/.test(r.out), `P tamper: a PR that rewrites the guard is judged by the base rule and refused (${r.code})`);
-  r = pr({ files: [file("docs/CLAUDE-old.md", "CLAUDE.md")] });
-  ok(r.code === 1 && /CLAUDE\.md/.test(r.out), `P rename: moving CLAUDE.md away counts as an owner-only change (${r.code})`);
+  r = pr({ files: [file("docs/AGENTS-old.md", "AGENTS.md")] });
+  ok(r.code === 1 && /AGENTS\.md/.test(r.out), `P rename: moving AGENTS.md away counts as an owner-only change (${r.code})`);
   r = pr({ files: [file("lib/thing.js")], changedFiles: 3 });
   ok(r.code === 1 && /incomplete list/.test(r.out), `P F: an incomplete file list fails closed (${r.code}: ${r.out.trim()})`);
   r = pr({ files: [file("lib/thing.js")], event: "pull_request" });
@@ -261,7 +264,7 @@ globalThis.fetch = async (url, init = {}) => {
   ok(r.code === 1 && /GITHUB_TOKEN/.test(r.out) && r.calls.length === 0, `P F: no token fails closed before any call (${r.code})`);
   r = pr({ files: [file("lib/thing.js")], status: 502 });
   ok(r.code === 1 && /HTTP 502/.test(r.out), `P F: an API error fails closed (${r.code})`);
-  r = pr({ files: [file("CLAUDE.md")], comments: [approve(H)], liveHeadLater: "e".repeat(40) });
+  r = pr({ files: [file("AGENTS.md")], comments: [approve(H)], liveHeadLater: "e".repeat(40) });
   ok(r.code === 1 && /moved/.test(r.out), `P D: an approval does not survive a push landing mid-read (${r.code})`);
   r = pr({ files: [file("lib/thing.js")], eventHead: "e".repeat(40) });
   ok(r.code === 1 && /moved/.test(r.out), `P D: a run for an older head refuses (${r.code})`);
@@ -300,7 +303,7 @@ globalThis.fetch = async (url, init = {}) => {
   ok(uses.length === 2 && uses.every((u) => /@[0-9a-f]{40}$/.test(u)), `owner-approval pins every action to a full commit sha (${uses.join(", ")})`);
 }
 
-const EXPECTED = 65;
+const EXPECTED = 68;
 if (checks !== EXPECTED) {
   console.error(`test-owner-approval: FAIL — ran ${checks} assertions, expected exactly ${EXPECTED}; a proof was skipped or added without review.`);
   process.exit(1);

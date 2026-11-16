@@ -744,6 +744,14 @@
   },
   "owner": "Revenue QA"
  },
+ "scripts/test-redirect-failure-quality.mjs": {
+  "protects": "The failed-partner-link signal (Command Center diagnostics, revenue-heartbeat report) counts only qualified provider_redirect_failed rows: never crawler-refused, only traffic_class human, and only with an on-page tap or first-party click proof. Raw counts stay reported, and no /go route consults the rule.",
+  "blastRadius": {
+   "category": "revenue",
+   "detail": "Counting crawler refusals pages the owner on every crawler wave (2026-11-10: 288 of 290 failures were crawlers). Dropping real failures hides broken links; filtering inside a /go route would block or slow a real buyer."
+  },
+  "owner": "Revenue QA"
+ },
  "scripts/test-qualified-click.mjs": {
   "protects": "A qualified click counts only a partner redirect whose click_id also exists on an on-page commerce_cta_clicked, and that count never feeds the revenue heartbeat incident.",
   "blastRadius": {
@@ -1056,6 +1064,14 @@
   },
   "owner": "Revenue QA"
  },
+ "scripts/test-meta-partner-handoff.mjs": {
+  "protects": "Meta receives exactly one conversion, PartnerHandoff, and never for a real visitor unless a consent policy is explicitly enabled (default blocked; us_no_gpc sends only US visitors without GPC or a stored denial, with Limited Data Use); only for a human non-test partner redirect from a browser Meta already knows, with a closed key set (fbp, fbc, IP, user agent; provider, surface, content id); test_event_code only in the secret-gated QA lane; same suppression as PostHog; delivery counts only when Meta reports events_received of 1 or more, retries once with an identical payload, and never logs the token or identifiers; every partner redirect route reaches it; ad and ad set ids survive landing to the redirect event.",
+  "blastRadius": {
+   "category": "revenue",
+   "detail": "If it regresses, Meta can receive a visitor's IP, user agent and Facebook cookies without a consent decision, optimizes toward unverified taps, or counts failed deliveries as received, and partner clicks can no longer be tied to the Meta campaign, ad set and ad that produced them, so ad spend decisions run on wrong numbers."
+  },
+  "owner": "Revenue QA"
+ },
  "scripts/test-campaign-attribution.mjs": {
   "protects": "One ticket activation records exactly one commerce_cta_clicked carrying landing campaign, path, seller and placement; first-touch and session campaign attribution stay captured without PII; test and verifier traffic stays tagged or excluded; the Meta OutboundTicketClick custom event and its CAPI twin share one name and event_id.",
   "blastRadius": {
@@ -1152,6 +1168,22 @@
   },
   "owner": "Revenue QA"
  },
+ "scripts/test-data-manager-ingest-contract.mjs": {
+  "protects": "The Google Data Manager API events:ingest body built for Viator offline booking conversions: ConsentStatus enum values (CONSENT_GRANTED/CONSENT_DENIED, unknown omitted, never invented), required eventSource, Google Ads operating account and numeric conversion action, value/currency shape, and the 2000-event cap, checked against Google's published contract.",
+  "blastRadius": {
+   "category": "revenue",
+   "detail": "Regressing it sends bodies Google rejects (bare GRANTED, missing eventSource) so no Viator booking can reach Google Ads, or reports an unknown consent signal as denied or granted."
+  },
+  "owner": "Revenue QA"
+ },
+ "scripts/test-viator-consent-basis.mjs": {
+  "protects": "The owner-approved consent rule for Google Ads offline booking uploads: upload only on an explicit GRANTED consent or for a click outside the EEA/UK/Switzerland with no Global Privacy Control signal; DENIED, GPC, unknown country and covered regions block. Checked end to end (click row, reconcile ledger via migration 20261113105510, JS payload builder), including the migration refusing a drifted function body.",
+  "blastRadius": {
+   "category": "revenue",
+   "detail": "Regressing it either uploads ad click data Google's EU consent policy or a visitor's GPC opt-out forbids, or silently blocks every lawful upload so no booking reaches Google Ads."
+  },
+  "owner": "Revenue QA"
+ },
  "scripts/test-first-party-action-resolver.mjs": {
   "protects": "First-Party Action Resolver and Detail CTA execution truth: official links never point to a wrong venue or wrong city branch, free places never get a paid CTA, generic city or root homepages never overwrite exact venue ticket URLs, menu links never degrade to Google Maps or Google Search, expired event tickets fail closed, manual_verified sources outrank automation, affiliate coverage never alters Wayfind Score, invalid/quarantined/ambiguous URLs fail closed, and batch merges are strictly idempotent.",
   "blastRadius": {
@@ -1181,6 +1213,22 @@
   "blastRadius": {
    "category": "revenue",
    "detail": "If any layer regresses, sold-out or redirected partner offers leak onto cards and redirects, 415 Atlas place pages revert to 'Hours unavailable', cold visitors see 'Wimauma' or 'Parrish' in the location pill and affiliate rails, or ended/past events surface with dead ticket CTAs."
+  },
+  "owner": "Revenue QA"
+ },
+ "scripts/check-photo-credit-under-headline.mjs": {
+  "protects": "Photo credit placement (on-photo line for cards and heroes) and the place detail sheet's single combined line under the photos: photo credit plus the commission sentence naming this sheet's own partner, with exactly one commission disclosure per sheet.",
+  "blastRadius": {
+   "category": "trust",
+   "detail": "A regression drops or duplicates the commission disclosure on a monetized place detail sheet, names the wrong partner, or loses the Google Maps photo attribution link."
+  },
+  "owner": "Revenue QA"
+ },
+ "scripts/test-datamanager-validation-probe.mjs": {
+  "protects": "The Data Manager auth health probe in the viator-bookings cron: it never sends a live conversion (validateOnly is a literal and re-checked after the body is built), makes no call without credentials, proves the refresh token and the datamanager scope, classifies Google's response by body, and never puts a token, secret or click ID in its receipt.",
+  "blastRadius": {
+   "category": "revenue",
+   "detail": "Regressing it could send a fixture as a live conversion into Google Ads, leak OAuth secrets into logs or the job pulse, or report a broken credential as healthy so the first real booking upload fails silently."
   },
   "owner": "Revenue QA"
  }

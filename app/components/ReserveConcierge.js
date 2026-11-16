@@ -41,7 +41,7 @@ function TimesCard({ card, busy, onPick }) {
   const opts = Array.isArray(card.options) ? card.options : [];
   return (
     <div data-reserve-card="times" style={{ margin: "0 0 10px" }}>
-      <div style={{ fontSize: 13, color: C.light, marginBottom: 8 }}>{[weekdayLabel(card.date), card.partySize ? partyWord(card.partySize) : ""].filter(Boolean).join(" · ")}</div>
+      <div style={{ fontSize: 13, color: C.light, marginBottom: 8 }}>{[exactDay(card.date), card.partySize ? partyWord(card.partySize) : ""].filter(Boolean).join(" · ")}</div>
       <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
         {opts.map((o) => <button key={o.time} type="button" data-reserve-time={o.time} style={chip} disabled={busy} onClick={() => onPick(o.time)}>{o.label || timeLabel(o.time)}</button>)}
       </div>
@@ -50,14 +50,25 @@ function TimesCard({ card, busy, onPick }) {
 }
 
 // Tapping a time never books. It shows this card first; only "Confirm booking" posts /api/reserve/book.
-function ConfirmCard({ card, name, who, busy, onConfirm, onBack }) {
-  const when = [weekdayLabel(card.date), timeLabel(card.time)].filter(Boolean).join(" at ");
-  const line = (name || "the restaurant") + ", " + when + (card.partySize ? " for " + card.partySize : "") + "." + (who ? " Booking as " + who + "." : "");
+// Exact consent words the server stores with the text (lib/reserveSms.js SMS_CONSENT_TEXT says the same).
+const TEXT_ME = "Text me this confirmation";
+const TEXT_ME_FINE = "One text about this booking. Msg and data rates may apply. Reply STOP to opt out.";
+
+function ConfirmCard({ card, name, who, busy, sms, onConfirm, onBack }) {
+  const [textMe, setTextMe] = useState(false); // opt in: never pre-ticked
+  const when = [exactDay(card.date), timeLabel(card.time)].filter(Boolean).join(" at ");
+  const line = (name || "the restaurant") + ", " + when + (card.partySize ? " for " + card.partySize : "") + "." + (who ? " Booking as " + who + (/\.$/.test(who) ? "" : ".") : "");
   return (
     <div data-reserve-card="confirm" style={box}>
       <div style={{ fontSize: 16, fontWeight: 800, color: C.text, lineHeight: 1.35, overflowWrap: "anywhere" }}>{line}</div>
+      {sms && sms.tail ? (
+        <label style={{ display: "flex", alignItems: "flex-start", gap: 10, minHeight: 44, padding: "10px 0 0", fontSize: 14, color: C.light, cursor: "pointer" }}>
+          <input type="checkbox" data-reserve-text-me="1" checked={textMe} onChange={(ev) => setTextMe(ev.target.checked)} style={{ width: 24, height: 24, flexShrink: 0 }} />
+          <span>{TEXT_ME} to the number ending in {sms.tail}. <span style={{ color: C.muted }}>{TEXT_ME_FINE}</span></span>
+        </label>
+      ) : null}
       <div style={{ display: "grid", gap: 8, marginTop: 10 }}>
-        <button type="button" data-reserve-confirm="1" style={{ ...mainBtn, opacity: busy ? 0.7 : 1 }} disabled={busy} onClick={onConfirm}>Confirm booking</button>
+        <button type="button" data-reserve-confirm="1" style={{ ...mainBtn, opacity: busy ? 0.7 : 1 }} disabled={busy} onClick={() => onConfirm(Boolean(sms && sms.tail && textMe))}>Confirm booking</button>
         <button type="button" data-reserve-back="1" style={quietBtn} disabled={busy} onClick={onBack}>Pick another time</button>
       </div>
     </div>
@@ -67,7 +78,7 @@ function ConfirmCard({ card, name, who, busy, onConfirm, onBack }) {
 function RequestCard({ card, name, busy, onSend }) {
   return (
     <div data-reserve-card="request" style={box}>
-      <div style={{ fontSize: 15, fontWeight: 800, color: C.text, lineHeight: 1.4 }}>{[weekdayLabel(card.date), timeLabel(card.time), card.partySize ? partyWord(card.partySize) : ""].filter(Boolean).join(" · ")}</div>
+      <div style={{ fontSize: 15, fontWeight: 800, color: C.text, lineHeight: 1.4 }}>{[exactDay(card.date), timeLabel(card.time), card.partySize ? partyWord(card.partySize) : ""].filter(Boolean).join(" · ")}</div>
       <Note>{name || "The restaurant"} answers requests on its own time. Nothing is confirmed until they say yes.</Note>
       <div style={{ marginTop: 10 }}><button type="button" style={{ ...mainBtn, opacity: busy ? 0.7 : 1 }} disabled={busy} onClick={onSend}>Send request</button></div>
     </div>
@@ -129,9 +140,29 @@ function SigninCard({ onSignedIn, place }) {
   }, [state]); // eslint-disable-line react-hooks/exhaustive-deps
   return (
     <div data-reserve-card="signin" style={{ margin: "0 0 10px" }}>
-      <button type="button" style={mainBtn} onClick={() => { savePendingReserve(place); setState(openSignIn() ? "waiting" : "nodoor"); }}>Sign in to book</button>
+      <button type="button" style={mainBtn} onClick={() => { savePendingReserve(place); safe(() => window.dispatchEvent(new CustomEvent("wf:reserve-signin"))); setState(openSignIn() ? "waiting" : "nodoor"); }}>Sign in to book</button>
       {state === "nodoor" ? <a href="/" style={{ ...linkBtn, marginTop: 8 }}>Open Wayfind to sign in</a> : null}
       {state === "waiting" ? <Note>I'll pick up right where we left off.</Note> : null}
+    </div>
+  );
+}
+
+// "Friday, Nov 20": the weekday AND the calendar date, so a review never leaves the day in doubt (2026-11-14).
+function exactDay(iso) {
+  return dateLabel(iso) || weekdayLabel(iso);
+}
+
+// "Which Friday?": the two real calendar dates, one tap each (the server asked; nothing is assumed).
+function DatesCard({ card, busy, onPick }) {
+  const opts = Array.isArray(card.options) ? card.options : [];
+  return (
+    <div data-reserve-card="dates" style={{ display: "flex", flexWrap: "wrap", gap: 8, margin: "0 0 10px" }}>
+      {opts.map((o) => (
+        <button key={o.date} type="button" data-reserve-date={o.date} disabled={busy} onClick={() => onPick(o)}
+          style={{ minHeight: 44, padding: "8px 14px", background: C.card, border: `1px solid ${C.accent}`, borderRadius: 999, color: C.text, fontSize: 14.5, fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}>
+          {o.label}
+        </button>
+      ))}
     </div>
   );
 }
@@ -160,7 +191,7 @@ function BookedCard({ card, place }) {
   const [gone, setGone] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
-  const when = [weekdayLabel(b.date), timeLabel(b.time)].filter(Boolean).join(" at ");
+  const when = [exactDay(b.date), timeLabel(b.time)].filter(Boolean).join(" at ");
   const target = place && place.id ? place : { id: b.placeId, name };
   const doCancel = async () => {
     if (busy) return;
@@ -197,7 +228,7 @@ function BookedCard({ card, place }) {
 function RequestedCard({ card, place }) {
   const b = card.booking || {};
   const name = b.restaurantName || (place && place.name) || "the restaurant";
-  const when = [weekdayLabel(b.date), timeLabel(b.time)].filter(Boolean).join(" at ");
+  const when = [exactDay(b.date), timeLabel(b.time)].filter(Boolean).join(" at ");
   return (
     <div data-reserve-card="requested" data-reserve-status="requested" style={box}>
       <div style={{ fontSize: 16, fontWeight: 800, color: C.text, lineHeight: 1.35, overflowWrap: "anywhere" }}>{"Request sent to " + name + " for " + when + " for " + b.partySize + ". We'll show their answer in My reservations."}</div>
@@ -206,14 +237,20 @@ function RequestedCard({ card, place }) {
   );
 }
 
-export default function ReserveConcierge({ initialPlace, initialMessage, embedded, onClose }) {
+// `thread` (2026-11-14, one Santa conversation): the concierge renders NOTHING itself. The Santa iMessage chat
+// (WayfindPlannerSheet) owns the one thread and the one composer; it drives this concierge through `controlRef`
+// ({ send(text), choose(pick) }) and draws each item from `onSnapshot({ items, busy, who, renderCard })`, so
+// picks, questions, the review card and the result all land in the same bubbles. The booking state (place, date,
+// time, party, idempotency keys) still lives here, once, and a table is still only ever created by the Confirm tap.
+export default function ReserveConcierge({ initialPlace, initialMessage, embedded, onClose, thread, controlRef, onSnapshot }) {
   const startPlace = initialPlace && initialPlace.id ? initialPlace : null;
   const idRef = useRef(1);
-  const [items, setItems] = useState(() => [{ id: 0, role: "assistant", text: greeting(startPlace && startPlace.name), card: null }]);
+  const [items, setItems] = useState(() => (thread ? [] : [{ id: 0, role: "assistant", text: greeting(startPlace && startPlace.name), card: null }]));
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
   const [cardError, setCardError] = useState("");
   const [who, setWho] = useState("");
+  const [sms, setSms] = useState(null); // { tail } when the server can text a confirmation and knows a number
   const alive = useRef(true);
   const started = useRef(false);
   const busyRef = useRef(false);
@@ -256,6 +293,7 @@ export default function ReserveConcierge({ initialPlace, initialMessage, embedde
     adopt(r.state);
     convo.current.push({ role: "assistant", content: r.say.slice(0, 500) });
     if (r.profile && typeof r.profile.display === "string") setWho(r.profile.display);
+    if (r.profile) setSms(r.profile.smsReady === true && typeof r.profile.phoneTail === "string" && /^\d{2}$/.test(r.profile.phoneTail) ? { tail: r.profile.phoneTail } : null);
     const card = r.card && typeof r.card === "object" && r.card.type ? r.card : null;
     track("reserve_concierge_turn", { place_id: pid.current || null, card: card ? card.type : "none" });
     push({ text: r.say, card });
@@ -265,9 +303,9 @@ export default function ReserveConcierge({ initialPlace, initialMessage, embedde
     const text = String(raw || "").trim().slice(0, 500);
     if (!text || busyRef.current) return;
     convo.current.push({ role: "user", content: text });
-    push({ role: "user", text });
+    if (!thread) push({ role: "user", text }); // in a thread the chat already shows the visitor's bubble
     runTurn();
-  }, [push, runTurn]);
+  }, [push, runTurn, thread]);
 
   useEffect(() => {
     if (started.current) return;
@@ -285,6 +323,7 @@ export default function ReserveConcierge({ initialPlace, initialMessage, embedde
     setBusyBoth(true); setCardError("");
     const req = { placeId, date: a.date, time: a.time, partySize: a.partySize, idempotencyKey: key };
     if (guest.current) { if (guest.current.guestName) req.guestName = guest.current.guestName; if (guest.current.phone) { req.phone = guest.current.phone; req.phoneConsent = true; } }
+    if (a.textMe === true) req.smsConsent = true; // the guest ticked "Text me this confirmation" on this card
     const r = await bookTable(req);
     if (!alive.current) return;
     setBusyBoth(false);
@@ -352,6 +391,18 @@ export default function ReserveConcierge({ initialPlace, initialMessage, embedde
     runTurn();
   };
 
+  // A pick tapped in the chat (or offered by the chat): the same path as a tapped alternative.
+  const choosePick = (p) => {
+    if (!p || !p.placeId || busyRef.current) return;
+    convo.current.push({ role: "user", content: p.name || "" });
+    pid.current = p.placeId;
+    srv.current = Object.assign({}, srv.current, { placeId: p.placeId, restaurantName: p.name, lane: undefined, time: srv.current.time || null });
+    place.current = { id: p.placeId, name: p.name };
+    if (!thread) push({ role: "user", text: p.name });
+    runTurn();
+  };
+  if (controlRef) controlRef.current = { send, choose: choosePick, busy: () => busyRef.current, resume: () => { clearPendingReserve(); retry(); } };
+
   const renderCard = (it, i) => {
     const c = it.card;
     if (!c) return null;
@@ -360,12 +411,13 @@ export default function ReserveConcierge({ initialPlace, initialMessage, embedde
     const pl = place.current;
     switch (c.type) {
       case "times": return <TimesCard card={c} busy={busy} onPick={(t) => { if (!busyRef.current) push({ card: { type: "confirm", date: c.date, time: t, partySize: c.partySize, back: c } }); }} />;
-      case "confirm": return <ConfirmCard card={c} name={srv.current.restaurantName || (pl && pl.name)} who={who} busy={busy} onConfirm={() => book({ date: c.date, time: c.time, partySize: c.partySize })} onBack={() => { if (!busyRef.current && c.back) push({ card: c.back }); }} />;
+      case "confirm": return <ConfirmCard card={c} name={srv.current.restaurantName || (pl && pl.name)} who={who} busy={busy} sms={sms} onConfirm={(textMe) => book({ date: c.date, time: c.time, partySize: c.partySize, textMe })} onBack={() => { if (!busyRef.current && c.back) push({ card: c.back }); }} />;
       case "request": return <RequestCard card={c} name={srv.current.restaurantName || (pl && pl.name)} busy={busy} onSend={() => book({ date: c.date, time: c.time, partySize: c.partySize })} />;
       case "handoff": return <HandoffCard card={c} state={srv.current} place={pl} />;
       case "profile": return <ProfileCard busy={busy} error={cardError} onSubmit={submitProfile} />;
       case "signin": return <SigninCard onSignedIn={() => { clearPendingReserve(); afterSignIn(); }} place={pl} />;
       case "choose": return <ChooseCard card={c} busy={busy} onChoose={choose} />;
+      case "dates": return <DatesCard card={c} busy={busy} onPick={(o) => { if (!busyRef.current) { push({ role: "user", text: o.label }); convo.current.push({ role: "user", content: o.label }); runTurn(); } }} />;
       case "alternatives": return (
         <div data-reserve-card="alternatives">
           {c.contact && c.contact.url ? <a data-reserve-contact="1" href={c.contact.url} style={{ ...linkBtn, margin: "0 0 10px" }}>{c.contact.label}</a> : null}
@@ -378,6 +430,9 @@ export default function ReserveConcierge({ initialPlace, initialMessage, embedde
       default: return null;
     }
   };
+
+  useEffect(() => { if (thread && onSnapshot) onSnapshot({ items, busy, who, renderCard }); });
+  if (thread) return null;
 
   return (
     <div data-reserve-concierge="1" style={embedded ? { margin: "8px 0 0" } : undefined}>

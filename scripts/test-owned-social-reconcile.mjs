@@ -1,6 +1,9 @@
 #!/usr/bin/env node
-// Locks the owner's Instagram -> Trending guarantee (2026-11-12):
-//   ELIGIBLE WAYFIND SOCIAL ASSETS MISSING FROM TRENDING = 0
+// Locks the owner's guarantee for Wayfind's own Instagram posts:
+//   2026-11-12  every eligible post is accounted for, zero silent misses;
+//   2026-11-14  "not as its own card": a post about one business rides THAT
+//               business's place or event card, credited @gowayfind.app.
+//   LIVE ONE BUSINESS POSTS MISSING FROM THEIR CARD = 0
 // Every assertion EXECUTES the shipped code: lib/ownedSocial.js (rules and
 // reconciliation), /api/owned-social (what visitors are served), the
 // /api/cron/owned-social route (the production monitor, with fetch stubbed),
@@ -13,11 +16,15 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { loadComponent } from "./lib/jsxLoad.mjs";
 import {
-  selectShelf, toShelfItem, reconcile, ingestionFreshness, shelfBlocker, normalizeAsset,
+  selectShelf, toShelfItem, reconcile, ingestionFreshness, shelfBlocker, normalizeAsset, featuresOneBusiness,
   canonicalPermalink, parsePermalink, deriveTitle, LIVE_WINDOW_DAYS, EXCLUSION_REASONS,
   shelfPage, cleanDisplayTitle, safeWayfindLinks, rowDefect, SHELF_PAGE_SIZE,
 } from "../lib/ownedSocial.js";
 import { upsertSourceRows } from "../lib/ownedSocialStore.js";
+import { ownedAttachments, OWNED_CARD_DECISIONS } from "../lib/ownedSocialCards.js";
+import { creatorVideosFor } from "../lib/creatorVideos.js";
+import { eventSocialPosts } from "../lib/eventSocial.js";
+import { hasCreatorVideoAt, displayedWfScore } from "../lib/creatorBoost.js";
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 let pass = 0, fail = 0;
@@ -89,29 +96,58 @@ const links = safeWayfindLinks([
 ok(links.length === 2 && links.every((l) => l.href.startsWith("/florida-events/") || l.href.startsWith("/p/")), `only same-site Wayfind links survive (got ${JSON.stringify(links)})`);
 ok(rowDefect(row("ReelLinks1", { wayfind_links: "nope" })) === "bad_links" && rowDefect(row("ReelLinks2", { wayfind_links: [] })) === null, "a malformed links field is a defect, an empty list is fine");
 
-// ── 2. Reconciliation: green on the correct shelf ───────────────────────────
-const served = shelf.map(toShelfItem);
-const green = reconcile({ sourceAssets: SOURCE, rows: ROWS, served, todayStr: TODAY });
-ok(green.ok && green.missing === 0 && green.broken === 0, `positive control: correct shelf reconciles (missing=${green.missing} broken=${green.broken})`);
-ok(green.counts.A === LIVE.length && green.eligibleLive === LIVE.length, "every live eligible post is bucket A");
+// ── 2. Reconciliation: green when every live one business post is on its card ─
+// Live fixture posts: ReelLive01 features one business (attached), CarLive001
+// is a roundup (no card, accounted for), ReelDated1 features one business
+// (attached through its carousel twin), CarTwin001 is that twin.
+const ONE = { places: ["Some Cafe"], wayfind_links: [] };
+const RROWS = ROWS.map((r) => r.shortcode === "ReelLive01" ? { ...r, ...ONE }
+  : r.shortcode === "CarLive001" ? { ...r, places: ["A", "B", "C"] }
+  : r.shortcode === "ReelDated1" ? { ...r, places: ["Fair"], wayfind_links: [{ label: "Fair", href: "/florida-events/fair-2026" }] }
+  : r.shortcode === "CarTwin001" ? { ...r, companion_of: "ReelDated1" } : r);
+const ATTACHED = new Map([["ReelLive01", { places: ["some-cafe"], events: [] }], ["CarTwin001", { places: [], events: ["fair-2026"] }]]);
+const green = reconcile({ sourceAssets: SOURCE, rows: RROWS, attached: ATTACHED, todayStr: TODAY });
+ok(green.ok && green.missing === 0 && green.broken === 0, `positive control: every live one business post on its card reconciles (missing=${green.missing} broken=${green.broken})`);
+ok(green.counts.A === 2 && green.results.find((r) => r.shortcode === "ReelDated1").bucket === "A", "a post counts as on its card when its companion twin carries it");
+ok(green.results.find((r) => r.shortcode === "CarLive001").why === "roundup: no single business card", "a roundup of several places is accounted for, never a card of its own");
 ok(green.inspected === new Set(ROWS.map((r) => r.shortcode)).size && Object.values(green.counts).reduce((a, b) => a + b, 0) === green.inspected, "every post lands in exactly one bucket");
 ok(green.results.filter((r) => r.bucket === "E").every((r) => r.why), "every exclusion carries a reason");
+ok(featuresOneBusiness({ places: ["X"] }) && featuresOneBusiness({ places: ["Fair", "Venue"], wayfind_links: [{}] }) && !featuresOneBusiness({ places: ["A", "B"], wayfind_links: [] }) && !featuresOneBusiness({ places: ["A", "B", "C"], wayfind_links: [{}] }), "one business = one named place, or one Wayfind link with at most its venue");
 
 // ── 3. Negative controls: each must go RED ──────────────────────────────────
 const red = (label, args, expectBucket, code) => {
-  const r = reconcile({ sourceAssets: SOURCE, rows: ROWS, served, todayStr: TODAY, ...args });
+  const r = reconcile({ sourceAssets: SOURCE, rows: RROWS, attached: ATTACHED, todayStr: TODAY, ...args });
   const hit = r.results.find((x) => x.shortcode === code);
   ok(!r.ok && hit && hit.bucket === expectBucket, `${label} goes RED as bucket ${expectBucket} (got ${hit ? hit.bucket + " " + hit.why : "no result"})`);
 };
-red("a missing Reel", { served: served.filter((s) => s.shortcode !== "ReelLive01") }, "C", "ReelLive01");
-red("a missing carousel", { served: served.filter((s) => s.shortcode !== "CarLive001") }, "C", "CarLive001");
+const without = (code) => new Map([...ATTACHED].filter(([k]) => k !== code));
+red("a one business Reel missing from its card", { attached: without("ReelLive01") }, "C", "ReelLive01");
+red("a one business post whose twin lost its card", { attached: without("CarTwin001") }, "C", "ReelDated1");
 red("a post never ingested", { sourceAssets: [...SOURCE, { shortcode: "NewPost001", format: "reel" }] }, "D", "NewPost001");
-red("a duplicate card", { served: [...served, served[0]] }, "F", served[0].shortcode);
-red("a broken permalink", { rows: ROWS.map((r) => r.shortcode === "CarLive001" ? { ...r, permalink: "https://www.instagram.com/p/WRONG00/" } : r) }, "F", "CarLive001");
-red("an exclusion with no reason", { rows: ROWS.map((r) => r.shortcode === "ReelPromo1" ? { ...r, exclusion_reason: "because" } : r) }, "F", "ReelPromo1");
-red("an accidentally hidden post (eligible, live, not served)", { served: served.filter((s) => s.shortcode !== "ReelDated1") }, "C", "ReelDated1");
-red("a served draft", { served: [...served, { shortcode: "ReelSched1" }] }, "F", "ReelSched1");
-red("a stray card with no row", { served: [...served, { shortcode: "Ghost00001" }] }, "F", "Ghost00001");
+red("a broken permalink", { rows: RROWS.map((r) => r.shortcode === "CarLive001" ? { ...r, permalink: "https://www.instagram.com/p/WRONG00/" } : r) }, "F", "CarLive001");
+red("an exclusion with no reason", { rows: RROWS.map((r) => r.shortcode === "ReelPromo1" ? { ...r, exclusion_reason: "because" } : r) }, "F", "ReelPromo1");
+red("a card attachment with no row", { attached: new Map([...ATTACHED, ["Ghost00001", { places: ["x"], events: [] }]]) }, "F", "Ghost00001");
+{
+  const r = reconcile({ sourceAssets: SOURCE, rows: RROWS, attached: without("ReelLive01"), decisions: { ReelLive01: "business_not_on_wayfind" }, todayStr: TODAY });
+  ok(r.ok && r.results.find((x) => x.shortcode === "ReelLive01").why === "decision:business_not_on_wayfind", "a recorded decision accounts for a one business post with no card");
+}
+
+// ── 3b. The real registries: Wayfind's own posts ride the business cards ────
+const att = ownedAttachments();
+const expectPlaces = { DfpQw4pB6Bq: "wfadd_spirit_christmas_clearwater", DfiitL9p2Uc: "ChIJYybWKcrvwogRT8I06QALhdI", DfdbJ10Jzgy: "ChIJS2qQ6sw1w4gRUJfWmSdAvXE", DfbH0CYMCLl: "ChIJS2qQ6sw1w4gRUJfWmSdAvXE", DdxDxKeD_UN: null, DdUinjYJEYr: "ChIJmTBndrPFwogRQgwCuMP3myY", DdEkeo9Bkhk: "ChIJk04qcKEdw4gRHykY4WhCYBI", DfOGiw9jFdZ: "ChIJF05ORfWpwogRI74PwJotNf4" };
+for (const [code, placeId] of Object.entries(expectPlaces)) {
+  if (!placeId) continue;
+  const v = creatorVideosFor({ id: placeId }).filter((x) => x.creator === "gowayfind.app" && x.url.includes("/" + code + "/"));
+  ok(v.length === 1 && att.has(code), `${code} plays on its business place card, credited @gowayfind.app`);
+}
+ok(creatorVideosFor({ id: "ChIJo_IdHf0lw4gRHDbQNKBRE84" }).some((x) => x.creator === "gowayfind.app" && x.url.includes("/DdxDxKeD-UN/")), "Ryan's Coffee House card carries our Reel next to the creator Reels");
+for (const [eventId, code] of [["roberts-christmas-wonderland-2026", "DfiitL9p2Uc"], ["sarasota-medieval-fair-2026", "DfdbJ10Jzgy"], ["crystal-classic-2026", "DflkQYilr5t"], ["snowcat-ridge-2026", "DfOGiw9jFdZ"]]) {
+  ok(eventSocialPosts(eventId).some((p) => p.creator === "gowayfind.app" && p.url.includes("/" + code + "/")), `${code} plays on the ${eventId} event card`);
+}
+ok(!hasCreatorVideoAt({ id: "ChIJmTBndrPFwogRQgwCuMP3myY" }) && displayedWfScore({ id: "ChIJmTBndrPFwogRQgwCuMP3myY", wfScore: 80 }) === 80, "our own Reel never raises the Wayfind Score");
+ok(hasCreatorVideoAt({ id: "ChIJYybWKcrvwogRT8I06QALhdI" }), "an independent creator Reel on the same card still counts");
+ok(Object.keys(OWNED_CARD_DECISIONS).every((k) => /^[A-Za-z0-9_-]{5,40}$/.test(k)) && Object.values(OWNED_CARD_DECISIONS).every((v) => /^[a-z_]+$/.test(v)), "every no-card decision names a real shortcode and a reason");
+ok([...att.keys()].every((code) => !OWNED_CARD_DECISIONS[code]), "a post is never both on a card and decided off one");
 
 // Ingestion older than the latest Instagram publication.
 const now = Date.parse("2026-11-12T15:00:00Z");
@@ -135,7 +171,13 @@ function stub({ tableRows, tableOk = true, servedBody }) {
       const shelfOnly = u.includes("eligibility=eq.eligible");
       const from = Number(String((init.headers || {}).range || "0-").split("-")[0]);
       const rows = shelfOnly ? tableRows.filter((r) => r.lifecycle === "published" && r.eligibility === "eligible" && ["reel", "carousel"].includes(r.format)) : tableRows;
-      return resp(200, from === 0 ? rows : []);
+      // Project the select= list the way PostgREST does: a column the reader
+      // forgets to request must arrive missing here too (2026-11-14: `places`
+      // was never read, so every one link roundup looked like one business).
+      const sel = new URL(u).searchParams.get("select");
+      const cols = sel ? sel.split(",") : null;
+      const projected = cols ? rows.map((r) => Object.fromEntries(cols.filter((c) => c in r).map((c) => [c, r[c]]))) : rows;
+      return resp(200, from === 0 ? projected : []);
     }
     if (u.includes("/rest/v1/wf_owned_social")) return resp(204, null);
     if (u.includes("/rest/v1/wf_job_pulse?select=ran_at")) return resp(200, [{ ran_at: new Date().toISOString() }]);
@@ -177,63 +219,38 @@ ok(apiFail.status === 503 && (await apiFail.json()).ok === false, "a failed tabl
 const { GET: cronGET } = await import("../app/api/cron/owned-social/route.js");
 const cronReq = () => new Request("https://www.gowayfind.com/api/cron/owned-social", { headers: { authorization: "Bearer s3cret" } });
 const lastPulse = (job) => pulses.filter((p) => p.job === job).slice(-1)[0];
-stub({ tableRows: liveRows, servedBody: { ok: true, items: selectShelf(liveRows, today).map(toShelfItem) } });
+// The monitor reads the REAL registries: a live one business post that IS on its card is green,
+const cardRows = [...[...att.keys()].map((code) => row(code, { published_at: iso(1), places: ["One business"], wayfind_links: [] })), row("RoundUp001", { published_at: iso(1), places: ["A", "B", "C"] }),
+  // A roundup that links ONE event (the real shape of a weekend guide) is still a roundup.
+  row("RoundUp002", { published_at: iso(1), places: ["A", "B", "C"], wayfind_links: [{ label: "One event", href: "/florida-events/one-event" }] })];
+stub({ tableRows: cardRows });
 const cronGreen = await cronGET(cronReq());
 const pg = lastPulse("owned-social-reconcile");
-ok(cronGreen.status === 200 && pg && pg.succeeded === 1 && /missing=0/.test(pg.note), `monitor GREEN when every live post is served (status ${cronGreen.status}, note ${pg && pg.note})`);
-stub({ tableRows: liveRows, servedBody: { ok: true, items: selectShelf(liveRows, today).map(toShelfItem).filter((i) => i.shortcode !== "ReelLive01") } });
+ok(cronGreen.status === 200 && pg && pg.succeeded === 1 && /missing=0/.test(pg.note), `monitor GREEN when every live one business post is on its card (status ${cronGreen.status}, note ${pg && pg.note})`);
+// ...and one that is on no card is named.
+stub({ tableRows: [...cardRows, row("ReelLone01", { published_at: iso(1), places: ["Unfilmed Cafe"] })] });
 const cronRed = await cronGET(cronReq());
 const pr = lastPulse("owned-social-reconcile");
-ok(cronRed.status === 500 && pr && pr.succeeded === 0 && /missing=1/.test(pr.note) && /ReelLive01/.test(pr.note), `monitor RED and names the missing Reel (note ${pr && pr.note})`);
-stub({ tableRows: liveRows, servedBody: { ok: false, error: "x" } });
-await cronGET(cronReq());
+ok(cronRed.status === 500 && pr && pr.succeeded === 0 && /missing=1/.test(pr.note) && /ReelLone01/.test(pr.note), `monitor RED and names the post missing from its card (note ${pr && pr.note})`);
+stub({ tableRows: cardRows, tableOk: false });
+const cronDown = await cronGET(cronReq());
 const pu = lastPulse("owned-social-reconcile");
-ok(pu && pu.succeeded === 0 && /^unavailable:/.test(pu.note), "a dead shelf endpoint is an immediate incident (unavailable: prefix)");
-// The monitor walks every served page: a post on page 2 is not "missing".
-const bigRows = Array.from({ length: 30 }, (_, i) => row("ReelBig" + String(i).padStart(3, "0"), { published_at: iso(i % 40) }));
-const allServed = selectShelf(bigRows, today).map(toShelfItem);
-const pageCalls = [];
-stub({ tableRows: bigRows });
-const pagedFetch = globalThis.fetch;
-globalThis.fetch = async (url, init) => {
-  const u = String(url);
-  if (u.includes("/api/owned-social")) {
-    const off = Number(new URL(u).searchParams.get("offset") || 0);
-    pageCalls.push(off);
-    const items = allServed.slice(off, off + 24);
-    return { ok: true, status: 200, json: async () => ({ ok: true, items, total: allServed.length, next_offset: off + 24 < allServed.length ? off + 24 : null }), headers: { get: () => "application/json" } };
-  }
-  return pagedFetch(url, init);
-};
-await cronGET(cronReq());
-const pp = lastPulse("owned-social-reconcile");
-ok(pp && pp.succeeded === 1 && pageCalls.join(",") === "0,24", `the monitor reads every page before judging (pages ${pageCalls}, note ${pp && pp.note})`);
+ok(cronDown.status === 500 && pu && pu.succeeded === 0 && /^unavailable:/.test(pu.note), "a failed table read is an immediate incident (unavailable: prefix)");
 const unauth = await cronGET(new Request("https://www.gowayfind.com/api/cron/owned-social"));
 ok(unauth.status === 401, "the monitor refuses unauthenticated calls");
 globalThis.fetch = realFetch;
 
 const strip = (src) => src.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "$1");
-// ── 5. What renders under TRENDING NOW ──────────────────────────────────────
-const shelfMod = await loadComponent(path.join(root, "app/components/OwnedSocialShelf.js"), root);
-const html = renderToStaticMarkup(createElement(shelfMod.OwnedSocialCards, { items: apiBody.items, onOpen: () => {} }));
-ok(/data-trending-rail="seen-on-wayfind"/.test(html) && /Seen on Wayfind/.test(html), "the Seen on Wayfind shelf renders");
-ok(apiBody.items.every((i) => html.includes(i.title)) && (html.match(/Wayfind Reel/g) || []).length === 1 && (html.match(/Wayfind Carousel/g) || []).length === 1, "one card per served post, Reels and carousels labeled");
-ok(renderToStaticMarkup(createElement(shelfMod.OwnedSocialCards, { items: [] })) === "", "an empty shelf renders nothing (no padding)");
-ok(/@gowayfind\.app/.test(html), "the shelf names @gowayfind.app");
-const shelfSrc = strip(readFileSync(path.join(root, "app/components/OwnedSocialShelf.js"), "utf8"));
-for (const ev of ["owned_social_impression", "owned_social_open", "owned_social_player_loaded", "owned_social_instagram_open", "owned_social_wayfind_open"]) {
-  ok((shelfSrc.match(new RegExp(`logEvent\\("${ev}"`, "g")) || []).length === 1, `funnel event ${ev} is captured exactly once`);
-}
-ok(/fetch\(`\/api\/owned-social\?offset=\$\{offset\}`\)/.test(shelfSrc) && /next_offset/.test(shelfSrc), "the shelf loads page by page from next_offset");
-ok(/href=\{OWNED_HANDLE_URL\}/.test(shelfSrc) && /Watch on Instagram/.test(shelfSrc), "the player links to @gowayfind.app and the original post");
-ok(/onLoad=\{onLoad\}/.test(strip(readFileSync(path.join(root, "app/components/CreatorVideoPlayer.js"), "utf8"))), "the player reports its load (player_loaded is measurable)");
-
+// ── 5. No standalone video cards under TRENDING NOW (owner, 2026-11-14) ─────
 const rails = strip(readFileSync(path.join(root, "app/components/TrendingRails.js"), "utf8"));
-ok(/import OwnedSocialShelf from "\.\/OwnedSocialShelf"/.test(rails) && /<OwnedSocialShelf[\s/>]/.test(rails), "TrendingRails mounts the Seen on Wayfind shelf");
-ok((rails.match(/\{owned\}/g) || []).length === 3, "the shelf renders on all three TrendingRails paths (loading, empty, full)");
+ok(!/OwnedSocialShelf|Seen on Wayfind|\/api\/owned-social/.test(rails), "TrendingRails no longer mounts a shelf of our own video cards");
+let shelfGone = false;
+try { readFileSync(path.join(root, "app/components/OwnedSocialShelf.js")); } catch (e) { shelfGone = e.code === "ENOENT"; }
+ok(shelfGone, "the standalone Seen on Wayfind card component is gone");
+ok(/onLoad=\{onLoad\}/.test(strip(readFileSync(path.join(root, "app/components/CreatorVideoPlayer.js"), "utf8"))), "the player reports its load (player_loaded is measurable)");
 const vercel = JSON.parse(readFileSync(path.join(root, "vercel.json"), "utf8"));
 ok((vercel.crons || []).some((c) => c.path === "/api/cron/owned-social"), "the production monitor is scheduled in vercel.json");
 ok(EXCLUSION_REASONS.length === 8, "exclusion reasons match the table's CHECK list (8)");
 
 if (fail) { console.error(`test-owned-social-reconcile: FAIL (${fail} failed, ${pass} passed)`); process.exit(1); }
-console.log(`test-owned-social-reconcile: OK — ${pass} assertions by CALL: rules (evergreen, paging, display titles, same-site links), reconciliation (9 negative controls each RED: missing Reel, missing carousel, never ingested, duplicate card, broken permalink, reasonless exclusion, hidden post, served draft, stray card), ingest freshness (3 RED controls), /api/owned-social (serves live posts, pages, 503 on read failure), sync never overwrites classification, /api/cron/owned-social (GREEN, RED naming the missing Reel, unavailable incident, reads every page, 401), funnel events, rendered shelf and TrendingRails wiring on all 3 paths.`);
+console.log(`test-owned-social-reconcile: OK — ${pass} assertions by CALL: rules (evergreen, paging, display titles, same-site links), card reconciliation (6 negative controls each RED: one business Reel off its card, twin lost its card, never ingested, broken permalink, reasonless exclusion, attachment with no row; decisions and roundups accounted for), our posts on their real place and event cards with no score bump, ingest freshness (3 RED controls), /api/owned-social, sync never overwrites classification, /api/cron/owned-social (GREEN on cards, RED naming the missing post, unavailable incident, 401), no standalone video cards under Trending.`);

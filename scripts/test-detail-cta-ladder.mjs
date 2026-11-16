@@ -153,7 +153,9 @@ const noOffers = {};
   ok(fallbackCta.type === DETAIL_CTA_TYPES.directions && !/\/api\/eats\//.test(String(fallbackCta.href)),
     "open cafe without verified site → honest Directions, never fake Google Maps menu");
   const cta = resolveDetailCta({ detail: p, kind: "cafe", viaTours: noTours, locName: "Sarasota, FL", offers: noOffers, openState: open, websiteHref: "https://perqcoffeebar.example/" });
-  ok(cta.type === DETAIL_CTA_TYPES.menu && cta.href === "https://perqcoffeebar.example/", "open cafe with verified site → See menu — got " + cta.type);
+  ok(cta.type === DETAIL_CTA_TYPES.website && cta.label === "Official site" && cta.href === "https://perqcoffeebar.example/", "open cafe with non-menu homepage → honest Official site, never See menu — got " + cta.type);
+  const menuCta = resolveDetailCta({ detail: p, kind: "cafe", viaTours: noTours, locName: "Sarasota, FL", offers: noOffers, openState: open, websiteHref: "https://perqcoffeebar.example/menu" });
+  ok(menuCta.type === DETAIL_CTA_TYPES.menu && menuCta.label === "See menu" && menuCta.href === "https://perqcoffeebar.example/menu", "open cafe with verified /menu URL → See menu — got " + menuCta.type);
 }
 {
   ok(DETAIL_CTA_TYPES.delivery === undefined && DETAIL_CTA_TYPES.pickup === undefined,

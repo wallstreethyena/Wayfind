@@ -10,7 +10,7 @@ import PlaceDistance, { usePlaceDistance } from "../PlaceDistance.js";
 // module-scope EXPERIENCES table) stays in home.js and flows through ctx,
 // same as every other extraction phase.
 import { pilotForPlace } from "../../../lib/beachPlanning";
-import { AFFILIATE_DISCLOSURE_TEXT } from "../../../lib/affiliateDisclosure.js";
+import { AFFILIATE_DISCLOSURE_TEXT, detailCreditCommissionLine } from "../../../lib/affiliateDisclosure.js";
 import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { safeUrl } from "../../../lib/links.js";
@@ -305,7 +305,7 @@ function PrimaryActionButton({ primaryCta, detail, kind, viaTours, locName, logE
         href={exactHref}
         rel="sponsored noreferrer"
         data-commerce-owner="PrimaryActionButton"
-        aria-label={`Tickets for ${detail.name} via ${primaryCta.merchant}`}
+        aria-label={`${primaryCta.product === "tour" ? "Tours" : primaryCta.product === "storage" ? "Luggage storage" : primaryCta.product === "transfer" ? "Transfers" : "Tickets"} for ${detail.name} via ${primaryCta.merchant}`}
         title="Partner link. Wayfind may earn a commission; rankings never change."
         style={style}
         onClick={() => {
@@ -328,7 +328,7 @@ function PrimaryActionButton({ primaryCta, detail, kind, viaTours, locName, logE
     );
   }
 
-  if (primaryCta.type === DETAIL_CTA_TYPES.tickets || primaryCta.type === DETAIL_CTA_TYPES.rates) {
+  if (primaryCta.monetized && (primaryCta.type === DETAIL_CTA_TYPES.tickets || primaryCta.type === DETAIL_CTA_TYPES.rates)) {
     if (hasBookingCTA(detail, kind, viaTours, locName)) {
       return (
         <BookingCTA
@@ -635,7 +635,7 @@ function WhereToGoNextRow({ p, partner, reason, pairDistMi, openDetail, liveOpen
           target="_blank"
           rel="sponsored noopener"
           data-commerce-owner="WhereToGoNextRow"
-          aria-label={`Tickets for ${p.name} via ${partner.merchant}`}
+          aria-label={`${partner.product === "tour" ? "Tours" : partner.product === "storage" ? "Luggage storage" : partner.product === "transfer" ? "Transfers" : "Tickets"} for ${p.name} via ${partner.merchant}`}
           title="Partner link. Wayfind may earn a commission; rankings never change."
           onClick={(e) => {
             e.stopPropagation();
@@ -645,7 +645,7 @@ function WhereToGoNextRow({ p, partner, reason, pairDistMi, openDetail, liveOpen
             try { emitCommerce("commerce_cta_clicked", { ...commerceCtx, click_id: clickId }); } catch (er) {}
           }}
           style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 5, padding: "8px 12px", borderRadius: 10, background: C.adim, border: `1px solid ${C.border}`, color: "#FDBA74", textDecoration: "none", fontSize: 11.5, fontWeight: 800, whiteSpace: "nowrap" }}
-        >🎟️ Tickets ↗</a>
+        >{partner.product === "tour" ? "🛶 Tours ↗" : partner.product === "storage" ? "🧳 Storage ↗" : partner.product === "transfer" ? "🚐 Transfers ↗" : "🎟️ Tickets ↗"}</a>
       ) : (
         <span style={{ fontSize: 18, color: C.muted, flexShrink: 0 }}>›</span>
       )}
@@ -825,6 +825,10 @@ export default function DetailSheet({ ctx }) {
   // The one disclosure line under the primary action. When it renders, the
   // BookingCTA disclosure lower in the sheet stays off (one line per sheet).
   const ftcNearPrimary = !!(detail && !detail._event && primaryCta && primaryCta.monetized && (primaryCta.exact || (primaryCta.type !== DETAIL_CTA_TYPES.tickets && primaryCta.type !== DETAIL_CTA_TYPES.rates)));
+  // Owner (2026-11-10): the commission line joins the photo credit directly
+  // under the detail photos, so it is read before the booking button. Same
+  // predicate as the near-button line; it names this sheet's own partner.
+  const creditCommission = ftcNearPrimary ? detailCreditCommissionLine(primaryCta.provider) : null;
   const verdict = (gamePlan && gamePlan.verdict) || detailVerdict({
     detail: hydratedDetail,
     weather,
@@ -960,13 +964,18 @@ export default function DetailSheet({ ctx }) {
     const placeGeo = detail && Number.isFinite(Number(detail.lat)) && Number.isFinite(Number(detail.lng))
       ? [Number(detail.lat), Number(detail.lng)]
       : null;
+    const detailEventDate = (detail._event && detail._event.date) || "";
     askShareIntent({
       name: detail.name,
       city: ctaCity || locName,
       id: detail.id,
       kind: placeKinds(detail),
+      when: detailEventDate,
+      eventDate: detailEventDate,
+      surface: "place_detail",
       geo: placeGeo,
       startInInvite: !!startInInvite,
+      directInvite: !!startInInvite,
       onPlain: () => shareLink(detail.name, placeShareUrl(detail, locName, blurbLine(blurbs[detail.id])), () => showToast("Link copied"), fallShareLine(`Want to go to ${detail.name} together? Found it on Wayfind`, detail.id, siteTodayStr()), () => { try { logEvent("share", detail, { kind: "place" }); } catch (e) {} giveawayMark(detail.id); addShared(detail); }),
       onInvite: (u, t) => shareLink("A question for you", u, null, t, () => { try { logEvent("share", detail, { kind: "invite", from: startInInvite ? "game_plan" : "place" }); } catch (e) {} giveawayMark(detail.id); addShared(detail); }),
     });
@@ -1264,10 +1273,10 @@ export default function DetailSheet({ ctx }) {
                       <FallbackImg defer={i >= 2} fit={PLACE_DETAIL_PHOTO_STANDARD.image.objectFit} alt={detail.name} key={src} src={src} icon={detail._event ? "🎟️" : undefined} category={primaryCategory(detail)} onClick={() => setLightbox(src)} style={{ width: galleryPhotos.length > 1 ? "78%" : "100%", flexShrink: 0, height: "100%", background: C.bg, scrollSnapAlign: "start", cursor: "zoom-in" }} />
                     ))}
                     </div> : <div data-detail-photo-pending style={{ position: "absolute", inset: 0, display: "grid", placeItems: "center", color: C.muted, fontSize: 12 }}>Loading photo…</div>}
-                    {heroCredit ? <div data-detail-photo-credit style={{ position: "absolute", inset: 0, zIndex: 2, pointerEvents: "none" }}>
-                      <PhotoCredit onPhoto credit={heroCredit} />
-                    </div> : null}
                   </div>
+                  {(heroCredit || creditCommission) ? <div data-detail-photo-credit data-detail-credit-line style={{ padding: "7px 18px 0", fontSize: 12, lineHeight: 1.45, color: "#C9D1D9", overflowWrap: "anywhere" }}>
+                    {heroCredit ? <PhotoCredit inline credit={heroCredit} /> : null}{heroCredit && creditCommission ? ". " : null}{creditCommission}
+                  </div> : null}
                   {galleryPhotos.length > 1 && (
                     <>
                       {galleryIdx > 0 && (
@@ -1371,7 +1380,33 @@ export default function DetailSheet({ ctx }) {
                         {/* v6.34: attribution renders only under real hours — it used
                             to sit beneath "Hours not listed" too, crediting Google
                             for hours we don't have. */}
-                        <div style={{ fontSize: 10.5, color: C.muted, opacity: 0.7, marginTop: 8 }}>{isOwnedHours ? "Verified hours from Wayfind." : "Hours from Google."}</div>
+                        {(() => {
+                          const asOfMs = typeof hydratedDetail?.hoursAsOf === "number"
+                            ? hydratedDetail.hoursAsOf
+                            : typeof hydratedDetail?.hoursAsOf === "string"
+                              ? Date.parse(hydratedDetail.hoursAsOf)
+                              : (typeof detail?.hoursAsOf === "number"
+                                  ? detail.hoursAsOf
+                                  : typeof detail?.hoursAsOf === "string"
+                                    ? Date.parse(detail.hoursAsOf)
+                                    : null);
+                          const isHoursStale = Boolean(isOwnedHours && asOfMs && Number.isFinite(asOfMs) && (Date.now() - asOfMs > 90 * 86400000));
+                          return (
+                            <>
+                              <div
+                                {...(isHoursStale ? { "data-hours-stale": "true" } : {})}
+                                style={{ fontSize: 10.5, color: C.muted, opacity: 0.7, marginTop: 8 }}
+                              >
+                                {isOwnedHours ? "Verified hours from Wayfind." : "Hours from Google."}
+                              </div>
+                              {isHoursStale && (
+                                <div style={{ fontSize: 10, color: C.muted, opacity: 0.6, marginTop: 2 }}>
+                                  Hours confirmed over 90 days ago · seasonal hours may vary.
+                                </div>
+                              )}
+                            </>
+                          );
+                        })()}
                       </>);
                     }
                     return <div style={{ fontSize: 12.5, color: C.muted }}>{detailExtra === null ? "Loading hours…" : "Hours not listed for this place."}</div>;
@@ -1412,7 +1447,7 @@ export default function DetailSheet({ ctx }) {
                     onClick={handlePrimaryCtaClick}
                   />
                 </div>
-                {ftcNearPrimary && <FTCDisclosure />}
+                {ftcNearPrimary && !(expandedHero && creditCommission) && <FTCDisclosure />}
                 {/* One balanced secondary bar. Directions used to occupy a row
                     by itself above reactions, which made the dock look like two
                     unrelated button systems. Keep every secondary action on the
@@ -1445,6 +1480,9 @@ export default function DetailSheet({ ctx }) {
                   </>)}
                   <button data-add-to-trip onClick={addToPlan} aria-label={isSaved(detail.id) ? "In your trip" : "Add to my trip"} style={{ flex: "1 1 46%", minWidth: 104, height: 44, padding: "0 10px", background: isSaved(detail.id) ? C.adim : "rgba(255,255,255,.035)", border: `1px solid ${isSaved(detail.id) ? C.light : C.border}`, borderRadius: 12, color: isSaved(detail.id) ? C.light : C.text, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6, fontSize: 12.5, fontWeight: 800, whiteSpace: "nowrap" }}>{isSaved(detail.id) ? "\u2713 In my trip" : "\u2661 Add to my trip"}</button>
                   <button onClick={() => openDetailShare(false)} aria-label={lunchChallengeView ? "Challenge someone for Lunch in My City" : "Share"} style={{ flex: "1 1 46%", minWidth: 88, height: 44, padding: "0 10px", background: lunchChallengeView ? "linear-gradient(135deg,#F97316,#FBBF24)" : "rgba(255,255,255,.035)", border: `1px solid ${lunchChallengeView ? "#F8D447" : C.border}`, borderRadius: 12, color: lunchChallengeView ? "#10151B" : C.text, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6, fontSize: 12.5, fontWeight: lunchChallengeView ? 900 : 750, whiteSpace: "nowrap" }}><span aria-hidden="true">{lunchChallengeView ? "⚡" : "↗"}</span><span>{lunchChallengeView ? "Challenge" : "Share"}</span></button>
+                  {!lunchChallengeView && (
+                    <button data-detail-ask-someone onClick={() => openDetailShare(true)} aria-label={`Ask someone to ${detail.name}`} style={{ flex: "1 1 100%", minWidth: 120, height: 44, padding: "0 12px", background: "rgba(249,115,22,.1)", border: `1px solid rgba(249,115,22,.38)`, borderRadius: 12, color: C.light, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6, fontSize: 12.5, fontWeight: 800, whiteSpace: "nowrap" }}><span aria-hidden="true">♡</span><span>{detail._event ? "Ask someone to go" : "Ask someone"}</span></button>
+                  )}
                 </div>
               </div>
               {(() => { /* Verified Florida vacation-rental browsing, through the tracked commerce route only. */
