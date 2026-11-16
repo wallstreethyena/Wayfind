@@ -130,7 +130,7 @@ const c = (m, extra = {}) => classifySantaMessage(m, { today, ...extra });
   const conc = strip(read("app/components/ReserveConcierge.js"));
   ok(/if \(thread\) return null;/.test(conc) && /onSnapshot\(\{ items, busy, who, renderCard \}\)/.test(conc), "in a thread the concierge draws into the chat, not a box of its own");
   ok(/if \(!thread\) push\(\{ role: "user", text \}\)/.test(conc), "the visitor's words appear once");
-  ok((conc.match(/bookTable\(req\)/g) || []).length === 1 && /data-reserve-confirm="1"[^>]*onClick=\{onConfirm\}/.test(conc), "the only booking call is the Confirm tap's");
+  ok((conc.match(/bookTable\(req\)/g) || []).length === 1 && /data-reserve-confirm="1"[^>]*onClick=\{\(\) => onConfirm\(Boolean\(sms && sms\.tail && textMe\)\)\}/.test(conc) && (conc.match(/onConfirm\(/g) || []).length === 1, "the only booking call is the Confirm tap's");
   ok(/delete keys\.current\[sig\]/.test(conc) && /keys\.current\[sig\] \|\| \(keys\.current\[sig\] = newIdempotencyKey\(\)\)/.test(conc), "one idempotency key per slot, reused on retry");
 
   const boo = strip(read("app/components/BooCompanion.js"));
