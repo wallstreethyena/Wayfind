@@ -65,14 +65,27 @@ ok(!/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/.test(B.badgeSvg({ name: "Bad\u000
 ok(Array.from(B.badgeName("x".repeat(80))).length <= B.BADGE_NAME_MAX, "long names must be cut to fit");
 ok(B.badgeName("Short Name") === "Short Name", "short names must be untouched");
 
-// 5. The wordmark is the official logo, byte for byte.
-const logoFile = read("public/brand/wayfind-logo.svg");
+// 5. The wordmark is the corrected official logo, byte for byte.
+//    public/brand/wayfind-official-white.svg is the vector of the owner-supplied
+//    outline pin (flat #FD5F00, orange i dot). wayfind-logo.svg keeps the older
+//    gradient pin and is not the badge source.
+const logoFile = read("public/brand/wayfind-official-white.svg");
 const inner = (logoFile.match(/^<svg[^>]*>([\s\S]*)<\/svg>\s*$/) || [])[1];
-ok(!!inner, "could not read public/brand/wayfind-logo.svg");
-ok(inner && inner.replace('fill="#FFFFFF"', 'fill="__INK__"') === B.LOGO_INNER, "LOGO_INNER drifted from public/brand/wayfind-logo.svg; regenerate it from the file, never redraw");
+ok(!!inner, "could not read public/brand/wayfind-official-white.svg");
+ok((inner.match(/fill="#FFFFFF"/g) || []).length === 1, "the official vector must have exactly one white wordmark fill, so the ink swap cannot miss a second one");
+ok(inner && inner.replace('fill="#FFFFFF"', 'fill="__INK__"') === B.LOGO_INNER, "LOGO_INNER drifted from public/brand/wayfind-official-white.svg; regenerate it from the file, never redraw");
 ok((logoFile.match(/viewBox="([^"]+)"/) || [])[1] === B.LOGO_VIEWBOX, "LOGO_VIEWBOX must match the logo file");
-ok(B.badgeSvg({ theme: "light" }).includes('fill="#0E1116"') && B.badgeSvg({ theme: "dark" }).includes('fill="#FFFFFF"'), "lettering must be ink on light and white on dark");
-ok(!B.badgeSvg({}).includes("__INK__"), "ink placeholder must be filled");
+ok(logoFile.includes('fill="#FD5F00"') && !/linearGradient|radialGradient|#FDA60A|#FB3502/.test(logoFile), "the official badge vector must be the flat orange outline pin, not the old gradient pin");
+ok(/linearGradient/.test(read("public/brand/wayfind-logo.svg")), "positive control: the gradient probe still finds the old pin in wayfind-logo.svg");
+const darkSvg = B.badgeSvg({ theme: "dark" });
+const lightSvg = B.badgeSvg({ theme: "light" });
+ok(lightSvg.includes('fill="#0E1116"') && darkSvg.includes('fill="#FFFFFF"'), "lettering must be ink on light and white on dark");
+ok(darkSvg.includes('fill="#FD5F00"') && lightSvg.includes('fill="#FD5F00"'), "the pin and the i dot stay flat orange on both themes");
+ok(!/linearGradient|radialGradient|#FDA60A|#FB3502|__INK__/.test(darkSvg + lightSvg), "badge must not carry the old gradient pin or an unfilled ink placeholder");
+const logoTag = darkSvg.match(/<svg x="([0-9.]+)" y="[0-9.]+" width="([0-9.]+)" height="([0-9.]+)" viewBox="([^"]+)">/);
+ok(!!logoTag && logoTag[4] === B.LOGO_VIEWBOX, "the nested logo must use the official viewBox");
+const vb = B.LOGO_VIEWBOX.split(/\s+/).map(Number);
+ok(logoTag && logoTag[3] === "59" && Math.abs(Number(logoTag[2]) / Number(logoTag[3]) - vb[2] / vb[3]) < 0.02, "the logo keeps its 59-tall slot and the official aspect (a stretch would move the place name)");
 ok(!/<script|href=|xlink:href|@import|url\(http/i.test(B.badgeSvg({ name: "x" })), "SVG must be self-contained (no script, no external load)");
 ok(B.badgeTheme("neon") === "dark" && B.badgeTheme("light") === "light", "unknown theme falls back to dark");
 ok(B.validBadgeId("ChIJN1t_tDeuEmsRUsoyG83frY4") && !B.validBadgeId("../etc") && !B.validBadgeId("a b") && !B.validBadgeId(""), "id validation");
