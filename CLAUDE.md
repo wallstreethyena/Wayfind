@@ -38,8 +38,10 @@ approval forward. Fresh approval only for a material change: new product behavio
 scope, more production mutation, destructive behavior, more spend, a new vendor or
 integration, auth/privacy/security changes, a weakened safety control, new sensitive data
 use, or materially different risk. Never weaken owner protection to avoid an approval, and
-keep an auditable trail. (For owner-only files the mechanism is "Owner Approval
-Persistence", `scripts/lib/ownerApproval.mjs`, PR #2456.)
+keep an auditable trail. (For owner-only files the live gate is still an
+`/owner-approve <full head sha>` comment on the current head, in
+`scripts/lib/ownerApproval.mjs`. That comment does not carry to a new head until a
+merged persistence mechanism says it does.)
 
 **A tool confirmation dialog is not a new decision.** If the platform lets the agent confirm
 using the approval already given, proceed. Before asking Gabriel to do anything, check in
@@ -140,7 +142,7 @@ biggest project. Sort discoveries: REQUIRED and REGRESSION are fixed now; a smal
 directly related fix is made if sensible; a future opportunity gets one line and you move on.
 
 **Brand assets.** Before making any Wayfind-branded visual, check the canonical vault
-(`public/brand/wayfind/` and its `manifest.json`, added by PR #2456). Never redraw, recolor or
+(`public/brand/wayfind/` and its `manifest.json`, shipped in PR #2547). Never redraw, recolor or
 regenerate the Wayfind logo when an approved asset exists, and never leave the only copy of a
 supplied asset in chat, /tmp, a worktree or an output folder.
 

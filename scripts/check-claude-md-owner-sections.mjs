@@ -3,10 +3,10 @@
 // check-claude-md-owner-sections — owner instructions in CLAUDE.md cannot be
 // silently dropped (owner directive, 2026-11-12).
 //
-// CLAUDE.md is owner-only (scripts/lib/ownerApproval.mjs): every edit already
-// needs an "/owner-approve <head sha>" comment. That stops unapproved edits but
-// not an approved edit that quietly loses a rule along the way. This guard
-// pins what must stay:
+// CLAUDE.md left the owner-only list on 2026-11-14 (PR #2491). AGENTS.md,
+// .github/** and the gate scripts still need an "/owner-approve <head sha>"
+// comment. This guard pins what must stay in the rules text, so an edit cannot
+// quietly drop a rule:
 //   - the GABRIEL EXECUTION AUTONOMY section (the owner operating mode),
 //     exactly once, with its manual action format, its ten hard stops, its
 //     no-bypass clause, its "never relaxes any other rule" clause, and the
