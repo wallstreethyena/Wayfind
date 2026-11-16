@@ -55,6 +55,17 @@ export const OWNER_ONLY = Object.freeze([
   /^scripts\/lib\/githubAppAuth\.mjs$/i,
   /^scripts\/test-owner-approval-gate\.mjs$/i,
   /^scripts\/owner-gate-setup-check\.mjs$/i,
+  // The guard runner is the verifier's control path: a PR that edits it to exit 0
+  // turned the required "guards" check and Vercel's prebuild green with a failing
+  // guard (reproduced 2026-11-14). The runner, every local module it imports
+  // (test-owner-approval resolves the imports and fails if one is missing here)
+  // and its serial list are owner-only. .npmrc is too: ignore-scripts=true makes
+  // `npm run build` skip prebuild.
+  /^scripts\/run-guards\.mjs$/i,
+  /^scripts\/lib\/guardShards\.mjs$/i,
+  /^scripts\/lib\/guardEnv\.mjs$/i,
+  /^scripts\/guards-serial\.txt$/i,
+  /^\.npmrc$/i,
   // Everything under .github/: every workflow, CODEOWNERS, and anything added
   // later. A workflow can report a check under any name and can read repository
   // secrets, so adding or editing one is an owner decision (2026-09-24).

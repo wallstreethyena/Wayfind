@@ -85,8 +85,12 @@ const git = (cwd, args, env = {}) => execFileSync("git", args, { cwd, encoding: 
     && isOwnerOnly("scripts/check-owner-approval-pr.mjs") && isOwnerOnly("scripts/lib/githubPullEvidence.mjs") && isOwnerOnly("scripts/test-owner-approval.mjs")
     && isOwnerOnly("claude.md") && isOwnerOnly("Agents.MD") && isOwnerOnly("docs/x-Standard.md")
     && isOwnerOnly(".github/workflows/canary.yml") && isOwnerOnly(".github/workflows/new-workflow.yml")
-    && !isOwnerOnly("docs/history/x.md") && !isOwnerOnly("lib/x.js") && !isOwnerOnly("docs/github/x.md"),
-  "owner-only set covers the rule files, the gates' own code and everything under .github/, case-insensitively, nothing else");
+    && isOwnerOnly("scripts/run-guards.mjs") && isOwnerOnly("scripts/lib/guardShards.mjs") && isOwnerOnly("scripts/lib/guardEnv.mjs")
+    && isOwnerOnly("scripts/guards-serial.txt") && isOwnerOnly(".npmrc") && isOwnerOnly(".NPMRC")
+    && !isOwnerOnly("docs/history/x.md") && !isOwnerOnly("lib/x.js") && !isOwnerOnly("docs/github/x.md")
+    && !isOwnerOnly("scripts/guards.txt") && !isOwnerOnly("package.json") && !isOwnerOnly("vercel.json")
+    && !isOwnerOnly("scripts/test-run-guards.mjs") && !isOwnerOnly("scripts/test-guard-shards.mjs"),
+  "owner-only set covers the rule files, the gates' own code, the guard runner's control path and everything under .github/, case-insensitively; guards.txt, package.json and vercel.json stay shared");
   const base = { changedPaths: ["CLAUDE.md"], mergeGate: true, pr: { number: 7, eventHeadSha: head, liveHeadSha: head }, comments: [], error: null };
   ok(decideOwnerApproval({ ...base, changedPaths: ["lib/x.js"] }).ok, "decision: ordinary change passes");
   ok(!decideOwnerApproval({ ...base, mergeGate: false, comments: [{ id: 1, ...T, user: owner, body: `/owner-approve ${head}` }] }).ok, "decision: off the merge gate even a real approval is not accepted");
@@ -285,6 +289,46 @@ globalThis.fetch = async (url, init = {}) => {
   ok(/^\s+name:\s*guards\s*$/m.test(wf) && /pull_request:/.test(wf), "the guards workflow runs on pull requests under the job name the branch rule requires");
   ok(/GITHUB_TOKEN:\s*\$\{\{\s*github\.token\s*\}\}/.test(wf) && /pull-requests:\s*read/.test(wf) && /issues:\s*read/.test(wf) && !/:\s*write/.test(wf), "the guard suite gets a read-only token that can read PR comments");
   ok(existsSync(join(REPO, "docs", "OWNER_APPROVAL.md")), "the approval procedure is documented");
+  // Sharded gate: the required "guards" job is an aggregator. Green only when all
+  // four shards, rendered/audit and build succeeded, and the shard reports prove
+  // every manifest guard ran exactly once. Approval stays the head-sha comment
+  // this file already locks; sharding does not change that contract.
+  const wfCode = wf.split("\n").filter((l) => !/^\s*#/.test(l)).join("\n");
+  ok(/group: guards-\$\{\{ github\.ref \}\}-\$\{\{ github\.ref == 'refs\/heads\/main' && github\.sha \|\| 'latest' \}\}/.test(wfCode),
+    "guards: every commit on main keeps its own run");
+  ok(/shard:\s*\[1, 2, 3, 4\]/.test(wfCode) && /timeout-minutes:\s*25/.test(wfCode)
+    && /GUARD_SHARD:\s*\$\{\{\s*matrix\.shard\s*\}\}\/4/.test(wfCode)
+    && /^  guards:\n    name: guards\n    if: always\(\)\n    needs: \[shard, rendered, build\]/m.test(wfCode)
+    && /test "\$SHARD" = "success" && test "\$RENDERED" = "success" && test "\$BUILD" = "success"/.test(wfCode),
+    "guards: four GUARD_SHARD jobs (25 min each) + rendered + build, and the required 'guards' job fails unless every part succeeded");
+  const outKeys = [...wfCode.matchAll(/^      ((?:executed|digest|shards)_[1-4]): \$\{\{ steps\.run\.outputs\.\1 \}\}$/gm)].map((m) => m[1]);
+  const aggregator = wfCode.slice(wfCode.indexOf("\n  guards:\n"));
+  ok(outKeys.length === 12 && new Set(outKeys).size === 12 && /- name: Guard suite shard \$\{\{ matrix\.shard \}\}\/4 \(scripts\/guards\.txt\)\n        id: run\n/.test(wfCode)
+    && /GUARD_SHARD_COUNT: "4"\n          GUARD_SHARD_REPORT: \$\{\{ toJSON\(needs\.shard\.outputs\) \}\}\n        run: node scripts\/run-guards\.mjs --verify-shards/.test(aggregator)
+    && /actions\/checkout@/.test(aggregator) && /persist-credentials: false/.test(aggregator),
+    "guards: each shard exports executed/digest/shards for 1..4 and the 'guards' job runs run-guards --verify-shards on the same checkout");
+  ok(/- name: Install left every tracked file untouched\n        run: git diff --exit-code --stat HEAD --\n/.test(wfCode) && /test -z "\$\{NODE_OPTIONS:-\}"\n          node scripts\/run-guards\.mjs\n/.test(wfCode),
+    "guards: an install hook cannot rewrite a tracked file (the runner) or preload code into the runner through NODE_OPTIONS");
+  // run-guards.mjs and every local module it imports, plus its serial list and
+  // .npmrc, are owner-only. A missing import fails this assertion.
+  const runnerFiles = [];
+  const visit = (rel) => {
+    if (runnerFiles.includes(rel)) return;
+    runnerFiles.push(rel);
+    const src = readFileSync(join(REPO, rel), "utf8");
+    for (const m of src.matchAll(/^\s*import\s(?:[^;]*?\sfrom\s)?["'](\.{1,2}\/[^"']+)["']/gm)) visit(join(rel, "..", m[1]).replace(/\\/g, "/"));
+    for (const m of src.matchAll(/\bimport\(\s*["'](\.{1,2}\/[^"']+)["']/g)) visit(join(rel, "..", m[1]).replace(/\\/g, "/"));
+  };
+  visit("scripts/run-guards.mjs");
+  const runnerProtected = [...runnerFiles, "scripts/guards-serial.txt", ".npmrc"];
+  ok(runnerFiles.length >= 3 && runnerFiles.includes("scripts/lib/guardShards.mjs") && runnerFiles.includes("scripts/lib/guardEnv.mjs")
+    && runnerProtected.every(isOwnerOnly),
+    `the guard runner and its ${runnerFiles.length - 1} local import(s) are owner-only (${runnerFiles.join(", ")}) plus scripts/guards-serial.txt and .npmrc; unprotected: ${runnerProtected.filter((f) => !isOwnerOnly(f)).join(", ") || "none"}`);
+  const pkg = readFileSync(join(REPO, "package.json"), "utf8");
+  const vercel = readFileSync(join(REPO, "vercel.json"), "utf8");
+  ok(/"prebuild":\s*"node scripts\/run-guards\.mjs"/.test(pkg) && !/GUARD_SHARD/.test(pkg)
+    && /"buildCommand":\s*"npm run build"/.test(vercel),
+    "Vercel npm run build still runs the full unsharded prebuild (node scripts/run-guards.mjs, GUARD_SHARD unset)");
   const oa = readFileSync(join(REPO, ".github", "workflows", "owner-approval.yml"), "utf8");
   const oaCode = oa.split("\n").filter((l) => !/^\s*#/.test(l)).join("\n");
   ok(/^\s*pull_request_target:/m.test(oaCode) && !/^\s*pull_request:/m.test(oaCode) && /^\s+name:\s*owner-approval\s*$/m.test(oaCode)
@@ -300,9 +344,9 @@ globalThis.fetch = async (url, init = {}) => {
   ok(uses.length === 2 && uses.every((u) => /@[0-9a-f]{40}$/.test(u)), `owner-approval pins every action to a full commit sha (${uses.join(", ")})`);
 }
 
-const EXPECTED = 65;
+const EXPECTED = 71;
 if (checks !== EXPECTED) {
   console.error(`test-owner-approval: FAIL — ran ${checks} assertions, expected exactly ${EXPECTED}; a proof was skipped or added without review.`);
   process.exit(1);
 }
-console.log(`test-owner-approval: OK — ${checks} assertions: forged owner author refused locally and on the merge gate, authenticated head-bound owner approval accepted, fail-closed without GitHub context, ordinary changes unaffected, pre-fix guard red-proved (blob ${PRE_FIX_BLOB.slice(0, 12)}), the owner-approval check applies the base branch's rule and is pull_request_target-safe, wired into guards.txt and both workflows`);
+console.log(`test-owner-approval: OK — ${checks} assertions: forged owner author refused locally and on the merge gate, authenticated head-bound owner approval accepted, fail-closed without GitHub context, ordinary changes unaffected, pre-fix guard red-proved (blob ${PRE_FIX_BLOB.slice(0, 12)}), the owner-approval check applies the base branch's rule and is pull_request_target-safe, wired into guards.txt and both workflows; the sharded guards job verifies every manifest guard ran once and the runner's control path is owner-only`);
