@@ -96,5 +96,12 @@
     "decision_owner": "wallstreethyena",
     "tracking": "#2543 follow-up: booking confirmation text (lib/reserveSms.js)",
     "reason": "NOT APPLIED. New table wf_reserve_notifications (RLS on, no policies, service role only): one row per (booking, kind) holding the guest's text consent, recipient, provider message id and forward-only delivery status. Additive; rollback = drop table. Unused until RESERVE_SMS_ENABLED=1 with Twilio credentials, so applying it changes no behavior."
+  },
+  {
+    "file": "supabase/migrations/20261116220000_wf_heartbeat_guide_visual_monitor_measured_gap.sql",
+    "sha256": "aa92268018d822feca57b2ee9af8a8bb5b2853ba425bb2c17d337f1938dee0f3",
+    "decision_owner": "wallstreethyena",
+    "tracking": "#2561",
+    "reason": "NOT APPLIED YET. Data only: raises the existing wf_heartbeat_expected row for guide-visual-monitor from 720 to 1080 minutes (GitHub's measured worst gap for this 6-hourly workflow is 935min over 40 runs). Applied after merge by claude.exe (Wayfind lane) under the owner's monitoring-fix mission (2026-11-16), then this entry is replaced by an apply receipt. Rollback: set it back to 720."
   }
 ]
