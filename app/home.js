@@ -569,7 +569,7 @@ const WF_DESTINATIONS = [
   { id: "map", icon: "map", label: "Map", href: "/map" },
 ];
 
-function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, tight, showSubs = true, subsExpanded = true, compact, nav, navRegion, navCitySlug, navOpenCat, onNavOpen, onNavSub }) {
+function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, tight, showSubs = true, subsExpanded = true, compact, panelCollapsed = false, onExpandPanel, nav, navRegion, navCitySlug, navOpenCat, onNavOpen, onNavSub }) {
   const subs = showSubs && activeCat ? (SUBFILTERS[activeCat] || []) : [];
   // Hooks run BEFORE the compact early-return below — a conditional hook here
   // would break the map screen the moment a sub-filter opened.
@@ -603,6 +603,9 @@ function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, tight, 
   // side they fit on one line, which is what takes the panel under 150px.
   if (compact) {
     const open = !!(activeCat && subs.length > 1);
+    const activeTile = Cats.CATEGORY_TILES.find((m) => m.id === activeCat);
+    const activeSubObj = subs.find((sf) => sf.id === sub);
+    const expandPanel = () => { try { onExpandPanel && onExpandPanel(); } catch (e) {} };
     return (
       <div className={`wf-mapfp${subsExpanded === false ? " is-subs-collapsed" : ""}`}>
         <style dangerouslySetInnerHTML={styleHtml(`
@@ -637,6 +640,20 @@ function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, tight, 
           .wf-mapfp-tap[aria-selected="true"] .wf-mapfp-sub{background:rgba(249,115,22,.16);border-color:rgba(249,115,22,.42);color:${C.accent};font-weight:800}
           @media (prefers-reduced-motion: reduce){ .wf-mapfp-subs{transition:none} }
         `)} />
+        {panelCollapsed ? (
+          <div className="wf-mapfp-row" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "4px 8px" }}>
+            <button type="button" onClick={expandPanel} style={{ background: "none", border: 0, padding: "4px 2px", color: "#FFFFFF", fontSize: 12.5, fontWeight: 800, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 7 }}>
+              <span style={{ display: "inline-flex", alignItems: "center", gap: 5, background: C.accent, color: "#0B0F14", padding: "3px 10px", borderRadius: 12, fontSize: 12, fontWeight: 800 }}>
+                {activeTile ? activeTile.label : "All categories"}
+              </span>
+              {activeSubObj && activeSubObj.id !== "all" ? <span style={{ color: C.accent, fontSize: 11.5, fontWeight: 700 }}>· {activeSubObj.label}</span> : null}
+            </button>
+            <button type="button" className="wf-mapfp-tap" onClick={expandPanel} aria-expanded="false">
+              <span className="wf-mapfp-pill"><span>{"Filters \u25BE"}</span></span>
+            </button>
+          </div>
+        ) : (
+        <>
         <div className="wf-mapfp-row">
           <div className="wf-mapfp-scroll" role="tablist" aria-label="Map categories" ref={mapfpArrowKeys}>
             {Cats.CATEGORY_TILES.map((m) => { const on = activeCat === m.id; return (
@@ -672,6 +689,8 @@ function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, tight, 
             </div>
           </>
         ) : null}
+        </>
+        )}
       </div>
     );
   }
