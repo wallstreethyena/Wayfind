@@ -579,6 +579,7 @@ node scripts/check-no-sitewide-autolinker.mjs
 node scripts/check-doc-ownership.mjs
 node scripts/test-owner-approval.mjs
 node scripts/test-owner-approval-gate.mjs
+node scripts/test-owner-approval-carry-forward.mjs
 node scripts/check-brand-vault.mjs
 node scripts/test-brand-vault.mjs
 node scripts/test-doc-ownership-shallow.mjs
@@ -892,6 +893,7 @@ node scripts/test-session-map-parity.mjs
 
 # WF-006 / WF-008 / WF-009 / WF-010 / WF-011 — partner geo, sitemap membership, landmarks, nested interactives
 node scripts/test-partner-geo.mjs
+node scripts/test-partner-offer-health.mjs
 node scripts/check-sitemap.mjs
 # 2026-09-23 — guide-linked restaurant picks (47 of 50 across the food-city
 # guides) rendered noindex with no address; guide-pick content now counts as
@@ -2572,6 +2574,8 @@ node scripts/test-viator-booking-attribution.mjs
 node scripts/test-viator-click-row-db-contract.mjs
 # 2026-11-13: owner consent rule for Google offline booking uploads (GRANTED, or outside EEA/UK/CH without GPC; fail closed), end to end in PGlite with both migrations.
 node scripts/test-viator-consent-basis.mjs
+# 2026-11-15: Data Manager auth + validateOnly probe (no network without credentials, validateOnly literal + post-build guard, scope check, no secrets in receipts, cron wiring only while uploads are not live).
+node scripts/test-datamanager-validation-probe.mjs
 # 2026-11-06: Google Data Manager events:ingest body matches the official ConsentStatus/EventSource contract (no bare GRANTED, eventSource required).
 node scripts/test-data-manager-ingest-contract.mjs
 node scripts/test-viator-visitor-hash.mjs
@@ -2685,3 +2689,4 @@ node scripts/test-self-healing-truth-engine.mjs
 # 2026-11-13: Closed-place guide/rail/index exclusion, inline card golf_course/duplicate-chip/false-Brazilian/Star-Fish fixes, Santa family outing classification, screen-reader flex-span spacing, and CardPhoto eager/monogram behavior.
 node scripts/test-closed-places-and-inline-cards.mjs
 node scripts/test-santa-local-dates.mjs
+node scripts/test-reserve-sms.mjs

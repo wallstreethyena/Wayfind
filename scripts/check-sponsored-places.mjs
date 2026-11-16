@@ -331,50 +331,99 @@ if (pageAnchor) {
 ok(sponsoredHref(rio, "partner_page").includes("utm_medium=partner_page"), "sponsoredHref honours the surface it was asked for");
 ok(sponsoredHref(rio).includes("utm_medium=sponsored_card"), "…and still defaults to the card");
 
-// The index.
+// The index. Visible copy is the text, plus aria-label / alt / title.
+// Style and script tags are not copy: CSS hyphens must not fail this check.
+function visiblePartnerText(html) {
+  const noCode = String(html).replace(/<script[\s\S]*?<\/script>/gi, " ").replace(/<style[\s\S]*?<\/style>/gi, " ");
+  const bits = [];
+  for (const m of noCode.matchAll(/\b(?:aria-label|alt|title)="([^"]*)"/gi)) bits.push(m[1]);
+  bits.push(noCode.replace(/<[^>]+>/g, " "));
+  return bits.join(" ")
+    .replace(/&amp;/g, "&")
+    .replace(/&#x27;|&#39;|&apos;|&rsquo;|&#8217;/gi, "'")
+    .replace(/&ldquo;|&rdquo;|&quot;|&#8220;|&#8221;/g, '"')
+    .replace(/&nbsp;|&#160;/g, " ")
+    .replace(/&mdash;|&#8212;/g, "\u2014")
+    .replace(/&ndash;|&#8211;/g, "\u2013")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+const DASH = /[\u002D\u2010\u2011\u2012\u2013\u2014\u2015\u2212]/;
+const RANKINGS_LINE = "Rankings, list order, guide picks, and the Wayfind Score are never paid for, and a commission on a booking does not change them.";
+
 const idxHtml = renderToStaticMarkup(pageMod.PartnersIndexPage());
 const idxFlat = idxHtml.replace(/\s+/g, " ");
+const visible = visiblePartnerText(idxHtml);
+const indexMeta = pageMod.partnersIndexMetadata();
 ok(idxHtml.includes("Partners on Wayfind"), "the index renders its heading");
 ok(!/wayfind partner/i.test(idxHtml) && !/wayfind partner/i.test(pageHtml),
   "neither page uses the banned affiliation construction, in the RENDERED markup (the source scan cannot see JSX line breaks)");
-ok(idxHtml.includes("/partners/rio-body-wax-gastonia"), "…and links every partner page");
-ok(/does not buy a Wayfind Score|not buy a Wayfind Score/i.test(idxHtml), "…and states plainly what money does not buy");
-ok(idxFlat.includes("What You Get as a Wayfind Sponsored Partner"), "the index renders the Sponsored Partner package showcase");
-ok(idxFlat.includes("Featured Sponsored Card")
-  && idxFlat.includes("Unlimited Photos")
-  && idxFlat.includes("Direct Booking Link")
-  && idxFlat.includes("Seen by Visitors Planning Their Florida Trip"),
-  "the index renders all four Sponsored Partner package benefits");
-ok(/clearly labeled card shown alongside Wayfind[’']s picks, outside ranked lists/.test(idxFlat)
-  && !/stand out in search/i.test(idxFlat),
-  "Featured Sponsored Card copy states it is a clearly labeled card shown alongside Wayfind's picks outside ranked lists, never claiming to stand out in search");
-ok(idxFlat.includes("$99") && idxFlat.includes("/ week") && idxFlat.includes("$14.14/day")
-  && idxFlat.includes("$199") && idxFlat.includes("/ month") && idxFlat.includes("$6.63/day")
-  && idxFlat.includes("$299") && idxFlat.includes("/ quarter") && idxFlat.includes("$3.32/day")
+ok((idxHtml.match(/href="\/partners\/[^"]+"/g) || []).length === 0, "the index does not link a partner page");
+ok(/A listing on Wayfind is free/.test(visible), "the index says a listing is free");
+ok(visible.split(RANKINGS_LINE).length - 1 === 1, "the rankings policy is one line on the index");
+ok(indexMeta.description.includes(RANKINGS_LINE) && !/Rio Body Wax/i.test(indexMeta.description),
+  "the search description carries the policy line and names no advertiser");
+ok(/Wayfind may earn a commission from some booking partners/.test(visible),
+  "the index discloses that Wayfind may earn a commission from some booking partners");
+const sponsoredAt = visible.indexOf("Sponsored placements");
+const priceAt = visible.indexOf("$99/week, $199/month, and $299/quarter");
+const rankAt = visible.toLowerCase().indexOf("ranking is never for sale");
+ok(sponsoredAt >= 0 && priceAt > sponsoredAt && rankAt > priceAt && rankAt - priceAt < 500,
+  "the sponsored section shows $99/week, $199/month, and $299/quarter with ranking is never for sale directly beside those prices");
+ok(/A paid promotion does not change a place's ranking or Wayfind Score/.test(visible),
+  "the line beside the sponsored prices says a paid promotion does not change a ranking or Wayfind Score");
+ok(/These are paid promotions/.test(visible) && /not organic rankings/.test(visible),
+  "sponsored placements are labeled as paid promotions and not organic rankings");
+ok((visible.match(/Sponsored placement/g) || []).length >= 4,
+  "each plan and the sample card are labeled Sponsored placement");
+ok(!/Sponsored · Paid partner/.test(visible), "the index does not use the dotted separator");
+ok(!DASH.test(visible) && !DASH.test(indexMeta.title) && !DASH.test(indexMeta.description),
+  "partners index visible copy, title, and description contain no hyphens or dashes");
+ok(!/\u00B7/.test(visible), "partners index visible copy does not use a middle dot separator");
+ok(!/\b(?:geo[-\s]?gated|flight|crawlable)\b/i.test(visible) && !/utm_source/i.test(visible) && !/\bUTM\b/.test(visible),
+  "partners index copy drops geo gated, flight, crawlable, and UTM jargon");
+ok(!/unique visitors|About 16,000|About 3,900|0%\s+Wayfind/i.test(visible),
+  "the index does not publish unsourced visitor counts or a blanket zero commission claim");
+ok(!/stand out in search/i.test(visible), "the index does not claim a sponsored card stands out in search");
+ok(idxFlat.includes("$99/week") && idxFlat.includes("$199/month") && idxFlat.includes("$299/quarter")
   && /Holiday Promo/i.test(idxFlat),
-  "the index renders the $99/week ($14.14/day), $199/month ($6.63/day), and $299/quarter ($3.32/day) Holiday Promo pricing tiers");
-ok(/0%\s+Wayfind\s+commission/i.test(idxFlat)
-  && !/Save\s+\d+%|at our best rate|marketplaces?\s+take\s+\d+|20\s*[–—-]\s*30%/i.test(idxFlat),
-  "the index highlights 0% Wayfind commission on direct bookings without inventing discount percentages, rate superlatives, or unverified competitor commission claims");
+  "the index renders the $99/week, $199/month, and $299/quarter Holiday Promo prices");
+ok(pageMod.PARTNER_PACKAGES.filter((pkg) => pkg.promoBadge === "Holiday Promo").map((pkg) => pkg.id).join(",") === "quarterly",
+  "Holiday Promo is on the quarterly plan only");
+ok(!/Save\s+\d+%|at our best rate|marketplaces?\s+take\s+\d+|20\s*[–—-]\s*30%/i.test(idxFlat),
+  "the index does not invent discount percentages, rate superlatives, or unverified competitor commission claims");
 ok(typeof pageMod.VERIFIED_FLORIDA_CITY_COUNT === "number" && pageMod.VERIFIED_FLORIDA_CITY_COUNT >= 30
   && typeof pageMod.VERIFIED_LIVE_GUIDE_COUNT === "number" && pageMod.VERIFIED_LIVE_GUIDE_COUNT >= 50
-  && idxFlat.includes(`${pageMod.VERIFIED_FLORIDA_CITY_COUNT} Covered Florida Cities`)
-  && idxFlat.includes(`${pageMod.VERIFIED_LIVE_GUIDE_COUNT} Published Florida Local Guides`)
   && !/\b77\+\s*guides\b|\b24\+\s*hubs\b/i.test(idxFlat),
-  "authority counts come directly from live codebase registries rather than unverified handoff numbers");
-ok(/See a Live Partner/i.test(idxFlat)
-  && idxHtml.includes('data-wf-live-partner="rio-body-wax-gastonia"')
-  && /What Happens After You Contact Us/i.test(idxFlat)
-  && idxHtml.includes('data-analytics-page="partners_index"'),
-  "the index renders the See a Live Partner proof CTA, post-inquiry workflow certainty, and partners_index analytics surface");
-ok(/Example Illustration/i.test(idxFlat) && /not an active sponsor or customer result/i.test(idxFlat),
-  "the phone mockup is explicitly labeled as an illustrative example, never implying an existing customer or performance result");
-ok(pageMod.PARTNER_CONTACT_EMAIL === "hello@gowayfind.com" && idxFlat.includes("hello@gowayfind.com") && /Send note without a mail app/.test(idxFlat),
+  "verified city and guide counts stay live registry numbers, and the index does not print handoff totals");
+ok(/Example/.test(visible) && /not a real business/i.test(visible) && /Sponsored placement/.test(visible),
+  "one sample card is labeled Example and Sponsored placement, and is not a real business");
+ok(/data-photo-fallback="unavailable"/.test(idxHtml) && !/<img\b/i.test(idxHtml),
+  "the example card uses the shared no-photo tile and the index has no img");
+ok(!/\b0[123]\b/.test(visible), "no zero padded step number");
+ok(pageMod.PARTNER_CHECKOUT == null && !/Pay now/i.test(visible) && !/stripe\.com|checkout\.stripe/i.test(idxHtml),
+  "no payment provider is wired, so the index does not fake a Pay now button");
+const advertiserMarkers = [];
+for (const sponsor of SPONSORED_PLACES) {
+  for (const value of [sponsor.advertiser, sponsor.name, sponsor.id, sponsor.staticPhoto, sponsor.person && sponsor.person.name, sponsor.person && sponsor.person.full]) {
+    const text = String(value || "").trim();
+    if (text.length >= 3) advertiserMarkers.push(text);
+  }
+}
+ok(advertiserMarkers.some((marker) => marker === "Rio Body Wax"), "PROBE: the sponsor book still contains Rio Body Wax, so the privacy search has a real name to miss");
+ok(/Rio Body Wax/.test(pageHtml), "PROBE: the Rio page renders that name, so a clean index is not an empty search");
+const indexSurface = `${idxHtml}\n${indexMeta.title}\n${indexMeta.description}`;
+for (const marker of advertiserMarkers) {
+  ok(!indexSurface.toLowerCase().includes(marker.toLowerCase()), `/partners reveals no advertiser marker ${JSON.stringify(marker)}`);
+}
+ok(pageMod.PARTNER_INDEX_NAMES_ARE_PRIVATE === true, "the index privacy rule is explicit in the page module");
+ok(pageMod.PARTNER_CONTACT_EMAIL === "hello@gowayfind.com" && idxFlat.includes("hello@gowayfind.com") && /Send a note on this page/.test(idxFlat),
   "the index displays hello@gowayfind.com and provides an in-page contact fallback for visitors without a configured mail app");
 ok(Array.isArray(pageMod.PARTNER_PACKAGES) && pageMod.PARTNER_PACKAGES.length === 3, "PARTNER_PACKAGES defines the 3 approved packages");
 for (const pkg of pageMod.PARTNER_PACKAGES || []) {
   const expectedPerDay = "$" + (pkg.priceUsd / pkg.days).toFixed(2) + "/day";
   ok(pkg.perDayDisplay === expectedPerDay, `${pkg.id}: per-day math is exact (${pkg.priceUsd} / ${pkg.days} = ${expectedPerDay}, got ${pkg.perDayDisplay})`);
+  ok(!idxFlat.includes(pkg.perDayDisplay), `${pkg.id}: the per-day figure stays off the page; the public price is ${pkg.exactPrice}`);
   const href = pageMod.partnerPackageMailto(pkg);
   ok(href.startsWith("mailto:hello@gowayfind.com?subject="), `${pkg.id}: mailto targets hello@gowayfind.com`);
   const q = href.slice("mailto:hello@gowayfind.com?".length);
@@ -382,17 +431,21 @@ for (const pkg of pageMod.PARTNER_PACKAGES || []) {
   const params = new URLSearchParams(q);
   const subj = params.get("subject") || "";
   const body = params.get("body") || "";
-  ok(subj.includes(pkg.name) && subj.includes(pkg.priceDisplay) && subj.includes(pkg.period),
+  ok(subj.includes(pkg.name) && subj.includes(pkg.priceDisplay) && subj.includes(pkg.period) && subj.includes(pkg.exactPrice),
     `${pkg.id}: decoded mailto subject identifies package name, price, and period — got ${JSON.stringify(subj)}`);
   ok(body.includes(pkg.name) && body.includes(pkg.priceDisplay) && body.includes(pkg.period) && body.includes(pkg.durationLabel),
     `${pkg.id}: decoded mailto body identifies package name, price, period, and duration`);
+  ok(!DASH.test(subj + " " + body) && !/\b(?:flight|crawlable|utm_source|geo-gated)\b/i.test(`${subj} ${body}`),
+    `${pkg.id}: mailto copy has no dashes and no flight, crawlable, or UTM jargon`);
+  ok(pkg.benefits.includes("A call button") && pkg.benefits.includes("Google Maps directions"),
+    `${pkg.id}: the plan itself includes a call button and Google Maps directions`);
   for (const other of pageMod.PARTNER_PACKAGES) {
     if (other.id === pkg.id) continue;
     ok(!subj.includes(other.name) && !subj.includes(other.priceDisplay) && !body.includes(other.name),
       `${pkg.id}: mailto subject/body never leaks ${other.id} package copy`);
   }
-  ok(/Inquire about /i.test(pkg.ctaLabel) && !/\b(?:Buy|Purchase|Claim|Start|Book)\b/i.test(pkg.ctaLabel),
-    `${pkg.id}: CTA label accurately describes an inquiry action (${JSON.stringify(pkg.ctaLabel)})`);
+  ok(/Email us about the /i.test(pkg.ctaLabel) && !/\b(?:Pay now|Buy|Purchase|Checkout|Claim|Start|Book)\b/i.test(pkg.ctaLabel),
+    `${pkg.id}: CTA label is an email inquiry, not a fake purchase (${JSON.stringify(pkg.ctaLabel)})`);
   ok(idxHtml.includes(`data-wf-inquiry-package="${pkg.id}"`) && idxHtml.includes(esc(href)),
     `${pkg.id}: package inquiry button renders with its exact encoded mailto href`);
 }
@@ -749,10 +802,10 @@ const RED = [
     return hydrateSponsoredRailPlace({ ...mob, eventId: "unconsented" }, mob.center, DURING).place.photo === null
       && hydrateSponsoredRailPlace(mob, mob.center, DURING).place.photo !== null;
   }],
-  ["prohibited 'stand out in search' copy on the Featured Sponsored Card is detectable", () => {
-    const mutated = idxFlat.replace(/clearly labeled card shown alongside Wayfind[’']s picks, outside ranked lists/, "Stand out in search and discovery results");
-    const passes = /clearly labeled card shown alongside Wayfind[’']s picks, outside ranked lists/.test(mutated) && !/stand out in search/i.test(mutated);
-    return passes === false && /clearly labeled card shown alongside Wayfind[’']s picks, outside ranked lists/.test(idxFlat);
+  ["prohibited 'stand out in search' copy on the sponsored section is detectable", () => {
+    const mutated = visible.replace(/Ranking is never for sale\./, "Stand out in search.");
+    const passes = /ranking is never for sale/i.test(mutated) && !/stand out in search/i.test(mutated);
+    return passes === false && /ranking is never for sale/i.test(visible) && !/stand out in search/i.test(visible);
   }],
   ["a package mailto leaking another package's price or period is detectable", () => {
     const weeklyHref = pageMod.partnerPackageMailto(pageMod.PARTNER_PACKAGES[0]);
