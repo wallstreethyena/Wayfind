@@ -4,6 +4,7 @@
 import { useEffect, useState } from "react";
 import { C, Icon } from "../kit";
 import { openExternal } from "../../../lib/links";
+import { safeLocalStorage } from "../../../lib/safeStorage.js";
 import {
   sortedItems,
   groupItemsByDay,
@@ -20,6 +21,7 @@ import {
   MAX_SHARED_ITINERARY_STOPS,
 } from "../../../lib/itineraryShare";
 import { ensureSignedOutTripIsolation, syncTripsToAccount } from "../../../lib/itinerarySync";
+import { styleHtml } from "../../../lib/styleHtml.js";
 
 export default function SharedItineraryScreen({ ctx }) {
   const {
@@ -51,7 +53,7 @@ export default function SharedItineraryScreen({ ctx }) {
     const targetStorage =
       ctx.__storage !== undefined
         ? ctx.__storage
-        : (typeof window !== "undefined" && window.localStorage ? window.localStorage : null);
+        : safeLocalStorage();
     if (!targetStorage) return;
     const isolated = ensureSignedOutTripIsolation(targetStorage, { authReady });
     if (isolated !== null && setTrips) {
@@ -149,7 +151,7 @@ export default function SharedItineraryScreen({ ctx }) {
     const targetStorage =
       ctx.__storage !== undefined
         ? ctx.__storage
-        : (typeof window !== "undefined" && window.localStorage ? window.localStorage : null);
+        : safeLocalStorage();
     let candidateTrips =
       (importFeedback && importFeedback.trips && Object.keys(importFeedback.trips).length ? importFeedback.trips : null) ||
       trips;
@@ -570,7 +572,7 @@ export default function SharedItineraryScreen({ ctx }) {
       ) : (
         items.map((it) => renderStopRow(it, it.order + 1))
       )}
-      <style dangerouslySetInnerHTML={{ __html: `.wf-shared-stop-btn:focus-visible{outline:2px solid ${C.accent};outline-offset:2px}` }} />
+      <style dangerouslySetInnerHTML={styleHtml(`.wf-shared-stop-btn:focus-visible{outline:2px solid ${C.accent};outline-offset:2px}`)} />
     </div>
   );
 }

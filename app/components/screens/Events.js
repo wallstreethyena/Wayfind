@@ -325,7 +325,7 @@ export default function EventsScreen({ ctx }) {
     {eventsTours === null ? <Loader label="Finding bookable experiences" pad="6px 2px" /> : orderedTours.length > 0 ? <section aria-label="Local tours" style={{ marginBottom: 16 }}>
       <h2 style={{ fontSize: 16, color: C.text }}>Local tours</h2>
       <div style={{ fontSize: 11.5, color: C.muted, marginBottom: 8 }}>Everything bookable near you · {tours.length}. Available dates shown when booking.</div>
-      <ViatorRail title="Bookable experiences near you" items={orderedTours} theme="events-tours" preserveOrder={sort === "distance"} />
-    </section> : null}
+      <ViatorRail title="Bookable experiences near you" items={orderedTours} query={locName ? locName.split(",")[0] : ""} theme="events-tours" preserveOrder={sort === "distance"} />
+    </section> : <ViatorRail title="Bookable experiences near you" items={[]} query={locName ? locName.split(",")[0] : ""} theme="events-tours" providerState="zero_candidates" />}
   </div>;
 }

@@ -116,7 +116,7 @@ function OfferCard({ offer, slug, pickId }) {
         onClick={(event) => onPickOfferClick({ offer, slug, pickId, anchor: event && event.currentTarget })}
         style={alt ? { ...btn, background: "transparent", color: "#FDBA74", border: "1px solid #F97316" } : btn}
       >
-        {PICK_OFFER_CTA} ↗
+        {offer.buttonLabel || PICK_OFFER_CTA} ↗
       </a>
       <GuideCommissionLine lead={"Opens the product page on " + opensOn + (offer.operator ? `; operated by ${offer.operator}` : "") + "."} />
     </div>

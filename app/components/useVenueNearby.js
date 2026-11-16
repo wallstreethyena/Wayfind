@@ -5,6 +5,7 @@ import { detailNearbyPool, DETAIL_NEARBY_RADIUS_MI } from "../../lib/detailNearb
 import { readCompleteMapArea } from "../../lib/mapAreaRead.js";
 import { mergeMapAreaContext } from "../../lib/mapAreaData.js";
 import { mapFailureReason, reportMapServiceIssue } from "../../lib/mapDiagnostics.js";
+import { isVisitorSideFailure, withClientTransportRetry } from "../../lib/clientTransportRetry.js";
 
 export function venueNearbyBounds(place) {
   if (!Number.isFinite(place?.lat) || !Number.isFinite(place?.lng)
@@ -30,10 +31,14 @@ export default function useVenueNearby(place, contextPlaces = [], enabled = true
     let dead = false;
     const timeout = setTimeout(() => controller.abort(new Error("Venue nearby deadline")), 20000);
     setResult({ key, status: "loading", places: [] });
-    readCompleteMapArea({ bounds, origin: { lat: place.lat, lng: place.lng }, signal: controller.signal })
+    // A dropped phone connection gets one quiet second attempt before the
+    // visitor sees an error; a real answer from the API (HTTP error, bad
+    // payload, deadline) is never retried. See lib/clientTransportRetry.js.
+    withClientTransportRetry(() => readCompleteMapArea({ bounds, origin: { lat: place.lat, lng: place.lng }, signal: controller.signal }), { signal: controller.signal })
       .then((places) => { if (!dead) setResult({ key, status: "ready", places: detailNearbyPool(place, places) }); })
       .catch((error) => { if (!dead) {
-        reportMapServiceIssue("venue-nearby", mapFailureReason(error));
+        // The visitor's own connection is not a Wayfind map incident.
+        if (!isVisitorSideFailure(error)) reportMapServiceIssue("venue-nearby", mapFailureReason(error));
         setResult({ key, status: "error", places: [] });
       } })
       .finally(() => clearTimeout(timeout));

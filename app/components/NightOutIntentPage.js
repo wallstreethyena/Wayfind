@@ -15,6 +15,8 @@ import { resolveLocationContext, locationSurface, milesBetween } from "../../lib
 import { canonicalShareUrl } from "../../lib/site";
 import { usePosterEvents } from "./usePosterEvents";
 import PosterEventCard from "./PosterEventCard";
+import { readStoredCenter, fetchIpCenter } from "../../lib/intentLocationFallback.js";
+import IntentLocationChooser from "./IntentLocationChooser";
 
 function nightOutLocation({ urlCity = "", urlLat = NaN, urlLng = NaN, stored = null } = {}) {
   const coords = { lat: Number(urlLat), lng: Number(urlLng) };
@@ -37,14 +39,23 @@ export default function NightOutIntentPage() {
   const urlLat = parseFloat(sp.get("lat"));
   const urlLng = parseFloat(sp.get("lng"));
   const [loc, setLoc] = useState(() => nightOutLocation({ urlCity, urlLat, urlLng }));
+  // No URL point and no saved homepage location: try the free IP location,
+  // then show the city chooser (lib/intentLocationFallback.js).
+  const [locating, setLocating] = useState(false);
 
   useEffect(() => {
-    let stored = null;
-    try {
-      const value = JSON.parse(localStorage.getItem("wf_center") || "null");
-      if (value && isFinite(value.lat) && isFinite(value.lng)) stored = { lat: Number(value.lat), lng: Number(value.lng), loc: value.loc };
-    } catch {}
-    setLoc(nightOutLocation({ urlCity, urlLat, urlLng, stored }));
+    const stored = readStoredCenter();
+    const next = nightOutLocation({ urlCity, urlLat, urlLng, stored });
+    setLoc(next);
+    if (Number.isFinite(next.lat) && Number.isFinite(next.lng)) { setLocating(false); return undefined; }
+    let cancelled = false;
+    setLocating(true);
+    fetchIpCenter().then((ip) => {
+      if (cancelled) return;
+      if (ip) setLoc(nightOutLocation({ urlCity, urlLat, urlLng, stored: ip }));
+      setLocating(false);
+    });
+    return () => { cancelled = true; };
   }, [urlCity, urlLat, urlLng]);
 
   const areaCtx = areaSeasonalContext(loc.city, currentSeason());
@@ -79,6 +90,7 @@ export default function NightOutIntentPage() {
     </button>}
 >
     <NightOutRails active center={{ lat: loc.lat, lng: loc.lng }} city={loc.city}
-      eventsSlot={(mode) => mode === "night-out" ? eventSurface : null} />
+      eventsSlot={(mode) => mode === "night-out" ? eventSurface : null}
+      emptyLocation={<IntentLocationChooser intent="tonight" locating={locating} />} />
   </RankedExperiencePage>;
 }

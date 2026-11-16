@@ -138,6 +138,7 @@ const nextConfig = {
     "/api/events": ["./data/christmas-2026-research.json"],
     "/api/events/christmas": ["./data/christmas-2026-research.json"],
     "/api/christmas/browse": ["./data/christmas-2026-research.json"],
+    "/api/christmas/plan-votes": ["./data/christmas-2026-research.json"],
     "/api/cron/affiliate-coverage": ["./data/christmas-2026-research.json"],
     "/christmas-in-florida": ["./data/christmas-2026-research.json"],
     "/florida-events/[slug]": ["./data/christmas-2026-research.json"],
@@ -153,8 +154,22 @@ const nextConfig = {
     // local build (scripts/test-og-bodies.mjs's hero cases are the guard
     // that actually fetches this route and would have caught it).
     "/api/og/hero": ["./app/api/og/fonts/*.ttf"],
+    // /api/og/movie reads the Archivo fonts and the self-hosted movie posters with fs (Node runtime).
+    "/api/og/movie": ["./app/api/og/fonts/*.ttf", "./public/movies/*.webp"],
     // Atlas paid lane priority list is read with fs at runtime (lib/atlasPaidLane.js).
     "/api/cron/atlas-build": ["./data/atlas/priority-place-ids.json"],
+    // Wayfind Planner reads seasonal research & first-party Atlas cards on the server via fs.
+    "/api/planner": ["./data/christmas-2026-research.json", "./data/atlas/editorial-cards.json"],
+  },
+  // 2026-11-11: /api/og/movie once traced ALL of public/ (1.1 GB) and Vercel refused every
+  // production deploy. It needs only public/movies, listed above. These excludes keep the big
+  // photo folders out of that function even if a future edit makes its read path dynamic again
+  // (scripts/test-og-movie-function-size.mjs).
+  outputFileTracingExcludes: {
+    "/api/og/movie": [
+      "./public/place-photos/**", "./public/guides/**", "./public/florida-photos/**", "./public/brand/**",
+      "./public/cards/**", "./public/cards-v8/**", "./public/events/**", "./public/partners/**", "./public/og/**",
+    ],
   },
   reactStrictMode: false,
   poweredByHeader: false,
@@ -260,6 +275,12 @@ const nextConfig = {
     // reviewed before merge. They still publish canonical metadata pointing at
     // gowayfind.com; only the navigation bounce is skipped. Production builds
     // keep the stale *.vercel.app protection below.
+    // The blog lives on its own host. /blog on www used to 404; send it (and any
+    // sub path) to the real host. Kept in previews too: it is host-agnostic.
+    const blogRedirects = [
+      { source: "/blog", destination: "https://blog.gowayfind.com", permanent: true },
+      { source: "/blog/:path*", destination: "https://blog.gowayfind.com/:path*", permanent: true },
+    ];
     // Bare category URLs that used to 404 fold into the hub that serves them.
     // Kept in preview too: they are plain path redirects with no host condition.
     const categoryRedirects = [
@@ -274,8 +295,9 @@ const nextConfig = {
       { source: "/stay", destination: "/things-to-do", permanent: true },
       { source: "/shop", destination: "/things-to-do", permanent: true },
     ];
-    if (process.env.VERCEL_ENV === "preview") return categoryRedirects;
+    if (process.env.VERCEL_ENV === "preview") return [...blogRedirects, ...categoryRedirects];
     return [
+      ...blogRedirects,
       ...categoryRedirects,
       {
         source: "/:path((?!api/cron|api/hooks).*)",
@@ -284,6 +306,25 @@ const nextConfig = {
         permanent: true,
       },
     ];
+  },
+  // 2026-11-12 — no Buffer polyfill in BROWSER bundles. Next's client
+  // ProvidePlugin injects its ~7KB gz `buffer` polyfill into any client module
+  // that names the `Buffer` global. Every browser path in this app already
+  // guards that name (typeof Buffer / typeof atob / TextEncoder), so the
+  // polyfill only ever shipped dead weight to every page, through the root
+  // layout (@supabase/storage-js, lib/adClickCookie.js) and the homepage.
+  // Server and edge keep Next's default. Locked by scripts/check-bundle.mjs:
+  // no client chunk may carry the polyfill, and no client chunk may use
+  // `Buffer` without a guard.
+  webpack(config, { isServer, nextRuntime }) {
+    if (!isServer && nextRuntime !== "edge") {
+      for (const plugin of config.plugins || []) {
+        if (plugin && plugin.constructor && plugin.constructor.name === "ProvidePlugin" && plugin.definitions && plugin.definitions.Buffer) {
+          delete plugin.definitions.Buffer;
+        }
+      }
+    }
+    return config;
   },
 };
 // withSentryConfig auto-instruments the SERVER + EDGE runtimes for error

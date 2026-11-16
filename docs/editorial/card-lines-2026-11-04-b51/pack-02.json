@@ -1,0 +1,645 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 51. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJc-TpvQ2cwogRz4GfSCSzBrE",
+   "name": "Suncoast Broadway Dinner Theatre",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "performing_arts_theater",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.suncoastbroadway.com/",
+     "source_name": "Suncoast Broadway Dinner Theatre \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The official homepage lists individual tickets and season subscriptions.",
+      "The official homepage lists group sales.",
+      "The official homepage lists premium parking and premium entrees.",
+      "The box office phone listed is 727-863-7949."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Theatre with individual tickets, season subscriptions and group sales",
+    "why_here": "Suncoast Broadway lists individual tickets, season subscriptions, group sales, premium parking and premium entrees on its official homepage for theatre visitors.",
+    "know_before": "To purchase tickets by phone, call 727-863-7949 as listed on the official homepage.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.suncoastbroadway.com/"
+     ],
+     "why_here": [
+      "https://www.suncoastbroadway.com/"
+     ],
+     "know_before": [
+      "https://www.suncoastbroadway.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The official homepage lists individual tickets and season subscriptions.",
+      "source": "https://www.suncoastbroadway.com/"
+     },
+     {
+      "claim": "The official homepage lists group sales.",
+      "source": "https://www.suncoastbroadway.com/"
+     },
+     {
+      "claim": "The official homepage lists premium parking and premium entrees.",
+      "source": "https://www.suncoastbroadway.com/"
+     },
+     {
+      "claim": "The box office phone listed is 727-863-7949.",
+      "source": "https://www.suncoastbroadway.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJWzumqT63wogRUmIjsj4cMdI",
+   "name": "Sushi Masa Premium",
+   "category": "food",
+   "metro": "tampa",
+   "primary_type": "sushi_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://sushimasaus.com/",
+     "source_name": "Sushi Masa Premium \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Sushi Masa is a Japanese restaurant serving sushi, sashimi, hibachi, soups and salads.",
+      "The restaurant prides itself on creative all-you-can-eat specials and high-quality ingredients.",
+      "Sushi Masa lists a Tampa location among its restaurants."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Japanese restaurant for fresh sushi, sashimi, hibachi, soups and salads",
+    "why_here": "Sushi Masa describes itself as a Japanese restaurant dedicated to fresh, flavorful sushi, sashimi, hibachi, soups and salads. It highlights creative all-you-can-eat specials, high-quality ingredients and a welcoming experience for every guest.",
+    "know_before": "Call your local Sushi Masa for takeout to enjoy in-store pricing, per the official site.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://sushimasaus.com/"
+     ],
+     "why_here": [
+      "https://sushimasaus.com/"
+     ],
+     "know_before": [
+      "https://sushimasaus.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Sushi Masa is a Japanese restaurant serving sushi, sashimi, hibachi, soups and salads.",
+      "source": "https://sushimasaus.com/"
+     },
+     {
+      "claim": "The restaurant prides itself on creative all-you-can-eat specials and high-quality ingredients.",
+      "source": "https://sushimasaus.com/"
+     },
+     {
+      "claim": "Sushi Masa lists a Tampa location among its restaurants.",
+      "source": "https://sushimasaus.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ-8Eajc5_3YgRnNnghOJqkrc",
+   "name": "The Cabins at Disney's Fort Wilderness Resort",
+   "category": "hotels",
+   "metro": "orlando",
+   "primary_type": "resort_hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://disneyparksblog.com/wdw/howdy-and-welcome-home-to-the-cabins-at-disneys-fort-wilderness-resort/",
+     "source_name": "The Cabins at Disney's Fort Wilderness Resort \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The spacious new Disney Vacation Club cabins at Fort Wilderness Resort sleep up to six guests.",
+      "The cabins join upscale indoor style with a spacious outdoor deck area in an open layout.",
+      "The kitchen includes a full-sized oven and full-sized appliances.",
+      "Horseback riding, fishing excursions, campfires and archery await just outside the cabins.",
+      "The new cabins offer two queen beds, one of which is a murphy bed, and bunks."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Cabins sleeping up to six guests, with a kitchen and spacious outdoor deck",
+    "why_here": "The spacious new Disney Vacation Club cabins at Fort Wilderness Resort sleep up to six guests, with an open layout that joins upscale indoor style with a spacious outdoor deck area. The kitchen includes a full-sized oven, and the cabins feature many comforts of home.",
+    "know_before": "Each cabin has a dedicated parking space right in front of the cabin, as described on the page.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://disneyparksblog.com/wdw/howdy-and-welcome-home-to-the-cabins-at-disneys-fort-wilderness-resort/"
+     ],
+     "why_here": [
+      "https://disneyparksblog.com/wdw/howdy-and-welcome-home-to-the-cabins-at-disneys-fort-wilderness-resort/"
+     ],
+     "know_before": [
+      "https://disneyparksblog.com/wdw/howdy-and-welcome-home-to-the-cabins-at-disneys-fort-wilderness-resort/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The spacious new Disney Vacation Club cabins at Fort Wilderness Resort sleep up to six guests.",
+      "source": "https://disneyparksblog.com/wdw/howdy-and-welcome-home-to-the-cabins-at-disneys-fort-wilderness-resort/"
+     },
+     {
+      "claim": "The cabins join upscale indoor style with a spacious outdoor deck area in an open layout.",
+      "source": "https://disneyparksblog.com/wdw/howdy-and-welcome-home-to-the-cabins-at-disneys-fort-wilderness-resort/"
+     },
+     {
+      "claim": "The kitchen includes a full-sized oven and full-sized appliances.",
+      "source": "https://disneyparksblog.com/wdw/howdy-and-welcome-home-to-the-cabins-at-disneys-fort-wilderness-resort/"
+     },
+     {
+      "claim": "Horseback riding, fishing excursions, campfires and archery await just outside the cabins.",
+      "source": "https://disneyparksblog.com/wdw/howdy-and-welcome-home-to-the-cabins-at-disneys-fort-wilderness-resort/"
+     },
+     {
+      "claim": "The new cabins offer two queen beds, one of which is a murphy bed, and bunks.",
+      "source": "https://disneyparksblog.com/wdw/howdy-and-welcome-home-to-the-cabins-at-disneys-fort-wilderness-resort/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJUZ101Qi62YgRwbRWYCl_qBc",
+   "name": "La Fresa Francesa",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "french_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.miamiandbeaches.com/restaurants/where-to-dine-in-hialeah",
+     "source_name": "La Fresa Francesa \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "La Fresa Francesa features candlelit tables and vintage French decor.",
+      "The menu includes escargots, foie gras and proper French onion soup.",
+      "Un Cubano en Paris is made with braised pork, melted Gruyere and pickled onions on a freshly baked bun.",
+      "Owner Sandy Sanchez is a Hialeah native and her husband, chef Benoit Rablat, is French-born."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "French restaurant with candlelit tables, vintage French decor and escargots",
+    "why_here": "The guide says La Fresa Francesa transports you to Paris inside, with candlelit tables and vintage French decor alongside escargots, foie gras and proper French onion soup. Owner Sandy Sanchez is a Hialeah native and her husband, chef Benoit Rablat, is French-born.",
+    "know_before": "La Fresa Francesa features candlelit tables and vintage French decor.",
+    "local_tip": "Save room for the guava crepe.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.miamiandbeaches.com/restaurants/where-to-dine-in-hialeah"
+     ],
+     "why_here": [
+      "https://www.miamiandbeaches.com/restaurants/where-to-dine-in-hialeah"
+     ],
+     "know_before": [
+      "https://www.miamiandbeaches.com/restaurants/where-to-dine-in-hialeah"
+     ],
+     "local_tip": [
+      "https://www.miamiandbeaches.com/restaurants/where-to-dine-in-hialeah"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "La Fresa Francesa features candlelit tables and vintage French decor.",
+      "source": "https://www.miamiandbeaches.com/restaurants/where-to-dine-in-hialeah"
+     },
+     {
+      "claim": "The menu includes escargots, foie gras and proper French onion soup.",
+      "source": "https://www.miamiandbeaches.com/restaurants/where-to-dine-in-hialeah"
+     },
+     {
+      "claim": "Un Cubano en Paris is made with braised pork, melted Gruyere and pickled onions on a freshly baked bun.",
+      "source": "https://www.miamiandbeaches.com/restaurants/where-to-dine-in-hialeah"
+     },
+     {
+      "claim": "Owner Sandy Sanchez is a Hialeah native and her husband, chef Benoit Rablat, is French-born.",
+      "source": "https://www.miamiandbeaches.com/restaurants/where-to-dine-in-hialeah"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ4wxVu-q20YgRBi9q7aFsUoE",
+   "name": "The Waterfront Brewery",
+   "category": "food",
+   "metro": "keys",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.thewaterfrontbrewery.com/",
+     "source_name": "The Waterfront Brewery \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Waterfront Brewery is a craft brewery located at the Historic Key West Bight",
+      "It offers a great beer selection and a full food menu",
+      "Its beer is brewed in Key West and enjoyed in the Florida Keys",
+      "The brewery is at 201 William Street"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "A craft brewery at the Historic Key West Bight with a full food menu",
+    "why_here": "The Waterfront Brewery is a craft brewery located at the Historic Key West Bight with a great beer selection, a full food menu and the best views in Key West. Its beer is brewed in Key West and enjoyed in the Florida Keys.",
+    "know_before": "The Waterfront Brewery is at 201 William Street, and its beer can be found throughout the Florida Keys.",
+    "local_tip": "Check what is on tap today through the official site before visiting.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.thewaterfrontbrewery.com/"
+     ],
+     "why_here": [
+      "https://www.thewaterfrontbrewery.com/"
+     ],
+     "know_before": [
+      "https://www.thewaterfrontbrewery.com/"
+     ],
+     "local_tip": [
+      "https://www.thewaterfrontbrewery.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Waterfront Brewery is a craft brewery located at the Historic Key West Bight",
+      "source": "https://www.thewaterfrontbrewery.com/"
+     },
+     {
+      "claim": "It offers a great beer selection and a full food menu",
+      "source": "https://www.thewaterfrontbrewery.com/"
+     },
+     {
+      "claim": "Its beer is brewed in Key West and enjoyed in the Florida Keys",
+      "source": "https://www.thewaterfrontbrewery.com/"
+     },
+     {
+      "claim": "The brewery is at 201 William Street",
+      "source": "https://www.thewaterfrontbrewery.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJDYi3LDza5ogRw0qjqr7SMHM",
+   "name": "Main Street Station",
+   "category": "nightlife",
+   "metro": "florida",
+   "primary_type": "bar",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://mainstreetlive.com/history/",
+     "source_name": "Main Street Station \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Main Street Station first opened in 1934 as a fully functioning garage.",
+      "The garage was owned and operated by Bill France Sr.",
+      "There are three bars located on site.",
+      "Bill France Sr. was born on September 26, 1909."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Historic garage bar first opened in 1934, now a live music venue",
+    "why_here": "Main Street Station first opened in 1934 as a fully functioning garage. The garage was owned and operated by Bill France Sr.",
+    "know_before": "There are three bars located on site at Main Street Station.",
+    "local_tip": "Special events are held for race fans and motorcycle enthusiasts, per the history page.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://mainstreetlive.com/history/"
+     ],
+     "why_here": [
+      "https://mainstreetlive.com/history/"
+     ],
+     "know_before": [
+      "https://mainstreetlive.com/history/"
+     ],
+     "local_tip": [
+      "https://mainstreetlive.com/history/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Main Street Station first opened in 1934 as a fully functioning garage.",
+      "source": "https://mainstreetlive.com/history/"
+     },
+     {
+      "claim": "The garage was owned and operated by Bill France Sr.",
+      "source": "https://mainstreetlive.com/history/"
+     },
+     {
+      "claim": "There are three bars located on site.",
+      "source": "https://mainstreetlive.com/history/"
+     },
+     {
+      "claim": "Bill France Sr. was born on September 26, 1909.",
+      "source": "https://mainstreetlive.com/history/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJEaB8S0bH2YgRPma2JjRRJwk",
+   "name": "Daniel's Miami",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "steak_house",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.danielssteak.com/miami/",
+     "source_name": "Daniel's Miami \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The steak program is built on partnerships with respected ranchers and cattle producers.",
+      "Selections include Australian and Texas Wagyu from Stone Axe Wagyu, Margaret River Wagyu Beef and Rosewood Ranches.",
+      "The menu features seafood options like Dover Sole and Lobster Fra Diavolo.",
+      "The wine program is led by Daniel Bishop.",
+      "Guests are kindly asked to refrain from wearing shorts, tank tops, flip flops, open-toed sandals for men, or baseball caps while dining."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Steak program built on partnerships with respected ranchers and cattle producers",
+    "why_here": "The steak program is built on partnerships with respected ranchers and cattle producers. Selections include Australian and Texas Wagyu from Stone Axe Wagyu, Margaret River Wagyu Beef and Rosewood Ranches.",
+    "know_before": "Guests are kindly asked to refrain from wearing shorts, tank tops, flip flops, open-toed sandals for men, or baseball caps while dining.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.danielssteak.com/miami/"
+     ],
+     "why_here": [
+      "https://www.danielssteak.com/miami/"
+     ],
+     "know_before": [
+      "https://www.danielssteak.com/miami/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The steak program is built on partnerships with respected ranchers and cattle producers.",
+      "source": "https://www.danielssteak.com/miami/"
+     },
+     {
+      "claim": "Selections include Australian and Texas Wagyu from Stone Axe Wagyu, Margaret River Wagyu Beef and Rosewood Ranches.",
+      "source": "https://www.danielssteak.com/miami/"
+     },
+     {
+      "claim": "The menu features seafood options like Dover Sole and Lobster Fra Diavolo.",
+      "source": "https://www.danielssteak.com/miami/"
+     },
+     {
+      "claim": "The wine program is led by Daniel Bishop.",
+      "source": "https://www.danielssteak.com/miami/"
+     },
+     {
+      "claim": "Guests are kindly asked to refrain from wearing shorts, tank tops, flip flops, open-toed sandals for men, or baseball caps while dining.",
+      "source": "https://www.danielssteak.com/miami/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJZ9Vu4Rmr2YgRcK4miGwloqY",
+   "name": "Thanks To Harrison",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "european_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://thankstoharrison.com",
+     "source_name": "Thanks To Harrison \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Thanks to Harrison is a chef-driven all-day restaurant serving breakfast, brunch, lunch, dinner and craft cocktails every day.",
+      "The kitchen is led by Chef Ivan Proseniuk with European-inspired cooking.",
+      "Coffee is roasted for the restaurant in Maine by Kavka, a Ukrainian specialty coffee roaster.",
+      "Its cocktail bar was built by world-class mixologists."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Chef-driven all-day kitchen serving breakfast, brunch, lunch, dinner and craft cocktails",
+    "why_here": "Thanks to Harrison describes itself as a chef-driven all-day restaurant serving breakfast, brunch, lunch, dinner and craft cocktails every day. The kitchen is led by Chef Ivan Proseniuk with European-inspired cooking, four syrnyky variations and whole baked branzino.",
+    "know_before": "Thanks to Harrison is a chef-driven all-day restaurant serving breakfast, brunch, lunch, dinner and craft cocktails every day.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://thankstoharrison.com"
+     ],
+     "why_here": [
+      "https://thankstoharrison.com"
+     ],
+     "know_before": [
+      "https://thankstoharrison.com"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Thanks to Harrison is a chef-driven all-day restaurant serving breakfast, brunch, lunch, dinner and craft cocktails every day.",
+      "source": "https://thankstoharrison.com"
+     },
+     {
+      "claim": "The kitchen is led by Chef Ivan Proseniuk with European-inspired cooking.",
+      "source": "https://thankstoharrison.com"
+     },
+     {
+      "claim": "Coffee is roasted for the restaurant in Maine by Kavka, a Ukrainian specialty coffee roaster.",
+      "source": "https://thankstoharrison.com"
+     },
+     {
+      "claim": "Its cocktail bar was built by world-class mixologists.",
+      "source": "https://thankstoharrison.com"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJoxs4w_r-5IgRON-z0s-Q8M4",
+   "name": "Espa\u00f1a Restaurant & Tapas",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "spanish_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.espanaamelia.com/story",
+     "source_name": "Espa\u00f1a Restaurant & Tapas \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Chef Roberto Pestana and his wife Marina opened Espa\u00f1a in 2004",
+      "Espa\u00f1a is located in the historic district of Fernandina Beach",
+      "Espa\u00f1a prepares famous paellas in traditional cooking pans imported from Spain",
+      "Espa\u00f1a features an expansive garden patio",
+      "Espa\u00f1a serves homemade sangria",
+      "Espa\u00f1a uses only the freshest ingredients"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Chef Roberto Pestana and his wife Marina opened Espa\u00f1a in 2004",
+    "why_here": "Chef Roberto Pestana and his wife Marina opened Espa\u00f1a in 2004 Espa\u00f1a is located in the historic district of Fernandina Beach",
+    "know_before": "Chef Roberto Pestana and his wife Marina opened Espa\u00f1a in 2004",
+    "local_tip": "Try the homemade sangria alongside your meal.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.espanaamelia.com/story"
+     ],
+     "why_here": [
+      "https://www.espanaamelia.com/story"
+     ],
+     "know_before": [
+      "https://www.espanaamelia.com/story"
+     ],
+     "local_tip": [
+      "https://www.espanaamelia.com/story"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Chef Roberto Pestana and his wife Marina opened Espa\u00f1a in 2004",
+      "source": "https://www.espanaamelia.com/story"
+     },
+     {
+      "claim": "Espa\u00f1a is located in the historic district of Fernandina Beach",
+      "source": "https://www.espanaamelia.com/story"
+     },
+     {
+      "claim": "Espa\u00f1a prepares famous paellas in traditional cooking pans imported from Spain",
+      "source": "https://www.espanaamelia.com/story"
+     },
+     {
+      "claim": "Espa\u00f1a features an expansive garden patio",
+      "source": "https://www.espanaamelia.com/story"
+     },
+     {
+      "claim": "Espa\u00f1a serves homemade sangria",
+      "source": "https://www.espanaamelia.com/story"
+     },
+     {
+      "claim": "Espa\u00f1a uses only the freshest ingredients",
+      "source": "https://www.espanaamelia.com/story"
+     }
+    ]
+   }
+  }
+ ]
+}

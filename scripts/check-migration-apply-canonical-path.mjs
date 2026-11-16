@@ -392,6 +392,36 @@ function scrubJs(src) {
   }
 }
 
+// ── J. Daily crons do not apply schema ───────────────────────────────────
+// The Oct 29-30 and Nov 3 19:33 ledger rows (blog daily-run and event-truth
+// functions) were applied through Supabase apply_migration with no repo file.
+// The daily routes keep working as data jobs. None of them may grow a schema
+// apply. schema-watch only reads wf_schema_audit.
+{
+  const isApply = (src) => {
+    const code = String(src).replace(/\/\*[\s\S]*?\*\//g, " ").replace(/^\s*\/\/.*$/gm, "");
+    return /apply_migration\s*\(/.test(code) || /\/database\/migrations\b/.test(code);
+  };
+  ok(isApply("await apply_migration({ sql: 'create function x()' })") === true, "red proof: a cron that calls apply_migration is caught");
+  ok(isApply("await fetch(url + '/v1/projects/p/database/migrations')") === true, "red proof: a Management API migration post is caught");
+  ok(isApply("await fetch(url + '/rest/v1/rpc/wf_schema_audit')") === false, "a read of wf_schema_audit is not a schema apply");
+  const cronRoot = path.join(REPO, "app/api/cron");
+  const routes = [];
+  const walk = (dir) => {
+    for (const name of readdirSync(dir)) {
+      const abs = path.join(dir, name);
+      if (name === "route.js") routes.push(abs);
+      else if (existsSync(abs) && !name.includes(".")) walk(abs);
+    }
+  };
+  walk(cronRoot);
+  ok(routes.length >= 20, `the cron walk must see the daily routes, found ${routes.length}`);
+  for (const route of routes) {
+    const rel = path.relative(REPO, route);
+    ok(!isApply(readFileSync(route, "utf8")), `${rel} must not apply schema; daily jobs stay data-only and migrations stay on scripts/apply-migration.mjs`);
+  }
+}
+
 // ── Verdict ──────────────────────────────────────────────────────────────
 if (fails.length) {
   console.error(`check-migration-apply-canonical-path: FAIL — ${fails.length} assertion(s) failed:`);

@@ -58,6 +58,7 @@ function findGoRoutes(dir, out = []) {
   }
   return out;
 }
+process.env.STUBHUB_PARTNERIZE_CAMREF = "guardcamref1"; // hermetic fixture for the StubHub go route (WRITE only)
 const DISCOVERED = findGoRoutes(REPO + "app/api").map((p) => p.slice(p.indexOf("app/api"))).sort();
 ok(DISCOVERED.length >= 4, `PROBE BROKEN: expected to discover at least the 4 known go routes, found ${DISCOVERED.length}`);
 
@@ -91,6 +92,21 @@ const FIXTURES = {
     // returns the raw destination — still ticketmaster.com, never our own
     // /events fallback.
     successHostSubstr: "ticketmaster.com",
+  },
+  "app/api/stubhub/go/route.js": {
+    // Ships dark: with no camref the route never redirects. The camref below is a
+    // hermetic fixture (set in this process only, never a real program id) so the
+    // otherwise-valid request reaches stubhub.prf.hn. The dark state is locked by
+    // scripts/test-stubhub-dark.mjs.
+    query: "url=" + encodeURIComponent("https://www.stubhub.com/event/123"),
+    successHostSubstr: "stubhub.prf.hn",
+  },
+  "app/api/reserve/go/route.js": {
+    // Reserve handoff to OpenTable. No hermetic platform-link row is available to this guard
+    // (the link lives in wf_reserve_platform_links), so the positive redirect is our own place page;
+    // the crawler refusal and its capture are still fully exercised.
+    query: "placeId=ChIJ3Vyq7WTEwogRA-WDC7Mze2E&date=2026-11-14&time=19:15&party=4",
+    successHostSubstr: null,
   },
   "app/api/viator/go/route.js": {
     query: "product=" + encodeURIComponent("https://www.viator.com/tours/Orlando/Airboat/d827-1234P5"),

@@ -116,7 +116,8 @@ const tmp = mkdtempSync(join(tmpdir(), "wf-pin-serve-"));
 // resolves exactly what the shipped module resolves.
 // Relative imports the mutant resolves from this temp dir. siteTime.js is
 // the ET clock the dated Trop overlay reads; it pulls intlCache.js.
-for (const name of ["beachName.js", "siteTime.js", "intlCache.js", "wsGame3Offer.js"]) {
+// partnerOfferHolds.js is the held-offer list pinServeability reads.
+for (const name of ["beachName.js", "siteTime.js", "intlCache.js", "wsGame3Offer.js", "partnerOfferHolds.js"]) {
   copyFileSync(new URL("../lib/" + name, import.meta.url), join(tmp, name));
 }
 // A mutation that silently fails to apply is indistinguishable from a guard

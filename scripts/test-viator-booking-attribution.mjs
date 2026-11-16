@@ -35,17 +35,21 @@ import {
   encodeAdClickCookie,
   readAdClickContextFromCookieHeader,
   attributedViatorDestination,
+  computeVisitorContextHash,
   AD_CTX_COOKIE,
 } from "../lib/viatorAttribution.js";
 import {
   normalizeBookingStatus,
   normalizeViatorBookingEvent,
+  buildUnparseableViatorEvent,
   redactViatorRawBookingSample,
   syncViatorBookings,
 } from "../lib/viatorBookings.js";
 import {
   GOOGLE_ADS_API_VERSION,
   GOOGLE_ADS_MIN_SUPPORTED_MAJOR_VERSION,
+  GOOGLE_MAX_CONVERSION_UPLOAD_WINDOW_MS,
+  GOOGLE_MAX_UPLOAD_ATTEMPTS,
   WAYFIND_GOOGLE_ADS_ACCOUNT_ID,
   WAYFIND_GOOGLE_ADS_TAG_ID,
   DISALLOWED_GOOGLE_ADS_ACCOUNT_IDS,
@@ -554,6 +558,31 @@ function ok(cond, msg) {
     "stored click row separates observed_utm_campaign from verified_google_campaign_id",
   );
 
+  const firstHopUrlObj = new URL(firstHopA.url);
+  ok(
+    firstHopUrlObj.searchParams.get("campaign") === firstHopA.attributedCampaign &&
+      extractViatorClickToken(firstHopUrlObj.searchParams.get("campaign")) ===
+        firstHopA.clickToken &&
+      firstHopUrlObj.searchParams.get("pid") === "P00320881" &&
+      firstHopUrlObj.searchParams.get("mcid") === "42383" &&
+      firstHopUrlObj.searchParams.get("medium") === "api",
+    `stampAttributedViatorUrl replaces pre-populated placement campaign with attributed -wfv-<32hex> campaign while preserving pid, mcid, and medium (${firstHopA.url})`,
+  );
+
+  // Verify wf1_<32hex> and -wf1-<32hex> compatibility round-trip
+  const wf1Token = "wf1_99999999999999999999999999999999";
+  ok(
+    isValidViatorClickToken(wf1Token) === true &&
+      extractViatorClickToken(wf1Token) === "wfv_99999999999999999999999999999999" &&
+      extractViatorClickToken(
+        "wf-g-things-to-do-orlando-not-theme-parks-pick-123164p1-wf1-99999999999999999999999999999999",
+      ) === "wfv_99999999999999999999999999999999" &&
+      extractPlacementFromCampaignValue(
+        "wf-g-things-to-do-orlando-not-theme-parks-pick-123164p1-wf1-99999999999999999999999999999999",
+      ) === "wf-g-things-to-do-orlando-not-theme-parks-pick-123164p1",
+    "extractViatorClickToken and extractPlacementFromCampaignValue support both wfv and wf1 token prefixes",
+  );
+
   const smokeRes = assertViatorRedirectShape(firstHopA.url);
   ok(
     smokeRes && smokeRes.ok === true,
@@ -618,6 +647,54 @@ function ok(cond, msg) {
       storedRows[1].gclid === "EAIaIQobChMI_visitor_B_click" &&
       storedRows[1].client_click_id === null,
     "forged/reused client_click_id from Visitor B cannot retrieve or rebind Visitor A's click_token",
+  );
+  // wf_viator_clicks.visitor_context_hash accepts only 32 lowercase hex
+  // characters (supabase/migrations/20261103220000_wf_viator_booking_attribution.sql).
+  // A full sha256 hex digest is 64 characters, so Postgres rejects the insert
+  // and neither the hash nor the gclid on that row is saved.
+  const VISITOR_HASH_RX = /^[0-9a-f]{32}$/;
+  ok(
+    storedRows.every((row) => VISITOR_HASH_RX.test(row.visitor_context_hash)),
+    "stored visitor_context_hash is 32 lowercase hex, the shape the click table accepts",
+  );
+  const posthogOnly = computeVisitorContextHash({
+    adContext: {},
+    distinctId: "ph_cookie_distinct_id_0190",
+  });
+  const gclidOnly = computeVisitorContextHash({
+    adContext: { gclid: "EAIaIQobChMI_gclid_only" },
+    distinctId: "",
+  });
+  const empty = computeVisitorContextHash({ adContext: {}, distinctId: "" });
+  ok(VISITOR_HASH_RX.test(posthogOnly), "a PostHog distinct id hashes to 32 hex");
+  ok(VISITOR_HASH_RX.test(gclidOnly), "a gclid hashes to 32 hex");
+  ok(posthogOnly !== gclidOnly, "a PostHog id and a gclid do not collapse to the same hash");
+  ok(empty === null, "a click with no visitor id and no ad click id stores a null hash");
+
+  // Non-human traffic (e.g. WayfindVerify / link health automation) must NOT persist rows to wf_viator_clicks
+  const nonHumanHop = await attributedViatorDestination(
+    {
+      offerId: "123164P1",
+      destinationUrl: baseDest,
+      pageHint: "g-things-to-do-orlando-not-theme-parks",
+      surface: "guide_pick",
+      contentId: "things-to-do-orlando-not-theme-parks:rock-springs-run-kayak",
+      clientClickId: "wf-automation-probe-1",
+      cookieHeader: "",
+      distinctId: null,
+      trafficClass: "automation",
+      now: new Date("2026-11-03T14:04:00Z"),
+    },
+    {
+      sb: { url: "https://viator-attr-test.supabase.co", key: "test_key" },
+      fetch: mockFetch,
+    },
+  );
+  ok(
+    !nonHumanHop.url &&
+      nonHumanHop.error === "non-human-traffic" &&
+      storedRows.length === 2,
+    "non-human traffic (trafficClass=automation) does NOT persist rows to wf_viator_clicks",
   );
 }
 
@@ -740,6 +817,49 @@ function ok(cond, msg) {
       normMissingTs.currency_explicit === false &&
       normMissingTs.event_key.includes("|missing_ts|"),
     "missing provider timestamps and currency remain visibly null and acknowledgeBy is never used as provider_modified_at",
+  );
+
+  // Verify Viator field aliases (lastUpdate, bookedItem.startTime, top-level refundAmount/refundPercentage/cancellationReasonText)
+  const normAliases = normalizeViatorBookingEvent({
+    bookingRef: "BR-ALIASES-1",
+    transactionRef: "TX-ALIAS-1",
+    eventType: "CUSTOMER_CANCELLATION",
+    lastUpdate: "2026-11-05T14:22:10Z",
+    bookedItem: {
+      productCode: "123164P1",
+      travelDate: "2026-11-20",
+      startTime: "11:15",
+    },
+    cancellation: {
+      cancellationReasonText: "Traveler changed plans",
+      refundAmount: 59.5,
+      refundPercentage: 50,
+    },
+    currencyCode: "EUR",
+  });
+  ok(
+    normAliases.provider_modified_at === "2026-11-05T14:22:10.000Z" &&
+      normAliases.raw_summary.travel_time === "11:15" &&
+      normAliases.raw_summary.cancellation_reason_code === "Traveler changed plans" &&
+      normAliases.raw_summary.refund_amount === 59.5 &&
+      normAliases.raw_summary.refund_percentage === 50 &&
+      normAliases.currency === "EUR",
+    "normalizeViatorBookingEvent supports Viator field aliases lastUpdate, bookedItem.startTime, and top-level cancellation refund fields",
+  );
+
+  // Verify unparseable provider items (missing bookingRef) are preserved as UNRECOGNIZED / needs_investigation
+  const unparseableEvt = buildUnparseableViatorEvent(
+    { transactionRef: "TX-ORPHAN-1", eventType: "CONFIRMATION", lastUpdated: "2026-11-05T15:00:00Z" },
+    0,
+  );
+  ok(
+    unparseableEvt.booking_ref.startsWith("UNPARSEABLE_") &&
+      unparseableEvt.event_type === "UNRECOGNIZED" &&
+      unparseableEvt.status === "unrecognized" &&
+      unparseableEvt.needs_investigation === true &&
+      unparseableEvt.raw_summary.unparseable_reason ===
+        "missing_booking_ref_or_non_object_item",
+    `buildUnparseableViatorEvent preserves malformed items lacking bookingRef as UNRECOGNIZED with needs_investigation=true (${JSON.stringify(unparseableEvt)})`,
   );
 }
 
@@ -941,9 +1061,24 @@ function ok(cond, msg) {
     }
     if (u.includes("/rest/v1/wf_viator_sync_state") && method === "PATCH") {
       const b = JSON.parse(init.body);
+      const sp = new URL(u).searchParams;
+      const epochFilter = (sp.get("sync_epoch") || "").replace(/^eq\./, "");
+      const ownerFilter = (sp.get("lease_owner") || "").replace(/^eq\./, "");
       await db.query(
-        `UPDATE public.wf_viator_sync_state SET last_error = $1, last_attempt_at = $2, lease_expires_at = COALESCE($3::timestamptz, lease_expires_at) WHERE id = 1`,
-        [b.last_error, b.last_attempt_at, b.lease_expires_at || null],
+        `UPDATE public.wf_viator_sync_state
+            SET last_error = $1,
+                last_attempt_at = $2,
+                lease_expires_at = COALESCE($3::timestamptz, lease_expires_at)
+          WHERE id = 1
+            AND ($4::text = '' OR sync_epoch = $4::bigint)
+            AND ($5::text = '' OR lease_owner = $5::text)`,
+        [
+          b.last_error,
+          b.last_attempt_at,
+          b.lease_expires_at || null,
+          epochFilter,
+          ownerFilter,
+        ],
       );
       return new Response("", { status: 204 });
     }
@@ -1523,6 +1658,238 @@ function ok(cond, msg) {
       normNoComm.paid_commission === null,
     "normalizeViatorBookingEvent never fabricates commission from gross_booking_value",
   );
+
+  // ---------------------------------------------------------------------------
+  // 9. Durable Reconciliation & Google Safeguards:
+  //    - Expired Worker A failure CANNOT release or overwrite Worker B's active lease
+  //    - Empty provider response does NOT advance modified_since_watermark to now()
+  //    - Unparseable provider item (missing bookingRef) is persisted as UNRECOGNIZED
+  //    - Google 90-day upload window & CONVERSION_PRECEDES_EVENT without timestamp mutation
+  //    - Bounded retry cap (attempt_count < 5), indeterminateCooldownSeconds, and
+  //      idempotent CONVERSION_ALREADY_RETRACTED recovery
+  // ---------------------------------------------------------------------------
+  {
+    // Clear next_cursor so we test modified-since query mode + watermark discipline
+    await db.query(
+      `UPDATE public.wf_viator_sync_state
+          SET next_cursor = NULL,
+              modified_since_watermark = '2026-11-04T22:32:45.485437+00:00'::timestamptz,
+              lease_owner = NULL,
+              lease_expires_at = '2026-11-04T22:32:45.485437+00:00'::timestamptz
+        WHERE id = 1`,
+    );
+
+    // 9a. Empty provider response (bookings: [], nextCursor: null) MUST NOT advance watermark to now()
+    const emptySyncRes = await syncViatorBookings(
+      {
+        apiKey: "viator_test_key",
+        sb: { url: "https://viator-attr-test.supabase.co", key: "test_key" },
+        workerId: "worker_empty_poll",
+        now: new Date("2026-12-17T04:15:00Z"),
+      },
+      {
+        fetch: async (url, init) => {
+          const u = String(url);
+          if (u.startsWith("https://api.viator.com/partner/bookings/modified-since")) {
+            return new Response(JSON.stringify({ bookings: [], nextCursor: null }), {
+              status: 200,
+            });
+          }
+          return pgliteRestFetch(url, init);
+        },
+      },
+    );
+    const stateAfterEmpty = (
+      await db.query(
+        `SELECT modified_since_watermark, last_synced_at, next_cursor FROM public.wf_viator_sync_state WHERE id = 1`,
+      )
+    ).rows[0];
+    ok(
+      emptySyncRes.ok === true &&
+        emptySyncRes.raw_events_received === 0 &&
+        emptySyncRes.query_mode === "modified_since" &&
+        new Date(stateAfterEmpty.modified_since_watermark).toISOString() ===
+          new Date("2026-11-04T22:32:45.485437Z").toISOString() &&
+        new Date(stateAfterEmpty.last_synced_at).toISOString() ===
+          "2026-12-17T04:15:00.000Z",
+      `empty provider response updates last_synced_at without advancing modified_since_watermark to now() (${JSON.stringify(stateAfterEmpty)})`,
+    );
+
+    // 9b. Expired Worker A failure while Worker B holds an active lease MUST NOT release or overwrite Worker B's lease
+    let workerBLeaseState = null;
+    const staleWorkerFailRes = await syncViatorBookings(
+      {
+        apiKey: "viator_test_key",
+        sb: { url: "https://viator-attr-test.supabase.co", key: "test_key" },
+        workerId: "worker_A_slow",
+        leaseTtlSeconds: 60,
+        now: new Date("2026-12-17T05:00:00Z"),
+      },
+      {
+        fetch: async (url, init) => {
+          const u = String(url);
+          if (u.startsWith("https://api.viator.com/partner/bookings/modified-since")) {
+            // While Worker A's Viator HTTP call is in flight and after Worker A's lease expires (05:01:30Z),
+            // Worker B legitimately acquires the sync lease (advancing sync_epoch and setting lease_owner = worker_B_active).
+            const acqB = await db.query(
+              `SELECT public.wf_viator_acquire_sync_lease('worker_B_active', '2026-12-17T05:01:30Z'::timestamptz, 240) AS res`,
+            );
+            workerBLeaseState = acqB.rows[0].res;
+            // Then Worker A's slow Viator request fails with 504 Gateway Timeout:
+            return new Response(JSON.stringify({ message: "Gateway Timeout" }), {
+              status: 504,
+            });
+          }
+          return pgliteRestFetch(url, init);
+        },
+      },
+    );
+    const stateAfterWorkerAFail = (
+      await db.query(
+        `SELECT sync_epoch, lease_owner, lease_expires_at, last_error FROM public.wf_viator_sync_state WHERE id = 1`,
+      )
+    ).rows[0];
+    ok(
+      staleWorkerFailRes.ok === false &&
+        workerBLeaseState?.acquired === true &&
+        Number(stateAfterWorkerAFail.sync_epoch) === Number(workerBLeaseState.sync_epoch) &&
+        stateAfterWorkerAFail.lease_owner === "worker_B_active" &&
+        new Date(stateAfterWorkerAFail.lease_expires_at).toISOString() ===
+          new Date(workerBLeaseState.lease_expires_at).toISOString(),
+      `expired Worker A failure PATCH cannot release or overwrite Worker B's active lease (${JSON.stringify(stateAfterWorkerAFail)})`,
+    );
+
+    // Release Worker B's lease so subsequent sync tests can acquire it
+    await db.query(
+      `UPDATE public.wf_viator_sync_state SET lease_expires_at = '2026-12-17T05:01:30Z'::timestamptz WHERE id = 1`,
+    );
+
+    // 9c. Unparseable provider item (missing bookingRef) in rawBookings is persisted as UNRECOGNIZED
+    const unparseableSyncRes = await syncViatorBookings(
+      {
+        apiKey: "viator_test_key",
+        sb: { url: "https://viator-attr-test.supabase.co", key: "test_key" },
+        workerId: "worker_unparseable_check",
+        now: new Date("2026-12-17T06:00:00Z"),
+      },
+      {
+        fetch: async (url, init) => {
+          const u = String(url);
+          if (u.startsWith("https://api.viator.com/partner/bookings/modified-since")) {
+            return new Response(
+              JSON.stringify({
+                bookings: [
+                  {
+                    transactionRef: "TX-MALFORMED-999",
+                    eventType: "CONFIRMATION",
+                    lastUpdated: "2026-12-17T05:55:00Z",
+                  },
+                ],
+                nextCursor: null,
+              }),
+              { status: 200 },
+            );
+          }
+          return pgliteRestFetch(url, init);
+        },
+      },
+    );
+    const unparseableRow = (
+      await db.query(
+        `SELECT booking_ref, status, last_event_type, needs_investigation
+           FROM public.wf_viator_bookings
+          WHERE booking_ref LIKE 'UNPARSEABLE_%'`,
+      )
+    ).rows[0];
+    ok(
+      unparseableSyncRes.ok === true &&
+        unparseableSyncRes.raw_events_received === 1 &&
+        unparseableSyncRes.unparseable_events === 1 &&
+        unparseableSyncRes.unrecognized_events === 1 &&
+        unparseableRow &&
+        unparseableRow.status === "unrecognized" &&
+        unparseableRow.needs_investigation === true,
+      `unparseable provider item lacking bookingRef is persisted as UNRECOGNIZED with needs_investigation=true (${JSON.stringify(unparseableRow)})`,
+    );
+
+    // 9d. Google 90-day upload window & CONVERSION_PRECEDES_EVENT without business timestamp mutation
+    const precedesPayload = buildGoogleDataManagerEventPayload({
+      booking: {
+        booking_ref: "BR-PRECEDES-CLICK",
+        gclid: "EAIaIQobChMI_fresh_click_4",
+        consent_ad_user_data: "GRANTED",
+        consent_ad_personalization: "GRANTED",
+        confirmed_commission: 19.04,
+        currency: "USD",
+        currency_explicit: true,
+        clicked_at: "2026-11-05T18:00:00.000Z",
+        original_booking_at: "2026-11-05T17:00:00.000Z",
+      },
+      conversionActionId: "7999000111",
+    });
+    ok(
+      precedesPayload.eligible === false &&
+        precedesPayload.reason === "CONVERSION_PRECEDES_EVENT" &&
+        precedesPayload.eventTimestamp === "2026-11-05T17:00:00.000Z",
+      "buildGoogleDataManagerEventPayload blocks CONVERSION_PRECEDES_EVENT without mutating business eventTimestamp",
+    );
+
+    const expired90dPayload = buildGoogleDataManagerEventPayload({
+      booking: {
+        booking_ref: "BR-EXPIRED-90D",
+        gclid: "EAIaIQobChMI_fresh_click_4",
+        consent_ad_user_data: "GRANTED",
+        consent_ad_personalization: "GRANTED",
+        confirmed_commission: 19.04,
+        currency: "USD",
+        currency_explicit: true,
+        clicked_at: "2026-08-01T00:00:00.000Z",
+        original_booking_at: "2026-11-05T00:00:00.000Z", // 96 days after click (> 90d)
+      },
+      conversionActionId: "7999000111",
+    });
+    ok(
+      GOOGLE_MAX_CONVERSION_UPLOAD_WINDOW_MS === 90 * 24 * 60 * 60 * 1000 &&
+        expired90dPayload.eligible === false &&
+        expired90dPayload.reason === "EXPIRED_CONVERSION_UPLOAD_WINDOW_90D" &&
+        expired90dPayload.eventTimestamp === "2026-11-05T00:00:00.000Z",
+      "buildGoogleDataManagerEventPayload enforces Google 90-day upload window without mutating business eventTimestamp",
+    );
+
+    // 9e. Bounded retry cap (GOOGLE_MAX_UPLOAD_ATTEMPTS = 5) and idempotent CONVERSION_ALREADY_RETRACTED recovery
+    const alreadyRetractedRes = await submitGoogleConversionUpload(
+      {
+        uploadRow: { upload_kind: "cancellation_restatement" },
+        bookingRow: { ...br2001, status: "cancelled" },
+        accessToken: "ya29.test_oauth_token",
+        developerToken: "gads_dev_token_test",
+        operatingAccountId: "553-622-6713",
+        conversionActionId: "7999000111",
+        validateOnly: false,
+      },
+      {
+        fetch: async () =>
+          new Response(
+            JSON.stringify({
+              results: [{}],
+              partialFailureError: {
+                code: 3,
+                message: "Conversion adjustment error: CONVERSION_ALREADY_RETRACTED",
+              },
+            }),
+            { status: 200 },
+          ),
+      },
+    );
+    ok(
+      GOOGLE_MAX_UPLOAD_ATTEMPTS === 5 &&
+        alreadyRetractedRes.ok === true &&
+        alreadyRetractedRes.upload_status === UPLOAD_STATES.SUBMITTED &&
+        alreadyRetractedRes.adjustment_state === ADJUSTMENT_STATES.RETRACTED_COUNT_AND_VALUE &&
+        alreadyRetractedRes.response_summary?.idempotent_retraction_recovery === true,
+      `CONVERSION_ALREADY_RETRACTED on adjustment retry is treated as idempotent success without duplicate financial reporting (${JSON.stringify(alreadyRetractedRes)})`,
+    );
+  }
 
   await db.close();
 }

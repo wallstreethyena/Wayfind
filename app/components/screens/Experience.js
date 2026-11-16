@@ -12,6 +12,7 @@ import { CouponStrip, PerfectRightNow } from "../ExperienceBlocks";
 import { nowContext, siteHourFloat } from "../../../lib/nowContext.js";
 import { experienceHeader } from "../../../lib/collectionHeader.js";
 import { currentSeason } from "../../../lib/seasons.js";
+import { styleHtml } from "../../../lib/styleHtml.js";
 
 export default function ExperienceScreen({ ctx }) {
   const { activeBadge, setActiveBadge, EXPERIENCES, expPlaces, expMi, setExpMi, expSort, setExpSort, expTours, expLoading, momentPicks, setBrowseCat, setIntent, setScreen, shareLink, listShareUrl, locName, showToast, logEvent, giveawayMark, setMapListOverride, hookLikes, toggleHookLike, saveHookList, ViatorRail, Loader, SortControl, isSaved, liked, disliked, openDetail, quickSaveFavorite, toggleLike, toggleDislike, addShared, blurbs, openExperience, openCuisine, PlaceCard, cityFixM, intentScopeLabel, center, weather, clipCoupon, setWalletOpen } = ctx;
@@ -66,7 +67,7 @@ export default function ExperienceScreen({ ctx }) {
           const momentContext = nowContext({ city: headerCity, weather });
           return (
             <div>
-              <style dangerouslySetInnerHTML={{ __html: editorialHeroCss("wf-experience-editorial") }} />
+              <style dangerouslySetInnerHTML={styleHtml(editorialHeroCss("wf-experience-editorial"))} />
               <EditorialLandingHero
                 prefix="wf-experience-editorial"
                 heroImg={heroImg}
@@ -102,7 +103,7 @@ export default function ExperienceScreen({ ctx }) {
                   couponsForIntent, soonest-ending first, absent when there are
                   none. */}
               <CouponStrip intentId={activeBadge} lat={ctx.center && ctx.center.lat} lng={ctx.center && ctx.center.lng} onOpenCoupons={(coupon) => { if (coupon) clipCoupon(coupon); setWalletOpen(!!coupon); setScreen("coupons"); }} onLog={logEvent} />
-              {EXPERIENCES[activeBadge] && EXPERIENCES[activeBadge].viator && <ViatorRail title={EXPERIENCES[activeBadge].viatorMode === "gems" ? "Hidden gem experiences" : "Top-rated experiences"} items={expTours} theme={activeBadge} onLog={logEvent} onOpenExternal={ctx.openExternal} />}
+              {EXPERIENCES[activeBadge] && EXPERIENCES[activeBadge].viator && <ViatorRail title={EXPERIENCES[activeBadge].viatorMode === "gems" ? "Hidden gem experiences" : "Top-rated experiences"} items={expTours} query={headerCityName} theme={activeBadge} onLog={logEvent} onOpenExternal={ctx.openExternal} />}
               {/* v6.72 EXTRACTED — same rank number, name, PlaceScoreChip and
                   `why` line, now shared with every intent page. The badge match
                   stays HERE because it is this screen's concern: momentPicks is

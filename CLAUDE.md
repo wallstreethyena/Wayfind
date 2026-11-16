@@ -34,6 +34,23 @@ Revenue-audit detail: `docs/POSTMORTEM_2026-08-25_REVENUE_PATH.md`.
 5. **New public content ships WITH sitemap + schema; new tables ship WITH RLS.** Read the
    Supabase advisor output on a schedule.
 
+## Wayfind Brand Assets
+
+**Before creating any Wayfind-branded visual, inspect the Wayfind Brand Asset Vault
+(`public/brand/wayfind/`) and `public/brand/wayfind/manifest.json`.** Guide: `docs/brand-assets.md`.
+
+- Official Wayfind logos, marks and brand assets supplied by Gabriel are stored in and
+  reused from that library.
+- Before generating, recreating or searching for a Wayfind logo, check the library and
+  manifest first. Never redraw, approximate, substitute, recolor or regenerate the Wayfind
+  logo when an approved canonical asset exists; use the actual asset.
+- Temporary worktrees, /tmp, chat attachments and generated-output folders are not
+  canonical storage.
+- When Gabriel supplies a new official brand asset, preserve the original, add it to the
+  library, update the manifest, and make it available for future Wayfind work.
+- Do not create duplicate copies throughout the repository when the canonical asset can be
+  referenced directly. `scripts/check-brand-vault.mjs` enforces the core masters.
+
 ## Concurrency & git
 
 > **🔒 The shared clone is infrastructure, not a workspace (owner directive, 2026-09-29).**
@@ -75,9 +92,10 @@ Revenue-audit detail: `docs/POSTMORTEM_2026-08-25_REVENUE_PATH.md`.
    touch the same anchor (rebuild the 2nd on the merged 1st).
 2. Assertion-guarded splice + a lock test wired into `npm run prebuild`.
 3. Full `npm run prebuild` green before commit. Anything red → report-only, do not merge.
-4. Squash-merge + delete branch. **Merges are owner-gated.** Owner-only files (CLAUDE.md,
-   AGENTS.md, `.github/**`, … see `scripts/lib/ownerApproval.mjs`) need an
-   `/owner-approve <head sha>` comment by the owner.
+4. Squash-merge + delete branch. **Merges are owner-gated.** Owner-only files (AGENTS.md,
+   `.github/**`, the gate scripts, … see `scripts/lib/ownerApproval.mjs`) need an
+   `/owner-approve <head sha>` comment by the owner. CLAUDE.md is NOT owner-only
+   (owner decision 2026-11-14): rule edits ship as normal PRs, green guards, squash-merge.
 5. After merge: confirm the merged union is prebuild-green and the Vercel deploy is green.
 
 `gh`/merge traps:
@@ -93,6 +111,19 @@ Revenue-audit detail: `docs/POSTMORTEM_2026-08-25_REVENUE_PATH.md`.
   verified on the actual exit code.
 - **A red guard is not a red repo.** Reproduce on a clean tree (`rm -rf .next && npx next
   build`) before reporting a broken `main`.
+
+## Production database changes — a repo file first, then the canonical apply
+
+- **No schema or data change reaches production without a committed
+  `supabase/migrations/<ts>_<name>.sql` on a PR.** The Supabase connector
+  (`apply_migration`, a writing `execute_sql`) and the Management API migrations
+  endpoint are an apply PATH, not a review: use them only to apply a merged file's
+  exact bytes, then commit the receipt (`scripts/migration-apply-log.jsonl`) or the
+  pending declaration (`scripts/migration-pending-apply.json`).
+- Scheduled and automation sessions follow the same rule. A production-only ledger
+  row turns the canary's `check-migration-reconciliation` red and can only be
+  accepted afterwards as a reviewed hash pin in `scripts/migration-historical-exceptions.json`
+  (2026-10-29/30: 14 rows, #2122; 2026-11-03 19:33Z: 3 `event_truth_integrity_*` rows, #2165).
 
 ## Writing guards & assertions — the check must answer the question you asked
 
@@ -163,6 +194,28 @@ one production chunk was swept.
   uses haversine miles (~75mi).
 - **Paid API proxies** are guarded in `middleware.js` (`lib/apiGuard.js`); add any new
   metered/scrape proxy to the matcher. `/api/eats/go` is GET-302 → `rateLimitOnly`.
+
+## Notifications — Expected-State Rule (owner directive, 2026-11-13)
+
+Before ANY push notification, email or alert to Gabriel (agent run, scheduled task or
+monitoring code), classify the condition first. An error code alone never decides it;
+context does.
+
+| class | meaning | action |
+|---|---|---|
+| **EXPECTED** | known consequence of undeployed, intentionally disabled, scheduled, expired, unavailable or explicitly pending work (an unmerged PR's route 404s, a migration not applied yet, preview queued, CI waiting) | **do not notify** |
+| **INFORMATIONAL** | useful, needs no decision (no new posts, healthy reconciliation, routine cron done, expected exclusion) | final report / logs only, **no push** |
+| **ACTIONABLE** | something only Gabriel can do (owner-account action the agent literally cannot perform) | ask for the ONE smallest exact manual action |
+| **INCIDENT** | unexpected production failure, material regression, security/privacy issue, revenue or booking path broken, data corruption, major unexpected inventory loss, critical job repeatedly failing, an owner-only action blocking a time-sensitive release | **notify** |
+
+- **Never notify because unfinished work is unfinished.** An open PR or its undeployed
+  surface is a task to finish (fix, merge-ready, or retire), not an alert.
+- **Never re-notify the same unresolved condition** unless its severity materially changes.
+  An already-known blocker with no change stays silent.
+- **Data health ≠ UI health.** "Table/DB counts are right" never becomes "the feature
+  works"; verify the user-facing surface separately and report the two separately.
+- Scheduled-task prompts must encode this rule; never write a "notify when the endpoint is
+  down" step for an endpoint that is not deployed yet.
 
 ## Housekeeping
 

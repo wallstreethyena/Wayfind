@@ -174,7 +174,7 @@ ok(seenInit && !("cache" in seenInit) && seenInit.next && seenInit.next.revalida
     const throwFetch = async () => { throw new Error("a static Christmas gallery must not read the place row"); };
     const stetsonPage = await loadEventDetailPhotos("/florida-events/stetson-mansion-christmas-2026-2", { name: "Stetson Mansion", env: noCreds, fetchImpl: throwFetch });
     const winterPage = await loadEventDetailPhotos("/florida-events/winterfest-boat-parade-fort-lauderdale-2026", { name: "Winterfest", placeId: "ChIJf45X0KoB2YgRUi5C_dEm-Q8", env: creds, fetchImpl: throwFetch });
-    ok(stetsonPage.length === 9 && stetsonPage[0].src.endsWith("/xmas_08c508314b0a24ca.jpg"), "the Stetson event page opens on its gallery cover");
+    ok(stetsonPage.length === 0, "the Stetson event page shows no photos since its news gallery was removed (2026-11-12, no permission)");
     ok(winterPage.length === 6 && winterPage[0].src.endsWith("/xmas_006bd9c9426d3fd2.jpg") && winterPage.every((p) => p.src.includes("/winterfest-boat-parade-fort-lauderdale-2026/")), "the Winterfest event page shows its parade gallery");
   } finally {
     globalThis.fetch = savedFetch;

@@ -1,0 +1,168 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 41. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJM1QrajvH2YgRR-K0PA9LOyo",
+   "name": "Pinecrest Bakery - Kendall",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "bakery",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://pinecrestbakery.com/pages/locations",
+     "source_name": "Pinecrest Bakery - Kendall \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Pinecrest Bakery - Kendall is located at 9710 SW 88th St, Miami, FL 33176, USA"
+     ]
+    },
+    {
+     "source": "https://pinecrestbakery.com/pages/party-menu-1",
+     "source_name": "Pinecrest Bakery - Kendall \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Pinecrest Bakery is a 24 hour Cuban-American bakery chain in South Florida",
+      "Pinecrest Bakery brings neighborhood classics from Cuban pastelitos, sandwiches, caf\u00e9 cubano, party platters, desserts and cakes"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "24 hour Cuban-American bakery chain stop in South Florida",
+    "why_here": "Pinecrest Bakery is a 24 hour Cuban-American bakery chain in South Florida. Pinecrest Bakery brings neighborhood classics from Cuban pastelitos, sandwiches, caf\u00e9 cubano, party platters, desserts and cakes.",
+    "know_before": "Pinecrest Bakery - Kendall is located at 9710 SW 88th St, Miami, FL 33176, USA",
+    "local_tip": "Try Cuban pastelitos and caf\u00e9 cubano",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://pinecrestbakery.com/pages/locations"
+     ],
+     "why_here": [
+      "https://pinecrestbakery.com/pages/locations"
+     ],
+     "know_before": [
+      "https://pinecrestbakery.com/pages/locations"
+     ],
+     "local_tip": [
+      "https://pinecrestbakery.com/pages/locations"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Pinecrest Bakery - Kendall is located at 9710 SW 88th St, Miami, FL 33176, USA",
+      "source": "https://pinecrestbakery.com/pages/locations"
+     },
+     {
+      "claim": "Pinecrest Bakery is a 24 hour Cuban-American bakery chain in South Florida",
+      "source": "https://pinecrestbakery.com/pages/party-menu-1"
+     },
+     {
+      "claim": "Pinecrest Bakery brings neighborhood classics from Cuban pastelitos, sandwiches, caf\u00e9 cubano, party platters, desserts and cakes",
+      "source": "https://pinecrestbakery.com/pages/party-menu-1"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJb4Zr3ZwC2YgRt96WFxN3z94",
+   "name": "Checkers Old Munchen",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "german_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://checkersoldmunchen.com/",
+     "source_name": "Checkers Old Munchen \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Checkers Old Munchen is located at 2209 East Atlantic Boulevard, Pompano Beach, FL 33062",
+      "Checkers Old Munchen specializes in serving authentic German cuisine since 1982",
+      "Checkers Old Munchen offers over 30 German Beers",
+      "Ask for your own German Beer Tour Passport",
+      "Checkers Old Munchen hours are Monday through Thursday from 11:00 a.m. to 10:00 p.m."
+     ]
+    },
+    {
+     "source": "https://checkersoldmunchen.com/menu/",
+     "source_name": "Checkers Old Munchen \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Kartoffelpuffer are homemade potato pancakes served with Applesauce and Sour Cream"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Authentic German cuisine in Pompano Beach since 1982",
+    "why_here": "Checkers Old Munchen specializes in serving authentic German cuisine since 1982 in Pompano Beach. Checkers Old Munchen offers over 30 German Beers, and Kartoffelpuffer are homemade potato pancakes served with Applesauce and Sour Cream.",
+    "know_before": "Checkers Old Munchen hours are Monday through Thursday from 11:00 a.m. to 10:00 p.m.",
+    "local_tip": "Ask for your own German Beer Tour Passport",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://checkersoldmunchen.com/"
+     ],
+     "why_here": [
+      "https://checkersoldmunchen.com/"
+     ],
+     "know_before": [
+      "https://checkersoldmunchen.com/"
+     ],
+     "local_tip": [
+      "https://checkersoldmunchen.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Checkers Old Munchen is located at 2209 East Atlantic Boulevard, Pompano Beach, FL 33062",
+      "source": "https://checkersoldmunchen.com/"
+     },
+     {
+      "claim": "Checkers Old Munchen specializes in serving authentic German cuisine since 1982",
+      "source": "https://checkersoldmunchen.com/"
+     },
+     {
+      "claim": "Checkers Old Munchen offers over 30 German Beers",
+      "source": "https://checkersoldmunchen.com/"
+     },
+     {
+      "claim": "Ask for your own German Beer Tour Passport",
+      "source": "https://checkersoldmunchen.com/"
+     },
+     {
+      "claim": "Kartoffelpuffer are homemade potato pancakes served with Applesauce and Sour Cream",
+      "source": "https://checkersoldmunchen.com/menu/"
+     },
+     {
+      "claim": "Checkers Old Munchen hours are Monday through Thursday from 11:00 a.m. to 10:00 p.m.",
+      "source": "https://checkersoldmunchen.com/"
+     }
+    ]
+   }
+  }
+ ]
+}

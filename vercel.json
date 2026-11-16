@@ -26,6 +26,10 @@
       "schedule": "23 */2 * * *"
     },
     {
+      "path": "/api/cron/locality-fill",
+      "schedule": "47 9 * * *"
+    },
+    {
       "path": "/api/cron/beach-water",
       "schedule": "0 12 * * 2,5"
     },
@@ -114,6 +118,10 @@
       "schedule": "10 5 * * *"
     },
     {
+      "path": "/api/cron/owned-social",
+      "schedule": "23 14,2 * * *"
+    },
+    {
       "path": "/api/cron/instagram-scout",
       "schedule": "35 11 * * *"
     },
@@ -170,10 +178,6 @@
       "schedule": "10,25,40,55 * * * *"
     },
     {
-      "path": "/api/cron/credited-photos?run=1&limit=120",
-      "schedule": "37 */4 * * *"
-    },
-    {
       "path": "/api/cron/weekend-picks",
       "schedule": "0 15 * * 5"
     },
@@ -188,6 +192,10 @@
     {
       "path": "/api/cron/viator-bookings",
       "schedule": "15 */4 * * *"
+    },
+    {
+      "path": "/api/cron/reserve-reminders",
+      "schedule": "*/15 * * * *"
     }
   ]
 }

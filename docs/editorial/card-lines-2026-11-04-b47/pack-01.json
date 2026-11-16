@@ -1,0 +1,2323 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 47. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJazMrCUAe24gR8Vu2_TaXRxs",
+   "name": "Hilton Naples",
+   "category": "hotels",
+   "metro": "florida",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.hilton.com/en/hotels/apfnhhf-hilton-naples/",
+     "source_name": "Hilton Naples \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Hilton Naples has an outdoor pool with a waterfall",
+      "Hilton Naples offers free bicycle rental",
+      "Hilton Naples has free parking",
+      "Hilton Naples is home to Shula's Steak House"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Outdoor pool with a waterfall and free bicycle rental",
+    "why_here": "Stay for an outdoor pool with a waterfall, free bicycle rental and free parking, with Shula's Steak House on site so dining is available without leaving Hilton Naples.",
+    "know_before": "Free parking is available at Hilton Naples.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.hilton.com/en/hotels/apfnhhf-hilton-naples/"
+     ],
+     "why_here": [
+      "https://www.hilton.com/en/hotels/apfnhhf-hilton-naples/"
+     ],
+     "know_before": [
+      "https://www.hilton.com/en/hotels/apfnhhf-hilton-naples/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Hilton Naples has an outdoor pool with a waterfall",
+      "source": "https://www.hilton.com/en/hotels/apfnhhf-hilton-naples/"
+     },
+     {
+      "claim": "Hilton Naples offers free bicycle rental",
+      "source": "https://www.hilton.com/en/hotels/apfnhhf-hilton-naples/"
+     },
+     {
+      "claim": "Hilton Naples has free parking",
+      "source": "https://www.hilton.com/en/hotels/apfnhhf-hilton-naples/"
+     },
+     {
+      "claim": "Hilton Naples is home to Shula's Steak House",
+      "source": "https://www.hilton.com/en/hotels/apfnhhf-hilton-naples/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJqxEB9li32YgRJOrdLqbY-LQ",
+   "name": "RosaNegra Miami",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.rosanegrarestaurant.us/",
+     "source_name": "RosaNegra Miami \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Rosa Negra Miami is a Latin American restaurant located in Brickell",
+      "Rosa Negra Miami serves Mexican tacos and tostadas",
+      "Rosa Negra Miami serves Peruvian ceviches and South American steaks",
+      "Rosa Negra Miami dress code does not permit shorts, flip flops, hats, or sports/beachwear",
+      "Rosa Negra Miami is located at 1346 S Miami Ave, Miami, FL 33130"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Latin American dining in Brickell with Mexican tacos and Peruvian ceviches",
+    "why_here": "Go for Mexican tacos and tostadas, Peruvian ceviches and South American steaks in Brickell, at a Latin American restaurant located at 1346 S Miami Ave, Miami, FL 33130.",
+    "know_before": "The dress code does not permit shorts, flip flops, hats, or sports/beachwear.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.rosanegrarestaurant.us/"
+     ],
+     "why_here": [
+      "https://www.rosanegrarestaurant.us/"
+     ],
+     "know_before": [
+      "https://www.rosanegrarestaurant.us/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Rosa Negra Miami is a Latin American restaurant located in Brickell",
+      "source": "https://www.rosanegrarestaurant.us/"
+     },
+     {
+      "claim": "Rosa Negra Miami serves Mexican tacos and tostadas",
+      "source": "https://www.rosanegrarestaurant.us/"
+     },
+     {
+      "claim": "Rosa Negra Miami serves Peruvian ceviches and South American steaks",
+      "source": "https://www.rosanegrarestaurant.us/"
+     },
+     {
+      "claim": "Rosa Negra Miami dress code does not permit shorts, flip flops, hats, or sports/beachwear",
+      "source": "https://www.rosanegrarestaurant.us/"
+     },
+     {
+      "claim": "Rosa Negra Miami is located at 1346 S Miami Ave, Miami, FL 33130",
+      "source": "https://www.rosanegrarestaurant.us/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJpYAvZNEB2YgRD2QR1GGbN9k",
+   "name": "Eddie V's Prime Seafood",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.eddiev.com/events/restaurant-week-menu",
+     "source_name": "Eddie V's Prime Seafood \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Eddie V's serves Chilean Sea Bass Steamed Hong Kong Style with Light Soy Broth",
+      "Eddie V's serves Norwegian Salmon",
+      "Eddie V's serves Maine Lobster Bisque",
+      "Eddie V's serves Warm Belgian Chocolate Cake",
+      "Eddie V's serves Classic Cr\u00e8me Br\u00fbl\u00e9e",
+      "Eddie V's Restaurant Week menu is not available on Saturday"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Chilean Sea Bass Steamed Hong Kong Style with Light Soy Broth",
+    "why_here": "Go for Chilean Sea Bass Steamed Hong Kong Style with Light Soy Broth and Norwegian Salmon, starting with Maine Lobster Bisque and finishing with Warm Belgian Chocolate Cake or Classic Cr\u00e8me Br\u00fbl\u00e9e.",
+    "know_before": "The menu is not available on Saturday.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.eddiev.com/events/restaurant-week-menu"
+     ],
+     "why_here": [
+      "https://www.eddiev.com/events/restaurant-week-menu"
+     ],
+     "know_before": [
+      "https://www.eddiev.com/events/restaurant-week-menu"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Eddie V's serves Chilean Sea Bass Steamed Hong Kong Style with Light Soy Broth",
+      "source": "https://www.eddiev.com/events/restaurant-week-menu"
+     },
+     {
+      "claim": "Eddie V's serves Norwegian Salmon",
+      "source": "https://www.eddiev.com/events/restaurant-week-menu"
+     },
+     {
+      "claim": "Eddie V's serves Maine Lobster Bisque",
+      "source": "https://www.eddiev.com/events/restaurant-week-menu"
+     },
+     {
+      "claim": "Eddie V's serves Warm Belgian Chocolate Cake",
+      "source": "https://www.eddiev.com/events/restaurant-week-menu"
+     },
+     {
+      "claim": "Eddie V's serves Classic Cr\u00e8me Br\u00fbl\u00e9e",
+      "source": "https://www.eddiev.com/events/restaurant-week-menu"
+     },
+     {
+      "claim": "Eddie V's Restaurant Week menu is not available on Saturday",
+      "source": "https://www.eddiev.com/events/restaurant-week-menu"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJs0L1N9Cr2YgRlz1BxYLnkgc",
+   "name": "BENTO Dania Beach",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "asian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://eatatbento.com/locations",
+     "source_name": "BENTO Dania Beach \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "BENTO Dania Beach is at 27 S Pointe Dr Dania Beach, FL 33004"
+     ]
+    },
+    {
+     "source": "https://eatatbento.com/",
+     "source_name": "BENTO Dania Beach \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "BENTO is an Asian Kitchen + Sushi restaurant",
+      "BENTO describes its food as Traditional Recipes, Modern Flavors",
+      "BENTO lets guests order ahead on its app and skip the line at pickup"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Asian Kitchen + Sushi at 27 S Pointe Dr in Dania Beach",
+    "why_here": "Go for Asian Kitchen + Sushi built on Traditional Recipes, Modern Flavors at 27 S Pointe Dr in Dania Beach, at the BENTO Dania Beach location listed for Dania Beach.",
+    "know_before": "You can order ahead on its app and skip the line at pickup.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://eatatbento.com/locations"
+     ],
+     "why_here": [
+      "https://eatatbento.com/locations"
+     ],
+     "know_before": [
+      "https://eatatbento.com/locations"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "BENTO Dania Beach is at 27 S Pointe Dr Dania Beach, FL 33004",
+      "source": "https://eatatbento.com/locations"
+     },
+     {
+      "claim": "BENTO is an Asian Kitchen + Sushi restaurant",
+      "source": "https://eatatbento.com/"
+     },
+     {
+      "claim": "BENTO describes its food as Traditional Recipes, Modern Flavors",
+      "source": "https://eatatbento.com/"
+     },
+     {
+      "claim": "BENTO lets guests order ahead on its app and skip the line at pickup",
+      "source": "https://eatatbento.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJmSTruUGD54gRT4gUhBKbNd0",
+   "name": "Newton Park",
+   "category": "attractions",
+   "metro": "orlando",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.cwgdn.com/CivicAlerts.aspx?AID=407",
+     "source_name": "Newton Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Newton Park is at 31 W. Garden Avenue in Winter Garden",
+      "Newton Park is located at the shore of Lake Apopka",
+      "Newton Park is open daily 7 a.m. to 10 p.m.",
+      "Newton Park amenities include a boat ramp, playground, and picnic areas"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Lake Apopka shore park with a boat ramp, playground, and picnic areas",
+    "why_here": "Go to Newton Park at 31 W. Garden Avenue in Winter Garden for a Lake Apopka shore park with a boat ramp, playground, and picnic areas for a day outdoors by the water.",
+    "know_before": "Newton Park is open daily 7 a.m. to 10 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.cwgdn.com/CivicAlerts.aspx?AID=407"
+     ],
+     "why_here": [
+      "https://www.cwgdn.com/CivicAlerts.aspx?AID=407"
+     ],
+     "know_before": [
+      "https://www.cwgdn.com/CivicAlerts.aspx?AID=407"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Newton Park is at 31 W. Garden Avenue in Winter Garden",
+      "source": "https://www.cwgdn.com/CivicAlerts.aspx?AID=407"
+     },
+     {
+      "claim": "Newton Park is located at the shore of Lake Apopka",
+      "source": "https://www.cwgdn.com/CivicAlerts.aspx?AID=407"
+     },
+     {
+      "claim": "Newton Park is open daily 7 a.m. to 10 p.m.",
+      "source": "https://www.cwgdn.com/CivicAlerts.aspx?AID=407"
+     },
+     {
+      "claim": "Newton Park amenities include a boat ramp, playground, and picnic areas",
+      "source": "https://www.cwgdn.com/CivicAlerts.aspx?AID=407"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJR_kV4twq34gRYhxSdXzpUfg",
+   "name": "Sara's Kitchen",
+   "category": "food",
+   "metro": "palm-beach",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://saraskitchenpga.com/",
+     "source_name": "Sara's Kitchen \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Sara's Kitchen is a traditional family-owned diner",
+      "Sara's Kitchen serves family recipes passed down through generations",
+      "Sara's Kitchen sources local ingredients every morning",
+      "Sara's Kitchen is at 2000 Pga Blvd building A suite 3140, North Palm Beach, FL 33408"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Traditional family-owned diner serving family recipes passed down through generations",
+    "why_here": "Go for a traditional family-owned diner serving family recipes passed down through generations, made with local ingredients sourced every morning at Sara's Kitchen in North Palm Beach.",
+    "know_before": "Sara's Kitchen is at 2000 Pga Blvd building A suite 3140, North Palm Beach, FL 33408.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://saraskitchenpga.com/"
+     ],
+     "why_here": [
+      "https://saraskitchenpga.com/"
+     ],
+     "know_before": [
+      "https://saraskitchenpga.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Sara's Kitchen is a traditional family-owned diner",
+      "source": "https://saraskitchenpga.com/"
+     },
+     {
+      "claim": "Sara's Kitchen serves family recipes passed down through generations",
+      "source": "https://saraskitchenpga.com/"
+     },
+     {
+      "claim": "Sara's Kitchen sources local ingredients every morning",
+      "source": "https://saraskitchenpga.com/"
+     },
+     {
+      "claim": "Sara's Kitchen is at 2000 Pga Blvd building A suite 3140, North Palm Beach, FL 33408",
+      "source": "https://saraskitchenpga.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ73hYkIa2t4kRau4fcM3i9DM",
+   "name": "Paciugo Gelato & Caff\u00e8",
+   "category": "food",
+   "metro": "st-pete",
+   "primary_type": "ice_cream_shop",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://paciugostpete.com/menu%2Fflavors",
+     "source_name": "Paciugo Gelato & Caff\u00e8 \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Paciugo Gelato & Caffe gelato is made in house in small batches daily",
+      "Paciugo Gelato & Caffe offers gelato catering",
+      "Paciugo Gelato & Caffe gelato cakes are made to order",
+      "Paciugo Gelato & Caffe gelato cakes allow a choice of up to two flavors of gelato"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Gelato made in house in small batches daily",
+    "why_here": "Visit Paciugo Gelato & Caffe for gelato made in house in small batches daily, with gelato catering and gelato cakes made to order for a choice of up to two flavors of gelato.",
+    "know_before": "Gelato cakes are made to order.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://paciugostpete.com/menu%2Fflavors"
+     ],
+     "why_here": [
+      "https://paciugostpete.com/menu%2Fflavors"
+     ],
+     "know_before": [
+      "https://paciugostpete.com/menu%2Fflavors"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Paciugo Gelato & Caffe gelato is made in house in small batches daily",
+      "source": "https://paciugostpete.com/menu%2Fflavors"
+     },
+     {
+      "claim": "Paciugo Gelato & Caffe offers gelato catering",
+      "source": "https://paciugostpete.com/menu%2Fflavors"
+     },
+     {
+      "claim": "Paciugo Gelato & Caffe gelato cakes are made to order",
+      "source": "https://paciugostpete.com/menu%2Fflavors"
+     },
+     {
+      "claim": "Paciugo Gelato & Caffe gelato cakes allow a choice of up to two flavors of gelato",
+      "source": "https://paciugostpete.com/menu%2Fflavors"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJj4jB1Hn9wogRcb5_bYcfmSk",
+   "name": "Glory Days Grill",
+   "category": "nightlife",
+   "metro": "st-pete",
+   "primary_type": "sports_bar",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.glorydaysgrill.com/",
+     "source_name": "Glory Days Grill \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Glory Days Grill serves fresh, made-in-house food",
+      "Glory Days Grill offers a variety of jumbo wings",
+      "Glory Days Grill offers fresh grilled burgers",
+      "Glory Days Grill has a multitude of televisions broadcasting sports games"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Fresh, made-in-house food and fresh grilled burgers",
+    "why_here": "Come to Glory Days Grill for fresh, made-in-house food, a variety of jumbo wings, and fresh grilled burgers, with a multitude of televisions broadcasting sports games.",
+    "know_before": "Expect a multitude of televisions broadcasting sports games.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.glorydaysgrill.com/"
+     ],
+     "why_here": [
+      "https://www.glorydaysgrill.com/"
+     ],
+     "know_before": [
+      "https://www.glorydaysgrill.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Glory Days Grill serves fresh, made-in-house food",
+      "source": "https://www.glorydaysgrill.com/"
+     },
+     {
+      "claim": "Glory Days Grill offers a variety of jumbo wings",
+      "source": "https://www.glorydaysgrill.com/"
+     },
+     {
+      "claim": "Glory Days Grill offers fresh grilled burgers",
+      "source": "https://www.glorydaysgrill.com/"
+     },
+     {
+      "claim": "Glory Days Grill has a multitude of televisions broadcasting sports games",
+      "source": "https://www.glorydaysgrill.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJLztTO7242YgRo8bmAfBYbWI",
+   "name": "Graziano's Restaurant Bird Rd",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "argentinian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.grazianosgroup.com/",
+     "source_name": "Graziano's Restaurant Bird Rd \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Graziano's serves wood-fired steaks",
+      "Graziano's offers homemade empanadas baked or fried",
+      "Graziano's markets include a meat counter, a bakery, and wines",
+      "Graziano's offers Argentine goods"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Wood-fired steaks and Argentine empanadas",
+    "why_here": "Go to Graziano's for wood-fired steaks and homemade empanadas baked or fried, then browse markets with a meat counter, a bakery, and wines alongside Argentine goods.",
+    "know_before": "Homemade empanadas are baked or fried.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.grazianosgroup.com/"
+     ],
+     "why_here": [
+      "https://www.grazianosgroup.com/"
+     ],
+     "know_before": [
+      "https://www.grazianosgroup.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Graziano's serves wood-fired steaks",
+      "source": "https://www.grazianosgroup.com/"
+     },
+     {
+      "claim": "Graziano's offers homemade empanadas baked or fried",
+      "source": "https://www.grazianosgroup.com/"
+     },
+     {
+      "claim": "Graziano's markets include a meat counter, a bakery, and wines",
+      "source": "https://www.grazianosgroup.com/"
+     },
+     {
+      "claim": "Graziano's offers Argentine goods",
+      "source": "https://www.grazianosgroup.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJs_3tDvas2YgRdPFmotHdJdA",
+   "name": "Bella Luna",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "italian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://bellalunaaventura.com/",
+     "source_name": "Bella Luna \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Bella Luna is an Italian restaurant",
+      "Bella Luna has made food since 1998",
+      "Bella Luna is at 19575 Biscayne Blvd #1097, Miami, FL 33180",
+      "Bella Luna business hours are Monday Thru Sunday from 11:30 a.m. to 11:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Italian restaurant open since 1998",
+    "why_here": "Bella Luna is an Italian restaurant that has made food since 1998, with hours Monday through Sunday from 11:30 a.m. to 11:00 p.m. for good food with friends and family.",
+    "know_before": "Bella Luna is open Monday through Sunday from 11:30 a.m. to 11:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://bellalunaaventura.com/"
+     ],
+     "why_here": [
+      "https://bellalunaaventura.com/"
+     ],
+     "know_before": [
+      "https://bellalunaaventura.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Bella Luna is an Italian restaurant",
+      "source": "https://bellalunaaventura.com/"
+     },
+     {
+      "claim": "Bella Luna has made food since 1998",
+      "source": "https://bellalunaaventura.com/"
+     },
+     {
+      "claim": "Bella Luna is at 19575 Biscayne Blvd #1097, Miami, FL 33180",
+      "source": "https://bellalunaaventura.com/"
+     },
+     {
+      "claim": "Bella Luna business hours are Monday Thru Sunday from 11:30 a.m. to 11:00 p.m.",
+      "source": "https://bellalunaaventura.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJhcub0Rs_w4gRCEvPuk8tBok",
+   "name": "Escape Reality",
+   "category": "attractions",
+   "metro": "manatee-sarasota",
+   "primary_type": "amusement_center",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://escaperealitysarasota.com/",
+     "source_name": "Escape Reality \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Escape Reality Sarasota lists 4 Immersive Experiences",
+      "Experiences include Clue-Dunnit? and FBI & The Toxic Takedown",
+      "Clue-Dunnit? is listed for 2 to 10 Players and 60 Minutes",
+      "Escape Reality is at 6250 N Lockwood Ridge Rd Sarasota, FL 34243"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Escape room with Clue-Dunnit? and FBI & The Toxic Takedown",
+    "why_here": "Escape Reality in Sarasota lists 4 Immersive Experiences, including Clue-Dunnit? and FBI & The Toxic Takedown. Clue-Dunnit? is listed for 2 to 10 Players and 60 Minutes.",
+    "know_before": "Clue-Dunnit? is listed for 2 to 10 Players and 60 Minutes.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://escaperealitysarasota.com/"
+     ],
+     "why_here": [
+      "https://escaperealitysarasota.com/"
+     ],
+     "know_before": [
+      "https://escaperealitysarasota.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Escape Reality Sarasota lists 4 Immersive Experiences",
+      "source": "https://escaperealitysarasota.com/"
+     },
+     {
+      "claim": "Experiences include Clue-Dunnit? and FBI & The Toxic Takedown",
+      "source": "https://escaperealitysarasota.com/"
+     },
+     {
+      "claim": "Clue-Dunnit? is listed for 2 to 10 Players and 60 Minutes",
+      "source": "https://escaperealitysarasota.com/"
+     },
+     {
+      "claim": "Escape Reality is at 6250 N Lockwood Ridge Rd Sarasota, FL 34243",
+      "source": "https://escaperealitysarasota.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJQamZb8Y-kYgR0UY-IUmW_qM",
+   "name": "Liza Jackson Park",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.fwb.org/facilities/facility/details/Liza-Jackson-Park-31",
+     "source_name": "Liza Jackson Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Liza Jackson Park has 1,000 feet of waterfront, boat ramps, fishing pier, pavilions, restrooms, and playground equipment",
+      "Hours are Sunrise to 9 p.m. (boat ramp open all hours)",
+      "Recreation includes picnics, boat launching, fishing, and community events"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Waterfront park with boat ramps and a fishing pier",
+    "why_here": "Liza Jackson Park lists 1,000 feet of waterfront, boat ramps, a fishing pier, pavilions, restrooms, and playground equipment. Recreation listed includes picnics, boat launching, fishing, and community events.",
+    "know_before": "Hours are Sunrise to 9 p.m. (boat ramp open all hours).",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.fwb.org/facilities/facility/details/Liza-Jackson-Park-31"
+     ],
+     "why_here": [
+      "https://www.fwb.org/facilities/facility/details/Liza-Jackson-Park-31"
+     ],
+     "know_before": [
+      "https://www.fwb.org/facilities/facility/details/Liza-Jackson-Park-31"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Liza Jackson Park has 1,000 feet of waterfront, boat ramps, fishing pier, pavilions, restrooms, and playground equipment",
+      "source": "https://www.fwb.org/facilities/facility/details/Liza-Jackson-Park-31"
+     },
+     {
+      "claim": "Hours are Sunrise to 9 p.m. (boat ramp open all hours)",
+      "source": "https://www.fwb.org/facilities/facility/details/Liza-Jackson-Park-31"
+     },
+     {
+      "claim": "Recreation includes picnics, boat launching, fishing, and community events",
+      "source": "https://www.fwb.org/facilities/facility/details/Liza-Jackson-Park-31"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJC719-Uwn6IgRciJXJ_MuixA",
+   "name": "Hernando Beach Tropical Grille",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.tropicalgrille.com/",
+     "source_name": "Hernando Beach Tropical Grille \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Hernando Beach Tropical Grille is open Sunday - Thursday 11:30 a.m. - 7 p.m., Friday & Saturday 11:30 a.m. - 8 p.m.",
+      "The restaurant features New England seafood as well as burgers, sandwiches, fajitas, wings, steaks",
+      "Maine Lobster Roll (Choice of Mayo or Butter) is on the menu",
+      "All dishes are made in-house, from scratch, to order",
+      "The restaurant is on a canal that leads directly to the Gulf of Mexico",
+      "The restaurant is at 4139 Shoal Line Blvd."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "New England seafood on a canal that leads directly to the Gulf of Mexico",
+    "why_here": "Go for New England seafood plus burgers, sandwiches, fajitas, wings and steaks, with a Maine Lobster Roll served with a choice of Mayo or Butter, all made in-house, from scratch, to order at this canal-side restaurant.",
+    "know_before": "Open Sunday - Thursday 11:30 a.m. - 7 p.m. and Friday & Saturday 11:30 a.m. - 8 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.tropicalgrille.com/"
+     ],
+     "why_here": [
+      "https://www.tropicalgrille.com/"
+     ],
+     "know_before": [
+      "https://www.tropicalgrille.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Hernando Beach Tropical Grille is open Sunday - Thursday 11:30 a.m. - 7 p.m., Friday & Saturday 11:30 a.m. - 8 p.m.",
+      "source": "https://www.tropicalgrille.com/"
+     },
+     {
+      "claim": "The restaurant features New England seafood as well as burgers, sandwiches, fajitas, wings, steaks",
+      "source": "https://www.tropicalgrille.com/"
+     },
+     {
+      "claim": "Maine Lobster Roll (Choice of Mayo or Butter) is on the menu",
+      "source": "https://www.tropicalgrille.com/"
+     },
+     {
+      "claim": "All dishes are made in-house, from scratch, to order",
+      "source": "https://www.tropicalgrille.com/"
+     },
+     {
+      "claim": "The restaurant is on a canal that leads directly to the Gulf of Mexico",
+      "source": "https://www.tropicalgrille.com/"
+     },
+     {
+      "claim": "The restaurant is at 4139 Shoal Line Blvd.",
+      "source": "https://www.tropicalgrille.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJSXvbx5r7wogReQ3vRwzNleo",
+   "name": "Treasure Island Fun Center",
+   "category": "attractions",
+   "metro": "st-pete",
+   "primary_type": "amusement_center",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://tifuncenter.com/",
+     "source_name": "Treasure Island Fun Center \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Treasure Island Fun Center is at 7770 Seminole Blvd Seminole, FL 33772",
+      "Unlimited play packages include 2 hours of unlimited play on video games, pool tables, pinball games, air hockey and kiddie rides",
+      "Wednesday is closed for the summer",
+      "Saturday hours are 11:00 a.m.-11:00 p.m.",
+      "When you book a party or event here, you will have a wide variety of things to do"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Video games, pool tables, pinball games, air hockey and kiddie rides in Seminole",
+    "why_here": "Come for 2 hours of unlimited play on video games, pool tables, pinball games, air hockey and kiddie rides, or book a party or event here and use the wide variety of things to do at this Seminole center.",
+    "know_before": "Wednesday is closed for the summer; Saturday hours are 11:00 a.m.-11:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://tifuncenter.com/"
+     ],
+     "why_here": [
+      "https://tifuncenter.com/"
+     ],
+     "know_before": [
+      "https://tifuncenter.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Treasure Island Fun Center is at 7770 Seminole Blvd Seminole, FL 33772",
+      "source": "https://tifuncenter.com/"
+     },
+     {
+      "claim": "Unlimited play packages include 2 hours of unlimited play on video games, pool tables, pinball games, air hockey and kiddie rides",
+      "source": "https://tifuncenter.com/"
+     },
+     {
+      "claim": "Wednesday is closed for the summer",
+      "source": "https://tifuncenter.com/"
+     },
+     {
+      "claim": "Saturday hours are 11:00 a.m.-11:00 p.m.",
+      "source": "https://tifuncenter.com/"
+     },
+     {
+      "claim": "When you book a party or event here, you will have a wide variety of things to do",
+      "source": "https://tifuncenter.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJUxxLGuew4IgR6DIXzS438-4",
+   "name": "Apollo/Saturn V Center",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "tourist_attraction",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.kennedyspacecenter.com/explore-attractions/behind-the-gates/apollo-saturn-v-center/",
+     "source_name": "Apollo/Saturn V Center \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Apollo/Saturn V Center is accessible via a Kennedy Space Center bus and is included with admission",
+      "Walk beneath a real Saturn V rocket, the type of rocket that launched humans to the Moon",
+      "Stand under the gigantic Saturn V, the largest rocket ever flown",
+      "Relive the wonder and excitement of the Apollo era and explore interactive and engaging exhibits"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Walk beneath a real Saturn V rocket that launched humans to the Moon",
+    "why_here": "Walk beneath a real Saturn V rocket, the type of rocket that launched humans to the Moon, explore interactive and engaging exhibits, and relive the wonder and excitement of the Apollo era at a center included with admission.",
+    "know_before": "Accessible via a Kennedy Space Center bus and included with admission",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.kennedyspacecenter.com/explore-attractions/behind-the-gates/apollo-saturn-v-center/"
+     ],
+     "why_here": [
+      "https://www.kennedyspacecenter.com/explore-attractions/behind-the-gates/apollo-saturn-v-center/"
+     ],
+     "know_before": [
+      "https://www.kennedyspacecenter.com/explore-attractions/behind-the-gates/apollo-saturn-v-center/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Apollo/Saturn V Center is accessible via a Kennedy Space Center bus and is included with admission",
+      "source": "https://www.kennedyspacecenter.com/explore-attractions/behind-the-gates/apollo-saturn-v-center/"
+     },
+     {
+      "claim": "Walk beneath a real Saturn V rocket, the type of rocket that launched humans to the Moon",
+      "source": "https://www.kennedyspacecenter.com/explore-attractions/behind-the-gates/apollo-saturn-v-center/"
+     },
+     {
+      "claim": "Stand under the gigantic Saturn V, the largest rocket ever flown",
+      "source": "https://www.kennedyspacecenter.com/explore-attractions/behind-the-gates/apollo-saturn-v-center/"
+     },
+     {
+      "claim": "Relive the wonder and excitement of the Apollo era and explore interactive and engaging exhibits",
+      "source": "https://www.kennedyspacecenter.com/explore-attractions/behind-the-gates/apollo-saturn-v-center/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJFyRo08-32YgR4OA0XWmeGl8",
+   "name": "Peacock Park",
+   "category": "attractions",
+   "metro": "miami-dade",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.miami.gov/Parks-Public-Places/Parks-Directory/Peacock-Park",
+     "source_name": "Peacock Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Peacock Park is at 2820 McFarlane Rd, Miami 33133",
+      "Peacock Park has Basketball",
+      "Peacock Park has a Recreation Center",
+      "Peacock Park park hours are 7:00 a.m. to 10:00 p.m. Monday to Sunday",
+      "Peacock Park building hours are 10:00 a.m. to 8:00 p.m. Monday to Friday"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Basketball and a Recreation Center at a city park",
+    "why_here": "Peacock Park has Basketball and a Recreation Center, with park hours from 7:00 a.m. to 10:00 p.m. Monday to Sunday for outdoor play and indoor time in one place.",
+    "know_before": "Park hours are 7:00 a.m. to 10:00 p.m. Monday to Sunday, and building hours are 10:00 a.m. to 8:00 p.m. Monday to Friday.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.miami.gov/Parks-Public-Places/Parks-Directory/Peacock-Park"
+     ],
+     "why_here": [
+      "https://www.miami.gov/Parks-Public-Places/Parks-Directory/Peacock-Park"
+     ],
+     "know_before": [
+      "https://www.miami.gov/Parks-Public-Places/Parks-Directory/Peacock-Park"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Peacock Park is at 2820 McFarlane Rd, Miami 33133",
+      "source": "https://www.miami.gov/Parks-Public-Places/Parks-Directory/Peacock-Park"
+     },
+     {
+      "claim": "Peacock Park has Basketball",
+      "source": "https://www.miami.gov/Parks-Public-Places/Parks-Directory/Peacock-Park"
+     },
+     {
+      "claim": "Peacock Park has a Recreation Center",
+      "source": "https://www.miami.gov/Parks-Public-Places/Parks-Directory/Peacock-Park"
+     },
+     {
+      "claim": "Peacock Park park hours are 7:00 a.m. to 10:00 p.m. Monday to Sunday",
+      "source": "https://www.miami.gov/Parks-Public-Places/Parks-Directory/Peacock-Park"
+     },
+     {
+      "claim": "Peacock Park building hours are 10:00 a.m. to 8:00 p.m. Monday to Friday",
+      "source": "https://www.miami.gov/Parks-Public-Places/Parks-Directory/Peacock-Park"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJAUXKrm8c24gRZtee8Q9pnak",
+   "name": "Sun-N-Fun Lagoon",
+   "category": "attractions",
+   "metro": "immokalee-fl",
+   "primary_type": "water_park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.collierparks.com/newsalert/sun-n-fun-lagoon-is-making-waves-with-the-return-of-water-slides-and-lazy-river/",
+     "source_name": "Sun-N-Fun Lagoon \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Sun-N-Fun Lagoon is located inside North Collier Regional Park, 15000 Livingston Road",
+      "The park is open daily from 10:00 a.m. to 5:00 p.m.",
+      "Sun-N-Fun Lagoon has five water slides and a Lazy River"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Five water slides and a Lazy River inside North Collier Regional Park",
+    "why_here": "Cool off on five water slides or use the Lazy River at this water park inside North Collier Regional Park, 15000 Livingston Road, with hours open daily from 10:00 a.m. to 5:00 p.m. for aquatic play.",
+    "know_before": "Open daily from 10:00 a.m. to 5:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.collierparks.com/newsalert/sun-n-fun-lagoon-is-making-waves-with-the-return-of-water-slides-and-lazy-river/"
+     ],
+     "why_here": [
+      "https://www.collierparks.com/newsalert/sun-n-fun-lagoon-is-making-waves-with-the-return-of-water-slides-and-lazy-river/"
+     ],
+     "know_before": [
+      "https://www.collierparks.com/newsalert/sun-n-fun-lagoon-is-making-waves-with-the-return-of-water-slides-and-lazy-river/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Sun-N-Fun Lagoon is located inside North Collier Regional Park, 15000 Livingston Road",
+      "source": "https://www.collierparks.com/newsalert/sun-n-fun-lagoon-is-making-waves-with-the-return-of-water-slides-and-lazy-river/"
+     },
+     {
+      "claim": "The park is open daily from 10:00 a.m. to 5:00 p.m.",
+      "source": "https://www.collierparks.com/newsalert/sun-n-fun-lagoon-is-making-waves-with-the-return-of-water-slides-and-lazy-river/"
+     },
+     {
+      "claim": "Sun-N-Fun Lagoon has five water slides and a Lazy River",
+      "source": "https://www.collierparks.com/newsalert/sun-n-fun-lagoon-is-making-waves-with-the-return-of-water-slides-and-lazy-river/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJOa97dj_i2IgRntaebkYKO2Q",
+   "name": "South Inlet Park",
+   "category": "attractions",
+   "metro": "palm-beach",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://discover.pbcgov.org/parks/Locations/South-Inlet.aspx",
+     "source_name": "South Inlet Park \u2014 official source",
+     "source_class": "tourism_dmo",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "South Inlet Park is at 1100 S. Ocean Boulevard Boca Raton, Florida 33432",
+      "Hours are Sunrise - Sunset",
+      "The park has beach frontage, guarded (850 feet)",
+      "The jetty is open 24 hours",
+      "Parking is $4 per hour Monday - Friday and $5 per hour Saturday, Sunday & Holidays",
+      "The park has picnic areas with grills and a playground"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Guarded beach frontage, a jetty and picnic areas in Boca Raton",
+    "why_here": "Use 850 feet of guarded beach frontage, visit a jetty open 24 hours, or use picnic areas with grills and a playground at this park at 1100 S. Ocean Boulevard in Boca Raton, Florida.",
+    "know_before": "Parking is $4 per hour Monday - Friday and $5 per hour Saturday, Sunday & Holidays; hours are Sunrise - Sunset",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://discover.pbcgov.org/parks/Locations/South-Inlet.aspx"
+     ],
+     "why_here": [
+      "https://discover.pbcgov.org/parks/Locations/South-Inlet.aspx"
+     ],
+     "know_before": [
+      "https://discover.pbcgov.org/parks/Locations/South-Inlet.aspx"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "South Inlet Park is at 1100 S. Ocean Boulevard Boca Raton, Florida 33432",
+      "source": "https://discover.pbcgov.org/parks/Locations/South-Inlet.aspx"
+     },
+     {
+      "claim": "Hours are Sunrise - Sunset",
+      "source": "https://discover.pbcgov.org/parks/Locations/South-Inlet.aspx"
+     },
+     {
+      "claim": "The park has beach frontage, guarded (850 feet)",
+      "source": "https://discover.pbcgov.org/parks/Locations/South-Inlet.aspx"
+     },
+     {
+      "claim": "The jetty is open 24 hours",
+      "source": "https://discover.pbcgov.org/parks/Locations/South-Inlet.aspx"
+     },
+     {
+      "claim": "Parking is $4 per hour Monday - Friday and $5 per hour Saturday, Sunday & Holidays",
+      "source": "https://discover.pbcgov.org/parks/Locations/South-Inlet.aspx"
+     },
+     {
+      "claim": "The park has picnic areas with grills and a playground",
+      "source": "https://discover.pbcgov.org/parks/Locations/South-Inlet.aspx"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJN6rnmaET3YgR98sSqBeHb7I",
+   "name": "Hungry Crab Juicy Seafood & Bar Winter Haven FL",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.hungrycrabseafood.com/winterhaven.html",
+     "source_name": "Hungry Crab Juicy Seafood & Bar Winter Haven FL \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Hungry Crab is at 1551 3rd St SW, Winter Haven, FL 33880",
+      "Open Hours: Sunday - Thursday: 11:30 a.m. - 10:00 p.m. Friday - Saturday: 11:30 a.m. - 11:00 p.m.",
+      "Guests can dine in or prefer TO-GO"
+     ]
+    },
+    {
+     "source": "https://www.hungrycrabseafood.com/menu.html",
+     "source_name": "Hungry Crab Juicy Seafood & Bar Winter Haven FL \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Seafood Boil Served W. Corn & Potato is on the menu",
+      "The menu includes Blue Crab, Snow Crab Legs and King Crab Legs"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Seafood Boil Served W. Corn & Potato with Blue Crab and Snow Crab Legs",
+    "why_here": "Order a Seafood Boil Served W. Corn & Potato or choose Blue Crab, Snow Crab Legs and King Crab Legs at this seafood spot at 1551 3rd St SW, where guests can dine in or prefer TO-GO.",
+    "know_before": "Sunday - Thursday: 11:30 a.m. - 10:00 p.m.; Friday - Saturday: 11:30 a.m. - 11:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.hungrycrabseafood.com/winterhaven.html"
+     ],
+     "why_here": [
+      "https://www.hungrycrabseafood.com/winterhaven.html"
+     ],
+     "know_before": [
+      "https://www.hungrycrabseafood.com/winterhaven.html"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Hungry Crab is at 1551 3rd St SW, Winter Haven, FL 33880",
+      "source": "https://www.hungrycrabseafood.com/winterhaven.html"
+     },
+     {
+      "claim": "Open Hours: Sunday - Thursday: 11:30 a.m. - 10:00 p.m. Friday - Saturday: 11:30 a.m. - 11:00 p.m.",
+      "source": "https://www.hungrycrabseafood.com/winterhaven.html"
+     },
+     {
+      "claim": "Guests can dine in or prefer TO-GO",
+      "source": "https://www.hungrycrabseafood.com/winterhaven.html"
+     },
+     {
+      "claim": "Seafood Boil Served W. Corn & Potato is on the menu",
+      "source": "https://www.hungrycrabseafood.com/menu.html"
+     },
+     {
+      "claim": "The menu includes Blue Crab, Snow Crab Legs and King Crab Legs",
+      "source": "https://www.hungrycrabseafood.com/menu.html"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJyWObf5222YgReHVmXlfeTXo",
+   "name": "Novikov Miami",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "asian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://novikovmiami.com/",
+     "source_name": "Novikov Miami \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Novikov Miami is at 300 South Biscayne Boulevard Miami, FL 33131",
+      "Novikov Miami is a Chinese-Japanese restaurant in Miami, located in Downtown",
+      "The menu includes robata grill and wok dishes, dim sum and sushi",
+      "Dishes to order include Spicy Salmon Maki, Sashimi Platter, Peking Duck bao, Singapore Noodle, and Guava Cheesecake",
+      "Sunday - Thursday hours are 12:00 p.m. - 3:00 p.m. and 6:00 p.m. - 10:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Chinese-Japanese dishes, robata grill, wok dishes, dim sum and sushi in Downtown",
+    "why_here": "Try Spicy Salmon Maki, Sashimi Platter, Peking Duck bao, Singapore Noodle and Guava Cheesecake, or explore robata grill and wok dishes plus dim sum and sushi at this Chinese-Japanese restaurant in Downtown.",
+    "know_before": "Sunday - Thursday hours are 12:00 p.m. - 3:00 p.m. and 6:00 p.m. - 10:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://novikovmiami.com/"
+     ],
+     "why_here": [
+      "https://novikovmiami.com/"
+     ],
+     "know_before": [
+      "https://novikovmiami.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Novikov Miami is at 300 South Biscayne Boulevard Miami, FL 33131",
+      "source": "https://novikovmiami.com/"
+     },
+     {
+      "claim": "Novikov Miami is a Chinese-Japanese restaurant in Miami, located in Downtown",
+      "source": "https://novikovmiami.com/"
+     },
+     {
+      "claim": "The menu includes robata grill and wok dishes, dim sum and sushi",
+      "source": "https://novikovmiami.com/"
+     },
+     {
+      "claim": "Dishes to order include Spicy Salmon Maki, Sashimi Platter, Peking Duck bao, Singapore Noodle, and Guava Cheesecake",
+      "source": "https://novikovmiami.com/"
+     },
+     {
+      "claim": "Sunday - Thursday hours are 12:00 p.m. - 3:00 p.m. and 6:00 p.m. - 10:00 p.m.",
+      "source": "https://novikovmiami.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJAQAAANxd2ogRLHIl5TnPmIg",
+   "name": "Everglades City Airboat Tours",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "tour_agency",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.evergladescity-airboattours.com/tours/",
+     "source_name": "Everglades City Airboat Tours \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Tours typically run 55-60 minutes",
+      "Open 8:30 a.m. - 4:00 p.m. and Closed Sundays, Thanksgiving and Christmas",
+      "Tours cruise down the Barron River into the mangrove jungle",
+      "Tours fly through tight tunnels and narrow creeks and emerge in wide, shallow-water bays",
+      "Reservations are highly recommended",
+      "Look out for native wildlife"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Airboat tours down the Barron River into the mangrove jungle",
+    "why_here": "Ride for 55-60 minutes down the Barron River into the mangrove jungle, through tight tunnels and narrow creeks into wide, shallow-water bays, and look out for native wildlife during the tour.",
+    "know_before": "Reservations are highly recommended; Closed Sundays, Thanksgiving and Christmas",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.evergladescity-airboattours.com/tours/"
+     ],
+     "why_here": [
+      "https://www.evergladescity-airboattours.com/tours/"
+     ],
+     "know_before": [
+      "https://www.evergladescity-airboattours.com/tours/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Tours typically run 55-60 minutes",
+      "source": "https://www.evergladescity-airboattours.com/tours/"
+     },
+     {
+      "claim": "Open 8:30 a.m. - 4:00 p.m. and Closed Sundays, Thanksgiving and Christmas",
+      "source": "https://www.evergladescity-airboattours.com/tours/"
+     },
+     {
+      "claim": "Tours cruise down the Barron River into the mangrove jungle",
+      "source": "https://www.evergladescity-airboattours.com/tours/"
+     },
+     {
+      "claim": "Tours fly through tight tunnels and narrow creeks and emerge in wide, shallow-water bays",
+      "source": "https://www.evergladescity-airboattours.com/tours/"
+     },
+     {
+      "claim": "Reservations are highly recommended",
+      "source": "https://www.evergladescity-airboattours.com/tours/"
+     },
+     {
+      "claim": "Look out for native wildlife",
+      "source": "https://www.evergladescity-airboattours.com/tours/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJcYrqFzYQw4gR9SdE0KKBOcU",
+   "name": "Anna Maria Island Dolphin Tours",
+   "category": "attractions",
+   "metro": "manatee-sarasota",
+   "primary_type": "tour_agency",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://amidolphintours.com/tours/",
+     "source_name": "Anna Maria Island Dolphin Tours \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Anna Maria Island Dolphin Tours offers a Public Dolphin & Wildlife Tour",
+      "Get up close and personal with our resident bottlenose dolphins on this 2 hour tour",
+      "Public Dolphin & Wildlife Tour departing from 5325 Marina Drive in Holmes Beach",
+      "Captain Ben Webb holds a United States Coast Guard, 100 Ton, Master\u2019s Captain\u2019s license"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "2 hour tour to see resident bottlenose dolphins from Holmes Beach",
+    "why_here": "Go with Anna Maria Island Dolphin Tours for a 2 hour tour to get up close and personal with resident bottlenose dolphins, departing from 5325 Marina Drive in Holmes Beach.",
+    "know_before": "The Public Dolphin & Wildlife Tour departs from 5325 Marina Drive in Holmes Beach.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://amidolphintours.com/tours/"
+     ],
+     "why_here": [
+      "https://amidolphintours.com/tours/"
+     ],
+     "know_before": [
+      "https://amidolphintours.com/tours/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Anna Maria Island Dolphin Tours offers a Public Dolphin & Wildlife Tour",
+      "source": "https://amidolphintours.com/tours/"
+     },
+     {
+      "claim": "Get up close and personal with our resident bottlenose dolphins on this 2 hour tour",
+      "source": "https://amidolphintours.com/tours/"
+     },
+     {
+      "claim": "Public Dolphin & Wildlife Tour departing from 5325 Marina Drive in Holmes Beach",
+      "source": "https://amidolphintours.com/tours/"
+     },
+     {
+      "claim": "Captain Ben Webb holds a United States Coast Guard, 100 Ton, Master\u2019s Captain\u2019s license",
+      "source": "https://amidolphintours.com/tours/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJHZQhcd4F2YgRNqahAJeWGzw",
+   "name": "Gabose Korean BBQ",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "korean_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.gabosebbq.com/",
+     "source_name": "Gabose Korean BBQ \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Gabose is at 4991 N University Dr Lauderhill, FL 33351",
+      "Gabose Hours Monday to Thursday: 11:30 a.m. \u2013 10 p.m.",
+      "Gabose Hours Friday and Saturday: 11:30 a.m. \u2013 11 p.m.",
+      "Gabose is Closed Sunday"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Gabose BBQ dining in Lauderhill",
+    "why_here": "Visit Gabose at 4991 N University Dr Lauderhill, FL 33351 for Gabose BBQ dining, open Monday to Thursday from 11:30 a.m. to 10 p.m. and Friday and Saturday from 11:30 a.m. to 11 p.m.",
+    "know_before": "Gabose is closed Sunday.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.gabosebbq.com/"
+     ],
+     "why_here": [
+      "https://www.gabosebbq.com/"
+     ],
+     "know_before": [
+      "https://www.gabosebbq.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Gabose is at 4991 N University Dr Lauderhill, FL 33351",
+      "source": "https://www.gabosebbq.com/"
+     },
+     {
+      "claim": "Gabose Hours Monday to Thursday: 11:30 a.m. \u2013 10 p.m.",
+      "source": "https://www.gabosebbq.com/"
+     },
+     {
+      "claim": "Gabose Hours Friday and Saturday: 11:30 a.m. \u2013 11 p.m.",
+      "source": "https://www.gabosebbq.com/"
+     },
+     {
+      "claim": "Gabose is Closed Sunday",
+      "source": "https://www.gabosebbq.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJyTm0g57BwogRbqUJeBxfgUo",
+   "name": "Esposito's Italian Restaurant And Bar",
+   "category": "food",
+   "metro": "tampa",
+   "primary_type": "italian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://espositositaliantampa.com/",
+     "source_name": "Esposito's Italian Restaurant And Bar \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Esposito's Italian Restaurant & Bar Tampa serves Roman and Sicilian dishes like Bucatini Amatriciana and Eggplant Caponata",
+      "Esposito's serves Beef Braciole and Cavatelli with Broccoli Rabe",
+      "Esposito's has had the same recipes for over 50 years",
+      "Esposito's accepts reservations for parties of 6 or more; parties of less than 6 are sat first come, first serve"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Roman and Sicilian dishes including Bucatini Amatriciana in Tampa",
+    "why_here": "Visit Esposito's Italian Restaurant & Bar Tampa for Roman and Sicilian dishes like Bucatini Amatriciana and Eggplant Caponata, plus Beef Braciole, using the same recipes for over 50 years.",
+    "know_before": "Esposito's accepts reservations for parties of 6 or more; parties of less than 6 are sat first come, first serve.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://espositositaliantampa.com/"
+     ],
+     "why_here": [
+      "https://espositositaliantampa.com/"
+     ],
+     "know_before": [
+      "https://espositositaliantampa.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Esposito's Italian Restaurant & Bar Tampa serves Roman and Sicilian dishes like Bucatini Amatriciana and Eggplant Caponata",
+      "source": "https://espositositaliantampa.com/"
+     },
+     {
+      "claim": "Esposito's serves Beef Braciole and Cavatelli with Broccoli Rabe",
+      "source": "https://espositositaliantampa.com/"
+     },
+     {
+      "claim": "Esposito's has had the same recipes for over 50 years",
+      "source": "https://espositositaliantampa.com/"
+     },
+     {
+      "claim": "Esposito's accepts reservations for parties of 6 or more; parties of less than 6 are sat first come, first serve",
+      "source": "https://espositositaliantampa.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJaYIBlkG32YgRrm4KChMmho4",
+   "name": "Puttery",
+   "category": "attractions",
+   "metro": "miami-dade",
+   "primary_type": "miniature_golf_course",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.puttery.com/locations/miami/",
+     "source_name": "Puttery \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Puttery Miami is an indoor mini golf, scratch kitchen, craft cocktail bar, and event venue in the Wynwood arts district",
+      "Puttery Miami is located at 239 NW 28th St. Miami, FL 33127, near Wynwood Walls",
+      "All ages are welcome on Friday and Saturday until 5 p.m., with 18+ after 5 p.m. on Friday and Saturday"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Indoor mini golf, scratch kitchen, and craft cocktail bar in Wynwood",
+    "why_here": "Visit Puttery Miami at 239 NW 28th St. Miami, FL 33127 for indoor mini golf, a scratch kitchen, a craft cocktail bar, and an event venue in the Wynwood arts district near Wynwood Walls.",
+    "know_before": "All ages are welcome on Friday and Saturday until 5 p.m., with 18+ after 5 p.m. on Friday and Saturday.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.puttery.com/locations/miami/"
+     ],
+     "why_here": [
+      "https://www.puttery.com/locations/miami/"
+     ],
+     "know_before": [
+      "https://www.puttery.com/locations/miami/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Puttery Miami is an indoor mini golf, scratch kitchen, craft cocktail bar, and event venue in the Wynwood arts district",
+      "source": "https://www.puttery.com/locations/miami/"
+     },
+     {
+      "claim": "Puttery Miami is located at 239 NW 28th St. Miami, FL 33127, near Wynwood Walls",
+      "source": "https://www.puttery.com/locations/miami/"
+     },
+     {
+      "claim": "All ages are welcome on Friday and Saturday until 5 p.m., with 18+ after 5 p.m. on Friday and Saturday",
+      "source": "https://www.puttery.com/locations/miami/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ0d8mIy-12YgR1xDViEgo8GI",
+   "name": "Queen Miami Beach",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://queenmiamibeach.com/",
+     "source_name": "Queen Miami Beach \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Queen Miami Beach is a Japanese steakhouse in Miami Beach serving premium sushi and Wagyu",
+      "Queen Miami Beach is in the Paris Theatre at 550 Washington Ave, Miami Beach, FL 33139",
+      "Queen Miami Beach serves handcrafted cocktails",
+      "Queen Miami Beach is open Tuesday through Thursday from 7 p.m. to late",
+      "Queen Miami Beach is open Friday through Saturday from 6 p.m. to late",
+      "Queen Miami Beach is closed Sunday and Monday"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Japanese steakhouse serving premium sushi and Wagyu in the Paris Theatre",
+    "why_here": "Visit Queen Miami Beach for premium sushi and Wagyu at a Japanese steakhouse in the Paris Theatre in Miami Beach, with handcrafted cocktails served alongside the sushi and Wagyu.",
+    "know_before": "Closed Sunday and Monday, and open Tuesday through Thursday from 7 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://queenmiamibeach.com/"
+     ],
+     "why_here": [
+      "https://queenmiamibeach.com/"
+     ],
+     "know_before": [
+      "https://queenmiamibeach.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Queen Miami Beach is a Japanese steakhouse in Miami Beach serving premium sushi and Wagyu",
+      "source": "https://queenmiamibeach.com/"
+     },
+     {
+      "claim": "Queen Miami Beach is in the Paris Theatre at 550 Washington Ave, Miami Beach, FL 33139",
+      "source": "https://queenmiamibeach.com/"
+     },
+     {
+      "claim": "Queen Miami Beach serves handcrafted cocktails",
+      "source": "https://queenmiamibeach.com/"
+     },
+     {
+      "claim": "Queen Miami Beach is open Tuesday through Thursday from 7 p.m. to late",
+      "source": "https://queenmiamibeach.com/"
+     },
+     {
+      "claim": "Queen Miami Beach is open Friday through Saturday from 6 p.m. to late",
+      "source": "https://queenmiamibeach.com/"
+     },
+     {
+      "claim": "Queen Miami Beach is closed Sunday and Monday",
+      "source": "https://queenmiamibeach.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJE5NX8avYwogReABjuUQ_MkI",
+   "name": "Tampa Fishing Charters, Inc.",
+   "category": "attractions",
+   "metro": "tampa",
+   "primary_type": "fishing_charter",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://tampafishingcharters.com/",
+     "source_name": "Tampa Fishing Charters, Inc. \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Tampa Fishing Charters, Inc. has been fishing Tampa Bay waters for over 30 years",
+      "Tampa Fishing Charters, Inc. specializes in light tackle, trolling, and bottom fishing on Tampa Bay",
+      "Target species include Tarpon, Snook, Redfish, Trout, Cobia, Snapper, Grouper, Kingfish, Shark and Mackerel",
+      "Tampa Fishing Charters, Inc. offers half day and full day trips",
+      "Tampa Fishing Charters, Inc. provides all equipment and licenses with no experience needed",
+      "Tampa Fishing Charters, Inc. offers three locations"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Light tackle, trolling, and bottom fishing charters on Tampa Bay",
+    "why_here": "Book Tampa Fishing Charters, Inc. for light tackle, trolling, and bottom fishing on Tampa Bay in search of Tarpon, Snook, Redfish, Trout, Cobia, Snapper, Grouper, Kingfish, Shark and Mackerel.",
+    "know_before": "No experience needed, and all equipment and licenses are provided on charters.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://tampafishingcharters.com/"
+     ],
+     "why_here": [
+      "https://tampafishingcharters.com/"
+     ],
+     "know_before": [
+      "https://tampafishingcharters.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Tampa Fishing Charters, Inc. has been fishing Tampa Bay waters for over 30 years",
+      "source": "https://tampafishingcharters.com/"
+     },
+     {
+      "claim": "Tampa Fishing Charters, Inc. specializes in light tackle, trolling, and bottom fishing on Tampa Bay",
+      "source": "https://tampafishingcharters.com/"
+     },
+     {
+      "claim": "Target species include Tarpon, Snook, Redfish, Trout, Cobia, Snapper, Grouper, Kingfish, Shark and Mackerel",
+      "source": "https://tampafishingcharters.com/"
+     },
+     {
+      "claim": "Tampa Fishing Charters, Inc. offers half day and full day trips",
+      "source": "https://tampafishingcharters.com/"
+     },
+     {
+      "claim": "Tampa Fishing Charters, Inc. provides all equipment and licenses with no experience needed",
+      "source": "https://tampafishingcharters.com/"
+     },
+     {
+      "claim": "Tampa Fishing Charters, Inc. offers three locations",
+      "source": "https://tampafishingcharters.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ4d19JoUB2YgRQ06gW0hA-Js",
+   "name": "Moxies Fort Lauderdale Restaurant",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://moxies.com/restaurants/fort-lauderdale/",
+     "source_name": "Moxies Fort Lauderdale Restaurant \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Moxies Fort Lauderdale Restaurant is at 201 E Las Olas Blvd, Unit B1, Fort Lauderdale",
+      "Moxies is a two-level modern restaurant with a globally inspired menu with freshly prepared dishes",
+      "Moxies has indoor and outdoor bars on both levels and a spacious covered patio",
+      "Happy Hour is from 3:00 p.m. to 6:00 p.m.",
+      "Half-priced bottles are offered every Wednesday"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Two-level modern restaurant with a globally inspired menu in Fort Lauderdale",
+    "why_here": "Visit this two-level modern restaurant for a globally inspired menu with freshly prepared dishes, plus indoor and outdoor bars on both levels, a spacious covered patio, and Happy Hour for lunch, dinner, or late-night dining.",
+    "know_before": "Happy Hour is from 3:00 p.m. to 6:00 p.m.",
+    "local_tip": "Half-priced bottles are offered every Wednesday.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://moxies.com/restaurants/fort-lauderdale/"
+     ],
+     "why_here": [
+      "https://moxies.com/restaurants/fort-lauderdale/"
+     ],
+     "know_before": [
+      "https://moxies.com/restaurants/fort-lauderdale/"
+     ],
+     "local_tip": [
+      "https://moxies.com/restaurants/fort-lauderdale/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Moxies Fort Lauderdale Restaurant is at 201 E Las Olas Blvd, Unit B1, Fort Lauderdale",
+      "source": "https://moxies.com/restaurants/fort-lauderdale/"
+     },
+     {
+      "claim": "Moxies is a two-level modern restaurant with a globally inspired menu with freshly prepared dishes",
+      "source": "https://moxies.com/restaurants/fort-lauderdale/"
+     },
+     {
+      "claim": "Moxies has indoor and outdoor bars on both levels and a spacious covered patio",
+      "source": "https://moxies.com/restaurants/fort-lauderdale/"
+     },
+     {
+      "claim": "Happy Hour is from 3:00 p.m. to 6:00 p.m.",
+      "source": "https://moxies.com/restaurants/fort-lauderdale/"
+     },
+     {
+      "claim": "Half-priced bottles are offered every Wednesday",
+      "source": "https://moxies.com/restaurants/fort-lauderdale/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJy3uaZKvFwogRpk-ruMef9nE",
+   "name": "Coppertail Brewing Co.",
+   "category": "nightlife",
+   "metro": "tampa",
+   "primary_type": "brewery",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://coppertailbrewing.com/visit",
+     "source_name": "Coppertail Brewing Co. \u2014 official source",
+     "source_class": "tourism_dmo",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Coppertail Brewing Co. is at 2601 East 2nd Ave, Tampa, Florida 33605",
+      "The Tap Room & Kitchen is housed inside the historic Ybor City brewery",
+      "Coppertail beer is brewed just steps away from the Tap Room & Kitchen",
+      "The Tap Room & Kitchen serves scratch made food",
+      "The production brewery is a 34,000 square foot production brewery",
+      "Brewery tours are at 1 p.m., 2 p.m., and 3 p.m. on Saturday and Sunday for $10"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Historic Ybor City brewery with a Tap Room & Kitchen in Tampa",
+    "why_here": "Come for Coppertail beer brewed just steps away in the historic Ybor City brewery, scratch made food in the Tap Room & Kitchen, and a 34,000 square foot production brewery behind the Tap Room in Tampa.",
+    "know_before": "Brewery tours are at 1 p.m., 2 p.m., and 3 p.m. on Saturday and Sunday for $10.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://coppertailbrewing.com/visit"
+     ],
+     "why_here": [
+      "https://coppertailbrewing.com/visit"
+     ],
+     "know_before": [
+      "https://coppertailbrewing.com/visit"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Coppertail Brewing Co. is at 2601 East 2nd Ave, Tampa, Florida 33605",
+      "source": "https://coppertailbrewing.com/visit"
+     },
+     {
+      "claim": "The Tap Room & Kitchen is housed inside the historic Ybor City brewery",
+      "source": "https://coppertailbrewing.com/visit"
+     },
+     {
+      "claim": "Coppertail beer is brewed just steps away from the Tap Room & Kitchen",
+      "source": "https://coppertailbrewing.com/visit"
+     },
+     {
+      "claim": "The Tap Room & Kitchen serves scratch made food",
+      "source": "https://coppertailbrewing.com/visit"
+     },
+     {
+      "claim": "The production brewery is a 34,000 square foot production brewery",
+      "source": "https://coppertailbrewing.com/visit"
+     },
+     {
+      "claim": "Brewery tours are at 1 p.m., 2 p.m., and 3 p.m. on Saturday and Sunday for $10",
+      "source": "https://coppertailbrewing.com/visit"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJrWQOHl6H3YgR95IL3bEfsjs",
+   "name": "My Little Town Kids",
+   "category": "attractions",
+   "metro": "orlando",
+   "primary_type": "playground",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.mylittletownkids.com/",
+     "source_name": "My Little Town Kids \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "My Little Town Kids is an indoor playground",
+      "Daily admission includes 2 hour play sessions",
+      "My Little Town Kids is open daily from 10 a.m. to 7 p.m.",
+      "No reservation required for open play",
+      "All Inclusive birthday packages are offered"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Indoor playground with 2 hour play sessions open daily",
+    "why_here": "Bring children to this indoor playground for 2 hour play sessions during daily admission, with All Inclusive birthday packages available when you want My Little Town Kids to host a party with set up handled for you.",
+    "know_before": "Open daily from 10 a.m. to 7 p.m. with no reservation required.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.mylittletownkids.com/"
+     ],
+     "why_here": [
+      "https://www.mylittletownkids.com/"
+     ],
+     "know_before": [
+      "https://www.mylittletownkids.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "My Little Town Kids is an indoor playground",
+      "source": "https://www.mylittletownkids.com/"
+     },
+     {
+      "claim": "Daily admission includes 2 hour play sessions",
+      "source": "https://www.mylittletownkids.com/"
+     },
+     {
+      "claim": "My Little Town Kids is open daily from 10 a.m. to 7 p.m.",
+      "source": "https://www.mylittletownkids.com/"
+     },
+     {
+      "claim": "No reservation required for open play",
+      "source": "https://www.mylittletownkids.com/"
+     },
+     {
+      "claim": "All Inclusive birthday packages are offered",
+      "source": "https://www.mylittletownkids.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJr-qmhkHn2YgRgypaK0_Wm8E",
+   "name": "Garden Inn Homestead",
+   "category": "hotels",
+   "metro": "florida",
+   "primary_type": "motel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://gardeninnofhomestead.com/",
+     "source_name": "Garden Inn Homestead \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Garden Inn Homestead is at 51 South Homestead Blvd #B, Homestead, FL 33030",
+      "Rooms include the Superior King Room, Superior Double Room, and DeLuxe Queen room",
+      "Hotel amenities include Free WiFi and a pool",
+      "Complimentary Deluxe Continental Breakfast Buffet runs from 7 a.m. till 9:30 a.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Homestead hotel with Free WiFi, a pool, and a breakfast buffet",
+    "why_here": "Stay in Homestead in a Superior King Room, Superior Double Room, or DeLuxe Queen room, with Free WiFi, a pool, and a complimentary Deluxe Continental Breakfast Buffet at this Garden Inn Homestead hotel.",
+    "know_before": "Complimentary Deluxe Continental Breakfast Buffet runs from 7 a.m. till 9:30 a.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://gardeninnofhomestead.com/"
+     ],
+     "why_here": [
+      "https://gardeninnofhomestead.com/"
+     ],
+     "know_before": [
+      "https://gardeninnofhomestead.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Garden Inn Homestead is at 51 South Homestead Blvd #B, Homestead, FL 33030",
+      "source": "https://gardeninnofhomestead.com/"
+     },
+     {
+      "claim": "Rooms include the Superior King Room, Superior Double Room, and DeLuxe Queen room",
+      "source": "https://gardeninnofhomestead.com/"
+     },
+     {
+      "claim": "Hotel amenities include Free WiFi and a pool",
+      "source": "https://gardeninnofhomestead.com/"
+     },
+     {
+      "claim": "Complimentary Deluxe Continental Breakfast Buffet runs from 7 a.m. till 9:30 a.m.",
+      "source": "https://gardeninnofhomestead.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJlxkdxTbDwogRzOsasxEyLRs",
+   "name": "Zero Latency VR Tampa",
+   "category": "attractions",
+   "metro": "tampa",
+   "primary_type": "video_arcade",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://zerolatencyvrtampa.com/",
+     "source_name": "Zero Latency VR Tampa \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Zero Latency VR Tampa is located inside WestShore Plaza at 260 WestShore Plaza, Tampa, FL 33609",
+      "Zero Latency offers free-roam virtual reality for up to 8 players",
+      "Players can move freely in a full-scale arena with no cables or wires",
+      "Zero Latency Tampa has an 11-title free-roam VR library"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Free-roam virtual reality arena inside WestShore Plaza in Tampa",
+    "why_here": "Step into free-roam virtual reality for up to 8 players inside WestShore Plaza, where you can move freely in a full-scale arena with no cables or wires across an 11-title free-roam VR library.",
+    "know_before": "Free-roam virtual reality is for up to 8 players.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://zerolatencyvrtampa.com/"
+     ],
+     "why_here": [
+      "https://zerolatencyvrtampa.com/"
+     ],
+     "know_before": [
+      "https://zerolatencyvrtampa.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Zero Latency VR Tampa is located inside WestShore Plaza at 260 WestShore Plaza, Tampa, FL 33609",
+      "source": "https://zerolatencyvrtampa.com/"
+     },
+     {
+      "claim": "Zero Latency offers free-roam virtual reality for up to 8 players",
+      "source": "https://zerolatencyvrtampa.com/"
+     },
+     {
+      "claim": "Players can move freely in a full-scale arena with no cables or wires",
+      "source": "https://zerolatencyvrtampa.com/"
+     },
+     {
+      "claim": "Zero Latency Tampa has an 11-title free-roam VR library",
+      "source": "https://zerolatencyvrtampa.com/"
+     }
+    ]
+   }
+  }
+ ]
+}

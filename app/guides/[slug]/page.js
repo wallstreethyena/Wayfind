@@ -53,6 +53,7 @@ import GuidePickDecision from "./GuidePickDecision";
 import { inlineBookConfig } from "../../../lib/guideInlineBook";
 import GuidePickOffer from "./GuidePickOffer";
 import { guidePickOffers, replacesCityStrip } from "../../../lib/guidePickOffers";
+import { orlandoExactTiqetsEntry } from "../../../lib/orlandoGuideTickets";
 import { COUPONS, couponIsLive, couponEndsLabel } from "../../../lib/coupons";
 // Venue-local US Eastern, DST-aware. NEVER new Date().toISOString() — that is UTC
 // and expires a coupon roughly four hours early.
@@ -66,6 +67,7 @@ import { nowContext } from "../../../lib/nowContext";
 import { guidePicksForNow, guideNowHeadline, guideNowExplainer, guideWeather, indoorSiblingFor, indoorFromInventory, regionCity, regionCoords } from "../../../lib/guideNow";
 import { CATEGORY_SECTION, existingTypeSignals } from "../../../lib/placeCategory";
 import { wayfindScore } from "../../../lib/wayfindScore";
+import { styleHtml } from "../../../lib/styleHtml.js";
 
 /**
  * Rating + review count for a place from OUR OWN inventory.
@@ -176,6 +178,7 @@ async function inventoryPlaceByStem(stem, near, exactNames = null) {
     const rows = await r.json();
     if (!Array.isArray(rows)) return null;
     for (const row of rows) {
+      if (isNotPublicPlace(row && row.place_id)) continue;
       // Editorial aliases require a whole-name match, never a hotel containing a beach name.
       const normalize = (name) => String(name || "").toLowerCase().replace(/[’‘]/g, "'").replace(/\s+/g, " ").trim();
       if (exactNames && !exactNames.some((name) => normalize(name) === normalize(row.name))) continue;
@@ -228,6 +231,7 @@ async function inventoryPlace(pick, near) {
   // venue. Without a reviewed Place ID or whole-name alias contract, keep the
   // editorial pick and Open in Wayfind action but render NO place card.
   if (!guidePickMayResolvePlaceCard(pick)) return null;
+  if (isNotPublicPlace(pick)) return null;
   // v8.17 — a pick that CARRIES a placeId (the Gulf Coast guides embed real
   // ids) resolves on it directly: exact, no ilike ambiguity, no geo gate
   // needed (the id IS the identity). The name path below stays the fallback
@@ -250,7 +254,7 @@ async function inventoryPlace(pick, near) {
         if (r.ok) {
           const rows = await r.json();
           const row = Array.isArray(rows) && rows[0];
-          if (row) {
+          if (row && !isNotPublicPlace(row.place_id)) {
             const rating = Number(row.signals && row.signals.rating);
             const reviews = Number(row.signals && row.signals.reviews);
             if (rating > 0 && reviews >= 15) {
@@ -321,7 +325,7 @@ async function inventoryPlace(pick, near) {
 }
 
 async function inventoryPlacesByExactIds(placeIds) {
-  const ids = [...new Set((placeIds || []).map((id) => String(id || "").trim()).filter(Boolean))];
+  const ids = [...new Set((placeIds || []).map((id) => String(id || "").trim()).filter((id) => id && !isNotPublicPlace(id)))];
   const url = (process.env.NEXT_PUBLIC_SUPABASE_URL || "").trim().replace(/\/+$/, "");
   const anon = (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "").trim();
   if (!ids.length || !url || !anon) return [];
@@ -333,7 +337,7 @@ async function inventoryPlacesByExactIds(placeIds) {
     );
     if (!r.ok) return [];
     const rows = await r.json();
-    return Array.isArray(rows) ? rows : [];
+    return Array.isArray(rows) ? rows.filter((row) => !isNotPublicPlace(row && row.place_id)) : [];
   } catch (e) {
     return [];
   }
@@ -370,7 +374,7 @@ async function inventoryPlacesForRegion(region, limit = 80) {
       const rating = Number(row && row.signals && row.signals.rating);
       const reviews = Number(row && row.signals && row.signals.reviews);
       const score = wayfindScore(rating, reviews);
-      if (!row || !row.place_id || !row.name || score == null) return null;
+      if (!row || !row.place_id || isNotPublicPlace(row.place_id) || !row.name || score == null) return null;
       return {
         id: row.place_id, name: row.name, rating, reviews,
         lat: row.lat, lng: row.lng, photoRef: row.photo_ref || null,
@@ -383,6 +387,7 @@ async function inventoryPlacesForRegion(region, limit = 80) {
   } catch (e) { return []; }
 }
 
+import { isNotPublicPlace } from "../../../lib/notPublicPlaces.js";
 import { guidePlaceFigureImage } from "../../../lib/guidePlaceFigureImage.js";
 import { guidePickFacts } from "../../../lib/guidePickFacts.js";
 import { withAttributableSpotPhotos } from "../../../lib/guideSpotPhotos.js";
@@ -880,7 +885,7 @@ export default async function GuidePage({ params }) {
       <nav aria-label="Breadcrumb" style={{ display: "flex", gap: 10, alignItems: "center", marginBottom: 18 }}>
         <ReturnToWayfind style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "8px 14px", borderRadius: 999, background: "#161B22", border: "1px solid #21262D", color: "#FF8A3D", fontSize: 13.5, fontWeight: 800, textDecoration: "none" }} />
       </nav>
-      <style dangerouslySetInnerHTML={{ __html: `
+      <style dangerouslySetInnerHTML={styleHtml(`
         .wf-guide-article{max-width:860px;margin:0 auto}
         .wf-guide-intro{max-width:760px;font-family:Georgia,"Times New Roman",serif;font-size:21px;line-height:1.55;color:#F1F5F9}
         .wf-guide-disclosure{font-size:13px;line-height:1.5;color:#94A3B8;margin:12px 0 20px;padding:0}
@@ -954,7 +959,7 @@ export default async function GuidePage({ params }) {
         }
         ${WF_PLACE_CARD_CSS}
         ${GUIDE_EDITORIAL_CSS}
-      ` }} />
+      `)} />
       {faqLd ? <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }} /> : null}
       {itemListLd ? <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListLd) }} /> : null}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "Article", headline: g.title, description: g.description, ...((g.published || g.updated) ? { datePublished: ldDateTime(g.published || g.updated) } : {}), ...(g.updated ? { dateModified: ldDateTime(g.updated) } : {}), ...(articleImage ? { image: articleImage } : {}), author: { "@type": "Person", name: "Gabriel Pereira", url: SITE_URL + "/about" }, publisher: { "@type": "Organization", name: "WAYFIND LLC", logo: { "@type": "ImageObject", url: SITE_URL + "/icon-512.png" } }, mainEntityOfPage: SITE_URL + "/guides/" + params.slug }) }} />
@@ -1009,7 +1014,24 @@ export default async function GuidePage({ params }) {
           event="guide_share"
           meta={{ slug: params.slug, region: g.region || null, placement: "hero" }}
         />}
-      />
+      >
+        {/* 2026-11-11 (owner: "Choose quickly directly under the title, in the
+            first phone screen"). It rendered below the intro, the facts and the
+            event map: 1,147 to 1,428px down at 390x844, where most phone
+            visitors never reach. It is now the hero's children, so on a phone
+            it sits between the title block and the photo. Same markup, same
+            styles, same on/off rule; static server HTML, so nothing shifts.
+            The choices are authored in lib/guideSeo.js (each quotes its guide)
+            and audited by scripts/check-guide-seo-audit.mjs. */}
+        {chrome.chooseQuickly && quickChoices.length ? (
+          <section className="wf-guide-quick" aria-labelledby="guide-quick-title" style={{ margin: 0 }}>
+            <h2 id="guide-quick-title">Choose quickly</h2>
+            <div>{quickChoices.map((choice) => (
+              <a key={choice.href} href={choice.href}><span>{choice.need}</span><strong>{choice.label}</strong></a>
+            ))}</div>
+          </section>
+        ) : null}
+      </GuideArticleHero>
       <article id="guide" className="wf-guide-article">
       <SeasonalSearchNav hubs={seasonalHubsForGuide(params.slug)} />
       <div style={S.meta}>By <a href="/about" style={{ color: "#CBD5E1", textDecoration: "none", fontWeight: 700 }}>Gabriel Pereira</a> · {g.published ? <>Published {g.published} · </> : null}Updated {g.updated}</div>
@@ -1029,14 +1051,6 @@ export default async function GuidePage({ params }) {
         <div className="wf-guide-event-map">
           <EventWhere {...eventMap} />
         </div>
-      ) : null}
-      {chrome.chooseQuickly && quickChoices.length ? (
-        <section className="wf-guide-quick" aria-labelledby="guide-quick-title">
-          <h2 id="guide-quick-title">Choose quickly</h2>
-          <div>{quickChoices.map((choice) => (
-            <a key={choice.href} href={choice.href}><span>{choice.need}</span><strong>{choice.label}</strong></a>
-          ))}</div>
-        </section>
       ) : null}
       <GuideReadingNav guide={g} />
       {chrome.exploreBridge ? <ExploreBridge city={bridgeCity} picks={bridgePicks} entryPage={"/guides/" + params.slug} pageType="guide" /> : null}
@@ -1067,6 +1081,9 @@ export default async function GuidePage({ params }) {
           lat={bridgeCity.lat}
           lng={bridgeCity.lng}
         />
+      ) : null}
+      {params.slug === "things-to-do-orlando-not-theme-parks" ? (
+        <GuidePickOffer entry={orlandoExactTiqetsEntry()} slug={params.slug} />
       ) : null}
       <div className="wf-guide-disclosure">We may earn a commission when you book through partner links. It never changes our rankings.</div>
       {/* v6.71 — the per-pick link wall is GONE. Each pick used to carry

@@ -8,11 +8,12 @@
 // A server component on purpose: React never renders these tags on the client.
 import ExploreBridge from "./ExploreBridge";
 import { EXPLORE_BRIDGE_GATE_CSS, exploreBridgeGateScript } from "../../lib/exploreBridgeGate";
+import { styleHtml } from "../../lib/styleHtml.js";
 
 export default function ExploreBridgeGate(props) {
   return (
     <>
-      <style dangerouslySetInnerHTML={{ __html: EXPLORE_BRIDGE_GATE_CSS }} />
+      <style dangerouslySetInnerHTML={styleHtml(EXPLORE_BRIDGE_GATE_CSS)} />
       <script dangerouslySetInnerHTML={{ __html: exploreBridgeGateScript() }} />
       <ExploreBridge {...props} />
     </>

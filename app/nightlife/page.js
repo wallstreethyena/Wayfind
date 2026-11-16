@@ -3,8 +3,8 @@ import { SITE_URL } from "../../lib/site";
 
 export const revalidate = 86400;
 
-const TITLE = "Best Nightlife in Florida by City";
-const DESC = "Pick a Florida city and see its best bars and night spots, ranked by the Wayfind Score.";
+const TITLE = "Florida Nightlife by City";
+const DESC = "Pick a Florida city and see its bars and night spots, ranked on merit by the Wayfind Score. Rankings are never for sale.";
 const _og = SITE_URL + "/api/og?t=" + encodeURIComponent(TITLE);
 
 export const metadata = {
@@ -22,7 +22,7 @@ export default function Page() {
       path="/nightlife"
       cat="nightlife"
       h1={TITLE}
-      intro="Pick a city to see where the night is worth going out for. Every list is ranked by the Wayfind Score, and payment never changes a score."
+      intro="Pick a city to see where the night is worth going out for. Every list is ranked on merit by the Wayfind Score. Rankings are never for sale."
     />
   );
 }

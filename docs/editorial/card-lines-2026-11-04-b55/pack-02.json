@@ -1,0 +1,88 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 55. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJ6f_sk-y20YgRHSuAVDI4sVU",
+   "name": "Hot Tin Roof Restaurant",
+   "category": "food",
+   "metro": "keys",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.oceankey.com/dine/hot-tin-roof-restaurant/",
+     "source_name": "Hot Tin Roof Restaurant \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Hot Tin Roof is named for Tennessee Williams' favorite play, Cat on a Hot Tin Roof",
+      "It is the signature waterfront fine-dining restaurant at Ocean Key Resort & Spa, serving Key West cuisine with Cuban and Caribbean influences, local seafood and seasonal produce under Executive Chef Scott Maurer",
+      "The menu is best savored on the verandah overlooking the harbor and the world-famous sunset",
+      "The lounge signature is the Hot Tin Tini, vodka infused with fresh pineapple, alongside a Hemingway Daiquiri with local rum",
+      "Dinner is served daily from 6:00 to 9:00 pm, with breakfast Monday-Saturday 8:00-11:30 am and Sunday brunch 11:45 am-12:45 pm",
+      "Hot Tin Roof operates as a cashless establishment, accepting all major credit cards and mobile payment options"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Key West cuisine with Cuban and Caribbean influences on a harbor-view verandah",
+    "why_here": "Named for Tennessee Williams' favorite play, Cat on a Hot Tin Roof, this is Ocean Key's signature waterfront restaurant. Its menu blends Cuban and Caribbean influences with fresh local seafood and seasonal produce under Executive Chef Scott Maurer.",
+    "know_before": "Hot Tin Roof operates as a cashless establishment and accepts all major credit cards and mobile payment options.",
+    "local_tip": "Try the signature Hot Tin Tini, vodka infused with fresh pineapple, or the Hemingway Daiquiri in the lounge.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.oceankey.com/dine/hot-tin-roof-restaurant/"
+     ],
+     "why_here": [
+      "https://www.oceankey.com/dine/hot-tin-roof-restaurant/"
+     ],
+     "know_before": [
+      "https://www.oceankey.com/dine/hot-tin-roof-restaurant/"
+     ],
+     "local_tip": [
+      "https://www.oceankey.com/dine/hot-tin-roof-restaurant/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Hot Tin Roof is named for Tennessee Williams' favorite play, Cat on a Hot Tin Roof",
+      "source": "https://www.oceankey.com/dine/hot-tin-roof-restaurant/"
+     },
+     {
+      "claim": "It is the signature waterfront fine-dining restaurant at Ocean Key Resort & Spa, serving Key West cuisine with Cuban and Caribbean influences, local seafood and seasonal produce under Executive Chef Scott Maurer",
+      "source": "https://www.oceankey.com/dine/hot-tin-roof-restaurant/"
+     },
+     {
+      "claim": "The menu is best savored on the verandah overlooking the harbor and the world-famous sunset",
+      "source": "https://www.oceankey.com/dine/hot-tin-roof-restaurant/"
+     },
+     {
+      "claim": "The lounge signature is the Hot Tin Tini, vodka infused with fresh pineapple, alongside a Hemingway Daiquiri with local rum",
+      "source": "https://www.oceankey.com/dine/hot-tin-roof-restaurant/"
+     },
+     {
+      "claim": "Dinner is served daily from 6:00 to 9:00 pm, with breakfast Monday-Saturday 8:00-11:30 am and Sunday brunch 11:45 am-12:45 pm",
+      "source": "https://www.oceankey.com/dine/hot-tin-roof-restaurant/"
+     },
+     {
+      "claim": "Hot Tin Roof operates as a cashless establishment, accepting all major credit cards and mobile payment options",
+      "source": "https://www.oceankey.com/dine/hot-tin-roof-restaurant/"
+     }
+    ]
+   }
+  }
+ ]
+}

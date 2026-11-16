@@ -1,0 +1,2284 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 35. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJESg5X48N3YgRZFc8Z5weaSk",
+   "name": "LEGOLAND\u00ae Beach Retreat",
+   "category": "hotels",
+   "metro": "florida",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.legoland.com/florida/places-to-stay/beach-retreat/",
+     "source_name": "LEGOLAND\u00ae Beach Retreat \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "LEGOLAND Beach Retreat offers LEGO-themed bungalows with a private patio and views of Lake Dexter",
+      "Rooms at LEGOLAND Beach Retreat sleep up to 5 guests",
+      "LEGOLAND Beach Retreat has a resort-style outdoor pool",
+      "LEGOLAND Beach Retreat offers a complimentary shuttle to LEGOLAND and Peppa Pig Theme Park",
+      "LEGOLAND Beach Retreat has outdoor playgrounds"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "LEGO-themed bungalows with a private patio and views of Lake Dexter",
+    "why_here": "Stay in LEGO-themed bungalows with a private patio and views of Lake Dexter, swim in a resort-style outdoor pool, use outdoor playgrounds, and take a complimentary shuttle to LEGOLAND and Peppa Pig Theme Park.",
+    "know_before": "Rooms sleep up to 5 guests",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.legoland.com/florida/places-to-stay/beach-retreat/"
+     ],
+     "why_here": [
+      "https://www.legoland.com/florida/places-to-stay/beach-retreat/"
+     ],
+     "know_before": [
+      "https://www.legoland.com/florida/places-to-stay/beach-retreat/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "LEGOLAND Beach Retreat offers LEGO-themed bungalows with a private patio and views of Lake Dexter",
+      "source": "https://www.legoland.com/florida/places-to-stay/beach-retreat/"
+     },
+     {
+      "claim": "Rooms at LEGOLAND Beach Retreat sleep up to 5 guests",
+      "source": "https://www.legoland.com/florida/places-to-stay/beach-retreat/"
+     },
+     {
+      "claim": "LEGOLAND Beach Retreat has a resort-style outdoor pool",
+      "source": "https://www.legoland.com/florida/places-to-stay/beach-retreat/"
+     },
+     {
+      "claim": "LEGOLAND Beach Retreat offers a complimentary shuttle to LEGOLAND and Peppa Pig Theme Park",
+      "source": "https://www.legoland.com/florida/places-to-stay/beach-retreat/"
+     },
+     {
+      "claim": "LEGOLAND Beach Retreat has outdoor playgrounds",
+      "source": "https://www.legoland.com/florida/places-to-stay/beach-retreat/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJGz8GwVg424gRdFHC4MoMMhQ",
+   "name": "The Westin Cape Coral Resort at Marina Village",
+   "category": "hotels",
+   "metro": "florida",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.marriott.com/en-us/hotels/rswwi-the-westin-cape-coral-resort-at-marina-village/overview/",
+     "source_name": "The Westin Cape Coral Resort at Marina Village \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Westin Cape Coral Resort at Marina Village is at 5951 Silver King Boulevard, Cape Coral, Florida, USA, 33914",
+      "The Westin Cape Coral Resort at Marina Village has three outdoor pools with views of the Caloosahatchee River and the Gulf of Mexico",
+      "The Westin Cape Coral Resort at Marina Village offers kayaking through mangroves and dolphin cruises",
+      "The Westin Cape Coral resort features waterfront dining options at The Nauti Mermaid Dockside Bar & Grill and Marker 92 Waterfront Bar & Bistro"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Three outdoor pools with views of the Caloosahatchee River and the Gulf of Mexico",
+    "why_here": "Stay for three outdoor pools with views of the Caloosahatchee River and the Gulf of Mexico, try kayaking through mangroves and dolphin cruises, and choose waterfront dining at The Nauti Mermaid Dockside Bar & Grill or Marker 92 Waterfront Bar & Bistro.",
+    "know_before": "The address is 5951 Silver King Boulevard, Cape Coral, Florida, USA, 33914",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.marriott.com/en-us/hotels/rswwi-the-westin-cape-coral-resort-at-marina-village/overview/"
+     ],
+     "why_here": [
+      "https://www.marriott.com/en-us/hotels/rswwi-the-westin-cape-coral-resort-at-marina-village/overview/"
+     ],
+     "know_before": [
+      "https://www.marriott.com/en-us/hotels/rswwi-the-westin-cape-coral-resort-at-marina-village/overview/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Westin Cape Coral Resort at Marina Village is at 5951 Silver King Boulevard, Cape Coral, Florida, USA, 33914",
+      "source": "https://www.marriott.com/en-us/hotels/rswwi-the-westin-cape-coral-resort-at-marina-village/overview/"
+     },
+     {
+      "claim": "The Westin Cape Coral Resort at Marina Village has three outdoor pools with views of the Caloosahatchee River and the Gulf of Mexico",
+      "source": "https://www.marriott.com/en-us/hotels/rswwi-the-westin-cape-coral-resort-at-marina-village/overview/"
+     },
+     {
+      "claim": "The Westin Cape Coral Resort at Marina Village offers kayaking through mangroves and dolphin cruises",
+      "source": "https://www.marriott.com/en-us/hotels/rswwi-the-westin-cape-coral-resort-at-marina-village/overview/"
+     },
+     {
+      "claim": "The Westin Cape Coral resort features waterfront dining options at The Nauti Mermaid Dockside Bar & Grill and Marker 92 Waterfront Bar & Bistro",
+      "source": "https://www.marriott.com/en-us/hotels/rswwi-the-westin-cape-coral-resort-at-marina-village/overview/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJA8OW5mOz2YgRkdVtPmVkysI",
+   "name": "Broken Shaker",
+   "category": "nightlife",
+   "metro": "miami-dade",
+   "primary_type": "cocktail_bar",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.brokenshaker.com/location/miami-hours-and-location/",
+     "source_name": "Broken Shaker \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Broken Shaker is at 2727 Indian Creek Dr., Miami Beach, FL 33140",
+      "Broken Shaker is at Freehand Hotel and offers cocktails and pan Caribbean bites",
+      "Broken Shaker has Happy Hour daily from 5 p.m. to 7 p.m.",
+      "Broken Shaker is open Thursday from 5 p.m. to 12 a.m.",
+      "Broken Shaker service expands poolside in the evenings"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Cocktail bar at Freehand Hotel offering cocktails and pan Caribbean bites",
+    "why_here": "Go for cocktails and pan Caribbean bites at Freehand Hotel, join Happy Hour daily from 5 p.m. to 7 p.m., and sit poolside in the evenings at 2727 Indian Creek Dr., Miami Beach, FL 33140.",
+    "know_before": "Broken Shaker is open Thursday from 5 p.m. to 12 a.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.brokenshaker.com/location/miami-hours-and-location/"
+     ],
+     "why_here": [
+      "https://www.brokenshaker.com/location/miami-hours-and-location/"
+     ],
+     "know_before": [
+      "https://www.brokenshaker.com/location/miami-hours-and-location/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Broken Shaker is at 2727 Indian Creek Dr., Miami Beach, FL 33140",
+      "source": "https://www.brokenshaker.com/location/miami-hours-and-location/"
+     },
+     {
+      "claim": "Broken Shaker is at Freehand Hotel and offers cocktails and pan Caribbean bites",
+      "source": "https://www.brokenshaker.com/location/miami-hours-and-location/"
+     },
+     {
+      "claim": "Broken Shaker has Happy Hour daily from 5 p.m. to 7 p.m.",
+      "source": "https://www.brokenshaker.com/location/miami-hours-and-location/"
+     },
+     {
+      "claim": "Broken Shaker is open Thursday from 5 p.m. to 12 a.m.",
+      "source": "https://www.brokenshaker.com/location/miami-hours-and-location/"
+     },
+     {
+      "claim": "Broken Shaker service expands poolside in the evenings",
+      "source": "https://www.brokenshaker.com/location/miami-hours-and-location/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJwSQ76pAB2YgRGtJ3Sz31pY4",
+   "name": "The Alchemist Caf\u00e9",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "coffee_shop",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://thealchemist.cafe/pages/locations",
+     "source_name": "The Alchemist Caf\u00e9 \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Alchemist Cafe in Wilton Manors is at 2430 NE 13th Ave, Wilton Manors, FL 33305",
+      "The Alchemist Cafe is open Mon-Fri from 8:00 a.m. to 3:00 p.m.",
+      "The Alchemist Cafe is open Sat-Sun from 8:00 a.m. to 4:00 p.m."
+     ]
+    },
+    {
+     "source": "https://thealchemist.cafe/collections/full-menu?page=1",
+     "source_name": "The Alchemist Caf\u00e9 \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Alchemist Cafe menu includes Alchemist Iced Coffee"
+     ]
+    },
+    {
+     "source": "https://thealchemist.cafe/pages/about-us",
+     "source_name": "The Alchemist Caf\u00e9 \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Alchemist Cafe has tranquil gardens in a gated artist's community"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Coffee shop with tranquil gardens in a gated artist's community",
+    "why_here": "Come for Alchemist Iced Coffee from the menu, sit in tranquil gardens in a gated artist's community, and visit the Wilton Manors cafe at 2430 NE 13th Ave, Wilton Manors, FL 33305.",
+    "know_before": "Open Mon-Fri from 8:00 a.m. to 3:00 p.m. and Sat-Sun from 8:00 a.m. to 4:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://thealchemist.cafe/pages/locations"
+     ],
+     "why_here": [
+      "https://thealchemist.cafe/pages/locations"
+     ],
+     "know_before": [
+      "https://thealchemist.cafe/pages/locations"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Alchemist Cafe in Wilton Manors is at 2430 NE 13th Ave, Wilton Manors, FL 33305",
+      "source": "https://thealchemist.cafe/pages/locations"
+     },
+     {
+      "claim": "The Alchemist Cafe is open Mon-Fri from 8:00 a.m. to 3:00 p.m.",
+      "source": "https://thealchemist.cafe/pages/locations"
+     },
+     {
+      "claim": "The Alchemist Cafe is open Sat-Sun from 8:00 a.m. to 4:00 p.m.",
+      "source": "https://thealchemist.cafe/pages/locations"
+     },
+     {
+      "claim": "The Alchemist Cafe menu includes Alchemist Iced Coffee",
+      "source": "https://thealchemist.cafe/collections/full-menu?page=1"
+     },
+     {
+      "claim": "The Alchemist Cafe has tranquil gardens in a gated artist's community",
+      "source": "https://thealchemist.cafe/pages/about-us"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJcc7Vxt-y2YgRpIOFev2osxQ",
+   "name": "Allison Park",
+   "category": "attractions",
+   "metro": "miami-dade",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.miamibeachfl.gov/city-hall/parks-and-recreation/parks-facilities-directory/allison-park/",
+     "source_name": "Allison Park \u2014 official source",
+     "source_class": "government",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Allison Park is at 6475 Collins Avenue",
+      "Allison Park is open Monday - Sunday from sunrise to sunset",
+      "Allison Park has beach access and an enclosed playground for ages 5-12",
+      "Allison Park has a dog park and turtle educational exhibits",
+      "Allison Park has a fitness area with seven stations for ages 12 and older"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Beach access with an enclosed playground and a dog park",
+    "why_here": "Allison Park has beach access and an enclosed playground for ages 5-12, plus a dog park and a fitness area with seven stations for ages 12 and older.",
+    "know_before": "Open Monday - Sunday from sunrise to sunset",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.miamibeachfl.gov/city-hall/parks-and-recreation/parks-facilities-directory/allison-park/"
+     ],
+     "why_here": [
+      "https://www.miamibeachfl.gov/city-hall/parks-and-recreation/parks-facilities-directory/allison-park/"
+     ],
+     "know_before": [
+      "https://www.miamibeachfl.gov/city-hall/parks-and-recreation/parks-facilities-directory/allison-park/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Allison Park is at 6475 Collins Avenue",
+      "source": "https://www.miamibeachfl.gov/city-hall/parks-and-recreation/parks-facilities-directory/allison-park/"
+     },
+     {
+      "claim": "Allison Park is open Monday - Sunday from sunrise to sunset",
+      "source": "https://www.miamibeachfl.gov/city-hall/parks-and-recreation/parks-facilities-directory/allison-park/"
+     },
+     {
+      "claim": "Allison Park has beach access and an enclosed playground for ages 5-12",
+      "source": "https://www.miamibeachfl.gov/city-hall/parks-and-recreation/parks-facilities-directory/allison-park/"
+     },
+     {
+      "claim": "Allison Park has a dog park and turtle educational exhibits",
+      "source": "https://www.miamibeachfl.gov/city-hall/parks-and-recreation/parks-facilities-directory/allison-park/"
+     },
+     {
+      "claim": "Allison Park has a fitness area with seven stations for ages 12 and older",
+      "source": "https://www.miamibeachfl.gov/city-hall/parks-and-recreation/parks-facilities-directory/allison-park/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJb2lV-JgC2YgRBh1dLP6EQlw",
+   "name": "Pompano Community Park",
+   "category": "attractions",
+   "metro": "broward",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://parks.pompanobeachfl.gov/parks/park-map-and-list/pompano-beach-community-park",
+     "source_name": "Pompano Community Park \u2014 official source",
+     "source_class": "government",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Pompano Beach Community Park is at 1660 NE 10th Street",
+      "Pompano Beach Community Park consists of 71 acres",
+      "Pompano Beach Community Park has 12 free style play Pickleball Courts",
+      "Pompano Beach Community Park is open daily from sunrise to sunset",
+      "Pompano Beach Community Park has picnic areas, grills, and benches",
+      "Pompano Beach Community Park has a walking, jogging, and biking track"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "71 acres park with 12 free style play Pickleball Courts and picnic areas",
+    "why_here": "Visit a park of 71 acres at 1660 NE 10th Street for 12 free style play Pickleball Courts, picnic areas, grills, and benches, open daily from sunrise to sunset with a walking, jogging, and biking track.",
+    "know_before": "Open daily from sunrise to sunset",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://parks.pompanobeachfl.gov/parks/park-map-and-list/pompano-beach-community-park"
+     ],
+     "why_here": [
+      "https://parks.pompanobeachfl.gov/parks/park-map-and-list/pompano-beach-community-park"
+     ],
+     "know_before": [
+      "https://parks.pompanobeachfl.gov/parks/park-map-and-list/pompano-beach-community-park"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Pompano Beach Community Park is at 1660 NE 10th Street",
+      "source": "https://parks.pompanobeachfl.gov/parks/park-map-and-list/pompano-beach-community-park"
+     },
+     {
+      "claim": "Pompano Beach Community Park consists of 71 acres",
+      "source": "https://parks.pompanobeachfl.gov/parks/park-map-and-list/pompano-beach-community-park"
+     },
+     {
+      "claim": "Pompano Beach Community Park has 12 free style play Pickleball Courts",
+      "source": "https://parks.pompanobeachfl.gov/parks/park-map-and-list/pompano-beach-community-park"
+     },
+     {
+      "claim": "Pompano Beach Community Park is open daily from sunrise to sunset",
+      "source": "https://parks.pompanobeachfl.gov/parks/park-map-and-list/pompano-beach-community-park"
+     },
+     {
+      "claim": "Pompano Beach Community Park has picnic areas, grills, and benches",
+      "source": "https://parks.pompanobeachfl.gov/parks/park-map-and-list/pompano-beach-community-park"
+     },
+     {
+      "claim": "Pompano Beach Community Park has a walking, jogging, and biking track",
+      "source": "https://parks.pompanobeachfl.gov/parks/park-map-and-list/pompano-beach-community-park"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJNbvJIBap2YgRgaH_toIu4S8",
+   "name": "The Smashit House | Rage Room & Entertainment Center | Fort Lauderdale",
+   "category": "attractions",
+   "metro": "broward",
+   "primary_type": "amusement_center",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.thesmashithouse.com/",
+     "source_name": "The Smashit House | Rage Room & Entertainment Center | Fort Lauderdale \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Smashit House is at 5619 S. University Drive, Davie, near Fort Lauderdale",
+      "The Smashit House offers private rage rooms, axe throwing, and indoor paintball target shooting",
+      "The Smashit House date night packages start from $99",
+      "The Smashit House provides tools, required safety gear, and instructions",
+      "The Smashit House has been operating since 2020"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Private rage rooms, axe throwing, and indoor paintball target shooting in Davie",
+    "why_here": "Book private rage rooms, axe throwing, and indoor paintball target shooting at 5619 S. University Drive, Davie, near Fort Lauderdale, with tools, required safety gear, and instructions included for the session.",
+    "know_before": "Date night packages start from $99",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.thesmashithouse.com/"
+     ],
+     "why_here": [
+      "https://www.thesmashithouse.com/"
+     ],
+     "know_before": [
+      "https://www.thesmashithouse.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Smashit House is at 5619 S. University Drive, Davie, near Fort Lauderdale",
+      "source": "https://www.thesmashithouse.com/"
+     },
+     {
+      "claim": "The Smashit House offers private rage rooms, axe throwing, and indoor paintball target shooting",
+      "source": "https://www.thesmashithouse.com/"
+     },
+     {
+      "claim": "The Smashit House date night packages start from $99",
+      "source": "https://www.thesmashithouse.com/"
+     },
+     {
+      "claim": "The Smashit House provides tools, required safety gear, and instructions",
+      "source": "https://www.thesmashithouse.com/"
+     },
+     {
+      "claim": "The Smashit House has been operating since 2020",
+      "source": "https://www.thesmashithouse.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJaaE5L4L92IgRsIefeIjx58Q",
+   "name": "Seaside Grill & Tiki Bar",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.seasidegrill.com/",
+     "source_name": "Seaside Grill & Tiki Bar \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Seaside Grill & Tiki Bar is at 1406 N Ocean Blvd, Pompano Beach, FL 33062",
+      "Seaside Grill & Tiki Bar is located at the historic Lighthouse Cove Resort in Pompano Beach",
+      "Seaside Grill & Tiki Bar is open for breakfast, lunch and dinner daily",
+      "Seaside Grill serves fresh seafood and seafood specialties",
+      "Seaside Grill has an outdoor Tiki bar",
+      "Seaside Grill kitchen hours are 8:30 a.m. to 9:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Fresh seafood and seafood specialties at the Lighthouse Cove Resort",
+    "why_here": "Seaside Grill serves fresh seafood and seafood specialties at the Lighthouse Cove Resort in Pompano Beach, with breakfast, lunch and dinner daily and an outdoor Tiki bar.",
+    "know_before": "Kitchen hours are 8:30 a.m. to 9:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.seasidegrill.com/"
+     ],
+     "why_here": [
+      "https://www.seasidegrill.com/"
+     ],
+     "know_before": [
+      "https://www.seasidegrill.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Seaside Grill & Tiki Bar is at 1406 N Ocean Blvd, Pompano Beach, FL 33062",
+      "source": "https://www.seasidegrill.com/"
+     },
+     {
+      "claim": "Seaside Grill & Tiki Bar is located at the historic Lighthouse Cove Resort in Pompano Beach",
+      "source": "https://www.seasidegrill.com/"
+     },
+     {
+      "claim": "Seaside Grill & Tiki Bar is open for breakfast, lunch and dinner daily",
+      "source": "https://www.seasidegrill.com/"
+     },
+     {
+      "claim": "Seaside Grill serves fresh seafood and seafood specialties",
+      "source": "https://www.seasidegrill.com/"
+     },
+     {
+      "claim": "Seaside Grill has an outdoor Tiki bar",
+      "source": "https://www.seasidegrill.com/"
+     },
+     {
+      "claim": "Seaside Grill kitchen hours are 8:30 a.m. to 9:00 p.m.",
+      "source": "https://www.seasidegrill.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJOzaIz9AB2YgRJozqXFy4BIw",
+   "name": "Bonnet House Museum & Gardens",
+   "category": "attractions",
+   "metro": "broward",
+   "primary_type": "museum",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.bonnethouse.org/",
+     "source_name": "Bonnet House Museum & Gardens \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Bonnet House Museum & Gardens is at 900 North Birch Road, Fort Lauderdale, Florida 33304",
+      "Bonnet House is a Historic Artists' Estate on Fort Lauderdale Beach",
+      "Self-guided tours run Tuesday through Sunday from 11 a.m. to 4 p.m.",
+      "Bonnet House is closed Mondays",
+      "Visitors can explore the trails, rooms and breezeways where the Bartletts created their private world of art"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Historic artists' estate on Fort Lauderdale Beach with self-guided tours",
+    "why_here": "Explore the trails, rooms and breezeways where the Bartletts created their private world of art at this Historic Artists' Estate on Fort Lauderdale Beach, with self-guided tours Tuesday through Sunday.",
+    "know_before": "Bonnet House is closed Mondays.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.bonnethouse.org/"
+     ],
+     "why_here": [
+      "https://www.bonnethouse.org/"
+     ],
+     "know_before": [
+      "https://www.bonnethouse.org/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Bonnet House Museum & Gardens is at 900 North Birch Road, Fort Lauderdale, Florida 33304",
+      "source": "https://www.bonnethouse.org/"
+     },
+     {
+      "claim": "Bonnet House is a Historic Artists' Estate on Fort Lauderdale Beach",
+      "source": "https://www.bonnethouse.org/"
+     },
+     {
+      "claim": "Self-guided tours run Tuesday through Sunday from 11 a.m. to 4 p.m.",
+      "source": "https://www.bonnethouse.org/"
+     },
+     {
+      "claim": "Bonnet House is closed Mondays",
+      "source": "https://www.bonnethouse.org/"
+     },
+     {
+      "claim": "Visitors can explore the trails, rooms and breezeways where the Bartletts created their private world of art",
+      "source": "https://www.bonnethouse.org/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJwTaQvXzxwogR3bHs7Q_MZ6A",
+   "name": "Dunedin Downtown Market",
+   "category": "shopping",
+   "metro": "florida",
+   "primary_type": "farmers_market",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.tampabaymarkets.com/dunedin-downtown-market",
+     "source_name": "Dunedin Downtown Market \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Dunedin Downtown Market is open Fridays and Saturdays from 9 a.m. to 2 p.m. in the Main Season from November to the end of June",
+      "The Main Season location is Pioneer Park, 420 Main Street, Downtown Dunedin 34698",
+      "The market has over 50 local vendors offering fresh produce and handmade crafts",
+      "The market is a dog-friendly and family-friendly destination with live music",
+      "In the Summer Season the market is open Saturdays only from 9 a.m. to 1 p.m. at the Dunedin History Museum Parking Lot"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Market with over 50 local vendors at Pioneer Park in Dunedin",
+    "why_here": "Browse over 50 local vendors for fresh produce and handmade crafts at Pioneer Park in Dunedin, at a dog-friendly and family-friendly market with live music on Fridays and Saturdays from 9 a.m. to 2 p.m.",
+    "know_before": "In the Summer Season the market is open Saturdays only from 9 a.m. to 1 p.m. at the Dunedin History Museum Parking Lot.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.tampabaymarkets.com/dunedin-downtown-market"
+     ],
+     "why_here": [
+      "https://www.tampabaymarkets.com/dunedin-downtown-market"
+     ],
+     "know_before": [
+      "https://www.tampabaymarkets.com/dunedin-downtown-market"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Dunedin Downtown Market is open Fridays and Saturdays from 9 a.m. to 2 p.m. in the Main Season from November to the end of June",
+      "source": "https://www.tampabaymarkets.com/dunedin-downtown-market"
+     },
+     {
+      "claim": "The Main Season location is Pioneer Park, 420 Main Street, Downtown Dunedin 34698",
+      "source": "https://www.tampabaymarkets.com/dunedin-downtown-market"
+     },
+     {
+      "claim": "The market has over 50 local vendors offering fresh produce and handmade crafts",
+      "source": "https://www.tampabaymarkets.com/dunedin-downtown-market"
+     },
+     {
+      "claim": "The market is a dog-friendly and family-friendly destination with live music",
+      "source": "https://www.tampabaymarkets.com/dunedin-downtown-market"
+     },
+     {
+      "claim": "In the Summer Season the market is open Saturdays only from 9 a.m. to 1 p.m. at the Dunedin History Museum Parking Lot",
+      "source": "https://www.tampabaymarkets.com/dunedin-downtown-market"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJvWvaLYO86IgRzrW05r7p82s",
+   "name": "Flip Factory Zone",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "amusement_center",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://flipfactoryzone.com/gainesville-fl/",
+     "source_name": "Flip Factory Zone \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Flip Factory Zone is at 7400 W Newberry Rd, Gainesville, FL 32605",
+      "Flip Factory Zone has a multi-level trampoline deck",
+      "Flip Factory Zone has 60+ arcade games with prize redemption, a two-story Laser Tag arena, an Indoor Roller Coaster and 6 Rock Climbing Walls",
+      "Monday through Thursday hours are 2 p.m. to 8 p.m.",
+      "Saturday hours are 10 a.m. to 10 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Family entertainment park in Gainesville with a multi-level trampoline deck",
+    "why_here": "Jump on a multi-level trampoline deck in Gainesville, try a two-story Laser Tag arena, an Indoor Roller Coaster and 6 Rock Climbing Walls, or play 60+ arcade games with prize redemption.",
+    "know_before": "Monday through Thursday hours are 2 p.m. to 8 p.m.; Saturday hours are 10 a.m. to 10 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://flipfactoryzone.com/gainesville-fl/"
+     ],
+     "why_here": [
+      "https://flipfactoryzone.com/gainesville-fl/"
+     ],
+     "know_before": [
+      "https://flipfactoryzone.com/gainesville-fl/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Flip Factory Zone is at 7400 W Newberry Rd, Gainesville, FL 32605",
+      "source": "https://flipfactoryzone.com/gainesville-fl/"
+     },
+     {
+      "claim": "Flip Factory Zone has a multi-level trampoline deck",
+      "source": "https://flipfactoryzone.com/gainesville-fl/"
+     },
+     {
+      "claim": "Flip Factory Zone has 60+ arcade games with prize redemption, a two-story Laser Tag arena, an Indoor Roller Coaster and 6 Rock Climbing Walls",
+      "source": "https://flipfactoryzone.com/gainesville-fl/"
+     },
+     {
+      "claim": "Monday through Thursday hours are 2 p.m. to 8 p.m.",
+      "source": "https://flipfactoryzone.com/gainesville-fl/"
+     },
+     {
+      "claim": "Saturday hours are 10 a.m. to 10 p.m.",
+      "source": "https://flipfactoryzone.com/gainesville-fl/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJfZsFTZcbiYgRaSZQYA91lOE",
+   "name": "Colonial TownPark",
+   "category": "shopping",
+   "metro": "florida",
+   "primary_type": "shopping_mall",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.shopcolonialtownpark.com/",
+     "source_name": "Colonial TownPark \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Colonial Town Park is at 950 Market Promenade Ave, Lake Mary, FL 32746",
+      "Colonial Town Park offers shopping, dining, health and wellness at the epicenter of Lake Mary and Heathrow",
+      "Colonial Town Park hours are 8 a.m. to 11 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "shopping, dining, health and wellness at the epicenter of Lake Mary and Heathrow",
+    "why_here": "Go for shopping, dining, health and wellness at the epicenter of Lake Mary and Heathrow, at 950 Market Promenade Ave, Lake Mary, FL 32746, in one stop for errands, meals and services.",
+    "know_before": "Hours are 8 a.m. to 11 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.shopcolonialtownpark.com/"
+     ],
+     "why_here": [
+      "https://www.shopcolonialtownpark.com/"
+     ],
+     "know_before": [
+      "https://www.shopcolonialtownpark.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Colonial Town Park is at 950 Market Promenade Ave, Lake Mary, FL 32746",
+      "source": "https://www.shopcolonialtownpark.com/"
+     },
+     {
+      "claim": "Colonial Town Park offers shopping, dining, health and wellness at the epicenter of Lake Mary and Heathrow",
+      "source": "https://www.shopcolonialtownpark.com/"
+     },
+     {
+      "claim": "Colonial Town Park hours are 8 a.m. to 11 p.m.",
+      "source": "https://www.shopcolonialtownpark.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJB172iFis2YgRp4-Ajb6DPpY",
+   "name": "The Amalfi Llama - Miami",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.amalfillama.com/",
+     "source_name": "The Amalfi Llama - Miami \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Amalfi Llama in Miami is at 19505 Biscayne Blvd., Suite 4150, Miami, FL 33180",
+      "The Amalfi Llama serves Italian cuisine",
+      "The Amalfi Llama food menu lists TRUFFLE TAGLIATELLE",
+      "The Amalfi Llama food menu lists LOBSTER BISQUE",
+      "The Amalfi Llama food menu lists WOOD FIRE CENTER CUT FILET"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Italian cuisine with TRUFFLE TAGLIATELLE and LOBSTER BISQUE",
+    "why_here": "The Amalfi Llama serves Italian cuisine, and the food menu lists TRUFFLE TAGLIATELLE, LOBSTER BISQUE and WOOD FIRE CENTER CUT FILET in Miami.",
+    "know_before": "The Amalfi Llama in Miami is at 19505 Biscayne Blvd., Suite 4150, Miami, FL 33180",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.amalfillama.com/"
+     ],
+     "why_here": [
+      "https://www.amalfillama.com/"
+     ],
+     "know_before": [
+      "https://www.amalfillama.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Amalfi Llama in Miami is at 19505 Biscayne Blvd., Suite 4150, Miami, FL 33180",
+      "source": "https://www.amalfillama.com/"
+     },
+     {
+      "claim": "The Amalfi Llama serves Italian cuisine",
+      "source": "https://www.amalfillama.com/"
+     },
+     {
+      "claim": "The Amalfi Llama food menu lists TRUFFLE TAGLIATELLE",
+      "source": "https://www.amalfillama.com/"
+     },
+     {
+      "claim": "The Amalfi Llama food menu lists LOBSTER BISQUE",
+      "source": "https://www.amalfillama.com/"
+     },
+     {
+      "claim": "The Amalfi Llama food menu lists WOOD FIRE CENTER CUT FILET",
+      "source": "https://www.amalfillama.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJK3LR_acc2YgRSGF8JTxhi3I",
+   "name": "World of Beer",
+   "category": "nightlife",
+   "metro": "broward",
+   "primary_type": "gastropub",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://worldofbeer.com/locations/coconut-creek/",
+     "source_name": "World of Beer \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "World of Beer Coconut Creek is at 4437 Lyons Road, Coconut Creek, FL 33073",
+      "World of Beer Coconut Creek happy hour is Monday through Friday from 3 p.m. to 7 p.m.",
+      "World of Beer Coconut Creek food menu lists a Cali Bowl and a BYO Burger",
+      "World of Beer offers craft beer"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Craft beer with a Cali Bowl and a BYO Burger in Coconut Creek",
+    "why_here": "World of Beer offers craft beer, and the food menu lists a Cali Bowl and a BYO Burger at World of Beer Coconut Creek, at 4437 Lyons Road in Coconut Creek.",
+    "know_before": "Happy hour is Monday through Friday from 3 p.m. to 7 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://worldofbeer.com/locations/coconut-creek/"
+     ],
+     "why_here": [
+      "https://worldofbeer.com/locations/coconut-creek/"
+     ],
+     "know_before": [
+      "https://worldofbeer.com/locations/coconut-creek/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "World of Beer Coconut Creek is at 4437 Lyons Road, Coconut Creek, FL 33073",
+      "source": "https://worldofbeer.com/locations/coconut-creek/"
+     },
+     {
+      "claim": "World of Beer Coconut Creek happy hour is Monday through Friday from 3 p.m. to 7 p.m.",
+      "source": "https://worldofbeer.com/locations/coconut-creek/"
+     },
+     {
+      "claim": "World of Beer Coconut Creek food menu lists a Cali Bowl and a BYO Burger",
+      "source": "https://worldofbeer.com/locations/coconut-creek/"
+     },
+     {
+      "claim": "World of Beer offers craft beer",
+      "source": "https://worldofbeer.com/locations/coconut-creek/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJAQDk-4sH2YgRDA3uuKUNdWA",
+   "name": "Tap 42 Craft Kitchen & Bar - Davie",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "gastropub",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://tap42.com/locations/davie/",
+     "source_name": "Tap 42 Craft Kitchen & Bar - Davie \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Tap 42 Davie is at 2266 S University Dr in Davie",
+      "Tap 42 Davie serves The Prohibition and The Big Smash burgers",
+      "Bottomless brunch at Tap 42 Davie runs Saturday and Sunday from 11 a.m. to 3 p.m.",
+      "Happy hour at Tap 42 Davie runs Monday through Friday from 3 p.m. to 6 p.m. at the bar"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "The Prohibition and The Big Smash burgers at Tap 42 Davie",
+    "why_here": "Go for The Prohibition and The Big Smash burgers, then return on Saturday and Sunday from 11 a.m. to 3 p.m. for bottomless brunch at Tap 42 Davie.",
+    "know_before": "Happy hour runs Monday through Friday from 3 p.m. to 6 p.m. at the bar",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://tap42.com/locations/davie/"
+     ],
+     "why_here": [
+      "https://tap42.com/locations/davie/"
+     ],
+     "know_before": [
+      "https://tap42.com/locations/davie/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Tap 42 Davie is at 2266 S University Dr in Davie",
+      "source": "https://tap42.com/locations/davie/"
+     },
+     {
+      "claim": "Tap 42 Davie serves The Prohibition and The Big Smash burgers",
+      "source": "https://tap42.com/locations/davie/"
+     },
+     {
+      "claim": "Bottomless brunch at Tap 42 Davie runs Saturday and Sunday from 11 a.m. to 3 p.m.",
+      "source": "https://tap42.com/locations/davie/"
+     },
+     {
+      "claim": "Happy hour at Tap 42 Davie runs Monday through Friday from 3 p.m. to 6 p.m. at the bar",
+      "source": "https://tap42.com/locations/davie/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ7Y1aGEfa5ogRIAFghqXQ6OM",
+   "name": "Daytona Taproom",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "hamburger_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.daytonataproom.com/",
+     "source_name": "Daytona Taproom \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Daytona Taproom is at 310 Seabreeze Blvd",
+      "Daytona Taproom has 50 beers on tap",
+      "Daytona Taproom serves burgers",
+      "Daytona Taproom is open daily from 11:30 a.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "50 beers on tap and burgers at Daytona Taproom",
+    "why_here": "Go for 50 beers on tap and burgers at Daytona Taproom, a taproom open daily from 11:30 a.m., with 50 beers on tap and burgers as the core offer for visitors.",
+    "know_before": "Daytona Taproom is open daily from 11:30 a.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.daytonataproom.com/"
+     ],
+     "why_here": [
+      "https://www.daytonataproom.com/"
+     ],
+     "know_before": [
+      "https://www.daytonataproom.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Daytona Taproom is at 310 Seabreeze Blvd",
+      "source": "https://www.daytonataproom.com/"
+     },
+     {
+      "claim": "Daytona Taproom has 50 beers on tap",
+      "source": "https://www.daytonataproom.com/"
+     },
+     {
+      "claim": "Daytona Taproom serves burgers",
+      "source": "https://www.daytonataproom.com/"
+     },
+     {
+      "claim": "Daytona Taproom is open daily from 11:30 a.m.",
+      "source": "https://www.daytonataproom.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJSQWQcTe45YgRhwLI-7-HGlw",
+   "name": "Restaurant Orsay",
+   "category": "food",
+   "metro": "jacksonville-fl",
+   "primary_type": "french_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.restaurantorsay.com/",
+     "source_name": "Restaurant Orsay \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Restaurant Orsay is at 3630 Park Street, Jacksonville, FL 32205",
+      "Restaurant Orsay is a French Restaurant with American and Seafood Restaurant cuisine",
+      "Restaurant Orsay serves dinner and brunch",
+      "The menu lists a Raw Bar",
+      "Hours on Tuesday are 4 p.m. to 9 p.m. and on Sunday are 11 a.m. to 9 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "French Restaurant serving dinner and brunch with a Raw Bar",
+    "why_here": "Go for French Restaurant cooking with dinner and brunch at Restaurant Orsay, and check the Raw Bar on the menu alongside American and Seafood Restaurant dishes.",
+    "know_before": "Hours on Tuesday are 4 p.m. to 9 p.m. and on Sunday are 11 a.m. to 9 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.restaurantorsay.com/"
+     ],
+     "why_here": [
+      "https://www.restaurantorsay.com/"
+     ],
+     "know_before": [
+      "https://www.restaurantorsay.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Restaurant Orsay is at 3630 Park Street, Jacksonville, FL 32205",
+      "source": "https://www.restaurantorsay.com/"
+     },
+     {
+      "claim": "Restaurant Orsay is a French Restaurant with American and Seafood Restaurant cuisine",
+      "source": "https://www.restaurantorsay.com/"
+     },
+     {
+      "claim": "Restaurant Orsay serves dinner and brunch",
+      "source": "https://www.restaurantorsay.com/"
+     },
+     {
+      "claim": "The menu lists a Raw Bar",
+      "source": "https://www.restaurantorsay.com/"
+     },
+     {
+      "claim": "Hours on Tuesday are 4 p.m. to 9 p.m. and on Sunday are 11 a.m. to 9 p.m.",
+      "source": "https://www.restaurantorsay.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJW5keOcnA2YgRdHHcA2hRMsQ",
+   "name": "Kendall Indian Hammocks Park",
+   "category": "attractions",
+   "metro": "miami-dade",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.miamidade.gov/global/recreation/park/kendall-indian-hammocks-park.page",
+     "source_name": "Kendall Indian Hammocks Park \u2014 official source",
+     "source_class": "government",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Kendall Indian Hammocks Park has 3 lighted softball fields",
+      "Kendall Indian Hammocks Park has a 32-acre Nature Preserve",
+      "Kendall Indian Hammocks Park has 3 Disc Golf Courses featuring 18 holes each",
+      "The Action Sports Plaza is a 14,000-square foot outdoor concrete plaza",
+      "The Action Sports Plaza is open daily from 7 a.m. to 7 p.m., weather permitting"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Park with a 32-acre Nature Preserve and an Action Sports Plaza",
+    "why_here": "Go for the 32-acre Nature Preserve, 3 Disc Golf Courses featuring 18 holes each, and the Action Sports Plaza, a 14,000-square foot outdoor concrete plaza in the park.",
+    "know_before": "The Action Sports Plaza is open daily from 7 a.m. to 7 p.m., weather permitting",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.miamidade.gov/global/recreation/park/kendall-indian-hammocks-park.page"
+     ],
+     "why_here": [
+      "https://www.miamidade.gov/global/recreation/park/kendall-indian-hammocks-park.page"
+     ],
+     "know_before": [
+      "https://www.miamidade.gov/global/recreation/park/kendall-indian-hammocks-park.page"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Kendall Indian Hammocks Park has 3 lighted softball fields",
+      "source": "https://www.miamidade.gov/global/recreation/park/kendall-indian-hammocks-park.page"
+     },
+     {
+      "claim": "Kendall Indian Hammocks Park has a 32-acre Nature Preserve",
+      "source": "https://www.miamidade.gov/global/recreation/park/kendall-indian-hammocks-park.page"
+     },
+     {
+      "claim": "Kendall Indian Hammocks Park has 3 Disc Golf Courses featuring 18 holes each",
+      "source": "https://www.miamidade.gov/global/recreation/park/kendall-indian-hammocks-park.page"
+     },
+     {
+      "claim": "The Action Sports Plaza is a 14,000-square foot outdoor concrete plaza",
+      "source": "https://www.miamidade.gov/global/recreation/park/kendall-indian-hammocks-park.page"
+     },
+     {
+      "claim": "The Action Sports Plaza is open daily from 7 a.m. to 7 p.m., weather permitting",
+      "source": "https://www.miamidade.gov/global/recreation/park/kendall-indian-hammocks-park.page"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJfaJNflkA2YgRSXkg42WVWks",
+   "name": "Phat Boy Sushi, Kitchen & Bar - Oakland Park",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "sushi_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://phatboysushi.com/our-story/",
+     "source_name": "Phat Boy Sushi, Kitchen & Bar - Oakland Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Phat Boy Sushi, Kitchen & Bar delivers a modern twist on Japanese comfort food",
+      "Phat Boy Sushi, Kitchen & Bar serves signature rolls like the Phat Girl and Samurai rolls",
+      "Phat Boy Sushi, Kitchen & Bar serves ramen dishes from a hot Japanese kitchen",
+      "Phat Boy Sushi, Kitchen & Bar serves Mushroom Tobanyaki as an appetizer",
+      "The Oakland Park location is at 4100 N Federal Hwy"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Modern twist on Japanese comfort food with signature rolls and ramen",
+    "why_here": "Go for a modern twist on Japanese comfort food, with signature rolls like the Phat Girl and Samurai rolls, ramen dishes from a hot Japanese kitchen, and Mushroom Tobanyaki as an appetizer.",
+    "know_before": "The Oakland Park location is at 4100 N Federal Hwy.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://phatboysushi.com/our-story/"
+     ],
+     "why_here": [
+      "https://phatboysushi.com/our-story/"
+     ],
+     "know_before": [
+      "https://phatboysushi.com/our-story/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Phat Boy Sushi, Kitchen & Bar delivers a modern twist on Japanese comfort food",
+      "source": "https://phatboysushi.com/our-story/"
+     },
+     {
+      "claim": "Phat Boy Sushi, Kitchen & Bar serves signature rolls like the Phat Girl and Samurai rolls",
+      "source": "https://phatboysushi.com/our-story/"
+     },
+     {
+      "claim": "Phat Boy Sushi, Kitchen & Bar serves ramen dishes from a hot Japanese kitchen",
+      "source": "https://phatboysushi.com/our-story/"
+     },
+     {
+      "claim": "Phat Boy Sushi, Kitchen & Bar serves Mushroom Tobanyaki as an appetizer",
+      "source": "https://phatboysushi.com/our-story/"
+     },
+     {
+      "claim": "The Oakland Park location is at 4100 N Federal Hwy",
+      "source": "https://phatboysushi.com/our-story/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJA9JKO3tbkYgRf-eMtxvD1gc",
+   "name": "Miramar Beach Regional Access",
+   "category": "beach",
+   "metro": "florida",
+   "primary_type": "beach",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.visitsouthwalton.com/accessibility/",
+     "source_name": "Miramar Beach Regional Access \u2014 official source",
+     "source_class": "tourism_dmo",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Miramar Beach Regional Beach Access is at 2375 Scenic Gulf Dr, Miramar Beach, FL 32550",
+      "The access has seasonal lifeguards",
+      "The access has ADA Accessible Restrooms and an ADA Accessible Boardwalk",
+      "The access has parking and a Beach Conditions Flag"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Regional beach access with parking, restrooms, and a boardwalk",
+    "why_here": "A regional beach access in Miramar Beach with parking, ADA Accessible Restrooms, an ADA Accessible Boardwalk, seasonal lifeguards, and a Beach Conditions Flag posted for the day.",
+    "know_before": "Seasonal lifeguards are on duty; check the Beach Conditions Flag on arrival.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.visitsouthwalton.com/accessibility/"
+     ],
+     "why_here": [
+      "https://www.visitsouthwalton.com/accessibility/"
+     ],
+     "know_before": [
+      "https://www.visitsouthwalton.com/accessibility/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Miramar Beach Regional Beach Access is at 2375 Scenic Gulf Dr, Miramar Beach, FL 32550",
+      "source": "https://www.visitsouthwalton.com/accessibility/"
+     },
+     {
+      "claim": "The access has seasonal lifeguards",
+      "source": "https://www.visitsouthwalton.com/accessibility/"
+     },
+     {
+      "claim": "The access has ADA Accessible Restrooms and an ADA Accessible Boardwalk",
+      "source": "https://www.visitsouthwalton.com/accessibility/"
+     },
+     {
+      "claim": "The access has parking and a Beach Conditions Flag",
+      "source": "https://www.visitsouthwalton.com/accessibility/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ33ozGrTe0IgR6flZtQBJNjM",
+   "name": "Cracked Conch Cafe",
+   "category": "food",
+   "metro": "keys",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.crackedconchcafe.com/",
+     "source_name": "Cracked Conch Cafe \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Cracked Conch Cafe is at 4999 Overseas Hwy, Marathon, FL 33050",
+      "Cracked Conch Cafe is open 7 days a week from 7 a.m. to 9:30 p.m.",
+      "Breakfast is served until 12:30 p.m. every day",
+      "Cracked Conch Cafe serves hearty, comforting meals"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Hearty, comforting meals in Marathon",
+    "why_here": "Go for hearty, comforting meals at Cracked Conch Cafe in Marathon, open 7 days a week from 7 a.m. to 9:30 p.m., with breakfast served until 12:30 p.m. every day.",
+    "know_before": "Breakfast is served until 12:30 p.m. every day.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.crackedconchcafe.com/"
+     ],
+     "why_here": [
+      "https://www.crackedconchcafe.com/"
+     ],
+     "know_before": [
+      "https://www.crackedconchcafe.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Cracked Conch Cafe is at 4999 Overseas Hwy, Marathon, FL 33050",
+      "source": "https://www.crackedconchcafe.com/"
+     },
+     {
+      "claim": "Cracked Conch Cafe is open 7 days a week from 7 a.m. to 9:30 p.m.",
+      "source": "https://www.crackedconchcafe.com/"
+     },
+     {
+      "claim": "Breakfast is served until 12:30 p.m. every day",
+      "source": "https://www.crackedconchcafe.com/"
+     },
+     {
+      "claim": "Cracked Conch Cafe serves hearty, comforting meals",
+      "source": "https://www.crackedconchcafe.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ0U-MIZ-y2YgRG-selIJW58I",
+   "name": "The St. Regis Bal Harbour Resort",
+   "category": "hotels",
+   "metro": "miami-dade",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.marriott.com/en-us/hotels/miaxr-the-st-regis-bal-harbour-resort/dining/",
+     "source_name": "The St. Regis Bal Harbour Resort \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Atlantik\u00f3s serves Greek dishes for breakfast or lunch in oceanfront and poolside dining",
+      "La Gourmandise serves afternoon tea with French-inspired macarons",
+      "BH Prime serves steak and fresh Floridian seafood",
+      "The St. Regis Bar and Wine Vault has a champagne-sabering ritual and live music",
+      "BH Prime is open from 6 p.m. to 11 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Greek dishes at Atlantik\u00f3s and steak at BH Prime",
+    "why_here": "Go for Greek dishes at Atlantik\u00f3s for breakfast or lunch, afternoon tea with French-inspired macarons at La Gourmandise, and steak and fresh Floridian seafood at BH Prime in oceanfront and poolside dining.",
+    "know_before": "BH Prime is open from 6 p.m. to 11 p.m.",
+    "local_tip": "Start an evening at The St. Regis Bar and Wine Vault for the champagne-sabering ritual and live music.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.marriott.com/en-us/hotels/miaxr-the-st-regis-bal-harbour-resort/dining/"
+     ],
+     "why_here": [
+      "https://www.marriott.com/en-us/hotels/miaxr-the-st-regis-bal-harbour-resort/dining/"
+     ],
+     "know_before": [
+      "https://www.marriott.com/en-us/hotels/miaxr-the-st-regis-bal-harbour-resort/dining/"
+     ],
+     "local_tip": [
+      "https://www.marriott.com/en-us/hotels/miaxr-the-st-regis-bal-harbour-resort/dining/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Atlantik\u00f3s serves Greek dishes for breakfast or lunch in oceanfront and poolside dining",
+      "source": "https://www.marriott.com/en-us/hotels/miaxr-the-st-regis-bal-harbour-resort/dining/"
+     },
+     {
+      "claim": "La Gourmandise serves afternoon tea with French-inspired macarons",
+      "source": "https://www.marriott.com/en-us/hotels/miaxr-the-st-regis-bal-harbour-resort/dining/"
+     },
+     {
+      "claim": "BH Prime serves steak and fresh Floridian seafood",
+      "source": "https://www.marriott.com/en-us/hotels/miaxr-the-st-regis-bal-harbour-resort/dining/"
+     },
+     {
+      "claim": "The St. Regis Bar and Wine Vault has a champagne-sabering ritual and live music",
+      "source": "https://www.marriott.com/en-us/hotels/miaxr-the-st-regis-bal-harbour-resort/dining/"
+     },
+     {
+      "claim": "BH Prime is open from 6 p.m. to 11 p.m.",
+      "source": "https://www.marriott.com/en-us/hotels/miaxr-the-st-regis-bal-harbour-resort/dining/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJO-aOHZOt2YgRtM-lrGTEVIk",
+   "name": "Dezerland Action Park Miami",
+   "category": "attractions",
+   "metro": "miami-dade",
+   "primary_type": "amusement_center",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://dezerlandactionpark.com/",
+     "source_name": "Dezerland Action Park Miami \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Dezerland Action Park is at 14401 NE 19th Avenue, North Miami, FL 33181",
+      "The park covers over 250,000 square feet of attractions",
+      "Admission and parking are free at Dezerland Action Park",
+      "No reservations are required at Dezerland Action Park"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Indoor action park in North Miami with free admission and parking",
+    "why_here": "An indoor action park in North Miami with over 250,000 square feet of attractions, including karting and arcade play, where admission and parking are free and no reservations are required for a visit.",
+    "know_before": "No reservations are required, and admission and parking are free.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://dezerlandactionpark.com/"
+     ],
+     "why_here": [
+      "https://dezerlandactionpark.com/"
+     ],
+     "know_before": [
+      "https://dezerlandactionpark.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Dezerland Action Park is at 14401 NE 19th Avenue, North Miami, FL 33181",
+      "source": "https://dezerlandactionpark.com/"
+     },
+     {
+      "claim": "The park covers over 250,000 square feet of attractions",
+      "source": "https://dezerlandactionpark.com/"
+     },
+     {
+      "claim": "Admission and parking are free at Dezerland Action Park",
+      "source": "https://dezerlandactionpark.com/"
+     },
+     {
+      "claim": "No reservations are required at Dezerland Action Park",
+      "source": "https://dezerlandactionpark.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJk7QdXevL5YgRawUoADuOxvU",
+   "name": "Zero Latency VR JAX",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "event_venue",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.zerolatencyjax.com/vr-games/",
+     "source_name": "Zero Latency VR JAX \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Zero Latency Jax is in Jacksonville, Florida",
+      "Zero Latency Jax offers warehouse-scale free-roam VR for up to 8 players",
+      "The free-roam VR experience has no wires and no pods",
+      "Games include Outbreak, Far Cry VR, and Space Marine VR",
+      "The venue welcomes ages 8+ and walk-ins",
+      "The venue also offers team escape rooms"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Free-roam VR for up to 8 players with no wires and no pods",
+    "why_here": "Warehouse-scale free-roam VR in Jacksonville for up to 8 players with no wires and no pods, with games including Outbreak, Far Cry VR, and Space Marine VR, plus team escape rooms.",
+    "know_before": "The venue welcomes ages 8+ and walk-ins.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.zerolatencyjax.com/vr-games/"
+     ],
+     "why_here": [
+      "https://www.zerolatencyjax.com/vr-games/"
+     ],
+     "know_before": [
+      "https://www.zerolatencyjax.com/vr-games/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Zero Latency Jax is in Jacksonville, Florida",
+      "source": "https://www.zerolatencyjax.com/vr-games/"
+     },
+     {
+      "claim": "Zero Latency Jax offers warehouse-scale free-roam VR for up to 8 players",
+      "source": "https://www.zerolatencyjax.com/vr-games/"
+     },
+     {
+      "claim": "The free-roam VR experience has no wires and no pods",
+      "source": "https://www.zerolatencyjax.com/vr-games/"
+     },
+     {
+      "claim": "Games include Outbreak, Far Cry VR, and Space Marine VR",
+      "source": "https://www.zerolatencyjax.com/vr-games/"
+     },
+     {
+      "claim": "The venue welcomes ages 8+ and walk-ins",
+      "source": "https://www.zerolatencyjax.com/vr-games/"
+     },
+     {
+      "claim": "The venue also offers team escape rooms",
+      "source": "https://www.zerolatencyjax.com/vr-games/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJJw2mgYd_3YgRR8ryqI9q-uk",
+   "name": "UNIQLO Disney Springs",
+   "category": "shopping",
+   "metro": "orlando",
+   "primary_type": "clothing_store",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://map.uniqlo.com/us/en/detail/112078",
+     "source_name": "UNIQLO Disney Springs \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "UNIQLO Disney Springs is at 1674 E Buena Vista Drive, Space B16E 109/209, Lake Buena Vista, FL 32830",
+      "UNIQLO Disney Springs store hours on Monday are 10 a.m. to 11 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "UNIQLO store in Lake Buena Vista open Monday to 11 p.m.",
+    "why_here": "Shop the UNIQLO Disney Springs store at 1674 E Buena Vista Drive, Space B16E 109/209, Lake Buena Vista, FL 32830, for clothing in one Lake Buena Vista stop on Monday until 11 p.m.",
+    "know_before": "On Monday the store is open from 10 a.m. to 11 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://map.uniqlo.com/us/en/detail/112078"
+     ],
+     "why_here": [
+      "https://map.uniqlo.com/us/en/detail/112078"
+     ],
+     "know_before": [
+      "https://map.uniqlo.com/us/en/detail/112078"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "UNIQLO Disney Springs is at 1674 E Buena Vista Drive, Space B16E 109/209, Lake Buena Vista, FL 32830",
+      "source": "https://map.uniqlo.com/us/en/detail/112078"
+     },
+     {
+      "claim": "UNIQLO Disney Springs store hours on Monday are 10 a.m. to 11 p.m.",
+      "source": "https://map.uniqlo.com/us/en/detail/112078"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ_a4nLvkA2YgRQE7y8LDCUnw",
+   "name": "Revolution Live",
+   "category": "attractions",
+   "metro": "broward",
+   "primary_type": "live_music_venue",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.jointherevolution.net/",
+     "source_name": "Revolution Live \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Fort Lauderdale's Revolution Live has been living the music in South Florida since 2004",
+      "Acts such as Lady Gaga, The Weeknd, Katy Perry, and Paramore played at Revolution Live before they broke out as stars",
+      "Artists of all genres, from punk to rap to metal, regularly perform at Revolution Live",
+      "Revolution Live has hosted private & corporate events, including birthday parties, bar & bat mitzvahs, and banquets"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Live music in Fort Lauderdale since 2004 with punk, rap and metal",
+    "why_here": "Catch live music in Fort Lauderdale, where Revolution Live has been living the music in South Florida since 2004, with artists from punk to rap to metal and early shows by Lady Gaga and The Weeknd.",
+    "know_before": "Revolution Live also hosts private & corporate events, including birthday parties and banquets.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.jointherevolution.net/"
+     ],
+     "why_here": [
+      "https://www.jointherevolution.net/"
+     ],
+     "know_before": [
+      "https://www.jointherevolution.net/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Fort Lauderdale's Revolution Live has been living the music in South Florida since 2004",
+      "source": "https://www.jointherevolution.net/"
+     },
+     {
+      "claim": "Acts such as Lady Gaga, The Weeknd, Katy Perry, and Paramore played at Revolution Live before they broke out as stars",
+      "source": "https://www.jointherevolution.net/"
+     },
+     {
+      "claim": "Artists of all genres, from punk to rap to metal, regularly perform at Revolution Live",
+      "source": "https://www.jointherevolution.net/"
+     },
+     {
+      "claim": "Revolution Live has hosted private & corporate events, including birthday parties, bar & bat mitzvahs, and banquets",
+      "source": "https://www.jointherevolution.net/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ0eC3J_zQ0IgR-Jb75i_LXTI",
+   "name": "S.S. Wreck & Galley Grill",
+   "category": "nightlife",
+   "metro": "keys",
+   "primary_type": "bar_and_grill",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://sswreck.com/",
+     "source_name": "S.S. Wreck & Galley Grill \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "S.S. Wreck & Galley Grill is at MM 59 Grassy Key, 58835 Overseas Highway, Marathon, FL 33050",
+      "S.S. Wreck & Galley Grill is a Middle-Keys Favorite Since 1999",
+      "The menu includes fresh fish, tuna poke nachos, conch fritters, and key lime pie",
+      "The menu also includes gator bites, fajitas, and frog legs, and all sauces and dressings are made from scratch",
+      "Happy Hour is 2 p.m. - 5 p.m. Weekdays, with small plates $8 and drink specials $3 - $7",
+      "S.S. Wreck & Galley Grill is open daily 11 a.m. - 9 p.m., Fridays till 10 p.m., and is closed Tuesdays"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Marathon grill serving fresh fish, tuna poke nachos, and conch fritters",
+    "why_here": "Come for fresh fish, tuna poke nachos, conch fritters, and key lime pie, plus gator bites, fajitas, and frog legs, with all sauces and dressings made from scratch at this Grassy Key grill.",
+    "know_before": "Closed Tuesdays; open daily 11 a.m. - 9 p.m., Fridays till 10 p.m.",
+    "local_tip": "Try Happy Hour 2 p.m. - 5 p.m. Weekdays for small plates $8.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://sswreck.com/"
+     ],
+     "why_here": [
+      "https://sswreck.com/"
+     ],
+     "know_before": [
+      "https://sswreck.com/"
+     ],
+     "local_tip": [
+      "https://sswreck.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "S.S. Wreck & Galley Grill is at MM 59 Grassy Key, 58835 Overseas Highway, Marathon, FL 33050",
+      "source": "https://sswreck.com/"
+     },
+     {
+      "claim": "S.S. Wreck & Galley Grill is a Middle-Keys Favorite Since 1999",
+      "source": "https://sswreck.com/"
+     },
+     {
+      "claim": "The menu includes fresh fish, tuna poke nachos, conch fritters, and key lime pie",
+      "source": "https://sswreck.com/"
+     },
+     {
+      "claim": "The menu also includes gator bites, fajitas, and frog legs, and all sauces and dressings are made from scratch",
+      "source": "https://sswreck.com/"
+     },
+     {
+      "claim": "Happy Hour is 2 p.m. - 5 p.m. Weekdays, with small plates $8 and drink specials $3 - $7",
+      "source": "https://sswreck.com/"
+     },
+     {
+      "claim": "S.S. Wreck & Galley Grill is open daily 11 a.m. - 9 p.m., Fridays till 10 p.m., and is closed Tuesdays",
+      "source": "https://sswreck.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJw2OjqrDd2YgROFwPFL_2mtk",
+   "name": "Flama Brazilian Steakhouse",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "brazilian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.flamasteakhouse.com/",
+     "source_name": "Flama Brazilian Steakhouse \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Opening in 2021, Flama Steakhouse is a Brazilian steakhouse located in the Homestead area",
+      "Flama Steakhouse is at 27667 South Dixie hwy Homestead FL 33032",
+      "At Flama, continuous tableside service offers different cuts of meats, roasted and grilled slowly, served right off the cooking skewer and sliced right at your table",
+      "Flama offers Rodizio with traditional Brazilian flavors and a gourmet salad area with cheeses, fresh vegetables, cold meats, and side dishes",
+      "Opening Hours are Sunday - Thursday: 12 p.m. - 9 p.m. and Friday - Saturday: 12 p.m. - 10 p.m.",
+      "Reservations are recommended but not required, and walk-ins are welcome"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Homestead Brazilian steakhouse with continuous tableside service",
+    "why_here": "Go for Rodizio with traditional Brazilian flavors: different cuts of meats roasted and grilled slowly, served right off the cooking skewer and sliced right at your table, plus a gourmet salad area with cheeses and fresh vegetables.",
+    "know_before": "Reservations are recommended but not required, and walk-ins are welcome.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.flamasteakhouse.com/"
+     ],
+     "why_here": [
+      "https://www.flamasteakhouse.com/"
+     ],
+     "know_before": [
+      "https://www.flamasteakhouse.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Opening in 2021, Flama Steakhouse is a Brazilian steakhouse located in the Homestead area",
+      "source": "https://www.flamasteakhouse.com/"
+     },
+     {
+      "claim": "Flama Steakhouse is at 27667 South Dixie hwy Homestead FL 33032",
+      "source": "https://www.flamasteakhouse.com/"
+     },
+     {
+      "claim": "At Flama, continuous tableside service offers different cuts of meats, roasted and grilled slowly, served right off the cooking skewer and sliced right at your table",
+      "source": "https://www.flamasteakhouse.com/"
+     },
+     {
+      "claim": "Flama offers Rodizio with traditional Brazilian flavors and a gourmet salad area with cheeses, fresh vegetables, cold meats, and side dishes",
+      "source": "https://www.flamasteakhouse.com/"
+     },
+     {
+      "claim": "Opening Hours are Sunday - Thursday: 12 p.m. - 9 p.m. and Friday - Saturday: 12 p.m. - 10 p.m.",
+      "source": "https://www.flamasteakhouse.com/"
+     },
+     {
+      "claim": "Reservations are recommended but not required, and walk-ins are welcome",
+      "source": "https://www.flamasteakhouse.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ21ygEIv92IgRBOj0Pd1EJbk",
+   "name": "Plunge Beach Resort",
+   "category": "hotels",
+   "metro": "broward",
+   "primary_type": "resort_hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.plungebeachresort.com/about-plunge-beach-hotel",
+     "source_name": "Plunge Beach Resort \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Plunge Beach Resort is at 4660 El Mar Dr, Lauderdale-By-The-Sea, FL 33308",
+      "Plunge Beach Resort is on El Mar Drive along A1A in Lauderdale-by-the-Sea, steps from the sand",
+      "Accommodations include main resort-tower rooms and a beachside bungalow",
+      "Resort amenities include full beach access and services including chairs & umbrellas, and a Lobby art gallery featuring local artists",
+      "The nightly resort fee of $44 plus tax per room includes use of 2 beach chairs, beach and pool towels, and hotel loaner bicycles to explore Lauderdale-by-the-Sea"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Lauderdale-By-The-Sea resort on El Mar Drive, steps from the sand",
+    "why_here": "Stay in main resort-tower rooms or a beachside bungalow, use full beach access with chairs & umbrellas, and see the Lobby art gallery featuring local artists at this El Mar Drive resort.",
+    "know_before": "The nightly resort fee is $44 plus tax per room; it includes use of 2 beach chairs and beach and pool towels.",
+    "local_tip": "Use hotel loaner bicycles to explore Lauderdale-by-the-Sea.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.plungebeachresort.com/about-plunge-beach-hotel"
+     ],
+     "why_here": [
+      "https://www.plungebeachresort.com/about-plunge-beach-hotel"
+     ],
+     "know_before": [
+      "https://www.plungebeachresort.com/about-plunge-beach-hotel"
+     ],
+     "local_tip": [
+      "https://www.plungebeachresort.com/about-plunge-beach-hotel"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Plunge Beach Resort is at 4660 El Mar Dr, Lauderdale-By-The-Sea, FL 33308",
+      "source": "https://www.plungebeachresort.com/about-plunge-beach-hotel"
+     },
+     {
+      "claim": "Plunge Beach Resort is on El Mar Drive along A1A in Lauderdale-by-the-Sea, steps from the sand",
+      "source": "https://www.plungebeachresort.com/about-plunge-beach-hotel"
+     },
+     {
+      "claim": "Accommodations include main resort-tower rooms and a beachside bungalow",
+      "source": "https://www.plungebeachresort.com/about-plunge-beach-hotel"
+     },
+     {
+      "claim": "Resort amenities include full beach access and services including chairs & umbrellas, and a Lobby art gallery featuring local artists",
+      "source": "https://www.plungebeachresort.com/about-plunge-beach-hotel"
+     },
+     {
+      "claim": "The nightly resort fee of $44 plus tax per room includes use of 2 beach chairs, beach and pool towels, and hotel loaner bicycles to explore Lauderdale-by-the-Sea",
+      "source": "https://www.plungebeachresort.com/about-plunge-beach-hotel"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJrwdJxvC22YgRYBoTtbtcriQ",
+   "name": "Domino Park",
+   "category": "attractions",
+   "metro": "miami-dade",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.miamiandbeaches.com/l/outdoor-experiences/domino-park/5611",
+     "source_name": "Domino Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "M\u00e1ximo G\u00f3mez Park in Little Havana is known as Domino Park, on historic Calle Ocho (8th Street)",
+      "The park is named after General M\u00e1ximo G\u00f3mez, a Cuban revolutionary",
+      "A tradition for more than 40 years, regulars play dominoes at the park",
+      "Games are typically for members only, and anyone over 50 with a Maximo G\u00f3mez Domino Club card has free, lifetime membership to play",
+      "The park is at 801 SW 15th Ave., Miami, FL 33135, on the corner of SW 8th Street (Calle Ocho) and 15th Avenue, and is open from 9 a.m. - 6 p.m. daily",
+      "The park features walkways of domino-decorated tilework and a perimeter lined with benches for spectators"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Little Havana park on Calle Ocho where regulars play dominoes",
+    "why_here": "Watch dominoes at M\u00e1ximo G\u00f3mez Park, a tradition for more than 40 years, from benches for spectators along walkways of domino-decorated tilework on historic Calle Ocho (8th Street).",
+    "know_before": "Open from 9 a.m. - 6 p.m. daily; games are typically for members only.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.miamiandbeaches.com/l/outdoor-experiences/domino-park/5611"
+     ],
+     "why_here": [
+      "https://www.miamiandbeaches.com/l/outdoor-experiences/domino-park/5611"
+     ],
+     "know_before": [
+      "https://www.miamiandbeaches.com/l/outdoor-experiences/domino-park/5611"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "M\u00e1ximo G\u00f3mez Park in Little Havana is known as Domino Park, on historic Calle Ocho (8th Street)",
+      "source": "https://www.miamiandbeaches.com/l/outdoor-experiences/domino-park/5611"
+     },
+     {
+      "claim": "The park is named after General M\u00e1ximo G\u00f3mez, a Cuban revolutionary",
+      "source": "https://www.miamiandbeaches.com/l/outdoor-experiences/domino-park/5611"
+     },
+     {
+      "claim": "A tradition for more than 40 years, regulars play dominoes at the park",
+      "source": "https://www.miamiandbeaches.com/l/outdoor-experiences/domino-park/5611"
+     },
+     {
+      "claim": "Games are typically for members only, and anyone over 50 with a Maximo G\u00f3mez Domino Club card has free, lifetime membership to play",
+      "source": "https://www.miamiandbeaches.com/l/outdoor-experiences/domino-park/5611"
+     },
+     {
+      "claim": "The park is at 801 SW 15th Ave., Miami, FL 33135, on the corner of SW 8th Street (Calle Ocho) and 15th Avenue, and is open from 9 a.m. - 6 p.m. daily",
+      "source": "https://www.miamiandbeaches.com/l/outdoor-experiences/domino-park/5611"
+     },
+     {
+      "claim": "The park features walkways of domino-decorated tilework and a perimeter lined with benches for spectators",
+      "source": "https://www.miamiandbeaches.com/l/outdoor-experiences/domino-park/5611"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJsdM7g-8724gRtipnFCWzj6w",
+   "name": "Bowditch Point Park",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.visitfortmyers.com/media-central/media-kits/travel-kit-beaches-parks-recreation-centers",
+     "source_name": "Bowditch Point Park \u2014 official source",
+     "source_class": "tourism_dmo",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Bowditch Point Regional Park is at 50 Estero Blvd.",
+      "Bowditch Point Regional Park is a 17-acre park on the northern tip of Estero Island",
+      "A boardwalk leads to picnic areas and the beach at Bowditch Point Regional Park",
+      "Stretching from the Gulf of Mexico to the bay, Bowditch Point Regional Park amenities include a bathhouse and changing rooms",
+      "Onsite parking is available behind the bathhouse at Bowditch Point Regional Park"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "17-acre park on the northern tip of Estero Island",
+    "why_here": "Spend a day at the beach at this 17-acre park on the northern tip of Estero Island, stretching from the Gulf of Mexico to the bay, with a boardwalk to picnic areas and the beach.",
+    "know_before": "Onsite parking is available behind the bathhouse.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.visitfortmyers.com/media-central/media-kits/travel-kit-beaches-parks-recreation-centers"
+     ],
+     "why_here": [
+      "https://www.visitfortmyers.com/media-central/media-kits/travel-kit-beaches-parks-recreation-centers"
+     ],
+     "know_before": [
+      "https://www.visitfortmyers.com/media-central/media-kits/travel-kit-beaches-parks-recreation-centers"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Bowditch Point Regional Park is at 50 Estero Blvd.",
+      "source": "https://www.visitfortmyers.com/media-central/media-kits/travel-kit-beaches-parks-recreation-centers"
+     },
+     {
+      "claim": "Bowditch Point Regional Park is a 17-acre park on the northern tip of Estero Island",
+      "source": "https://www.visitfortmyers.com/media-central/media-kits/travel-kit-beaches-parks-recreation-centers"
+     },
+     {
+      "claim": "A boardwalk leads to picnic areas and the beach at Bowditch Point Regional Park",
+      "source": "https://www.visitfortmyers.com/media-central/media-kits/travel-kit-beaches-parks-recreation-centers"
+     },
+     {
+      "claim": "Stretching from the Gulf of Mexico to the bay, Bowditch Point Regional Park amenities include a bathhouse and changing rooms",
+      "source": "https://www.visitfortmyers.com/media-central/media-kits/travel-kit-beaches-parks-recreation-centers"
+     },
+     {
+      "claim": "Onsite parking is available behind the bathhouse at Bowditch Point Regional Park",
+      "source": "https://www.visitfortmyers.com/media-central/media-kits/travel-kit-beaches-parks-recreation-centers"
+     }
+    ]
+   }
+  }
+ ]
+}

@@ -86,7 +86,10 @@ function headersFrom(ua) {
   // 2026-10-28: a real Chrome sends Fetch Metadata on every navigation; a
   // Chrome UA WITHOUT it is the spoofed-crawler shape lib/redirectTrafficClass.js
   // holds at an interstitial. The human fixture models the real browser.
-  return { get: (name) => { const n = String(name).toLowerCase(); return n === "user-agent" ? ua : n === "sec-fetch-mode" ? "navigate" : n === "sec-fetch-dest" ? "document" : null; } };
+// 2026-11-11 owner rule: a desktop with ZERO click proof also gets that page, so
+// the fixture carries one proof (a same-site Referer; real taps usually carry the
+// page-minted click_id or a cookie of ours instead).
+  return { get: (name) => { const n = String(name).toLowerCase(); return n === "user-agent" ? ua : n === "sec-fetch-mode" ? "navigate" : n === "sec-fetch-dest" ? "document" : n === "referer" ? "https://www.gowayfind.com/guides/things-to-do-sarasota" : null; } };
 }
 
 function isViatorHost(hostname) {

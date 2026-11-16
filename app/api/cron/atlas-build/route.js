@@ -1,4 +1,4 @@
-import { gateFree, gateShut, spendAllow, takeFromLedger } from "../../../../lib/spendGate";
+import { gateFree, gateShut, spendAllow, takeFromLedger, runWithTraffic, TRAFFIC } from "../../../../lib/spendGate";
 import { atlasPaidLane, readPriorityIds, ATLAS_LANE_MODEL } from "../../../../lib/atlasPaidLane";
 import { laneRequestBody, extractLaneResult, identityProblems, dashProblems, deniedFetched, geocodeCensus, haversineKm, metroCity } from "../../../../lib/atlasWebLane";
 // app/api/cron/atlas-build/route.js — bulk-builds the Wayfind "Atlas" editorial
@@ -366,7 +366,12 @@ async function pool(items, limit, fn) {
 // route decides WHEN to give up on a place; that module decides whether what came
 // back is publishable.
 
+// Traffic class (lib/spendGate.js human traffic reserve): a batch job, no visitor waiting; refused inside the last 20% of a visitor-shared SKU.
 export async function GET(req) {
+  return runWithTraffic(TRAFFIC.BACKGROUND, () => runAtlasBuild(req));
+}
+
+async function runAtlasBuild(req) {
   // ORDER IS THE POINT OF THIS BLOCK. It used to be: cost gate, then mode, then
   // auth. Two defects fell out of that, and both were measured on production
   // 2026-09-09.

@@ -89,6 +89,10 @@ export default function TrendingRails({
     + (Array.isArray(eventsByRail[rail.id]) ? eventsByRail[rail.id].length : 0)
     + byPlaceRail[rail.id].length, 0);
 
+  // Wayfind's own Reels are NOT a shelf of their own (owner, 2026-11-14: "not
+  // as its own card"). Each one rides the business card it features, credited
+  // @gowayfind.app (lib/creatorVideos.js, lib/eventSocial.js); the
+  // reconciliation monitor checks every such post is on its card.
   if (!total && (placesPending || (eventSurface && eventSurface.pending))) return <RailLoading label="Finding what's trending" />;
   if (!total) return <p role="status" style={{ color: C.muted, fontSize: 13, lineHeight: 1.5, padding: "7px 2px 13px" }}>Nothing verified is trending near you yet. Check back soon.</p>;
 

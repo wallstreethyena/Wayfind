@@ -55,7 +55,7 @@
 // and there is no live production code to "restore" — it runs a second,
 // intentionally-wrong, self-contained computation on the same inputs and
 // shows the mismatch the equality assertions above would have caught.
-import { isIndependentCreator } from "../lib/creatorIndependence.js";
+import { isIndependentCreator, scoresAsCreatorVideo } from "../lib/creatorIndependence.js";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { buildLeanCurated } from "./gen-creator-signals.mjs";
@@ -68,6 +68,7 @@ import {
   reachOf, creatorBoostFor, hasCreatorVideoAt, meetsCreatorFloor, evidenceBoost,
 } from "../lib/creatorBoost.js";
 import { computeTrendSignal, corroborationTrend, CORROBORATION_MIN_CREATORS } from "../lib/trendSignal.js";
+import { scoringCreatorVideos } from "../lib/creatorIndependence.js";
 import { governedScoreOf } from "../lib/lawfulOrder.js";
 import { wayfindScore, governedWayfindScore } from "../lib/wayfindScore.js";
 import { loadComponent } from "./lib/jsxLoad.mjs";
@@ -176,12 +177,13 @@ function oldGovernedScoreOf(index, p, locName) {
     // 2026-10-29: the featured creator's own term, resolved from the FULL
     // registry's handles — the same question the lean path answers.
     const featured = vids.some(oldIsFeatured);
-    return governedWayfindScore(p.wfScore, { hasCreatorVideo: vids.length > 0, hasFeaturedCreatorVideo: featured, distanceMi: dist, trending: !!p.trending });
+    // Score-eligible creators only (2026-11-12): same rule as the lean path.
+    return governedWayfindScore(p.wfScore, { hasCreatorVideo: scoringCreatorVideos(vids).length > 0, hasFeaturedCreatorVideo: featured, distanceMi: dist, trending: !!p.trending });
   }
   const base = wayfindScore(p.rating, p.reviews);
   if (base == null) return null;
   const vids = oldVideosFor(index, p, locName);
-  const video = p.creator_video === true || vids.length > 0;
+  const video = p.creator_video === true || scoringCreatorVideos(vids).length > 0;
   const featured = p.featured_creator_video === true || vids.some(oldIsFeatured);
   return governedWayfindScore(base, { hasCreatorVideo: video, hasFeaturedCreatorVideo: featured, distanceMi: dist, trending: !!p.trending });
 }
@@ -224,11 +226,16 @@ for (const e of CURATED) {
     const oldV = oldVideosFor(OLD_INDEX, probe);
     const newV = newCreatorVideosFor(probe);
     assertVideosMatch(oldV, newV, `placeId probe "${e.key}"`);
-    ok((oldV.length > 0) === hasCreatorVideoAt(probe), `placeId probe "${e.key}": hasCreatorVideoAt matches`);
+    // Wayfind's own @gowayfind.app videos display but never earn the score term.
+    const oldEarning = oldV.filter(scoresAsCreatorVideo);
+    ok((oldEarning.length > 0) === hasCreatorVideoAt(probe), `placeId probe "${e.key}": hasCreatorVideoAt matches`);
     ok(reachOf(oldV) === reachOf(newV), `placeId probe "${e.key}": reachOf matches (${reachOf(oldV)} vs ${reachOf(newV)})`);
     ok(oldCreatorCountFor(OLD_INDEX, probe) === newCreatorCountFor(probe), `placeId probe "${e.key}": creatorCountFor matches`);
-    const oldBoost = oldV.length > 0 && meetsCreatorFloor(probe)
-      ? evidenceBoost(wayfindScore(probe.rating, probe.reviews), reachOf(oldV)) : 0;
+    // Score evidence counts only score-eligible creators (2026-11-12,
+    // lib/creatorIndependence.js scoringCreatorVideos), on both sides.
+    const oldScoring = scoringCreatorVideos(oldV);
+    const oldBoost = oldScoring.length > 0 && meetsCreatorFloor(probe)
+      ? evidenceBoost(wayfindScore(probe.rating, probe.reviews), reachOf(oldScoring)) : 0;
     ok(oldBoost === creatorBoostFor(probe), `placeId probe "${e.key}": creatorBoostFor matches (${oldBoost} vs ${creatorBoostFor(probe)})`);
   }
   if (e.match && e.match.name) {
@@ -252,6 +259,16 @@ console.log(`§2 corpus-wide equivalence: OK — ${probedByPlaceId} placeId prob
 // ═══════════════════════════════════════════════════════════════════════════
 // § 3. EXPLICIT TRICKY CONTROLS — one assertion block per control
 // ═══════════════════════════════════════════════════════════════════════════
+
+// ── Wayfind's OWN video (owner, 2026-11-14): on the card, never in the score ─
+{
+  const probe = { id: "ChIJmTBndrPFwogRQgwCuMP3myY", name: "‡ guard ‡", address: "Nowhere, ZZ", ...Q_ABOVE_FLOOR };
+  const v = newCreatorVideosFor(probe);
+  ok(v.length === 1 && v[0].creator === "gowayfind.app", "CONTROL — Wayfind's own Reel renders on the business card, credited @gowayfind.app");
+  ok(hasCreatorVideoAt(probe) === false && creatorBoostFor(probe) === 0, "CONTROL — Wayfind's own Reel earns no creator score term and no boost");
+  ok(newCreatorCountFor(probe) === 0, "CONTROL — Wayfind's own Reel is never corroboration");
+  ok(scoresAsCreatorVideo({ creator: "@GoWayfind.app" }) === false && scoresAsCreatorVideo({ creator: "tampabayisawesome" }) === true, "CONTROL — the owned handle is recognized in any spelling, others still score");
+}
 
 // ── a live video with NO creator (mai-kai-fort-lauderdale) ─────────────────
 {

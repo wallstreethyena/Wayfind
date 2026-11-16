@@ -36,8 +36,67 @@ import { getFanoutCount, getStaleLiveOffersStatus, persistOffer, suppressOffer }
 import { credential } from "../../../../lib/envPlaceholder.js";
 import { recordPulse } from "../../../../lib/jobPulse.js";
 import { jobCannotRun, jobFailed } from "../../../../lib/jobFail.js";
+import { evaluateOfferHealthTransition, EVIDENCE_STRENGTH, OFFER_HEALTH_STATUS } from "../../../../lib/commerceHealth.js";
+import { ingestClippOfferEvidence } from "../../../../lib/clippOffers.js";
 
 const JOB = "verify-offers";
+
+// OPERATIONAL BOUNDARY (C3):
+// Direct datacenter / serverless fetches to https://www.clipp.com/* are blocked by
+// Akamai WAF with HTTP 403 (`EVIDENCE_STRENGTH.INCONCLUSIVE`). Therefore, this cron
+// NEVER fabricates unauthenticated serverless fetches against clipp.com and NEVER treats
+// an HTTP 403 as either `SOLD_OUT` or `ACTIVE`. Instead, Clipp live page evidence is
+// harvested by an authenticated browser-session worker or partner feed and ingested via
+// `verifyClippEvidenceBatch` / `POST /api/cron/verify-offers`.
+export function verifyClippEvidenceBatch(evidenceBatch = [], { now = new Date() } = {}) {
+  const items = Array.isArray(evidenceBatch) ? evidenceBatch : [];
+  const summary = {
+    checked: 0,
+    active: 0,
+    quarantined: 0,
+    recovered: 0,
+    inconclusive: 0,
+    skipped: 0,
+    results: [],
+  };
+
+  for (const item of items) {
+    if (!item || typeof item !== "object") {
+      summary.skipped++;
+      continue;
+    }
+    const { offerId, ...probeInput } = item;
+    const res = ingestClippOfferEvidence(offerId, probeInput, { now });
+    if (!res.ok) {
+      summary.skipped++;
+      summary.results.push({ offerId: offerId || null, ok: false, reason: res.reason });
+      continue;
+    }
+    summary.checked++;
+    if (res.classification.evidence === EVIDENCE_STRENGTH.INCONCLUSIVE) {
+      summary.inconclusive++;
+    } else if (res.transition.quarantined) {
+      summary.quarantined++;
+    } else if (res.transition.serveable) {
+      summary.active++;
+      if (res.transition.transition === "restored_from_quarantine") {
+        summary.recovered++;
+      }
+    }
+    summary.results.push({
+      offerId: res.offerId,
+      ok: true,
+      status: res.transition.nextStatus,
+      serveable: res.transition.serveable,
+      quarantined: res.transition.quarantined,
+      transition: res.transition.transition,
+      evidence: res.classification.evidence,
+      reason: res.transition.reason,
+    });
+  }
+
+  return summary;
+}
 
 const getKey = () => credential(process.env["VIATOR_API_KEY"]);
 
@@ -93,7 +152,12 @@ export async function GET(req) {
     const search = await searchFreetext(term);
     if (!search.ok) {
       results.upstreamError++;
-      try { console.log(JSON.stringify({ tag: "booking_integrity_diag", route: "verify-offers", placeId: row.place_id, productCode: row.product_code, decision: "upstream_error" })); } catch (e) {}
+      const transition = evaluateOfferHealthTransition({
+        currentStatus: OFFER_HEALTH_STATUS.ACTIVE,
+        currentFailureCount: Number(row.failure_count || 0),
+        probeResult: { status: OFFER_HEALTH_STATUS.UNVERIFIED, evidence: EVIDENCE_STRENGTH.WEAK, reason: "upstream_error" },
+      });
+      try { console.log(JSON.stringify({ tag: "booking_integrity_diag", route: "verify-offers", placeId: row.place_id, productCode: row.product_code, decision: "upstream_error", healthStatus: transition.nextStatus, failureCount: transition.failureCount })); } catch (e) {}
       continue; // don't suppress on a transient upstream failure -- only an explicit re-score decides that
     }
     const candidate = search.results.find((r) => r && (r.productCode === row.product_code || r.productUrl === row.product_url));
@@ -106,13 +170,27 @@ export async function GET(req) {
       ? resolveVerified({ id: row.place_id, name: row.place_name }, [candidate], { region: row.region, kind: row.kind, fanoutByCode, placeId: row.place_id })
       : null;
     if (offer) {
+      const transition = evaluateOfferHealthTransition({
+        currentStatus: OFFER_HEALTH_STATUS.ACTIVE,
+        currentFailureCount: Number(row.failure_count || 0),
+        probeResult: { status: OFFER_HEALTH_STATUS.ACTIVE, evidence: EVIDENCE_STRENGTH.STRONG, reason: "reverified_live" },
+      });
       await persistOffer(offer);
       results.stillLive++;
-      try { console.log(JSON.stringify({ tag: "booking_integrity_diag", route: "verify-offers", placeId: row.place_id, productCode: row.product_code, confidence: offer.confidence, decision: "reverified_live" })); } catch (e) {}
+      try { console.log(JSON.stringify({ tag: "booking_integrity_diag", route: "verify-offers", placeId: row.place_id, productCode: row.product_code, confidence: offer.confidence, decision: "reverified_live", healthStatus: transition.nextStatus })); } catch (e) {}
     } else {
+      const transition = evaluateOfferHealthTransition({
+        currentStatus: OFFER_HEALTH_STATUS.ACTIVE,
+        currentFailureCount: Number(row.failure_count || 0),
+        probeResult: {
+          status: candidate ? OFFER_HEALTH_STATUS.WRONG_PRODUCT : OFFER_HEALTH_STATUS.EXPIRED,
+          evidence: EVIDENCE_STRENGTH.STRONG,
+          reason: candidate ? "reverify_failed_threshold" : "product_no_longer_found",
+        },
+      });
       await suppressOffer(row.place_id, row.product_provider, row.product_code);
       results.suppressed++;
-      try { console.log(JSON.stringify({ tag: "booking_integrity_diag", route: "verify-offers", placeId: row.place_id, productCode: row.product_code, decision: candidate ? "reverify_failed_threshold" : "product_no_longer_found" })); } catch (e) {}
+      try { console.log(JSON.stringify({ tag: "booking_integrity_diag", route: "verify-offers", placeId: row.place_id, productCode: row.product_code, decision: candidate ? "reverify_failed_threshold" : "product_no_longer_found", healthStatus: transition.nextStatus })); } catch (e) {}
     }
   }
 
@@ -130,3 +208,29 @@ export async function GET(req) {
 
   return Response.json({ ok: true, job: JOB, ...results });
 }
+
+export async function POST(req) {
+  const secret = process.env.CRON_SECRET;
+  const auth = req.headers.get("authorization") || "";
+  if (!secret || auth !== "Bearer " + secret) return new Response("unauthorized", { status: 401 });
+
+  let body = {};
+  try {
+    body = await req.json();
+  } catch (e) {
+    return Response.json({ ok: false, error: "invalid_json" }, { status: 400 });
+  }
+
+  const now = body?.now ? new Date(body.now) : new Date();
+  const summary = verifyClippEvidenceBatch(body?.clippEvidence || [], { now });
+
+  await recordPulse(JOB, {
+    attempted: summary.checked,
+    succeeded: summary.active + summary.quarantined,
+    failed: summary.inconclusive,
+    note: "clipp_evidence_batch",
+  });
+
+  return Response.json({ ok: true, job: JOB, mode: "clipp_evidence_batch", ...summary });
+}
+

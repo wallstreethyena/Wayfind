@@ -29,6 +29,12 @@ export default function GuideArticleHero({
   backLabel = "All guides",
   jumpHref = "#guide",
   jumpLabel = "Start reading",
+  // 2026-11-11 (owner: "Choose quickly directly under the title, in the first
+  // phone screen"). An optional block the page passes as children. It renders
+  // between the title block and the photo: on a phone that is the first screen,
+  // above the photo; wider, it spans a second row under the title and the photo.
+  // With no children the header is exactly what it was.
+  children = null,
 }) {
   const headline = title || guide?.title;
   if (!headline) throw new Error("GuideArticleHero requires a title or guide.title");
@@ -59,7 +65,7 @@ export default function GuideArticleHero({
         </a>
       </div>
 
-      <div className={styles.hero}>
+      <div className={`${styles.hero} ${children ? styles.withBelow : ""}`}>
         <div className={styles.copy}>
           <div className={styles.context} aria-label={[section, place].filter(Boolean).join(", ")}>
             <span>{section}</span>
@@ -80,6 +86,7 @@ export default function GuideArticleHero({
           {updatedLabel ? <p className={styles.updated}>{updatedLabel}</p> : null}
         </div>
 
+        {children ? <div className={styles.below} data-guide-hero-below>{children}</div> : null}
         {media ? (
           <GuideFigure
             role="hero"

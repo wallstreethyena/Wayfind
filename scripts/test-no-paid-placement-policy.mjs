@@ -58,10 +58,18 @@ policySurface("/partners/rio-body-wax-gastonia", rio);
 const RANKINGS_LINE = "Rankings, list order, guide picks, and the Wayfind Score are never paid for, and a commission on a booking does not change them.";
 ok(idx.split(RANKINGS_LINE).length - 1 === 1, "/partners states the rankings policy in exactly one line");
 ok(meta.description.includes(RANKINGS_LINE), "/partners search description keeps that same policy line");
-ok(/Sponsored paid partner/.test(idx) && !/Sponsored · Paid partner/.test(idx),
-  "/partners names the label in plain words and does not use the dotted separator");
+ok(/Sponsored placement/.test(idx) && !/Sponsored · Paid partner/.test(idx),
+  "/partners names the label Sponsored placement and does not use the dotted separator");
+ok(/A listing on Wayfind is free/.test(idx), "/partners says a listing is free");
+ok(/ranking is never for sale/i.test(idx), "/partners says ranking is never for sale");
+ok(/A paid promotion does not change a place(?:'|&#x27;|&apos;)s ranking or Wayfind Score/.test(idx),
+  "/partners says a paid promotion does not change a ranking or Wayfind Score");
+ok(/\$99\/week/.test(idx) && /\$199\/month/.test(idx) && /\$299\/quarter/.test(idx),
+  "/partners keeps the sponsored prices at $99/week, $199/month, and $299/quarter");
+ok(/Wayfind may earn a commission from some booking partners/.test(idx),
+  "/partners discloses that Wayfind may earn a commission from some booking partners");
 ok(!ABSOLUTE.test(partners), "/partners does not claim there are no ads and no paid placement, or that anyone pays to be featured");
-ok(!/(?<!not )sells? (a small number of )?(local )?placements?/i.test(partners), "/partners no longer offers placements for sale");
+ok(!/(?<!not )sells? (a small number of )?(local )?placements?/i.test(partners), "/partners does not say it sells placements");
 ok(!/want your business here/i.test(partners), "/partners carries no sales pitch to advertisers");
 ok(!/Rio Body Wax|Möbius|Mobius/i.test(idx + " " + meta.title + " " + meta.description), "/partners names no current advertiser");
 ok(/Rio Body Wax/.test(rio), "PROBE: the Rio page still names the business, so the index absence check is not vacuous");

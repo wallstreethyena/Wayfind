@@ -58,6 +58,7 @@ import { couponsForIntent, couponEndsLabel } from "../../lib/coupons";
 // is the exact duplication ("three art maps, two area_known_for definitions")
 // this extraction exists to prevent. Deleted in favour of these.
 import { dealScope } from "../../lib/dealSheet";
+import { safeLocalStorage } from "../../lib/safeStorage.js";
 import { nearestMetro } from "../../lib/orderInFeatured";
 import { businessStatus } from "../../lib/businessStatus";
 import { venueLean } from "../../lib/ranking";
@@ -99,7 +100,7 @@ export function CouponStrip({ intentId, lat, lng, onOpenCoupons, onLog, max = 3 
   const dl = deals.slice(0, max);
   const go = (coupon) => {
     if (!coupon || !coupon.id) return;
-    const saved = typeof window !== "undefined" ? clipCouponToWallet(coupon, window.localStorage) : { clipped: false };
+    const saved = typeof window !== "undefined" ? clipCouponToWallet(coupon, safeLocalStorage()) : { clipped: false };
     try { onLog && onLog("coupon_strip_tap", null, { id: coupon.id, theme: intentId, clipped: saved.clipped }); } catch (e) {}
     onOpenCoupons && onOpenCoupons(coupon, { wallet: true, clipped: saved.clipped });
   };
@@ -224,7 +225,7 @@ export function Methodology() {
 export default function ExperienceBlocks({
   intentId, lat, lng,
   onOpenCoupons, onLog,
-  tours, toursTitle, ViatorRail, showTours,
+  tours, toursTitle, ViatorRail, showTours, query,
   momentPicks, places, durablePlaces, context, nowMs,
   onOpenPlace,
   rows, renderRow, loading,
@@ -239,7 +240,7 @@ export default function ExperienceBlocks({
       <CouponStrip intentId={intentId} lat={lat} lng={lng} onOpenCoupons={onOpenCoupons} onLog={onLog} />
       {/* 2 — the rail renders only when the surface HAS bookable inventory and
           the host passed the component. No tours, no rail. */}
-      {showTours && ViatorRail && tours && tours.length ? <ViatorRail title={toursTitle || "Top-rated experiences"} items={tours} theme={intentId} /> : null}
+      {showTours && ViatorRail && Array.isArray(tours) ? <ViatorRail title={toursTitle || "Top-rated experiences"} items={tours} query={query} theme={intentId} /> : null}
       {/* 3 */}
       {!loading ? <PerfectRightNow picks={momentPicks} places={places || list} durablePlaces={durablePlaces || list} context={context} nowMs={nowMs} onOpenPlace={onOpenPlace} /> : null}
       {/* 5, in the reference's position — see the header note on the one-line

@@ -61,6 +61,23 @@ import { floridaVenueVerdict } from "../../../lib/floridaVenue.js";
  */
 export const HOMEPAGE_CARD_BUDGET_MS = 8000;
 
+/**
+ * Is this google.com/maps anchor a NAVIGATION link (a defect on an Apple Maps
+ * page) rather than a Google photo attribution? Google requires its credit
+ * ("Google Maps") beside every Google photo. The event page shows such photos
+ * on its nearby place cards (.wf-place-card-media), each credited through
+ * PhotoCreditLink, and on the hero ([data-event-hero-credit]). Both are credits.
+ * 2026-11-14/15: the probe only knew the hero and so failed 3 runs in a row on
+ * 8 card credits while the page was correct. Anything else (a "Directions"
+ * link, a card-media link that is not the credit) still counts.
+ */
+export function isGoogleNavigationLink({ inHeroCredit = false, inCardMedia = false, text = "" } = {}) {
+  if (inHeroCredit) return false;
+  const visible = String(text).replace(/\(opens in a new tab\)/i, "").trim();
+  if (inCardMedia && /^Google Maps$/i.test(visible)) return false;
+  return true;
+}
+
 /** Bounded wait for a visible card's media to settle (see place-card-controls). */
 export const CARD_MEDIA_WAIT_MS = 8000;
 export const CARD_MEDIA_TERMINAL = Object.freeze(new Set(["image", "monogram", "unavailable"]));
@@ -817,28 +834,28 @@ export const SCENARIOS = [
           present: typeof window.__wfMapPins !== "undefined" && window.__wfMapPins !== null,
           ids: (window.__wfMapPins && Array.isArray(window.__wfMapPins.ids)) ? window.__wfMapPins.ids : [],
           list: window.__wfMapList || null,
-          noteCount: Number((document.querySelector("[data-wf-map-unpinned]") || {}).getAttribute ? document.querySelector("[data-wf-map-unpinned]").getAttribute("data-wf-map-unpinned") : 0) || 0,
-          noteText: ((document.querySelector("[data-wf-map-unpinned]") || {}).textContent || "").trim(),
+          noteCount: Number(window.__wfMapList?.counts?.["no-permitted-coordinate"] || 0),
+          noteText: String(window.__wfMapList?.unpinnedNote || "").trim(),
+          domUnpinnedPresent: !!document.querySelector("[data-wf-map-unpinned]"),
         }));
         mapHookPresent = mapState.present;
         mapIds = mapState.ids;
         mapList = mapState.list;
-        mapNote = { count: mapState.noteCount, text: mapState.noteText };
+        mapNote = { count: mapState.noteCount, text: mapState.noteText, domUnpinnedPresent: mapState.domUnpinnedPresent };
       } catch (e) { ctx.note(`surface-parity-parrish-cafes: map capture failed — ${e && e.message ? e.message.split("\n")[0] : e}`); }
-      // SOURCE-AWARE PARITY (2026-10-14). The map may draw a coordinate only
-      // inside its source's permitted window (lib/coordProvenance.js: Google
-      // Places lat/lng 30 days, Maps Service Specific Terms §14.3). A list place
-      // without one is not a silent miss: it must be accounted in
-      // window.__wfMapList as "no-permitted-coordinate" AND counted in the
-      // on-screen note. So the assertion is "pinned, or explicitly unpinned for
-      // a stated coordinate reason", never "missing".
+      // SOURCE-AWARE PARITY (2026-10-14, updated 2026-11-12). The map may draw a
+      // coordinate only inside its source's permitted window (lib/coordProvenance.js:
+      // Google Places lat/lng 30 days, Maps Service Specific Terms §14.3). A list
+      // place without one is not a silent miss: it must be accounted in
+      // window.__wfMapList as "no-permitted-coordinate" for telemetry while NEVER
+      // surfacing internal unpinned-place counts on the customer-facing map.
       const ryansPinned = mapIds.includes(RYANS_COFFEE_HOUSE.placeId);
       const ryansRow = mapList && Array.isArray(mapList.unmapped) ? mapList.unmapped.find((r) => r && r.id === RYANS_COFFEE_HOUSE.placeId) : null;
       const ryansStatus = ryansPinned ? "pinned" : (ryansRow ? ryansRow.status : "unaccounted");
       ctx.ok("window.__wfMapPins is present (the map drew its frame)", mapHookPresent, true, mapHookPresent);
-      ctx.ok("Ryan's Coffee House is pinned, or accounted as no-permitted-coordinate with the unpinned note on screen",
+      ctx.ok("Ryan's Coffee House is pinned, or accounted as no-permitted-coordinate in window.__wfMapList telemetry",
         ryansPinned || (ryansStatus === "no-permitted-coordinate" && mapNote.count >= 1 && /pinned/.test(mapNote.text)),
-        "pinned | no-permitted-coordinate + visible note", { ryansStatus, noteCount: mapNote.count });
+        "pinned | no-permitted-coordinate in telemetry", { ryansStatus, noteCount: mapNote.count });
       const listIds = mapList && Array.isArray(mapList.listIds) ? mapList.listIds : [];
       const counts = mapList && mapList.counts ? mapList.counts : {};
       const countSum = Object.values(counts).reduce((a, b) => a + (Number(b) || 0), 0);
@@ -846,7 +863,8 @@ export const SCENARIOS = [
       ctx.ok("every rendered list card has exactly one map status (list/map parity accounting)",
         !!mapList && countSum === listIds.length && unaccounted.length === 0,
         "all rendered cards accounted", { listIds: listIds.length, countSum, unaccounted: unaccounted.slice(0, 5) });
-      ctx.ok("the on-screen unpinned count matches the accounting", (counts["no-permitted-coordinate"] || 0) === mapNote.count,
+      ctx.ok("customer-facing map DOM never exposes internal unpinned-place disclosures",
+        !mapNote.domUnpinnedPresent && (counts["no-permitted-coordinate"] || 0) === mapNote.count,
         counts["no-permitted-coordinate"] || 0, mapNote.count);
       ctx.note(`surface-parity-parrish-cafes: list ${listIds.length}, pins ${mapIds.length}, statuses ${JSON.stringify(counts)}; Ryan's: ${ryansStatus}`);
 
@@ -1080,8 +1098,13 @@ export const SCENARIOS = [
       const appleLink = await page.locator('a[href^="https://maps.apple.com/?daddr="]').count().catch(() => 0);
       ctx.ok("the page's outbound navigation link opens Apple Maps directions", appleLink > 0, "> 0", appleLink);
       // The Google photo credit (author + "Google Maps", required beside a Google photo) lives in [data-event-hero-credit]; it is not navigation.
-      const googleLink = await page.evaluate(() => [...document.querySelectorAll('a[href*="google.com/maps"]')].filter((a) => !a.closest("[data-event-hero-credit]")).length).catch(() => 0);
-      ctx.ok("no Google Maps navigation link remains on the event page (the Google photo credit is the only allowed one)", googleLink === 0, 0, googleLink);
+      const googleAnchors = await page.evaluate(() => [...document.querySelectorAll('a[href*="google.com/maps"]')].map((a) => ({
+        inHeroCredit: !!a.closest("[data-event-hero-credit]"),
+        inCardMedia: !!a.closest(".wf-place-card-media"),
+        text: a.textContent || "",
+      }))).catch(() => []);
+      const googleLink = googleAnchors.filter(isGoogleNavigationLink).length;
+      ctx.ok("no Google Maps navigation link remains on the event page (Google photo credits on the hero and place cards are the only allowed ones)", googleLink === 0, 0, googleLink);
     },
   },
 

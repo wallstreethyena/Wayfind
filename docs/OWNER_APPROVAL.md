@@ -3,7 +3,9 @@
 Some files set the rules every agent follows, or enforce this very check. They
 change only with the owner's approval:
 
-- `AGENTS.md`, `CLAUDE.md`, `LOCKS.md`, `QUEUE.md`, `docs/*-standard.md`
+- `AGENTS.md`, `LOCKS.md`, `QUEUE.md`, `docs/*-standard.md`
+  (`CLAUDE.md` was removed from this list on 2026-11-14 by owner decision: the owner
+  does not want to be asked for approval comments on rules-file edits)
 - the pieces that enforce this rule: `scripts/check-doc-ownership.mjs`,
   `scripts/check-owner-approval-pr.mjs`, `scripts/owner-approval-gate.mjs`,
   `scripts/lib/ownerApproval.mjs`, `scripts/lib/githubPullEvidence.mjs`,
@@ -14,7 +16,7 @@ change only with the owner's approval:
   or changing one is an owner decision.
 
 The list lives in `scripts/lib/ownerApproval.mjs` (`OWNER_ONLY`). Paths match
-case-insensitively, because on a Mac `claude.md` is the same file as `CLAUDE.md`.
+case-insensitively, because on a Mac `agents.md` is the same file as `AGENTS.md`.
 
 ## What counts as approval
 

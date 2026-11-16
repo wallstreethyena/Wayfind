@@ -44,7 +44,7 @@ import path from "node:path";
 import os from "node:os";
 import assert from "node:assert/strict";
 
-import { SCENARIOS, REQUIRED_FLOWS, HOMEPAGE_CARD_BUDGET_MS, classifyCardMedia, CARD_MEDIA_TERMINAL, CARD_MEDIA_WAIT_MS, cardWindowIsStable, CARD_WINDOW_QUIET_MS, SIGNUP_OFFER_SETTLE_MS, waitForBookCtaHrefs, BOOK_CTA_WAIT_MS, BOOK_CTA_FALLBACK_WAIT_MS, BOOK_CTA_POLL_MS } from "./lib/synthetic/scenarios.mjs";
+import { SCENARIOS, REQUIRED_FLOWS, HOMEPAGE_CARD_BUDGET_MS, classifyCardMedia, CARD_MEDIA_TERMINAL, CARD_MEDIA_WAIT_MS, cardWindowIsStable, CARD_WINDOW_QUIET_MS, SIGNUP_OFFER_SETTLE_MS, waitForBookCtaHrefs, BOOK_CTA_WAIT_MS, BOOK_CTA_FALLBACK_WAIT_MS, BOOK_CTA_POLL_MS, isGoogleNavigationLink } from "./lib/synthetic/scenarios.mjs";
 // The product decision itself. Imported so the approved poster list can be
 // checked against it rather than against a copy that drifts (see §0).
 import { RAILS } from "../lib/rails.js";
@@ -766,4 +766,11 @@ if (fails.length) {
   console.error("check-synthetic-monitor-hermetic: FAIL\n  - " + fails.join("\n  - "));
   process.exit(1);
 }
+// event-apple-maps: Google photo credits are not navigation; a real nav link still fails.
+ok(isGoogleNavigationLink({ inCardMedia: true, text: "Google Maps (opens in a new tab)" }) === false, "a Google photo credit on a place card is not a navigation link");
+ok(isGoogleNavigationLink({ inHeroCredit: true, text: "Jane Doe" }) === false, "the hero photo credit is not a navigation link");
+ok(isGoogleNavigationLink({ text: "Directions" }) === true, "a Directions link to Google Maps is navigation");
+ok(isGoogleNavigationLink({ text: "Google Maps (opens in a new tab)" }) === true, "a Google Maps link outside any photo frame is navigation");
+ok(isGoogleNavigationLink({ inCardMedia: true, text: "Get directions" }) === true, "a non-credit link inside card media is still navigation");
+
 console.log(`check-synthetic-monitor-hermetic: OK — ${pass} assertions; ${SCENARIOS.length} scenarios covering ${coveredFlows.size}/${REQUIRED_FLOWS.length} required flows, redaction red-proved against a real fake secret+PID, evidence writer red-proved by reading real files back off disk, workflow installation asserted at its real path`);

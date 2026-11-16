@@ -6,7 +6,7 @@
 // never renders anywhere else (companionCharacter.js picks from the path). He drifts, drops one liners, and opens a small chat sheet backed by
 // POST /api/bo-haunt. One element, transform only, rAF loop stops whenever he
 // is not drifting (sheet open, bubble up, tab hidden, reduced motion).
-import { useCallback, useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { siteTodayStr } from "../../lib/siteTime.js";
 import { siteHourFloat } from "../../lib/nowContext.js";
@@ -20,11 +20,21 @@ import { openerFor } from "./booOpeners.js";
 import { coverageState, coverageLines, coverageSheetLine, unknownSheetLine, coverageButtonText, roundMiles } from "./booCoverage.js";
 import { pickLine, routeLine, timeLines } from "./booReactions.js";
 import { MAX_COVER, rectOf, isClear, touchesAny, besideSpot, perchSpot, pickClearSpot, estimateBubble, bubbleSideIfClear, chooseBubbleSide, TUCK_MAX } from "./booClear.js";
+import { styleHtml } from "../../lib/styleHtml.js";
+import { maybeHandoffCompanionToPlanner, openWayfindPlanner } from "../../lib/plannerCompanionBridge.js";
+
+// Table picks for "book Ulele Friday at 7 for 4": a lazy chunk, fetched only when a reservation request is typed.
+const ReservePicks = lazy(() => import("./ReservePicks.js"));
+// The concierge chat, inline in this same thread. Lazy so the main bundle does not grow.
+const ReserveConcierge = lazy(() => import("./ReserveConcierge.js"));
+const RESERVE_ASK_RX = /\b(?:book|reserve|reservations?|table)\b|\bfor\s+(?:\d{1,2}|two|three|four|five|six)\b/i;
 
 const HIDE_KEY = "wf_boo_hidden";
 // /group-plans: owner 2026-10-30, "get him out of the group pages". Friends
 // open those links to vote; nothing there should float over the ballot.
-const RESERVED_PATHS = ["/api", "/go", "/oauth", "/embed", "/share", "/group-plans"];
+// /partners: owner 2026-11-12, "Remove Santa from /partners. Keep the page
+// executive-grade, premium, clean and credible."
+const RESERVED_PATHS = ["/api", "/go", "/oauth", "/embed", "/share", "/group-plans", "/partners"];
 const HAUNT_PATH = "/halloween-in-florida";
 
 // Oct 1 through Oct 31 inclusive, by the Eastern site date (Santa takes Nov 1).
@@ -309,6 +319,11 @@ function readMs(text) {
   return Math.min(7000, Math.max(4200, 2400 + n * (TYPE_MS + 45)));
 }
 
+// No html:has() / body:has() in this sheet (scripts/test-root-has-selectors.mjs). It used to end with
+// body:has(.wf-map-explorer) .wf-boo-layer{display:none}, a rule for a class no element has ever
+// carried, which still made the browser re-style every link and button on the page after every
+// DOM change (85 ms per insertion on a throttled phone, 2026-11-13). To ask "is X on the page?"
+// use lib/rootPresence.js and an html.wf-has-* class.
 const CSS = `
 .boo-c{position:fixed;left:0;top:0;width:${SIZE}px;height:${SIZE}px;z-index:940;will-change:transform;touch-action:manipulation}
 .boo-c,.boo-c *{pointer-events:none !important}
@@ -465,7 +480,6 @@ input[data-boo-touch]{animation:boo-t-glow 1.2s ease-out both}
 .boo-ring{position:fixed;z-index:939;pointer-events:none;box-sizing:border-box;animation:boo-t-ring 1.2s ease-out both}
 @keyframes boo-t-ring{0%{box-shadow:0 0 0 0 rgba(249,115,22,0)}30%{box-shadow:0 0 0 3px rgba(249,115,22,.9),0 0 26px 6px rgba(249,115,22,.5)}100%{box-shadow:0 0 0 0 rgba(249,115,22,0)}}
 .boo-ty{color:transparent}
-body:has(.wf-map-explorer) .wf-boo-layer,body:has([data-analytics-page="map"]) .wf-boo-layer{display:none !important}
 @media (prefers-reduced-motion:reduce){.boo-ring{display:none !important}.boo-pi{animation:none !important}.boo-eye,.boo-lid,.boo-tr,.boo-sa *{animation:none !important}.boo-c-act,.boo-z,.boo-pk{animation:none !important}.boo-c-look,.boo-c-sway{animation:none !important;transform:none !important}.boo-zb,.boo-sm,.boo-sp{display:none !important}.boo-c-bob,.boo-c-bubble,.boo-s,.boo-s-back{animation:none}.boo-c-flip{transition:none}}
 `;
 
@@ -495,6 +509,8 @@ export default function BooCompanion() {
   const [antic, setAntic] = useState(null); // { name, key }
   const [msgs, setMsgs] = useState([]);
   const [cards, setCards] = useState([]);
+  const [reserve, setReserve] = useState(null); // a table request: { intent, point } -> up to 3 pick chips
+
   const [pending, setPending] = useState(false);
   const [wrapped, setWrapped] = useState(false);
   const [draft, setDraft] = useState("");
@@ -640,7 +656,7 @@ export default function BooCompanion() {
     openerSpoken.current = false;
     wrapRef.current = false;
     turnRef.current = 0;
-    setMsgs([]); setCards([]); setWrapped(false); setDraft(""); setPose("idle");
+    setMsgs([]); setCards([]); setReserve(null); setWrapped(false); setDraft(""); setPose("idle");
   }, [character]);
 
   useEffect(() => {
@@ -1083,8 +1099,23 @@ export default function BooCompanion() {
 
   // One place that puts a line in the bubble: picks the side with room, owns
   // the hide timer, and records when he last spoke so reactions keep a gap.
-  const showBubble = useCallback((text, ms) => {
-    relocateIfCovered(estimateBubble(text));
+  const showBubble = useCallback((text, ms, must) => {
+    const need = estimateBubble(text);
+    relocateIfCovered(need);
+    // Owner 2026-10-30: he never talks in front of text. An unprompted line
+    // with no clear side (a packed phone screen) is skipped, not laid over the
+    // menu or a heading; he will find a clear moment for the next one. A tap on
+    // him (zapBoo) still always answers.
+    // `must`: the out-of-coverage explanation, which the owner wants every
+    // visitor to see, still shows on the least covered side.
+    if (!must) {
+      const cur = reducedRef.current ? corner() : posRef.current, b = bounds();
+      const pref = { v: cur.y < 150 ? "below" : "above", h: cur.x + SIZE / 2 > b.vw / 2 ? "left" : "right" };
+      // controlRects returns controls only; readable words are the second list.
+      // A clear side means both, or the line would land on a heading.
+      const [ctl, txt] = restLists(true);
+      if (!bubbleSideIfClear(cur.x, cur.y, SIZE, need.bw, need.bh, pref, ctl, b.vw, b.vh, txt)) { track("boo_line_skipped_no_room", { path: pathRef.current }); return; }
+    }
     const { v, h } = sideFor(text);
     clearTimeout(bubbleT.current);
     lastSay.current = Date.now();
@@ -1379,7 +1410,7 @@ export default function BooCompanion() {
       const delay = travel ? wait : 0;
       showTimer = window.setTimeout(() => {
         if (dead || openRef.current) return;
-        showBubble(text);
+        showBubble(text, undefined, src === "coverage");
         if (src !== "opener" && src !== "route" && !travel && Math.random() < 0.4) { prefetch("sassy"); setPose("sassy"); }
         track("boo_companion_gag", { path: pathRef.current, n: gagCount.current, source: src, antic: name });
       }, delay);
@@ -1399,7 +1430,7 @@ export default function BooCompanion() {
           if (dead || openRef.current || coverQuiet()) return;
           const pp = last ? "up" : i === 1 ? "idle" : "talk";
           prefetch(pp); setPose(pp);
-          showBubble(line);
+          showBubble(line, undefined, true);
         }, at));
         at += readMs(line) + LINE_GAP;
       });
@@ -1602,8 +1633,16 @@ export default function BooCompanion() {
     };
   }, [roam]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const openSheet = useCallback((src) => {
+  const openSheet = useCallback((src, prompt) => {
     tappedRef.current = true;
+    // One Santa conversation (owner 2026-11-14): every Santa door (dock avatar, dock button, Ask Santa, the
+    // proactive offer, a tap on Santa himself) opens the iMessage chat, where he plans trips AND books tables.
+    // The legacy Santa sheet is never shown again; Boo (October) keeps his own sheet.
+    if (santaNow()) {
+      track("boo_companion_open", { source: src || "tap", path: pathRef.current, to: "santa_thread" });
+      openWayfindPlanner({ surface: "santa_" + String(src || "tap").replace(/[^a-z0-9_-]/gi, "").slice(0, 24), voice: "santa", pathname: pathRef.current, ...(prompt ? { prompt: String(prompt).slice(0, 300) } : {}) });
+      return;
+    }
     if (zapT.current.length) { stopZap(); setZap(null); setAntic(null); }
     clearTimeout(lookT.current); lookT.current = 0; setLook(null);
     setBubble(null);
@@ -1634,9 +1673,15 @@ export default function BooCompanion() {
   const send = useCallback(async (raw, source) => {
     const message = String(raw || "").trim().slice(0, 300);
     if (!message || pendingRef.current || wrapRef.current) return;
+    if (maybeHandoffCompanionToPlanner(message, { santa: santaNow(), pathname: pathRef.current })) {
+      setDraft("");
+      closeSheet();
+      return;
+    }
     pendingRef.current = true;
     setPending(true);
     setDraft("");
+    setReserve(null);
     setMsgs((m) => m.concat([{ role: "user", text: message }]));
     turnRef.current += 1;
     const turn = turnRef.current;
@@ -1663,6 +1708,12 @@ export default function BooCompanion() {
       setMsgs((m) => m.concat([{ role: "boo", text: clean(data.reply), fresh: true }]));
       playAntic(data.antic);
       setCards(Array.isArray(data.cards) ? data.cards.filter((c) => c && c.cta && c.cta.href).slice(0, 4) : []);
+      // A table request: the brain may send reserve, or (any brain) the shared reader finds it. Only dates and a party, never a name.
+      let intent = data.reserve && typeof data.reserve === "object" ? data.reserve : null;
+      if (!intent && RESERVE_ASK_RX.test(message)) {
+        try { const { parseReserveIntent } = await import("../../lib/guestReserveIntent.js"); intent = parseReserveIntent(message, siteTodayStr()); } catch { intent = null; }
+      }
+      if (intent) setReserve({ intent, point, k: Date.now(), message, place: data.reservePlace && data.reservePlace.id ? data.reservePlace : (intent.placeId ? { id: intent.placeId, name: intent.name || intent.restaurant || "" } : null) });
       if (wrap) { wrapRef.current = true; setWrapped(true); }
       const nCards = Array.isArray(data.cards) ? data.cards.length : 0;
       const rp = wrap ? "bye" : data.smallTalk ? "talk" : !nCards ? "greet" : KID_RX.test(message) ? "kids" : PRICE_RX.test(message) ? "price" : "sales";
@@ -1692,6 +1743,7 @@ export default function BooCompanion() {
       setElig({ ok: true, ch });
       eligibleRef.current = true;
       const prompt = e && e.detail && typeof e.detail.prompt === "string" ? e.detail.prompt : "";
+      if (ch === "santa") { openSheet("event", prompt); return; }
       if (!openRef.current) openSheet("event");
       if (prompt) send(prompt, "prompt");
     };
@@ -1772,13 +1824,13 @@ export default function BooCompanion() {
 
   return (
     <>
-      <style dangerouslySetInnerHTML={{ __html: CSS }} />
+      <style dangerouslySetInnerHTML={styleHtml(CSS)} />
       {santa ? (
         <SantaDock
           path={pathname}
           reduced={reduced}
-          onOpen={(src) => { if (!openRef.current) openSheet(src || "dock"); }}
-          onAsk={(prompt, src) => { if (!openRef.current) openSheet(src || "dock-cta"); if (prompt) send(prompt, src || "dock-cta"); }}
+          onOpen={(src) => { openSheet(src || "dock"); }}
+          onAsk={(prompt, src) => { openSheet(src || "dock-cta", prompt); }}
         />
       ) : (
       <div className="boo-c" ref={elRef} style={{ transform: "translate3d(" + SIDE + "px,-200px,0)" }}>
@@ -1858,6 +1910,12 @@ export default function BooCompanion() {
                     </div>
                   ))}
                 </div>
+              ) : null}
+              {reserve ? (
+                <Suspense fallback={null}>
+                  <ReserveConcierge key={"c" + reserve.k} embedded initialPlace={reserve.place} initialMessage={reserve.message} />
+                  {reserve.place ? null : <ReservePicks key={reserve.k} intent={reserve.intent} point={reserve.point} title="Tables to look at" />}
+                </Suspense>
               ) : null}
               {wrapped ? <a className="boo-wrap" href={listPath}>{santa ? SANTA.wrapLink : "Open the full haunt list"}</a> : null}
               {!wrapped && !hasUser && !pending && gap ? (

@@ -59,7 +59,12 @@ ok(readCouponWallet(storage).deal_test?.ts === 1234, "the pre-navigation clip pr
 const strip = readFileSync(path.resolve("app/components/ExperienceBlocks.js"), "utf8");
 const intent = readFileSync(path.resolve("app/components/IntentPageClient.js"), "utf8");
 const home = readFileSync(path.resolve("app/home.js"), "utf8");
-ok(/clipCouponToWallet\(coupon, window\.localStorage\)/.test(strip), "intent deal rows clip the exact coupon before navigation");
+// The storage argument is the browser's localStorage obtained through
+// lib/safeStorage.js: reading window.localStorage directly throws where site
+// data is blocked (scripts/check-storage-access.mjs), which would break the tap.
+ok(/clipCouponToWallet\(coupon, safeLocalStorage\(\)\)/.test(strip)
+  && /import \{[^}]*\bsafeLocalStorage\b[^}]*\} from "\.\.\/\.\.\/lib\/safeStorage\.js"/.test(strip)
+  && !/clipCouponToWallet\(coupon, window\.localStorage\)/.test(strip), "intent deal rows clip the exact coupon before navigation");
 ok(/\/coupons\?view=clipped/.test(intent), "intent deal rows navigate directly to the clipped wallet");
 ok(/&saved=1/.test(intent), "the intent handoff carries an explicit saved confirmation");
 ok(/!coupon \|\| !coupon\.id\).*window\.location\.href = "\/coupons"/.test(intent), "See all opens the full inventory without pretending it clipped a deal");

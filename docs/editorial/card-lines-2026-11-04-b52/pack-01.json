@@ -1,0 +1,1818 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 52. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJFVzHyBqt2YgRLBVjGWzqesg",
+   "name": "Lique Miami Waterfront Restaurant",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "mediterranean_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.liquemiami.com/team",
+     "source_name": "Lique Miami Waterfront Restaurant \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Lique Miami Restaurant and Lounge is located on the Intracoastal in Sunny Isles",
+      "Alex Podolnyy has over 25 years of experience in the hospitality industry",
+      "Working hours on Monday to Thursday are 6:00 p.m. to 1:00 a.m.",
+      "Working hours on Sunday are 4:00 p.m. to 12:00 a.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Restaurant and lounge located on the Intracoastal in Sunny Isles",
+    "why_here": "Lique Miami Restaurant and Lounge was opened located on the Intracoastal in Sunny Isles, according to the official team page. The page introduces Alex Podolnyy, who has over 25 years of experience in the hospitality industry.",
+    "know_before": "Lique Miami Restaurant and Lounge is located on the Intracoastal in Sunny Isles",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.liquemiami.com/team"
+     ],
+     "why_here": [
+      "https://www.liquemiami.com/team"
+     ],
+     "know_before": [
+      "https://www.liquemiami.com/team"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Lique Miami Restaurant and Lounge is located on the Intracoastal in Sunny Isles",
+      "source": "https://www.liquemiami.com/team"
+     },
+     {
+      "claim": "Alex Podolnyy has over 25 years of experience in the hospitality industry",
+      "source": "https://www.liquemiami.com/team"
+     },
+     {
+      "claim": "Working hours on Monday to Thursday are 6:00 p.m. to 1:00 a.m.",
+      "source": "https://www.liquemiami.com/team"
+     },
+     {
+      "claim": "Working hours on Sunday are 4:00 p.m. to 12:00 a.m.",
+      "source": "https://www.liquemiami.com/team"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJS9txGYS22YgRC1qyecIAQEE",
+   "name": "SuViche \u2013 Sushi and Ceviche",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "peruvian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://suviche.com/about-us/",
+     "source_name": "SuViche \u2013 Sushi and Ceviche \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "SuViche describes itself as Peruvian with an Asian kick",
+      "The concept blends the ingredients, traditions, and originality of Peruvian and Japanese cuisines",
+      "Chef Jaime is the creative mind behind the menu",
+      "Chef Jaime landed his first kitchen job at 17 at Alfresco, a Peruvian seafood restaurant in Lima"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Peruvian with an Asian kick, blending Peruvian and Japanese cuisines into a new type of cuisine",
+    "why_here": "SuViche strives to create a new type of cuisine that blends the ingredients, traditions, and originality of Peruvian and Japanese cuisines. Its concept integrates the two cuisines in unison to create a symbiotic relationship.",
+    "know_before": "The site lists catering and dine-in events, including catering at your place and dine-in events at SuViche.",
+    "local_tip": "Chef Jaime is described as the creative mind behind the menu.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://suviche.com/about-us/"
+     ],
+     "why_here": [
+      "https://suviche.com/about-us/"
+     ],
+     "know_before": [
+      "https://suviche.com/about-us/"
+     ],
+     "local_tip": [
+      "https://suviche.com/about-us/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "SuViche describes itself as Peruvian with an Asian kick",
+      "source": "https://suviche.com/about-us/"
+     },
+     {
+      "claim": "The concept blends the ingredients, traditions, and originality of Peruvian and Japanese cuisines",
+      "source": "https://suviche.com/about-us/"
+     },
+     {
+      "claim": "Chef Jaime is the creative mind behind the menu",
+      "source": "https://suviche.com/about-us/"
+     },
+     {
+      "claim": "Chef Jaime landed his first kitchen job at 17 at Alfresco, a Peruvian seafood restaurant in Lima",
+      "source": "https://suviche.com/about-us/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJt4oIIPK02YgReTQ4FTkATH0",
+   "name": "Forte dei Marmi",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "italian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://fdmmiami.com/concept/",
+     "source_name": "Forte dei Marmi \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Forte dei Marmi freshly procures local organic produce, farm-raised prime meats, and wild-caught seafood and fish",
+      "The concept combines Italian fine dining with slow food culture",
+      "The 1938 Mediterranean-revival building was renovated by local architect Chad Oppenheim",
+      "The wine and cocktail program focuses on organic and biodynamic offerings"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Italian fine dining with slow food culture in a 1938 Mediterranean-revival building",
+    "why_here": "Forte dei Marmi freshly procures local organic produce, farm-raised prime meats, and wild-caught seafood and fish for Italian fine dining with slow food culture. Its wine and cocktail program focuses on organic and biodynamic offerings.",
+    "know_before": "The wine and cocktail program focuses on organic and biodynamic offerings, per the official Concept page.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://fdmmiami.com/concept/"
+     ],
+     "why_here": [
+      "https://fdmmiami.com/concept/"
+     ],
+     "know_before": [
+      "https://fdmmiami.com/concept/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Forte dei Marmi freshly procures local organic produce, farm-raised prime meats, and wild-caught seafood and fish",
+      "source": "https://fdmmiami.com/concept/"
+     },
+     {
+      "claim": "The concept combines Italian fine dining with slow food culture",
+      "source": "https://fdmmiami.com/concept/"
+     },
+     {
+      "claim": "The 1938 Mediterranean-revival building was renovated by local architect Chad Oppenheim",
+      "source": "https://fdmmiami.com/concept/"
+     },
+     {
+      "claim": "The wine and cocktail program focuses on organic and biodynamic offerings",
+      "source": "https://fdmmiami.com/concept/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJO_tb0IvEwogRH_-_ERtiwZ4",
+   "name": "Dio Modern Mediterranean",
+   "category": "food",
+   "metro": "tampa",
+   "primary_type": "mediterranean_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://diotampa.com/about/",
+     "source_name": "Dio Modern Mediterranean \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Dio combines the freshest local ingredients and original recipes for a Greek and Lebanese menu",
+      "World-class wines, champagnes and signature cocktails compliment the entr\u00e9es",
+      "Dio is described as the perfect choice for Mediterranean cuisine and celebrating any special occasion"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Greek and Lebanese menu using the freshest local ingredients and original recipes",
+    "why_here": "The official page says its cuisine combines the freshest local ingredients and original recipes to produce a uniquely delicious Greek and Lebanese menu. It says world-class wines, champagnes and signature cocktails compliment these entr\u00e9es in perfect unison.",
+    "know_before": "Press and media enquiries can be sent to info@diotampa.com, and reservations are offered through the official site.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://diotampa.com/about/"
+     ],
+     "why_here": [
+      "https://diotampa.com/about/"
+     ],
+     "know_before": [
+      "https://diotampa.com/about/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Dio combines the freshest local ingredients and original recipes for a Greek and Lebanese menu",
+      "source": "https://diotampa.com/about/"
+     },
+     {
+      "claim": "World-class wines, champagnes and signature cocktails compliment the entr\u00e9es",
+      "source": "https://diotampa.com/about/"
+     },
+     {
+      "claim": "Dio is described as the perfect choice for Mediterranean cuisine and celebrating any special occasion",
+      "source": "https://diotampa.com/about/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJlcmxZryGk4gRW9fiGV80gE0",
+   "name": "Oaks by the Bay Park",
+   "category": "attractions",
+   "metro": "panama-city-florida",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.panamacity.gov/facilities/facility/details/Oaks-by-the-Bay-Park-7",
+     "source_name": "Oaks by the Bay Park \u2014 official source",
+     "source_class": "government",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Oaks by the Bay Park is a 5-acre waterfront park located on St. Andrews Bay",
+      "Park features include boardwalk, gazebo, pavilion, picnic areas and walking track",
+      "Park has a boardwalk to the bay, a gazebo, and an observation platform with benches to watch sailboats",
+      "Park hours are dawn until dusk unless special permission has been granted"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Five waterfront acres shaded by majestic oaks on St. Andrews Bay",
+    "why_here": "The City of Panama City's official facility page describes Oaks by the Bay Park as a 5-acre waterfront park on St. Andrews Bay, shaded by majestic oak trees. Features listed include a boardwalk to the bay, gazebo, observation platform, benches, pavilion and picnic areas.",
+    "know_before": "City page lists park hours as dawn until dusk unless special permission has been granted.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.panamacity.gov/facilities/facility/details/Oaks-by-the-Bay-Park-7"
+     ],
+     "why_here": [
+      "https://www.panamacity.gov/facilities/facility/details/Oaks-by-the-Bay-Park-7"
+     ],
+     "know_before": [
+      "https://www.panamacity.gov/facilities/facility/details/Oaks-by-the-Bay-Park-7"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Oaks by the Bay Park is a 5-acre waterfront park located on St. Andrews Bay",
+      "source": "https://www.panamacity.gov/facilities/facility/details/Oaks-by-the-Bay-Park-7"
+     },
+     {
+      "claim": "Park features include boardwalk, gazebo, pavilion, picnic areas and walking track",
+      "source": "https://www.panamacity.gov/facilities/facility/details/Oaks-by-the-Bay-Park-7"
+     },
+     {
+      "claim": "Park has a boardwalk to the bay, a gazebo, and an observation platform with benches to watch sailboats",
+      "source": "https://www.panamacity.gov/facilities/facility/details/Oaks-by-the-Bay-Park-7"
+     },
+     {
+      "claim": "Park hours are dawn until dusk unless special permission has been granted",
+      "source": "https://www.panamacity.gov/facilities/facility/details/Oaks-by-the-Bay-Park-7"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ3VgqMmQH2YgRNf6i_ghGt0I",
+   "name": "Maple and Cream Restaurant",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "brunch_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://mapleandcream.com/",
+     "source_name": "Maple and Cream Restaurant \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The menu features Croissant French Toast, Shrimp and Grits and Avocado Toast",
+      "The restaurant serves locally roasted coffee and signature drinks",
+      "The setting is described with warm wood accents, greenery and open seating that feels rustic and modern",
+      "Listed Sunday hours are 7:30 a.m. to 2:30 p.m. and the restaurant is closed on Tuesdays",
+      "Maple and Cream offers catering with pancakes, waffles, sandwiches and salads made fresh"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Croissant French Toast, Shrimp and Grits and Avocado Toast with locally roasted coffee",
+    "why_here": "Maple and Cream lists Croissant French Toast, Shrimp and Grits and Avocado Toast alongside locally roasted coffee and signature drinks. The site describes warm wood accents, greenery and open seating in a relaxed setting that feels both rustic and modern.",
+    "know_before": "The restaurant recommends making a reservation ahead of time, and its listed hours note it is closed on Tuesdays.",
+    "local_tip": "The site says catering features pancakes, waffles, sandwiches and salads made fresh for events.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://mapleandcream.com/"
+     ],
+     "why_here": [
+      "https://mapleandcream.com/"
+     ],
+     "know_before": [
+      "https://mapleandcream.com/"
+     ],
+     "local_tip": [
+      "https://mapleandcream.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The menu features Croissant French Toast, Shrimp and Grits and Avocado Toast",
+      "source": "https://mapleandcream.com/"
+     },
+     {
+      "claim": "The restaurant serves locally roasted coffee and signature drinks",
+      "source": "https://mapleandcream.com/"
+     },
+     {
+      "claim": "The setting is described with warm wood accents, greenery and open seating that feels rustic and modern",
+      "source": "https://mapleandcream.com/"
+     },
+     {
+      "claim": "Listed Sunday hours are 7:30 a.m. to 2:30 p.m. and the restaurant is closed on Tuesdays",
+      "source": "https://mapleandcream.com/"
+     },
+     {
+      "claim": "Maple and Cream offers catering with pancakes, waffles, sandwiches and salads made fresh",
+      "source": "https://mapleandcream.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ5X51C0t-54gRsXVSrOCDbF4",
+   "name": "Monkey Joe's",
+   "category": "attractions",
+   "metro": "orlando",
+   "primary_type": "amusement_center",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.monkeyjoes.com/locations/winter-park/",
+     "source_name": "Monkey Joe's \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Monkey Joe's offers fun for kids up to 12 years old with a dedicated toddler play area",
+      "Walk-ins are welcome for unlimited play at Monkey Joe's",
+      "Monkey Joe's is an indoor, air-conditioned activity center with arcade games and a prize counter",
+      "Monkey Joe's has private party rooms and a full concessions menu"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Indoor bounce, slide and arcade play built for kids up to 12",
+    "why_here": "Monkey Joe's is an indoor, air-conditioned play center for kids up to 12 years old with a dedicated toddler play area. Walk-ins are welcome for unlimited play, with arcade games, a prize counter and a full concessions menu on site.",
+    "know_before": "Walk-in guests are accepted any time the location is open for unlimited play.",
+    "local_tip": "Check the location page for daily specials and party-room options before a group visit.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.monkeyjoes.com/locations/winter-park/"
+     ],
+     "why_here": [
+      "https://www.monkeyjoes.com/locations/winter-park/"
+     ],
+     "know_before": [
+      "https://www.monkeyjoes.com/locations/winter-park/"
+     ],
+     "local_tip": [
+      "https://www.monkeyjoes.com/locations/winter-park/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Monkey Joe's offers fun for kids up to 12 years old with a dedicated toddler play area",
+      "source": "https://www.monkeyjoes.com/locations/winter-park/"
+     },
+     {
+      "claim": "Walk-ins are welcome for unlimited play at Monkey Joe's",
+      "source": "https://www.monkeyjoes.com/locations/winter-park/"
+     },
+     {
+      "claim": "Monkey Joe's is an indoor, air-conditioned activity center with arcade games and a prize counter",
+      "source": "https://www.monkeyjoes.com/locations/winter-park/"
+     },
+     {
+      "claim": "Monkey Joe's has private party rooms and a full concessions menu",
+      "source": "https://www.monkeyjoes.com/locations/winter-park/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJl7pHrlOB3YgRnYdQeQRBydE",
+   "name": "Sakeba Sushi & Grill",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "japanese_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://sakebakissimmee.com/",
+     "source_name": "Sakeba Sushi & Grill \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Sake Ba serves authentic Japanese cuisine with fresh sushi and premium sake",
+      "Sake Ba describes itself as authentic Japanese cuisine since 2010",
+      "Sake Ba has three Florida locations",
+      "The Kissimmee restaurant offers premium sushi and sashimi"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Fresh sushi and premium sake in authentic Japanese cuisine since 2010",
+    "why_here": "Sake Ba presents authentic Japanese cuisine with fresh sushi, premium sake and traditional dishes crafted with passion. Its Kissimmee restaurant is listed for premium sushi and sashimi, among three Florida locations.",
+    "know_before": "Sake Ba lists three Florida locations in Kissimmee, including Sake Ba Japanese Restaurant.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://sakebakissimmee.com/"
+     ],
+     "why_here": [
+      "https://sakebakissimmee.com/"
+     ],
+     "know_before": [
+      "https://sakebakissimmee.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Sake Ba serves authentic Japanese cuisine with fresh sushi and premium sake",
+      "source": "https://sakebakissimmee.com/"
+     },
+     {
+      "claim": "Sake Ba describes itself as authentic Japanese cuisine since 2010",
+      "source": "https://sakebakissimmee.com/"
+     },
+     {
+      "claim": "Sake Ba has three Florida locations",
+      "source": "https://sakebakissimmee.com/"
+     },
+     {
+      "claim": "The Kissimmee restaurant offers premium sushi and sashimi",
+      "source": "https://sakebakissimmee.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJq2vHhw6m2YgR30oK8tigD8M",
+   "name": "Cebiche-Bar Pembroke Pines",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "peruvian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://cebiche-bar.com/",
+     "source_name": "Cebiche-Bar Pembroke Pines \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Cebiche-Bar lists Peruvian, Latin-American and seafood cuisine",
+      "The official page says it is known for Anticuchos, Lomo Saltado, Causa and Arroz Con Mariscos",
+      "Listed Friday hours are 12:00 p.m. to 10:00 p.m.",
+      "Listed Saturday hours are 12:00 p.m. to 10:00 p.m.",
+      "The cuisine listing includes brunch, vegetarian and family-friendly options"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Anticuchos, Lomo Saltado, Causa and Arroz Con Mariscos at a Peruvian restaurant",
+    "why_here": "Cebiche-Bar lists its cuisine as Peruvian, Latin-American and seafood, with brunch among its offerings. Its official page says it is known for Anticuchos, Lomo Saltado, Causa and Arroz Con Mariscos.",
+    "know_before": "Cebiche-Bar lists Peruvian, Latin-American and seafood cuisine",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://cebiche-bar.com/"
+     ],
+     "why_here": [
+      "https://cebiche-bar.com/"
+     ],
+     "know_before": [
+      "https://cebiche-bar.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Cebiche-Bar lists Peruvian, Latin-American and seafood cuisine",
+      "source": "https://cebiche-bar.com/"
+     },
+     {
+      "claim": "The official page says it is known for Anticuchos, Lomo Saltado, Causa and Arroz Con Mariscos",
+      "source": "https://cebiche-bar.com/"
+     },
+     {
+      "claim": "Listed Friday hours are 12:00 p.m. to 10:00 p.m.",
+      "source": "https://cebiche-bar.com/"
+     },
+     {
+      "claim": "Listed Saturday hours are 12:00 p.m. to 10:00 p.m.",
+      "source": "https://cebiche-bar.com/"
+     },
+     {
+      "claim": "The cuisine listing includes brunch, vegetarian and family-friendly options",
+      "source": "https://cebiche-bar.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ_RSm-uWDk4gRAMR9tlLSgdI",
+   "name": "MISSION BBQ",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "barbecue_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://mission-bbq.com/",
+     "source_name": "MISSION BBQ \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "MISSION BBQ's mission is to serve authentic all-American barbecue done right",
+      "MISSION BBQ has donated over $47,000,000 to charities since opening in 2011",
+      "MISSION BBQ offers a free sandwich on Veterans Day for veterans with a live National Anthem at noon",
+      "A portion of every American Heroes Cup purchase helps families of fallen and injured first responders and military heroes"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "All-American barbecue served in honor of uniformed heroes",
+    "why_here": "MISSION BBQ says its mission is to serve authentic, mouth-watering all-American barbecue done right, inspired by traveling the country in search of the nation's best BBQ. The chain dedicates its giving to veterans, military, police, firefighters and first responders.",
+    "know_before": "MISSION BBQ offers a free sandwich on Veterans Day for veterans and a live National Anthem at noon.",
+    "local_tip": "A portion of every American Heroes Cup purchase helps families of fallen and injured first responders and military heroes.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://mission-bbq.com/"
+     ],
+     "why_here": [
+      "https://mission-bbq.com/"
+     ],
+     "know_before": [
+      "https://mission-bbq.com/"
+     ],
+     "local_tip": [
+      "https://mission-bbq.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "MISSION BBQ's mission is to serve authentic all-American barbecue done right",
+      "source": "https://mission-bbq.com/"
+     },
+     {
+      "claim": "MISSION BBQ has donated over $47,000,000 to charities since opening in 2011",
+      "source": "https://mission-bbq.com/"
+     },
+     {
+      "claim": "MISSION BBQ offers a free sandwich on Veterans Day for veterans with a live National Anthem at noon",
+      "source": "https://mission-bbq.com/"
+     },
+     {
+      "claim": "A portion of every American Heroes Cup purchase helps families of fallen and injured first responders and military heroes",
+      "source": "https://mission-bbq.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJLX6zaKjHwogRI3JpH6Umk2s",
+   "name": "Mojo Books & Records",
+   "category": "shopping",
+   "metro": "tampa",
+   "primary_type": "store",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.mojotampa.com/about.html",
+     "source_name": "Mojo Books & Records \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Mojo Books and Records opened its doors in April 2007",
+      "Mojo Books and Records is Tampa Bay's largest independent book and record store",
+      "Mojo stocks nearly every genre",
+      "Mojo calls books, vinyl and coffee its trifecta"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Tampa Bay's largest independent book and record store, with books, vinyl and coffee",
+    "why_here": "Mojo Books and Records opened its doors in April 2007 and has grown into a local staple. It stocks nearly every genre and calls itself Tampa Bay's largest independent book and record store, combining books, vinyl and coffee.",
+    "know_before": "If you do not see what you are looking for, the page says friendly staff are here to help.",
+    "local_tip": "Mojo describes itself as one of the few local coffee bars specializing in manual brewing and handcrafted flavors.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.mojotampa.com/about.html"
+     ],
+     "why_here": [
+      "https://www.mojotampa.com/about.html"
+     ],
+     "know_before": [
+      "https://www.mojotampa.com/about.html"
+     ],
+     "local_tip": [
+      "https://www.mojotampa.com/about.html"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Mojo Books and Records opened its doors in April 2007",
+      "source": "https://www.mojotampa.com/about.html"
+     },
+     {
+      "claim": "Mojo Books and Records is Tampa Bay's largest independent book and record store",
+      "source": "https://www.mojotampa.com/about.html"
+     },
+     {
+      "claim": "Mojo stocks nearly every genre",
+      "source": "https://www.mojotampa.com/about.html"
+     },
+     {
+      "claim": "Mojo calls books, vinyl and coffee its trifecta",
+      "source": "https://www.mojotampa.com/about.html"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJHbWpiS8e24gRkl-X4gxQBH8",
+   "name": "The Village Shops on Venetian Bay",
+   "category": "shopping",
+   "metro": "florida",
+   "primary_type": "shopping_mall",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.venetianvillage.com/",
+     "source_name": "The Village Shops on Venetian Bay \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Village Shops on Venetian Bay has more than 45 luxury shops and waterside restaurants",
+      "The Village Shops on Venetian Bay is known as the Jewel of Naples",
+      "The Village offers more waterfront shopping and dining than any other shopping center in Naples",
+      "The Village Shops lists hours of Mon-Sat: 10-6 and Sun: 12-5"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "More than 45 luxury shops and waterside restaurants on Venetian Bay",
+    "why_here": "The Village Shops on Venetian Bay is a waterfront Naples destination with more than 45 luxury shops and waterside restaurants. It calls itself the Jewel of Naples and says it offers more waterfront shopping and dining than any other shopping center in Naples.",
+    "know_before": "The Village lists hours of Mon-Sat 10-6 and Sun 12-5 on its official site.",
+    "local_tip": "Use the official directory and interactive map to locate stores and waterside dining.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.venetianvillage.com/"
+     ],
+     "why_here": [
+      "https://www.venetianvillage.com/"
+     ],
+     "know_before": [
+      "https://www.venetianvillage.com/"
+     ],
+     "local_tip": [
+      "https://www.venetianvillage.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Village Shops on Venetian Bay has more than 45 luxury shops and waterside restaurants",
+      "source": "https://www.venetianvillage.com/"
+     },
+     {
+      "claim": "The Village Shops on Venetian Bay is known as the Jewel of Naples",
+      "source": "https://www.venetianvillage.com/"
+     },
+     {
+      "claim": "The Village offers more waterfront shopping and dining than any other shopping center in Naples",
+      "source": "https://www.venetianvillage.com/"
+     },
+     {
+      "claim": "The Village Shops lists hours of Mon-Sat: 10-6 and Sun: 12-5",
+      "source": "https://www.venetianvillage.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJizk8HPOawogRmCb8BJubVDM",
+   "name": "Stop N Play",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "video_arcade",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://stopnplay.com/",
+     "source_name": "Stop N Play \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Stop N Play is family owned and operated since 1983",
+      "Stop N Play is the largest Family Fun Center in Pasco",
+      "Stop N Play features a nautical 9-hole indoor miniature golf course",
+      "Stop N Play has over 100 games"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Family owned since 1983, with a nautical 9-hole indoor miniature golf course",
+    "why_here": "Stop N Play is family owned and operated since 1983 Stop N Play is the largest Family Fun Center in Pasco Stop N Play features a nautical 9-hole indoor miniature golf course",
+    "know_before": "Stop N Play is family owned and operated since 1983",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://stopnplay.com/"
+     ],
+     "why_here": [
+      "https://stopnplay.com/"
+     ],
+     "know_before": [
+      "https://stopnplay.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Stop N Play is family owned and operated since 1983",
+      "source": "https://stopnplay.com/"
+     },
+     {
+      "claim": "Stop N Play is the largest Family Fun Center in Pasco",
+      "source": "https://stopnplay.com/"
+     },
+     {
+      "claim": "Stop N Play features a nautical 9-hole indoor miniature golf course",
+      "source": "https://stopnplay.com/"
+     },
+     {
+      "claim": "Stop N Play has over 100 games",
+      "source": "https://stopnplay.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ5RBa1A604IgR0u0SUVMbBQE",
+   "name": "Merritt Island National Wildlife Refuge Visitor Center",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "visitor_center",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.fws.gov/refuge/merritt-island",
+     "source_name": "Merritt Island National Wildlife Refuge Visitor Center \u2014 official source",
+     "source_class": "government",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The refuge was established as an overlay of NASA's John F. Kennedy Space Center",
+      "The refuge is located along Florida's coast about 60 miles east of Orlando",
+      "The refuge lies within one of the most productive estuaries in the country",
+      "A Refuge Pass is required to enter Black Point Wildlife Drive and Bio Lab Road",
+      "The refuge was established in 1963 for the protection of migratory birds"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Wildlife refuge overlaid on Kennedy Space Center in a highly productive estuary",
+    "why_here": "Merritt Island National Wildlife Refuge lies along Florida's coast about 60 miles east of Orlando as an overlay of NASA's Kennedy Space Center. The refuge lies within one of the most productive estuaries in the country and offers bird watching and nature study.",
+    "know_before": "A Refuge Pass is required to enter Black Point Wildlife Drive and Bio Lab Road, per the official refuge site.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.fws.gov/refuge/merritt-island"
+     ],
+     "why_here": [
+      "https://www.fws.gov/refuge/merritt-island"
+     ],
+     "know_before": [
+      "https://www.fws.gov/refuge/merritt-island"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The refuge was established as an overlay of NASA's John F. Kennedy Space Center",
+      "source": "https://www.fws.gov/refuge/merritt-island"
+     },
+     {
+      "claim": "The refuge is located along Florida's coast about 60 miles east of Orlando",
+      "source": "https://www.fws.gov/refuge/merritt-island"
+     },
+     {
+      "claim": "The refuge lies within one of the most productive estuaries in the country",
+      "source": "https://www.fws.gov/refuge/merritt-island"
+     },
+     {
+      "claim": "A Refuge Pass is required to enter Black Point Wildlife Drive and Bio Lab Road",
+      "source": "https://www.fws.gov/refuge/merritt-island"
+     },
+     {
+      "claim": "The refuge was established in 1963 for the protection of migratory birds",
+      "source": "https://www.fws.gov/refuge/merritt-island"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJsVSG4xpJ5IgRJkKdvjTSzms",
+   "name": "Courtyard by Marriott Jacksonville Beach Oceanfront",
+   "category": "hotels",
+   "metro": "florida",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.marriott.com/en-us/hotels/jaxjv-courtyard-jacksonville-beach-oceanfront/overview/",
+     "source_name": "Courtyard by Marriott Jacksonville Beach Oceanfront \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The hotel offers a heated outdoor pool and a hotel gym",
+      "Listed property amenities include a restaurant, bar, outdoor pool, hot tub and fitness center",
+      "Listed property amenities include beach access",
+      "Check-in is at 4:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Oceanfront hotel with a heated outdoor pool, hot tub and fitness center",
+    "why_here": "Marriott presents Courtyard Jacksonville Beach Oceanfront as a hotel where guests can take the plunge in a heated outdoor pool or break a sweat in the hotel gym. Listed amenities include a restaurant, bar, outdoor pool, hot tub and fitness center.",
+    "know_before": "Check-in is at 4:00 p.m., according to Marriott's official hotel page.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.marriott.com/en-us/hotels/jaxjv-courtyard-jacksonville-beach-oceanfront/overview/"
+     ],
+     "why_here": [
+      "https://www.marriott.com/en-us/hotels/jaxjv-courtyard-jacksonville-beach-oceanfront/overview/"
+     ],
+     "know_before": [
+      "https://www.marriott.com/en-us/hotels/jaxjv-courtyard-jacksonville-beach-oceanfront/overview/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The hotel offers a heated outdoor pool and a hotel gym",
+      "source": "https://www.marriott.com/en-us/hotels/jaxjv-courtyard-jacksonville-beach-oceanfront/overview/"
+     },
+     {
+      "claim": "Listed property amenities include a restaurant, bar, outdoor pool, hot tub and fitness center",
+      "source": "https://www.marriott.com/en-us/hotels/jaxjv-courtyard-jacksonville-beach-oceanfront/overview/"
+     },
+     {
+      "claim": "Listed property amenities include beach access",
+      "source": "https://www.marriott.com/en-us/hotels/jaxjv-courtyard-jacksonville-beach-oceanfront/overview/"
+     },
+     {
+      "claim": "Check-in is at 4:00 p.m.",
+      "source": "https://www.marriott.com/en-us/hotels/jaxjv-courtyard-jacksonville-beach-oceanfront/overview/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJB1Gtyq2t2YgR7elBHCaZIW4",
+   "name": "Doggi's Arepa Bar",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://eatdoggis.com/",
+     "source_name": "Doggi's Arepa Bar \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Doggi's specializes in authentic Venezuelan cuisine including fresh arepas, cachapas, teque\u00f1os, empanadas, bowls and burgers",
+      "Doggi's offers online ordering for pickup and delivery",
+      "Arepas and menu favorites are made fresh to order",
+      "Doggi's offers catering for private events, office lunches, family gatherings, watch parties and special occasions"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Authentic Venezuelan restaurant serving fresh arepas, empanadas, cachapas and teque\u00f1os",
+    "why_here": "Doggi's Arepa Bar specializes in authentic Venezuelan cuisine, including fresh arepas, cachapas, teque\u00f1os, empanadas, bowls and burgers. The page describes family-friendly dining and homemade recipes that celebrate Venezuelan cuisine.",
+    "know_before": "Doggi's offers online ordering for pickup and delivery from your nearest location.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://eatdoggis.com/"
+     ],
+     "why_here": [
+      "https://eatdoggis.com/"
+     ],
+     "know_before": [
+      "https://eatdoggis.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Doggi's specializes in authentic Venezuelan cuisine including fresh arepas, cachapas, teque\u00f1os, empanadas, bowls and burgers",
+      "source": "https://eatdoggis.com/"
+     },
+     {
+      "claim": "Doggi's offers online ordering for pickup and delivery",
+      "source": "https://eatdoggis.com/"
+     },
+     {
+      "claim": "Arepas and menu favorites are made fresh to order",
+      "source": "https://eatdoggis.com/"
+     },
+     {
+      "claim": "Doggi's offers catering for private events, office lunches, family gatherings, watch parties and special occasions",
+      "source": "https://eatdoggis.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJuUH8_0K32YgRXnW1s-s0g_U",
+   "name": "El Patio Wynwood",
+   "category": "nightlife",
+   "metro": "miami-dade",
+   "primary_type": "bar",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://elpatiowynwood.com/",
+     "source_name": "El Patio Wynwood \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "El Patio Wynwood describes itself on its official site as 'The best latin club' in Wynwood, Miami",
+      "The official site lists happenings Monday through Sunday and states it is open 7 days a week",
+      "The venue states doors are open all days till 3 AM on its official homepage"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Wynwood Latin club and restaurant billing itself as the best Latin club, open seven days",
+    "why_here": "El Patio Wynwood's official site calls it 'The best latin club' in Miami's Wynwood, with daily programming listed Monday through Sunday and reservations by phone. Its official social feed promoted on the site highlights live salsa nights, Latin food and reggaeton under the El Patio Wynwood name.",
+    "know_before": "The official site states doors are open all days till 3 AM.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://elpatiowynwood.com/"
+     ],
+     "why_here": [
+      "https://elpatiowynwood.com/"
+     ],
+     "know_before": [
+      "https://elpatiowynwood.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "El Patio Wynwood describes itself on its official site as 'The best latin club' in Wynwood, Miami",
+      "source": "https://elpatiowynwood.com/"
+     },
+     {
+      "claim": "The official site lists happenings Monday through Sunday and states it is open 7 days a week",
+      "source": "https://elpatiowynwood.com/"
+     },
+     {
+      "claim": "The venue states doors are open all days till 3 AM on its official homepage",
+      "source": "https://elpatiowynwood.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJaeQTmKSl2YgR4fGkVeDv7Ps",
+   "name": "Island Tings",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://islandtingsmiamigardens.com/",
+     "source_name": "Island Tings \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Island Tings cooks curry chicken, brown stew, oxtail and jerk chicken fresh daily",
+      "Founder Mama D brought family recipes from St. Elizabeth, Jamaica to Miami Gardens",
+      "Island Tings is scratch-made daily with no frozen proteins",
+      "Island Tings uses genuine Scotch bonnet pepper"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Jamaican dishes cooked fresh daily from Mama D's original family recipes",
+    "why_here": "Island Tings cooks curry chicken, brown stew, oxtail and jerk chicken fresh daily Founder Mama D brought family recipes from St. Elizabeth, Jamaica to Miami Gardens",
+    "know_before": "Island Tings cooks curry chicken, brown stew, oxtail and jerk chicken fresh daily",
+    "local_tip": "Delivery and pickup are available, and catering is listed for events, parties and bulk orders.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://islandtingsmiamigardens.com/"
+     ],
+     "why_here": [
+      "https://islandtingsmiamigardens.com/"
+     ],
+     "know_before": [
+      "https://islandtingsmiamigardens.com/"
+     ],
+     "local_tip": [
+      "https://islandtingsmiamigardens.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Island Tings cooks curry chicken, brown stew, oxtail and jerk chicken fresh daily",
+      "source": "https://islandtingsmiamigardens.com/"
+     },
+     {
+      "claim": "Founder Mama D brought family recipes from St. Elizabeth, Jamaica to Miami Gardens",
+      "source": "https://islandtingsmiamigardens.com/"
+     },
+     {
+      "claim": "Island Tings is scratch-made daily with no frozen proteins",
+      "source": "https://islandtingsmiamigardens.com/"
+     },
+     {
+      "claim": "Island Tings uses genuine Scotch bonnet pepper",
+      "source": "https://islandtingsmiamigardens.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJuRRozyXb5ogR1yR_eFPUskw",
+   "name": "Hilton Vacation Club The Cove on Ormond Beach",
+   "category": "hotels",
+   "metro": "florida",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.hilton.com/en/hotels/dabcogv-hilton-vacation-club-the-cove-on-ormond-beach/",
+     "source_name": "Hilton Vacation Club The Cove on Ormond Beach \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "All rooms have ocean views and their own kitchen, per Hilton's official hotel page",
+      "The property has both an indoor and an outdoor pool",
+      "The property has a barbecue area and a fitness center"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Ormond Beach vacation club where every room has ocean views and its own kitchen",
+    "why_here": "Hilton's official hotel page says The Cove on Ormond Beach rooms all have ocean views and their own kitchen. The property lists both an indoor and an outdoor pool, plus a barbecue area and a fitness center on its official amenities listing.",
+    "know_before": "The property has both an indoor and an outdoor pool, plus a barbecue area and a fitness center, per Hilton's official page.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.hilton.com/en/hotels/dabcogv-hilton-vacation-club-the-cove-on-ormond-beach/"
+     ],
+     "why_here": [
+      "https://www.hilton.com/en/hotels/dabcogv-hilton-vacation-club-the-cove-on-ormond-beach/"
+     ],
+     "know_before": [
+      "https://www.hilton.com/en/hotels/dabcogv-hilton-vacation-club-the-cove-on-ormond-beach/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "All rooms have ocean views and their own kitchen, per Hilton's official hotel page",
+      "source": "https://www.hilton.com/en/hotels/dabcogv-hilton-vacation-club-the-cove-on-ormond-beach/"
+     },
+     {
+      "claim": "The property has both an indoor and an outdoor pool",
+      "source": "https://www.hilton.com/en/hotels/dabcogv-hilton-vacation-club-the-cove-on-ormond-beach/"
+     },
+     {
+      "claim": "The property has a barbecue area and a fitness center",
+      "source": "https://www.hilton.com/en/hotels/dabcogv-hilton-vacation-club-the-cove-on-ormond-beach/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJn6yWTzG12YgRMiN1E6rW1jU",
+   "name": "I Scream Gelato - Miami, FL",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "ice_cream_shop",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://iscream-gelato.com/",
+     "source_name": "I Scream Gelato - Miami, FL \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "I Scream Gelato makes everything in-house with ingredients imported directly from Italy",
+      "Listed flavors include Chocolate, Vanilla, Ferrero Rocher, Wild Berry Sorbet and Dulce De Leche",
+      "Desserts include Belgian waffles, pancakes and bubble waffles served with a scoop of gelato",
+      "Plant-based gelatos and sorbets include Coconut, Chocolate, Pistachio and Mango"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Handcrafted gelato made in-house with ingredients imported directly from Italy",
+    "why_here": "I Scream Gelato makes everything in-house with ingredients imported directly from Italy Listed flavors include Chocolate, Vanilla, Ferrero Rocher, Wild Berry Sorbet and Dulce De Leche",
+    "know_before": "For a vegan option, the site lists plant-based gelatos and sorbets in Coconut, Chocolate, Pistachio and Mango flavors.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://iscream-gelato.com/"
+     ],
+     "why_here": [
+      "https://iscream-gelato.com/"
+     ],
+     "know_before": [
+      "https://iscream-gelato.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "I Scream Gelato makes everything in-house with ingredients imported directly from Italy",
+      "source": "https://iscream-gelato.com/"
+     },
+     {
+      "claim": "Listed flavors include Chocolate, Vanilla, Ferrero Rocher, Wild Berry Sorbet and Dulce De Leche",
+      "source": "https://iscream-gelato.com/"
+     },
+     {
+      "claim": "Desserts include Belgian waffles, pancakes and bubble waffles served with a scoop of gelato",
+      "source": "https://iscream-gelato.com/"
+     },
+     {
+      "claim": "Plant-based gelatos and sorbets include Coconut, Chocolate, Pistachio and Mango",
+      "source": "https://iscream-gelato.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJH6Wb5UVAw4gRa9tmEmF9kJE",
+   "name": "Morton's Gourmet Market",
+   "category": "shopping",
+   "metro": "manatee-sarasota",
+   "primary_type": "grocery_store",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://mortonsmarket.com/",
+     "source_name": "Morton's Gourmet Market \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Morton's Gourmet Market has been the mecca of great food for more than half a century",
+      "Morton's offers chef-prepared sushi rolls and sashimi",
+      "Morton's meat and seafood includes USDA Prime beef",
+      "Morton's cheese selection is alongside an olive bar"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Sarasota's gourmet supermarket and mecca of great food for more than half a century",
+    "why_here": "Morton's Gourmet Market describes its Sarasota gourmet supermarket as the mecca of great food for more than half a century. It lists chef-prepared sushi, USDA Prime beef and fresh seafood, plus a bakery and a cheese selection with an olive bar.",
+    "know_before": "Morton's Gourmet Market has been the mecca of great food for more than half a century",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://mortonsmarket.com/"
+     ],
+     "why_here": [
+      "https://mortonsmarket.com/"
+     ],
+     "know_before": [
+      "https://mortonsmarket.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Morton's Gourmet Market has been the mecca of great food for more than half a century",
+      "source": "https://mortonsmarket.com/"
+     },
+     {
+      "claim": "Morton's offers chef-prepared sushi rolls and sashimi",
+      "source": "https://mortonsmarket.com/"
+     },
+     {
+      "claim": "Morton's meat and seafood includes USDA Prime beef",
+      "source": "https://mortonsmarket.com/"
+     },
+     {
+      "claim": "Morton's cheese selection is alongside an olive bar",
+      "source": "https://mortonsmarket.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJm7JS4ryGk4gRLjCESMTWtec",
+   "name": "Alice's on Bayview",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.alicesonbayview.com/",
+     "source_name": "Alice's on Bayview \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Alice's on Bayview is a restaurant and bar in historic St. Andrews, Florida",
+      "Alice's on Bayview overlooks the St. Andrews Marina",
+      "Hours on Saturday are 10:00 a.m. to 2:00 p.m. and 4:00 p.m. to 9:00 p.m.",
+      "Hours on Sunday are 10:00 a.m. to 2:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Restaurant and bar in historic St. Andrews overlooking St. Andrews Marina",
+    "why_here": "Alice's on Bayview is a restaurant and bar in historic St. Andrews, Florida, overlooking the St. Andrews Marina. Its official site invites guests to join for delicious food and great service overlooking the marina.",
+    "know_before": "Alice's on Bayview is a restaurant and bar in historic St. Andrews, Florida",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.alicesonbayview.com/"
+     ],
+     "why_here": [
+      "https://www.alicesonbayview.com/"
+     ],
+     "know_before": [
+      "https://www.alicesonbayview.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Alice's on Bayview is a restaurant and bar in historic St. Andrews, Florida",
+      "source": "https://www.alicesonbayview.com/"
+     },
+     {
+      "claim": "Alice's on Bayview overlooks the St. Andrews Marina",
+      "source": "https://www.alicesonbayview.com/"
+     },
+     {
+      "claim": "Hours on Saturday are 10:00 a.m. to 2:00 p.m. and 4:00 p.m. to 9:00 p.m.",
+      "source": "https://www.alicesonbayview.com/"
+     },
+     {
+      "claim": "Hours on Sunday are 10:00 a.m. to 2:00 p.m.",
+      "source": "https://www.alicesonbayview.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ9UrUHj6Bk4gRcViBQ57BUs4",
+   "name": "Harrison's Kitchen & Bar",
+   "category": "food",
+   "metro": "panama-city-florida",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://harrisonskitchenandbar.com/",
+     "source_name": "Harrison's Kitchen & Bar \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Harrison's is set along the waterfront in Historic Downtown Panama City",
+      "The restaurant offers views of the Panama City Marina and St. Andrews Bay",
+      "Cuisine is inspired by traditional Southern flavors and fresh Gulf seafood",
+      "Inside features comfortable seating and a large, full-service bar",
+      "Outside dining includes covered and open patio seating",
+      "Reservations are available for dinner service daily beginning at 4:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Waterfront dining with views of Panama City Marina and St. Andrews Bay",
+    "why_here": "Set along the waterfront in Historic Downtown Panama City, Harrison's Kitchen & Bar pairs coastal cuisine with beautiful views of the Panama City Marina and St. Andrews Bay. Its cuisine is inspired by traditional Southern flavors and fresh Gulf seafood.",
+    "know_before": "Reservations are available for dinner service daily beginning at 4:00 p.m.",
+    "local_tip": "Outside dining includes covered and open patio seating, while inside features a large, full-service bar.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://harrisonskitchenandbar.com/"
+     ],
+     "why_here": [
+      "https://harrisonskitchenandbar.com/"
+     ],
+     "know_before": [
+      "https://harrisonskitchenandbar.com/"
+     ],
+     "local_tip": [
+      "https://harrisonskitchenandbar.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Harrison's is set along the waterfront in Historic Downtown Panama City",
+      "source": "https://harrisonskitchenandbar.com/"
+     },
+     {
+      "claim": "The restaurant offers views of the Panama City Marina and St. Andrews Bay",
+      "source": "https://harrisonskitchenandbar.com/"
+     },
+     {
+      "claim": "Cuisine is inspired by traditional Southern flavors and fresh Gulf seafood",
+      "source": "https://harrisonskitchenandbar.com/"
+     },
+     {
+      "claim": "Inside features comfortable seating and a large, full-service bar",
+      "source": "https://harrisonskitchenandbar.com/"
+     },
+     {
+      "claim": "Outside dining includes covered and open patio seating",
+      "source": "https://harrisonskitchenandbar.com/"
+     },
+     {
+      "claim": "Reservations are available for dinner service daily beginning at 4:00 p.m.",
+      "source": "https://harrisonskitchenandbar.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJB8qH6P3ywogRQOcVRLewx8s",
+   "name": "The Ozona Pig",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "barbecue_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://theozonapig.com/index.html",
+     "source_name": "The Ozona Pig \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Located in the heart of historic Ozona, one of the oldest communities in Pinellas County",
+      "Southern Style BBQ is influenced by Memphis roots and the original Bobbys Bar-B-Que in Fort Myers",
+      "Serves hickory smoked, slow cooked BBQ pulled pork and brisket, ribs and chicken",
+      "Family owned and operated since 2004",
+      "Hours Monday-Thursday 11AM-9PM, Friday-Saturday 11AM-10PM, closed Sunday"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Southern BBQ in historic Ozona, slow-cooked over hickory since 2004",
+    "why_here": "Family owned and operated since 2004 in the heart of historic Ozona, serving Southern Style BBQ influenced by Memphis roots and the original Bobbys Bar-B-Que in Fort Myers, with hickory smoked, slow cooked pulled pork and brisket.",
+    "know_before": "Closed on Sunday per the official homepage hours.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://theozonapig.com/index.html"
+     ],
+     "why_here": [
+      "https://theozonapig.com/index.html"
+     ],
+     "know_before": [
+      "https://theozonapig.com/index.html"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Located in the heart of historic Ozona, one of the oldest communities in Pinellas County",
+      "source": "https://theozonapig.com/index.html"
+     },
+     {
+      "claim": "Southern Style BBQ is influenced by Memphis roots and the original Bobbys Bar-B-Que in Fort Myers",
+      "source": "https://theozonapig.com/index.html"
+     },
+     {
+      "claim": "Serves hickory smoked, slow cooked BBQ pulled pork and brisket, ribs and chicken",
+      "source": "https://theozonapig.com/index.html"
+     },
+     {
+      "claim": "Family owned and operated since 2004",
+      "source": "https://theozonapig.com/index.html"
+     },
+     {
+      "claim": "Hours Monday-Thursday 11AM-9PM, Friday-Saturday 11AM-10PM, closed Sunday",
+      "source": "https://theozonapig.com/index.html"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJrUBHjVwd3ogRnyjGkpARCsA",
+   "name": "Dirty Birds Tiki Bar & Grill",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.dirtybirdstikibar.com/",
+     "source_name": "Dirty Birds Tiki Bar & Grill \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Dirty Birds is Cocoa Beach's only authentic tiki bar, just steps from the beach",
+      "Dirty Birds is now open daily at 11:00 a.m. in downtown Cocoa Beach",
+      "Dirty Birds serves casual fare with a Floribbean flavor",
+      "The Birds Nest rooftop overlooks Downtown Cocoa Beach"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Cocoa Beach's only authentic tiki bar, just steps from the beach",
+    "why_here": "Just steps from the beach, Dirty Birds Tiki Bar & Grill is Cocoa Beach's only authentic tiki bar, serving casual fare with a Floribbean twist. The official site says it offers live music and a tiki vibe daily in downtown Cocoa Beach.",
+    "know_before": "Now open daily at 11:00 a.m. in downtown Cocoa Beach, per the official homepage.",
+    "local_tip": "The Birds Nest rooftop offers sunsets and ocean breeze overlooking Downtown Cocoa Beach.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.dirtybirdstikibar.com/"
+     ],
+     "why_here": [
+      "https://www.dirtybirdstikibar.com/"
+     ],
+     "know_before": [
+      "https://www.dirtybirdstikibar.com/"
+     ],
+     "local_tip": [
+      "https://www.dirtybirdstikibar.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Dirty Birds is Cocoa Beach's only authentic tiki bar, just steps from the beach",
+      "source": "https://www.dirtybirdstikibar.com/"
+     },
+     {
+      "claim": "Dirty Birds is now open daily at 11:00 a.m. in downtown Cocoa Beach",
+      "source": "https://www.dirtybirdstikibar.com/"
+     },
+     {
+      "claim": "Dirty Birds serves casual fare with a Floribbean flavor",
+      "source": "https://www.dirtybirdstikibar.com/"
+     },
+     {
+      "claim": "The Birds Nest rooftop overlooks Downtown Cocoa Beach",
+      "source": "https://www.dirtybirdstikibar.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ6cnHXhba5ogRhO7F1RIwqJI",
+   "name": "Streamline Hotel",
+   "category": "hotels",
+   "metro": "florida",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://streamlinehotel.com/",
+     "source_name": "Streamline Hotel \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Streamline opened in 1940",
+      "The hotel is fully restored with Art Deco style and elegance",
+      "In 1947 Bill France Sr. and others gathered at the rooftop bar",
+      "The 1947 meeting adjourned with a signed formation of what is now known as NASCAR"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Opened in 1940 and fully restored with Art Deco style and elegance",
+    "why_here": "Opened in 1940, the Streamline was a popular refuge for celebrities and race car drivers, and is now fully restored with Art Deco style and elegance. In 1947, Bill France Sr., race car drivers, officials and promoters gathered at the rooftop bar.",
+    "know_before": "The Streamline opened in 1940",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://streamlinehotel.com/"
+     ],
+     "why_here": [
+      "https://streamlinehotel.com/"
+     ],
+     "know_before": [
+      "https://streamlinehotel.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Streamline opened in 1940",
+      "source": "https://streamlinehotel.com/"
+     },
+     {
+      "claim": "The hotel is fully restored with Art Deco style and elegance",
+      "source": "https://streamlinehotel.com/"
+     },
+     {
+      "claim": "In 1947 Bill France Sr. and others gathered at the rooftop bar",
+      "source": "https://streamlinehotel.com/"
+     },
+     {
+      "claim": "The 1947 meeting adjourned with a signed formation of what is now known as NASCAR",
+      "source": "https://streamlinehotel.com/"
+     }
+    ]
+   }
+  }
+ ]
+}
