@@ -89,5 +89,12 @@
     "decision_owner": "wallstreethyena",
     "tracking": "#2539 follow up (Santa reservations mission)",
     "reason": "Notification integrity. Adds 'replayed': true to the three saved-booking returns of wf_reserve_book and wf_reserve_request (assertion guarded: exactly 3 each, rebuilt from the live definition, no-op when already applied), so a retried booking never re-sends its confirmation. Additive JSON key; the app already ignores it when absent and falls back to the booking's created_at. Not applied: the connector apply was refused by the session's safety gate, owner applies."
+  },
+  {
+    "file": "supabase/migrations/20261116120000_wf_reserve_notifications.sql",
+    "sha256": "691f7e9bc4284ad1df48328a4d739f27cd5280fd6ed981830c20d81a4774a668",
+    "decision_owner": "wallstreethyena",
+    "tracking": "#2543 follow-up: booking confirmation text (lib/reserveSms.js)",
+    "reason": "NOT APPLIED. New table wf_reserve_notifications (RLS on, no policies, service role only): one row per (booking, kind) holding the guest's text consent, recipient, provider message id and forward-only delivery status. Additive; rollback = drop table. Unused until RESERVE_SMS_ENABLED=1 with Twilio credentials, so applying it changes no behavior."
   }
 ]
