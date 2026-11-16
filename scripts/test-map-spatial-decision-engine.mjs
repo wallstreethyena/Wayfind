@@ -1438,6 +1438,7 @@ let mapComponentMod = null;
   assert.ok(htmlUnconfirmed.includes("nearby places have unconfirmed hours"), "Unconfirmed hours renders unconfirmed subtitle");
   assert.ok(htmlUnconfirmed.includes("Show all nearby"), "Exposes 1-tap Show all nearby button");
 
+  const CLOSED_FIXTURE_DAY = (new Date(Date.now() - 300 * 60000).getUTCDay() + 3) % 7;
   // b) Confirmed closed only -> "Confirmed closed nearby right now" + "All X nearby places are closed at this hour"
   const htmlClosed = renderToStaticMarkup(
     createElement(mapComponentMod.default, {
@@ -1464,7 +1465,11 @@ let mapComponentMod = null;
           {
             id: "p-closed-1", name: "Closed Place 1", lat: 27.95, lng: -82.45, category: "food", primaryType: "restaurant", types: ["restaurant"], governed_score: 95,
             utcOffset: -300,
-            oh: { periods: [{ open: { day: 1, hour: 10, minute: 0 }, close: { day: 1, hour: 12, minute: 0 } }] }, // closed Friday
+            // Open only on a weekday three days away from TODAY at this place's
+            // utcOffset, so it is confirmed closed whenever the guard runs. The
+            // old fixed Monday 10:00-12:00 window was really open on Mondays
+            // 10:00-11:30 ET and failed the production build (2026-11-16 15:05Z).
+            oh: { periods: [{ open: { day: CLOSED_FIXTURE_DAY, hour: 10, minute: 0 }, close: { day: CLOSED_FIXTURE_DAY, hour: 12, minute: 0 } }] },
           },
         ],
         __seedAreaStatus: "ready",
