@@ -32,8 +32,9 @@ produced" and it read as missing.
 | --- | --- | --- |
 | `wayfind-pin.svg` | The pin mark alone, 32x36, orange gradient, transparent centre, no glow halo. | The user's own location on the map. NOT for places -- see below. |
 | `wayfind-pin-neon.svg` | The user-location pin on the map — neon outline remake of the brand pin (owner-supplied look, 2026-08-11). Transparent, glow baked into the SVG filter. OUTLINE PIN = YOU; never used for places. |
-| `wayfind-logo.svg` | Full wordmark, white lettering with the gradient pin. | On dark backgrounds. |
-| `wayfind-logo-ink.svg` | Same wordmark, near-black lettering (`#0E1116`). | On light backgrounds. |
+| `wayfind-logo.svg` | Older wordmark, white lettering with the gradient filled pin. | Kept for the map pin family. Not the badge logo. |
+| `wayfind-logo-ink.svg` | Same older wordmark, near-black lettering (`#0E1116`). | On light backgrounds. |
+| `wayfind-official-white.svg` | Vector of the corrected logo: white wordmark, flat `#FD5F00` i dot, outline pin with a ring and a pointed tip. Traced from the vault master `wayfind/logo/wayfind-logo-white-orange-transparent-a.png`. | The Top Rated badge copies this file. The site header still uses `wayfind-official-white.png`. |
 | `wayfind-logo-bold.svg` | Heavier wordmark cut, white lettering, slightly wider. | Where the wordmark must hold at small sizes or over busy imagery. |
 
 ### iOS app icon
