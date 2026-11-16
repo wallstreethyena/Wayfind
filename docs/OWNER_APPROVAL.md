@@ -51,14 +51,14 @@ generated files such as `scripts/lib/guard-expectations.tsv`. Same command, no
 new comment.
 
 **It stops matching** when any protected content changes: one byte of
-`CLAUDE.md`, any workflow, the approval code, a protected file added, removed or
+`AGENTS.md`, any workflow, the approval code, a protected file added, removed or
 renamed, or main changing a protected file the pull request also touches (the
 merged result would no longer be what was reviewed). The check then shows the
 new fingerprint and names the changed protected files.
 
 It answers only "did the approved protected content change?". Everything else in
 the pull request is judged by the normal required checks; approving
-`CLAUDE.md` does not approve later application code.
+`AGENTS.md` does not approve later application code.
 
 **Still never evidence:** commit author or committer names, branch names,
 labels, a green local run, a **bot or App account** (even with the owner's

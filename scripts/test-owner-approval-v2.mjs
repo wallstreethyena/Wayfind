@@ -77,7 +77,7 @@ globalThis.fetch = async (url) => {
   mkdirSync(join(origin, "scripts/lib"), { recursive: true });
   const put = (dir, rel, body) => { mkdirSync(dirname(join(dir, rel)), { recursive: true }); writeFileSync(join(dir, rel), body); };
   git(origin, ["init", "-q", "-b", "main"]);
-  put(origin, "CLAUDE.md", "# rules\n\nline one\n");
+  put(origin, "AGENTS.md", "# rules\n\nline one\n");
   put(origin, ".github/workflows/ci.yml", "name: ci\n");
   put(origin, "scripts/lib/ownerApproval.mjs", "export const rule = 1;\n");
   put(origin, "scripts/lib/guard-expectations.tsv", "a\t1\n");
@@ -88,7 +88,7 @@ globalThis.fetch = async (url) => {
     const dir = join(root, `clone-${++n}`);
     git(root, ["clone", "-q", `file://${origin}`, dir]);
     git(dir, ["checkout", "-q", "-b", "work"]);
-    put(dir, "CLAUDE.md", "# rules\n\nline one\nnew approved rule\n");
+    put(dir, "AGENTS.md", "# rules\n\nline one\nnew approved rule\n");
     put(dir, "app.js", "export const v = 2;\n");
     git(dir, ["add", "-A"]); git(dir, ["commit", "-q", "-m", "approved scope"]);
     return dir;
@@ -136,7 +136,7 @@ globalThis.fetch = async (url) => {
     return res;
   };
   let d = fresh();
-  expectInvalid(d, commit(d, [["CLAUDE.md", "# rules\n\nline one\nnew approved rulE\n"]]), "8 one byte of CLAUDE.md changes after approval", "CLAUDE.md");
+  expectInvalid(d, commit(d, [["AGENTS.md", "# rules\n\nline one\nnew approved rulE\n"]]), "8 one byte of AGENTS.md changes after approval", "AGENTS.md");
   d = fresh();
   expectInvalid(d, commit(d, [[".github/workflows/ci.yml", "name: ci\non: push\n"]]), "9 a workflow changes after approval", ".github/workflows/ci.yml");
   d = fresh();
@@ -146,15 +146,15 @@ globalThis.fetch = async (url) => {
   d = fresh();
   expectInvalid(d, commit(d, [[".github/workflows/ci.yml", null]]), "11b a protected file is removed after approval", ".github/workflows/ci.yml");
   // main changes a protected file the PR also touches: the merged result is not what was reviewed.
-  put(origin, "CLAUDE.md", "# rules (main)\n\nline one\n"); git(origin, ["add", "-A"]); git(origin, ["commit", "-q", "-m", "main edits CLAUDE.md"]);
+  put(origin, "AGENTS.md", "# rules (main)\n\nline one\n"); git(origin, ["add", "-A"]); git(origin, ["commit", "-q", "-m", "main edits AGENTS.md"]);
   const stale = join(root, `clone-${++n}`); // branch made BEFORE main's edit, not updated
   git(root, ["clone", "-q", `file://${origin}`, stale]);
   git(stale, ["reset", "-q", "--hard", "HEAD~1"]); git(stale, ["checkout", "-q", "-b", "work"]);
-  put(stale, "CLAUDE.md", "# rules\n\nline one\nnew approved rule\n"); git(stale, ["add", "-A"]); git(stale, ["commit", "-q", "-m", "approved scope"]);
+  put(stale, "AGENTS.md", "# rules\n\nline one\nnew approved rule\n"); git(stale, ["add", "-A"]); git(stale, ["commit", "-q", "-m", "approved scope"]);
   git(stale, ["fetch", "-q", "origin"]);
   r = gate({ dir: stale, head: head(stale), comments: approval });
-  ok(r.code === 1 && /main changed CLAUDE\.md after this branch's merge base/.test(r.out), `11d main changed a protected file after the branch's base and the branch was not updated: FAIL CLOSED (the merge would blend unapproved bytes) (${r.out.trim()})`);
-  d = fresh(); // branched from the new main: base content of CLAUDE.md differs from the approved one
+  ok(r.code === 1 && /main changed AGENTS\.md after this branch's merge base/.test(r.out), `11d main changed a protected file after the branch's base and the branch was not updated: FAIL CLOSED (the merge would blend unapproved bytes) (${r.out.trim()})`);
+  d = fresh(); // branched from the new main: base content of AGENTS.md differs from the approved one
   r = gate({ dir: d, head: head(d), comments: approval });
   ok(r.code === 1 && /Owner approval: INVALID/.test(r.out), `11c main changed the base content of a protected file the PR touches: FAIL (${r.out.trim()})`);
   git(origin, ["revert", "--no-edit", "HEAD"]);
@@ -174,7 +174,7 @@ globalThis.fetch = async (url) => {
   ok(r.code === 1 && fpOf(r.out) !== FP, `14 replaying the fingerprint approved on PR #1478 against PR #1479: FAIL (${r.out.trim()})`);
   r = gate({ dir: d, head: H, comments: [ownerSays(`/owner-approve-diff ${FP.slice(0, 63)}0`)] });
   ok(r.code === 1, `14b a near-miss fingerprint: FAIL (${r.out.trim()})`);
-  const moved = commit(d, [["CLAUDE.md", "# rules\n\nline one\nsomething else\n"]]);
+  const moved = commit(d, [["AGENTS.md", "# rules\n\nline one\nsomething else\n"]]);
   r = gate({ dir: d, head: H, headLater: moved, comments: approval });
   ok(r.code === 1 && /moved/.test(r.out), `16 the run reads one protected diff while the PR moves to another: FAIL CLOSED (${r.out.trim()})`);
   r = gate({ dir: d, head: moved, comments: [ownerSays(`/owner-approve ${H}`)] });
@@ -185,19 +185,19 @@ globalThis.fetch = async (url) => {
   // ---- pure-rule checks --------------------------------------------------------
   const s256 = (x) => createHash("sha256").update(x).digest("hex");
   const e = (path, base, head) => ({ path, base, head });
-  const a = protectedFingerprint({ repo: "wallstreethyena/Wayfind", number: 1, entries: [e("CLAUDE.md", s256("a"), s256("b"))] }, s256);
+  const a = protectedFingerprint({ repo: "wallstreethyena/Wayfind", number: 1, entries: [e("AGENTS.md", s256("a"), s256("b"))] }, s256);
   ok(a && /^[0-9a-f]{64}$/.test(a.fingerprint), "fingerprint is SHA-256 hex over the manifest");
   ok(protectedFingerprint({ repo: "wallstreethyena/Wayfind", number: 1, entries: [e("app.js", s256("a"), s256("b"))] }, s256) === null, "a non-protected path never enters the fingerprint (it is not the owner's scope)");
-  ok(protectedFingerprint({ repo: "wallstreethyena/Wayfind", number: 1, entries: [e("CLAUDE.md", "nothex", s256("b"))] }, s256) === null && protectedFingerprint({ repo: "x/y", number: 1, entries: [] }, s256) === null, "incomplete evidence never fingerprints (fails closed)");
+  ok(protectedFingerprint({ repo: "wallstreethyena/Wayfind", number: 1, entries: [e("AGENTS.md", "nothex", s256("b"))] }, s256) === null && protectedFingerprint({ repo: "x/y", number: 1, entries: [] }, s256) === null, "incomplete evidence never fingerprints (fails closed)");
   ok(findOwnerDiffApproval([ownerSays(`/owner-approve-diff ${a.fingerprint}`)], a.fingerprint)?.id > 0 && findOwnerDiffApproval([ownerSays(`please /owner-approve-diff ${a.fingerprint}`)], a.fingerprint) === null, "the command must be its own line");
-  ok(JSON.stringify(changedProtectedPaths(a.manifest, protectedFingerprint({ repo: "wallstreethyena/Wayfind", number: 1, entries: [e("CLAUDE.md", s256("a"), s256("c"))] }, s256).manifest)) === '["CLAUDE.md"]', "the audit names the changed protected file");
+  ok(JSON.stringify(changedProtectedPaths(a.manifest, protectedFingerprint({ repo: "wallstreethyena/Wayfind", number: 1, entries: [e("AGENTS.md", s256("a"), s256("c"))] }, s256).manifest)) === '["AGENTS.md"]', "the audit names the changed protected file");
 
   // ---- RED PROOFS ----------------------------------------------------------------
   // (a) a fingerprint that ignored file contents (paths only) would pass case 8.
   const weak = (entries) => s256(JSON.stringify(entries.map((x) => x.path)));
-  ok(weak([e("CLAUDE.md", s256("a"), s256("rule"))]) === weak([e("CLAUDE.md", s256("a"), s256("rulE"))])
-    && protectedFingerprint({ repo: "a/b", number: 1, entries: [e("CLAUDE.md", s256("a"), s256("rule"))] }, s256).fingerprint
-      !== protectedFingerprint({ repo: "a/b", number: 1, entries: [e("CLAUDE.md", s256("a"), s256("rulE"))] }, s256).fingerprint,
+  ok(weak([e("AGENTS.md", s256("a"), s256("rule"))]) === weak([e("AGENTS.md", s256("a"), s256("rulE"))])
+    && protectedFingerprint({ repo: "a/b", number: 1, entries: [e("AGENTS.md", s256("a"), s256("rule"))] }, s256).fingerprint
+      !== protectedFingerprint({ repo: "a/b", number: 1, entries: [e("AGENTS.md", s256("a"), s256("rulE"))] }, s256).fingerprint,
   "RED: a contents-blind fingerprint would let a one-byte change through; the real one does not");
   // (b) the pre-v2 gate (head-bound only) fails the persistence case the owner asked to fix.
   const repoRoot = join(HERE, "..");
