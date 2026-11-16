@@ -610,8 +610,8 @@ function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, tight, 
       <div className={`wf-mapfp${subsExpanded === false ? " is-subs-collapsed" : ""}`}>
         <style dangerouslySetInnerHTML={styleHtml(`
           .wf-mapfp{background:rgba(10,14,20,.82);-webkit-backdrop-filter:blur(18px) saturate(140%);backdrop-filter:blur(18px) saturate(140%);border:1px solid rgba(255,255,255,.12);border-radius:15px;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,.28)}
-          .wf-mapfp-row{position:relative}
-          .wf-mapfp-scroll{display:flex;gap:6px;overflow-x:auto;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:5px 8px}
+          .wf-mapfp-row{position:relative;display:flex;align-items:center}
+          .wf-mapfp-scroll{display:flex;gap:6px;overflow-x:auto;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:5px 8px;flex:1;min-width:0}
           .wf-mapfp-scroll::-webkit-scrollbar{display:none}
           /* Scroll affordance. pointer-events:none so it can never eat a tap on
              the pill underneath, and it is only rendered when the row actually
@@ -655,19 +655,21 @@ function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, tight, 
         ) : (
         <>
         <div className="wf-mapfp-row">
-          <div className="wf-mapfp-scroll" role="tablist" aria-label="Map categories" ref={mapfpArrowKeys}>
-            {Cats.CATEGORY_TILES.map((m) => { const on = activeCat === m.id; return (
-              <button key={m.id} role="tab" aria-selected={on ? "true" : "false"} className="wf-mapfp-tap"
-                onClick={() => tapCat(m.id, m.label)}>
-                <span className="wf-mapfp-pill">
-                  <NavIcon name={m.id} color={on ? "#0B0F14" : "#FFFFFF"} size={15} strokeWidth={1.6} />
-                  <span>{m.label}</span>
-                </span>
-              </button>
-            ); })}
-            {trailing || null}
+          <div style={{ position: "relative", flex: 1, minWidth: 0 }}>
+            <div className="wf-mapfp-scroll" role="tablist" aria-label="Map categories" ref={mapfpArrowKeys}>
+              {Cats.CATEGORY_TILES.map((m) => { const on = activeCat === m.id; return (
+                <button key={m.id} role="tab" aria-selected={on ? "true" : "false"} className="wf-mapfp-tap"
+                  onClick={() => tapCat(m.id, m.label)}>
+                  <span className="wf-mapfp-pill">
+                    <NavIcon name={m.id} color={on ? "#0B0F14" : "#FFFFFF"} size={15} strokeWidth={1.6} />
+                    <span>{m.label}</span>
+                  </span>
+                </button>
+              ); })}
+            </div>
+            <MapFpFade />
           </div>
-          <MapFpFade />
+          {trailing || null}
         </div>
         {/* MOUNTED ONLY WHEN A CATEGORY IS SELECTED. On landing the panel is one
             pill row — that is the ~100px the work order asks for. */}
@@ -676,15 +678,17 @@ function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, tight, 
             <div className="wf-mapfp-divider" />
             <div className={"wf-mapfp-subs is-open"}>
               <div className="wf-mapfp-row">
-                <div className="wf-mapfp-scroll" role="tablist" aria-label="Sub-filters" ref={mapfpArrowKeys}>
-                  {subs.map((sf) => { const son = sub === sf.id; return (
-                    <button key={sf.id} role="tab" aria-selected={son ? "true" : "false"} className="wf-mapfp-tap"
-                      onClick={() => onSub(sf.id)}>
-                      <span className="wf-mapfp-sub">{sf.label}</span>
-                    </button>
-                  ); })}
+                <div style={{ position: "relative", flex: 1, minWidth: 0 }}>
+                  <div className="wf-mapfp-scroll" role="tablist" aria-label="Sub-filters" ref={mapfpArrowKeys}>
+                    {subs.map((sf) => { const son = sub === sf.id; return (
+                      <button key={sf.id} role="tab" aria-selected={son ? "true" : "false"} className="wf-mapfp-tap"
+                        onClick={() => onSub(sf.id)}>
+                        <span className="wf-mapfp-sub">{sf.label}</span>
+                      </button>
+                    ); })}
+                  </div>
+                  <MapFpFade />
                 </div>
-                <MapFpFade />
               </div>
             </div>
           </>
