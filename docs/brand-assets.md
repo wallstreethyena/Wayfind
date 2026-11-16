@@ -18,6 +18,7 @@ its public path (`/brand/wayfind/...`) instead of copying it.
 | Logo on dark backgrounds, gradient pin | `public/brand/wayfind/logo/wayfind-logo-gradient-on-black.jpg` | 842x270, black background is part of the file. |
 | Logo with tagline on dark backgrounds, orange pin | `public/brand/wayfind/logo/wayfind-logo-tagline-on-black.jpg` | 1320x382, black background is part of the file. |
 | Logo on dark backgrounds, transparent | `public/brand/wayfind/logo/wayfind-logo-white-orange-transparent-a.png` | 2172x724, white lettering, orange pin. |
+| Vector of that logo, for self-contained SVG | `public/brand/wayfind-official-white.svg` | Trace of the row above (flat `#FD5F00` outline pin, orange i dot). The Top Rated badge copies it. Not a new master. |
 | Logo with tagline on dark backgrounds, transparent | `public/brand/wayfind/logo/wayfind-logo-tagline-white-orange-transparent.png` | 2170x725. Soft, uneven transparency: check it on the actual background. |
 | Logo with tagline on light backgrounds, transparent | `public/brand/wayfind/logo/wayfind-logo-tagline-black-transparent.png` | 2170x725, black lettering. The dot and pin are near-white and vanish on white. |
 
