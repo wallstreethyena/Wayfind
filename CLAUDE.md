@@ -34,6 +34,23 @@ Revenue-audit detail: `docs/POSTMORTEM_2026-08-25_REVENUE_PATH.md`.
 5. **New public content ships WITH sitemap + schema; new tables ship WITH RLS.** Read the
    Supabase advisor output on a schedule.
 
+## Wayfind Brand Assets
+
+**Before creating any Wayfind-branded visual, inspect the Wayfind Brand Asset Vault
+(`public/brand/wayfind/`) and `public/brand/wayfind/manifest.json`.** Guide: `docs/brand-assets.md`.
+
+- Official Wayfind logos, marks and brand assets supplied by Gabriel are stored in and
+  reused from that library.
+- Before generating, recreating or searching for a Wayfind logo, check the library and
+  manifest first. Never redraw, approximate, substitute, recolor or regenerate the Wayfind
+  logo when an approved canonical asset exists; use the actual asset.
+- Temporary worktrees, /tmp, chat attachments and generated-output folders are not
+  canonical storage.
+- When Gabriel supplies a new official brand asset, preserve the original, add it to the
+  library, update the manifest, and make it available for future Wayfind work.
+- Do not create duplicate copies throughout the repository when the canonical asset can be
+  referenced directly. `scripts/check-brand-vault.mjs` enforces the core masters.
+
 ## Concurrency & git
 
 > **🔒 The shared clone is infrastructure, not a workspace (owner directive, 2026-09-29).**
@@ -94,6 +111,19 @@ Revenue-audit detail: `docs/POSTMORTEM_2026-08-25_REVENUE_PATH.md`.
   verified on the actual exit code.
 - **A red guard is not a red repo.** Reproduce on a clean tree (`rm -rf .next && npx next
   build`) before reporting a broken `main`.
+
+## Production database changes — a repo file first, then the canonical apply
+
+- **No schema or data change reaches production without a committed
+  `supabase/migrations/<ts>_<name>.sql` on a PR.** The Supabase connector
+  (`apply_migration`, a writing `execute_sql`) and the Management API migrations
+  endpoint are an apply PATH, not a review: use them only to apply a merged file's
+  exact bytes, then commit the receipt (`scripts/migration-apply-log.jsonl`) or the
+  pending declaration (`scripts/migration-pending-apply.json`).
+- Scheduled and automation sessions follow the same rule. A production-only ledger
+  row turns the canary's `check-migration-reconciliation` red and can only be
+  accepted afterwards as a reviewed hash pin in `scripts/migration-historical-exceptions.json`
+  (2026-10-29/30: 14 rows, #2122; 2026-11-03 19:33Z: 3 `event_truth_integrity_*` rows, #2165).
 
 ## Writing guards & assertions — the check must answer the question you asked
 

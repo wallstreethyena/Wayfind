@@ -38,7 +38,7 @@ const OPEN = ["17:00", "17:30", "18:00", "18:30", "19:30", "20:00", "20:30", "21
 
 // An in-memory repository. The RPC fakes enforce the rules the database enforces (ownership, place) so
 // authorization is proven by what the handler PASSES, and every method called is recorded.
-function fakeRepo({ partners = PARTNERS, open = OPEN, bookings = [], failBook = false, bookReturns = null, failSlots = false } = {}) {
+function fakeRepo({ partners = PARTNERS, open = OPEN, bookings = [], failBook = false, bookReturns = null, failSlots = false, profile = null } = {}) {
   const calls = [];
   const rows = bookings.map((r) => ({ ...r }));
   const log = (n, a) => calls.push(a === undefined ? n : { n, a });
@@ -85,6 +85,7 @@ function fakeRepo({ partners = PARTNERS, open = OPEN, bookings = [], failBook = 
       return { ok: true, booking: { ...b, ...name(b) } };
     },
     async listUserBookings(u, p) { log("listUserBookings"); return rows.filter((r) => r.user_id === u && r.place_id === p).map((r) => ({ ...r, wf_reserve_partners: { name: name(r).restaurant_name, phone: name(r).restaurant_phone } })); },
+    async readBookingProfile(u) { log("readBookingProfile"); return profile && u === USER ? { ...profile } : null; },
     async listPartnerBookings(p) { log("listPartnerBookings"); return rows.filter((r) => r.place_id === p && (r.status === "confirmed" || r.status === "proposed")); },
   };
 }
@@ -200,6 +201,36 @@ const bookBody = { placeId: PLACE, partySize: 4, date: "2026-11-14", time: "19:3
   const pb = nc.repository.calls.find((c) => c.n === "book").a;
   ok(p3.status === 201 && pb.phone === "(941) 555-0199" && pb.phoneConsent === true, "a phone with consent is stored through the database function, formatted");
   ok(!p3.text.includes("555-0199"), "the guest response never echoes the phone number");
+}
+
+// ---- the guest's confirmation text: confirmed + ticked + a known number, once per booking ----
+{
+  const SMS_ENV = { ...PROD, RESERVE_SMS_ENABLED: "1", TWILIO_ACCOUNT_SID: "AC" + "0".repeat(32), TWILIO_AUTH_TOKEN: "t".repeat(32), TWILIO_MESSAGING_SERVICE_SID: "MG" + "1".repeat(32) };
+  const PROFILE = { first_name: "Gabe", last_name: "P", mobile_phone: "+19415550142", consent_at: new Date(NOW).toISOString() };
+  const textsFor = (opts) => { const texts = []; const h = harness({ ...opts, extra: { ...(opts.extra || {}), sendBookingConfirmationSms: async (a) => { texts.push(a); return { sent: true }; } } }); return { h, texts }; };
+  const { h, texts } = textsFor({ env: SMS_ENV, repo: { profile: PROFILE } });
+  const r1 = await h.handlers.book(post("/api/reserve/book", { ...bookBody, smsConsent: true })); await h.settle();
+  const t1 = await r1.text();
+  ok(r1.status === 201 && texts.length === 1 && texts[0].booking.status === "confirmed" && texts[0].consent.sms === true && texts[0].consent.phone === "+19415550142" && texts[0].partner.place_id === PLACE, "a confirmed booking with the tick texts once, to the profile number, linked to that booking: " + texts.length);
+  ok(t1.includes("555-0100") && !t1.includes("0142") && !t1.includes("5550142"), "the booking response never echoes the text number (positive control: the restaurant's own phone IS there)");
+  await h.handlers.book(post("/api/reserve/book", { ...bookBody, smsConsent: true })); await h.settle();
+  ok(texts.length === 1, "a retried booking (same key) sends no second text: " + texts.length);
+  const none = textsFor({ env: SMS_ENV, repo: { profile: PROFILE } });
+  await none.h.handlers.book(post("/api/reserve/book", bookBody)); await none.h.settle();
+  ok(none.texts.length === 0, "no tick, no text");
+  const off = textsFor({ env: PROD, repo: { profile: PROFILE } });
+  await off.h.handlers.book(post("/api/reserve/book", { ...bookBody, smsConsent: true })); await off.h.settle();
+  ok(off.texts.length === 0, "texts switched off: no text even with the tick");
+  const reqRow = { id: "22222222-2222-4222-8222-000000000077", confirmation_code: "REQ123", status: "requested", place_id: PLACE, user_id: USER, guest_name: "Gabe", party_size: 2, reserve_date: bookBody.date, reserve_time: bookBody.time + ":00", idempotency_key: bookBody.idempotencyKey, created_at: new Date(NOW).toISOString(), restaurant_name: "Test Bistro" };
+  const rq = textsFor({ env: SMS_ENV, repo: { profile: PROFILE, bookReturns: { ok: true, booking: reqRow } } });
+  await rq.h.handlers.book(post("/api/reserve/book", { ...bookBody, smsConsent: true })); await rq.h.settle();
+  ok(rq.texts.length === 0, "a request (not confirmed) never gets a confirmation text");
+  const nophone = textsFor({ env: SMS_ENV, repo: { profile: { ...PROFILE, mobile_phone: null } } });
+  await nophone.h.handlers.book(post("/api/reserve/book", { ...bookBody, smsConsent: true })); await nophone.h.settle();
+  ok(nophone.texts.length === 0, "no number on the booking or profile: no text");
+  const fail = harness({ env: SMS_ENV, repo: { profile: PROFILE }, extra: { sendBookingConfirmationSms: async () => { throw new Error("provider down"); } } });
+  const fr = await fail.handlers.book(post("/api/reserve/book", { ...bookBody, smsConsent: true })); await fail.settle();
+  ok(fr.status === 201 && fail.repository.rows.length === 1 && fail.repository.rows[0].status === "confirmed", "a text failure never fails or changes the confirmed booking");
 }
 
 // ---- emails: only live partners, only production, only when ready, never fail the booking ----
