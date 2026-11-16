@@ -28,11 +28,17 @@
  *   7. The committed scripts/guards-serial.txt names only lines that exist in
  *      scripts/guards.txt (the runner enforces this too; this fails earlier and
  *      with a better message).
+ *   8. SHARD REPORT: a sharded run emits executed_<i>/digest_<i>/shards_<i> to
+ *      GITHUB_OUTPUT only on success, a guard cannot write into it, and
+ *      --verify-shards accepts the complete report and rejects a missing,
+ *      duplicated, extra or inflated shard, no report, and a wrong shard count.
  *
  * RED-PROVED (--red-prove, wired in guards.txt): the same scenarios are run against
  * copies of the runner with the protected thing broken, and each mutant must turn
  * the matching scenario red: exit code propagation dropped, the serial gate
- * removed, "stop launching on failure" removed, lowest-index selection removed.
+ * removed, "stop launching on failure" removed, lowest-index selection removed,
+ * shard verification always passing, shard report not emitted, guards allowed to
+ * write GITHUB_OUTPUT.
  * A mutant that does NOT apply (pattern not found) fails the guard, so the
  * red-prove cannot go stale silently.
  */
@@ -73,13 +79,13 @@ process.exit(Number(code));
 
 const fake = (dir, name, ms, code = 0) => `node ${JSON.stringify(FAKE)} ${name} ${ms} ${code} ${JSON.stringify(dir)}`;
 
-function drive(runner, { guards, serial, jobs, env = {}, rawSerial } ) {
+function drive(runner, { guards, serial, jobs, env = {}, rawSerial }, args = []) {
   const dir = path.join(tmp, "case-" + ++counter);
   mkdirSync(dir, { recursive: true });
   const manifest = path.join(dir, "guards.txt");
   const lines = typeof guards === "function" ? guards(path.join(dir, "log")) : guards;
   writeFileSync(manifest, "# fake manifest\n" + lines.join("\n") + "\n");
-  const e = { ...process.env, GUARD_MANIFEST: manifest };
+  const e = { ...process.env, GUARD_SHARD: "", GUARD_MANIFEST: manifest };
   delete e.GUARD_SERIAL; delete e.GUARD_JOBS;
   if (serial) {
     const sp = path.join(dir, "serial.txt");
@@ -88,7 +94,7 @@ function drive(runner, { guards, serial, jobs, env = {}, rawSerial } ) {
   }
   if (jobs !== undefined) e.GUARD_JOBS = String(jobs);
   Object.assign(e, env);
-  const r = spawnSync(process.execPath, [runner], { cwd: ROOT, env: e, encoding: "utf8", maxBuffer: 64 * 1024 * 1024 });
+  const r = spawnSync(process.execPath, [runner, ...args], { cwd: ROOT, env: e, encoding: "utf8", maxBuffer: 64 * 1024 * 1024 });
   const logDir = path.join(dir, "log");
   const recs = {};
   if (existsSync(logDir)) for (const f of readdirSync(logDir)) recs[f.replace(/\.json$/, "")] = JSON.parse(readFileSync(path.join(logDir, f), "utf8"));
@@ -228,6 +234,52 @@ const scenarios = {
     return f;
   },
 
+  // 8. SHARD REPORT (2026-11-14): each shard emits executed_<i>/digest_<i>/shards_<i>
+  // to GITHUB_OUTPUT; guards cannot write it; --verify-shards accepts only the
+  // complete, exact report.
+  shardReport(runner) {
+    const f = [];
+    const base = path.join(tmp, "shard-report-" + ++counter);
+    mkdirSync(base, { recursive: true });
+    const forge = `node -e "const p=process.env.GITHUB_OUTPUT; if (p) require('fs').appendFileSync(p, 'executed_9=1\\nforged=1\\n')"`;
+    const logs = path.join(base, "log"); // one fixed dir: the guard lines must be identical in every run
+    const guards = () => [fake(logs, "a", 10), fake(logs, "b", 10), forge, fake(logs, "c", 10), fake(logs, "d", 10)];
+    const outputs = {};
+    for (const i of [1, 2]) {
+      const out = path.join(base, `out-${i}.txt`);
+      writeFileSync(out, "");
+      const r = drive(runner, { jobs: 2, guards, env: { GUARD_SHARD: `${i}/2`, GITHUB_OUTPUT: out } });
+      if (r.status !== 0) { f.push(`shard ${i}/2 should pass, got ${r.status}: ${r.err.slice(-300)}`); continue; }
+      const text = readFileSync(out, "utf8");
+      if (/forged/.test(text) || /executed_9/.test(text)) f.push(`a guard wrote into the shard's GITHUB_OUTPUT: ${JSON.stringify(text)}`);
+      for (const line of text.split("\n").filter(Boolean)) { const k = line.slice(0, line.indexOf("=")); outputs[k] = line.slice(line.indexOf("=") + 1); }
+      if (!new RegExp(`^executed_${i}=\\d+$`, "m").test(text) || !new RegExp(`^digest_${i}=[0-9a-f]{64}$`, "m").test(text) || !new RegExp(`^shards_${i}=2$`, "m").test(text)) f.push(`shard ${i}/2 did not emit executed/digest/shards: ${JSON.stringify(text)}`);
+    }
+    if (Number(outputs.executed_1) + Number(outputs.executed_2) !== 5) f.push(`shard counts ${outputs.executed_1}+${outputs.executed_2} must sum to the 5-guard manifest`);
+    const failOut = path.join(base, "out-fail.txt");
+    writeFileSync(failOut, "");
+    const red = drive(runner, { jobs: 2, guards: (dir) => [fake(dir, "x", 10, 2), fake(dir, "y", 10)], env: { GUARD_SHARD: "1/2", GITHUB_OUTPUT: failOut } });
+    if (red.status === 0 || readFileSync(failOut, "utf8") !== "") f.push("a failing shard must not emit a shard report");
+    const verify = (report, count = "2") => drive(runner, { guards, env: { GUARD_SHARD_COUNT: count, GUARD_SHARD_REPORT: typeof report === "string" ? report : JSON.stringify(report) } }, ["--verify-shards"]);
+    const good = verify(outputs);
+    if (good.status !== 0 || !/cover all 5 guards/.test(good.out)) f.push(`--verify-shards must accept the complete report, got ${good.status}: ${good.all.slice(-300)}`);
+    if (/── \[/.test(good.out)) f.push("--verify-shards must not run any guard");
+    const { executed_2, digest_2, shards_2, ...missing } = outputs;
+    const cases = [
+      ["a missing shard", missing, /shard 2\/2 reported no executed count/],
+      ["a duplicated shard (shard 1's work reported as shard 2)", { ...outputs, executed_2: outputs.executed_1, digest_2: outputs.digest_1 }, /shard 2\/2 executed|different set of guards|in total/],
+      ["an extra shard", { ...outputs, executed_3: "0", digest_3: "0".repeat(64), shards_3: "2" }, /unexpected shard output "executed_3"/],
+      ["an inflated count", { ...outputs, executed_1: String(Number(outputs.executed_1) + 1) }, /executed \d+ guards, the manifest assigns it/],
+      ["no report at all", "", /not JSON/],
+      ["a report for another shard count", outputs, /shard 2\/3 reported no executed count|ran as part of/, "3"],
+    ];
+    for (const [label, report, expect, count] of cases) {
+      const r = verify(report, count);
+      if (r.status !== 1 || !expect.test(r.err)) f.push(`--verify-shards must reject ${label} with exit 1 (got ${r.status}: ${r.err.trim().slice(-300)})`);
+    }
+    return f;
+  },
+
   configErrors(runner) {
     const f = [];
     const stale = drive(runner, { jobs: 2, guards: (dir) => [fake(dir, "a", 20)], serial: ["node some/guard/that/was/renamed.mjs"] });
@@ -239,11 +291,11 @@ const scenarios = {
       if (r.status !== 1 || r.recs.a) f.push(`GUARD_JOBS=${bad} must exit 1 before running anything, got ${r.status}`);
     }
     // GUARD_SERIAL without GUARD_MANIFEST must not be honoured for the real suite.
-    const e = { ...process.env, GUARD_SERIAL: path.join(tmp, "nothing.txt") };
+    const e = { ...process.env, GUARD_SHARD: "", GUARD_SERIAL: path.join(tmp, "nothing.txt") };
     delete e.GUARD_MANIFEST;
     const r = spawnSync(process.execPath, [runner], { cwd: ROOT, env: e, encoding: "utf8" });
     if (r.status !== 1 || !/only honoured together with GUARD_MANIFEST/.test(r.stderr)) f.push(`GUARD_SERIAL alone must be refused with exit 1, got ${r.status}`);
-    const missing = spawnSync(process.execPath, [runner], { cwd: ROOT, env: { ...process.env, GUARD_MANIFEST: path.join(tmp, "does-not-exist.txt") }, encoding: "utf8" });
+    const missing = spawnSync(process.execPath, [runner], { cwd: ROOT, env: { ...process.env, GUARD_SHARD: "", GUARD_MANIFEST: path.join(tmp, "does-not-exist.txt") }, encoding: "utf8" });
     if (missing.status !== 1) f.push(`a missing manifest must exit 1, got ${missing.status}`);
     return f;
   },
@@ -273,17 +325,21 @@ try {
     // not found fails the guard (the red-prove would otherwise rot silently).
     const src = readFileSync(REAL_RUNNER, "utf8");
     const guardEnvUrl = pathToFileURL(path.join(ROOT, "scripts/lib/guardEnv.mjs")).href;
+    const guardShardsUrl = pathToFileURL(path.join(ROOT, "scripts/lib/guardShards.mjs")).href;
     const mutants = [
       { name: "exit code propagation dropped", from: "process.exit(f.status || 1);", to: "process.exit(1);", scenario: "failCode", expect: /must make the runner exit 3/ },
       { name: "serial gate removed", from: "(serialSet.has(g) ? serialIdx : parallelIdx).push(i)", to: "parallelIdx.push(i)", scenario: "serialGate", expect: /overlapped|started before the parallel phase/ },
       { name: "launches continue after a failure", from: "stop = true; // no NEW launches; in-flight guards finish", to: "// stop removed", scenario: "failCode", expect: /launched after a failure/ },
       { name: "lowest-index selection removed", from: "failures.sort((a, b) => a.i - b.i);", to: "", scenario: "lowestIndexWins", expect: /lowest-index/ },
       { name: "unrunnable guard no longer fails", from: "failUnrunnable(i, r.error.message);\n        }", to: "}", scenario: "unrunnable", expect: /could not run guard 2\/3/ },
+      { name: "shard verification always passes", from: "const v = verifyShardReport(guards, serialSet, count, report);", to: "const v = { ok: true, errors: [], total: 0, expected: guards.length };", scenario: "shardReport", expect: /must reject a missing shard/ },
+      { name: "shard report not emitted", from: "appendFileSync(process.env.GITHUB_OUTPUT, shardOutputLines(shard.index, shard.count, guards).join(\"\\n\") + \"\\n\");", to: "", scenario: "shardReport", expect: /did not emit executed\/digest\/shards/ },
+      { name: "guards may write GITHUB_OUTPUT", from: 'stdio: ["ignore", "pipe", "pipe"], env: { ...process.env, GUARD_SHARD: "", WF_SUPPRESS_ANALYTICS: "1", WF_GUARD_SUITE: "1", WF_VIATOR_TOKEN_CAPTURE: "0", GITHUB_OUTPUT: "",', to: 'stdio: ["ignore", "pipe", "pipe"], env: { ...process.env, GUARD_SHARD: "", WF_SUPPRESS_ANALYTICS: "1", WF_GUARD_SUITE: "1", WF_VIATOR_TOKEN_CAPTURE: "0",', scenario: "shardReport", expect: /a guard wrote into the shard's GITHUB_OUTPUT/ },
     ];
     for (const m of mutants) {
       const idx = src.indexOf(m.from);
       if (idx < 0 || src.indexOf(m.from, idx + 1) >= 0) { failed.push(`red-prove "${m.name}": mutation target not found exactly once in run-guards.mjs — update the red-prove`); continue; }
-      const mutated = src.replace(m.from, m.to).replace('"./lib/guardEnv.mjs"', JSON.stringify(guardEnvUrl));
+      const mutated = src.replace(m.from, m.to).replace('"./lib/guardEnv.mjs"', JSON.stringify(guardEnvUrl)).replace('"./lib/guardShards.mjs"', JSON.stringify(guardShardsUrl));
       if (mutated === src) { failed.push(`red-prove "${m.name}": mutation did not change the source`); continue; }
       const mp = path.join(tmp, `mutant-${counter++}.mjs`);
       writeFileSync(mp, mutated);
@@ -301,5 +357,5 @@ if (failed.length) {
   process.exit(1);
 }
 console.log(RED_PROVE
-  ? "test-run-guards --red-prove: OK — 5 mutants of run-guards.mjs (exit code dropped, serial gate removed, launches continue after failure, lowest-index selection removed, unrunnable guard ignored) each turned their scenario red"
-  : `test-run-guards: OK — ${Object.keys(scenarios).length} scenarios against the real runner with fake guards: pool overlaps (and is faster than the sum), GUARD_JOBS=1 is exactly serial, exit code and "guard i/N" propagate, launches stop after a failure while in-flight guards finish, lowest index wins, unrunnable line exits 1, serial-listed guards never overlap anything, config errors fail closed, per-guard output blocks stay contiguous, and the committed serial list is a subset of guards.txt`);
+  ? "test-run-guards --red-prove: OK — 8 mutants of run-guards.mjs (exit code dropped, serial gate removed, launches continue after failure, lowest-index selection removed, unrunnable guard ignored, shard verification always passing, shard report not emitted, guards allowed to write GITHUB_OUTPUT) each turned their scenario red"
+  : `test-run-guards: OK — ${Object.keys(scenarios).length} scenarios against the real runner with fake guards: pool overlaps (and is faster than the sum), GUARD_JOBS=1 is exactly serial, exit code and "guard i/N" propagate, launches stop after a failure while in-flight guards finish, lowest index wins, unrunnable line exits 1, serial-listed guards never overlap anything, config errors fail closed, per-guard output blocks stay contiguous, a sharded run emits an exact report (guards cannot forge it) that --verify-shards checks, and the committed serial list is a subset of guards.txt`);
