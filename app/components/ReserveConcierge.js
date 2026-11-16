@@ -57,7 +57,7 @@ const TEXT_ME_FINE = "One text about this booking. Msg and data rates may apply.
 function ConfirmCard({ card, name, who, busy, sms, onConfirm, onBack }) {
   const [textMe, setTextMe] = useState(false); // opt in: never pre-ticked
   const when = [exactDay(card.date), timeLabel(card.time)].filter(Boolean).join(" at ");
-  const line = (name || "the restaurant") + ", " + when + (card.partySize ? " for " + card.partySize : "") + "." + (who ? " Booking as " + who + "." : "");
+  const line = (name || "the restaurant") + ", " + when + (card.partySize ? " for " + card.partySize : "") + "." + (who ? " Booking as " + who + (/\.$/.test(who) ? "" : ".") : "");
   return (
     <div data-reserve-card="confirm" style={box}>
       <div style={{ fontSize: 16, fontWeight: 800, color: C.text, lineHeight: 1.35, overflowWrap: "anywhere" }}>{line}</div>
