@@ -1438,6 +1438,17 @@ let mapComponentMod = null;
   assert.ok(htmlUnconfirmed.includes("nearby places have unconfirmed hours"), "Unconfirmed hours renders unconfirmed subtitle");
   assert.ok(htmlUnconfirmed.includes("Show all nearby"), "Exposes 1-tap Show all nearby button");
 
+  // Open for the one local hour that ended two hours ago, so the place is
+  // confirmed closed at whatever clock CI happens to run.
+  function closedForAnHourEndingTwoHoursAgo(utcOffsetMinutes) {
+    const then = new Date(Date.now() + utcOffsetMinutes * 60000 - 2 * 60 * 60 * 1000);
+    const day = then.getUTCDay();
+    const hour = then.getUTCHours();
+    const closeHour = (hour + 1) % 24;
+    const closeDay = closeHour === 0 ? (day + 1) % 7 : day;
+    return { periods: [{ open: { day, hour, minute: 0 }, close: { day: closeDay, hour: closeHour, minute: 0 } }] };
+  }
+
   // b) Confirmed closed only -> "Confirmed closed nearby right now" + "All X nearby places are closed at this hour"
   const htmlClosed = renderToStaticMarkup(
     createElement(mapComponentMod.default, {
@@ -1464,7 +1475,10 @@ let mapComponentMod = null;
           {
             id: "p-closed-1", name: "Closed Place 1", lat: 27.95, lng: -82.45, category: "food", primaryType: "restaurant", types: ["restaurant"], governed_score: 95,
             utcOffset: -300,
-            oh: { periods: [{ open: { day: 1, hour: 10, minute: 0 }, close: { day: 1, hour: 12, minute: 0 } }] }, // closed Friday
+            // Open for the one hour that ended two hours ago in this offset.
+            // A fixed Monday 10–12 window is open when CI runs then, and the
+            // "confirmed closed" title disappears.
+            oh: closedForAnHourEndingTwoHoursAgo(-300),
           },
         ],
         __seedAreaStatus: "ready",
