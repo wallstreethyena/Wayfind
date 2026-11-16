@@ -96,5 +96,12 @@
     "decision_owner": "wallstreethyena",
     "tracking": "#2543 follow-up: booking confirmation text (lib/reserveSms.js)",
     "reason": "NOT APPLIED. New table wf_reserve_notifications (RLS on, no policies, service role only): one row per (booking, kind) holding the guest's text consent, recipient, provider message id and forward-only delivery status. Additive; rollback = drop table. Unused until RESERVE_SMS_ENABLED=1 with Twilio credentials, so applying it changes no behavior."
+  },
+  {
+    "file": "supabase/migrations/20261116223000_wf_reserve_notification_kinds.sql",
+    "sha256": "2f685f8b67ccbbb0626b2a23752a77b24204259795ead8b088948013bfb7236a",
+    "decision_owner": "wallstreethyena",
+    "tracking": "#2552 follow-up: reserve notification kinds beyond confirmation texts",
+    "reason": "NOT APPLIED. Additive only, and only after 20261116120000_wf_reserve_notifications.sql. Widens the kind check to request_received_sms, request_accepted_sms, request_declined_sms, opentable_handoff, cancellation_sms and failure_sms. Adds status recorded and channel none so a row we chose not to text is not left queued. Recipient may be null only when channel is none. No new table, no grant, RLS unchanged. Unused until RESERVE_SMS_ENABLED=1 with Twilio credentials."
   }
 ]

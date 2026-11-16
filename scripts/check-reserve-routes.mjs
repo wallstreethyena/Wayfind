@@ -86,7 +86,15 @@ function fakeRepo({ partners = PARTNERS, open = OPEN, bookings = [], failBook = 
     },
     async listUserBookings(u, p) { log("listUserBookings"); return rows.filter((r) => r.user_id === u && r.place_id === p).map((r) => ({ ...r, wf_reserve_partners: { name: name(r).restaurant_name, phone: name(r).restaurant_phone } })); },
     async readBookingProfile(u) { log("readBookingProfile"); return profile && u === USER ? { ...profile } : null; },
-    async listPartnerBookings(p) { log("listPartnerBookings"); return rows.filter((r) => r.place_id === p && (r.status === "confirmed" || r.status === "proposed")); },
+    async listPartnerBookings(p) { log("listPartnerBookings"); return rows.filter((r) => r.place_id === p && (r.status === "confirmed" || r.status === "proposed" || r.status === "requested")); },
+    async respondRequest(a) {
+      log("respondRequest", a);
+      const b = rows.find((r) => r.id === a.bookingId && r.place_id === a.placeId);
+      if (!b) return { ok: false, code: "NOT_FOUND" };
+      if (b.status !== "requested") return { ok: false, code: "NOT_REQUESTED", booking: { ...b, ...name(b) } };
+      b.status = a.accept ? "confirmed" : "declined";
+      return { ok: true, booking: { ...b, ...name(b) } };
+    },
   };
 }
 function harness({ env, partners = PARTNERS, bookings = [], extra = {}, repo = {} }) {
@@ -222,15 +230,57 @@ const bookBody = { placeId: PLACE, partySize: 4, date: "2026-11-14", time: "19:3
   await off.h.handlers.book(post("/api/reserve/book", { ...bookBody, smsConsent: true })); await off.h.settle();
   ok(off.texts.length === 0, "texts switched off: no text even with the tick");
   const reqRow = { id: "22222222-2222-4222-8222-000000000077", confirmation_code: "REQ123", status: "requested", place_id: PLACE, user_id: USER, guest_name: "Gabe", party_size: 2, reserve_date: bookBody.date, reserve_time: bookBody.time + ":00", idempotency_key: bookBody.idempotencyKey, created_at: new Date(NOW).toISOString(), restaurant_name: "Test Bistro" };
-  const rq = textsFor({ env: SMS_ENV, repo: { profile: PROFILE, bookReturns: { ok: true, booking: reqRow } } });
+  const kinds = [];
+  const rq = textsFor({ env: SMS_ENV, repo: { profile: PROFILE, bookReturns: { ok: true, booking: reqRow } }, extra: { sendReserveNotification: async (a) => { kinds.push(a); return { sent: true }; } } });
   await rq.h.handlers.book(post("/api/reserve/book", { ...bookBody, smsConsent: true })); await rq.h.settle();
-  ok(rq.texts.length === 0, "a request (not confirmed) never gets a confirmation text");
+  ok(rq.texts.length === 0 && kinds.length === 1 && kinds[0].kind === "request_received_sms" && kinds[0].consent.sms === true && kinds[0].consent.phone === "+19415550142", "a request never gets a confirmation text; the tick sends request_received_sms to the profile number");
+  const rqOff = textsFor({ env: SMS_ENV, repo: { profile: PROFILE, bookReturns: { ok: true, booking: reqRow } }, extra: { sendReserveNotification: async (a) => { kinds.push(a); return { sent: true }; } } });
+  await rqOff.h.handlers.book(post("/api/reserve/book", bookBody)); await rqOff.h.settle();
+  ok(kinds.length === 1, "a request without the tick sends no request text");
   const nophone = textsFor({ env: SMS_ENV, repo: { profile: { ...PROFILE, mobile_phone: null } } });
   await nophone.h.handlers.book(post("/api/reserve/book", { ...bookBody, smsConsent: true })); await nophone.h.settle();
   ok(nophone.texts.length === 0, "no number on the booking or profile: no text");
   const fail = harness({ env: SMS_ENV, repo: { profile: PROFILE }, extra: { sendBookingConfirmationSms: async () => { throw new Error("provider down"); } } });
   const fr = await fail.handlers.book(post("/api/reserve/book", { ...bookBody, smsConsent: true })); await fail.settle();
   ok(fr.status === 201 && fail.repository.rows.length === 1 && fail.repository.rows[0].status === "confirmed", "a text failure never fails or changes the confirmed booking");
+
+  // later kinds: the route asks for the kind; the sender decides whether it texts
+  const asked = [];
+  const ask = async (a) => { asked.push({ kind: a.kind, actor: a.actor || null, phone: a.consent ? a.consent.phone : null }); return { sent: false, recorded: true }; };
+  const requested = { id: "22222222-2222-4222-8222-000000000088", confirmation_code: "REQ999", status: "requested", place_id: PLACE, user_id: USER, guest_name: "Gabe", party_size: 2, reserve_date: "2026-11-14", reserve_time: "19:30:00", idempotency_key: "8f2b8c1e-5d4a-4b6c-9e7f-0a1b2c3d4e50" };
+  const answer = harness({ env: SMS_ENV, bookings: [requested], extra: { sendReserveNotification: ask, sendBookingConfirmationSms: async () => { asked.push({ kind: "confirmation_sms" }); return { sent: true }; } } });
+  const accepted = await json(await answer.handlers.managePost(post("/api/reserve/manage", { token: MANAGE_TOKEN, bookingId: requested.id, action: "accept" })));
+  await answer.settle();
+  ok(accepted.status === 200 && accepted.body.status === "confirmed" && asked.length === 1 && asked[0].kind === "request_accepted_sms" && asked[0].phone === null, "accepting a request asks for request_accepted_sms and does not pass a phone");
+  const declinedRow = { ...requested, id: "22222222-2222-4222-8222-000000000089", idempotency_key: "8f2b8c1e-5d4a-4b6c-9e7f-0a1b2c3d4e51" };
+  const decline = harness({ env: SMS_ENV, bookings: [declinedRow], extra: { sendReserveNotification: ask } });
+  const declined = await json(await decline.handlers.managePost(post("/api/reserve/manage", { token: MANAGE_TOKEN, bookingId: declinedRow.id, action: "decline" })));
+  await decline.settle();
+  ok(declined.status === 200 && declined.body.status === "declined" && asked[asked.length - 1].kind === "request_declined_sms", "declining a request asks for request_declined_sms");
+  const cancelRow = { ...requested, id: "22222222-2222-4222-8222-000000000090", status: "confirmed", idempotency_key: "8f2b8c1e-5d4a-4b6c-9e7f-0a1b2c3d4e52" };
+  const restaurantCancel = harness({ env: SMS_ENV, bookings: [cancelRow], extra: { sendReserveNotification: ask } });
+  const rc = await json(await restaurantCancel.handlers.managePost(post("/api/reserve/manage", { token: MANAGE_TOKEN, bookingId: cancelRow.id, action: "cancel", reason: "Kitchen closed" })));
+  await restaurantCancel.settle();
+  ok(rc.status === 200 && asked[asked.length - 1].kind === "cancellation_sms" && asked[asked.length - 1].actor === "restaurant", "a restaurant cancel asks for cancellation_sms as the restaurant");
+  const guestRow = { ...cancelRow, id: "22222222-2222-4222-8222-000000000091", idempotency_key: "8f2b8c1e-5d4a-4b6c-9e7f-0a1b2c3d4e53", user_id: USER };
+  const guestCancel = harness({ env: SMS_ENV, bookings: [guestRow], extra: { sendReserveNotification: ask } });
+  await guestCancel.handlers.book(post("/api/reserve/book", { ...bookBody, idempotencyKey: guestRow.idempotency_key }));
+  const gc = await json(await guestCancel.handlers.cancel(post("/api/reserve/cancel", { bookingId: guestCancel.repository.rows[0].id })));
+  await guestCancel.settle();
+  ok(gc.status === 200 && gc.body.booking.status === "cancelled" && asked.filter((a) => a.actor === "guest" && a.kind === "cancellation_sms").length === 1, "a guest cancel asks for cancellation_sms as the guest");
+  const missed = [];
+  const slotFull = harness({ env: SMS_ENV, extra: { sendReserveNotification: async (a) => { missed.push(a.kind); }, sendBookingConfirmationSms: async () => { missed.push("confirmation_sms"); } } });
+  const fullSms = await json(await slotFull.handlers.book(post("/api/reserve/book", { ...bookBody, time: "19:00", idempotencyKey: "8f2b8c1e-5d4a-4b6c-9e7f-0a1b2c3d4e54" })));
+  await slotFull.settle();
+  ok(fullSms.status === 409 && fullSms.body.error === "SLOT_FULL" && missed.length === 0, "a slot full failure has no booking, so no failure text and no row");
+  const downSms = harness({ env: SMS_ENV, repo: { failBook: true }, extra: { sendReserveNotification: async (a) => { missed.push(a.kind); } } });
+  const downRes = await json(await downSms.handlers.book(post("/api/reserve/book", { ...bookBody, idempotencyKey: "8f2b8c1e-5d4a-4b6c-9e7f-0a1b2c3d4e55" })));
+  await downSms.settle();
+  ok(downRes.status === 503 && missed.length === 0, "a database failure before a saved booking does not write failure_sms");
+  const quietCancel = harness({ env: PROD, bookings: [cancelRow] });
+  await quietCancel.handlers.managePost(post("/api/reserve/manage", { token: MANAGE_TOKEN, bookingId: cancelRow.id, action: "cancel", reason: "Kitchen closed" }));
+  await quietCancel.settle();
+  ok(quietCancel.repository.rows.find((r) => r.id === cancelRow.id).status === "cancelled", "texts switched off: a cancel still cancels and does not need the sender");
 }
 
 // ---- emails: only live partners, only production, only when ready, never fail the booking ----
@@ -495,6 +545,8 @@ const strip = (s) => s.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:"'`\\])\/
 const src = (p) => strip(readFileSync(new URL("../" + p, import.meta.url), "utf8"));
 {
   const chatRoute = src("app/api/reserve-chat/route.js"), api = src("lib/reserveApi.js");
+  const goFn = api.slice(api.indexOf("go: async"), api.indexOf("find: guarded"));
+  ok(goFn.includes("openTableHandoffUrl") && !/notifyKind|sendReserveNotification|sendBookingConfirmationSms|smsReady/.test(goFn), "the OpenTable redirect does not text and does not write a notification");
   ok(/import\s*\{[^}]*\bpaidAnthropicRequest\b[^}]*\}\s*from\s*"\.\.\/\.\.\/\.\.\/lib\/paidAi\.js"/.test(chatRoute) && /paidAnthropicRequest\s*,/.test(chatRoute), "reserve-chat route imports paidAnthropicRequest from lib/paidAi.js and hands it to the handler");
   ok(/\bBO_MODEL\b/.test(chatRoute) && /boHauntChat\.js/.test(chatRoute), "reserve-chat uses the same model constant as santa-chat (BO_MODEL)");
   ok(!/anthropic\.com/.test(chatRoute + api), "no direct Anthropic URL in the route or its handler");
