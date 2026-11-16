@@ -3,7 +3,8 @@
 // Executes the SVG, the embed, and the not-eligible view. Source reads cover
 // the image route, which needs Next and a database to answer a real GET.
 import { readFileSync } from "node:fs";
-import { fileURLToPath } from "node:url";
+import { spawnSync } from "node:child_process";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import path from "node:path";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
@@ -126,8 +127,101 @@ ok(await F.seoFlagOn(SEO_FLAGS.badgeFindUs, {
   now: 20,
   fetchImpl: async () => { throw new Error("down"); },
 }) === false, "a PostHog failure is off");
-ok(await F.seoFlagOn(SEO_FLAGS.badgeFindUs, { flags: { badge_find_us: true } }) === true, "an explicit true flag is on");
-ok(await F.seoFlagOn(SEO_FLAGS.badgeFindUs, { flags: { badge_find_us: "true" } }) === false, "only boolean true counts");
+ok(await F.seoFlagOn(SEO_FLAGS.badgeFindUs, { env: {}, flags: { badge_find_us: true } }) === true, "an explicit true flag is on");
+ok(await F.seoFlagOn(SEO_FLAGS.badgeFindUs, { env: {}, flags: { badge_find_us: "true" } }) === false, "only boolean true counts");
+
+// PREVIEW ONLY: remove before merge. The override is on for this branch's
+// Vercel preview and off for production and every other ref. Calls below
+// pass their own env, so the shell this guard runs in cannot flip them.
+const previewRef = "cursor/seo-badge-bestof-7515";
+const previewEnv = { VERCEL_ENV: "preview", VERCEL_GIT_COMMIT_REF: previewRef };
+const flagSrc = read("lib/seoFlags.js");
+ok(flagSrc.includes("PREVIEW ONLY: remove before merge"), "the preview override is marked PREVIEW ONLY: remove before merge");
+ok(strip(flagSrc).includes(previewRef), "the branch ref is in code, not only in a comment");
+ok(/function seoFlagOn\(/.test(strip(flagSrc)), "positive control: the stripped source still contains seoFlagOn");
+
+let previewFetches = 0;
+const noFetch = () => { previewFetches++; return Promise.reject(new Error("no")); };
+F.clearSeoFlagCache();
+ok(await F.seoFlagOn(SEO_FLAGS.badgeFindUs, { env: previewEnv, fetchImpl: noFetch }) === true, "this preview turns badge_find_us on");
+ok(await F.seoFlagOn(SEO_FLAGS.bestOfPages, { env: previewEnv, fetchImpl: noFetch }) === true, "this preview turns seo_bestof_pages on");
+ok(await F.seoFlagOn(SEO_FLAGS.badgeFindUs, { env: previewEnv, flags: { badge_find_us: false }, fetchImpl: noFetch }) === true, "the preview override is on even when a test double says false");
+ok(previewFetches === 0, "the preview override does not call PostHog");
+F.clearSeoFlagCache();
+previewFetches = 0;
+ok(await F.seoFlagOn("not_a_seo_flag", { env: previewEnv, fetchImpl: noFetch }) === false, "the preview override does not turn any other flag on");
+ok(previewFetches === 0, "an unrelated flag with no project key does not call PostHog");
+
+const overrideOff = [
+  ["production + this branch", { VERCEL_ENV: "production", VERCEL_GIT_COMMIT_REF: previewRef }],
+  ["production + no ref", { VERCEL_ENV: "production" }],
+  ["preview + main", { VERCEL_ENV: "preview", VERCEL_GIT_COMMIT_REF: "main" }],
+  ["preview + another lane", { VERCEL_ENV: "preview", VERCEL_GIT_COMMIT_REF: "cursor/other-branch" }],
+  ["preview + a longer ref", { VERCEL_ENV: "preview", VERCEL_GIT_COMMIT_REF: previewRef + "-extra" }],
+  ["preview + a shorter ref", { VERCEL_ENV: "preview", VERCEL_GIT_COMMIT_REF: "cursor/seo-badge-bestof-751" }],
+  ["development + this branch", { VERCEL_ENV: "development", VERCEL_GIT_COMMIT_REF: previewRef }],
+  ["empty env", {}],
+  ["preview with no ref", { VERCEL_ENV: "preview" }],
+  ["ref with no VERCEL_ENV", { VERCEL_GIT_COMMIT_REF: previewRef }],
+  ["capitalised Preview", { VERCEL_ENV: "Preview", VERCEL_GIT_COMMIT_REF: previewRef }],
+  ["padded ref", { VERCEL_ENV: "preview", VERCEL_GIT_COMMIT_REF: " " + previewRef }],
+];
+for (const [label, env] of overrideOff) {
+  F.clearSeoFlagCache();
+  previewFetches = 0;
+  ok(await F.seoFlagOn(SEO_FLAGS.badgeFindUs, { env, fetchImpl: noFetch }) === false, "badge_find_us override is off for " + label);
+  ok(await F.seoFlagOn(SEO_FLAGS.bestOfPages, { env, fetchImpl: noFetch }) === false, "seo_bestof_pages override is off for " + label);
+  ok(previewFetches === 0, label + " does not call PostHog without a project key");
+}
+
+F.clearSeoFlagCache();
+ok(await F.seoFlagOn(SEO_FLAGS.badgeFindUs, {
+  env: { VERCEL_ENV: "production", VERCEL_GIT_COMMIT_REF: previewRef, NEXT_PUBLIC_POSTHOG_KEY: "phc_test" },
+  now: 100,
+  fetchImpl: async () => ({ ok: true, json: async () => ({ featureFlags: { badge_find_us: true } }) }),
+}) === true, "production still turns on when PostHog says exactly true");
+F.clearSeoFlagCache();
+ok(await F.seoFlagOn(SEO_FLAGS.badgeFindUs, {
+  env: { VERCEL_ENV: "production", VERCEL_GIT_COMMIT_REF: previewRef, NEXT_PUBLIC_POSTHOG_KEY: "phc_test" },
+  now: 200,
+  fetchImpl: async () => ({ ok: true, json: async () => ({ featureFlags: {} }) }),
+}) === false, "production stays off when PostHog omits the flag");
+F.clearSeoFlagCache();
+ok(await F.seoFlagOn(SEO_FLAGS.bestOfPages, {
+  env: { VERCEL_ENV: "preview", VERCEL_GIT_COMMIT_REF: "some-other-branch", NEXT_PUBLIC_POSTHOG_KEY: "phc_test" },
+  now: 300,
+  fetchImpl: async () => ({ ok: true, json: async () => ({ featureFlags: { seo_bestof_pages: true } }) }),
+}) === true, "another preview branch still follows PostHog");
+F.clearSeoFlagCache();
+ok(await F.seoFlagOn(SEO_FLAGS.bestOfPages, {
+  env: { VERCEL_ENV: "preview", VERCEL_GIT_COMMIT_REF: "some-other-branch", NEXT_PUBLIC_POSTHOG_KEY: "phc_test" },
+  now: 400,
+  fetchImpl: async () => ({ ok: true, json: async () => ({ featureFlags: { seo_bestof_pages: "true" } }) }),
+}) === false, "another preview branch still rejects a non-boolean");
+
+// The runtime call passes no env object, so it must read process.env. A child
+// process gets only the env this probe sets. This file does not read process.env.
+function flagFromProcessEnv(env, key) {
+  const script = `
+    import { seoFlagOn } from ${JSON.stringify(pathToFileURL(path.join(root, "lib/seoFlags.js")).href)};
+    const on = await seoFlagOn(${JSON.stringify(key)}, { fetchImpl: async () => { throw new Error("no-network"); } });
+    process.stdout.write(on === true ? "true" : "false");
+  `;
+  const res = spawnSync(process.execPath, ["--input-type=module", "-e", script], {
+    cwd: root,
+    env,
+    encoding: "utf8",
+  });
+  ok(res.status === 0 && !res.error, "process.env probe ran for " + key + " (" + (env.VERCEL_ENV || "unset") + " / " + (env.VERCEL_GIT_COMMIT_REF || "unset") + "): " + (res.stderr || res.error || "").slice(0, 200));
+  return (res.stdout || "").trim();
+}
+ok(flagFromProcessEnv({ VERCEL_ENV: "preview", VERCEL_GIT_COMMIT_REF: previewRef }, SEO_FLAGS.badgeFindUs) === "true", "process.env on this preview turns badge_find_us on");
+ok(flagFromProcessEnv({ VERCEL_ENV: "preview", VERCEL_GIT_COMMIT_REF: previewRef }, SEO_FLAGS.bestOfPages) === "true", "process.env on this preview turns seo_bestof_pages on");
+ok(flagFromProcessEnv({ VERCEL_ENV: "production", VERCEL_GIT_COMMIT_REF: previewRef }, SEO_FLAGS.badgeFindUs) === "false", "process.env production keeps badge_find_us off");
+ok(flagFromProcessEnv({ VERCEL_ENV: "production", VERCEL_GIT_COMMIT_REF: previewRef }, SEO_FLAGS.bestOfPages) === "false", "process.env production keeps seo_bestof_pages off");
+ok(flagFromProcessEnv({ VERCEL_ENV: "preview", VERCEL_GIT_COMMIT_REF: "main" }, SEO_FLAGS.badgeFindUs) === "false", "process.env on another preview branch keeps badge_find_us off");
+ok(flagFromProcessEnv({ VERCEL_ENV: "preview", VERCEL_GIT_COMMIT_REF: "main" }, SEO_FLAGS.bestOfPages) === "false", "process.env on another preview branch keeps seo_bestof_pages off");
+ok(flagFromProcessEnv({}, SEO_FLAGS.badgeFindUs) === "false", "process.env with neither variable keeps the flag off");
 
 if (fails) {
   console.error(`check-find-us-badge: ${fails} of ${checks} checks failed`);

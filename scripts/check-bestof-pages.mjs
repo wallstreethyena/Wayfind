@@ -135,6 +135,39 @@ ok(/bestOfRouteDecision\(/.test(page) && /notFound\(/.test(page), "the route 404
 ok(/index:\s*false/.test(read("app/budget/page.js")), "/budget stays noindex");
 ok(/index:\s*false/.test(read("app/best-of/page.js")), "/best-of stays noindex");
 
+// PREVIEW ONLY: remove before merge. seo_bestof_pages is on only for this
+// branch's Vercel preview. Production and every other ref stay on PostHog.
+const Flags = await import(path.join(root, "lib/seoFlags.js"));
+const { SEO_FLAGS } = await import(path.join(root, "lib/seoFlagNames.js"));
+const previewRef = "cursor/seo-badge-bestof-7515";
+const previewEnv = { VERCEL_ENV: "preview", VERCEL_GIT_COMMIT_REF: previewRef };
+let bestofFetches = 0;
+const noFetch = () => { bestofFetches++; return Promise.reject(new Error("no")); };
+Flags.clearSeoFlagCache();
+ok(await Flags.seoFlagOn(SEO_FLAGS.bestOfPages, { env: previewEnv, fetchImpl: noFetch }) === true, "this preview turns seo_bestof_pages on");
+ok(bestofFetches === 0, "the best-of preview override does not call PostHog");
+const bestofOff = [
+  ["production + this branch", { VERCEL_ENV: "production", VERCEL_GIT_COMMIT_REF: previewRef }],
+  ["production + main", { VERCEL_ENV: "production", VERCEL_GIT_COMMIT_REF: "main" }],
+  ["preview + main", { VERCEL_ENV: "preview", VERCEL_GIT_COMMIT_REF: "main" }],
+  ["preview + another lane", { VERCEL_ENV: "preview", VERCEL_GIT_COMMIT_REF: "cursor/other-branch" }],
+  ["development + this branch", { VERCEL_ENV: "development", VERCEL_GIT_COMMIT_REF: previewRef }],
+  ["empty env", {}],
+];
+for (const [label, env] of bestofOff) {
+  Flags.clearSeoFlagCache();
+  bestofFetches = 0;
+  ok(await Flags.seoFlagOn(SEO_FLAGS.bestOfPages, { env, fetchImpl: noFetch }) === false, "seo_bestof_pages override is off for " + label);
+  ok(bestofFetches === 0, label + " does not call PostHog without a project key");
+}
+Flags.clearSeoFlagCache();
+ok(await Flags.seoFlagOn(SEO_FLAGS.bestOfPages, {
+  env: { VERCEL_ENV: "production", VERCEL_GIT_COMMIT_REF: previewRef, NEXT_PUBLIC_POSTHOG_KEY: "phc_test" },
+  now: 500,
+  fetchImpl: async () => ({ ok: true, json: async () => ({ featureFlags: {} }) }),
+}) === false, "production best-of stays off when PostHog omits the flag");
+ok(read("lib/seoFlags.js").includes("PREVIEW ONLY: remove before merge"), "best-of guard sees the preview-only removal mark");
+
 if (fails) {
   console.error(`check-bestof-pages: ${fails} of ${checks} checks failed`);
   process.exit(1);
