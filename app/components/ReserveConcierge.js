@@ -50,14 +50,25 @@ function TimesCard({ card, busy, onPick }) {
 }
 
 // Tapping a time never books. It shows this card first; only "Confirm booking" posts /api/reserve/book.
-function ConfirmCard({ card, name, who, busy, onConfirm, onBack }) {
+// Exact consent words the server stores with the text (lib/reserveSms.js SMS_CONSENT_TEXT says the same).
+const TEXT_ME = "Text me this confirmation";
+const TEXT_ME_FINE = "One text about this booking. Msg and data rates may apply. Reply STOP to opt out.";
+
+function ConfirmCard({ card, name, who, busy, sms, onConfirm, onBack }) {
+  const [textMe, setTextMe] = useState(false); // opt in: never pre-ticked
   const when = [exactDay(card.date), timeLabel(card.time)].filter(Boolean).join(" at ");
   const line = (name || "the restaurant") + ", " + when + (card.partySize ? " for " + card.partySize : "") + "." + (who ? " Booking as " + who + "." : "");
   return (
     <div data-reserve-card="confirm" style={box}>
       <div style={{ fontSize: 16, fontWeight: 800, color: C.text, lineHeight: 1.35, overflowWrap: "anywhere" }}>{line}</div>
+      {sms && sms.tail ? (
+        <label style={{ display: "flex", alignItems: "flex-start", gap: 10, minHeight: 44, padding: "10px 0 0", fontSize: 14, color: C.light, cursor: "pointer" }}>
+          <input type="checkbox" data-reserve-text-me="1" checked={textMe} onChange={(ev) => setTextMe(ev.target.checked)} style={{ width: 24, height: 24, flexShrink: 0 }} />
+          <span>{TEXT_ME} to the number ending in {sms.tail}. <span style={{ color: C.muted }}>{TEXT_ME_FINE}</span></span>
+        </label>
+      ) : null}
       <div style={{ display: "grid", gap: 8, marginTop: 10 }}>
-        <button type="button" data-reserve-confirm="1" style={{ ...mainBtn, opacity: busy ? 0.7 : 1 }} disabled={busy} onClick={onConfirm}>Confirm booking</button>
+        <button type="button" data-reserve-confirm="1" style={{ ...mainBtn, opacity: busy ? 0.7 : 1 }} disabled={busy} onClick={() => onConfirm(Boolean(sms && sms.tail && textMe))}>Confirm booking</button>
         <button type="button" data-reserve-back="1" style={quietBtn} disabled={busy} onClick={onBack}>Pick another time</button>
       </div>
     </div>
@@ -239,6 +250,7 @@ export default function ReserveConcierge({ initialPlace, initialMessage, embedde
   const [busy, setBusy] = useState(false);
   const [cardError, setCardError] = useState("");
   const [who, setWho] = useState("");
+  const [sms, setSms] = useState(null); // { tail } when the server can text a confirmation and knows a number
   const alive = useRef(true);
   const started = useRef(false);
   const busyRef = useRef(false);
@@ -281,6 +293,7 @@ export default function ReserveConcierge({ initialPlace, initialMessage, embedde
     adopt(r.state);
     convo.current.push({ role: "assistant", content: r.say.slice(0, 500) });
     if (r.profile && typeof r.profile.display === "string") setWho(r.profile.display);
+    if (r.profile) setSms(r.profile.smsReady === true && typeof r.profile.phoneTail === "string" && /^\d{2}$/.test(r.profile.phoneTail) ? { tail: r.profile.phoneTail } : null);
     const card = r.card && typeof r.card === "object" && r.card.type ? r.card : null;
     track("reserve_concierge_turn", { place_id: pid.current || null, card: card ? card.type : "none" });
     push({ text: r.say, card });
@@ -310,6 +323,7 @@ export default function ReserveConcierge({ initialPlace, initialMessage, embedde
     setBusyBoth(true); setCardError("");
     const req = { placeId, date: a.date, time: a.time, partySize: a.partySize, idempotencyKey: key };
     if (guest.current) { if (guest.current.guestName) req.guestName = guest.current.guestName; if (guest.current.phone) { req.phone = guest.current.phone; req.phoneConsent = true; } }
+    if (a.textMe === true) req.smsConsent = true; // the guest ticked "Text me this confirmation" on this card
     const r = await bookTable(req);
     if (!alive.current) return;
     setBusyBoth(false);
@@ -397,7 +411,7 @@ export default function ReserveConcierge({ initialPlace, initialMessage, embedde
     const pl = place.current;
     switch (c.type) {
       case "times": return <TimesCard card={c} busy={busy} onPick={(t) => { if (!busyRef.current) push({ card: { type: "confirm", date: c.date, time: t, partySize: c.partySize, back: c } }); }} />;
-      case "confirm": return <ConfirmCard card={c} name={srv.current.restaurantName || (pl && pl.name)} who={who} busy={busy} onConfirm={() => book({ date: c.date, time: c.time, partySize: c.partySize })} onBack={() => { if (!busyRef.current && c.back) push({ card: c.back }); }} />;
+      case "confirm": return <ConfirmCard card={c} name={srv.current.restaurantName || (pl && pl.name)} who={who} busy={busy} sms={sms} onConfirm={(textMe) => book({ date: c.date, time: c.time, partySize: c.partySize, textMe })} onBack={() => { if (!busyRef.current && c.back) push({ card: c.back }); }} />;
       case "request": return <RequestCard card={c} name={srv.current.restaurantName || (pl && pl.name)} busy={busy} onSend={() => book({ date: c.date, time: c.time, partySize: c.partySize })} />;
       case "handoff": return <HandoffCard card={c} state={srv.current} place={pl} />;
       case "profile": return <ProfileCard busy={busy} error={cardError} onSubmit={submitProfile} />;

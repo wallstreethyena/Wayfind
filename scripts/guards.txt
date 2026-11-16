@@ -2685,3 +2685,4 @@ node scripts/test-self-healing-truth-engine.mjs
 # 2026-11-13: Closed-place guide/rail/index exclusion, inline card golf_course/duplicate-chip/false-Brazilian/Star-Fish fixes, Santa family outing classification, screen-reader flex-span spacing, and CardPhoto eager/monogram behavior.
 node scripts/test-closed-places-and-inline-cards.mjs
 node scripts/test-santa-local-dates.mjs
+node scripts/test-reserve-sms.mjs
