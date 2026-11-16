@@ -847,7 +847,7 @@ export default function MapScreen({ ctx }) {
           </div>
         )}
       </div>
-      <button type="button" onClick={() => { setAreaOnly(true); setAllCategories((on) => !on); setFiltersExpanded(false); setDrawerFilter(""); setHoveredPinId(null); setMapPreview(null); }} aria-pressed={allCategories} style={{ position: "absolute", top: 164, left: 12, zIndex: 5, minHeight: 40, padding: "6px 12px", borderRadius: 999, background: allCategories ? "linear-gradient(160deg, #FDBA74, #F97316)" : "rgba(13,18,26,.88)", border: `1px solid ${allCategories ? "rgba(255,255,255,.75)" : "rgba(255,255,255,.14)"}`, color: allCategories ? "#0B0F14" : C.light, fontSize: 12, fontWeight: 800, cursor: "pointer", boxShadow: "0 6px 18px rgba(0,0,0,.28)" }}>All places · 9.2+</button>
+      <button type="button" data-wf-all-places onClick={() => { setAreaOnly(true); setAllCategories((on) => !on); setFiltersExpanded(false); setDrawerFilter(""); setHoveredPinId(null); setMapPreview(null); }} aria-pressed={allCategories} style={{ position: "absolute", top: subsVisible ? 220 : 164, left: 12, zIndex: 5, minHeight: 40, padding: "6px 12px", borderRadius: 999, background: allCategories ? "linear-gradient(160deg, #FDBA74, #F97316)" : "rgba(13,18,26,.88)", border: `1px solid ${allCategories ? "rgba(255,255,255,.75)" : "rgba(255,255,255,.14)"}`, color: allCategories ? "#0B0F14" : C.light, fontSize: 12, fontWeight: 800, cursor: "pointer", boxShadow: "0 6px 18px rgba(0,0,0,.28)" }}>All places · 9.2+</button>
       {/* Unified right-edge map control rail: one radius, one size (46px),
           one spacing rhythm (164 / 220 / 276), and one icon language
           (strokeWidth 2, round caps/joins). */}
