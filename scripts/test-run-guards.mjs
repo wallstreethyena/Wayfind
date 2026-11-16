@@ -334,7 +334,7 @@ try {
       { name: "unrunnable guard no longer fails", from: "failUnrunnable(i, r.error.message);\n        }", to: "}", scenario: "unrunnable", expect: /could not run guard 2\/3/ },
       { name: "shard verification always passes", from: "const v = verifyShardReport(guards, serialSet, count, report);", to: "const v = { ok: true, errors: [], total: 0, expected: guards.length };", scenario: "shardReport", expect: /must reject a missing shard/ },
       { name: "shard report not emitted", from: "appendFileSync(process.env.GITHUB_OUTPUT, shardOutputLines(shard.index, shard.count, guards).join(\"\\n\") + \"\\n\");", to: "", scenario: "shardReport", expect: /did not emit executed\/digest\/shards/ },
-      { name: "guards may write GITHUB_OUTPUT", from: 'stdio: ["ignore", "pipe", "pipe"], env: { ...process.env, GUARD_SHARD: "", WF_SUPPRESS_ANALYTICS: "1", WF_GUARD_SUITE: "1", WF_VIATOR_TOKEN_CAPTURE: "0", GITHUB_OUTPUT: "",', to: 'stdio: ["ignore", "pipe", "pipe"], env: { ...process.env, GUARD_SHARD: "", WF_SUPPRESS_ANALYTICS: "1", WF_GUARD_SUITE: "1", WF_VIATOR_TOKEN_CAPTURE: "0",', scenario: "shardReport", expect: /a guard wrote into the shard's GITHUB_OUTPUT/ },
+      { name: "guards may write GITHUB_OUTPUT", from: 'stdio: ["ignore", "pipe", "pipe"], env: { ...process.env, GUARD_SHARD: "", WF_SUPPRESS_ANALYTICS: "1", GITHUB_OUTPUT: "",', to: 'stdio: ["ignore", "pipe", "pipe"], env: { ...process.env, GUARD_SHARD: "", WF_SUPPRESS_ANALYTICS: "1",', scenario: "shardReport", expect: /a guard wrote into the shard's GITHUB_OUTPUT/ },
     ];
     for (const m of mutants) {
       const idx = src.indexOf(m.from);
