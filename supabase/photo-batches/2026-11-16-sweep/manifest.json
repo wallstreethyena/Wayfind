@@ -1,0 +1,51 @@
+{
+ "batch": "2026-11-16-sweep",
+ "cards": [
+  {
+   "place_id": "ChIJ______8sw4gRMudh58gsGMU",
+   "name": "Florida Railroad Museum",
+   "before": 6,
+   "after": 7,
+   "new_photos": [
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-16-sweep/ChIJ______8sw4gRMudh58gsGMU/pl_e119a62ec81d59e5.jpg",
+     "bytes": 434748,
+     "width": 1280,
+     "height": 853,
+     "source": "wikimedia",
+     "license": "cc-by-sa-3.0",
+     "source_ref": "File:Parrish FL Florida Railroad Museum04.jpg",
+     "content_type": "image/jpeg",
+     "original_url": "https://upload.wikimedia.org/wikipedia/commons/8/85/Parrish_FL_Florida_Railroad_Museum04.jpg",
+     "storage_path": null,
+     "attribution_text": "Ebyabe, CC BY SA 3.0, via Wikimedia Commons",
+     "attribution_url": "https://commons.wikimedia.org/wiki/File:Parrish_FL_Florida_Railroad_Museum04.jpg",
+     "phash": "dd2af27aa0c07725"
+    }
+   ]
+  },
+  {
+   "place_id": "ChIJFfcS4GT17IgRqFA1iDnCdzs",
+   "name": "Cascades Park",
+   "before": 6,
+   "after": 7,
+   "new_photos": [
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-16-sweep/ChIJFfcS4GT17IgRqFA1iDnCdzs/pl_4b1e34d9ab9d999c.jpg",
+     "bytes": 324517,
+     "width": 1280,
+     "height": 853,
+     "source": "wikimedia",
+     "license": "cc-by-sa-3.0",
+     "source_ref": "File:Cascades Park (Tallahassee), looking North at Smokey Hollow Pond.JPG",
+     "content_type": "image/jpeg",
+     "original_url": "https://upload.wikimedia.org/wikipedia/commons/3/31/Cascades_Park_(Tallahassee),_looking_North_at_Smokey_Hollow_Pond.JPG",
+     "storage_path": null,
+     "attribution_text": "Michael Rivera, CC BY SA 3.0, via Wikimedia Commons",
+     "attribution_url": "https://commons.wikimedia.org/wiki/File:Cascades_Park_(Tallahassee),_looking_North_at_Smokey_Hollow_Pond.JPG",
+     "phash": "d0121f8397d2cba7"
+    }
+   ]
+  }
+ ]
+}

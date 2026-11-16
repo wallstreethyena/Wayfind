@@ -1281,15 +1281,18 @@ function walkJsFiles(dir, out = []) {
     "Check 8 & 9: rendered SponsoredPlaceCard displays 'Sponsored · Paid partner' disclosure"
   );
   ok(
-    partnersHtml.includes("$99") &&
-      partnersHtml.includes("$199") &&
-      partnersHtml.includes("$299") &&
+    partnersHtml.includes("$99/week") &&
+      partnersHtml.includes("$199/month") &&
+      partnersHtml.includes("$299/quarter") &&
       partnersHtml.includes("hello@gowayfind.com") &&
-      partnersHtml.includes("0%") &&
-      partnersHtml.includes("Dated Event &amp; Holiday Flights") &&
-      partnersHtml.includes("outside ranked lists") &&
+      /ranking is never for sale/i.test(partnersHtml) &&
+      /paid promotions/i.test(partnersHtml) &&
+      /not organic rankings/i.test(partnersHtml) &&
+      /A listing on Wayfind is free/.test(partnersHtml) &&
+      /Wayfind may earn a commission from some booking partners/.test(partnersHtml) &&
+      !/\b0%\s+Wayfind/i.test(partnersHtml) &&
       !partnersHtml.includes("Eligible Activity &amp; Tonight Rails"),
-    "Check 1 & Area 4.1: rendered /partners page shows $99/$199/$299, 0%, hello@gowayfind.com, and standalone dated flights outside ranked lists"
+    "Check 1 & Area 4.1: rendered /partners page shows the sponsored prices, ranking is never for sale beside them, a free listing, and the affiliate disclosure"
   );
 
   // Verify SponsorPage({ slug, today }) passes `day` into sponsoredIsLive(s, day) and sponsoredSnapshotFresh(s, day)
