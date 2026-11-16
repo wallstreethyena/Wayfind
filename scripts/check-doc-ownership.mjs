@@ -27,8 +27,8 @@
  * owner approves. How to approve: docs/OWNER_APPROVAL.md.
  */
 import { execFileSync } from "node:child_process";
-import { decideOwnerApproval, ownerOnlyChanges } from "./lib/ownerApproval.mjs";
-import { fetchPullEvidence, readPullContext } from "./lib/githubPullEvidence.mjs";
+import { decideOwnerApproval, findOwnerApproval, ownerOnlyChanges } from "./lib/ownerApproval.mjs";
+import { fetchCarryForward, fetchPullEvidence, readPullContext } from "./lib/githubPullEvidence.mjs";
 const git = (...args) => {
   try {
     return { ok: true, out: execFileSync("git", args, { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }).trim() };
@@ -112,7 +112,9 @@ async function gatherPullRequestEvidence() {
   if (ctx.error) return { pr: null, comments: null, error: ctx.error };
   try {
     const live = await fetchPullEvidence(ctx);
-    return { pr: { number: ctx.number, eventHeadSha: ctx.eventHeadSha, liveHeadSha: live.liveHeadSha }, comments: live.comments, error: null };
+    // An approval of an earlier head carries forward only if the change is unchanged.
+    const carryForward = findOwnerApproval(live.comments, live.liveHeadSha) ? [] : await fetchCarryForward(ctx, live);
+    return { pr: { number: ctx.number, eventHeadSha: ctx.eventHeadSha, liveHeadSha: live.liveHeadSha }, comments: live.comments, error: null, carryForward };
   } catch (e) {
     return { pr: null, comments: null, error: String((e && e.message) || e) };
   }
@@ -122,6 +124,8 @@ const evidence = IS_MERGE_GATE
   ? { changedPaths, mergeGate: true, ...(await gatherPullRequestEvidence()) }
   : { changedPaths, mergeGate: false, pr: null, comments: null, error: null };
 const verdict = decideOwnerApproval(evidence);
+// Audit trail: every earlier approval that was compared, and why it carried or expired.
+for (const record of verdict.audit || []) console.log(`check-doc-ownership: approval-audit ${JSON.stringify(record)}`);
 if (!verdict.ok) {
   console.error(`check-doc-ownership: FAIL — ${verdict.reason}.`);
   console.error("  Lane state goes in docs/lanes/<lane>.md; rule proposals in docs/proposals/<lane>-<topic>.md. See docs/OWNER_APPROVAL.md.");
