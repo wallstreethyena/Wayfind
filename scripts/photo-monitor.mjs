@@ -771,6 +771,13 @@ async function main() {
   const pct = Math.round(reader.rate * 100);
   const noteBits = [`placeholder-rate ${pct}% of ${summary.sampled} probes`];
   if (reader.coldSurfaces > 0) noteBits.push(`raw-probe-rate=${Math.round(reader.rawRate * 100)}%`);
+  // NAME THE CAUSE IN THE ALERT (2026-11-16). The 2026-11-15..16 page read "82% of 500
+  // probes | open=1572 (+200)" and nothing else; it took a ledger query to learn the
+  // rate was real: the Nov `photos` row hit 950/950 so every uncached card answers
+  // spend-denied to readers. When the ledger is exhausted the rate is a ledger fact,
+  // not a place defect, and the +N rows cannot be closed by repair until the month
+  // rolls or the owner raises the ceiling. Say so, from the measured allowance only.
+  if (allowance.phase === "exhausted") noteBits.push(`ledger=exhausted ${allowance.used}/${allowance.cap}`);
   // `open=<total>` is the breadcrumb the NEXT run parses for its baseline —
   // keep the literal shape parseOpenTotal reads. Its "+N this run" is the
   // QUEUED count only (candidates.length), never cold probes.
