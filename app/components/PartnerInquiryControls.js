@@ -3,10 +3,10 @@ import { useEffect, useId, useRef, useState } from "react";
 import { track } from "../../lib/track";
 
 const PACKAGE_OPTIONS = [
-  { id: "quarterly", label: "Quarterly Sponsorship — $299 / quarter (Holiday Promo · ~$3.32/day)", shortLabel: "Quarterly ($299/quarter Holiday Promo)" },
-  { id: "monthly", label: "Monthly Sponsorship — $199 / month (~$6.63/day)", shortLabel: "Monthly ($199/month)" },
-  { id: "weekly", label: "Weekly Sponsorship — $99 / week (~$14.14/day)", shortLabel: "Weekly ($99/week)" },
-  { id: "general", label: "General question — help me choose the right flight", shortLabel: "General sponsorship question" },
+  { id: "quarterly", label: "Quarterly plan, $299/quarter, Holiday Promo", shortLabel: "Quarterly plan, $299/quarter, Holiday Promo" },
+  { id: "monthly", label: "Monthly plan, $199/month", shortLabel: "Monthly plan, $199/month" },
+  { id: "weekly", label: "Weekly plan, $99/week", shortLabel: "Weekly plan, $99/week" },
+  { id: "general", label: "General question", shortLabel: "General question" },
 ];
 
 /**
@@ -178,9 +178,9 @@ export function PartnerInquiryLink({
 const CATEGORY_OPTIONS = [
   { value: "", label: "Select category (optional)" },
   { value: "Ticketed Attraction / Museum / Garden", label: "Ticketed Attraction / Museum / Botanical Garden" },
-  { value: "Boat Charter / Kayak / Eco-Tour", label: "Boat Charter / Sunset Cruise / Kayak / Eco-Tour" },
+  { value: "Boat Charter / Kayak / Eco tour", label: "Boat Charter / Sunset Cruise / Kayak / Eco tour" },
   { value: "Christmas / Holiday Attraction", label: "Holiday / Seasonal Light Event or Excursion" },
-  { value: "Experiential Restaurant / Date Night", label: "Restaurant / Cocktail Bar / Date-Night Venue" },
+  { value: "Experiential Restaurant / Date Night", label: "Restaurant / Cocktail Bar / Date night venue" },
   { value: "Boutique Spa / Wellness Studio", label: "Boutique Spa / Wellness / Fitness Studio" },
   { value: "Boutique Hotel / Resort", label: "Independent / Boutique Hotel or Inn" },
   { value: "Other Local Experience", label: "Other Local Florida Experience" },
@@ -315,7 +315,7 @@ export function PartnerEmailFallback({
   };
 
   const buildBackupMailto = () => {
-    const subj = `Sponsored Partner Inquiry — ${pkgOption.shortLabel}`;
+    const subj = `Sponsored placement inquiry, ${pkgOption.shortLabel}`;
     const body = [
       "Hi Wayfind team,",
       "",
@@ -402,18 +402,18 @@ export function PartnerEmailFallback({
       } else {
         setErrorMsg(
           r.status === 429 || j.error === "rate_limited"
-            ? "Too many submissions right now. Your details are still filled below — please try again in a few minutes or use the direct email link."
+            ? "Too many submissions right now. Your details are still filled below. Please try again in a few minutes or use the direct email link."
             : j.detail ||
                 j.message ||
-                "We couldn't save your inquiry automatically right now. Your details are preserved below — please retry or open a pre-filled email to hello@gowayfind.com."
+                "We couldn't save your inquiry automatically right now. Your details are preserved below. Please retry or email hello@gowayfind.com."
         );
         setStatus("error");
       }
     } catch (err) {
       setErrorMsg(
         controller.signal.aborted
-          ? "Request timed out before we could confirm receipt. Your details are still here — please retry or email hello@gowayfind.com."
-          : "Connection interrupted. Your details are still here — please retry or email hello@gowayfind.com."
+          ? "Request timed out before we could confirm receipt. Your details are still here. Please retry or email hello@gowayfind.com."
+          : "Connection interrupted. Your details are still here. Please retry or email hello@gowayfind.com."
       );
       setStatus("error");
     } finally {
@@ -445,14 +445,14 @@ export function PartnerEmailFallback({
   };
 
   return (
-    <div className="wfp-email-fallback" role="region" aria-label="Direct email and on-page partner inquiry">
+    <div className="wfp-email-fallback" role="region" aria-label="Email us if you have no mail app">
       <div className="wfp-email-fallback-row">
         <div className="wfp-email-fallback-text">
-          <strong style={{ color: "#F8FAFC" }}>Prefer to message us right here — or no mail app configured?</strong>{" "}
+          <strong style={{ color: "#F8FAFC" }}>No mail app?</strong>{" "}
           Email{" "}
           <code className="wfp-email-code">{email}</code>{" "}
-          directly with your package (<strong>$99/week</strong>, <strong>$199/month</strong>, or{" "}
-          <strong>$299/quarter Holiday Promo</strong>), business name, city, and booking link — or send your inquiry on this page in 20 seconds.
+          and name the plan you want ($99/week, $199/month, or $299/quarter, Holiday Promo), your business name, your city, and your booking link.
+          Or send a note on this page.
         </div>
         <button
           type="button"
@@ -462,7 +462,7 @@ export function PartnerEmailFallback({
           className="wfp-copy-email-btn"
           data-wf-fallback-toggle={placement}
         >
-          <span>{formOpen ? "Close inquiry form" : "Send note without a mail app"}</span>
+          <span>{formOpen ? "Close message form" : "Send a note on this page"}</span>
         </button>
       </div>
 
@@ -495,11 +495,11 @@ export function PartnerEmailFallback({
                   : "Inquiry received by the Wayfind team"}
               </div>
               <p style={{ fontSize: 13.5, color: "#CCFBF1", margin: "0 0 12px", lineHeight: 1.5 }}>
-                Thank you — we logged your inquiry for <strong>{pkgOption.shortLabel}</strong> for{" "}
+                Thank you. We logged your inquiry for <strong>{pkgOption.shortLabel}</strong> for{" "}
                 <strong>{businessName.trim()}</strong>
                 {leadReceipt && leadReceipt.leadId ? <> (ref <code>{leadReceipt.leadId}</code>)</> : null}.{" "}
                 Next step: our team verifies local fit within 1 business day, builds your draft{" "}
-                <strong>Sponsored &middot; Paid partner</strong> preview, and shares it for your approval before any invoice is sent.
+                <strong>Sponsored placement</strong> preview, and shares it for your approval before any invoice is sent.
               </p>
               <button
                 type="button"
@@ -626,7 +626,7 @@ export function PartnerEmailFallback({
                     required
                     maxLength={140}
                     disabled={status === "sending"}
-                    placeholder="you@yourbusiness.com or (813) 555-0199"
+                    placeholder="you@yourbusiness.com or (813) 555 0199"
                     value={contactInfo}
                     onChange={(e) => {
                       setContactInfo(e.target.value);
@@ -687,14 +687,14 @@ export function PartnerEmailFallback({
                 >
                   {errorMsg}{" "}
                   <a href={buildBackupMailto()} style={{ color: "#5EEAD4", fontWeight: 700 }}>
-                    Open pre-filled email →
+                    Open a filled email
                   </a>
                 </div>
               ) : null}
 
               <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
                 <span style={{ fontSize: 12, color: "#94A3B8", lineHeight: 1.45, flex: "1 1 220px" }}>
-                  Sent straight to our partnerships inbox. No payment collected on this form — you review your draft placement before launch.
+                  Sent straight to our partnerships inbox. No payment is collected on this form. You review the draft before it goes live.
                 </span>
                 <button
                   type="submit"

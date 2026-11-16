@@ -579,6 +579,7 @@ node scripts/check-no-sitewide-autolinker.mjs
 node scripts/check-doc-ownership.mjs
 node scripts/test-owner-approval.mjs
 node scripts/test-owner-approval-gate.mjs
+node scripts/test-owner-approval-carry-forward.mjs
 node scripts/check-brand-vault.mjs
 node scripts/test-brand-vault.mjs
 node scripts/test-doc-ownership-shallow.mjs
@@ -2689,3 +2690,4 @@ node scripts/test-closed-places-and-inline-cards.mjs
 node scripts/test-santa-local-dates.mjs
 # 2026-11-12: owner directive. CLAUDE.md keeps the GABRIEL EXECUTION AUTONOMY section and every safety section (an approved edit cannot silently drop a rule).
 node scripts/check-claude-md-owner-sections.mjs
+node scripts/test-reserve-sms.mjs
