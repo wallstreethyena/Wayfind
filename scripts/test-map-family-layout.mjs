@@ -129,8 +129,14 @@ try {
     const expandedHeaderBottom = await page.evaluate(() => document.querySelector('.wf-mapfp').getBoundingClientRect().bottom);
     await page.setContent(makeDoc(mapDrawerHtml, false));
     const drawerBox = await page.evaluate(() => { const b = document.querySelector('.wf-map-results.is-drawer-open').getBoundingClientRect(); return { top: b.top, height: b.height }; });
+    // 2026-11-16 rebuild of #2089: the collapsed places pill is a 52px
+    // translucent control (it was capped at 40). The idle-map ratio, the
+    // central discovery zone, and the header/drawer clearance stay. The open
+    // sheet is now bounded by min(44vh, 350px), which is its own assertion.
     const minIdleRatio = height >= width ? 0.85 : 0.75;
-    assert.ok(idleCheck.mapRatio >= minIdleRatio && idleCheck.pillHeight <= 42 && idleCheck.centerIntrusions === 0 && expandedHeaderBottom < Math.min(...result.floats.map(b => b.top)) && drawerBox.top > result.header.bottom, `Protected Central Discovery Region (${width}x${height}): >=${Math.round(minIdleRatio * 100)}% unobscured map on idle (got ${(idleCheck.mapRatio * 100).toFixed(1)}%), <=40px collapsed pill, 0 controls in central discovery zone, expanded filters and open drawer clear controls`);
+    const drawerCap = Math.min(height * 0.44, 350);
+    assert.ok(idleCheck.mapRatio >= minIdleRatio && idleCheck.pillHeight >= 51 && idleCheck.pillHeight <= 53 && idleCheck.centerIntrusions === 0 && expandedHeaderBottom < Math.min(...result.floats.map(b => b.top)) && drawerBox.top > result.header.bottom, `Protected Central Discovery Region (${width}x${height}): >=${Math.round(minIdleRatio * 100)}% unobscured map on idle (got ${(idleCheck.mapRatio * 100).toFixed(1)}%), 52px collapsed pill (got ${idleCheck.pillHeight}px), 0 controls in central discovery zone, expanded filters and open drawer clear controls`);
+    assert.ok(drawerBox.height <= drawerCap + 1.5, `open places sheet stays within min(44vh, 350px) at ${width}x${height} (got ${drawerBox.height}px, cap ${drawerCap}px)`);
 
     if (height === 844 && [390, 768, 1440].includes(width)) {
       await page.setContent(html);

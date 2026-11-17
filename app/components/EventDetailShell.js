@@ -1,3 +1,5 @@
+import EventPhotoRailControls from "./EventPhotoRailControls.js";
+
 // Both event sources supply content to this shell. Reading order and action
 // spacing belong here, so a new event cannot invent another page layout.
 export default function EventDetailShell({ title, status, facts, story, actions, note, media, credit }) {
@@ -7,6 +9,7 @@ export default function EventDetailShell({ title, status, facts, story, actions,
         <div className="wf-event-photo-rail" role="region" aria-label="Event photo rail" tabIndex={0}>
           {media}
         </div>
+        <EventPhotoRailControls />
         {credit}
       </div>
       <aside className="wf-event-booking" aria-label="Event details and booking">

@@ -6,6 +6,8 @@ import { getPlacePhoto } from "../../lib/photoAnswers.js";
 import { isGooglePlaceId, isPlaceOwnedPhotoUrl } from "../../lib/placePhoto.js";
 import { PLACE_DETAIL_PHOTO_STANDARD } from "../../lib/placeDetailPhotoStandard.js";
 import PhotoCredit from "./PhotoCredit.js";
+import PhotoLightbox from "./PhotoLightbox.js";
+import { RailCount, RailDots, scrollRailTo, usePeekNudge, useRailIndex } from "./PhotoRailIndicators.js";
 
 // Existing Google bytes only. The free lookup must never make an ephemeral
 // provider redirect into a durable-page image; permitted/licensed answers
@@ -68,6 +70,9 @@ export default function PlaceDetailPhotoHeader({ placeId, name, initialPhoto, ph
   const [answer, setAnswer] = useState(null);
   const [viewer, setViewer] = useState(null);
   const photoRef = useRef(null);
+  const [rail, setRail] = useState(null);
+  const { count: railCount, index: railAt } = useRailIndex(multi ? rail : null);
+  usePeekNudge(multi ? rail : null, railCount);
   const eligible = isGooglePlaceId(String(placeId || ""));
   const initial = usableInitial(initialPhoto, placeId, name);
   const initialKey = initial ? initial.src + "|" + initial.subjectName : "";
@@ -109,15 +114,19 @@ export default function PlaceDetailPhotoHeader({ placeId, name, initialPhoto, ph
   return (
     <header className={className} data-place-detail-photo-header style={{ minWidth: 0 }}>
       {(multi || pending || photo) ? <div data-place-detail-photo-media style={{ ...PLACE_DETAIL_PHOTO_STANDARD.frame, position: "relative", overflow: "hidden", background: "#101820" }}>
-        {multi ? <div data-place-detail-photo-rail style={{ position: "absolute", inset: 0, display: "flex", gap: 8, overflowX: "auto", overscrollBehaviorX: "contain", scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch" }}>
-          {gallery.map((src) => (
-            <button key={src} type="button" onClick={() => setViewer({ src, source: "wayfind", credit: null, placeId })} aria-label={"View full photo of " + name} style={{ flex: "0 0 78%", height: "100%", padding: 0, border: 0, scrollSnapAlign: "start", background: "transparent", cursor: "zoom-in" }}>
+        {multi ? <div ref={setRail} data-place-detail-photo-rail style={{ position: "absolute", inset: 0, display: "flex", gap: 8, overflowX: "auto", overscrollBehaviorX: "contain", scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch", scrollbarWidth: "none" }}>
+          {gallery.map((src, i) => (
+            <button key={src} type="button" onClick={() => setViewer({ src, source: "wayfind", credit: null, placeId, start: i })} aria-label={"View full photo of " + name + " (" + (i + 1) + " of " + gallery.length + ")"} style={{ flex: "0 0 78%", height: "100%", padding: 0, border: 0, scrollSnapAlign: "start", scrollSnapStop: "always", background: "transparent", cursor: "zoom-in" }}>
               <img src={src} alt={name} style={{ ...PLACE_DETAIL_PHOTO_STANDARD.image, width: "100%", height: "100%", display: "block" }} />
             </button>
           ))}
         </div> : photo ? <button type="button" onClick={() => visible && setViewer(photo)} aria-label={"View full photo of " + name} disabled={!visible} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", padding: 0, border: 0, background: "transparent", cursor: visible ? "zoom-in" : "default" }}>
           <img ref={photoRef} src={photo.src} alt={name} onLoad={() => setAnswer(previous => previous?.requestKey === requestKey && previous.photo === photo ? { ...previous, loaded: true } : previous)} onError={fail} style={{ ...PLACE_DETAIL_PHOTO_STANDARD.image, width: "100%", height: "100%", display: "block" }} />
         </button> : <div data-place-detail-photo-pending style={{ position: "absolute", inset: 0, display: "grid", placeItems: "center", fontSize: 12, color: "#94A3B8" }}>Loading photo…</div>}
+        {multi && rail ? <>
+          <RailCount index={railAt} count={railCount} onOpen={() => setViewer({ start: railAt })} style={{ position: "absolute", zIndex: 2, top: 10, right: 10 }} />
+          <RailDots index={railAt} count={railCount} onPick={(i) => scrollRailTo(rail, i)} style={{ position: "absolute", zIndex: 2, left: 0, right: 0, bottom: 8, width: "fit-content", margin: "0 auto", padding: "0 4px", borderRadius: 12, background: "rgba(8,11,16,.55)" }} />
+        </> : null}
         {visible && photo.credit ? <PhotoCredit onPhoto credit={{ ...photo.credit, source: photo.source }} /> : null}
       </div> : null}
       <div data-place-detail-text>
@@ -125,7 +134,7 @@ export default function PlaceDetailPhotoHeader({ placeId, name, initialPhoto, ph
         <Title id={titleId} style={titleStyle}>{name}</Title>
       </div>
       {!multi && viewer && viewer === photo && visible ? <FullPhoto photo={viewer} name={name} close={() => setViewer(null)} fail={fail} /> : null}
-      {multi && viewer ? <FullPhoto photo={viewer} name={name} close={() => setViewer(null)} fail={() => setViewer(null)} /> : null}
+      {multi && viewer ? <PhotoLightbox photos={gallery.map((src) => ({ src, alt: name }))} start={viewer.start || 0} title={name + " photos"} onClose={() => setViewer(null)} /> : null}
     </header>
   );
 }
