@@ -2695,3 +2695,4 @@ node scripts/test-santa-local-dates.mjs
 node scripts/check-claude-md-owner-sections.mjs
 node scripts/test-reserve-sms.mjs
 node scripts/check-photo-rail-swipe.mjs
+node scripts/test-home-landing-thanksgiving.mjs

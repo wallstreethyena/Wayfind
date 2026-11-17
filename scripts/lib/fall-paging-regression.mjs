@@ -184,14 +184,14 @@ export async function checkFallPaging({ componentSource = readFileSync(component
   equal(requests.length, 0, "hiding expired rows does not issue stale continuation requests");
   midnight.dispose();
 
-  const makeBulk = (prefix) => Array.from({ length: 10 }, (_, i) => ({ id: i === 0 ? "farms" : `rail-${i}`, title: `Rail ${i}`, cards: i === 0 ? Array.from({ length: 12 }, (_, n) => event(`${prefix}-${n}`)) : [] }));
+  const makeBulk = (prefix) => Array.from({ length: 11 }, (_, i) => ({ id: i === 0 ? "farms" : `rail-${i}`, title: `Rail ${i}`, cards: i === 0 ? Array.from({ length: 12 }, (_, n) => event(`${prefix}-${n}`)) : [] }));
   now = new Date("2026-10-04T16:00:00Z"); bulkRails = makeBulk("day-four");
   const collection = mount(() => component.default({ center: { lat: 27.3, lng: -82.5 } }));
   tree = collection.render();
   equal(elements(tree, RailLoading).length, 1, "the first collection generation waits for its bulk payload");
   await settle(); tree = collection.render();
   const oldSections = elements(tree, component.FallRailSection);
-  equal(oldSections.length, 10, "a valid bulk payload mounts all ten approved rail definitions");
+  equal(oldSections.length, 11, "a valid bulk payload mounts all eleven approved rail definitions (Thanksgiving joined 2026-11-16)");
   equal(oldSections[0].key, "2026-10-04:farms", "the mounted rail seed is scoped to the venue-local date");
   now = new Date("2026-10-05T16:00:00Z"); bulkRails = makeBulk("day-five"); tree = collection.render();
   equal(elements(tree, component.FallRailSection).length, 0, "the prior-day payload cannot render while the new date is loading");
