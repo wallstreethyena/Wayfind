@@ -50,7 +50,7 @@ export default function DisneyHolidayFoodGuidePage() {
       image={hero} region="Walt Disney World" category="Holiday food guide 2026"
       updatedLabel="By Gabriel Pereira · Research checked November 17, 2026"
       jumpHref="#disney-food-map" jumpLabel="Explore the food map"
-      actions={<ShareButton url={pageShareUrl(path)} title={guide.title} text="The Disney holiday food guide: six stops, seven creator posts and one clickable map. On Wayfind." tone="dark" event="guide_share" meta={{ slug: DISNEY_FOOD_SLUG, placement: "hero" }} />}
+      actions={<ShareButton url={pageShareUrl("/guides/disney-world-holiday-food-guide-2026")} title={guide.title} text="The Disney holiday food guide: six stops, seven creator posts and one clickable map. On Wayfind." tone="dark" event="guide_share" meta={{ slug: DISNEY_FOOD_SLUG, placement: "hero" }} />}
     >
       <nav className={styles.quickChoices} aria-label="Choose your Disney food plan">
         <a href="#cookie-bar-sundae"><small>Without a park ticket</small><strong>The Cookie Bar <span aria-hidden="true">↗</span></strong></a>
