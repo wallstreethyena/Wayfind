@@ -29,6 +29,8 @@ import {
   findFallGuideEvent,
 } from "../../../lib/floridaFallGuide2026";
 import { styleHtml } from "../../../lib/styleHtml.js";
+import { GuidePickWhere } from "../[slug]/GuidePickWhere";
+import { guideWhereForRecord } from "../../../lib/guidePlaceAddress.js";
 
 // v2026-09-22 — moved onto the shared GuideMapExplorer (map + house-card
 // rail + category filters), the SAME component every guide with >=3 mappable
@@ -741,6 +743,7 @@ function EventMiniCard({ event, compact = false, rank = null, visual = true, ven
           <span>{FALL_GUIDE_KIND_LABELS[fallGuideKind(event)] || "Fall plan"}</span>
         </div>
         <h3>{event.event_name}</h3>
+        <GuidePickWhere where={guideWhereForRecord({ name: event.venue || event.event_name, placeId: event.place_id, address: event.address })} />
         <p>{event.card_hook || event.editorial_summary || eventWhen(event)}</p>
         <small className={styles.whenLine}>{eventWhen(event)}</small>
         {ticket ? <a href={ticket.href} rel="sponsored noopener" data-commerce-surface="guide_fall_festivals">{"Tickets at " + ticket.via + " \u2197"}</a>
@@ -875,12 +878,18 @@ function BrowseByKind() {
               <h3>{FALL_GUIDE_KIND_LABELS[kind]}</h3>
               <p>{events.length} featured plans in this guide</p>
               <div className={styles.bucketList}>
-                {events.map((event) => (
-                  <a key={event.event_id} href={fallGuideEventHref(event) || "#guide"}>
-                    <span>{event.event_name}</span>
-                    <small>{event.city || "Florida"} · {formatGuideDate(event.start_date)}</small>
-                  </a>
-                ))}
+                {events.map((event) => {
+                  const where = guideWhereForRecord({ name: event.venue || event.event_name, placeId: event.place_id, address: event.address });
+                  return (
+                    <div className={styles.bucketRow} key={event.event_id}>
+                      <a href={fallGuideEventHref(event) || "#guide"}>
+                        <span>{event.event_name}</span>
+                        <small>{event.city || "Florida"} · {formatGuideDate(event.start_date)}</small>
+                      </a>
+                      {where ? <a href={where.mapsUrl} target="_blank" rel="noopener noreferrer">{where.address} Directions</a> : null}
+                    </div>
+                  );
+                })}
               </div>
             </div>
           );
@@ -909,11 +918,15 @@ function BrowseByRegion() {
               <h3>{region}</h3>
               <p>{events.length} current picks shown</p>
               <div className={styles.regionLinks}>
-                {events.map((event) => (
-                  <a key={event.event_id} href={fallGuideEventHref(event) || "#guide"}>
-                    {event.event_name}
-                  </a>
-                ))}
+                {events.map((event) => {
+                  const where = guideWhereForRecord({ name: event.venue || event.event_name, placeId: event.place_id, address: event.address });
+                  return (
+                    <div className={styles.bucketRow} key={event.event_id}>
+                      <a href={fallGuideEventHref(event) || "#guide"}>{event.event_name}</a>
+                      {where ? <a href={where.mapsUrl} target="_blank" rel="noopener noreferrer">{where.address} Directions</a> : null}
+                    </div>
+                  );
+                })}
               </div>
             </article>
           );
