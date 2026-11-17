@@ -368,7 +368,7 @@ scripts/check-photo-cache-liveness.mjs	0	CALL	blocks-ci-and-deploy	1	-	45	0	0	75
 scripts/check-photo-cap-parses.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	14	0	0	24ed6d53c226e2ab040a9fe0ab92e8b73eb03f0d513a6cd6a036e7118e92aa23
 scripts/check-photo-credit-under-headline.mjs	1	RENDER	blocks-ci-and-deploy	1	Revenue QA	31	0	0	133759529563a4227124ba2bfc39c598ea841e3f55a8f96eee3a3342ae994a8a
 scripts/check-photo-outcome-provenance.mjs	0	CALL	blocks-ci-and-deploy	1	Revenue QA	22	0	0	94e684a594407efa3310a4775d949b69abca7bd5397e6cb19b28a9db202e9d7f
-scripts/check-photo-rail-swipe.mjs	0	RENDER	blocks-ci-and-deploy	1	-	41	0	0	94382a2bd36ca39e7ddd625f29b0563e8fafb7178ee1166c31304f67c603a925
+scripts/check-photo-rail-swipe.mjs	0	RENDER	blocks-ci-and-deploy	1	-	43	0	0	549475e44d45c16397c167cf7e625c71c9fff5ee49475ea6692ed46efe823d84
 scripts/check-photo-surface-registry.mjs	0	CALL	blocks-ci-and-deploy	1	-	59	0	0	d0b807ac8a47aade8d3703d143d5765c85d9d9667a36599421a2288e1e6cd067
 scripts/check-photos.mjs	0	CALL	blocks-ci-and-deploy	1	-	12	0	0	0f42671f28fa7d2880c503f655e25bf018ec955eeb148042c6198f1853a5a85e
 scripts/check-pick-medallion.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	7	2	2	f76832d4b34fa0cb56455d18deba640e9ca9f1f6352afdb4755390b07ddf5ce0
