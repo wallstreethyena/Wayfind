@@ -2686,6 +2686,8 @@ node scripts/test-nervous-system-health.mjs
 node scripts/test-owned-hours-cohort.mjs
 # 2026-11-13: Wayfind Self-Healing "Should I Go?" Truth Engine (truth provenance, commerce health quarantine, owned hours persistence, 7-state cold location, event temporal eligibility, and actionability coverage).
 node scripts/test-self-healing-truth-engine.mjs
+# 2026-11-14: production migration lease — apply-migration takes public.wf_migration_lease before any migration SQL (atomic acquire, injection-safe tokens, bounded TTL, fail-closed reply parsing, lease-before-SQL wiring). Real-Postgres race proof: scripts/prove-migration-lease-race.sh.
+node scripts/test-migration-lease.mjs
 # 2026-11-13: Closed-place guide/rail/index exclusion, inline card golf_course/duplicate-chip/false-Brazilian/Star-Fish fixes, Santa family outing classification, screen-reader flex-span spacing, and CardPhoto eager/monogram behavior.
 node scripts/test-closed-places-and-inline-cards.mjs
 node scripts/test-santa-local-dates.mjs
