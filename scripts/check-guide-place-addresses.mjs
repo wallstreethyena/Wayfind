@@ -1,13 +1,14 @@
 #!/usr/bin/env node
-// Every guide and blog place or event recommendation needs a full street
-// address and a Google Maps link. Advice with no venue is not a place.
-// Addresses are never invented: a recommendation that cannot be verified fails.
+// A named venue needs a full street address and a Google Maps link.
+// An area, street, beach, crawl, citywide festival, route, or trip can pass
+// with a reviewed area map link and an explicit reason. Nothing is invented.
 import { readFileSync } from "node:fs";
 import { GUIDES } from "../lib/guides.js";
 import { GUIDE_PLACE_RAILS } from "../lib/guidePlaceRails.js";
 import { FLORIDA_FALL_GUIDE_EVENTS_2026 } from "../lib/floridaFallGuide2026.js";
 import { DEDICATED_GUIDE_ROUTES } from "../lib/guideDedicatedRoutes.js";
 import {
+  guideAreaMapUrl,
   guideMapsUrl,
   guideWhereForRecord,
   isFullStreetAddress,
@@ -48,6 +49,11 @@ function need(label, record, slug) {
     if (!isFullStreetAddress(where.address)) gaps.push(label + " (address is not a full street line)");
     const again = guideMapsUrl({ name: record.name || record.event_name || record.venue, address: where.address, placeId: where.placeId || record.placeId || record.place_id });
     if (again !== where.mapsUrl) gaps.push(label + " (maps link drifted)");
+    return;
+  }
+  if (where.area === true) {
+    if (where.reviewed !== true || !String(where.reason || "").trim()) gaps.push(label + " (area map has no reviewed reason)");
+    if (guideAreaMapUrl(where.mapQuery) !== where.mapsUrl) gaps.push(label + " (area map drifted)");
     return;
   }
   if (where.reviewed !== true || !where.mapsUrl.includes("query_place_id=")) gaps.push(label + " (no street address and no reviewed place map)");

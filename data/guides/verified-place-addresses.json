@@ -2395,6 +2395,556 @@
       "source": "event-record+census",
       "sourceUrl": "",
       "note": "Same farm street already census-matched for The Berry Farm Harvest Festival: 13720 SW 216TH ST, MIAMI, FL, 33170."
+    },
+    "gatorland-vs-wild-florida\tWild Florida: the airboat experience": {
+      "address": "3301 Lake Cypress Rd, Kenansville, FL 34739",
+      "source": "official-site",
+      "sourceUrl": "https://www.wildfloridaairboats.com/",
+      "note": "The operator page states 3301 Lake Cypress Rd, Kenansville, FL 34739."
+    },
+    "things-to-do-miami-summer-2026\tJoia Beach Club on Watson Island": {
+      "address": "1111 Parrot Jungle Trail, Miami, FL 33132",
+      "source": "official-site",
+      "sourceUrl": "https://joiabeachmiami.com/",
+      "note": "Joia Beach's own page states 1111 Parrot Jungle Trail, Miami, FL 33132."
+    },
+    "things-to-do-key-west-summer-2026\tThe Reserve, the new bank takeover": {
+      "address": "510 Southard St, Key West, FL 33040",
+      "source": "guide-text+census",
+      "sourceUrl": "",
+      "note": "The guide says the converted bank is at 510 Southard. Census matched 510 SOUTHARD ST, KEY WEST, FL, 33040."
+    },
+    "things-to-do-key-west-summer-2026\tThe Southernmost Point buoy, temporary edition": {
+      "address": "1400 Duval St, Key West, FL 33040",
+      "source": "guide-text+census",
+      "sourceUrl": "",
+      "note": "The guide says the temporary buoy is at Duval Pocket Park at 1400 Duval. Census matched 1400 DUVAL ST, KEY WEST, FL, 33040."
+    },
+    "things-to-do-key-west-summer-2026\tPapa's Pilar rum distillery": {
+      "address": "201 Simonton St, Key West, FL 33040",
+      "source": "official-site",
+      "sourceUrl": "https://www.papaspilar.com/",
+      "note": "The distillery page states 201 Simonton St, Key West, FL 33040. Census matched the same line."
+    },
+    "things-to-do-panama-city-beach-summer-2026\tShipwreck Island Waterpark": {
+      "address": "12201 Hutchison Blvd, Panama City Beach, FL 32407",
+      "source": "official-site",
+      "sourceUrl": "https://shipwreckisland.com/",
+      "note": "The waterpark site links 12201 Hutchison Blvd, Panama City Beach, FL 32407. Census matched that line."
+    },
+    "fall-events-orlando-2026\tVans Warped Tour Orlando": {
+      "address": "1 Citrus Bowl Pl, Orlando, FL 32805",
+      "source": "official-site",
+      "sourceUrl": "https://www.orlando.gov/Our-Government/Departments-Offices/Venues/Camping-World-Stadium",
+      "note": "The City of Orlando venue page states 1 Citrus Bowl Place, Orlando, Florida 32805. Census matched 1 CITRUS BOWL PL."
+    },
+    "fall-events-orlando-2026\tFlorida Blue Florida Classic": {
+      "address": "1 Citrus Bowl Pl, Orlando, FL 32805",
+      "source": "official-site",
+      "sourceUrl": "https://www.orlando.gov/Our-Government/Departments-Offices/Venues/Camping-World-Stadium",
+      "note": "The City of Orlando venue page states 1 Citrus Bowl Place, Orlando, Florida 32805. Census matched 1 CITRUS BOWL PL."
+    },
+    "things-to-do-in-ellenton-florida\tEllenton Ice & Sports Complex": {
+      "address": "5309 29th Street East, Ellenton, FL 34222",
+      "source": "official-site",
+      "sourceUrl": "https://www.ellentonice.com/",
+      "note": "The rink site states 5309 29th Street East, Ellenton, Florida 34222."
+    },
+    "florida-fall-festivals-2026\tScream A Geddon Horror Park": {
+      "address": "27839 Saint Joe Rd, Dade City, FL 33525",
+      "source": "official-site",
+      "sourceUrl": "https://screamageddon.com/",
+      "note": "The park site states 27839 Saint Joe Rd, Dade City, FL 33525."
+    },
+    "florida-fall-festivals-2026\tCongaree and Penn Pumpkin Patch": {
+      "address": "11830 Old Kings Road, Jacksonville, FL 32219",
+      "source": "official-site",
+      "sourceUrl": "https://www.congareeandpenn.com/",
+      "note": "The farm site states 11830 Old Kings Road, Jacksonville, Florida 32219."
+    },
+    "florida-fall-festivals-2026\tSykes Family Farms Fall Festival": {
+      "address": "5995 Brough Rd, Elkton, FL 32033",
+      "source": "official-site",
+      "sourceUrl": "https://sycofarms.com/",
+      "note": "The farm site states 5995 Brough Rd, Elkton, FL 32033. Census matched that line."
+    },
+    "florida-fall-festivals-2026\tBedner's Farm Fresh Market Fall Festival": {
+      "address": "10066 Lee Road, Boynton Beach, FL 33473",
+      "source": "official-site",
+      "sourceUrl": "https://bedners.com/contact/",
+      "note": "The farm contact page states 10066 Lee Road, Boynton Beach, FL 33473."
+    },
+    "orlando-christmas-concerts-and-santa-2026\tCarousel on the Promenade: the nearby extra": {
+      "address": "8375 International Dr, Orlando, FL 32819",
+      "source": "official-site",
+      "sourceUrl": "https://iconparkorlando.com/attractions/carousel-on-the-promenade/",
+      "note": "ICON Park's carousel page states 8375 International Drive, Orlando, FL 32819. Census matched that line."
+    },
+    "florida-fall-festivals-2026\tSharktoberfest at Mote SEA": {
+      "address": "225 University Town Center Drive, Sarasota, FL 34243",
+      "source": "official-site",
+      "sourceUrl": "https://mote.org/aquarium/sea-visitor-information/",
+      "note": "Mote's visitor page states 225 University Town Center Drive, Sarasota, FL 34243."
+    },
+    "swim-with-manatees-crystal-river\tSwim with the manatees in Kings Bay": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A swim trip in Kings Bay, not one street door.",
+      "mapQuery": "Kings Bay, Crystal River, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Kings%20Bay%2C%20Crystal%20River%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "bioluminescence-kayak-tour-space-coast\tA clear-kayak bioluminescence tour": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A night tour out of Cocoa Beach, not one street door.",
+      "mapQuery": "Cocoa Beach, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Cocoa%20Beach%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "florida-scalloping-crystal-river-homosassa\tA guided scallop trip from Crystal River or Homosassa": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A guided boat trip, not one street door.",
+      "mapQuery": "Crystal River, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Crystal%20River%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "florida-scalloping-crystal-river-homosassa\tOff-season, swim with the manatees instead": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A seasonal trip, not one street door.",
+      "mapQuery": "Crystal River, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Crystal%20River%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "winter-park-scenic-boat-tour\tMake it a Winter Park day": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A day in the city, not one street door.",
+      "mapQuery": "Winter Park, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Winter%20Park%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "anna-maria-island-day-trip\tPine Avenue and the City Pier": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A street and pier area, not one street door.",
+      "mapQuery": "Pine Avenue, Anna Maria, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Pine%20Avenue%2C%20Anna%20Maria%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "anna-maria-island-day-trip\tThe free trolley, your parking cheat code": {
+      "area": true,
+      "reviewed": true,
+      "reason": "An island trolley, not one street door.",
+      "mapQuery": "Anna Maria Island, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Anna%20Maria%20Island%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "ybor-city-tampa-guide\tSeventh Avenue and the cigar legacy": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A historic street, not one street door.",
+      "mapQuery": "7th Avenue, Ybor City, Tampa, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=7th%20Avenue%2C%20Ybor%20City%2C%20Tampa%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "ybor-city-tampa-guide\tThe streetcar and the roosters": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A transit route, not one street door.",
+      "mapQuery": "TECO Line Streetcar, Tampa, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=TECO%20Line%20Streetcar%2C%20Tampa%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "things-to-do-orlando-summer-2026\tEola Food Hall and the Mills 50 crawl": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A restaurant crawl, not one street door.",
+      "mapQuery": "Mills 50, Orlando, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Mills%2050%2C%20Orlando%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "things-to-do-miami-summer-2026\tThe Coral Gables restaurant boom": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A neighborhood of restaurants, not one street door.",
+      "mapQuery": "Coral Gables, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Coral%20Gables%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "things-to-do-miami-summer-2026\tVersace Mansion and the Ocean Drive icons": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A street of landmarks, not one street door.",
+      "mapQuery": "Ocean Drive, Miami Beach, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Ocean%20Drive%2C%20Miami%20Beach%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "things-to-do-miami-summer-2026\tLittle Havana's Calle Ocho": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A street, not one street door.",
+      "mapQuery": "Calle Ocho, Little Havana, Miami, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Calle%20Ocho%2C%20Little%20Havana%2C%20Miami%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "things-to-do-tampa-summer-2026\tThe Riverwalk with the Pirate Water Taxi": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A riverwalk route, not one street door.",
+      "mapQuery": "Tampa Riverwalk, Tampa, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Tampa%20Riverwalk%2C%20Tampa%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "things-to-do-tampa-summer-2026\tYbor City": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A district, not one street door.",
+      "mapQuery": "Ybor City, Tampa, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Ybor%20City%2C%20Tampa%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "things-to-do-fort-lauderdale-summer-2026\tFort Lauderdale Beach and the reef offshore": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A beach, not one street door.",
+      "mapQuery": "Fort Lauderdale Beach, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Fort%20Lauderdale%20Beach%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "things-to-do-fort-lauderdale-summer-2026\tLas Olas Boulevard's restaurant wave": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A restaurant street, not one street door.",
+      "mapQuery": "Las Olas Boulevard, Fort Lauderdale, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Las%20Olas%20Boulevard%2C%20Fort%20Lauderdale%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "things-to-do-fort-lauderdale-summer-2026\tLas Olas Beach at sunrise": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A beach, not one street door.",
+      "mapQuery": "Las Olas Beach, Fort Lauderdale, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Las%20Olas%20Beach%2C%20Fort%20Lauderdale%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "things-to-do-key-west-summer-2026\tThe Duval Street crawl": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A street crawl, not one street door.",
+      "mapQuery": "Duval Street, Key West, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Duval%20Street%2C%20Key%20West%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "things-to-do-st-augustine-summer-2026\tSt. George Street and the old town": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A historic street, not one street door.",
+      "mapQuery": "St. George Street, St. Augustine, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=St.%20George%20Street%2C%20St.%20Augustine%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "things-to-do-daytona-beach-summer-2026\tDriving the World's Most Famous Beach": {
+      "area": true,
+      "reviewed": true,
+      "reason": "The driving beach, not one street door.",
+      "mapQuery": "Daytona Beach, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Daytona%20Beach%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "things-to-do-panama-city-beach-summer-2026\tShell Island": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A barrier island reached by boat, not one street door.",
+      "mapQuery": "Shell Island, Panama City Beach, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Shell%20Island%2C%20Panama%20City%20Beach%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "things-to-do-panama-city-beach-summer-2026\tThe 27 miles of sugar-white beach": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A stretch of beach, not one street door.",
+      "mapQuery": "Panama City Beach, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Panama%20City%20Beach%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "things-to-do-panama-city-beach-summer-2026\tThe TikTok food crawl: Boondocks and Coco Loco": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A food crawl of more than one stop, not one street door.",
+      "mapQuery": "Panama City Beach, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Panama%20City%20Beach%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "things-to-do-naples-summer-2026\tThe Naples Beach sunset, pier or no pier": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A beach sunset, not one street door.",
+      "mapQuery": "Naples Beach, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Naples%20Beach%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "things-to-do-naples-summer-2026\tKeewaydin Island by boat": {
+      "area": true,
+      "reviewed": true,
+      "reason": "An island reached by boat, not one street door.",
+      "mapQuery": "Keewaydin Island, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Keewaydin%20Island%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "things-to-do-naples-summer-2026\tFifth Avenue South on summer deals": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A shopping street, not one street door.",
+      "mapQuery": "Fifth Avenue South, Naples, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Fifth%20Avenue%20South%2C%20Naples%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "things-to-do-in-tampa-florida\tA real Tampa Cuban sandwich": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A food to seek in the city, not one restaurant door.",
+      "mapQuery": "Tampa, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Tampa%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "things-to-do-in-tampa-florida\tThe TECO Line Streetcar": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A transit route, not one street door.",
+      "mapQuery": "TECO Line Streetcar, Tampa, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=TECO%20Line%20Streetcar%2C%20Tampa%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "things-to-do-in-tampa-florida\tBayshore Boulevard": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A boulevard, not one street door.",
+      "mapQuery": "Bayshore Boulevard, Tampa, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Bayshore%20Boulevard%2C%20Tampa%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "things-to-do-in-tampa-florida\tGasparilla Pirate Fest": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A citywide parade, not one street door.",
+      "mapQuery": "Tampa, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Tampa%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "things-to-do-in-miami-florida\tLittle Havana": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A neighborhood, not one street door.",
+      "mapQuery": "Little Havana, Miami, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Little%20Havana%2C%20Miami%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "things-to-do-in-bradenton-florida\tBradenton Riverwalk": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A riverwalk, not one street door.",
+      "mapQuery": "Bradenton Riverwalk, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Bradenton%20Riverwalk%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "things-to-do-in-bradenton-florida\tVillage of the Arts": {
+      "area": true,
+      "reviewed": true,
+      "reason": "An arts neighborhood, not one street door.",
+      "mapQuery": "Village of the Arts, Bradenton, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Village%20of%20the%20Arts%2C%20Bradenton%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "things-to-do-in-lakewood-ranch-florida\tLakewood Ranch Main Street": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A main street district, not one street door.",
+      "mapQuery": "Lakewood Ranch Main Street, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Lakewood%20Ranch%20Main%20Street%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "jacksonville-christmas-by-area-budget-2026\tDeck the Chairs": {
+      "area": true,
+      "reviewed": true,
+      "reason": "Beach lights across two plazas, not one entrance.",
+      "mapQuery": "Jacksonville Beach, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Jacksonville%20Beach%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "jacksonville-christmas-by-area-budget-2026\tRiverside Avondale Luminaria": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A neighborhood luminaria. The guide says the Buckland House is not a single entrance.",
+      "mapQuery": "Riverside Avondale, Jacksonville, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Riverside%20Avondale%2C%20Jacksonville%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "jacksonville-christmas-by-area-budget-2026\tBlackhawk Bluff Christmas Lights": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A residential light display, not one public door.",
+      "mapQuery": "Girvin Road, Jacksonville, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Girvin%20Road%2C%20Jacksonville%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "jacksonville-christmas-by-area-budget-2026\tChristmas on Walnut Street": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A street festival, not one street door.",
+      "mapQuery": "Walnut Street, Green Cove Springs, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Walnut%20Street%2C%20Green%20Cove%20Springs%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "jacksonville-christmas-by-area-budget-2026\tParade of Trees": {
+      "area": true,
+      "reviewed": true,
+      "reason": "An evening park stroll, not one ticketed door.",
+      "mapQuery": "Spring Park, Green Cove Springs, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Spring%20Park%2C%20Green%20Cove%20Springs%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "jacksonville-christmas-by-area-budget-2026\tNights of Lights": {
+      "area": true,
+      "reviewed": true,
+      "reason": "Citywide public lights, not one street door.",
+      "mapQuery": "St. Augustine, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=St.%20Augustine%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "st-augustine-christmas-coffee-snow-walk-2026\tNights of Lights: the evening anchor": {
+      "area": true,
+      "reviewed": true,
+      "reason": "Citywide public lights, not one street door.",
+      "mapQuery": "St. Augustine, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=St.%20Augustine%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "florida-fall-festivals-2026\tHaunted Sarasota Ghost Tour": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A walking tour, not one street door.",
+      "mapQuery": "Sarasota, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Sarasota%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "florida-fall-festivals-2026\tROCKtoberfest Downtown Sarasota": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A downtown festival, not one street door.",
+      "mapQuery": "Downtown Sarasota, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Downtown%20Sarasota%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "florida-fall-festivals-2026\tFantasy Fest": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A citywide festival, not one street door.",
+      "mapQuery": "Key West, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Key%20West%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "florida-fall-festivals-2026\tAnna Maria Island BayFest": {
+      "area": true,
+      "reviewed": true,
+      "reason": "An island festival, not one street door.",
+      "mapQuery": "Anna Maria Island, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Anna%20Maria%20Island%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "florida-fall-festivals-2026\tCedar Key Seafood Festival": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A town festival, not one street door.",
+      "mapQuery": "Cedar Key, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Cedar%20Key%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "florida-fall-festivals-2026\tCandlelight Halloween Classics at Siesta Key": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A concert on the key, not one street door.",
+      "mapQuery": "Siesta Key, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Siesta%20Key%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "florida-fall-festivals-2026\tMount Dora Craft Fair": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A town craft fair, not one street door.",
+      "mapQuery": "Mount Dora, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Mount%20Dora%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "florida-fall-festivals-2026\tHalloween on Central": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A street festival, not one street door.",
+      "mapQuery": "Central Avenue, St. Petersburg, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Central%20Avenue%2C%20St.%20Petersburg%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "florida-fall-festivals-2026\tFoo Foo Festival": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A citywide festival, not one street door.",
+      "mapQuery": "Pensacola, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Pensacola%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "florida-fall-festivals-2026\tTaste of the Beach Festival": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A beach festival, not one street door.",
+      "mapQuery": "Pensacola Beach, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Pensacola%20Beach%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "florida-fall-festivals-2026\tIsland Trunk or Treat": {
+      "area": true,
+      "reviewed": true,
+      "reason": "An island event, not one street door.",
+      "mapQuery": "Anna Maria Island, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Anna%20Maria%20Island%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "florida-fall-festivals-2026\tSt. Pete Official Halloween Bar Crawl": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A bar crawl, not one street door.",
+      "mapQuery": "St. Petersburg, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=St.%20Petersburg%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "florida-fall-festivals-2026\tSarasota Boos and Booze Halloween Bar Crawl": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A bar crawl, not one street door.",
+      "mapQuery": "Sarasota, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Sarasota%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "florida-fall-festivals-2026\tNaples Stone Crab Festival": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A city festival, not one street door.",
+      "mapQuery": "Naples, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Naples%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "things-to-do-panama-city-beach-summer-2026\tPier Park and the SkyWheel": {
+      "address": "600 Pier Park Dr, Panama City Beach, FL 32413",
+      "source": "official-site",
+      "sourceUrl": "https://www.simon.com/mall/pier-park/about",
+      "note": "Simon, the operator of Pier Park, states 600 Pier Park Dr, Panama City Beach, FL 32413."
+    },
+    "jacksonville-christmas-by-area-budget-2026\tDiamonds in the Rust Fall Market": {
+      "address": "7263 Solomon Rd, Jax, FL 32234",
+      "source": "official-site",
+      "sourceUrl": "https://diamonddranchinc.com/",
+      "note": "Diamond D Ranch's site states 7263 Solomon Rd, Jax, FL 32234."
     }
   }
 }

@@ -25,13 +25,12 @@ Every recommendation on that page:
 
 - Pages audited: 86
 - Places and events audited: 582
-- Addresses fixed with a maps link: 396
-- Unresolved street addresses: 186
-- Of those, 81 open in Google Maps through a reviewed place id and have no street number
-- Still failing the address guard: 105
+- Street addresses with a maps link: 408
+- Reviewed area map links, no street door: 56
+- Named venues still missing a verified street: 32
 - Photo gaps: 401
 
-The 105 that still cannot be verified, each with the reason, are in `docs/wayfind/audits/guide-address-unverified-2026-11-17.md`.
+The 32 named venues that still have no verified street are listed in `docs/wayfind/audits/guide-address-unverified-2026-11-17.md`.
 
 ## Photo gaps for the Picture Scrapper
 
@@ -468,10 +467,6 @@ Missing photos, placeholder tiles, empty sources, and images that return an erro
 
 - pick: Disney's Grand Floridian (ChIJAZ2Ywx1-3YgRMOY_HCjnAXk)
 
-### /guides/gatorland-vs-wild-florida
-
-- pick: Wild Florida: the airboat experience
-
 ### /guides/things-to-do-orlando-not-theme-parks
 
 - pick: Watch a rocket launch (ChIJdeCS1uW54IgRqG67_UFPInI)
@@ -525,7 +520,6 @@ Missing photos, placeholder tiles, empty sources, and images that return an erro
 
 ### /guides/things-to-do-miami-summer-2026
 
-- pick: Joia Beach Club on Watson Island
 - pick: The Coral Gables restaurant boom
 - pick: Versace Mansion and the Ocean Drive icons
 - pick: Little Havana's Calle Ocho
@@ -545,11 +539,8 @@ Missing photos, placeholder tiles, empty sources, and images that return an erro
 
 ### /guides/things-to-do-key-west-summer-2026
 
-- pick: The Reserve, the new bank takeover
-- pick: The Southernmost Point buoy, temporary edition
 - pick: The Duval Street crawl
 - pick: Blue Heaven's pie under the bougainvillea (ChIJf2LtZui20YgRGZXS-SvwkNI)
-- pick: Papa's Pilar rum distillery
 
 ### /guides/things-to-do-st-augustine-summer-2026
 
@@ -572,8 +563,6 @@ Missing photos, placeholder tiles, empty sources, and images that return an erro
 
 - best-pick: Shell Island
 - pick: The 27 miles of sugar-white beach
-- pick: Pier Park and the SkyWheel
-- pick: Shipwreck Island Waterpark
 - pick: The TikTok food crawl: Boondocks and Coco Loco
 - pick: Free concerts at Aaron Bessant Park
 
@@ -657,8 +646,6 @@ Missing photos, placeholder tiles, empty sources, and images that return an erro
 
 - best-pick: EPCOT International Food & Wine Festival
 - pick: EDC Orlando
-- pick: Vans Warped Tour Orlando
-- pick: Florida Blue Florida Classic
 
 ### /guides/things-to-do-in-bradenton-florida
 
@@ -672,7 +659,6 @@ Missing photos, placeholder tiles, empty sources, and images that return an erro
 ### /guides/things-to-do-in-ellenton-florida
 
 - best-pick: Gamble Plantation Historic State Park (ChIJjZhUvSU9w4gRCuTRgyrctZA)
-- pick: Ellenton Ice & Sports Complex
 
 ### /guides/things-to-do-in-lakewood-ranch-florida
 
@@ -697,10 +683,6 @@ Missing photos, placeholder tiles, empty sources, and images that return an erro
 
 - pick: Brown's Holiday Market After Dark: make Oxford its own outing (ChIJWSFAm9XE54gRynJk-W1qRFA)
 
-### /guides/orlando-christmas-concerts-and-santa-2026
-
-- pick: Carousel on the Promenade: the nearby extra
-
 ### /guides/jacksonville-christmas-by-area-budget-2026
 
 - best-pick: Deck the Chairs
@@ -708,7 +690,6 @@ Missing photos, placeholder tiles, empty sources, and images that return an erro
 - pick: Blackhawk Bluff Christmas Lights
 - pick: Christmas on Walnut Street
 - pick: Parade of Trees
-- pick: Diamonds in the Rust Fall Market
 - pick: Nights of Lights
 
 ### /guides/st-augustine-christmas-coffee-snow-walk-2026

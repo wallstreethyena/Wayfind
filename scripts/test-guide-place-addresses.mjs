@@ -2,7 +2,7 @@
 // The address contract: a full street line, a Google Maps search URL, and a
 // null when the ZIP or the street is missing. Proves the failure, not only the pass.
 import assert from "node:assert/strict";
-import { guideMapsUrl, guidePlaceMapUrl, guideWhereForRecord, isFullStreetAddress, postalLine } from "../lib/guidePlaceAddress.js";
+import { guideAreaMapUrl, guideMapsUrl, guidePlaceMapUrl, guideWhereForRecord, isFullStreetAddress, postalLine } from "../lib/guidePlaceAddress.js";
 
 const FULL = "615 Channelside Dr, Tampa, FL 33602";
 assert.equal(isFullStreetAddress(FULL), true);
@@ -48,4 +48,29 @@ assert.equal(guideWhereForRecord(
   { catalog: { byPlaceId: { [placeId]: { reviewed: false, placeVerified: true, source: "google-place-id" } }, byPickKey: {} } },
 ), null);
 
-console.log("test-guide-place-addresses: OK — full address required, partial address refused, maps URL carries the name, address, and place id");
+const areaQuery = "Ybor City, Tampa, Florida";
+const areaLink = guideAreaMapUrl(areaQuery);
+const areaReason = "A district, not one street door.";
+const area = guideWhereForRecord(
+  { name: "Ybor City" },
+  { catalog: { byPlaceId: {}, byPickKey: { "tampa\tYbor City": { area: true, reviewed: true, reason: areaReason, mapQuery: areaQuery, mapLink: areaLink } } }, slug: "tampa" },
+);
+assert.equal(area.address, "");
+assert.equal(area.area, true);
+assert.equal(area.reviewed, true);
+assert.equal(area.reason, areaReason);
+assert.equal(area.mapsUrl, areaLink);
+assert.equal(guideWhereForRecord(
+  { name: "Ybor City" },
+  { catalog: { byPlaceId: {}, byPickKey: { "tampa\tYbor City": { area: true, reviewed: true, reason: "", mapQuery: areaQuery, mapLink: areaLink } } }, slug: "tampa" },
+), null);
+assert.equal(guideWhereForRecord(
+  { name: "Ybor City" },
+  { catalog: { byPlaceId: {}, byPickKey: { "tampa\tYbor City": { area: true, reviewed: false, reason: areaReason, mapQuery: areaQuery, mapLink: areaLink } } }, slug: "tampa" },
+), null);
+assert.equal(guideWhereForRecord(
+  { name: "Pier Park" },
+  { catalog: { byPlaceId: {}, byPickKey: { "pcb\tPier Park": { area: false, reviewed: true, reason: areaReason, mapQuery: "Pier Park", mapLink: guideAreaMapUrl("Pier Park") } } }, slug: "pcb" },
+), null);
+
+console.log("test-guide-place-addresses: OK — full address required, partial address refused, area map needs a reviewed reason, maps URL carries the name, address, and place id");
