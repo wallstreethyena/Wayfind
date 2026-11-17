@@ -58,6 +58,15 @@ function visit({ pathname = "/", local = {}, session = {}, now = Date.parse("202
   const m = /useLayoutEffect\(\(\) => \{\s*const root = document\.documentElement;\s*if \(!root\.hasAttribute\(HOME_SHELF_ATTR\)\) return;\s*root\.removeAttribute\(HOME_SHELF_ATTR\);\s*if \(selectionPinned\.current\) return;\s*selectionPinned\.current = true;\s*defaultLanding\.current = false;\s*setSelected\(null\);\s*\}, \[\]\);/.exec(rail);
   ok(m, "DaypartRail closes the opened poster in a layout effect, drops the mark, and never overrides a pinned rail");
   ok(m && m.index < rail.indexOf('sessionStorage.getItem("wf_poster_position")'), "the shelf decision runs before the saved-poster restore");
+  // An untouched automatic poster is never saved for restore (owner, 2026-11-16: a quick return lands on the shelf).
+  const saves = rail.match(/sessionStorage\.setItem\("wf_poster_position"/g) || [];
+  ok(saves.length === 1, "positive control: exactly one poster save site (" + saves.length + ")");
+  ok(/if \(selected && posterEngaged\.current\) sessionStorage\.setItem\("wf_poster_position"/.test(rail), "the poster is saved only once the visitor engaged with it");
+  ok(/menuRef\.current\.contains\(event\.target\)\) posterEngaged\.current = true;/.test(rail), "a tap inside the open poster counts as engagement (in-app Back keeps the visitor's place)");
+  const openFn = /const open = useCallback\(\(id, src\) => \{[\s\S]*?\n  \}, \[/.exec(rail)?.[0] || "";
+  const closeFn = /const close = useCallback\(\(\) => \{[\s\S]*?\n  \}, \[/.exec(rail)?.[0] || "";
+  ok(/posterEngaged\.current = true;/.test(openFn), "choosing a poster marks it engaged");
+  ok(/posterEngaged\.current = false;/.test(closeFn), "closing a poster clears engagement");
 }
 
 // ---- 2. the Thanksgiving rail ------------------------------------------------------------------------------------------
