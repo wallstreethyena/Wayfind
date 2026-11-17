@@ -114,6 +114,7 @@ function preparePoster(id) {
 
 import { DAYPARTS, partForHour, orderFor, christmasLeads, railHref, dateNightIntentHref, LEGACY_HERO_EVENT } from "../../lib/dayparts.js";
 import { landingSkipsDefaultPoster } from "../../lib/searchDeepLink.js";
+import { HOME_SHELF_ATTR } from "../../lib/homeLanding.js";
 import { siteHourFloat, tzForPoint } from "../../lib/nowContext.js";
 import { siteTodayStr } from "../../lib/siteTime.js";
 import { useSiteToday } from "../../lib/siteDayClock.js";
@@ -593,6 +594,10 @@ export default function DaypartRail({
   const defaultLanding = useRef(!selectionPinned.current && Boolean(featuredPosterId));
   const resumePoster = useRef(false);
   const posterReturn = useRef(null);
+  // True once the visitor chose or used the open poster (owner, 2026-11-16: the
+  // automatic seasonal poster is for a first visit only). An untouched default
+  // poster is never saved, so a quick return to / lands on the shelf.
+  const posterEngaged = useRef(false);
   const cancelPosterRestore = useRef(null);
   useLayoutEffect(() => {
     // A /?q= or /?intent= landing owns the page. The seasonal poster (Christmas
@@ -600,6 +605,18 @@ export default function DaypartRail({
     try {
       if (!landingSkipsDefaultPoster(window.location.search)) return;
     } catch { return; }
+    selectionPinned.current = true;
+    defaultLanding.current = false;
+    setSelected(null);
+  }, []);
+  // A returning visit lands on the poster shelf (owner, 2026-11-16). The head script marked <html> before paint
+  // (lib/homeLanding.js); close the statically rendered poster and drop the mark in the same frame, so the visitor
+  // never sees it open. A pinned rail (/?rail, a poster page) is never overridden.
+  useLayoutEffect(() => {
+    const root = document.documentElement;
+    if (!root.hasAttribute(HOME_SHELF_ATTR)) return;
+    root.removeAttribute(HOME_SHELF_ATTR);
+    if (selectionPinned.current) return;
     selectionPinned.current = true;
     defaultLanding.current = false;
     setSelected(null);
@@ -613,6 +630,7 @@ export default function DaypartRail({
         selectionPinned.current = true;
         defaultLanding.current = false;
         resumePoster.current = true;
+        posterEngaged.current = true;
         posterReturn.current = saved.returnPosition || null;
         setSelected(saved.id);
       } else {
@@ -675,9 +693,10 @@ export default function DaypartRail({
   const answered = live != null;
   useEffect(() => {
     if (!["/", "/v8"].includes(window.location.pathname)) return undefined;
-    const save = () => {
+    const save = (event) => {
       try {
-        if (selected) sessionStorage.setItem("wf_poster_position", JSON.stringify({ id: selected, returnPosition: posterReturn.current, ts: Date.now() }));
+        if (event?.type === "click" && menuRef.current && event.target instanceof Node && menuRef.current.contains(event.target)) posterEngaged.current = true;
+        if (selected && posterEngaged.current) sessionStorage.setItem("wf_poster_position", JSON.stringify({ id: selected, returnPosition: posterReturn.current, ts: Date.now() }));
         else sessionStorage.removeItem("wf_poster_position");
       } catch {}
     };
@@ -686,6 +705,7 @@ export default function DaypartRail({
       selectionPinned.current = true;
       defaultLanding.current = false;
       resumePoster.current = true;
+      posterEngaged.current = !!saved;
       posterReturn.current = saved?.returnPosition || null;
       setSelected(saved && railById.has(saved.id) ? saved.id : null);
     };
@@ -1058,6 +1078,7 @@ export default function DaypartRail({
     if (!rail) return;
     selectionPinned.current = true;
     defaultLanding.current = false;
+    posterEngaged.current = true;
     cancelPosterRestore.current?.();
     const root = document.querySelector(".wf-scrollarea");
     if (!selected && root) posterReturn.current = browsePosition(root);
@@ -1085,6 +1106,7 @@ export default function DaypartRail({
   const close = useCallback(() => {
     selectionPinned.current = true;
     defaultLanding.current = false;
+    posterEngaged.current = false;
     resumePoster.current = false;
     setSelected(null);
     try { sessionStorage.removeItem("wf_poster_position"); } catch {}
@@ -1101,6 +1123,7 @@ export default function DaypartRail({
     const returnHome = () => {
       selectionPinned.current = true;
       defaultLanding.current = false;
+      posterEngaged.current = false;
       resumePoster.current = false;
       setSelected(null);
       cancelPosterRestore.current?.();

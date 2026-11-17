@@ -1,0 +1,38 @@
+[
+  {
+    "place_id": "wfadd_oldest_wooden_school_house_st_augustine",
+    "status": 200,
+    "final_url": "https://www.gowayfind.com/p/wfadd_oldest_wooden_school_house_st_augustine",
+    "title": [
+      "Oldest Wooden School House Historic Museum &amp; Gardens \u00b7 Wayfind"
+    ],
+    "h1": []
+  },
+  {
+    "place_id": "wfadd_centro_ybor_tampa",
+    "status": 200,
+    "final_url": "https://www.gowayfind.com/p/wfadd_centro_ybor_tampa",
+    "title": [
+      "Centro Ybor \u00b7 Wayfind"
+    ],
+    "h1": []
+  },
+  {
+    "place_id": "wfadd_sykes_family_farms_elkton",
+    "status": 200,
+    "final_url": "https://www.gowayfind.com/p/wfadd_sykes_family_farms_elkton",
+    "title": [
+      "Sykes Family Farms \u00b7 Wayfind"
+    ],
+    "h1": []
+  },
+  {
+    "place_id": "wfadd_wunder_glow_dade_city",
+    "status": 200,
+    "final_url": "https://www.gowayfind.com/p/wfadd_wunder_glow_dade_city",
+    "title": [
+      "Wunder Glow \u00b7 Wayfind"
+    ],
+    "h1": []
+  }
+]

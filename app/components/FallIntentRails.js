@@ -194,7 +194,7 @@ export default function FallIntentRails({
   const lng = center && Number.isFinite(center.lng) ? center.lng : null;
   const clock = useEventClock(active);
   const today = siteTodayStr(clock);
-  const expectedRailCount = collection === "halloween" ? 9 : 10;
+  const expectedRailCount = collection === "halloween" ? 9 : 11; // eleven since the Thanksgiving rail (2026-11-16)
   const GuideCollection = collection === "halloween" ? NoGuideSlot : GuideRailCollection;
   const key = useMemo(() => active && lat != null && lng != null ? `${lat.toFixed(2)}|${lng.toFixed(2)}|${today}|${collection}` : "", [active, lat, lng, today, collection]);
   const siteDay = useSiteToday(); // midnight Eastern re-render (lib/siteDayClock.js)
