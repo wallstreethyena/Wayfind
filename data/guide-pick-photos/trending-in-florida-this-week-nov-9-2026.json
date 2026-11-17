@@ -180,26 +180,6 @@
       "verification": "Commons file Sundomecloseup.JPG, public domain, photographer TheCustomOfLife. The dome is the Yuengling Center, formerly the USF Sun Dome, and a USF sign is in the foreground. The November 14 game is not pictured.",
       "sameAsCardPhoto": false,
       "reviewedAt": "2026-11-09"
-    },
-    "Santa's Grand Arrival Parade": {
-      "src": "/guides/picks/trending-in-florida-this-week-nov-9-2026/utc-sarasota-mall-corridor.jpg",
-      "width": 1280,
-      "height": 853,
-      "alt": "Skylit main corridor inside The Mall at University Town Center in Sarasota",
-      "caption": "The Mall at University Town Center, Sarasota, where Santa's Grand Arrival Parade is held.",
-      "credit": "PCHS-NJROTC",
-      "creditHref": "https://commons.wikimedia.org/wiki/File:Sarasota_Mall_at_UTC_corridor_2.jpg",
-      "license": "CC BY-SA 4.0",
-      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
-      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Sarasota_Mall_at_UTC_corridor_2.jpg",
-      "author": "PCHS-NJROTC",
-      "position": "50% 50%",
-      "modificationNotice": "Resized, cropped for display and converted to JPEG. The adaptation is released under the same licence.",
-      "sourceKind": "commons",
-      "placeId": null,
-      "verification": "Commons title and file show the UTC Sarasota mall corridor with the mall's own stage sign reading The Mall at University Town Center. Live Commons licence checked: CC BY-SA 4.0.",
-      "sameAsCardPhoto": false,
-      "reviewedAt": "2026-11-17"
     }
   },
   "gaps": {
@@ -234,6 +214,12 @@
       "note": "November 9, 2026 pass: no Creative Commons photograph of this exact dated event was verified for this guide. Held for the Picture Scrapper under Gabe's November 4 image intent rule. The page ships with no photo for this pick."
     },
     "St. Armands Circle Fall Art Festival": {
+      "reason": "no-verified-source",
+      "placeId": null,
+      "needsPermissionFrom": null,
+      "note": "November 9, 2026 pass: no Creative Commons photograph of this exact dated event was verified for this guide. Held for the Picture Scrapper under Gabe's November 4 image intent rule. The page ships with no photo for this pick."
+    },
+    "Santa's Grand Arrival Parade": {
       "reason": "no-verified-source",
       "placeId": null,
       "needsPermissionFrom": null,

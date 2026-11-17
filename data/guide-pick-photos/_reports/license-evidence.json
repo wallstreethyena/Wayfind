@@ -3,19 +3,19 @@
   "verifiedAt": "2026-11-17",
   "rule": "Every photo added by the guide pick-photo pipeline, re-checked at its source. commercialUse is true only for CC0, public domain, CC BY and CC BY-SA (2.0, 2.5, 3.0, 4.0); NC and ND never pass.",
   "summary": {
-    "files": 361,
-    "usages": 387,
-    "verified": 361,
+    "files": 375,
+    "usages": 401,
+    "verified": 375,
     "needsReview": [],
     "authorDiffers": [],
     "byLicence": {
-      "CC BY-SA 4.0": 86,
+      "CC BY-SA 4.0": 89,
       "CC BY-SA 3.0": 79,
       "CC BY 4.0": 21,
       "CC BY 3.0": 20,
-      "CC BY 2.0": 91,
-      "CC0 1.0 Universal": 25,
-      "CC BY-SA 2.0": 31,
+      "CC BY 2.0": 99,
+      "CC0 1.0 Universal": 26,
+      "CC BY-SA 2.0": 33,
       "Unsplash License": 4,
       "Public domain": 3,
       "CC BY-SA 2.5": 1
@@ -506,7 +506,7 @@
         "title": "T-Rex Restaurant at Downtown Disney",
         "author": "Kurtis Garbutt",
         "displayName": "Kurtis Garbutt",
-        "dateTaken": "2013-04-19 01:02:47",
+        "dateTaken": null,
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -537,7 +537,7 @@
         "title": "Haulover Canal",
         "author": "Rusty Clark ~ 100K Photos",
         "displayName": "Rusty Clark ~ 100K Photos",
-        "dateTaken": "2016-12-31 13:16:50",
+        "dateTaken": null,
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -564,10 +564,10 @@
       "source": {
         "kind": "flickr",
         "url": "https://www.flickr.com/photos/23206546@N04/7062563449",
-        "title": "Bair's Cove / Haulover Canal, Merritt Island FL",
+        "title": "Bair&#x27;s Cove / Haulover Canal, Merritt Island FL",
         "author": "Rusty Clark ~ 100K Photos",
         "displayName": "Rusty Clark ~ 100K Photos",
-        "dateTaken": "2012-04-09 12:41:19",
+        "dateTaken": null,
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -598,7 +598,7 @@
         "title": "Haulover Canal",
         "author": "Rusty Clark ~ 100K Photos",
         "displayName": "Rusty Clark ~ 100K Photos",
-        "dateTaken": "2012-01-15 15:25:29",
+        "dateTaken": null,
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -1048,7 +1048,7 @@
         "title": "LightParade_11-30-13-2209",
         "author": "Rob Bixby",
         "displayName": "Rob Bixby",
-        "dateTaken": "2013-11-30 22:12:18",
+        "dateTaken": null,
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -1079,7 +1079,7 @@
         "title": "Winterfest Boat Parade 10",
         "author": "Bob B. Brown",
         "displayName": "Bob B. Brown",
-        "dateTaken": "2010-12-11 19:22:30",
+        "dateTaken": null,
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -1144,7 +1144,7 @@
         "title": "Lit-Up Trees at Downtown Disney",
         "author": "AngryJulieMonday",
         "displayName": "AngryJulieMonday",
-        "dateTaken": "2011-11-19 21:22:09",
+        "dateTaken": null,
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -1355,7 +1355,7 @@
         "title": "Love bugs in Mims, FL",
         "author": "james michael thomas",
         "displayName": "james michael thomas",
-        "dateTaken": "2011-05-14 09:20:56",
+        "dateTaken": null,
         "licence": "CC BY-SA 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by-sa/2.0/"
       },
@@ -1446,7 +1446,7 @@
         "title": "Lovebug",
         "author": "Katja Schulz",
         "displayName": "Katja Schulz",
-        "dateTaken": "2016-10-02 10:53:41",
+        "dateTaken": null,
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -1477,7 +1477,7 @@
         "title": "fireworks",
         "author": "Ronan O'Donohoe",
         "displayName": "Ronan O'Donohoe",
-        "dateTaken": "2006-11-25 21:57:23",
+        "dateTaken": null,
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -1487,6 +1487,36 @@
         "license": "CC BY 2.0",
         "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
         "modificationNotice": "Resized, cropped for display and converted to JPEG."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-17"
+    },
+    {
+      "src": "/guides/picks/florida-new-years-eve-2026/key-west-high-heel-shoe-drop.jpg",
+      "usedBy": [
+        {
+          "slug": "florida-new-years-eve-2026",
+          "role": "pick",
+          "pick": "Key West New Year's Eve High Heel Shoe Drop"
+        }
+      ],
+      "source": {
+        "kind": "commons",
+        "url": "https://commons.wikimedia.org/wiki/File:Key_West_New_Year%27s_Eve_Party_2008_becomes_2009.jpg",
+        "title": "Key West New Year's Eve Party 2008 becomes 2009",
+        "author": "Elizabeth Nicodemus",
+        "dateTaken": "2008-12-31",
+        "licence": "CC BY-SA 2.0",
+        "licenceUrl": "https://creativecommons.org/licenses/by-sa/2.0"
+      },
+      "wayfind": {
+        "credit": "Elizabeth Nicodemus",
+        "creditHref": "https://commons.wikimedia.org/wiki/File:Key_West_New_Year%27s_Eve_Party_2008_becomes_2009.jpg",
+        "license": "CC BY-SA 2.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0/",
+        "modificationNotice": "Resized, cropped for display and converted to JPEG. The adaptation is released under the same licence."
       },
       "commercialUse": true,
       "authorMatchesCredit": true,
@@ -1508,7 +1538,7 @@
         "title": "New Years Eve Fireworks",
         "author": "Doug Anderson",
         "displayName": "Doug Anderson",
-        "dateTaken": "2014-12-31 20:46:29",
+        "dateTaken": null,
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -1795,6 +1825,37 @@
       "verifiedAt": "2026-11-17"
     },
     {
+      "src": "/guides/picks/florida-santa-and-christmas-trains-2026/st-augustine-nights-of-lights-plaza-oaks.jpg",
+      "usedBy": [
+        {
+          "slug": "florida-santa-and-christmas-trains-2026",
+          "role": "pick",
+          "pick": "Tasting Tours Magical Ride with Santa"
+        }
+      ],
+      "source": {
+        "kind": "flickr",
+        "url": "https://www.flickr.com/photos/59398780@N00/23476149255",
+        "title": "2015 St. Augustine Nights of Lights",
+        "author": "Joe Ross",
+        "displayName": "Joe Ross",
+        "dateTaken": null,
+        "licence": "CC BY-SA 2.0",
+        "licenceUrl": "https://creativecommons.org/licenses/by-sa/2.0/"
+      },
+      "wayfind": {
+        "credit": "Joe Ross",
+        "creditHref": "https://www.flickr.com/photos/59398780@N00/23476149255",
+        "license": "CC BY-SA 2.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0/",
+        "modificationNotice": "Resized, cropped for display and converted to JPEG. The adaptation is released under the same licence."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-17"
+    },
+    {
       "src": "/guides/picks/florida-scalloping-crystal-river-homosassa/a-guided-scallop-trip-from-crystal-river-or-homosassa.webp",
       "usedBy": [
         {
@@ -1809,7 +1870,7 @@
         "title": "Homosassa",
         "author": "Kate Ter Haar",
         "displayName": "Kate Ter Haar",
-        "dateTaken": "2015-04-02 11:56:02",
+        "dateTaken": null,
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -1869,7 +1930,7 @@
         "title": "Fort Island Gulf Beach",
         "author": "Kolin Toney",
         "displayName": "Kolin Toney",
-        "dateTaken": "2016-10-09 18:48:41",
+        "dateTaken": null,
         "licence": "CC BY-SA 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by-sa/2.0/"
       },
@@ -1960,7 +2021,7 @@
         "title": "Crystal River, Florida",
         "author": "eutrophication&hypoxia",
         "displayName": "eutrophication&hypoxia",
-        "dateTaken": "2011-05-04 08:25:23",
+        "dateTaken": null,
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -2021,7 +2082,7 @@
         "title": "CityPlace Tree Lighting 2011",
         "author": "Bob B. Brown",
         "displayName": "Bob B. Brown",
-        "dateTaken": "2011-11-12 19:28:34",
+        "dateTaken": null,
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -2082,7 +2143,7 @@
         "title": "TurkeyRun2008-1705",
         "author": "Rob Bixby",
         "displayName": "Rob Bixby",
-        "dateTaken": "2008-11-27 19:03:23",
+        "dateTaken": null,
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -2143,7 +2204,7 @@
         "title": "Busch Gardens Christmas Town 2012",
         "author": "zannaland",
         "displayName": "zannaland",
-        "dateTaken": "2012-11-30 15:13:41",
+        "dateTaken": null,
         "licence": "CC BY-SA 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by-sa/2.0/"
       },
@@ -2174,7 +2235,7 @@
         "title": "Disney Springs Christmas Tree Palm Tree",
         "author": "David Aughinbaugh II",
         "displayName": "David Aughinbaugh II",
-        "dateTaken": "2019-11-01 14:56:40",
+        "dateTaken": null,
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -2205,7 +2266,7 @@
         "title": "Epcot Christmas",
         "author": "cheddar-",
         "displayName": "cheddar-",
-        "dateTaken": "2008-12-27 17:38:47",
+        "dateTaken": null,
         "licence": "CC BY-SA 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by-sa/2.0/"
       },
@@ -2263,10 +2324,10 @@
       "source": {
         "kind": "flickr",
         "url": "https://www.flickr.com/photos/33045734@N02/4184496931",
-        "title": "Mickey's Very Merry Christmas Party",
+        "title": "Mickey&#x27;s Very Merry Christmas Party",
         "author": "Leigh Caldwell",
         "displayName": "Leigh Caldwell",
-        "dateTaken": "2009-12-10 20:55:19",
+        "dateTaken": null,
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -2297,7 +2358,7 @@
         "title": "Sea of Trees at Sea World",
         "author": "simon17964",
         "displayName": "simon17964",
-        "dateTaken": "2016-02-14 10:43:07",
+        "dateTaken": null,
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -2325,10 +2386,10 @@
       "source": {
         "kind": "flickr",
         "url": "https://www.flickr.com/photos/93283041@N00/6669301281",
-        "title": "Universal Orlando - Universal Studios - Macy's Holiday Parade - Balloon Heads",
+        "title": "Universal Orlando - Universal Studios - Macy&#x27;s Holiday Parade - Balloon Heads",
         "author": "Jared",
         "displayName": "Jared",
-        "dateTaken": "2011-12-18 16:44:39",
+        "dateTaken": null,
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -2395,7 +2456,7 @@
         "title": "Christmas tree in the park",
         "author": "ryaninc",
         "displayName": "ryaninc",
-        "dateTaken": "2008-11-08 13:27:26",
+        "dateTaken": null,
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -2456,7 +2517,7 @@
         "title": "“Winter Nights Under the Lights” Palma Sola Botanical Park",
         "author": "Carol VanHook",
         "displayName": "Carol VanHook",
-        "dateTaken": "2020-12-17 15:31:34",
+        "dateTaken": null,
         "licence": "CC BY-SA 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by-sa/2.0/"
       },
@@ -2487,7 +2548,7 @@
         "title": "Nights of Lights, St. Augustine, Florida",
         "author": "Eric Friedebach",
         "displayName": "Eric Friedebach",
-        "dateTaken": "2021-12-08 17:47:16",
+        "dateTaken": null,
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -2518,7 +2579,7 @@
         "title": "Gatorland",
         "author": "William Warby",
         "displayName": "William Warby",
-        "dateTaken": "2002-04-22 11:13:41",
+        "dateTaken": null,
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -2550,7 +2611,7 @@
         "title": "Gatorland, Orlando FL",
         "author": "Rusty Clark ~ 100K Photos",
         "displayName": "Rusty Clark ~ 100K Photos",
-        "dateTaken": "2013-10-19 10:42:39",
+        "dateTaken": null,
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -2653,6 +2714,98 @@
         "license": "CC BY 2.0",
         "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
         "modificationNotice": "Resized, cropped for display and converted to WebP."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-17"
+    },
+    {
+      "src": "/guides/picks/gulf-coast-world-series-week-2026/jannus-live-stage-concert.jpg",
+      "usedBy": [
+        {
+          "slug": "gulf-coast-world-series-week-2026",
+          "role": "pick",
+          "pick": "Yung Gravy at Jannus Live"
+        }
+      ],
+      "source": {
+        "kind": "commons",
+        "url": "https://commons.wikimedia.org/wiki/File:Suenalo_at_Jannus_Live!.jpg",
+        "title": "Suenalo at Jannus Live!",
+        "author": "CLender",
+        "dateTaken": "2011-09-17 00:49:31",
+        "licence": "CC BY 2.0",
+        "licenceUrl": "https://creativecommons.org/licenses/by/2.0"
+      },
+      "wayfind": {
+        "credit": "CLender",
+        "creditHref": "https://commons.wikimedia.org/wiki/File:Suenalo_at_Jannus_Live!.jpg",
+        "license": "CC BY 2.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+        "modificationNotice": "Resized, cropped for display and converted to JPEG."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-17"
+    },
+    {
+      "src": "/guides/picks/jacksonville-christmas-by-area-budget-2026/jacksonville-light-boat-parade-sailboat.jpg",
+      "usedBy": [
+        {
+          "slug": "jacksonville-christmas-by-area-budget-2026",
+          "role": "pick",
+          "pick": "Jacksonville Light Boat Parade"
+        }
+      ],
+      "source": {
+        "kind": "flickr",
+        "url": "https://www.flickr.com/photos/14580956@N08/11151098644",
+        "title": "LightParade_11-30-13-2093",
+        "author": "Rob Bixby",
+        "displayName": "Rob Bixby",
+        "dateTaken": null,
+        "licence": "CC BY 2.0",
+        "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
+      },
+      "wayfind": {
+        "credit": "Rob Bixby",
+        "creditHref": "https://www.flickr.com/photos/14580956@N08/11151098644",
+        "license": "CC BY 2.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+        "modificationNotice": "Resized, cropped for display and converted to JPEG."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-17"
+    },
+    {
+      "src": "/guides/picks/jacksonville-christmas-by-area-budget-2026/jacksonville-zoolights-carousel.jpg",
+      "usedBy": [
+        {
+          "slug": "jacksonville-christmas-by-area-budget-2026",
+          "role": "pick",
+          "pick": "ZOOLights at Jacksonville Zoo and Botanical Gardens"
+        }
+      ],
+      "source": {
+        "kind": "flickr",
+        "url": "https://www.flickr.com/photos/14580956@N08/31493360751",
+        "title": "Zoolights_2016-6812",
+        "author": "Rob Bixby",
+        "displayName": "Rob Bixby",
+        "dateTaken": null,
+        "licence": "CC BY 2.0",
+        "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
+      },
+      "wayfind": {
+        "credit": "Rob Bixby",
+        "creditHref": "https://www.flickr.com/photos/14580956@N08/31493360751",
+        "license": "CC BY 2.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+        "modificationNotice": "Resized, cropped for display and converted to JPEG."
       },
       "commercialUse": true,
       "authorMatchesCredit": true,
@@ -2909,6 +3062,67 @@
       "verifiedAt": "2026-11-17"
     },
     {
+      "src": "/guides/picks/orlando-christmas-concerts-and-santa-2026/icon-park-wheel-peppermint-christmas.jpg",
+      "usedBy": [
+        {
+          "slug": "orlando-christmas-concerts-and-santa-2026",
+          "role": "pick",
+          "pick": "ICON Park: The Santa Workshop Experience"
+        }
+      ],
+      "source": {
+        "kind": "flickr",
+        "url": "https://www.flickr.com/photos/93283041@N00/28383791856",
+        "title": "Orlando - Orlando Eye - Peppermint Christmas Color Scheme - Close-Up View",
+        "author": "Jared",
+        "displayName": "Jared",
+        "dateTaken": null,
+        "licence": "CC BY 2.0",
+        "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
+      },
+      "wayfind": {
+        "credit": "Jared",
+        "creditHref": "https://www.flickr.com/photos/93283041@N00/28383791856",
+        "license": "CC BY 2.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+        "modificationNotice": "Resized, cropped for display and converted to JPEG."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-17"
+    },
+    {
+      "src": "/guides/picks/orlando-christmas-concerts-and-santa-2026/sea-life-orlando-under-the-wheel.jpg",
+      "usedBy": [
+        {
+          "slug": "orlando-christmas-concerts-and-santa-2026",
+          "role": "pick",
+          "pick": "SEA LIFE Orlando Aquarium: an optional indoor visit"
+        }
+      ],
+      "source": {
+        "kind": "commons",
+        "url": "https://commons.wikimedia.org/wiki/File:SEA_LIFE_Orlando_Aquarium_en_f%C3%A9vrier_2022_(2).JPG",
+        "title": "SEA LIFE Orlando Aquarium en février 2022 (2)",
+        "author": "Benoît Prieur",
+        "dateTaken": "2022-02-03 10:29:45",
+        "licence": "CC0 1.0 Universal",
+        "licenceUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en"
+      },
+      "wayfind": {
+        "credit": "Benoît Prieur",
+        "creditHref": "https://commons.wikimedia.org/wiki/File:SEA_LIFE_Orlando_Aquarium_en_f%C3%A9vrier_2022_(2).JPG",
+        "license": "CC0 1.0 Universal",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "modificationNotice": "Resized, cropped for display and converted to JPEG."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-17"
+    },
+    {
       "src": "/guides/picks/orlando-halloween-food-2026/disney-springs-bridge.webp",
       "usedBy": [
         {
@@ -2923,7 +3137,7 @@
         "title": "wdw disney springs bridge and balloon",
         "author": "M. C. Bob Leonard",
         "displayName": "M. C. Bob Leonard",
-        "dateTaken": "1980-01-01 00:01:14",
+        "dateTaken": null,
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -2954,7 +3168,7 @@
         "title": "Disney Springs Town Center",
         "author": "elisfkc",
         "displayName": "elisfkc",
-        "dateTaken": "2016-05-05 20:14:55",
+        "dateTaken": null,
         "licence": "CC BY-SA 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by-sa/2.0/"
       },
@@ -3015,7 +3229,7 @@
         "title": "Disney Springs,Orlando FL",
         "author": "Rusty Clark ~ 100K Photos",
         "displayName": "Rusty Clark ~ 100K Photos",
-        "dateTaken": "2017-01-20 15:45:18",
+        "dateTaken": null,
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -3046,7 +3260,7 @@
         "title": "Raglan Road",
         "author": "Frank Phillips",
         "displayName": "Frank Phillips",
-        "dateTaken": "2018-11-02 23:03:38",
+        "dateTaken": null,
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -3106,7 +3320,7 @@
         "title": "Raglan Road",
         "author": "Ross Hawkes",
         "displayName": "Ross Hawkes",
-        "dateTaken": "2010-05-24 23:54:00",
+        "dateTaken": null,
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -3137,7 +3351,7 @@
         "title": "Raglan Road",
         "author": "Beau B",
         "displayName": "Beau B",
-        "dateTaken": "2008-12-11 16:03:45",
+        "dateTaken": null,
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -3168,7 +3382,7 @@
         "title": "Dragon",
         "author": "Steven Miller",
         "displayName": "Steven Miller",
-        "dateTaken": "2014-09-19 12:50:30",
+        "dateTaken": null,
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -3199,7 +3413,7 @@
         "title": "Universal Studios Florida",
         "author": "Jeremy Thompson",
         "displayName": "Jeremy Thompson",
-        "dateTaken": "2012-03-03 09:14:14",
+        "dateTaken": null,
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -3230,7 +3444,7 @@
         "title": "Universal Studios Florida",
         "author": "Jeremy Thompson",
         "displayName": "Jeremy Thompson",
-        "dateTaken": "2012-03-03 11:37:25",
+        "dateTaken": null,
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -3261,7 +3475,7 @@
         "title": "Universal Studios Florida",
         "author": "Jeremy Thompson",
         "displayName": "Jeremy Thompson",
-        "dateTaken": "2012-03-03 15:13:48",
+        "dateTaken": null,
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -3292,7 +3506,7 @@
         "title": "Universal Studios Florida",
         "author": "Jeremy Thompson",
         "displayName": "Jeremy Thompson",
-        "dateTaken": "2012-03-03 11:34:05",
+        "dateTaken": null,
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -3323,7 +3537,7 @@
         "title": "Universal Studios Florida",
         "author": "Jeremy Thompson",
         "displayName": "Jeremy Thompson",
-        "dateTaken": "2012-03-03 11:35:06",
+        "dateTaken": null,
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -3354,7 +3568,7 @@
         "title": "Universal Studios Florida",
         "author": "Jeremy Thompson",
         "displayName": "Jeremy Thompson",
-        "dateTaken": "2012-03-03 11:17:21",
+        "dateTaken": null,
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -3385,7 +3599,7 @@
         "title": "Universal Orlando - Universal Studios - New York Christmas Decorations (2)",
         "author": "Jared",
         "displayName": "Jared",
-        "dateTaken": "2011-12-18 14:55:54",
+        "dateTaken": null,
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -3416,7 +3630,7 @@
         "title": "Universal Studios Florida",
         "author": "Jeremy Thompson",
         "displayName": "Jeremy Thompson",
-        "dateTaken": "2012-03-03 11:17:29",
+        "dateTaken": null,
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -3444,10 +3658,10 @@
       "source": {
         "kind": "flickr",
         "url": "https://www.flickr.com/photos/93283041@N00/11840598116",
-        "title": "Universal Orlando - Universal Studios - The Simpsons - Springfield - Cletus' Chicken Shack",
+        "title": "Universal Orlando - Universal Studios - The Simpsons - Springfield - Cletus&#x27; Chicken Shack",
         "author": "Jared",
         "displayName": "Jared",
-        "dateTaken": "2013-10-20 12:14:41",
+        "dateTaken": null,
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -3475,10 +3689,10 @@
       "source": {
         "kind": "flickr",
         "url": "https://www.flickr.com/photos/93283041@N00/11839913525",
-        "title": "Universal Orlando - Universal Studios - Springfield - Moe's Tavern - Inside",
+        "title": "Universal Orlando - Universal Studios - Springfield - Moe&#x27;s Tavern - Inside",
         "author": "Jared",
         "displayName": "Jared",
-        "dateTaken": "2013-12-14 18:00:43",
+        "dateTaken": null,
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -3509,7 +3723,7 @@
         "title": "Universal Orlando - Universal Studios - The Simpsons - Springfield - Entrance Sign",
         "author": "Jared",
         "displayName": "Jared",
-        "dateTaken": "2013-10-20 11:13:17",
+        "dateTaken": null,
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -3540,7 +3754,7 @@
         "title": "Universal Studios Florida",
         "author": "Jeremy Thompson",
         "displayName": "Jeremy Thompson",
-        "dateTaken": "2012-03-03 09:25:30",
+        "dateTaken": null,
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -3571,7 +3785,7 @@
         "title": "Universal Studios Florida",
         "author": "Jeremy Thompson",
         "displayName": "Jeremy Thompson",
-        "dateTaken": "2012-03-03 09:23:33",
+        "dateTaken": null,
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -3632,7 +3846,7 @@
         "title": "ICON Park Orlando",
         "author": "Jeremy Thompson",
         "displayName": "Jeremy Thompson",
-        "dateTaken": "2024-11-22 18:28:21",
+        "dateTaken": null,
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -3849,10 +4063,10 @@
       "source": {
         "kind": "flickr",
         "url": "https://www.flickr.com/photos/93283041@N00/8778985834",
-        "title": "Sarasota - Yoder's Amish Village - Restaurant Sign",
+        "title": "Sarasota - Yoder&#x27;s Amish Village - Restaurant Sign",
         "author": "Jared",
         "displayName": "Jared",
-        "dateTaken": "2013-04-25 10:39:16",
+        "dateTaken": null,
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -4159,7 +4373,7 @@
         "title": "Sarasota - Downtown from Air (2000)",
         "author": "Roger W",
         "displayName": "Roger W",
-        "dateTaken": "2000-06-15 00:00:00",
+        "dateTaken": null,
         "licence": "CC BY-SA 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by-sa/2.0/"
       },
@@ -4190,7 +4404,7 @@
         "title": "Sarasota - Main Street",
         "author": "Roger W",
         "displayName": "Roger W",
-        "dateTaken": "1995-04-30 00:00:00",
+        "dateTaken": null,
         "licence": "CC BY-SA 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by-sa/2.0/"
       },
@@ -4400,7 +4614,7 @@
         "title": "Siesta Key Drum Circle",
         "author": "nikoretro",
         "displayName": "nikoretro",
-        "dateTaken": "2006-04-16 17:10:18",
+        "dateTaken": null,
         "licence": "CC BY-SA 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by-sa/2.0/"
       },
@@ -4559,6 +4773,66 @@
         "license": "CC BY-SA 3.0",
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
         "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-17"
+    },
+    {
+      "src": "/guides/picks/st-augustine-christmas-coffee-snow-walk-2026/aviles-street-st-augustine.jpg",
+      "usedBy": [
+        {
+          "slug": "st-augustine-christmas-coffee-snow-walk-2026",
+          "role": "pick",
+          "pick": "Optional Aviles Street extension: Forgotten Tonic"
+        }
+      ],
+      "source": {
+        "kind": "commons",
+        "url": "https://commons.wikimedia.org/wiki/File:Aviles_Street,_seen_from_the_north,_St._Augustine_01.jpg",
+        "title": "Aviles Street, seen from the north, St. Augustine 01",
+        "author": "Kiran891",
+        "dateTaken": "2023-03-14 11:50:22",
+        "licence": "CC BY-SA 4.0",
+        "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+      },
+      "wayfind": {
+        "credit": "Kiran891",
+        "creditHref": "https://commons.wikimedia.org/wiki/File:Aviles_Street,_seen_from_the_north,_St._Augustine_01.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+        "modificationNotice": "Resized, cropped for display and converted to JPEG. The adaptation is released under the same licence."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-17"
+    },
+    {
+      "src": "/guides/picks/st-augustine-christmas-coffee-snow-walk-2026/oldest-wooden-school-house.jpg",
+      "usedBy": [
+        {
+          "slug": "st-augustine-christmas-coffee-snow-walk-2026",
+          "role": "pick",
+          "pick": "Oldest Wooden School House: start before closing"
+        }
+      ],
+      "source": {
+        "kind": "commons",
+        "url": "https://commons.wikimedia.org/wiki/File:Oldest_School_House.jpg",
+        "title": "Oldest School House",
+        "author": "Adam Chivers",
+        "dateTaken": "2017-02-22",
+        "licence": "CC BY-SA 4.0",
+        "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+      },
+      "wayfind": {
+        "credit": "Adam Chivers",
+        "creditHref": "https://commons.wikimedia.org/wiki/File:Oldest_School_House.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+        "modificationNotice": "Resized, cropped for display and converted to JPEG. The adaptation is released under the same licence."
       },
       "commercialUse": true,
       "authorMatchesCredit": true,
@@ -5030,7 +5304,7 @@
         "title": "Ulele Restaurant entrance, Tampa, FL",
         "author": "Under the same moon...",
         "displayName": "Under the same moon...",
-        "dateTaken": "2014-08-20 19:34:31",
+        "dateTaken": null,
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -5151,7 +5425,7 @@
         "title": "SunglowPier4-DBS-FL",
         "author": "gamiziuk",
         "displayName": "gamiziuk",
-        "dateTaken": "2008-04-12 14:42:23",
+        "dateTaken": null,
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -5543,7 +5817,7 @@
         "title": "17th Street Causeway Bridge",
         "author": "Nancy Folgmann",
         "displayName": "Nancy Folgmann",
-        "dateTaken": "2014-01-18 23:13:02",
+        "dateTaken": null,
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -5849,7 +6123,7 @@
         "title": "Pérez Art Museum Miami",
         "author": "Phillip Pessar",
         "displayName": "Phillip Pessar",
-        "dateTaken": "2015-11-13 13:23:08",
+        "dateTaken": null,
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -6221,7 +6495,7 @@
         "title": "The big hill at Celery Fields",
         "author": "Joseph Gage",
         "displayName": "Joseph Gage",
-        "dateTaken": "2023-12-31 12:27:43",
+        "dateTaken": null,
         "licence": "CC BY-SA 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by-sa/2.0/"
       },
@@ -6374,10 +6648,10 @@
       "source": {
         "kind": "flickr",
         "url": "https://www.flickr.com/photos/97651299@N00/35463538942",
-        "title": "Owen's Fish Camp in the heart of Sarasota, Florida Series",
+        "title": "Owen&#x27;s Fish Camp in the heart of Sarasota, Florida Series",
         "author": "Carol VanHook",
         "displayName": "Carol VanHook",
-        "dateTaken": "2017-06-29 20:45:52",
+        "dateTaken": null,
         "licence": "CC BY-SA 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by-sa/2.0/"
       },
@@ -6405,10 +6679,10 @@
       "source": {
         "kind": "flickr",
         "url": "https://www.flickr.com/photos/93283041@N00/8778985834",
-        "title": "Sarasota - Yoder's Amish Village - Restaurant Sign",
+        "title": "Sarasota - Yoder&#x27;s Amish Village - Restaurant Sign",
         "author": "Jared",
         "displayName": "Jared",
-        "dateTaken": "2013-04-25 10:39:16",
+        "dateTaken": null,
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -7349,7 +7623,7 @@
         "title": "Duval Street Key West",
         "author": "Christoph Meyer",
         "displayName": "Christoph Meyer",
-        "dateTaken": "2014-07-18 03:26:16",
+        "dateTaken": null,
         "licence": "CC BY-SA 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by-sa/2.0/"
       },
@@ -7500,7 +7774,7 @@
         "title": "Snorkeling Key West, Florida",
         "author": "SNORKELINGDIVES.COM",
         "displayName": "SNORKELINGDIVES.COM",
-        "dateTaken": "2014-05-06 09:52:37",
+        "dateTaken": null,
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -7591,7 +7865,7 @@
         "title": "Duval Street, Key West",
         "author": "RB Photo",
         "displayName": "RB Photo",
-        "dateTaken": "2016-12-20 18:02:53",
+        "dateTaken": null,
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -7622,7 +7896,7 @@
         "title": "Southernmost Buoy",
         "author": "Steven Miller",
         "displayName": "Steven Miller",
-        "dateTaken": "2011-11-25 14:58:02",
+        "dateTaken": null,
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -7688,7 +7962,7 @@
         "title": "View from Watson Island - Miami, Florida",
         "author": "UltraView Admin",
         "displayName": "UltraView Admin",
-        "dateTaken": "2011-11-13 19:32:15",
+        "dateTaken": null,
         "licence": "CC BY-SA 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by-sa/2.0/"
       },
@@ -7899,7 +8173,7 @@
         "title": "Airboat @Everglades City",
         "author": "Guillaume Capron",
         "displayName": "Guillaume Capron",
-        "dateTaken": "2011-09-02 21:37:59",
+        "dateTaken": null,
         "licence": "CC BY-SA 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by-sa/2.0/"
       },
@@ -7930,7 +8204,7 @@
         "title": "Naples - Soccer with Bayer Leverkusen",
         "author": "Roger W",
         "displayName": "Roger W",
-        "dateTaken": "2003-01-08 00:00:00",
+        "dateTaken": null,
         "licence": "CC BY-SA 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by-sa/2.0/"
       },
@@ -8021,7 +8295,7 @@
         "title": "Fifth Avenue - Naples Florida",
         "author": "Charlie Anzman",
         "displayName": "Charlie Anzman",
-        "dateTaken": "2005-05-12 15:32:37",
+        "dateTaken": null,
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -8143,7 +8417,7 @@
         "title": "Naples, Florida, Pier, Sonnenuntergang",
         "author": "Wilhelm Rosenkranz",
         "displayName": "Wilhelm Rosenkranz",
-        "dateTaken": "2014-05-18 01:32:03",
+        "dateTaken": null,
         "licence": "CC BY-SA 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by-sa/2.0/"
       },
@@ -8444,7 +8718,7 @@
         "title": "Winter Park Scenic Boat Tour",
         "author": "Mike Whaling",
         "displayName": "Mike Whaling",
-        "dateTaken": "2009-02-21 14:48:30",
+        "dateTaken": null,
         "licence": "CC BY-SA 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by-sa/2.0/"
       },
@@ -9015,7 +9289,7 @@
         "title": "The big hill at Celery Fields",
         "author": "Joseph Gage",
         "displayName": "Joseph Gage",
-        "dateTaken": "2023-12-31 12:27:43",
+        "dateTaken": null,
         "licence": "CC BY-SA 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by-sa/2.0/"
       },
@@ -9500,7 +9774,7 @@
         "title": "Ferry Docking at Caladesi Island",
         "author": "Pinellas County",
         "displayName": "Pinellas County",
-        "dateTaken": "2011-09-02 14:41:20",
+        "dateTaken": null,
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -10017,7 +10291,7 @@
         "title": "Clearwater Florida memorial bridge full moonrise",
         "author": "Ben Garcia",
         "displayName": "Ben Garcia",
-        "dateTaken": "2013-01-26 18:20:55",
+        "dateTaken": null,
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -10078,7 +10352,7 @@
         "title": "Tampa - Ballast Point Park - Downtown Tampa Skyline Across Hillsborough Bay (4)",
         "author": "Jared",
         "displayName": "Jared",
-        "dateTaken": "2011-09-11 14:56:15",
+        "dateTaken": null,
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -10219,6 +10493,36 @@
       "verifiedAt": "2026-11-17"
     },
     {
+      "src": "/guides/picks/trending-in-florida-this-week-nov-16-2026/florida-state-fairgrounds-gate.jpg",
+      "usedBy": [
+        {
+          "slug": "trending-in-florida-this-week-nov-16-2026",
+          "role": "pick",
+          "pick": "Markets for Makers"
+        }
+      ],
+      "source": {
+        "kind": "commons",
+        "url": "https://commons.wikimedia.org/wiki/File:Florida_State_Fairgrounds_entrance_gate_-_Flickr_-_sylvar.jpg",
+        "title": "Florida State Fairgrounds entrance gate - Flickr - sylvar",
+        "author": "sylvar from Monroe, LA, United States",
+        "dateTaken": "Taken on 17 September 2004, 08:22",
+        "licence": "CC BY 2.0",
+        "licenceUrl": "https://creativecommons.org/licenses/by/2.0"
+      },
+      "wayfind": {
+        "credit": "sylvar from Monroe, LA, United States",
+        "creditHref": "https://commons.wikimedia.org/wiki/File:Florida_State_Fairgrounds_entrance_gate_-_Flickr_-_sylvar.jpg",
+        "license": "CC BY 2.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+        "modificationNotice": "Resized, cropped for display and converted to JPEG."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-17"
+    },
+    {
       "src": "/guides/picks/trending-in-florida-this-week-nov-16-2026/gene-simmons-band-with-lita-ford.jpg",
       "usedBy": [
         {
@@ -10272,6 +10576,36 @@
         "license": "Public domain",
         "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/",
         "modificationNotice": "Resized and cropped to 1280x853 JPEG."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-17"
+    },
+    {
+      "src": "/guides/picks/trending-in-florida-this-week-nov-17-2026/vinoy-park-dusk.jpg",
+      "usedBy": [
+        {
+          "slug": "trending-in-florida-this-week-nov-17-2026",
+          "role": "pick",
+          "pick": "St. Pete Country Fest"
+        }
+      ],
+      "source": {
+        "kind": "commons",
+        "url": "https://commons.wikimedia.org/wiki/File:Vinoy_Park.jpg",
+        "title": "Vinoy Park",
+        "author": "Calmuziclover",
+        "dateTaken": "2020-07-24",
+        "licence": "CC BY 2.0",
+        "licenceUrl": "https://creativecommons.org/licenses/by/2.0"
+      },
+      "wayfind": {
+        "credit": "Calmuziclover",
+        "creditHref": "https://commons.wikimedia.org/wiki/File:Vinoy_Park.jpg",
+        "license": "CC BY 2.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+        "modificationNotice": "Resized, cropped for display and converted to JPEG."
       },
       "commercialUse": true,
       "authorMatchesCredit": true,
@@ -10400,6 +10734,36 @@
       "verifiedAt": "2026-11-17"
     },
     {
+      "src": "/guides/picks/trending-in-florida-this-week-nov-2-2026/jannus-live-stage-red.jpg",
+      "usedBy": [
+        {
+          "slug": "trending-in-florida-this-week-nov-2-2026",
+          "role": "pick",
+          "pick": "Movements: Happier Now USA Tour"
+        }
+      ],
+      "source": {
+        "kind": "commons",
+        "url": "https://commons.wikimedia.org/wiki/File:Suenalo_at_Jannus_Live!_-_5000760389.jpg",
+        "title": "Suenalo at Jannus Live! - 5000760389",
+        "author": "CLender",
+        "dateTaken": "2011-09-17 01:46:00",
+        "licence": "CC BY 2.0",
+        "licenceUrl": "https://creativecommons.org/licenses/by/2.0"
+      },
+      "wayfind": {
+        "credit": "CLender",
+        "creditHref": "https://commons.wikimedia.org/wiki/File:Suenalo_at_Jannus_Live!_-_5000760389.jpg",
+        "license": "CC BY 2.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+        "modificationNotice": "Resized, cropped for display and converted to JPEG."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-17"
+    },
+    {
       "src": "/guides/picks/trending-in-florida-this-week-nov-2-2026/noah-kahan-the-last-of-the-bugs-world-tour.jpg",
       "usedBy": [
         {
@@ -10423,6 +10787,36 @@
         "license": "CC BY 4.0",
         "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
         "modificationNotice": "Cropped to 1280x853 and saved as JPEG for page loading. The photograph remains available under the same licence."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-17"
+    },
+    {
+      "src": "/guides/picks/trending-in-florida-this-week-nov-2-2026/spa-beach-st-pete-pier.jpg",
+      "usedBy": [
+        {
+          "slug": "trending-in-florida-this-week-nov-2-2026",
+          "role": "pick",
+          "pick": "Florida Fin Fest"
+        }
+      ],
+      "source": {
+        "kind": "commons",
+        "url": "https://commons.wikimedia.org/wiki/File:Spa_Beach_Bistro_-_St_Petersburg_Florida,_Feb_2024.jpg",
+        "title": "Spa Beach Bistro - St Petersburg Florida, Feb 2024",
+        "author": "Eden, Janine and Jim",
+        "dateTaken": "2024-02-24 18:43:41",
+        "licence": "CC BY 2.0",
+        "licenceUrl": "https://creativecommons.org/licenses/by/2.0"
+      },
+      "wayfind": {
+        "credit": "Eden, Janine and Jim",
+        "creditHref": "https://commons.wikimedia.org/wiki/File:Spa_Beach_Bistro_-_St_Petersburg_Florida,_Feb_2024.jpg",
+        "license": "CC BY 2.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+        "modificationNotice": "Resized, cropped for display and converted to JPEG."
       },
       "commercialUse": true,
       "authorMatchesCredit": true,
@@ -10730,6 +11124,36 @@
       "verifiedAt": "2026-11-17"
     },
     {
+      "src": "/guides/picks/trending-in-florida-this-week-oct-19-2026/westcoast-black-theatre-troupe.jpg",
+      "usedBy": [
+        {
+          "slug": "trending-in-florida-this-week-oct-19-2026",
+          "role": "pick",
+          "pick": "Sophisticated Ladies"
+        }
+      ],
+      "source": {
+        "kind": "commons",
+        "url": "https://commons.wikimedia.org/wiki/File:Westcoast_Black_Theatre_Troupe_04.jpg",
+        "title": "Westcoast Black Theatre Troupe 04",
+        "author": "Kimberli Mäkäräinen",
+        "dateTaken": "2026-09-21 14:25:36",
+        "licence": "CC BY-SA 4.0",
+        "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+      },
+      "wayfind": {
+        "credit": "Kimberli Mäkäräinen",
+        "creditHref": "https://commons.wikimedia.org/wiki/File:Westcoast_Black_Theatre_Troupe_04.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+        "modificationNotice": "Resized, cropped for display and converted to JPEG. The adaptation is released under the same licence."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-17"
+    },
+    {
       "src": "/guides/picks/weeki-wachee-kayak-mermaids-guide/buccaneer-bay-the-spring-fed-water-park.webp",
       "usedBy": [
         {
@@ -10744,7 +11168,7 @@
         "title": "Weeki Wachee Springs, Florida",
         "author": "eutrophication&hypoxia",
         "displayName": "eutrophication&hypoxia",
-        "dateTaken": "2010-05-06 12:16:58",
+        "dateTaken": null,
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -10895,7 +11319,7 @@
         "title": "Winter Park - Park Avenue Shopping",
         "author": "Jared",
         "displayName": "Jared",
-        "dateTaken": "2012-12-15 16:15:45",
+        "dateTaken": null,
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -10926,7 +11350,7 @@
         "title": "Rollins College Bell Tower",
         "author": "Mike Whaling",
         "displayName": "Mike Whaling",
-        "dateTaken": "2009-02-21 15:21:16",
+        "dateTaken": null,
         "licence": "CC BY-SA 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by-sa/2.0/"
       },
@@ -10957,7 +11381,7 @@
         "title": "Winter Park Scenic Boat Tour",
         "author": "Mike Whaling",
         "displayName": "Mike Whaling",
-        "dateTaken": "2009-02-21 14:48:30",
+        "dateTaken": null,
         "licence": "CC BY-SA 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by-sa/2.0/"
       },
