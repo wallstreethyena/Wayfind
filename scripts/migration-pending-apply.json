@@ -91,20 +91,6 @@
     "reason": "Additive, service-only single-row lease table (RLS on, no policies, no anon/authenticated grants) that scripts/apply-migration.mjs takes before sending any migration SQL and releases after the outcome receipt, so two appliers cannot run against the project at once. Idempotent (create if not exists / insert on conflict do nothing). Reverse: drop table public.wf_migration_lease (apply-migration then refuses until it is re-created). Not applied; applies through scripts/apply-migration.mjs (the lease file itself is the documented bootstrap exception)."
   },
   {
-    "file": "supabase/migrations/20261115130000_wf_reserve_replay_flag.sql",
-    "sha256": "d0d640840f47d2d4768fe65cdac4b87bcd021bece6e4c3bebd6a5675aa163816",
-    "decision_owner": "wallstreethyena",
-    "tracking": "#2539 follow up (Santa reservations mission)",
-    "reason": "Notification integrity. Adds 'replayed': true to the three saved-booking returns of wf_reserve_book and wf_reserve_request (assertion guarded: exactly 3 each, rebuilt from the live definition, no-op when already applied), so a retried booking never re-sends its confirmation. Additive JSON key; the app already ignores it when absent and falls back to the booking's created_at. Not applied: the connector apply was refused by the session's safety gate, owner applies."
-  },
-  {
-    "file": "supabase/migrations/20261116120000_wf_reserve_notifications.sql",
-    "sha256": "691f7e9bc4284ad1df48328a4d739f27cd5280fd6ed981830c20d81a4774a668",
-    "decision_owner": "wallstreethyena",
-    "tracking": "#2543 follow-up: booking confirmation text (lib/reserveSms.js)",
-    "reason": "NOT APPLIED. New table wf_reserve_notifications (RLS on, no policies, service role only): one row per (booking, kind) holding the guest's text consent, recipient, provider message id and forward-only delivery status. Additive; rollback = drop table. Unused until RESERVE_SMS_ENABLED=1 with Twilio credentials, so applying it changes no behavior."
-  },
-  {
     "file": "supabase/migrations/20261116220000_wf_heartbeat_guide_visual_monitor_measured_gap.sql",
     "sha256": "aa92268018d822feca57b2ee9af8a8bb5b2853ba425bb2c17d337f1938dee0f3",
     "decision_owner": "wallstreethyena",
