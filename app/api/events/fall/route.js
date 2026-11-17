@@ -149,7 +149,8 @@ export async function GET(request) {
     // Orlando, World of Beer Coconut Creek, Kings Doral, Jake's, Swizzle, Thirsty
     // Fish, Wonderland at the National Hotel); a warm v46 rail predates them.
     // v48 (2026-11-16, owner) adds the Thanksgiving rail (eleven rails); a warm v47 payload has ten.
-    const key = `fall-intents:v48:${today}${overnightCacheBucket(nowLocal)}:${geoCell(lat)}:${geoCell(lng)}`;
+    // v49 drops four Thanksgiving picks whose venues have no stored photo; a warm v48 payload still shows them.
+    const key = `fall-intents:v49:${today}${overnightCacheBucket(nowLocal)}:${geoCell(lat)}:${geoCell(lng)}`;
     let cached = await fastCachedRail(key, async () => {
       if (!supabase) throw new Error("Supabase unavailable");
       const ids = [...new Set([
