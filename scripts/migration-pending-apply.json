@@ -103,5 +103,12 @@
     "decision_owner": "wallstreethyena",
     "tracking": "#2543 follow-up: booking confirmation text (lib/reserveSms.js)",
     "reason": "NOT APPLIED. New table wf_reserve_notifications (RLS on, no policies, service role only): one row per (booking, kind) holding the guest's text consent, recipient, provider message id and forward-only delivery status. Additive; rollback = drop table. Unused until RESERVE_SMS_ENABLED=1 with Twilio credentials, so applying it changes no behavior."
+  },
+  {
+    "file": "supabase/migrations/20261117160142_disney_snack_venues_20261117.sql",
+    "sha256": "711901accb39d68e956dad311b3b105075cf1f6af5a9950c2016243f2f0a95cf",
+    "decision_owner": "wallstreethyena",
+    "tracking": "Follow-up to #2584: Disney snack-card intake",
+    "reason": "Prepared for the owner-approved source intake. Four absent permanent Disney snack venues, insert-only with exact Google Place IDs validated in Maps. Apply the merged SQL bytes, then replace this pending declaration with a canonical apply receipt. No changes to existing rows, ratings, photos, hours, seasonal dates, or security."
   }
 ]
