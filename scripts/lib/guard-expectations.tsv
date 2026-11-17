@@ -1113,7 +1113,9 @@ scripts/test-secret-output-guard.mjs	0	CALL	blocks-ci-and-deploy	1	-	17	0	0	da19
 scripts/test-seed.mjs	0	CALL	blocks-ci-and-deploy	1	-	29	0	0	2aba20e1c5dc6ac4b71a63c544adea5d3f7dd507c2bdd453ed782da8eb8399ec
 scripts/test-self-healing-truth-engine.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	100	0	0	cfecb69bb5a999a7d6112a21f3cb31165ea7510fa3f95c303528b39621330002
 scripts/test-sentry-lazy.mjs	0	CALL	blocks-ci-and-deploy	1	-	37	1	5	ac76a0f9064e58ef45f8da0dfa15e9b42b525f6ca2b69ba72df7fd8f79f6015b
+scripts/test-sentry-mapkit-nan-weather.mjs	0	CALL	blocks-ci-and-deploy	1	-	13	0	0	5a0fb19c491a62d9d5854710e5ff4afaa8b6a41dbed13f2d692172567f5bc7d2
 scripts/test-sentry-meta-iab.mjs	0	CALL	blocks-ci-and-deploy	1	-	34	0	0	6af19ced679b2e8dac94915fde48d9f55014fe16bf221fe83ab3e45dd0a8dee7
+scripts/test-sentry-webkit-bridge.mjs	0	CALL	blocks-ci-and-deploy	1	-	17	0	0	c969671334fd3b4505d3605ad43960be12a794d5077909c9f55ab23f4acf68e6
 scripts/test-session-map-parity.mjs	0	CALL	blocks-ci-and-deploy	1	-	25	1	1	a36511cafb73ba6a31abf5983ddac2df07a17ef57d391695c6b292814fabca4e
 scripts/test-share-attribution.mjs	0	RENDER	blocks-ci-and-deploy	1	-	62	0	0	c8ba60521365bff4e898f9d40178eec5c805ecda9ec0dd98ab323777b43a9bcf
 scripts/test-share-intent-fit.mjs	0	CALL	blocks-ci-and-deploy	1	-	12	0	0	bab18c2e3e21ba2f74841756caa30ff0f7e2eca2d730519441ef98d370baac49
