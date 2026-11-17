@@ -16,7 +16,7 @@ Picture Scrapper list for this page:
 Every recommendation on that page:
 - hero: Florida Christmas Boat Parades 2026: Lit Boats on the Water. not a single place. maps: n/a. photo: present.
 - best-pick: Seminole Hard Rock Winterfest Boat Parade. address: 888 E Las Olas Blvd #210, Fort Lauderdale, FL 33301. maps: yes. photo: placeholder. Source: wf_places_cache. Route parade. Street address of Riverwalk Fort Lauderdale, the viewing place pinned on the guide. The boats start at Stranahan House and run the New River. This is that pinned place, not every point on the route.
-- pick: Tampa Riverwalk Holiday Lighted Boat Parade. address: 615 Channelside Dr, Tampa, FL 33602. maps: yes. photo: placeholder. Source: official-site. Route parade. Street address of Sparkman Wharf, the viewing place pinned on the guide. The boats pass this wharf. This is that pinned place, not every point on the route.
+- pick: Tampa Riverwalk Holiday Lighted Boat Parade. address: 615 Channelside Dr, Tampa, FL 33602. maps: yes. photo: placeholder. Source: official-site.
 - pick: Jacksonville Light Boat Parade. address: 1001 Museum Cir, Jacksonville, FL 32207. maps: yes. photo: present. Source: wf_places_cache. Route parade. Street address of Southbank Riverwalk, where the city says spectators gather. The boats cruise the St. Johns River. This is that pinned riverwalk, not every point on the route.
 - pick: Clearwater Holiday Lighted Boat Parade. address: 255 Drew St, Clearwater, FL 33755. maps: yes. photo: placeholder. Source: wf_places_cache. Route parade. Street address of The BayCare Sound, the park the guide pins on the route (Coachman Park). The boats pass this park. This is that venue, not every point on the route.
 - pick: Boca Ciega Yacht Club Lighted Christmas Boat Parade. address: 29th Ave S & Miriam St S, Gulfport, FL 33711. maps: yes. photo: placeholder. Source: wf_places_cache. Route parade. Place Details gives the intersection for Clam Bayou Nature Park, the park pinned on the guide. The line forms at Gulfport Municipal Marina and passes this park. This is that park, not every point on the route.
@@ -25,9 +25,13 @@ Every recommendation on that page:
 
 - Pages audited: 86
 - Places and events audited: 582
-- Addresses fixed with a maps link: 377
-- Unresolved addresses: 205
+- Addresses fixed with a maps link: 396
+- Unresolved street addresses: 186
+- Of those, 81 open in Google Maps through a reviewed place id and have no street number
+- Still failing the address guard: 105
 - Photo gaps: 401
+
+The 105 that still cannot be verified, each with the reason, are in `docs/wayfind/audits/guide-address-unverified-2026-11-17.md`.
 
 ## Photo gaps for the Picture Scrapper
 
@@ -544,8 +548,6 @@ Missing photos, placeholder tiles, empty sources, and images that return an erro
 - pick: The Reserve, the new bank takeover
 - pick: The Southernmost Point buoy, temporary edition
 - pick: The Duval Street crawl
-- pick: The Hemingway Home's six-toed cats
-- pick: Fort Zachary Taylor's beach and fort
 - pick: Blue Heaven's pie under the bougainvillea (ChIJf2LtZui20YgRGZXS-SvwkNI)
 - pick: Papa's Pilar rum distillery
 
@@ -554,7 +556,6 @@ Missing photos, placeholder tiles, empty sources, and images that return an erro
 - best-pick: Castillo de San Marcos (ChIJH6jzd74n5IgRsYpaqo4LwNk)
 - pick: St. George Street and the old town
 - pick: A show at the number-one amphitheater in America
-- pick: The Alligator Farm's zip line
 
 ### /guides/things-to-do-daytona-beach-summer-2026
 
@@ -581,15 +582,12 @@ Missing photos, placeholder tiles, empty sources, and images that return an erro
 - best-pick: Clearwater Beach and the Pier 60 sunset festival
 - pick: Clearwater Marine Aquarium
 - pick: Fort De Soto Park (ChIJv5qSjFsbw4gRSAnuSwy0zHA)
-- pick: St. Pete's new fine-dining wave
-- pick: Shuffleboard Fridays at the world's oldest club
 
 ### /guides/things-to-do-naples-summer-2026
 
 - best-pick: The Naples Beach sunset, pier or no pier
 - pick: Keewaydin Island by boat
 - pick: Fifth Avenue South on summer deals
-- pick: Corkscrew Swamp Sanctuary's boardwalk
 - pick: An FC Naples match night
 - pick: A sunset cruise from Tin City
 
@@ -628,7 +626,6 @@ Missing photos, placeholder tiles, empty sources, and images that return an erro
 
 - best-pick: Mickey's Very Merry Christmas Party (ChIJgUulalN-3YgRGoTaWM2LawY)
 - pick: EPCOT International Festival of the Holidays (ChIJGzFs3q9_3YgRvZd1y2NSJOo)
-- pick: Disney Springs Christmas Tree Stroll and Santa
 - pick: Disney Jollywood Nights (ChIJRx6CYyd83YgRD_HjNqPO_7s)
 
 ### /guides/florida-holiday-nights-out-2026
@@ -661,15 +658,7 @@ Missing photos, placeholder tiles, empty sources, and images that return an erro
 - best-pick: EPCOT International Food & Wine Festival
 - pick: EDC Orlando
 - pick: Vans Warped Tour Orlando
-- pick: Walt Disney World Swan and Dolphin Food & Wine Classic
 - pick: Florida Blue Florida Classic
-- pick: FusionFest
-
-### /guides/red-bull-dance-your-style-tampa-2026
-
-- best-pick: Saturday: the National Final
-- pick: Friday: Battle Day at The RITZ Ybor
-- rail: Tampa Riverwalk (ChIJL_dfJozEwogRF_55TezQpYo)
 
 ### /guides/things-to-do-in-bradenton-florida
 
@@ -678,18 +667,12 @@ Missing photos, placeholder tiles, empty sources, and images that return an erro
 
 ### /guides/things-to-do-in-miami-florida
 
-- best-pick: Vizcaya Museum and Gardens
-- pick: Pérez Art Museum Miami
 - pick: Little Havana
 
 ### /guides/things-to-do-in-ellenton-florida
 
 - best-pick: Gamble Plantation Historic State Park (ChIJjZhUvSU9w4gRCuTRgyrctZA)
 - pick: Ellenton Ice & Sports Complex
-
-### /guides/things-to-do-in-palmetto-florida
-
-- pick: Sutton Park
 
 ### /guides/things-to-do-in-lakewood-ranch-florida
 
@@ -698,7 +681,6 @@ Missing photos, placeholder tiles, empty sources, and images that return an erro
 ### /guides/things-to-do-in-cortez-florida
 
 - pick: FISH Preserve
-- pick: Swordfish Grill & Tiki Bar
 
 ### /guides/things-to-do-in-longboat-key-florida
 
@@ -717,25 +699,25 @@ Missing photos, placeholder tiles, empty sources, and images that return an erro
 
 ### /guides/orlando-christmas-concerts-and-santa-2026
 
-- best-pick: Lake Eola: DTOLive! for the Holidays
 - pick: Carousel on the Promenade: the nearby extra
 
 ### /guides/jacksonville-christmas-by-area-budget-2026
 
 - best-pick: Deck the Chairs
-- pick: Jacksonville Light Boat Parade
-- pick: JAX Artist Walk on Ice
 - pick: Riverside Avondale Luminaria
 - pick: Blackhawk Bluff Christmas Lights
 - pick: Christmas on Walnut Street
 - pick: Parade of Trees
-- pick: Vintage Market Days of Jacksonville: Shiny & Bright
 - pick: Diamonds in the Rust Fall Market
 - pick: Nights of Lights
 
 ### /guides/st-augustine-christmas-coffee-snow-walk-2026
 
 - pick: Nights of Lights: the evening anchor
+
+### /guides/red-bull-dance-your-style-tampa-2026
+
+- rail: Tampa Riverwalk (ChIJL_dfJozEwogRF_55TezQpYo)
 
 ### /guides/florida-fall-festivals-2026
 

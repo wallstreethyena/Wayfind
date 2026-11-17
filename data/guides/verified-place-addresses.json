@@ -226,9 +226,9 @@
     },
     "ChIJ5UOOwKux5YgRAmO1YNbhTc0": {
       "address": "370 Zoo Pkwy, Jacksonville, FL 32218",
-      "name": "Jacksonville Zoo and Gardens",
-      "source": "inventory-official",
-      "sourceUrl": ""
+      "name": "Jacksonville Zoo and Botanical Gardens",
+      "source": "wf_places_cache",
+      "wroteAt": "cache"
     },
     "ChIJOcKapod_3YgR90H_S_UKiMA": {
       "address": "1486 E Buena Vista Dr, Lake Buena Vista, FL 32830",
@@ -614,8 +614,9 @@
     },
     "ChIJdd8VlMN-54gRoaU0d_zYhfk": {
       "address": "6000 Universal Blvd, Orlando, FL 32819",
+      "name": "Universal Studios Florida",
       "source": "wf_places_cache",
-      "wroteAt": "2026-07-17T22:26:32.148+00:00"
+      "wroteAt": "cache"
     },
     "ChIJm9xjdgx754gRvYolbCqZPBQ": {
       "address": "1114 E Colonial Dr, Orlando, FL 32803",
@@ -673,13 +674,12 @@
       "wroteAt": "2026-07-22T17:39:14.077+00:00"
     },
     "ChIJGzFs3q9_3YgRvZd1y2NSJOo": {
-      "address": "",
       "reviewed": true,
       "placeVerified": true,
       "source": "wf_places_cache",
-      "wroteAt": "2026-07-22T17:39:18.529+00:00",
-      "rawAddress": "Bay Lake, FL, USA",
-      "note": "Place Details did not return a street number. The map link opens this named place."
+      "name": "Epcot",
+      "note": "Place Details returned Bay Lake, FL with no street number. The map link opens this named park.",
+      "address": ""
     },
     "ChIJ6_k9TmCz5YgRZoTCykSG8rA": {
       "address": "1445 Millcoe Rd, Jacksonville, FL 32225",
@@ -726,13 +726,12 @@
       "wroteAt": "2026-07-22T18:52:25.164+00:00"
     },
     "ChIJgUulalN-3YgRGoTaWM2LawY": {
-      "address": "",
       "reviewed": true,
       "placeVerified": true,
       "source": "wf_places_cache",
-      "wroteAt": "2026-07-23T03:10:55.152+00:00",
-      "rawAddress": "Bay Lake, FL 32836, USA",
-      "note": "Place Details did not return a street number. The map link opens this named place."
+      "name": "Magic Kingdom Park",
+      "note": "Place Details returned Bay Lake, FL 32836 with no street number. The map link opens this named park.",
+      "address": ""
     },
     "ChIJrdrmAJJqw4gRcHU7hwuv-3c": {
       "address": "312 John Ringling Blvd, Sarasota, FL 34236",
@@ -1238,8 +1237,9 @@
     },
     "ChIJhRo4DU_GwogRUgjhMAj-pag": {
       "address": "10165 McKinley Dr, Tampa, FL 33612",
+      "name": "Busch Gardens Tampa Bay",
       "source": "wf_places_cache",
-      "wroteAt": "2026-08-18T22:16:44.544+00:00"
+      "wroteAt": "cache"
     },
     "ChIJz3OOrDIg6IgRMKjzAPsV3NI": {
       "address": "6131 Commercial Way, Spring Hill, FL 34606",
@@ -1871,6 +1871,84 @@
       "source": "official-organizer+census",
       "sourceUrl": "https://amberbrookefarms.com/event/6th-annual-fall-festival-11/",
       "name": ""
+    },
+    "ChIJ336If1rEwogRx-8ntTOjVvk": {
+      "address": "1503 E 7th Ave, Tampa, FL 33605",
+      "name": "The Ritz Ybor",
+      "source": "wf_places_cache",
+      "wroteAt": "cache"
+    },
+    "ChIJafwoyukXw4gR5WAdMZEa_c0": {
+      "address": "1036 6th St W, Palmetto, FL 34221",
+      "name": "Sutton Park",
+      "source": "wf_places_cache",
+      "wroteAt": "cache"
+    },
+    "ChIJAUUpLJq22YgRAU604E8-tsM": {
+      "address": "1103 Biscayne Blvd, Miami, FL 33132",
+      "name": "Pérez Art Museum Miami",
+      "source": "wf_places_cache",
+      "wroteAt": "cache"
+    },
+    "ChIJc8QsSADFwogRH9awG-1qaCs": {
+      "address": "601 Water St, Tampa, FL 33602",
+      "name": "Cotanchobee Fort Brooke Park",
+      "source": "wf_places_cache",
+      "wroteAt": "cache"
+    },
+    "ChIJFY7wCsjD2YgRn8R_2IMRjtw": {
+      "address": "12400 SW 152nd St, Miami, FL 33177",
+      "name": "Zoo Miami",
+      "source": "wf_places_cache",
+      "wroteAt": "cache"
+    },
+    "ChIJhdEC7MUD2YgRWqeIwaYujc4": {
+      "address": "5300 Powerline Rd, Fort Lauderdale, FL 33309",
+      "name": "Xtreme Action Park",
+      "source": "wf_places_cache",
+      "wroteAt": "cache"
+    },
+    "ChIJkWXRuBC02YgRripCIoUAN9g": {
+      "address": "1111 Parrot Jungle Trail, Miami, FL 33132",
+      "name": "Jungle Island",
+      "source": "wf_places_cache",
+      "wroteAt": "cache"
+    },
+    "ChIJM6cv59Pn2YgRdXaKYZKWWms": {
+      "address": "24801 SW 187th Ave, Homestead, FL 33031",
+      "name": "Fruit & Spice Park",
+      "source": "wf_places_cache",
+      "wroteAt": "cache"
+    },
+    "ChIJoVWX_Rm02YgRllHsIZGN16c": {
+      "address": "980 MacArthur Cswy, Miami, FL 33132",
+      "name": "Miami Children's Museum",
+      "source": "wf_places_cache",
+      "wroteAt": "cache"
+    },
+    "ChIJOzaIz9AB2YgRJozqXFy4BIw": {
+      "address": "900 N Birch Rd, Fort Lauderdale, FL 33304",
+      "name": "Bonnet House Museum & Gardens",
+      "source": "wf_places_cache",
+      "wroteAt": "cache"
+    },
+    "ChIJE5jqT1222YgR4STdDoStYPg": {
+      "address": "3251 S Miami Ave, Miami, FL 33129",
+      "name": "Vizcaya Museum & Gardens",
+      "source": "wf_places_cache",
+      "wroteAt": "cache"
+    },
+    "ChIJ0UaxcHon5IgRtIDfdNZ5UsQ": {
+      "address": "999 Anastasia Blvd, St. Augustine, FL 32080",
+      "name": "St. Augustine Alligator Farm Zoological Park",
+      "source": "wf_places_cache",
+      "wroteAt": "cache"
+    },
+    "ChIJtdOV03ERw4gRGXAX7OPPQ1M": {
+      "address": "4628 119th St W, Cortez, FL 34215",
+      "name": "Swordfish Grill",
+      "source": "wf_places_cache",
+      "wroteAt": "cache"
     }
   },
   "byPickKey": {
@@ -1911,16 +1989,20 @@
       "censusQuery": "1801 NE 6th St, Pompano Beach, FL"
     },
     "florida-fall-festivals-2026\tBonnet House Halloween Fest": {
-      "address": "900 N BIRCH RD, FORT LAUDERDALE, FL 33304",
-      "source": "event-record+census",
-      "name": "Bonnet House Museum & Gardens",
-      "censusQuery": "900 N Birch Rd, Fort Lauderdale, FL"
+      "placeId": "ChIJOzaIz9AB2YgRJozqXFy4BIw",
+      "address": "900 N Birch Rd, Fort Lauderdale, FL 33304",
+      "reviewed": false,
+      "placeVerified": false,
+      "source": "wf_places_cache",
+      "note": "The event names Bonnet House Museum & Gardens. Address is that museum's place-cache street."
     },
     "florida-fall-festivals-2026\tBoo in Bloom at Fruit & Spice Park": {
-      "address": "24801 SW 187TH AVE, HOMESTEAD, FL 33031",
-      "source": "event-record+census",
-      "name": "Fruit & Spice Park",
-      "censusQuery": "24801 SW 187th Ave, Homestead, FL"
+      "placeId": "ChIJM6cv59Pn2YgRdXaKYZKWWms",
+      "address": "24801 SW 187th Ave, Homestead, FL 33031",
+      "reviewed": false,
+      "placeVerified": false,
+      "source": "wf_places_cache",
+      "note": "The event names Fruit & Spice Park. Address is that park's place-cache street."
     },
     "florida-fall-festivals-2026\tHalloween at Faena Miami Beach": {
       "address": "3201 COLLINS AVE, MIAMI BEACH, FL 33140",
@@ -2043,6 +2125,276 @@
       "placeVerified": false,
       "source": "inventory-official",
       "note": "Same verified place already held under this name."
+    },
+    "red-bull-dance-your-style-tampa-2026\tSaturday: the National Final": {
+      "address": "333 S Franklin St, Tampa, FL 33602",
+      "source": "guide-text+census",
+      "note": "Street is in the guide blurb. Census matched 333 S FRANKLIN ST, TAMPA, FL, 33602.",
+      "placeId": ""
+    },
+    "red-bull-dance-your-style-tampa-2026\tFriday: Battle Day at The RITZ Ybor": {
+      "address": "1503 E 7th Ave, Tampa, FL 33605",
+      "source": "guide-text+census",
+      "note": "Street is in the guide blurb and matches The Ritz Ybor in the place cache. Census matched 1503 E 7TH AVE, TAMPA, FL, 33605.",
+      "placeId": ""
+    },
+    "orlando-christmas-concerts-and-santa-2026\tLake Eola: DTOLive! for the Holidays": {
+      "address": "101 N Rosalind Ave, Orlando, FL 32801",
+      "source": "guide-text+census",
+      "note": "Street is in the guide blurb. Census matched 101 N ROSALIND AVE, ORLANDO, FL, 32801.",
+      "placeId": ""
+    },
+    "jacksonville-christmas-by-area-budget-2026\tJacksonville Light Boat Parade": {
+      "address": "2 Independent Dr, Jacksonville, FL 32202",
+      "source": "guide-text+census",
+      "note": "Route parade. The guide names Riverfront Plaza, 2 W. Independent Drive, as the start. Census matched 2 INDEPENDENT DR, JACKSONVILLE, FL, 32202.",
+      "placeId": ""
+    },
+    "jacksonville-christmas-by-area-budget-2026\tJAX Artist Walk on Ice": {
+      "address": "718 Riverside Ave, Jacksonville, FL 32204",
+      "source": "guide-text+census",
+      "note": "The guide names 718 Riverside Avenue. Census matched 718 RIVERSIDE AVE, JACKSONVILLE, FL, 32204.",
+      "placeId": ""
+    },
+    "jacksonville-christmas-by-area-budget-2026\tVintage Market Days of Jacksonville: Shiny & Bright": {
+      "address": "2497 State Hwy 16, Green Cove Springs, FL 32043",
+      "source": "guide-text+census",
+      "note": "The guide names Clay County Fairgrounds, 2497 State Road 16. Census matched 2497 STATE HWY 16, GREEN COVE SPRINGS, FL, 32043.",
+      "placeId": ""
+    },
+    "jacksonville-christmas-by-area-budget-2026\tZOOLights at Jacksonville Zoo and Botanical Gardens": {
+      "address": "370 Zoo Pkwy, Jacksonville, FL 32218",
+      "source": "guide-text+census",
+      "note": "The guide names 370 Zoo Parkway. The place cache and Census agree on 370 Zoo Pkwy, Jacksonville, FL 32218.",
+      "placeId": "ChIJ5UOOwKux5YgRAmO1YNbhTc0"
+    },
+    "florida-fall-festivals-2026\tBrick or Treat at LEGOLAND Florida": {
+      "placeId": "ChIJ38rlfogN3YgRGic46M9dbLw",
+      "address": "1 Legoland Way, Winter Haven, FL 33884",
+      "reviewed": false,
+      "placeVerified": false,
+      "source": "inventory-official",
+      "note": "The event name names LEGOLAND Florida. Address is the verified LEGOLAND street."
+    },
+    "florida-fall-festivals-2026\tHowl O Scream at SeaWorld Orlando": {
+      "placeId": "ChIJfyPWjCh-54gR1SvWozmef5k",
+      "address": "7007 Sea World Dr, Orlando, FL 32821",
+      "reviewed": false,
+      "placeVerified": false,
+      "source": "inventory-official",
+      "note": "The event name names SeaWorld Orlando. Address is that park's verified street."
+    },
+    "florida-fall-festivals-2026\tHowl O Scream at Busch Gardens Tampa Bay": {
+      "placeId": "ChIJhRo4DU_GwogRUgjhMAj-pag",
+      "address": "10165 McKinley Dr, Tampa, FL 33612",
+      "reviewed": false,
+      "placeVerified": false,
+      "source": "wf_places_cache",
+      "note": "The event name names Busch Gardens Tampa Bay. Address is that park's place-cache street."
+    },
+    "florida-fall-festivals-2026\tGators, Ghosts and Goblins at Gatorland": {
+      "placeId": "ChIJ9RHZGx6H3YgRnWVYIWsHNPM",
+      "address": "14501 S Orange Blossom Trl, Orlando, FL 32837",
+      "reviewed": false,
+      "placeVerified": false,
+      "source": "inventory-official",
+      "note": "The event name names Gatorland. Address is that park's verified street."
+    },
+    "florida-fall-festivals-2026\tMickey's Not So Scary Halloween Party": {
+      "placeId": "ChIJgUulalN-3YgRGoTaWM2LawY",
+      "address": "",
+      "reviewed": true,
+      "placeVerified": true,
+      "source": "wf_places_cache",
+      "note": "The event note says the party is at Magic Kingdom. Place Details has no street number, so the map link opens that park."
+    },
+    "florida-fall-festivals-2026\tEPCOT International Food and Wine Festival": {
+      "placeId": "ChIJGzFs3q9_3YgRvZd1y2NSJOo",
+      "address": "",
+      "reviewed": true,
+      "placeVerified": true,
+      "source": "wf_places_cache",
+      "note": "The event is the EPCOT festival and the official page is the EPCOT event. Place Details has no street number, so the map link opens that park."
+    },
+    "florida-fall-festivals-2026\tSt. Pete Pier Fall Fest and Pumpkin Patch": {
+      "placeId": "ChIJX-E766nhwogR8u_Re6nJTyk",
+      "address": "600 2nd Ave NE, St. Petersburg, FL 33701",
+      "reviewed": false,
+      "placeVerified": false,
+      "source": "inventory-official",
+      "note": "The event name and the organizer page are the St. Pete Pier. Address is that pier's verified street."
+    },
+    "florida-fall-festivals-2026\tTampa Riverwalk Trick or Treat": {
+      "placeId": "ChIJc8QsSADFwogRH9awG-1qaCs",
+      "address": "601 Water St, Tampa, FL 33602",
+      "reviewed": false,
+      "placeVerified": false,
+      "source": "wf_places_cache",
+      "note": "The event note names Cotanchobee Fort Brooke Park. Address is that park's place-cache street."
+    },
+    "florida-fall-festivals-2026\tThe Horrorland at Jungle Island": {
+      "placeId": "ChIJkWXRuBC02YgRripCIoUAN9g",
+      "address": "1111 Parrot Jungle Trail, Miami, FL 33132",
+      "reviewed": false,
+      "placeVerified": false,
+      "source": "wf_places_cache",
+      "note": "The event names Jungle Island. Address is that place's place-cache street."
+    },
+    "florida-fall-festivals-2026\tNightmare Village at Xtreme Action Park": {
+      "placeId": "ChIJhdEC7MUD2YgRWqeIwaYujc4",
+      "address": "5300 Powerline Rd, Fort Lauderdale, FL 33309",
+      "reviewed": false,
+      "placeVerified": false,
+      "source": "wf_places_cache",
+      "note": "The event names Xtreme Action Park. Address is that place's place-cache street."
+    },
+    "florida-fall-festivals-2026\tNot So Scary Halloween Bash at Miami Children's Museum": {
+      "placeId": "ChIJoVWX_Rm02YgRllHsIZGN16c",
+      "address": "980 MacArthur Cswy, Miami, FL 33132",
+      "reviewed": false,
+      "placeVerified": false,
+      "source": "wf_places_cache",
+      "note": "The event names Miami Children's Museum. Address is that museum's place-cache street."
+    },
+    "florida-fall-festivals-2026\tRoars, S'mores and Snores Spooktacular Campout at Zoo Miami": {
+      "placeId": "ChIJFY7wCsjD2YgRn8R_2IMRjtw",
+      "address": "12400 SW 152nd St, Miami, FL 33177",
+      "reviewed": false,
+      "placeVerified": false,
+      "source": "wf_places_cache",
+      "note": "The event names Zoo Miami. Address is that zoo's place-cache street."
+    },
+    "florida-fall-festivals-2026\tZoo Miami Monster Masquerade": {
+      "placeId": "ChIJFY7wCsjD2YgRn8R_2IMRjtw",
+      "address": "12400 SW 152nd St, Miami, FL 33177",
+      "reviewed": false,
+      "placeVerified": false,
+      "source": "wf_places_cache",
+      "note": "The event names Zoo Miami. Address is that zoo's place-cache street."
+    },
+    "florida-fall-festivals-2026\tZoo Boo at Zoo Miami": {
+      "placeId": "ChIJFY7wCsjD2YgRn8R_2IMRjtw",
+      "address": "12400 SW 152nd St, Miami, FL 33177",
+      "reviewed": false,
+      "placeVerified": false,
+      "source": "wf_places_cache",
+      "note": "The event names Zoo Miami. Address is that zoo's place-cache street."
+    },
+    "florida-fall-festivals-2026\tAmber Brooke Farms Fall Festival": {
+      "placeId": "ChIJkyg5UW6654gRECAKyCherD8",
+      "address": "36111 County Road 44A, Eustis, FL 32736",
+      "reviewed": false,
+      "placeVerified": false,
+      "source": "official-organizer+census",
+      "note": "The event record says 36111 N CR 44A, Eustis. Census matched 36111 CO RD 44A, EUSTIS, FL, 32736, the same official address already corroborated for this farm."
+    },
+    "things-to-do-in-miami-florida\tVizcaya Museum and Gardens": {
+      "placeId": "ChIJE5jqT1222YgR4STdDoStYPg",
+      "address": "3251 S Miami Ave, Miami, FL 33129",
+      "reviewed": false,
+      "placeVerified": false,
+      "source": "wf_places_cache",
+      "note": "The guide names Vizcaya Museum and Gardens. The place cache has one place, Vizcaya Museum & Gardens, at this street."
+    },
+    "things-to-do-in-miami-florida\tPérez Art Museum Miami": {
+      "placeId": "ChIJAUUpLJq22YgRAU604E8-tsM",
+      "address": "1103 Biscayne Blvd, Miami, FL 33132",
+      "reviewed": false,
+      "placeVerified": false,
+      "source": "wf_places_cache",
+      "note": "The guide names Pérez Art Museum Miami. The place cache street is this address."
+    },
+    "things-to-do-in-palmetto-florida\tSutton Park": {
+      "placeId": "ChIJafwoyukXw4gR5WAdMZEa_c0",
+      "address": "1036 6th St W, Palmetto, FL 34221",
+      "reviewed": false,
+      "placeVerified": false,
+      "source": "wf_places_cache",
+      "note": "The guide names Sutton Park. The place cache has one Sutton Park in Palmetto at this street."
+    },
+    "things-to-do-in-cortez-florida\tSwordfish Grill & Tiki Bar": {
+      "placeId": "ChIJtdOV03ERw4gRGXAX7OPPQ1M",
+      "address": "4628 119th St W, Cortez, FL 34215",
+      "reviewed": false,
+      "placeVerified": false,
+      "source": "wf_places_cache",
+      "note": "The guide names Swordfish Grill & Tiki Bar. The place cache has one Swordfish Grill in Cortez at this street."
+    },
+    "things-to-do-st-augustine-summer-2026\tThe Alligator Farm's zip line": {
+      "placeId": "ChIJ0UaxcHon5IgRtIDfdNZ5UsQ",
+      "address": "999 Anastasia Blvd, St. Augustine, FL 32080",
+      "reviewed": false,
+      "placeVerified": false,
+      "source": "wf_places_cache",
+      "note": "The guide names St. Augustine Alligator Farm. The place cache name is St. Augustine Alligator Farm Zoological Park, one place, at this street."
+    },
+    "florida-theme-park-christmas-2026\tDisney Springs Christmas Tree Stroll and Santa": {
+      "placeId": "ChIJ-0qgNoF_3YgRg3Lh7xHDooU",
+      "address": "1486 Buena Vista Dr, Lake Buena Vista, FL 32830",
+      "reviewed": false,
+      "placeVerified": false,
+      "source": "wf_places_cache",
+      "note": "The guide places Santa and the tree stroll at Disney Springs. Address is that place's verified street."
+    },
+    "things-to-do-key-west-summer-2026\tThe Hemingway Home's six-toed cats": {
+      "address": "907 Whitehead St, Key West, FL 33040",
+      "source": "official-site",
+      "sourceUrl": "https://www.hemingwayhome.com/",
+      "note": "The Hemingway Home site states 907 Whitehead Street, Key West, FL 33040."
+    },
+    "things-to-do-key-west-summer-2026\tFort Zachary Taylor's beach and fort": {
+      "address": "601 Howard England Way, Key West, FL 33040",
+      "source": "official-site",
+      "sourceUrl": "https://fortzacharytaylor.com/",
+      "note": "The park site states 601 Howard England Way, Key West, FL 33040."
+    },
+    "things-to-do-naples-summer-2026\tCorkscrew Swamp Sanctuary's boardwalk": {
+      "address": "375 Sanctuary Road West, Naples, FL 34120",
+      "source": "official-site",
+      "sourceUrl": "https://corkscrew.audubon.org/",
+      "note": "The Audubon Corkscrew page states 375 Sanctuary Road West, Naples, FL 34120."
+    },
+    "things-to-do-st-petersburg-clearwater-summer-2026\tShuffleboard Fridays at the world's oldest club": {
+      "address": "559 Mirror Lake Dr N, St. Petersburg, FL 33701",
+      "source": "official-site",
+      "sourceUrl": "https://stpeteshuffle.com/",
+      "note": "The club site states 559 Mirror Lake Dr. N., St. Petersburg, FL 33701."
+    },
+    "things-to-do-st-petersburg-clearwater-summer-2026\tSt. Pete's new fine-dining wave": {
+      "address": "501 5th Ave NE, St. Petersburg, FL 33701",
+      "source": "wf_places_cache",
+      "sourceUrl": "",
+      "note": "The guide names The Vinoy Resort. One place-cache row is The Vinoy Resort & Golf Club at this street."
+    },
+    "fall-events-orlando-2026\tFusionFest": {
+      "address": "777 E Princeton St, Orlando, FL 32803",
+      "source": "wf_places_cache",
+      "sourceUrl": "",
+      "note": "The guide names Loch Haven Park. The place cache has one Loch Haven Park at this street."
+    },
+    "fall-events-orlando-2026\tWalt Disney World Swan and Dolphin Food & Wine Classic": {
+      "address": "1200 Epcot Resorts Blvd, Lake Buena Vista, FL 32830",
+      "source": "wf_places_cache",
+      "sourceUrl": "",
+      "note": "The event names the Swan and Dolphin. The place cache street is Walt Disney World Swan, one of the two named hotels."
+    },
+    "florida-fall-festivals-2026\tSelby Spooktacular": {
+      "address": "1534 Mound St, Sarasota, FL 34236",
+      "source": "wf_places_cache",
+      "sourceUrl": "",
+      "note": "Selby Spooktacular is the gardens' event. Marie Selby Botanical Gardens is at this place-cache street."
+    },
+    "florida-fall-festivals-2026\tSpooktacular at Jacksonville Zoo and Botanical Gardens": {
+      "address": "370 Zoo Pkwy, Jacksonville, FL 32218",
+      "source": "wf_places_cache",
+      "sourceUrl": "",
+      "note": "The event names Jacksonville Zoo and Botanical Gardens. Address is that zoo's place-cache street."
+    },
+    "florida-fall-festivals-2026\tWeekend at BerryHaus": {
+      "address": "13720 SW 216th St, Miami, FL 33170",
+      "source": "event-record+census",
+      "sourceUrl": "",
+      "note": "Same farm street already census-matched for The Berry Farm Harvest Festival: 13720 SW 216TH ST, MIAMI, FL, 33170."
     }
   }
 }

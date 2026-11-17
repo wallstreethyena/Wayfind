@@ -72,6 +72,7 @@ for (const event of FLORIDA_FALL_GUIDE_EVENTS_2026) {
     placeId: event.place_id,
     address: event.address,
     event_name: event.event_name,
+    pickKey: `florida-fall-festivals-2026\t${event.event_name}`,
   });
 }
 
