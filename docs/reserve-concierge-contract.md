@@ -26,7 +26,9 @@ The voice seam is Twilio ConversationRelay, on the same Twilio account as bookin
 
 Texting the guest reuses the kind names `request_received`, `request_accepted`, and `request_declined`, and stays behind `RESERVE_SMS_ENABLED`. Those kinds are not on the notifications table yet, so the hook does not send.
 
-New calls also require `RESERVE_PHONE_KILL` unset, `RESERVE_PHONE_MAX_PER_HOUR`, `RESERVE_PHONE_FROM_NUMBER`, `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, and `RESERVE_PHONE_RELAY_URL`. The relay URL is a websocket host this draft does not deploy.
+New calls also require `RESERVE_PHONE_KILL` unset, `RESERVE_PHONE_MAX_PER_HOUR`, `RESERVE_PHONE_FROM_NUMBER`, `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `RESERVE_PHONE_RELAY_URL`, and `RESERVE_PHONE_CALLBACK_BASE`. The callback base has no default: set it to the https origin that should receive status and the outcome, including a preview origin. The relay process is `node scripts/reserve-phone-relay/server.mjs` (see `scripts/reserve-phone-relay/README.md`). It can sit behind a tunnel such as cloudflared.
+
+`RESERVE_PHONE_DRY_RUN_TO`, an E.164 number, sends the outbound call to that number instead of the restaurant. The synthetic place id `wf-phone-dry-run` is allowed only while that number is set, so a dry run does not need a production phone row and is not blocked by an OpenTable lane. Business hours are not applied during a dry run. The audit line does not store the dry run number.
 
 ## Provider interface (`lib/reserveProviders/`)
 Every provider exports an object with `id`, `kind` and these async methods (all return plain objects, never throw except `opentable_api`):

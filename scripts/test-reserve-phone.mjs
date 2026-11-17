@@ -2,6 +2,7 @@
 // No network, no Supabase, no live call. Covers every outcome, the flag, the allowlist, business hours,
 // one call per Confirm, a bad status signature, a payment request, and the disclosure sentence.
 import { readFileSync } from "node:fs";
+import http from "node:http";
 import { randomUUID } from "node:crypto";
 import { createReserveHandlers } from "../lib/reserveApi.js";
 import { createProviderRegistry } from "../lib/reserveProviders/index.js";
@@ -11,7 +12,9 @@ import { PHONE_CONFIRMED_LINE, phoneGuestLine } from "../lib/reservePhone/copy.j
 import { planPhoneText } from "../lib/reservePhone/notify.js";
 import { applyPhoneStatusCallback, applyVoiceOutcome, startPhoneRequest } from "../lib/reservePhone/orchestrator.js";
 import { buildConversationRelayTwiml, createTwilioVoiceAdapter, twilioSignature } from "../lib/reservePhone/twilioVoice.js";
-import { HOLD_LIMIT_SECONDS, localMinutes, withinBusinessHours } from "../lib/reservePhone/policy.js";
+import { HOLD_LIMIT_SECONDS, PHONE_DRY_RUN_PLACE_ID, localMinutes, withinBusinessHours } from "../lib/reservePhone/policy.js";
+import { createRelaySession } from "../scripts/reserve-phone-relay/session.mjs";
+import { createRelayServer, relayListenConfig } from "../scripts/reserve-phone-relay/server.mjs";
 
 let failed = 0, count = 0;
 const ok = (cond, msg) => { count++; if (!cond) { failed++; console.error("test-reserve-phone: FAIL - " + msg); } };
@@ -400,10 +403,179 @@ const storedBlob = (repo) => JSON.stringify({ requests: repo.requests, audits: r
   ok(/export async function POST/.test(status) && /phoneStatus/.test(status) && !/export async function GET/.test(status), "the status route is POST only");
   const mw = readFileSync(new URL("../middleware.js", import.meta.url), "utf8");
   const matcher = mw.slice(mw.indexOf("matcher:"), mw.indexOf("]", mw.indexOf("matcher:")));
-  ok(matcher.includes('"/api/reserve/phone"') && !matcher.includes("phone-status"), "Confirm is rate limited and the Twilio callback is not same origin blocked");
+  ok(matcher.includes('"/api/reserve/phone"') && !matcher.includes("phone-status") && !matcher.includes("phone-outcome"), "Confirm is rate limited. The Twilio callback and the relay outcome route are not same origin blocked");
+  const outcomeRoute = strip(readFileSync(new URL("../app/api/reserve/phone-outcome/route.js", import.meta.url), "utf8"));
+  ok(/export async function POST/.test(outcomeRoute) && /phoneOutcome/.test(outcomeRoute) && /runtime\s*=\s*"nodejs"/.test(outcomeRoute), "the outcome route is a node POST");
   ok(/RATE_LIMIT_ONLY_ROUTES[\s\S]*\/api\/reserve\/phone"/.test(mw), "the guest phone route is rate limit only");
   const voiceSrc = readFileSync(new URL("../lib/reservePhone/voice.js", import.meta.url), "utf8");
   ok(/ConversationRelay/.test(voiceSrc) && /ElevenLabs/.test(voiceSrc), "the voice file records why ConversationRelay was chosen");
+}
+
+// ---- dry run, callback origin, relay outcome ----------------------------------------------------
+{
+  const DRY = "+15555550999";
+  const missingBase = { ...BASE };
+  delete missingBase.RESERVE_PHONE_CALLBACK_BASE;
+  const noBase = await startPhoneRequest({ repository: memoryRepo(), env: missingBase, request: ask(), nowMs: NOW, telephony: fakeTelephony() });
+  ok(noBase.code === "NOT_CONFIGURED", "a missing callback origin does not fall back to production");
+
+  const preview = "https://preview.example.com";
+  const seen = [];
+  const fetchImpl = async (url, init) => { seen.push({ url: String(url), body: init.body }); return { ok: true, json: async () => ({ sid: SID, status: "queued" }) }; };
+  const cfg = { accountSid: ACCOUNT, authToken: TOKEN, from: FROM, relayUrl: "wss://relay.test/wayfind", callbackUrl: preview + "/api/reserve/phone-status" };
+  const script = buildCallScript({ restaurantName: "Harbor Grill", date: "2026-11-18", time: "19:00", partySize: 2, guestLabel: "Gabriel Pereira", windowMinutes: 90 });
+  await createTwilioVoiceAdapter({ config: cfg, fetchImpl }).placeCall({ to: DRY, script, requestId: "33333333-3333-4333-8333-333333333333" });
+  const form = new URLSearchParams(seen[0].body);
+  ok(form.get("StatusCallback") === preview + "/api/reserve/phone-status" && form.get("Twiml").includes("requestId") && form.get("Record") === "false", "the status callback uses the configured origin and the relay is told the request id");
+
+  const tel = fakeTelephony();
+  const dryEnv = { ...BASE, RESERVE_PHONE_DRY_RUN_TO: DRY };
+  const dry = await startPhoneRequest({ repository: memoryRepo(), env: dryEnv, request: ask({ phonePlace: placeRow() }), nowMs: NOW, telephony: tel });
+  ok(dry.ok && tel.placed[0].to === DRY && tel.placed[0].to !== RESTAURANT_PHONE && !JSON.stringify(dry.phone).includes(DRY) && memoryRepo && true, "a dry run dials the test number");
+  const dryRepo = memoryRepo();
+  const dryTel = fakeTelephony();
+  await startPhoneRequest({ repository: dryRepo, env: dryEnv, request: ask({ phonePlace: placeRow() }), nowMs: NOW, telephony: dryTel });
+  ok(!JSON.stringify(dryRepo.audits).includes(DRY) && dryRepo.audits.some((a) => a.code === "DRY_RUN"), "the audit does not store the dry run number");
+
+  const closedTel = fakeTelephony();
+  const closedDry = await startPhoneRequest({ repository: memoryRepo(CLOSED_NOW), env: dryEnv, request: ask({ phonePlace: placeRow(CLOSED_NOW) }), nowMs: NOW, telephony: closedTel });
+  ok(closedDry.ok && closedTel.placed.length === 1, "a dry run is not blocked by restaurant hours");
+
+  const post = (body, env, repo, tel) => createReserveHandlers({
+    env, now: () => NOW, repository: repo, fetchImpl: () => { throw new Error("network"); },
+    verifyUser: async () => ({ id: USER }), phoneTelephony: tel,
+  }).phonePost(new Request(ORIGIN + "/api/reserve/phone", {
+    method: "POST", headers: { origin: ORIGIN, "content-type": "application/json", authorization: "Bearer " + "x".repeat(20) }, body: JSON.stringify(body),
+  }));
+  const OT = "ChIJopentableplace01";
+  const otRepo = memoryRepo();
+  otRepo.getPlatformLink = async (id) => id === OT ? { place_id: OT, external_id: "139954", active: true, external_slug: "harbor" } : null;
+  otRepo.getPhonePlace = async () => null;
+  const otBody = { placeId: OT, date: "2026-11-18", time: "19:00", partySize: 2, idempotencyKey: randomUUID(), guestName: "Gabriel Pereira" };
+  const blocked = await post(otBody, { ...BASE, RESERVE_PHONE_ALLOWLIST: OT }, otRepo, fakeTelephony());
+  const blockedJson = await blocked.json();
+  ok(blocked.status === 409 && blockedJson.error === "OTHER_LANE", "without a dry run, an OpenTable place is not called");
+  const otTel = fakeTelephony();
+  const otDry = await post(otBody, { ...BASE, RESERVE_PHONE_ALLOWLIST: OT, RESERVE_PHONE_DRY_RUN_TO: DRY }, otRepo, otTel);
+  const otJson = await otDry.json();
+  ok(otDry.status === 201 && otJson.phone && otTel.placed[0].to === DRY, "a dry run of an OpenTable place dials the test number and does not 409: " + otDry.status + " " + JSON.stringify(otJson));
+
+  const synTel = fakeTelephony();
+  const syn = await post(
+    { placeId: PHONE_DRY_RUN_PLACE_ID, date: "2026-11-18", time: "19:00", partySize: 2, idempotencyKey: randomUUID(), guestName: "Gabriel Pereira" },
+    { ...BASE, RESERVE_PHONE_DRY_RUN_TO: DRY, RESERVE_PHONE_ALLOWLIST: "" },
+    memoryRepo(), synTel,
+  );
+  const synJson = await syn.json();
+  ok(syn.status === 201 && synTel.placed.length === 1 && synTel.placed[0].to === DRY, "the synthetic place needs no production row: " + syn.status + " " + JSON.stringify(synJson));
+  const synOff = fakeTelephony();
+  const synNo = await post(
+    { placeId: PHONE_DRY_RUN_PLACE_ID, date: "2026-11-18", time: "19:00", partySize: 2, idempotencyKey: randomUUID(), guestName: "Gabriel Pereira" },
+    BASE, memoryRepo(), synOff,
+  );
+  ok((await synNo.json()).error !== "OTHER_LANE" && synOff.placed.length === 0, "the synthetic place does nothing while dry run is unset");
+}
+
+// ---- relay session and the outcome route --------------------------------------------------------
+{
+  const posts = [];
+  const session = createRelaySession({
+    postOutcome: async (body) => { posts.push(body); },
+    holdLimit: 45,
+    schedule: (fn) => { session.fire = fn; return 7; },
+    clearSchedule: () => {},
+    onFrames: (frames) => { session.late = frames; },
+  });
+  const requestId = "44444444-4444-4444-8444-444444444444";
+  const setup = { type: "setup", customParameters: { requestId, date: "2026-11-18", time: "19:00", party: "2", guestLabel: "Gabriel Pereira", windowMinutes: "90", restaurantName: "Harbor Grill" } };
+  const none = await session.handle(setup);
+  ok(none.length === 0, "setup does not speak a second disclosure; Twilio already played the greeting");
+  const human = await session.handle({ type: "prompt", voicePrompt: "Are you a real person?", last: true });
+  ok(human[0].token === "This is an automated assistant calling for Wayfind on behalf of a guest." && human[0].type === "text", "asked if it is human, the relay repeats the disclosure");
+  const pay = await session.handle({ type: "prompt", voicePrompt: "I need a credit card to hold this.", last: true });
+  ok(pay.some((f) => f.type === "end") && posts[0].outcome === "needs_guest" && !JSON.stringify(posts[0]).includes("credit") && !("transcript" in posts[0]), "payment ends needs_guest and the posted body has no transcript");
+
+  const held = [];
+  const holdSession = createRelaySession({
+    postOutcome: async (body) => { held.push(body); },
+    holdLimit: 45,
+    schedule: (fn) => { holdSession.fire = fn; return 1; },
+    clearSchedule: () => {},
+    onFrames: (frames) => { holdSession.late = frames; },
+  });
+  await holdSession.handle(setup);
+  const waiting = await holdSession.handle({ type: "prompt", voicePrompt: "Please hold.", last: true });
+  ok(!waiting.some((f) => f.type === "end") && typeof holdSession.fire === "function", "please hold starts the hold timer and does not hang up yet");
+  await holdSession.fire();
+  ok(held[0] && held[0].outcome === "needs_guest" && holdSession.late.some((f) => f.type === "end"), "a hold past 45 seconds ends as needs_guest");
+
+  const cfgMissing = relayListenConfig({});
+  ok(cfgMissing.ok === false, "the relay refuses to listen without its secret and callback origin");
+  const cfgOk = relayListenConfig({ RESERVE_PHONE_RELAY_SECRET: "s".repeat(16), RESERVE_PHONE_CALLBACK_BASE: "https://preview.example.com", TWILIO_AUTH_TOKEN: TOKEN, RESERVE_PHONE_RELAY_PUBLIC_URL: "wss://tunnel.example.com/relay" });
+  ok(cfgOk.ok && cfgOk.outcomeUrl === "https://preview.example.com/api/reserve/phone-outcome", "the relay posts to the configured origin");
+
+  const SECRET = "relay-secret-value";
+  const repo = memoryRepo();
+  const started = await startPhoneRequest({ repository: repo, env: BASE, request: ask(), nowMs: NOW, telephony: fakeTelephony() });
+  const outcomeBody = { requestId: started.phone.id, outcome: "confirmed", summary: "The restaurant confirmed. A confirmation detail was captured.", confirmationDetail: "AB12", transcript: "Pereira said 4111111111111111" };
+  const handlers = (env) => createReserveHandlers({ env, now: () => NOW, repository: repo, verifyUser: async () => ({ id: USER }) });
+  const sendOutcome = (env, header) => handlers(env).phoneOutcome(new Request(ORIGIN + "/api/reserve/phone-outcome", { method: "POST", headers: { "content-type": "application/json", ...(header ? { "x-wayfind-phone-relay": header } : {}) }, body: JSON.stringify(outcomeBody) }));
+  const hidden = await sendOutcome(BASE, SECRET);
+  ok(hidden.status === 404, "the outcome route is 404 until the relay secret is configured");
+  const wrong = await sendOutcome({ ...BASE, RESERVE_PHONE_RELAY_SECRET: SECRET }, "not-the-secret!!");
+  ok(wrong.status === 403, "a wrong relay secret is rejected");
+  const good = await sendOutcome({ ...BASE, RESERVE_PHONE_RELAY_SECRET: SECRET }, SECRET);
+  const goodJson = await good.json();
+  const row = repo.requests.find((r) => r.id === started.phone.id);
+  ok(good.status === 200 && goodJson.phone.line === PHONE_CONFIRMED_LINE && row.guest_label === "Gabriel P." && row.confirmation_detail === "AB12" && !String(row.summary).includes("4111") && !("transcript" in row), "a good secret stores the confirmed line and drops the transcript");
+
+  const posted = [];
+  const signed = { secret: SECRET, token: TOKEN, publicUrl: "ws://127.0.0.1/pending", holdSeconds: 45, outcomeUrl: ORIGIN + "/api/reserve/phone-outcome" };
+  const live = createRelayServer({
+    config: signed,
+    fetchImpl: async (_url, init) => { posted.push(JSON.parse(init.body)); return { ok: true, json: async () => ({ ok: true }) }; },
+  });
+  await new Promise((resolve) => live.listen(0, "127.0.0.1", resolve));
+  const port = live.address().port;
+  signed.publicUrl = `ws://127.0.0.1:${port}/`;
+  const badUp = await new Promise((resolve) => {
+    const req = http.request({
+      port, host: "127.0.0.1", path: "/",
+      headers: { Connection: "Upgrade", Upgrade: "websocket", "Sec-WebSocket-Version": "13", "Sec-WebSocket-Key": Buffer.from("1234567890123456").toString("base64"), "x-twilio-signature": "nope" },
+    });
+    req.on("response", (res) => { res.resume(); resolve(res.statusCode); });
+    req.on("upgrade", () => resolve(101));
+    req.end();
+  });
+  ok(badUp === 401, "a bad Twilio signature is rejected before the socket is accepted: " + badUp);
+  const goodUp = await new Promise((resolve) => {
+    const req = http.request({
+      port, host: "127.0.0.1", path: "/",
+      headers: { Connection: "Upgrade", Upgrade: "websocket", "Sec-WebSocket-Version": "13", "Sec-WebSocket-Key": Buffer.from("1234567890123456").toString("base64"), "x-twilio-signature": twilioSignature(TOKEN, signed.publicUrl, {}) },
+    });
+    req.on("response", (res) => { res.resume(); resolve(res.statusCode); });
+    req.on("upgrade", (_res, socket) => { socket.destroy(); resolve(101); });
+    req.end();
+  });
+  ok(goodUp === 101, "a valid Twilio signature is accepted: " + goodUp);
+  live.close();
+  const open = createRelayServer({
+    config: { secret: SECRET, token: "", publicUrl: "", holdSeconds: 45, outcomeUrl: ORIGIN + "/api/reserve/phone-outcome" },
+    fetchImpl: async (_url, init) => { posted.push(JSON.parse(init.body)); return { ok: true, json: async () => ({ ok: true }) }; },
+  });
+  await new Promise((resolve) => open.listen(0, "127.0.0.1", resolve));
+  const openPort = open.address().port;
+  const ws = new WebSocket(`ws://127.0.0.1:${openPort}/`);
+  const messages = [];
+  await new Promise((resolve, reject) => { ws.addEventListener("open", resolve); ws.addEventListener("error", reject); });
+  ws.addEventListener("message", (ev) => messages.push(String(ev.data)));
+  ws.send(JSON.stringify({ type: "setup", customParameters: { requestId, date: "2026-11-18", time: "19:00", party: "2", guestLabel: "Gabriel P.", windowMinutes: "90", restaurantName: "Harbor Grill" } }));
+  ws.send(JSON.stringify({ type: "prompt", voicePrompt: "Please leave a message after the tone.", last: true }));
+  await new Promise((r) => setTimeout(r, 100));
+  ws.close();
+  await new Promise((resolve) => open.close(resolve));
+  const joined = messages.join("\n");
+  ok(/needs_guest/.test(joined) && posted.some((p) => p.outcome === "needs_guest") && !joined.includes("<Record"), "a live socket turns voicemail into needs_guest and posts that outcome");
 }
 
 // ---- the Confirm tap, rendered -------------------------------------------------------------------

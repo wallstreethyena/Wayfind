@@ -1071,7 +1071,7 @@ scripts/test-refresh-selector-trap.mjs	0	CALL	blocks-ci-and-deploy	1	-	8	0	0	6fc
 scripts/test-reserve-concierge.mjs	0	CALL	blocks-ci-and-deploy	1	-	140	0	0	e0bff70e4e03946645aab4bd26dd843b218f2509f8bacc6c8c17d05464853019
 scripts/test-reserve-guest.mjs	0	RENDER	blocks-ci-and-deploy	1	-	34	0	0	7d41458098f7bd282c745e70b27708ec589abf4bb9397feb735985ebb8b97635
 scripts/test-reserve-logic.mjs	0	CALL	blocks-ci-and-deploy	1	-	183	0	0	8ac39821a2db6169e60d7fb355232a519da58a294661d70a64ce3f311e4ef3ae
-scripts/test-reserve-phone.mjs	0	RENDER	blocks-ci-and-deploy	1	-	70	0	0	d9fb9e2f3793d3e3a48e0dafc173d7a5c9a4df3140e63629a069c5d52a370830
+scripts/test-reserve-phone.mjs	0	RENDER	blocks-ci-and-deploy	1	-	97	0	0	1718e88028e620096d0f9c965081b25b79f7bdc6880551146ba1745c36c6f5f7
 scripts/test-reserve-schema.mjs	0	CALL	blocks-ci-and-deploy	1	-	46	0	0	f19a6fd8025b5fa57245b01cc0f759277085ee60e8472f78dd6969f894fa936a
 scripts/test-reserve-sms.mjs	0	CALL	blocks-ci-and-deploy	1	-	54	0	0	1d896f6c791984c35c6db9318d2536fcaf81c0053e78f486da38e25412771f35
 scripts/test-reserve-ui.mjs	0	RENDER	blocks-ci-and-deploy	1	-	225	0	0	9a72d0a33778789eaab99448bb442457f1a0d2c26dcad893ae1c6144d021271f
