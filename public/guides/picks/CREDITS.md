@@ -577,6 +577,13 @@ Each photo uses the license named below; images may be resized, cropped and conv
 - `/guides/picks/trending-in-florida-this-week-nov-9-2026/usf-mens-basketball.webp` — trending-in-florida-this-week-nov-9-2026: USF men's basketball vs. Coppin State. [TheCustomOfLife](https://commons.wikimedia.org/wiki/File:Sundomecloseup.JPG); [Public domain](https://creativecommons.org/publicdomain/mark/1.0/).
 - `/guides/picks/trending-in-florida-this-week-nov-9-2026/wynonna-judd.webp` — trending-in-florida-this-week-nov-9-2026: Wynonna Judd and Troubadour Blue. [Fred W. Baker III](https://commons.wikimedia.org/wiki/File:Wynonna_Judd_is_performing.jpg); [Public domain](https://creativecommons.org/publicdomain/mark/1.0/).
 
+## universal-orlando-christmas-2026
+
+- `/guides/picks/universal-orlando-christmas-2026/citywalk.webp` — universal-orlando-christmas-2026: Universal CityWalk. [Miosotis Jade](https://commons.wikimedia.org/wiki/File:City_Walk_Orlando_04.jpg); [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Adaptation (resized, cropped, WebP) released under the same licence.
+- `/guides/picks/universal-orlando-christmas-2026/nintendo-day.webp` — universal-orlando-christmas-2026: Universal Epic Universe. [Brunnofernando](https://commons.wikimedia.org/wiki/File:Super_Nintendo_World,_Epic_Universe,_Orlando,_Fl%C3%B3rida.jpg); [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+- `/guides/picks/universal-orlando-christmas-2026/seuss-landing.webp` — universal-orlando-christmas-2026: Universal Islands of Adventure. [David Bjorgen](https://commons.wikimedia.org/wiki/File:Seuss_Landing.jpg); [CC BY-SA 2.5](https://creativecommons.org/licenses/by-sa/2.5/). Adaptation (resized, cropped, WebP) released under the same licence.
+- `/guides/picks/universal-orlando-christmas-2026/universal-holiday-parade.webp` — universal-orlando-christmas-2026: Universal Studios Florida. [jared422_80](https://www.flickr.com/photos/93283041@N00/6669301281); [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/).
+
 ## weeki-wachee-kayak-mermaids-guide
 
 - `/guides/picks/weeki-wachee-kayak-mermaids-guide/buccaneer-bay-the-spring-fed-water-park.webp` — weeki-wachee-kayak-mermaids-guide: Buccaneer Bay, the spring-fed water park. [eutrophication&hypoxia](https://www.flickr.com/photos/48722974@N07/4584923946); [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/).
