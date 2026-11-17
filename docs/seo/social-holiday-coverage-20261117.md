@@ -9,9 +9,9 @@ Five guides use the current article system with distinct local decisions, descri
 | Target | Guide | Evidence status |
 |---|---|---|
 | Blooming Floral Cafe | [tampa-christmas-coffee-and-farm-outings-2026](https://www.gowayfind.com/guides/tampa-christmas-coffee-and-farm-outings-2026) | venue identity lead; seasonal menu verification incomplete |
-| Brown's Adventure Farm / Holiday Market After Dark | [tampa-christmas-coffee-and-farm-outings-2026](https://www.gowayfind.com/guides/tampa-christmas-coffee-and-farm-outings-2026) | Permanent venue exists; new December market entry proposed. Start time conflict retained. |
+| Brown's Adventure Farm / Holiday Market After Dark | [tampa-christmas-coffee-and-farm-outings-2026](https://www.gowayfind.com/guides/tampa-christmas-coffee-and-farm-outings-2026) | Permanent venue exists; December 13 market entry added. Start time conflict retained. |
 | Mistletoe & Moo's | [tampa-christmas-coffee-and-farm-outings-2026](https://www.gowayfind.com/guides/tampa-christmas-coffee-and-farm-outings-2026) | Represent as optional paid add-on in Brown market detail; no duplicate free-event card. |
-| Snowcat Ridge Alpine Snow Park | [snowcat-ridge-vs-wunder-glow-2026](https://www.gowayfind.com/guides/snowcat-ridge-vs-wunder-glow-2026) | See source register; seasonal status requires confirmation. |
+| Snowcat Ridge Alpine Snow Park | [snowcat-ridge-vs-wunder-glow-2026](https://www.gowayfind.com/guides/snowcat-ridge-vs-wunder-glow-2026) | Verified current calendar and event listing; see source register. |
 | Wunder Glow | [snowcat-ridge-vs-wunder-glow-2026](https://www.gowayfind.com/guides/snowcat-ridge-vs-wunder-glow-2026) | Separate attraction and ticket from Snowcat Ridge despite shared address. |
 | DTOLive! for the Holidays at Lake Eola | [orlando-christmas-concerts-and-santa-2026](https://www.gowayfind.com/guides/orlando-christmas-concerts-and-santa-2026) | Do not confuse concert series with existing December4 tree lighting. |
 | Lumley's Farm Christmas | [tampa-christmas-coffee-and-farm-outings-2026](https://www.gowayfind.com/guides/tampa-christmas-coffee-and-farm-outings-2026) | seasonal event not independently verified |
@@ -19,7 +19,7 @@ Five guides use the current article system with distinct local decisions, descri
 | Carousel on the Promenade | [orlando-christmas-concerts-and-santa-2026](https://www.gowayfind.com/guides/orlando-christmas-concerts-and-santa-2026) | Part of ICON Park; child complimentary ride requires photo purchase. Exact permanent carousel ID unresolved. |
 | SEA LIFE Orlando Aquarium | [orlando-christmas-concerts-and-santa-2026](https://www.gowayfind.com/guides/orlando-christmas-concerts-and-santa-2026) | Existing attraction; discount terms do not establish free included entry. |
 | Madame Tussauds Orlando | [orlando-christmas-concerts-and-santa-2026](https://www.gowayfind.com/guides/orlando-christmas-concerts-and-santa-2026) | Existing attraction; discount terms do not establish free included entry. |
-| Centro Ybor Tree Lighting | [tampa-christmas-coffee-and-farm-outings-2026](https://www.gowayfind.com/guides/tampa-christmas-coffee-and-farm-outings-2026) | See source register; seasonal status requires confirmation. |
+| Centro Ybor Tree Lighting | [tampa-christmas-coffee-and-farm-outings-2026](https://www.gowayfind.com/guides/tampa-christmas-coffee-and-farm-outings-2026) | Verified current calendar and event listing; see source register. |
 | Oldest Wooden School House Historic Museum & Gardens | [st-augustine-christmas-coffee-snow-walk-2026](https://www.gowayfind.com/guides/st-augustine-christmas-coffee-snow-walk-2026) | venue_verified_holiday_hours_conflict |
 | Auggie's Draft Room | [st-augustine-christmas-coffee-snow-walk-2026](https://www.gowayfind.com/guides/st-augustine-christmas-coffee-snow-walk-2026) | venue_verified_snow_schedule_unconfirmed |
 | St. Augustine Coffee House / Santa's Toy Shop | [st-augustine-christmas-coffee-snow-walk-2026](https://www.gowayfind.com/guides/st-augustine-christmas-coffee-snow-walk-2026) | venue_verified_holiday_popup_supported_by_organizer_screenshot |
@@ -43,9 +43,9 @@ Five guides use the current article system with distinct local decisions, descri
 
 ## Checks and limits
 
-All 11 new event URLs returned HTTP 200 with expected H1s and self-canonicals. Four new venue /p routes returned HTTP 200 with correct name metadata. Direct POST details probes were refused by the existing same-origin gate; this does not establish a card UI pass. Browser checks are separate.
+All 11 new event URLs returned HTTP 200 with expected H1s and self-canonicals. Four new venue /p routes returned HTTP 200 with correct name metadata and were then inspected in the live browser. All four showed the expected names and addresses, website and directions actions; absent photos, scores and hours remained honest unknown states. Direct POST details probes were refused by the existing same-origin gate; the subsequent rendered checks established the actual place-card outcome.
 
-The Dade City guide has an explicit image gap. Four guides reuse reviewed licensed photographs of their actual city setting with accurate contextual captions. Missing pick photos use the existing neutral state. Creator screenshots were not reproduced as licensed photography.
+All five guides use reviewed licensed photographs of their actual city setting with accurate contextual captions. The Dade City cover shows its historic courthouse at Christmas in 2009 and explicitly identifies that neither compared attraction is pictured. Missing pick photos use the existing neutral state. Creator screenshots were not reproduced as licensed photography.
 
 Search Console is connected and readable. The new pages have no pre-publication performance baseline. Indexing, rankings and future organic growth remain unknown. Review after roughly 4 to 8 weeks when there is enough data. No recurring task was created.
 
