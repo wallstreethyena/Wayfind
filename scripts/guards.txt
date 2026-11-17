@@ -1242,6 +1242,9 @@ node scripts/check-partner-collections.mjs
 # so the advertiser can see what they bought). Plus the bundle wall: home.js
 # must reach both the registry and the card lazily.
 node scripts/check-sponsored-places.mjs
+# Flag off /partners must stay today's page. Flag on is the pitch, with the
+# audience numbers only in lib/partnerProof.js.
+node scripts/check-partner-pitch.mjs
 node scripts/check-no-third-party-rating-schema.mjs
 node scripts/check-rail-drop-images.mjs
 
