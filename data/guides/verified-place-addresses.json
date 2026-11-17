@@ -3141,6 +3141,16 @@
       "sourceUrl": "https://www.tampa.gov/parks-and-recreation/featured-parks/riverfrontpark",
       "secondSourceUrl": "https://www.tampa.gov/parks-and-recreation/activities-recreation/aquatics/splash-pads"
     },
+    "orlando-halloween-food-2026\tRigatoni Ritual Pie": {
+      "address": "6000 Universal Blvd, Orlando, FL 32819",
+      "label": "Louie's Italian Restaurant, inside Universal Studios Florida, 6000 Universal Blvd, Orlando, FL 32819",
+      "mapsName": "Universal Studios Florida",
+      "source": "two-public-sources",
+      "name": "Louie's Italian Restaurant",
+      "note": "Louie's is inside Universal Studios Florida and has no separate guest door. Universal's directions page gives Universal Studios Florida the guest address 6000 Universal Boulevard, Orlando, FL 32819. Visit Orlando lists Universal Studios Florida at the same street. The Florida food-license record SEA5805878 uses 1000 Universal Studios Plaza, which the Census geocoder does not match.",
+      "sourceUrl": "https://www.universalorlando.com/web/en/us/plan-your-visit/hours-information/directions-and-parking",
+      "secondSourceUrl": "https://www.visitorlando.com/listing/universal-studios-florida/31411/"
+    },
     "florida-fall-festivals-2026\tTour of Destruction Halloween Edition": {
       "address": "21050 E State Road 64, Bradenton, FL 34212",
       "source": "two-public-sources",

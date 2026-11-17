@@ -681,7 +681,7 @@ page,kind,name,placeId,address,maps,source,note,addressGap,photo,photoNote,http
 /guides/orlando-halloween-food-2026,pick,CarnEVIL Smash Tacos,,,,,,,/guides/orlando-halloween-food-2026/carn-evil-smash-tacos.webp,,200
 /guides/orlando-halloween-food-2026,pick,Death by Cheesestick,,,,,,,/guides/orlando-halloween-food-2026/death-by-cheesestick.webp,,200
 /guides/orlando-halloween-food-2026,pick,Burnt Sando,,,,,,,/guides/orlando-halloween-food-2026/burnt-sando.webp,,200
-/guides/orlando-halloween-food-2026,pick,Rigatoni Ritual Pie,,,,,,yes,/guides/orlando-halloween-food-2026/rigatoni-ritual-pie.webp,,200
+/guides/orlando-halloween-food-2026,pick,Rigatoni Ritual Pie,,"Louie's Italian Restaurant, inside Universal Studios Florida, 6000 Universal Blvd, Orlando, FL 32819",https://www.google.com/maps/search/?api=1&query=Universal%20Studios%20Florida%206000%20Universal%20Blvd%2C%20Orlando%2C%20FL%2032819,two-public-sources,"Louie's is inside Universal Studios Florida and has no separate guest door. Universal's directions page and Visit Orlando both state 6000 Universal Boulevard, Orlando, FL 32819 for Universal Studios Florida. The Florida food-license record SEA5805878 uses 1000 Universal Studios Plaza, which the Census geocoder does not match.",,/guides/orlando-halloween-food-2026/rigatoni-ritual-pie.webp,,200
 /guides/orlando-halloween-food-2026,pick,Elote with spicy cheese-puff crunch,,,,,,,/guides/orlando-halloween-food-2026/hot-cheetos-elote.webp,,200
 /guides/orlando-halloween-food-2026,pick,Meat Grinder Red Velvet,,,,,,,/guides/orlando-halloween-food-2026/meat-grinder-red-velvet.webp,,200
 /guides/orlando-halloween-food-2026,pick,Walking Taco,,,,,,,/guides/orlando-halloween-food-2026/fritos-walking-taco.webp,,200

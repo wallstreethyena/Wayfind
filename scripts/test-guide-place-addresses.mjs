@@ -74,4 +74,22 @@ assert.equal(guideWhereForRecord(
   { catalog: { byPlaceId: {}, byPickKey: { "pcb\tPier Park": { area: false, reviewed: true, reason: areaReason, mapQuery: "Pier Park", mapLink: guideAreaMapUrl("Pier Park") } } }, slug: "pcb" },
 ), null);
 
+const parkStreet = "6000 Universal Blvd, Orlando, FL 32819";
+const louieLabel = "Louie's Italian Restaurant, inside Universal Studios Florida, 6000 Universal Blvd, Orlando, FL 32819";
+const louie = guideWhereForRecord(
+  { name: "Rigatoni Ritual Pie" },
+  { catalog: { byPlaceId: {}, byPickKey: { "orlando\tRigatoni Ritual Pie": { address: parkStreet, label: louieLabel, mapsName: "Universal Studios Florida", source: "two-public-sources" } } }, slug: "orlando" },
+);
+assert.equal(louie.address, louieLabel);
+assert.equal(postalLine(louie.address), parkStreet);
+assert.equal(louie.mapsName, "Universal Studios Florida");
+assert.equal(louie.mapsUrl, guideMapsUrl({ name: "Universal Studios Florida", address: parkStreet }));
+assert.ok(louie.mapsUrl.includes(encodeURIComponent("Universal Studios Florida " + parkStreet)));
+const mismatched = guideWhereForRecord(
+  { name: "Rigatoni Ritual Pie" },
+  { catalog: { byPlaceId: {}, byPickKey: { "orlando\tRigatoni Ritual Pie": { address: parkStreet, label: "Louie's, inside the park", mapsName: "Universal Studios Florida" } } }, slug: "orlando" },
+);
+assert.equal(mismatched.address, parkStreet);
+assert.equal(mismatched.mapsName, "Universal Studios Florida");
+
 console.log("test-guide-place-addresses: OK — full address required, partial address refused, area map needs a reviewed reason, maps URL carries the name, address, and place id");

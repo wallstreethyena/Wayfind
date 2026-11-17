@@ -13,6 +13,7 @@ import {
   guideWhereForRecord,
   isFullStreetAddress,
   pickNeedsStreetAddress,
+  postalLine,
 } from "../lib/guidePlaceAddress.js";
 
 const fail = (m) => { console.error("check-guide-place-addresses: FAIL — " + m); process.exit(1); };
@@ -46,8 +47,9 @@ function need(label, record, slug) {
     return;
   }
   if (where.address) {
-    if (!isFullStreetAddress(where.address)) gaps.push(label + " (address is not a full street line)");
-    const again = guideMapsUrl({ name: record.name || record.event_name || record.venue, address: where.address, placeId: where.placeId || record.placeId || record.place_id });
+    const street = postalLine(where.address);
+    if (!street || !isFullStreetAddress(street)) gaps.push(label + " (address is not a full street line)");
+    const again = guideMapsUrl({ name: where.mapsName || record.name || record.event_name || record.venue, address: street, placeId: where.placeId || record.placeId || record.place_id });
     if (again !== where.mapsUrl) gaps.push(label + " (maps link drifted)");
     return;
   }

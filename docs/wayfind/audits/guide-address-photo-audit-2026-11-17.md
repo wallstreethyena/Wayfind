@@ -25,11 +25,11 @@ Every recommendation on that page:
 
 - Pages audited: 86
 - Places and events audited: 582
-- Street addresses with a maps link: 422
-- Named venues still missing a verified street: 1
+- Street addresses with a maps link: 423
+- Named venues still missing a verified street: 0
 - Photo gaps: 398
 
-Beaches, preserves, Bulow Creek State Park, the Daytona boardwalk, and Aaron Bessant Park use a reviewed area map link. The one remaining venue is in `docs/wayfind/audits/guide-address-unverified-2026-11-17.md`.
+Beaches, preserves, Bulow Creek State Park, the Daytona boardwalk, and Aaron Bessant Park use a reviewed area map link. Louie's Italian Restaurant is inside Universal Studios Florida, so the guide shows the park's guest address: Louie's Italian Restaurant, inside Universal Studios Florida, 6000 Universal Blvd, Orlando, FL 32819. The Florida food-license record SEA5805878 uses 1000 Universal Studios Plaza, which the Census geocoder does not match. The Directions link opens Universal Studios Florida.
 
 ## Photo gaps for the Picture Scrapper
 
@@ -588,10 +588,6 @@ Missing photos, placeholder tiles, empty sources, and images that return an erro
 - pick: Bayshore Boulevard
 - pick: Sparkman Wharf and Water Street (ChIJy66Xe53FwogRcpjZQHX4cCI)
 - pick: Gasparilla Pirate Fest
-
-### /guides/orlando-halloween-food-2026
-
-- pick: Rigatoni Ritual Pie
 
 ### /guides/florida-winter-beaches-2026
 
