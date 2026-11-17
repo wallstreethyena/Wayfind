@@ -37,6 +37,12 @@
       "placeId": null,
       "needsPermissionFrom": "@disneyforfoodies",
       "note": "No licensed current food still was supplied or independently verified in this intake. The dedicated guide uses the native attributed creator post(s) https://www.instagram.com/reel/Dfpk_VShWel/ rather than downloading or rehosting creator screenshots. The source photographs remain with the creators; no exhaustive licensed-photo search is claimed."
+    },
+    "Flame Tree Barbecue": {
+      "reason": "no-verified-source",
+      "placeId": null,
+      "needsPermissionFrom": "@disneyfoodblog",
+      "note": "The original post is credited and presented in the guide’s in-page media player. No licensed still is recorded."
     }
   }
 }
