@@ -4,7 +4,7 @@
 // photo as "backlog" never pages, which is the exact silence it exists to end.
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { parseGuidePicks, parseDedicatedGuide, parseBlogItems, classify, picksExpectPhoto, makeGuideContextFor } from "../lib/guideVisualMonitor.js";
+import { parseGuidePicks, parseDedicatedGuide, parseBlogItems, classify, picksExpectPhoto, makeGuideContextFor, pageReservedMedia } from "../lib/guideVisualMonitor.js";
 
 let n = 0;
 const ok = (c, m) => { assert.ok(c, m); n++; };
@@ -50,6 +50,26 @@ ok(!picksExpectPhoto("missing", false) && !picksExpectPhoto("context", true), "m
   const cf = makeGuideContextFor(fake);
   ok(cf("s", {}, {}) && cf("s", {}, {}) === null, "the second pick of a guide cannot reuse a context photo the first consumed");
   ok(makeGuideContextFor(fake)("s", {}, {}), "each guide starts with a clean slate");
+}
+{
+  // The page reserves the hero and curated pick photos before the context
+  // ladder (2026-11-16 Rays false B): a context asset sharing the hero's credit
+  // link must be refused for the monitor exactly as the page refuses it.
+  const hero = { src: "/hero.webp", source: "https://commons.example/File:Trop.jpg" };
+  const ctxAsset = { src: "/ctx-trop.webp", creditHref: "https://commons.example/File:Trop.jpg" };
+  const ladder = (slug, pick, guide, { usedSrc }) => {
+    if (usedSrc.has(ctxAsset.src) || usedSrc.has(ctxAsset.creditHref)) return null;
+    usedSrc.add(ctxAsset.src); usedSrc.add(ctxAsset.creditHref); return ctxAsset;
+  };
+  const guide = { picks: [{ name: "A" }, { name: "B", image: "/inline-b.jpg" }] };
+  const seed = pageReservedMedia("s", guide, { hero, pickPhoto: (slug, name) => (name === "A" ? { src: "/curated-a.jpg", creditHref: "https://commons.example/File:A.jpg" } : null) });
+  ok(seed.includes("/hero.webp") && seed.includes("https://commons.example/File:Trop.jpg"), "the hero is reserved by src and by credit link: " + seed);
+  ok(seed.includes("/curated-a.jpg") && seed.includes("https://commons.example/File:A.jpg") && seed.includes("/inline-b.jpg"), "curated manifest and inline pick photos are reserved");
+  ok(makeGuideContextFor(ladder, { seed })("s", { name: "C" }, guide) === null, "a context photo of the hero's image is refused once seeded");
+  ok(makeGuideContextFor(ladder)("s", { name: "C" }, guide) === ctxAsset, "control: unseeded, the same ladder hands it out");
+  ok(!pageReservedMedia("orlando-halloween-food-2026", { picks: [{ name: "x", image: "/ignored.jpg" }] }).includes("/ignored.jpg"), "orlando-halloween-food-2026 inline images are ignored like the page ignores them");
+  const mon = readFileSync(new URL("./guide-visual-monitor.mjs", import.meta.url), "utf8");
+  ok(/makeGuideContextFor\(guideContextPhoto,\s*\{\s*seed:\s*pageReservedMedia\(/.test(mon), "the live monitor seeds each guide's ladder with pageReservedMedia");
 }
 
 const neutralHtml = '<section id="pick-1"><h2>No exact photo</h2><figure data-guide-figure="pick-neutral"><div data-photo-fallback="unavailable">Photo unavailable</div></figure></section>';
