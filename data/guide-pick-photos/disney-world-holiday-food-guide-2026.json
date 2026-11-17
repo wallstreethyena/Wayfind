@@ -1,0 +1,42 @@
+{
+  "slug": "disney-world-holiday-food-guide-2026",
+  "picks": {},
+  "gaps": {
+    "Terra Treats": {
+      "reason": "no-verified-source",
+      "placeId": null,
+      "needsPermissionFrom": "@disneyforfoodies",
+      "note": "No licensed current food still was supplied or independently verified in this intake. The dedicated guide uses the native attributed creator post(s) https://www.instagram.com/reel/DfxDaQCy_ml/ rather than downloading or rehosting creator screenshots. The source photographs remain with the creators; no exhaustive licensed-photo search is claimed."
+    },
+    "Santa’s Holiday Grove": {
+      "reason": "no-verified-source",
+      "placeId": null,
+      "needsPermissionFrom": "@disneyforfoodies, @disneyfoodblog",
+      "note": "No licensed current food still was supplied or independently verified in this intake. The dedicated guide uses the native attributed creator post(s) https://www.instagram.com/reel/DfsDityRb5p/ https://www.instagram.com/p/DfutR5Fmrxt/ rather than downloading or rehosting creator screenshots. The source photographs remain with the creators; no exhaustive licensed-photo search is claimed."
+    },
+    "Epic Eats": {
+      "reason": "no-verified-source",
+      "placeId": null,
+      "needsPermissionFrom": "@disneyforfoodies",
+      "note": "No licensed current food still was supplied or independently verified in this intake. The dedicated guide uses the native attributed creator post(s) https://www.instagram.com/reel/Df0RuViBhqM/ rather than downloading or rehosting creator screenshots. The source photographs remain with the creators; no exhaustive licensed-photo search is claimed."
+    },
+    "Main Street Confectionery": {
+      "reason": "no-verified-source",
+      "placeId": null,
+      "needsPermissionFrom": "@disneyforfoodies",
+      "note": "No licensed current food still was supplied or independently verified in this intake. The dedicated guide uses the native attributed creator post(s) https://www.instagram.com/reel/DfSXkAZyMLY/ rather than downloading or rehosting creator screenshots. The source photographs remain with the creators; no exhaustive licensed-photo search is claimed."
+    },
+    "San Angel Inn Restaurante": {
+      "reason": "no-verified-source",
+      "placeId": null,
+      "needsPermissionFrom": "@disneyforfoodies",
+      "note": "No licensed current food still was supplied or independently verified in this intake. The dedicated guide uses the native attributed creator post(s) https://www.instagram.com/reel/DfnRYDbBOxM/ rather than downloading or rehosting creator screenshots. The source photographs remain with the creators; no exhaustive licensed-photo search is claimed."
+    },
+    "The Cookie Bar at Summer House on the Lake": {
+      "reason": "no-verified-source",
+      "placeId": null,
+      "needsPermissionFrom": "@disneyforfoodies",
+      "note": "No licensed current food still was supplied or independently verified in this intake. The dedicated guide uses the native attributed creator post(s) https://www.instagram.com/reel/Dfpk_VShWel/ rather than downloading or rehosting creator screenshots. The source photographs remain with the creators; no exhaustive licensed-photo search is claimed."
+    }
+  }
+}
