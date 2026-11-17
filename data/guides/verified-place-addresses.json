@@ -3020,6 +3020,62 @@
       "address": "6655 W Mobile Hwy, Pensacola, FL 32526",
       "source": "two-public-sources",
       "note": "The fair site states the physical address 6655 W. Mobile Hwy, Pensacola, FL 32526. Census matched 6655 MOBILE HWY, PENSACOLA, FL, 32526. The Nine Mile Road line on the same page is the mailing address."
+    },
+    "things-to-do-daytona-beach-summer-2026\tThe boardwalk and pier at night": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A boardwalk and pier to stroll, not one building door.",
+      "mapQuery": "Daytona Beach Boardwalk, Daytona Beach, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Daytona%20Beach%20Boardwalk%2C%20Daytona%20Beach%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "things-to-do-daytona-beach-summer-2026\tThe Fairchild Oak and the content circuit": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A state park and a trail tree, not one building door.",
+      "mapQuery": "Bulow Creek State Park, Ormond Beach, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Bulow%20Creek%20State%20Park%2C%20Ormond%20Beach%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "things-to-do-panama-city-beach-summer-2026\tFree concerts at Aaron Bessant Park": {
+      "area": true,
+      "reviewed": true,
+      "reason": "An outdoor concert lawn, not one building door.",
+      "mapQuery": "Aaron Bessant Park, Panama City Beach, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Aaron%20Bessant%20Park%2C%20Panama%20City%20Beach%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "things-to-do-in-cortez-florida\tFISH Preserve": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A nature preserve, not one building door.",
+      "mapQuery": "FISH Preserve, Cortez, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=FISH%20Preserve%2C%20Cortez%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "things-to-do-in-longboat-key-florida\tPublic beach access at 4001 Gulf of Mexico Drive": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A public beach access, not a building door. Census did not return a ZIP, so no street line is shown.",
+      "mapQuery": "4001 Gulf of Mexico Drive, Longboat Key, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=4001%20Gulf%20of%20Mexico%20Drive%2C%20Longboat%20Key%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "things-to-do-in-longboat-key-florida\tQuick Point Nature Preserve": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A nature preserve, not one building door.",
+      "mapQuery": "Quick Point Nature Preserve, Longboat Key, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Quick%20Point%20Nature%20Preserve%2C%20Longboat%20Key%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "things-to-do-in-venice-florida\tCaspersen Beach Park": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A beach park, not one building door.",
+      "mapQuery": "Caspersen Beach, Venice, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Caspersen%20Beach%2C%20Venice%2C%20Florida",
+      "source": "reviewed-area"
     }
   }
 }

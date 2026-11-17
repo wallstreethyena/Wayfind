@@ -26,10 +26,10 @@ Every recommendation on that page:
 - Pages audited: 86
 - Places and events audited: 582
 - Street addresses with a maps link: 413
-- Named venues still missing a verified street: 17
+- Named venues still missing a verified street: 10
 - Photo gaps: 398
 
-Fruitville Grove, Keel Farms, and Dakin Dairy are not broken photos. `/api/photo?place=` returns 404, and the stored photo URL returns 200. The fall guide map no longer assigns the 404 form. The 17 remaining venues are in `docs/wayfind/audits/guide-address-unverified-2026-11-17.md`.
+Beaches, preserves, Bulow Creek State Park, the Daytona boardwalk, and Aaron Bessant Park use a reviewed area map link. The 10 remaining venues are in `docs/wayfind/audits/guide-address-unverified-2026-11-17.md`.
 
 ## Photo gaps for the Picture Scrapper
 
