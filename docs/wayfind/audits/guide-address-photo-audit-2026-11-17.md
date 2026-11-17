@@ -15,11 +15,11 @@ Picture Scrapper list for this page:
 
 Every recommendation on that page:
 - hero: Florida Christmas Boat Parades 2026: Lit Boats on the Water. not a single place. maps: n/a. photo: present.
-- best-pick: Seminole Hard Rock Winterfest Boat Parade. address: unresolved. maps: no. photo: placeholder.
-- pick: Tampa Riverwalk Holiday Lighted Boat Parade. address: 615 Channelside Dr, Tampa, FL 33602. maps: yes. photo: placeholder.
-- pick: Jacksonville Light Boat Parade. address: unresolved. maps: no. photo: present.
-- pick: Clearwater Holiday Lighted Boat Parade. address: unresolved. maps: no. photo: placeholder.
-- pick: Boca Ciega Yacht Club Lighted Christmas Boat Parade. address: unresolved. maps: no. photo: placeholder.
+- best-pick: Seminole Hard Rock Winterfest Boat Parade. address: 888 E Las Olas Blvd #210, Fort Lauderdale, FL 33301. maps: yes. photo: placeholder. Source: wf_places_cache for Riverwalk Fort Lauderdale, the pinned viewing place. Route parade. The boats start at Stranahan House and run the New River. This is that pinned place, not every point on the route.
+- pick: Tampa Riverwalk Holiday Lighted Boat Parade. address: 615 Channelside Dr, Tampa, FL 33602. maps: yes. photo: placeholder. Source: sparkmanwharf.com and wf_places_cache for Sparkman Wharf. Route parade. The boats pass this wharf. This is that pinned place, not every point on the route.
+- pick: Jacksonville Light Boat Parade. address: 1001 Museum Cir, Jacksonville, FL 32207. maps: yes. photo: present. Source: wf_places_cache for Southbank Riverwalk. Route parade. Spectators gather along that riverwalk. This is that pinned place, not every point on the route.
+- pick: Clearwater Holiday Lighted Boat Parade. address: 255 Drew St, Clearwater, FL 33755. maps: yes. photo: placeholder. Source: wf_places_cache for The BayCare Sound, the park the guide pins (Coachman Park is on the route). This is that venue, not every point on the route.
+- pick: Boca Ciega Yacht Club Lighted Christmas Boat Parade. address: 29th Ave S & Miriam St S, Gulfport, FL 33711. maps: yes. photo: placeholder. Source: wf_places_cache for Clam Bayou Nature Park. Route parade. The line forms at Gulfport Municipal Marina and passes this park. This is that park, not every point on the route.
 
 ## Counts
 
@@ -881,13 +881,6 @@ Missing photos, placeholder tiles, empty sources, and images that return an erro
 - pick: Manatee Lagoon (ChIJf9MKQU3U2IgR0Rp4MD467xw)
 - pick: Lee County Manatee Park (ChIJa1kHd4Vp24gRj7H2MiIoSwo)
 - pick: Fanning Springs State Park (ChIJyefyOo4f6YgR98DvEw2xLgA)
-
-### /guides/florida-christmas-boat-parades-2026
-
-- best-pick: Seminole Hard Rock Winterfest Boat Parade (ChIJEfuXNVcA2YgRtSS3Jo9Jsw0)
-- pick: Jacksonville Light Boat Parade (ChIJCRW-9SK35YgRwOMNBWLdzRI)
-- pick: Clearwater Holiday Lighted Boat Parade (ChIJnW4wY-TxwogRQku5XIBxGao)
-- pick: Boca Ciega Yacht Club Lighted Christmas Boat Parade (ChIJr5B534biwogRAajykNa8968)
 
 ### /guides/florida-thanksgiving-weekend-2026
 

@@ -2,7 +2,7 @@
 // The address contract: a full street line, a Google Maps search URL, and a
 // null when the ZIP or the street is missing. Proves the failure, not only the pass.
 import assert from "node:assert/strict";
-import { guideMapsUrl, guideWhereForRecord, isFullStreetAddress } from "../lib/guidePlaceAddress.js";
+import { guideMapsUrl, guidePlaceMapUrl, guideWhereForRecord, isFullStreetAddress, postalLine } from "../lib/guidePlaceAddress.js";
 
 const FULL = "615 Channelside Dr, Tampa, FL 33602";
 assert.equal(isFullStreetAddress(FULL), true);
@@ -11,6 +11,10 @@ assert.equal(isFullStreetAddress("Tampa, FL 33602"), false);
 assert.equal(isFullStreetAddress("Near University Town Center, Sarasota"), false);
 assert.equal(isFullStreetAddress(""), false);
 assert.equal(isFullStreetAddress("14501 S. Orange Blossom Trail, Orlando, Florida 32837"), true);
+assert.equal(isFullStreetAddress("29th Ave S & Miriam St S, Gulfport, FL 33711"), true);
+assert.equal(postalLine("Bean Point Beach, 793 N Shore Dr, Anna Maria, FL 34216"), "793 N Shore Dr, Anna Maria, FL 34216");
+assert.equal(isFullStreetAddress("Sarasota, FL 34241"), false);
+assert.equal(isFullStreetAddress("Bay Lake, FL 32836"), false);
 
 const url = guideMapsUrl({ name: "Sparkman Wharf", address: FULL, placeId: "ChIJD0N73GTFwogRuJTf5jAk5B8" });
 assert.ok(url.startsWith("https://www.google.com/maps/search/?api=1&query="));
@@ -29,5 +33,19 @@ const inline = guideWhereForRecord({ name: "Fruitville Grove", address: "7410 Fr
 assert.equal(inline.source, "record");
 const broken = { ...inline, address: "7410 Fruitville Rd, Sarasota" };
 assert.equal(isFullStreetAddress(broken.address), false);
+
+const placeId = "ChIJEfuXNVcA2YgRtSS3Jo9Jsw0";
+const mapLink = guidePlaceMapUrl("Riverwalk Fort Lauderdale", placeId);
+const reviewed = guideWhereForRecord(
+  { name: "Riverwalk Fort Lauderdale", placeId },
+  { catalog: { byPlaceId: { [placeId]: { reviewed: true, placeVerified: true, mapLink, source: "google-place-id" } }, byPickKey: {} } },
+);
+assert.equal(reviewed.address, "");
+assert.equal(reviewed.reviewed, true);
+assert.equal(reviewed.mapsUrl, mapLink);
+assert.equal(guideWhereForRecord(
+  { name: "Riverwalk Fort Lauderdale", placeId },
+  { catalog: { byPlaceId: { [placeId]: { reviewed: false, placeVerified: true, source: "google-place-id" } }, byPickKey: {} } },
+), null);
 
 console.log("test-guide-place-addresses: OK — full address required, partial address refused, maps URL carries the name, address, and place id");

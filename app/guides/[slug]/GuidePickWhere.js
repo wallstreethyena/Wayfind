@@ -20,10 +20,10 @@ const link = {
 };
 
 export function GuidePickWhere({ where }) {
-  if (!where?.address || !where?.mapsUrl) return null;
+  if (!where?.mapsUrl) return null;
   return (
     <p className="wf-guide-where" style={line}>
-      <span>{where.address}</span>
+      {where.address ? <span>{where.address}</span> : null}
       <a href={where.mapsUrl} target="_blank" rel="noopener noreferrer" style={link}>Directions</a>
     </p>
   );

@@ -525,6 +525,34 @@
       "sourceUrl": "",
       "censusQuery": "900 Gulf Dr N, Bradenton Beach, FL",
       "city": "Bradenton Beach"
+    },
+    "ChIJEfuXNVcA2YgRtSS3Jo9Jsw0": {
+      "address": "888 E Las Olas Blvd #210, Fort Lauderdale, FL 33301",
+      "name": "Riverwalk Fort Lauderdale",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-07T07:52:56.456Z",
+      "note": "Route parade. Street address of Riverwalk Fort Lauderdale, the viewing place pinned on the guide. The boats start at Stranahan House and run the New River. This is that pinned place, not every point on the route."
+    },
+    "ChIJCRW-9SK35YgRwOMNBWLdzRI": {
+      "address": "1001 Museum Cir, Jacksonville, FL 32207",
+      "name": "Southbank Riverwalk",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-22T13:40:40.830Z",
+      "note": "Route parade. Street address of Southbank Riverwalk, where the city says spectators gather. The boats cruise the St. Johns River. This is that pinned riverwalk, not every point on the route."
+    },
+    "ChIJnW4wY-TxwogRQku5XIBxGao": {
+      "address": "255 Drew St, Clearwater, FL 33755",
+      "name": "The BayCare Sound",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-01T05:50:05.626Z",
+      "note": "Route parade. Street address of The BayCare Sound, the park the guide pins on the route (Coachman Park). The boats pass this park. This is that venue, not every point on the route."
+    },
+    "ChIJr5B534biwogRAajykNa8968": {
+      "address": "29th Ave S & Miriam St S, Gulfport, FL 33711",
+      "name": "Clam Bayou Nature Park",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-21T14:10:45.120Z",
+      "note": "Route parade. Place Details gives the intersection for Clam Bayou Nature Park, the park pinned on the guide. The line forms at Gulfport Municipal Marina and passes this park. This is that park, not every point on the route."
     }
   },
   "byPickKey": {}

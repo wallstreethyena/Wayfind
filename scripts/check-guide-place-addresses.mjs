@@ -40,12 +40,17 @@ let checked = 0;
 function need(label, record, slug) {
   checked++;
   const where = guideWhereForRecord(record, { slug });
-  if (!where || !isFullStreetAddress(where.address) || !where.mapsUrl) {
+  if (!where || !where.mapsUrl) {
     gaps.push(label);
     return;
   }
-  const again = guideMapsUrl({ name: record.name || record.event_name || record.venue, address: where.address, placeId: record.placeId || record.place_id });
-  if (again !== where.mapsUrl) gaps.push(label + " (maps link drifted)");
+  if (where.address) {
+    if (!isFullStreetAddress(where.address)) gaps.push(label + " (address is not a full street line)");
+    const again = guideMapsUrl({ name: record.name || record.event_name || record.venue, address: where.address, placeId: record.placeId || record.place_id });
+    if (again !== where.mapsUrl) gaps.push(label + " (maps link drifted)");
+    return;
+  }
+  if (where.reviewed !== true || !where.mapsUrl.includes("query_place_id=")) gaps.push(label + " (no street address and no reviewed place map)");
 }
 
 for (const [slug, guide] of Object.entries(GUIDES)) {
