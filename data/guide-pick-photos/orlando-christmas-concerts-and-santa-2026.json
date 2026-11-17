@@ -1,6 +1,27 @@
 {
   "slug": "orlando-christmas-concerts-and-santa-2026",
-  "picks": {},
+  "picks": {
+    "Lake Eola: DTOLive! for the Holidays": {
+      "src": "/guides/picks/orlando-christmas-concerts-and-santa-2026/lake-eola-christmas-tree.jpg",
+      "width": 1280,
+      "height": 853,
+      "alt": "A tall Christmas tree decorated with red ornaments under palm trees in Lake Eola Park in downtown Orlando",
+      "caption": "The Christmas tree in Lake Eola Park, downtown Orlando, in early December.",
+      "credit": "Michael Rivera",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Christmas_tree_in_Lake_Eola_park.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Christmas_tree_in_Lake_Eola_park.jpg",
+      "author": "Michael Rivera",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to JPEG. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
+      "placeId": null,
+      "verification": "Wikimedia Commons file Christmas tree in Lake Eola park, taken in early December. Viewed the full image: the holiday tree in Lake Eola Park, the downtown Orlando park where DTOLive! for the Holidays plays. No overlay, logo or watermark. Live Commons licence checked: CC BY-SA 4.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-11-17"
+    }
+  },
   "gaps": {
     "ICON Park: The Santa Workshop Experience": {
       "reason": "no-verified-source",
@@ -21,11 +42,6 @@
       "reason": "no-verified-source",
       "placeId": "ChIJm-1TQ1N-54gRtKSCx6hQ8SU",
       "note": "Creator screenshots are discovery evidence and do not grant image reuse. Use the established neutral fallback until an exact licensed or permissioned photo is available."
-    },
-    "Lake Eola: DTOLive! for the Holidays": {
-      "reason": "no-verified-source",
-      "placeId": null,
-      "note": "The existing Lake Eola place photo shows the park setting rather than the holiday concert. The article hero is clearly labeled city context; the concert pick waits for an exact licensed event photo."
     }
   }
 }

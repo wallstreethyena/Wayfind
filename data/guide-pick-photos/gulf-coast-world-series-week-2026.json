@@ -1,6 +1,27 @@
 {
   "slug": "gulf-coast-world-series-week-2026",
-  "picks": {},
+  "picks": {
+    "World Series home games at Tropicana Field": {
+      "src": "/guides/picks/gulf-coast-world-series-week-2026/tropicana-field-postseason-game.jpg",
+      "width": 1280,
+      "height": 853,
+      "alt": "A packed Tropicana Field during a Rays postseason game, seen from the lower seats behind first base",
+      "caption": "Tropicana Field during a Rays postseason game.",
+      "credit": "Yamasztuka",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Tropicana_Field_ALWC_Game_2_2023.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Tropicana_Field_ALWC_Game_2_2023.jpg",
+      "author": "Yamasztuka",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to JPEG. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
+      "placeId": null,
+      "verification": "Commons file Tropicana Field ALWC Game 2 2023, taken October 4, 2023 at the Rays Wild Card Series game. Viewed the full image: the field, dome and crowd inside Tropicana Field during postseason play. Exact venue. No overlay or watermark. Live Commons licence checked: CC BY-SA 4.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-11-17"
+    }
+  },
   "gaps": {
     "The Concert: A Tribute to ABBA": {
       "reason": "no-verified-source",
@@ -25,12 +46,6 @@
       "placeId": null,
       "needsPermissionFrom": null,
       "note": "October 21, 2026 pass: no Creative Commons photograph of this exact dated show was verified. The page uses a labelled context photo and does not claim that picture is the concert."
-    },
-    "World Series home games at Tropicana Field": {
-      "reason": "no-verified-source",
-      "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "October 21, 2026 pass: no Creative Commons photograph of these exact World Series games was verified. The hero is the downtown Tampa skyline, not Tropicana Field. The page does not claim that picture is the game."
     },
     "A Nightmare on Franklin Street": {
       "reason": "no-verified-source",

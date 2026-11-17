@@ -100,6 +100,7 @@ Each photo uses the license named below; images may be resized, cropped and conv
 ## florida-santa-and-christmas-trains-2026
 
 - `/guides/picks/florida-santa-and-christmas-trains-2026/conch-tour-train-holiday-sights-and-festive-nights-tour.webp` — florida-santa-and-christmas-trains-2026: Conch Tour Train Holiday Sights and Festive Nights Tour. [Elizabeth Nicodemus](https://commons.wikimedia.org/wiki/File:Key_West_Christmas_Light_Tour_2008_-_01.jpg); [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/). Adaptation (resized, cropped, WebP) released under the same licence.
+- `/guides/picks/florida-santa-and-christmas-trains-2026/north-straub-park-christmas-tree.jpg` — florida-santa-and-christmas-trains-2026: Meet Santa in the Park. [Roman Eugeniusz](https://commons.wikimedia.org/wiki/File:St.Petersburg,Florida,USA._-_panoramio_(2).jpg); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 - `/guides/picks/florida-santa-and-christmas-trains-2026/florida-railroad-museum.webp` — florida-santa-and-christmas-trains-2026: North Pole Express. [Ebyabe](https://commons.wikimedia.org/wiki/File:Parrish_FL_Florida_Railroad_Museum01.jpg); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 - `/guides/picks/florida-santa-and-christmas-trains-2026/north-pole-noir-christmas-murder-mystery-dinner-train.webp` — florida-santa-and-christmas-trains-2026: North Pole Noir Christmas Murder Mystery Dinner Train. [Sanibel sun](https://commons.wikimedia.org/wiki/File:SGLR_Dinner_Train.jpg); [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 - `/guides/picks/florida-santa-and-christmas-trains-2026/santa-express-from-clewiston-and-sebring.webp` — florida-santa-and-christmas-trains-2026: Santa Express from Clewiston and Sebring. [Jackdude101](https://commons.wikimedia.org/wiki/File:Sugar_Express_inaugural_passenger_excursion_4.jpg); [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Adaptation (resized, cropped, WebP) released under the same licence.
@@ -120,12 +121,14 @@ Each photo uses the license named below; images may be resized, cropped and conv
 
 ## florida-thanksgiving-weekend-2026
 
+- `/guides/picks/florida-thanksgiving-weekend-2026/celebration-town-center-christmas-tree.jpg` — florida-thanksgiving-weekend-2026: Celebration Tree Lighting Ceremony. [Brian Hart](https://commons.wikimedia.org/wiki/File:Downtown_waterfront_for_first_night_of_2011_"Now_Snowing"_event_in_Celebration.jpg); [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 - `/guides/picks/florida-thanksgiving-weekend-2026/zootampa-christmas-lights-blue-trees.jpg` — florida-thanksgiving-weekend-2026: Christmas in the Wild at ZooTampa. [Ssriram mt](https://commons.wikimedia.org/wiki/File:Christmas_Lighting_-_Lowry_Park_Zoo2.jpg); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 - `/guides/picks/florida-thanksgiving-weekend-2026/daytona-turkey-run-1940-ford-truck.jpg` — florida-thanksgiving-weekend-2026: Daytona Turkey Run. [Rob Bixby](https://www.flickr.com/photos/14580956@N08/3063924727); [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/).
 
 ## florida-theme-park-christmas-2026
 
 - `/guides/picks/florida-theme-park-christmas-2026/busch-gardens-tampa-christmas-town-lit-trees.jpg` — florida-theme-park-christmas-2026: Christmas Town at Busch Gardens Tampa Bay. [zannaland](https://www.flickr.com/photos/22740503@N05/8256957668); [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/). Adaptation (resized, cropped, WebP) released under the same licence.
+- `/guides/picks/florida-theme-park-christmas-2026/hollywood-studios-christmas-tree.jpg` — florida-theme-park-christmas-2026: Disney Jollywood Nights. [Theme Park Tourist](https://www.flickr.com/photos/134538912@N02/22676180897); [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/).
 - `/guides/picks/florida-theme-park-christmas-2026/disney-springs-christmas-tree.jpg` — florida-theme-park-christmas-2026: Disney Springs Christmas Tree Stroll and Santa. [David Aughinbaugh II](https://www.flickr.com/photos/157215791@N02/48997465693); [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/).
 - `/guides/picks/florida-theme-park-christmas-2026/epcot-christmas-tree-spaceship-earth.jpg` — florida-theme-park-christmas-2026: EPCOT International Festival of the Holidays. [cheddar-](https://www.flickr.com/photos/46401094@N00/3204792698); [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 - `/guides/picks/florida-theme-park-christmas-2026/universal-macys-holiday-parade.jpg` — florida-theme-park-christmas-2026: Holidays at Universal Orlando. [jared422_80](https://www.flickr.com/photos/93283041@N00/6669301281); [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/).
@@ -156,6 +159,14 @@ Each photo uses the license named below; images may be resized, cropped and conv
 - `/guides/picks/pinecraft-sarasota-amish-village/yoders-restaurant-sign.webp` — gulf-coast-brunch-and-date-night: Yoder's Restaurant. [Jared](https://www.flickr.com/photos/93283041@N00/8778985834); [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/).
 - `/guides/picks/gulf-coast-brunch-and-date-night/venice-fishing-pier-dusk.webp` — gulf-coast-brunch-and-date-night: hero image. [Don Miller](https://commons.wikimedia.org/wiki/File:Venice_Fishing_Pier_-_Flickr_-_DonMiller_ToGo.jpg); [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/).
 
+## gulf-coast-world-series-week-2026
+
+- `/guides/picks/gulf-coast-world-series-week-2026/tropicana-field-postseason-game.jpg` — gulf-coast-world-series-week-2026: World Series home games at Tropicana Field. [Yamasztuka](https://commons.wikimedia.org/wiki/File:Tropicana_Field_ALWC_Game_2_2023.jpg); [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Adaptation (resized, cropped, WebP) released under the same licence.
+
+## jacksonville-christmas-by-area-budget-2026
+
+- `/guides/picks/jacksonville-christmas-by-area-budget-2026/nights-of-lights-plaza-christmas-tree.jpg` — jacksonville-christmas-by-area-budget-2026: Nights of Lights. [Joe Ross](https://www.flickr.com/photos/59398780@N00/23108166709); [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/). Adaptation (resized, cropped, WebP) released under the same licence.
+
 ## magical-dining-orlando-2026
 
 - `/guides/picks/magical-dining-orlando-2026/ottos-high-dive-milk-district.webp` — magical-dining-orlando-2026: Otto's High Dive, Milk District. [Dclemens1971](https://commons.wikimedia.org/wiki/File:Otto%E2%80%99s_Rum_Bar.jpg); [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
@@ -172,6 +183,10 @@ Each photo uses the license named below; images may be resized, cropped and conv
 - `/guides/picks/myakka-river-state-park-guide/myakka-river-kayak.webp` — myakka-river-state-park-guide: Paddle or pedal it. [Mwanner](https://commons.wikimedia.org/wiki/File:Myakka_River_-_Kayaking.jpg); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 - `/guides/picks/myakka-river-state-park-guide/canopy-walkway.webp` — myakka-river-state-park-guide: The Canopy Walkway and tower. [Troy Jacobson](https://commons.wikimedia.org/wiki/File:Myakka_River_State_Park_Canopy_Walk.jpg); [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 - `/guides/picks/myakka-river-state-park-guide/myakka-lake-alligators.webp` — myakka-river-state-park-guide: The lake, the birdwalk, and the gators. [Mx. Granger](https://commons.wikimedia.org/wiki/File:Alligators_in_Myakka_River_State_Park.jpg); [CC0 1.0 Universal](https://creativecommons.org/publicdomain/zero/1.0/).
+
+## orlando-christmas-concerts-and-santa-2026
+
+- `/guides/picks/orlando-christmas-concerts-and-santa-2026/lake-eola-christmas-tree.jpg` — orlando-christmas-concerts-and-santa-2026: Lake Eola: DTOLive! for the Holidays. [Michael Rivera](https://commons.wikimedia.org/wiki/File:Christmas_tree_in_Lake_Eola_park.jpg); [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 
 ## orlando-halloween-food-2026
 
@@ -269,6 +284,10 @@ Each photo uses the license named below; images may be resized, cropped and conv
 - `/guides/picks/st-armands-circle-restaurants/shore.webp` — st-armands-circle-restaurants: Shore. [Ebyabe](https://commons.wikimedia.org/wiki/File:Sarasota_FL_Harding_Circle_HD_St_Armands_Circle03.jpg); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 - `/guides/picks/st-armands-circle-restaurants/st-armands-circle-storefronts.webp` — st-armands-circle-restaurants: hero image. [Ebyabe](https://commons.wikimedia.org/wiki/File:Sarasota_FL_Harding_Circle_HD_St_Armands_Circle03.jpg); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 
+## st-augustine-christmas-coffee-snow-walk-2026
+
+- `/guides/picks/st-augustine-christmas-coffee-snow-walk-2026/nights-of-lights-plaza-gazebo.jpg` — st-augustine-christmas-coffee-snow-walk-2026: Nights of Lights: the evening anchor. [Joe Ross](https://www.flickr.com/photos/59398780@N00/22847814974); [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/). Adaptation (resized, cropped, WebP) released under the same licence.
+
 ## st-pete-restaurants
 
 - `/guides/picks/st-pete-restaurants/doc-fords-pier-patio.webp` — st-pete-restaurants: Doc Ford's Rum Bar and Grille St Pete Pier. [Calmuziclover](https://commons.wikimedia.org/wiki/File:Doc_Ford%27s_Rum_Bar_and_Grille_on_the_new_St_Petersburg_Pier_(50220515643).jpg); [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/).
@@ -296,7 +315,9 @@ Each photo uses the license named below; images may be resized, cropped and conv
 ## tampa-bay-rays-game-day-tropicana-field
 
 - `/guides/picks/tampa-bay-rays-game-day-tropicana-field/2026-the-third-pennant.jpg` — tampa-bay-rays-game-day-tropicana-field: 2026: the third pennant. [Trevorrrrvalent](https://commons.wikimedia.org/wiki/File:October_19_2026_Tampa_Bay_Rays_Game_6_American_League_Champions.jpg); [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+- `/guides/picks/tampa-bay-rays-game-day-tropicana-field/st-pete-pier-pier-head.jpg` — tampa-bay-rays-game-day-tropicana-field: St. Pete Pier after the game. [Beyond My Ken](https://commons.wikimedia.org/wiki/File:2021_St._Pete_Pier_1.jpg); [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 - `/guides/picks/tampa-bay-rays-game-day-tropicana-field/the-tilted-roof-and-the-catwalks.jpg` — tampa-bay-rays-game-day-tropicana-field: The tilted roof and the catwalks. [Doctorindy](https://commons.wikimedia.org/wiki/File:Tropicanafieldceiling.jpg); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
+- `/guides/picks/tampa-bay-rays-game-day-tropicana-field/tropicana-field-ray-touch-tank.jpg` — tampa-bay-rays-game-day-tropicana-field: Touch a ray: the Cownose Clubhouse. [Zeng8r](https://commons.wikimedia.org/wiki/File:Tropicana_Field_touch_tank.jpg); [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 
 ## tampa-restaurants
 
@@ -554,15 +575,28 @@ Each photo uses the license named below; images may be resized, cropped and conv
 ## trending-in-florida-this-week-nov-16-2026
 
 - `/guides/picks/trending-in-florida-this-week-nov-16-2026/gene-simmons-band-with-lita-ford.jpg` — trending-in-florida-this-week-nov-16-2026: Gene Simmons Band with Lita Ford. [V-spectrum](https://commons.wikimedia.org/wiki/File:VSpectrum-Gene_Simmons-0204.jpg); [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Adaptation (resized, cropped, WebP) released under the same licence.
+- `/guides/picks/trending-in-florida-this-week-nov-16-2026/utc-holiday-lights-purple.jpg` — trending-in-florida-this-week-nov-16-2026: Holidays at UTC. [Carol VanHook](https://www.flickr.com/photos/97651299@N00/50697371126); [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/). Adaptation (resized, cropped, WebP) released under the same licence.
+- `/guides/picks/trending-in-florida-this-week-nov-16-2026/lightning-home-game-ice.jpg` — trending-in-florida-this-week-nov-16-2026: Lightning home games. [Katy Warner from Orlando, FL, USA](https://commons.wikimedia.org/wiki/File:Panthers_at_Lightning_12_27_08.jpg); [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 - `/guides/picks/trending-in-florida-this-week-nov-16-2026/symphony-in-lights.jpg` — trending-in-florida-this-week-nov-16-2026: Symphony in Lights. [Christopher Hollis](https://commons.wikimedia.org/wiki/File:The_Shops_at_Wiregrass_(Christmas_2008).jpg); [Public domain](https://creativecommons.org/publicdomain/mark/1.0/).
+
+## trending-in-florida-this-week-nov-17-2026
+
+- `/guides/picks/trending-in-florida-this-week-nov-17-2026/strawberry-festival-ticket-booth.jpg` — trending-in-florida-this-week-nov-17-2026: Florida Strawberry Festival 2027. [mbarrison](https://www.flickr.com/photos/18333300@N00/5512570929); [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/). Adaptation (resized, cropped, WebP) released under the same licence.
+- `/guides/picks/trending-in-florida-this-week-nov-17-2026/glazer-childrens-museum-exterior.jpg` — trending-in-florida-this-week-nov-17-2026: Glazer Children's Museum. [Walter](https://commons.wikimedia.org/wiki/File:Glazer_Childrens_Museum_Tampa_2012.jpg); [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/).
+- `/guides/picks/trending-in-florida-this-week-nov-17-2026/utc-holiday-lights-blue.jpg` — trending-in-florida-this-week-nov-17-2026: Holidays at UTC. [Carol VanHook](https://www.flickr.com/photos/97651299@N00/50697370786); [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/). Adaptation (resized, cropped, WebP) released under the same licence.
+- `/guides/picks/trending-in-florida-this-week-nov-17-2026/jannus-live-entrance.jpg` — trending-in-florida-this-week-nov-17-2026: Jannus Live. [LittleT889](https://commons.wikimedia.org/wiki/File:Jannus_Live.jpg); [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Adaptation (resized, cropped, WebP) released under the same licence.
+- `/guides/picks/trending-in-florida-this-week-nov-17-2026/lightning-arena-riverfront.jpg` — trending-in-florida-this-week-nov-17-2026: Lightning home games. [Miosotis Jade](https://commons.wikimedia.org/wiki/File:Amalie_Arena.jpg); [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 
 ## trending-in-florida-this-week-nov-2-2026
 
 - `/guides/picks/trending-in-florida-this-week-nov-2-2026/christone-kingfish-ingram.jpg` — trending-in-florida-this-week-nov-2-2026: Christone Kingfish Ingram. [Paul Natkin](https://commons.wikimedia.org/wiki/File:Kingfish_Ingram_BuddyGuy.jpg); [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 - `/guides/picks/trending-in-florida-this-week-nov-2-2026/dal-disruption-devotion-panel-discussion.jpg` — trending-in-florida-this-week-nov-2-2026: Dalí: Disruption + Devotion panel discussion. [Taty2007](https://commons.wikimedia.org/wiki/File:Salvador_Dal%C3%AD_Museum.JPG); [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/).
 - `/guides/picks/trending-in-florida-this-week-nov-2-2026/ed-sheeran-loop-tour.jpg` — trending-in-florida-this-week-nov-2-2026: Ed Sheeran: LOOP Tour. [Elwin594](https://commons.wikimedia.org/wiki/File:Ed_Sheeran_Madrid.jpg); [CC0 1.0 Universal](https://creativecommons.org/publicdomain/zero/1.0/).
+- `/guides/picks/trending-in-florida-this-week-nov-2-2026/st-petersburg-shuffleboard-club.jpg` — trending-in-florida-this-week-nov-2-2026: Grand Wine Tasting at the St. Petersburg Shuffleboard Club. [Ebyabe](https://commons.wikimedia.org/wiki/File:St._Pete_Shuffleboard_Bridge_Club01.jpg); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 - `/guides/picks/trending-in-florida-this-week-nov-2-2026/greensky-bluegrass.jpg` — trending-in-florida-this-week-nov-2-2026: Greensky Bluegrass. [cp_thornton from Cleveland, Ohio, USA](https://commons.wikimedia.org/wiki/File:Greensky_Bluegrass_-_The_Westcott_Theater,_Syracuse,_NY_-_2015-02-05_22.29.33_(by_cp_thornton).jpg); [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/).
+- `/guides/picks/trending-in-florida-this-week-nov-2-2026/lightning-fans-amalie-arena-blackhawks.jpg` — trending-in-florida-this-week-nov-2-2026: Lightning vs. Chicago Blackhawks. [Michel Curi](https://commons.wikimedia.org/wiki/File:Tampa_Bay_Lightning_Game_6_Watch_Party_(18219067034)_(cropped).jpg); [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/).
 - `/guides/picks/trending-in-florida-this-week-nov-2-2026/noah-kahan-the-last-of-the-bugs-world-tour.jpg` — trending-in-florida-this-week-nov-2-2026: Noah Kahan: The Last of the Bugs World Tour. [Raph_PH](https://commons.wikimedia.org/wiki/File:Noah_Kahan_at_Glastonbury_Festival_2025_01.jpg); [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+- `/guides/picks/trending-in-florida-this-week-nov-2-2026/ringling-museum-courtyard.jpg` — trending-in-florida-this-week-nov-2-2026: Ringling Underground. [Mableringling](https://commons.wikimedia.org/wiki/File:John_and_Mable_Ringling_Art_Museum_Courtyard_Aerial.jpg); [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 - `/guides/picks/trending-in-florida-this-week-nov-2-2026/trivium-crown-in-the-grave-tour.jpg` — trending-in-florida-this-week-nov-2-2026: Trivium: Crown in the Grave Tour. [Y'some](https://commons.wikimedia.org/wiki/File:Matthew_K._Heafy_%26_Corey_Beaulieu_-_Trivium_(Hamburg,_Nov._2012).png); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 
 ## trending-in-florida-this-week-nov-9-2026
@@ -572,10 +606,16 @@ Each photo uses the license named below; images may be resized, cropped and conv
 - `/guides/picks/trending-in-florida-this-week-nov-9-2026/doja-cat-and-latto.webp` — trending-in-florida-this-week-nov-9-2026: Doja Cat and Latto. [7EVENSIQS](https://commons.wikimedia.org/wiki/File:Doja_Cat_Cabooze_2018_03.png); [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/).
 - `/guides/picks/trending-in-florida-this-week-nov-9-2026/il-volo.webp` — trending-in-florida-this-week-nov-9-2026: Il Volo. [Bjoertvedt](https://commons.wikimedia.org/wiki/File:Il_Volo_trio_from_italy_IMG_4412.JPG); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 - `/guides/picks/trending-in-florida-this-week-nov-9-2026/judah-and-the-lion.webp` — trending-in-florida-this-week-nov-9-2026: Judah and the Lion. [Clairerex](https://commons.wikimedia.org/wiki/File:J%26TL_Live.jpg); [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Adaptation (resized, cropped, WebP) released under the same licence.
+- `/guides/picks/trending-in-florida-this-week-nov-9-2026/mahaffey-theater.jpg` — trending-in-florida-this-week-nov-9-2026: Mannheim Steamroller Christmas. [Taylor Bennett Jordan](https://commons.wikimedia.org/wiki/File:Mahaffey_Theater.jpg); [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 - `/guides/picks/trending-in-florida-this-week-nov-9-2026/rush.webp` — trending-in-florida-this-week-nov-9-2026: Rush. [Ziggee](https://commons.wikimedia.org/wiki/File:Geddy-henhouse.jpg); [CC BY-SA 2.5](https://creativecommons.org/licenses/by-sa/2.5/). Adaptation (resized, cropped, WebP) released under the same licence.
 - `/guides/picks/trending-in-florida-this-week-nov-9-2026/usf-bulls-vs-memphis.webp` — trending-in-florida-this-week-nov-9-2026: USF Bulls vs. Memphis. [Sebastian Brinkenfeldt](https://commons.wikimedia.org/wiki/File:South_Florida_Bulls_vs_Pittsburgh_Panthers,_20_November_2010_-_IMG_2264_(5208544283).jpg); [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/).
 - `/guides/picks/trending-in-florida-this-week-nov-9-2026/usf-mens-basketball.webp` — trending-in-florida-this-week-nov-9-2026: USF men's basketball vs. Coppin State. [TheCustomOfLife](https://commons.wikimedia.org/wiki/File:Sundomecloseup.JPG); [Public domain](https://creativecommons.org/publicdomain/mark/1.0/).
 - `/guides/picks/trending-in-florida-this-week-nov-9-2026/wynonna-judd.webp` — trending-in-florida-this-week-nov-9-2026: Wynonna Judd and Troubadour Blue. [Fred W. Baker III](https://commons.wikimedia.org/wiki/File:Wynonna_Judd_is_performing.jpg); [Public domain](https://creativecommons.org/publicdomain/mark/1.0/).
+
+## trending-in-florida-this-week-oct-19-2026
+
+- `/guides/picks/trending-in-florida-this-week-oct-19-2026/johns-pass-village-boardwalk.jpg` — trending-in-florida-this-week-oct-19-2026: 45th John's Pass Seafood Festival. [Richard Mc Neil](https://commons.wikimedia.org/wiki/File:Boutiques_colorées_du_Village_de_John's_Pass,_Madeira_Beach_-_panoramio.jpg); [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/).
+- `/guides/picks/trending-in-florida-this-week-oct-19-2026/tropicana-field-game-day.jpg` — trending-in-florida-this-week-oct-19-2026: Rays win the AL pennant; World Series vs Brewers. [EaglesFanInTampa](https://commons.wikimedia.org/wiki/File:Tropicana_Field_Playing_Field_Opening_Day_2010.JPG); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 
 ## weeki-wachee-kayak-mermaids-guide
 

@@ -80,6 +80,26 @@
       "verification": "Commons page: 'The inaugural passenger excursion of the Sugar Express on December 12, 2021, in Lake Placid, Florida', categories Sugar Express, U.S. Sugar 148, Trains with Christmas wreaths in the United States; licence CC BY-SA 4.0 per Commons metadata. Image shows the 148 steam engine with a red-bowed Christmas wreath, no people. Caveat: it is the Sugar Express in Christmas dress in 2021 at Lake Placid, not a Clewiston or Sebring Santa Express trip.",
       "sameAsCardPhoto": false,
       "reviewedAt": "2026-11-14"
+    },
+    "Meet Santa in the Park": {
+      "src": "/guides/picks/florida-santa-and-christmas-trains-2026/north-straub-park-christmas-tree.jpg",
+      "width": 1280,
+      "height": 853,
+      "alt": "A tall lit Christmas tree in North Straub Park on the St. Petersburg waterfront with downtown towers behind it",
+      "caption": "The Christmas tree in North Straub Park, St. Petersburg.",
+      "credit": "Roman Eugeniusz",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:St.Petersburg,Florida,USA._-_panoramio_(2).jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:St.Petersburg,Florida,USA._-_panoramio_(2).jpg",
+      "author": "Roman Eugeniusz",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to JPEG. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
+      "placeId": "ChIJj7-A7nXhwogRGvQ_vcrP7uU",
+      "verification": "Wikimedia Commons file from Panoramio described as the North Straub Park Christmas tree beside Presbyterian Towers, 400 Beach Drive, St. Petersburg, taken in December. Viewed the full image: the park Christmas tree with downtown towers behind. North Straub Park is this pick's place. No overlay, logo or watermark. Live Commons licence checked: CC BY-SA 3.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-11-17"
     }
   },
   "gaps": {
@@ -101,23 +121,17 @@
       "needsPermissionFrom": null,
       "note": "No licensed photo of this exact place or event was found (Wikimedia Commons categories and file pages and Flickr single photo pages checked 2026-11-05). This guide uses Wayfind's neutral fallback, so the pick shows the \"Photo unavailable\" tile, never a context or Google photo. Licensed photo sourcing backlog."
     },
-    "Surfing Santas of Cocoa Beach": {
-      "reason": "no-verified-source",
-      "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "No licensed photo of this exact place or event was found (Wikimedia Commons categories and file pages and Flickr single photo pages checked 2026-11-05). This guide uses Wayfind's neutral fallback, so the pick shows the \"Photo unavailable\" tile, never a context or Google photo. Licensed photo sourcing backlog."
-    },
-    "Meet Santa in the Park": {
-      "reason": "no-verified-source",
-      "placeId": "ChIJj7-A7nXhwogRGvQ_vcrP7uU",
-      "needsPermissionFrom": null,
-      "note": "No licensed photo of this exact place or event was found (Wikimedia Commons categories and file pages and Flickr single photo pages checked 2026-11-05). This guide uses Wayfind's neutral fallback, so the pick shows the \"Photo unavailable\" tile, never a context or Google photo. Licensed photo sourcing backlog."
-    },
     "Santa in Space at MOSI": {
       "reason": "no-verified-source",
       "placeId": "ChIJq6E9W8_HwogRUggO5759Ook",
       "needsPermissionFrom": null,
       "note": "Image intent pass 2026-11-09: the previous photo (santa-in-space-at-mosi.webp) showed an empty museum interior with no Santa, so it did not match what this pick is about. No licensed photo of this exact event in season was found (Wikimedia Commons and Openverse or Flickr checked 2026-11-09). This guide uses Wayfind's neutral fallback, so the pick shows the \"Photo unavailable\" tile until a verified photo is sourced."
+    },
+    "Surfing Santas of Cocoa Beach": {
+      "reason": "no-verified-source",
+      "placeId": null,
+      "needsPermissionFrom": null,
+      "note": "Photo pass November 17, 2026: the only licensed Cocoa Beach Santa surfing photo found is a swimsuit close up from Christmas Day 2012, not the Surfing Santas event, so it was not used. The pick keeps the neutral Photo unavailable tile."
     }
   }
 }
