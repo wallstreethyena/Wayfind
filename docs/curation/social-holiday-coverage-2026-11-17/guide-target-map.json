@@ -1,0 +1,846 @@
+{
+  "prepared_on": "2026-11-17",
+  "scope": "All identifiable place/event/attraction names in the supplied screenshot set",
+  "counting_rule": "Deduplicate repeated Snowcat posts and venue/event pairings. Count separately named Mistletoe & Moo's add-on, Carousel on the Promenade, SEA LIFE and Madame Tussauds. Do not count performers or incidental ads.",
+  "total_named_targets": 32,
+  "targets": [
+    {
+      "target_key": "blooming-floral-cafe",
+      "name": "Blooming Floral Cafe",
+      "aliases": [
+        "Blooming Floral Café",
+        "Blooming Floral Cafe Christmas drinks"
+      ],
+      "region": "Tampa",
+      "screenshots": [
+        "IMG_6071.jpeg"
+      ],
+      "kind": "venue_or_event",
+      "existing_place_id": "ChIJ9d2y1ivFwogRU2MFLQrwqsc",
+      "permanent_inventory_verified": true,
+      "existing_event_id": null,
+      "preferred_event_slug": null,
+      "official_url": "https://www.thebloomingfloralcafe.com/",
+      "evidence_status": "venue identity lead; seasonal menu verification incomplete",
+      "coverage_note": "Venue exists; holiday menu is an unconfirmed seasonal lead.",
+      "guideMatches": [
+        "tampa-christmas-coffee-and-farm-outings-2026"
+      ]
+    },
+    {
+      "target_key": "browns-adventure-farm",
+      "name": "Brown's Adventure Farm / Holiday Market After Dark",
+      "aliases": [
+        "Brown & Brown Farms and Country Store",
+        "Brown's Adventure Farm & Country Store",
+        "Holiday Market After Dark"
+      ],
+      "region": "Oxford",
+      "screenshots": [
+        "IMG_6072.jpeg"
+      ],
+      "kind": "venue_or_event",
+      "existing_place_id": "ChIJWSFAm9XE54gRynJk-W1qRFA",
+      "permanent_inventory_verified": true,
+      "existing_event_id": null,
+      "preferred_event_slug": "browns-holiday-market-after-dark-2026",
+      "official_url": "https://brownsadventurefarm.com/holiday-market/",
+      "evidence_status": null,
+      "coverage_note": "Permanent venue exists; new December market entry proposed. Start time conflict retained.",
+      "guideMatches": [
+        "tampa-christmas-coffee-and-farm-outings-2026"
+      ]
+    },
+    {
+      "target_key": "mistletoe-and-moos",
+      "name": "Mistletoe & Moo's",
+      "aliases": [
+        "Merry Little Moo's",
+        "Mistletoe & Spirits",
+        "Willie & Waylon Highland calf encounter"
+      ],
+      "region": "Oxford",
+      "screenshots": [
+        "IMG_6072.jpeg"
+      ],
+      "kind": "separately_named_addon",
+      "existing_place_id": "ChIJWSFAm9XE54gRynJk-W1qRFA",
+      "permanent_inventory_verified": true,
+      "existing_event_id": null,
+      "preferred_event_slug": "browns-holiday-market-after-dark-2026",
+      "official_url": "https://brownsadventurefarm.com/holiday-market/",
+      "evidence_status": null,
+      "coverage_note": "Represent as optional paid add-on in Brown market detail; no duplicate free-event card.",
+      "guideMatches": [
+        "tampa-christmas-coffee-and-farm-outings-2026"
+      ]
+    },
+    {
+      "target_key": "snowcat-ridge",
+      "name": "Snowcat Ridge Alpine Snow Park",
+      "aliases": [
+        "Snowcat Ridge",
+        "Snowy Slopes",
+        "Santa's Christmas Lane"
+      ],
+      "region": "Dade City",
+      "screenshots": [
+        "IMG_6073.jpeg",
+        "IMG_6087.jpeg"
+      ],
+      "kind": "venue_or_event",
+      "existing_place_id": "wfadd_snowcat_ridge_dade_city",
+      "permanent_inventory_verified": true,
+      "existing_event_id": "snowcat-ridge-2026",
+      "preferred_event_slug": "snowcat-ridge-alpine-snow-park-2026",
+      "official_url": "https://snowcatridge.com/",
+      "evidence_status": null,
+      "coverage_note": null,
+      "guideMatches": [
+        "snowcat-ridge-vs-wunder-glow-2026"
+      ]
+    },
+    {
+      "target_key": "wunder-glow",
+      "name": "Wunder Glow",
+      "aliases": [
+        "WunderGlow"
+      ],
+      "region": "Dade City",
+      "screenshots": [
+        "IMG_6076.jpeg"
+      ],
+      "kind": "venue_or_event",
+      "existing_place_id": null,
+      "permanent_inventory_verified": false,
+      "existing_event_id": null,
+      "preferred_event_slug": "wunder-glow-dade-city-2026",
+      "official_url": "https://wunderglow.com/",
+      "evidence_status": null,
+      "coverage_note": "Separate attraction and ticket from Snowcat Ridge despite shared address.",
+      "guideMatches": [
+        "snowcat-ridge-vs-wunder-glow-2026"
+      ]
+    },
+    {
+      "target_key": "lake-eola-concerts",
+      "name": "DTOLive! for the Holidays at Lake Eola",
+      "aliases": [
+        "Lake Eola Christmas Concerts",
+        "Lake Eola Park",
+        "Lake Eola Amphitheater"
+      ],
+      "region": "Orlando",
+      "screenshots": [
+        "IMG_6078.jpeg"
+      ],
+      "kind": "venue_or_event",
+      "existing_place_id": "ChIJu3hNU-N654gR0x0I9_3iNvc",
+      "permanent_inventory_verified": true,
+      "existing_event_id": null,
+      "preferred_event_slug": "dtolive-holidays-lake-eola-2026",
+      "official_url": "https://www.orlando.gov/Events/DTOLive-for-the-Holidays-2026",
+      "evidence_status": null,
+      "coverage_note": "Do not confuse concert series with existing December4 tree lighting.",
+      "guideMatches": [
+        "orlando-christmas-concerts-and-santa-2026"
+      ]
+    },
+    {
+      "target_key": "lumleys-farm",
+      "name": "Lumley's Farm Christmas",
+      "aliases": [
+        "Lumley's Farm",
+        "Lumleys Farm"
+      ],
+      "region": "Plant City",
+      "screenshots": [
+        "IMG_6081.jpeg"
+      ],
+      "kind": "venue_or_event",
+      "existing_place_id": null,
+      "permanent_inventory_verified": false,
+      "existing_event_id": null,
+      "preferred_event_slug": null,
+      "official_url": "https://www.instagram.com/lumleysfarm/",
+      "evidence_status": "seasonal event not independently verified",
+      "coverage_note": "Venue/address/current Christmas schedule need primary verification; preserve lead.",
+      "guideMatches": [
+        "tampa-christmas-coffee-and-farm-outings-2026"
+      ]
+    },
+    {
+      "target_key": "icon-park-santa",
+      "name": "The Santa Workshop Experience at ICON Park",
+      "aliases": [
+        "ICON Park Santa",
+        "ICON Park",
+        "Sky Lounge at The Orlando Eye"
+      ],
+      "region": "Orlando",
+      "screenshots": [
+        "IMG_6082.jpeg"
+      ],
+      "kind": "venue_or_event",
+      "existing_place_id": "ChIJw5jVAVN-54gRScNxiRF16j4",
+      "permanent_inventory_verified": true,
+      "existing_event_id": null,
+      "preferred_event_slug": "santa-workshop-icon-park-2026",
+      "official_url": "https://iconparkorlando.com/events/the-santa-workshop-experience/",
+      "evidence_status": null,
+      "coverage_note": "2026season verified; detailed timetable on site says2024, omit those daily hours.",
+      "guideMatches": [
+        "orlando-christmas-concerts-and-santa-2026"
+      ]
+    },
+    {
+      "target_key": "carousel-on-the-promenade",
+      "name": "Carousel on the Promenade",
+      "aliases": [
+        "The Carousel on the Promenade",
+        "ICON Park Carousel"
+      ],
+      "region": "Orlando",
+      "screenshots": [
+        "IMG_6082.jpeg"
+      ],
+      "kind": "separately_named_attraction",
+      "existing_place_id": null,
+      "permanent_inventory_verified": false,
+      "existing_event_id": null,
+      "preferred_event_slug": null,
+      "official_url": "https://iconparkorlando.com/attractions/carousel-on-the-promenade/",
+      "evidence_status": null,
+      "coverage_note": "Part of ICON Park; child complimentary ride requires photo purchase. Exact permanent carousel ID unresolved.",
+      "guideMatches": [
+        "orlando-christmas-concerts-and-santa-2026"
+      ]
+    },
+    {
+      "target_key": "sea-life-orlando",
+      "name": "SEA LIFE Orlando Aquarium",
+      "aliases": [
+        "SEA LIFE Orlando"
+      ],
+      "region": "Orlando",
+      "screenshots": [
+        "IMG_6082.jpeg"
+      ],
+      "kind": "separately_named_attraction",
+      "existing_place_id": "ChIJmy7U4VJ-54gRi1LoS6wwFj0",
+      "permanent_inventory_verified": true,
+      "existing_event_id": null,
+      "preferred_event_slug": null,
+      "official_url": "https://iconparkorlando.com/attractions/sea-life-orlando-aquarium/",
+      "evidence_status": null,
+      "coverage_note": "Existing attraction; discount terms do not establish free included entry.",
+      "guideMatches": [
+        "orlando-christmas-concerts-and-santa-2026"
+      ]
+    },
+    {
+      "target_key": "madame-tussauds-orlando",
+      "name": "Madame Tussauds Orlando",
+      "aliases": [
+        "Madame Tussauds Wax Museum",
+        "Madame Tussauds Wax Museum Orlando"
+      ],
+      "region": "Orlando",
+      "screenshots": [
+        "IMG_6082.jpeg"
+      ],
+      "kind": "separately_named_attraction",
+      "existing_place_id": "ChIJm-1TQ1N-54gRtKSCx6hQ8SU",
+      "permanent_inventory_verified": true,
+      "existing_event_id": null,
+      "preferred_event_slug": null,
+      "official_url": "https://iconparkorlando.com/attractions/madame-tussauds-wax-museum-orlando/",
+      "evidence_status": null,
+      "coverage_note": "Existing attraction; discount terms do not establish free included entry.",
+      "guideMatches": [
+        "orlando-christmas-concerts-and-santa-2026"
+      ]
+    },
+    {
+      "target_key": "centro-ybor",
+      "name": "Centro Ybor Tree Lighting",
+      "aliases": [
+        "Centro Ybor",
+        "Ybor City Tree Lighting"
+      ],
+      "region": "Tampa",
+      "screenshots": [
+        "IMG_6083.jpeg",
+        "IMG_6084.jpeg"
+      ],
+      "kind": "venue_or_event",
+      "existing_place_id": null,
+      "permanent_inventory_verified": false,
+      "existing_event_id": null,
+      "preferred_event_slug": "centro-ybor-tree-lighting-2026",
+      "official_url": "https://members.ybor.org/events/details/ybor-city-tree-lighting-save-the-date-6288",
+      "evidence_status": null,
+      "coverage_note": null,
+      "guideMatches": [
+        "tampa-christmas-coffee-and-farm-outings-2026"
+      ]
+    },
+    {
+      "target_key": "oldest-wooden-school-house",
+      "name": "Oldest Wooden School House Historic Museum & Gardens",
+      "aliases": [
+        "The Oldest Wooden School House",
+        "Oldest Wooden Schoolhouse"
+      ],
+      "region": "St. Augustine",
+      "screenshots": [
+        "IMG_6085.jpeg"
+      ],
+      "kind": "venue_or_event",
+      "existing_place_id": null,
+      "permanent_inventory_verified": false,
+      "existing_event_id": null,
+      "preferred_event_slug": null,
+      "official_url": "https://oldestwoodenschoolhouse.com/",
+      "evidence_status": "venue_verified_holiday_hours_conflict",
+      "coverage_note": "Primary venue identity/address verified. Holiday hours conflict with standard hours; preserve explicitly.",
+      "guideMatches": [
+        "st-augustine-christmas-coffee-snow-walk-2026"
+      ]
+    },
+    {
+      "target_key": "auggies-draft-room",
+      "name": "Auggie's Draft Room",
+      "aliases": [
+        "Auggies Draft Room",
+        "Auggie's snowfall"
+      ],
+      "region": "St. Augustine",
+      "screenshots": [
+        "IMG_6085.jpeg"
+      ],
+      "kind": "venue_or_event",
+      "existing_place_id": "ChIJa9H7lA4n5IgRViVY0j2H7bY",
+      "permanent_inventory_verified": true,
+      "existing_event_id": null,
+      "preferred_event_slug": null,
+      "official_url": "https://www.auggiesdraftroom.com/",
+      "evidence_status": "venue_verified_snow_schedule_unconfirmed",
+      "coverage_note": "Permanent venue exists; exact recurring snowfall schedule unconfirmed.",
+      "guideMatches": [
+        "st-augustine-christmas-coffee-snow-walk-2026"
+      ]
+    },
+    {
+      "target_key": "st-augustine-coffee-house",
+      "name": "St. Augustine Coffee House / Santa's Toy Shop",
+      "aliases": [
+        "St. Augustine Coffee House",
+        "Santa's Toy Shop",
+        "St Aug Coffee"
+      ],
+      "region": "St. Augustine",
+      "screenshots": [
+        "IMG_6086.jpeg"
+      ],
+      "kind": "venue_or_event",
+      "existing_place_id": "ChIJhWCYaL4n5IgRhwgdf5lIGbc",
+      "permanent_inventory_verified": true,
+      "existing_event_id": null,
+      "preferred_event_slug": null,
+      "official_url": "https://www.staugcoffee.com/home/",
+      "evidence_status": "venue_verified_holiday_popup_supported_by_organizer_screenshot",
+      "coverage_note": "Organizer screenshot supports popup concept; standalone popup run dates unconfirmed.",
+      "guideMatches": [
+        "st-augustine-christmas-coffee-snow-walk-2026"
+      ]
+    },
+    {
+      "target_key": "hometown-holiday-in-the-park",
+      "name": "Hometown Holiday in the Park",
+      "aliases": [
+        "Clarke House Park Hometown Holiday"
+      ],
+      "region": "Orange Park",
+      "screenshots": [
+        "IMG_6088.jpeg",
+        "IMG_6089.jpeg",
+        "IMG_6090.jpeg",
+        "IMG_6091.jpeg",
+        "IMG_6092.jpeg"
+      ],
+      "kind": "venue_or_event",
+      "existing_place_id": "ChIJ71KjTtzF5YgRvlsJJQkcNdU",
+      "permanent_inventory_verified": true,
+      "existing_event_id": null,
+      "preferred_event_slug": "hometown-holiday-orange-park-2026",
+      "official_url": "https://www.townoforangepark.com/p/residents/special-events2/hometown-holiday-in-the-park",
+      "evidence_status": "2026_verified",
+      "coverage_note": null,
+      "guideMatches": [
+        "jacksonville-christmas-by-area-budget-2026"
+      ]
+    },
+    {
+      "target_key": "christmas-on-walnut-street",
+      "name": "Christmas on Walnut Street",
+      "aliases": [
+        "Christmas on Walnut"
+      ],
+      "region": "Green Cove Springs",
+      "screenshots": [
+        "IMG_6088.jpeg",
+        "IMG_6089.jpeg",
+        "IMG_6090.jpeg",
+        "IMG_6091.jpeg",
+        "IMG_6092.jpeg"
+      ],
+      "kind": "venue_or_event",
+      "existing_place_id": null,
+      "permanent_inventory_verified": false,
+      "existing_event_id": "christmas-on-walnut-street-2026",
+      "preferred_event_slug": "christmas-on-walnut-street-2026",
+      "official_url": "https://www.greencovesprings.com/285/Christmas-on-Walnut-Street",
+      "evidence_status": "2026_verified",
+      "coverage_note": null,
+      "guideMatches": [
+        "jacksonville-christmas-by-area-budget-2026"
+      ]
+    },
+    {
+      "target_key": "deck-the-chairs",
+      "name": "Deck the Chairs",
+      "aliases": [
+        "Jacksonville Beach Deck the Chairs",
+        "Seawalk Pavilion and Latham Plaza"
+      ],
+      "region": "Jacksonville Beach",
+      "screenshots": [
+        "IMG_6088.jpeg",
+        "IMG_6089.jpeg",
+        "IMG_6090.jpeg",
+        "IMG_6091.jpeg",
+        "IMG_6092.jpeg"
+      ],
+      "kind": "venue_or_event",
+      "existing_place_id": null,
+      "permanent_inventory_verified": false,
+      "existing_event_id": "deck-the-chairs-2026",
+      "preferred_event_slug": "deck-the-chairs-jacksonville-beach-2026",
+      "official_url": "https://www.deckthechairs.org/jacksonville",
+      "evidence_status": "2026_verified",
+      "coverage_note": null,
+      "guideMatches": [
+        "jacksonville-christmas-by-area-budget-2026"
+      ]
+    },
+    {
+      "target_key": "jacksonville-light-boat-parade",
+      "name": "Jacksonville Light Boat Parade",
+      "aliases": [
+        "Jax Holiday River Fest",
+        "Holiday River Fest",
+        "Jacksonville Holiday Light Boat Parade"
+      ],
+      "region": "Jacksonville",
+      "screenshots": [
+        "IMG_6088.jpeg",
+        "IMG_6089.jpeg",
+        "IMG_6090.jpeg",
+        "IMG_6091.jpeg",
+        "IMG_6092.jpeg"
+      ],
+      "kind": "venue_or_event",
+      "existing_place_id": null,
+      "permanent_inventory_verified": false,
+      "existing_event_id": "jacksonville-light-boat-parade-2026",
+      "preferred_event_slug": "jacksonville-light-boat-parade-2026",
+      "official_url": "https://events.jacksonville.gov/special-events/jaxholidayriverfest",
+      "evidence_status": "2026_verified",
+      "coverage_note": null,
+      "guideMatches": [
+        "jacksonville-christmas-by-area-budget-2026"
+      ]
+    },
+    {
+      "target_key": "st-augustine-nights-of-lights",
+      "name": "St. Augustine Nights of Lights",
+      "aliases": [
+        "Nights of Lights",
+        "Historic Downtown St. Augustine"
+      ],
+      "region": "St. Augustine",
+      "screenshots": [
+        "IMG_6088.jpeg",
+        "IMG_6089.jpeg",
+        "IMG_6090.jpeg",
+        "IMG_6091.jpeg",
+        "IMG_6092.jpeg"
+      ],
+      "kind": "venue_or_event",
+      "existing_place_id": "ChIJ-X6wLJQn5IgRvYMgcGVzY80",
+      "permanent_inventory_verified": false,
+      "existing_event_id": "nights-of-lights-2026",
+      "preferred_event_slug": "st-augustine-nights-of-lights-2026",
+      "official_url": "https://www.sjcfl.us/event/nights-of-lights-2026/",
+      "evidence_status": "2026_verified",
+      "coverage_note": "Existing event links to historic district identity; permanent inventory presence not independently established in this package.",
+      "guideMatches": [
+        "jacksonville-christmas-by-area-budget-2026",
+        "st-augustine-christmas-coffee-snow-walk-2026"
+      ]
+    },
+    {
+      "target_key": "blackhawk-bluff-lights",
+      "name": "Blackhawk Bluff Christmas Lights",
+      "aliases": [
+        "Blackhawk Bluff Drive Thru Lights",
+        "Blackhawk Bluff Christmas Lights Display on Girvin",
+        "Girvin Road Christmas lights"
+      ],
+      "region": "Jacksonville",
+      "screenshots": [
+        "IMG_6088.jpeg",
+        "IMG_6089.jpeg",
+        "IMG_6090.jpeg",
+        "IMG_6091.jpeg",
+        "IMG_6092.jpeg"
+      ],
+      "kind": "venue_or_event",
+      "existing_place_id": null,
+      "permanent_inventory_verified": false,
+      "existing_event_id": null,
+      "preferred_event_slug": "blackhawk-bluff-christmas-lights-2026",
+      "official_url": "https://www.facebook.com/p/Blackhawk-Bluff-Christmas-Lights-display-on-Girvin-100069347741220/",
+      "evidence_status": "2026_tourism_verified_operator_page_inaccessible",
+      "coverage_note": null,
+      "guideMatches": [
+        "jacksonville-christmas-by-area-budget-2026"
+      ]
+    },
+    {
+      "target_key": "beauclerc-road-lights",
+      "name": "Beauclerc Road Christmas Lights",
+      "aliases": [
+        "Beauclerc Rd Lights",
+        "Aldred family Christmas display"
+      ],
+      "region": "Jacksonville",
+      "screenshots": [
+        "IMG_6088.jpeg",
+        "IMG_6089.jpeg",
+        "IMG_6090.jpeg",
+        "IMG_6091.jpeg",
+        "IMG_6092.jpeg"
+      ],
+      "kind": "venue_or_event",
+      "existing_place_id": null,
+      "permanent_inventory_verified": false,
+      "existing_event_id": null,
+      "preferred_event_slug": null,
+      "official_url": null,
+      "evidence_status": "needs_primary_source",
+      "coverage_note": "No verified current primary-source schedule or address; unannounced lead only.",
+      "guideMatches": [
+        "jacksonville-christmas-by-area-budget-2026"
+      ]
+    },
+    {
+      "target_key": "parade-of-trees",
+      "name": "Parade of Trees",
+      "aliases": [
+        "Spring Park Parade of Trees"
+      ],
+      "region": "Green Cove Springs",
+      "screenshots": [
+        "IMG_6088.jpeg",
+        "IMG_6089.jpeg",
+        "IMG_6090.jpeg",
+        "IMG_6091.jpeg",
+        "IMG_6092.jpeg"
+      ],
+      "kind": "venue_or_event",
+      "existing_place_id": null,
+      "permanent_inventory_verified": false,
+      "existing_event_id": null,
+      "preferred_event_slug": "parade-of-trees-green-cove-springs-2026",
+      "official_url": "https://www.greencovesprings.com/292/Parade-of-Trees",
+      "evidence_status": "2026_verified",
+      "coverage_note": null,
+      "guideMatches": [
+        "jacksonville-christmas-by-area-budget-2026"
+      ]
+    },
+    {
+      "target_key": "riverside-avondale-luminaria",
+      "name": "Riverside Avondale Luminaria",
+      "aliases": [
+        "Avondale Luminaria",
+        "42nd Annual Luminaria"
+      ],
+      "region": "Jacksonville",
+      "screenshots": [
+        "IMG_6088.jpeg",
+        "IMG_6089.jpeg",
+        "IMG_6090.jpeg",
+        "IMG_6091.jpeg",
+        "IMG_6092.jpeg"
+      ],
+      "kind": "venue_or_event",
+      "existing_place_id": null,
+      "permanent_inventory_verified": false,
+      "existing_event_id": "riverside-avondale-luminaria-2026",
+      "preferred_event_slug": "riverside-avondale-luminaria-2026",
+      "official_url": "https://riversideavondale.networkforgood.com/events/106561-42nd-annual-luminaria",
+      "evidence_status": "2026_verified",
+      "coverage_note": null,
+      "guideMatches": [
+        "jacksonville-christmas-by-area-budget-2026"
+      ]
+    },
+    {
+      "target_key": "vintage-market-days-jacksonville",
+      "name": "Vintage Market Days of Jacksonville: Shiny & Bright",
+      "aliases": [
+        "Vintage Market Days",
+        "Clay County Fairgrounds Vintage Market Days"
+      ],
+      "region": "Green Cove Springs",
+      "screenshots": [
+        "IMG_6088.jpeg",
+        "IMG_6089.jpeg",
+        "IMG_6090.jpeg",
+        "IMG_6091.jpeg",
+        "IMG_6092.jpeg"
+      ],
+      "kind": "venue_or_event",
+      "existing_place_id": null,
+      "permanent_inventory_verified": false,
+      "existing_event_id": null,
+      "preferred_event_slug": "vintage-market-days-jacksonville-2026",
+      "official_url": "https://www.vintagemarketdays.com/market/jacksonville/index.php",
+      "evidence_status": "2026_verified",
+      "coverage_note": "Different event/venue from Diamonds in the Rust. Clay County Fairgrounds permanent venue missing.",
+      "guideMatches": [
+        "jacksonville-christmas-by-area-budget-2026"
+      ]
+    },
+    {
+      "target_key": "diamonds-in-the-rust",
+      "name": "Diamonds in the Rust Fall Market",
+      "aliases": [
+        "Diamonds in the Rust",
+        "Diamond D Ranch"
+      ],
+      "region": "Jacksonville",
+      "screenshots": [
+        "IMG_6088.jpeg",
+        "IMG_6089.jpeg",
+        "IMG_6090.jpeg",
+        "IMG_6091.jpeg",
+        "IMG_6092.jpeg"
+      ],
+      "kind": "venue_or_event",
+      "existing_place_id": null,
+      "permanent_inventory_verified": false,
+      "existing_event_id": null,
+      "preferred_event_slug": "diamonds-in-the-rust-fall-market-2026",
+      "official_url": "https://diamonddranchinc.com/event/diamonds-in-the-rust-fall-market/",
+      "evidence_status": "2026_verified",
+      "coverage_note": null,
+      "guideMatches": [
+        "jacksonville-christmas-by-area-budget-2026"
+      ]
+    },
+    {
+      "target_key": "artist-walk-on-ice",
+      "name": "JAX Artist Walk on Ice",
+      "aliases": [
+        "Artist Walk on Ice",
+        "Jax on Ice",
+        "Artist Walk"
+      ],
+      "region": "Jacksonville",
+      "screenshots": [
+        "IMG_6088.jpeg",
+        "IMG_6089.jpeg",
+        "IMG_6090.jpeg",
+        "IMG_6091.jpeg",
+        "IMG_6092.jpeg"
+      ],
+      "kind": "venue_or_event",
+      "existing_place_id": null,
+      "permanent_inventory_verified": false,
+      "existing_event_id": null,
+      "preferred_event_slug": "artist-walk-on-ice-jacksonville-2026",
+      "official_url": "https://www.jaxonice.com/",
+      "evidence_status": "2026_verified",
+      "coverage_note": null,
+      "guideMatches": [
+        "jacksonville-christmas-by-area-budget-2026"
+      ]
+    },
+    {
+      "target_key": "sykes-family-farms",
+      "name": "Christmas at Sykes Family Farms",
+      "aliases": [
+        "Sykes Family Farms",
+        "Sykes Family Farms Christmas"
+      ],
+      "region": "Elkton",
+      "screenshots": [
+        "IMG_6088.jpeg",
+        "IMG_6089.jpeg",
+        "IMG_6090.jpeg",
+        "IMG_6091.jpeg",
+        "IMG_6092.jpeg"
+      ],
+      "kind": "venue_or_event",
+      "existing_place_id": null,
+      "permanent_inventory_verified": false,
+      "existing_event_id": null,
+      "preferred_event_slug": null,
+      "official_url": "https://sycofarms.com/",
+      "evidence_status": "venue_verified_christmas_edition_unconfirmed",
+      "coverage_note": "Existing completed fall-maze event is not Christmas verification. Venue known; Christmas edition unconfirmed.",
+      "guideMatches": [
+        "jacksonville-christmas-by-area-budget-2026"
+      ]
+    },
+    {
+      "target_key": "glowing-gardens",
+      "name": "Glowing Gardens",
+      "aliases": [
+        "Jacksonville Arboretum & Botanical Gardens",
+        "Jacksonville Arboretum Glowing Gardens"
+      ],
+      "region": "Jacksonville",
+      "screenshots": [
+        "IMG_6088.jpeg",
+        "IMG_6089.jpeg",
+        "IMG_6090.jpeg",
+        "IMG_6091.jpeg",
+        "IMG_6092.jpeg"
+      ],
+      "kind": "venue_or_event",
+      "existing_place_id": "ChIJ6_k9TmCz5YgRZoTCykSG8rA",
+      "permanent_inventory_verified": true,
+      "existing_event_id": "glowing-gardens-2026",
+      "preferred_event_slug": "glowing-gardens-2026",
+      "official_url": "https://jacksonvillearboretum.org/events/glowing-gardens",
+      "evidence_status": "2026_dates_destination_verified_operator_details_inaccessible",
+      "coverage_note": null,
+      "guideMatches": [
+        "jacksonville-christmas-by-area-budget-2026"
+      ]
+    },
+    {
+      "target_key": "forgotten-tonic-miracle",
+      "name": "Forgotten Tonic Miracle Pop-Up",
+      "aliases": [
+        "Forgotten Tonic",
+        "Miracle Christmas Pop-Up",
+        "Forgotten Tonic Miracle Christmas"
+      ],
+      "region": "St. Augustine",
+      "screenshots": [
+        "IMG_6088.jpeg",
+        "IMG_6089.jpeg",
+        "IMG_6090.jpeg",
+        "IMG_6091.jpeg",
+        "IMG_6092.jpeg"
+      ],
+      "kind": "venue_or_event",
+      "existing_place_id": "ChIJu5KCkJYn5IgRVVjGR-aX2N4",
+      "permanent_inventory_verified": true,
+      "existing_event_id": null,
+      "preferred_event_slug": null,
+      "official_url": "https://www.forgottentonic.com/",
+      "evidence_status": "venue_verified_2026_miracle_unconfirmed",
+      "coverage_note": "Restaurant exists; current2026Miracle edition not confirmed by operator site.",
+      "guideMatches": [
+        "jacksonville-christmas-by-area-budget-2026",
+        "st-augustine-christmas-coffee-snow-walk-2026"
+      ]
+    },
+    {
+      "target_key": "jacksonville-zoo-zoolights",
+      "name": "ZOOLights at Jacksonville Zoo",
+      "aliases": [
+        "ZOOLights",
+        "Jacksonville Zoo and Botanical Gardens",
+        "Jacksonville Zoo and Gardens"
+      ],
+      "region": "Jacksonville",
+      "screenshots": [
+        "IMG_6088.jpeg",
+        "IMG_6089.jpeg",
+        "IMG_6090.jpeg",
+        "IMG_6091.jpeg",
+        "IMG_6092.jpeg"
+      ],
+      "kind": "venue_or_event",
+      "existing_place_id": "ChIJ5UOOwKux5YgRAmO1YNbhTc0",
+      "permanent_inventory_verified": true,
+      "existing_event_id": "zoolights-jacksonville-zoo-2026",
+      "preferred_event_slug": "zoolights-jacksonville-zoo-2026",
+      "official_url": "https://www.jacksonvillezoo.org/zoolights",
+      "evidence_status": "2026_verified",
+      "coverage_note": "Regular nonmember online price exactly$30, not under$30. Nighttime event has no animal viewing.",
+      "guideMatches": [
+        "jacksonville-christmas-by-area-budget-2026"
+      ]
+    },
+    {
+      "target_key": "grey-matter-holiday-popup",
+      "name": "Grey Matter Distillery Holiday Pop-Up",
+      "aliases": [
+        "Grey Matter Elf Pop Up",
+        "Grey Matter Distillery",
+        "Grey Matter Christmas Pop-Up"
+      ],
+      "region": "Atlantic Beach",
+      "screenshots": [
+        "IMG_6088.jpeg",
+        "IMG_6089.jpeg",
+        "IMG_6090.jpeg",
+        "IMG_6091.jpeg",
+        "IMG_6092.jpeg"
+      ],
+      "kind": "venue_or_event",
+      "existing_place_id": "ChIJgULEnkW05YgR7sr10NgLv_s",
+      "permanent_inventory_verified": true,
+      "existing_event_id": null,
+      "preferred_event_slug": null,
+      "official_url": "https://greymatterdistillery.com/grey-matter-pop-ups",
+      "evidence_status": "venue_and_recurring_holiday_popup_verified_2026_elf_theme_unconfirmed",
+      "coverage_note": "Venue exists with needs_review=true. Recurring holiday pop-up verified; current2026Elf theme/full dates unconfirmed.",
+      "guideMatches": [
+        "jacksonville-christmas-by-area-budget-2026"
+      ]
+    }
+  ],
+  "permanent_inventory_note": "Flags reflect root-provided database findings. Existing event entries cover many temporary or neighborhood attractions without separate permanent venue rows.",
+  "unresolved_seasonal_leads": [
+    "blooming-floral-cafe-holiday-menu-2026",
+    "lumleys-farm-christmas-2026",
+    "oldest-wooden-school-house-christmas-2026",
+    "auggies-draft-room-snowfall-2026",
+    "santas-toy-shop-st-augustine-coffee-house-2026",
+    "beauclerc-road-christmas-lights-2026",
+    "sykes-family-farms-christmas-2026",
+    "forgotten-tonic-miracle-christmas-2026",
+    "grey-matter-elf-holiday-popup-2026"
+  ],
+  "related_missing_venue_identities": [
+    "Oldest Wooden School House",
+    "Centro Ybor",
+    "Wunder Glow",
+    "Lumley's Farm",
+    "Sykes Family Farms",
+    "Clay County Fairgrounds",
+    "Diamond D Ranch",
+    "Artist Walk",
+    "Carousel on the Promenade"
+  ]
+}
