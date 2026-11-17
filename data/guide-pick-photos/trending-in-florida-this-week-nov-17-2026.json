@@ -1,13 +1,28 @@
 {
   "slug": "trending-in-florida-this-week-nov-17-2026",
-  "picks": {},
-  "gaps": {
+  "picks": {
     "St. Pete Country Fest": {
-      "reason": "no-verified-source",
+      "src": "/guides/picks/trending-in-florida-this-week-nov-17-2026/vinoy-park-dusk.jpg",
+      "width": 1280,
+      "height": 853,
+      "alt": "Palm trees in Vinoy Park at dusk beside the St. Petersburg waterfront",
+      "caption": "Vinoy Park on the St. Petersburg waterfront, home of St. Pete Country Fest.",
+      "credit": "Calmuziclover",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Vinoy_Park.jpg",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Vinoy_Park.jpg",
+      "author": "Calmuziclover",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to JPEG.",
+      "sourceKind": "commons",
       "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "November 17, 2026 pass: no Creative Commons photograph of this exact item was verified for this guide. Held for the Picture Scrapper under Gabe's November 4 image intent rule. The page ships with no photo for this pick."
-    },
+      "verification": "Commons file titled Vinoy Park shows the park lawn, palms and the downtown St. Petersburg marina skyline. Live Commons licence checked: CC BY 2.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-11-17"
+    }
+  },
+  "gaps": {
     "Holidays at UTC": {
       "reason": "no-verified-source",
       "placeId": null,

@@ -1,6 +1,67 @@
 {
   "slug": "trending-in-florida-this-week-oct-19-2026",
-  "picks": {},
+  "picks": {
+    "The Concert: A Tribute to ABBA": {
+      "src": "/guides/picks/trending-in-florida-this-week-oct-19-2026/ruth-eckerd-hall-plaza.jpg",
+      "width": 1280,
+      "height": 853,
+      "alt": "Ruth Eckerd Hall seen across its front plaza in Clearwater",
+      "caption": "Ruth Eckerd Hall, Clearwater.",
+      "credit": "PalauanReich",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:RuthEckerdHall_01.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:RuthEckerdHall_01.jpg",
+      "author": "PalauanReich",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to JPEG. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
+      "placeId": null,
+      "verification": "Building lettering reads Ruth Eckerd Hall; Commons file is the Clearwater hall, a different view from the gulf coast guide photo. Live Commons licence checked: CC BY-SA 4.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-11-17"
+    },
+    "Hamilton": {
+      "src": "/guides/picks/trending-in-florida-this-week-oct-19-2026/straz-center-tampa.jpg",
+      "width": 1280,
+      "height": 853,
+      "alt": "Straz Center for the Performing Arts building in downtown Tampa",
+      "caption": "The Straz Center in Tampa, where Hamilton plays in Morsani Hall.",
+      "credit": "Barbthebuilder",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Tampa_architectural_photos_257.jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Tampa_architectural_photos_257.jpg",
+      "author": "Barbthebuilder",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to JPEG. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
+      "placeId": null,
+      "verification": "Building sign reads Straz Center; Commons file from a Tampa architecture set. Live Commons licence checked: CC BY-SA 3.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-11-17"
+    },
+    "Sophisticated Ladies": {
+      "src": "/guides/picks/trending-in-florida-this-week-oct-19-2026/westcoast-black-theatre-troupe.jpg",
+      "width": 1280,
+      "height": 853,
+      "alt": "Westcoast Black Theatre Troupe theater with its red awning in Sarasota",
+      "caption": "Westcoast Black Theatre Troupe, Sarasota.",
+      "credit": "Kimberli Mäkäräinen",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Westcoast_Black_Theatre_Troupe_04.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Westcoast_Black_Theatre_Troupe_04.jpg",
+      "author": "Kimberli Mäkäräinen",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to JPEG. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
+      "placeId": null,
+      "verification": "Building sign reads WBTT; Commons file titled Westcoast Black Theatre Troupe. Live Commons licence checked: CC BY-SA 4.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-11-17"
+    }
+  },
   "gaps": {
     "Rays win the AL pennant; World Series vs Brewers": {
       "reason": "no-verified-source",
@@ -31,12 +92,6 @@
       "placeId": null,
       "needsPermissionFrom": null,
       "note": "October 19, 2026 pass: no Creative Commons photograph of this exact dated event was verified for this guide. The page uses a labelled context photo and does not claim that picture is the event."
-    },
-    "Hamilton": {
-      "reason": "no-verified-source",
-      "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "October 21, 2026 pass: no Creative Commons photograph of this exact dated event was verified for this guide. The page uses a labelled context photo and does not claim that picture is the event."
     },
     "Frenchy's 42nd Stone Crab Weekend": {
       "reason": "no-verified-source",
@@ -98,12 +153,6 @@
       "needsPermissionFrom": null,
       "note": "October 21, 2026 pass: no Creative Commons photograph of this exact dated event was verified for this guide. The page uses a labelled context photo and does not claim that picture is the event."
     },
-    "The Concert: A Tribute to ABBA": {
-      "reason": "no-verified-source",
-      "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "October 19, 2026 pass: no Creative Commons photograph of this exact dated event was verified for this guide. The page uses a labelled context photo and does not claim that picture is the event."
-    },
     "Jake Owen + Niko Moon": {
       "reason": "no-verified-source",
       "placeId": null,
@@ -129,12 +178,6 @@
       "note": "October 19, 2026 pass: no Creative Commons photograph of this exact dated event was verified for this guide. The page uses a labelled context photo and does not claim that picture is the event."
     },
     "Dracula (The Players)": {
-      "reason": "no-verified-source",
-      "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "October 19, 2026 pass: no Creative Commons photograph of this exact dated event was verified for this guide. The page uses a labelled context photo and does not claim that picture is the event."
-    },
-    "Sophisticated Ladies": {
       "reason": "no-verified-source",
       "placeId": null,
       "needsPermissionFrom": null,

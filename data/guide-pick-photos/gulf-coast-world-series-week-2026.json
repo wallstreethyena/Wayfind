@@ -1,13 +1,48 @@
 {
   "slug": "gulf-coast-world-series-week-2026",
-  "picks": {},
-  "gaps": {
+  "picks": {
     "The Concert: A Tribute to ABBA": {
-      "reason": "no-verified-source",
+      "src": "/guides/picks/gulf-coast-world-series-week-2026/ruth-eckerd-hall-entrance.jpg",
+      "width": 1280,
+      "height": 853,
+      "alt": "Ruth Eckerd Hall entrance in Clearwater with concertgoers arriving",
+      "caption": "Ruth Eckerd Hall in Clearwater, home of The Concert: A Tribute to ABBA.",
+      "credit": "PalauanReich",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:RuthEckerdHall_03.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:RuthEckerdHall_03.jpg",
+      "author": "PalauanReich",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to JPEG. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
       "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "October 21, 2026 pass: no Creative Commons photograph of this exact dated show was verified. The page uses a labelled context photo and does not claim that picture is the concert."
+      "verification": "Building lettering reads Ruth Eckerd Hall; Commons file is the Clearwater hall. Live Commons licence checked: CC BY-SA 4.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-11-17"
     },
+    "Yung Gravy at Jannus Live": {
+      "src": "/guides/picks/gulf-coast-world-series-week-2026/jannus-live-stage-concert.jpg",
+      "width": 1280,
+      "height": 853,
+      "alt": "A band performing under stage lights on the Jannus Live outdoor stage in St. Petersburg",
+      "caption": "A concert night on the Jannus Live stage, St. Petersburg.",
+      "credit": "CLender",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Suenalo_at_Jannus_Live!.jpg",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Suenalo_at_Jannus_Live!.jpg",
+      "author": "CLender",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to JPEG.",
+      "sourceKind": "commons",
+      "placeId": null,
+      "verification": "Commons file titled Suenalo at Jannus Live shows the Jannus Live outdoor stage; used as the venue, not the headliner. Live Commons licence checked: CC BY 2.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-11-17"
+    }
+  },
+  "gaps": {
     "Jake Owen at The BayCare Sound": {
       "reason": "no-verified-source",
       "placeId": null,
@@ -19,12 +54,6 @@
       "placeId": null,
       "needsPermissionFrom": null,
       "note": "October 21, 2026 pass: no Creative Commons photograph of this exact dated paddle was verified. The page uses a labelled context photo and does not claim that picture is the paddle."
-    },
-    "Yung Gravy at Jannus Live": {
-      "reason": "no-verified-source",
-      "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "October 21, 2026 pass: no Creative Commons photograph of this exact dated show was verified. The page uses a labelled context photo and does not claim that picture is the concert."
     },
     "World Series home games at Tropicana Field": {
       "reason": "no-verified-source",

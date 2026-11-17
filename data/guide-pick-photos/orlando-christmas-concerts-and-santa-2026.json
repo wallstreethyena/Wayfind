@@ -1,6 +1,27 @@
 {
   "slug": "orlando-christmas-concerts-and-santa-2026",
-  "picks": {},
+  "picks": {
+    "SEA LIFE Orlando Aquarium: an optional indoor visit": {
+      "src": "/guides/picks/orlando-christmas-concerts-and-santa-2026/sea-life-orlando-aquarium.jpg",
+      "width": 1280,
+      "height": 853,
+      "alt": "Blue sea life mural on the SEA LIFE Orlando Aquarium building at ICON Park",
+      "caption": "SEA LIFE Orlando Aquarium at ICON Park.",
+      "credit": "Benoît Prieur",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:SEA_LIFE_Orlando_Aquarium_en_f%C3%A9vrier_2022.JPG",
+      "license": "CC0 1.0 Universal",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:SEA_LIFE_Orlando_Aquarium_en_f%C3%A9vrier_2022.JPG",
+      "author": "Benoît Prieur",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to JPEG.",
+      "sourceKind": "commons",
+      "placeId": "ChIJmy7U4VJ-54gRi1LoS6wwFj0",
+      "verification": "Commons file titled SEA LIFE Orlando Aquarium shows the blue mural building with the ICON Park wheel behind it. Live Commons licence checked: CC0 1.0 Universal.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-11-17"
+    }
+  },
   "gaps": {
     "ICON Park: The Santa Workshop Experience": {
       "reason": "no-verified-source",
@@ -10,11 +31,6 @@
     "Carousel on the Promenade: the nearby extra": {
       "reason": "no-verified-source",
       "placeId": null,
-      "note": "Creator screenshots are discovery evidence and do not grant image reuse. Use the established neutral fallback until an exact licensed or permissioned photo is available."
-    },
-    "SEA LIFE Orlando Aquarium: an optional indoor visit": {
-      "reason": "no-verified-source",
-      "placeId": "ChIJmy7U4VJ-54gRi1LoS6wwFj0",
       "note": "Creator screenshots are discovery evidence and do not grant image reuse. Use the established neutral fallback until an exact licensed or permissioned photo is available."
     },
     "Madame Tussauds Orlando: another separate option": {

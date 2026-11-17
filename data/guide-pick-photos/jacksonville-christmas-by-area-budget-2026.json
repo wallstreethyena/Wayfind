@@ -1,13 +1,49 @@
 {
   "slug": "jacksonville-christmas-by-area-budget-2026",
-  "picks": {},
+  "picks": {
+    "Jacksonville Light Boat Parade": {
+      "src": "/guides/picks/jacksonville-christmas-by-area-budget-2026/jacksonville-light-boat-parade-sailboat.jpg",
+      "width": 1280,
+      "height": 853,
+      "alt": "A sailboat strung with white lights and a glowing angel during the Jacksonville Light Boat Parade on the St. Johns River",
+      "caption": "A lit sailboat in the Jacksonville Light Boat Parade, downtown on the St. Johns River.",
+      "credit": "Rob Bixby",
+      "creditHref": "https://www.flickr.com/photos/14580956@N08/11151098644",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "sourceUrl": "https://www.flickr.com/photos/14580956@N08/11151098644",
+      "author": "Rob Bixby",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to JPEG.",
+      "sourceKind": "flickr",
+      "placeId": null,
+      "verification": "Flickr set LightParade 11 30 13 by Rob Bixby; parade number 10 on a lit sailboat passing the downtown Jacksonville riverfront. Live Flickr licence checked: CC BY 2.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-11-17"
+    },
+    "ZOOLights at Jacksonville Zoo and Botanical Gardens": {
+      "src": "/guides/picks/jacksonville-christmas-by-area-budget-2026/jacksonville-zoolights-carousel.jpg",
+      "width": 1280,
+      "height": 853,
+      "alt": "The Jacksonville Zoo carousel glowing with lights during ZOOLights",
+      "caption": "The carousel lit up for ZOOLights at Jacksonville Zoo and Gardens.",
+      "credit": "Rob Bixby",
+      "creditHref": "https://www.flickr.com/photos/14580956@N08/31493360751",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "sourceUrl": "https://www.flickr.com/photos/14580956@N08/31493360751",
+      "author": "Rob Bixby",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to JPEG.",
+      "sourceKind": "flickr",
+      "placeId": "ChIJ5UOOwKux5YgRAmO1YNbhTc0",
+      "verification": "Flickr title Zoolights 2016 by Rob Bixby, same set shows the ZOOLIGHTS banner at the Jacksonville Zoo entry plaza. Live Flickr licence checked: CC BY 2.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-11-17"
+    }
+  },
   "gaps": {
     "Deck the Chairs": {
-      "reason": "no-verified-source",
-      "placeId": null,
-      "note": "Creator screenshots are discovery evidence and do not grant image reuse. Use the established neutral fallback until an exact licensed or permissioned photo is available."
-    },
-    "Jacksonville Light Boat Parade": {
       "reason": "no-verified-source",
       "placeId": null,
       "note": "Creator screenshots are discovery evidence and do not grant image reuse. Use the established neutral fallback until an exact licensed or permissioned photo is available."
@@ -20,11 +56,6 @@
     "Riverside Avondale Luminaria": {
       "reason": "no-verified-source",
       "placeId": null,
-      "note": "Creator screenshots are discovery evidence and do not grant image reuse. Use the established neutral fallback until an exact licensed or permissioned photo is available."
-    },
-    "ZOOLights at Jacksonville Zoo and Botanical Gardens": {
-      "reason": "no-verified-source",
-      "placeId": "ChIJ5UOOwKux5YgRAmO1YNbhTc0",
       "note": "Creator screenshots are discovery evidence and do not grant image reuse. Use the established neutral fallback until an exact licensed or permissioned photo is available."
     },
     "Glowing Gardens": {
