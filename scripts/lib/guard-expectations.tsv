@@ -118,7 +118,7 @@ scripts/check-cuisine-shortlist.mjs	0	RENDER	blocks-ci-and-deploy	1	-	36	0	0	8d0
 scripts/check-cuisine-sql-in-sync.mjs	0	CALL	blocks-ci-and-deploy	1	-	5	0	0	6bb978e558175a259c153d3de029cac1433831fef24051c728d486be43f7fe50
 scripts/check-curated-events-read.mjs	0	CALL	blocks-ci-and-deploy	1	-	122	0	0	30a7306691730a19b937be5df1198bccbe6c47af632c3e8e3fc078ef1b59fbea
 scripts/check-curated-events-surface.mjs	0	CALL	blocks-ci-and-deploy	1	-	31	0	0	013721e9e52fa6fa0d0ce6026c78100622a17e8eb6eb5a13dee27ddb3def8369
-scripts/check-curated-events.mjs	0	CALL	blocks-ci-and-deploy	1	-	69	0	0	236fe570a4974fc35a7a002f9f6bd33644dcd76ee39dcce13c4aab3e20d7649c
+scripts/check-curated-events.mjs	0	CALL	blocks-ci-and-deploy	1	-	71	0	0	116c5fd9161bc6a6e835bf235262f4c66cf4e33e70cc16df738774a121d2232a
 scripts/check-curated-library-fallback.mjs	0	CALL	blocks-ci-and-deploy	1	-	33	0	0	9853a598fe599efafd8308324dc89d2e8085e38e5d139b13ac655c1b4a46595d
 scripts/check-customer-copy-leaks.mjs	0	CALL	blocks-ci-and-deploy	1	-	0	0	0	abcaac7de2704211b26a30c5bb6b6f09940b7804d3cb44167b3180203a55e8ff
 scripts/check-cwv.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	14	1	0	005e59cd7fbc6966cb81707a9fb96e29b187307a7c21c1747d6d05f9619bd328
