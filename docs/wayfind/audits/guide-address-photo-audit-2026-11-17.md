@@ -15,18 +15,18 @@ Picture Scrapper list for this page:
 
 Every recommendation on that page:
 - hero: Florida Christmas Boat Parades 2026: Lit Boats on the Water. not a single place. maps: n/a. photo: present.
-- best-pick: Seminole Hard Rock Winterfest Boat Parade. address: 888 E Las Olas Blvd #210, Fort Lauderdale, FL 33301. maps: yes. photo: placeholder. Source: wf_places_cache for Riverwalk Fort Lauderdale, the pinned viewing place. Route parade. The boats start at Stranahan House and run the New River. This is that pinned place, not every point on the route.
-- pick: Tampa Riverwalk Holiday Lighted Boat Parade. address: 615 Channelside Dr, Tampa, FL 33602. maps: yes. photo: placeholder. Source: sparkmanwharf.com and wf_places_cache for Sparkman Wharf. Route parade. The boats pass this wharf. This is that pinned place, not every point on the route.
-- pick: Jacksonville Light Boat Parade. address: 1001 Museum Cir, Jacksonville, FL 32207. maps: yes. photo: present. Source: wf_places_cache for Southbank Riverwalk. Route parade. Spectators gather along that riverwalk. This is that pinned place, not every point on the route.
-- pick: Clearwater Holiday Lighted Boat Parade. address: 255 Drew St, Clearwater, FL 33755. maps: yes. photo: placeholder. Source: wf_places_cache for The BayCare Sound, the park the guide pins (Coachman Park is on the route). This is that venue, not every point on the route.
-- pick: Boca Ciega Yacht Club Lighted Christmas Boat Parade. address: 29th Ave S & Miriam St S, Gulfport, FL 33711. maps: yes. photo: placeholder. Source: wf_places_cache for Clam Bayou Nature Park. Route parade. The line forms at Gulfport Municipal Marina and passes this park. This is that park, not every point on the route.
+- best-pick: Seminole Hard Rock Winterfest Boat Parade. address: 888 E Las Olas Blvd #210, Fort Lauderdale, FL 33301. maps: yes. photo: placeholder. Source: wf_places_cache. Route parade. Street address of Riverwalk Fort Lauderdale, the viewing place pinned on the guide. The boats start at Stranahan House and run the New River. This is that pinned place, not every point on the route.
+- pick: Tampa Riverwalk Holiday Lighted Boat Parade. address: 615 Channelside Dr, Tampa, FL 33602. maps: yes. photo: placeholder. Source: official-site. Route parade. Street address of Sparkman Wharf, the viewing place pinned on the guide. The boats pass this wharf. This is that pinned place, not every point on the route.
+- pick: Jacksonville Light Boat Parade. address: 1001 Museum Cir, Jacksonville, FL 32207. maps: yes. photo: present. Source: wf_places_cache. Route parade. Street address of Southbank Riverwalk, where the city says spectators gather. The boats cruise the St. Johns River. This is that pinned riverwalk, not every point on the route.
+- pick: Clearwater Holiday Lighted Boat Parade. address: 255 Drew St, Clearwater, FL 33755. maps: yes. photo: placeholder. Source: wf_places_cache. Route parade. Street address of The BayCare Sound, the park the guide pins on the route (Coachman Park). The boats pass this park. This is that venue, not every point on the route.
+- pick: Boca Ciega Yacht Club Lighted Christmas Boat Parade. address: 29th Ave S & Miriam St S, Gulfport, FL 33711. maps: yes. photo: placeholder. Source: wf_places_cache. Route parade. Place Details gives the intersection for Clam Bayou Nature Park, the park pinned on the guide. The line forms at Gulfport Municipal Marina and passes this park. This is that park, not every point on the route.
 
 ## Counts
 
 - Pages audited: 86
 - Places and events audited: 582
-- Addresses fixed with a maps link: 133
-- Unresolved addresses: 449
+- Addresses fixed with a maps link: 377
+- Unresolved addresses: 205
 - Photo gaps: 401
 
 ## Photo gaps for the Picture Scrapper
@@ -440,14 +440,10 @@ Missing photos, placeholder tiles, empty sources, and images that return an erro
 ### /guides/swim-with-manatees-crystal-river
 
 - best-pick: Swim with the manatees in Kings Bay
-- pick: Three Sisters Springs, from the water (ChIJjZq3rbFB6IgRb6e1zyAKbg4)
-- pick: Three Sisters Springs boardwalk, stay dry (ChIJjZq3rbFB6IgRb6e1zyAKbg4)
-- pick: Homosassa Springs Wildlife State Park (ChIJTTHiI8w_6IgR89hvVjSS-vc)
 
 ### /guides/bioluminescence-kayak-tour-space-coast
 
 - best-pick: A clear-kayak bioluminescence tour
-- pick: The dark water inside Merritt Island refuge (ChIJ5RBa1A604IgR0u0SUVMbBQE)
 - pick: Make it a Space Coast night
 
 ### /guides/florida-scalloping-crystal-river-homosassa
@@ -455,67 +451,18 @@ Missing photos, placeholder tiles, empty sources, and images that return an erro
 - best-pick: A guided scallop trip from Crystal River or Homosassa
 - pick: Off-season, swim with the manatees instead
 
-### /guides/weeki-wachee-kayak-mermaids-guide
-
-- best-pick: Paddle the Weeki Wachee River (reserve ahead) (ChIJz3OOrDIg6IgRMKjzAPsV3NI)
-- pick: The live mermaid show (ChIJz3OOrDIg6IgRMKjzAPsV3NI)
-- pick: Buccaneer Bay, the spring-fed water park (ChIJz3OOrDIg6IgRMKjzAPsV3NI)
-
 ### /guides/winter-park-scenic-boat-tour
 
 - pick: Make it a Winter Park day
 
-### /guides/siesta-key-drum-circle
-
-- best-pick: When and exactly where
-
-### /guides/pinecraft-sarasota-amish-village
-
-- pick: The village itself
-
-### /guides/siesta-key-vs-lido-key
-
-- best-pick: Siesta Key: the sand
-- pick: Lido Key: the balance
-
 ### /guides/things-to-do-sarasota
 
-- pick: Kayak Lido's mangrove tunnels (ChIJJ3XVfEhrw4gRY3oXQ874Cco)
-- pick: Marie Selby Botanical Gardens (ChIJPTvxtmpAw4gReToYD5mTNwE)
 - pick: Sarasota Farmers Market (ChIJyWJV1WxAw4gRv8El830m2PY)
 - pick: Myakka River State Park (ChIJxaeEtGVMw4gRd5SI3lZDqnY)
-- pick: The Celery Fields (ChIJ7-I5X4tHw4gRAK6g4JEha7M)
-
-### /guides/best-cuban-sandwich-tampa
-
-- best-pick: Columbia Restaurant (ChIJz8e7TVLEwogRBeybvscHnD4)
-- pick: La Segunda Central Bakery (ChIJXTeLe0XEwogR-wheRdFeKEY)
-- pick: West Tampa Sandwich Shop (ChIJPbUnl43DwogRz7WNKvF2Avw)
-
-### /guides/st-armands-circle-restaurants
-
-- pick: Café on St. Armands (ChIJ8_xGlpFqw4gRpBDnt0x_mdg)
-- pick: Crab & Fin (ChIJrS5xlJFqw4gR6kPVXoSwct0)
-- pick: Kilwins (ChIJrdrmAJJqw4gRcHU7hwuv-3c)
-- pick: Blue Dolphin Café (ChIJ-REJt5Fqw4gRLOdF-9RkZe4)
-
-### /guides/best-restaurants-disney-springs
-
-- best-pick: The Boathouse (ChIJyWaYUYd_3YgR7gx9sx98KI0)
-- pick: Morimoto Asia (ChIJF7KJye5-3YgR0mRAbGMtS10)
-- pick: Wine Bar George (ChIJ_7j9pYd_3YgRmJkanPMuZ0k)
-- pick: Jaleo by José Andrés (ChIJ0_My9aR_3YgRQnilGsmaCps)
-- pick: Gideon's Bakehouse (ChIJPd6UAfJ_3YgRP-V0GS5jS8I)
-- pick: T-REX Cafe (ChIJO3vjMIF_3YgRqb3SdwzbyII)
 
 ### /guides/best-hotels-near-magic-kingdom
 
-- best-pick: Disney's Contemporary Resort (ChIJ96XKNOZ-3YgR21T9j0Kq8Qc)
-- pick: Disney's Polynesian Village Resort (ChIJy-qcFhl-3YgRMvawaCwY1RE)
 - pick: Disney's Grand Floridian (ChIJAZ2Ywx1-3YgRMOY_HCjnAXk)
-- pick: Disney's Wilderness Lodge (ChIJk56jVSZ-3YgRn_VPMtC9CdI)
-- pick: Disney's Fort Wilderness Cabins (ChIJ-8Eajc5_3YgRnNnghOJqkrc)
-- pick: Four Seasons Orlando (ChIJZQAgqdt_3YgRnCLWjBzzC28)
 
 ### /guides/gatorland-vs-wild-florida
 
@@ -523,59 +470,22 @@ Missing photos, placeholder tiles, empty sources, and images that return an erro
 
 ### /guides/things-to-do-orlando-not-theme-parks
 
-- best-pick: Airboat the Everglades headwaters (ChIJE1158xWa3YgRyxYmba83M0o)
-- pick: Kayak a natural spring (ChIJw5hmHut154gRI1LE7BjQiEg)
 - pick: Watch a rocket launch (ChIJdeCS1uW54IgRqG67_UFPInI)
 - pick: Kennedy Space Center Visitor Complex (ChIJiTHKxDOu4IgRgAU6btoqIsU)
 - pick: Blue Spring State Park in manatee season (ChIJyYEUav8P54gRatuv_zQzm20)
-- pick: Swim at Wekiwa Springs (ChIJd_yTxUh054gR9cGD0gI_yHw)
-- pick: Day-trip to Mount Dora (ChIJGSMzu2Oi54gR-rlDDL6V3Qs)
-- pick: East End Market (ChIJz4eUs7N654gRiMJs2630XVc)
 
 ### /guides/sarasota-half-price-dining
 
 - pick: Bar Bingo at Gecko's Hillview (ChIJRQqLckVAw4gR-Qh_02eZQJQ)
 
-### /guides/orlando-in-the-rain
-
-- pick: WonderWorks Orlando (ChIJRdxzRk1-54gRJvqlZQbtpE4)
-- pick: Museum of Illusions Orlando (ChIJc1x01Xl_54gR3yyWFYterI4)
-- pick: The Great Escape Room Orlando (ChIJgWr-M_x654gRRd7J_Abj-SY)
-- pick: Orange County Regional History Center (ChIJyRaIJPx654gRhAbigeu9AMg)
-- pick: Arcade Monsters International Drive (ChIJlUpNP_9_54gRQKh-tw2ZX1s)
-
 ### /guides/birthday-freebies-bradenton-sarasota
 
 - best-pick: Starbucks: a free handcrafted drink — if you set it up early (ChIJCTw8qAE9w4gRV4bsIMbQ2H8)
-- pick: Sephora at UTC: a free beauty gift set, all month (ChIJVcT9hOc4w4gREnfUoBV42RA)
-- pick: AMC Bradenton 20: free large popcorn on the house (ChIJ1wH4N3QWw4gREDvfx8VmUSY)
-- pick: Nothing Bundt Cakes: a free Bundtlet, no purchase (ChIJ2RTKm1tHw4gRK4xtJw-jqWI)
-- pick: Baskin-Robbins: a free scoop, on the day itself (ChIJ16W70NY9w4gRG9cBamnCpn0)
-- pick: Chick-fil-A: the reward grows with your tier (ChIJ_1KKw-oXw4gRGao51ByvSIc)
-- pick: The Cheesecake Factory at UTC: free slice with any purchase (ChIJZ0W_vt04w4gRlbOczIeB2k0)
-- pick: Crumbl: a free cookie — but only at Silver status (ChIJ_5OG3Z45w4gRbGmfLDXwT6A)
-- pick: IHOP: free birthday pancakes (ChIJ6yU9i-IVw4gRo01we-1UEZU)
 - pick: Panera: a birthday treat from MyPanera (ChIJz80-WhEWw4gRzOuwAzFVxag)
-- pick: Ulta Beauty: birthday gift plus double points — with a purchase (ChIJmyxjyZgXw4gRB3WmGve_TxY)
-- pick: Dairy Queen: a birthday 'surprise' — don't count the Blizzard yet (ChIJQd5TVAgWw4gRtK1Eo_WdA9U)
-- pick: Firehouse Subs: a birthday reward we couldn't fully verify (ChIJ2SaIlRsWw4gRzGAwvP0eDaE)
-- pick: Auntie Anne's at Ellenton Premium Outlets: a free pretzel, no purchase (ChIJHaxvqjIjw4gRAr21gNtVWBw)
-- pick: Culver's: a free Create Your Own Dish — twice a year (ChIJyUVHMkMRw4gRWxSSGDprdYQ)
-- pick: Chili's: a free dessert that expires fast (ChIJObBe1x8Ww4gRZocRz7u1X2g)
-- pick: Duck Donuts: a free donut for keeping the app warm (ChIJbQc50hEWw4gRekS45lcFEFU)
-- pick: Jersey Mike's: 72 Shore Points — with a purchase gate (ChIJafhu4hYWw4gRyNie7mo17V4)
-- pick: Moe's: the birthday burrito (ChIJiVUwo8Y9w4gRyfRSxgrLTps)
-- pick: Olive Garden: free dessert at the table (ChIJ82ZQGhEWw4gRyW9_GZld-8I)
-- pick: Smoothie King: $2 off — free only at the top tier (ChIJ3TqagqwXw4gRSzSibPN094s)
-- pick: Cold Stone: a two-week birthday window (ChIJpR7FkLoWw4gRGsi3ogvZxw4)
 - pick: First Watch: a birthday treat with brunch (ChIJYfzA4SUlw4gRnPt72baj7pU)
-- pick: Cooper's Hawk at UTC: a $15 birthday reward, at the table (ChIJg3dcWgZHw4gRXN7pMNzP_pA)
-- pick: Wahlburgers in Sarasota: a free shake, show the email (ChIJz5Lpb5c_w4gRivPISVkQG3A)
-- pick: Toast birthday credits: real dollars at local restaurants (Turmeric, Wheat + Water, Riviera French Café) (ChIJ32YG_ao5w4gRpzcR49e5sMo)
 
 ### /guides/anna-maria-island-day-trip
 
-- best-pick: Bean Point, the island's secret-that-isn't (ChIJFy96TuUPw4gRr3IUjLXDXfM)
 - pick: Pine Avenue and the City Pier
 - pick: The free trolley, your parking cheat code
 
@@ -583,11 +493,9 @@ Missing photos, placeholder tiles, empty sources, and images that return an erro
 
 - best-pick: The Canopy Walkway and tower (ChIJE0_XXFVJw4gRroRqJ-TSTXg)
 - pick: The lake, the birdwalk, and the gators (ChIJxaeEtGVMw4gRd5SI3lZDqnY)
-- pick: Paddle or pedal it (ChIJEUM6S7JOw4gRSeCj4mQQrQ0)
 
 ### /guides/ybor-city-tampa-guide
 
-- best-pick: The Columbia Restaurant (ChIJz8e7TVLEwogRBeybvscHnD4)
 - pick: Seventh Avenue and the cigar legacy
 - pick: The streetcar and the roosters
 
@@ -595,124 +503,24 @@ Missing photos, placeholder tiles, empty sources, and images that return an erro
 
 - pick: The museum middle (ChIJy6ESWITDwogReu72OLauRMM)
 
-### /guides/de-soto-national-memorial-bradenton
-
-- best-pick: The mangrove shoreline trail (ChIJVcqB2MUQw4gRbN_T0WF8QEw)
-- pick: Camp Uzita's living history (ChIJVcqB2MUQw4gRbN_T0WF8QEw)
-- pick: Pair it with Robinson Preserve (ChIJR0i18icRw4gRbyGIoLLoSo0)
-
-### /guides/robinson-preserve-bradenton
-
-- best-pick: The observation towers (ChIJR0i18icRw4gRbyGIoLLoSo0)
-- pick: The kayak trails (ChIJR0i18icRw4gRbyGIoLLoSo0)
-- pick: Flat miles for wheels (ChIJR0i18icRw4gRbyGIoLLoSo0)
-
-### /guides/magical-dining-orlando-2026
-
-- best-pick: ÔMO by Jônt, Winter Park (ChIJO3PrEmdx54gRW1c11w1Yxlo)
-- pick: Kaya, Mills 50 (ChIJ3YuEdVp754gRoWwBx528kNc)
-- pick: AVA MediterrAegean, Park Avenue (ChIJLWQ9xoZx54gRgT08_-0eAM4)
-- pick: The Pinery, Ivanhoe Village (ChIJwQne8wd754gRvBfDab1krMk)
-- pick: The Ravenous Pig, Winter Park (ChIJg433znRw54gRBeLC7eymGVw)
-- pick: Kabooki Sushi, East Colonial (ChIJpegta8x654gRmUI2JGqYuus)
-- pick: Maxine's on Shine, Colonialtown (ChIJFUZKhud654gR90uHGsWRxHQ)
-- pick: Otto's High Dive, Milk District (ChIJOwkr93R754gRwukRdzlSJgM)
-- pick: Osteria Ester, Thornton Park (ChIJr8ttJtR754gRK0m2p7YmVN4)
-- pick: The Chapman, Park Avenue (ChIJZwpmWwVw54gRK5HD5FqlBfU)
-
-### /guides/sarasota-restaurants
-
-- best-pick: Lucky 8 (ChIJaeoTfN9Bw4gR4KQRHwdosqs)
-- pick: Focaccia Sandwich + Bakery (ChIJk-o9uSlBw4gR6tDfhvqtdRk)
-- pick: Florence and the Spice Boys (ChIJWerCJQA5w4gRkgxRabmvuBI)
-- pick: Zōtō (ChIJJYDKlHM5w4gRpCS0kh1pDG8)
-- pick: Star Fish Company (ChIJmcZ22HARw4gR5Th1Pxcl9II)
-- pick: Blu Kouzina UTC (ChIJUTI3PKk5w4gRtaS2weXk70A)
-- pick: Dry Dock Waterfront Grill (ChIJ38CBz8Vqw4gRg0oFYUGBU_s)
-
-### /guides/tampa-restaurants
-
-- pick: Rocca (ChIJ1WZIXhjFwogR1M-_3DXnG6Y)
-- pick: Columbia Restaurant (ChIJz8e7TVLEwogRBeybvscHnD4)
-- pick: Ulele (ChIJ3Vyq7WTEwogRA-WDC7Mze2E)
-- pick: Psomi (ChIJ_RvwD3nDwogRCeHQydPsx_k)
-- pick: On Swann (ChIJ5crCip3EwogRQnhkbw_Ir6U)
-- pick: Oxford Exchange (ChIJ11hsiYXEwogRjDBv39F04J8)
-- pick: OLIVIA (ChIJh4m6DH7DwogRcwo9evYZIhg)
-- pick: Lucky Tigre (ChIJKZW0N5XDwogRoKTCdhDprnU)
-- pick: La Segunda Bakery and Cafe (ChIJXTeLe0XEwogR-wheRdFeKEY)
-
-### /guides/st-pete-restaurants
-
-- best-pick: Elliott Aster (ChIJnZwugRXhwogRpN-HY445tJM)
-- pick: in between days (ChIJPRvtBsfjwogRvhNpBGje2hA)
-- pick: Il Ritorno (ChIJ3SpvbYPhwogRS17En4FSzVI)
-- pick: Sushi Sho Rexley (ChIJM8CbE53hwogR_Py8YaLt6As)
-- pick: Fortu (ChIJdaUo-PPhwogRii2HqysdgjI)
-- pick: Wild Child (ChIJG00H7u7jwogRoWLHFmmGmbY)
-- pick: Bodega on Central (ChIJRfPBKCriwogR4yaS_ccI5so)
-- pick: Juno & The Peacock (ChIJK6b43nXhwogRCV39bMyGJGo)
-- pick: Mullet's Fish Camp (ChIJh6exAYbhwogRd4RP1WCELps)
-- pick: Doc Ford's Rum Bar and Grille St Pete Pier (ChIJIyCdCXfhwogRH8MxhxaUGgs)
-
-### /guides/orlando-restaurants
-
-- best-pick: Kaya (ChIJ3YuEdVp754gRoWwBx528kNc)
-- pick: Otto’s High Dive (ChIJOwkr93R754gRwukRdzlSJgM)
-- pick: DOMU (ChIJYb7ys7N654gRxvFvaVDAB0c)
-- pick: Zaru (ChIJm9xjdgx754gRvYolbCqZPBQ)
-- pick: Coro Restaurant (ChIJ91E5TZp754gR6UAe4qltcFE)
-- pick: TORI TORI (ChIJS6okKNZ754gRnwUlHBXAhU8)
-- pick: Sticky Rice (ChIJjXi_isN654gRGkLnctUt860)
-- pick: Mills Market (ChIJG1opWwB754gRGs--XkuAER0)
-- pick: Kabooki Sushi - East Colonial (ChIJpegta8x654gRmUI2JGqYuus)
-- pick: Kappo Tsan (ChIJuclcIkWB3YgRi8GT12wxByM)
-
 ### /guides/miami-restaurants
 
-- best-pick: Sunny’s Steakhouse (ChIJ0dm17kix2YgRoDAy8rxLOjU)
-- pick: Boia De (ChIJte0b2xux2YgRr8f-xaLb0jw)
-- pick: COTE Miami (ChIJT8zbHlex2YgRbmlvb54NTIY)
 - pick: Barra Callao (ChIJv7BTO4-t2YgRqNxbUEldJjE)
-- pick: Walrus Rodeo (ChIJsSLy8Nex2YgRgbI_3id8b_E)
-- pick: B & M Market (ChIJ9ZlVHnmx2YgRIhh-NLFLt5w)
-- pick: Chug's Diner (ChIJoZfKYcy32YgR4ROg8Mdxtnw)
-- pick: La Natural (ChIJaeBbjZmx2YgRI0Yb0-WQtPU)
-- pick: Over Under (ChIJzwEW8bK32YgRoeQcKaBkwrs)
-- pick: Versailles Restaurant Cuban Cuisine (ChIJt9yvFgu32YgRrk-vKGEQB6g)
 
 ### /guides/tampa-bay-rainy-day
 
-- pick: The Dalí Museum (ChIJyaCQzpHhwogRBdPcZI6UOyc)
-- pick: Imagine Museum (ChIJyzrZADLiwogRDSaWoWljzTE)
-- pick: The Great Escape Room Tampa (ChIJL0bExYvEwogRWA4X9n0d7MA)
-- pick: Sandbox VR St. Pete (ChIJYVYFKETjwogRol57F48FMxc)
-- pick: The Escape Game Tampa (ChIJgb8MYx3DwogR70_o9aWhkrQ)
-- pick: Zubrick Magic Theatre (ChIJG365UJ_jwogRAIblIxnwvzU)
 - pick: Glazer Children's Museum (ChIJ-6lKAInEwogRVnf5NBtjZss)
 - pick: Kids Empire Tampa Citrus Park (ChIJZQ__1N_rwogRkz34m52_aHo)
 
-### /guides/sarasota-rainy-day
-
-- pick: Escape Reality (ChIJhcub0Rs_w4gRCEvPuk8tBok)
-- pick: Bowlero Gulf Gate (ChIJVaN0nNZDw4gRZr-D4qxm-oo)
-- pick: CMX CinéBistro Siesta Key (ChIJ3-wcgLJBw4gR9UGr_yLsHJY)
-- pick: Kids Empire Bradenton (ChIJA7aoMgAXw4gRdvEXDPTzHKg)
-
 ### /guides/things-to-do-orlando-summer-2026
 
-- best-pick: Universal Epic Universe (ChIJa7bjTAB_54gR-M-m-KIOCP0)
 - pick: Magic Kingdom's reopened classics (ChIJgUulalN-3YgRGoTaWM2LawY)
 - pick: Rock 'n' Roller Coaster Starring The Muppets (ChIJRx6CYyd83YgRD_HjNqPO_7s)
 - pick: EPCOT's Soarin' Across America (ChIJGzFs3q9_3YgRvZd1y2NSJOo)
-- pick: Level99 at Disney Springs
 - pick: Eola Food Hall and the Mills 50 crawl
 
 ### /guides/things-to-do-miami-summer-2026
 
-- best-pick: Wynwood Walls and the arts district (ChIJ98BffLK22YgRsymdIvOgjNA)
-- pick: The Venetian Pool (ChIJO2jhb4m32YgRvulhfY9IMx0)
-- pick: South Pointe Park Pier and South Beach (ChIJcZJcKfG02YgRpzq_bjkv3vc)
 - pick: Joia Beach Club on Watson Island
 - pick: The Coral Gables restaurant boom
 - pick: Versace Mansion and the Ocean Drive icons
@@ -720,25 +528,19 @@ Missing photos, placeholder tiles, empty sources, and images that return an erro
 
 ### /guides/things-to-do-tampa-summer-2026
 
-- best-pick: Busch Gardens and the new Lions and Hyena Ridge (ChIJhRo4DU_GwogRUgjhMAj-pag)
 - pick: The Riverwalk with the Pirate Water Taxi
 - pick: Ybor City
-- pick: Adventure Island (ChIJEVArB1LGwogRM2k5RHvCuX4)
-- pick: Roasted's fruit-shaped ice cream (ChIJv30X8SzHwogRVHpiMio-n70)
 
 ### /guides/things-to-do-fort-lauderdale-summer-2026
 
 - best-pick: Fort Lauderdale Beach and the reef offshore
 - pick: Pier Sixty-Six and the rotating Pier Top
 - pick: Las Olas Boulevard's restaurant wave
-- pick: The Fort, the world's first pickleball stadium (ChIJxarXNwCr2YgRZvrLZ_ZW9dQ)
-- pick: Huizenga Park, rebuilt (ChIJLzMH2FcA2YgRyz8FN7F7OOY)
 - pick: Puttshack at Dania Beach (ChIJT1fY8CWr2YgRPfvi-_9cSiU)
 - pick: Las Olas Beach at sunrise
 
 ### /guides/things-to-do-key-west-summer-2026
 
-- best-pick: Mallory Square's sunset celebration (ChIJwYxPGfu30YgRBuPGwZRZp-g)
 - pick: The Reserve, the new bank takeover
 - pick: The Southernmost Point buoy, temporary edition
 - pick: The Duval Street crawl
@@ -753,8 +555,6 @@ Missing photos, placeholder tiles, empty sources, and images that return an erro
 - pick: St. George Street and the old town
 - pick: A show at the number-one amphitheater in America
 - pick: The Alligator Farm's zip line
-- pick: The Drunken Horse (ChIJD8rK2Y0n5IgRnagsN_AKOXQ)
-- pick: The crab-boil giants: Outback Crab Shack and Crabby's
 
 ### /guides/things-to-do-daytona-beach-summer-2026
 
@@ -766,15 +566,11 @@ Missing photos, placeholder tiles, empty sources, and images that return an erro
 - pick: A Tortugas game at Jackie Robinson Ballpark
 - pick: Crabby Joe's on Sunglow Pier
 - pick: The Fairchild Oak and the content circuit
-- pick: Daytona Lagoon and the revamped Ocean Center district
 
 ### /guides/things-to-do-panama-city-beach-summer-2026
 
 - best-pick: Shell Island
 - pick: The 27 miles of sugar-white beach
-- pick: St. Andrews State Park and the Jetties (ChIJO82XwLSHk4gREot8bwSy8Q8)
-- pick: Pirates Voyage Dinner and Show (ChIJsR0yJpiNk4gRzx0d79JwKns)
-- pick: Topgolf and the new Pier Park City Center (ChIJK0m8N2eNk4gR3Q6Fe6gYs_w)
 - pick: Pier Park and the SkyWheel
 - pick: Shipwreck Island Waterpark
 - pick: The TikTok food crawl: Boondocks and Coco Loco
@@ -783,12 +579,8 @@ Missing photos, placeholder tiles, empty sources, and images that return an erro
 ### /guides/things-to-do-st-petersburg-clearwater-summer-2026
 
 - best-pick: Clearwater Beach and the Pier 60 sunset festival
-- pick: The Dalí Museum (ChIJyaCQzpHhwogRBdPcZI6UOyc)
-- pick: Caladesi Island by ferry
 - pick: Clearwater Marine Aquarium
-- pick: Sunken Gardens (ChIJV5IKfmXhwogRV3X8VCd713A)
 - pick: Fort De Soto Park (ChIJv5qSjFsbw4gRSAnuSwy0zHA)
-- pick: Shell Key Preserve (ChIJ5_NkHLUcw4gRndvLQGe_Ox8)
 - pick: St. Pete's new fine-dining wave
 - pick: Shuffleboard Fridays at the world's oldest club
 
@@ -798,134 +590,77 @@ Missing photos, placeholder tiles, empty sources, and images that return an erro
 - pick: Keewaydin Island by boat
 - pick: Fifth Avenue South on summer deals
 - pick: Corkscrew Swamp Sanctuary's boardwalk
-- pick: Tigress at The Perry Hotel
-- pick: Clam Pass Park's mangrove boardwalk (ChIJFT5Zr1Ee24gRzaRJRV99tKM)
-- pick: Naples Botanical Garden (ChIJlcQil-Pj2ogRZXbB55ldZcQ)
 - pick: An FC Naples match night
 - pick: A sunset cruise from Tin City
 
 ### /guides/things-to-do-in-parrish-florida
 
-- pick: Gamble Creek Farms (ChIJfUYeWmAlw4gReflS439GCg0)
 - pick: Lake Manatee State Park (ChIJU17a-Akxw4gR3ppLxjXbveg)
-- pick: Bunker Hill Community Park (ChIJnzqyfgvT3IgR7ZawhYrxDf4)
-- pick: Parrish Community Park (ChIJJSK6DAolw4gR2-tcgDhSPVI)
 - pick: Ferraro's Italian Grille (ChIJVaGvf6gkw4gROjdp7yQzLh4)
 - pick: Good Liquid Brewing Company (ChIJay8TEmElw4gRmgRP3SXl7eM)
-- pick: Ellenton Premium Outlets (ChIJKYwJVy0jw4gRkXnEq-Or48M)
 - pick: Coquina Beach and Anna Maria Island (ChIJ5eLMVXE9w4gR15l0tMZGkMY)
 
 ### /guides/things-to-do-in-sarasota-florida
 
 - pick: Turtle Beach (ChIJp6kyPa1Dw4gR5BhsSYE8pdo)
-- pick: Ted Sperling Nature Park at South Lido (ChIJJ3XVfEhrw4gRY3oXQ874Cco)
-- pick: Ca' d'Zan (ChIJpXGK53VC24gRWMneFVtK6hY)
-- pick: Marie Selby Botanical Gardens (ChIJPTvxtmpAw4gReToYD5mTNwE)
 - pick: Myakka River State Park (ChIJz6wmd_5Kw4gR1PNqMrYU_RY)
-- pick: Bayfront Park and Unconditional Surrender (ChIJ7wa-IxRAw4gRnwt6LGL2yeM)
-- pick: The Celery Fields (ChIJ7-I5X4tHw4gRAK6g4JEha7M)
 
 ### /guides/things-to-do-in-tampa-florida
 
-- best-pick: Busch Gardens Tampa Bay (ChIJhRo4DU_GwogRUgjhMAj-pag)
 - pick: The Tampa Riverwalk (ChIJL_dfJozEwogRF_55TezQpYo)
-- pick: Ybor City (ChIJR_Wrg-fFwogRUIk0jJIOQW8)
-- pick: J.C. Newman's El Reloj cigar factory (ChIJsxtTEU_EwogREc-soNYgMu0)
 - pick: A real Tampa Cuban sandwich
-- pick: Columbia Restaurant (ChIJz8e7TVLEwogRBeybvscHnD4)
-- pick: Ybor City Museum State Park (ChIJJb8wlVHEwogRywROz8FsuZM)
 - pick: The TECO Line Streetcar
 - pick: Bayshore Boulevard
 - pick: Sparkman Wharf and Water Street (ChIJy66Xe53FwogRcpjZQHX4cCI)
 - pick: A Tampa Bay Lightning game
 - pick: Gasparilla Pirate Fest
-- pick: A Gulf day trip to Shell Key Preserve (ChIJ5_NkHLUcw4gRndvLQGe_Ox8)
 
 ### /guides/orlando-halloween-food-2026
 
-- best-pick: Jack & Odd Dog (ChIJdd8VlMN-54gRoaU0d_zYhfk)
 - pick: Rigatoni Ritual Pie
 
 ### /guides/florida-winter-beaches-2026
 
 - pick: Bahia Honda State Park (ChIJxVcTIQ7i0IgRgYa6c5TNrgk)
-- pick: Bill Baggs Cape Florida State Park (ChIJT6PHOUbK2YgRamANgVMeFqk)
-- pick: Honeymoon Island State Park (ChIJ_4R4dXj0wogRhGK2MtUmBjI)
-- pick: Lovers Key State Park (ChIJu0jFtWc924gRf_9YuPnSc2w)
-- pick: Delnor-Wiggins Pass State Park (ChIJlb2_qywf24gRFYBsNGXcHW0)
 - pick: Coquina Beach (ChIJ5eLMVXE9w4gR15l0tMZGkMY)
 
 ### /guides/florida-theme-park-christmas-2026
 
 - best-pick: Mickey's Very Merry Christmas Party (ChIJgUulalN-3YgRGoTaWM2LawY)
 - pick: EPCOT International Festival of the Holidays (ChIJGzFs3q9_3YgRvZd1y2NSJOo)
-- pick: Holidays at Universal Orlando (ChIJvRBCrN9-54gRGZuuaCLGrQE)
 - pick: Disney Springs Christmas Tree Stroll and Santa
 - pick: Disney Jollywood Nights (ChIJRx6CYyd83YgRD_HjNqPO_7s)
-- pick: Christmas Town at Busch Gardens Tampa Bay (ChIJhRo4DU_GwogRUgjhMAj-pag)
 
 ### /guides/florida-holiday-nights-out-2026
 
-- best-pick: Lights in Bloom at Selby Gardens (ChIJPTvxtmpAw4gReToYD5mTNwE)
-- pick: Johnsonville Night Lights in the Garden (ChIJlcQil-Pj2ogRZXbB55ldZcQ)
 - pick: Holiday Lights in Largo Central Park (ChIJE7CJBHv6wogRgU_CnoymVIY)
-- pick: Nights of Lights at Pinecrest Gardens (ChIJuyCMUy3G2YgRyrGn93iiGoM)
-- pick: Disney Springs Christmas Tree Stroll (ChIJ-0qgNoF_3YgRg3Lh7xHDooU)
 
 ### /guides/florida-manatee-season-2026
 
-- best-pick: Three Sisters Springs (ChIJjZq3rbFB6IgRb6e1zyAKbg4)
 - pick: Blue Spring State Park (ChIJyYEUav8P54gRatuv_zQzm20)
-- pick: TECO Manatee Viewing Center (ChIJpUJtM-_ZwogROGyfAWFNelo)
-- pick: Ellie Schiller Homosassa Springs Wildlife State Park (ChIJTTHiI8w_6IgR89hvVjSS-vc)
-- pick: Manatee Lagoon (ChIJf9MKQU3U2IgR0Rp4MD467xw)
-- pick: Lee County Manatee Park (ChIJa1kHd4Vp24gRj7H2MiIoSwo)
 - pick: Fanning Springs State Park (ChIJyefyOo4f6YgR98DvEw2xLgA)
 
 ### /guides/florida-thanksgiving-weekend-2026
 
 - pick: Daytona Turkey Run (ChIJk4XLpEnZ5ogRl8zItcDGhxM)
 
-### /guides/florida-christmas-markets-and-towns-2026
-
-- pick: Christkindlmarkt at Krush Brau Park (ChIJiQYx6JiD3YgRGKwhW35QY0E)
-
-### /guides/florida-nutcracker-and-holiday-shows-2026
-
-- best-pick: The Nutcracker at Orlando Ballet (ChIJ001Ra3p754gRq1bFeHUUxXY)
-- pick: A Christmas Carol at Orlando Shakes (ChIJdZyA4pl654gRe829ktxXMOo)
-
 ### /guides/florida-santa-and-christmas-trains-2026
 
 - pick: North Pole Noir Christmas Murder Mystery Dinner Train (ChIJEyrKF49q24gRi1npcziO2eE)
-- pick: Tampa Santa Brunch Cruise (ChIJHxcB0vPEwogR3fFnuF_MWmg)
-- pick: Santa in Space at MOSI (ChIJq6E9W8_HwogRUggO5759Ook)
-- pick: Meet Santa in the Park (ChIJj7-A7nXhwogRGvQ_vcrP7uU)
 
 ### /guides/free-christmas-lights-florida-2026
 
-- pick: St. Augustine Nights of Lights (ChIJ-X6wLJQn5IgRvYMgcGVzY80)
-- pick: Light Up the Holidays (ChIJ0XiHxYJx54gRpLzDNEGdyV0)
 - pick: Holiday Lights in Largo Central Park (ChIJE7CJBHv6wogRgU_CnoymVIY)
-- pick: Winter Nights Under the Lights (ChIJieaBrMgQw4gR5Bwyah-XE_U)
-
-### /guides/florida-hanukkah-2026
-
-- best-pick: Menorah Lighting Celebration (ChIJMZ2NFvQB2YgRCwcJecybdGY)
 
 ### /guides/florida-new-years-eve-2026
 
 - pick: Sunset to Sparkle: Clearwater Beach New Year's Eve Celebration (ChIJhS6CJtf2wogRF3KX4LwQviY)
-- pick: Quantum Countdown at MOSI (ChIJq6E9W8_HwogRUggO5759Ook)
-- pick: Kids' New Year's Eve at LEGOLAND Florida (wfadd_legoland_florida)
 
 ### /guides/fall-events-orlando-2026
 
 - best-pick: EPCOT International Food & Wine Festival
-- pick: Green Meadows Farm Fall (ChIJMRKPC1mC3YgRTs5evGTqF4k)
 - pick: EDC Orlando
 - pick: Vans Warped Tour Orlando
-- pick: Fall concerts at Kia Center
 - pick: Walt Disney World Swan and Dolphin Food & Wine Classic
 - pick: Florida Blue Florida Classic
 - pick: FusionFest
@@ -934,53 +669,39 @@ Missing photos, placeholder tiles, empty sources, and images that return an erro
 
 - best-pick: Saturday: the National Final
 - pick: Friday: Battle Day at The RITZ Ybor
-- rail: Harpoon Harry's Crab House - Tampa (ChIJJ13SCI3EwogRcX2q5Fs_HkU)
 - rail: Tampa Riverwalk (ChIJL_dfJozEwogRF_55TezQpYo)
-- rail: Hattricks (ChIJB1L_XIzEwogR1Eslu42A1NQ)
-- rail: Columbia Restaurant (ChIJz8e7TVLEwogRBeybvscHnD4)
-- rail: 7th + Grove (ChIJmfFGVBPFwogRIYyNhvz3X9Y)
-- rail: Gaspar's Grotto (ChIJ1yQNClHEwogRaCW7u5bgT0Y)
-- rail: Bad Monkey Ybor (ChIJq2_lAFHEwogRRCeJJ77fHgg)
 
 ### /guides/things-to-do-in-bradenton-florida
 
 - pick: Bradenton Riverwalk
 - pick: Village of the Arts
-- pick: Robinson Preserve (ChIJR0i18icRw4gRbyGIoLLoSo0)
 
 ### /guides/things-to-do-in-miami-florida
 
 - best-pick: Vizcaya Museum and Gardens
 - pick: Pérez Art Museum Miami
-- pick: Wynwood Walls (ChIJ98BffLK22YgRsymdIvOgjNA)
 - pick: Little Havana
 
 ### /guides/things-to-do-in-ellenton-florida
 
 - best-pick: Gamble Plantation Historic State Park (ChIJjZhUvSU9w4gRCuTRgyrctZA)
-- pick: Ellenton Premium Outlets (ChIJKYwJVy0jw4gRkXnEq-Or48M)
 - pick: Ellenton Ice & Sports Complex
 
 ### /guides/things-to-do-in-palmetto-florida
 
-- best-pick: Palmetto Historical Park
 - pick: Sutton Park
-- pick: Emerson Point Preserve
 
 ### /guides/things-to-do-in-lakewood-ranch-florida
 
 - best-pick: Lakewood Ranch Main Street
-- pick: Waterside Park (ChIJ70rJA_w5w4gRrx0l1ukJBDc)
 
 ### /guides/things-to-do-in-cortez-florida
 
-- best-pick: Star Fish Company (ChIJmcZ22HARw4gR5Th1Pxcl9II)
 - pick: FISH Preserve
 - pick: Swordfish Grill & Tiki Bar
 
 ### /guides/things-to-do-in-longboat-key-florida
 
-- best-pick: Bayfront Park (ChIJj5mZXMUVw4gRxUsGj0ccPvc)
 - pick: Public beach access at 4001 Gulf of Mexico Drive
 - pick: Quick Point Nature Preserve
 
@@ -1005,7 +726,6 @@ Missing photos, placeholder tiles, empty sources, and images that return an erro
 - pick: Jacksonville Light Boat Parade
 - pick: JAX Artist Walk on Ice
 - pick: Riverside Avondale Luminaria
-- pick: Glowing Gardens (ChIJ6_k9TmCz5YgRZoTCykSG8rA)
 - pick: Blackhawk Bluff Christmas Lights
 - pick: Christmas on Walnut Street
 - pick: Parade of Trees
@@ -1017,34 +737,17 @@ Missing photos, placeholder tiles, empty sources, and images that return an erro
 
 - pick: Nights of Lights: the evening anchor
 
-### /guides/florida-lovebug-season
-
-- rail: The Dalí Museum (ChIJyaCQzpHhwogRBdPcZI6UOyc)
-- rail: Museum of Illusions Orlando (ChIJc1x01Xl_54gR3yyWFYterI4)
-- rail: WonderWorks Orlando (ChIJRdxzRk1-54gRJvqlZQbtpE4)
-
 ### /guides/florida-fall-festivals-2026
 
 - event: Mickey's Not So Scary Halloween Party
-- event: Halloween Pottery Collection at All Fired Up (ChIJjapVvA9w54gRY4Tpi19HXhI)
-- event: Halloween Pottery Collection at All Fired Up (ChIJhbni_xFn54gR0p89LazzSD8)
 - event: EPCOT International Food and Wine Festival
-- event: Dead Coconut Club: Harvest (ChIJwZ_GK-d-54gRm5Ahg7PZYeY)
 - event: Halloween Horror Nights 35
-- event: Fall at The Perfect Press Coffee Co. (ChIJc9TZhGDAwogRRHZ5EzKtJIc)
-- event: Fall Pottery at You Do the Dishes (ChIJIV9AOfbHwogR5SPjijvBLRM)
-- event: Halloween at Nueva Cantina Downtown Tampa (ChIJmzKZ8InEwogR0PM7xTqUB6M)
-- event: Pumpkin Spice Bakery Menu at Haraz House (ChIJQVp535WxwogR42W828PdPRw)
 - event: Scream A Geddon Horror Park
 - event: Brick or Treat at LEGOLAND Florida
-- event: Haunted Mangoni (ChIJRStTdYSD54gRhH5dTvKQLJI)
-- event: Lattes and Leaves at Rosallie (ChIJ15lqd26D54gR0zik2zNTX4o)
-- event: Sirens of Helena at Helena Modern Riviera (ChIJP1om-VJ-54gRAF-_k_y5cig)
 - event: The Horrorland at Jungle Island
 - event: Howl O Scream at Busch Gardens Tampa Bay
 - event: Howl O Scream at SeaWorld Orlando
 - event: The Berry Farm Harvest Festival
-- event: Showcase of Citrus Pumpkin Ponderosa (ChIJW5C20gaI54gRZuH_-8hPQy8)
 - event: Amber Brooke Farms Fall Festival
 - event: Palace Miami Beach Fall Harvest Menu
 - event: Congaree and Penn Pumpkin Patch
@@ -1052,8 +755,6 @@ Missing photos, placeholder tiles, empty sources, and images that return an erro
 - event: Oktoberfest Tampa Bay
 - event: Sir Henry's Haunted Trail
 - event: Fox Squirrel Corn Maze and Pumpkin Patch
-- event: Great Scott Farms Fall Fest and Corn Maze (ChIJ68SLYriZ54gRaJgw169KqYA)
-- event: Green Meadows Farm Fall (ChIJMRKPC1mC3YgRTs5evGTqF4k)
 - event: Southern Hill Farms Fall Festival (ChIJ-aI9NvSI54gRrVByB84z-AY)
 - event: Sweet Season Farms Corn Maze and Fall Fun Festival
 - event: Haunted Sarasota Ghost Tour
@@ -1070,7 +771,6 @@ Missing photos, placeholder tiles, empty sources, and images that return an erro
 - event: St. Pete Pier Fall Fest and Pumpkin Patch
 - event: Deerfield Beach Fall Festival
 - event: Gators, Ghosts and Goblins at Gatorland
-- event: Hastings Ranch and Farm Festival (ChIJAyTZ7DqN3YgRrdAAVCHFMkA)
 - event: Roars, S'mores and Snores Spooktacular Campout at Zoo Miami
 - event: ROCKtoberfest Downtown Sarasota
 - event: Spooktacular at Jacksonville Zoo and Botanical Gardens

@@ -46,7 +46,7 @@ function need(label, record, slug) {
   }
   if (where.address) {
     if (!isFullStreetAddress(where.address)) gaps.push(label + " (address is not a full street line)");
-    const again = guideMapsUrl({ name: record.name || record.event_name || record.venue, address: where.address, placeId: record.placeId || record.place_id });
+    const again = guideMapsUrl({ name: record.name || record.event_name || record.venue, address: where.address, placeId: where.placeId || record.placeId || record.place_id });
     if (again !== where.mapsUrl) gaps.push(label + " (maps link drifted)");
     return;
   }

@@ -54,6 +54,9 @@ for (const [slug, guide] of Object.entries(GUIDES)) {
       place: needs,
       address: where?.address || "",
       maps: where?.mapsUrl || "",
+      source: where?.source || "",
+      note: where?.note || "",
+      reviewed: where?.reviewed === true,
       photo,
       photoNote,
       placeId: pick.placeId || "",
@@ -70,9 +73,12 @@ for (const [slug, rail] of Object.entries(GUIDE_PLACE_RAILS)) {
         kind: "rail",
         name: item.name,
         place: true,
-        address: where?.address || "",
-        maps: where?.mapsUrl || "",
-        photo: "",
+      address: where?.address || "",
+      maps: where?.mapsUrl || "",
+      source: where?.source || "",
+      note: where?.note || "",
+      reviewed: where?.reviewed === true,
+      photo: "",
         photoNote: "see-article-photo",
         placeId: item.placeId || "",
       });
@@ -94,6 +100,9 @@ for (const event of FLORIDA_FALL_GUIDE_EVENTS_2026) {
     place: true,
     address: where?.address || "",
     maps: where?.mapsUrl || "",
+    source: where?.source || "",
+    note: where?.note || "",
+    reviewed: where?.reviewed === true,
     photo: typeof photo === "string" ? photo : "",
     photoNote: photo ? "" : "missing",
     placeId: event.place_id || "",
@@ -115,14 +124,16 @@ async function head(url) {
     return 0;
   }
 }
-const queue = urls.slice();
-await Promise.all(Array.from({ length: 8 }, async () => {
-  while (queue.length) {
-    const url = queue.shift();
-    const code = await head(url);
-    status.set(url, code);
-  }
-}));
+if (process.env.SKIP_PHOTO_HTTP !== "1") {
+  const queue = urls.slice();
+  await Promise.all(Array.from({ length: 8 }, async () => {
+    while (queue.length) {
+      const url = queue.shift();
+      const code = await head(url);
+      status.set(url, code);
+    }
+  }));
+}
 
 for (const row of rows) {
   if (!row.photo) {
@@ -148,7 +159,7 @@ function csvEscape(value) {
   return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 }
 function toCsv(list) {
-  const headers = ["page", "kind", "name", "placeId", "address", "maps", "addressGap", "photo", "photoNote", "http"];
+  const headers = ["page", "kind", "name", "placeId", "address", "maps", "source", "note", "addressGap", "photo", "photoNote", "http"];
   const lines = [headers.join(",")];
   for (const row of list) {
     lines.push(headers.map((key) => csvEscape(key === "addressGap" ? (row.place && !row.address ? "yes" : "") : row[key])).join(","));
@@ -160,10 +171,12 @@ const first = rows.filter((r) => r.page === `/guides/${FIRST}`);
 const firstPhotos = first.filter((r) => ["missing", "placeholder", "broken", "broken-file"].includes(r.photoNote));
 
 function line(row) {
-  const address = row.place ? (row.address ? `address: ${row.address}` : "address: unresolved") : "not a single place";
+  const address = row.place ? (row.address ? `address: ${row.address}` : (row.reviewed || row.maps ? "address: none, reviewed map link" : "address: unresolved")) : "not a single place";
   const maps = row.maps ? "maps: yes" : (row.place ? "maps: no" : "maps: n/a");
+  const source = row.source ? ` Source: ${row.source}.` : "";
+  const note = row.note ? ` ${row.note}` : "";
   const photo = row.photoNote ? `photo: ${row.photoNote}` : "photo: present";
-  return `- ${row.kind}: ${row.name}. ${address}. ${maps}. ${photo}.`;
+  return `- ${row.kind}: ${row.name}. ${address}. ${maps}. ${photo}.${source}${note}`;
 }
 
 const md = [];
