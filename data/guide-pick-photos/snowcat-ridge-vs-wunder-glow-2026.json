@@ -1,0 +1,16 @@
+{
+  "slug": "snowcat-ridge-vs-wunder-glow-2026",
+  "picks": {},
+  "gaps": {
+    "Snowcat Ridge: choose the active snow outing": {
+      "reason": "no-verified-source",
+      "placeId": "wfadd_snowcat_ridge_dade_city",
+      "note": "Creator screenshots are discovery evidence and do not grant image reuse. Use the established neutral fallback until an exact licensed or permissioned photo is available."
+    },
+    "Wunder Glow: choose the music and light trail": {
+      "reason": "no-verified-source",
+      "placeId": "wfadd_wunder_glow_dade_city",
+      "note": "Creator screenshots are discovery evidence and do not grant image reuse. Use the established neutral fallback until an exact licensed or permissioned photo is available."
+    }
+  }
+}
