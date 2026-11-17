@@ -1,0 +1,41 @@
+{
+  "slug": "st-augustine-christmas-coffee-snow-walk-2026",
+  "picks": {},
+  "gaps": {
+    "Oldest Wooden School House: start before closing": {
+      "reason": "no-verified-source",
+      "placeId": "wfadd_oldest_wooden_school_house_st_augustine",
+      "note": "Creator screenshots are discovery evidence and do not grant image reuse. Use the established neutral fallback until an exact licensed or permissioned photo is available."
+    },
+    "St. Augustine Coffee House: Santa's Toy Shop": {
+      "reason": "no-verified-source",
+      "placeId": "ChIJhWCYaL4n5IgRhwgdf5lIGbc",
+      "note": "Creator screenshots are discovery evidence and do not grant image reuse. Use the established neutral fallback until an exact licensed or permissioned photo is available."
+    },
+    "Auggie's Draft Room: check the snowfall separately": {
+      "reason": "no-verified-source",
+      "placeId": "ChIJa9H7lA4n5IgRViVY0j2H7bY",
+      "note": "Creator screenshots are discovery evidence and do not grant image reuse. Use the established neutral fallback until an exact licensed or permissioned photo is available."
+    },
+    "Nights of Lights: the evening anchor": {
+      "reason": "no-verified-source",
+      "placeId": null,
+      "note": "Creator screenshots are discovery evidence and do not grant image reuse. Use the established neutral fallback until an exact licensed or permissioned photo is available."
+    },
+    "Optional Aviles Street extension: Forgotten Tonic": {
+      "reason": "no-verified-source",
+      "placeId": "ChIJu5KCkJYn5IgRVVjGR-aX2N4",
+      "note": "Creator screenshots are discovery evidence and do not grant image reuse. Use the established neutral fallback until an exact licensed or permissioned photo is available."
+    },
+    "Put the stops in an order that respects closing times": {
+      "reason": "not-a-place",
+      "placeId": null,
+      "note": "Creator screenshots are discovery evidence and do not grant image reuse. Use the established neutral fallback until an exact licensed or permissioned photo is available."
+    },
+    "Choose parking before you enter downtown": {
+      "reason": "not-a-place",
+      "placeId": null,
+      "note": "Creator screenshots are discovery evidence and do not grant image reuse. Use the established neutral fallback until an exact licensed or permissioned photo is available."
+    }
+  }
+}
