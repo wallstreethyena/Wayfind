@@ -820,19 +820,6 @@
      "storage_path": null,
      "attribution_url": "https://takeshgrill.com",
      "attribution_text": "Takesh Grill official website"
-    },
-    {
-     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-16-nopic2/ChIJe-Xf3B-92YgRRg7WqR-SWH0/site_5d526b25ed98b6ce.jpg",
-     "phash": "e354147b5be51e84",
-     "width": 1280,
-     "height": 853,
-     "source": "official_site",
-     "license": "official venue website",
-     "source_ref": "https://takeshgrill.com",
-     "original_url": "https://takeshgrill.com/wp-content/uploads/2023/09/dessert-banner.jpeg",
-     "storage_path": null,
-     "attribution_url": "https://takeshgrill.com",
-     "attribution_text": "Takesh Grill official website"
     }
    ]
   },
@@ -1884,19 +1871,6 @@
      "storage_path": null,
      "attribution_url": "https://www.zipthecanyons.com",
      "attribution_text": "The Canyons Zip Line and Adventure Park official website"
-    },
-    {
-     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-16-nopic2/ChIJaWNsHDAq5ogR4m-39cN_GPc/site_2e5c7f1588e56e8c.jpg",
-     "phash": "926b62960f382eb7",
-     "width": 1280,
-     "height": 853,
-     "source": "official_site",
-     "license": "official venue website",
-     "source_ref": "https://www.zipthecanyons.com",
-     "original_url": "https://www.zipthecanyons.com/images/large-2.JPG",
-     "storage_path": null,
-     "attribution_url": "https://www.zipthecanyons.com",
-     "attribution_text": "The Canyons Zip Line and Adventure Park official website"
     }
    ]
   },
@@ -2301,78 +2275,6 @@
     }
    ]
   },
-  "jack-kazanzas-star-orlando-2026": {
-   "cover": "/events/nopic2/jack-kazanzas-star-orlando-2026.webp",
-   "christmas_gallery": true,
-   "photos": [
-    {
-     "src": "/place-photos/batch-2026-11-16-nopic2/jack-kazanzas-star-orlando-2026/ev_20bb2e84044fb4a0.jpg",
-     "title": "File:Orange Ave median with bus lane, Orlando at Church St.jpg",
-     "artist": "Michael Rivera",
-     "license": "CC BY-SA 4.0",
-     "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
-     "file_page": "https://commons.wikimedia.org/wiki/File:Orange_Ave_median_with_bus_lane,_Orlando_at_Church_St.jpg"
-    }
-   ]
-  },
-  "surf-illumination-st-augustine-beach-2026": {
-   "cover": "/events/nopic2/surf-illumination-st-augustine-beach-2026.webp",
-   "christmas_gallery": true,
-   "photos": [
-    {
-     "src": "/place-photos/batch-2026-11-16-nopic2/surf-illumination-st-augustine-beach-2026/ev_ec723eb0852e1dcd.jpg",
-     "title": "File:St. Johns County Ocean Pier begin, St. Augustine Beach.jpg",
-     "artist": "Michael Rivera",
-     "license": "CC BY-SA 4.0",
-     "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
-     "file_page": "https://commons.wikimedia.org/wiki/File:St._Johns_County_Ocean_Pier_begin,_St._Augustine_Beach.jpg"
-    },
-    {
-     "src": "/place-photos/batch-2026-11-16-nopic2/surf-illumination-st-augustine-beach-2026/ev_d2d51c9c45205fa0.jpg",
-     "title": "File:Sunrise through the Pier (Unsplash).jpg",
-     "artist": "Cassie Boca cassieboca",
-     "license": "CC0",
-     "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
-     "file_page": "https://commons.wikimedia.org/wiki/File:Sunrise_through_the_Pier_(Unsplash).jpg"
-    }
-   ]
-  },
-  "key-west-harbor-walk-of-lights-lighting-2026": {
-   "cover": "/events/nopic2/key-west-harbor-walk-of-lights-lighting-2026.webp",
-   "christmas_gallery": true,
-   "photos": [
-    {
-     "src": "/place-photos/batch-2026-11-16-nopic2/key-west-harbor-walk-of-lights-lighting-2026/ev_b412483557847f6b.jpg",
-     "title": "File:Key West Seaside Walk - panoramio.jpg",
-     "artist": "Bohao Zhao",
-     "license": "CC BY 3.0",
-     "license_url": "https://creativecommons.org/licenses/by/3.0",
-     "file_page": "https://commons.wikimedia.org/wiki/File:Key_West_Seaside_Walk_-_panoramio.jpg"
-    },
-    {
-     "src": "/place-photos/batch-2026-11-16-nopic2/key-west-harbor-walk-of-lights-lighting-2026/ev_bf2c6736840492d7.jpg",
-     "title": "File:Key West - panoramio.jpg",
-     "artist": "Alistair Cunningham",
-     "license": "CC BY 3.0",
-     "license_url": "https://creativecommons.org/licenses/by/3.0",
-     "file_page": "https://commons.wikimedia.org/wiki/File:Key_West_-_panoramio.jpg"
-    }
-   ]
-  },
-  "holiday-in-paradise-tree-lighting-2026": {
-   "cover": "/events/nopic2/holiday-in-paradise-tree-lighting-2026.webp",
-   "christmas_gallery": true,
-   "photos": [
-    {
-     "src": "/place-photos/batch-2026-11-16-nopic2/holiday-in-paradise-tree-lighting-2026/ev_b3a535a4734d8080.jpg",
-     "title": "File:West palm beach city.jpg",
-     "artist": "Daniel vargas",
-     "license": "CC BY-SA 4.0",
-     "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
-     "file_page": "https://commons.wikimedia.org/wiki/File:West_palm_beach_city.jpg"
-    }
-   ]
-  },
   "christmas-on-the-square-2026": {
    "cover": "/events/nopic2/christmas-on-the-square-2026.webp",
    "christmas_gallery": true,
@@ -2471,28 +2373,6 @@
     }
    ]
   },
-  "winter-festival-a-celebration-of-lights-music-and-the-arts-2026": {
-   "cover": "/events/nopic2/winter-festival-a-celebration-of-lights-music-and-the-arts-2026.webp",
-   "christmas_gallery": true,
-   "photos": [
-    {
-     "src": "/place-photos/batch-2026-11-16-nopic2/winter-festival-a-celebration-of-lights-music-and-the-arts-2026/ev_f8287483642ac96b.jpg",
-     "title": "File:Bloxham Park, Tallahassee.JPG",
-     "artist": "Michael Rivera",
-     "license": "CC BY-SA 3.0",
-     "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
-     "file_page": "https://commons.wikimedia.org/wiki/File:Bloxham_Park,_Tallahassee.JPG"
-    },
-    {
-     "src": "/place-photos/batch-2026-11-16-nopic2/winter-festival-a-celebration-of-lights-music-and-the-arts-2026/ev_465297292d4bc5ec.jpg",
-     "title": "File:Street Clock next to Bloxham Park.JPG",
-     "artist": "Michael Rivera",
-     "license": "CC BY-SA 3.0",
-     "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
-     "file_page": "https://commons.wikimedia.org/wiki/File:Street_Clock_next_to_Bloxham_Park.JPG"
-    }
-   ]
-  },
   "festival-of-lights-2026": {
    "cover": "/events/nopic2/festival-of-lights-2026.webp",
    "christmas_gallery": true,
@@ -2564,28 +2444,6 @@
      "license": "CC BY 4.0",
      "license_url": "https://creativecommons.org/licenses/by/4.0",
      "file_page": "https://commons.wikimedia.org/wiki/File:Belair_Courtyard,_Cocoa,_Florida.jpg"
-    }
-   ]
-  },
-  "light-up-bsp-2026": {
-   "cover": "/events/nopic2/light-up-bsp-2026.webp",
-   "christmas_gallery": true,
-   "photos": [
-    {
-     "src": "/place-photos/batch-2026-11-16-nopic2/light-up-bsp-2026/ev_743e3990620a589a.jpg",
-     "title": "File:Bonnet Springs Park Overlook.jpg",
-     "artist": "Butter142",
-     "license": "CC BY-SA 4.0",
-     "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
-     "file_page": "https://commons.wikimedia.org/wiki/File:Bonnet_Springs_Park_Overlook.jpg"
-    },
-    {
-     "src": "/place-photos/batch-2026-11-16-nopic2/light-up-bsp-2026/ev_688af66e87f92a54.jpg",
-     "title": "File:Bonnet Springs Park Photosphere42.jpg",
-     "artist": "Butter142",
-     "license": "CC BY-SA 4.0",
-     "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
-     "file_page": "https://commons.wikimedia.org/wiki/File:Bonnet_Springs_Park_Photosphere42.jpg"
     }
    ]
   },
@@ -2886,7 +2744,7 @@
    ]
   },
   "blade-runner-live-west-palm-beach-2026": {
-   "cover": "/events/nopic2/blade-runner-live-west-palm-beach-2026.webp",
+   "cover": "/events/nopic2/mannheim-steamroller-christmas-west-palm-beach-2026.webp",
    "christmas_gallery": false,
    "photos": [
     {
@@ -2908,7 +2766,7 @@
    ]
   },
   "air-supply-jacksonville-2026": {
-   "cover": "/events/nopic2/air-supply-jacksonville-2026.webp",
+   "cover": "/events/nopic2/rocky-in-concert-jacksonville-2026.webp",
    "christmas_gallery": false,
    "photos": [
     {
@@ -2938,7 +2796,7 @@
    ]
   },
   "jonathan-van-ness-hot-healed-orlando-2026": {
-   "cover": "/events/nopic2/jonathan-van-ness-hot-healed-orlando-2026.webp",
+   "cover": "/events/nopic2/jack-white-live-orlando-2026.webp",
    "christmas_gallery": false,
    "photos": [
     {
@@ -2959,5 +2817,6 @@
     }
    ]
   }
- }
+ },
+ "revised": "2026-11-17: dropped 2 place photos (a text overlay dessert banner at Takesh Grill, a green tinted hero at The Canyons) and 6 holiday events whose venue photos were generic scenery that does not show the event; signals.photos now stores URL strings"
 }
