@@ -3076,6 +3076,78 @@
       "mapQuery": "Caspersen Beach, Venice, Florida",
       "mapLink": "https://www.google.com/maps/search/?api=1&query=Caspersen%20Beach%2C%20Venice%2C%20Florida",
       "source": "reviewed-area"
+    },
+    "things-to-do-daytona-beach-summer-2026\tCrabby Joe's on Sunglow Pier": {
+      "address": "3701 S Atlantic Ave, Daytona Beach Shores, FL 32118",
+      "source": "two-public-sources",
+      "name": "Crabby Joe's Deck and Grill",
+      "note": "The restaurant site and the Daytona Beach tourism listing both state 3701 South Atlantic Avenue, Daytona Beach Shores, FL 32118, and both place the restaurant on Sunglow Pier. Census matched 3701 S ATLANTIC AVE, DAYTONA BEACH SHORES, FL, 32118.",
+      "sourceUrl": "https://www.crabbyjoesdaytona.com/",
+      "secondSourceUrl": "https://www.daytonabeach.com/listings/crabby-joes-deck-%26-grill-(pier)/3664/"
+    },
+    "things-to-do-naples-summer-2026\tAn FC Naples match night": {
+      "address": "3940 City Gate Blvd N, Naples, FL 34117",
+      "source": "two-public-sources",
+      "name": "Paradise Coast Sports Complex",
+      "note": "FC Naples says the club plays at Paradise Coast Sports Complex, 3940 City Gate Blvd N, Naples, FL 34117. The complex's home-game listing uses that same street. Census matched 3940 CITY GATE BLVD N, NAPLES, FL, 34117. The complex FAQ also lists a stadium pin at 3565 City Gate Blvd S, which the Census geocoder does not recognize.",
+      "sourceUrl": "https://www.fcnaples.com/tickets-2/",
+      "secondSourceUrl": "https://playparadisecoast.com/event/fc-naples-home-game-vs-richmond-kickers/"
+    },
+    "things-to-do-naples-summer-2026\tA sunset cruise from Tin City": {
+      "address": "1200 5th Ave S, Naples, FL 34102",
+      "source": "two-public-sources",
+      "name": "Tin City",
+      "note": "Tin City's contact page and the Visit Naples listing both state 1200 5th Ave S, Naples, FL 34102. Census matched 1200 5TH AVE S, NAPLES, FL, 34102.",
+      "sourceUrl": "https://www.tincityofnaples.com/contact-tin-city-waterfront-shops",
+      "secondSourceUrl": "https://www.visitnaplesfl.com/listing/tin-city"
+    },
+    "fall-events-orlando-2026\tEDC Orlando": {
+      "address": "287 S Tampa Ave, Orlando, FL 32805",
+      "source": "two-public-sources",
+      "name": "Tinker Field",
+      "note": "EDC's location page states Tinker Field is at 287 S Tampa Ave, Orlando, FL 32805. The UCF RICHES record of the stadium states 287 South Tampa Avenue. Census matched 287 S TAMPA AVE, ORLANDO, FL, 32805. The National Register entry uses 1610 W Church St, and Camping World Stadium's office address is 1 Citrus Bowl Pl. The event's published door is 287 S Tampa Ave.",
+      "sourceUrl": "https://orlando.edc.com/travel/location/",
+      "secondSourceUrl": "https://richesmi.cah.ucf.edu/omeka/items/show/1788"
+    },
+    "things-to-do-in-venice-florida\tVenice Museum": {
+      "address": "351 Nassau St S, Venice, FL 34285",
+      "source": "two-public-sources",
+      "name": "Venice History Museum",
+      "note": "The City of Venice museum page and Venice Heritage both state 351 Nassau Street South, Venice, FL 34285, the historic Triangle Inn. Census matched 351 NASSAU ST S, VENICE, FL, 34285.",
+      "sourceUrl": "https://www.venicegov.com/government/historical-resources/venice-museum",
+      "secondSourceUrl": "https://veniceheritage.org/venice-museum/"
+    },
+    "florida-fall-festivals-2026\tFox Squirrel Corn Maze and Pumpkin Patch": {
+      "address": "6151 Varn Rd, Plant City, FL 33565",
+      "source": "two-public-sources",
+      "name": "Fox Squirrel Corn Maze",
+      "note": "The farm contact page states 6151 Varn Rd, Plant City, FL 33565. The Florida Division of Corporations annual report for Fox Squirrel Corn Maze LLC lists that same principal place of business. Census matched 6151 VARN RD, PLANT CITY, FL, 33565.",
+      "sourceUrl": "https://foxsquirrelcornmaze.com/contact-us/",
+      "secondSourceUrl": "https://search.sunbiz.org/Inquiry/CorporationSearch/GetDocument?aggregateId=flal-l22000313073-a5a3831c-39a3-489e-8714-e466175c954d&formatType=PDF&transactionId=l22000313073-1c9bcf8c-691b-4307-b496-f21988214e0d"
+    },
+    "florida-fall-festivals-2026\tJacksonville Pumpkin Festival at Amazing Grace Family Farms": {
+      "address": "4251 State Road 21, Green Cove Springs, FL 32043",
+      "source": "two-public-sources",
+      "name": "Amazing Grace Family Farms",
+      "note": "The farm's current location page and Fresh From Florida both state 4251 State Road 21, Green Cove Springs, FL 32043. Census matched 4251 STATE HWY 21, GREEN COVE SPRINGS, FL, 32043. An older contact block on the farm site still shows 2899 Wisteria Farms Road, which Census does not recognize.",
+      "sourceUrl": "https://www.agcropmaze.com/find-farm",
+      "secondSourceUrl": "https://followfreshfromflorida.com/agritourism/amazing-grace-crop-maze"
+    },
+    "florida-fall-festivals-2026\tTampa Pig Jig": {
+      "address": "1001 N Boulevard, Tampa, FL 33607",
+      "source": "two-public-sources",
+      "name": "Julian B. Lane Riverfront Park",
+      "note": "The organizer places the festival at Julian B. Lane Park. The City of Tampa park page states 1001 N Boulevard, Tampa, FL 33607. Census matched 1001 NORTH BLVD, TAMPA, FL, 33607, and OpenStreetMap has house 1001 on North Boulevard in 33607.",
+      "sourceUrl": "https://www.tampa.gov/parks-and-recreation/featured-parks/riverfrontpark",
+      "secondSourceUrl": "https://www.tampa.gov/parks-and-recreation/activities-recreation/aquatics/splash-pads"
+    },
+    "florida-fall-festivals-2026\tTour of Destruction Halloween Edition": {
+      "address": "21050 E State Road 64, Bradenton, FL 34212",
+      "source": "two-public-sources",
+      "name": "Freedom Factory",
+      "note": "Freedom Factory's 2026 Tour of Destruction ticket listing states 21050 E. State Road 64, Bradenton, FL 34212. The venue site states 21050 FL-64, Bradenton, FL 34212, and lists October 30 and 31 as Tour of Destruction. Census matched both lines to 21050 E STATE RD 64, BRADENTON, FL, 34212.",
+      "sourceUrl": "https://tickets.thefoat.com/FreedomFactory/event-249185/Freedom+Factory+Tour+of+Destruction+-+October/",
+      "secondSourceUrl": "https://www.freedomfactoryusa.com/"
     }
   }
 }

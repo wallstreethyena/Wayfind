@@ -25,11 +25,11 @@ Every recommendation on that page:
 
 - Pages audited: 86
 - Places and events audited: 582
-- Street addresses with a maps link: 413
-- Named venues still missing a verified street: 10
+- Street addresses with a maps link: 422
+- Named venues still missing a verified street: 1
 - Photo gaps: 398
 
-Beaches, preserves, Bulow Creek State Park, the Daytona boardwalk, and Aaron Bessant Park use a reviewed area map link. The 10 remaining venues are in `docs/wayfind/audits/guide-address-unverified-2026-11-17.md`.
+Beaches, preserves, Bulow Creek State Park, the Daytona boardwalk, and Aaron Bessant Park use a reviewed area map link. The one remaining venue is in `docs/wayfind/audits/guide-address-unverified-2026-11-17.md`.
 
 ## Photo gaps for the Picture Scrapper
 
@@ -548,7 +548,6 @@ Missing photos, placeholder tiles, empty sources, and images that return an erro
 - pick: The boardwalk and pier at night
 - pick: Ponce Inlet Lighthouse (ChIJw2VLy7sp54gRE6a7GJmmDaY)
 - pick: Free concerts at the Bandshell (ChIJBRbiDBXa5ogRE8I7w4R_5u4)
-- pick: Crabby Joe's on Sunglow Pier
 - pick: The Fairchild Oak and the content circuit
 
 ### /guides/things-to-do-panama-city-beach-summer-2026
@@ -569,9 +568,6 @@ Missing photos, placeholder tiles, empty sources, and images that return an erro
 - best-pick: The Naples Beach sunset, pier or no pier
 - pick: Keewaydin Island by boat
 - pick: Fifth Avenue South on summer deals
-- pick: An FC Naples match night
-- pick: A sunset cruise from Tin City
-
 ### /guides/things-to-do-in-parrish-florida
 
 - pick: Lake Manatee State Park (ChIJU17a-Akxw4gR3ppLxjXbveg)
@@ -636,8 +632,6 @@ Missing photos, placeholder tiles, empty sources, and images that return an erro
 ### /guides/fall-events-orlando-2026
 
 - best-pick: EPCOT International Food & Wine Festival
-- pick: EDC Orlando
-
 ### /guides/things-to-do-in-bradenton-florida
 
 - pick: Bradenton Riverwalk
@@ -667,7 +661,6 @@ Missing photos, placeholder tiles, empty sources, and images that return an erro
 ### /guides/things-to-do-in-venice-florida
 
 - best-pick: Venice Beach
-- pick: Venice Museum
 - pick: Caspersen Beach Park
 
 ### /guides/tampa-christmas-coffee-and-farm-outings-2026
@@ -708,13 +701,11 @@ Missing photos, placeholder tiles, empty sources, and images that return an erro
 - event: House of Horror Carnival
 - event: Oktoberfest Tampa Bay
 - event: Sir Henry's Haunted Trail
-- event: Fox Squirrel Corn Maze and Pumpkin Patch
 - event: Southern Hill Farms Fall Festival (ChIJ-aI9NvSI54gRrVByB84z-AY)
 - event: Sweet Season Farms Corn Maze and Fall Fun Festival
 - event: Haunted Sarasota Ghost Tour
 - event: Lights at Spooky Point
 - event: FEARville at DK Farms
-- event: Jacksonville Pumpkin Festival at Amazing Grace Family Farms
 - event: Nightmare Village at Xtreme Action Park
 - event: Aunt Louise's Farm Fall Farm Days
 - event: Bedner's Farm Fresh Market Fall Festival
@@ -733,7 +724,6 @@ Missing photos, placeholder tiles, empty sources, and images that return an erro
 - event: Anna Maria Island BayFest
 - event: Cedar Key Seafood Festival
 - event: Sharktoberfest at Mote SEA
-- event: Tampa Pig Jig
 - event: Zoo Miami Monster Masquerade
 - event: Pensacola Interstate Fair
 - event: Naples Stone Crab Festival
@@ -748,7 +738,6 @@ Missing photos, placeholder tiles, empty sources, and images that return an erro
 - event: Taste of the Beach Festival
 - event: Island Trunk or Treat
 - event: St. Pete Official Halloween Bar Crawl
-- event: Tour of Destruction Halloween Edition
 - event: Bonnet House Halloween Fest
 - event: Boo in Bloom at Fruit & Spice Park
 - event: Halloween at Faena Miami Beach
