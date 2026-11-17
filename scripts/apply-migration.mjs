@@ -58,7 +58,13 @@ import {
   appendLedgerLine,
   LEDGER_REL_PATH,
   MIGRATIONS_REL_DIR,
+  LEASE_MIGRATION_FILE,
+  buildLeaseAcquireSql,
+  buildLeaseReleaseSql,
+  leaseAcquired,
 } from "./lib/migrationApply.mjs";
+import { hostname } from "node:os";
+import { randomBytes } from "node:crypto";
 
 const REPO = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 
@@ -133,6 +139,35 @@ const gitCheck = verifyCommittedAndClean({
 });
 if (!gitCheck.ok) fail(gitCheck.error);
 
+// Step 4b — the project lease (2026-11-14): one applier per project at a time.
+// Taken before any receipt or SQL, released after the outcome receipt. The one
+// exception is the migration that creates the lease table (it cannot hold a
+// lease that does not exist yet); it is idempotent and service-only.
+const refResult = deriveProjectRef(creds.supabaseUrl);
+if (!refResult.ok) fail(refResult.error);
+const queryUrl = `https://api.supabase.com/v1/projects/${refResult.ref}/database/query`;
+const runQuery = async (query) => {
+  try {
+    const r = await fetch(queryUrl, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${creds.accessToken}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ query }),
+    });
+    return { ok: r.ok, status: r.status, body: await r.text().catch(() => "") };
+  } catch (e) {
+    return { ok: false, status: null, body: String((e && e.message) || e) };
+  }
+};
+const leaseHolder = `apply-migration:${hostname().replace(/[^A-Za-z0-9.-]/g, "-").slice(0, 60)}:${process.pid}:${randomBytes(6).toString("hex")}`;
+const isLeaseBootstrap = path.basename(resolved.relPath) === LEASE_MIGRATION_FILE;
+if (!isLeaseBootstrap) {
+  const got = await runQuery(buildLeaseAcquireSql({ holder: leaseHolder, migration: resolved.name.replace(/[^A-Za-z0-9._:@-]/g, "-") }));
+  if (!got.ok || !leaseAcquired(got.body, leaseHolder)) {
+    fail(`could not take the project migration lease (HTTP ${got.status}): another apply-migration run holds it, or the lease table is missing (apply ${LEASE_MIGRATION_FILE} first). No migration SQL was sent. Lease reply: ${String(got.body).slice(0, 300)}`);
+  }
+  console.log(`apply-migration: holding the project migration lease as ${leaseHolder}`);
+}
+
 // Step 5 — hash + record BEFORE execution.
 const sha256 = sha256Hex(fileResult.buffer);
 const ledgerAbsPath = path.join(REPO, LEDGER_REL_PATH);
@@ -152,9 +187,6 @@ const attemptReceipt = buildReceipt({
 console.log(`apply-migration: ${JSON.stringify(attemptReceipt)}`);
 appendLedgerLine({ fsImpl: realFs, ledgerAbsPath, record: attemptReceipt });
 
-const refResult = deriveProjectRef(creds.supabaseUrl);
-if (!refResult.ok) fail(refResult.error);
-
 const sql = fileResult.buffer.toString("utf8");
 const reqDescriptor = buildManagementApiRequest({
   mode: parsed.mode,
@@ -163,8 +195,8 @@ const reqDescriptor = buildManagementApiRequest({
   migrationName: resolved.name,
 });
 
-// Step 6 — execute. This is the only fetch call in this whole script, and
-// its body is always reqDescriptor.body, built above only from `sql`, which
+// Step 6 — execute. This is the only fetch that carries migration SQL (the
+// others are the fixed lease statements), and its body is always reqDescriptor.body, built above only from `sql`, which
 // is only ever fileResult.buffer decoded — never a separately-typed string.
 let applyOutcome;
 try {
@@ -195,6 +227,12 @@ const finalReceipt = buildReceipt({
 finalReceipt.http = { status: applyOutcome.status, endpoint: reqDescriptor.url };
 console.log(`apply-migration: ${JSON.stringify(finalReceipt)}`);
 appendLedgerLine({ fsImpl: realFs, ledgerAbsPath, record: finalReceipt });
+
+if (!isLeaseBootstrap) {
+  const released = await runQuery(buildLeaseReleaseSql({ holder: leaseHolder }));
+  if (released.ok) console.log("apply-migration: released the project migration lease");
+  else console.error(`apply-migration: WARNING could not release the lease (HTTP ${released.status}); it expires on its own after its TTL`);
+}
 
 if (!applyOutcome.httpOk) {
   console.error(`apply-migration: the Management API call FAILED (status ${applyOutcome.status}): ${applyOutcome.body}`);

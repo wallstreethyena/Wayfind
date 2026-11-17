@@ -230,6 +230,8 @@ const CSS = strip(dockMod.SANTA_DOCK_CSS || "");
   ok(/className="wf-scrollarea"/.test(home) && /className="wf-bottom-nav"/.test(home) && /" wf-site-feedback-doc"/.test(fb), "the three marker classes are still rendered (home.js scroll area and bottom nav, SiteFeedback trigger)");
   const boo = strip(read("app/components/BooCompanion.js"));
   ok(countRootHas(boo) === 0 && !/wf-boo-layer/.test(boo), "Boo's sheet no longer carries the dead body:has() map rule");
+  ok(/html\.wf-has-map \.boo-c,html\.wf-has-map \.boo-ring\{display:none !important\}/.test(boo), "the map hides Boo's companion and touch ring, so a speech bubble cannot float over the pins");
+  ok(/"wf-has-map": \["\.wf-map-explorer", '\[data-analytics-page="map"\]'\]/.test(boo), "Boo asks rootPresence whether the map screen is mounted");
 }
 
 console.log("test-root-has-selectors: OK, " + checks + " assertions (" + files.length + " app/lib files scanned, " + anyHas + " use :has() on small anchors, root :has() allowed only in " + [...KNOWN].map(([f, n]) => f + " x" + n).join(", ") + "; lib/rootPresence.js exercised in jsdom with a real MutationObserver; Santa dock sheet loaded from the real module). False-positive surface: a selector QUOTED in a string that is not CSS would be flagged; none exists today.");
