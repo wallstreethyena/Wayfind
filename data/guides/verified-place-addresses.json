@@ -2945,6 +2945,81 @@
       "source": "official-site",
       "sourceUrl": "https://diamonddranchinc.com/",
       "note": "Diamond D Ranch's site states 7263 Solomon Rd, Jax, FL 32234."
+    },
+    "things-to-do-fort-lauderdale-summer-2026\tPier Sixty-Six and the rotating Pier Top": {
+      "address": "2301 SE 17th St, Fort Lauderdale, FL 33316",
+      "source": "two-public-sources",
+      "note": "OpenStreetMap Nominatim and the US Census geocoder both match 2301 SE 17th St, Fort Lauderdale, FL 33316."
+    },
+    "things-to-do-st-augustine-summer-2026\tA show at the number-one amphitheater in America": {
+      "address": "1340C State Road A1A, St. Augustine, FL 32080",
+      "source": "two-public-sources",
+      "note": "The Wikipedia infobox states 1340C A1A South, St. Augustine, FL 32080. Census matched 1340C STATE RD A1A, ST AUGUSTINE, FL, 32080."
+    },
+    "things-to-do-daytona-beach-summer-2026\tDaytona International Speedway": {
+      "address": "1801 W International Speedway Blvd, Daytona Beach, FL 32114",
+      "source": "two-public-sources",
+      "note": "The Wikipedia infobox and OpenStreetMap both state 1801 West International Speedway Blvd, Daytona Beach, FL 32114. Census matched 1801 INTERNATIONAL SPEEDWAY BLVD, DAYTONA BEACH, FL, 32114."
+    },
+    "things-to-do-daytona-beach-summer-2026\tA Tortugas game at Jackie Robinson Ballpark": {
+      "address": "105 E Orange Ave, Daytona Beach, FL 32114",
+      "source": "two-public-sources",
+      "note": "The Wikipedia infobox states 105 East Orange Avenue, Daytona Beach. OpenStreetMap and Census match 105 E Orange Ave, Daytona Beach, FL 32114."
+    },
+    "things-to-do-in-tampa-florida\tA Tampa Bay Lightning game": {
+      "address": "401 Channelside Dr, Tampa, FL 33602",
+      "source": "two-public-sources",
+      "note": "The Wikipedia infobox and OpenStreetMap both state 401 Channelside Drive, Tampa, FL 33602."
+    },
+    "florida-fall-festivals-2026\tOktoberfest Tampa Bay": {
+      "address": "8098 66th St N, Pinellas Park, FL 33781",
+      "source": "two-public-sources",
+      "note": "The German American Society page states 8098 66th Street North, Pinellas Park, FL 33781. Census matched the same line."
+    },
+    "florida-fall-festivals-2026\tSir Henry's Haunted Trail": {
+      "address": "2837 S Frontage Rd, Plant City, FL 33566",
+      "source": "two-public-sources",
+      "note": "The trail site states 2837 South Frontage Road, Plant City. Census matched 2837 S FRONTAGE RD, PLANT CITY, FL, 33566."
+    },
+    "florida-fall-festivals-2026\tFEARville at DK Farms": {
+      "address": "1750 Lake Ave SE, Largo, FL 33771",
+      "source": "two-public-sources",
+      "note": "The farm site states 1750 Lake Avenue Southeast, Largo. Census matched 1750 LAKE AVE SE, LARGO, FL, 33771."
+    },
+    "florida-fall-festivals-2026\tSweet Season Farms Corn Maze and Fall Fun Festival": {
+      "address": "2260 Horn Rd, Milton, FL 32570",
+      "source": "two-public-sources",
+      "note": "The farm site states 2260 Horn Road. Census matched 2260 HORN RD, MILTON, FL, 32570."
+    },
+    "florida-fall-festivals-2026\tAunt Louise's Farm Fall Farm Days": {
+      "address": "8101 Waukeenah Hwy, Monticello, FL 32344",
+      "source": "two-public-sources",
+      "note": "The farm site states 8101 Waukeenah Hwy, Monticello, FL 32344. Census matched the same line."
+    },
+    "florida-fall-festivals-2026\tLights at Spooky Point": {
+      "address": "401 N Tamiami Trail, Osprey, FL 34229",
+      "source": "two-public-sources",
+      "note": "Selby's event page and the Wikipedia infobox both state 401 North Tamiami Trail, Osprey. Census matched 401 TAMIAMI TRL, OSPREY, FL, 34229."
+    },
+    "florida-fall-festivals-2026\tParktoberfest at The Bay": {
+      "address": "1055 Boulevard of the Arts, Sarasota, FL 34236",
+      "source": "two-public-sources",
+      "note": "The event is on The Oval at The Bay. That park's verified address is 1055 Boulevard of the Arts, and Census matches it."
+    },
+    "florida-fall-festivals-2026\tOktoberfest Tampa": {
+      "address": "600 N Ashley Dr, Tampa, FL 33602",
+      "source": "two-public-sources",
+      "note": "The event note names Curtis Hixon Waterfront Park. That park's verified address is 600 N Ashley Dr, Tampa, FL 33602, and Census matches it."
+    },
+    "florida-fall-festivals-2026\tHalloween Horror Nights 35": {
+      "address": "6000 Universal Blvd, Orlando, FL 32819",
+      "source": "two-public-sources",
+      "note": "Place Details for Universal Studios Florida and the Census geocoder both match 6000 Universal Blvd, Orlando, FL 32819."
+    },
+    "florida-fall-festivals-2026\tPensacola Interstate Fair": {
+      "address": "6655 W Mobile Hwy, Pensacola, FL 32526",
+      "source": "two-public-sources",
+      "note": "The fair site states the physical address 6655 W. Mobile Hwy, Pensacola, FL 32526. Census matched 6655 MOBILE HWY, PENSACOLA, FL, 32526. The Nine Mile Road line on the same page is the mailing address."
     }
   }
 }

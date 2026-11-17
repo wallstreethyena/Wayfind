@@ -25,12 +25,11 @@ Every recommendation on that page:
 
 - Pages audited: 86
 - Places and events audited: 582
-- Street addresses with a maps link: 408
-- Reviewed area map links, no street door: 56
-- Named venues still missing a verified street: 32
-- Photo gaps: 401
+- Street addresses with a maps link: 413
+- Named venues still missing a verified street: 17
+- Photo gaps: 398
 
-The 32 named venues that still have no verified street are listed in `docs/wayfind/audits/guide-address-unverified-2026-11-17.md`.
+Fruitville Grove, Keel Farms, and Dakin Dairy are not broken photos. `/api/photo?place=` returns 404, and the stored photo URL returns 200. The fall guide map no longer assigns the 404 form. The 17 remaining venues are in `docs/wayfind/audits/guide-address-unverified-2026-11-17.md`.
 
 ## Photo gaps for the Picture Scrapper
 
@@ -387,15 +386,12 @@ Missing photos, placeholder tiles, empty sources, and images that return an erro
 - /guides/florida-fall-festivals-2026 / Nightmare Village at Xtreme Action Park: missing
 - /guides/florida-fall-festivals-2026 / Aunt Louise's Farm Fall Farm Days: missing
 - /guides/florida-fall-festivals-2026 / Bedner's Farm Fresh Market Fall Festival: missing
-- /guides/florida-fall-festivals-2026 / Fruitville Grove Pumpkin Festival: broken, HTTP 404, /api/photo?place=ChIJhWqZvoVHw4gRehUSFsbZARo&g=2&w=800
-- /guides/florida-fall-festivals-2026 / Keel Farms Harvest Days: broken, HTTP 404, /api/photo?place=ChIJ_5yVrBY13YgRwSgyH1hrRjg&g=2&w=800
 - /guides/florida-fall-festivals-2026 / Sykes Family Farms Fall Festival: missing
 - /guides/florida-fall-festivals-2026 / Not So Scary Halloween Bash at Miami Children's Museum: missing
 - /guides/florida-fall-festivals-2026 / Seminole Heights Great Pumpkin Patch: missing
 - /guides/florida-fall-festivals-2026 / Oktoberfest Miami at the German American Social Club: missing
 - /guides/florida-fall-festivals-2026 / Oktoberfest Tampa: missing
 - /guides/florida-fall-festivals-2026 / St. Pete Pier Fall Fest and Pumpkin Patch: missing
-- /guides/florida-fall-festivals-2026 / Dakin Dairy Farms Fall Harvest Festival: broken, HTTP 404, /api/photo?place=ChIJB_GKfW81w4gRsCQHi5hjasA&g=2&w=640
 - /guides/florida-fall-festivals-2026 / Deerfield Beach Fall Festival: missing
 - /guides/florida-fall-festivals-2026 / Gators, Ghosts and Goblins at Gatorland: missing
 - /guides/florida-fall-festivals-2026 / Hastings Ranch and Farm Festival: missing
@@ -532,7 +528,6 @@ Missing photos, placeholder tiles, empty sources, and images that return an erro
 ### /guides/things-to-do-fort-lauderdale-summer-2026
 
 - best-pick: Fort Lauderdale Beach and the reef offshore
-- pick: Pier Sixty-Six and the rotating Pier Top
 - pick: Las Olas Boulevard's restaurant wave
 - pick: Puttshack at Dania Beach (ChIJT1fY8CWr2YgRPfvi-_9cSiU)
 - pick: Las Olas Beach at sunrise
@@ -546,16 +541,13 @@ Missing photos, placeholder tiles, empty sources, and images that return an erro
 
 - best-pick: Castillo de San Marcos (ChIJH6jzd74n5IgRsYpaqo4LwNk)
 - pick: St. George Street and the old town
-- pick: A show at the number-one amphitheater in America
 
 ### /guides/things-to-do-daytona-beach-summer-2026
 
 - best-pick: Driving the World's Most Famous Beach
-- pick: Daytona International Speedway
 - pick: The boardwalk and pier at night
 - pick: Ponce Inlet Lighthouse (ChIJw2VLy7sp54gRE6a7GJmmDaY)
 - pick: Free concerts at the Bandshell (ChIJBRbiDBXa5ogRE8I7w4R_5u4)
-- pick: A Tortugas game at Jackie Robinson Ballpark
 - pick: Crabby Joe's on Sunglow Pier
 - pick: The Fairchild Oak and the content circuit
 
@@ -599,7 +591,6 @@ Missing photos, placeholder tiles, empty sources, and images that return an erro
 - pick: The TECO Line Streetcar
 - pick: Bayshore Boulevard
 - pick: Sparkman Wharf and Water Street (ChIJy66Xe53FwogRcpjZQHX4cCI)
-- pick: A Tampa Bay Lightning game
 - pick: Gasparilla Pirate Fest
 
 ### /guides/orlando-halloween-food-2026

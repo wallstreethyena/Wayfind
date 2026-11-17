@@ -111,6 +111,24 @@ for (const event of FLORIDA_FALL_GUIDE_EVENTS_2026) {
 
 const urls = [...new Set(rows.map((r) => r.photo).filter((s) => s && !s.startsWith("data:")))];
 const status = new Map();
+async function storedPhotoThatLoads(photoUrl) {
+  let id = "";
+  try { id = new URL(photoUrl, SITE).searchParams.get("place") || ""; } catch { return ""; }
+  if (!id) return "";
+  const page = await fetch(SITE + "/places/" + encodeURIComponent(id), { headers: { "user-agent": "WayfindAudit/1.0" } });
+  const html = await page.text();
+  const match = html.match(/\/api\/photo\/stored\/[^"'\\\s]+/);
+  const direct = html.match(/https:\/\/www\.gowayfind\.com\/place-photos\/[^"'\\\s]+\.(?:jpg|jpeg|webp)/);
+  const candidates = [];
+  if (match) candidates.push(SITE + match[0].replace(/\\/g, ""));
+  if (direct) candidates.push(direct[0]);
+  for (const candidate of candidates) {
+    const res = await fetch(candidate, { method: "HEAD", redirect: "follow", headers: { "user-agent": "WayfindAudit/1.0" } });
+    if (res.status > 0 && res.status < 400) return candidate.replace(SITE, "");
+  }
+  return "";
+}
+
 async function head(url) {
   const abs = url.startsWith("http") ? url : SITE + url;
   try {
@@ -143,7 +161,15 @@ for (const row of rows) {
   if (row.photo.startsWith("/") && !existsSync("public" + row.photo.split("?")[0])) row.photoNote = row.photoNote || "broken-file";
   const code = status.get(row.photo);
   row.http = code;
-  if (code && code >= 400) row.photoNote = "broken";
+  if (code && code >= 400 && /\/api\/photo\?place=/.test(row.photo || "")) {
+    const stored = await storedPhotoThatLoads(row.photo);
+    if (stored) {
+      row.photo = stored;
+      row.http = 200;
+      row.photoNote = "";
+      row.note = [row.note, "The /api/photo?place= form 404s. The stored photo URL returns 200."].filter(Boolean).join(" ");
+    } else row.photoNote = "broken";
+  } else if (code && code >= 400) row.photoNote = "broken";
   else if (code === 0) row.photoNote = row.photoNote || "broken";
   if (/placeholder|via\.placeholder|1x1|photo-unavailable/i.test(row.photo)) row.photoNote = "placeholder";
 }

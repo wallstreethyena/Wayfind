@@ -350,15 +350,12 @@ page,kind,name,placeId,address,maps,source,note,addressGap,photo,photoNote,http
 /guides/florida-fall-festivals-2026,event,Nightmare Village at Xtreme Action Park,,,,,,yes,,missing,
 /guides/florida-fall-festivals-2026,event,Aunt Louise's Farm Fall Farm Days,,,,,,yes,,missing,
 /guides/florida-fall-festivals-2026,event,Bedner's Farm Fresh Market Fall Festival,,,,,,yes,,missing,
-/guides/florida-fall-festivals-2026,event,Fruitville Grove Pumpkin Festival,ChIJhWqZvoVHw4gRehUSFsbZARo,"7410 Fruitville Rd, Sarasota, FL 34240",https://www.google.com/maps/search/?api=1&query=Fruitville%20Grove%207410%20Fruitville%20Rd%2C%20Sarasota%2C%20FL%2034240&query_place_id=ChIJhWqZvoVHw4gRehUSFsbZARo,record,,,/api/photo?place=ChIJhWqZvoVHw4gRehUSFsbZARo&g=2&w=800,broken,404
-/guides/florida-fall-festivals-2026,event,Keel Farms Harvest Days,ChIJ_5yVrBY13YgRwSgyH1hrRjg,"5202 Thonotosassa Rd, Plant City, FL 33565",https://www.google.com/maps/search/?api=1&query=Keel%20Farms%205202%20Thonotosassa%20Rd%2C%20Plant%20City%2C%20FL%2033565&query_place_id=ChIJ_5yVrBY13YgRwSgyH1hrRjg,record,,,/api/photo?place=ChIJ_5yVrBY13YgRwSgyH1hrRjg&g=2&w=800,broken,404
 /guides/florida-fall-festivals-2026,event,Sykes Family Farms Fall Festival,,,,,,yes,,missing,
 /guides/florida-fall-festivals-2026,event,Not So Scary Halloween Bash at Miami Children's Museum,,,,,,yes,,missing,
 /guides/florida-fall-festivals-2026,event,Seminole Heights Great Pumpkin Patch,,"6111 N Central Ave, Tampa, FL 33604",https://www.google.com/maps/search/?api=1&query=Seminole%20Heights%20Great%20Pumpkin%20Patch%206111%20N%20Central%20Ave%2C%20Tampa%2C%20FL%2033604,record,,,,missing,
 /guides/florida-fall-festivals-2026,event,Oktoberfest Miami at the German American Social Club,,,,,,yes,,missing,
 /guides/florida-fall-festivals-2026,event,Oktoberfest Tampa,,,,,,yes,,missing,
 /guides/florida-fall-festivals-2026,event,St. Pete Pier Fall Fest and Pumpkin Patch,,,,,,yes,,missing,
-/guides/florida-fall-festivals-2026,event,Dakin Dairy Farms Fall Harvest Festival,ChIJB_GKfW81w4gRsCQHi5hjasA,"30771 Betts Rd, Myakka City, FL 34251",https://www.google.com/maps/search/?api=1&query=Dakin%20Dairy%20Farms%2030771%20Betts%20Rd%2C%20Myakka%20City%2C%20FL%2034251&query_place_id=ChIJB_GKfW81w4gRsCQHi5hjasA,record,,,/api/photo?place=ChIJB_GKfW81w4gRsCQHi5hjasA&g=2&w=640,broken,404
 /guides/florida-fall-festivals-2026,event,Deerfield Beach Fall Festival,,,,,,yes,,missing,
 /guides/florida-fall-festivals-2026,event,"Gators, Ghosts and Goblins at Gatorland",,,,,,yes,,missing,
 /guides/florida-fall-festivals-2026,event,Hastings Ranch and Farm Festival,ChIJAyTZ7DqN3YgRrdAAVCHFMkA,"1550 Dolphin Dr, St Cloud, FL 34771",https://www.google.com/maps/search/?api=1&query=Hastings%20Ranch%20and%20Farm%201550%20Dolphin%20Dr%2C%20St%20Cloud%2C%20FL%2034771&query_place_id=ChIJAyTZ7DqN3YgRrdAAVCHFMkA,wf_places_cache,,,,missing,

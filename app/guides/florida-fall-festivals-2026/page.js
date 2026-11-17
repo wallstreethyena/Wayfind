@@ -69,10 +69,10 @@ function fallGuideSpots(spots) {
   return spots.map((spot) => {
     if (spot.image || !/^ChIJ/.test(String(spot.id))) {
       const placeId = EVENT_PHOTO_PLACE_IDS[spot.id];
-      if (placeId) return { ...spot, photoPlaceId: placeId, image: "/api/photo?place=" + encodeURIComponent(placeId) + "&g=2&w=800" };
+      if (placeId) return { ...spot, photoPlaceId: placeId, image: null };
       return spot;
     }
-    return { ...spot, image: "/api/photo?place=" + encodeURIComponent(spot.id) + "&g=2&w=800" };
+    return { ...spot, photoPlaceId: spot.id, image: null };
   });
 }
 
