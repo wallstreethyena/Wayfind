@@ -27,6 +27,8 @@ node scripts/check-guard-hermeticity.mjs
 # `npx next build` only, so a homepage JS overage shipped green and died on
 # deploy (#949, 2026-08-26). This lock is source-level and cheap.
 node scripts/check-build-lifecycle.mjs
+# The picomatch audit exception is one advisory and it expires.
+node scripts/test-npm-audit-exception.mjs
 npm run check:version
 npm run check:jsx
 node scripts/check-hydration-style.mjs

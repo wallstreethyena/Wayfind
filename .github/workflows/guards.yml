@@ -60,8 +60,14 @@ jobs:
         run: npm ci --no-audit --no-fund
       # Build tooling also executes in trusted CI. Audit the whole lockfile,
       # not only production dependencies, before running the application checks.
+      # GHSA-fc5q-39xc-vjpf (picomatch ReDoS) is the only allowed miss:
+      # build-time only, inputs are our own patterns, no patched release exists.
+      # Approved by Gabe 2026-11-17.
+      # https://github.com/advisories/GHSA-fc5q-39xc-vjpf
+      # The exception is valid through 2027-01-31 UTC and stops sooner if npm
+      # publishes a picomatch version outside the advisory range.
       - name: Dependency security audit
-        run: npm audit --audit-level=moderate
+        run: node scripts/npm-audit-ci.mjs
       # These guards measure real rendered cards. Without a browser they
       # explicitly skip, which is insufficient evidence for a merge review.
       # Cache the Playwright browser download (~/.cache/ms-playwright on
