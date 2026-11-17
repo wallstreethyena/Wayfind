@@ -237,6 +237,7 @@ export default function MapScreen({ ctx }) {
         : "Wayfind Score 9.2+";
   const [allCategories, setAllCategories] = useState(false);
   const [filtersExpanded, setFiltersExpanded] = useState(false);
+  const [filterBarCollapsed, setFilterBarCollapsed] = useState(false);
   const mapCategory = allCategories ? "all" : cat;
   const [showRings, setShowRings] = useState(false);
   const [hoveredPinId, setHoveredPinId] = useState(null);
@@ -308,7 +309,10 @@ export default function MapScreen({ ctx }) {
   // box also provides a discoverable results list when MapKit cannot load.
   useEffect(() => {
     if (!center || !Number.isFinite(center.lat) || !Number.isFinite(center.lng)) return;
-    const dLat = .36, dLng = .42;
+    // Wide enough to cover MapKit's initial aspect-fitted span, so the first
+    // area read is the one the user sees. Category and sub-filter switches
+    // stay out of coverageKey and filter this pool in memory.
+    const dLat = .56, dLng = .62;
     setViewport({ north: center.lat + dLat, south: center.lat - dLat, east: center.lng + dLng, west: center.lng - dLng });
   }, [center?.lat, center?.lng]);
   const coveredAreaRef = useRef({ key: "", originKey: "", boxes: [] });
@@ -339,16 +343,9 @@ export default function MapScreen({ ctx }) {
       setAreaPlaces([]);
     }
     const timer = setTimeout(() => {
-      readCompleteMapArea({ bounds: queryBounds, origin: center, signal: controller.signal, maxPages: MAX_AREA_PAGES,
-        onPage: (rows) => {
-          if (dead || controller.signal.aborted || areaReqSeq.current !== reqId) return;
-          setAreaPlaces((existing) => {
-            if (originChanged || !existing.length) return rows;
-            const byId = new Map(existing.map((r) => [r.id || r.place_id, r]));
-            for (const r of rows) byId.set(r.id || r.place_id, r);
-            return [...byId.values()];
-          });
-        } })
+      // One commit when the read finishes. A setState on every 500-row page
+      // re-rendered the map mid-load; category and sub are not in this effect.
+      readCompleteMapArea({ bounds: queryBounds, origin: center, signal: controller.signal, maxPages: MAX_AREA_PAGES })
         .then((rows) => {
           if (dead || controller.signal.aborted || areaReqSeq.current !== reqId || !Array.isArray(rows)) return;
           setAreaPlaces((existing) => {
@@ -783,9 +780,11 @@ export default function MapScreen({ ctx }) {
 
   return (
     <div className="wf-map-explorer" style={{ position: "relative", width: "100%", height: "100%" }}>
-      <style dangerouslySetInnerHTML={styleHtml(`html.wf-santa-docked .wf-scrollarea[data-analytics-page="map"] { padding-bottom: calc(78px + env(safe-area-inset-bottom)) !important; } @media (min-width: 1024px) { html.wf-santa-docked .wf-scrollarea[data-analytics-page="map"] { padding-bottom: calc(118px + env(safe-area-inset-bottom)) !important; } } @media (min-width: 760px) { .wf-map-explorer .wf-map-results { width: 390px; right: auto !important; } .wf-map-explorer .wf-map-results.is-drawer-open { max-height: calc(100% - 294px) !important; width: 390px; right: auto !important; } .wf-map-explorer .wf-map-note { width: 390px; right: auto !important; } } .wf-map-explorer .maplibregl-ctrl-bottom-left, .wf-map-explorer .maplibregl-ctrl-bottom-right { margin-bottom: ${MAPLIBRE_ATTRIBUTION_LIFT}px; }`)} />
-      <div style={{ position: "absolute", top: 0, left: 0, right: 0, zIndex: 30, padding: "6px 10px 0" }}>
+      <style dangerouslySetInnerHTML={styleHtml(`html.wf-santa-docked .wf-scrollarea[data-analytics-page="map"] { padding-bottom: calc(78px + env(safe-area-inset-bottom)) !important; } @media (min-width: 1024px) { html.wf-santa-docked .wf-scrollarea[data-analytics-page="map"] { padding-bottom: calc(118px + env(safe-area-inset-bottom)) !important; } } @media (min-width: 760px) { .wf-map-explorer .wf-map-results { width: 390px; right: auto !important; } .wf-map-explorer .wf-map-results.is-drawer-open { max-height: min(44vh, 350px) !important; width: 390px; right: auto !important; } .wf-map-explorer .wf-map-note { width: 390px; right: auto !important; } } .wf-map-explorer .maplibregl-ctrl-bottom-left, .wf-map-explorer .maplibregl-ctrl-bottom-right { margin-bottom: ${MAPLIBRE_ATTRIBUTION_LIFT}px; }`)} />
+      <div style={{ position: "absolute", top: 0, left: 0, right: 0, zIndex: 30, padding: "4px 8px 0" }}>
         <CategoryMenu compact activeCat={cat} subsExpanded={subsVisible} sub={sub}
+          panelCollapsed={filterBarCollapsed}
+          onExpandPanel={() => { setFilterBarCollapsed(false); setFiltersExpanded(true); }}
           onCat={(id, label) => {
             try { logEvent("intent_chip", null, { intent: label, layer: 1, src: "map" }); } catch (e) {}
             sessionTrackerRef.current?.noteLensChange({ category: id, lens: effectiveLens });
@@ -808,13 +807,16 @@ export default function MapScreen({ ctx }) {
           trailing={
             <button
               type="button"
-              onClick={() => setFiltersExpanded((v) => !v)}
+              onClick={() => {
+                if (subsVisible) setFiltersExpanded(false);
+                else setFilterBarCollapsed(true);
+              }}
               aria-expanded={subsVisible ? "true" : "false"}
-              aria-label={subsVisible ? "Collapse sub-filters" : "Expand sub-filters"}
+              aria-label={subsVisible ? "Collapse sub-filters" : "Collapse filter bar"}
               data-wf-filter-toggle
               style={{ flex: "none", background: "none", border: 0, padding: "6px 0", cursor: "pointer", display: "block" }}>
               <span style={{ display: "inline-flex", alignItems: "center", gap: 4, height: 32, padding: "0 10px", borderRadius: 16, background: subsVisible || activeLens !== "all" ? "rgba(249,115,22,.16)" : "rgba(255,255,255,.06)", border: `1px solid ${subsVisible || activeLens !== "all" ? "rgba(249,115,22,.42)" : "rgba(255,255,255,.1)"}`, color: subsVisible || activeLens !== "all" ? "#FDBA74" : C.light, fontSize: 11.5, fontWeight: 700, whiteSpace: "nowrap" }}>
-                {subsVisible ? "Less \u25B4" : (activeLens !== "all" ? `${activeLensMeta.label} \u25BE` : "Filters \u25BE")}
+                {subsVisible ? "Less \u25B4" : (activeLens !== "all" ? `${activeLensMeta.label} \u00b7 Hide \u25B4` : "Hide \u25B4")}
               </span>
             </button>
           }
@@ -845,7 +847,7 @@ export default function MapScreen({ ctx }) {
           </div>
         )}
       </div>
-      <button type="button" onClick={() => { setAreaOnly(true); setAllCategories((on) => !on); setFiltersExpanded(false); setDrawerFilter(""); setHoveredPinId(null); setMapPreview(null); }} aria-pressed={allCategories} style={{ position: "absolute", top: 164, left: 12, zIndex: 5, minHeight: 40, padding: "6px 12px", borderRadius: 999, background: allCategories ? "linear-gradient(160deg, #FDBA74, #F97316)" : "rgba(13,18,26,.88)", border: `1px solid ${allCategories ? "rgba(255,255,255,.75)" : "rgba(255,255,255,.14)"}`, color: allCategories ? "#0B0F14" : C.light, fontSize: 12, fontWeight: 800, cursor: "pointer", boxShadow: "0 6px 18px rgba(0,0,0,.28)" }}>All places · 9.2+</button>
+      <button type="button" data-wf-all-places onClick={() => { setAreaOnly(true); setAllCategories((on) => !on); setFiltersExpanded(false); setDrawerFilter(""); setHoveredPinId(null); setMapPreview(null); }} aria-pressed={allCategories} style={{ position: "absolute", top: subsVisible ? 220 : 164, left: 12, zIndex: 5, minHeight: 40, padding: "6px 12px", borderRadius: 999, background: allCategories ? "linear-gradient(160deg, #FDBA74, #F97316)" : "rgba(13,18,26,.88)", border: `1px solid ${allCategories ? "rgba(255,255,255,.75)" : "rgba(255,255,255,.14)"}`, color: allCategories ? "#0B0F14" : C.light, fontSize: 12, fontWeight: 800, cursor: "pointer", boxShadow: "0 6px 18px rgba(0,0,0,.28)" }}>All places · 9.2+</button>
       {/* Unified right-edge map control rail: one radius, one size (46px),
           one spacing rhythm (164 / 220 / 276), and one icon language
           (strokeWidth 2, round caps/joins). */}
@@ -863,8 +865,8 @@ export default function MapScreen({ ctx }) {
       </button>
       {map3D ? <MapView key={mapRetryKey} onRetry={() => setMapRetryKey((k) => k + 1)} onAreaChange={setAreaOffer} onViewportChange={setViewport} rings={showRings} showOrigin={shouldShowOrigin} styleMode="3d" fit={explicitList || (!!mapSearchPins && view.length > 0)} places={mapMode === "events" ? [] : view} events={mapEvents} center={center} category={mapCategory} deviceLoc={deviceLoc} focus={map3D && mapFocus?.coordSource === "apple_live" ? null : mapFocus} selectedId={mapPreview && mapPreview.id ? mapPreview.id : activeHoverId} onSelect={(p) => { setHoveredPinId(null); setFiltersExpanded(false); setPlanContextPlace(null); setMapPreview(p); setMapDrawer(false); const rk = 1 + view.findIndex((x) => x.id === p.id); sessionTrackerRef.current?.notePinSelected(actionPlace(p), { rank: rk, lens: effectiveLens }); try { logEvent("map_pin_tap", actionPlace(p), { rank: rk }); logEvent("map_pin_selected", actionPlace(p), {}); } catch (e) {} }} onSelectEvent={(e) => { setMapPreview(null); setEventPreview(e); }} />
         : <AppleExplorerMap onReady={(mapkit) => { if (currentRendererAttempt.current === rendererAttempt) setAppleSDK({ attempt: rendererAttempt, mapkit }); }} fit={explicitList || (!!mapSearchPins && view.length > 0)} key={mapRetryKey} onRetry={() => setMapRetryKey((k) => k + 1)} onLoadError={() => { if (currentRendererAttempt.current === rendererAttempt) setFailedRendererAttempt(rendererAttempt); }} onAreaChange={setAreaOffer} onViewportChange={setViewport} rings={showRings} showOrigin={shouldShowOrigin} places={mapMode === "events" ? [] : view} events={mapEvents} center={center} category={mapCategory} deviceLoc={deviceLoc} focus={map3D && mapFocus?.coordSource === "apple_live" ? null : mapFocus} selectedId={mapPreview && mapPreview.id ? mapPreview.id : activeHoverId} onSelect={(p) => { setHoveredPinId(null); setFiltersExpanded(false); setPlanContextPlace(null); setMapPreview(p); setMapDrawer(false); const rk = 1 + view.findIndex((x) => x.id === p.id); sessionTrackerRef.current?.notePinSelected(actionPlace(p), { rank: rk, lens: effectiveLens }); try { logEvent("map_pin_tap", actionPlace(p), { rank: rk }); logEvent("map_pin_selected", actionPlace(p), {}); } catch (e) {} }} onSelectEvent={(e) => { setMapPreview(null); setEventPreview(e); }} />}
-      {mapMode === "places" && !appleMapFailed && (bannerStatus === "loading" ? !view.length : (bannerStatus === "error" || !view.length)) && (
-        <div role="status" data-wf-map-empty-state={bannerStatus === "ready" && !view.length ? (mapSearch && mapSearch.query ? "search_empty" : (activeLens === "open_now" && openNowBreakdown && openNowBreakdown.total > 0 ? "open_now_empty" : (nearbyAllPlaces.length > 0 ? "recovery" : "empty"))) : bannerStatus} style={{ position: "absolute", left: "50%", transform: view.length && !mapDrawer && !mapPreview ? "translate(-50%, -48px)" : "translateX(-50%)", bottom: 76, maxWidth: "calc(100% - 24px)", zIndex: 19, background: "rgba(11,16,24,.94)", border: "1px solid rgba(255,255,255,.12)", color: C.text, borderRadius: 999, padding: "8px 15px", fontSize: 12, fontWeight: 700, boxShadow: "0 10px 26px rgba(0,0,0,.42)", display: "inline-flex", alignItems: "center", gap: 10, whiteSpace: "nowrap", pointerEvents: bannerStatus === "loading" ? "none" : "auto" }}>
+      {mapMode === "places" && !appleMapFailed && (bannerStatus === "error" || !view.length) && (
+        <div role="status" data-wf-map-empty-state={bannerStatus === "ready" && !view.length ? (mapSearch && mapSearch.query ? "search_empty" : (activeLens === "open_now" && openNowBreakdown && openNowBreakdown.total > 0 ? "open_now_empty" : (nearbyAllPlaces.length > 0 ? "recovery" : "empty"))) : bannerStatus} style={{ position: "absolute", left: "50%", transform: "translateX(-50%)", bottom: view.length && !mapDrawer && !mapPreview ? 138 : 76, maxWidth: "calc(100% - 24px)", zIndex: 19, background: "rgba(11,16,24,.94)", border: "1px solid rgba(255,255,255,.12)", color: C.text, borderRadius: 999, padding: "8px 15px", fontSize: 12, fontWeight: 700, boxShadow: "0 10px 26px rgba(0,0,0,.42)", display: "inline-flex", alignItems: "center", gap: 10, whiteSpace: "nowrap", pointerEvents: bannerStatus === "loading" ? "none" : "auto" }}>
           {bannerStatus === "loading" && (
             <>
               <span aria-hidden="true" style={{ display: "inline-block", width: 7, height: 7, borderRadius: 999, background: "#F97316", boxShadow: "0 0 8px #F97316" }} />
@@ -1080,10 +1082,10 @@ export default function MapScreen({ ctx }) {
         );
       })()}
       {mapMode === "places" && !mapPreview && view.length > 0 && (
-        <div className={`wf-map-results${mapDrawer ? " is-drawer-open" : ""}`} style={{ position: "absolute", left: 12, right: 12, bottom: 76, zIndex: 18, width: mapDrawer ? undefined : "fit-content", maxWidth: "calc(100% - 24px)", margin: mapDrawer ? undefined : "0 auto", background: "rgba(11,16,24,.92)", border: "1px solid rgba(255,255,255,.12)", borderRadius: mapDrawer ? 18 : 999, boxShadow: "0 10px 28px rgba(0,0,0,.42), inset 0 1px 0 rgba(255,255,255,.08)", maxHeight: mapDrawer ? "min(58%, 460px)" : 40, transition: "max-height .24s cubic-bezier(.4,0,.2,1)", display: "flex", flexDirection: "column", overflow: "hidden" }}>
-          <button onClick={() => { setHoveredPinId(null); setMapDrawer((o) => !o); }} aria-expanded={mapDrawer ? "true" : "false"} aria-label={mapDrawer ? "Collapse list" : "Expand list"} style={{ flexShrink: 0, width: "100%", background: "transparent", border: "none", cursor: "pointer", padding: 0, display: "flex", flexDirection: "column", alignItems: "center" }}>
+        <div className={`wf-map-results${mapDrawer ? " is-drawer-open" : ""}`} style={{ position: "absolute", left: 12, right: 12, bottom: 76, zIndex: 18, width: mapDrawer ? undefined : "fit-content", maxWidth: "calc(100% - 24px)", margin: mapDrawer ? undefined : "0 auto", boxSizing: "border-box", background: mapDrawer ? "rgba(11,16,24,.9)" : "rgba(11,16,24,.62)", border: "1px solid rgba(255,255,255,.12)", borderRadius: mapDrawer ? 18 : 999, boxShadow: "0 10px 28px rgba(0,0,0,.42), inset 0 1px 0 rgba(255,255,255,.08)", height: mapDrawer ? undefined : 52, maxHeight: mapDrawer ? "min(44vh, 350px)" : 52, transition: "max-height .24s cubic-bezier(.4,0,.2,1)", display: "flex", flexDirection: "column", overflow: "hidden" }}>
+          <button onClick={() => { setHoveredPinId(null); setMapDrawer((o) => !o); }} aria-expanded={mapDrawer ? "true" : "false"} aria-label={mapDrawer ? "Collapse list" : "Expand list"} style={{ flexShrink: 0, width: "100%", height: mapDrawer ? undefined : "100%", background: "transparent", border: "none", cursor: "pointer", padding: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
             {mapDrawer && <div style={{ width: 32, height: 3.5, background: C.border, borderRadius: 2, margin: "7px auto 4px" }} />}
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, width: "100%", padding: mapDrawer ? "2px 16px 10px" : "9px 14px" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, width: "100%", padding: mapDrawer ? "2px 16px 10px" : "0 16px" }}>
               <span style={{ fontSize: 12, lineHeight: "18px", fontWeight: 800, color: C.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}><span style={{ color: "#FB923C" }}>{filterTrim ? `${filteredView.length} of ${view.length}` : view.length}</span> place{view.length === 1 ? "" : "s"} in view · {mapStatus === "ready" ? rankingLabel : mapStatus === "error" ? "partial results" : explicitList ? "loading list" : "loading area"}</span>
               <span style={{ flexShrink: 0, fontSize: 11.5, lineHeight: "17px", color: C.accent, fontWeight: 800 }}>{mapDrawer ? "Hide list ▾" : "Browse list ▴"}</span>
             </div>
@@ -1157,7 +1159,7 @@ export default function MapScreen({ ctx }) {
                   try { openShareFlow({ title: `${areaButtonLabel} Map · Wayfind`, url, text: `Explore top-rated places in ${areaButtonLabel} on Wayfind.` }); } catch (e) {}
                 }} aria-label="Share this map view" title="Share map view" style={{ padding: "6px 9px", borderRadius: 10, border: `1px solid ${C.border}`, background: "rgba(15,23,42,.78)", color: C.light, fontSize: 11.5, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}>&#8599;</button>
               </div>
-              <div style={{ flex: 1, minHeight: 0, overflowY: "auto", WebkitOverflowScrolling: "touch", padding: "0 12px 16px" }}>
+              <div style={{ flex: 1, minHeight: 0, overflowY: "auto", WebkitOverflowScrolling: "touch", padding: "0 12px 16px", display: "flex", flexDirection: "column", gap: 10 }}>
                 {filterTrim && filteredView.length === 0 && (
                   <div style={{ padding: "18px 12px", textAlign: "center", color: C.muted, fontSize: 12.5 }}>
                     No places in view match &ldquo;{drawerFilter.trim()}&rdquo;.

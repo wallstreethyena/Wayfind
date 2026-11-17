@@ -613,8 +613,12 @@ const eq = (a, b, msg) => { assert.deepEqual(a, b, msg); checks++; };
 
   const mapSrc = readFileSync(path.join(ROOT, "app/components/screens/Map.js"), "utf8");
   ok(mapSrc.includes('html.wf-santa-docked .wf-scrollarea[data-analytics-page="map"] { padding-bottom: calc(78px + env(safe-area-inset-bottom)) !important; }') && mapSrc.includes('@media (min-width: 1024px) { html.wf-santa-docked .wf-scrollarea[data-analytics-page="map"] { padding-bottom: calc(118px + env(safe-area-inset-bottom)) !important; } }'), "MapScreen coordinates container padding-bottom with SantaDock lift (78px mobile/tablet, 118px desktop) so all overlays and attribution bands rise together");
+  // The status pill used to be a fourth bottom: 76. It now lifts to 138 while
+  // the collapsed results pill occupies that slot (52px sheet + air), and
+  // stays at 76 when the slot is empty. The other three surfaces do not move.
   const bottom76Count = (mapSrc.match(/\bbottom:\s*76\b/g) || []).length;
-  eq(bottom76Count, 4, "empty/recovery pill, place preview, event preview, and Browse-list pill all sit at bottom: 76 without double-offsetting");
+  eq(bottom76Count, 3, "place preview, event preview, and the Browse-list pill stay at bottom: 76");
+  ok(/bottom: view\.length && !mapDrawer && !mapPreview \? 138 : 76/.test(mapSrc), "the status pill stays in the sheet slot and lifts to 138 only while the collapsed results pill is there");
 
   const homeSrc = readFileSync(path.join(ROOT, "app/home.js"), "utf8");
   ok(!/^import\s+\{[^}]*resolveSearchIntent[^}]*\}\s+from/m.test(homeSrc), "app/home.js lazy-loads resolveSearchIntent out of the eager homepage bundle");
