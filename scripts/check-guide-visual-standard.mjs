@@ -303,7 +303,7 @@ for (const rel of ENTRY_POINTS) {
 // (executed against the real registry, not read) ──────────────────────────
 {
   const { GUIDES } = await import(path.join(REPO, "lib/guides.js"));
-  const { guidePickPhoto, guidePhotoForPlace } = await import(path.join(REPO, "lib/guidePickPhotos.js"));
+  const { guidePickPhoto, guidePhotoForPlace, placePhotoReuseAllowed } = await import(path.join(REPO, "lib/guidePickPhotos.js"));
   const { guideContextPhoto } = await import(path.join(REPO, "lib/guideContextPhotos.js"));
   const editorialCode = ts.transpileModule(read("app/guides/[slug]/GuideEditorial.js"), {
     compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX, target: ts.ScriptTarget.ES2020 },
@@ -318,7 +318,7 @@ for (const rel of ENTRY_POINTS) {
     for (const pick of guide.picks || []) {
       picksChecked++;
       const media = guidePickFigureImage(slug, pick) || guidePickPhoto(slug, pick.name)
-        || guidePhotoForPlace(pick.placeId) || guideContextPhoto(slug, pick, guide);
+        || (placePhotoReuseAllowed(pick) ? guidePhotoForPlace(pick.placeId) : null) || guideContextPhoto(slug, pick, guide);
       // Image intent rule (owner, 2026-11-04): a pick with no intent-matching
       // photo renders the photo-less layout and is Picture Scrapper backlog.
       if (!media) continue;

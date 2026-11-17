@@ -116,7 +116,8 @@
     "Forgotten Tonic Miracle pop-up: current announcement needed": {
       "reason": "no-verified-source",
       "placeId": "ChIJu5KCkJYn5IgRVVjGR-aX2N4",
-      "note": "Creator screenshots are discovery evidence and do not grant image reuse. Use the established neutral fallback until an exact licensed or permissioned photo is available."
+      "declinePlacePhotoReuse": true,
+      "note": "A year round photograph of Aviles Street already illustrates the St. Augustine Christmas walk. It does not show the Miracle popup, so this recommendation declines that photograph and keeps the neutral Photo unavailable tile until a photograph of the popup itself exists."
     }
   }
 }

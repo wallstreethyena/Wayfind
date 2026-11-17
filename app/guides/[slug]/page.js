@@ -34,7 +34,7 @@ import { GuideFacts, GuideReadingNav, guidePickImage, guidePickFigureImage, GUID
 // there resolves against the wrong directory and crashes that guard. This
 // file is never transpiled that way, so it carries the fallback instead — see
 // the pick loop below for the one call site.
-import { guidePickPhoto, guidePhotoForPlace } from "../../../lib/guidePickPhotos";
+import { guidePickPhoto, guidePhotoForPlace, placePhotoReuseAllowed } from "../../../lib/guidePickPhotos";
 import { guideContextPhoto } from "../../../lib/guideContextPhotos.js";
 import { findFreePhoto } from "../../../lib/freePhoto";
 import { findSamePlaceCachedPhoto } from "../../../lib/photoCacheRecovery.js";
@@ -673,7 +673,9 @@ export default async function GuidePage({ params }) {
     rememberMedia(guideHero(params.slug));
     g.picks.forEach((pick, i) => {
       if (curatedPickImages[i] || editorialImages.get(pickPlaceIds[i])) return;
-      const reused = guidePhotoForPlace(pickPlaceIds[i], { avoidSrc: usedSrc });
+      // declinePlacePhotoReuse keeps a year round venue photograph off a
+      // recommendation it does not show. The neutral tile stays.
+      const reused = placePhotoReuseAllowed(pick) ? guidePhotoForPlace(pickPlaceIds[i], { avoidSrc: usedSrc }) : null;
       if (reused) { curatedPickImages[i] = reused; rememberMedia(reused); }
     });
     // Owner, 2026-10-15: photographs for every guide recommendation. Only
