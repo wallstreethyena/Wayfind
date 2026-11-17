@@ -84,6 +84,13 @@
     "reason": "NOT APPLIED. Additive only: new table wf_photo_change_audit (RLS on, no anon/authenticated policies) plus statement-level audit triggers on wf_google_photo_store and wf_place_photo that only ever raise a WARNING. The SQL was NOT test-run on production: the transaction test through execute_sql timed out waiting for a confirmation prompt, so it is unproven until applied or tested in a transaction that is rolled back. Pending canonical scripts/apply-migration.mjs application by the owner."
   },
   {
+    "file": "supabase/migrations/20261114170000_wf_migration_lease.sql",
+    "sha256": "1261bbe11824ee6cb9ae94a304be099f359520c70232534f0d72b3d073794e28",
+    "decision_owner": "wallstreethyena",
+    "tracking": "#2499 (engineering OS: migration serialization)",
+    "reason": "Additive, service-only single-row lease table (RLS on, no policies, no anon/authenticated grants) that scripts/apply-migration.mjs takes before sending any migration SQL and releases after the outcome receipt, so two appliers cannot run against the project at once. Idempotent (create if not exists / insert on conflict do nothing). Reverse: drop table public.wf_migration_lease (apply-migration then refuses until it is re-created). Not applied; applies through scripts/apply-migration.mjs (the lease file itself is the documented bootstrap exception)."
+  },
+  {
     "file": "supabase/migrations/20261115130000_wf_reserve_replay_flag.sql",
     "sha256": "d0d640840f47d2d4768fe65cdac4b87bcd021bece6e4c3bebd6a5675aa163816",
     "decision_owner": "wallstreethyena",

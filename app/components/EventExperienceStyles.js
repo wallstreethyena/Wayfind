@@ -19,13 +19,13 @@ export const EVENT_EXPERIENCE_CSS = `
 .wf-event-photo-rail:focus-visible{outline:3px solid #ff782f;outline-offset:4px}
 .wf-event-photo{position:relative;flex:0 0 252px;width:252px;height:448px;max-width:100%;background:#141a16;border:1px solid #27313d;border-radius:18px;overflow:hidden;min-width:0;scroll-snap-align:start;scroll-snap-stop:always}
 .wf-event-photo img{display:block;width:100%;height:100%;object-fit:cover;background:#111612}.wf-event-photo-credit{position:absolute;left:6px;right:8px;bottom:6px;z-index:2;margin:0;padding:0;background:transparent;color:rgba(255,255,255,.6);font-size:9.5px;font-weight:500;line-height:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 1px 2px rgba(0,0,0,.85),0 0 6px rgba(0,0,0,.6);pointer-events:none}.wf-event-photo-credit a{color:inherit;text-decoration:underline;text-underline-offset:2px;pointer-events:auto}
-/* Owner report 2026-11-16 ("not smooth", "no indication there are more pictures"):
-   the hero used a full-width first photo followed by 216px photos under a
-   proximity snap, so swipes landed between mixed widths and the first photo hid
-   all nine others. Every hero photo is now the same width with the next one
-   peeking in, snaps one photo per swipe, and a lone photo still fills the card.
-   Dots sit in the reserved strip under a multi-photo rail (EventPhotoRailControls). */
-.wf-event-hero .wf-event-photo-rail{padding:0;gap:8px;border-radius:0}.wf-event-hero .wf-event-photo{height:clamp(240px,42vw,440px);flex:0 0 86%;width:86%;border:0;border-radius:0}.wf-event-hero .wf-event-photo:only-child{flex:0 0 100%;width:100%}
+/* Owner report 2026-11-16: the old full-width first photo + 216px photos under a
+   proximity snap made swipes land between mixed widths. Owner follow-up the same
+   night: no photo may be cut off at the edge ("I want the images not to be cut
+   off"), so every hero photo fills the card on its own and one swipe moves
+   exactly one photo. The counter and dots (EventPhotoRailControls) say there
+   are more photos; nothing peeks in and nothing moves on its own. */
+.wf-event-hero .wf-event-photo-rail{padding:0;gap:0;border-radius:0}.wf-event-hero .wf-event-photo{height:clamp(240px,42vw,440px);flex:0 0 100%;width:100%;border:0;border-radius:0}.wf-event-hero .wf-event-photo:only-child{flex:0 0 100%;width:100%}
 .wf-event-hero .wf-event-photo-rail:has(>.wf-event-photo+.wf-event-photo){margin-bottom:26px}
 .wf-event-photo-rail[data-zoomable] .wf-event-photo img{cursor:zoom-in;-webkit-touch-callout:none}
 .wf-event-rail-arrow{position:absolute;z-index:3;display:none;width:44px;height:44px;border-radius:22px;border:1px solid rgba(255,255,255,.28);background:rgba(8,11,16,.72);color:#fff;font-size:26px;line-height:40px;cursor:pointer}
