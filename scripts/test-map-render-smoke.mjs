@@ -407,6 +407,51 @@ const mapScreenRaw = readFileSync(new URL("../app/components/screens/Map.js", im
 ok(/const reqId = \+\+areaReqSeq\.current;/.test(mapScreenRaw) && /areaReqSeq\.current !== reqId/.test(mapScreenRaw), "area lifecycle guards out-of-order responses with a monotonic request sequence");
 ok(/const originKey = `\$\{center\?\.lat\}\|\$\{center\?\.lng\}`;/.test(mapScreenRaw) && /const coverageKey = `\$\{originKey\}\|\$\{areaRetry\}\|\$\{curatorSnap\.v\}`;/.test(mapScreenRaw), "area lifecycle separates originKey from coverageKey and excludes category/subfilter from network refetch triggers");
 ok(/existing\.filter\(\(r\) => !placeInMapBounds\(r, viewport\)\)/.test(mapScreenRaw), "completed viewport reads replace stale in-viewport rows while preserving out-of-viewport cache");
+ok(/const dLat = \.56, dLng = \.62;/.test(mapScreenRaw), "the first viewport is wide enough to cover the initial map span");
+{
+  const readAt = mapScreenRaw.indexOf("readCompleteMapArea({ bounds: queryBounds");
+  const depsAt = mapScreenRaw.indexOf("}, [viewport?.north", readAt);
+  const completion = readAt > 0 && depsAt > readAt ? mapScreenRaw.slice(readAt, depsAt) : "";
+  ok(completion.length > 0 && !/onPage\s*:/.test(completion) && (completion.match(/setAreaPlaces/g) || []).length === 1, "a completed area read commits setAreaPlaces once and does not render on every page");
+}
+ok(/bannerStatus === "error" \|\| !view\.length/.test(mapScreenRaw) && /bottom: view\.length && !mapDrawer && !mapPreview \? 138 : 76/.test(mapScreenRaw) && !/top:\s*330/.test(mapScreenRaw), "map status renders only for an error or an empty result set, in the bottom sheet slot");
+ok(!/ackdropFilter/.test(mapScreenRaw), "the places sheet stays translucent without a backdrop-filter over the moving map");
+{
+  const calls = [];
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async (url) => {
+    const u = String(url);
+    if (u.includes("/api/places/map")) {
+      calls.push(u);
+      return { ok: true, json: async () => ({ places: [], complete: true }) };
+    }
+    return { ok: false, json: async () => ({}) };
+  };
+  try {
+    const hooks = hookHost();
+    const ctx = ctxFor({ cat: "food", sub: "all" });
+    hooks.render(MapScreen, { ctx });
+    hooks.flushEffects();
+    hooks.render(MapScreen, { ctx });
+    hooks.flushEffects();
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    const afterFirst = calls.length;
+    ok(afterFirst > 0, "the initial area read reaches the network");
+    ctx.cat = "nightlife";
+    ctx.sub = "bars";
+    hooks.render(MapScreen, { ctx });
+    hooks.flushEffects();
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    ok(calls.length === afterFirst, `category and sub-filter switches cause no refetch (calls before ${afterFirst}, after ${calls.length})`);
+    const loaded = renderToStaticMarkup(createElement(MapScreen, { ctx: ctxFor({ __mapSmokeStatus: "loading" }) }));
+    ok(!loaded.includes("data-wf-map-empty-state") && !loaded.includes("Loading nearby"), "a loading area that already has results does not cover the map with a status");
+    const loadingEmpty = renderToStaticMarkup(createElement(MapScreen, { ctx: ctxFor({ __mapSmokeStatus: "loading", __mapSmokePlaces: [] }) }));
+    ok(loadingEmpty.includes('role="status"') && loadingEmpty.includes("Loading nearby"), "a loading area with no results still announces status");
+    hooks.unmount();
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+}
 
 if (fail.length) { console.error(`test-map-render-smoke: ${fail.length} FAILURE(S)`); for (const f of fail) console.error("  ✗ " + f); process.exit(1); }
 console.log(`test-map-render-smoke: OK — ${pass} assertions; MapScreen SSR-rendered in ${STATES.length} states plus Apple/MapLibre framing parity; emitted-component hook/effect harness verified SDK rejection, retry, switching, drawer filter/hover/actions, and unmount safety`);
