@@ -7,7 +7,7 @@ import { isGooglePlaceId, isPlaceOwnedPhotoUrl } from "../../lib/placePhoto.js";
 import { PLACE_DETAIL_PHOTO_STANDARD } from "../../lib/placeDetailPhotoStandard.js";
 import PhotoCredit from "./PhotoCredit.js";
 import PhotoLightbox from "./PhotoLightbox.js";
-import { RailCount, RailDots, scrollRailTo, usePeekNudge, useRailIndex } from "./PhotoRailIndicators.js";
+import { RailCount, RailDots, scrollRailTo, useRailIndex } from "./PhotoRailIndicators.js";
 
 // Existing Google bytes only. The free lookup must never make an ephemeral
 // provider redirect into a durable-page image; permitted/licensed answers
@@ -72,7 +72,6 @@ export default function PlaceDetailPhotoHeader({ placeId, name, initialPhoto, ph
   const photoRef = useRef(null);
   const [rail, setRail] = useState(null);
   const { count: railCount, index: railAt } = useRailIndex(multi ? rail : null);
-  usePeekNudge(multi ? rail : null, railCount);
   const eligible = isGooglePlaceId(String(placeId || ""));
   const initial = usableInitial(initialPhoto, placeId, name);
   const initialKey = initial ? initial.src + "|" + initial.subjectName : "";
@@ -114,9 +113,9 @@ export default function PlaceDetailPhotoHeader({ placeId, name, initialPhoto, ph
   return (
     <header className={className} data-place-detail-photo-header style={{ minWidth: 0 }}>
       {(multi || pending || photo) ? <div data-place-detail-photo-media style={{ ...PLACE_DETAIL_PHOTO_STANDARD.frame, position: "relative", overflow: "hidden", background: "#101820" }}>
-        {multi ? <div ref={setRail} data-place-detail-photo-rail style={{ position: "absolute", inset: 0, display: "flex", gap: 8, overflowX: "auto", overscrollBehaviorX: "contain", scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch", scrollbarWidth: "none" }}>
+        {multi ? <div ref={setRail} data-place-detail-photo-rail style={{ position: "absolute", inset: 0, display: "flex", gap: 0, overflowX: "auto", overscrollBehaviorX: "contain", scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch", scrollbarWidth: "none" }}>
           {gallery.map((src, i) => (
-            <button key={src} type="button" onClick={() => setViewer({ src, source: "wayfind", credit: null, placeId, start: i })} aria-label={"View full photo of " + name + " (" + (i + 1) + " of " + gallery.length + ")"} style={{ flex: "0 0 78%", height: "100%", padding: 0, border: 0, scrollSnapAlign: "start", scrollSnapStop: "always", background: "transparent", cursor: "zoom-in" }}>
+            <button key={src} type="button" onClick={() => setViewer({ src, source: "wayfind", credit: null, placeId, start: i })} aria-label={"View full photo of " + name + " (" + (i + 1) + " of " + gallery.length + ")"} style={{ flex: "0 0 100%", height: "100%", padding: 0, border: 0, scrollSnapAlign: "start", scrollSnapStop: "always", background: "transparent", cursor: "zoom-in" }}>
               <img src={src} alt={name} style={{ ...PLACE_DETAIL_PHOTO_STANDARD.image, width: "100%", height: "100%", display: "block" }} />
             </button>
           ))}

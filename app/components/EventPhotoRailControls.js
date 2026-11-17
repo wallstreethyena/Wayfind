@@ -3,11 +3,11 @@
 // (every /florida-events, /events and /movies detail page). The rail itself
 // stays plain server HTML; this sits next to it and adds:
 //   - tap any photo to open it full screen (PhotoLightbox), swipe between all
-//   - a "⤢ 3 / 10" counter, dots, desktop arrows, and a one-time peek nudge
+//   - a "⤢ 3 / 10" counter, dots and desktop arrows (no auto motion, owner 2026-11-16)
 // so a multi-photo rail never reads as a single picture (owner, 2026-11-16).
 import { useCallback, useEffect, useRef, useState } from "react";
 import PhotoLightbox from "./PhotoLightbox.js";
-import { RailCount, RailDots, railIndex, scrollRailTo, usePeekNudge, useRailIndex } from "./PhotoRailIndicators.js";
+import { RailCount, RailDots, railIndex, scrollRailTo, useRailIndex } from "./PhotoRailIndicators.js";
 
 function photoImg(slide) {
   // Movie posters carry a blurred backdrop <img> behind the real art.
@@ -37,8 +37,7 @@ export default function EventPhotoRailControls() {
   const [rail, setRail] = useState(null);
   const [box, setBox] = useState(null);
   const [viewer, setViewer] = useState(null);
-  const { count, index } = useRailIndex(rail);
-  usePeekNudge(rail, count);
+  const { count, index, shown } = useRailIndex(rail);
 
   const openAt = useCallback((slide) => {
     if (!rail) return;
@@ -82,7 +81,7 @@ export default function EventPhotoRailControls() {
     return () => { rail.removeEventListener("click", onClick); rail.removeEventListener("keydown", onKey); };
   }, [rail, openAt]);
 
-  const hasPhoto = !!rail && count > 0 && Array.from(rail.children).some((s) => photoImg(s));
+  const hasPhoto = !!rail && count > 0 && shown > 0;
   return (
     <div ref={root} className="wf-event-rail-ui" data-event-rail-controls="">
       {box && hasPhoto ? (

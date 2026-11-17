@@ -211,7 +211,9 @@ export default async function CuratedEventPage({ params }) {
   // SERVER-resolved, never window.location — on a preview deploy that is a host
   // the recipient cannot open (lib/site.js canonicalShareUrl).
   const shareUrl = SITE_URL + "/florida-events/" + params.slug;
-  const shareText = `${e.event_name}, ${eventDatesLabel(e, dateRangeLabel(e))}${e.is_free ? ", free" : ""}. Found this on Wayfind.`;
+  const datesLabel = eventDatesLabel(e, dateRangeLabel(e));
+  const dateYearSuffix = e.when_label || /\b\d{4}\b/.test(datesLabel) ? "" : `, ${e.year}`;
+  const shareText = `${e.event_name}, ${datesLabel}${e.is_free ? ", free" : ""}. Found this on Wayfind.`;
   // v8.88 — WHERE IT IS, AND HOW TO GET THERE (owner, 2026-08-29, on this very
   // page): "how are people gonna be able to find it?"
   //
@@ -316,7 +318,7 @@ export default async function CuratedEventPage({ params }) {
       <EventDetailShell
         title={eventTitleWithYear(e.event_name, e.year)}
         facts={[
-          { label: "When", value: `${eventDatesLabel(e, dateRangeLabel(e))}${e.when_label ? "" : `, ${e.year}`}${clockLabel(e.start_time) ? ` · ${clockLabel(e.start_time)}${clockLabel(e.end_time) ? (e.christmas_research_id ? " to " : "–") + clockLabel(e.end_time) : ""}` : ""}` },
+          { label: "When", value: `${datesLabel}${dateYearSuffix}${clockLabel(e.start_time) ? ` · ${clockLabel(e.start_time)}${clockLabel(e.end_time) ? (e.christmas_research_id ? " to " : "–") + clockLabel(e.end_time) : ""}` : ""}` },
           { label: "Where", value: <>{e.viewing_label || e.venue ? <div>{e.viewing_label || e.venue}</div> : null}{where && (e.venue ? where !== `${e.city}, ${e.state}` : true) ? <div style={S.addr}>{where}</div> : (!e.venue ? <div style={S.addr}>{e.city}, {e.state}</div> : null)}</> },
           { label: "Cost", value: e.christmas_price_line || eventCostSummary(e) },
           { label: "Who it is for", value: e.audience_label || null },
