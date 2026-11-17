@@ -1,0 +1,393 @@
+{
+ "batch": "2026-11-16-nopic",
+ "created": "2026-11-16",
+ "read_only_guard_check": {
+  "wf_inventory ChIJEacq0htBw4gRy5hxN32jnmQ": 1
+ },
+ "sql_changes": [
+  {
+   "table": "wf_inventory",
+   "place_id": "ChIJEacq0htBw4gRy5hxN32jnmQ",
+   "name": "Wink Wink Food and Drink",
+   "change": "gallery trimmed from 9 to 7 (dropped site_fdab15e7cfa97654 and site_f857f63293c4becc as near duplicates), source set to official_site, attribution text fixed to Wink Wink Food and Drink official website"
+  }
+ ],
+ "code_changes": [
+  "lib/christmasStaticGalleryAdditions.js: 17 Christmas events, 31 photos",
+  "lib/wayfindPlanner.js: itinerary candidates use a Christmas card image when no photo field is set"
+ ],
+ "event_photos": [
+  {
+   "event_id": "misfit-bar-wink-wink-holiday-2026",
+   "src": "/place-photos/batch-2026-11-16-nopic/misfit-bar-wink-wink-holiday-2026/ev_155ea9dc7286d3db.jpg",
+   "credit": "Wink Wink Food and Drink official website",
+   "href": "https://images.squarespace-cdn.com/content/v1/69a0b14e97e48a02c1125583/f13f12f5-3bc0-416f-b5ba-1a1eea06ce0b/SAR+Misfit+F%26B-8.webp?format=2500w",
+   "bytes": 163447,
+   "phash": "dccb482637646cb3",
+   "orig": [
+    1500,
+    1000
+   ]
+  },
+  {
+   "event_id": "misfit-bar-wink-wink-holiday-2026",
+   "src": "/place-photos/batch-2026-11-16-nopic/misfit-bar-wink-wink-holiday-2026/ev_da7135111a3e0aad.jpg",
+   "credit": "Wink Wink Food and Drink official website",
+   "href": "https://images.squarespace-cdn.com/content/v1/69a0b14e97e48a02c1125583/24070ce9-5398-4443-a0d3-3282583c1034/Milk+and+Cookies+-+SAR+Misfit+F%26B-8.webp?format=2500w",
+   "bytes": 167877,
+   "phash": "dc626506db3d62c6",
+   "orig": [
+    1500,
+    1000
+   ]
+  },
+  {
+   "event_id": "misfit-bar-wink-wink-holiday-2026",
+   "src": "/place-photos/batch-2026-11-16-nopic/misfit-bar-wink-wink-holiday-2026/ev_a3df104f3de7558a.jpg",
+   "credit": "Wink Wink Food and Drink official website",
+   "href": "https://images.squarespace-cdn.com/content/v1/69a0b14e97e48a02c1125583/f4137135-5c1b-4ee2-81ae-581375090b13/SAR+Misfit+Decor-1.webp?format=2500w",
+   "bytes": 199761,
+   "phash": "cc0c2bb372f83d54",
+   "orig": [
+    1500,
+    1000
+   ]
+  },
+  {
+   "event_id": "misfit-bar-wink-wink-holiday-2026",
+   "src": "/place-photos/batch-2026-11-16-nopic/misfit-bar-wink-wink-holiday-2026/ev_9aeccb8541ca2144.jpg",
+   "credit": "Wink Wink Food and Drink official website",
+   "href": "https://images.squarespace-cdn.com/content/v1/69a0b14e97e48a02c1125583/38ac7afa-e64e-4f81-a77f-7b7fe2c63d9f/Mistletoe+Me+Baby+-+SAR+Misfit+F%26B-16.webp?format=2500w",
+   "bytes": 124288,
+   "phash": "d2da1a25d50c99f6",
+   "orig": [
+    1500,
+    1000
+   ]
+  },
+  {
+   "event_id": "misfit-bar-wink-wink-holiday-2026",
+   "src": "/place-photos/batch-2026-11-16-nopic/misfit-bar-wink-wink-holiday-2026/ev_a8032d53875dfeec.jpg",
+   "credit": "Wink Wink Food and Drink official website",
+   "href": "https://images.squarespace-cdn.com/content/v1/69a0b14e97e48a02c1125583/29afc3da-9ea0-43fc-8581-a686d34a1a40/SAR+Misfit+Decor-3.webp?format=2500w",
+   "bytes": 192653,
+   "phash": "dd5d63620834f49b",
+   "orig": [
+    1500,
+    1000
+   ]
+  },
+  {
+   "event_id": "armature-works-holiday-tree-lighting-tampa-2026",
+   "src": "/place-photos/batch-2026-11-16-nopic/armature-works-holiday-tree-lighting-tampa-2026/ev_bbe74258f77d98dc.jpg",
+   "credit": "Armature Works official website",
+   "href": "https://images.getbento.com/accounts/9226f951460a3ed5a3486cffc800c309/media/images/181662019-11-30_20-32-27_940.jpeg",
+   "bytes": 179783,
+   "phash": "8668719768ea17e5",
+   "orig": [
+    6550,
+    4367
+   ]
+  },
+  {
+   "event_id": "armature-works-holiday-tree-lighting-tampa-2026",
+   "src": "/place-photos/batch-2026-11-16-nopic/armature-works-holiday-tree-lighting-tampa-2026/ev_312e77c8cbe98fe4.jpg",
+   "credit": "Armature Works official website",
+   "href": "https://images.getbento.com/accounts/9226f951460a3ed5a3486cffc800c309/media/images/40830IMG_5232.JPG",
+   "bytes": 203551,
+   "phash": "a791ca1f824f68b5",
+   "orig": [
+    5472,
+    3648
+   ]
+  },
+  {
+   "event_id": "armature-works-holiday-tree-lighting-tampa-2026",
+   "src": "/place-photos/batch-2026-11-16-nopic/armature-works-holiday-tree-lighting-tampa-2026/ev_8469f002cdc2c584.jpg",
+   "credit": "Armature Works official website",
+   "href": "https://images.getbento.com/accounts/9226f951460a3ed5a3486cffc800c309/media/images/64011IMG_5490.JPG",
+   "bytes": 116567,
+   "phash": "c7338d6099e6196e",
+   "orig": [
+    5472,
+    3648
+   ]
+  },
+  {
+   "event_id": "armature-works-holiday-tree-lighting-tampa-2026",
+   "src": "/place-photos/batch-2026-11-16-nopic/armature-works-holiday-tree-lighting-tampa-2026/ev_884ee776a94eefda.jpg",
+   "credit": "Armature Works official website",
+   "href": "https://images.getbento.com/accounts/9226f951460a3ed5a3486cffc800c309/media/images/53830IMG_5288.JPG",
+   "bytes": 166921,
+   "phash": "83657ac6f1bb8470",
+   "orig": [
+    5472,
+    3648
+   ]
+  },
+  {
+   "event_id": "armature-works-holiday-tree-lighting-tampa-2026",
+   "src": "/place-photos/batch-2026-11-16-nopic/armature-works-holiday-tree-lighting-tampa-2026/ev_5992f63e669f4530.jpg",
+   "credit": "Armature Works official website",
+   "href": "https://images.getbento.com/accounts/9226f951460a3ed5a3486cffc800c309/media/images/70844IMG_5271.JPG",
+   "bytes": 198200,
+   "phash": "ddc1d3843e0ba07b",
+   "orig": [
+    5472,
+    3648
+   ]
+  },
+  {
+   "event_id": "coconut-point-tropical-holiday-celebration-2026",
+   "src": "/place-photos/batch-2026-11-16-nopic/coconut-point-tropical-holiday-celebration-2026/ev_7cb00aa2a955526c.jpg",
+   "credit": "Visit Fort Myers official website",
+   "href": "https://www.visitfortmyers.com/sites/default/files/2026-09/Coconut%20Point%20Tree%20Lighting%202023%203x2.jpg",
+   "bytes": 196745,
+   "phash": "c41a6f32ed87146e",
+   "orig": [
+    2177,
+    1451
+   ]
+  },
+  {
+   "event_id": "surfing-santas-of-cocoa-beach-2026",
+   "src": "/place-photos/batch-2026-11-16-nopic/surfing-santas-of-cocoa-beach-2026/ev_d5eb7b0b411d1f08.jpg",
+   "credit": "Surfing Santas official website",
+   "href": "https://surfingsantas.org/wp-content/uploads/2026/09/cassiefisher_surfingsantas25-83-small.jpg",
+   "bytes": 202790,
+   "phash": "fecdf01b4025322f",
+   "orig": [
+    1784,
+    1190
+   ]
+  },
+  {
+   "event_id": "tree-lighting-festival-vero-beach-2026",
+   "src": "/place-photos/batch-2026-11-16-nopic/tree-lighting-festival-vero-beach-2026/ev_e4b42e3618e9b813.jpg",
+   "credit": "Indian River County Chamber of Commerce official website",
+   "href": "https://edge.growthzonecms.com/sites/186/2025/11/Photo-Nov-22-2025-6-01-52-PM.jpg",
+   "bytes": 191645,
+   "phash": "9e8af670750b8b1a",
+   "orig": [
+    4032,
+    3024
+   ]
+  },
+  {
+   "event_id": "ritz-carlton-tree-lighting-2026",
+   "src": "/place-photos/batch-2026-11-16-nopic/ritz-carlton-tree-lighting-2026/ev_cb1d14cd20470378.jpg",
+   "credit": "Amelia Island Convention and Visitors Bureau official website",
+   "href": "https://www.ameliaisland.com/wp-content/uploads/RCAI-Holidays-Gingerbread-2.jpg",
+   "bytes": 150610,
+   "phash": "e3ab24f663f00e89",
+   "orig": [
+    1920,
+    1281
+   ]
+  },
+  {
+   "event_id": "holiday-light-display-dorothy-b-oven-park-2026",
+   "src": "/place-photos/batch-2026-11-16-nopic/holiday-light-display-dorothy-b-oven-park-2026/ev_1e1422b3f02989e6.jpg",
+   "credit": "Visit Tallahassee official website",
+   "href": "https://visittallahassee.com/wp-content/uploads/2025/11/Elf-Night-4218-scaled.jpg",
+   "bytes": 192751,
+   "phash": "940e4b4bd5d72c65",
+   "orig": [
+    2560,
+    1707
+   ]
+  },
+  {
+   "event_id": "seaside-holiday-parade-turn-on-the-town-2026",
+   "src": "/place-photos/batch-2026-11-16-nopic/seaside-holiday-parade-turn-on-the-town-2026/ev_8772fe852f2b9f1a.jpg",
+   "credit": "Seaside official website",
+   "href": "https://cdn.seasidefl.com/wp-content/uploads/2024/08/25220612/Z62_4031-scaled-1.webp",
+   "bytes": 187807,
+   "phash": "81365ee954c0779b",
+   "orig": [
+    1920,
+    1277
+   ]
+  },
+  {
+   "event_id": "seaside-holiday-parade-turn-on-the-town-2026",
+   "src": "/place-photos/batch-2026-11-16-nopic/seaside-holiday-parade-turn-on-the-town-2026/ev_24140f86de16aefd.jpg",
+   "credit": "Seaside official website",
+   "href": "https://cdn.seasidefl.com/wp-content/uploads/2024/04/11155251/Seaside_6_23_0624.jpg",
+   "bytes": 193865,
+   "phash": "b5ebda9a25152a2c",
+   "orig": [
+    5000,
+    3421
+   ]
+  },
+  {
+   "event_id": "derek-hough-dance-for-the-holidays-pensacola-2026",
+   "src": "/place-photos/batch-2026-11-16-nopic/derek-hough-dance-for-the-holidays-pensacola-2026/ev_3ee6f5624e3b9302.jpg",
+   "credit": "Pensacola Saenger Theatre official website",
+   "href": "https://www.pensacolasaenger.com/wp-content/uploads/2026/08/1Y4A0205-web.jpg",
+   "bytes": 174601,
+   "phash": "9b242bea4a966e99",
+   "orig": [
+    2048,
+    1365
+   ]
+  },
+  {
+   "event_id": "arcadia-christmas-through-the-decades-parade-2026",
+   "src": "/place-photos/batch-2026-11-16-nopic/arcadia-christmas-through-the-decades-parade-2026/ev_fa0e44a9264a2782.jpg",
+   "credit": "Pokemonprime via Wikimedia Commons, CC BY 4.0",
+   "href": "https://commons.wikimedia.org/wiki/File:The_Old_Opera_House_Museum_%26_Shops,_Arcadia,_Florida.jpg",
+   "bytes": 197422,
+   "phash": "c2c6af3f3d80813b",
+   "orig": [
+    1920,
+    1440
+   ]
+  },
+  {
+   "event_id": "arcadia-christmas-through-the-decades-parade-2026",
+   "src": "/place-photos/batch-2026-11-16-nopic/arcadia-christmas-through-the-decades-parade-2026/ev_ec1b3b8006698537.jpg",
+   "credit": "Pokemonprime via Wikimedia Commons, CC BY 4.0",
+   "href": "https://commons.wikimedia.org/wiki/File:25-29_W_Oak_St,_Arcadia,_Florida.jpg",
+   "bytes": 199201,
+   "phash": "fff7c014c053d1c4",
+   "orig": [
+    1920,
+    1440
+   ]
+  },
+  {
+   "event_id": "arcadia-christmas-through-the-decades-parade-2026",
+   "src": "/place-photos/batch-2026-11-16-nopic/arcadia-christmas-through-the-decades-parade-2026/ev_0b8a14594d88355e.jpg",
+   "credit": "Pokemonprime via Wikimedia Commons, CC BY 4.0",
+   "href": "https://commons.wikimedia.org/wiki/File:24_W_Oak_St,_Arcadia,_Florida.jpg",
+   "bytes": 201840,
+   "phash": "f9d0d2d0f5d70a21",
+   "orig": [
+    1920,
+    1440
+   ]
+  },
+  {
+   "event_id": "dade-city-christmas-stroll-2026",
+   "src": "/place-photos/batch-2026-11-16-nopic/dade-city-christmas-stroll-2026/ev_07c1b8896dcb0c0c.jpg",
+   "credit": "Georgia Guercio via Wikimedia Commons, CC BY SA 3.0",
+   "href": "https://commons.wikimedia.org/wiki/File:Dade_City,_FL,_Courthouse,_Pasco_County,_Christmas_Decorated,_North_Side,_12-18-2009_(3).JPG",
+   "bytes": 177476,
+   "phash": "fbb7d4082a3cf508",
+   "orig": [
+    2048,
+    1536
+   ]
+  },
+  {
+   "event_id": "dade-city-christmas-parade-2026",
+   "src": "/place-photos/batch-2026-11-16-nopic/dade-city-christmas-parade-2026/ev_07c1b8896dcb0c0c.jpg",
+   "credit": "Georgia Guercio via Wikimedia Commons, CC BY SA 3.0",
+   "href": "https://commons.wikimedia.org/wiki/File:Dade_City,_FL,_Courthouse,_Pasco_County,_Christmas_Decorated,_North_Side,_12-18-2009_(3).JPG",
+   "bytes": 177476,
+   "phash": "fbb7d4082a3cf508",
+   "orig": [
+    2048,
+    1536
+   ]
+  },
+  {
+   "event_id": "lake-wales-christmas-parade-2026",
+   "src": "/place-photos/batch-2026-11-16-nopic/lake-wales-christmas-parade-2026/ev_d2bdb8d46f898bc4.jpg",
+   "credit": "Pokemonprime via Wikimedia Commons, CC BY 4.0",
+   "href": "https://commons.wikimedia.org/wiki/File:Dixie_Walesbilt_Hotel_(Lower_Floor),_Lake_Wales,_Florida.jpg",
+   "bytes": 199485,
+   "phash": "e8f89f1275630e94",
+   "orig": [
+    1920,
+    1440
+   ]
+  },
+  {
+   "event_id": "lake-wales-christmas-parade-2026",
+   "src": "/place-photos/batch-2026-11-16-nopic/lake-wales-christmas-parade-2026/ev_8f3404260f204751.jpg",
+   "credit": "Pokemonprime via Wikimedia Commons, CC BY 4.0",
+   "href": "https://commons.wikimedia.org/wiki/File:Rhodesbilt_Arcade,_Lake_Wales,_Florida.jpg",
+   "bytes": 197466,
+   "phash": "fef3e10184343bc6",
+   "orig": [
+    1920,
+    1440
+   ]
+  },
+  {
+   "event_id": "north-port-poinsettia-parade-2026",
+   "src": "/place-photos/batch-2026-11-16-nopic/north-port-poinsettia-parade-2026/ev_25d123637470db37.jpg",
+   "credit": "PCHS-NJROTC via Wikimedia Commons, CC BY 4.0",
+   "href": "https://commons.wikimedia.org/wiki/File:Woodland_Middle_School_band.jpg",
+   "bytes": 194461,
+   "phash": "cd85c26ae3c19575",
+   "orig": [
+    1920,
+    1440
+   ]
+  },
+  {
+   "event_id": "captiva-luminary-celebration-2026",
+   "src": "/place-photos/batch-2026-11-16-nopic/captiva-luminary-celebration-2026/ev_6c84033f6bc4a23d.jpg",
+   "credit": "Ray Terrill via Wikimedia Commons, CC BY SA 2.0",
+   "href": "https://commons.wikimedia.org/wiki/File:Island_Sunset,_Christmas_Day.jpg",
+   "bytes": 175424,
+   "phash": "fbd8381c989855e5",
+   "orig": [
+    1920,
+    1280
+   ]
+  },
+  {
+   "event_id": "captiva-luminary-celebration-2026",
+   "src": "/place-photos/batch-2026-11-16-nopic/captiva-luminary-celebration-2026/ev_64d87ff5f4a899a8.jpg",
+   "credit": "Dekyffe via Wikimedia Commons, CC BY SA 3.0",
+   "href": "https://commons.wikimedia.org/wiki/File:Captiva1a.jpg",
+   "bytes": 195550,
+   "phash": "d68d70c93f4798e0",
+   "orig": [
+    1920,
+    1440
+   ]
+  },
+  {
+   "event_id": "sarasota-holiday-boat-parade-of-lights-2026",
+   "src": "/place-photos/batch-2026-11-16-nopic/sarasota-holiday-boat-parade-of-lights-2026/ev_bcbd8a14edd957c9.jpg",
+   "credit": "Oleg Yunakov via Wikimedia Commons, CC BY SA 4.0",
+   "href": "https://commons.wikimedia.org/wiki/File:Marina_Jack_and_the_downtown_Sarasota_Bayfront.jpg",
+   "bytes": 203696,
+   "phash": "80efc1c09f4c3ff0",
+   "orig": [
+    1920,
+    1440
+   ]
+  },
+  {
+   "event_id": "tampa-bay-holiday-market-st-petersburg-2026",
+   "src": "/place-photos/batch-2026-11-16-nopic/tampa-bay-holiday-market-st-petersburg-2026/ev_423961593e156a99.jpg",
+   "credit": "Myotus via Wikimedia Commons, CC BY 4.0",
+   "href": "https://commons.wikimedia.org/wiki/File:St._Petersburg_Coliseum-_01.jpg",
+   "bytes": 197287,
+   "phash": "d8d48f2bec1092f6",
+   "orig": [
+    1920,
+    1213
+   ]
+  },
+  {
+   "event_id": "tampa-bay-holiday-market-st-petersburg-2026",
+   "src": "/place-photos/batch-2026-11-16-nopic/tampa-bay-holiday-market-st-petersburg-2026/ev_87d6cab6943e1056.jpg",
+   "credit": "Myotus via Wikimedia Commons, CC BY 4.0",
+   "href": "https://commons.wikimedia.org/wiki/File:St._Petersburg_Coliseum-_03.jpg",
+   "bytes": 191050,
+   "phash": "ae8b1058bf64917b",
+   "orig": [
+    1920,
+    1069
+   ]
+  }
+ ]
+}
