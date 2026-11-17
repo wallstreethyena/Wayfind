@@ -1,0 +1,12 @@
+{
+  "version": "opentable.v1",
+  "status": "PLACEHOLDER",
+  "source": "Derived only from the synthetic fixtures in tests/fixtures/booking-agent/opentable. A human must replace every selector after a supervised manual capture. Do not fetch OpenTable to fill this file.",
+  "fields": {
+    "firstName": "[data-synthetic='first-name']",
+    "lastName": "[data-synthetic='last-name']",
+    "phone": "[data-synthetic='phone']",
+    "email": "[data-synthetic='email']"
+  },
+  "submit": "[data-synthetic='submit']"
+}

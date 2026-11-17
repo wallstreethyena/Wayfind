@@ -103,5 +103,12 @@
     "decision_owner": "wallstreethyena",
     "tracking": "#2543 follow-up: booking confirmation text (lib/reserveSms.js)",
     "reason": "NOT APPLIED. New table wf_reserve_notifications (RLS on, no policies, service role only): one row per (booking, kind) holding the guest's text consent, recipient, provider message id and forward-only delivery status. Additive; rollback = drop table. Unused until RESERVE_SMS_ENABLED=1 with Twilio credentials, so applying it changes no behavior."
+  },
+  {
+    "file": "supabase/migrations/20261117143000_wf_booking_agent.sql",
+    "sha256": "ba220cf1e71a21c57882103b92fde7e33e702db93255585f6bcfd7b8c7c1201c",
+    "decision_owner": "wallstreethyena",
+    "tracking": "supervised OpenTable booking agent draft, not applied #20261117",
+    "reason": "NOT APPLIED. New tables wf_booking_agent_runs, wf_booking_agent_events, wf_booking_agent_sites (RLS on, owner select on runs and events, service role writes, opentable seeded off). Additive. Unused until BOOKING_AGENT_ENABLED=1, BOOKING_AGENT_SITE_OPENTABLE=1 and the site row is on. Owner applies after review. Do not apply from this draft."
   }
 ]

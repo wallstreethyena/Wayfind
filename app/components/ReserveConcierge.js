@@ -13,11 +13,13 @@ import ReservePicks from "./ReservePicks.js";
 import {
   RESERVE_LIMITS, conciergeTurn, bookTable, cancelBooking, saveProfile, profileBody, cleanPhoneInput, newIdempotencyKey,
   addToItinerary, directionsUrl, addHandoff, downloadIcs, timeLabel, dateLabel, weekdayLabel,
+  startBookingAgent, bookingAgentStatus, cancelBookingAgent,
 } from "../../lib/reserveClientApi.js";
+import { consentParagraph } from "../../lib/bookingAgent/copy.js";
 import { trackReserve, savePendingReserve, clearPendingReserve } from "../../lib/reserveOpen.js";
 
 const NAME_NEEDED = ["INVALID_NAME", "NAME_REQUIRED", "NEEDS_NAME", "PROFILE_REQUIRED", "NEEDS_PROFILE", "GUEST_NAME_REQUIRED"];
-const KEEP = ["booked", "requested", "cancelled"]; // cards that stay in the thread after later messages
+const KEEP = ["booked", "requested", "cancelled", "agent_progress"]; // cards that stay in the thread after later messages
 
 const safe = (fn) => { try { return fn(); } catch (e) { return undefined; } };
 const track = (name, props) => { safe(() => trackReserve(name, props)); };
@@ -237,6 +239,74 @@ function RequestedCard({ card, place }) {
   );
 }
 
+export function AgentOfferCard({ card, state, place, busy, sms, onStart }) {
+  const handoff = card.handoff || {};
+  const [textMe, setTextMe] = useState(false);
+  return (
+    <div data-reserve-card="agent_offer" data-booking-agent-consent={card.consentVersion || "agent-consent-v1"} style={box}>
+      <div style={{ fontSize: 14.5, color: C.light, lineHeight: 1.45 }}>{consentParagraph({ restaurantName: card.restaurantName, date: card.date, time: card.time, party: card.partySize })}</div>
+      {sms && sms.tail ? (
+        <label style={{ display: "flex", alignItems: "flex-start", gap: 10, minHeight: 44, padding: "10px 0 0", fontSize: 14, color: C.light, cursor: "pointer" }}>
+          <input type="checkbox" data-reserve-text-me="1" checked={textMe} onChange={(ev) => setTextMe(ev.target.checked)} style={{ width: 24, height: 24, flexShrink: 0 }} />
+          <span>{TEXT_ME} to the number ending in {sms.tail}. <span style={{ color: C.muted }}>{TEXT_ME_FINE}</span></span>
+        </label>
+      ) : null}
+      <div style={{ display: "grid", gap: 8, marginTop: 10 }}>
+        <button type="button" data-booking-agent-fill="1" style={{ ...mainBtn, opacity: busy ? 0.7 : 1 }} disabled={busy} onClick={() => onStart(textMe)}>Fill it in for me</button>
+        <a data-booking-agent-self="1" href={handoff.url} target="_blank" rel="noopener noreferrer" style={{ ...quietBtn, display: "flex", alignItems: "center", justifyContent: "center", textDecoration: "none" }}>I'll do it myself</a>
+      </div>
+      <div style={{ marginTop: 8 }}><HandoffCard card={handoff} state={state} place={place} /></div>
+    </div>
+  );
+}
+
+export function AgentProgressCard({ card }) {
+  const [view, setView] = useState(null);
+  const [gone, setGone] = useState(false);
+  useEffect(() => {
+    let dead = false;
+    let timer = null;
+    const tick = async () => {
+      const r = await bookingAgentStatus(card.runId);
+      if (dead) return;
+      const run = r && r.run;
+      if (run) setView(run);
+      const status = run && run.status;
+      const done = status && !["queued", "opening", "form_ready", "filling", "review", "submitting"].includes(status);
+      if (!done) timer = setTimeout(tick, 2000);
+    };
+    tick();
+    return () => { dead = true; if (timer) clearTimeout(timer); };
+  }, [card.runId]);
+  const run = view;
+  const sentence = (run && run.sentence) || "Wayfind is filling OpenTable's form for you.";
+  if (run && run.status === "confirmed") {
+    return (
+      <div data-reserve-card="agent_confirmed" data-reserve-status="confirmed" style={box}>
+        <div style={{ fontSize: 16, fontWeight: 800, color: C.green, lineHeight: 1.4 }}>{sentence}</div>
+      </div>
+    );
+  }
+  if (run && run.status === "unknown_after_submit") {
+    return <div data-reserve-card="agent_unknown" style={box}><div style={{ fontSize: 15, fontWeight: 700, color: C.text, lineHeight: 1.4 }}>{sentence}</div></div>;
+  }
+  if (run && (String(run.status).indexOf("handback:") === 0 || run.status === "refused_kill_switch" || run.status === "refused_flag_off")) {
+    return (
+      <div data-reserve-card="agent_handback" style={box}>
+        <div style={{ fontSize: 15, fontWeight: 700, color: C.text, lineHeight: 1.4 }}>{sentence}</div>
+        {run.handoffUrl ? <a href={run.handoffUrl} target="_blank" rel="noopener noreferrer" style={{ ...linkBtn, marginTop: 10 }}>Finish on OpenTable</a> : null}
+      </div>
+    );
+  }
+  if (gone) return <div data-reserve-card="agent_cancelled" style={box}><div style={{ fontSize: 15, fontWeight: 700, color: C.text }}>Cancelled. Nothing was submitted to OpenTable.</div></div>;
+  return (
+    <div data-reserve-card="agent_progress" style={box}>
+      <div style={{ fontSize: 15, fontWeight: 700, color: C.text, lineHeight: 1.4 }}>{sentence}</div>
+      {run && run.cancellable ? <button type="button" data-booking-agent-cancel="1" style={{ ...quietBtn, marginTop: 10 }} onClick={async () => { const r = await cancelBookingAgent(card.runId); if (r && r.ok) setGone(true); }}>Cancel</button> : null}
+    </div>
+  );
+}
+
 // `thread` (2026-11-14, one Santa conversation): the concierge renders NOTHING itself. The Santa iMessage chat
 // (WayfindPlannerSheet) owns the one thread and the one composer; it drives this concierge through `controlRef`
 // ({ send(text), choose(pick) }) and draws each item from `onSnapshot({ items, busy, who, renderCard })`, so
@@ -376,6 +446,21 @@ export default function ReserveConcierge({ initialPlace, initialMessage, embedde
     retry();
   };
 
+  const startAgent = useCallback(async (card, textMe) => {
+    if (busyRef.current || !card) return;
+    const sig = ["agent", card.placeId, card.date, card.time, card.partySize].join("|");
+    const key = keys.current[sig] || (keys.current[sig] = newIdempotencyKey());
+    setBusyBoth(true);
+    const r = await startBookingAgent({ placeId: card.placeId, date: card.date, time: card.time, partySize: card.partySize, idempotencyKey: key, consentVersion: card.consentVersion, smsConsent: textMe === true });
+    if (!alive.current) return;
+    setBusyBoth(false);
+    if (r && r.ok && r.run && r.run.id) {
+      push({ card: { type: "agent_progress", runId: r.run.id, handoff: card.handoff } });
+      return;
+    }
+    push({ text: (r && r.message) || "We could not start that. You can still open OpenTable yourself.", card: card.handoff || { type: "handoff", url: "/api/reserve/go", label: "Open on OpenTable" } });
+  }, [push]);
+
   const choose = (r) => {
     pid.current = r.placeId;
     srv.current = Object.assign({}, srv.current, { placeId: r.placeId, restaurantName: r.name });
@@ -414,6 +499,8 @@ export default function ReserveConcierge({ initialPlace, initialMessage, embedde
       case "confirm": return <ConfirmCard card={c} name={srv.current.restaurantName || (pl && pl.name)} who={who} busy={busy} sms={sms} onConfirm={(textMe) => book({ date: c.date, time: c.time, partySize: c.partySize, textMe })} onBack={() => { if (!busyRef.current && c.back) push({ card: c.back }); }} />;
       case "request": return <RequestCard card={c} name={srv.current.restaurantName || (pl && pl.name)} busy={busy} onSend={() => book({ date: c.date, time: c.time, partySize: c.partySize })} />;
       case "handoff": return <HandoffCard card={c} state={srv.current} place={pl} />;
+      case "agent_offer": return <AgentOfferCard card={c} state={srv.current} place={pl} busy={busy} sms={sms} onStart={(textMe) => startAgent(c, textMe)} />;
+      case "agent_progress": return <AgentProgressCard card={c} />;
       case "profile": return <ProfileCard busy={busy} error={cardError} onSubmit={submitProfile} />;
       case "signin": return <SigninCard onSignedIn={() => { clearPendingReserve(); afterSignIn(); }} place={pl} />;
       case "choose": return <ChooseCard card={c} busy={busy} onChoose={choose} />;
