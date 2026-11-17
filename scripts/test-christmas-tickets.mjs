@@ -749,7 +749,10 @@ ok(html.includes("data-christmas-filter") && html.includes(">Best rated<") && ht
   ok(/aria-label="Florida Christmas events"/.test(browseSrc), "the one list section is labelled for assistive tech");
   ok(/card-bg-640\.webp/.test(cardSrc) && /#5A0712/.test(cardSrc) && /card-bg-1100\.webp/.test(cardSrc) && !/wf-christmas/.test(cardSrc), "the card wears the red skin's gradient and doodle art without applying .wf-christmas");
   ok(/\.xm-buy\{[^}]*background:linear-gradient\(180deg,#FFE9B8,#F5C451\)[^}]*color:var\(--xm-ink\)/.test(cardSrc), "the ticket button is gold with dark red text so it stands out on the red card");
-  ok(/grid-template-columns:40% minmax\(0,1fr\)/.test(cardSrc), "the card keeps the 40 percent photo and 60 percent body grid for 375px phones");
+  // Owner 2026-11-17 ("more like the Viator card"): photo on top at full width, one card shape.
+  ok(/\.xm-card\{[^}]*display:flex;flex-direction:column;height:100%/.test(cardSrc) && !/grid-template-columns:40% minmax\(0,1fr\)/.test(cardSrc), "the card stacks the photo above the body at every width");
+  ok(/\.xm-photo\{[^}]*width:100%;aspect-ratio:3\/2/.test(cardSrc), "the photo is full width at a fixed 3:2 shape, so every card's photo is the same size");
+  ok(/sizes="\(min-width: 720px\) 470px, 100vw"/.test(cardSrc), "the photo requests a full-width image, never a 40vw thumbnail");
   ok(!/Directions/i.test(cardSrc + browseSrc), "no Directions button");
 
   const { ChristmasBrowseCard } = await loadComponent(path.join(root, "app/components/ChristmasBrowse.js"), root);
