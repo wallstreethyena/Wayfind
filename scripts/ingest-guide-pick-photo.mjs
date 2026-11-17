@@ -65,11 +65,8 @@ async function flickrLive(sourceUrl, imageUrl) {
   const res = await fetch(sourceUrl, { headers: { "user-agent": UA } });
   const html = await res.text();
   if (res.status !== 200) throw new Error(`Flickr page HTTP ${res.status}`);
-  // Flickr pages have shipped the licence both as "license": "…" and "license":"…".
-  const lic = /"license": ?"(https:\/\/creativecommons\.org\/[^"]+)"/.exec(html);
-  const owner = /"owner":\{"pathAlias":"?([^",]*)"?,"username":"([^"]*)","realname":"([^"]*)"/.exec(html)
-    // Current Flickr photo pages carry the owner in their schema.org JSON-LD instead.
-    || ((m) => (m ? [m[0], "", m[1], m[1]] : null))(/"author":\{"@type":"Person","name":"([^"]*)"/.exec(html));
+  const lic = /"license": "(https:\/\/creativecommons\.org\/[^"]+)"/.exec(html);
+  const owner = /"owner":\{"pathAlias":"?([^",]*)"?,"username":"([^"]*)","realname":"([^"]*)"/.exec(html);
   const id = new URL(sourceUrl).pathname.split("/")[3];
   if (!imageUrl || !/^https:\/\/live\.staticflickr\.com\//.test(imageUrl) || !imageUrl.includes(`/${id}_`)) throw new Error("--image-url must be the live.staticflickr.com file of this same photo id");
   return { license: allowedLicence("", lic?.[1]), licenseRaw: lic?.[1] || "(none on page)", author: owner ? (owner[3] || owner[2]) : "", download: imageUrl };

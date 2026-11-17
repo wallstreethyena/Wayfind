@@ -120,16 +120,50 @@
       "verification": "Commons file titled Salvador Dalí Museum by Taty2007. Visually inspected: the museum exterior with the glass Enigma bubble, the exact venue named by the pick. Venue photo; the event itself is not pictured.",
       "sameAsCardPhoto": false,
       "reviewedAt": "2026-11-04"
+    },
+    "Florida Fin Fest": {
+      "src": "/guides/picks/trending-in-florida-this-week-nov-2-2026/spa-beach-st-pete-pier.jpg",
+      "width": 1280,
+      "height": 853,
+      "alt": "Walkway and oak trees at Spa Beach beside the St. Pete Pier at dusk",
+      "caption": "Spa Beach at the St. Pete Pier, home of Florida Fin Fest.",
+      "credit": "Eden, Janine and Jim",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Spa_Beach_Bistro_-_St_Petersburg_Florida,_Feb_2024.jpg",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Spa_Beach_Bistro_-_St_Petersburg_Florida,_Feb_2024.jpg",
+      "author": "Eden, Janine and Jim",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to JPEG.",
+      "sourceKind": "commons",
+      "placeId": null,
+      "verification": "Commons file titled Spa Beach Bistro, St Petersburg Florida, Feb 2024 shows the Spa Beach plaza at the St. Pete Pier. Live Commons licence checked: CC BY 2.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-11-17"
+    },
+    "Movements: Happier Now USA Tour": {
+      "src": "/guides/picks/trending-in-florida-this-week-nov-2-2026/jannus-live-stage-red.jpg",
+      "width": 1280,
+      "height": 853,
+      "alt": "A band on the Jannus Live outdoor stage under red and purple lights",
+      "caption": "A show night on the Jannus Live stage, St. Petersburg.",
+      "credit": "CLender",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Suenalo_at_Jannus_Live!_-_5000760389.jpg",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Suenalo_at_Jannus_Live!_-_5000760389.jpg",
+      "author": "CLender",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to JPEG.",
+      "sourceKind": "commons",
+      "placeId": null,
+      "verification": "Commons file titled Suenalo at Jannus Live shows the Jannus Live outdoor stage; used as the venue, not the headliner. Live Commons licence checked: CC BY 2.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-11-17"
     }
   },
   "gaps": {
     "Hamilton": {
-      "reason": "no-verified-source",
-      "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "November 3, 2026 pass: no Creative Commons photograph of this exact dated event was verified for this guide. The page uses a labelled context photo and does not claim that picture is the event."
-    },
-    "Movements: Happier Now USA Tour": {
       "reason": "no-verified-source",
       "placeId": null,
       "needsPermissionFrom": null,
@@ -184,12 +218,6 @@
       "note": "November 3, 2026 pass: no Creative Commons photograph of this exact dated event was verified for this guide. The page uses a labelled context photo and does not claim that picture is the event."
     },
     "Booker Creek Arts Festival": {
-      "reason": "no-verified-source",
-      "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "November 3, 2026 pass: no Creative Commons photograph of this exact dated event was verified for this guide. The page uses a labelled context photo and does not claim that picture is the event."
-    },
-    "Florida Fin Fest": {
       "reason": "no-verified-source",
       "placeId": null,
       "needsPermissionFrom": null,
