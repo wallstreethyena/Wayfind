@@ -1,0 +1,559 @@
+{
+  "checked_at": "2026-11-17",
+  "scope": "20 Northeast Florida screenshot targets",
+  "coverage_note": "Four scoped Wayfind web queries returned no additional matches. Search nonappearance is not evidence of absence; reconcile repository/database before deciding new URLs.",
+  "images_note": "Supplied social screenshots are evidence leads, not a license to reproduce creator photos.",
+  "geography_note": "Do not combine Jacksonville, Jacksonville Beach, Green Cove Springs and St. Augustine as one walkable evening. St. George Street's3,6and14addresses form the natural short St.Augustine cluster.",
+  "records": [
+    {
+      "name": "Oldest Wooden School House Historic Museum & Gardens",
+      "city": "St. Augustine",
+      "address": "14 St. George St., St. Augustine, FL 32084",
+      "official_url": "https://oldestwoodenschoolhouse.com/",
+      "status": "venue_verified_holiday_hours_conflict",
+      "facts": [
+        "Self-guided museum, kitchen and gardens; adult admission $7.95, children 6–12 $6.95, children 5 and under free.",
+        "Website lists Sun–Thu 10am–6pm, Fri–Sat 10am–8pm and Christmas Day closure."
+      ],
+      "holiday_evidence": "Organizer screenshot IMG_6085.jpeg promotes decorated house/gardens, Minorcan family tree and Nov21–Jan1 10am–8pm hours. These special hours differ from the website's standard hours; confirm rather than silently combining.",
+      "sources": [
+        {
+          "url": "https://oldestwoodenschoolhouse.com/",
+          "ref": "turn913398748view3",
+          "type": "official"
+        },
+        {
+          "url": "https://oldestwoodenschoolhouse.com/contact/",
+          "ref": "turn597017558view2",
+          "type": "official"
+        }
+      ],
+      "warning": "Tourism Christmas event page is explicitly archived 2019. Never use its 2018–2019 dates or $5 price.",
+      "best_for": "Families who want a short history stop before an evening lights stroll",
+      "group": "st-george-street-microcluster"
+    },
+    {
+      "name": "Auggie's Draft Room",
+      "city": "St. Augustine",
+      "address": "3 St. George St., St. Augustine, FL 32084",
+      "official_url": "https://www.auggiesdraftroom.com/",
+      "status": "venue_verified_snow_schedule_unconfirmed",
+      "facts": [
+        "Self-pour taproom with food and 24 taps.",
+        "Operator lists Mon–Thu 11am–10pm, Fri 11am–11pm, Sat–Sun 9am–11pm; Thanksgiving closure."
+      ],
+      "holiday_evidence": "Schoolhouse organizer screenshot IMG_6085.jpeg says its next-door neighbor starts snow November21 at7pm. Operator website does not independently verify this snowfall schedule; do not turn it into a guaranteed nightly time.",
+      "sources": [
+        {
+          "url": "https://www.auggiesdraftroom.com/",
+          "ref": "turn847230047view1",
+          "type": "official"
+        }
+      ],
+      "best_for": "Food stop near northern St. George Street",
+      "group": "st-george-street-microcluster"
+    },
+    {
+      "name": "St. Augustine Coffee House / Santa's Toy Shop",
+      "city": "St. Augustine",
+      "address": "6 St. George St., Suite107, St. Augustine, FL32084",
+      "official_url": "https://www.staugcoffee.com/home/",
+      "status": "venue_verified_holiday_popup_supported_by_organizer_screenshot",
+      "facts": [
+        "Website confirms coffee, hot chocolate, snacks and location.",
+        "Sun–Thu8am–8pm; Fri–Sat8am–9:30pm."
+      ],
+      "holiday_evidence": "Official @staugcoffeehouse screenshot IMG_6086.jpeg explicitly promotes Santa's Toy Shop popup with holiday drinks, decor and Island of Misfit Toys characters during Nights of Lights2026–2027. Separate attraction run dates are not stated; do not assume popup lasts every Nights of Lights date.",
+      "sources": [
+        {
+          "url": "https://www.staugcoffee.com/home/",
+          "ref": "turn575388121view0",
+          "type": "official"
+        },
+        {
+          "type": "supplied_organizer_social_screenshot",
+          "local_path": "/workspace/scratch/b868f070c8bc/upload/IMG_6086.jpeg",
+          "handle": "staugcoffeehouse"
+        }
+      ],
+      "best_for": "Family cocoa stop on St. George Street",
+      "group": "st-george-street-microcluster"
+    },
+    {
+      "name": "Hometown Holiday in the Park",
+      "city": "Orange Park",
+      "venue": "Clarke House Park",
+      "address": "1039 Kingsley Ave., Orange Park, FL32073",
+      "official_url": "https://www.townoforangepark.com/p/residents/special-events2/hometown-holiday-in-the-park",
+      "status": "2026_verified",
+      "start_date": "2026-12-12",
+      "end_date": "2026-12-12",
+      "start_time": "14:00",
+      "end_time": "21:00",
+      "is_free": true,
+      "facts": [
+        "Admission and many activities free; hay/train rides through the lighted trail free.",
+        "Santa digital photo is $20, so free admission does not mean every extra is free.",
+        "Parking across Kingsley at First Baptist Church; limited accessible parking in park."
+      ],
+      "sources": [
+        {
+          "url": "https://www.townoforangepark.com/p/residents/special-events2/hometown-holiday-in-the-park",
+          "ref": "turn575388121view5",
+          "type": "official"
+        },
+        {
+          "url": "https://ophistory.org/upcoming-events",
+          "ref": "turn847230047view0",
+          "type": "co-organizer"
+        }
+      ],
+      "warning": "Town location calendar is stale Dec12–13 5–9pm; exact event page and Historical Society agree on single day Dec12 2–9pm.",
+      "best_for": "Families seeking community Christmas activities",
+      "group": "clay-county"
+    },
+    {
+      "name": "Christmas on Walnut Street",
+      "city": "Green Cove Springs",
+      "venue": "Walnut Street and Spring Park",
+      "address": "Walnut Street between US17 and Palmetto Avenue; Spring Park, Green Cove Springs",
+      "official_url": "https://www.greencovesprings.com/285/Christmas-on-Walnut-Street",
+      "status": "2026_verified",
+      "start_date": "2026-12-05",
+      "end_date": "2026-12-05",
+      "facts": [
+        "Food vendors10am–9pm; Santa/workshop3–5:30pm; live music5:30–8pm; city tree lighting8pm.",
+        "Christmas parade6pm, confirmed by separate city parade page.",
+        "Festival is nonalcohol and rain or shine except major weather."
+      ],
+      "price": "Exact festival admission not separately stated in opened city page; Jingle Bell Fun Run explicitly free.",
+      "sources": [
+        {
+          "url": "https://www.greencovesprings.com/285/Christmas-on-Walnut-Street",
+          "ref": "turn913398748view2",
+          "type": "official"
+        },
+        {
+          "url": "https://www.greencovesprings.com/286/GCS-Christmas-Parade",
+          "ref": "turn212074435search3",
+          "type": "official"
+        }
+      ],
+      "best_for": "Community festival and parade",
+      "group": "clay-county"
+    },
+    {
+      "name": "Deck the Chairs",
+      "city": "Jacksonville Beach",
+      "venue": "Seawalk Pavilion and Latham Plaza",
+      "address": "Seawalk Pavilion and Latham Plaza, Jacksonville Beach",
+      "official_url": "https://www.deckthechairs.org/jacksonville",
+      "status": "2026_verified",
+      "start_date": "2026-11-25",
+      "end_date": "2027-01-01",
+      "is_free": true,
+      "facts": [
+        "Free admission, open daily, holiday lights nightly.",
+        "Decorated lifeguard chairs, student art, live performances and family activities.",
+        "Event programming schedule separate from nightly lights."
+      ],
+      "sources": [
+        {
+          "url": "https://www.deckthechairs.org/jacksonville",
+          "ref": "turn597017558view1",
+          "type": "official"
+        },
+        {
+          "url": "https://www.deckthechairs.org/event-guide",
+          "ref": "turn913398748view0",
+          "type": "official"
+        }
+      ],
+      "best_for": "Free walk-through beach holiday outing",
+      "group": "jacksonville-beaches",
+      "wayfind_candidate_url": "https://www.gowayfind.com/florida-events/deck-the-chairs-jacksonville-beach-2026",
+      "wayfind_note": "Parent independently found this current Wayfind event; I did not open it."
+    },
+    {
+      "name": "Jacksonville Light Boat Parade / Holiday River Fest",
+      "city": "Jacksonville",
+      "venue": "St. Johns River / Riverfront Plaza",
+      "address": "Riverfront Plaza,2 W Independent Dr., Jacksonville, FL32202",
+      "official_url": "https://events.jacksonville.gov/special-events/jaxholidayriverfest",
+      "status": "2026_verified",
+      "start_date": "2026-11-28",
+      "end_date": "2026-11-28",
+      "facts": [
+        "River Fest5pm; tree lighting6:25pm; Light Boat Parade6:30pm; winners8:15pm; fireworks approximately8:30pm.",
+        "Boat parade travels along Northbank and Southbank."
+      ],
+      "sources": [
+        {
+          "url": "https://events.jacksonville.gov/special-events/jaxholidayriverfest",
+          "ref": "turn913398748view1",
+          "type": "official"
+        }
+      ],
+      "best_for": "One-night downtown riverfront holiday plan",
+      "group": "downtown-jacksonville"
+    },
+    {
+      "name": "Nights of Lights",
+      "city": "St. Augustine",
+      "venue": "Historic Downtown St. Augustine",
+      "address": "Historic Downtown St. Augustine; citywide display, not a single paid attraction",
+      "official_url": "https://www.sjcfl.us/event/nights-of-lights-2026/",
+      "status": "2026_verified",
+      "start_date": "2026-11-21",
+      "end_date": "2027-01-18",
+      "is_free": true,
+      "facts": [
+        "Lights every evening at dusk into early morning.",
+        "No tickets required to enjoy the public lights; parking and commercial tours are separate."
+      ],
+      "sources": [
+        {
+          "url": "https://www.sjcfl.us/event/nights-of-lights-2026/",
+          "ref": "turn575388121view1",
+          "type": "official"
+        }
+      ],
+      "best_for": "Free evening historic-district stroll",
+      "group": "st-augustine"
+    },
+    {
+      "name": "Blackhawk Bluff Christmas Lights",
+      "city": "Jacksonville",
+      "venue": "Blackhawk Bluff neighborhood off Girvin Road",
+      "address": "Blackhawk Bluff neighborhood off Girvin Road, Jacksonville; do not substitute a single private home as the attraction",
+      "official_url": "https://www.facebook.com/p/Blackhawk-Bluff-Christmas-Lights-display-on-Girvin-100069347741220/",
+      "status": "2026_tourism_verified_operator_page_inaccessible",
+      "start_date": "2026-11-27",
+      "end_date": null,
+      "facts": [
+        "Visit Jacksonville2026 page says starting Nov27, Sunday–Thursday6–10pm and Friday–Saturday6–11pm.",
+        "JSO confirms free neighborhood display and those same hours only in archived Dec18,2025 notice."
+      ],
+      "sources": [
+        {
+          "url": "https://www.visitjacksonville.com/events/annual/winter-on-the-water/",
+          "ref": "turn527563094view0",
+          "type": "official_destination_organization"
+        },
+        {
+          "url": "https://www.jaxsheriff.org/News/Archived-News/Blackhawk-Bluff-2025.aspx",
+          "ref": "turn527563094view2",
+          "type": "historical_government"
+        }
+      ],
+      "warning": "Operator Facebook blocked when opened. Current operator confirmation/end date unknown. Do not republish archived traffic arrangements as2026.",
+      "best_for": "Neighborhood drive-through; allow for traffic and respect residences",
+      "group": "east-jacksonville"
+    },
+    {
+      "name": "Beauclerc Christmas Lights",
+      "city": "Jacksonville",
+      "venue": "Aldred family display",
+      "address": null,
+      "official_url": null,
+      "status": "needs_primary_source",
+      "start_date": null,
+      "end_date": null,
+      "price": null,
+      "facts": [],
+      "leads": [
+        "Supplied carousel names Beauclerc Rd Lights.",
+        "Secondary sources identify3710 Beauclerc Road and Aldred family, but no current operator/government source was verified. Do not publish the address or2026 schedule as checked from this research."
+      ],
+      "sources": [],
+      "best_for": "Potential Mandarin-area lights coverage after confirmation",
+      "group": "mandarin"
+    },
+    {
+      "name": "Parade of Trees",
+      "city": "Green Cove Springs",
+      "venue": "Spring Park",
+      "address": "Spring Park, Green Cove Springs; street address not independently checked",
+      "official_url": "https://www.greencovesprings.com/292/Parade-of-Trees",
+      "status": "2026_verified",
+      "start_date": "2026-12-01",
+      "end_date": "2026-12-31",
+      "facts": [
+        "245 sponsored trees lighted each evening throughout December.",
+        "$100 is a tree sponsorship fee, not a visitor admission price."
+      ],
+      "price": "Visitor admission not explicitly priced on opened page; do not confuse sponsorship cost with entry.",
+      "sources": [
+        {
+          "url": "https://www.greencovesprings.com/292/Parade-of-Trees",
+          "ref": "turn527563094view1",
+          "type": "official"
+        }
+      ],
+      "best_for": "Evening stroll in Spring Park",
+      "group": "clay-county"
+    },
+    {
+      "name": "Riverside Avondale Luminaria",
+      "city": "Jacksonville",
+      "venue": "Riverside and Avondale historic neighborhoods",
+      "address": "Neighborhood event;2623 Herschel Street is organizer/kit pickup location, not a universal event entrance",
+      "official_url": "https://riversideavondale.networkforgood.com/events/106561-42nd-annual-luminaria",
+      "status": "2026_verified",
+      "start_date": "2026-12-20",
+      "end_date": "2026-12-20",
+      "start_time": "17:00",
+      "end_time": "23:00",
+      "facts": [
+        "42nd annual candle-lit neighborhood celebration.",
+        "Kit purchase supports residential participation; do not describe kit cost as spectator admission."
+      ],
+      "sources": [
+        {
+          "url": "https://riversideavondale.networkforgood.com/events/106561-42nd-annual-luminaria",
+          "ref": "turn663957021view2",
+          "type": "organizer_ticketing"
+        },
+        {
+          "url": "https://riversideavondale.org/recurring-events/",
+          "ref": "turn316113270view2",
+          "type": "official"
+        }
+      ],
+      "best_for": "One-night neighborhood lights stroll",
+      "group": "riverside-avondale"
+    },
+    {
+      "name": "Vintage Market Days of Jacksonville: Shiny & Bright",
+      "city": "Green Cove Springs",
+      "venue": "Clay County Fairgrounds",
+      "address": "2497 SR16, Green Cove Springs, FL32043",
+      "official_url": "https://www.vintagemarketdays.com/market/jacksonville/index.php",
+      "status": "2026_verified",
+      "start_date": "2026-12-04",
+      "end_date": "2026-12-06",
+      "start_time": "10:00",
+      "end_time": "16:00",
+      "facts": [
+        "Children under12 free; purchased ticket permits re-entry all weekend.",
+        "Vintage/inspired art, clothing, decor, jewelry and makers."
+      ],
+      "price": "Adult price not shown in opened main organizer page; use linked official ticketing for live total.",
+      "sources": [
+        {
+          "url": "https://www.vintagemarketdays.com/market/jacksonville/index.php",
+          "ref": "turn996905303view3",
+          "type": "official"
+        }
+      ],
+      "warning": "Separate from Diamonds in the Rust. Current primary event page lists all3days until4pm, while ticketing search snippet says Sunday3pm; prefer explicit current organizer schedule or recheck ticket checkout.",
+      "best_for": "Holiday gift shopping",
+      "group": "clay-county"
+    },
+    {
+      "name": "Diamonds in the Rust Fall Market",
+      "city": "Jacksonville",
+      "venue": "Diamond D Ranch",
+      "address": "7263 Solomon Rd., Jacksonville, FL32234 (destination tourism listing; operator page excerpt did not include street)",
+      "official_url": "https://diamonddranchinc.com/event/diamonds-in-the-rust-fall-market/",
+      "status": "2026_verified",
+      "start_date": "2026-11-20",
+      "end_date": "2026-11-22",
+      "start_time": "10:00",
+      "end_time": "16:00",
+      "price": "Friday$15;Saturday$10;Sunday$10, tax included; verify checkout fees if any",
+      "facts": [
+        "Children under12 free.",
+        "Complimentary parking/shuttles; optional VIP parking$25 excluding admission.",
+        "Children's activities$10 for ages10andunder Saturday/Sunday; service animals only."
+      ],
+      "sources": [
+        {
+          "url": "https://diamonddranchinc.com/event/diamonds-in-the-rust-fall-market/",
+          "ref": "turn996905303view4",
+          "type": "official"
+        },
+        {
+          "url": "https://www.visitjacksonville.com/events/diamonds-in-the-rust-fall-market/",
+          "ref": "turn847230047search4",
+          "type": "official_destination_organization"
+        }
+      ],
+      "best_for": "Vintage and maker shopping",
+      "group": "west-jacksonville"
+    },
+    {
+      "name": "JAX Artist Walk on Ice",
+      "city": "Jacksonville",
+      "venue": "Artist Walk",
+      "address": "718 Riverside Avenue, Jacksonville, FL32204",
+      "official_url": "https://www.jaxonice.com/",
+      "status": "2026_verified",
+      "start_date": "2026-11-27",
+      "end_date": "2027-01-18",
+      "price": "Online general admission$18 per person plus taxes/fees",
+      "facts": [
+        "75-minute skating session, skate rental included.",
+        "Mon–Thu4–9pm;Fri4–10pm;Sat10am–10pm;Sun10am–8pm.",
+        "Complimentary parking at Riverside Arts Market lot729RiversideAve and Florida Blue garage532RiversideAve.",
+        "Reservation valid only for purchased date/time."
+      ],
+      "sources": [
+        {
+          "url": "https://www.jaxonice.com/",
+          "ref": "turn663957021view0",
+          "type": "official"
+        }
+      ],
+      "warning": "Downtown Jacksonville listing gives715RiversideAve; use operator's718 entrance and clearly distinguish parking addresses. 'Under$20' base price is not an all-in budget promise.",
+      "best_for": "Timed ice-skating outing",
+      "group": "riverside-avondale"
+    },
+    {
+      "name": "Sykes Family Farms / proposed Christmas at Sykes",
+      "city": "Elkton",
+      "venue": "Sykes Family Farms",
+      "address": "5995 Brough Rd., Elkton, FL",
+      "official_url": "https://sycofarms.com/",
+      "status": "venue_verified_christmas_edition_unconfirmed",
+      "start_date": null,
+      "end_date": null,
+      "price": null,
+      "facts": [
+        "Official site currently advertises fall maze October3–November1,2026; this does not verify any Christmas edition."
+      ],
+      "sources": [
+        {
+          "url": "https://sycofarms.com/",
+          "ref": "turn663957021view1",
+          "type": "official"
+        },
+        {
+          "url": "https://sycofarms.com/upcoming-events%2Fcontact",
+          "ref": "turn269399531search11",
+          "type": "official"
+        }
+      ],
+      "warning": "Do not use fall$16.99 admission as Christmas pricing. Christmas dates, admission and activities remain unknown.",
+      "best_for": "Hold seasonal recommendation until operator confirms",
+      "group": "elkton"
+    },
+    {
+      "name": "Glowing Gardens",
+      "city": "Jacksonville",
+      "venue": "Jacksonville Arboretum & Botanical Gardens",
+      "address": "1445 Millcoe Rd., Jacksonville, FL32225 (current secondary listings; operator text extraction unavailable)",
+      "official_url": "https://jacksonvillearboretum.org/events/glowing-gardens",
+      "status": "2026_dates_destination_verified_operator_details_inaccessible",
+      "start_date": "2026-11-27",
+      "end_date": "2027-01-03",
+      "price": null,
+      "facts": [
+        "Visit Jacksonville official2026 calendar confirms Glowing Gardens at Arboretum Nov27–Jan3.",
+        "Operator site returns only tracking iframe to text retrieval; hours, select nights, prices, parking and age rules not verified directly."
+      ],
+      "sources": [
+        {
+          "url": "https://www.visitjacksonville.com/events/annual/winter-on-the-water/",
+          "ref": "turn527563094view0",
+          "type": "official_destination_organization"
+        },
+        {
+          "url": "https://jacksonvillearboretum.org/events/glowing-gardens",
+          "ref": "turn316113270view0",
+          "type": "operator_text_unavailable"
+        }
+      ],
+      "warning": "Secondary sources disagree about nightly versus select-night run. Do not publish nightly or detailed pricing from this research.",
+      "best_for": "Garden lights outing, pending operator schedule details",
+      "group": "arlington"
+    },
+    {
+      "name": "Forgotten Tonic / Miracle Christmas Pop-Up",
+      "city": "St. Augustine",
+      "venue": "Forgotten Tonic",
+      "address": "6 Aviles St., St. Augustine, FL32084",
+      "official_url": "https://www.forgottentonic.com/",
+      "status": "venue_verified_2026_miracle_unconfirmed",
+      "start_date": null,
+      "end_date": null,
+      "price": null,
+      "facts": [
+        "Operator website currently describes The Haunting Halloween pop-up.",
+        "Reservations encouraged; current operator hoursMon–Thu11am–11pm,Fri–Sat11am–midnight,Sun11am–11pm.",
+        "Closed11/18,Thanksgiving andChristmasDay as listed."
+      ],
+      "sources": [
+        {
+          "url": "https://www.forgottentonic.com/",
+          "ref": "turn996905303view2",
+          "type": "official"
+        }
+      ],
+      "warning": "Found2024Miracle menu PDF only. Do not reuse2024menu or promise2026Miracle dates without current primary confirmation.",
+      "best_for": "Restaurant/cocktail venue; Christmas edition requires verification",
+      "group": "st-augustine"
+    },
+    {
+      "name": "ZOOLights",
+      "city": "Jacksonville",
+      "venue": "Jacksonville Zoo and Botanical Gardens",
+      "address": "370 Zoo Parkway, Jacksonville, FL32218",
+      "official_url": "https://www.jacksonvillezoo.org/zoolights",
+      "status": "2026_verified",
+      "start_date": "2026-11-20",
+      "end_date": "2027-01-03",
+      "select_nights": true,
+      "start_time": "18:00",
+      "end_time": "22:00",
+      "price": "Members$20online/$25door;nonmembers$30online/$35door;children2andunderfree;CommunityNightNov19$10",
+      "facts": [
+        "Closed Thanksgiving andChristmasDay.",
+        "Animals not visible during this nighttime lights event.",
+        "Holiday marketDec16–20,6–9pm; Santa photos select nights.",
+        "Zoo closes5pm and reopens6pm; event tickets separate."
+      ],
+      "sources": [
+        {
+          "url": "https://www.jacksonvillezoo.org/zoolights",
+          "ref": "turn575388121view4",
+          "type": "official"
+        }
+      ],
+      "warning": "Carousel's UNDER$30bucket is misleading for regular nonmember tickets: online base is exactly$30 and door$35.",
+      "best_for": "Ticketed family lights outing",
+      "group": "north-jacksonville"
+    },
+    {
+      "name": "Grey Matter Distillery / holiday pop-up",
+      "city": "Atlantic Beach",
+      "venue": "Grey Matter Distillery",
+      "address": "1221 Mayport Rd., Atlantic Beach, FL32233",
+      "official_url": "https://greymatterdistillery.com/grey-matter-pop-ups",
+      "status": "venue_and_recurring_holiday_popup_verified_2026_elf_theme_unconfirmed",
+      "start_date": null,
+      "end_date": null,
+      "price": null,
+      "facts": [
+        "Operator says annual holiday pop-up begins Black Friday and runs through first weekJanuary, with movie theme changing each year.",
+        "Family hours before7:30pm;21andup after7:30pm.",
+        "No food served; guests may bring food/order delivery. Outside drinks prohibited."
+      ],
+      "sources": [
+        {
+          "url": "https://greymatterdistillery.com/",
+          "ref": "turn996905303view1",
+          "type": "official"
+        },
+        {
+          "url": "https://greymatterdistillery.com/grey-matter-pop-ups",
+          "ref": "turn269399531view0",
+          "type": "official"
+        }
+      ],
+      "warning": "Supplied carousel says Elf; current operator page does not confirm2026theme or an exact end date. Do not infer full season dates from generic yearly wording.",
+      "best_for": "Adult holiday cocktail outing; family timing limited",
+      "group": "jacksonville-beaches"
+    }
+  ]
+}

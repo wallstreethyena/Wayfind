@@ -29,7 +29,7 @@ function host(props,source=file('app/components/PlaceDetailPhotoHeader.js'),imag
  const useState=initial=>{const i=cursor++;if(!(i in hooks))hooks[i]=initial;return[hooks[i],next=>{hooks[i]=typeof next==='function'?next(hooks[i]):next;dirty=true;}];};
  const useRef=initial=>{const i=cursor++;return hooks[i]||=( {current:imageState || initial} );};
  const useEffect=(fn,deps)=>{const i=cursor++,old=hooks[i];if(!old||deps.some((v,j)=>!Object.is(v,old.deps[j])))pending.push(()=>{old?.cleanup?.();hooks[i]={deps,cleanup:fn()};});};
- const context={React,useState,useEffect,useRef,getPlacePhoto,isGooglePlaceId,isPlaceOwnedPhotoUrl,PLACE_DETAIL_PHOTO_STANDARD,PhotoCredit:'credit',createPortal:x=>x};
+ const context={React,useState,useEffect,useRef,getPlacePhoto,isGooglePlaceId,isPlaceOwnedPhotoUrl,PLACE_DETAIL_PHOTO_STANDARD,PhotoCredit:'credit',createPortal:x=>x,PhotoLightbox:'lightbox',RailCount:'railcount',RailDots:'raildots',scrollRailTo:()=>{},useRailIndex:()=>({count:0,index:0})};
  const component=new Function(...Object.keys(context),compile(strip(source))+';return PlaceDetailPhotoHeader;')(...Object.values(context));
  const render=()=>{if(unmounted)return;let attempts=0;do{ok(++attempts<12,'header state settles');cursor=0;pending=[];dirty=false;tree=component(props);pending.forEach(fn=>fn());}while(dirty);};
  render();

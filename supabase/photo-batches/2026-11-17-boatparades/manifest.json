@@ -1,0 +1,74 @@
+{
+ "batch": "2026-11-17-boatparades",
+ "page": "https://www.gowayfind.com/guides/florida-christmas-boat-parades-2026",
+ "db_changes": 0,
+ "code_photo_count": 1,
+ "audit": {
+  "hero": "ok, John's Pass lighted boat parade photo, 1280x853, returns 200",
+  "og_share_image": "ok, /api/og/hero returns 200 with a lit boat parade image",
+  "picks": {
+   "Seminole Hard Rock Winterfest Boat Parade": "was Photo unavailable tile, now filled",
+   "Jacksonville Light Boat Parade": "ok, fireworks over the St. Johns River, returns 200 (not a gap)",
+   "Tampa Riverwalk Holiday Lighted Boat Parade": "still Photo unavailable tile, no licensed photo found",
+   "Clearwater Holiday Lighted Boat Parade": "still Photo unavailable tile, official photos need permission",
+   "Boca Ciega Yacht Club Lighted Christmas Boat Parade": "still Photo unavailable tile, official photo 600px and needs permission"
+  },
+  "duplicates_on_page": "none"
+ },
+ "photos": [
+  {
+   "pick": "Seminole Hard Rock Winterfest Boat Parade",
+   "url": "https://www.gowayfind.com/guides/picks/florida-christmas-boat-parades-2026/winterfest-boat-parade-lit-yacht-new-river.jpg",
+   "path": "public/guides/picks/florida-christmas-boat-parades-2026/winterfest-boat-parade-lit-yacht-new-river.jpg",
+   "bytes": 188262,
+   "phash": "d1eb6ca51e7881cc",
+   "width": 1280,
+   "height": 853,
+   "source": "flickr",
+   "license": "CC BY 2.0",
+   "source_ref": "https://www.flickr.com/photos/14363418@N00/5313581597",
+   "original_url": "https://live.staticflickr.com/5086/5313581597_1bcb9b22aa_o.jpg",
+   "author": "Bob B. Brown",
+   "title": "Winterfest Boat Parade 10"
+  }
+ ],
+ "gaps": [
+  {
+   "pick": "Tampa Riverwalk Holiday Lighted Boat Parade",
+   "reason": "No commercial use CC photo of the lit parade on Commons, Openverse or Flickr; Tampa Riverwalk site has no parade photos",
+   "needs_permission_from": "Friends of the Tampa Riverwalk"
+  },
+  {
+   "pick": "Clearwater Holiday Lighted Boat Parade",
+   "reason": "No CC photo; Clearwater Yacht Club parade page has strong night parade photos with no reuse licence",
+   "needs_permission_from": "Clearwater Yacht Club",
+   "candidate_urls": [
+    "https://www.clearwateryachtclub.org/getmedia/b0b1ff1e-1474-4c5f-9d63-1ea3509578df/boatparade-boat3.aspx",
+    "https://www.clearwateryachtclub.org/getmedia/8e50f30e-45d7-4729-bef6-e7c12effbe75/20241215_095122_324C80.aspx",
+    "https://www.clearwateryachtclub.org/getmedia/0e21e3af-0820-44ba-b90d-98cbfbf0bf14/boatparade-boat-parade-line.aspx"
+   ]
+  },
+  {
+   "pick": "Boca Ciega Yacht Club Lighted Christmas Boat Parade",
+   "reason": "No CC photo; club site has one 600px 2025 parade photo with no reuse licence",
+   "needs_permission_from": "Boca Ciega Yacht Club",
+   "candidate_urls": [
+    "https://sailbcyc.org/resources/Documents/Christmas%20Boat%20Parade/2026BoatParade/2025BoatParade.jpg"
+   ]
+  }
+ ],
+ "rejected": [
+  {
+   "ref": "winterfestparade.com 2020 aerial photo",
+   "why": "Winterfest logo and Tom Serio Photography watermark, no reuse licence"
+  },
+  {
+   "ref": "https://www.flickr.com/photos/14363418@N00/5314189520",
+   "why": "Sponsor signage dominates the boat; swapped for an unbranded lit yacht from the same set"
+  },
+  {
+   "ref": "Flickr osseous December 12, 2015 set",
+   "why": "Photo pages now 404, licence cannot be verified"
+  }
+ ]
+}

@@ -148,8 +148,11 @@ ok(/shots\.credit/.test(code), `${PAGE} must render the photo credit alongside t
     `${CSS_PATH}: the shared rail must be a horizontal scroller pinned to align-items:flex-start`);
   ok(/flex:0 0 252px/.test(box) && /width:252px/.test(box) && /height:448px/.test(box),
     `${CSS_PATH}: base gallery wrappers have explicit 252x448 portrait geometry`);
-  ok(css.includes(".wf-event-hero .wf-event-photo{height:clamp(240px,42vw,440px)") && css.includes(".wf-event-hero .wf-event-photo:first-child{flex:0 0 100%;width:100%}"),
-    `${CSS_PATH}: the event hero fills its card with bounded height, without changing iconic place-card geometry`);
+  // Hero geometry (owner report 2026-11-16): bounded height, every photo the same
+  // width with the next one peeking in, and a lone photo still filling the card.
+  // The old full-width FIRST photo hid every other photo and broke snapping.
+  ok(css.includes(".wf-event-hero .wf-event-photo{height:clamp(240px,42vw,440px);flex:0 0 100%;width:100%") && css.includes(".wf-event-hero .wf-event-photo:only-child{flex:0 0 100%;width:100%}") && !css.includes(".wf-event-hero .wf-event-photo:first-child{flex:0 0 100%"),
+    `${CSS_PATH}: the event hero fills its card with bounded height, every photo full width (none cut off at the edge)`);
   ok(/overflow:hidden/.test(box), `${CSS_PATH}: the shared photo wrapper must clip its image`);
   ok(/width:100%/.test(shot) && /height:100%/.test(shot) && /object-fit:cover/.test(shot),
     `${CSS_PATH}: the image fills its wrapper (100%/100% + object-fit:cover)`);

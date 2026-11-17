@@ -1,0 +1,1411 @@
+{
+  "prepared_on": "2026-11-17",
+  "status": "local additive proposal; not applied",
+  "preparation_basis": "Research evidence JSONs prepared by verification lanes. Root must inspect sources and reconcile duplicates before database writes.",
+  "existing_event_ids_not_to_duplicate": [
+    "deck-the-chairs-2026",
+    "christmas-on-walnut-street-2026",
+    "glowing-gardens-2026",
+    "jacksonville-light-boat-parade-2026",
+    "riverside-avondale-luminaria-2026",
+    "snowcat-ridge-2026",
+    "zoolights-jacksonville-zoo-2026",
+    "nights-of-lights-2026"
+  ],
+  "confirmed_additions": [
+    {
+      "event_id": "browns-holiday-market-after-dark-2026",
+      "event_series_id": "browns-holiday-market-after-dark",
+      "event_name": "Brown's Holiday Market After Dark",
+      "short_title": "Brown's Holiday Market After Dark",
+      "year": 2026,
+      "slug": "browns-holiday-market-after-dark-2026",
+      "start_date": "2026-12-13",
+      "end_date": "2026-12-13",
+      "start_time": null,
+      "end_time": "21:00",
+      "timezone": "America/New_York",
+      "select_nights": false,
+      "event_status": "scheduled",
+      "venue": "Brown's Adventure Farm & Country Store",
+      "address": "13940 US-301, Oxford, FL 34484",
+      "city": "Oxford",
+      "county": "Sumter",
+      "state": "FL",
+      "lat": null,
+      "lng": null,
+      "place_id": "ChIJWSFAm9XE54gRynJk-W1qRFA",
+      "category": "holiday",
+      "subcategory": "christmas",
+      "tags": [
+        "christmas",
+        "holiday",
+        "2026"
+      ],
+      "audience": [
+        "family",
+        "couples",
+        "friends"
+      ],
+      "minimum_age": null,
+      "price_min": 0,
+      "price_max": null,
+      "is_free": true,
+      "price_band": "free",
+      "official_event_url": "https://brownsadventurefarm.com/holiday-market/",
+      "official_ticket_url": null,
+      "card_hook": "Holiday shopping and live music, with optional Highland calf visits.",
+      "editorial_summary": "A December 13 holiday market with more than 100 vendors, the Greg Warren Band, food and seasonal drinks. Entry to shop and parking are free. Regular farm attractions are not operating during the market. Mistletoe & Moo's is a separately ticketed add-on, with $20 nonalcoholic and $25 age 21+ options; it is not included with market entry.",
+      "why_go": null,
+      "skip_if": null,
+      "insider_tip": null,
+      "parking_tip": "Parking is free.",
+      "source_url": "https://brownsadventurefarm.com/holiday-market/",
+      "source_type": "official",
+      "source_tier": 1,
+      "verification_confidence": "medium",
+      "verify_note": "Date, 9 PM finish, free market and optional paid calf encounters verified on organizer page. Start time deliberately null due to 4 PM versus 5 PM conflict.",
+      "admission_offer": "free_admission_paid_activities",
+      "schedule_note": "December 13. Organizer sources conflict on the start: dedicated event page says 4 PM, calendar and supplied organizer post say 5 PM. Confirm before traveling; both list a 9 PM finish."
+    },
+    {
+      "event_id": "wunder-glow-dade-city-2026",
+      "event_series_id": "wunder-glow-dade-city",
+      "event_name": "Wunder Glow",
+      "short_title": "Wunder Glow",
+      "year": 2026,
+      "slug": "wunder-glow-dade-city-2026",
+      "start_date": "2026-11-21",
+      "end_date": "2027-01-09",
+      "start_time": null,
+      "end_time": null,
+      "timezone": "America/New_York",
+      "select_nights": true,
+      "event_status": "scheduled",
+      "venue": "Wunder Glow",
+      "address": "27839 Saint Joe Rd, Dade City, FL 33525",
+      "city": "Dade City",
+      "county": "Pasco",
+      "state": "FL",
+      "lat": 28.375316698981,
+      "lng": -82.355115906918,
+      "place_id": "wfadd_wunder_glow_dade_city",
+      "category": "holiday",
+      "subcategory": "christmas",
+      "tags": [
+        "christmas",
+        "holiday",
+        "2026"
+      ],
+      "audience": [
+        "family",
+        "couples",
+        "friends"
+      ],
+      "minimum_age": null,
+      "price_min": null,
+      "price_max": null,
+      "is_free": false,
+      "price_band": null,
+      "official_event_url": "https://wunderglow.com/",
+      "official_ticket_url": null,
+      "card_hook": "A separate Dade City evening of light scenes and interactive displays.",
+      "editorial_summary": "An outdoor immersive light trail among Florida oaks, with music and interactive experiences. The official calendar runs selected nights from November 21 to January 9, with hours that vary by date. This is a separate attraction from Snowcat Ridge; a shared address does not establish combined admission.",
+      "why_go": null,
+      "skip_if": null,
+      "insider_tip": null,
+      "parking_tip": "Official FAQ lists standard parking at $19 per vehicle and preferred at $24, tax included. Confirm current parking terms when booking.",
+      "source_url": "https://wunderglow.com/",
+      "source_type": "official",
+      "source_tier": 1,
+      "verification_confidence": "high",
+      "verify_note": "Official hours/calendar and FAQ checked. Date/session-dependent admission prices deliberately not reduced to a universal minimum; screenshot $18.95 is not a verified current minimum.",
+      "admission_offer": "paid",
+      "schedule_note": "Selected nights November 21 to January 9. Opening night starts 5:30 PM; later closing times vary. Closed Thanksgiving and January 4 to 7."
+    },
+    {
+      "event_id": "dtolive-holidays-lake-eola-2026",
+      "event_series_id": "dtolive-holidays-lake-eola",
+      "event_name": "DTOLive! for the Holidays",
+      "short_title": "DTOLive! for the Holidays",
+      "year": 2026,
+      "slug": "dtolive-holidays-lake-eola-2026",
+      "start_date": "2026-12-05",
+      "end_date": "2026-12-20",
+      "start_time": null,
+      "end_time": null,
+      "timezone": "America/New_York",
+      "select_nights": true,
+      "event_status": "scheduled",
+      "venue": "Lake Eola Amphitheater",
+      "address": "101 North Rosalind Avenue, Orlando, FL 32801",
+      "city": "Orlando",
+      "county": "Orange",
+      "state": "FL",
+      "lat": 28.5437658,
+      "lng": -81.3760604,
+      "place_id": "ChIJu3hNU-N654gR0x0I9_3iNvc",
+      "category": "holiday",
+      "subcategory": "holiday-concert",
+      "tags": [
+        "christmas",
+        "holiday",
+        "2026"
+      ],
+      "audience": [
+        "family",
+        "couples",
+        "friends"
+      ],
+      "minimum_age": null,
+      "price_min": 0,
+      "price_max": null,
+      "is_free": true,
+      "price_band": "free",
+      "official_event_url": "https://www.orlando.gov/Events/DTOLive-for-the-Holidays-2026",
+      "official_ticket_url": null,
+      "card_hook": "Choose a holiday concert night by the lake.",
+      "editorial_summary": "Orlando's free holiday performance series at Lake Eola Park features concerts on selected evenings from December 5 to December 20. The amphitheater address is 101 North Rosalind Avenue. Use the city's complete performance schedule to choose a date; this is not continuous daily programming.",
+      "why_go": null,
+      "skip_if": null,
+      "insider_tip": null,
+      "parking_tip": null,
+      "source_url": "https://www.orlando.gov/Events/DTOLive-for-the-Holidays-2026",
+      "source_type": "official",
+      "source_tier": 1,
+      "verification_confidence": "high",
+      "verify_note": "Official sources checked 2026-11-17. See companion evidence_checks for remaining limitations.",
+      "admission_offer": "free_admission",
+      "schedule_note": "Selected concert evenings December 5 to 20; see full city schedule for each performance and time."
+    },
+    {
+      "event_id": "santa-workshop-icon-park-2026",
+      "event_series_id": "santa-workshop-icon-park",
+      "event_name": "The Santa Workshop Experience at ICON Park",
+      "short_title": "The Santa Workshop Experience at ICON Park",
+      "year": 2026,
+      "slug": "santa-workshop-icon-park-2026",
+      "start_date": "2026-11-13",
+      "end_date": "2026-12-24",
+      "start_time": null,
+      "end_time": null,
+      "timezone": "America/New_York",
+      "select_nights": true,
+      "event_status": "scheduled",
+      "venue": "Sky Lounge at The Orlando Eye, ICON Park",
+      "address": "8375 International Dr, Orlando, FL32819",
+      "city": "Orlando",
+      "county": "Orange",
+      "state": "FL",
+      "lat": null,
+      "lng": null,
+      "place_id": "ChIJw5jVAVN-54gRScNxiRF16j4",
+      "category": "holiday",
+      "subcategory": "christmas",
+      "tags": [
+        "christmas",
+        "holiday",
+        "2026"
+      ],
+      "audience": [
+        "family",
+        "couples",
+        "friends"
+      ],
+      "minimum_age": null,
+      "price_min": null,
+      "price_max": null,
+      "is_free": null,
+      "price_band": null,
+      "official_event_url": "https://iconparkorlando.com/events/the-santa-workshop-experience/",
+      "official_ticket_url": "https://santaworkshopexperience.square.site/",
+      "card_hook": "A Santa photo visit with carousel benefits that have conditions.",
+      "editorial_summary": "The Santa Workshop Experience is inside the Sky Lounge at The Orlando Eye. The official page names November 13 to December 24, 2026. Its complimentary Carousel on the Promenade ride applies to children under 13 with a photo purchase. SEA LIFE Orlando and Madame Tussauds are separate attractions; any advertised discounts have their own terms.",
+      "why_go": null,
+      "skip_if": null,
+      "insider_tip": null,
+      "parking_tip": null,
+      "source_url": "https://iconparkorlando.com/events/the-santa-workshop-experience/",
+      "source_type": "official",
+      "source_tier": 1,
+      "verification_confidence": "medium",
+      "verify_note": "2026 season and location verified. Old 2024 timetable and adjacent prices intentionally omitted; current reservation flow must establish available session and price.",
+      "admission_offer": "unknown",
+      "schedule_note": "Reserve a current Santa session. Detailed daily timetable on event page is labeled 2024 and is not used for 2026; midnight-to-midnight calendar metadata is not an operating schedule."
+    },
+    {
+      "event_id": "centro-ybor-tree-lighting-2026",
+      "event_series_id": "centro-ybor-tree-lighting",
+      "event_name": "Centro Ybor Tree Lighting",
+      "short_title": "Centro Ybor Tree Lighting",
+      "year": 2026,
+      "slug": "centro-ybor-tree-lighting-2026",
+      "start_date": "2026-11-18",
+      "end_date": "2026-11-18",
+      "start_time": "18:00",
+      "end_time": "21:00",
+      "timezone": "America/New_York",
+      "select_nights": false,
+      "event_status": "scheduled",
+      "venue": "Centro Ybor",
+      "address": "1600 E 8th Ave, Tampa, FL 33605",
+      "city": "Tampa",
+      "county": "Hillsborough",
+      "state": "FL",
+      "lat": 27.961049947139,
+      "lng": -82.441669709383,
+      "place_id": "wfadd_centro_ybor_tampa",
+      "category": "holiday",
+      "subcategory": "tree-lighting",
+      "tags": [
+        "christmas",
+        "holiday",
+        "2026"
+      ],
+      "audience": [
+        "family",
+        "couples",
+        "friends"
+      ],
+      "minimum_age": null,
+      "price_min": 0,
+      "price_max": null,
+      "is_free": true,
+      "price_band": "free",
+      "official_event_url": "https://members.ybor.org/events/details/ybor-city-tree-lighting-save-the-date-6288",
+      "official_ticket_url": null,
+      "card_hook": "A neighborhood tree lighting in historic Ybor City.",
+      "editorial_summary": "The Ybor Chamber lists the Centro Ybor celebration for November 18 from 6 to 9 PM. The supplied Centro Ybor post advertises music, holiday lights, falling snow and Santa and Mrs. Claus. It also describes a limited Centro Cash gift for the first 350 attendees, rather than a guaranteed gift for every visitor.",
+      "why_go": null,
+      "skip_if": null,
+      "insider_tip": null,
+      "parking_tip": null,
+      "source_url": "https://members.ybor.org/events/details/ybor-city-tree-lighting-save-the-date-6288",
+      "source_type": "official",
+      "source_tier": 1,
+      "verification_confidence": "high",
+      "verify_note": "Chamber verifies November 18, 2026, 6 to 9 PM. Free entry, snow, 7 PM lighting and limited $10 Centro Cash promotion come from supplied venue-owned IMG_6083/6084 posts; do not universalize promotion.",
+      "admission_offer": "free_admission",
+      "schedule_note": "Event 6 to 9 PM, confirmed by Ybor Chamber. Organizer social post places the lighting at 7 PM."
+    },
+    {
+      "event_id": "hometown-holiday-orange-park-2026",
+      "event_series_id": "hometown-holiday-orange-park",
+      "event_name": "Hometown Holiday in the Park",
+      "short_title": "Hometown Holiday in the Park",
+      "year": 2026,
+      "slug": "hometown-holiday-orange-park-2026",
+      "start_date": "2026-12-12",
+      "end_date": "2026-12-12",
+      "start_time": "14:00",
+      "end_time": "21:00",
+      "timezone": "America/New_York",
+      "select_nights": false,
+      "event_status": "scheduled",
+      "venue": "Clarke House Park",
+      "address": "1039 Kingsley Ave, Orange Park, FL 32073",
+      "city": "Orange Park",
+      "county": "Clay",
+      "state": "FL",
+      "lat": null,
+      "lng": null,
+      "place_id": "ChIJ71KjTtzF5YgRvlsJJQkcNdU",
+      "category": "holiday",
+      "subcategory": "christmas",
+      "tags": [
+        "christmas",
+        "holiday",
+        "2026"
+      ],
+      "audience": [
+        "family",
+        "couples",
+        "friends"
+      ],
+      "minimum_age": null,
+      "price_min": 0,
+      "price_max": null,
+      "is_free": true,
+      "price_band": "free",
+      "official_event_url": "https://www.townoforangepark.com/p/residents/special-events2/hometown-holiday-in-the-park",
+      "official_ticket_url": null,
+      "card_hook": "A free community holiday afternoon with optional paid Santa photos.",
+      "editorial_summary": "The town's current event page lists December 12 from 2 to 9 PM at Clarke House Park. Admission and many activities, including train and hay rides through the lighted trail, are free. A digital Santa photo costs extra, so free entry does not mean every activity is included.",
+      "why_go": null,
+      "skip_if": null,
+      "insider_tip": null,
+      "parking_tip": "Town lists parking across Kingsley Avenue at First Baptist Church, with limited accessible parking inside the park.",
+      "source_url": "https://www.townoforangepark.com/p/residents/special-events2/hometown-holiday-in-the-park",
+      "source_type": "official",
+      "source_tier": 1,
+      "verification_confidence": "high",
+      "verify_note": "Current town event page and Historical Society agree on December 12, 2 to 9 PM. Older town location calendar not used.",
+      "admission_offer": "free_admission_paid_activities",
+      "schedule_note": "December 12 only, 2 to 9 PM. Current exact event page supersedes stale location-calendar text showing December 12 to 13."
+    },
+    {
+      "event_id": "parade-of-trees-green-cove-springs-2026",
+      "event_series_id": "parade-of-trees-green-cove-springs",
+      "event_name": "Parade of Trees",
+      "short_title": "Parade of Trees",
+      "year": 2026,
+      "slug": "parade-of-trees-green-cove-springs-2026",
+      "start_date": "2026-12-01",
+      "end_date": "2026-12-31",
+      "start_time": null,
+      "end_time": null,
+      "timezone": "America/New_York",
+      "select_nights": false,
+      "event_status": "scheduled",
+      "venue": "Spring Park",
+      "address": "Spring Park, Green Cove Springs, FL",
+      "city": "Green Cove Springs",
+      "county": "Clay",
+      "state": "FL",
+      "lat": null,
+      "lng": null,
+      "place_id": null,
+      "category": "holiday",
+      "subcategory": "christmas",
+      "tags": [
+        "christmas",
+        "holiday",
+        "2026"
+      ],
+      "audience": [
+        "family",
+        "couples",
+        "friends"
+      ],
+      "minimum_age": null,
+      "price_min": null,
+      "price_max": null,
+      "is_free": null,
+      "price_band": null,
+      "official_event_url": "https://www.greencovesprings.com/292/Parade-of-Trees",
+      "official_ticket_url": null,
+      "card_hook": "An evening stroll among sponsored trees in Spring Park.",
+      "editorial_summary": "Green Cove Springs lists 245 sponsored trees lit each evening throughout December in Spring Park. The sponsorship fee on the city page is for organizations decorating a tree, not a visitor admission price.",
+      "why_go": null,
+      "skip_if": null,
+      "insider_tip": null,
+      "parking_tip": null,
+      "source_url": "https://www.greencovesprings.com/292/Parade-of-Trees",
+      "source_type": "official",
+      "source_tier": 1,
+      "verification_confidence": "high",
+      "verify_note": "City confirms December run and tree display. No visitor price or street entrance asserted from a sponsorship page.",
+      "admission_offer": "unknown",
+      "schedule_note": "Trees lit each evening during December; exact switch-on and switch-off times not stated."
+    },
+    {
+      "event_id": "vintage-market-days-jacksonville-2026",
+      "event_series_id": "vintage-market-days-jacksonville",
+      "event_name": "Vintage Market Days of Jacksonville: Shiny & Bright",
+      "short_title": "Vintage Market Days of Jacksonville: Shiny & Bright",
+      "year": 2026,
+      "slug": "vintage-market-days-jacksonville-2026",
+      "start_date": "2026-12-04",
+      "end_date": "2026-12-06",
+      "start_time": "10:00",
+      "end_time": null,
+      "timezone": "America/New_York",
+      "select_nights": false,
+      "event_status": "scheduled",
+      "venue": "Clay County Fairgrounds",
+      "address": "2497 State Road 16, Green Cove Springs, FL 32043",
+      "city": "Green Cove Springs",
+      "county": "Clay",
+      "state": "FL",
+      "lat": 29.983377176722,
+      "lng": -81.743656605017,
+      "place_id": null,
+      "category": "holiday",
+      "subcategory": "holiday-market",
+      "tags": [
+        "christmas",
+        "holiday",
+        "2026"
+      ],
+      "audience": [
+        "family",
+        "couples",
+        "friends"
+      ],
+      "minimum_age": null,
+      "price_min": null,
+      "price_max": null,
+      "is_free": false,
+      "price_band": null,
+      "official_event_url": "https://www.vintagemarketdays.com/market/jacksonville/index.php",
+      "official_ticket_url": null,
+      "card_hook": "A separate December vintage market at Clay County Fairgrounds.",
+      "editorial_summary": "Vintage Market Days of Jacksonville runs December 4 to 6 at Clay County Fairgrounds, with vintage and inspired art, home decor, clothing, jewelry and makers. This is separate from Diamonds in the Rust at Diamond D Ranch. Children under 12 are free, and a purchased ticket allows re-entry during the weekend.",
+      "why_go": null,
+      "skip_if": null,
+      "insider_tip": null,
+      "parking_tip": null,
+      "source_url": "https://www.vintagemarketdays.com/market/jacksonville/index.php",
+      "source_type": "official",
+      "source_tier": 1,
+      "verification_confidence": "medium",
+      "verify_note": "Dates, venue and child/re-entry rules verified on organizer page. Adult price unknown and Sunday end-time conflict left out of structured time.",
+      "admission_offer": "paid",
+      "schedule_note": "December 4 to 6. Organizer main page lists 10 AM to 4 PM all three days, while ticketing search text suggests Sunday 3 PM. Confirm Sunday closing at the current official ticket page."
+    },
+    {
+      "event_id": "diamonds-in-the-rust-fall-market-2026",
+      "event_series_id": "diamonds-in-the-rust-fall-market",
+      "event_name": "Diamonds in the Rust Fall Market",
+      "short_title": "Diamonds in the Rust Fall Market",
+      "year": 2026,
+      "slug": "diamonds-in-the-rust-fall-market-2026",
+      "start_date": "2026-11-20",
+      "end_date": "2026-11-22",
+      "start_time": "10:00",
+      "end_time": "16:00",
+      "timezone": "America/New_York",
+      "select_nights": false,
+      "event_status": "scheduled",
+      "venue": "Diamond D Ranch",
+      "address": "7263 Solomon Rd, Jacksonville, FL 32234",
+      "city": "Jacksonville",
+      "county": "Duval",
+      "state": "FL",
+      "lat": null,
+      "lng": null,
+      "place_id": null,
+      "category": "holiday",
+      "subcategory": "holiday-market",
+      "tags": [
+        "christmas",
+        "holiday",
+        "2026"
+      ],
+      "audience": [
+        "family",
+        "couples",
+        "friends"
+      ],
+      "minimum_age": null,
+      "price_min": 10,
+      "price_max": 15,
+      "is_free": false,
+      "price_band": "$",
+      "official_event_url": "https://diamonddranchinc.com/event/diamonds-in-the-rust-fall-market/",
+      "official_ticket_url": null,
+      "card_hook": "A November vintage market at Diamond D Ranch.",
+      "editorial_summary": "The ranch's fall market runs November 20 to 22, 10 AM to 4 PM, with vintage and maker shopping. Admission is $15 on Friday and $10 on Saturday or Sunday, tax included; children under 12 are free. This November market is not the December Vintage Market Days event at Clay County Fairgrounds.",
+      "why_go": null,
+      "skip_if": null,
+      "insider_tip": null,
+      "parking_tip": "Complimentary parking and shuttles are listed. Optional VIP parking is separate from admission.",
+      "source_url": "https://diamonddranchinc.com/event/diamonds-in-the-rust-fall-market/",
+      "source_type": "official",
+      "source_tier": 1,
+      "verification_confidence": "high",
+      "verify_note": "Dates/hours/prices verified on operator event page. Street address from official Visit Jacksonville destination listing; root should open destination source to confirm address before pinning.",
+      "admission_offer": "paid",
+      "schedule_note": "November 20 to 22, 10 AM to 4 PM daily."
+    },
+    {
+      "event_id": "artist-walk-on-ice-jacksonville-2026",
+      "event_series_id": "artist-walk-on-ice-jacksonville",
+      "event_name": "JAX Artist Walk on Ice",
+      "short_title": "JAX Artist Walk on Ice",
+      "year": 2026,
+      "slug": "artist-walk-on-ice-jacksonville-2026",
+      "start_date": "2026-11-27",
+      "end_date": "2027-01-18",
+      "start_time": null,
+      "end_time": null,
+      "timezone": "America/New_York",
+      "select_nights": false,
+      "event_status": "scheduled",
+      "venue": "Artist Walk",
+      "address": "718 Riverside Ave, Jacksonville, FL 32204",
+      "city": "Jacksonville",
+      "county": "Duval",
+      "state": "FL",
+      "lat": 30.31419363047,
+      "lng": -81.677605334141,
+      "place_id": null,
+      "category": "holiday",
+      "subcategory": "ice-skating",
+      "tags": [
+        "christmas",
+        "holiday",
+        "2026"
+      ],
+      "audience": [
+        "family",
+        "couples",
+        "friends"
+      ],
+      "minimum_age": null,
+      "price_min": 18,
+      "price_max": null,
+      "is_free": false,
+      "price_band": "$",
+      "official_event_url": "https://www.jaxonice.com/",
+      "official_ticket_url": null,
+      "card_hook": "Reserve a 75-minute skate with rentals included.",
+      "editorial_summary": "Artist Walk on Ice lists 75-minute skating sessions with skate rental included, from November 27 to January 18. Online general admission is $18 per person plus taxes and fees. Reservations apply to the selected date and time, so the base price is not an all-in under-$20 promise.",
+      "why_go": null,
+      "skip_if": null,
+      "insider_tip": null,
+      "parking_tip": "Operator lists complimentary parking at Riverside Arts Market lot, 729 Riverside Ave, and Florida Blue garage, 532 Riverside Ave. The rink entrance is 718 Riverside Ave.",
+      "source_url": "https://www.jaxonice.com/",
+      "source_type": "official",
+      "source_tier": 1,
+      "verification_confidence": "high",
+      "verify_note": "Official sources checked 2026-11-17. See companion evidence_checks for remaining limitations.",
+      "admission_offer": "paid",
+      "schedule_note": "Monday to Thursday 4 to 9 PM; Friday 4 to 10 PM; Saturday 10 AM to 10 PM; Sunday 10 AM to 8 PM. Check holiday exceptions and available sessions.",
+      "duration_recommendation": "75-minute skating session"
+    },
+    {
+      "event_id": "blackhawk-bluff-christmas-lights-2026",
+      "event_series_id": "blackhawk-bluff-christmas-lights",
+      "event_name": "Blackhawk Bluff Christmas Lights",
+      "short_title": "Blackhawk Bluff Christmas Lights",
+      "year": 2026,
+      "slug": "blackhawk-bluff-christmas-lights-2026",
+      "start_date": "2026-11-27",
+      "end_date": null,
+      "start_time": null,
+      "end_time": null,
+      "timezone": "America/New_York",
+      "select_nights": false,
+      "event_status": "scheduled",
+      "venue": "Blackhawk Bluff neighborhood off Girvin Road",
+      "address": "Blackhawk Bluff neighborhood off Girvin Road, Jacksonville, FL",
+      "city": "Jacksonville",
+      "county": "Duval",
+      "state": "FL",
+      "lat": null,
+      "lng": null,
+      "place_id": null,
+      "category": "holiday",
+      "subcategory": "holiday-lights",
+      "tags": [
+        "christmas",
+        "holiday",
+        "2026"
+      ],
+      "audience": [
+        "family",
+        "couples",
+        "friends"
+      ],
+      "minimum_age": null,
+      "price_min": null,
+      "price_max": null,
+      "is_free": null,
+      "price_band": null,
+      "official_event_url": "https://www.visitjacksonville.com/events/annual/winter-on-the-water/",
+      "official_ticket_url": null,
+      "card_hook": "A neighborhood light display on Jacksonville's east side.",
+      "editorial_summary": "The official Jacksonville destination guide lists Blackhawk Bluff Christmas lights beginning November 27, with Sunday to Thursday hours of 6 to 10 PM and Friday to Saturday hours of 6 to 11 PM. This is a residential neighborhood display, not one private-home attraction; respect residents and current traffic directions.",
+      "why_go": null,
+      "skip_if": null,
+      "insider_tip": null,
+      "parking_tip": null,
+      "source_url": "https://www.visitjacksonville.com/events/annual/winter-on-the-water/",
+      "source_type": "official_destination_organization",
+      "source_tier": 2,
+      "verification_confidence": "medium",
+      "verify_note": "2026 start/hours supported by official destination organization; operator Facebook inaccessible. End date, current free admission and 2026 traffic controls not independently confirmed. Do not reuse archived 2025 traffic advice.",
+      "admission_offer": "unknown",
+      "schedule_note": "Visit Jacksonville lists a November 27 start; Sunday to Thursday 6 to 10 PM, Friday to Saturday 6 to 11 PM. End date not confirmed. Check operator updates before traveling."
+    }
+  ],
+  "evidence_checks": [
+    {
+      "event_id": "browns-holiday-market-after-dark-2026",
+      "sources": [
+        {
+          "url": "https://brownsadventurefarm.com/holiday-market/",
+          "ref": "turn326635311view3",
+          "type": "official event"
+        },
+        {
+          "url": "https://brownsadventurefarm.com/hours/",
+          "ref": "turn965181025search4",
+          "type": "official calendar indexed snippet, conflicting start"
+        }
+      ],
+      "remaining_checks": [
+        "Resolve 4 PM versus 5 PM start before adding a start_time.",
+        "Use actual linked Ticketspice product for reservations; do not guess a product URL."
+      ],
+      "inferred_fields": [
+        "category, subcategory and audience are editorial classifications, not operator claims"
+      ]
+    },
+    {
+      "event_id": "wunder-glow-dade-city-2026",
+      "sources": [
+        {
+          "url": "https://wunderglow.com/",
+          "ref": "turn922427058view2",
+          "type": "official home"
+        },
+        {
+          "url": "https://wunderglow.com/hours/",
+          "ref": "turn130644983view2",
+          "type": "official calendar"
+        },
+        {
+          "url": "https://wunderglow.com/event/buy-now-4/",
+          "ref": "turn326635311view2",
+          "type": "official Nov21 tickets"
+        },
+        {
+          "url": "https://wunderglow.com/contact-us/faq/",
+          "ref": "turn512647382view1",
+          "type": "official FAQ"
+        }
+      ],
+      "remaining_checks": [
+        "Confirm date-specific ticket total at official checkout.",
+        "Do not treat Santa photo packages or parking as included in admission."
+      ],
+      "inferred_fields": [
+        "category, subcategory and audience are editorial classifications, not operator claims"
+      ]
+    },
+    {
+      "event_id": "dtolive-holidays-lake-eola-2026",
+      "sources": [
+        {
+          "url": "https://www.orlando.gov/Events/DTOLive-for-the-Holidays-2026",
+          "ref": "turn534965720view4",
+          "type": "official city event"
+        },
+        {
+          "url": "https://www.orlando.gov/Events/Joe-Fritz-DTOLive-Holiday",
+          "ref": "turn922427058search5",
+          "type": "individual event indexed snippet"
+        },
+        {
+          "url": "https://www.orlando.gov/Events/The-John-Horton-Band-DTOLive-Holiday",
+          "ref": "turn922427058search3",
+          "type": "individual event indexed snippet"
+        }
+      ],
+      "remaining_checks": [
+        "Check each individual city performance page before quoting band-specific showtimes."
+      ],
+      "inferred_fields": [
+        "category, subcategory and audience are editorial classifications, not operator claims"
+      ]
+    },
+    {
+      "event_id": "santa-workshop-icon-park-2026",
+      "sources": [
+        {
+          "url": "https://iconparkorlando.com/events/the-santa-workshop-experience/",
+          "ref": "turn534965720view2",
+          "type": "official event"
+        }
+      ],
+      "remaining_checks": [
+        "Check current reservation flow for operational days, session time and price.",
+        "Do not repeat social claim that every visit includes a carousel ride."
+      ],
+      "inferred_fields": [
+        "category, subcategory and audience are editorial classifications, not operator claims"
+      ]
+    },
+    {
+      "event_id": "centro-ybor-tree-lighting-2026",
+      "sources": [
+        {
+          "url": "https://members.ybor.org/events/details/ybor-city-tree-lighting-save-the-date-6288",
+          "ref": "turn288343633view0",
+          "type": "official chamber event"
+        },
+        {
+          "url": "https://www.centroybor.com/",
+          "ref": "turn326635311search1",
+          "type": "venue indexed address"
+        },
+        {
+          "url": "user screenshots IMG_6083.jpeg and IMG_6084.jpeg @centro_ybor",
+          "type": "supplied venue-owned post"
+        }
+      ],
+      "remaining_checks": [
+        "Keep cash giveaway attribution and first-350 limit if mentioned."
+      ],
+      "inferred_fields": [
+        "category, subcategory and audience are editorial classifications, not operator claims"
+      ]
+    },
+    {
+      "event_id": "hometown-holiday-orange-park-2026",
+      "sources": [
+        {
+          "url": "https://www.townoforangepark.com/p/residents/special-events2/hometown-holiday-in-the-park",
+          "ref": "turn575388121view5",
+          "type": "official"
+        },
+        {
+          "url": "https://ophistory.org/upcoming-events",
+          "ref": "turn847230047view0",
+          "type": "co-organizer"
+        }
+      ],
+      "remaining_checks": [],
+      "inferred_fields": [
+        "category, subcategory and audience are editorial classifications, not operator claims"
+      ]
+    },
+    {
+      "event_id": "parade-of-trees-green-cove-springs-2026",
+      "sources": [
+        {
+          "url": "https://www.greencovesprings.com/292/Parade-of-Trees",
+          "ref": "turn527563094view1",
+          "type": "official"
+        }
+      ],
+      "remaining_checks": [
+        "Visitor admission cost and exact light hours not explicitly stated.",
+        "Verify street entrance before adding precise map coordinates."
+      ],
+      "inferred_fields": [
+        "category, subcategory and audience are editorial classifications, not operator claims"
+      ]
+    },
+    {
+      "event_id": "vintage-market-days-jacksonville-2026",
+      "sources": [
+        {
+          "url": "https://www.vintagemarketdays.com/market/jacksonville/index.php",
+          "ref": "turn996905303view3",
+          "type": "official"
+        }
+      ],
+      "remaining_checks": [
+        "Check adult price/all-in checkout fees.",
+        "Resolve Sunday 3 PM versus 4 PM close before setting end_time."
+      ],
+      "inferred_fields": [
+        "category, subcategory and audience are editorial classifications, not operator claims"
+      ]
+    },
+    {
+      "event_id": "diamonds-in-the-rust-fall-market-2026",
+      "sources": [
+        {
+          "url": "https://diamonddranchinc.com/event/diamonds-in-the-rust-fall-market/",
+          "ref": "turn996905303view4",
+          "type": "official"
+        },
+        {
+          "url": "https://www.visitjacksonville.com/events/diamonds-in-the-rust-fall-market/",
+          "ref": "turn847230047search4",
+          "type": "official_destination_organization"
+        }
+      ],
+      "remaining_checks": [
+        "Open current tourism listing for street-address confirmation before applying coordinates.",
+        "Check live purchase path for any checkout fees."
+      ],
+      "inferred_fields": [
+        "category, subcategory and audience are editorial classifications, not operator claims"
+      ]
+    },
+    {
+      "event_id": "artist-walk-on-ice-jacksonville-2026",
+      "sources": [
+        {
+          "url": "https://www.jaxonice.com/",
+          "ref": "turn663957021view0",
+          "type": "official"
+        }
+      ],
+      "remaining_checks": [
+        "Confirm selected date/session availability at checkout."
+      ],
+      "inferred_fields": [
+        "category, subcategory and audience are editorial classifications, not operator claims"
+      ]
+    },
+    {
+      "event_id": "blackhawk-bluff-christmas-lights-2026",
+      "sources": [
+        {
+          "url": "https://www.visitjacksonville.com/events/annual/winter-on-the-water/",
+          "ref": "turn527563094view0",
+          "type": "official_destination_organization"
+        },
+        {
+          "url": "https://www.jaxsheriff.org/News/Archived-News/Blackhawk-Bluff-2025.aspx",
+          "ref": "turn527563094view2",
+          "type": "historical_government"
+        }
+      ],
+      "remaining_checks": [
+        "Confirm end date and 2026 operator/traffic updates.",
+        "No exact private-home address or old police traffic arrangement should be added."
+      ],
+      "inferred_fields": [
+        "category, subcategory and audience are editorial classifications, not operator claims"
+      ]
+    }
+  ],
+  "unannounced_leads": [
+    {
+      "row": {
+        "event_id": "blooming-floral-cafe-holiday-menu-2026",
+        "event_series_id": "blooming-floral-cafe-holiday-menu",
+        "event_name": "Blooming Floral Cafe holiday menu",
+        "short_title": "Blooming Floral Cafe holiday menu",
+        "slug": "blooming-floral-cafe-holiday-menu-2026",
+        "year": 2026,
+        "start_date": null,
+        "end_date": null,
+        "start_time": null,
+        "end_time": null,
+        "timezone": "America/New_York",
+        "event_status": "unannounced",
+        "venue": "Blooming Floral Cafe holiday menu",
+        "city": "Tampa",
+        "address": "4408 N Florida Ave, Tampa, FL 33603",
+        "state": "FL",
+        "place_id": "ChIJ9d2y1ivFwogRU2MFLQrwqsc",
+        "lat": null,
+        "lng": null,
+        "category": "holiday",
+        "subcategory": "christmas",
+        "tags": [
+          "christmas",
+          "holiday",
+          "verification-pending"
+        ],
+        "price_min": null,
+        "price_max": null,
+        "is_free": null,
+        "price_band": null,
+        "official_event_url": "https://www.thebloomingfloralcafe.com/",
+        "source_url": "https://www.thebloomingfloralcafe.com/",
+        "source_type": "official_site_season_unconfirmed",
+        "source_tier": 5,
+        "verification_confidence": "low",
+        "card_hook": "Current Christmas details need confirmation.",
+        "editorial_summary": "Creator screenshot shows holiday drinks, but current menu dates, prices and hours are not independently verified. Keep the existing cafe venue; do not schedule the seasonal menu from a creator screenshot.",
+        "verify_note": "Creator screenshot shows holiday drinks, but current menu dates, prices and hours are not independently verified. Keep the existing cafe venue; do not schedule the seasonal menu from a creator screenshot.",
+        "admission_offer": "unknown"
+      },
+      "publication_hold": true,
+      "reason": "Creator screenshot shows holiday drinks, but current menu dates, prices and hours are not independently verified. Keep the existing cafe venue; do not schedule the seasonal menu from a creator screenshot.",
+      "sources": [
+        {
+          "url": "https://www.thebloomingfloralcafe.com/",
+          "ref": "turn922427058view0",
+          "type": "official site, unreadable"
+        },
+        {
+          "url": "user screenshot IMG_6071.jpeg",
+          "type": "creator post, supplied"
+        }
+      ]
+    },
+    {
+      "row": {
+        "event_id": "lumleys-farm-christmas-2026",
+        "event_series_id": "lumleys-farm-christmas",
+        "event_name": "Lumley's Farm Christmas",
+        "short_title": "Lumley's Farm Christmas",
+        "slug": "lumleys-farm-christmas-2026",
+        "year": 2026,
+        "start_date": null,
+        "end_date": null,
+        "start_time": null,
+        "end_time": null,
+        "timezone": "America/New_York",
+        "event_status": "unannounced",
+        "venue": "Lumley's Farm",
+        "city": "Plant City",
+        "address": null,
+        "state": "FL",
+        "place_id": null,
+        "lat": null,
+        "lng": null,
+        "category": "holiday",
+        "subcategory": "christmas",
+        "tags": [
+          "christmas",
+          "holiday",
+          "verification-pending"
+        ],
+        "price_min": null,
+        "price_max": null,
+        "is_free": null,
+        "price_band": null,
+        "official_event_url": "https://www.instagram.com/lumleysfarm/",
+        "source_url": "https://www.instagram.com/lumleysfarm/",
+        "source_type": "official_site_season_unconfirmed",
+        "source_tier": 5,
+        "verification_confidence": "low",
+        "card_hook": "Current Christmas details need confirmation.",
+        "editorial_summary": "Creator screenshot identifies Christmas decor at Lumley's Farm in Plant City. Current Christmas dates, hours, admission and primary-source street address remain unverified; do not reuse fall festival details.",
+        "verify_note": "Creator screenshot identifies Christmas decor at Lumley's Farm in Plant City. Current Christmas dates, hours, admission and primary-source street address remain unverified; do not reuse fall festival details.",
+        "admission_offer": "unknown"
+      },
+      "publication_hold": true,
+      "reason": "Creator screenshot identifies Christmas decor at Lumley's Farm in Plant City. Current Christmas dates, hours, admission and primary-source street address remain unverified; do not reuse fall festival details.",
+      "sources": [
+        {
+          "url": "https://www.instagram.com/lumleysfarm/",
+          "ref": "turn130644983view0",
+          "type": "official account fetch blocked"
+        },
+        {
+          "url": "user screenshot IMG_6081.jpeg",
+          "type": "supplied creator observation"
+        }
+      ]
+    },
+    {
+      "row": {
+        "event_id": "oldest-wooden-school-house-christmas-2026",
+        "event_series_id": "oldest-wooden-school-house-christmas",
+        "event_name": "Oldest Wooden School House Christmas",
+        "short_title": "Oldest Wooden School House Christmas",
+        "slug": "oldest-wooden-school-house-christmas-2026",
+        "year": 2026,
+        "start_date": null,
+        "end_date": null,
+        "start_time": null,
+        "end_time": null,
+        "timezone": "America/New_York",
+        "event_status": "unannounced",
+        "venue": "Oldest Wooden School House Historic Museum & Gardens",
+        "city": "St. Augustine",
+        "address": "14 St. George St, St. Augustine, FL 32084",
+        "state": "FL",
+        "place_id": "wfadd_oldest_wooden_school_house_st_augustine",
+        "lat": 29.897238647596,
+        "lng": -81.313524532084,
+        "category": "holiday",
+        "subcategory": "christmas",
+        "tags": [
+          "christmas",
+          "holiday",
+          "verification-pending"
+        ],
+        "price_min": null,
+        "price_max": null,
+        "is_free": null,
+        "price_band": null,
+        "official_event_url": "https://oldestwoodenschoolhouse.com/",
+        "source_url": "https://oldestwoodenschoolhouse.com/",
+        "source_type": "official_site_season_unconfirmed",
+        "source_tier": 5,
+        "verification_confidence": "low",
+        "card_hook": "Current Christmas details need confirmation.",
+        "editorial_summary": "Venue and address verified. Supplied venue-owned holiday-hours post conflicts with standard website hours; confirm special hours before publishing a holiday schedule.",
+        "verify_note": "Venue and address verified. Supplied venue-owned holiday-hours post conflicts with standard website hours; confirm special hours before publishing a holiday schedule.",
+        "admission_offer": "unknown"
+      },
+      "publication_hold": true,
+      "reason": "Venue and address verified. Supplied venue-owned holiday-hours post conflicts with standard website hours; confirm special hours before publishing a holiday schedule.",
+      "sources": [
+        {
+          "url": "https://oldestwoodenschoolhouse.com/",
+          "ref": "turn913398748view3",
+          "type": "official"
+        },
+        {
+          "url": "https://oldestwoodenschoolhouse.com/contact/",
+          "ref": "turn597017558view2",
+          "type": "official"
+        }
+      ]
+    },
+    {
+      "row": {
+        "event_id": "auggies-draft-room-snowfall-2026",
+        "event_series_id": "auggies-draft-room-snowfall",
+        "event_name": "Auggie's Draft Room snowfall",
+        "short_title": "Auggie's Draft Room snowfall",
+        "slug": "auggies-draft-room-snowfall-2026",
+        "year": 2026,
+        "start_date": null,
+        "end_date": null,
+        "start_time": null,
+        "end_time": null,
+        "timezone": "America/New_York",
+        "event_status": "unannounced",
+        "venue": "Auggie's Draft Room",
+        "city": "St. Augustine",
+        "address": "3 St. George St, St. Augustine, FL 32084",
+        "state": "FL",
+        "place_id": "ChIJa9H7lA4n5IgRViVY0j2H7bY",
+        "lat": null,
+        "lng": null,
+        "category": "holiday",
+        "subcategory": "christmas",
+        "tags": [
+          "christmas",
+          "holiday",
+          "verification-pending"
+        ],
+        "price_min": null,
+        "price_max": null,
+        "is_free": null,
+        "price_band": null,
+        "official_event_url": "https://www.auggiesdraftroom.com/",
+        "source_url": "https://www.auggiesdraftroom.com/",
+        "source_type": "official_site_season_unconfirmed",
+        "source_tier": 5,
+        "verification_confidence": "low",
+        "card_hook": "Current Christmas details need confirmation.",
+        "editorial_summary": "Schoolhouse organizer post says neighboring Auggie's starts snow November 21 at 7 PM. The operator site has not confirmed a recurring snowfall schedule; do not promise nightly snow.",
+        "verify_note": "Schoolhouse organizer post says neighboring Auggie's starts snow November 21 at 7 PM. The operator site has not confirmed a recurring snowfall schedule; do not promise nightly snow.",
+        "admission_offer": "unknown"
+      },
+      "publication_hold": true,
+      "reason": "Schoolhouse organizer post says neighboring Auggie's starts snow November 21 at 7 PM. The operator site has not confirmed a recurring snowfall schedule; do not promise nightly snow.",
+      "sources": [
+        {
+          "url": "https://www.auggiesdraftroom.com/",
+          "ref": "turn847230047view1",
+          "type": "official"
+        }
+      ]
+    },
+    {
+      "row": {
+        "event_id": "santas-toy-shop-st-augustine-coffee-house-2026",
+        "event_series_id": "santas-toy-shop-st-augustine-coffee-house",
+        "event_name": "Santa's Toy Shop at St. Augustine Coffee House",
+        "short_title": "Santa's Toy Shop at St. Augustine Coffee House",
+        "slug": "santas-toy-shop-st-augustine-coffee-house-2026",
+        "year": 2026,
+        "start_date": null,
+        "end_date": null,
+        "start_time": null,
+        "end_time": null,
+        "timezone": "America/New_York",
+        "event_status": "unannounced",
+        "venue": "St. Augustine Coffee House",
+        "city": "St. Augustine",
+        "address": "6 St. George St, Suite 107, St. Augustine, FL 32084",
+        "state": "FL",
+        "place_id": "ChIJhWCYaL4n5IgRhwgdf5lIGbc",
+        "lat": null,
+        "lng": null,
+        "category": "holiday",
+        "subcategory": "christmas",
+        "tags": [
+          "christmas",
+          "holiday",
+          "verification-pending"
+        ],
+        "price_min": null,
+        "price_max": null,
+        "is_free": null,
+        "price_band": null,
+        "official_event_url": "https://www.staugcoffee.com/home/",
+        "source_url": "https://www.staugcoffee.com/home/",
+        "source_type": "official_site_season_unconfirmed",
+        "source_tier": 5,
+        "verification_confidence": "low",
+        "card_hook": "Current Christmas details need confirmation.",
+        "editorial_summary": "Venue-owned supplied post confirms the Santa's Toy Shop concept, but does not establish separate popup run dates. Nights of Lights dates must not be copied as the popup's complete operating season.",
+        "verify_note": "Venue-owned supplied post confirms the Santa's Toy Shop concept, but does not establish separate popup run dates. Nights of Lights dates must not be copied as the popup's complete operating season.",
+        "admission_offer": "unknown"
+      },
+      "publication_hold": true,
+      "reason": "Venue-owned supplied post confirms the Santa's Toy Shop concept, but does not establish separate popup run dates. Nights of Lights dates must not be copied as the popup's complete operating season.",
+      "sources": [
+        {
+          "url": "https://www.staugcoffee.com/home/",
+          "ref": "turn575388121view0",
+          "type": "official"
+        },
+        {
+          "type": "supplied_organizer_social_screenshot",
+          "local_path": "/workspace/scratch/b868f070c8bc/upload/IMG_6086.jpeg",
+          "handle": "staugcoffeehouse"
+        }
+      ]
+    },
+    {
+      "row": {
+        "event_id": "beauclerc-road-christmas-lights-2026",
+        "event_series_id": "beauclerc-road-christmas-lights",
+        "event_name": "Beauclerc Road Christmas Lights",
+        "short_title": "Beauclerc Road Christmas Lights",
+        "slug": "beauclerc-road-christmas-lights-2026",
+        "year": 2026,
+        "start_date": null,
+        "end_date": null,
+        "start_time": null,
+        "end_time": null,
+        "timezone": "America/New_York",
+        "event_status": "unannounced",
+        "venue": "Aldred family display",
+        "city": "Jacksonville",
+        "address": null,
+        "state": "FL",
+        "place_id": null,
+        "lat": null,
+        "lng": null,
+        "category": "holiday",
+        "subcategory": "christmas",
+        "tags": [
+          "christmas",
+          "holiday",
+          "verification-pending"
+        ],
+        "price_min": null,
+        "price_max": null,
+        "is_free": null,
+        "price_band": null,
+        "official_event_url": null,
+        "source_url": null,
+        "source_type": "social_lead",
+        "source_tier": 5,
+        "verification_confidence": "low",
+        "card_hook": "Current Christmas details need confirmation.",
+        "editorial_summary": "Carousel names Beauclerc Road Lights. No current operator or government source verified the display address, dates, hours or price. Keep a lead without a private-home address or scheduled dates.",
+        "verify_note": "Carousel names Beauclerc Road Lights. No current operator or government source verified the display address, dates, hours or price. Keep a lead without a private-home address or scheduled dates.",
+        "admission_offer": "unknown"
+      },
+      "publication_hold": true,
+      "reason": "Carousel names Beauclerc Road Lights. No current operator or government source verified the display address, dates, hours or price. Keep a lead without a private-home address or scheduled dates.",
+      "sources": []
+    },
+    {
+      "row": {
+        "event_id": "sykes-family-farms-christmas-2026",
+        "event_series_id": "sykes-family-farms-christmas",
+        "event_name": "Christmas at Sykes Family Farms",
+        "short_title": "Christmas at Sykes Family Farms",
+        "slug": "sykes-family-farms-christmas-2026",
+        "year": 2026,
+        "start_date": null,
+        "end_date": null,
+        "start_time": null,
+        "end_time": null,
+        "timezone": "America/New_York",
+        "event_status": "unannounced",
+        "venue": "Sykes Family Farms",
+        "city": "Elkton",
+        "address": "5995 Brough Rd, Elkton, FL",
+        "state": "FL",
+        "place_id": "wfadd_sykes_family_farms_elkton",
+        "lat": 29.779554063835,
+        "lng": -81.442449212285,
+        "category": "holiday",
+        "subcategory": "christmas",
+        "tags": [
+          "christmas",
+          "holiday",
+          "verification-pending"
+        ],
+        "price_min": null,
+        "price_max": null,
+        "is_free": null,
+        "price_band": null,
+        "official_event_url": "https://sycofarms.com/",
+        "source_url": "https://sycofarms.com/",
+        "source_type": "official_site_season_unconfirmed",
+        "source_tier": 5,
+        "verification_confidence": "low",
+        "card_hook": "Current Christmas details need confirmation.",
+        "editorial_summary": "Official farm site currently verifies the fall maze, not a 2026 Christmas edition. Christmas dates, admission and activities remain unknown; do not reuse fall admission or dates.",
+        "verify_note": "Official farm site currently verifies the fall maze, not a 2026 Christmas edition. Christmas dates, admission and activities remain unknown; do not reuse fall admission or dates.",
+        "admission_offer": "unknown"
+      },
+      "publication_hold": true,
+      "reason": "Official farm site currently verifies the fall maze, not a 2026 Christmas edition. Christmas dates, admission and activities remain unknown; do not reuse fall admission or dates.",
+      "sources": [
+        {
+          "url": "https://sycofarms.com/",
+          "ref": "turn663957021view1",
+          "type": "official"
+        },
+        {
+          "url": "https://sycofarms.com/upcoming-events%2Fcontact",
+          "ref": "turn269399531search11",
+          "type": "official"
+        }
+      ]
+    },
+    {
+      "row": {
+        "event_id": "forgotten-tonic-miracle-christmas-2026",
+        "event_series_id": "forgotten-tonic-miracle-christmas",
+        "event_name": "Miracle at Forgotten Tonic",
+        "short_title": "Miracle at Forgotten Tonic",
+        "slug": "forgotten-tonic-miracle-christmas-2026",
+        "year": 2026,
+        "start_date": null,
+        "end_date": null,
+        "start_time": null,
+        "end_time": null,
+        "timezone": "America/New_York",
+        "event_status": "unannounced",
+        "venue": "Forgotten Tonic",
+        "city": "St. Augustine",
+        "address": "6 Aviles St, St. Augustine, FL 32084",
+        "state": "FL",
+        "place_id": "ChIJu5KCkJYn5IgRVVjGR-aX2N4",
+        "lat": null,
+        "lng": null,
+        "category": "holiday",
+        "subcategory": "christmas",
+        "tags": [
+          "christmas",
+          "holiday",
+          "verification-pending"
+        ],
+        "price_min": null,
+        "price_max": null,
+        "is_free": null,
+        "price_band": null,
+        "official_event_url": "https://www.forgottentonic.com/",
+        "source_url": "https://www.forgottentonic.com/",
+        "source_type": "official_site_season_unconfirmed",
+        "source_tier": 5,
+        "verification_confidence": "low",
+        "card_hook": "Current Christmas details need confirmation.",
+        "editorial_summary": "The current operator site still describes a Halloween pop-up; only an old 2024 Miracle menu was found. Keep the restaurant venue and await current Christmas dates and menu.",
+        "verify_note": "The current operator site still describes a Halloween pop-up; only an old 2024 Miracle menu was found. Keep the restaurant venue and await current Christmas dates and menu.",
+        "admission_offer": "unknown"
+      },
+      "publication_hold": true,
+      "reason": "The current operator site still describes a Halloween pop-up; only an old 2024 Miracle menu was found. Keep the restaurant venue and await current Christmas dates and menu.",
+      "sources": [
+        {
+          "url": "https://www.forgottentonic.com/",
+          "ref": "turn996905303view2",
+          "type": "official"
+        }
+      ]
+    },
+    {
+      "row": {
+        "event_id": "grey-matter-elf-holiday-popup-2026",
+        "event_series_id": "grey-matter-elf-holiday-popup",
+        "event_name": "Grey Matter Distillery holiday pop-up",
+        "short_title": "Grey Matter Distillery holiday pop-up",
+        "slug": "grey-matter-elf-holiday-popup-2026",
+        "year": 2026,
+        "start_date": null,
+        "end_date": null,
+        "start_time": null,
+        "end_time": null,
+        "timezone": "America/New_York",
+        "event_status": "unannounced",
+        "venue": "Grey Matter Distillery",
+        "city": "Atlantic Beach",
+        "address": "1221 Mayport Rd, Atlantic Beach, FL 32233",
+        "state": "FL",
+        "place_id": "ChIJgULEnkW05YgR7sr10NgLv_s",
+        "lat": null,
+        "lng": null,
+        "category": "holiday",
+        "subcategory": "christmas",
+        "tags": [
+          "christmas",
+          "holiday",
+          "verification-pending"
+        ],
+        "price_min": null,
+        "price_max": null,
+        "is_free": null,
+        "price_band": null,
+        "official_event_url": "https://greymatterdistillery.com/grey-matter-pop-ups",
+        "source_url": "https://greymatterdistillery.com/grey-matter-pop-ups",
+        "source_type": "official_site_season_unconfirmed",
+        "source_tier": 5,
+        "verification_confidence": "low",
+        "card_hook": "Current Christmas details need confirmation.",
+        "editorial_summary": "The operator verifies a recurring annual holiday pop-up but not the 2026 Elf theme or exact full dates. Do not infer a full dated edition from generic annual wording. Venue rules limit family visits to before 7:30 PM.",
+        "verify_note": "The operator verifies a recurring annual holiday pop-up but not the 2026 Elf theme or exact full dates. Do not infer a full dated edition from generic annual wording. Venue rules limit family visits to before 7:30 PM.",
+        "admission_offer": "unknown"
+      },
+      "publication_hold": true,
+      "reason": "The operator verifies a recurring annual holiday pop-up but not the 2026 Elf theme or exact full dates. Do not infer a full dated edition from generic annual wording. Venue rules limit family visits to before 7:30 PM.",
+      "sources": [
+        {
+          "url": "https://greymatterdistillery.com/",
+          "ref": "turn996905303view1",
+          "type": "official"
+        },
+        {
+          "url": "https://greymatterdistillery.com/grey-matter-pop-ups",
+          "ref": "turn269399531view0",
+          "type": "official"
+        }
+      ]
+    }
+  ],
+  "brown_subexperiences": {
+    "parent_event_id": "browns-holiday-market-after-dark-2026",
+    "policy": "Include in parent detail, not duplicate free event cards.",
+    "experiences": [
+      {
+        "name": "Merry Little Moo's",
+        "price": 20,
+        "currency": "USD",
+        "duration": "five minutes with Highland calves",
+        "includes": "Phone photo opportunity and cocoa or nonalcoholic holiday punch",
+        "minimum_age": null
+      },
+      {
+        "name": "Mistletoe & Spirits",
+        "price": 25,
+        "currency": "USD",
+        "minimum_age": 21,
+        "requires": "Valid ID",
+        "includes": "Highland calf visit and festive cocktail"
+      }
+    ]
+  },
+  "related_evergreen_attractions": [
+    {
+      "name": "Carousel on the Promenade",
+      "parent": "ICON Park",
+      "official_url": "https://iconparkorlando.com/attractions/carousel-on-the-promenade/",
+      "limitation": "Complimentary child ride is linked to photo purchase; do not create a separate seasonal event from the offer."
+    },
+    {
+      "name": "SEA LIFE Orlando Aquarium",
+      "place_id": "ChIJmy7U4VJ-54gRi1LoS6wwFj0",
+      "parent": "ICON Park",
+      "official_url": "https://iconparkorlando.com/attractions/sea-life-orlando-aquarium/"
+    },
+    {
+      "name": "Madame Tussauds Orlando",
+      "place_id": "ChIJm-1TQ1N-54gRtKSCx6hQ8SU",
+      "parent": "ICON Park",
+      "official_url": "https://iconparkorlando.com/attractions/madame-tussauds-wax-museum-orlando/"
+    }
+  ],
+  "proposed_existing_updates": [
+    {
+      "event_id": "zoolights-jacksonville-zoo-2026",
+      "issue": "Correct budget framing: regular nonmember online admission $30, not under $30; door $35. Animals not visible at night.",
+      "source_url": "https://www.jacksonvillezoo.org/zoolights"
+    },
+    {
+      "event_id": "jacksonville-light-boat-parade-2026",
+      "issue": "Current official event page combines Holiday River Fest and boat parade; use 2026 timing and approximate fireworks label.",
+      "source_url": "https://events.jacksonville.gov/special-events/jaxholidayriverfest"
+    },
+    {
+      "event_id": "snowcat-ridge-2026",
+      "issue": "Do not publish a past opening-date price as universal current minimum. Current admission depends on date and session; preserve exact park identity and season.",
+      "source_url": "https://snowcatridge.com/hours/"
+    }
+  ]
+}

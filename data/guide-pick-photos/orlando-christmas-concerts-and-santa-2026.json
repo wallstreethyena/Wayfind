@@ -1,0 +1,31 @@
+{
+  "slug": "orlando-christmas-concerts-and-santa-2026",
+  "picks": {},
+  "gaps": {
+    "ICON Park: The Santa Workshop Experience": {
+      "reason": "no-verified-source",
+      "placeId": "ChIJw5jVAVN-54gRScNxiRF16j4",
+      "note": "Creator screenshots are discovery evidence and do not grant image reuse. Use the established neutral fallback until an exact licensed or permissioned photo is available."
+    },
+    "Carousel on the Promenade: the nearby extra": {
+      "reason": "no-verified-source",
+      "placeId": null,
+      "note": "Creator screenshots are discovery evidence and do not grant image reuse. Use the established neutral fallback until an exact licensed or permissioned photo is available."
+    },
+    "SEA LIFE Orlando Aquarium: an optional indoor visit": {
+      "reason": "no-verified-source",
+      "placeId": "ChIJmy7U4VJ-54gRi1LoS6wwFj0",
+      "note": "Creator screenshots are discovery evidence and do not grant image reuse. Use the established neutral fallback until an exact licensed or permissioned photo is available."
+    },
+    "Madame Tussauds Orlando: another separate option": {
+      "reason": "no-verified-source",
+      "placeId": "ChIJm-1TQ1N-54gRtKSCx6hQ8SU",
+      "note": "Creator screenshots are discovery evidence and do not grant image reuse. Use the established neutral fallback until an exact licensed or permissioned photo is available."
+    },
+    "Lake Eola: DTOLive! for the Holidays": {
+      "reason": "no-verified-source",
+      "placeId": null,
+      "note": "The existing Lake Eola place photo shows the park setting rather than the holiday concert. The article hero is clearly labeled city context; the concert pick waits for an exact licensed event photo."
+    }
+  }
+}

@@ -579,6 +579,7 @@ node scripts/check-no-sitewide-autolinker.mjs
 node scripts/check-doc-ownership.mjs
 node scripts/test-owner-approval.mjs
 node scripts/test-owner-approval-gate.mjs
+node scripts/test-owner-approval-carry-forward.mjs
 node scripts/check-brand-vault.mjs
 node scripts/test-brand-vault.mjs
 node scripts/test-doc-ownership-shallow.mjs
@@ -892,6 +893,7 @@ node scripts/test-session-map-parity.mjs
 
 # WF-006 / WF-008 / WF-009 / WF-010 / WF-011 — partner geo, sitemap membership, landmarks, nested interactives
 node scripts/test-partner-geo.mjs
+node scripts/test-partner-offer-health.mjs
 node scripts/check-sitemap.mjs
 # 2026-09-23 — guide-linked restaurant picks (47 of 50 across the food-city
 # guides) rendered noindex with no address; guide-pick content now counts as
@@ -2684,7 +2686,13 @@ node scripts/test-nervous-system-health.mjs
 node scripts/test-owned-hours-cohort.mjs
 # 2026-11-13: Wayfind Self-Healing "Should I Go?" Truth Engine (truth provenance, commerce health quarantine, owned hours persistence, 7-state cold location, event temporal eligibility, and actionability coverage).
 node scripts/test-self-healing-truth-engine.mjs
+# 2026-11-14: production migration lease — apply-migration takes public.wf_migration_lease before any migration SQL (atomic acquire, injection-safe tokens, bounded TTL, fail-closed reply parsing, lease-before-SQL wiring). Real-Postgres race proof: scripts/prove-migration-lease-race.sh.
+node scripts/test-migration-lease.mjs
 # 2026-11-13: Closed-place guide/rail/index exclusion, inline card golf_course/duplicate-chip/false-Brazilian/Star-Fish fixes, Santa family outing classification, screen-reader flex-span spacing, and CardPhoto eager/monogram behavior.
 node scripts/test-closed-places-and-inline-cards.mjs
 node scripts/test-santa-local-dates.mjs
+# 2026-11-12: owner directive. CLAUDE.md keeps the GABRIEL EXECUTION AUTONOMY section and every safety section (an approved edit cannot silently drop a rule).
+node scripts/check-claude-md-owner-sections.mjs
 node scripts/test-reserve-sms.mjs
+node scripts/check-photo-rail-swipe.mjs
+node scripts/test-home-landing-thanksgiving.mjs
