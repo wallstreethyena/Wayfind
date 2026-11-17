@@ -133,6 +133,8 @@ ok("date labels read like a human wrote them", () => {
   assert.equal(dateRangeLabel({ start_date: "2026-10-16", end_date: "2026-10-25" }), "Oct 16–25");
   assert.equal(dateRangeLabel({ start_date: "2027-01-30" }), "Jan 30");
   assert.equal(dateRangeLabel({ start_date: "2026-08-07", end_date: "2026-10-31" }), "Aug 7 – Oct 31");
+  assert.equal(dateRangeLabel({ start_date: "2026-11-21", end_date: "2027-01-18" }), "Nov 21, 2026 – Jan 18, 2027");
+  assert.equal(dateRangeLabel({ start_date: "2026-01-05", end_date: "2027-01-18" }), "Jan 5, 2026 – Jan 18, 2027");
 });
 
 /* lottery + ticket-status honesty (2026-11-12, Cosmic Baseball) */
