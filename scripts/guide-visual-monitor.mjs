@@ -31,7 +31,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { GUIDES } from "../lib/guides.js";
 import { recordPulse } from "../lib/jobPulse.js";
-import { parseGuidePicks, parseDedicatedGuide, parseBlogItems, classify, picksExpectPhoto, makeGuideContextFor } from "../lib/guideVisualMonitor.js";
+import { parseGuidePicks, parseDedicatedGuide, parseBlogItems, classify, picksExpectPhoto, makeGuideContextFor, pageReservedMedia } from "../lib/guideVisualMonitor.js";
 import { guideUsesNeutralFallback } from "../lib/guideNeutralFallback.js";
 export { parseGuidePicks, parseBlogItems, classify };
 
@@ -79,6 +79,8 @@ async function main() {
   const { GUIDE_PICK_PHOTOS } = await import("../lib/guidePickPhotoManifest.js");
   const { buildPlacePhotoIndex } = await import("../lib/guidePickPhotos.js");
   const { guideContextPhoto } = await import("../lib/guideContextPhotos.js");
+  const { guideHero } = await import("../lib/guideHero.js");
+  const { guidePickPhoto } = await import("../lib/guidePickPhotos.js");
   const placeIndex = buildPlacePhotoIndex(GUIDE_PICK_PHOTOS);
   const guides = Array.isArray(GUIDES) ? GUIDES : Object.entries(GUIDES).map(([slug, g]) => ({ slug, ...g }));
   const gapsFor = (slug) => { const f = path.join(ROOT, "data/guide-pick-photos", slug + ".json"); return existsSync(f) ? JSON.parse(readFileSync(f, "utf8")).gaps || {} : {}; };
@@ -109,7 +111,7 @@ async function main() {
     if (dedicated) { guideRows.push({ surface: "guide", page: g.slug, placeId: null, ...dedicated, expectPhoto: true, documented: false }); continue; }
     const parsed = parseGuidePicks(html);
     const gaps = gapsFor(g.slug);
-    const contextFor = makeGuideContextFor(guideContextPhoto);
+    const contextFor = makeGuideContextFor(guideContextPhoto, { seed: pageReservedMedia(g.slug, g, { hero: guideHero(g.slug), pickPhoto: guidePickPhoto }) });
     (g.picks || []).forEach((pick, i) => {
       const p = parsed.find((x) => x.n === i + 1) || { imgs: [], credited: false, live: false };
       const { cls } = classifyPick(g.slug, pick, { manifest: GUIDE_PICK_PHOTOS, placeIndex, contextFor, guide: g });

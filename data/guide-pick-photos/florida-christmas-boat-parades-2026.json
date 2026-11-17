@@ -20,32 +20,46 @@
       "position": "50% 50%",
       "sameAsCardPhoto": false,
       "reviewedAt": "2026-11-09"
+    },
+    "Seminole Hard Rock Winterfest Boat Parade": {
+      "src": "/guides/picks/florida-christmas-boat-parades-2026/winterfest-boat-parade-lit-yacht-new-river.jpg",
+      "width": 1280,
+      "height": 853,
+      "alt": "A yacht strung in purple, blue and white Christmas lights with a snowman and Santa aboard cruising the New River at night past crowds on the Riverwalk during the Winterfest Boat Parade in Fort Lauderdale",
+      "caption": "A lit yacht with a snowman and Santa on the New River during the Winterfest Boat Parade, December 11, 2010.",
+      "credit": "Bob B. Brown",
+      "creditHref": "https://www.flickr.com/photos/14363418@N00/5313581597",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "sourceUrl": "https://www.flickr.com/photos/14363418@N00/5313581597",
+      "author": "Bob B. Brown",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to JPEG.",
+      "sourceKind": "flickr",
+      "placeId": null,
+      "verification": "Flickr photo Winterfest Boat Parade 10 by Bob B. Brown, taken December 11, 2010 at 7:22 p.m., the night of the 2010 Winterfest Boat Parade. Viewed the full image: a yacht strung in Christmas lights with an inflatable snowman and Santa, parade number 58, on the New River in downtown Fort Lauderdale beside the Riverwalk crowds and a drawbridge, on the parade route. No overlay, logo, sponsor sign or watermark. Replaces the neutral Photo unavailable tile. Live Flickr licence checked: CC BY 2.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-11-17"
     }
   },
   "gaps": {
-    "Seminole Hard Rock Winterfest Boat Parade": {
-      "reason": "google-only",
-      "placeId": "ChIJEfuXNVcA2YgRtSS3Jo9Jsw0",
-      "needsPermissionFrom": null,
-      "note": "Image intent pass 2026-11-09: no licensed photo of this lit boat parade was found (Wikimedia Commons and Openverse or Flickr checked 2026-11-09; the Winterfest parade photos found on Openverse have been removed from Flickr, so their licence can no longer be verified). The daytime venue photo this pick used to show did not match a night boat parade, so this guide now uses Wayfind's neutral fallback and the pick shows the \"Photo unavailable\" tile until a verified photo is sourced."
-    },
     "Tampa Riverwalk Holiday Lighted Boat Parade": {
-      "reason": "google-only",
+      "reason": "no-verified-source",
       "placeId": "ChIJD0N73GTFwogRuJTf5jAk5B8",
-      "needsPermissionFrom": null,
-      "note": "Image intent pass 2026-11-09: no licensed photo of this lit boat parade was found (Wikimedia Commons and Openverse or Flickr checked 2026-11-09; the Winterfest parade photos found on Openverse have been removed from Flickr, so their licence can no longer be verified). The daytime venue photo this pick used to show did not match a night boat parade, so this guide now uses Wayfind's neutral fallback and the pick shows the \"Photo unavailable\" tile until a verified photo is sourced."
+      "needsPermissionFrom": "Friends of the Tampa Riverwalk",
+      "note": "Photo pass November 17, 2026: Wikimedia Commons, Openverse and Flickr (commercial use CC licences only) were searched again and no licensed photo of this lit parade was found. The Tampa Riverwalk event page and photo gallery carry no parade photos, only daytime and skyline views. The pick keeps the neutral Photo unavailable tile rather than a daytime venue photo."
     },
     "Clearwater Holiday Lighted Boat Parade": {
-      "reason": "google-only",
+      "reason": "no-verified-source",
       "placeId": "ChIJnW4wY-TxwogRQku5XIBxGao",
-      "needsPermissionFrom": null,
-      "note": "Image intent pass 2026-11-09: no licensed photo of this lit boat parade was found (Wikimedia Commons and Openverse or Flickr checked 2026-11-09; the Winterfest parade photos found on Openverse have been removed from Flickr, so their licence can no longer be verified). The daytime venue photo this pick used to show did not match a night boat parade, so this guide now uses Wayfind's neutral fallback and the pick shows the \"Photo unavailable\" tile until a verified photo is sourced."
+      "needsPermissionFrom": "Clearwater Yacht Club",
+      "note": "Photo pass November 17, 2026: Wikimedia Commons, Openverse and Flickr (commercial use CC licences only) were searched again and no licensed photo of this lit parade was found. The Clearwater Yacht Club parade page has strong night photos of lit parade boats (boatparade boat3, a lit sailboat with a Christmas tree on its mast, and a line of lit boats), but they carry no reuse licence, so they need the club's written permission before Wayfind can show them. The pick keeps the neutral Photo unavailable tile until then."
     },
     "Boca Ciega Yacht Club Lighted Christmas Boat Parade": {
-      "reason": "google-only",
+      "reason": "no-verified-source",
       "placeId": "ChIJr5B534biwogRAajykNa8968",
-      "needsPermissionFrom": null,
-      "note": "Image intent pass 2026-11-09: no licensed photo of this lit boat parade was found (Wikimedia Commons and Openverse or Flickr checked 2026-11-09; the Winterfest parade photos found on Openverse have been removed from Flickr, so their licence can no longer be verified). The daytime venue photo this pick used to show did not match a night boat parade, so this guide now uses Wayfind's neutral fallback and the pick shows the \"Photo unavailable\" tile until a verified photo is sourced."
+      "needsPermissionFrom": "Boca Ciega Yacht Club",
+      "note": "Photo pass November 17, 2026: Wikimedia Commons, Openverse and Flickr (commercial use CC licences only) were searched again and no licensed photo of this lit parade was found. The Boca Ciega Yacht Club site has one 2025 parade photo, but it is only 600 pixels wide and carries no reuse licence. The pick keeps the neutral Photo unavailable tile until a licensed photo or written permission is in hand."
     }
   }
 }
