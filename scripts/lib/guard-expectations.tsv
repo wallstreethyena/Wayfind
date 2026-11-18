@@ -390,6 +390,7 @@ scripts/check-place-page-partner.mjs	0	CALL	blocks-ci-and-deploy	1	-	16	0	0	0a6e
 scripts/check-place-photo-contributions.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	14	0	0	a5b3d60eda59486d718abbcdcfdeb1402f2194c71c7838d1e962035b977fae9b
 scripts/check-place-sitemap-parity.mjs	0	CALL	blocks-ci-and-deploy	1	-	56	0	0	9bcb96112a936fa4e1103f2775397adaba74c9ccb1dce5109e764b7367f8c313
 scripts/check-popularity-attempt-ledger.mjs	0	CALL	blocks-ci-and-deploy	1	-	31	0	0	8de50e593a9fd7c479dfc2fb117d3e0a8fe8c18b33233dc6428e0d15c28ee36b
+scripts/check-portrait-photo-fit.mjs	0	CALL	blocks-ci-and-deploy	1	-	5	0	0	14d9594873d0f79857f17461fd6c655f9dd329004886aea8e551389cdb0e3a12
 scripts/check-position-memory.mjs	0	RENDER	blocks-ci-and-deploy	1	-	49	0	0	f04789d19e67d7c2a251f6f4d80790755fff4a0505287c0d9809d7a0c44e9371
 scripts/check-poster-open-contract.mjs	0	CALL	blocks-ci-and-deploy	1	-	15	0	0	1367c0b859f57615fcaae1920689ba1ec5c9d92cd8a86888c3e8d84bd0e62ca6
 scripts/check-poster-seasons.mjs	0	CALL	blocks-ci-and-deploy	1	-	68	0	0	ab7274d1556e8d06db22f7c348639b70f98a9ad23b57bb2934e0d9d545bfd96e

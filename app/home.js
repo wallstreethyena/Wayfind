@@ -6,6 +6,7 @@ import { CATEGORIES, SUBFILTERS, VIBES, DEFAULT_RADIUS_MI, DEFAULT_RADIUS_M, dis
 import { fetchLivePhoto, detailGalleryPhotos, liveCreditFor } from "../lib/livePhoto";
 import PhotoCredit from "./components/PhotoCredit";
 import CardPhoto from "./components/CardPhoto";
+import PortraitAwareImg from "./components/PortraitAwareImg";
 import { cardPhotoRequest, isApiPhotoSrc, photoPlaceIdFromSrc } from "../lib/cardPhotoRequest.js";
 import { rememberAuthReturn, consumeAuthReturn } from "../lib/authReturn.js";
 import { normName, betterPlace, dedupePlaces } from "../lib/placeDedupe";
@@ -1991,7 +1992,7 @@ function confidenceOf(reviews) {
 // The house media column is `.wf-place-card-layout > .wf-place-card-media`.
 // This helper fills that column — pass `wf-place-card-photo`, never a 96×96
 // inline size (that was Image-1 compact chrome). Leave dimensions to css.js.
-function FallbackImg({ src, fallbackSrc, alt, style, className, icon, category, onClick, fit = "cover", defer = false }) {
+function FallbackImg({ src, fallbackSrc, alt, style, className, icon, category, onClick, fit = "cover", defer = false, portraitFit = false }) {
   // An unrelated fallback update must not hide an already decoded primary.
   // Keep outcomes attached to the URL that actually emitted the event.
   const [outcomes, setOutcomes] = useState(() => new Map());
@@ -2110,7 +2111,9 @@ function FallbackImg({ src, fallbackSrc, alt, style, className, icon, category, 
   return (
     <div className={className} style={{ ...style, position: "relative", overflow: "hidden" }}>
       {state === "skeleton" && <div className="wf-skeleton" style={{ position: "absolute", inset: 0 }} aria-hidden="true" />}
-      <img key={activeSrc} ref={imgRef} decoding="async" src={activeSrc} alt={alt || ""} loading="lazy" draggable={false} onLoad={() => markOutcome(activeSrc, "loaded")} onError={() => markOutcome(activeSrc, "error")} onClick={onClick} style={{ width: "100%", height: "100%", objectFit: fit, display: "block", opacity: state === "image" ? 1 : 0, transition: "opacity 180ms ease" }} />
+      {portraitFit
+        ? <PortraitAwareImg key={activeSrc} imgRef={imgRef} decoding="async" src={activeSrc} alt={alt || ""} loading="lazy" draggable={false} onLoad={() => markOutcome(activeSrc, "loaded")} onError={() => markOutcome(activeSrc, "error")} onClick={onClick} style={{ width: "100%", height: "100%", objectFit: fit, display: "block", opacity: state === "image" ? 1 : 0, transition: "opacity 180ms ease" }} />
+        : <img key={activeSrc} ref={imgRef} decoding="async" src={activeSrc} alt={alt || ""} loading="lazy" draggable={false} onLoad={() => markOutcome(activeSrc, "loaded")} onError={() => markOutcome(activeSrc, "error")} onClick={onClick} style={{ width: "100%", height: "100%", objectFit: fit, display: "block", opacity: state === "image" ? 1 : 0, transition: "opacity 180ms ease" }} />}
     </div>
   );
 }
