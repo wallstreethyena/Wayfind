@@ -10,7 +10,13 @@ change only with the owner's approval:
   `scripts/check-owner-approval-pr.mjs`, `scripts/owner-approval-gate.mjs`,
   `scripts/lib/ownerApproval.mjs`, `scripts/lib/githubPullEvidence.mjs`,
   `scripts/lib/githubAppAuth.mjs`, `scripts/test-owner-approval.mjs`,
-  `scripts/test-owner-approval-gate.mjs`
+  `scripts/test-owner-approval-carry-forward.mjs`, `scripts/test-owner-approval-gate.mjs`,
+  `scripts/owner-gate-setup-check.mjs`, and, since the 2026-11-18 security review, the
+  signature code: `scripts/lib/sshSignature.mjs` (the verifier),
+  `scripts/lib/ownerSigningTestkit.mjs` (the test signer) and
+  `scripts/owner-sign-approval.mjs` (the helper the owner signs with, which decides what
+  he is shown when he signs). A pull request that could edit any of these could change
+  what counts as a signature.
 - **everything under `.github/`**: every workflow and `CODEOWNERS`. A workflow
   can report a check under any name and can read repository secrets, so adding
   or changing one is an owner decision.
@@ -23,7 +29,7 @@ case-insensitively, because on a Mac `agents.md` is the same file as `AGENTS.md`
 A comment on the pull request, posted from the owner's GitHub account
 (`OWNERS`: login `wallstreethyena` and account id `297334934`, so a renamed
 or re-registered login does not count), with its own line, **followed by an SSH
-signature block that the owner's hardware key made over that exact commit** (see
+signature block that the owner's FIDO security key made over that exact commit, with a touch and the key's PIN** (see
 "Signed approval" below; without a verifying signature the comment is not evidence):
 
 ```
@@ -82,10 +88,11 @@ sha=<the full 40-character head sha, lowercase>
 
 and it must verify, with `scripts/lib/sshSignature.mjs` (node:crypto only, following
 OpenSSH `PROTOCOL.sshsig` and `PROTOCOL.u2f`), against a key in `OWNER_SIGNING_KEYS`
-in `scripts/lib/ownerApproval.mjs`. Supported key types: `ssh-ed25519`,
-`sk-ssh-ed25519@openssh.com`, `ecdsa-sha2-nistp256`, `sk-ecdsa-sha2-nistp256@openssh.com`.
-For the `sk-` (security key) types the signature must show the user-presence flag, i.e.
-the key was physically touched. Every earlier rule still applies (owner login and id,
+in `scripts/lib/ownerApproval.mjs`, **under the owner signing policy** below (the key must be
+a security key and the signature must show a touch and the PIN). The verifier itself is generic
+and parses `ssh-ed25519`, `sk-ssh-ed25519@openssh.com`, `ecdsa-sha2-nistp256` and
+`sk-ecdsa-sha2-nistp256@openssh.com`; the policy is what limits approval to the two `sk-` types.
+Every earlier rule still applies (owner login and id,
 `User` type, unedited, not posted by an App, full 40-hex sha, head binding, carry-forward).
 A wrong namespace or hash, another key, another repository, another commit, a
 modified byte, trailing garbage or any parse error is a refusal. **If
@@ -95,50 +102,93 @@ Because the message names the repository and the commit, a signature cannot be r
 on a new head or on a fork. Carry-forward of an approval to a caught-up head still works,
 because it starts from an earlier head that carries a valid signature.
 
+### Owner signing policy (2026-11-18 security review)
+
+A valid signature is not enough on its own. In `scripts/lib/ownerApproval.mjs`
+(`APPROVAL_POLICY`) an approval signature counts only when **both**:
+
+1. **The matching `OWNER_SIGNING_KEYS` line is a security-key type**:
+   `sk-ssh-ed25519@openssh.com` or `sk-ecdsa-sha2-nistp256@openssh.com`. A plain
+   `ssh-ed25519` / `ecdsa-sha2-nistp256` line, a Secure Enclave key (Secretive) and a key held
+   by a password manager or SSH agent (1Password) are **not accepted**, even though they parse
+   and their signatures verify. Why: the verifier can only prove a signature came from a key,
+   never that a person was present. Anything running as you can ask a key file, the Secure
+   Enclave or an agent socket to sign, so an agent with your session could approve its own
+   change. Only a FIDO security key puts a physical touch (and a PIN) into the signed data,
+   where the verifier can check it.
+2. **The signature's signed flags include BOTH user presence (`0x01`, the touch) AND user
+   verification (`0x04`, the PIN).** The flags are part of the signed bytes, so they cannot
+   be edited afterwards. A signature with the touch but no PIN, or the PIN without the touch,
+   is refused, each with its own reason. Create the key with `-O verify-required` (below) so
+   the key itself insists on the PIN.
+
+The generic verifier (`scripts/lib/sshSignature.mjs`) takes the policy as an argument
+(`{ requireSecurityKey, requireUserVerification }`) and behaves as before for callers that pass
+none; the owner's policy lives in the owner-only `ownerApproval.mjs`.
+
 ### Owner setup (one time, on your own machine)
 
-1. Make a hardware-backed key. A YubiKey (or another FIDO2 key) is preferred:
+1. Use a **YubiKey or another FIDO2 key**. Create the signing key with a PIN requirement and
+   store it on the key (resident):
 
    ```
-   ssh-keygen -t ed25519-sk -O verify-required -C "wayfind owner approval" -f ~/.ssh/id_ed25519_sk
+   ssh-keygen -t ed25519-sk -O verify-required -O resident -C "wayfind owner approval" -f ~/.ssh/id_ed25519_sk
    ```
 
-   (OpenSSH 8.2 or newer; touch the key when it blinks. Leave out `-O verify-required` if
-   you do not want a PIN as well.) A Secure-Enclave-backed key is the alternative. **Do not
-   use a plain private-key file that anything running as you can read** (an ordinary
-   `~/.ssh/id_ed25519` an agent can open): that lets an agent sign for you, which is the
-   hole this closes. The private key must stay on the hardware.
+   (OpenSSH 8.2 or newer. The key asks for its **PIN** when you create it and **on every
+   signature**, and you touch it when it blinks. `-O verify-required` is what makes the PIN
+   mandatory; without it the signature carries no user-verification flag and the gate refuses
+   it.) **Never touch the key unless you started the signing yourself, just now, from the
+   helper below.** A blinking key you did not start is an agent or a program asking it to
+   sign: leave it alone. Secretive, 1Password and plain private-key files are not accepted (see
+   the policy above).
 2. Add the public line (the `.pub` file's one line) to `OWNER_SIGNING_KEYS` in
    `scripts/lib/ownerApproval.mjs`, either in the pull request that introduces this rule
    (before you approve it) or in a follow-up. That file is owner-only, so changing the list
-   needs your own approval of that change. For the pull request that introduces this rule:
-   add your key line, push, then sign the NEW head (step 3). The `guards` check runs the
-   pull request's own rule and needs the signature; the base-branch checks still run main's
-   older rule until it merges and accept the plain `/owner-approve <sha>` line, which the
-   same comment contains.
+   needs your own approval of that change.
 
    ```
    cat ~/.ssh/id_ed25519_sk.pub
    ```
 
    Until a key is in the list, no owner-only change can be approved by anyone.
-3. To approve a pull request, run the helper on your machine (it prints, it never posts):
+
+   **Bootstrap warning (the pull request that introduces this rule).** Its two required
+   checks do not protect it from itself. The `guards` check runs the pull request's own code,
+   and `owner-approval` runs `main`'s older comment rule, which accepts the plain
+   `/owner-approve <sha>` line with no signature. So an agent that holds the owner's token
+   could add its OWN public key to `OWNER_SIGNING_KEYS` in that pull request and sign with it,
+   and the checks would pass. **Before you approve, compare the exact `OWNER_SIGNING_KEYS`
+   line in the final diff with `cat ~/.ssh/<your key>.pub` yourself, character by character,
+   on your own machine.** After this rule merges, adding or changing a key line needs your
+   signed approval like any other owner-only edit, and this exposure is gone.
+3. To approve a pull request: open it **on github.com**, read the diff, and **copy the head
+   commit sha from the page** (the Commits tab, or the sha beside the last commit). **Check the
+   sha on github.com before you touch the key.** Then run the helper on your machine (it
+   prints, it never posts):
 
    ```
-   node scripts/owner-sign-approval.mjs --pr <number>
-   # or: node scripts/owner-sign-approval.mjs --sha <the 40-character head> [--key ~/.ssh/id_ed25519_sk]
+   node scripts/owner-sign-approval.mjs --sha <the 40-character sha you copied> [--key ~/.ssh/id_ed25519_sk]
    ```
 
-   Touch the key when asked. It prints the whole comment: the `/owner-approve <sha>` line
-   and the `-----BEGIN SSH SIGNATURE-----` block.
+   There is deliberately no `--pr` option: "sign whatever the head is now" would sign a commit
+   an agent pushed after you looked. The helper prints the repository and the sha in large
+   type BEFORE the key asks for your touch; compare them with github.com while the key waits.
+   If they differ by even one character, press Ctrl-C and do not touch the key. Then enter the
+   PIN and touch the key. It prints the whole comment: the `/owner-approve <sha>` line and the
+   `-----BEGIN SSH SIGNATURE-----` block.
 4. Paste all of that into a new comment on the pull request yourself, in the GitHub website
    or app (not through an agent or `gh`). Then re-run the two checks. Push anything new and
    the head changes, so sign again for the new head.
 
 An agent never posts, edits, drafts for posting, or relays an `/owner-approve` comment or
-signature, on any account (AGENTS.md section 11). Testing: `scripts/test-owner-approval.mjs`
-makes real ssh-keygen keys and signatures at test time and proves the rule, including security
-keys with and without the touch flag; the owner's hardware key is never needed to run tests.
+signature, on any account, and never runs `scripts/owner-sign-approval.mjs` or
+`ssh-keygen -Y sign` with an owner key or triggers a security-key prompt (AGENTS.md section 11).
+Testing: `scripts/test-owner-approval.mjs` and the gate and carry-forward tests sign with
+synthetic security keys (built with node:crypto per `PROTOCOL.u2f`, flags `0x05`) from
+`scripts/lib/ownerSigningTestkit.mjs`, and prove the policy: a plain key with a valid signature
+is refused, a touch without the PIN is refused, touch and PIN are accepted. The owner's real
+key is never needed to run tests.
 
 ## Catching up with main does not void an approval (2026-11-12)
 

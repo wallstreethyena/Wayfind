@@ -72,10 +72,12 @@ const other = generateKeyPairSync("rsa", { modulusLength: 2048 }).privateKey.exp
 // ── 2. The real gate script against a stub GitHub API ──────────────────────
 const root = mkdtempSync(join(tmpdir(), "wf-owner-gate-"));
 // Approvals need a real SSH signature by an owner key; OWNER_SIGNING_KEYS is the owner's
-// hardware key (empty until he adds it), so this run signs with a throwaway ssh-keygen key and
-// substitutes its public line into the gate's copy of the constant (ownerSigningTestkit.mjs).
-const OWNER_KEY = makeSigner(join(root, "keys"), "ed25519");
-const injectKeys = writeKeyInjectionPreload(join(root, "keys"), [OWNER_KEY.publicLine]);
+// FIDO key (empty until he adds it), so this run signs with a throwaway synthetic security key (touch and PIN
+// flags, as the owner policy requires) and substitutes its public line into the gate's copy of the constant
+// (ownerSigningTestkit.mjs). A plain ssh-keygen key is configured too, to prove the policy refuses it.
+const OWNER_KEY = makeSigner(join(root, "keys"), "sk-ed25519");
+const PLAIN_KEY = makeSigner(join(root, "keys"), "ed25519");
+const injectKeys = writeKeyInjectionPreload(join(root, "keys"), [OWNER_KEY.publicLine, PLAIN_KEY.publicLine]);
 const preload = join(root, "stub.mjs");
 writeFileSync(preload, `
 import { readFileSync, appendFileSync } from "node:fs";
@@ -166,6 +168,10 @@ try {
   ok(r.posted.length === 1 && r.posted[0].body.conclusion === "success" && r.posted[0].body.output.title === "Approved by the owner", "S4: the owner's full-sha comment passes");
   r = gate({ files: [file("AGENTS.md")], comments: [{ ...approve(), body: `/owner-approve ${HEAD}` }] });
   ok(r.posted.length === 1 && r.posted[0].body.conclusion === "failure", "S4: the owner's account naming the exact head WITHOUT a signature fails (an agent using his gh token has no key)");
+  r = gate({ files: [file("AGENTS.md")], comments: [{ ...approve(), body: `/owner-approve ${HEAD}\n${approvalSignature(OWNER_KEY, HEAD, 0x01)}` }] });
+  ok(r.posted.length === 1 && r.posted[0].body.conclusion === "failure", "S4: a security-key signature with a touch but no PIN (flags 0x01) fails the gate");
+  r = gate({ files: [file("AGENTS.md")], comments: [{ ...approve(), body: `/owner-approve ${HEAD}\n${approvalSignature(PLAIN_KEY, HEAD)}` }] });
+  ok(r.posted.length === 1 && r.posted[0].body.conclusion === "failure", "S4: a valid signature by a plain (non-security-key) owner key line fails the gate");
   r = gate({ files: [file("AGENTS.md")], comments: [approve(HEAD.slice(0, 12)), approve(HEAD, { login: OWNER.login, id: OWNER.id, type: "Bot" }), approve(HEAD, { login: "wayfind-agents[bot]", id: 5, type: "Bot" }), approve(HEAD, { login: OWNER.login, id: OWNER.id + 1, type: "User" })] });
   ok(r.posted.length === 1 && r.posted[0].body.conclusion === "failure", "S4: a shortened sha, a bot, the agents' App, and a look-alike account all fail");
   r = gate({ event: "issue_comment", files: [file("AGENTS.md")], comments: [approve(HEAD, undefined, true)] });
@@ -232,7 +238,7 @@ const code = (f) => readFileSync(join(WF_DIR, f), "utf8").split("\n").filter((l)
   ok(clashes.length === 0, `S7: "guards" and "owner-approval" come from exactly one workflow each, and no workflow job is named "owner-approval-gate" (${clashes.join(", ") || "none"})`);
 }
 
-const EXPECTED = 39;
+const EXPECTED = 41;
 if (checks !== EXPECTED) {
   console.error(`test-owner-approval-gate: FAIL — ran ${checks} assertions, expected exactly ${EXPECTED}; a proof was skipped or added without review.`);
   process.exit(1);

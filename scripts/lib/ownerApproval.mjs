@@ -39,12 +39,23 @@
 // repository and one exact commit, so it cannot be replayed on a new head or a
 // fork. No keys configured, an unparsable signature, or any error: not approved.
 //
+// OWNER SIGNING POLICY (APPROVAL_POLICY below). A valid signature is not enough:
+// only a security key can prove a person was present. So an approval counts only
+// when (a) the matching OWNER_SIGNING_KEYS line is a security-key type
+// (sk-ssh-ed25519@openssh.com or sk-ecdsa-sha2-nistp256@openssh.com), and (b) the
+// signature's signed flags carry user presence (0x01, the touch) AND user
+// verification (0x04, the key's PIN: create the key with `-O verify-required`).
+// A plain ed25519/ecdsa key, a Secure-Enclave key or an agent-held key could be
+// asked to sign by anything running as the owner, so such lines never approve. The
+// generic verifier (sshSignature.mjs) takes the policy as an argument; the owner's
+// policy lives here, in an owner-only file.
+//
 // Pure module: no environment, filesystem, network or git access. The caller
 // (scripts/check-doc-ownership.mjs) gathers evidence and passes it in, so every
 // rule here is executable in hermetic tests.
 
 import { createHash } from "node:crypto";
-import { extractSshSignatureBlocks, parseOpenSshPublicKey, verifySshSignature } from "./sshSignature.mjs";
+import { checkSshSignature, extractSshSignatureBlocks, parseOpenSshPublicKey } from "./sshSignature.mjs";
 
 // Accounts allowed to approve: the login (compared case-insensitively, as GitHub
 // does) AND the numeric account id, which never changes, so a renamed or released
@@ -52,18 +63,20 @@ import { extractSshSignatureBlocks, parseOpenSshPublicKey, verifySshSignature } 
 export const OWNERS = Object.freeze([Object.freeze({ login: "wallstreethyena", id: 297334934 })]);
 export const OWNER_LOGINS = Object.freeze(OWNERS.map((o) => o.login));
 
-// The owner's approval-signing PUBLIC keys: OpenSSH public key lines
-// ("sk-ssh-ed25519@openssh.com AAAA... comment"), supported types
-// ssh-ed25519, sk-ssh-ed25519@openssh.com, ecdsa-sha2-nistp256 and
-// sk-ecdsa-sha2-nistp256@openssh.com. EMPTY until the owner adds his own: while
-// it is empty NO owner-only change can be approved (fail closed).
+// The owner's approval-signing PUBLIC keys: OpenSSH public key lines of a
+// SECURITY-KEY type only ("sk-ssh-ed25519@openssh.com AAAA... comment" or
+// "sk-ecdsa-sha2-nistp256@openssh.com ..."). EMPTY until the owner adds his own:
+// while it is empty NO owner-only change can be approved (fail closed). A plain
+// ssh-ed25519 / ecdsa-sha2-nistp256 line parses but NEVER approves (see
+// APPROVAL_POLICY).
 //
-// The owner must add a key whose private half is held in HARDWARE and needs a
-// touch to sign: a YubiKey (`ssh-keygen -t ed25519-sk`, preferred) or a
-// Secure-Enclave-backed key. A private key FILE in ~/.ssh that an agent or any
-// process running as the owner can read is NOT acceptable: it would let an agent
-// sign for him, which is the exact hole this list exists to close. Only the
-// public line goes here, and adding or changing it is itself an owner-only edit.
+// The owner must add the public half of a FIDO key held in hardware, created with
+// `ssh-keygen -t ed25519-sk -O verify-required -O resident` (every signature then
+// needs a touch and the key's PIN). A private key FILE in ~/.ssh, a Secure-Enclave
+// key or an agent-held key that an agent or any process running as the owner can
+// use is NOT acceptable: it would let an agent sign for him, the exact hole this
+// list closes. Only the public line goes here, and adding or changing it is itself
+// an owner-only edit.
 export const OWNER_SIGNING_KEYS = Object.freeze([
 ]);
 
@@ -81,6 +94,12 @@ export const OWNER_ONLY = Object.freeze([
   /^scripts\/check-owner-approval-pr\.mjs$/i,
   /^scripts\/lib\/ownerApproval\.mjs$/i,
   /^scripts\/lib\/githubPullEvidence\.mjs$/i,
+  // The signature verifier, the test signer kit and the owner's signing helper
+  // (2026-11-18 review): a PR that edits any of them could weaken what counts as a
+  // signature, or change what the owner is shown at the moment he signs.
+  /^scripts\/lib\/sshSignature\.mjs$/i,
+  /^scripts\/lib\/ownerSigningTestkit\.mjs$/i,
+  /^scripts\/owner-sign-approval\.mjs$/i,
   /^scripts\/test-owner-approval\.mjs$/i,
   /^scripts\/test-owner-approval-carry-forward\.mjs$/i,
   /^scripts\/owner-approval-gate\.mjs$/i,
@@ -98,6 +117,9 @@ export const APPROVAL_COMMAND = "/owner-approve";
 const APPROVAL_LINE = /^\/owner-approve[ \t]+([0-9a-fA-F]{40})[ \t]*\r?$/gm;
 export const APPROVAL_NAMESPACE = "wayfind-owner-approve";
 export const APPROVAL_REPO = "wallstreethyena/Wayfind";
+// What a signature must prove for an approval: a security key (not a key file), a
+// touch (user presence) and the key's PIN (user verification). See the header.
+export const APPROVAL_POLICY = Object.freeze({ requireSecurityKey: true, requireUserVerification: true });
 
 /** The exact bytes the owner signs for `sha` (no trailing newline). */
 export function approvalMessage(sha) {
@@ -145,8 +167,10 @@ function postedByPerson(comment) {
 }
 
 // Does `body` hold an SSH signature over the approval message for `sha` that one
-// of `keys` made? Fails closed: no keys, no usable key line, no signature block,
+// of `keys` made, under APPROVAL_POLICY (security key, touch and PIN)? Fails closed: no keys, no usable key line, no signature block,
 // or any error is false.
+const isSecurityKeyLine = (line) => { try { return parseOpenSshPublicKey(line).sk === true; } catch { return false; } };
+
 function hasOwnerSignature(body, sha, keys) {
   try {
     if (!Array.isArray(keys) || !keys.length || !SHA40.test(sha)) return false;
@@ -157,7 +181,7 @@ function hasOwnerSignature(body, sha, keys) {
       if (typeof publicKeyLine !== "string") continue;
       try { parseOpenSshPublicKey(publicKeyLine); } catch { continue; }
       for (const armored of blocks) {
-        if (verifySshSignature({ armored, message, namespace: APPROVAL_NAMESPACE, publicKeyLine })) return true;
+        if (checkSshSignature({ armored, message, namespace: APPROVAL_NAMESPACE, publicKeyLine, policy: APPROVAL_POLICY }).ok) return true;
       }
     }
     return false;
@@ -478,7 +502,9 @@ export function decideOwnerApproval(evidence, keys = OWNER_SIGNING_KEYS) {
   }
   const why = notes.length ? `. ${notes.join(". ")}` : "";
   const keyHint = !Array.isArray(keys) || !keys.length
-    ? ". No owner signing key is configured in OWNER_SIGNING_KEYS (scripts/lib/ownerApproval.mjs), so no approval can count until the owner adds his hardware-backed public key"
-    : "";
-  return { ok: false, protectedPaths, audit: audits, reason: `owner-only files changed (${list}) with no owner approval for head ${pr.liveHeadSha.slice(0, 12)}${why}. The owner (${OWNER_LOGINS.join(", ")}) approves by commenting on PR #${pr.number}: "${APPROVAL_COMMAND} ${pr.liveHeadSha}" (the full sha) followed by his ssh-keygen signature block over the approval message (run \`node scripts/owner-sign-approval.mjs --pr ${pr.number}\` on his own machine; see docs/OWNER_APPROVAL.md), then re-running the checks${keyHint}` };
+    ? ". No owner signing key is configured in OWNER_SIGNING_KEYS (scripts/lib/ownerApproval.mjs), so no approval can count until the owner adds the public line of his FIDO security key"
+    : (!keys.some(isSecurityKeyLine)
+      ? ". None of the OWNER_SIGNING_KEYS lines is a security-key type (sk-ssh-ed25519@openssh.com or sk-ecdsa-sha2-nistp256@openssh.com), and only those can approve"
+      : "");
+  return { ok: false, protectedPaths, audit: audits, reason: `owner-only files changed (${list}) with no owner approval for head ${pr.liveHeadSha.slice(0, 12)}${why}. The owner (${OWNER_LOGINS.join(", ")}) approves by commenting on PR #${pr.number}: "${APPROVAL_COMMAND} ${pr.liveHeadSha}" (the full sha) followed by his ssh-keygen signature block over the approval message (run \`node scripts/owner-sign-approval.mjs --sha ${pr.liveHeadSha}\` on his own machine, after checking that sha on the PR page at github.com; see docs/OWNER_APPROVAL.md), then re-running the checks${keyHint}` };
 }

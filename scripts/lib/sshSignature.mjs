@@ -22,6 +22,14 @@
 //   sk-* keys (security keys): the key signs
 //             sha256(application) | byte flags | u32 counter | sha256(signed)
 //             and flags MUST include user presence (0x01): a touch on the key.
+//             Flag 0x04 is user verification (the key's PIN or biometric).
+//
+// POLICY (optional argument). With no policy this is a generic verifier. A caller
+// that must know a PERSON was present passes { requireSecurityKey: true,
+// requireUserVerification: true }: the key must then be an sk-* type (a plain key
+// file or a Secure-Enclave/agent key cannot prove presence: anything running as
+// the user can ask it to sign) and the signed flags must carry 0x04 as well as
+// 0x01. The flags are part of the signed data, so they cannot be edited in the blob.
 //
 // Supported key types: ssh-ed25519, sk-ssh-ed25519@openssh.com,
 // ecdsa-sha2-nistp256, sk-ecdsa-sha2-nistp256@openssh.com. Anything else, a
@@ -32,6 +40,7 @@ import { createHash, createPublicKey, verify as cryptoVerify } from "node:crypto
 export const SSH_SIGNATURE_BEGIN = "-----BEGIN SSH SIGNATURE-----";
 export const SSH_SIGNATURE_END = "-----END SSH SIGNATURE-----";
 export const SSH_SK_FLAG_USER_PRESENCE = 0x01;
+export const SSH_SK_FLAG_USER_VERIFICATION = 0x04;
 export const SUPPORTED_KEY_TYPES = Object.freeze([
   "ssh-ed25519",
   "sk-ssh-ed25519@openssh.com",
@@ -183,11 +192,15 @@ function parseSignatureBlob(blob, key) {
  * Verify `armored` over `message` (string or Buffer, exact bytes) for
  * `namespace` against the OpenSSH public key line `publicKeyLine`.
  * Returns { ok: true } or { ok: false, reason }. Never throws.
+ * `policy` (optional): { requireSecurityKey, requireUserVerification }, see the header.
  */
-export function checkSshSignature({ armored, message, namespace, publicKeyLine }) {
+export function checkSshSignature({ armored, message, namespace, publicKeyLine, policy }) {
   try {
     if (typeof namespace !== "string" || !namespace) return { ok: false, reason: "no namespace to verify against" };
     const key = parseOpenSshPublicKey(publicKeyLine);
+    const needSecurityKey = !!(policy && policy.requireSecurityKey);
+    const needUserVerification = !!(policy && policy.requireUserVerification);
+    if ((needSecurityKey || needUserVerification) && !key.sk) return { ok: false, reason: `key type ${key.type} is not a security key: it cannot prove that a person was present` };
     const sig = parseSshSignature(armored);
     if (sig.namespace !== namespace) return { ok: false, reason: "signature is for a different namespace" };
     if (!HASH_ALGS.includes(sig.hashAlg)) return { ok: false, reason: `unsupported hash algorithm ${sig.hashAlg}` };
@@ -198,6 +211,7 @@ export function checkSshSignature({ armored, message, namespace, publicKeyLine }
     let toVerify = signedData;
     if (key.sk) {
       if (!(parsed.flags & SSH_SK_FLAG_USER_PRESENCE)) return { ok: false, reason: "security-key signature without user presence (no touch)" };
+      if (needUserVerification && !(parsed.flags & SSH_SK_FLAG_USER_VERIFICATION)) return { ok: false, reason: "security-key signature without user verification (no PIN)" };
       toVerify = Buffer.concat([createHash("sha256").update(key.application).digest(), Buffer.from([parsed.flags]), u32(parsed.counter), createHash("sha256").update(signedData).digest()]);
     }
     const pub = nodeKey(key);

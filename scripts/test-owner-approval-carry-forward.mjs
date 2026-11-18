@@ -31,11 +31,11 @@ import { fileURLToPath } from "node:url";
 import { approvalSignature, injectKeysInProcess, makeSigner, writeKeyInjectionPreload } from "./lib/ownerSigningTestkit.mjs";
 
 // An approval needs a real SSH signature by an owner key, and OWNER_SIGNING_KEYS is the owner's
-// hardware key (empty until he adds it). This run signs with a throwaway ssh-keygen key and
+// FIDO security key (empty until he adds it). This run signs with a throwaway synthetic security key (touch and PIN) and
 // substitutes its public line into ownerApproval.mjs as it loads (a module-loader hook, so the
 // rule code is the real code), hence the dynamic imports AFTER the hook is registered.
 const keyDir = mkdtempSync(join(tmpdir(), "carry-forward-keys-"));
-const OWNER_KEY = makeSigner(keyDir, "ed25519");
+const OWNER_KEY = makeSigner(keyDir, "sk-ed25519");
 injectKeysInProcess([OWNER_KEY.publicLine]);
 const injectKeys = writeKeyInjectionPreload(keyDir, [OWNER_KEY.publicLine]);
 const {
@@ -290,6 +290,8 @@ v = decideOwnerApproval(ev([approve(s1.approvedSha, undefined, { updated_at: "20
 ok(!v.ok, "decide: an edited approval comment is never carried forward");
 v = decideOwnerApproval(ev([{ ...approve(s1.approvedSha), body: `/owner-approve ${s1.approvedSha}` }], cf));
 ok(!v.ok, "decide: an earlier approval WITHOUT the owner's key signature is never carried forward (an agent with his token has no key)");
+v = decideOwnerApproval(ev([{ ...approve(s1.approvedSha), body: `/owner-approve ${s1.approvedSha}\n${approvalSignature(OWNER_KEY, s1.approvedSha, 0x01)}` }], cf));
+ok(!v.ok, "decide: an earlier approval signed by the security key with a touch but no PIN (flags 0x01) is never carried forward");
 v = decideOwnerApproval(ev([approve(s1.approvedSha, undefined, { performed_via_github_app: { slug: "claude", id: 1 } })], cf));
 ok(!v.ok, "decide: an approval an App posted with the owner's token is never carried forward");
 v = decideOwnerApproval(ev([approve("e".repeat(40))], cf));

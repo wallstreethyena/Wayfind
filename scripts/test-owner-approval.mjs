@@ -35,17 +35,17 @@
  * and the required "guards" workflow hands the guard a read-only token.
  */
 import assert from "node:assert/strict";
-import { execFileSync } from "node:child_process";
-import { createHash, generateKeyPairSync, sign as cryptoSign } from "node:crypto";
+import { execFileSync, spawnSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync, existsSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
   findOwnerApproval as findOwnerApprovalRaw, decideOwnerApproval as decideOwnerApprovalRaw, approvedCommitCandidates,
-  isOwnerOnly, OWNERS, OWNER_LOGINS, OWNER_SIGNING_KEYS, APPROVAL_NAMESPACE, approvalMessage,
+  isOwnerOnly, OWNERS, OWNER_LOGINS, OWNER_SIGNING_KEYS, APPROVAL_NAMESPACE, APPROVAL_POLICY, OWNER_ONLY, approvalMessage,
 } from "./lib/ownerApproval.mjs";
 import { checkSshSignature, extractSshSignatureBlocks, parseOpenSshPublicKey, verifySshSignature } from "./lib/sshSignature.mjs";
-import { approvalMessageLiteral, approvalSignature, makeSigner, signedApprovalBody, sshSign, writeKeyInjectionPreload } from "./lib/ownerSigningTestkit.mjs";
+import { approvalMessageLiteral, approvalSignature, armorOf, makeSigner, signedApprovalBody, skSign, sshSign, writeKeyInjectionPreload } from "./lib/ownerSigningTestkit.mjs";
 
 const REPO = process.cwd();
 const GUARD = join(REPO, "scripts", "check-doc-ownership.mjs");
@@ -62,15 +62,19 @@ const T = { created_at: "2026-09-24T00:00:00Z", updated_at: "2026-09-24T00:00:00
 let checks = 0;
 const ok = (cond, msg) => { assert.ok(cond, msg); checks += 1; };
 
-// Real keys made by ssh-keygen for this run. OWNER_SIGNING_KEYS is the owner's
-// hardware key (empty until he adds it), so every test passes its keys in: as an
-// argument for pure calls, and through a module-loader hook for the real scripts
-// run as child processes (scripts/lib/ownerSigningTestkit.mjs).
+// Throwaway keys for this run. OWNER_SIGNING_KEYS is the owner's FIDO security key
+// (empty until he adds it), so every test passes its keys in: as an argument for
+// pure calls, and through a module-loader hook for the real scripts run as child
+// processes (scripts/lib/ownerSigningTestkit.mjs). Approval flows sign with
+// synthetic security keys (flags 0x05: touch and PIN), as the owner policy requires;
+// the PLAIN_* keys are made by ssh-keygen and must be refused for approval.
 const keyDir = mkdtempSync(join(tmpdir(), "wf-owner-keys-"));
 process.on("exit", () => rmSync(keyDir, { recursive: true, force: true }));
-const OWNER_KEY = makeSigner(keyDir, "ed25519");
-const INTRUDER_KEY = makeSigner(keyDir, "ed25519");
-const ECDSA_KEY = makeSigner(keyDir, "ecdsa"); // OpenSSH has had ecdsa since 5.7; a missing one should fail loudly, not skip a proof
+const OWNER_KEY = makeSigner(keyDir, "sk-ed25519");
+const INTRUDER_KEY = makeSigner(keyDir, "sk-ed25519");
+const ECDSA_KEY = makeSigner(keyDir, "sk-ecdsa");
+const PLAIN_KEY = makeSigner(keyDir, "ed25519");
+const PLAIN_ECDSA = makeSigner(keyDir, "ecdsa"); // OpenSSH has had ecdsa since 5.7; a missing one should fail loudly, not skip a proof
 const KEYS = [OWNER_KEY.publicLine];
 // Sections 1 and 2 test the account rules, which need a valid signature to reach.
 const findOwnerApproval = (comments, sha, owners = OWNERS) => findOwnerApprovalRaw(comments, sha, owners, KEYS);
@@ -111,6 +115,13 @@ const git = (cwd, args, env = {}) => execFileSync("git", args, { cwd, encoding: 
     && !isOwnerOnly("docs/history/x.md") && !isOwnerOnly("lib/x.js") && !isOwnerOnly("docs/github/x.md"),
   "owner-only set covers the rule files (CLAUDE.md excluded since 2026-11-14 by owner decision), the gates' own code and everything under .github/, case-insensitively, nothing else");
   const base = { changedPaths: ["AGENTS.md"], mergeGate: true, pr: { number: 7, eventHeadSha: head, liveHeadSha: head }, comments: [], error: null };
+  // The signature verifier, the test signer kit and the owner's signing helper decide what a signature is
+  // and what the owner sees when he signs (2026-11-18 review): a PR that edits them needs his approval too.
+  for (const p of ["scripts/lib/sshSignature.mjs", "scripts/lib/ownerSigningTestkit.mjs", "scripts/owner-sign-approval.mjs", "Scripts/Lib/SshSignature.mjs"]) {
+    ok(isOwnerOnly(p) && OWNER_ONLY.some((rx) => rx.test(p)) && !decideOwnerApproval({ ...base, changedPaths: [p] }).ok, `${p} is owner-only: a change to it without the owner's signed approval is refused`);
+  }
+  ok(!isOwnerOnly("scripts/lib/sshSignature.mjs.bak") && !isOwnerOnly("scripts/lib/sshSignatureX.mjs") && !isOwnerOnly("scripts/owner-sign-approval.mjs.txt") && !isOwnerOnly("x/scripts/owner-sign-approval.mjs"),
+    "the new owner-only entries are exact paths: look-alike names are not caught (and not needed)");
   ok(decideOwnerApproval({ ...base, changedPaths: ["lib/x.js"] }).ok, "decision: ordinary change passes");
   ok(!decideOwnerApproval({ ...base, mergeGate: false, comments: [{ id: 1, ...T, user: owner, body: S(`/owner-approve ${head}`) }] }).ok, "decision: off the merge gate even a real approval is not accepted");
   ok(!decideOwnerApproval({ ...base, error: "boom" }).ok && !decideOwnerApproval({ ...base, pr: null }).ok, "decision: missing evidence fails closed");
@@ -134,25 +145,25 @@ const git = (cwd, args, env = {}) => execFileSync("git", args, { cwd, encoding: 
   const body = (signer, sha = head) => signedApprovalBody(signer, sha);
   const B64 = /-----BEGIN SSH SIGNATURE-----\r?\n([\s\S]*?)-----END SSH SIGNATURE-----/;
   const decode = (armored) => Buffer.from(B64.exec(armored)[1].replace(/\s+/g, ""), "base64");
-  const armorOf = (buf) => `-----BEGIN SSH SIGNATURE-----\n${buf.toString("base64").match(/.{1,70}/g).join("\n")}\n-----END SSH SIGNATURE-----\n`;
 
   ok(approvalMessage(head) === `wayfind-owner-approve v1\nrepo=wallstreethyena/Wayfind\nsha=${head}` && approvalMessage(head) === approvalMessageLiteral(head) && APPROVAL_NAMESPACE === "wayfind-owner-approve",
     "the signed message is exactly 'wayfind-owner-approve v1', the repo and the 40-hex sha, no trailing newline, namespace wayfind-owner-approve");
-  ok(find([mk(body(OWNER_KEY))])?.id === 5000, "ed25519: a comment with the owner's signature over this head's message is approved");
+  ok(find([mk(body(OWNER_KEY))])?.id === 5000, "sk-ssh-ed25519: a comment with the owner's security-key signature (touch and PIN) over this head's message is approved");
   ok(find([mk(body(OWNER_KEY))], head, [INTRUDER_KEY.publicLine, OWNER_KEY.publicLine])?.id === 5000, "any one of several configured owner keys may sign");
   ok(find([mk(body(ECDSA_KEY))], head, [ECDSA_KEY.publicLine])?.id === 5000 && find([mk(body(OWNER_KEY))], head, [ECDSA_KEY.publicLine]) === null,
-    "ecdsa-sha2-nistp256: approved with its own key, and an ed25519 signature does not match an ecdsa-only key list");
-  // an independent oracle: OpenSSH itself accepts the signature this verifier accepts
-  {
-    const dir = join(keyDir, "oracle");
+    "sk-ecdsa-sha2-nistp256: approved with its own key, and an ed25519 signature does not match an ecdsa-only key list");
+  // an independent oracle: OpenSSH itself accepts the signatures this verifier accepts (the synthetic
+  // security key, under the approval policy, and a plain ssh-keygen key through the generic verifier)
+  for (const [label, signer, policy] of [["sk-ed25519", OWNER_KEY, APPROVAL_POLICY], ["sk-ecdsa", ECDSA_KEY, APPROVAL_POLICY], ["plain ed25519", PLAIN_KEY, undefined]]) {
+    const dir = join(keyDir, `oracle-${label.replace(/\W/g, "")}`);
     mkdirSync(dir, { recursive: true });
     writeFileSync(join(dir, "msg"), approvalMessageLiteral(head));
-    writeFileSync(join(dir, "sig"), approvalSignature(OWNER_KEY, head));
-    writeFileSync(join(dir, "allowed"), `owner namespaces="wayfind-owner-approve" ${OWNER_KEY.publicLine}\n`);
+    writeFileSync(join(dir, "sig"), approvalSignature(signer, head));
+    writeFileSync(join(dir, "allowed"), `owner namespaces="wayfind-owner-approve" ${signer.publicLine}\n`);
     let oracle = false;
     try { execFileSync("ssh-keygen", ["-Y", "verify", "-f", join(dir, "allowed"), "-I", "owner", "-n", "wayfind-owner-approve", "-s", join(dir, "sig")], { input: readFileSync(join(dir, "msg")), stdio: ["pipe", "pipe", "pipe"] }); oracle = true; } catch { /* rejected */ }
-    ok(oracle && verifySshSignature({ armored: approvalSignature(OWNER_KEY, head), message: approvalMessageLiteral(head), namespace: APPROVAL_NAMESPACE, publicKeyLine: OWNER_KEY.publicLine }),
-      "cross-check: ssh-keygen -Y verify and this verifier both accept the same signature");
+    ok(oracle && checkSshSignature({ armored: approvalSignature(signer, head), message: approvalMessageLiteral(head), namespace: APPROVAL_NAMESPACE, publicKeyLine: signer.publicLine, policy }).ok,
+      `cross-check (${label}): ssh-keygen -Y verify and this verifier both accept the same signature`);
   }
 
   // Everything below must be REFUSED. Each carries an otherwise complete, valid-looking comment.
@@ -166,8 +177,13 @@ const git = (cwd, args, env = {}) => execFileSync("git", args, { cwd, encoding: 
   ok(find([mk(body(INTRUDER_KEY))]) === null, "a signature by a key that is not an owner key is refused");
   // ssh-keygen wraps at 70 columns and can leave the base64 padding alone on the last line
   // ("=" or "==" by itself); a verifier that rejects that refuses a random one in three ecdsa signatures.
-  ok(/[A-Za-z0-9+/]=\n-----END/.test(approvalSignature(OWNER_KEY, head)) && find([mk(`${line(head)}\n${approvalSignature(OWNER_KEY, head).replace(/=\n-----END/, "\n=\n-----END")}`)])?.id === 5000,
-    "a signature whose base64 padding sits alone on the last armor line (as ssh-keygen writes it) is accepted");
+  {
+    // ed25519 signatures have a fixed length, so ssh-keygen always ends this one with a lone "=" padding character
+    const plain = approvalSignature(PLAIN_KEY, head);
+    const verifies = (armored) => verifySshSignature({ armored, message: approvalMessageLiteral(head), namespace: APPROVAL_NAMESPACE, publicKeyLine: PLAIN_KEY.publicLine });
+    ok(/[A-Za-z0-9+/]=\n-----END/.test(plain) && verifies(plain) && verifies(plain.replace(/=\n-----END/, "\n=\n-----END")),
+      "a signature whose base64 padding sits alone on the last armor line (as ssh-keygen writes it) verifies");
+  }
   ok(find([mk(body(OWNER_KEY))], head, []) === null && find([mk(body(OWNER_KEY))], head, ["not a key", "ssh-ed25519 AAAA"]) === null,
     "fail closed: an empty or unusable key list approves nothing");
   ok(OWNER_SIGNING_KEYS.length > 0 || findOwnerApprovalRaw([mk(body(OWNER_KEY))], head) === null,
@@ -203,57 +219,79 @@ const git = (cwd, args, env = {}) => execFileSync("git", args, { cwd, encoding: 
   ok(extractSshSignatureBlocks(`a\n${sigText}\nb\n${sigText}`).length === 2 && extractSshSignatureBlocks(null).length === 0, "signature blocks are found anywhere in a comment, and odd input yields none");
 
   // The owner-run helper signs with `ssh-keygen -Y sign`, prints the comment to paste, and never posts anything.
+  // It takes the sha the owner copied from github.com (--sha) and has no --pr: it must not look up "the head right now".
   {
     const helper = join(REPO, "scripts", "owner-sign-approval.mjs");
-    const printed = execFileSync(process.execPath, [helper, "--sha", head.toUpperCase(), "--key", OWNER_KEY.keyPath], { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
-    ok(printed.startsWith(`/owner-approve ${head}\n-----BEGIN SSH SIGNATURE-----`) && find([mk(printed)])?.id === 5000 && find([mk(printed)], other) === null,
-      "owner-sign-approval.mjs prints '/owner-approve <sha>' plus a signature block that the verifier accepts for that sha only");
+    const runHelper = (args) => {
+      const r = spawnSync(process.execPath, [helper, ...args], { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
+      return { code: r.status, out: r.stdout, err: r.stderr };
+    };
+    const signed = runHelper(["--sha", head.toUpperCase(), "--key", PLAIN_KEY.keyPath]);
+    const printed = signed.out;
+    ok(printed.startsWith(`/owner-approve ${head}\n-----BEGIN SSH SIGNATURE-----`)
+      && verifySshSignature({ armored: extractSshSignatureBlocks(printed)[0], message: approvalMessageLiteral(head), namespace: APPROVAL_NAMESPACE, publicKeyLine: PLAIN_KEY.publicLine })
+      && !verifySshSignature({ armored: extractSshSignatureBlocks(printed)[0], message: approvalMessageLiteral(other), namespace: APPROVAL_NAMESPACE, publicKeyLine: PLAIN_KEY.publicLine }),
+    "owner-sign-approval.mjs --sha prints '/owner-approve <sha>' plus a signature block over the approval message for that sha only");
+    ok(signed.err.includes(head) && signed.err.includes("wallstreethyena/Wayfind") && /compare/i.test(signed.err) && /github\.com/.test(signed.err) && signed.err.indexOf(head) < signed.err.indexOf("signed for sha"),
+      "the helper prints the sha and the repository, and tells the owner to compare them with github.com, before the key signs");
+    ok(find([mk(printed)], head, [PLAIN_KEY.publicLine]) === null,
+      "a signature made with a plain ssh-keygen key (what this helper would produce with a key file) is refused for approval");
+    const withPr = runHelper(["--pr", "2607"]);
+    const noSha = runHelper([]);
+    const shortSha = runHelper(["--sha", head.slice(0, 12), "--key", PLAIN_KEY.keyPath]);
+    ok(withPr.code === 2 && /unknown argument --pr/.test(withPr.err) && noSha.code === 2 && /--sha is required/.test(noSha.err) && shortSha.code === 2 && shortSha.out === "",
+      "the helper has no --pr (it would sign whatever the head is at that moment); a missing or short --sha is refused without signing");
     const src = readFileSync(helper, "utf8").split("\n").filter((l) => !/^\s*(\/\/|\*|\/\*)/.test(l)).join("\n");
-    ok(!/fetch\(|"comment"|"api"|"issue"|"--method"|https?:\/\//.test(src) && /"pr", "view"/.test(src),
-      "the helper only reads (gh pr view) and prints; it has no code path that posts or edits a comment");
+    ok(!/fetch\(|"comment"|"api"|"issue"|"--method"|https?:\/\/|"gh"|"pr", "view"|--pr/.test(src),
+      "the helper makes no network or gh call and has no code path that posts, edits or reads a pull request");
   }
 
-  // Security-key (sk-*) signatures, built in the test with node:crypto per PROTOCOL.sshsig + PROTOCOL.u2f.
-  const u32 = (n) => { const b = Buffer.alloc(4); b.writeUInt32BE(n); return b; };
-  const S_ = (x) => { const b = Buffer.isBuffer(x) ? x : Buffer.from(x); return Buffer.concat([u32(b.length), b]); };
-  const sha256 = (b) => createHash("sha256").update(b).digest();
-  const mpint = (b) => { let v = b; while (v.length > 1 && v[0] === 0) v = v.subarray(1); return v[0] & 0x80 ? Buffer.concat([Buffer.from([0]), v]) : v; };
-  const APP = "ssh:";
-  const makeSk = (kind) => {
-    if (kind === "ed") {
-      const kp = generateKeyPairSync("ed25519");
-      const raw = kp.publicKey.export({ format: "der", type: "spki" }).subarray(-32);
-      const type = "sk-ssh-ed25519@openssh.com";
-      return { type, publicLine: `${type} ${Buffer.concat([S_(type), S_(raw), S_(APP)]).toString("base64")} test-sk`,
-        keyBlob: Buffer.concat([S_(type), S_(raw), S_(APP)]), sigBody: (data) => S_(cryptoSign(null, data, kp.privateKey)) };
+  // Owner signing policy (2026-11-18 review): a security-key line, touch AND PIN.
+  {
+    const msg = approvalMessageLiteral(head);
+    const plainCheck = (signer, policy) => checkSshSignature({ armored: approvalSignature(signer, head), message: msg, namespace: APPROVAL_NAMESPACE, publicKeyLine: signer.publicLine, policy });
+    ok(find([mk(body(PLAIN_KEY))], head, [PLAIN_KEY.publicLine]) === null && find([mk(body(PLAIN_ECDSA))], head, [PLAIN_ECDSA.publicLine]) === null
+      && find([mk(body(PLAIN_KEY))], head, [PLAIN_KEY.publicLine, OWNER_KEY.publicLine]) === null,
+    "policy: a plain ed25519 or ecdsa owner key line with a perfectly valid signature is refused for approval (a key file cannot prove a person was present), even beside a real sk key");
+    ok(plainCheck(PLAIN_KEY).ok && plainCheck(PLAIN_ECDSA).ok && /not a security key/.test(plainCheck(PLAIN_KEY, APPROVAL_POLICY).reason || "") && /not a security key/.test(plainCheck(PLAIN_ECDSA, { requireSecurityKey: true }).reason || ""),
+      "policy: the generic verifier still accepts a plain key when no policy is passed, and with the policy refuses it with its own reason");
+    ok(APPROVAL_POLICY.requireSecurityKey === true && APPROVAL_POLICY.requireUserVerification === true && Object.isFrozen(APPROVAL_POLICY), "policy: the approval policy requires a security key and user verification, and is frozen");
+    for (const [label, signer] of [["sk-ed25519", OWNER_KEY], ["sk-ecdsa", ECDSA_KEY]]) {
+      const keys = [signer.publicLine];
+      const withFlags = (signedFlags, blobFlags) => mk(`${line(head)}\n${skSign(signer, { message: msg, signedFlags, blobFlags })}`);
+      const checkFlags = (signedFlags, policy) => checkSshSignature({ armored: skSign(signer, { message: msg, signedFlags }), message: msg, namespace: APPROVAL_NAMESPACE, publicKeyLine: signer.publicLine, policy });
+      ok(find([withFlags(0x05)], head, keys)?.id === 5000 && find([mk(body(signer))], head, keys)?.id === 5000, `policy (${label}): flags 0x05 (touch and PIN) are approved, and that is the kit's default`);
+      ok(find([withFlags(0x01)], head, keys) === null && /without user verification/.test(checkFlags(0x01, APPROVAL_POLICY).reason || ""),
+        `policy (${label}): touch only (flags 0x01, no PIN) is refused, with the user-verification reason`);
+      ok(checkFlags(0x01).ok && checkFlags(0x01, { requireSecurityKey: true }).ok, `policy (${label}): the generic verifier accepts touch only when no UV is required`);
+      ok(find([withFlags(0x04)], head, keys) === null && find([withFlags(0x00)], head, keys) === null && /no touch/.test(checkFlags(0x04, APPROVAL_POLICY).reason || ""),
+        `policy (${label}): PIN without a touch (0x04) and no flags (0x00) are refused`);
+      ok(find([withFlags(0x01, 0x05)], head, keys) === null && /does not verify/.test(checkSshSignature({ armored: skSign(signer, { message: msg, signedFlags: 0x01, blobFlags: 0x05 }), message: msg, namespace: APPROVAL_NAMESPACE, publicKeyLine: signer.publicLine, policy: APPROVAL_POLICY }).reason || ""),
+        `policy (${label}): claiming user verification in the blob when the key signed without it breaks the signature (the flags are covered)`);
+      ok(find([withFlags(0x0d)], head, keys)?.id === 5000, `policy (${label}): extra flag bits beside touch and PIN do not matter (0x0d)`);
     }
-    const kp = generateKeyPairSync("ec", { namedCurve: "prime256v1" });
-    const jwk = kp.publicKey.export({ format: "jwk" });
-    const point = Buffer.concat([Buffer.from([4]), Buffer.from(jwk.x, "base64url"), Buffer.from(jwk.y, "base64url")]);
-    const type = "sk-ecdsa-sha2-nistp256@openssh.com";
-    const keyBlob = Buffer.concat([S_(type), S_("nistp256"), S_(point), S_(APP)]);
-    return { type, publicLine: `${type} ${keyBlob.toString("base64")} test-sk`, keyBlob,
-      sigBody: (data) => { const rs = cryptoSign("sha256", data, { key: kp.privateKey, dsaEncoding: "ieee-p1363" }); return S_(Buffer.concat([S_(mpint(rs.subarray(0, 32))), S_(mpint(rs.subarray(32)))])); } };
-  };
-  const skSign = (key, { message, namespace = APPROVAL_NAMESPACE, hashAlg = "sha512", signedFlags = 1, blobFlags = signedFlags, counter = 7 }) => {
-    const signed = Buffer.concat([Buffer.from("SSHSIG"), S_(namespace), S_(""), S_(hashAlg), S_(createHash(hashAlg).update(message).digest())]);
-    const u2f = Buffer.concat([sha256(APP), Buffer.from([signedFlags]), u32(counter), sha256(signed)]);
-    const sigBlob = Buffer.concat([S_(key.type), key.sigBody(u2f), Buffer.from([blobFlags]), u32(counter)]);
-    return armorOf(Buffer.concat([Buffer.from("SSHSIG"), u32(1), S_(key.keyBlob), S_(namespace), S_(""), S_(hashAlg), S_(sigBlob)]));
-  };
-  for (const kind of ["ed", "ec"]) {
-    const key = makeSk(kind);
+    ok(approvedCommitCandidates([mk(`${line(other)}\n${approvalSignature(OWNER_KEY, other, 0x01)}`)], head, OWNERS, KEYS).length === 0
+      && approvedCommitCandidates([mk(`${line(other)}\n${approvalSignature(PLAIN_KEY, other)}`)], head, OWNERS, [PLAIN_KEY.publicLine]).length === 0
+      && approvedCommitCandidates([mk(body(OWNER_KEY, other))], head, OWNERS, KEYS).length === 1,
+    "policy: carry-forward candidates need the same security-key, touch-and-PIN signature");
+    const noSk = decideOwnerApprovalRaw({ changedPaths: ["AGENTS.md"], mergeGate: true, pr: { number: 7, eventHeadSha: head, liveHeadSha: head }, comments: [mk(body(PLAIN_KEY))], error: null }, [PLAIN_KEY.publicLine]);
+    ok(!noSk.ok && /security-key type/.test(noSk.reason), "policy: when no configured line is a security key, the refusal says only security keys can approve");
+  }
+
+  // Security-key (sk-*) signatures against the generic verifier (no policy), built with node:crypto per PROTOCOL.sshsig + PROTOCOL.u2f.
+  for (const [kind, key] of [["ed", OWNER_KEY], ["ec", ECDSA_KEY]]) {
     const keys = [key.publicLine];
     const msg = approvalMessageLiteral(head);
     const cm = (armored) => mk(`${line(head)}\n${armored}`);
-    ok(find([cm(skSign(key, { message: msg, signedFlags: 1 }))], head, keys)?.id === 5000 && find([cm(skSign(key, { message: msg, signedFlags: 5 }))], head, keys)?.id === 5000,
-      `sk-${kind}: a security-key signature with user presence (touch) set is accepted (flags 0x01, and 0x05 with user verification)`);
-    ok(find([cm(skSign(key, { message: msg, signedFlags: 0 }))], head, keys) === null && /no touch/.test(checkSshSignature({ armored: skSign(key, { message: msg, signedFlags: 0 }), message: msg, namespace: APPROVAL_NAMESPACE, publicKeyLine: key.publicLine }).reason || ""),
+    const generic = (armored, extra = {}) => checkSshSignature({ armored, message: msg, namespace: APPROVAL_NAMESPACE, publicKeyLine: key.publicLine, ...extra });
+    ok(generic(skSign(key, { message: msg, signedFlags: 1 })).ok && generic(skSign(key, { message: msg, signedFlags: 5 })).ok,
+      `sk-${kind}: the generic verifier accepts a security-key signature with user presence (touch) set (flags 0x01, and 0x05 with user verification)`);
+    ok(find([cm(skSign(key, { message: msg, signedFlags: 0 }))], head, keys) === null && /no touch/.test(generic(skSign(key, { message: msg, signedFlags: 0 })).reason || ""),
       `sk-${kind}: user presence NOT set (flags 0x00) is refused, with that reason`);
-    ok(find([cm(skSign(key, { message: msg, signedFlags: 0, blobFlags: 1 }))], head, keys) === null && find([cm(skSign(key, { message: msg, signedFlags: 1, blobFlags: 0 }))], head, keys) === null,
+    ok(!generic(skSign(key, { message: msg, signedFlags: 0, blobFlags: 1 })).ok && !generic(skSign(key, { message: msg, signedFlags: 1, blobFlags: 0 })).ok,
       `sk-${kind}: flipping the presence flag in the signature blob breaks it (the flags are covered by the signature)`);
     ok(find([cm(skSign(key, { message: msg, counter: 7 }))], head, keys)?.id === 5000 && find([cm(skSign(key, { message: msg.replace(head, other) }))], head, keys) === null
-      && find([cm(skSign(key, { message: msg, namespace: "git" }))], head, keys) === null,
+      && find([cm(skSign(key, { message: msg, namespace: "not-the-approval-namespace" }))], head, keys) === null,
     `sk-${kind}: bound to the message and the namespace like any other signature`);
     ok(find([cm(skSign(key, { message: msg, hashAlg: "sha256" }))], head, keys)?.id === 5000 && find([cm(skSign(key, { message: msg, hashAlg: "sha1" }))], head, keys) === null,
       `sk-${kind}: sha256 and sha512 are accepted, any other hash algorithm is refused`);
@@ -465,7 +503,7 @@ globalThis.fetch = async (url, init = {}) => {
   ok(uses.length === 2 && uses.every((u) => /@[0-9a-f]{40}$/.test(u)), `owner-approval pins every action to a full commit sha (${uses.join(", ")})`);
 }
 
-const EXPECTED = 108;
+const EXPECTED = 135;
 if (checks !== EXPECTED) {
   console.error(`test-owner-approval: FAIL — ran ${checks} assertions, expected exactly ${EXPECTED}; a proof was skipped or added without review.`);
   process.exit(1);
