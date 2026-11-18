@@ -27,7 +27,7 @@ export default function ThisWeekEvents({ events, guide = null }) {
         {cards.map((e) => (
           <a key={e.slug} href={e.href} data-hub={e.hub ? e.slug : undefined} style={{ flex: "0 0 168px", scrollSnapAlign: "start", textDecoration: "none", border: "1px solid " + C.border, borderRadius: 14, background: "#0B0E15", overflow: "hidden", fontFamily: "var(--wf-sans)" }}>
             <div style={{ position: "relative", width: "100%", aspectRatio: "16 / 10", background: "#141A24" }}>
-              {e.image ? <CardPhoto inLink src={e.image} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: e.position || undefined, display: "block" }} fallbackCategory="events" /> : null}
+              {e.image ? <CardPhoto inLink loading="lazy" src={e.image} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: e.position || undefined, display: "block" }} fallbackCategory="events" /> : null}
               {e.credit ? <span style={{ position: "absolute", left: 0, right: 0, bottom: 0, padding: "2px 6px", fontSize: 9, lineHeight: 1.3, color: "rgba(255,255,255,.85)", background: "linear-gradient(transparent, rgba(0,0,0,.55))", textAlign: "right", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>Photo: {e.credit}</span> : null}
             </div>
             <div style={{ padding: "8px 10px 10px" }}>
