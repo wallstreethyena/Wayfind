@@ -1268,9 +1268,9 @@ export default function DetailSheet({ ctx }) {
               {expandedHero ? (
                 <div data-detail-photo-gallery style={{ position: "relative", paddingTop: "calc(52px + env(safe-area-inset-top))" }}>
                   <div data-detail-photo-media style={{ ...PLACE_DETAIL_PHOTO_STANDARD.frame, position: "relative", overflow: "hidden", background: C.bg }}>
-                    {showHero ? <div ref={galleryRef} onScroll={onGalleryScroll} style={{ position: "absolute", inset: 0, display: "flex", gap: 6, overflowX: "auto", overscrollBehaviorX: "contain", scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch", scrollbarWidth: "none" }}>
+                    {showHero ? <div ref={galleryRef} onScroll={onGalleryScroll} style={{ position: "absolute", inset: 0, display: "flex", gap: 0, overflowX: "auto", overscrollBehaviorX: "contain", scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch", scrollbarWidth: "none" }}>
                     {galleryPhotos.map((src, i) => (
-                      <FallbackImg defer={i >= 2} fit={PLACE_DETAIL_PHOTO_STANDARD.image.objectFit} alt={detail.name} key={src} src={src} icon={detail._event ? "🎟️" : undefined} category={primaryCategory(detail)} onClick={() => setLightbox(src)} style={{ width: galleryPhotos.length > 1 ? "78%" : "100%", flexShrink: 0, height: "100%", background: C.bg, scrollSnapAlign: "start", scrollSnapStop: "always", cursor: "zoom-in" }} />
+                      <FallbackImg defer={i >= 2} fit={PLACE_DETAIL_PHOTO_STANDARD.image.objectFit} alt={detail.name} key={src} src={src} icon={detail._event ? "🎟️" : undefined} category={primaryCategory(detail)} onClick={() => { setLightbox(src); try { logEvent("photo_viewer_open", detail, { surface: "place_sheet", photo_index: i + 1, photo_count: galleryPhotos.length }); } catch (e) {} }} style={{ width: "100%", flexShrink: 0, height: "100%", background: C.bg, scrollSnapAlign: "start", scrollSnapStop: "always", cursor: "zoom-in" }} />
                     ))}
                     </div> : <div data-detail-photo-pending style={{ position: "absolute", inset: 0, display: "grid", placeItems: "center", color: C.muted, fontSize: 12 }}>Loading photo…</div>}
                   </div>

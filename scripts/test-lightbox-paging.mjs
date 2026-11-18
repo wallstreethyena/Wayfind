@@ -77,7 +77,7 @@ ok(/lastLightboxIndex\.current/.test(home) && /galleryRef\.current/.test(home),
   "closing the viewer must scroll the sheet gallery to the photo the viewer was left on.");
 
 // ─── 6. the two lists must stay the same list ────────────────────────────────
-ok(/const galleryPhotos = detailGalleryPhotos\(detail\);/.test(detail) && /galleryPhotos\.map\(\(src, i\) =>/.test(detail) && /onClick=\{\(\) => setLightbox\(src\)\}/.test(detail),
+ok(/const galleryPhotos = detailGalleryPhotos\(detail\);/.test(detail) && /galleryPhotos\.map\(\(src, i\) =>/.test(detail) && /onClick=\{\(\) => (?:setLightbox\(src\)\}|\{ setLightbox\(src\);)/.test(detail),
   "the sheet gallery must still open the viewer on the tapped src from detailGalleryPhotos(detail) — if these two "
   + "ever read different arrays the n / total counter lies.");
 {
