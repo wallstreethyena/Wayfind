@@ -66,7 +66,8 @@ try {
   assert.equal(globalThis.__viatorState.calls, 1); assert.equal(globalThis.__viatorState.grants.length, 2);
   // Exercise the actual PostgREST writer with a sanitized in-memory DB.
   const { persistOffer } = await import("../lib/verifiedOfferStore.js");
-  const previousEnv = { SUPABASE_URL: process.env.SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY };
+  // This standalone fixture runs in its own Node process. Set and clear
+  // every credential it uses without importing values from the shell.
   const oldWarn = console.warn;
   const warnings = [], rows = new Map(), lookups = [];
   let posts = 0;
@@ -104,10 +105,9 @@ try {
     assert(warnings.every(w => Object.keys(w).sort().join() === "outcome,reason,tag"));
   } finally {
     console.warn = oldWarn;
-    for (const [k,v] of Object.entries(previousEnv)) { if(v === undefined) delete process.env[k]; else process.env[k]=v; }
+    delete process.env.SUPABASE_URL; delete process.env.SUPABASE_SERVICE_ROLE_KEY;
   }
   // A definitive score without a confirmed write must not make a green cron.
-  const originalCronSecret = process.env.CRON_SECRET;
   try {
     process.env.CRON_SECRET = "fixture-cron";
     const cronSource = readFileSync("app/api/cron/verify-offers/route.js", "utf8").replace(/^import[^;]+;\n/gm, "");
@@ -125,7 +125,7 @@ try {
     assert.equal(response.status,500); assert.equal(result.checked,2); assert.equal(result.stillLive,0); assert.equal(result.suppressed,0);
     assert.equal(result.writeError,2); assert.equal(globalThis.__viatorState.pulse.failed,2); assert.equal(globalThis.__viatorState.pulse.succeeded,0);
   } finally {
-    if(originalCronSecret === undefined) delete process.env.CRON_SECRET; else process.env.CRON_SECRET = originalCronSecret;
+    delete process.env.CRON_SECRET;
   }
   const stateLogs = logs.map((x) => { try { return JSON.parse(x); } catch { return null; } }).filter((x) => x?.tag === "viator_provider_state");
   assert(stateLogs.length >= VIATOR_PROVIDER_STATES.length);
