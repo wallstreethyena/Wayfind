@@ -2710,3 +2710,8 @@ node scripts/test-home-landing-thanksgiving.mjs
 
 # Universal holiday atlas: real targets and actual food media, not screenshot crops.
 node scripts/check-universal-holiday-guide.mjs
+node scripts/check-creator-video-rules.mjs
+node scripts/check-rail-position-counter.mjs
+
+# Portrait photos show whole (contain over blurred fill) on event hero, place sheet, paid landing.
+node scripts/check-portrait-photo-fit.mjs

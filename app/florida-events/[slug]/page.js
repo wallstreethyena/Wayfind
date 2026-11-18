@@ -1,4 +1,5 @@
 import CommerceClickBeacon from "../../components/CommerceClickBeacon";
+import { creatorCoversFor } from "../../../lib/creatorCovers.js";
 import { eventCostSummary, eventRestrictions } from "../../../lib/eventVisitFacts.js";
 import { eventImageIsVenue } from "../../../lib/fallEventImage.js";
 import { christmasEventPageRow, retiredChristmasEventTarget } from "../../../lib/christmasEventPage.js";
@@ -261,7 +262,13 @@ export default async function CuratedEventPage({ params }) {
   // event's already-cleared hero as the click-to-load cover so that promise is
   // visible before Instagram's third-party iframe is requested.
   // A Google venue photo (/api/photo) cannot be a bare <img> cover (credited lane only), so it is not the creator-post cover.
-  const socialPoster = heroSrc && !heroSrc.startsWith("/api/photo") ? heroSrc : null;
+  // Owner 2026-11-18: no creator tile without a picture. When the hero is a
+  // Google photo (not allowed as a bare cover), use our own credited photo of
+  // the venue instead (lib/creatorCovers.js).
+  const heroCover = heroSrc && !heroSrc.startsWith("/api/photo") ? heroSrc : null;
+  const venueCover = !heroCover && socialPosts.length && e.place_id ? (await creatorCoversFor([e.place_id]))[e.place_id] || null : null;
+  const socialPoster = heroCover || venueCover?.src || null;
+  const socialPosterCredit = heroCover ? null : venueCover?.credit || null;
   const socialPosterFallback = shots && shots.hero ? (e.hero_image || null) : null;
   const socialDetails = (post) => <>
     <div style={{ padding: "18px 16px 14px" }}>
@@ -484,6 +491,7 @@ export default async function CuratedEventPage({ params }) {
                     url={post.url}
                     label={`@${post.creator}'s post about ${e.event_name}`}
                     poster={socialPoster}
+                    posterCredit={socialPosterCredit}
                     fallbackPoster={socialPosterFallback}
                     coverTitle={e.event_name}
                     coverCity={e.city}
